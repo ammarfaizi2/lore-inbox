@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263457AbUDGNXh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 09:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263509AbUDGNXY
+	id S263271AbUDGNZz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 09:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263365AbUDGNZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 09:23:24 -0400
-Received: from [159.226.248.195] ([159.226.248.195]:59301 "EHLO
-	dns.sinosoft.com.cn") by vger.kernel.org with ESMTP id S263457AbUDGNXP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 09:23:15 -0400
-Message-ID: <407400F1.8090809@sinosoft.com.cn>
-Date: Wed, 07 Apr 2004 21:24:01 +0800
-From: Gewj <geweijin@sinosoft.com.cn>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; zh-CN; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: zh-cn
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: A puzzling thing about RAID5: syslogd write the log success but another
- process can not read the /var/log/messages
-Content-Type: text/plain; charset=GB2312
+	Wed, 7 Apr 2004 09:25:55 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:54659 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S263271AbUDGNYc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 09:24:32 -0400
+Subject: Re: 2.6.5-mm2
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Brice Goglin <Brice.Goglin@ens-lyon.fr>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040407001004.0360a049.akpm@osdl.org>
+References: <20040406223321.704682ed.akpm@osdl.org>
+	<20040407065154.GG1139@ens-lyon.fr>  <20040407001004.0360a049.akpm@osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 07 Apr 2004 08:24:17 -0500
+Message-Id: <1081344258.10773.3.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hammm,tonight is funny because I got a puzzling thing just as....
+On Wed, 2004-04-07 at 02:10, Andrew Morton wrote:
+> It looks like Mr SCSI forgot to commit his changes to sr.h.
 
-my setup is a two-scsi-disk raid5 configuration...
-(Linux version 2.4.18-18.7.xsmp (Red Hat Linux 7.3 2.96-112)) #1 SMP Wed
-Nov 13 19:01:42 EST 2002)
-it work well for a long time, but now I found some day early one of the
-scsi disks failed, and I found out
-that that time syslogd restarted(why??) and it could write log infor to
-log file successfully.
-but at the same time , another process(named such as B,run by root) can
-not read
-the /var/log/messages,or what's more exactly, the messages file was look
-like empty to B then.
-(of course, the syslogd write log infor to /var/log/messages )
+Hmm, I seem to be having a lot of source control fiasco's recently.
 
-I wonder that if syslogd write the log infor to the well-work scsi disk
-, but the process B
-read the /var/log/messages from the crashed scsi disk,which cause it
-just like a empty file.
+The attached is the missing header patch (which I've also put in
+scsi-misc-2.6)
 
-yes, it is quite unbelievable. but can some one show me a clue to this
-puzzling problem?
-What is the proper course of this action?
+James
 
-
-
-
-
-
-
-
-
+===== drivers/scsi/sr.h 1.10 vs edited =====
+--- 1.10/drivers/scsi/sr.h	Mon May 26 04:50:43 2003
++++ edited/drivers/scsi/sr.h	Mon Apr  5 15:51:37 2004
+@@ -36,6 +36,9 @@
+ 	unsigned readcd_known:1;	/* drive supports READ_CD (0xbe) */
+ 	unsigned readcd_cdda:1;	/* reading audio data using READ_CD */
+ 	struct cdrom_device_info cdi;
++	/* We hold gendisk and scsi_device references on probe and use
++	 * the refs on this kobj to decide when to release them */
++	struct kobject kobj;
+ 	struct gendisk *disk;
+ } Scsi_CD;
+ 
 

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132886AbRDEUNJ>; Thu, 5 Apr 2001 16:13:09 -0400
+	id <S132968AbRDEUbC>; Thu, 5 Apr 2001 16:31:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132978AbRDEUMt>; Thu, 5 Apr 2001 16:12:49 -0400
-Received: from jffdns01.or.intel.com ([134.134.248.3]:55563 "EHLO
-	ganymede.or.intel.com") by vger.kernel.org with ESMTP
-	id <S132886AbRDEUMm>; Thu, 5 Apr 2001 16:12:42 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E8905DE810@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Trever L. Adams'" <trever_Adams@bigfoot.com>,
-        linux Kernel <linux-kernel@vger.kernel.org>
-Cc: "Acpi-linux (E-mail)" <acpi@phobos.fachschaften.tu-muenchen.de>
-Subject: RE: 2.4.3 (and possibly 2.4.2) don't enter S5 (ACPI) on shutdown
-Date: Thu, 5 Apr 2001 13:11:47 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S132935AbRDEUax>; Thu, 5 Apr 2001 16:30:53 -0400
+Received: from [209.250.53.51] ([209.250.53.51]:26122 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S132968AbRDEUan>; Thu, 5 Apr 2001 16:30:43 -0400
+Date: Thu, 5 Apr 2001 15:28:59 -0500
+From: Steven Walter <trwalter@apex.net>
+To: "Sarda?ons, Eliel" <Eliel.Sardanons@philips.edu.ar>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel/sched.c questions
+Message-ID: <20010405152859.A16443@hapablap.dyn.dhs.org>
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA028416D@MAINSERVER>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <A0C675E9DC2CD411A5870040053AEBA028416D@MAINSERVER>; from Eliel.Sardanons@philips.edu.ar on Wed, Apr 04, 2001 at 04:52:32PM -0300
+X-Uptime: 3:07pm  up 2 days, 18:24,  1 user,  load average: 2.19, 1.85, 1.38
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Trever L. Adams [mailto:trever_Adams@bigfoot.com]
-> 2.4.3 no longer shuts down automatically with S5.
-> 
-> [2.] Full description of the problem/report:
-> 
-> 2.4.3 no longer shuts down automatically with S5.  I have an Athlon 
-> based system using the FIC-SD11 motherboard.  In 2.4.1 and possibly 
-> 2.4.2 the system used to shut down just fine.
+On Wed, Apr 04, 2001 at 04:52:32PM -0300, Sarda?ons, Eliel wrote:
+> switch (prev->state) {
+>                 case TASK_INTERRUPTIBLE:
+>                         if (signal_pending(prev)) {
+>                                 prev->state = TASK_RUNNING;
+>                                 break;
+>                         }
+>                 default:
+>                         del_from_runqueue(prev);
+>                 case TASK_RUNNING:
+> }
 
-This is the most likely culprit. Trevor please let me know if this does it:
+I'm not sure about the other two, but this one is pretty straight
+forward:  its listed explicitly because we don't want tasks with 
+p->state TASK_RUNNING to fall into the default case, that is, getting
+deleted from the runqueue.  This would be bad.
 
---- linux/drivers/acpi/hardware/hwsleep.c.orig	Fri Feb  9 11:45:58 2001
-+++ linux/drivers/acpi/hardware/hwsleep.c	Thu Apr  5 12:11:54 2001
-@@ -179,8 +179,6 @@
- 
- 	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_a_CONTROL, PM1_acontrol);
- 	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_b_CONTROL, PM1_bcontrol);
--	acpi_hw_register_write(ACPI_MTX_LOCK, PM1_CONTROL,
--		(1 << acpi_hw_get_bit_shift (SLP_EN_MASK)));
- 
- 	enable();
-
-
+-- 
+-Steven
+Freedom is the freedom to say that two plus two equals four.

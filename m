@@ -1,57 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266421AbRGCCGy>; Mon, 2 Jul 2001 22:06:54 -0400
+	id <S266422AbRGCCjv>; Mon, 2 Jul 2001 22:39:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266422AbRGCCGp>; Mon, 2 Jul 2001 22:06:45 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:39077 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S266421AbRGCCGc>;
-	Mon, 2 Jul 2001 22:06:32 -0400
-Message-ID: <3B4128A5.636ED850@mandrakesoft.com>
-Date: Mon, 02 Jul 2001 22:06:29 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre8 i686)
-X-Accept-Language: en
+	id <S266424AbRGCCjl>; Mon, 2 Jul 2001 22:39:41 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:15887 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S266422AbRGCCj2>; Mon, 2 Jul 2001 22:39:28 -0400
+Date: Mon, 2 Jul 2001 19:39:05 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: David T Eger <eger@cc.gatech.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: readl() / writel() on PowerPC
+In-Reply-To: <Pine.SOL.4.21.0107022017370.23357-100000@oscar.cc.gatech.edu>
+Message-ID: <Pine.LNX.4.10.10107021935590.8156-100000@transvirtual.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Russell King <rmk@arm.linux.org.uk>, David Woodhouse <dwmw2@infradead.org>,
-        David Howells <dhowells@redhat.com>, Jes Sorensen <jes@sunsite.dk>,
-        linux-kernel@vger.kernel.org, arjanv@redhat.com,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [RFC] I/O Access Abstractions
-In-Reply-To: <E15HA1D-0006W0-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+> I have been working on a driver for a PowerPC PCI card/framebuffer device,
+> and noticed that the standard readl() and writel() for this platform to
+> byte swapping, since PowerPC runs big-endian.  However, at least for my
+> hardware it's *really* not needed, and should just do a regular load
+> store, as is done for CONFIG_APUS.  Looking at another driver
+> (drivers/char/bttv.h) I notice that Mr. Metzler redefines his read and
+> write routines for PowerPC as well to do simple loads and stores to IO
+> regions.
 > 
-> > > >       You pass a single cookie to the readb code
-> > > >       Odd platforms decode it
-> > >
-> > > Last time I checked, ioremap didn't work for inb() and outb().
-> >
-> > It should :)
-> 
-> it doesnt need to.
-> 
-> pci_find_device returns the io address and can return a cookie, ditto
-> isapnp etc
+> Am I missing something?  Is there some reason that readl() and
+> writel() should byte-swap by default?
 
-Is the idea here to mitigate the amount of driver code changes, or
-something else?
+Use the fb_writeX/fb_readX functions in fbcon.h. They take care of these
+issues.
 
-If you are sticking a cookie in there behind the scenes, why go ahead
-and use ioremap?
+P.S
+   Watchout for userland programs. You can NOT use memset on the
+framebuffer on PPC due to caching issues. Use have to use tricks similar
+to what is done in fbcon.h with fb_memset.
+   
 
-We -already- have a system which does remapping and returns cookies and
-such for PCI mem regions.  Why not use it for I/O regions too?
-
-	Jeff
-
-
--- 
-Jeff Garzik      | "I respect faith, but doubt is
-Building 1024    |  what gives you an education."
-MandrakeSoft     |           -- Wilson Mizner

@@ -1,89 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264252AbTFITJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 15:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbTFITJ5
+	id S264453AbTFITNA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 15:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264455AbTFITNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 15:09:57 -0400
-Received: from 12-221-81-65.client.insightBB.com ([12.221.81.65]:36879 "HELO
-	apathy.killer-robot.net") by vger.kernel.org with SMTP
-	id S264252AbTFITJr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 15:09:47 -0400
-Date: Mon, 9 Jun 2003 14:23:25 -0500
-From: Maciej Babinski <maciej@killer-robot.net>
+	Mon, 9 Jun 2003 15:13:00 -0400
+Received: from hematita.dcc.ufmg.br ([150.164.10.11]:16528 "EHLO
+	hematita.dcc.ufmg.br") by vger.kernel.org with ESMTP
+	id S264453AbTFITM7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 15:12:59 -0400
+Date: Mon, 9 Jun 2003 16:26:01 -0300 (BRT)
+From: "Leonardo H. Machado" <leoh@dcc.ufmg.br>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] CIFS oops
-Message-ID: <20030609192325.GA24583@apathy.black-flower>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Subject: Re: cachefs on linux
+Message-ID: <Pine.LNX.4.44.0306091624370.14854-100000@volga.dcc.ufmg.br>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a non-critical oops that occurs when the cifs module is
-removed from the kernel. It uses the completion.h mechanism to
-ensure that the cifsoplockd kernel thread exits before the module is
-unloaded.
-
-                                    -- Maciej Babinski
 
 
---- linux-2.5.70.old/fs/cifs/cifsfs.c	Mon May 26 20:00:40 2003
-+++ linux-2.5.70/fs/cifs/cifsfs.c	Mon Jun  9 12:59:31 2003
-@@ -62,6 +62,8 @@
- void cifs_proc_init(void);
- void cifs_proc_clean(void);
- 
-+static DECLARE_COMPLETION(cifsoplock_exited);
-+
- static int
- cifs_read_super(struct super_block *sb, void *data,
- 		const char *devname, int silent)
-@@ -423,7 +425,8 @@
- 		       "cifs_destroy_mids: error not all structures were freed\n");
- 	if (kmem_cache_destroy(cifs_oplock_cachep))
- 		printk(KERN_WARNING
--		       "error not all oplock structures were freed\n");}
-+		       "error not all oplock structures were freed\n");
-+}
- 
- static int cifs_oplock_thread(void * dummyarg)
- {
-@@ -435,10 +438,10 @@
- 	int rc;
- 
- 	daemonize("cifsoplockd");
--	allow_signal(SIGKILL);
-+	allow_signal(SIGTERM);
- 
- 	oplockThread = current;
--	while (1) {
-+	do {
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		schedule_timeout(100*HZ);
- 		/* BB add missing code */
-@@ -466,7 +469,9 @@
- 		}
- 		write_unlock(&GlobalMid_Lock);
- 		cFYI(1,("next time through while loop")); /* BB remove */
--	}
-+	} while (!signal_pending(current));
-+
-+	complete_and_exit (&cifsoplock_exited, 0);
- }
- 
- static int __init
-@@ -528,8 +533,10 @@
- 	cifs_destroy_inodecache();
- 	cifs_destroy_mids();
- 	cifs_destroy_request_bufs();
--	if(oplockThread)
--		send_sig(SIGKILL, oplockThread, 1);
-+	if(oplockThread) {
-+		send_sig(SIGTERM, oplockThread, 1);
-+		wait_for_completion(&cifsoplock_exited);
-+	}
- }
- 
- MODULE_AUTHOR("Steve French <sfrench@us.ibm.com>");
+ 	Dear Sirs,
+
+ 	I'm using linux and solaris for a while and, after seaching all
+ the web, newsgroups, and mailing lists I could not find the answer for a
+ very simple question. Before emailing Alan Cox or any other guru (that
+ might not answer me) I will try to ask you. Here is my simple question:
+
+ 	Why has Solaris a CacheFS file system, while linux doesn't? Is it
+ because cachefs is VERY difficult to implement (It should be no barrier
+ for our gurus), or because there's no such a big demand for this marvelous
+ FS, or else, because no one thought of it?
+
+ 	There are certanly some cacheFS implementations around the web,
+ like CODA, but they are not free and not even so good as Solaris CacheFS.
+
+ 	Would you please help me with this question or at least tell me
+ where are the answers?
+
+ Thank you very much.
+
+
+ //leoh
+ main(){int j=1234;char t[]=":@abcdefghijklmnopqrstuvwxyz.\n"
+ ,*i = "iqgbgxmlvivuc\n:wwnfwsdoi"; char *strchr(char *,int);
+ while(*i){j+=strchr(t,*i++)-t;j%=sizeof t-1;putchar(t[j]);}}
+
+
+

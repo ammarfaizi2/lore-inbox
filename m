@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290666AbSBLBBv>; Mon, 11 Feb 2002 20:01:51 -0500
+	id <S290671AbSBLBFB>; Mon, 11 Feb 2002 20:05:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290665AbSBLBBn>; Mon, 11 Feb 2002 20:01:43 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:42177 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S290669AbSBLBBa>;
-	Mon, 11 Feb 2002 20:01:30 -0500
-Date: Mon, 11 Feb 2002 17:01:24 -0800
-From: David Mosberger <davidm@hpl.hp.com>
-Message-Id: <200202120101.g1C11OJZ010115@napali.hpl.hp.com>
-To: anton@samba.org, davem@redhat.com
-Subject: Re: thread_info implementation
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-In-Reply-To: <20020211.164617.39155905.davem@redhat.com>
+	id <S290665AbSBLBEw>; Mon, 11 Feb 2002 20:04:52 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23815 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S290677AbSBLBEb>; Mon, 11 Feb 2002 20:04:31 -0500
+Subject: Re: [Alsa-devel] Re: ALSA patch for 2.5.4
+To: James@superbug.demon.co.uk (James Courtier-Dutton)
+Date: Tue, 12 Feb 2002 01:16:27 +0000 (GMT)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik), mainlylinux@attbi.com (Dan Mann),
+        perex@perex.cz (Jaroslav Kysela),
+        alsa-devel@alsa-project.org (ALSA development),
+        linux-kernel@vger.kernel.org (LKML)
+In-Reply-To: <NGBBLNODKDFPBFMBBFAFGEFKCAAA.James@superbug.demon.co.uk> from "James Courtier-Dutton" at Feb 12, 2002 01:03:59 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16aRYZ-0000HE-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: 	Mon, 11 Feb 2002 16:46:17 -0800 (PST)
-> From: "David S. Miller" <davem@redhat.com>
->
->    From: Anton Blanchard <anton@samba.org>
->    Date: Tue, 12 Feb 2002 07:50:48 +1100
->
->    On archs where we use a register to point to current I cant see why we
->    need this thread_info junk. I'd be happy if we could put it all in the
->    task struct for non intel.
->
-> I am in fact very happy with the thread_info implementation
-> on sparc64.
->
-> I was able to blow away all of the assembler offset stuff because now
-> all the stuff assembly wants to get at is in one structure and it is
-> trivial to compute the offsets by hand.
+> I don't think that at this stage we should be talking to Linus Torvalds at
+> all. He is probably too busy.
 
-I hope you don't consider this a good argument to force all the other
-platforms to throw away their perfectly good low-core code.  Like
-Anton, I do not expect any benefits from thread_info for ia64.  In
-fact, if anything it's going to slow things down.  And we don't need
-it for task coloring either.  We can do that perfectly fine with the
-old setup.
+You think too much
 
-Thanks,
+> I think that a much better approach would be to talk to the current kernel
+> oss sound developers, and get alsa checked into the kernel via them.
 
-	--david
+Already done  - and Linus wants to work directly with them

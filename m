@@ -1,82 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbTAXUd4>; Fri, 24 Jan 2003 15:33:56 -0500
+	id <S265608AbTAXUlV>; Fri, 24 Jan 2003 15:41:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265475AbTAXUd4>; Fri, 24 Jan 2003 15:33:56 -0500
-Received: from packet.digeo.com ([12.110.80.53]:34521 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S265409AbTAXUdy>;
-	Fri, 24 Jan 2003 15:33:54 -0500
-Date: Fri, 24 Jan 2003 13:02:08 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: dementiev@mpi-sb.mpg.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: buffer leakage in kernel?
-Message-Id: <20030124130208.52583b24.akpm@digeo.com>
-In-Reply-To: <3E31364E.F3AFDCF0@mpi-sb.mpg.de>
-References: <3E31364E.F3AFDCF0@mpi-sb.mpg.de>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S265578AbTAXUlV>; Fri, 24 Jan 2003 15:41:21 -0500
+Received: from 200-206-134-238.async.com.br ([200.206.134.238]:11187 "EHLO
+	anthem.async.com.br") by vger.kernel.org with ESMTP
+	id <S265608AbTAXUlS>; Fri, 24 Jan 2003 15:41:18 -0500
+Date: Fri, 24 Jan 2003 18:49:51 -0200
+From: Christian Reis <kiko@async.com.br>
+To: neilb@cse.unsw.edu.au
+Cc: linux-kernel@vger.kernel.org, NFS@lists.sourceforge.net
+Subject: NFS client locking hangs for period
+Message-ID: <20030124184951.A23608@blackjesus.async.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Jan 2003 20:43:00.0711 (UTC) FILETIME=[2F3CDF70:01C2C3E9]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Dementiev <dementiev@mpi-sb.mpg.de> wrote:
->
-> Hello everyone,
-> 
-> I've met with following problem (kernel 2.4.20-pre4 ):
-> I write and read sequentially from/to 8 files each of 64 Gbytes (not a
-> mistake, 64 Gbyte),
-> each on different disk. The files are opened with flag O_DIRECT. I have
-> 1 Gbyte RAM, no swap.
-> While this scanning is running, number of "buffers" reported by ''free"
-> and in /proc/meminfo
-> is continuously increasing up to ~ 500 MB !!
 
-You did not specify the filesystem type.  I shall assume ext2.
+Hello Neil,
 
-This buffer growth is expected - ext2 uses one 4k indirect block to describe
-the disk location of 4M of file data.  Those indirect blocks are cached, and
-appear as "buffers" in the memory accounting.
+I've been trying to get at this problem for a while now, and had been
+concentrating on the client-side of the problem (and consequently
+bothering Trond about it) [1,2]. I am now pretty much convinced this is a
+server-side problem, and as I've patched 2.4.20 with all the NFS patches
+pending (that didn't have to do with the kernel lock breaking) and still
+see the issue, I decided to report this bug.
 
-So after having read 500G of ext2 file with O_DIRECT, you would expect there
-to be 500M of indirects in the block device pagecache.  (We shouldn't be
-calling this "buffers" any more.  That is inaccurate, and confuses people
-into thinking that Linux has a buffer cache).
+The scenario is: a set of NFS clients with root mounted over nfs from a
+single server. Clients run vanilla 2.4.20, server runs 2.4.20 patched
+with your server-side patches I mentioned above. The clients run okay
+for a period, and then one of them will start to hang for long periods
+of time for certain operations (it happens on startup and shutdown, for
+instance). Once the client hangs start the server needs to be rebooted
+for it to clear up.
 
-> When the program exits
-> normally or I break it, number
-> of "buffers" does not decrease and even increases if I do operations on
-> other files.
+It seems to be reproducible by having the client hang or reboot without
+shutting down properly. Another tip is that the server gets files left
+over in /var/lib/nfs/sm/ for the hanging client(s). 
 
-O_DIRECT operations, yes.  If you were to read one of these files without
-O_DIRECT, you should see "Buffers" decreasing as they are reclaimed to make
-way for the newly introduced file cache.
+I've been trying to track this down for a while, but since I'm not very
+proficient with debugging at this level, I haven't had much luck. It's
+really a problem because I need to reboot and make 20 people stop
+working when the problem gets serious. Trond has had a hand trying
+to help me, but we still haven't uncovered anything. I wonder if you
+have any clue what could be happenning?
 
-> This is not nice at all when I have another applications running
-> with memory consumption > 500 MB: when my "scanner" approaches 50G
-> border on
-> each disk, I've got numerous  "Out of memory" murders :(. Even 'ssh' to
-> this machine
-> is killed :(
-> 
-> Could anyone explain why it happens? I suppose that it is a memory
-> leakage in file system buffer management.
+The other details are standard: the clients are debian woodys with
+nfs-utils 1.0.1 installed, and the server has the same version. The
+server runs reiserfs over RAID-1 partitions (using the kernel md
+driver). Could it be triggered because of this perhaps unusual
+combination?
 
-Sounds like a bug.
+Some of the messages I point out below have some info about the issue -
+including tcpdumps and traces of nlm_debug on the server and client.
 
-Are you reading these large files via a single application, or via one
-process per file?
+Mount options follow for the client filesystems:
 
-How large is the buffer into which the application is performing the O_DIRECT
-read?
+anthem:/export/root/    /   nfs defaults,rw,rsize=8192,wsize=8192,nfsvers=2 0 0
+anthem:/home    /home   nfs defaults,rw,rsize=8192,wsize=8192,nfsvers=3 0 0
 
-Please perform this test:
+I have checked and, yes, root is mounted using version 2 and the rest as
+version 3. Perhaps I should try getting the kernel to mount root using
+version 3?
 
-1: Wait until you have 500M "Buffers"
-2: cat 64_gig_file > /dev/null
-3: Now see how large "Buffers" is.  It should have reduced a lot.
+[1] http://groups.google.com/groups?q=trond+christian+nfs&hl=pt&lr=&ie=UTF-8&client=googlet&scoring=d&selm=20030108151424.N2628%40blackjesus.async.com.br.lucky.linux.kernel&rnum=1
+[2] http://groups.google.com/groups?hl=pt&lr=&ie=UTF-8&client=googlet&th=3575b3c5f3360eb0&seekm=20030108151424.N2628%40blackjesus.async.com.br.lucky.linux.kernel&frame=off
 
+Thanks for any help you can give.
 
+Take care,
+--
+Christian Reis, Senior Engineer, Async Open Source, Brazil.
+http://async.com.br/~kiko/ | [+55 16] 261 2331 | NMFL

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262221AbTI2Uuo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 16:50:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbTI2Uuo
+	id S262202AbTI2Uub (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 16:50:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbTI2Uub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 16:50:44 -0400
-Received: from holomorphy.com ([66.224.33.161]:60067 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262221AbTI2Uum (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 16:50:42 -0400
-Date: Mon, 29 Sep 2003 13:51:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Frank Cusack <fcusack@fcusack.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2nd proc not seen
-Message-ID: <20030929205140.GQ4306@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Mikael Pettersson <mikpe@csd.uu.se>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Frank Cusack <fcusack@fcusack.com>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <20030904021113.A1810@google.com> <20030904091437.A25107@google.com> <20030928205045.B21288@google.com> <20030929085807.GA22884@werewolf.able.es> <16247.63409.996071.860727@gargle.gargle.HOWL>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16247.63409.996071.860727@gargle.gargle.HOWL>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 29 Sep 2003 16:50:31 -0400
+Received: from as13-5-5.has.s.bonet.se ([217.215.179.23]:34217 "EHLO
+	K-7.stesmi.com") by vger.kernel.org with ESMTP id S262202AbTI2Uu2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 16:50:28 -0400
+Message-ID: <3F789AAB.3000208@stesmi.com>
+Date: Mon, 29 Sep 2003 22:48:43 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20030916
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>
+Subject: [PATCH]Aironet driver does not compile in 2.4.23-pre5
+Content-Type: multipart/mixed;
+ boundary="------------010402020501080407040900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 29, 2003 at 11:13:21AM +0200, Mikael Pettersson wrote:
-> Problem #1 is that physical CPU numbering isn't dense. This is not a bug.
-> Problem #2 is that the kernel's internal dense-logical-to-sparse-physical
-> numbering was deleted in 2.5.23 or thereabouts.
-> Hence NR_CPUS is basically impossible to use reliably in 2.6 unless we
-> reintroduce cpu_logical_map[].
+This is a multi-part message in MIME format.
+--------------010402020501080407040900
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-We should be able to at least boot them, since we program logical ID's
-ourselves. If you're relying on knowing physids at runtime you'll need
-cpu_logical_map[].
+Hi.
 
+The Aironet driver does not compile under 2.4.23-pre5. Simple fix
+included.
 
--- wli
+// Stefan
+
+--------------010402020501080407040900
+Content-Type: text/plain;
+ name="airo-fix-2.4.23-pre5.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="airo-fix-2.4.23-pre5.diff"
+
+diff -urN linux-2.4.23-pre5/drivers/net/wireless/airo.c linux-2.4.23-pre5-new/drivers/net/wireless/airo.c
+--- linux-2.4.23-pre5/drivers/net/wireless/airo.c	2003-09-29 21:46:38.000000000 +0200
++++ linux-2.4.23-pre5-new/drivers/net/wireless/airo.c	2003-09-29 22:35:38.000000000 +0200
+@@ -202,7 +202,7 @@
+ #ifndef RUN_AT
+ #define RUN_AT(x) (jiffies+(x))
+ #endif
+-#if LINUX_VERSION_CODE < 0x020500
++#if LINUX_VERSION_CODE < 0x020417	/* 2.4.23 */
+ static inline struct proc_dir_entry *PDE(const struct inode *inode)
+ {
+ 	return inode->u.generic_ip;
+
+--------------010402020501080407040900--
+

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131605AbQLIWMx>; Sat, 9 Dec 2000 17:12:53 -0500
+	id <S130325AbQLIWYZ>; Sat, 9 Dec 2000 17:24:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132203AbQLIWMo>; Sat, 9 Dec 2000 17:12:44 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:52216 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131605AbQLIWM3>; Sat, 9 Dec 2000 17:12:29 -0500
-Date: Sat, 9 Dec 2000 19:41:54 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Pavel Machek <pavel@suse.cz>
-cc: kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: swapoff weird
-In-Reply-To: <20001209222427.A1542@bug.ucw.cz>
-Message-ID: <Pine.LNX.4.21.0012091941170.19389-100000@duckman.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130499AbQLIWYP>; Sat, 9 Dec 2000 17:24:15 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:63751 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130325AbQLIWYA>; Sat, 9 Dec 2000 17:24:00 -0500
+Date: Sat, 9 Dec 2000 15:49:16 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.2.18-25 DELL Laptop Video Problems
+Message-ID: <20001209154916.A14937@vger.timpanogas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Dec 2000, Pavel Machek wrote:
 
-> It is possible to remove swapfile in use. Great, but how do you
-> swap off then? Who is to blame?
 
-As usual, root is to blame ;)
+2.2.18-25 with Frame Buffer enabled will frizt and trash LCD displays
+on DELL laptop computers when the system kicks into graphics mode,
+and attempts to display the penguin images on the screen.  It 
+renders the anaconda installer dead in the water when you attempt 
+even a text mode install (not graphics) of a 2.2.18-25 kernel (and 24)
+on a DELL laptop.  Is there a way to turn on frame buffer without 
+kicking the kernel into mode 274 and killing DELL laptops during
+a text based install?
 
-> root@bug:~# swapoff /tmp/swap
-> swapoff: /tmp/swap: No such file or directory
-> root@bug:~# > /tmp/swap
-> root@bug:~# swapoff /tmp/swap
-> swapoff: /tmp/swap: Invalid argument
-> root@bug:~#
-
-Don't let your automatic /tmp cleaners remove the swap
-file ;)
-
-> How do I get out of this bad situation?
-
-Reboot.
-
-cheers,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+Jeff
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

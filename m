@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272559AbRIPRBT>; Sun, 16 Sep 2001 13:01:19 -0400
+	id <S272549AbRIPRGj>; Sun, 16 Sep 2001 13:06:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272549AbRIPRBL>; Sun, 16 Sep 2001 13:01:11 -0400
-Received: from mail.pha.ha-vel.cz ([195.39.72.3]:62989 "HELO
-	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
-	id <S272547AbRIPRA4>; Sun, 16 Sep 2001 13:00:56 -0400
-Date: Sun, 16 Sep 2001 19:01:17 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, linux-kernel@vger.kernel.org,
-        VDA@port.imtp.ilyichevsk.odessa.ua
-Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
-Message-ID: <20010916190117.A6307@suse.cz>
-In-Reply-To: <20010916155045.A5671@suse.cz> <E15idD9-0005LA-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E15idD9-0005LA-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Sep 16, 2001 at 03:47:55PM +0100
+	id <S272560AbRIPRGa>; Sun, 16 Sep 2001 13:06:30 -0400
+Received: from m3d.uib.es ([130.206.132.6]:60823 "EHLO m3d.uib.es")
+	by vger.kernel.org with ESMTP id <S272549AbRIPRGW>;
+	Sun, 16 Sep 2001 13:06:22 -0400
+Date: Sun, 16 Sep 2001 19:06:45 +0200 (MET)
+From: Ricardo Galli <gallir@m3d.uib.es>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: broken VM in 2.4.10-pre9
+In-Reply-To: <Pine.LNX.4.33L.0109161330000.9536-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.33.0109161856380.31311-100000@m3d.uib.es>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 16, 2001 at 03:47:55PM +0100, Alan Cox wrote:
-> > > One way to test this hypthesis maybe to run dmidecode on the machines and
-> > > see if they report KT133 or KT133A. Its also possible some BIOS code does
-> > > blindly program bit 7 even tho its reserved and should have been kept
-> > > unchanged.
-> > 
-> > I think it's possible to decide whether a chipset is KT133 or KT133A
-> > based on the hostbridge revision. Mine is KT133 and is rev 03.
-> 
-> That tells you the chipset of the bridge. dmidecode dumps bios strings which
-> may tell you the chipset the bios was actually for..
+On Sun, 16 Sep 2001, Rik van Riel wrote:
+>
+> > Is there a way to tell the VM to prune its cache? Or a way to limit
+> > the amount of cache it uses?
+>
+> Not yet, I'll make a quick hack for this when I get back next
+> week. It's pretty obvious now that the 2.4 kernel cannot get
+> enough information to select the right pages to evict from
+> memory.
 
-Ahh, yes.
+....
 
--- 
-Vojtech Pavlik
-SuSE Labs
+On Sun, 16 Sep 2001, Jeremy Zawodny wrote:
+>
+> Agreed. I'd be great if there was an option to say "Don't swap out
+> memory that was allocated by these programs. If you run out of disk
+> buffers, toss the oldest ones and start re-using them."
+
+More easy though (for cases of listening mp3's and backups): cache pages
+that were accesed only "once"(*) several seconds ago must be discarded
+first. It only implies a check against an access counter and a "last
+accesed"  epoch fields of the page.
+
+(*) Or by the same process/process group in a very short period, i.e. the
+last-access timestamp should be updated only if the previous access was
+few seconds ago.
+
+
+--ricardo
+

@@ -1,76 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261810AbSI2VkE>; Sun, 29 Sep 2002 17:40:04 -0400
+	id <S261820AbSI2WA3>; Sun, 29 Sep 2002 18:00:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261812AbSI2VkD>; Sun, 29 Sep 2002 17:40:03 -0400
-Received: from mta5.snfc21.pbi.net ([206.13.28.241]:11690 "EHLO
-	mta5.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S261810AbSI2VkA>; Sun, 29 Sep 2002 17:40:00 -0400
-Date: Sun, 29 Sep 2002 14:45:54 -0700
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: PROBLEM: kernel BUG in usb-ohci.c:902!
-To: Stephen Marz <smarz@host187.south.iit.edu>
+	id <S261823AbSI2WA3>; Sun, 29 Sep 2002 18:00:29 -0400
+Received: from pop.univ-lyon1.fr ([134.214.100.7]:14608 "HELO
+	pop.univ-lyon1.fr") by vger.kernel.org with SMTP id <S261820AbSI2WA1>;
+	Sun, 29 Sep 2002 18:00:27 -0400
+Subject: Re: IDE Problems with 2.5.39
+From: JF <mljf@altern.org>
+To: Andrew Walrond <andrew@walrond.org>
 Cc: linux-kernel@vger.kernel.org
-Message-id: <3D977492.4070604@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <Pine.LNX.4.44.0209291549390.1911-100000@host187.south.iit.edu>
+In-Reply-To: <3D9775BF.3090504@walrond.org>
+References: <3D9775BF.3090504@walrond.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033337141.9053.6.camel@I401.resi.insa-lyon.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 30 Sep 2002 00:05:41 +0200
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> code.  Here is my call trace:
+On Sun, 2002-09-29 at 23:50, Andrew Walrond wrote:
+> Hi,
 > 
-> uhci-irq [uchi-hcd]
-> usb_hcd_irq_Rfba60562 [usbcore]
-> handle_IRQ_event
-> do_IRQ
-> ...
+> I can't boot with 2.5.39 because the built-in  ide driver (ServerWorks 
+> CSB5) can't see hda, and VFS says "Cannot open root device "hda3" or 
+> 03:03" which results in a kernel panic
 > 
-> I am apparently hitting a different bug, but it inevitably comes from
-> the uhci-hcd driver (according to the panic).
+> Works fine with 2.4.20-pre? with identical kernel setup and kernel 
+> parameter root=/dev/hda3
+> 
+> Is this a known problem? Any way around it or patches?
 
-As I said:  you're not seeing "this problem".  And it's not a BUG().
-So now we agree ... ;-)
+I used to have this problem with 2.5 too
+It went from the IDE controller chipset.
 
-You might try sending the full oops report to the maintainer
-of that driver, or at least to the linux-usb-devel list.
-(The 2.5.39 code gives more info than you snipped...)  So far
-as I know, this problem has not been reported there.
+Are you sure that you have only 1 IDE controller chipset ?
 
-- Dave
+I have both PIIX4 and HPT366. Root FS is on HPT366 controller. Enabling
+only PIIX4 used to work with 2.4 but doesn't with 2.5 anymore (got
+exactly your problem). I had to enable specific support for both.
 
+I suppose your root FS is on a specific IDE controller for which the
+support is not enabled (check the different type in the IDE/ATA kernel
+config section)
 
-
-> Regards,
-> 
-> Stephen Marz
-> 
-> 
->>>I have noticed this problem in 2.5.39 except it occurs with the module
->>>uhci-hcd.
->>
-> 
->>No you haven't.  It doesn't have a file of that name, so you
->>didn't see such a BUG().  And I don't know about you, but my
->>copy of 2.5.39 has no BUG() anywhere in the ohci-hcd driver,
->>so it'd be hard seeing _any_ BUG() coming from there.
-> 
-> 
->>You might be hitting a different BUG(), but in that case you
->>would need to get your bug reports straight.
-> 
-> 
->>- Dave
-> 
-> 
-> 
-> 
-> 
-> 
-> 
-
-
+Regards.
 

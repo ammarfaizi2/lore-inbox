@@ -1,54 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315437AbSGEGCr>; Fri, 5 Jul 2002 02:02:47 -0400
+	id <S315439AbSGEGJp>; Fri, 5 Jul 2002 02:09:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSGEGCq>; Fri, 5 Jul 2002 02:02:46 -0400
-Received: from ns1.yifansoft.com ([64.61.26.50]:11734 "HELO mail.yifansoft.com")
-	by vger.kernel.org with SMTP id <S315437AbSGEGCq>;
-	Fri, 5 Jul 2002 02:02:46 -0400
-Subject: StackPages errors (CALLTRACE)
-From: Pablo Fischer <exilion@yifan.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	id <S315442AbSGEGJo>; Fri, 5 Jul 2002 02:09:44 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:59122 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S315439AbSGEGJn>;
+	Fri, 5 Jul 2002 02:09:43 -0400
+Message-ID: <3D2538AD.E255167C@mvista.com>
+Date: Thu, 04 Jul 2002 23:11:57 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Xinwen - Fu <xinwenfu@cs.tamu.edu>
+CC: root@chaos.analogic.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel timers vs network card interrupt
+References: <Pine.SOL.4.10.10207041109300.12365-100000@dogbert>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2-5mdk 
-Date: 05 Jul 2002 01:06:56 -0500
-Message-Id: <1025849217.2921.34.camel@pablo.fischer.com.mx>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi..
+Xinwen - Fu wrote:
+> 
+>         In fact I want a timer (either in user level or kernel level).
+> This timer (hope it is a periodic timer) must expire at the interval that
+> I specify. For example, if I
+> want that the timer expires at 10ms, it should never be fired at
+> 10.0000000001ms or
+> 9.9999999999ms. That is the key part that I want!
 
-I have MDK 8.2 and I get this error with: MDK 8.2, RH 7.2, RH 7.3.. but
-just with ONE COMPUTER, the other computers works fine.
+10 nines!  Lots of luck.  You need to spend a LOT more money
+than I have.  Cesium clocks may be able to do this, but not
+computers...
 
-Ok.. I have a SpeedTouch, but to get it work I need to
+But first, please define "fire".  If you mean that the
+interrupt is generated at this rate, well we can do maybe  4
+or 5 nines.  If, on the other hand you mean "your timer
+function gets cpu cycles", I don't think you will find a
+machine that can do much better than one or 2 nines.  Even
+if the timer is the only interrupt, you still have interrupt
+off times and cache indeterminism to contend with.
 
-1) modprobe the module
-2) Then.. call the speedmgmt (a binary)
+If the idea is to to "tickle" some hardware with this
+signal, you will do better to not involve a computer in the
+link.
 
-When I call the speedmgmt, I get:
+The utime project had some software that would schedule a
+timer tick early and then loop reading the TSC until the
+"exact" time.  This still has the problems of interrupts and
+cache misses, but it is probably the only way to approach
+what you want.  Nothing magic, you just figure the worst
+case latency and set your timer to expire early enough to be
+ahead of the appointed time.  Then you loop on the TSC
+waiting for your exact time.
 
+-g
+> 
+>         Have an idea?
+> 
+>         Thanks!
+> 
+> Xinwen Fu
+> 
+> On Thu, 4 Jul 2002, george anzinger wrote:
+> 
+> > "Richard B. Johnson" wrote:
+> > >
+> > > On Wed, 3 Jul 2002, Xinwen - Fu wrote:
+> > >
+> > > > Hi, all,
+> > > >       I'm curious that if a network card interrupt happens at the same
+> > > > time as the kernel timer expires, what will happen?
+> > > >
+> > > >       It's said the kernel timer is guaranteed accurate. But if
+> > > > interrupts are not masked off, the network interrupt also should get
+> > > > response when a kernel timer expires. So I don't know who will preempt
+> > > > who.
+> > > >
+> > > >       Thanks for information!
+> > > >
+> > > > Xinwen Fu
+> > >
+> > > The highest priority interrupt will get serviced first. It's the timer.
+> > > Interrupts are serviced in priority-order. Hardware "remembers" which
+> > > ones are pending so none are lost if some driver doesn't do something
+> > > stupid.
+> >
+> > That is true as far as it goes, HOWEVER, timers are serviced
+> > by bottom half code which is run at the end of the
+> > interrupt, WITH THE INTERRUPT SYSTEM ON.  Therefore, timer
+> > servicing can be interrupted by an interrupt and thus be
+> > delayed.
+> >
+> > --
+> > George Anzinger   george@mvista.com
+> > High-res-timers:
+> > http://sourceforge.net/projects/high-res-timers/
+> > Real time sched:  http://sourceforge.net/projects/rtsched/
+> > Preemption patch:
+> > http://www.kernel.org/pub/linux/kernel/people/rml
+> >
 
-Process speedmgmt (pid: 1748, stackpage=c1827000)
-Stack: c0263a10 c1040000 c0263a4c 00000212 00000000 00000000 c4c10f60
-c4d79c9e
-c11e4e60 00000001 00000000 00000000 00000001 00000001 00000000 bffff752
-c3430460 fffffdfd c398cde0 c0312ae0 c4d79f97 c3430460 bffff758 bffff758
-Call Trace:
-[af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pac+-1548448/96] [af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pac+-70498/96] [af_packet:__insmod_af_packet_O/lib/modules/2.4.18-6mdk/kernel/net/pac+-69737/96] [file_ioctl+340/368] [sys_ioctl+546/608]
-Call Trace: [<c4c10f60>] [<c4d79c9e>] [<c4d79f97>] [<c01413b4>]
-[<c01415f2>]
-[system_call+51/64]
-[<c0106f23>]
-Code: 0f 44 c2 8b 57 04 0d 80 00 00 c0 89 42 18 8b 07 8b 57 04 8b
-
-Why I get that error?
-
-I have a Compaq (AMD K6 - 500mhz) and 64 of Memory.
-
-Paul fischer
-
-
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Real time sched:  http://sourceforge.net/projects/rtsched/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,98 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268805AbUJKL3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268817AbUJKLe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268805AbUJKL3k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 07:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268799AbUJKL3k
+	id S268817AbUJKLe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 07:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268812AbUJKLe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 07:29:40 -0400
-Received: from CPE-203-51-28-190.nsw.bigpond.net.au ([203.51.28.190]:52206
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id S268805AbUJKL3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 07:29:36 -0400
-Message-ID: <416A6E93.5020205@eyal.emu.id.au>
-Date: Mon, 11 Oct 2004 21:29:23 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
-X-Accept-Language: en-us, en
+	Mon, 11 Oct 2004 07:34:27 -0400
+Received: from linaeum.absolutedigital.net ([63.87.232.45]:18087 "EHLO
+	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S268803AbUJKLeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 07:34:09 -0400
+Date: Mon, 11 Oct 2004 07:34:00 -0400 (EDT)
+From: Cal Peake <cp@absolutedigital.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org,
+       hermes@gibson.dropbear.id.au
+Subject: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
+Message-ID: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc4-mm1
-References: <20041011032502.299dc88d.akpm@osdl.org>
-In-Reply-To: <20041011032502.299dc88d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/
-> 
-> - I wasn't going to do any -mm's until after 2.6.9 comes out.  But we need
->   this one so that people who have patches in -mm can check that I haven't
->   failed to push anything critical.  If there's a patch in here which you
->   think should be in 2.6.9, please let me know.
+Hi,
 
-I use -mm because DVB with my AverMedia (761 and 771) does not work with 2.6.9-rc3.
-Please push these if at all possible.
+This patch fixes several dozen warnings spit out when compiling the hermes 
+wireless driver.
 
-> v4l-msp3400-cleanup.patch
->   v4l: msp3400 cleanup
-> 
-> v4l-tuner-update.patch
->   v4l: tuner update
-> 
-> v4l-bttv-update.patch
->   v4l: bttv update
-> 
-> v4l-dvb-cx88-driver-update.patch
->   v4l/dvb: cx88 driver update
-> 
-> v4l-dvb-cx88-driver-update-fix.patch
->   v4l-dvb-cx88-driver-update-fix
-> 
-> DVB-update-saa7146.patch
->   DVB: update saa7146
-> 
-> DVB-documentation-update.patch
->   DVB: documentation update
-> 
-> DVB-skystar2-dvb-bt8xx-update.patch
->   DVB: skystar2 dvb bt8xx update
-> 
-> DVB-dvb-core-update.patch
->   DVB: core update
-> 
-> DVB-frontend-conversion.patch
->   DVB: frontend conversion
-> 
-> DVB-frontend-conversion2.patch
->   DVB: frontend conversion #2
-> 
-> DVB-frontend-conversion3.patch
->   DVB: frontend conversion #3
-> 
-> DVB-frontend-conversion4.patch
->   DVB: frontend conversion #4
-> 
-> DVB-add-frontend-1-2.patch
->   DVB: add frontend
-> 
-> DVB-add-frontend-2-2.patch
->   DVB: add frontend #2
-> 
-> DVB-new-driver-dibusb.patch
->   DVB: new driver for mobile USB Budget DVB-T devices
-> 
-> DVB-misc-driver-updates.patch
->   DVB: misc driver updates
-> 
-> DVB-frontend-updates.patch
->   DVB: frontend updates
-> 
-> V4L-follow-changes-in-saa7146.patch
->   V4L: follow changes in saa7146
+In file included from drivers/net/wireless/orinoco.c:448:
+drivers/net/wireless/hermes.h: In function `hermes_present':
+drivers/net/wireless/hermes.h:398: warning: passing arg 1 of `readw' makes pointer from integer without a cast
+drivers/net/wireless/hermes.h: In function `hermes_set_irqmask':
+drivers/net/wireless/hermes.h:404: warning: passing arg 2 of `writew' makes pointer from integer without a cast
+...
 
--- 
-Eyal Lebedinsky	 (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+thanks,
+
+-- Cal
+
+
+Signed-off-by: Cal Peake <cp@absolutedigital.net>
+
+
+diff -Nru linux-2.6.9-rc4/drivers/net/wireless/hermes.h linux-2.6.9-rc4-1/drivers/net/wireless/hermes.h
+--- linux-2.6.9-rc4/drivers/net/wireless/hermes.h	2004-10-11 02:38:38.000000000 -0400
++++ linux-2.6.9-rc4-1/drivers/net/wireless/hermes.h	2004-10-11 06:56:01.000000000 -0400
+@@ -364,12 +364,12 @@
+ /* Register access convenience macros */
+ #define hermes_read_reg(hw, off) ((hw)->io_space ? \
+ 	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
+-	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
++	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
+ #define hermes_write_reg(hw, off, val) do { \
+ 	if ((hw)->io_space) \
+ 		outw_p((val), (hw)->iobase + ((off) << (hw)->reg_spacing)); \
+ 	else \
+-		writew((val), (hw)->iobase + ((off) << (hw)->reg_spacing)); \
++		writew((val), (void __iomem *)(hw)->iobase + ((off) << (hw)->reg_spacing)); \
+ 	} while (0)
+ #define hermes_read_regn(hw, name) hermes_read_reg((hw), HERMES_##name)
+ #define hermes_write_regn(hw, name, val) hermes_write_reg((hw), HERMES_##name, (val))
+@@ -442,7 +442,7 @@
+ 		 * gcc is smart enough to fold away the two swaps on
+ 		 * big-endian platforms. */
+ 		for (i = 0, p = buf; i < count; i++) {
+-			*p++ = cpu_to_le16(readw(hw->iobase + off));
++			*p++ = cpu_to_le16(readw((void __iomem *)hw->iobase + off));
+ 		}
+ 	}
+ }
+@@ -462,7 +462,7 @@
+ 		 * hope gcc is smart enough to fold away the two swaps
+ 		 * on big-endian platforms. */
+ 		for (i = 0, p = buf; i < count; i++) {
+-			writew(le16_to_cpu(*p++), hw->iobase + off);
++			writew(le16_to_cpu(*p++), (void __iomem *)hw->iobase + off);
+ 		}
+ 	}
+ }
+@@ -478,7 +478,7 @@
+ 			outw(0, hw->iobase + off);
+ 	} else {
+ 		for (i = 0; i < count; i++)
+-			writew(0, hw->iobase + off);
++			writew(0, (void __iomem *)hw->iobase + off);
+ 	}
+ }
+ 

@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312345AbSDCTSE>; Wed, 3 Apr 2002 14:18:04 -0500
+	id <S312353AbSDCTTo>; Wed, 3 Apr 2002 14:19:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312348AbSDCTRy>; Wed, 3 Apr 2002 14:17:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27145 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312345AbSDCTRn>;
-	Wed, 3 Apr 2002 14:17:43 -0500
-Message-ID: <3CAB551E.95990FBB@zip.com.au>
-Date: Wed, 03 Apr 2002 11:16:46 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
-X-Accept-Language: en
+	id <S312350AbSDCTTe>; Wed, 3 Apr 2002 14:19:34 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:61588 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S312348AbSDCTTR>;
+	Wed, 3 Apr 2002 14:19:17 -0500
+Date: Wed, 3 Apr 2002 14:19:11 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrea Arcangeli <andrea@suse.de>, Arjan van de Ven <arjanv@redhat.com>,
+        Hugh Dickins <hugh@veritas.com>, Ingo Molnar <mingo@redhat.com>,
+        Stelian Pop <stelian.pop@fr.alcove.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+In-Reply-To: <E16soms-0004Au-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.21.0204031403220.18513-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Maurice Volaski <mvolaski@aecom.yu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Mount corrupts an ext2 filesystem on a RAM disk
-In-Reply-To: <a05100308b8d0e3b6a676@[129.98.91.150]>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maurice Volaski wrote:
+
+
+On Wed, 3 Apr 2002, Alan Cox wrote:
+
+> >  EXPORT_SYMBOL(vfree);
+> >  EXPORT_SYMBOL(__vmalloc);
+> > -EXPORT_SYMBOL_GPL(vmalloc_to_page);
+> > +EXPORT_SYMBOL(vmalloc_to_page);
 > 
-> And in pre-5. Marcelo, I have never seen any feedback on this bug report.
+> The authors of that code made it GPL. You have no right to change that. Its
+> exactly the same as someone taking all your code and making it binary only.
 > 
+> You are
+> 	-	subverting a digital rights management system
+> 			[5 years jail in the USA]
+> 	-	breaking a license
+> 
+> but worse than that you are ignoring the basic moral rights of the authors
+> of that code.
 
-It works for me.
+Alan, that's crap.  The function in question can be trivially turned into
+extern inline and removed from export list completely.  _If_ such change
+can be made illegal by exporting uninligned version with EXPORT_SYMBOL_GPL
+- I'm going to fork the tree *now* and start replacing the stuff exported
+that way with untainted clean reimplementations.  As much as I despise
+binary-only modules, any mechanism that allows games of that kind needs
+to be killed.  One shouldn't be able to prohibit equivalent transformations
+of core code (and inlining a function _is_ such transformation) by pulling
+the licensing crap.
 
-Please do this:
-
-# cd
-# mke2fs /dev/ram0 -m 0 -N 4096
-# gzip < /dev/ram0 > before.gz
-# mount /dev/ram0 /mnt/ram0
-# umount /dev/ram0
-# gzip < /dev/ram0 > after.gz 
-
-and then send me your .config, before.gz and after.gz
-
-Thanks.
-
--

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315358AbSGQQRJ>; Wed, 17 Jul 2002 12:17:09 -0400
+	id <S315388AbSGQQTz>; Wed, 17 Jul 2002 12:19:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315370AbSGQQRJ>; Wed, 17 Jul 2002 12:17:09 -0400
-Received: from mail3.ucc.ie ([143.239.128.103]:36107 "EHLO mail3.ucc.ie")
-	by vger.kernel.org with ESMTP id <S315358AbSGQQRI>;
-	Wed, 17 Jul 2002 12:17:08 -0400
-Message-ID: <9FBB394A25826C46B2C6F0EBDAD42755018E6E47@xch2.ucc.ie>
-From: "O'Riordan, Kevin" <K.ORiordan@ucc.ie>
-To: "'Roger Luethi'" <rl@hellgate.ch>
+	id <S315375AbSGQQTz>; Wed, 17 Jul 2002 12:19:55 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:22943 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S315370AbSGQQTy>;
+	Wed, 17 Jul 2002 12:19:54 -0400
+Date: Thu, 18 Jul 2002 18:21:41 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: shreenivasa H V <shreenihv@usa.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: Problem with Via Rhine- Kernel 2.4.18
-Date: Wed, 17 Jul 2002 17:19:56 +0100
+Subject: Re: Gang Scheduling in linux
+In-Reply-To: <20020716225441.23939.qmail@uwdvg008.cms.usa.net>
+Message-ID: <Pine.LNX.4.44.0207181818300.29003-100000@localhost.localdomain>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tried it against 2.4.19-rc1, and it worked fine for me. Came up with one
-hunk failed, but that was in the comments section at the beginning so didn't
-matter, the rest of the hunks succeeded at offsets.
 
------Original Message-----
-From: Roger Luethi [mailto:rl@hellgate.ch] 
-Sent: 17 July 2002 15:35
-To: O'Riordan, Kevin
-Cc: 'Joseph Wenninger'; linux-kernel@vger.kernel.org
-Subject: Re: Problem with Via Rhine- Kernel 2.4.18
+On Tue, 16 Jul 2002, shreenivasa H V wrote:
 
-> in May which fixed the problem and a new patch just a few days ago against
-> 2.4.19-rc1(and against 2.4.19-rc2 as well I'd say as the via-rhine driver
+> I wanted to know whether there is any support for gang scheduling in the
+> linux kernel. If so, what is the status of the implementation and if
+> there are any documents about the same.
 
-Actually, the patch is against Jeff's public tree, which is somewhat
-different from what's in rc1, against which I guess the patch will succeed
-with offsets (rejecting the changelog portion, which is okay).
+yes - the 'synchronous wakeup' feature is a form of gang scheduling. It in
+essence uses real process-communication information to migrate 'related'
+tasks to the same CPU. So it's automatic, no need to declare processes to
+be part of a 'gang' in some formal (and thus fundamentally imperfect) way.
 
-You can also try the ac kernel. Alan has the Rhine changes merged since
-2.4.19-rc1-ac6.
+(another form of 'gang scheduling' can be achieved by binding the 'parent'
+process to a single CPU - all children will be bound to that CPU as well.)
 
-Roger
+	Ingo
+

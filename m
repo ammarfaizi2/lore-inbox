@@ -1,144 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUJHXSL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266189AbUJHXQ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266200AbUJHXSL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 19:18:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXSJ
+	id S266189AbUJHXQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 19:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266170AbUJHXOm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 19:18:09 -0400
-Received: from mail01.hpce.nec.com ([193.141.139.228]:16011 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S266186AbUJHXPn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 19:15:43 -0400
-From: Erich Focht <efocht@hpce.nec.com>
-To: colpatch@us.ibm.com
-Subject: Re: [Lse-tech] [RFC PATCH] scheduler: Dynamic sched_domains
-Date: Sat, 9 Oct 2004 01:13:40 +0200
-User-Agent: KMail/1.6.2
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       LSE Tech <lse-tech@lists.sourceforge.net>, Paul Jackson <pj@sgi.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@osdl.org>,
-       ckrm-tech@lists.sourceforge.net, LKML <linux-kernel@vger.kernel.org>,
-       simon.derr@bull.net, frankeh@watson.ibm.com
-References: <1097110266.4907.187.camel@arrakis> <41666E90.2000208@yahoo.com.au> <1097261691.5650.23.camel@arrakis>
-In-Reply-To: <1097261691.5650.23.camel@arrakis>
-MIME-Version: 1.0
+	Fri, 8 Oct 2004 19:14:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:17847 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266128AbUJHXOQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 19:14:16 -0400
+Date: Fri, 8 Oct 2004 16:13:07 -0700
+From: Greg KH <greg@kroah.com>
+To: "Eric W. Biederman" <ebiederman@lnxi.com>
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
+Subject: Re: [openib-general] InfiniBand incompatible with the Linux kernel?
+Message-ID: <20041008231307.GA32530@kroah.com>
+References: <20041008202247.GA9653@kroah.com> <m3d5zs966r.fsf@maxwell.lnxi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410090113.40589.efocht@hpce.nec.com>
+In-Reply-To: <m3d5zs966r.fsf@maxwell.lnxi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Matt,
-
-I reply to this post because it has more examples ;-)
-
-On Friday 08 October 2004 20:54, Matthew Dobson wrote:
-> On Fri, 2004-10-08 at 03:40, Nick Piggin wrote:
-> > And so you want to make a partition with CPUs {0,1,2,4,5}, and {3,6,7}
-> > for some crazy reason, the new domains would look like this:
-> > 
-> > 0 1  2  4 5    3  6 7
-> > ---  -  ---    -  ---  <- 0
-> >   |   |   |     |   |
-> >   -----   -     -   -   <- 1
-> >     |     |     |   |
-> >     -------     -----   <- 2 (global, partitioned)
-> > 
-> > Agreed? You don't need to get fancier than that, do you?
-> > 
-> > Then how to input the partitions... you could have a sysfs entry that
-> > takes the complete partition info in the form:
-> > 
-> > 0,1,2,3 4,5,6 7,8 ...
-> > 
-> > Pretty dumb and simple.
+On Fri, Oct 08, 2004 at 04:49:16PM -0600, Eric W. Biederman wrote:
+> Greg KH <greg@kroah.com> writes:
 > 
-> How do we describe the levels other than the first?  We'd either need
-> to:
-> 1) come up with a language to describe the full tree.  For your example
-> I quoted above:
->    echo "0,1,2,4,5 3,6 7,8;0,1,2 4,5 3 6,7;0,1 2 4,5 3 6,7" > partitions
-
-This is not nice. Especially because changes cannot be made
-gradually. You need to put in the whole tree each time you change
-something. Concurrent processes modifying the structre need additional
-mechanisms for synchronization.
-
-> 2) have multiple files:
->    echo "0,1,2,4,5 3,6,7" > level2
->    echo "0,1,2 4,5 3 6,7" > level1
->    echo "0,1 2 4,5 3 6,7" > level0
-
-Add a way to create levels. This one is hard to "parse" and again
-there is no protection for the "own" domains and maybe trouble with
-synchronization. 
-
-> 3) Or do it hierarchically as Paul implemented in cpusets, and as I
-> described in an earlier mail:
->    mkdir level2
->    echo "0,1,2,4,5 3,6,7" > level2/partitions
->    mkdir level1
->    echo "0,1,2 4,5 3 6,7" > level1/partitions
->    mkdir level0
->    echo "0,1 2 4,5 3 6,7" > level0/partitions
+> > [2] Sure, any person who has a copy of the kernel source tree could be a
+> > target for any of a zillion other potential claims, nothing new there,
+> > but the point here is they are explicitly stating that they will go
+> > after non-IBTA members who touch IB code[3].
 > 
-> I personally like the hierarchical idea.  Machine topologies tend to
-> look tree-like, and every useful sched_domain layout I've ever seen has
-> been tree-like.  I think our interface should match that.
+> Greg I see nothing to back up the idea that IBTA intends to go after
+> non-members.  I simply see a disclaimer of warranty, and I see wording
+> by your anonymous source that restates a disclaimer of warranty.
 
-I like the hierarchical idea, too. The natural way to build it would
-be by starting from the cpus and going up. This tree stands on its
-leafs... and I'm not sure how to express that in a filesystem.
+All I know is a number of different people, from different companies are
+suddenly very worried about this.  The fact that they don't want to
+comment on it in public leads me to believe that there is something
+behind their fears.
 
-How about this:
-If you would go from top (global) domain down the default could be to
-have a directory
+> Until I see something more to back this up I do not see a problem.  In
+> fact I see infiniband prices dropping, and competition increasing.
+> The drivers off of openib.org look like they are a good start at
+> making a sane linux implementation.
 
-sched_domains/
-              global/
-                     cpu1
-                     cpu2
-                     ...
+It is a good start.  And as all OpenIB members are also IBTA members, I
+am asking for the group's position as to this change.
 
-The cpuX files would always exist. All you'd need to do would be to
-create subdirectories and move the cpuX files from one to the
-other. You should be able to remove directories if they are empty.
+> Even the PCI-SIG requires you to pay for the spec.
 
-  # cd sched_domains/global
-  # mkdir node1 node2
-  # mv cpu1 cpu2 node1
-  # mv cpu3 cpu4 node2
+I know that, almost all groups do.  Although $9500 does seem a bit steep
+for spec prices :)
 
-sched_domains/
-              global/
-                     node1/
-                           cpu1
-                           cpu2
-                     node2/
-                           cpu3
-                           cpu4
+> I agree it would be suicidally insane for the infiniband trade
+> association to go after a linux stack, as it appears that a large
+> portion of the infiniband users are currently running linux.
 
-or disconnected domains:
+One specific IBTA member has issues with the adaption of Linux, and has
+already done one thing to restrict a full IB implementation that would
+work on Linux.  And as for insane, have you ever tried to actually read
+that spec?  :)
 
-  # cd sched_domains
-  # mkdir interactive batch
-  # mv global/cpu1 global/cpu2 interactive
-  # mv global/cpu3 global/cpu4 batch
-  # rmdir global
+thanks,
 
-sched_domains/
-              interactive/
-                          cpu1
-                          cpu2
-              batch/
-                    cpu3
-                    cpu4
-
-
-Regards,
-Erich
-
-
-
+greg k-h

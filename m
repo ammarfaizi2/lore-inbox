@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270575AbRHITx5>; Thu, 9 Aug 2001 15:53:57 -0400
+	id <S270576AbRHIUB6>; Thu, 9 Aug 2001 16:01:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270574AbRHITxr>; Thu, 9 Aug 2001 15:53:47 -0400
-Received: from h131s117a129n47.user.nortelnetworks.com ([47.129.117.131]:10901
-	"HELO pcard0ks.ca.nortel.com") by vger.kernel.org with SMTP
-	id <S270579AbRHITxf>; Thu, 9 Aug 2001 15:53:35 -0400
-Message-ID: <3B72EA75.6B06013B@nortelnetworks.com>
-Date: Thu, 09 Aug 2001 15:54:29 -0400
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stuart Duncan <sety@perth.wni.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ARP's frustrating behavior
-In-Reply-To: <5.1.0.14.0.20010808094513.00ab72c8@mailhost> <5.1.0.14.0.20010808103510.00aafbb0@mailhost>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S270577AbRHIUBs>; Thu, 9 Aug 2001 16:01:48 -0400
+Received: from guestpc.physics.umanitoba.ca ([130.179.72.122]:518 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S270576AbRHIUBq>; Thu, 9 Aug 2001 16:01:46 -0400
+Date: Thu, 9 Aug 2001 15:01:43 -0500
+Message-Id: <200108092001.f79K1hq06187@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org, devfs-announce-list@mobilix.ras.ucalgary.ca
+Subject: [PATCH] devfs v186 available
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stuart Duncan wrote:
-> 
-> >Evidently, this is considered a feature.  However, to turn it off:
-> >echo 1 > /proc/sys/net/ipv4/conf/all/arp_filter
-> 
-> I've tried this and it doesn't work.  I understand that arp_filter uses
-> routing tables to determine which interfaces should respond to ARP
-> queries.  In my case, both interfaces are on the same network.
+  Hi, all. Version 186 of my devfs patch is now available from:
+http://www.atnf.csiro.au/~rgooch/linux/kernel-patches.html
+The devfs FAQ is also available here.
 
-Interesting.  This works fine on 2.2.17.  It actually uses the ip address to
-network device mapping, so that a NIC won't respond to arp requests for
-addresses that are not assigned to that NIC.
+Patch directly available from:
+ftp://ftp.??.kernel.org/pub/linux/kernel/people/rgooch/v2.4/devfs-patch-current.gz
 
+AND:
+ftp://ftp.atnf.csiro.au/pub/people/rgooch/linux/kernel-patches/v2.4/devfs-patch-current.gz
 
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+This is against 2.4.8-pre6. Highlights of this release:
+
+- Fixed race in <devfs_do_symlink> for uni-processor
+
+- Fixed drivers/scsi/sd.h for when CONFIG_SD_MANY=n
+
+- Updated README from master HTML file
+
+				Regards,
+
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,47 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278629AbRJXQEX>; Wed, 24 Oct 2001 12:04:23 -0400
+	id <S278615AbRJXQDn>; Wed, 24 Oct 2001 12:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278633AbRJXQEN>; Wed, 24 Oct 2001 12:04:13 -0400
-Received: from sith.mimuw.edu.pl ([193.0.97.1]:3334 "EHLO sith.mimuw.edu.pl")
-	by vger.kernel.org with ESMTP id <S278629AbRJXQDz>;
-	Wed, 24 Oct 2001 12:03:55 -0400
-Date: Wed, 24 Oct 2001 18:04:14 +0200
-From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
-To: "David S. Miller" <davem@redhat.com>
-Cc: jgarzik@mandrakesoft.com, linux-kernel@vger.kernel.org
-Subject: Re: acenic breakage in 2.4.13-pre
-Message-ID: <20011024180414.A16921@sith.mimuw.edu.pl>
-Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
-	"David S. Miller" <davem@redhat.com>, jgarzik@mandrakesoft.com,
-	linux-kernel@vger.kernel.org
+	id <S278635AbRJXQDY>; Wed, 24 Oct 2001 12:03:24 -0400
+Received: from etna.trivadis.com ([193.73.126.2]:55029 "EHLO lttit")
+	by vger.kernel.org with ESMTP id <S278615AbRJXQDT>;
+	Wed, 24 Oct 2001 12:03:19 -0400
+Date: Wed, 24 Oct 2001 18:00:39 +0200
+From: Tim Tassonis <timtas@dplanet.ch>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fdisk: "File size limit exceeded on fdisk" 2.4.10 to 2.4.13-pre6
+In-Reply-To: <E15wQTJ-0001v1-00@the-village.bc.nu>
+In-Reply-To: <E15wQDj-0000HT-00@lttit>
+	<E15wQTJ-0001v1-00@the-village.bc.nu>
+X-Mailer: Sylpheed version 0.6.3cvs10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20011024.082925.68578636.davem@redhat.com>
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux 2.4.7 i686
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15wQSN-0000Hg-00@lttit>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 24 Oct 2001, David S. Miller wrote:
+On Wed, 24 Oct 2001 17:01:37 +0100 (BST)
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
->    From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
->    Date: Wed, 24 Oct 2001 16:45:33 +0200
->    
->    Speaking of acenic - it's broken in 2.4.13-pre. I have 3c985 and all I
->    get with 2.4.13-pre is "Firmware NOT running!". After I backed the
->    changes from -pre patch it started and works fine. Maybe the problem is
->    I have it in 32bit PCI slot?
+> glibc 2.1.x has minimal support for 64bit file size handling. You
+probably
+> need to build 64bit aware tools. You might also be hitting a device bug
+that
+> seems to be in Linus kernel where devices are inheriting the file size
+limit
+> of the underlying fs the /dev node is on. However I thought that was
+long
+> fixed.
 > 
-> Do you have CONFIG_HIGHMEM enabled?  If so, please try with
-> it turned off.
 
-Nope. No HIGHMEM here.
+The latter seems to be the case because Vita Samel (hope I got this right)
+just reported that "Booting into 2.4.10-ac10" fixed the problem. Perhaps
+it once was fixed and later defixed?
 
-Jan
--- 
-Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
-baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
-BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
+Bye
+Tim
+
+

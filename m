@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262446AbSLAVJ5>; Sun, 1 Dec 2002 16:09:57 -0500
+	id <S262469AbSLAVPc>; Sun, 1 Dec 2002 16:15:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262469AbSLAVJ5>; Sun, 1 Dec 2002 16:09:57 -0500
-Received: from barry.mail.mindspring.net ([207.69.200.25]:16155 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S262446AbSLAVJ5>; Sun, 1 Dec 2002 16:09:57 -0500
-From: "Kenneth Nealy" <kennealy@sprynet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Nic card won't activate after 2.4.18-14 kernel recompile
-Date: Sun, 1 Dec 2002 16:47:47 -0500
-Message-ID: <LBEEKGOMGNBLMHFPDGCBIEILGDAA.kennealy@sprynet.com>
+	id <S262472AbSLAVPb>; Sun, 1 Dec 2002 16:15:31 -0500
+Received: from keetweej.xs4all.nl ([213.84.46.114]:128 "EHLO
+	muur.intranet.vanheusden.com") by vger.kernel.org with ESMTP
+	id <S262469AbSLAVPb>; Sun, 1 Dec 2002 16:15:31 -0500
+From: "Folkert van Heusden" <folkert@vanheusden.com>
+To: <mzyngier@freesurf.fr>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [2.4.20] alpha (alcor) failing during boot: NCR53c810/NCR53c875 give error "Cache test failed"
+Date: Sun, 1 Dec 2002 22:22:55 +0100
+Message-ID: <003601c2997f$d0dac610$3640a8c0@boemboem>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+In-Reply-To: <wrplm39scb7.fsf@hina.wild-wind.fr.eu.org>
 Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Help,......please :-)!
+FvH> My Dec Alpha (Alcor) runs fine with 2.2.20.
+FvH> With 2.4.20, it fails during boot at the init. of the scsi-devices.
+FvH> Error is:
+M> [...]
+M> Please give 2.4.20-ac1 a try. It includes the CIA-1 fix that prevent
+M> Alcor machines (AS500 and co) from working.
 
-I recompiled my Redhat Linux 8, 2.4.18-14, kernel on a system containing a
-Kingston Etherx KNE100TX PCI Fast Ethernet adapter. After recompiling the
-kernel I created a separate kernel configuration called
-2.4.18-14custom11-28-02 and used Grub to boot, either to the original
-installed kernel configuration or to the new 2.4.18-14custom11-28-02 kernel
-configuration. If I boot to the original kernel configuration the nic card
-activates. But if I boot to the 2.4.18-14custom11-28-02 kernel configuration
-the nic card won't activate. I used the 'ifconfig -a' command which shows
-the nic card as eth0 & up. I used the 'lspci' command which shows the nic
-card using the proper resources.
+That one introduces a new problem:
 
-Please help,....ever since they allowed me to use Linux in this
-asylum,....I've been bouncing around in the same spot in my rubber room.
-This extremely agitates the hired help,...which have to watch,...they prefer
-randomness.
+gcc -D__KERNEL__ -I/data/src/linux-2.4.20/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pi
+pe -mno-fp-regs -ffixed-8 -mcpu=ev5 -Wa,-mev6   -nostdinc -iwithprefix
+include -DKBUILD_BASENAME=compat  -c -o compat.o compat.c
+make[3]: *** No rule to make target
+`/data/src/linux-2.4.20/drivers/pci/devlist.h', needed by `names.o'.  Stop.
 
-Oh,...I long for the days when that beautiful woman would say that tender
-word,.....'CLEAR',...before she sent 460 volts through me. After she blacked
-out the upper east side,....those powers that be made her switch to drugs.
-
-As I look into her eyes, through the door, I notice,... she's really pissed
-off,.....
-
+In .depend I had to delete the reference to devlist.h and classlist.h.
+Dirty, but it made the compilation go on.
 

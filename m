@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276445AbRJCQOl>; Wed, 3 Oct 2001 12:14:41 -0400
+	id <S276448AbRJCQQv>; Wed, 3 Oct 2001 12:16:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276439AbRJCQOb>; Wed, 3 Oct 2001 12:14:31 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:51706 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S276426AbRJCQOX>; Wed, 3 Oct 2001 12:14:23 -0400
-Date: Wed, 3 Oct 2001 17:14:51 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS data corruption in very simple configuration
-Message-ID: <20011003171451.A5209@redhat.com>
-In-Reply-To: <200109221000.GAA11263@out-of-band.media.mit.edu> <15276.34915.301069.643178@beta.reiserfs.com> <20010925131304.I23320@mikef-linux.matchmail.com> <20010926154311.C12560@redhat.com> <20010930203831.A25387@mikef-linux.matchmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010930203831.A25387@mikef-linux.matchmail.com>; from mfedyk@matchmail.com on Sun, Sep 30, 2001 at 08:38:31PM -0700
+	id <S276451AbRJCQQo>; Wed, 3 Oct 2001 12:16:44 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:50952 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S276448AbRJCQQ2>;
+	Wed, 3 Oct 2001 12:16:28 -0400
+Date: Wed, 3 Oct 2001 18:14:32 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Ben Greear <greearb@candelatech.com>
+Cc: jamal <hadi@cyberus.ca>, <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>,
+        Benjamin LaHaise <bcrl@redhat.com>, <netdev@oss.sgi.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <3BBB3845.DAE47D27@candelatech.com>
+Message-ID: <Pine.LNX.4.33.0110031808100.8633-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, Sep 30, 2001 at 08:38:31PM -0700, Mike Fedyk wrote:
- 
-> >From what you're describing, it looks like the contents of test after a
-> truncate won't be overwritten by another transaction until the deletion of
-> those blocks has made it to disk...  So, while in ordered, or journal mode,
-> I'd end up with "a" in test, but with writeback mode there is no such
-> guarantee.
-> 
-> Am I missing something?
-> 
-> Are there any known cases where ext3 will not be able to recover pervious
-> data when a write wasn't able to complete?
+On Wed, 3 Oct 2001, Ben Greear wrote:
 
-It depends on what the application is doing.  Applications often open
-an existing file with O_TRUNC, write to it, then close it.  If you
-crash between the truncate and the write being committed, then you'll
-get a perfectly legal, sane, consistent, empty file on recovery.
+> So, couldn't your NAPI patch be used by drivers that are updated, and
+> let Ingo's patch be a catch-all for un-fixed drivers?  As we move
+> foward, more and more drivers support your version, and Ingo's patch
+> becomes less utilized.  So long as the patches are tuned such that
+> yours keeps Ingo's from being triggered on devices you support, there
+> should be no real conflict, eh?
 
---Stephen
+exactly. auto-mitigation will not hurt NAPI-enabled devices the least.
+Also, auto-mitigation is device-independent.
+
+perhaps Jamal misunderstood the nature of my patch, so i'd like to state
+it again: auto-mitigation is a feature that is not triggered normally. I
+did a quick hack yesterday to include kpolld - that was a mistake, i was
+wrong, and i've removed it. kpolld was mostly an experiment to prove that
+TCP network connections can be fully functional during extreme overload
+situations as well. Also, auto-mitigation will be a nice mechanizm to make
+people more aware of the NAPI patch: if they ever notice 'Possible IRQ
+overload:' messages then they can be told to try the NAPI patches.
+
+	Ingo
+

@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261709AbREOXow>; Tue, 15 May 2001 19:44:52 -0400
+	id <S261715AbREOXvW>; Tue, 15 May 2001 19:51:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261714AbREOXom>; Tue, 15 May 2001 19:44:42 -0400
-Received: from pec-102-189.tnt3.h2.uunet.de ([149.225.102.189]:57360 "EHLO
-	Marvin.DL8BCU.ampr.org") by vger.kernel.org with ESMTP
-	id <S261709AbREOXog>; Tue, 15 May 2001 19:44:36 -0400
-Date: Tue, 15 May 2001 23:44:23 +0000
-From: Thorsten Kranzkowski <th@Marvin.DL8BCU.ampr.org>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /dev/sch0 interface
-Message-ID: <20010515234422.B32162@Marvin.DL8BCU.ampr.org>
-Reply-To: dl8bcu@gmx.net
-Mail-Followup-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010515150801.A18842@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010515150801.A18842@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Tue, May 15, 2001 at 03:08:01PM -0600
+	id <S261716AbREOXvM>; Tue, 15 May 2001 19:51:12 -0400
+Received: from HIC-SR1.hickam.af.mil ([131.38.214.15]:10374 "EHLO
+	hic-sr1.hickam.af.mil") by vger.kernel.org with ESMTP
+	id <S261715AbREOXuw>; Tue, 15 May 2001 19:50:52 -0400
+Message-ID: <4CDA8A6D03EFD411A1D300D0B7E83E8F697321@FSKNMD07.hickam.af.mil>
+From: "Bingner Sam J. Contractor RSIS" <Sam.Bingner@hickam.af.mil>
+To: "'Richard Gooch'" <rgooch@ras.ucalgary.ca>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: ingo.oeser@informatik.tu-chemnitz.de, torvalds@transmeta.com,
+        neilb@cse.unsw.edu.au, jgarzik@mandrakesoft.com, hpa@transmeta.com,
+        linux-kernel@vger.kernel.org, viro@math.psu.edu
+Subject: RE: LANANA: To Pending Device Number Registrants
+Date: Tue, 15 May 2001 23:49:40 -0000
+X-Mailer: Internet Mail Service (5.5.2650.21)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 15, 2001 at 03:08:01PM -0600, Jeff V. Merkey wrote:
+OK, just correct me if I get this wrong, but this code is taking the LAST 2
+characters of the device name and verifying that it is "cd".  Which would
+mean that the standard states that "/dev/ginsucd" would be a CD-ROM drive?
+
+That is why I feel a "name" of a device handle shouldnt set how a driver
+operates in this fashion... if you make a small error in your compare, you
+might try to eject a Ginsu Cabbage Dicer instead of a cdrom drive... OOPS!
+
+	Sam Bingner
+
+Alan Cox writes:
+> > 	len = readlink ("/proc/self/3", buffer, buflen);
+> > 	if (strcmp (buffer + len - 2, "cd") != 0) {
+> > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
+> > 		exit (1);
 > 
-> 
-> Is anyone actuaslly using the /dev/sch0 interface for SCSI tape changers
-> in Linux?  I noticed that the device definitions are present, but I do not 
-> see any driver shipped in the standard base that actually uses it.
+> And on my box cd is the cabbage dicer whoops
 
-http://www.in-berlin.de/User/kraxel/linux.html
+Actually, no, because it's guaranteed that a trailing "/cd" is a
+CD-ROM. That's the standard.
 
-works very well here (needs a minor #include to compile correctly, though)
+				Regards,
 
-I actually wonder why this isn't in the mainline kernel.
-
-> 
-> Thanks
-> 
-> Jeff
-> 
-
-Thorsten
-
--- 
-| Thorsten Kranzkowski        Internet: dl8bcu@gmx.net                        |
-| Mobile: ++49 170 1876134       Snail: Niemannsweg 30, 49201 Dissen, Germany |
-| Ampr: dl8bcu@db0lj.#rpl.deu.eu, dl8bcu@marvin.dl8bcu.ampr.org [44.130.8.19] |
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

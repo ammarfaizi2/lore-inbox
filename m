@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314598AbSD0UkG>; Sat, 27 Apr 2002 16:40:06 -0400
+	id <S314613AbSD0Uot>; Sat, 27 Apr 2002 16:44:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314613AbSD0UkF>; Sat, 27 Apr 2002 16:40:05 -0400
-Received: from bitmover.com ([192.132.92.2]:45013 "EHLO bitmover.com")
-	by vger.kernel.org with ESMTP id <S314598AbSD0UkD>;
-	Sat, 27 Apr 2002 16:40:03 -0400
-Date: Sat, 27 Apr 2002 13:40:03 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Larry McVoy <lm@bitmover.com>, Daniel Phillips <phillips@bonn-fries.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020427134003.B31314@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Richard Gooch <rgooch@ras.ucalgary.ca>,
-	Larry McVoy <lm@bitmover.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Ian Molton <spyro@armlinux.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0204202108410.10137-100000@home.transmeta.com> <E16zJbd-0001GZ-00@starship> <20020422091012.C17613@work.bitmover.com> <E16zK5f-0001He-00@starship> <20020422101750.D17613@work.bitmover.com> <200204271859.g3RIxHo16889@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S314615AbSD0Uos>; Sat, 27 Apr 2002 16:44:48 -0400
+Received: from brooklyn-bridge.emea.veritas.com ([62.172.234.2]:16568 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id <S314613AbSD0Uoq>;
+	Sat, 27 Apr 2002 16:44:46 -0400
+Date: Sat, 27 Apr 2002 21:43:06 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: <tigran@einstein.homenet>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: Matthew M <matthew.macleod@btinternet.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Microcode update driver
+In-Reply-To: <Pine.LNX.4.44.0204272232290.2833-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.33.0204272137320.1792-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 27, 2002 at 12:59:17PM -0600, Richard Gooch wrote:
-> I've added two subsections to the FAQ about this, which I hope will
-> avoid some future flamewars:
-> http://www.tux.org/lkml/#s1-20
-> http://www.tux.org/lkml/#s1-21
+On Sat, 27 Apr 2002, Roy Sigurd Karlsbakk wrote:
+> ok. so what the kernel is telling me during boottime (IA-32 Microcode
+> Update Driver: v1.09 <tigran@veritas.com>), is simply having the driver to
+> enable such uploads? It'd be great to have this documented openly
+> somewhere.
 
-Looks good, nice addition, thanks.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+The message means that the driver has registered a device
+/dev/cpu/microcode with your kernel. Looking in /proc/misc you discover
+that it is registered on minor 184 as a "misc" driver:
+
+# modprobe microcode
+# dmesg | tail -1
+IA-32 Microcode Update Driver: v1.11 <tigran@veritas.com>
+# cat /proc/misc
+184 microcode
+135 rtc
+  1 psaux
+134 apm_bios
+
+There is nothing special about microcode driver in this respect -- it is
+just like any other device driver. I.e. userspace application opens the
+device node /dev/cpu/microcode and writes the microcode data to it and,
+possibly, uses an ioctl to free the memory (if the user isn't interested
+in keeping a copy of what has been applied to each cpu).
+
+Regards
+Tigran
+

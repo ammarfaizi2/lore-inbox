@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311566AbSCNJHs>; Thu, 14 Mar 2002 04:07:48 -0500
+	id <S311568AbSCNJ1A>; Thu, 14 Mar 2002 04:27:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311567AbSCNJHj>; Thu, 14 Mar 2002 04:07:39 -0500
-Received: from smtp-sec1.zid.nextra.de ([212.255.127.204]:32016 "EHLO
-	smtp-sec1.zid.nextra.de") by vger.kernel.org with ESMTP
-	id <S311566AbSCNJH3>; Thu, 14 Mar 2002 04:07:29 -0500
-Date: Thu, 14 Mar 2002 10:07:22 +0100 (CET)
-From: Guennadi Liakhovetski <gl@dsa-ac.de>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: CONFIG_SOUND_GAMEPORT in 2.5
-In-Reply-To: <20020314091915.C31998@ucw.cz>
-Message-ID: <Pine.LNX.4.33.0203141004030.15512-100000@pcgl.dsa-ac.de>
+	id <S311569AbSCNJ0s>; Thu, 14 Mar 2002 04:26:48 -0500
+Received: from mail.spylog.com ([194.67.35.220]:9447 "HELO mail.spylog.com")
+	by vger.kernel.org with SMTP id <S311568AbSCNJ0p>;
+	Thu, 14 Mar 2002 04:26:45 -0500
+Date: Thu, 14 Mar 2002 12:27:15 +0300
+From: Peter Zaitsev <pz@spylog.ru>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: Peter Zaitsev <pz@spylog.ru>
+Organization: SpyLOG
+X-Priority: 3 (Normal)
+Message-ID: <1781804867952.20020314122715@spylog.ru>
+To: Oleg Drokin <green@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re[2]: MMAP vs READ/WRITE
+In-Reply-To: <20020313164158.A1219@namesys.com>
+In-Reply-To: <861732271654.20020313161718@spylog.ru>
+ <20020313164158.A1219@namesys.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The problem is, that if you don't have anything like a sound-card/gameport
-> > at all, CONFIG_SOUND_GAMEPORT still will be YES. Ok, I didn't check in the
-> > code, maybe it doesn't add a single byte to the kernel, .config looks a
-> > bit confusing, doesn't it?
->
-> Yes, it doesn't add anything. It's just a switch that *disables*
-> gameport code in sound drivers if no gameport support is selected in the
-> kernel.
+Hello Oleg,
 
-Sorry, did I get it right - if it is set to "yes", then it DISABLES
-gameport code?... Hm... Ok, as long as it doesn't add anything, I better
-shut up now, but, seems to me, it does look confusing...
+Wednesday, March 13, 2002, 4:41:58 PM, you wrote:
 
-Thanks
-Guennadi
----------------------------------
-Guennadi Liakhovetski, Ph.D.
-DSA Daten- und Systemtechnik GmbH
-Pascalstr. 28
-D-52076 Aachen
-Germany
+OD> Hello!
+
+OD> On Wed, Mar 13, 2002 at 04:17:18PM +0300, Peter Zaitsev wrote:
+>>   So I would say mmap is not really optimized nowdays in Linux and so
+>>   read() may be wining in cases it should not. May be read-ahead is
+>>   used with read and is not used with mmap.
+
+OD> how about reading manual page on madvise(2) and redoing your test?
+
+OK. I did but no luck.  The results are quite the same.
+
+I think the hugest problem is:
+
+ 0  2  0 210736  19472   2000 733188 216   0  5068     2  382   340   4   2  94
+ 0  2  0 210424  20108   1860 729596 219   0  4732     0  319   352   4   1  96
+ 0  2  0 210216  19652   1616 727280 254   0  4718    10  313   298   3   4  93
+ 1  1  0 209756  19988   1744 723940 285   0  4523    14  313   197   6   6  88
+ 0  2  0 209700  20096   1904 722236 223   0  4485    15  307   265   7   5  88
+
+ So then file is memory mapped and is read from some pages are coming
+ out from swap instead of being read from file....
+ 
+
+OD> Also cache is best cleaned by unmounting filesystem in question
+OD> and then mounting it back.
+
+Well. This was not really needed as I repeated the test several times
+in a loop without clearing the cache after initial cleaning to see how
+stable are results.
+
+
+
+
+-- 
+Best regards,
+ Peter                            mailto:pz@spylog.ru
 

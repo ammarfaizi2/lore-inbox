@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263910AbUCZDf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 22:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbUCZDf7
+	id S263914AbUCZDgO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 22:36:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263915AbUCZDgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 22:35:59 -0500
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:38414
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S263910AbUCZDfv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 22:35:51 -0500
-Date: Thu, 25 Mar 2004 19:35:37 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Chris Cheney <ccheney@cheney.cx>
-Cc: linux-kernel@vger.kernel.org, acpi-devel-request@lists.sourceforge.net,
-       patches@x86-64.org, ak@suse.de, len.brown@intel.com, pavel@ucw.cz
-Subject: Re: [PATCH] x86_64 VIA chipset IOAPIC fix
-Message-ID: <20040326033536.GA8057@atomide.com>
-References: <20040325033434.GB8139@atomide.com> <20040326030458.GZ9248@cheney.cx>
+	Thu, 25 Mar 2004 22:36:14 -0500
+Received: from gate.crashing.org ([63.228.1.57]:63112 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263914AbUCZDf5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Mar 2004 22:35:57 -0500
+Subject: [PATCH] dmasound close timeout
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1080272020.1206.24.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040326030458.GZ9248@cheney.cx>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 26 Mar 2004 14:33:41 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Chris Cheney <ccheney@cheney.cx> [040325 19:06]:
-> On Wed, Mar 24, 2004 at 07:34:34PM -0800, Tony Lindgren wrote:
-> 
-> BTW - Does this also solve the problem with needing USB to be compiled
-> directly into the kernel in 64bit mode?
+Hi !
 
-OK, tried it and it does not help there. Also loding ACPI processor and
-thermal zone compiled in hangs the machine, but loading them as modules
-work. The power button still turns off the machine immedieately too with
-ACPI on.
+The dmasound driver occasionally hangs a process on exit,
+apparently, there is a possible case where the sound HW stops
+draining output samples and the driver waits forever in its
+release() callback. It should check for signals(), but it
+seems signal_pending() never returns 1 when the process is
+beeing killed (implicit release() of files on exit).
 
-So you still need to have both uchi and echi compiled. Ehci is needed for
-the hotplug to work properly at least on gentoo.
+This patch adds a safety timeout to the release() function
+to make sure we can at least close the driver. I'll try to
+find the reason we aren't driving samples later, but it is
+better to have a safety just incase the sound clock goes
+berserk for some reason.
 
-Regards,
+Ben.
 
-Tony
+diff -urN linux-2.5/sound/oss/dmasound/dmasound_core.c linuxppc-2.5-benh/sound/oss/dmasound/dmasound_core.c
+--- linux-2.5/sound/oss/dmasound/dmasound_core.c	2004-03-01 18:13:38.000000000 +1100
++++ linuxppc-2.5-benh/sound/oss/dmasound/dmasound_core.c	2004-03-25 18:41:02.000000000 +1100
+@@ -1004,6 +1004,7 @@
+ static int sq_fsync(struct file *filp, struct dentry *dentry)
+ {
+ 	int rc = 0;
++	int timeout = 5;
+ 
+ 	write_sq.syncing |= 1;
+ 	sq_play();	/* there may be an incomplete frame waiting */
+@@ -1018,6 +1019,12 @@
+ 			rc = -EINTR;
+ 			break;
+ 		}
++		if (!--timeout) {
++			printk(KERN_WARNING "dmasound: Timeout draining output\n");
++			sq_reset_output();
++			rc = -EIO;
++			break;
++		}
+ 	}
+ 
+ 	/* flag no sync regardless of whether we had a DSP_POST or not */
 
 

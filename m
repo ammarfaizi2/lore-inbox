@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265680AbTFSBRO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 21:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265681AbTFSBRN
+	id S265681AbTFSBat (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 21:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265685AbTFSBat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 21:17:13 -0400
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:60069 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S265680AbTFSBRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 21:17:12 -0400
-Date: Wed, 18 Jun 2003 21:26:24 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-cc: nfs@lists.sourceforge.net,
-       Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: make NFS work with 64KB page-size
-In-Reply-To: <16113.5317.341448.162576@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.56.0306182124270.29031@filesrv1.baby-dragons.com>
-References: <16112.60959.588900.824473@napali.hpl.hp.com>
- <16113.5317.341448.162576@gargle.gargle.HOWL>
+	Wed, 18 Jun 2003 21:30:49 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:40684 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id S265681AbTFSBar convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 21:30:47 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780DD16D38@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Andrew Morton'" <akpm@digeo.com>,
+       "'george anzinger'" <george@mvista.com>
+Cc: "'joe.korty@ccur.com'" <joe.korty@ccur.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'mingo@elte.hu'" <mingo@elte.hu>
+Subject: RE: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
+	sks
+Date: Wed, 18 Jun 2003 18:44:42 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Neil ,  Hth ,  JimL
+> From: Andrew Morton [mailto:akpm@digeo.com]
+> 
+> Various things like character drivers do rely upon keventd services.  So
+it
+> is possible that bash is stuck waiting on keyboard input, but there is no
+> keyboard input because keventd is locked out.
+> 
+> I'll take a closer look at this, see if there is a specific case which can
+> be fixed.
+> 
+> Arguably, keventd should be running max-prio RT because it is a kernel
+> service, providing "process context interrupt service".
 
-+++ ./net/sunrpc/svc.c	2003-06-19 11:38:30.000000000 +1000
-...snip...
--	int pages = 2 + (size+ PAGE_SIZE -1) / PAGE_SIZE;
-+	int page;
-	    ^^^^ s/b pages ?
+Now that we are at that, it might be wise to add a higher-than-anything
+priority that the kernel code can use (what would be 100 for user space,
+but off-limits), so even FIFO 99 code in user space cannot block out
+the migration thread, keventd and friends.
 
-On Thu, 19 Jun 2003, Neil Brown wrote:
-> On Wednesday June 18, davidm@napali.hpl.hp.com wrote:
-> > NFS currently bugs out on kernels with a page size of 64KB.  The
-> > reason is a mismatch between RPCSVC_MAXPAGES and a calculation in
-> > svc_init_buffer().  I'm not entirely certain which calculation is the
-> > right one, but if I understand the code correctly, RPCSVC_MAXPAGES is
-> > right and svc_init_buffer() is wrong.  The patch below fixes the
-> > latter.
->
-> I think the +2 is right.
->
-> For read/readdir the reply can be slightly larger than the "payload",
-> (headers, etc) so we need one payload, plus one for the rest of the
-> reply, plus one to hold the request.
->
-> For write, the request can be large than the payload, so again we need
-> payload + 1 (for request) + 1 (for reply).
-> Something like the following.
-> NeilBrown
--- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+> IIRC, Andrea's kernel runs keventd as SCHED_FIFO.  I've tried to avoid
+> making this change for ideological reasons ;) Userspace is more important
+> than the kernel and the kernel has no damn right to be saying "oh my stuff
+> is so important that it should run before latency-critical user code".
+
+I agree with that, but the consequence is kind of ugly; not that a true
+real-time embedded process is going to be printing to the console, but 
+it might be outputting to a serial line, so now they rely on the keventd.
+
+BTW, I have seen similar problems wrt to the migration thread, where a
+FIFO 20 process would get stuck in CPU1, that is taken by a FIFO 40
+while CPU0 was running a FIFO 10 -- however, I am not that positive
+that it is a migration thread problem; I blame it more on the scheduler
+not taking into account priorities for firing the load balancer. It is
+a tricky thingie, though. Affinity helps, in this case.
+
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

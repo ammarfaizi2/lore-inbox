@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268095AbUJSJHd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268097AbUJSJLg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268095AbUJSJHd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 05:07:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJSJHd
+	id S268097AbUJSJLg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 05:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268092AbUJSJLg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 05:07:33 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:46227 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S268095AbUJSJHI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 05:07:08 -0400
-Date: Tue, 19 Oct 2004 11:06:22 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-cc: cliff white <cliffw@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Enough with the ad-hoc naming schemes, please
-In-Reply-To: <20041018214407.B6344@flint.arm.linux.org.uk>
-Message-ID: <Pine.GSO.4.61.0410191050140.13789@waterleaf.sonytel.be>
-References: <20041018180851.GA28904@waste.org> <20041018113807.488969ab.cliffw@osdl.org>
- <20041018214407.B6344@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Oct 2004 05:11:36 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:63137
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S268097AbUJSJLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 05:11:33 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U5
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041019090428.GA17204@elte.hu>
+References: <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+	 <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
+	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
+	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
+	 <20041018145008.GA25707@elte.hu> <1098173546.12223.737.camel@thomas>
+	 <20041019090428.GA17204@elte.hu>
+Content-Type: text/plain
+Organization: linutronix
+Message-Id: <1098176615.12223.753.camel@thomas>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 19 Oct 2004 11:03:35 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Oct 2004, Russell King wrote:
-> On Mon, Oct 18, 2004 at 11:38:07AM -0700, cliff white wrote:
-> > On Mon, 18 Oct 2004 13:08:51 -0500
-> > Matt Mackall <mpm@selenic.com> wrote:
-> > > I can't help but notice you've broken all the tools that rely on a
-> > > stable naming scheme TWICE in the span of LESS THAN ONE POINT RELEASE.
-> > > 
-> > > In both cases, this could have been avoided by using Marcello's 2.4
-> > > naming scheme. It's very simple: when you think something is "final",
-> > > you call it a "release candidate" and tag it "-rcX". If it works out,
-> > > you rename it _unmodified_ and everyone can trust that it hasn't
-> > > broken again in the interval. If it's not "final" and you're accepting
-> > > more than bugfixes, you call it a "pre-release" and tag it "-pre".
-> > > Then developers and testers and automated tools all know what to
-> > > expect.
-> > 
-> > Speaking for OSDL's automated testing team, we second this motion. 
+On Tue, 2004-10-19 at 11:04, Ingo Molnar wrote:
+> > All sleep_on variants trigger the irqs_disabled() check in schedule(). 
+> > tglx
 > 
-> <aol>me too</aol>  I've already made some representations to Linus
-> in private, and now I'm actively queueing up patches which have been
-> sitting around since the start of -rc1.  I, for one, no longer believe
-> in any naming scheme associated with mainline.
+> ah, forgot that the waitqueue lock is a raw lock. Is there _any_
+> scenario where sleep_on() is actually correct kernel code?
 
-Ah, I'm not the only one! Apparently not all obvious fixes for things that got
-obviously broken in 2.6.9-rc* were applied :-(
+Hmm, the sleep_on() variants are used quite a lot over the kernel. Whats
+wrong with them and to what should they be converted ?
 
-Not to mention e.g. the m68k signal handling got broken because of the removal
-(without any warning in advance on linux-arch) of notify_parent(), which is BTW
-still used by 5 archs, either in code or in comments (never trust comments?).
+tglx
 
-Gr{oetje,eeting}s,
 
-				    Geert (sometimes frustrated maintainer,
-					   sometimes typing emails without
-					   much calming down first ;-)
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

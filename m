@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276081AbRI1OmS>; Fri, 28 Sep 2001 10:42:18 -0400
+	id <S276079AbRI1Oli>; Fri, 28 Sep 2001 10:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276078AbRI1OmI>; Fri, 28 Sep 2001 10:42:08 -0400
-Received: from sushi.toad.net ([162.33.130.105]:49544 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S276077AbRI1Olv>;
-	Fri, 28 Sep 2001 10:41:51 -0400
-Message-ID: <3BB48C29.356901F1@mail.com>
-Date: Fri, 28 Sep 2001 10:41:45 -0400
-From: Thomas Hood <jdthood@mail.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stelian Pop <stelian.pop@fr.alcove.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PnP BIOS + 2.4.9-ac16 = no boot
-In-Reply-To: <3BB47F7F.DE2FD301@mail.com> <20010928160250.K21524@come.alcove-fr>
+	id <S276078AbRI1Ol3>; Fri, 28 Sep 2001 10:41:29 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:21144
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S276077AbRI1OlQ>; Fri, 28 Sep 2001 10:41:16 -0400
+Date: Fri, 28 Sep 2001 07:41:24 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Tsunehiko Baba <tsn@crl.hitachi.co.jp>,
+        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: [REPORT] (PPC) Compile Error (Linux 2.4.9-ac[12-16])
+Message-ID: <20010928074124.R23005@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20010928071540.O23005@cpe-24-221-152-185.az.sprintbbd.net> <E15myo9-0007Dj-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E15myo9-0007Dj-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stelian Pop wrote:
-> What about making a conditional on 'is_sony_vaio_laptop' here ?
-> (but you need to extends the conditionnal export of this variable
-> from dmi_scan.c / i386_ksyms.c).
+On Fri, Sep 28, 2001 at 03:40:05PM +0100, Alan Cox wrote:
+> > Paul sent Alan some patches a while back to update things, so hopefully they're
+> > still in the queue someplace.  If you want a good PPC kernel, hit
+> > http://penguinppc.org/dev/kernel.shtml
+> 
+> I suspect they have gone astray
 
-In addition to applying the patch I just sent
-(thood-pnpbiosvaio-patch-20010928-3), you will have
-to move the definition of is_sony_vaio_laptop outside
-the #ifdefs in arch/i386/kernel/dmi_scan.c and i386_ksyms.c
+Uh-oh.  I'll try and find time to do it later today, or remind Paul when
+he pops up.
 
-You or Alan:  For the cleaned up patch, do we export this
-variable unconditionally?
-
---
-Thomas
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

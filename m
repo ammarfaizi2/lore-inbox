@@ -1,71 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268347AbTAMV2s>; Mon, 13 Jan 2003 16:28:48 -0500
+	id <S268354AbTAMVcF>; Mon, 13 Jan 2003 16:32:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268348AbTAMV2s>; Mon, 13 Jan 2003 16:28:48 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:42885 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S268347AbTAMV2r>; Mon, 13 Jan 2003 16:28:47 -0500
-Date: Mon, 13 Jan 2003 16:40:37 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Ross Biro <rossb@google.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre3-ac4
-In-Reply-To: <20030113212406.GA13531@gtf.org>
-Message-ID: <Pine.LNX.3.95.1030113162939.30920A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268352AbTAMVcF>; Mon, 13 Jan 2003 16:32:05 -0500
+Received: from mail5.bluewin.ch ([195.186.1.207]:759 "EHLO mail5.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S268354AbTAMVcE>;
+	Mon, 13 Jan 2003 16:32:04 -0500
+Date: Mon, 13 Jan 2003 22:40:45 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Edward Tandi <ed@efix.biz>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre3-ac3 and KT400
+Message-ID: <20030113214045.GC1327@k3.hellgate.ch>
+Mail-Followup-To: Edward Tandi <ed@efix.biz>,
+	Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <1042489183.2617.28.camel@wires.home.biz> <20030113210245.GB1327@k3.hellgate.ch> <1042492357.2819.37.camel@wires.home.biz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1042492357.2819.37.camel@wires.home.biz>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.57 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Jan 2003, Jeff Garzik wrote:
-
-> On Mon, Jan 13, 2003 at 08:03:29PM +0100, Benjamin Herrenschmidt wrote:
-> > Exactly. My problem right now is with enforcing that 400ns delay on
-> > non-DMA path as with PCI write posting on one side, and other fancy bus
-> > store queues etc... you are really not sure when your outb for the
-> > command byte will really reach the disk.
+On Mon, 13 Jan 2003 21:12:37 +0000, Edward Tandi wrote:
+> > IIRC the KT400 comes with a VT8235 south bridge, so current stock kernel
+> > should work (minus some bugs that still need fixing). What does lspci -vn
+> > say? Anything in the kernel log when you try to load via-rhine?
 > 
-> As a slight tangent, PCI write posting is quite annoying because on some
-> hardware one simply cannot perform a read immediately after a write,
-> without pausing for a hardware-specified amount of time.
+> I have the via-rhine driver built into the kernel (Y) not (M). Nothing
+> shows in dmesg or /var/log/messages.
 > 
-> ...but, at the same time, who knows how long the write posting may take,
-> so one doesn't know how long the delay really needs to be.
-> 
-> It would be nice if there was an arch-specific flush-posted-writes hook
-> [wmb_mmio() ?], if that was possible on write-posting CPUs.  Currently
-> right now the canonical solution ("MMIO read") doesn't work in some
-> situations, and I do think we have a solution at all for those "some
-> situations."
-> 
-> 	Jeff
-> 
+> lspci output below. Thanks,
 
-There is a well-defined procedure for this. Any "read" anywhere
-in the PCI address space, will force all posted writes to complete.
-However, the "read" will not be the data one would obtain after
-the write completes. Therefore, to guarantee that all posted
-writes complete before you read, for instance, status that could
-be affected by that write, you execute a dummy read anywhere in
-PCI address space, somewhere that will not screw up your
-status. In other words, you don't read your device status twice,
-once to post the writes and once to get the status because some
-hardware will detect the read and fail to give you the correct
-status on the second read. Instead, you read some 'harmless' register
-that your hardware will decode, but not muck up the status. You
-don't want to read a nonexistant register because this will cause
-a lonnnnnnng bus-timeout. It will work to flush pending writes, but
-it's slow.
+Huh? I'll be... You may want to give b44 a try (I suppose tulip works for
+the Lite-On). There's no Rhine here.
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
-
-
+Roger

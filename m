@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130325AbQLQSxf>; Sun, 17 Dec 2000 13:53:35 -0500
+	id <S130670AbQLQSzF>; Sun, 17 Dec 2000 13:55:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130405AbQLQSxZ>; Sun, 17 Dec 2000 13:53:25 -0500
-Received: from web.sajt.cz ([212.71.160.9]:1289 "EHLO web.sajt.cz")
-	by vger.kernel.org with ESMTP id <S130325AbQLQSxM>;
-	Sun, 17 Dec 2000 13:53:12 -0500
-Date: Sun, 17 Dec 2000 19:19:46 +0100 (CET)
-From: Pavel Rabel <pavel@web.sajt.cz>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] sim710.c compiler warning
-Message-ID: <Pine.LNX.4.21.0012171917310.25444-100000@web.sajt.cz>
+	id <S130685AbQLQSy4>; Sun, 17 Dec 2000 13:54:56 -0500
+Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:17670 "EHLO
+	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
+	id <S130668AbQLQSyh>; Sun, 17 Dec 2000 13:54:37 -0500
+Date: Sun, 17 Dec 2000 13:23:52 -0500 (EST)
+From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+To: Lars Marowsky-Bree <lmb@suse.de>
+cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Monitoring filesystems / blockdevice for errors
+In-Reply-To: <20001217153453.O5323@marowsky-bree.de>
+Message-ID: <Pine.LNX.4.10.10012171314050.16143-100000@coffee.psychology.mcmaster.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> currently, there is no way for an external application to monitor whether a
+> filesystem or underlaying block device has hit an error condition - internal
+> inconsistency, read or write error, whatever.
+> 
+> Short of parsing syslog messages, which isn't particularly great.
 
-Patch fixes compiler warning for 2.4.0-test12
+what's wrong with it?  reinventing /proc/kmsg and klogd would be tre gross.
 
-sim710.c: In function `sim710_detect':
-sim710.c:1452: warning: comparison between pointer and integer
+> I don't have a real idea how this could be added, short of adding a field to
+> /proc/partitions (error count) or something similiar.
 
-Pavel Rabel
+for reporting errors, that might be OK, but it's not a particularly nice
+_notification_ mechanism...
 
---- drivers/scsi/sim710.c.old	Tue Dec  5 15:34:00 2000
-+++ drivers/scsi/sim710.c	Tue Dec  5 15:37:18 2000
-@@ -1449,7 +1449,7 @@
- 
-     for(indx = 0; indx < no_of_boards; indx++) {
-         unsigned long page = __get_free_pages(GFP_ATOMIC, order);
--        if(page == NULL)
-+        if( !page )
-         {
-         	printk(KERN_WARNING "sim710: out of memory registering board %d.\n", indx);
-         	break;
-
+regards, mark hahn.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262226AbTHYVWm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 17:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbTHYVWm
+	id S262239AbTHYV0i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 17:26:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbTHYV0i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 17:22:42 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:64521 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S262228AbTHYVWk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 17:22:40 -0400
-Date: Mon, 25 Aug 2003 23:22:38 +0200
+	Mon, 25 Aug 2003 17:26:38 -0400
+Received: from [217.16.69.3] ([217.16.69.3]:28588 "EHLO on.net.mk")
+	by vger.kernel.org with ESMTP id S262239AbTHYV0f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 17:26:35 -0400
+Message-ID: <3F4A7F2C.7080205@bagra.net.mk>
+Date: Mon, 25 Aug 2003 23:27:08 +0200
+From: =?UTF-8?B?0JTQsNC80ZjQsNC9INCT0LXQvtGA0LPQuNC10LLRgdC60Lg=?= 
+	<damjan@bagra.net.mk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.22 tar ball misses drivers/scsi/aic79xx
-Message-ID: <20030825212238.GA27385@gamma.logic.tuwien.ac.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+CC: trivial@rustcorp.com.au, dahinds@users.sourceforge.net
+Subject: Trivial patch for drivers/serial/8250_cs
+Content-Type: multipart/mixed;
+ boundary="------------040202060401030800000401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is a multi-part message in MIME format.
+--------------040202060401030800000401
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I compared a `patched up' version (all the way through the pre and rc
-stages) with a tar ball from www.at.kernel.org, and the later is missing
-the whole drivers/scsi/aic79xx directory.
+This patch is against 2.6.0-test4.
+It fixes the pcmcia serial driver to know its now called 8250_cs and not 
+serial_cs...
 
-Best wishes
+Without this patch 8250_cs compiles but doesn't work.
+All the patch does is change several "serial_cs" occurences to "8250_cs".
 
-Norbert
+PS.
+another possible sollution is to change everything (including the file 
+name) from "8250_cs" to "serial_cs" like it is in 2.4
 
--------------------------------------------------------------------------------
-Norbert Preining <preining AT logic DOT at>         Technische Universität Wien
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-POGES (pl.n.)
-The lumps of dry powder that remain after cooking a packet soup.
-			--- Douglas Adams, The Meaning of Liff
+--------------040202060401030800000401
+Content-Type: text/plain;
+ name="8250_cs.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="8250_cs.patch"
+
+LS0tIDgyNTBfY3MuY34JMjAwMy0wOC0yNSAyMzoxMzo1MS4wMDAwMDAwMDAgKzAyMDAKKysr
+IDgyNTBfY3MuYwkyMDAzLTA4LTI1IDIyOjQ1OjE1LjAwMDAwMDAwMCArMDIwMApAQCAtMiw3
+ICsyLDcgQEAKIAogICAgIEEgZHJpdmVyIGZvciBQQ01DSUEgc2VyaWFsIGRldmljZXMKIAot
+ICAgIHNlcmlhbF9jcy5jIDEuMTM0IDIwMDIvMDUvMDQgMDU6NDg6NTMKKyAgICA4MjUwX2Nz
+LmMgMS4xMzQgMjAwMi8wNS8wNCAwNTo0ODo1MwogCiAgICAgVGhlIGNvbnRlbnRzIG9mIHRo
+aXMgZmlsZSBhcmUgc3ViamVjdCB0byB0aGUgTW96aWxsYSBQdWJsaWMKICAgICBMaWNlbnNl
+IFZlcnNpb24gMS4xICh0aGUgIkxpY2Vuc2UiKTsgeW91IG1heSBub3QgdXNlIHRoaXMgZmls
+ZQpAQCAtNTgsNyArNTgsNyBAQAogc3RhdGljIGludCBwY19kZWJ1ZyA9IFBDTUNJQV9ERUJV
+RzsKIE1PRFVMRV9QQVJNKHBjX2RlYnVnLCAiaSIpOwogI2RlZmluZSBERUJVRyhuLCBhcmdz
+Li4uKSBpZiAocGNfZGVidWc+KG4pKSBwcmludGsoS0VSTl9ERUJVRyBhcmdzKQotc3RhdGlj
+IGNoYXIgKnZlcnNpb24gPSAic2VyaWFsX2NzLmMgMS4xMzQgMjAwMi8wNS8wNCAwNTo0ODo1
+MyAoRGF2aWQgSGluZHMpIjsKK3N0YXRpYyBjaGFyICp2ZXJzaW9uID0gIjgyNTBfY3MuYyAx
+LjEzNCAyMDAyLzA1LzA0IDA1OjQ4OjUzIChEYXZpZCBIaW5kcykiOwogI2Vsc2UKICNkZWZp
+bmUgREVCVUcobiwgYXJncy4uLikKICNlbmRpZgpAQCAtMTE2LDcgKzExNiw3IEBACiBzdGF0
+aWMgaW50IHNlcmlhbF9ldmVudChldmVudF90IGV2ZW50LCBpbnQgcHJpb3JpdHksCiAJCQll
+dmVudF9jYWxsYmFja19hcmdzX3QgKiBhcmdzKTsKIAotc3RhdGljIGRldl9pbmZvX3QgZGV2
+X2luZm8gPSAic2VyaWFsX2NzIjsKK3N0YXRpYyBkZXZfaW5mb190IGRldl9pbmZvID0gIjgy
+NTBfY3MiOwogCiBzdGF0aWMgZGV2X2xpbmtfdCAqc2VyaWFsX2F0dGFjaCh2b2lkKTsKIHN0
+YXRpYyB2b2lkIHNlcmlhbF9kZXRhY2goZGV2X2xpbmtfdCAqKTsKQEAgLTI4MSw3ICsyODEs
+NyBAQAogCQlzZXJpYWwuZmxhZ3MgfD0gVVBGX0JVR0dZX1VBUlQ7CiAJbGluZSA9IHJlZ2lz
+dGVyX3NlcmlhbCgmc2VyaWFsKTsKIAlpZiAobGluZSA8IDApIHsKLQkJcHJpbnRrKEtFUk5f
+Tk9USUNFICJzZXJpYWxfY3M6IHJlZ2lzdGVyX3NlcmlhbCgpIGF0IDB4JTA0bHgsIgorCQlw
+cmludGsoS0VSTl9OT1RJQ0UgIjgyNTBfY3M6IHJlZ2lzdGVyX3NlcmlhbCgpIGF0IDB4JTA0
+bHgsIgogCQkgICAgICAgIiBpcnEgJWQgZmFpbGVkXG4iLCAodV9sb25nKSBzZXJpYWwucG9y
+dCwgc2VyaWFsLmlycSk7CiAJCXJldHVybiAtRUlOVkFMOwogCX0KQEAgLTQwMSw3ICs0MDEs
+NyBAQAogICAgICAgZm91bmRfcG9ydDoKIAlpZiAoaSAhPSBDU19TVUNDRVNTKSB7CiAJCXBy
+aW50ayhLRVJOX05PVElDRQotCQkgICAgICAgInNlcmlhbF9jczogbm8gdXNhYmxlIHBvcnQg
+cmFuZ2UgZm91bmQsIGdpdmluZyB1cFxuIik7CisJCSAgICAgICAiODI1MF9jczogbm8gdXNh
+YmxlIHBvcnQgcmFuZ2UgZm91bmQsIGdpdmluZyB1cFxuIik7CiAJCWNzX2Vycm9yKGxpbmst
+PmhhbmRsZSwgUmVxdWVzdElPLCBpKTsKIAkJcmV0dXJuIC0xOwogCX0KQEAgLTQ5Nyw3ICs0
+OTcsNyBAQAogCWkgPSBDYXJkU2VydmljZXMoUmVxdWVzdElSUSwgbGluay0+aGFuZGxlLCAm
+bGluay0+aXJxKTsKIAlpZiAoaSAhPSBDU19TVUNDRVNTKSB7CiAJCXByaW50ayhLRVJOX05P
+VElDRQotCQkgICAgICAgInNlcmlhbF9jczogbm8gdXNhYmxlIHBvcnQgcmFuZ2UgZm91bmQs
+IGdpdmluZyB1cFxuIik7CisJCSAgICAgICAiODI1MF9jczogbm8gdXNhYmxlIHBvcnQgcmFu
+Z2UgZm91bmQsIGdpdmluZyB1cFxuIik7CiAJCWNzX2Vycm9yKGxpbmstPmhhbmRsZSwgUmVx
+dWVzdElSUSwgaSk7CiAJCWxpbmstPmlycS5Bc3NpZ25lZElSUSA9IDA7CiAJfQpAQCAtNjg2
+LDE4ICs2ODYsMTggQEAKIHN0YXRpYyBzdHJ1Y3QgcGNtY2lhX2RyaXZlciBzZXJpYWxfY3Nf
+ZHJpdmVyID0gewogCS5vd25lcgkJPSBUSElTX01PRFVMRSwKIAkuZHJ2CQk9IHsKLQkJLm5h
+bWUJPSAic2VyaWFsX2NzIiwKKwkJLm5hbWUJPSAiODI1MF9jcyIsCiAJfSwKIAkuYXR0YWNo
+CQk9IHNlcmlhbF9hdHRhY2gsCiAJLmRldGFjaAkJPSBzZXJpYWxfZGV0YWNoLAogfTsKIAot
+c3RhdGljIGludCBfX2luaXQgaW5pdF9zZXJpYWxfY3Modm9pZCkKK3N0YXRpYyBpbnQgX19p
+bml0IGluaXRfODI1MF9jcyh2b2lkKQogewogCXJldHVybiBwY21jaWFfcmVnaXN0ZXJfZHJp
+dmVyKCZzZXJpYWxfY3NfZHJpdmVyKTsKIH0KIAotc3RhdGljIHZvaWQgX19leGl0IGV4aXRf
+c2VyaWFsX2NzKHZvaWQpCitzdGF0aWMgdm9pZCBfX2V4aXQgZXhpdF84MjUwX2NzKHZvaWQp
+CiB7CiAJcGNtY2lhX3VucmVnaXN0ZXJfZHJpdmVyKCZzZXJpYWxfY3NfZHJpdmVyKTsKIApA
+QCAtNzA2LDcgKzcwNiw3IEBACiAJCXNlcmlhbF9kZXRhY2goZGV2X2xpc3QpOwogfQogCi1t
+b2R1bGVfaW5pdChpbml0X3NlcmlhbF9jcyk7Ci1tb2R1bGVfZXhpdChleGl0X3NlcmlhbF9j
+cyk7Cittb2R1bGVfaW5pdChpbml0XzgyNTBfY3MpOworbW9kdWxlX2V4aXQoZXhpdF84MjUw
+X2NzKTsKIAogTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwo=
+--------------040202060401030800000401--
+

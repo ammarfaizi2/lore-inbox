@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264750AbSKEKE1>; Tue, 5 Nov 2002 05:04:27 -0500
+	id <S264762AbSKEKJy>; Tue, 5 Nov 2002 05:09:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264751AbSKEKE1>; Tue, 5 Nov 2002 05:04:27 -0500
-Received: from hazard.jcu.cz ([160.217.1.6]:36514 "EHLO hazard.jcu.cz")
-	by vger.kernel.org with ESMTP id <S264750AbSKEKE0>;
-	Tue, 5 Nov 2002 05:04:26 -0500
-Date: Tue, 5 Nov 2002 11:10:25 +0100
-From: Jan Marek <linux@hazard.jcu.cz>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PROBLEM] 2.5.46: linker failed when I compile AFS
-Message-ID: <20021105101024.GB22948@hazard.jcu.cz>
+	id <S264770AbSKEKJy>; Tue, 5 Nov 2002 05:09:54 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50694 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264762AbSKEKJx>; Tue, 5 Nov 2002 05:09:53 -0500
+Date: Tue, 5 Nov 2002 10:16:26 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Zwane Mwaikambo <zwane@holomorphy.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.45 odd deref in serial_in
+Message-ID: <20021105101626.A20224@flint.arm.linux.org.uk>
+Mail-Followup-To: Zwane Mwaikambo <zwane@holomorphy.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20021105090256.A17931@flint.arm.linux.org.uk> <Pine.LNX.4.44.0211050414410.27141-100000@montezuma.mastecende.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0211050414410.27141-100000@montezuma.mastecende.com>; from zwane@holomorphy.com on Tue, Nov 05, 2002 at 04:20:00AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo l-k,
+On Tue, Nov 05, 2002 at 04:20:00AM -0500, Zwane Mwaikambo wrote:
+> I'm runnning 115200 :P It looks like a race however because i don't always 
+> trigger it, but when i do the trace is always the same. However i'm not 
+> going to make you run circles for my potentially dodgy code.
 
-I have problem with linking of kernel 2.5.46 when I try to compile
-support for AFS:
+The figures are actually rather horrifing.  There are a couple of
+messages I have in my boot log which are rather long - 137 chars
+and 79 chars.
 
-        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o
---start-group  usr/built-in.o
-arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
-arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o
-fs/built-in.o  ipc/built-in.o  security/built-in.o  crypto/built-in.o
-lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o
-arch/i386/pci/built-in.o  net/built-in.o --end-group  -o .tmp_vmlinux1
-fs/built-in.o(.text+0x4a573): In function `afs_exit':
-: undefined reference to `afs_fs_exit'
-make[1]: *** [.tmp_vmlinux1] Error 1
-make: *** [vmlinux] Error 2
+Even at 115200 baud is one character every 87us.  This gives:
 
-Have you any suggestion, how it can be repaired?
+137 characters: 12ms
+79 characters: 7ms
 
-Thanks.
+At these types of figures, x86 will drop 1000Hz interrupts like
+crazy when writing console messages via the serial port (because
+interrupts are turned off.)
 
-Sincerely
-Jan Marek
+With these figures, the longest message we can write at 115200
+baud and not drop any timer ticks is 11 characters.  Not many
+kernel messages are less than 12 characters.
+
+Now I'll go back and look at your original email... it was for a
+slightly different problem. 8)
+
 -- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,40 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268767AbRG0DTX>; Thu, 26 Jul 2001 23:19:23 -0400
+	id <S266662AbRG0ESW>; Fri, 27 Jul 2001 00:18:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268766AbRG0DTN>; Thu, 26 Jul 2001 23:19:13 -0400
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:46090 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S268764AbRG0DTE>;
-	Thu, 26 Jul 2001 23:19:04 -0400
-From: tpepper@vato.org
-Date: Thu, 26 Jul 2001 20:19:09 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Validating Pointers
-Message-ID: <20010726201909.A19877@cb.vato.org>
-In-Reply-To: <20010726100955.B18938@cb.vato.org> <E15Pogz-00048x-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <E15Pogz-00048x-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Jul 26, 2001 at 06:12:57PM +0100
+	id <S266718AbRG0ESO>; Fri, 27 Jul 2001 00:18:14 -0400
+Received: from SMTP5.ANDREW.CMU.EDU ([128.2.10.85]:53510 "EHLO
+	smtp5.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S266662AbRG0ESF>; Fri, 27 Jul 2001 00:18:05 -0400
+Date: Fri, 27 Jul 2001 00:18:04 -0400 (EDT)
+From: Frank Davis <fdavis@andrew.cmu.edu>
+To: linux-kernel@vger.kernel.org
+cc: alan@lxorguk.ukuu.org.uk, fdavis112@juno.com
+Subject: 2.4.7-ac1: ohci1394.c parse error
+Message-ID: <Pine.GSO.4.21L-021.0107270015580.28563-100000@unix3.andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu 26 Jul at 18:12:57 +0100 alan@lxorguk.ukuu.org.uk done said:
-> 
-> You can't pass kernel address as if they were userspace. It might happen to
-> sometimes work on some architectures. Take a look at the set_fs() stuff
+Hello all,
+ I haven't seen this posted. While 'make modules' on 2.4.7-ac1 , I
+received the following error:
+ohci1394.c:1451: parse error
+make[2]: *** [ohci1394.o] Error 1
+make[2]: Leaving directory '/usr/src/linux/drivers/ieee1394'
+make[1]: *** [modsubdir_ieee1394] Error 2
 
-Am I?  I though I was doing a pretty plain user<->kernel copy:
+Regards,
+Frank
 
-	copy_to_user(user_addr, kernel_addr, size);
-		and
-	copy_from_user(kernel_addr, user_addr, size);
-
-Are you saying that static and dynamically allocated kernel variables end up
-in different segments (kernel_ds and user_ds) and the copy is only expected to
-succeed if the to and from addresses are in the same segment?
-
-Tim

@@ -1,142 +1,100 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264871AbTFCBxl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 21:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264872AbTFCBxl
+	id S264893AbTFCCHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 22:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264894AbTFCCHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 21:53:41 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:54007 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264871AbTFCBxj (ORCPT
+	Mon, 2 Jun 2003 22:07:25 -0400
+Received: from exchange-1.umflint.edu ([141.216.3.48]:29097 "EHLO
+	Exchange-1.umflint.edu") by vger.kernel.org with ESMTP
+	id S264893AbTFCCHX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 21:53:39 -0400
-Subject: [RFC][PATCH] linux-2.5.70_monotonic-seqlock_A0
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054605866.32091.758.camel@w-jstultz2.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 02 Jun 2003 19:04:26 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Jun 2003 22:07:23 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: SCO's claims seem empty
+Date: Mon, 2 Jun 2003 22:18:01 -0400
+Message-ID: <37885B2630DF0C4CA95EFB47B30985FB0187FFE7@exchange-1.umflint.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: SCO's claims seem empty
+Thread-Index: AcMpagTMa405m8G6TRiwBRqUsAroVwAC3pow
+From: "Lauro, John" <jlauro@umflint.edu>
+To: "Raimundo Bilbao" <rbilbao@inzignia.cl>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo, All,
-	As requested, here is a quick patch that converts the rwlock_t
-monotonic_lock (which protects the monotonic_base value used in
-monotonic_clock()) to a seqlock. 
+>From what I read when SCO had more on their web site, it's more a
+question of contract violation. IBM had a contract for their Unix, and
+developed their code for that.  Then IBM ported some of their "own"
+kernel mods that was written for AIX and released it into Linux for
+free.  That violated some portion of the Unix contract. Thus, if IBM
+wins, could have implications against some parts of GPL, and maybe
+that is why Microsoft is backing SCO.
 
-Let me know if you have any comments. 
-
-thanks
--john
-
-
-
-diff -Nru a/arch/i386/kernel/timers/timer_cyclone.c b/arch/i386/kernel/timers/timer_cyclone.c
---- a/arch/i386/kernel/timers/timer_cyclone.c	Mon Jun  2 19:01:13 2003
-+++ b/arch/i386/kernel/timers/timer_cyclone.c	Mon Jun  2 19:01:13 2003
-@@ -36,7 +36,7 @@
- static u32 last_cyclone_low;
- static u32 last_cyclone_high;
- static unsigned long long monotonic_base;
--static rwlock_t monotonic_lock = RW_LOCK_UNLOCKED;
-+static seqlock_t monotonic_lock = SEQLOCK_UNLOCKED;
- 
- /* helper macro to atomically read both cyclone counter registers */
- #define read_cyclone_counter(low,high) \
-@@ -52,7 +52,7 @@
- 	int count;
- 	unsigned long long this_offset, last_offset;
- 
--	write_lock(&monotonic_lock);
-+	write_seqlock(&monotonic_lock);
- 	last_offset = ((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
- 	
- 	spin_lock(&i8253_lock);
-@@ -77,7 +77,7 @@
- 	/* update the monotonic base value */
- 	this_offset = ((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
- 	monotonic_base += (this_offset - last_offset) & CYCLONE_TIMER_MASK;
--	write_unlock(&monotonic_lock);
-+	write_sequnlock(&monotonic_lock);
- 
- 	/* calculate delay_at_last_interrupt */
- 	count = ((LATCH-1) - count) * TICK_SIZE;
-@@ -118,12 +118,16 @@
- 	u32 now_low, now_high;
- 	unsigned long long last_offset, this_offset, base;
- 	unsigned long long ret;
-+	unsigned long seq;
- 
- 	/* atomically read monotonic base & last_offset */
--	read_lock_irq(&monotonic_lock);
--	last_offset = ((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
--	base = monotonic_base;
--	read_unlock_irq(&monotonic_lock);
-+	do {
-+		seq = read_seqbegin(&monotonic_lock);
-+
-+		last_offset = 
-+			((unsigned long long)last_cyclone_high<<32)|last_cyclone_low;
-+		base = monotonic_base;
-+	} while (read_seqretry(&monotonic_lock, seq));
- 
- 	/* Read the cyclone counter */
- 	read_cyclone_counter(now_low,now_high);
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Mon Jun  2 19:01:13 2003
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Mon Jun  2 19:01:13 2003
-@@ -30,7 +30,7 @@
- static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
- static unsigned long last_tsc_high; /* msb 32 bits of Time Stamp Counter */
- static unsigned long long monotonic_base;
--static rwlock_t monotonic_lock = RW_LOCK_UNLOCKED;
-+static seqlock_t monotonic_lock = SEQLOCK_UNLOCKED;
- 
- /* convert from cycles(64bits) => nanoseconds (64bits)
-  *  basic equation:
-@@ -102,12 +102,15 @@
- static unsigned long long monotonic_clock_tsc(void)
- {
- 	unsigned long long last_offset, this_offset, base;
--	
-+	unsigned long seq;
-+
- 	/* atomically read monotonic base & last_offset */
--	read_lock_irq(&monotonic_lock);
--	last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
--	base = monotonic_base;
--	read_unlock_irq(&monotonic_lock);
-+	do {
-+		seq = read_seqbegin(&monotonic_lock);
-+	
-+		last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
-+		base = monotonic_base;
-+	} while (read_seqretry(&monotonic_lock, seq));
- 
- 	/* Read the Time Stamp Counter */
- 	rdtscll(this_offset);
-@@ -125,7 +128,7 @@
- 	static int count1 = 0;
- 	unsigned long long this_offset, last_offset;
- 	
--	write_lock(&monotonic_lock);
-+	write_seqlock(&monotonic_lock);
- 	last_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
- 	/*
- 	 * It is important that these two operations happen almost at
-@@ -184,7 +187,7 @@
- 	/* update the monotonic base value */
- 	this_offset = ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
- 	monotonic_base += cycles_2_ns(this_offset - last_offset);
--	write_unlock(&monotonic_lock);
-+	write_sequnlock(&monotonic_lock);
- 
- 	/* calculate delay_at_last_interrupt */
- 	count = ((LATCH-1) - count) * TICK_SIZE;
+I may be way off base, but SCO always stated it was contract issues
+and not code or copyright.
 
 
-
+> -----Original Message-----
+> From: Raimundo Bilbao [mailto:rbilbao@inzignia.cl]
+> Sent: Monday, June 02, 2003 8:43 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: SCO's claims seem empty
+> 
+> El Dom 01 Jun 2003 21:19, Horst von Brand escribió:
+> > Paul Rolland <rol@as2917.net> said:
+> >
+> > [...]
+> >
+> > > However ..somebody must have realised, that this was nonsense
+and
+> > > removed it from the site.
+> >
+> > Perhaps due to the court decision in Germany, restraining them
+from
+> > claiming that Linux uses Unix code illegaly until the court sees
+into
+> the
+> > matter...
+> 
+> What's up doc, nice to see you here !  :-D
+> 
+> Honestly, I don't know what to think right now, perhaps all that
+SCO's
+> stuff
+> was a mere smoke-bomb (you kown, that's M$ bombs what we seen back
+in the
+> 90's :-D  agaisnt IBM ?, remember OS/2 --> xxxNT ?)
+> 
+> A chimp's IQ level CIO of any company don't start to sue everyone in
+the
+> planet if  he have a little of common sense about they possibilities
+to
+> win
+> (or else they must to be prepared for the linux's strike back :-} ),
+and
+> for
+> this particular case they are, to say, very very wired (AFAIK they
+haven't
+> provide a concise probe of that _stolen-critical-olimpicus-code_
+that
+> nobody
+> else on this planet can write, except off course, SCO and their
+> ilumminated
+> community of gurues :-D  ).
+> 
+> 
+> cheers
+> mundo
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

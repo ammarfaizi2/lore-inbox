@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263363AbTJQKSb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 06:18:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTJQKSb
+	id S263401AbTJQKYq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 06:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTJQKYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 06:18:31 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:58864 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S263363AbTJQKS3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 06:18:29 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Torben Mathiasen <torben.mathiasen@hp.com>
-Subject: Re: [RFT][PATCH] fix ServerWorks PIO auto-tuning
-Date: Fri, 17 Oct 2003 12:22:29 +0200
-User-Agent: KMail/1.5.4
-Cc: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
-References: <200310162344.09021.bzolnier@elka.pw.edu.pl> <20031017095117.GB1690@tmathiasen>
-In-Reply-To: <20031017095117.GB1690@tmathiasen>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Fri, 17 Oct 2003 06:24:46 -0400
+Received: from users.linvision.com ([62.58.92.114]:20639 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S263401AbTJQKYn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 06:24:43 -0400
+Date: Fri, 17 Oct 2003 12:24:36 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
+       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
+Message-ID: <20031017102436.GB10185@bitwizard.nl>
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <3F8BBC08.6030901@namesys.com> <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200310171222.29796.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60>
+User-Agent: Mutt/1.3.28i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 of October 2003 11:51, Torben Mathiasen wrote:
-> On Thu, Oct 16 2003, Bartlomiej Zolnierkiewicz wrote:
-> > Hi,
-> >
-> > I wonder if this patch fixes problems (reported back in 2.4.21 days)
-> > with CSB5 IDE and Compaq Proliant machines.  Please test it if you can.
->
-> Hi Bart,
->
-> Funny you should send this as I was just looking at it. The good news is
-> that it works!. We're not seeing any failed commands during boot anymore. I
-> tested it on both 2.4.23-pre7 and 2.6.0-test7.
+On Fri, Oct 17, 2003 at 06:40:01PM +0900, Norman Diamond wrote:
+> I explained to them why the LBA sector number should still get
+> reallocated even though the data are lost.
 
-Great!
+This is unbelievably bad: Sometimes it is worth it, to try and read
+the block again and again. We've seen blocks getting read after we've
+retried over 1000 times from "userspace". That doesn't include the
+retries that the drive did for us "behind the scenes". 
 
-> Also, the previous problem we had where Linux would enable DMA on a device
-> (system) not supporting it has also been fixed now that we look at the
-> dma_stat bits to determine whether the BIOS indicated DMA. We're currently
+If you manage to convince Toshiba to remap the sector on a "bad read",
+we'll never ever be able to recover the sector.
 
-Can I assume that "biostimings" option is no longer needed for ServerWorks?
+We've also been able to provide a different environment (e.g. other
+ambient temperature) to a drive so that previously bad sectors could
+be read.
 
-If so I will remove it because it is dangerous on many chipsets.
-Even if some chipset needs it in the future it should be reimplemented
-in specific chipset driver, not in generic IDE code.
+No, the only way is to realloc on write. (but it should remember that
+the data was bad, and treat the physical area with extra caution. It's
+possible that something happened while writing that sector, so that
+rewriting it this time will fix the problem for good, but on the other
+hand, that area of the drive demonstrated the abilitty to lose data,
+so you shouldn't trust any data to it!)
 
-> making sure that all of our servers does proper BIOS IDE setup to make
-> things work as expected.
->
-> Thanks for the patch, please include it.
+			Roger. 
 
-Sure.
-
-thanks,
---bartlomiej
-
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

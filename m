@@ -1,112 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286711AbSABEmN>; Tue, 1 Jan 2002 23:42:13 -0500
+	id <S286769AbSABExD>; Tue, 1 Jan 2002 23:53:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286712AbSABEmD>; Tue, 1 Jan 2002 23:42:03 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:48389 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S286711AbSABElr>;
-	Tue, 1 Jan 2002 23:41:47 -0500
-Date: Wed, 2 Jan 2002 02:41:25 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: <linux-mm@kvack.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [PATCH *] 2.4.17 rmap based VM #10
-Message-ID: <Pine.LNX.4.33L.0201020239070.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S286765AbSABEwx>; Tue, 1 Jan 2002 23:52:53 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:49540 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S286744AbSABEwm>;
+	Tue, 1 Jan 2002 23:52:42 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 2 Jan 2002 04:52:15 GMT
+Message-Id: <UTC200201020452.EAA175954.aeb@cwi.nl>
+To: neilb@cse.unsw.edu.au, torvalds@transmeta.com, trond.myklebust@fys.uio.no
+Subject: Re: NFS "dev_t" issues..
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> I made a pre6, which contains a new-and-anal "kdev_t".
 
-It seems the cause for the livelock wasn't what I thought it was
-for rmap-9, I finally ran into a piece of old, broken code, right
-in the middle of page_launder().  Now the machine boots and runs
-decently with only 1 MB of swappable memory left (the rest consumed
-by the swap bitmap, the kernel itself, profiling buffer, ...).
-This version seems to work nicely even under some pretty strange
-corner cases.
+Nice! And even in my original form, with these heavy kdev_same
+and kdev_none things :-).
 
+I booted a kernel but had quite a lot to change, the patch
+is large. I can send it, but instead:
 
-The 10th version of the reverse mapping based VM is now available.
-This is an attempt at making a more robust and flexible VM
-subsystem, while cleaning up a lot of code at the same time. The patch
-is available from:
+(i) I changed almost every single MKDEV to mk_kdev.
+Of course, the kernel was rather kdev_t clean, it was
+not difficult to run with kdev_t a different type, so
+there are very few places where this is inappropriate,
+and the number of correct places is so large that a
+global command, followed by a revert in these very few
+places, seems more appropriate than a large patch.
+Moreover, probably you and others did part of this already.
 
-           http://surriel.com/patches/2.4/2.4.17-rmap-10
-and        http://linuxvm.bkbits.net/
+Not to be changed:
+./init/do_mounts.c: sys_mknod("/dev/console", S_IFCHR|0600, MKDEV(TTYAUX_MAJOR, 1));
+./arch/sparc64/solaris/fs.c: sys_mknod((const char *)A(path), mode, MKDEV(major,minor));
+./include/linux/kdev_t.h
 
+All else should be changed (or at least: did I change, I may have
+overlooked sth).
 
-My big TODO items for a next release are:
-  - fix page_launder() so it doesn't submit the whole
-    inactive_dirty list for writeout in one go
+In do_mounts.c there is a real_root_dev set via /proc, and I left it
+an integer, while ROOT_DEV is a kdev_t, which implies the
+appropriate conversions there.
 
-rmap 10:
-  - fix the livelock for real (yeah right), turned out
-    to be a stupid bug in page_launder_zone()             (me)
-  - to make sure the VM subsystem doesn't monopolise
-    the CPU, let kswapd and some apps sleep a bit under
-    heavy stress situations                               (me)
-  - let __GFP_HIGH allocations dig a little bit deeper
-    into the free page pool, the SCSI layer seems fragile (me)
-rmap 9:
-  - improve comments all over the place                   (Michael Cohen)
-  - don't panic if page_remove_rmap() cannot find the
-    rmap in question, it's possible that the memory was
-    PG_reserved and belonging to a driver, but the driver
-    exited and cleared the PG_reserved bit                (me)
-  - fix the VM livelock by replacing > by >= in a few
-    critical places in the pageout code                   (me)
-  - treat the reclaiming of an inactive_clean page like
-    allocating a new page, calling try_to_free_pages()
-    and/or fixup_freespace() if required                  (me)
-  - when low on memory, don't make things worse by
-    doing swapin_readahead                                (me)
-rmap 8:
-  - add ANY_ZONE to the balancing functions to improve
-    kswapd's balancing a bit                              (me)
-  - regularize some of the maximum loop bounds in
-    vmscan.c for cosmetic purposes                        (William Lee Irwin)
-  - move page_address() to architecture-independent
-    code, now the removal of page->virtual is portable    (William Lee Irwin)
-  - speed up free_area_init_core() by doing a single
-    pass over the pages and not using atomic ops          (William Lee Irwin)
-  - documented the buddy allocator in page_alloc.c        (William Lee Irwin)
-rmap 7:
-  - clean up and document vmscan.c                        (me)
-  - reduce size of page struct, part one                  (William Lee Irwin)
-  - add rmap.h for other archs (untested, not for ARM)    (me)
-rmap 6:
-  - make the active and inactive_dirty list per zone,
-    this is finally possible because we can free pages
-    based on their physical address                       (William Lee Irwin)
-  - cleaned up William's code a bit                       (me)
-  - turn some defines into inlines and move those to
-    mm_inline.h (the includes are a mess ...)             (me)
-  - improve the VM balancing a bit                        (me)
-  - add back inactive_target to /proc/meminfo             (me)
-rmap 5:
-  - fixed recursive buglet, introduced by directly
-    editing the patch for making rmap 4 ;)))              (me)
-rmap 4:
-  - look at the referenced bits in page tables            (me)
-rmap 3:
-  - forgot one FASTCALL definition                        (me)
-rmap 2:
-  - teach try_to_unmap_one() about mremap()               (me)
-  - don't assign swap space to pages with buffers         (me)
-  - make the rmap.c functions FASTCALL / inline           (me)
-rmap 1:
-  - fix the swap leak in rmap 0                           (Dave McCracken)
-rmap 0:
-  - port of reverse mapping VM to 2.4.16                  (me)
+(ii) Then there are MAJOR and MINOR. I did not change these to
+major and minor, mainly because in some possible futures
+it will be necessary to do a lot of grepping for these again -
+almost all occurrences should be removed - and major and minor
+are such common words. It is nicer to have something more unique,
+like kmajor and kminor. Moreover, major and minor do at present
+also occur as ordinary variables.
+Are kmajor, kminor acceptable?
 
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Andries
 

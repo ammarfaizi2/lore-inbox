@@ -1,95 +1,200 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262802AbSKDVE4>; Mon, 4 Nov 2002 16:04:56 -0500
+	id <S262783AbSKDVBp>; Mon, 4 Nov 2002 16:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSKDVE4>; Mon, 4 Nov 2002 16:04:56 -0500
-Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:32384 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id <S262790AbSKDVEy>;
-	Mon, 4 Nov 2002 16:04:54 -0500
-Date: Mon, 4 Nov 2002 16:15:04 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: CaT <cat@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, alan@lxorguk.ukuu.org.uk
-Subject: Re: 2.5.45 / boottime oops (pnp bios I think)
-Message-ID: <20021104161504.GA316@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>, CaT <cat@zip.com.au>,
-	linux-kernel@vger.kernel.org, greg@kroah.com,
-	alan@lxorguk.ukuu.org.uk
-References: <20021104025458.GA3088@zip.com.au>
+	id <S262788AbSKDVBp>; Mon, 4 Nov 2002 16:01:45 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:60911 "EHLO
+	mookie.adilger.int") by vger.kernel.org with ESMTP
+	id <S262783AbSKDVBn>; Mon, 4 Nov 2002 16:01:43 -0500
+Date: Mon, 4 Nov 2002 14:13:17 -0700
+From: Andreas Dilger <adilger@clusterfs.com>
+To: linux-kernel@vger.kernel.org
+Cc: Marco van Wieringen <mvw@planets.elm.net>
+Subject: [PATCH] remove extern inline from quotaops.h
+Message-ID: <20021104141317.A29058@mookie.adilger.int>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Marco van Wieringen <mvw@planets.elm.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021104025458.GA3088@zip.com.au>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 04, 2002 at 01:54:59PM +1100, CaT wrote:
-> When I unselect PNP BIOS the kernel boots fine. With it I get the
-> oops below. Please note that it was typed out manually and that that was
-> all that I could get as I could not scroll up or down in any way.
->
-> The PC is a Gateway laptop.
->
-> If you need more info, please holler.
->
+We are having a strange problem with compiling ext3 code out-of-tree,
+and it is related to the fact that several functions in quotaops.h
+are declared "extern __inline__" instead of "static inline".  Is
+there a good reason to have it that way?  I thought "extern __inline__"
+was sort of frowned upon.
 
-Instead of adding your PnP BIOS to the black list, I may know a way to 
-support it completely even though it is broken.
+Below is a patch to change this to "static inline".  A similar patch is
+needed for 2.5, but the file has changed significantly...
 
-To prove this idea could you please do the following:
+Cheers, Andreas
+=============================================================================
+--- linux-2.4/include/linux/quotaops.h.orig	Wed Oct 30 17:10:48 2002
++++ linux-2.4/include/linux/quotaops.h	Mon Nov  4 13:53:05 2002
+@@ -38,9 +38,9 @@
+  */
+ #define sb_any_quota_enabled(sb) ((sb)->s_dquot.flags & (DQUOT_USR_ENABLED | DQUOT_GRP_ENABLED))
+ 
+-static __inline__ void DQUOT_INIT(struct inode *inode)
++static inline void DQUOT_INIT(struct inode *inode)
+ {
+- 	if (!inode->i_sb)
++	if (!inode->i_sb)
+ 		out_of_line_bug();
+ 	lock_kernel();
+ 	if (sb_any_quota_enabled(inode->i_sb) && !IS_NOQUOTA(inode))
+@@ -48,18 +48,19 @@
+ 	unlock_kernel();
+ }
+ 
+-static __inline__ void DQUOT_DROP(struct inode *inode)
++static inline void DQUOT_DROP(struct inode *inode)
+ {
+ 	lock_kernel();
+ 	if (IS_QUOTAINIT(inode)) {
+ 		if (!inode->i_sb)
+ 			out_of_line_bug();
+-		inode->i_sb->dq_op->drop(inode);	/* Ops must be set when there's any quota... */
++		/* Ops must be set when there's any quota... */
++		inode->i_sb->dq_op->drop(inode);
+ 	}
+ 	unlock_kernel();
+ }
+ 
+-static __inline__ int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
++static inline int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+ {
+ 	lock_kernel();
+ 	if (sb_any_quota_enabled(inode->i_sb)) {
+@@ -75,7 +76,7 @@
+ 	return 0;
+ }
+ 
+-static __inline__ int DQUOT_PREALLOC_SPACE(struct inode *inode, qsize_t nr)
++static inline int DQUOT_PREALLOC_SPACE(struct inode *inode, qsize_t nr)
+ {
+ 	int ret;
+ 	if (!(ret = DQUOT_PREALLOC_SPACE_NODIRTY(inode, nr)))
+@@ -83,7 +84,7 @@
+ 	return ret;
+ }
+ 
+-static __inline__ int DQUOT_ALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
++static inline int DQUOT_ALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+ {
+ 	lock_kernel();
+ 	if (sb_any_quota_enabled(inode->i_sb)) {
+@@ -99,7 +100,7 @@
+ 	return 0;
+ }
+ 
+-static __inline__ int DQUOT_ALLOC_SPACE(struct inode *inode, qsize_t nr)
++static inline int DQUOT_ALLOC_SPACE(struct inode *inode, qsize_t nr)
+ {
+ 	int ret;
+ 	if (!(ret = DQUOT_ALLOC_SPACE_NODIRTY(inode, nr)))
+@@ -107,7 +108,7 @@
+ 	return ret;
+ }
+ 
+-static __inline__ int DQUOT_ALLOC_INODE(struct inode *inode)
++static inline int DQUOT_ALLOC_INODE(struct inode *inode)
+ {
+ 	lock_kernel();
+ 	if (sb_any_quota_enabled(inode->i_sb)) {
+@@ -121,7 +122,7 @@
+ 	return 0;
+ }
+ 
+-static __inline__ void DQUOT_FREE_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
++static inline void DQUOT_FREE_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+ {
+ 	lock_kernel();
+ 	if (sb_any_quota_enabled(inode->i_sb))
+@@ -131,13 +132,13 @@
+ 	unlock_kernel();
+ }
+ 
+-static __inline__ void DQUOT_FREE_SPACE(struct inode *inode, qsize_t nr)
++static inline void DQUOT_FREE_SPACE(struct inode *inode, qsize_t nr)
+ {
+ 	DQUOT_FREE_SPACE_NODIRTY(inode, nr);
+ 	mark_inode_dirty(inode);
+ }
+-	
+-static __inline__ void DQUOT_FREE_INODE(struct inode *inode)
++
++static inline void DQUOT_FREE_INODE(struct inode *inode)
+ {
+ 	lock_kernel();
+ 	if (sb_any_quota_enabled(inode->i_sb))
+@@ -145,7 +146,7 @@
+ 	unlock_kernel();
+ }
+ 
+-static __inline__ int DQUOT_TRANSFER(struct inode *inode, struct iattr *iattr)
++static inline int DQUOT_TRANSFER(struct inode *inode, struct iattr *iattr)
+ {
+ 	lock_kernel();
+ 	if (sb_any_quota_enabled(inode->i_sb) && !IS_NOQUOTA(inode)) {
+@@ -174,7 +175,7 @@
+ #define DQUOT_SYNC(dev)				do { } while(0)
+ #define DQUOT_OFF(sb)				do { } while(0)
+ #define DQUOT_TRANSFER(inode, iattr)		(0)
+-extern __inline__ int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
++static inline int DQUOT_PREALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+ {
+ 	lock_kernel();
+ 	inode_add_bytes(inode, nr);
+@@ -182,14 +183,14 @@
+ 	return 0;
+ }
+ 
+-extern __inline__ int DQUOT_PREALLOC_SPACE(struct inode *inode, qsize_t nr)
++static inline int DQUOT_PREALLOC_SPACE(struct inode *inode, qsize_t nr)
+ {
+ 	DQUOT_PREALLOC_SPACE_NODIRTY(inode, nr);
+ 	mark_inode_dirty(inode);
+ 	return 0;
+ }
+ 
+-extern __inline__ int DQUOT_ALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
++static inline int DQUOT_ALLOC_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+ {
+ 	lock_kernel();
+ 	inode_add_bytes(inode, nr);
+@@ -197,21 +198,21 @@
+ 	return 0;
+ }
+ 
+-extern __inline__ int DQUOT_ALLOC_SPACE(struct inode *inode, qsize_t nr)
++static inline int DQUOT_ALLOC_SPACE(struct inode *inode, qsize_t nr)
+ {
+ 	DQUOT_ALLOC_SPACE_NODIRTY(inode, nr);
+ 	mark_inode_dirty(inode);
+ 	return 0;
+ }
+ 
+-extern __inline__ void DQUOT_FREE_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
++static inline void DQUOT_FREE_SPACE_NODIRTY(struct inode *inode, qsize_t nr)
+ {
+ 	lock_kernel();
+ 	inode_sub_bytes(inode, nr);
+ 	unlock_kernel();
+ }
+ 
+-extern __inline__ void DQUOT_FREE_SPACE(struct inode *inode, qsize_t nr)
++static inline void DQUOT_FREE_SPACE(struct inode *inode, qsize_t nr)
+ {
+ 	DQUOT_FREE_SPACE_NODIRTY(inode, nr);
+ 	mark_inode_dirty(inode);
+--
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
 
-1.) apply patch 1 (attached below) to a clean kernel (2.5.45).  Compile the 
-kernel with PnP BIOS support and list the last few messages that start with 
-"pnp!!!:" before it panics.  You probably will want to have kernel debugging
-off so it doesn't scroll the messages off the screen.
-
-2.) Apply patch 2 (attached below) to a clean kernel (2.5.45).  Compile the 
-kernel with PnP BIOS support.  It should start up completely without a panic.  
-This is not a complete fix however.  Anyway attach a copy of the output from 
-dmesg.
-
-If my theory is correct I will have a fix out soon.
-
-thanks,
-Adam
-
-
-patch 1---------------------------------------------------------------------
-
-diff -ur stock/drivers/pnp/pnpbios/core.c debug/drivers/pnp/pnpbios/core.c
---- stock/drivers/pnp/pnpbios/core.c	Thu Oct 31 00:41:38 2002
-+++ debug/drivers/pnp/pnpbios/core.c	Mon Nov  4 15:48:56 2002
-@@ -1421,6 +1421,7 @@
- 		memcpy(dev->name,"Unknown Device",13);
- 		dev->name[14] = '\0';
- 		pnpid32_to_pnpid(node->eisa_id,id);
-+		printk(KERN_ERR "PNP!!!: Node number: 0x%x EISA ID: %s\n", (unsigned int)thisnodenum, id);
- 		memcpy(dev_id->id,id,8);
- 		pnp_add_id(dev_id, dev);
- 		pos = node_current_resource_data_to_dev(node,dev);
-
-
-
-patch 2---------------------------------------------------------------------
-
-diff -ur stock/drivers/pnp/pnpbios/core.c debug/drivers/pnp/pnpbios/core.c
---- stock/drivers/pnp/pnpbios/core.c	Thu Oct 31 00:41:38 2002
-+++ debug/drivers/pnp/pnpbios/core.c	Mon Nov  4 15:50:41 2002
-@@ -1405,7 +1405,7 @@
- 		 * asking for the "current" config causes some
- 		 * BIOSes to crash.
- 		 */
--		if (pnp_bios_get_dev_node(&nodenum, (char )0 , node))
-+		if (pnp_bios_get_dev_node(&nodenum, (char )1 , node))
- 			break;
- 		nodes_got++;
- 		dev =  pnpbios_kmalloc(sizeof (struct pnp_dev), GFP_KERNEL);
-@@ -1421,6 +1421,7 @@
- 		memcpy(dev->name,"Unknown Device",13);
- 		dev->name[14] = '\0';
- 		pnpid32_to_pnpid(node->eisa_id,id);
-+		printk(KERN_ERR "PNP!!!: Node number: 0x%x EISA ID: %s\n", (unsigned int)thisnodenum, id);
- 		memcpy(dev_id->id,id,8);
- 		pnp_add_id(dev_id, dev);
- 		pos = node_current_resource_data_to_dev(node,dev);

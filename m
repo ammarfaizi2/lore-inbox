@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263798AbTKKVL3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 16:11:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTKKVL3
+	id S263788AbTKKVJX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 16:09:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263792AbTKKVJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 16:11:29 -0500
-Received: from mx2.ews.uiuc.edu ([130.126.161.238]:48540 "EHLO
-	mx2.ews.uiuc.edu") by vger.kernel.org with ESMTP id S263798AbTKKVL1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 16:11:27 -0500
-Message-ID: <013a01c3a898$5e476b20$e6f7ae80@ad.uiuc.edu>
-From: "Wanghong Yuan" <wyuan1@ews.uiuc.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: question on wireless profiling, thanks
-Date: Tue, 11 Nov 2003 15:11:26 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Tue, 11 Nov 2003 16:09:23 -0500
+Received: from codepoet.org ([166.70.99.138]:24734 "EHLO codepoet.org")
+	by vger.kernel.org with ESMTP id S263788AbTKKVJW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 16:09:22 -0500
+Date: Tue, 11 Nov 2003 14:09:22 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: Julien Oster <lkml-20031111@mc.frodoid.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A7N8X (Deluxe) Madness
+Message-ID: <20031111210922.GA10102@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Julien Oster <lkml-20031111@mc.frodoid.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <frodoid.frodo.87r80eznz9.fsf@usenet.frodoid.org> <20031111200922.GA9276@codepoet.org> <frodoid.frodo.87k766zmak.fsf@usenet.frodoid.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <frodoid.frodo.87k766zmak.fsf@usenet.frodoid.org>
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue Nov 11, 2003 at 09:24:03PM +0100, Julien Oster wrote:
+> Erik Andersen <andersen@codepoet.org> writes:
+> 
+> Hello Erik,
+> 
+> >> I have an ASUS A7N8X Deluxe mainboard. Yeah, right, that thing causing
+> >> serious trouble. I'm getting hard lockups all the time. No panic, no
+> >> message, no sysrq, no blinking cursor in the framebuffer. Gone for good.
+> 
+> > Does it help if you go into the BIOS and set the IDE controller
+> > to "Compatible Mode" rather than "Enhanced Mode"?
+> 
+> I'm sorry, but I just can't find that option... it's the newest BIOS
+> version, however?
 
-I am a PhD student and need to profile the activity of the IEEE 802.11
-wireless network card in Linux. The basic idea is to monitor when the
-pcmcia wireless card is sending, receiving, or idle. I am using
-Redhat 8.0 with kernel 2.4.18.
+I have an ASUS mb with that option, but I just checked
+your manual and it indeed does not have that option.
+Anyway, the problem I had was that I had my SATA ports
+as well as all usb devices sharing the same interrupt
+and the resulting interrupt storm was easily seen by
+watching /proc/interrupts
 
-Would you give me some suggestions on if there is such profiling tool?
-Otherwise, I think I need to modify the wireless driver. Is there any link
-on
-how to modify the wireless driver?
+ -Erik
 
-Thanks and appreciate your help.
-
-wanghong
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

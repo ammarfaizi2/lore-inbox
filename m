@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130194AbRA3XvT>; Tue, 30 Jan 2001 18:51:19 -0500
+	id <S129184AbRAaABN>; Tue, 30 Jan 2001 19:01:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130443AbRA3Xu7>; Tue, 30 Jan 2001 18:50:59 -0500
-Received: from cheetah.STUDENT.CWRU.Edu ([129.22.164.229]:58496 "EHLO
-	cheetah.STUDENT.cwru.edu") by vger.kernel.org with ESMTP
-	id <S130194AbRA3Xu4>; Tue, 30 Jan 2001 18:50:56 -0500
-Date: Tue, 30 Jan 2001 18:50:56 -0500 (EST)
-From: Matthew Gabeler-Lee <msg2@po.cwru.edu>
-X-X-Sender: <cheetah@cheetah.STUDENT.cwru.edu>
-To: <linux-kernel@vger.kernel.org>
-Subject: bttv problems in 2.4.0/2.4.1
-Message-ID: <Pine.LNX.4.32.0101301830330.1138-100000@cheetah.STUDENT.cwru.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130304AbRAaABD>; Tue, 30 Jan 2001 19:01:03 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:24060 "EHLO halfway")
+	by vger.kernel.org with ESMTP id <S129184AbRAaAAu>;
+	Tue, 30 Jan 2001 19:00:50 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Reuben Farrelly <reuben@reub.net>
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        netfilter@us5.samba.org
+Subject: Re: Unresolved symbols 
+In-Reply-To: Your message of "Fri, 26 Jan 2001 01:14:09 +1100."
+             <5.0.2.1.2.20010126010507.00af5128@mail.reub.net> 
+Date: Wed, 31 Jan 2001 11:00:07 +1100
+Message-Id: <E14Nkgz-0006Oy-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.4.0 and 2.4.1, when I try to load the bttv driver, one of two
-things happens: the system hangs (even alt-sysrq doesn't work!), or the
-system powers off by itself (ATX mobo).  Instant power-off usually
-happens after a soft reboot (init 6), while it usually hangs up after a
-hard reboot (power cycling).
+In message <5.0.2.1.2.20010126010507.00af5128@mail.reub.net> you write:
+> Hi again Rusty
 
-When it hangs, I noticed a very strange thing.  If I push the power
-on/off button briefly, it un-hangs and seems to proceed as normal.  The
-kernel does report an APIC error on each cpu (dual p3 700 system) when
-this happens.
+God I'm an idiot.  I swear I've fixed this before.  <<search>>.  Yep,
+I did.  And before that, the same bug in the conntrack code.
 
-These errors all occur in the same way (as near as I can tell) in
-kernels 2.4.0 and 2.4.1, using bttv drivers 0.7.50 (incl. w/ kernel),
-0.7.53, and 0.7.55.
+This fixed the `core nat compiled in, rest as modules' case, of
+course, by actually exporting the symbols.
 
-I am currently using 2.4.0-test10 with bttv 0.7.47, which works fine.
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK
 
-I have sent all this info to Gerd Knorr but, as far as I know, he hasn't
-been able to track down the bug yet.  I thought that by posting here,
-more eyes might at least make more reports of similar situations that
-might help track down the problem.
-
-PS: I'm not on the linux-kernel list, so please CC replies to me.
-
--- 
-	-Matt
-
-Today's weirdness is tomorrow's reason why.
-                -- Hunter S. Thompson
-
-
+diff -urN -I \$.*\$ -X /tmp/kerndiff.GyILWe --minimal linux-2.4.0-official/net/ipv4/netfilter/ip_nat_standalone.c working-2.4.0/net/ipv4/netfilter/ip_nat_standalone.c
+--- linux-2.4.0-official/net/ipv4/netfilter/ip_nat_standalone.c	Tue Oct 31 09:27:49 2000
++++ working-2.4.0/net/ipv4/netfilter/ip_nat_standalone.c	Wed Jan 31 10:50:50 2001
+@@ -330,11 +330,9 @@
+ module_init(init);
+ module_exit(fini);
+ 
+-#ifdef MODULE
+ EXPORT_SYMBOL(ip_nat_setup_info);
+ EXPORT_SYMBOL(ip_nat_helper_register);
+ EXPORT_SYMBOL(ip_nat_helper_unregister);
+ EXPORT_SYMBOL(ip_nat_expect_register);
+ EXPORT_SYMBOL(ip_nat_expect_unregister);
+ EXPORT_SYMBOL(ip_nat_cheat_check);
+-#endif
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

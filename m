@@ -1,46 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292399AbSBBWCM>; Sat, 2 Feb 2002 17:02:12 -0500
+	id <S292404AbSBBWFU>; Sat, 2 Feb 2002 17:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292401AbSBBWCB>; Sat, 2 Feb 2002 17:02:01 -0500
-Received: from [195.163.186.27] ([195.163.186.27]:36303 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S292399AbSBBWBr>;
-	Sat, 2 Feb 2002 17:01:47 -0500
-Date: Sun, 3 Feb 2002 00:01:40 +0200
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Astinus <Astinus@netcabo.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: (untitled email)
-Message-ID: <20020203000140.O5808@mea-ext.zmailer.org>
-In-Reply-To: <000f01c1ac24$c8105c00$af00a8c0@mshome.net>
-Mime-Version: 1.0
+	id <S292401AbSBBWFA>; Sat, 2 Feb 2002 17:05:00 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23556 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292404AbSBBWEy>; Sat, 2 Feb 2002 17:04:54 -0500
+Subject: Re: 2.4.17 agpgart process hang on crash
+To: larsch@cs.auc.dk (Lars Christensen)
+Date: Sat, 2 Feb 2002 22:17:56 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, linux-bugs@nvidia.com
+In-Reply-To: <Pine.GSO.4.33.0202022219340.29744-100000@peta.cs.auc.dk> from "Lars Christensen" at Feb 02, 2002 10:55:05 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <000f01c1ac24$c8105c00$af00a8c0@mshome.net>; from Astinus@netcabo.pt on Sat, Feb 02, 2002 at 08:04:10PM -0000
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16X8Ts-0000gN-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Dear me...    With DaveM we decided to remove a subset of TABOO
-patterns called 'admin messages', as something like 2/3 of hits were
-people writing about something valid..  including just mentioning
-words like 'config' with suitable number of words following it
-to match Majordomo action verbs.
-
-  Astinus, all interaction with the list robot MUST happen with
-the list robot.  The robot WILL NOT look into email contents going
-thru the lists for possible commands.
-
-  For several years a subset of people's emails has ended up in
-trash-bin.  Lately we have tried to find a way to lessen the number
-of false triggers, but it seems we will get this kind of mis-addressed
-emails into the lists...   Time to try to cook more RE magic..
-
-/Matti Aarnio -- co-postmaster of vger.kernel.org
-
-On Sat, Feb 02, 2002 at 08:04:10PM -0000, Astinus wrote:
-> From:	"Astinus" <Astinus@netcabo.pt>
-> To:	<linux-kernel@vger.kernel.org>
-> Subject: 
-> Date:	Sat, 2 Feb 2002 20:04:10 -0000
+> Hi. I have experienced a problem with the combination of kernel-2.4.16,
+> the kernel agpgart module and NVIDIA supplied drivers. I don't know which
+> is the cause of the problem.
 > 
-> auth d7c21c90 subscribe linux-kernel AstinusLists@netcabo.pt
+
+Please report problem with the nvidia drivers loaded to nvidia. They have
+the kernel source, we do not have their source code. Only they can help
+you. 
+
+Alan

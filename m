@@ -1,113 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262913AbTJTVHq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 17:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTJTVHq
+	id S262782AbTJTVBt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 17:01:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262798AbTJTVBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 17:07:46 -0400
-Received: from mail.gmx.net ([213.165.64.20]:16538 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262913AbTJTVHl (ORCPT
+	Mon, 20 Oct 2003 17:01:32 -0400
+Received: from dslb138.fsr.net ([12.7.7.138]:46237 "EHLO sandall.us")
+	by vger.kernel.org with ESMTP id S262782AbTJTVAm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 17:07:41 -0400
-Date: Mon, 20 Oct 2003 23:07:40 +0200 (MEST)
-From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
-Cc: Tomi.Orava@ncircle.nullnet.fi, linux-kernel@vger.kernel.org
+	Mon, 20 Oct 2003 17:00:42 -0400
+Message-ID: <1066683638.3f944cf6e6763@horde.sandall.us>
+Date: Mon, 20 Oct 2003 14:00:38 -0700
+From: Eric Sandall <eric@sandall.us>
+To: Nir Tzachar <tzachar@cs.bgu.ac.il>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: srfs - a new file system.
+References: <Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
+In-Reply-To: <Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
 MIME-Version: 1.0
-References: <001901c39734$8a2c2bb0$0514a8c0@HUSH>
-Subject: Re: HighPoint 374
-X-Priority: 3 (Normal)
-X-Authenticated: #20183004
-Message-ID: <31727.1066684060@www30.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 134.121.40.89
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW, isn't m0 supposed to reduce perfomance?
-
-hm here it also doesn't seem to change much,
-may be it's ignored if UDMA is used
-
-mem is 1024Mb
-
-[root@svetljo kernel]#  hdparm -m0 /dev/hde
-
-/dev/hde:
- setting multcount to 0
- multcount    =  0 (off)
-
-[root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
-20000+0 records in
-20000+0 records out
-0.09user 29.38system 5:44.49elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (149major+40minor)pagefaults 0swaps
-[root@svetljo 1]#  hdparm -m8 /dev/hde
-
-/dev/hde:
- setting multcount to 8
- multcount    =  8 (on)
-[root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
-20000+0 records in
-20000+0 records out
-0.10user 28.99system 5:50.44elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (150major+41minor)pagefaults 0swaps
-
-root@svetljo 1]#  hdparm -m16 /dev/hde
-
-/dev/hde:
- setting multcount to 16
- multcount    = 16 (on)
-[root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
-20000+0 records in
-20000+0 records out
-0.09user 28.83system 5:53.57elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
-0inputs+0outputs (165major+40minor)pagefaults 0swaps
-[root@svetljo 1]#
-
-> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
-> bs=65536
-> 20000+0 records in
-> 20000+0 records out
+Quoting Nir Tzachar <tzachar@cs.bgu.ac.il>:
+> hello all.
 > 
-> real    0m33.763s
-> user    0m0.200s
-> sys     0m10.920s
-> [root@fulanito wd1200jb]# hdparm -m4 /dev/hdk
+> We're proud to announce the availability of a _proof of concept_ file
+> system, called srfs. ( http://www.cs.bgu.ac.il/~srfs/ ).
+> a quick overview: [from the home page]
+> srfs is a global file system designed to be distributed geographicly over
+> multiple locations and provide a consistent, high available and durable
+> infrastructure for information.
 > 
-> /dev/hdk:
->  setting multcount to 4
->  multcount    =  4 (on)
-> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
-> bs=65536
-> 20000+0 records in
-> 20000+0 records out
+> Started as a research project into file systems and self-stabilization in
+> Ben Gurion University of the Negev Department of Computer Science, the
+> project aims to integrate self-stabilization methods and algorithms into
+> the file (and operation) systems to provide a system with a desired
+> behavior in the presence of transient faults.
 > 
-> real    0m30.321s
-> user    0m0.150s
-> sys     0m10.630s
-> [root@fulanito wd1200jb]# hdparm -m0 /dev/hdk
+> Based on layered self-stabilizing algorithms, provide a tree replication
+> structure based on auto-discovery of servers using local and global IP
+> multicasting. The tree structure is providing the command and timing
+> infrastructure required for a distributed file system.
 > 
-> /dev/hdk:
->  setting multcount to 0
->  multcount    =  0 (off)
-> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
-> bs=65536
-> 20000+0 records in
-> 20000+0 records out
+> The project is basically divided into two components:
+> 1) a kernel module, which provides the low level functionality, and
+>    disk management.
+> 2) a user space caching daemon, which provide the stabilization and
+>    replication properties of the file system.
+> these two components communicate via a character device.
 > 
-> real    0m30.749s
-> user    0m0.130s
-> sys     0m10.900s
-> [root@fulanito wd1200jb]#
+> more info on the system architecture can be find on the web page, and
+> here: http://www.cs.bgu.ac.il/~tzachar/srfs.pdf
+> 
+> We hope some will find this interesting enough to take for a test drive,
+> and wont mind the latencies ( currently, the caching daemon is a bit slow.
+> hopefully, we will improve it in the future. )
+> anyway, please keep in mind this is a very early version that only works,
+> and keeps the stabilization properties. no posix compliance whatsoever...
+> 
+> the code contains several hacks and design flaws that we're aware of,
+> and probably many that we're not... so please be gentle ;)
+> 
+> if someone found this interesting, please contact us with ur insights.
+> cheers,
+> the srfs team.
+> 
+> p.s I would like to thank all members of this mailing list (fsdevel), for
+> ur continual help with problems we encountered during the development.
+> thanks guys (and girls???).
+> 
+> ========================================================================
+> nir.
+
+This sounds fairly similar to Coda[0], which is already in development and use.
+
+-sandalle
+
+[0] http://www.coda.cs.cmu.edu/
 
 -- 
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
+PGP Key Fingerprint:  FCFF 26A1 BE21 08F4 BB91  FAED 1D7B 7D74 A8EF DD61
+http://search.keyserver.net:11371/pks/lookup?op=get&search=0xA8EFDD61
 
-Jetzt kostenlos anmelden unter http://www.gmx.net
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCS/E/IT$ d-- s++:+>: a-- C++(+++) BL++++VIS>$ P+(++) L+++ E-(---) W++ N+@ o?
+K? w++++>-- O M-@ V-- PS+(+++) PE(-) Y++(+) PGP++(+) t+() 5++ X(+) R+(++)
+tv(--)b++(+++) DI+@ D++(+++) G>+++ e>+++ h---(++) r++ y+
+------END GEEK CODE BLOCK------
 
-+++ GMX - die erste Adresse für Mail, Message, More! +++
+Eric Sandall                     |  Source Mage GNU/Linux Developer
+eric@sandall.us                  |  http://www.sourcemage.org/
+http://eric.sandall.us/          |  SysAdmin @ Inst. Shock Physics @ WSU
+http://counter.li.org/  #196285  |  http://www.shock.wsu.edu/
 
+----------------------------------------------------------------
+This message was sent using IMP, the Internet Messaging Program.

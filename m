@@ -1,68 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUGYL7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262744AbUGYMIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUGYL7y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 07:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbUGYL7y
+	id S262744AbUGYMIx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 08:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262768AbUGYMIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 07:59:54 -0400
-Received: from fep17.inet.fi ([194.251.242.242]:17871 "EHLO fep17.inet.fi")
-	by vger.kernel.org with ESMTP id S262114AbUGYL7w (ORCPT
+	Sun, 25 Jul 2004 08:08:53 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:60102 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262744AbUGYMIo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 07:59:52 -0400
-From: Jan Knutar <jk-lkml@sci.fi>
-To: Tim Wright <timw@splhi.com>
-Subject: Re: New dev model (was [PATCH] delete devfs)
-Date: Sun, 25 Jul 2004 14:59:46 +0300
-User-Agent: KMail/1.6.2
-Cc: Adrian Bunk <bunk@fs.tum.de>, Paul Jackson <pj@sgi.com>, akpm@osdl.org,
-       corbet@lwn.net, linux-kernel@vger.kernel.org
-References: <40FEEEBC.7080104@quark.didntduck.org> <20040722232540.GH19329@fs.tum.de> <1090549329.6113.21.camel@kryten.internal.splhi.com>
-In-Reply-To: <1090549329.6113.21.camel@kryten.internal.splhi.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407251459.46952.jk-lkml@sci.fi>
+	Sun, 25 Jul 2004 08:08:44 -0400
+Date: Sun, 25 Jul 2004 14:08:41 +0200 (MEST)
+Message-Id: <200407251208.i6PC8foi007406@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: haiquy@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: More compile errors, 2.4.27-rc3 with gcc-3.4.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That is their choice, but there's no particular need to run a kernel.org
-> kernel. Unless you're messing around with the kernel or have a hot
-> requirement for some new feature, why would running a stable kernel from
-> e.g. Debian not suffice? Debian is free and freely available, and it's
-> not the only distribution that is that way.
+On Sun, 25 Jul 2004 22:30:13 +0000 (UTC), haiquy@yahoo.com wrote:
+>kernel 2.4.27-rc3 with the gcc-2.4.0 compile fix patch
+>
+>gcc-4 -D__KERNEL__ -I/home/linux-2.4.27-rc3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fno-strength-reduce -ffast-math -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon -fno-unit-at-a-time -DMODULE -DHISAX_MAX_CARDS=8 -nostdinc -iwithprefix include -DKBUILD_BASENAME=st5481_usb  -c -o st5481_usb.o st5481_usb.c
+>st5481_usb.c: In function `usb_next_ctrl_msg':
+>st5481_usb.c:51: error: parse error before "__FUNCTION__"
 
-In the past, my experience, shared by many users, I'm sure, has been
-that distribution kernels generally give you worse performance (IME RH)
-and less stability (IME Fedora).
+__FUNCTION__ string concatenation errors
 
-There's an increasing amount of hardware out there in wide-spread use,
-which have no drivers in either kernel.org tree or distribution trees. The
-fragmentation between the distributions already make it impossible to
-get those drivers to compile on anything but the kernel.org tree, unless
-the author of the driver is wealthy and has the resources and floorspace
-to have a few different machines with different distributions installed,
-and the time and resources for creating workarounds and Makefile
-trickery for each and every one. I don't mean binary drivers here, as
-they are usually backed by some corporation and target the usual
-distributions...
+>gcc-4 -D__KERNEL__ -I/home/linux-2.4.27-rc3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fno-strength-reduce -ffast-math -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon -fno-unit-at-a-time -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=ns83820  -c -o ns83820.o ns83820.c
+>ns83820.c:591: error: conflicting types for 'rx_refill_atomic'
+>ns83820.c:589: error: previous declaration of 'rx_refill_atomic' was here
 
-Thus, we have a whole generation of users out there who grew up
-with the idea that the distribution kernel is just some bloated,
-bug-ridden and mostly incompatible monstrosity that is only barely
-good for bootstrapping kernel.org kernel before starting to try
-compile the drivers for their hardware.
+FASTCALL/fastcall mismatches
 
-Trying to change this idea is of course difficult, as everyone is
-afraid of change. "Will the drivers break next release?", "Will
-I have to stay with an old and exploitable kernel sometime
-in the future when the drivers no longer compile on anything
-but kernel.org X.Y.Z, when distro is X.Y.(Z-3)-secfix42, and kernel.org
-is up to X.Y.Z+5?"
+>gcc-4 -D__KERNEL__ -I/home/linux-2.4.27-rc3/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fno-strength-reduce -ffast-math -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon -fno-unit-at-a-time -DMODULE  -nostdinc -iwithprefix include -DKBUILD_BASENAME=core  -c -o core.o core.c
+>core.c:410: error: conflicting types for '__rfcomm_dlc_throttle'
+>/home/linux-2.4.27-rc3/include/net/bluetooth/rfcomm.h:265: error: previous declaration of '__rfcomm_dlc_throttle' was here
 
-It might very well be that pushing out a large portion of the dev
-burden to the periphery will be good in the long term for the
-development of the kernel, but in short-term, I only see the
-fragmentation problem getting worse. I hope I can be
-brutally proven absolutely wrong, though. :-)
+FASTCALL/fastcall mismatches
+
+These problems are fixed in
+<http://www.csd.uu.se/~mikpe/linux/patches/2.4/patch-gcc340-fixes-v4-2.4.27-rc3>
+or apply the incremental patch below. The fixes are trivial
+and correspond to changes already present in the 2.6 kernel.
+
+/Mikael
+
+--- linux-2.4.27-rc3/drivers/isdn/hisax/st5481.h.~1~	2004-07-25 13:26:44.000000000 +0200
++++ linux-2.4.27-rc3/drivers/isdn/hisax/st5481.h	2004-07-25 13:44:20.000000000 +0200
+@@ -219,13 +219,13 @@
+ #define L1_EVENT_COUNT (EV_TIMER3 + 1)
+ 
+ #define ERR(format, arg...) \
+-printk(KERN_ERR __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_ERR "%s:%s: " format "\n" , __FILE__,  __FUNCTION__ , ## arg)
+ 
+ #define WARN(format, arg...) \
+-printk(KERN_WARNING __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_WARNING "%s:%s: " format "\n" , __FILE__,  __FUNCTION__ , ## arg)
+ 
+ #define INFO(format, arg...) \
+-printk(KERN_INFO __FILE__ ": " __FUNCTION__ ": " format "\n" , ## arg)
++printk(KERN_INFO "%s:%s: " format "\n" , __FILE__,  __FUNCTION__ , ## arg)
+ 
+ #include "isdnhdlc.h"
+ #include "fsm.h"
+--- linux-2.4.27-rc3/drivers/net/ns83820.c.~1~	2004-02-18 15:16:23.000000000 +0100
++++ linux-2.4.27-rc3/drivers/net/ns83820.c	2004-07-25 13:34:50.000000000 +0200
+@@ -587,7 +587,7 @@
+ }
+ 
+ static void FASTCALL(rx_refill_atomic(struct ns83820 *dev));
+-static void rx_refill_atomic(struct ns83820 *dev)
++static void fastcall rx_refill_atomic(struct ns83820 *dev)
+ {
+ 	rx_refill(dev, GFP_ATOMIC);
+ }
+@@ -608,7 +608,7 @@
+ }
+ 
+ static void FASTCALL(phy_intr(struct ns83820 *dev));
+-static void phy_intr(struct ns83820 *dev)
++static void fastcall phy_intr(struct ns83820 *dev)
+ {
+ 	static char *speeds[] = { "10", "100", "1000", "1000(?)", "1000F" };
+ 	u32 cfg, new_cfg;
+@@ -793,7 +793,7 @@
+ }
+ 
+ static void FASTCALL(ns83820_rx_kick(struct ns83820 *dev));
+-static void ns83820_rx_kick(struct ns83820 *dev)
++static void fastcall ns83820_rx_kick(struct ns83820 *dev)
+ {
+ 	/*if (nr_rx_empty(dev) >= NR_RX_DESC/4)*/ {
+ 		if (dev->rx_info.up) {
+@@ -814,7 +814,7 @@
+  *	
+  */
+ static void FASTCALL(rx_irq(struct ns83820 *dev));
+-static void rx_irq(struct ns83820 *dev)
++static void fastcall rx_irq(struct ns83820 *dev)
+ {
+ 	struct rx_info *info = &dev->rx_info;
+ 	unsigned next_rx;
+--- linux-2.4.27-rc3/net/bluetooth/rfcomm/core.c.~1~	2004-04-14 20:22:21.000000000 +0200
++++ linux-2.4.27-rc3/net/bluetooth/rfcomm/core.c	2004-07-25 13:41:03.000000000 +0200
+@@ -406,7 +406,7 @@
+ 	return len;
+ }
+ 
+-void __rfcomm_dlc_throttle(struct rfcomm_dlc *d)
++void fastcall __rfcomm_dlc_throttle(struct rfcomm_dlc *d)
+ {
+ 	BT_DBG("dlc %p state %ld", d, d->state);
+ 
+@@ -417,7 +417,7 @@
+ 	rfcomm_schedule(RFCOMM_SCHED_TX);
+ }
+ 
+-void __rfcomm_dlc_unthrottle(struct rfcomm_dlc *d)
++void fastcall __rfcomm_dlc_unthrottle(struct rfcomm_dlc *d)
+ {
+ 	BT_DBG("dlc %p state %ld", d, d->state);
+ 

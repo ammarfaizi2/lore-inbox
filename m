@@ -1,54 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275671AbRJNPs4>; Sun, 14 Oct 2001 11:48:56 -0400
+	id <S275621AbRJNP7J>; Sun, 14 Oct 2001 11:59:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275680AbRJNPsr>; Sun, 14 Oct 2001 11:48:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61709 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S275671AbRJNPsg>; Sun, 14 Oct 2001 11:48:36 -0400
-Date: Sun, 14 Oct 2001 08:48:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Paul Gortmaker <p_gortmaker@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Making diff(1) of linux kernels faster
-In-Reply-To: <3BC953B5.18870B14@yahoo.com>
-Message-ID: <Pine.LNX.4.33.0110140841540.15323-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S275675AbRJNP7A>; Sun, 14 Oct 2001 11:59:00 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:16018 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S275621AbRJNP6o>; Sun, 14 Oct 2001 11:58:44 -0400
+Date: Sun, 14 Oct 2001 18:59:08 +0300
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: viro@math.psu.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: mount --bind and -o [re: nosuid/noexec/nodev handling]
+Message-ID: <20011014185908.P1074@niksula.cs.hut.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 14 Oct 2001, Paul Gortmaker wrote:
+On 2001-09-12 17:30:22 you wrote:
 >
-> Well, I taught diff to read each tree sequentially 1st and the results
-> were quite surprising (linux-2.2 kernel, two identical 8 MB trees, on
-> some older hardware, average times reported, new diff option is "-z").
+> nosuid, noexec and nodev are made vfsmount flags (instead of
+> superblock ones).  Places that used to check them switched to checking
+> vfsmount->mnt_flags.  get_filesystem_info() updated, ditto for
+> do_add_mount() and do_remount(). 
+>
+> As the result, these flags are per-mountpoint now.  E.g. we can turn them
+> on and off for arbitrary subtree:
+> 
+> mount --bind /home/luser /home/luser
+> mount -o remount,noexec /home/luser
+> 
+> will turn noexec on for subtree at /hom/luser without affecting the rest
+> /of home.  Other obvious applications is mounting a filesystem nosuid for
+> chroot jail and normally outside of it, yodda, yodda.
+> 
+> Patch is completely straightforward.  Works here and it had been in ac for
+> -a month (i.e. since 2.4.8-ac2).  Please, apply.
 
-Not that surprising. The very same factor of 5 was talked about in the
-read-ahed thread - "diff -ur" is nasty because the kernel usually cannot
-effectively read-ahead much of anything (each file is small, and the
-kernel doesn't do intra-file read-ahead), and because the trees are in
-different locations on the disk you end up seeking a _lot_ between each
-file diff.
+Ummh, is there a reason for this behaviour?
 
-> Now if I only had enough ram to personally test how much it helps
-> against a couple of 2.4.x kernel trees...  other stats welcomed.
+$ mount --bind -o noexec /bin /home/sftp/bin
+$ mount 
+(...)
+/bin on /home/sftp/bin type none (rw,noexec,bind)
+$ cd /home/sftp/bin
+$ ./uname -a
+Linux babbage 2.4.10-ac10 #4 SMP Wed Oct 10 11:39:11 EEST 2001 i686 unknown
+$ mount -o remount,noexec /home/sftp/bin
+$ mount 
+(...)
+/bin on /home/sftp/bin type none (rw,noexec,bind)
+$ ./uname -a
+zsh: permission denied: ./uname
 
-Could you maybe instead of pre-reading the whole tree, just pre-read one
-directory at a time?
+That seems like a bug to me. At very least, mount shouldn't report noexec if
+the mount point isn't. Or am I missing something?
 
-Quite frankly, the whole-tree approach only works well if you have _much_
-more than 2*tree-size worth of memory (not counting other apps you have
-open).  Not everybody has that, especially not these days when the full
-tree is 50MB+ or something.
+Further:
 
-So the full pre-read is probably only worthwhile on machines with closer
-to half a gig of memory, or with old kernels..
+$ mount --bind -o ro /bin /home/sftp/bin 
+$ mount -o remount,ro,nosuid /home/sftp/bin 
+$ mount: /home/sftp/bin is busy      
+$ mount
+(...)
+/bin on /home/sftp/bin type none (ro,bind)
+$ cd /home/sftp/bin
+$ touch asdakhsdhdh
+$ ls asdakhsdhdh
+asdakhsdhdh
 
-Even just doing it one directory at a time should improve speed
-_noticeably_. I'd bet you'll get close to the same improvement, with much
-less memory pressure..
+So I suppose ro (umask, some others as well) is not supported for --bind
+mounted mount points? Would it be possible to have mount to report error if
+non-functional -o options are passed to it?
 
-		Linus
+And btw, thanks. --bind is a damn cool feature to have.
 
+
+-- v --
+
+v@iki.fi

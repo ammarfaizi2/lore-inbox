@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290779AbSAYSwT>; Fri, 25 Jan 2002 13:52:19 -0500
+	id <S290791AbSAYS6m>; Fri, 25 Jan 2002 13:58:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290787AbSAYSwB>; Fri, 25 Jan 2002 13:52:01 -0500
-Received: from pc1-camc5-0-cust78.cam.cable.ntl.com ([80.4.0.78]:54473 "EHLO
-	amadeus.home.nl") by vger.kernel.org with ESMTP id <S290786AbSAYSvz>;
-	Fri, 25 Jan 2002 13:51:55 -0500
-Message-Id: <m16UBRc-000OVeC@amadeus.home.nl>
-Date: Fri, 25 Jan 2002 18:51:24 +0000 (GMT)
-From: arjan@fenrus.demon.nl
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+	id <S290787AbSAYS6Z>; Fri, 25 Jan 2002 13:58:25 -0500
+Received: from ns.suse.de ([213.95.15.193]:60422 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290797AbSAYS5H>;
+	Fri, 25 Jan 2002 13:57:07 -0500
+Date: Fri, 25 Jan 2002 19:57:06 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Martin Wilck <Martin.Wilck@fujitsu-siemens.com>,
+        Linux Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Richard Gooch <rgooch@atnf.csiro.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
 Subject: Re: [PATCH]: Fix MTRR handling on HT CPUs (improved)
-cc: linux-kernel@vger.kernel.org
 In-Reply-To: <E16UBUl-0003J9-00@the-village.bc.nu>
-X-Newsgroups: fenrus.linux.kernel
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.3-6.0.1 (i586))
+Message-ID: <Pine.LNX.4.33.0201251955250.31880-100000@Appserv.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E16UBUl-0003J9-00@the-village.bc.nu> you wrote:
-> As Dave pointed out I was mixing them
+On Fri, 25 Jan 2002, Alan Cox wrote:
 
->> just not do it on the right CPU (you're _not_ supposed to read to see if
->> you are writing the same value: MTRR's can at least in theory have
->> side-effects, so it's not the same check as for the microcode update).
-
+> > just not do it on the right CPU (you're _not_ supposed to read to see if
+> > you are writing the same value: MTRR's can at least in theory have
+> > side-effects, so it's not the same check as for the microcode update).
 > So why not just set it twice - surely that is harmless ? Why add complex
 > code ?
 
-mtrr code does
+I wondered the same thing of the microcode changes.
+Since for the commoncase (ie, non-HT) it now has the side-effect of
+doing this..
 
-"read value" -> store in variable
-"set uncached"
-<do lots of fiddling>
-"write stored value"
+microcode: CPU0 updated from revision 7 to 7, date-10151999
 
-on all cpus precisely in parallel.
+which looks odd in comparison to the old "already current" msg.
 
-Now... on HT the second half will store the value the first half just set to
-uncached. and worse: it will RESTORE that into the final mtrr..
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

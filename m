@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265115AbTLKPQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 10:16:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265116AbTLKPQ5
+	id S265119AbTLKPT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 10:19:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265123AbTLKPT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 10:16:57 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:10458 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265115AbTLKPQo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 10:16:44 -0500
-Message-ID: <3FD88A56.80303@cyberone.com.au>
-Date: Fri, 12 Dec 2003 02:16:38 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 11 Dec 2003 10:19:59 -0500
+Received: from ida.rowland.org ([192.131.102.52]:4356 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S265119AbTLKPTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 10:19:53 -0500
+Date: Thu, 11 Dec 2003 10:19:51 -0500 (EST)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Duncan Sands <baldrick@free.fr>
+cc: Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
+In-Reply-To: <200312111036.33115.baldrick@free.fr>
+Message-ID: <Pine.LNX.4.44L0.0312111016230.1227-100000@ida.rowland.org>
 MIME-Version: 1.0
-To: Rhino <rhino9@terra.com.br>
-CC: linux-kernel <linux-kernel@vger.kernel.org>,
-       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>,
-       wli@holomorphy.com
-Subject: Re: [CFT][RFC] HT scheduler
-References: <3FD3FD52.7020001@cyberone.com.au>	<20031208155904.GF19412@krispykreme>	<3FD50456.3050003@cyberone.com.au>	<20031209001412.GG19412@krispykreme>	<3FD7F1B9.5080100@cyberone.com.au>	<3FD81BA4.8070602@cyberone.com.au>	<20031211060120.4769a0e8.rhino9@terra.com.br>	<3FD82775.3050303@cyberone.com.au> <20031211124912.1c7e97e8.rhino9@terra.com.br>
-In-Reply-To: <20031211124912.1c7e97e8.rhino9@terra.com.br>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 11 Dec 2003, Duncan Sands wrote:
 
+> On Wednesday 10 December 2003 19:19, Alan Stern wrote:
+> >
+> > I don't understand the problem.  What's wrong with dropping dev->serialize
+> > before calling usb_reset_device() or usb_set_configuration() and then
+> > reacquiring it afterward?
+> 
+> The problem is that between dropping the lock and usb_set_configuration (or
+> whatever) picking it up again, the device may be disconnected, so usb_set_configuration
+> needs to handle the case of being called after disconnect (it doesn't seem to
+> check for that right now, but I only had a quick look).
 
-Rhino wrote:
+It should handle that okay (provided you retain a reference to the 
+usb_device so that it doesn't get deallocated).  Although it wouldn't hurt 
+to change one of the tests from
 
->On Thu, 11 Dec 2003 19:14:45 +1100
->Nick Piggin <piggin@cyberone.com.au> wrote:
->
->
->>You won't be able to merge mine with Ingo's. Which one put the box on
->>steroids? :)
->>
->
->sorry if i wasn't clearly enough, but i merged each one of them separately on top of a wli-2. 
->that comment was for the wli changes. :)
->
->
->>Wonder whats going on here? Is this my patch vs Ingo's with nothing else 
->>applied?
->>How does plain 2.6.0-test11 go?
->>
->>Thanks for testing.
->>
->
->
->ok, this time on a plain test11.
->
+	if (dev->state != USB_STATE_ADDRESS)
 
-I mean, what results does test11 get when running the benchmarks.
+to
 
->
->hackbench:
->
->		w26						sched-SMT-C1
->
->	 50	 5.026				 50	 5.182
->	100	10.062				100	10.602
->	150	15.906				150	16.214
->
->
->time tar -xvjpf linux-2.6.0-test11.tar.bz2:
->
->		w26						sched-SMT-C1
->		
->	real	0m21.835s			real	0m21.827s
->	user	0m20.274s			user	0m20.412s
->	sys	0m4.178s				sys	0m4.260s
->
-                  ^^^^^^^^
-OK I guess the real 43s in your last set of results was a typo.
+	if (dev->state > USB_STATE_ADDRESS)
 
+>  Also, after usbfs picks up
+> the lock again it needs to check for disconnect.  None of this is a big deal, but
+> it could all be avoided by a simpler change: provide a usb_physical_set_configuration
+> (or whatever), which is usb_set_configuration without taking dev->serialize.
+
+I agree that it would ease things to provide entry points for set_config 
+and reset_device that require the caller to hold dev->serialize already.  
+The issue you and Oliver noted about holding the bus semaphore will go 
+away when I finally get around to rewriting usb_reset_device().
+
+Alan Stern
 

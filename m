@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266006AbTA2OCq>; Wed, 29 Jan 2003 09:02:46 -0500
+	id <S266038AbTA2ODp>; Wed, 29 Jan 2003 09:03:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266010AbTA2OCq>; Wed, 29 Jan 2003 09:02:46 -0500
-Received: from stroke.of.genius.brain.org ([206.80.113.1]:24506 "EHLO
-	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
-	id <S266006AbTA2OCp>; Wed, 29 Jan 2003 09:02:45 -0500
-Date: Wed, 29 Jan 2003 09:12:03 -0500
-From: "Murray J. Root" <murrayr@brain.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Scaring the non-geeks (was Bootscreen)
-Message-ID: <20030129141203.GA1202@Master.Wizards>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200301281440.h0SEeBS8001126@darkstar.example.net> <200301291409.57213.roy@karlsbakk.net> <1043846348.11513.2.camel@oubop4.bursar.vt.edu> <1043848700.11095.2.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1043848700.11095.2.camel@localhost>
-User-Agent: Mutt/1.4i
+	id <S266041AbTA2ODp>; Wed, 29 Jan 2003 09:03:45 -0500
+Received: from taz.cerebus.com ([208.254.26.145]:31970 "EHLO taz.cerebus.com")
+	by vger.kernel.org with ESMTP id <S266038AbTA2ODn>;
+	Wed, 29 Jan 2003 09:03:43 -0500
+Date: Wed, 29 Jan 2003 09:12:54 -0500 (EST)
+From: David C Niemi <lkernel2003@tuxers.net>
+To: "David S. Miller" <davem@redhat.com>
+cc: kuznet@ms2.inr.ac.ru, <benoit-lists@fb12.de>, <dada1@cosmosbay.com>,
+       <cgf@redhat.com>, <andersg@0x63.nu>, <lkernel2003@tuxers.net>,
+       <linux-kernel@vger.kernel.org>, <tobi@tobi.nu>
+Subject: Re: [TEST FIX] Re: SSH Hangs in 2.5.59 and 2.5.55 but not 2.4.x,
+In-Reply-To: <20030128.160806.13210372.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0301290904060.7848-100000@harappa.oldtrail.reston.va.us>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 29, 2003 at 02:58:21PM +0100, Xavier Bestel wrote:
-> 
-> > How do positive terms such as OK or YES scare people? 
-> 
-> Goblodoing the frungled devil                 [OK]
-> Escraping various gunfred                     [OK]
-> Erasing sdfjebr documents                     [OK]
-> 
-> .. ad nauseum
-> 
-> now who's scared ?
-> 
 
-Seems to me the best place to do the graphical thing is at the distro.
-Mandrake has been messing with GUI bootscreens for a few versions, now, and
-while I haven't been excited by the results I think it's the right place. My
-only reason for not liking Mandrake's screens is that I *like* plain text.
-The distros will want to tailor the screens themselves, anyway, so let em
-do the code, too. 
+On Tue, 28 Jan 2003, David S. Miller wrote:
+>    From: kuznet@ms2.inr.ac.ru
+>    Date: Wed, 29 Jan 2003 02:56:41 +0300 (MSK)
+>
+>    Hey! Interesting thing has just happened, it is the first time when I 
+>    found the bug formulating a senstence while writing e-mail not while 
+>    peering to code. :-)
+> 
+> Congratulations :-)
 
--- 
-Murray J. Root
+Just to confirm, this fix works for me as well.
+
+...
+> Indeed, this bug exists in 2.4 as well of course.
+> 
+> This bug is 2.4.3 vintage :-)  It got added as part of initial
+> zerocopy merge in fact.
+
+Odd, then, that it I was unable to reproduce the SSH hangs under 2.4.18
+even once, despite heavily using it for several days under the same
+circumstances.  Is there any reason 2.4.x would be better able to recover?  
+2.5.59 with the fix seems to feel a bit less balky than 2.4.18 without the
+fix, so it seemed to me that 2.4.18 had some way of recovering at the cost
+of a several second pause in the session.
+
+DCN
+
 

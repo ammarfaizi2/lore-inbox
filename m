@@ -1,41 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264038AbRFKU7H>; Mon, 11 Jun 2001 16:59:07 -0400
+	id <S264035AbRFKU6H>; Mon, 11 Jun 2001 16:58:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264041AbRFKU6t>; Mon, 11 Jun 2001 16:58:49 -0400
-Received: from [193.14.164.225] ([193.14.164.225]:19461 "EHLO wlug.westbo.se")
-	by vger.kernel.org with ESMTP id <S264038AbRFKU6k>;
-	Mon, 11 Jun 2001 16:58:40 -0400
-Date: Mon, 11 Jun 2001 23:02:16 +0200 (CEST)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Michal Margula <alchemyx@uznam.net.pl>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Disaster under heavy network load on 2.4.x
-In-Reply-To: <20010611220301.A6852@cerber.uznam.net.pl>
-Message-ID: <Pine.LNX.4.30.0106112300190.27754-100000@wlug.westbo.se>
+	id <S264038AbRFKU55>; Mon, 11 Jun 2001 16:57:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10757 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264035AbRFKU5w>; Mon, 11 Jun 2001 16:57:52 -0400
+Subject: Re: softirq bugs in pre2
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Mon, 11 Jun 2001 21:55:49 +0100 (BST)
+Cc: andrea@suse.de (Andrea Arcangeli), mingo@elte.hu (Ingo Molnar),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <Pine.LNX.4.31.0106111207350.4452-100000@penguin.transmeta.com> from "Linus Torvalds" at Jun 11, 2001 12:09:03 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E159Yiz-0000MA-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Jun 2001, Michal Margula wrote:
+> The copy-user latency fixes only make sense for out-of-line copies. If
+> we're going to have a conditional function call to "schedule()", we do not
+> want to inline the dang thing any more - we've just destroyed our register
+> set etc anyway.
 
-> Hello!
->
-> My friend told me to noticed you about problems I had with 2.4.x line of
-> kernels. I started up from 2.4.3. Under heavy load I was getting
-> messages from telnet, ping, nmap "No buffer space available". Strace
-> told me it was error marked as ENOBUFS.
->
-> First thought was it was my fault. I asked many people and nobody could
-> help me. So I tried 2.4.5. It was a disaster also (should I mention few
-> oopses?:>).
-
-Would you mind running those Oopses through ksymoops and send the
-backtraces to this list?
-
-/Martin
-
--- 
-Linux hackers are funny people: They count the time in patchlevels.
-
+Is there any reason we still inline so many copy_* and put/get user calls. I
+can't benchmark a difference out of line and the code shrinkage is more
+than measurable (AMD Athlon 550 and AMD Athlon 1GHz)

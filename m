@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282165AbRKWPQh>; Fri, 23 Nov 2001 10:16:37 -0500
+	id <S282169AbRKWPT5>; Fri, 23 Nov 2001 10:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282152AbRKWPQ1>; Fri, 23 Nov 2001 10:16:27 -0500
-Received: from mailsorter.in.tmpw.net ([63.121.29.25]:51490 "EHLO
-	mailsorter.in.tmpw.net") by vger.kernel.org with ESMTP
-	id <S282165AbRKWPQR>; Fri, 23 Nov 2001 10:16:17 -0500
-Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101912@nocmail.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'Norm Dressler'" <ndressler@dinmar.com>, linux-kernel@vger.kernel.org
-Subject: RE: Sparc64 Compiles OK, but won't boot new kernel
-Date: Fri, 23 Nov 2001 10:16:03 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S282161AbRKWPTs>; Fri, 23 Nov 2001 10:19:48 -0500
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:49417 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S282152AbRKWPTd>;
+	Fri, 23 Nov 2001 10:19:33 -0500
+Subject: Re: Thinkpad t21 hard lockup when left overnight
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <002b01c1742e$607e6ba0$bc5812bc@corp.fedex.com>
+In-Reply-To: <Pine.LNX.4.42.0111231154580.16590-100000@boston.corp.fedex.com>
+	<1006489548.10497.8.camel@zaphod> <1006507120.627.0.camel@zaphod> 
+	<002b01c1742e$607e6ba0$bc5812bc@corp.fedex.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 23 Nov 2001 10:19:13 -0500
+Message-Id: <1006528755.627.4.camel@zaphod>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been manually gzipping the kernel for Sparc64, just gzip the built
-kernel, and copy to your boot partition.  Then follow the normal setup
-steps, and This works fine.  There is an initial size limit IIRC, of about
-over 2mb.  Trimming it down, and gzipping has been working great for me.  
+hmm.  I think so, but I'll check it on my next reboot.  This machine
+used to survive the night just fine.  I might try booting it into a
+2.2.19 which I still have on my system, though I'm pretty sure it used
+to work in 2.4 as well.  Unfortunatly, I don't keep all my kernels
+around.
 
-Hope this helps,
-Bruce H.
+shaya
 
------Original Message-----
-From: Norm Dressler [mailto:ndressler@dinmar.com]
-Sent: Friday, November 23, 2001 10:09 AM
-To: linux-kernel@vger.kernel.org
-Subject: Sparc64 Compiles OK, but won't boot new kernel
+On Fri, 2001-11-23 at 09:50, Jeff Chua wrote:
+> Have you tried setting bios to "never suspend".
+> 
+> 
+> From: "Shaya Potter" <spotter@cs.columbia.edu>
+> To: "Shaya Potter" <spotter@opus.cs.columbia.edu>
+> Cc: <linux-kernel@vger.kernel.org>
+> Sent: Friday, November 23, 2001 5:18 PM
+> Subject: Re: Thinkpad t21 hard lockup when left overnight
+> 
+> 
+> just woke up to a locked up solid machine.  It seemed to have locked up
+> after about 2 hours of inactivity on the machine.
+> 
+> shaya
+> 
+> 
+-- 
+spotter@{cs.columbia.edu,yucs.org}
+http://yucs.org/~spotter/
 
-
-Hi,
-
-I have been able to successfully compile the 2.4.14 and 2.4.15 kernels
-for Sparc64 but each gives me an error on boot-up:
-
-Image to large for Destination  (twice)
-
-It then kicks me back to the silo prompt.  My kernel is trimmed back
-quite a bit and there isn't a lot there.  
-
-It's not a compressed kernel -- should it be?  How do I do that since
-the bzImage make is missing from the Sparc64 makefiles?
-
-I am using Redhat 6.2 on an Enterprise 4000, 4 Ultrasparc-II CPU's and
-2Gb of Ram.
-
-Any suggestions??
-
-Norm
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

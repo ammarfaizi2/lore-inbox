@@ -1,109 +1,245 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267338AbUJITwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267334AbUJITwV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267338AbUJITwa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Oct 2004 15:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267341AbUJITwa
+	id S267334AbUJITwV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Oct 2004 15:52:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267343AbUJITwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Oct 2004 15:52:30 -0400
-Received: from gw.anda.ru ([212.57.164.72]:44553 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S267338AbUJITwT (ORCPT
+	Sat, 9 Oct 2004 15:52:21 -0400
+Received: from [145.85.127.2] ([145.85.127.2]:1761 "EHLO mail.il.fontys.nl")
+	by vger.kernel.org with ESMTP id S267334AbUJITwB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Oct 2004 15:52:19 -0400
-Date: Sun, 10 Oct 2004 01:52:06 +0600
-From: Denis Zaitsev <zzz@anda.ru>
+	Sat, 9 Oct 2004 15:52:01 -0400
+Message-ID: <60256.217.121.83.210.1097351510.squirrel@217.121.83.210>
+Date: Sat, 9 Oct 2004 21:51:50 +0200 (CEST)
+Subject: [Patch] lockd: remove hardcoded maximum NLM cookie length
+From: "Ed Schouten" <ed@il.fontys.nl>
 To: linux-kernel@vger.kernel.org
-Subject: [BUG][2.6.8.1] Something wrong with ISAPnP and serial driver
-Message-ID: <20041010015206.A30047@natasha.ward.six>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Cc: akpm@osdl.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm transiting myself to the 2.6 kernel base.  And I have a persisting
-problem with my ISA Courier modem.  It is set into the PnP mode thru
-its jumpers and it works just fine under 2.4 kernels.  And under
-2.6.8.1 it doesn't work for the set of reasons.
+Hi guys,
 
-First.  The new kernel detects it thru the startup:
+At the moment, the NLM cookie length is fixed to 8 bytes, while 1024 is
+the theoretical maximum. FreeBSD uses 16 bytes, Mac OS X uses 20 bytes.
+Therefore we need to make the length dynamic (which I set to 32 bytes).
 
-        isapnp: Scanning for PnP cards...
-        isapnp: Card 'USRobotics Courier V.Everything'
-        isapnp: 1 Plug & Play card detected total
+This patch is based on an old patch for Linux 2.4.23-pre9, which I changed
+to patch properly (also added some stylish NIPQUAD fixes).
 
-But the modem isn't activated.  After a boot I have:
+You can also download this patch at:
+http://linux.g-rave.nl/patches/patch-lockd-cookies.diff
+---
 
-        cat /sys/devices/pnp1/01:01/01:01.00/resources
-        state = disabled
+ fs/lockd/svclock.c          |   16 ++++++++--------
+ fs/lockd/xdr.c              |   37 +++++++++++++++++++++++++++++++++----
+ fs/lockd/xdr4.c             |    6 +++---
+ include/linux/lockd/debug.h |    9 +++++++++
+ include/linux/lockd/xdr.h   |    8 +++++---
+ 5 files changed, 58 insertions(+), 18 deletions(-)
 
-and /dev/tts/2 device is just died (I'm using devfs for a while).
+diff -u -r --new-file linux-2.6.9-rc3/fs/lockd/svclock.c
+linux-2.6.9-rc3-ed0/fs/lockd/svclock.c
+--- linux-2.6.9-rc3/fs/lockd/svclock.c	2004-09-30 05:04:24.000000000 +0200
++++ linux-2.6.9-rc3-ed0/fs/lockd/svclock.c	2004-10-09 21:16:18.412284000
++0200
+@@ -112,11 +112,11 @@
+ 				(long long)lock->fl.fl_end, lock->fl.fl_type);
+ 	for (head = &nlm_blocked; (block = *head) != 0; head = &block->b_next) {
+ 		fl = &block->b_call.a_args.lock.fl;
+-		dprintk("lockd: check f=%p pd=%d %Ld-%Ld ty=%d cookie=%x\n",
++		dprintk("lockd: check f=%p pd=%d %Ld-%Ld ty=%d cookie=%s\n",
+ 				block->b_file, fl->fl_pid,
+ 				(long long)fl->fl_start,
+ 				(long long)fl->fl_end, fl->fl_type,
+-				*(unsigned int*)(block->b_call.a_args.cookie.data));
++				nlmdbg_cookie2a(&block->b_call.a_args.cookie));
+ 		if (block->b_file == file && nlm_compare_locks(fl, &lock->fl)) {
+ 			if (remove) {
+ 				*head = block->b_next;
+@@ -584,13 +584,13 @@
+ 	struct sockaddr_in	*peer_addr = RPC_PEERADDR(task->tk_client);
 
-Then I try to activate it as described in the Documentation/pnp.txt:
+ 	dprintk("lockd: GRANT_MSG RPC callback\n");
+-	dprintk("callback: looking for cookie %x, host (%08x)\n",
+-		*(unsigned int *)(call->a_args.cookie.data),
+-		ntohl(peer_addr->sin_addr.s_addr));
++	dprintk("callback: looking for cookie %s, host (%u.%u.%u.%u)\n",
++		nlmdbg_cookie2a(&call->a_args.cookie),
++		NIPQUAD(peer_addr->sin_addr.s_addr));
+ 	if (!(block = nlmsvc_find_block(&call->a_args.cookie, peer_addr))) {
+-		dprintk("lockd: no block for cookie %x, host (%08x)\n",
+-			*(u32 *)(call->a_args.cookie.data),
+-			ntohl(peer_addr->sin_addr.s_addr));
++		dprintk("lockd: no block for cookie %s, host (%u.%u.%u.%u)\n",
++			nlmdbg_cookie2a(&call->a_args.cookie),
++			NIPQUAD(peer_addr->sin_addr.s_addr));
+ 		return;
+ 	}
 
-        echo auto > /sys/devices/pnp1/01:01/01:01.00/resources
+diff -u -r --new-file linux-2.6.9-rc3/fs/lockd/xdr.c
+linux-2.6.9-rc3-ed0/fs/lockd/xdr.c
+--- linux-2.6.9-rc3/fs/lockd/xdr.c	2004-09-30 05:03:51.000000000 +0200
++++ linux-2.6.9-rc3-ed0/fs/lockd/xdr.c	2004-10-09 21:14:52.165284000 +0200
+@@ -55,7 +55,7 @@
+ 		c->len=4;
+ 		memset(c->data, 0, 4);	/* hockeypux brain damage */
+ 	}
+-	else if(len<=8)
++	else if(len<=NLM_MAXCOOKIELEN)
+ 	{
+ 		c->len=len;
+ 		memcpy(c->data, p, len);
+@@ -64,7 +64,7 @@
+ 	else
+ 	{
+ 		printk(KERN_NOTICE
+-			"lockd: bad cookie size %d (only cookies under 8 bytes are
+supported.)\n", len);
++			"lockd: bad cookie size %d (only cookies under %d bytes are
+supported.)\n", len, NLM_MAXCOOKIELEN);
+ 		return NULL;
+ 	}
+ 	return p;
+@@ -86,7 +86,7 @@
 
-        cat /sys/devices/pnp1/01:01/01:01.00/resources
-        state = disabled
-        io 0x3e8-0x3ef
-        irq 5
+ 	if ((len = ntohl(*p++)) != NFS2_FHSIZE) {
+ 		printk(KERN_NOTICE
+-			"lockd: bad fhandle size %x (should be %d)\n",
++			"lockd: bad fhandle size %d (should be %d)\n",
+ 			len, NFS2_FHSIZE);
+ 		return NULL;
+ 	}
+@@ -512,7 +512,7 @@
+  * Buffer requirements for NLM
+  */
+ #define NLM_void_sz		0
+-#define NLM_cookie_sz		3	/* 1 len , 2 data */
++#define NLM_cookie_sz		1+QUADLEN(NLM_MAXCOOKIELEN)
+ #define NLM_caller_sz		1+QUADLEN(sizeof(system_utsname.nodename))
+ #define NLM_netobj_sz		1+QUADLEN(XDR_MAX_NETOBJ)
+ /* #define NLM_owner_sz		1+QUADLEN(NLM_MAXOWNER) */
+@@ -604,3 +604,32 @@
+ 		.stats		= &nlm_stats,
+ };
 
-So, both the irq and io have been assigned correctly, but the card is
-still disabled.
++#ifdef RPC_DEBUG
++const char *nlmdbg_cookie2a(const struct nlm_cookie *cookie)
++{
++	/*
++	 * We can get away with a static buffer because we're only
++	 * called with BKL held.
++	 */
++	static char buf[2*NLM_MAXCOOKIELEN+1];
++	int i;
++	int len = sizeof(buf);
++	char *p = buf;
++
++	len--;	/* allow for trailing \0 */
++	if (len < 3)
++		return "???";
++	for (i = 0 ; i < cookie->len ; i++) {
++		if (len < 2) {
++			strcpy(p-3, "...");
++			break;
++		}
++		sprintf(p, "%02x", cookie->data[i]);
++		p += 2;
++		len -= 2;
++	}
++	*p = '\0';
++
++	return buf;
++}
++#endif
+diff -u -r --new-file linux-2.6.9-rc3/fs/lockd/xdr4.c
+linux-2.6.9-rc3-ed0/fs/lockd/xdr4.c
+--- linux-2.6.9-rc3/fs/lockd/xdr4.c	2004-09-30 05:03:45.000000000 +0200
++++ linux-2.6.9-rc3-ed0/fs/lockd/xdr4.c	2004-10-09 21:14:52.169284000 +0200
+@@ -56,7 +56,7 @@
+ 		c->len=4;
+ 		memset(c->data, 0, 4);	/* hockeypux brain damage */
+ 	}
+-	else if(len<=8)
++	else if(len<=NLM_MAXCOOKIELEN)
+ 	{
+ 		c->len=len;
+ 		memcpy(c->data, p, len);
+@@ -65,7 +65,7 @@
+ 	else
+ 	{
+ 		printk(KERN_NOTICE
+-			"lockd: bad cookie size %d (only cookies under 8 bytes are
+supported.)\n", len);
++			"lockd: bad cookie size %d (only cookies under %d bytes are
+supported.)\n", len, NLM_MAXCOOKIELEN);
+ 		return NULL;
+ 	}
+ 	return p;
+@@ -515,7 +515,7 @@
+  * Buffer requirements for NLM
+  */
+ #define NLM4_void_sz		0
+-#define NLM4_cookie_sz		3	/* 1 len , 2 data */
++#define NLM4_cookie_sz		1+XDR_QUADLEN(NLM_MAXCOOKIELEN)
+ #define NLM4_caller_sz		1+XDR_QUADLEN(NLM_MAXSTRLEN)
+ #define NLM4_netobj_sz		1+XDR_QUADLEN(XDR_MAX_NETOBJ)
+ /* #define NLM4_owner_sz		1+XDR_QUADLEN(NLM4_MAXOWNER) */
+diff -u -r --new-file linux-2.6.9-rc3/include/linux/lockd/debug.h
+linux-2.6.9-rc3-ed0/include/linux/lockd/debug.h
+--- linux-2.6.9-rc3/include/linux/lockd/debug.h	2004-09-30
+05:05:25.000000000 +0200
++++ linux-2.6.9-rc3-ed0/include/linux/lockd/debug.h	2004-10-09
+21:14:52.237284000 +0200
+@@ -45,4 +45,13 @@
+ #define NLMDBG_ALL		0x7fff
 
-Then I try:
 
-        echo activate > /sys/devices/pnp1/01:01/01:01.00/resources
++/*
++ * Support for printing NLM cookies in dprintk()
++ */
++#ifdef RPC_DEBUG
++struct nlm_cookie;
++/* Call this function with the BKL held (it uses a static buffer) */
++extern const char *nlmdbg_cookie2a(const struct nlm_cookie *);
++#endif
++
+ #endif /* LINUX_LOCKD_DEBUG_H */
+diff -u -r --new-file linux-2.6.9-rc3/include/linux/lockd/xdr.h
+linux-2.6.9-rc3-ed0/include/linux/lockd/xdr.h
+--- linux-2.6.9-rc3/include/linux/lockd/xdr.h	2004-09-30
+05:03:44.000000000 +0200
++++ linux-2.6.9-rc3-ed0/include/linux/lockd/xdr.h	2004-10-09
+21:26:33.473284000 +0200
+@@ -13,6 +13,7 @@
+ #include <linux/nfs.h>
+ #include <linux/sunrpc/xdr.h>
 
-        cat /sys/devices/pnp1/01:01/01:01.00/resources
-        state = active
-        io 0x3e8-0x3ef
-        irq 5
++#define NLM_MAXCOOKIELEN    	32
+ #define NLM_MAXSTRLEN		1024
 
-Ok, some result has been achieved.  Then I load the serial modules:
-8250 and 8250_pnp (in that order).  If I load them before the
-activating of the card, I have nothing (of course?).  So, I load them
-after that, but some interesting things happen here too: 8250 module
-finds the modem, but 8250_pnp finds the other two serial ports which
-are in the motherboard.  I wonder: these ports are the embedded ones,
-they are not PnP, so why they are detected by the pnp module?  And,
-from the other hand, why the PnP card is detected by the non-pnp
-module?
+ #define QUADLEN(len)		(((len) + 3) >> 2)
+@@ -33,13 +34,14 @@
+ };
 
-But nevertheless, some result are already here: it seems that
-/dev/tts/2 has come to life - stty -F /dev/tts/2 starts to work.
+ /*
+- *	NLM cookies. Technically they can be 1K, Nobody uses over 8 bytes
+- *	however.
++ *	NLM cookies. Technically they can be 1K, but Linux only uses 8 bytes.
++ *	FreeBSD uses 16, Apple Mac OS X 10.3 uses 20. Therefore we set it to
++ *	32 bytes.
+  */
 
-But after that nobody can conversate with the modem: mgetty, ppp's
-chat, minicom - all of them have a timeouts waiting for a respond from
-the modem.  And what else do I have:
-
-        cat /proc/tty/driver/serial
-        serinfo:1.0 driver revision:
-        0: uart:16550A port:000003F8 irq:4 tx:8 rx:208 fe:4 brk:7
-        1: uart:16550A port:000002F8 irq:3 tx:1959289 rx:11505900 RTS|CTS|DTR|DSR|CD
-        2: uart:16550A port:000003E8 irq:4 tx:0 rx:0 CTS|DSR
-        3: uart:unknown port:000002E8 irq:3
-        4: uart:unknown port:00000000 irq:0
-        5: uart:unknown port:00000000 irq:0
-        6: uart:unknown port:00000000 irq:0
-        7: uart:unknown port:00000000 irq:0
-
-According to this info, the ttyS2 device have an irq 4 assigned
-vs. irq 5 from the /sys/.../resources.  I don't know, may be it is the
-problem itself.  BTW, the first two serial ports work - there is a
-mouse at the ttyS0 and the external modem at the ttyS1.
-
-So, this all looks like some error in the PnP-sysfs-serial chain, but
-I'm absolutely unsure.  May be it is the devfs-related problem?
-
-
-And all the above in short:
-
-1) The 2.6 kernel doesn't activate the ISA PnP modem at the boot,
-   while the 2.4 one always does.
-
-2) The 8250 driver finds the PnP card's port, while the 8250_pnp finds
-   the non-PnP ports.
-
-3) The /proc/tty/driver/serial file contains an incorrect information
-   about the IRQ assigned to the PnP port.
+ struct nlm_cookie
+ {
+-	unsigned char data[8];
++	unsigned char data[NLM_MAXCOOKIELEN];
+ 	unsigned int len;
+ };

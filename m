@@ -1,59 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263823AbTKZTDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 14:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTKZTDZ
+	id S264292AbTKZTIh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 14:08:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbTKZTIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 14:03:25 -0500
-Received: from tweedy.ksc.nasa.gov ([128.217.76.165]:18634 "EHLO
-	tweedy.ksc.nasa.gov") by vger.kernel.org with ESMTP id S264283AbTKZTDV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 14:03:21 -0500
-Subject: Re: kernel 2.4-22 won't compile...
-From: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
-To: rgx <rgx@gmx.de>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200311261935.03860.rgx@gmx.de>
-References: <200311261734.23177.rgx@gmx.de> <200311261749.12545.rgx@gmx.de>
-	 <1069870412.25657.6.camel@tweedy.ksc.nasa.gov>
-	 <200311261935.03860.rgx@gmx.de>
-Content-Type: text/plain
-Message-Id: <1069873394.25657.28.camel@tweedy.ksc.nasa.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 26 Nov 2003 14:03:15 -0500
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Nov 2003 14:08:36 -0500
+Received: from c-67-165-242-194.client.comcast.net ([67.165.242.194]:20748
+	"HELO c-67-165-242-194.client.comcast.net") by vger.kernel.org
+	with SMTP id S264292AbTKZTId (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 14:08:33 -0500
+Message-ID: <79z992$5r$s7bt$$o51-e--59-0@g00bf>
+From: "Consuelo Meeks" <uvpdmwi@yahoo.com>
+Reply-To: "Consuelo Meeks" <uvpdmwi@yahoo.com>
+To: linux-kernel@vger.kernel.org
+Subject: Alprazolam.m Vicodin.n Valium.m Xanax.x ev
+Date: Wed, 26 Nov 03 22:12:52 GMT
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+MIME-Version: 1.0
+Content-Type: multipart/alternative;
+	boundary="A695DD.7.A_._"
+X-Priority: 3
+X-MSMail-Priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-11-26 at 13:35, rgx wrote:
-> Bob Chiodini schrieb am Mittwoch, 26. November 2003 19:13:
-> > On Wed, 2003-11-26 at 11:49, rgx wrote:
-> > > > Did you 'make oldconfig'?
-> > >
-> > > Yes, sure :) The NLS_DEFAULT... is not defined for some reason...
-> > > I could replace it with the needed content in the source code if I
-> > > knew its format...
-> >
-> > Sorry, had to ask.
-> >
-> > My 2.4.20 .config defines:
-> >
-> > CONFIG_NLS_DEFAULT="iso8859-1"
-> 
-> yes, this is in my .config file, too, but for gcc it has to be converted 
-> to a
-> #define CONFIG_NLS_DEFAULT <something> line - and I think that it 
-> shouldn't be just a string there...
 
-See include/linux/autoconf.h: around line 2167, my 2.4.20 source:
+--A695DD.7.A_._
+Content-Type: text/plain;
+Content-Transfer-Encoding: quoted-printable
 
-#define CONFIG_NLS_DEFAULT "iso8859-1"
+Many Specials running this week
 
-Which corresponds to its usage in /data/src/linux-2.4.22/fs/fat/inode.c,
-char *.
+THE RE.AL THING
+not like the other sites that 
+imitate these products.
 
-Is this a ix86 kernel?
+No hidd.en char.ges - Fast Delivery
 
-Bob..
+Vic.odin Val.ium Xan.ax
+
+Via.gra Diaz.epam Alpra.zolam
+
+So.ma Fior.icet Amb.ien
+
+Stil.nox Ult.ram Zo.loft
+
+Clon.azepam At.ivan Tr.amadol
+
+Xeni.cal Cele.brex Vi.oxx
+
+Pro.zac Bus.par Much M.ore....
+
+http://www.dealsforu.biz/l/110/index.htm
+
+
+
+
+
+
+If you have recieved this in error
+please use
+http://www.dealsforu.biz/optout.html
+
+
+
+
+
+
+
+cbbzawaolntqyv aj lfsmnvu
+  yl
+o tbuan wrrxlreq wqxwn q xesded 
+
+--A695DD.7.A_._--
 

@@ -1,40 +1,86 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292840AbSBVLKW>; Fri, 22 Feb 2002 06:10:22 -0500
+	id <S292842AbSBVLKm>; Fri, 22 Feb 2002 06:10:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292843AbSBVLKM>; Fri, 22 Feb 2002 06:10:12 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:40204 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S292840AbSBVLKE>; Fri, 22 Feb 2002 06:10:04 -0500
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-Date: 22 Feb 2002 10:07:29 GMT
-Organization: SuSE Labs, =?ISO-8859-1?Q?Au=DFenstelle?= Berlin
-Message-ID: <slrna7c631.icv.kraxel@bytesex.org>
-In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 1014372449 18848 127.0.0.1 (22 Feb 2002 10:07:29 GMT)
-User-Agent: slrn/0.9.7.1 (Linux)
+	id <S292841AbSBVLKc>; Fri, 22 Feb 2002 06:10:32 -0500
+Received: from johanna5.ux.his.no ([152.94.1.25]:60871 "EHLO
+	johanna5.ux.his.no") by vger.kernel.org with ESMTP
+	id <S292842AbSBVLKM>; Fri, 22 Feb 2002 06:10:12 -0500
+Date: Fri, 22 Feb 2002 12:10:09 +0100 (MET)
+From: Erlend Aasland <erlend-a@ux.his.no>
+Message-Id: <200202221110.g1MBA9v27572@johanna5.ux.his.no>
+Subject: [PATCH] Problems with Documentation/DocBook in 2.5.5
+Content-Type: text
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  1.  Kill the ide-probe-mod by merging it with ide-mod. There is *really*
->       no reaons for having this stuff split up into two different
->      modules unless you wan't to create artificial module dependancies 
->  and waste space
->      of page boundaries during memmory allocation for the modules
+Comment:
+Patch 2.5.5 moved linux/drivers/sound to linux/sound, which has caused problems with the Documentation/DocBook section. F.x: "make htmldocs" wouldn't work. This tiny patch fixes the problems.
 
-Ah, seems you are the one who broke modular ide in 2.5.5:
+Patch is made against a clean 2.5.5 tree.
 
-Older kernels:
-  insmod ide-mod, insmod ide-disk, insmod ide-probe-mod  => works.
 
-2.5.5:
-  insmod ide-mod, insmod ide-disk  => mounting /dev/hda2 doesn't work.
+Erlend Aasland.
 
-  Gerd
+diff -urN linux-2.5.5/Documentation/DocBook/Makefile linux-2.5.5.new/Documentation/DocBook/Makefile
+--- linux-2.5.5/Documentation/DocBook/Makefile	Wed Feb 13 01:23:05 2002
++++ linux-2.5.5.new/Documentation/DocBook/Makefile	Thu Feb 21 03:59:58 2002
+@@ -59,8 +59,8 @@
+ 	$(TOPDIR)/scripts/docgen $(TOPDIR)/drivers/net/wan/z85230.c \
+ 		<z8530book.tmpl >z8530book.sgml
+ 
+-via-audio.sgml: via-audio.tmpl $(TOPDIR)/drivers/sound/via82cxxx_audio.c
+-	$(TOPDIR)/scripts/docgen $(TOPDIR)/drivers/sound/via82cxxx_audio.c \
++via-audio.sgml: via-audio.tmpl $(TOPDIR)/sound/oss/via82cxxx_audio.c
++	$(TOPDIR)/scripts/docgen $(TOPDIR)/sound/oss/via82cxxx_audio.c \
+ 		<via-audio.tmpl >via-audio.sgml
+ 
+ tulip-user.sgml: tulip-user.tmpl
+@@ -100,8 +100,8 @@
+ 		$(TOPDIR)/drivers/hotplug/pci_hotplug_core.c \
+ 		$(TOPDIR)/drivers/hotplug/pci_hotplug_util.c \
+ 		$(TOPDIR)/drivers/block/ll_rw_blk.c \
+-		$(TOPDIR)/drivers/sound/sound_core.c \
+-		$(TOPDIR)/drivers/sound/sound_firmware.c \
++		$(TOPDIR)/sound/sound_core.c \
++		$(TOPDIR)/sound/sound_firmware.c \
+ 		$(TOPDIR)/drivers/net/wan/syncppp.c \
+ 		$(TOPDIR)/drivers/net/wan/z85230.c \
+ 		$(TOPDIR)/drivers/usb/hcd.c \
+diff -urN linux-2.5.5/Documentation/DocBook/kernel-api.tmpl linux-2.5.5.new/Documentation/DocBook/kernel-api.tmpl
+--- linux-2.5.5/Documentation/DocBook/kernel-api.tmpl	Wed Feb 13 01:23:05 2002
++++ linux-2.5.5.new/Documentation/DocBook/kernel-api.tmpl	Thu Feb 21 11:17:34 2002
+@@ -203,8 +203,8 @@
+ 
+   <chapter id="snddev">
+      <title>Sound Devices</title>
+-!Edrivers/sound/sound_core.c
+-!Idrivers/sound/sound_firmware.c
++!Esound/sound_core.c
++!Isound/sound_firmware.c
+   </chapter>
+ 
+   <chapter id="usb">
+diff -urN linux-2.5.5/Documentation/DocBook/via-audio.tmpl linux-2.5.5.new/Documentation/DocBook/via-audio.tmpl
+--- linux-2.5.5/Documentation/DocBook/via-audio.tmpl	Wed Feb 13 01:22:43 2002
++++ linux-2.5.5.new/Documentation/DocBook/via-audio.tmpl	Thu Feb 21 11:19:27 2002
+@@ -537,7 +537,7 @@
+    </listitem>
+    <listitem>
+     <para>
+- Optimize included headers to eliminate headers found in linux/drivers/sound
++ Optimize included headers to eliminate headers found in linux/sound
+ 	</para>
+    </listitem>
+   </itemizedlist>
+@@ -587,7 +587,7 @@
+   
+   <chapter id="intfunctions">
+      <title>Internal Functions</title>
+-!Idrivers/sound/via82cxxx_audio.c
++!Isound/oss/via82cxxx_audio.c
+   </chapter>
+ 
+ </book>
 

@@ -1,44 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129927AbQKPPHA>; Thu, 16 Nov 2000 10:07:00 -0500
+	id <S130646AbQKPPIK>; Thu, 16 Nov 2000 10:08:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130133AbQKPPGv>; Thu, 16 Nov 2000 10:06:51 -0500
-Received: from mons.uio.no ([129.240.130.14]:46845 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S129927AbQKPPGh>;
-	Thu, 16 Nov 2000 10:06:37 -0500
-To: Ivan Kanis <ivank@wrq.com>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org,
-        nfs-devel@linux.kernel.org
-Subject: Re: [BUG] knfsd causes file system corruption when files are locked.
-In-Reply-To: <14867.6967.292440.394045@jedi.wrq.com> <14867.9090.689736.462761@notabene.cse.unsw.edu.au> <14867.18905.212001.355827@jedi.wrq.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 16 Nov 2000 15:36:21 +0100
-In-Reply-To: Ivan Kanis's message of "Wed, 15 Nov 2000 18:43:37 -0800 (PST)"
-Message-ID: <shsofzg9e6y.fsf@charged.uio.no>
-X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Acadia"
+	id <S130645AbQKPPIB>; Thu, 16 Nov 2000 10:08:01 -0500
+Received: from styx.suse.cz ([195.70.145.226]:59886 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S130133AbQKPPHt>;
+	Thu, 16 Nov 2000 10:07:49 -0500
+Date: Thu, 16 Nov 2000 12:06:37 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dep <dennispowell@earthlink.net>
+Cc: "Karnik, Rahul" <rakarnik@davidson.edu>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: VIA IDE bug with WD drive?
+Message-ID: <20001116120637.C665@suse.cz>
+In-Reply-To: <1DE3DA661DC2D31190030090273D1E6A0153FA97@pobox.davidson.edu> <00111519564300.04831@depoffice.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <00111519564300.04831@depoffice.localdomain>; from dennispowell@earthlink.net on Wed, Nov 15, 2000 at 07:56:43PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Ivan Kanis <ivank@wrq.com> writes:
+On Wed, Nov 15, 2000 at 07:56:43PM -0500, dep wrote:
+> On Wednesday 15 November 2000 19:30, Karnik, Rahul wrote:
+> 
+> | I get the following error if I try to enable DMA on my Abit KT7
+> | motherboard with a VIA2C686 chipset:
+> |
+> | hdb: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest
+> | } hdb: timeout waiting for DMA
+> | hda: DMA disabled
+> | hdb: DMA disabled
+> | ide0: reset: success
+> 
+> i get the same thing, along with a crc error, over and over on a 
+> 20-gig WD IDE drive. alternately puzzling and frightening. 
+> apparently, wd uses some nonstandard goofball error checking thing 
+> that just doesn't work with linux at present. it *seems* to do no 
+> harm.
 
-    Ivan> space. I am running this on ext2fs. Fsck-ing the filesystem
-    Ivan> does not help. The only way to recover the space is to
-    Ivan> reformat the partition.
-    Ivan>
-    Ivan> [3.] knfsd, lock, NLM_SHARE, NLM_UNSHARE
-    Ivan>
-    Ivan> [4.] Linux version 2.2.16 (root@jedi) (gcc version 2.7.2.3)
+Ok, both of you, we can try to track this down.
 
+1) Please try with 2.4.0-latest. 
+2) Send me the complete dmesg.
+3) Send me lspci -vvvxxx
+4) Send me /proc/ide/via
 
-Please dig around in dejanews for the locking patch I posted on l-k
-last week (to be applied on top of 2.2.18pre21). It fixes 3 leaks in
-the locking code (amongst them the share leak).
+I'll see what I can do about the driver.
 
-If you can't find it, I'll be happy to post it via private mail...
-
-Cheers,
-  Trond
-
+-- 
+Vojtech Pavlik
+SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

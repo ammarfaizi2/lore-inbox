@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314529AbSHFRvL>; Tue, 6 Aug 2002 13:51:11 -0400
+	id <S314548AbSHFRsr>; Tue, 6 Aug 2002 13:48:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314938AbSHFRvL>; Tue, 6 Aug 2002 13:51:11 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:27919 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S314529AbSHFRvK>; Tue, 6 Aug 2002 13:51:10 -0400
-Date: Tue, 6 Aug 2002 14:04:18 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Pawel Kot <pkot@linuxnews.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] add missing symbol exports
-In-Reply-To: <Pine.LNX.4.33.0208060815400.24592-100000@bzzzt.slackware.pl>
-Message-ID: <Pine.LNX.4.44.0208061403580.7534-100000@freak.distro.conectiva>
+	id <S315119AbSHFRsr>; Tue, 6 Aug 2002 13:48:47 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:25068 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S314548AbSHFRsq>; Tue, 6 Aug 2002 13:48:46 -0400
+Date: Tue, 06 Aug 2002 10:56:26 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: Bernd Schubert <bernd-schubert@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: clear dentry and inode cache
+Message-ID: <14860000.1028656586@w-hlinder>
+In-Reply-To: <200208061612.58825.bernd-schubert@web.de>
+References: <200208061612.58825.bernd-schubert@web.de>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 6 Aug 2002, Pawel Kot wrote:
+--On Tuesday, August 06, 2002 16:12:58 +0200 Bernd Schubert <bernd-schubert@web.de> wrote:
 
 > Hi,
->
-> During the work on the NTFS backport I found that some sympols are missing
-> in ksyms exports. The following patch add the missing symbols. This is
-> against 2.4.19, as I can't find 2.4.20pre1 patch anywhere.
+> 
+> is there a a way to clear the dentry and inode cache via proc interface ?
+> 
 
-Missing as in "used by the NTFS backport" ?
+Have you looked at 'bdflush'? That might help.
 
-
+Hanna
 

@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282212AbRKWT1F>; Fri, 23 Nov 2001 14:27:05 -0500
+	id <S282377AbRKWThp>; Fri, 23 Nov 2001 14:37:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282213AbRKWT0z>; Fri, 23 Nov 2001 14:26:55 -0500
-Received: from dsl-213-023-043-128.arcor-ip.net ([213.23.43.128]:49423 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S282212AbRKWT0u>;
-	Fri, 23 Nov 2001 14:26:50 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: Which gcc version?
-Date: Fri, 23 Nov 2001 20:28:49 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: war <war@starband.net>, Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20011123135801.00aad970@pop.cus.cam.ac.uk> <5.1.0.14.2.20011123185333.00afd920@pop.cus.cam.ac.uk>
-In-Reply-To: <5.1.0.14.2.20011123185333.00afd920@pop.cus.cam.ac.uk>
+	id <S282357AbRKWThg>; Fri, 23 Nov 2001 14:37:36 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:4480 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S282343AbRKWTh3>; Fri, 23 Nov 2001 14:37:29 -0500
+Message-ID: <014a01c17456$504197d0$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <012101c17452$9ac11550$0201a8c0@HOMER>
+Subject: Re: IDE is still crap.. or something
+Date: Fri, 23 Nov 2001 20:37:40 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E167M0I-0002PD-00@starship.berlin>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 23, 2001 07:56 pm, Anton Altaparmakov wrote:
-> At 18:30 23/11/01, Daniel Phillips wrote:
-> >On November 23, 2001 02:59 pm, Anton Altaparmakov wrote:
-> > > At 13:51 23/11/01, war wrote:
-> > > >You should use gcc-2.95.3.
-> > >
-> > > That's not true. gcc-2.96 as provided with RedHat 7.2 is perfectly fine.
-> > >
-> > > gcc-3x OTOH is not a good idea at the moment.
-> >
-> >Do you have any particular reason for saying that?
-> 
-> I haven't done any measurements myself but from what I have read, gcc-3.x 
-> produces significantly slower code than gcc-2.96. I know I should try 
-> myself some time... but if that is indeed true that is a very good reason 
-> to stick with gcc-2.96.
+----- Original Message -----
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: <linux-kernel@vger.kernel.org>
+Sent: Friday, November 23, 2001 8:11 PM
+Subject: IDE is still crap.. or something
 
-If it does I certainly haven't noticed it.  I think we managed to get 2.4 
-running slower than 2.2 for a while, and we all ran those kernels anyway, 
-whether we had to or not, right?
 
-If there is a performance hit, it's not enough to worry about.
+> Well, just wanted to tell you that 2.4.15 still slows down to a crawl when
+> copying a 500MB file between two hard drives (running ext3). I have tried
+> any of the -c -u -m -W settings in hdparm. I even applied the 2.4.14 IDE
+> patch (after fixing the rejects) but no go.
+>
+> Even iptables is affected, because it takes forever to surf the internet
+> from my behind-linux-firewall windows computer.
+>
+> I'm right now trying to apply the preemptive-kernel patch to 2.4.15 but it
+> had some strange rejects so it will be exciting to see if it works. I get
+> good response from the -ac kernel series though.
 
---
-Daniel
+I applied the ide patch and the preemptive-kernel patch, and so far so good.
+Response is up again, but I'm not sure how well I fixed the .rej files.
+There were some reference to a "still_running" label that I simply
+ignored... *shrug*
+
+Btw, i run my (pretty slow) hard disks on my BP6 HPT366 controller.
+
+_____________________________________________________
+|  Martin Eriksson <nitrax@giron.wox.org>
+|  MSc CSE student, department of Computing Science
+|  Umeå University, Sweden
+
+

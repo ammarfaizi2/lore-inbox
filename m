@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264625AbSIQXg4>; Tue, 17 Sep 2002 19:36:56 -0400
+	id <S264675AbSIQXkA>; Tue, 17 Sep 2002 19:40:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264675AbSIQXg4>; Tue, 17 Sep 2002 19:36:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:45188 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S264625AbSIQXg4>;
-	Tue, 17 Sep 2002 19:36:56 -0400
-Date: Tue, 17 Sep 2002 16:32:46 -0700 (PDT)
-Message-Id: <20020917.163246.113965700.davem@redhat.com>
-To: johnstul@us.ibm.com
-Cc: jamesclv@us.ibm.com, ak@suse.de, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, anton.wilson@camotion.com
-Subject: Re: do_gettimeofday vs. rdtsc in the scheduler
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1032305535.7481.204.camel@cog>
-References: <200209171555.52872.jamesclv@us.ibm.com>
-	<20020917.161215.03597459.davem@redhat.com>
-	<1032305535.7481.204.camel@cog>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S264689AbSIQXkA>; Tue, 17 Sep 2002 19:40:00 -0400
+Received: from qix.net ([207.40.214.9]:27405 "EHLO neocygnus.qix.net")
+	by vger.kernel.org with ESMTP id <S264675AbSIQXj7>;
+	Tue, 17 Sep 2002 19:39:59 -0400
+Date: Tue, 17 Sep 2002 19:55:28 -0400
+From: Dave Maietta <dave@qix.net>
+To: linux-kernel@vger.kernel.org
+Cc: trivial@rustcorp.com.au
+Subject: [TRIVIAL][PATCH] 2.4 drivers_char_random.c fix sample shellscripts
+Message-ID: <20020917195528.A4700@hell>
+Reply-To: dave@qix.net
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII;
+Content-Transfer-Encoding: 7BIT
+X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: john stultz <johnstul@us.ibm.com>
-   Date: 17 Sep 2002 16:32:15 -0700
-   
-   Additionally, where is this system tick thing? You make it sound like
-   its a register in the cpu, and while the Ultra-III may have one, I'm
-   unaware of a system/bus tick register on intel chips. Is it in some
-   semi-documented MSR?
+[tyop in first sumbissoin, fixed here]
+This fixes the sample shellscripts given in the comments of 
+drivers/char/random.c.
+The scripts save and restore random seeds for /dev/random across reboots.
 
-It's in a register on Ultra-III.  The whole point of this
-conversation, if you read my initial postings, is that
-"this should have been specified in the x86 architecture"
+--- linux/drivers/char/random.c.orig	2002-09-14 14:56:03.000000000 -0400
++++ linux/drivers/char/random.c	2002-09-17 19:49:34.000000000 -0400
+@@ -175,7 +175,7 @@
+   *	chmod 600 $random_seed
+   *	poolfile=/proc/sys/kernel/random/poolsize
+   *	[ -r $poolfile ] && bytes=`cat $poolfile` || bytes=512
+- *	dd if=/dev/urandom of=$random_seed count=1 bs=bytes
++ *	dd if=/dev/urandom of=$random_seed count=1 bs=$bytes
+   *
+   * and the following lines in an appropriate script which is run as
+   * the system is shutdown:
+@@ -188,7 +188,7 @@
+   *	chmod 600 $random_seed
+   *	poolfile=/proc/sys/kernel/random/poolsize
+   *	[ -r $poolfile ] && bytes=`cat $poolfile` || bytes=512
+- *	dd if=/dev/urandom of=$random_seed count=1 bs=bytes
++ *	dd if=/dev/urandom of=$random_seed count=1 bs=$bytes
+   *
+   * For example, on most modern systems using the System V init
+   * scripts, such code fragments would be found in
 
-I know full well it isn't currently :-)
+Dave Maietta
+North Orchard Cr #4-60
+Westland MI 48186
+734-326-3059 

@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272665AbRIGODa>; Fri, 7 Sep 2001 10:03:30 -0400
+	id <S272666AbRIGOEu>; Fri, 7 Sep 2001 10:04:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272666AbRIGODK>; Fri, 7 Sep 2001 10:03:10 -0400
-Received: from lxmayr6.informatik.tu-muenchen.de ([131.159.44.50]:2688 "EHLO
-	lxmayr6.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
-	id <S272665AbRIGOC7>; Fri, 7 Sep 2001 10:02:59 -0400
-Date: Fri, 7 Sep 2001 16:03:15 +0200
-From: Ingo Rohloff <rohloff@in.tum.de>
-To: epic@scyld.com, linux-kernel@vger.kernel.org
-Subject: epic100.c, gcc-2.95.2 compiler bug!
-Message-ID: <20010907160315.D621@lxmayr6.informatik.tu-muenchen.de>
-In-Reply-To: <20010903130404.B1064@lxmayr6.informatik.tu-muenchen.de> <20010907160159.C621@lxmayr6.informatik.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <20010907160159.C621@lxmayr6.informatik.tu-muenchen.de>; from rohloff@lxmayr6.informatik.tu-muenchen.de on Fri, Sep 07, 2001 at 04:01:59PM +0200
+	id <S272668AbRIGOEk>; Fri, 7 Sep 2001 10:04:40 -0400
+Received: from sweetums.bluetronic.net ([66.57.88.6]:32388 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S272666AbRIGOEh>; Fri, 7 Sep 2001 10:04:37 -0400
+Date: Fri, 7 Sep 2001 10:04:53 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetopia.net>
+X-X-Sender: <jfbeam@sweetums.bluetronic.net>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: MTD and Adapter ROMs 
+In-Reply-To: <7118.999857612@redhat.com>
+Message-ID: <Pine.GSO.4.33.0109070954400.1190-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 7 Sep 2001, David Woodhouse wrote:
+>jfbeam@bluetopia.net said:
+>> Has anyone tried adapting any of the MTD code to allow read/write
+>> access to adapter EEPROMs like the netboot ROM on some network cards
+>> -- or more to the point, HPT adapter cards?
+>
+>Should be relatively simple if you just provide the appropriate 'map'
+>driver to access the flash and set the Vpp line when asked.
+>
+>See drivers/mtd/maps/l440gx.c in my tree.
+>
+>There's also the code at http://www.freiburg.linux.de/~stepan/bios/
+>which possibly ought to be merged with the MTD code.
 
-I posted an error report about the epic100.c module about one
-week before.
-The sympotms were lot's of messages of this in /var/log/messages:
-"kernel: eth0: Too much work at interrupt, IntrStatus=0x008d0004"
+Well, just having documentation on how all the spooge in drivers/mtd
+actually goes together would go along way to helping people use it.  The
+flash chip is an SST 39SF010.  It will appear somewhere in PCI memory
+space once I reenable the adapter ROM.  It is a JEDEC compilant device.
+I have some code from SST for programming it, but I'd rather go the
+general route instead of the one-shot flash-and-run module.
 
-After one week of really frustrating debugging and incrementally
-morphing the working version of the driver I got into the (for
-me) non-working linux-2.4.9 version I finally found out what was
-going on: the linux-2.4.9 driver has no bug!
+I was playing with the physmap driver but that kept oppsing the machine.
+That was with 2.4.7 tho'.
 
-BEWARE: DON'T USE gcc-2.95.2!
-I compiled the linux-2.4.9 version with gcc-2.95.2.
-And I can _definitely_ confirm that epic100.c triggers a compiler
-bug. (I have the erronous assembler code on my harddisk if anyone is
-interested.)
+I think it'll be as "simple" as adding the ID to jedec.c.  Load chips/*,
+maps/hpt-rom (doctored physmap to enable the rom and use it's location),
+and then see if I can get mtdchar to drive the mess.
 
-Compile the same module with gcc-2.95.3 and the bug is gone
-(at least in my case. The assembler code is different and correct.)
+--Ricky
 
-conclusion:
-Don't use gcc-2.95.2 to compile your kernel!
+PS: Never use the PoS "load.exe" from HPT.  It's apparently designed for a
+    4MHz 286.  The delay loops are VERY wrong on any modern processor.  A
+    PII 233 fails to properly write 10% of the bytes.
 
-so long
-  Ingo Rohloff
 

@@ -1,56 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267248AbRGPI4o>; Mon, 16 Jul 2001 04:56:44 -0400
+	id <S267255AbRGPJDY>; Mon, 16 Jul 2001 05:03:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267255AbRGPI4e>; Mon, 16 Jul 2001 04:56:34 -0400
-Received: from weta.f00f.org ([203.167.249.89]:17796 "HELO weta.f00f.org")
-	by vger.kernel.org with SMTP id <S267248AbRGPI41>;
-	Mon, 16 Jul 2001 04:56:27 -0400
-Date: Mon, 16 Jul 2001 20:56:33 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Jonathan Lundell <jlundell@pobox.com>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrew Morton <andrewm@uow.edu.au>,
-        Andreas Dilger <adilger@turbolinux.com>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Ben LaHaise <bcrl@redhat.com>,
-        Ragnar Kjxrstad <kernel@ragnark.vestdata.no>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        mike@bigstorage.com, kevin@bigstorage.com, linux-lvm@sistina.com
-Subject: Re: [PATCH] 64 bit scsi read/write
-Message-ID: <20010716205633.G11938@weta.f00f.org>
-In-Reply-To: <200107151747.f6FHlAU60256@aslan.scsiguy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200107151747.f6FHlAU60256@aslan.scsiguy.com>
-User-Agent: Mutt/1.3.18i
-X-No-Archive: Yes
+	id <S267268AbRGPJDP>; Mon, 16 Jul 2001 05:03:15 -0400
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:58128 "EHLO
+	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S267255AbRGPJC5>; Mon, 16 Jul 2001 05:02:57 -0400
+Message-ID: <3B52ADC1.95012614@folkwang-hochschule.de>
+Date: Mon, 16 Jul 2001 11:02:57 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Nettingsmeier 
+	<nettings@folkwang-hochschule.de>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7-pre6 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, netfilter@lists.samba.org
+CC: nettings@folkwang-hochschule.de
+Subject: kernel lockup in 2.4.5-ac3 and 2.4.6-pre7 (netfilter ?)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 15, 2001 at 11:47:10AM -0600, Justin T. Gibbs wrote:
+hello everyone !
 
-    Simply disabling the write cache does not guarantee the order of
-    writes.  For one, with tagged I/O and the use of the SIMPLE_Q tag
-    qualifier, commands may be completed in any order.  If you want
-    some semblance of order, either disable the write cache or use the
-    FUA bit in all writes, and use the ORDERED tag qualifier.  Even
-    when using these options, it is not clear that the drive cannot
-    reorder writes "slightly" to make track writes more efficient
-    (e.g. two separate commands to write sequential sectors on the
-    same track may be written in reverse order).
+i have had reproducible lockups in 2.4.5-ac3.
+the box is a cyrix@120 mhz with a via apollo chipset and two
+ethercards.
+it's used as a masquerading firewall/dsl router.
 
-ORDERED sounds like the trick...  I assume this is some kind of
-write-barrier? If so, then I assume it has some kind of strict
-temporal ordering, even between command issues to the drive.
+now when i have an ftp session from a machine on the private network
+to the internet and it gets stuck or i ctrl-c out of it, this causes
+the box to lock up hard. i was able to reproduce this a few times.
+no syslog entries survive. alt-sysrq-sync seems to work, but
+-killall and -umount don't, so after alt-sysrq-boot i have to go
+through 20gigs of fsck.
 
-If so, that would be idea if we can have the fs communicate this all
-the way down to the device layer, making it work for soft-raid and LVM
-be a little harder perhaps.
+i have upgraded to 2.4.7-pre6, and the problem has reappeared, this
+time when closing a stuck ssh connection. same sysrq behaviour, no
+logs.
+
+when not forwarding ftp or ssh sessions, the box has had uptimes of
+more than a week, so i think the problem may be netfilter related.
+see below for my netfilter setting. (the same setting has run w/o
+problems in earlier 2.4 kernels.)
+
+i'd welcome hints to nail down the problem. if you want me to run
+further tests or need more info, let me know.
+
+yours,
+
+jörn
+
+ps: if possible, cc: me on followups, because i only read lkml
+through the archive.
 
 
+----
 
-  --cw
+#iptables -L -v 
+Chain INPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source              
+destination
+67171   27M block      all  --  any    any     anywhere            
+anywhere
+ 
+Chain FORWARD (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source              
+destination
+  285 16924 TCPMSS     tcp  --  any    any     anywhere            
+anywhere           tcp flags:SYN,RST/SYN TCPMSS clamp to PMTU
+ 6690 3628K block      all  --  any    any     anywhere            
+anywhere
+ 
+Chain OUTPUT (policy ACCEPT 67143 packets, 47732223 bytes)
+ pkts bytes target     prot opt in     out     source              
+destination
+ 
+Chain block (2 references)
+ pkts bytes target     prot opt in     out     source              
+destination
+71441   30M ACCEPT     all  --  any    any     anywhere            
+anywhere           state RELATED,ESTABLISHED
+ 1848  152K ACCEPT     all  --  !ppp0  any     anywhere            
+anywhere           state NEW
+    0     0 ACCEPT     tcp  --  any    any     anywhere            
+anywhere           tcp dpt:ssh
+    0     0 ACCEPT     tcp  --  any    any     anywhere            
+anywhere           tcp dpt:http
+   38  1792 ACCEPT     tcp  --  any    any     anywhere            
+anywhere           tcp dpts:1024:65535
+  534 31915 DROP       all  --  any    any     anywhere            
+anywhere
+
+-- 
+Jörn Nettingsmeier     
+home://Kurfürstenstr.49.45138.Essen.Germany      
+phone://+49.201.491621
+http://icem-www.folkwang-hochschule.de/~nettings/
+http://www.linuxdj.com/audio/lad/

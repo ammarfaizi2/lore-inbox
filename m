@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129342AbQJ3Uwi>; Mon, 30 Oct 2000 15:52:38 -0500
+	id <S129112AbQJ3VDM>; Mon, 30 Oct 2000 16:03:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129228AbQJ3Uw2>; Mon, 30 Oct 2000 15:52:28 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:1285 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S129112AbQJ3UwS>; Mon, 30 Oct 2000 15:52:18 -0500
-Message-Id: <200010302050.e9UKo7312002@pincoya.inf.utfsm.cl>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Peter Samuelson <peter@cadcamlab.org>,
-        Linux Kernel Developer <linux_developer@hotmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Recommended compiler? - Re: [patch] kernel/module.c (plus gratuitous rant) 
-In-Reply-To: Message from Martin Dalecki <dalecki@evision-ventures.com> 
-   of "Mon, 30 Oct 2000 14:49:03 BST." <39FD7C4F.74D8DCCC@evision-ventures.com> 
-Date: Mon, 30 Oct 2000 17:50:07 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S129213AbQJ3VDC>; Mon, 30 Oct 2000 16:03:02 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:45328 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129112AbQJ3VCn>; Mon, 30 Oct 2000 16:02:43 -0500
+Date: Mon, 30 Oct 2000 13:02:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alexander Viro <viro@math.psu.edu>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: test10-pre7
+In-Reply-To: <Pine.GSO.4.21.0010301505590.1177-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.10.10010301256491.848-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Dalecki <dalecki@evision-ventures.com> said:
-> Peter Samuelson wrote:
 
-[...]
 
-> > * Red Hat "2.96" or CVS 2.97 will probably break any known kernel.
+On Mon, 30 Oct 2000, Alexander Viro wrote:
+> 
+> Unfortunately, it doesn't fix the thing. ->sync_page() is called when we
+> do not own the page lock and nfs_sync_page() uses page->mapping. Yes, we
+> check it before calling the bloody thing, but we don't own the lock.
 
-> Works fine for me and 2.4.0-test10-pre5... however there are tons of
-> preprocessor warnings in some drivers.
+Good catch.
 
-CVS (from 20001028 or so) gave a 2.4.0.10.6/i686 that crashed on boot, no
-time to dig deeper yet.
--- 
-Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+> Problem only for NFS, but I'm not sure what to do about it - the whole
+> point of ->sync_page() seems to be (if I understood Trond's intentions
+> right) in forcing the ->readpage() in progress.
+
+How about just changing ->sync_page() semantics to own the page lock? That
+sound slike the right thing anyway, no?
+
+> Another place you've missed is in read_cache_page(). That one is easy - we've
+> just locked the page and we should just repeat the whole thing if it's out
+> of cache.
+
+I didn't actually miss it, I just looked at the users and decided that it
+looks like they should never have this issue. But I might have missed
+something. As far as I can tell, "read_cache_page()" is only used for
+meta-data like things that cannot be truncated.
+
+But you're right, we should do it for consistency.
+
+> One more is in filemap_swapout() - dunno, I just shifted the check to
+> filemap_write_page().
+
+I'd really like to do these in the thing that locks the page, and make the
+rule be that the page locker needs to do the work. That's why I'd prefer
+to let the test be in the _caller_ of filemap_write_page(), as that's the
+point where we got the lock.
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318506AbSGSMwp>; Fri, 19 Jul 2002 08:52:45 -0400
+	id <S315784AbSGSNGQ>; Fri, 19 Jul 2002 09:06:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318510AbSGSMwp>; Fri, 19 Jul 2002 08:52:45 -0400
-Received: from holomorphy.com ([66.224.33.161]:10895 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318506AbSGSMwo>;
-	Fri, 19 Jul 2002 08:52:44 -0400
-Date: Fri, 19 Jul 2002 05:55:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bob_Tracy <rct@gherkin.frus.com>
+	id <S316182AbSGSNGQ>; Fri, 19 Jul 2002 09:06:16 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:23218 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S315784AbSGSNGP>;
+	Fri, 19 Jul 2002 09:06:15 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: Rob Landley <landley@trommello.org>
+Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
+Date: Fri, 19 Jul 2002 06:09:05 -0700
+User-Agent: KMail/1.4.5
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2[5-6] VM problem (oops)
-Message-ID: <20020719125518.GX1096@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bob_Tracy <rct@gherkin.frus.com>, linux-kernel@vger.kernel.org
-References: <m17VX7e-0005khC@gherkin.frus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
+References: <Pine.LNX.4.44.0207182339080.3378-100000@hawkeye.luckynet.adm> <200207190619.g6J6Jo2112432@pimout5-int.prodigy.net>
+In-Reply-To: <200207190619.g6J6Jo2112432@pimout5-int.prodigy.net>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <m17VX7e-0005khC@gherkin.frus.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Message-Id: <200207190609.13684.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 19, 2002 at 07:44:38AM -0500, Bob_Tracy wrote:
-> Unfortunately, this report is not as detailed as it needs to be (can't
-> run ksymoops while the affected kernels are running).  2.5.25 and 2.5.26
-> both seem to have this problem, whereas 2.5.24 and earlier kernels are
-> fine.  Problem is that kernel will generally "oops" within 24 hours of
-> booting.  The process that triggers the oops isn't constant, but the
-> general character of the oops *is*...  Here's the log, such as it is:
-> kernel BUG at page_alloc.c:182!
+On July 18, 2002 17:21, Rob Landley wrote:
+> That's probably good enough for me, actually.  Now my NEXT unanswered
+> question is why the heck Darpa's "Information Awareness Office" has a
+> picture of the Bavarian Illuminati in its logo, but I doubt that's
+> something this list can help me with.  Me, I would have picked the gnomes
+> of zurich.  Or the UFOs, for the second attack.  Or in the expansion pack,
+> The Networks, since transferrable power is so useful anyway...
+That one's easier. The pyramid with the radiant eye is actually the reverse of 
+the Great Seal of the United States of America, dreamed up by a bunch of 
+committees shortly after the US gained independence. It also appears on the 
+one dollar bill. And because it was designed by committee, it's about as 
+complex as the POSIX standard.
 
+The pyramid signifies strength and duration. It was an appropriate symbol at 
+the time, because there was an Egypt fad, and everyone though pyramids and 
+mummy were really novel. The pyramid has thirteen levels, symbolising the 
+thirteen original states. The partially completed state of the pyramid is 
+intended to represent the nation under construction. I guess they crammed 38 
+more levels in at the very tip.
 
-(1) if you read the ksymoops manpage you'll see how to run it on a
-	non-running kernel, read how to point it at a System.map
-	and modules directory of your choosing and avoid using the
-	/proc/ksyms of the running kernel there please
-(2) to cut down on the number of variables, please reproduce it while
-	the NVidia driver is not loaded and decode that ksymoops
+The single opening eye has always been an artistic symbol of omniscience. This 
+represents the "God" [1] of the founders, and is referred to in the caption 
+"Annuit Coeptis". This roughly translates to "It has favoured our 
+undertakings", meaning that the omniscient eye likes the US. The radial lines 
+originating at the omniscient eye are supposed to stand for it extending 
+radiance out in to infinity.
 
-It's not particularly useful to post non-decoded oopses.
+> (P.S. I'm not quite kidding: http://www.darpa.mil/iao/ ).
+Now, the symbolism used in the IOA logo is poor at best. The omniscient eye 
+was never supposed to represent the United States itself, but God [1]. Unless 
+they're calling themselves God lately, they really broke the metaphor by 
+having the eye looking over the Earth. It just goes to show that the US was a 
+lot cooler when it was founded than it is now.
 
+-Ryan
 
-Cheers,
-Bill
+[1] Joseph Campbell suggested that the God referred to by the founders was not 
+the Christian God, but the "God" of logic and reason. One argument for this 
+may be that the opening eye is also used to represent the "third eye". The 
+third eye stands for enlightenment and introspection, which is very 
+suggestive of the sort of God Joseph Campbell talks about. I haven't done 
+nearly enough independent research to back that up, though.

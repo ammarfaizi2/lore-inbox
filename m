@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291886AbSBNUud>; Thu, 14 Feb 2002 15:50:33 -0500
+	id <S291878AbSBNUuX>; Thu, 14 Feb 2002 15:50:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291882AbSBNUuY>; Thu, 14 Feb 2002 15:50:24 -0500
-Received: from smtp3.vol.cz ([195.250.128.83]:42512 "EHLO smtp3.vol.cz")
-	by vger.kernel.org with ESMTP id <S291885AbSBNUuO>;
-	Thu, 14 Feb 2002 15:50:14 -0500
-Date: Thu, 14 Feb 2002 09:40:47 +0000
+	id <S291886AbSBNUuR>; Thu, 14 Feb 2002 15:50:17 -0500
+Received: from smtp3.vol.cz ([195.250.128.83]:34576 "EHLO smtp3.vol.cz")
+	by vger.kernel.org with ESMTP id <S291851AbSBNUuB>;
+	Thu, 14 Feb 2002 15:50:01 -0500
+Date: Wed, 13 Feb 2002 23:52:29 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Jens Axboe <axboe@suse.de>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: IDE cleanup for 2.5.4-pre3
-Message-ID: <20020214094046.B37@toy.ucw.cz>
-In-Reply-To: <20020208231346.GA1209@elf.ucw.cz> <20020211094230.E1957@suse.de> <20020211134443.GC20854@atrey.karlin.mff.cuni.cz> <20020211181013.K729@suse.de> <20020213225326.A10409@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Small notes about /proc/driver
+Message-ID: <20020213225227.GJ1454@elf.ucw.cz>
+In-Reply-To: <20020211204811.GA131@elf.ucw.cz> <Pine.LNX.4.33.0202131353100.25114-100000@segfault.osdlab.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20020213225326.A10409@suse.cz>; from vojtech@suse.cz on Wed, Feb 13, 2002 at 10:53:26PM +0100
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0202131353100.25114-100000@segfault.osdlab.org>
+User-Agent: Mutt/1.3.25i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > > Here are first small ide cleanups. Jens, please apply,
-> > > > 
-> > > > Looks good to me.
-> > > 
-> > > Is it "Looks good to me, applied", or "Looks good to me, good luck
-> > > pushing it to Linus?" :-).
+> > root@amd:/proc/driver/root/pci0/00:02.0# cat irq
+> > 11root@amd:/proc/driver/root/pci0/00:02.0#
+> > root@amd:/proc/driver/root/pci0/00:02.0# cat power
+> > 0
+> > root@amd:/proc/driver/root/pci0/00:02.0# cat resources
 > > 
-> > As in I've applied it to my tree, it should find it's way upwards :-)
+> > -> irq does not include newline while power does. Probably irq should
+> > add a newline for consistency.
 > 
-> Here is another version of the patch, doing more extensive cleanups of
-> unnecessary casts, unnecessary assignments and (void *) pointers where
-> typed pointers should be.
+> Yes. Thanks.
+> 
+> > I briefly tested usb support in driver. You really should figure out
+> > some name ;-).
+> 
+> Name? For what?
 
-Looks good to me.
-								Pavel
+That was joke. If you cat usb/something/name, it says 
 
+"Should figure out some name"
+
+. It really needs to be replaced with some better name.
+									Pavel
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

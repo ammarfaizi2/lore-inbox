@@ -1,35 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262679AbSJLByV>; Fri, 11 Oct 2002 21:54:21 -0400
+	id <S262696AbSJLCFy>; Fri, 11 Oct 2002 22:05:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262688AbSJLByV>; Fri, 11 Oct 2002 21:54:21 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37248 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S262679AbSJLByU>;
-	Fri, 11 Oct 2002 21:54:20 -0400
-Date: Fri, 11 Oct 2002 18:53:32 -0700 (PDT)
-Message-Id: <20021011.185332.115906289.davem@redhat.com>
-To: mk@linux-ipv6.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] USAGI IPsec
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <m3u1js1l1a.wl@karaba.org>
-References: <m3u1js1l1a.wl@karaba.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262702AbSJLCFx>; Fri, 11 Oct 2002 22:05:53 -0400
+Received: from mail.storm.ca ([209.87.239.66]:6020 "EHLO mail.storm.ca")
+	by vger.kernel.org with ESMTP id <S262696AbSJLCFx>;
+	Fri, 11 Oct 2002 22:05:53 -0400
+Message-ID: <3DA857AB.2010504@storm.ca>
+Date: Sat, 12 Oct 2002 10:11:07 -0700
+From: Sandy Harris <sandy@storm.ca>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mitsuru KANDA <mk@linux-ipv6.org>
+CC: linux-kernel@vger.kernel.org, design@lists.freeswan.org,
+       usagi@linux-ipv6.org
+Subject: Re: [Design] [PATCH] USAGI IPsec
+References: <m3k7kpjt7c.wl@karaba.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mitsuru KANDA wrote:
 
-Hello.
+>Hello Linux kernel network maintainers,
+>
+>I'm a member of USAGI project.
+>  
+>
+   [snip]
 
-We will be using your ipv6 ipsec work as a model for how
-IPSEC will look in Linux.
+>2. Cipher/Digest Algorithms
+>
+>	Supported algorithms:
+>		Ciphers: DES, 3DES and AES
+>		Digests: MD5 and SHA1
+>
+>	We use CryptoAPI as cipher/digest algorithm.
+>	- CryptoAPI
+>		http://www.kerneli.org/
+>  
+>
+Please remove DES as it is insecure. For discussion, see:
+http://www.freeswan.org/freeswan_trees/freeswan-1.98b/doc/politics.html#desnotsecure
 
-We liked your implementation for it's simplicity.  But Alexey and
-myself believe several details should be handled very much
-differently.
-
-Thanks.

@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272586AbTHKNdc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 09:33:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272587AbTHKNdc
+	id S272609AbTHKNx7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 09:53:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272585AbTHKNxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 09:33:32 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22788 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S272586AbTHKNdT (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Mon, 11 Aug 2003 09:33:19 -0400
-Subject: Re: volatile variable
+	Mon, 11 Aug 2003 09:53:46 -0400
+Received: from pub237.cambridge.redhat.com ([213.86.99.237]:43500 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S272609AbTHKNxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 09:53:22 -0400
+Subject: Re: compiling external kernel modules (comedi.org)
 From: David Woodhouse <dwmw2@infradead.org>
-To: root@chaos.analogic.com
-Cc: Dinesh Gandhewar <dinesh_gandhewar@rediffmail.com>,
-       mlist-linux-kernel@nntp-server.caltech.edu
-In-Reply-To: <Pine.LNX.4.53.0308010723060.3077@chaos>
-References: <20030801105706.30523.qmail@webmail28.rediffmail.com>
-	 <Pine.LNX.4.53.0308010723060.3077@chaos>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Bernd Porr <Bernd.Porr@cn.stir.ac.uk>, linux-kernel@vger.kernel.org,
+       comedi@comedi.org
+In-Reply-To: <20030802230553.GA1188@mars.ravnborg.org>
+References: <3F2B0E06.9000907@cn.stir.ac.uk>
+	 <20030802070422.GA2404@mars.ravnborg.org> <3F2BA623.6030906@cn.stir.ac.uk>
+	 <20030802120756.GA964@mars.ravnborg.org> <3F2BB840.9060205@cn.stir.ac.uk>
+	 <20030802230553.GA1188@mars.ravnborg.org>
 Content-Type: text/plain
-Message-Id: <1060608783.19194.13.camel@passion.cambridge.redhat.com>
+Message-Id: <1060609994.32631.3.camel@passion.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
-Date: Mon, 11 Aug 2003 14:33:04 +0100
+X-Mailer: Ximian Evolution 1.4.4 (dwmw2) 
+Date: Mon, 11 Aug 2003 14:53:14 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-08-01 at 12:38, Richard B. Johnson wrote:
-> First, there are already procedures available to do just
-> what you seem to want to do, interruptible_sleep_on() and
-> interruptible_sleep_on_timeout(). These take care of the
-> ugly details that can trip up compilers.
+On Sun, 2003-08-03 at 00:05, Sam Ravnborg wrote:
+> EXTRA_CFLAGS := -I$(obj)/../include
+> in the Makefile should do the trick.
 
-Just in case there are people reading this who don't realise that
-Richard is trolling -- do not ever use sleep_on() and friends. They
-_will_ introduce bugs, and hence they _will_ be removed from the kernel
-some time in the (hopefully not-so-distant) future.
+Be careful -- in the case where you're building a newer driver than one
+which is already in the kernel, you may need to ensure your own include
+directory supersedes the kernel's. In that case 'CC=$(CROSS_COMPILE)gcc
+-I$(obj)/../include' may be useful.
 
-> In any event in your loop, variable 'a', has already been
-> read by the code the compiler generates. There is nothing
-> else in the loop that touches that variable. Therefore
-> the compiler is free to (correctly) assume that whatever
-> it was when it was first read is what it will continue to
-> be. The compiler will therefore optimise it to be a single
-> read and compare. So, the loop will continue forever if
-> 'a' started as zero because the compiler correctly knows
-> that it cannot possibly change in the only execution
-> path that it knows about.
+An example which is currently working for 2.4 and 2.6 kernels, and which
+used to work for 2.2 too until quite recently, is at
+http://cvs.infradead.org/cgi-bin/cvsweb.cgi/mtd/drivers/mtd/
 
-If 'a' is a local variable that's true. If 'a' is a global as the
-original poster explicitly declared, then the compiler must assume that
-function calls (such as the one to schedule()) may modify it, and hence
-may not optimise away the second and subsequent reads. Therefore, the
-'volatile' is not required.
+Some people seem to think that the 'SUBDIRS=' trick is a new thing for
+2.6. It's not -- it's worked for ever, and was _always_ the only
+reliable way of building modules to match the kernel.
 
-Richard, stop taunting the newbies :)
 
 -- 
 dwmw2

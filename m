@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269542AbRHCSWz>; Fri, 3 Aug 2001 14:22:55 -0400
+	id <S269537AbRHCSVP>; Fri, 3 Aug 2001 14:21:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269540AbRHCSWp>; Fri, 3 Aug 2001 14:22:45 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:11 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269538AbRHCSWj>; Fri, 3 Aug 2001 14:22:39 -0400
-Date: Fri, 3 Aug 2001 20:22:46 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: "Bill Rugolsky Jr." <rugolsky@ead.dsa.com>
-Cc: Daniel Phillips <phillips@bonn-fries.net>,
-        "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+	id <S269538AbRHCSVF>; Fri, 3 Aug 2001 14:21:05 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:16653 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269537AbRHCSUx>; Fri, 3 Aug 2001 14:20:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>
 Subject: Re: intermediate summary of ext3-2.4-0.9.4 thread
-Message-ID: <20010803202246.E31468@emma1.emma.line.org>
-Mail-Followup-To: "Bill Rugolsky Jr." <rugolsky@ead.dsa.com>,
-	Daniel Phillips <phillips@bonn-fries.net>,
-	"Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B5FC7FB.D5AF0932@zip.com.au> <20010801170230.B7053@redhat.com> <20010802110341.B17927@emma1.emma.line.org> <01080219261601.00440@starship> <20010802193750.B12425@emma1.emma.line.org> <20010802154718.A16494@ead45>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20010802154718.A16494@ead45>
-User-Agent: Mutt/1.3.19i
+Date: Fri, 3 Aug 2001 20:26:14 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0108031400590.3272-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Message-Id: <0108032026140F.01827@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 02 Aug 2001, Bill Rugolsky Jr. wrote:
+On Friday 03 August 2001 20:08, Alexander Viro wrote:
+> On Fri, 3 Aug 2001, Daniel Phillips wrote:
+> > Are you saying that there may not be a ".." some of the time?  Or just
+> > that it may spontaneously be relinked?  If it does spontaneously change
+> > it doesn't matter, you have still made sure there is access by at least
+> > one path.
+> >
+> > The trouble with doing this in userland is, the locked chain of dcache
+> > entries isn't there.
+>
+> There is no _locked_ chain.
 
-> I have no idea where BSD falls, but the basic point stands:  unused
-> features should not penalize other applications.  Andrew Morton has
-> figured out how to do this efficiently with ext3, and many kudos to him
-> for doing the work.  Absent that, why should I have to go get a cup of
-> coffee every time I want to patch a tree, just so some MTA can make
-> naive assumptions?
+Locked as in can't be destroyed (refcount) not i_sem or such, sorry for the
+loose usage.
 
-The whole idea is to have a switch to turn on BSD-style synchronous
-directory update semantics. Nothing more, nothing you would not be able
-to get rid off. In fact, you can mount file systems async on BSD as
-well, but you'd better not have the machine crash. Irrecoverable file
-system damage can result. As a compromise, softupdates are nearly as
-fast as async, but FS damage is guaranteed to be recoverable.
+> And if you want to grab the locks on all
+> ancestors - think again. It means sorting the inodes by address _and_
+> relocking if any of them had been moved while you were locking the
+> previous ones. I absolutely refuse to add such crap to the tree and I
+> seriously suspect that Linus and Alan will do the same.
 
-In either case (async or soft-updates), files can end up in lost+found
-after the control had been returned to the application that called open
-or link.
-
--- 
-Matthias Andree
+--
+Daniel

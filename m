@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289118AbSA1Nmr>; Mon, 28 Jan 2002 08:42:47 -0500
+	id <S289166AbSA1NyI>; Mon, 28 Jan 2002 08:54:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289171AbSA1Nmh>; Mon, 28 Jan 2002 08:42:37 -0500
-Received: from cp66906-a.roemd1.lb.nl.home.com ([213.51.11.249]:61069 "EHLO
-	lx01.intranet.invantive.com") by vger.kernel.org with ESMTP
-	id <S289101AbSA1NmZ>; Mon, 28 Jan 2002 08:42:25 -0500
-Date: Mon, 28 Jan 2002 15:41:57 +0100
-Message-Id: <200201281441.g0SEfvp08440@lx01.intranet.invantive.com>
-From: "Guido Leenders" <guido.leenders@invantive.com>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Diego Calleja <grundig@teleline.es>,
-        lkml <linux-kernel@vger.kernel.org>, <guido.leenders@invantive.com>
-Subject: Re: PROBLEM: 2.4.17 crashes (VM bug?) after heavy system load
-X-Mailer: NeoMail 1.25
-X-IPAddress: 195.6.68.165
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S289124AbSA1NyA>; Mon, 28 Jan 2002 08:54:00 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:6901 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S289101AbSA1Nxo>; Mon, 28 Jan 2002 08:53:44 -0500
+Date: Mon, 28 Jan 2002 14:51:54 +0100
+From: Kristian <kristian.peters@korseby.net>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: ed.sweetman@wmich.edu, linux-kernel@vger.kernel.org
+Subject: Re: [CFT] Bus mastering support for IDE CDROM audio
+Message-Id: <20020128145154.6437b39b.kristian.peters@korseby.net>
+In-Reply-To: <3C550BD4.E9CBE6A@zip.com.au>
+In-Reply-To: <20020127111917.3c019701.kristian.peters@korseby.net>
+	<3C5119E0.6E5C45B6@zip.com.au>
+	<000701c1a5d5$812ef580$6caaa8c0@kevin>
+	<3C53711B.F8D89811@zip.com.au>
+	<3C53A116.81432588@zip.com.au>
+	<20020127101131.0f71e978.kristian.peters@korseby.net>
+	<20020127111917.3c019701.kristian.peters@korseby.net>
+	<1012161271.22707.50.camel@psuedomode>
+	<3C550BD4.E9CBE6A@zip.com.au>
+X-Mailer: Sylpheed version 0.7.0claws5 (GTK+ 1.2.10; i386-redhat-linux)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Roy,
+Andrew Morton <akpm@zip.com.au> wrote:
+> OK, Gents.  Version three is at
+> 
+> 	http://www.zip.com.au/~akpm/linux/2.4/2.4.18-pre7/ide-akpm-3.patch
+> 
+> This attempts to overcome the situation where a drive/controller
+> doesn't want to perform multiframe DMA, but is happy performing
+> single-frame DMA.
+> [...]
 
-this is indeed the problem I find. Will try 18-pre7.
+The third patch works fine.
 
-Regards,
+When I'm doing "hdparm -c0 /dev/hdc" (16bit I/O) the system respond-ratio gets very low. (with all ide-cd-patches) I can see when gtk draws it's icons... But when I switch I/O back to 32 bit linux gets responsive again and cpu load decreases (~20%).
 
-Guido
+Tested with 2.4.18-pre3-ac2 and 2.4.17-lowlat-ide.
 
+*Kristian
 
-
-> On Sun, 27 Jan 2002, Alan Cox wrote:
-> 
-> > > On 27 ene 2002, 22:49:17, Guido Leenders wrote:
-> > > >
-> > > > [1.] One line summary of the problem:
-> > > >
-> > > > Especially during times of heavy I/O, swapping and CPU 
-processing, the
-> > > > OS crashes with an Oops.
-> > > I think andrea's patches should be applied into stable mainline 
-NOW.
-> >
-> > Its up to Andrea to break up his patches and feed them to Marcelo 
-as he
-> > has been asked. It also won't make any odds to this trace I suspect.
-> >
-> > Trying 2.4.18pre7 or applying the LRU patch to 2.4.17 that Ben 
-LaHaise did
-> > should sort most of the 2.4.17 crashes out
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-
-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> >
-> 
-> What makes Andrea's patches better than Rik's?
-> 
-> My recent problem with the vm was easily solved with rmap.
-> 
-> See http://karlsbakk.net/dev/kernel/vm-fsckup.txt for more info
-> 
-> roy
-> 
-> --
-> Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
-> 
-> Computers are like air conditioners.
-> They stop working when you open Windows.
-> 
-> 
-
--- 
-NeoMail - Webmail that doesn't suck... as much.
-http://neomail.sourceforge.net
+  :... [snd.science] ...:
+ ::
+ :: http://www.korseby.net
+ :: http://gsmp.sf.net
+  :.........................:: ~/$ kristian@korseby.net :

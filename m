@@ -1,93 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270140AbTGUOrP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 10:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270142AbTGUOrP
+	id S270143AbTGUOyS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 10:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270148AbTGUOyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 10:47:15 -0400
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:19253 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id S270140AbTGUOrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 10:47:13 -0400
-Subject: Re: [IPV6 Problem in 2.6.0-test1] Unable to handle kernel paging
-	request at virtual address 6b6b6b6b
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1058746191.3240.2.camel@aurora.localdomain>
-References: <1058746191.3240.2.camel@aurora.localdomain>
-Content-Type: text/plain
-Message-Id: <1058799731.1783.7.camel@aurora.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
-Date: 21 Jul 2003 11:02:12 -0400
+	Mon, 21 Jul 2003 10:54:18 -0400
+Received: from firewall.mdc-dayton.com ([12.161.103.180]:8904 "EHLO
+	firewall.mdc-dayton.com") by vger.kernel.org with ESMTP
+	id S270143AbTGUOyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 10:54:10 -0400
+From: "Kathy Frazier" <kfrazier@mdc-dayton.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <bullet.train@ntlworld.com>, <no_spam@ntlworld.com>
+Subject: Re: Fwd: Missing interrupts?
+Date: Mon, 21 Jul 2003 11:20:07 -0500
+Message-ID: <PMEMILJKPKGMMELCJCIGCEFOCDAA.kfrazier@mdc-dayton.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am assuming this is fixed.  I can't trigger anymore oopses or hangs
-using the 26 version of the RPM from RedHat's arjanv (Sorry, only know
-your user name).  The 25 is the one with all the problems.  My guess is
-a patch has been posted and accepted and arjanv has incorporated it into
-his releases.  All my ACPI (pci=noacpi still active) problems are gone. 
-I will be testing the pcp/acpi stuff later today.
+Your posting caught my eye, as I am currently having a problem with a device
+driver not receiving interrupts on a Pentium 4 system.  In the debugging
+process we found that our board is asserting it's interrupt, but my driver
+never receives it (sound familiar?).  I added code to the linux kernel
+(version 2.4.20-8) to determine if the IRQ was getting to the O/S once my
+system hangs.  We found that not only is it NOT getting to the O/S, it never
+even makes it to the 8259 Programmable Interrupt Controller.  Futhermore, it
+appears that things on the motherboard are is such a bad state, that no
+other interrupts are getting through (keyboard, mouse, network, etc).  This
+same board and driver works fine in a Pentium 3 system.
 
-Thanks to those who found and fixed it.
 
-Trever
 
-On Sun, 2003-07-20 at 20:09, Trever L. Adams wrote:
-> Jul 20 20:06:42 aurora kernel: Unable to handle kernel paging request at
-> virtual address 6b6b6b6b
-> Jul 20 20:06:42 aurora kernel:  printing eip:
-> Jul 20 20:06:42 aurora kernel: 6b6b6b6b
-> Jul 20 20:06:42 aurora kernel: *pde = 00000000
-> Jul 20 20:06:42 aurora kernel: Oops: 0000 [#1]
-> Jul 20 20:06:42 aurora kernel: CPU:    0
-> Jul 20 20:06:42 aurora kernel: EIP:    0060:[<6b6b6b6b>]    Not tainted
-> Jul 20 20:06:42 aurora kernel: EFLAGS: 00010286
-> Jul 20 20:06:42 aurora kernel: EIP is at 0x6b6b6b6b
-> Jul 20 20:06:42 aurora kernel: eax: dca4c084   ebx: dc95ccbc   ecx:
-> dd178104   edx: cd94db40
-> Jul 20 20:06:42 aurora kernel: esi: dc95ccbc   edi: 00000000   ebp:
-> 00000000   esp: c3aa7cac
-> Jul 20 20:06:42 aurora kernel: ds: 007b   es: 007b   ss: 0068
-> Jul 20 20:06:42 aurora kernel: Process ogg123 (pid: 4504,
-> threadinfo=c3aa6000 task=cd236080)
-> Jul 20 20:06:42 aurora kernel: Stack: e0984a96 dc95ccbc 00000000
-> 00000000 c3aa7d90 cd9772a4 00000000 00000000
-> Jul 20 20:06:42 aurora kernel:        000005dc dc95ccbc 00000000
-> 00000028 e0984ed1 dc95ccbc c3aa7d50 00000010
-> Jul 20 20:06:42 aurora kernel:        00000000 cf88e084 df7683fc
-> 4122c000 00000001 00000001 cd236080 dc68c60c
-> Jul 20 20:06:42 aurora kernel: Call Trace:
-> Jul 20 20:06:42 aurora kernel:  [<e0984a96>] ip6_output2+0x166/0x240
-> [ipv6]
-> Jul 20 20:06:42 aurora kernel:  [<e0984ed1>] ip6_xmit+0x1f1/0x370 [ipv6]
-> Jul 20 20:06:42 aurora kernel:  [<e09a4936>] tcp_v6_xmit+0x116/0x230
-> [ipv6]
-> Jul 20 20:06:42 aurora kernel:  [<c02621bf>]
-> tcp_transmit_skb+0x39f/0x5a0
-> Jul 20 20:06:42 aurora kernel:  [<c0264a91>] tcp_connect+0x3a1/0x470
-> Jul 20 20:06:42 aurora kernel:  [<e09a1937>] tcp_v6_connect+0x397/0x750
-> [ipv6]
-> Jul 20 20:06:42 aurora kernel:  [<c0277418>]
-> inet_stream_connect+0xe8/0x210
-> Jul 20 20:06:42 aurora kernel:  [<c02337bb>] sys_connect+0x9b/0xd0
-> Jul 20 20:06:42 aurora kernel:  [<c023236a>] sock_map_fd+0xfa/0x130
-> Jul 20 20:06:42 aurora kernel:  [<c023328b>] sock_create+0x10b/0x170
-> Jul 20 20:06:42 aurora kernel:  [<c023332d>] sys_socket+0x3d/0x60
-> Jul 20 20:06:42 aurora kernel:  [<c02343bd>] sys_socketcall+0xcd/0x2a0
-> Jul 20 20:06:42 aurora kernel:  [<c01608c5>] do_fcntl+0xb5/0x1a0
-> Jul 20 20:06:42 aurora kernel:  [<c0160ab9>] sys_fcntl64+0x79/0xc0
-> Jul 20 20:06:43 aurora kernel:  [<c010a839>] sysenter_past_esp+0x52/0x71
-> Jul 20 20:06:43 aurora kernel:
-> Jul 20 20:06:43 aurora kernel: Code:  Bad EIP value.
-> 
-> System is nVideo nForce 2 based motherboard running a mostly RedHat
-> Rawhide (up to date) with 2.6.0-test rpms by arjanv at RedHat.
-> 
-> Trever
+>Machines test where everything worked: kernels 2.4.18-10 and 2.4.18-24.8.0
+> on athlon based PCs
 
---
-"Black holes are where God divided by zero." -- Unknown
+
+>Machine where interrupts failed to appear: kernel 2.4.18-3 on a pentium 4.
+
+Are you running these tests using the same board?  You might try moving the
+board for this device driver from the athlon PC to the pentium 4 PC just to
+insure it is not a problem with the board.
+
+>I register the interrupt on open with
+
+>
+err=request_irq(pi_stage.interrupt,pi_int_handler,SA_SHIRQ,PI_IRQ_ID,(void*)
+> &pi_stage);
+
+Is the value in pi_stage.interrupt assigned from the irq element of the
+pci_dev structure (returned by pci_find_device routine)?  This is the
+preferred way to obtain your IRQ rather than look directly at your device's
+config space.
+
+Even though you are indicating that you will share the IRQ, have you tried
+adjusting BIOS settings or moving board to another slot to try to establish
+a unique IRQ for yourself?  That would at least prevent another device
+driver from getting in your way.
+
+Just curious:  Are you receiving any interrupts at all in the pentium 4
+system?  Or is it running for awhile and then missing some?  Does a missing
+interrupt hang your system?
+
+
+
+Kathy Frazier
+Senior Software Engineer
+Max Daetwyler Corporation-Dayton Division
+2133 Lyons Road
+Miamisburg, OH 45342
+Tel #: 937.439-1582 ext 6158
+Fax #: 937.439-1592
+Email: kfrazier@daetwyler.com
+http://www.daetwyler.com
+
+
 

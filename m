@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318295AbSGXXjb>; Wed, 24 Jul 2002 19:39:31 -0400
+	id <S318274AbSGXXgn>; Wed, 24 Jul 2002 19:36:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318296AbSGXXjb>; Wed, 24 Jul 2002 19:39:31 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:49282 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S318295AbSGXXja>;
-	Wed, 24 Jul 2002 19:39:30 -0400
-Date: Wed, 24 Jul 2002 19:42:41 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.28 and partitions
-In-Reply-To: <UTC200207242242.g6OMglA23855.aeb@smtp.cwi.nl>
-Message-ID: <Pine.GSO.4.21.0207241925450.14656-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318281AbSGXXgm>; Wed, 24 Jul 2002 19:36:42 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:41639 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S318274AbSGXXgm>; Wed, 24 Jul 2002 19:36:42 -0400
+Date: Thu, 25 Jul 2002 00:39:44 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: type safe lists (was Re: PATCH: type safe(r) list_entry repacement: generic_out_cast)
+Message-ID: <20020725003944.B8430@kushida.apsleyroad.org>
+References: <20020723114703.GM11081@unthought.net.suse.lists.linux.kernel> <3D3E75E9.28151.2A7FBB2@localhost.suse.lists.linux.kernel> <p73d6tdtg2s.fsf@oldwotan.suse.de> <ahn4gl$347$1@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <ahn4gl$347$1@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Jul 24, 2002 at 09:00:05PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 25 Jul 2002 Andries.Brouwer@cwi.nl wrote:
-
-> Just saw some new partition code in 2.5.28. Good!
-> I like almost all I see, except for one thing:
+Linus Torvalds wrote:
+> >> As long as your pointers are 32bit this seems to be ok. But on 
+> >> 64bit implementations pointers are not (unsigned long) so this cast 
+> >> seems to be wrong.
+> >
+> >A pointer fits into unsigned long on all 64bit linux ports.
+> >The kernel very heavily relies on that.
 > 
-> +struct parsed_partitions {
-> +       char name[40];
-> +       struct {
-> +               unsigned long from;
-> +               unsigned long size;
-> +               int flags;
-> +       } parts[MAX_PART];
-> +       int next;
-> +       int limit;
-> +};
-> 
-> and I object to the long instead of u64 or so.
+> Not just the kernel, afaik.  I think it's rather tightly integrated into
+> gcc internals too (ie pointers are eventually just converted to SI
+> inside the compiler, and making a non-SI pointer would be hard). 
 
-Separate set of patches.  As it is, struct hd_struct is still there and
-still not modified.  And it has unsigned long.  It will become sector_t.
+That can't be the case, as how would GCC represent 64-bit pointers on
+platforms like the Alpha, which support 64-bit, 32-bit, 16-bit and 8-bit
+types?  64-bits must be DImode simply because QImode is the smallest
+mode, and required for the 8-bit type.
 
-Actually, I'm not all that sure that we want u64 here.  The thing being,
-start_sect shouldn't be bigger than sector_t (see how it's used).  And
-64bit arithmetics on 32bit boxen sucks big way.  I'm not too concerned
-about adding start_sect per se - it's done once per request and it's
-noise compared to the rest of work.  However, long long for sector_t
-will hit in a lot of more interesting code paths.
-
-That stuff becomes an issue for 2Tb disks.  Do we actually have something
-that large attached to 32bit boxen?
- 
-> With 2^32 sectors one can handle up to 2^41 bytes, 2 TiB.
-> Already today people want RAIDs that are larger, and
-> few years from now we'll have single disks that are larger.
-
-... and still use i386 with these disks?  ia64 is stillborn, but x86-64
-promises to be more useful than Itanic.
-
-u64 for sector_t doesn't change anything for 64bit boxen that might be
-interested in really large disks and screws 32bit ones that shouldn't
-have to pay for that...
+-- Jamie
 

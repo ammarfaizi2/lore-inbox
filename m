@@ -1,101 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVCFVXc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVCFVvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVCFVXc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 16:23:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVCFVWq
+	id S261471AbVCFVvw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 16:51:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVCFVvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 16:22:46 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:33738 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261508AbVCFVWb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 16:22:31 -0500
-Date: Sun, 6 Mar 2005 13:22:25 -0800
-Message-Id: <200503062122.j26LMP5F021846@magilla.sf.frob.com>
+	Sun, 6 Mar 2005 16:51:52 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:10729 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261471AbVCFVvk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 16:51:40 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: BIOS overwritten during resume (was: Re: Asus L5D resume on battery power)
+Date: Sun, 6 Mar 2005 22:53:59 +0100
+User-Agent: KMail/1.7.1
+Cc: Andi Kleen <ak@suse.de>, kernel list <linux-kernel@vger.kernel.org>,
+       paul.devriendt@amd.com, Nigel Cunningham <ncunningham@cyclades.com>
+References: <200502252237.04110.rjw@sisk.pl> <200503061830.00574.rjw@sisk.pl> <20050306194100.GA1528@elf.ucw.cz>
+In-Reply-To: <20050306194100.GA1528@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-From: Roland McGrath <roland@redhat.com>
-To: Linus Torvalds <torvalds@osdl.org>
-X-Fcc: ~/Mail/linus
-Cc: Daniel Jacobowitz <dan@debian.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Cagney <cagney@redhat.com>
-Subject: Re: More trouble with i386 EFLAGS and ptrace
-In-Reply-To: Linus Torvalds's message of  Sunday, 6 March 2005 12:03:22 -0800 <Pine.LNX.4.58.0503061155280.2304@ppc970.osdl.org>
-X-Fcc: ~/Mail/linus
-Emacs: where editing text is like playing Paganini on a glass harmonica.
+Content-Disposition: inline
+Message-Id: <200503062253.59679.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I _think_ your test-case would work right if you just moved that code from
-> the special-case in do_debug(), and moved it to the top of
-> setup_sigcontext() instead. I've not tested it, though, and haven't really 
-> given it any "deep thought". Maybe somebody smarter can say "yeah, that's 
-> obviously the right thing to do" or "no, that won't work because.."
+Hi,
 
-Indeed, this is what my original changes for this did, before you started
-cleaning things up to be nice to TF users other than PTRACE_SINGLESTEP. 
+On Sunday, 6 of March 2005 20:41, Pavel Machek wrote:
+> Hi!
+> > > > Yes.  I thought about using PG_nosave in the begining, but there's a
+> > > > 
+> > > > BUG_ON(PageReserved(page) && PageNosave(page));
+> > > > 
+> > > > in swsusp.c:saveable() that I just didn't want to trigger.  It seems to me,
+> > > > though, that we don't need it any more, do we?
+> > > 
+> > > No, we can just kill it. It was "if something unexpected happens, bail
+> > > out soon".
+> > 
+> > OK
+> > 
+> > The following is what I'm comfortable with.  I didn't took the Nigel's patch
+> > literally, because we do one thing differently (ie nosave pfns) and it contained
+> > some changes that I thought were unnecessary.  The i386 part is
+> > untested.
+> 
+> I'd add
+> 
+> >  	page = pfn_to_page(pfn);
+> > -	BUG_ON(PageReserved(page) && PageNosave(page));
+> 
+> a comment here explaining what PageReserved && PageNosave means. 
 
-I note, btw, that the x86_64 code is still at that prior stage.  So I think
-it doesn't have this new wrinkle, but it also doesn't have the advantages
-of the more recent i386 changes.  Once we're sure about the i386 state, we
-should update the x86_64 code to match.
+OK, I will add the comment.
 
-I'm not sure what kind of smart this makes me, but I'll say that your plan
-would work and no, it's obviously not the right thing to do. ;-) I haven't
-tested the following, not having tracked down the specific problem case you
-folks are talking about.  But I think this is the right solution.  The
-difference is that when we stop for some signal and report to the debugger,
-the debugger looking at our registers will see TF clear instead of set,
-before it decides whether to continue us with the signal or what to do.
-With the change yo suggested, (I think) if the debugger decides to eat the
-signal and resume, we would get a spurious single-step trap after executing
-the next instruction, instead of resuming normally as requested.
+> >  	if (PageNosave(page))
+> >  		return 0;
+> > +
+> >  	if (PageReserved(page) && pfn_is_nosave(pfn)) {
+> >  		pr_debug("[nosave pfn 0x%lx]", pfn);
+> >  		return 0;
+> 
+> AFAICT it only fixes "potential" bug, so it can probably wait. Once
+> non-contiguous and initramfs patches are in, this can go...
 
-Thanks,
-Roland
+OK
+
+Greets,
+Rafael
 
 
-Signed-off-by: Roland McGrath <roland@redhat.com>
-
---- linux-2.6/include/asm-i386/signal.h
-+++ linux-2.6/include/asm-i386/signal.h
-@@ -223,7 +223,14 @@ static __inline__ int sigfindinword(unsi
- 
- struct pt_regs;
- extern int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
--#define ptrace_signal_deliver(regs, cookie) do { } while (0)
-+
-+#define ptrace_signal_deliver(regs, cookie)		\
-+	do {						\
-+		if (current->ptrace & PT_DTRACE) {	\
-+			current->ptrace &= ~PT_DTRACE;	\
-+			(regs)->eflags &= ~TF_MASK;	\
-+		}					\
-+	} while (0)
- 
- #endif /* __KERNEL__ */
- 
---- linux-2.6/arch/i386/kernel/traps.c
-+++ linux-2.6/arch/i386/kernel/traps.c
-@@ -707,8 +707,6 @@ fastcall void do_debug(struct pt_regs * 
- 	/*
- 	 * Single-stepping through TF: make sure we ignore any events in
- 	 * kernel space (but re-enable TF when returning to user mode).
--	 * And if the event was due to a debugger (PT_DTRACE), clear the
--	 * TF flag so that register information is correct.
- 	 */
- 	if (condition & DR_STEP) {
- 		/*
-@@ -718,11 +716,6 @@ fastcall void do_debug(struct pt_regs * 
- 		 */
- 		if ((regs->xcs & 3) == 0)
- 			goto clear_TF_reenable;
--
--		if (likely(tsk->ptrace & PT_DTRACE)) {
--			tsk->ptrace &= ~PT_DTRACE;
--			regs->eflags &= ~TF_MASK;
--		}
- 	}
- 
- 	/* Ok, finally something we can handle */
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

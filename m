@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318093AbSG2VG4>; Mon, 29 Jul 2002 17:06:56 -0400
+	id <S318177AbSG2VJx>; Mon, 29 Jul 2002 17:09:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318095AbSG2VGz>; Mon, 29 Jul 2002 17:06:55 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:5880 "EHLO e1.ny.us.ibm.com.")
-	by vger.kernel.org with ESMTP id <S318093AbSG2VGy>;
-	Mon, 29 Jul 2002 17:06:54 -0400
-Subject: Re: [PATCH] vfs_read/vfs_write small bug fix (2.5.29)
-From: Paul Larson <plars@austin.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <ai47gn$1dh$1@penguin.transmeta.com>
-References: <200207291825.g6TIPj026021@eng2.beaverton.ibm.com> 
-	<ai47gn$1dh$1@penguin.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 29 Jul 2002 16:06:52 -0500
-Message-Id: <1027976813.7699.214.camel@plars.austin.ibm.com>
+	id <S318180AbSG2VJx>; Mon, 29 Jul 2002 17:09:53 -0400
+Received: from csl2.consultronics.on.ca ([204.138.93.2]:5276 "EHLO
+	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id <S318177AbSG2VJw>; Mon, 29 Jul 2002 17:09:52 -0400
+Date: Mon, 29 Jul 2002 17:13:13 -0400
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.19-rc3-ac4
+Message-Id: <20020729171313.6957400c.glouis@dynamicro.on.ca>
+In-Reply-To: <20020729164636.32b8929f.glouis@dynamicro.on.ca>
+References: <200207291740.g6THewQ19578@devserv.devel.redhat.com>
+	<008401c2372f$8c02cea0$0100a8c0@mars>
+	<20020729164636.32b8929f.glouis@dynamicro.on.ca>
+Organization: Dynamicro Consulting Limited
+X-Mailer: Sylpheed version 0.8.1 (GTK+ 1.2.10; i686)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-29 at 15:11, Linus Torvalds wrote:
+On Mon, 29 Jul 2002 16:46:36 -0400,
+ Greg Louis <glouis@dynamicro.on.ca> wrote:
 
-> The fact is, the test for a negative "pos" should not be in
-> vfs_read/write at all, since it can only happen for pread/pwrite.
-That's where LTP has been seeing it fail.
- 
-> And pread/pwrite do not even _take_ a "loff_t" argument, they take a
-> "off_t", and yet we've just happily claiming they do a loff_t, which
-> means that they shouldn't work at all unless by pure changce user space
-> happens to put a zero in memory in the right place.
-> 
-> Cristoph, I think you're the one that did this re-org. I think the code
-> is wrong, and the right fix is something along these lines (untested,
-> you get brownie-points for testing against some standards test).
-> 
-> 		Linus
+> The two inline functions containing these errors appear to be nowhere
+> used, at least as far as I can tell with find -exec grep.
 
-This passes all the LTP pread and pwrite tests.
+NOT correct, sorry.  The latter function _would_ have been used in
+sched.c if it had compiled.  (Can't claim ENOTENOUGHCOFFEE at this time
+of day; how about EINCIPIENTSENILITY?)
 
-Thanks,
-Paul Larson
-Linux Test Project
-http://ltp.sourceforge.net
+> Removing the
+> code allows successful compilation on an SMP box, and it seems to be
+> running ok with the new kernel.
 
+Yeah, but we've disabled sched.c's load-balancing support.
+
+-- 
+| G r e g  L o u i s          | gpg public key:      |
+|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |

@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130031AbRBQTIx>; Sat, 17 Feb 2001 14:08:53 -0500
+	id <S129612AbRBQTJw>; Sat, 17 Feb 2001 14:09:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129612AbRBQTIn>; Sat, 17 Feb 2001 14:08:43 -0500
-Received: from beamer.mchh.siemens.de ([194.138.158.163]:15044 "EHLO
-	beamer.mchh.siemens.de") by vger.kernel.org with ESMTP
-	id <S130031AbRBQTIa>; Sat, 17 Feb 2001 14:08:30 -0500
-From: "Thomas Widmann" <thomas.widmann@icn.siemens.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <andrewm@uow.edu.au>
-Subject: Re: SMP: bind process to cpu
-Date: Sat, 17 Feb 2001 20:08:08 +0100
-Message-ID: <BGEDIODHBENLENEMBEPAIEDFCAAA.thomas.widmann@icn.siemens.de>
+	id <S129373AbRBQTJc>; Sat, 17 Feb 2001 14:09:32 -0500
+Received: from viper.haque.net ([64.0.249.226]:51077 "EHLO viper.haque.net")
+	by vger.kernel.org with ESMTP id <S129612AbRBQTJU>;
+	Sat, 17 Feb 2001 14:09:20 -0500
+Message-ID: <3A8ECC4B.BCB307B3@haque.net>
+Date: Sat, 17 Feb 2001 14:08:59 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Dennis <dennis@etinc.com>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, jesse@cats-chateau.net,
+        A.J.Scott@casdn.neu.edu, linux-kernel@vger.kernel.org
+Subject: Re: Linux stifles innovation...
+In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com> <5.0.0.25.0.20010217134720.03630cf0@mail.etinc.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <3A8E8C8F.A2A9E69E@uow.edu.au>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm using these drivers just fine on a couple of streaming servers that
+get hit pretty hard.
 
-* Andrew Morton wrote:
+Dennis wrote:
+> both lock up under load. You dont run a busy ISP i guess. The fact that
+> they come out with a new release every few minutes is clear evidence that
+> it is problematic.
 
-> > Hi,
-> > 
-> > I run an 3*XEON 550MHz Primergy with 2GB of RAM.
-> > On this machine, i have compiled kernel 2.4.0SMP.
-> > 
-> > Is it possible to bind a process to a specific
-> > cpu on this SMP machine (process affinity) ?
-> > 
-> > I there something like pset ?
-> 
-> A patch which creates /proc/<pid>/cpus_allowed is at
-> 
-> 	http://www.uow.edu.au/~andrewm/linux/#cpus_allowed
-> 
-> You just write a bitmask into it.
+-- 
 
-Thanks for this information. I patched my the kernel with it.
-After rebooting with the new kernel i can see the bitmask
-for every process running on my server.
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
 
-#cat /proc/1310/cpus_allowed
-ffffffff
-
-Now, if i want to run this process on only one cpu, i which way
-do i have to set the bitmask ?
-Let's say, i want to run it on cpu0. how look's the bitmask ?
-
-Thanks 
-
-Regards
-Thomas
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

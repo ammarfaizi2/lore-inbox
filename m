@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266646AbUIIS3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUIISl0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266646AbUIIS3y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 14:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266569AbUIIS1x
+	id S266717AbUIISl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 14:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266648AbUIISh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 14:27:53 -0400
-Received: from holomorphy.com ([207.189.100.168]:15794 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S266650AbUIISSy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 14:18:54 -0400
-Date: Thu, 9 Sep 2004 11:18:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: torvalds@osdl.org, dev@sw.ru, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes() faster
-Message-ID: <20040909181818.GF3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, dev@sw.ru,
-	linux-kernel@vger.kernel.org
-References: <4140791F.8050207@sw.ru> <Pine.LNX.4.58.0409090844410.5912@ppc970.osdl.org> <20040909171927.GU3106@holomorphy.com> <20040909110622.78028ae6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040909110622.78028ae6.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Thu, 9 Sep 2004 14:37:56 -0400
+Received: from bos-gate1.raytheon.com ([199.46.198.230]:39882 "EHLO
+	bos-gate1.raytheon.com") by vger.kernel.org with ESMTP
+	id S266391AbUIISeC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 14:34:02 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Mark_H_Johnson@raytheon.com, Ingo Molnar <mingo@elte.hu>,
+       Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
+       Eric St-Laurent <ericstl34@sympatico.ca>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>,
+       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
+       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
+From: Mark_H_Johnson@raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
+Date: Thu, 9 Sep 2004 13:31:10 -0500
+Message-ID: <OFEEF7BCE0.67785078-ON86256F0A.0065BAEB-86256F0A.0065BB52@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 09/09/2004 01:31:22 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> I've not reviewed this version of the patch for differences with the -mm
->> code. It would probably be best to look at the -mm bits as they've had
->> sustained exposure for quite some time.
+>If you haven't done hdparm -u1 that may be a reason you want to touch
+>these.
 
-On Thu, Sep 09, 2004 at 11:06:22AM -0700, Andrew Morton wrote:
-> Yes.
-> I have not merged it up because it seems rather dopey to add eight bytes to
-> the inode to speed up something as rare as umount.
-> Is there a convincing reason for proceeding with the change?
+Alas, but
+# hdparm /dev/hda
+/dev/hda:
+ multcount    = 16 (on)
+ IO_support   =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 64 (on)
+ geometry     = 58168/16/63, sectors = 58633344, start = 0
 
-The only motive I'm aware of is for latency in the presence of things
-such as autofs. It's also worth noting that in the presence of things
-such as removable media umount is also much more common. I personally
-find this sufficiently compelling. Kirill may have additional ammunition.
+so I already have IRQ's unmasked. [this was during no DMA tests, I usually
+run with DMA enabled]
 
-Also, the additional sizeof(struct list_head) is only a requirement
-while the global inode LRU is maintained. I believed it would have
-been beneficial to have localized the LRU to the sb also, which would
-have maintained sizeof(struct inode0 at parity with current mainline.
+I'll be commenting on the results of the no DMA tests shortly.
 
+  --Mark
 
--- wli

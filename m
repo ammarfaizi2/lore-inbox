@@ -1,90 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262882AbUJ2Evx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUJ2EwU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262882AbUJ2Evx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 00:51:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263093AbUJ2Evw
+	id S263093AbUJ2EwU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 00:52:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263098AbUJ2EwU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 00:51:52 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:40950 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP id S262882AbUJ2EuH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 00:50:07 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9bk6 msdos fs OOPS
-Date: Fri, 29 Oct 2004 00:50:06 -0400
-User-Agent: KMail/1.7
-Cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Nigel Kukard <nkukard@lbsd.net>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-References: <41809921.10200@lbsd.net> <200410281905.20547.gene.heskett@verizon.net> <87k6ta1jf5.fsf@devron.myhome.or.jp>
-In-Reply-To: <87k6ta1jf5.fsf@devron.myhome.or.jp>
+	Fri, 29 Oct 2004 00:52:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42184 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263093AbUJ2EwG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 00:52:06 -0400
+Date: Thu, 28 Oct 2004 21:52:03 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Zachary Amsden <zach@vmware.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove some divide instructions
+In-Reply-To: <4181933A.5000402@vmware.com>
+Message-ID: <Pine.LNX.4.58.0410282136030.28839@ppc970.osdl.org>
+References: <417FC982.7070602@vmware.com> <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
+ <41801DE1.6000007@vmware.com> <Pine.LNX.4.58.0410271704520.28839@ppc970.osdl.org>
+ <Pine.LNX.4.58.0410271731010.28839@ppc970.osdl.org> <4181933A.5000402@vmware.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410290050.06454.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 23:50:06 -0500
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 20:01, OGAWA Hirofumi wrote:
->Gene Heskett <gene.heskett@verizon.net> writes:
->> Not at the time, which is why I came to the conclusion it may be a
->> bug in the camera software.  It checks in as version 1.0, and we
->> all know no one trusts anything at version 1.0. :-)
->>
->> I know now how to keep it from happening, so its not a showstopper
->> for me.
+
+
+On Thu, 28 Oct 2004, Zachary Amsden wrote:
 >
->Can you check the camera's entry of "cat /proc/mounts"?  Is it
->something like, "/dev/sda1 /mnt vfat ro,..."?
+> This leaves several options:
+> 
+> 1) Forget the optimization altogether
+> 2) Go back to the (base == 1) check
 
-Unforch, I just rebooted to 2.6.10-rc1-bk7, and something is now broken.
-It's always plugged in, but as it eats batteries pretty bad, turned off.
+Ok, I think I led you on a merry goose-chase, and the "base == 1" check 
+was the only one worth bothering with after all. Sorry about that.
 
-When I turned it on, I got this in the logs:
-Oct 29 00:36:03 coyote kernel: usb 3-2.2: new full speed USB device using address 7
-Oct 29 00:36:04 coyote kernel: scsi0 : SCSI emulation for USB Mass Storage devices
-Oct 29 00:36:09 coyote scsi.agent[3339]: disk at /devices/pci0000:00/0000:00:02.1/usb3/3-2/3-2.2/3-2.2:1.0/host0/target0:0:0/0:0:0:0
-Oct 29 00:36:09 coyote kernel:   Vendor: OLYMPUS   Model: C-3020ZOOM(U)     Rev: 1.00
-Oct 29 00:36:09 coyote kernel:   Type:   Direct-Access                      ANSI SCSI revision: 02
-Oct 29 00:36:09 coyote kernel: Attached scsi generic sg0 at scsi0, channel 0, id 0, lun 0,  type 0
-Oct 29 00:36:09 coyote kernel: SCSI device sda: 128000 512-byte hdwr sectors (66 MB)
-Oct 29 00:36:09 coyote kernel: sda: assuming Write Enabled
-Oct 29 00:36:09 coyote kernel: sda: assuming drive cache: write through
-Oct 29 00:36:09 coyote kernel:  sda: sda1
-Oct 29 00:36:09 coyote kernel: Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
+> This seems like a lot of work for a trivial optimization; for i386, 
+> perhaps #2 is the most appropriate - with a sufficiently new GCC, this 
+> optimization should be automatic for all architectures not hardcoding 
+> do_div as inline assembler.
 
-When I mounted it, the logs show:
-Nothing.
+The do_div() optimization is a trivial one, and one that gcc should 
+definitely have recognized. It's not like a compiler cannot see that you 
+have a 64 / 32 divide, and realize that it's cheaper than a full 64 / 64 
+divide.
 
-The screen I mnounted it in gave this:
-[root@coyote dlds-tgzs]# mount -t iso9660 /dev/camera /mnt/camera
-mount: wrong fs type, bad option, bad superblock on /dev/camera,
-       or too many mounted file systems
+But hey, even if the gcc people finally did that optimization today, it 
+would take a few years before we didn't support old compilers any more, 
+so.
 
-And:
-[root@coyote dlds-tgzs]# ls -l /dev/camera
-lrwxr-xr-x  1 root root 9 Nov 14  2003 /dev/camera -> /dev/sda1
+> Seems to have come full circle - the trivial extension turns out to have 
+> non-trivial side effects.  If only GCC were as easily extensible as 
+> sparse!  A __builtin_highest_one_bit() function would make it possible 
+> to use inline assembler without degenerating to individual cases for 
+> each bit.
 
-So it appears that -bk7 is broken and I'll have to reboot back to
-2.6.10-rc1-bk6 to get that info, and that will require the fscking
-of about 200GB of drives, they will all check on the next reboot. :(
+Yes. There are tons of places where we'd love to have a constant
+compile-time "log2()" function. And yes, I could do it in sparse in about
+ten more lines of code, but..
 
-Att: Linus:  bk7 broke this, it worked fine at 2.6.10-rc1-bk6.  This
--bk7 kernel includes the patch that started this thread also, as did
-the -bk6 test kernel under which it worked.
+I guess you could do it with a lot of tests...  Something like this should
+do it
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+	#define __constant_log2(y) ((y==1) ? 0 : \
+				    (y==2) ? 1 : \
+				    (y==4) ? 2 : \
+				    (y==8) ? 3 : -1)	/* We could go on ... */
+
+	#define do_div(x,y) ({					\
+		unsigned long __mod;				\
+		int __log2;					\
+		if (__builtin_constant_p(y) && 			\
+		    !((y) & ((y)-1)) &&				\
+		    (__log2 = __constant_log2((y))) >= 0) {	\
+			mod = x & ((y)-1);			\
+			(x) >>= __log2;				\
+		} else {					\
+			.. inline asm case ..			\
+		}						\
+		__mod; })
+
+which looks like it should work, but it's getting so ugly that I suspect I 
+should be committed for even thinking about it.
+
+(And no, I didn't test the above. It is all trivially optimizable by a 
+compiler, and I can't see how gcc could _fail_ to get it right, but hey, I 
+thought the previous thing would work too, so I'm clearly not competent to 
+make that judgement... ;)
+
+			Linus

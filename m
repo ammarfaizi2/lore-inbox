@@ -1,52 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262894AbUC2MbT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 07:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262910AbUC2MaR
+	id S262917AbUC2M7V (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 07:59:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262904AbUC2MaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 07:30:17 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:25281 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262894AbUC2MVr (ORCPT
+	Mon, 29 Mar 2004 07:30:03 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:44219 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262850AbUC2MRs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 07:21:47 -0500
-Date: Mon, 29 Mar 2004 17:50:45 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Robert Love <rml@ximian.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] RCU for low latency (experimental)
-Message-ID: <20040329122045.GB3683@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20040324175142.GW2065@dualathlon.random> <20040324213914.GD4539@in.ibm.com> <20040324225326.GH2065@dualathlon.random> <20040324231145.GB12035@in.ibm.com> <20040324233430.GJ2065@dualathlon.random> <20040324234643.GD12035@in.ibm.com> <s5hwu549alg.wl@alsa2.suse.de> <20040328172036.GH5648@in.ibm.com> <s5hu10898za.wl@alsa2.suse.de> <s5hvfkovsqo.wl@alsa2.suse.de>
+	Mon, 29 Mar 2004 07:17:48 -0500
+Date: Mon, 29 Mar 2004 04:16:17 -0800
+From: Paul Jackson <pj@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: mbligh@aracnet.com, akpm@osdl.org, wli@holomorphy.com, haveblue@us.ibm.com,
+       colpatch@us.ibm.com
+Subject: [PATCH] mask ADT:  remove x86_64 topology.h cpumask hack  [20/22]
+Message-Id: <20040329041617.2c3c1034.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5hvfkovsqo.wl@alsa2.suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 29, 2004 at 12:43:11PM +0200, Takashi Iwai wrote:
-> At Sun, 28 Mar 2004 19:28:41 +0200,
-> I wrote:
-> > 
-> > > > anyway, i confirmed that with the original krcud patch the latency
-> > > > with dcache flood can be eliminated.
-> > > 
-> > > Does the throttle-rcu patch also help eliminate dcache flood ? You
-> > > can try by just changing count >= rcumaxbatch to ++count > rcumaxbatch.
-> > 
-> > i'll try it later.
-> 
-> the throttle-rcu patch does work indeed well even without preemption.
-> i've tested maxbatch=16 and plugticks=0.  in the older version, there
-> was 20ms long latency, while in the patched version, no measurable
-> latency more than 1ms.
+Patch_20_of_22 - Remove cpumask hack from asm-x86_64/topology.h
+	This file had the cpumask cpu_online_map as type
+	unsigned long, instead of type cpumask_t, for no good
+	reason that I could see.  So I changed it.  Everywhere
+	else, cpu_online_map is already of type cpumask_t.
 
-Thanks for the measurements. throttle-rcu may eventually be the way
-to go, but I would wait until we have sorted out several other problems
-like route cache DoS testing that we are looking at currently.
+diffstat Patch_20_of_22:
+ topology.h |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-Thanks
-Dipankar
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1726  -> 1.1727 
+#	include/asm-x86_64/topology.h	1.7     -> 1.8    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 04/03/29	pj@sgi.com	1.1727
+# Respecify cpu_online_map as actual cpumask_t, instead of unsigned long hack.
+# --------------------------------------------
+#
+diff -Nru a/include/asm-x86_64/topology.h b/include/asm-x86_64/topology.h
+--- a/include/asm-x86_64/topology.h	Mon Mar 29 01:04:06 2004
++++ b/include/asm-x86_64/topology.h	Mon Mar 29 01:04:06 2004
+@@ -10,18 +10,18 @@
+ /* Map the K8 CPU local memory controllers to a simple 1:1 CPU:NODE topology */
+ 
+ extern int fake_node;
+-/* This is actually a cpumask_t, but doesn't matter because we don't have
+-   >BITS_PER_LONG CPUs */
+-extern unsigned long cpu_online_map;
++extern cpumask_t cpu_online_map;
+ 
+ #define cpu_to_node(cpu)		(fake_node ? 0 : (cpu))
+ #define parent_node(node)		(node)
+ #define node_to_first_cpu(node) 	(fake_node ? 0 : (node))
+ #define node_to_cpumask(node)	(fake_node ? cpu_online_map : (1UL << (node)))
+ 
+-static inline unsigned long pcibus_to_cpumask(int bus)
++static inline cpumask_t pcibus_to_cpumask(int bus)
+ {
+-	return mp_bus_to_cpumask[bus] & cpu_online_map; 
++	cpumask_t tmp;
++	cpus_and(tmp, mp_bus_to_cpumask[bus], cpu_online_map);
++	return tmp;
+ }
+ 
+ #define NODE_BALANCE_RATE 30	/* CHECKME */ 
+
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

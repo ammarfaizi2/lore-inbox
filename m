@@ -1,34 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272708AbRILImE>; Wed, 12 Sep 2001 04:42:04 -0400
+	id <S272717AbRILJdT>; Wed, 12 Sep 2001 05:33:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272717AbRILIly>; Wed, 12 Sep 2001 04:41:54 -0400
-Received: from t2.redhat.com ([199.183.24.243]:5625 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S272708AbRILIlu>; Wed, 12 Sep 2001 04:41:50 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <Pine.LNX.4.33.0109121034490.28657-100000@chaos.tp1.ruhr-uni-bochum.de> 
-In-Reply-To: <Pine.LNX.4.33.0109121034490.28657-100000@chaos.tp1.ruhr-uni-bochum.de> 
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10 
-Mime-Version: 1.0
+	id <S272721AbRILJdK>; Wed, 12 Sep 2001 05:33:10 -0400
+Received: from samar.sasken.com ([164.164.56.2]:64224 "EHLO samar.sasken.com")
+	by vger.kernel.org with ESMTP id <S272717AbRILJc5>;
+	Wed, 12 Sep 2001 05:32:57 -0400
+Message-ID: <3B9F2BC8.D647A7A@sasken.com>
+Date: Wed, 12 Sep 2001 15:02:56 +0530
+From: Manoj Sontakke <manojs@sasken.com>
+Organization: Sasken Communication Technologies Limited.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Packet tapping
 Content-Type: text/plain; charset=us-ascii
-Date: Wed, 12 Sep 2001 09:38:56 +0100
-Message-ID: <29253.1000283936@redhat.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
+	Is it possible to tap a packet and send it to a userlevel program
+before it is sent to appropriate receive function (say ip_rcv()). The
+user level program will give the packet back to the kernel for delivery
+to appropriate receive function.
+	In short, is it possible to have a protocol stack (between layer 2 and
+3) to be implemented in useland.
 
-kai@tp1.ruhr-uni-bochum.de said:
->  I suppose this fragment is refered to: 
+	Is Tun/Tap driver useful here?
 
-Oh yeah, I do have a vague recollection of that. Thankyou.
-
-
---
-dwmw2
-
-
+Thanks for all the help
+Manoj

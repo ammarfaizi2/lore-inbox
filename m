@@ -1,51 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270447AbTHSOMs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 10:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270319AbTHSOKD
+	id S270439AbTHSOMr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 10:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270420AbTHSOKO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 10:10:03 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:45052 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S270692AbTHSNfN (ORCPT
+	Tue, 19 Aug 2003 10:10:14 -0400
+Received: from codepoet.org ([166.70.99.138]:37251 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S270730AbTHSNgU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 09:35:13 -0400
-Date: Tue, 19 Aug 2003 15:27:08 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Cc: Mike Fedyk <mfedyk@matchmail.com>, green@namesys.com,
-       marcelo@conectiva.com.br, akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org, mason@suse.com
-Subject: Re: 2.4.22-pre lockups (now decoded oops for pre10)
-Message-ID: <20030819132708.GL16139@dualathlon.random>
-References: <20030813125509.360c58fb.skraw@ithnet.com> <Pine.LNX.4.44.0308131143570.4279-100000@localhost.localdomain> <20030813145940.GC26998@namesys.com> <20030813171224.2a13b97f.skraw@ithnet.com> <20030813153009.GA27209@namesys.com> <20030819011208.GK10320@matchmail.com> <20030819091243.007acac0.skraw@ithnet.com>
+	Tue, 19 Aug 2003 09:36:20 -0400
+Date: Tue, 19 Aug 2003 07:32:11 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, russo.lutions@verizon.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: cache limit
+Message-ID: <20030819133211.GA27047@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	Andrew Morton <akpm@osdl.org>, vda@port.imtp.ilyichevsk.odessa.ua,
+	russo.lutions@verizon.net, linux-kernel@vger.kernel.org
+References: <3F41AA15.1020802@verizon.net> <200308190533.h7J5XoL06419@Port.imtp.ilyichevsk.odessa.ua> <20030818232024.20c16d1f.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030819091243.007acac0.skraw@ithnet.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20030818232024.20c16d1f.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 09:12:43AM +0200, Stephan von Krawczynski wrote:
-> Besides the favourite test box I have others (already mentioned in this thread)
-> - SMP with completely different hw - where I can make 2.4.21 and above crash,
-> too.
+On Mon Aug 18, 2003 at 11:20:24PM -0700, Andrew Morton wrote:
+> Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua> wrote:
+> >
+> > There was a discussion (and patches) in the middle of 2.5 series
+> >  about O_STREAMING open flag which mean "do not aggressively cache
+> >  this file". Targeted at MP3/video playing, copying large files and such.
+> > 
+> >  I don't know whether it actually was merged. If it was,
+> >  your program can use it.
+> 
+> It was not.  Instead we have fadvise.  So it would be appropriate to change
+> applications such as rsync to optionally run
+> 
+> 	posix_fadvise(fd, 0, -1, POSIX_FADV_DONTNEED)
+> 
+> against file descriptors just before closing them, so all the pagecache
+> gets thrown away.  (Well, most of the pagecache - dirty pages won't get
+> dropped - the app must fsync the files by hand first if it wants this)
 
-Did you post any backtrace for those other boxes yet? It would be
-especially useful if you could demonstrate the same random mm corruption
-with different ram/motherboard/cpus (I mean all of them different), if
-the devices are the same that's ok (since it could be a software bug in
-a driver).
+This is not supported in 2.4.x though, right?
 
-At the moment I doubt a bug in the common code since AFIK you are the
-only one running into this sort of corruption and at the very least I
-can't trigger it here (OTOH maybe it triggers with only one certain
-application).
+What if I don't want to fill up the pagecache with garbage in the
+first place?  When closing a file descriptor, it is already too
+late -- the one time only giant pile of data has already caused
+the kernel to wastefully flush useful things out of cache...
 
-(just for clarity: with my previous posts I didn't mean it's not a
-software bug, I only wanted to point out that with the current info we
-cannot exclude completely an hardware issue yet)
+ -Erik
 
-Andrea
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

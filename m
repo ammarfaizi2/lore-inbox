@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265015AbTIDOVS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 10:21:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265031AbTIDOVS
+	id S265046AbTIDOcR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 10:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTIDOba
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 10:21:18 -0400
-Received: from zork.zork.net ([64.81.246.102]:27847 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S265015AbTIDOVQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 10:21:16 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: nasm over gas?
-References: <20030904104245.GA1823@leto2.endorphin.org>
-	<3F5741BD.5000401@mbda.fr> <Pine.LNX.4.53.0309041001090.3367@chaos>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Thu, 04 Sep 2003 15:21:14 +0100
-In-Reply-To: <Pine.LNX.4.53.0309041001090.3367@chaos> (Richard B. Johnson's
- message of "Thu, 4 Sep 2003 10:05:19 -0400 (EDT)")
-Message-ID: <6uiso8r5wl.fsf@zork.zork.net>
-MIME-Version: 1.0
+	Thu, 4 Sep 2003 10:31:30 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:3597 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265043AbTIDOaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 10:30:25 -0400
+Date: Thu, 4 Sep 2003 15:30:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+       campbell@torque.net
+Subject: Re: 2.6.0-test4-mm5: SCSI imm driver doesn't compile
+Message-ID: <20030904153023.A32549@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+	campbell@torque.net
+References: <20030902231812.03fae13f.akpm@osdl.org> <20030903170256.GA18025@fs.tum.de> <20030904133056.GA2411@conectiva.com.br> <20030904135256.GS14376@lug-owl.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030904135256.GS14376@lug-owl.de>; from jbglaw@lug-owl.de on Thu, Sep 04, 2003 at 03:52:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> writes:
+On Thu, Sep 04, 2003 at 03:52:56PM +0200, Jan-Benedict Glaw wrote:
+> C99 style is
+> 
+> 	.element = initializer,
+> 
+> not
+> 	[element] = initializer,
+> 
+> which is a GNU/GCCism.
 
-> If you decide to use gcc as a preprocessor, you can't use comments,
-> NotGood(tm) because the "#" and some stuff after it gets "interpreted"
-> by cpp.
+We're talking about arrays here..
 
-Although one could use C-style comments in this scenario, yes?
+.element obviously never works for arrays and [constant] never
+works for structs..
 
--- 
-Ah bay tsay day vitamin.

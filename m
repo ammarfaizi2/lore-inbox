@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbTFKOyf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 10:54:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTFKOxV
+	id S262470AbTFKO5F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 10:57:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbTFKO5F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 10:53:21 -0400
-Received: from web11301.mail.yahoo.com ([216.136.131.204]:11383 "HELO
-	web11301.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262164AbTFKOxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 10:53:12 -0400
-Message-ID: <20030611150655.17201.qmail@web11301.mail.yahoo.com>
-Date: Wed, 11 Jun 2003 08:06:55 -0700 (PDT)
-From: Alex Deucher <agd5f@yahoo.com>
-Subject: Re: Via KT400 and AGP 8x Support
-To: davej@codemonkey.org.uk, linux-kernel@vger.kernel.org
+	Wed, 11 Jun 2003 10:57:05 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11527 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S262470AbTFKO4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 10:56:55 -0400
+Date: Wed, 11 Jun 2003 08:08:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: viro@parcelfarce.linux.theplanet.co.uk, Frank Cusack <fcusack@fcusack.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode number
+ mismatch)
+In-Reply-To: <1055334814.2084.12.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0306110804360.4413-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually I believe the new ati 9200 cards support agp 8x and they work
-with the current DRI r200 driver.
 
-Alex
+On 11 Jun 2003, Alan Cox wrote:
+> 
+> For vfat at least its all broken. 
 
----------------------
+Looks like a different issue, not dentry aliasing per se.
 
-> Ati-Drivers will not install or Run on 2.5.70 (its clear ;) )
-> and 2.4.20 and 2.4.21-pre7
+> cd foo
+> mv ../file .
+> more file
+> 
+> ESTALE.
 
-Sadly, there are no fully open drivers for any AGP x8 cards still.
-I'm still hoping this will change over time.
+Yes, VFAT ends up encoding the parent directory in the FH, so renaming 
+will invalidate the old file handle, and if you cache inodes (and thus 
+filehandles) over a directory move, badness happens.
 
-                Dave 
+Arguably it's a NFS client problem - the path revalidate at open time 
+should have caught the ESTALE and forced a new inode lookup. But I think 
+you can also argue that VFAT over NFS is just non-unixy enough that it 
+just isn't really "supported".
 
-__________________________________
-Do you Yahoo!?
-Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
-http://calendar.yahoo.com
+I think it's more of a "you can NFS-export strange filesystems for some
+limited file sharing, but if things break, you get to keep both pieces".
+
+		Linus
+

@@ -1,289 +1,1368 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUKMNXt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262752AbUKMN3k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUKMNXt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 08:23:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbUKMNXt
+	id S262752AbUKMN3k (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 08:29:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262748AbUKMN3k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 08:23:49 -0500
-Received: from postfix3-2.free.fr ([213.228.0.169]:28599 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262730AbUKMNXh
+	Sat, 13 Nov 2004 08:29:40 -0500
+Received: from out014pub.verizon.net ([206.46.170.46]:55733 "EHLO
+	out014.verizon.net") by vger.kernel.org with ESMTP id S262752AbUKMNY3
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 08:23:37 -0500
-Message-ID: <41960AD7.4000706@free.fr>
-Date: Sat, 13 Nov 2004 14:23:35 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
+	Sat, 13 Nov 2004 08:24:29 -0500
+From: james4765@verizon.net
 To: linux-kernel@vger.kernel.org
-Cc: Adam Belay <ambx1@neo.rr.com>, bjorn.helgaas@hp.com
-Subject: [PATCH] PNP support for floppy driver
-Content-Type: multipart/mixed;
- boundary="------------000208050605040306040903"
+Cc: akpm@osdl.org, jmseyas@dit.upm.es, james4765@verizon.net
+Message-Id: <20041113132426.5142.46164.12423@localhost.localdomain>
+Subject: [PATCH] Documentation: Update to Documentation/kernel-docs.txt
+X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [70.16.226.208] at Sat, 13 Nov 2004 07:24:26 -0600
+Date: Sat, 13 Nov 2004 07:24:28 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000208050605040306040903
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Major cleanup and update to Documentation/kernel-docs.txt.  New file generated
+by 'lynx -dump http://www.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html'
+after update by page maintainer.
 
-Hi,
-this patch add PNP support for the floppy driver in 2.6.10-rc1-mm5. Acpi 
-is try before the pnp driver so if you don't disable ACPI or apply 
-others pnpacpi patches, it won't change anything.
+diffstat output:
 
-On my computer the io resources are
-io 0x3f2-0x3f3
-io 0x3f4-0x3f5
-io 0x3f7-0x3f7
-
-so for avoiding the FD_DCR warning, I add a small fix that transform it 
-in 0x3f2-0x3f5, 0x3f7-0x3f7. I hope it won't break anything.
+ kernel-docs.txt | 1092 ++++++++++++++++++++++++++++----------------------------
+ 1 files changed, 561 insertions(+), 531 deletions(-)
 
 
-Please review it and apply if possible.
+Signed-off-by: James Nelson <James4765@gmail.com>
 
-thanks,
-
-Matthieu CASTET
-
-
-Signed-Off-By: Matthieu Castet <castet.matthieu@free.fr>
-
---------------000208050605040306040903
-Content-Type: text/x-patch;
- name="floppy_pnp_acpi2.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="floppy_pnp_acpi2.patch"
-
---- linux-2.6.9/drivers/block/floppy.c.orig	2004-11-12 22:55:09.000000000 +0100
-+++ linux-2.6.9/drivers/block/floppy.c	2004-11-13 12:39:19.000000000 +0100
-@@ -181,6 +181,12 @@
- #include <linux/device.h>
- #include <linux/buffer_head.h>	/* for invalidate_buffers() */
+diff -urN --exclude='*~' linux-2.6.9-original/Documentation/kernel-docs.txt linux-2.6.9/Documentation/kernel-docs.txt
+--- linux-2.6.9-original/Documentation/kernel-docs.txt	2004-10-18 17:54:37.000000000 -0400
++++ linux-2.6.9/Documentation/kernel-docs.txt	2004-11-13 08:08:43.676394217 -0500
+@@ -1,770 +1,800 @@
  
-+#ifdef CONFIG_PNP
-+#include <linux/pnp.h>
+        Index of Documentation for People Interested in Writing and/or
+-                                      
 +
-+static int no_pnp_floppy;
-+#endif
+                       Understanding the Linux Kernel.
+-                                      
+-               Juan-Mariano de Goyeneche <jmseyas@dit.upm.es>
+-                                      
 +
- #ifdef CONFIG_ACPI
- #include <linux/acpi.h>
- #include <acpi/acpi_bus.h>
-@@ -4157,6 +4163,9 @@
- 	{"slow", NULL, &slow_floppy, 1, 0},
- 	{"unexpected_interrupts", NULL, &print_unex, 1, 0},
- 	{"no_unexpected_interrupts", NULL, &print_unex, 0, 0},
-+#ifdef CONFIG_PNP
-+	{"no_pnp", NULL, &no_pnp_floppy, 1, 0},
-+#endif
- #ifdef CONFIG_ACPI
- 	{"no_acpi", NULL, &no_acpi_floppy, 1, 0},
- #endif
-@@ -4232,9 +4241,7 @@
- 	return get_disk(disks[drive]);
- }
++             Juan-Mariano de Goyeneche <jmseyas@dit.upm.es>
++
+ /*
+  * The latest version of this document may be found at:
+  *   http://www.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html
+  */
  
--#ifdef CONFIG_ACPI
--static int acpi_floppies;
--
-+#if defined(CONFIG_PNP) || defined(CONFIG_ACPI)
- struct region {
- 	unsigned int base;
- 	unsigned int size;
-@@ -4246,6 +4253,157 @@
- 	unsigned int irq;
- 	unsigned int dma_channel;
- };
-+#endif
+-   The need for a document like this one became apparent in the
+-   linux-kernel mailing list as the same questions, asking for pointers
+-   to information, appeared again and again.
+-   
+-   Fortunately, as more and more people get to GNU/Linux, more and more
+-   get interested in the Kernel. But reading the sources is not always
+-   enough. It is easy to understand the code, but miss the concepts, the
+-   philosophy and design decisions behind this code.
+-   
+-   Unfortunately, not many documents are available for beginners to
+-   start. And, even if they exist, there was no "well-known" place which
+-   kept track of them. These lines try to cover this lack. All documents
+-   available on line known by the author are listed, while some reference
+-   books are also mentioned.
+-   
+-   PLEASE, if you know any paper not listed here or write a new document,
+-   send me an e-mail, and I'll include a reference to it here. Any
++   The need for a document like this one became apparent in the linux-kernel
++   mailing list as the same questions, asking for pointers to information,
++   appeared again and again.
 +
-+#ifdef CONFIG_PNP
-+static int pnp_floppy_registered;
-+static int pnp_floppies;
++   Fortunately, as more and more people get to GNU/Linux, more and more get
++   interested in the Kernel. But reading the sources is not always enough. It
++   is easy to understand the code, but miss the concepts, the philosophy and
++   design decisions behind this code.
 +
-+static int pnp_floppy_probe(struct pnp_dev *dev, const struct pnp_device_id *did)
-+{
-+	struct floppy_resources fd;
-+	unsigned int base, dcr;
++   Unfortunately, not many documents are available for beginners to start. And,
++   even if they exist, there was no "well-known" place which kept track of
++   them. These lines try to cover this lack. All documents available on line
++   known  by  the  author are listed, while some reference books are also
++   mentioned.
 +
-+	memset(&fd, 0, sizeof(fd));
-+	if (pnp_port_valid(dev, 0) &&
-+		!(pnp_port_flags(dev, 0) & IORESOURCE_DISABLED)) {
-+		fd.io_region[0].base = pnp_port_start(dev, 0);
-+		fd.io_region[0].size = pnp_port_len(dev, 0);
-+		fd.nr_io_regions = 1;
-+	}
++   Please, if you know any paper not listed here or write a new document,
++   send  me  an  e-mail,  and I'll include a reference to it here. Any
+    corrections, ideas or comments are also welcomed.
+-   
+-   The papers that follow are listed in no particular order. All are
+-   cataloged with the following fields: the document's "Title", the
+-   "Author"/s, the "URL" where they can be found, some "Keywords" helpful
+-   when searching for specific topics, and a brief "Description" of the
+-   Document.
+-   
 +
-+	if (pnp_port_valid(dev, 1) &&
-+		!(pnp_port_flags(dev, 1) & IORESOURCE_DISABLED)) {
-+		if (pnp_port_start(dev, 1) == (pnp_port_start(dev, 0) + pnp_port_len(dev, 0)))
-+			fd.io_region[0].size += pnp_port_len(dev, 1);
-+		else {
-+			fd.io_region[1].base = pnp_port_start(dev, 1);
-+			fd.io_region[1].size = pnp_port_len(dev, 1);
-+			fd.nr_io_regions = 2;
-+		}
-+	}
++   The papers that follow are listed in no particular order. All are cataloged
++   with the following fields: the document's "Title", the "Author"/s, the "URL"
++   where they can be found, some "Keywords" helpful when searching for specific
++   topics, and a brief "Description" of the Document.
 +
-+	if (pnp_port_valid(dev, 2) &&
-+		!(pnp_port_flags(dev, 2) & IORESOURCE_DISABLED) &&
-+		fd.nr_io_regions == 1) {
-+		fd.io_region[1].base = pnp_port_start(dev, 2);
-+		fd.io_region[1].size = pnp_port_len(dev, 2);
-+		fd.nr_io_regions = 2;
-+	}
+    Enjoy!
+-   
 +
-+	if (pnp_irq_valid(dev, 0) &&
-+		!(pnp_irq_flags(dev, 0) & IORESOURCE_DISABLED))
-+		fd.irq = pnp_irq(dev, 0);
+      ON-LINE DOCS:
+-       
 +
-+	if (pnp_dma_valid(dev, 0) &&
-+		!(pnp_dma_flags(dev, 0) & IORESOURCE_DISABLED))
-+		fd.dma_channel = pnp_dma(dev, 0);
++     * Title: "Iptables-tutorial"
++       Author: Oskar Andreasson.
++       URL: http://iptables-tutorial.frozentux.net
++       Keywords: iptables, netfilter, firewalls.
++       Description: The aim of the iptables-tutorial is to explain iptables in
++       a complete and simple way. It information on all the currently available
++       matches and targets (in kernel), as well as complete example scripts and
++       explanations. It contains a complete section on iptables syntax, as well
++       as   other   interesting   commands   such  as  iptables-save  and
++       iptables-restore.
 +
-+	printk("PNP: %s [%s] at I/O 0x%x-0x%x",
-+		"Floppy Controller", pnp_dev_name(dev),
-+		fd.io_region[0].base,
-+		fd.io_region[0].base + fd.io_region[0].size - 1);
-+	if (fd.nr_io_regions > 1) {
-+		if (fd.io_region[1].size == 1)
-+			printk(", 0x%x", fd.io_region[1].base);
-+		else
-+			printk(", 0x%x-0x%x", fd.io_region[1].base,
-+				fd.io_region[1].base + fd.io_region[1].size - 1);
-+	}
-+	printk(" irq %d dma channel %d\n", fd.irq, fd.dma_channel);
++     * Title: "Ipsysctl-tutorial"
++       Author: Oskar Andreasson.
++       URL: http://ipsysctl-tutorial.frozentux.net
++       Keywords:  IP  sysctl,  ipsysctl,  firewalls, Interface reference,
++       sysctl/proc basics.
++       Description: This document aims at giving more in depth explanations
++       about the different ip sysctl calls available in the Linux kernel.
 +
-+	/*
-+	 * The most correct resource description is probably of the form
-+	 *    0x3f2-0x3f5, 0x3f7
-+	 * Those are the only ports this driver actually uses.
-+	 *
-+	 * 0x3f0 and 0x3f1 were apparently used on PS/2 systems (though
-+	 * this driver doesn't touch them), and 0x3f6 is used by IDE.
-+	 * Some BIOS's erroneously include those ports, or omit 0x3f7,
-+	 * so we should also be able to handle the following:
-+	 *    0x3f0-0x3f5
-+	 *    0x3f0-0x3f5, 0x3f7
-+	 *    0x3f0-0x3f7
-+	 *    0x3f2-0x3f7
-+	 */
-+	base = fd.io_region[0].base & ~0x7;
-+	dcr = base + 7;
+      * Title: "The Linux Kernel"
+        Author: David A. Rusling.
+-       URL: http://www.tldp.org/LDP/tlk/tlk.html
++       URL: http://en.tldp.org/LDP/tlk/tlk.html
+        Keywords: everything!, book.
+-       Description: On line, 200 pages book describing most aspects of
+-       the Linux Kernel. Probably, the first reference for beginners.
+-       Lots of illustrations explaining data structures use and
+-       relationships in the purest Richard W. Stevens' style. Contents:
+-       "1.-Hardware Basics, 2.-Software Basics, 3.-Memory Management,
+-       4.-Processes, 5.-Interprocess Communication Mechanisms, 6.-PCI,
+-       7.-Interrupts and Interrupt Handling, 8.-Device Drivers, 9.-The
+-       File system, 10.-Networks, 11.-Kernel Mechanisms, 12.-Modules,
+-       13.-The Linux Kernel Sources, A.-Linux Data Structures, B.-The
+-       Alpha AXP Processor, C.-Useful Web and FTP Sites, D.-The GNU
+-       General Public License, Glossary". In short: a must have.
+-       
+-     * Title: "The Linux Kernel Hackers' Guide"
+-       Author: Michael K.Johnson and others.
+-       URL: http://www.tldp.org/LDP/khg/HyperNews/get/khg.html
+-       Keywords: everything!
+-       Description: No more Postscript book-like version. Only HTML now.
+-       Many people have contributed. The interface is similar to web
+-       available mailing lists archives. You can find some articles and
+-       then some mails asking questions about them and/or complementing
+-       previous contributions. A little bit anarchic in this aspect, but
+-       with some valuable information in some cases.
+-       
++       Description: On line, 200 pages book describing most aspects of the
++       Linux Kernel. Probably, the first reference for beginners. Lots of
++       illustrations explaining data structures use and relationships in the
++       purest  Richard  W. Stevens' style. Contents: "1.-Hardware Basics,
++       2.-Software Basics, 3.-Memory Management, 4.-Processes, 5.-Interprocess
++       Communication Mechanisms, 6.-PCI, 7.-Interrupts and Interrupt Handling,
++       8.-Device  Drivers,  9.-The  File system, 10.-Networks, 11.-Kernel
++       Mechanisms, 12.-Modules, 13.-The Linux Kernel Sources, A.-Linux Data
++       Structures, B.-The Alpha AXP Processor, C.-Useful Web and FTP Sites,
++       D.-The GNU General Public License, Glossary". In short: a must have.
 +
-+#define contains(region, port)	((region).base <= (port) && \
-+				 (port) < (region).base + (region).size)
++     * Title: "Linux Device Drivers, 2nd Edition"
++       Author: Alessandro Rubini and Jonathan Corbet.
++       URL: http://www.xml.com/ldd/chapter/book/index.html
++       Keywords:  device  drivers,  modules, debugging, memory, hardware,
++       interrupt handling, char drivers, block drivers, kmod, mmap, DMA, buses.
++       Description: O'Reilly's popular book, now also on-line under the GNU
++       Free Documentation License.
++       Notes: You can also buy it in paper-form from O'Reilly. See below under
++       BOOKS (Not on-line).
 +
-+	if (!(contains(fd.io_region[0], dcr) || contains(fd.io_region[1], dcr))) {
-+		printk(KERN_WARNING "PNP: [%s] doesn't declare FD_DCR; also claiming 0x%x\n",
-+			pnp_dev_name(dev), dcr);
-+	}
+      * Title: "Conceptual Architecture of the Linux Kernel"
+        Author: Ivan T. Bowman.
+        URL: http://plg.uwaterloo.ca/~itbowman/papers/CS746G-a1.html
+-       Keywords: conceptual software arquitecture, extracted design,
+-       reverse engineering, system structure.
++       Keywords: conceptual software arquitecture, extracted design, reverse
++       engineering, system structure.
+        Description: Conceptual software arquitecture of the Linux kernel,
+-       automatically extracted from the source code. Very detailed. Good
++       automatically  extracted from the source code. Very detailed. Good
+        figures. Gives good overall kernel understanding.
+-       
 +
-+#undef contains
+      * Title: "Concrete Architecture of the Linux Kernel"
+        Author: Ivan T. Bowman, Saheem Siddiqi, and Meyer C. Tanuan.
+        URL: http://plg.uwaterloo.ca/~itbowman/papers/CS746G-a2.html
+-       Keywords: concrete arquitecture, extracted design, reverse
+-       engineering, system structure, dependencies.
+-       Description: Concrete arquitecture of the Linux kernel,
+-       automatically extracted from the source code. Very detailed. Good
+-       figures. Gives good overall kernel understanding. This papers
+-       focus on lower details than its predecessor (files, variables...).
+-       
+-     * Title: "Linux as a Case Study: Its Extracted Software
+-       Architecture"
++       Keywords: concrete arquitecture, extracted design, reverse engineering,
++       system structure, dependencies.
++       Description: Concrete arquitecture of the Linux kernel, automatically
++       extracted from the source code. Very detailed. Good figures. Gives good
++       overall kernel understanding. This papers focus on lower details than
++       its predecessor (files, variables...).
 +
-+	if (pnp_floppies == 0) {
-+		FDC1 = base;
-+		FLOPPY_IRQ = fd.irq;
-+		FLOPPY_DMA = fd.dma_channel;
-+	} else if (pnp_floppies == 1) {
-+		FDC2 = base;
-+		if (fd.irq != FLOPPY_IRQ || fd.dma_channel != FLOPPY_DMA)
-+			printk(KERN_WARNING "%s: different IRQ/DMA info for [%s]; may not work\n",
-+				DEVICE_NAME, pnp_dev_name(dev));
-+	} else {
-+		printk(KERN_ERR "%s: only 2 controllers supported; [%s] ignored\n",
-+			DEVICE_NAME, pnp_dev_name(dev));
-+		return -ENODEV;
-+	}
++     * Title: "Linux as a Case Study: Its Extracted Software Architecture"
+        Author: Ivan T. Bowman, Richard C. Holt and Neil V. Brewster.
+        URL: http://plg.uwaterloo.ca/~itbowman/papers/linuxcase.html
+-       Keywords: software architecture, architecture recovery,
+-       redocumentation.
+-       Description: Paper appeared at ICSE'99, Los Angeles, May 16-22,
+-       1999. A mixture of the previous two documents from the same
+-       author.
+-       
++       Keywords: software architecture, architecture recovery, redocumentation.
++       Description: Paper appeared at ICSE'99, Los Angeles, May 16-22, 1999. A
++       mixture of the previous two documents from the same author.
 +
-+	pnp_floppies++;
-+	return 0;
-+}
+      * Title: "Overview of the Virtual File System"
+        Author: Richard Gooch.
+        URL: http://www.atnf.csiro.au/~rgooch/linux/vfs.txt
+-       Keywords: VFS, File System, mounting filesystems, opening files,
++       Keywords:  VFS,  File System, mounting filesystems, opening files,
+        dentries, dcache.
+-       Description: Brief introduction to the Linux Virtual File System.
+-       What is it, how it works, operations taken when opening a file or
+-       mounting a file system and description of important data
+-       structures explaining the purpose of each of their entries.
+-       
++       Description: Brief introduction to the Linux Virtual File System. What
++       is it, how it works, operations taken when opening a file or mounting a
++       file system and description of important data structures explaining the
++       purpose of each of their entries.
 +
-+static struct pnp_device_id pnp_floppy_devids[] = {
-+	{ .id = "PNP0700", .driver_data = 0 },
-+	{ .id = "", },
-+};
+      * Title: "The Linux RAID-1, 4, 5 Code"
+        Author: Ingo Molnar, Gadi Oxman and Miguel de Icaza.
+-       URL: http://www2.linuxjournal.com/lj-issues/issue44/2391.html
++       URL: http://www.linuxjournal.com/article.php?sid=2391
+        Keywords: RAID, MD driver.
+-       Description: Linux Journal Kernel Korner article. Here is it's
+-       abstract: "A description of the implementation of the RAID-1,
+-       RAID-4 and RAID-5 personalities of the MD device driver in the
+-       Linux kernel, providing users with high performance and reliable,
+-       secondary-storage capability using software".
+-       
++       Description: Linux Journal Kernel Korner article. Here is it's abstract:
++       "A description of the implementation of the RAID-1, RAID-4 and RAID-5
++       personalities of the MD device driver in the Linux kernel, providing
++       users with high performance and reliable, secondary-storage capability
++       using software".
 +
-+MODULE_DEVICE_TABLE(pnp, pnp_floppy_devids);
+      * Title: "Dynamic Kernels: Modularized Device Drivers"
+        Author: Alessandro Rubini.
+-       URL: http://www2.linuxjournal.com/lj-issues/issue23/1219.html
+-       Keywords: device driver, module, loading/unloading modules,
+-       allocating resources.
+-       Description: Linux Journal Kernel Korner article. Here is it's
+-       abstract: "This is the first of a series of four articles
+-       co-authored by Alessandro Rubini and Georg Zezchwitz which present
+-       a practical approach to writing Linux device drivers as kernel
+-       loadable modules. This installment presents an introduction to the
+-       topic, preparing the reader to understand next month's
+-       installment".
+-       
++       URL: http://www.linuxjournal.com/article.php?sid=1219
++       Keywords: device driver, module, loading/unloading modules, allocating
++       resources.
++       Description: Linux Journal Kernel Korner article. Here is it's abstract:
++       "This  is  the  first  of a series of four articles co-authored by
++       Alessandro Rubini and Georg Zezchwitz which present a practical approach
++       to  writing  Linux device drivers as kernel loadable modules. This
++       installment presents an introduction to the topic, preparing the reader
++       to understand next month's installment".
 +
-+static struct pnp_driver pnp_floppy_driver = {
-+	.name           = "floppy",
-+	.id_table       = pnp_floppy_devids,
-+	.probe          = pnp_floppy_probe,
-+};
+      * Title: "Dynamic Kernels: Discovery"
+        Author: Alessandro Rubini.
+-       URL: http://www2.linuxjournal.com/lj-issues/issue24/1220.html
+-       Keywords: character driver, init_module, clean_up module,
+-       autodetection, mayor number, minor number, file operations,
+-       open(), close().
+-       Description: Linux Journal Kernel Korner article. Here is it's
+-       abstract: "This article, the second of four, introduces part of
+-       the actual code to create custom module implementing a character
+-       device driver. It describes the code for module initialization and
+-       cleanup, as well as the open() and close() system calls".
+-       
++       URL: http://www.linuxjournal.com/article.php?sid=1220
++       Keywords: character driver, init_module, clean_up module, autodetection,
++       mayor number, minor number, file operations, open(), close().
++       Description: Linux Journal Kernel Korner article. Here is it's abstract:
++       "This article, the second of four, introduces part of the actual code to
++       create  custom  module  implementing a character device driver. It
++       describes the code for module initialization and cleanup, as well as the
++       open() and close() system calls".
 +
-+static int pnp_floppy_init(void)
-+{
-+	int err;
+      * Title: "The Devil's in the Details"
+        Author: Georg v. Zezschwitz and Alessandro Rubini.
+-       URL: http://www2.linuxjournal.com/lj-issues/issue25/1221.html
+-       Keywords: read(), write(), select(), ioctl(), blocking/non
+-       blocking mode, interrupt handler.
+-       Description: Linux Journal Kernel Korner article. Here is it's
+-       abstract: "This article, the third of four on writing character
+-       device drivers, introduces concepts of reading, writing, and using
+-       ioctl-calls".
+-       
++       URL: http://www.linuxjournal.com/article.php?sid=1221
++       Keywords: read(), write(), select(), ioctl(), blocking/non blocking
++       mode, interrupt handler.
++       Description: Linux Journal Kernel Korner article. Here is it's abstract:
++       "This article, the third of four on writing character device drivers,
++       introduces concepts of reading, writing, and using ioctl-calls".
 +
-+	if (no_pnp_floppy) {
-+		printk("%s: PNP detection disabled\n", DEVICE_NAME);
-+		return 0;
-+	}
+      * Title: "Dissecting Interrupts and Browsing DMA"
+        Author: Alessandro Rubini and Georg v. Zezschwitz.
+-       URL: http://www2.linuxjournal.com/lj-issues/issue26/1222.html
++       URL: http://www.linuxjournal.com/article.php?sid=1222
+        Keywords: interrupts, irqs, DMA, bottom halves, task queues.
+-       Description: Linux Journal Kernel Korner article. Here is it's
+-       abstract: "This is the fourth in a series of articles about
+-       writing character device drivers as loadable kernel modules. This
+-       month, we further investigate the field of interrupt handling.
+-       Though it is conceptually simple, practical limitations and
+-       constraints make this an ``interesting'' part of device driver
+-       writing, and several different facilities have been provided for
+-       different situations. We also investigate the complex topic of
+-       DMA".
+-       
++       Description: Linux Journal Kernel Korner article. Here is it's abstract:
++       "This is the fourth in a series of articles about writing character
++       device  drivers as loadable kernel modules. This month, we further
++       investigate the field of interrupt handling. Though it is conceptually
++       simple,   practical  limitations  and  constraints  make  this  an
++       ``interesting'' part of device driver writing, and several different
++       facilities  have  been  provided for different situations. We also
++       investigate the complex topic of DMA".
 +
-+	err = pnp_register_driver(&pnp_floppy_driver);
-+	if (err > 0) {
-+		pnp_floppy_registered = 1;
-+		err = 0;
-+	}
-+	else if (err == 0) {
-+		pnp_unregister_driver(&pnp_floppy_driver);
-+		err = -ENODEV;
-+	}
+      * Title: "Device Drivers Concluded"
+        Author: Georg v. Zezschwitz.
+-       URL: http://www2.linuxjournal.com/lj-issues/issue28/1287.html
+-       Keywords: address spaces, pages, pagination, page management,
+-       demand loading, swapping, memory protection, memory mapping, mmap,
+-       virtual memory areas (VMAs), vremap, PCI.
+-       Description: Finally, the above turned out into a five articles
+-       series. This latest one's introduction reads: "This is the last of
+-       five articles about character device drivers. In this final
+-       section, Georg deals with memory mapping devices, beginning with
+-       an overall description of the Linux memory management concepts".
+-       
++       URL: http://www.linuxjournal.com/article.php?sid=1287
++       Keywords: address spaces, pages, pagination, page management, demand
++       loading, swapping, memory protection, memory mapping, mmap, virtual
++       memory areas (VMAs), vremap, PCI.
++       Description: Finally, the above turned out into a five articles series.
++       This latest one's introduction reads: "This is the last of five articles
++       about character device drivers. In this final section, Georg deals with
++       memory mapping devices, beginning with an overall description of the
++       Linux memory management concepts".
 +
-+	return err;
-+}
+      * Title: "Network Buffers And Memory Management"
+        Author: Alan Cox.
+-       URL: http://www2.linuxjournal.com/lj-issues/issue30/1312.html
+-       Keywords: sk_buffs, network devices, protocol/link layer
+-       variables, network devices flags, transmit, receive,
+-       configuration, multicast.
+-       Description: Linux Journal Kernel Korner. Here is the abstract:
+-       "Writing a network device driver for Linux is fundamentally
+-       simple---most of the complexity (other than talking to the
+-       hardware) involves managing network packets in memory".
+-       
+-     * Title: "Writing Linux Device Drivers"
+-       Author: Michael K. Johnson.
+-       URL: http://people.redhat.com/johnsonm/devices.html
+-       Keywords: files, VFS, file operations, kernel interface, character
+-       vs block devices, I/O access, hardware interrupts, DMA, access to
+-       user memory, memory allocation, timers.
+-       Description: Introductory 50-minutes (sic) tutorial on writing
+-       device drivers. 12 pages written by the same author of the "Kernel
+-       Hackers' Guide" which give a very good overview of the topic.
+-       
++       URL: http://www.linuxjournal.com/article.php?sid=1312
++       Keywords: sk_buffs, network devices, protocol/link layer variables,
++       network devices flags, transmit, receive, configuration, multicast.
++       Description: Linux Journal Kernel Korner. Here is the abstract: "Writing
++       a network device driver for Linux is fundamentally simple---most of the
++       complexity  (other than talking to the hardware) involves managing
++       network packets in memory".
 +
-+static void pnp_floppy_exit(void)
-+{
-+	if (pnp_floppy_registered) {
-+		pnp_unregister_driver(&pnp_floppy_driver);
-+		pnp_floppy_registered = 0;
-+	}
-+}
-+#endif
+      * Title: "The Venus kernel interface"
+        Author: Peter J. Braam.
+-       URL:
+-       http://www.coda.cs.cmu.edu/doc/html/kernel-venus-protocol.html
++       URL: http://www.coda.cs.cmu.edu/doc/html/kernel-venus-protocol.html
+        Keywords: coda, filesystem, venus, cache manager.
+-       Description: "This document describes the communication between
+-       Venus and kernel level file system code needed for the operation
+-       of the Coda filesystem. This version document is meant to describe
+-       the current interface (version 1.0) as well as improvements we
+-       envisage".
+-       
++       Description: "This document describes the communication between Venus
++       and kernel level file system code needed for the operation of the Coda
++       filesystem. This version document is meant to describe the current
++       interface (version 1.0) as well as improvements we envisage".
 +
-+#ifdef CONFIG_ACPI
-+static int acpi_floppies;
- 
- static acpi_status __init acpi_floppy_resource(struct acpi_resource *res, void *data)
- {
-@@ -4404,9 +4562,19 @@
- 
- #ifdef CONFIG_ACPI
- 	err = acpi_floppy_init();
--	if (err < 0)
--		return err;
-+	if (err < 0) /*ACPI don't detect floppy*/
- #endif
-+#ifdef CONFIG_PNP
-+	{
-+		err = pnp_floppy_init();
-+		if (err)
-+			return err;
-+	}
-+#else
-+#ifdef CONFIG_ACPI
-+		return err;
-+#endif	
-+#endif	
- 
- 	raw_cmd = NULL;
- 
-@@ -4808,6 +4976,10 @@
- 	/* eject disk, if any */
- 	fd_eject(0);
- 
-+#ifdef CONFIG_PNP
-+	pnp_floppy_exit();
-+#endif
+      * Title: "Programming PCI-Devices under Linux"
+        Author: Claus Schroeter.
+        URL:
+-       ftp://ftp.llp.fu-berlin.de/pub/linux/LINUX-LAB/whitepapers/pcip.ps
+-       .gz
++       ftp://ftp.llp.fu-berlin.de/pub/linux/LINUX-LAB/whitepapers/pcip.ps.gz
+        Keywords: PCI, device, busmastering.
+-       Description: 6 pages tutorial on PCI programming under Linux.
+-       Gives the basic concepts on the architecture of the PCI subsystem,
+-       as long as basic functions and macros to read/write the devices
+-       and perform busmastering.
+-       
++       Description: 6 pages tutorial on PCI programming under Linux. Gives the
++       basic concepts on the architecture of the PCI subsystem, as long as
++       basic  functions  and macros to read/write the devices and perform
++       busmastering.
 +
- 	wait_for_completion(&device_release);
- }
- 
-
---------------000208050605040306040903--
+      * Title: "Writing Character Device Driver for Linux"
+        Author: R. Baruch and C. Schroeter.
+        URL:
+-       ftp://ftp.llp.fu-berlin.de/pub/linux/LINUX-LAB/whitepapers/drivers
+-       .ps.gz
+-       Keywords: character device drivers, I/O, signals, DMA, accessing
+-       ports in user space, kernel environment.
+-       Description: 68 pages paper on writing character drivers. A little
+-       bit old (1.993, 1.994) although still useful.
+-       
+-     * Title: "Design and Implementation of the Second Extended
+-       Filesystem"
+-       Author: Rémy Card, Theodore Ts'o, Stephen Tweedie.
++       ftp://ftp.llp.fu-berlin.de/pub/linux/LINUX-LAB/whitepapers/drivers.ps.gz
++       Keywords: character device drivers, I/O, signals, DMA, accessing ports
++       in user space, kernel environment.
++       Description: 68 pages paper on writing character drivers. A little bit
++       old (1.993, 1.994) although still useful.
++
++     * Title: "Design and Implementation of the Second Extended Filesystem"
++       Author: RÃ©my Card, Theodore Ts'o, Stephen Tweedie.
+        URL: http://web.mit.edu/tytso/www/linux/ext2intro.html
+-       Keywords: ext2, linux fs history, inode, directory, link, devices,
+-       VFS, physical structure, performance, benchmarks, ext2fs library,
+-       ext2fs tools, e2fsck.
+-       Description: Paper written by three of the top ext2 hackers.
+-       Covers Linux filesystems history, ext2 motivation, ext2 features,
+-       design, physical structure on disk, performance, benchmarks,
+-       e2fsck's passes description... A must read!
+-       Notes: This paper was first published in the Proceedings of the
+-       First Dutch International Symposium on Linux, ISBN 90-367-0385-9.
+-       
++       Keywords: ext2, linux fs history, inode, directory, link, devices, VFS,
++       physical structure, performance, benchmarks, ext2fs library, ext2fs
++       tools, e2fsck.
++       Description: Paper written by three of the top ext2 hackers. Covers
++       Linux filesystems history, ext2 motivation, ext2 features, design,
++       physical structure on disk, performance, benchmarks, e2fsck's passes
++       description... A must read!
++       Notes: This paper was first published in the Proceedings of the First
++       Dutch International Symposium on Linux, ISBN 90-367-0385-9.
++
+      * Title: "Analysis of the Ext2fs structure"
+        Author: Louis-Dominique Dubeau.
+-       URL: http://step.polymtl.ca/~ldd/ext2fs/ext2fs_toc.html
++       URL: http://www.nondot.org/sabre/os/files/FileSystems/ext2fs/
+        Keywords: ext2, filesystem, ext2fs.
+-       Description: Description of ext2's blocks, directories, inodes,
+-       bitmaps, invariants...
+-       
++       Description: Description of ext2's blocks, directories, inodes, bitmaps,
++       invariants...
++
+      * Title: "Journaling the Linux ext2fs Filesystem"
+        Author: Stephen C. Tweedie.
+-       URL:
+-       ftp://ftp.uk.linux.org/pub/linux/sct/fs/jfs/journal-design.ps.gz
++       URL: ftp://ftp.uk.linux.org/pub/linux/sct/fs/jfs/journal-design.ps.gz
+        Keywords: ext3, journaling.
+-       Description: Excellent 8-pages paper explaining the journaling
+-       capabilities added to ext2 by the author, showing different
+-       problems faced and the alternatives chosen.
+-       
++       Description:  Excellent  8-pages  paper  explaining the journaling
++       capabilities added to ext2 by the author, showing different problems
++       faced and the alternatives chosen.
++
+      * Title: "Kernel API changes from 2.0 to 2.2"
+        Author: Richard Gooch.
+-       URL:
+-       http://www.atnf.csiro.au/~rgooch/linux/docs/porting-to-2.2.html
++       URL: http://www.atnf.csiro.au/~rgooch/linux/docs/porting-to-2.2.html
+        Keywords: 2.2, changes.
+-       Description: Kernel functions/structures/variables which changed
+-       from 2.0.x to 2.2.x.
+-       
++       Description: Kernel functions/structures/variables which changed from
++       2.0.x to 2.2.x.
++
+      * Title: "Kernel API changes from 2.2 to 2.4"
+        Author: Richard Gooch.
+-       URL:
+-       http://www.atnf.csiro.au/~rgooch/linux/docs/porting-to-2.4.html
++       URL: http://www.atnf.csiro.au/~rgooch/linux/docs/porting-to-2.4.html
+        Keywords: 2.4, changes.
+-       Description: Kernel functions/structures/variables which changed
+-       from 2.2.x to 2.4.x.
+-       
++       Description: Kernel functions/structures/variables which changed from
++       2.2.x to 2.4.x.
++
+      * Title: "Linux Kernel Module Programming Guide"
+-       Author: Ori Pomerantz.
+-       URL: http://www.tldp.org/LDP/lkmpg/mpg.html
+-       Keywords: modules, GPL book, /proc, ioctls, system calls,
+-       interrupt handlers .
+-       Description: Very nice 92 pages GPL book on the topic of modules
+-       programming. Lots of examples.
+-       
++       Author: Peter Jay Salzman, Michael Burian, Ori Pomerantz.
++       URL: http://tldp.org/LDP/lkmpg/2.6/html/
++       Keywords: modules, /proc, ioctls, system calls, interrupt handlers .
++       Description:  Very nice 73 pages free book on the topic of modules
++       programming. Lots of examples. Updated to 2.6 kernels.
++
+      * Title: "Device File System (devfs) Overview"
+        Author: Richard Gooch.
+        URL: http://www.atnf.csiro.au/~rgooch/linux/docs/devfs.txt
+-       Keywords: filesystem, /dev, devfs, dynamic devices, major/minor
++       Keywords:  filesystem,  /dev,  devfs, dynamic devices, major/minor
+        allocation, device management.
+-       Description: Document describing Richard Gooch's controversial
+-       devfs, which allows for dynamic devices, only shows present
+-       devices in /dev, gets rid of major/minor numbers allocation
+-       problems, and allows for hundreds of identical devices (which some
+-       USB systems might demand soon).
+-       
++       Description: Document describing Richard Gooch's controversial devfs,
++       which allows for dynamic devices, only shows present devices in /dev,
++       gets rid of major/minor numbers allocation problems, and allows for
++       hundreds of identical devices (which some USB systems might demand
++       soon).
++
+      * Title: "I/O Event Handling Under Linux"
+        Author: Richard Gooch.
+        URL: http://www.atnf.csiro.au/~rgooch/linux/docs/io-events.html
+-       Keywords: IO, I/O, select(2), poll(2), FDs, aio_read(2), readiness
+-       event queues.
+-       Description: From the Introduction: "I/O Event handling is about
+-       how your Operating System allows you to manage a large number of
+-       open files (file descriptors in UNIX/POSIX, or FDs) in your
+-       application. You want the OS to notify you when FDs become active
+-       (have data ready to be read or are ready for writing). Ideally you
+-       want a mechanism that is scalable. This means a large number of
+-       inactive FDs cost very little in memory and CPU time to manage".
+-       
+-     * Title: "The Kernel Hacking HOWTO"
+-       Author: Various Talented People, and Rusty.
+-       URL:
+-       http://www.lisoleg.net/doc/Kernel-Hacking-HOWTO/kernel-hacking-HOW
+-       TO.html
+-       Keywords: HOWTO, kernel contexts, deadlock, locking, modules,
+-       symbols, return conventions.
+-       Description: From the Introduction: "Please understand that I
+-       never wanted to write this document, being grossly underqualified,
+-       but I always wanted to read it, and this was the only way. I
+-       simply explain some best practices, and give reading entry-points
+-       into the kernel sources. I avoid implementation details: that's
+-       what the code is for, and I ignore whole tracts of useful
+-       routines. This document assumes familiarity with C, and an
+-       understanding of what the kernel is, and how it is used. It was
+-       originally written for the 2.3 kernels, but nearly all of it
+-       applies to 2.2 too; 2.0 is slightly different".
+-       
++       Keywords: IO, I/O, select(2), poll(2), FDs, aio_read(2), readiness event
++       queues.
++       Description: From the Introduction: "I/O Event handling is about how
++       your Operating System allows you to manage a large number of open files
++       (file descriptors in UNIX/POSIX, or FDs) in your application. You want
++       the OS to notify you when FDs become active (have data ready to be read
++       or  are  ready  for writing). Ideally you want a mechanism that is
++       scalable. This means a large number of inactive FDs cost very little in
++       memory and CPU time to manage".
++
++     * Title: "Kernel Hacking HOWTO"
++       Author: Andrew Ebling.
++       URL: http://www.kernelhacking.org/docs/kernelhacking-HOWTO/
++       Keywords: HOWTO, kernel hacking, getting started, source navigation,
++       kernel debugging, profiling, benchmarking.
++       Description: Another kernel hacking howto. More recent than the now lost
++       Rusty's one.
++
+      * Title: "ALSA 0.5.0 Developer documentation"
+        Author: Stephan 'Jumpy' Bartels .
+        URL: http://www.math.TU-Berlin.de/~sbartels/alsa/
+        Keywords: ALSA, sound, soundcard, driver, lowlevel, hardware.
+-       Description: Advanced Linux Sound Architecture for developers,
+-       both at kernel and user-level sides. Work in progress. ALSA is
+-       supposed to be Linux's next generation sound architecture.
+-       
++       Description: Advanced Linux Sound Architecture for developers, both at
++       kernel and user-level sides. Work in progress. ALSA is supposed to be
++       Linux's next generation sound architecture.
++
+      * Title: "Programming Guide for Linux USB Device Drivers"
+        Author: Detlef Fliegl.
+        URL: http://usb.in.tum.de/usbdoc/
+        Keywords: USB, universal serial bus.
+-       Description: A must-read. From the Preface: "This document should
+-       give detailed information about the current state of the USB
+-       subsystem and its API for USB device drivers. The first section
+-       will deal with the basics of USB devices. You will learn about
+-       different types of devices and their properties. Going into detail
+-       you will see how USB devices communicate on the bus. The second
+-       section gives an overview of the Linux USB subsystem [2] and the
+-       device driver framework. Then the API and its data structures will
+-       be explained step by step. The last section of this document
+-       contains a reference of all API calls and their return codes".
+-       Notes: Beware: the main page states: "This document may not be
+-       published, printed or used in excerpts without explicit permission
+-       of the author". Fortunately, it may still be read...
+-       
+-     * Title: "Tour Of the Linux Kernel Source"
+-       Author: Vijo Cherian.
+-       URL: http://www.geocities.com/vijoc/tolks/tolks.html
+-       Keywords: .
+-       Description: A classic of this page! Was lost for a while and is
+-       back again. Thanks Vijo! TOLKS: the name says it all. A tour of
+-       the sources, describing directories, files, variables, data
+-       structures... It covers general stuff, device drivers,
+-       filesystems, IPC and Networking Code.
+-       
++       Description: A must-read. From the Preface: "This document should give
++       detailed information about the current state of the USB subsystem and
++       its API for USB device drivers. The first section will deal with the
++       basics of USB devices. You will learn about different types of devices
++       and their properties. Going into detail you will see how USB devices
++       communicate on the bus. The second section gives an overview of the
++       Linux USB subsystem [2] and the device driver framework. Then the API
++       and its data structures will be explained step by step. The last section
++       of this document contains a reference of all API calls and their return
++       codes".
++       Notes:  Beware:  the  main  page states: "This document may not be
++       published, printed or used in excerpts without explicit permission of
++       the author". Fortunately, it may still be read...
++
+      * Title: "Linux Kernel Mailing List Glossary"
+        Author: John Levon.
+        URL: http://www.movement.uklinux.net/glossary.html
+        Keywords: glossary, terms, linux-kernel.
+-       Description: From the introduction: "This glossary is intended as
+-       a brief description of some of the acronyms and terms you may hear
+-       during discussion of the Linux kernel".
+-       
++       Description: From the introduction: "This glossary is intended as a
++       brief description of some of the acronyms and terms you may hear during
++       discussion of the Linux kernel".
++
+      * Title: "Linux Kernel Locking HOWTO"
+        Author: Various Talented People, and Rusty.
+        URL:
+-       http://netfilter.kernelnotes.org/unreliable-guides/kernel-locking-
+-       HOWTO.html
+-       Keywords: locks, locking, spinlock, semaphore, atomic, race
+-       condition, bottom halves, tasklets, softirqs.
+-       Description: The title says it all: document describing the
+-       locking system in the Linux Kernel either in uniprocessor or SMP
+-       systems.
+-       Notes: "It was originally written for the later (>2.3.47) 2.3
+-       kernels, but most of it applies to 2.2 too; 2.0 is slightly
+-       different". Freely redistributable under the conditions of the GNU
+-       General Public License.
+-       
+-     * Title: "Porting Linux 2.0 Drivers To Linux 2.2: Changes and New
+-       Features "
++       http://netfilter.kernelnotes.org/unreliable-guides/kernel-locking-HOWTO.html
++       Keywords: locks, locking, spinlock, semaphore, atomic, race condition,
++       bottom halves, tasklets, softirqs.
++       Description: The title says it all: document describing the locking
++       system in the Linux Kernel either in uniprocessor or SMP systems.
++       Notes: "It was originally written for the later (>2.3.47) 2.3 kernels,
++       but most of it applies to 2.2 too; 2.0 is slightly different". Freely
++       redistributable under the conditions of the GNU General Public License.
++
++     * Title: "Global spinlock list and usage"
++       Author: Rick Lindsley.
++       URL: http://lse.sourceforge.net/lockhier/global-spin-lock
++       Keywords: spinlock.
++       Description: This is an attempt to document both the existence and usage
++       of  the spinlocks in the Linux 2.4.5 kernel. Comprehensive list of
++       spinlocks showing when they are used, which functions access them, how
++       each  lock  is acquired, under what conditions it is held, whether
++       interrupts can occur or not while it is held...
++
++     * Title: "Porting Linux 2.0 Drivers To Linux 2.2: Changes and New Features"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/1999-05/gear_01.html
+        Keywords: ports, porting.
+-       Description: Article from Linux Magazine on porting from 2.0 to
+-       2.2 kernels.
+-       
++       Description: Article from Linux Magazine on porting from 2.0 to 2.2
++       kernels.
++
+      * Title: "Porting Device Drivers To Linux 2.2: part II"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/1999-06/gear_01.html
+        Keywords: ports, porting.
+        Description: Second part on porting from 2.0 to 2.2 kernels.
+-       
+-     * Title: "How To Make Sure Your Driver Will Work On The Power
+-       Macintosh"
++
++     * Title: "How To Make Sure Your Driver Will Work On The Power Macintosh"
+        Author: Paul Mackerras.
+        URL: http://www.linux-mag.com/1999-07/gear_01.html
+        Keywords: Mac, Power Macintosh, porting, drivers, compatibility.
+        Description: The title says it all.
+-       
++
+      * Title: "An Introduction to SCSI Drivers"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/1999-08/gear_01.html
+        Keywords: SCSI, device, driver.
+        Description: The title says it all.
+-       
++
+      * Title: "Advanced SCSI Drivers And Other Tales"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/1999-09/gear_01.html
+        Keywords: SCSI, device, driver, advanced.
+        Description: The title says it all.
+-       
++
+      * Title: "Writing Linux Mouse Drivers"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/1999-10/gear_01.html
+        Keywords: mouse, driver, gpm.
+        Description: The title says it all.
+-       
++
+      * Title: "More on Mouse Drivers"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/1999-11/gear_01.html
+        Keywords: mouse, driver, gpm, races, asynchronous I/O.
+        Description: The title still says it all.
+-       
++
+      * Title: "Writing Video4linux Radio Driver"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/1999-12/gear_01.html
+        Keywords: video4linux, driver, radio, radio devices.
+        Description: The title says it all.
+-       
++
+      * Title: "Video4linux Drivers, Part 1: Video-Capture Device"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/2000-01/gear_01.html
+-       Keywords: video4linux, driver, video capture, capture devices,
+-       camera driver.
++       Keywords: video4linux, driver, video capture, capture devices, camera
++       driver.
+        Description: The title says it all.
+-       
++
+      * Title: "Video4linux Drivers, Part 2: Video-capture Devices"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/2000-02/gear_01.html
+-       Keywords: video4linux, driver, video capture, capture devices,
+-       camera driver, control, query capabilities, capability, facility.
++       Keywords: video4linux, driver, video capture, capture devices, camera
++       driver, control, query capabilities, capability, facility.
+        Description: The title says it all.
+-       
++
+      * Title: "PCI Management in Linux 2.2"
+        Author: Alan Cox.
+        URL: http://www.linux-mag.com/2000-03/gear_01.html
+        Keywords: PCI, bus, bus-mastering.
+        Description: The title says it all.
+-       
++
+      * Title: "Linux 2.4 Kernel Internals"
+        Author: Tigran Aivazian and Christoph Hellwig.
+        URL: http://www.moses.uklinux.net/patches/lki.html
+        Keywords: Linux, kernel, booting, SMB boot, VFS, page cache.
+-       Description: A little book used for a short training course.
+-       Covers building the kernel image, booting (including SMP bootup),
+-       process management, VFS and more.
+-       
+-     * Title: "Linux IP Networking. A Guide to the Implementation and
++       Description: A little book used for a short training course. Covers
++       building the kernel image, booting (including SMP bootup), process
++       management, VFS and more.
++
++     * Title:  "Linux  IP  Networking.  A Guide to the Implementation and
+        Modification of the Linux Protocol Stack."
+        Author: Glenn Herrin.
+-       URL:
+-       http://kernelnewbies.org/documents/ipnetworking/linuxipnetworking.
+-       html
++       URL: http://www.cs.unh.edu/cnrg/gherrin
+        Keywords: network, networking, protocol, IP, UDP, TCP, connection,
+-       socket, receiving, transmitting, forwarding, routing, packets,
+-       modules, /proc, sk_buff, FIB, tags.
+-       Description: Excellent paper devoted to the Linux IP Networking,
+-       explaining anything from the kernel's to the user space
+-       configuration tools' code. Very good to get a general overview of
+-       the kernel networking implementation and understand all steps
+-       packets follow from the time they are received at the network
+-       device till they are delivered to applications. The studied kernel
+-       code is from 2.2.14 version. Provides code for a working packet
+-       dropper example.
+-       
++       socket, receiving, transmitting, forwarding, routing, packets, modules,
++       /proc, sk_buff, FIB, tags.
++       Description:  Excellent  paper devoted to the Linux IP Networking,
++       explaining anything from the kernel's to the user space configuration
++       tools'  code.  Very  good  to get a general overview of the kernel
++       networking implementation and understand all steps packets follow from
++       the time they are received at the network device till they are delivered
++       to  applications.  The studied kernel code is from 2.2.14 version.
++       Provides code for a working packet dropper example.
++
+      * Title: "Get those boards talking under Linux."
+        Author: Alex Ivchenko.
+-       URL: http://www.ednmag.com/ednmag/reg/2000/06222000/13df2.htm
+-       Keywords: data-acquisition boards, drivers, modules, interrupts,
+-       memory allocation.
++       URL: http://www.reed-electronics.com/ednmag/contents/images/46968.pdf
++       Keywords: data-acquisition boards, drivers, modules, interrupts, memory
++       allocation.
+        Description: Article written for people wishing to make their data
+        acquisition boards work on their GNU/Linux machines. Gives a basic
+-       overview on writing drivers, from the naming of functions to
+-       interrupt handling.
++       overview on writting drivers, from the naming of functions to interrupt
++       handling.
+        Notes: Two-parts article. Part II is at
+-       http://www.ednmag.com/ednmag/reg/2000/07062000/14df.htm
+-       
++       http://www.reed-electronics.com/ednmag/contents/images/46998.pdf
++
+      * Title: "Linux PCMCIA Programmer's Guide"
+        Author: David Hinds.
+        URL: http://pcmcia-cs.sourceforge.net/ftp/doc/PCMCIA-PROG.html
+        Keywords: PCMCIA.
+-       Description: "This document describes how to write kernel device
+-       drivers for the Linux PCMCIA Card Services interface. It also
+-       describes how to write user-mode utilities for communicating with
+-       Card Services.
+-       
++       Description: "This document describes how to write kernel device drivers
++       for the Linux PCMCIA Card Services interface. It also describes how to
++       write user-mode utilities for communicating with Card Services.
++
+      * Title: "The Linux Kernel NFSD Implementation"
+        Author: Neil Brown.
+-       URL:
+-       http://www.cse.unsw.edu.au/~neilb/oss/linux-commentary/nfsd.html
++       URL: http://www.cse.unsw.edu.au/~neilb/oss/linux-commentary/nfsd.html
+        Keywords: knfsd, nfsd, NFS, RPC, lockd, mountd, statd.
+        Description: The title says it all.
+        Notes: Covers knfsd's version 1.4.7 (patch against 2.2.7 kernel).
+-       
+-     * Title: "A Linux vm README"
+-       Author: Kanoj Sarcar.
+-       URL: http://reality.sgi.com/kanoj_engr/vm229.html
+-       Keywords: virtual memory, mm, pgd, vma, page, page flags, page
+-       cache, swap cache, kswapd.
+-       Description: Telegraphic, short descriptions and definitions
+-       relating the Linux virtual memory implementation.
+-       
+-     * Title: "(nearly) Complete Linux Loadable Kernel Modules. The
+-       definitive guide for hackers, virus coders and system
+-       administrators."
++
++     * Title: "(nearly) Complete Linux Loadable Kernel Modules. The definitive
++       guide for hackers, virus coders and system administrators."
+        Author: pragmatic/THC.
+-       URL: http://packetstorm.securify.com/groups/thc/LKM_HACKING.html
++       URL: http://packetstormsecurity.org/docs/hack/LKM_HACKING.html
+        Keywords: syscalls, intercept, hide, abuse, symbol table.
+-       Description: Interesting paper on how to abuse the Linux kernel in
+-       order to intercept and modify syscalls, make
+-       files/directories/processes invisible, become root, hijack ttys,
+-       write kernel modules based virus... and solutions for admins to
+-       avoid all those abuses.
+-       Notes: For 2.0.x kernels. Gives guidances to port it to 2.2.x
+-       kernels. Also available in txt format at
+-       http://www.blacknemesis.org/hacking/txt/cllkm.txt
+-       
+-     BOOKS: (Not on-line)
+-   
+-     * Title: "Linux Device Drivers"
+-       Author: Alessandro Rubini.
+-       Publisher: O'Reilly & Associates.
+-       Date: 1998.
+-       Pages: 439.
+-       ISBN: 1-56592-292-1
+-       
++       Description: Interesting paper on how to abuse the Linux kernel in order
++       to intercept and modify syscalls, make files/directories/processes
++       invisible, become root, hijack ttys, write kernel modules based virus...
++       and solutions for admins to avoid all those abuses.
++       Notes: For 2.0.x kernels. Gives guidances to port it to 2.2.x kernels.
++
++     * Title: "Linux Kernel Threads in Device Drivers"
++       Author: Martin Frey.
++       URL: http://www.scs.ch/~frey/linux/kernelthreads.html
++       Keywords: threads, creation, stopping, initialization.
++       Description: How to start and stop kernel threads in a loadable module.
++
++     * Title: "The Linux Kernel Hackers' Guide"
++       Author: Michael K.Johnson and others.
++       URL: http://en.tldp.org/LDP/khg/HyperNews/get/khg.html
++       Keywords: everything!
++       Description:  Probably,  too  old to be useful... Many people have
++       contributed. The interface is similar to web available mailing lists
++       archives.  You  can  find some articles and then some mails asking
++       questions about them and/or complementing previous contributions. A
++       little bit anarchic in this aspect, but with some valuable information
++       in some cases.
++
++     BOOKS: (Not on-line, ordered by publication date)
++
++     * Title: "The Linux TCP/IP Stack: Networking for Embedded Systems"
++       Author: Thomas F. Herbert.
++       Publisher: Charles River Media.
++       Date: 2004.
++       Pages: 586.
++       ISBN: 1-58450-284-3
++       Notes:  From  the  book's  description:  "it  details  the  TCP/IP
++       implementation in Linux 2.6 by following a packet of data as it flows
++       through  the stack from the sending system, out the wire, and back
++       through the input side of the stack in the receiving machine".
++
++     * Title: "Linux Kernel Development"
++       Author: Robert Love.
++       Publisher: Sams.
++       Date: 2003.
++       Pages: 332.
++       ISBN: 0-67232-512-8
++
++     * Title: "Understanding the Linux Kernel (2nd Edition)"
++       Author: Daniel P. Bovet and Marco Cesati.
++       Publisher: O'Reilly & Associates, Inc..
++       Date: 2002.
++       Pages: 816.
++       ISBN: 0-596-00213-0
++       Notes: Further information in
++       http://www.oreilly.com/catalog/linuxkernel/
++
+      * Title: "Linux Device Drivers, 2nd Edition"
+        Author: Alessandro Rubini and Jonathan Corbet.
+        Publisher: O'Reilly & Associates.
+        Date: 2001.
+        Pages: 586.
+        ISBN: 0-59600-008-1
+-       Notes: Further information in
+-       http://www.oreilly.com/catalog/linuxdrive2/
+-       
+-     * Title: "Linux Kernel Internals"
+-       Author: Michael Beck.
+-       Publisher: Addison-Wesley.
+-       Date: 1997.
+-       ISBN: 0-201-33143-8 (second edition)
+-       
+-     * Title: "The Design of the UNIX Operating System"
+-       Author: Maurice J. Bach.
+-       Publisher: Prentice Hall.
+-       Date: 1986.
+-       Pages: 471.
+-       ISBN: 0-13-201757-1
+-       
+-     * Title: "The Design and Implementation of the 4.3 BSD UNIX
+-       Operating System"
+-       Author: Samuel J. Leffler, Marshall Kirk McKusick, Michael J.
+-       Karels, John S. Quarterman.
+-       Publisher: Addison-Wesley.
+-       Date: 1989 (reprinted with corrections on October, 1990).
+-       ISBN: 0-201-06196-1
+-       
+-     * Title: "The Design and Implementation of the 4.4 BSD UNIX
+-       Operating System"
+-       Author: Marshall Kirk McKusick, Keith Bostic, Michael J. Karels,
+-       John S. Quarterman.
++       Notes: It is also on-line (under the GNU Free Documentation License) at
++       http://www.xml.com/ldd/chapter/book/index.html
++
++     * Title: "Understanding the Linux Kernel"
++       Author: Daniel P. Bovet and Marco Cesati.
++       Publisher: O'Reilly & Associates, Inc..
++       Date: 2000.
++       Pages: 702.
++       ISBN: 0-596-00002-2
++       Notes: Further information in http://www.oreilly.com/catalog/linuxkernel/
++
++     * Title: "Kernel Projects for Linux"
++       Author: Gary J. Nutt.
+        Publisher: Addison-Wesley.
+-       Date: 1996.
+-       ISBN: 0-201-54979-4
+-       
+-     * Title: "Programmation Linux 2.0 API systeme et fonctionnement du
+-       noyau"
+-       Author: Remy Card, Eric Dumas, Franck Mevel.
+-       Publisher: Eyrolles.
+-       Date: 1997.
+-       Pages: 520.
+-       ISBN: 2-212-08932-5
+-       Notes: French.
+-       
++       Date: 2000.
++       Pages: 239.
++       ISBN: 0-201-61243-7
++       Notes: Provides 12 exercises related to OS functions implementation.
++       Comes with a CD-ROM.
++
++     * Title: "Linux IP Stacks Commentary"
++       Author: Stephen Satchell and HBJ Clifford.
++       Publisher: Coriolis.
++       Date: 2000.
++       Pages: ???.
++       ISBN: 1-57610-470-2
++       Notes: Line by line source code commentary book.
++
++     * Title: "Linux Core Kernel Commentary. Guide to Insider's Knowledge on
++       the Core Kernel of the Linux Code"
++       Author: Scott Maxwell.
++       Publisher: Coriolis.
++       Date: 1999.
++       Pages: 592.
++       ISBN: 1-57610-469-9
++       Notes: CD-ROM included. Line by line commentary of the kernel code.
++
++     * Title: "Linux Device Drivers"
++       Author: Alessandro Rubini.
++       Publisher: O'Reilly & Associates.
++       Date: 1998.
++       Pages: 439.
++       ISBN: 1-56592-292-1
++
+      * Title: "The Linux Kernel Book"
+        Author: Remy Card, Eric Dumas, Franck Mevel.
+        Publisher: John Wiley & Sons.
+        Date: 1998.
+        ISBN: 0-471-98141-9
+-       Notes: English translation.
+-       
++       Notes: English translation of "Programmation Linux 2.0 API systeme et
++       fonctionnement du noyau".
++
++     * Title: "Linux Kernel Internals"
++       Author: Michael Beck.
++       Publisher: Addison-Wesley.
++       Date: 1997.
++       ISBN: 0-201-33143-8 (second edition)
++
+      * Title: "Linux 2.0"
+        Author: Remy Card, Eric Dumas, Franck Mevel.
+-       Publisher: Gestión 2000.
++       Publisher: GestiÃ³n 2000.
+        Date: 1997.
+        Pages: 501.
+        ISBN: 8-480-88208-5
+-       Notes: Spanish translation.
+-       
++       Notes: Spanish translation of "Programmation Linux 2.0 API systeme et
++       fonctionnement du noyau".
++
++     * Title: "Programmation Linux 2.0 API systeme et fonctionnement du noyau"
++       Author: Remy Card, Eric Dumas, Franck Mevel.
++       Publisher: Eyrolles.
++       Date: 1997.
++       Pages: 520.
++       ISBN: 2-212-08932-5
++       Notes: French.
++
+      * Title: "Unix internals -- the new frontiers"
+        Author: Uresh Vahalia.
+        Publisher: Prentice Hall.
+        Date: 1996.
+        Pages: 600.
+        ISBN: 0-13-101908-2
+-       
+-     * Title: "Linux Core Kernel Commentary. Guide to Insider's Knowledge
+-       on the Core Kernel of the Linux Code"
+-       Author: Scott Maxwell.
+-       Publisher: Coriolis.
+-       Date: 1999.
+-       Pages: 592.
+-       ISBN: 1-57610-469-9
+-       Notes: CD-ROM included. Line by line commentary of the kernel
+-       code.
+-       
+-     * Title: "Linux IP Stacks Commentary"
+-       Author: Stephen Satchell and HBJ Clifford.
+-       Publisher: Coriolis.
+-       Date: 2000.
+-       Pages: ???.
+-       ISBN: 1-57610-470-2
+-       Notes: Line by line source code commentary book.
+-       
++
++     * Title: "The Design and Implementation of the 4.4 BSD UNIX Operating
++       System"
++       Author: Marshall Kirk McKusick, Keith Bostic, Michael J. Karels, John S.
++       Quarterman.
++       Publisher: Addison-Wesley.
++       Date: 1996.
++       ISBN: 0-201-54979-4
++
+      * Title: "Programming for the real world - POSIX.4"
+        Author: Bill O. Gallmeister.
+        Publisher: O'Reilly & Associates, Inc..
+        Date: 1995.
+        Pages: ???.
+        ISBN: I-56592-074-0
+-       Notes: Though not being directly about Linux, Linux aims to be
+-       POSIX. Good reference.
+-       
+-     * Title: "Understanding the Linux Kernel"
+-       Author: Daniel P. Bovet and Marco Cesati.
+-       Publisher: O'Reilly & Associates, Inc..
+-       Date: 2000.
+-       Pages: 702.
+-       ISBN: 0-596-00002-2
+-       Notes: Further information in
+-       http://www.oreilly.com/catalog/linuxkernel/
+-       
++       Notes: Though not being directly about Linux, Linux aims to be POSIX.
++       Good reference.
++
++     * Title:   "UNIX   Systems   for   Modern  Architectures:  Symmetric
++       Multiprocesssing and Caching for Kernel Programmers"
++       Author: Curt Schimmel.
++       Publisher: Addison Wesley.
++       Date: June, 1994.
++       Pages: 432.
++       ISBN: 0-201-63338-8
++
++     * Title: "The Design and Implementation of the 4.3 BSD UNIX Operating
++       System"
++       Author: Samuel J. Leffler, Marshall Kirk McKusick, Michael J. Karels,
++       John S. Quarterman.
++       Publisher: Addison-Wesley.
++       Date: 1989 (reprinted with corrections on October, 1990).
++       ISBN: 0-201-06196-1
++
++     * Title: "The Design of the UNIX Operating System"
++       Author: Maurice J. Bach.
++       Publisher: Prentice Hall.
++       Date: 1986.
++       Pages: 471.
++       ISBN: 0-13-201757-1
++
+      MISCELLANEOUS:
+-   
++
+      * Name: linux/Documentation
+        Author: Many.
+        URL: Just look inside your kernel sources.
+        Keywords: anything, DocBook.
+-       Description: Documentation that comes with the kernel sources,
+-       inside the Documentation directory. Some pages from this document
+-       (including this document itself) have been moved there, and might
+-       be more up to date than the web version.
+-       
++       Description: Documentation that comes with the kernel sources, inside
++       the Documentation directory. Some pages from this document (including
++       this document itself) have been moved there, and might be more up to
++       date than the web version.
++
+      * Name: "Linux Source Driver"
+        URL: http://lsd.linux.cz
+        Keywords: Browsing source code.
+-       Description: "Linux Source Driver (LSD) is an application, which
+-       can make browsing source codes of Linux kernel easier than you can
+-       imagine. You can select between multiple versions of kernel (e.g.
+-       0.01, 1.0.0, 2.0.33, 2.0.34pre13, 2.0.0, 2.1.101 etc.). With LSD
+-       you can search Linux kernel (fulltext, macros, types, functions
+-       and variables) and LSD can generate patches for you on the fly
+-       (files, directories or kernel)".
+-       
++       Description: "Linux Source Driver (LSD) is an application, which can
++       make browsing source codes of Linux kernel easier than you can imagine.
++       You can select between multiple versions of kernel (e.g. 0.01, 1.0.0,
++       2.0.33, 2.0.34pre13, 2.0.0, 2.1.101 etc.). With LSD you can search Linux
++       kernel (fulltext, macros, types, functions and variables) and LSD can
++       generate patches for you on the fly (files, directories or kernel)".
++
+      * Name: "Linux Kernel Source Reference"
+        Author: Thomas Graichen.
+        URL: http://innominate.org/~graichen/projects/lksr/
+        Keywords: CVS, web, cvsweb, browsing source code.
+-       Description: Web interface to a CVS server with the kernel
+-       sources. "Here you can have a look at any file of the Linux kernel
+-       sources of any version starting from 1.0 up to the (daily updated)
+-       current version available. Also you can check the differences
+-       between two versions of a file".
+-       
++       Description: Web interface to a CVS server with the kernel sources.
++       "Here you can have a look at any file of the Linux kernel sources of any
++       version starting from 1.0 up to the (daily updated) current version
++       available. Also you can check the differences between two versions of a
++       file".
++
+      * Name: "Cross-Referencing Linux"
+        URL: http://lxr.linux.no/source/
+        Keywords: Browsing source code.
+-       Description: Another web-based Linux kernel source code browser.
+-       Lots of cross references to variables and functions. You can see
+-       where they are defined and where they are used.
+-       
++       Description: Another web-based Linux kernel source code browser. Lots of
++       cross references to variables and functions. You can see where they are
++       defined and where they are used.
++
+      * Name: "Linux Weekly News"
+        URL: http://lwn.net
+        Keywords: latest kernel news.
+        Description: The title says it all. There's a fixed kernel section
+        summarizing developers' work, bug fixes, new features and versions
+        produced during the week. Published every Thursday.
+-       
++
+      * Name: "Kernel Traffic"
+-       URL: http://www.kerneltraffic.org/kernel-traffic/
++       URL: http://kt.zork.net/kernel-traffic/
+        Keywords: linux-kernel mailing list, weekly kernel news.
+-       Description: Weekly newsletter covering the most relevant
+-       discussions of the linux-kernel mailing list.
+-       
++       Description: Weekly newsletter covering the most relevant discussions of
++       the linux-kernel mailing list.
++
+      * Name: "CuTTiNG.eDGe.LiNuX"
+        URL: http://edge.kernelnotes.org
+        Keywords: changelist.
+-       Description: Site which provides the changelist for every kernel
+-       release. What's new, what's better, what's changed. Myrdraal reads
+-       the patches and describes them. Pointers to the patches are there,
+-       too.
+-       
++       Description:  Site  which provides the changelist for every kernel
++       release. What's new, what's better, what's changed. Myrdraal reads the
++       patches and describes them. Pointers to the patches are there, too.
++
+      * Name: "New linux-kernel Mailing List FAQ"
+        URL: http://www.tux.org/lkml/
+        Keywords: linux-kernel mailing list FAQ.
+-       Description: linux-kernel is a mailing list for developers to
+-       communicate. This FAQ builds on the previous linux-kernel mailing
+-       list FAQ maintained by Frohwalt Egerer, who no longer maintains
+-       it. Read it to see how to join the mailing list. Dozens of
+-       interesting questions regarding the list, Linux, developers (who
+-       is ...?), terms (what is...?) are answered here too. Just read it.
+-       
++       Description:  linux-kernel  is  a  mailing  list for developers to
++       communicate. This FAQ builds on the previous linux-kernel mailing list
++       FAQ maintained by Frohwalt Egerer, who no longer maintains it. Read it
++       to see how to join the mailing list. Dozens of interesting questions
++       regarding the list, Linux, developers (who is ...?), terms (what is...?)
++       are answered here too. Just read it.
++
+      * Name: "Linux Virtual File System"
+        Author: Peter J. Braam.
+        URL: http://www.coda.cs.cmu.edu/doc/talks/linuxvfs/
+        Keywords: slides, VFS, inode, superblock, dentry, dcache.
+-       Description: Set of slides, presumably from a presentation on the
+-       Linux VFS layer. Covers version 2.1.x, with dentries and the
+-       dcache.
+-       
++       Description: Set of slides, presumably from a presentation on the Linux
++       VFS layer. Covers version 2.1.x, with dentries and the dcache.
++
+      * Name: "Gary's Encyclopedia - The Linux Kernel"
+        Author: Gary (I suppose...).
+-       URL: http://members.aa.net/~swear/pedia/kernel.html
++       URL: http://www.lisoleg.net/cgi-bin/lisoleg.pl?view=kernel.htm
+        Keywords: links, not found here?.
+-       Description: Gary's Encyclopedia exists to allow the rapid finding
+-       of documentation and other information of interest to GNU/Linux
+-       users. It has about 4000 links to external pages in 150 major
+-       categories. This link is for kernel-specific links, documents,
+-       sites... Look there if you could not find here what you were
+-       looking for.
+-       
++       Description: Gary's Encyclopedia exists to allow the rapid finding of
++       documentation and other information of interest to GNU/Linux users. It
++       has about 4000 links to external pages in 150 major categories. This
++       link is for kernel-specific links, documents, sites... Look there if you
++       could not find here what you were looking for.
++
+      * Name: "The home page of Linux-MM"
+        Author: The Linux-MM team.
+        URL: http://linux-mm.org/
+-       Keywords: memory management, Linux-MM, mm patches, TODO, docs,
+-       mailing list.
+-       Description: Site devoted to Linux Memory Management development.
+-       Memory related patches, HOWTOs, links, mm developers... Don't miss
+-       it if you are interested in memory management development!
+-       
++       Keywords: memory management, Linux-MM, mm patches, TODO, docs, mailing
++       list.
++       Description: Site devoted to Linux Memory Management development. Memory
++       related patches, HOWTOs, links, mm developers... Don't miss it if you
++       are interested in memory management development!
++
+      * Name: "Kernel Newbies IRC Channel"
+        URL: http://www.kernelnewbies.org
+        Keywords: IRC, newbies, channel, asking doubts.
+-       Description: #kernelnewbies on irc.openprojects.net. From the web
+-       page: "#kernelnewbies is an IRC network dedicated to the 'newbie'
+-       kernel hacker. The audience mostly consists of people who are
+-       learning about the kernel, working on kernel projects or
+-       professional kernel hackers that want to help less seasoned kernel
+-       people. [...] #kernelnewbies is on the Open Projects IRC Network,
+-       try irc.openprojects.net or irc.<country>.openprojects.net as your
+-       server and then /join #kernelnewbies". It also hosts articles,
+-       documents, FAQs...
+-       
++       Description: #kernelnewbies on irc.openprojects.net. From the web page:
++       "#kernelnewbies is an IRC network dedicated to the 'newbie' kernel
++       hacker. The audience mostly consists of people who are learning about
++       the kernel, working on kernel projects or professional kernel hackers
++       that want to help less seasoned kernel people. [...] #kernelnewbies is
++       on  the  Open  Projects  IRC  Network, try irc.openprojects.net or
++       irc.<country>.openprojects.net  as  your  server  and  then  /join
++       #kernelnewbies". It also hosts articles, documents, FAQs...
++
+      * Name: "linux-kernel mailing list archives and search engines"
+        URL: http://www.uwsg.indiana.edu/hypermail/linux/kernel/index.html
+        URL: http://www.kernelnotes.org/lnxlists/linux-kernel/
+-       URL: http://www.geocrawler.com
+        Keywords: linux-kernel, archives, search.
+-       Description: Some of the linux-kernel mailing list archivers. If
+-       you have a better/another one, please let me know.
++       Description: Some of the linux-kernel mailing list archivers. If you
++       have a better/another one, please let me know.
++
++     * Name: "The Operating System Resource Center"
++       Author: Chris Lattner.
++       URL: http://www.nondot.org/~sabre/os/articles
++       Keywords: boot process, partitions, file systems, memory management,
++       protected mode, executable file formats, plug and play specs, device
++       driver interfaces, processor architectures, interconnect buses, disk and
++       disc drives, human interface devices, sound devices, communication
++       devices, networking devices, specifications, specs, specs, specs.
++       Description: Site with specifications covering everything OS-related.
++
++     * Title: "File Systems"
++       Author: Chris Lattner URL:
++       http://www.nondot.org/sabre/os/articles/FileSystems/
++       Keywords: ext2, ext3, StegFS, Steganographic File System, FAT, VFAT,
++       FAT32, HPFS, ISO9660, Joliet, NFS, XFS, GFS.
++       Description: Part of Chris Lattner's "The Operating System Resource
++       Center", this page points to information and specifications regarding
++       lots of filesystems.
+      _________________________________________________________________
+-   
+-   Document last updated on Thu Jun 28 15:09:39 CEST 2001
++
++   Document last updated on Sun Oct 17 16:41:56 CEST 2004

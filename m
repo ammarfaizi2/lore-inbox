@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUIJHwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266845AbUIJH54@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266263AbUIJHwb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 03:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266845AbUIJHwa
+	id S266845AbUIJH54 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 03:57:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266341AbUIJH5z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 03:52:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36489 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266341AbUIJHv2 (ORCPT
+	Fri, 10 Sep 2004 03:57:55 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23181 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266845AbUIJH4w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 03:51:28 -0400
-Date: Fri, 10 Sep 2004 00:49:35 -0700
+	Fri, 10 Sep 2004 03:56:52 -0400
+Date: Fri, 10 Sep 2004 00:54:54 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Peter Williams <pwil3058@bigpond.net.au>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [2.6.9-rc1-bk14 Oops] In groups_search()
-Message-Id: <20040910004935.15ee7b10.akpm@osdl.org>
+Message-Id: <20040910005454.23bbf9fb.akpm@osdl.org>
 In-Reply-To: <41415B15.1050402@bigpond.net.au>
 References: <413FA9AE.90304@bigpond.net.au>
 	<20040909010610.28ca50e1.akpm@osdl.org>
@@ -36,21 +36,46 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Peter Williams <pwil3058@bigpond.net.au> wrote:
 >
->  > It would be useful if you could experiment with CONFIG_DEBUG_SLAB and
->  > CONFIG_DEBUG_PAGEALLOC.
-> 
->  With both of those enabled and all four patches applied the oops and the 
->  scheduling while atomic have stopped BUT I'm now getting 4  identical 
->  oops in kfree which seem to be associated with a segment fault in mount 
->  while my start up script is mounting some iso files with loopback.
+>  Sep 10 17:22:29 mudlark kernel: Unable to handle kernel paging request at virtual address f2d8bef4
+>  Sep 10 17:22:29 mudlark kernel:  printing eip:
+>  Sep 10 17:22:29 mudlark kernel: c013957f
+>  Sep 10 17:22:29 mudlark kernel: *pde = 00507067
+>  Sep 10 17:22:29 mudlark kernel: *pte = 32d8b000
+>  Sep 10 17:22:29 mudlark kernel: Oops: 0000 [#1]
+>  Sep 10 17:22:29 mudlark kernel: PREEMPT DEBUG_PAGEALLOC
+>  Sep 10 17:22:29 mudlark kernel: Modules linked in: tulip ohci_hcd
+>  Sep 10 17:22:29 mudlark kernel: CPU:    0
+>  Sep 10 17:22:29 mudlark kernel: EIP:    0060:[<c013957f>]    Not tainted VLI
+>  Sep 10 17:22:30 mudlark kernel: EFLAGS: 00010082   (2.6.9-rc1-bk16) 
+>  Sep 10 17:22:30 mudlark kernel: EIP is at cache_free_debugcheck+0x207/0x2a3
+>  Sep 10 17:22:30 mudlark kernel: eax: f2d8bef4   ebx: 80052c00   ecx: f2d8bef8   edx: 00000ef8
+>  Sep 10 17:22:32 mudlark kernel: esi: f2d3164c   edi: f2d8b000   ebp: c18ff680   esp: f2e95cfc
+>  Sep 10 17:22:33 mudlark kernel: ds: 007b   es: 007b   ss: 0068
+>  Sep 10 17:22:34 mudlark rc: Starting webmin:  succeeded
+>  Sep 10 17:22:34 mudlark kernel: Process mount (pid: 2671, threadinfo=f2e94000 task=f2da1a60)
+>  Sep 10 17:22:34 mudlark kernel: Stack: c18ff680 f2d8b000 00000000 00000246 32d8b000 c18ff680 c1903054 f2d8bef8 
+>  Sep 10 17:22:34 mudlark kernel:        00000282 c013a185 c18ff680 f2d8bef8 c01b2a6d 00000000 f2d8bef8 f2d8bfe5 
+>  Sep 10 17:22:34 mudlark kernel:        f2d8bef8 c01b2a6d f2d8bef8 00000041 00000800 f2fafec0 00000005 0000001f 
+>  Sep 10 17:22:34 mudlark kernel: Call Trace:
+>  Sep 10 17:22:34 mudlark kernel:  [<c013a185>] kfree+0x59/0x9b
+>  Sep 10 17:22:34 mudlark kernel:  [<c01b2a6d>] parse_rock_ridge_inode_internal+0x1c9/0x654
+>  Sep 10 17:22:34 mudlark kernel:  [<c01b2a6d>] parse_rock_ridge_inode_internal+0x1c9/0x654
+>  Sep 10 17:22:34 mudlark kernel:  [<c01b3090>] parse_rock_ridge_inode+0x27/0x67
 
-gack.  One bug at a time, OK?
+Could you see if this patch fixes the above crash?
 
-Please drop those four patches - that idea didn't work out.
+--- 25/fs/isofs/rock.c~rock-kludge	2004-09-10 00:52:30.394468656 -0700
++++ 25-akpm/fs/isofs/rock.c	2004-09-10 00:53:14.544756792 -0700
+@@ -62,7 +62,7 @@
+ }                                     
+ 
+ #define MAYBE_CONTINUE(LABEL,DEV) \
+-  {if (buffer) kfree(buffer); \
++  {if (buffer) { kfree(buffer); buffer = NULL; } \
+   if (cont_extent){ \
+     int block, offset, offset1; \
+     struct buffer_head * pbh; \
+_
 
-So we know that enabling CONFIG_DEBUG_SLAB and/or CONFIG_DEBUG_PAGEALLOC
-makes the in_group_p() crash go away, yes?
 
-Running out of ideas here.  If you could, please try enabling those debug
-options separately, see if that tells us something.
-
+I sure hope it does, so I don't have to look at rock.c again.

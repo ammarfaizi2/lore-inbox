@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131584AbQLQBqI>; Sat, 16 Dec 2000 20:46:08 -0500
+	id <S131600AbQLQBva>; Sat, 16 Dec 2000 20:51:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131600AbQLQBp5>; Sat, 16 Dec 2000 20:45:57 -0500
-Received: from enterprise.cistron.net ([195.64.68.33]:44293 "EHLO
-	enterprise.cistron.net") by vger.kernel.org with ESMTP
-	id <S131584AbQLQBpv>; Sat, 16 Dec 2000 20:45:51 -0500
-From: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Linus's include file strategy redux
-Date: 17 Dec 2000 01:15:26 GMT
-Organization: Cistron Internet Services B.V.
-Message-ID: <91h43e$cec$1@enterprise.cistron.net>
-In-Reply-To: <20001215152137.K599@almesberger.net> <NBBBJGOOMDFADJDGDCPHAENMCJAA.law@sgi.com> <91e0so$9bn$1@enterprise.cistron.net> <20001216171000.L3199@cadcamlab.org>
-X-Trace: enterprise.cistron.net 977015726 12748 195.64.65.67 (17 Dec 2000 01:15:26 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: miquels@traveler.cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S131697AbQLQBvV>; Sat, 16 Dec 2000 20:51:21 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:25102 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131600AbQLQBvH>; Sat, 16 Dec 2000 20:51:07 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14908.5332.693556.59249@wire.cadcamlab.org>
+Date: Sat, 16 Dec 2000 19:20:20 -0600 (CST)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: infernix@infernix.nl (infernix),
+        nkbj@image.dk (Niels Kristian Bech Jensen),
+        linux-kernel@vger.kernel.org (Linux kernel developer's mailing list)
+Subject: Re: Unable to boot 2.4.0-test12 (0224 AX:0212 BX:BC00 CX:5101 DX:000.)
+In-Reply-To: <20001216172518.M3199@cadcamlab.org>
+	<E147RXw-0003OG-00@the-village.bc.nu>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20001216171000.L3199@cadcamlab.org>,
-Peter Samuelson  <peter@cadcamlab.org> wrote:
->[Miquel van Smoorenburg]
->> In fact, the 2.2.18 kernel already puts a 'build' symlink in
->> /lib/modules/`uname -r` that points to the kernel source,
->> which should be sufficient to solve this problem.. almost.
->> 
->> It doesn't tell you the specific flags used to compile the kernel,
->> such as -m486 -DCPU=686
->
->Sure it does.
->
->  make -C /lib/modules/`uname -r`/build modules SUBDIRS=$(pwd)
 
-Excellent. Is there any way to put his in a Makefile?
+  [me]
+> > Is there *anything* the builtin code can do better than syslinux?
 
-Mike.
--- 
-RAND USR 16514
+[ac]
+> 	scp arch/i386/boot/bzImage somebox:/dev/fd0
+> 	ssh root@somebox reboot
+
+Never thought of that one.  I would probably instead use
+
+	scp arch/i386/boot/bzImage somebox:/tmp
+	ssh root@somebox 'mcopy -o /tmp/bzImage a: && reboot'
+
+with a known good syslinux floppy in place, but I suppose your method
+*is* somewhat simpler.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

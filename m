@@ -1,120 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262445AbTEFIXw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 04:23:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbTEFIXw
+	id S262454AbTEFI2J (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 04:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262456AbTEFI2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 04:23:52 -0400
-Received: from lmail.actcom.co.il ([192.114.47.13]:11401 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S262445AbTEFIXt
+	Tue, 6 May 2003 04:28:09 -0400
+Received: from exch.niss.ac.uk ([212.219.213.39]:1639 "EHLO exch.niss.ac.uk")
+	by vger.kernel.org with ESMTP id S262454AbTEFI2I convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 04:23:49 -0400
-Date: Tue, 6 May 2003 11:36:17 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Rusty Russell - trivial patches <trivial@rustcorp.com.au>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] remove #ifdef CONFIG_PROC_FS from ipc/sem.c
-Message-ID: <20030506083617.GE31585@actcom.co.il>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4VrXvz3cwkc87Wze"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Tue, 6 May 2003 04:28:08 -0400
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Failing to allocated file handles?
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+Date: Tue, 6 May 2003 09:40:34 +0100
+Message-ID: <4AF1125777E862438AF19388C54860C9220553@exch.office.niss.ac.uk>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Failing to allocated file handles?
+Thread-Index: AcMTqykNJucWeiSbQ4GQsYOUw00X+w==
+From: "Jamie Harris" <jamie.harris@eduserv.org.uk>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
---4VrXvz3cwkc87Wze
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sorry if this isn't the kind of thing you guys deal with, if this is the
+case then feel free to tell me a better place to ask my question!  I
+haven't managed to find anywhere else that's got lots of people who know
+a sufficient amount about kernel internals.
 
-Remove #ifdef CONFIG_PROC_FS from a couple of place in ipc/sem.c, as
-they aren't needed and #ifdefs are ugly.=20
+We've got an SMP P3 server running Redhat's (sorry, I would roll my own
+but it's not 'my' box) 2.4.18-27.7.xsmp kernel.  This box runs Apache
+and ColdFusion (spit!).  The ColdFusion (spit!) server appears to decide
+to open a number of files in a short burst, then promptly dies.  I've
+worked out from monitoring /proc/sys/fs/file-nr that we're running out
+of available file handles.  The number of allocated file handles (sorry
+if my terminalogy is way off, I'm talking about the first number in
+/proc/sys/fs/file-nr) hovers around 2500, the number of available file
+handles (the second number) drops to around zero, then gets to zero and
+the ColdFusion (spit!) server dies and reports being out of files.
 
-[also make a couple of lines fit in 80 chars]=20
+It appears that the system is not allocating new file handles fast
+enough to keep up with the rate they are being consumed.  Is this
+possible?  I'm unable to replicated this on a single processor machine
+so am assuming that it's related to different threads on different CPUs
+not 'keeping up with one another'.  
 
-diff -Naur --exclude-from /home/mulix/dontdiff vanilla/ipc/sem.c 2.5.69-ipc=
-/ipc/sem.c
---- vanilla/ipc/sem.c	2003-05-05 02:53:12.000000000 +0300
-+++ 2.5.69-ipc/ipc/sem.c	2003-05-06 11:34:41.000000000 +0300
-@@ -80,9 +80,8 @@
-=20
- static int newary (key_t, int, int);
- static void freeary (int id);
--#ifdef CONFIG_PROC_FS
--static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset,=
- int length, int *eof, void *data);
--#endif
-+static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset,=
-=20
-+				 int length, int *eof, void *data);
-=20
- #define SEMMSL_FAST	256 /* 512 bytes on stack */
- #define SEMOPM_FAST	64  /* ~ 372 bytes on stack */
-@@ -109,9 +108,7 @@
- 	used_sems =3D 0;
- 	ipc_init_ids(&sem_ids,sc_semmni);
-=20
--#ifdef CONFIG_PROC_FS
- 	create_proc_read_entry("sysvipc/sem", 0, 0, sysvipc_sem_read_proc, NULL);
--#endif
- }
-=20
- static int newary (key_t key, int nsems, int semflg)
-@@ -1292,21 +1289,23 @@
- 	unlock_kernel();
- }
-=20
--#ifdef CONFIG_PROC_FS
--static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset,=
- int length, int *eof, void *data)
-+static int sysvipc_sem_read_proc(char *buffer, char **start, off_t offset,=
-=20
-+				 int length, int *eof, void *data)
- {
- 	off_t pos =3D 0;
- 	off_t begin =3D 0;
- 	int i, len =3D 0;
-=20
--	len +=3D sprintf(buffer, "       key      semid perms      nsems   uid   =
-gid  cuid  cgid      otime      ctime\n");
-+	len +=3D sprintf(buffer, "       key      semid perms      nsems   "
-+		       "uid   gid  cuid  cgid      otime      ctime\n");
- 	down(&sem_ids.sem);
-=20
- 	for(i =3D 0; i <=3D sem_ids.max_id; i++) {
- 		struct sem_array *sma;
- 		sma =3D sem_lock(i);
- 		if(sma) {
--			len +=3D sprintf(buffer + len, "%10d %10d  %4o %10lu %5u %5u %5u %5u %1=
-0lu %10lu\n",
-+			len +=3D sprintf(buffer + len, "%10d %10d  %4o %10lu "
-+				       "%5u %5u %5u %5u %10lu %10lu\n",
- 				sma->sem_perm.key,
- 				sem_buildid(i,sma->sem_perm.seq),
- 				sma->sem_perm.mode,
-@@ -1339,4 +1338,3 @@
- 		len =3D 0;
- 	return len;
- }
--#endif
+What do the kernel devlopers think?  Any info creatly appreaciated, even
+if its only "get and build the latest kernel", at least I'll have some
+more info to tell our customer and the powers-that-be.  Oddly enough
+we're only experiencing this on a single machine, although we have lots
+of identical boxes running similar software.
 
---=20
-Muli Ben-Yehuda
-http://www.mulix.org
+Cheers all.
+
+Jamie...
+
+--
+Jamie Harris, NISS Service Delivery Team, 
+EduServ, Queen Anne House, 11 Charlotte Street, Bath, BA1 2NE
+Tel: +44 (0)1225 474300 Fax: +44 (0)1225 474301
+Direct Tel: +44 (0)1225 474388
+
+**  This message was transmitted on 100% recycled electrons **
 
 
---4VrXvz3cwkc87Wze
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+t3QAKRs727/VN8sRAiiZAJ4+fRNy1HagEAKHjKrbtYyS2vM25gCfTiXv
-YAJl7dSsF7400woDnPCGZq0=
-=O8Yg
------END PGP SIGNATURE-----
-
---4VrXvz3cwkc87Wze--
+ 

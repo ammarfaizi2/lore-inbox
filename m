@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283788AbRK3VN0>; Fri, 30 Nov 2001 16:13:26 -0500
+	id <S283795AbRK3VRh>; Fri, 30 Nov 2001 16:17:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283785AbRK3VNQ>; Fri, 30 Nov 2001 16:13:16 -0500
-Received: from [168.159.129.100] ([168.159.129.100]:40719 "EHLO
-	mxic1.isus.emc.com") by vger.kernel.org with ESMTP
-	id <S283783AbRK3VNF>; Fri, 30 Nov 2001 16:13:05 -0500
-Message-ID: <93F527C91A6ED411AFE10050040665D00241AB42@corpusmx1.us.dg.com>
-From: berthiaume_wayne@emc.com
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
-Subject: RE: Multicast Broadcast
-Date: Fri, 30 Nov 2001 16:12:58 -0500
+	id <S283794AbRK3VR1>; Fri, 30 Nov 2001 16:17:27 -0500
+Received: from postfix1-2.free.fr ([213.228.0.130]:49566 "HELO
+	postfix1-2.free.fr") by vger.kernel.org with SMTP
+	id <S283790AbRK3VRU> convert rfc822-to-8bit; Fri, 30 Nov 2001 16:17:20 -0500
+Date: Fri, 30 Nov 2001 19:24:03 +0100 (CET)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: war <war@starband.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SYMBIOS BUG
+In-Reply-To: <3C06F5C7.9D19E214@starband.net>
+Message-ID: <20011130190639.L1956-100000@gerard>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Andi, it appears that JVM doesn't support the ip_mreqn struct that
-would allow us to use imr_ifindex but supports only the older ip_mreq struct
-as the optval. Any other suggestions.
-Most appreciated,
-Wayne
-EMC Corp
-ObjectStor Engineering
-4400 Computer Drive
-M/S F213
-Westboro,  MA    01580
-
-email:       Berthiaume_Wayne@emc.com
-                 WBerthiaume@clariion.com
-
-"One man can make a difference, and every man should try."  - JFK
- 
-
------Original Message-----
-From: Andi Kleen [mailto:ak@suse.de]
-Sent: Thursday, November 29, 2001 4:32 PM
-To: berthiaume_wayne@emc.com
-Cc: ak@suse.de; linux-kernel@vger.kernel.org
-Subject: Re: Multicast Broadcast
 
 
-On Thu, Nov 29, 2001 at 04:29:22PM -0500, berthiaume_wayne@emc.com wrote:
-> 	Andi, forgive my ignorance. I've searched around and can't seem to
-> find any references to IP_ADD_MEMBERSHIP and how to use it. I did perform
-an
+On Thu, 29 Nov 2001, war wrote:
 
-man 7 ip
+> I believe I sent in a full detailed bug report before, but everyone
+> ignored it.
 
-It is a socket option you use in the program that does the multicast
-communication.
+Only believe ? What report ? What bug ? Before what war ? :)
 
--Andi
+> Problem: IDE-SCSI (FOR CDRW DRIVES) + (SYMBIOS BOARD) cannot both
+> co-exist at the same time.
+
+Didn't find any message with such subject within the last 4 weeks in my
+email archives.
+
+> Reason: cd-burning does not work.
+>
+> Anyone know why this is?
+>
+> I have an adaptec in my box, + ide-scsi, and they co-exist fine?
+
+Might be some sexual affinity between them both that just prevents the bug
+from biting your system. Who knows... :-)
+
+You may send me the exact subject text you used in your full detailed
+report or post it again.
+
+  Gérard.
+

@@ -1,95 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270007AbUIDApI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269984AbUIDBCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270007AbUIDApI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 20:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270006AbUIDAoj
+	id S269984AbUIDBCx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 21:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270008AbUIDBCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 20:44:39 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:26308 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S270007AbUIDAfr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 20:35:47 -0400
-Date: Fri, 3 Sep 2004 20:40:14 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][5/8] updated arch agnostic completely out of line locks /
- ppc32
-Message-ID: <Pine.LNX.4.58.0409032027190.31136@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Sep 2004 21:02:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:36739 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269984AbUIDAyc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 20:54:32 -0400
+Message-ID: <a728f9f904090317547ca21c15@mail.gmail.com>
+Date: Fri, 3 Sep 2004 20:54:31 -0400
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: Dave Airlie <airlied@linux.ie>
+Subject: Re: New proposed DRM interface design
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.58.0409040107190.18417@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <Pine.LNX.4.58.0409040107190.18417@skynet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- arch/ppc/kernel/time.c        |   14 ++++++++++++++
- arch/ppc/kernel/vmlinux.lds.S |    1 +
- include/asm-ppc/ptrace.h      |    5 +++++
- 3 files changed, 20 insertions(+)
+On Sat, 4 Sep 2004 01:12:16 +0100 (IST), Dave Airlie <airlied@linux.ie> wrote:
+> 
+> Okay I've had some thoughts about the DRM interfaces and did some code
+> hacking (drmlib-0-0-1 branch on DRM CVS , very incomplete)
+> 
+> Below is my proposal for an interface that does introduce a major new
+> binary interface (the biggest issue with a straight core/personality split
+> for DRI developers, we have enough binary interfaces in our lives)...
+> 
+> Any comments are appreciated, the document is also available at:
+> http://dri.sourceforge.net/cgi-bin/moin.cgi/DRMRedesign
+> 
+> Dave.
+> 
+> This documents a proposed new design for the DRM internal kernel interfaces.
+> 
+> The current DRM suffers from a number of issues with multiple drivers in
+> the same kernel (the mess that is the drm_stub.h and parts of drm_drv.h)
+> along with the DRM() macros show this up. This design tries to address
+> this issue without introducing any major new binary interface.
+> 
+> I propose a 3 way code split-
+>         DRM core
+>         DRM library
+>         DRM driver
+> 
+> This is slightly along the lines of the fb where the core is fbmem + co,
+> the library is the cfb* object and the driver is the graphics chipset
+> specific.
+> 
+> What I would like to do for the DRM is not as extreme as the fb approach.
+> I propose the following type split:
+> 
+>         DRM core - just the stub registration procedure and handling any
+> shared resources like the device major number, and perhaps parts of sysfs
+> and class code. This interface gets set in stone as quickly as possible
+> and is as minimal as can be, (Jon Smirls dyn-minor patch will help a fair
+> bit also). All the core does is allow DRMs to register and de-register in
+> a nice easy fashion and not interfere with each other. This drmcore.o can
+> either be linked into the kernel (ala the fb core) or a module, but in
+> theory it should only really be shipped with the kernel - (for compat
+> reasons the DRM tree will ship it for older systems).
+> 
+>         DRM library - this contains all the non-card specific code, AGP
+> interface, buffers interface, memory allocation, context handling etc.
+> This is mostly stuff that is in templated header files now moved into C
+> files along the lines of what I've done in the drmlib-0-0-1-branch. This
+> file gets linked into each drm module, if you build two drivers into the
+> kernel it gets shared automatically as far as I can see, if you build as
+> modules they both end up with the code, for the DRM the single card is the
+> primary case so I don't mind losing some resources for having different
+> cards in a machine.
+> 
+>         DRM driver - the current driver files converted to the new
+> interfaces, I don't mind retaining some of the templating work, I like the
+> fact that we don't have 20 implementations of the drm probe or PCI tables
+> or anything like that, so I think some small uses of DRM() may still be
+> acceptable from a maintenance point of view.
+> 
 
-Status: Untested
-Signed-off-by: Zwane Mwaikambo <zwane@fsmlabs.com>
+Will this redesign allow for multiple 3d accelerated cards in the same
+machine?  could I have say an AGP radeon and a PCI radeon or a AGP
+matrox and a PCI sis and have HW accel on :0 and :1.  If not, I think
+it's something we should consider.
 
-Index: linux-2.6.9-rc1-bk9-sparc64/arch/ppc/kernel/time.c
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-bk9/arch/ppc/kernel/time.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 time.c
---- linux-2.6.9-rc1-bk9-sparc64/arch/ppc/kernel/time.c	3 Sep 2004 01:30:22 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-bk9-sparc64/arch/ppc/kernel/time.c	3 Sep 2004 23:55:27 -0000
-@@ -108,6 +108,20 @@ static inline int tb_delta(unsigned *jif
- 	return delta;
- }
-
-+#ifdef CONFIG_SMP
-+unsigned long profile_pc(struct pt_regs *regs)
-+{
-+	unsigned long pc = instruction_pointer(regs);
-+
-+	if (pc >= (unsigned long)&__lock_text_start &&
-+	    pc <= (unsigned long)&__lock_text_end)
-+		return regs->link;
-+
-+	return pc;
-+}
-+EXPORT_SYMBOL(profile_pc);
-+#endif
-+
- /*
-  * timer_interrupt - gets called when the decrementer overflows,
-  * with interrupts disabled.
-Index: linux-2.6.9-rc1-bk9-sparc64/arch/ppc/kernel/vmlinux.lds.S
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-bk9/arch/ppc/kernel/vmlinux.lds.S,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 vmlinux.lds.S
---- linux-2.6.9-rc1-bk9-sparc64/arch/ppc/kernel/vmlinux.lds.S	3 Sep 2004 01:30:22 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-bk9-sparc64/arch/ppc/kernel/vmlinux.lds.S	3 Sep 2004 23:55:27 -0000
-@@ -32,6 +32,7 @@ SECTIONS
-   {
-     *(.text)
-     SCHED_TEXT
-+    LOCK_TEXT
-     *(.fixup)
-     *(.got1)
-     __got2_start = .;
-Index: linux-2.6.9-rc1-bk9-sparc64/include/asm-ppc/ptrace.h
-===================================================================
-RCS file: /home/cvsroot/linux-2.6.9-rc1-bk9/include/asm-ppc/ptrace.h,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 ptrace.h
---- linux-2.6.9-rc1-bk9-sparc64/include/asm-ppc/ptrace.h	3 Sep 2004 01:30:42 -0000	1.1.1.1
-+++ linux-2.6.9-rc1-bk9-sparc64/include/asm-ppc/ptrace.h	3 Sep 2004 23:55:27 -0000
-@@ -47,7 +47,12 @@ struct pt_regs {
-
- #ifndef __ASSEMBLY__
- #define instruction_pointer(regs) ((regs)->nip)
-+#ifdef CONFIG_SMP
-+extern unsigned long profile_pc(struct pt_regs *regs);
-+#else
- #define profile_pc(regs) instruction_pointer(regs)
-+#endif
-+
- #define user_mode(regs) (((regs)->msr & MSR_PR) != 0)
-
- #define force_successful_syscall_return()   \
+Alex

@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266586AbSKZSIF>; Tue, 26 Nov 2002 13:08:05 -0500
+	id <S266462AbSKZSEo>; Tue, 26 Nov 2002 13:04:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266585AbSKZSIF>; Tue, 26 Nov 2002 13:08:05 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:43154 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266586AbSKZSIE>; Tue, 26 Nov 2002 13:08:04 -0500
-Subject: Re: A Kernel Configuration Tale of Woe
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: dpaun@rogers.com
-Cc: Rusty Lynch <rusty@linux.co.intel.com>, trog@wincom.net,
+	id <S266478AbSKZSEo>; Tue, 26 Nov 2002 13:04:44 -0500
+Received: from gaea.projecticarus.com ([195.10.228.71]:12962 "EHLO
+	gaea.projecticarus.com") by vger.kernel.org with ESMTP
+	id <S266462AbSKZSEl>; Tue, 26 Nov 2002 13:04:41 -0500
+Message-ID: <3DE3B93F.8090305@walrond.org>
+Date: Tue, 26 Nov 2002 18:11:11 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: trog@wincom.net
+CC: Rusty Lynch <rusty@linux.co.intel.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200211261304.32678.dpaun@rogers.com>
-References: <3de395e1.2c79.0@wincom.net>
-	<002001c29572$2ce2b2e0$94d40a0a@amr.corp.intel.com> 
-	<200211261304.32678.dpaun@rogers.com>
-Content-Type: text/plain
+Subject: Re: A Kernel Configuration Tale of Woe
+References: <3de3b72d.10eb.0@wincom.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 26 Nov 2002 18:46:22 +0000
-Message-Id: <1038336382.2594.67.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-11-26 at 18:04, Dimitrie O. Paun wrote:
-> On November 26, 2002 12:35 pm, Rusty Lynch wrote:
-> > So how would you deal with somebody contributing bogus mappings?
-> > What if somebody was just wrong, or uploading a mapping in error?
-> 
-> The same applies to the kernel code, or any other open source project:
-> How do you deal with somebody contributing bogus code?
-> 
-> Somehow things work out, as we have already witnessed.
+Contributors could be given a reliability rating (bit like ebay?). Same 
+thing for contributions; users could confirm successful results and 
+boost the rating of the info.
 
-For boards its not that simple. Many vendors release multiple utterly
-different machines with the same box, bios and ident. The customer is
-told "IDE CD, 100mbit ethernet", the customer gets random cheapest going
-ethernet.
+Dennis Grant wrote:
+>>So how would you deal with somebody contributing bogus 
+>>mappings? What if somebody was just wrong, or uploading a 
+>>mapping in error?
+> 
+> 
+> Well, then the next time somebody queried that mapping and got back the config,
+> it wouldn't work. And they'd either fix it, or complain to someone who would
+> fix it.
+> 
+> So its inherently self-correcting.
+> 
+> DG
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Alan
 

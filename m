@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262064AbRENI0a>; Mon, 14 May 2001 04:26:30 -0400
+	id <S262274AbRENJeP>; Mon, 14 May 2001 05:34:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262236AbRENI0V>; Mon, 14 May 2001 04:26:21 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44554 "EHLO
+	id <S262276AbRENJdz>; Mon, 14 May 2001 05:33:55 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:63498 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262064AbRENI0A>; Mon, 14 May 2001 04:26:00 -0400
-Subject: Re: Minor numbers
-To: aqchen@us.ibm.com (Alex Q Chen)
-Date: Mon, 14 May 2001 09:22:09 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OF2C42607E.899F4413-ON87256A4C.00068D2E@LocalDomain> from "Alex Q Chen" at May 13, 2001 06:28:46 PM
+	id <S262274AbRENJdp>; Mon, 14 May 2001 05:33:45 -0400
+Subject: Re: 2.2.19 and RAID levels
+To: riccardo@master.oasi.gpa.it (Riccardo Facchetti)
+Date: Mon, 14 May 2001 10:30:04 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <Pine.LNX.4.10.10105141125450.1833-100000@master.oasi.gpa.it> from "Riccardo Facchetti" at May 14, 2001 11:29:13 AM
 X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14zDcI-0007TB-00@the-village.bc.nu>
+Message-Id: <E14zEg0-0007Wx-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 255.  Has this limitation been some how addressed with 2.4?  256 devices
-> per module, sometimes is not enough, especially if you are in the SAN
-> environment; or when the 256 minors numbers are broken down to several
+> I'm in the process of installing a bunch of disks on a server.
+> I've read the md documentation about RAID and it seems that
+> RAID5 software is not supported in 2.2 kernels. Is this correct
+> or something has been done with RAID5 to make it working on
+> the latest 2.2.19 ? And in this case, at which level of
+> functionality ?
 
-2.4 is using 16bit dev_t in kernel still. Application space sees a much
-larger dev_t so we can make the move in 2.5 very easily
+For 2.2 you want to update to raid-0.90. However that isnt 100% back compatible
+with old old raid setups so it wasnt changed during 2.2
 
-> work-around or is proposing a solution?  I believe that minor and major
-> numbers for SUN and AIX are both 16 bits each (32 bits dev_t).
 
-20:12 is more common

@@ -1,54 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267902AbTCFHxl>; Thu, 6 Mar 2003 02:53:41 -0500
+	id <S267890AbTCFHvf>; Thu, 6 Mar 2003 02:51:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267906AbTCFHxl>; Thu, 6 Mar 2003 02:53:41 -0500
-Received: from pine.compass.com.ph ([202.70.96.37]:12323 "HELO
-	pine.compass.com.ph") by vger.kernel.org with SMTP
-	id <S267902AbTCFHxk>; Thu, 6 Mar 2003 02:53:40 -0500
-Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
-From: Antonino Daplas <adaplas@pol.net>
-To: Sven Luther <luther@dpt-info.u-strasbg.fr>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-In-Reply-To: <20030306073508.GA1734@iliana>
-References: <20030303203500.GA2916@vana.vc.cvut.cz>
-	<Pine.LNX.4.44.0303052015250.27760-100000@phoenix.infradead.org> 
-	<20030306073508.GA1734@iliana>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1046937890.1208.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 06 Mar 2003 16:05:32 +0800
+	id <S267892AbTCFHvf>; Thu, 6 Mar 2003 02:51:35 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:2637
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S267886AbTCFHvd>; Thu, 6 Mar 2003 02:51:33 -0500
+Date: Thu, 6 Mar 2003 02:59:45 -0500 (EST)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Mike Anderson <andmike@us.ibm.com>
+cc: Andries.Brouwer@cwi.nl, "" <torvalds@transmeta.com>,
+       "" <linux-kernel@vger.kernel.org>, "" <linux-scsi@vger.kernel.org>
+Subject: Re: 2.5.63/64 do not boot: loop in scsi_error
+In-Reply-To: <20030306064921.GA1425@beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.50.0303060256200.25282-100000@montezuma.mastecende.com>
+References: <UTC200303060639.h266dIo22884.aeb@smtp.cwi.nl>
+ <20030306064921.GA1425@beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-06 at 15:35, Sven Luther wrote:
-> >  
-> > >   And one (or two...) generic questions: why is not pseudo_palette
-> > > u32* pseudo_palette, or even directly u32 pseudo_palette[17] ?
+On Wed, 5 Mar 2003, Mike Anderson wrote:
+
+> Andries.Brouwer@cwi.nl [Andries.Brouwer@cwi.nl] wrote:
+> > > See if this fixes it..
 > > 
-> > pseudo_palette was originally designed to be a pointer to some kind of 
-> > data for color register programming. For example many PPC graphics cards 
-> > have a color register region. Now you could have that point to 
+> > No, I am afraid not. My infinite loop does not pass through
+> > scsi_eh_ready_devs().
+> > 
 > 
-> Does this correspond to the LUT i have in my boards ?
-> 
-> BTW, what is the point in having a pseudo_palette if you can store
-> the colors in the onchip LUT table.
-> 
+> Can you send me your console log. If you have scsi_logging=1 that would
+> be greate also.
 
-The hardware clut typically stores each color channel separately.  In
-software terms, this is akin to struct fb_cmap.  The pseudo_palette, on
-the other hand, is a pixel LUT, the contents of which can be directly
-written to the framebuffer without it ever knowing the format at all, ie
-it does not matter if it's RGB or YUV.  This makes the upper layer
-independent of the low-lever driver (at least in terms of colorspace
-formats).
+If you can figure out which paths this goes through because it completely 
+locks up right before printing 'scsi: device offlined' on 2.5.63. I 
+can't provide much more information at present.
 
-Tony
+scsi1 : QLogic ISP1020 SCSI on PCI bus 04 device 70 irq 89 MEM base 0xf8a18000
+scsi: Device offlined - not ready or command retry failed after error recovery: host 1 channel 0 id 0 lun 0
+scsi: Device offlined - not ready or command retry failed after error recovery: host 1 channel 0 id 1 lun 0
 
+	Zwane
+-- 
+function.linuxpower.ca

@@ -1,44 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262304AbTIEGEv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 02:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262309AbTIEGEv
+	id S261329AbTIEGbX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 02:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbTIEGbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 02:04:51 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:2758 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262304AbTIEGEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 02:04:50 -0400
-Date: Fri, 5 Sep 2003 08:04:46 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [2.6 patch] fix KEYBOARD_ATKBD for modular SERIO
-Message-ID: <20030905060446.GF1374@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 5 Sep 2003 02:31:23 -0400
+Received: from auth22.inet.co.th ([203.150.14.104]:15621 "EHLO
+	auth22.inet.co.th") by vger.kernel.org with ESMTP id S261329AbTIEGbV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 02:31:21 -0400
+From: Michael Frank <mhf@linuxmail.org>
+To: brian@worldcontrol.com, Patrick Mochel <mochel@osdl.org>
+Subject: Re: swsusp: revert to 2.6.0-test3 state
+Date: Fri, 5 Sep 2003 13:53:02 +0800
+User-Agent: KMail/1.5.2
+Cc: Pavel Machek <pavel@suse.cz>, kernel list <linux-kernel@vger.kernel.org>
+References: <20030904115824.GD24015@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.33.0309040820520.940-100000@localhost.localdomain> <20030905041316.GA1886@top.worldcontrol.com>
+In-Reply-To: <20030905041316.GA1886@top.worldcontrol.com>
+X-OS: KDE 3 on GNU/Linux
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200309051353.02837.mhf@linuxmail.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below fixes KEYBOARD_ATKBD for modular SERIO.
+On Friday 05 September 2003 12:13, brian@worldcontrol.com wrote:
+> On Thu, Sep 04, 2003 at 08:25:38AM -0700, Patrick Mochel wrote:
+> > No, you have to understand that I don't want to call software_suspend()
+> > at all. You've made the choice not to accept the swsusp changes, so we're
+> > forking the code. We will have competing implementations of
+> > suspend-to-disk in the kernel.
+>
+> And the fork happened in 2.6.0-test4?
+>
+> Some how I thought the 6, being even, meant stable.
 
-Currently on X86 for !EMBEDDED the variable KEYBOARD_ATKBD is wrongly 
-set to y if SERIO=m.
+Yes _without_ -test it's stable, with -test it its still testing...
 
-Please apply
-Adrian
+>
+> I am at a complete loss how these test3 to test4 major changes
+> that broke everything meet with the often repeated definitions
+> of how kernel development is to be accomplished.
 
---- linux-2.6.0-test4-mm5-modular-no-smp/drivers/input/keyboard/Kconfig.old	2003-09-04 19:03:45.000000000 +0200
-+++ linux-2.6.0-test4-mm5-modular-no-smp/drivers/input/keyboard/Kconfig	2003-09-04 19:04:49.000000000 +0200
-@@ -13,7 +13,8 @@
- 
- config KEYBOARD_ATKBD
- 	tristate "AT keyboard support" if EMBEDDED || !X86 
--	default y
-+	default y if INPUT=y && INPUT_KEYBOARD=y && SERIO=y
-+	default m
- 	depends on INPUT && INPUT_KEYBOARD && SERIO
- 	help
- 	  Say Y here if you want to use a standard AT or PS/2 keyboard. Usually
+It did not break anything but historic dysfunctional - I know 
+because I tested several releases between 2.5.6x and 2.6-test1. 
+
+>
+> Perhaps I missed something, development kernels include all
+> odd numbers and 6?
+
+You look at it very black and white. If you like to insist, please 
+consider the recall of a tire on some SUV which kept on flipping over
+as an example of fixing something in a less than ideal manner. If it
+is broken, it must be fixed to protect and satisfy.
+
+Of course, I remember that some people say it wasn't the tire but the 
+suspension being too hard which resulted in recommending low-inflation
+of the tire. This turned out to be under-inflation in practice, leading 
+to the tire to fail due to mechanical over-stress and over-heating... 
+Poor tire - other tyres survive this kind of abuse by the typical 
+consumer every day. ;)
+
+Regards
+Michael
+
+

@@ -1,51 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265049AbSJOWuK>; Tue, 15 Oct 2002 18:50:10 -0400
+	id <S264987AbSJOWvX>; Tue, 15 Oct 2002 18:51:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264971AbSJOWtP>; Tue, 15 Oct 2002 18:49:15 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:38161 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265049AbSJOWsr>; Tue, 15 Oct 2002 18:48:47 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: mapping 36 bit physical addresses into 32 bit virtual
-Date: 15 Oct 2002 15:54:35 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <aoi6bb$309$1@cesium.transmeta.com>
-References: <20021015165947.50642.qmail@web13801.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S265128AbSJOWvL>; Tue, 15 Oct 2002 18:51:11 -0400
+Received: from smtp01.uc3m.es ([163.117.136.121]:9233 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S264987AbSJOWYg>;
+	Tue, 15 Oct 2002 18:24:36 -0400
+Date: Tue, 15 Oct 2002 22:28:02 +0000
+From: Eduardo =?iso-8859-1?Q?P=E9rez?= <100018135@alumnos.uc3m.es>
+To: Marius Gedminas <mgedmin@centras.lt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fork() wait semantics
+Message-ID: <a074067cb9f2b74a80a9f9f03f0abcaa@alumnos.uc3m.es>
+References: <20021015115517.GA2514@atrey.karlin.mff.cuni.cz> <34f5602687bbb910752d5becee9c9aa1@alumnos.uc3m.es> <20021015180743.GD7511@gintaras>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20021015180743.GD7511@gintaras>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20021015165947.50642.qmail@web13801.mail.yahoo.com>
-By author:    Padraig O Mathuna <padraigo@yahoo.com>
-In newsgroup: linux.dev.kernel
+On 2002-10-15 20:07:43 +0200, Marius Gedminas wrote:
+> On Tue, Oct 15, 2002 at 04:58:44PM +0000, Eduardo Pérez wrote:
+> > As an example consider bash. In case of fork() error the program
+> > isn't even run thus causing a fatal error. If fork() waited for
+> > resources to be available there wouldn't be any problem.
 > 
-> I'm developing some drivers for the AU1000 under
-> Mountain Vista's 2.4.17 sherman release. The AU1000 is
-> a MIPS based SOC with a 36 bit internal address bus
-> and a 32 bit MIPS cpu.  According to the documentation
-> the MIPS' TLB is able to map 32 bit virtual addresses
-> to 36 bit physical addresses, however I cannot figure
-> out how to get Linux to set this up.  I've looked at
-> ioremap which only takes unsigned long (32bits) as an
-> argument to assign a virtual address.  Is there
-> another way?
-> 
+> No, thank you.  This happened to me more than once (runaway fetchmail
+> plugins).  An error message about a failing fork() indicates
+> immediately that I have too many processes, and I can kill them
+> (thankfully kill is a bash builtin).  If bash just waited silently I
+> wouldn't know what to think.
 
-Oh no, the x86 madness is spreading!!!!
+But you are talking about buggy software.
+If you software has bugs don't expect it to work properly.
 
-(It's depressing this happening on a MIPS system, which has been 64
-bits since who-knows-when...)
-
-*Vomit*
-
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+These fork() semantics are for non-buggy software.

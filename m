@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265439AbTFXAR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 20:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265450AbTFXAR2
+	id S265418AbTFXAXv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 20:23:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265450AbTFXAXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 20:17:28 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:48328 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S265439AbTFXARV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 20:17:21 -0400
-Date: Mon, 23 Jun 2003 17:31:24 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Luis Miguel Garcia <ktech@wanadoo.es>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel & BIOS return differing head/sector geometries
-Message-ID: <20030623173124.A2025@google.com>
-References: <20030624010906.08ad32f3.ktech@wanadoo.es> <20030624013908.B1133@pclin040.win.tue.nl>
+	Mon, 23 Jun 2003 20:23:51 -0400
+Received: from firewall.ocs.com.au ([203.34.97.9]:22407 "EHLO
+	firewall.ocs.com.au") by vger.kernel.org with ESMTP id S265418AbTFXAXu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 20:23:50 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Ronald Bultje <rbultje@ronald.bitfreak.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21 doesn't boot: /bin/insmod.old: file not found 
+In-reply-to: Your message of "23 Jun 2003 20:40:17 +0200."
+             <1056366638.2185.23.camel@shrek.bitfreak.net> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030624013908.B1133@pclin040.win.tue.nl>; from aebr@win.tue.nl on Tue, Jun 24, 2003 at 01:39:08AM +0200
+Date: Tue, 24 Jun 2003 10:37:43 +1000
+Message-ID: <23770.1056415063@firewall.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 24, 2003 at 01:39:08AM +0200, Andries Brouwer wrote:
-> Linux does not use the BIOS, and does not use CHS either, so geometry is
-> totally and completely irrelevant to Linux.
+On 23 Jun 2003 20:40:17 +0200, 
+Ronald Bultje <rbultje@ronald.bitfreak.net> wrote:
+>On Mon, 2003-06-23 at 11:26, Keith Owens wrote:
+>> Did you copy /bin/insmod.old to the initrd that you are booting from?
+>> Is /bin/insmod.old a static binary?
+>
+>/bin/insmod.old is a symlink to the dynamically linked binary in
+>/sbin/insmod.old. The static one is in /{s,}bin/insmod.static.old.
+>Should I swap them around?
 
-Is that also true for 2.2?  I've had problems where large drives (60+G)
-do these geometry tricks, and if I don't force the geometry to what I
-want, fdisk (actually, sfdisk, dunno about fdisk) doesn't see the
-entire drive.
+initrd needs the static version of insmod.  Copy /sbin/insmod.static.old
+to the ramdisk and rename it as /bin/insmod.old to suit the 2.5 modutils.
 
-Sometimes the BIOS doesn't report the specific geometry that the kernel
-detects means "LBA" (I think this depends partly on drive firmware) and 
-then the kernel writes out some goofy geometry to the partition table
-(I assume kernel geometry info is kept there?) and again I have problems
-accessing the entire drive.
-
-Also, if I later change the geometry, the previous partition table seems
-to become incorrect.  This one really confuses me, shouldn't the partition
-table be indexed by sectors?
-
-Anyway, it's been a very long time since I've worked directly on this
-problem, so lots of my characterizations may be wrong.  But I do know
-that we force the geometry to specific values in our install, to combat
-specific problems we've encountered.
-
-/fc

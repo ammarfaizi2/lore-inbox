@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276109AbRJBSXV>; Tue, 2 Oct 2001 14:23:21 -0400
+	id <S276126AbRJBS1K>; Tue, 2 Oct 2001 14:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276108AbRJBSXI>; Tue, 2 Oct 2001 14:23:08 -0400
-Received: from femail4.sdc1.sfba.home.com ([24.0.95.84]:63705 "EHLO
-	femail4.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S276113AbRJBSW3>; Tue, 2 Oct 2001 14:22:29 -0400
-Date: Tue, 2 Oct 2001 13:22:46 -0500
-To: linux-kernel@vger.kernel.org
+	id <S276118AbRJBS1A>; Tue, 2 Oct 2001 14:27:00 -0400
+Received: from web13104.mail.yahoo.com ([216.136.174.149]:43014 "HELO
+	web13104.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S276125AbRJBS0r>; Tue, 2 Oct 2001 14:26:47 -0400
+Message-ID: <20011002182715.25244.qmail@web13104.mail.yahoo.com>
+Date: Tue, 2 Oct 2001 11:27:15 -0700 (PDT)
+From: Chris Rankin <rankincj@yahoo.com>
 Subject: Re: Which is currently the most stable 2.4 kernel?
-Message-ID: <20011002132246.A32669@cy599856-a.home.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011002180502.25799.qmail@web13102.mail.yahoo.com>
-Mime-Version: 1.0
+To: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <306940000.1002046587@tiny>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011002180502.25799.qmail@web13102.mail.yahoo.com>
-User-Agent: Mutt/1.3.22i
-X-Editor: GNU Emacs 20.7.2
-X-Operating-System: Debian GNU/Linux 2.4.10-ac3 i586 K6-3+
-X-Uptime: 13:18:08 up 11:38,  2 users,  load average: 0.42, 0.40, 0.43
-From: Josh McKinney <forming@home.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On approximately Tue, Oct 02, 2001 at 11:05:02AM -0700, Chris Rankin wrote:
-> Hi,
+Hi,
+
+The UP server does the PPPoE, so that's OK. Has anyone
+torture-tested any of the recent kernels? For
+instance, I subsequently read a posting from Alan Cox
+saying that 2.4.10 didn't survive overnight for him,
+implying that he occasionally roasts penguins in some
+kind of server-dungeon...
+
+Cheers,
+Chris
+
+--- Chris Mason <mason@suse.com> wrote:
 > 
-> Does anyone have any kernel recommendations /
-> counter-recommendations, please? One server is SMP,
-> the other is UP, and both are Intel architecture.
 > 
-> Cheers,
-> Chris
+> On Tuesday, October 02, 2001 11:05:02 AM -0700 Chris
+> Rankin
+> <rankincj@yahoo.com> wrote:
+> 
+> > All that the servers would be doing would be
+> > connecting to the Internet periodically using
+> PPPoE
+> > and DSL (with NAT), forwarding emails and
+> performing
+> > various CPU-bound tasks. They should both have
+> ample
+> > available memory and should not need to swap much,
+> if
+> > at all.
+> > 
+> > Does anyone have any kernel recommendations /
+> > counter-recommendations, please? One server is
+> SMP,
+> > the other is UP, and both are Intel architecture.
+> 
+> PPP is not SMP safe in 2.4.x.  You'll run into
+> problems on any kernel
+> there.  Even on single processor systems, you need
+> the ppp patch in
+> 2.4.9-ac16 or 2.4.11pre1.
+> 
+> Other than that, 2.4.10 + andrea's vmtweaks patch
+> does well.  2.4.9-ac18 is
+> a good alternative.
+> 
+> -chris
 > 
 
-The latest ac kernels are stable as hell for me.  I would run them on any
-production machine.
 
--- 
-Linux, the choice                | What makes you think graduate school is
-of a GNU generation       -o)    | supposed to be satisfying?   -- Erica Jong,
-Kernel 2.4.10-ac3          /\    | "Fear of Flying" 
-on a i586                 _\_v   | 
-                                 | 
+__________________________________________________
+Do You Yahoo!?
+Listen to your Yahoo! Mail messages from any phone.
+http://phone.yahoo.com

@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263413AbUGFHGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUGFH2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263413AbUGFHGO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 03:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUGFHGO
+	id S263093AbUGFH2b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 03:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbUGFH2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 03:06:14 -0400
-Received: from atropo.wseurope.com ([195.110.122.67]:16809 "EHLO
-	atropo.wseurope.com") by vger.kernel.org with ESMTP id S263413AbUGFHGJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 03:06:09 -0400
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Nathan Scott <nathans@sgi.com>
-Subject: Re: XFS problem 2.6.7 vanilla
-Date: Tue, 6 Jul 2004 09:06:06 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200407051033.10994.cova@ferrara.linux.it> <20040705201402.A2033082@wobbly.melbourne.sgi.com>
-In-Reply-To: <20040705201402.A2033082@wobbly.melbourne.sgi.com>
+	Tue, 6 Jul 2004 03:28:31 -0400
+Received: from mailgate1.siemens.ch ([194.204.64.131]:5318 "EHLO
+	mailgate1.siemens.ch") by vger.kernel.org with ESMTP
+	id S263093AbUGFH23 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 03:28:29 -0400
+From: Marc Waeckerlin <Marc.Waeckerlin@siemens.com>
+Organization: Siemens Schweiz AG
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
+Date: Tue, 6 Jul 2004 09:27:43 +0200
+User-Agent: KMail/1.6
+Cc: laflipas@telefonica.net, linux-kernel@vger.kernel.org, t.hirsch@web.de,
+       Vojtech Pavlik <vojtech@suse.cz>
+References: <20040630132305.98864.qmail@web81306.mail.yahoo.com> <200407011434.59340.Marc.Waeckerlin@siemens.com> <200407010804.00438.dtor_core@ameritech.net>
+In-Reply-To: <200407010804.00438.dtor_core@ameritech.net>
+X-Face: 9PH_I\aV;CM))3#)Xntdr:6-OUC=?fH3fC:yieXSa%S_}iv1M{;Mbyt%g$Q0+&K=uD9w$8bsceC[_/u\VYz6sBz[ztAZkg9R\txq_7]J_WO7(cnD?s#c>i60S
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="utf-8"
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200407060906.06604.cova@ferrara.linux.it>
+Message-Id: <200407060927.43588.Marc.Waeckerlin@siemens.com>
+X-OriginalArrivalTime: 06 Jul 2004 07:27:47.0628 (UTC) FILETIME=[BC8BEEC0:01C4632A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 12:14, luned� 5 luglio 2004, Nathan Scott ha scritto:
-> On Mon, Jul 05, 2004 at 10:33:10AM +0200, Fabio Coatti wrote:
-> > We are getting some error trace from xfs. I suppose that this can be due
-> > to a faulty HD sector, but it sound strange to me that a HD error can
-> > trigger an internal FS failure. We have tried several times to fix this
-> > error with XFS repair without succes, so I suppose a hw error, but is the
-> > aspected behaviour to get an internal FS error?
-> > (2.6.7 vanilla)
->
-> Could you try a current -bk tree (or XFS CVS on oss.sgi.com,
-> for 2.6.7 + XFS updates), this should be resolved there now.
+Am Donnerstag, 1. Juli 2004 15.03 schrieb Dmitry Torokhov unter "Re: Continue: 
+psmouse.c - synaptics touchpad driver sync problem":
+> Just out of curiosity, what happens when you pass psmouse.proto=bare to the
+> kernel as a boot option (or put "options psmouse proto=bare" in your
+> /etc/modprobe.conf file if psmouse is compiled as a module)?    
+
+I tested again with psmouse.proto=bare and psmouse.resetafter=3 and *internal* 
+touchpad/keyboard *only*. Last time, I told you, there's no ovious effect and 
+it still does not work. That might be correct for the external equipment, but 
+with internal mouse, the effects are much more subtile:
 
 
-we aretrying right now bk18, after a xfs repair we don't see any error, so far 
-so good. I'll keep pounding on FS and report back any issue.
-Thanks for your help.
+psmouse.proto=bare
+
+ -> Now the internal mouse behaves as bad as the external one! It jumps around 
+like crazy and clicks everywhere. That means, problems No. 3 and No.4 now 
+also apply to the internal mouse!
+
+ -> But problem No. 5 is resolved! Clicking on the touchpad does a button-1 
+click.
 
 
--- 
-Fabio "Cova" Coatti    http://members.ferrara.linux.it/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+psmouse.resetafter=3
 
+ -> Problems No. 1 and No. 2 now become much worse! That means when moving the 
+mouse cursor, cursor often stops/blocks. Then I have to keep the fingers off 
+the touchpad for several seconds, before I can continue to move the mouse. 
+Either regardless of the system load, or the lowest system load can start 
+this effect, that's not so clear.
+
+ -> Also the cursor now jumps much more than ever before.
+
+So, that might be a way for a workaround: Can "reset" be disabled, e.g. 
+secifying "psmouse.resetafter=0"?
+
+
+Regards
+Marc

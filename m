@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131033AbRATSmk>; Sat, 20 Jan 2001 13:42:40 -0500
+	id <S131638AbRATSn3>; Sat, 20 Jan 2001 13:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131461AbRATSm3>; Sat, 20 Jan 2001 13:42:29 -0500
-Received: from dwdmx2.dwd.de ([141.38.2.10]:45324 "HELO dwdmx2.dwd.de")
-	by vger.kernel.org with SMTP id <S131033AbRATSmS>;
-	Sat, 20 Jan 2001 13:42:18 -0500
-Date: Sat, 20 Jan 2001 19:42:04 +0100 (CET)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-To: Otto Meier <gf435@gmx.net>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "neilb@cse.unsw.edu.au" <neilb@cse.unsw.edu.au>
-Subject: Re: Serious file system corruption with RAID5+SMP and kernels above2.4.0
-Message-Id: <Pine.LNX.4.30.0101201930500.16941-100000@talentix.dwd.de>
+	id <S131629AbRATSnT>; Sat, 20 Jan 2001 13:43:19 -0500
+Received: from mserv1d.vianw.co.uk ([195.102.240.96]:59844 "EHLO
+	mserv1d.vianw.co.uk") by vger.kernel.org with ESMTP
+	id <S131461AbRATSnL>; Sat, 20 Jan 2001 13:43:11 -0500
+From: Alan Chandler <alan@chandlerfamily.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
+Date: Sat, 20 Jan 2001 18:45:10 +0000
+Organization: [private individual]
+Message-ID: <qtmj6ts01faanviv5l6rgi4cnseugs8lg7@4ax.com>
+In-Reply-To: <ejgj6tg2l03r18grn4shgtjmsp5cip6qc9@4ax.com> <Pine.LNX.4.10.11101200938180.2302-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.11101200938180.2302-100000@master.linux-ide.org>
+X-Mailer: Forte Agent 1.8/32.548
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Jan 2001, Otto Meier wrote:
+On Thu, 20 Jan 2011 09:51:03 -0800 (PST), you wrote:
 
-> Two days ago I tried new kernels on my SMP SW RAID5 System
-> and expirienced serous file system corruption with kernels 2.4.1-pre8,9 as 2.4.0-ac8,9,10.
-> The same error has been reported by other people on this list. With 2.4.0 release
-> everything runs fine. So I backsteped to it and had no error since.
+>On Sat, 20 Jan 2001, Alan Chandler wrote:
 >
-I just tried 2.4.0 and still get filesystem corruption. My system is
-also SMP and SW Raid5. So far I have tried 2.4.0, 2.4.1-pre3,8 and
-2.4.0-ac10 and all corrupt my filesystem. 2.2.18 is ok.
+>> I'm running with an Abit K7 (uses via82c686a in southbridge) with IBM
+>> deskstar 8.4gb disks (DHEA-38451) as masters in ide0 and 1. They only
+>> do UDMA mode 2. I am not overclocking or anything - all should be
+>> running at default speeds with an Athlon 900.  
+>> 
+>> Just to be clear - I am NOT getting any errors when I switch back to
+>> the 2.2.17 kernel (debian standard) - with a 2.4.0 kernel they occur
+>> every few minutes when there is significant disk activity. 
+>
+>But that kernel uses the stock driver that was the original second
+>generation correct?
+>
+>Andre Hedrick
+>Linux ATA Development
+>
 
-With the help of Manfred Spraul I can now reproduce this problem
-within 10 minutes.
+Sorry, I realise now what I said was ambiguous.  To be clear
 
-Holger
+2.2.17 - absolutely standard as shipped in debian - no errors
+2.4.0 - standard (downloaded tar.bz2) - ERRORS
+2.4.0 - as standard except for three files in tar.bz2 attachment to
+Vojtech Pavlik's mail which were placed in drivers/ide directory -
+ERRORS. 
+Alan
 
+alan@chandlerfamily.org.uk
+http://www.chandler.u-net.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

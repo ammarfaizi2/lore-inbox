@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263532AbTDMO4e (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 10:56:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263533AbTDMO4e (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 10:56:34 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:60590
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263532AbTDMO4d (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 10:56:33 -0400
-Subject: Re: [PATCH] M68k IDE updates
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <200304131306.h3DD6XQ3001331@callisto.of.borg>
-References: <200304131306.h3DD6XQ3001331@callisto.of.borg>
-Content-Type: text/plain
+	id S263533AbTDMPHw (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 11:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263538AbTDMPHw (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 11:07:52 -0400
+Received: from ms-smtp-01.tampabay.rr.com ([65.32.1.43]:7051 "EHLO
+	ms-smtp-01.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id S263533AbTDMPHv (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 11:07:51 -0400
+Message-ID: <000901c301d0$e3223100$6801a8c0@epimetheus>
+From: "Timothy Miller" <tmiller10@cfl.rr.com>
+To: "Nick Piggin" <piggin@cyberone.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+References: <001301c30145$5ff85fb0$6801a8c0@epimetheus> <3E994F06.2000402@cyberone.com.au>
+Subject: Re: Benefits from computing physical IDE disk geometry?
+Date: Sun, 13 Apr 2003 11:25:15 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1050243002.24186.7.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 13 Apr 2003 15:10:03 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2720.3000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-04-13 at 14:06, Geert Uytterhoeven wrote:
-> +#ifdef M68K_IDE_SWAPW
-> +	if (M68K_IDE_SWAPW) {	/* fix bus byteorder first */
-> +		u_char *p = (u_char *)id;
-> +		u_char t;
-> +		for (i = 0; i < 512; i += 2) {
-> +			t = p[i];
-> +			p[i] = p[i+1];
-> +			p[i+1] = t;
-> +		}
-> +	}
-> +#endif
 
-This looks the wrong place to fix this problem Geert. The PPC 
-folks have the same issues with byte order on busses but you
-won't see ifdefs in the core IDE code for it.
+From: "Nick Piggin" <piggin@cyberone.com.au>
 
-Fix your __ide_mm_insw/ide_mm_outsw macros and the rest happens
-automatically.
 
-Linus, until better justification of why this has to be here
-can you not apply this change.
+> The benefit I see is knowing the seek time itself (not geometry), which
+> can be used to tune the IO scheduler. This is something that I'll
+> probably need to do (in kernel) in order to get my IO scheduler in 2.6,
+> as it probably (not tested yet) has bad failure cases on high seek time
+> devices like CDROMs.
 
-Alan
+Well, that IS the heart of the matter, really.  Detecting geometry was only
+a means to the end of predicting seek time and rotational latency.  If you
+could magically predict the seek time between any two accesses, then you
+could sort your queue optimally.  What would be able to do that?  A neural
+net?  :)  What would be able to do that without a lot of training time?
+
+Personally, I've been excited about AS, and I would hate to see it not get
+in.
+
 
 

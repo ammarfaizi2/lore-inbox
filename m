@@ -1,64 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282867AbRLQUob>; Mon, 17 Dec 2001 15:44:31 -0500
+	id <S282860AbRLQUol>; Mon, 17 Dec 2001 15:44:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282860AbRLQUoV>; Mon, 17 Dec 2001 15:44:21 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:21523
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S282862AbRLQUoK>; Mon, 17 Dec 2001 15:44:10 -0500
-Date: Mon, 17 Dec 2001 12:38:09 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Joel Becker <jlbec@evilplan.org>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT wierd behavior..
-In-Reply-To: <20011217202056.L31706@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.10.10112171218530.17715-100000@master.linux-ide.org>
+	id <S282866AbRLQUoc>; Mon, 17 Dec 2001 15:44:32 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:57493 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S282862AbRLQUoX>; Mon, 17 Dec 2001 15:44:23 -0500
+Message-ID: <3C1E587C.9060300@antefacto.com>
+Date: Mon, 17 Dec 2001 20:41:32 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: ramdisk size clarification
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It's not at all obvious to me what the {ramdisk,ramdisk_size,rd_size}
+parameters for ramdisks do from reading ramdisk.txt (note rd_size
+is used when using the ramdisk as a module).
 
-You are asking for something that Linux is not capable of doing.
-There is no means to send and error back from the disk flush to the
-fs/appilcation period.  The current 2.4 can not even find the partition
-when send an error back up to the block layer.  2.5 has a chance, but
-currently none have the ablitity to notify or flush disk cache and recover
-of there is a flushcache error.
+I think they only set the size to be reported, for e.g. mke2fs does
+the following to determine the size of a ramdisk:
 
-Therefore it is potential a preferred model to preserve the entire request
-for a retry than to do a partial validation of an incomplete attempt.
+open("/dev/ram0", O_RDONLY|O_LARGEFILE) = 3
+ioctl(3, BLKGETSIZE, 0xbffff81c)        = 0
+close(3)                                = 0
 
-On Mon, 17 Dec 2001, Joel Becker wrote:
+However there is no actual RAM allocated until it's required,
+and also there is no upper limit on the amount of RAM used,
+so the following will kill your system (well it did for me):
+dd if=/dev/zero of=/dev/ram0
 
-> On Mon, Dec 17, 2001 at 11:59:56AM -0800, Linus Torvalds wrote:
-> > On Mon, 17 Dec 2001, Joel Becker wrote:
-> > > 	/* Smart program handles partial writes */
-> > > 	write(100k); = 50k
-> > > 	write(remaining 50k); = -1/ENOSPC|EIO|etc
-> > 
-> > We do this, if the error is "hard". And "fatal" implies hardness, so we're
-> > ok here.
-> 
-> 	Right.  "hard" is also synonymous with "non-transient".
-> 
-> > > 	/* Dumb program doesn't handle partial write */
-> > > 	write(100k); = 50k
-> > > 	close(fd); = -1/EIO
-> > 
-> > But we're not doing this.
-> 
-> 	IMHO we should be, and not just to comply with the letter of
-> SUS/Unix98.  SUS specifies this behavior because a synchronous write()
-> can return after copying data to the buffer cache.  However, the EIO can
-> happen later when the buffer cache is trying to flush to disk.  The only
-> way for an application to see this error is to either run O_SYNC or
-> receive it upon close().
+can this be clarified in the ramdisk.txt file please.
 
+As a side note there is a lovely "trivial ramdisk" module
+written by Andrw tridgell @:
+http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/gkernel/ext3/tools/trd/
+that does static allocation and (hence) doesn't grow beyond the
+specified size.
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
-
+thanks,
+Padraig.
 

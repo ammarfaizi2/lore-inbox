@@ -1,66 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291787AbSCIAEZ>; Fri, 8 Mar 2002 19:04:25 -0500
+	id <S291780AbSCIANZ>; Fri, 8 Mar 2002 19:13:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291759AbSCIAEQ>; Fri, 8 Mar 2002 19:04:16 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:18843 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S291729AbSCIAEK>; Fri, 8 Mar 2002 19:04:10 -0500
-Date: Fri, 08 Mar 2002 16:04:04 -0800
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: Dave Hansen <haveblue@us.ibm.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: truncate_list_pages()  BUG and confusion
-Message-ID: <67550000.1015632244@flay>
-In-Reply-To: <3C8932CC.761C8829@zip.com.au>
-In-Reply-To: <3C880EFF.A0789715@zip.com.au>,	<3C8809BA.4070003@us.ibm.com> <3C880EFF.A0789715@zip.com.au> <17920000.1015622098@flay> <3C8932CC.761C8829@zip.com.au>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S291863AbSCIANQ>; Fri, 8 Mar 2002 19:13:16 -0500
+Received: from moutvdomng1.kundenserver.de ([212.227.126.181]:54780 "EHLO
+	moutvdomng1.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S291780AbSCIANC>; Fri, 8 Mar 2002 19:13:02 -0500
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Date: Sat, 9 Mar 2002 01:14:23 +0100
+From: Andreas Roedl <flood@flood-net.de>
+In-Reply-To: <90BC88CE8F7DD411B18A00902727B4D20414254F@m0801p12.nordstrom.net>
+Message-Id: <20020309001148.E549FEC5E@flood-net.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Organization: Flood-Net
+In-Reply-To: <90BC88CE8F7DD411B18A00902727B4D20414254F@m0801p12.nordstrom.net>
+Subject: Re: Latest stable kernel?
+To: "Lumpkin, Buddy" <Buddy.Lumpkin@nordstrom.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+X-AntiVirus: OK! AvMailGate Version 6.11.0.5
+	 at exciter has not found any known virus in this email.
+X-Mailer: KMail [version 1.3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> void page_cache_release(struct page *page)
->> {
->>         if (!PageReserved(page) && put_page_testzero(page)) {
->>                 if (PageLRU(page))
->>                         lru_cache_del(page);
->>                 __free_pages_ok(page, 0);
->>         }
->> }
->> 
->> We enter page_cache_release with the supposedly locked, and its count
->> non-zero (we incremented it).  put_page_testzero does atomic_dec_and_test
->> on count which says it returns true if the result is 0, or false for all other cases.
->> 
->> So if nobody else was holding a reference to the page, we've decremented
->> it's count to 0, and put_page_testzero returns 1. We then try to free the page.
->> It's still locked. BUG.
-> 
-> If the page_cache_release() in truncate_complete_page() is calling
-> __free_pages_ok() then something really horrid has happened.
+Hello!
 
-That's exactly what's happening.
- 
-> Yes, it could be that the page has had its refcount incorrectly
-> decremented somewhere.
+Am Samstag, 9. März 2002 00:48 schrieb Lumpkin, Buddy:
+> Sorry for the dumb question but ...
+>
+> If the latest stable kernel is a patch
+> (http://www.kernel.org/pub/linux/kernel/v2.4/patch-2.4.18.gz) then what do
+> I need to download to patch to get to the latest stable release?
 
-I don't see you need that to make this bug happen.
-Say count is 0 when we enter truncate_list_pages. We increment it.
-It's now 1 when we call page_cache_release. 
-put_page_testzero dec's it back to 0, and returns true.
-We do a __free_pages_ok. Page is still locked. BUG.
+The whole kernel is here:
 
-No other process, nothing funky happening, no races, no other
-refcount decrements. Or that's the way I read it.
+  ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.18.tar.bz2
 
-> Or the page wasn't in the pagecache at all.
+If you really want to patch anything you could download version 2.4.17
 
-The only thing I can think of was the pagecount shouldn't have been 0
-to start with (or the code path we're reading is wrong ;-) )
+  ftp://ftp.kernel.org/pub/linux/kernel/v2.4/linux-2.4.17.tar.bz2
 
-M.
+and patch it to 2.4.18 with
 
+  ftp://ftp.kernel.org/pub/linux/kernel/v2.4/patch-2.4.18.bz2
+
+
+Andi
+
+-- 
+Web:   http://www.flood-net.de/
+Mail:  flood@flood-net.de
+Phone: +49-(0)-30-680577-44
+Linux opens doors, not windows!

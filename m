@@ -1,45 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316955AbSFKIgs>; Tue, 11 Jun 2002 04:36:48 -0400
+	id <S316957AbSFKIsX>; Tue, 11 Jun 2002 04:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316957AbSFKIgr>; Tue, 11 Jun 2002 04:36:47 -0400
-Received: from naxos.pdb.sbs.de ([192.109.3.5]:674 "EHLO naxos.pdb.sbs.de")
-	by vger.kernel.org with ESMTP id <S316955AbSFKIgq>;
-	Tue, 11 Jun 2002 04:36:46 -0400
-Subject: Re: Serverworks OSB4 in impossible state
-From: Martin Wilck <Martin.Wilck@Fujitsu-Siemens.com>
-To: Daniela Engert <dani@ngrt.de>
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020611064201.9F55DEDBE@mail.medav.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 11 Jun 2002 10:37:35 +0200
-Message-Id: <1023784656.23733.360.camel@biker.pdb.fsc.net>
-Mime-Version: 1.0
+	id <S316958AbSFKIsW>; Tue, 11 Jun 2002 04:48:22 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:5136 "EHLO mail.stock-world.de")
+	by vger.kernel.org with ESMTP id <S316957AbSFKIsV> convert rfc822-to-8bit;
+	Tue, 11 Jun 2002 04:48:21 -0400
+Message-ID: <3D05B94B.6090502@evision-ventures.com>
+Date: Tue, 11 Jun 2002 10:48:11 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Rusty Russell <rusty@rustcorp.com.au>, dent@cosy.sbg.ac.at,
+        adilger@clusterfs.com, da-x@gmx.net, patch@luckynet.dynu.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup
+In-Reply-To: <Pine.LNX.4.44.0206110128130.1987-100000@home.transmeta.com>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Die, 2002-06-11 um 09.45 schrieb Daniela Engert:
+U¿ytkownik Linus Torvalds napisa³:
+> 
+> On Tue, 11 Jun 2002, Rusty Russell wrote:
+> 
+>>Worst sin is that you can't predeclare typedefs.  For many uses (not the
+>>list macros of course):
+>>	struct xx;
+>>is sufficient and avoids the #include hell,
+> 
+> 
+> True.
+> 
+> However, that only works for function declarations.
+> 
+> typedefs are easy to avoid.
+> 
+> The real #include hell comes, to a large degree, from the fact that we
+> like inline functions. Which have many wonderful properties, but they have
+> the same nasty property typedefs have: they require full type information
+> and cannot be predeclared.
+> 
+> And while I'd like to avoid #include hell, I'm not willing to replace
+> inline functions with #define's to avoid it ;^p
 
-> I'm aware of all of that. By pure chance I have a machine with an OSB4
-> sitting on my desk for a couple of days. May be I can find a defect
-> CD-ROM to test it with my driver and see if it manages to recover from
-> errors like these. Hopefully, the PCI tracer gives some more insight.
+That's true, but please note that there is quite a lot
+of inadequate include abuse in Linux. People are just too
+lazy to check whatever inlining something really speeds things
+up. For example the functions used to copy data between
+userspace and kernel are very likely to be executed not much slower
+if *not* included. In fact they should not turn up
+on *any* benchmark - becouse if they do we have other problems...
+Namely we have a system call which is basically doing nothing.
+But they show up significantly on the .text size.
 
-Do you have a custom version of the driver (because you write "my
-driver")? If yes, can you send it, so that I can test it, too?
+And then we have quite a lot if silly include code like the following:
 
-Can you point me to any reference material on the web?
+static inline function()
+{
+           seme_function();
+		some_other_function();
+}
 
-Martin
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1	    mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+Which doesn't really make much sense, quite frequently, becouse
+We will trash caches anyway...
 
+Or
 
+static inline int iterator()
+{
+}
 
+This doesn't make sense too, becouse
+the CPUs tends to be good at branch prediction and if
+a function is mainly used inside loops again and again
+it doesn't make sense to make them inline frequently too.
 
+And so on and so on...
 

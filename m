@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135430AbRARMeg>; Thu, 18 Jan 2001 07:34:36 -0500
+	id <S135297AbRARMn3>; Thu, 18 Jan 2001 07:43:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135429AbRARMeQ>; Thu, 18 Jan 2001 07:34:16 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:35087 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S135307AbRARMeK>; Thu, 18 Jan 2001 07:34:10 -0500
-Message-ID: <3A66E4D3.B2BEFCBB@uow.edu.au>
-Date: Thu, 18 Jan 2001 23:42:59 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: James Simmons <jsimmons@suse.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        FrameBuffer List <linux-fbdev@vuser.vu.union.edu>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
-Subject: Re: console spin_lock
-In-Reply-To: <Pine.LNX.4.21.0101171514050.266-100000@euclid.oak.suse.com>
+	id <S135307AbRARMnT>; Thu, 18 Jan 2001 07:43:19 -0500
+Received: from the.earth.li ([195.149.39.90]:33284 "EHLO the.earth.li")
+	by vger.kernel.org with ESMTP id <S135297AbRARMnE>;
+	Thu, 18 Jan 2001 07:43:04 -0500
+Date: Thu, 18 Jan 2001 13:42:50 +0100
+From: Simon Huggins <huggie@earth.li>
+To: Andrey Savochkin <saw@saw.sw.com.sg>
+Cc: eepro100@scyld.com, linux-kernel@vger.kernel.org
+Subject: Re: eepro cmd_wait
+Message-ID: <20010118134250.C19784@the.earth.li>
+Mail-Followup-To: Andrey Savochkin <saw@saw.sw.com.sg>, eepro100@scyld.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20010118131011.B19784@the.earth.li> <20010118201731.A8492@saw.sw.com.sg>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010118201731.A8492@saw.sw.com.sg>; from saw@saw.sw.com.sg on Thu, Jan 18, 2001 at 08:17:31PM +0800
+Organization: Black Cat Networks, http://www.blackcatnetworks.co.uk/
+X-Attribution: huggie
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hiya Andrey,
 
-James Simmons wrote:
-> ...
-> By you saying couldn't be acquired from interrupt context do you mean
-> from a process context or do you mean it failed to aquire it while in
-> the interrupt context?
+On Thu, Jan 18, 2001 at 08:17:31PM +0800, Andrey Savochkin wrote:
+> On Thu, Jan 18, 2001 at 01:10:11PM +0100, Simon Huggins wrote:
+> > We have a server running 2.2.18 + RAID which has an eepro100 in it.
+> > It's connected to a Dlink DFE 816 100 16port 100baseTX hub.
+> > When the machine boots we get a whole series of timeout errors.
+> > Jan 18 11:58:09 miguet kernel: eepro100: cmd_wait for(0x70) timedout with(0x70)!
+> Could you try to add
+> 	inl(ioaddr + SCBPointer);
+> 	udelay(10);
+> before
+> 	outb(RxAddrLoad, ioaddr + SCBCmd);
+> in speedo_resume()?
 
-Actually, printk() must always use __down_trylock().
+> These two line are a workaround for the RxAddrLoad timing bug,
+> developed by Donald Becker.  wait_for_cmd_done timeouts may be related
+> to this bug, too.
 
-> > - Get rid of console_tasklet.  Do it in process context callback
-> >   or just do it synchronously.
-> 
-> What about multidesktop systems? I have vgacon and mdacon working fine
-> along each other. Each one has their own tasklet to allow them to work
-> independent of each other. Meaning no race condition when both VC switch
-> at the same time.
+Well it now boots :)
+I'll let you know if there are any more problems with it in use.
 
-Ah.  Thanks. That stuff was actually design-from-memory :)  I'll take
-a closer look when I have something other than a clockwork computer.
- 
-> > Assumption:
-> > - Once the system is up and running, it's always safe to
-> >   call down() when in_interrupt() returns false - probably
-> >   not the case in parts of the exit path - tough.
-> 
-> Don't forget the idle_task case as well. exit path?
-
-This statement of mine was grade-A bollocks.  printk cannot of
-course call down().  It needs to use __down_trylock and buffer
-it up if it fails. (faster, too!)
-
-The subtler problem will be interrupt-capable drivers which
-do a bare spin_lock() to serialise wrt their interrupt routines,
-relying upon interrupts being disabled.  They'll be deadlocky
-and will need changing.  That's trivial to find and fix though.
-
-Anyway, this was just a heads-up that I'll be looking at
-this stuff.  Please allow me a week or so to provide
-some substance.  I read that the fbdev developers have
-been seeking a fix for this for some time, so it seems
-worth some effort.
+-- 
+----------(   "Clear?" - Holly. "No." - Lister. "Tough." -   )----------
+Simon ----(                      Holly.                      )---- Nomis
+                             Htag.pl 0.0.17
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,56 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271730AbRHQWFo>; Fri, 17 Aug 2001 18:05:44 -0400
+	id <S271737AbRHQWGz>; Fri, 17 Aug 2001 18:06:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271728AbRHQWFj>; Fri, 17 Aug 2001 18:05:39 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:28883 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S271733AbRHQWF1>; Fri, 17 Aug 2001 18:05:27 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Theodore Tso" <tytso@mit.edu>, "Andreas Dilger" <adilger@turbolinux.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: /dev/random in 2.4.6
-Date: Fri, 17 Aug 2001 15:05:39 -0700
-Message-ID: <NOEJJDACGOHCKNCOGFOMKEFFDEAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-Importance: Normal
-In-Reply-To: <20010817171834.A24850@thunk.org>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
+	id <S271733AbRHQWGP>; Fri, 17 Aug 2001 18:06:15 -0400
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:9832 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S271728AbRHQWGH>; Fri, 17 Aug 2001 18:06:07 -0400
+Date: Fri, 17 Aug 2001 17:05:54 -0500 (CDT)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200108172205.RAA28109@tomcat.admin.navo.hpc.mil>
+To: adilger@turbolabs.com, "Mark H. Wood" <mwood@IUPUI.Edu>
+Subject: Re: ext2 not NULLing deleted files?
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--
+> 
+> On Aug 17, 2001  12:55 -0500, Mark H. Wood wrote:
+> > Regarding the need to do more than just zero unwanted data, I note that
+> > there is a U.S. DOD MIL-SPEC (no, I do not know the number) which defines
+> > a sequence of patterns to be used for erasing magnetic media.
+> 
+> In the Usenix paper quoted earlier in this thread (I believe) it was
+> stated that the MIL-SPEC document was actually bogus.  REAL secure
+> deletion requirements were much more strict (something like 15 passes of
+> various random and non-random patterns vs. 7 passes of alternating all 0
+> and all 1 data), but the US government made it think that the MIL-SPEC
+> requirements were enough, so that naive users would follow it, still
+> leaving enough trace data on the disk for the government to retrieve it.
 
-> That's not the only attack, actually.  The much simpler attack pathis
-> for an attack to **observe** the network traffic to such a precise
-> extent as to be able to guess what the entropy numbers are that are
-> going into the pool.  (Think: FBI's Carnivore).
->
-> The one saving grace here is that in order to really do this well, the
-> attacker would need to be sitting on the local area network to get the
-> best and most precise timing numbers.  You can argue that this is
-> still a theoretical attack; but it's not quite so difficult as saying
-> that the attacker has to "control" the network traffic.
->
-> 						- Ted
+Actually, it does exist as part of the rainbow series under object reuse.
+I have a copy of the current renewed memo draft + addendum (this year) for
+purging.
 
-	This is a non-issue providing the entropy pool code correctly estimates the
-amount of entropy. The Linux entropy code is written so that there is no
-harm from putting fully known or partially known numbers into the pool
-provided that the pool does not overestimate the amount of entropy in those
-numbers.
+No change.
 
-	Even if you could perfectly time the packets on the LAN, you still could
-not tell the clock skew between the clock on the LAN card and the TSC. There
-would still be unknowns involving how long it would take for the interrupt
-to be acknowledged and the entropy gathering code to get to the CPU. These
-unknowns still contain real entropy that there is no known way an attacker
-could know.
+> Still, even a single pass of zero writes is enough to prevent 99.9%
+> of attackers from getting the data back.
 
-	DS
+Absolutely - the only people that can still retrieve data are the data
+recovery companies out there (even fire doesn't fully erase the data unless
+above 2-3,000 degrees). Tunneling magnetic microscopes are amazing at
+data retrieval. Polishing off the top layer even allows reading some data
+recorded many times earlier, though the newer thin film surfaces make this
+harder.
 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

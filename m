@@ -1,30 +1,23 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132143AbRAEPnp>; Fri, 5 Jan 2001 10:43:45 -0500
+	id <S129383AbRAEPof>; Fri, 5 Jan 2001 10:44:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132258AbRAEPng>; Fri, 5 Jan 2001 10:43:36 -0500
-Received: from nmail.corel.com ([209.167.40.11]:23225 "EHLO nsmail.corel.com")
-	by vger.kernel.org with ESMTP id <S129383AbRAEPn2>;
-	Fri, 5 Jan 2001 10:43:28 -0500
-Subject: Re: kernel network problem ?
-From: "Richard Rak" <richardr@corel.com>
+	id <S132293AbRAEPoT>; Fri, 5 Jan 2001 10:44:19 -0500
+Received: from ANancy-101-1-1-133.abo.wanadoo.fr ([193.251.70.133]:63223 "HELO
+	the-babel-tower.nobis.phear.org") by vger.kernel.org with SMTP
+	id <S129383AbRAEPoB>; Fri, 5 Jan 2001 10:44:01 -0500
+Date: Fri, 5 Jan 2001 16:49:26 +0100 (CET)
+From: Nicolas Noble <Pixel@the-babel-tower.nobis.phear.org>
 To: Nicolas Parpandet <nparpand@perinfo.com>
-Cc: linux-kernel@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel network problem ?
 In-Reply-To: <000d01c07724$8fa531f0$8900030a@nicolasp>
-Content-Type: text/plain
-X-Mailer: Evolution 0.8 (Developer Preview)
-Date: 05 Jan 2001 10:49:31 -0500
-Mime-Version: 1.0
-Message-ID: <7744FF5310E6.AAA66E7@nsmail.corel.com>
+Message-ID: <Pine.LNX.4.21.0101051646100.5165-100000@the-babel-tower.nobis.phear.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Try typing "echo 0 > /proc/sys/net/ipv4/tcp_ecn" at a shell to
-    disable TPC ECN support.
-
-
-
-On 05 Jan 2001 15:34:07 +0100, Nicolas Parpandet wrote:
 > 
 > Hi all,
 > 
@@ -59,23 +52,22 @@ On 05 Jan 2001 15:34:07 +0100, Nicolas Parpandet wrote:
 > PS2: thanks for all, very good job done, 
 >       2.4 is very fast and seems stable.
 > 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+
+I noticed the same bug. This is very weired, I can send a list of sites
+which I can't connect anymore. I've "solved" the problem by installing a
+gateway onto a 2.2.18 with a squid on it, so this is the squid which is
+doing the http's traffic for my 2.4.0 box.
+
+I though it was a misconfiguration from my side but wasn't able to detect
+it.
+
+Perhaps it's linked...
+
+  Regards,
 
 
+  -- Nicolas Noble
 
--- 
-        Richard Rak
-        (richardr@corel.com)
-        Software Engineer
-        A+ Certified Service Technician
-
-        Experience CorelDRAW 10 Graphics Suite - creative power with an attitude. 
-        Visit http://www.corel.com/draw10
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

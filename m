@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291923AbSBAT3V>; Fri, 1 Feb 2002 14:29:21 -0500
+	id <S291931AbSBATjB>; Fri, 1 Feb 2002 14:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291924AbSBAT3M>; Fri, 1 Feb 2002 14:29:12 -0500
-Received: from zok.sgi.com ([204.94.215.101]:22415 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S291923AbSBAT3H>;
-	Fri, 1 Feb 2002 14:29:07 -0500
-Message-ID: <01ec01c1ab56$ba7d5e40$6401a8c0@attbi.com>
-From: "John Hawkes" <hawkes@sgi.com>
-To: "Linux-Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5: push BKL out of llseek
-Date: Fri, 1 Feb 2002 11:29:11 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S291930AbSBATiv>; Fri, 1 Feb 2002 14:38:51 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:7135 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S291932AbSBATie>; Fri, 1 Feb 2002 14:38:34 -0500
+Date: Fri, 1 Feb 2002 13:38:33 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+Message-ID: <20020201133833.B8599@asooo.flowerfire.com>
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <a3enf3$93p$1@cesium.transmeta.com>; from hpa@zytor.com on Fri, Feb 01, 2002 at 10:40:35AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Dave Jones" <davej@suse.de>
->  did you benchmark with anything other than dbench ?
+On Fri, Feb 01, 2002 at 10:40:35AM -0800, H. Peter Anvin wrote:
+[...]
+| > Exhausting entropy to zero under high use is not uncommon (that is a
+| > motivation for my netdev-random patch).  What boggles me is why it does
+| > not regenerate?
+[...]
+| Anything that is meant to be a server really pretty much needs an
+| enthropy generator these days.  We really should push vendors to
+| provide it (together with serial console firmware and other "well,
+| duh" things rackmount servers should have as a matter of course.)
 
-I've done substantial AIM7 benchmarking on a 28p ia64 NUMA system, and
-llseek's BKL usage is a significant contributor to poor scaling.  For
-500 AIM7 "tasks" and ext2 filesystems, waiting on the BKL consumes about
-half of the available CPU cycles, and sys_lseek()'s usage is the most
-significant cycle waster, followed by ext2_get_block() and
-ext2_write_inode().  Anton's llseek patch from last November does make
-a measurable improvement in AIM7 throughput.
+Yes, in fact we do have entropy generators in some cases, especially on
+Solaris.  I think this is a very good idea -- it would be extremely nice
+to see this especially since SO much more is dependent upon entropy
+these days.  More than about 7 years ago I would have thought entropy
+was a nethack clone.
 
---
-John Hawkes
-hawkes@sgi.com
+Of course, in my case deleting the /dev/random character node still
+doesn't allow entropy to drain in (after at least a month) so I suspect
+the kernel's entropy generation would be sufficient if it didn't
+artificially stall or drain from within the kernel.
+
+Thanks much,
+-- 
+Ken.
+brownfld@irridia.com
 
 
+| 
+| 	-hpa
+| -- 
+| <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+| "Unix gives you enough rope to shoot yourself in the foot."
+| http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+| -
+| To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+| the body of a message to majordomo@vger.kernel.org
+| More majordomo info at  http://vger.kernel.org/majordomo-info.html
+| Please read the FAQ at  http://www.tux.org/lkml/

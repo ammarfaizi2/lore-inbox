@@ -1,63 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266794AbSKUQP6>; Thu, 21 Nov 2002 11:15:58 -0500
+	id <S266804AbSKUQRG>; Thu, 21 Nov 2002 11:17:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266804AbSKUQP6>; Thu, 21 Nov 2002 11:15:58 -0500
-Received: from 24-216-100-96.charter.com ([24.216.100.96]:52703 "EHLO
-	wally.rdlg.net") by vger.kernel.org with ESMTP id <S266794AbSKUQP5>;
-	Thu, 21 Nov 2002 11:15:57 -0500
-Date: Thu, 21 Nov 2002 11:23:04 -0500
-From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-To: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: MD Raid+devfs?
-Message-ID: <20021121162304.GH9163@rdlg.net>
-Mail-Followup-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S266805AbSKUQRG>; Thu, 21 Nov 2002 11:17:06 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:18640 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S266804AbSKUQRE>; Thu, 21 Nov 2002 11:17:04 -0500
+Message-ID: <3DDD089F.5080609@nortelnetworks.com>
+Date: Thu, 21 Nov 2002 11:23:59 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Felix Seeger <felix.seeger@gmx.de>
+Cc: "Christopher Friesen" <cfriesen@nortelnetworks.com>,
+       linux-kernel@vger.kernel.org, Nero <neroz@iinet.net.au>
+Subject: Re: 2.5.48 QM_MODULES: Function not implemented
+References: <200211202004.20261.felix.seeger@gmx.de> <3DDBF02D.4060005@iinet.net.au> <3DDC0AC8.9070308@nortelnetworks.com> <200211210042.17225.felix.seeger@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Felix Seeger wrote:
+
+> Maybe it is normal but this doesn't fix the depmod problem even with the new 
+> kernel, I have modprobe, rmod and so back but the package doesn't include 
+> depmod.
+
+Yep.  Tnere is no depmod.  Bang on Rusty to fix things.
+
+> I am running debian unstable, many install scripts uses parameters that are 
+> not provided by this version (I think -l and -r).
+> Maybe this is only for debian so I have to wait for a patched package...
+
+Rusty didn't include them.
+
+> Is it a bug that all modules are in the same dir without subdirs ? It is hard 
+> to find them.
+
+See Rusty.
 
 
-Situation:
-
-Built a filesystem, raid5 on a server running devfs with:
-
-/dev/sdb2
-/dev/sdc2
-/dev/sde2
-/dev/sdf2
-
-/dev/sdd2 was out for RMA.  
-
-Devfs remapped the drives at boot time as b-d.  I just had an
-unscheduled downtime, unrelated to this, and took the opportunity to
-re-install the drive.
-
-Luckily as raid 5 it came back up because it remapped them b-f again
-stickingm y disk in sdd.  This pushed the 4th disk back one spot too
-many and out of the array, stuck an unformatted disk in the middle.
-Figured it was going to completely trash my filesystem since the 3rd
-disk was 4th and 4th was gone, but it recovered nicely (nice work MD
-guys).
-
-At any rate though I'm looking and wondering how bad it would be to put
-in scsi/host0/bus0/target0/lun0/part2 instead of sdb2 for example.
-
-Thoughts, theories, the "best practice" way to do this with devfs?
-
-Robert
+There is a certain trend here....not that modules didn't need fixing, 
+but this is pretty serious functionality breakage.
 
 
-:wq!
----------------------------------------------------------------------------
-Robert L. Harris                     | PGP Key ID: FC96D405
-                               
-DISCLAIMER:
-      These are MY OPINIONS ALONE.  I speak for no-one else.
-FYI:
- perl -e 'print $i=pack(c5,(41*2),sqrt(7056),(unpack(c,H)-2),oct(115),10);'
+Chris
+
+
+
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

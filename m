@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261844AbTJMS0r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Oct 2003 14:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbTJMS0r
+	id S261903AbTJMSuM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Oct 2003 14:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbTJMSuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Oct 2003 14:26:47 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2258 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261844AbTJMS0n
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Oct 2003 14:26:43 -0400
-Date: Mon, 13 Oct 2003 19:26:40 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-Cc: Xose Vazquez Perez <xose@wanadoo.es>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [summary] state of scsi drivers
-Message-ID: <20031013182640.GR27861@parcelfarce.linux.theplanet.co.uk>
-References: <3F8ACFE2.1080708@wanadoo.es> <20031013162457.GD17877@bitwizard.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031013162457.GD17877@bitwizard.nl>
-User-Agent: Mutt/1.4.1i
+	Mon, 13 Oct 2003 14:50:12 -0400
+Received: from qfep05.superonline.com ([212.252.122.161]:4080 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S261903AbTJMSuJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Oct 2003 14:50:09 -0400
+Message-ID: <3F8AF389.80600@superonline.com>
+Date: Mon, 13 Oct 2003 21:48:41 +0300
+From: "O.Sezer" <sezero@superonline.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: tr, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-pre7-pac1
+Content-Type: text/plain; charset=ISO-8859-9; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 13, 2003 at 06:24:57PM +0200, Erik Mouw wrote:
-> On Mon, Oct 13, 2003 at 06:16:34PM +0200, Xose Vazquez Perez wrote:
-> > o sym53c8xx_2
-> >  - manufacturer: LSI Logic
-> >  - kernel: 2.1.17a     (Dec 01 2001)
-> >  - latest: 2.1.18f     (Oct 13 2003)
-> >  - beta:   2.1.19-pre3 (Nov 23 2002)
-> >  - arch: i386 alpha sparc powerpc ia64
-> >  - features:
-> >  - maintainer: <matthew_AT_wil.cx>
-> >  - url: http://www.tux.org/pub/tux/roudier/drivers/linux/stable/
-> >         http://ftp.linux.org.uk/pub/linux/willy/patches/
-> 
-> AFAIK Matthew only maintains the driver in 2.6, not in 2.4.
+If I listen to the evil whispers and say "m" to CONFIG_IP_SCTP,
+then my build logs are spammed by messages like the following:
 
-That's correct.  I didn't notice anyone taking this list seriously,
-or indeed see the point of this list, so I hadn't bothered to correct him.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4.23-pre7-pac1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=pentium3   -nostdinc -iwithprefix include -DKBUILD_BASENAME=md  -DEXPORT_SYMTAB -c md.c
+In file included from /usr/src/linux-2.4.23-pre7-pac1/include/net/sctp/ulpevent.h:51,
+		from /usr/src/linux-2.4.23-pre7-pac1/include/net/sctp/structs.h:93,
+		from /usr/src/linux-2.4.23-pre7-pac1/include/net/sock.h:53,
+		from /usr/src/linux-2.4.23-pre7-pac1/include/net/ip.h:39,
+		from /usr/src/linux-2.4.23-pre7-pac1/include/net/checksum.h:31,
+		from /usr/src/linux-2.4.23-pre7-pac1/include/linux/raid/md.h:35,
+		from md.c:33:
+/usr/src/linux-2.4.23-pre7-pac1/include/net/sctp/compat.h:74: warning: static declaration for `generic_fls' follows non-static
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Since there are no changes to stcp code in -pac, this should also
+be a problem for mainline.
+
+Regards,
+Özkan Sezer
+

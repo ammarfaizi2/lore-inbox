@@ -1,59 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264146AbSJWK0Q>; Wed, 23 Oct 2002 06:26:16 -0400
+	id <S264612AbSJWK3R>; Wed, 23 Oct 2002 06:29:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264612AbSJWK0Q>; Wed, 23 Oct 2002 06:26:16 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:8580 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S264146AbSJWK0Q>;
-	Wed, 23 Oct 2002 06:26:16 -0400
-Date: Wed, 23 Oct 2002 16:08:28 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: sparc64 read_barrier_depends
-Message-ID: <20021023160828.B9933@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
+	id <S264615AbSJWK3R>; Wed, 23 Oct 2002 06:29:17 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:40386 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264612AbSJWK3Q>;
+	Wed, 23 Oct 2002 06:29:16 -0400
+Date: Wed, 23 Oct 2002 12:35:19 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Thomas Molina <tmolina@cox.net>
+Cc: linux-kernel@vger.kernel.org, "Martin J. Bligh" <mbligh@aracnet.com>
+Subject: Re: 2.5 Problem Report Status
+Message-ID: <20021023123519.A28983@ucw.cz>
+References: <Pine.LNX.4.44.0210222038380.8594-100000@dad.molina>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0210222038380.8594-100000@dad.molina>; from tmolina@cox.net on Tue, Oct 22, 2002 at 09:07:13PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Tue, Oct 22, 2002 at 09:07:13PM -0500, Thomas Molina wrote:
 
-I missed sparc64 when I broke up read_barrier_depends in -mm
-and sent to Linus. Please apply this to your tree until Linus is back
-and I can fix it.
+> Following is the latest version of my status report web page.  It can be 
+> found at:
+> 
+> http://members.cox.net/tmolina/kernprobs/status.html
+> 
+> I've seen a lot of positive feedback for Martin's proposal to create a 
+> bugzilla for kernel bug reports so this is likely to be my last formal 
+> posting on this subject.  I intend to enter these as the "seed" bug 
+> reports for his effort, so any comment on this is welcome.  
 
-Thanks
+> --------------------------------------------------------------------------
+>    open                   06 Oct 2002 analog joystick oops
+>   33. http://marc.theaimsgroup.com/?l=linux-kernel&m=103393598801189&w=2
+
+Closed, fixed by properly calling init_input_dev() in analog.c
+
+> --------------------------------------------------------------------------
+>    open                   10 Oct 2002 keyboard generates bogus key results
+>   35. http://marc.theaimsgroup.com/?l=linux-kernel&m=103423327423623&w=2
+
+Closed, PS/2 Active Multiplexing support was fixed.
+
+
 -- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
-
-
-
-diff -urN linux-2.5.44-base/include/asm-sparc64/system.h linux-2.5.44-rbd/include/asm-sparc64/system.h
---- linux-2.5.44-base/include/asm-sparc64/system.h	Sat Oct 19 09:31:07 2002
-+++ linux-2.5.44-rbd/include/asm-sparc64/system.h	Mon Oct 21 15:03:19 2002
-@@ -84,6 +84,7 @@
- 	membar("#LoadLoad | #LoadStore | #StoreStore | #StoreLoad");
- #define rmb()		membar("#LoadLoad")
- #define wmb()		membar("#StoreStore")
-+#define read_barrier_depends()		do { } while(0)
- #define set_mb(__var, __value) \
- 	do { __var = __value; membar("#StoreLoad | #StoreStore"); } while(0)
- #define set_wmb(__var, __value) \
-@@ -93,10 +94,12 @@
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
- #define smp_wmb()	wmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
- #else
- #define smp_mb()	__asm__ __volatile__("":::"memory");
- #define smp_rmb()	__asm__ __volatile__("":::"memory");
- #define smp_wmb()	__asm__ __volatile__("":::"memory");
-+#define smp_read_barrier_depends()	do { } while(0)
- #endif
- 
- #define flushi(addr)	__asm__ __volatile__ ("flush %0" : : "r" (addr) : "memory")
+Vojtech Pavlik
+SuSE Labs

@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129958AbQKOKKH>; Wed, 15 Nov 2000 05:10:07 -0500
+	id <S129619AbQKOKYv>; Wed, 15 Nov 2000 05:24:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129962AbQKOKJ5>; Wed, 15 Nov 2000 05:09:57 -0500
-Received: from deckard.concept-micro.com ([62.161.229.193]:1104 "EHLO
-	deckard.concept-micro.com") by vger.kernel.org with ESMTP
-	id <S129958AbQKOKJv>; Wed, 15 Nov 2000 05:09:51 -0500
-Message-ID: <XFMail.20001115103837.petchema@concept-micro.com>
-X-Mailer: XFMail 1.4.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S129272AbQKOKYl>; Wed, 15 Nov 2000 05:24:41 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:3851 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129097AbQKOKYb>; Wed, 15 Nov 2000 05:24:31 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 MIME-Version: 1.0
-In-Reply-To: <Pine.GSU.4.21.0011141847460.26147-100000@lennon.cc.gatech.edu>
-Date: Wed, 15 Nov 2000 10:38:37 +0100 (CET)
-X-Face: #eTSL0BRng*(!i1R^[)oey6`SJHR{3Sf4dc;"=af8%%;d"%\#"Hh0#lYfJBcm28zu3r^/H^
- d6!9/eElH'p0'*,L3jz_UHGw"+[c1~ceJxAr(^+{(}|DTZ"],r[jSnwQz$/K&@MT^?J#p"n[J>^O[\
- "%*lo](u?0p=T:P9g(ta[hH@uvv
-Organization: Concept Micro
-From: Pierre Etchemaite <petchema@concept-micro.com>
-To: Zhiruo Cao <zhiruo@cc.gatech.edu>
-Subject: RE: Question on bdflush
-Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14866.23888.398397.534911@wire.cadcamlab.org>
+Date: Wed, 15 Nov 2000 03:54:24 -0600 (CST)
+To: Ian Grant <Ian.Grant@cl.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: RAID modules and CONFIG_AUTODETECT_RAID 
+In-Reply-To: <20001115030752.K18203@wire.cadcamlab.org>
+	<E13vz1D-0001zr-00@wisbech.cl.cam.ac.uk>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Le 14-Nov-2000, Zhiruo Cao écrivait :
-> Why does bdflush (kupdated and kflushed) writes to disk periodically even
-> though the system is apparently idle.  I think if no more new buffers
-> becomes dirty, kflushed show not write anything to disk.   I'm working
-> on a notebook, and I found the periodic disk access is very annoying and
-> consuming a lot of power.
+[Ian Grant <Ian.Grant@cl.cam.ac.uk>]
+> Of course we need an initrd with the raid modules on it before we can
+> boot from a RAID root partition.
 
-Look for noflushd on Freshmeat...
+raidtools can't run from an initrd?
 
-
--- 
-Linux blade.workgroup 2.4.0-test11 #1 Tue Nov 14 16:44:49 CET 2000 i686 unknown
- 10:38am  up 17:34,  2 users,  load average: 1.13, 1.17, 1.17
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311108AbSCHUtd>; Fri, 8 Mar 2002 15:49:33 -0500
+	id <S311112AbSCHUun>; Fri, 8 Mar 2002 15:50:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311112AbSCHUtX>; Fri, 8 Mar 2002 15:49:23 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:20496 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S311108AbSCHUtL>; Fri, 8 Mar 2002 15:49:11 -0500
-Date: Fri, 8 Mar 2002 20:48:25 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-X-X-Sender: <matthew@sphinx.mythic-beasts.com>
-To: Hubertus Franke <frankeh@watson.ibm.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores)
-In-Reply-To: <20020308202836.7D8163FE06@smtp.linux.ibm.com>
-Message-ID: <Pine.LNX.4.33.0203082046470.30551-100000@sphinx.mythic-beasts.com>
+	id <S311115AbSCHUug>; Fri, 8 Mar 2002 15:50:36 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:60670 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S311112AbSCHUuW>; Fri, 8 Mar 2002 15:50:22 -0500
+Date: Fri, 08 Mar 2002 12:49:37 -0800
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Samuel Ortiz <sortiz@dbear.engr.sgi.com>
+cc: Andrea Arcangeli <andrea@suse.de>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] stop null ptr deference in __alloc_pages
+Message-ID: <12160000.1015620577@flay>
+In-Reply-To: <Pine.LNX.4.33.0203081207360.18968-100000@dbear.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.33.0203081207360.18968-100000@dbear.engr.sgi.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Mar 2002, Hubertus Franke wrote:
+> If you applied an SGI patch that makes the zonelist contain all the zones
+> of your machine, then the zonelist should not be NULL.
+> If you allocate memory with gfp_mask & GFP_ZONEMASK == GFP_NORMAL from a
+> HIGHMEM only node, then the first entry on the corresponding zonelist
+> should be the first NORMAL zone on some other node.
+> Am I missing something here ?
 
-> > So I would suggest making the size (and thus alignment check) of locks
-> > at least 8 bytes (and preferably 16). That makes it slightly harder to
-> > put locks on the stack, but gcc does support stack alignment, even if
-> > the code sucks right now.
+You're missing the fact that I'm missing the SGI patch ;-)
 
-> Keeping it small, allows for the common case of mutex integration into
-> data objects, though its not a big deal.
-
-I guess we need to know what the requirements are of the fabled
-"architectures which need special handling of PROT_SEM" before
-we can tell whether this is a good idea or not.
-
-Matthew.
+M.
 

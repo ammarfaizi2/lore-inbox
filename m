@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274749AbRJNHrm>; Sun, 14 Oct 2001 03:47:42 -0400
+	id <S274774AbRJNHuc>; Sun, 14 Oct 2001 03:50:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274666AbRJNHrW>; Sun, 14 Oct 2001 03:47:22 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:47243 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S274746AbRJNHrP>;
-	Sun, 14 Oct 2001 03:47:15 -0400
-Date: Sun, 14 Oct 2001 00:47:44 -0700 (PDT)
-Message-Id: <20011014.004744.51856957.davem@redhat.com>
+	id <S274766AbRJNHuX>; Sun, 14 Oct 2001 03:50:23 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:50571 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S274752AbRJNHuM>;
+	Sun, 14 Oct 2001 03:50:12 -0400
+Date: Sun, 14 Oct 2001 00:50:41 -0700 (PDT)
+Message-Id: <20011014.005041.39156727.davem@redhat.com>
 To: Mika.Liljeberg@welho.com
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: TCP acking too fast
@@ -26,14 +26,19 @@ X-Mailing-List: linux-kernel@vger.kernel.org
    From: Mika Liljeberg <Mika.Liljeberg@welho.com>
    Date: Sun, 14 Oct 2001 10:05:33 +0300
    
-   I've attached a fragment of tcpdump output from the middle of steady
-   state transfer. Looking at the dump, it seems that most arriving
-   segments have the PSH bit set. This leads me to believe that the
-   transfer is mostly application limited at the sender side.
+   Looking at the dump, it seems that most arriving
+   segments have the PSH bit set.
 
-This means the application is doing many small writes.  To be honest,
-to only sure way to cure any performance problems from that is to
-fix the application in question.  What is this application?
+I know you said what is running on the receiver, but do
+you have any clue what is running on the sender?  It looks
+_really_ broken.
+
+The transfer looks like a bulk one but every segment (as you have
+stated) has PSH set, which is completely stupid.
+
+At least, I can guarentee you that the sender is not Linux.  Or,
+if it is Linux, it is running a really broken implementation of
+a web server. :-)
 
 Franks a lot,
 David S. Miller

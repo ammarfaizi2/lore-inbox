@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264810AbTFLNus (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 09:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264826AbTFLNus
+	id S264796AbTFLNsq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 09:48:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264800AbTFLNsq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 09:50:48 -0400
-Received: from lvs01-fl.valueweb.net ([216.219.253.200]:47746 "EHLO
-	ams003.ftl.affinity.com") by vger.kernel.org with ESMTP
-	id S264810AbTFLNum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 09:50:42 -0400
-Message-ID: <3EE887FA.90008@coyotegulch.com>
-Date: Thu, 12 Jun 2003 10:02:34 -0400
-From: Scott Robert Ladd <coyote@coyotegulch.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
+	Thu, 12 Jun 2003 09:48:46 -0400
+Received: from web11307.mail.yahoo.com ([216.136.131.210]:49802 "HELO
+	web11307.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264796AbTFLNsp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 09:48:45 -0400
+Message-ID: <20030612140230.75347.qmail@web11307.mail.yahoo.com>
+Date: Thu, 12 Jun 2003 07:02:30 -0700 (PDT)
+From: Alex Deucher <agd5f@yahoo.com>
+Subject: Re: Via KT400 and AGP 8x Support
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: Artemio <artemio@artemio.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: SMP question
-References: <MDEHLPKNGKAHNMBLJOLKMEJLDJAA.davids@webmaster.com> <200306112313.30903.artemio@artemio.net> <20030611225401.GE2712@werewolf.able.es>
-In-Reply-To: <20030611225401.GE2712@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> In short, for FP intensive tasks, hyperthreading is a big lie...
-> You can't run 2 computations in parallel.
+I have to disagree here.  The DRI project is still very much alive. 
+Over the last few months lots of OpenGL extensions have been added. 
+Just recently most drivers got YUV texture and NV texture rectangle
+support.  A new configuration system is in the works and progress
+continues on mach64, savage, and trident support.  The reason we
+haven't seen support for lots of new chips is that no one is funding
+development!  It is a volunteer group!  It takes a lot of work to write
+a new driver.  There are docs available for quite a few chips, but
+someone has to write the driver.  
 
-Yes and no; the benefit of HT depends on the application in question. 
-I've seen everything from a 5% LOSS in performance to a 30% INCREASE in 
-performance, for intensive floating-point code. This is with programs 
-parallelized with OpenMP and Intel's C and Fortran compilers. I'm still 
-analyzing the exact nature of the benefits, but they *do* exist.
+Alex
 
-While I much prefer multiple physical CPUs to "virtual" CPUs, HT *does* 
-provide performance improvements for certain applications. To call HT a 
-"big lie" is both provacative and inaccurate.
+-------------------------
 
--- 
-Scott Robert Ladd
-Coyote Gulch Productions (http://www.coyotegulch.com)
+I despair at the DRI project ever getting back in gear -- it's in
+horrible
+disarray and the development list is now 75% spam. Some good
+improvements
+came thanks to a donation from the Weather Channel, but it's not enough
+to
+provide comprehensive support. :-( Maybe there needs to be a "save DRI"
+fund. :-/ 
 
+__________________________________
+Do you Yahoo!?
+Yahoo! Calendar - Free online calendar with sync to Outlook(TM).
+http://calendar.yahoo.com

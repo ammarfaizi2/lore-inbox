@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262720AbVAVOGq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVAVOYQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262720AbVAVOGq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 Jan 2005 09:06:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262722AbVAVOGq
+	id S262724AbVAVOYQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 Jan 2005 09:24:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbVAVOYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 09:06:46 -0500
-Received: from out012pub.verizon.net ([206.46.170.137]:49836 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S262721AbVAVOGe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 09:06:34 -0500
-Message-Id: <200501221406.j0ME6SIF019928@localhost.localdomain>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-cc: "Jack O'Quin" <joq@io.com>, Con Kolivas <kernel@kolivas.org>,
-       linux <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>
-Subject: Re: [PATCH]sched: Isochronous class v2 for unprivileged soft rt scheduling 
-In-reply-to: Your message of "Fri, 21 Jan 2005 08:59:52 +1100."
-             <16880.10712.159729.934973@wombat.chubb.wattle.id.au> 
-Date: Sat, 22 Jan 2005 09:06:28 -0500
-From: Paul Davis <paul@linuxaudiosystems.com>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.197.206.140] at Sat, 22 Jan 2005 08:06:32 -0600
+	Sat, 22 Jan 2005 09:24:16 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:8077 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262724AbVAVOYO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 22 Jan 2005 09:24:14 -0500
+Date: Sat, 22 Jan 2005 15:23:53 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@codemonkey.org.uk>, cpufreq@zenII.linux.org.uk,
+       "H. Peter Anvin" <hpa@zytor.com>, Dominik Brodowski <linux@brodo.de>,
+       Zwane Mwaikambo <zwane@commfireservices.com>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH]: speedstep-lib: fix frequency multiplier for Pentium4 models 0&1
+Message-ID: <20050122142353.GB19194@devserv.devel.redhat.com>
+References: <41F259C4.9020903@tiscali.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41F259C4.9020903@tiscali.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>>> "Jack" == Jack O'Quin <joq@io.com> writes:
->
->
->Jack> Looks like we need to do another study to determine which
->Jack> filesystem works best for multi-track audio recording and
->Jack> playback.  XFS looks promising, but only if they get the latency
->Jack> right.  Any experience with that?  
->
->The nice thing about audio/video and XFS is that if you know ahead of
->time the max size of a file (and you usually do -- because you know
->ahead of time how long a take is going to be) you can precreadte the
->file as a contiguous chunk, then just fill it in, for minimum disc
->latency.
 
-I don't know what world you're in, but this simply isn't the case in
-my experience - you generally have absolutely no idea how long a take
-is going to be.
+On Sat, Jan 22, 2005 at 02:48:52PM +0100, Matthias-Christian Ott wrote:
+> The Pentium4 models 0&1 have a longer MSR_EBC_FREQUENCY_ID register as 
+> the models 2&3, so the bit shift must be bigger.
 
---p
+I would feel safer if this checked that it was actually a p4 as well...

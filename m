@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317209AbSGHWoe>; Mon, 8 Jul 2002 18:44:34 -0400
+	id <S317221AbSGHWsO>; Mon, 8 Jul 2002 18:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317221AbSGHWod>; Mon, 8 Jul 2002 18:44:33 -0400
-Received: from mail.uklinux.net ([80.84.72.21]:521 "EHLO s1.uklinux.net")
-	by vger.kernel.org with ESMTP id <S317209AbSGHWob>;
-	Mon, 8 Jul 2002 18:44:31 -0400
-Envelope-To: linux-kernel@vger.kernel.org
-Date: Mon, 8 Jul 2002 23:45:59 +0100 (BST)
-From: Ken Moffat <ken@kenmoffat.uklinux.net>
-To: Chris Rankin <cj.rankin@ntlworld.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Scary VM message with Linux 2.4.19-pre9-ac3
-In-Reply-To: <200207081937.g68Jbi8t000811@twopit.underworld>
-Message-ID: <Pine.LNX.4.21.0207082331130.32419-100000@pppg_penguin.linux.bogus>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317230AbSGHWsN>; Mon, 8 Jul 2002 18:48:13 -0400
+Received: from hell.ascs.muni.cz ([147.251.60.186]:58754 "EHLO
+	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
+	id <S317221AbSGHWsM>; Mon, 8 Jul 2002 18:48:12 -0400
+Date: Tue, 9 Jul 2002 00:50:25 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Austin Gonyou <austin@digitalroadkill.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Terrible VM in 2.4.11+?
+Message-ID: <20020709005025.B1745@mail.muni.cz>
+References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1026167822.16937.5.camel@UberGeek>; from austin@digitalroadkill.net on Mon, Jul 08, 2002 at 05:37:02PM -0500
+X-Muni: zakazka, vydelek, firma, komerce, vyplata
+X-echalon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mosad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
+X-policie-CR: Neserte mi nebo nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Jul 2002, Chris Rankin wrote:
 
-> Hi,
-> 
-> I have just seen this message appear in my kernel log:
-> 
-> Jul  8 20:20:44 twopit kernel: do_wp_page: bogus page at address 40fb8000 (page 0xc2f96990)
-> Jul  8 20:20:44 twopit kernel: VM: killing process setiathome
-> 
-> I am running Linux-2.4.19-pre9-ac3 on a dual 733 MHz PIII, with 1.25
-> GB RAM, devfs, ALSA-CVS and lm_sensors 2.6.3, and this is the first
-> time I have *ever* seen this message. To be fair, I've been suspecting
-> memory corruption in 2.4.18+ kernels for a long time, and this message
-> did not produce an oops, but I am *particularly* spooked this time
-> because this it happened (only once) just *minutes* after my first
-> reboot since an important BIOS upgrade. Normally, the machine stays up
-> for about a week before it needs a maintenance reboot.
->
+Yes, I know a few people that reports it works well for them. How ever for me
+and some other do not. System is redhat 7.2, ASUS A7V MB, /dev/hda is on promise
+controller. Following helps a lot:
 
- Chris, I don't think I understand your definition of `maintenance' - one
-of my boxes sometimes gets rebooted more often than weekly, but only if
-I'm testing new pre-patches or new -ac patches, or if I'm testing a full 
-system rebuild. Your kit doesn't sound *bleeding_edge*, I'd expect it to
-keep running for weeks or months.
+while true; do sync; sleep 3; done
 
- Having said that, I've never upgraded a bios in my life, and I'd get
-worried to get these messages afterwards. Why did you already suspect
-memory corruption ? 
+How did you modify the params of bdflush? I do not want to suspend i/o buffers 
+nor disk cache.. 
 
-> Everything still fine so far ... see that rubik's cube go...
-> 
-> I have previously run memtest-3.0 over all my RAM and it has checked
-> out.
->
+Another thing to notice, the X server has almost every time some pages swaped to
+the swap space on /dev/hda. When bdflushd is flushing buffers X server stops as
+has no access to the swap area during i/o lock.
 
- Never tried this version, but I was having a lot of problems 18 months
-ago, and again more recently when a fan started to fail. At those times
-memtest86 detected no problems. If you want to provoke sig 11, the best 
-options are running jade (make htmldocs or whatever you prefer), building 
-the kernel, and (best/worst test) building gcc. 
+On Mon, Jul 08, 2002 at 05:37:02PM -0500, Austin Gonyou wrote:
+> I do things like this regularly, and have been using kernels 2.4.10+ on
+> many types of boxen, but have yet to see this behavior. I've done this
+> same type of test with 16k blocks up to 10M, and not had this problem I
+> usually do test with regard to I/O on SCSI, but have tested on IDE,
+> since we use many IDE systems for developers. I found though, that using
+> something like LVM, and overwhelming it, causes bdflush to go crazy. I
+> can hit the wall you refer to then.When bdflushd is too busy...it does
+> in fact seem to *lock* the system, but of course..it's just bdflush
+> doing it's thing. If I modify the bdflush params..this causes things to
+> work just fine, at least, useable.
 
-> Should I worry?
-> 
-
- Have you considered the usual problems (poor cooling, inadequate power
-supply) ? - I know you're using Intel cpus, but even they need cooling and
-power. Do you get reliable readings from lm_sensors ?
-
-> Cheers,
-> Chris
-> -
-
-Ken
 -- 
- Out of the darkness a voice spake unto me, saying "smile, things could be
-worse". So I smiled, and lo, things became worse.
-
-
-
+Luká¹ Hejtmánek

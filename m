@@ -1,29 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267515AbTACPC5>; Fri, 3 Jan 2003 10:02:57 -0500
+	id <S267541AbTACPHp>; Fri, 3 Jan 2003 10:07:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267541AbTACPC4>; Fri, 3 Jan 2003 10:02:56 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:25543 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267515AbTACPC4>; Fri, 3 Jan 2003 10:02:56 -0500
-Date: Fri, 3 Jan 2003 16:11:13 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [STUPID] Best looking code to transfer to a t-shirt
-Message-ID: <20030103151113.GE1360@louise.pinerecords.com>
-References: <Pine.LNX.4.44.0301031419560.11311-100000@dns.toxicfilms.tv>
-Mime-Version: 1.0
+	id <S267542AbTACPHp>; Fri, 3 Jan 2003 10:07:45 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:9744 "EHLO aslan.scsiguy.com")
+	by vger.kernel.org with ESMTP id <S267541AbTACPHo>;
+	Fri, 3 Jan 2003 10:07:44 -0500
+Date: Fri, 03 Jan 2003 08:14:06 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: dipankar@in.ibm.com, linux-scsi@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx broken in 2.5.53/54 ?
+Message-ID: <596830816.1041606846@aslan.scsiguy.com>
+In-Reply-To: <20030103101618.GB8582@in.ibm.com>
+References: <20030103101618.GB8582@in.ibm.com>
+X-Mailer: Mulberry/3.0.0b9 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0301031419560.11311-100000@dns.toxicfilms.tv>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->	I am in a t-shirt transfering frenzy and was wondering which part
->	of the kernel code it would be best to have on my t-shirt.
+> Looks like the aic7xxx driver in 2.5.53 and 54 are broken on my hardware.
 
-You'd be better off digging through historic IOCCC gems.
+It looks like the driver recovers fine.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+...
+
+> aic7xxx: PCI Device 0:1:0 failed memory mapped test.  Using PIO.
+> Uhhuh. NMI received for unknown reason 25 on CPU 0.
+
+SERR must be enabled by your BIOS.  I will change the driver so
+that, should the memory mapped I/O test fail, an SERR (and thus an
+NMI) is not generated.
+
+...
+
+> scsi0: PCI error Interrupt at seqaddr = 0x2
+> scsi0: Signaled a Target Abort
+
+These are left over from the failed memory mapped I/O test.  They
+should have been cleared by the test, but the behavior must be
+different for the 7896/97.  I'll review the documentation for this
+chip and see if I can quiet up the failure.
+
+Just out of curiosity, do you have any strange PCI options enabled
+in your BIOS?  I remeber seeing memory mapped I/O failures on this
+ServerWorks chipset under FreeBSD in the past, but an updated BIOS
+resolved the issue for the affected users.  It seemed that the BIOS
+incorrectly placed the Adaptec controller in a prefetchable region.
+
+--
+Justin
+

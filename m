@@ -1,43 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291473AbSBMKLC>; Wed, 13 Feb 2002 05:11:02 -0500
+	id <S291475AbSBMKJl>; Wed, 13 Feb 2002 05:09:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291492AbSBMKKx>; Wed, 13 Feb 2002 05:10:53 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:60934 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S291473AbSBMKKi>; Wed, 13 Feb 2002 05:10:38 -0500
-Subject: Re: [patch] printk and dma_addr_t
-To: davem@redhat.com (David S. Miller)
-Date: Wed, 13 Feb 2002 10:23:50 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk, akpm@zip.com.au, linux-kernel@vger.kernel.org,
-        ralf@uni-koblenz.de
-In-Reply-To: <20020213.013557.74564240.davem@redhat.com> from "David S. Miller" at Feb 13, 2002 01:35:57 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S291473AbSBMKJb>; Wed, 13 Feb 2002 05:09:31 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:54152 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S291492AbSBMKJW>;
+	Wed, 13 Feb 2002 05:09:22 -0500
+Date: Wed, 13 Feb 2002 13:07:11 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Larry McVoy <lm@bitmover.com>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Alexander Viro <viro@math.psu.edu>,
+        Rob Landley <landley@trommello.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <20020212190834.W9826@lynx.turbolabs.com>
+Message-ID: <Pine.LNX.4.33.0202131300500.16151-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16awZq-0004s4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->    Date: Wed, 13 Feb 2002 09:40:44 +0000 (GMT)
-> 
->    Vomit. How about adding a dma_addr_t %code to the printk function ?
-> 
-> And gcc will discover this via what?  Osmosis perhaps? :-)
 
-Yeah, seems gcc is a bit lacking in its overclever printf handlers. It
-lacks the ability to declare additional non standard % code - despite the
-fact glibc itself expands on the standard
+On Tue, 12 Feb 2002, Andreas Dilger wrote:
 
-       glibc 2.0 adds conversion characters C and S.
+> Is this using "bk clone -l" or just "bk clone"?  I would _imagine_
+> that since the rmap changes are fairly localized that you would only
+> get multiple copies of a limited number of files, and it wouldn't
+> increase the size of each repository very much.
 
-       glibc  2.1  adds  length modifiers hh,j,t,z and conversion
-       characters a,A.
+the problem is, i'd like to see all these changes in a single tree, and
+i'd like to be able to specify whether two changesets have semantic
+dependencies on each other or not. BK would still enforce 'hard
+orthogonality' - ie. two changesets that change the same line of code
+cannot be defined as nondependent on each other, BK should refuse the
+checking in of such a changeset. The default dependency should be
+something like 'this changeset is dependent on all previous changesets
+committed to this repository' - but if the developer wants it then it
+should be possible to un-depend two changesets.
 
-       glibc 2.2 adds the conversion character F with C99  seman-
-       tics, and the flag character I.
+it's also true in the other direction: two changesets that have no hard
+conflicts could still have semantic dependencies, it's the responsibility
+of the developer.
 
-So how do they modify the printf format rules in gcc ?
+(detail: it might even be possible to define two changesets as orthogonal
+even if there are hard conflicts between them. For this to work the
+developer has to provide the correct merge in both directions. If that is
+done then BK should allow to make the two changesets independent.)
+
+	Ingo
+

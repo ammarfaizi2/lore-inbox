@@ -1,104 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267494AbUIPKYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267615AbUIPKoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267494AbUIPKYU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 06:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUIPKYU
+	id S267615AbUIPKoK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 06:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267818AbUIPKoK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 06:24:20 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:22690 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267494AbUIPKYQ (ORCPT
+	Thu, 16 Sep 2004 06:44:10 -0400
+Received: from 147.32.220.203.comindico.com.au ([203.220.32.147]:60357 "EHLO
+	relay01.mail-hub.kbs.net.au") by vger.kernel.org with ESMTP
+	id S267615AbUIPKoC convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 06:24:16 -0400
-Date: Thu, 16 Sep 2004 12:22:37 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Bc. Michal Semler" <cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CD-ROM can't be ejected
-Message-ID: <20040916102236.GB2300@suse.de>
-References: <200409160025.35961.cijoml@volny.cz> <200409161013.35454.cijoml@volny.cz> <20040916090540.GX2300@suse.de> <200409161113.55719.cijoml@volny.cz>
+	Thu, 16 Sep 2004 06:44:02 -0400
+Subject: [PATCH]: Suspend2 Merge: Device driver fixes 1/2
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1095331532.3855.133.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200409161113.55719.cijoml@volny.cz>
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 16 Sep 2004 20:45:32 +1000
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16 2004, Bc. Michal Semler wrote:
-> > > > On Thu, Sep 16 2004, Bc. Michal Semler wrote:
-> > > > > notas:/home/cijoml# mount /cdrom/
-> > > > > notas:/home/cijoml# umount /cdrom/
-> > > > > notas:/home/cijoml# strace -o eject /dev/hdc
-> > > > > eject: unable to eject, last error: Nep?ípustný argument
-> > > > >
-> > > > > As you can see, I dont't enter to directory...
-> > > > >
-> > > > > And output is included
-> > > > >
-> > > > > ioctl(3, CDROMEJECT, 0xbffffac8)        = -1 EIO (Input/output error)
-> > > >
-> > > > That's the important bit, the reason you get EINVAL passed back is
-> > > > because eject tries the floppy eject as well and decides to print the
-> > > > warning from that. It really should just stop of it sees -EIO, only
-> > > > continue if EINVAL/ENOTTY is passed back.
-> > > >
-> > > > Try this little c program and report back what it tells you. Compile
-> > > > with
-> > > >
-> > > > gcc -Wall -o eject eject.c
-> > > >
-> > > > and run without arguments.
-> > > >
-> > > > #include <stdio.h>
-> > > > #include <stdlib.h>
-> > > > #include <fcntl.h>
-> > > > #include <string.h>
-> > > > #include <sys/ioctl.h>
-> > > > #include <linux/cdrom.h>
-> > > >
-> > > > int main(int argc, char *argv[])
-> > > > {
-> > > > 	int fd = open("/dev/hdc", O_RDONLY | O_NONBLOCK);
-> > > > 	struct cdrom_generic_command cgc;
-> > > > 	struct request_sense sense;
-> > > >
-> > > > 	memset(&cgc, 0, sizeof(cgc));
-> > > > 	memset(&sense, 0, sizeof(sense));
-> > > >
-> > > > 	cgc.cmd[0] = 0x1b;
-> > > > 	cgc.cmd[4] = 0x02;
-> > > > 	cgc.sense = &sense;
-> > > > 	cgc.data_direction = CGC_DATA_NONE;
-> > > >
-> > > > 	if (ioctl(fd, CDROM_SEND_PACKET, &cgc) == 0) {
-> > > > 		printf("eject worked\n");
-> > > > 		return 0;
-> > > > 	}
-> > > >
-> > > > 	printf("command failed - sense %x/%x/%x\n", sense.sense_key,
-> > > > sense.asc, sense.ascq); return 1;
-> > > > }
-> > >
-> > > 2.4.27-mh1
-> > > notas:~# /home/cijoml/eject
-> > > ATAPI device hdc:
-> > >   Error: Not ready -- (Sense key=0x02)
-> > >   (reserved error code) -- (asc=0x53, ascq=0x02)
-> > >   The failed "Start/Stop Unit" packet command was:
-> > >   "1b 00 00 00 02 00 00 00 00 00 00 00 "
-> > > command failed - sense 2/53/2
-> >
-> > Your tray is still locked, are you sure it isn't mounted?
+-----Forwarded Message-----
+> From: Éric Brunet <Eric.Brunet@lps.ens.fr>
+> To: Paul Gortmaker <p_gortmaker@yahoo.com>
+> Cc: arekm@pld-linux.org, linux-kernel@vger.kernel.org
+> Subject: PATCH swsuspend for ne2k-pci cards
+> Date: Sat, 21 Aug 2004 14:14:30 +0200
 > 
-> Yes I am. This is written into console and I am logged only into this
-> console and I copied whole commands from login to eject... :(
+> Hi,
+> 
+> Arkadiusz Miskiewicz had some suggestions to improve my patch which
+> adds suspend/resume support to ne2k-pci.c. Actually, he basically rewrote
+> it.
+> 
+> This patch was only tested on my own ne2k clone [Realtek Semiconductor
+> Co., Ltd. RTL-8029(AS)], and it works nicely for me. As 1) it cannot hurt
+> people which are not using swsuspend 2) it can only improve things for
+> people using swsuspend, it would be nice if this patch could go into the
+> kernel.
+> 
+> Thank you,
+> 
+> 	Éric Brunet
 
-For the third time, don't trim the cc list! group reply please.
-
-Something else must be keeping your drive locked. What else do you have
-running in the system? It's enough if one app is just holding the drive
-open, the drive wont get unlocked on umount then.
-
+diff -ruN linux-2.6.9-rc1/drivers/net/ne2k-pci.c software-suspend-linux-2.6.9-rc1-rev3/drivers/net/ne2k-pci.c
+--- linux-2.6.9-rc1/drivers/net/ne2k-pci.c	2004-09-07 21:58:41.000000000 +1000
++++ software-suspend-linux-2.6.9-rc1-rev3/drivers/net/ne2k-pci.c	2004-09-09 19:36:24.000000000 +1000
+@@ -653,12 +653,43 @@
+ 	pci_set_drvdata(pdev, NULL);
+ }
+ 
++#ifdef CONFIG_PM
++static int ne2k_pci_suspend (struct pci_dev *pdev, u32 state)
++{
++	struct net_device *dev = pci_get_drvdata (pdev);
++
++	netif_device_detach(dev);
++	pci_save_state(pdev, pdev->saved_config_space);
++	pci_set_power_state(pdev, state);
++
++	return 0;
++}
++
++static int ne2k_pci_resume (struct pci_dev *pdev)
++{
++	struct net_device *dev = pci_get_drvdata (pdev);
++
++	pci_set_power_state(pdev, 0);
++	pci_restore_state(pdev, pdev->saved_config_space);
++	NS8390_init(dev, 1);
++	netif_device_attach(dev);
++
++	return 0;
++}
++
++#endif /* CONFIG_PM */
++
+ 
+ static struct pci_driver ne2k_driver = {
+ 	.name		= DRV_NAME,
+ 	.probe		= ne2k_pci_init_one,
+ 	.remove		= __devexit_p(ne2k_pci_remove_one),
+ 	.id_table	= ne2k_pci_tbl,
++#ifdef CONFIG_PM
++	.suspend	= ne2k_pci_suspend,
++	.resume		= ne2k_pci_resume,
++#endif /* CONFIG_PM */
++
+ };
+ 
 -- 
-Jens Axboe
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
 

@@ -1,49 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbTDHXQu (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 19:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTDHXQu (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 19:16:50 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:52229 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S262569AbTDHXQs (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 19:16:48 -0400
-Subject: Re: [PATCH] aic7* claims all checked EISA io ranges
-From: James Bottomley <James.Bottomley@steeleye.com>
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <3688420000.1049843559@aslan.btc.adaptec.com>
-References: <1049843229.2107.46.camel@mulgrave> 
-	<3688420000.1049843559@aslan.btc.adaptec.com>
-Content-Type: text/plain
+	id S262577AbTDHXRW (for <rfc822;willy@w.ods.org>); Tue, 8 Apr 2003 19:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTDHXRW (for <rfc822;linux-kernel-outgoing>); Tue, 8 Apr 2003 19:17:22 -0400
+Received: from mako.theneteffect.com ([63.97.58.10]:51718 "EHLO
+	mako.theneteffect.com") by vger.kernel.org with ESMTP
+	id S262577AbTDHXRO (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 8 Apr 2003 19:17:14 -0400
+From: Mitch Adair <mitch@theneteffect.com>
+Message-Id: <200304082328.h38NSj423007@mako.theneteffect.com>
+Subject: [PATCH] fix menuconfig help for choice menus
+To: torvalds@transmeta.com
+Date: Tue, 8 Apr 2003 18:28:44 -0500 (CDT)
+Cc: zippel@linux-m68k.org, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 08 Apr 2003 18:28:12 -0500
-Message-Id: <1049844494.1788.61.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-04-08 at 18:12, Justin T. Gibbs wrote:
-> > I take it 2.5 is up to date, right?  Because otherwise we should have
-> > seen an update notice go across linux-scsi@vger.kernel.org.
-> 
-> In the past, I have sent mail directly to Linus which has worked for 2.5.
-> Unfortunately, it looks like he has not applied the last bundle I posted
-> to him on 2003/03/25.  This is the same bk output as posted on my website.
+Menuconfig currently doesn't show the help texts that go along with config
+options inside a choice menu.  (A good example is the "Processor family"
+submenu - none of the per-processor help texts show up.)
 
-Well, the aic7xxx is part of SCSI, and SCSI has an active BK tree for
-accumulating patches and pushing them to Linus.  If you want to
-circumvent this, then patches will get lost sometimes.
+The following patch fixes this - menuconfig now shows the help text for
+the config option under the cursor.
 
-The way to avoid this is to send patches to linux-scsi@vger.kernel.org.
-
-> > This problem looks to be present in 2.5, so should I apply the patch?
-> 
-> It would be better to just upgrade the driver with bits I submitted to
-> Linus.  I have another update coming to correctly fix the del_timer_sync()
-> issue since the last, unsanctioned, change in this area has a large potential
-> to cause a deadlock.
-
-I'll see if I can pull them.
-
-James
+	M
 
 
+diff -urN linux-2.5.67/scripts/kconfig/mconf.c linux-2.5.67-mod/scripts/kconfig/mconf.c
+--- linux-2.5.67/scripts/kconfig/mconf.c	Fri Mar 21 13:25:48 2003
++++ linux-2.5.67-mod/scripts/kconfig/mconf.c	Tue Apr  8 15:34:00 2003
+@@ -627,7 +627,8 @@
+ 			sym_set_tristate_value(menu->sym, yes);
+ 			return;
+ 		case 1:
+-			show_help(menu);
++			if (sscanf(input_buf, "%p", &child) == 1)
++				show_help(child);
+ 			break;
+ 		case 255:
+ 			return;
+diff -urN linux-2.5.67/scripts/lxdialog/checklist.c linux-2.5.67-mod/scripts/lxdialog/checklist.c
+--- linux-2.5.67/scripts/lxdialog/checklist.c	Tue Mar  4 21:29:18 2003
++++ linux-2.5.67-mod/scripts/lxdialog/checklist.c	Tue Apr  8 17:52:03 2003
+@@ -302,6 +302,21 @@
+ 	case 'H':
+ 	case 'h':
+ 	case '?':
++	    if (!status[scroll + choice]) {
++		for (i = 0; i < item_no; i++)
++		    status[i] = 0;
++		status[scroll + choice] = 1;
++		for (i = 0; i < max_choice; i++)
++		    print_item (list, items[(scroll + i) * 3 + 1],
++				status[scroll + i], i, i == choice);
++	    }
++	    wnoutrefresh (list);
++	    wrefresh (dialog);
++
++	    for (i = 0; i < item_no; i++) {
++		if (status[i])
++		    fprintf (stderr, "%s", items[i * 3]);
++	    }
+ 	    delwin (dialog);
+ 	    free (status);
+ 	    return 1;
+@@ -318,36 +333,33 @@
+ 	case 's':
+ 	case ' ':
+ 	case '\n':
+-	    if (!button) {
+-		if (flag == FLAG_CHECK) {
+-		    status[scroll + choice] = !status[scroll + choice];
+-		    wmove (list, choice, check_x);
+-		    wattrset (list, check_selected_attr);
+-		    wprintw (list, "[%c]", status[scroll + choice] ? 'X' : ' ');
+-		} else {
+-		    if (!status[scroll + choice]) {
+-			for (i = 0; i < item_no; i++)
+-			    status[i] = 0;
+-			status[scroll + choice] = 1;
+-			for (i = 0; i < max_choice; i++)
+-			    print_item (list, items[(scroll + i) * 3 + 1],
+-					status[scroll + i], i, i == choice);
+-		    }
++	    if (flag == FLAG_CHECK) {
++		status[scroll + choice] = !status[scroll + choice];
++		wmove (list, choice, check_x);
++		wattrset (list, check_selected_attr);
++		wprintw (list, "[%c]", status[scroll + choice] ? 'X' : ' ');
++	    } else {
++		if (!status[scroll + choice]) {
++		    for (i = 0; i < item_no; i++)
++			status[i] = 0;
++		    status[scroll + choice] = 1;
++		    for (i = 0; i < max_choice; i++)
++			print_item (list, items[(scroll + i) * 3 + 1],
++				    status[scroll + i], i, i == choice);
+ 		}
+-		wnoutrefresh (list);
+-		wrefresh (dialog);
+-            
+-		for (i = 0; i < item_no; i++) {
+-		    if (status[i]) {
+-			if (flag == FLAG_CHECK) {
+-			    fprintf (stderr, "\"%s\" ", items[i * 3]);
+-			} else {
+-			    fprintf (stderr, "%s", items[i * 3]);
+-			}
++	    }
++	    wnoutrefresh (list);
++	    wrefresh (dialog);
+ 
++	    for (i = 0; i < item_no; i++) {
++		if (status[i]) {
++		    if (flag == FLAG_CHECK) {
++			fprintf (stderr, "\"%s\" ", items[i * 3]);
++		    } else {
++			fprintf (stderr, "%s", items[i * 3]);
+ 		    }
+ 		}
+-            }
++	    }
+ 	    delwin (dialog);
+ 	    free (status);
+ 	    return button;

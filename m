@@ -1,58 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262704AbTIQMW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 08:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbTIQMW3
+	id S262739AbTIQMgL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 08:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262740AbTIQMgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 08:22:29 -0400
-Received: from 184.80-202-92.nextgentel.com ([80.202.92.184]:29561 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262704AbTIQMWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 08:22:21 -0400
-Subject: Problems with Synaptics touchpad on Compaq Evo N600c and
-	2.6.0-test5
-From: Kjartan Maraas <kmaraas@broadpark.no>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063801250.3638.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-6) 
-Date: Wed, 17 Sep 2003 14:20:50 +0200
+	Wed, 17 Sep 2003 08:36:11 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:35857 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262739AbTIQMgJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 08:36:09 -0400
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Norman Diamond <ndiamond@wta.att.ne.jp>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: 2.6.0-test5 vs. Japanese keyboards [3]
+References: <1b7301c37a73$861bea70$2dee4ca5@DIAMONDLX60>
+	<20030914122034.C3371@pclin040.win.tue.nl>
+	<206701c37ab2$6a8033e0$2dee4ca5@DIAMONDLX60>
+	<20030916154305.A1583@pclin040.win.tue.nl>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 17 Sep 2003 21:35:22 +0900
+In-Reply-To: <20030916154305.A1583@pclin040.win.tue.nl>
+Message-ID: <87vfrr3851.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried booting this kernel from http://people.redhat.com/arjanv/2.5/
-and lost my mouse completely. Here's a snippet from /var/log/messages
+Andries Brouwer <aebr@win.tue.nl> writes:
 
-Sep 17 12:45:13 localhost kernel: mice: PS/2 mouse device common for all
-mice
-Sep 17 12:45:13 localhost kernel: i8042.c: Detected active multiplexing
-controller, rev 1.1.
-Sep 17 12:45:13 localhost kernel: serio: i8042 AUX0 port at 0x60,0x64
-irq 12
-Sep 17 12:45:13 localhost kernel: serio: i8042 AUX1 port at 0x60,0x64
-irq 12
-Sep 17 12:45:13 localhost kernel: serio: i8042 AUX2 port at 0x60,0x64
-irq 12
-Sep 17 12:45:13 localhost kernel: synaptics reset failed
-Sep 17 12:45:13 localhost last message repeated 2 times
-Sep 17 12:45:13 localhost kernel: Synaptics Touchpad, model: 1
-Sep 17 12:45:13 localhost kernel:  Firware: 5.8
-Sep 17 12:45:13 localhost kernel:  180 degree mounted touchpad
-Sep 17 12:45:13 localhost kernel:  Sensor: 27
-Sep 17 12:45:13 localhost kernel:  new absolute packet format
-Sep 17 12:45:13 localhost kernel:  Touchpad has extended capability bits
-Sep 17 12:45:13 localhost kernel:  -> multifinger detection
-Sep 17 12:45:13 localhost kernel:  -> palm detection
-Sep 17 12:45:13 localhost kernel: input: Synaptics Synaptics TouchPad on
-isa0060/serio4
+> > > OGAWA Hirofumi posted a patch for the yen-sign pipe key on 2003.07.23
+> > > for test1 but his patch still didn't get into test3.
+> 
+> I do not think his patch is needed.
+> 
+> So the question arises: do we need a kernel patch, and if so, what patch?
+> The program loadkeys exists to load the kernel keymap with the map the user
+> desires. So, if you need some particular map the obvious answer is:
+> "use loadkeys".
+> 
+> There is a small snag - until 2.4 the value of NR_KEYS was 128,
+> while 2.6 uses 256. Moreover, the keys you want to change are above 128.
+> So, your old precompiled loadkeys will not do - you must recompile the
+> kbd package against 2.6 kernel headers, or just edit loadkeys.y and dumpkeys.c
+> inserting
 
-I've been testing with the XFree86 packages from rawhide, updated as of
-today, and the mouse works ok with the 2.4.x kernel from the same place.
+in input.h
+	#define KEY_MAX		0x1ff
+in keyboard.h
+	#define NR_KEYS		(KEY_MAX+1)
 
-I've got the latest BIOS for this laptop if that matters.
-
-Cheers
-Kjartan
-
+NR_KEYS is 512...  Or we should use 256, you mean?
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

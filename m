@@ -1,223 +1,641 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbUDOKxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 06:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbUDOKxY
+	id S262328AbUDOKzL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 06:55:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262499AbUDOKzL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 06:53:24 -0400
-Received: from smtp.rol.ru ([194.67.21.9]:65263 "EHLO smtp.rol.ru")
-	by vger.kernel.org with ESMTP id S261160AbUDOKxE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 06:53:04 -0400
-From: Konstantin Sobolev <kos@supportwizard.com>
-Reply-To: kos@supportwizard.com
-Organization: SupportWizard
-To: Ryan Geoffrey Bourgeois <rgb005@latech.edu>
-Subject: Re: poor sata performance on 2.6
-Date: Thu, 15 Apr 2004 14:55:36 +0400
-User-Agent: KMail/1.6.1
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <200404150236.05894.kos@supportwizard.com> <1082001287.407e0787f3c48@webmail.LaTech.edu>
-In-Reply-To: <1082001287.407e0787f3c48@webmail.LaTech.edu>
+	Thu, 15 Apr 2004 06:55:11 -0400
+Received: from web11411.mail.yahoo.com ([216.136.131.8]:41824 "HELO
+	web11411.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262328AbUDOKy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 06:54:28 -0400
+Message-ID: <20040415105424.19946.qmail@web11411.mail.yahoo.com>
+Date: Thu, 15 Apr 2004 11:54:24 +0100 (BST)
+From: =?iso-8859-1?q?alan=20pearson?= <alandpearson@yahoo.com>
+Subject: sched_getaffinity & sched_setaffinity returning -1 (errstr = Bad address)
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_oomfA/uVhoH0Q3x"
-Message-Id: <200404151455.36307.kos@supportwizard.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
---Boundary-00=_oomfA/uVhoH0Q3x
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I've been trying to use the sched_getaffinity &
+sched_setaffinity on
+kernel 2.6.4 and it is working on some systems and not
+others !
+It works fine on my aged dual CPU pentium pro box, but
+on the box I
+really want it to work on, the calls return -1 !
 
-On Thursday 15 April 2004 07:54, Ryan Geoffrey Bourgeois wrote:
-> > /dev/hde:
-> >  Timing buffer-cache reads:   1436 MB in  2.00 seconds = 717.03 MB/sec
-> >  Timing buffered disk reads:  100 MB in  3.03 seconds =  32.95 MB/sec
-> >
-> > for sata_sil:
-> >
-> > /dev/sda:
-> >  Timing buffer-cache reads:   1412 MB in  2.00 seconds = 705.05 MB/sec
-> >  Timing buffered disk reads:   84 MB in  3.06 seconds =  27.43 MB/sec
-> >
-> > So my old IDE HDD appears to be considerably faster. Expected results
-> > were 55-70MB/s.
->
-> Which kernel version did you get these results using?  Have you
+The problem platform is a HP ML530 with 2 x Intel Xeon
+processors.
+I've tried it with and without hyperthreading enabled
+and the result
+is the same.
+I'm totally at a loss why this is happening and am
+wondering if it is
+related to the xeon processors ?
+This is a really nice feature I desperatley need to
+rid my dependance
+on SGI Irix.
 
-Results are the same on different kernels, I tried 2.6.4-ck1 and -ck2,
-2.6.4-wolk2.3, 2.6.5 vanilla and 2.6.5-mm5
+I'm using the sample code provided by Robert Lowe
+(below)
 
-> speed-tested the drive(s) on a different SATA controller?  I don't mean to
+/*
+ * Example of sched_set_affinity and
+sched_get_affinity
+ * Robert Love, 20020227
+ */
 
-Not yet, but I'm going to test it on Intel ICH5 soon.
+#include <stdio.h>
+#include <stdlib.h>
+#include <sched.h>
+#include <linux/unistd.h>
 
-> imply that you should buy another one - that would be rediculuous since
-> your motherboard should laready has it - but it would help to eliminate
-> possible causes of error.  I took the same readings on my machine.  I'm
+/*
+ * provide the proper syscall information if our libc
+ * is not yet updated.
+ */
+#ifndef __NR_sched_setaffinity
+#define __NR_sched_setaffinity241
+#define __NR_sched_getaffinity242
+_syscall3 (int, sched_setaffinity, pid_t, pid,
+unsigned int, len,
+unsigned long *, user_mask_ptr)
+_syscall3 (int, sched_getaffinity, pid_t, pid,
+unsigned int, len,
+unsigned long *, user_mask_ptr)
+#endif
 
-I'm almost ready to buy separate controller, but all that I could find nearby 
-are based on the same Silicon Image chipset
+int main(int argc, char * argv[])
+{
+unsigned long new_mask = 2;
+unsigned int len = sizeof(new_mask);
+unsigned long cur_mask;
+pid_t p = 0;
+int ret;
 
-> using an ASUS SK8N motherboard - that's the Promise TX2 SATA controller -
-> with Western Digital's 36gb 10K RPM Raptor:
->
-> /dev/sda:
->  Timing buffer-cache reads:   128 MB in  0.12 seconds =1075.79 MB/sec
->  Timing buffered disk reads:  64 MB in  1.20 seconds = 53.43 MB/sec
->
-> I'm using the latest stable vanilla kernel (2.6.5), compiled today.  It
-> would also help to have your kernel config, if at all possible.
+ret = sched_getaffinity(p, len, NULL);
+perror ("sched_affinity");
+printf(" sched_getaffinity = %d, len = %u\n", ret,
+len);
 
-Sure. Attached is .config for 2.6.5-mm5
-Thanks
--- 
-/KoS
-* If you can't say it in 50 characters, then don't b		      
+ret = sched_getaffinity(p, len, &cur_mask);
+printf(" sched_getaffinity = %d, cur_mask = %08lx\n",
+ret, cur_mask);
 
---Boundary-00=_oomfA/uVhoH0Q3x
-Content-Type: application/x-gzip;
-  name=".config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename=".config.gz"
+ret = sched_setaffinity(p, len, &new_mask);
+printf(" sched_setaffinity = %d, new_mask = %08lx\n",
+ret, new_mask);
 
-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
-kQZxAAA=
+ret = sched_getaffinity(p, len, &cur_mask);
+printf(" sched_getaffinity = %d, cur_mask = %08lx\n",
+ret, cur_mask);
 
---Boundary-00=_oomfA/uVhoH0Q3x--
+return 0;
+
+}
+
+which when run yields on the Xeon box :
+
+sched_affinity: Bad address
+ sched_getaffinity = -1, len = 4
+ sched_getaffinity = -1, cur_mask = 0804851c
+ sched_setaffinity = -1, new_mask = 00000002
+ sched_getaffinity = -1, cur_mask = 0804851c
+
+
+Output of /proc/cpuinfo with hyperthreading off
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Xeon(TM) CPU 2.80GHz
+stepping        : 9
+cpu MHz         : 2800.178
+cache size      : 512 KB
+physical id     : 0
+siblings        : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8
+apic sep mtrr pge
+mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2
+ss ht tm pbe cid
+bogomips        : 5521.40
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Xeon(TM) CPU 2.80GHz
+stepping        : 9
+cpu MHz         : 2800.178
+cache size      : 512 KB
+physical id     : 3
+siblings        : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8
+apic sep mtrr pge
+mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2
+ss ht tm pbe cid
+bogomips        : 5586.94
+
+
+lspci -vv
+00:00.0 Host bridge: ServerWorks CMIC-HE (rev 22)
+        Control: I/O- Mem- BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+
+00:00.1 Host bridge: ServerWorks CMIC-HE
+        Control: I/O- Mem- BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+
+00:00.2 Host bridge: ServerWorks CMIC-HE
+        Control: I/O- Mem- BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+
+00:00.3 Host bridge: ServerWorks CMIC-HE
+        Control: I/O- Mem- BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=fast >TAbort-
+<TAbort- <MAbort- >SERR- <PERR-
+
+00:02.0 System peripheral: Compaq Computer Corporation
+Advanced System
+Management Controller
+        Subsystem: Compaq Computer Corporation:
+Unknown device b0f3
+        Control: I/O+ Mem+ BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at 1800 [size=256]
+        Region 1: Memory at f7af0000 (32-bit,
+non-prefetchable)
+[size=256]
+
+00:03.0 VGA compatible controller: ATI Technologies
+Inc Rage XL (rev
+27) (prog-if 00 [VGA])
+        Subsystem: Compaq Computer Corporation:
+Unknown device 001e
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV- VGASnoop-
+ParErr- Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (2000ns min), cache line size 10
+        Region 0: Memory at f6000000 (32-bit,
+non-prefetchable)
+[size=16M]
+        Region 1: I/O ports at 2400 [size=256]
+        Region 2: Memory at f5ff0000 (32-bit,
+non-prefetchable)
+[size=4K]
+        Expansion ROM at <unassigned> [disabled]
+[size=128K]
+        Capabilities: [5c] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+
+00:04.0 Ethernet controller: Intel Corp. 82557/8/9
+[Ethernet Pro 100]
+(rev 08)
+        Subsystem: Compaq Computer Corporation Compaq
+NC3163 Fast
+Ethernet NIC
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (2000ns min, 14000ns max), cache
+line size 10
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f5fe0000 (32-bit,
+non-prefetchable)
+[size=4K]
+        Region 1: I/O ports at 2800 [size=64]
+        Region 2: Memory at f5e00000 (32-bit,
+non-prefetchable)
+[size=1M]
+        Expansion ROM at <unassigned> [disabled]
+[size=1M]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+
+AuxCurrent=0mA
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=2
+PME-
+
+00:05.0 SCSI storage controller: Adaptec AHA-3960D /
+AIC-7899A U160/m
+(rev 01)
+        Subsystem: Compaq Computer Corporation Compaq
+64-Bit/66MHz
+Dual Channel Wide Ultra3 SCSI Adapter
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (10000ns min, 6250ns max), cache
+line size 10
+        Interrupt: pin A routed to IRQ 11
+        BIST result: 00
+        Region 0: I/O ports at 2c00 [size=256]
+        Region 1: Memory at f5df0000 (64-bit,
+non-prefetchable)
+[size=4K]
+        Expansion ROM at <unassigned> [disabled]
+[size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+
+00:05.1 SCSI storage controller: Adaptec AHA-3960D /
+AIC-7899A U160/m
+(rev 01)
+        Subsystem: Compaq Computer Corporation Compaq
+64-Bit/66MHz
+Dual Channel Wide Ultra3 SCSI Adapter
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (10000ns min, 6250ns max), cache
+line size 10
+        Interrupt: pin B routed to IRQ 15
+        BIST result: 00
+        Region 0: I/O ports at 3000 [size=256]
+        Region 1: Memory at f5de0000 (64-bit,
+non-prefetchable)
+[size=4K]
+        Expansion ROM at <unassigned> [disabled]
+[size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+
+00:0f.0 ISA bridge: ServerWorks CSB5 South Bridge (rev
+93)
+        Subsystem: ServerWorks CSB5 South Bridge
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 64
+
+00:0f.1 IDE interface: ServerWorks CSB5 IDE Controller
+(rev 93)
+(prog-if 82 [Master PriP])
+        Subsystem: ServerWorks CSB5 IDE Controller
+        Control: I/O+ Mem- BusMaster+ SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64, cache line size 08
+        Region 0: I/O ports at <ignored>
+        Region 1: I/O ports at <ignored>
+        Region 2: I/O ports at <unassigned>
+        Region 3: I/O ports at <unassigned>
+        Region 4: I/O ports at 2000 [size=16]
+
+00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB
+Controller (rev
+05) (prog-if 10 [OHCI])
+        Subsystem: ServerWorks OSB4/CSB5 OHCI USB
+Controller
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (20000ns max)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f5dd0000 (32-bit,
+non-prefetchable)
+[size=4K]
+
+00:0f.3 Host bridge: ServerWorks GCLE Host Bridge
+        Subsystem: ServerWorks: Unknown device 0230
+        Control: I/O- Mem- BusMaster+ SpecCycle-
+MemWINV- VGASnoop-
+ParErr- Stepping- SERR- FastB2B-
+        Status: Cap- 66Mhz- UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+
+00:10.0 Host bridge: ServerWorks CIOB30 (rev 03)
+        Control: I/O- Mem+ BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Capabilities: [60]
+00:10.2 Host bridge: ServerWorks CIOB30 (rev 03)
+        Control: I/O- Mem+ BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Capabilities: [60]
+00:11.0 Host bridge: ServerWorks CIOB30 (rev 03)
+        Control: I/O- Mem+ BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Capabilities: [60]
+00:11.2 Host bridge: ServerWorks CIOB30 (rev 03)
+        Control: I/O- Mem+ BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+        Capabilities: [60]
+01:01.0 RAID bus controller: Compaq Computer
+Corporation Smart Array
+5300 Controller (rev 02)
+        Subsystem: Compaq Computer Corporation:
+Unknown device 4070
+        Control: I/O+ Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64, cache line size 10
+        Interrupt: pin A routed to IRQ 15
+        Region 0: Memory at f7dc0000 (32-bit,
+non-prefetchable)
+[size=256K]
+        Region 1: Memory at f7c00000 (32-bit,
+non-prefetchable)
+[size=1M]
+        Region 4: I/O ports at 4000 [size=256]
+        Expansion ROM at <unassigned> [disabled]
+[size=1M]
+        Capabilities: [f0] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2-
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+        Capabilities: [f8] Vital Product Data
+
+01:02.0 Ethernet controller: Broadcom Corporation
+NetXtreme BCM5701
+Gigabit Ethernet (rev 15)
+        Subsystem: Compaq Computer Corporation Compaq
+NC7770 Gigabit
+Server Adapter
+        Control: I/O- Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (16000ns min), cache line size 10
+        Interrupt: pin A routed to IRQ 5
+        Region 0: Memory at f7bf0000 (64-bit,
+non-prefetchable)
+[size=64K]
+        Expansion ROM at <unassigned> [disabled]
+[size=64K]
+        Capabilities: [40] PCI-X non-bridge device.
+                Command: DPERE- ERO+ RBC=0 OST=0
+                Status: Bus=0 Dev=0 Func=0 64bit-
+133MHz- SCD- USC-,
+DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-     
+Capabilities: [48]
+Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable+ DSel=0 DScale=1
+PME-
+        Capabilities: [50] Vital Product Data
+        Capabilities: [58] Message Signalled
+Interrupts: 64bit+
+Queue=0/3 Enable-
+                Address: 00a951560c239038  Data: 577a
+
+01:1e.0 PCI Hot-plug controller: Compaq Computer
+Corporation PCI
+Hotplug Controller (rev 14)
+        Subsystem: Compaq Computer Corporation:
+Unknown device a2fe
+        Control: I/O- Mem+ BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f7be0000 (32-bit,
+non-prefetchable)
+[size=4K]
+        Capabilities: [58] Message Signalled
+Interrupts: 64bit+
+Queue=0/0 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [68] PCI-X non-bridge device.
+                Command: DPERE- ERO- RBC=0 OST=0
+                Status: Bus=0 Dev=0 Func=0 64bit-
+133MHz- SCD- USC-,
+DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-     
+Capabilities: [70]
+Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+
+05:01.0 Ethernet controller: Broadcom Corporation
+NetXtreme BCM5701
+Gigabit Ethernet (rev 15)
+        Subsystem: Compaq Computer Corporation Compaq
+NC7770 Gigabit
+Server Adapter
+        Control: I/O- Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (16000ns min), cache line size 10
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f7ff0000 (64-bit,
+non-prefetchable)
+[size=64K]
+        Expansion ROM at <unassigned> [disabled]
+[size=64K]
+        Capabilities: [40] PCI-X non-bridge device.
+                Command: DPERE- ERO+ RBC=0 OST=0
+                Status: Bus=0 Dev=0 Func=0 64bit-
+133MHz- SCD- USC-,
+DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-     
+Capabilities: [48]
+Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable+ DSel=0 DScale=1
+PME-
+        Capabilities: [50] Vital Product Data
+        Capabilities: [58] Message Signalled
+Interrupts: 64bit+
+Queue=0/3 Enable-
+                Address: e9003000301aca08  Data: e405
+
+05:02.0 Ethernet controller: Broadcom Corporation
+NetXtreme BCM5701
+Gigabit Ethernet (rev 15)
+        Subsystem: Compaq Computer Corporation Compaq
+NC7770 Gigabit
+Server Adapter
+        Control: I/O- Mem+ BusMaster+ SpecCycle-
+MemWINV+ VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (16000ns min), cache line size 10
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f7fe0000 (64-bit,
+non-prefetchable)
+[size=64K]
+        Expansion ROM at <unassigned> [disabled]
+[size=64K]
+        Capabilities: [40] PCI-X non-bridge device.
+                Command: DPERE- ERO+ RBC=0 OST=0
+                Status: Bus=0 Dev=0 Func=0 64bit-
+133MHz- SCD- USC-,
+DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-     
+Capabilities: [48]
+Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot+,D3cold+)
+                Status: D0 PME-Enable+ DSel=0 DScale=1
+PME-
+        Capabilities: [50] Vital Product Data
+        Capabilities: [58] Message Signalled
+Interrupts: 64bit+
+Queue=0/3 Enable-
+                Address: c8858cf00ce383f8  Data: 080a
+
+05:1e.0 PCI Hot-plug controller: Compaq Computer
+Corporation PCI
+Hotplug Controller (rev 14)
+        Subsystem: Compaq Computer Corporation:
+Unknown device a2fe
+        Control: I/O- Mem+ BusMaster- SpecCycle-
+MemWINV- VGASnoop-
+ParErr+ Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr-
+DEVSEL=medium
+>TAbort- <TAbort- <MAbort- >SERR- <PERR-
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at f7ef0000 (64-bit,
+prefetchable) [size=4K]
+        Capabilities: [58] Message Signalled
+Interrupts: 64bit+
+Queue=0/0 Enable-
+                Address: 0000000000000000  Data: 0000
+        Capabilities: [68] PCI-X non-bridge device.
+                Command: DPERE- ERO- RBC=0 OST=0
+                Status: Bus=0 Dev=0 Func=0 64bit-
+133MHz- SCD- USC-,
+DC=simple, DMMRBC=0, DMOST=0, DMCRS=0, RSCEM-     
+Capabilities: [70]
+Power Management version 2
+                Flags: PMEClk- DSI- D1- D2-
+AuxCurrent=0mA
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0
+PME-
+
+
+
+
+
+
+
+Any ideas appreciated !
+Please cc on replies !
+
+Thanks in advance,
+AlanP
+
+
+
+
+	
+	
+		
+____________________________________________________________
+Yahoo! Messenger - Communicate instantly..."Ping" 
+your friends today! Download Messenger Now 
+http://uk.messenger.yahoo.com/download/index.html

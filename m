@@ -1,74 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268095AbTBMRW0>; Thu, 13 Feb 2003 12:22:26 -0500
+	id <S268096AbTBMR1e>; Thu, 13 Feb 2003 12:27:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268096AbTBMRW0>; Thu, 13 Feb 2003 12:22:26 -0500
-Received: from packet.digeo.com ([12.110.80.53]:17816 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S268095AbTBMRWZ>;
-	Thu, 13 Feb 2003 12:22:25 -0500
-Date: Thu, 13 Feb 2003 09:31:44 -0800
-From: Andrew Morton <akpm@digeo.com>
+	id <S268097AbTBMR1d>; Thu, 13 Feb 2003 12:27:33 -0500
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:8322 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S268096AbTBMR1d>; Thu, 13 Feb 2003 12:27:33 -0500
+Message-Id: <200302131737.h1DHbIFT007308@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6 02/09/2003 with nmh-1.0.4+dev
 To: Bruno Diniz de Paula <diniz@cs.rutgers.edu>
-Cc: cw@f00f.org, linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT foolish question
-Message-Id: <20030213093144.23ff268e.akpm@digeo.com>
-In-Reply-To: <1045149719.4766.126.camel@urca.rutgers.edu>
-References: <20030212140338.6027fd94.akpm@digeo.com>
-	<1045088991.4767.85.camel@urca.rutgers.edu>
-	<20030212224226.GA13129@f00f.org>
-	<1045090977.21195.87.camel@urca.rutgers.edu>
-	<20030212232443.GA13339@f00f.org>
-	<1045092802.4766.96.camel@urca.rutgers.edu>
-	<20030212233846.GA13540@f00f.org>
-	<1045093775.21195.99.camel@urca.rutgers.edu>
-	<20030212235130.GA13629@f00f.org>
-	<1045094589.4767.106.camel@urca.rutgers.edu>
-	<20030213001302.GA13833@f00f.org>
-	<1045096579.21195.121.camel@urca.rutgers.edu>
-	<20030212211221.3f73ba45.akpm@digeo.com>
-	<1045149719.4766.126.camel@urca.rutgers.edu>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to bypass buffer caches? 
+In-Reply-To: Your message of "Thu, 13 Feb 2003 12:29:12 EST."
+             <1045157351.21195.134.camel@urca.rutgers.edu> 
+From: Valdis.Kletnieks@vt.edu
+References: <1045157351.21195.134.camel@urca.rutgers.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1839908586P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Feb 2003 17:31:28.0026 (UTC) FILETIME=[BD534FA0:01C2D385]
+Date: Thu, 13 Feb 2003 12:37:18 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bruno Diniz de Paula <diniz@cs.rutgers.edu> wrote:
->
-> Thanks, Andrew. So, no chances of getting this working correctly on 2.4
-> kernel for now (I mean, reading files with size != n*block_size), and
-> I'd better give up on this... Is it the case, or you think there is
-> still something to do to get this working on ext2 and 2.4 kernel?
-> 
+--==_Exmh_1839908586P
+Content-Type: text/plain; charset=us-ascii
 
-Oh I think we can probably fix this up.  Can you test this diff?
+On Thu, 13 Feb 2003 12:29:12 EST, Bruno Diniz de Paula <diniz@cs.rutgers.edu>  said:
 
+> the kernel. One option would be create a raw device on top of my disk
+> partition, but in this case I would have to learn how to map a logical
+> file name (/var/tmp/myfile) to a set of block disks. Is there any other
 
-diff -puN fs/buffer.c~o_direct-length-fix fs/buffer.c
---- 24/fs/buffer.c~o_direct-length-fix	2003-02-13 09:23:34.000000000 -0800
-+++ 24-akpm/fs/buffer.c	2003-02-13 09:24:39.000000000 -0800
-@@ -2107,7 +2107,7 @@ int generic_direct_IO(int rw, struct ino
- 	int length;
- 
- 	length = iobuf->length;
--	nr_blocks = length / blocksize;
-+	nr_blocks = (length + blocksize - 1) / blocksize;
- 	/* build the blocklist */
- 	for (i = 0; i < nr_blocks; i++, blocknr++) {
- 		struct buffer_head bh;
-@@ -2148,6 +2148,10 @@ int generic_direct_IO(int rw, struct ino
- 	retval = brw_kiovec(rw, 1, &iobuf, inode->i_dev, iobuf->blocks, blocksize);
- 	/* restore orig length */
- 	iobuf->length = length;
-+
-+	/* Return correct value for reads at eof */
-+	if (retval > 0 && retval > length)
-+		retval = length;
-  out:
- 
- 	return retval;
+What's wrong with this?
 
-_
+     fd = open("/dev/hda7", your_flags_here);
 
+--==_Exmh_1839908586P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+S9fNcC3lWbTT17ARAjo1AKC6vkiTMoObjLhQFjBbvk5HRoAuQQCgvO1c
+koxNLNed0rfWu6ZiSuNsOgw=
+=/FEf
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1839908586P--

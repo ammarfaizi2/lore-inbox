@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262660AbRE0AR1>; Sat, 26 May 2001 20:17:27 -0400
+	id <S262665AbRE0BCy>; Sat, 26 May 2001 21:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262663AbRE0ARR>; Sat, 26 May 2001 20:17:17 -0400
-Received: from server1.cosmoslink.net ([208.179.167.101]:28263 "EHLO
-	server1.cosmoslink.net") by vger.kernel.org with ESMTP
-	id <S262660AbRE0ARA>; Sat, 26 May 2001 20:17:00 -0400
-Message-ID: <00a101c0e642$4f0791a0$52a6b3d0@Toshiba>
-From: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-To: <stepken@little-idiot.de>, <linux-kernel@vger.kernel.org>
-Cc: "Jaswinder Singh" <jaswinder.singh@3disystems.com>
-In-Reply-To: <01052622193100.01317@linux.zuhause.de>
-Subject: Re: IDE Performance lack !
-Date: Sat, 26 May 2001 17:16:42 -0700
+	id <S262668AbRE0BCo>; Sat, 26 May 2001 21:02:44 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:26062 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262665AbRE0BC3>;
+	Sat, 26 May 2001 21:02:29 -0400
+Message-ID: <3B10521D.346E5886@mandrakesoft.com>
+Date: Sat, 26 May 2001 21:02:21 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Ingo T. Storm" <it@lapavoni.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.5 does not link on Ruffian (alpha)
+In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de> <20010526193649.B1834@athlon.random> <20010526201442.D1834@athlon.random>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> RedHat 7.1 - IDE IBM 41.1 GIG
-> Update to 2.4.5 -> noticed, that hdparm -t /dev/hda went down from 10
-> MByte/sec to 1.9 MByte/sec
-> Any special Options, beside ide-scsi driver activated ..
->
-> Anybody noticed the same problem ? Any clues ?
->
+Andrea Arcangeli wrote:
+> diff -urN alpha/arch/alpha/kernel/sys_dp264.c alpha-1/arch/alpha/kernel/sys_dp264.c
+> --- alpha/arch/alpha/kernel/sys_dp264.c Sun Apr  1 01:17:07 2001
+> +++ alpha-1/arch/alpha/kernel/sys_dp264.c       Wed May 23 02:43:49 2001
+> @@ -16,15 +16,18 @@
+>  #include <linux/pci.h>
+>  #include <linux/init.h>
+> 
+> +#define __EXTERN_INLINE inline
+> +#include <asm/io.h>
+> +#include <asm/core_tsunami.h>
+> +#undef  __EXTERN_INLINE
+> +
 
-yes , i am also not happy with IDE performance of Linux . That why i dont
-use Hard disk in my Target machines ;)
+Why is "__EXTERN_INLINE" defined as "inline" not "extern inline"?
 
-When ever i copy big data (around 400 to 700 MB ) from one partion to
-another my machine do not response at all (i can not work on another shell)
-during data transfer.
+I simply added "extern" and things started working (as noted in my
+previous message in this thread)..
 
-Thank you ,
-
-Best Regards,
-
-Jaswinder.
---
-These are my opinions not 3Di.
-
-
-
+-- 
+Jeff Garzik      | Disbelief, that's why you fail.
+Building 1024    |
+MandrakeSoft     |

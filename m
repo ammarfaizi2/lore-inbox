@@ -1,345 +1,256 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUITTu1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267259AbUITTwo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267285AbUITTu1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 15:50:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUITTu1
+	id S267259AbUITTwo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 15:52:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267291AbUITTv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 15:50:27 -0400
-Received: from mars38.magicalworks.com ([81.3.20.113]:26530 "EHLO
-	mars38.magicalworks.com") by vger.kernel.org with ESMTP
-	id S267285AbUITTsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 15:48:30 -0400
-Subject: PROBLEM: Kernel Panic removing pcmcia card
-From: Benjamin Voetterle <benjamin@voetterle.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1095709701.1647.19.camel@voetzi>
+	Mon, 20 Sep 2004 15:51:26 -0400
+Received: from [69.28.190.101] ([69.28.190.101]:15532 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S267259AbUITTso (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 15:48:44 -0400
+Date: Mon, 20 Sep 2004 15:48:42 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: netdev@oss.sgi.com
+Cc: linux-kernel@vger.kernel.org
+Subject: netdev-2.6 queue updated
+Message-ID: <20040920194842.GA21782@havoc.gtf.org>
+Reply-To: netdev@oss.sgi.com
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 20 Sep 2004 21:48:21 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello List,
 
-here my 'Bug Report', I hope this is the right list and the rightway to
-report a bug (i'm not sure it is one or it is a failure on my side).
+BK users:
+bk pull bk://gkernel.bkbits.net/netdev-2.6
 
-[1.] One line summary of the problem:
-    Kernel Panic removing pcmcia card
+Patch:
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.9-rc2-bk6-netdev1.patch.bz2
 
-[2.] Full description of the problem/report:
-I've the following problem, when i'm inserting my 3com Wlan card (3CRWE154G72),
- i get the following Kernel Output:
+This will update the following files:
 
- PCI: 0000:01:00.0: class 1 doesn't match header type 01. Ignoring class. 
-Unable to handle kernel NULL pointer dereference at virtual address
-00000008 
-  printing eip: 
-c0191fbb 
-*pde = 00000000 
-Oops: 0000 [#1] 
-PREEMPT 
-Modules linked in: ipv6 ds apm af_packet yenta_socket pcmcia_core tsdev
-mousedev evdev lbtouch sermouse ide_cd cdrom rtc unix 
-CPU:    0 
-EIP:    0060:[sysfs_add_file+27/176]    Not tainted 
-EIP is at sysfs_add_file+0x1b/0xb0 
-eax: 00000000   ebx: cbc5c920   ecx: c03ed208   edx: cbc5c960 
-esi: cbc5c8e0   edi: 00000000   ebp: c03b51dc   esp: cb4b7ebc 
-ds: 007b   es: 007b   ss: 0068 
-Process pccardd (pid: 822, threadinfo=cb4b6000 task=cba8f220) 
-: Stack: cbc5c9a8 c020aee9 cbc5c960 cbc5c920 cbc5c8e0 cbfdee40 00000000
-c020aa53 
-        00000000 c03b51dc c01c69f3 cbc5c958 c03b51dc 00000000 00000000
-cb11b400 
-        00000000 00000001 00000000 c01c6c98 cbfdee40 cb11b400 00000000
-00000001 
-Call Trace: 
-  [class_device_add+281/304] class_device_add+0x119/0x130 
-  [class_device_create_file+35/48] class_device_create_file+0x23/0x30 
-  [pci_alloc_child_bus+147/224] pci_alloc_child_bus+0x93/0xe0 
-  [pci_scan_bridge+520/592] pci_scan_bridge+0x208/0x250 
-  [__crc_atapi_output_bytes+623555/2523336] cb_alloc+0xd6/0xe0
-[pcmcia_core] 
-  [__crc_atapi_output_bytes+611238/2523336] socket_insert+0xa9/0x150
-[pcmcia_core] 
-  [__crc_atapi_output_bytes+611997/2523336]
-socket_detect_change+0x60/0x90 [pcmcia_core] 
-[__crc_atapi_output_bytes+612499/2523336] pccardd+0x1c6/0x230
-[pcmcia_core] 
-[default_wake_function+0/32] default_wake_function+0x0/0x20 
-  [ret_from_fork+6/20] ret_from_fork+0x6/0x14 
-  [default_wake_function+0/32] default_wake_function+0x0/0x20 
-  [__crc_atapi_output_bytes+612045/2523336] pccardd+0x0/0x230
-[pcmcia_core] 
-  [kernel_thread_helper+5/24] kernel_thread_helper+0x5/0x18 
-Sep 10 14:00:01 localhost kernel: Code: 8b 47 08 8d 48 68 ff 48 68 0f 88
-a0 01 00 00 8b 45 00 89 3c 
+ arch/cris/arch-v10/drivers/ethernet.c     |  140 ++----
+ drivers/ieee1394/eth1394.c                |   95 +---
+ drivers/media/dvb/dvb-core/dvb_net.c      |    9 
+ drivers/net/3c509.c                       |  151 ++-----
+ drivers/net/8139cp.c                      |   80 ++-
+ drivers/net/8139too.c                     |   14 
+ drivers/net/Kconfig                       |   21 -
+ drivers/net/acenic.c                      |  163 +++----
+ drivers/net/acenic.h                      |   23 -
+ drivers/net/amd8111e.c                    |  248 +++++------
+ drivers/net/atp.c                         |    2 
+ drivers/net/b44.c                         |  102 ++--
+ drivers/net/b44.h                         |  113 -----
+ drivers/net/defxx.c                       |  144 +++---
+ drivers/net/defxx.h                       |    2 
+ drivers/net/dl2k.c                        |  267 +++++-------
+ drivers/net/e100.c                        |   12 
+ drivers/net/e1000/e1000.h                 |    2 
+ drivers/net/e1000/e1000_ethtool.c         |    6 
+ drivers/net/e1000/e1000_hw.c              |  115 +++++
+ drivers/net/e1000/e1000_main.c            |   41 -
+ drivers/net/e1000/e1000_osdep.h           |    6 
+ drivers/net/eepro100.c                    |  425 +++++++++-----------
+ drivers/net/ewrk3.c                       |  326 +++++++--------
+ drivers/net/forcedeth.c                   |  111 +----
+ drivers/net/hamachi.c                     |  157 +++----
+ drivers/net/hamradio/hdlcdrv.c            |    2 
+ drivers/net/ibmlana.c                     |    9 
+ drivers/net/iseries_veth.c                |   81 +--
+ drivers/net/ixgb/ixgb_ethtool.c           |  494 +++++++----------------
+ drivers/net/ixgb/ixgb_main.c              |   24 -
+ drivers/net/mac8390.c                     |    4 
+ drivers/net/meth.c                        |   26 -
+ drivers/net/natsemi.c                     |  273 +++++--------
+ drivers/net/ne2k-pci.c                    |   31 +
+ drivers/net/ns83820.c                     |   61 --
+ drivers/net/pcmcia/smc91c92_cs.c          |  181 ++++----
+ drivers/net/r8169.c                       |  606 +++++++++++++++++++++-------
+ drivers/net/sis900.c                      |  258 ++++++------
+ drivers/net/sk_mca.c                      |    9 
+ drivers/net/smc91x.h                      |   43 ++
+ drivers/net/starfire.c                    |  191 ++++-----
+ drivers/net/sundance.c                    |  187 ++++----
+ drivers/net/tulip/de4x5.c                 |    2 
+ drivers/net/tulip/tulip_core.c            |   34 -
+ drivers/net/tulip/winbond-840.c           |    2 
+ drivers/net/tulip/xircom_tulip_cb.c       |  194 ++++-----
+ drivers/net/typhoon.c                     |  245 +++++------
+ drivers/net/wan/lmc/lmc_main.c            |    9 
+ drivers/net/wireless/airo.c               |   45 +-
+ drivers/net/wireless/netwave_cs.c         |   12 
+ drivers/net/wireless/prism54/isl_38xx.c   |   15 
+ drivers/net/wireless/prism54/isl_38xx.h   |    4 
+ drivers/net/wireless/prism54/isl_ioctl.c  |  629 ++++++++++++++++++++++++++----
+ drivers/net/wireless/prism54/isl_ioctl.h  |    2 
+ drivers/net/wireless/prism54/isl_oid.h    |    9 
+ drivers/net/wireless/prism54/islpci_dev.c |   35 -
+ drivers/net/wireless/prism54/islpci_dev.h |    4 
+ drivers/net/wireless/prism54/islpci_eth.c |    5 
+ drivers/net/wireless/prism54/oid_mgt.c    |  121 +++++
+ drivers/net/wireless/prism54/oid_mgt.h    |    3 
+ drivers/net/wireless/wavelan.c            |   19 
+ drivers/net/wireless/wavelan.p.h          |    3 
+ drivers/net/wireless/wavelan_cs.c         |  181 +++-----
+ drivers/net/wireless/wavelan_cs.p.h       |    3 
+ drivers/net/wireless/wl3501_cs.c          |   53 --
+ drivers/net/yellowfin.c                   |   62 +-
+ drivers/usb/gadget/ether.c                |   73 +--
+ drivers/usb/net/catc.c                    |  122 +----
+ drivers/usb/net/kaweth.c                  |   34 -
+ drivers/usb/net/pegasus.c                 |  297 +++++---------
+ drivers/usb/net/rtl8150.c                 |  186 +++-----
+ include/linux/netdevice.h                 |    4 
+ include/linux/wireless.h                  |   64 ++-
+ include/net/iw_handler.h                  |   60 ++
+ net/core/dev.c                            |    2 
+ net/core/wireless.c                       |  212 ++++++----
+ net/irda/irlan/irlan_client.c             |    2 
+ 78 files changed, 4075 insertions(+), 3927 deletions(-)
 
+through these ChangeSets:
 
-When i then remove the card from the pcmcia slot, i get the following
-kernel panic:
+<davem:davemloft.net>:
+  o eepro100.c iomap conversion
 
-Code: Bad EIP value. 
-<0>Kernel panic: Fatal Exception in interrupt 
-In interrupt handle - net syncing
+<jolt:tuxbox.org>:
+  o [netdrvr b44] clean up SiliconBackplane definitions/functions
+  o [netdrvr b44] ignore carrier lost errors
 
+Alexander Viro:
+  o (27/27) catc ethtool conversion
+  o (26/27) kaweth ethtool conversion
+  o (25/27) pegasus ethtool conversion
+  o (24/27) rtl8150 ethtool conversion
+  o (23/27) gadget ethtool conversion
+  o (22/27) amd8111e ethtool conversion
+  o (21/27) dl2k ethtool conversion
+  o (20/27) eepro100 ethtool conversion
+  o (19/27) ewrk3 ethtool conversion
+  o (18/27) forcedeth ethtool conversion
+  o (17/27) hamachi ethtool conversion
+  o (16/27) veth ethtool conversion
+  o (15/27) natsemi ethtool conversion
+  o (14/27) ns83820 ethtool conversion
+  o (13/27) starfire ethtool conversion
+  o (12/27) sundance ethtool conversion
+  o (11/27) typhoon ethtool conversion
+  o (10/27) yellowfin ethtool conversion
+  o (9/27) wl3501_cs ethtool conversion
+  o (8/27) wavelan ethtool conversion
+  o (7/27) xircom ethtool conversion
+  o (6/27) tulip ethtool conversion
+  o (5/27) smc91c92_cs ethtool conversion
+  o (4/27) 3c509 ethtool conversion
+  o (3/27) ixgb ethtool conversion
+  o (2/27) cris ethtool conversion
+  o (1/27) eth1394 ethtool conversion
+  o [netdrvr starfire] use netdev_priv
+  o [netdrvr starfire] fix unregister_netdev call site
+  o [netdrvr] use netdev_priv in dl2k, hamachi
+  o [netdrvr] netdev_priv for sundance, typhoon, yellowfin
+  o [netdrvr] netdev_priv for ewrk3, xircom_tulip_cb, wavelan_cs
+  o [netdrvr usb] use netdev_priv
+  o [netdrvr eth1394] use netdev_priv
 
+Andrew Morton:
+  o pegasus.c fixes
+  o de4x5 warning fix
 
-[3.] Keywords (i.e., modules, networking, kernel):
+Daniele Venzano:
+  o [netdrvr sis900] whitespace and codingstyle updates
 
-[4.] Kernel version (from /proc/version):
-Linux version 2.6.8.1 (root@lfb2131) (gcc-Version 3.3.4 (Debian 1:3.3.4-6sarge1)) #1 Thu Sep 9 12:37:45 CEST 2004
+David Dillow:
+  o PCI cleanups and convert to ethtool_ops
 
+François Romieu:
+  o via-velocity: wrong module name in Kconfig documentation
+  o r8169: default on disabling PCIDAC
+  o r8169: Mac identifier extracted from Realtek's driver v2.2
+  o r8169: TSO support
+  o r8169: hint for Tx flow control
+  o r8169: miscalculation of available Tx descriptors
+  o 8139cp: SG support fixes
+  o r8169: vlan support
+  o r8169: Rx checksum support
+  o r8169: advertise DMA to high memory
+  o r8169: Tx checksum offload
+  o r8169: comment a gcc 2.95.x bug
+  o r8169: sync the names of a few bits with the 8139cp driver
+  o r8169: bump version number
+  o r8169: enable MWI
+  o r8169: code cleanup
+  o r8169: per device receive buffer size
+  o r8169: add ethtool_ops.{get_regs_len/get_regs}
 
-[5.] Output of Oops.. message (if applicable) with symbolic information 
-     resolved (see Documentation/oops-tracing.txt)
-[6.] A small shell script or example program which triggers the
-     problem (if possible)
-[7.] Environment
+Ganesh Venkatesan:
+  o e1000 - Ethtool -- 82545 do not support WoL
+  o e1000 - Polarity reversal workaround for 10F/10H links
+  o e1000 - Fix VLAN filter setup errors (while running on PPC)
+  o e1000 Check value returned by from pci_enable_device
+  o e1000 - Removed support for advanced TCO features
+  o e1000 - use pci_device_name for syslog messages till registering netdevice.
+  o e100 driver version number update
+  o e100 - use NET_IP_ALIGN to set rx data buffer alignment
+  o e100 - Use pci_device_name for syslog messages till registering netdevice
 
-i686
+Jean Tourrilhes:
+  o wireless-drivers-update-for-we-17.patch
+  o wireless-extension-v17-for-linus.patch
 
-[7.1.] Software (add the output of the ver_linux script here)
+Jeff Garzik:
+  o [netdrvr eepro100] fix pci_iomap() args and info msg that follows
+  o [netdrvr b44] update MODULE_AUTHORS
+  o [netdrvr 8139cp] TSO support
+  o [netdev] Remove no-op in-driver implementations of ->set_config()
 
-Linux lfb2131 2.6.8.1 #1 Thu Sep 9 12:37:45 CEST 2004 i686 GNU/Linux
+Kenji Kaneshige:
+  o add missing pci_disable_device for e1000
 
-Gnu C                  3.3.4
-Gnu make               3.80
-binutils               2.14.90.0.7
-util-linux             2.12
-mount                  2.12
-module-init-tools      3.1-pre5
-e2fsprogs              1.35
-pcmcia-cs              3.2.5
-PPP                    2.4.2
-Linux C Library        2.3.2
-Dynamic linker (ldd)   2.3.2
-Procps                 3.2.1
-Net-tools              1.60
-Console-tools          0.2.3
-Sh-utils               5.2.1
-Modules Loaded         ipv6 ds apm af_packet yenta_socket pcmcia_core edd vsxxxaa tsdev mousedev evdev lbtouch ide_cd cdrom rtc unix
+Maciej W. Rozycki:
+  o defxx device name fixes
+  o defxx trivial updates
 
-[7.2.] Processor information (from /proc/cpuinfo):
+Marc Singer:
+  o adding smc91x ethernet to lpd7a40x
 
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 6
-model           : 8
-model name      : Celeron (Coppermine)
-stepping        : 3
-cpu MHz         : 398.293
-cache size      : 128 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat pse36 mmx fxsr sse
-bogomips        : 786.43
+Margit Schubert-While:
+  o prism54 fix wpa_supplicant frequency parsing
+  o prism54 initial WPA support
+  o prism54 add WE17 support
+  o prism54 remove module params
+  o prism54 Code cleanup
 
+Mika Kukkonen:
+  o sparse: fix warnings in net/irda/*
 
-[7.3.] Module information (from /proc/modules):
-ipv6 265316 10 - Live 0xccb90000
-ds 18756 2 - Live 0xccb13000
-apm 21100 1 - Live 0xccb35000
-af_packet 22600 2 - Live 0xccb3d000
-yenta_socket 21728 0 - Live 0xccb19000
-pcmcia_core 64204 2 ds,yenta_socket, Live 0xccb24000
-edd 10428 0 - Live 0xccaf0000
-vsxxxaa 6432 0 - Live 0xccb0e000
-tsdev 7392 0 - Live 0xccaf4000
-mousedev 10476 0 - Live 0xccab3000
-evdev 9600 0 - Live 0xccaec000
-lbtouch 8804 0 - Live 0xccab7000
-ide_cd 42308 0 - Live 0xccb02000
-cdrom 40736 1 ide_cd, Live 0xccaf7000
-rtc 12760 0 - Live 0xccae5000
-unix 28688 342 - Live 0xccabc000
+Olaf Hering:
+  o remove old version check from mac8390
 
+Pavel Machek:
+  o swsuspend for ne2k-pci cards
 
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-/proc/ioports
+Pekka Pietikäinen:
+  o b44: use bounce buffers to workaround chip DMA bug/limitations
 
-0000-001f : dma1
-0020-0021 : pic1
-0040-005f : timer
-0060-006f : keyboard
-0070-0077 : rtc
-0080-008f : dma page reg
-00a0-00a1 : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-01f0-01f7 : ide0
-02e8-02ef : serial
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial
-0cf8-0cff : PCI conf1
-1000-10ff : 0000:00:00.1
-  1000-10ff : Intel 440MX - AC'97
-1400-143f : 0000:00:00.1
-  1400-143f : Intel 440MX - Controller
-1440-147f : 0000:00:10.0
-  1440-147f : eepro100
-1480-148f : 0000:00:07.1
-  1480-1487 : ide0
-1490-1497 : 0000:00:11.0
-14a0-14bf : 0000:00:07.2
-  14a0-14bf : uhci_hcd
-1800-18ff : 0000:00:11.0
-4000-40ff : PCI CardBus #01
-4400-44ff : PCI CardBus #01
+Ralf Bächle:
+  o Stop queue on close in hdlcdrv
 
-/proc/iomem
+Rene Herman:
+  o 8139too Interframe Gap Time
 
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000cbfff : Video ROM
-000f0000-000fffff : System ROM
-00100000-0bfdffff : System RAM
-  00100000-00349972 : Kernel code
-  00349973-004398ff : Kernel data
-0bfe0000-0bfefbff : ACPI Tables
-0bfefc00-0bfeffff : ACPI Non-volatile Storage
-0bff0000-0bff0fff : reserved
-0bff1000-0bffffff : System RAM
-10000000-10000fff : 0000:00:13.0
-  10000000-10000fff : yenta_socket
-10400000-107fffff : PCI CardBus #01
-10800000-10bfffff : PCI CardBus #01
-fe000000-fe0fffff : 0000:00:10.0
-fe100000-fe100fff : 0000:00:10.0
-  fe100000-fe100fff : eepro100
-fe101000-fe1010ff : 0000:00:11.0
-fe120000-fe13ffff : 0000:00:14.0
-  fe120000-fe13ffff : tridentfb
-fe400000-fe7fffff : 0000:00:14.0
-fe800000-febfffff : 0000:00:14.0
-  fe800000-fea7ffff : tridentfb
-fff00000-ffffffff : reser
-[7.5.] PCI information ('lspci -vvv' as root)
+Roger Luethi:
+  o mc_filter on big-endian arch
 
-0000:00:00.0 Host bridge: Intel Corp. 82440MX Host Bridge (rev 01)
-        Subsystem: Fujitsu Limited.: Unknown device 107f
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 64
-
-0000:00:00.1 Multimedia audio controller: Intel Corp. 82440MX AC'97 Audio Controller
-        Subsystem: Fujitsu Limited. QSound_SigmaTel Stac97 PCI Audio
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Interrupt: pin B routed to IRQ 10
-        Region 0: I/O ports at 1000 [size=256]
-        Region 1: I/O ports at 1400 [size=64]
-
-0000:00:07.0 Bridge: Intel Corp. 82440MX ISA Bridge (rev 01)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-
-0000:00:07.1 IDE interface: Intel Corp. 82440MX EIDE Controller (prog-if 80 [Master])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Region 4: I/O ports at 1480 [size=16]
-
-0000:00:07.2 USB Controller: Intel Corp. 82440MX USB Universal Host Controller (prog-if 00 [UHCI])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Interrupt: pin D routed to IRQ 10
-        Region 4: I/O ports at 14a0 [size=32]
-
-0000:00:07.3 Bridge: Intel Corp. 82440MX Power Management Controller
-        Control: I/O+ Mem+ BusMaster- SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-0000:00:10.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
-        Subsystem: Fujitsu Limited.: Unknown device 1070
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 66 (2000ns min, 14000ns max), Cache Line Size: 0x08 (32 bytes)
-        Interrupt: pin A routed to IRQ 10
-        Region 0: Memory at fe100000 (32-bit, non-prefetchable) [size=4K]
-        Region 1: I/O ports at 1440 [size=64]
-        Region 2: Memory at fe000000 (32-bit, non-prefetchable) [size=1M]
-        Capabilities: [dc] Power Management version 2
-                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-0000:00:11.0 Communication controller: Lucent Microelectronics F-1156IV WinModem (V90, 56KFlex) (rev 01)
-        Subsystem: Fujitsu Limited. LB Global LT Modem
-        Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 10
-        Region 0: Memory at fe101000 (32-bit, non-prefetchable) [disabled] [size=256]
-        Region 1: I/O ports at 1490 [disabled] [size=8]
-        Region 2: I/O ports at 1800 [disabled] [size=256]
-        Capabilities: [f8] Power Management version 2
-                Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA PME(D0-,D1-,D2+,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-0000:00:13.0 CardBus bridge: Texas Instruments PCI1410 PC card Cardbus Controller (rev 01)
-        Subsystem: Fujitsu Limited.: Unknown device 10c6
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 168, Cache Line Size: 0x08 (32 bytes)
-        Interrupt: pin A routed to IRQ 10
-        Region 0: Memory at 10000000 (32-bit, non-prefetchable) [size=4K]
-        Bus: primary=00, secondary=01, subordinate=04, sec-latency=176
-        Memory window 0: 10400000-107ff000 (prefetchable)
-        Memory window 1: 10800000-10bff000
-        I/O window 0: 00004000-000040ff
-        I/O window 1: 00004400-000044ff
-        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset+ 16bInt+ PostWrite+
-        16-bit legacy interface ports at 0001
-
-0000:00:14.0 VGA compatible controller: Trident Microsystems Cyber 9525 (rev 49) (prog-if 00 [VGA])
-        Subsystem: Fujitsu Limited. Lifebook C6155
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 10
-        Region 0: Memory at fe800000 (32-bit, non-prefetchable) [size=4M]
-        Region 1: Memory at fe120000 (32-bit, non-prefetchable) [size=128K]
-        Region 2: Memory at fe400000 (32-bit, non-prefetchable) [size=4M]
-        Capabilities: [80] AGP version 1.0
-                Status: RQ=33 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
-                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW- Rate=<none>
-        Capabilities: [90] Power Management version 1
-                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-[7.7.] Other information that might be relevant to the problem
-       (please look in /proc and include all information that you
-       think to be relevant):
-/proc/interrupts
-  0:    6681657          XT-PIC  timer
-  1:       3174          XT-PIC  i8042
-  2:          0          XT-PIC  cascade
-  8:          4          XT-PIC  rtc
- 10:       1866          XT-PIC  uhci_hcd, Intel 440MX, yenta, eth0
- 12:         25          XT-PIC  i8042
- 14:      12465          XT-PIC  ide0
-NMI:          0
-LOC:          0
-ERR:          0
-MIS:          0
-
-
-
-I hope this ok, so far.
-
-Bye
-Benjamin Voetterle
+Stephen Hemminger:
+  o 8139cp - module_param
+  o (4/4) acenic - don't spin forever in hard_start_xmit
+  o (3/4) acenic - __iomem warnings cleanup
+  o (2/4) acenic - eliminate MAX_SKB_FRAGS #if
+  o (1/4) acenic - use netdev_priv
 

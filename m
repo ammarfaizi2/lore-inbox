@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264625AbSLMOEl>; Fri, 13 Dec 2002 09:04:41 -0500
+	id <S264681AbSLMOTa>; Fri, 13 Dec 2002 09:19:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264628AbSLMOEl>; Fri, 13 Dec 2002 09:04:41 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:21128 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S264625AbSLMOEl>;
-	Fri, 13 Dec 2002 09:04:41 -0500
-Date: Fri, 13 Dec 2002 14:11:27 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
+	id <S264628AbSLMOTa>; Fri, 13 Dec 2002 09:19:30 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:8329 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S264681AbSLMOT3>; Fri, 13 Dec 2002 09:19:29 -0500
+Date: Fri, 13 Dec 2002 15:23:40 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.51: new warning from lilo
-Message-ID: <20021213141127.GA1633@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20021212193451.GA458@elf.ucw.cz> <1039789418.25121.25.camel@irongate.swansea.linux.org.uk>
+Cc: andersen@codepoet.org, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-pre1 IDE
+Message-ID: <20021213142340.GB22190@louise.pinerecords.com>
+References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> <20021212013546.GA30408@codepoet.org> <1039698648.21446.30.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1039789418.25121.25.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <1039698648.21446.30.camel@irongate.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 13, 2002 at 02:23:38PM +0000, Alan Cox wrote:
- > > Warning: Kernel & BIOS return differing head/sector geometries for
- > > device 0x80
- > >     Kernel: 8944 cylidners, 15 heads, 63 sectors
- > >       BIOS: 525 cylinders, 255 heads, 63 sectors
- > > 
- > > lilo did not warn under 2.5.50. Now... Will it boot?
- > 
- > Someone took various bits of geometry mapping out of the kernel. It will
- > now give different values. As to whether lilo will still boot I don't
- > know. I'd be suprised if it was a problem. 
+> >     hda: DMA disabled
+> >     ^^^^^^^^^^^^^^^^^
+> > 
+> > What's up with this?  For each drive in my system it claims it
+> > has disabled DMA.  But hdparm later reports that DMA is in fact
+> > enabled.  In fact, later on the kernel ever reports the drive
+> > as being in UDMA 100 mode...  I think these "DMA disabled"
+> > messages are bogus.
+> 
+> Cosmetic and known. It in fact turns DMA back on - quietly
 
-Hasn't caused a problem on any of my test boxes.
-
-		Dave
+Alan, I sent you a patch fixing this last week, can resend if necessary.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Tomas Szepe <szepe@pinerecords.com>

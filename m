@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293175AbSDADmM>; Sun, 31 Mar 2002 22:42:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293277AbSDADmD>; Sun, 31 Mar 2002 22:42:03 -0500
-Received: from mail3.aracnet.com ([216.99.193.38]:41683 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S293181AbSDADlx>; Sun, 31 Mar 2002 22:41:53 -0500
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: "Michael D. Crawford" <crawford@goingware.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Does Solaris source license interfere with Linux contributions?
-Date: Sun, 31 Mar 2002 19:42:02 -0800
-Message-ID: <HBEHIIBBKKNOBLMPKCBBIEKHEKAA.znmeb@aracnet.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S310469AbSCBWJm>; Sat, 2 Mar 2002 17:09:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S310470AbSCBWJh>; Sat, 2 Mar 2002 17:09:37 -0500
+Received: from [210.178.179.1] ([210.178.179.1]:11528 "HELO microsoft.com") by vger.kernel.org with SMTP id <S310469AbSCBWJV>; Sat, 2 Mar 2002 17:09:21 -0500
+Reply-To: <Abbie6745e85@microsoft.com>
+Message-ID: <025e05a71a6a$3252e4c4$0be11bd2@lvxnvw>
+From: <Abbie6745e85@microsoft.com>
+To: You@vger.kernel.org
+Subject: what did you do, quit your job ? 1449ZTMt1-l9
+Date: Sun, 03 Mar 2002 07:49:13 -1000
+MiME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <3CA7D119.4B84F7DD@goingware.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Microsoft Outlook, Build 10.0.2616
 Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My advice is to consult an intellectual property attorney.
+Are you tired of getting up early, only to know your making a fraction of what your 
+employer does??  Seriously - You have nothing to lose by AT LEAST hearing us out - 
+Let us show you how to be successful from your home...
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org
-> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Michael D.
-> Crawford
-> Sent: Sunday, March 31, 2002 7:17 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: Does Solaris source license interfere with Linux contributions?
->
->
-> Thanks for any advice you can give me,
->
---
-M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
-http://www.borasky-research.net  http://www.aracnet.com/~znmeb
-mailto:znmeb@borasky-research.net mailto:znmeb@aracnet.com
+With the economy in a tailspin, it is time for you to take control of your future earn 6 
+Figures from home.  It is easier than ever!  Seriously, we dont have an overnight get 
+rich quick scheme, but we can help provide you with a second income.
 
-If there's nothing to astrology, how come so many famous men were born on
-holidays?
+Again 1 thing is for certain, you have nothing to lose by at least hearing us out.
+
+In fact here are just some of the advantages:
+
+*  Work from home
+*  Save thousands per year in tax write offs
+*  Control your future
+*  Fire your boss!!
+*  Develop Long Term Residual Income
+*  Spend time with your family (or start one!)
+Our winning team has an incredible support system and a step-by-step 
+game plan to show you how to build a walk away six- figure income.  
+Don’t delay; start building equity for yourself today!
+
+Click Here ---> http://biz07.freewebhost4all.com/3/bizform.htm
+9660QdtX4-92l11
 

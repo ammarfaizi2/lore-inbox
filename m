@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVDAGdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261990AbVDAGez@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262017AbVDAGdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 01:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVDAGdZ
+	id S261990AbVDAGez (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 01:34:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbVDAGe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 01:33:25 -0500
-Received: from general.keba.co.at ([193.154.24.243]:33100 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S262017AbVDAGdT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 01:33:19 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [BUG] 2.6.11: Random SCSI/USB errors when reading from USB memory stick
-Date: Fri, 1 Apr 2005 08:33:17 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F3673231D3@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [BUG] 2.6.11: Random SCSI/USB errors when reading from USB memory stick
-Thread-Index: AcU2FGVM/7a7npvbShytYmk1zWdh/gAbgjiw
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Cc: <linux-usb-users@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+	Fri, 1 Apr 2005 01:34:29 -0500
+Received: from smtp209.mail.sc5.yahoo.com ([216.136.130.117]:53623 "HELO
+	smtp209.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261990AbVDAGeP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 01:34:15 -0500
+Subject: Re: Industry db benchmark result on recent 2.6 kernels
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Paul Jackson <pj@engr.sgi.com>
+Cc: kenneth.w.chen@intel.com, torvalds@osdl.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050331220526.3719ed7f.pj@engr.sgi.com>
+References: <200503312214.j2VMEag23175@unix-os.sc.intel.com>
+	 <424C8956.7070108@yahoo.com.au>  <20050331220526.3719ed7f.pj@engr.sgi.com>
+Content-Type: text/plain
+Date: Fri, 01 Apr 2005 16:34:04 +1000
+Message-Id: <1112337244.7081.8.camel@npiggin-nld.site>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Latency is the subject of a separate email.  Does this 
-> > > increase in latency 
-> > > occur only when you see the errors, or whenever you do a 
-> large data 
-> > > transfer?  In fact, I would suspect the errors to _decrease_ 
-> > > the latency 
-> > > with respect to a normal transfer.
-> > 
-> > I observe from <1 to 2 ms on successful transfers, and around 15 ms
-> > latency when things go wrong.
+On Thu, 2005-03-31 at 22:05 -0800, Paul Jackson wrote:
 > 
-> I hate to ask this question; it sounds an awful lot like 
-> "Monty Python and
-> the Holy Grail", but...  Is that IRQ latency or application latency?
+> Then us poor slobs with big honkin numa iron could code up a real
+> pseudo_distance() routine, to avoid the actual pain of doing real work
+> for cpus^2 iterations for large cpu counts.
+> 
+> Our big boxes have regular geometries with much symmetry, so would
+> provide significant opportunity to exploit equal pseudo-distances.
+> 
 
-With Ingo's RT kernels, it is not possible for me to tell the 
-difference, because IRQ handlers are also running as kernel threads,
-scheduled by the scheduler according to their rt prio
-(which is around 50 by default, 95 for the RTC IRQ in my case).
+Couple of observations:
 
-I can tell for sure that the RTC IRQ handler was not executed
-in that time, but I can't tell if that's because IRQs were blocked
-or because it didn't get scheduled.
+This doesn't actually need to be an O(n^2) operation. The result
+of it is only going to be used in the sched domains code, so what
+is really wanted is "how far away is one sched_group from another",
+although we may also scale that based on the *amount* of cache
+in the path between 2 cpus, that is often just a property of the
+CPUs themselves in smaller systems, so also not O(n^2).
 
-> I can't think of any reason why IRQ latency should change 
-> during the error 
-> handling.  Application latency might change because the SCSI 
-> error handler 
-> could start using up a lot of CPU time.  I don't know what 
-> priority it 
-> runs at; you can check with ps.
+Secondly, we could use Ingo's O(n^2) code for the *SMP* domain on
+all architectures (so in your case of only 2 CPUs per node, it is
+obviously much cheaper, even over 256 nodes).
 
-Ingo just suggested that error handling (writing kernel messages
-to console/disk) in general is causing the trouble. 
-I'll check that and post the results.
+Then the NUMA domain could just inherit this SMP value as a default,
+and allow architectures to override it individually.
 
--- 
-Klaus Kusche
-Entwicklung Software - Steuerung
-Software Development - Control
+This may allow us to set up decent baseline numbers, properly scaled
+by cache size vs memory bandwidth without going overboard in
+complexity (while still allowing arch code to do more fancy stuff).
 
-KEBA AG
-A-4041 Linz
-Gewerbepark Urfahr
-Tel +43 / 732 / 7090-3120
-Fax +43 / 732 / 7090-8919
-E-Mail: kus@keba.com
-www.keba.com
+
+

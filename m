@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265523AbSLIOPO>; Mon, 9 Dec 2002 09:15:14 -0500
+	id <S265516AbSLIONg>; Mon, 9 Dec 2002 09:13:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265532AbSLIOPN>; Mon, 9 Dec 2002 09:15:13 -0500
-Received: from pc1-cwma1-5-cust42.swan.cable.ntl.com ([80.5.120.42]:8636 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S265523AbSLIOPN>; Mon, 9 Dec 2002 09:15:13 -0500
-Subject: Re: BUG in 2.5.50
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>, roy@karlsbakk.net,
-       zwane@holomorphy.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alan@redhat.com
-In-Reply-To: <200212091346.gB9DkcgN000690@darkstar.example.net>
-References: <200212091346.gB9DkcgN000690@darkstar.example.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Dec 2002 14:58:57 +0000
-Message-Id: <1039445937.10475.28.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S265517AbSLIONg>; Mon, 9 Dec 2002 09:13:36 -0500
+Received: from mail.hometree.net ([212.34.181.120]:8922 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265516AbSLIONf>; Mon, 9 Dec 2002 09:13:35 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: IDE feature request
+Date: Mon, 9 Dec 2002 14:21:17 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <at28st$ifd$1@forge.intermeta.de>
+References: <068d01c29d97$f8b92160$551b71c3@krlis> <1039312135.27904.11.camel@irongate.swansea.linux.org.uk> <20021208234102.GA8293@scssoft.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1039443677 3111 212.34.181.4 (9 Dec 2002 14:21:17 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Mon, 9 Dec 2002 14:21:17 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-12-09 at 13:46, John Bradford wrote:
-> Is IDE TCQ liable to corrupt data on read-only volumes or just
-> read-write?  The problem with nobody using it, is that it never gets
-> tested - if there are no known issues with read-only use it would be
-> nice to know.
+Petr Sebor <petr@scssoft.com> writes:
 
-The big problem with TCQ is that it only works with some versions of
-some conrollers and oopses on others. At the moment the TCQ support isnt
-integrated into drivera that override some ide dma ops and there is no
-mechanism Jens included for a controller to indicate no-tcq.
 
-Pre-empt is another matter. IDE locking is rather hosed, pre-empt is
-showing up existing and long standing problems I think. I've been
-commenting bits of ide about locking ready to attempt to actually fix
-the locking once the more pressing problems are solved
+>--azLHFNyN32YCQGCU
+>Content-Type: text/plain; charset=us-ascii
+>Content-Disposition: inline
 
+>On Sun, Dec 08, 2002 at 01:09:34AM +0000, Alan Cox wrote:
+>> Fix ide.c to generate a b c d e f and you should be able to get 16.
+
+>Like this?
+
+Hmm,
+
+you will get the same problem again, once someone is able to cram more than
+16 IDE hosts into a box. Why not go for ide%d (ide0-9, ide10-99)?
+
+If we go to idea - idef now, we will be stuck with that for ages.
+
+	Regards
+		Henning
+
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

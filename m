@@ -1,50 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbTFPOZE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 10:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTFPOZE
+	id S262171AbTFPOfY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 10:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTFPOfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 10:25:04 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:49595 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S263875AbTFPOZC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 10:25:02 -0400
-MIME-Version: 1.0
+	Mon, 16 Jun 2003 10:35:24 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:47545 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S262171AbTFPOfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Jun 2003 10:35:20 -0400
+Date: Mon, 16 Jun 2003 09:44:44 -0400
+From: Ben Collins <bcollins@debian.org>
+To: linux-kernel@vger.kernel.org
+Cc: Larry McVoy <lm@bitmover.com>
+Subject: Re: bkSVN live
+Message-ID: <20030616134444.GT542@hopper.phunnypharm.org>
+References: <20030615133631.GF542@hopper.phunnypharm.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16109.54908.249375.482633@gargle.gargle.HOWL>
-Date: Mon, 16 Jun 2003 16:38:52 +0200
-From: mikpe@csd.uu.se
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Dominik Brodowski <linux@brodo.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71 cardbus problem + possible solution
-In-Reply-To: <20030616153253.A13312@flint.arm.linux.org.uk>
-References: <16109.50492.555714.813028@gargle.gargle.HOWL>
-	<20030616153253.A13312@flint.arm.linux.org.uk>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <20030615133631.GF542@hopper.phunnypharm.org>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King writes:
- > On Mon, Jun 16, 2003 at 03:25:16PM +0200, mikpe@csd.uu.se wrote:
- > > 2.5.71 changed the name of the Yenta module from yenta_socket
- > > to yenta. In my case (Latitude with RH9 user-space), this
- > > prevented cardmgr from starting properly.
- > > 
- > > Quick fix: add 'alias yenta_socket yenta' to /etc/modprobe.conf,
- > > or s/yenta_socket/yenta/ in the appropriate config file (but
- > > then you make multi-booting 2.4/2.5 more difficult).
- > 
- > What do people want to do about this?  I have no particular desire to
- > answer all those emails asking about this, so unless Dominik objects,
- > I think we should just rename "yenta.c" to "yenta_socket.c" so we have
- > back-compatibility.
- > 
- > (This issue has appeared because yenta_socket.ko used to be created
- > by combining yenta.o with pci_socket.o.  Since pci_socket.c no longer
- > exists, we create the module from yenta.c directly, so its now called
- > yenta.ko.)
+Somehow the logic I had in my python script that was meant to ignore
+BitKeeper/* files (not put them in the repo), which worked on the other
+two machines I've run this on, seems to be exposing a bug in the python
+on kernel.bkbits.net. It did not allow the COPYING file through the
+os.path.walk() callbacks, so it was not in the repo as well.
 
-I'd prefer compatibility, if there are no technical reasons for
-breaking it. Reverting to the old name in 2.5.72 sounds like a
-good idea.
+I am not ignoring files anymore...I don't think it hurts anything having
+the BitKeeper files. It was only a personal hack I had in place for when
+I was using this setup just for myself for the past 3-4 weeks.
+
+Now, Larry and I have our opposing conspiracy theories about why
+ignoring the BitKeeper files would cause the GPL license to also be
+ignored, but that's a neither here nor there ;)
+
+Fact is, I had to rebuild the repo's. That means a complete re-checkout
+for everyone.
+
+Sorry.
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

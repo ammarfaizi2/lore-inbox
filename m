@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261985AbSIYOay>; Wed, 25 Sep 2002 10:30:54 -0400
+	id <S261987AbSIYOhI>; Wed, 25 Sep 2002 10:37:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261986AbSIYOay>; Wed, 25 Sep 2002 10:30:54 -0400
-Received: from [198.149.18.6] ([198.149.18.6]:4503 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S261985AbSIYOax>;
-	Wed, 25 Sep 2002 10:30:53 -0400
-Date: Wed, 25 Sep 2002 09:35:59 -0500 (CDT)
-From: Alan Mayer <ajm@sgi.com>
-To: Milton Miller <miltonm@bga.com>
-cc: Alan Mayer <ajm@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: irqs on large machines (patch)
-In-Reply-To: <200209250911.g8P9B1734121@sullivan.realtime.net>
-Message-ID: <Pine.SGI.3.96.1020925091808.102141B-100000@fergus.americas.sgi.com>
+	id <S261988AbSIYOhI>; Wed, 25 Sep 2002 10:37:08 -0400
+Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:12972 "HELO
+	pc.kolivas.net") by vger.kernel.org with SMTP id <S261987AbSIYOhH>;
+	Wed, 25 Sep 2002 10:37:07 -0400
+Message-ID: <1032964936.3d91cb48b1cca@kolivas.net>
+Date: Thu, 26 Sep 2002 00:42:16 +1000
+From: Con Kolivas <conman@kolivas.net>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@digeo.com>
+Subject: [BENCHMARK] fork_load module tested for contest
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 Sep 2002, Milton Miller wrote:
 
-> PowerPC 64 (p690 in particular) had a similar but different
-> problem with NR_IRQS.
-> 
-> The hardware gives direct vectors, but the number space is 9 bits
-> to identify the pci host bridge in the drawers, and yet 4 more to
-> identify the source on the pci bus.  All of the 9 bits are used at
-> various levels of the hardware for routing, so the global number
-> space is a bit sparse.
-> 
-> Each interrupt can be sent to the global queue or a specific
-> processor's queue.
 
-Ours can only be sent to a specific processor.
+I've been trialling a new load module for the contest benchmark
+(http://contest.kolivas.net) which simply forks a process that does nothing,
+waits for it to die, then repeats. Here are the results I have obtained so far:
 
-> 
-> Rather than size NR_IRQS for the native index, the hardware numbers
-> are mapped with a simple mapping table that directly maps dense
-> linux irqs to hardware numbers.  Thus the linux NR_IRQs is set based on
-> the total number of hardware sources.  (And yes, we found we needed
-> /proc/interrupts to be seq_file based, but that is long merged).
+noload:
+Kernel                  Time            CPU             Ratio
+2.4.19                  72.90           99%             1.00
+2.4.19-ck7              71.55           100%            0.98
+2.5.38                  73.86           99%             1.01
+2.5.38-mm2              73.93           99%             1.01
 
-And that's our problem.  The total number of hardware sources of interrupts
-is N IO nodes * 6 buses per node * 2 slots per bus = 12N sources of
-IO interrupts.  N can be anywhere between 1 and 256.  How big N is depends
-entirely on how much money the customer wants to spend.  Some of our
-customers have LOTS of money.  So, the IRQ space is sparse for small values
-of N, with the density increasing with N.  It doesn't take long before
-an interrupt vector is overloaded, so it only makes sense to try and
-differentiate between interrupt vector x sent to processor y and 
-interrupt vector x sent to processor z.
+fork_load:
+Kernel                  Time            CPU             Ratio
+2.4.19                  100.05          69%             1.37
+2.4.19-ck7              74.65           95%             1.02
+2.5.38                  77.35           95%             1.06
+2.5.38-mm2              76.99           95%             1.06
 
-> 
-> 
-> Perhaps this will give you ideas for other alternatives?  This approach
-> could also allow you to assign IO interrupts to a node if your hardware
-> allows.
+ck7 uses O1, preempt, low latency
+Preempt=N for all other kernels
 
-There are lots of alternatives.  However, most of them require deviating
-significantly from what David has in the IA64 Linux patch.
-However, we made the design decision that
-we would try to co-exist peacefully with the IA64 Linux patch.  So far,
-we have been able to do that.  We are THIS close (imagine finger and thumb
-nearly touching) to living within the IA64 Linux code.  We just need
-this small patch.  We want ALL of the code we develop for Linux and IA64
-to live in some "official" (meaning, non-SGI) release.  Right now, I think
-we're something under 100 lines of code different.  We want that to be
-zero.
-> 
-> milton
-> -- 
-> [I'll look for any replys on the list]
-> 
+Clearly you can see the 2.5 kernels have a substantial lead over the current
+stable kernel.
 
-Still crazy, after all these years.
---
-Alan J. Mayer
-SGI
-ajm@sgi.com
-WORK: 651-683-3131
-HOME: 651-407-0134
---
+This load module is not part of the contest package yet. I could certainly
+change it to fork n processes but I'm not really sure just how many n should be.
 
+Comments?
+
+Con Kolivas
+
+P.S. Results have negligible differences on repeat testing.

@@ -1,351 +1,252 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268633AbUJDWzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268662AbUJDW4X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268633AbUJDWzx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 18:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUJDWzx
+	id S268662AbUJDW4X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 18:56:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUJDW4X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 18:55:53 -0400
-Received: from mailfe05.swip.net ([212.247.154.129]:1433 "EHLO
-	mailfe05.swip.net") by vger.kernel.org with ESMTP id S268633AbUJDWyg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 18:54:36 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Tue, 5 Oct 2004 00:54:30 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: rmk@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, sebastien.hinderer@libertysurf.fr
-Subject: [Patch] new serial flow control
-Message-ID: <20041004225430.GF2593@bouh.is-a-geek.org>
-Mail-Followup-To: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org,
-	sebastien.hinderer@libertysurf.fr
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="dDRMvlgZJXvWKvBx"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i-nntp
+	Mon, 4 Oct 2004 18:56:23 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:43158 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S268662AbUJDWz3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Oct 2004 18:55:29 -0400
+Mime-Version: 1.0 (Apple Message framework v619)
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Message-Id: <772AB4BB-1658-11D9-8836-000D9352858E@linuxmail.org>
+Content-Type: multipart/mixed; boundary=Apple-Mail-2-511719107
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Badness in remove_proc_entry at fs/proc/generic.c:688
+Date: Tue, 5 Oct 2004 00:55:19 +0200
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--Apple-Mail-2-511719107
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset=US-ASCII;
+	format=flowed
 
-Hi,
+I get the following oops when booting 2.6.9-rc3-mm2:
 
-Some Visiobraille braille terminals (TVB) need a peculiar serial flow
-control:
-- There is no flow control for the PC -> device way (yes, oddly enough)
-- For the device -> PC way,
-  * RTS must be kept low, the device keeps CTS low as well.
-  * when the device wants to send data, it raises CTS. RTS must
-    be raised as well. Data can then pass, CTS and RTS are lowered.
+Badness in remove_proc_entry at fs/proc/generic.c:688
+  [<c01755de>] remove_proc_entry+0x12c/0x13e
+  [<e08120e4>] uhci_hcd_init+0xe4/0xf6 [uhci_hcd]
+  [<c012f540>] sys_init_module+0x119/0x1a3
+  [<c0105b95>] sysenter_past_esp+0x52/0x71
 
-We tried to implement that in user space, with ioctl(TIOCMBIS) & al, but
-the responsiveness is too low: RTS is not raised soon enough, and the
-device aborts transmission.
+Attached are the output of the "dmesg" command and the "config" file 
+used to build the kernel.
 
-Here is a patch for 2.4, a 2.6 patch is coming in another mail. It
-defines a CTVB flag the same way CRTSCTS is defined, letting user
-space choose whether to use it or not (better ideas for the name
-are welcome). This makes the device work perfectly (even better than
-shipped drivers for DOS).
+--Apple-Mail-2-511719107
+Content-Transfer-Encoding: base64
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name="config-2.6.9-rc3-mm2.bz2"
+Content-Disposition: attachment;
+	filename=config-2.6.9-rc3-mm2.bz2
 
-Applying it to vanilla kernel would be a real good thing for people
-having such costly and useful hardware.
+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
 
-Regards,
-Samuel Thibault
+--Apple-Mail-2-511719107
+Content-Transfer-Encoding: base64
+Content-Type: application/octet-stream;
+	x-unix-mode=0644;
+	name="dmesg.bz2"
+Content-Disposition: attachment;
+	filename=dmesg.bz2
 
---dDRMvlgZJXvWKvBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="tvbpatch-2.4"
+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
+aBIp08Q72jJHgt6EG0P/i7kinChIVxTv1AA=
 
-diff -urp linux-2.4.26-orig/drivers/char/serial.c linux-2.4.26-tvb/drivers/char/serial.c
---- linux-2.4.26-orig/drivers/char/serial.c	2004-02-18 14:59:55.000000000 +0100
-+++ linux-2.4.26-tvb/drivers/char/serial.c	2004-08-18 00:48:39.000000000 +0200
-@@ -789,6 +789,26 @@ static _INLINE_ void check_modem_status(
- 				serial_out(info, UART_IER, info->IER);
- 			}
- 		}
-+	} else if (info->flags & ASYNC_TVB_FLOW) {
-+		if (status & UART_MSR_CTS) {
-+			if (!(info->MCR & UART_MCR_RTS)) {
-+				/* start of TVB frame, raise RTS to greet data */
-+				info->MCR |= UART_MCR_RTS;
-+				serial_out(info, UART_MCR, info->MCR);
-+#if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
-+				printk("TVB frame start...");
-+#endif
-+			}
-+		} else {
-+			if (info->MCR & UART_MCR_RTS) {
-+				/* CTS went down, lower RTS as well */
-+				info->MCR &= ~UART_MCR_RTS;
-+				serial_out(info, UART_MCR, info->MCR);
-+#if (defined(SERIAL_DEBUG_INTR) || defined(SERIAL_DEBUG_FLOW))
-+				printk("TVB frame started...");
-+#endif
-+			}
-+		}
- 	}
- }
- 
-@@ -1393,7 +1413,8 @@ static int startup(struct async_struct *
- 
- 	info->MCR = 0;
- 	if (info->tty->termios->c_cflag & CBAUD)
--		info->MCR = UART_MCR_DTR | UART_MCR_RTS;
-+		info->MCR = UART_MCR_DTR |
-+			(info->flags & ASYNC_TVB_FLOW ? 0 : UART_MCR_RTS);
- #ifdef CONFIG_SERIAL_MANY_PORTS
- 	if (info->flags & ASYNC_FOURPORT) {
- 		if (state->irq == 0)
-@@ -1752,8 +1773,12 @@ static void change_speed(struct async_st
- 	if (cflag & CRTSCTS) {
- 		info->flags |= ASYNC_CTS_FLOW;
- 		info->IER |= UART_IER_MSI;
--	} else
--		info->flags &= ~ASYNC_CTS_FLOW;
-+	} else if (cflag & CTVB) {
-+		info->flags |= ASYNC_TVB_FLOW;
-+		info->IER |= UART_IER_MSI;
-+	} else {
-+		info->flags &= ~(ASYNC_CTS_FLOW|ASYNC_TVB_FLOW);
-+	}
- 	if (cflag & CLOCAL)
- 		info->flags &= ~ASYNC_CHECK_CD;
- 	else {
-@@ -3057,7 +3082,8 @@ static int block_til_ready(struct tty_st
- 		    (tty->termios->c_cflag & CBAUD))
- 			serial_out(info, UART_MCR,
- 				   serial_inp(info, UART_MCR) |
--				   (UART_MCR_DTR | UART_MCR_RTS));
-+				   (UART_MCR_DTR | 
-+				    (tty->termios->c_cflag & CTVB ? 0 : UART_MCR_RTS)));
- 		restore_flags(flags);
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		if (tty_hung_up_p(filp) ||
-diff -urp linux-2.4.26-orig/include/asm-alpha/termbits.h linux-2.4.26-tvb/include/asm-alpha/termbits.h
---- linux-2.4.26-orig/include/asm-alpha/termbits.h	1999-01-08 20:11:45.000000000 +0100
-+++ linux-2.4.26-tvb/include/asm-alpha/termbits.h	2004-08-18 00:10:30.000000000 +0200
-@@ -150,6 +150,7 @@ struct termios {
- #define HUPCL	00040000
- 
- #define CLOCAL	00100000
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CRTSCTS	  020000000000		/* flow control */
- 
- /* c_lflag bits */
-diff -urp linux-2.4.26-orig/include/asm-arm/termbits.h linux-2.4.26-tvb/include/asm-arm/termbits.h
---- linux-2.4.26-orig/include/asm-arm/termbits.h	2000-08-13 18:54:15.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-arm/termbits.h	2004-08-18 00:10:52.000000000 +0200
-@@ -131,6 +131,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR    010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-cris/termbits.h linux-2.4.26-tvb/include/asm-cris/termbits.h
---- linux-2.4.26-orig/include/asm-cris/termbits.h	2003-08-27 20:53:15.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-cris/termbits.h	2004-08-18 00:10:56.000000000 +0200
-@@ -126,6 +126,7 @@ struct termios {
- #define  B1843200 0010006
- #define  B6250000 0010007
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity, PARODD => mark parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-i386/termbits.h linux-2.4.26-tvb/include/asm-i386/termbits.h
---- linux-2.4.26-orig/include/asm-i386/termbits.h	2000-01-21 01:05:26.000000000 +0100
-+++ linux-2.4.26-tvb/include/asm-i386/termbits.h	2004-08-18 00:11:00.000000000 +0200
-@@ -133,6 +133,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-ia64/termbits.h linux-2.4.26-tvb/include/asm-ia64/termbits.h
---- linux-2.4.26-orig/include/asm-ia64/termbits.h	2004-07-18 11:55:30.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-ia64/termbits.h	2004-08-18 00:11:02.000000000 +0200
-@@ -142,6 +142,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-m68k/termbits.h linux-2.4.26-tvb/include/asm-m68k/termbits.h
---- linux-2.4.26-orig/include/asm-m68k/termbits.h	1999-01-08 20:11:45.000000000 +0100
-+++ linux-2.4.26-tvb/include/asm-m68k/termbits.h	2004-08-18 00:11:06.000000000 +0200
-@@ -134,6 +134,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-mips/termbits.h linux-2.4.26-tvb/include/asm-mips/termbits.h
---- linux-2.4.26-orig/include/asm-mips/termbits.h	2001-09-09 19:43:01.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-mips/termbits.h	2004-08-18 00:11:09.000000000 +0200
-@@ -161,6 +161,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR    010000000000	/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-mips64/termbits.h linux-2.4.26-tvb/include/asm-mips64/termbits.h
---- linux-2.4.26-orig/include/asm-mips64/termbits.h	2001-09-09 19:43:02.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-mips64/termbits.h	2004-08-18 00:11:12.000000000 +0200
-@@ -163,6 +163,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR    010000000000	/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-parisc/termbits.h linux-2.4.26-tvb/include/asm-parisc/termbits.h
---- linux-2.4.26-orig/include/asm-parisc/termbits.h	2000-12-05 21:29:39.000000000 +0100
-+++ linux-2.4.26-tvb/include/asm-parisc/termbits.h	2004-08-18 00:12:01.000000000 +0200
-@@ -134,6 +134,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD    002003600000  /* input baud rate (not used) */
-+#define CTVB      004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR    010000000000          /* mark or space (stick) parity */
- #define CRTSCTS   020000000000          /* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-ppc/termbits.h linux-2.4.26-tvb/include/asm-ppc/termbits.h
---- linux-2.4.26-orig/include/asm-ppc/termbits.h	2003-06-14 02:30:26.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-ppc/termbits.h	2004-08-18 00:11:20.000000000 +0200
-@@ -146,6 +146,7 @@ struct termios {
- #define HUPCL	00040000
- 
- #define CLOCAL	00100000
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CRTSCTS	  020000000000		/* flow control */
- 
- /* c_lflag bits */
-diff -urp linux-2.4.26-orig/include/asm-ppc64/termbits.h linux-2.4.26-tvb/include/asm-ppc64/termbits.h
---- linux-2.4.26-orig/include/asm-ppc64/termbits.h	2002-08-03 23:05:34.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-ppc64/termbits.h	2004-08-18 00:11:22.000000000 +0200
-@@ -154,6 +154,7 @@ struct termios {
- #define HUPCL	00040000
- 
- #define CLOCAL	00100000
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CRTSCTS	  020000000000		/* flow control */
- 
- /* c_lflag bits */
-diff -urp linux-2.4.26-orig/include/asm-s390/termbits.h linux-2.4.26-tvb/include/asm-s390/termbits.h
---- linux-2.4.26-orig/include/asm-s390/termbits.h	2000-05-12 20:41:44.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-s390/termbits.h	2004-08-18 00:11:25.000000000 +0200
-@@ -141,6 +141,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-s390x/termbits.h linux-2.4.26-tvb/include/asm-s390x/termbits.h
---- linux-2.4.26-orig/include/asm-s390x/termbits.h	2001-02-13 23:13:44.000000000 +0100
-+++ linux-2.4.26-tvb/include/asm-s390x/termbits.h	2004-08-18 00:11:28.000000000 +0200
-@@ -141,6 +141,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-sh/termbits.h linux-2.4.26-tvb/include/asm-sh/termbits.h
---- linux-2.4.26-orig/include/asm-sh/termbits.h	1999-10-18 20:16:13.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-sh/termbits.h	2004-08-18 00:11:30.000000000 +0200
-@@ -133,6 +133,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-sh64/termbits.h linux-2.4.26-tvb/include/asm-sh64/termbits.h
---- linux-2.4.26-orig/include/asm-sh64/termbits.h	2003-08-27 20:53:26.000000000 +0200
-+++ linux-2.4.26-tvb/include/asm-sh64/termbits.h	2004-08-18 00:11:32.000000000 +0200
-@@ -144,6 +144,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-sparc/termbits.h linux-2.4.26-tvb/include/asm-sparc/termbits.h
---- linux-2.4.26-orig/include/asm-sparc/termbits.h	2002-11-29 13:24:06.000000000 +0100
-+++ linux-2.4.26-tvb/include/asm-sparc/termbits.h	2004-08-18 00:12:23.000000000 +0200
-@@ -173,6 +173,7 @@ struct termios {
- #define B3500000  0x00001012
- #define B4000000  0x00001013  */
- #define CIBAUD	  0x100f0000  /* input baud rate (not used) */
-+#define CTVB	  0x20000000  /* VisioBraille Terminal flow control */
- #define CMSPAR	  0x40000000  /* mark or space (stick) parity */
- #define CRTSCTS	  0x80000000  /* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-sparc64/termbits.h linux-2.4.26-tvb/include/asm-sparc64/termbits.h
---- linux-2.4.26-orig/include/asm-sparc64/termbits.h	2002-11-29 13:24:06.000000000 +0100
-+++ linux-2.4.26-tvb/include/asm-sparc64/termbits.h	2004-08-18 00:12:36.000000000 +0200
-@@ -174,6 +174,7 @@ struct termios {
- #define B3500000  0x00001012
- #define B4000000  0x00001013  */
- #define CIBAUD	  0x100f0000  /* input baud rate (not used) */
-+#define CTVB	  0x20000000  /* VisioBraille Terminal flow control */
- #define CMSPAR    0x40000000  /* mark or space (stick) parity */
- #define CRTSCTS	  0x80000000  /* flow control */
- 
-diff -urp linux-2.4.26-orig/include/asm-x86_64/termbits.h linux-2.4.26-tvb/include/asm-x86_64/termbits.h
---- linux-2.4.26-orig/include/asm-x86_64/termbits.h	2002-11-29 13:24:06.000000000 +0100
-+++ linux-2.4.26-tvb/include/asm-x86_64/termbits.h	2004-08-18 00:13:11.000000000 +0200
-@@ -133,6 +133,7 @@ struct termios {
- #define  B3500000 0010016
- #define  B4000000 0010017
- #define CIBAUD	  002003600000	/* input baud rate (not used) */
-+#define CTVB	  004000000000		/* VisioBraille Terminal flow control */
- #define CMSPAR	  010000000000		/* mark or space (stick) parity */
- #define CRTSCTS	  020000000000		/* flow control */
- 
-diff -urp linux-2.4.26-orig/include/linux/serial.h linux-2.4.26-tvb/include/linux/serial.h
---- linux-2.4.26-orig/include/linux/serial.h	2004-07-18 12:05:46.000000000 +0200
-+++ linux-2.4.26-tvb/include/linux/serial.h	2004-08-18 00:34:20.000000000 +0200
-@@ -141,7 +141,8 @@ struct serial_uart_config {
- #define ASYNC_CONS_FLOW		0x00800000 /* flow control for console  */
- 
- #define ASYNC_BOOT_ONLYMCA	0x00400000 /* Probe only if MCA bus */
--#define ASYNC_INTERNAL_FLAGS	0xFFC00000 /* Internal flags */
-+#define ASYNC_TVB_FLOW		0x00200000 /* Do VisioBraille flow control */
-+#define ASYNC_INTERNAL_FLAGS	0xFFE00000 /* Internal flags */
- 
- /*
-  * Multiport serial configuration structure --- external structure
-diff -urp linux-2.4.26-orig/include/linux/tty.h linux-2.4.26-tvb/include/linux/tty.h
---- linux-2.4.26-orig/include/linux/tty.h	2004-07-18 12:05:17.000000000 +0200
-+++ linux-2.4.26-tvb/include/linux/tty.h	2004-08-18 00:23:37.000000000 +0200
-@@ -224,6 +224,7 @@ struct tty_flip_buffer {
- #define C_HUPCL(tty)	_C_FLAG((tty),HUPCL)
- #define C_CLOCAL(tty)	_C_FLAG((tty),CLOCAL)
- #define C_CIBAUD(tty)	_C_FLAG((tty),CIBAUD)
-+#define C_CTVB(tty)	_C_FLAG((tty),CTVB)
- #define C_CRTSCTS(tty)	_C_FLAG((tty),CRTSCTS)
- 
- #define L_ISIG(tty)	_L_FLAG((tty),ISIG)
+--Apple-Mail-2-511719107--
 
---dDRMvlgZJXvWKvBx--

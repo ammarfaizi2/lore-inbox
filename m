@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312119AbSCXWzL>; Sun, 24 Mar 2002 17:55:11 -0500
+	id <S312134AbSCXX0K>; Sun, 24 Mar 2002 18:26:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312127AbSCXWzB>; Sun, 24 Mar 2002 17:55:01 -0500
-Received: from userbb201.dsl.pipex.com ([62.190.241.201]:41900 "EHLO
-	irishsea.home.craig-wood.com") by vger.kernel.org with ESMTP
-	id <S312119AbSCXWyp>; Sun, 24 Mar 2002 17:54:45 -0500
-Date: Sun, 24 Mar 2002 22:54:01 +0000
-From: Nick Craig-Wood <ncw@axis.demon.co.uk>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
-        Linus Torvalds <torvalds@transmeta.com>, yodaiken@fsmlabs.com,
-        Andi Kleen <ak@suse.de>, Paul Mackerras <paulus@samba.org>,
+	id <S312136AbSCXX0A>; Sun, 24 Mar 2002 18:26:00 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:14340 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312134AbSCXXZy>; Sun, 24 Mar 2002 18:25:54 -0500
+Message-ID: <3C9E6014.BB3DE865@zip.com.au>
+Date: Sun, 24 Mar 2002 15:24:05 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Paul Clements <Paul.Clements@SteelEye.com>, marcelo@conectiva.com.br,
         linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 10.31 second kernel compile
-Message-ID: <20020324225401.A30709@axis.demon.co.uk>
-In-Reply-To: <Pine.LNX.4.33.0203161203050.31971-100000@penguin.transmeta.com> <200203242112.WAA09406@cave.bitwizard.nl> <3C9E46BD.D0BEEB2A@zip.com.au>
-Mime-Version: 1.0
+Subject: Re: [PATCH] 2.4.18 raid1 - fix SMP locking/interrupt errors, fix resync 
+ counter errors
+In-Reply-To: message from Paul Clements on Friday March 22 <15518.22081.287786.88466@notabene.cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 24, 2002 at 01:35:57PM -0800, Andrew Morton wrote:
-> Frankly, all the discussion I've seen about altering page sizes
-> threatens to add considerable complexity for very dubious gains.
-> The only place where I've seen a solid justification is for
-> scientific applications which have a huge working set, and need
-> large pages to save on TLB thrashing.
+Neil Brown wrote:
+> 
+> ...
+> The save/restore versions are only needed if the code might be called
+> from interrupt context.
 
-A widely used example is mprime - the mersenne prime finding program (
-http://www.mersenne.org/ ).  This typically uses 8 or more MBytes of
-RAM which it completely thrashes.
+Or if the caller may wish to keep interrupts disabled.
 
-The program is written in very efficient assembler code and has been
-designed not to thrash the TLB as much as possible, but with a working
-set of > 8 MBs (which is iterated through many times a second at
-maximum memory bandwith) large pages would make a real improvement to
-it.  Since each run takes weeks any improvement would be eagerly
-snatched at by the 1000s of people running this program ;-)
+> However the routines where you made this
+> change: raid1_grow_buffers, raid1_shrink_buffers, close_sync,
+> are only ever called from process context, with interrupts enabled.
+> Or am I missing something?
 
-If there was some hack where 4MB pages could be allocated for
-applications like this then I'd be very happy!
+If those functions are always called with interrupts enabled then
+no, you're not missing anything ;)
 
--- 
-Nick Craig-Wood
-ncw@axis.demon.co.uk
+However a bare spin_unlock_irq() in a function means that
+callers which wish to keep interrupts disabled are subtly
+subverted.   We've had bugs from this before.
+
+So the irqrestore functions are much more robust.  I believe
+that they should be the default choice.  The non-restore
+versions should be viewed as a micro-optimised version,
+to be used with caution.  The additional expense of the save/restore
+is quite tiny - 20-30 cycles, perhaps.
+
+-

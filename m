@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbULaLrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbULaLsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbULaLrR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 06:47:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbULaLrR
+	id S261864AbULaLsU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 06:48:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbULaLsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 06:47:17 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:32657 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261863AbULaLrM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 06:47:12 -0500
-Message-ID: <41D53C25.4030402@colorfullife.com>
-Date: Fri, 31 Dec 2004 12:46:45 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard \"Georg C. F.
-	Greve\"" <greve@fsfeurope.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: PROBLEM: Kernel 2.6.10 crashing repeatedly and hard
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 31 Dec 2004 06:48:20 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51614 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261864AbULaLsN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 06:48:13 -0500
+Date: Fri, 31 Dec 2004 06:58:20 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: Andrew Morton <akpm@osdl.org>, William Park <opengeometry@yahoo.ca>,
+       juhl-lkml@dif.dk, linux-kernel@vger.kernel.org
+Subject: Re: waiting 10s before mounting root filesystem?
+Message-ID: <20041231085820.GA10834@logos.cnet>
+References: <20041227195645.GA2282@node1.opengeometry.net> <20041227201015.GB18911@sweep.bur.st> <41D07D56.7020702@netshadow.at> <20041229005922.GA2520@node1.opengeometry.net> <20041230152531.GB5058@logos.cnet> <Pine.LNX.4.61.0412310011400.3494@dragon.hygekrogen.localhost> <Pine.LNX.4.61.0412310234040.4725@dragon.hygekrogen.localhost> <20041231035834.GA2421@node1.opengeometry.net> <20041231014905.30b05a11.akpm@osdl.org> <41D5376A.8000705@grupopie.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41D5376A.8000705@grupopie.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->
->Did that last night. You are right -- it is so slow that it is no fun
->at all. So I started the test run last night and went to bed. 
->
->  
->
-It was a crash in free_block - this means control structures of the slab 
-allocator were corrupted.
+On Fri, Dec 31, 2004 at 11:26:34AM +0000, Paulo Marques wrote:
+> Andrew Morton wrote:
+> >William Park <opengeometry@yahoo.ca> wrote:
+> >
+> >>-		printk("VFS: Cannot open root device \"%s\" or %s\n",
+> >>-				root_device_name, b);
+> >>-		printk("Please append a correct \"root=\" boot option\n");
+> >>+		if (--tryagain) {
+> >>+		    printk (KERN_WARNING "VFS: Waiting %dsec for root 
+> >>device...\n", tryagain);
+> >>+		    ssleep (1);
+> >>+		    goto retry;
+> >>+		}
+> >>+		printk (KERN_CRIT "VFS: Cannot open root device \"%s\" or 
+> >>%s\n", root_device_name, b);
+> >>+		printk (KERN_CRIT "Please append a correct \"root=\" boot 
+> >>option\n");
+> >
+> >
+> >Why is this patch needed?  If it is to offer the user a chance to insert
+> >the correct medium or to connect the correct device, why not rely upon the
+> >user doing that thing and then hitting reset?
+> 
+> No, no. The problem is not user interaction.
+> 
+> The problem is that the USB subsystem takes a lot of time to go through 
+> the hostcontrollers -> hubs -> devices. By the time it finds the USB 
+> mass storage that is supposed to be used as root filesystem, the kernel 
+> had already panic'ed.
+> 
+> IMHO the kernel should handle this case just fine, without the need for 
+> initrd's. After all the user says "my root filesystem is /dev/sda1", and 
+> the kernel panic's even though the filesystem is there. This doesn't 
+> seem like a correct bahavior.
 
-You wrote that enabling everything caused a hard crash without anything 
-on the console. Could you try what happens if slab debugging is enabled, 
-but page alloc debugging is off? You should get a verbose BUG_ON() with 
-kmem_cache_free/kmem_cache_alloc caller addresses and similar stuff.
+Well, Paulo's has more of a clue than I do. 
 
-> EFLAGS: 00010002   (2.6.10)
-> EIP is at free_block+0x45/0xd0
-> eax: 46484849   ebx: df2b1000   ecx: df2b1050   edx: df2ab000
-> esi: c183cd80   edi: 00000001   ebp: 00000018   esp: c188fef8
-> ds: 007b   es: 007b   ss: 0068
-
-Could you compile your kernel without debug and send me mm/slab.o? The 
-%eax value is odd: FHHI or IHHF.
-
-Btw, if it's still too slow for you without page alloc debug: remove the 
-forced poisoning:
-
-  if ((size < 4096 || fls(size-1) == fls(size-1+3*BYTES_PER_WORD)))
-          flags |= SLAB_RED_ZONE|SLAB_STORE_USER;
-- if (!(flags & SLAB_DESTROY_BY_RCU))
--         flags |= SLAB_POISON;
- #endif
-
---
-	Manfred
-
-
+Some CD drives suffer from the same issues.

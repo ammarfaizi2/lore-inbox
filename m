@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbTLTCDW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 21:03:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTLTCDW
+	id S263777AbTLTCRE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 21:17:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTLTCRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 21:03:22 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:270 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263778AbTLTCDV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 21:03:21 -0500
-Date: Fri, 19 Dec 2003 17:56:01 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jonathan Corbet <corbet@lwn.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Device Drivers 3rd Edition 
-In-Reply-To: <20031219153920.28201.qmail@lwn.net>
-Message-ID: <Pine.LNX.4.10.10312191747470.7879-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	Fri, 19 Dec 2003 21:17:03 -0500
+Received: from thunk.org ([140.239.227.29]:49323 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S263777AbTLTCRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 21:17:01 -0500
+Date: Fri, 19 Dec 2003 21:16:59 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: OLS and Kernel Summit 2004 (Was: OLS 2004?)
+Message-ID: <20031220021659.GA10199@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Karim Yaghmour <karim@opersys.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <3FE352ED.60101@opersys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FE352ED.60101@opersys.com>
+User-Agent: Mutt/1.5.4i
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Jon,
-
-A map is a published reference how to move around.  So yes it does give a
-right to use knowledge from the information expressed.  If there was not a
-reference a manual to kernel programming, then the source is the sole
-manual.  Now given the volital nature of the moving API, regardless of
-reason, any judge would likely veiw that active movement as an attempt to
-thwart the successful production of a "3rd Party" manual.
-
-This does not even include all the published referneces of changes deemed
-as publish manuals in all the mailing list archieves.
-
-On a side note, why doesn't LWN bother to investigate cases of known and
-provable GPL violations.
-
-I wish you well on the sales of the book, and I will by a copy this time
-to catch up on what I have forgotten.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-On Fri, 19 Dec 2003, Jonathan Corbet wrote:
-
-> > So this is the third release to publish the documented API to the writing
-> > kernel level device drivers?
+On Fri, Dec 19, 2003 at 02:35:09PM -0500, Karim Yaghmour wrote:
 > 
-> I guess I see it as more of a map of the jungle as I (and my co-authors)
-> see it.  A guide to New York does not automatically open all of the doors
-> of the city to you; should a guide to certain parts of the kernel be
-> different?  
+> Usually around this time of the year there's some information
+> available regarding next summer's OLS. Yet, there's no info
+> on such an event and the site seems to be abandoned (and
+> Andrew's email on Achilles bounces):
+> http://www.linuxsymposium.org
 > 
-> There was an informative article in Phrack a while back on how to install
-> code into a running kernel via /dev/kmem.  I guess that must be a
-> documented API too, now.
-> 
-> jon
-> 
+> Does anyone know if there will there be an OLS this year?
 
+I can't speak for Andrew or the rest of the OLS organizing team, but
+as far as I know, there should be an OLS in 2004.  The 2004 kernel
+summit will be July 18 and 19th (we've put down a deposit on the
+Conference Center already), and OLS will be running the rest of the
+week (from the 20th to the 23rd or 24th).
+
+So mark your calendars, everyone!
+
+						- Ted

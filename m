@@ -1,47 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270625AbTGVKoK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 06:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270637AbTGVKoK
+	id S270709AbTGVKpL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 06:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267341AbTGVKpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 06:44:10 -0400
-Received: from c210-49-26-171.randw1.nsw.optusnet.com.au ([210.49.26.171]:14790
-	"EHLO mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id S270625AbTGVKoJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 06:44:09 -0400
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16157.6400.38828.602041@wombat.chubb.wattle.id.au>
-Date: Tue, 22 Jul 2003 20:59:12 +1000
+	Tue, 22 Jul 2003 06:45:11 -0400
+Received: from cc78409-a.hnglo1.ov.home.nl ([212.120.97.185]:35739 "EHLO
+	dexter.hensema.net") by vger.kernel.org with ESMTP id S270709AbTGVKo7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 06:44:59 -0400
+From: Erik Hensema <erik@hensema.net>
+Subject: [2.6.0-test1] Destroying alive neighbour dea4ce00
+Date: Tue, 22 Jul 2003 11:00:00 +0000 (UTC)
+Message-ID: <slrnbhq69f.1pp.erik@bender.home.hensema.net>
+Reply-To: erik@hensema.net
+User-Agent: slrn/0.9.7.4 (Linux)
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test1: Laptop runs hot, short battery life
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm getting the following oopses/bugs/whatever on a 2.6.0-test1 box running
+native ipv6 over ethernet:
 
-Hi,
-	Under recent 2.5 kernels, my laptop runs a lot hotter than
-under 2.4.20 -- the fans seem to go continuously, the disc never
-powers down, and consequently battery life is around half what it is
-with 2.4.20.
+Jul 22 11:10:14 bender kernel: Destroying alive neighbour dea4ce00
+Jul 22 11:10:14 bender kernel: Call Trace:
+Jul 22 11:10:14 bender kernel:  [<c02f8588>] dst_destroy+0xa8/0xc0
+Jul 22 11:10:14 bender kernel:  [<c0350eff>] ndisc_dst_gc+0x5f/0x70
+Jul 22 11:10:14 bender kernel:  [<c0354720>] fib6_run_gc+0x0/0x120
+Jul 22 11:10:14 bender kernel:  [<c0354771>] fib6_run_gc+0x51/0x120
+Jul 22 11:10:14 bender kernel:  [<c01254b4>] run_timer_softirq+0xc4/0x1c0
+Jul 22 11:10:14 bender kernel:  [<c0121272>] do_softirq+0x62/0xc0
+Jul 22 11:10:14 bender kernel:  [<c010b8cd>] do_IRQ+0x11d/0x150
+Jul 22 11:10:14 bender kernel:  [<c01070f0>] default_idle+0x0/0x30
+Jul 22 11:10:14 bender kernel:  [<c0109cc8>] common_interrupt+0x18/0x20
+Jul 22 11:10:14 bender kernel:  [<c01070f0>] default_idle+0x0/0x30
+Jul 22 11:10:14 bender kernel:  [<c0107116>] default_idle+0x26/0x30
+Jul 22 11:10:14 bender kernel:  [<c0107192>] cpu_idle+0x32/0x50
+Jul 22 11:10:14 bender kernel:  [<c0105000>] _stext+0x0/0x60
+Jul 22 11:10:14 bender kernel:  [<c04707b9>] start_kernel+0x179/0x1a0
+Jul 22 11:10:14 bender kernel:  [<c04704f0>] unknown_bootoption+0x0/0x110
 
-I'm using XFS, mounted with the	`noatime' option, and a 5-minute
-xfs_sync value, in both cases.
+Jul 22 11:11:05 bender kernel: Destroying alive neighbour dea4ce00
+Jul 22 11:11:05 bender kernel: Call Trace:
+Jul 22 11:11:05 bender kernel:  [<c0358009>] ndisc_recv_na+0x209/0x250
+Jul 22 11:11:05 bender kernel:  [<c0358e34>] ndisc_rcv+0x104/0x110
+Jul 22 11:11:05 bender kernel:  [<c035ef59>] icmpv6_rcv+0x339/0x500
+Jul 22 11:11:05 bender kernel:  [<c0357084>] ndisc_send_ns+0x284/0x440
+Jul 22 11:11:05 bender kernel:  [<c0353d46>] fib6_lookup+0x26/0x40
+Jul 22 11:11:05 bender kernel:  [<c034a73f>] ip6_input+0xff/0x310
+Jul 22 11:11:05 bender kernel:  [<c034a57a>] ipv6_rcv+0x17a/0x240
+Jul 22 11:11:05 bender kernel:  [<c036eae2>] packet_rcv_spkt+0x1e2/0x270
+Jul 22 11:11:05 bender kernel:  [<c02f5590>] netif_receive_skb+0x1e0/0x200
+Jul 22 11:11:05 bender kernel:  [<c02f5625>] process_backlog+0x75/0x100
+Jul 22 11:11:05 bender kernel:  [<c02f5767>] net_rx_action+0xb7/0x110
+Jul 22 11:11:05 bender kernel:  [<c0121272>] do_softirq+0x62/0xc0
+Jul 22 11:11:05 bender kernel:  [<c010b8cd>] do_IRQ+0x11d/0x150
+Jul 22 11:11:05 bender kernel:  [<c01070f0>] default_idle+0x0/0x30
+Jul 22 11:11:05 bender kernel:  [<c0109cc8>] common_interrupt+0x18/0x20
+Jul 22 11:11:05 bender kernel:  [<c01070f0>] default_idle+0x0/0x30
+Jul 22 11:11:05 bender kernel:  [<c0107116>] default_idle+0x26/0x30
+Jul 22 11:11:05 bender kernel:  [<c0107192>] cpu_idle+0x32/0x50
+Jul 22 11:11:05 bender kernel:  [<c0105000>] _stext+0x0/0x60
+Jul 22 11:11:05 bender kernel:  [<c04707b9>] start_kernel+0x179/0x1a0
+Jul 22 11:11:05 bender kernel:  [<c04704f0>] unknown_bootoption+0x0/0x110
 
-The laptop has ACPI only, no APM.  On battery, the processor (a 2GHz
-Pentium 4) is dropped to 1GHz and put into ACPI C3 state.
-
-Does anyone have any ideas about what's changed, and how it can be
-fixed to get better battery life again?   Maybe XFS is
-syncing its logs more often, or something.
-
---
-Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
-You are lost in a maze of BitKeeper repositories,   all slightly different.
+Local IPv6 seems to work, but when I'm trying to get outside my local
+segment I get these errors.
+-- 
+Erik Hensema <erik@hensema.net>

@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273867AbRIXOh2>; Mon, 24 Sep 2001 10:37:28 -0400
+	id <S273922AbRIXOlH>; Mon, 24 Sep 2001 10:41:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273788AbRIXOhR>; Mon, 24 Sep 2001 10:37:17 -0400
-Received: from chunnel.redhat.com ([199.183.24.220]:61684 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S273867AbRIXOhK>; Mon, 24 Sep 2001 10:37:10 -0400
-Date: Mon, 24 Sep 2001 15:37:00 +0100
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>, linux-kernel@vger.kernel.org,
-        tovarlds@transmeta.com, Stephen Tweedie <sct@redhat.com>
-Subject: Re: [PATCH] Significant performace improvements on reiserfs systems, kupdated bugfixes
-Message-ID: <20010924153700.B13817@redhat.com>
-In-Reply-To: <Pine.LNX.4.30.0109201445170.13543-100000@gamma.student.ljbc> <20010921152627.C13862@emma1.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010921152627.C13862@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Fri, Sep 21, 2001 at 03:26:27PM +0200
+	id <S273925AbRIXOk5>; Mon, 24 Sep 2001 10:40:57 -0400
+Received: from waste.org ([209.173.204.2]:24609 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S273922AbRIXOkt>;
+	Mon, 24 Sep 2001 10:40:49 -0400
+Date: Mon, 24 Sep 2001 09:42:34 -0500 (CDT)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.10 - necessary patches
+In-Reply-To: <E15lJF4-0000rL-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0109240936140.11663-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 24 Sep 2001, Alan Cox wrote:
 
-On Fri, Sep 21, 2001 at 03:26:27PM +0200, Matthias Andree wrote:
+> > --- linux-2.4.10-pre7/include/scsi/scsi.h	Fri Apr 27 13:59:19 2001
+> > +++ linux/include/scsi/scsi.h	Mon Sep 10 03:53:58 2001
+> > @@ -214,6 +214,12 @@
+> >  /* Used to get the PCI location of a device */
+> >  #define SCSI_IOCTL_GET_PCI 0x5387
+> >
+> > +/* Used to invoke Target Defice Reset for Fibre Channel */
+> > +#define SCSI_IOCTL_FC_TDR 0x5388
+> > +
+> > +/* Used to get Fibre Channel WWN and port_id from device */
+> > +#define SCSI_IOCTL_FC_TARGET_ADDRESS 0x5389
+> > +
+>
+> These are compaq made up ioctls. They shouldnt be merged like that. Instead
+> there needs to be proper discussion about what is actualyl needed
 
-> Be careful! MTAs rely on this behaviour on fsync(). The official
-> consensus on ReiserFS and ext3 on current Linux 2.4.x kernels (x >= 9)
-> is that "any synchronous operation flushes all pending operations", and
-> if that is changed, you MUST make sure that the changed ReiserFS/ext3fs
-> still make all the guarantees that softupdated BSD file systems make,
-> lest you want people to run their mail queues off "sync" disks.
+And please, not ioctl(). iSCSI (SCSI-over-IP) is going to require similar
+per-device information (this info isn't FC-specific), but probably a lot
+more. Adding a dozen ioctls is bad. At least one of the current iSCSI
+drivers puts this info in /proc/scsi/iscsi.
 
-Reiserfs and ext3 have their own IO ordering --- they don't commit
-transactions until the log writes for _all_ of the blocks in those
-transactions have been acknowledged.  Reordering outstanding IOs won't
-affect the fsync guarantees at all.
+--
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
---Stephen

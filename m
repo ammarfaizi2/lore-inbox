@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263444AbUDPP2g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Apr 2004 11:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263324AbUDPP0H
+	id S263324AbUDPP2i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Apr 2004 11:28:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263304AbUDPPZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Apr 2004 11:26:07 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47328 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263558AbUDPPYu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Apr 2004 11:24:50 -0400
-Date: Fri, 16 Apr 2004 16:24:48 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Greg KH <greg@kroah.com>
-Cc: Maneesh Soni <maneesh@in.ibm.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] fix sysfs symlinks
-Message-ID: <20040416152448.GF24997@parcelfarce.linux.theplanet.co.uk>
-References: <20040413124037.GA21637@in.ibm.com> <20040413133615.GZ31500@parcelfarce.linux.theplanet.co.uk> <20040415220232.GC23039@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040415220232.GC23039@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 16 Apr 2004 11:25:59 -0400
+Received: from tag.witbe.net ([81.88.96.48]:18701 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S263364AbUDPPWi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Apr 2004 11:22:38 -0400
+Message-Id: <200404161522.i3GFMa118998@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rol@as2917.net>
+Subject: [2.6.5] agp_backend_initialize() failed
+Date: Fri, 16 Apr 2004 17:22:34 +0200
+Organization: AS2917
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcQjxqRMT/HMRxuETYSLU8vjoTUfpA==
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 03:02:32PM -0700, Greg KH wrote:
-> No, we don't want that.  It's ok to have a dangling symlink in the fs if
-> the device the link was pointing to is now gone.  All of the struct
-> class_device stuff relies on the fact that a struct device can go away
-> at any time, and nothing bad will happen (with the exception of a stale
-> symlink.)
-> 
-> Yeah, it can cause a few odd looking trees when you unplug and replug a
-> device a bunch of times, all the while grabbing a reference to the class
-> device, but once everything is released by the user, it is cleaned up
-> properly, with no harm done to anything.
+Hello,
 
-Except that these "symlinks" are expected to follow the target upon
-renames.  Which means that we either need a very messy scanning of
-the entire tree on every rename (obviously not feasible) or we need
-to store pointer to target and regenerate the path.  Which, in turn,
-requires holding a reference.
+I juste realized that my messages log contains :
+
+Linux agpgart interface v0.100 (c) Dave Jones
+agpgart: Detected SiS 648 chipset
+agpgart: Maximum main memory to use for agp memory: 1430M
+agpgart: unable to determine aperture size.
+agpgart: agp_backend_initialize() failed.
+agpgart-sis: probe of 0000:00:00.0 failed with error -22
+
+Before, I had :
+
+Mar 23 22:09:12 donald kernel: Linux agpgart interface v0.100 (c) Dave Jones
+Mar 23 22:09:12 donald kernel: agpgart: Detected SiS 648 chipset
+Mar 23 22:09:12 donald kernel: agpgart: Maximum main memory to use for agp
+memo
+ry: 1430M
+Mar 23 22:09:12 donald kernel: agpgart: AGP aperture is 256M @ 0xd0000000
+Mar 23 22:09:12 donald kernel: [drm] Initialized radeon 1.9.0 20020828 on
+minor
+ 0
+
+with kernel 2.6.4 :
+
+Mar 23 22:09:10 donald kernel: Linux version 2.6.4 (root@donald.as2917.net)
+(gc
+c version 3.2 20020903 (Red Hat Linux 8.0 3.2-7)) #2 Tue Mar 23 22:02:26 CET
+20
+04
+
+Any hint ? I can't remember reading anything about that in lkml...
+
+Regards,
+Paul
+rol@as2917.net
+
+
+

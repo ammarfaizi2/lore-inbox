@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132848AbRDQTkM>; Tue, 17 Apr 2001 15:40:12 -0400
+	id <S132850AbRDQTmk>; Tue, 17 Apr 2001 15:42:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132845AbRDQTiy>; Tue, 17 Apr 2001 15:38:54 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:59143 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S132844AbRDQTiA>; Tue, 17 Apr 2001 15:38:00 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Subtle MM bug
-Date: 17 Apr 2001 12:37:22 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9bi61i$5ql$1@cesium.transmeta.com>
-In-Reply-To: <87wvburowk.fsf@atlas.iskon.hr> <Pine.LNX.4.31.0101181230020.31432-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S132845AbRDQTmO>; Tue, 17 Apr 2001 15:42:14 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:26123 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S132851AbRDQTlm>;
+	Tue, 17 Apr 2001 15:41:42 -0400
+Date: Tue, 17 Apr 2001 21:41:23 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: george anzinger <george@mvista.com>
+Cc: Mark Salisbury <mbs@mc.com>, Ben Greear <greearb@candelatech.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        linux-kernel@vger.kernel.org,
+        high-res-timers-discourse@lists.sourceforge.net
+Subject: Re: No 100 HZ timer!
+Message-ID: <20010417214123.B25583@pcep-jamie.cern.ch>
+In-Reply-To: <200104131205.f3DC5KV11393@sleipnir.valparaiso.cl> <0104160841431V.01893@pc-eng24.mc.com> <3ADB45C0.E3F32257@mvista.com> <01041710225227.01893@pc-eng24.mc.com> <3ADC912A.B497B724@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3ADC912A.B497B724@mvista.com>; from george@mvista.com on Tue, Apr 17, 2001 at 11:53:30AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.31.0101181230020.31432-100000@localhost.localdomain>
-By author:    Rik van Riel <riel@conectiva.com.br>
-In newsgroup: linux.dev.kernel
+george anzinger wrote:
+> > > a.) list insertion of an arbitrary timer,
+> > should be O(log(n)) at worst
+> > 
+> > > b.) removal of canceled and expired timers, and
+> > easy to make O(1)
 > 
-> Suppose you have 8 high-priority tasks waiting on kswapd
-> and one lower-priority (but still higher than kswapd)
-> process running and preventing kswapd from doing its work.
-> Oh .. and also preventing the higher-priority tasks from
-> being woken up and continuing...
-> 
+> I thought this was true also, but the priority heap structure that has
+> been discussed here has a O(log(n)) removal time.
 
-Classic priority inversion.  In this particular case it seems like it
-should be unusually simple to apply priority inheritance, though (the
-general case is complicated by the fact that the dependency matrix
-usually isn't readily available.)
+Several priority queue structures support removal in O(1) time.
+Perhaps you are thinking of the classic array-based heap, for
+which removal is O(log n) in the general case.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+-- Jamie

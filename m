@@ -1,52 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271080AbUJUXRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271101AbUJUXWW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271080AbUJUXRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 19:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271101AbUJUXPe
+	id S271101AbUJUXWW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 19:22:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271103AbUJUXRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 19:15:34 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:25607 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S271077AbUJUXHL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 19:07:11 -0400
-Date: Thu, 21 Oct 2004 16:06:29 -0700
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Bill Huey <bhuey@lnxw.com>, Jens Axboe <axboe@suse.de>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Ingo Molnar <mingo@elte.hu>,
-       LKML <linux-kernel@vger.kernel.org>, Lee Revell <rlrevell@joe-job.com>,
-       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U8
-Message-ID: <20041021230629.GB25779@nietzsche.lynx.com>
-References: <1098350190.26758.24.camel@thomas> <20041021095344.GA10531@suse.de> <1098352441.26758.30.camel@thomas> <20041021101103.GC10531@suse.de> <20041021195842.GA23864@nietzsche.lynx.com> <20041021201443.GF32465@suse.de> <20041021202422.GA24555@nietzsche.lynx.com> <20041021203350.GK32465@suse.de> <20041021203821.GA24628@nietzsche.lynx.com> <1098391421.27089.83.camel@thomas>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1098391421.27089.83.camel@thomas>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+	Thu, 21 Oct 2004 19:17:50 -0400
+Received: from fmr06.intel.com ([134.134.136.7]:22662 "EHLO
+	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
+	id S271093AbUJUXMD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 19:12:03 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Date: Thu, 21 Oct 2004 16:10:30 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB60032879CA@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Linux-fbdev-devel] Re: Generic VESA framebuffer driver and Video card BOOT?
+Thread-Index: AcS3wd6cIiKOehCnQneFXB0KzEcAfAAAJBSA
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Cc: "Kendall Bennett" <KendallB@scitechsoft.com>,
+       <linux-kernel@vger.kernel.org>,
+       <linux-fbdev-devel@lists.sourceforge.net>, <stefandoesinger@gmx.at>
+X-OriginalArrivalTime: 21 Oct 2004 23:10:31.0039 (UTC) FILETIME=[292AC0F0:01C4B7C3]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 21, 2004 at 10:43:41PM +0200, Thomas Gleixner wrote:
-> Hey, let's stop this here.
-> 
-> You are both (in)correct :)
-> 
-> 1. It makes no sense to discuss, why X has been considered correct for
-> time T.
-> 
-> 2. Counted semaphores are a valid use and should be marked explicit as
-> counted semaphores.
-> 
-> 3. Using mutexes and semaphores for event and completion signalling
-> should be converted to the appropriate interfaces. 
-> 
-> A bunch of work, but not really hard.
+>-----Original Message-----
+>From: Pavel Machek [mailto:pavel@ucw.cz] 
+>Sent: Thursday, October 21, 2004 4:00 PM
+>To: Pallipadi, Venkatesh
+>Cc: Kendall Bennett; linux-kernel@vger.kernel.org; 
+>linux-fbdev-devel@lists.sourceforge.net
+>Subject: Re: [Linux-fbdev-devel] Re: Generic VESA framebuffer 
+>driver and Video card BOOT?
+>
+>Hi!
+>
+>> >The rest of the code you have above seems superfluous to me 
+>as we have 
+>> >never needed to do that. Then again we boot the card using the BIOS 
+>> >emulator, which is different because it runs within a 
+>> >protected machine 
+>> >state.
+>> >
+>> >Have you taken a look at the X.org code? They have code in 
+>> >there to POST 
+>> >the video card also (either using vm86() or the BIOS emulator).
+>> >
+>> 
+>> I have done some experiments with this video post stuff.
+>> I think this should be done using x86 emulator rather than doing 
+>> in real mode. The reason being, with an userlevel emulator 
+>we can call
+>> it at different times during resume. The current real mode videopost
+>> does 
+>
+>Actually Ole Rohne has patch that allows you to call real mode any
+>time you want.
+>								Pavel
 
-What's the verdict ? leave the lock detector alone or change it ?
+Yes. I tried Ole's patch. That helped on one of my laptops. But, on 
+the other one it doesn't work. It goes into real mode but never returns.
+Both systems had Radeom 9000M cards, but one with older version of the 
+firmware (didn't work) and one with newer version.
 
-bill
+IIRC, even Stefan had similar problems with Ole's patch.
 
+Thanks,
+Venki

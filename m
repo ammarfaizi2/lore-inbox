@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274193AbRISVQP>; Wed, 19 Sep 2001 17:16:15 -0400
+	id <S274194AbRISVRP>; Wed, 19 Sep 2001 17:17:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274194AbRISVQF>; Wed, 19 Sep 2001 17:16:05 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:38150 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S274193AbRISVP5>; Wed, 19 Sep 2001 17:15:57 -0400
-X-Apparently-From: <swansma@yahoo.com>
-Message-ID: <3BA8F6EC.E3D73C87@yahoo.com>
-Date: Wed, 19 Sep 2001 15:50:04 -0400
-From: Mark Swanson <swansma@yahoo.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.8-pre5 i686)
-X-Accept-Language: en
+	id <S274195AbRISVRK>; Wed, 19 Sep 2001 17:17:10 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:60143 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274194AbRISVRA>;
+	Wed, 19 Sep 2001 17:17:00 -0400
+Date: Wed, 19 Sep 2001 17:17:23 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <20010919225505.P720@athlon.random>
+Message-ID: <Pine.GSO.4.21.0109191655560.901-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Request: removal of fs/fs.h/super_block.u to enable partition 
- locking
-In-Reply-To: <E15jn1X-0003cU-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+
+
+On Wed, 19 Sep 2001, Andrea Arcangeli wrote:
+> > There certainly _are_ differences  (e.g. in handling the moment
+> > when you close them).
 > 
-> You are not going to stop a tired sysadmin doing something daft. You can
-> certainly create a GPL'd raw partition as a file fs (I believe someone did
-> that so INN could mmap raw on a device)
+> there aren't difference, only thing that matters is: "is that an fs
+> or a blkdev". SWAP/RAW/FILE is useless.
+
+fsync_dev() is not needed for raw devices or swap.  It _is_ needed for
+file access.
+
+> > > (infact I never had a single report), but well we'll verify that in
+> > 
+> > Richard, is that you?  What had you done with real Andrea?
 > 
-> However you don't need to remove anything for that
+> You also screwup things sometime (think the few liner you posts to l-k
+> after your cleanups).  Those are minor bugs, so I'm not going to panic
 
-But I can't distribute the file fs with my application,
-because I can't expect my
-user base to patch and recompile their kernel just so they can run
-my application.
+Certainly.
 
-Perhaps what is needed is an 'inuse' filesystem or a way to make 
-filesystem modules without patching the kernel. 
+> on them (ramdisk works not by luck), this is what I meant, and they will
 
-My concern is that ordinary tools like mount check the proc filesystem
-to see if a partition is already mounted and it seems likely that tools
-like mke2fs do this too. Sysadmins might feel that existing tools
-protect
-them from damaging something in use. I'm looking for a way to follow
-this
-general behavior with raw partitions.
+Sorry, it just sounded so..., well, familiar... Couldn't resist ;-) (BTW,
+Richard, _what_ political whatever could be found in that?)
 
-_________________________________________________________
-Do You Yahoo!?
-Get your free @yahoo.com address at http://mail.yahoo.com
+> be fixed shortly somehow, and many thanks for the further auditing.
+
+Andrea, had you seen the off-list mail (cc: to you and Linus)?  The main
+problem I have right now is that I don't see how you manage to guarantee
+that during the last ->release() no requests are going in.  Old code
+did unconditional invalidate_buffers() to wipe out all buffer_heads when
+device is finally closed.  Absense of pagecache sources was guaranteed
+by umount() - by the time when we release ->s_bdev all pages are gone.
+How do you deal with that in the current code?
 

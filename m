@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318132AbSIAWDy>; Sun, 1 Sep 2002 18:03:54 -0400
+	id <S318134AbSIAWGs>; Sun, 1 Sep 2002 18:06:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318133AbSIAWDy>; Sun, 1 Sep 2002 18:03:54 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:53512
+	id <S318133AbSIAWGr>; Sun, 1 Sep 2002 18:06:47 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:60936
 	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S318132AbSIAWDx>; Sun, 1 Sep 2002 18:03:53 -0400
+	with ESMTP id <S318130AbSIAWGr>; Sun, 1 Sep 2002 18:06:47 -0400
 Subject: Re: question on spinlocks
 From: Robert Love <rml@tech9.net>
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Ralf Baechle <ralf@uni-koblenz.de>, Oliver Neukum <oliver@neukum.name>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209011553140.3234-100000@hawkeye.luckynet.adm>
-References: <Pine.LNX.4.44.0209011553140.3234-100000@hawkeye.luckynet.adm>
+To: Oliver Neukum <oliver@neukum.name>
+Cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Ralf Baechle <ralf@uni-koblenz.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200209020002.41381.oliver@neukum.name>
+References: <Pine.LNX.4.44.0209011553140.3234-100000@hawkeye.luckynet.adm> 
+	<200209020002.41381.oliver@neukum.name>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.8 
-Date: 01 Sep 2002 18:08:12 -0400
-Message-Id: <1030918094.11553.3121.camel@phantasy>
+Date: 01 Sep 2002 18:11:12 -0400
+Message-Id: <1030918273.12110.3126.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-09-01 at 17:53, Thunder from the hill wrote:
+On Sun, 2002-09-01 at 18:02, Oliver Neukum wrote:
+> 
+> > > No; spin_lock_irqsave/spin_unlock_irqrestore and spin_lock/spin_unlock
+> > > have to be used in matching pairs.
+> >
+> > If it was his least problem! He'll run straight into a "schedule w/IRQs
+> > disabled" bug.
+> 
+> OK, how do I drop an irqsave spinlock if I don't have flags?
 
-> If it was his least problem! He'll run straight into a "schedule w/IRQs 
-> disabled" bug.
+See my previous message.
 
-No, the "schedule with irqs disabled" message is on involuntary
-reschedule (e.g. kernel preemption) when interrupts are disabled.
+Do not do what you are trying to do.  Dropping a lock and calling
+schedule is fine.  Ditto with the interrupt part.
 
-It "safe" (maybe not sane) to call schedule() with interrupts disabled -
-some system calls and scheduler code do it since interrupts will be
-unconditionally enabled when rescheduled or upon returning to
-user-space.  E.g., see sys_sched_yield().
+But note:
 
-The actual problem with the above is that when schedule() returns,
-interrupts will be on and that is probably not the intention of the
-author.  What Oliver probably wants to do is:
+	- interrupts will be reenabled when you reschedule and still
+	  enabled when your task is finally running again.
 
-	spin_lock_irq(&lck);
-	...
-	spin_unlock(&lck);
-	schedule();
-	spin_lock_irq(&lck);
-	...
-	spin_unlock_irq(&lck);
+	- Since interrupts are going to magically restore, if you are
+	  worried about the state of interrupts previous to your
+	  function... you have a problem.
 
-The first unlock not having the irq-enable is an optimization as
-described above.  Also note I did not use irqsave... if there is a
-chance interrupts were previously disabled and you have who-knows-what
-sort of call-chain behind you, it is probably not safe to go calling
-schedule() and reenabling interrupts anyhow.
+OK?
 
 	Robert Love
 

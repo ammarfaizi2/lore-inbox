@@ -1,94 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266342AbUFZSBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266345AbUFZSEH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266342AbUFZSBh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jun 2004 14:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266350AbUFZSBh
+	id S266345AbUFZSEH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jun 2004 14:04:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266350AbUFZSEH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jun 2004 14:01:37 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57285 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266342AbUFZSBV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jun 2004 14:01:21 -0400
-Date: Sat, 26 Jun 2004 11:01:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Andrew Morton <akpm@osdl.org>, Paul Jackson <pj@sgi.com>,
-       PARISC list <parisc-linux@lists.parisc-linux.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix the cpumask rewrite
-In-Reply-To: <1088270298.1942.40.camel@mulgrave>
-Message-ID: <Pine.LNX.4.58.0406261044580.16079@ppc970.osdl.org>
-References: <1088266111.1943.15.camel@mulgrave>  <Pine.LNX.4.58.0406260924570.14449@ppc970.osdl.org>
- <1088268405.1942.25.camel@mulgrave>  <Pine.LNX.4.58.0406260948070.14449@ppc970.osdl.org>
- <1088270298.1942.40.camel@mulgrave>
+	Sat, 26 Jun 2004 14:04:07 -0400
+Received: from damned.travellingkiwi.com ([81.6.239.220]:35410 "EHLO
+	ballbreaker.travellingkiwi.com") by vger.kernel.org with ESMTP
+	id S266345AbUFZSEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jun 2004 14:04:01 -0400
+Message-ID: <40DDBA7A.6010404@travellingkiwi.com>
+Date: Sat, 26 Jun 2004 19:03:38 +0100
+From: Hamie <hamish@travellingkiwi.com>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040605)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Eriksson <david@2good.nu>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] No APIC interrupts after ACPI suspend
+References: <1088160505.3702.4.camel@tyrosine> <1088268145.14987.248.camel@zion.2good.net>
+In-Reply-To: <1088268145.14987.248.camel@zion.2good.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Eriksson wrote:
 
+>On Fri, 2004-06-25 at 12:48, Matthew Garrett wrote:
+>  
+>
+>>If I do an S3 suspend, my machine resumes correctly (Thinkpad X40,
+>>acpi_sleep=s3_bios passed on the command line). If I have the ioapic
+>>enabled, however, I get no interrupts after resume. Hacking in a call to
+>>APIC_init_uniprocessor in the resume path improves things - I get edge
+>>triggered interrupts, but anything flagged as level triggered doesn't
+>>work. How can I get the ioapic fully initialised on resume?
+>>    
+>>
+>
+>Maybe you've found this bug?
+>
+>http://bugme.osdl.org/show_bug.cgi?id=2643
+>
+>  
+>
+I think you're right... I've applied the patch to 2.6.7, and I'm still 
+running after a boot-suspend-resume cycle. Hopefully it isn't just a 
+fluke :)
 
-On Sat, 26 Jun 2004, James Bottomley wrote:
-> 
-> But in the current kernel, there are no bitops on volatile data in the
-> parisc tree.  This cpumask is the first such one that we've come
-> across...
+The original patch seems to have been logged at the time of 2.6.6. Was 
+it just too late to make 2.6.7? Will it be fixed in 2.6.8?
 
-So?
+Thanks.
 
-You're ignoring my point. 
+  Hamish.
 
-I'm saying that data structures ARE NOT VOLATILE. I personally believe 
-that the notion of a "volatile" data structure is complete and utter shit.
-
-But _code_ can act "with volatility". For bitops, it's just another way of 
-saying "people may use this function without locking", because it's 
-totally valid to use "test_bit()" to actually implement a lock.
-
-So the rule has always been (and this has nothing to do with parisc, and 
-parisc DOES NOT GET TO SET THE RULES!) that "test_bit()" acts in a 
-volatile manner, and that you traditionally could write
-
-	while (test_and_set_bit(xxx, field))
-		while (test_bit(xx, field)) /* Nothing */;
-
-to do a lock.
-
-NOTE! There are no volatile data structures _anywhere_, because as
-mentioned, I think that whole notion is a total piece of crap, and is not
-even a well-defined part of the C language. But the test_bit() function
-has to act as if the data it is passed down can change. To repeat:  
-_codepaths_ may have volatility attributes depending on usage of the data.
-
-Now, we generally discouage this kind of hand-written locking code, and we
-these days have a "bit_spin_lock()" helper function to do the above (which
-also has the appropriate "cpu_relax()" in place), but the point is that
-this code has existed, and test_bit() HAS TO FOLLOW THE RULES. Even on
-pa-risc.
-
-I repeat: this has NOTHING to do with "volatile data structures". The
-kernel does not belive in that notion, and you generally have to use locks
-to make sure that all accesses are serialized.
-
-But sometimes non-locked accesses are ok. test_bit() historically is very
-much one of those things. A classic example of this is how something like
-bh->b_flags is not marked volatile (some fields of it require explicit
-locking rules), but it's ok to check for certain bits of it asynchronously
-without having locked the bh.
-
-See? 
-
- - CODE can be volatile ("I must re-load this value").
- - DATA has access rules ("this value should only be changed with write
-   lock xxx held").
-
-And in this case, test_bit() has the "I must re-load this value" rule for 
-historical reasons. 
-
-AND PA-RISC IS WRONG IF IT DOESN'T FOLLOW THE RULES!
-
-Final note: I might be willing to just change the rules, if people can 
-show that no paths that might need the volatile behaviour exist any more. 
-They definitely used to exist, though, and that's a BIG decision to make.
-
-		Linus

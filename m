@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130200AbQLMKPp>; Wed, 13 Dec 2000 05:15:45 -0500
+	id <S130075AbQLMKPf>; Wed, 13 Dec 2000 05:15:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130461AbQLMKPf>; Wed, 13 Dec 2000 05:15:35 -0500
-Received: from 13dyn105.delft.casema.net ([212.64.76.105]:40714 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S130200AbQLMKP0>; Wed, 13 Dec 2000 05:15:26 -0500
-Message-Id: <200012130944.KAA30595@cave.bitwizard.nl>
-Subject: Re: UP 2.2.18 makes kernels 3% faster than UP 2.4.0-test12
-In-Reply-To: <E145b60-00007M-00@the-village.bc.nu> from Alan Cox at "Dec 11,
- 2000 10:06:54 pm"
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Date: Wed, 13 Dec 2000 10:44:38 +0100 (MET)
-CC: Gerhard Mack <gmack@innerfire.net>, Rik van Riel <riel@conectiva.com.br>,
-        John Fremlin <vii@penguinpowered.com>, scole@lanl.gov,
+	id <S130461AbQLMKP0>; Wed, 13 Dec 2000 05:15:26 -0500
+Received: from dhcp07.ncipher.com ([195.224.55.237]:4604 "EHLO passion.cygnus")
+	by vger.kernel.org with ESMTP id <S130075AbQLMKPK>;
+	Wed, 13 Dec 2000 05:15:10 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.21.0012121719180.20891-100000@www.nondot.org> 
+In-Reply-To: <Pine.LNX.4.21.0012121719180.20891-100000@www.nondot.org> 
+To: Chris Lattner <sabre@nondot.org>
+Cc: "Mohammad A. Haque" <mhaque@haque.net>, Ben Ford <ben@kalifornia.com>,
         linux-kernel@vger.kernel.org
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 13 Dec 2000 09:42:07 +0000
+Message-ID: <10532.976700527@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> > How much of that is due to the fact that the 2.4.0 scheduler interrupts
-> > processes more often than 2.2.x?  Is the better interactivity worth the
-> > slight drop in performance?
-> 
-> What better interactivity ;)
 
-Indeed!
+sabre@nondot.org said:
+> 1. Boot kernel
+> 2. Install corbafs module for example
 
-On my dual Celeron workstation, 2.4 looks to me as if it is scheduling
-"more". Thus when I move a window, the window takes on all intervening
-positions. Under 2.2, the window sometimes jerks 10 pixels or so, but
-it acutally follows the mouse. Under 2.4, you can get hte window to
-lag the mouse by a significant amount.
+You misspelled 'codafs' :)
 
-Thus to me, 2.4 FEELS much less interactive. When I move windows they
-don't follow the mouse in real-time. 
+> 3. Start test filesystem in user space
+> 4. mount test user space filesystem
+> 5. test it, oh crap, it segfaulted.
+> 6. CorbaFS gets exceptions trying to communicate to server, which it
+> relays to the kernel as -errno conditions.
+> 7. You safely unmount corbafs
+> 8. fix your bug
+> 9. goto step #2.
 
-				Roger.
+--
+dwmw2
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,228 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269606AbUI3XPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269613AbUI3XQn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269606AbUI3XPn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 19:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269611AbUI3XPn
+	id S269613AbUI3XQn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 19:16:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269611AbUI3XQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 19:15:43 -0400
-Received: from smtp2.eldosales.com ([63.78.12.18]:1805 "EHLO
-	tweeter.eldosales.com") by vger.kernel.org with ESMTP
-	id S269606AbUI3XPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 19:15:33 -0400
-Posted-Date: Thu, 30 Sep 2004 16:15:32 -0700
-Subject: Megaraid random loss of luns
-From: comsatcat <comsatcat@earthlink.net>
-Reply-To: comsatcat@earthlink.net
+	Thu, 30 Sep 2004 19:16:37 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:9884 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S269610AbUI3XQa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 19:16:30 -0400
+Date: Thu, 30 Sep 2004 23:16:29 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: Stack traces in 2.6.9-rc2-mm4
 To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1096586111.25603.13.camel@solaris.skunkware.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 30 Sep 2004 16:15:44 -0700
-Content-Transfer-Encoding: 7bit
+References: <6.1.2.0.2.20040927184123.019b48b8@tornado.reub.net>
+	<20040927085744.GA32407@elte.hu> <1096326753l.5222l.2l@werewolf.able.es>
+	<20040928072123.GA15177@elte.hu> <1096581484l.9853l.0l@werewolf.able.es>
+	<20040930225640.GA6441@elte.hu>
+In-Reply-To: <20040930225640.GA6441@elte.hu> (from mingo@elte.hu on Fri Oct 
+	1 00:56:40 2004)
+X-Mailer: Balsa 2.2.4
+Message-Id: <1096586189l.5206l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure if this is the correct list or not to ask about this, but
-it seemed proper.  We have a machine running the megaraid module that
-came with vanilla 2.6.7.  Earlier this morning all the luns suddenly
-disappeared for no apparent reason.
 
-The kernel logged the following messages:
+On 2004.10.01, Ingo Molnar wrote:
+> 
+> * J.A. Magallon <jamagallon@able.es> wrote:
+> 
+> > Sep 30 23:54:41 werewolf pumpd[9843]: intf: broadcast: 255.255.255.255
+> > Sep 30 23:54:41 werewolf pumpd[9843]: intf: network: 82.198.40.0
+> > Sep 30 23:54:41 werewolf kernel: using smp_processor_id() in preemptible 
+> > code: pump/9843
+> > Sep 30 23:54:41 werewolf kernel:  [smp_processor_id+135/141] 
+> > smp_processor_id+0x87/0x8d
+> > Sep 30 23:54:41 werewolf kernel:  [<b011bc8f>] smp_processor_id+0x87/0x8d
+> > Sep 30 23:54:41 werewolf kernel:  [pg0+1079594592/1337930752] 
+> > death_by_timeout+0x11/0x65 [ip_conntrack]
+> > Sep 30 23:54:41 werewolf kernel:  [<f099fe60>] death_by_timeout+0x11/0x65 
+> > [ip_conntrack]
+> 
+> does the patch below fix these for you?
+> 
+> 	Ingo
+> 
+> --- include/linux/netfilter_ipv4/ip_conntrack.h.orig
+> +++ include/linux/netfilter_ipv4/ip_conntrack.h
+> @@ -311,7 +311,7 @@ struct ip_conntrack_stat
+>  	unsigned int expect_delete;
+>  };
+>  
+> -#define CONNTRACK_STAT_INC(count) (__get_cpu_var(ip_conntrack_stat).count++)
+> +#define CONNTRACK_STAT_INC(count) (per_cpu(ip_conntrack_stat, _smp_processor_id()).count++)
+>  
+>  /* eg. PROVIDES_CONNTRACK(ftp); */
+>  #define PROVIDES_CONNTRACK(name)                        \
 
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7ade cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7adf cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b00 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b0e cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b0f cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b13 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b14 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b15 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b18 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b19 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b1a cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b1b cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b1c cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:29 core-easynews kernel: megaraid: ABORTING-c7a7b28 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b29 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b29[6e], fw
-owner.
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b2a cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b2a[41], fw
-owner.
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b2b cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b2b[1e], fw
-owner.
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b2c cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b2d cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b32 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b33 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b48 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b49 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b4a cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b4b cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b4c cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b4d cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b4e cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7b4e[8], fw
-owner.
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bb1 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bb2 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bb3 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bb4 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bbf cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bc0 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bd0 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bd1 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bd2 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:30 core-easynews kernel: megaraid: ABORTING-c7a7bd4 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7bd5 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7bd5[e], fw
-owner.
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c01 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c02 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c03 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c04 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c05 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c06 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c07 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c08 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c0b cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c0c cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c0d cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c0e cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7c93 cmd=2a
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cac cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cac[57], fw
-owner.
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cad cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cad[6a], fw
-owner.
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cd2 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cd3 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cd4 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cd4[4a], fw
-owner.
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7cd5 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:31 core-easynews kernel: megaraid: ABORTING-c7a7ce6 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7ce7 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7ceb cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7ceb[14], fw
-owner.
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7cec cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7cec[6f], fw
-owner.
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7ced cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7ced[b], fw
-owner.
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7d24 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7d25 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7d25[3f], fw
-owner.
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7d31 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7d32 cmd=28
-<c=0 t=0 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7d39 cmd=28
-<c=0 t=1 l=0>
-Sep 30 12:41:32 core-easynews kernel: megaraid: ABORTING-c7a7d3a cmd=28
-<c/O to offline device
+Yes, It has killed the stack trace.
+But this messa from ACPI (I suspect it is unrelated) stays:
 
+Oct  1 01:14:33 werewolf pumpd[5813]: intf: numDns: 2
+Oct  1 01:14:33 werewolf pumpd[5813]: intf: broadcast: 255.255.255.255
+Oct  1 01:14:33 werewolf pumpd[5813]: intf: network: 82.198.40.0
+Oct  1 01:14:33 werewolf kernel: ACPI: PCI interrupt 0000:03:0a.0[A] -> GSI 22 (level, low) -> IRQ 22
+Oct  1 01:14:33 werewolf pumpd[5813]: configured interface eth0
+Oct  1 01:14:33 werewolf ifup:  done.
 
-At this point the scsi subsystem kicked in with the following message
-repeated 100 or so times when an I/O attempt was made:
+Thanks.
 
-Sep 30 12:41:33 core-easynews kernel: scsi2 (1:0): rejecting I/O to
-offline device
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandrakelinux release 10.1 (Community) for i586
+Linux 2.6.9-rc2-mm4 (gcc 3.4.1 (Mandrakelinux (Alpha 3.4.1-3mdk)) #1
 
-Then the following again from the megaraid module:
-
-Sep 30 12:41:33 core-easynews kernel: megaraid: aborted cmd c7a7ceb[14]
-complete.
-
-
-At this point I could no longer access any of the luns.  I checked the
-lun configuration on the raid controller and no disks had failed and
-everything was okay.  I reloaded the module and all luns came back
-normally with no data corruption.
-
-Could someone provide an explanation of what exactly went wrong if
-possible (if the megaraid driver was at fault or the raid controller)? 
-Are there any known bugs with large raid 5 volumes using the megaraid
-driver?  The volumes are each 325G (4 total) in this situation.  We've
-experienced other problems with the megaraid driver such as 1TB luns
-(two per controller) loosing almost all disks in them (I thought this
-was a controller problem at first, but we have 2 different models of
-controllers, 1 LSI PCI 320-4x and 2 LSI PCI 320-2x's, on 3 identical
-hardware configurations and have been experiencing problems on all of
-them).
-
-
-Thanks,
-Ben
 

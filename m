@@ -1,179 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264632AbUEJLYe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264622AbUEJL25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264632AbUEJLYe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 07:24:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUEJLYe
+	id S264622AbUEJL25 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 07:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUEJL25
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 07:24:34 -0400
-Received: from niit.caravan.ru ([217.23.131.158]:35856 "EHLO mail.tv-sign.ru")
-	by vger.kernel.org with ESMTP id S264632AbUEJLXa (ORCPT
+	Mon, 10 May 2004 07:28:57 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:53657 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S264622AbUEJL2w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 07:23:30 -0400
-Message-ID: <409F668A.CEFD60F6@tv-sign.ru>
-Date: Mon, 10 May 2004 15:24:58 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+	Mon, 10 May 2004 07:28:52 -0400
+Message-ID: <409F6741.19A29C20@melbourne.sgi.com>
+Date: Mon, 10 May 2004 21:28:01 +1000
+From: Greg Banks <gnb@melbourne.sgi.com>
+Organization: SGI Australian Software Group
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.18-6mdk i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] WAIT_BIT_QUEUE
-Content-Type: text/plain; charset=koi8-r
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: Nikita Danilov <Nikita@Namesys.COM>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       alexander viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       trond myklebust <trondmy@trondhjem.org>
+Subject: Re: d_splice_alias() problem.
+References: <16521.5104.489490.617269@laputa.namesys.com>
+		<16529.56343.764629.37296@cse.unsw.edu.au>
+		<409634B9.8D9484DA@melbourne.sgi.com>
+		<16534.54704.792101.617408@cse.unsw.edu.au> <16542.63130.911881.340894@cse.unsw.edu.au>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Neil Brown wrote:
+> 
+> > > *   Logic bug in d_splice_alias() forgets to clear the DCACHE_DISCONNECTED
+> > >     flag when a lookup connects a disconnected dentry.  Fix is (relative
+> > >     to Neil's patch):
+> >
+> Ok, I've reviewed the code and thought about it some more.
+> 
+> This was intentional and the patch to clear DCACHE_DISCONNECTED is not
+> needed and possibly wrong.
+> 
+> DCACHE_DISCONNECTED *doesn't* mean that the entries isn't connected,
+> but only that it might not be.
 
-a better (imho) alternative to filtered wakeups.
-see http://marc.theaimsgroup.com/?l=linux-kernel&m=108375670411475&w=2
+Agreed.  After reading your comments below the semantics of the flag
+make sense: was once disconnected and may or may not still be depending
+on lazy clearing by the expfs.c code).  My dentry state checking code
+was wrong.
 
-process waiting in wait_on_page_bit() will be woken only after
-the required bit is cleared.
+Of course I now have an issue with the misleading name ;-)
 
-so there is no need to recheck the bit in do/while loop, because
-there is no false wakeups now.
+> In knfsd, we build a patch from the bottom up, and the dentry at the
+> bottom is not "connected" until the top is finally connected to the
+> root.  If DCACHE_DISCONNECTED were to mean precisely that the dentry
+> isn't connected, then at that point were we finally connect a path we
+> would have to walk down the path (which could possibly branch)
+> clearing all the DCACHE_DISCONNECTED flags, and this clearly isn't a
+> good idea.
 
-yes, when process gets cpu, the page can be locked again, it's ok.
+Yes, with you so far.  Lazy clearing is good.
 
-Oleg.
+> nfsd and exportfs should be the only bits of code that cares if
+> DCACHE_DISCONNECTED is set or not, and they will clear it if
+> appropriate.
 
-diff -urp 6.6-clean/fs/buffer.c 6.6-waitb/fs/buffer.c
---- 6.6-clean/fs/buffer.c	2004-05-10 12:50:53.000000000 +0400
-+++ 6.6-waitb/fs/buffer.c	2004-05-10 14:13:40.000000000 +0400
-@@ -93,20 +93,20 @@ void fastcall unlock_buffer(struct buffe
- void __wait_on_buffer(struct buffer_head * bh)
- {
- 	wait_queue_head_t *wqh = bh_waitq_head(bh);
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_BIT(wait, &bh->b_state, BH_Lock);
- 
--	do {
--		prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
--		if (buffer_locked(bh)) {
--			struct block_device *bd;
--			smp_mb();
--			bd = bh->b_bdev;
--			if (bd)
--				blk_run_address_space(bd->bd_inode->i_mapping);
--			io_schedule();
--		}
--	} while (buffer_locked(bh));
--	finish_wait(wqh, &wait);
-+	prepare_to_wait(wqh, &wait.wait, TASK_UNINTERRUPTIBLE);
-+
-+	if (buffer_locked(bh)) {
-+		struct block_device *bd;
-+		smp_mb();
-+		bd = bh->b_bdev;
-+		if (bd)
-+			blk_run_address_space(bd->bd_inode->i_mapping);
-+		io_schedule();
-+	}
-+
-+	finish_wait(wqh, &wait.wait);
- }
- 
- static void
-diff -urp 6.6-clean/include/linux/wait.h 6.6-waitb/include/linux/wait.h
---- 6.6-clean/include/linux/wait.h	2004-03-11 05:55:28.000000000 +0300
-+++ 6.6-waitb/include/linux/wait.h	2004-05-10 14:14:17.000000000 +0400
-@@ -257,7 +257,27 @@ int autoremove_wake_function(wait_queue_
- 		wait->func = autoremove_wake_function;			\
- 		INIT_LIST_HEAD(&wait->task_list);			\
- 	} while (0)
--	
-+
-+
-+struct wait_bit_queue {
-+	unsigned long *flags;
-+	int bit_nr;
-+	wait_queue_t wait;
-+};
-+
-+#define DEFINE_WAIT_BIT(name, _flags, _bit_nr)					\
-+	struct wait_bit_queue name = {						\
-+		.flags	= _flags,						\
-+		.bit_nr	= _bit_nr,						\
-+		.wait	= {							\
-+			.task = current,					\
-+			.func = wake_bit_function,				\
-+			.task_list = LIST_HEAD_INIT(name.wait.task_list),	\
-+		},								\
-+	}
-+
-+int wake_bit_function(wait_queue_t *wait, unsigned mode, int sync);
-+
- #endif /* __KERNEL__ */
- 
- #endif
-diff -urp 6.6-clean/kernel/fork.c 6.6-waitb/kernel/fork.c
---- 6.6-clean/kernel/fork.c	2004-05-10 12:50:59.000000000 +0400
-+++ 6.6-waitb/kernel/fork.c	2004-05-10 14:14:08.000000000 +0400
-@@ -207,6 +207,17 @@ int autoremove_wake_function(wait_queue_
- 
- EXPORT_SYMBOL(autoremove_wake_function);
- 
-+int wake_bit_function(wait_queue_t *wait, unsigned mode, int sync)
-+{
-+	struct wait_bit_queue *wait_bit =
-+		container_of(wait, struct wait_bit_queue, wait);
-+
-+	if (test_bit(wait_bit->bit_nr, wait_bit->flags))
-+		return 0;
-+
-+	return autoremove_wake_function(wait, mode, sync);
-+}
-+
- void __init fork_init(unsigned long mempages)
- {
- #ifndef __HAVE_ARCH_TASK_STRUCT_ALLOCATOR
-diff -urp 6.6-clean/mm/filemap.c 6.6-waitb/mm/filemap.c
---- 6.6-clean/mm/filemap.c	2004-05-10 12:50:59.000000000 +0400
-+++ 6.6-waitb/mm/filemap.c	2004-05-10 14:13:52.000000000 +0400
-@@ -301,16 +301,16 @@ static wait_queue_head_t *page_waitqueue
- void fastcall wait_on_page_bit(struct page *page, int bit_nr)
- {
- 	wait_queue_head_t *waitqueue = page_waitqueue(page);
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT_BIT(wait, &page->flags, bit_nr);
- 
--	do {
--		prepare_to_wait(waitqueue, &wait, TASK_UNINTERRUPTIBLE);
--		if (test_bit(bit_nr, &page->flags)) {
--			sync_page(page);
--			io_schedule();
--		}
--	} while (test_bit(bit_nr, &page->flags));
--	finish_wait(waitqueue, &wait);
-+	prepare_to_wait(waitqueue, &wait.wait, TASK_UNINTERRUPTIBLE);
-+
-+	if (test_bit(bit_nr, &page->flags)) {
-+		sync_page(page);
-+		io_schedule();
-+	}
-+
-+	finish_wait(waitqueue, &wait.wait);
- }
- 
- EXPORT_SYMBOL(wait_on_page_bit);
-@@ -372,17 +372,8 @@ EXPORT_SYMBOL(end_page_writeback);
-  */
- void fastcall __lock_page(struct page *page)
- {
--	wait_queue_head_t *wqh = page_waitqueue(page);
--	DEFINE_WAIT(wait);
--
--	while (TestSetPageLocked(page)) {
--		prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
--		if (PageLocked(page)) {
--			sync_page(page);
--			io_schedule();
--		}
--	}
--	finish_wait(wqh, &wait);
-+	while (TestSetPageLocked(page))
-+		wait_on_page_bit(page, PG_locked);
- }
- 
- EXPORT_SYMBOL(__lock_page);
+Ok, I've thought about this for a while and I see where you're coming
+from: you don't want DCACHE_DISCONNECTED disappearing out from
+underneath find_exported_dentry() as a side effect of either the lookups
+it does or unrelated local lookups from other processes.  The cost
+is that the flag potentially lingers when it could have been cleared
+out earlier (as my patch tried to do), but this is better than subtle
+logic failures down the track.
+
+> A more significant measure is "IS_ROOT". When we call d_splice_alias,
+> it should look for an IS_ROOT alias to consider splicing in rather
+> than a DCACHE_DISCONNECTED alias, as a DCACHE_DISCONNECTED alias might
+> already be spliced into some other path (if it is for a file with
+> multiple links).
+> 
+> The follow patch should resolve all of this, and a few other things.
+> IT:
+> 
+>  - moves DCACHE_DISCONNECTED into d_vfs_flags and uses dcache_lock to
+>    make sure that setting the flag doesn't tread on some other flag
+>    in the same field.
+
+What I'm wondering is, do we still need DCACHE_DISCONNECTED at all?
+Perhaps the uses of it could be replaced with combinations of checks
+of IS_ROOT() and (d == d->d_sb->s_root) ?
+
+>  - introduces "d_get_alias" which is similar to "d_find_alias", but is
+>    less choosy: any alias will do.
+>  - uses d_get_alias in d_alloc_anon and d_splice_alias to try to use a
+>    pre-exisiting alias if possible.
+>  - Only splices in a pre-exisiting alias if it was IS_ROOT.  There can
+>    now only be one of these per inode, and if there is one, there will
+>    be no other alias.
+>  - introduces d_move_locked which does the same as d_move, but without
+>    getting dcache_lock first (it must already be held).  This is
+>    needed to be able to atomically test IS_ROOT, and then convert the
+>    dentry to non IS_ROOT before anyone else gets to test IS_ROOT.
+> 
+> Comments and testing results very welcome.
+
+The changes look good but I think the invariants you describe above
+should go in a comment.
+
+I will try to do some testing in the next couple of days.
+
+> -void d_move(struct dentry * dentry, struct dentry * target)
+> +static void d_move_locked(struct dentry * dentry, struct dentry * target)
+>  {
+>  	if (!dentry->d_inode)
+>  		printk(KERN_WARNING "VFS: moving negative dcache entry\n");
+>[...]
+> +
+> +void d_move(struct dentry * dentry, struct dentry * target)
+> +{
+> +       if (!dentry->d_inode)
+> +               printk(KERN_WARNING "VFS: moving negative dcache entry\n");
+> +
+
+Do you need two copies of this check in the same path?
+
+
+Greg.
+-- 
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbUKXUYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262836AbUKXU1M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262841AbUKXUYa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 15:24:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262835AbUKXUWb
+	id S262836AbUKXU1M (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 15:27:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUKXUYn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 15:22:31 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:49848 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262831AbUKXUVE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 15:21:04 -0500
-Subject: Re: Suspend 2 merge: 19/51: Remove MTRR sysdev support.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0411240922570.7171@musoma.fsmlabs.com>
-References: <1101292194.5805.180.camel@desktop.cunninghams>
-	 <1101295453.5805.263.camel@desktop.cunninghams>
-	 <Pine.LNX.4.61.0411240922570.7171@musoma.fsmlabs.com>
-Content-Type: text/plain
-Message-Id: <1101327166.3425.4.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 07:17:24 +1100
+	Wed, 24 Nov 2004 15:24:43 -0500
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:32019 "EHLO
+	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S262836AbUKXUYH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 15:24:07 -0500
+Message-ID: <41A4EDE2.3030309@stud.feec.vutbr.cz>
+Date: Wed, 24 Nov 2004 21:24:02 +0100
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20041005)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: David Ford <david+challenge-response@blue-labs.org>
+CC: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.10-rc2 and x86_64; spontaneous reboots
+References: <41A4D5A4.3010605@blue-labs.org>
+In-Reply-To: <41A4D5A4.3010605@blue-labs.org>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  identified this incoming email as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+David Ford wrote:
+> Is anyone else experiencing spontaneous reboots within a few minutes of 
+> bootup?  (If the system survives past the first 10 minutes, it stays up 
+> for a long time, but it reliably does an instant reboot with no panic or 
+> other indication a good 9 out of 10 times.  The system is purely idle, 
+> nothing going on.  memtest86+ runs for hours with no failures.
 
-On Thu, 2004-11-25 at 03:27, Zwane Mwaikambo wrote:
-> On Wed, 24 Nov 2004, Nigel Cunningham wrote:
-> 
-> > This patch removes sysdev support for MTRRs (potential SMP hang and
-> > shouldn't be done with interrupts done anyway). Instead, we save and
-> > restore MTRRs when entering and exiting the processor freezers (ie when
-> > saving the registers & context for each CPU via an SMP call).
-> 
-> I take it this has been tested with AGP and X11 running?
+Do the restarts occur exactly 5 minutes after bootup? That would 
+indicate a problem with jiffies overflow. Probably some buggy driver.
 
-Absolutely. It is used all the time. (The machine I'm typing on now has
-HT support and I normally suspend from X - Radeon driver and just double
-checked that agpgart is loaded).
-
-Regards,
-
-Nigel
--- 
-Nigel Cunningham
-Pastoral Worker
-Christian Reformed Church of Tuggeranong
-PO Box 1004, Tuggeranong, ACT 2901
-
-You see, at just the right time, when we were still powerless, Christ
-died for the ungodly.		-- Romans 5:6
-
+Michal

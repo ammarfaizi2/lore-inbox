@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311498AbSCNDcJ>; Wed, 13 Mar 2002 22:32:09 -0500
+	id <S311500AbSCNEPT>; Wed, 13 Mar 2002 23:15:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311499AbSCNDcA>; Wed, 13 Mar 2002 22:32:00 -0500
-Received: from harddata.com ([216.123.194.198]:39940 "EHLO mail.harddata.com")
-	by vger.kernel.org with ESMTP id <S311498AbSCNDbs>;
-	Wed, 13 Mar 2002 22:31:48 -0500
-Date: Wed, 13 Mar 2002 20:32:39 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: linux-kernel@vger.kernel.org
-Cc: Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: Linux 2.4.19-pre3
-Message-ID: <20020313203239.A5381@mail.harddata.com>
-In-Reply-To: <20020312134631.GE1473@suse.de> <Pine.LNX.4.21.0203121558300.3462-100000@freak.distro.conectiva> <20020313080946.GC15877@suse.de>
-Mime-Version: 1.0
+	id <S311501AbSCNEPJ>; Wed, 13 Mar 2002 23:15:09 -0500
+Received: from relay1.pair.com ([209.68.1.20]:6665 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id <S311500AbSCNEO7>;
+	Wed, 13 Mar 2002 23:14:59 -0500
+X-pair-Authenticated: 24.126.75.99
+Message-ID: <3C902631.3A406D51@kegel.com>
+Date: Wed, 13 Mar 2002 20:25:21 -0800
+From: Dan Kegel <dank@kegel.com>
+Reply-To: dank@kegel.com
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Ulrich Drepper <drepper@redhat.com>
+Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020313080946.GC15877@suse.de>; from axboe@suse.de on Wed, Mar 13, 2002 at 09:09:46AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 13, 2002 at 09:09:46AM +0100, Jens Axboe wrote:
+Alan Cox wrote:
+> Dan Kegel wrote:
+> > I'm all in favor of a userspace fix.  I suggested a patch
+> > to glibc to fix this.  Ulrich rejected it; I'm trying
+> > to coax out of him how he thinks profiling of multithreaded
+> > programs on Linux should be fixed.
 > 
-> So why does 2.4.19-pre3 work for pio at all? For the same reason that
-> Andre never found this problem in 2.5 either: the taskfile interrupt
-> handlers are _never_ used in pio mode. In 2.5 it was by accident, and
-> when the merge happened they did indeed get used. It ate disks, very
-> quickly. ...
+> Good and I'll reject any kernel patches 8)
+> 
+> If Ulrich won't talk then talk to the NGPT people. Maybe a little
+> competition will warm things up.
 
-Well, I tried 2.4.19-pre3 yesterday (Alpha with an IDE drive) and
-my ext2 file system is indeed gone.  I do not want to claim that this
-is certainly due to an IDE driver from 2.4.19-pre3, as this is
-a machine with a number still open issues and very experimental
-installation, but it survived a number of very rough attempts on
-file systems in the past and now it died.  This _could be_ coincidental;
-I did use various kernels from "ac" series on it in the past.
+Surely Ulrich will come up with a constructive proposal for
+how to make gprof work with LinuxThreads.  He wouldn't
+want an important tool like gprof to remain broken for
+years, would he?
 
-BTW  - e2fsck made an impression that it is running in circles.
-After mounting a disk from another system I have leftovers and number
-of files can be read and copied but, among other things, '/lib' is
-not a directory anymore. :-)
+While I await his constructive response, perhaps I'll get my 
+glibc patch in shape.
+I am maintainer of what amounts to a tiny embedded linux
+distribution, and I'm pretty sure my users would like
+gprof to work.  (In fact, my boss's boss would really
+like gprof to work.  This problem has a lot of visibility.)
 
-  Michal
+- Dan

@@ -1,101 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbUCVXfV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 18:35:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbUCVXfV
+	id S261503AbUCVXsM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 18:48:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbUCVXsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 18:35:21 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:1923 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261582AbUCVXfK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 18:35:10 -0500
-Date: Mon, 22 Mar 2004 18:38:38 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, Robert_Hentosh@Dell.com,
-       fleury@cs.auc.dk, Linux kernel <linux-kernel@vger.kernel.org>
-Subject: RE: spurious 8259A interrupt
-In-Reply-To: <Pine.LNX.4.44.0403222354280.1902-100000@poirot.grange>
-Message-ID: <Pine.LNX.4.53.0403221822230.24444@chaos>
-References: <Pine.LNX.4.44.0403222354280.1902-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Mar 2004 18:48:12 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:2016 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id S261503AbUCVXsK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 18:48:10 -0500
+Date: Tue, 23 Mar 2004 10:47:52 +1100
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linuxppc64-dev@lists.linuxppc.org
+Subject: [PATCH] PPC64 iSeries virtual cd fix
+Message-Id: <20040323104752.4c2b61f3.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Tue__23_Mar_2004_10_47_52_+1100_nCEHDLO7L0mGx1gp"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 23 Mar 2004, Guennadi Liakhovetski wrote:
+--Signature=_Tue__23_Mar_2004_10_47_52_+1100_nCEHDLO7L0mGx1gp
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-> On Mon, 22 Mar 2004, Richard B. Johnson wrote:
->
-> > On Mon, 22 Mar 2004, Guennadi Liakhovetski wrote:
-> >
-> > >            CPU0 (2nd shot)
-> > >   0:      36557  37638 +1081 XT-PIC  timer
-> > >   1:         59     65    +6 XT-PIC  i8042
-> > >   2:          0      0       XT-PIC  cascade
-> > >   5:          0      0       XT-PIC  VIA686A
-> > >   8:          3      3       XT-PIC  rtc
-> > >   9:          0      0       XT-PIC  acpi, uhci_hcd, uhci_hcd
-> > >  10:          0      0       XT-PIC  eth0
-> > >  12:         84     84       XT-PIC  i8042
-> > >  14:       1910   1918    +8 XT-PIC  ide0
-> > >  15:          1      1       XT-PIC  ide1
-> > > NMI:         18     18
-> > > LOC:      36460  37541 +1081
-> > > ERR:         36     57   +21
-> >
-> > First, you are using the 8259A (XT-PIC). This means you have
-> > IO-APIC turned off (or it doesn't exist).
->
-> I know. I never said there was one. I said, that the local APIC is used
-> for timer interupts - at least, this is how I interpret
->
-> Using local APIC timer interrupts.
-> calibrating APIC timer ...
->
-> Am I missing anything trivial?
->
+Hi Andrew,
 
-Yes. The interrupt status, above, clearly shows that the XT-PIC is
-being used for timer interrupts. The local APIC timer is being used
-instead of the PIT (Programmable Interval Timer at port 0x40,
-channel 0).  The IO-APIC contains, several timers as well as a
-programmable interrupt controller and router, etc. You are not
-using its interrupt controller, but you are using its timer,
-best I can see.
+This patch stops an oops caused by certain ioctls being performed
+on the virtual cdrom.  In particular, the eject and tray close
+operations were affected.
 
-> > > ide0 + i8042 (keyboard) = 14, whereas errors increased by 21. So, if you
-> > > are right, than Alan's wrong (or my understanding of his statement), and
-> > > those spurious interrupts occur not only after real ones, or, one real
-> > > interrupt can produce several spurious ones.
-> >
-> > Neither. They are not related. As previously stated, a spurious
-> > interrupt occurs when the CPU INT line becomes active, but no
-> > interrupt controller caused it to happen. It's just that simple.
->
-> Yes, I saw this your explanation. Thanks again. But, I am not getting
-> those errors with local APIC disabled. That's why I thought "local APIC ->
-> timer -> spurious interrupts." Maybe I am wrong. But I also can't see how
-> enabling the lapic can cause, e.g., power supply glitches to become
-> visible. I would be happy and grateful to hear an explanation.
->
-
-Once you enable some other path to the CPUs INT line, you can
-get some other condition. These paths may pick up different
-noise or their logic returns may have different ground-bounce
-conditions. Sometimes you can fix glitches like this by:
-
-(1)	Putting a metal post and a screw in every mounting
-	hole in your motherboard.... OR.
-
-(2)	Using only 1 or 2 metal posts to mount your motherboard
-	and using plastic insulators for the other holes.
-
+Please apply and forward to Linus.
+-- 
 Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+diff -ruN ppc64-2.5-iseries/drivers/cdrom/viocd.c ppc64-2.5-iseries.eject/drivers/cdrom/viocd.c
+--- ppc64-2.5-iseries/drivers/cdrom/viocd.c	2004-03-07 18:05:28.000000000 +1100
++++ ppc64-2.5-iseries.eject/drivers/cdrom/viocd.c	2004-03-22 17:54:53.000000000 +1100
+@@ -338,8 +338,9 @@
+ 	struct request *req;
+ 
+ 	while ((rwreq == 0) && ((req = elv_next_request(q)) != NULL)) {
+-		/* check for any kind of error */
+-		if (send_request(req) < 0) {
++		if (!blk_fs_request(req))
++			end_request(req, 0);
++		else if (send_request(req) < 0) {
+ 			printk(VIOCD_KERN_WARNING
+ 					"unable to send message to OS/400!");
+ 			end_request(req, 0);
 
+--Signature=_Tue__23_Mar_2004_10_47_52_+1100_nCEHDLO7L0mGx1gp
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAX3soFG47PeJeR58RAuQaAKCybwddvKSA5dd+UHr+n2xgscW71QCgzivJ
+2hfpvmgo+TYQphiH7IZh5lU=
+=e+Rl
+-----END PGP SIGNATURE-----
+
+--Signature=_Tue__23_Mar_2004_10_47_52_+1100_nCEHDLO7L0mGx1gp--

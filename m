@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264751AbSJOTOa>; Tue, 15 Oct 2002 15:14:30 -0400
+	id <S264752AbSJOTRN>; Tue, 15 Oct 2002 15:17:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264752AbSJOTOa>; Tue, 15 Oct 2002 15:14:30 -0400
-Received: from viefep15-int.chello.at ([213.46.255.19]:14412 "EHLO
-	viefep15-int.chello.at") by vger.kernel.org with ESMTP
-	id <S264751AbSJOTO2>; Tue, 15 Oct 2002 15:14:28 -0400
-From: Simon Roscic <simon.roscic@chello.at>
-To: linux-kernel@vger.kernel.org
-Subject: [Kernel 2.5] Qlogic 2x00 driver
-Date: Tue, 15 Oct 2002 21:20:13 +0200
-User-Agent: KMail/1.4.7
+	id <S264755AbSJOTRN>; Tue, 15 Oct 2002 15:17:13 -0400
+Received: from x35.xmailserver.org ([208.129.208.51]:13971 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S264752AbSJOTRL>; Tue, 15 Oct 2002 15:17:11 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 15 Oct 2002 12:31:12 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Shailabh Nagar <nagar@watson.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-aio <linux-aio@kvack.org>, Andrew Morton <akpm@digeo.com>,
+       David Miller <davem@redhat.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Stephen Tweedie <sct@redhat.com>
+Subject: Re: [PATCH] async poll for 2.5
+In-Reply-To: <20021015151238.L14596@redhat.com>
+Message-ID: <Pine.LNX.4.44.0210151229010.1554-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-Message-Id: <200210152120.13666.simon.roscic@chello.at>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Tue, 15 Oct 2002, Benjamin LaHaise wrote:
 
-as the feature freeze of 2.5 comes close, i want to ask if the driver for
-the qlogic sanblade 2200/2300 series of hba's will be included in 2.5 ...
-are there any plan's to do so ?   has it been discussed before ?
+> On Tue, Oct 15, 2002 at 12:16:39PM -0700, Davide Libenzi wrote:
+> > Ben, one of the reasons of the /dev/epoll speed is how it returns events
+> > and how it collapses them. A memory mapped array is divided by two and
+> > while the user consumes events in one set, the kernel fill the other one.
+> > The next wait() will switch the pointers. There is no copy from kernel to
+> > user space. Doing :
+> >
+> > int sys_epoll_wait(int epd, struct pollfd **pevts, int timeout);
+> >
+> > the only data the kernel has to copy to userspace is the 4(8) bytes for
+> > the "pevts" pointer.
+>
+> Erm, the aio interface has support for the event ringbuffer being accessed
+> by userspace (it lives in user memory and the kernel acts as a writer, with
+> userspace as a reader), that's one of its advantages -- completion events
+> are directly accessible from userspace after being written to by an
+> interrupt.  Ideally this is to be wrapped in a vsyscall, but we don't have
+> support for that yet on x86, although much of the code written for x86-64
+> should be reusable.
 
-i ask because i use those hba's together with ibm's fastt500 storage system,
-and it will be nice to have this driver in the default kernel ...
+In general I would like to have a "common" interface to retrieve IO
+events, but IMHO the two solutions should be benchmarked before adopting
+the one or the other.
 
-i use version 5.36.3 of the qlogic 2x00 driver in production
-(vanilla kernel 2.4.17 + qlogic 2x00 driver v5.36.3) since may 2002
-and i never had any problems with this driver ...
-(2 lotus domino servers and 1 fileserver all 3 are attached to the ibm fastt500
-storage system using qlogic sanblade 2200 cards)
 
-i don't know how many people use those qlogic card's, i got them together
-with the fastt500 storage system, ...
 
-the current driver is avaiable here (it's GPL't):
-http://www.qlogic.com/support/os_detail.asp?productid=112&osid=26
+- Davide
 
-the qlogic 2x00 driver is also in andrea arcangelis "-aa" patches, so possibly
-he knows better if it would be useful to integrate those drivers into 2.5 or
-not, ...
-
-thanks for your time,
-please CC me, i'm currently not subscribed to lkml,
-simon.
 

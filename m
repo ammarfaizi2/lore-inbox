@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUFVUuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266018AbUFVUuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUFVUuF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 16:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265900AbUFVUtx
+	id S266018AbUFVUuG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 16:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266021AbUFVUtf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 16:49:53 -0400
-Received: from havoc.gtf.org ([216.162.42.101]:42629 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S265910AbUFVUpS (ORCPT
+	Tue, 22 Jun 2004 16:49:35 -0400
+Received: from cantor.suse.de ([195.135.220.2]:60128 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266018AbUFVUlD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 16:45:18 -0400
-Date: Tue, 22 Jun 2004 16:41:06 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix sata_sil quirk
-Message-ID: <20040622204105.GA19693@havoc.gtf.org>
-References: <40D89509.6010502@pobox.com> <Pine.GSO.4.33.0406221620300.25702-200000@sweetums.bluetronic.net>
+	Tue, 22 Jun 2004 16:41:03 -0400
+Subject: Re: deadlocks caused by ext3/reiser dirty_inode calls during
+	do_mmap_pgoff
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040622120540.1bc8b6e3.akpm@osdl.org>
+References: <1087837153.1512.176.camel@watt.suse.com>
+	 <20040621171337.44d1b636.akpm@osdl.org>
+	 <1087915399.1512.267.camel@watt.suse.com>
+	 <20040622120540.1bc8b6e3.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1087936915.1512.284.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.33.0406221620300.25702-200000@sweetums.bluetronic.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 22 Jun 2004 16:41:55 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 22, 2004 at 04:29:08PM -0400, Ricky Beam wrote:
-> On Tue, 22 Jun 2004, Jeff Garzik wrote:
-> >Here's my suggested fix...  good catch Ricky.
+On Tue, 2004-06-22 at 15:05, Andrew Morton wrote:
+> Chris Mason <mason@suse.com> wrote:
+
+> > Oh, just realized this will break our data=ordered setup.  prepare_write
+> > is going to do things like allocating blocks in the file etc etc.  If we
+> > close the transaction via commit_write(0 size) and crash, we'll leak.
 > 
-> And I don't even know why I looked at max_sectors :-) (I need more Dew.)
+> OK, then just zero the pagecache page between `from' and `to' and call
+> ->commit_write() with unmodified `from' and `to'?
 > 
-> >Yes, unfortunately performance will be dog slow.
+> > We might need to do prefault + pin on the user pages.
 > 
-> Well, at least puppy slow...
-> Device:            tps    kB_read/s    kB_wrtn/s    kB_read    kB_wrtn
-> sda            1811.65         0.00      9629.85          0     577887
-> sdb            1807.15         0.00      9629.60          0     577872
-> sdc            1807.25         0.00      9629.86          0     577888
-> sdd            1807.05         0.00      9629.86          0     577888
-> md_d0         14444.64         0.00     48148.84          0    2889412
-> md_d0p2        9629.78         0.00     38519.11          0    2311532
-> (over 60sec,  8M O_DIRECT accesses, 128 stripes * 16k RAID0)
-> 
-> Without the MOD15 hack, the numbers are 2x higher, but they stop after
-> a few minutes :-)
+> That's always been the correct way to fix these problems, but it involves a
+> pagetable walk, which requires page_table_lock.  Not a popular thing to be
+> doing on the write() fastpath.
 
-Stability first!
+Fair enough, zeroing between from and to should do it.
 
-
-> >I've got contacts at Silicon Image, and have been meaning to bug them
-> >for a "real fix" for a while.  It is rumored that there is a much better
-> >fix, which allows full performance while at the same time not killing
-> >your SATA drive due to odd-sized SATA frames on the wire.
-> 
-> Ask them what they do in their driver? (the linux one and the windows one)
-> Looking at the linux driver, the mod15 quirk is there, but there doesn't
-> appear to be any associated device list. (I've already post the single
-> Maxtor device listed.)  FreeBSD detects the stall, resets the chip and
-> hopes that clears the problem. (People are not happy about that.)
-
-I just poked them.  I'm not satisfied with what any Linux or FreeBSD
-driver does, I want to Get It Right(tm)  :)  I'm willing to bet that
-their Linux driver does mod15 only because they didn't know kernel
-internals that well.
-
-	Jeff
-
+-chris
 
 

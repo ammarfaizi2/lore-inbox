@@ -1,139 +1,143 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277592AbRJREum>; Thu, 18 Oct 2001 00:50:42 -0400
+	id <S277612AbRJREyc>; Thu, 18 Oct 2001 00:54:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277598AbRJREud>; Thu, 18 Oct 2001 00:50:33 -0400
-Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:38853 "EHLO
-	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S277592AbRJREuW>; Thu, 18 Oct 2001 00:50:22 -0400
-From: rwhron@earthlink.net
-Date: Thu, 18 Oct 2001 00:52:55 -0400
-To: linux-kernel@vger.kernel.org, ltp-list@lists.sourceforge.net
-Subject: mmap test on 2.4.12-ac3+vmpatch and 2.4.13-pre3aa1
-Message-ID: <20011018005255.A196@earthlink.net>
-Mime-Version: 1.0
+	id <S277605AbRJREyW>; Thu, 18 Oct 2001 00:54:22 -0400
+Received: from mail.anu.edu.au ([150.203.2.7]:57782 "EHLO mail.anu.edu.au")
+	by vger.kernel.org with ESMTP id <S277598AbRJREyM>;
+	Thu, 18 Oct 2001 00:54:12 -0400
+Message-ID: <3BCE5FC0.F2D3E95B@anu.edu.au>
+Date: Thu, 18 Oct 2001 14:51:12 +1000
+From: Robert Cohen <robert.cohen@anu.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [Bench] New benchmark showing fileserver problem in 2.4.12
+In-Reply-To: <3BCD8269.B4E003E5@anu.edu.au> <200110171644.f9HGinZ17717@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-LTP mmap001 test:  mmap, touch, msync munmap 50000 pages
-Listen to mp3blaster.  Light IRC and shell use.
-
-Hardware:
-AMD Athlon 1333
-512 MB ram
-1024 MB swap
-
-Notes: 
-
-Interactive response was noticeably better with 2.4.12-ac3+vmpatch.  
-2.4.12-ac3+vmpatch was tested right after a reboot.  
-
-
-2.4.12-ac3+vmpatch (page-cluster=4)
-Averages for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                19.322
-System time (seconds):              16.576
-Elapsed (wall clock seconds) time:  152.87
-Percent of CPU this job got:        22.80
-Major (requiring I/O) page faults:  500175.2
-Minor (reclaiming a frame) faults:  20.0
-
-This is the tail end of vmstat 1 on 2.4.12-ac3+vmpatch:
-
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 4  0  1   9280   3064   2012 481536   0   0   168 16188  438   448   0  26  74
- 4  0  1   9280   3064   2020 481520   0   0   136 16372  512   447   1  21  78
- 0  2  1   9280   3064   2036 481480   0   0   284 12148  461   465   0  20  80
- 5  2  1   9280 480788   2524   5124   0   0   632 11396  451   421   0  42  58
- 2  0  0   9280 479316   2592   6440  60   0  1872   140  671   935   0   9  91
-
-
-
-2.4.13-pre3aa1 was tested after running 6 runalltest.sh LTP suites, 
-as well as normal use.  uptime 40 hours.
-
-2.4.13-pre3aa1 page-cluster=2
-
-Averages for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                19.590
-System time (seconds):              14.846
-Elapsed (wall clock seconds) time:  213.90
-Percent of CPU this job got:        15.60
-Major (requiring I/O) page faults:  500171.2
-Minor (reclaiming a frame) faults:  29.8
-
-2.4.13-pre3aa1 page-cluster=4
-
-Averages for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                19.220
-System time (seconds):              15.378
-Elapsed (wall clock seconds) time:  209.41
-Percent of CPU this job got:        16.00
-Major (requiring I/O) page faults:  500155.6
-Minor (reclaiming a frame) faults:  31.2
+Linus Torvalds wrote:
+> 
+> In article <3BCD8269.B4E003E5@anu.edu.au>,
+> Robert Cohen  <robert.cohen@anu.edu.au> wrote:
+> >
+> >Factor 3: the performance problems only happens for I/O that is due to
+> >network traffic, not I/O that was generated locally. I realise this is
+> >extremely strange and I have no idea how it knows that I/O is die to
+> >network traffic let alone why it cares. But I can assure you that it
+> >does make a difference.
+> 
+> I'll bet you $5 AUD that this happens because you don't block your
+> output into nicely aligned chunks.
+> 
+> When you have an existing file, and you write 1500 bytes to the middle
+> of it, performance will degrade _horribly_ compared to the case of
+> writing a full block, or writing to a position that hasn't been written
+> yet.
+> 
+>
+> Now, when you read from the network, you will NOT get reads that are a
+> nice multiple of BUFSIZE, you'll get reads that are a multiple of the
+> packet data load (~1460 bytes on TCP over ethernet), and you'll end up
+> doing unaligned writes that require a read-modify-wrtie cycle and thus
+> end up doing twice as much IO.
+> 
+> And not only does it do twice as much IO (and potentially more with
+> read-ahead), the read will obviously be _synchronous_, so the slowdown
+> is more than twice as much.
+> 
+> In contrast, when the source is a local file (or a pipe that ends up
+> chunking stuff up in 4kB chunks instead of 1500-byte packets), you'll
+> have nice write patterns that fill the whole buffer and make the read
+> unnecessary. Which gets you nice streaming writes to disk.
+> 
+> With most fast disks, this is not unlikely to be performance difference
+> on the order of a magnitude.
+> 
+> And there is _nothing_ the kernel can do about it. Your benchmark is
+> bad, and has different behaviour depending on the source.
+> 
+>
 
 
-2.4.13-pre3aa1 page-cluster=6
+This is almost certainly correct, I will be modifying the benchmark to
+use aligned writes.
 
-Averages for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                20.368
-System time (seconds):              16.218
-Elapsed (wall clock seconds) time:  206.08
-Percent of CPU this job got:        17.20
-Major (requiring I/O) page faults:  500166.6
-Minor (reclaiming a frame) faults:  28.8
+However, I was curious about the magnitude of the impact of misaligned
+writes. I have been seeing performance differences of about a factor of
+5.
 
-Just to make sure the previous tests didn't skew the results, 
-I rebooted into 2.4.13-pre3aa1 and ran with the default 
-page-cluster value:
+I have written a trivial test program to explore the issue which just
+writes and then rewrites a file with a given buffer size. By using an
+odd buffersize we get misaligned writes. You have to use it on files
+that are bigger than memory so that the file will not still be in the
+page cache during the rewrite.
+The source of the program is at
+http://tltsu.anu.edu.au/~robert/aligntest.c
 
-2.4.13-pre3aa1 page-cluster=6 (after reboot)
-Averages for 5 mmap001 runs
-bytes allocated:                    2048000000
-User time (seconds):                20.364
-System time (seconds):              15.798
-Elapsed (wall clock seconds) time:  204.09
-Percent of CPU this job got:        17.40
-Major (requiring I/O) page faults:  500165.6
-Minor (reclaiming a frame) faults:  30.0
+Here are some results under linux
 
-tail end of vmstat from final iteration on 2.4.13-pre3aa1:
+Heres a baseline run with aligned buffers.
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
- 2  1  1   8644   3372   1808 484988 248   0   324 32980  873   671   0  22  77
- 2  3  1   8616   3316   1824 485000  32   0    60 16192  467   405   1  27  72
- 1  4  1   8600   3100   1848 485012  88   0   124 12148  422   427   1  22  77
- 1  1  0   8532 488648   1508   1680  76   0   600  7108  439   561   4  28  68
- 1  1  0   8340 485796   3384   2548 240   0  2984     0  858  1484   0  41  59
+writing to file of size 300  Megs with buffers of 8192 bytes
+write elapsed time=41.00 seconds, write_speed=7.32
+rewrite elapsed time=38.26 seconds, rewrite_speed=7.84
 
 
-This test does use a little swap with both kernels.  That puzzled me,
-since I thought 50000 pages was about 195 megs of RAM.
+As expected there is no penalty for rewrite.
 
-page-cluster=6 makes mp3blaster skip more on this test.
+Heres a run with misaligned buffers
+
+writing to file of size 300  Megs with buffers of 5000 bytes
+write elapsed time=37.55 seconds, write_speed=7.99
+rewrite elapsed time=112.75 seconds, rewrite_speed=2.66
 
 
-The "free -mt" output below is after the test on 2.4.13pre3aa1 to give an idea of
-what memory usage is like when there is no test running.
+There is a bit more than a factor of 2 between write and rewrite speed.
+Fair enough, if you do stupid things, you pay the penalty.
+
+However, look what happens if I run 5 copies at once.
+
+writing to file of size 60  Megs with buffers of 5000 bytes
+writing to file of size 60  Megs with buffers of 5000 bytes
+writing to file of size 60  Megs with buffers of 5000 bytes
+writing to file of size 60  Megs with buffers of 5000 bytes
+writing to file of size 60  Megs with buffers of 5000 bytes
+write elapsed time=33.96 seconds, write_speed=1.77
+write elapsed time=37.43 seconds, write_speed=1.60
+write elapsed time=37.74 seconds, write_speed=1.59
+write elapsed time=37.93 seconds, write_speed=1.58
+write elapsed time=40.74 seconds, write_speed=1.47
+rewrite elapsed time=512.44 seconds, rewrite_speed=0.12
+rewrite elapsed time=518.59 seconds, rewrite_speed=0.12
+rewrite elapsed time=518.05 seconds, rewrite_speed=0.12
+rewrite elapsed time=518.96 seconds, rewrite_speed=0.12
+rewrite elapsed time=517.08 seconds, rewrite_speed=0.12
 
 
-             total       used       free     shared    buffers     cached
-Mem:           502         32        470          0          4          6
--/+ buffers/cache:         21        480
-Swap:         1027          7       1019
-Total:        1530         39       1490
+Here we see a factor of about 15 between write speed and rewrite speed.
+That seems a little extreme.
+>From the amount of seeking happening, I believe that all the reads are
+being done as single page separate reads. Surely there should be some
+readahead happening.
 
-Actually, kernel hackers can probably tell that from the vmstat snippets. :)
 
--- 
-Randy Hron
+I tested the same program under Solaris and I get about a factor of 2
+difference regardless whether its one copy or 5 copies.
 
+I believe that this is an odd situation and sure it only happens for
+badly written program. I can see that it would be stupid to optimise for
+this situation. But do we really need to do this badly for this case?
+
+
+--
+Robert Cohen
+Unix Support
+TLTSU
+Australian National University
+Ph: 612 58389

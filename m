@@ -1,55 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261373AbSIWUTr>; Mon, 23 Sep 2002 16:19:47 -0400
+	id <S261375AbSIWUp6>; Mon, 23 Sep 2002 16:45:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261375AbSIWUTr>; Mon, 23 Sep 2002 16:19:47 -0400
-Received: from pa90.banino.sdi.tpnet.pl ([213.76.211.90]:10765 "EHLO
-	alf.amelek.gda.pl") by vger.kernel.org with ESMTP
-	id <S261373AbSIWUTl>; Mon, 23 Sep 2002 16:19:41 -0400
-Subject: Re: Oops in usb_submit_urb with US_FL_MODE_XLATE (2.4.19 and 2.4.20-pre7)
-In-Reply-To: <20020923200554.GG18769@kroah.com>
-To: Greg KH <greg@kroah.com>
-Date: Mon, 23 Sep 2002 22:24:44 +0200 (CEST)
-CC: Marek Michalkiewicz <marekm@amelek.gda.pl>, mdharm-usb@one-eyed-alien.net,
+	id <S261377AbSIWUp6>; Mon, 23 Sep 2002 16:45:58 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:12987 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261375AbSIWUp5>;
+	Mon, 23 Sep 2002 16:45:57 -0400
+Date: Mon, 23 Sep 2002 13:40:00 -0700 (PDT)
+Message-Id: <20020923.134000.123546377.davem@redhat.com>
+To: davidm@hpl.hp.com, davidm@napali.hpl.hp.com
+Cc: dmo@osdl.org, axboe@suse.de, phillips@arcor.de, _deepfire@mail.ru,
        linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL95 (25)]
-MIME-Version: 1.0
+Subject: Re: DAC960 in 2.5.38, with new changes
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <15759.26918.381273.951266@napali.hpl.hp.com>
+References: <20020923120400.A15452@acpi.pdx.osdl.net>
+	<15759.26918.381273.951266@napali.hpl.hp.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <E17tZl6-000164-00@alf.amelek.gda.pl>
-From: Marek Michalkiewicz <marekm@amelek.gda.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> wrote:
-> That's Matt's call, not mine.  And generating a patch for 2.4.20-pre7
-> and 2.5.38 would help out in getting it accepted :)
+   From: David Mosberger <davidm@napali.hpl.hp.com>
+   Date: Mon, 23 Sep 2002 12:19:02 -0700
+   
+   This looks like a porting-nightmare in the making.  There's got to be a
+   better way to determine whether you need a writeq() vs. a writel().
 
-Below is the patch for 2.4.20-pre7.  I'm not brave enough to test 2.5.x
-kernels just yet...
-
-Thanks,
-Marek
-
---- orig/linux-2.4.20-pre7/drivers/usb/storage/unusual_devs.h	2002-09-21 12:27:12.000000000 +0200
-+++ linux-2.4.20-pre7/drivers/usb/storage/unusual_devs.h	2002-09-23 22:09:18.000000000 +0200
-@@ -485,6 +485,17 @@
- 		US_FL_MODE_XLATE ),
- #endif
- 
-+/* Datafab KECF-USB / Sagatek DCS-CF (Datafab DF-UG-07 chip).
-+ * Submitted by Marek Michalkiewicz <marekm@amelek.gda.pl>.
-+ * Needed for FIX_INQUIRY.  Only revision 1.13 tested.
-+ * See also http://martin.wilck.bei.t-online.de/#kecf .
-+ */
-+UNUSUAL_DEV(  0x07c4, 0xa400, 0x0000, 0xffff,
-+		"Datafab",
-+		"KECF-USB",
-+		US_SC_SCSI, US_PR_BULK, NULL,
-+		US_FL_FIX_INQUIRY ),
-+
- /* Casio QV 2x00/3x00/4000/8000 digital still cameras are not conformant
-  * to the USB storage specification in two ways:
-  * - They tell us they are using transport protocol CBI. In reality they
-
-
+Or perhaps every platform should provide a writeq(), on 32-bit systems
+it may merely be implemented as two consequetive writel() calls.

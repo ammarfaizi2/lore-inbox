@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135716AbRDXSxB>; Tue, 24 Apr 2001 14:53:01 -0400
+	id <S132338AbRDXS5V>; Tue, 24 Apr 2001 14:57:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135718AbRDXSwv>; Tue, 24 Apr 2001 14:52:51 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:6833 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S135716AbRDXSwh>;
-	Tue, 24 Apr 2001 14:52:37 -0400
-Date: Tue, 24 Apr 2001 14:52:36 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>, Ed Tomlinson <tomlins@cam.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: hundreds of mount --bind mountpoints?
-In-Reply-To: <200104241847.f3OIlc7T016933@webber.adilger.int>
-Message-ID: <Pine.GSO.4.21.0104241449561.6992-100000@weyl.math.psu.edu>
+	id <S135718AbRDXS5M>; Tue, 24 Apr 2001 14:57:12 -0400
+Received: from mailproxy.de.uu.net ([192.76.144.34]:6909 "EHLO
+	mailproxy.de.uu.net") by vger.kernel.org with ESMTP
+	id <S132338AbRDXS5H>; Tue, 24 Apr 2001 14:57:07 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Tim Jansen <tim@tjansen.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Device Registry (DevReg) Patch 0.2.0
+Date: Tue, 24 Apr 2001 20:57:27 +0200
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <01042403082000.05529@cookie> <01042413442601.00792@cookie> <03f201c0ccde$a3bde0f0$de00a8c0@homeip.net>
+In-Reply-To: <03f201c0ccde$a3bde0f0$de00a8c0@homeip.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01042420572700.00935@cookie>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 24 April 2001 18:43, mirabilos wrote:
+> What about indenting? I think of 0 spaces before the device name,
+> 1 space before properties which belong to the device. 
+> Structure per entry:
+>    [Space] Name colon property
+
+But what is the advantage? Its not less work in the kernel, and in user-space 
+you need to write a parser for this. You would have made a new format for 
+hierarchical data that no one else uses only to avoid using XML in the 
+kernel. 
 
 
-On Tue, 24 Apr 2001, Andreas Dilger wrote:
+> Is one level enough? I'm currently offline so didn't check the sample
 
-> While I applaud your initiative, you made an unfortunate choice of
-> filesystems to convert.  The iso_inode_info is only 4*__u32, as is
-> proc_inode_info.  Given that we still need to keep a pointer to the
-> external info structs, and the overhead of the slab cache itself
-> (both CPU usage and memory overhead, however small), I don't think
-> it is worthwhile to have isofs and procfs in separate slabs.
-> 
-> On the other hand, sockets and shmem are both relatively large...
-> Watch out that the *_inode_info structs have all of the fields
-> initialized, because the union field is zeroed for us, but slab is not.
+No, for example for USB you have the levels 
+devices/configurations/interfaces/endpoints. 
 
-Frankly, I'd rather start with encapsulation part. It's easy to
-verify, it can go in right now and it makes separate allocation
-part uncluttered. Besides, it simply makes code cleaner, so it
-makes sense even if don't want to go for separate allocation for
-that particular fs.
-
+bye...

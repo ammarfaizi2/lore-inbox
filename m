@@ -1,406 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292994AbSBVUtI>; Fri, 22 Feb 2002 15:49:08 -0500
+	id <S292997AbSBVVNN>; Fri, 22 Feb 2002 16:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292995AbSBVUs5>; Fri, 22 Feb 2002 15:48:57 -0500
-Received: from acolyte.thorsen.se ([193.14.93.247]:33030 "HELO
-	acolyte.hack.org") by vger.kernel.org with SMTP id <S292994AbSBVUsd>;
-	Fri, 22 Feb 2002 15:48:33 -0500
-From: Christer Weinigel <wingel@acolyte.hack.org>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20020222210107.A6828@fafner.intra.cogenit.fr> (message from
-	Francois Romieu on Fri, 22 Feb 2002 21:01:07 +0100)
-Subject: Re: [DRIVER][RFC] SC1200 Watchdog driver
-In-Reply-To: <Pine.LNX.4.44.0202211134080.7649-100000@netfinity.realnet.co.sz> <3C74C8C7.25D7BCD@mandrakesoft.com> <20020221111910.57235F5B@acolyte.hack.org> <20020221115916.9FD5AF5B@acolyte.hack.org> <3C74E698.D3A0BFEB@mandrakesoft.com> <20020221125743.10F0BF5B@acolyte.hack.org> <3C74F410.B165E571@mandrakesoft.com> <20020222195708.EC152F5B@acolyte.hack.org> <20020222210107.A6828@fafner.intra.cogenit.fr>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="++----------20020222210320-008312747----------++"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Emacs 20.5.1 with etach 1.1.6
-Message-Id: <20020222204823.235A6F5B@acolyte.hack.org>
-Date: Fri, 22 Feb 2002 21:48:23 +0100 (CET)
+	id <S292999AbSBVVNE>; Fri, 22 Feb 2002 16:13:04 -0500
+Received: from [208.190.191.184] ([208.190.191.184]:3415 "EHLO
+	sekhmet.ad.newisys.com") by vger.kernel.org with ESMTP
+	id <S292997AbSBVVMu> convert rfc822-to-8bit; Fri, 22 Feb 2002 16:12:50 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: 2.4.17 system freeze
+Date: Fri, 22 Feb 2002 15:13:24 -0600
+Message-ID: <D3A72C5007329A4F991C0DD87202259F33F912@sekhmet.ad.newisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4.17 system freeze
+Thread-Index: AcG75cOLh/HEbIWAQZ+72AqVkAMnPw==
+From: "Dave Raddatz" <dave.raddatz@newisys.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---++----------20020222210320-008312747----------++
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+Hello,
 
-Francois Romieu wrote:
-> > I've gone through the drivers and tried to write down "established
-> > practice".  I guess I'm too wordy as usual, but it should be a
-> > starting point.  Please take a look at the attached file and if you or
-> 
-> -ENOATTACHMENT
+I'm seeing a problem on my dual processor athlon after moving up to 2.4.17.  I've compiled the kernel for the athlon processor, for 4GB memory support (I have 1.2 GB RAM right now) and TUX in the kernel.  My graphics is ATI Rage XL (not Nvidia - thought I saw some problems mentioned in the newsgroups discussing athlon and nvidia coexistence issues).
 
-I'm blaming the hangover.  *sigh*  I do this all the time...
+When I was on 2.4.2 (Red Hat 7.1), the problem did not occur.
 
-I really have to turn on my brain sometime today :-)
+My test case is SPECweb99 with 570 connections over two 100 Mb ethernet connections.
 
-  /Christer
+What happens is the system will just freeze and be non-responsive (keyboard, mouse, nothing works except to reset the box).
 
--- 
-"Nothing is as easy as it seems"
---++----------20020222210320-008312747----------++
-Content-Type: text/plain; charset=iso-8859-1; name="watchdog-api.txt"
-Content-Transfer-Encoding: 7bit
+One thing I noticed after going from 2.4.2 up to 2.4.17 is that swpd space utilization is higher and free space was higher.  Don't know if this is related to the problem - just something that I happened to notice.
 
-The Linux Watchdog driver API.
+Any ideas as to what the problem might be?
+Dave
 
-Copyright 2002 Christer Weingel <wingel@nano-system.com>
+-----------------------------------------------------
+Dave Raddatz, Performance Analyst
+Newisys, Inc.
+10814 Jollyville Road
+Bldg. 4, Suite 300
+Austin, TX 78759
+(512) 340-9050, ext. 485
 
-Some parts of this document are copied verbatim from the sbc60xxwdt
-driver which is (c) Copyright 2000 Jakob Oestergaard <jakob@ostenfeld.dk>
-
-This document describes the state of the Linux 2.4.17 kernel.
-
-Introduction:
-
-A Watchdog Timer (WDT) is a hardware circuit that can reset the
-computer system in case of a software fault.  You probably knew that
-already.
-
-Usually a userspace daemon will notify the kernel watchdog driver via the
-/proc/watchdog special device file that userspace is still alive, at
-regular intervals.  When such a notification occurs, the driver will
-usually tell the hardware watchdog that everything is in order, and
-that the watchdog should wait for yet another little while to reset
-the system.  If userspace fails (RAM error, kernel bug, whatever), the
-notifications cease to occur, and the hardware watchdog will reset the
-system (causing a reboot) after the timeout occurs.
-
-The Linux watchdog API is a rather AD hoc construction and different
-drivers implent different, and sometimes incompatible parts of it.
-This file is an attempt to document the existing usage and allow
-future driver writers to use it as a reference.
-
-The simplest API:
-
-All drivers support the basic mode of operation, where the watchdog
-activates as soon as /dev/watchdog is opened and will reboot unless
-the watchdog is pinged within a certain time, this time is called the
-timeout or margin.  The simplest way to ping the watchdog is to write
-some data to the device.  So a very simple watchdog daemon would look
-like this:
-
-int main(int argc, const char *argv[]) {
-	int fd=open("/dev/watchdog",O_WRONLY);
-	if (fd==-1) {
-		perror("watchdog");
-		exit(1);
-	}
-	while(1) {
-		write(fd, "\0", 1);
-		sleep(10);
-	}
-}
-
-A more advanced driver could for example check that a HTTP server is
-still responding before doing the write call to ping the watchdog.
-
-When the device is closed, the watchdog is disabled.  This is not
-always such a good idea, since if there is a bug in the watchdog
-daemon and it crashes the system will not reboot.  Because of this,
-some of the drivers support the configuration option "Disable watchdog
-shutdown on close", CONFIG_WATCHDOG_NOWAYOUT.  If it is set to Y when
-compiling the kernel, there is no way of disabling the watchdog once
-it has been started.  So, if the watchdog dameon crashes, the system
-will reboot after the timeout has passed.
-
-Some other drivers will not disable the watchdog, unless a specific
-magic character 'V' has been sent /dev/watchdog just before closing
-the file.  If the userspace daemon closes the file without sending
-this special character, the driver will assume that the daemon (and
-userspace in general) died, and will stop pinging the watchdog without
-disabling it first.  This will then cause a reboot.
-
-The ioctl API:
-
-Some drivers also support an ioctl API.  I belive this API was first
-used in the Berkshire PC Watchdog driver and has been adopted by the
-other drivers.  
-
-Pinging the watchdog using an ioctl:
-
-All drivers that have an ioctl interface support at least one ioctl,
-KEEPALIVE.  This ioctl does exactly the same thing as a write to the
-watchdog device, so the main loop in the above program could be
-replaced with:
-
-	while (1) {
-		ioctl(fd, WDIOC_KEEPALIVE, 0);
-		sleep(10);
-	}
-
-the argument to the ioctl is ignored.
-
-Setting the timeout:
-
-For some drivers it is possible to modify the watchdog timeout on the
-fly with the SETTIMEOUT ioctl.  The argument is an integer
-representing the timeout in seconds.  The driver returns the real
-timeout used in the same variable, and this timeout might differ from
-the requested one due to limitation of the hardware.
-
-    int timeout = 45;
-    ioctl(fd, WDIOC_SETTIMEOUT, &timeout);
-    printf("The timeout was set to %d seconds\n", timeout);
-
-This example might actually print "The timeout was set to 60 seconds"
-if the device has a granularity of minutes for its timeout.
-
-Querying the timeout:
-
-Starting with the Linux 2.4.18 kernel (2.4.18-pre actually), it is
-possible to query the current timeout using the GETTIMEOUT ioctl.
-
-    ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
-    printf("The timeout was is %d seconds\n", timeout);
-
-Envinronmental monitoring:
-
-Some watchdog drivers can return more information about the system,
-some do temperature, fan and power level monitoring, some can tell you
-the reason for the last reebot of the system.  The GETSUPPORT ioctl is
-available to ask what the device can do:
-
-	struct watchdog_info ident;
-	ioctl(fd, WDIOC_GETSUPPORT, &ident);
-
-the fields returned in the ident struct are:
-
-        identity		a string identifying the watchdog driver
-	firmware_version	the firmware version of the card if available
-	options			a flags describing what the device supports
-
-the options field can have the following bits set, and describes what
-kind of information that the GET_STATUS and GET_BOOT_STATUS ioctls can
-return.   [FIXME -- Is this correct?]
-
-	WDIOF_OVERHEAT		Reset due to CPU overheat
-	WDIOF_FANFAULT		Fan failed
-	WDIOF_EXTERN1		External relay 1
-	WDIOF_EXTERN2		External relay 2
-	WDIOF_POWERUNDER	Power bad/power fault
-	WDIOF_CARDRESET		Card previously reset the CPU
-	WDIOF_POWEROVER		Power over voltage
-	WDIOF_KEEPALIVEPING	Keep alive ping reply
-
-[FIXME -- Can somebody explain what the flags mean in more detail,
-especially KEEPALIVEPING?]
-
-For those drivers that return any bits set in the option field, the
-GETSTATUS and GETBOOTSTATUS ioctls can be used to ask for the current
-status, and the status at the last reboot, respectively.  
-
-    int flags;
-    ioctl(fd, WDIOC_GETSTATUS, &flags);
-
-    or
-
-    ioctl(fd, WDIOC_GETBOOTSTATUS, &flags);
-
-Note that not all devices support these two calls, and some only
-support the GETBOOTSTATUS call.
-
-Some drivers can measure the temperature using the GETTEMP ioctl.
-[FIXME -- what is the value returned in temperature, degrees celsius?]
-
-    int temperature;
-    ioctl(fd, WDIOC_GETTEMP, &temperature);
-
-Finally the SETOPTIONS ioctl can be used to control some aspects of
-the cards operation; right now the pcwd driver is the only one
-supporting thiss ioctl.
-
-    int options = 0;
-    ioctl(fd, WDIOC_SETOPTIONS, options);
-
-The following options are available:
-
-	WDIOS_DISABLECARD	Turn off the watchdog timer
-	WDIOS_ENABLECARD	Turn on the watchdog timer
-	WDIOS_TEMPPANIC		Kernel panic on temperature trip
-
-[FIXME -- better explanations]
-
-Implementations in the current drivers in the kernel tree:
-
-Here I have tried to summarize what the different drivers support and
-where they do strange things compared to the other drivers.
-
-acquirewdt.c -- Acquire Single Board Computer
-
-	This driver has a hardcoded timeout of 1 minute
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	GETSUPPORT returns KEEPALIVEPING and GETSTATUS will return 1
-	if the device is open, 0 if not.  [FIXME -- isn't this rather
-	silly?  To be able to use the ioctl, the device must be open
-	and so GETSTATUS will always return 1].
-
-advantechwdt.c -- Advantech Single Board Computer
-
-	Hardcoded timeout of 60 seconds
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	GETSUPPORT returns WDIOF_KEEPALIVEPING, and the GETSTATUS call
-	returns if the device is open or not.  [FIXME -- silliness
-	again?]
-	
-eurotechwdt.c -- Eurotech CPU-1220/1410
-
-	The timeout can be set using the SETTIMEOUT ioctl and defaults
-	to 60 seconds.
-
-	Also has a module parameter "ev", event type which controls
-	what should happen on a timeout, the string "int" or anything
-	else that causes a reboot.  [FIXME -- better description]
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	GETSUPPORT returns CARDRESET but GETSTATUS is not supported
-	and GETBOOTSTATUS just returns 0.
-
-i810-tco.c -- Intel 810 chipset
-
-	Also has support for a lot of other i810 stuff, but the
-	watchdog is one of the things.
-
-	The timeout is set using the module parameter "i810_margin",
-	which is in steps of 0.6 seconds where 2<i810_margin<64
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT.
-
-	No bits set in GETSUPPORT, but the GETSTATUS call returns some
-	kind of timer value.  GETBOOT status returns some kind of
-	hardware specific boot status.  [FIXME -- describe this]
-
-ib700wdt.c -- IB700 Single Board Computer
-
-	Hardcoded timeout of 30 seconds
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	GETSUPPORT returns WDIOF_KEEPALIVEPING, and the GETSTATUS call
-	returns if the device is open or not.  [FIXME -- silliness
-	again?]
-
-machzwd.c -- MachZ ZF-Logic
-
-	Hardcoded timeout of 10 seconds
-
-	Has a module parameter "action" that controls what happens
-	when the timeout runs out which can be 0 = RESET (default), 
-	1 = SMI, 2 = NMI, 3 = SCI.
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT and the the magic character
-	'V' close handling.
-
-	GETSUPPORT returns WDIOF_KEEPALIVEPING, and the GETSTATUS call
-	returns if the device is open or not.  [FIXME -- silliness
-	again?]
-
-mixcomwd.c -- MixCom Watchdog
-
-	[FIXME -- I'm unable to tell what the timeout is]
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	GETSUPPORT returns WDIOF_KEEPALIVEPING, GETSTATUS returns if
-	the device is opened or not [FIXME -- I'm not really sure how
-	this works, there seems to be some magic connected to
-	CONFIG_WATCHDOG_NOWAYOUT]
-
-pcwd.c -- Berkshire PC Watchdog
-
-	Hardcoded timeout of 1.5 seconds
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	GETSUPPORT returns WDIOF_OVERHEAT|WDIOF_CARDRESET and both
-	GETSTATUS and GETBOOTSTATUS return something useful.
-
-	The SETOPTIONS call can be used to enable and disable the card
-	and to ask the driver to call panic if the system overheats.
-
-sbc60xxwdt.c -- 60xx Single Board Computer
-
-	Hardcoded timeout of 10 seconds
-
-	Does not support CONFIG_WATCHDOG_NOWAYOUT, but has the magic
-	character 'V' close handling.
-
-	No bits set in GETSUPPORT
-
-shwdt.c -- SuperH 3/4 processors
-
-	[FIXME -- I'm unable to tell what the timeout is]
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	GETSUPPORT returns WDIOF_KEEPALIVEPING, and the GETSTATUS call
-	returns if the device is open or not.  [FIXME -- silliness
-	again?]
-
-softdog.c -- Software watchdog
-
-	The timeout is set with the module parameter "soft_margin"
-	which defaults to 60 seconds
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	No bits set in GETSUPPORT
-
-w83877f_wdt.c -- W83877F Computer
-
-	Hardcoded timeout of 30 seconds
-
-	Does not support CONFIG_WATCHDOG_NOWAYOUT, but has the magic
-	character 'V' close handling.
-
-	No bits set in GETSUPPORT
-
-wdt.c -- ICS WDT500/501 ISA and wdt_pci.c -- ICS WDT500/501 PCI
-
-	Hardcoded timeout of 120 seconds.
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	GETSUPPORT returns with a lot of bits set, it seems that the
-	driver can check for overheating, power failure, fan failure
-	and a two external relay inputs.  GETSTATUS can be used to
-	read these flags.
-
-wdt285.c -- Footbridge watchdog
-
-	The timeout is set with the module parameter "soft_margin"
-	which defaults to 60 seconds
-
-	Does not support CONFIG_WATCHDOG_NOWAYOUT
-
-	No bits set in GETSUPPORT
-
-wdt977.c -- Netwinder W83977AF chip
-
-	Hardcoded timeout of 3 minutes
-
-	Supports CONFIG_WATCHDOG_NOWAYOUT
-
-	Does not support any ioctls at all.
-
-scx200.c -- National SCx200 CPUs
-
-	Not in the kernel yet.
-
-	The timeout is set using a module parameter "margin" which
-	defaults to 60 seconds.  The timeout can also be set using
-	SETTIMEOUT and read using GETTIMEOUT.
-
-	Supports a module parameter "nowayout" that is initialized
-	with the value of CONFIG_WATCHDOG_NOWAYOUT.  Also supports the
-	magic character 'V' handling.
---++----------20020222210320-008312747----------++--

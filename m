@@ -1,54 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319104AbSHFOot>; Tue, 6 Aug 2002 10:44:49 -0400
+	id <S319102AbSHFOoa>; Tue, 6 Aug 2002 10:44:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319105AbSHFOot>; Tue, 6 Aug 2002 10:44:49 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:18698 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S319104AbSHFOoq>; Tue, 6 Aug 2002 10:44:46 -0400
-Date: Tue, 6 Aug 2002 09:59:17 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Bill Davidsen <davidsen@tmr.com>
-cc: Steven Cole <elenstev@mesatop.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@zip.com.au>,
-       Steven Cole <scole@lanl.gov>
-Subject: Re: Linux v2.4.19-rc5
-In-Reply-To: <Pine.LNX.3.96.1020805234423.4423A-100000@gatekeeper.tmr.com>
-Message-ID: <Pine.LNX.4.44L.0208060957220.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319104AbSHFOoa>; Tue, 6 Aug 2002 10:44:30 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:28145 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S319102AbSHFOo3>; Tue, 6 Aug 2002 10:44:29 -0400
+Subject: Re: [PATCH] APM fix for 2.4.20pre1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Willy TARREAU <willy@w.ods.org>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020806134328.GA587@pcw.home.local>
+References: <20020806134328.GA587@pcw.home.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 06 Aug 2002 17:07:09 +0100
+Message-Id: <1028650029.18156.174.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Aug 2002, Bill Davidsen wrote:
+On Tue, 2002-08-06 at 14:43, Willy TARREAU wrote:
+> Hi Marcelo,
+> 
+> I resend you this patch against 2.4.19-rc5 which prevents my SMP box from
+> randomly crashing at boot during APM initialization. It still applies to
+> 2.4.20-pre1. Alan included it in 19-ac4 too. Basically, it forces bios
+> calls to be made only from CPU0.
 
-> > Here are some dbench numbers, from the "for what it's worth" department.
->
-> Call me an optimist, but after all the reliability problems we had win the
-> 2.5 series, I sort of hoped it would be better in performance, not
-> increasingly worse. Am I misreading this? Can we fall back to the faster
-> 2.4 code :-(
-
-Dbench is at its best when half (or more) of the dbench processes
-are stuck semi-infinitely in __get_request_wait and the others can
-operate in RAM without ever touching the disk.
-
-In effect, if you want the best dbench throughput you should make
-the system completely unsuitable for real world applications ;)
-
-There are a few things that are good for both real world performance
-and dbench performance, but those are easily dwarved by random factors
-like IO scheduling, timeslice length, etc...
-
-regards,
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
+Doing the job right is a bit more complex than that. Thanks to your hint
+I've actually got APM SMP working a lot better on multiple boxes now.
+Marcelo - I may send you some cooler stuff but this one should be
+applied anyway
 

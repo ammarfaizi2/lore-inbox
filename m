@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288402AbSANAQ4>; Sun, 13 Jan 2002 19:16:56 -0500
+	id <S288395AbSANAPq>; Sun, 13 Jan 2002 19:15:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288411AbSANAQr>; Sun, 13 Jan 2002 19:16:47 -0500
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:14498 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S288402AbSANAQc>; Sun, 13 Jan 2002 19:16:32 -0500
-Date: Mon, 14 Jan 2002 01:23:03 +0100
-From: Till Doerges <nospamplease@doerges.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: System locks up after "spurious 8259A interrupt: IRQ7"
-Message-ID: <20020114012303.B2710@atlan.wanderer.none>
-In-Reply-To: <20020114010019.A2710@atlan.wanderer.none>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020114010019.A2710@atlan.wanderer.none>; from nospamplease@doerges.net on Mon, Jan 14, 2002 at 01:00:19AM +0100
-Organization: <none>
+	id <S288411AbSANAP2>; Sun, 13 Jan 2002 19:15:28 -0500
+Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:16379 "EHLO
+	filestore.kroptech.com") by vger.kernel.org with ESMTP
+	id <S288395AbSANAPP>; Sun, 13 Jan 2002 19:15:15 -0500
+Message-ID: <028b01c19c90$87300760$02c8a8c0@kroptech.com>
+From: "Adam Kropelin" <akropel1@rochester.rr.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <200201132144.g0DLikH27385@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.18pre3-ac1
+Date: Sun, 13 Jan 2002 19:15:09 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 14 Jan 2002 00:15:10.0080 (UTC) FILETIME=[87367000:01C19C90]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 01:00:19AM +0100, Till Doerges wrote:
+----- Original Message -----
+From: "Alan Cox" <alan@redhat.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Sunday, January 13, 2002 4:44 PM
+Subject: Linux 2.4.18pre3-ac1
 
-> sporadically my machine hangs (no response to keyboard, can't connect
-> via network, no interaction via remote-control) and the last thing I
-> see (if I see anything at all) is something like
-> 
-> --- snip ---
-> [...]
-> Jan 13 21:30:00 atlan CROND[2876]: (till) CMD (fetchmail&> /dev/null)
-> Jan 13 21:30:09 atlan kernel: spurious 8259A interrupt: IRQ7.
-> Jan 13 21:36:12 atlan syslogd 1.3-3: restart (remote reception).
-> Jan 13 21:36:12 atlan kernel: klogd 1.3-3, log source = /proc/kmsg started.
-> [...]
-> --- snap ---
 
-Sorry, for not having done this in the first mail already: I've found
-another occurence of the problem in a logfile, which I had forgotten
-about:
+> People keep bugging me about the -ac tree stuff so this is whats in my
+> current internal diff with the ll patch and the ide changes excluded.
 
---- snip ---
-[...]
-Nov 20 14:30:00 atlan CROND[4109]: (root) CMD (   /sbin/rmmod -as)
-Nov 20 14:30:00 atlan CROND[4110]: (till) CMD (fetchmail&> /dev/null)
-Nov 20 14:34:45 atlan kernel: spurious 8259A interrupt: IRQ7.
-Nov 20 14:34:55 atlan kernel: ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-Nov 20 14:34:55 atlan kernel: hdc: lost interrupt
-Nov 20 14:35:05 atlan kernel: ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-Nov 20 14:35:05 atlan kernel: hdc: lost interrupt
-Nov 20 14:35:15 atlan kernel: ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-Nov 20 14:35:15 atlan kernel: hdc: lost interrupt
-^@^@^@^@^@^@Nov 20 19:17:25 atlan syslogd 1.3-3: restart (remote reception).
-Nov 20 19:17:25 atlan kernel: klogd 1.3-3, log source = /proc/kmsg started.
-Nov 20 19:17:25 atlan kernel: Inspecting /boot/System.map-2.4.7-int-ac3
-[...]
-Nov 20 19:17:26 atlan kernel: Linux version 2.4.7-int-ac3 (root@atlan.doerges.net) (gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-85)) #1 Wed Aug 1 01:54:15 CEST 2001
-[...]
---- snap ---
+<snip>
 
-This was 2.4.7-ac3 compiled w/ an earlier version of gcc
-(2.96-85). And in deed, my problem was sometimes accompanied by a
-'kernel: hdc: lost interrupt'. But this seems to have gone, because I
-removed one disk from the system and moved hdc -> hda.
+For the sake of completeness I ran my large inbound FTP transfer test (details
+in the "Writeout in recent kernels..." thread) on this release. Performance and
+observed writeout behavior was essentially the same as for 2.4.17, both stock
+and with -rmap11a. Transfer time was 6:56 and writeout was uneven. 2.4.13-ac7 is
+still the winner by a significant margin.
 
-That there's such a long period between these two occurences, doesn't
-mean, that my machine did not hang in the meantime, but I did not find
-anything in the logs. Perhaps the messages didn't make it through?
+Hmmm...
 
-Bye -- Till
+--Adam
+
+

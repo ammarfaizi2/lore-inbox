@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264668AbSJOSJF>; Tue, 15 Oct 2002 14:09:05 -0400
+	id <S264888AbSJOSKO>; Tue, 15 Oct 2002 14:10:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264888AbSJOSJF>; Tue, 15 Oct 2002 14:09:05 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:59331 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S264668AbSJOSJF>; Tue, 15 Oct 2002 14:09:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Steven Cole <elenstev@mesatop.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Problem with jfs and dbench 80 (ext3, reiserfs, xfs are OK)
-Date: Tue, 15 Oct 2002 13:17:00 -0500
-X-Mailer: KMail [version 1.4]
-References: <1034695794.13083.27.camel@spc9.esa.lanl.gov>
-In-Reply-To: <1034695794.13083.27.camel@spc9.esa.lanl.gov>
+	id <S264890AbSJOSKO>; Tue, 15 Oct 2002 14:10:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39185 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S264888AbSJOSKN>;
+	Tue, 15 Oct 2002 14:10:13 -0400
+Message-ID: <3DAC5B47.7020206@pobox.com>
+Date: Tue, 15 Oct 2002 14:15:35 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210151317.01493.shaggy@austin.ibm.com>
+To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+CC: Linux Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
+Subject: Re: [PATCH] Device-mapper submission 6/7
+References: <20021015175858.GA28170@fib011235813.fsnet.co.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 15 October 2002 10:29, Steven Cole wrote:
-> I have run into problems running dbench with 80 clients
-> on a jfs partition.
+> [Device mapper]
+> Provide a traditional ioctl based interface to control device-mapper
+> from userland.
 
-Steven,
-I haven't run dbench with that many clients myself (or if I had, it's 
-been a while).  I'm currently working on fixing some scalability issues 
-in JFS.  In doing so, I'll try to reproduce your problem and make sure 
-it gets fixed.
 
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+If you're adding a new interface, there should be no need to add new 
+ioctls and all that they entail.  Just control via a ramfs-based fs...
+
+	Jeff
+
+
+
 

@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129145AbQKNBJQ>; Mon, 13 Nov 2000 20:09:16 -0500
+	id <S129166AbQKNBMr>; Mon, 13 Nov 2000 20:12:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129157AbQKNBJH>; Mon, 13 Nov 2000 20:09:07 -0500
-Received: from pop.gmx.net ([194.221.183.20]:48684 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S129145AbQKNBIy>;
-	Mon, 13 Nov 2000 20:08:54 -0500
-From: Thomas Fuhrich <thomas.fuhrich@gmx.net>
-Reply-To: thomas.fuhrich@gmx.net
-To: linux-kernel@vger.kernel.org
-Subject: Bug in vfat-module in all kernel versions 2.4.0-testx
-Date: Tue, 14 Nov 2000 01:27:44 +0100
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
+	id <S129227AbQKNBMi>; Mon, 13 Nov 2000 20:12:38 -0500
+Received: from [204.244.205.25] ([204.244.205.25]:42096 "HELO post.gateone.com")
+	by vger.kernel.org with SMTP id <S129166AbQKNBM2>;
+	Mon, 13 Nov 2000 20:12:28 -0500
+From: Michael Peddemors <michael@linuxmagic.com>
+Organization: Wizard Internet Services
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
+        Szabolcs Szakacsits <szaka@f-secure.com>
+Subject: Re: [PATCH] Re: reliability of linux-vm subsystem
+Date: Mon, 13 Nov 2000 16:53:23 -0800
+X-Mailer: KMail [version 1.1.95.0]
+Content-Type: text/plain
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0011132116420.20626-100000@fs129-190.f-secure.com> <20001114004547.D12931@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20001114004547.D12931@arthur.ubicom.tudelft.nl>
 MIME-Version: 1.0
-Message-Id: <00111401420900.01021@snoopy>
-Content-Transfer-Encoding: 7BIT
+Message-Id: <0011131653231G.24220@mistress>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There seems to be a bug in the vfat-module. When I mount my SCSI MO drive with a
-512 bytes/block disk, everything works fine. If I do the same thing with a
-disks with 2kB/block I can mount it and read the directory. Once I try to run a
-programm from the disk or try to edit or copy a file in either direction, I run
-into a segmention fault. Afterwards, the partition cannot be unmounted anymore.
-(By the way, since the mtools don't need the kernel to read a disk, they work
-fine on the very same disk.)
-Hope that helps.
- -Thomas
+> up to the sysadmin to enforce the policy. For the home user it means
+> that the distribution providers have to set decent limits,
 
-If more information is needed (which I do think is neccessary), please send me
-an e-mail to  
+What is decent today may not be with tommorows' newest softwares....
 
-thomas.fuhrich@gmx.net
+>  for enterprises it means that they have to hire a sysadmin.
+
+That is one of the reasons that small businesses are afraid to go to Linux 
+now, because of the difficulty in finding skilled Linux sysadmins..
+
+"At least with the 'XX' Os, all they need to do is hire someone that can 
+click buttons, either on the computer, or to the tech support line" is the 
+perception, and with Linux they are already worried enough that they have to 
+find a 'genius' to work on their systems fulltime..
+
+It would be nice if 'advanced administration' can be kept to the minimum, so 
+we can service MORE than one enterprise each :>
+
+--------------------------------------------------------
+Michael Peddemors - Senior Consultant
+Unix Administration - WebSite Hosting
+Network Services - Programming
+Wizard Internet Services http://www.wizard.ca
+Linux Support Specialist - http://www.linuxmagic.com
+--------------------------------------------------------
+(604) 589-0037 Beautiful British Columbia, Canada
+--------------------------------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

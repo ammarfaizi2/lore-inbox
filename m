@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272509AbTGZOlR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 10:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272511AbTGZOfg
+	id S272507AbTGZOlP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272509AbTGZOfR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 10:35:36 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:35120 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S272513AbTGZOci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 10:32:38 -0400
-Date: Sat, 26 Jul 2003 16:51:41 +0200
-Message-Id: <200307261451.h6QEpfeg002322@callisto.of.borg>
+	Sat, 26 Jul 2003 10:35:17 -0400
+Received: from amsfep11-int.chello.nl ([213.46.243.20]:15669 "EHLO
+	amsfep11-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272511AbTGZOcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:36 -0400
+Date: Sat, 26 Jul 2003 16:51:43 +0200
+Message-Id: <200307261451.h6QEphCP002346@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Linus Torvalds <torvalds@transmeta.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH] Atari ST-RAM
+Subject: [PATCH] M68k IPV6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Atari ST-RAM: Add missing include
+M68k: Add missing include for IPV6
 
---- linux-2.6.x/arch/m68k/atari/stram.c	Tue Apr  8 10:04:43 2003
-+++ linux-m68k-2.6.x/arch/m68k/atari/stram.c	Sun Jun  8 10:59:19 2003
-@@ -21,6 +21,7 @@
- #include <linux/pagemap.h>
- #include <linux/shm.h>
- #include <linux/bootmem.h>
-+#include <linux/mount.h>
+--- linux-2.6.x/include/asm-m68k/checksum.h	Mon Oct 28 11:03:42 2002
++++ linux-m68k-2.6.x/include/asm-m68k/checksum.h	Sun Jun  8 13:32:24 2003
+@@ -1,6 +1,8 @@
+ #ifndef _M68K_CHECKSUM_H
+ #define _M68K_CHECKSUM_H
  
- #include <asm/setup.h>
- #include <asm/machdep.h>
++#include <linux/in6.h>
++
+ /*
+  * computes the checksum of a memory block at buff, length len,
+  * and adds in "sum" (32-bit)
 
 Gr{oetje,eeting}s,
 

@@ -1,105 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312619AbSE2A1h>; Tue, 28 May 2002 20:27:37 -0400
+	id <S312681AbSE2AcS>; Tue, 28 May 2002 20:32:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312681AbSE2A1g>; Tue, 28 May 2002 20:27:36 -0400
-Received: from virtmail.zianet.com ([216.234.192.37]:50309 "HELO zianet.com")
-	by vger.kernel.org with SMTP id <S312619AbSE2A1f>;
-	Tue, 28 May 2002 20:27:35 -0400
-Message-ID: <3CF3CDC6.6040500@zianet.com>
-Date: Tue, 28 May 2002 12:34:46 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0+) Gecko/20020527
-X-Accept-Language: en-us, en
+	id <S312938AbSE2AcR>; Tue, 28 May 2002 20:32:17 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:9739 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S312681AbSE2AcR>; Tue, 28 May 2002 20:32:17 -0400
+Message-ID: <3CF42179.29A2CAED@linux-m68k.org>
+Date: Wed, 29 May 2002 02:31:53 +0200
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Software RAID/Filesystem problems?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: yodaiken@fsmlabs.com, linux-kernel@vger.kernel.org
+Subject: Re: A reply on the RTLinux discussion.
+In-Reply-To: <Pine.LNX.4.21.0205281702540.17583-100000@serv> <1022604318.4123.114.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-I have run into a problem with software raid with large filesystems.
-I am not sure if this is a software raid limitation or a filesystem
-limitation.  I currently have two 3ware raid controllers that have
-1.1TB (yes, terrabyte) of space on each.  I want to stripe the two
-hardware raid controllers using software raid but when I try to make
-the raid using the command mkraid /dev/md0 it pukes out this:
+Alan Cox wrote:
 
-DESTROYING the contents of /dev/md0 in 5 seconds, Ctrl-C if unsure!
-handling MD device /dev/md0
-analyzing super-block
-disk 0: /dev/sdb1, 1120597978kB, raid superblock at 1120597888kB
-disk 1: /dev/sdc1, 1120597978kB, raid superblock at 1120597888kB
-raid0: looking at sdb1
-raid0:   comparing sdb1(1120597888) with sdb1(1120597888)
-raid0:   END
-raid0:   ==> UNIQUE
-raid0: 1 zones
-raid0: looking at sdc1
-raid0:   comparing sdc1(1120597888) with sdb1(1120597888)
-raid0:   EQUAL
-raid0: FINAL 1 zones
-raid0: zone 0
-raid0: checking sdb1 ... contained as device 0
-  (1120597888) is smallest!.
-raid0: checking sdc1 ... contained as device 1
-raid0: zone->nb_dev: 2, size: -2053771520
-raid0: current zone offset: 1120597888
-raid0: done.
-raid0 : md_size is -2053771520 blocks.
-raid0 : conf->smallest->size is -2053771520 blocks.
-raid0 : nb_zone is 1.
-raid0 : Allocating 8 bytes for hash.
+> Perhaps you should spend your
+> time thinking instead of insinuating everyone on the planet who isnt
+> working for rtai is a liar ?
 
+I am watching this whole mess already quite some time and I am trying
+very hard to make sense out of this. Victor pretends to be the nice guy
+here, but if one looks closer, one can see how little respect he has for
+the open source community and how much he is only interested in his own
+advantage. Alan, believe me that I am not doing such accusation easily
+and I'm quite aware that I'm not making myself any friends this way, but
+I'm not afraid to speak out what I think. I am thinking very carefully
+about this and I am not taking this easy.
+Victor denies the RTAI people any clear answers about the license.
+Victor refuses to explain the application of the license to the RTAI
+situation. Why does he refuses to define ambiguous statements? Why can't
+he say whether the license applies to RTAI or not? It wouldn't be any
+problem, if the license didn't apply, but if everyone clearly knew that
+(what only Victor can say), they could sit together and talk about a
+license which is accommodated to RTAI's situation. All Victor had to say
+is that the LPGL parts of RTAI make use of the patented process and they
+need to talk about a license. The RTAI developers are asking for that
+for years without any reaction from Victor. Sorry, but I can't see any
+fault from them and I can understand that they get impatient to get
+issue resolved.
+Alan, what am I supposed to think about this? You should know me a bit
+by now, I always accept arguments and I have no problems to admit a
+mistake and to apologize for it, but I won't take bullshit.
 
-Notice the huge negative numbers -2053771520.  I have tried this with
-a couple different block sizes but it doesn't help.  When I build a 
-filesystem
-on it, in this case I am trying reiserfs, it builds it but in the 
-message log I
-have these errors:
+> Here is some of the press coverage on it
+> http://www.eetimes.com/story/OEG20010927S0074
 
-09:00: rw=0, want=134217729, limit=-2053771520
-attempt to access beyond end of device
-09:00: rw=0, want=134217730, limit=-2053771520
-attempt to access beyond end of device
-09:00: rw=0, want=134217731, limit=-2053771520
-attempt to access beyond end of device
+As I said, I didn't found anything on Red Hat's site. I thought it would
+be interesting to point out, but in the end it's Red Hat's business.
 
-There are quite a few, I didn't post them all.  Then when I mount the fs
-it only reports it as about a 93GB filesystem instead of the 2.2TB it should
-be.  I did this same configuration in RAID 1(mirror) and it all worked 
-well, no
-errors and the reported filesystem size was correct.  So I guess my question
-is: Am I hitting a kernel limit here or a filesystem limit, or is this 
-just a plain
-ol bug?  What is the current maximum filesystem size?  I need to I can try
-ext3 but it always takes a bit to format.  This is on RedHat 7.3 with the
-stock 2.4.18-4smp kernel.  I also tried it with the standard 2.4.18 
-kernel with
-the same results.   Any suggestions/information would be appreciated.  Let
-me know if any more info would help, I usually forget info that is 
-important.
-
-Here is a copy of my /etc/raidtab (currently set up for mirroring, not 
-stripping)
-
-raiddev /dev/md0
-        raid-level      1
-        nr-raid-disks   2
-        persistent-superblock   1
-        chunk-size      4
-        device  /dev/sdb1
-        raid-disk       0
-        device  /dev/sdc1
-        raid-disk       1
-
-Thanks,
-Steven
-
-
-
-
+bye, Roman

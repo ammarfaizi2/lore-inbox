@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266200AbTBVQYc>; Sat, 22 Feb 2003 11:24:32 -0500
+	id <S266292AbTBVQaw>; Sat, 22 Feb 2003 11:30:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266286AbTBVQYc>; Sat, 22 Feb 2003 11:24:32 -0500
-Received: from bitmover.com ([192.132.92.2]:21158 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S266200AbTBVQYa>;
-	Sat, 22 Feb 2003 11:24:30 -0500
-Date: Sat, 22 Feb 2003 08:33:18 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-       lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-Message-ID: <20030222163318.GB11953@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>,
-	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-	lse-tech@lists.sf.et, linux-kernel@vger.kernel.org
-References: <20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay> <20030222024721.GA1489@work.bitmover.com> <14450000.1045888349@[10.10.2.4]> <20030222050514.GA3148@work.bitmover.com> <1045903113.26056.6.camel@rth.ninka.net> <20030222143440.GA10546@work.bitmover.com> <26210000.1045928873@[10.10.2.4]> <20030222161356.GA11953@work.bitmover.com> <27920000.1045931373@[10.10.2.4]>
+	id <S266367AbTBVQaw>; Sat, 22 Feb 2003 11:30:52 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:13698
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266292AbTBVQau>; Sat, 22 Feb 2003 11:30:50 -0500
+Subject: Re: Module loading on demand
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mikael Pettersson <mikpe@user.it.uu.se>
+Cc: davidsen@tmr.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200302221545.h1MFjmkW006417@harpo.it.uu.se>
+References: <200302221545.h1MFjmkW006417@harpo.it.uu.se>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1045935675.4721.1.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <27920000.1045931373@[10.10.2.4]>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 22 Feb 2003 17:41:15 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 08:29:34AM -0800, Martin J. Bligh wrote:
-> > people sell lots of server.  I spent a few minutes in google: world wide
-> > server sales are $40B at the moment.  The overwhelming majority of that
-> > revenue is small servers.  Let's say that Dell has 20% of that market,
-> > that's $2B/quarter.  Now let's chop off the 1-2 CPU systems.  I'll bet
-> > you long long odds that that is 90% of their revenue in the server space.
-> > Supposing that's right, that's $200M/quarter in big iron sales.  Out of
-> > $8000M/quarter.  
-> > 
-> > I'd love to see data which is different than this but you'll have a tough
-> > time finding it.  More and more companies are looking at the cost of 
-> > big iron and deciding it doesn't make sense to spend $20K/CPU when they
-> > could be spending $1K/CPU.  Look at Google, try selling them some big
-> > iron.  Look at Wall Street - abandoning big iron as fast as they can.
+On Sat, 2003-02-22 at 15:45, Mikael Pettersson wrote:
+> If this is the RedHat system you mentioned in your post on sym53c8xx
+> loading oddity, then you need apply the fix below which I posted to
+> LKML on Jan 19th.
 > 
-> But we're talking about linux ... and we're talking about profit, not
-> revenue. I'd guess that 99% of their desktop sales are for Windows. 
-> And I'd guess they make 100 times as much profit on a big server as they 
-> do on a desktop PC. 
+> ===snip===
+> If you're running a RedHat system, you'll also need the following
+> patch to /etc/rc.d/rc.sysinit. Without it the kernel's modprobe and
+> hotplug functionalities will be disabled by rc.sysinit.
+> 
+> --- /etc/rc.d/rc.sysinit.~1~	2002-08-22 23:10:52.000000000 +0200
+> +++ /etc/rc.d/rc.sysinit	2003-01-14 03:04:57.000000000 +0100
+> @@ -334,7 +334,7 @@
+>      IN_INITLOG=
+>  fi
+>  
+> -if ! grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/ksyms ]; then
+> +if ! grep -iq nomodules /proc/cmdline 2>/dev/null && [ -f /proc/modules ]; then
+>      USEMODULES=y
+>  fi
 
-You are thinking in today's terms.  Find the asymptote and project out.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+The other nasty is that if you install Rusty's rpms for the better module tools, and
+then install a Red Hat kernel errata your errata kernel will not boot because the
+Rusty tools replace insmod.static with a tool which only works standalone on 2.5. Its
+not a big deal since most people who build 2.5 kernels build their own 2.4 ones too,
+and you can fix the initrd by hand, but it is one to know about.
+

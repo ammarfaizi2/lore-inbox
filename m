@@ -1,38 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282418AbRLRNO4>; Tue, 18 Dec 2001 08:14:56 -0500
+	id <S282877AbRLRNUq>; Tue, 18 Dec 2001 08:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282483AbRLRNOg>; Tue, 18 Dec 2001 08:14:36 -0500
-Received: from ns.suse.de ([213.95.15.193]:52238 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S282418AbRLRNOd>;
-	Tue, 18 Dec 2001 08:14:33 -0500
-Date: Tue, 18 Dec 2001 14:14:32 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Christian Thalinger <e9625286@student.tuwien.ac.at>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: cpuid on SMP
-In-Reply-To: <1008675995.13737.2.camel@twisti.home.at>
-Message-ID: <Pine.LNX.4.33.0112181413510.29077-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282801AbRLRNUg>; Tue, 18 Dec 2001 08:20:36 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:45325 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S282523AbRLRNUU>;
+	Tue, 18 Dec 2001 08:20:20 -0500
+Date: Tue, 18 Dec 2001 14:20:02 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Joe Krahn <jkrahn@nc.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Common removable media interface?
+Message-ID: <20011218142002.C32511@suse.de>
+In-Reply-To: <3C1F41D6.43A16F80@nc.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3C1F41D6.43A16F80@nc.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 Dec 2001, Christian Thalinger wrote:
+On Tue, Dec 18 2001, Joe Krahn wrote:
+> I think Linux could use a common removable
+> media interface, sort of like cdrom.c adds
+> a common interface to all CD/DVD. But, cdrom.c
+> does such a good job, it almost seems like the
+> thing to do is to just add acces to other
+> devices to cdrom.c, and maybe rename it to
+> media.c. Other media includes IDE floppies,
+> regular floppies (if they live much longer),
+> solid state media. Maybe even include some
+> access to all media (not to replace the real
+> drivers) like tapes, non-removable disks, etc.
+> 
+> Is anyone working on or thinking about
+> such a thing?
+> Do other people think this would be useful?
+> Would it be 'bad' to just add IDE floppy
+> access (not well developed) to cdrom.c,
+> (which is already mislabelled now that it
+> handles DVD)?
 
-> Just wanted to try Dave Jones' x86info. It complained about missing
-> /dev/cpu/0/... So i inserted cpuid and started it again. Now it
-> complains about /dev/cpu/1/...
-> And there is no /dev/cpu/1/.
-
-mkdir /dev/cpu/1
-mknod /dev/cpu/1/cpuid c 203 1
-mknod /dev/cpu/1/msr c 202 1
-
-Dave.
+Stuff like this belongs in user space, no need to bloat the kernel with
+it.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Jens Axboe
 

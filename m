@@ -1,46 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319523AbSH2Wxr>; Thu, 29 Aug 2002 18:53:47 -0400
+	id <S319528AbSH2W7g>; Thu, 29 Aug 2002 18:59:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319521AbSH2Ww7>; Thu, 29 Aug 2002 18:52:59 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:30205
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S319500AbSH2Wv6>; Thu, 29 Aug 2002 18:51:58 -0400
-Subject: Re: ide-2.4.20-pre4-ac2.patch
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10208271503530.24156-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10208271503530.24156-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
-Date: 29 Aug 2002 23:55:41 +0100
-Message-Id: <1030661741.1326.7.camel@irongate.swansea.linux.org.uk>
+	id <S319502AbSH2Wqy>; Thu, 29 Aug 2002 18:46:54 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:51394 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S319500AbSH2Wpm>;
+	Thu, 29 Aug 2002 18:45:42 -0400
+Date: Thu, 29 Aug 2002 15:48:23 -0700
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       irda-users@lists.sourceforge.net
+Subject: [PATCH 2.5] : ir252_lap_unique_saddr.diff
+Message-ID: <20020829224823.GC14118@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-08-27 at 23:17, Andre Hedrick wrote:
-> 
-> This is out and has been forwarded to AC for review.
-
-Rejected. I found several errors, a couple of strange reverts and some
-files being moved to clearly wrong places. It also mixes up multiple
-changes.
-
-Andre to make this work I need
-	- One change per patch (within reason)
-	- An explanation of what it does
-
-For example I've got files you moved and changed, looking at that in
-diff is a right pita. I've got a big diff with errors in it (eg gayle in
-ppc) I can't easily be sure I can cleanly drop parts of.
-
-Lets start with the file moving. Send me a diff for the Config/Makefile
-and a lit of the files to move and where. Gayle I think should be m68k
-not ppc (actually Im pretty sure), CMD640 is PCI so why file it in
-legacy. "legacy" I took to mean pre PCI rather than "I think its junk"
-8)
+ir252_lap_unique_saddr.diff :
+---------------------------
+	o [CORRECT] Make sure LAP address is sane, which mean not NULL,
+		not BROADCAST and not already in use by another link.
 
 
+diff -u -p linux/net/irda/irlap.d5.c linux/net/irda/irlap.c
+--- linux/net/irda/irlap.d5.c	Wed Aug 21 15:37:52 2002
++++ linux/net/irda/irlap.c	Wed Aug 21 15:42:05 2002
+@@ -139,7 +139,15 @@ struct irlap_cb *irlap_open(struct net_d
+ 	skb_queue_head_init(&self->wx_list);
+ 
+ 	/* My unique IrLAP device address! */
+-	get_random_bytes(&self->saddr, sizeof(self->saddr));
++	/* We don't want the broadcast address, neither the NULL address
++	 * (most often used to signify "invalid"), and we don't want an
++	 * address already in use (otherwise connect won't be able
++	 * to select the proper link). - Jean II */
++	do {
++		get_random_bytes(&self->saddr, sizeof(self->saddr));
++	} while ((self->saddr == 0x0) || (self->saddr == BROADCAST) ||
++		 (hashbin_find(irlap, self->saddr, NULL)) );
++	/* Copy to the driver */
+ 	memcpy(dev->dev_addr, &self->saddr, 4);
+ 
+ 	init_timer(&self->slot_timer);

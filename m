@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbUKBVkU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbUKBVj2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbUKBVkU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:40:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbUKBVjn
+	id S261427AbUKBVj2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:39:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbUKBVj2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:39:43 -0500
-Received: from pat.uio.no ([129.240.130.16]:2251 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262212AbUKBVgo (ORCPT
+	Tue, 2 Nov 2004 16:39:28 -0500
+Received: from anor.ics.muni.cz ([147.251.4.35]:29847 "EHLO anor.ics.muni.cz")
+	by vger.kernel.org with ESMTP id S262215AbUKBVir (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:36:44 -0500
-Subject: Re: nfs stale filehandle issues with 2.6.10-rc1 in-kernel server
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Brad Campbell <brad@wasp.net.au>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <4187E4E1.5080304@pobox.com>
-References: <41877751.502@wasp.net.au>
-	 <1099413424.7582.5.camel@lade.trondhjem.org>  <4187E4E1.5080304@pobox.com>
-Content-Type: text/plain
-Date: Tue, 02 Nov 2004 13:36:04 -0800
-Message-Id: <1099431364.7854.17.camel@lade.trondhjem.org>
+	Tue, 2 Nov 2004 16:38:47 -0500
+Date: Tue, 2 Nov 2004 22:38:44 +0100
+From: Jan Kasprzak <kas@fi.muni.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SWsuspend in 2.6.9 - sound card does not work
+Message-ID: <20041102213844.GA13012@fi.muni.cz>
+References: <20041027111830.GD4724@fi.muni.cz> <20041102212539.GC996@openzaurus.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0.326, required 12,
-	RCVD_NUMERIC_HELO 0.33)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041102212539.GC996@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.2i
+X-Muni-Spam-TestIP: 147.251.48.3
+X-Muni-Virus-Test: Clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 02.11.2004 Klokka 14:49 (-0500) skreiv Jeff Garzik:
+Pavel Machek wrote:
+: Hi!
+: 
+: > I have an Asus M6R laptop (http://www.fi.muni.cz/~kas/m6r/) with ATI IXP
+: > integrated sound card. Under 2.6.8.1 I was able to use the sound card
+: > after software suspend (just had to restore mixer settings using alsactl).
+: > With 2.6.9 the sound card does not work after suspend/restore: No output no
+: > matter how I change mixer settings, and the playback is not timed properly
+: > (e.g. when mplayer tries to synchronize audio and video stream, the video
+: > goes too fast using all CPU time and no output to speakers/phones.
+: > 
+: > 	I will do a binary search over 2.6.9-pre patches, but I want to ask
+: > whether this problem looks familiar to anybody.
+: > 
+: 
+: Are there any changes in the sound module?
 
-> This is readily reproducible with rsync -- I just boot to an earlier 
-> version of the kernel on the NFS client, and the stale filehandle 
-> problems go away.
+	Yes, the difference is between 2.6.9-rc1 (works) and -rc2 (does not
+work). Removing the snd-atiixp module after resume and inserting it
+back again helps, but this means killing every app which uses audio
+interface (so you cannot keep mplayer running over suspend/resume cycle,
+and gnome-settings-daemon keeps /dev/mixer opened all the time too).
 
-Huh? The client cannot generate stale filehandle errors: only the server
-does that.
-Have you got a binary tcpdump that shows the problem?
+	I have tried to add printk() to
+linux/sound/pci/atiixp.c:snd_atiixp_suspend() and _resume(), but I cannot
+see it in dmesg(8) output after resume. Maybe those functions are not
+called at all in 2.6.9-rc2 and newer.
 
-Cheers
-  Trond
+-Yenya
 
 -- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
-
+| Jan "Yenya" Kasprzak  <kas at {fi.muni.cz - work | yenya.net - private}> |
+| GPG: ID 1024/D3498839      Fingerprint 0D99A7FB206605D7 8B35FCDE05B18A5E |
+| http://www.fi.muni.cz/~kas/   Czech Linux Homepage: http://www.linux.cz/ |
+> Whatever the Java applications and desktop dances may lead to, Unix will <
+> still be pushing the packets around for a quite a while.      --Rob Pike <

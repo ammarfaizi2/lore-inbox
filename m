@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbTHTRK1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 13:10:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbTHTRK1
+	id S262071AbTHTQ6S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 12:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbTHTQ6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 13:10:27 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:26762 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262073AbTHTRKX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 13:10:23 -0400
-Subject: Re: [PATCH][2.6][2/5]Support for HPET based timer
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       venkatesh.pallipadi@intel.com
-In-Reply-To: <p731xvg7imu.fsf@oldwotan.suse.de>
-References: <C8C38546F90ABF408A5961FC01FDBF1902C7D1C9@fmsmsx405.fm.intel.com.suse.lists.linux.kernel>
-	 <20030820080513.GB17793@ucw.cz.suse.lists.linux.kernel>
-	 <p731xvg7imu.fsf@oldwotan.suse.de>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1061399370.30807.151.camel@nighthawk>
+	Wed, 20 Aug 2003 12:58:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:54982 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262071AbTHTQ6O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 12:58:14 -0400
+Date: Wed, 20 Aug 2003 09:54:08 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: <linuxmodule@altern.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3 module compilation
+Message-Id: <20030820095408.68d9dea9.rddunlap@osdl.org>
+In-Reply-To: <S261663AbTHTQkp/20030820164045Z+1122@vger.kernel.org>
+References: <S261663AbTHTQkp/20030820164045Z+1122@vger.kernel.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 20 Aug 2003 10:09:31 -0700
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-08-20 at 03:01, Andi Kleen wrote:
-> Vojtech Pavlik <vojtech@suse.cz> writes:
-> 
-> > On Tue, Aug 19, 2003 at 05:18:50PM -0700, Pallipadi, Venkatesh wrote:
-> > 
-> > > Fixmap is for HPET memory map address access. As the timer
-> > > initialization happen 
-> > > early in the boot sequence (before vm initialization), we need to have
-> > > fixmap() 
-> > > and fix_to_virt() to access HPET memory map address.
-> > 
-> > Ahh, yes, you're right. You can't use ioremap at that time. Actually I
-> > did the same on x86_64 not only because of vsyscalls.
-> 
-> iirc i386 has an ioremap_early or somesuch.
+On Wed, 20 Aug 2003 18:39:19 +0200 (CEST) <linuxmodule@altern.org> wrote:
 
-Yep, we have boot_ioremap().  It's used to do ioremap() even while we're
-still using the original early boot pagetables (before paging_init()):
-arch/i386/mm/boot_ioremap.c
+| I am trying to compile a module on 2.6.0-test3 kernel. The makefile i am using is a pretty normal one : 
+| 
+| CFLAGS = -D__KERNEL__ -DMODULE -I/usr/src/linux-2.6.0-test3/include -O
+| dummy.o: dummy.c
+| 
+| The module i am trying to compile is taken from the kernel itself (dummy network device driver). The
+| compilation works flawlessly but when i try to insert the module i get : invalid module format.
+| What am i doing wrong because i have modutils and module-init and both work, since the same module (dummy)
+| compiled with the kernel itself can be inserted and removed without the previous error message.
+| Is there something i should know about the compilation process ? The kernel-compiled module (dummy.ko) has
+| about 10 Kbytes and dummy.ko compiled by me has only 2 Kbytes :(
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Please wrap lines near 70-72 characters.
 
+Can you try a Makefile and instructions like this?
+
+# makefile for dummy module
+# usage:
+# cd /path/to/kernel/source && make SUBDIRS=/path/to/source/dummymod/ modules
+
+obj-m := dummy.o
+
+clean-files := *.o
+
+
+--
+~Randy   [MOTD:  Always include kernel version.]
+"Everything is relative."

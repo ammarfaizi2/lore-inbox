@@ -1,177 +1,392 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317948AbSGWEdw>; Tue, 23 Jul 2002 00:33:52 -0400
+	id <S317944AbSGWESI>; Tue, 23 Jul 2002 00:18:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317949AbSGWEdw>; Tue, 23 Jul 2002 00:33:52 -0400
-Received: from holomorphy.com ([66.224.33.161]:23176 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317948AbSGWEdu>;
-	Tue, 23 Jul 2002 00:33:50 -0400
-Date: Mon, 22 Jul 2002 21:36:53 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Craig Kulesa <ckulesa@as.arizona.edu>
-Cc: Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, Steven Cole <scole@lanl.gov>,
-       Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
-Message-ID: <20020723043653.GF13589@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Craig Kulesa <ckulesa@as.arizona.edu>,
-	Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, Steven Cole <scole@lanl.gov>,
-	Ed Tomlinson <tomlins@cam.org>
-References: <20020722222150.GF919@holomorphy.com> <Pine.LNX.4.44.0207221520301.14311-100000@loke.as.arizona.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0207221520301.14311-100000@loke.as.arizona.edu>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+	id <S317948AbSGWESI>; Tue, 23 Jul 2002 00:18:08 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:45256 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317944AbSGWESF>;
+	Tue, 23 Jul 2002 00:18:05 -0400
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: linux-kernel@vger.kernel.org
+Subject: Summit patch for 2.4.19-rc3-ac2
+Date: Mon, 22 Jul 2002 21:21:04 -0700
+User-Agent: KMail/1.4.1
+Cc: Steven Cole <scole@lanl.gov>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_4FPOCEB5I3RXW5TDAWYJ"
+Message-Id: <200207222121.04788.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Jul 2002, William Lee Irwin III wrote:
->> The pte_chain mempool was ridiculously huge and the use of mempool for
->> this at all was in error.
 
-On Mon, Jul 22, 2002 at 03:36:33PM -0700, Craig Kulesa wrote:
-> That's what I thoguht too -- but Steven tried making the pool 1/4th the
-> size and it still failed.  OTOH, he tried 2.5.27-rmap, which uses the
-> *same mempool patch* and he had no problem with the monster 128KB 
-> allocation.  Maybe it was all luck. :)  I can't yet see anything in the 
-> slablru patch that has anything to do with it...
+--------------Boundary-00=_4FPOCEB5I3RXW5TDAWYJ
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-While waiting for the other machine to boot I tried these out. There
-appear to be bootstrap ordering problems either introduced by or
-exposed by this patch:
+Here's a patch for those who have been plagued by APIC errors starting ar=
+ound=20
+-rc1-ac6.  I've submitted it to Alan, but since it has been affecting a=20
+number of folks, I'm also posting it here for your consideration and revi=
+ew.
 
-Cheers,
-Bill
+This fixes the APIC receive accept errors on the two machines we have tha=
+t=20
+were subject to it.  Let me know if it doesn't work for you.
 
+--=20
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
 
-[log buffer too small to capture the whole thing]
+--------------Boundary-00=_4FPOCEB5I3RXW5TDAWYJ
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="2.4.19-rc3-ac2_summit.2002-07-22"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="2.4.19-rc3-ac2_summit.2002-07-22"
 
-CPU0<T0:99984,T1:96944,D:10,S:3030,C:99992>
-cpu: 1, clocks: 99992, slice: 3030
-cpu: 2, clocks: 99992, slice: 3030
-cpu: 3, clocks: 99992, slice: 3030
-cpu: 4, clocks: 99992, slice: 3030
-cpu: 5, clocks: 99992, slice: 3030
-cpu: 7, clocks: 99992, slice: 3030
-cpu: 6, clocks: 99992, slice: 3030
-cpu: 9, clocks: 99992, slice: 3030
-cpu: 10, clocks: 99992, slice: 3030
-cpu: 11, clocks: 99992, slice: 3030
-cpu: 8, clocks: 99992, slice: 3030
-cpu: 14, clocks: 99992, slice: 3030
-cpu: 15, clocks: 99992, slice: 3030
-cpu: 12, clocks: 99992, slice: 3030
-cpu: 13, clocks: 99992, slice: 3030
-CPU2<T0:99984,T1:90880,D:14,S:3030,C:99992>
-CPU3<T0:99984,T1:87856,D:8,S:3030,C:99992>
-CPU5<T0:99984,T1:81792,D:12,S:3030,C:99992>
-CPU7<T0:99984,T1:75744,D:0,S:3030,C:99992>
-CPU4<T0:99984,T1:84832,D:2,S:3030,C:99992>
-CPU6<T0:99984,T1:78768,D:6,S:3030,C:99992>
-CPU12<T0:99984,T1:60592,D:2,S:3030,C:99992>
-CPU10<T0:99984,T1:66640,D:14,S:3030,C:99992>
-CPU11<T0:99984,T1:63616,D:8,S:3030,C:99992>
-CPU8<T0:99984,T1:72704,D:10,S:3030,C:99992>
-CPU9<T0:99984,T1:69680,D:4,S:3030,C:99992>
-CPU15<T0:99984,T1:51504,D:0,S:3030,C:99992>
-CPU13<T0:99984,T1:57552,D:12,S:3030,C:99992>
-CPU14<T0:99984,T1:54528,D:6,S:3030,C:99992>
-CPU1<T0:99984,T1:93920,D:4,S:3030,C:99992>
-checking TSC synchronization across CPUs:
-BIOS BUG: CPU#0 improperly initialized, has 7692500 usecs TSC skew! FIXED.
-BIOS BUG: CPU#1 improperly initialized, has 7692500 usecs TSC skew! FIXED.
-BIOS BUG: CPU#2 improperly initialized, has 7692500 usecs TSC skew! FIXED.
-BIOS BUG: CPU#3 improperly initialized, has 7692500 usecs TSC skew! FIXED.
-BIOS BUG: CPU#4 improperly initialized, has 7750408 usecs TSC skew! FIXED.
-BIOS BUG: CPU#5 improperly initialized, has 7750408 usecs TSC skew! FIXED.
-BIOS BUG: CPU#6 improperly initialized, has 7750408 usecs TSC skew! FIXED.
-BIOS BUG: CPU#7 improperly initialized, has 7750408 usecs TSC skew! FIXED.
-BIOS BUG: CPU#8 improperly initialized, has 7773209 usecs TSC skew! FIXED.
-BIOS BUG: CPU#9 improperly initialized, has 7773162 usecs TSC skew! FIXED.
-BIOS BUG: CPU#10 improperly initialized, has 7773162 usecs TSC skew! FIXED.
-BIOS BUG: CPU#11 improperly initialized, has 7773161 usecs TSC skew! FIXED.
-BIOS BUG: CPU#12 improperly initialized, has -23216067 usecs TSC skew! FIXED.
-BIOS BUG: CPU#13 improperly initialized, has -23216089 usecs TSC skew! FIXED.
-BIOS BUG: CPU#14 improperly initialized, has -23216089 usecs TSC skew! FIXED.
-BIOS BUG: CPU#15 improperly initialized, has -23216089 usecs TSC skew! FIXED.
-migration_task 0 on cpu=0
-migration_task 1 on cpu=1
-migration_task 2 on cpu=2
-migration_task 3 on cpu=3
-migration_task 4 on cpu=4
-migration_task 5 on cpu=5
-migration_task 6 on cpu=6
-migration_task 7 on cpu=7
-migration_task 8 on cpu=8
-migration_task 9 on cpu=9
-migration_task 10 on cpu=10
-migration_task 11 on cpu=11
-migration_task 12 on cpu=12
-migration_task 13 on cpu=13
-migration_task 14 on cpu=14
-migration_task 15 on cpu=15
-Linux NET4.0 for Linux 2.4
-Based upon Swansea University Computer Society NET3.039
-Initializing RT netlink socket
-PCI: PCI BIOS revision 2.10 entry at 0xfd231, last bus=2
-PCI: Using configuration type 1
-isapnp: Scanning for PnP cards...
-isapnp: No Plug & Play device found
-PCI: Probing PCI hardware (bus 00)
-PCI: Searching for i450NX host bridges on 00:10.0
-Unknown bridge resource 2: assuming transparent
-Scanning PCI bus 3 for quad 1
-Scanning PCI bus 6 for quad 2
-Scanning PCI bus 9 for quad 3
-PCI->APIC IRQ transform: (B0,I10,P0) -> 23
-PCI->APIC IRQ transform: (B0,I11,P0) -> 19
-PCI->APIC IRQ transform: (B2,I15,P0) -> 28
-PCI: using PPB(B0,I12,P0) to get irq 15
-PCI->APIC IRQ transform: (B1,I4,P0) -> 15
-PCI: using PPB(B0,I12,P1) to get irq 13
-PCI->APIC IRQ transform: (B1,I5,P1) -> 13
-PCI: using PPB(B0,I12,P2) to get irq 11
-PCI->APIC IRQ transform: (B1,I6,P2) -> 11
-PCI: using PPB(B0,I12,P3) to get irq 7
-PCI->APIC IRQ transform: (B1,I7,P3) -> 7
-enable_cpucache failed for dentry_cache, error 12.
-enable_cpucache failed for filp, error 12.
-enable_cpucache failed for names_cache, error 12.
-enable_cpucache failed for buffer_head, error 12.
-enable_cpucache failed for mm_struct, error 12.
-enable_cpucache failed for vm_area_struct, error 12.
-enable_cpucache failed for fs_cache, error 12.
-enable_cpucache failed for files_cache, error 12.
-enable_cpucache failed for signal_act, error 12.
-enable_cpucache failed for task_struct, error 12.
-enable_cpucache failed for pte_chain, error 12.
-enable_cpucache failed for pae_pgd, error 12.
-enable_cpucache failed for size-4096 (DMA), error 12.
-enable_cpucache failed for size-4096, error 12.
-enable_cpucache failed for size-2048 (DMA), error 12.
-enable_cpucache failed for size-2048, error 12.
-enable_cpucache failed for size-1024 (DMA), error 12.
-enable_cpucache failed for size-1024, error 12.
-enable_cpucache failed for size-512 (DMA), error 12.
-enable_cpucache failed for size-512, error 12.
-enable_cpucache failed for size-256 (DMA), error 12.
-enable_cpucache failed for size-256, error 12.
-enable_cpucache failed for size-192 (DMA), error 12.
-enable_cpucache failed for size-192, error 12.
-enable_cpucache failed for size-128 (DMA), error 12.
-enable_cpucache failed for size-128, error 12.
-enable_cpucache failed for size-96 (DMA), error 12.
-enable_cpucache failed for size-96, error 12.
-enable_cpucache failed for size-64 (DMA), error 12.
-enable_cpucache failed for size-64, error 12.
-enable_cpucache failed for size-32 (DMA), error 12.
-enable_cpucache failed for size-32, error 12.
-Starting kswapd
-enable_cpucache failed for shmem_inode_cache, error 12.
-could not kern_mount tmpfs
+diff -ruN 2.4.19-rc3-ac2/arch/i386/kernel/apic.c ac2/arch/i386/kernel/apic.c
+--- 2.4.19-rc3-ac2/arch/i386/kernel/apic.c	Mon Jul 22 20:03:41 2002
++++ ac2/arch/i386/kernel/apic.c	Mon Jul 22 20:04:38 2002
+@@ -261,20 +261,6 @@
+ 	apic_write_around(APIC_LVT1, value);
+ }
+ 
+-/*
+- * To build the logical APIC ID for each CPU we have three cases:
+- *  1) Normal flat mode:  use a bitmap of the CPU numbers
+- *  2) Logical multi-quad (NUMA-Q):  do nothing, the BIOS has set it up
+- *  3) Physical multi-quad (xAPIC clusters):  convert the Intel standard
+- *	physical APIC ID to a cluster nibble/cpu bitmap nibble
+- *
+- ***	mps_cpu (index number):   0,  1,  2,  3,  4,  5,  6,  7,  8,  9, ... 
+- ***  CPUs have xAPIC phys IDs:  00, 01, 02, 03, 10, 11, 12, 13, 20, 21, ... 
+- ***		its logical ID:  01, 02, 04, 08, 11, 12, 14, 18, 21, 22, ... 
+- */
+- 
+-#define physical_to_logical_apicid(phys_apic) ( (1UL << (phys_apic & 0x3)) | (phys_apic & 0xF0U) )
+-
+ static unsigned long apic_ldr_value(unsigned long value)
+ {
+ 	if (clustered_apic_logical)
+diff -ruN 2.4.19-rc3-ac2/arch/i386/kernel/io_apic.c ac2/arch/i386/kernel/io_apic.c
+--- 2.4.19-rc3-ac2/arch/i386/kernel/io_apic.c	Mon Jul 22 20:03:41 2002
++++ ac2/arch/i386/kernel/io_apic.c	Mon Jul 22 20:06:07 2002
+@@ -760,7 +760,7 @@
+ 		 * skip adding the timer int on secondary nodes, which causes
+ 		 * a small but painful rift in the time-space continuum
+ 		 */
+-		if (clustered_apic_mode && (apic != 0) && (irq == 0))
++		if (clustered_apic_logical && (apic != 0) && (irq == 0))
+ 			continue;
+ 		else
+ 			add_pin_to_irq(irq, apic, pin);
+diff -ruN 2.4.19-rc3-ac2/arch/i386/kernel/mpparse.c ac2/arch/i386/kernel/mpparse.c
+--- 2.4.19-rc3-ac2/arch/i386/kernel/mpparse.c	Mon Jul 22 20:03:41 2002
++++ ac2/arch/i386/kernel/mpparse.c	Mon Jul 22 20:04:38 2002
+@@ -162,7 +162,7 @@
+ 	if (!(m->mpc_cpuflag & CPU_ENABLED))
+ 		return;
+ 
+-	logical_apicid = m->mpc_apicid;
++	logical_apicid = 0x01;
+ 	if (clustered_apic_logical) {
+ 		quad = translation_table[mpc_record]->trans_quad;
+ 		logical_apicid = (quad << 4) + 
+diff -ruN 2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c ac2/arch/i386/kernel/smpboot.c
+--- 2.4.19-rc3-ac2/arch/i386/kernel/smpboot.c	Mon Jul 22 20:03:41 2002
++++ ac2/arch/i386/kernel/smpboot.c	Mon Jul 22 20:08:02 2002
+@@ -511,59 +511,28 @@
+ 	return do_fork(CLONE_VM|CLONE_PID, 0, &regs, 0);
+ }
+ 
+-/* which physical APIC ID maps to which logical CPU number */
+-volatile unsigned char physical_apicid_2_cpu[MAX_APICID];
+ /* which logical CPU number maps to which physical APIC ID */
+-volatile unsigned char cpu_2_physical_apicid[NR_CPUS];
++volatile u8 cpu_2_physical_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
+ 
+-/* which logical APIC ID maps to which logical CPU number */
+-volatile unsigned char logical_apicid_2_cpu[MAX_APICID];
+ /* which logical CPU number maps to which logical APIC ID */
+-volatile unsigned char cpu_2_logical_apicid[NR_CPUS];
++volatile u8 cpu_2_logical_apicid[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
+ 
+-static inline void init_cpu_to_apicid(void)
+-/* Initialize all maps between cpu number and apicids */
+-{
+-	int apicid, cpu;
+-
+-	for (apicid = 0; apicid < MAX_APICID; apicid++) {
+-		physical_apicid_2_cpu[apicid] = BAD_APICID;
+-		logical_apicid_2_cpu[apicid] = BAD_APICID;
+-	}
+-	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		cpu_2_physical_apicid[cpu] = BAD_APICID;
+-		cpu_2_logical_apicid[cpu] = BAD_APICID;
+-	}
+-}
+-
+-static inline void map_cpu_to_boot_apicid(int cpu, int apicid)
++static inline void map_cpu_to_boot_apicid(int cpu, int phys_apicid, int log_apicid)
+ /* 
+- * set up a mapping between cpu and apicid. Uses logical apicids for multiquad,
+- * else physical apic ids
++ * set up a mapping between cpu and apicids.
+  */
+ {
+-	if (clustered_apic_logical) {
+-		logical_apicid_2_cpu[apicid] = (unsigned char) cpu;
+-		cpu_2_logical_apicid[cpu] = (unsigned char) apicid;
+-	} else {
+-		physical_apicid_2_cpu[apicid] = (unsigned char) cpu;
+-		cpu_2_physical_apicid[cpu] = (unsigned char) apicid;
+-	}
++	cpu_2_logical_apicid[cpu] = (u8) log_apicid;
++	cpu_2_physical_apicid[cpu] = (u8) phys_apicid;
+ }
+ 
+-static inline void unmap_cpu_to_boot_apicid(int cpu, int apicid)
++static inline void unmap_cpu_to_boot_apicid(int cpu)
+ /* 
+- * undo a mapping between cpu and apicid. Uses logical apicids for multiquad,
+- * else physical apic ids
++ * undo a mapping between cpu and apicids.
+  */
+ {
+-	if (clustered_apic_logical) {
+-		logical_apicid_2_cpu[apicid] = BAD_APICID;
+-		cpu_2_logical_apicid[cpu] = BAD_APICID;
+-	} else {
+-		physical_apicid_2_cpu[apicid] = BAD_APICID;
+-		cpu_2_physical_apicid[cpu] = BAD_APICID;
+-	}
++	cpu_2_logical_apicid[cpu] = BAD_APICID;
++	cpu_2_physical_apicid[cpu] = BAD_APICID;
+ }
+ 
+ #if APIC_DEBUG
+@@ -777,17 +746,13 @@
+ 
+ extern unsigned long cpu_initialized;
+ 
+-static void __init do_boot_cpu (int apicid) 
+-/*
+- * NOTE - on most systems this is a PHYSICAL apic ID, but on multiquad
+- * (ie clustered apic addressing mode), this is a LOGICAL apic ID.
+- */
++static void __init do_boot_cpu (int phys_apicid, int log_apicid)
+ {
+ 	struct task_struct *idle;
+ 	unsigned long boot_error = 0;
+ 	int timeout, cpu;
+ 	unsigned long start_eip;
+-	unsigned short nmi_high, nmi_low;
++	unsigned short nmi_high = 0, nmi_low = 0;
+ 
+ 	cpu = ++cpucount;
+ 	/*
+@@ -807,7 +772,7 @@
+ 
+ 	init_idle(idle, cpu);
+ 
+-	map_cpu_to_boot_apicid(cpu, apicid);
++	map_cpu_to_boot_apicid(cpu, phys_apicid, log_apicid);
+ 
+ 	idle->thread.eip = (unsigned long) start_secondary;
+ 
+@@ -817,7 +782,7 @@
+ 	start_eip = setup_trampoline();
+ 
+ 	/* So we see what's up   */
+-	printk("Booting processor %d/%d eip %lx\n", cpu, apicid, start_eip);
++	printk("Booting processor %d/%d eip %lx\n", cpu, log_apicid, start_eip);
+ 	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle);
+ 
+ 	/*
+@@ -846,7 +811,7 @@
+ 	/*
+ 	 * Be paranoid about clearing APIC errors.
+ 	 */
+-	if (!clustered_apic_mode && APIC_INTEGRATED(apic_version[apicid])) {
++	if (!clustered_apic_mode && APIC_INTEGRATED(apic_version[phys_apicid])) {
+ 		apic_read_around(APIC_SPIV);
+ 		apic_write(APIC_ESR, 0);
+ 		apic_read(APIC_ESR);
+@@ -862,9 +827,9 @@
+ 	 */
+ 
+ 	if (clustered_apic_logical)
+-		boot_error = wakeup_secondary_via_NMI(apicid);
++		boot_error = wakeup_secondary_via_NMI(log_apicid);
+ 	else 
+-		boot_error = wakeup_secondary_via_INIT(apicid, start_eip);
++		boot_error = wakeup_secondary_via_INIT(phys_apicid, start_eip);
+ 
+ 	if (!boot_error) {
+ 		/*
+@@ -900,13 +865,13 @@
+ 				printk("Not responding.\n");
+ #if APIC_DEBUG
+ 			if (!clustered_apic_mode)
+-				inquire_remote_apic(apicid);
++				inquire_remote_apic(phys_apicid);
+ #endif
+ 		}
+ 	}
+ 	if (boot_error) {
+ 		/* Try to put things back the way they were before ... */
+-		unmap_cpu_to_boot_apicid(cpu, apicid);
++		unmap_cpu_to_boot_apicid(cpu);
+ 		clear_bit(cpu, &cpu_callout_map); /* was set here (do_boot_cpu()) */
+ 		clear_bit(cpu, &cpu_initialized); /* was set by cpu_init() */
+ 		clear_bit(cpu, &cpu_online_map);  /* was set in smp_callin() */
+@@ -975,7 +940,6 @@
+ extern int prof_old_multiplier[NR_CPUS];
+ extern int prof_counter[NR_CPUS];
+ 
+-static int boot_cpu_logical_apicid;
+ #ifdef CONFIG_MULTIQUAD
+ /* Where the IO area was mapped on multiquad, always 0 otherwise */
+ void *xquad_portio;
+@@ -985,7 +949,7 @@
+ 
+ void __init smp_boot_cpus(void)
+ {
+-	int apicid, cpu, bit;
++	int phys_apicid, log_apicid, cpu, bit;
+ 
+ #ifdef CONFIG_MULTIQUAD
+         if (clustered_apic_logical && (numnodes > 1)) {
+@@ -1014,8 +978,6 @@
+ 		prof_multiplier[cpu] = 1;
+ 	}
+ 
+-	init_cpu_to_apicid();
+-
+ 	/*
+ 	 * Setup boot CPU information
+ 	 */
+@@ -1027,8 +989,13 @@
+ 	 * We have the boot CPU online for sure.
+ 	 */
+ 	set_bit(0, &cpu_online_map);
+-	boot_cpu_logical_apicid = logical_smp_processor_id();
+-	map_cpu_to_boot_apicid(0, boot_cpu_apicid);
++	if (clustered_apic_physical)
++		boot_cpu_logical_apicid = physical_to_logical_apicid(boot_cpu_physical_apicid);
++	else if (clustered_apic_logical)
++		boot_cpu_logical_apicid = logical_smp_processor_id();
++	else
++		boot_cpu_logical_apicid = 0x01;
++	map_cpu_to_boot_apicid(0, boot_cpu_physical_apicid, boot_cpu_logical_apicid);
+ 
+ 	global_irq_holder = 0;
+ 	current->cpu = 0;
+@@ -1111,27 +1078,32 @@
+ 	Dprintk("CPU present map: %lx\n", phys_cpu_present_map);
+ 
+ 	for (bit = 0; bit < NR_CPUS; bit++) {
+-		apicid = cpu_present_to_apicid(bit);
+-		/*
+-		 * Don't even attempt to start the boot CPU!
+-		 */
+-		if (apicid == boot_cpu_apicid)
+-			continue;
+-
+ 		if (!(phys_cpu_present_map & (1UL << bit)))
+ 			continue;
+ 		if ((max_cpus >= 0) && (max_cpus <= cpucount+1))
+ 			continue;
++		phys_apicid = raw_phys_apicid[bit];
++		/*
++		 * Don't even attempt to start the boot CPU!
++		 */
++		if (phys_apicid == boot_cpu_physical_apicid)
++			continue;
++		if (clustered_apic_physical)
++			log_apicid = physical_to_logical_apicid(phys_apicid);
++		else if (clustered_apic_logical)
++			log_apicid = ((bit >> 2) << 4) | (1 << (bit & 0x3));
++		else
++			log_apicid = 1u << bit;
+ 
+-		do_boot_cpu(apicid);
++		do_boot_cpu(phys_apicid, log_apicid);
+ 
+ 		/*
+ 		 * Make sure we unmap all failed CPUs
+ 		 */
+-		if ((boot_apicid_to_cpu(apicid) == -1) &&
+-				(phys_cpu_present_map & (1 << bit)))
++		if ((cpu_to_physical_apicid(bit) == BAD_APICID) &&
++				(phys_cpu_present_map & (1ul << bit)))
+ 			printk("CPU #%d not responding - cannot use it.\n",
+-								apicid);
++								bit);
+ 	}
+ 
+ 	/*
+diff -ruN 2.4.19-rc3-ac2/include/asm-i386/mpspec.h ac2/include/asm-i386/mpspec.h
+--- 2.4.19-rc3-ac2/include/asm-i386/mpspec.h	Mon Jul 22 20:03:42 2002
++++ ac2/include/asm-i386/mpspec.h	Mon Jul 22 20:04:38 2002
+@@ -201,6 +201,7 @@
+ extern int quad_local_to_mp_bus_id [NR_CPUS/4][4];
+ 
+ extern unsigned int boot_cpu_physical_apicid;
++extern unsigned int boot_cpu_logical_apicid;
+ extern unsigned long phys_cpu_present_map;
+ extern int smp_found_config;
+ extern void find_smp_config (void);
+diff -ruN 2.4.19-rc3-ac2/include/asm-i386/smpboot.h ac2/include/asm-i386/smpboot.h
+--- 2.4.19-rc3-ac2/include/asm-i386/smpboot.h	Mon Jul 22 20:03:42 2002
++++ ac2/include/asm-i386/smpboot.h	Mon Jul 22 20:04:38 2002
+@@ -12,13 +12,27 @@
+ 
+ extern unsigned char raw_phys_apicid[NR_CPUS];
+ 
++/*
++ * To build the logical APIC ID for each CPU we have three cases:
++ *  1) Normal flat mode:  use a bitmap of the CPU numbers
++ *  2) Logical multi-quad (NUMA-Q):  do nothing, the BIOS has set it up
++ *  3) Physical multi-quad (xAPIC clusters):  convert the Intel standard
++ *	physical APIC ID to a cluster nibble/cpu bitmap nibble
++ *
++ ***	mps_cpu (index number):   0,  1,  2,  3,  4,  5,  6,  7,  8,  9, ... 
++ ***  CPUs have xAPIC phys IDs:  00, 01, 02, 03, 10, 11, 12, 13, 20, 21, ... 
++ ***		its logical ID:  01, 02, 04, 08, 11, 12, 14, 18, 21, 22, ... 
++ */
++ 
++#define physical_to_logical_apicid(phys_apic) ( (1ul << (phys_apic & 0x3)) | (phys_apic & 0xF0u) )
++
+ static inline int cpu_present_to_apicid(int mps_cpu)
+ {
+ 	if(clustered_apic_logical)
+ 		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
+ 	if(clustered_apic_physical)
+ 		return raw_phys_apicid[mps_cpu];
+-	return mps_cpu;
++	return 1 << mps_cpu;
+ }
+ 
+ static inline unsigned long apicid_to_phys_cpu_present(int apicid)
+@@ -33,10 +47,8 @@
+  * The first four macros are trivial, but it keeps the abstraction consistent
+  */
+ 
+-extern volatile unsigned char logical_apicid_2_cpu[];
+-extern volatile unsigned char cpu_2_logical_apicid[];
+-extern volatile unsigned char physical_apicid_2_cpu[];
+-extern volatile unsigned char cpu_2_physical_apicid[];
++extern volatile u8 cpu_2_logical_apicid[];
++extern volatile u8 cpu_2_physical_apicid[];
+ 
+ #define logical_apicid_to_cpu(apicid) (int)logical_apicid_2_cpu[apicid]
+ #define cpu_to_logical_apicid(cpu) (int)cpu_2_logical_apicid[cpu]
+
+--------------Boundary-00=_4FPOCEB5I3RXW5TDAWYJ--
 

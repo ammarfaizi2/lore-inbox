@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVA0XRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVA0XRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVA0XRe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 18:17:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVA0XOr
+	id S261262AbVA0XRc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 18:17:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVA0XP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 18:14:47 -0500
-Received: from web52307.mail.yahoo.com ([206.190.39.102]:45986 "HELO
-	web52307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261293AbVA0XK4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 18:10:56 -0500
-Message-ID: <20050127231051.80201.qmail@web52307.mail.yahoo.com>
-Date: Fri, 28 Jan 2005 00:10:51 +0100 (CET)
-From: Albert Herranz <albert_herranz@yahoo.es>
-Subject: Re: 2.6.11-rc2-mm1: kernel bad access while booting diskless client
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1106866999.7616.57.camel@winden.suse.de>
+	Thu, 27 Jan 2005 18:15:27 -0500
+Received: from spc2-brig1-3-0-cust232.asfd.broadband.ntl.com ([82.1.142.232]:28386
+	"EHLO ppgpenguin.kenmoffat.uklinux.net") by vger.kernel.org with ESMTP
+	id S261290AbVA0XJu convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 18:09:50 -0500
+Date: Thu, 27 Jan 2005 21:10:49 +0000 (GMT)
+From: Ken Moffat <ken@kenmoffat.uklinux.net>
+To: Viktor Horvath <ViktorHorvath@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patches to 2.6.9 and 2.6.10 - make menuconfig shows "v2.6.8.1"
+In-Reply-To: <1106851254.720.4.camel@Charon>
+Message-ID: <Pine.LNX.4.58.0501272101500.6725@ppg_penguin.kenmoffat.uklinux.net>
+References: <1106851254.720.4.camel@Charon>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- --- Andreas Gruenbacher <agruen@suse.de> escribió: 
-> Hello again,
-> 
-> this looks like a good candidate. Could you please
-> try if it fixes the
-> problem?
+On Thu, 27 Jan 2005, Viktor Horvath wrote:
 
-The Oops went away with this one.
+> Hello everybody,
+>
+> today I patched myself up from 2.6.7 vanilla to 2.6.10 vanilla, but
+> after all patches succeeded, "make menuconfig" shows "v2.6.8.1
+> Configuration". Even worse, a compiled kernel calls in his bootlog
+> himself "2.6.8.1". When installing the whole kernel package, this
+> behaviour doesn't show up.
+>
 
-> Thanks,
+ Looks like you went 2.6.7, 2.6.8, 2.6.8.1 - you didn't *need* 2.6.8.1,
+2.6.9 is against 2.6.8 not 2.6.8.1.  So, when you applied 2.6.9 you got
+rejections (at a minimum, the top level Makefile, but the other stuff
+from 2.6.8.1 should have rejected because it had already been applied).
+>From there onwards, the top level Makefile still contains the 2.6.8.1
+version info and doesn't match what the next patch is looking to change.
 
-Your welcome.
+ Whenever you apply patches, you need to make sure there are no errors!
+e.g. use 'find' to look for '*.rej' files.
 
-Cheers,
-Albert
+Ken
+-- 
+ das eine Mal als Tragödie, das andere Mal als Farce
 
-
-
-		
-______________________________________________ 
-Renovamos el Correo Yahoo!: ¡250 MB GRATIS! 
-Nuevos servicios, más seguridad 
-http://correo.yahoo.es

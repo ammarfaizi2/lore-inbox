@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265773AbUJETqd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263770AbUJETt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265773AbUJETqd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUJETq0
+	id S263770AbUJETt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUJETr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:46:26 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:15336 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S265773AbUJETne (ORCPT
+	Tue, 5 Oct 2004 15:47:27 -0400
+Received: from quechua.inka.de ([193.197.184.2]:8391 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S263770AbUJETqZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:43:34 -0400
-Date: Tue, 5 Oct 2004 21:44:58 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rui Nuno Capela <rncbc@rncbc.org>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm2-T1
-Message-ID: <20041005194458.GA15629@elte.hu>
-References: <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu> <32799.192.168.1.5.1096994246.squirrel@192.168.1.5> <20041005184226.GA10318@elte.hu> <32787.192.168.1.5.1097005084.squirrel@192.168.1.5>
+	Tue, 5 Oct 2004 15:46:25 -0400
+Subject: block till hotplug is done?
+From: Andreas Jellinghaus <aj@dungeon.inka.de>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1097005927.4953.4.camel@simulacron>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32787.192.168.1.5.1097005084.squirrel@192.168.1.5>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 05 Oct 2004 21:52:07 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Rui Nuno Capela <rncbc@rncbc.org> wrote:
+is there any way to block till all hotplug events are handled/
+the hotplug processes terminated?
 
-> OTOH, I've tested T1 with CONFIG_SCHED_SMT and/or CONFIG_SMP not set,
-> and got similar crashes too. So this seems to be some nasty bug
-> introduced by -mm{1,2}, not by VP on SMP/SMT.
-> 
-> Yes, I do have some critical USB devices around here. One is that
-> wacom tablet (mouse) and the other is a tascam us-224 audio/midi
-> control surface that a love very much :)
-> 
-> Don't know if this makes me feeling better, doh.
+For example
+	fdisk
+	mkfs
+fails, because after fdisk create a partition, and the kernel
+reread the partition table, called hotplug, hotplug called udev
+and udev created the matching /dev file, all of that might be
+too slow and mkfs might fail in the mean time.
 
-i believe Andrew said that these USB problems should be fixed in the 
-next -mm iteration.
+even
+	fdisk
+	sleep 2
+	mkfs
+sometimes failes with machines I'm installing.
 
-	Ingo
+so I can either randomly increase the delay everytime the installation
+fails because the device isn't created in time, or I can create the
+devices myself with mkdev, which defeats the whole purpose of hotplug
+and udev. Or - preferable - I would want to wait till something
+tells me the device is there. some way to sleep till not kernel
+triggered hotlug process is running any more, that would be nice.
+does the kernel keep track of it's hotplug processes? is there such
+a way to wait till they are all done? 
+
+(and would that work, if hotplug spawned some child process/daemon, i.e.
+not wait for the daemon to end?)
+
+Regards, Andreas
+

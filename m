@@ -1,45 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132799AbRADLVW>; Thu, 4 Jan 2001 06:21:22 -0500
+	id <S129413AbRADLcP>; Thu, 4 Jan 2001 06:32:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132847AbRADLVP>; Thu, 4 Jan 2001 06:21:15 -0500
-Received: from [62.172.234.2] ([62.172.234.2]:50665 "EHLO penguin.homenet")
-	by vger.kernel.org with ESMTP id <S132799AbRADLVH>;
-	Thu, 4 Jan 2001 06:21:07 -0500
-Date: Thu, 4 Jan 2001 11:23:22 +0000 (GMT)
-From: Tigran Aivazian <tigran@veritas.com>
-To: "A.D.F." <adefacc@tin.it>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Confirmation request about new 2.4.x. kernel limits
-In-Reply-To: <3A546385.C50B1092@tin.it>
-Message-ID: <Pine.LNX.4.21.0101041119230.1506-100000@penguin.homenet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131721AbRADLcF>; Thu, 4 Jan 2001 06:32:05 -0500
+Received: from gidayu.max.uni-duisburg.de ([134.91.242.4]:54031 "HELO
+	gidayu.max.uni-duisburg.de") by vger.kernel.org with SMTP
+	id <S129413AbRADLby>; Thu, 4 Jan 2001 06:31:54 -0500
+Date: Thu, 4 Jan 2001 12:31:39 +0100
+From: Christian Loth <chris@gidayu.max.uni-duisburg.de>
+To: linux-kernel@vger.kernel.org
+Subject: DHCP Problems with 3com 3c905C Tornado
+Message-ID: <20010104123139.A15097@gidayu.max.uni-duisburg.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, A.D.F. wrote:
-> Max. RAM size:			64 GB	(any slowness accessing RAM over 4 GB
-> 					 with 32 bit machines ?)
+Hello all,
 
-realistic benchmarks (unixbench) will show about 3%-6% performance
-degradation with use of PAE. Note that this is not "accessing RAM over
-4G" but (what you probably meant) "accessing any RAM in a machine with
-over 4G of RAM" or even "accessing any RAM in a machine with less than 4G
-or RAM but running kernel capable of accessing >4G". If you really meant
-"accessing RAM over 4G" then you are probably talking about 36bit MTRR
-support which is present in recent 2.4.x kernels and works very nicely!
+  I recently installed a system with the 3c905C
+NIC on RedHat 6.2. In our network, IP adresses
+are granted via DHCP, although every host has
+a fixed IP instead of a dynamic IP pool. The IP
+is statically coupled with the MAC adresses of
+our network.
 
-You can construct artificial benchmarks that will show 10% performance
-degradation. I haven't compared this with other PAE implementation,
-e.g. that of UnixWare 7.1.1+ -- this would be a very useful exercise as I 
-vaguely remember some people claiming that Linux PAE implementation is
-not ideal (if it is true then it ought to be made ideal to be inline with
-the rest of the kernel).
+  The freshly installed RedHat 6.2 worked nice
+and flawlessly, and the IP was handed out correctly
+to the new machine. However after upgrading
+to the 2.2.16 RedHat Kernel RPMS, the DHCP negotiation
+no longer worked! Okay, I said, maybe it is a RedHat
+thing (they included modules both for the 90x and for the 59x
+cards, and I tried both), so I downloaded 2.2.18 proper.
+I compiled in the support for the card, but also: same
+result. The old 2.2.14 RedHat kernel worked, but the
+newer kernels did not.
 
-Regards,
-Tigran
+  Unfortunately the machine had to go on the net, so I had
+to switch the NIC for a DEC Tulip one, which worked flawlessly
+under 2.2.18 again. Therfore I unfortunately can't volunteer
+for testing :(, all I can say is that something happened
+between 2.2.14 and 2.2.16/2.2.18 which made DHCP inoperable
+for the 3c905C.
 
+Please CC any replies to my email adress, as I am not subscribed
+to linux-kernel.
+
+- Chris
+
+-- 
+Christian Loth
+Coder of 'Project Gidayu'
+Computer Science Student, University of Dortmund
+chris@gidayu.mud.de - http://gidayu.mud.de
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

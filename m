@@ -1,230 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbTJIKId (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 06:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbTJIKId
+	id S261695AbTJIKeH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 06:34:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbTJIKeG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 06:08:33 -0400
-Received: from mail.gmx.de ([213.165.64.20]:23214 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261959AbTJIKI2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 06:08:28 -0400
-Date: Thu, 9 Oct 2003 12:08:26 +0200 (MEST)
-From: "Daniel Blueman" <daniel.blueman@gmx.net>
-To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+	Thu, 9 Oct 2003 06:34:06 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:20435 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S261695AbTJIKeA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Oct 2003 06:34:00 -0400
+From: Nikita Danilov <Nikita@Namesys.COM>
 MIME-Version: 1.0
-Subject: [BUG] [2.4.21] 8139too 'too much work at interrupt'...
-X-Priority: 3 (Normal)
-X-Authenticated: #8973862
-Message-ID: <16084.1065694106@www3.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16261.14743.394699.836359@laputa.namesys.com>
+Date: Thu, 9 Oct 2003 14:33:59 +0400
+To: linux-kernel@vger.kernel.org
+Cc: mikeb@netnation.com, Reiserfs mail-list <Reiserfs-List@Namesys.COM>
+Subject: Re: File System shootout...
+In-Reply-To: <1065636511.29220.34.camel@mikeb.staff.netnation.com>
+References: <1065636511.29220.34.camel@mikeb.staff.netnation.com>
+X-Mailer: ed | telnet under Fuzzball OS, emulated on Emacs 21.5  (beta14) "cassava" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-eth0 stopped receiving and sending packets. Please CC me for more
-information.
+Mike Benoit writes:
+ > To all those who are interested, here are the results of the benchmarks
+ > I've been running over the last week between all the major file systems
+ > (and there different mount options) using both Bonnie++ and IOzone. More
+ > tests are currently underway, so the results will be updated as they
+ > come in. 
+ > 
+ > Hopefully these results will give you a good comparative overview of each of the
+ > different file systems strengths and weaknesses.
+ > 
+ > http://fsbench.netnation.com/
 
----
+I should probably add that I am getting quite different bonnie++ results
+for reiser4 vs. ext3:
 
-# dmesg
-[snip]
-8139too Fast Ethernet driver 0.9.26
-eth0: SMC1211TX EZCard 10/100 (RealTek RTL8139) at 0xfffffd0009442000,
-00:e0:29:1c:7c:50, IRQ 23
-eth0: Setting 100mbps full-duplex based on auto-negotiated partner ability
-45e1.
-[snip, some time later]
-eth0: Too much work at interrupt, IntrStatus=0x0010.
-[eth0 not rx/txing packets]
+on the box with 128M of ram:
 
-# ethtool -i eth0
-driver: 8139too
-version: 0.9.26
-firmware-version:
-bus-info: 00:09.0
+./bonnie++ -s 1g -n 10 -x 5
 
-# ethtool eth0
-Settings for eth0:
-                                                                            
-                                                                            
-       
-        Supported ports: [ TP MII ]
-        Supported link modes:   10baseT/Half 10baseT/Full
-                                100baseT/Half 100baseT/Full
-                                                                            
-                                                                            
-       
-        Supports auto-negotiation? Yes
-        Speed: 100Mb/s
-        Duplex: Full
-        Port: MII
-        PHYAD: 32
-        Transceiver: internal
-        Auto-negotiation: on
+Version  1.03       ------Sequential Output------ --Sequential Input- --Random-
+                    -Per Chr- --Block-- -Rewrite-   -Per Chr- --Block-- --Seeks--
+Machine        Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+v4.128M          1G 19903  89 37911  20 15392  11 13624  58 41807  12 131.0   0
+v4.128M          1G 19965  89 37600  20 15845  11 13730  58 41751  12 130.0   0
+v4.128M          1G 19937  89 37746  20 15404  11 13624  58 41793  12 132.1   0
+v4.128M          1G 19998  89 37184  19 15007  10 13393  56 41611  11 130.2   0
+v4.128M          1G 19771  89 37679  20 15206  11 13466  57 41808  11 130.2   1
+ext3.128M        1G 21236  99 37258  22 11357   4 13460  56 41748   6 120.0   0
+ext3.128M        1G 20821  99 36838  23 12176   5 13154  55 40671   6 120.7   0
+ext3.128M        1G 20755  99 37032  24 12069   4 12908  54 40851   5 120.2   0
+ext3.128M        1G 20651  99 37094  24 11817   5 13038  54 40842   6 121.3   0
+ext3.128M        1G 20928  99 37300  23 12287   4 13067  55 41404   6 120.1   0
+                    ------Sequential Create------ --------Random Create--------
+                    -Create-- --Read--- -Delete-- -Create-- --Read--- -Delete--
+files:max:min        /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP  /sec %CP
+v4.128M          10 18503 100 +++++ +++  9488  99 10158  99 +++++ +++ 11635  99
+v4.128M          10 19760  99 +++++ +++  9696  99 10441 100 +++++ +++ 11831  99
+v4.128M          10 19583 100 +++++ +++  9672 100 10597  99 +++++ +++ 11846 100
+v4.128M          10 19720 100 +++++ +++  9577  99 10126 100 +++++ +++ 11924 100
+v4.128M          10 19682 100 +++++ +++  9683 100 10461 100 +++++ +++ 11834 100
+ext3.128M        10  3279  97 +++++ +++ +++++ +++  3406 100 +++++ +++  8951  95
+ext3.128M        10  3303  98 +++++ +++ +++++ +++  3423  99 +++++ +++  8558  96
+ext3.128M        10  3317  98 +++++ +++ +++++ +++  3402 100 +++++ +++  8721  93
+ext3.128M        10  3325  98 +++++ +++ +++++ +++  3390 100 +++++ +++  9242 100
+ext3.128M        10  3315  97 +++++ +++ +++++ +++  3439 100 +++++ +++  8896  96
 
-# lspci -s 00:09.0 -vxxx
-00:09.0 Ethernet controller: Accton Technology Corporation SMC2-1211TX (rev
-10)
-        Subsystem: Accton Technology Corporation EN-1207D Fast Ethernet
-Adapter
-        Flags: bus master, medium devsel, latency 32, IRQ 23
-        I/O ports at 8400 [size=128]
-        Memory at 0000000009442000 (32-bit, non-prefetchable) [size=128]
-00: 13 11 11 12 07 00 00 02 10 00 00 02 00 20 00 00
-10: 01 84 00 00 00 20 44 09 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 13 11 11 12
-30: 00 00 00 00 00 00 00 00 00 00 00 00 17 01 20 40
-40: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+./bonnie++ -f -d . -s 3072 -n 10:100000:10:10 -x 1
 
-# cat /proc/interrupts
-           CPU0       CPU1
-  1:          2          0          XT-PIC   keyboard
-  2:          0          0          XT-PIC   cascade
-  4:       4102          0          XT-PIC   serial
-  8:   65836187   65835236             RTC  +timer
- 14:          5          0          XT-PIC  +ide0
- 19:          0      32045           DP264   aic7xxx
- 23:          0    2225944           DP264   eth0
- 27:     363080          0           DP264   elan
-IPI:    3238154    3303111
-ERR:          0
-
-# cat /proc/cpuinfo
-cpu                     : Alpha
-cpu model               : EV67
-cpu variation           : 7
-cpu revision            : 0
-cpu serial number       :
-system type             : Tsunami
-system variation        : DP264
-system revision         : 0
-system serial number    : 007
-cycle frequency [Hz]    : 666666666
-timer frequency [Hz]    : 1024.00
-page size [bytes]       : 8192
-phys. address bits      : 44
-max. addr. space #      : 255
-BogoMIPS                : 1330.04
-kernel unaligned acc    : 0 (pc=0,va=0)
-user unaligned acc      : 0 (pc=0,va=0)
-platform string         : UP2000 666 MHz
-cpus detected           : 2
-cpus active             : 2
-cpu active mask         : 0000000000000003
-
-[restarted of eth0 interface here]
-
-# ./rtl8139-diag -mmaaavvveef
-rtl8139-diag.c:v2.01 1/8/2001 Donald Becker (becker@scyld.com)
- http://www.scyld.com/diag/index.html
-Index #1: Found a SMC1211TX EZCard 10/100 (RealTek RTL8139) adapter at
-0x8400.
-RealTek chip registers at 0x8400
- 0x000: 1c29e000 0000507c 80000000 00000000 0008a0ba 0008a0b6 0008a0ba
-0008a0ba
- 0x020: 94c20000 94c20600 94c20c00 94c21200 9e8d0000 0d0a0000 b308b2f8
-0000807f
- 0x040: 60000600 0000f78e c4367d6d 00000000 000c10c6 00000000 00000080
-00100000
- 0x060: 1100f00f 05e1782d 000145e1 00000000 00000024 000007c8 00000000
-00000000.
-  No interrupt sources are pending.
- The chip configuration is 0x10 0x0c, MII half-duplex mode.
-EEPROM size test returned 6, 0x204a7 / 0x29697.
-Parsing the EEPROM of a RealTek chip:
-  PCI IDs -- Vendor 0x1113, Device 0x1211, Subsystem 0x1113.
-  PCI timer settings -- minimum grant 32, maximum latency 64.
-  General purpose pins --  direction 0xf3  value 0x10.
-  Station Address 00:E0:29:1C:7C:50.
-  Configuration register 0/1 -- 0x2c / 0x00.
- EEPROM active region checksum is 04c8.
-EEPROM contents:
-  8129 1113 1211 1113 1211 4020 f310 e000
-  1c29 507c 2c10 0000 a5a5 a5a5 a5a5 a5a5
-  a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5
-  a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5
-  a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5
-  a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5
-  a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5
-  a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5 a5a5
- The word-wide EEPROM checksum is 0x18da.
-
-
-# ./rtl8139-diag-parse.pl /tmp/diag.txt
-ID registers: 00:E0:29:1C:7C:50
-Reserved (06) = 0x00
-Reserved (07) = 0x00
-MAR0-7: 00:00:00:80:00:00:00:00
-TSD0: SIZE=186 ERTXTH=256 NCC=0 OWN TOK
-TSD1: SIZE=82 ERTXTH=256 NCC=0 OWN TOK
-TSD2: SIZE=134 ERTXTH=256 NCC=0 OWN TOK
-TSD3: SIZE=186 ERTXTH=256 NCC=0 OWN TOK
-TSAD0 = 0x94C20000
-TSAD1 = 0x94C20600
-TSAD2 = 0x94C20C00
-TSAD3 = 0x94C21200
-RBSTART = 0x9E8D0000
-ERBCR = 0x0D0A
-ERSR: ERGood EROVW
-CR: RE TE BUFE
-CAPR = 20720
-CBR = 20736
-IMR1: SERR FOVW PUN/LinkChg RXOVW TER TOK RER ROK
-ISR1: 0
-TCR: CHIP=RTL-8139 TXRR=0 MAXDMA=1024 LOOP=normal
-RCR: MAXDMA=unlimited RBLEN=32K+16 RXFTH=none ERTH=none
-RCR (cont): WRAP AB AM APM
-TCTR = 3226309911
-MPC = 0x00000000
-9346CR: Config register write enable
-Config0: PL1
-Config1: MEMMAP IOMAP
-Reserved (53) = 0x00
-TimerInt = 0x00000000
-MSR: TXFCE
-Config3: 0
-Config4: 0
-Reserved (5B) = 0x00
-MISR: 0
-RERID = 0x10
-Reserved (5F) = 0x00
-TSAD: TOK3 TOK2 TOK1 TOK0 OWN3 OWN2 OWN1 OWN0
-BMCR: ANE FDX
-BMSR: 100baseT-HD 100baseT-HD 10baseT-FD 10baseT-HD ANC AutoNeg LinkStatus
-ExtCap
-ANAR: Pause TXFD TX 10FD 10 Sel0
-ANLPAR: ACK Pause TXFD TX 10FD 10 Sel0
-ANER: LP_NW_ABLE
-DIS = 0
-FCSC = 0
-NWAYTR: BIT5 FLAGABD
-Rx Err Count = 0
-CSCR: BIT10 LD HEART_BEAT JBEN F_LINK_100
-Reserved(76) = 0x0000
-PHY1_PARM = 0x00000000
-TW_PARM = 0x00000000
-
--- 
-Daniel J Blueman
-
-NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...
-Fotoalbum, File Sharing, MMS, Multimedia-Gruß, GMX FotoService
-
-Jetzt kostenlos anmelden unter http://www.gmx.net
-
-+++ GMX - die erste Adresse für Mail, Message, More! +++
-
+Version  1.03        ------Sequential Output------ --Sequential Input- --Random-
+                     -Per Chr- --Block-- -Rewrite- -Per Chr- --Block-- --Seeks--
+Machine         Size K/sec %CP K/sec %CP K/sec %CP K/sec %CP K/sec %CP  /sec %CP
+v4                3G           37579  19 15657  11           41531  11 105.8   0
+v4                3G           37993  20 15478  11           41632  11 105.4   0
+ext3              3G           35221  22 10987   4           41105   6  90.9   0
+ext3              3G           35099  22 11517   4           41416   6  90.7   0
+		             ------Sequential Create------ --------Random Create--------
+		             -Create-- --Read--- -Delete-- -Creat

@@ -1,78 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135992AbRDTTJZ>; Fri, 20 Apr 2001 15:09:25 -0400
+	id <S135990AbRDTTKF>; Fri, 20 Apr 2001 15:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135993AbRDTTJF>; Fri, 20 Apr 2001 15:09:05 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:24448 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S135990AbRDTTJA>; Fri, 20 Apr 2001 15:09:00 -0400
-Date: Fri, 20 Apr 2001 15:07:28 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Victor Zandy <zandy@cs.wisc.edu>
-cc: linux-kernel@vger.kernel.org, pcroth@cs.wisc.edu, epaulson@cs.wisc.edu
-Subject: Re: BUG: Global FPU corruption in 2.2
-In-Reply-To: <cpx8zkvz9r5.fsf@goat.cs.wisc.edu>
-Message-ID: <Pine.LNX.3.95.1010420145755.11087A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135993AbRDTTJ6>; Fri, 20 Apr 2001 15:09:58 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10511 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S135990AbRDTTJi>;
+	Fri, 20 Apr 2001 15:09:38 -0400
+Date: Fri, 20 Apr 2001 20:08:59 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Eric S. Raymond" <esr@thyrsus.com>, Nicolas Pitre <nico@cam.org>,
+        Tom Rini <trini@kernel.crashing.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Matthew Wilcox <willy@ldl.fc.hp.com>,
+        james rich <james.rich@m.cc.utah.edu>,
+        lkml <linux-kernel@vger.kernel.org>, parisc-linux@parisc-linux.org
+Subject: Re: [parisc-linux] Re: OK, let's try cleaning up another nit. Is anyone paying attention?
+Message-ID: <20010420200859.B5510@flint.arm.linux.org.uk>
+In-Reply-To: <20010420085148.V13403@opus.bloom.county> <Pine.LNX.4.33.0104201206250.12186-100000@xanadu.home> <20010420125005.B8086@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010420125005.B8086@thyrsus.com>; from esr@thyrsus.com on Fri, Apr 20, 2001 at 12:50:05PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 Apr 2001, Victor Zandy wrote:
+On Fri, Apr 20, 2001 at 12:50:05PM -0400, Eric S. Raymond wrote:
+> Nicolas Pitre <nico@cam.org>:
+> > Why not having everybody's tree consistent with themselves and have whatever
+> > CONFIGURE_* symbols and help text be merged along with the very code it
+> > refers to?  It's worthless to have config symbols be merged into Linus' or
+> > Alan's tree if the code isn't there (yet).  It simply makes no sense.
 
-> 
-> Victor Zandy <zandy@cs.wisc.edu> writes:
-> > We have found that one of our programs can cause system-wide
-> > corruption of the x86 FPU under 2.2.16 and 2.2.17.  That is, after we
-> > run this program, the FPU gives bad results to all subsequent
-> > processes.
-> 
-> We have now tested 2.4.2 and 2.2.19.
-> 
-> 2.2.19 has the same problem.
-> 
-> 2.4.3 does not seem to be affected.  Unfortunately, we really need a
-> working 2.2 kernel at this time.
-> 
-> We also patched the 2.2.19 kernel with the PIII patch found in
-> /pub/linux/kernel/people/andrea/patches/v2.2/2.2.19pre13/PIII-10.bz2
-> on ftp.kernel.org.  Same problem.
-> 
-> Does anyone have any ideas for us?
-> 
-> Thanks.
-> 
-> Vic
+Really, the above issue is down to the sub-architecture maintainers splitting
+up their patches into the "one feature, one bug" thing, rather than "one
+set of files" (which, incidentally I'm guilty of as well).  That way, when
+stuff gets added, you get:
 
-Just for kicks, do whatever is necessary to "break" the fpu. Then run
-this program:
+1. The C source changes for that item
+2. The configure script stuff for that one item
+3. The help text for that one item.
 
-int  main()
-{
-        __asm__("finit\n");
-        return 0;
-}
+Currently, stuff that comes to me appears mostly as "here's a configure
+update", "here's a PCMCIA update", etc.  I'll pull out an instance from
+my patch tracking system (sorry, Philip, yours is the first one I found):
 
-If it "fixes" it, there is no problem with the FPU, but with the
-'C' runtime library which doesn't initialize the FPU to a known
-state before it uses it. It is possible for the kernel to work
-around th 'C' library problem by clearing the FPU after every
-fork(). The last time I checked (years ago), 'finit' was executed
-during the fork. Maybe it isn't anymore because it takes many
-machine-cycles to complete.
+Patch 413/1 (see http://www.arm.linux.org.uk/developer/patches/?id=413/1&mode=patch)
+This patch adds the defconfig file for the CLPS7500 architecture, and it
+contains symbols such as:
 
-If this doesn't "fix" it, then your hardware may have a problem
-like overheating, etc., (loose heatsink?).
+	CONFIG_BLK_DEV_FLD7500
+	CONFIG_CLPS7500_FLASH
 
+Neither of these two drivers are currently in Linus' tree, or in fact my
+tree.  Should I reject the patch?  Should I accept it and edit these out,
+or what?
 
-Cheers,
-Dick Johnson
+> And now it has a cost, too.  It makes finding real bugs more difficult.
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+Well, if they get removed in Linus tree, then when I next sync, they'll get
+re-added, or maybe they won't.  Then someone else will remove them, then
+they'll get re-added ad infinitum.
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+This also touches on another issue - patch.  I've had several times where
+I've sent Alan stuff, its gone up to Linus, I receive it back, and during
+the merge, patch does its stuff without complaining (because there is not
+enough context in the diff).  Typically, this happens in the Configure.help
+file.
 
+Generally it seems like diff needs to produce one more line of context, and
+most of these problems will go away.  Yes, there will still be the odd
+problem, so then it becomes the "how much do you crank the setting" problem.
 
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html

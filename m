@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263592AbUESAYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263601AbUESAaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263592AbUESAYs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 20:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbUESAYs
+	id S263601AbUESAaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 20:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263714AbUESAaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 20:24:48 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58301 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263601AbUESAYq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 20:24:46 -0400
-Date: Tue, 18 May 2004 17:27:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: invalidate_inode_pages2
-Message-Id: <20040518172718.773d32c1.akpm@osdl.org>
-In-Reply-To: <20040519001520.GO3044@dualathlon.random>
-References: <20040519001520.GO3044@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 18 May 2004 20:30:09 -0400
+Received: from babyruth.hotpop.com ([38.113.3.61]:1418 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S263601AbUESAaF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 20:30:05 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+To: James Lamanna <jamesl@appliedminds.com>, linux-kernel@vger.kernel.org
+Subject: Re: Getting i815 Framebuffer working?!
+Date: Wed, 19 May 2004 08:30:32 +0800
+User-Agent: KMail/1.5.4
+Cc: adaplas@pol.net
+References: <409AD0E2.4040705@appliedminds.com>
+In-Reply-To: <409AD0E2.4040705@appliedminds.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200405072155.29622.adaplas@hotpop.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> Something broke in invalidate_inode_pages2 between 2.4 and 2.6, this
-> causes malfunctions with mapped pages in 2.6.
+On Friday 07 May 2004 07:57, James Lamanna wrote:
 
-What is the malfunction?
+> Relevant Statements from dmesg:
+> agpgart: Detected an Intel i815 Chipset.
+> agpgart: Maximum main memory to use for agp memory: 438M
+> agpgart: AGP aperture is 64M @ 0xe0000000
+> i810fb: probe of 0000:00:02.0 failed with error -22
+> ^^^^ Not promising... :)
 
-> I guess the below untested one liner should be enough to fix it. The
-> only single point of invalidate_inode_pages2, is to invalidate _mapped_
-> pages too. Otherwise we could as well use invalidate_inode_pages.
-> Clearly the dirty bit doesn't mean invalidate, invalidate primarly means
-> clearing the uptodate bitflag.
-> 
-> --- sles/mm/truncate.c.~1~	2004-05-18 19:24:40.000000000 +0200
-> +++ sles/mm/truncate.c	2004-05-19 02:09:28.311781864 +0200
-> @@ -260,9 +260,10 @@ void invalidate_inode_pages2(struct addr
->  			if (page->mapping == mapping) {	/* truncate race? */
->  				wait_on_page_writeback(page);
->  				next = page->index + 1;
-> -				if (page_mapped(page))
-> +				if (page_mapped(page)) {
-> +					ClearPageUptodate(page);
->  					clear_page_dirty(page);
-> -				else
-> +				} else
->  					invalidate_complete_page(mapping, page);
->  			}
->  			unlock_page(page);
+Make sure you set hsync1, hsync2 , vsync1 and vsync2 in your boot parameters.
 
-It's currently the case that pages which are mapped into process pagetables
-are always up to date, which sounds like a good invariant to have.  This
-changes that rule.  I dunno if it'll break anything though.
+For monitors that can do 1024x768@50Hz, the following should work.
+
+hysnc1 = 30, hsync2 = 48, vsync1= 50 vsync2 = 85
+
+Tony
+
+
 

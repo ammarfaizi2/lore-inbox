@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313332AbSDUOEw>; Sun, 21 Apr 2002 10:04:52 -0400
+	id <S313339AbSDUOK1>; Sun, 21 Apr 2002 10:10:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313334AbSDUOEw>; Sun, 21 Apr 2002 10:04:52 -0400
-Received: from rogersmta-1.gci.net ([208.138.130.86]:392 "EHLO
-	mail.rogershsa.com") by vger.kernel.org with ESMTP
-	id <S313332AbSDUOEv>; Sun, 21 Apr 2002 10:04:51 -0400
-Message-ID: <020001c1e93d$7e41c180$0a0aa8c0@ws0>
-From: "Dennis Stout" <crazyman@rogershsa.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: hostility
-Date: Sun, 21 Apr 2002 06:04:46 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S313365AbSDUOK0>; Sun, 21 Apr 2002 10:10:26 -0400
+Received: from rrcs-sw-24-242-143-126.biz.rr.com ([24.242.143.126]:52744 "HELO
+	nawilson.com") by vger.kernel.org with SMTP id <S313339AbSDUOK0>;
+	Sun, 21 Apr 2002 10:10:26 -0400
+Subject: Re: PATCH] Allow setuid/setgid core files
+From: "Neil A. Wilson" <nawilson@nawilson.com>
+To: Willy Tarreau <wtarreau@free.fr>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200204210824.g3L8OR720085@ns.home.local>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 21 Apr 2002 09:10:19 -0500
+Message-Id: <1019398219.16841.2.camel@bhlm.nawilson.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've decided ot break it up with humor.  Tho some people, like "Linyos
-Torovoltos" may become enraged =)
+On Sun, 2002-04-21 at 03:24, Willy Tarreau wrote:
+> BTW, what uid/gid will the core get ? I think that it should get
+> the highest level so that if someone breaks in through a service
+> which uses this feature and which has dropped its uid/gid, at
+> least he cannot read eventual cores from previous attempts.
+> Comments ?
+> 
 
-Read this, and pay particular attention to item number 8 =)
+Thanks for the feedback.  You bring up a good point here.  Currently the
+dump is owned by the effective uid.  I'll look into writing it as root.
 
-http://www.adequacy.org/?op=displaystory;sid=2001/12/2/42056/2147
+Neil
 
-Enjoy
 

@@ -1,74 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284100AbRLANjw>; Sat, 1 Dec 2001 08:39:52 -0500
+	id <S284106AbRLANwf>; Sat, 1 Dec 2001 08:52:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284098AbRLANjm>; Sat, 1 Dec 2001 08:39:42 -0500
-Received: from smtp3.libero.it ([193.70.192.53]:8587 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id <S281662AbRLANjj>;
-	Sat, 1 Dec 2001 08:39:39 -0500
-Date: Sat, 1 Dec 2001 14:39:43 +0100
-From: Emmanuele Bassi <emmanuele.bassi@iol.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Deadlock on kernels > 2.4.13-pre6
-Message-ID: <20011201143943.A1851@wolverine.lohacker.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011130221334.A15353@wolverine.lohacker.net> <E169wJt-00052j-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S284105AbRLANwZ>; Sat, 1 Dec 2001 08:52:25 -0500
+Received: from femail2.sdc1.sfba.home.com ([24.0.95.82]:37314 "EHLO
+	femail2.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S284102AbRLANwN>; Sat, 1 Dec 2001 08:52:13 -0500
+Message-ID: <3C08DFC1.79C1EC28@didntduck.org>
+Date: Sat, 01 Dec 2001 08:48:49 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.1-pre2 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Niels Kristian Bech Jensen <nkbj@image.dk>
+CC: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: keyboard: Timeout - AT keyboard not present?(f4)
+In-Reply-To: <Pine.LNX.4.33.0111300728330.1010-100000@hafnium.nkbj.dk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E169wJt-00052j-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.23i
-X-Mailer: Mutt 1.3.23i (2001-10-09)
-X-OS: Linux 2.4.13-pre6 i586
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox <alan@lxorguk.ukuu.org.uk>:
-
-> > Even if it shows up to be a VIA problem, what do I have to do, to get my
-> > system work properly with this chipset?
+Niels Kristian Bech Jensen wrote:
 > 
-> The reason I ask is VIA have had a history of weird ISA DMA hangs when doing
-> certain other operations. It could be some combination of these triggering
-> problems.
-
-Considering this issue, and that everything else I've tried this far, I
-beginning to think that the controller is, indeed, guilty as charged.
-
-> > 01:00.0 VGA compatible controller: nVidia Corporation Riva TnT [NV04] (rev 04) (prog-if 00 [VGA])
+> Since linux-2.5.1-pre3 (the first 2.5.x kernel I booted) I get one
+> or more these warnings in my log:
 > 
-> Are you seeing the hangs in X11, and which X setup (one with agp loaded ?)
+> keyboard: Timeout - AT keyboard not present?(f4)
+> 
+> It's on a pentium-mmx system with a PS/2 keyboard. The keyboard works
+> OK.
+> 
+> --
+> Niels Kristian Bech Jensen -- nkbj@image.dk -- http://www.image.dk/~nkbj/
+> 
+> ----------->>  Stop software piracy --- use free software!  <<-----------
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I see hangs in both X11 and console, but under console I use the
-framebuffer device (rivafb).
-
-This is the section about my hardware inside /etc/X11/XF86Config-4:
-
-# **********************************************************************
-# Graphics device section
-# **********************************************************************
-
-# Device configured by xf86config:
-
-Section "Device"
-    Identifier  "Creative VideoBlaster"
-    Driver      "nv"
-    VideoRam    16384
-EndSection
-
-+++
-
-Just to be certain, I have an old PCI graphic card (a Matrox Mystique)
-that worked nicely since three years now... If that works nice, this
-should be the final proof...
-
-> Also does it print "Activiating ISA DMA workarounds" during the boot ?
-
-Yes.
-
-Bye,
- Emmanuele.
+I'm seeing the same thing.  2.5.1-pre2 does not do this, but 2.5.1-pre5
+does.  The message occurs only twice, and appears to be triggered by
+starting gpm.  PS/2 mouse on a FIC SD-11 mobo.
 
 -- 
-Emmanuele Bassi (Zefram)               [ http://digilander.iol.it/ebassi ]
-GnuPG Key fingerprint = 4DD0 C90D 4070 F071 5738  08BD 8ECC DB8F A432 0FF4
+
+						Brian Gerst

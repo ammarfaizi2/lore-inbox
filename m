@@ -1,46 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265212AbUF2DSP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265214AbUF2Dmq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265212AbUF2DSP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jun 2004 23:18:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265214AbUF2DSP
+	id S265214AbUF2Dmq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jun 2004 23:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265353AbUF2Dmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jun 2004 23:18:15 -0400
-Received: from out012pub.verizon.net ([206.46.170.137]:37798 "EHLO
-	out012.verizon.net") by vger.kernel.org with ESMTP id S265212AbUF2DSN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jun 2004 23:18:13 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Organization: not detectable
-To: linux-kernel@vger.kernel.org
-Subject: Just built 2.6.7-mm2, mouse dbl-click needs superfast clicks
-Date: Mon, 28 Jun 2004 23:29:08 -0400
-User-Agent: KMail/1.6.2
+	Mon, 28 Jun 2004 23:42:46 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25017 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265214AbUF2Dmp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jun 2004 23:42:45 -0400
+Date: Mon, 28 Jun 2004 20:42:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Andrew Cagney <cagney@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC PATCH] x86 single-step (TF) vs system calls & traps
+In-Reply-To: <200406290155.i5T1tKYY030209@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0406282039200.28764@ppc970.osdl.org>
+References: <200406290155.i5T1tKYY030209@magilla.sf.frob.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406282329.08570.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [151.205.59.165] at Mon, 28 Jun 2004 22:18:12 -0500
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
 
-Running 2.6.7-mm1 elevator=cfq on an athlon 1600-DX
 
-Has anyone else noticed this?  These old fingers cannot do a dbl-click 
-at the speeds it takes to make it work.  I don't think I noticed this 
-in the half hour or so I ran 2.6.7, also with elevator=cfq.
+On Mon, 28 Jun 2004, Roland McGrath wrote:
+> 
+> When you single-step into a trap instruction, you actually don't get a
+> SIGTRAP until the instruction after the trap instruction has also executed.
 
-But I'll reboot back to it and double check.  I have the dbl-click set 
-for a full second in kde's prefs, it was at 600ms.  But that seems to 
-be being ignored.
+Yes. This is documented Intel behaviour. It also guarantees that there is 
+forward progress in some strange circumstances, if I remember correctly.
 
--- 
-Cheers, Gene
-There are 4 boxes to be used in defense of liberty. 
-Soap, ballot, jury, and ammo.
-Please use in that order, starting now.  -Ed Howdershelt, Author
-Additions to this message made by Gene Heskett are Copyright 2004, 
-Maurice E. Heskett, all rights reserved.
+And I refuse to make the fast-path slower just because of this. Not only 
+has Linux always worked like this, as far as I know all other x86 OS's 
+also tend to just do the Intel behaviour thing.
+
+		Linus

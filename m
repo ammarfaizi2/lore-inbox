@@ -1,37 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262538AbTJYHsA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 03:48:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262547AbTJYHsA
+	id S262409AbTJYINL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 04:13:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTJYINL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 03:48:00 -0400
-Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:24475
-	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
-	id S262538AbTJYHr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 03:47:59 -0400
-From: Rob Landley <rob@landley.net>
-Reply-To: rob@landley.net
-To: linux-kernel@vger.kernel.org
-Subject: Kconfig choice menu help text is not working in -test8
-Date: Sat, 25 Oct 2003 02:44:56 -0500
-User-Agent: KMail/1.5
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310250244.56881.rob@landley.net>
+	Sat, 25 Oct 2003 04:13:11 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:47354 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S262409AbTJYINI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 04:13:08 -0400
+Date: Sat, 25 Oct 2003 21:12:54 +1300
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Announce: Swsusp-2.0-2.6-alpha1
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1067069558.1975.54.camel@laptop-linux>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm banging away on the bzip patch, adding a choice menu to kconfig for 
-bzip/gzip/uncompressed, and I notice that the help text isn't working right.
+Hi all.
 
-To see this bug in action, go to "processor type and features", and descend 
-into the "subarchitecture menu" at the top of it.  Pull up the help text on 
-anything, it'll say there's no help available.
+I'm pleased to be able to announce the first test release of a port of
+the current 2.0 pre-release Software Suspend code to 2.6. This is now
+available from www.sourceforge.net/projects/swsusp and
+bk://swsusp25.bkbits.net/main.
 
-Now look at arch/i386/Kconfig, and note that there IS help text for all those 
-menu choices.  It's just not displaying it...
+Release notes:
+- The patch is prepared against current bk. It should apply against
+test8 with minimal and perhaps no fuss.
+- Breaks current Software Suspend implementations in the kernel.
+Apologies to Patrick and Pavel. I won't be leaving it this way for long,
+I promise!
+- I/O is slow and jerky. I need to investigate the cause for this
+further; something in the hooks to the new bio code is not quite right.
 
-Rob
+Apart from the above, and the normal problems with incomplete driver
+support will continue. In addition, you may see freezing failures. If
+the process hangs at 'Freezing processes: Waiting for activity to
+finish' or 'Syncing remaining I/O', try pressing escape once. If the
+process doesn't abort, try a second time (which tries harder to restart
+things). All going well, you should be able to cancel the suspend. A log
+of what went wrong will be stored in /var/log/messages. Run it through
+ksymoops if necessary and send it to me, and I should be able to address
+the issue.
+
+Please send feedback via the Software Suspend mailing list on
+Sourceforge. See http://swsusp.sf.net for FAQs, mailing list details and
+so on. Because the code is essentially the same as the 2.4 version, many
+of the solutions to issues will be the same.
+
+As always, I look forward to hearing feedback.
+
+Nigel
+
+-- 
+Nigel Cunningham
+495 St Georges Road South, Hastings 4201, New Zealand
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

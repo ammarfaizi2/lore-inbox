@@ -1,52 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269706AbUINUT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269702AbUINUSR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269706AbUINUT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 16:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269734AbUINUSu
+	id S269702AbUINUSR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 16:18:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269366AbUINTXR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 16:18:50 -0400
-Received: from holomorphy.com ([207.189.100.168]:60053 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269699AbUINTXM (ORCPT
+	Tue, 14 Sep 2004 15:23:17 -0400
+Received: from mail.kroah.org ([69.55.234.183]:32206 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S269730AbUINTMl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 15:23:12 -0400
-Date: Tue, 14 Sep 2004 12:23:03 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Andrea Arcangeli <andrea@novell.com>, Andrew Morton <akpm@osdl.org>,
-       Ray Bryant <raybry@sgi.com>, hawkes@sgi.com,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [profile] amortize atomic hit count increments
-Message-ID: <20040914192303.GD9106@holomorphy.com>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914155103.GR9106@holomorphy.com> <20040914160531.GP4180@dualathlon.random> <200409140916.48786.jbarnes@engr.sgi.com> <20040914190030.GZ9106@holomorphy.com>
+	Tue, 14 Sep 2004 15:12:41 -0400
+Date: Tue, 14 Sep 2004 11:55:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Patch for 3 ub bugs in 2.6.9-rc1-mm4
+Message-ID: <20040914185531.GB20942@kroah.com>
+References: <20040911202525.1fd6c206@lembas.zaitcev.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040914190030.GZ9106@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <20040911202525.1fd6c206@lembas.zaitcev.lan>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, September 14, 2004 9:05 am, Andrea Arcangeli wrote:
->>> Before dedicidng I'd suggest to have a look and see how the below patch
->>> compares to your approch in performance terms.
+On Sat, Sep 11, 2004 at 08:25:25PM -0700, Pete Zaitcev wrote:
+> Hi, Greg,
+> 
+> Actual users of ub quickly found problems, so here's a patch to address
+> some of them.
+> 
+> #1: An attempt to mount a CF card, pull the plug, then unmount causes a
+> message "getblk: bad sector size 512" and an oops. This is caused by
+> trying to do put_disk from disconnect instead of using a reference count.
+> The sd.c does it this way (it uses kref).
+> 
+> #2: The hald fills /var/log/messages with block device errors. It seems
+> that it happens because ub allowed opens of known offline devices, and
+> then partition checking produced those errors. I hope taking code from
+> sd.c should fix it.
+> 
+> Also I replaced usb_unlink_urb with usb_kill_urb.
 
-On Tue, Sep 14, 2004 at 09:16:48AM -0700, Jesse Barnes wrote:
->> It looks like the 512p we have here is pretty heavily reserved this
->> week, so I'm not sure if I'll be able to test this (someone else
->> might, John?). I think the balance we're looking for is between
->> simplicity and non-brokenness. Builtin profiling is *supposed* to be
->> simple and dumb, and were it not for the readprofile times, I'd say
->> per-cpu would be the way to go just because it retains the
->> simplicity of the current approach while allowing it to work on
->> large machines (as well as limiting the performance impact of
->> builtin profiling in general). wli's approach seems like a
->> reasonable tradeoff though, assuming what you suggest doesn't work.
+Applied, thanks.
 
-On Tue, Sep 14, 2004 at 12:00:30PM -0700, William Lee Irwin III wrote:
-> Goddamn fscking short-format VHPT crap. Rusty, how the hell do I
-> hotplug-ize this?
+(oops, you forgot the Signed-off-by: line...)
 
-Successfully tested on x86-64.
-
--- wli
+greg k-h

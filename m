@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136146AbRECH31>; Thu, 3 May 2001 03:29:27 -0400
+	id <S136165AbRECHar>; Thu, 3 May 2001 03:30:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136148AbRECH3H>; Thu, 3 May 2001 03:29:07 -0400
-Received: from hqvsbh1-x0.ms.com ([205.228.12.101]:35555 "EHLO hqvsbh1.ms.com")
-	by vger.kernel.org with ESMTP id <S136146AbRECH3E>;
-	Thu, 3 May 2001 03:29:04 -0400
-Message-ID: <3AF108BE.E8957686@morganstanley.com>
-Date: Thu, 03 May 2001 08:29:02 +0100
-From: Richard Polton <Richard.Polton@morganstanley.com>
-Reply-To: Richard.Polton@morganstanley.com
-Organization: Morgan Stanley
-X-Mailer: Mozilla 4.75 [en]C-CCK-MCD MS4.75 V20001029.1  (WinNT; U)
-X-Accept-Language: en,ja
+	id <S136149AbRECHai>; Thu, 3 May 2001 03:30:38 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:36873 "EHLO
+	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S136159AbRECHaa>; Thu, 3 May 2001 03:30:30 -0400
+Date: 03 May 2001 09:32:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: jlundell@pobox.com
+cc: linux-kernel@vger.kernel.org
+Message-ID: <80BTbI6mw-B@khms.westfalen.de>
+In-Reply-To: <p05100303b70eadd613b0@[207.213.214.37]>
+Subject: Re: [PATCH] adding PCI bus information to SCSI layer
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: cannot find directory on cdrom
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <p05100303b70eadd613b0@[207.213.214.37]>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+jlundell@pobox.com (Jonathan Lundell)  wrote on 26.04.01 in <p05100303b70eadd613b0@[207.213.214.37]>:
 
-I have a cdrom burnt by a friend with W2000 (I know, friends don't let
-friends use W ;-) which has (at least) one directory on it which I
-cannot
-see when mounting the disk under linux. I am using kernel 2.4.4 and
-the mount command is the usual
+> At 10:31 PM -0600 2001-04-26, Richard Gooch wrote:
+> >BTW: please fix your mailer to do linewrap at 72 characters. Your
+> >lines are hundreds of characters long, and that's hard to read.
+>
+> Sorry for the inconvenience. There are a lot of reasons why I believe
+> it's properly a display function to wrap long lines, and that an MUA
+> has no business altering outgoing messages (one on-topic reason being
+> that patches get screwed up by inserted newlines), but I grant that
+> there are broken clients out there that can't or won't or don't wrap
+> at display time.
 
-mount /dev/cdrom /mnt/cdrom -t iso9660
+What's a lot more important is that the mail standards say that this stuff  
+should not be interpreted by the receivers as needing wrapping, so  
+irregardless of good or bad design it's just plain illegal.
 
-I have Joliet compiled into the kernel too. I can send by private email
-the
-first 120 blocks or so of the disk if anyone is interested. I looked at
-this
-with hexlify and can see the mysterious directory (s?) which is called
-'sturf'.
+If you want to support wrapping with plain text, investigate  
+format=flowed.
 
-Thanks,
-
-Richard
-
-P.S. Incidentally, there is an undefined symbol in video/media/buz.c --
-KMALLOC_MAXSIZE, which I found by accidentally trying to build this
-module even though I do not have the requisite hardware 8-)
-
+MfG Kai

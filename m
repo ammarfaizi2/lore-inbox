@@ -1,289 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262757AbTCJIiC>; Mon, 10 Mar 2003 03:38:02 -0500
+	id <S262784AbTCJIn1>; Mon, 10 Mar 2003 03:43:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262761AbTCJIg0>; Mon, 10 Mar 2003 03:36:26 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:4356 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262752AbTCJIfY>;
-	Mon, 10 Mar 2003 03:35:24 -0500
-Date: Sun, 9 Mar 2003 23:22:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: ioctl32 cleanup -- generic
-Message-ID: <20030309222217.GA26529@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	id <S262782AbTCJInV>; Mon, 10 Mar 2003 03:43:21 -0500
+Received: from rzserv1.gsi.de ([140.181.96.11]:40626 "EHLO rzserv1.gsi.de")
+	by vger.kernel.org with ESMTP id <S262749AbTCJIll>;
+	Mon, 10 Mar 2003 03:41:41 -0500
+Message-ID: <3E6C5234.8090505@GSI.de>
+Date: Mon, 10 Mar 2003 09:52:04 +0100
+From: ChristopherHuhn <c.huhn@gsi.de>
+Organization: GSI
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: de-de, en-us, fr-fr
+MIME-Version: 1.0
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+CC: linux-smp <linux-smp@vger.kernel.org>, linux-kernel@vger.kernel.org,
+       Walter Schoen <w.schoen@GSI.de>, support-gsi@credativ.de
+Subject: Re: Kernel Bug at spinlock.h ?!
+References: <Pine.LNX.3.95.1030303103332.22802A-100000@chaos> <3E637CDC.3030409@GSI.de> <Pine.LNX.4.50.0303031248220.29455-100000@montezuma.mastecende.com> <3E64B0EA.4080109@GSI.de> <Pine.LNX.4.50.0303042133170.5867-100000@montezuma.mastecende.com> <3E674A13.5020203@GSI.de> <Pine.LNX.4.50.0303071043580.18716-100000@montezuma.mastecende.com>
+In-Reply-To: <Pine.LNX.4.50.0303071043580.18716-100000@montezuma.mastecende.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Zwane Mwaikambo wrote:
 
-This is ioctl32 cleanup -- it kills [crappy and] duplicated code and
-moves it to fs/compat.c. fs/compat.c version is from x86-64, which
-should have correct locking. Please apply,
+>On Thu, 6 Mar 2003, ChristopherHuhn wrote:
+>
+>  
+>
+>>Hi again,
+>>
+>>    
+>>
+>>>It looks like a possible race with rpc_execute and possibly the timer, 
+>>>although i can't be certain where the other cpus are. Do the other oopses 
+>>>look somewhat similar? Could you supply them?
+>>> 
+>>>
+>>>      
+>>>
+>>below are some oopses I gathered yesterday and today, all on different 
+>>machines.
+>>I'd like to remark that we experience massive NFS problems at the moment 
+>>that seem to be caused by our mixed potato 2.2/ woody 2.4 environment, 
+>>i. e. linking apps on a woody system with the sources  mounted via nfs 
+>>from a potato box leads to obscure IO failures like "no space left on 
+>>device" (This never happens with woddy only). So this might be a clue 
+>>here as well.
+>>
+>>The oopses are all written down from the screen, I hopefully made little 
+>>"transmission" errors.
+>>    
+>>
+>
+>Some of these are a bit worrying seeing as they are bit flips, also they 
+>all appear to come from a UP machine(?) this would change things with 
+>respect to my previous comment about races. Regarding weird io failures 
+>are you mounting with the 'soft' option?
+>
+>	Zwane
+>  
+>
+The machines all all DP Xeons, our SP machines run the same kernel, but 
+these oopses only occur on DP machines under heavy load.
+The machines are recognized as SMP:
+# uname -a
+Linux lxb000 2.4.20 #2 SMP Tue Dec 17 10:43:29 CET 2002 i686 unknown
 
-								Pavel
+but the e7500 chipset seems not to be supported 100%:
 
---- clean/fs/compat.c	2003-01-17 23:10:00.000000000 +0100
-+++ linux/fs/compat.c	2003-03-09 22:39:06.000000000 +0100
-@@ -4,7 +4,11 @@
-  *  Kernel compatibililty routines for e.g. 32 bit syscall support
-  *  on 64 bit kernels.
-  *
-- *  Copyright (C) 2002 Stephen Rothwell, IBM Corporation
-+ *  Copyright (C) 2002       Stephen Rothwell, IBM Corporation
-+ *  Copyright (C) 1997-2000  Jakub Jelinek  (jakub@redhat.com)
-+ *  Copyright (C) 1998       Eddie C. Dost  (ecd@skynet.be)
-+ *  Copyright (C) 2001,2002  Andi Kleen, SuSE Labs 
-+ *  Copyright (C) 2003       Pavel Machek (pavel@suse.cz)
-  *
-  *  This program is free software; you can redistribute it and/or modify
-  *  it under the terms of the GNU General Public License version 2 as
-@@ -20,6 +24,12 @@
- #include <linux/namei.h>
- #include <linux/file.h>
- #include <linux/vfs.h>
-+#include <linux/ioctl32.h>
-+#include <linux/init.h>
-+#include <linux/sockios.h>	/* for SIOCDEVPRIVATE */
-+#include <linux/fs.h>
-+#include <linux/smp_lock.h>
-+#include <linux/ctype.h>
- 
- #include <asm/uaccess.h>
- 
-@@ -159,3 +169,214 @@
- out:
- 	return error;
- }
-+
-+
-+/* ioctl32 stuff, used by sparc64, parisc, s390x, ppc64, x86_64 */
-+
-+#define IOCTL_HASHSIZE 256
-+struct ioctl_trans *ioctl32_hash_table[IOCTL_HASHSIZE];
-+
-+extern struct ioctl_trans ioctl_start[], ioctl_end[]; 
-+
-+static inline unsigned long ioctl32_hash(unsigned long cmd)
-+{
-+	return (((cmd >> 6) ^ (cmd >> 4) ^ cmd)) % IOCTL_HASHSIZE;
-+}
-+
-+static void ioctl32_insert_translation(struct ioctl_trans *trans)
-+{
-+	unsigned long hash;
-+	struct ioctl_trans *t;
-+
-+	hash = ioctl32_hash (trans->cmd);
-+	if (!ioctl32_hash_table[hash])
-+		ioctl32_hash_table[hash] = trans;
-+	else {
-+		t = ioctl32_hash_table[hash];
-+		while (t->next)
-+			t = t->next;
-+		trans->next = 0;
-+		t->next = trans;
-+	}
-+}
-+
-+static int __init init_sys32_ioctl(void)
-+{
-+	int i;
-+
-+	for (i = 0; &ioctl_start[i] < &ioctl_end[0]; i++) {
-+		if (ioctl_start[i].next != 0) { 
-+			printk("ioctl translation %d bad\n",i); 
-+			return -1;
-+		}
-+
-+		ioctl32_insert_translation(&ioctl_start[i]);
-+	}
-+	return 0;
-+}
-+
-+__initcall(init_sys32_ioctl);
-+
-+static struct ioctl_trans *ioctl_free_list;
-+
-+/* Never free them really. This avoids SMP races. With a Read-Copy-Update
-+   enabled kernel we could just use the RCU infrastructure for this. */
-+static void free_ioctl(struct ioctl_trans *t) 
-+{ 
-+	t->cmd = 0; 
-+	mb();
-+	t->next = ioctl_free_list;
-+	ioctl_free_list = t;
-+} 
-+
-+int register_ioctl32_conversion(unsigned int cmd, int (*handler)(unsigned int, unsigned int, unsigned long, struct file *))
-+{
-+	struct ioctl_trans *t;
-+	unsigned long hash = ioctl32_hash(cmd);
-+
-+	lock_kernel(); 
-+	for (t = (struct ioctl_trans *)ioctl32_hash_table[hash];
-+	     t;
-+	     t = t->next) { 
-+		if (t->cmd == cmd) {
-+			printk("Trying to register duplicated ioctl32 handler %x\n", cmd);
-+			unlock_kernel();
-+			return -EINVAL; 
-+		}
-+	} 
-+
-+	if (ioctl_free_list) { 
-+		t = ioctl_free_list; 
-+		ioctl_free_list = t->next; 
-+	} else { 
-+		t = kmalloc(sizeof(struct ioctl_trans), GFP_KERNEL); 
-+		if (!t) { 
-+			unlock_kernel();
-+		return -ENOMEM;
-+		}
-+	}
-+	
-+	t->next = NULL;
-+	t->cmd = cmd;
-+	t->handler = handler; 
-+	ioctl32_insert_translation(t);
-+
-+	unlock_kernel();
-+	return 0;
-+}
-+
-+static inline int builtin_ioctl(struct ioctl_trans *t)
-+{ 
-+	return t >= (struct ioctl_trans *)ioctl_start &&
-+	       t < (struct ioctl_trans *)ioctl_end; 
-+} 
-+
-+/* Problem: 
-+   This function cannot unregister duplicate ioctls, because they are not
-+   unique.
-+   When they happen we need to extend the prototype to pass the handler too. */
-+
-+int unregister_ioctl32_conversion(unsigned int cmd)
-+{
-+	unsigned long hash = ioctl32_hash(cmd);
-+	struct ioctl_trans *t, *t1;
-+
-+	lock_kernel(); 
-+
-+	t = (struct ioctl_trans *)ioctl32_hash_table[hash];
-+	if (!t) { 
-+		unlock_kernel();
-+		return -EINVAL;
-+	} 
-+
-+	if (t->cmd == cmd) { 
-+		if (builtin_ioctl(t)) {
-+			printk("%p tried to unregister builtin ioctl %x\n",
-+			       __builtin_return_address(0), cmd);
-+		} else { 
-+		ioctl32_hash_table[hash] = t->next;
-+			free_ioctl(t); 
-+			unlock_kernel();
-+		return 0;
-+		}
-+	} 
-+	while (t->next) {
-+		t1 = (struct ioctl_trans *)(long)t->next;
-+		if (t1->cmd == cmd) { 
-+			if (builtin_ioctl(t1)) {
-+				printk("%p tried to unregister builtin ioctl %x\n",
-+				       __builtin_return_address(0), cmd);
-+				goto out;
-+			} else { 
-+			t->next = t1->next;
-+				free_ioctl(t1); 
-+				unlock_kernel();
-+			return 0;
-+			}
-+		}
-+		t = t1;
-+	}
-+	printk(KERN_ERR "Trying to free unknown 32bit ioctl handler %x\n", cmd);
-+ out:
-+	unlock_kernel();
-+	return -EINVAL;
-+}
-+
-+EXPORT_SYMBOL(register_ioctl32_conversion); 
-+EXPORT_SYMBOL(unregister_ioctl32_conversion); 
-+
-+asmlinkage long compact_sys_ioctl(unsigned int fd, unsigned int cmd, unsigned long arg)
-+{
-+	struct file * filp;
-+	int error = -EBADF;
-+	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
-+	struct ioctl_trans *t;
-+
-+	filp = fget(fd);
-+	if(!filp)
-+		goto out2;
-+
-+	if (!filp->f_op || !filp->f_op->ioctl) {
-+		error = sys_ioctl (fd, cmd, arg);
-+		goto out;
-+	}
-+
-+	t = (struct ioctl_trans *)ioctl32_hash_table [ioctl32_hash (cmd)];
-+
-+	while (t && t->cmd != cmd)
-+		t = (struct ioctl_trans *)t->next;
-+	if (t) {
-+		handler = t->handler;
-+		error = handler(fd, cmd, arg, filp);
-+	} else if (cmd >= SIOCDEVPRIVATE && cmd <= (SIOCDEVPRIVATE + 15)) {
-+		error = siocdevprivate_ioctl(fd, cmd, arg);
-+	} else {
-+		static int count;
-+		if (++count <= 50) { 
-+			char buf[10];
-+			char *path = (char *)__get_free_page(GFP_KERNEL), *fn = "?"; 
-+
-+			/* find the name of the device. */
-+			if (path) {
-+		       		fn = d_path(filp->f_dentry, filp->f_vfsmnt, 
-+					    path, PAGE_SIZE);
-+			}
-+
-+			sprintf(buf,"'%c'", (cmd>>24) & 0x3f); 
-+			if (!isprint(buf[1]))
-+			    sprintf(buf, "%02x", buf[1]);
-+			printk("ioctl32(%s:%d): Unknown cmd fd(%d) "
-+			       "cmd(%08x){%s} arg(%08x) on %s\n",
-+			       current->comm, current->pid,
-+			       (int)fd, (unsigned int)cmd, buf, (unsigned int)arg,
-+			       fn);
-+			if (path) 
-+				free_page((unsigned long)path); 
-+		}
-+		error = -EINVAL;
-+	}
-+out:
-+	fput(filp);
-+out2:
-+	return error;
-+}
---- clean/include/linux/ioctl32.h	2002-10-20 16:22:47.000000000 +0200
-+++ linux/include/linux/ioctl32.h	2003-03-06 22:12:05.000000000 +0100
-@@ -19,5 +19,10 @@
- 
- extern int unregister_ioctl32_conversion(unsigned int cmd);
- 
-+struct ioctl_trans {
-+	unsigned long cmd;
-+	int (*handler)(unsigned int, unsigned int, unsigned long, struct file * filp);
-+	struct ioctl_trans *next;
-+};
- 
- #endif
+Jan 27 15:26:34 lxb000 kernel: found SMP MP-table at 000f6710
+Jan 27 15:26:34 lxb000 kernel: hm, page 000f6000 reserved twice.
+Jan 27 15:26:34 lxb000 kernel: hm, page 000f7000 reserved twice.
+Jan 27 15:26:34 lxb000 kernel: hm, page 0009f000 reserved twice.
+Jan 27 15:26:34 lxb000 kernel: hm, page 000a0000 reserved twice.
+Jan 27 15:26:34 lxb000 kernel: On node 0 totalpages: 262016
+Jan 27 15:26:34 lxb000 kernel: zone(0): 4096 pages.
+Jan 27 15:26:34 lxb000 kernel: zone(1): 225280 pages.
+Jan 27 15:26:34 lxb000 kernel: zone(2): 32640 pages.
+Jan 27 15:26:34 lxb000 kernel: ACPI: Searched entire block, no RSDP was 
+found.
+Jan 27 15:26:34 lxb000 kernel: ACPI: Searched entire block, no RSDP was 
+found.
+Jan 27 15:26:34 lxb000 kernel: ACPI: System description tables not found
+Jan 27 15:26:34 lxb000 kernel: Intel MultiProcessor Specification v1.4
+Jan 27 15:26:34 lxb000 kernel:     Virtual Wire compatibility mode.
+Jan 27 15:26:34 lxb000 kernel: OEM ID:   Product ID: Kings Canyon APIC 
+at: 0xFEE00000
+Jan 27 15:26:34 lxb000 kernel: Processor #0 Pentium 4(tm) XEON(tm) APIC 
+version 20
+Jan 27 15:26:34 lxb000 kernel: Processor #6 Pentium 4(tm) XEON(tm) APIC 
+version 20
+Jan 27 15:26:34 lxb000 kernel: Processor #1 Pentium 4(tm) XEON(tm) APIC 
+version 20
+Jan 27 15:26:34 lxb000 kernel: Processor #7 Pentium 4(tm) XEON(tm) APIC 
+version 20
+Jan 27 15:26:34 lxb000 kernel: I/O APIC #2 Version 32 at 0xFEC00000.
+Jan 27 15:26:34 lxb000 kernel: I/O APIC #3 Version 32 at 0xFEC80000.
+Jan 27 15:26:34 lxb000 kernel: I/O APIC #4 Version 32 at 0xFEC80400.
+Jan 27 15:26:34 lxb000 kernel: I/O APIC #5 Version 32 at 0xFEC81000.
+Jan 27 15:26:34 lxb000 kernel: I/O APIC #8 Version 32 at 0xFEC81400.
+Jan 27 15:26:34 lxb000 kernel: Processors: 4
+...
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+There might be (are) severe flaws in our NFS configuration and network 
+performance, but that should not crash the box, should it?
+
+BTW: I just received a link to a bux incl. fix that sounds similar to 
+our problem: http://marc.theaimsgroup.com/?l=linux-nfs&m=104716581307294&w=2
+
+With kind regards,
+
+Christopher
+
+

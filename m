@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283009AbRK1Dg7>; Tue, 27 Nov 2001 22:36:59 -0500
+	id <S283010AbRK1Dnk>; Tue, 27 Nov 2001 22:43:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283010AbRK1Dgt>; Tue, 27 Nov 2001 22:36:49 -0500
-Received: from node10450.a2000.nl ([24.132.4.80]:5760 "EHLO awacs.dhs.org")
-	by vger.kernel.org with ESMTP id <S281870AbRK1Dgl>;
-	Tue, 27 Nov 2001 22:36:41 -0500
-Date: Wed, 28 Nov 2001 04:36:36 +0100
-From: Pascal Haakmat <a.haakmat@chello.nl>
-To: linux-kernel@vger.kernel.org
-Subject: [CRASH (kswapd)]: Unable to handle kernel NULL pointer dereference at virtual address 00000018
-Message-ID: <20011128043636.A4128@awacs.dhs.org>
-Mime-Version: 1.0
+	id <S281870AbRK1Dnb>; Tue, 27 Nov 2001 22:43:31 -0500
+Received: from web20202.mail.yahoo.com ([216.136.226.57]:31574 "HELO
+	web20202.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S283010AbRK1DnV>; Tue, 27 Nov 2001 22:43:21 -0500
+Message-ID: <20011128034320.95590.qmail@web20202.mail.yahoo.com>
+Date: Tue, 27 Nov 2001 19:43:20 -0800 (PST)
+From: GoodNews <postspisok1@yahoo.com>
+To: shnizdur@yahoo.co.uk
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.4.14 with XFS 1.0.2 patch (but without kdb patch) crashed on me
-today. The on screen crash dump said something about kswapd.
+Дорогой друг!
+Извини, что отбираю твое время на чтение данного
+послания,так как мы все 
+устали от бесконечных рекламных рассылок и всяческого
+мусора,но я надеюсь, 
+что несколько минут затраченного времени смогут
+окупиться, если ты решишься 
+изменить свой взгляд на окружающую тебя
+действительность.
 
-I managed to salvage the following information from the screen before the
-screen went black (courtesy of the screen blanker?). I didn't find any way
-to get the display back so the rest of the information was lost:
 
----
-Unable to handle kernel NULL pointer dereference at virtual address 00000018
- printing eip:
-c0137b20
-*pde = 00000000
-Oops: 0000
-CPU:    1
-EIP:    0010:[<c0137b20>]
- 
-[lost, something about kswapd in all of this]
----
+Предлагается в корне изменить свою жизнь! И для этого
+предназначена программа, 
+реально действующая, с реальными возможностями
+заработать деньги, затратив на 
+это не очень большие усилия. 
+Этот метод заработка денег на самом деле ДЕЙСТВУЕТ НА
+100%, КОГДА УГОДНО, 
+ГДЕ УГОДНО. Вы сможете заработать более 1.000.000
+рублей в последующие 90 дней. 
+Это не цепное письмо, а отличная легальная возможность
+заработать деньги. 
 
-The machine is a dual 600MHz PIII with 512 MB RAM and 1 GB of swap. I had
-been running 2.4.14 for almost exactly two days when it crashed. There was
-no significant load on the system at the time of the crash. Before this I
-had been running 2.4.5 with no such problems (but other problems, such as
-mysterious hangs, possibly related to the non-free OSS sound drivers or gcc
-or XFS in order of suspicion).
+Не пожалейте времени, ознакомьтесь с предлагаемой
+программой, и успех и 
+благополучие посетят Ваш дом!
 
-I suppose this is not much use but perhaps it can serve as a data point. I'd
-happily provide more information but with most of the crash dump lost I'm
-not sure how. Please Cc: through email if you think there is some other info
-that I could provide. Thanks.
+Данное письмо придет к Вам на этот адрес один
+единственный раз, больше я Вас 
+не побеспокою. Но если у Вас имеются и другие адреса,
+не обижайтесь, если это 
+послание придет и на них,программа не может отследить 
+хозяина ящика, только
+факт существования адреса.
 
+Если Вас это заинтересовало и Вы желаете больше узнать
+о работе предлагаемой 
+программы, Вы можете отправить данное сообщение
+обратно с пометкой
+"More", что бы я выслала Вам подробное описание работы
+системы по Вашему
+желанию, а не занимать Ваше время и не тратить Ваши
+деньги на получение
+вложенного документа.
+
+Возвращенные без данной пометки письма будут, как Вы
+правильно догадываетесь, 
+удалятся без прочтения.
+
+Но если Вы хотите поругаться и выпустить пар, то
+пожалуйста :-)
+Надеюсь, Вам станет легче :-)
+
+Еще раз извините, что отнимаю Ваше время.
+Успехов вам и всяческих благ!
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! GeoCities - quick and easy web site hosting, just $8.95/month.
+http://geocities.yahoo.com/ps/info1

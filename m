@@ -1,81 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266553AbUG0Sg6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266550AbUG0SmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266553AbUG0Sg6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 14:36:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266551AbUG0Sg5
+	id S266550AbUG0SmK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 14:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266558AbUG0SmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 14:36:57 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:38160 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266545AbUG0SgA
+	Tue, 27 Jul 2004 14:42:10 -0400
+Received: from out008pub.verizon.net ([206.46.170.108]:8694 "EHLO
+	out008.verizon.net") by vger.kernel.org with ESMTP id S266550AbUG0SgY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 14:36:00 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, aebr@win.tue.nl, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
-References: <87llhjlxjk.fsf@devron.myhome.or.jp>
-	<20040716164435.GA8078@ucw.cz>
-	<20040716201523.GC5518@pclin040.win.tue.nl>
-	<871xjbkv8g.fsf@devron.myhome.or.jp>
-	<20040726154327.107409fc.akpm@osdl.org>
-	<20040727134654.GB17362@ucw.cz> <878yd5be4z.fsf@devron.myhome.or.jp>
-	<20040727175439.GA1358@ucw.cz>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 28 Jul 2004 03:35:08 +0900
-In-Reply-To: <20040727175439.GA1358@ucw.cz>
-Message-ID: <87wu0p9u3n.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+	Tue, 27 Jul 2004 14:36:24 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Organization: Organization: undetectable
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crashes
+Date: Tue, 27 Jul 2004 14:36:23 -0400
+User-Agent: KMail/1.6
+References: <200407271233.04205.gene.heskett@verizon.net> <200407271402.59846.gene.heskett@verizon.net> <20040727105039.052352d8.rddunlap@osdl.org>
+In-Reply-To: <20040727105039.052352d8.rddunlap@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407271436.23097.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out008.verizon.net from [151.205.53.180] at Tue, 27 Jul 2004 13:36:23 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+On Tuesday 27 July 2004 13:50, Randy.Dunlap wrote:
+>On Tue, 27 Jul 2004 14:02:59 -0400 Gene Heskett wrote:
+>| On Tuesday 27 July 2004 13:32, Randy.Dunlap wrote:
+>| [...]
+>|
+>| Gene Heskett wrote:
+>| >| I take it that I should apply these to a 2.6.7 tarballs tree in
+>| >| this order:
+>| >| 1. 2.6.8-rc1
+>| >|
+>| >>>>> 2.6.8-rc2 <<<<<
+>|
+>| 2.6.8-rc2?  These patches I got will need to be reverted then?
+>
+>Nope, my bad.  I didn't read $Subject... please continue....
 
-> On Wed, Jul 28, 2004 at 01:37:00AM +0900, OGAWA Hirofumi wrote:
-> 
-> > Vojtech Pavlik <vojtech@suse.cz> writes:
-> > 
-> > > > This all seems a bit inconclusive.  Do we proceed with the original patch
-> > > > or not?  If not, how do we fix the overflow which Hirofumi has identified?
-> > > 
-> > > I think we should check the value in the ioctl, regardless of what's
-> > > NR_KEYS defined to.
-> > 
-> > However, it breaks the current binary instead. (at least
-> > console-tools, kbdutils).
->  
-> We can do both, then, if that helps.
+Oh, mmm, well, for some unexplainable reason it did apply the patches 
+on top of rc2 without any fussing, and it is building, ahh scuse me, 
+is built.  This athlon 2800 is awesome, my makeit script runs in a 
+bit over 6 minutes.  And unrelated of course, by now, the kde build 
+has puked all over itself, it now doesn't like the glibc installed by 
+FC2.  Go figure...
 
-I'm confused. Sorry.
+Anyway, now I'll go make it again using the 2.6.8-rc1 main patch & 
+throw this one away.  Not that big a deal when there a 120Gb drive to 
+play in.
 
-What is meaning of both? The following patch?  If so, "if (i >= NR_KEYS)"
-part is never true, because "i" is unsigned char.
+
+>| >| 2. each of these 'rc2-bk' patches by the day and then run each
+>| >| for a couple days, or should I start in the middle, say the 3rd
+>| >| one and work forward or backwards from there depending on the
+>| >| results?
+>| >
+>| >I'd suggest beginning with -bk3 and doing a binary search.
+>|
+>| Ok, as soon as the kde build exits (and it will, bet the whole
+>| farm on it)  I'll give it a try.
+>|
+>| >| Your (and Viro's) call.  I'd imagine you would want to run this
+>| >| to earth as quick as we can.
+>| >|
+>| >| Are these patches cumulative?  I presume they are as they grow
+>| >| by the day.
+>| >
+>| >Sorry, I should have mentioned that.  Yes, they are cumulative.
+>|
+>| Well, it was a pretty obvious conclusion :)
+>
+>--
+>~Randy
+
 -- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-
-diff -puN include/linux/keyboard.h~nr_keys-off-by-one include/linux/keyboard.h
---- linux-2.6.8-rc2/include/linux/keyboard.h~nr_keys-off-by-one	2004-07-26 00:26:59.000000000 +0900
-+++ linux-2.6.8-rc2-hirofumi/include/linux/keyboard.h	2004-07-26 00:26:59.000000000 +0900
-@@ -16,7 +16,7 @@
- 
- #define NR_SHIFT	9
- 
--#define NR_KEYS		255
-+#define NR_KEYS		256
- #define MAX_NR_KEYMAPS	256
- /* This means 128Kb if all keymaps are allocated. Only the superuser
- 	may increase the number of keymaps beyond MAX_NR_OF_USER_KEYMAPS. */
-diff -puN drivers/char/vt_ioctl.c~nr_keys-off-by-one drivers/char/vt_ioctl.c
---- linux-2.6.8-rc2/drivers/char/vt_ioctl.c~nr_keys-off-by-one	2004-07-28 03:18:43.000000000 +0900
-+++ linux-2.6.8-rc2-hirofumi/drivers/char/vt_ioctl.c	2004-07-28 03:22:24.000000000 +0900
-@@ -82,6 +82,8 @@ do_kdsk_ioctl(int cmd, struct kbentry __
- 
- 	if (copy_from_user(&tmp, user_kbe, sizeof(struct kbentry)))
- 		return -EFAULT;
-+	if (i >= NR_KEYS)
-+		return -EINVAL;
- 
- 	switch (cmd) {
- 	case KDGKBENT:
-_
+Cheers, Gene
+There are 4 boxes to be used in defense of liberty. 
+Soap, ballot, jury, and ammo.
+Please use in that order, starting now.  -Ed Howdershelt, Author
+Additions to this message made by Gene Heskett are Copyright 2004, 
+Maurice E. Heskett, all rights reserved.

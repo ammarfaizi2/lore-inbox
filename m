@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbUCQUDK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 15:03:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUCQUC6
+	id S262027AbUCQUE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 15:04:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbUCQUE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 15:02:58 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47034 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262027AbUCQUCx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 15:02:53 -0500
-Message-ID: <4058AEDE.10305@pobox.com>
-Date: Wed, 17 Mar 2004 15:02:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-raid@vger.kernel.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: "Enhanced" MD code avaible for review
-References: <459805408.1079547261@aslan.scsiguy.com> <4058A481.3020505@pobox.com> <20040317193206.A17987@infradead.org>
-In-Reply-To: <20040317193206.A17987@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 17 Mar 2004 15:04:58 -0500
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:49162 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262027AbUCQUE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 15:04:56 -0500
+Date: Wed, 17 Mar 2004 21:05:04 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com,
+       hunold@convergence.de
+Subject: Re: [RFC][2.6] Additional i2c adapter flags for i2c client
+ isolation
+Message-Id: <20040317210504.34eb192f.khali@linux-fr.org>
+In-Reply-To: <20040317174255.GE19060@kroah.com>
+References: <4056C805.8090004@convergence.de>
+	<20040316154454.GA13854@kroah.com>
+	<20040316201426.1d01f1d3.khali@linux-fr.org>
+	<20040316195325.GA22473@kroah.com>
+	<1079515049.405817a9a3da0@imp.gcu.info>
+	<20040317174255.GE19060@kroah.com>
+Reply-To: sensors@stimpy.netroedge.com
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> On Wed, Mar 17, 2004 at 02:18:25PM -0500, Jeff Garzik wrote:
+> > How would we export the value though? Numerical, with user-space
+> > headers to be included by user-space applications? Or converted to
+> > some explicit text strings so that no headers are needed?
 > 
->>>	o Allow fully pluggable meta-data modules
->>
->>yep, needed
-> 
-> 
-> Well, this is pretty much the EVMS route we all heavily argued against.
-> Most of the metadata shouldn't be visible in the kernel at all.
+> A text string would be simple enough to use.
 
-_some_ metadata is required at runtime, and must be in the kernel.  I 
-agree that a lot of configuration doesn't necessarily need to be in the 
-kernel.  But stuff like bad sector and event logs, and other bits are 
-still needed at runtime.
+I'm not sure.  What about a chip driver that would belong to more than
+one class?  What about the eeprom driver which will belong to all
+classes?  With a numeric value, a simple binary operation handles all
+the cases.  With text strings we would end having to parse a possibly
+multi-valued string, and do string comparisons, with at least one
+exception to handle.  This is likely to require much more resources,
+don't you think?
 
-
->>>	o Improve the ability of MD to auto-configure arrays.
->>
->>hmmmm.  Maybe in my language this means "improve ability for low-level 
->>drivers to communicate RAID support to upper layers"?
-> 
-> 
-> I think he's talking about the deprecated raid autorun feature.  Again
-> something that is completely misplaced in the kernel.  (ågain EVMS light)
-
-Indeed, but I'll let him and the code illuminate the meaning :)
-
-	Jeff
-
-
-
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

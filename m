@@ -1,41 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVCHU3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVCHUk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVCHU3y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 15:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVCHU2X
+	id S262136AbVCHUk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 15:40:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVCHUko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 15:28:23 -0500
-Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:26854
-	"EHLO graphe.net") by vger.kernel.org with ESMTP id S262241AbVCHUFu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 15:05:50 -0500
-Date: Tue, 8 Mar 2005 12:05:38 -0800 (PST)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@server.graphe.net
-To: Andrew Morton <akpm@osdl.org>
-cc: Ingo Molnar <mingo@elte.hu>, roland@redhat.com, shai@scalex86.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] del_timer_sync scalability patch
-In-Reply-To: <20050308003340.306b8293.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0503081159430.2943@server.graphe.net>
-References: <Pine.LNX.4.58.0503072244270.20044@server.graphe.net>
- <20050307233202.1e217aaa.akpm@osdl.org> <20050308081921.GA25679@elte.hu>
- <20050308003340.306b8293.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Tue, 8 Mar 2005 15:40:44 -0500
+Received: from fire.osdl.org ([65.172.181.4]:58260 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262136AbVCHUg1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 15:36:27 -0500
+Date: Tue, 8 Mar 2005 12:35:54 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: inconsistent kallsyms data [2.6.11-mm2]
+Message-Id: <20050308123554.669dd725.akpm@osdl.org>
+In-Reply-To: <20050308192900.GA16882@isilmar.linta.de>
+References: <20050308033846.0c4f8245.akpm@osdl.org>
+	<20050308192900.GA16882@isilmar.linta.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Mar 2005, Andrew Morton wrote:
+Dominik Brodowski <linux@dominikbrodowski.net> wrote:
+>
+> compiling -mm2 on my x86 box results in:
+> 
+> SYSMAP  .tmp_System.map
+> Inconsistent kallsyms data
+> Try setting CONFIG_KALLSYMS_EXTRA_PASS
+> make: *** [vmlinux] Fehler 1
+> 
+> gcc-Version 3.4.3 20050110 (Gentoo Linux 3.4.3.20050110, ssp-3.4.3.20050110-0, pie-8.7.7)
+> 
 
-> If we're prepared to rule that a timer handler is not allowed to do
-> add_timer_on() then a recurring timer is permanently pinned to a CPU, isn't
-> it?
-
-The process may be rescheduled to run on different processor. Then the
-add_timer() function (called from schedule_next_timer in
-kernel/posix-timers.c) will also add the timer to the new processor
-because it is called from the signal handling code. So I think that it
-is possible that a periodic timer will be scheduled on different
-processors.
+Did CONFIG_KALLSYMS_EXTRA_PASS fix it up?

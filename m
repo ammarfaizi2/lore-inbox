@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132477AbRAJQzs>; Wed, 10 Jan 2001 11:55:48 -0500
+	id <S132970AbRAJQz7>; Wed, 10 Jan 2001 11:55:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133048AbRAJQzi>; Wed, 10 Jan 2001 11:55:38 -0500
-Received: from cannet.com ([206.156.188.2]:44298 "HELO mail.cannet.com")
-	by vger.kernel.org with SMTP id <S132477AbRAJQzV>;
-	Wed, 10 Jan 2001 11:55:21 -0500
-Message-ID: <008b01c07b26$15069320$7930000a@hcd.net>
-From: "Timothy A. DeWees" <whtdrgn@mail.cannet.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <007801c07b25$1695db20$7930000a@hcd.net>
-Subject: Re: 2.2.18 reboots on high load.
-Date: Wed, 10 Jan 2001 11:55:05 -0500
-Organization: Himebaugh Consulting, Inc.
+	id <S133048AbRAJQzs>; Wed, 10 Jan 2001 11:55:48 -0500
+Received: from panther.noc.ucla.edu ([169.232.10.21]:47490 "EHLO
+	panther.noc.ucla.edu") by vger.kernel.org with ESMTP
+	id <S132970AbRAJQzi>; Wed, 10 Jan 2001 11:55:38 -0500
+Message-ID: <3A5C93B9.ADFF71F8@ucla.edu>
+Date: Wed, 10 Jan 2001 08:54:17 -0800
+From: Benjamin Redelings I <bredelin@ucla.edu>
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.4.0-ac4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1252"
+To: linux-kernel@vger.kernel.org
+Subject: MM bugs in 2.4.1-pre1 propogated to ac5?
+Content-Type: text/plain; charset=big5
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I should make it clear that there are two hard drives.  One
-1 Gb hard drive, and 1x14 Gb hard drive.  
+Hi - can someone confirm or deny that these are bugs?
+I compiled pre1 for a 256Mb machine with them both "fixed", and it
+worked fine.
 
- 
------ Original Message ----- 
-From: Timothy A. DeWees 
-To: Linux Kernel 
-Sent: Wednesday, January 10, 2001 11:47 AM
-Subject: 2.2.18 reboots on high load.
+        Based on my quick reading of this patch:
++
++empty:
++       spin_lock(&mmlist_lock);
++       return 0;
 
+The above should actually be spin_UNlock?
 
-Hello,
+Also the test for !inactive_shortage() seems to be inverted?
 
-I have a 2.2.18 (with reiserfs patch), running on a Pentium 100
++               /* If refill_inactive_scan failed, try to page stuff
+out.. */
++               swap_out(priority, gfp_mask);
++       } while (!inactive_shortage());
 
-any time I get high disk writes or reads my system just reboots.
-I have had it up and running with moderate disk activity (telnet
-and small FTP's) for a week; however, when I write alot to the 
-disk (100 Mb plus), the system just reboots.  I am also getting
-kernel panics around every 3-4 times.  I tried writing to the disk
-with Samba, and fith FTP.  I am running proFTP.  Please tell me
-what I need to send you.  I will not that /proc/cpuinfo tells me that
-my processor has a f00f bug?
-
-The system is as follows.
-
-Intel Pentium 100
-32 Mb Ram
-1Gb root partition - 32 Mb swap
-14 Gb reiserfs partition
-
-I am running Samba 2.0.7 and Apache 1.3.14 (with mod-ssl).
-
+-BenRI
+-- 
+"...assisted of course by pride, for we teach them to describe the
+ Creeping Death, as Good Sense, or Maturity, or Experience." 
+- "The Screwtape Letters"
+Benjamin Redelings I      <><     http://www.bol.ucla.edu/~bredelin/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

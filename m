@@ -1,137 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262765AbSI1J2J>; Sat, 28 Sep 2002 05:28:09 -0400
+	id <S262763AbSI1JdW>; Sat, 28 Sep 2002 05:33:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262761AbSI1J10>; Sat, 28 Sep 2002 05:27:26 -0400
-Received: from natwar.webmailer.de ([192.67.198.70]:29066 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262760AbSI1J04>; Sat, 28 Sep 2002 05:26:56 -0400
-Date: Sat, 28 Sep 2002 11:23:15 +0200
-From: Dominik Brodowski <linux@brodo.de>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Cc: hpa@zytor.com, cpufreq@www.linux.org.uk
-Subject: [2.5.39] (2/5) CPUfreq i386 core
-Message-ID: <20020928112315.C1217@brodo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S262760AbSI1Jcs>; Sat, 28 Sep 2002 05:32:48 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:7862 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262763AbSI1J3M>;
+	Sat, 28 Sep 2002 05:29:12 -0400
+From: Felix Seeger <felix.seeger@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: System very unstable
+Date: Sat, 28 Sep 2002 11:34:27 +0200
+User-Agent: KMail/1.4.7
+References: <200209281115.19968.felix.seeger@gmx.de> <1033205547.17777.13.camel@irongate.swansea.linux.org.uk>
+In-Reply-To: <1033205547.17777.13.camel@irongate.swansea.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-User-Agent: Mutt/1.3.16i
+Message-Id: <200209281134.27362.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CPUFreq i386 core for 2.5.39:
-arch/i386/kernel/i386_ksyms.c	export cpu_khz
-arch/i386/kernel/time.c		update various i386 values on frequency
-				changes
-include/asm-i386/msr.h		add Transmeta MSR defines
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
+Am Samstag, 28. September 2002 11:32 schrieb Alan Cox:
+> > EIP:    0010:[get_new_inode+94/368]    Tainted: P
+> > EFLAGS: 00010206
+> > eax: f1ec9808   ebx: 00000000   ecx: c1376130 edx: c3761dc8
+>
+> You appear to have some non typical modules loaded. If they are binary
+> ones from people like Nvidia please see if the box is stable without
+> them ever being loaded.
+Yes I am using the nvidia module. But I don't think that is the problem, 
+because I never had such problems with it.
+The only thing I can imagine is that:
+I installed the new module and I looked very unstable. So I installed the old 
+one again.
 
-diff -ruN linux-2539original/arch/i386/kernel/i386_ksyms.c linux/arch/i386/kernel/i386_ksyms.c
---- linux-2539original/arch/i386/kernel/i386_ksyms.c	Sun Sep 22 09:00:00 2002
-+++ linux/arch/i386/kernel/i386_ksyms.c	Sat Sep 28 09:30:00 2002
-@@ -50,6 +50,7 @@
- EXPORT_SYMBOL(drive_info);
- #endif
- 
-+extern unsigned long cpu_khz;
- extern unsigned long get_cmos_time(void);
- 
- /* platform dependent support */
-@@ -80,6 +81,7 @@
- EXPORT_SYMBOL(pm_idle);
- EXPORT_SYMBOL(pm_power_off);
- EXPORT_SYMBOL(get_cmos_time);
-+EXPORT_SYMBOL(cpu_khz);
- EXPORT_SYMBOL(apm_info);
- 
- #ifdef CONFIG_DEBUG_IOVIRT
-diff -ruN linux-2539original/arch/i386/kernel/time.c linux/arch/i386/kernel/time.c
---- linux-2539original/arch/i386/kernel/time.c	Sun Sep 22 09:00:00 2002
-+++ linux/arch/i386/kernel/time.c	Sat Sep 28 09:30:00 2002
-@@ -43,6 +43,7 @@
- #include <linux/smp.h>
- #include <linux/module.h>
- #include <linux/device.h>
-+#include <linux/cpufreq.h>
- 
- #include <asm/io.h>
- #include <asm/smp.h>
-@@ -603,6 +604,52 @@
- 
- device_initcall(time_init_device);
- 
-+
-+#ifdef CONFIG_CPU_FREQ
-+
-+static int
-+time_cpufreq_notifier(struct notifier_block *nb, unsigned long val,
-+		       void *data)
-+{
-+	struct cpufreq_freqs *freq = data;
-+	unsigned int i;
-+
-+	if (!cpu_has_tsc)
-+		return 0;
-+
-+	switch (val) {
-+	case CPUFREQ_PRECHANGE:
-+		if ((freq->old < freq->new) &&
-+		((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)))  {
-+			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
-+		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_quotient, freq->new, freq->old);
-+		}
-+		for (i=0; i<NR_CPUS; i++)
-+			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
-+				cpu_data[i].loops_per_jiffy = cpufreq_scale(loops_per_jiffy, freq->old, freq->new);
-+		break;
-+
-+	case CPUFREQ_POSTCHANGE:
-+		if ((freq->new < freq->old) &&
-+		((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == 0)))  {
-+			cpu_khz = cpufreq_scale(cpu_khz, freq->old, freq->new);
-+		        fast_gettimeoffset_quotient = cpufreq_scale(fast_gettimeoffset_quotient, freq->new, freq->old);
-+		}
-+		for (i=0; i<NR_CPUS; i++)
-+			if ((freq->cpu == CPUFREQ_ALL_CPUS) || (freq->cpu == i))
-+				cpu_data[i].loops_per_jiffy = cpufreq_scale(loops_per_jiffy, freq->old, freq->new);
-+		break;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct notifier_block time_cpufreq_notifier_block = {
-+	notifier_call:	time_cpufreq_notifier
-+};
-+#endif
-+
-+
- void __init time_init(void)
- {
- #ifdef CONFIG_X86_TSC
-@@ -665,6 +712,9 @@
- 	                	"0" (eax), "1" (edx));
- 				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, cpu_khz % 1000);
- 			}
-+#ifdef CONFIG_CPU_FREQ
-+			cpufreq_register_notifier(&time_cpufreq_notifier_block, CPUFREQ_TRANSITION_NOTIFIER);
-+#endif
- 		}
- 	}
- #endif /* CONFIG_X86_TSC */
-diff -ruN linux-2539original/include/asm-i386/msr.h linux/include/asm-i386/msr.h
---- linux-2539original/include/asm-i386/msr.h	Sun Sep 22 09:00:00 2002
-+++ linux/include/asm-i386/msr.h	Sat Sep 28 09:30:00 2002
-@@ -125,4 +125,10 @@
- #define MSR_VIA_LONGHAUL		0x110a
- #define MSR_VIA_BCR2			0x1147
- 
-+/* Transmeta defined MSRs */
-+#define MSR_TMTA_LONGRUN_CTRL		0x80868010
-+#define MSR_TMTA_LONGRUN_FLAGS		0x80868011
-+#define MSR_TMTA_LRTI_READOUT		0x80868018
-+#define MSR_TMTA_LRTI_VOLT_MHZ		0x8086801a
-+
- #endif /* __ASM_MSR_H */
+> If its only just begun happening and you didnt change these modules or
+> the kernel then it may well be worth checking CPU temperature in the
+> BIOS, the fans and/or running memtest86 to see if it is hardware.
+>
+> If you've changed kernel obviously see if the old one works reliably
+> first
 
+Thanks, I will do that.
+
+have fun
+Felix
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9lXejS0DOrvdnsewRAka2AJ9EGwZ/h3WczFx59gU0hJSlkHeuGQCfdgzY
+FN0ppyzAY4Hm00Mz0Zg7DTs=
+=jlDs
+-----END PGP SIGNATURE-----
 

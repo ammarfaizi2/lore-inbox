@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265367AbTFSDzO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 23:55:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbTFSDzN
+	id S265396AbTFSD4u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 23:56:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265387AbTFSDzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 23:55:13 -0400
-Received: from dhcp024-209-039-102.neo.rr.com ([24.209.39.102]:51076 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S265367AbTFSDxx (ORCPT
+	Wed, 18 Jun 2003 23:55:18 -0400
+Received: from granite.he.net ([216.218.226.66]:13070 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S265352AbTFSDyF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 23:53:53 -0400
-Date: Wed, 18 Jun 2003 23:44:46 +0000
-From: Adam Belay <ambx1@neo.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PnP Changes for 2.5.72
-Message-ID: <20030618234446.GD333@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	linux-kernel@vger.kernel.org
-References: <20030618234418.GC333@neo.rr.com>
+	Wed, 18 Jun 2003 23:54:05 -0400
+Date: Wed, 18 Jun 2003 17:51:51 -0700
+From: Greg KH <greg@kroah.com>
+To: "Kevin P. Fleming" <kpfleming@cox.net>
+Cc: Oliver Neukum <oliver@neukum.org>, Robert Love <rml@tech9.net>,
+       Patrick Mochel <mochel@osdl.org>, Andrew Morton <akpm@digeo.com>,
+       sdake@mvista.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+Message-ID: <20030619005151.GA3411@kroah.com>
+References: <3EE8D038.7090600@mvista.com> <1055459762.662.336.camel@localhost> <20030612232523.GA1917@kroah.com> <200306132201.47346.oliver@neukum.org> <20030618225913.GB2413@kroah.com> <3EF10002.7020308@cox.net> <20030619002039.GA2866@kroah.com> <3EF10705.9090609@cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030618234418.GC333@neo.rr.com>
+In-Reply-To: <3EF10705.9090609@cox.net>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1415  -> 1.1416 
-#	drivers/pnp/resource.c	1.14    -> 1.15   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/06/18	ambx1@neo.rr.com	1.1416
-# [PNP] /drivers/pnp/resource.c check_region warning fix
-# 
-# This patch resolves the compiler warning caused by the depreciated check_region
-# function.  It may not be the best solution but check_region really is what is
-# needed here because we never actually have to call "request_region".  If prefered,
-# I could alternatively request and release but doing so would be less efficient.
-# --------------------------------------------
-#
-diff -Nru a/drivers/pnp/resource.c b/drivers/pnp/resource.c
---- a/drivers/pnp/resource.c	Wed Jun 18 23:02:14 2003
-+++ b/drivers/pnp/resource.c	Wed Jun 18 23:02:14 2003
-@@ -255,7 +255,7 @@
- 	/* check if the resource is already in use, skip if the
- 	 * device is active because it itself may be in use */
- 	if(!dev->active) {
--		if (check_region(*port, length(port,end)))
-+		if (__check_region(&ioport_resource, *port, length(port,end)))
- 			return 0;
- 	}
- 
-@@ -309,7 +309,7 @@
- 	/* check if the resource is already in use, skip if the
- 	 * device is active because it itself may be in use */
- 	if(!dev->active) {
--		if (__check_region(&iomem_resource, *addr, length(addr,end)))
-+		if (check_mem_region(*addr, length(addr,end)))
- 			return 0;
- 	}
- 
+On Wed, Jun 18, 2003 at 05:42:45PM -0700, Kevin P. Fleming wrote:
+> Greg KH wrote:
+> 
+> >But you also have to "hold" events for a bit of time in order to
+> >determine that things are out of order, or we have a gap.  So a bit of
+> >"complex" logic is in the works, but it's much less complex than if we
+> >didn't have that sequence number.
+> >
+> 
+> OK, so the important point here is that while you probably delay events 
+> for a small amount of time (1-3 seconds maybe) to ensure that you aren't 
+> processing steps out of order, it's not likely that userspace is going 
+> hold event #1321 for an indefinite period of time just because it has 
+> never seen event #1320.
+
+Exactly.
+
+> I can't wait to see this implementation; it's going to be interesting, 
+> to say the least. However, without the sequence numbers, it would very 
+> likely be impossible.
+
+Hey, I still think my originally proposed version would have worked,
+eventually... :)
+
+greg k-h

@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262892AbUCKIaX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 03:30:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbUCKIaX
+	id S262902AbUCKIb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 03:31:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbUCKIb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 03:30:23 -0500
-Received: from mxout.hispeed.ch ([62.2.95.247]:37543 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S262892AbUCKIaQ (ORCPT
+	Thu, 11 Mar 2004 03:31:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7861 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262902AbUCKIaY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 03:30:16 -0500
-Message-ID: <40502396.3030402@objectxp.com>
-Date: Thu, 11 Mar 2004 09:30:14 +0100
-From: Michel Marti <michel.marti@objectxp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5.1) Gecko/20031203
-X-Accept-Language: en, de-ch
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.4: Fix NULL pointer dereference in blkmtd.c
-X-Enigmail-Version: 0.82.4.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 11 Mar 2004 03:30:24 -0500
+Date: Thu, 11 Mar 2004 00:30:23 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4-mm1
+Message-Id: <20040311003023.6ae87569.akpm@osdl.org>
+In-Reply-To: <20040310233140.3ce99610.akpm@osdl.org>
+References: <20040310233140.3ce99610.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.4/2.6.4-mm1/
 
-The blkmtd driver oopses in add_device(). The following trivial patch fixes
-this.
+Needs this fix, if you use CONFIG_DEBUG_SPINLOCK
 
-Cheers,
+--- 25/fs/mpage.c~mpage-locking-bug	2004-03-11 00:29:21.000000000 -0800
++++ 25-akpm/fs/mpage.c	2004-03-11 00:29:25.000000000 -0800
+@@ -672,7 +672,6 @@ mpage_writepages(struct address_space *m
+ 		}
+ 		pagevec_release(&pvec);
+ 	}
+-	spin_unlock_irq(&mapping->tree_lock);
+ 	if (bio)
+ 		mpage_bio_submit(WRITE, bio);
+ 	return ret;
 
-- Michel
-
-
-diff -urN linux-2.6.4/drivers/mtd/devices/blkmtd.c linux-2.6.4-mma/drivers/mtd/devices/blkmtd.c
---- linux-2.6.4/drivers/mtd/devices/blkmtd.c	2004-02-18 04:57:13.000000000 +0100
-+++ linux-2.6.4-mma/drivers/mtd/devices/blkmtd.c	2004-03-11 09:02:45.000000000 +0100
-@@ -664,12 +664,12 @@
-  	}
-
-  	memset(dev, 0, sizeof(struct blkmtd_dev));
-+	dev->blkdev = bdev;
-  	atomic_set(&(dev->blkdev->bd_inode->i_mapping->truncate_count), 0);
-  	if(!readonly) {
-  		init_MUTEX(&dev->wrbuf_mutex);
-  	}
-
--	dev->blkdev = bdev;
-  	dev->mtd_info.size = dev->blkdev->bd_inode->i_size & PAGE_MASK;
-
-  	/* Setup the MTD structure */
+_
 

@@ -1,45 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316430AbSGLNpc>; Fri, 12 Jul 2002 09:45:32 -0400
+	id <S316437AbSGLN7r>; Fri, 12 Jul 2002 09:59:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316437AbSGLNpb>; Fri, 12 Jul 2002 09:45:31 -0400
-Received: from mail.gmx.de ([213.165.64.20]:39919 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S316430AbSGLNpb>;
-	Fri, 12 Jul 2002 09:45:31 -0400
-Message-ID: <00d401c229ab$02aa8030$1c6fa8c0@hyper>
-From: "Christian Ludwig" <cl81@gmx.net>
-To: "Mark Mielke" <mark@mark.mielke.cc>
-Cc: "Daniel Phillips" <phillips@arcor.de>,
-       "Linux Kernel Mailinglist" <linux-kernel@vger.kernel.org>
-References: <003d01c22819$ba1818b0$1c6fa8c0@hyper> <20020711062832.GU1548@niksula.cs.hut.fi> <002601c228ab$86b235e0$1c6fa8c0@hyper> <E17SheA-0002Uh-00@starship> <000901c2296e$7cab2ed0$1c6fa8c0@hyper> <20020712092442.A26797@mark.mielke.cc>
-Subject: Re: bzip2 support against 2.4.18
-Date: Fri, 12 Jul 2002 15:49:57 +0200
+	id <S316446AbSGLN7q>; Fri, 12 Jul 2002 09:59:46 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:43730 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S316437AbSGLN7p>; Fri, 12 Jul 2002 09:59:45 -0400
+Date: Fri, 12 Jul 2002 16:02:09 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jan Marek <linux@hazard.jcu.cz>
+cc: <linux-kernel@vger.kernel.org>, <andre@suse.com>
+Subject: Re: Disk freeze in the 2.5.24
+In-Reply-To: <20020712080715.GA829@hazard.jcu.cz>
+Message-ID: <Pine.SOL.4.30.0207121601240.14389-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Mielke wrote on Friday, July 12, 2002 3:24 PM +0200:
-> I would suggest keeping bzImage as the actual kernel name, and the
-> compression format to be a CONFIG parameter. This leaves all the
-> installation notes correct. As the executable is self-extracting,
-> there is no need for the type to be specified outside of the image.
 
-That's the point to have the discussion about a new name for *Image has to
-end. I will code the kernel compression format as a CONFIG parameter in
-future releases. I think that's the place where it belongs. So nobody has to
-lern a new name and all are happy.
+Already fixed, please apply all patches from:
 
-Over and out.
+http://home.elka.pw.edu.pl/~bzolnier/ata/
 
-Have fun further on,
+or wait for 2.5.26.
 
-    - Christian
+Regards
+--
+Bartlomiej
 
 

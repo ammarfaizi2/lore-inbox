@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266367AbTGEPm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 11:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266369AbTGEPm1
+	id S266371AbTGEPpe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 11:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266372AbTGEPpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 11:42:27 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:45069 "EHLO
-	www.home.local") by vger.kernel.org with ESMTP id S266367AbTGEPm0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 11:42:26 -0400
-Date: Sat, 5 Jul 2003 17:40:32 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [ANN] 2.4.x snapshots started
-Message-ID: <20030705154032.GA9428@alpha.home.local>
-References: <3F06D2ED.8080904@pobox.com>
-Mime-Version: 1.0
+	Sat, 5 Jul 2003 11:45:34 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:3538 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S266371AbTGEPpd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 11:45:33 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5 trivial generic HDLC update
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 05 Jul 2003 16:16:25 +0200
+Message-ID: <m3llvd6oue.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F06D2ED.8080904@pobox.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 05, 2003 at 09:30:21AM -0400, Jeff Garzik wrote:
-> Just like 2.5.x, nightly snapshots of Marcelo's latest 2.4.x BK 
-> repository are being posted on kernel.org:
-> 
-> ftp://ftp.??.kernel.org/pub/linux/kernel/v2.4/snapshots/
-> 
-> I created the first snapshot midday as a test, and the standard cron job 
-> created a second one, so the current release is 2.4.21-bk2.
+Hi,
 
-Jeff, in -bk2, only EXTRAVERSION got changed in Makefile, so the complete
-name is now 2.4.22-bk2. This is because the base kernel was 2.4.22-pre2.
+Please apply this trivial fix to Linux 2.5. Thanks.
+-- 
+Krzysztof Halasa
+Network Administrator
 
-Cheers,
-Willy
-
+--- linux-2.5.orig/drivers/net/wan/hdlc_generic.c	2003-05-27 03:00:23.000000000 +0200
++++ linux-2.5/drivers/net/wan/hdlc_generic.c	2003-07-05 16:01:51.000000000 +0200
+@@ -177,11 +177,8 @@
+ 
+ struct packet_type hdlc_packet_type=
+ {
+-        __constant_htons(ETH_P_HDLC),
+-        NULL,
+-        hdlc_rcv,
+-        NULL,
+-        NULL
++	.type = __constant_htons(ETH_P_HDLC),
++	.func = hdlc_rcv,
+ };
+ 
+ 

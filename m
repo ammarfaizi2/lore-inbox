@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290614AbSA3VSV>; Wed, 30 Jan 2002 16:18:21 -0500
+	id <S290611AbSA3VVJ>; Wed, 30 Jan 2002 16:21:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290606AbSA3VQY>; Wed, 30 Jan 2002 16:16:24 -0500
-Received: from codepoet.org ([166.70.14.212]:18875 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S290611AbSA3VQA>;
-	Wed, 30 Jan 2002 16:16:00 -0500
-Date: Wed, 30 Jan 2002 14:15:49 -0700
-From: Erik Andersen <andersen@codepoet.org>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S290617AbSA3VVE>; Wed, 30 Jan 2002 16:21:04 -0500
+Received: from bitmover.com ([192.132.92.2]:50601 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S290606AbSA3VS5>;
+	Wed, 30 Jan 2002 16:18:57 -0500
+Date: Wed, 30 Jan 2002 13:18:55 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Larry McVoy <lm@bitmover.com>, Jeff Garzik <garzik@havoc.gtf.org>,
+        Rob Landley <landley@trommello.org>,
+        Miles Lane <miles@megapathdsl.net>, Chris Ricker <kaboom@gatech.edu>,
+        World Domination Now! <linux-kernel@vger.kernel.org>
 Subject: Re: A modest proposal -- We need a patch penguin
-Message-ID: <20020130211549.GB22705@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Jeff Garzik <garzik@havoc.gtf.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020130171126.GA26583@kroah.com> <E16VzZj-00082y-00@the-village.bc.nu> <20020130132939.B29606@havoc.gtf.org>
+Message-ID: <20020130131855.A22323@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Roman Zippel <zippel@linux-m68k.org>, Larry McVoy <lm@bitmover.com>,
+	Jeff Garzik <garzik@havoc.gtf.org>,
+	Rob Landley <landley@trommello.org>,
+	Miles Lane <miles@megapathdsl.net>,
+	Chris Ricker <kaboom@gatech.edu>,
+	World Domination Now! <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020130080642.E18381@work.bitmover.com> <Pine.LNX.4.33.0201301830320.9003-100000@serv> <20020130121752.B21235@work.bitmover.com> <3C585F4D.5195AC11@linux-m68k.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020130132939.B29606@havoc.gtf.org>
-User-Agent: Mutt/1.3.24i
-X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3C585F4D.5195AC11@linux-m68k.org>; from zippel@linux-m68k.org on Wed, Jan 30, 2002 at 10:02:05PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Jan 30, 2002 at 01:29:39PM -0500, Jeff Garzik wrote:
-> I disagree... I outlined a workable scheme for hotplugging SCSI
-> controllers to Justin Gibbs a long time ago, when the new aic7xxx was
-> first being merged.  Using the new PCI API was fairly easy, handling the
-> disk-disappearing-from-under-you problem was a bit more annoying :)
+On Wed, Jan 30, 2002 at 10:02:05PM +0100, Roman Zippel wrote:
+> Larry McVoy wrote:
+> 
+> > I might be mistaken, I also get the feeling that your real issue might
+> > be that you don't like/understand/something BK and you are pushing for a
+> > different answer.  That's cool, there are now two patchbot projects you
+> > can go join and start coding.
+> 
+> Um, I really have no time for this
+> [BK for cvs users request deleted]
 
-And indeed the aic7xxx driver does handle hotplugging.
-It just doesn't handle hot-un-plugging.
+Apparently not.  It might help if you read the docs, this has been there 
+for months if not years:
 
- -Erik
-
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+http://www.bitkeeper.com/Documentation.HOWTO.CVS.html
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,22 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268473AbTCAA7z>; Fri, 28 Feb 2003 19:59:55 -0500
+	id <S268485AbTCABIU>; Fri, 28 Feb 2003 20:08:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268482AbTCAA7z>; Fri, 28 Feb 2003 19:59:55 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:23192 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268473AbTCAA7y>;
-	Fri, 28 Feb 2003 19:59:54 -0500
-Date: Fri, 28 Feb 2003 16:52:58 -0800 (PST)
-Message-Id: <20030228.165258.114281488.davem@redhat.com>
-To: pavel@suse.cz
-Cc: bcollins@debian.org, linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com,
-       ak@suse.de, arnd@bergmann-dalldorf.de
-Subject: Re: ioctl32 consolidation -- call for testing
+	id <S268484AbTCABIU>; Fri, 28 Feb 2003 20:08:20 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:27544 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S268483AbTCABIS>;
+	Fri, 28 Feb 2003 20:08:18 -0500
+Date: Fri, 28 Feb 2003 17:01:24 -0800 (PST)
+Message-Id: <20030228.170124.03146870.davem@redhat.com>
+To: shemminger@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+Subject: Re: Possible FIFO race in lock_sock()
 From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030228132330.GC8498@atrey.karlin.mff.cuni.cz>
-References: <20030227.123701.16257819.davem@redhat.com>
-	<20030227211256.GR21100@phunnypharm.org>
-	<20030228132330.GC8498@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <1046467548.30194.258.camel@dell_ss3.pdx.osdl.net>
+References: <1046467548.30194.258.camel@dell_ss3.pdx.osdl.net>
 X-FalunGong: Information control.
 X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
@@ -25,15 +22,14 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pavel Machek <pavel@suse.cz>
-   Date: Fri, 28 Feb 2003 14:23:31 +0100
-
-   cmd probably could be u32 (since it is ioctl32 after all), but I doubt
-   it matters, as two following entries are pointers so it looks to me
-   like it is going to be lost by alignment, anyway.
+   From: Stephen Hemminger <shemminger@osdl.org>
+   Date: 28 Feb 2003 13:25:50 -0800
    
-These pointers can (and WERE!) 32-bit on sparc64, so we wouldn't
-have the alignment problem there.
+   Don't know what this impacts, perhaps out of order data on a pipe?
 
-All kernel text on sparc64 (even in modules) occur in the lower
-32-bits of the address apce.
+There's a race to get the lock, who cares?
+
+If multiple people are playing with the socket, the exact pieces of
+data they happen to get is random unless the application does
+it's own locking.
+

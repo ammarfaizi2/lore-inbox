@@ -1,84 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262673AbTJAX4d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 19:56:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbTJAX4d
+	id S262269AbTJAXoX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 19:44:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTJAXoX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 19:56:33 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:11936 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S262673AbTJAX4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 19:56:31 -0400
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-From: Albert Cahalan <albert@users.sf.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Mikael Pettersson <mikpe@csd.uu.se>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       perfctr-devel@lists.sourceforge.net,
-       Albert Cahalan <albert@users.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0310010803530.23860-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0310010803530.23860-100000@home.osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065051745.736.39.camel@cube>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 01 Oct 2003 19:42:26 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Oct 2003 19:44:23 -0400
+Received: from bgp01360964bgs.sandia01.nm.comcast.net ([68.35.68.128]:44928
+	"EHLO orion.dwf.com") by vger.kernel.org with ESMTP id S262269AbTJAXoW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 19:44:22 -0400
+Message-Id: <200310012344.h91Ni2Kn025150@orion.dwf.com>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: OK, what does this mean: (2.6.0-test6) grubby fatal error: unable to 
+ find a suitable template
+Date: Wed, 01 Oct 2003 17:44:02 -0600
+From: reg@dwf.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-10-01 at 11:11, Linus Torvalds wrote:
-> On Wed, 1 Oct 2003, Mikael Pettersson wrote:
-> >
-> > Linus' 2.6.0-test6 announcement doesn't seem to mention the
-> > fact that 2.6.0-test5-bk9 fundamentally changed the semantics
-> > of /proc/self and the /proc/<pid> name space.
-> 
-> Well, that's because the semantics weren't _supposed_ to change. The new 
-> semantics were meant to be a superset of the old behaviour, with just the 
-> added "task" subdirectory that lists the actual threads.
-> 
-> However, you're right that "/proc/self" should likely point into the
-> _thread_, and not into the task. But it's debatable. You are very likely 
-> the only one who could ever care ;)
+Fcc: outbox
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 
-That seems likely to break other stuff, as new-style
-threads become more common. Right now, many tools are
-unaware of new-style threads. Pointing at the tgid
-directory (POSIX PID directory) lets tools ignore threads.
+On doing a 'make' and 'make modules' eerything seems fine.
+Still fine after 'make module_install'
 
-> > I don't actually disagree with the change, but it took me by
-> > surprise since neither the 2.6.0-test6 annoucement nor the
-> > diff between the t5-bk8 and t5-bk9 logs seem to mention it.
-> 
-> Well, the changelog mentions "fix for hidden task problem", since the diff 
-> really is mainly to _add_ threads to the /proc layout. The fact that it 
-> changed /proc/self is actually a bit surprising. Albert?
+But the 'make install' generates the error message:
 
-This is an interesting problem for sure. The link was
-pointing to a directory that didn't get listed, except
-that CLONE_THREAD wasn't exactly a popular feature yet.
-So it was very seldom that the distinction mattered.
+    grubby fatal error: unable to find a suitable template
 
-Currently, I rely on checking for /proc/self/task to
-see if threads can be examined. Like this:
+THe kernel does appear to have been installed in boot, but 
+I havent a clue what this error message is trying to tell me.
 
-task_dir_missing = stat("/proc/self/task", &sbuf);
 
-That wouldn't work if /proc/self pointed at the task.
 
-It certainly seems to me that the intent of /proc/self is
-to point to a "process", which is a tgid in kernel terms.
-Back in the 2.4.xx days, that was a pid in kernel terms.
-Now that we have CLONE_THREAD and the tgid, a "process"
-is represented by the tgid. Pointing to the tgid matches
-what other OSes do.
 
-I think there is something clearly defective about having
-the /proc/self link point to a hidden directory. It could
-be pointed at /proc/42/task/58 and such I guess, but I
-think tools could break as new-style threads begin to get
-used in the real world.
+-- 
+                                        Reg.Clemens
+                                        reg@dwf.com
 
 

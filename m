@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261349AbSIWUI5>; Mon, 23 Sep 2002 16:08:57 -0400
+	id <S261347AbSIWT1u>; Mon, 23 Sep 2002 15:27:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261353AbSIWUI4>; Mon, 23 Sep 2002 16:08:56 -0400
-Received: from p508879B5.dip.t-dialin.net ([80.136.121.181]:49107 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S261349AbSIWUIz>; Mon, 23 Sep 2002 16:08:55 -0400
-Date: Mon, 23 Sep 2002 14:14:40 -0600 (MDT)
-From: Thunder from the hill <thunder@lightweight.ods.org>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Peter Rival <frival@zk3.dec.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [ALPHA] Compile fixes for alpha arch
-In-Reply-To: <Pine.LNX.4.44.0209230852550.13675-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209231411560.7827-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf/Steudnitz; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261373AbSIWT05>; Mon, 23 Sep 2002 15:26:57 -0400
+Received: from mnh-1-28.mv.com ([207.22.10.60]:35589 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S261347AbSIWTZP>;
+	Mon, 23 Sep 2002 15:25:15 -0400
+Message-Id: <200209232034.PAA03655@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: uml-patch-2.5.38-1
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 23 Sep 2002 15:34:57 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+UML has been updated to 2.5.38.
 
-On Mon, 23 Sep 2002, Linus Torvalds wrote:
-> This is why I absolutely abhor attachments - they add zero value (over a 
-> well-behaving mail app), and they make some things basically impossible to 
-> do conveniently.
+Thanks to comments from Al Viro and fixes from James McMechan, the block
+driver is up to date with the block layer changes.
 
-I'd say they add value -- try sending binaries inline, and watch them beat 
-you up...
+There were some fixes to keep up with the latest kbuild, including some
+changes in the top-level Makefile, which I'll be feeding to Kai.
 
-> Alternatively, if you use attachments, if the mailer doesn't re-code them 
-> as something stupid (ie leaves the encoding as plain ascii), then that 
-> works too.
+There were also a number of smaller fixes to update to 2.5.38, a number
+of which came from Nikita Danilov.
 
-Suggestion: since you use the shell to create patches, do the following:
+I'll be feeding these changes to Linus.
 
-receive mail, respond to mail, write text mails -> pine
-send patches -> script (I have got an example here.)
+The patch is available at
+	http://uml-pub.ists.dartmouth.edu/uml/uml-patch-2.5.38-1.bz2
 
-Will work fine, and not corrupt your stuff unless you tell it to.
+For the other UML mirrors and other downloads, see 
+	http://user-mode-linux.sourceforge.net/dl-sf.html
 
-			Thunder
--- 
-assert(typeof((fool)->next) == typeof(fool));	/* wrong */
+Other links of interest:
+
+	The UML project home page : http://user-mode-linux.sourceforge.net
+	The UML Community site : http://usermodelinux.org
+
+				Jeff
 

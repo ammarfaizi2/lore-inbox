@@ -1,54 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263792AbTKFUMB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Nov 2003 15:12:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263816AbTKFUL5
+	id S263800AbTKFU2U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Nov 2003 15:28:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263813AbTKFU2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Nov 2003 15:11:57 -0500
-Received: from jaguar.mkp.net ([192.139.46.146]:31654 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S263792AbTKFULw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Nov 2003 15:11:52 -0500
-To: Matthew Wilcox <willy@debian.org>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [DMESG] cpumask_t in action
-References: <20031105222202.GA24119@sgi.com>
-	<20031106165159.GE26869@parcelfarce.linux.theplanet.co.uk>
-From: Jes Sorensen <jes@trained-monkey.org>
-Date: 06 Nov 2003 15:11:48 -0500
-In-Reply-To: <20031106165159.GE26869@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <yq0y8utp88r.fsf@trained-monkey.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 6 Nov 2003 15:28:20 -0500
+Received: from wblv-224-88.telkomadsl.co.za ([165.165.224.88]:60555 "EHLO
+	nosferatu.lan") by vger.kernel.org with ESMTP id S263800AbTKFU2R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Nov 2003 15:28:17 -0500
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
+	defined (trivial)
+From: Martin Schlemmer <azarah@gentoo.org>
+Reply-To: azarah@gentoo.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: KML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031106120548.097ccc7c.davem@redhat.com>
+References: <1068140199.12287.246.camel@nosferatu.lan>
+	 <20031106093746.5cc8066e.davem@redhat.com>
+	 <1068143563.12287.264.camel@nosferatu.lan>
+	 <1068144179.12287.283.camel@nosferatu.lan>
+	 <20031106113716.7382e5d2.davem@redhat.com>
+	 <1068149368.12287.331.camel@nosferatu.lan>
+	 <20031106120548.097ccc7c.davem@redhat.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-IkxrgYtfxVzPVxKgY45g"
+Message-Id: <1068150552.12287.349.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 06 Nov 2003 22:29:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Matthew" == Matthew Wilcox <willy@debian.org> writes:
 
-Matthew> On Wed, Nov 05, 2003 at 02:22:02PM -0800, Jesse Barnes wrote:
+--=-IkxrgYtfxVzPVxKgY45g
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Matthew> There's a number of things here that annoy me.  One is the
-Matthew> stupid "Processor 8192/1 is spinning up".  I would expect
-Matthew> "Processor 2/96 is spinning up", but why have this line at
-Matthew> all?  I'd also like to see "Bringing up 3", "Processor 1 has
-Matthew> spun up..." and "CPU 1 IS NOW UP!" go away.  That'd cut us
-Matthew> down to:
+On Thu, 2003-11-06 at 22:05, David S. Miller wrote:
+> On Thu, 06 Nov 2003 22:09:29 +0200
+> Martin Schlemmer <azarah@gentoo.org> wrote:
+>=20
+> > On Thu, 2003-11-06 at 21:37, David S. Miller wrote:
+> > > Let's say that you end up using some inline function
+> > > that takes u32 arguments, and internally it uses
+> > > u64 types to speed up the calculation or make it more
+> > > accurate or something like that.
+> >=20
+> > So basically only in cases where the stuff in byteorder.h
+> > was not inlined ... ?
+>=20
+> No, exactly in the cases where it _IS_ inlined.  Imagine
+> this:
+>=20
+> static inline u32 swab_foo(u32 a, u32 b)
+> {
+> 	u64 tmp =3D ((u64)a<<32) | ((u64)b);
+> 	u32 retval;
+>=20
+> 	retval =3D compute(tmp);
+>=20
+> 	return retval;
+> }
+>=20
+> If that's in a kernel header somewhere, and you build with -ansi,
+> you lose.
 
->> CPU 3: 61 virtual and 50 physical address bits CPU 3: nasid 2,
->> slice 2, cnode 1 CPU 3: base freq=200.000MHz, ITC ratio=15/2, ITC
->> freq=1500.000MHz+/--1ppm Calibrating delay loop... 2241.08 BogoMIPS
->> CPU3: CPU has booted.  Starting migration thread for cpu 3
+If you look at asm/types.h, u64 is kernel only namespace, so in
+theory that code will not be in userspace.  Also, the whole idea
+of this patch (the first one that touched byteorder.h, and not the
+second that touched types.h), was to encase everything that used
+__u64 that _is_ in userspace in __STRICT_ANSI__.  If there thus
+was another place that did use __u64 outside a ifdef __STRICT_ANSI__,
+the compile would anyhow stop with -ansi.
 
-Matthew> A 40% reduction in per-cpu verbosity ;-)
+Your above example would thus look more like:
 
-Why not turn it the other way and just report the success of booted
-CPUs and more detailed results for the CPUs that failed? I know there
-are cases where you want the debug info in case of tracking kernel
-bugs, but one could stick a compile time debug flag into the code for
-that case, 960 - 40% = 576 lines of guff is still way too much IMHO,
-especially over a serial console.
+--
+#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
+static inline __u32 swab_foo(__u32 a, __u32 b)
+{
+	__u64 tmp =3D ((__u64)a<<32) | ((__u64)b);
+	__u32 retval;
 
-Cheers,
-Jes
+	retval =3D compute(tmp);
+
+	return retval;
+}
+#else
+<code without __u64>
+..
+#endif
+--
+
+which in theory should not have an issue.
+
+
+Thanks,
+
+--=20
+
+Martin Schlemmer
+
+
+
+
+--=-IkxrgYtfxVzPVxKgY45g
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/qq8YqburzKaJYLYRAt9jAJ4pKmwoiGbERtmtciYj1Cmsh2ybCACdGMlh
+Az4tRgMmZkZO0EE7Y23Q8NM=
+=4Mtl
+-----END PGP SIGNATURE-----
+
+--=-IkxrgYtfxVzPVxKgY45g--
+

@@ -1,47 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264733AbSKUUeV>; Thu, 21 Nov 2002 15:34:21 -0500
+	id <S262303AbSKUUff>; Thu, 21 Nov 2002 15:35:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264739AbSKUUeV>; Thu, 21 Nov 2002 15:34:21 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:8979 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S264733AbSKUUeU>; Thu, 21 Nov 2002 15:34:20 -0500
-Date: Thu, 21 Nov 2002 15:40:16 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: "Filipau, Ihar" <ifilipau@sussdd.de>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: useless image of hdd: how to make it useful?
-In-Reply-To: <20021118215158.GA2183@win.tue.nl>
-Message-ID: <Pine.LNX.3.96.1021121153759.10456B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264739AbSKUUff>; Thu, 21 Nov 2002 15:35:35 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:18326 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262303AbSKUUfe>;
+	Thu, 21 Nov 2002 15:35:34 -0500
+Date: Thu, 21 Nov 2002 20:40:56 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Margit Schubert-While <margitsw@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: P4 compile options
+Message-ID: <20021121204056.GA19455@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Margit Schubert-While <margitsw@t-online.de>,
+	linux-kernel@vger.kernel.org
+References: <4.3.2.7.2.20021121210830.00b58890@mail.dns-host.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4.3.2.7.2.20021121210830.00b58890@mail.dns-host.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Andries Brouwer wrote:
+On Thu, Nov 21, 2002 at 09:18:30PM +0100, Margit Schubert-While wrote:
+ > Maybe a dumb question -
+ > Is it possible to use the "-march=pentium4 -mfpmath=sse -msse2" options
+ > for a P4 ?
+ > I notice anything over a P2 just gets "-march=i686".
 
->    Device Boot    Start       End   #sectors  Id  System
->  hdc_img1            63    112454     112392  83  Linux
->  hdc_img2        112455    401624     289170  82  Linux swap
->  hdc_img3        401625  33736499   33334875   5  Extended
->  ...
-> 
-> OK, let us mount this first one, at an offset of 63 sectors.
-> 
-> % bc
-> 63*512
-> 32256
-> 
-> # mount hdc_img /mnt -o loop,offset=32256
-> #
+This is already done in 2.5. (Well, the -march anyways)
 
-Being at heart a lazy fellow, and not counting on people to have bc
-installed although they should...
-  # mount hdc_img /mnt -o loop,offset=$[63*512]
+		Dave
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130799AbRCFA3o>; Mon, 5 Mar 2001 19:29:44 -0500
+	id <S130806AbRCFAzJ>; Mon, 5 Mar 2001 19:55:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130803AbRCFA3e>; Mon, 5 Mar 2001 19:29:34 -0500
-Received: from mail1.mail.iol.ie ([194.125.2.192]:7952 "EHLO mail.iol.ie")
-	by vger.kernel.org with ESMTP id <S130799AbRCFA3Y>;
-	Mon, 5 Mar 2001 19:29:24 -0500
-Date: Tue, 6 Mar 2001 00:29:12 +0000
-From: Kenn Humborg <kenn@linux.ie>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kmalloc() alignment
-Message-ID: <20010306002912.A14827@excalibur.research.wombat.ie>
-In-Reply-To: <3AA2C488.54A792AD@colorfullife.com> <20010306000652.A13992@excalibur.research.wombat.ie> <981a78$cb2$1@cesium.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <981a78$cb2$1@cesium.transmeta.com>; from hpa@zytor.com on Mon, Mar 05, 2001 at 04:15:36PM -0800
+	id <S130811AbRCFAzA>; Mon, 5 Mar 2001 19:55:00 -0500
+Received: from julia.fractalus.com ([208.33.249.70]:35851 "HELO
+	julia.fractalus.com") by vger.kernel.org with SMTP
+	id <S130806AbRCFAys>; Mon, 5 Mar 2001 19:54:48 -0500
+Date: Mon, 5 Mar 2001 19:48:20 -0500 (EST)
+From: SteveC <steve@fractalus.com>
+To: Amit Chaudhary <amitc@brocade.com>
+cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: continous hard disk trashing and error messages - 2.4.2-ac5
+In-Reply-To: <FFD40DB4943CD411876500508BAD027901DE2C12@sj5-ex2.brocade.com>
+Message-ID: <Pine.LNX.4.10.10103051943500.28033-100000@julia.fractalus.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 05, 2001 at 04:15:36PM -0800, H. Peter Anvin wrote:
-> > So, to summarise (for 32-bit CPUs):
-> > 
-> > o  Alan Cox & Manfred Spraul say 4-byte alignment is guaranteed.
-> > 
-> > o  If you need larger alignment, you need to alloc a larger space,
-> >    round as necessary, and keep the original pointer for kfree()
-> > 
-> > Maybe I'll just use get_free_pages, since it's a 64KB chunk that
-> > I need (and it's only a once-off).
-> > 
-> 
-> It might be worth asking the question if larger blocks are more
-> aligned?
+On Mon, 5 Mar 2001, Amit Chaudhary wrote:
+> For the kernel 2.4.2 with the patch 2.4.2-ac5 patch, I have been getting continous hard disk trashing and the following errors in the /var/log/messages. I increased the console log level to avoid the messages. Please see below a sample set
+> Mar  5 12:15:59 amitc-linux mount: mount: can't open /etc/mtab for writing: Input/output error
+> Mar  5 12:16:04 amitc-linux kernel: hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
+> Mar  5 12:16:04 amitc-linux kernel: hda: read_intr: error=0x40 { UncorrectableError }, LBAsect=25133118, sector=3670215
+> Mar  5 12:16:04 amitc-linux kernel: end_request: I/O error, dev 03:06 (hda), sector 3670215
+> Mar  5 12:16:04 amitc-linux kernel: EXT2-fs error (device ide0(3,6)): ext2_write_inode: unable to read inode block - inode=230017, block=458776
 
-OK, I'll bite...
+hmmm. I had the same things from vanilla 2.4.2 on my laptop but luckily it
+wiped out non essential stuff. I migrated back to 2.2.18.
 
-Are larger blocks more aligned?
+I assumed it must be something stupid that I am doing but I have yet to
+find it.
 
-Later,
-Kenn
+details - ext2fs main partition went awol. Had to manual fsck with much of
+the above happening and lost+found filled up with stuff. anything else on
+request. Still hoping its something stupid my end but doesn't appear to be
+DMA stuf... I don't know.
+
+have fun,
+
+pub  1024D/A9D75E73 2000-05-30 Stephen Coast (SteveC) <steve@fractalus.com>
+[expires:2001-05-30] www.fractalus.com/steve/ <stevecoast@hushmail.com>
 

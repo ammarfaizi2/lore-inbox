@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbTLXV4L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Dec 2003 16:56:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263913AbTLXV4L
+	id S263923AbTLXV7x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Dec 2003 16:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbTLXV7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Dec 2003 16:56:11 -0500
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:58119 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S263909AbTLXV4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Dec 2003 16:56:10 -0500
-Date: Wed, 24 Dec 2003 22:57:07 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>
-Subject: [PATCH 2.4] i2c cleanups, second wave
-Message-Id: <20031224225707.749707e5.khali@linux-fr.org>
-Reply-To: LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <sensors@Stimpy.netroedge.com>
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 24 Dec 2003 16:59:52 -0500
+Received: from ms-smtp-02-qfe0.nyroc.rr.com ([24.24.2.56]:10693 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S263923AbTLXV7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Dec 2003 16:59:51 -0500
+Message-ID: <3FEA0C3C.9090601@cs.oswego.edu>
+Date: Wed, 24 Dec 2003 16:59:24 -0500
+From: Keith Lea <keith@cs.oswego.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11 data loss
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I will be sending 5 patches to you, based on linux-2.4.24-pre2. They
-contain cleanups for the i2c subsystem code, ported from LM Sensors' i2c
-CVS repository [1].
+Hello, I'm not subscribed to this list. This is not a help request, and 
+not really a bug report, I just thought someone should know about this.
 
-Details about what the patch does and credits will be found with each
-patch.
+I installed the 2.6.0-beta11-mm kernel last week, and the other day my 
+computer locked up (this is normal on my laptop with every kernel 
+version I've tried, this isn't the problem I'm posting about). When I 
+restarted, many, many files that had been open when it locked up were 
+filled with garbage, or the contents of totally unrelated files. For 
+example, my syslog contained some KDE header file code, and 
+/sbin/modprobe contained 82kb of data that seemed like random noise. I 
+think each file was the same size as it was originally, just with 
+different data, but I'm not sure.
 
-Please apply,
-thanks.
+The corruption happened on two separate partitions on a single IDE 
+laptop drive, and both were ReiserFS 3.6 partitions. I don't know if 
+this is a kernel bug or a Reiser bug or something else, but I thought 
+the kernel developers should know about this, and be on the lookout for 
+similar things (hopefully with more informative bug reports than mine). 
+I'm sorry I don't have more information, but if anyone wants to know 
+more about my system I'd be glad to help.
 
-[1] http://www2.lm-sensors.nu/~lm78/cvs/browse.cgi/i2c
-
--- 
-Jean Delvare
-http://www.ensicaen.ismra.fr/~delvare/
+-Keith Lea

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129509AbRCFU6H>; Tue, 6 Mar 2001 15:58:07 -0500
+	id <S129511AbRCFVB1>; Tue, 6 Mar 2001 16:01:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129486AbRCFU56>; Tue, 6 Mar 2001 15:57:58 -0500
-Received: from relay01.cablecom.net ([62.2.33.101]:47112 "EHLO
-	relay01.cablecom.net") by vger.kernel.org with ESMTP
-	id <S129469AbRCFU5q>; Tue, 6 Mar 2001 15:57:46 -0500
-Message-ID: <3AA54F40.A3643F3E@bluewin.ch>
-Date: Tue, 06 Mar 2001 21:57:36 +0100
-From: Otto Wyss <otto.wyss@bluewin.ch>
-Reply-To: otto.wyss@bluewin.ch
-X-Mailer: Mozilla 4.76 (Macintosh; U; PPC)
-X-Accept-Language: de,en
+	id <S129502AbRCFVBS>; Tue, 6 Mar 2001 16:01:18 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:18956
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129473AbRCFVBF>; Tue, 6 Mar 2001 16:01:05 -0500
+Date: Tue, 6 Mar 2001 12:59:37 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Microsoft ZERO Sector Virus, Result of Taskfile WAR
+In-Reply-To: <20010306214838.V2803@suse.de>
+Message-ID: <Pine.LNX.4.10.10103061255301.13719-100000@master.linux-ide.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: USB-keyboard not recognize after connection
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an USB-keyboard/-mouse connected to a switchbox which is itself
-connected to a PowerMac (MacOS) and my PC running Linux. I do regularly
-switch my USB-devices between Mac and PC. Since I upgraded to kernel
-2.4.0 and now 2.4.2 it happens from time to time that Linux does not
-recognize my keyboard/mouse after switching back to the PC. This leaves
-me in a rather unconfortable situation, since I can't do anything
-anymore. All I could do is switch off the power! I tried to
-disconnect/reconnect my USB-keyboard but it didn't help.
+On Tue, 6 Mar 2001, Jens Axboe wrote:
 
-My questions:
+> But I might want to do this (write sector 0), why would we want
+> to filter that? If someone a) uses an email client that will execute
+> java script code (or whatever) and b) runs that as root (which
+> he would have to do, surely no ordinary user has privileges to send
+> arbitrary commands) then he gets what he deserves.
 
-1. Is there any better way to fix this situation, besides power off or
-getting a standard keyboard?
+Jens we are not going there....the filter is the only way known to jam
+unknown commands, and you missed the point of the issue then and I think
+you still miss it.  "arbitrary commands" + wrong hander is lock-up.
+Everyone can do this, and that is fine.  I will not stop the drive-command
+ioctl from issuing a drive-data command, you win!
 
-2. Is there a minmal time frame of no activity (up to an hour) where any
-cached data is saved to the disk, so I could switch off the power
-without corrupting my disk?
+Regards,
 
-3. How can I get more information what's happening? Is there any
-USB-log/-trace accessable after the restart of linux? And whom/where do
-I have to send it?
+Andre Hedrick
+Linux ATA Development
 
-O. Wyss
-
-PS. Please do CC, I don't read linux-kernel.

@@ -1,75 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130347AbRCIALE>; Thu, 8 Mar 2001 19:11:04 -0500
+	id <S130384AbRCIAaP>; Thu, 8 Mar 2001 19:30:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130336AbRCIAKz>; Thu, 8 Mar 2001 19:10:55 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:11019 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S130329AbRCIAKq>;
-	Thu, 8 Mar 2001 19:10:46 -0500
-Date: Thu, 8 Mar 2001 16:07:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Erik DeBill <edebill@swbell.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.2ac12 and ac13 breaks usb-visor
-Message-ID: <20010308160758.A16296@kroah.com>
-In-Reply-To: <E14aQA9-0001br-00@the-village.bc.nu> <20010307172056.A8647@austin.rr.com> <20010307173640.A14818@kroah.com> <20010308140103.A17993@austin.rr.com>
-Mime-Version: 1.0
+	id <S130383AbRCIAaF>; Thu, 8 Mar 2001 19:30:05 -0500
+Received: from dweeb.lbl.gov ([128.3.1.28]:46345 "EHLO beeble.lbl.gov")
+	by vger.kernel.org with ESMTP id <S130381AbRCIA36>;
+	Thu, 8 Mar 2001 19:29:58 -0500
+Message-ID: <3AA823DC.30D392D4@lbl.gov>
+Date: Thu, 08 Mar 2001 16:29:16 -0800
+From: Thomas Davis <tadavis@lbl.gov>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-RAID i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Tom Sightler <ttsig@tuxyturvy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Questions about Enterprise Storage with Linux
+In-Reply-To: <E14an7j-0001rZ-00@the-village.bc.nu> <20010307164052.B788@wirex.com> <006301c0a765$3ca118e0$1601a8c0@zeusinc.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010308140103.A17993@austin.rr.com>; from edebill@swbell.net on Thu, Mar 08, 2001 at 02:01:03PM -0600
-X-Operating-System: Linux 2.2.18-immunix (i586)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 08, 2001 at 02:01:03PM -0600, Erik DeBill wrote:
-> On Wed, Mar 07, 2001 at 05:36:40PM -0800, Greg KH wrote:
-> > I'll try to run with everything compiled into the kernel later tonight.
-> > Does -ac14 with all of USB as modules, using usb-uhci work for you?
+Tom Sightler wrote:
 > 
-> Hmm... I was compiling usb-uhci and uhci directly into the kernel,
-> then visor.o as a module.
-
-You shouldn't be able to compile both usb-uhci and uhci into the kernel,
-unless you tweak your .config file by hand.
-
-> ac13 + crypto works with usb-uhci, usb-serial, and visor as modules.
-> No problems.
+> Hi All,
 > 
-> I've gone back and (re)tested with kernels 2.4.1, 2.4.2, ac[36],
-> ac1[01234].  I can only get a crash on ac12 and ac13.  2.4.2 is broken
-> after all, and everything after it.  2.4.2 and the ac kernels seem to
-> fail on 'pilot-xfer /dev/usb/tts/1 -m scsi.pdb' (to install a zTXT
-> into gutenpalm, doesn't matter what I'm sending), and things seem to
-> go slower and have more problems as the versions increase.  Then I can
-> crash the system under ac12 and 13.  This is using uhci compiled
-> directly into kernel, with usb-serial and visor as modules.
+> I'm seeking information in regards to a large Linux implementation we are
+> planning.  We have been evaluating many storage options and I've come up
+> with some questions that I have been unable to answer as far as Linux
+> capabilities in regards to storage.
+> 
+> We are looking at storage systems that provide approximately 1TB of capacity
+> for now and can scale to 10+TB in the future.  We will almost certainly use
+> a storage system that provides both fiber channel connectivity as well as
+> NFS connectivity.
+> 
+> The questions that have been asked are as follows (assume 2.4.x kernels):
+> 
+> 1.  What is the largest block device that linux currently supports?  i.e.
+> Can I create a single 1TB volume on my storage device and expect linux to
+> see it and be able to format it?
+> 
 
-What is the oops from when things crash?
-Have you tried enabling debugging on the usb-serial drivers and looking
-at what the visor driver spits out to the kernel debug log?  I'd be
-interested in seeing that.
+Yes.
 
-Since you are reporting problems with a clean 2.4.2 kernel, I don't
-think that the 1 line patch in ac12 is the cause of your problem.
+[root@pdsfdv10 data]# df .
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/rza3            1046274600 889731608 146074448  86% /export/data
 
-What kind of hardware is this?  What compiler?  What version of
-modutils?  What is your .config?  Do you have any other USB devices that
-work properly (or not) in this system?  Have you tried resetting your
-Visor?
+> 2.  Does linux have any problems with large (500GB+) NFS exports, how about
+> large files over NFS?
+> 
 
-> If uhci + visor is unsupported, might I suggest the following change
-> to Configure.help to warn people?
+No.
+[root@pdsflx002 pdsfdv10]# df .
+Filesystem           1k-blocks      Used Available Use% Mounted on
+pdsfdv10.nersc.gov:/export/data
+                     1046274600 889731608 146074448  86% /auto/pdsfdv10
 
-I've considered it, but I keep hoping that JE is going to fix the uhci
-driver some day soon :)
+(same filesystem, via NFS)
 
-There are other drivers that also do not work with the uhci.o driver do
-to this bug.
+files > 2gb need LFS support in ia32 environments.
 
-thanks,
+> 3.  What filesystem would be best for such large volumes?  We currently use
+> reirserfs on our internal system, but they generally have filesystems in the
+> 18-30GB ranges and we're talking about potentially 10-20x that.  Should we
+> look at JFS/XFS or others?
+> 
 
-greg k-h
+ext2 works fine, you just have to wait about 3 hrs to FSCK a crashed
+filesystem; ext3 also works fine.  Get a 2.2.18, apply the ext3 fs
+patches, bang, your done.
+
+reiserfs won't work via NFS, without kernel patches.
 
 -- 
-greg@(kroah|wirex).com
+------------------------+--------------------------------------------------
+Thomas Davis		| ASG Cluster guy
+tadavis@lbl.gov		| 
+(510) 486-4524		| "80 nodes and chugging Captain!"

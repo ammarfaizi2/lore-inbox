@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310582AbSCMNmX>; Wed, 13 Mar 2002 08:42:23 -0500
+	id <S310584AbSCMNoD>; Wed, 13 Mar 2002 08:44:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310583AbSCMNmM>; Wed, 13 Mar 2002 08:42:12 -0500
-Received: from angband.namesys.com ([212.16.7.85]:14976 "HELO
-	angband.namesys.com") by vger.kernel.org with SMTP
-	id <S310582AbSCMNmC>; Wed, 13 Mar 2002 08:42:02 -0500
-Date: Wed, 13 Mar 2002 16:41:58 +0300
-From: Oleg Drokin <green@namesys.com>
-To: Peter Zaitsev <pz@spylog.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: MMAP vs READ/WRITE
-Message-ID: <20020313164158.A1219@namesys.com>
-In-Reply-To: <861732271654.20020313161718@spylog.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <861732271654.20020313161718@spylog.ru>
-User-Agent: Mutt/1.3.22.1i
+	id <S310585AbSCMNny>; Wed, 13 Mar 2002 08:43:54 -0500
+Received: from [195.20.224.249] ([195.20.224.249]:45835 "EHLO samoa.sitewaerts")
+	by vger.kernel.org with ESMTP id <S310584AbSCMNno>;
+	Wed, 13 Mar 2002 08:43:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Felix Seeger <seeger@sitewaerts.de>
+Organization: <sitewaerts> GmbH
+To: linux-kernel@vger.kernel.org
+Subject: New IDE in 2.4.19-pre3 - What is it
+Date: Wed, 13 Mar 2002 14:50:49 +0100
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020313134348Z310584-890+125605@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi
 
-On Wed, Mar 13, 2002 at 04:17:18PM +0300, Peter Zaitsev wrote:
->   So I would say mmap is not really optimized nowdays in Linux and so
->   read() may be wining in cases it should not. May be read-ahead is
->   used with read and is not used with mmap.
+What is this new IDE in the kernel.
+Do I need it ?
+Is it faster, more secure better support for hardware ...
+Sorry if I missed the right mail.
 
-how about reading manual page on madvise(2) and redoing your test?
-
-Also cache is best cleaned by unmounting filesystem in question
-and then mounting it back.
-
-Bye,
-    Oleg
+thanks
+have fun
+Felix

@@ -1,51 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274259AbRISXR3>; Wed, 19 Sep 2001 19:17:29 -0400
+	id <S274257AbRISXTt>; Wed, 19 Sep 2001 19:19:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274263AbRISXRT>; Wed, 19 Sep 2001 19:17:19 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:59899 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S272661AbRISXRE>; Wed, 19 Sep 2001 19:17:04 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Wed, 19 Sep 2001 17:16:43 -0600
+	id <S274256AbRISXTj>; Wed, 19 Sep 2001 19:19:39 -0400
+Received: from mercury.Sun.COM ([192.9.25.1]:44259 "EHLO mercury.Sun.COM")
+	by vger.kernel.org with ESMTP id <S274260AbRISXTY>;
+	Wed, 19 Sep 2001 19:19:24 -0400
+Message-ID: <3BA929C7.B6B6000A@sun.com>
+Date: Wed, 19 Sep 2001 16:27:03 -0700
+From: Stephane Brossier <stephane.brossier@sun.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mark Swanson <swansma@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Request: removal of fs/fs.h/super_block.u to enable partition
-Message-ID: <20010919171643.T14526@turbolinux.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Mark Swanson <swansma@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <3BA8F6EC.E3D73C87@yahoo.com> <E15jpH2-0003wz-00@the-village.bc.nu>
-Mime-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: [1.] X session randomly crashes because of kernel problem.
+In-Reply-To: <E15ixXt-000738-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E15jpH2-0003wz-00@the-village.bc.nu>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 19, 2001  22:52 +0100, Alan Cox wrote:
-> Apart from the fact that the interface is source level you already can
-> distribute, compile and merge file systems without patching the kernel.
+Alan,
+
+Thanks you for your time.
+
+Below are my answers.
+
+Alan Cox wrote:
 > 
-> It seems to be a user space issue not a kernel one. Your app can amend
-> /etc/mtab when it creates and shuts down. 
+> > [2.] I installed the standart version of Mandrake8.0,
+> >      and I am working under kde2.1.1 with Xfree86 4.0.3.
+> >
+> >      Suddenly my X session exits. Looking at the syslog
+> >      I can see the following log:
+> 
+> Can you duplicate the problem with a more recent kernel, and also
+> preferably one without the supermount patch ?
+> 
 
-Well, in recent versions of e2fsprogs it prefers to check /proc/mounts
-over /etc/mtab to determine if a device is in-use, because the latter
-can be incorrect after a crash, and the root filesystem is read-only at
-this time.  There was recently a bug report about this from Slackware
-users, where fsck is run on all of the filesystems before root is
-remounted rw.  As a result, there is now even extra checking to see if
-the devno of the mountpoint == devno of the device, otherwise it assumes
-the /etc/mtab entry is bogus.
+I did not try that yet since I need this machine-- and this patch
+to work form home. My plan is to update both my hardware and my
+kernel but I wanted to report this bug anyway.
 
-On most other systems, root is remounted rw before non-root filesystems
-are checked, and /etc/mtab could be assumed to be correct, but it will
-never be checked if /proc/mounts exists.
+Also I can also experience the same problem but with diffrent
+traces in syslog.
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+Sep 18 23:50:00 129 CROND[1633]: (root) CMD (   /sbin/rmmod -as)
+Sep 19 00:00:00 129 CROND[1889]: (root) CMD (   /sbin/rmmod -as)
+Sep 19 00:01:00 129 CROND[1895]: (root) CMD (run-parts /etc/cron.hourly)
+Sep 19 00:01:45 129 kdm[1216]: Server for display :0 terminated
+unexpectedly: 1536
+Sep 19 00:01:56 129 kernel: [drm:r128_do_wait_for_fifo] *ERROR*
+r128_do_wait_for_fifo failed!
+Sep 19 00:02:13 129 last message repeated 2 times
+Sep 19 00:02:15 129 modprobe: modprobe: Can't locate module binfmt-0000
+Sep 19 00:02:15 129 modprobe: modprobe: Can't locate module binfmt-0000
+Sep 19 00:02:15 129 kernel: [drm:r128_do_wait_for_fifo] *ERROR*
+r128_do_wait_for_fifo failed!
 
+I don't know if this is another bug or the same one. The behavior
+is the same-- my X server crashes suddenly and the kernel seems to
+be in a bad state because sometimes after that the machine reboots.
+
+> Also does the machine past memtest86 ?
+
+I tried that this afternoon and everything seems to be fine on
+this side.
+
+Steph.

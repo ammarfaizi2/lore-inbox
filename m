@@ -1,46 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbUKAJkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbUKAJuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbUKAJkn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 04:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbUKAJkn
+	id S261717AbUKAJuj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 04:50:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbUKAJui
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 04:40:43 -0500
-Received: from gprs187-64.eurotel.cz ([160.218.187.64]:14208 "EHLO
-	midnight.suse.cz") by vger.kernel.org with ESMTP id S261764AbUKAJiq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 04:38:46 -0500
-Date: Mon, 1 Nov 2004 10:38:31 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
-Subject: Re: Map extra keys on compaq evo
-Message-ID: <20041101093830.GA1145@ucw.cz>
-References: <20041031213859.GA6742@elf.ucw.cz> <200410312016.08468.dtor_core@ameritech.net> <20041101080306.GA1002@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 1 Nov 2004 04:50:38 -0500
+Received: from mailr.eris.qinetiq.com ([128.98.1.9]:61154 "HELO
+	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
+	id S261717AbUKAJuW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Nov 2004 04:50:22 -0500
+From: Mark Watts <m.watts@eris.qinetiq.com>
+Organization: QinetiQ
+To: linux-kernel@vger.kernel.org
+Subject: ethernet channel bonding (bonding.o) on 2.6.x
+Date: Mon, 1 Nov 2004 10:54:56 +0100
+User-Agent: KMail/1.6.1
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20041101080306.GA1002@elf.ucw.cz>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200411010955.00347.m.watts@eris.qinetiq.com>
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.12; VDF: 6.28.0.47; host: mailr.qinetiq-tim.net)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 01, 2004 at 09:03:07AM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > > Compaq Evo notebooks seem to use non-standard keycodes for their extra
-> > > keys. I workaround that quirk with dmi hook.
-> > > 
-> > 
-> > Why don't you just call "setkeycodes" from your init script?
-> 
-> In such case I'd need to configure keys at two different places, and
-> that's ugly. I have to configure these extra keys with "hotkeys"
-> anyway (input layer does not provide list of keys available, so
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-It does.
 
-> "hotkeys" . Having to configure this at two places is pretty ugly.
+I'm trying to migrate a couple of server from a 2.4 kernel to 2.6 (Mandrake 
+9.1 -> 10.0)
+All servers have 4 nics (a mix of e1000 and bcm5700) arranged in two logical 
+interfaces.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Note: Mandrakes ifconfig/ifup scripts have the necessary logic to ifenslave 
+ethX interfaces to a bondX interface automatically (through options in the 
+ifcfg-ethX and ifcfg-bondX config files).
+
+On 2.4 I used the following in /etc/modules.conf, which worked perfectly:
+
+- --
+alias bond0 bonding
+alias bond1 bonding
+
+options bond0 miimon=100 mode=1
+options bond1 -o bonding1 miimon=100 mode=1
+- --
+
+When I come to use these settings with /etc/modprobe.conf, only bond0 comes 
+up. The system complains that there 'doesnt seem to be a device for bond1' 
+and doesn't bring it up.
+
+Using 'generate-modprobe.conf' It thinks I should be using:
+
+- --
+alias bond0 bonding
+alias bond1 bonding
+options bond0 miimon=100 mode=1
+options bond1 miimon=100
+install bond1 /sbin/modprobe -o bonding1 --ignore-install bonding
+- --
+
+This doesn't work - I get the same error.
+
+If I manually do:
+
+	# modprobe bonding -o bonding1
+	# ifconfig bond1 up
+
+Then I can bring up bond1 by hand. 
+
+I'm guessing the 'install' line is supposed to load a second instance of the 
+bonding driver (which I didn't think I needed with 2.6's module loading 
+needed - I can load e1000 twice without doing anything special) but it isn't.
+
+
+Does anyone have a system with more than one bonded interface that actually 
+works?
+
+Cheers,
+
+Mark.
+
+- -- 
+Mark Watts
+Senior Systems Engineer
+QinetiQ Trusted Information Management
+Trusted Solutions and Services group
+GPG Public Key ID: 455420ED
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFBhgf0Bn4EFUVUIO0RAuAHAKCDS5DtJMzRJjJGnGXly6b0GjRL/wCg8h/A
+PXmz2ltABkxPQWXfVY4XVBQ=
+=Wsch
+-----END PGP SIGNATURE-----

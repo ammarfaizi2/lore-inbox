@@ -1,47 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUHANWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265943AbUHANWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265932AbUHANWN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 09:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUHANWN
+	id S265943AbUHANWi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 09:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265944AbUHANWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 09:22:13 -0400
-Received: from mail.dif.dk ([193.138.115.101]:18627 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265932AbUHANWM (ORCPT
+	Sun, 1 Aug 2004 09:22:38 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:31937 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265943AbUHANWf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 09:22:12 -0400
-Date: Sun, 1 Aug 2004 15:26:45 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: shai lifshitz <slifshitz@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: check_region question
-In-Reply-To: <BAY17-F431PAMiNAdAl00025bde@hotmail.com>
-Message-ID: <Pine.LNX.4.60.0408011507270.2535@dragon.hygekrogen.localhost>
-References: <BAY17-F431PAMiNAdAl00025bde@hotmail.com>
+	Sun, 1 Aug 2004 09:22:35 -0400
+Date: Sun, 1 Aug 2004 15:22:17 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+cc: LKML <linux-kernel@vger.kernel.org>,
+       Peter Maydell <pmaydell@chiark.greenend.org.uk>,
+       Phil Blundell <philb@gnu.org>, Andrew Morton <akpm@osdl.org>,
+       Kars de Jong <jongk@linux-m68k.org>
+Subject: Re: [PATCH] Fix up return value from dio_find() (fixing a FIXME)
+In-Reply-To: <Pine.LNX.4.60.0407312132490.2660@dragon.hygekrogen.localhost>
+Message-ID: <Pine.GSO.4.58.0408011519180.25657@waterleaf.sonytel.be>
+References: <Pine.LNX.4.60.0407312132490.2660@dragon.hygekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Aug 2004, shai lifshitz wrote:
+On Sat, 31 Jul 2004, Jesper Juhl wrote:
+> Here's a patch to fix up this FIXME in drivers/dio/dio.c:dio_find() :
+>
+> * Aargh: we use 0 for an error return code, but select code 0 exists!
+> * FIXME (trivial, use -1, but requires changes to all the drivers :-< )
+> */
+>
+> I've changed the return value to -1 as suggested by the comment, and then
+> went looking for the drivers that needed to be changed (as the comment
+> mentions). I only found two users of dio_find() and I've fixed those up to
+> not treat 0 as an error, but only values <0.
+> The FIXME implies (to me at least) that there are many drivers that would
+> need to be changed, but I could only find two - did I miss anything?
+> Also, I don't have the hardware to test the drivers I've changed, so I've
+> done compile testing only - could someone please review my changes and
+> confirm if they are correct?
 
-> hi group,
-> 
-> I try to grap the parallel port of a PC (x86), so as the first step I do:
-> "check_region(0x378,3);"
+I guess most of these are already covered by Kars' patch at the URL below?
 
-You want to use request_region() instead, check_region() is deprecated and 
-everything still using it is being moved to use request_region().
+    http://linux-m68k-cvs.ubb.ca/~geert/linux-m68k-2.6.x-merging/474-dio.diff
 
-also, take a look at drivers/parport/parport_pc.c for examples.
+Gr{oetje,eeting}s,
 
-You can also get useful info from
-cat /proc/ioports
-cat /proc/iomem
-cat /proc/modules
-
-You may also want to take a look at http://www.xml.com/ldd/chapter/book/
-
+						Geert
 
 --
-Jesper Juhl <juhl-lkml@dif.dk>
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

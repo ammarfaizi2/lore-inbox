@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268199AbUIWRfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268162AbUIWRhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268199AbUIWRfg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268206AbUIWReO
+	id S268162AbUIWRhz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 13:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268213AbUIWRgP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:34:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60099 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268186AbUIWRb4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:31:56 -0400
-Date: Thu, 23 Sep 2004 18:31:51 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Greg KH <greg@kroah.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, parisc-linux@parisc-linux.org
-Subject: Re: [PATCH] Sort generic PCI fixups after specific ones
-Message-ID: <20040923173151.GX16153@parcelfarce.linux.theplanet.co.uk>
-References: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk> <20040923172038.GA8812@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040923172038.GA8812@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 23 Sep 2004 13:36:15 -0400
+Received: from colossus.systems.pipex.net ([62.241.160.73]:970 "EHLO
+	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
+	id S268203AbUIWRd7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 13:33:59 -0400
+Date: Thu, 23 Sep 2004 18:34:46 +0100 (BST)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: linux-kernel@vger.kernel.org
+Cc: discuss@x86-64.org, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.8.1 doesn't boot on x86_64
+In-Reply-To: <Pine.LNX.4.44.0409231814500.2275-100000@einstein.homenet>
+Message-ID: <Pine.LNX.4.44.0409231827580.2275-100000@einstein.homenet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 10:20:38AM -0700, Greg KH wrote:
-> On Wed, Sep 22, 2004 at 10:43:04PM +0100, Matthew Wilcox wrote:
-> > The recent change that allowed PCI fixups to be declared everywhere
-> > broke IDE on PA-RISC by making the generic IDE fixup be applied before
-> > the PA-RISC specific one.  This patch fixes that by sorting generic fixups
-> > after the specific ones.  It also obeys the 80-column limit and reduces
-> > the amount of grotty macro code.
+booting with nosmp panics dereferencing NULL pointer and the stack trace 
+(ignoring offsets) looks like this:
+
+sysfs_hash_and_remove
+sysfs_remove_link
+class_device_dev_unlink
+class_device_del
+class_device_unregister
+scsi_remove_host
+ata_host_remove
+ata_device_add
+ata_pci_init_one
+piix_init_one
+pci_device_probe_static
+__pci_device_probe
+bus_match
+driver_attach
+bus_add_driver
+driver_register
+pci_register_driver
+piix_init
+child_rip
+
+Btw, in this context I noticed something interesting earlier (with Fedora 
+Core 2 kernels) --- if I plug in the second SATA disk to the 3 
+channel then Linux only detects the first SATA disk and the second host 
+thread just exists. I didn't know if it's a bug or expected behaviour so I 
+just plugged in the second SATA disk into the first controller so I get 
+sda and sdb disks and everything works fine (with FC2 kernel, not 
+2.6.8.1).
+
+I cc'd Jeff Garzik as the functions on the stack (ata bits) seem to belong
+to his area. Jeff, this is booting 2.6.8.1 with "nosmp" on an x86_64 with
+two SATA disks (sda and sdb). Booting without "nosmp" hangs as described
+below. Booting with "nosmp" panics as described above.
+
+Kind regards
+Tigran
+
+On Thu, 23 Sep 2004, Tigran Aivazian wrote:
+
+> Hello,
 > 
-> It looks like you are doing 2 different things here with this new macro.
-> Having it run last, and leting the user not type the PCI_ANY_ID macro
-> twice.  How about if you want to do a final final type pass, you mark it
-> as such, and not try to hide it in this manner.
+> I haven't heard about it on x86_64 discuss list so I thought it is worth 
+> asking if someone else has encountered this. When I boot 2.6.8.1 kernel 
+> (patched with kdb) the last thing I see is:
+> 
+> Freeing unused kernel memory: 160k f
+> 
+> I don't get the whole word "freed", only the first letter "f". This is SMP 
+> kernel. I will try recompiling without kdb and also booting as "nosmp" to 
+> see if it makes any difference.
+> 
+> Fedora Core 2 smp kernel boots fine, btw.
+> 
+> Kind regards
+> Tigran
+> 
+> 
+> 
 
-Not really.  There's two types of fixup (well, four if you multiply by
-the header vs later possibility).  There's the incredibly specific ("this
-device from this manufacturer forgets to set something properly") and
-the incredibly general ("if this is a cardbus / IDE device, then ...").
-This patch simply distinguishes between the two.  Obviously the general
-ones run after the specific ones -- there's specific devices that forget
-to set their class code, for example.
 
-> And do we really want to call it "final final"?  What if we determine
-> that we need a "final final final" pass?  Can't you fix this with the
-> link order like was previously done?  I'd really prefer to not add
-> another level.
-
-I don't want to call it "final final" at all.  Did you miss the message
-where I explained the problem with this being link order dependent?
-
-> Oh, and cc:ing the pci maintainer might be nice next time :)
-
-I already apologised to you on IRC for that yesterday.
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain

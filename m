@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267969AbUHKLIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267970AbUHKLKi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267969AbUHKLIK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 07:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267970AbUHKLIK
+	id S267970AbUHKLKi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 07:10:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268024AbUHKLKi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 07:08:10 -0400
-Received: from CPE-65-30-20-102.kc.rr.com ([65.30.20.102]:40849 "EHLO
-	mail.2thebatcave.com") by vger.kernel.org with ESMTP
-	id S267969AbUHKLII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 07:08:08 -0400
-Message-ID: <44852.192.168.1.12.1092222487.squirrel@192.168.1.12>
-In-Reply-To: <20040810135409.44d31d1e@lembas.zaitcev.lan>
-References: <1092142777.1042.30.camel@bart.intern>
-    <20040810171000.GC12702@logos.cnet>
-    <mailman.1092163681.21436.linux-kernel2news@redhat.com>
-    <20040810135409.44d31d1e@lembas.zaitcev.lan>
-Date: Wed, 11 Aug 2004 06:08:07 -0500 (CDT)
-Subject: Re: uhci-hcd oops with 2.4.27/ intel D845GLVA
-From: "Nick Bartos" <spam99@2thebatcave.com>
-To: "Pete Zaitcev" <zaitcev@redhat.com>
-Cc: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>, zaitcev@redhat.com,
-       linux-kernel@vger.kernel.org, km@westend.com, david-b@pacbell.net
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Wed, 11 Aug 2004 07:10:38 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:26552 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267970AbUHKLKh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 07:10:37 -0400
+Date: Wed, 11 Aug 2004 12:54:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dave Jones <davej@redhat.com>, Jesper Juhl <juhl-lkml@dif.dk>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][trivial] line up 'ESR value before/after enabling vector' messages
+Message-ID: <20040811105448.GA17743@elte.hu>
+References: <Pine.LNX.4.61.0408110145030.2690@dragon.hygekrogen.localhost> <20040811062314.GA32700@elte.hu> <20040811104735.GA24149@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040811104735.GA24149@redhat.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> The "uhci-hcd in 2.4.27" was launched by Nick, Kai simply reused that
-> header. I should note when I saw "uhci-hcd" I automatically ignored it,
-> because there's no uhci-hcd in 2.4.
+* Dave Jones <davej@redhat.com> wrote:
 
-sorry about the incorrect subject, I was in a hurry to get to work...
+> Has this printk actually been useful ? ever ? I notice a majority of
+> the time, it never changes too. If it is useful, how about changing it
+> so it prints something if the value changed ?  (Something like patch
+> below maybe?) Or is possible for the APIC to lock up between the two
+> printk's ?
 
-In any event now the kernel will boot fine.  I haven't really tested the
-usb, but of course the really important thing is that the kernel doesn't
-crash :)
+it was used to debug secondary-CPU startup problems many years ago. It
+is also useful to see whether it's a real APIC we got there. I'd suggest
+to remove the message altogether.
 
-
+	Ingo

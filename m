@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264489AbTK0L6U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 06:58:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264495AbTK0L6U
+	id S264497AbTK0MGU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 07:06:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbTK0MGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 06:58:20 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:58204 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S264489AbTK0L6P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 06:58:15 -0500
-Date: Thu, 27 Nov 2003 03:57:55 -0800
-From: Paul Jackson <pj@sgi.com>
-To: mru@kth.se (=?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?=)
+	Thu, 27 Nov 2003 07:06:20 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:56329 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264497AbTK0MGT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Nov 2003 07:06:19 -0500
+Date: Thu, 27 Nov 2003 13:16:56 +0100
+To: Gene Heskett <gene.heskett@verizon.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 not cat proof
-Message-Id: <20031127035755.2d960969.pj@sgi.com>
-In-Reply-To: <yw1xr7zutcmr.fsf@kth.se>
-References: <20031126201052.GA16106@outpost.ds9a.nl>
-	<1069877780.7606.0.camel@laptop-linux>
-	<20031127073004.GB6275@vega.digitel2002.hu>
-	<yw1xr7zutcmr.fsf@kth.se>
-Organization: SGI
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: exiting X and rebooting
+Message-ID: <20031127121656.GA8606@hh.idb.hist.no>
+References: <200311270617.03654.gene.heskett@verizon.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200311270617.03654.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I had to "rm /bin/cat" nine times ...
+On Thu, Nov 27, 2003 at 06:17:03AM -0500, Gene Heskett wrote:
+> Greetings;
+> 
+> I'm not sure what category this minor complaint falls under, but since 
+> its evidenced by a 2.6 kernel and not a 2.4, this seems like the 
+> place.
+> 
+> One of the things I've been meaning to mention is that if I'm running 
+> a 2.6 kernel, and exit X to reboot, the shell that had a cursor when 
+> I started X from it, no longer has a cursor when x has been stopped.  
+> This occurs only for 2.6 kernels, but works as usual for 2.4 kernels 
+> giving a big full character block for a cursor.
+> 
+> One can still type, and the keystrokes are echo'd properly.  But it is 
+> a bit un-nerving at first.  Logging clear out and back in again to 
+> re-init the shell doesn't help.  The cursor is gone.
 
-You're too cruel.
+This seems like a framebuffer problem to me, are you using a framebuffer,
+and if so, which one?
 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+Helge Hafting

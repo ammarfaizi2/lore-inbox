@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263185AbTKXNPk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 08:15:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263310AbTKXNPk
+	id S263462AbTKXNTi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 08:19:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263467AbTKXNTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 08:15:40 -0500
-Received: from [65.248.4.67] ([65.248.4.67]:13998 "EHLO verdesmares.com")
-	by vger.kernel.org with ESMTP id S263185AbTKXNPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 08:15:39 -0500
-Message-ID: <001001c3b28d$183400e0$34dfa7c8@bsb.virtua.com.br>
-From: "Breno" <brenosp@brasilsec.com.br>
-To: "Kernel List" <linux-kernel@vger.kernel.org>
-Subject: Force Coredump
-Date: Mon, 24 Nov 2003 11:15:51 -0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+	Mon, 24 Nov 2003 08:19:38 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:24761 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263462AbTKXNTh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 08:19:37 -0500
+Date: Mon, 24 Nov 2003 13:19:35 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: transmeta cpu code question
+Message-ID: <20031124131934.GA30489@mail.shareable.org>
+References: <20031120020218.GJ3748@schottelius.org> <20031120232532.GA8229@mail.shareable.org> <200311210834.hAL8YOKw000394@81-2-122-30.bradfords.org.uk> <20031121084857.GA10343@mail.shareable.org> <bps9vu$osu$1@cesium.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bps9vu$osu$1@cesium.transmeta.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+H. Peter Anvin wrote:
+> If there is something that one could imagine doing at the CMS level to
+> help on Linux, it would probably be something like making it optional
+> to actually perform stores beneath the stack pointer, in which case a
+> lot of stack frame operations could be done purely in registers.  CMS
+> will do them in registers already, but will be forced to perform a
+> store at the end of the translation anyway in order to keep exact x86
+> semantics.
 
-I need force a coredump file. So i tryed :
+You couldn't enable that globally, because it'd break userspace
+programs which write below the stack safely using sigaltstack(), or
+which even use the stack pointer as a general purpose register (I've
+coded games which do that in tight rendering loops), or during funky
+thunking code.
 
-int *i = 0;
-if(*i)
-exit(1);
+It sounds like a good thing to add as a per-task feature though.
 
-tryed to kill -11 'pid'
-...
-
-but i just received a seg. fault message, and doesn´t  create coredump file.
-
-Anybody knows why ?
-att
-Breno
-
+-- Jamie

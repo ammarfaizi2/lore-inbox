@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262868AbRFCMEf>; Sun, 3 Jun 2001 08:04:35 -0400
+	id <S263761AbRFDEDr>; Mon, 4 Jun 2001 00:03:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262901AbRFCMAN>; Sun, 3 Jun 2001 08:00:13 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16147 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262868AbRFCLS1>; Sun, 3 Jun 2001 07:18:27 -0400
-Subject: Re: What is i386 thread.trapno?
-To: jdike@karaya.com (Jeff Dike)
-Date: Sun, 3 Jun 2001 12:16:09 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200106030231.VAA03708@ccure.karaya.com> from "Jeff Dike" at Jun 02, 2001 09:31:42 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S263827AbRFDEDh>; Mon, 4 Jun 2001 00:03:37 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:19724 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S263761AbRFDED2>; Mon, 4 Jun 2001 00:03:28 -0400
+Date: Sun, 3 Jun 2001 21:02:18 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+cc: Andries.Brouwer@cwi.nl,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: keyboard hook?
+In-Reply-To: <20010603110239.A4982@513.holly-springs.nc.us>
+Message-ID: <Pine.LNX.4.10.10106032056310.14554-100000@transvirtual.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E156Vrd-0004Cq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The i386 page fault handler sets trap_no to 14, so the fault isn't coming from 
-> there, but I can't see where a SIGSEGV is being delivered to a process with 
-> thread.trap_no == 1.
 
-include/asm-i386/siginfo.h
+> Thanks, I'm loking through your driver now. Does the input api 
+> already/currently support ps2 keyboards?
 
-	
+With the current tree no. The work around is to make input api keyboards
+behave as PS/2 keyboards. In 2.5.X ps2 keyboards will be input api based. 
+As you can see we already have PS/2 input api driver (i8042.c and atkbd.c). 
+I have been using it for several months now. It is just a matter of making
+sure it works on other platforms besides intel. 
+
+P.S
+   I also need to port other keyboard drivers on other platforms over to
+the input api and test these drivers. If anyone would like to help out
+contact me.
+

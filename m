@@ -1,63 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUAPCJn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 21:09:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUAPCJn
+	id S265211AbUAPCWK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 21:22:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265161AbUAPCWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 21:09:43 -0500
-Received: from modemcable178.89-70-69.mc.videotron.ca ([69.70.89.178]:59008
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262730AbUAPCJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 21:09:42 -0500
-Date: Thu, 15 Jan 2004 21:08:56 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Gaspar Bakos <gbakos@cfa.harvard.edu>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, peb@mppmu.mpg.de
-Subject: Re: SMP kernel, only single processor appears (fwd)
-In-Reply-To: <Pine.LNX.4.58.0401152040060.4208@montezuma.fsmlabs.com>
-Message-ID: <Pine.LNX.4.58.0401152104020.4208@montezuma.fsmlabs.com>
-References: <Pine.SOL.4.58.0401151807310.9382@antu.cfa.harvard.edu>
- <Pine.LNX.4.58.0401152040060.4208@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 15 Jan 2004 21:22:10 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:39226 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S263726AbUAPCWG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 21:22:06 -0500
+Date: Thu, 15 Jan 2004 18:21:55 -0800
+To: Greg KH <greg@kroah.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, jeremy@sgi.com
+Subject: Re: [PATCH] readX_relaxed interface
+Message-ID: <20040116022155.GA10634@sgi.com>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	linux-ia64@vger.kernel.org, jeremy@sgi.com
+References: <20040115204913.GA8172@sgi.com> <20040116003224.GF23253@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040116003224.GF23253@kroah.com>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 15 Jan 2004, Zwane Mwaikambo wrote:
+On Thu, Jan 15, 2004 at 04:32:25PM -0800, Greg KH wrote:
+> It looks ok, but it would really be good if we could indicate if the
+> read actually was successful.  Right now some platforms can detect
+> faults and do not have a way to get that error back to the driver in a
+> sane manner.  If we were to change the read* functions to look something
+> like:
+> 	int readb(void *addr, u8 *data);
+> it would be a world easier.
 
-> On Thu, 15 Jan 2004, Gaspar Bakos wrote:
-> >
-> > I have an Intel 7505VB2 dual Xeon motherboard with 2x2.66GHz CPUs, Redhat
-> > 9.0 and self-compiled 2.4.23 kernel. Interestingly, I see only one CPU
-> > with e.g. "top", or cat /proc/cpuinfo, etc.
-> >
-> > I have to tell though that I installed this system by cloning the disk of
-> > another PC, which is running a single processor; then booting in the dual
-> > processor computer from the cloned disk (with a bootfloppy), and then
-> > recompiling the kernel (and rebooting to the new SMP enabled kernel).
-> > Seems to me that this is not enough, and I might have missed something.
-> >
-> > Any advice would be welcome.
->
-> This looks like you have 2 physical processors. Perhaps you don't have
-> hyperthreading enabled, i presume you want 4 logical processors. Try the
-> "acpi=ht" kernel parameter.
+At one point, I thought it would be nice if it took a struct device *
+too, but that's probably a bit much.
 
-Sorry i mis-parsed your email in my haste. Could you try the following
-patch (Courtesy of Peter Breitenlohner)
+> Now I'm not saying I want to change the existing interfaces to support
+> this, that's too much code to change for even me (and is a 2.7 thing.)
+> 
+> Just wanted to put this idea in people's heads that we need to start
+> planning for something like it.
 
---- linux-2.4.23/include/asm-i386/smpboot.h.orig	2003-08-25 13:44:43.000000000 +0200
-+++ linux-2.4.23/include/asm-i386/smpboot.h	2003-12-02 16:49:46.000000000 +0100
-@@ -73,11 +73,9 @@
-  */
- static inline int cpu_present_to_apicid(int mps_cpu)
- {
--	if (clustered_apic_mode == CLUSTERED_APIC_XAPIC)
--		return raw_phys_apicid[mps_cpu];
- 	if(clustered_apic_mode == CLUSTERED_APIC_NUMAQ)
- 		return (mps_cpu/4)*16 + (1<<(mps_cpu%4));
--	return mps_cpu;
-+	return raw_phys_apicid[mps_cpu];
- }
+Sounds reasonable.  It should be helpful.
 
- static inline unsigned long apicid_to_phys_cpu_present(int apicid)
+Thanks,
+Jesse

@@ -1,51 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbTEHJyu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 05:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbTEHJyu
+	id S261275AbTEHJ7U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 05:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbTEHJ7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 05:54:50 -0400
-Received: from holomorphy.com ([66.224.33.161]:64150 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S261315AbTEHJyt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 05:54:49 -0400
-Date: Thu, 8 May 2003 03:07:17 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Helge Hafting <helgehaf@aitel.hist.no>,
-       "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org, akpm@digeo.com
-Subject: Re: 2.5.69-mm2 Kernel panic, possibly network related
-Message-ID: <20030508100717.GN8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Helge Hafting <helgehaf@aitel.hist.no>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org, akpm@digeo.com
-References: <3EB8E4CC.8010409@aitel.hist.no> <20030507.025626.10317747.davem@redhat.com> <20030507144100.GD8978@holomorphy.com> <20030507.064010.42794250.davem@redhat.com> <20030507215430.GA1109@hh.idb.hist.no> <20030508013854.GW8931@holomorphy.com> <20030508065440.GA1890@hh.idb.hist.no> <20030508080135.GK8978@holomorphy.com>
+	Thu, 8 May 2003 05:59:20 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:34575 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261275AbTEHJ7T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 05:59:19 -0400
+Date: Thu, 8 May 2003 12:08:32 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       chas williams <chas@locutus.cmf.nrl.navy.mil>, davem@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [ATM] [PATCH] unbalanced exit path in Forerunner HE he_init_one()
+Message-ID: <20030508120832.A26472@electric-eye.fr.zoreil.com>
+References: <200305071813.h47IDpc9010906@hera.kernel.org> <20030508010146.A20715@electric-eye.fr.zoreil.com> <20030508060640.A24325@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030508080135.GK8978@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030508060640.A24325@infradead.org>; from hch@infradead.org on Thu, May 08, 2003 at 06:06:40AM +0100
+X-Organisation: Marie's fan club - III
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08, 2003 at 08:54:40AM +0200, Helge Hafting wrote:
->> Which patch is the netfilter cset?  None of
->> the patches in mm2 looked obvious to me.  Or
->> is it part of the linus patch? Note that mm1
->> works for me, so anything found there too
->> isn't as likely to be the problem.
+Christoph Hellwig <hch@infradead.org> :
+[...]
+> Btw, this driver badly wants a cleanup of the ifdef mess.  Look
 
-On Thu, May 08, 2003 at 01:01:35AM -0700, William Lee Irwin III wrote:
-> The fuzz/offset is safe. The netfilter patch to back out follows
-> (there's actually a fix for it now but ignore that -- we just want
-> to isolate the problem):
+It may happen some day in the future.
 
-2.5.69-mm3 should suffice to test things now. If you can try that when
-you get back I'd be much obliged.
+[...]
+> ifdefs all over the place.  Who reviewed this driver before
+> inclusion?
 
-Thanks
+Happy relaxed people :o)
 
-
--- wli
+--
+Ueimor

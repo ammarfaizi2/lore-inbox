@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbTLAUMU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 15:12:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263921AbTLAUMU
+	id S263965AbTLAUUt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 15:20:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTLAUUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 15:12:20 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:11219 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262914AbTLAUMT convert rfc822-to-8bit (ORCPT
+	Mon, 1 Dec 2003 15:20:49 -0500
+Received: from legolas.restena.lu ([158.64.1.34]:48871 "EHLO smtp.restena.lu")
+	by vger.kernel.org with ESMTP id S263965AbTLAUUs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 15:12:19 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: Re: memory hotremove prototype, take 3
-Date: Mon, 1 Dec 2003 12:12:09 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F4FAED7@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re: memory hotremove prototype, take 3
-Thread-Index: AcO4R2ZWOKlCuw/iTqacnjxlAutegA==
-From: "Luck, Tony" <tony.luck@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "Pavel Machek" <pavel@suse.cz>
-X-OriginalArrivalTime: 01 Dec 2003 20:12:10.0386 (UTC) FILETIME=[66D3EF20:01C3B847]
+	Mon, 1 Dec 2003 15:20:48 -0500
+Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
+From: Craig Bradney <cbradney@zip.com.au>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031201183046.GB255@elf.ucw.cz>
+References: <200311292325.44935.csawtell@paradise.net.nz>
+	 <1070104685.29442.24.camel@athlonxp.bradney.info>
+	 <20031201183046.GB255@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1070310044.28164.91.camel@athlonxp.bradney.info>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 01 Dec 2003 21:20:44 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Hi,
 
-> hotunplug seems cool... How do you deal with kernel data structures in
-> memory "to be removed"? Or you simply don't allow kmalloc() to
-> allocate there?
+On Mon, 2003-12-01 at 19:30, Pavel Machek wrote:
+> Hi!
+> 
+> > I am also using a 2 week old A7N8X Deluxe, v2 with the latest 1007 BIOS.
+> > I AM able to run 2.6 Test 11 with APIC, Local APIC and ACPI support
+> > turned on (SMP off, Preemptible Kernel off).
+> > 
+> > Although the PC hasnt been under constant stress, uptime is over 12
+> > hours and its not the first time its been up for 12 or more with test 11
+> > (which was my first 2.6 kernel). Running Gentoo Linux btw.
+> 
+> Try noapic.
+> 								Pavel
 
-You guessed right.  Hot removeable memory can only be allocated
-for uses that we can easily re-allocate.  So kmalloc() etc. have
-to get memory from some area that we promise not to ever try to
-remove.
+To see if it breaks? 
+Im on just about 3 days uptime here with 2.6 test 11.. 
 
-> During hotunplug, you copy pages to new locaion. Would it simplify
-> code if you forced them to be swapped out, instead? [Yep, it would be
-> slower...]
-
-There are some pages that will have to be copied (e.g. pages that
-the user "mlock()d" should still be locked in their new location,
-same for hugetlbfs pages).
-
--Tony Luck  
+Craig
 

@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266117AbRF2Qro>; Fri, 29 Jun 2001 12:47:44 -0400
+	id <S266119AbRF2RMa>; Fri, 29 Jun 2001 13:12:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266119AbRF2Qre>; Fri, 29 Jun 2001 12:47:34 -0400
-Received: from isdn305.s.netic.de ([212.9.163.49]:8452 "EHLO solfire")
-	by vger.kernel.org with ESMTP id <S266117AbRF2QrR>;
-	Fri, 29 Jun 2001 12:47:17 -0400
-To: alan@lxorguk.ukuu.org.uk
+	id <S266120AbRF2RMV>; Fri, 29 Jun 2001 13:12:21 -0400
+Received: from pat.uio.no ([129.240.130.16]:35221 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S266119AbRF2RML>;
+	Fri, 29 Jun 2001 13:12:11 -0400
+To: "J.R. de Jong" <jdejong@chem.rug.nl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problems with 2.4.5ac21
-From: Meino Christian Cramer <mccramer@s.netic.de>
-X-Mailer: Mew version 1.94.2 on XEmacs 21.4 (Academic Rigor)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20010629182645R.mccramer@s.netic.de>
-Date: Fri, 29 Jun 2001 18:26:45 +0200
-X-Dispatcher: imput version 20000228(IM140)
+Subject: Re: 2.4.5 NFS io errors
+In-Reply-To: <Pine.LNX.4.21.0106281918160.3048-100000@polypc17.chem.rug.nl>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 29 Jun 2001 19:12:05 +0200
+In-Reply-To: "J.R. de Jong"'s message of "Thu, 28 Jun 2001 19:31:00 +0200 (CEST)"
+Message-ID: <shsvglfyzve.fsf@charged.uio.no>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+>>>>> " " == J R de Jong <J.R.> writes:
 
- with the newest kernel linux-2.4.5ac21 I am not able to activate
- the ppp network device an dits options. Regardless what I am doing,
- the setting will not be stored into .config...
+     > Hi all, Recently I upgraded from 2.4.4 to 2.4.5, but after that
+     > I got users complaining about io errors on some mounted NFS
+     > systems on some files, whenever they tried to stat (ls) or open
+     > the file. Even after several reboots (other files failed tho).
 
- Any trick to avoid this ?
+     > Going back to 2.4.4 solved the problem. I don't know if this
+     > problem has been adressed already.
 
- Thanks for any help in advance!
+Sounds like you're using soft mounts?
 
- (PS: I am currently not on the kernel list, please answer also to my
-  email address. Thank you!)
-
-  keep hacking the right site of life ! :-)
-  Meino  
-
+Cheers,
+   Trond

@@ -1,64 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263453AbTJZT21 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 14:28:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTJZT21
+	id S263468AbTJZT26 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 14:28:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263469AbTJZT24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 14:28:27 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:55781 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S263453AbTJZT20
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 14:28:26 -0500
-Date: Mon, 27 Oct 2003 08:28:14 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: [Swsusp-devel] Announce: Swsusp-2.0-2.6-alpha1
-In-reply-to: <200310261250.36616.aviram@jenik.com>
-To: Aviram Jenik <aviram@jenik.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: swsusp-devel <swsusp-devel@lists.sourceforge.net>
-Message-id: <1067196494.14422.203.camel@laptop-linux>
+	Sun, 26 Oct 2003 14:28:56 -0500
+Received: from fep04-mail.bloor.is.net.cable.rogers.com ([66.185.86.74]:1572
+	"EHLO fep04-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S263468AbTJZT2w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 26 Oct 2003 14:28:52 -0500
+Date: Sun, 26 Oct 2003 14:28:51 -0500
+From: Sean Estabrooks <seanlkml@rogers.com>
+To: linux-kernel@vger.kernel.org
+Subject: modification time not set correctly after mmap updates
+Message-Id: <20031026142851.384b9857.seanlkml@rogers.com>
+Reply-To: seanlkml@rogers.com
 Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <1067064107.1974.44.camel@laptop-linux>
- <200310261250.36616.aviram@jenik.com>
+X-Mailer: Sylpheed version 0.9.4-gtk2-20030802 (GTK+ 2.2.3; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep04-mail.bloor.is.net.cable.rogers.com from [24.103.218.41] using ID <seanlkml@rogers.com> at Sun, 26 Oct 2003 14:27:40 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
 
-I forgot to mention that you need to echo 1 > /proc/swsusp/enable_escape
-for pressing escape to work. (It's mentioned in
-Documentation/power/swsusp.txt).
+mtime is not being updated after changes to files via mmap, at least not
+on 2.6.0-test7.   Problem shows up on both ext3 and reiserfs.
 
-Sorry.
+Below is an ugly little program which updates a test file without
+affecting its modification time.
 
-Nigel
+I tried this on 2.4.23 and got the same behavior so perhaps i'm
+misinterpreting this passage from the mmap man page:
 
-On Sun, 2003-10-26 at 23:50, Aviram Jenik wrote:
-> Hi,
-> 
-> I tried swsusp on 2.6.0-test9. Patch was applied cleanly, but for compilation 
-> to work I needed to apply Pavel's scsi one-liner patch.
-> 
-> I tried hibernation with echo > /proc/swsusp/activate, but it was stuck on 
-> "Freezing processes: Waiting for activity to finish".
-> 
-> On Saturday 25 October 2003 08:41, Nigel Cunningham wrote:
-> >
-> > In addition, you may see freezing failures. If
-> > the process hangs at 'Freezing processes: Waiting for activity to
-> > finish' or 'Syncing remaining I/O', try pressing escape once. 
-> 
-> I tried several times pressing "ESC", but nothing happened. 'l' and 'r' did 
-> change the display, but there was nothing in the logs (I had to do a cold 
-> reboot).
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+ The  st_ctime  and st_mtime field for a file mapped with PROT_WRITE
+ and MAP_SHARED will be updated after a write  to  the  mapped region, 
+ and before  a  subsequent msync() with the MS_SYNC or MS_ASYNC
+ flag, if one occurs.
 
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+Cheers,
+Sean
 
+
+
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+/* You'll need a file "test.txt" with a few bytes in it */
+/* After running this proggy: file is changed but its mtime isn't */
+#define SIZE 20
+int main()
+{
+        int fd;
+        char *mbuf;
+ 
+        fd = open("test.txt", O_RDWR);
+        mbuf = mmap(0, SIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+        mbuf[1]='x';
+        msync(mbuf, SIZE, MS_SYNC);
+        munmap(mbuf, SIZE);
+        fsync(fd);
+        close(fd);
+ 
+        return 0;
+}

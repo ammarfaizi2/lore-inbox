@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUGIWLs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266001AbUGIWSJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265996AbUGIWLs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 18:11:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUGIWLr
+	id S266001AbUGIWSJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 18:18:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266005AbUGIWSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 18:11:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34455 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265999AbUGIWLn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 18:11:43 -0400
-Date: Fri, 9 Jul 2004 15:14:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: 2.6.7-mm7
-Message-Id: <20040709151448.28f1dbf7.akpm@osdl.org>
-In-Reply-To: <20040709210423.GB21066@holomorphy.com>
-References: <20040708235025.5f8436b7.akpm@osdl.org>
-	<20040709210423.GB21066@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 9 Jul 2004 18:18:09 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41205 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S266001AbUGIWSD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 18:18:03 -0400
+Date: Sat, 10 Jul 2004 00:17:55 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andi Kleen <ak@muc.de>
+Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
+Subject: Re: GCC 3.4 and broken inlining.
+Message-ID: <20040709221755.GU28324@fs.tum.de>
+References: <2fFzK-3Zz-23@gated-at.bofh.it> <2fG2F-4qK-3@gated-at.bofh.it> <2fG2G-4qK-9@gated-at.bofh.it> <2fPfF-2Dv-21@gated-at.bofh.it> <2fPfF-2Dv-19@gated-at.bofh.it> <m34qohrdel.fsf@averell.firstfloor.org> <20040709184050.GR28324@fs.tum.de> <20040709215415.GA56272@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040709215415.GA56272@muc.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
->   SPLIT   include/linux/autoconf.h -> include/config/*
->   CHK     include/linux/compile.h
->   UPD     include/linux/compile.h
-> In file included from include/asm/sbus.h:10,
->                  from arch/sparc64/kernel/auxio.c:15:
+On Fri, Jul 09, 2004 at 11:54:15PM +0200, Andi Kleen wrote:
+> > Runtime errors caused with gcc 3.4 are IMHO much worse than such a small 
+> > improvement or three dozen compile errors with gcc 3.4 .
+> 
+> What runtime errors? 
+> 
+> Actually requiring inlining is extremly rare and such functions should
+> get that an explicit always inline just for documentation purposes.
+> (another issue is not optimized away checks, but that shows at link time) 
 
-It needs err.h.
+First of all, your proposed patch seems to be broken WRT gcc < 3.1 .
 
-btw, James, I'm unable to convince myself that
-dma_mark_declared_memory_occupied() reserves enough pages if device_addr is
-not page-aligned.  Could you double-check that?  If all callers are
-expected to use a page-aligned address then a BUG_ON might be appropriate. 
-Or a comment.
+> In the x86-64 case it was vsyscalls, in Nigel's case it was swsusp.
+> Both are quite exceptional in what they do.
+> 
+> > Wouldn't it be a better solution if you would audit the existing inlines 
+> > in the kernel for abuse of inline and fix those instead?
+> 
+> I don't see any point in going through ~1.2MLOC of code by hand
+> when a compiler can do it for me.
 
-diff -puN include/linux/dma-mapping.h~bk-dma-declare-coherent-memory-fix include/linux/dma-mapping.h
---- 25-sparc64/include/linux/dma-mapping.h~bk-dma-declare-coherent-memory-fix	2004-07-09 15:07:00.253229480 -0700
-+++ 25-sparc64-akpm/include/linux/dma-mapping.h	2004-07-09 15:07:13.039285704 -0700
-@@ -1,6 +1,8 @@
- #ifndef _ASM_LINUX_DMA_MAPPING_H
- #define _ASM_LINUX_DMA_MAPPING_H
- 
-+#include <linux/err.h>
-+
- /* These definitions mirror those in pci.h, so they can be used
-  * interchangeably with their PCI_ counterparts */
- enum dma_data_direction {
-_
+How can a compiler decide whether an "inline" was for a possible small  
+speed benefit or whether it's required for correct working?
+
+And I'm not that happy with the fact that gcc 3.3 and gcc 3.4 will 
+produce significantly different code for the same file. Besides from the  
+3 dozen compile errors I'm currently sorting out, gcc 3.3 and 3.4 should 
+behave similar with __attribute__((always_inline)).
+
+> -Andi
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

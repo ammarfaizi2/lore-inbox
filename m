@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267861AbTGHWkY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 18:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267880AbTGHWkY
+	id S267798AbTGHWgu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 18:36:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265426AbTGHWgt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 18:40:24 -0400
-Received: from 216-229-91-229-empty.fidnet.com ([216.229.91.229]:17425 "EHLO
-	mail.icequake.net") by vger.kernel.org with ESMTP id S267861AbTGHWhD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 18:37:03 -0400
-Date: Tue, 8 Jul 2003 17:51:37 -0500
-From: Ryan Underwood <nemesis-lists@icequake.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Forking shell bombs
-Message-ID: <20030708225137.GA1031@dbz.icequake.net>
-References: <20030708202819.GM1030@dbz.icequake.net> <3F0B2CE6.8060805@nni.com>
+	Tue, 8 Jul 2003 18:36:49 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:36756 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S267798AbTGHWep (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 18:34:45 -0400
+Date: Wed, 9 Jul 2003 00:41:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: dahinds@users.sourceforge.net, kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Subject: Fix suspend/resume with yenta
+Message-ID: <20030708224146.GA140@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F0B2CE6.8060805@nni.com>
-User-Agent: Mutt/1.5.4i
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On an Athlon 600 running 2.4.20, with ulimit -u 2047, the box recovers
-no problem from the fork bomb.
+This fixes suspend/resume with yenta active. Please apply,
 
-On my Celeron 800 running 2.4.21, ulimit -u 1500, the box recovers after
-4-5 minutes.
+(it is trivial after you look at pcmcia_socket_dev_suspend ;-).
 
-ulimit -u 2047 (Debian's default ulimit), the box fights for 5-10
-minutes, and no longer responds after 10.  I can see fork perrors in
-the terminal like usual, but the machine no longer responds. (I waited
-more than half an hour.)
+							Pavel
 
+--- clean/drivers/pcmcia/yenta_socket.c	2003-07-06 20:07:39.000000000 +0200
++++ linux/drivers/pcmcia/yenta_socket.c	2003-07-09 00:30:21.000000000 +0200
+@@ -899,7 +899,10 @@
+ 
+ static int yenta_dev_suspend (struct pci_dev *dev, u32 state)
+ {
+-	return pcmcia_socket_dev_suspend(&dev->dev, state, 0);
++	/* FIXME: We should really let devices to act on *all* levels :-(.
++	   If you put something else than SUSPEND_SAVE_STATE,
++	   pcmcia_socket_dev_suspend() will simply do nothing due to its check. */
++	return pcmcia_socket_dev_suspend(&dev->dev, state, SUSPEND_SAVE_STATE);
+ }
+ 
+ 
 -- 
-Ryan Underwood, <nemesis at icequake.net>, icq=10317253
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,46 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbUJ0Nvf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbUJ0Nyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262445AbUJ0Nvf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 09:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUJ0Nve
+	id S262444AbUJ0Nyk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 09:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbUJ0Nyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 09:51:34 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:18440 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262445AbUJ0NvQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 09:51:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Vqj8wmE4x+rYiLqItrK0bcwvpDpD3oI0XrggbuvkP1D1haqgpVXaShRvsSQnw2FCkxJqaxn3lXD1iG7UDs1WhIPW90RQLKpGizFLboJ+kNd5ZGOaevVML/r+l4d/zxiPzWW70DxWtHEguj0Kxw+ou/TtMEb96LDuEhwp0WXw1wY=
-Message-ID: <58cb370e04102706512283405@mail.gmail.com>
-Date: Wed, 27 Oct 2004 15:51:14 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: CaT <cat@zip.com.au>
-Subject: Re: [BK PATCHES] ide-2.6 update
-Cc: torvalds@osdl.org, linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20041027133431.GF1127@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <58cb370e04102706074c20d6d7@mail.gmail.com>
-	 <20041027133431.GF1127@zip.com.au>
+	Wed, 27 Oct 2004 09:54:39 -0400
+Received: from mailgate.urz.uni-halle.de ([141.48.3.51]:9100 "EHLO
+	mailgate.uni-halle.de") by vger.kernel.org with ESMTP
+	id S262444AbUJ0Nwb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 09:52:31 -0400
+Date: Wed, 27 Oct 2004 15:52:14 +0200 (METDST)
+From: Clemens Ladisch <clemens@ladisch.de>
+To: Christoph Hellwig <hch@lst.de>
+cc: <perex@suse.cz>, <linux-kernel@vger.kernel.org>,
+       <alsa-devel@alsa-project.org>
+Subject: Re: [Alsa-devel] [PATCH, RFC] remove dead code an exports from alsa
+In-Reply-To: <20041024133813.GA20174@lst.de>
+Message-ID: <Pine.HPX.4.33n.0410270953290.8684-100000@studcom.urz.uni-halle.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scan-Signature: 3a649d4e1fa61e44c5cb5c4b22c5527a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=2494
+Christoph Hellwig wrote:
+> Alsa currently has tons of dead exports, often with totally unused
+> functions behind them.  Care to look over the huge patch below and
+> see what makes sense?
 
-On Wed, 27 Oct 2004 23:34:31 +1000, CaT <cat@zip.com.au> wrote:
-> On Wed, Oct 27, 2004 at 03:07:14PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> > <bzolnier@trik.(none)> (04/10/26 1.2192)
-> >    [ide] pdc202xx_old: PDC20267 needs the same LBA48 fixup as PDC20265
-> 
-> What would the symptoms of this bug be? I've got a PDC20267 and I'm
-> having a few issues transferring from hde to hdh (ie across two ports)
-> it seems. My work at duplicating things seems to work best when I do a
-> transfer like that rather then going from say, a totall different
-> controller to the pdc (hdh) or even from generated input to the pdc (hdh).
-> 
-> --
->     Red herrings strewn hither and yon.
+Exported for historical reasons (and no longer necessary):
+
+> ===== include/sound/ad1848.h 1.7 vs edited =====
+> -void snd_ad1848_dout(ad1848_t *chip, unsigned char reg, unsigned char value);
+> -unsigned char snd_ad1848_in(ad1848_t *chip, unsigned char reg);
+> -void snd_ad1848_mce_up(ad1848_t *chip);
+> -void snd_ad1848_mce_down(ad1848_t *chip);
+> -irqreturn_t snd_ad1848_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+> ===== include/sound/es1688.h 1.4 vs edited =====
+> -irqreturn_t snd_es1688_interrupt(int irq, void *dev_id, struct pt_regs *regs);
+
+Not really used:
+
+> ===== include/sound/ainstr_fm.h 1.1 vs edited =====
+> -extern char *snd_seq_fm_id;
+> ===== include/sound/ainstr_gf1.h 1.2 vs edited =====
+> -extern char *snd_seq_gf1_id;
+> ===== include/sound/ainstr_iw.h 1.2 vs edited =====
+> -extern char *snd_seq_iwffff_id;
+> ===== include/sound/core.h 1.37 vs edited =====
+> -extern int snd_cards_count;
+
+I removed all exports above from the ALSA CVS.
+
+
+The following headers are the driver API, so the unused symbols might
+be used by future drivers:
+
+> ===== include/sound/info.h 1.15 vs edited =====
+> ===== include/sound/pcm.h 1.30 vs edited =====
+> ===== include/sound/rawmidi.h 1.5 vs edited =====
+> ===== include/sound/seq_midi_emul.h 1.1 vs edited =====
+> ===== include/sound/seq_midi_event.h 1.3 vs edited =====
+> ===== include/sound/seq_virmidi.h 1.2 vs edited =====
+> ===== include/sound/timer.h 1.7 vs edited =====
+
+However, I think some of these functions should not be part of the
+API; I'll remove them, too.
+
+
+The functions in the snd-trident-synth module might be used when^Wif
+MIDI support for it will be written.
+
+
+Clemens
+

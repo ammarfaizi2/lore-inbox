@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265255AbTLLPLH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 10:11:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265256AbTLLPLH
+	id S265238AbTLLPPU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 10:15:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265243AbTLLPPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 10:11:07 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:58348 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S265255AbTLLPLE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 10:11:04 -0500
-Date: Fri, 12 Dec 2003 07:10:59 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Rui Saraiva <rmps@joel.ist.utl.pt>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparse/TSCT BitKeeper repository
-Message-ID: <20031212151059.GA11561@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Rui Saraiva <rmps@joel.ist.utl.pt>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0312120414360.8280@joel.ist.utl.pt>
-Mime-Version: 1.0
+	Fri, 12 Dec 2003 10:15:19 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:42674 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S265238AbTLLPPP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 10:15:15 -0500
+Date: Fri, 12 Dec 2003 07:14:56 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>,
+       Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
+Subject: Re: [CFT][RFC] HT scheduler
+Message-ID: <1349250000.1071242095@[10.10.2.4]>
+In-Reply-To: <3FD9836F.2050003@cyberone.com.au>
+References: <20031212052812.E016B2C072@lists.samba.org> <3FD9679A.1020404@cyberone.com.au> <3FD9836F.2050003@cyberone.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312120414360.8280@joel.ist.utl.pt>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel.bkbits.net is back online but the repos haven't been restored yet.
-I'm leaving that to Dave and Linus.  I'll nudge them.
+>> w26 does ALL this, while sched.o is 3K smaller than Ingo's shared 
+>> runqueue
+>> patch on NUMA and SMP, and 1K smaller on UP (although sched.c is 90 lines
+>> longer). kernbench system time is down nearly 10% on the NUMAQ, so it 
+>> isn't
+>> hurting performance either.
+> 
+> 
+> Hackbench performance on the NUMAQ is improved by nearly 50% at large
+> numbers of tasks due to a better scaling factor (which I think is slightly
+> "more" linear too). It is also improved by nearly 25% (4.08 vs 3.15) on
+> OSDLs 8 ways at small number of tasks, due to a better constant factor.
+> 
+> http://www.kerneltrap.org/~npiggin/w26/hbench.png
+> 
+> And yeah hackbench kills the NUMAQ after about 350 rooms. This is due to
+> memory shortages. All the processes are getting stuck in shrink_caches,
+> get_free_pages, etc.
 
-On Fri, Dec 12, 2003 at 04:49:46AM +0000, Rui Saraiva wrote:
-> 
-> Where is the sparse BK repository that used to be
-> bk://kernel.bkbits.net/torvalds/sparse ?
-> It seems there is an older version at bk://linux-dj.bkbits.net/sparse
-> 
-> Also in the subject, I got lots of "attribute 'alias': unknown attribute"
-> warnings in the kernel source in lines with module_init(), module_exit()
-> and others. A simple fix might be
-> 
-> 	if (match_string_ident(attribute, "alias"))
-> 		return NULL;
-> 
-> near the end of handle_attribute() in parse.c
-> 
-> 
-> Regards,
-> 	Rui Saraiva
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Can you dump out the values of /proc/meminfo and /proc/slabinfo at that
+point, and we'll see what's killing her?
 
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+Thanks,
+
+M.
+

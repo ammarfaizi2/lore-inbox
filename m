@@ -1,46 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbULaSbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbULaS7T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbULaSbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 13:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbULaSbJ
+	id S262136AbULaS7T (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 13:59:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbULaS7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 13:31:09 -0500
-Received: from news.cistron.nl ([62.216.30.38]:28124 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S261727AbULaSbI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 13:31:08 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: the umount() saga for regular linux desktop users
-Date: Fri, 31 Dec 2004 18:31:07 +0000 (UTC)
-Organization: Cistron Group
-Message-ID: <cr45tb$4l5$1@news.cistron.nl>
-References: <200412311741.02864.wh@designed4u.net> <2b8348ba041231094816d02456@mail.gmail.com> <200412311322.14359.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1104517867 4773 62.216.29.200 (31 Dec 2004 18:31:07 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
+	Fri, 31 Dec 2004 13:59:19 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:24744 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262136AbULaS7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 13:59:12 -0500
+Message-ID: <41D5A17D.6070606@sgi.com>
+Date: Fri, 31 Dec 2004 12:59:09 -0600
+From: Josh Aas <josha@sgi.com>
+Reply-To: josha@sgi.com
+Organization: Silicon Graphics, Inc.
+User-Agent: Mozilla Thunderbird 1.0 (Macintosh/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove outdated/misleading CPU scheduler comments
+Content-Type: multipart/mixed;
+ boundary="------------070909010806060704080509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200412311322.14359.gene.heskett@verizon.net>,
-Gene Heskett  <gene.heskett@verizon.net> wrote:
->Let me toss this out for discussion.
->
->There are some times when the usual 5 second flush schedule should be 
->tossed out the window, and the data written immediately.  A quickly 
->unpluggable usb memory dongle is a prime candidate to bite the user 
->precisely where it hurts.  Floppies also fit this same scenario, I 
->don't know at the times I've written an image with dd, got up out of 
->my chair and went to the machine and slapped the eject button to 
->discover to my horror, that when my hand came away from the button 
->with disk in hand, the frigging access led was now on that wasn't 
->when I tapped the button.
+This is a multi-part message in MIME format.
+--------------070909010806060704080509
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Google for "supermount".
+This patch removes two outdated/misleading comments from the CPU scheduler.
 
-Mike.
+1) The first comment removed is simply incorrect. The function it 
+comments on is not used for what the comments says it is anymore.
+2) The second comment is a leftover from when the "if" block it comments 
+on contained a goto. It does not any more, and the comment doesn't make 
+sense.
 
+There isn't really a reason to add different comments, though someone 
+might feel differently in the case of the second one. I'll leave adding 
+a comment to anybody who wants to - more important to just get rid of 
+them now.
+
+Signed-off-by: Josh Aas <josha@sgi.com>
+
+-- 
+Josh Aas
+Linux System Software
+Silicon Graphics, Inc. (SGI)
+
+
+--------------070909010806060704080509
+Content-Type: text/plain; x-mac-type="0"; x-mac-creator="0";
+ name="sched_comments.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sched_comments.patch"
+
+--- a/kernel/sched.c	Fri Dec 24 15:35:24 2004
++++ b/kernel/sched.c	Fri Dec 31 12:28:09 2004
+@@ -580,11 +580,6 @@ static void enqueue_task(struct task_str
+ 	p->array = array;
+ }
+ 
+-/*
+- * Used by the migration code - we pull tasks from the head of the
+- * remote queue so we want these tasks to show up at the head of the
+- * local queue:
+- */
+ static inline void enqueue_task_head(struct task_struct *p, prio_array_t *array)
+ {
+ 	list_add(&p->run_list, array->queue + p->prio);
+@@ -2585,10 +2580,7 @@ need_resched_nonpreemptible:
+ 
+ 	if (unlikely(current->flags & PF_DEAD))
+ 		current->state = EXIT_DEAD;
+-	/*
+-	 * if entering off of a kernel preemption go straight
+-	 * to picking the next task.
+-	 */
++
+ 	switch_count = &prev->nivcsw;
+ 	if (prev->state && !(preempt_count() & PREEMPT_ACTIVE)) {
+ 		switch_count = &prev->nvcsw;
+
+--------------070909010806060704080509--

@@ -1,74 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261760AbVBOPiA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVBOPlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261760AbVBOPiA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 10:38:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261758AbVBOPhn
+	id S261759AbVBOPlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 10:41:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVBOPlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 10:37:43 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:42444 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S261757AbVBOPhd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 10:37:33 -0500
-Date: Tue, 15 Feb 2005 16:39:12 +0100
-From: Stelian Pop <stelian@popies.net>
-To: Len Brown <len.brown@intel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] [PATCH, new ACPI driver] new sony_acpi driver
-Message-ID: <20050215153912.GA3523@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Len Brown <len.brown@intel.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>,
-	ACPI Developers <acpi-devel@lists.sourceforge.net>
-References: <20050210161809.GK3493@crusoe.alcove-fr> <1108481448.2097.71.camel@d845pe>
+	Tue, 15 Feb 2005 10:41:37 -0500
+Received: from ppsw-4.csi.cam.ac.uk ([131.111.8.134]:6302 "EHLO
+	ppsw-4.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S261759AbVBOPld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 10:41:33 -0500
+Subject: Re: [ACPI] Re: Call for help: list of machines with working S3
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Lorenzo Colitti <lorenzo@colitti.com>
+Cc: Alistair John Strachan <s0348365@sms.ed.ac.uk>,
+       Pavel Machek <pavel@suse.cz>,
+       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
+       kernel list <linux-kernel@vger.kernel.org>, seife@suse.de, rjw@sisk.pl
+In-Reply-To: <4211E729.1090305@colitti.com>
+References: <20050214211105.GA12808@elf.ucw.cz>
+	 <200502150605.11683.s0348365@sms.ed.ac.uk>  <4211E729.1090305@colitti.com>
+Content-Type: text/plain
+Date: Tue, 15 Feb 2005 15:41:23 +0000
+Message-Id: <1108482083.12031.10.camel@elrond.flymine.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1108481448.2097.71.camel@d845pe>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 10:30:49AM -0500, Len Brown wrote:
+On Tue, 2005-02-15 at 13:12 +0100, Lorenzo Colitti wrote:
 
-> On Thu, 2005-02-10 at 11:18, Stelian Pop wrote:,
-> 
-> > 
-> > PS: I am also going to submit a bugzilla RFE for the acpi people,
-> > I have been told they are more receptive to that.
-> 
-> I guess that refers to me:-)
+> I beg to differ: it works for me on 2.6.11-rc3 (even with the swsusp2 
+> patch). However, I need to use acpi_sleep=s3_bios, and I can't use 
+> radeonfb or it will lock up on resume.
 
-Hey, you *are* more receptive to bugzilla then !
+Could you grab dmidecode from http://www.nongnu.org/dmidecode/ and
+provide the output? It'd be interesting to compare working with
+non-working machines. It might also be good to see lspci and acpidmp
+output.
 
-> E-mail is fine, but the unfortunate reality is that due to simple
-> volume, it is lossy.  The reason we like bugzilla is that it never
-> forgets:-)
-> 
-> So thanks for taking the extra time to file a bug report
-> http://bugzilla.kernel.org/show_bug.cgi?id=4193
-> 
-> If it turns out that there is no way a generic solution
-> can handle the SNC Sony laptops, then I agree that a
-
-Note: this is not a subset of the Sony laptops, we are talking
-about all the Sony laptops here.
-
-> platform specific wart is the only way to go.  But
-> it would be best if we can make the exotic Sony/SNC
-> look more generic to the user so that the user
-> (and the distro supporting them) don't need to learn
-> special things to handle this system.
-
-I agree, but unfortunately I don't think it's possible to handle
-them in a generic way. However, my understanding of the ACPI layer
-is limited, so I very well be wrong.
-
-I attached two DSDT in bugzilla, I have a few more if you want them.
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>
+Matthew Garrett | mjg59@srcf.ucam.org
+

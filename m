@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265409AbSLBX4d>; Mon, 2 Dec 2002 18:56:33 -0500
+	id <S265326AbSLBXzC>; Mon, 2 Dec 2002 18:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265413AbSLBX4d>; Mon, 2 Dec 2002 18:56:33 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:40196 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S265409AbSLBX4c>; Mon, 2 Dec 2002 18:56:32 -0500
+	id <S265308AbSLBXzC>; Mon, 2 Dec 2002 18:55:02 -0500
+Received: from vortex.physik.uni-konstanz.de ([134.34.143.44]:26123 "EHLO
+	vortex.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id <S265228AbSLBXzB>; Mon, 2 Dec 2002 18:55:01 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+Organization: Universitaet Konstanz/Germany
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Large block device patch, part 1 of 9
-Date: 2 Dec 2002 16:03:44 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <asgsd0$ovi$1@cesium.transmeta.com>
-References: <15732.34929.657481.777572@notabene.cse.unsw.edu.au> <Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com>
+Subject: Compile error in 2.5.50 (video/bttv-cards.c)
+Date: Tue, 3 Dec 2002 01:02:24 +0100
+User-Agent: KMail/1.4.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Transfer-Encoding: 8bit
+Message-Id: <200212030101.57134.>
+From: partmaps@vortex.physik.uni-konstanz.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com>
-By author:    Linus Torvalds <torvalds@transmeta.com>
-In newsgroup: linux.dev.kernel
-> 
-> I wonder if the right answer isn't to just make things like "__u64" be
-> "long long" even on 64-bit architectures (at least those on which it is 64
-> bit, of course. I _think_ that's true of all of them). And then just use 
-> "llu" for it all.
-> 
-> Of course, the really _best_ option would be to have gcc's printf string 
-> format be extensible and dynamic.
-> 
-> Davem, is sparc64 "long long" 64-bit?
-> 
+Hi.
 
-Some C libraries have "Ixx" as an extension meaning (u)intXX_t -- it's
-used in the same way as the other size modifiers, i.e. %I64x instead
-of %lx.  This might be a useful extension to mimic.
+I get a compile error in bttv-cards.c
+Somehow I cannot find the AUDC_CONFIG_PINNACLE option anywhere in the 
+kernel-configuration GUI. Perhaps somebody will know how to improve this. 
+Details on request if needed.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+Cheers,
+Max
+
+  gcc -Wp,-MD,drivers/media/video/.bttv-cards.o.d -D__KERNEL__ -Iinclude -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 
+-Iarch/i386/mach-generic -nostdinc -iwithprefix include -DMODULE   
+-DKBUILD_BASENAME=bttv_cards -DKBUILD_MODNAME=bttv   -c -o 
+drivers/media/video/bttv-cards.o drivers/media/video/bttv-cards.c
+drivers/media/video/bttv-cards.c: In function `miro_pinnacle_gpio':
+drivers/media/video/bttv-cards.c:1742: `AUDC_CONFIG_PINNACLE' undeclared 
+(first use in this function)
+drivers/media/video/bttv-cards.c:1742: (Each undeclared identifier is reported 
+only once
+drivers/media/video/bttv-cards.c:1742: for each function it appears in.)
+make[3]: *** [drivers/media/video/bttv-cards.o] Error 1
+make[2]: *** [drivers/media/video] Error 2
+make[1]: *** [drivers/media] Error 2
+make: *** [drivers] Error 2
+

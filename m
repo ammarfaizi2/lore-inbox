@@ -1,55 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266616AbRGEDCb>; Wed, 4 Jul 2001 23:02:31 -0400
+	id <S266618AbRGEDOM>; Wed, 4 Jul 2001 23:14:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266617AbRGEDCV>; Wed, 4 Jul 2001 23:02:21 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:32529 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S266616AbRGEDCK>; Wed, 4 Jul 2001 23:02:10 -0400
-Date: Thu, 5 Jul 2001 02:19:04 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Trevor Hemsley <Trevor-Hemsley@dial.pipex.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia lockup inserting or removing cards in 2.4.5-ac{13,22}
-Message-ID: <20010705021904.G30999@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010704235854Z266582-17721+8482@vger.kernel.org>
-Mime-Version: 1.0
+	id <S266181AbRGEDOB>; Wed, 4 Jul 2001 23:14:01 -0400
+Received: from smarty.smart.net ([207.176.80.102]:41740 "EHLO smarty.smart.net")
+	by vger.kernel.org with ESMTP id <S266621AbRGEDNt>;
+	Wed, 4 Jul 2001 23:13:49 -0400
+From: Rick Hohensee <humbubba@smarty.smart.net>
+Message-Id: <200107050326.XAA29768@smarty.smart.net>
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+To: linux-kernel@vger.kernel.org
+Date: Wed, 4 Jul 2001 23:26:40 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010704235854Z266582-17721+8482@vger.kernel.org>; from Trevor-Hemsley@dial.pipex.com on Thu, Jul 05, 2001 at 12:41:15AM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 05, 2001 at 12:41:15AM +0000, Trevor Hemsley wrote:
-> OK, I've done quite a lot more work on this. It isn't 2.4.5, I'd 
-> compiled USB support in when I went to 2.4.5 and it's that that causes
-> the problems. I backed out all changes made between 2.4.2 and 2.4.5 in
-> drivers/pcmcia and that made no difference to the lockup so then I 
-> went back to the .config file from 2.4.2 and that worked.
+>Now, you could probably argue that instead of inline asms we should have
+>more flexibility in doing a per-callee calling convention. That would be
+>good too, no question about it.
+>
+>                        Linus
+>
 
-Hmm, Cardbus and USB problems... you probably have both Cardbus and
-i82365 support in your kernel configuration. Your .config file should
-have this:
+Today's flamebait has been postponed. Happy July 4th. Peace.
 
-#
-# PCMCIA/CardBus support
-#
-CONFIG_PCMCIA=y
-CONFIG_CARDBUS=y
-# CONFIG_I82365 is not set
-# CONFIG_TCIC is not set
-
-That fixed it for me for at least three laptops.
-
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Rick Hohensee
+		www.clienux.com

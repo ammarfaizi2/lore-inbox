@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275818AbRJNRbb>; Sun, 14 Oct 2001 13:31:31 -0400
+	id <S275839AbRJNRcV>; Sun, 14 Oct 2001 13:32:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275823AbRJNRbM>; Sun, 14 Oct 2001 13:31:12 -0400
-Received: from a213-84-34-179.xs4all.nl ([213.84.34.179]:6380 "HELO
-	mail.binary-magic.com") by vger.kernel.org with SMTP
-	id <S275818AbRJNRbA>; Sun, 14 Oct 2001 13:31:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Take Vos <Take.Vos@binary-magic.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.12, Dell i8100 hangs when unpluggin power
-Date: Sun, 14 Oct 2001 19:29:41 +0200
-X-Mailer: KMail [version 1.3]
+	id <S276957AbRJNRcP>; Sun, 14 Oct 2001 13:32:15 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:1791 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S275839AbRJNRcA> convert rfc822-to-8bit;
+	Sun, 14 Oct 2001 13:32:00 -0400
+Date: Sun, 14 Oct 2001 13:32:31 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: mount --bind and -o [re: nosuid/noexec/nodev handling]
+In-Reply-To: <20011014202336.T1074@niksula.cs.hut.fi>
+Message-ID: <Pine.GSO.4.21.0110141327080.6026-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011014173130.AD7BA58@mail.binary-magic.com>
+Content-Type: TEXT/PLAIN; charset=KOI8-R
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello everyone,
 
-I've been running 2.4.10 and 2.4.12 on my new Dell inspiron 8100, both of 
-which seems to hang as soon as I unplug the power coord, or close the lid.
 
-This problem is even without running X11 at all. Or when removing Power 
-Managment from the kernel and/or disabeling it in the bios.
+On Sun, 14 Oct 2001, Ville Herva wrote:
 
-I found a previous message on the kernel mailing list which seems to be
-the same bug, I will include it here (I personaly haven't tried 2.4.5 yet):
+> $ mount --bind -o ro /mnt/ext2-2 /tmp/test
 
-Georg Nikodym wrote:
-> I've been running 2.4.5 on my new Dell I8000 without too many
-> problems.  Last night I built -ac13 (on my porch) and booted it
-> without incident.  Later, going inside and re-connecting the AC I
-> notice that the thing's hung.  I play around a bit and discover that
-> the act of plugging or unplugging the power cord will hang the box.
->
-> This lead me to disable all power manglement in the BIOS.  No joy.
->
-> This problem does not exist using straight 2.4.5.
->
-> Has anybody else seen this?  Any debugging suggestions?  Or stated
-> differently, has anybody with this machine arrived at a configuration
-> that avoids weirdness in the power management framework?
+i.e.
+mount --bind /mnt/ext2-2 /tmp/test
+
+> $ mount --bind -o remount,ro  /tmp/test           
+
+i.e.
+mount -o remount,ro /tmp/test
+
+> $ mount
+> (...)
+> /dev/hde1 on /mnt/ext2-2 type reiserfs (rw,noatime,nodiratime)
+> /mnt/ext2-2 on /tmp/test type none (ro,bind)
+
+Confused mount(8) - apparently uses /etc/mtab and doesn't manage to deduce
+the changes done by remounting (/etc/mtab is maintained by userland;
+/proc/mounts is handled by kernel and is supposed to be accurate).
+
+> $ touch /mnt/ext2-2/a
+> touch: /mnt/ext2-2/a: Read-only file system
+
+Sure, read-only is per-superblock right now.  Change it on one instance
+and you've changed it on all of them.
+

@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262082AbREQRcE>; Thu, 17 May 2001 13:32:04 -0400
+	id <S262092AbREQRjy>; Thu, 17 May 2001 13:39:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262096AbREQRbo>; Thu, 17 May 2001 13:31:44 -0400
-Received: from hood.tvd.be ([195.162.196.21]:40181 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S262082AbREQRbd>;
-	Thu, 17 May 2001 13:31:33 -0400
-Date: Thu, 17 May 2001 19:29:46 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: James Simmons <jsimmons@transvirtual.com>
-cc: Tim Jansen <tim@tjansen.de>, t.sailer@alumni.ethz.ch,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.10.10105171009180.13202-100000@www.transvirtual.com>
-Message-ID: <Pine.LNX.4.05.10105171929150.15637-100000@callisto.of.borg>
+	id <S262096AbREQRjo>; Thu, 17 May 2001 13:39:44 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40978 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262092AbREQRj0>; Thu, 17 May 2001 13:39:26 -0400
+Subject: Re: Linux 2.4.4-ac10
+To: hch@caldera.de (Christoph Hellwig)
+Date: Thu, 17 May 2001 18:36:30 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <200105171700.f4HH0kj16143@ns.caldera.de> from "Christoph Hellwig" at May 17, 2001 07:00:46 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150RhO-0005mU-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 May 2001, James Simmons wrote:
-> > No, there is another addressing scheme that can be for devices without serial 
-> > number: the vendor and product ids. Most people do not have two devices of 
-> > the same kind, so you often do not need the topology at all.
-> 
-> I wouldn't make that assumpation. I have two PS/2 keybaords attached to my
-> system and they don't have serial ids nor do they have vendor or product
-> ids.
+> >  	     ftp://ftp.linux.org.uk/pub/linux/alan/2.4-ac/
+> >
+> Can't find it there (neither -ac9), but on the other hand it
+> is on kernel.org...
 
-Yes. And it's the hardcore users who have multiple devices of the same kind.
-Think e.g. RAID.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+Guess who forgot to fix the URL;)

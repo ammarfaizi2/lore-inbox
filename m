@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265663AbUA0VLg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 16:11:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265662AbUA0VLg
+	id S265684AbUA0VWq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 16:22:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265698AbUA0VWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 16:11:36 -0500
-Received: from mid-2.inet.it ([213.92.5.19]:61122 "EHLO mid-2.inet.it")
-	by vger.kernel.org with ESMTP id S265267AbUA0VLe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 16:11:34 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Andi Kleen <ak@muc.de>
-Subject: Re: [patch] Re: Kernels > 2.6.1-mm3 do not boot. - REALLY SOLVED
-Date: Tue, 27 Jan 2004 22:09:08 +0100
-User-Agent: KMail/1.6
-Cc: Eric <eric@cisu.net>, Andrew Morton <akpm@osdl.org>, stoffel@lucent.com,
-       Valdis.Kletnieks@vt.edu, bunk@fs.tum.de, linux-kernel@vger.kernel.org
-References: <200401232253.08552.eric@cisu.net> <200401270037.43676.eric@cisu.net> <20040127181554.GA41917@colin2.muc.de>
-In-Reply-To: <20040127181554.GA41917@colin2.muc.de>
-MIME-Version: 1.0
+	Tue, 27 Jan 2004 16:22:46 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:37125 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265684AbUA0VWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 16:22:45 -0500
+Date: Tue, 27 Jan 2004 21:22:43 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Florian Huber <florian.huber@mnet-online.de>
+Cc: JFS-Discussion <jfs-discussion@www-124.ibm.com>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Jfs-discussion] md raid + jfs + jfs_fsck
+Message-ID: <20040127212243.A20349@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Florian Huber <florian.huber@mnet-online.de>,
+	JFS-Discussion <jfs-discussion@oss.software.ibm.com>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <1075230933.11207.84.camel@suprafluid> <1075231718.21763.28.camel@shaggy.austin.ibm.com> <1075232395.11203.94.camel@suprafluid> <1075236185.21763.89.camel@shaggy.austin.ibm.com> <20040127205324.A19913@infradead.org> <1075238385.14214.3.camel@suprafluid>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200401272209.08708.cova@ferrara.linux.it>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1075238385.14214.3.camel@suprafluid>; from florian.huber@mnet-online.de on Tue, Jan 27, 2004 at 10:19:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle Tuesday 27 January 2004 19:15, Andi Kleen ha scritto:
+On Tue, Jan 27, 2004 at 10:19:45PM +0100, Florian Huber wrote:
+> So, remove the raid, create a new raid "1" with one partiton and create
+> a jfs fs on top of it, copy all files and add the other disk to the
+> raid?
 
-> Ok, found it. This patch should fix it.  The top level asm in process.c
-> assumed that the section was .text, but that is not guaranteed in a
-> funit-at-a-time compiler. It ended up in the setup section and messed up
-> the argument parsing.  This bug could have hit with any compiler,
-> it was just plain luck that it worked with newer gcc 3.3 and 3.4.
-
-Confirmed here. 2.6.2-rc1-mm3 boots just fine with this patch; without patch 
-it hangs just as described before.
-(-funit-at-a-time enabled, of course).
-
-Many thanks to all.
-
--- 
-Fabio Coatti       http://www.ferrara.linux.it/members/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+You can't partition md devices (yet), but otherwise yes.  I think you can
+also create md device without the persistant superblock still, but it
+always was a pain to maintain those.

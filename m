@@ -1,40 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbTKKIfq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 03:35:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263420AbTKKIfq
+	id S263453AbTKKIwh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 03:52:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTKKIwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 03:35:46 -0500
-Received: from zork.zork.net ([64.81.246.102]:27305 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S263415AbTKKIfp (ORCPT
+	Tue, 11 Nov 2003 03:52:37 -0500
+Received: from vega.digitel2002.hu ([213.163.0.181]:20967 "HELO lgb.hu")
+	by vger.kernel.org with SMTP id S263453AbTKKIwg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 03:35:45 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Fibre channel HBA support
-References: <HBEHKOEIIJKNLNAMLGAOAEDDDKAA.info@avistor.com>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Tue, 11 Nov 2003 08:35:43 +0000
-In-Reply-To: <HBEHKOEIIJKNLNAMLGAOAEDDDKAA.info@avistor.com> (Joseph
- Shamash's message of "Mon, 10 Nov 2003 19:27:47 -0800")
-Message-ID: <6u4qxb8fq8.fsf@zork.zork.net>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 11 Nov 2003 03:52:36 -0500
+Date: Tue, 11 Nov 2003 09:52:29 +0100
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: OT: why no file copy() libc/syscall ??
+Message-ID: <20031111085229.GB22283@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+References: <1068512710.722.161.camel@cube> <20031110205011.R10197@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20031110205011.R10197@schatzie.adilger.int>
+X-Operating-System: vega Linux 2.6.0-test9 i686
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Joseph Shamash" <info@avistor.com> writes:
+On Mon, Nov 10, 2003 at 08:50:12PM -0700, Andreas Dilger wrote:
+> On Nov 10, 2003  20:05 -0500, Albert Cahalan wrote:
+> > > It is too simple to implement in user mode.
+> > 
+> > That works for a plain byte-stream on a
+> > local UNIX-style filesystem. (though it
+> > likely isn't the fastest)
 
-> I have been searching for information on fibre channel HBA support for the
-> 2.6.0 kernel. I was hoping to use the LSIFC919, but my search seems to
-> indicate this driver is not yet supported in the 2.6.0 kernel.
->
-> I did find the HP Fibre Channel HBA is supported. Can anyone please advise
-> me about any other Fibre Channel HBA support in the 2.6.0 kernel?
+It would be something similar than sendfile() ?
 
-A driver for Emulex Fibre Channel HBAs showed up recently in Martin J.
-Bligh's tree, although my cursory search did not turn up a broken-out
-set of patches.
 
-http://sourceforge.net/mailarchive/forum.php?thread_id=3424272&forum_id=5292
-
+- Gábor (larta'H)

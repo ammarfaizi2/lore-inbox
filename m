@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316185AbSGBO1f>; Tue, 2 Jul 2002 10:27:35 -0400
+	id <S316512AbSGBOt5>; Tue, 2 Jul 2002 10:49:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316548AbSGBO1e>; Tue, 2 Jul 2002 10:27:34 -0400
-Received: from server72.aitcom.net ([208.234.0.72]:40936 "EHLO test-area.com")
-	by vger.kernel.org with ESMTP id <S316185AbSGBO1d>;
-	Tue, 2 Jul 2002 10:27:33 -0400
-Message-Id: <200207021430.KAA30171@test-area.com>
-Content-Type: text/plain; charset=US-ASCII
-From: anton wilson <anton.wilson@camotion.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: low-latency patch bug?
-Date: Tue, 2 Jul 2002 10:40:20 -0400
-X-Mailer: KMail [version 1.3.1]
+	id <S316548AbSGBOt4>; Tue, 2 Jul 2002 10:49:56 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14096 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316512AbSGBOt4>; Tue, 2 Jul 2002 10:49:56 -0400
+Date: Tue, 2 Jul 2002 10:46:56 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Tom Rini <trini@kernel.crashing.org>
+cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] O(1) scheduler in 2.4
+In-Reply-To: <20020701181228.GF20920@opus.bloom.county>
+Message-ID: <Pine.LNX.3.96.1020702103924.27954A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 1 Jul 2002, Tom Rini wrote:
 
-I think I found a bug in the low latency patch. In reschedule_idle there is 
-code that it adds that looks like this:
+> On Mon, Jul 01, 2002 at 01:52:54PM -0400, Bill Davidsen wrote:
+> 
+> > What's the issue?
+> 
+> a) We're at 2.4.19-rc1 right now.  It would be horribly
+> counterproductive to put O(1) in right now.
+> b) 2.4 is the _stable_ tree.  If every big change in 2.5 got back ported
+> to 2.4, it'd be just like 2.5 :)
+> c) I also suspect that it hasn't been as widley tested on !x86 as the
+> stuff currently in 2.4.  And again, 2.4 is the stable tree.
 
+Since 2.5 feature freeze isn't planned until fall, I think you can assume
+there will be releases after 2.4.19... Since it has been as heavily tested
+as any feature not in a stable release kernel can be, there seems little
+reason to put it off for a year, assuming 2.6 releases within six months
+of feature freeze.
 
-/*1*/#if LOWLATENCY_NEEDED
-/*2*/       if (enable_lowlatency && (p->policy != SCHED_OTHER)) {
-/*3*/              struct task_struct *t;
-/*4*/               for (i = 0; i < smp_num_cpus; i++) {
-/*5*/                       cpu = cpu_logical_map(i);
-/*6*/                       t = cpu_curr(cpu);
-/*7*/                       if (t != tsk)        //<------BUG
-/*8*/                               t->need_resched = 1;
-/*9*/               }
-/*10*/       }
-/*11*/#endif
-
-This code does not check to see if tsk (target_tsk) is NULL at line 7. 
-Therefore, the scheduler will try to reschedule even if tsk == NULL. In the 
-worst case, if your process selection loop finds a different process to run 
-everytime, and tsk is always NULL, the scheduler will enter an infinite loop.
-
-I ran into this problem because I was pushing SCHED_RR tasks with the same 
-priority to the back of the runqueue everytime the scheduler was called. 
-Therefore a new process is found everytime and __schedule_tail is called 
-everytime, and therefore a infinite loop.
-
-Anton Wilson
-
-
-
-
+Stable doesn't mean moribund, we are working Andrea's VM stuff in, and
+that's a LOT more likely to behave differently on hardware with other word
+length. Keeping inferior performance for another year and then trying to
+separate 2.5 other unintended features from any possible scheduler issues
+seems like a reduction in stability for 2.6.
 
 -- 
-Camotion
-Software Development
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,55 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273176AbRI0PAQ>; Thu, 27 Sep 2001 11:00:16 -0400
+	id <S273204AbRI0PE4>; Thu, 27 Sep 2001 11:04:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273210AbRI0PAG>; Thu, 27 Sep 2001 11:00:06 -0400
-Received: from mail.berlin.de ([195.243.105.33]:49813 "EHLO
-	mailoutvl21.berlin.de") by vger.kernel.org with ESMTP
-	id <S273204AbRI0O7s>; Thu, 27 Sep 2001 10:59:48 -0400
-Message-ID: <3BB33E88.ACD1E426@berlin.de>
-Date: Thu, 27 Sep 2001 16:58:16 +0200
-From: Norbert Roos <n.roos@berlin.de>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.9 i686)
-X-Accept-Language: en
+	id <S273230AbRI0PEq>; Thu, 27 Sep 2001 11:04:46 -0400
+Received: from [129.15.104.123] ([129.15.104.123]:39172 "EHLO
+	dogbert.cubicle.home") by vger.kernel.org with ESMTP
+	id <S273204AbRI0PEk>; Thu, 27 Sep 2001 11:04:40 -0400
+Message-ID: <3BB33EAD.9030107@tux.ou.edu>
+Date: Thu, 27 Sep 2001 09:58:53 -0500
+From: Robert Cantu <list@tux.cs.ou.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.5 i686; en-US; rv:0.9.1) Gecko/20010610
+X-Accept-Language: en-us
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: System hangs during interruptible_sleep_on_timeout() under 2.4.9
-In-Reply-To: <Pine.LNX.4.33.0109261902350.6377-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Question: Etherenet Link Detection
+In-Reply-To: <CIEJKOKMAIAHDBBLFGFFEEOPCGAA.peter@zaphod.nu> <3BB26D72.69E02ED0@candelatech.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+Ben Greear wrote:
 
-> are you sure timer interrupts are processed while you are waiting for the
-> timeout to expire? I'd suggest to put a:
+> Peter Sandstrom wrote:
 > 
->         printk("<%d>", irq);
+>>I know for sure that the Intel 82559 Fast Ethernet embedded controller
+>>has a register where it's possible to read out if the link led is active
+>>or not. It seems quite likely that this would be available on other
+>>controllers as well.
+>>
+>>Is there any functionality in the current kernel that enables a userland
+>>program to read this? I mostly turn my machines on and and let them do
+>>their thing until the hardware fails :)
+>>
+>>/Peter
+>>
 > 
-> into arch/i386/kernel/irq.c:do_IRQ().
+> You can get this information out of any NIC that supports
+> the mii-diag protocols.  The two I've used are the eepro100
+> and tulip drivers...
+> 
+> You can read Becker's mii-diag source for the gory details!
+> 
+> Ben
+> 
+> 
 
-Until the call of interruptible_sleep_on_timeout(), timer interrupts
-were processed. Right after the call no more output is made.
+Thaniks, all who replied.
 
-> So you can see what kind of
-> interrupt traffic there is while the device initializes and you are
-> waiting for it to generate an interrupt.
+A little clarification on my project:
 
-I use the function only for a short delay (switch on the device's reset,
-wait and switch it off again), so the device even does not generate a
-PCI interrupt.
+I'm going to try to build a userland app that manages several different 
+network profiles and watches the ethernet port and notifies the user of 
+a disconnect. If the user wishes, it will be configured to unload the 
+network profile upon disconnect (to avoid long timeouts) and upon 
+reconnction, reload that profile. A few simple subnet detection 
+algorithms would try to intelligently load the correct profile. This is 
+mainly a useful solution for mobile users who have to have different 
+set-ups for networking. It looks like the mii-diag from Becker is going 
+to work great (thanks, all who pointed me there), and is the last 
+component I needed to get started. I may put the project up on 
+sourceforge as my coding skills are new and weak. Thanks for the info.
 
+As a side note, any chance such monitoring tools/interfaces might go 
+into a later 2.4 or 2.5 kernel and be available in the /proc fs? That 
+would be a much more elegant solution, from a user's standpoint. Again, 
+thanks, all!
 
-In the time inbetween I have traced the problem: Inside the sleep_on()
-functions there is the macro SLEEP_ON_HEAD containing the call
-wq_write_lock_irqsave(), where the error happens. This is a macro, too,
-which at last expands to
+Cheers,
+Robert Cantu
+robert@tux.ou.edu
 
-__asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */)
-
-(x ist the variable where the IRQ flags are stored)
-I'm not familiar with x86 assembler; is it possible that something can
-go wrong here?
-
-bye, Norbert

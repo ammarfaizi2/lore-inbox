@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264269AbTKZRmF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 12:42:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264277AbTKZRmE
+	id S264259AbTKZRpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 12:45:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTKZRpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 12:42:04 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:54913
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264269AbTKZRl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 12:41:59 -0500
-Date: Wed, 26 Nov 2003 12:40:43 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Vince <fuzzy77@free.fr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [kernel panic @ reboot] 2.6.0-test10-mm1
-In-Reply-To: <3FC4E42A.40906@free.fr>
-Message-ID: <Pine.LNX.4.58.0311261240210.1683@montezuma.fsmlabs.com>
-References: <3FC4DA17.4000608@free.fr> <Pine.LNX.4.58.0311261213510.1683@montezuma.fsmlabs.com>
- <3FC4E42A.40906@free.fr>
+	Wed, 26 Nov 2003 12:45:16 -0500
+Received: from mail.gmx.net ([213.165.64.20]:46258 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264259AbTKZRpM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 12:45:12 -0500
+X-Authenticated: #524548
+From: rgx <rgx@gmx.de>
+To: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+Subject: Re: kernel 2.4-22 won't compile...
+Date: Wed, 26 Nov 2003 17:49:12 +0100
+User-Agent: KMail/1.5.4
+References: <200311261734.23177.rgx@gmx.de> <1069865010.9694.120.camel@tweedy.ksc.nasa.gov>
+In-Reply-To: <1069865010.9694.120.camel@tweedy.ksc.nasa.gov>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311261749.12545.rgx@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Nov 2003, Vince wrote:
 
-> parameter LOG_BUF_LEN. Some people required 32 kB. But you shouldn't
-> exceed 60 kB since the dump is done in real mode (16 bits).
-> For kernel versions 2.5.6x and later, the LOG_BUF_LEN parameter is part
-> of the kernel .config file (LOG_BUF_SHIFT) so you don't need to modify
-> it at all.
-> ---------------------------------
+> Did you 'make oldconfig'?
+
+Yes, sure :) The NLS_DEFAULT... is not defined for some reason... 
+I could replace it with the needed content in the source code if I knew its 
+format...
 >
-> ...so I you think 60kB would be enough to catch the first oops -- or if
-> the doc is outdated -- I can try this...
-
-*groan* do you have a PDA?
+> Bob...
 

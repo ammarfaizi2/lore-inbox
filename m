@@ -1,155 +1,242 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269238AbRIFXIw>; Thu, 6 Sep 2001 19:08:52 -0400
+	id <S269184AbRIFXAw>; Thu, 6 Sep 2001 19:00:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269274AbRIFXIn>; Thu, 6 Sep 2001 19:08:43 -0400
-Received: from smtp.mailbox.net.uk ([195.82.125.32]:45528 "EHLO
-	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
-	id <S269238AbRIFXIg>; Thu, 6 Sep 2001 19:08:36 -0400
-Date: Fri, 7 Sep 2001 00:08:17 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Mark W. Eichin" <eichin@thok.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_BLK_DEV_SL82C105 should not be PPC/ARM specific
-Message-ID: <20010907000817.G23583@flint.arm.linux.org.uk>
-In-Reply-To: <20010906223001.A63F613DC7@kuroneko>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="mYCpIKhGyMATD0i+"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010906223001.A63F613DC7@kuroneko>; from eichin@thok.org on Thu, Sep 06, 2001 at 06:30:01PM -0400
+	id <S269238AbRIFXAn>; Thu, 6 Sep 2001 19:00:43 -0400
+Received: from deimos.hpl.hp.com ([192.6.19.190]:62183 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S269184AbRIFXAd>;
+	Thu, 6 Sep 2001 19:00:33 -0400
+Date: Thu, 6 Sep 2001 16:00:51 -0700
+Message-Id: <200109062300.QAA27430@napali.hpl.hp.com>
+From: David Mosberger <davidm@hpl.hp.com>
+To: linux-kernel@vger.kernel.org
+cc: davidm@hpl.hp.com
+Subject: [patch] proposed fix for ptrace() SMP race
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Reply-to: davidm@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+There is currently a nasty race condition in ptrace().  The effect of
+this varies from one platform to another but, for example, on ia64, it
+could have the effect of corrupting the state of register f32-f127.
+The problem is that ptrace() uses the expression (child->state ==
+TASK_STOPPED) to determine whether or not a task has stopped
+execution.  On SMP, this is not sufficient because the task may still
+be executing while child->has_cpu is true.  This is easy to fix, but
+there is a related concern: what would happen if a ptrace'd task was
+woken up by another thread while ptrace() is running?  You could argue
+that this is just a bug in the user-level program, but I'm worried
+that the resulting race conditions could corrupt kernel data
+structures and therefore could provide a means to attack the integrity
+of the kernel.  The patch below is an attempt to address this issue by
+clearing child->cpus_allowed while ptrace() is running.  This should
+have the desired effect and as far as I know, it has no negative
+impact.  However, it doesn't strike me as the most elegant solution
+either and it could well be there there are some problems with it that
+I'm overlooking.  Anyhow, I'd appreciate it if the maintainers of the
+other platforms could take a look at the patch below and share their
+thoughts.  The patch below fixes only the ia64 tree, but if the patch
+is agreeable, I can make the same update for the other platforms as
+well.
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	--david
 
-On Thu, Sep 06, 2001 at 06:30:01PM -0400, Mark W. Eichin wrote:
-> and if I bludgeon the config so that it actually builds, it does work
-> (under 2.2, regrettably in pio-only mode, but I'll try 2.4.9 shortly)
-
-Please report back when you've done your 2.4.9 testing; you might like
-to apply the patch PaulM has been bouncing around here trying to get
-Linus to accept.
-
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
-
---mYCpIKhGyMATD0i+
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Envelope-to: rmk@flint.arm.linux.org.uk
-Delivery-date: Mon, 03 Sep 2001 13:56:55 +0100
-Received: from caramon.arm.linux.org.uk ([192.168.0.1])
-	by flint.arm.linux.org.uk with esmtp (Exim 3.16 #1)
-	id 15dtHa-0003qn-00
-	for rmk@flint.arm.linux.org.uk; Mon, 03 Sep 2001 13:56:55 +0100
-Received: from www.linux.org.uk (parcelfarce.linux.theplanet.co.uk [195.92.249.252])
-	by caramon.arm.linux.org.uk (8.11.2/8.11.2) with ESMTP id f83Cuq225664
-	for <rmk@arm.linux.org.uk>; Mon, 3 Sep 2001 13:56:53 +0100
-Received: from [199.183.24.194] (helo=vger.kernel.org)
-	by www.linux.org.uk with esmtp (Exim 3.13 #1)
-	id 15dtHW-0001Wp-00
-	for rmk@lists.arm.linux.org.uk; Mon, 03 Sep 2001 13:56:50 +0100
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271687AbRICMnF>; Mon, 3 Sep 2001 08:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271686AbRICMmz>; Mon, 3 Sep 2001 08:42:55 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:30219 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S271685AbRICMmi>;
-	Mon, 3 Sep 2001 08:42:38 -0400
-Received: by lists.samba.org (Postfix, from userid 1020)
-	id 45A574699; Mon,  3 Sep 2001 05:40:03 -0700 (PDT)
-From: Paul Mackerras <paulus@samba.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15251.31040.478167.658461@tango.paulus.ozlabs.org>
-Date: Mon, 3 Sep 2001 22:36:16 +1000 (EST)
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Cc: trini@kernel.crashing.org, benh@kernel.crashing.org
-Subject: [PATCH] [RESEND] remove rubbish from sl82c105.c
-X-Mailer: VM 6.75 under Emacs 20.7.2
-Reply-To: paulus@samba.org
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-X-Mailing-List: linux-kernel@vger.kernel.org
-
-Currently, drivers/ide/sl82c105.c has two sets of code in it: some
-good code done by Russell King, and some old rubbishy code.  Russell's
-code is inside #ifdef CONFIG_ARCH_NETWINDER.  I tried Russell's code
-on my Longtrail CHRP PPC box and it not only compiles and links ok
-(which the old code doesn't), it also works just fine.
-
-So the patch below takes out the CONFIG_ARCH_NETWINDER and the old
-code, so we use Russell's code on all platforms.  I put this patch out
-on linux-kernel a couple of weeks ago and no one has complained since.
-The old code won't link at the moment anyway (it references
-ide_special_settings which isn't exported from ide-pci.c).
-
-Linus, please apply this patch to your tree.
-
-Paul.
-
-diff -urN linux/drivers/ide/sl82c105.c linuxppc_2_4/drivers/ide/sl82c105.c
---- linux/drivers/ide/sl82c105.c	Wed Jul  4 14:33:21 2001
-+++ linuxppc_2_4/drivers/ide/sl82c105.c	Sun Jul 22 17:58:43 2001
-@@ -28,7 +28,6 @@
- 
- extern char *ide_xfer_verbose (byte xfer_rate);
- 
--#ifdef CONFIG_ARCH_NETWINDER
- /*
-  * Convert a PIO mode and cycle time to the required on/off
-  * times for the interface.  This has protection against run-away
-@@ -272,37 +271,4 @@
- {
- 	hwif->tuneproc = tune_sl82c105;
+--- lia64/kernel/ptrace.c	Mon Jul 23 13:51:13 2001
++++ lia64-kdb/kernel/ptrace.c	Tue Sep  4 18:22:49 2001
+@@ -60,6 +60,40 @@
+ 	return -EPERM;
  }
--
--#else
--
--unsigned int pci_init_sl82c105(struct pci_dev *dev, const char *msg)
--{
--	return ide_special_settings(dev, msg);
--}
--
--void dma_init_sl82c105(ide_hwif_t *hwif, unsigned long dma_base)
--{
--	ide_setup_dma(hwif, dma_base, 8);
--}
--
--void __init ide_init_sl82c105(ide_hwif_t *hwif)
--{
--	struct pci_dev *dev = hwif->pci_dev;
--	unsigned short t16;
--	unsigned int t32;
--	pci_read_config_word(dev, PCI_COMMAND, &t16);
--	printk("SL82C105 command word: %x\n",t16);
--        t16 |= PCI_COMMAND_IO;
--        pci_write_config_word(dev, PCI_COMMAND, t16);
--	/* IDE timing */
--	pci_read_config_dword(dev, 0x44, &t32);
--	printk("IDE timing: %08x, resetting to PIO0 timing\n",t32);
--	pci_write_config_dword(dev, 0x44, 0x03e4);
--#ifndef CONFIG_MBX
--	pci_read_config_dword(dev, 0x40, &t32);
--	printk("IDE control/status register: %08x\n",t32);
--	pci_write_config_dword(dev, 0x40, 0x10ff08a1);
--#endif /* CONFIG_MBX */
--}
--#endif
+ 
++long ptrace_freeze_child(struct task_struct *child, long request, unsigned long *freeze_info)
++{
++	unsigned long old_cpus_allowed;
++
++	if (request == PTRACE_KILL)
++		return 0;
++
++	if (child->state != TASK_STOPPED)
++		return -ESRCH;
++
++#ifdef CONFIG_SMP
++	while (child->has_cpu) {
++		if (child->state != TASK_STOPPED)
++			return -ESRCH;
++		barrier();
++	}
++#endif
++
++	old_cpus_allowed = xchg(&child->cpus_allowed, 0);
++
++	if (child->state != TASK_STOPPED) {
++		xchg(&child->cpus_allowed, old_cpus_allowed);
++		return -ESRCH;
++	}
++
++	*freeze_info = old_cpus_allowed;
++	return 0;
++}
++
++void ptrace_thaw_child(struct task_struct *child, long request, unsigned long freeze_info)
++{
++	if (request != PTRACE_KILL)
++		xchg(&child->cpus_allowed, freeze_info);
++}
+ 
+ /*
+  * Access another process' address space, one page at a time.
+--- lia64/arch/ia64/kernel/ptrace.c	Mon Jul 23 13:50:57 2001
++++ lia64-kdb/arch/ia64/kernel/ptrace.c	Tue Sep  4 16:45:03 2001
+@@ -794,7 +794,7 @@
+ 	    long arg4, long arg5, long arg6, long arg7, long stack)
+ {
+ 	struct pt_regs *pt, *regs = (struct pt_regs *) &stack;
+-	unsigned long flags, urbs_end;
++	unsigned long flags, urbs_end, freeze_info;
+ 	struct task_struct *child;
+ 	struct switch_stack *sw;
+ 	long ret;
+@@ -840,6 +840,10 @@
+ 	if (child->p_pptr != current)
+ 		goto out_tsk;
+ 
++	ret = ptrace_freeze_child(child, request, &freeze_info);
++	if (ret < 0)
++		goto out_tsk;
++
+ 	pt = ia64_task_regs(child);
+ 	sw = (struct switch_stack *) (child->thread.ksp + 16);
+ 
+@@ -856,7 +860,7 @@
+ 			ret = data;
+ 			regs->r8 = 0;	/* ensure "ret" is not mistaken as an error code */
+ 		}
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_POKETEXT:
+ 	      case PTRACE_POKEDATA:		/* write the word at location addr */
+@@ -865,45 +869,45 @@
+ 			threads_sync_user_rbs(child, urbs_end, 1);
+ 
+ 		ret = ia64_poke(child, sw, urbs_end, addr, data);
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_PEEKUSR:		/* read the word at addr in the USER area */
+ 		if (access_uarea(child, addr, &data, 0) < 0) {
+ 			ret = -EIO;
+-			goto out_tsk;
++			goto out_thaw;
+ 		}
+ 		ret = data;
+ 		regs->r8 = 0;	/* ensure "ret" is not mistaken as an error code */
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_POKEUSR:	      /* write the word at addr in the USER area */
+ 		if (access_uarea(child, addr, &data, 1) < 0) {
+ 			ret = -EIO;
+-			goto out_tsk;
++			goto out_thaw;
+ 		}
+ 		ret = 0;
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_GETSIGINFO:
+ 		ret = -EIO;
+ 		if (!access_ok(VERIFY_WRITE, data, sizeof (siginfo_t)) || !child->thread.siginfo)
+-			goto out_tsk;
++			goto out_thaw;
+ 		ret = copy_siginfo_to_user((siginfo_t *) data, child->thread.siginfo);
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_SETSIGINFO:
+ 		ret = -EIO;
+ 		if (!access_ok(VERIFY_READ, data, sizeof (siginfo_t))
+ 		    || child->thread.siginfo == 0)
+-			goto out_tsk;
++			goto out_thaw;
+ 		ret = copy_siginfo_from_user(child->thread.siginfo, (siginfo_t *) data);
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_SYSCALL:	/* continue and stop at next (return from) syscall */
+ 	      case PTRACE_CONT:		/* restart after signal. */
+ 		ret = -EIO;
+ 		if (data > _NSIG)
+-			goto out_tsk;
++			goto out_thaw;
+ 		if (request == PTRACE_SYSCALL)
+ 			child->ptrace |= PT_TRACESYS;
+ 		else
+@@ -919,7 +923,7 @@
+ 
+ 		wake_up_process(child);
+ 		ret = 0;
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_KILL:
+ 		/*
+@@ -928,7 +932,7 @@
+ 		 * that it wants to exit.
+ 		 */
+ 		if (child->state == TASK_ZOMBIE)		/* already dead */
+-			goto out_tsk;
++			goto out_thaw;
+ 		child->exit_code = SIGKILL;
+ 
+ 		/* make sure the single step/take-branch tra bits are not set: */
+@@ -940,13 +944,13 @@
+ 
+ 		wake_up_process(child);
+ 		ret = 0;
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_SINGLESTEP:		/* let child execute for one instruction */
+ 	      case PTRACE_SINGLEBLOCK:
+ 		ret = -EIO;
+ 		if (data > _NSIG)
+-			goto out_tsk;
++			goto out_thaw;
+ 
+ 		child->ptrace &= ~PT_TRACESYS;
+ 		if (request == PTRACE_SINGLESTEP) {
+@@ -962,12 +966,12 @@
+ 		/* give it a chance to run. */
+ 		wake_up_process(child);
+ 		ret = 0;
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      case PTRACE_DETACH:		/* detach a process that was attached. */
+ 		ret = -EIO;
+ 		if (data > _NSIG)
+-			goto out_tsk;
++			goto out_thaw;
+ 
+ 		child->ptrace &= ~(PT_PTRACED|PT_TRACESYS);
+ 		child->exit_code = data;
+@@ -986,12 +990,14 @@
+ 
+ 		wake_up_process(child);
+ 		ret = 0;
+-		goto out_tsk;
++		goto out_thaw;
+ 
+ 	      default:
+ 		ret = -EIO;
+-		goto out_tsk;
++		goto out_thaw;
+ 	}
++  out_thaw:
++	ptrace_thaw_child(child, request, freeze_info);
+   out_tsk:
+ 	free_task_struct(child);
+   out:
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
 
---mYCpIKhGyMATD0i+--

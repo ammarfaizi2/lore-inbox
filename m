@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBLLXM>; Mon, 12 Feb 2001 06:23:12 -0500
+	id <S129092AbRBLL2x>; Mon, 12 Feb 2001 06:28:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129107AbRBLLXC>; Mon, 12 Feb 2001 06:23:02 -0500
-Received: from mailhub2.shef.ac.uk ([143.167.2.154]:37805 "EHLO
-	mailhub2.shef.ac.uk") by vger.kernel.org with ESMTP
-	id <S129055AbRBLLWr>; Mon, 12 Feb 2001 06:22:47 -0500
-Date: Mon, 12 Feb 2001 11:20:40 +0000 (GMT)
-From: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
-To: linux-kernel@vger.kernel.org
-Subject: lkml subject line
-Message-ID: <Pine.GSO.4.21.0102121118580.10132-100000@acms23>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129107AbRBLL2d>; Mon, 12 Feb 2001 06:28:33 -0500
+Received: from [172.16.18.67] ([172.16.18.67]:9092 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S129092AbRBLL21>; Mon, 12 Feb 2001 06:28:27 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.GSO.4.21.0102121118580.10132-100000@acms23> 
+In-Reply-To: <Pine.GSO.4.21.0102121118580.10132-100000@acms23> 
+To: Guennadi Liakhovetski <g.liakhovetski@ragingbull.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: lkml subject line 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 12 Feb 2001 11:28:16 +0000
+Message-ID: <8726.981977296@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all (and list maintainers in particular)
 
-Wouldn't it be a good idea to prepend all lkml subjects with [LKML] like
-many other lists do to distinguish lkml messages from the rest.
+g.liakhovetski@ragingbull.com said:
+>  Wouldn't it be a good idea to prepend all lkml subjects with [LKML]
+> like many other lists do to distinguish lkml messages from the rest. 
 
-Thanks
-Guennadi
-___
+No. There are already headers you can filter on, without adding crap to the
+Subject line making it even harder to skim-read l-k than it already is.	
 
-Dr. Guennadi V. Liakhovetski
-Department of Applied Mathematics
-University of Sheffield, U.K.
-email: G.Liakhovetski@sheffield.ac.uk
+cf. http://www.tux.org/lkml/#s3-18
+
+--
+dwmw2
 
 
 -

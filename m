@@ -1,34 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290804AbSAYUM1>; Fri, 25 Jan 2002 15:12:27 -0500
+	id <S290512AbSAYUcX>; Fri, 25 Jan 2002 15:32:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290803AbSAYUMT>; Fri, 25 Jan 2002 15:12:19 -0500
-Received: from ns.suse.de ([213.95.15.193]:43020 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S290745AbSAYUMC>;
-	Fri, 25 Jan 2002 15:12:02 -0500
-Date: Fri, 25 Jan 2002 21:11:49 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Skip Ford <skip.ford@verizon.net>
-Cc: <linux-kernel@vger.kernel.org>, <hpa@mytor.com>
-Subject: Re: If you haven't seen it yet...
-In-Reply-To: <20020125145840.A694@s>
-Message-ID: <Pine.LNX.4.33.0201252110270.31880-100000@Appserv.suse.de>
+	id <S290514AbSAYUcU>; Fri, 25 Jan 2002 15:32:20 -0500
+Received: from paloma13.e0k.nbg-hannover.de ([62.181.130.13]:27810 "HELO
+	paloma13.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S290512AbSAYUcI>; Fri, 25 Jan 2002 15:32:08 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Ed Sweetman <ed.sweetman@wmich.edu>,
+        Daniel Nofftz <nofftz@castor.uni-trier.de>
+Subject: Re: acpi-rouble/amd disconnect patch
+Date: Fri, 25 Jan 2002 21:32:00 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        preining@logic.at, ttonino@users.sourceforge.net,
+        moffe@amagerkollegiet.dk, timothy.covell@ashavan.org,
+        nitrax@giron.wox.org, mpet@bigfoot.de, lkml@sigkill.net, pavel@suse.cz,
+        vandrove@vc.cvut.cz, hpj@urpla.net, whitney@math.berkeley.edu
+In-Reply-To: <Pine.LNX.4.40.0201251248090.30265-100000@hades.uni-trier.de> <1011968738.22709.29.camel@psuedomode>
+In-Reply-To: <1011968738.22709.29.camel@psuedomode>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020125203210Z290512-13996+12129@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 25 Jan 2002, Skip Ford wrote:
+On Friday, 25. January 2002 15:25, Ed Sweetman wrote:
+> It sounds like you'll have to make the patch work just for Athlon XP's
+> ...  unless of course you're not expecting it to be included in the
+> kernel ever.
 
->
-> Maybe you could rename the file to 'patch-2.5.3-pre4-pre5.html' then
-> since it's an html file and it's not compressed.
+Nonsense!
 
-http://www.kernel.org/diff/diffview.cgi?file=/pub/linux/kernel/v2.5/testing/incr/patch-2.5.3-pre4-pre5.gz
-hint: filename ends here            ^^^
-the remainder is a parameter to that script.
+I had seen more than 2500 Athlon/Duron system since 26. August 1999.
+Most system can handle it.
 
+Best case today, again. Even better than ever.
+
+1.2 GHz Athlon TB (133 FSB, 9.0 multiplier)
+MSI MS-6330 v3.0 (K7T Turbo-R, KT133A, 686B)
+
+open case
+Win98SE with full VCool 1.7.2 active
+
+BIOS CPU max. 84°C!!!
+Then starting Winbloze
+drop from 74°C to 23°C CPU, 23°C system temperature
+even the cooler was "cool"
+
+During DVD playback
+~56°C than down to 23°C, again
+
+And did you forget?
+It _is_ an option. --- You can try it and disable it when it fails for you.
+
+
+Just my 0.02 ¤.
+
+-Dieter
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Dieter Nützel
+Graduate Student, Computer Science
 
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

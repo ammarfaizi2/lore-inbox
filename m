@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312826AbSC0LXW>; Wed, 27 Mar 2002 06:23:22 -0500
+	id <S312991AbSC0LoA>; Wed, 27 Mar 2002 06:44:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312990AbSC0LXM>; Wed, 27 Mar 2002 06:23:12 -0500
-Received: from web13302.mail.yahoo.com ([216.136.175.38]:35855 "HELO
-	web13302.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312826AbSC0LWx>; Wed, 27 Mar 2002 06:22:53 -0500
-Message-ID: <20020327112252.18647.qmail@web13302.mail.yahoo.com>
-Date: Wed, 27 Mar 2002 12:22:52 +0100 (CET)
-From: =?iso-8859-1?q?Joerg=20Pommnitz?= <pommnitz@yahoo.com>
-Subject: Re: I want my martians
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org, papiraki@cilys.com
-In-Reply-To: <20020322224019.A3252@ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S312992AbSC0Lnu>; Wed, 27 Mar 2002 06:43:50 -0500
+Received: from ns.suse.de ([213.95.15.193]:34320 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S312991AbSC0Lng>;
+	Wed, 27 Mar 2002 06:43:36 -0500
+Date: Wed, 27 Mar 2002 12:43:33 +0100
+From: Dave Jones <davej@suse.de>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] P4/Xeon Thermal LVT support
+Message-ID: <20020327124333.A17832@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0203270751400.22305-100000@netfinity.realnet.co.sz> <Pine.LNX.4.44.0203270803150.22597-100000@netfinity.realnet.co.sz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Emmanuel Papirakis" <papiraki@cilys.com>
+On Wed, Mar 27, 2002 at 08:04:37AM +0200, Zwane Mwaikambo wrote:
 
- > echo 0 > /proc/sys/net/ipv4/conf/eth0/rp_filter
- > 
- > (You want to disable reverse-path filtering.)
- > 
- > And maybe:
- > 
- > echo 0 > /proc/sys/net/ipv4/conf/eth0/log_martians
- > 
- >             Papi
+ > +	rdmsr(MSR_IA32_THERM_STATUS, l, h);
+ > +	if (l & 1) {
+ > +		printk(KERN_EMERG "CPU#%d: Temperature above threshold\n", cpu);
+ > +		printk(KERN_EMERG "CPU#%d: Running in modulated clock mode\n", cpu);
+ > +	} else {
+ > +		printk(KERN_INFO "CPU#%d: Temperature/speed normal\n", cpu);
+ > +	}
 
-"Vojtech Pavlik" <vojtech@suse.cz>
+This chunk probably wants to be rate-limited to avoid flooding the
+same message over and over.
 
- > 
- > for a in /proc/sys/net/ipv4/conf/*/rp_filter; do echo 0 > $a; done
- > 
-
-I tried this before. It does not help for packets destined for the
-same host.
-
-Regards
-  Jörg
-
-__________________________________________________________________
-
-Gesendet von Yahoo! Mail - http://mail.yahoo.de
-Ihre E-Mail noch individueller? - http://domains.yahoo.de
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

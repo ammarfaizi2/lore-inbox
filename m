@@ -1,68 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281428AbRKMBkM>; Mon, 12 Nov 2001 20:40:12 -0500
+	id <S281433AbRKMBoM>; Mon, 12 Nov 2001 20:44:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281430AbRKMBkD>; Mon, 12 Nov 2001 20:40:03 -0500
-Received: from warden.digitalinsight.com ([208.29.163.2]:14325 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id <S281428AbRKMBjq>; Mon, 12 Nov 2001 20:39:46 -0500
-From: David Lang <david.lang@digitalinsight.com>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-        "David S. Miller" <davem@redhat.com>, helgehaf@idb.hist.no,
-        linux-kernel@vger.kernel.org
-Date: Mon, 12 Nov 2001 17:15:28 -0800 (PST)
-Subject: Re: speed difference between using hard-linked and modular drives?
-In-Reply-To: <20011112173014.G32099@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.40.0111121714200.3451-100000@dlang.diginsite.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281430AbRKMBoC>; Mon, 12 Nov 2001 20:44:02 -0500
+Received: from f86.law4.hotmail.com ([216.33.149.86]:64775 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S281434AbRKMBnw>;
+	Mon, 12 Nov 2001 20:43:52 -0500
+X-Originating-IP: [205.231.90.227]
+From: "victor1 torres" <camel_3@hotmail.com>
+To: mpitts@suite224.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Testing Kernel Releases Before Being Released (Was Re: Re: loop back broken
+ in 2.2.14)
+Date: Tue, 13 Nov 2001 01:43:46 +0000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F86CRjNLBQ2qKollLJy0000e278@hotmail.com>
+X-OriginalArrivalTime: 13 Nov 2001 01:43:46.0725 (UTC) FILETIME=[A2919550:01C16BE4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike the point is that the module count inc/dec would need to be done for
-every packet so that when you go to unload you can check the usage value,
-so the check is done in the slow path, but the inc/dec is done in the fast
-path.
+Be patient Linus will open up the 2.5.x tree as soon as he thinks that the 
+2.4.x tree is done and ready to say his good bye´s to.
 
-David Lang
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 
- On Mon, 12 Nov 2001, Mike Fedyk wrote:
-
-> Date: Mon, 12 Nov 2001 17:30:14 -0800
-> From: Mike Fedyk <mfedyk@matchmail.com>
-> To: Rusty Russell <rusty@rustcorp.com.au>
-> Cc: David S. Miller <davem@redhat.com>, helgehaf@idb.hist.no,
->      linux-kernel@vger.kernel.org
-> Subject: Re: speed difference between using hard-linked and modular
->     drives?
->
-> On Tue, Nov 13, 2001 at 10:14:22AM +1100, Rusty Russell wrote:
-> > In message <20011112.152304.39155908.davem@redhat.com> you write:
-> > >    From: Rusty Russell <rusty@rustcorp.com.au>
-> > >    Date: Mon, 12 Nov 2001 20:59:05 +1100
-> > >
-> > >    (atomic_inc & atomic_dec_and_test for every packet, anyone?).
-> > >
-> > > We already do pay that price, in skb_release_data() :-)
-> >
-> > Sorry, I wasn't clear!  skb_release_data() does an atomic ops on the
-> > skb data region, which is almost certainly on the same CPU.  This is
-> > an atomic op on a global counter for the module, which almost
-> > certainly isn't.
-> >
-> > For something which (statistically speaking) never happens (module
-> > unload).
-> >
->
-> Is this in the fast path or slow path?
->
-> If it only happens on (un)load, then there isn't any cost until it's needed...
->
-> Mike
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->

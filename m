@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268898AbRHGPi3>; Tue, 7 Aug 2001 11:38:29 -0400
+	id <S268928AbRHGPrO>; Tue, 7 Aug 2001 11:47:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268965AbRHGPiL>; Tue, 7 Aug 2001 11:38:11 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:15611 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S268934AbRHGPh6>; Tue, 7 Aug 2001 11:37:58 -0400
-Date: Tue, 7 Aug 2001 08:43:59 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap
-In-Reply-To: <tghevjnbuy.fsf@mercury.rus.uni-stuttgart.de>
-Message-ID: <Pine.LNX.4.33.0108070825410.6350-100000@twin.uoregon.edu>
+	id <S268904AbRHGPql>; Tue, 7 Aug 2001 11:46:41 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:59403 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S268838AbRHGPqg>; Tue, 7 Aug 2001 11:46:36 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>
+Subject: Re: [RFC] using writepage to start io
+Date: Tue, 7 Aug 2001 17:52:28 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Anton Altaparmakov <aia21@cam.ac.uk>,
+        "Stephen C. Tweedie" <sct@redhat.com>, Chris Mason <mason@suse.com>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <Pine.GSO.4.21.0108070928250.18565-100000@weyl.math.psu.edu>
+In-Reply-To: <Pine.GSO.4.21.0108070928250.18565-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01080717522808.02365@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Aug 2001, Florian Weimer wrote:
-
-> David Maynor <david.maynor@oit.gatech.edu> writes:
+On Tuesday 07 August 2001 15:31, Alexander Viro wrote:
+> On Tue, 7 Aug 2001, Daniel Phillips wrote:
+> > One thread per block device; flushes across mounts on the same
+> > device are serialized.  This model works well for fs->device graphs
+> > that are strict trees.  For a non-strict tree (acyclic graph) its
+> > not clear what to do, but you could argue that such a configuration
+> > is stupid, so any kind of punt would do.
 >
-> > But is the 10% perf hit really gaining you anything, expect to quell
-> > your paranoia. What is next, an encrypted /proc so that possible
-> > attackers can't gain information about running processes?
->
-> This is not about paranoia, this is about stolen notebooks.
->
-> (And you can't easily add hundreds of megabytes to such systems
-> usually.)
+> Except that you can have a part of fs structures on a separate device.
+> Journal, for one thing. Now think of two disks, both partitioned. Two
+> filesystems. Each has data on the first partition of its own disk.
+> And journal on the second of another.
 
-yeah, that's true, but on older ones (like my toshiba portege 3010 which
-has the system maximum of 96MB ) you may not be able to afford the
-performance hit either(pentium 266,dma mode0 or pio disk,430tx chipset
-and all it's attendant memory performance issues with more than 64mb).
+And you want the write scheduling to not interfere when both are
+active?  Good luck.  I'd call this a dumb configuration from the
+point of view of performance.
 
-on a more modern unit (like my toshiba 2805 which has 384MB) the
-performance hit probably isn't a big deal but I probably don't need swap
-that much either.
+That said, the update daemon can just ignore the connection between
+data and journal partitions and let the fs take case of that itself
+if it needs to.  Ext3 doesn't need to, the usual kupdate rules are
+good enough.
 
-joelja
+So the parallel/serial update strategy survives this case just fine,
+however something tells me your fevered imagination is capable of
+coming up with yet another bizarre configuration or two...
 
->
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
-
+--
+Daniel

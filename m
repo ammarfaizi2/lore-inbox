@@ -1,36 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261821AbTCaTOP>; Mon, 31 Mar 2003 14:14:15 -0500
+	id <S261808AbTCaTJB>; Mon, 31 Mar 2003 14:09:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261835AbTCaTOP>; Mon, 31 Mar 2003 14:14:15 -0500
-Received: from to-telus.redhat.com ([207.219.125.105]:41966 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S261821AbTCaTOO>; Mon, 31 Mar 2003 14:14:14 -0500
-Date: Mon, 31 Mar 2003 14:25:36 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Janet Morgan <janetmor@us.ibm.com>, akpm@digeo.com, suparna@in.ibm.com,
-       linux-aio@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [Patch 2/2] Retry based aio read - filesystem read changes
-Message-ID: <20030331142536.J20730@redhat.com>
-References: <20030305144754.A1600@in.ibm.com> <20030305150026.B1627@in.ibm.com> <20030305024254.7f154afc.akpm@digeo.com> <20030305174452.A1882@in.ibm.com> <3E8889B4.FB716506@us.ibm.com> <20030331191123.GB13178@holomorphy.com> <20030331141629.I20730@redhat.com> <20030331191735.GC13178@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030331191735.GC13178@holomorphy.com>; from wli@holomorphy.com on Mon, Mar 31, 2003 at 11:17:35AM -0800
+	id <S261812AbTCaTJB>; Mon, 31 Mar 2003 14:09:01 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:15450 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id <S261808AbTCaTI7>; Mon, 31 Mar 2003 14:08:59 -0500
+Message-ID: <3E88942F.2090407@myrealbox.com>
+Date: Mon, 31 Mar 2003 14:17:03 -0500
+From: Nicholas Wourms <nwourms@myrealbox.com>
+User-Agent: Mozilla/5.0 (Windows; U; Win 9x 4.90; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [announce] kmsgdump for 2.5.65/66
+References: <20030319141048.GA19361@suse.de>	<20030320112559.A12732@namesys.com>	<20030320132409.GA19042@suse.de>	<20030320165941.0d19d09d.akpm@digeo.com>	<20030320231335.GB4638@suse.de>	<20030320153427.6265e864.rddunlap@osdl.org>	<3E7CBB27.8090506@myrealbox.com> <20030331105341.72ec6b8a.rddunlap@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31, 2003 at 11:17:35AM -0800, William Lee Irwin III wrote:
-> I won't get in the way then. I just watch for things related to what I've
-> touched to make sure it isn't going wrong for anyone.
+Randy.Dunlap wrote:
+> 
+> so.....
+> 
+> kmsgdump for Linux 2.5.65/2.5.66
+> 2003-03-31
+> version 0.4.5
 
-Longer term, I think you've got the right idea: we need to keep more 
-statistics on io waits, as right now from a profiling point of view, any 
-process that is blocked on io doesn't provide meaningful data to the 
-profiler.
+Thanks for porting this to 2.5.66!
 
-		-ben
--- 
-Junk email?  <a href="mailto:aart@kvack.org">aart@kvack.org</a>
+[SNIP]
+
+
+> 2.  The kmsgdump text-mode interface doesn't work with a USB-only keyboard
+> setup.  I had to add a PS/2 keyboard to my test system to use it.
+
+Hey, it's better then the alternative ;-).  I, too, use a 
+usb keyboard.  Perhaps some of the kdb usb code could be 
+ripped off?
+
+Cheers,
+Nicholas
+

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318729AbSHQURS>; Sat, 17 Aug 2002 16:17:18 -0400
+	id <S318731AbSHQU0r>; Sat, 17 Aug 2002 16:26:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318730AbSHQURS>; Sat, 17 Aug 2002 16:17:18 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:38898 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318729AbSHQURR>; Sat, 17 Aug 2002 16:17:17 -0400
-Subject: Re: Results with 2.4.20-pre2-ac3 and alim15x3 driver
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Art Haas <ahaas@neosoft.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020816161323.GA421@debian>
-References: <20020816161323.GA421@debian>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 17 Aug 2002 21:20:40 +0100
-Message-Id: <1029615640.4809.65.camel@irongate.swansea.linux.org.uk>
+	id <S318732AbSHQU0r>; Sat, 17 Aug 2002 16:26:47 -0400
+Received: from iris.duna.pl ([217.98.70.4]:8064 "EHLO aurora.pnt")
+	by vger.kernel.org with ESMTP id <S318731AbSHQU0q>;
+	Sat, 17 Aug 2002 16:26:46 -0400
+Date: Sat, 17 Aug 2002 22:30:10 +0200
+From: Justyna =?iso-8859-2?Q?Bia=B3a?= <nell@poczta.gazeta.pl>
+To: linux-kernel@vger.kernel.org
+Subject: kernel panic while cd writing
+Message-ID: <20020817203010.GA251@poczta.gazeta.pl>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-08-16 at 17:13, Art Haas wrote:
+Hi.
 
-> The latest -ac release is the first in a while that I've been
-> able to boot without having to use "ide=nodma". I've yet to find
-> the magic flag in the BIOS configuration (or wherever it's located)
-> that will activate DMA for this machine. When booting off earlier
+I have LiteOn 40x12x48x cd-writer, linux 2.4.19, cdrecord 1.11a24,
+Duron 1000 MHz, ECS K7S5A with SIS735 chipset. My cd-writer works fine only 
+in two cases:
+1. when the speed is not higher than 12x (no matter if the dma is on)
+2. with speed = 32x but only when I turn the dma off with hdparm
 
-I don't totally trust the DMA off logic in the current tree. I think its
-over pessimal. Thats a pending item to investigate.
+In other cases after a few whiles from the begining of burning process
+the whole system crashes whith such messages:
 
+"unable to handle paging request at virtual address 199EC3F7"
+"oops: 0002"
+"kernel panic: aiee, killing interrupt handler!"
+
+Can you give me any advices what should I do with that?
+
+nell
+-- 
+Escape of the Unicorn
+[free, 2D, flying shooter game]
+http://eounicorn.sourceforge.net

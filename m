@@ -1,68 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266042AbSLSTWK>; Thu, 19 Dec 2002 14:22:10 -0500
+	id <S266053AbSLSTb3>; Thu, 19 Dec 2002 14:31:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266043AbSLSTWK>; Thu, 19 Dec 2002 14:22:10 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:55051 "EHLO
+	id <S266069AbSLSTb3>; Thu, 19 Dec 2002 14:31:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:39692 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266042AbSLSTWJ>; Thu, 19 Dec 2002 14:22:09 -0500
-Message-ID: <3E021E2E.2090503@transmeta.com>
-Date: Thu, 19 Dec 2002 11:29:50 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021119
-X-Accept-Language: en, sv
-MIME-Version: 1.0
+	id <S266053AbSLSTb2>; Thu, 19 Dec 2002 14:31:28 -0500
+Date: Thu, 19 Dec 2002 11:37:06 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
 To: bart@etpmod.phys.tue.nl
-CC: torvalds@transmeta.com, lk@tantalophile.demon.co.uk,
-       terje.eggestad@scali.com, drepper@redhat.com, matti.aarnio@zmailer.org,
-       hugh@veritas.com, davej@codemonkey.org.uk, mingo@elte.hu,
-       linux-kernel@vger.kernel.org
+cc: davej@codemonkey.org.uk, <lk@tantalophile.demon.co.uk>,
+       <hpa@transmeta.com>, <terje.eggestad@scali.com>, <drepper@redhat.com>,
+       <matti.aarnio@zmailer.org>, <hugh@veritas.com>, <mingo@elte.hu>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: Intel P6 vs P7 system call performance
-References: <20021219132239.4650B51F88@gum12.etpnet.phys.tue.nl>
-In-Reply-To: <20021219132239.4650B51F88@gum12.etpnet.phys.tue.nl>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20021219135517.7E78051FB6@gum12.etpnet.phys.tue.nl>
+Message-ID: <Pine.LNX.4.44.0212191134180.2731-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bart@etpmod.phys.tue.nl wrote:
-> On 18 Dec, Linus Torvalds wrote:
-> 
->>On Wed, 18 Dec 2002, Jamie Lokier wrote:
->>
->>>That said, you always need the page at 0xfffe0000 mapped anyway, so
->>>that sysexit can jump to a fixed address (which is fastest).
->>
->>Yes. This is important. There _needs_ to be some fixed address at least as 
->>far as the kernel is concerned (it might move around between reboots or 
->>something like that, but it needs to be something the kernel knows about 
->>intimately and doesn't need lots of dynamic lookup).
->>
->>However, there's another issue, namely process startup cost. I personally 
->>want it to be as light as at all possible. I hate doing an "strace" on 
->>user processes and seeing tons and tons of crapola showing up. Just for 
-> 
-> So why not map the magic page at 0xffffe000 at some other address as
-> well? 
-> 
-> Static binaries can just directly jump/call into the magic page.
-> 
-> Shared binaries do somekind of mmap("/proc/self/mem") magic to put a
-> copy of the page at an address that is convenient for them. Shared
-> binaries have to do a lot of mmap-ing anyway, so the overhead should be
-> negligible.
-> 
 
-That would require /proc to be mounted for all shared binaries to work.
- That is tantamount to killing chroot().
+On Thu, 19 Dec 2002 bart@etpmod.phys.tue.nl wrote:
+> 
+> True, but unless I really don't get it, compatibility of a new static
+> binary with an old kernel is going to break anyway. 
 
-Perhaps it could be done with mremap(), but I would assume that would
-entail a special case in the mremap() code.
+NO.
 
-A special system call would be a bit gross, but it's better than a total
-hack.
+The current code in 2.5.x is perfectly able to be 100% compatible with 
+binaries even on old kernels. This whole discussion is _totally_ 
+pointless. I solved all the glibc problems early on, and Uli is already 
+happy with the interfaces, and they work fine for old kernels that don't 
+have a clue about the new system call interfaces.
 
-	-hpa
+WITHOUT any new magic system calls.
 
+WITHOUT any stupid SIGSEGV tricks.
+
+WITHOUT and silly mmap()'s on magic files.
+
+> My point was that the double-mapped page trick adds no overhead in the
+> case of a static binary, and just one extra mmap in case of a shared
+> binary.
+
+For _zero_ gain.  The jump to the library address has to be indirect 
+anyway, and glibc has several places to put the information without any 
+mmap's or anything like that.
+
+		Linus
 

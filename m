@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbTLWU6X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 15:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTLWU6X
+	id S261890AbTLWVIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 16:08:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbTLWVIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 15:58:23 -0500
-Received: from fed1mtao05.cox.net ([68.6.19.126]:51846 "EHLO
-	fed1mtao05.cox.net") by vger.kernel.org with ESMTP id S261928AbTLWU6W
+	Tue, 23 Dec 2003 16:08:09 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42644 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261890AbTLWVIH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 15:58:22 -0500
-To: ryutaroh@it.ss.titech.ac.jp
-cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cannot input bar with JP106 keyboards
-References: <20031219.212456.74735601.ryutaroh@it.ss.titech.ac.jp>
-From: Junio C Hamano <junkio@cox.net>
-Date: Tue, 23 Dec 2003 12:58:20 -0800
-In-Reply-To: <fa.kfih9j0.q4e8bi@ifi.uio.no> (ryutaroh@it.ss.titech.ac.jp's
- message of "Fri, 19 Dec 2003 12:26:46 GMT")
-Message-ID: <7v4qvrtfo3.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Tue, 23 Dec 2003 16:08:07 -0500
+Date: Tue, 23 Dec 2003 21:08:06 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.6.0-mm1
+Message-ID: <20031223210806.GE4176@parcelfarce.linux.theplanet.co.uk>
+References: <20031222211131.70a963fb.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031222211131.70a963fb.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "rm" == ryutaroh  <ryutaroh@it.ss.titech.ac.jp> writes:
+On Mon, Dec 22, 2003 at 09:11:31PM -0800, Andrew Morton wrote:
+> +inode-i_sb-checks.patch
+> 
+>  Add checks for null inode->i_sb in core VFS (we're still arguing about this)
 
-rm> We cannot input | (bar) with the JP 106 keyboards (the standard Japanese
-rm> keyboards).
+They should be replaced with BUG_ON() or removed.
+ 
+> +name_to_dev_t-fix.patch
+> 
+>  Don't replace slashes in names to `.'.  Replace them with `!' instead.  No
+>  clue why, nobody tells me anything.
 
-Known problem.  Look for string "Japanese" in the post-halloween doc.
-
-http://www.linux.org.uk/~davej/docs/post-halloween-2.6.txt
-
+Take a look at /sys/block/ and you'll see - when we register disks, we mangle
+the disk names that contain slashes (e.g. cciss/c0d0) replacing them with '!'
+in corresponding sysfs names.  So name_to_dev_t() should mangle the name in
+the same way before looking for it in /sys/block.

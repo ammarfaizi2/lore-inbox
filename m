@@ -1,96 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbULJRir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbULJRoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbULJRir (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 12:38:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbULJRir
+	id S261769AbULJRoE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 12:44:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbULJRoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 12:38:47 -0500
-Received: from fed1rmmtao12.cox.net ([68.230.241.27]:47317 "EHLO
-	fed1rmmtao12.cox.net") by vger.kernel.org with ESMTP
-	id S261764AbULJRiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 12:38:16 -0500
-Date: Fri, 10 Dec 2004 10:38:10 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6.10-rc3] Add missing __KERNEL__ (or other) protections
-Message-ID: <20041210173810.GM18825@smtp.west.cox.net>
+	Fri, 10 Dec 2004 12:44:04 -0500
+Received: from holomorphy.com ([207.189.100.168]:32402 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261769AbULJRn7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 12:43:59 -0500
+Date: Fri, 10 Dec 2004 09:43:36 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>,
+       marcelo.tosatti@cyclades.com, LKML <linux-kernel@vger.kernel.org>,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH] oom killer (Core)
+Message-ID: <20041210174336.GP2714@holomorphy.com>
+References: <1101985759.13353.102.camel@tglx.tec.linutronix.de> <1101995280.13353.124.camel@tglx.tec.linutronix.de> <20041202164725.GB32635@dualathlon.random> <20041202085518.58e0e8eb.akpm@osdl.org> <20041202180823.GD32635@dualathlon.random> <1102013716.13353.226.camel@tglx.tec.linutronix.de> <20041202233459.GF32635@dualathlon.random> <20041203022854.GL32635@dualathlon.random> <20041210163614.GN2714@holomorphy.com> <20041210173554.GW16322@dualathlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041210173554.GW16322@dualathlon.random>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.  As of 2.6.10-rc3, the following is needed to allow various
-userland packages (sysvinit, dhcp, ppp, libcap, libpcap, lilo) to
-compile as parts that userland needs (e.g. for ioctls) is in files with
-stuff userland isn't allowed to see.
+On Fri, Dec 10, 2004 at 08:36:14AM -0800, William Lee Irwin III wrote:
+>> Maybe the mm == &init_mm case should return an ERR_PTR also, as that is
+>> a sign of a transient error, not cause for a hard panic.
 
-This adds __KERNEL__ around <linux/ata.h> and some defines
-(<linux/ata.h> isn't needed by userland, and is unhappy right now).
-sysvinit and some other packages need <linux/hdreg.h> for HDIO_DRIVE_CMD
-and other IOCTL things.  In <linux/types.h> we were unsafely typedef'ing
-__le64/__be64 as __u64 only exists when __GNUC__ && !__STRICT_ANSI__
-(causing libcap to fail, for example).  Finally, <asm/atomic.h> provides
-routines userland simply cannot use on all arches, but <linux/filter.h>
-is needed by iputils for example.   While not all arches put __KERNEL__
-around their header, on MIPS including this header currently blows up
-the build.
+On Fri, Dec 10, 2004 at 06:35:54PM +0100, Andrea Arcangeli wrote:
+> It can't be a transient error as far as I can tell, it's just like the
+> issue of alloc_pages returning NULL (and potentially scheduling first)
+> before mounting the root fs.
 
-Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+Well, the only way I see this happening is the process exiting followed
+by use_mm() on init_mm for unobvious reasons (perhaps reasons not in
+the tree).
 
-Index: linux/include/linux/hdreg.h
-===================================================================
---- linux.orig/include/linux/hdreg.h
-+++ linux/include/linux/hdreg.h
-@@ -1,6 +1,7 @@
- #ifndef _LINUX_HDREG_H
- #define _LINUX_HDREG_H
- 
-+#ifdef __KERNEL__
- #include <linux/ata.h>
- 
- /*
-@@ -57,7 +58,7 @@
- #define IO			0x02
- #define REL			0x04
- #define TAG_MASK		0xf8
--
-+#endif /* __KERNEL__ */
- 
- /*
-  * Command Header sizes for IOCTL commands
-Index: linux/include/linux/types.h
-===================================================================
---- linux.orig/include/linux/types.h
-+++ linux/include/linux/types.h
-@@ -157,8 +157,10 @@ typedef __u16 __bitwise __le16;
- typedef __u16 __bitwise __be16;
- typedef __u32 __bitwise __le32;
- typedef __u32 __bitwise __be32;
-+#if defined(__GNUC__) && !defined(__STRICT_ANSI__)
- typedef __u64 __bitwise __le64;
- typedef __u64 __bitwise __be64;
-+#endif
- 
- struct ustat {
- 	__kernel_daddr_t	f_tfree;
-Index: linux/include/linux/filter.h
-===================================================================
---- linux.orig/include/linux/filter.h
-+++ linux/include/linux/filter.h
-@@ -8,7 +8,9 @@
- #include <linux/compiler.h>
- #include <linux/types.h>
- 
-+#ifdef __KERNEL__
- #include <asm/atomic.h>
-+#endif
- 
- /*
-  * Current version of the filter code architecture.
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+-- wli

@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131176AbRBHMLq>; Thu, 8 Feb 2001 07:11:46 -0500
+	id <S130679AbRBHMKG>; Thu, 8 Feb 2001 07:10:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131177AbRBHMLh>; Thu, 8 Feb 2001 07:11:37 -0500
-Received: from vulcan.datanet.hu ([194.149.0.156]:20804 "EHLO relay.datanet.hu")
-	by vger.kernel.org with ESMTP id <S131176AbRBHMLZ>;
-	Thu, 8 Feb 2001 07:11:25 -0500
-From: "Bakonyi Ferenc" <fero@drama.obuda.kando.hu>
-Organization: Datakart Geodzia KFT.
-To: Louis Garcia <louisg00@bellsouth.net>
-Date: Thu, 8 Feb 2001 13:10:40 +0100
+	id <S130670AbRBHMJ6>; Thu, 8 Feb 2001 07:09:58 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:54996 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129032AbRBHMJp>;
+	Thu, 8 Feb 2001 07:09:45 -0500
+Date: Thu, 8 Feb 2001 12:52:30 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: hpa@transmeta.com, linux-kernel@vger.kernel.org, mingo@redhat.com,
+        vandrove@vc.cvut.cz
+Subject: Re: [PATCH] Re: UP APIC reenabling vs. cpu type detection ordering
+In-Reply-To: <200102080504.GAA23507@harpo.it.uu.se>
+Message-ID: <Pine.GSO.3.96.1010208123938.29177H-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: nvidia fb 0.9.0 (0.9.2?)
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <3A7EF830.50805@bellsouth.net>
-In-Reply-To: <E14Pqy4-0002vA-00@aleph0.datakart.hu>
-X-mailer: Pegasus Mail for Win32 (v3.01d)
-Message-Id: <E14Qpuo-0004aR-00@aleph0.datakart.hu>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 8 Feb 2001, Mikael Pettersson wrote:
 
-/me wrote:
+> No, poking into MSRs not explicitly defined on the current CPU is
+> inherently unsafe. I have several x86 CPU data sheets here in front
+> of me which say the same thing: "Don't write to undocumented MSRs."
 
-> Louis Garcia <louisg00@bellsouth.net> wrote:
-> 
-> > I'm using XFree86-4.0.1 with the nv driver. You are right, it's ver 
-> > 0.9.2 for the fb.
-> >
-> > Where can I get the patch? Should I upgrade to XFree86-4.0.2?
-> 
-> Not yet, we have to write that patch first... :) I'll grab an XFree 
-> source soon.
-> Please test other color depths too: 15bpp and 32bpp.
+ Your point is right -- the problem are not undefined MSRs (that raise
+#GP(0) on an access) but undocumented ones, sigh...
 
-	Hi!
+> You cannot assume that every single x86 out there stays clear of
+> all Intel-defined MSRs. Intel has also expanded this set over time:
+> older designs may not even have known about the APIC_BASE MSR.
 
-I've tried to reproduce your problem, but I failed. Rivafb 0.9.2 on 
-Asus V3000 (Riva 128) with nv driver (from XFree-4.0.1g, Debian 
-Woody) works fine for me. Would you like to try out some other XFree 
-versions too?
+ Intel is actually sane -- you get #GP(0) for this MSR on P5.  Others
+might not and there are less cluefull vendors out there.
 
-Regards:
-	Ferenc Bakonyi
+> 1. identify_cpu() (and more importantly get_cpu_vendor()) is called
+[...]
+> 2. include/asm-i386/processor.h #defines X86_VENDOR_INTEL as 0.
+[...]
+> 3. init/main.c calls time_init() before check_bugs() and thus
+[...]
+> 4. The cpu detection code rewrite in 2.4.0-test<something>
+[...]
+
+ Yes, there are more problems as well.  I'm working on it -- you may want
+to look at the preliminary patch I sent here on Monday (strangely enough,
+nobody out of linux-kernel seemed to be interested so far).  Next version
+should be available later this week -- the main problem with moving
+identify_cpu() earlier are other cpu_data fields that get initialized
+later, so more code needs to be actually rewritten.
+
+> Ideally, identify_cpu() should be run before init_apic_mappings(),
+> but my attempts to do so has so far had some weird side-effects
+> (lost interrupts, incorrect bogomips, apparently stuck watchdog,
+> and keyboard timeouts), so I won't touch that stuff.
+
+ You see.  I'm going to move identify_cpu() very early anyway, but this
+need a careful code review.
+
+  Maciej
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

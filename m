@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266114AbTB0VMB>; Thu, 27 Feb 2003 16:12:01 -0500
+	id <S266961AbTB0VNq>; Thu, 27 Feb 2003 16:13:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266805AbTB0VMB>; Thu, 27 Feb 2003 16:12:01 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:21915 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S266114AbTB0VMA>;
-	Thu, 27 Feb 2003 16:12:00 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Rising io_load results Re: 2.5.63-mm1
-Date: Fri, 28 Feb 2003 08:22:09 +1100
-User-Agent: KMail/1.5
-References: <20030227025900.1205425a.akpm@digeo.com>
-In-Reply-To: <20030227025900.1205425a.akpm@digeo.com>
+	id <S266968AbTB0VNq>; Thu, 27 Feb 2003 16:13:46 -0500
+Received: from mx01.nexgo.de ([151.189.8.96]:48836 "EHLO mx01.nexgo.de")
+	by vger.kernel.org with ESMTP id <S266961AbTB0VNp>;
+	Thu, 27 Feb 2003 16:13:45 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andreas Dilger <adilger@clusterfs.com>
+Subject: Re: [Bug 417] New: htree much slower than regular ext3
+Date: Fri, 28 Feb 2003 05:12:56 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, "Theodore Ts'o" <tytso@mit.edu>,
+       chrisl@vmware.com
+References: <11490000.1046367063@[10.10.2.4]> <20030227200425.253F03FE26@mx01.nexgo.de> <20030227140019.G1373@schatzie.adilger.int>
+In-Reply-To: <20030227140019.G1373@schatzie.adilger.int>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200302280822.09409.kernel@kolivas.org>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030227212403.D28DA3C7CB@mx01.nexgo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 27 February 2003 22:00, Andreas Dilger wrote:
+> > 11 ms sounds like two seeks for each returned dirent, which sounds like a
+> > bug.
+>
+> I think you are pretty dead on there.  The difference is that with
+> unindexed entries, the directory entry and the inode are in the same order,
+> while with indexed directories they are essentially in random order to each
+> other.  That means that each directory lookup causes a seek to get the
+> directory inode data instead of doing allocation order (which is sequential
+> reads on disk).
+>
+> In the past both would have been slow equally, but the orlov allocator in
+> 2.5 causes a number of directories to be created in the same group before
+> moving on to the next group, so you have nice batches of sequential reads.
 
-I mentioned this previously; it's still happening.
+I think you're close to the truth there, but out-of-order inode table access 
+would only introduce one seek per inode table block, and the cache should 
+take care of the rest.  Martin's numbers suggest the cache isn't caching at 
+all.
 
-This started some time around 2.5.62-mm3 with the io_load results on contest 
-benchmarking (http://contest.kolivas.org) rising with each run. It still 
-occurs with 2.5.63-mm1 regardless of which elevator is specified. This is the 
-io load result time(seconds) for 6 consecutive runs in compile time:
+Martin, does iostat show enormously more reads for the Htree case?
 
-111
-147
-221
-284
-334
-358
+Regards,
 
-/proc/meminfo after 6 runs and mem flushing:
-
-MemTotal:       256156 kB
-MemFree:        238708 kB
-Buffers:          2320 kB
-Cached:           1552 kB
-SwapCached:       1780 kB
-Active:           5876 kB
-Inactive:         2120 kB
-HighTotal:           0 kB
-HighFree:            0 kB
-LowTotal:       256156 kB
-LowFree:        238708 kB
-SwapTotal:     4194272 kB
-SwapFree:      4192416 kB
-Dirty:              28 kB
-Writeback:           0 kB
-Mapped:       4294923652 kB
-Slab:             4872 kB
-Committed_AS:     7032 kB
-PageTables:        200 kB
-ReverseMaps:       631
-
-I am refraining from publishing any benchmark results with this happening. It 
-doesn't seem to occur on 2.5.63
-
-Con
+Daniel

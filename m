@@ -1,64 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269773AbRHIL6q>; Thu, 9 Aug 2001 07:58:46 -0400
+	id <S269770AbRHIL50>; Thu, 9 Aug 2001 07:57:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269771AbRHIL6h>; Thu, 9 Aug 2001 07:58:37 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:58642 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S269772AbRHIL60>; Thu, 9 Aug 2001 07:58:26 -0400
-Date: Thu, 9 Aug 2001 13:58:35 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: don't feed the trolls (was: intermediate summary of ext3-2.4-0.9.4 thread)
-Message-ID: <20010809135835.D14108@emma1.>
-Mail-Followup-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010804053018.D16516@emma1.emma.line.org> <200108042122.f74LMR313894@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <200108042122.f74LMR313894@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.19i
+	id <S269771AbRHIL5R>; Thu, 9 Aug 2001 07:57:17 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:56275 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S269770AbRHIL5L>; Thu, 9 Aug 2001 07:57:11 -0400
+Message-ID: <3B727A9E.D7686106@commait.de>
+Date: Thu, 09 Aug 2001 13:57:18 +0200
+From: Uwe Starke <starke@commait.de>
+Reply-To: starke@commait.de, mirabilos@users.sourceforge.net
+X-Mailer: Mozilla 4.73 [de] (WinNT; U)
+X-Accept-Language: de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Q: Status of AVM FritzCard PCI v2.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 04 Aug 2001, Albert D. Cahalan wrote:
+Hi all,
 
-> Seriously, consider:
-> 
-> 1. there are MTA authors that actively promote BSD over Linux
-> 2. Linux users and distributions promote their MTA software
+I'd like to know whether the new version of AVM FritzCard PCI
+is supported in recent (i.e. 2.4.7 and above) kernels.
+We have had a problem with Linux not recognising these devices,
+but no "old" versions can be purchased any longer.
 
-I do not endorse this behaviour (particularly, qmail not supporting
-softupdates is rather ridiculous), but I understand that MTA authors
-would rather want to rely on fsync() also bringing related meta data do
-disk (as ext3 and reiserfs for Linux 2.4 already do even across a
-rename()!) than to add dir=open("directory"); fsync(dir); close(dir) all
-over the place.
+Could please any of you driver wizards check this?
 
-> Getting back on topic... while non-inherited ext2 attributes might
+Thanks in advance.
 
-What would they be good for? Make MTA that have in the past achieved
-reliable behaviour with chattr +S unreliable?
 
-> be nice, I'm sure the ext2/VFS authors don't need to be pestered
-> about it, and certainly not because of some lame software making
-> non-standard assumptions about filesystem behavior.
-
-Well, the software documents its requirements and assumptions. I don't
-see anything nonstandard with relying on fsync(). If ext2fs doesn't meet
-the assumptions without chattr +S or mount -o sync, but allows to
-enforce this behaviour chattr +S, deliberately breaking ext2 attributes
-inheritance will make Linux deliberately unsuitable for this MTA -- or
-at least, slow it down through the need to use mount -o sync.
-
-Deliberately breaking things just to show somebody else "you cannot even
-rely that chattr behaviour is invariant" is ridiculous and definitely
-not the right way to go.
-
-If the MTA author chooses chattr +S over fsync-directory, what's wrong
-with that?
-
--- 
-Matthias Andree

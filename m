@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292043AbSBOJTW>; Fri, 15 Feb 2002 04:19:22 -0500
+	id <S292057AbSBOJ0u>; Fri, 15 Feb 2002 04:26:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292045AbSBOJTM>; Fri, 15 Feb 2002 04:19:12 -0500
-Received: from dns.logatique.fr ([213.41.101.1]:18672 "HELO
-	persephone.dmz.logatique.fr") by vger.kernel.org with SMTP
-	id <S292043AbSBOJS7>; Fri, 15 Feb 2002 04:18:59 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Thomas Capricelli <tcaprice@logatique.fr>
-To: <robert@schwebel.de>, "Eric S. Raymond" <esr@thyrsus.com>
+	id <S292058AbSBOJ0j>; Fri, 15 Feb 2002 04:26:39 -0500
+Received: from pcp809261pcs.nrockv01.md.comcast.net ([68.49.81.201]:56227 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S292057AbSBOJ0c>; Fri, 15 Feb 2002 04:26:32 -0500
+Date: Fri, 15 Feb 2002 04:26:31 -0500
+From: Olivier Galibert <galibert@pobox.com>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Cc: "Eric S. Raymond" <esr@thyrsus.com>
 Subject: Re: CML2-2.3.0 is available
-Date: Fri, 15 Feb 2002 10:18:10 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0202150751010.24650-100000@callisto.local>
-In-Reply-To: <Pine.LNX.4.33.0202150751010.24650-100000@callisto.local>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020215091621.79B6023CCF@persephone.dmz.logatique.fr>
+Message-ID: <20020215042631.A23535@zalem.nrockv01.md.comcast.net>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>,
+	"Eric S. Raymond" <esr@thyrsus.com>
+In-Reply-To: <20020214193329.A23463@thyrsus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020214193329.A23463@thyrsus.com>; from esr@thyrsus.com on Thu, Feb 14, 2002 at 07:33:29PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 14, 2002 at 07:33:29PM -0500, Eric S. Raymond wrote:
+> 	* `menus' and `explanations' declarations are gone from the language;
+> 	  all prompts and help info are declared by `symbols` declarations
+> 	  now.
 
+So now you can compile a menu as a module?  What makes the difference
+between a config symbol and anything else?
 
-Indeed. not found. Eric ?
-
-Thomas
-
-
-On Friday 15 February 2002 07:51, Robert Schwebel wrote:
-> On Thu, 14 Feb 2002, Eric S. Raymond wrote:
-> > The latest version is always available at
-> > <http://www.tuxedo.org/~esr/cml2/>.
->
-> "Not Found"...
->
-> Robert
+  OG.

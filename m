@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316615AbSGQUGY>; Wed, 17 Jul 2002 16:06:24 -0400
+	id <S316623AbSGQUIc>; Wed, 17 Jul 2002 16:08:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316621AbSGQUGY>; Wed, 17 Jul 2002 16:06:24 -0400
-Received: from [209.184.141.189] ([209.184.141.189]:18458 "HELO UberGeek")
-	by vger.kernel.org with SMTP id <S316615AbSGQUGX>;
-	Wed, 17 Jul 2002 16:06:23 -0400
-Subject: [RFC] Groups beyond 32
-From: Austin Gonyou <austin@digitalroadkill.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
-Date: 17 Jul 2002 15:09:16 -0500
-Message-Id: <1026936556.25347.48.camel@UberGeek>
-Mime-Version: 1.0
+	id <S316629AbSGQUIc>; Wed, 17 Jul 2002 16:08:32 -0400
+Received: from pD952AE51.dip.t-dialin.net ([217.82.174.81]:58524 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316623AbSGQUIa>; Wed, 17 Jul 2002 16:08:30 -0400
+Date: Wed, 17 Jul 2002 14:11:11 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+cc: Pavel Machek <pavel@ucw.cz>
+Subject: SWSUSP in 2.5
+Message-ID: <Pine.LNX.4.44.0207171402560.3452-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When changing the kernel to handle groups beyond 32, and of course the
-glibc as well, I noticed that I could no longer SSH out of the box. 
+Hi,
 
-The problem with this is not huge, ask a few questions, some more
-recompiling and then ssh will start working. Fine.
+Compiling software suspend, I get the following warning:
 
-The problem now is more one of maintenance. Most distributions do not
-support groups > 32 AFAIK. So, it's lead me to ask the following
-questions:
+suspend.c: In function `prepare_suspend_processes':
+suspend.c:602: warning: implicit declaration of function `sys_sync'
 
-1. Why, in general, is the limit so low? 
-   For specific application, mainly auditing and such, this would be    
-   advantageous I think.
+The reasons seems, to me, that no header file ever talks about sys_sync, 
+except for a small comment in include/linux/writeback.h. via-pmu uses it, 
+too, they have their own prototype. It might be an idea to add this 
+one-liner:
 
-2. What is required to limit the dependence on groups to just GLIBC or
-just the kernel? Is that even possible?
+--- kernel/suspend.c~   Wed Jul 17 14:09:57 2002
++++ kernel/suspend.c    Wed Jul 17 14:10:17 2002
+@@ -66,6 +66,7 @@
+ #include <linux/swapops.h>
+ 
+ extern void signal_wake_up(struct task_struct *t);
++extern int sys_sync(void);
+ 
+ unsigned char software_suspend_enabled = 0;
+ 
 
-3. Is there any true advantage to supporting more than 32 groups, or
-creating "meta-groups" to get around the problem? 
-
-
-The main reason I ask, is because just like the unknown with ssh not
-supporting > 32 groups without modification, there can be others. Plus
-with most distros, using automated upgrades via push, or some such
-mechanism is encumbered by customizations to glibc, ssh, and potentially
-other packages. 
-
-
+							Regards,
+							Thunder
 -- 
-Austin Gonyou <austin@digitalroadkill.net>
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

@@ -1,41 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135193AbRDLPtL>; Thu, 12 Apr 2001 11:49:11 -0400
+	id <S135213AbRDLPyL>; Thu, 12 Apr 2001 11:54:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135208AbRDLPtG>; Thu, 12 Apr 2001 11:49:06 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:54544 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S135193AbRDLPs0>;
-	Thu, 12 Apr 2001 11:48:26 -0400
-Date: Thu, 12 Apr 2001 12:48:13 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Andreas Dilger <adilger@turbolinux.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: Fwd: Re: memory usage - dentry_cacheg
-In-Reply-To: <Pine.GSO.4.21.0104121136550.19944-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.21.0104121247370.18260-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135212AbRDLPyB>; Thu, 12 Apr 2001 11:54:01 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:5133 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S135211AbRDLPx4>;
+	Thu, 12 Apr 2001 11:53:56 -0400
+Date: Thu, 12 Apr 2001 08:51:18 -0700
+From: Anton Blanchard <anton@samba.org>
+To: Maneesh Soni <smaneesh@in.ibm.com>
+Cc: tridge@samba.org, lkml <linux-kernel@vger.kernel.org>,
+        lse tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [Lse-tech] Re: [RFC][PATCH] Scalable FD Management using Read-Copy-Update
+Message-ID: <20010412085118.A26665@va.samba.org>
+In-Reply-To: <20010409201311.D9013@in.ibm.com> <20010411182929.A16665@va.samba.org> <20010412211354.A25905@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010412211354.A25905@in.ibm.com>; from smaneesh@in.ibm.com on Thu, Apr 12, 2001 at 09:13:54PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Apr 2001, Alexander Viro wrote:
+ 
+Hi,
 
-> IOW. keeping dcache/icache size low is not a good thing, unless you
-> have a memory pressure that requires it. More agressive kupdate _is_
-> a good thing, though - possibly kupdate sans flushing buffers, so that
-> it would just keep the icache clean and let bdflush do the actual IO.
+> Base (2.4.2) - 
+>         100 Average Throughput = 39.628  MB/sec
+>         200 Average Throughput = 22.792  MB/sec
+> 
+> Base + files_struct patch - 
+>         100 Average Throughput = 39.874 MB/sec
+>         200 Average Throughput = 23.174 MB/sec  
+>          
+> I found this value quite less than the one present in the README distributed
+> with dbench tarball. I think the numbers in the README were for a similar 
+> machine but with 2.2.9 kernel.
 
-Very well. Then I'll leave the balancing between eating from the
-page cache and eating from the dcache/icache to you. Have fun.
+If you guestimate that each dbench client uses about 20M of RAM then dbench
+100 has no chance of remaining in memory. Once you hit disk then spinlock
+optimisations are all in the noise :) Smaller runs (< 30) should see 
+it stay in memory.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Also if you turn of kupdated (so old buffers are not flushed out just
+because they are old) and make the VM more agressive about filling
+memory with dirty buffers then you will not hit the disk and then
+hopefully the optimisations will be more obvious.
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+killall -STOP kupdated
+echo "90 64 64 256 500 3000 95 0 0" > /proc/sys/vm/bdflush
 
+Remember to killall -CONT kupdated when you are finished :)
+
+> I am copying this to Andrew also, if he can also help. Also if you have some
+> dbench numbers from 2.4.x kernel, please let me have a look into those also.
+
+The single CPU 333MHz POWER 3 I was playing with got 100MB/s when not
+touching disk.
+
+Anton

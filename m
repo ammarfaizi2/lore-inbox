@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268767AbUJEERS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268769AbUJEEqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268767AbUJEERS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 00:17:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268769AbUJEERS
+	id S268769AbUJEEqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 00:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268771AbUJEEqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 00:17:18 -0400
-Received: from vs-kg004.ocn.ad.jp ([210.232.239.83]:51934 "EHLO
-	vs-kg004.ocn.ad.jp") by vger.kernel.org with ESMTP id S268767AbUJEERQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 00:17:16 -0400
-From: Jason Stubbs <jstubbs@work-at.co.jp>
-Organization: Work@ Inc
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: PROBLEM: Consistent lock up on >=2.6.8
-Date: Tue, 5 Oct 2004 13:17:48 +0900
-User-Agent: KMail/1.7
-Cc: linux-kernel@vger.kernel.org
-References: <200410041611.17000.jstubbs@work-at.co.jp> <200410051053.09587.jstubbs@work-at.co.jp> <20041004185845.471bcc55.akpm@osdl.org>
-In-Reply-To: <20041004185845.471bcc55.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Oct 2004 00:46:09 -0400
+Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:41189 "EHLO
+	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S268769AbUJEEqG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 00:46:06 -0400
+References: <200410050216.i952Gb620657@unix-os.sc.intel.com> <cone.1096943670.717018.10082.502@pc.kolivas.org> <416211A3.8060806@yahoo.com.au>
+Message-ID: <cone.1096951549.783170.10082.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Con Kolivas <kernel@kolivas.org>, Chen@bhhdoa.org.au,
+       Kenneth W <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: bug in sched.c:activate_task()
+Date: Tue, 05 Oct 2004 14:45:49 +1000
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
 Content-Disposition: inline
-Message-Id: <200410051317.48071.jstubbs@work-at.co.jp>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 05 October 2004 10:58, Andrew Morton wrote:
-> Jason Stubbs <jstubbs@work-at.co.jp> wrote:
-> >  On Tuesday 05 October 2004 04:05, Andrew Morton wrote:
-> >  > update_defense_level() is calling si_meminfo() from timer context. 
-> >  > But si_meminfo takes non-irq-safe locks.
-> >  >
-> >  > Move it all to keventd context.
-> >
-> >  That appears to have fixed it. I'm running my regular test and, while
-> >  interactivity is non-existent, it hasn't locked. I'll leave it going for
-> >  another few hours and report back to confirm.
+Nick Piggin writes:
 
-Going on 3 hours and no problems.
+> Con Kolivas wrote:
+> 
+>> Chen, Kenneth W writes:
+>>
+>>> Update p->timestamp to "now" in activate_task() doesn't look right
+>>> to me at all.  p->timestamp records last time it was running on a
+>>> cpu.  activate_task shouldn't update that variable when it queues
+>>> a task on the runqueue.
+>>>
+>>> This bug (and combined with others) triggers improper load balancing.
+>>
+>>
+>> The updated timestamp was placed there by Ingo to detect on-runqueue 
+>> time. If it is being used for load balancing then it is being used in 
+>> error.
+>>
+> 
+> Load balancing wants to know if a task is considered cache hot.
 
-> >  Much gratitude. I should go out and buy a kernel book so that I may some
-> > day be able to repay the favour. :)
->
-> You reported the bug, then you applied and ran the debug patch and then you
-> sent back the info which was necessary to arrive at a fix and then you
-> tested the fix.
->
-> How could you possibly have anything further to "repay"?
+Yes I know. It used to be performed based on jiffies which was adequate 
+resolution for cache warmth at the time. The timestamp was being used for on 
+runqueue length measurement before the load balancing was modified to use 
+that value.
 
-Nevertheless... :)
+Con
 
-Regards,
-Jason Stubbs

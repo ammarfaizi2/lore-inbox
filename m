@@ -1,111 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262346AbUBXRwA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Feb 2004 12:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbUBXRv4
+	id S262337AbUBXR4j (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Feb 2004 12:56:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262343AbUBXR4i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Feb 2004 12:51:56 -0500
-Received: from fep02-0.kolumbus.fi ([193.229.0.44]:59774 "EHLO
-	fep02-app.kolumbus.fi") by vger.kernel.org with ESMTP
-	id S262330AbUBXRvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Feb 2004 12:51:44 -0500
-Date: Tue, 24 Feb 2004 19:51:42 +0200 (EET)
-From: Kai Makisara <Kai.Makisara@kolumbus.fi>
-X-X-Sender: makisara@kai.makisara.local
-To: Greg KH <greg@kroah.com>
-cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, kai.makisara@kolumbus.fi
-Subject: Re: [BK PATCH] SCSI update for 2.6.3
-In-Reply-To: <20040224171629.GA31369@kroah.com>
-Message-ID: <Pine.LNX.4.58.0402241937450.3713@kai.makisara.local>
-References: <Pine.LNX.4.58.0402240919490.1129@spektro.metla.fi>
- <20040224170412.GA31268@kroah.com> <1077642529.1804.170.camel@mulgrave>
- <20040224171629.GA31369@kroah.com>
+	Tue, 24 Feb 2004 12:56:38 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:5572 "EHLO hermes.jf.intel.com")
+	by vger.kernel.org with ESMTP id S262337AbUBXR4c convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Feb 2004 12:56:32 -0500
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Date: Tue, 24 Feb 2004 09:55:25 -0800
+Message-ID: <F595A0622682C44DBBE0BBA91E56A5ED1C36C4@orsmsx410.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Thread-Index: AcPsPqdZVWAIV0mtRn+g9y/ezMiUFwOv/K4A
+From: "Woodruff, Robert J" <woody@co.intel.com>
+To: "Greg KH" <greg@kroah.com>, "Hefty, Sean" <sean.hefty@intel.com>
+Cc: "Tillier, Fabian" <ftillier@infiniconsys.com>,
+       "Chris Friesen" <cfriesen@nortelnetworks.com>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <hozer@hozed.org>, "Woodruff, Robert J" <woody@jf.intel.com>,
+       "Magro, Bill" <bill.magro@intel.com>, <woody@jf.intel.com>,
+       <infiniband-general@lists.sourceforge.net>
+X-OriginalArrivalTime: 24 Feb 2004 17:55:27.0014 (UTC) FILETIME=[62597460:01C3FAFF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 Feb 2004, Greg KH wrote:
+On Thu, Feb 05, 2004 at 03:20:46PM -0800, Greg KH Wrote,
 
-> On Tue, Feb 24, 2004 at 11:08:48AM -0600, James Bottomley wrote:
-> > On Tue, 2004-02-24 at 11:04, Greg KH wrote:
-> > > Can you post it here so we can review it?
-> > > 
-> > > And yes, using class_simple should relieve you of Al flamage :)
-> > 
-> > The one in the tree is attached.  I did verify it myself, and tried it
-> > out on some old QIC tapes I had lying around.
-> 
-> Can you print out the sysfs tree this patch creates?
-> 
-Here is a partial tree for the first tree (nearly identical entries from 
-the middle trimmed):
+>Great, when is this going to happen?  I think I'm not going to respond
+anymore
+>to this thread until I see some actual code.
 
-/sys/class/scsi_tape/
-|-- st0m0
-|   |-- default_blksize
-|   |-- default_compression
-|   |-- default_density
-|   |-- defined
-|   |-- dev
-|   |-- device -> 
-../../../devices/pci0000:00/0000:00:1e.0/0000:02:01.1/host1/1:0:5:0
-|   `-- driver -> ../../../bus/scsi/drivers/st
-|-- st0m0n
-|   |-- default_blksize
-|   |-- default_compression
-|   |-- default_density
-|   |-- defined
-|   |-- dev
-|   |-- device -> 
-../../../devices/pci0000:00/0000:00:1e.0/0000:02:01.1/host1/1:0:5:0
-|   `-- driver -> ../../../bus/scsi/drivers/st
-.
-.
-.
-`-- st0m3n
-    |-- default_blksize
-    |-- default_compression
-    |-- default_density
-    |-- defined
-    |-- dev
-    |-- device -> 
-../../../devices/pci0000:00/0000:00:1e.0/0000:02:01.1/host1/1:0:5:0
-    `-- driver -> ../../../bus/scsi/drivers/st
+Ok, we now have the InfiniBand Access Layer (IBAL) integrated and
+building in 
+the 2.6.3 environment and have a patch that we can provide. We have not
+yet 
+fixed the issues that you have raised so far (such as the abstraction
+layer), 
+but wanted to submit the code so that we can get additional 
+feedback from you and all of the community, as you requested. 
 
-> What's that "tape" symlink for?  Does it go from the scsi device in
-> /sys/devices/... to the class device?  Or the other way around?
-> 
+Would you like me to submit the patch directly to linux-kernel email
+list ? 
 
-The link is from the SCSI device to one of the scsi_tape directories:
+I have also posted it to the InfiniBand sourceforge website at:
 
-/sys/devices/pci0000:00/0000:00:1e.0/0000:02:01.1/host1/1:0:5:0
-|-- delete
-|-- detach_state
-|-- device_blocked
-|-- generic -> ../../../../../../class/scsi_generic/sg1
-|-- model
-|-- online
-|-- power
-|   `-- state
-|-- queue_depth
-|-- rescan
-|-- rev
-|-- scsi_level
-|-- tape -> ../../../../../../class/scsi_tape/st0m0
-|-- type
-`-- vendor
-
-The idea is to be able to follow the links from a generic scsi device to 
-the tape device. The link 'generic' created by sg enables associating a 
-tape with the corresponding sg device.
-
-> Other than that question, the patch looks sane to me.
-> 
-Thanks for the review.
-
--- 
-Kai
+http://sourceforge.net/projects/infiniband

@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129051AbRCKSvh>; Sun, 11 Mar 2001 13:51:37 -0500
+	id <S129066AbRCKTVT>; Sun, 11 Mar 2001 14:21:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129066AbRCKSvS>; Sun, 11 Mar 2001 13:51:18 -0500
-Received: from f61.law3.hotmail.com ([209.185.241.61]:36113 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S129051AbRCKSvJ>;
-	Sun, 11 Mar 2001 13:51:09 -0500
-X-Originating-IP: [65.25.188.54]
-From: "John William" <jw2357@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: alan@lxorguk.ukuu.org.uk
-Subject: Re: HP Vectra XU 5/90 interrupt problems
-Date: Sun, 11 Mar 2001 18:50:23 
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F61uN6tdqVvPdLFYxc900008c66@hotmail.com>
-X-OriginalArrivalTime: 11 Mar 2001 18:50:24.0028 (UTC) FILETIME=[2163DDC0:01C0AA5C]
+	id <S129106AbRCKTU7>; Sun, 11 Mar 2001 14:20:59 -0500
+Received: from adsl-63-200-41-38.steelrain.org ([63.200.41.38]:64529 "EHLO
+	thor.sbay.org") by vger.kernel.org with ESMTP id <S129066AbRCKTUt>;
+	Sun, 11 Mar 2001 14:20:49 -0500
+Date: Sun, 11 Mar 2001 11:17:10 -0800 (PST)
+From: Dave Zarzycki <dave@zarzycki.org>
+To: Anton Blanchard <anton@linuxcare.com.au>
+cc: Davide Libenzi <davidel@xmailserver.org>, Andi Kleen <ak@suse.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: sys_sched_yield fast path
+In-Reply-To: <20010312005448.A5439@linuxcare.com>
+Message-ID: <Pine.LNX.4.30.0103111038420.9486-100000@batman.zarzycki.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Alan Cox <alan@lxorguk.ukuu.org.uk>
->
-> > So PCI interrupts must always be level triggered? If so, then the kernel
-> > should never program the IO APIC to use an edge triggered interrupt on a 
->PCI
-> > device. If that's true, then why not force the interrupt type to level
-> > triggered for all PCI devices (to work around a potentially broken MP
-> > table)?
->
->Its not that simple. Its common to edge trigger some of the built in 
->devices
->like IDE controllers.
+On Mon, 12 Mar 2001, Anton Blanchard wrote:
 
-Ok, I guess I'm a little confused again. My SCSI controller hangs when the 
-interrupt it shares with the network card is configured as edge triggered. 
-When I force the interrupt to be level triggered, everything works fine. 
-Does this sound like a problem in one of the two drivers (unable to share an 
-edge triggered interrupt) or is it a no-no to set up a shared PCI interrupt 
-as edge triggered?
+> Perhaps we need something like sched_yield that takes off some of
+> tsk->counter so the task with the spinlock will run earlier.
 
-If shared, edge triggered interrupts are ok then I will talk to the driver 
-maintainers about the problem. If this isn't ok, then maybe the sanity check 
-in pci-irq.c would be to force level triggering only on shared PCI 
-interrupts?
+Personally speaking, I wish sched_yield() API was like so:
 
-I'm going down this path because I can't see a good way to check for the 
-presence of a valid ELCR, so I'm hoping a PCI IRQ sanity check would fix my 
-problem (but someone please correct me if I'm wrong). Are SMP standard type 
-#5 machines (ISA/PCI) or just the Vectra's so rare that I'm the only one 
-having this problem? Or am I the only one to try putting a PCI card in one 
-of it's two slots... :-)
+int sched_yield(pid_t pid);
 
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com
+The pid argument would be advisory, of course, the kernel doesn't have to
+honor it.
+
+This would allow the thread wanting to acquire the spinlock to yield
+specifically to the thread holding the lock (assuming the pid of the lock
+holder was stored in the spinlock...) In fact, the the original lock owner
+could in theory yield back to the threading wanting to acquire the lock.
+
+Feedback from the scheduling gurus would be appreciated.
+
+Thanks,
+
+davez
+
+-- 
+Dave Zarzycki
+http://thor.sbay.org/~dave/
+
 

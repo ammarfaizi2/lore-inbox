@@ -1,43 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265137AbUAaWK6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 17:10:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUAaWK6
+	id S265125AbUAaWFU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 17:05:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265136AbUAaWFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 17:10:58 -0500
-Received: from disk.smurf.noris.de ([192.109.102.53]:47523 "EHLO
-	server.smurf.noris.de") by vger.kernel.org with ESMTP
-	id S265137AbUAaWK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 17:10:57 -0500
-From: "Matthias Urlichs" <smurf@smurf.noris.de>
-Date: Sat, 31 Jan 2004 22:41:25 +0100
-To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org, molnar@elte.hu,
-       phil-list@redhat.com
-Subject: Re: BUG: NTPL: waitpid() doesn't return?
-Message-ID: <20040131214125.GD2160@kiste>
-References: <20040131104606.GA25534@kiste> <20040131153743.GA13834@outpost.ds9a.nl> <20040131155155.GA1504@kiste> <20040131161805.GA15941@outpost.ds9a.nl> <20040131181518.GB1815@kiste> <20040131191923.GA21333@outpost.ds9a.nl> <20040131204914.GB2160@kiste> <20040131211826.GA24791@outpost.ds9a.nl>
-Mime-Version: 1.0
+	Sat, 31 Jan 2004 17:05:20 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41805 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S265125AbUAaWFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 17:05:13 -0500
+To: Matthew Wilcox <willy@debian.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Durairaj, Sundarapandian" <sundarapandian.durairaj@intel.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Greg KH <greg@kroah.com>, Andi Kleen <ak@colin2.muc.de>,
+       Andrew Morton <akpm@osdl.org>, mj@ucw.cz,
+       "Kondratiev, Vladimir" <vladimir.kondratiev@intel.com>,
+       "Seshadri, Harinarayanan" <harinarayanan.seshadri@intel.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: [patch] PCI Express Enhanced Config Patch - 2.6.0-test11
+References: <6B09584CC3D2124DB45C3B592414FA830112C34F@bgsmsx402.gar.corp.intel.com>
+	<20040129150925.GC18725@parcelfarce.linux.theplanet.co.uk>
+	<20040129155911.GD18725@parcelfarce.linux.theplanet.co.uk>
+	<Pine.LNX.4.58.0401290802370.689@home.osdl.org>
+	<20040129164230.GE18725@parcelfarce.linux.theplanet.co.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 31 Jan 2004 14:57:29 -0700
+In-Reply-To: <20040129164230.GE18725@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <m1hdybwzli.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040131211826.GA24791@outpost.ds9a.nl>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Matthew Wilcox <willy@debian.org> writes:
 
-bert hubert:
-> This means your situation is different from what you describe. Python may
-> not in fact be doing 'real' threading on your setup.
-
-Well, the strace was from Python, so probably I was missing something...
-but I can't think of anything not-real which Python does, except that it
-does synchronize its internal state with MANY futex calls.  ;-)
-
-> make the smallest possible python program that exhibits the program and send
-> it to the list.
+> On Thu, Jan 29, 2004 at 08:05:52AM -0800, Linus Torvalds wrote:
+> > The compiler _should_ entirely compile away "fix_to_virt(xxx)", so by 
+> > creating a variable for the value, you're actually making code generation 
+> > worse. You might as well have
+> > 
+> > 	#define mmcfg_virt_addr (fix_to_virt(FIX_PCIE_MCFG))
+> > 
+> > instead.
 > 
-I'll do that.
+> Ahh, I missed the comment towards the top of fixmap.h that this is a
+> constant address.  You're so smart sometimes ;-)
+> 
+> > That said, this patch looks perfectly acceptable to me. With some testing, 
+> > I'd take it through Greg or -mm.
+> 
+> Cool.  Here's the final version for testing then.
 
--- 
-Matthias Urlichs     |     noris network AG     |     http://smurf.noris.de/
+Is it really safe to treat the base address as a u32?  I know
+if I was doing the BIOS and that address was tied to a 32bit BAR I
+would be extremely tempted to put those 256M of address space above
+4G.  Putting something like that below 4G leads to 1/2 Gig of memory
+missing. 
+
+You can also put the memory above 4G on most intel chipsets but I'd
+rather have my memory down low where my legacy OS could get to it
+rather than have my PCI extended configuration space down low where
+nothing really needs it. 
+
+Point being I don't think it is safe to assume the BIOS always puts
+the extended PCI configuration space below 4G.
+
+Eric

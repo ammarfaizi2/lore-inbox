@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287089AbSABWcY>; Wed, 2 Jan 2002 17:32:24 -0500
+	id <S287112AbSABWfG>; Wed, 2 Jan 2002 17:35:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287069AbSABWcQ>; Wed, 2 Jan 2002 17:32:16 -0500
-Received: from fep02.swip.net ([130.244.199.130]:42694 "EHLO
-	fep02-svc.swip.net") by vger.kernel.org with ESMTP
-	id <S287084AbSABWcC>; Wed, 2 Jan 2002 17:32:02 -0500
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] scheduler fixups ...
-In-Reply-To: <Pine.LNX.4.40.0201021236390.1034-100000@blue1.dev.mcafeelabs.com>
-From: Peter Osterlund <petero2@telia.com>
-Date: 02 Jan 2002 23:31:04 +0100
-In-Reply-To: <Pine.LNX.4.40.0201021236390.1034-100000@blue1.dev.mcafeelabs.com>
-Message-ID: <m28zbgpeqf.fsf@pengo.localdomain>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S287150AbSABWeA>; Wed, 2 Jan 2002 17:34:00 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:33520 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S287116AbSABWcv>; Wed, 2 Jan 2002 17:32:51 -0500
+Date: Wed, 2 Jan 2002 23:32:45 +0100 (MET)
+From: <Oliver.Neukum@lrz.uni-muenchen.de>
+X-X-Sender: <ui222bq@sun2.lrz-muenchen.de>
+To: Jens Axboe <axboe@suse.de>
+cc: David Brownell <david-b@pacbell.net>, <linux-kernel@vger.kernel.org>,
+        <linux-usb-devel@lists.sourceforge.net>,
+        Matthew Dharm <mdharm@one-eyed-alien.net>, Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: highmem and usb [was "sr: unalignedtransfer" in 2.5.2-pre1]
+In-Reply-To: <20020102194404.A482@suse.de>
+Message-Id: <Pine.SOL.4.33.0201022330170.5969-100000@sun2.lrz-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi <davidel@xmailserver.org> writes:
+On Wed, 2 Jan 2002, Jens Axboe wrote:
 
-> a still lower ts
+> On Wed, Jan 02 2002, David Brownell wrote:
+> > > > requirement for drivers is that the transfer buffers can be passed to
+> > > > pci_map_single() calls by the Host Controller Drivers (HCDs).  The
+> > > > device drivers, and URBs, don't expose such mappings, they only
+> > > > require that they can be created/destroyed.
+> > >
+> > > .. which is the requirement that you want to change to use pci_map_page
+> > > or pci_map_sg
+> >
+> > OK, I think I'm clear on this much then:  in 2.5, to support block drivers
+> > over USB (usb-storage only, for now) there needs to be an addition to
+> > the buffer addressing model in usbcore, as exposed by URBs.
+> >
+> >   - Current "transfer_buffer" + "transfer_buffer_length" mode needs to
+> >     stay, since most drivers aren't block drivers.
+>
+> Why? Surely USB block drivers are not the only ones that want to support
+> highmem.
 
-This also lowers the effectiveness of nice values. In 2.5.2-pre6, if I
-run two cpu hogs at nice values 0 and 19 respectively, the niced task
-will get approximately 20% cpu time (on x86 with HZ=100) and this
-patch will give even more cpu time to the niced task. Isn't 20% too
-much?
+Probably for a long time they'll be the only ones.
+All the char drivers will mainly do a copy_to/from_user
+or want memory they can manipulate directly.
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+	Regards
+		Oliver
+
+

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129538AbRAEVKB>; Fri, 5 Jan 2001 16:10:01 -0500
+	id <S129790AbRAEVNb>; Fri, 5 Jan 2001 16:13:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129790AbRAEVJz>; Fri, 5 Jan 2001 16:09:55 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:63750 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129538AbRAEVJp>; Fri, 5 Jan 2001 16:09:45 -0500
-Date: Fri, 5 Jan 2001 17:17:59 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andreas Dilger <adilger@turbolinux.com>
-cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: swapin readahead pre-patch (what about the code?)
-In-Reply-To: <200101052102.f05L2T420212@webber.adilger.net>
-Message-ID: <Pine.LNX.4.21.0101051715060.2882-100000@freak.distro.conectiva>
+	id <S129747AbRAEVNV>; Fri, 5 Jan 2001 16:13:21 -0500
+Received: from user-83-49.jakinternet.co.uk ([194.88.83.49]:4373 "EHLO
+	linux.home") by vger.kernel.org with ESMTP id <S129737AbRAEVNM>;
+	Fri, 5 Jan 2001 16:13:12 -0500
+Date: Fri, 5 Jan 2001 21:09:24 +0000 (GMT)
+From: James Stevenson <mistral@stev.org>
+To: linux-kernel@vger.kernel.org
+Subject: /proc/sys/net/unix
+Message-ID: <Pine.LNX.4.21.0101052107430.11582-100000@linux.home>
+X-mailer: Pine 4.21
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi
 
-On Fri, 5 Jan 2001, Andreas Dilger wrote:
+should there be 2 files in that diretory with the same name ?
 
-> I suppose the other area to look at is how pages are layed out when
-> they are swapped to disk.  If you go from medium memory pressure (where
-> unused pages have been swapped already) to thrashing, then if you can
-> put the remaining pages of each program to swap contiguously, then swap
-> read-ahead will be a net win, because you are likely to need all of them
-> again to run the program.
+mistral@sx:/proc/sys/net/unix$ ls -la
+total 0
+dr-xr-xr-x   2 root     root            0 Jan  5 21:09 ./
+dr-xr-xr-x   8 root     root            0 Jan  5 21:09 ../
+-rw-------   1 root     root            0 Jan  5 21:09 max_dgram_qlen
+-rw-------   1 root     root            0 Jan  5 21:09 max_dgram_qlen
+mistral@sx:/proc/sys/net/unix$ 
 
-Swap space preallocation should help on that issue. 
+thats under 2.4.0
 
-I hope to try out that soon after I've finished and benchmarked the swapin
-readahead patch.
-
+-- 
+---------------------------------------------
+Check Out: http://stev.org
+E-Mail: mistral@stev.org
+  9:00pm  up 20 days,  8:04,  3 users,  load average: 0.35, 0.19, 0.08
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,53 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291012AbSBLMsq>; Tue, 12 Feb 2002 07:48:46 -0500
+	id <S291005AbSBLMph>; Tue, 12 Feb 2002 07:45:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291007AbSBLMsg>; Tue, 12 Feb 2002 07:48:36 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:56515 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S291012AbSBLMsW>;
-	Tue, 12 Feb 2002 07:48:22 -0500
-Date: Tue, 12 Feb 2002 13:47:51 +0100 (CET)
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Davidovac Zoran <zdavid@unicef.org.yu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Question about i820 chipset.
-In-Reply-To: <Pine.LNX.4.33.0202121321400.7616-100000@unicef.org.yu>
-Message-ID: <Pine.LNX.4.21.0202121345430.20359-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+	id <S291007AbSBLMp0>; Tue, 12 Feb 2002 07:45:26 -0500
+Received: from [195.63.194.11] ([195.63.194.11]:61708 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S291005AbSBLMpX>; Tue, 12 Feb 2002 07:45:23 -0500
+Message-ID: <3C690E56.3070606@evision-ventures.com>
+Date: Tue, 12 Feb 2002 13:45:10 +0100
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
+X-Accept-Language: en-us, pl
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Pavel Machek <pavel@suse.cz>, Jens Axboe <axboe@suse.de>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: another IDE cleanup: kill duplicated code
+In-Reply-To: <20020211221102.GA131@elf.ucw.cz> <3C68F3F3.8030709@evision-ventures.com> <20020212132846.A7966@suse.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Feb 2002, Davidovac Zoran wrote:
+Vojtech Pavlik wrote:
 
-> try to change slot
-> perhaps one of your nic is sharing irq with mouse usb ide
-> etc so change slot
-> check with more /proc/interrupts
+>>The first does control an array of values, which doesn't make sense in 
+>>first place. I.e. changing it doesn't
+>>change ANY behaviour of the kernel.
+>>
+>
+>Actually HFS uses it ...
+>
+Please note that the use in HFS is inappriopriate. It's supposed to 
+optimize the
+read throughput there, which is something that shouldn't be done at the 
+fs setup
+layer at all. The usage of read_ahead there can be just removed and
+everything should be fine (modulo the fact that in current state the HFS 
+filesystem code
+is just non-working obsolete code garbage anyway ;-).
 
-Using an UP kernel with IO-APIC support and MPS 1.4 they don't share irqs:
+>>The second of them is trying to control a file-system level constant
+>>inside the actual block device driver. This is a blatant violation of
+>>the layering principle in software design, and should go as soon as
+>>possible.
+>>
+>
+>Yes. But still block device drivers allocate the array ...
+>
 
-           CPU0       
-  0:   66083638    IO-APIC-edge  timer
-  1:        828    IO-APIC-edge  keyboard
-  2:          0          XT-PIC  cascade
-  4:          3    IO-APIC-edge  serial
-  8:          0    IO-APIC-edge  rtc
- 14:      17840    IO-APIC-edge  ide0
- 16:         14   IO-APIC-level  eth2
- 17:         12   IO-APIC-level  eth3
- 18:      20790   IO-APIC-level  eth0
- 19:         39   IO-APIC-level  eth1
-NMI:   66083576 
-LOC:   66081746 
-ERR:          0
-MIS:          0
+Well if we do:
 
-I've tried changing slots aswell and I havn't seen any improvments with
-either MPS 1.1 or 1.4
- 
-/Martin
+find ./ -name "*.c" -exec grep max_readahead /dev/null {} \;
 
-Never argue with an idiot. They drag you down to their level, then beat you with experience.
+
+One can already easly see that apart from ide, md, and acorn drivers 
+this has been already abstracted
+away one level up at the block device handling as well. My suspiction is 
+that there is now already
+*double* initialization of the sub-slices of this array there. Anyway 
+ide should be adapted here to the
+same way as it's done now for scsi.
+
+Will you look after this or should me? (I can't until afternoon, becouse 
+I'm at my "true live" job now
+and have other things to do...)
+
 

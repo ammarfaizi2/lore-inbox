@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129524AbQKCAbZ>; Thu, 2 Nov 2000 19:31:25 -0500
+	id <S130000AbQKCAbz>; Thu, 2 Nov 2000 19:31:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129544AbQKCAbP>; Thu, 2 Nov 2000 19:31:15 -0500
-Received: from fw.SuSE.com ([202.58.118.35]:50169 "EHLO linux.local")
-	by vger.kernel.org with ESMTP id <S129524AbQKCAbE>;
-	Thu, 2 Nov 2000 19:31:04 -0500
-Date: Thu, 2 Nov 2000 17:37:27 -0800
-From: Jens Axboe <axboe@suse.de>
-To: Val Henson <vhenson@esscom.com>
-Cc: Mike Galbraith <mikeg@wen-online.de>, Rik van Riel <riel@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [BUG] /proc/<pid>/stat access stalls badly for swapping process, 2.4.0-test10
-Message-ID: <20001102173727.C11439@suse.de>
-In-Reply-To: <Pine.LNX.4.21.0011011643050.6740-100000@duckman.distro.conectiva> <Pine.Linu.4.10.10011020800010.1299-100000@mikeg.weiden.de> <20001102145912.B8472@esscom.com>
-Mime-Version: 1.0
+	id <S130013AbQKCAbq>; Thu, 2 Nov 2000 19:31:46 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:24069 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129544AbQKCAbd>;
+	Thu, 2 Nov 2000 19:31:33 -0500
+Message-ID: <3A0206CF.81023491@mandrakesoft.com>
+Date: Thu, 02 Nov 2000 19:29:03 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rob Landley <telomerase@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 255.255.255.255 won't broadcast to multiple NICs
+In-Reply-To: <20001102235538.25699.qmail@web5205.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001102145912.B8472@esscom.com>; from vhenson@esscom.com on Thu, Nov 02, 2000 at 02:59:12PM -0700
-X-OS: Linux 2.4.0-test10 i686
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 02 2000, Val Henson wrote:
-> > > 3) combine this with the elevator starvation stuff (ask Jens
-> > >    Axboe for blk-7 to alleviate this issue) and you have a
-> > >    scenario where processes using /proc/<pid>/stat have the
-> > >    possibility to block on multiple processes that are in the
-> > >    process of handling a page fault (but are being starved)
-> > 
-> > I'm experimenting with blk.[67] in test10 right now.  The stalls
-> > are not helped at all.  It doesn't seem to become request bound
-> > (haven't instrumented that yet to be sure) but the stalls persist.
-> > 
-> > 	-Mike
-> 
-> This is not an elevator starvation problem.
+Rob Landley wrote:
+> Under 2.2.16, broadcast packets addressed to
+> 255.255.255.255 do not go out to all interfaces in a
+> machine with multiple network cards.  They're getting
+> routed out the default gateway's interface instead.
 
-True, but the blk-xx patches help work-around (what I believe) is
-bad flushing behaviour by the vm.
-
-> I also experienced these stalls with my IDE-only system.  Unless I'm
-> badly mistaken, the elevator is only used on SCSI disks, therefore
-> elevator starvation cannot be blamed for this problem.  These stalls
-> are particularly annoying since I want to find the pid of the process
-> hogging memory in order to kill it, but the read from /proc stalls for
-> 45 seconds or more.
-
-You are badly mistaken.
+Are the network cards on the same network?
 
 -- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,79 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266513AbUIWQ0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266485AbUIWQ0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266513AbUIWQ0k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUIWQ0k
+	id S266485AbUIWQ0b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266345AbUIWQ0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:26:40 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:17830 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266513AbUIWQZr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:25:47 -0400
-Date: Thu, 23 Sep 2004 11:25:32 -0500
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Cc: linuxppc64-dev@ozlabs.org
-Subject: Re: Hotplug: crash in sys_clone()/do_fork()
-Message-ID: <20040923162532.GC18954@austin.ibm.com>
-References: <20040922201401.GA18954@austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040922201401.GA18954@austin.ibm.com>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Thu, 23 Sep 2004 12:26:31 -0400
+Received: from smtp1.netcabo.pt ([212.113.174.28]:38697 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S266485AbUIWQZa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 12:25:30 -0400
+Message-ID: <35929.195.245.190.93.1095956611.squirrel@195.245.190.93>
+Date: Thu, 23 Sep 2004 17:23:31 +0100 (WEST)
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S4
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+References: <20040908082050.GA680@elte.hu>   
+    <1094683020.1362.219.camel@krustophenia.net>   
+    <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>   
+    <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu>   
+    <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu>   
+    <20040923122838.GA9252@elte.hu>   
+    <24137.195.245.190.93.1095946528.squirrel@195.245.190.93>   
+    <20040923134000.GA15455@elte.hu>
+In-Reply-To: <20040923134000.GA15455@elte.hu>
+X-OriginalArrivalTime: 23 Sep 2004 16:25:28.0774 (UTC) FILETIME=[F0526660:01C4A189]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- More info...
+Ingo Molnar wrote:
+>
+> yeah, please re-download the -S4 patch, i fixed this meanwhile.
+>
 
-On Wed, Sep 22, 2004 at 03:14:01PM -0500, Linas Vepstas was heard to remark:
-> 
-> I'm tripping over a race condition involving file handling.  
-> I can consistently crash here:
-> 
-> TASK: c0000000fd6dc040[10448] 'ifdown' THREAD: c0000000f3310000
-> Call Trace: Sep 22 14:29:21 marulp1 kernel: [c0000000f3313b10] [c0000000000506c4] .copy_files+0x400/0x414 (unreliable)
-> [c0000000f3313bd0] [c00000000005161c] .copy_process+0x660/0x12bc
-> [c0000000f3313ce0] [c000000000052318] .do_fork+0xa0/0x25c
-> [c0000000f3313dc0] [c0000000000159c8] .sys_clone+0x5c/0x74
-> [c0000000f3313e30] [c000000000010a88] .ppc_clone+0x8/0xc
-> 
-> The problem seems to be that one of the file pointers is breifly
-> set to (int32)-1 even on a 64-bit machine.  The part of copy_process()
-> that gets mashed by this is:
-> 
->    for (i = open_files; i != 0; i--) {
->       struct file *f = *old_fds++;
->       if (f)
->          get_file(f);  <==  derefs f, which is -1
->       *new_fds++ = f;
->    }
-> 
-> By inserting if(f==(void*)0xffffffffUL) printk ...
-> I can find out that i=230 is the one with the problem and open_files=256!
-> I haven't yet found who set struct file * to a -1.
-> 
-> I'm generting this behaviour with a hotplug event that is causing ifdown 
-> and ifup to run simultaneously.  (The device driver was shut down and 
-> restarted, causing simultaneous hotplug events).  Although the above 
-> stack shows ifdown getting clobbered, I've also seen pci.agent be
-> the process that suffers.
-> 
-> The problem goes away if I insert a sleep of about half-a-second or more
-> between the device driver shutdown and startup.
-> 
-> Affected machine is a ppc64 power4 box.  I've seen the problem 
-> for a long time (months?), including monday's bk clone of 
-> bkbits of 2.6.9-rc2; waiting for this bug "to fix itself" doesn't 
-> seem to  be working.  
+Yes, now it builds fine on my laptop.
 
-By adding appropriate printk's to copy_files(), it appears that
-many many processes have a -1 in the highest non-zero fd pointer.
-The crash that I see seems to happen when there is another nearby
-fd that is open, (nearby==within the same 8-bit bitmask) so that the
-"open_files" value is larger than/equal-to the highest non-zero
-fd pointer (which is set to -1), thus leading to crash.  The "race"
-is that these high fd's normally close pretty quickly, and thus,
-"open_files" usually has a much smaller value.
+However, after a couple of reboots, there appears to be some verbose
+messages regarding PCI something, but the my main complaint is the USB
+subsystem which is failing miserably now.
 
---linas
+I guess these are the relevant log messages excerpt:
+
+[...]
+Mounted devfs on /dev
+Freeing unused kernel memory: 160k freed
+IRQ#8 thread started up.
+usbcore: registered new driver usbfs
+usbcore: registered new driver hub
+ohci_hcd: 2004 Feb 02 USB 1.1 'Open' Host Controller (OHCI) Driver (PCI)
+ACPI: PCI Interrupt Link [LNK8] enabled at IRQ 10
+ACPI: PCI interrupt 0000:00:02.0[A] -> GSI 10 (level, low) -> IRQ 10
+ohci_hcd 0000:00:02.0: OHCI Host Controller
+requesting new irq thread for IRQ10...
+ohci_hcd 0000:00:02.0: irq 10, pci mem 0xd4000000
+ohci_hcd 0000:00:02.0: new USB bus registered, assigned bus number 1
+ohci_hcd 0000:00:02.0: init err (00002edf 0000)
+ohci_hcd 0000:00:02.0: can't start
+ohci_hcd 0000:00:02.0: init error -75
+ohci_hcd 0000:00:02.0: remove, state 0
+ohci_hcd 0000:00:02.0: USB bus 1 deregistered
+ohci_hcd: probe of 0000:00:02.0 failed with error -75
+ACPI: PCI Interrupt Link [LNK4] enabled at IRQ 10
+ACPI: PCI interrupt 0000:00:0f.0[A] -> GSI 10 (level, low) -> IRQ 10
+ohci_hcd 0000:00:0f.0: OHCI Host Controller
+ohci_hcd 0000:00:0f.0: irq 10, pci mem 0xd4009000
+ohci_hcd 0000:00:0f.0: new USB bus registered, assigned bus number 1
+ohci_hcd 0000:00:0f.0: init err (00002edf 0000)
+ohci_hcd 0000:00:0f.0: can't start
+ohci_hcd 0000:00:0f.0: init error -75
+ohci_hcd 0000:00:0f.0: remove, state 0
+ohci_hcd 0000:00:0f.0: USB bus 1 deregistered
+ohci_hcd: probe of 0000:00:0f.0 failed with error -75
+[...]
+
+Probably this isn't strictly related to VP, but surely it was introduced
+by mm1 and mm2. Can't tell for sure. And please don't count as hardware
+failure as it suffices to go back to 2.6.9-rc1 to get USB back to normal
+;)
+
+Any thoughts?
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+
+
+
+

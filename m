@@ -1,131 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129294AbRBTVoI>; Tue, 20 Feb 2001 16:44:08 -0500
+	id <S129211AbRBTV4U>; Tue, 20 Feb 2001 16:56:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129278AbRBTVn7>; Tue, 20 Feb 2001 16:43:59 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:62070
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129144AbRBTVny>; Tue, 20 Feb 2001 16:43:54 -0500
-Date: Tue, 20 Feb 2001 22:43:44 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: make drivers/scsi/seagate.c use ioremap instead of isa_{read,write} (242p4)
-Message-ID: <20010220224344.D786@jaquet.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S129278AbRBTV4L>; Tue, 20 Feb 2001 16:56:11 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:29702 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129211AbRBTVzv>;
+	Tue, 20 Feb 2001 16:55:51 -0500
+From: Daniel Phillips <phillips@innominate.de>
+To: torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: [rfc] Near-constant time directory index for Ext2
+Date: Tue, 20 Feb 2001 22:41:56 +0100
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <01022020011905.18944@gimli> <96uijf$uer$1@penguin.transmeta.com>
+In-Reply-To: <96uijf$uer$1@penguin.transmeta.com>
+MIME-Version: 1.0
+Message-Id: <01022022544707.18944@gimli>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, 20 Feb 2001, Linus Torvalds wrote:
+> In article <01022020011905.18944@gimli>,
+> Daniel Phillips  <phillips@innominate.de> wrote:
+> >Earlier this month a runaway installation script decided to mail all its
+> >problems to root.  After a couple of hours the script aborted, having
+> >created 65535 entries in Postfix's maildrop directory.  Removing those
+> >files took an awfully long time.  The problem is that Ext2 does each
+> >directory access using a simple, linear search though the entire
+> >directory file, resulting in n**2 behaviour to create/delete n files. 
+> >It's about time we fixed that.
+> 
+> Interesting.
+> 
+> However, if you're playing with the directory structure, please consider
+> getting rid of the "struct buffer_head"-centricity, and using the page
+> cache instead.  The page cache has much nicer caching semantics, and
+> looking up data in the page cache is much faster because it never needs
+> to do the "virtual->physical" translation. 
 
-(I have not been able to find a probable current maintainer for
-this code.)
+Oh yes, I was planning on it.  I started with the buffers version
+for two main reasons version: 1) it's simple and solid and 2) it
+provides the basis for a backport to 2.2 - after the 2.4/2.5 version is
+complete of course.
 
-The following patch makes drivers/scsi/seagate.c use ioremap
-instead of isa_{read, write} (I have not been able to find
-a fitting place to put an iounmap since the driver does not
-have a release function). The patch also removes some unneces-
-sary zero initialization and fixes some resource leaks in
-the init/detection process.
+> Talk to Al Viro about this - he's already posted patches to move the
+> regular ext2 directory tree into the page cache, and they weren't
+> applied to 2.4.x only because there was no great feeling of "we _must_
+> do this for correctness".
+> 
+> I see that you already considered this issue, but I wanted to bring it
+> up again simply because something like this certainly looks like a
+> potential candidate for 2.5.x, but I will _refuse_ to add code that
+> increases our reliance of "struct buffer_head" as a caching entity.  So
+> I'd rather see the page cache conversion happen sooner rather than
+> later... 
 
-It applies against 241ac19 and 242p4.
+You are preaching to the converted.
 
-Comments?.
+> Also, just out of interest: if you've already been worrying about
+> hashes, what's the verdict on just using the native dentry hash value
+> directly? It has other constraints (_really_ low latency and absolutely
+> performance critical to calculate for the common case, which is not
+> needing a real lookup at all), but maybe it is good enough? And if not,
+> and you have done some statistics on it, I'd love to hear about it ;)
 
---- linux-241ac19-clean/drivers/scsi/seagate.c	Sun Nov 12 04:01:11 2000
-+++ linux-241ac19/drivers/scsi/seagate.c	Tue Feb 20 22:32:10 2001
-@@ -230,7 +230,7 @@
- static int incommand;                   /* set if arbitration has finished
-                                            and we are in some command phase. */
- 
--static unsigned int base_address = 0;   /* Where the card ROM starts, used to 
-+static unsigned int base_address;       /* Where the card ROM starts, used to 
-                                            calculate memory mapped register
-                                            location.  */
- 
-@@ -243,23 +243,26 @@
- static unsigned long st0x_dr;           /* data register, read write 256
-                                            bytes in length.  */
- 
--static volatile int st0x_aborted = 0;   /* set when we are aborted, ie by a
-+static volatile int st0x_aborted;       /* set when we are aborted, ie by a
-                                            time out, etc.  */
- 
--static unsigned char controller_type = 0;       /* set to SEAGATE for ST0x
--                                                   boards or FD for TMC-8xx
--                                                   boards */
-+static unsigned char controller_type;   /* set to SEAGATE for ST0x
-+                                           boards or FD for TMC-8xx
-+                                           boards */
- static int irq = IRQ;
- 
-+static void *status_remap;
-+static void *data_remap;
-+
- MODULE_PARM(base_address, "i");
- MODULE_PARM(controller_type, "b");
- MODULE_PARM(irq, "i");
- 
- #define retcode(result) (((result) << 16) | (message << 8) | status)
--#define STATUS ((u8) isa_readb(st0x_cr_sr))
--#define DATA ((u8) isa_readb(st0x_dr))
--#define WRITE_CONTROL(d) { isa_writeb((d), st0x_cr_sr); }
--#define WRITE_DATA(d) { isa_writeb((d), st0x_dr); }
-+#define STATUS ((u8) readb(status_remap))
-+#define DATA ((u8) readb(data_remap))
-+#define WRITE_CONTROL(d) { writeb((d), status_remap); }
-+#define WRITE_DATA(d) { writeb((d), data_remap); }
- 
- void st0x_setup (char *str, int *ints)
- {
-@@ -489,13 +492,13 @@
-  */
-   instance = scsi_register (tpnt, 0);
-   if(instance == NULL)
--  	return 0;
-+    goto err_scsi_register;
-   	
-   hostno = instance->host_no;
-   if (request_irq (irq, do_seagate_reconnect_intr, SA_INTERRUPT,
- 		   (controller_type == SEAGATE) ? "seagate" : "tmc-8xx", NULL)) {
-     printk ("scsi%d : unable to allocate IRQ%d\n", hostno, irq);
--    return 0;
-+    goto err_request_irq;
-   }
-   instance->irq = irq;
-   instance->io_port = base_address;
-@@ -546,7 +549,25 @@
-             " SWAPCNTDATA"
- #endif
- 	  "\n", tpnt->name);
-+
-+  status_remap = ioremap(st0x_cr_sr, sizeof(u8));
-+  if (!status_remap)
-+    goto err_status_remap;
-+
-+  data_remap = ioremap(st0x_dr, sizeof(u8));
-+  if (!data_remap)
-+    goto err_data_remap;
-+  
-   return 1;
-+
-+ err_data_remap:
-+  iounmap(status_remap);
-+ err_status_remap:
-+  free_irq(irq, do_seagate_reconnect_intr);
-+ err_request_irq:
-+  scsi_unregister(instance);
-+ err_scsi_register:
-+  return 0;
- }
- 
- const char *seagate_st0x_info (struct Scsi_Host *shpnt)
+You mean full_name_hash?  I will un-static it and try it.  I should have
+some statistics tomorrow.  I have a couple of simple metrics for
+measuring the effectiveness of the hash function: the uniformity of
+the hash space splitting (which in turn affects the average fullness
+of directory leaves) and speed.
 
+Let the hash races begin.
 
 -- 
-        Rasmus(rasmus@jaquet.dk)
-
-It is wonderful to be here in the great state of Chicago.
--Former U.S. Vice-President Dan Quayle
+Daniel

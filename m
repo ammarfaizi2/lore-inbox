@@ -1,53 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261398AbTABLoI>; Thu, 2 Jan 2003 06:44:08 -0500
+	id <S261370AbTABLli>; Thu, 2 Jan 2003 06:41:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261427AbTABLoI>; Thu, 2 Jan 2003 06:44:08 -0500
-Received: from packet.digeo.com ([12.110.80.53]:39619 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261398AbTABLoH>;
-	Thu, 2 Jan 2003 06:44:07 -0500
-Message-ID: <3E1427FD.16A7B021@digeo.com>
-Date: Thu, 02 Jan 2003 03:52:29 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
+	id <S261398AbTABLli>; Thu, 2 Jan 2003 06:41:38 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:11789 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S261370AbTABLlh>;
+	Thu, 2 Jan 2003 06:41:37 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [2.5.54, PNP, SOUND] compile error
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Thu, 02 Jan 2003 12:39:50 +0100
+Message-ID: <87hecr4w6x.fsf@jupiter.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix kallsyms crashes in 2.5.54
-References: <20030102091325.GA24352@averell>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jan 2003 11:52:30.0321 (UTC) FILETIME=[6DC24E10:01C2B255]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> 
-> The kernel symbol stem compression patch included in 2.5.54 unfortunately
-> had a few problems, triggered by various circumstances.
-> 
 
-With your patch I am still seeing an instant oops when running top(1):
+It compiled well without PNP, now with the following PNP in .config:
 
-connect(6, {sin_family=AF_UNIX, path="/var/run/.nscd_socket"}, 110) = -1 ENOENT (No such file or directory)
-close(6)                                = 0
-open("/etc/group", O_RDONLY)            = 6
-fcntl64(0x6, 0x1, 0, 0x1)               = 0
-fcntl64(0x6, 0x2, 0x1, 0x1)             = 0
-fstat64(6, {st_mode=S_IFREG|0644, st_size=720, ...}) = 0
-mmap2(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40023000
-read(6, "root:x:0:root\nbin:x:1:root,bin,d"..., 4096) = 720
-close(6)                                = 0
-munmap(0x40023000, 4096)                = 0
-open("/proc/1/cmdline", O_RDONLY)       = 6
-read(6, "init [3]\0\0\0\0\0\0\0\0\0\0\0", 2047) = 19
-close(6)                                = 0
-open("/proc/1/wchan", O_RDONLY)         = 6
-read(6, 
+#
+# Plug and Play support
+#
+CONFIG_PNP=y
+CONFIG_PNP_NAMES=y
+CONFIG_PNP_CARD=y
+CONFIG_PNP_DEBUG=y
 
+#
+# Protocols
+#
+CONFIG_ISAPNP=y
+CONFIG_PNPBIOS=y
 
-The oops isn't very informative.  EIP is 0x00000000, call trace
-is just "scheduling_functions_start_here+0x3dd/0x4a8"
+the error is:
 
-Using procps from http://surriel.com/procps/
+  CC [M]  sound/isa/cs423x/cs4232.o
+In file included from sound/isa/cs423x/cs4232.c:2:
+sound/isa/cs423x/cs4236.c: In function `snd_card_cs4236_isapnp':
+sound/isa/cs423x/cs4236.c:287: warning: implicit declaration of function `isapnp_find_dev'
+sound/isa/cs423x/cs4236.c:287: warning: assignment makes pointer from integer without a cast
+sound/isa/cs423x/cs4236.c:288: structure has no member named `active'
+sound/isa/cs423x/cs4236.c:292: warning: assignment makes pointer from integer without a cast
+sound/isa/cs423x/cs4236.c:293: structure has no member named `active'
+sound/isa/cs423x/cs4236.c:298: warning: assignment makes pointer from integer without a cast
+sound/isa/cs423x/cs4236.c:299: structure has no member named `active'
+sound/isa/cs423x/cs4236.c:307: structure has no member named `prepare'
+sound/isa/cs423x/cs4236.c:310: warning: implicit declaration of function `isapnp_resource_change'
+sound/isa/cs423x/cs4236.c:321: structure has no member named `activate'
+sound/isa/cs423x/cs4236.c:339: structure has no member named `prepare'
+sound/isa/cs423x/cs4236.c:340: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:345: structure has no member named `activate'
+sound/isa/cs423x/cs4236.c:347: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:356: structure has no member named `prepare'
+sound/isa/cs423x/cs4236.c:357: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:358: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:365: structure has no member named `activate'
+sound/isa/cs423x/cs4236.c: In function `snd_card_cs4236_deactivate':
+sound/isa/cs423x/cs4236.c:386: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:390: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c:394: structure has no member named `deactivate'
+sound/isa/cs423x/cs4236.c: In function `alsa_card_cs423x_init':
+sound/isa/cs423x/cs4236.c:588: warning: implicit declaration of function `isapnp_probe_cards'
+make[4]: *** [sound/isa/cs423x/cs4232.o] Fehler 1
+make[3]: *** [sound/isa/cs423x] Fehler 2
+make[2]: *** [sound/isa] Fehler 2
+make[1]: *** [sound] Fehler 2
+make[1]: Leaving directory `/usr/src/linux-2.5.54'
+make: *** [stamp-build] Fehler 2
+
+Jochen
+
+-- 
+#include <~/.signature>: permission denied

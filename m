@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVAAEPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVAAERC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVAAEPz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Dec 2004 23:15:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVAAEPz
+	id S262191AbVAAERC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Dec 2004 23:17:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbVAAERC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Dec 2004 23:15:55 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:5062 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S262189AbVAAEPw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Dec 2004 23:15:52 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
-       sam@ravnborg.org, pmarques@grupopie.com
-Subject: Re: sh: inconsistent kallsyms data 
-In-reply-to: Your message of "Sat, 01 Jan 2005 14:59:19 +1100."
-             <7184.1104551959@ocs3.ocs.com.au> 
-Mime-Version: 1.0
+	Fri, 31 Dec 2004 23:17:02 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:19090 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S262191AbVAAEQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 31 Dec 2004 23:16:52 -0500
+To: Michael Hines <mhines@cs.fsu.edu>
+Cc: <linux-kernel@vger.kernel.org>
+X-Message-Flag: Warning: May contain useful information
+References: <Pine.GSO.4.33.0412312259160.28251-100000@diablo.cs.fsu.edu>
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 31 Dec 2004 20:16:48 -0800
+In-Reply-To: <Pine.GSO.4.33.0412312259160.28251-100000@diablo.cs.fsu.edu> (Michael
+ Hines's message of "Fri, 31 Dec 2004 23:04:58 -0500 (EST)")
+Message-ID: <523bxlaimn.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
+ linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: Re: can you switch between GFP_ATOMIC and GFP_KERNEL?
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 01 Jan 2005 15:15:35 +1100
-Message-ID: <8025.1104552935@ocs3.ocs.com.au>
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 01 Jan 2005 04:16:49.0108 (UTC) FILETIME=[B6ADC940:01C4EFB8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 01 Jan 2005 14:59:19 +1100, 
-Keith Owens <kaos@ocs.com.au> wrote:
->Paul, please test this patch.  Build with CONFIG_KALLSYMS_ALL=n and
->CONFIG_KALLSYMS_EXTRA_PASS=n.
+    Michael> My question is, new sk_buffs are always allocated with
+    Michael> GFP_KERNEL and can be swapped out. Is it possible to
+    Michael> change the allocation status of already-allocated memory
+    Michael> to GFP_ATOMIC on the fly? (i.e. both the slab-cache
+    Michael> sk_buff header memory as well as the kmalloc'd data
+    Michael> area).
 
-ps.  Due to bugs in the kernel build system, you cannot assume that
-changing scripts/kallsyms.c or CONFIG_KALLSYMS_ALL or
-CONFIG_KALLSYMS_EXTRA_PASS will be automatically detected.  The make
-dependency tree for the kallsyms code is incomplete.
+This question is ill-posed -- kernel memory can never be swapped out,
+whether it's allocated with GFP_KERNEL or GFP_ATOMIC.  The difference
+between GFP_KERNEL and GFP_ATOMIC is whether the actual allocation can
+sleep, that is:
 
-After applying the patch and adjusting the config, touch init/main.c
-then make.  Touching a file will force a kernel relink and work around
-the incomplete dependency data.
+	foo = kmalloc(sizeof foo, GFP_ATOMIC);	/* will not sleep */
+	foo = kmalloc(sizeof foo, GFP_KERNEL);	/* can sleep */
 
+However, whichever gfp flags are used to allocate memory, the memory
+is the same once the allocation is done.  Neither kmalloc'ed memory
+nor sk_buffs will ever be swapped.
+
+ - Roland

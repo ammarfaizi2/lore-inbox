@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262947AbVCDRVD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263015AbVCDRay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262947AbVCDRVD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 12:21:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262951AbVCDRSb
+	id S263015AbVCDRay (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 12:30:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263013AbVCDRay
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 12:18:31 -0500
-Received: from news.suse.de ([195.135.220.2]:49347 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262935AbVCDROX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 12:14:23 -0500
-Message-ID: <42288F4F.7090504@suse.de>
-Date: Fri, 04 Mar 2005 17:39:43 +0100
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Fri, 4 Mar 2005 12:30:54 -0500
+Received: from monster.roma2.infn.it ([141.108.255.100]:56521 "EHLO
+	monster.roma2.infn.it") by vger.kernel.org with ESMTP
+	id S263016AbVCDR23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 12:28:29 -0500
+From: "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
+Reply-To: AlberT@SuperAlberT.it
+Organization: SuperAlberT.it
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ltspcfg: fixed suse-debian default DM check
+Date: Fri, 4 Mar 2005 18:28:22 +0100
+User-Agent: KMail/1.7.2
+References: <200503041811.07832.AlberT@SuperAlberT.it>
+In-Reply-To: <200503041811.07832.AlberT@SuperAlberT.it>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, tpoynor@mvista.com
-Subject: Re: [PATCH] kernel/power/disk.c trivial cleanups
-References: <20050303231543.GA28559@slurryseal.ddns.mvista.com> <20050304091623.GA1551@elf.ucw.cz>
-In-Reply-To: <20050304091623.GA1551@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200503041828.22343.AlberT@SuperAlberT.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+On 18:11, venerdì 04 marzo 2005, Emiliano 'AlberT' Gabrielli wrote:
+> the attached patch fixes  wrong "default DM" check in debian and suse
+> plz apply
 
-> Duplicate remove killed, thanks. I do not think debugging print
-> requires that much care...
+sorry, my bad   wrong ML !
 
-I think it does. I tried s4bios ("firmware" mode) on hp 4150 today and
-wondered why it said "mode set to firmware" but in fact did not do it.
-You'll get a complete report for this later ;-)
 
-Stefan
-
+-- 
+<?php echo '       Emiliano `AlberT` Gabrielli       ',"\n",
+           '  E-Mail: AlberT_AT_SuperAlberT_it  ',"\n",
+           '  Web:    http://SuperAlberT.it  ',"\n",
+'  IRC:    #php,#AES azzurra.com ',"\n",'ICQ: 158591185'; ?>

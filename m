@@ -1,76 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVCJW5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262924AbVCJW4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbVCJW5M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:57:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262902AbVCJW5H
+	id S262924AbVCJW4B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:56:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263421AbVCJWwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:57:07 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:47364 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S263427AbVCJWxm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 17:53:42 -0500
-Date: Thu, 10 Mar 2005 23:53:40 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net
-Subject: Re: [PATCH 4/9] UML - Export gcov symbol based on gcc version
-Message-ID: <20050310225340.GD3205@stusta.de>
-References: <200503100216.j2A2G2DN015232@ccure.user-mode-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503100216.j2A2G2DN015232@ccure.user-mode-linux.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 10 Mar 2005 17:52:25 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:178 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S263361AbVCJWqy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 17:46:54 -0500
+Date: Thu, 10 Mar 2005 14:46:27 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mel Gorman <mel@csn.ul.ie>
+Subject: Re: [PATCH] add a clear_pages function to clear pages of higher
+ order
+In-Reply-To: <1110490683.24355.17.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0503101445090.15150@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com>
+ <1110490683.24355.17.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 09:16:02PM -0500, Jeff Dike wrote:
-> The init function called by gcc when gcov is enabled is __gcov_init or
-> __bb_init_func, depending on the gcc version.  Anton is using 3.3.4 and 
-> seeing __gcov_init.  I'm using 3.3.2 and seeing __bb_init_func, so we need
-> to close that gap a bit.
-> 
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
-> 
-> Index: linux-2.6.11/arch/um/kernel/gmon_syms.c
-> ===================================================================
-> --- linux-2.6.11.orig/arch/um/kernel/gmon_syms.c	2005-03-07 10:53:03.000000000 -0500
-> +++ linux-2.6.11/arch/um/kernel/gmon_syms.c	2005-03-07 16:29:37.000000000 -0500
-> @@ -5,8 +5,14 @@
->  
->  #include "linux/module.h"
->  
-> +#if __GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ > 3) || \
-> +	(__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4)
->...
+On Thu, 10 Mar 2005, Dave Hansen wrote:
 
-This patch is still wrong.
+> > +extern void clear_pages (void *page, int order);
+> >  extern void copy_page (void *to, void *from);
+> > +#define clear_page(__page) clear_pages(__page, 0)
+> > +#define __HAVE_ARCH_CLEAR_PAGES
+>
+> Although this is a simple instance, could this please be done in a
+> Kconfig file?  If that #define happens inside of other #ifdefs, it can
+> be quite hard to decipher the special .config incantation to get it set.
+> On the other hand, if the dependencies are spelled out in a Kconfig
+> entry...
 
-It seems my comment on this [1] was lost:
+Ok will do.
 
-<--  snip  -->
+> BTW, I tried applying this to 2.6.11-bk6, and it rejected:
+> ...
+> patching file include/asm-i386/page.h
+> Hunk #2 FAILED at 28.
+> 1 out of 2 hunks FAILED -- saving rejects to file
+> include/asm-i386/page.h.rej
+> ...
+>
+> There were some more rejects as well.  Were there some other patches
+> applied first?
 
-This line has to be something like
-
-( (__GNUC__ == 3 && __GNUC_MINOR__ == 3 && __GNUC_PATCHLEVEL__ >= 4) && \
-   HEAVILY_PATCHED_SUSE_GCC ) 
-
-I hope SuSE has added some #define to distinguish what they call 
-"gcc 3.3.4" from GNU gcc 3.3.4
-
-<--  snip  -->
-
-
-cu
-Adrian
-
-[1] http://www.ussg.iu.edu/hypermail/linux/kernel/0503.0/1876.html
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Patches work fine here.

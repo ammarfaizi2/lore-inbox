@@ -1,41 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284676AbRLIXuv>; Sun, 9 Dec 2001 18:50:51 -0500
+	id <S284662AbRLIXyb>; Sun, 9 Dec 2001 18:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284675AbRLIXuf>; Sun, 9 Dec 2001 18:50:35 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50194 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284676AbRLIXtJ>; Sun, 9 Dec 2001 18:49:09 -0500
-Subject: Re: Linux 2.4.17-pre5
-To: kravetz@us.ibm.com (Mike Kravetz)
-Date: Sun, 9 Dec 2001 23:57:47 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        davidel@xmailserver.org (Davide Libenzi),
-        rusty@rustcorp.com.au (Rusty Russell), anton@samba.org, davej@suse.de,
-        marcelo@conectiva.com.br, linux-kernel@vger.kernel.org (lkml),
-        torvalds@transmeta.com (Linus Torvalds)
-In-Reply-To: <20011209144433.B1087@w-mikek2.sequent.com> from "Mike Kravetz" at Dec 09, 2001 02:44:33 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284675AbRLIXyV>; Sun, 9 Dec 2001 18:54:21 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:5254 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S284662AbRLIXyN>;
+	Sun, 9 Dec 2001 18:54:13 -0500
+Date: Sun, 9 Dec 2001 14:53:52 -0800
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] 2.5.0 Multi-Queue Scheduler
+Message-ID: <20011209145352.C1087@w-mikek2.sequent.com>
+In-Reply-To: <20011209143152.A1087@w-mikek2.sequent.com> <E16DDj6-0008H8-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16DDpL-0008IF-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <E16DDj6-0008H8-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sun, Dec 09, 2001 at 11:51:20PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This implies that the idle loop will poll looking for work to do.
-> Is that correct?  Davide's scheduler also does this.  I believe
-> the current default idle loop (at least for i386) does as little
-> as possible and stops execting instructions.  Comments in the code
-> mention power consumption.  Should we be concerned with this?
+On Sun, Dec 09, 2001 at 11:51:20PM +0000, Alan Cox wrote:
+> Tasks with roughly the same priority will not neccessarily run in strict
+> priority order but they will get appropriate extra time and run before
+> anything measurably different in priority.
 
-You can poll or IPI. An IPI has the problem that IPI's are horribly slow
-on Pentium II/III. On the other hand the Athlon and PIV seem to both have
-that bit sorted.
+That makes it much easier.  When we tried this, we were going for
+strict priority.  Therefore, you either had a really large number
+of queues, or you had to scan all tasks on individual queues.  Again,
+we were trying to maintain existing behavior.  In hind sight, this
+doesn't look like a smart design constraint. :)
 
-Its really an implementation detail as to whether you poll for work or
-someone kicks you. Since we know what the other processors are doing and
-who is idle we know when we need to kick them.
-
-Alan
+-- 
+Mike

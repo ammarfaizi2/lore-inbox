@@ -1,68 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268179AbUIWRWp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268172AbUIWRWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268179AbUIWRWp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 13:22:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268177AbUIWRVv
+	id S268172AbUIWRWq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 13:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUIWRVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 13:21:51 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64469 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266457AbUIWRVM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 13:21:12 -0400
-Date: Thu, 23 Sep 2004 10:20:38 -0700
-From: Greg KH <greg@kroah.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@zip.com.au>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       parisc-linux@parisc-linux.org
-Subject: Re: [PATCH] Sort generic PCI fixups after specific ones
-Message-ID: <20040923172038.GA8812@kroah.com>
-References: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk>
+	Thu, 23 Sep 2004 13:21:30 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:38883 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S268019AbUIWRTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 13:19:17 -0400
+Subject: Re: Suggestion for CD filesystem for Backups
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Judith und Mirko Kloppstech <jugal@gmx.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <415204E0.9010203@gmx.net>
+References: <415204E0.9010203@gmx.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095956209.6776.36.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040922214304.GS16153@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 23 Sep 2004 17:16:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 10:43:04PM +0100, Matthew Wilcox wrote:
+On Iau, 2004-09-23 at 00:04, Judith und Mirko Kloppstech wrote:
+> Why not write a file system on top of ISO9660 which uses the rest of the 
+> CD to write error correction. If a sector becomes unreadable, the error 
+> correction saves the data. Besides, a tool for testing the error rate 
+> and the safety of the data can be easily written for a normal CD-ROM drive.
 > 
-> The recent change that allowed PCI fixups to be declared everywhere
-> broke IDE on PA-RISC by making the generic IDE fixup be applied before
-> the PA-RISC specific one.  This patch fixes that by sorting generic fixups
-> after the specific ones.  It also obeys the 80-column limit and reduces
-> the amount of grotty macro code.
-> 
-> I'd like to thank Joel Soete for his work tracking down the source of
-> this problem.
-> 
-> Index: linux-2.6/drivers/pci/quirks.c
-> ===================================================================
-> RCS file: /var/cvs/linux-2.6/drivers/pci/quirks.c,v
-> retrieving revision 1.16
-> diff -u -p -r1.16 quirks.c
-> --- linux-2.6/drivers/pci/quirks.c	13 Sep 2004 15:23:21 -0000	1.16
-> +++ linux-2.6/drivers/pci/quirks.c	22 Sep 2004 21:38:17 -0000
-> @@ -543,7 +543,7 @@ static void __devinit quirk_cardbus_lega
->  		return;
->  	pci_write_config_dword(dev, PCI_CB_LEGACY_MODE_BASE, 0);
->  }
-> -DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID,		PCI_ANY_ID,			quirk_cardbus_legacy );
-> +DECLARE_PCI_FIXUP_FINAL_ALL(quirk_cardbus_legacy);
+> The data for error correction might be written into a file so that the 
+> CD can be read using any System, but Linux provides error correction.
 
-It looks like you are doing 2 different things here with this new macro.
-Having it run last, and leting the user not type the PCI_ANY_ID macro
-twice.  How about if you want to do a final final type pass, you mark it
-as such, and not try to hide it in this manner.
+Send patches, or possibly if you are dumping tars and the like just
+write yourself an app to generate a second file of ECC data.
 
-And do we really want to call it "final final"?  What if we determine
-that we need a "final final final" pass?  Can't you fix this with the
-link order like was previously done?  I'd really prefer to not add
-another level.
-
-Oh, and cc:ing the pci maintainer might be nice next time :)
-
-thanks,
-
-greg k-h

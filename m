@@ -1,98 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbTLPPe5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 10:34:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbTLPPe5
+	id S261784AbTLPPej (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 10:34:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbTLPPei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 10:34:57 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:43176 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S261796AbTLPPex
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 10:34:53 -0500
-Date: Tue, 16 Dec 2003 13:15:21 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Jamie Clark <jclark@metaparadigm.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.23aa1 ext3 oops
-In-Reply-To: <3FD7D78A.4080409@metaparadigm.com>
-Message-ID: <Pine.LNX.4.44.0312161310570.1533-100000@logos.cnet>
+	Tue, 16 Dec 2003 10:34:38 -0500
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:30610 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S261784AbTLPPeh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Dec 2003 10:34:37 -0500
+Message-ID: <3FDF2632.C83B80D7@bull.net>
+Date: Tue, 16 Dec 2003 16:35:14 +0100
+From: Jacky Malcles <Jacky.Malcles@bull.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; AIX 4.3)
+X-Accept-Language: fr-FR,fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+To: Jan Kara <jack@suse.cz>
+CC: Bobby Hitt <Robert.Hitt@bscnet.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Need Quota Support for Reiserfs Partition
+References: <01a901c3c2a7$f5d8a9d0$0900a8c0@BOBHITT> <20031215085312.GD6613@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan,
 
-Jamie, 
+do you know if quotas are working with ext3 FS ?
+I'm using kernel 2.6.0test9 and quota-3.09-1
+and I  can't turn them on,
+quotaon command returns:
+quotaon: using /users/aquota.user on /dev/sdc2 [/users]: No such process
+quotaon: Quota format not supported in kernel.
+...
+many thanks,
 
-Did you try the patch I suggested for you to revert  ?
+Jan Kara wrote:
+> 
+>   Hi,
+> 
+> > I'm using Slackware Linux with kernel version 2.6.0-test11. All of my
+> > partitions are Rieserfs. I now have a need to use quotas on a partition, but
+> > according to the help screen using "make menuconfig" quotas are only
+> > available under the ext2 file systems. Is there a patch to allow quotas
+> > under rieserfs? One of my searches said that Reiserfs and quotas were
+> > supported under 2.6.0, but when I try and mount the partition with this line
+> > in /etc/fstab:
+> >
+> > /dev/hde2 /downloads reiserfs defaults,usrquota,grpquota 1 2
+> >
+> > I get this error:
+> >
+> > mount: wrong fs type, bad option, bad superblock on /dev/hde2,
+> >        or too many mounted file systems
+> >
+> >
+> > If I take the usrquota,grpquota off, the mount works fine.
+>   AFAIK ReiserFS doesn't support quotas in 2.6 kernel. Chris Mason
+> <mason@suse.com> maintains needed patches for 2.4 and is working on
+> porting them to 2.6 but they are not yet ported.
+> 
+>                                                                         Honza
+> 
+> --
+> Jan Kara <jack@suse.cz>
+> SuSE CR Labs
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-On Thu, 11 Dec 2003, Jamie Clark wrote:
-
-> OK, no deadlock yet with 2.4.23aa1 however it oopsed under 
-> ext3_file_write() in __mark_inode_dirty().
-> 
-> Just to recap: this test is dual PIII, running several bonnie++ loads on 
-> an ext3+noatime+quota filesystem
-> mounted off
-> 
->  From the oops the fault happens on the last instruction of:
-> 
->         movl $0,8(%ebx)
->         movl $0,4(%edx)
->         movl 100(%edi),%eax 
->         movl %edx,4(%eax)    <-- here
-> 
-> which appears to be this code in inode.c  [line 221+]
-> 
->                 if (!(inode->i_state & (I_LOCK|I_FREEING|I_CLEAR)) &&
->                     !list_empty(&inode->i_hash)) {
->                         list_del(&inode->i_list);
->                         list_add(&inode->i_list, &sb->s_dirty);
-> 
-> After a quick browse of the assembler output the zeroing would appear to 
-> be part of the list_del inline, and edi seems to equate to &sb. If I 
-> have read that correctly then the 
-> oops happens at the beginning of
-> the list_add() inline and eax is the head of the s_dirty list - pointing 
-> into oblivion.
-> 
-> __mark_inode_dirty() does not appear to take sb_lock before adding to 
-> the s_dirty list. Could that
-> be the culprit?   I'm completely unfamiliar with linux kernel so I might 
-> be way off here.
-> 
-> -Jamie
-> 
-> Andrea Arcangeli wrote:
-> 
-> >On Tue, Nov 04, 2003 at 07:52:40PM +0800, Jamie Clark wrote:
-> >  
-> >
-> >>I made the quick fix (disabling rq_mergeable) and started the load test.
-> >>Will let it run for a week or so.
-> >>    
-> >>
-> >
-> >does your later recent email means it deadlocked again even with this
-> >disabled?
-> >
-> >Could you try again with 2.4.23aa1 again just in case?
-> >
-> >  
-> >
-> >>FYI an observation from my last test: the read latency seems to be much
-> >>improved and more consistent under this kernel (2.4.23pre6aa3, before
-> >>the oops and before this fix).  The maximum latency seemed steady over
-> >>the whole test without any of the longish pauses that showed up under
-> >>2.4.19. Quite a difference.
-> >>    
-> >>
-> >
-> >nice to hear! thanks.
-> >  
-> >
-> 
-
+-- 
+ Jacky Malcles    	     B1-173   Email : Jacky.Malcles@bull.net
+ Tel : 04.76.29.73.14

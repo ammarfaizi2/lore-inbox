@@ -1,61 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290103AbSAQSLm>; Thu, 17 Jan 2002 13:11:42 -0500
+	id <S290113AbSAQSUD>; Thu, 17 Jan 2002 13:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290107AbSAQSLc>; Thu, 17 Jan 2002 13:11:32 -0500
-Received: from smtp-out1.kaptech.com ([62.106.132.133]:54802 "HELO
-	smtp-out.kaptech.net") by vger.kernel.org with SMTP
-	id <S290103AbSAQSLT>; Thu, 17 Jan 2002 13:11:19 -0500
-User-Agent: Microsoft-Entourage/9.0.2.4011
-Date: Thu, 17 Jan 2002 19:09:37 +0100
-Subject: Re: aty128fb weirdness
-From: Chris Boot <bootc@worldnet.fr>
-To: <vda@port.imtp.ilyichevsk.odessa.ua>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Message-ID: <B86CD1F1.6BA%bootc@worldnet.fr>
-In-Reply-To: <200201160817.g0G8HYE10520@Port.imtp.ilyichevsk.odessa.ua>
-Mime-version: 1.0
-Content-type: text/plain; charset="US-ASCII"
-Content-transfer-encoding: 7bit
+	id <S290112AbSAQSTo>; Thu, 17 Jan 2002 13:19:44 -0500
+Received: from hal.astro.umn.edu ([128.101.221.100]:63630 "EHLO astro.umn.edu")
+	by vger.kernel.org with ESMTP id <S290111AbSAQST3>;
+	Thu, 17 Jan 2002 13:19:29 -0500
+Date: Thu, 17 Jan 2002 12:19:23 -0600
+From: kelley eicher <carde@astro.umn.edu>
+To: linux-kernel@vger.kernel.org
+Subject: safest verion of gcc to use?
+Message-ID: <20020117121923.A7977@astro.umn.edu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on 16/1/2002 13:17, Denis Vlasenko at vda@port.imtp.ilyichevsk.odessa.ua
-wrote:
 
-> On 15 January 2002 17:06, Chris Boot wrote:
->> I only just decided to reinstall Linux on my Apple iMac DV SE/500 with an
->> ATI Rage Pro 128.  Last time I used Linux on this machine was when kernel
->> 2.4.2 was the latest.  Now, when I try to use the native kernel driver for
->> my graphics card, all I get is a black screen.  I can type blindly into the
->> console or login through the network.  I double-checked all my kernel
->> arguments and didn't find any mistake whatsoever, and enabled the debug
->> code in the aty128fb driver, all to no avail.  I also tried several
->> kernels, ranging from the one included with my distro (a patched 2.4.10),
->> 2.4.16, 2.4.17, and 2.4.18-pre3.
-> 
-> You forgot to say which of them worked.
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-When I last used it it was 2.4.3 or something back then.
+hi,
 
-> Can't help you directly, but if nobody will answer, you can pinpoint at which
-> kernel version exactly it broke. Don't forget to recompile them with same
-> working .config from 2.4.2 (minus inevitable changes due to 'make oldconfig')
-> if you will decide to go hunting the bug :-)
+quick question here. [kernel-src]/Documentation/Changes and
+[kernel-src]/README say two different things about which version of gcc
+is recommended for the compiling of the linux kernel. README says egcs
+1.1.2 and Documentation/Changes says to use gcc 2.95.3 or greater.
+is the last egcs release still the preferred or has that changed to the
+gcc 2.95.x releases?
 
-I stopped using Linux for a while and decided to install it over again and
-found the video non-working (2.4.10), then I decided to upgrade and had the
-same symptoms.  I had just recompiled a whole load of old kernels to see
-under which it broke when all of a sudden I came across a web page stating
-that acceleration didn't work on Rage 128 Pro chipsets, exactly what I have.
-So I tried adding the "noaccel" kernel parameter (which I didn't used to
-have to add) and it now works without a hitch under 2.4.18-pre3.  Go figure.
+i assume that README is outdated and should not mention a version of gcc
+at all for compilation of the src. it seems that README instructs the user
+to refer to Documentation/Changes for the latest info but makes it confusing
+by stating, "Make sure you have gcc-2.91.66 (egcs-1.1.2) available."
 
-Thanks anyway,
+-kelley=20
 
--- 
-Chris Boot
-bootc@mac.com
 
-"The keyboard is missing - Press any key to continue."
+--=20
 
+ >> kelley j eicher
+<<  UNIX architect
+ >> Univ. of MN Astronomy Dept.
+<<  ph: (612) 626-2067 or (612) 624-3589
+ >> fx: (612) 626-2029
+<<  office: 385 physics
+ >> carde at astro dot umn dot edu
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.2 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8RxWrF3O5KT+A1xQRAn0NAJ9zAPNcXHXj2Vi2xn+6mXcvx+NnkwCbB7Xz
+oovHOwFV4+720ige45vuVug=
+=qaJZ
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--

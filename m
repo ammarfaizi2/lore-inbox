@@ -1,67 +1,335 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267090AbSLaAUx>; Mon, 30 Dec 2002 19:20:53 -0500
+	id <S267096AbSLaAfK>; Mon, 30 Dec 2002 19:35:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267096AbSLaAUx>; Mon, 30 Dec 2002 19:20:53 -0500
-Received: from alb-24-29-45-178.nycap.rr.com ([24.29.45.178]:2564 "EHLO
-	ender.tmmz.net") by vger.kernel.org with ESMTP id <S267090AbSLaAUw>;
-	Mon, 30 Dec 2002 19:20:52 -0500
-Date: Mon, 30 Dec 2002 19:33:59 -0500 (EST)
-From: Matthew Zahorik <matt@albany.net>
-X-X-Sender: matt@ender.tmmz.net
-To: linux-kernel@vger.kernel.org
-Subject: How does the disk buffer cache work?
-Message-ID: <Pine.BSF.4.43.0212301918280.370-100000@ender.tmmz.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267099AbSLaAfK>; Mon, 30 Dec 2002 19:35:10 -0500
+Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:12548 "EHLO
+	server01.nullzone.prv") by vger.kernel.org with ESMTP
+	id <S267096AbSLaAfF>; Mon, 30 Dec 2002 19:35:05 -0500
+Message-Id: <5.1.1.6.2.20021231005707.0446d068@192.168.2.131>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Tue, 31 Dec 2002 01:43:34 +0100
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: system_lists@nullzone.org
+Subject: Re: Highpoint HPT370 not working in 2.4.18+ versions
+Cc: Scott McDermott <vaxerdec@frontiernet.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="=====================_314329101==_"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Earlier I wrote to the list where my SS10 hung on the partition check
-if a bad disk was installed.
+--=====================_314329101==_
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-This behavior is new to the 2.4.20 kernel.  I previously ran 2.2.20 on the
-machine. (the default in a Debian 3.0r0 install)  I can't vouch for 2.4
-kernels previous to 2.4.20.
 
-I have traced the problem to a hang in the one of the disk buffer caches.
+ From '/proc/pci' i can found JUST THE SAME in 2.4.18 and 2.4.21-pre2
 
-Can anyone tell me how to correct the behavior so that I:
+-----
+   Bus  0, device  10, function  0:
+     Unknown mass storage controller: Triones Technologies, Inc. HPT366 / 
+HPT370
+(rev 4).
+       IRQ 11.
+       Master Capable.  Latency=64.  Min Gnt=8.Max Lat=8.
+       I/O at 0xb000 [0xb007].
+       I/O at 0xb400 [0xb403].
+       I/O at 0xb800 [0xb807].
+       I/O at 0xbc00 [0xbc03].
+       I/O at 0xc000 [0xc0ff].
+--------
 
-1.  Don't break things for other parts of the kernel
-2.  The disk cache will return with an error for a hung disk?
+anyway the dmesg-files are just as u can see in attached files.
 
-Here's the tail of the console with debugging printk's inserted:
+(thanks Mark Hahn for info about /proc/pci),
 
-sda: Spinning up disk.......................................................................................................not responding...
-sda : READ CAPACITY failed.
-sda : status = 0, message = 00, host = 0, driver = 28
-Current sd00:00: sense key Not Ready
-Additional sense indicates Logical unit is in process of becoming ready
-sda : block size assumed to be 512 bytes, disk size 1GB.
+
+At 13:10 30/12/2002 +0000, Alan Cox wrote:
+>On Mon, 2002-12-30 at 09:10, system_lists@nullzone.org wrote:
+> >
+> > Hi there Scott,
+> >
+> >     my card (which not need any patch for working on in 2.4.18 but doesnt
+> > work (its simply not detected) on next versions) is:
+> >
+> > HighPoint Technologies, Inc.
+> > HPT370 UDMA/ATA100 RAID Controller BIOS v1.0.3b1
+> >
+> > have u any idea?
+>
+>Make sure you have the HPT driver compiled into your kernel
+
+Yes,
+
+   i will rewrite my original mail:
+
+----------
+
+
+* BOOTing using 2.4.18 (All ok here)
+--------
+VP_IDE: not 100% native mode: will probe irqs later
+ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:DMA, hdb:pio
+ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:pio, hdd:pio
+HPT370A: IDE controller on PCI bus 00 dev 50
+PCI: Found IRQ 11 for device 00:0a.0
+HPT370A: chipset revision 4
+HPT370A: not 100% native mode: will probe irqs later
+ide2: BM-DMA at 0xc000-0xc007, BIOS settings: hde:pio, hdf:pio
+ide3: BM-DMA at 0xc008-0xc00f, BIOS settings: hdg:pio, hdh:pio
+hda: FUJITSU MPA3026ATU, ATA DISK drive
+hde: ST380020A, ATA DISK drive
+hdf: ST360020A, ATA DISK drive
+hdg: ST380020A, ATA DISK drive
+hdh: ST360020A, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide2 at 0xb000-0xb007,0xb402 on irq 11
+ide3 at 0xb800-0xb807,0xbc02 on irq 11
+hda: 5126964 sectors (2625 MB), CHS=635/128/63
+hde: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63, UDMA(33)
+hdf: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(33)
+hdg: 156301488 sectors (80026 MB) w/2048KiB Cache, CHS=155061/16/63, UDMA(33)
+hdh: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(33)
 Partition check:
- sda:sun.c/sun_partition: Before read_dev_sector
-check.c/read_dev_sector: offset = 0
-check.c/read_dev_sector: passing page filler function @ f004fd14
-filemap.c/read_cache_page: enter
-filemap.c/read_cache_page: before __read_cache_page
-filemap.c/__read_cache_page: enter
-block_dev.c/block_read_full_page: before first do
-block_dev.c/block_read_full_page: before if (!nr)
-block_dev.c/block_read_full_page: before stage two
-block_dev.c/block_read_full_page: before starting I/O
-block_dev.c/block_read_full_page: returning
-filemap.c/read_cache_page: after __read_cache_page
-filemap.c/read_cache_page: after mark_page_accessed
+hda: hda1 hda2 hda3 hda4
+hde: unknown partition table
+hdf: unknown partition table
+hdg: [PTBL] [9729/255/63] hdg1
+hdh: unknown partition table
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 96M
+agpgart: Detected Via Apollo Pro chipset
+agpgart: AGP aperture is 64M @ 0xd8000000
+ataraid/d0: ataraid/d0p1
+Highpoint HPT370 Softwareraid driver for linux version 0.01
+Drive 0 is 76319 Mb
+Drive 1 is 57241 Mb
+Raid array consists of 2 drives.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+--------
 
-[.. the next function call in read_cache_page() is lock_page(), which we
-hang forever on ..]
 
-Can those more familiar with the buffer caches advise me on a solution?
-Errors on cached devices should propagate up to higher layers.  As is, the
-machine hangs forever when reading sector 0 to check the partition table.
+* BOOTing using 2.4.20 (or 2.4.21-pre2)
+--------------------
+...
+Linux agpgart interface v0.99 (c) Jeff Hartmann
+agpgart: Maximum main memory to use for agp memory: 96M
+agpgart: Detected Via Apollo Pro chipset
+agpgart: AGP aperture is 64M @ 0xd8000000
+Highpoint HPT370 Softwareraid driver for linux version ...
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+...
 
-Thanks!
+You can notice how the driver for HPT is loaded but nothing is found.
+OF COURSE hde hdf etc is NOT found .. (at the begining of the boot).
 
-- Matt
+Let me know what exactly u need for a good debug and i will get u all 
+notes/files u need.
+
+--------
+
+
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+
+--=====================_314329101==_
+Content-Type: application/octet-stream; name="dmesg.2.4.18"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="dmesg.2.4.18"
+
+TGludXggdmVyc2lvbiAyLjQuMTggKHJvb3RAc2VydmVyMDEpIChnY2MgdmVyc2lvbiAzLjIuMSAy
+MDAyMDkyNCAoRGViaWFuIHByZXJlbGVhc2UpKSAjNSBUdWUgT2N0IDE1IDE2OjI2OjUyIENFU1Qg
+MjAwMgpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6CiBCSU9TLWU4MjA6IDAwMDAwMDAw
+MDAwMDAwMDAgLSAwMDAwMDAwMDAwMGEwMDAwICh1c2FibGUpCiBCSU9TLWU4MjA6IDAwMDAwMDAw
+MDAwZjAwMDAgLSAwMDAwMDAwMDAwMTAwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAw
+MDAwMDEwMDAwMCAtIDAwMDAwMDAwMDgwMDAwMDAgKHVzYWJsZSkKIEJJT1MtZTgyMDogMDAwMDAw
+MDBmZmZmMDAwMCAtIDAwMDAwMDAxMDAwMDAwMDAgKHJlc2VydmVkKQpPbiBub2RlIDAgdG90YWxw
+YWdlczogMzI3NjgKem9uZSgwKTogNDA5NiBwYWdlcy4Kem9uZSgxKTogMjg2NzIgcGFnZXMuCnpv
+bmUoMik6IDAgcGFnZXMuCkxvY2FsIEFQSUMgZGlzYWJsZWQgYnkgQklPUyAtLSByZWVuYWJsaW5n
+LgpGb3VuZCBhbmQgZW5hYmxlZCBsb2NhbCBBUElDIQpLZXJuZWwgY29tbWFuZCBsaW5lOiBhdXRv
+IEJPT1RfSU1BR0U9Y3VycmVudCBybyByb290PTMwNApJbml0aWFsaXppbmcgQ1BVIzAKRGV0ZWN0
+ZWQgMTAwMi4zMTcgTUh6IHByb2Nlc3Nvci4KQ29uc29sZTogY29sb3VyIFZHQSsgODB4MjUKQ2Fs
+aWJyYXRpbmcgZGVsYXkgbG9vcC4uLiAxOTk4Ljg0IEJvZ29NSVBTCk1lbW9yeTogMTI2OTQway8x
+MzEwNzJrIGF2YWlsYWJsZSAoMTExOGsga2VybmVsIGNvZGUsIDM3NDhrIHJlc2VydmVkLCAyNDFr
+IGRhdGEsIDIyOGsgaW5pdCwgMGsgaGlnaG1lbSkKRGVudHJ5LWNhY2hlIGhhc2ggdGFibGUgZW50
+cmllczogMTYzODQgKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpCklub2RlLWNhY2hlIGhhc2ggdGFi
+bGUgZW50cmllczogODE5MiAob3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQpNb3VudC1jYWNoZSBoYXNo
+IHRhYmxlIGVudHJpZXM6IDIwNDggKG9yZGVyOiAyLCAxNjM4NCBieXRlcykKQnVmZmVyLWNhY2hl
+IGhhc2ggdGFibGUgZW50cmllczogODE5MiAob3JkZXI6IDMsIDMyNzY4IGJ5dGVzKQpQYWdlLWNh
+Y2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpCkNQ
+VTogQmVmb3JlIHZlbmRvciBpbml0LCBjYXBzOiAwMzgzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCwg
+dmVuZG9yID0gMApDUFU6IEwxIEkgY2FjaGU6IDE2SywgTDEgRCBjYWNoZTogMTZLCkNQVTogTDIg
+Y2FjaGU6IDEyOEsKQ1BVOiBBZnRlciB2ZW5kb3IgaW5pdCwgY2FwczogMDM4M2ZiZmYgMDAwMDAw
+MDAgMDAwMDAwMDAgMDAwMDAwMDAKSW50ZWwgbWFjaGluZSBjaGVjayBhcmNoaXRlY3R1cmUgc3Vw
+cG9ydGVkLgpJbnRlbCBtYWNoaW5lIGNoZWNrIHJlcG9ydGluZyBlbmFibGVkIG9uIENQVSMwLgpD
+UFU6ICAgICBBZnRlciBnZW5lcmljLCBjYXBzOiAwMzgzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCAw
+MDAwMDAwMApDUFU6ICAgICAgICAgICAgIENvbW1vbiBjYXBzOiAwMzgzZmJmZiAwMDAwMDAwMCAw
+MDAwMDAwMCAwMDAwMDAwMApDUFU6IEludGVsIENlbGVyb24gKENvcHBlcm1pbmUpIHN0ZXBwaW5n
+IDBhCkVuYWJsaW5nIGZhc3QgRlBVIHNhdmUgYW5kIHJlc3RvcmUuLi4gZG9uZS4KRW5hYmxpbmcg
+dW5tYXNrZWQgU0lNRCBGUFUgZXhjZXB0aW9uIHN1cHBvcnQuLi4gZG9uZS4KQ2hlY2tpbmcgJ2hs
+dCcgaW5zdHJ1Y3Rpb24uLi4gT0suClBPU0lYIGNvbmZvcm1hbmNlIHRlc3RpbmcgYnkgVU5JRklY
+CmVuYWJsZWQgRXh0SU5UIG9uIENQVSMwCkVTUiB2YWx1ZSBiZWZvcmUgZW5hYmxpbmcgdmVjdG9y
+OiAwMDAwMDAwMApFU1IgdmFsdWUgYWZ0ZXIgZW5hYmxpbmcgdmVjdG9yOiAwMDAwMDAwMApVc2lu
+ZyBsb2NhbCBBUElDIHRpbWVyIGludGVycnVwdHMuCmNhbGlicmF0aW5nIEFQSUMgdGltZXIgLi4u
+Ci4uLi4uIENQVSBjbG9jayBzcGVlZCBpcyAxMDAyLjI5MzIgTUh6LgouLi4uLiBob3N0IGJ1cyBj
+bG9jayBzcGVlZCBpcyAxMDAuMjI5MiBNSHouCmNwdTogMCwgY2xvY2tzOiAxMDAyMjkyLCBzbGlj
+ZTogNTAxMTQ2CkNQVTA8VDA6MTAwMjI4OCxUMTo1MDExMzYsRDo2LFM6NTAxMTQ2LEM6MTAwMjI5
+Mj4KUENJOiBQQ0kgQklPUyByZXZpc2lvbiAyLjEwIGVudHJ5IGF0IDB4ZmIwMjAsIGxhc3QgYnVz
+PTEKUENJOiBVc2luZyBjb25maWd1cmF0aW9uIHR5cGUgMQpQQ0k6IFByb2JpbmcgUENJIGhhcmR3
+YXJlClBDSTogVXNpbmcgSVJRIHJvdXRlciBWSUEgWzExMDYvMDY4Nl0gYXQgMDA6MDcuMApQQ0k6
+IERpc2FibGluZyBWaWEgZXh0ZXJuYWwgQVBJQyByb3V0aW5nCkxpbnV4IE5FVDQuMCBmb3IgTGlu
+dXggMi40CkJhc2VkIHVwb24gU3dhbnNlYSBVbml2ZXJzaXR5IENvbXB1dGVyIFNvY2lldHkgTkVU
+My4wMzkKSW5pdGlhbGl6aW5nIFJUIG5ldGxpbmsgc29ja2V0ClN0YXJ0aW5nIGtzd2FwZApKb3Vy
+bmFsbGVkIEJsb2NrIERldmljZSBkcml2ZXIgbG9hZGVkCnB0eTogMjU2IFVuaXg5OCBwdHlzIGNv
+bmZpZ3VyZWQKU2VyaWFsIGRyaXZlciB2ZXJzaW9uIDUuMDVjICgyMDAxLTA3LTA4KSB3aXRoIE1B
+TllfUE9SVFMgU0hBUkVfSVJRIFNFUklBTF9QQ0kgZW5hYmxlZApibG9jazogMTI4IHNsb3RzIHBl
+ciBxdWV1ZSwgYmF0Y2g9MzIKVW5pZm9ybSBNdWx0aS1QbGF0Zm9ybSBFLUlERSBkcml2ZXIgUmV2
+aXNpb246IDYuMzEKaWRlOiBBc3N1bWluZyAzM01IeiBzeXN0ZW0gYnVzIHNwZWVkIGZvciBQSU8g
+bW9kZXM7IG92ZXJyaWRlIHdpdGggaWRlYnVzPXh4ClZQX0lERTogSURFIGNvbnRyb2xsZXIgb24g
+UENJIGJ1cyAwMCBkZXYgMzkKVlBfSURFOiBjaGlwc2V0IHJldmlzaW9uIDYKVlBfSURFOiBub3Qg
+MTAwJSBuYXRpdmUgbW9kZTogd2lsbCBwcm9iZSBpcnFzIGxhdGVyCiAgICBpZGUwOiBCTS1ETUEg
+YXQgMHhhMDAwLTB4YTAwNywgQklPUyBzZXR0aW5nczogaGRhOkRNQSwgaGRiOnBpbwogICAgaWRl
+MTogQk0tRE1BIGF0IDB4YTAwOC0weGEwMGYsIEJJT1Mgc2V0dGluZ3M6IGhkYzpwaW8sIGhkZDpw
+aW8KSFBUMzcwQTogSURFIGNvbnRyb2xsZXIgb24gUENJIGJ1cyAwMCBkZXYgNTAKUENJOiBGb3Vu
+ZCBJUlEgMTEgZm9yIGRldmljZSAwMDowYS4wCkhQVDM3MEE6IGNoaXBzZXQgcmV2aXNpb24gNApI
+UFQzNzBBOiBub3QgMTAwJSBuYXRpdmUgbW9kZTogd2lsbCBwcm9iZSBpcnFzIGxhdGVyCiAgICBp
+ZGUyOiBCTS1ETUEgYXQgMHhjMDAwLTB4YzAwNywgQklPUyBzZXR0aW5nczogaGRlOnBpbywgaGRm
+OnBpbwogICAgaWRlMzogQk0tRE1BIGF0IDB4YzAwOC0weGMwMGYsIEJJT1Mgc2V0dGluZ3M6IGhk
+ZzpwaW8sIGhkaDpwaW8KaGRhOiBGVUpJVFNVIE1QQTMwMjZBVFUsIEFUQSBESVNLIGRyaXZlCmhk
+ZTogU1QzODAwMjBBLCBBVEEgRElTSyBkcml2ZQpoZGY6IFNUMzYwMDIwQSwgQVRBIERJU0sgZHJp
+dmUKaGRnOiBTVDM4MDAyMEEsIEFUQSBESVNLIGRyaXZlCmhkaDogU1QzNjAwMjBBLCBBVEEgRElT
+SyBkcml2ZQppZGUwIGF0IDB4MWYwLTB4MWY3LDB4M2Y2IG9uIGlycSAxNAppZGUyIGF0IDB4YjAw
+MC0weGIwMDcsMHhiNDAyIG9uIGlycSAxMQppZGUzIGF0IDB4YjgwMC0weGI4MDcsMHhiYzAyIG9u
+IGlycSAxMQpoZGE6IDUxMjY5NjQgc2VjdG9ycyAoMjYyNSBNQiksIENIUz02MzUvMTI4LzYzCmhk
+ZTogMTU2MzAxNDg4IHNlY3RvcnMgKDgwMDI2IE1CKSB3LzIwNDhLaUIgQ2FjaGUsIENIUz0xNTUw
+NjEvMTYvNjMsIFVETUEoMzMpCmhkZjogMTE3MjMxNDA4IHNlY3RvcnMgKDYwMDIyIE1CKSB3LzIw
+NDhLaUIgQ2FjaGUsIENIUz0xMTYzMDEvMTYvNjMsIFVETUEoMzMpCmhkZzogMTU2MzAxNDg4IHNl
+Y3RvcnMgKDgwMDI2IE1CKSB3LzIwNDhLaUIgQ2FjaGUsIENIUz0xNTUwNjEvMTYvNjMsIFVETUEo
+MzMpCmhkaDogMTE3MjMxNDA4IHNlY3RvcnMgKDYwMDIyIE1CKSB3LzIwNDhLaUIgQ2FjaGUsIENI
+Uz0xMTYzMDEvMTYvNjMsIFVETUEoMzMpClBhcnRpdGlvbiBjaGVjazoKIGhkYTogaGRhMSBoZGEy
+IGhkYTMgaGRhNAogaGRlOiB1bmtub3duIHBhcnRpdGlvbiB0YWJsZQogaGRmOiB1bmtub3duIHBh
+cnRpdGlvbiB0YWJsZQogaGRnOiBbUFRCTF0gWzk3MjkvMjU1LzYzXSBoZGcxCiBoZGg6IHVua25v
+d24gcGFydGl0aW9uIHRhYmxlCkZsb3BweSBkcml2ZShzKTogZmQwIGlzIDEuNDRNCkZEQyAwIGlz
+IGEgcG9zdC0xOTkxIDgyMDc3CkxpbnV4IGFncGdhcnQgaW50ZXJmYWNlIHYwLjk5IChjKSBKZWZm
+IEhhcnRtYW5uCmFncGdhcnQ6IE1heGltdW0gbWFpbiBtZW1vcnkgdG8gdXNlIGZvciBhZ3AgbWVt
+b3J5OiA5Nk0KYWdwZ2FydDogRGV0ZWN0ZWQgVmlhIEFwb2xsbyBQcm8gY2hpcHNldAphZ3BnYXJ0
+OiBBR1AgYXBlcnR1cmUgaXMgNjRNIEAgMHhkODAwMDAwMAogYXRhcmFpZC9kMDogYXRhcmFpZC9k
+MHAxCkhpZ2hwb2ludCBIUFQzNzAgU29mdHdhcmVyYWlkIGRyaXZlciBmb3IgbGludXggdmVyc2lv
+biAwLjAxCkRyaXZlIDAgaXMgNzYzMTkgTWIgCkRyaXZlIDEgaXMgNTcyNDEgTWIgClJhaWQgYXJy
+YXkgY29uc2lzdHMgb2YgMiBkcml2ZXMuIApORVQ0OiBMaW51eCBUQ1AvSVAgMS4wIGZvciBORVQ0
+LjAKSVAgUHJvdG9jb2xzOiBJQ01QLCBVRFAsIFRDUApJUDogcm91dGluZyBjYWNoZSBoYXNoIHRh
+YmxlIG9mIDEwMjQgYnVja2V0cywgOEtieXRlcwpUQ1A6IEhhc2ggdGFibGVzIGNvbmZpZ3VyZWQg
+KGVzdGFibGlzaGVkIDgxOTIgYmluZCAxNjM4NCkKTkVUNDogVW5peCBkb21haW4gc29ja2V0cyAx
+LjAvU01QIGZvciBMaW51eCBORVQ0LjAuCmtqb3VybmFsZCBzdGFydGluZy4gIENvbW1pdCBpbnRl
+cnZhbCA1IHNlY29uZHMKRVhUMy1mczogbW91bnRlZCBmaWxlc3lzdGVtIHdpdGggb3JkZXJlZCBk
+YXRhIG1vZGUuClZGUzogTW91bnRlZCByb290IChleHQzIGZpbGVzeXN0ZW0pIHJlYWRvbmx5LgpG
+cmVlaW5nIHVudXNlZCBrZXJuZWwgbWVtb3J5OiAyMjhrIGZyZWVkCkFkZGluZyBTd2FwOiAxMjQ5
+NTZrIHN3YXAtc3BhY2UgKHByaW9yaXR5IC0xKQpBZGRpbmcgU3dhcDogMTI0OTg0ayBzd2FwLXNw
+YWNlIChwcmlvcml0eSAtMikKRVhUMyBGUyAyLjQtMC45LjE3LCAxMCBKYW4gMjAwMiBvbiBpZGUw
+KDMsNCksIGludGVybmFsIGpvdXJuYWwKODEzOXRvbyBGYXN0IEV0aGVybmV0IGRyaXZlciAwLjku
+MjQKUENJOiBGb3VuZCBJUlEgMTAgZm9yIGRldmljZSAwMDowOS4wCmV0aDA6IFJlYWxUZWsgUlRM
+ODEzOSBGYXN0IEV0aGVybmV0IGF0IDB4Yzg4M2YwMDAsIDAwOjUwOmZjOjIyOjllOjE0LCBJUlEg
+MTAKZXRoMDogIElkZW50aWZpZWQgODEzOSBjaGlwIHR5cGUgJ1JUTC04MTM5QycKcmVpc2VyZnM6
+IGNoZWNraW5nIHRyYW5zYWN0aW9uIGxvZyAoZGV2aWNlIDcyOjAxKSAuLi4KVXNpbmcgcjUgaGFz
+aCB0byBzb3J0IG5hbWVzClJlaXNlckZTIHZlcnNpb24gMy42LjI1CmV0aDA6IFNldHRpbmcgMTAw
+bWJwcyBmdWxsLWR1cGxleCBiYXNlZCBvbiBhdXRvLW5lZ290aWF0ZWQgcGFydG5lciBhYmlsaXR5
+IDQ1ZTEuCg==
+--=====================_314329101==_
+Content-Type: application/octet-stream; name="dmesg.2.4.21-pre2"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="dmesg.2.4.21-pre2"
+
+TGludXggdmVyc2lvbiAyLjQuMjEtcHJlMiAocm9vdEBzZXJ2ZXIwMSkgKGdjYyB2ZXJzaW9uIDMu
+Mi4yIDIwMDIxMjEyIChEZWJpYW4gcHJlcmVsZWFzZSkpICMzIFRodSBEZWMgMjYgMDA6NTA6NTEg
+Q0VUIDIwMDIKQklPUy1wcm92aWRlZCBwaHlzaWNhbCBSQU0gbWFwOgogQklPUy1lODIwOiAwMDAw
+MDAwMDAwMDAwMDAwIC0gMDAwMDAwMDAwMDBhMDAwMCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAw
+MDAwMDAwMGYwMDAwIC0gMDAwMDAwMDAwMDEwMDAwMCAocmVzZXJ2ZWQpCiBCSU9TLWU4MjA6IDAw
+MDAwMDAwMDAxMDAwMDAgLSAwMDAwMDAwMDA4MDAwMDAwICh1c2FibGUpCiBCSU9TLWU4MjA6IDAw
+MDAwMDAwZmZmZjAwMDAgLSAwMDAwMDAwMTAwMDAwMDAwIChyZXNlcnZlZCkKMTI4TUIgTE9XTUVN
+IGF2YWlsYWJsZS4KT24gbm9kZSAwIHRvdGFscGFnZXM6IDMyNzY4CnpvbmUoMCk6IDQwOTYgcGFn
+ZXMuCnpvbmUoMSk6IDI4NjcyIHBhZ2VzLgp6b25lKDIpOiAwIHBhZ2VzLgpLZXJuZWwgY29tbWFu
+ZCBsaW5lOiBCT09UX0lNQUdFPTIuNC4yMS1wcmUyIHJvIHJvb3Q9MzA0CkxvY2FsIEFQSUMgZGlz
+YWJsZWQgYnkgQklPUyAtLSByZWVuYWJsaW5nLgpGb3VuZCBhbmQgZW5hYmxlZCBsb2NhbCBBUElD
+IQpJbml0aWFsaXppbmcgQ1BVIzAKRGV0ZWN0ZWQgMTAwMi4zMDEgTUh6IHByb2Nlc3Nvci4KQ29u
+c29sZTogY29sb3VyIFZHQSsgODB4MjUKQ2FsaWJyYXRpbmcgZGVsYXkgbG9vcC4uLiAxOTk4Ljg0
+IEJvZ29NSVBTCk1lbW9yeTogMTI3Mzg0ay8xMzEwNzJrIGF2YWlsYWJsZSAoMTE2Nmsga2VybmVs
+IGNvZGUsIDMzMDRrIHJlc2VydmVkLCAyNDNrIGRhdGEsIDI0OGsgaW5pdCwgMGsgaGlnaG1lbSkK
+RGVudHJ5IGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMTYzODQgKG9yZGVyOiA1LCAxMzEwNzIg
+Ynl0ZXMpCklub2RlIGNhY2hlIGhhc2ggdGFibGUgZW50cmllczogODE5MiAob3JkZXI6IDQsIDY1
+NTM2IGJ5dGVzKQpNb3VudC1jYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDIwNDggKG9yZGVyOiAy
+LCAxNjM4NCBieXRlcykKQnVmZmVyLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogODE5MiAob3Jk
+ZXI6IDMsIDMyNzY4IGJ5dGVzKQpQYWdlLWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogMzI3Njgg
+KG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpCkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hl
+OiAxNksKQ1BVOiBMMiBjYWNoZTogMTI4SwpJbnRlbCBtYWNoaW5lIGNoZWNrIGFyY2hpdGVjdHVy
+ZSBzdXBwb3J0ZWQuCkludGVsIG1hY2hpbmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24gQ1BV
+IzAuCkNQVTogICAgIEFmdGVyIGdlbmVyaWMsIGNhcHM6IDAzODNmYmZmIDAwMDAwMDAwIDAwMDAw
+MDAwIDAwMDAwMDAwCkNQVTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAzODNmYmZmIDAwMDAw
+MDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogSW50ZWwgQ2VsZXJvbiAoQ29wcGVybWluZSkgc3Rl
+cHBpbmcgMGEKRW5hYmxpbmcgZmFzdCBGUFUgc2F2ZSBhbmQgcmVzdG9yZS4uLiBkb25lLgpFbmFi
+bGluZyB1bm1hc2tlZCBTSU1EIEZQVSBleGNlcHRpb24gc3VwcG9ydC4uLiBkb25lLgpDaGVja2lu
+ZyAnaGx0JyBpbnN0cnVjdGlvbi4uLiBPSy4KUE9TSVggY29uZm9ybWFuY2UgdGVzdGluZyBieSBV
+TklGSVgKZW5hYmxlZCBFeHRJTlQgb24gQ1BVIzAKRVNSIHZhbHVlIGJlZm9yZSBlbmFibGluZyB2
+ZWN0b3I6IDAwMDAwMDAwCkVTUiB2YWx1ZSBhZnRlciBlbmFibGluZyB2ZWN0b3I6IDAwMDAwMDAw
+ClVzaW5nIGxvY2FsIEFQSUMgdGltZXIgaW50ZXJydXB0cy4KY2FsaWJyYXRpbmcgQVBJQyB0aW1l
+ciAuLi4KLi4uLi4gQ1BVIGNsb2NrIHNwZWVkIGlzIDEwMDIuMjg5OSBNSHouCi4uLi4uIGhvc3Qg
+YnVzIGNsb2NrIHNwZWVkIGlzIDEwMC4yMjg5IE1Iei4KY3B1OiAwLCBjbG9ja3M6IDEwMDIyODks
+IHNsaWNlOiA1MDExNDQKQ1BVMDxUMDoxMDAyMjg4LFQxOjUwMTEzNixEOjgsUzo1MDExNDQsQzox
+MDAyMjg5PgpQQ0k6IFBDSSBCSU9TIHJldmlzaW9uIDIuMTAgZW50cnkgYXQgMHhmYjAyMCwgbGFz
+dCBidXM9MQpQQ0k6IFVzaW5nIGNvbmZpZ3VyYXRpb24gdHlwZSAxClBDSTogUHJvYmluZyBQQ0kg
+aGFyZHdhcmUKUENJOiBVc2luZyBJUlEgcm91dGVyIFZJQSBbMTEwNi8wNjg2XSBhdCAwMDowNy4w
+ClBDSTogRGlzYWJsaW5nIFZpYSBleHRlcm5hbCBBUElDIHJvdXRpbmcKTGludXggTkVUNC4wIGZv
+ciBMaW51eCAyLjQKQmFzZWQgdXBvbiBTd2Fuc2VhIFVuaXZlcnNpdHkgQ29tcHV0ZXIgU29jaWV0
+eSBORVQzLjAzOQpJbml0aWFsaXppbmcgUlQgbmV0bGluayBzb2NrZXQKU3RhcnRpbmcga3N3YXBk
+CkpvdXJuYWxsZWQgQmxvY2sgRGV2aWNlIGRyaXZlciBsb2FkZWQKcHR5OiAyNTYgVW5peDk4IHB0
+eXMgY29uZmlndXJlZApGbG9wcHkgZHJpdmUocyk6IGZkMCBpcyAxLjQ0TQpGREMgMCBpcyBhIHBv
+c3QtMTk5MSA4MjA3NwpMaW51eCBhZ3BnYXJ0IGludGVyZmFjZSB2MC45OSAoYykgSmVmZiBIYXJ0
+bWFubgphZ3BnYXJ0OiBNYXhpbXVtIG1haW4gbWVtb3J5IHRvIHVzZSBmb3IgYWdwIG1lbW9yeTog
+OTZNCmFncGdhcnQ6IERldGVjdGVkIFZpYSBBcG9sbG8gUHJvIGNoaXBzZXQKYWdwZ2FydDogQUdQ
+IGFwZXJ0dXJlIGlzIDY0TSBAIDB4ZDgwMDAwMDAKVW5pZm9ybSBNdWx0aS1QbGF0Zm9ybSBFLUlE
+RSBkcml2ZXIgUmV2aXNpb246IDcuMDBiZXRhLTIuNAppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3Rl
+bSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9eHgKVlBfSURF
+OiBJREUgY29udHJvbGxlciBhdCBQQ0kgc2xvdCAwMDowNy4xClZQX0lERTogY2hpcHNldCByZXZp
+c2lvbiA2ClZQX0lERTogbm90IDEwMCUgbmF0aXZlIG1vZGU6IHdpbGwgcHJvYmUgaXJxcyBsYXRl
+cgppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3Zl
+cnJpZGUgd2l0aCBpZGVidXM9eHgKVlBfSURFOiBWSUEgdnQ4MmM2ODZhIChyZXYgMWIpIElERSBV
+RE1BNjYgY29udHJvbGxlciBvbiBwY2kwMDowNy4xCiAgICBpZGUwOiBCTS1ETUEgYXQgMHhhMDAw
+LTB4YTAwNywgQklPUyBzZXR0aW5nczogaGRhOkRNQSwgaGRiOnBpbwogICAgaWRlMTogQk0tRE1B
+IGF0IDB4YTAwOC0weGEwMGYsIEJJT1Mgc2V0dGluZ3M6IGhkYzpwaW8sIGhkZDpwaW8KaGRhOiBG
+VUpJVFNVIE1QQTMwMjZBVFUsIEFUQSBESVNLIGRyaXZlCmhkYTogRE1BIGRpc2FibGVkCmJsazog
+cXVldWUgYzAyY2FiZTAsIEkvTyBsaW1pdCA0MDk1TWIgKG1hc2sgMHhmZmZmZmZmZikKaWRlMCBh
+dCAweDFmMC0weDFmNywweDNmNiBvbiBpcnEgMTQKaGRhOiB0YXNrX25vX2RhdGFfaW50cjogc3Rh
+dHVzPTB4NTEgeyBEcml2ZVJlYWR5IFNlZWtDb21wbGV0ZSBFcnJvciB9CmhkYTogdGFza19ub19k
+YXRhX2ludHI6IGVycm9yPTB4MDQgeyBEcml2ZVN0YXR1c0Vycm9yIH0KaGRhOiA1MTI2OTY0IHNl
+Y3RvcnMgKDI2MjUgTUIpLCBDSFM9NjM1LzEyOC82MywgVURNQSgzMykKUGFydGl0aW9uIGNoZWNr
+OgogaGRhOiBoZGExIGhkYTIgaGRhMyBoZGE0CkhpZ2hwb2ludCBIUFQzNzAgU29mdHdhcmVyYWlk
+IGRyaXZlciBmb3IgbGludXggdmVyc2lvbiAwLjAxCk5vIHJhaWQgYXJyYXkgZm91bmQKTkVUNDog
+TGludXggVENQL0lQIDEuMCBmb3IgTkVUNC4wCklQIFByb3RvY29sczogSUNNUCwgVURQLCBUQ1As
+IElHTVAKSVA6IHJvdXRpbmcgY2FjaGUgaGFzaCB0YWJsZSBvZiAxMDI0IGJ1Y2tldHMsIDhLYnl0
+ZXMKVENQOiBIYXNoIHRhYmxlcyBjb25maWd1cmVkIChlc3RhYmxpc2hlZCA4MTkyIGJpbmQgMTYz
+ODQpCk5FVDQ6IFVuaXggZG9tYWluIHNvY2tldHMgMS4wL1NNUCBmb3IgTGludXggTkVUNC4wLgpr
+am91cm5hbGQgc3RhcnRpbmcuICBDb21taXQgaW50ZXJ2YWwgNSBzZWNvbmRzCkVYVDMtZnM6IG1v
+dW50ZWQgZmlsZXN5c3RlbSB3aXRoIG9yZGVyZWQgZGF0YSBtb2RlLgpWRlM6IE1vdW50ZWQgcm9v
+dCAoZXh0MyBmaWxlc3lzdGVtKSByZWFkb25seS4KRnJlZWluZyB1bnVzZWQga2VybmVsIG1lbW9y
+eTogMjQ4ayBmcmVlZApBZGRpbmcgU3dhcDogMTI0OTU2ayBzd2FwLXNwYWNlIChwcmlvcml0eSAt
+MSkKQWRkaW5nIFN3YXA6IDEyNDk4NGsgc3dhcC1zcGFjZSAocHJpb3JpdHkgLTIpCkVYVDMgRlMg
+Mi40LTAuOS4xOSwgMTkgQXVndXN0IDIwMDIgb24gaWRlMCgzLDQpLCBpbnRlcm5hbCBqb3VybmFs
+CjgxMzl0b28gRmFzdCBFdGhlcm5ldCBkcml2ZXIgMC45LjI2ClBDSTogRm91bmQgSVJRIDEwIGZv
+ciBkZXZpY2UgMDA6MDkuMApldGgwOiBSZWFsVGVrIFJUTDgxMzkgRmFzdCBFdGhlcm5ldCBhdCAw
+eGM4ODNmMDAwLCAwMDo1MDpmYzoyMjo5ZToxNCwgSVJRIDEwCmV0aDA6ICBJZGVudGlmaWVkIDgx
+MzkgY2hpcCB0eXBlICdSVEwtODEzOUMnCkVYVDItZnMgd2FybmluZyAoZGV2aWNlIGlkZTAoMywz
+KSk6IGV4dDJfcmVhZF9zdXBlcjogbW91bnRpbmcgZXh0MyBmaWxlc3lzdGVtIGFzIGV4dDIKCmV0
+aDA6IFNldHRpbmcgMTAwbWJwcyBmdWxsLWR1cGxleCBiYXNlZCBvbiBhdXRvLW5lZ290aWF0ZWQg
+cGFydG5lciBhYmlsaXR5IDQ1ZTEuCg==
+--=====================_314329101==_--
 

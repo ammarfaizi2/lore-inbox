@@ -1,71 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317814AbSGKSFV>; Thu, 11 Jul 2002 14:05:21 -0400
+	id <S317818AbSGKS0g>; Thu, 11 Jul 2002 14:26:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317818AbSGKSFU>; Thu, 11 Jul 2002 14:05:20 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:59798 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317814AbSGKSFT>; Thu, 11 Jul 2002 14:05:19 -0400
+	id <S317846AbSGKS0f>; Thu, 11 Jul 2002 14:26:35 -0400
+Received: from dsl-213-023-020-056.arcor-ip.net ([213.23.20.56]:51613 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S317818AbSGKS0f>;
+	Thu, 11 Jul 2002 14:26:35 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Hubertus Franke <frankeh@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-Organization: IBM Research
-To: Arnd Bergmann <arnd@bergmann-dalldorf.de>,
-       Thunder from the hill <thunder@ngforever.de>, dank@kegel.com,
-       linux-kernel@vger.kernel.org,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>, cmolsen@us.ibm.com
-Subject: Re: Periodic clock tick considered harmful (was: Re: HZ, preferably as small  as possible)
-Date: Thu, 11 Jul 2002 13:05:34 -0400
-X-Mailer: KMail [version 1.3.1]
-References: <3D2DB5F3.3C0EF4A2@kegel.com> <Pine.LNX.4.44.0207111056230.3582-100000@hawkeye.luckynet.adm> <200207111745.g6BHjmT64928@d12relay01.de.ibm.com>
-In-Reply-To: <200207111745.g6BHjmT64928@d12relay01.de.ibm.com>
+From: Daniel Phillips <phillips@arcor.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: Rusty's module talk at the Kernel Summit
+Date: Thu, 11 Jul 2002 20:28:50 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Alexander Viro <viro@math.psu.edu>,
+       "David S. Miller" <davem@redhat.com>, <adam@yggdrasil.com>,
+       <R.E.Wolff@bitwizard.nl>, <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207111929500.8911-100000@serv>
+In-Reply-To: <Pine.LNX.4.44.0207111929500.8911-100000@serv>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-Message-Id: <20020711180753.CC97D3FE06@smtp.linux.ibm.com>
+Message-Id: <E17SigN-0002V1-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 11 July 2002 03:45 pm, Arnd Bergmann wrote:
-> Thunder from the hill wrote:
-> > On Thu, 11 Jul 2002 dank@kegel.com wrote:
-> >> OK, so I'm just an ignorant member of the peanut gallery, but
-> >> I'd like to hear a real kernel hacker explain why this isn't
-> >> the way to go.
-> >
-> > The only thing that was mentioned yet was the amount of stuff that
-> > depends on periodic ticks. If we just tick unperiodically, we'd fail for
-> > sure, but if we make these instances depend on another timer - we won.
-> >
-> > I think a good scheduler can handle this and should also be able to
-> > determine a halfaway optimal tick rate for the current load.
->
-> The current approach on s390 is stop the timer tick only for idle cpus,
-> because that's where it hurts. A busy system can just keep on using 100
-> (or 1000) Hz timers.
-> The jiffies value then gets updated from the time stamp counter when an
-> interrupt happens on an idle CPU.
->
-> See Martin Schwidefsky's recent post for code:
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=102578746520177&w=2
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=102578746420174&w=2
->
->         Arnd <><
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On Thursday 11 July 2002 19:37, Roman Zippel wrote:
+> Hi,
+> 
+> On Thu, 11 Jul 2002, Daniel Phillips wrote:
+> 
+> > Closing the rmmod race with this interface is easy.  We can for example just
+> > keep a state variable in the module struct (protected by a lock) to say the
+> > module is in the process of being deregistered.
+> 
+> Please check try_inc_mod_count(). It's already done.
 
+It's a good start, but it's not quite right.  Deregister_filesystem has to be
+the authority on whether the module can be deleted or not, and there's no
+interface for that at the moment.  Also, the mod_count is actually irrelevant
+here, what matters is whether deregister_filesystem thinks the module can be
+removed.  Finally, it's not enough to flag only the 'removing module' state,
+the 'inserting module' state has to be flagged as well[1].  The latter may
+well be flagged in some way in the existing code, I did not dig in to find
+out, but even so, we'd hardly have the thing in its simplest possible form.
 
-There has also been some work done by Michael Olsen (cmolsen@us.ibm.com)
-regarding noperiodic jiffie updates. This was in the context of embedded 
-handheld devices, in particular IBM's LinuxWatch. Similar problem
-arise in such devices where the timer tick can be a significant source of 
-battery drainage.
-There are/were some settled differences between Michael and Martin approach, 
-which I won't be able to adequately describe. 
-I believe Michael has a publication on this, I let him respond.
+In short, it's close to the truth, but it's not quite there in its current
+form.  Al said as much himself.
+
+[1] It's possible that only a single bit of state is needed, 'busy'.  I don't
+know, I stopped thinking about this when it became clear a fix is coming down
+the pipe.
 
 -- 
--- Hubertus Franke  (frankeh@watson.ibm.com)
+Daniel

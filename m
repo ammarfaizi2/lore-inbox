@@ -1,47 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292864AbSBVNux>; Fri, 22 Feb 2002 08:50:53 -0500
+	id <S292865AbSBVN5O>; Fri, 22 Feb 2002 08:57:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292865AbSBVNun>; Fri, 22 Feb 2002 08:50:43 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:37641 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292864AbSBVNuh>; Fri, 22 Feb 2002 08:50:37 -0500
-Message-ID: <3C764C8E.6080008@evision-ventures.com>
-Date: Fri, 22 Feb 2002 14:50:06 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S292866AbSBVN5D>; Fri, 22 Feb 2002 08:57:03 -0500
+Received: from [200.180.163.180] ([200.180.163.180]:31300 "EHLO quatroint")
+	by vger.kernel.org with ESMTP id <S292865AbSBVN4y>;
+	Fri, 22 Feb 2002 08:56:54 -0500
+Message-ID: <004801c1bba8$831250c0$c50016ac@spps.com.br>
+Reply-To: "Fernando Korndorfer" <fernando@quatro.com.br>
+From: "Fernando Korndorfer" <fernando@quatro.com.br>
+To: "Stephan von Krawczynski" <skraw@ithnet.com>
+Cc: "Adam Lackorzynski" <adam@os.inf.tu-dresden.de>,
+        "LKML" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020220104129.GP13774@os.inf.tu-dresden.de><051a01c1bb01$70634580$c50016ac@spps.com.br><20020221211142.0cf0efa4.skraw@ithnet.com><20020222130246.GD13774@os.inf.tu-dresden.de> <20020222141101.0cc342e1.skraw@ithnet.com>
+Subject: Re: 2.4.18-rcx: Dual P3 + VIA + APIC
+Date: Fri, 22 Feb 2002 10:54:55 -0300
 MIME-Version: 1.0
-To: Gerd Knorr <kraxel@bytesex.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com> <slrna7c631.icv.kraxel@bytesex.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
->> 1.  Kill the ide-probe-mod by merging it with ide-mod. There is *really*
->>      no reaons for having this stuff split up into two different
->>     modules unless you wan't to create artificial module dependancies 
->> and waste space
->>     of page boundaries during memmory allocation for the modules
->>
-> 
-> Ah, seems you are the one who broke modular ide in 2.5.5:
-> 
-> Older kernels:
->   insmod ide-mod, insmod ide-disk, insmod ide-probe-mod  => works.
-> 
-> 2.5.5:
->   insmod ide-mod, insmod ide-disk  => mounting /dev/hda2 doesn't work.
-> 
->   Gerd
+> Adam Lackorzynski <adam@os.inf.tu-dresden.de> wrote:
+>
+> > Same MB here, the lspci output is also the same (for the onboard stuff
+;).
+>
+> Ok, this is fine and makes the comparison at least possible to some
+extent.
 
-Well I will have to check this soon on a system booting out from SCSI.
-Most propably it's an simple "load order" problem, where ide-disk should
-call the probe code again. (But somehow ide-scsi, ide-cd and friends
-do...)
+> Please start from a setup as close to mine as possible. That is
+2.4.18-rc2.
+> In setup switch MPS 1.4 support to disable and Power Management to
+disable.
+>
+> > I even updated the BIOS from 1010 to 1014 as well (just in case). What
+> > BIOS version are you running? And at how many MHz are the CPUs?
+>
+> I use BIOS 1010, 2 x P3 1 GHz and tried RAM from 512MB to 2GB. Currently
+installed are 2GB being 2 x 1GB registered DIMM.
+
+    The MB is the same for me (I guess). The machine is about 60Km distant
+from me now, so I have not compiled with your .config yet. Next time I'll
+try to gather some info for the list. The lspci is almost the same.
+
+
+
+
+-----------------------------------------------
+Fernando Korndorfer
+Novo Hamburgo, RS, Brasil
+-----------------------------------------------
 
 

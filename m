@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267540AbUHEE6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267548AbUHEFCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267540AbUHEE6n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 00:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267544AbUHEE5B
+	id S267548AbUHEFCO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 01:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267550AbUHEFAy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 00:57:01 -0400
-Received: from holomorphy.com ([207.189.100.168]:3521 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267540AbUHEEzd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 00:55:33 -0400
-Date: Wed, 4 Aug 2004 21:55:28 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [sparc32] [10/13] sun4 does not support SMP
-Message-ID: <20040805045528.GB2334@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040802015527.49088944.akpm@osdl.org> <20040805043817.GS2334@holomorphy.com> <20040805043957.GT2334@holomorphy.com> <20040805044130.GU2334@holomorphy.com> <20040805044427.GV2334@holomorphy.com> <20040805044627.GW2334@holomorphy.com> <20040805044736.GX2334@holomorphy.com> <20040805044839.GY2334@holomorphy.com> <20040805044950.GZ2334@holomorphy.com> <20040805045417.GA2334@holomorphy.com>
+	Thu, 5 Aug 2004 01:00:54 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:8619 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267544AbUHEE7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 00:59:51 -0400
+Subject: Re: SCHED_BATCH and SCHED_BATCH numbering
+From: Albert Cahalan <albert@users.sf.net>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Peter Williams <pwil3058@bigpond.net.au>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       kernel@kolivas.org, Andrew Morton OSDL <akpm@osdl.org>
+In-Reply-To: <4111A418.5030101@yahoo.com.au>
+References: <1091638227.1232.1750.camel@cube>
+	 <41118AAE.7090107@bigpond.net.au> <41118D0C.9090103@yahoo.com.au>
+	 <411196EE.9050408@bigpond.net.au> <41119A3B.2020202@yahoo.com.au>
+	 <4111A39C.40200@bigpond.net.au>  <4111A418.5030101@yahoo.com.au>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1091672930.3547.1781.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040805045417.GA2334@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040523i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 04 Aug 2004 22:28:50 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 04, 2004 at 09:54:17PM -0700, William Lee Irwin III wrote:
-> This variable is unused and causes noisy compiles.
+On Wed, 2004-08-04 at 23:06, Nick Piggin wrote:
+> Peter Williams wrote:
+> 
+> > Nick Piggin wrote:
+> >
+> >> However if you add or remove scheduling policies, your
+> >> p->policy method breaks.
+> >
+> >
+> > Not if Albert's numbering system is used.
+> >
+> 
+> What if another realtime policy is added? Or one is removed?
 
-The sun4 port does not support SMP. Disable it via Kconfig.
+What if, what if...
 
-Index: mm2-2.6.8-rc2/arch/sparc/Kconfig
-===================================================================
---- mm2-2.6.8-rc2.orig/arch/sparc/Kconfig
-+++ mm2-2.6.8-rc2/arch/sparc/Kconfig
-@@ -221,6 +221,7 @@
- 
- config SUN4
- 	bool "Support for SUN4 machines (disables SUN4[CDM] support)"
-+	depends on !SMP
- 	help
- 	  Say Y here if, and only if, your machine is a sun4. Note that
- 	  a kernel compiled with this option will run only on sun4.
+You're going to have to change the code anyway.
+One might toss this into <linux/sched.h> to make
+as a nice reminder:
+
+#define SCHEDS_RT (SCHED_RR|SCHED_FIFO)
+
+As it is now, SCHED_FIFO is already used as a
+bit flag in one place.
+
+

@@ -1,98 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130750AbRBQJIr>; Sat, 17 Feb 2001 04:08:47 -0500
+	id <S129107AbRBQJxZ>; Sat, 17 Feb 2001 04:53:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130773AbRBQJIg>; Sat, 17 Feb 2001 04:08:36 -0500
-Received: from pcsalo.cern.ch ([137.138.213.103]:33805 "EHLO pcsalo.cern.ch")
-	by vger.kernel.org with ESMTP id <S130750AbRBQJI1>;
-	Sat, 17 Feb 2001 04:08:27 -0500
-Date: Sat, 17 Feb 2001 10:08:21 +0100
-From: Fons Rademakers <Fons.Rademakers@cern.ch>
-To: linux-kernel@vger.kernel.org
-Cc: andre@suse.com
-Subject: had: lost interrupt...
-Message-ID: <20010217100820.A16593@pcsalo.cern.ch>
-Mime-Version: 1.0
+	id <S129204AbRBQJxP>; Sat, 17 Feb 2001 04:53:15 -0500
+Received: from mercury.ST.HMC.Edu ([134.173.57.219]:2052 "HELO
+	mercury.st.hmc.edu") by vger.kernel.org with SMTP
+	id <S129107AbRBQJxB>; Sat, 17 Feb 2001 04:53:01 -0500
+From: Nate Eldredge <neldredge@hmc.edu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0i
+Content-Transfer-Encoding: 7bit
+Message-ID: <14990.18933.849551.526672@mercury.st.hmc.edu>
+Date: Sat, 17 Feb 2001 01:52:53 -0800
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1ac17 hang on mounting loopback fs
+X-Mailer: VM 6.76 under Emacs 20.5.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This one should be easy to track down, it's reproducible (2 for 2 so
+far).
 
-   in my laptop (HP 4150B) I upgraded from a 12GB IBM Travelstar to an
-20GB IBM Travelstar (both 4200rpm). After the upgrade I moved also to
-2.4.2-pre3 and reiserfs. However, the problem I now have is that after
-resume I get the message "hda: lost interrupt" and the only thing to do
-is to reset the machine (in the only good thing is that reiserfs saved
-me a lot of fsck time).
+Kernel 2.4.1ac17 compiled by gcc 2.95.2.
 
-Any idea what the problem might be? Is the larger disk not supported by
-the BIOS (it is recognized properly). People mentioned not to use DMA
-anymore?
+Scenario: In single-user mode; only user process running is /bin/bash
+(pid 1).  Only fs'es mounted are / (ro), /spare (rw) (both ext2),
+/proc.
 
-With 2.2.18 and the 12GB disk there were never problems (except that the
-disk got bad blocks ;-().
+# mount -t ext2 -o loop /spare/i486-linuxaout.img /spare/mnt
+loop: enabling 8 loop devices
 
-My IDE setup in .config is below.
+then it hangs.  No ctrl-C etc.
 
+I did Ctrl+ScrollLock.  The entry for mount had the following (copied
+manually):
 
-Cheers, Fons.
+mount D C7E33E78 5012  23   1  (NOTLB)
+Call trace: c012f17a c0130167 c0151dc1 c01267af c0133102 c013331c
+c0108e84 c0133e65 c0133c9c [maybe 3cac] c013401c c0108d43
 
+Appropriate lines of System.map, in order:
 
+c012f110 T __wait_on_buffer
+c0130124 T bread
+c0151d0c T ext2_read_super
+c0126740 T kmalloc
+c0132ffc t read_super
+c01331d0 t get_sb_bdev
+c0108e50 t error_code
+c0133cec T do_mount
+c0133c4c t copy_mount_options [in either case]
+c0133fa0 T sys_mount
+c0108d10 T system_call
 
-CONFIG_BLK_DEV_IDE=y
+The image file in question is ext2, about 20 MB, 1K blocksize.  loop.o
+is compiled as a module.
 
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-# CONFIG_IDEDISK_MULTI_MODE is not set
-# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
-# CONFIG_BLK_DEV_COMMERIAL is not set
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-CONFIG_BLK_DEV_IDEFLOPPY=y
-# CONFIG_BLK_DEV_IDESCSI is not set
-#
-# IDE chipset support/bugfixes
-#
-# CONFIG_BLK_DEV_CMD640 is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-# CONFIG_IDEDMA_PCI_AUTO is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_PCI_WIP is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD7409 is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-CONFIG_BLK_DEV_PIIX=y
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_PDC202XX is not set
-# CONFIG_BLK_DEV_OSB4 is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_CHIPSETS is not set
-# CONFIG_IDEDMA_AUTO is not set
-# CONFIG_IDEDMA_IVB is not set
-# CONFIG_DMA_NONPCI is not set
-CONFIG_BLK_DEV_IDE_MODES=y
+Incidentally this also happened under more normal circumstances, when
+it tried to mount the fs from fstab.  I haven't yet booted without
+mounting that fs.
+
+Btw, this machine has a FIC PA-2013 motherboard with VIA chipset, and
+I have CONFIG_IDEDMA_PCI_AUTO enabled.  But this doesn't seem like the
+other trouble such machines were having.
+
+I'm happy to provide more info, test patches, etc.  Please CC me
+directly if convenient as I can only read the list through a web
+gateway, which is slow.
 
 -- 
-Org:    CERN, European Laboratory for Particle Physics.
-Mail:   1211 Geneve 23, Switzerland
-E-Mail: Fons.Rademakers@cern.ch              Phone: +41 22 7679248
-WWW:    http://root.cern.ch/~rdm/            Fax:   +41 22 7677910
+
+Nate Eldredge
+neldredge@hmc.edu

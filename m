@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283588AbRK3Kle>; Fri, 30 Nov 2001 05:41:34 -0500
+	id <S283594AbRK3KqO>; Fri, 30 Nov 2001 05:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283587AbRK3KlZ>; Fri, 30 Nov 2001 05:41:25 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:5896 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S283598AbRK3KlK>; Fri, 30 Nov 2001 05:41:10 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] smarter atime updates
-In-Reply-To: <3C072279.D346CD09@zip.com.au> <3C072279.D346CD09@zip.com.au>
-	<87n1144mo6.fsf@devron.myhome.or.jp> <3C0757B0.CF881394@zip.com.au>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 30 Nov 2001 19:40:36 +0900
-In-Reply-To: <3C0757B0.CF881394@zip.com.au>
-Message-ID: <87snaw35jv.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S283595AbRK3KqE>; Fri, 30 Nov 2001 05:46:04 -0500
+Received: from corp.tivoli.com ([216.140.178.60]:9359 "EHLO corp.tivoli.com")
+	by vger.kernel.org with ESMTP id <S283594AbRK3Kpu>;
+	Fri, 30 Nov 2001 05:45:50 -0500
+Message-ID: <3C076314.B639C5D4@tiscalinet.it>
+Date: Fri, 30 Nov 2001 11:44:36 +0100
+From: "salvatore d'angelo" <dangelo.sasaman@tiscalinet.it>
+Reply-To: dangelo.sasaman@tiscalinet.it
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: strange network message
+X-MIMETrack: Itemize by SMTP Server on RomeMTA/Tivoli Systems(Release 5.0.8 |June 18, 2001) at
+ 11/30/2001 11:43:47 AM,
+	MIME-CD by Notes Server on RomeMTA/Tivoli Systems(Release 5.0.8 |June 18, 2001) at
+ 11/30/2001 11:43:48 AM,
+	MIME-CD complete at 11/30/2001 11:43:48 AM,
+	Serialize by Router on RomeMTA/Tivoli Systems(Release 5.0.8 |June 18, 2001) at
+ 11/30/2001 11:45:49 AM
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
 
-> OGAWA Hirofumi wrote:
-> > 
-> > #define UPDATE_ATIME(inode)                     \
-> > do {                                            \
-> >         if ((inode)->i_atime != CURRENT_TIME)   \
-> >                 update_atime (inode);           \
-> > } while (0)
-> > 
-> 
-> yes, that'd be fine.  The more conventional approach
-> would be to blow away the strange UPPER CASE name and:
-> 
-> static inline void update_atime(struct inode *inode)
-> {
-> 	if (inode->i_atime != CURRENT_TIME)
-> 		__update_atime(inode);
-> }
-> 
-> But that would be a bigger patch, and I rather like shaving
-> off three quarters of the sys_read() overhead with a two-liner ;)
+hi all,
 
-Umm, I think only fs/autofs4/root.c use update_atime() directly.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+I upgrade my thinkpad with Mandrake 8.1 and with my "old" kernel 2.4.14.
+
+When I try to bring up the eth0 interface the following message appears:
+
+    Cannot open netlink socket: Address family not supported by protocol
+
+but all semms to work fine.
+
+Please can tell me if I miss somethig in my kernel config file?
+
+Thanks in advance for your help.
+
+

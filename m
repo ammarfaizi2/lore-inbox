@@ -1,50 +1,92 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269019AbRHBPUa>; Thu, 2 Aug 2001 11:20:30 -0400
+	id <S269035AbRHBPaa>; Thu, 2 Aug 2001 11:30:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269021AbRHBPUU>; Thu, 2 Aug 2001 11:20:20 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:19930 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S269019AbRHBPUO>;
-	Thu, 2 Aug 2001 11:20:14 -0400
-Date: Thu, 2 Aug 2001 17:19:02 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Chris Vandomelen <chrisv@b0rked.dhs.org>,
-        Nerijus Baliunas <nerijus@users.sourceforge.net>,
-        Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: cannot copy files larger than 40 MB from CD
-Message-ID: <20010802171902.H6387@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.31.0107311656420.10245-100000@linux.local> <E15SKBL-0000qt-00@the-village.bc.nu>
+	id <S269029AbRHBPaU>; Thu, 2 Aug 2001 11:30:20 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:12412 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S269035AbRHBPaL>; Thu, 2 Aug 2001 11:30:11 -0400
+Date: Thu, 2 Aug 2001 17:30:58 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.8pre3aa1
+Message-ID: <20010802173058.C24436@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <E15SKBL-0000qt-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Aug 02, 2001 at 04:14:39PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 02, 2001 at 04:14:39PM +0100, Alan Cox wrote:
-> > > Tried vfat, ext2 and reiserfs.
-> > >
-> > > BTW, kernel is compiled with gcc-2.96-85, glibc-2.2.2-10 (RH 7.1) if
-> >                                ^^^^^^^^^^^
-> > > that matters.
-> > 
-> > Have you tried compiling your kernel using kgcc?
-> > 
-> > gcc-2.96.* is known to compile code incorrectly AFAIK, and shouldn't be
-> > used for compiling kernels. (kgcc is egcs-1.1.2, I think.)
-> 
-> [x86 hat on]
-> 
-> egcs-1.1.2 aka kgcc wont build 2.4.7 it seems. gcc 2.96 >= 2.96.75 or so is
-> just fine, gcc 2.95-2/3 is fine, gcc 3.0 seems to be doing the right thing
+diff between 2.4.7aa1 and 2.4.8pre3aa1 (besides moving on top of
+2.4.8pre3aa1). Possibly the vm is screwedup in 2.4.8pre3 so 2.4.8pre3aa1
+could behave very badly too (possibly the blkdev in pagecache could hide
+problems with the buffercache so please make sure to stress the
+buffercache with fs fs metadata too).
 
-gcc 2.95.4 seem to be working too.
+Only in 2.4.8pre3aa1: 00_backout-local_bh_enable-debug-1
 
+	Drop some leftover. However I recommend all people with the aic driver
+	to apply my debugging patch that I posted to l-k in reply to Alexey and
+	to fix the bug instead of hiding and forgetting it (smp_call_function
+	*must* be recalled with irq enabled!!!).
 
-/David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+Only in 2.4.7aa1: 00_free_shortage-bool-1
+
+	Dropped, it was a minor optimization and it rejected with some vm
+	update.
+
+Only in 2.4.8pre3aa1: 00_gcc-30-aironet-1
+Only in 2.4.7aa1: 00_gcc-30-extern-static-1
+Only in 2.4.8pre3aa1: 00_gcc-30-extern-static-2
+Only in 2.4.7aa1: 00_gcc-30-reiserfs-1
+
+	Some s/extern/static/ merged in mainline so dropped or updated the
+	rest.
+
+Only in 2.4.7aa1: 00_ircomm-t39m-1
+Only in 2.4.7aa1: 00_max_readahead-1
+Only in 2.4.7aa1: 00_net_rx_softirq-optimize-1
+Only in 2.4.7aa1: 00_softirq-fixes-5
+
+	Merged in mainline.
+
+Only in 2.4.7aa1: 00_o_direct-10
+Only in 2.4.8pre3aa1: 00_o_direct-11
+
+	Bugfix from Ken to update the inode size correctly.
+
+Only in 2.4.8pre3aa1: 00_softirq-fixes-6_wait-network-fixes-1
+
+	Workaround the fact not all netif_rx callers know they have to run
+	do_softirq() if they run in normal kernel context (will be dropped as
+	soon as the lowlevel drivers learnt that in mainline, this is just a
+	*very* temporary thing).
+
+Only in 2.4.7aa1: 40_blkdev-pagecache-7
+Only in 2.4.8pre3aa1: 40_blkdev-pagecache-8
+
+	Move to 1k granularity to be backwards compatible. Some other backwards
+	compatible change like ignoring O_APPEND to workaround buggy programs.
+
+Only in 2.4.7aa1: 30_tux
+Only in 2.4.8pre3aa1: 60_atomic-alloc-3
+Only in 2.4.8pre3aa1: 60_atomic-lookup-4
+Only in 2.4.8pre3aa1: 60_net-exports-1
+Only in 2.4.8pre3aa1: 60_pagecache-atomic-1
+Only in 2.4.8pre3aa1: 60_tux-3
+Only in 2.4.8pre3aa1: 60_tux-data-1
+Only in 2.4.8pre3aa1: 60_tux-dprintk-1
+Only in 2.4.8pre3aa1: 60_tux-exports-1
+Only in 2.4.8pre3aa1: 60_tux-kstat-2
+Only in 2.4.8pre3aa1: 60_tux-process-1
+Only in 2.4.8pre3aa1: 60_tux-syscall-1
+Only in 2.4.8pre3aa1: 60_tux-sysctl-2
+Only in 2.4.8pre3aa1: 60_tux-vfs-2
+Only in 2.4.8pre3aa1: 61_tux-logger-1
+Only in 2.4.8pre3aa1: 62_tux-uml-1
+
+	Tux moved out of the separate directory and applied as last thing.
+
+Andrea

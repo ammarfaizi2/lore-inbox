@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287254AbSBCO0D>; Sun, 3 Feb 2002 09:26:03 -0500
+	id <S287287AbSBCObp>; Sun, 3 Feb 2002 09:31:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287279AbSBCOZy>; Sun, 3 Feb 2002 09:25:54 -0500
-Received: from dsl-213-023-060-033.arcor-ip.net ([213.23.60.33]:49423 "EHLO
-	spot.local") by vger.kernel.org with ESMTP id <S287254AbSBCOZr>;
-	Sun, 3 Feb 2002 09:25:47 -0500
-Date: Sun, 3 Feb 2002 15:29:13 +0100
-From: Oliver Feiler <kiza@gmx.net>
-To: linux-kernel@vger.kernel.org
-Subject: fixup descriptions in pci-pc.c
-Message-ID: <20020203152913.A533@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-X-Operating-System: Linux 2.4.16 i686
-X-Species: Snow Leopard
+	id <S287293AbSBCObg>; Sun, 3 Feb 2002 09:31:36 -0500
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:49162 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S287279AbSBCObS>; Sun, 3 Feb 2002 09:31:18 -0500
+Date: Sun, 3 Feb 2002 14:31:08 +0000 (GMT)
+From: <chris@scary.beasts.org>
+X-X-Sender: <cevans@sphinx.mythic-beasts.com>
+To: <rwhron@earthlink.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <20020202192334.GA21556@earthlink.net>
+Message-ID: <Pine.LNX.4.33.0202031429250.18232-100000@sphinx.mythic-beasts.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Ok, this is just a cosmetic thing, but I see that in 2.5.3 the printk 
-text in pci_fixup_via_northbridge_bug in pci-pc.c was changed
 
-- printk("Trying to stomp on VIA Northbridge bug...\n");
-+ printk("Disabling broken memory write queue.\n");
+On Sat, 2 Feb 2002 rwhron@earthlink.net wrote:
 
-	Can't we change this to some meaningful output in 2.4.18 as well? It's 
-still the old text with pre7.
+>  		Num    Seq Write    CPU    Rand Write   CPU
+>  		Thr   Rate (CPU%)   Eff    Rate (CPU%)  Eff
+>  		---  -------------------  -----------------
+> 2.4.17            1  11.08  50.5%  21.94  0.69  1.6%  44.10
+> 2.4.17rat         1   7.77  32.8%  23.69  0.53  1.1%  48.44
 
-Bye
+This is a worrying trend your benching has exposed - all the streaming
+write tests have taken a performance hit. Above is tiobench, and bonnie
+showed the same trend too.
 
-Oliver
+Chris
 
--- 
-Oliver Feiler                                               kiza@gmx.net
-http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
-http://www.lionking.org/~kiza/
+

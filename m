@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbULMRfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbULMRex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbULMRfI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 12:35:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbULMRfH
+	id S261295AbULMRex (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 12:34:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbULMRb1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 12:35:07 -0500
-Received: from canuck.infradead.org ([205.233.218.70]:23044 "EHLO
-	canuck.infradead.org") by vger.kernel.org with ESMTP
-	id S261320AbULMRcK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 12:32:10 -0500
+	Mon, 13 Dec 2004 12:31:27 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:6552 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261320AbULMR2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 12:28:15 -0500
+Date: Mon, 13 Dec 2004 18:28:16 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Marcin Gibu?a <mg@iceni.pl>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       David Woodhouse <dwmw2@infradead.org>
 Subject: Re: phram problems and patch
-From: David Woodhouse <dwmw2@infradead.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Marcin Gibu?a <mg@iceni.pl>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20041213172816.GB27124@wohnheim.fh-wedel.de>
+Message-ID: <20041213172816.GB27124@wohnheim.fh-wedel.de>
 References: <200412131805.53788@senat>
-	 <20041213172816.GB27124@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 13 Dec 2004 17:31:58 +0000
-Message-Id: <1102959118.13016.5.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3.dwmw2.1) 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by canuck.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <200412131805.53788@senat>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-13 at 18:28 +0100, JÃ¶rn Engel wrote:
-> According to David, it's on it's way. 
+On Mon, 13 December 2004 18:05:53 +0100, Marcin Gibu?a wrote:
+> 
+> Are there any reasons why this patch hasn't been merged into mainline? 
+> http://lists.infradead.org/pipermail/linux-mtd/2004-October/010659.html 
+> 
+> It makes phram working for me...
 
-It's on its way and is already in the -mm tree. Should be in Linus' tree
-soon after 2.6.10 is released.
+According to David, it's on it's way.  There are more patches pending,
+though.  Looks like phram is under active development again. :)
 
->  There are more patches pending, though.
+Out of curiosity, what do you use it for?
 
-Assuming you mean the other bits you already committed to CVS, those are
-in bk://linux-mtd.bkbits.net/mtd-2.6 as of this morning, and should
-hence be in the next -mm release too.
+Jörn
 
 -- 
-dwmw2
-
+You can't tell where a program is going to spend its time. Bottlenecks
+occur in surprising places, so don't try to second guess and put in a
+speed hack until you've proven that's where the bottleneck is.
+-- Rob Pike

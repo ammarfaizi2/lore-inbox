@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267699AbTAHEKn>; Tue, 7 Jan 2003 23:10:43 -0500
+	id <S267708AbTAHEOt>; Tue, 7 Jan 2003 23:14:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267700AbTAHEKn>; Tue, 7 Jan 2003 23:10:43 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:56121 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267699AbTAHEKm>; Tue, 7 Jan 2003 23:10:42 -0500
-Date: Tue, 7 Jan 2003 23:19:22 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200301080419.h084JMT10615@devserv.devel.redhat.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: linux-kernel@vger.kernel.org
-Subject: User mode drivers (Honest does not pay here ...)
-In-Reply-To: <mailman.1041987068.25081.linux-kernel2news@redhat.com>
-References: <20030107232820.GB24664@merlin.emma.line.org> <Pine.LNX.4.43.0301080059460.24706-100000@cibs9.sns.it> <mailman.1041987068.25081.linux-kernel2news@redhat.com>
+	id <S267706AbTAHEOt>; Tue, 7 Jan 2003 23:14:49 -0500
+Received: from magic.adaptec.com ([208.236.45.80]:2488 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id <S267700AbTAHEOs>;
+	Tue, 7 Jan 2003 23:14:48 -0500
+Date: Tue, 07 Jan 2003 21:23:04 -0700
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+cc: dipankar@in.ibm.com, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx broken in 2.5.53/54 ?
+Message-ID: <703940000.1041999784@aslan.btc.adaptec.com>
+In-Reply-To: <20030108024107.GA1127@louise.pinerecords.com>
+References: <20030103101618.GB8582@in.ibm.com> <596830816.1041606846@aslan.scsiguy.com> <20030106073204.GA1875@in.ibm.com> <274040000.1041869813@aslan.scsiguy.com> <20030108024107.GA1127@louise.pinerecords.com>
+X-Mailer: Mulberry/3.0.0b10 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I may be showing my ignorance here (won't be the first time) but this makes
-> me wonder if Linux could provide a way to do "user level drivers".
+>> [gibbs@scsiguy.com]
+>> 
+>> These reads are actually more expensive than just using PIO.  Neither of
+>> these older drivers included a test to try and catch fishy behavior.
+> 
+> Justin, are you quite sure that these tests actually work?
+> I too have just run into
 
-It is a question often asked in comp.os.linux.development.system.
-If performance penalties and security problems are no obstacle,
-a lot of hardware can be serviced with a user mode driver, except
-one that requires interrupts to operate. There is no way to deliver
-an interrupt safely to the user mode, because a device specific
-deactivation or ack-ing must be performed before interrupts are
-enabled (on i386 at least). Other problems can be worked around
-with ioperm and friends.
+See my recent post to the SCSI list.  The tests don't work on
+certain older controllers that lack a feature I was using.  The
+latest csets submitted to Linus correct this problem (as verified
+on a dusty dual P-90 PCI/EISA box just added to our regression cluster).
 
--- Pete
+--
+Justin
+

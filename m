@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267440AbUH1JyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267406AbUH1Jxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267440AbUH1JyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 05:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUH1JxP
+	id S267406AbUH1Jxt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 05:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267411AbUH1JxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 05:53:15 -0400
-Received: from eta.fastwebnet.it ([213.140.2.50]:61588 "EHLO eta.fastwebnet.it")
-	by vger.kernel.org with ESMTP id S267403AbUH1Jrj (ORCPT
+	Sat, 28 Aug 2004 05:53:20 -0400
+Received: from fw.osdl.org ([65.172.181.6]:16267 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267406AbUH1JsP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 05:47:39 -0400
-From: Paolo Ornati <ornati@fastwebnet.it>
-To: Adrian Bunk <bunk@fs.tum.de>
-Subject: Re: 2.6.9-rc1-mm1 - undefined references - [PATCH]
-Date: Sat, 28 Aug 2004 11:45:52 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040826014745.225d7a2c.akpm@osdl.org> <200408262053.08255.ornati@fastwebnet.it> <20040828085404.GW12772@fs.tum.de>
-In-Reply-To: <20040828085404.GW12772@fs.tum.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 28 Aug 2004 05:48:15 -0400
+Date: Sat, 28 Aug 2004 02:45:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: nickpiggin@yahoo.com.au, linuxram@us.ibm.com, hugh@veritas.com,
+       dice@mfa.kfki.hu, vda@port.imtp.ilyichevsk.odessa.ua,
+       linux-kernel@vger.kernel.org
+Subject: Re: data loss in 2.6.9-rc1-mm1
+Message-Id: <20040828024504.70407b43.akpm@osdl.org>
+In-Reply-To: <200408281144.50704.rjw@sisk.pl>
+References: <Pine.LNX.4.44.0408271950460.8349-100000@localhost.localdomain>
+	<1093669312.11648.80.camel@dyn319181.beaverton.ibm.com>
+	<41301E27.2020504@yahoo.com.au>
+	<200408281144.50704.rjw@sisk.pl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200408281145.52566.ornati@fastwebnet.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 August 2004 10:54, Adrian Bunk wrote:
-> 
-> Your analysis is correct, but the following patch is a bit better since 
-> it doesn't add a tdfxfb_lib:
-> 
-> 
-> Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
-> 
-> --- linux-2.6.9-rc1-mm1-full/drivers/video/Makefile.old	2004-08-28 10:41:30.000000000 +0200
-> +++ linux-2.6.9-rc1-mm1-full/drivers/video/Makefile	2004-08-28 10:46:20.000000000 +0200
-> @@ -35,6 +35,9 @@
->  obj-$(CONFIG_FB_GBE)              += gbefb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
->  obj-$(CONFIG_FB_SGIVW)            += sgivwfb.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o
->  obj-$(CONFIG_FB_3DFX)             += tdfxfb.o cfbimgblt.o
-> +ifneq ($(CONFIG_FB_3DFX_ACCEL),y)
-> +  obj-$(CONFIG_FB_3DFX)           += cfbfillrect.o cfbcopyarea.o
-> +endif
->  obj-$(CONFIG_FB_MAC)              += macfb.o macmodes.o cfbfillrect.o cfbcopyarea.o cfbimgblt.o 
->  obj-$(CONFIG_FB_HP300)            += hpfb.o cfbfillrect.o cfbimgblt.o
->  obj-$(CONFIG_FB_OF)               += offb.o cfbfillrect.o cfbimgblt.o cfbcopyarea.o
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+>
+> Well, guys, to make it 100% clear: if I apply the Nick's patch to the 
+>  2.6.9-rc1-mm1 tree, it will fix the data loss issue.  Is that right?
 
-I agree.
-;-)
+Should do.  Or revert
 
--- 
-	Paolo Ornati
-	Gentoo Linux (kernel 2.6.8-gentoo-r3)
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/re-fix-pagecache-reading-off-by-one-cleanup.patch
+
+and then
+
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/re-fix-pagecache-reading-off-by-one.patch
+
+

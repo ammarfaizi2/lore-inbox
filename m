@@ -1,46 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313116AbSDOIwH>; Mon, 15 Apr 2002 04:52:07 -0400
+	id <S313118AbSDOI6z>; Mon, 15 Apr 2002 04:58:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313117AbSDOIwH>; Mon, 15 Apr 2002 04:52:07 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:22282 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S313116AbSDOIwG>;
-	Mon, 15 Apr 2002 04:52:06 -0400
-Date: Mon, 15 Apr 2002 10:51:45 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 34
-Message-ID: <20020415085145.GF12608@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0203181243210.10517-100000@penguin.transmeta.com> <3CBA8476.9070208@evision-ventures.com>
-Mime-Version: 1.0
+	id <S313120AbSDOI6y>; Mon, 15 Apr 2002 04:58:54 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4115 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313118AbSDOI6x>; Mon, 15 Apr 2002 04:58:53 -0400
+Subject: Re: [BUG] kmem_cache_grow.
+To: gang_hu@soul.com.cn (hugang)
+Date: Mon, 15 Apr 2002 10:16:42 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org ('linux-kernel@vger.kernel.org')
+In-Reply-To: <20020415144048.37318357.gang_hu@soul.com.cn> from "hugang" at Apr 15, 2002 02:40:48 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16x2bK-0005mD-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 15 2002, Martin Dalecki wrote:
+> Problem: first run "find /" , eject and insert pcmcia network's card, the kernel will crash.
 
-Two comments --
+Which network card and what kernel revision
 
-Could you please _not_ just rearrange comments or change style in ide-cd
-just for the sake cleaning, it's very annoying when one has patches that
-need to be adapted every time. And it serves zero purpose. Thanks.
+> Kernel oops: at 
+> linux/mm/slab.c->kmem_cache_grow.
+>         if (in_interrupt() && (flags & SLAB_LEVEL_MASK) != SLAB_ATOMIC)
+>                 BUG(); 		<-- here.
+> 
+> Can I remove this check ?
 
-I changed the CONFIG_BLK_DEV_IDEPCI stuff to always include the pci_dev
-in the hwgroup, and just leave it at NULL if not defined. This cleans up
-some ifdefs, I think this is the better approach.
+The kernel realised it was being made to sleep in an interrupt. If you
+remove the check it will crash anyway. If you did something like
 
-I'll sync the latest tcq stuff with you later today, it gets the
-enabling right etc.
+ 	if(..... as before ...)
+	{
+		flags&=~SLAB_LEVEL_MASK;
+		flags|=SLAB_ATOMIC;
+		printk(KERN_ERR "kmem: critical memory allocation level error.\n");
+	}
 
-And a last comment not directly related to this particular patch -- when
-you include something and change minor stuff along the way, please do it
-in two steps. One that includes a patch, and a second version that
-changes what you want to change. That makes merging _so_ much easier.
-Thanks.
-
--- 
-Jens Axboe
-
+it ought to print a complaint and continue. Really however it wants fixing

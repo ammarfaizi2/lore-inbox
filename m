@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275661AbRJFUFY>; Sat, 6 Oct 2001 16:05:24 -0400
+	id <S275680AbRJFUIO>; Sat, 6 Oct 2001 16:08:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275675AbRJFUFO>; Sat, 6 Oct 2001 16:05:14 -0400
-Received: from ns1ca.ubisoft.qc.ca ([205.205.27.131]:55819 "EHLO
-	ns1ca.ubisoft.qc.ca") by vger.kernel.org with ESMTP
-	id <S275661AbRJFUFB>; Sat, 6 Oct 2001 16:05:01 -0400
-Message-ID: <9A1957CB9FC45A4FA6F35961093ABB8404C0E8FC@srvmail-mtl.ubisoft.qc.ca>
-From: Patrick Allaire <pallaire@gameloft.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bad memory ... reservation !
-Date: Sat, 6 Oct 2001 16:04:47 -0400 
+	id <S275676AbRJFUIE>; Sat, 6 Oct 2001 16:08:04 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:39064 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S275680AbRJFUH5>; Sat, 6 Oct 2001 16:07:57 -0400
+Subject: [PATCH] 2.4.10-ac7 one liner cleanup
+To: alan@lxorguk.ukuu.org.uk
+Date: Sat, 6 Oct 2001 21:08:24 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15pxkG-0001dj-00@virgo.cus.cam.ac.uk>
+From: Anton Altaparmakov <aia21@cus.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan,
 
-Hi all,
+There is a superfluous declaration of __add_page_to_hash_queue() in
+include/linux/pagemap.h. There is no reference to this function anywhere
+in the current source tree. Below patch removes it.
 
-I am currently working on a small embedded gaming box wich run linux ... but
-I have a small problem. We have a demo to give on tuesday and the box isnt
-booting pass the kernel, we have found for sure that this is due to an
-hardware bug of the second bank of memory. We have 16MB of memory in the box
-... is there a way to reserve the 4-8MB so linux des not try to go there.
-Since this is an hardware bug, we will have to redo our silicons, but they
-wont be ready for this week...
+Best regards,
 
-what the best way to tell linux to jump over this bad memory ? command line
-? hack in the mm ?
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
-I am using kernel 2.4.9.
-
-thank you all.
-Patrick Allaire
-mailto:pallaire@gameloft.com
-If you can see it, but it's not there, it's virtual. 
-If you can't see it, but it is there, it's hidden. 
-It you can't see it and it isn't there, it's gone.
-
+--- cleanup-2.4.10-ac7 ---
+--- linux-2.4.10-ac7-vanilla/include/linux/pagemap.h	Sat Oct  6 14:30:08 2001
++++ linux-2.4.10-ac7-aia1/include/linux/pagemap.h	Sat Oct  6 14:36:06 2001
+@@ -81,8 +81,6 @@
+ #define find_lock_page(mapping, index) \
+ 	__find_lock_page(mapping, index, page_hash(mapping, index))
+ 
+-extern void __add_page_to_hash_queue(struct page * page, struct page **p);
+-
+ extern void add_to_page_cache(struct page * page, struct address_space *mapping, unsigned long index);
+ extern void add_to_page_cache_locked(struct page * page, struct address_space *mapping, unsigned long index);
+ 
 

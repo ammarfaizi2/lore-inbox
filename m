@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbUKHXqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbUKHXr3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbUKHXqr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 18:46:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbUKHXqr
+	id S261304AbUKHXr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 18:47:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbUKHXr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 18:46:47 -0500
-Received: from fw.osdl.org ([65.172.181.6]:54990 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261302AbUKHXqp (ORCPT
+	Mon, 8 Nov 2004 18:47:29 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:20240 "EHLO pastinakel.tue.nl")
+	by vger.kernel.org with ESMTP id S261304AbUKHXrZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 18:46:45 -0500
-Date: Mon, 8 Nov 2004 15:50:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Patrick Mau <mau@oscar.ping.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Workaround for wrapping loadaverage
-Message-Id: <20041108155051.53c11fff.akpm@osdl.org>
-In-Reply-To: <20041108102553.GA31980@oscar.prima.de>
-References: <20041108001932.GA16641@oscar.prima.de>
-	<20041108012707.1e141772.akpm@osdl.org>
-	<20041108102553.GA31980@oscar.prima.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 8 Nov 2004 18:47:25 -0500
+Date: Tue, 9 Nov 2004 00:47:18 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       Andries Brouwer <Andries.Brouwer@cwi.nl>, torvalds@osdl.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ext2 docs
+Message-ID: <20041108234718.GD2946@pclin040.win.tue.nl>
+References: <20041108135541.GA23052@apps.cwi.nl> <20041108173007.GB2900@logos.cnet> <20041108210751.GA2946@pclin040.win.tue.nl> <20041108200703.GA3505@logos.cnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041108200703.GA3505@logos.cnet>
+User-Agent: Mutt/1.4.2i
+X-Spam-DCC: CollegeOfNewCaledonia: mailhost.tue.nl 1189; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 08, 2004 at 06:07:03PM -0200, Marcelo Tosatti wrote:
 
-(PLease don't remove people from Cc:.  Just do reply-to-all).
+> > 14446 documents the EXT2_TOPDIR_FL flag that is undocumented
+> > in the kernel source. The flag can be set using chattr +T.
+> 
+> PS: Maybe the flag should be documented? Its pretty important one.
 
-Patrick Mau <mau@oscar.ping.de> wrote:
->
-> On Mon, Nov 08, 2004 at 01:27:07AM -0800, Andrew Morton wrote:
-> > Patrick Mau <mau@oscar.ping.de> wrote:
-> > >
-> > >  We can only account for 1024 runnable processes, since we have 22 bits
-> > >  precision, I would like to suggest a patch to calc_load in kernel/timer.c
-> > 
-> > It's better than wrapping to zero...
-> > 
-> > Why do we need 11 bits after the binary point?
-> 
-> I tried various other combinations, the most interesting alternative was
-> 8 bits precision. The exponential values would be:
-> 
-> 1 / e (5/60) * 256
-> 235.53
-> 
-> 1 / e (5/300) * 256
-> 251.76
-> 
-> 1 / e (5/900) * 256
-> 254.58
-> 
-> If you would use 236, 252 and 255 the last to load calculations would
-> get optimized into register shifts during calculation. The precision
-> would be bad, but I personally don't mind loosing the fraction.
+Yes. Our conversation here provides for some documentation
+since Google will be able to retrieve it. I added a line
+in the table under "Attributes" in my old ext2 notes at
+http://www.win.tue.nl/~aeb/linux/lk/lk-7.html#ss7.2
+There is chattr(1). Someone searching will find something.
 
-What would be the impact on the precision if we were to use 8 bits of
-fraction?
-
-An upper limit of 1024 tasks sounds a bit squeezy.  Even 8192 is a bit
-uncomfortable.  Maybe we should just reimplement the whole thing, perhaps
-in terms of tuples of 32-bit values: 32 bits each side of the binary point?
+Andries

@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265028AbTFCO3n (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 10:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbTFCO3n
+	id S265032AbTFCOma (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 10:42:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265033AbTFCOma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 10:29:43 -0400
-Received: from thumper2.emsphone.com ([199.67.51.102]:1175 "EHLO
-	thumper2.emsphone.com") by vger.kernel.org with ESMTP
-	id S265028AbTFCO3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 10:29:41 -0400
-Date: Tue, 3 Jun 2003 09:42:58 -0500
-From: Andrew Ryan <genanr@emsphone.com>
-To: Michael Frank <mflt1@micrologica.com.hk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NFS io errors on transfer from system running 2.4 to system running 2.5
-Message-ID: <20030603144257.GA31734@thumper2.emsphone.com>
-References: <200306031912.53569.mflt1@micrologica.com.hk>
-Mime-Version: 1.0
+	Tue, 3 Jun 2003 10:42:30 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:54468 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S265032AbTFCOm3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 10:42:29 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: select for UNIX sockets?
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 03 Jun 2003 02:08:18 +0200
+Message-ID: <m3llwkauq5.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200306031912.53569.mflt1@micrologica.com.hk>
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 03, 2003 at 07:12:51PM +0800, Michael Frank wrote:
-> Speaking of weird errors:
-> 
-> For the last few months I encounter this:
-> 
-> When doing rsync or cp _from_ system running 2.4 _to_ system running 2.5 
-> get Input/output error errors with random files.
-> 
-> - Encountered since 2.4.20 with about 2.5.64 (my first 2.5 kernel)
-> 
-I am having a similar problem writing to NFS mounted non-linux system on
-kernels past 2.4.20-pre3.  I get an input/output error while writing.  I
-have sent email to Trond Myklebust (who made the changes between pre3 and
-pre4).  And he said to switch to using the TCP protocol for mounts.  That
-worked, but I should not have to do that because
+Hi,
 
-1. It worked to 2.4.20pre3 without a problem
-2. Other OSes such as FreeBSD do not have issues writing to other OSes using
-UDP soft mounts.
+Should something like this work correctly?
 
-To me, there is something wrong with the changes that went in in 2.4.20pre4,
-it should work as it does in pre3 and/or other unix OSes such as FreeBSD. 
-We should not have to work around the problem with hard links or using TCP
-instead of UDP.
+while(1) {
+        FD_ZERO(&set);
+        FD_SET(fd, &set);
+        select(FD_SETSIZE, NULL, &set, NULL, NULL); <<<<<<< for writing
 
-Andy 
+        if (FD_ISSET(fd, &set))
+                sendto(fd, &datagram, 1, 0, ...);
+}
+
+fd is a normal local datagram socket. It looks select() returns with
+"fd ready for write" and sendto() then blocks as the queue is full.
+
+I don't know if it's expected behaviour or just a not yet known bug.
+Of course, I have a more complete test program if needed.
+
+2.4.21rc6, haven't tried any other version.
+
+strace shows:
+
+select(1024, NULL, [3], NULL, NULL)     = 1 (out [3])
+sendto(3, "\0", 1, 0, {sa_family=AF_UNIX, path="/tmp/tempUn"}, 13 <<< blocks
+-- 
+Krzysztof Halasa
+Network Administrator

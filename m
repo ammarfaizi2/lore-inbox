@@ -1,82 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261430AbSJUPv7>; Mon, 21 Oct 2002 11:51:59 -0400
+	id <S261416AbSJUP4a>; Mon, 21 Oct 2002 11:56:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261442AbSJUPv6>; Mon, 21 Oct 2002 11:51:58 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:23966 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261430AbSJUPv3>; Mon, 21 Oct 2002 11:51:29 -0400
-Date: Mon, 21 Oct 2002 08:58:51 -0700
-From: Mike Anderson <andmike@us.ibm.com>
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.44 Call Trace
-Message-ID: <20021021155851.GB1069@beaverton.ibm.com>
-Mail-Followup-To: Gregoire Favre <greg@ulima.unil.ch>,
-	linux-kernel@vger.kernel.org
-References: <20021021093341.GG2917@ulima.unil.ch>
+	id <S261454AbSJUP4a>; Mon, 21 Oct 2002 11:56:30 -0400
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:56756 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261416AbSJUP42>; Mon, 21 Oct 2002 11:56:28 -0400
+Subject: Re: [PATCH] Add generic prefetch xor routines
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Dave Jones <davej@codemonkey.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021021152101.I5285@parcelfarce.linux.theplanet.co.uk>
+References: <20021017180134.X15163@parcelfarce.linux.theplanet.co.uk>
+	<20021017172729.GA29177@suse.de>
+	<1035209312.27309.121.camel@irongate.swansea.linux.org.uk> 
+	<20021021152101.I5285@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 17:18:15 +0100
+Message-Id: <1035217095.27259.198.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021021093341.GG2917@ulima.unil.ch>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gregoire Favre [greg@ulima.unil.ch] wrote:
-> Trace; c01d58fe <put_device+de/f0>
-> Trace; c022ecf0 <sg_detach+c0/220>
-> Trace; c022319c <scsi_host_chk_and_release+1ac/250>
-> Trace; c0222f58 <scsi_tp_for_each_host+78/90>
-> Trace; d9208d00 <END_OF_CODE+cd3fd/????>
-> Trace; c0223adc <scsi_unregister_host+3c/90>
-> Trace; d9208d00 <END_OF_CODE+cd3fd/????>
-> Trace; c0222ff0 <scsi_host_chk_and_release+0/250>
-> Trace; c011cb23 <qm_symbols+f3/1e0>
-> Trace; d91ff5bf <END_OF_CODE+c3cbc/????>
-> Trace; d9208d00 <END_OF_CODE+cd3fd/????>
-> Trace; c011d123 <free_module+e3/f0>
-> Trace; c011c3d3 <sys_delete_module+d3/2a0>
-> Trace; c010786b <syscall_call+7/b>
-> Trace; c01d58fe <put_device+de/f0>
-> Trace; c022ae37 <sr_detach+47/80>
-> Trace; c022319c <scsi_host_chk_and_release+1ac/250>
-> Trace; c0222f58 <scsi_tp_for_each_host+78/90>
-> Trace; d9208d00 <END_OF_CODE+cd3fd/????>
-> Trace; c0223adc <scsi_unregister_host+3c/90>
-> Trace; d9208d00 <END_OF_CODE+cd3fd/????>
-> Trace; c0222ff0 <scsi_host_chk_and_release+0/250>
-> Trace; c011cb23 <qm_symbols+f3/1e0>
-> Trace; d91ff5bf <END_OF_CODE+c3cbc/????>
-> Trace; d9208d00 <END_OF_CODE+cd3fd/????>
-> Trace; c011d123 <free_module+e3/f0>
-> Trace; c011c3d3 <sys_delete_module+d3/2a0>
-> Trace; c010786b <syscall_call+7/b>
+On Mon, 2002-10-21 at 15:21, Matthew Wilcox wrote:
+> > Yes I reported this to Matthew ages ago, but its not been fixed. Thats
+> > why I've not been merging that change anywhere.
+> 
+> How about this patch then?
 
-Gregoire,
-	I posted a patch yesterday for this but it was in another
-	thread. It is below. I will also post it in a new thread by
-	itself.
+Nice. Scores double points for a duffs device in line code, special
+bonus for all of that sometimes being in a macro 8). Consider becoming
+an XFree86 hacker
 
--andmike
---
-Michael Anderson
-andmike@us.ibm.com
-
- sg.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-------
-
---- 1.30/drivers/scsi/sg.c	Fri Oct 18 11:27:30 2002
-+++ edited/drivers/scsi/sg.c	Sun Oct 20 10:59:33 2002
-@@ -1607,7 +1607,7 @@
- 		sdp->de = NULL;
- 		device_remove_file(&sdp->sg_driverfs_dev, &dev_attr_type);
- 		device_remove_file(&sdp->sg_driverfs_dev, &dev_attr_kdev);
--		put_device(&sdp->sg_driverfs_dev);
-+		device_unregister(&sdp->sg_driverfs_dev);
- 		if (NULL == sdp->headfp)
- 			vfree((char *) sdp);
- 	}
+I guess the only remaining thing is the question of honouring the
+suggested prefetch range but thats not a correctness item even
 

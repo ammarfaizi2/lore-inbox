@@ -1,51 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265102AbTA1Kgg>; Tue, 28 Jan 2003 05:36:36 -0500
+	id <S265065AbTA1KcF>; Tue, 28 Jan 2003 05:32:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265099AbTA1Kgg>; Tue, 28 Jan 2003 05:36:36 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:53679 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S265098AbTA1Kgf>; Tue, 28 Jan 2003 05:36:35 -0500
-Date: Tue, 28 Jan 2003 11:45:44 +0100
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: John Bradford <john@grabjohn.com>
-Cc: Raphael Schmid <Raphael_Schmid@CUBUS.COM>, linux-kernel@vger.kernel.org
-Subject: Re: AW: Bootscreen
-Message-ID: <20030128104544.GI5239@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-References: <398E93A81CC5D311901600A0C9F29289469372@cubuss2> <200301281032.h0SAWYip000289@darkstar.example.net>
+	id <S265066AbTA1KcF>; Tue, 28 Jan 2003 05:32:05 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:52750 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S265065AbTA1KcE>; Tue, 28 Jan 2003 05:32:04 -0500
+Date: Tue, 28 Jan 2003 13:40:49 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Martin Mares <mj@ucw.cz>, Richard Henderson <rth@twiddle.net>,
+       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
+Message-ID: <20030128134049.B9195@jurassic.park.msu.ru>
+References: <20030128132406.A9195@jurassic.park.msu.ru> <Pine.GSO.4.21.0301281126390.9269-100000@vervain.sonytel.be>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301281032.h0SAWYip000289@darkstar.example.net>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.GSO.4.21.0301281126390.9269-100000@vervain.sonytel.be>; from geert@linux-m68k.org on Tue, Jan 28, 2003 at 11:27:21AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford, Tue, Jan 28, 2003 11:32:34 +0100:
-> > Would it be possible/easy (i.e.: the least
-> > way of resistance) to modify the kernel so
-> > that console initialization does not happen
-> > until everything is up and running? What I
-> > was up to in the first place was getting into
-> > X as fast as possible, and without too many
-> > different screens.
+On Tue, Jan 28, 2003 at 11:27:21AM +0100, Geert Uytterhoeven wrote:
+> > This can be overridden in <asm/pci.h>.
 > 
-> There is a boot option to do this, but I can't remember what it is :-)
-> 
-> It's something like boot=silent, or something.
+> Although legacy resources exist on non-PCI as well.
 
-"quiet"
-It sets console log level to maximum.
+Sure, but it's ok to include <linux/pci.h> and use stub PCI
+interfaces even if CONFIG_PCI is not set.
 
-> then, you just get:
-> 
-> LILO loading linux...
-> Uncompressing the kernel...
-> 
-> Welcome to Linux 2.4.20
-> login:
-> 
-> John.
-> -
+Ivan.

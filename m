@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265170AbTFUMTl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 08:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265173AbTFUMTl
+	id S265173AbTFUMUa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 08:20:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265176AbTFUMUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 08:19:41 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19143
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S265170AbTFUMTk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 08:19:40 -0400
-Subject: Re: [PATCH] Isapnp warning
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, perex@suse.cz,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-In-Reply-To: <200306151836.h5FIaqv2008285@callisto.of.borg>
-References: <200306151836.h5FIaqv2008285@callisto.of.borg>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056198688.25975.25.camel@dhcp22.swansea.linux.org.uk>
+	Sat, 21 Jun 2003 08:20:30 -0400
+Received: from mail.ithnet.com ([217.64.64.8]:25104 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id S265173AbTFUMU0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 08:20:26 -0400
+Date: Sat, 21 Jun 2003 14:34:16 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: hps@intermeta.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-Id: <20030621143416.31978fc2.skraw@ithnet.com>
+In-Reply-To: <bd11vh$5t5$1@tangens.hometree.net>
+References: <063301c32c47$ddc792d0$3f00a8c0@witbe>
+	<20030620174600.681cdf47.skraw@ithnet.com>
+	<bd11vh$5t5$1@tangens.hometree.net>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 21 Jun 2003 13:31:28 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-06-15 at 19:36, Geert Uytterhoeven wrote:
-> Isapnp: Kill warning if CONFIG_PCI is not set
-> 
-> --- linux-2.5.x/drivers/pnp/resource.c	Tue May 27 19:03:04 2003
-> +++ linux-m68k-2.5.x/drivers/pnp/resource.c	Sun Jun  8 13:31:20 2003
-> @@ -97,7 +97,9 @@
->  
->  int pnp_add_irq_resource(struct pnp_dev *dev, int depnum, struct pnp_irq *data)
->  {
-> +#ifdef CONFIG_PCI
->  	int i;
-> +#endif
+On Sat, 21 Jun 2003 07:37:21 +0000 (UTC)
+"Henning P. Schmiedehausen" <hps@intermeta.de> wrote:
 
-This is far uglier than te warning
+> Stephan von Krawczynski <skraw@ithnet.com> writes:
+> 
+> >There are "operating systems" whos' live cycle is set to 3 years by the
+> >manufacturer. How does a long-term strategy for a company doing application
+> 
+> Hm. Speaking of support: Most programs for Windows 95/98 still run on
+> my WinXP desktop. Those binaries for RedHat Linux 5.1 don't even link
+> on RHL9.
+> 
+> 	Regards
+> 		Henning
+
+Well Henning, question is: did you jump from W95/98 to XP? You should have
+followed the product flow according to the vendor:
+
+W95->W98->NT3->NT4->W2K->XP
+
+Have you tried your apps on NT3/NT4? If they didn't work back _then_ you
+probably have exchanged them back then - which was the original intention of
+the whole story.
+As you may remember the licenses were just adjusted to _prevent_ people from
+upgrading "multi-hop", why do you think they did that?
+
+Regards,
+Stephan
 

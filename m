@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290719AbSBOTdZ>; Fri, 15 Feb 2002 14:33:25 -0500
+	id <S290715AbSBOTe2>; Fri, 15 Feb 2002 14:34:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290718AbSBOTdH>; Fri, 15 Feb 2002 14:33:07 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:61194 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S290715AbSBOTc1>; Fri, 15 Feb 2002 14:32:27 -0500
-Date: Fri, 15 Feb 2002 20:32:23 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: Joachim Franek <Joachim.Franek@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: user-space <-> kernel-space
-Message-ID: <20020215193222.GC31892@arthur.ubicom.tudelft.nl>
-In-Reply-To: <02021411333501.00959@henrique.cyclades.com.br> <a4hque$e0s$1@cesium.transmeta.com> <16befy-0QrIBMC@fwd10.sul.t-online.com>
+	id <S290688AbSBOTdh>; Fri, 15 Feb 2002 14:33:37 -0500
+Received: from gateway2.ensim.com ([65.164.64.250]:29188 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S290721AbSBOTd0>; Fri, 15 Feb 2002 14:33:26 -0500
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
+From: Paul Menage <pmenage@ensim.com>
+To: Hanna Linder <hannal@us.ibm.com>
+cc: Paul Menage <pmenage@ensim.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH 2.4.17] Your suggestions for fast path walk 
+In-Reply-To: Your message of "Thu, 14 Feb 2002 18:13:35 PST."
+             <16270000.1013739215@w-hlinder.des> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16befy-0QrIBMC@fwd10.sul.t-online.com>
-User-Agent: Mutt/1.3.27i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+Date: Fri, 15 Feb 2002 11:33:19 -0800
+Message-Id: <E16bo6h-0003si-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 15, 2002 at 10:27:52AM +0100, Joachim Franek wrote:
-> Am Freitag, 15. Februar 2002 03:14 schrieb H. Peter Anvin:
-> > A character device node.
-> Because I am new to this things, please point me to places
-> to find more information / documentation / examples.
+>
+>	Thank you for taking the time to look over my patch and sending
+>your comments. In response, Yes, there is a reason why I can't implement 
+>path_lookup by calling path_init. path_init calls dget which increments 
+>the d_count. The function I wrote holds the dcache_lock instead of 
+>incrementing d_count at that point.
 
-http://www.kernelnewbies.org/ , the kernelnewbies mailing list, and the
-#kernelnewbies IRC channel are good starting points.
+OK, I see what you're doing now.
+
+One obvious problem with it is that __emul_lookup_dentry()[1] calls
+path_walk() internally, and the nd passed has uncounted references and
+no LOOKUP_LOCKED flag - I suspect that this will cause reference counts
+to get mucked up.
+
+Also:
+
+1) you really need to fix the patch whitespace/formatting
+
+2) Please again consider calling it path_lookup() rather than 
+path_init_walk() - the fact that since 2.3.x programmers have had to be 
+aware of the separate path_init()/path_walk() stages is an 
+implementation wrinkle that it would be nice to get rid of.
+
+Paul
+
+[1] Actually, __emul_lookup_dentry() probably ought to be simplified
+somewhat - it seems to be duplicating a fair chunk of code from
+path_init().
 
 
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/

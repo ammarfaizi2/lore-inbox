@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291624AbSBAJ0r>; Fri, 1 Feb 2002 04:26:47 -0500
+	id <S291628AbSBAJV1>; Fri, 1 Feb 2002 04:21:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291634AbSBAJ0h>; Fri, 1 Feb 2002 04:26:37 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:56330 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291624AbSBAJ0S>; Fri, 1 Feb 2002 04:26:18 -0500
-Message-ID: <3C5A5F25.3090101@zytor.com>
-Date: Fri, 01 Feb 2002 01:25:57 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S291624AbSBAJU5>; Fri, 1 Feb 2002 04:20:57 -0500
+Received: from Expansa.sns.it ([192.167.206.189]:30988 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S291629AbSBAJTz>;
+	Fri, 1 Feb 2002 04:19:55 -0500
+Date: Fri, 1 Feb 2002 10:19:53 +0100 (CET)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: Patrick Mochel <mochel@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.3 does not compile on sparc64
+In-Reply-To: <Pine.LNX.4.33.0201310930130.800-100000@segfault.osdlab.org>
+Message-ID: <Pine.LNX.4.44.0202011019130.25956-100000@Expansa.sns.it>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Erik A. Hendriks" <hendriks@lanl.gov>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, Werner Almesberger <wa@almesberger.net>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>	<3C58CAE0.4040102@zytor.com> <20020131103516.I26855@lanl.gov>	<m1elk6t7no.fsf@frodo.biederman.org> <3C59DB56.2070004@zytor.com> <m1r8o5a80f.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+Yes, it does compile.
+Thanx
 
-> 
-> a) More complex.  Just barely.  
-> b) Yep.
-> c) Yep.
-> d) More flexible and can handle what ever it needs to do tomorrow,
->    without mods. 
-> 
-> All firmware has it's own different format.  With LinuxBIOS things are
-> simple enough that you can add a make target instead of having to
-> write a specific bootloader to support it.
-> 
+I applied also David's patch, I am quite ready to reboot ;)
 
 
-I cannot agree with you on (d).  In fact, you have already brushed off a 
-multiple of issues I have raised, such as interactivity.
+On Thu, 31 Jan 2002, Patrick Mochel wrote:
 
-I don't particularly care if you want to make this the LinuxBIOS 
-platform-specific whatever, but when you start talking about making it 
-the grand universal thing, you have me seriously concerned.
-
-	-hpa
-
+>
+>
+> On Thu, 31 Jan 2002, Luigi Genoni wrote:
+>
+> > Yes, but the error do persist also with this patch,
+> > probably my english was unclear.
+> > I changes the include, because otherway I was getting
+> > a no such file message, after the change I got this error
+> > message.
+> > I should add that gcc for sparc64 to compile a 64 bit kernel is just egcs
+> > 1.1.2, because gcc 2.95 and following have problems to compile at 64 bit
+> > of sparc.
+>
+> Ah, I see.
+>
+> So, you're getting this error:
+>
+> core.c:179: parse error before `device_init_root'
+> core.c:180: warning: return-type defaults to `int'
+> core.c:185: parse error before `device_driver_init'
+> core.c:186: warning: return-type defaults to `int'
+>
+> If you add
+>
+> #include <linux/init.h>
+>
+> does it compile?
+>
+> 	-pat
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

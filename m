@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313237AbSDDQVC>; Thu, 4 Apr 2002 11:21:02 -0500
+	id <S313240AbSDDQWw>; Thu, 4 Apr 2002 11:22:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313240AbSDDQUx>; Thu, 4 Apr 2002 11:20:53 -0500
-Received: from [198.17.35.35] ([198.17.35.35]:35807 "HELO mx1.peregrine.com")
-	by vger.kernel.org with SMTP id <S313237AbSDDQUh>;
-	Thu, 4 Apr 2002 11:20:37 -0500
-Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2D9A@OTTONEXC1>
-From: Dana Lacoste <dana.lacoste@peregrine.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>, Alfonso Gazo <agazo@unex.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: [2.4.18] /proc/stat does not show disk_io stats for all IDE d
-	isks
-Date: Thu, 4 Apr 2002 08:20:24 -0800 
+	id <S313242AbSDDQWg>; Thu, 4 Apr 2002 11:22:36 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:8758 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313240AbSDDQVK>; Thu, 4 Apr 2002 11:21:10 -0500
+To: Craig <penguin@wombat.ca>
+Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+        <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] 2.4: BOOTPC /proc info.
+In-Reply-To: <Pine.LNX.4.42.0204031837450.711-100000@wombat>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 04 Apr 2002 09:13:54 -0700
+Message-ID: <m1pu1fqw59.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Could you please tru 2.4.18-ac/2.4.19-ac?
+Craig <penguin@wombat.ca> writes:
 
-the SARD stuff from Alan's tree fixes this (in /proc/partitions though, but
-that's ok)
+> Yes, Alan mentions the same thing.
+> We didn't realize that was the long term plan.  Is that documented anywhere, or
+> was it discussed on this list eons ago and 'decided'? ;)
 
-the problem is that /proc/stat only checks major/minor combinations for
-majors 0-16 and minors 0-16.  so if you have, say, hdc on major 22 then
-it won't show up in /proc/stat.  Basically it's just done wrong :)
+It has been discussed on this list several times.  In fact every time
+this has come up.  There are a lot of policy decisions the in kernel
+dhcp/bootpc code that are generally best left to user space.  
 
-SARD fixes this by tracking all the relevant disk info properly, but it's
-not in the mainline kernel :(
+Al Viro has gone so far as proposed moving a lot of other parts into
+user space as well.  But initramfs needs to be in the kernel for that.
 
-Dana Lacoste
-Ottawa, Canada
+Eric

@@ -1,44 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275709AbRJAXPH>; Mon, 1 Oct 2001 19:15:07 -0400
+	id <S275718AbRJAXka>; Mon, 1 Oct 2001 19:40:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275710AbRJAXO5>; Mon, 1 Oct 2001 19:14:57 -0400
-Received: from codepoet.org ([166.70.14.212]:26409 "HELO winder.codepoet.org")
-	by vger.kernel.org with SMTP id <S275709AbRJAXOp>;
-	Mon, 1 Oct 2001 19:14:45 -0400
-Date: Mon, 1 Oct 2001 17:15:16 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [CFT][PATCH] cleanup of partition code
-Message-ID: <20011001171516.A28472@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
-In-Reply-To: <20011001000446.A24245@codepoet.org> <Pine.GSO.4.21.0110010345110.14660-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0110010345110.14660-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.22i
-X-Operating-System: Linux 2.4.9-ac10-rmk1, Rebel-NetWinder(Intel sa110 rev 3), 262.14 BogoMips
-X-No-Junk-Mail: I do not want to get *any* junk mail.
+	id <S275719AbRJAXkJ>; Mon, 1 Oct 2001 19:40:09 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:37124 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S275718AbRJAXkA>; Mon, 1 Oct 2001 19:40:00 -0400
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Date: Mon, 1 Oct 2001 16:40:05 -0700
+Message-Id: <200110012340.QAA02719@sw170.transmeta.com>
+To: alan@kernel.org, linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: NFSv3 and linux-2.4.10-ac3 => oops
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Oct 01, 2001 at 04:03:45AM -0400, Alexander Viro wrote:
-> 
-> 	OK, first of all, it's _not_ an acorn partition table at all.
-> It's a garden-variety DOS partition table.
-> 
-> 	Actually, you've found a rather nasty bug in acorn.c - code in
+Hello everyone,
 
-Looks like your patches were folded into 2.4.10-ac3 -- and I'm pleased
-to say that your patch has indeed fixed the problem.  I just scratched
-fixing acorn off my when-I-get-around-to-it list.  Thanks!
+I have a reproducible (and rather quick) oops on a system running
+linux-2.4.10-ac3, which seems to be NFS (v3) related; although
+ksymoops core dumps when I try to use it, I have manually decoded
+the dump to indicate that it happens in rwsem_down_read_failed
+called from nfs_file_wite.  Rather than posting too much here,
+I have put as much information as I have been able to gather at:
 
- -Erik
+ftp://ftp.zytor.com/pub/hpa/oops/
 
---
-Erik B. Andersen   email:  andersee@debian.org, formerly of Lineo
---This message was written using 73% post-consumer electrons--
+This includes the configuration, System.map, oops text etc.

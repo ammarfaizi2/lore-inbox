@@ -1,56 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261369AbRESV6J>; Sat, 19 May 2001 17:58:09 -0400
+	id <S261591AbRESWFt>; Sat, 19 May 2001 18:05:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261420AbRESV6A>; Sat, 19 May 2001 17:58:00 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:867 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S261369AbRESV5w>; Sat, 19 May 2001 17:57:52 -0400
-Message-ID: <3B06EBAF.20407@kalifornia.com>
-Date: Sat, 19 May 2001 14:54:55 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.9) Gecko/20010505
+	id <S261769AbRESWFj>; Sat, 19 May 2001 18:05:39 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:58539 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S261591AbRESWFd>;
+	Sat, 19 May 2001 18:05:33 -0400
+Message-ID: <3B06EE28.157D327C@mandrakesoft.com>
+Date: Sat, 19 May 2001 18:05:28 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: CML2 design philosophy heads-up
-In-Reply-To: <E1519MG-0008W3-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.4-ac11 aironet fixes
+In-Reply-To: <200105192142.XAA02267@green.mif.pg.gda.pl>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Patch looks generally ok.
 
->>Second, how many kernels does Redhat ship in order to have one for 
->>386/486/586/k6/Athlon . . . .
->>Quite a pain in the ass.  And look at how much shit has to be built in 
->>in order to get a kernel that works for everybody!  People bitch at 
->>Microsoft for doing it, then turn around and do the same thing.
->>
->
->No people bitch at microsoft for precisely the opposite - not including a
->way to build fully optimised setups for each cpu type - not including all the
->stuff that is needed (try a generic win2k install on a vaio one day)
->
->I think you have your facts backwards
->
->Alan
->
-
-No, my point was, if I don't have SCSI or RAID on this box, I don't want 
-them to be built into the kernel!
-
-In other words, "stuff I don't need, just like Microsoft".
-
--b
+Comments:
+* you forgot to cc Elmer Joandi, the maintainer, who wakes up every now
+and then :)
+* When is aironet4500_card version string printed, for the modular case?
+* did you actually trace the code paths to mark sure code marked __init
+was never called by the pcmcia hotplug part of the code?  I just want to
+make sure you didn't mark them __init due to an assumption based on
+function name.
 
 -- 
- "One trend that bothers me is the glorification of
-stupidity, that the media is reassuring people it's 
-alright not to know anything. That to me is far more 
-dangerous than a little pornography on the Internet." 
-  - Carl Sagan
-
-
-
+Jeff Garzik      | "Do you have to make light of everything?!"
+Building 1024    | "I'm extremely serious about nailing your
+MandrakeSoft     |  step-daughter, but other than that, yes."

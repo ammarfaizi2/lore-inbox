@@ -1,85 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268239AbUHQO3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268263AbUHQO3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268239AbUHQO3z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 10:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268248AbUHQO17
+	id S268263AbUHQO3u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 10:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268262AbUHQO2N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 10:27:59 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:14439 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S268267AbUHQOXW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 10:28:13 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:27778 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S268266AbUHQOXW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 17 Aug 2004 10:23:22 -0400
-Date: Tue, 17 Aug 2004 18:23:23 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Keith Owens <kaos@ocs.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-Message-ID: <20040817162323.GA7689@mars.ravnborg.org>
-Mail-Followup-To: Paulo Marques <pmarques@grupopie.com>,
-	Keith Owens <kaos@ocs.com.au>, Ingo Molnar <mingo@elte.hu>,
-	Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-References: <6450.1092747900@ocs3.ocs.com.au> <41220FEA.9050106@grupopie.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41220FEA.9050106@grupopie.com>
-User-Agent: Mutt/1.5.6i
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+Date: Tue, 17 Aug 2004 16:23:18 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Hang after "BIOS data check successful" with DVI
+Cc: Shaun Jackman <sjackman@telus.net>, linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <EB9C984875@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 17, 2004 at 03:02:18PM +0100, Paulo Marques wrote:
+On 17 Aug 04 at 9:51, Zwane Mwaikambo wrote:
+> On Tue, 17 Aug 2004, Petr Vandrovec wrote:
+> 
+> > On 16 Aug 04 at 16:55, Shaun Jackman wrote:
+> > > When I have a DVI display plugged into my Matrox G550 video card the
+> > > boot process hangs at "BIOS data check successful". I am running Linux
+> > > kernel 2.6.6. This problem does not affect Linux kernel 2.4.26. If I
+> > > boot without the DVI display plugged in, I can plug it in after the
+> > > boot process and the display works.
 > >
-> >kdb uses aliased symbols as well.  The user can enter any kernel symbol
-> >name and have it converted to an address.
+> > Try disabling CONFIG_VIDEO_SELECT and/or comment out call to store_edid
+> > in arch/i386/boot/video.S. Also which bootloader you use? From
+> > quick glance at bootloaders, grub1 seems to set %sp to 0x9000, while
+> > LILO to 0x0800. And I think that 2048 byte stack (plus something already
+> > allocated by loader) might be too small for DDC call, as MGA BIOS first
+> > creates EDID copy on stack...
 > 
-> Ok, I'll leave them alone, then.
+> Urgh, this bug is still around :(
 > 
-> Just another quick question: is kallsyms_names only used by the 
-> functions in kallsyms.c and everyone else simply uses those functions, 
-> or are there direct users of kallsyms_names?
-> 
-> This is because another thing I was pondering was to change the stem 
-> compression scheme into a different one, changing all the stuff in 
-> kallsyms.c accordingly. If there are direct users of kallsyms_names, 
-> this would break them. There are none in the vanilla kernel as far as I 
-> can grep, but there might be outside (like in kdb).
-> 
-> I've done some tests with a different scheme and my uncompressed 170kb 
-> symbol table goes to about 134kb with stem compression and to about 90kb 
-> with the new scheme. This is not usable right now because compression 
-> still takes a long time (although the decompression inside 
-> kernel/kallsyms.c is even simpler than it is now). I'm now trying to 
-> speed up compression.
-> 
-> As always, comments will be greatly appreciated :)
+> http://bugme.osdl.org/show_bug.cgi?id=1458
 
-Hi Paulo.
+Yes, it looks like this very same problem. From looking at G400 BIOS
+it would need 380 bytes plus whatever PCI BIOS services need - and PCI
+BIOS system calls are specced to fit into 1024 bytes on stack. G550 BIOS
+seems to need 200 bytes plus whatever PCI BIOS services need. So
+LILO's 2KB should be sufficient - and indeed I do not see problem
+with G550 & LILO (Debian's 22.5.9) here, with both DVI and analog cables 
+connected in.
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    
 
-kallsyms_names should only be used by kallsyms, so there
-are no issue changing this interface.
-That said do not put too much effort moving kode from the kernel to
-kallsyms.c. kallsyms support can be deselected, and users will not
-care about the little extra overhead (down in noise compared
-with the symbols).
-Keeping the data passed in from the build tools as simple as possible
-is the better goal here. Then the kernel can implement the extra
-code to optimize speed.
-
-
-
-kallsyms parses the output of objdump as does other tools in the kernel.
-Would you be willing to look into an elf-tool for the kernel?
-
-A consistent output from an Elf-tool is preferred as replacement
-for the hacking needed to use output from objdump and nm.
-See arch/sparc/boot/btfixup as a horrid example.
-
-objdump and nm has been optimised for human readable output,
-and is not easy to parse up for various tricky usage.
-
-Rusty Russell's module-init-tools has some good starting stuff.
-
-PS. Please cc: me on future patches in this area - thanks.
-
-	Sam

@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311424AbSDUI2e>; Sun, 21 Apr 2002 04:28:34 -0400
+	id <S311262AbSDUIYb>; Sun, 21 Apr 2002 04:24:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311454AbSDUI2d>; Sun, 21 Apr 2002 04:28:33 -0400
-Received: from holomorphy.com ([66.224.33.161]:24744 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S311424AbSDUI2d>;
-	Sun, 21 Apr 2002 04:28:33 -0400
-Date: Sun, 21 Apr 2002 01:27:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] rmap 13
-Message-ID: <20020421082740.GJ21206@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.44L.0204201731220.1960-100000@imladris.surriel.com>
-Mime-Version: 1.0
+	id <S311403AbSDUIYb>; Sun, 21 Apr 2002 04:24:31 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:33964 "EHLO
+	postfix2-1.free.fr") by vger.kernel.org with ESMTP
+	id <S311262AbSDUIYa>; Sun, 21 Apr 2002 04:24:30 -0400
+From: Willy Tarreau <wtarreau@free.fr>
+Message-Id: <200204210824.g3L8OR720085@ns.home.local>
+Subject: Re: PATCH] Allow setuid/setgid core files
+To: nawilson@nawilson.com
+Date: Sun, 21 Apr 2002 10:24:26 +0200 (CEST)
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 05:32:19PM -0300, Rik van Riel wrote:
-> Better SMP scalability, first batch of lock breakup work. Still
-> experimental, but testing is very much welcome...
+Hello Neil,
 
-I've racked up 20 hours of Cerberus time before getting impatient
-and wanting to use the machine grinding away at it for other things.
+I think I will try your patch since I have also had the same need
+several times. In fact, not dumping a setuid core seems logical
+for shared systems with lots of users, but on secured servers
+which only host one daemon or two, and on which there's not any
+user account, it's a bit annoying. In this case, if anyone gets
+in the system, he's root anyway, so the initial protection
+doesn't apply.
 
+BTW, what uid/gid will the core get ? I think that it should get
+the highest level so that if someone breaks in through a service
+which uses this feature and which has dropped its uid/gid, at
+least he cannot read eventual cores from previous attempts.
+Comments ?
 
-Cheers,
-Bill
+Willy
+

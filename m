@@ -1,49 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262266AbUC1KWi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 05:22:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbUC1KWi
+	id S261154AbUC1LLa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 06:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbUC1LLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 05:22:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:7296 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262266AbUC1KWh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 05:22:37 -0500
-Date: Sun, 28 Mar 2004 02:21:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: <shai@ftcon.com>
-Cc: ricklind@us.ibm.com, mbligh@aracnet.com, lse-tech@lists.sourceforge.net,
-       erikj@subway.americas.sgi.com, efocht@hpce.nec.com, pj@sgi.com,
-       xavier.bru@bull.net, linux-kernel@vger.kernel.org
-Subject: Re: FW: [Lse-tech] Re: NUMA scheduler issue
-Message-Id: <20040328022148.167a46ab.akpm@osdl.org>
-In-Reply-To: <200403281007.BHM58439@ms6.netsolmail.com>
-References: <200403281007.BHM58439@ms6.netsolmail.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 28 Mar 2004 06:11:30 -0500
+Received: from anchor-post-33.mail.demon.net ([194.217.242.91]:58127 "EHLO
+	anchor-post-33.mail.demon.net") by vger.kernel.org with ESMTP
+	id S261154AbUC1LL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 06:11:26 -0500
+Message-ID: <4066B2FE.1020903@philrigby.com>
+Date: Sun, 28 Mar 2004 12:11:58 +0100
+From: Phil Rigby <phil@philrigby.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] speed up SATA: Bug?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<shai@ftcon.com> wrote:
->
-> Hi,
-> 
-> Very nice patch.
-> Andrew, would you consider adding this one? 
+Hi...
+Applied the patch to 2.6.5.rc-2, got these errors after recompile/reboot 
+(from dmesg):-
 
-Not really.
+VFS: Mounted root (ext2 filesystem).
+SCSI subsystem initialized
+libata: Unknown symbol pci_dma_mapping_error
+sata_sil: Unknown symbol ata_std_bios_param
+sata_sil: Unknown symbol ata_tf_load_mmio
+sata_sil: Unknown symbol ata_bmdma_start_mmio
+sata_sil: Unknown symbol ata_tf_read_mmio
+sata_sil: Unknown symbol ata_exec_command_mmio
+sata_sil: Unknown symbol sata_phy_reset
+sata_sil: Unknown symbol ata_check_status_mmio
+sata_sil: Unknown symbol ata_interrupt
+sata_sil: Unknown symbol ata_scsi_slave_config
+sata_sil: Unknown symbol ata_fill_sg
+sata_sil: Unknown symbol ata_std_ports
+sata_sil: Unknown symbol ata_scsi_error
+sata_sil: Unknown symbol ata_port_disable
+sata_sil: Unknown symbol ata_scsi_queuecmd
+sata_sil: Unknown symbol ata_eng_timeout
+sata_sil: Unknown symbol ata_port_stop
+sata_sil: Unknown symbol ata_pci_remove_one
+sata_sil: Unknown symbol ata_device_add
+sata_sil: Unknown symbol ata_port_start
 
---- 2.6.0-test1-ia64-0/include/linux/sched.h	2003-07-14 05:30:40.000000000 +0200
- +++ 2.6.0-test1-ia64-na/include/linux/sched.h	2003-07-18 13:38:02.000000000 +0200
-@@ -390,6 +390,9 @@
- 	struct list_head posix_timers; /* POSIX.1b Interval Timers */
- 	unsigned long utime, stime, cutime, cstime;
- 	u64 start_time;
-+#ifdef CONFIG_SMP
-+	long per_cpu_utime[NR_CPUS], per_cpu_stime[NR_CPUS];
-+#endif
+Any ideas?  This is an Asus A7N8V Deluxe mobo, NForce2 chipset and a 
+Maxtor SATA disc (Model=ST3120026AS).  I have the SIS 3112 ATA chipset 
+(compiled in ATA support) and Silicon Image SATA support compiled in 
+SCSI low level drivers.
 
-On 512p 64-bit that's 8 kilobytes added to the task_struct.
+I can post any more information you want.
 
+Phil.

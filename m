@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269280AbUJKV7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269295AbUJKWFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269280AbUJKV7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 17:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269301AbUJKV40
+	id S269295AbUJKWFN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 18:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269321AbUJKWFM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 17:56:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3974 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269316AbUJKVyp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 17:54:45 -0400
-Date: Mon, 11 Oct 2004 14:58:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jack Byer <ojbyer@usa.net>
-Cc: linux-kernel@vger.kernel.org, Thayne Harbaugh <tharbaugh@lnxi.com>
-Subject: Re: 2.6.9-rc4-mm1
-Message-Id: <20041011145838.051c1a9d.akpm@osdl.org>
-In-Reply-To: <cke3fj$eoh$1@sea.gmane.org>
-References: <20041011032502.299dc88d.akpm@osdl.org>
-	<cke3fj$eoh$1@sea.gmane.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 11 Oct 2004 18:05:12 -0400
+Received: from fed1rmmtao03.cox.net ([68.230.241.36]:62905 "EHLO
+	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
+	id S269295AbUJKWEv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 18:04:51 -0400
+Date: Mon, 11 Oct 2004 15:04:49 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>, Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-rc4 - pls test (and no more patches)
+Message-ID: <20041011220449.GC8121@smtp.west.cox.net>
+References: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0410102016180.3897@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Oct 10, 2004 at 08:22:54PM -0700, Linus Torvalds wrote:
 
-Please don't remove me from Cc:
+>  trying to make ready for the real 2.6.9 in a week or so, so please give
+> this a beating, and if you have pending patches, please hold on to them
+> for a bit longer, until after the 2.6.9 release. It would be good to have
+> a 2.6.9 that doesn't need a dot-release immediately ;)
 
-Jack Byer <ojbyer@usa.net> wrote:
->
-> When I try to compile this kernel, I get the following error:
-> 
->    Using /usr/src/linux-2.6.9-rc4-mm1 as source for kernel
->    CHK     include/linux/version.h
-> make[2]: `arch/i386/kernel/asm-offsets.s' is up to date.
->    CHK     include/asm-i386/asm_offsets.h
->    CHK     include/linux/compile.h
->    GEN_INITRAMFS_LIST usr/initramfs_list
-> Using shipped usr/initramfs_list
->    CPIO    usr/initramfs_data.cpio
-> ERROR: unable to open 'usr/initramfs_list': No such file or directory
+With 2.6.9-rc4, using matroxfb, I can no longer pass
+video=1280x1024-8@85.  This worked on 2.6.8.1, and I'm trying kernels
+inbetween now.
+$ cat /proc/cmdline 
+root=/dev/hda1 ro video=1280x1024-8@85 elevator=cfq 
+$ zgrep -E CONFIG_\(FB\|VIDEO\).*= /proc/config.gz 
+CONFIG_FB=y
+CONFIG_FB_MODE_HELPERS=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_MATROX=y
+CONFIG_FB_MATROX_G450=y
+CONFIG_FB_MATROX_G100=y
+CONFIG_FB_MATROX_I2C=y
+$ dmesg | grep matrox
+matroxfb: Matrox G450 detected
+matroxfb: MTRR's turned on
+matroxfb: 640x480x8bpp (virtual: 640x26214)
+matroxfb: framebuffer at 0xCC000000, mapped to 0xe0880000, size 33554432
+matroxfb_crtc2: secondary head of fb0 was registered as fb1
 
-You need to create usr/initramfs_list.
-
-Thayne, some documentation would be nice.
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

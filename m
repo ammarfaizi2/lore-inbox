@@ -1,86 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312253AbSCYC1H>; Sun, 24 Mar 2002 21:27:07 -0500
+	id <S312248AbSCYCZ5>; Sun, 24 Mar 2002 21:25:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312256AbSCYC07>; Sun, 24 Mar 2002 21:26:59 -0500
-Received: from orange.csi.cam.ac.uk ([131.111.8.77]:3215 "EHLO
-	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S312254AbSCYC0j>; Sun, 24 Mar 2002 21:26:39 -0500
-Message-Id: <5.1.0.14.2.20020325013452.03e53630@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 25 Mar 2002 02:26:41 +0000
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: ANN: New NTFS driver (2.0.0/TNG) now finished.
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S312253AbSCYCZr>; Sun, 24 Mar 2002 21:25:47 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:39434 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S312248AbSCYCZh>; Sun, 24 Mar 2002 21:25:37 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: Rusty Russell <rusty@rustcorp.com.au>, Ulrich Drepper <drepper@redhat.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Futexes IV (Fast Lightweight Userspace Semaphores) 
+In-Reply-To: Your message of "Sun, 24 Mar 2002 19:25:20 BST."
+             <3C9E1A10.F7AA6D6E@loewe-komp.de> 
+Date: Mon, 25 Mar 2002 13:28:44 +1100
+Message-Id: <E16pKE0-0004Rb-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+In message <3C9E1A10.F7AA6D6E@loewe-komp.de> you write:
+> I can't see a reason why the ack-futex is needed. I think we can simply
+> delete it.
+> When deleted, the broadcast wouldn't block on ack (also preventing 
+> schedule ping-pong). With the cond->lock it's save to have several
+> broadcasters. That's fine.
 
-This is to announce that the new NTFS Linux kernel driver 2.0.0 (formerly 
-NTFS TNG) is now finished (read-only). It is for kernel 2.5.7 only and will 
-be submitted to Linus for inclusion in the 2.5 kernel series when Linus 
-returns from his holiday.
+No, you might end up waking someone who did the pthread_cond_wait()
+after you did the pthread_cond_broadcast in place of one of the
+existing pthread_cond_wait() threads.
 
-The driver has been tested extensively and has survived all tests so far.
+I don't believe this is allowed.  
 
-It is fully compatible with kernel preemption and SMP. And it should work 
-on both little endian and big endian architectures, and both on 32 and 64 
-bit architectures. Note, only ia32 has actually been tested and there may 
-be problems with architectures not supporting unaligned accesses. Any 
-volunteers for non-ia32 architectures?
+> But:
+> static int __pthread_cond_wait(pthread_cond_t *cond,
+>                                pthread_mutex_t *mutex,
+>                                const struct timespec *reltime)
+> {
+>         int ret;
+> 
+>         /* Increment first so broadcaster knows we are waiting. */
+> 	futex_down(&cond->lock);
+>         atomic_inc(cond->num_waiting);
+> (*)     futex_up(&mutex, 1);
+> a)	futex_up(&cond->lock, 1);  [move into syscall]
+>         do {
+> b)                ret = futex_down_time(&cond, ABSTIME); [cond_timed_wait]
+>         } while (ret < 0 && errno == EINTR);
+> 	[futex_up(&cond->lock, 1); /* release condvar */]
+> 
+>         futex_down(&mutex->futex);
+>         return ret;
+> }
+> 
+> With the original code, we have a "signal/broadcast lost window (a->b)" 
+> that shouldn't be there:
 
-The new driver is significantly faster than the old driver (~20% in my 
-tests), uses less CPU time and generally is superior to the old driver. (-:
+Where?  Having done the inc, the futex_up at (a) will fall through,
+giving the "thread behaves as if it [signal or broadcast] were issued
+after the about-to-block thread has blocked."
 
-The driver can be compiled both with gcc-2.95 and gcc-2.96. gcc-3.x has not 
-been tested. (If anyone experiences compilation problems especially with 
-gcc-2.95 please let me know and they will be fixed ASAP!)
+> So we would need to enhance the futex_down_timed() call, to
+> atomically release the cond->lock on entry, re-aquiring on exit (because
+> of the loop).
+> This boils down to a cond_var syscall to me (wouldn't sys_ulock(,,OP)
+> a better name ? with OPs like MUTEX_UP,MUTEX_DOWN, SEMA_UPn, SEMA_DOWNn, 
+> COND_WAIT, COND_TIMED_WAIT, COND_SIGNAL, COND_BROADCAST, RWLOCK_WRLOCK,
+> RWLOCK_RDLOCK,RWLOCK_UNLOCK)
 
-To try the driver either use BitKeeper to obtain a clone from the repository:
+You're talking about a completely different beast.
 
-         bk clone -q http://linux-ntfs.bkbits.net/ntfs-tng-2.5
+So the summary is: futexes not sufficient to implement pthreads
+locking.  That's fine; I can drop all the "extension for pthreads"
+futex patches and leave the code as-is ('cept the UP_FAIR patch, which
+is independent of this debate).
 
-Or if you already have a clone derived from an official kernel repository 
-you only need to pull in the changes:
-
-         bk pull http://linux-ntfs.bkbits.net/ntfs-tng-2.5
-
-And then checkout all the files using bk -r co -q from within the 
-repository directory.
-
-For people not using BitKeeper patches for the standard 2.5.7 kernel are 
-available here:
-
-http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.bz2 
-(151kiB)
-
-http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch.gz 
-(199kiB)
-
-http://www-stu.christs.cam.ac.uk/~aia21/linux/linux-2.5.7-ntfs-2.0.0.patch 
-(796kiB)
-
-Finally, for people wanting to browse the source code on-line, point your 
-web browser at:
-
-         http://linux-ntfs.bkbits.net:8080/ntfs-tng-2.5
-
-Please everyone courageous enough to use a bleeding edge kernel and who is 
-also an NTFS user give this a try and let me know if you encounter any 
-problems! - Thanks!
-
-Best regards,
-
-Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+Thanks!
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269060AbUICPZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269075AbUICPWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269060AbUICPZO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 11:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269153AbUICPWh
+	id S269075AbUICPWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 11:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269515AbUICPSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 11:22:37 -0400
-Received: from pointblue.com.pl ([81.219.144.6]:528 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S269238AbUICPTU (ORCPT
+	Fri, 3 Sep 2004 11:18:11 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:16788 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269366AbUICPQn convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 11:19:20 -0400
-Message-ID: <41388B59.6060702@pointblue.com.pl>
-Date: Fri, 03 Sep 2004 17:18:49 +0200
-From: =?UTF-8?B?R3J6ZWdvcnogSmHFm2tpZXdpY3o=?= <gj@pointblue.com.pl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Miquel van Smoorenburg <miquels@cistron.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <2f4958ff04090301326e7302c1@mail.gmail.com> <41383142.4080201@hist.no> <2f4958ff04090302141bc222e5@mail.gmail.com> <ch9f7t$p27$2@news.cistron.nl>
-In-Reply-To: <ch9f7t$p27$2@news.cistron.nl>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Sep 2004 11:16:43 -0400
+Subject: Re: Getting full path from dentry in LSM hooks
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Kristian =?ISO-8859-1?Q?S=F8rensen?= <ks@cs.aau.dk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       umbrella-devel@lists.sourceforge.net
+In-Reply-To: <41385FA5.806@cs.aau.dk>
+References: <41385FA5.806@cs.aau.dk>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1094220870.7975.19.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 03 Sep 2004 15:14:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miquel van Smoorenburg wrote:
+On Gwe, 2004-09-03 at 13:12, Kristian Sørensen wrote:
+> I have a short question, concerning how to get the full path of a file 
+> from a LSM hook.
 
->In article <2f4958ff04090302141bc222e5@mail.gmail.com>,
->Grzegorz JaÅ kiewicz  <gryzman@gmail.com> wrote:
->  
->
->>I am supprised noone wanted to maintain devfs. Maybe because people
->>didn't want to go to devfs only.
->>    
->>
->
->It's because disk was spelled with a 'c' (disc).
->  
->
+The full path or a full path. It may have several. They may also have
+changed under you. 
 
-That suppose to be a joke ?
+> Can some one reveal the trick to get the full path nomater if the 
+> filesystem is root or mounted elsewhere in the filesystem?
 
---
-GJ
+You can get the namespace and the name within that namespace that
+represents at least one of the names of the file within the vfs layer
+(this is what the VFS itself uses for the struct nameidata).
+
+There may be multiple links to a file, it may be mounted in multiple
+places and someone on a seperate NFS server may have moved it while you
+are thinking about it.
+

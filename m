@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263354AbSJFIBM>; Sun, 6 Oct 2002 04:01:12 -0400
+	id <S263357AbSJFIIM>; Sun, 6 Oct 2002 04:08:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263357AbSJFIBM>; Sun, 6 Oct 2002 04:01:12 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:27923 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S263354AbSJFIBL>;
-	Sun, 6 Oct 2002 04:01:11 -0400
-Date: Sun, 6 Oct 2002 10:06:42 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: alan@redhat.com, Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] aacraid - Makefile fix
-Message-ID: <20021006100642.A13918@mars.ravnborg.org>
-Mail-Followup-To: alan@redhat.com,
-	Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S263358AbSJFIIM>; Sun, 6 Oct 2002 04:08:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:11538 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263357AbSJFIIM>;
+	Sun, 6 Oct 2002 04:08:12 -0400
+Message-ID: <3D9FF09D.2080701@pobox.com>
+Date: Sun, 06 Oct 2002 04:13:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Skip Ford <skip.ford@verizon.net>
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: New BK License Problem?
+References: <AD47B5CD-D7DB-11D6-A2D4-0003939E069A@mac.com> <3D9F49D9.304@redhat.com> <20021005162852.I11375@work.bitmover.com> <1033861827.4441.31.camel@irongate.swansea.linux.org.uk> <anoivq$35b$1@penguin.transmeta.com> <200210060743.g967hEWf000528@pool-141-150-241-241.delv.east.verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove obsolete O_TARGET from Makefile
-Make include path relative
+Skip Ford wrote:
+> Linus Torvalds wrote:
+> 
+>>I don't do any pre-patches or daily patches any more, because it's all
+>>automated.  There are several snapshot bots that give you patches a lot
+>>more often than "every 2 days".  You don't need BK to use it, it's there
+>>in the good old diff format. 
+> 
+> 
+> However, a much larger percentage of patches are applied to your tree
+> without a diff being posted to lkml first.
 
-===== drivers/scsi/aacraid/Makefile 1.1 vs edited =====
---- 1.1/drivers/scsi/aacraid/Makefile	Wed Oct  2 22:37:46 2002
-+++ edited/drivers/scsi/aacraid/Makefile	Sun Oct  6 10:00:06 2002
-@@ -1,8 +1,6 @@
--
--EXTRA_CFLAGS	+= -I$(TOPDIR)/drivers/scsi
--
--O_TARGET	:= aacraid.o
--obj-m		:= $(O_TARGET)
-+# Adaptec aacraid
-+ 
-+EXTRA_CFLAGS	+= -Idrivers/scsi
- 
- obj-y		:= linit.o aachba.o commctrl.o comminit.o commsup.o \
- 		   dpcsup.o rx.o sa.o
+IMO this is very incorrect -- the high volume submitters have never 
+posted their stuff to lkml when sending to Linus.   BK did not change 
+this at all.  Andrew is the notable exception.  [1]
+
+
+ > My only wish would be that
+> you only accept patches through the mailing list,
+
+that won't work for many reasons...   lots of uninteresting patches 
+posted to lkml, security patches should go out-of-band, etc.  Do you 
+_really_ want to see boring and huge arch merges posted to lkml?  Ug.  :)
+
+	Jeff
+
+
+[1] One might argue that Ingo is another exception, but I don't count 
+him among the high-volume submitters.  This is not intended to diminish 
+him, either:  Ingo probably has one of the highest "important/trivial" 
+patch ratios of anybody in the kernel...
+
+

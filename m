@@ -1,72 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbUJYVUw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbUJYVZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbUJYVUw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 17:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbUJYVI5
+	id S261262AbUJYVZw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 17:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbUJYVV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 17:08:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52701 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262024AbUJYVBN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 17:01:13 -0400
-Date: Mon, 25 Oct 2004 23:01:35 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Alexander Batyrshin <abatyrshin@ru.mvista.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, "K.R. Foley" <kr@cybsft.com>,
-       linux-kernel@vger.kernel.org, Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-ID: <20041025210135.GA28699@elte.hu>
-References: <OF1ADC83B8.7696CB2F-ON86256F38.0066D6EA@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OF1ADC83B8.7696CB2F-ON86256F38.0066D6EA@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-2.201, required 5.9,
-	BAYES_00 -4.90, SORTED_RECIPS 2.70
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -2
+	Mon, 25 Oct 2004 17:21:58 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:58513 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261991AbUJYVRl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 17:17:41 -0400
+Message-ID: <417D6CD9.2090702@tmr.com>
+Date: Mon, 25 Oct 2004 17:15:05 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Willy Tarreau <willy@w.ods.org>, espenfjo@gmail.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+References: <20041022225703.GJ19761@alpha.home.local><20041022225703.GJ19761@alpha.home.local> <20041023000956.GI17038@holomorphy.com>
+In-Reply-To: <20041023000956.GI17038@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+William Lee Irwin III wrote:
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+> We aren't just stabilizing 2.6. We're moving it forward. Part of moving
+> forward is preventing backportmania depravity. Backporting is the root
+> of all evil.
 
-> BUG: sleeping function called from invalid context hdparm(3606) at
-> kernel/mutex.c
-> in_atomic():0 [00000000], irqs_disabled():1
-> ... will send stack traceback separately ...
-> when setting udma2 mode in hdparm.
+Damn! And I thought it was closed source software...
 
-i suspect the patch below will fix the hdparm message - but i dont think
-it's related to the other problems you have reported. 
+Let me just put forward my single criterion for stable vs. not, and that 
+is that if I am running a stable kernel and upgrade to a new version to 
+gain a feature or security fix my existing programs don't break. That 
+means to me that if Reiser4 goes in, Reiser3 doesn't exit. If something 
+more please to theoretical cryptographers than cryptoloop comes out, 
+cryptoloop doesn't go away. Etc, these are just examples.
 
-	Ingo
+It doesn't bother me (and I believe most users of kernel.org releases) 
+when a new features comes in, until it breaks something even though I 
+don't use the new feature. It's when there is an incompatible change, 
+like the rewrite of modules, that I think a development kernel is needed.
 
---- linux/drivers/ide/ide-iops.c.orig
-+++ linux/drivers/ide/ide-iops.c
-@@ -783,13 +783,11 @@ int ide_driveid_update (ide_drive_t *dri
- 		printk("%s: CHECK for good STATUS\n", drive->name);
- 		return 0;
- 	}
--	local_irq_save(flags);
--	SELECT_MASK(drive, 0);
- 	id = kmalloc(SECTOR_WORDS*4, GFP_ATOMIC);
--	if (!id) {
--		local_irq_restore(flags);
-+	if (!id)
- 		return 0;
--	}
-+	local_irq_save(flags);
-+	SELECT_MASK(drive, 0);
- 	ata_input_data(drive, id, SECTOR_WORDS);
- 	(void) hwif->INB(IDE_STATUS_REG);	/* clear drive IRQ */
- 	local_irq_enable();
+I don't see the need for a development kernel, and it is desirable to be 
+able to run kernel.org kernels. I would like to hope that other people 
+agree that stable need not mean static, as long as changes don't 
+deliberately break existing apps.
+
+I note that BSD has another serious fork and that people are actually 
+moving to Linux after installing SP2 and finding it disfunctional with 
+non-MS software. Nice to see people looking at Linux as the stable 
+choice. I would like to hope that continues.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263590AbTEDMq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 08:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbTEDMq3
+	id S263610AbTEDNEN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 09:04:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263614AbTEDNEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 08:46:29 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:56704 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S263590AbTEDMq2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 08:46:28 -0400
-Date: Sun, 4 May 2003 13:58:45 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Mikhail Kruk <meshko@cs.brandeis.edu>
+	Sun, 4 May 2003 09:04:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:31449 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263610AbTEDNEM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 09:04:12 -0400
+Date: Sun, 04 May 2003 05:09:32 -0700 (PDT)
+Message-Id: <20030504.050932.115911576.davem@redhat.com>
+To: romieu@fr.zoreil.com
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: fcntl file locking and pthreads
-Message-ID: <20030504125845.GA32087@mail.jlokier.co.uk>
-References: <Pine.LNX.4.33.0305040206270.20509-100000@iole.cs.brandeis.edu>
+Subject: Re: DECNET in latest BK
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030503203908.A5915@electric-eye.fr.zoreil.com>
+References: <20030503175913.GA13595@work.bitmover.com>
+	<1051987091.14504.9.camel@rth.ninka.net>
+	<20030503203908.A5915@electric-eye.fr.zoreil.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0305040206270.20509-100000@iole.cs.brandeis.edu>
-User-Agent: Mutt/1.4.1i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikhail Kruk wrote:
-> on 2.4 kernels fcntl-based file locking does not work with 
-> clone-based threads as expected (by me): two threads of the same process 
-> can acquire exclusive lock on a file at the same time.
-> flock()-based locks work as expected, i.e. only one thread can have an 
-> exclusive lock at a time.
+   From: Francois Romieu <romieu@fr.zoreil.com>
+   Date: Sat, 3 May 2003 20:39:08 +0200
 
-Is this true even when _not_ setting CLONE_FILES?
+   David S. Miller <davem@redhat.com> :
+   [...]
+   > Turn off CONFIG_DECNET_ROUTE_FWMARK, aparently even the maintainer
+   > doesn't even enable this option :-)
+   
+   Does the attached patch make sense ?
 
-cheers,
--- Jamie
+Looks good, applied.
+
+Thanks.

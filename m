@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263885AbUEHAWx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263939AbUEHA0C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263885AbUEHAWx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 20:22:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbUEHAWw
+	id S263939AbUEHA0C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 20:26:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263923AbUEHAXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 20:22:52 -0400
-Received: from mail.kroah.org ([65.200.24.183]:46723 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263885AbUEHAVp (ORCPT
+	Fri, 7 May 2004 20:23:13 -0400
+Received: from mail.kroah.org ([65.200.24.183]:52355 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263937AbUEHAVy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 20:21:45 -0400
-Date: Fri, 7 May 2004 15:25:49 -0700
+	Fri, 7 May 2004 20:21:54 -0400
+Date: Fri, 7 May 2004 16:25:10 -0700
 From: Greg KH <greg@kroah.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [RFC 1/2] kobject_set_name - error handling
-Message-ID: <20040507222549.GB14660@kroah.com>
-References: <20040417082206.GM24997@parcelfarce.linux.theplanet.co.uk> <20040430101333.GB25296@in.ibm.com> <20040430101401.GC25296@in.ibm.com> <200404300748.14151.dtor_core@ameritech.net> <20040504053908.GA2900@in.ibm.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       vojtech@suse.cz
+Subject: Re: [OOPS/HACK] atmel_cs and the latest changes in sysfs/symlink.c
+Message-ID: <20040507232510.GO14660@kroah.com>
+References: <200404230142.46792.dtor_core@ameritech.net> <200404251648.07232.dtor_core@ameritech.net> <20040504210414.GC27037@kroah.com> <200405050208.11348.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040504053908.GA2900@in.ibm.com>
+In-Reply-To: <200405050208.11348.dtor_core@ameritech.net>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 04, 2004 at 11:09:08AM +0530, Maneesh Soni wrote:
+On Wed, May 05, 2004 at 02:08:11AM -0500, Dmitry Torokhov wrote:
+> On Tuesday 04 May 2004 04:04 pm, Greg KH wrote:
+> > On Sun, Apr 25, 2004 at 04:48:07PM -0500, Dmitry Torokhov wrote:
+> > >  
+> > > No, I am still getting the oops.. hmm.. it seems a little bit different,
+> > > but still in the hiddev. I investigated further and the oops only happens
+> > > if I yank a HID device connected to an USB hub or if I yank entire hub with
+> > > a HID device connected to it. Tried with APC UPS and MS Intellimouse
+> > > Explorer. If they are connected directly to the laptop's ports everything is
+> > > fine, also other devices (USB printer for example) handle hub disconnection
+> > > just fine. It does not matter if I have device open or closed for oops to
+> > > happen. And, for the record, oops itself:
+> > 
+> > Are you still getting this in the 2.6.6-rc3 kernel?
+> > 
+> > How about the latest -mm release?
+> > 
 > 
-> Greg, Are the patches fit for inclusion? I need to know this as my sysfs backing
-> store patches are taking back seats because of these changes, particulary the
-> one in second patch :-(.
+> With tonight's bk pull + USB patch from 2.6.6-rc3-mm1 I am still getting the
+> following oops when pulling a HID device out of a hub:
 
-I'm awash in different patches from you.  Can you try sending me the
-ones you think are good enough for inclusion right now?  We can work
-from there.
+Ick, I'll work on trying to duplicate this and see if I can figure it
+out...
 
-thanks,
+thanks for letting me know.
 
 greg k-h

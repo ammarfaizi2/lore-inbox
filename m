@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271589AbRICPMK>; Mon, 3 Sep 2001 11:12:10 -0400
+	id <S271587AbRICPLa>; Mon, 3 Sep 2001 11:11:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271623AbRICPME>; Mon, 3 Sep 2001 11:12:04 -0400
-Received: from mx03.uni-tuebingen.de ([134.2.3.13]:1294 "EHLO
-	mx03.uni-tuebingen.de") by vger.kernel.org with ESMTP
-	id <S271589AbRICPLs>; Mon, 3 Sep 2001 11:11:48 -0400
-Date: Mon, 3 Sep 2001 17:11:36 +0200 (CEST)
-From: Richard Guenther <rguenth@tat.physik.uni-tuebingen.de>
-To: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Editing-in-place of a large file
-In-Reply-To: <20010903094636.V23180@draal.physics.wisc.edu>
-Message-ID: <Pine.LNX.4.21.0109031704450.3066-100000@bellatrix.tat.physik.uni-tuebingen.de>
+	id <S271589AbRICPLV>; Mon, 3 Sep 2001 11:11:21 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:60679 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S271587AbRICPLF>; Mon, 3 Sep 2001 11:11:05 -0400
+Message-ID: <3B939DBA.B14FC2CF@loewe-komp.de>
+Date: Mon, 03 Sep 2001 17:11:54 +0200
+From: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Organization: LOEWE. Hannover
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.9-ac3 i686)
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: psusi@cfl.rr.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [bug report] NFS and uninterruptable wait states
+In-Reply-To: <01090310483100.26387@faldara>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Sep 2001, Bob McElrath wrote:
-
-> Alan Cox [alan@lxorguk.ukuu.org.uk] wrote:
-> > > That is reimplementing file system functionality in user space. 
-> > > I'm in doubts that this is considered good design...
-> > 
-> > Keeping things out of the kernel is good design. Your block indirections
-> > are no different to other database formats. Perhaps you think we should
-> > have fsql_operation() and libdb in kernel 8)
+Phillip Susi wrote:
 > 
-> Well, a filesystem that is:
-> 1) synchronous
-> 2) bypasses linux's buffer cache
-> 3) insert() and delete() to insert and delete from the middle of a file.
-> 4) Has large block sizes
+[ "mount -tnfs" with hard has default ]
+ 
+> Anyhow, about an hour later ( the mount process still stuck ) I figured out
+> that the other machine was not running rpc.nfsd, though it was running
+> rpc.mountd.  Once I started rpc.nfsd on the machine, the mount on my box
+> finally returned ( and was terminated by the SIGKILL that I sent it an hour
+> before ).
+> 
+> Could someone confirm that this is a bug, and explain why anything should
+> ever need to wait in that state?
+> 
+Well, if you use the option "soft",then your process is interruptible.
+>From a user standpoint, I don't understand the requirement of 'D' state.
 
-Well, just make it possible to tell something more about the operation
-you want to do to the kernel/VFS. Copy/Insert/Delete is in fact some
-sort of sendfile operation. For GLAME I did a "simple" (well, it turned
-out to be not that simple...) user level filesystem that supports those
-kind of operations. The interface I chose was
-  sendfile(dest_fd, source_fd, count, mode)
-where mode can be composed out of nothing (overwrite, leave source
-intact), INSERT and CUT.
-
-As it is a userspace implementation byte granularity is supported, but
-for a kernel level support I suppose block granularity would suffice and
-could be optimized for in the lower level filesystems code. I'd prefer
-such a generic interface over fcntls which would certainly be possible
-at least for a "split this file into two ones" operation.
-
-Oh yes - it would help to have this in the kernel, at least if you
-want to support sane mmap behaviour (for block aligned modifications,
-of course - byte level is impossible due to aliasing issues, I believe).
-
-Richard.
-
---
-Richard Guenther <richard.guenther@uni-tuebingen.de>
-WWW: http://www.tat.physik.uni-tuebingen.de/~rguenth/
-The GLAME Project: http://www.glame.de/
-
+Where this gets really impractical: commands like df or du will
+hang forever (if the other end is out of your control).

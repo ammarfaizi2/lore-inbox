@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264725AbTFAUpC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 16:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264727AbTFAUpC
+	id S264727AbTFAUuk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 16:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264728AbTFAUuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 16:45:02 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:36067
+	Sun, 1 Jun 2003 16:50:39 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:37859
 	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S264725AbTFAUpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 16:45:01 -0400
-Subject: Re: [PATCH][ATM] assorted he driver cleanup
+	id S264727AbTFAUuj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 16:50:39 -0400
+Subject: Re: [PATCH] Modular IDE completely broken
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: chas williams <chas@cmf.nrl.navy.mil>
-Cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>, davem@redhat.com,
+To: Taral <taral@taral.net>
+Cc: Tomas Szepe <szepe@pinerecords.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200306011858.h51IwlsG022457@ginger.cmf.nrl.navy.mil>
-References: <200306011858.h51IwlsG022457@ginger.cmf.nrl.navy.mil>
+In-Reply-To: <20030601175138.GA1936@taral.net>
+References: <20030601055414.GA11218@taral.net>
+	 <20030601113050.GE27692@louise.pinerecords.com>
+	 <20030601175138.GA1936@taral.net>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1054497613.5863.4.camel@dhcp22.swansea.linux.org.uk>
+Message-Id: <1054497954.5863.8.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 Jun 2003 21:00:15 +0100
+Date: 01 Jun 2003 21:05:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-06-01 at 19:57, chas williams wrote:
-> In message <20030529173637.GZ24054@conectiva.com.br>,Arnaldo Carvalho de Melo writes:
-> >Sure thing, but hey, spin_lock_irqsave and friends take care of how to behave
-> >when in up or smp, i.e. its how all the other drivers use spinlocks 8)
+On Sul, 2003-06-01 at 18:51, Taral wrote:
+> On Sun, Jun 01, 2003 at 01:30:50PM +0200, Tomas Szepe wrote:
+> > > [taral@taral.net]
+> > > 
+> > > I've submitted this patch before, but I think it got ignored. This makes
+> > > modular IDE at least compile and removes the circular dependencies.
+> > > 
+> > > If there's a reason this patch isn't being applied (it's crappy, someone
+> > > else is working on this problem already, etc.), _please_ tell me!
+> > 
+> > Alan Cox is working on the problem ATM, check 2.4.21-rc6-ac1.
 > 
-> but on a single processor machine (i.e. #undef CONFIG_SMP) there is no
-> chance that there will be reads/writes from other processors so i dont
-> need any locking OR protection from interrupts.  so the degenerate case
-> of spin_lock_irqsave() isnt quite as dengerate as i would like for this
-> particular spin lock.
+> Is this work for 2.5 as well? My patch is against 2.5.69.
 
-Then why are you using spin_lock_irqsave ?
+The same logic applies to 2.5, and it may be more useful there as it can
+be used to clean up a pile of other ordering stuff
 

@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284446AbRLEO7r>; Wed, 5 Dec 2001 09:59:47 -0500
+	id <S284456AbRLEPDR>; Wed, 5 Dec 2001 10:03:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284449AbRLEO7b>; Wed, 5 Dec 2001 09:59:31 -0500
-Received: from chunnel.redhat.com ([199.183.24.220]:16367 "EHLO
-	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
-	id <S284442AbRLEO7M>; Wed, 5 Dec 2001 09:59:12 -0500
-Date: Wed, 5 Dec 2001 14:59:01 +0000
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Kamil Iskra <kamil@science.uva.nl>, Mark Hahn <hahn@physics.mcmaster.ca>,
-        linux-kernel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
-Subject: Re: Problems with APM suspend and ext3
-Message-ID: <20011205145901.A11105@redhat.com>
-In-Reply-To: <Pine.LNX.4.10.10111291006380.20544-100000@coffee.psychology.mcmaster.ca> <Pine.LNX.4.33.0111302355140.1582-100000@bubu.home> <3C081D47.C931377B@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C081D47.C931377B@zip.com.au>; from akpm@zip.com.au on Fri, Nov 30, 2001 at 03:59:03PM -0800
+	id <S284453AbRLEPDH>; Wed, 5 Dec 2001 10:03:07 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:54948 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S284452AbRLEPCx>; Wed, 5 Dec 2001 10:02:53 -0500
+Importance: Normal
+Subject: Re: [Lse-tech] [RFC] [PATCH] Scalable Statistics Counters
+To: kiran@linux.ibm.com
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF29EF801E.F851F18D-ON85256B19.00510775@raleigh.ibm.com>
+From: "Niels Christiansen" <nchr@us.ibm.com>
+Date: Wed, 5 Dec 2001 10:02:33 -0500
+X-MIMETrack: Serialize by Router on D04NM104/04/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 12/05/2001 10:02:41 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello, Kiran,
 
-On Fri, Nov 30, 2001 at 03:59:03PM -0800, Andrew Morton wrote:
-> Kamil Iskra wrote:
-> > 
-> > I've long since known that the
-> > suspends are not completely reliable, even with ext2, particularly if
-> > there was some disk activity going to right before or during a suspend.
-> 
-> Yup.  It seems that your BIOS is being asked to suspend all devices
-> while there is still disk IO being performed.  And it refuses to
-> suspend because the disk is still active.
+> Statistics counters are used in many places in the Linux kernel,
+including
+> storage, network I/O subsystems etc.  These counters are not atomic since
 
-Yep.  I'd still like to know exactly what the circumstances around
-this are: just what are the constraints which apm requires us to
-observe for successful suspend?  I've never had a laptop fail to
-suspend due to this sort of problem with ext3, so it's obviously
-different from one apm implementation to the next.
+> accuracy is not so important. Nevertheless, frequent updation of these
+> counters result in cacheline bouncing among various cpus in a multi
+processor
+> environment. This patch introduces a new set of interfaces, which should
+> improve performance of such counters in MP environment.  This
+implementation
+> switches to code that is devoid of overheads for SMP if these interfaces
+> are used with a UP kernel.
+>
+> Comments are welcome :)
+>
+>Regards,
+>Kiran
 
-Cheers,
- Stephen
+I'm wondering about the scope of this.  My Ethernet adapter with, maybe, 20
+counter fields would have 20 counters allocated for each of my 16
+processors.
+The only way to get the total would be to use statctr_read() to merge them.
+Same for the who knows how many IP counters etc., etc.
+
+How many and which counters were converted for the test you refer to?
+
+I do like the idea of a uniform access mechanism, though.  It is well in
+line
+with my thoughts about an architected interface for topology and
+instrumentation
+so I'll definitely get back to you as I try to collect requirements.
+
+Niels
+

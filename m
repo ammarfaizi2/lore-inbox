@@ -1,20 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261838AbREMTem>; Sun, 13 May 2001 15:34:42 -0400
+	id <S261747AbREMTaM>; Sun, 13 May 2001 15:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261880AbREMTec>; Sun, 13 May 2001 15:34:32 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:14857 "EHLO
+	id <S261838AbREMTaC>; Sun, 13 May 2001 15:30:02 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:9993 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261838AbREMTeV>; Sun, 13 May 2001 15:34:21 -0400
-Date: Sun, 13 May 2001 12:34:09 -0700 (PDT)
+	id <S261747AbREMT3u>; Sun, 13 May 2001 15:29:50 -0400
+Date: Sun, 13 May 2001 12:29:42 -0700 (PDT)
 From: Linus Torvalds <torvalds@transmeta.com>
 To: Rik van Riel <riel@conectiva.com.br>
-cc: "David S. Miller" <davem@redhat.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
 Subject: Re: page_launder() bug
-In-Reply-To: <Pine.LNX.4.21.0105131332050.5468-100000@imladris.rielhome.conectiva>
-Message-ID: <Pine.LNX.4.21.0105131231050.20452-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.21.0105131306020.5468-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.21.0105131225300.20452-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -23,26 +21,26 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Sun, 13 May 2001, Rik van Riel wrote:
 > 
-> Why the hell would we want this ?
+> This means that the swapin path (and the same path for
+> other pagecache pages) doesn't take the page lock and
+> the page lock doesn't protect us from other people using
+> the page while we have it locked.
 
-You've missed about half the discussion, it seems..
+You can test for swap cache deadness without holding the page cache lock:
+if the swap count is 1, then we know that nobody else has this swap entry
+in its page tables, and thus there can not be any concurrent lookups
+either.
 
-> If the page is referenced, it should be moved back to the
-> active list and should never be a candidate for writeout.
+Now, it may well be that we need to make sure that there is some proper
+ordering (nobody must decrement the swap count before they increment the
+page count or something). I think that is the case anyway (and I _think_
+that everybody that mucks with the swap count always hold the page count -
+this might be a good thing to check).
 
-Wrong.
-
-There are
- (a) dead swap pages, where it doesn't matter one _whit_ whether it is
-     referenced or not, because we know with 100% certainty that nobody
-     will ever reference it again. This _may_ be true in other cases too,
-     but we know it is true for swap pages that have lost all references.
- (b) filesystems and memory allocators that might want to get feedback on
-     the fact that we're even _looking_ at their pages, and that we're
-     aging them down. They might easily use these things for starting
-     background activity like deciding to close the logs..
-
-The high-level VM layer simply doesn't have that kind of information.
+So while you're right in general, there are some things we can do with
+less global locking. Just holding the page lock will guarantee that at
+least nobody changes the index etc from under us, so that the things we
+test are at least fairly well-defined.
 
 		Linus
 

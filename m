@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266305AbUGOTqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266310AbUGOTrA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266305AbUGOTqg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 15:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266311AbUGOTqf
+	id S266310AbUGOTrA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 15:47:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266308AbUGOTrA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 15:46:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14564 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S266306AbUGOTqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 15:46:31 -0400
-Date: Thu, 15 Jul 2004 21:46:23 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: cramerj@intel.com, john.ronciak@intel.com, ganesh.venkatesan@intel.com,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
-Subject: Re: [2.6 patch] e1000_main.c: fix inline compile errors
-Message-ID: <20040715194623.GD25633@fs.tum.de>
-References: <20040714210121.GN7308@fs.tum.de> <200407151213.59568.vda@port.imtp.ilyichevsk.odessa.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407151213.59568.vda@port.imtp.ilyichevsk.odessa.ua>
-User-Agent: Mutt/1.5.6i
+	Thu, 15 Jul 2004 15:47:00 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:36104 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S266314AbUGOTq6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jul 2004 15:46:58 -0400
+Message-ID: <40F6E504.1@techsource.com>
+Date: Thu, 15 Jul 2004 16:11:48 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Dumb question about Voluntary Kernel Preemption Patch
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 15, 2004 at 12:13:59PM +0300, Denis Vlasenko wrote:
->...
-> As you go thru them, consider removing inline keyword for
-> such large functions.
->...
+I sent this before, but I didn't get a response.  Either people missed 
+it or it wasn't worth responding to.  I'll give it one more try before I 
+shut up about it...
 
-I did propose this as an alternative approach in the text that 
-accopagnied the patch.
 
-My main reason for not directly proposing to remove the inlines was the 
-fact that all inline functions were either very small or called only 
-once.
+I have a question about voluntary kernel preemption in general.
+(Shouldn't we call this "cooperative multitasking"?)
 
-cu
-Adrian
+There are two disadvantages to voluntary preemption.  One is that the
+kernel thread my not sleep enough (high latency), and the other is that
+the kernel thread may sleep too much (wasted CPU for context switch
+overhead).  The advantage of using the timer interrupt instead is that
+the preemption happens only as often as it needs to.
 
--- 
+My question is this:  Do your reschedule points (might_sleep or whatever
+you end up using) ALWAYS reschedule, or do they only reschedule after a
+certain period of time (timer interrupt increments counter, and
+reschedule point does nothing if it's too early)?
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbVCaSjO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVCaSrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbVCaSjO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 13:39:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVCaSjO
+	id S261620AbVCaSrp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 13:47:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVCaSrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 13:39:14 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:58861 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S261619AbVCaSjJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 13:39:09 -0500
-Message-ID: <424C43FF.3050107@didntduck.org>
-Date: Thu, 31 Mar 2005 13:39:59 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Emmanuel Papirakis <papiraki@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: off topic: GPL and binary modules
-References: <11ad0fa80503311026536d9db2@mail.gmail.com>
-In-Reply-To: <11ad0fa80503311026536d9db2@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 31 Mar 2005 13:47:45 -0500
+Received: from omx3-ext.sgi.com ([192.48.171.20]:15518 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261620AbVCaSrl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 13:47:41 -0500
+Date: Thu, 31 Mar 2005 10:47:06 -0800
+From: Paul Jackson <pj@engr.sgi.com>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: hancockr@shaw.ca, linux-kernel@vger.kernel.org
+Subject: Re: AMD64 Machine hardlocks when using memset
+Message-Id: <20050331104706.5eb2b39f.pj@engr.sgi.com>
+In-Reply-To: <16971.57746.578503.931803@alkaid.it.uu.se>
+References: <3NTHD-8ih-1@gated-at.bofh.it>
+	<424B7ECD.6040905@shaw.ca>
+	<20050330234133.59fdafdf.pj@engr.sgi.com>
+	<16971.57746.578503.931803@alkaid.it.uu.se>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Emmanuel Papirakis wrote:
-> Hello,
-> 
-> before I go on, let me say that I did check the FAQ. I also checked
-> the available archives, but curiously did not find an answer to my
-> question (so I did Read The Fantastic Manual).
-> 
-> As you know, most available drivers do come with the source code. But,
-> still, some come in binary form (often providing just enough code to
-> make them compliant with new kernel releases).
-> 
-> Is this a GPL violation ? In any case, what is the official position
-> on the subject (is this legal or just tolerated) ?
-> 
-> Thank you
-> 
-> Emmanuel
+> your memory timings are out of spec.
 
-Search the list archives, this has been flamed to death already.
+I don't know what spec applies here, don't really care.
+But when I backed off my Memory Timing from 1T to 2T,
+my box became stable running this memset() test.
 
---
-				Brian Gerst
+So I am a happy camper, grateful that someone posted
+this nice test, and agree with you that it was a memory
+timing issue, at least for my system.
+
+Apparently Philip's box has additional "issues".  Whatever.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

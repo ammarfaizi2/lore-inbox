@@ -1,45 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262805AbTE0IcG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 04:32:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbTE0IcG
+	id S262776AbTE0Iep (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 04:34:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbTE0Iep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 04:32:06 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:5382 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262805AbTE0IcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 04:32:05 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: "Oliver Pitzeier" <o.pitzeier@uptime.at>,
-       "'Willy Tarreau'" <willy@w.ods.org>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
-Date: Tue, 27 May 2003 10:44:53 +0200
+	Tue, 27 May 2003 04:34:45 -0400
+Received: from [195.95.38.160] ([195.95.38.160]:3834 "HELO mail.vt4.net")
+	by vger.kernel.org with SMTP id S262776AbTE0Ieo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 04:34:44 -0400
+From: DevilKin <devilkin-lkml@blindguardian.org>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.5.70 compile error
+Date: Tue, 27 May 2003 10:48:29 +0200
 User-Agent: KMail/1.5.2
-Cc: "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-References: <000d01c3242b$4dd31a60$020b10ac@pitzeier.priv.at>
-In-Reply-To: <000d01c3242b$4dd31a60$020b10ac@pitzeier.priv.at>
+References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
+In-Reply-To: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-Message-Id: <200305271044.53866.m.c.p@wolk-project.de>
+Message-Id: <200305271048.36495.devilkin-lkml@blindguardian.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 May 2003 10:38, Oliver Pitzeier wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Hi Oliver,
+On Tuesday 27 May 2003 04:08, Linus Torvalds wrote:
+  CC      arch/i386/kernel/numaq.o
+In file included from arch/i386/kernel/numaq.c:31:
+include/asm/numaq.h:31:1: warning: "MAX_NUMNODES" redefined
+In file included from include/linux/gfp.h:4,
+                 from include/linux/slab.h:14,
+                 from include/linux/percpu.h:4,
+                 from include/linux/sched.h:30,
+                 from include/linux/mm.h:4,
+                 from arch/i386/kernel/numaq.c:27:
+include/linux/mmzone.h:18:1: warning: this is the location of the previous 
+definition
+arch/i386/kernel/numaq.c: In function `initialize_physnode_map':
+arch/i386/kernel/numaq.c:95: error: `physnode_map' undeclared (first use in 
+this  function)
+arch/i386/kernel/numaq.c:95: error: (Each undeclared identifier is reported 
+only  once
+arch/i386/kernel/numaq.c:95: error: for each function it appears in.)
+make[2]: *** [arch/i386/kernel/numaq.o] Error 1
+make[1]: *** [arch/i386/kernel] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.70'
+make: *** [stamp-build] Error 2
 
-> I also changed the whole server (the one which had the aix7xxx problems) in
-> the meantime... Changed the Adaptec 2940, now there is a Adaptec 29160. I
-> switched from a Dual-P3 to a P4. And well, the interessting part, I
-> switched from 2.4.20(-XX) to 2.4.19. EVERYTHING runs faster and stable now!
-try 2.4.18 and you'll maybe s/faster/"fuck damn fast as speed of light"/
+Jan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-;)
-
-ciao, Marc
+iD8DBQE+0yZgpuyeqyCEh60RAtKyAKCAdKBfpSpVvbAbcJn0rW8Mi/8/SgCeKQra
+H68W1INRt+vtCwKcAEs6rvU=
+=XkHu
+-----END PGP SIGNATURE-----
 

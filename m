@@ -1,337 +1,910 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261492AbSLAHHw>; Sun, 1 Dec 2002 02:07:52 -0500
+	id <S261506AbSLAHXI>; Sun, 1 Dec 2002 02:23:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261495AbSLAHHw>; Sun, 1 Dec 2002 02:07:52 -0500
-Received: from viola.sinor.ru ([217.70.106.9]:42973 "EHLO viola.sinor.ru")
-	by vger.kernel.org with ESMTP id <S261492AbSLAHHs>;
-	Sun, 1 Dec 2002 02:07:48 -0500
-Date: Sun, 1 Dec 2002 13:16:12 +0600
-From: "Andrey R. Urazov" <coola@ngs.ru>
-To: linux-kernel@vger.kernel.org
-Subject: a bug in autofs
-Message-ID: <20021201071612.GA936@ktulu>
+	id <S261518AbSLAHXI>; Sun, 1 Dec 2002 02:23:08 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:22532 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261506AbSLAHW4>;
+	Sun, 1 Dec 2002 02:22:56 -0500
+Date: Sun, 1 Dec 2002 00:30:56 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-security-module@wirex.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC] LSM fix for stupid "empty" functions
+Message-ID: <20021201083056.GJ679@kroah.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
-X-PGP-public-key: pub 1024D/02B49FF2
-X-PGP-fingerprint: A1CE D50E 0CF3 C0EF BA35  CBEC 87D7 4A2B 02B4 9FF2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---82I3+IH0IqGh5yIs
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hello,
-
-I'm constantly observing a bug in autofs.
-
-[1.] One line summary of the problem:   =20
-the system hangs when some operations are performed on autounted volumes
-
-[2.] Full description of the problem/report:
-I observed the problem in 2 forms:
-
-1) when I run XMMS and its playlist contains entries laying somewhere
-   under /misc/cdrom but there is no cd in the drive or the cd in the
-   drive is not the one whose entries are stored in the playlist, it
-   takes about half a minute for the system to hang. Before it hangs
-   absolutely I get numerous messages "invalid seek on /dev/hdc" on my
-   virtual consoles
-
-2) under /misc/summer there resides an ntfs volume with thousands of
-   files. And when I run=20
-
-        find /misc/summer
-
-   the system becames unusable after some amount of files is scanned.
-   Usually it just hangs. But one time "find" terminated with the
-   segmentation fault and then after 5 seconds or so the system hung.
-
-The problem does not existed if the volumes are mounted through "mount".
-Only automounting causes problems.
-
-[3.] Keywords (i.e., modules, networking, kernel):
-
-kernel, modules, automounting, autofs
-
-
-[4.] Kernel version (from /proc/version):
-
-Linux version 2.4.20 (coola@ktulu) (gcc version 3.2 20020903 (Red Hat
-Linux 8.0 3.2-7)) #2 Sun Dec 1 12:48:50 NOVT 2002
-
-the problem persists on both 2.4.19 and 2.4.20 and with both versions of
-autofs (autofs and autofs4)
-
-
-[5.] Output of Oops.. message (if applicable) with symbolic information
-     resolved (see Documentation/oops-tracing.txt)
-
-
-[6.] A small shell script or example program which triggers the problem
-     (if possible)
-
-find <path to an automounted volume with large amount of files>
-
-
-
-[7.] Environment
-
-doesn't matter, I reckon
-
-
-[7.1.] Software (add the output of the ver_linux script here)
-
-Linux ktulu 2.4.20 #2 Sun Dec 1 12:48:50 NOVT 2002 i686 athlon i386
-GNU/Linux
-=20
-Gnu C                  3.2
-Gnu make               3.79.1
-util-linux             2.11r
-mount                  2.11r
-modutils               2.4.18
-e2fsprogs              1.27
-jfsutils               1.0.17
-reiserfsprogs          3.6.2
-PPP                    2.4.1
-Linux C Library        2.2.93
-Dynamic linker (ldd)   2.2.93
-Procps                 2.0.7
-Net-tools              1.60
-Kbd                    1.06
-Sh-utils               2.0.12
-Modules Loaded         nls_cp866 vfat fat maestro3 ac97_codec soundcore
-af_packet
-
-
-[7.2.] Processor information (from /proc/cpuinfo):
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 4
-model name      : AMD Athlon(tm) Processor
-stepping        : 4
-cpu MHz         : 1340.225
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge
-mca cmov pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 2673.86
-
-
-
-[7.3.] Module information (from /proc/modules):
-
-nls_cp866               4604   0 (autoclean)
-vfat                   12908   0 (autoclean)
-fat                    38776   0 (autoclean) [vfat]
-maestro3               30544   0 (autoclean)
-ac97_codec             13576   0 (autoclean) [maestro3]
-soundcore               6500   2 (autoclean) [maestro3]
-af_packet              15176   0 (autoclean)
-
-
-[7.4.] Loaded driver and hardware information (/proc/ioports,
-/proc/iomem)
-
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial(auto)
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0cf8-0cff : PCI conf1
-a000-afff : PCI Bus #01
-d800-d81f : 3Com Corporation 3c590 10BaseT [Vortex]
-dc00-dcff : ESS Technology ES1988 Allegro-1
-  dc00-dcff : maestro3
-ff00-ff0f : VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE
-  ff00-ff07 : ide0
-  ff08-ff0f : ide1
-
-00000000-0009fbff : System RAM
-0009fc00-0009ffff : reserved
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000f0000-000fffff : System ROM
-00100000-07feffff : System RAM
-  00100000-00270240 : Kernel code
-  00270241-002ca3bf : Kernel data
-07ff0000-07ff7fff : ACPI Tables
-07ff8000-07ffffff : ACPI Non-volatile Storage
-dec00000-decfffff : PCI Bus #01
-df000000-df7fffff : Matrox Graphics, Inc. MGA 2064W [Millennium]
-dfe00000-dfefffff : PCI Bus #01
-dfffc000-dfffffff : Matrox Graphics, Inc. MGA 2064W [Millennium]
-e0000000-e3ffffff : VIA Technologies, Inc. VT8367 [KT266]
-fec00000-fec00fff : reserved
-fee00000-fee00fff : reserved
-fff80000-ffffffff : reserved
-
-
-[7.5.] PCI information ('lspci -vvv' as root)
-=20
-00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort-
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 0
-        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=3D64M]
-        Capabilities: [a0] AGP version 2.0
-                Status: RQ=3D31 SBA+ 64bit- FW- Rate=3Dx1,x2
-                Command: RQ=3D0 SBA- AGP- 64bit- FW- Rate=3D<none>
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
-
-00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT333 AGP] (prog-if
-   00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort-
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 0
-        Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D0
-        I/O behind bridge: 0000a000-0000afff
-        Memory behind bridge: dfe00000-dfefffff
-        Prefetchable memory behind bridge: dec00000-decfffff
-        BridgeCtl: Parity- SERR- NoISA+ VGA- MAbort- >Reset- FastB2B-
-        Capabilities: [80] Power Management version 2
-                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=3D0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
-
-00:09.0 VGA compatible controller: Matrox Graphics, Inc. MGA 2064W
-   [Millennium] (rev 01) (prog-if 00 [VGA])
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 11
-        Region 0: Memory at dfffc000 (32-bit, non-prefetchable)
-[size=3D16K]
-        Region 1: Memory at df000000 (32-bit, prefetchable) [size=3D8M]
-        Expansion ROM at dffe0000 [disabled] [size=3D64K]
-
-00:0a.0 Multimedia audio controller: ESS Technology ES1988 Allegro-1
-   (rev 10)
-        Subsystem: ESS Technology ESS Allegro-1 Audiodrive
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (500ns min, 6000ns max)
-        Interrupt: pin A routed to IRQ 10
-        Region 0: I/O ports at dc00 [size=3D256]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=3D0mA
-PME(D0-,D1+,D2+,D3hot+,D3cold-)
-                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
-
-00:0c.0 Ethernet controller: 3Com Corporation 3c590 10BaseT [Vortex]
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR+ FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32 (750ns min, 2000ns max)
-        Interrupt: pin A routed to IRQ 9
-        Region 0: I/O ports at d800 [size=3D32]
-        Expansion ROM at dffd0000 [disabled] [size=3D64K]
-
-00:11.0 ISA bridge: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
-        Subsystem: VIA Technologies, Inc. VT8233 PCI to ISA Bridge
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
-
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master
-   IDE (rev 06) (prog-if 8a [Master SecP PriP])
-        Subsystem: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Interrupt: pin A routed to IRQ 14
-        Region 4: I/O ports at ff00 [size=3D16]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
-
-
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-
-Attached devices:=20
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: _NEC     Model: NR-7900A         Rev: 1.23
-  Type:   CD-ROM                           ANSI SCSI revision: 02
-
-
-[7.7.] Other information that might be relevant to the problem (please
-       look in /proc and include all information that you think to be
-relevant):
-
-
-[X.] Other notes, patches, fixes, workarounds:
-
-workaround is to use manual mounting instead of automounting
-
-
-
-
-
-Best regards,
-  Andrey Urazov
---=20
-Phasers locked on target, Captain.
---
-dimanche 01 d=E9cembre, 2002, 13:00:36 +0600 - Andrey R. Urazov (mailto:coo=
-la@ngs.ru)
-
-
---82I3+IH0IqGh5yIs
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE96bc7h9dKKwK0n/IRAj/JAJsFCFEQLfv8ecmf7M++HyA1cfcenQCgyLhy
-R8BJoQnfPTGWKLXYXQhlAQk=
-=Njnp
------END PGP SIGNATURE-----
-
---82I3+IH0IqGh5yIs--
+Hi all,
+
+I'm _really_ tired of all of the "empty" functions that all security
+modules need to provide.  So here's a brute force patch that lets any
+security module only set the functions that it wants to override.  If
+the function is NULL, then the "dummy" function will be used instead.
+
+What do people think of this?  I also cleaned up the comment in the
+verify function of security/security.c and made it not inline.
+
+Comments welcome (if there are none, I'll send it on to Linus.)  The
+patch below is against 2.5.50.  As you can see by the diffstat, it does
+make security modules a lot smaller :)
+
+We could also remove all of the initializers for dummy_security_ops with
+this patch, reducing the code size some more, if people really want
+to...
+
+thanks,
+
+greg k-h
+
+
+ security/capability.c |  530 --------------------------------------------------
+ security/dummy.c      |  164 ++++++++++++---
+ security/security.c   |   14 -
+ 3 files changed, 142 insertions(+), 566 deletions(-)
+
+
+===== security/capability.c 1.10 vs edited =====
+--- 1.10/security/capability.c	Sun Nov 24 15:27:58 2002
++++ edited/security/capability.c	Sat Nov 30 23:08:59 2002
+@@ -279,550 +279,20 @@
+ 
+ #ifdef CONFIG_SECURITY
+ 
+-static int cap_quotactl (int cmds, int type, int id, struct super_block *sb)
+-{
+-	return 0;
+-}
+-
+-static int cap_quota_on (struct file *f)
+-{
+-	return 0;
+-}
+-
+-static int cap_acct (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static int cap_bprm_alloc_security (struct linux_binprm *bprm)
+-{
+-	return 0;
+-}
+-
+-static int cap_bprm_check_security (struct linux_binprm *bprm)
+-{
+-	return 0;
+-}
+-
+-static void cap_bprm_free_security (struct linux_binprm *bprm)
+-{
+-	return;
+-}
+-
+-static int cap_sb_alloc_security (struct super_block *sb)
+-{
+-	return 0;
+-}
+-
+-static void cap_sb_free_security (struct super_block *sb)
+-{
+-	return;
+-}
+-
+-static int cap_sb_statfs (struct super_block *sb)
+-{
+-	return 0;
+-}
+-
+-static int cap_mount (char *dev_name, struct nameidata *nd, char *type,
+-		      unsigned long flags, void *data)
+-{
+-	return 0;
+-}
+-
+-static int cap_check_sb (struct vfsmount *mnt, struct nameidata *nd)
+-{
+-	return 0;
+-}
+-
+-static int cap_umount (struct vfsmount *mnt, int flags)
+-{
+-	return 0;
+-}
+-
+-static void cap_umount_close (struct vfsmount *mnt)
+-{
+-	return;
+-}
+-
+-static void cap_umount_busy (struct vfsmount *mnt)
+-{
+-	return;
+-}
+-
+-static void cap_post_remount (struct vfsmount *mnt, unsigned long flags,
+-			      void *data)
+-{
+-	return;
+-}
+-
+-static void cap_post_mountroot (void)
+-{
+-	return;
+-}
+-
+-static void cap_post_addmount (struct vfsmount *mnt, struct nameidata *nd)
+-{
+-	return;
+-}
+-
+-static int cap_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
+-{
+-	return 0;
+-}
+-
+-static void cap_post_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
+-{
+-	return;
+-}
+-
+-static int cap_inode_alloc_security (struct inode *inode)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_free_security (struct inode *inode)
+-{
+-	return;
+-}
+-
+-static int cap_inode_create (struct inode *inode, struct dentry *dentry,
+-			     int mask)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_create (struct inode *inode, struct dentry *dentry,
+-				   int mask)
+-{
+-	return;
+-}
+-
+-static int cap_inode_link (struct dentry *old_dentry, struct inode *inode,
+-			   struct dentry *new_dentry)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_link (struct dentry *old_dentry, struct inode *inode,
+-				 struct dentry *new_dentry)
+-{
+-	return;
+-}
+-
+-static int cap_inode_unlink (struct inode *inode, struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_symlink (struct inode *inode, struct dentry *dentry,
+-			      const char *name)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_symlink (struct inode *inode, struct dentry *dentry,
+-				    const char *name)
+-{
+-	return;
+-}
+-
+-static int cap_inode_mkdir (struct inode *inode, struct dentry *dentry,
+-			    int mask)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_mkdir (struct inode *inode, struct dentry *dentry,
+-				  int mask)
+-{
+-	return;
+-}
+-
+-static int cap_inode_rmdir (struct inode *inode, struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_mknod (struct inode *inode, struct dentry *dentry,
+-			    int mode, dev_t dev)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_mknod (struct inode *inode, struct dentry *dentry,
+-				  int mode, dev_t dev)
+-{
+-	return;
+-}
+-
+-static int cap_inode_rename (struct inode *old_inode, struct dentry *old_dentry,
+-			     struct inode *new_inode, struct dentry *new_dentry)
+-{
+-	return 0;
+-}
+-
+-static void cap_inode_post_rename (struct inode *old_inode,
+-				   struct dentry *old_dentry,
+-				   struct inode *new_inode,
+-				   struct dentry *new_dentry)
+-{
+-	return;
+-}
+-
+-static int cap_inode_readlink (struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_follow_link (struct dentry *dentry,
+-				  struct nameidata *nameidata)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_permission (struct inode *inode, int mask)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_permission_lite (struct inode *inode, int mask)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_setattr (struct dentry *dentry, struct iattr *iattr)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_getattr (struct vfsmount *mnt, struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static void cap_post_lookup (struct inode *ino, struct dentry *d)
+-{
+-	return;
+-}
+-
+-static void cap_delete (struct inode *ino)
+-{
+-	return;
+-}
+-
+-static int cap_inode_setxattr (struct dentry *dentry, char *name, void *value,
+-				size_t size, int flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_getxattr (struct dentry *dentry, char *name)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_listxattr (struct dentry *dentry)
+-{
+-	return 0;
+-}
+-
+-static int cap_inode_removexattr (struct dentry *dentry, char *name)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_permission (struct file *file, int mask)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_alloc_security (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static void cap_file_free_security (struct file *file)
+-{
+-	return;
+-}
+-
+-static int cap_file_ioctl (struct file *file, unsigned int command,
+-			   unsigned long arg)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_mmap (struct file *file, unsigned long prot,
+-			  unsigned long flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_mprotect (struct vm_area_struct *vma, unsigned long prot)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_lock (struct file *file, unsigned int cmd)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_fcntl (struct file *file, unsigned int cmd,
+-			   unsigned long arg)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_set_fowner (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_send_sigiotask (struct task_struct *tsk,
+-				    struct fown_struct *fown, int fd,
+-				    int reason)
+-{
+-	return 0;
+-}
+-
+-static int cap_file_receive (struct file *file)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_create (unsigned long clone_flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_alloc_security (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static void cap_task_free_security (struct task_struct *p)
+-{
+-	return;
+-}
+-
+-static int cap_task_setuid (uid_t id0, uid_t id1, uid_t id2, int flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setgid (gid_t id0, gid_t id1, gid_t id2, int flags)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setpgid (struct task_struct *p, pid_t pgid)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_getpgid (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_getsid (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setgroups (int gidsetsize, gid_t * grouplist)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setnice (struct task_struct *p, int nice)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setrlimit (unsigned int resource, struct rlimit *new_rlim)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_setscheduler (struct task_struct *p, int policy,
+-				  struct sched_param *lp)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_getscheduler (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_wait (struct task_struct *p)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_kill (struct task_struct *p, struct siginfo *info, int sig)
+-{
+-	return 0;
+-}
+-
+-static int cap_task_prctl (int option, unsigned long arg2, unsigned long arg3,
+-			   unsigned long arg4, unsigned long arg5)
+-{
+-	return 0;
+-}
+-
+-static int cap_ipc_permission (struct kern_ipc_perm *ipcp, short flag)
+-{
+-	return 0;
+-}
+-
+-static int cap_msg_queue_alloc_security (struct msg_queue *msq)
+-{
+-	return 0;
+-}
+-
+-static void cap_msg_queue_free_security (struct msg_queue *msq)
+-{
+-	return;
+-}
+-
+-static int cap_shm_alloc_security (struct shmid_kernel *shp)
+-{
+-	return 0;
+-}
+-
+-static void cap_shm_free_security (struct shmid_kernel *shp)
+-{
+-	return;
+-}
+-
+-static int cap_sem_alloc_security (struct sem_array *sma)
+-{
+-	return 0;
+-}
+-
+-static void cap_sem_free_security (struct sem_array *sma)
+-{
+-	return;
+-}
+-
+-static int cap_register (const char *name, struct security_operations *ops)
+-{
+-	return -EINVAL;
+-}
+-
+-static int cap_unregister (const char *name, struct security_operations *ops)
+-{
+-	return -EINVAL;
+-}
+ 
+ static struct security_operations capability_ops = {
+ 	.ptrace =			cap_ptrace,
+ 	.capget =			cap_capget,
+ 	.capset_check =			cap_capset_check,
+ 	.capset_set =			cap_capset_set,
+-	.acct =				cap_acct,
+ 	.capable =			cap_capable,
+-	.quotactl =			cap_quotactl,
+-	.quota_on =			cap_quota_on,
+ 
+-	.bprm_alloc_security =		cap_bprm_alloc_security,
+-	.bprm_free_security =		cap_bprm_free_security,
+ 	.bprm_compute_creds =		cap_bprm_compute_creds,
+ 	.bprm_set_security =		cap_bprm_set_security,
+-	.bprm_check_security =		cap_bprm_check_security,
+-
+-	.sb_alloc_security =		cap_sb_alloc_security,
+-	.sb_free_security =		cap_sb_free_security,
+-	.sb_statfs =			cap_sb_statfs,
+-	.sb_mount =			cap_mount,
+-	.sb_check_sb =			cap_check_sb,
+-	.sb_umount =			cap_umount,
+-	.sb_umount_close =		cap_umount_close,
+-	.sb_umount_busy =		cap_umount_busy,
+-	.sb_post_remount =		cap_post_remount,
+-	.sb_post_mountroot =		cap_post_mountroot,
+-	.sb_post_addmount =		cap_post_addmount,
+-	.sb_pivotroot =			cap_pivotroot,
+-	.sb_post_pivotroot =		cap_post_pivotroot,
+-	
+-	.inode_alloc_security =		cap_inode_alloc_security,
+-	.inode_free_security =		cap_inode_free_security,
+-	.inode_create =			cap_inode_create,
+-	.inode_post_create =		cap_inode_post_create,
+-	.inode_link =			cap_inode_link,
+-	.inode_post_link =		cap_inode_post_link,
+-	.inode_unlink =			cap_inode_unlink,
+-	.inode_symlink =		cap_inode_symlink,
+-	.inode_post_symlink =		cap_inode_post_symlink,
+-	.inode_mkdir =			cap_inode_mkdir,
+-	.inode_post_mkdir =		cap_inode_post_mkdir,
+-	.inode_rmdir =			cap_inode_rmdir,
+-	.inode_mknod =			cap_inode_mknod,
+-	.inode_post_mknod =		cap_inode_post_mknod,
+-	.inode_rename =			cap_inode_rename,
+-	.inode_post_rename =		cap_inode_post_rename,
+-	.inode_readlink =		cap_inode_readlink,
+-	.inode_follow_link =		cap_inode_follow_link,
+-	.inode_permission =		cap_inode_permission,
+-	.inode_permission_lite =	cap_inode_permission_lite,
+-	.inode_setattr =		cap_inode_setattr,
+-	.inode_getattr =		cap_inode_getattr,
+-	.inode_post_lookup =		cap_post_lookup,
+-	.inode_delete =			cap_delete,
+-	.inode_setxattr =		cap_inode_setxattr,
+-	.inode_getxattr =		cap_inode_getxattr,
+-	.inode_listxattr =		cap_inode_listxattr,
+-	.inode_removexattr =		cap_inode_removexattr,
+-	
+-	.file_permission =		cap_file_permission,
+-	.file_alloc_security =		cap_file_alloc_security,
+-	.file_free_security =		cap_file_free_security,
+-	.file_ioctl =			cap_file_ioctl,
+-	.file_mmap =			cap_file_mmap,
+-	.file_mprotect =		cap_file_mprotect,
+-	.file_lock =			cap_file_lock,
+-	.file_fcntl =			cap_file_fcntl,
+-	.file_set_fowner =		cap_file_set_fowner,
+-	.file_send_sigiotask =		cap_file_send_sigiotask,
+-	.file_receive =			cap_file_receive,
+ 
+-	.task_create =			cap_task_create,
+-	.task_alloc_security =		cap_task_alloc_security,
+-	.task_free_security =		cap_task_free_security,
+-	.task_setuid =			cap_task_setuid,
+ 	.task_post_setuid =		cap_task_post_setuid,
+-	.task_setgid =			cap_task_setgid,
+-	.task_setpgid =			cap_task_setpgid,
+-	.task_getpgid =			cap_task_getpgid,
+-	.task_getsid =			cap_task_getsid,
+-	.task_setgroups =		cap_task_setgroups,
+-	.task_setnice =			cap_task_setnice,
+-	.task_setrlimit =		cap_task_setrlimit,
+-	.task_setscheduler =		cap_task_setscheduler,
+-	.task_getscheduler =		cap_task_getscheduler,
+-	.task_wait =			cap_task_wait,
+-	.task_kill =			cap_task_kill,
+-	.task_prctl =			cap_task_prctl,
+ 	.task_kmod_set_label =		cap_task_kmod_set_label,
+ 	.task_reparent_to_init =	cap_task_reparent_to_init,
+-
+-	.ipc_permission =		cap_ipc_permission,
+-
+-	.msg_queue_alloc_security =	cap_msg_queue_alloc_security,
+-	.msg_queue_free_security =	cap_msg_queue_free_security,
+-	
+-	.shm_alloc_security =		cap_shm_alloc_security,
+-	.shm_free_security =		cap_shm_free_security,
+-	
+-	.sem_alloc_security =		cap_sem_alloc_security,
+-	.sem_free_security =		cap_sem_free_security,
+-
+-	.register_security =		cap_register,
+-	.unregister_security =		cap_unregister,
+ };
+ 
+ #if defined(CONFIG_SECURITY_CAPABILITIES_MODULE)
+===== security/dummy.c 1.10 vs edited =====
+--- 1.10/security/dummy.c	Sun Nov 24 15:27:58 2002
++++ edited/security/dummy.c	Sat Nov 30 23:03:24 2002
+@@ -122,55 +122,55 @@
+ 	return 0;
+ }
+ 
+-static int dummy_mount (char *dev_name, struct nameidata *nd, char *type,
+-			unsigned long flags, void *data)
++static int dummy_sb_mount (char *dev_name, struct nameidata *nd, char *type,
++			   unsigned long flags, void *data)
+ {
+ 	return 0;
+ }
+ 
+-static int dummy_check_sb (struct vfsmount *mnt, struct nameidata *nd)
++static int dummy_sb_check_sb (struct vfsmount *mnt, struct nameidata *nd)
+ {
+ 	return 0;
+ }
+ 
+-static int dummy_umount (struct vfsmount *mnt, int flags)
++static int dummy_sb_umount (struct vfsmount *mnt, int flags)
+ {
+ 	return 0;
+ }
+ 
+-static void dummy_umount_close (struct vfsmount *mnt)
++static void dummy_sb_umount_close (struct vfsmount *mnt)
+ {
+ 	return;
+ }
+ 
+-static void dummy_umount_busy (struct vfsmount *mnt)
++static void dummy_sb_umount_busy (struct vfsmount *mnt)
+ {
+ 	return;
+ }
+ 
+-static void dummy_post_remount (struct vfsmount *mnt, unsigned long flags,
+-				void *data)
++static void dummy_sb_post_remount (struct vfsmount *mnt, unsigned long flags,
++				   void *data)
+ {
+ 	return;
+ }
+ 
+ 
+-static void dummy_post_mountroot (void)
++static void dummy_sb_post_mountroot (void)
+ {
+ 	return;
+ }
+ 
+-static void dummy_post_addmount (struct vfsmount *mnt, struct nameidata *nd)
++static void dummy_sb_post_addmount (struct vfsmount *mnt, struct nameidata *nd)
+ {
+ 	return;
+ }
+ 
+-static int dummy_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
++static int dummy_sb_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
+ {
+ 	return 0;
+ }
+ 
+-static void dummy_post_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
++static void dummy_sb_post_pivotroot (struct nameidata *old_nd, struct nameidata *new_nd)
+ {
+ 	return;
+ }
+@@ -303,12 +303,12 @@
+ 	return 0;
+ }
+ 
+-static void dummy_post_lookup (struct inode *ino, struct dentry *d)
++static void dummy_inode_post_lookup (struct inode *ino, struct dentry *d)
+ {
+ 	return;
+ }
+ 
+-static void dummy_delete (struct inode *ino)
++static void dummy_inode_delete (struct inode *ino)
+ {
+ 	return;
+ }
+@@ -529,12 +529,12 @@
+ 	return;
+ }
+ 
+-static int dummy_register (const char *name, struct security_operations *ops)
++static int dummy_register_security (const char *name, struct security_operations *ops)
+ {
+ 	return -EINVAL;
+ }
+ 
+-static int dummy_unregister (const char *name, struct security_operations *ops)
++static int dummy_unregister_security (const char *name, struct security_operations *ops)
+ {
+ 	return -EINVAL;
+ }
+@@ -558,16 +558,16 @@
+ 	.sb_alloc_security =		dummy_sb_alloc_security,
+ 	.sb_free_security =		dummy_sb_free_security,
+ 	.sb_statfs =			dummy_sb_statfs,
+-	.sb_mount =			dummy_mount,
+-	.sb_check_sb =			dummy_check_sb,
+-	.sb_umount =			dummy_umount,
+-	.sb_umount_close =		dummy_umount_close,
+-	.sb_umount_busy =		dummy_umount_busy,
+-	.sb_post_remount =		dummy_post_remount,
+-	.sb_post_mountroot =		dummy_post_mountroot,
+-	.sb_post_addmount =		dummy_post_addmount,
+-	.sb_pivotroot =			dummy_pivotroot,
+-	.sb_post_pivotroot =		dummy_post_pivotroot,
++	.sb_mount =			dummy_sb_mount,
++	.sb_check_sb =			dummy_sb_check_sb,
++	.sb_umount =			dummy_sb_umount,
++	.sb_umount_close =		dummy_sb_umount_close,
++	.sb_umount_busy =		dummy_sb_umount_busy,
++	.sb_post_remount =		dummy_sb_post_remount,
++	.sb_post_mountroot =		dummy_sb_post_mountroot,
++	.sb_post_addmount =		dummy_sb_post_addmount,
++	.sb_pivotroot =			dummy_sb_pivotroot,
++	.sb_post_pivotroot =		dummy_sb_post_pivotroot,
+ 	
+ 	.inode_alloc_security =		dummy_inode_alloc_security,
+ 	.inode_free_security =		dummy_inode_free_security,
+@@ -591,8 +591,8 @@
+ 	.inode_permission_lite =	dummy_inode_permission_lite,
+ 	.inode_setattr =		dummy_inode_setattr,
+ 	.inode_getattr =		dummy_inode_getattr,
+-	.inode_post_lookup =		dummy_post_lookup,
+-	.inode_delete =			dummy_delete,
++	.inode_post_lookup =		dummy_inode_post_lookup,
++	.inode_delete =			dummy_inode_delete,
+ 	.inode_setxattr =		dummy_inode_setxattr,
+ 	.inode_getxattr =		dummy_inode_getxattr,
+ 	.inode_listxattr =		dummy_inode_listxattr,
+@@ -641,7 +641,111 @@
+ 	.sem_alloc_security =		dummy_sem_alloc_security,
+ 	.sem_free_security =		dummy_sem_free_security,
+ 
+-	.register_security =		dummy_register,
+-	.unregister_security =		dummy_unregister,
++	.register_security =		dummy_register_security,
++	.unregister_security =		dummy_unregister_security,
+ };
++
++#define set_to_dummy_if_null(ops, function)			\
++	do {							\
++		if (!ops->function)				\
++			ops->function = dummy_##function;	\
++	} while (0)
++
++void security_fixup_ops (struct security_operations *ops)
++{
++	set_to_dummy_if_null(ops, capget);
++	set_to_dummy_if_null(ops, ptrace);
++	set_to_dummy_if_null(ops, capget);
++	set_to_dummy_if_null(ops, capset_check);
++	set_to_dummy_if_null(ops, capset_set);
++	set_to_dummy_if_null(ops, acct);
++	set_to_dummy_if_null(ops, capable);
++	set_to_dummy_if_null(ops, quotactl);
++	set_to_dummy_if_null(ops, quota_on);
++	set_to_dummy_if_null(ops, bprm_alloc_security);
++	set_to_dummy_if_null(ops, bprm_free_security);
++	set_to_dummy_if_null(ops, bprm_compute_creds);
++	set_to_dummy_if_null(ops, bprm_set_security);
++	set_to_dummy_if_null(ops, bprm_check_security);
++	set_to_dummy_if_null(ops, sb_alloc_security);
++	set_to_dummy_if_null(ops, sb_free_security);
++	set_to_dummy_if_null(ops, sb_statfs);
++	set_to_dummy_if_null(ops, sb_mount);
++	set_to_dummy_if_null(ops, sb_check_sb);
++	set_to_dummy_if_null(ops, sb_umount);
++	set_to_dummy_if_null(ops, sb_umount_close);
++	set_to_dummy_if_null(ops, sb_umount_busy);
++	set_to_dummy_if_null(ops, sb_post_remount);
++	set_to_dummy_if_null(ops, sb_post_mountroot);
++	set_to_dummy_if_null(ops, sb_post_addmount);
++	set_to_dummy_if_null(ops, sb_pivotroot);
++	set_to_dummy_if_null(ops, sb_post_pivotroot);
++	set_to_dummy_if_null(ops, inode_alloc_security);
++	set_to_dummy_if_null(ops, inode_free_security);
++	set_to_dummy_if_null(ops, inode_create);
++	set_to_dummy_if_null(ops, inode_post_create);
++	set_to_dummy_if_null(ops, inode_link);
++	set_to_dummy_if_null(ops, inode_post_link);
++	set_to_dummy_if_null(ops, inode_unlink);
++	set_to_dummy_if_null(ops, inode_symlink);
++	set_to_dummy_if_null(ops, inode_post_symlink);
++	set_to_dummy_if_null(ops, inode_mkdir);
++	set_to_dummy_if_null(ops, inode_post_mkdir);
++	set_to_dummy_if_null(ops, inode_rmdir);
++	set_to_dummy_if_null(ops, inode_mknod);
++	set_to_dummy_if_null(ops, inode_post_mknod);
++	set_to_dummy_if_null(ops, inode_rename);
++	set_to_dummy_if_null(ops, inode_post_rename);
++	set_to_dummy_if_null(ops, inode_readlink);
++	set_to_dummy_if_null(ops, inode_follow_link);
++	set_to_dummy_if_null(ops, inode_permission);
++	set_to_dummy_if_null(ops, inode_permission_lite);
++	set_to_dummy_if_null(ops, inode_setattr);
++	set_to_dummy_if_null(ops, inode_getattr);
++	set_to_dummy_if_null(ops, inode_post_lookup);
++	set_to_dummy_if_null(ops, inode_delete);
++	set_to_dummy_if_null(ops, inode_setxattr);
++	set_to_dummy_if_null(ops, inode_getxattr);
++	set_to_dummy_if_null(ops, inode_listxattr);
++	set_to_dummy_if_null(ops, inode_removexattr);
++	set_to_dummy_if_null(ops, file_permission);
++	set_to_dummy_if_null(ops, file_alloc_security);
++	set_to_dummy_if_null(ops, file_free_security);
++	set_to_dummy_if_null(ops, file_ioctl);
++	set_to_dummy_if_null(ops, file_mmap);
++	set_to_dummy_if_null(ops, file_mprotect);
++	set_to_dummy_if_null(ops, file_lock);
++	set_to_dummy_if_null(ops, file_fcntl);
++	set_to_dummy_if_null(ops, file_set_fowner);
++	set_to_dummy_if_null(ops, file_send_sigiotask);
++	set_to_dummy_if_null(ops, file_receive);
++	set_to_dummy_if_null(ops, task_create);
++	set_to_dummy_if_null(ops, task_alloc_security);
++	set_to_dummy_if_null(ops, task_free_security);
++	set_to_dummy_if_null(ops, task_setuid);
++	set_to_dummy_if_null(ops, task_post_setuid);
++	set_to_dummy_if_null(ops, task_setgid);
++	set_to_dummy_if_null(ops, task_setpgid);
++	set_to_dummy_if_null(ops, task_getpgid);
++	set_to_dummy_if_null(ops, task_getsid);
++	set_to_dummy_if_null(ops, task_setgroups);
++	set_to_dummy_if_null(ops, task_setnice);
++	set_to_dummy_if_null(ops, task_setrlimit);
++	set_to_dummy_if_null(ops, task_setscheduler);
++	set_to_dummy_if_null(ops, task_getscheduler);
++	set_to_dummy_if_null(ops, task_wait);
++	set_to_dummy_if_null(ops, task_kill);
++	set_to_dummy_if_null(ops, task_prctl);
++	set_to_dummy_if_null(ops, task_kmod_set_label);
++	set_to_dummy_if_null(ops, task_reparent_to_init);
++	set_to_dummy_if_null(ops, ipc_permission);
++	set_to_dummy_if_null(ops, msg_queue_alloc_security);
++	set_to_dummy_if_null(ops, msg_queue_free_security);
++	set_to_dummy_if_null(ops, shm_alloc_security);
++	set_to_dummy_if_null(ops, shm_free_security);
++	set_to_dummy_if_null(ops, sem_alloc_security);
++	set_to_dummy_if_null(ops, sem_free_security);
++	set_to_dummy_if_null(ops, register_security);
++	set_to_dummy_if_null(ops, unregister_security);
++}
+ 
+===== security/security.c 1.4 vs edited =====
+--- 1.4/security/security.c	Thu Oct 17 13:21:20 2002
++++ edited/security/security.c	Sat Nov 30 23:01:07 2002
+@@ -20,7 +20,9 @@
+ 
+ #define SECURITY_SCAFFOLD_VERSION	"1.0.0"
+ 
+-extern struct security_operations dummy_security_ops;	/* lives in dummy.c */
++/* things that live in dummy.c */
++extern struct security_operations dummy_security_ops;
++extern void security_fixup_ops (struct security_operations *ops);
+ 
+ struct security_operations *security_ops;	/* Initialized to NULL */
+ 
+@@ -45,7 +47,7 @@
+ 		} \
+ 	} while (0)
+ 
+-static int inline verify (struct security_operations *ops)
++static int verify (struct security_operations *ops)
+ {
+ 	int err;
+ 
+@@ -59,11 +61,8 @@
+ 	/* Perform a little sanity checking on our inputs */
+ 	err = 0;
+ 
+-	/* This first check scans the whole security_ops struct for
++	/* This check scans the whole security_ops struct for
+ 	 * missing structs or functions.
+-	 *
+-	 * (There is no further check now, but will leave as is until
+-	 *  the lazy registration stuff is done -- JM).
+ 	 */
+ 	VERIFY_STRUCT(struct security_operations, ops, err);
+ 
+@@ -106,6 +105,7 @@
+  */
+ int register_security (struct security_operations *ops)
+ {
++	security_fixup_ops (ops);
+ 
+ 	if (verify (ops)) {
+ 		printk (KERN_INFO "%s could not verify "
+@@ -162,6 +162,8 @@
+  */
+ int mod_reg_security (const char *name, struct security_operations *ops)
+ {
++	security_fixup_ops (ops);
++
+ 	if (verify (ops)) {
+ 		printk (KERN_INFO "%s could not verify "
+ 			"security operations.\n", __FUNCTION__);

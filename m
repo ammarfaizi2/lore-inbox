@@ -1,65 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbTKRAoM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 19:44:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbTKRAoM
+	id S262001AbTKRBA1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 20:00:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTKRBAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 19:44:12 -0500
-Received: from ns.media-solutions.ie ([212.67.195.98]:58383 "EHLO
-	mx.media-solutions.ie") by vger.kernel.org with ESMTP
-	id S262308AbTKRAoL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 19:44:11 -0500
-Message-ID: <3FB96AA6.8060309@media-solutions.ie>
-Date: Mon, 17 Nov 2003 18:41:10 -0600
-From: Keith Whyte <keith@media-solutions.ie>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: es-mx, es-es, en, en-us
-MIME-Version: 1.0
-To: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+	Mon, 17 Nov 2003 20:00:21 -0500
+Received: from gaia.cela.pl ([213.134.162.11]:22277 "EHLO gaia.cela.pl")
+	by vger.kernel.org with ESMTP id S262001AbTKRBAO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 20:00:14 -0500
+Date: Tue, 18 Nov 2003 02:00:01 +0100 (CET)
+From: Maciej Zenczykowski <maze@cela.pl>
+To: Keith Whyte <keith@media-solutions.ie>
+cc: Edgar Toernig <froese@gmx.de>, <linux-kernel@vger.kernel.org>,
+       <linux-gcc@vger.kernel.org>, <linux-admin@vger.kernel.org>
 Subject: Re: 2.4.18 fork & defunct child.
-References: <1069053524.3fb87654286b5@ssl.buz.org> <20031117184732.GA531@louise.pinerecords.com>
-In-Reply-To: <20031117184732.GA531@louise.pinerecords.com>
-X-Enigmail-Version: 0.76.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-RelayImmunity: 212.67.195.98
+In-Reply-To: <3FB96718.20103@media-solutions.ie>
+Message-ID: <Pine.LNX.4.44.0311180151490.11042-100000@gaia.cela.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> { strace listing deleted, see 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106905386725308&w=2 }
 
->Weird.  Totally weird.
->
->Have you checked the systems for root kits?  I'm really out of ideas
->here other than the usual hardwarehosed/systemcompromised.  One thing
->I can vouch for is Slackware 8.1 working ok as is, we've installed
->dozens of that particular release and all the machines are still
->humming away in the wild nicely.
->
->  
->
-Thanks Tomas,
-weird it is, it has me stumped. I'm no spring chicken with linux systems 
-and i also have a slackware 8.1 system running fine on PCchips hardware 
-for years. (well since slackware 8.1 came out, and before that it had 
-7). But this is the only machine i've ever run a distro kernel on.
+well, I strace'd by glibc 2.3.2 system /bin/true and it doesn't fork and 
+doesn't open proc (first place the two straces differ).  Maybe your 
+libraries have been hacked - seems the most likely to me - if this is 
+happening for all programs than the libc is likely bad...
 
-umounting /proc removes the problem.
-what could be in there in proc that would be causing it? something 
-misrepresented about the memory? or some other resource?
+I can't understand what it is opening /proc/.../exe for and I don't 
+understand what the ///////// in there is for (I think more than 2 
+consecutive slashes are illegal in POSIX, not sure though, never use more 
+than 2 :) )
 
+On a side note /bin/true should take up somewhere like 10 bytes asm code - 
+what the hell is that thing doing more than exit(1) for? it shouldn't open 
+any files at all... what a bad design (and true --help and true --version 
+don't work anyway... duh!)
 
-One thing i have noticed is that this happens:
-kernel: PCI_IDE: unknown IDE controller on PCI bus 00 device f9, 
-VID=8086, DID=24cb
-kernel: PCI: Device 00:1f.1 not available because of resource collisions
-on boot.
+perhaps try ltrace'ing /bin/true and see what that prints out?
 
-I sent some more info about the problem earlier to linux-kernel.
+Cheers,
+MaZe.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106911546802893&w=2
-
-
-thanks
 
 

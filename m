@@ -1,31 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316339AbSFDFmm>; Tue, 4 Jun 2002 01:42:42 -0400
+	id <S316475AbSFDGBR>; Tue, 4 Jun 2002 02:01:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316475AbSFDFml>; Tue, 4 Jun 2002 01:42:41 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:51617 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316339AbSFDFml>;
-	Tue, 4 Jun 2002 01:42:41 -0400
-Date: Mon, 03 Jun 2002 21:37:43 -0700 (PDT)
-Message-Id: <20020603.213743.68155795.davem@redhat.com>
-To: dmj+@andrew.cmu.edu
-Cc: ppadala@cise.ufl.edu, linux-kernel@vger.kernel.org
-Subject: Re: No PTRACE_READDATA for archs other than SPARC?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020529234951.GA3797@branoic.them.org>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S316489AbSFDGBQ>; Tue, 4 Jun 2002 02:01:16 -0400
+Received: from front1.mail.megapathdsl.net ([66.80.60.31]:11273 "EHLO
+	front1.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S316475AbSFDGBQ>; Tue, 4 Jun 2002 02:01:16 -0400
+Subject: 2.5.20 -- /usr/include/linux/errno.h:4: asm/errno.h: No such file
+	or directory
+From: Miles Lane <miles@megapathdsl.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5.99 
+Date: 03 Jun 2002 23:21:57 -0700
+Message-Id: <1023171718.7825.1.camel@agate>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Daniel Jacobowitz <dmj+@andrew.cmu.edu>
-   Date: Wed, 29 May 2002 19:49:51 -0400
-   
-   Not really, we should just get EINVAL (ENOSYS?) back when we try to use
-   it, right?
-   
-I answered this last week, you will get -EIO which turns out to also a
-valid return from PTRACE_READDATA.  So a backwards compatible way to
-test for existence of PTRACE_READDATA is going to be difficult.
+gcc -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -o split-include
+split-inIn file included from /usr/include/bits/errno.h:25,
+                 from /usr/include/errno.h:36,
+                 from split-include.c:26:
+/usr/include/linux/errno.h:4: asm/errno.h: No such file or directory
+make[1]: *** [split-include] Error 1
+
+I recall seeing a comment that egcs support was being removed.
+I am building on a machine I haven't used in a while and 
+just noticed it has egcs on it.  If this error is egcs-specific,
+could we please check the gcc version and emit an error stating
+that egcs isn't supported?
+
+	Miles
+

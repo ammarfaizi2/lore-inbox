@@ -1,102 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266104AbRF2Ptd>; Fri, 29 Jun 2001 11:49:33 -0400
+	id <S266107AbRF2QLT>; Fri, 29 Jun 2001 12:11:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265997AbRF2PtY>; Fri, 29 Jun 2001 11:49:24 -0400
-Received: from beppo.feral.com ([192.67.166.79]:30470 "EHLO beppo.feral.com")
-	by vger.kernel.org with ESMTP id <S266104AbRF2PtP> convert rfc822-to-8bit;
-	Fri, 29 Jun 2001 11:49:15 -0400
-Date: Fri, 29 Jun 2001 08:48:39 -0700 (PDT)
-From: Matthew Jacob <mjacob@feral.com>
-Reply-To: <mjacob@feral.com>
-To: =?ISO-8859-1?Q?christophe_barb=E9?= <christophe.barbe@lineo.fr>
-cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Qlogic Fiber Channel
-In-Reply-To: <20010629173631.A15608@pc8.lineo.fr>
-Message-ID: <20010629083938.G13977-100000@wonky.feral.com>
+	id <S266113AbRF2QLJ>; Fri, 29 Jun 2001 12:11:09 -0400
+Received: from s2.relay.oleane.net ([195.25.12.49]:23567 "HELO
+	s2.relay.oleane.net") by vger.kernel.org with SMTP
+	id <S266108AbRF2QLB>; Fri, 29 Jun 2001 12:11:01 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VFS locking & HFS problems (2.4.6pre6)
+Date: Fri, 29 Jun 2001 18:10:52 +0200
+Message-Id: <20010629161052.15124@smtp.adsl.oleane.com>
+In-Reply-To: <E15G08g-0000UO-00@the-village.bc.nu>
+In-Reply-To: <E15G08g-0000UO-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
 
-You know, this is probably slightly OTm, but I've been getting closer
-and closer to what I consider 'happy' for my QLogic megadriver under
-Linux- I have just a tad more to deal with in local loop failures (I
-spent far too much time working on fabric only)- but I've been happier
-with it and need to close it up and move on.
+>Holding a spinlock while sleeping is an offence punishable by deadlock..
 
-I *do* plan to finish IP support eventually.
+Right, and it's indeed the problem. But I'm still concerned about
+locking since by using that spinlock, the guy who wrote it did
+not expect beeing re-entered at this point, and just "cleaning" it
+may not be enough.
 
-I certainly would like to get more feedback about it.
+>You might also look for memory allocations that are not GFP_ATOMIC made with
+>the lock held
 
-Feel free to pick up-
+Yup. It's the problem. It locks, then calls some alloc routines, which
+fills a cache and uses kmalloc with GFP_KERNEL.
 
-bk://blade.feral.com:9002
-ftp://ftp.feral.com/pub/isp/isp_dist.tgz
+Turning it into GFP_ATOMIC might not be the best idea as the HFS
+filesystem currently shares a single hfs_malloc() for everybody and
+turning it into GFP_ATOMIC would cause all of HFS allocs to be atomic.
 
-It's certainly got the latest f/w in it which you can try and use with
-qlogicfc.
+I can change this single routine (and any other doing the same thing),
+but  I'd rather fix it by making sure HFS can safely sleep at this
+point and still use GFP_KERNEL.
 
--matt
+I just found Documentations/filesystems/Locking document, I bet I'll
+find all the infos I need there. It's amazing how long it took me
+to look for the info where it logically should be ;)
 
+Ben.
 
-On Fri, 29 Jun 2001, [ISO-8859-1] christophe barbé wrote:
-
->
-> Le ven, 29 jun 2001 17:09:56, Alan Cox a écrit :
-> > > From my point of view, this driver is sadly broken. The fun part is
-> that
-> > > the qlogic driver is certainly based on this one too (look at the code,
-> > > the drivers differs not so much).
-> >
-> > And if the other one is stable someone should spend the time merging the
-> > two.
->
-> That what I would like to try but It seems impossible without an
-> IP-enhanced firmware. I could try with the old firmware but I believe that
-> the new code from QLogic use some features that are only in recent
-> firmware.
->
-> >
-> > > IMHO the qlogicfc driver should be removed from the kernel tree and
-> > > perhaps replaced by the last qlogic one. We then lost the IP support
-> > > but this is a broken support.
-> >
-> > For 2.5 that may wellk make sense. Personally I'd prefer someone worked
-> > out
-> > why the qlogicfc driver behaves as it does. It sounds like two small bugs
-> > nothing more
-> >
-> > 1.	That the FC event code wasnt updated from 2.2 so now runs
-> > 	with IRQ's off when it didnt expect it
-> >
-> > 2.	That someone has a slight glitch in the queue handling.
->
-> This driver is already buggy under kernel 2.2. This driver is a well known
-> source of problems in the GFS mailing lists.
->
-> I believe that the better thing to do is to use the qlogic driver. If we
-> manage to get a recent IP-enhanced firmware we could rewrite the missing IP
-> code. Half of the job is already done in the source of this driver.
->
-> I didn't manage to reach the good person from qlogic. Perhaps someone would
-> have better results.
->
-> Christophe
->
-> --
-> Christophe Barbé
-> Software Engineer - christophe.barbe@lineo.fr
-> Lineo France - Lineo High Availability Group
-> 42-46, rue Médéric - 92110 Clichy - France
-> phone (33).1.41.40.02.12 - fax (33).1.41.40.02.01
-> http://www.lineo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
 

@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318221AbSIBED0>; Mon, 2 Sep 2002 00:03:26 -0400
+	id <S318222AbSIBESn>; Mon, 2 Sep 2002 00:18:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318222AbSIBED0>; Mon, 2 Sep 2002 00:03:26 -0400
-Received: from p508B6F8E.dip.t-dialin.net ([80.139.111.142]:20867 "EHLO
-	p508B6F8E.dip.t-dialin.net") by vger.kernel.org with ESMTP
-	id <S318221AbSIBEDZ>; Mon, 2 Sep 2002 00:03:25 -0400
-Date: Mon, 2 Sep 2002 06:07:49 +0200
-From: Ralf Baechle <ralf@uni-koblenz.de>
-To: dirty boy <slashdotcommacolon@hotmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux ELF Implementation
-Message-ID: <20020902060749.A6109@bacchus.dhis.org>
-References: <F218kOUkl2SN8anK0B30000890f@hotmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <F218kOUkl2SN8anK0B30000890f@hotmail.com>; from slashdotcommacolon@hotmail.com on Sun, Sep 01, 2002 at 10:26:10PM +0000
-X-Accept-Language: de,en,fr
+	id <S318224AbSIBESn>; Mon, 2 Sep 2002 00:18:43 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:45831 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S318222AbSIBESm> convert rfc822-to-8bit;
+	Mon, 2 Sep 2002 00:18:42 -0400
+Date: Sun, 1 Sep 2002 21:21:54 -0700 (PDT)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Con Kolivas <conman@kolivas.net>
+cc: =?ISO-8859-1?B?RGlldGVyIE78dHplbA==?= <Dieter.Nuetzel@hamburg.de>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Benchmarks for performance patches (-ck) for 2.4.19
+In-Reply-To: <1030938156.3d72de2c231ac@kolivas.net>
+Message-ID: <Pine.LNX.4.33L2.0209012116120.22470-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 01, 2002 at 10:26:10PM +0000, dirty boy wrote:
+On Mon, 2 Sep 2002, Con Kolivas wrote:
 
-> im learning about the ELF specification with a friend of mine, were hoping 
-> to get a better understanding of how these things work, and a wild idea 
-> occurred to us - would it be possible to create a valid ELF executable from 
-> purely printable ASCII characters ?
-> 
-> by that i mean, you would be able to literally cat > a.out and enter your 
-> executable from the keyboard! it wouldnt have todo anything, just return 
-> 0...
-> 
-> the file wouldnt have to be portable, only the fields that the kernel is 
-> going to notice would have to be present, so long as it executes!
-> 
-> im convinced the answer is no - but my friend says it is, he says hes seen 
-> it done in PE format ( although we cant find it on the web ) and therefore 
-> theres no reason why it couldnt be done in ELF.
+| Quoting Dieter Nützel <Dieter.Nuetzel@hamburg.de>:
 
-There answer is no; the ELF magic at the begin of an ELF file contains
-a non-printable character.
+snippage...
 
-  Ralf
+| > Then I try dbench (Yes, I know Rik ;-) to see the GREAT speed of Andrea
+| > Arcangeli's -AA VM which improve noticeably with the Preemption patch.
+| > O(1) gave some additional speed, too.
+|
+| Yes, dbench is included in the many tests available at the the Open Source
+| Development Lab (osdl.org) along with many others.
+
+That makes it good, right?  8;)
+
+Actually we are going thru our workloads and trying to
+identify what they measure, what they are good for, etc.,
+so if you have feedback in this area, please give it to us,
+for the workloads that we run on each new kernel (2.5.x
+or 2.4.x-marcelo).
+
+-- 
+~Randy
+

@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbUKLAQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbUKLA2c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbUKLAQF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 19:16:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbUKLAL3
+	id S262471AbUKLA2c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 19:28:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUKLAOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 19:11:29 -0500
-Received: from fire.osdl.org ([65.172.181.4]:433 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S262434AbUKLAI4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 19:08:56 -0500
-Date: Thu, 11 Nov 2004 16:11:24 -0800
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Michael Heyse <mhk@designassembly.de>, Jeff Garzik <jgarzik@pobox.com>,
-       Mirko Lindner <mlindner@syskonnect.de>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: [PATCH] (0/23) sk98 driver fixes and enhancements
-Message-Id: <20041111161124.34ccb1e6@zqx3.pdx.osdl.net>
-In-Reply-To: <4192C60A.1050205@designassembly.de>
-References: <4192C60A.1050205@designassembly.de>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.9.10claws (GTK+ 1.2.10; i686-suse-linux)
+	Thu, 11 Nov 2004 19:14:07 -0500
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:47879 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S262435AbUKLANs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 19:13:48 -0500
+Date: Thu, 11 Nov 2004 18:13:37 -0600
+From: Terence Ripperda <tripperda@nvidia.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] VM accounting change
+Message-ID: <20041112001337.GR1740@hygelac>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+References: <20041111223245.GA15759@hygelac> <20041111150710.6855398a.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041111150710.6855398a.akpm@osdl.org>
+User-Agent: Mutt/1.4i
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.6.7 
+X-OriginalArrivalTime: 12 Nov 2004 00:13:37.0905 (UTC) FILETIME=[74FD6610:01C4C84C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the first set of patches to merge some of the new SysKonnect
-code with existing 2.6 driver and fix several bugs. 
+On Thu, Nov 11, 2004 at 03:07:10PM -0800, akpm@osdl.org wrote:
+> VM_LOCKED|VM_IO doesn't seem to be a sane combination.  VM_LOCKED means
+> "don't page it out" and VM_IO means "an IO region".  The kernel never even
+> attempts to page out IO regions because they don't have reverse mappings. 
+> Heck, they don't even have pageframes.
+> 
+> How about you drop the VM_LOCKED?
 
-1: 	Remove explicit module refcounting (bug) 
-2: 	Make OnesHash table local constant.
-3: 	proc print interface cleanup
-4: 	Use netdev_priv
-5:  	Use module_param_array instead of deprecated MODULE_PARM
-6: 	Add netpoll controller support
-7:      Basic ethtool support
-8:      Ethtool support for LED blinking
-9: 	Ethtool pause param support
-10:	Cleanup
-11:	Fix boards_found count
-12:	Add MODULE_VERSION
-13:	Handle ring full condition properly (bug)
-14:	Get rid of obfuscation irqreturn_t
-15:	Rearrange functions to match SysKonnect code
-16:	More efficient OsGetTime
-17:	Enable high dma and lockless transmit
-18:	reorganize pci_device table
-19:	Do initialization better
-20:	Ethtool tx & receive checksum efficiently
-21:	Tx ring management improvements
-22:	Cleanup the code under DIAG_SUPPORT
-23:	Eliminate Pnmi scratchpad common
+sounds good, I can do that.
 
-To spare people's mailbox the individual patches won't go to LKML just to netdev.
+on a related note, there are a couple of flags that I'm not 100% clear
+on the difference between, mainly:
+
+VM_LOCKED
+PG_locked
+PG_reserved
+
+everything I've seen in the past has suggested that drivers set the
+PG_reserved flag for memory allocations intended to be locked down in
+memory for extensive dma (the bttv driver had always been pointed to
+as an example of that).
+
+I'm not clear how that differs from PG_locked and VM_LOCKED. is
+PG_reserved still the suggested way to properly lock memory down, or
+is there a more generally accepted method?
+
+Thanks,
+Terence
+
+

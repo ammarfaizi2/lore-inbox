@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316674AbSE0Q01>; Mon, 27 May 2002 12:26:27 -0400
+	id <S316678AbSE0QaI>; Mon, 27 May 2002 12:30:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316675AbSE0Q00>; Mon, 27 May 2002 12:26:26 -0400
-Received: from www.cdhutmusic.com ([196.28.7.66]:10125 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S316674AbSE0Q00>; Mon, 27 May 2002 12:26:26 -0400
-Date: Mon, 27 May 2002 17:59:54 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Terje Eggestad <terje.eggestad@scali.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Eric Lemoine <Eric.Lemoine@ens-lyon.fr>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: i8259 and IO-APIC
-In-Reply-To: <1022510160.12202.113.camel@pc-16.office.scali.no>
-Message-ID: <Pine.LNX.4.44.0205271757550.28930-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316679AbSE0QaH>; Mon, 27 May 2002 12:30:07 -0400
+Received: from mx6.mail.ru ([194.67.57.16]:26117 "EHLO mx6.mail.ru")
+	by vger.kernel.org with ESMTP id <S316678AbSE0QaG>;
+	Mon, 27 May 2002 12:30:06 -0400
+From: "Muthal Sangam" <sangam@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: interrupt latency/700microsecs
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 144.16.67.155 via proxy [144.16.67.8]
+Date: Mon, 27 May 2002 20:30:06 +0400
+Reply-To: "Muthal Sangam" <sangam@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17CNNm-000GQe-00@f11.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27 May 2002, Terje Eggestad wrote:
 
-> Do you got any numbers that state that it's processing overhead, and not
-> HW latency that is the bulk of interrupt service time? Just curious,
-> I've been looking and can't find this "perceived fact" backed up by
-> facts anywhere. 
+On kernel 2.4.7, AMDK6 @ 450MHz processor, is it possible to get latency
+fluctuations of upto 700microsecs for running the timer interrupt, due to
+interrupts being disabled ?
 
-I think Alan had the ISR and kernel IRQ service overhead in mind. In this 
-light, hardware interrupt latency is a drop in the ocean..
+I am using the time stamp counter and reading it at the start of the timer
+interrupt and measuring the cycles elapsed between two inovocations of it.
+The number of cycles elapsed is ~4500225, but sometimes it increases to as
+high as 4848032. Can i conclude that this difference is due to interrupts
+being disabled in critical sections ? ( I think i am making some mistake :-)
 
-Cheers,
-	Zwane Mwaikambo
--- 
-http://function.linuxpower.ca
-		
-
+- sangam
 

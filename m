@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266285AbTAOMQs>; Wed, 15 Jan 2003 07:16:48 -0500
+	id <S266286AbTAOM16>; Wed, 15 Jan 2003 07:27:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266286AbTAOMQs>; Wed, 15 Jan 2003 07:16:48 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:64149 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266285AbTAOMQr>;
-	Wed, 15 Jan 2003 07:16:47 -0500
-Date: Wed, 15 Jan 2003 12:23:24 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Miklos Szeredi <Miklos.Szeredi@eth.ericsson.se>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VIA C3 and random SIGTRAP or segfault
-Message-ID: <20030115122324.GC32694@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Miklos Szeredi <Miklos.Szeredi@eth.ericsson.se>,
-	linux-kernel@vger.kernel.org
-References: <200301150929.h0F9T1I10444@duna48.eth.ericsson.se>
+	id <S266292AbTAOM16>; Wed, 15 Jan 2003 07:27:58 -0500
+Received: from dp.samba.org ([66.70.73.150]:9197 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266286AbTAOM15>;
+	Wed, 15 Jan 2003 07:27:57 -0500
+Date: Wed, 15 Jan 2003 23:32:09 +1100
+From: Anton Blanchard <anton@samba.org>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: 48GB NUMA-Q boots, with major IO-APIC hassles
+Message-ID: <20030115123209.GA6588@krispykreme>
+References: <20030115105802.GQ940@holomorphy.com> <20030115112412.GA5062@krispykreme> <20030115115525.GI919@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301150929.h0F9T1I10444@duna48.eth.ericsson.se>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030115115525.GI919@holomorphy.com>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 15, 2003 at 10:29:01AM +0100, Miklos Szeredi wrote:
- > 
- > I just bought a VIA C3 866 processor, and under very special
- > circumstances some programs (e.g. mplayer, xmms) randomly crash with
- > trace/breakpoint trap or segmentation fault.  Otherwise the system
- > seems stable even under high load.
 
-Be sure that those programs aren't compiled for 686. The C3 lacks
-cmov, so it'll segfault when it hits that opcode. You can confirm
-this by running it under gdb, and disassembling where it segv's to.
-This is still a common problem thats biting some people. The debian
-folks had a broken libssl for months up until recently.
+> PCI config cycles must be qualified by segment here just to get the
+> right address, so there's definitely a requirement for stuff. One
+> "advantage" of NUMA-Q (if it can be called that) is that firmware/BIOS
+> and hardware pushes a bus number mangling scheme that is more or less
+> mandatory, so things can at largely implicitly taken care of with the
+> bus number and the firmware's mapping of the mangled bus numbers to the
+> cross-quad portio area. But this scheme does not have cooperation from
+> PCI-PCI bridges, where NUMA-Q mangling scheme -noncompliant physical
+> bus ID's are kept in the bus number registers.
 
-Note to userspace developers: If you're compiling something as
-a 686 binary, you *NEED* to check the feature flags (in an i386
-compiled program) to see if the CPU has cmov before you load 686
-optimised parts of your app.  This is *NOT* a kernel problem,
-it is *NOT* a CPU bug. The cmov extension is optional.
-VIA chose to save silicon space by not implementing it. 
-Gcc unfortunatly always uses cmov when compiling for 686.
+Can you store the segment in pci_bus->sysdata and then use that in
+your config read/write macros? What do you mean by the mangling?
+Does each host bridge have a separate segment identifier? If so why
+would the PCI-PCI bridges below it need to have incorrect IDs?
 
-		Dave
+> I have no idea what to do about these; I just sort of hope and pray the
+> backward-compatibility constraints won't hurt me. At the level of things
+> exported to userspace my main concern is largely that things like disk
+> arrays will actually be accessible as raw devices or mountable as fs's,
+> cooperation with userspace drivers and accurate reporting is kind of
+> secondary to me aside from satisfying backward-compatibility concerns
+> from Pee Cee -centric sides of things.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Its possible customers will run X on their server, thats when getting
+things like /proc/bus/pci/* right becomes important :) In fact on
+sparc64 and ppc64 X should work with domains fairly easily because
+they are already use /proc/bus/pci/* to mmap PCI BARs.
+
+I think X should always use this method, reading PCI BARs and mmap'ing
+/dev/mem is just awful.
+
+Anton

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289172AbSAQP0t>; Thu, 17 Jan 2002 10:26:49 -0500
+	id <S289171AbSAQP03>; Thu, 17 Jan 2002 10:26:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289170AbSAQP0k>; Thu, 17 Jan 2002 10:26:40 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:17924
-	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S289168AbSAQP0a>; Thu, 17 Jan 2002 10:26:30 -0500
-Date: Thu, 17 Jan 2002 10:17:53 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Mike Dresser <mdresser@windsormachine.com>
-Cc: CML2 <linux-kernel@vger.kernel.org>
-Subject: Re: CML2-2.1.6
-Message-ID: <20020117101753.A2489@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Mike Dresser <mdresser@windsormachine.com>,
-	CML2 <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020117094920.A9419@thyrsus.com> <Pine.LNX.4.33.0201171016180.21768-100000@router.windsormachine.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33.0201171016180.21768-100000@router.windsormachine.com>; from mdresser@windsormachine.com on Thu, Jan 17, 2002 at 10:17:17AM -0500
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S289172AbSAQP0T>; Thu, 17 Jan 2002 10:26:19 -0500
+Received: from mx3out.umbc.edu ([130.85.253.53]:50078 "EHLO mx3out.umbc.edu")
+	by vger.kernel.org with ESMTP id <S289171AbSAQP0J>;
+	Thu, 17 Jan 2002 10:26:09 -0500
+Date: Thu, 17 Jan 2002 10:25:39 -0500
+From: John Jasen <jjasen1@umbc.edu>
+X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: V-man <venom@DarkStar.sns.it>, <rgooch@ras.ucalgary.ca>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Rik spreading bullshit about VM
+In-Reply-To: <Pine.LNX.4.33L.0201162230550.32617-100000@imladris.surriel.com>
+Message-ID: <Pine.SGI.4.31L.02.0201171023470.1464582-100000@irix2.gl.umbc.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Dresser <mdresser@windsormachine.com>:
-> > Checkpoint release before I go to an SF convention for four days, without
-> > net access grrrr....ConFusion here I come!
-> > --
-> Bring yourself a copy of netstumbler, and a laptop!
+On Wed, 16 Jan 2002, Rik van Riel wrote:
 
-Got the laptop.  What's a netstumbler?
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> On Thu, 17 Jan 2002, V-man wrote:
+>
+> > So basically Ri's assertion is far from truth on many aspects.
+>
+> That assumes it is my assertion, it appears the journalist in
+> question is missing a few lines from his IRC log though...
 
-The people of the various provinces are strictly forbidden to have in their
-possession any swords, short swords, bows, spears, firearms, or other types
-of arms. The possession of unnecessary implements makes difficult the
-collection of taxes and dues and tends to foment uprisings.
-        -- Toyotomi Hideyoshi, dictator of Japan, August 1588
+Then, in the interests of ending this flamewar quickly, why don't you
+email clarifications to the author, cc'ing Andreas, lkml, and letting the
+slashdotter children know of it?
+
+--
+-- John E. Jasen (jjasen1@umbc.edu)
+-- In theory, theory and practise are the same. In practise, they aren't.
+

@@ -1,52 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278450AbRKHVY7>; Thu, 8 Nov 2001 16:24:59 -0500
+	id <S278566AbRKHV23>; Thu, 8 Nov 2001 16:28:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278470AbRKHVYt>; Thu, 8 Nov 2001 16:24:49 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:16654 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S278450AbRKHVYl>;
-	Thu, 8 Nov 2001 16:24:41 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Frank de Lange <frank@unternet.org>
-Date: Thu, 8 Nov 2001 22:24:05 MET-1
+	id <S278584AbRKHV2T>; Thu, 8 Nov 2001 16:28:19 -0500
+Received: from sweetums.bluetronic.net ([66.57.88.6]:935 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S278566AbRKHV2J>; Thu, 8 Nov 2001 16:28:09 -0500
+Date: Thu, 8 Nov 2001 16:28:02 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetopia.net>
+X-X-Sender: <jfbeam@sweetums.bluetronic.net>
+To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+In-Reply-To: <964381385.1005245622@[195.224.237.69]>
+Message-ID: <Pine.GSO.4.33.0111081612240.17287-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: hang with 2.4.14 & vmware 3.0.x, anyone else seen this?
-CC: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <89FED3F0389@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  8 Nov 01 at 21:36, Frank de Lange wrote:
-> On Thu, Nov 08, 2001 at 09:08:10PM +0000, Petr Vandrovec wrote:
-> > Is it really solid freeze (what does alt-sysrq-s,u,s,b)? 
-> 
-> Solid as a rock, nothing responds anymore. You can sit an elephant on the
-> keyboard and it won't respond.
-> 
-> Only the big white switch helps (fsck'ing 80 gigs gives me enough time to make
-> a good cup of coffee... time for ext3 in the main kernel series...)
+On Thu, 8 Nov 2001, Alex Bligh - linux-kernel wrote:
+>For instance, take the /proc/mounts type example, where
 
-Journaling will not do anything good in such case, as damaged kernel
-could write damaged data to your harddisk. You should run full fsck
-after every such lockup even if you are using journaled filesystem -
-- unless you are 100% sure that kernel really stoped doing anything
-instead of that it started doing strange things.
- 
-> Have you investigated the problems any further? I mean, does it hang in the
-> vmware module (probably vmmon as it does not seem to be related to network or
-> other peripheral activity), or is it somewhere in the main kernel code?
+(bad example as /proc/mounts is supposed to be a substiture for /etc/mtab.)
 
-As there are no loops in vmmon, it is mathematically provable that it
-did not end in endless loop with interrupts disabled inside vmmon ;-) 
-But it could die anywhere else. 
+>each row is a sequence of binary values. Someone decides
+>to add another column, which assuming it is a DWORD^W__u64,
+>does exactly this, inserts a DWORD^W__u64 between the
+>end of one record and the start of the next as far a
+>poorly written parser is concerned.
 
-Probably it is time for me to try Linus's kernel, but I have so perfect 
-exprience with Alan ones that I'm a bit reluctant to do that.
-                                                Best regards,
-                                                    Petr Vandrovec
-                                                    vandrove@vc.cvut.cz
-                                                    
+Then make it hard ("impossible") to write a poor parser; include a record
+size in the data format.  The first __u32 read is the number of bytes per
+record.  You then know exactly how much data to read.  Adding more crap on
+the end doesn't break anything.
+
+People who think binary data formats are bad and hard to work with should
+take a few minutes to look at various implementation using binary data
+structures.  For example, RADIUS.
+
+>The brokenness is not due to the distinction between ASCII
+>and binary. The brokenness is due the ill-defined nature
+>of the format, and poor change control. (so for instance
+>the ASCII version could consistently use (say) quoted strings,
+>with spaces between fields, and \n between records, just
+>as the binary version could have a record length entry at the
+>head of each record, and perhaps field length and identifier
+>versions by each field - two very similar solutions to the
+>problem above).
+
+Correct.  The issue is not which is easier to work with, or endian friendly.
+A properly designed structure, which we still don't have, is the key.  It's
+just as straight forward to tokenize binary fields as text fields.  Then you
+have to do something with the data in the fields.  Binary is far more
+efficient in almost all cases.
+
+People should not shit a brick at the suggestion of doing _some_ things
+as binary structures.  The parts of /proc that really are intended for humans
+(ie. driver "debug" information... /proc/slabinfo, /proc/drivers/rd/..., etc.)
+don't make sense in binary.  However, there are loads of things that DO make
+sense in binary format -- too many things reference them for further processing
+requiring conversion from/to text multiple times.  The number of people
+who do:
+ % grep -l foo /proc/[0-9]*/cmdline
+instead of:
+ % ps auxwww | grep foo
+are very VERY low.
+
+--Ricky
+
+

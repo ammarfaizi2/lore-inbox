@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266720AbTAWS6W>; Thu, 23 Jan 2003 13:58:22 -0500
+	id <S261290AbTAWTMZ>; Thu, 23 Jan 2003 14:12:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267121AbTAWS6W>; Thu, 23 Jan 2003 13:58:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:51117 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S266720AbTAWS6V>;
-	Thu, 23 Jan 2003 13:58:21 -0500
-Date: Thu, 23 Jan 2003 20:07:11 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Gregoire Favre <greg@ulima.unil.ch>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, cdwrite@other.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can't burn DVD under 2.5.59 with ide-cd
-Message-ID: <20030123190711.GW910@suse.de>
-References: <200301231752.h0NHqOM5001079@burner.fokus.gmd.de> <20030123180124.GB9141@ulima.unil.ch> <20030123180653.GU910@suse.de> <20030123181002.GV910@suse.de> <20030123185554.GC9141@ulima.unil.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030123185554.GC9141@ulima.unil.ch>
+	id <S261302AbTAWTMZ>; Thu, 23 Jan 2003 14:12:25 -0500
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:51075 "EHLO
+	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id <S261290AbTAWTMY>; Thu, 23 Jan 2003 14:12:24 -0500
+Message-ID: <3E3040B7.6040001@nortelnetworks.com>
+Date: Thu, 23 Jan 2003 14:21:27 -0500
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: is it possible to bridge virtual devices (ie. a GRE tunnel)?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 23 2003, Gregoire Favre wrote:
-> On Thu, Jan 23, 2003 at 07:10:02PM +0100, Jens Axboe wrote:
-> 
-> > oh, and dump failed->sense_len as well!
-> 
-> ??? I am sorry, I undestood the first one, but not this one...
-> Could you explain it a little more?
 
-just add a len=%d to the printk line, and failed->sense_len as the
-argument.
+I want to set up two physically separate LANs with the same network 
+address and logically bridge them using some kind of tunnel over an IP 
+network.
+
+I was hoping to somehow combine bridging with GRE tunnels in the kernel 
+to accomplish this, but I haven't been able to find out for sure if the 
+current kernel bridging code can handle a tunnel device as one of the 
+bridge elements.
+
+Can anyone give the definitive answer for this?
+
+Thanks,
+
+Chris
 
 -- 
-Jens Axboe
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

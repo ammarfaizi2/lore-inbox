@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbTFFK07 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Jun 2003 06:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTFFK07
+	id S261192AbTFFKqk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Jun 2003 06:46:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbTFFKqk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Jun 2003 06:26:59 -0400
-Received: from 200-103-109-208.gnace7007.dsl.brasiltelecom.net.br ([200.103.109.208]:32490
-	"HELO STC1") by vger.kernel.org with SMTP id S261678AbTFFK06 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Jun 2003 06:26:58 -0400
-From: "uyuyuytu" <uyuyuytu@bol.com.br>
-To: "majordomo" <majordomo@vger.kernel.org>
-Subject: AUMENTE SEU PENIS EM ATE 5CM 
-Date: Fri, 06 Jun 03 07:28:22 Hora oficial do Brasil
-MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary= "----=_NextPart_000_00AB_57D6E7F8.9996D55"
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000 
-Message-Id: <S261678AbTFFK06/20030606102658Z+1006@vger.kernel.org>
+	Fri, 6 Jun 2003 06:46:40 -0400
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:62453 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S261192AbTFFKqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Jun 2003 06:46:39 -0400
+Message-Id: <200306061100.h56B08sG024506@ginger.cmf.nrl.navy.mil>
+To: "David S. Miller" <davem@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][ATM] use rtnl_{lock,unlock} during device operations (take 2) 
+In-reply-to: Your message of "Fri, 06 Jun 2003 02:36:18 PDT."
+             <20030606.023618.13768006.davem@redhat.com> 
+X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
+X-mailer: nmh 1.0
+Date: Fri, 06 Jun 2003 06:58:20 -0400
+From: chas williams <chas@cmf.nrl.navy.mil>
+X-Spam-Score: () hits=-0.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_NextPart_000_00AB_57D6E7F8.9996D55
-Content-Type: text/plain
-Content-Transfer-Encoding: base64
+In message <20030606.023618.13768006.davem@redhat.com>,"David S. Miller" writes:
+>Are you sure nothing needs to walk the list in interrupt or softint
+>context?  That's why you can't normally protect all of it using the
+>RTNL semaphore, because walks occur in non-sleepable contexts.
 
-Q29tIG8gTUFOVUFMIG1haXMgY29iaedhZG8gZGEgaW50ZXJuZXQgbm8gbW9tZW50bywgdm9j
-6iBhdW1lbnRhIG8gdGFtYW5obw0KZGUgc2V1IHDqbmlzIGRlIDIgYSA1IGNtIGVtIDIgbWVz
-ZXMgY29tIGV4ZXJj7WNpb3MgYWJzb2x1dGFtZW50ZQ0KbmF0dXJhaXMuIEF1bWVudGEgdGFt
-YultIGEgc3VhIHBvdOpuY2lhLCBjb250cm9sZSBlIHZvbHVtZSBkYSBlamFjdWxh5+NvLA0K
-ZGVudHJlIG91dHJvcyBiZW5lZu1jaW9zLiBQcm9ncmFtYSBjb21wbGV0byBjb20gZmlndXJh
-cyBpbHVzdHJhdGl2YXMNCmV4cGxpY2FuZG8gZGV0YWxoYWRhbWVudGUgdG9kb3Mgb3MgZXhl
-cmPtY2lvcy4gRm90b3MgY29tcGFyYXRpdmFzIG5vIHNpdGUNCmRlIHBlc3NvYXMgcXVlIGV4
-cGVyaW1lbnRhcmFtIGVzc2EgdOljbmljYS4gDQpodHRwOi8vYWxhdmFuY2EyMDAzLnRyaXBv
-ZC5jb20uYnIgICAgIGh0dHA6Ly93d3cuc3VwZXJwZW5pczIwLnViYmkuY29tLmJyLw0KIGh0
-dHA6Ly9vcmJpdGEuc3Rhcm1lZGlhLmNvbS9zc3VwZXJ4IA0KDQoNCg0KDQoNCg0KDQoNCg0K
-DQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18NCk9CUzogRXN0YSBtZW5zYWdlbSBu428g6SB1bSBzcGFtLCB2aXN0byBxdWUgc29t
-ZW50ZSBlc3RhcuEgc2VuZG8gDQplbnZpYWRvIHVtYSD6bmljYSB2ZXosIGUgdGFtYultIGNv
-bnTpbSB1bWEgZm9ybWEgZGUgc2VyIHJlbW92aWRhLA0K6SB1bSBlLW1haWwgbm9ybWFsIGNv
-bW8gdGFudG9zIG91dHJvcyBxdWUgdm9j6iByZWNlYmUsIG7jbyBlc3RhbW9zDQppbnZhZGlu
-ZG8gc3VhIHByaXZhY2lkYWRlIGUgZW52aWFyIHVtIGUtbWFpbCBu428g6SBjcmltZSwgZGVz
-ZGUgcXVlDQpu428gY29udGVuaGEgbWVuc2FnZW5zIHF1ZSBwb3NzYW0gY2F1c2FyIGRhbm9z
-IGFvIHVzdeFyaW8uIENhc28gDQpxdWVyaWEgcmVtb3ZlciBzZXUgZW5kZXJl528gZGUgbm9z
-c2EgbGlzdGEsIGJhc3RhIGVudmlhciB1bSBlLW1haWwNCmNvbSBvIHRpdHVsbyAoYXNzdW50
-bykgcmVtb3ZlciwgcXVlIHNldQ0KZS1tYWlsIHNlcuEgcmVtb3ZpZG8gZGUgbm9zc2EgbGlz
-dGEgZGVmaW5pdGl2YW1lbnRlLkRlc2N1bHBlLW5vcw0KY2FzbyB0ZW5oYW1vcyBsaGUgaW1w
-b3J0dW5hZG8gY29tIG5vc3NvIGUtbWFpbCBkZSBkaXZ1bGdh5+NvLg0KT2JyaWdhZG8hDQog
-ICAg
-------=_NextPart_000_00AB_57D6E7F8.9996D55--
+oddly enough, i dont believe the list is iterated in interrupt
+context.
+
+>Read the comment above dev_base in drivers/net/Space.c to see what
+>the intended locking model is.
+
+yeah, i already read that.  it has a bit of a typo (rtln indeed).
+it looks like rtnl_lock() is also used to protect dev_ioctl's
+(thus my usage in atm_ioctl) and protect lookup's like __dev_get_by_name.
+i didnt get rid of atm_dev_lock, i just dont use it unless writing
+or if i couldnt safely use rtnl when a reader is iterating (like
+atm_dev_hold() which could be called at interrupt--though no one does).
+i thought this was the idea.

@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264781AbUEPSjA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264782AbUEPSlf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264781AbUEPSjA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 14:39:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbUEPSjA
+	id S264782AbUEPSlf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 14:41:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264785AbUEPSlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 14:39:00 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18116 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S264781AbUEPSi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 14:38:58 -0400
-Date: Sun, 16 May 2004 20:38:49 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.6-mm3: USB console.c doesn't compile
-Message-ID: <20040516183849.GO22742@fs.tum.de>
-References: <20040516025514.3fe93f0c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040516025514.3fe93f0c.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+	Sun, 16 May 2004 14:41:35 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:25533 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S264782AbUEPSld (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 14:41:33 -0400
+Message-ID: <40A7B5D9.60707@g-house.de>
+Date: Sun, 16 May 2004 20:41:29 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: de-de, de-at, de, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] "bk pull" does not update my sources...?
+References: <40A51CFB.7000305@g-house.de>	<c85lk9$96j$1@sea.gmane.org>	<40A7A145.5020201@g-house.de> <20040516102936.0c0df511.rddunlap@osdl.org>
+In-Reply-To: <20040516102936.0c0df511.rddunlap@osdl.org>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following compile error comes from Linus' tree:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-<--  snip  -->
+Randy.Dunlap schrieb:
+| Right.  The bk tree does not contain -bkN or anything in the
+| EXTRAVERSION string.  The bk snapshots do add that string.
+|
 
-...
-  CC      drivers/usb/serial/console.o
-drivers/usb/serial/console.c: In function `usb_console_setup':
-drivers/usb/serial/console.c:140: warning: implicit declaration of function `serial_paranoia_check'
-...
-  LD      .tmp_vmlinux1
-drivers/built-in.o(.init.text+0x698c8): In function `usb_console_setup':
-: undefined reference to `serial_paranoia_check'
-make: *** [.tmp_vmlinux1] Error 1
+hm, okay then. Thank you all for clearing things up.
 
-<--  snip   -->
+Christian.
 
-cu
-Adrian
+- --
+BOFH excuse #402:
 
--- 
+Secretary sent chain letter to all 5000 employees.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+iD8DBQFAp7XZ+A7rjkF8z0wRAtirAJ9Uv2nsXcQkblcItV+XrXr/EaoSNQCgh8PG
+6gRlzLutW5dAjirpDsj4dFw=
+=qXhI
+-----END PGP SIGNATURE-----

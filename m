@@ -1,63 +1,227 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130133AbQKILZK>; Thu, 9 Nov 2000 06:25:10 -0500
+	id <S130411AbQKILgL>; Thu, 9 Nov 2000 06:36:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130254AbQKILZB>; Thu, 9 Nov 2000 06:25:01 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:46225 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S130133AbQKILYo>; Thu, 9 Nov 2000 06:24:44 -0500
-From: Christoph Rohland <cr@sap.com>
-To: richardj_moore@uk.ibm.com
-Cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-In-Reply-To: <80256992.002FE358.00@d06mta06.portsmouth.uk.ibm.com>
-Organisation: SAP LinuxLab
-Date: 09 Nov 2000 12:24:32 +0100
-In-Reply-To: richardj_moore@uk.ibm.com's message of "Thu, 9 Nov 2000 07:43:09 +0000"
-Message-ID: <qwwvgtxjslr.fsf@sap.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S130408AbQKILfv>; Thu, 9 Nov 2000 06:35:51 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:30354 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130254AbQKILfk>;
+	Thu, 9 Nov 2000 06:35:40 -0500
+Date: Thu, 9 Nov 2000 03:20:57 -0800
+Message-Id: <200011091120.DAA27190@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: andrewm@uow.edu.au
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <3A0A8236.2166E00@uow.edu.au> (message from Andrew Morton on Thu,
+	09 Nov 2000 21:53:42 +1100)
+Subject: Re: [patch] NE2000
+In-Reply-To: <200011082031.XAA20453@ms2.inr.ac.ru> (kuznet@ms2.inr.ac.ru),
+		<200011082031.XAA20453@ms2.inr.ac.ru> <200011090127.RAA17691@pizda.ninka.net> <3A0A8236.2166E00@uow.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Richard,
+   Date: Thu, 09 Nov 2000 21:53:42 +1100
+   From: Andrew Morton <andrewm@uow.edu.au>
 
-On Thu, 9 Nov 2000, richardj moore wrote:
-> Let be clear about one thing: the GKHI make no statement about
-> enabling proprietary extensions and that's a common
-> misconception. GKHI is intended to make optional facilities easier
-> to co-install and change. We designed it for DProbes, and when
-> modularised will remain a GPL opensource offering.
+   "David S. Miller" wrote:
+   > I will compose a patch to fix all this.
 
-Yes, I understand that.
+   I've quickly been through just about all of the kernel wrt
+   waitqueues.
 
-> The only motivation for providing GKHI is to make the kernel more
-> acceptable to the enterprise customer, but allowing, for example,
-> RAS capabilities to be brough in easily and dynmaically. This type
-> of customer will not readily succome to on-the-fly kernel rebuilds
-> to diagnose problems that occur only in complex production
-> environments.
+My analysis was in error, BEWARE!
 
-I know this problem pretty well.
+Being on multiple wait queues at once is just fine.  I verified this
+with Linus tonight.
 
-> If anything opens the door to proprietary extensions it's the
-> loadable kernel modules capability or perhaps the loose wording of
-> the GPL which doesn't catch loadable kernel modules, or
-> whatever... Bottom line GKHI really has no bearing on this.
+The problem case is in mixing TASK_EXCLUSIVE and non-TASK_EXCLUSIVE
+sleeps, that is what can actually cause problems.
 
-Yes, and that's why I am opposing here: Technically you are right, but
-proposing that enterprise Linux should go this way is inviting binary
-only modules due to the lax handling of modules.
+Everything else is fine.  Anyways, the (untested) patch below should
+cure the lock_sock() cases.
 
-Please keep in mind: I did not react to your announcement but to the
-proposal that the companies should jump on it to do a special
-enterprise Linux. If we really need a special enterprise tree lets do
-it without module tricks.
-
-Greetings
-		Christoph
+--- ./net/ipv4/af_inet.c.~1~	Tue Oct 24 14:26:18 2000
++++ ./net/ipv4/af_inet.c	Wed Nov  8 17:28:47 2000
+@@ -543,24 +543,27 @@
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
+-	__set_current_state(TASK_INTERRUPTIBLE);
+-	add_wait_queue(sk->sleep, &wait);
+-
+ 	/* Basic assumption: if someone sets sk->err, he _must_
+ 	 * change state of the socket from TCP_SYN_*.
+ 	 * Connect() does not allow to get error notifications
+ 	 * without closing the socket.
+ 	 */
+ 	while ((1<<sk->state)&(TCPF_SYN_SENT|TCPF_SYN_RECV)) {
++		__set_current_state(TASK_INTERRUPTIBLE);
++		add_wait_queue(sk->sleep, &wait);
++
+ 		release_sock(sk);
+-		timeo = schedule_timeout(timeo);
++
++		if ((1<<sk->state)&(TCPF_SYN_SENT|TCPF_SYN_RECV))
++			timeo = schedule_timeout(timeo);
++
++		__set_current_state(TASK_RUNNING);
++		remove_wait_queue(sk->sleep, &wait);
++
+ 		lock_sock(sk);
+ 		if (signal_pending(current) || !timeo)
+ 			break;
+-		set_current_state(TASK_INTERRUPTIBLE);
+ 	}
+-	__set_current_state(TASK_RUNNING);
+-	remove_wait_queue(sk->sleep, &wait);
+ 	return timeo;
+ }
+ 
+--- ./net/ipv4/tcp.c.~1~	Fri Oct  6 15:45:41 2000
++++ ./net/ipv4/tcp.c	Wed Nov  8 17:35:31 2000
+@@ -826,10 +826,12 @@
+ 
+ 		release_sock(sk);
+ 		*timeo_p = schedule_timeout(*timeo_p);
+-		lock_sock(sk);
+ 
+ 		__set_task_state(tsk, TASK_RUNNING);
+ 		remove_wait_queue(sk->sleep, &wait);
++
++		lock_sock(sk);
++
+ 		sk->tp_pinfo.af_tcp.write_pending--;
+ 	}
+ 	return 0;
+@@ -854,24 +856,31 @@
+ 
+ 	clear_bit(SOCK_ASYNC_NOSPACE, &sk->socket->flags);
+ 
+-	add_wait_queue(sk->sleep, &wait);
+ 	for (;;) {
+ 		set_bit(SOCK_NOSPACE, &sk->socket->flags);
+ 
++		add_wait_queue(sk->sleep, &wait);
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 
+-		if (signal_pending(current))
+-			break;
+-		if (tcp_memory_free(sk) && !vm_wait)
+-			break;
+-		if (sk->shutdown & SEND_SHUTDOWN)
+-			break;
+-		if (sk->err)
++		if (signal_pending(current) ||
++		    (tcp_memory_free(sk) && !vm_wait) ||
++		    (sk->shutdown & SEND_SHUTDOWN) ||
++		    sk->err) {
++			current->state = TASK_RUNNING;
++			remove_wait_queue(sk->sleep, &wait);
+ 			break;
++		}
++
+ 		release_sock(sk);
++
+ 		if (!tcp_memory_free(sk) || vm_wait)
+ 			current_timeo = schedule_timeout(current_timeo);
++
++		current->state = TASK_RUNNING;
++		remove_wait_queue(sk->sleep, &wait);
++
+ 		lock_sock(sk);
++
+ 		if (vm_wait) {
+ 			if (timeo != MAX_SCHEDULE_TIMEOUT &&
+ 			    (timeo -= vm_wait-current_timeo) < 0)
+@@ -881,8 +890,6 @@
+ 			timeo = current_timeo;
+ 		}
+ 	}
+-	current->state = TASK_RUNNING;
+-	remove_wait_queue(sk->sleep, &wait);
+ 	return timeo;
+ }
+ 
+@@ -1266,7 +1273,6 @@
+ 	DECLARE_WAITQUEUE(wait, current);
+ 
+ 	add_wait_queue(sk->sleep, &wait);
+-
+ 	__set_current_state(TASK_INTERRUPTIBLE);
+ 
+ 	set_bit(SOCK_ASYNC_WAITDATA, &sk->socket->flags);
+@@ -1275,11 +1281,12 @@
+ 	if (skb_queue_empty(&sk->receive_queue))
+ 		timeo = schedule_timeout(timeo);
+ 
++	remove_wait_queue(sk->sleep, &wait);
++	__set_current_state(TASK_RUNNING);
++
+ 	lock_sock(sk);
+ 	clear_bit(SOCK_ASYNC_WAITDATA, &sk->socket->flags);
+ 
+-	remove_wait_queue(sk->sleep, &wait);
+-	__set_current_state(TASK_RUNNING);
+ 	return timeo;
+ }
+ 
+@@ -1826,19 +1833,23 @@
+ 		struct task_struct *tsk = current;
+ 		DECLARE_WAITQUEUE(wait, current);
+ 
+-		add_wait_queue(sk->sleep, &wait);
+-
+ 		do {
++			add_wait_queue(sk->sleep, &wait);
+ 			set_current_state(TASK_INTERRUPTIBLE);
+-			if (!closing(sk))
++			if (!closing(sk)) {
++				tsk->state = TASK_RUNNING;
++				remove_wait_queue(sk->sleep, &wait);
+ 				break;
++			}
+ 			release_sock(sk);
++
+ 			timeout = schedule_timeout(timeout);
++
++			tsk->state = TASK_RUNNING;
++			remove_wait_queue(sk->sleep, &wait);
++
+ 			lock_sock(sk);
+ 		} while (!signal_pending(tsk) && timeout);
+-
+-		tsk->state = TASK_RUNNING;
+-		remove_wait_queue(sk->sleep, &wait);
+ 	}
+ 
+ adjudge_to_death:
+@@ -2009,12 +2020,17 @@
+ 	 * our exclusiveness temporarily when we get woken up without
+ 	 * having to remove and re-insert us on the wait queue.
+ 	 */
+-	add_wait_queue_exclusive(sk->sleep, &wait);
+ 	for (;;) {
++		add_wait_queue_exclusive(sk->sleep, &wait);
+ 		current->state = TASK_EXCLUSIVE | TASK_INTERRUPTIBLE;
++
+ 		release_sock(sk);
+ 		if (sk->tp_pinfo.af_tcp.accept_queue == NULL)
+ 			timeo = schedule_timeout(timeo);
++
++		current->state = TASK_RUNNING;
++		remove_wait_queue(sk->sleep, &wait);
++
+ 		lock_sock(sk);
+ 		err = 0;
+ 		if (sk->tp_pinfo.af_tcp.accept_queue)
+@@ -2029,8 +2045,6 @@
+ 		if (!timeo)
+ 			break;
+ 	}
+-	current->state = TASK_RUNNING;
+-	remove_wait_queue(sk->sleep, &wait);
+ 	return err;
+ }
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,70 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbUBYS5k (ORCPT <rfc822;willy@w.ods.org>);
+	id S261535AbUBYS5k (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 25 Feb 2004 13:57:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbUBYS4h
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbUBYS4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 13:56:37 -0500
-Received: from pfepc.post.tele.dk ([195.41.46.237]:53090 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261536AbUBYSxo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 13:53:44 -0500
-Date: Wed, 25 Feb 2004 20:55:15 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, Timothy Miller <miller@techsource.com>,
-       Rik van Riel <riel@redhat.com>, Matti Aarnio <matti.aarnio@zmailer.org>,
-       Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       "Woodruff, Robert J" <woody@co.intel.com>, linux-kernel@vger.kernel.org,
-       "Hefty, Sean" <sean.hefty@intel.com>,
-       "Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-       "Davis, Arlin R" <arlin.r.davis@intel.com>,
-       marcelo.tosatti@cyclades.com
-Subject: Re: PATCH - InfiniBand Access Layer (IBAL)
-Message-ID: <20040225195515.GA2712@mars.ravnborg.org>
-Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	Timothy Miller <miller@techsource.com>,
-	Rik van Riel <riel@redhat.com>,
-	Matti Aarnio <matti.aarnio@zmailer.org>, Greg KH <greg@kroah.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	"Woodruff, Robert J" <woody@co.intel.com>,
-	linux-kernel@vger.kernel.org, "Hefty, Sean" <sean.hefty@intel.com>,
-	"Coffman, Jerrie L" <jerrie.l.coffman@intel.com>,
-	"Davis, Arlin R" <arlin.r.davis@intel.com>,
-	marcelo.tosatti@cyclades.com
-References: <Pine.LNX.4.44.0402242238020.15091-100000@chimarrao.boston.redhat.com> <403CCC77.6030405@techsource.com> <20040225185553.GA2474@mars.ravnborg.org> <Pine.LNX.4.58.0402251003440.2461@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.58.0402251003440.2461@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 25 Feb 2004 13:56:41 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:36104 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S261535AbUBYSzc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Feb 2004 13:55:32 -0500
+Message-ID: <403CF1FF.2080907@techsource.com>
+Date: Wed, 25 Feb 2004 14:05:35 -0500
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Intel vs AMD x86-64
+References: <7F740D512C7C1046AB53446D37200173EA2718@scsmsx402.sc.intel.com> <403CCBE0.7050100@techsource.com> <c1ihqh$e0r$1@terminus.zytor.com> <403CD900.6080003@techsource.com> <403CD852.1060200@zytor.com>
+In-Reply-To: <403CD852.1060200@zytor.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 25, 2004 at 10:05:32AM -0800, Linus Torvalds wrote:
+
+
+H. Peter Anvin wrote:
+> Timothy Miller wrote:
 > 
+>>
+>> I think we were talking about absolute branches when referring to 
+>> "near branches".  For absolute branches, having a 32-bit address 
+>> restricts you to the lower 4G of the address space.
+>>
 > 
-> On Wed, 25 Feb 2004, Sam Ravnborg wrote:
-> > 
-> > If we take the vendor persåective here. Then why should they make their
-> > driver open source, when the middle layer is not part of the 
-> > main stream kernel?
-> 
-> And why should we take the vendor perspective?
+> You're talking about *indirect* near branches?  Those are the only 
+> absolute near branches which exist...
 
-The people developing Inifiband support ask for a review.
-And to me it looks too easy to say "no open source driver", so 
-do not expect a review. Everything is voluntary of course.
 
-Inclusion in the kernel is for me a different matter.
+I don't know.  I seem to vaguely recall seeing some disassembled x86 
+code which was a branch which had an absolute address.  Maybe I remember 
+incorrectly.
 
-> We don't add drivers for stuff that doesn't exist, and is not even likely 
-> to be used much. That way, when problems occur (and they _will_ occur), 
-> the burden of the crap will be firmly on the shoulders of the people who 
-> should care.
-
-Yep, agree on that - but does not conflict when what I meant to say.
-
-	Sam

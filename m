@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267189AbUJNUXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267930AbUJNWTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267189AbUJNUXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 16:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267195AbUJNSrv
+	id S267930AbUJNWTp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 18:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267306AbUJNWRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:47:51 -0400
-Received: from main.gmane.org ([80.91.229.2]:14753 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S267232AbUJNSMs (ORCPT
+	Thu, 14 Oct 2004 18:17:51 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:58258 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S268025AbUJNWEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:12:48 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 14 Oct 2004 18:04:11 -0400
+Message-ID: <9625752b04101415043a078b93@mail.gmail.com>
+Date: Thu, 14 Oct 2004 15:04:11 -0700
+From: Danny <dannydaemonic@gmail.com>
+Reply-To: Danny <dannydaemonic@gmail.com>
 To: linux-kernel@vger.kernel.org
-From: Ian Pilcher <i.pilcher@comcast.net>
-Subject: Re: ATA/133 Problems with multiple cards
-Date: Thu, 14 Oct 2004 13:12:42 -0500
-Message-ID: <ckmfiq$rc7$1@sea.gmane.org>
-References: <Pine.LNX.4.44.0410141710390.1681-100000@beast.stev.org>
+Subject: Re: mm kernel oops with r8169 & named, PREEMPT
+Cc: netdev@oss.sgi.com, Francois Romieu <romieu@fr.zoreil.com>
+In-Reply-To: <9625752b04101314595f72f84a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: c-24-0-215-208.client.comcast.net
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-In-Reply-To: <Pine.LNX.4.44.0410141710390.1681-100000@beast.stev.org>
-Cc: linux-ide@vger.kernel.org, kernelnewbies@nl.linux.org
+References: <9625752b041012230068619e68@mail.gmail.com>
+	 <9625752b041013091772e26739@mail.gmail.com>
+	 <9625752b04101309182a96fbd2@mail.gmail.com>
+	 <200410131129.05657.jdmason@us.ltcfwd.linux.ibm.com>
+	 <20041013181840.GA30852@electric-eye.fr.zoreil.com>
+	 <9625752b04101313417be4cf90@mail.gmail.com>
+	 <20041013205433.GC30761@electric-eye.fr.zoreil.com>
+	 <9625752b04101314595f72f84a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Stevenson wrote:
-> 
-> i seem to have run into an annoying problem with a machine which has
-> 3 promise ata/133 card the PDC20269 type.
-> 
+I wasn't able to get the kernel to compile with just the reiser4
+patches from the broken-out dir on the ftp.  The patching itself
+seemed to go well though.  I tried to apply the patches in the order
+they were listed in "series" but some had to go out of order anyway,
+such as reiser4-only.patch had to go first.
 
-....
+However I was able to verify it's not a problem with the r8169 driver.
+ I copied over the r8169 driver to a fresh linux-2.6.8.1-mm4 and was
+able to compile and run fine with the latest r8169 driver from the
+linux-2.6.9-rc4-mm1 release.  I also tested it in reverse, bringing
+over r8169.c to a fresh linux-2.6.9-rc4-mm1 and it still gave me the
+oops.
 
-> 
-> Does anyone have an explenation of why this can happen ?
-> 
-
-Promise cards don't support more than two per machine.  If you can get a
-third card to work in PIO mode, consider it an added (but unsupported)
-bonus.
-
--- 
-========================================================================
-Ian Pilcher                                        i.pilcher@comcast.net
-========================================================================
-
+I'm not sure where this leaves me now.  Perhaps I should repost my
+oops and my proc info in the lkml with a different subject to draw the
+attention of others, since I now know this subject to be entirely
+missleading.

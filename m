@@ -1,78 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311701AbSDCODw>; Wed, 3 Apr 2002 09:03:52 -0500
+	id <S311670AbSDCN7M>; Wed, 3 Apr 2002 08:59:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311710AbSDCODm>; Wed, 3 Apr 2002 09:03:42 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:35588 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S311701AbSDCODf>;
-	Wed, 3 Apr 2002 09:03:35 -0500
-Date: Wed, 3 Apr 2002 16:00:10 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: "Michael H. Warfield" <mhw@wittsend.com>
-cc: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>,
-        "J.A. Magallon" <jamagallon@able.es>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux needs new leadership.
-In-Reply-To: <20020402222202.B2777@alcove.wittsend.com>
-Message-ID: <Pine.LNX.4.44.0204031554320.402-100000@Expansa.sns.it>
+	id <S311701AbSDCN6w>; Wed, 3 Apr 2002 08:58:52 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:29057 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S311670AbSDCN6p>; Wed, 3 Apr 2002 08:58:45 -0500
+Date: Wed, 3 Apr 2002 09:00:15 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: =?iso-8859-1?q?Chris=20Rankin?= <rankincj@yahoo.com>
+cc: VANDROVE@vc.cvut.cz, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Screen corruption in 2.4.18
+In-Reply-To: <20020402224053.14575.qmail@web13107.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1020403083605.10671A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Untill the V century north of french and britain were almost
-the same culture, and same people.
-More antically they were both celt people, one
-talking pimp dialect the other talking coic dialect.
+On Tue, 2 Apr 2002, [iso-8859-1] Chris Rankin wrote:
 
-(pimp and coic are the same word "five",
-latin quinque, from whom italian and gallo-romance, greeck pente. it is
-the same work,
-where labiovelar qw has been changed from indueuropean to different
-consonants, latin conserved them greeck changed to p, and so on).
+>  --- "Richard B. Johnson" <root@chaos.analogic.com>
+> wrote: > On Tue, 2 Apr 2002, Chris Rankin wrote:
+> > [SNIPPED...]
+> > 
+> > > 
+> > > A few other things:
+> > > - since I have about 1.25 GB of RAM, I have
+> > enabled a 256 MB AGP aperture.
+> > 
+> > What? 'since amount of RAM' has nothing to do with
+> > AGP aperature. The
+> > aperature should be the same as the amount of AGP
+> > shared RAM used for
+> > the screen-card on-board graphics. This is normally
+> > set by the BIOS but
+> > can be reset if the BIOS doesn't 'understand' your
+> > screen card.
+> > 
+> > So, unless you have 256 MB on your screen board,
+> > typically 32 MB for
+> > high-resolution true-color boards, you will be
+> > disabling PCI hardware
+> > hand-shaking for a lot of addresses above your
+> > screen board. This
+> > can make DRAM-controler, controlled RAM accesses
+> > interfere.
+> 
+> I set the AGP aperture based upon the following
+> information:
+> 
+> "The AGP aperture is an area of system RAM reserved
+> for use by the AGP card for storing textures if it
+> needs to.  The RAM is available for use by the system
+> as normal if not used by the graphics card."
+> ...
+> "It is generally advised to set the AGP aperture to
+> half the system RAM ."
+> 
+> Therefore, it seemed reasonable to maximise my AGP
+> aperture size for all and any conceivable textures (I
+> have system RAM to spare), with no harm done.
+> Admittedly, 256 MB does seem excessive, but anyway ...
+> ;-).
+> 
+> Chris
+> 
+
+>From Page 153, "The BIOS COMPANION" ISBN 188967120-7
+"The AGP Aperture Size is the amount of system memory for the
+AGP card, so host cycles hitting that area are forwarded to that
+card without translation..."
+
+This may be causing confusion because it really should read
+"amount of system address space". Too many writers interchange
+the word "memory" for "address space".
+
+No graphics cards, on their own, or with their own BIOS, use any
+"system memory". They can't. They don't "own" any. Of course, when
+you run X, X will own some system memory that it allocated via mmap(),
+and it uses it in conjunction with your AGP card. The internal RAM
+within the AGP card is the only RAM in "owns". This is accessible
+to the CPU as well as the card electronics. The address range through
+which the CPU can access this high-speed RAM is called the Graphics
+Aperture and/or the AGP Aperture.
+
+This is the same thing as (page 139), "VGA Frame Buffer Size"
+for the older PCI/VGA boards.
+
+So, if you set your AGP aperture size to overlap address-space where
+memory exists, you will probably see streaking and flashing (snow) on
+the screen. The bus-contention will also slow your machine during
+RAM access and may even cause data corruption in RAM. In other words,
+if you have 32 MB of RAM in your screen-card, set the aperture size
+to 32 MB, not (!) 256 MB.
 
 
-On Tue, 2 Apr 2002, Michael H. Warfield wrote:
+Cheers,
+Dick Johnson
 
-> On Mon, Apr 01, 2002 at 03:09:41PM -0800, M. Edward (Ed) Borasky wrote:
-> > On Mon, 1 Apr 2002, J.A. Magallon wrote:
->
-> > > So think on all non-anglo-saxon people reading the list....
-> > > I took me some time to associate 2002.04.01 with jokes...
->
-> > Uh ... IIRC April Fool's Day is of French origin, not Anglo-Saxon. At
-> > least that was what I was taught in an Anglo-Saxon (USA) school :)
->
-> 	Funny...  I'm in the US and was taught it was the druid new year
-> and that the Christians that overran England called all the old druids
-> "fools" for honoring the old date for the new year.
->
-> 	But, I guess, it's as someone else pointed out, a holiday of
-> many origins.  As are most of our holidays.  Plagerized from others...
->
-> > --
-> > M. Edward Borasky
-> > znmeb@borasky-research.net
->
-> > The COUGAR Project
-> > http://www.borasky-research.com/Cougar.htm
->
-> > If I had 40 billion dollars for every software monopoly that sells an
-> > unwieldy and hazardously complex development environment and is run by
-> > an arrogant college dropout with delusions of grandeur who treats his
-> > employees like serfs while he is acclaimed as a man of compelling
-> > vision, I'd be a wealthy man.
->
-> 	Mike
-> --
->  Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
->   /\/\|=mhw=|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/mhw/
->   NIC whois:  MHW9      |  An optimist believes we live in the best of all
->  PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

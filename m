@@ -1,221 +1,317 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271105AbRIJO6J>; Mon, 10 Sep 2001 10:58:09 -0400
+	id <S271112AbRIJPCT>; Mon, 10 Sep 2001 11:02:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271072AbRIJO6A>; Mon, 10 Sep 2001 10:58:00 -0400
-Received: from [208.187.172.194] ([208.187.172.194]:14340 "HELO
-	odin.oce.srci.oce.int") by vger.kernel.org with SMTP
-	id <S271018AbRIJO5v>; Mon, 10 Sep 2001 10:57:51 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: "Joshua M. Schmidlkofer" <menion@srci.iwpsd.org>
-To: Stefan Hoffmeister <lkml.2001@econos.de>
-Subject: Re: hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-Date: Mon, 10 Sep 2001 08:56:09 -0600
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <vd0npt0uvlo2kmicu14cs3culd8pck94eu@4ax.com>
-In-Reply-To: <vd0npt0uvlo2kmicu14cs3culd8pck94eu@4ax.com>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010910145758Z271018-760+11511@vger.kernel.org>
+	id <S271108AbRIJPCB>; Mon, 10 Sep 2001 11:02:01 -0400
+Received: from [205.238.131.251] ([205.238.131.251]:31760 "HELO
+	mail.creditminders.com") by vger.kernel.org with SMTP
+	id <S271106AbRIJPBm>; Mon, 10 Sep 2001 11:01:42 -0400
+Date: Mon, 10 Sep 2001 10:02:02 -0500
+From: Erik DeBill <erik@www.creditminders.com>
+To: linux-kernel@vger.kernel.org, trond.myklebust@fys.uio.no
+Subject: nfs client oops, all 2.4 kernels
+Message-ID: <20010910100202.A14106@www.creditminders.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As the other respondant noted, it could be a bad hard drive, but I would 
-check and see if you have these enables:
- [ ]     Sharing PCI IDE interrupts support    
- [*]       Use PCI DMA by default when available 
+I've been running into a repeatable oops in the NFS client code,
+apparently related to file locking.
 
-Under IDE, ATA, and ATAPI Block Devices.  If you do, disable them, because I 
-think that this could also be an ide chipset programming issue. [Bad or 
-incompatible drive, hardware, chipset, etc.]
+I've verified this with UP, SMP(2,4 procs), small (128M) and large
+(4G) memory under RedHat 7.1, SuSe 7.1 and SuSe 7.2.  All on x86
+hardware.
 
-Try that.
+The problem occurs while running DB2 EEE.  DB2 EEE is a clustered
+database, which uses NFS to share the database home directory between
+nodes in the cluster.  This is primarily to synchronize some config
+files, but by default it will also store all data and logs in that
+same nfs mounted directory.  Oopses occur on the machine (I've only
+been testing on a 2 node cluster) which does the NFS client mount of
+the home directory.  
 
-js
+If you let it keep all it's data in the nfs mounted directory you can
+generate an oops very quickly once multiple clients start connecting
+to the db.  The more clients, the faster the oops.  The more thorough
+the job you do of removing things from NFS, the harder to reproduce.
 
-[However, i think that my past XP with 0x59 has been: Ooops.  Time for a new 
-disk.]
+If you run it without NFS (completely unsupported) it runs fine and I
+haven't been able to reproduce the oops. 
 
-On Sunday 09 September 2001 08:58 am, Stefan Hoffmeister wrote:
-> Hi,
->
-> on an Omnibook 800CT (Pentium "Classic" 133, 48 MB) notebook with docking
-> station, running on AC power, I notice sporadic kernel log entries of the
-> form
->
->     hda: read_intr: status=0x59
->           { DriveReady SeekComplete DataRequest Error }
->     hda: read_intr: error=0x04
->           { DriveStatusError }
->
-> These entries, AFAIR, have only appeared since I started experimenting
-> with kernels 2.4.7.SuSE-1 and 2.2.19.SuSE-14 on that system - AFAIR, I
-> never saw that with a 2.2.16 kernel. (I figure the diagnostics were only
-> added post-2.2.16?)
->
-> Below is a little "timeline" of how this has shown up - I'd almost be
-> prepared to bet that the rexecd invocation triggered this. At the end of
-> my message is the complete output of dmesg.
->
-> From staring a bit at the source code of drivers/ide/hd.c, it is not
-> evident whether this message is something I should worry about or not?
-> IBMs drive fitness test does not report any problems.
->
-> I figure that lack of IDE DMA support combined with APM (with the disk
-> running continuously and not sleeping) might be a problem?
->
-> FWIW, the kernel option CONFIG_IDEDISK_MULTI_MODE is selected - but it
-> seems to be meant to address a different set of issues ("set_multmode").
->
-> TIA!
-> Stefan
->
-> **************
->
-> Sep 10 10:25:03 xxxxx rpc.statd[572]: Version 0.3.1 Starting
-> Sep 10 10:25:03 xxxxx kernel: svc: unknown version (3)
-> Sep 10 10:30:00 xxxxx kernel: hda: read_intr: status=0x59 { DriveReady
-> SeekComplete DataRequest Error }
-> Sep 10 10:30:00 xxxxx kernel: hda: read_intr: error=0x04 {
-> DriveStatusError }
-> Sep 10 10:30:00 xxxxx kernel: hda: read_intr: status=0x59 { DriveReady
-> SeekComplete DataRequest Error }
-> Sep 10 10:30:00 xxxxx kernel: hda: read_intr: error=0x04 {
-> DriveStatusError }
-> Sep 10 10:30:01 xxxxx kernel: hda: read_intr: status=0x59 { DriveReady
-> SeekComplete DataRequest Error }
-> Sep 10 10:30:01 xxxxx kernel: hda: read_intr: error=0x04 {
-> DriveStatusError }
-> Sep 10 10:30:01 xxxxx kernel: hda: read_intr: status=0x59 { DriveReady
-> SeekComplete DataRequest Error }
-> Sep 10 10:30:01 xxxxx kernel: hda: read_intr: error=0x04 {
-> DriveStatusError }
-> Sep 10 10:30:01 xxxxx kernel: ide0: reset: success
-> Sep 10 10:32:03 xxxxx in.rexecd[717]: connect from yyy.yyy.yyy.yyy
-> (yyy.yyy.yyy.yyy)
-> Sep 10 10:32:52 xxxxx in.rexecd[718]: connect from yyy.yyy.yyy.yyy
-> (yyy.yyy.yyy.yyy)
-> Sep 10 10:32:57 xxxxx in.rexecd[719]: connect from yyy.yyy.yyy.yyy
-> (yyy.yyy.yyy.yyy)
->
-> ***********************************************************
->
-> Linux version 2.4.7 (me@xxxxx) (gcc version 2.95.3 20010315 (SuSE)) #2 Mon
-> Sep 10 06:01:44 CEST 2001
-> BIOS-provided physical RAM map:
->  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
->  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
->  BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
->  BIOS-e820: 0000000000100000 - 0000000003000000 (usable)
->  BIOS-e820: 00000000fff00000 - 0000000100000000 (reserved)
-> On node 0 totalpages: 12288
-> zone(0): 4096 pages.
-> zone(1): 8192 pages.
-> zone(2): 0 pages.
-> Kernel command line: auto BOOT_IMAGE=247 ro root=303 BOOT_FILE=/boot/bz247
-> Initializing CPU#0
-> Detected 131.729 MHz processor.
-> Console: colour VGA+ 80x25
-> Calibrating delay loop... 262.14 BogoMIPS
-> Memory: 46168k/49152k available (1003k kernel code, 2596k reserved, 363k
-> data, 188k init, 0k highmem)
-> Dentry-cache hash table entries: 8192 (order: 4, 65536 bytes)
-> Inode-cache hash table entries: 4096 (order: 3, 32768 bytes)
-> Mount-cache hash table entries: 1024 (order: 1, 8192 bytes)
-> Buffer-cache hash table entries: 1024 (order: 0, 4096 bytes)
-> Page-cache hash table entries: 16384 (order: 4, 65536 bytes)
-> CPU: Before vendor init, caps: 000001bf 00000000 00000000, vendor = 0
-> Intel Pentium with F0 0F bug - workaround enabled.
-> Intel old style machine check architecture supported.
-> Intel old style machine check reporting enabled on CPU#0.
-> CPU: After vendor init, caps: 000001bf 00000000 00000000 00000000
-> CPU:     After generic, caps: 000001bf 00000000 00000000 00000000
-> CPU:             Common caps: 000001bf 00000000 00000000 00000000
-> CPU: Intel Pentium 75 - 200 stepping 0c
-> Checking 'hlt' instruction... OK.
-> POSIX conformance testing by UNIFIX
-> mtrr: v1.40 (20010327) Richard Gooch (rgooch@atnf.csiro.au)
-> mtrr: detected mtrr type: none
-> PCI: PCI BIOS revision 2.10 entry at 0xeef92, last bus=1
-> PCI: Using configuration type 1
-> PCI: Probing PCI hardware
-> PCI: Using IRQ router VLSI 82C534 [1004/0102] at 00:01.0
->   got res[10000000:10000fff] for resource 0 of Texas Instruments PCI1130
->   got res[10001000:10001fff] for resource 0 of Texas Instruments PCI1130
-> (#2)
-> isapnp: Scanning for PnP cards...
-> isapnp: No Plug & Play device found
-> Linux NET4.0 for Linux 2.4
-> Based upon Swansea University Computer Society NET3.039
-> apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
-> Starting kswapd v1.8
-> pty: 256 Unix98 ptys configured
-> Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ
-> SERIAL_PCI ISAPNP enabled
-> block: queued sectors max/low 30557kB/10185kB, 128 slots per queue
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx
-> hda: IBM-DARA-206000, ATA DISK drive
-> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-> hda: 11733120 sectors (6007 MB) w/418KiB Cache, CHS=776/240/63
-> Partition check:
->  hda: hda1 hda2 hda3
-> Floppy drive(s): fd0 is 1.44M
-> FDC 0 is a National Semiconductor PC87306
-> eepro100.c:v1.09j-t 9/29/99 Donald Becker
-> http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
-> eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by Andrey V. Savochkin
-> <saw@saw.sw.com.sg> and others
-> PCI: Found IRQ 15 for device 01:06.0
-> eth0: OEM i82557/i82558 10/100 Ethernet, 00:08:C7:99:D9:94, IRQ 15.
->   Receiver lock-up bug exists -- enabling work-around.
->   Board assembly 702536-006, Physical connectors present: RJ45
->   Primary interface chip i82555 PHY #1.
->   General self-test: passed.
->   Serial sub-system self-test: passed.
->   Internal registers self-test: passed.
->   ROM checksum self-test: passed (0x24c9f043).
->   Receiver lock-up workaround activated.
-> Linux Kernel Card Services 3.1.22
->   options:  [pci] [cardbus] [pm]
-> PCI: Assigned IRQ 5 for device 00:04.0
-> PCI: Assigned IRQ 9 for device 00:04.1
-> Intel PCIC probe: not found.
-> NET4: Linux TCP/IP 1.0 for NET4.0
-> IP Protocols: ICMP, UDP, TCP, IGMP
-> IP: routing cache hash table of 512 buckets, 4Kbytes
-> TCP: Hash tables configured (established 4096 bind 4096)
-> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
-> Yenta IRQ list 0a98, PCI irq5
-> Socket status: 30000010
-> Yenta IRQ list 0898, PCI irq9
-> Socket status: 30000006
-> VFS: Mounted root (ext2 filesystem) readonly.
-> Freeing unused kernel memory: 188k freed
-> Adding Swap: 309952k swap-space (priority -1)
-> ip_conntrack (384 buckets, 3072 max)
-> cs: IO port probe 0x0c00-0x0cff: clean.
-> cs: IO port probe 0x0800-0x08ff: excluding 0x8e0-0x8e7
-> cs: IO port probe 0x0100-0x04ff: clean.
-> cs: IO port probe 0x0a00-0x0aff: clean.
-> cs: memory probe 0xa0000000-0xa0ffffff: clean.
-> eth1: 3Com 3c589, io 0x300, irq 3, hw_addr 00:60:97:8A:C8:EB
->   8K FIFO split 5:3 Rx:Tx, auto xcvr
-> svc: unknown version (3)
-> hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> hda: read_intr: error=0x04 { DriveStatusError }
-> hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> hda: read_intr: error=0x04 { DriveStatusError }
-> hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> hda: read_intr: error=0x04 { DriveStatusError }
-> hda: read_intr: status=0x59 { DriveReady SeekComplete DataRequest Error }
-> hda: read_intr: error=0x04 { DriveStatusError }
-> ide0: reset: success
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+It occurs with all 2.4 series kernels, at least up to 2.4.9-ac7 (which
+had some nfs client fixes)
+
+I've attached the ksymoops trace from 2 different incidents.  The
+first occurred under 2.4.9-ac7, and is pretty typical.  Death in lock
+related code as part of sys_close().  The second is from 2.4.9 +
+linux-2.4.9-NFS_ALL.dif.  It's a little unusual in that several oopses
+happened all at once.
+
+Please let me know if there's anything I can do to help track these
+guys down.  I can give you access to several machines with different
+hardware, and distros which all exhibit this bug.
+
+
+Thanks,
+Erik DeBill
+
+
+
+ksymoops 2.4.0 on i686 2.4.9-ac7.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.9-ac7/ (default)
+     -m /boot/System.map-2.4.9-ac7 (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_maps): mismatch on symbol md_size  , md says c8a0e380, /lib/modules/2.4.9-ac7/kernel/drivers/md/md.o says c8a0e1a0.  Ignoring /lib/modules/2.4.9-ac7/kernel/drivers/md/md.o entry
+Warning (compare_maps): mismatch on symbol mddev_map  , md says c8a0db80, /lib/modules/2.4.9-ac7/kernel/drivers/md/md.o says c8a0d9a0.  Ignoring /lib/modules/2.4.9-ac7/kernel/drivers/md/md.o entry
+Sep  8 22:00:06 jerry kernel: WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!
+Sep  8 22:00:07 jerry kernel: cpu: 0, clocks: 1329124, slice: 664562
+Sep  8 22:04:15 jerry kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep  8 22:04:15 jerry kernel: c0145c2b
+Sep  8 22:04:15 jerry kernel: *pde = 00000000
+Sep  8 22:04:15 jerry kernel: Oops: 0000
+Sep  8 22:04:15 jerry kernel: CPU:    0
+Sep  8 22:04:15 jerry kernel: EIP:    0010:[<c0145c2b>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+Sep  8 22:04:15 jerry kernel: EFLAGS: 00010286
+Sep  8 22:04:15 jerry kernel: eax: 00000000   ebx: 00000000   ecx: c72cc4e0   edx: c79155c8
+Sep  8 22:04:15 jerry kernel: esi: c240b440   edi: 00000000   ebp: bfffba10   esp: c21a3f60
+Sep  8 22:04:15 jerry kernel: ds: 0018   es: 0018   ss: 0018
+Sep  8 22:04:15 jerry kernel: Process db2sysc (pid: 867, stackpage=c21a3000)
+Sep  8 22:04:15 jerry kernel: Stack: c79153fc c79155c8 c240b440 00000000 c79155c8 c240b440 c0147756 c79155c8 
+Sep  8 22:04:15 jerry kernel:        00000000 c21a2000 c27cc500 c0135a96 c27cc500 c240b440 00000000 c27cc500 
+Sep  8 22:04:15 jerry kernel:        00000000 c27cc500 00000030 00000000 c0135b0b c27cc500 c240b440 c21a2000 
+Sep  8 22:04:15 jerry kernel: Call Trace: [<c0147756>] [<c0135a96>] [<c0135b0b>] [<c0106efb>] 
+Sep  8 22:04:15 jerry kernel: Code: 8b 03 8d 73 04 89 02 8b 43 04 c7 03 00 00 00 00 8b 56 04 89 
+
+>>EIP; c0145c2b <locks_delete_lock+b/d0>   <=====
+Trace; c0147756 <locks_remove_posix+86/c0>
+Trace; c0135a96 <filp_close+86/a0>
+Trace; c0135b0b <sys_close+5b/70>
+Trace; c0106efb <system_call+33/38>
+Code;  c0145c2b <locks_delete_lock+b/d0>
+00000000 <_EIP>:
+Code;  c0145c2b <locks_delete_lock+b/d0>   <=====
+   0:   8b 03                     mov    (%ebx),%eax   <=====
+Code;  c0145c2d <locks_delete_lock+d/d0>
+   2:   8d 73 04                  lea    0x4(%ebx),%esi
+Code;  c0145c30 <locks_delete_lock+10/d0>
+   5:   89 02                     mov    %eax,(%edx)
+Code;  c0145c32 <locks_delete_lock+12/d0>
+   7:   8b 43 04                  mov    0x4(%ebx),%eax
+Code;  c0145c35 <locks_delete_lock+15/d0>
+   a:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
+Code;  c0145c3b <locks_delete_lock+1b/d0>
+  10:   8b 56 04                  mov    0x4(%esi),%edx
+Code;  c0145c3e <locks_delete_lock+1e/d0>
+  13:   89 00                     mov    %eax,(%eax)
+
+
+3 warnings issued.  Results may not be reliable.
+
+
+
+---------------------------------------------------------------------------
+these next are from a single run under 2.4.9 + the all encompassing NFS patch.
+
+DB2 gets shut down as soon as an oops occurs, these must be from the
+death throes.
+---------------------------------------------------------------------------
+
+ksymoops 2.4.0 on i686 2.4.9nfs.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.9nfs/ (default)
+     -m /boot/System.map-2.4.9nfs (default)
+
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
+
+Warning (compare_maps): mismatch on symbol md_size  , md says c8a0e560, /lib/modules/2.4.9nfs/kernel/drivers/md/md.o says c8a0e380.  Ignoring /lib/modules/2.4.9nfs/kernel/drivers/md/md.o entry
+Warning (compare_maps): mismatch on symbol mddev_map  , md says c8a0dd60, /lib/modules/2.4.9nfs/kernel/drivers/md/md.o says c8a0db80.  Ignoring /lib/modules/2.4.9nfs/kernel/drivers/md/md.o entry
+Sep 10 08:47:05 jerry kernel: WARNING: MP table in the EBDA can be UNSAFE, contact linux-smp@vger.kernel.org if you experience SMP problems!
+Sep 10 08:47:08 jerry kernel: cpu: 0, clocks: 1329118, slice: 664559
+Sep 10 08:49:09 jerry kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep 10 08:49:09 jerry kernel: c0146cab
+Sep 10 08:49:09 jerry kernel: *pde = 00000000
+Sep 10 08:49:09 jerry kernel: Oops: 0000
+Sep 10 08:49:09 jerry kernel: CPU:    0
+Sep 10 08:49:09 jerry kernel: EIP:    0010:[fcntl_setlease+171/640]
+Sep 10 08:49:09 jerry kernel: EIP:    0010:[<c0146cab>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+Sep 10 08:49:09 jerry kernel: EFLAGS: 00010286
+Sep 10 08:49:09 jerry kernel: eax: 00000000   ebx: 00000000   ecx: c7302b60   edx: c7926d54
+Sep 10 08:49:09 jerry kernel: esi: c6b76a40   edi: 00000000   ebp: bfffba10   esp: c6a4ff60
+Sep 10 08:49:09 jerry kernel: ds: 0018   es: 0018   ss: 0018
+Sep 10 08:49:09 jerry kernel: Process db2sysc (pid: 769, stackpage=c6a4f000)
+Sep 10 08:49:09 jerry kernel: Stack: c7926e0c c7926d54 c6b76a40 00000000 c7926d54 c6b76a40 c01488f6 c7926d54 
+Sep 10 08:49:09 jerry kernel:        00000000 c6a4e000 c6a23d40 c013512d c6a23d40 c6b76a40 00000000 c6a23d40 
+Sep 10 08:49:09 jerry kernel:        00000000 c6a23d40 00000030 00000000 c013519b c6a23d40 c6b76a40 c6a4e000 
+Sep 10 08:49:09 jerry kernel: Call Trace: [d_validate+54/224] [sys_chdir+253/256] [sys_fchdir+107/208] [system_call+19/56] 
+Sep 10 08:49:09 jerry kernel: Call Trace: [<c01488f6>] [<c013512d>] [<c013519b>] [<c0106edb>] 
+Sep 10 08:49:09 jerry kernel: Code: 8b 03 8d 73 04 89 02 8b 43 04 c7 03 00 00 00 00 8b 56 04 89 
+
+>>EIP; c0146cab <locks_delete_lock+b/d0>   <=====
+Trace; c01488f6 <locks_remove_posix+86/e0>
+Trace; c013512d <filp_close+9d/b0>
+Trace; c013519b <sys_close+5b/70>
+Trace; c0106edb <system_call+33/38>
+Code;  c0146cab <locks_delete_lock+b/d0>
+00000000 <_EIP>:
+Code;  c0146cab <locks_delete_lock+b/d0>   <=====
+   0:   8b 03                     mov    (%ebx),%eax   <=====
+Code;  c0146cad <locks_delete_lock+d/d0>
+   2:   8d 73 04                  lea    0x4(%ebx),%esi
+Code;  c0146cb0 <locks_delete_lock+10/d0>
+   5:   89 02                     mov    %eax,(%edx)
+Code;  c0146cb2 <locks_delete_lock+12/d0>
+   7:   8b 43 04                  mov    0x4(%ebx),%eax
+Code;  c0146cb5 <locks_delete_lock+15/d0>
+   a:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
+Code;  c0146cbb <locks_delete_lock+1b/d0>
+  10:   8b 56 04                  mov    0x4(%esi),%edx
+Code;  c0146cbe <locks_delete_lock+1e/d0>
+  13:   89 00                     mov    %eax,(%eax)
+
+Sep 10 08:49:09 jerry kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep 10 08:49:09 jerry kernel: c0146cab
+Sep 10 08:49:09 jerry kernel: *pde = 00000000
+Sep 10 08:49:09 jerry kernel: Oops: 0000
+Sep 10 08:49:09 jerry kernel: CPU:    0
+Sep 10 08:49:09 jerry kernel: EIP:    0010:[fcntl_setlease+171/640]
+Sep 10 08:49:10 jerry kernel: EIP:    0010:[<c0146cab>]
+Sep 10 08:49:10 jerry kernel: EFLAGS: 00010286
+Sep 10 08:49:10 jerry kernel: eax: 00000000   ebx: 00000000   ecx: c7302b60   edx: c7926be4
+Sep 10 08:49:10 jerry kernel: esi: c6b76700   edi: 00000000   ebp: bfffba10   esp: c5d15f60
+Sep 10 08:49:10 jerry kernel: ds: 0018   es: 0018   ss: 0018
+Sep 10 08:49:10 jerry kernel: Process db2sysc (pid: 770, stackpage=c5d15000)
+Sep 10 08:49:10 jerry kernel: Stack: c7926f20 c7926be4 c6b76700 00000000 c7926be4 c6b76700 c01488f6 c7926be4 
+Sep 10 08:49:10 jerry kernel:        00000000 c5d14000 c6a23f20 c013512d c6a23f20 c6b76700 00000000 c6a23f20 
+Sep 10 08:49:10 jerry kernel:        00000000 c6a23f20 00000030 00000000 c013519b c6a23f20 c6b76700 c5d14000 
+Sep 10 08:49:10 jerry kernel: Call Trace: [d_validate+54/224] [sys_chdir+253/256] [sys_fchdir+107/208] [system_call+19/56] 
+Sep 10 08:49:10 jerry kernel: Call Trace: [<c01488f6>] [<c013512d>] [<c013519b>] [<c0106edb>] 
+Sep 10 08:49:10 jerry kernel: Code: 8b 03 8d 73 04 89 02 8b 43 04 c7 03 00 00 00 00 8b 56 04 89 
+
+>>EIP; c0146cab <locks_delete_lock+b/d0>   <=====
+Trace; c01488f6 <locks_remove_posix+86/e0>
+Trace; c013512d <filp_close+9d/b0>
+Trace; c013519b <sys_close+5b/70>
+Trace; c0106edb <system_call+33/38>
+Code;  c0146cab <locks_delete_lock+b/d0>
+00000000 <_EIP>:
+Code;  c0146cab <locks_delete_lock+b/d0>   <=====
+   0:   8b 03                     mov    (%ebx),%eax   <=====
+Code;  c0146cad <locks_delete_lock+d/d0>
+   2:   8d 73 04                  lea    0x4(%ebx),%esi
+Code;  c0146cb0 <locks_delete_lock+10/d0>
+   5:   89 02                     mov    %eax,(%edx)
+Code;  c0146cb2 <locks_delete_lock+12/d0>
+   7:   8b 43 04                  mov    0x4(%ebx),%eax
+Code;  c0146cb5 <locks_delete_lock+15/d0>
+   a:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
+Code;  c0146cbb <locks_delete_lock+1b/d0>
+  10:   8b 56 04                  mov    0x4(%esi),%edx
+Code;  c0146cbe <locks_delete_lock+1e/d0>
+  13:   89 00                     mov    %eax,(%eax)
+
+Sep 10 08:49:10 jerry kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep 10 08:49:10 jerry kernel: c0146cab
+Sep 10 08:49:10 jerry kernel: *pde = 00000000
+Sep 10 08:49:10 jerry kernel: Oops: 0000
+Sep 10 08:49:10 jerry kernel: CPU:    0
+Sep 10 08:49:10 jerry kernel: EIP:    0010:[fcntl_setlease+171/640]
+Sep 10 08:49:10 jerry kernel: EIP:    0010:[<c0146cab>]
+Sep 10 08:49:10 jerry kernel: EFLAGS: 00010286
+Sep 10 08:49:10 jerry kernel: eax: 00000000   ebx: 00000000   ecx: c7302b60   edx: c7926c40
+Sep 10 08:49:10 jerry kernel: esi: c6439dc0   edi: 00000000   ebp: bfffba10   esp: c643bf60
+Sep 10 08:49:10 jerry kernel: ds: 0018   es: 0018   ss: 0018
+Sep 10 08:49:10 jerry kernel: Process db2sysc (pid: 776, stackpage=c643b000)
+Sep 10 08:49:10 jerry kernel: Stack: c7926db0 c7926c40 c6439dc0 00000000 c7926c40 c6439dc0 c01488f6 c7926c40 
+Sep 10 08:49:10 jerry kernel:        00000000 c643a000 c6a23da0 c013512d c6a23da0 c6439dc0 00000000 c6a23da0 
+Sep 10 08:49:10 jerry kernel:        00000000 c6a23da0 00000030 00000000 c013519b c6a23da0 c6439dc0 c643a000 
+Sep 10 08:49:10 jerry kernel: Call Trace: [d_validate+54/224] [sys_chdir+253/256] [sys_fchdir+107/208] [system_call+19/56] 
+Sep 10 08:49:10 jerry kernel: Call Trace: [<c01488f6>] [<c013512d>] [<c013519b>] [<c0106edb>] 
+Sep 10 08:49:10 jerry kernel: Code: 8b 03 8d 73 04 89 02 8b 43 04 c7 03 00 00 00 00 8b 56 04 89 
+
+>>EIP; c0146cab <locks_delete_lock+b/d0>   <=====
+Trace; c01488f6 <locks_remove_posix+86/e0>
+Trace; c013512d <filp_close+9d/b0>
+Trace; c013519b <sys_close+5b/70>
+Trace; c0106edb <system_call+33/38>
+Code;  c0146cab <locks_delete_lock+b/d0>
+00000000 <_EIP>:
+Code;  c0146cab <locks_delete_lock+b/d0>   <=====
+   0:   8b 03                     mov    (%ebx),%eax   <=====
+Code;  c0146cad <locks_delete_lock+d/d0>
+   2:   8d 73 04                  lea    0x4(%ebx),%esi
+Code;  c0146cb0 <locks_delete_lock+10/d0>
+   5:   89 02                     mov    %eax,(%edx)
+Code;  c0146cb2 <locks_delete_lock+12/d0>
+   7:   8b 43 04                  mov    0x4(%ebx),%eax
+Code;  c0146cb5 <locks_delete_lock+15/d0>
+   a:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
+Code;  c0146cbb <locks_delete_lock+1b/d0>
+  10:   8b 56 04                  mov    0x4(%esi),%edx
+Code;  c0146cbe <locks_delete_lock+1e/d0>
+  13:   89 00                     mov    %eax,(%eax)
+
+Sep 10 08:49:10 jerry kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
+Sep 10 08:49:10 jerry kernel: c0146cab
+Sep 10 08:49:10 jerry kernel: *pde = 00000000
+Sep 10 08:49:10 jerry kernel: Oops: 0000
+Sep 10 08:49:10 jerry kernel: CPU:    0
+Sep 10 08:49:10 jerry kernel: EIP:    0010:[fcntl_setlease+171/640]
+Sep 10 08:49:10 jerry kernel: EIP:    0010:[<c0146cab>]
+Sep 10 08:49:10 jerry kernel: EFLAGS: 00010286
+Sep 10 08:49:10 jerry kernel: eax: 00000000   ebx: 00000000   ecx: c7302b60   edx: c7926b88
+Sep 10 08:49:10 jerry kernel: esi: c4275240   edi: 00000000   ebp: bfffba10   esp: c5d8df60
+Sep 10 08:49:10 jerry kernel: ds: 0018   es: 0018   ss: 0018
+Sep 10 08:49:10 jerry kernel: Process db2sysc (pid: 774, stackpage=c5d8d000)
+Sep 10 08:49:10 jerry kernel: Stack: c7926b2c c7926b88 c4275240 00000000 c7926b88 c4275240 c01488f6 c7926b88 
+Sep 10 08:49:11 jerry kernel:        00000000 c5d8c000 c71e30c0 c013512d c71e30c0 c4275240 00000000 c71e30c0 
+Sep 10 08:49:11 jerry kernel:        00000000 c71e30c0 00000030 00000000 c013519b c71e30c0 c4275240 c5d8c000 
+Sep 10 08:49:11 jerry kernel: Call Trace: [d_validate+54/224] [sys_chdir+253/256] [sys_fchdir+107/208] [system_call+19/56] 
+Sep 10 08:49:11 jerry kernel: Call Trace: [<c01488f6>] [<c013512d>] [<c013519b>] [<c0106edb>] 
+Sep 10 08:49:11 jerry kernel: Code: 8b 03 8d 73 04 89 02 8b 43 04 c7 03 00 00 00 00 8b 56 04 89 
+
+>>EIP; c0146cab <locks_delete_lock+b/d0>   <=====
+Trace; c01488f6 <locks_remove_posix+86/e0>
+Trace; c013512d <filp_close+9d/b0>
+Trace; c013519b <sys_close+5b/70>
+Trace; c0106edb <system_call+33/38>
+Code;  c0146cab <locks_delete_lock+b/d0>
+00000000 <_EIP>:
+Code;  c0146cab <locks_delete_lock+b/d0>   <=====
+   0:   8b 03                     mov    (%ebx),%eax   <=====
+Code;  c0146cad <locks_delete_lock+d/d0>
+   2:   8d 73 04                  lea    0x4(%ebx),%esi
+Code;  c0146cb0 <locks_delete_lock+10/d0>
+   5:   89 02                     mov    %eax,(%edx)
+Code;  c0146cb2 <locks_delete_lock+12/d0>
+   7:   8b 43 04                  mov    0x4(%ebx),%eax
+Code;  c0146cb5 <locks_delete_lock+15/d0>
+   a:   c7 03 00 00 00 00         movl   $0x0,(%ebx)
+Code;  c0146cbb <locks_delete_lock+1b/d0>
+  10:   8b 56 04                  mov    0x4(%esi),%edx
+Code;  c0146cbe <locks_delete_lock+1e/d0>
+  13:   89 00                     mov    %eax,(%eax)
+
+
+3 warnings issued.  Results may not be reliable.

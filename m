@@ -1,68 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285073AbRLUTxn>; Fri, 21 Dec 2001 14:53:43 -0500
+	id <S285087AbRLUUA4>; Fri, 21 Dec 2001 15:00:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285074AbRLUTxd>; Fri, 21 Dec 2001 14:53:33 -0500
-Received: from wireless90.cs.wisc.edu ([128.105.48.190]:7057 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S285073AbRLUTxS>; Fri, 21 Dec 2001 14:53:18 -0500
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-        alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] ptrace on stopped processes (2.4)
-From: vic <zandy@cs.wisc.edu>
-Date: Fri, 21 Dec 2001 13:53:32 -0600
-Message-ID: <m3adwc9woz.fsf@localhost.localdomain>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/20.7
+	id <S285088AbRLUUAo>; Fri, 21 Dec 2001 15:00:44 -0500
+Received: from svr3.applink.net ([206.50.88.3]:32271 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S285087AbRLUUAZ>;
+	Fri, 21 Dec 2001 15:00:25 -0500
+Message-Id: <200112212000.fBLK0GSr021423@svr3.applink.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: timothy.covell@ashavan.org, esr@thyrsus.com
+Subject: Re: Configure.help editorial policy (H20 and K2B)
+Date: Fri, 21 Dec 2001 13:56:31 -0600
+X-Mailer: KMail [version 1.3.2]
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011220143247.A19377@thyrsus.com> <20011220185226.A25080@thyrsus.com> <200112211305.fBLD5WSr019374@svr3.applink.net>
+In-Reply-To: <200112211305.fBLD5WSr019374@svr3.applink.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes a couple problems with ptrace's interaction with
-stopped processes on Linux 2.4.
+On Friday 21 December 2001 07:01, Timothy Covell wrote:
+> On Thursday 20 December 2001 17:52, Eric S. Raymond wrote:
+> > David Garfield <garfield@irving.iisd.sra.com>:
+> > > Another option: maybe the choice of KB vs KiB vs KKB should be a
+> > > configuration choice.
+>
+> Um, you know, all due repect to Knuth, the God, I think that
+> someof his ideas are downright silly.   Now, my suggestion
+> is different, namely, inserting a 2 in the unit such as "K2B"
+> meaning Kilo (base2) Byte.    It's not like we don't have a
+> precendent from the chemistry and physics fields.
 
-The most significant bug is that gdb cannot attach to a stopped
-process.  Specifically, the wait that follows the PTRACE_ATTACH will
-block indefinitely.
+I've changed my mind.   K2B would seem to imply
+2**3 Bytes, which is 8 Bytes.  
 
-Another bug is that it is not possible to use PTRACE_DETACH to leave a
-process stopped, because ptrace ignores SIGSTOPs sent by the tracing
-process.
+I think that way to solve the issue is to just byte 
+the bullet and stop equating 1024 with K.   It's
+just such an inconsistant and ad hoc hack.
 
-This patch is against 2.4.16 on x86.  I have tested gdb and strace.
-After this patch is reviewed, I would be happy to submit an analogous
-patch for the other platforms, although I cannot test it.
+The only truly logical way to do this would be
+to base everything on bits and powers of
+two.  But, since we run out of common prefixes
+at 2**6 (exa), we should just stick to decimal
+and scientific format.    1024 = 2**10.
 
-Vic Zandy
 
---- linux-2.4.16/arch/i386/kernel/signal.c	Fri Sep 14 16:15:40 2001
-+++ linux-2.4.16.1/arch/i386/kernel/signal.c	Fri Dec 21 11:05:45 2001
-@@ -620,9 +620,9 @@
- 				continue;
- 			current->exit_code = 0;
- 
--			/* The debugger continued.  Ignore SIGSTOP.  */
--			if (signr == SIGSTOP)
--				continue;
-+			/* The debugger continued. */
-+			if (signr == SIGSTOP && current->ptrace & PT_PTRACED)
-+				continue; /* ignore SIGSTOP */
- 
- 			/* Update the siginfo structure.  Is this good?  */
- 			if (signr != info.si_signo) {
---- linux-2.4.16/kernel/ptrace.c	Wed Nov 21 16:43:01 2001
-+++ linux-2.4.16.1/kernel/ptrace.c	Fri Dec 21 10:42:44 2001
-@@ -89,8 +89,10 @@
- 		SET_LINKS(task);
- 	}
- 	write_unlock_irq(&tasklist_lock);
--
--	send_sig(SIGSTOP, task, 1);
-+	if (task->state != TASK_STOPPED)
-+		send_sig(SIGSTOP, task, 1);
-+	else
-+		task->exit_code = SIGSTOP;
- 	return 0;
- 
- bad:
+
+
+
+-- 
+timothy.covell@ashavan.org.

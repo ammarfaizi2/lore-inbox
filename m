@@ -1,70 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130823AbRBVAXe>; Wed, 21 Feb 2001 19:23:34 -0500
+	id <S129170AbRBVAZo>; Wed, 21 Feb 2001 19:25:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130829AbRBVAXY>; Wed, 21 Feb 2001 19:23:24 -0500
-Received: from smtp03.mrf.mail.rcn.net ([207.172.4.62]:37567 "EHLO
-	smtp03.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S130823AbRBVAXQ>; Wed, 21 Feb 2001 19:23:16 -0500
-Date: Wed, 21 Feb 2001 18:33:13 -0500
-From: "Michael B. Allen" <mballen@erols.com>
-To: Wayne Whitney <whitney@math.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.17 Lockup and ATA-66/100 forced bit set (WARNING)
-Message-ID: <20010221183313.A3487@angus.foo.net>
-In-Reply-To: <20010221173439.A3178@angus.foo.net> <200102212348.f1LNm6X02792@adsl-209-76-109-63.dsl.snfc21.pacbell.net>
+	id <S129603AbRBVAZe>; Wed, 21 Feb 2001 19:25:34 -0500
+Received: from [209.102.105.34] ([209.102.105.34]:51460 "EHLO monza.monza.org")
+	by vger.kernel.org with ESMTP id <S129170AbRBVAZ2>;
+	Wed, 21 Feb 2001 19:25:28 -0500
+Date: Wed, 21 Feb 2001 16:24:49 -0800
+From: Tim Wright <timw@splhi.com>
+To: Fons Rademakers <Fons.Rademakers@cern.ch>
+Cc: linux-kernel@vger.kernel.org, andre@suse.com
+Subject: Re: had: lost interrupt...
+Message-ID: <20010221162449.B2118@kochanski.internal.splhi.com>
+Reply-To: timw@splhi.com
+Mail-Followup-To: Fons Rademakers <Fons.Rademakers@cern.ch>,
+	linux-kernel@vger.kernel.org, andre@suse.com
+In-Reply-To: <20010217100820.A16593@pcsalo.cern.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200102212348.f1LNm6X02792@adsl-209-76-109-63.dsl.snfc21.pacbell.net>; from whitney@math.berkeley.edu on Wed, Feb 21, 2001 at 03:48:06PM -0800
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010217100820.A16593@pcsalo.cern.ch>; from Fons.Rademakers@cern.ch on Sat, Feb 17, 2001 at 10:08:21AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 21, 2001 at 03:48:06PM -0800, Wayne Whitney wrote:
-> >  append="idebus=66 ide0=ata66"
+You didn't give the (likely more) important part of your .config, but I'll bet
+that you have CONFIG_APM_ALLOW_INTS disabled. Turn it on, rebuild and reboot.
+At least on a Thinkpad T20, trying to use UDMA, and APM without APM_ALLOW_INTS
+enabled gives an 'hda: lost interrupt'. Even worse, I didn't hang, but was able
+to go on and trash my hard drive :-(
+With CONFIG_APM_ALLOW_INTS turned on, everything behaves nicely.
+
+Tim
+
+On Sat, Feb 17, 2001 at 10:08:21AM +0100, Fons Rademakers wrote:
+> Hi,
 > 
-> The idebus=66 part is incorrect.  This option refers to the clock of
-> the PCI bus the IDE controller is on and should rarely be changed from
-> the default of 33MHz (i.e., only if you are overclocking the PCI bus).
-
-Ah, well I just added that based on the end of this boot message:
-
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-
-> >kernel: VP_IDE: ATA-66/100 forced bit set (WARNING)!! 
+>    in my laptop (HP 4150B) I upgraded from a 12GB IBM Travelstar to an
+> 20GB IBM Travelstar (both 4200rpm). After the upgrade I moved also to
+> 2.4.2-pre3 and reiserfs. However, the problem I now have is that after
+> resume I get the message "hda: lost interrupt" and the only thing to do
+> is to reset the machine (in the only good thing is that reiserfs saved
+> me a lot of fsck time).
 > 
-> I'm sure this is just telling you that you passed the ide0=ata66
-> parameter.  Usually it is best not to do this--the driver should run
-> your chipset/drive as fast as possible without 'forcing' the
-> configuration.  Of course, testing with hdparm -t is considered the
-> definitive way to check how fast the interface is running.
-
-If I don't add it hdparm -t /dev/hda reports:
-
- Timing buffered disk reads:  64 MB in 16.46 seconds =  3.89 MB/sec
-
-Then if I do hdparm -d1 -X66 /dev/hda I get:
-
-/dev/hda:
- setting using_dma to 1 (on)
- setting xfermode to 66 (UltraDMA mode2)
- using_dma    =  1 (on)
-
-[root@nano /root]# hdparm -t /dev/hda
-
-/dev/hda:
- Timing buffered disk reads:  64 MB in  4.04 seconds = 15.84 MB/sec
-
-Now if I add it via append, reboot and do hdparm -t I get:
-
- Timing buffered disk reads:  64 MB in  3.70 seconds = 17.30 MB/sec
-
-This last difference is consistently better. Weird.
-
-All your other bets were right too.
-
-Thanks Wayne,
-Mike
+> Any idea what the problem might be? Is the larger disk not supported by
+> the BIOS (it is recognized properly). People mentioned not to use DMA
+> anymore?
+> 
+> With 2.2.18 and the 12GB disk there were never problems (except that the
+> disk got bad blocks ;-().
+> 
+> My IDE setup in .config is below.
+> 
+> 
+> Cheers, Fons.
+> 
+[IDE config elided]
 
 -- 
-signature pending
+Tim Wright - timw@splhi.com or timw@aracnet.com or twright@us.ibm.com
+IBM Linux Technology Center, Beaverton, Oregon
+Interested in Linux scalability ? Look at http://lse.sourceforge.net/
+"Nobody ever said I was charming, they said "Rimmer, you're a git!"" RD VI

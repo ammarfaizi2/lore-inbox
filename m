@@ -1,55 +1,105 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291718AbSBNPtW>; Thu, 14 Feb 2002 10:49:22 -0500
+	id <S291727AbSBNPwX>; Thu, 14 Feb 2002 10:52:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291720AbSBNPtM>; Thu, 14 Feb 2002 10:49:12 -0500
-Received: from tstac.esa.lanl.gov ([128.165.46.3]:62626 "EHLO
-	tstac.esa.lanl.gov") by vger.kernel.org with ESMTP
-	id <S291718AbSBNPtC>; Thu, 14 Feb 2002 10:49:02 -0500
-Message-Id: <200202141501.IAA04461@tstac.esa.lanl.gov>
-Content-Type: text/plain; charset=US-ASCII
-From: Steven Cole <elenstev@mesatop.com>
-Reply-To: elenstev@mesatop.com
+	id <S291720AbSBNPwG>; Thu, 14 Feb 2002 10:52:06 -0500
+Received: from outpost.ds9a.nl ([213.244.168.210]:45459 "HELO
+	outpost.powerdns.com") by vger.kernel.org with SMTP
+	id <S291727AbSBNPvt>; Thu, 14 Feb 2002 10:51:49 -0500
+Date: Thu, 14 Feb 2002 16:51:43 +0100
+From: bert hubert <ahu@ds9a.nl>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.5-pre1 fix build error in drivers/video/vesafb.c
-Date: Thu, 14 Feb 2002 08:47:52 -0700
-X-Mailer: KMail [version 1.3.1]
-Cc: Gerd Knorr <kraxel@goldbach.in-berlin.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Cc: drepper@redhat.com, torvalds@transmeta.com, dmccr@us.ibm.com
+Subject: setuid/pthread interaction broken? 'clone_with_uid()?'
+Message-ID: <20020214165143.A16601@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	linux-kernel@vger.kernel.org, drepper@redhat.com,
+	torvalds@transmeta.com, dmccr@us.ibm.com
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="KsGdsel6WgEHnImy"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-This patch is some hackery-quackery to fix a problem with drivers/video/vesafb.c.
+--KsGdsel6WgEHnImy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I got the following error building 2.5.5-pre1.  I also had this error with 2.5.4-preX,
-but after seeing the discussions relating to bus_to_virt etc., I hoped that a 
-real fix would appear.
+When a process first issues setuid() and then goes on to create threads,
+those threads run under the setuid() uid - all is well. 
 
-drivers/video/video.o: In function `vesafb_init':
-drivers/video/video.o(.text.init+0x154b): undefined reference to `bus_to_virt_not_defined_use_pci_map'
-make: *** [vmlinux] Error 1
+However,  once the first thread is created, only the thread calling setuid()
+gets setuid in fact. All new threads continue to be created as root.
 
-Quoting Andrew Morton in his recent interview with kerneltrap.org,
-"One hot tip: if you spot a bug which is being ignored, send a completely botched fix 
-to the mailing list. This causes thousands of kernel developers to rally to the cause. 
-Nobody knows why this happens. (I really have deliberately done this several times. It works)."
+This behaviour exists under 2.2.18 with glibc 2.1.3 and under 2.4.17 with
+glibc 2.2.5, and is shown using the brief program attached.
 
-Well this bug is certainly not being ignored, but here is my completely botched fix.
+Is this by design? It appears that all threads created get the uid of the
+thread manager process.
 
-Cheers,
-Steven
+>From our standpoint as an application developer, this is nasty. It means
+that we have to do everything that needs root before creating the first
+thread. This behaviour is also highly non obvious. 
 
---- linux-2.5.5-pre1/drivers/video/vesafb.c.orig        Thu Feb 14 08:16:25 2002
-+++ linux-2.5.5-pre1/drivers/video/vesafb.c     Thu Feb 14 08:17:24 2002
-@@ -550,7 +550,7 @@
-                ypan = pmi_setpal = 0; /* not available or some DOS TSR ... */
+A fix would appear to need a 'clone with uid' syscall, other solutions will
+probably cause race condition. 
 
-        if (ypan || pmi_setpal) {
--               pmi_base  = (unsigned short*)bus_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
-+               pmi_base  = (unsigned short*)phys_to_virt(((unsigned long)screen_info.vesapm_seg << 4) + screen_info.vesapm_off);
-                pmi_start = (void*)((char*)pmi_base + pmi_base[1]);
-                pmi_pal   = (void*)((char*)pmi_base + pmi_base[2]);
-                printk(KERN_INFO "vesafb: pmi: set display start = %p, set palette = %p\n",pmi_start,pmi_pal);
+Regards,
+
+bert
+
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
+Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc
+
+--KsGdsel6WgEHnImy
+Content-Type: text/x-csrc; charset=us-ascii
+Content-Disposition: attachment; filename="testcase.c"
+
+#include <stdio.h>
+#include <pthread.h>
+#include <errno.h>
+
+void die(const char *what)
+{
+	fprintf(stderr,"Exiting because of a fatal error %s: %s\n",
+		what, strerror(errno));
+	exit(1);
+}
+
+
+void *child(void *p)
+{
+	printf("This is child %d, pid: %d, uid: %d\n", 
+	       (int) p, getpid(), getuid());
+	return 0;
+}
+
+
+int main(int argc, char **argv)
+{
+	pthread_t tid1,tid2,tid3;
+	void* ret;
+
+	pthread_create(&tid1, 0, child, (void *)1); /* stevens did this too */
+
+	printf("Current pid: %d, current uid: %d\n", getpid(), getuid());
+	if(setuid(2000)<0)
+		die("setting uid");
+	printf("uid now: %d\n",getuid());
+
+
+
+	pthread_create(&tid2, 0, child, (void *)2);
+	pthread_create(&tid3, 0, child, (void *)3);
+	pthread_join(tid1, &ret);
+	pthread_join(tid2, &ret);
+	pthread_join(tid3, &ret);
+	printf("Exiting.\n");
+}
+
+--KsGdsel6WgEHnImy--

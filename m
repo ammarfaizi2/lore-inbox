@@ -1,128 +1,136 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130362AbRA2VKl>; Mon, 29 Jan 2001 16:10:41 -0500
+	id <S129299AbRA2VYP>; Mon, 29 Jan 2001 16:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130475AbRA2VKb>; Mon, 29 Jan 2001 16:10:31 -0500
-Received: from rs1.Theo-Phys.Uni-Essen.DE ([132.252.73.3]:10139 "EHLO
-	rs1.Theo-Phys.Uni-Essen.DE") by vger.kernel.org with ESMTP
-	id <S130362AbRA2VKN>; Mon, 29 Jan 2001 16:10:13 -0500
-Date: Mon, 29 Jan 2001 22:09:54 +0100 (MET)
-Message-Id: <200101292109.WAA87394@indy3.Theo-Phys.Uni-Essen.DE>
-From: Martin Schimschak <masch@indy3.Theo-Phys.Uni-Essen.DE>
-To: linux-kernel@vger.kernel.org
-CC: torvalds@transmeta.com
-Subject: [PATCH] 2.4.1-pre11: sys_wait4 declarations cleanup
+	id <S129446AbRA2VYG>; Mon, 29 Jan 2001 16:24:06 -0500
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:3952
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S129299AbRA2VXt>; Mon, 29 Jan 2001 16:23:49 -0500
+Date: Mon, 29 Jan 2001 22:23:37 +0100
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH] guard mm->rss with page_table_lock (241p11)
+Message-ID: <20010129222337.F603@jaquet.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some more fixes of sys_wait4() declarations:
+Hi.
 
-declaration of sys_wait4() fixed in:
+This patch tries to fix the potential rss accounting race where we
+fiddle with mm->rss without holding the page_table_lock.
 
-	include/asm-arm/unistd.h	
-	include/asm-arm/unistd.h	
-	include/asm-s390/unistd.h	
-	include/asm-parisc/unistd.h	
-	include/asm-parisc/unistd.h	
-	arch/arm/kernel/armksyms.c	
+In addition to the places this patch touches there are some places
+in fs/ where mm->rss is touched. But I am not sure of the finer
+points of this code, so perhaps somebody else could have a look?
+The files are binfmt_aout.c, binfmt_elf.c, and exec.c.
 
-redundant declaration of sys_wait4() removed from:
-					
-	arch/ia64/kernel/signal.c	
-	arch/parisc/kernel/signal.c	
+It applies against ac12 and 241p11.
 
-Martin
 
---- patch against 2.4.1-pre11 below ---
+Please comment. Or else I will continue to sumbit it :)
 
-diff -urN -X dontdiff linux-vanilla/arch/arm/kernel/armksyms.c linux/arch/arm/kernel/armksyms.c
---- linux-vanilla/arch/arm/kernel/armksyms.c	Tue Sep 19 00:15:24 2000
-+++ linux/arch/arm/kernel/armksyms.c	Mon Jan 29 21:42:58 2001
-@@ -48,7 +48,7 @@
- extern int sys_read(int, char *, int);
- extern int sys_lseek(int, off_t, int);
- extern int sys_exit(int);
--extern int sys_wait4(int, int *, int, struct rusage *);
-+extern long sys_wait4(pid_t, unsigned int *, int, struct rusage *);
- 
- /*
-  * libgcc functions - functions that are used internally by the
-diff -urN -X dontdiff linux-vanilla/arch/ia64/kernel/signal.c linux/arch/ia64/kernel/signal.c
---- linux-vanilla/arch/ia64/kernel/signal.c	Thu Jan  4 21:50:17 2001
-+++ linux/arch/ia64/kernel/signal.c	Mon Jan 29 21:43:49 2001
-@@ -52,7 +52,6 @@
- 	struct sigcontext sc;
- };
- 
--extern long sys_wait4 (int, int *, int, struct rusage *);
- extern long ia64_do_signal (sigset_t *, struct sigscratch *, long);	/* forward decl */
- 
- long
-diff -urN -X dontdiff linux-vanilla/arch/parisc/kernel/signal.c linux/arch/parisc/kernel/signal.c
---- linux-vanilla/arch/parisc/kernel/signal.c	Wed Dec  6 20:46:39 2000
-+++ linux/arch/parisc/kernel/signal.c	Mon Jan 29 21:44:20 2001
-@@ -33,7 +33,6 @@
- 
- #define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
- 
--extern long sys_wait4 (int, int *, int, struct rusage *);
- int do_signal(sigset_t *oldset, struct pt_regs *regs, int in_syscall);
- 
- int copy_siginfo_to_user(siginfo_t *to, siginfo_t *from)
-diff -urN -X dontdiff linux-vanilla/include/asm-arm/unistd.h linux/include/asm-arm/unistd.h
---- linux-vanilla/include/asm-arm/unistd.h	Fri Aug 11 23:29:03 2000
-+++ linux/include/asm-arm/unistd.h	Mon Jan 29 21:39:22 2001
-@@ -400,7 +400,7 @@
- 
- static inline pid_t waitpid(pid_t pid, int *wait_stat, int options)
- {
--	extern long sys_wait4(int, int *, int, struct rusage *);
-+	extern long sys_wait4(pid_t, unsigned int *, int, struct rusage *);
- 	return sys_wait4((int)pid, wait_stat, options, NULL);
+
+
+diff -aur linux-2.4.1-pre11-clean/mm/memory.c linux/mm/memory.c
+--- linux-2.4.1-pre11-clean/mm/memory.c	Sun Jan 28 20:53:13 2001
++++ linux/mm/memory.c	Sun Jan 28 22:43:04 2001
+@@ -377,7 +377,6 @@
+ 		address = (address + PGDIR_SIZE) & PGDIR_MASK;
+ 		dir++;
+ 	} while (address && (address < end));
+-	spin_unlock(&mm->page_table_lock);
+ 	/*
+ 	 * Update rss for the mm_struct (not necessarily current->mm)
+ 	 * Notice that rss is an unsigned long.
+@@ -386,6 +385,7 @@
+ 		mm->rss -= freed;
+ 	else
+ 		mm->rss = 0;
++	spin_unlock(&mm->page_table_lock);
  }
  
-@@ -412,7 +412,7 @@
  
- static inline pid_t wait(int * wait_stat)
- {
--	extern long sys_wait4(int, int *, int, struct rusage *);
-+	extern long sys_wait4(pid_t, unsigned int *, int, struct rusage *);
- 	return sys_wait4(-1, wait_stat, 0, NULL);
+@@ -1038,7 +1038,9 @@
+ 		flush_icache_page(vma, page);
+ 	}
+ 
++	spin_lock(&mm->page_table_lock);
+ 	mm->rss++;
++	spin_unlock(&mm->page_table_lock);
+ 
+ 	pte = mk_pte(page, vma->vm_page_prot);
+ 
+@@ -1072,7 +1074,9 @@
+ 			return -1;
+ 		clear_user_highpage(page, addr);
+ 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
++		spin_lock(&mm->page_table_lock);
+ 		mm->rss++;
++		spin_unlock(&mm->page_table_lock);
+ 		flush_page_to_ram(page);
+ 	}
+ 	set_pte(page_table, entry);
+@@ -1111,7 +1115,9 @@
+ 		return 0;
+ 	if (new_page == NOPAGE_OOM)
+ 		return -1;
++	spin_lock(&mm->page_table_lock);
+ 	++mm->rss;
++	spin_unlock(&mm->page_table_lock);
+ 	/*
+ 	 * This silly early PAGE_DIRTY setting removes a race
+ 	 * due to the bad i386 page protection. But it's valid
+diff -aur linux-2.4.1-pre11-clean/mm/mmap.c linux/mm/mmap.c
+--- linux-2.4.1-pre11-clean/mm/mmap.c	Sat Dec 30 18:35:19 2000
++++ linux/mm/mmap.c	Sun Jan 28 22:43:04 2001
+@@ -879,8 +879,8 @@
+ 	spin_lock(&mm->page_table_lock);
+ 	mpnt = mm->mmap;
+ 	mm->mmap = mm->mmap_avl = mm->mmap_cache = NULL;
+-	spin_unlock(&mm->page_table_lock);
+ 	mm->rss = 0;
++	spin_unlock(&mm->page_table_lock);
+ 	mm->total_vm = 0;
+ 	mm->locked_vm = 0;
+ 	while (mpnt) {
+diff -aur linux-2.4.1-pre11-clean/mm/swapfile.c linux/mm/swapfile.c
+--- linux-2.4.1-pre11-clean/mm/swapfile.c	Fri Dec 29 23:07:24 2000
++++ linux/mm/swapfile.c	Sun Jan 28 22:43:04 2001
+@@ -231,7 +231,9 @@
+ 	set_pte(dir, pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
+ 	swap_free(entry);
+ 	get_page(page);
++	spin_lock(&vma->vm_mm->page_table_lock);
+ 	++vma->vm_mm->rss;
++	spin_unlock(&vma->vm_mm->page_table_lock);
  }
  
-diff -urN -X dontdiff linux-vanilla/include/asm-parisc/unistd.h linux/include/asm-parisc/unistd.h
---- linux-vanilla/include/asm-parisc/unistd.h	Tue Dec  5 21:29:39 2000
-+++ linux/include/asm-parisc/unistd.h	Mon Jan 29 21:41:38 2001
-@@ -871,7 +871,7 @@
- 
- static inline pid_t waitpid(pid_t pid, int *wait_stat, int options)
- {
--	extern int sys_wait4(int, int *, int, struct rusage *);
-+	extern long sys_wait4(pid_t, unsigned int *, int, struct rusage *);
- 	return sys_wait4((int)pid, wait_stat, options, NULL);
- }
- 
-@@ -883,7 +883,7 @@
- 
- static inline pid_t wait(int * wait_stat)
- {
--	extern int sys_wait4(int, int *, int, struct rusage *);
-+	extern long sys_wait4(pid_t, unsigned int *, int, struct rusage *);
- 	return sys_wait4(-1, wait_stat, 0, NULL);
- }
- 
-diff -urN -X dontdiff linux-vanilla/include/asm-s390/unistd.h linux/include/asm-s390/unistd.h
---- linux-vanilla/include/asm-s390/unistd.h	Fri Aug 11 23:29:03 2000
-+++ linux/include/asm-s390/unistd.h	Mon Jan 29 21:40:27 2001
-@@ -359,7 +359,7 @@
- static inline _syscall1(int,delete_module,const char *,name)
- static inline _syscall2(long,stat,char *,filename,struct stat *,statbuf)
- 
--extern int sys_wait4(int, int *, int, struct rusage *);
-+extern long sys_wait4(pid_t, unsigned int *, int, struct rusage *);
- static inline pid_t waitpid(int pid, int * wait_stat, int flags)
- {
-         return sys_wait4(pid, wait_stat, flags, NULL);
+ static inline void unuse_pmd(struct vm_area_struct * vma, pmd_t *dir,
+diff -aur linux-2.4.1-pre11-clean/mm/vmscan.c linux/mm/vmscan.c
+--- linux-2.4.1-pre11-clean/mm/vmscan.c	Sun Jan 28 20:53:13 2001
++++ linux/mm/vmscan.c	Mon Jan 29 22:09:18 2001
+@@ -72,7 +72,9 @@
+ 		swap_duplicate(entry);
+ 		set_pte(page_table, swp_entry_to_pte(entry));
+ drop_pte:
++		spin_lock(&mm->page_table_lock);
+ 		mm->rss--;
++		spin_unlock(&mm->page_table_lock);
+ 		if (!page->age)
+ 			deactivate_page(page);
+ 		UnlockPage(page);
+
+-- 
+Regards,
+        Rasmus(rasmus@jaquet.dk)
+
+I've never had major knee surgery on any other part of my body.
+-Winston Bennett, University of Kentucky basketball forward
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

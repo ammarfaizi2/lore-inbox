@@ -1,60 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262386AbTKILja (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 06:39:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262395AbTKILja
+	id S262395AbTKILn1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 06:43:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTKILn1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 06:39:30 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:56810 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262386AbTKILj3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 06:39:29 -0500
-Date: Sun, 9 Nov 2003 12:39:28 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Guillaume Chazarain <guichaz@yahoo.fr>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cfq + io priorities
-Message-ID: <20031109113928.GN2831@suse.de>
-References: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc>
+	Sun, 9 Nov 2003 06:43:27 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53008 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262395AbTKILnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 06:43:25 -0500
+Date: Sun, 9 Nov 2003 11:43:22 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: crashme on ARM - unkillable processes
+Message-ID: <20031109114322.A29553@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc>
+User-Agent: Mutt/1.2.5.1i
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 09 2003, Guillaume Chazarain wrote:
-> > A process has an assigned io nice level, anywhere from 0 to 20. Both of
-> 
-> OK, I ask THE question : why not using the normal nice level, via
-> current->static_prio ?
-> This way, cdrecord would be RT even in IO, and nice -19 updatedb would have
-> a minimal impact on the system.
+Hi,
 
-I don't want to tie io prioritites to cpu priorities, that's a design
-decision.
+It seems that running crashme on ARM running 2.6.0-test8 with the
+following command:
 
-> > these end values are "special" - 0 means the process is only allowed to
-> > do io if the disk is idle, and 20 means the process io is considered
-> 
-> So a process with ioprio == 0 can be forever starved. As it's not
+# crashme +2000.4 666 100 1:0:0
 
-Yes
+results in crashme not running for very long before it locks up thusly:
 
-> done this way for nice -19 tasks (unlike FreeBSD), wouldn't it be
-> safer to give a very long deadline to ioprio == 0 requests ?
+Subprocess 2: try 20, offset 80
+Subprocess 2: Got signal 4 illegal instruction
+Subprocess 2: Barfed
+Subprocess 2: try 21, offset 84
+Subprocess 2: Got signal 11 segmentation violation
+Subprocess 2: Barfed
+Subprocess 2: try 22, offset 88
+time limit reached on pid 1704 0x6A8. using kill.
 
-ioprio == 0 means idle IO. It follows from that that you can risk
-infinite starvation if other io is happening. Otherwise it would not be
-idle io :-)
+At this point, PID1704 refuses to die.
 
-CFQ doesn't assign request deadlines. That would be another way of
-handling starvation.
+Looking at the output of sysrq-p and sysrq-t, it would appear that the
+subprocess is receiving SIGILL after SIGILL after SIGILL, virtually
+continuously.
 
-> Thanks for making something I have been dreaming of for a long time :)
+I suspect that either crashme's signal handler got corrupted somehow,
+or else the longjmp out of the handler is not allowing the next signal
+to be dequeued.
 
-Me too :)
+Looking at next_signal(), the kernel treats signals 1-8 as having higher
+priority than signal 9.  Since we only ever dequeue one signal on return
+to user space, we always find the SIGILL before SIGKILL, and the kill
+signal remains indefinitely queued.  When considering the situations
+where we deliver signals to processes, this means that if a process
+makes both no further system calls and receives no interrupts between
+SIGILL delivery and the next SIGILL being generated, the SIGKILL will
+not be delivered.
+
+I, therefore, put it to linux-kernel that this is a potential DoS
+attack.  A normal user space program can fork() multiple instances
+of itself, and then use this technique to place a heavy CPU intensive
+load on the machine, and the result could be a hundred or so unkillable
+processes.
+
+Resource limits on the number of processes a user can create limit the
+effect, but you will still end up with a number of unkillable processes
+at the end of the day.
 
 -- 
-Jens Axboe
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

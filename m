@@ -1,40 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291776AbSBHTvQ>; Fri, 8 Feb 2002 14:51:16 -0500
+	id <S291775AbSBHTxg>; Fri, 8 Feb 2002 14:53:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291775AbSBHTvG>; Fri, 8 Feb 2002 14:51:06 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31251 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291776AbSBHTuy>; Fri, 8 Feb 2002 14:50:54 -0500
-Date: Fri, 8 Feb 2002 13:36:27 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Alexander Viro <viro@math.psu.edu>, Andrew Morton <akpm@zip.com.au>,
-        Martin Wirth <Martin.Wirth@dlr.de>, Robert Love <rml@tech9.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        haveblue <haveblue@us.ibm.com>
-Subject: Re: [RFC] New locking primitive for 2.5
-In-Reply-To: <Pine.LNX.4.33.0202082221500.17064-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0202081328060.1095-100000@home.transmeta.com>
+	id <S291778AbSBHTx0>; Fri, 8 Feb 2002 14:53:26 -0500
+Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:13814 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S291775AbSBHTxO>; Fri, 8 Feb 2002 14:53:14 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Andrew Morton <akpm@zip.com.au>
+Subject: Re: [patch] get_request starvation fix
+Date: Fri, 8 Feb 2002 20:53:04 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Jens Axboe <axboe@suse.de>, Ingo Molnar <mingo@elte.hu>,
+        Robert Love <rml@tech9.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200202081932.GAA05943@mangalore.zipworld.com.au> <3C642A90.751BB750@zip.com.au>
+In-Reply-To: <3C642A90.751BB750@zip.com.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020208195322Z291775-13996+19340@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 8 Feb 2002, Ingo Molnar wrote:
+On Friday, 8. February 2002 20:44, Andrew Morton wrote:
+> Dieter Nützel wrote:
+> > On Fri, Feb 08 2002, Andrew Morton wrote:
+> > > Here's a patch which addresses the get_request starvation problem.
+> >
+> > [snip]
+> >
+> > > Also, you noted the other day that a LILO run *never* terminated when
+> > > there was a dbench running.  This is in fact not due to request
+> > > starvation.  It's due to livelock in invalidate_bdev(), which is called
+> > > via ioctl(BLKFLSBUF) by LILO.  invalidate_bdev() will never terminate
+> > > as long as another task is generating locked buffers against the
+> > > device.
+> >
+> > [snip]
+> >
+> > Could this below related?
+> > I get system looks through lilo (bzlilo) from time to time with all
+> > latest kernels + O(1) + -aa + preempt
 >
-> and regarding the reintroduction of BKL, *please* do not just use a global
-> locks around such pieces of code, lock bouncing sucks on SMP, even if
-> there is no overhead.
+> Depends what you mean by "system locks".
 
-I'd suggest not having a lock at all, but instead add two functions: one
-to read a 64-bit value atomically, the other to write it atomically (and
-they'd be atomic only wrt each other, no memory barriers etc implied).
+Hard lock up :-(
 
-On 64-bit architectures that's just a direct dereference, and even on x86
-it's just a "cmpxchg8b".
+Nothing in the log files.
+No SYSRQ works. Only reset. --- But ReiserFS works. Some few corrupted 
+*.o.flag files and most of the time a broken /usr/src/vmlinux or freshly 
+/boot/vmlinuz file.
 
-		Linus
+> The invalidate_bdev() problem won't lock the machine.
 
+I see.
+
+> In other words: if you run dbench, then lilo, lilo will not complete
+> until after dbench terminates.
+
+dbench wasn't run before
+Only several "sync" commands (by hand) during kernel build helps.
+
+> If you're seeing actual have-to-hit-reset lockups then that'll
+> be due to something quite different.
+
+Sadly, yes.
+
+Thanks,
+	Dieter

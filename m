@@ -1,129 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264728AbSJORwh>; Tue, 15 Oct 2002 13:52:37 -0400
+	id <S264695AbSJORsN>; Tue, 15 Oct 2002 13:48:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264681AbSJORwM>; Tue, 15 Oct 2002 13:52:12 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:35227 "EHLO cherise.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S264627AbSJORvw>;
-	Tue, 15 Oct 2002 13:51:52 -0400
-Date: Tue, 15 Oct 2002 10:58:32 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise.pdx.osdl.net
-To: Greg KH <greg@kroah.com>
-cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>,
-       <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [RFC] device_initialize()
-In-Reply-To: <20021014172422.GE6955@kroah.com>
-Message-ID: <Pine.LNX.4.44.0210151053040.1038-100000@cherise.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263204AbSJORr7>; Tue, 15 Oct 2002 13:47:59 -0400
+Received: from zola.noos.net ([212.198.2.76]:13372 "EHLO smtp.noos.fr")
+	by vger.kernel.org with ESMTP id <S264695AbSJORqP>;
+	Tue, 15 Oct 2002 13:46:15 -0400
+Date: Tue, 15 Oct 2002 19:39:28 +0200
+From: Nicolas Mailhot <Nicolas.Mailhot@laPoste.net>
+To: David Brownell <david-b@pacbell.net>
+Cc: greg@kroah.com, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] 2.5.42-ac1, 2.5.42, 2.5.41 boot hang with CONFIG_USB_DEBUG=n
+Message-ID: <20021015173928.GA972@rousalka.noos.fr>
+References: <20021013172557.GA890@rousalka.noos.fr> <3DAAF67F.1080504@pacbell.net> <20021014212000.GA1002@rousalka.noos.fr> <3DAC4BE8.6080109@pacbell.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3DAC4BE8.6080109@pacbell.net>; from david-b@pacbell.net on mar, oct 15, 2002 at 19:10:00 +0200
+X-Mailer: Balsa 2.0.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 2002.10.15 19:10 David Brownell wrote:
+>> Procedure was following :
+>> 1. reboot the computer (software reboot if ok kernel, else reset)
+>> 2. go through bios (long initiation with memory testing)
+>> 3. when the bootloader shows up (might hang just before, my disks 
+>> really do not like being stopped before reboot) / when the system 
+>> hangs, press reset
+>> 4. go through bios initialization (bis)
+>> 5. when grub shows up, play a bit in the menus (up-down...) then 
+>> choose a kernel
+>> 
+>> With this protocol I got a 100% boot rate on the original kernel and 
+>> an almost-always hang with the kernel where debuging was undefed in 
+>> drivers/usb/host/ohci-hcd.c. It did boot two times (out of maybe 
+>> 10-15 tries) but that doesn't count since both times the keyboard 
+>> was dead.
+> 
+> Well, I've seen USB getting annoyingly flakey results in recent 
+> kernels.
+> That's a little bit outside the bounds of the inconsistency I've seen,
+> but (I hate to say) not unrealistically so, since you're kicking init
+> sequences in different ways.  That makes troubleshooting harder!
 
-Hey there.
+Well, I knew AMD 756 + USB was a bit risky, guess I was too much in a 
+2.5 mood when I bought this keyboard.
 
-> ===== drivers/base/core.c 1.40 vs edited =====
-> --- 1.40/drivers/base/core.c	Fri Oct 11 23:08:56 2002
-> +++ edited/drivers/base/core.c	Mon Oct 14 09:36:58 2002
-> @@ -150,6 +150,27 @@
->  }
->  
->  /**
-> + * device_initialize - initialize a device
-> + * @dev:	pointer to the device structure
-> + */
-> +int device_initialize (struct device *dev)
-> +{
-> +	if (!dev)
-> +		return -EINVAL;
-> +
-> +	INIT_LIST_HEAD(&dev->node);
-> +	INIT_LIST_HEAD(&dev->children);
-> +	INIT_LIST_HEAD(&dev->g_list);
-> +	INIT_LIST_HEAD(&dev->driver_list);
-> +	INIT_LIST_HEAD(&dev->bus_list);
-> +	INIT_LIST_HEAD(&dev->intf_list);
-> +	spin_lock_init(&dev->lock);
-> +	atomic_set(&dev->refcount,1);
-> +	dev->state = DEVICE_INITIALIZED;
-> +	return 0;
-> +}
-> +
-> +/**
->   * device_register - register a device
->   * @dev:	pointer to the device structure
->   *
-> @@ -167,15 +188,10 @@
->  	if (!dev || !strlen(dev->bus_id))
->  		return -EINVAL;
->  
-> -	INIT_LIST_HEAD(&dev->node);
-> -	INIT_LIST_HEAD(&dev->children);
-> -	INIT_LIST_HEAD(&dev->g_list);
-> -	INIT_LIST_HEAD(&dev->driver_list);
-> -	INIT_LIST_HEAD(&dev->bus_list);
-> -	INIT_LIST_HEAD(&dev->intf_list);
-> -	spin_lock_init(&dev->lock);
-> -	atomic_set(&dev->refcount,2);
-> -	dev->present = 1;
-> +	if (dev->state != DEVICE_INITIALIZED)
-> +		return -EINVAL;
-> +
-> +	get_device(dev);
->  	spin_lock(&device_lock);
->  	if (dev->parent) {
->  		get_device_locked(dev->parent);
-> @@ -212,6 +228,7 @@
->  		if (dev->parent)
->  			put_device(dev->parent);
->  	}
-> +	dev->state = DEVICE_INITIALIZED;
->  	put_device(dev);
->  	return error;
->  }
+> There are some one-liners floating around that make it a lot better,
+> like making drivers/base/core.c found_match() "return error != 0"
+> (true == matched) instead of "return error" (true == failed).  That
+> one might not be your issue at all, but I've seen it to fix failures
+> that closely resemble your "dead devices" mode.
 
-> ===== include/linux/device.h 1.34 vs edited =====
-> --- 1.34/include/linux/device.h	Fri Oct 11 23:09:04 2002
-> +++ edited/include/linux/device.h	Sun Oct 13 20:02:41 2002
-> @@ -256,7 +256,11 @@
->  
->  extern int interface_add_data(struct intf_data *);
->  
-> -
-> +enum device_state {
-> +	DEVICE_INITIALIZED =	1,
-> +	DEVICE_REGISTERED =	2,
-> +	DEVICE_GONE =		3,
-> +};
+I"ll try this.
 
+>> No such luck. It really looks like ohci is the culprit:(
+> 
+> Maybe not, given that you did report (in an earlier note):
+> 
+> > + ... Unfortunately I've found out today not even CONFIG_USB_DEBUG
+> > + was sufficient, since I had a boot hand (cold boot) with my debug
+> > + kernel today (warm boot afterwards was ok, though).
+> 
+> Even if it isn't one of the bugs causing generic flakiness, a
+> warm-vs-cold boot problem that's ohci-specific isn't something
+> that should have appeared in recent kernels.  I'd be curious.
+> Was 2.5.38 behaving OK for you?  Or earlier 2.5 kernels?
 
-Overall, I agree with the concept of the patch. I wonder though if we 
-could do it without burdening all the callers of device_register() to 
-first call device_initialize(). Well, tastefully at least. 
+I'm afraid I didn't try any 2.5 kernel before 2.5.41.
+If you have a particular version you'd like me tot test, I'll do it 
+(provided it's not one of the disk-eating ones).
 
-What about: 
+I *think* there is a problem in 2.5, and cold booting make it worse, 
+enabling usb debug makes it better.
+*If* I had not both RH8 2.4.18 and w2k booting happily on my hardware 
+(both cold and warm boots) I would suspect it but that's not the case.
 
-enum device_state {
-	DEVICE_UNINITIALIZED =  0,
-	DEVICE_INITIALIZED =    1,
-	DEVICE_REGISTERED =     2,   
-	DEVICE_GONE =           3,
-};
+>> P.S.
+>> 
+>>     I don't know if it's important, but I had to enable usb keyboard 
+>> legacy mode in the bios to have keyboard support in the bootloader 
+>> stage. I had a bad feeling about the option though, a good bios is a 
+>> lean bios.
+> 
+> Unless your boot loader has a small USB stack, leave that emulation
+> enabled in the bios.  Linux will disable it when you bring up USB.
+> 
+> But it'd be worth seeing if there were any problems with that.  In 
+> fact,
+> in drivers/usb/host/ohci-hcd.c there is one dbg() that could affect
+> init timing.  Experiment:  leave all debug messages off, but change
+> the first dbg() call in hc_reset() into an err() call.  Does that make
+> things better?
 
-int device_register(struct device * dev)
-{
-	...
-	if (dev->state == DEVICE_UNINITIALIZED)
-		device_initialize(dev);
-	...
-}
+I'll do this now, then the found_match thing, and post the results.
 
-This assumes that the device structure is initialized to 0 before 
-device_register() is called (which it should be anyway to prevent other 
-unpredictable behavior). 
+Thanks for the suggestions,
 
-Is that too ugly?
-
-	-pat
-
+--
+Nicolas Mailhot

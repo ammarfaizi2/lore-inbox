@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbUKEDON@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUKEDPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbUKEDON (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 22:14:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUKEDON
+	id S262585AbUKEDPr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 22:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbUKEDPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 22:14:13 -0500
-Received: from relay01.roc.ny.frontiernet.net ([66.133.131.34]:10440 "EHLO
-	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S262582AbUKEDN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 22:13:59 -0500
-From: Russell Miller <rmiller@duskglow.com>
-To: Tim Connors <tconnors+linuxkernel1099624161@astro.swin.edu.au>
-Subject: Re: is killing zombies possible w/o a reboot?
-Date: Thu, 4 Nov 2004 21:17:23 -0600
-User-Agent: KMail/1.7
-Cc: Elladan <elladan@eskimo.com>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       Doug McNaught <doug@mcnaught.org>, Jim Nelson <james4765@verizon.net>,
-       DervishD <lkml@dervishd.net>, Gene Heskett <gene.heskett@verizon.net>,
-       linux-kernel@vger.kernel.org, M?ns Rullg?rd <mru@inprovide.com>
-References: <200411030751.39578.gene.heskett@verizon.net> <20041105023850.GC17010@eskimo.com> <slrn-0.9.7.4-4729-165-200411051409-tc@hexane.ssi.swin.edu.au>
-In-Reply-To: <slrn-0.9.7.4-4729-165-200411051409-tc@hexane.ssi.swin.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200411042117.23505.rmiller@duskglow.com>
+	Thu, 4 Nov 2004 22:15:47 -0500
+Received: from [12.177.129.25] ([12.177.129.25]:53699 "EHLO
+	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
+	id S262586AbUKEDO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Nov 2004 22:14:57 -0500
+Message-Id: <200411050526.iA55QZDZ007751@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: "Catalin(ux aka Dino) BOIE" <util@deuroconsult.ro>
+cc: blaisorblade_spam@yahoo.it, linux-kernel@vger.kernel.org,
+       user-mode-linux-user@lists.sourceforge.net
+Subject: Re: [PATCH] extend the limits for command line 
+In-Reply-To: Your message of "Thu, 04 Nov 2004 09:08:57 +0200."
+             <Pine.LNX.4.61.0411040859130.18123@webhosting.rdsbv.ro> 
+References: <Pine.LNX.4.61.0411040859130.18123@webhosting.rdsbv.ro> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 05 Nov 2004 00:26:35 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 04 November 2004 21:10, Tim Connors wrote:
+util@deuroconsult.ro said:
+> Patch to extend the limits (buffer and number of args/envs) is
+> attached. Please consider including it because UML is intended to be
+> run with such  long lines. 
 
-> Of course, it's not necessarily a bug. Someone could have just kicked
-> the ethernet, and so your process is stuck waiting for a read/write.
+I don't have a problem with this either.  The init/main.c piece needs to be
+run through LKML, and so far I haven't seen any reaction.
 
-But it *is* a process hung in D state after you sent it a kill.  It's safe to 
-assume, at least, that something is screwed up somewhere.  More information 
-is always a good thing.
+				Jeff
 
---Russell
-
--- 
-
-Russell Miller - rmiller@duskglow.com - Le Mars, IA
-Duskglow Consulting - Helping companies just like you to succeed for ~ 10 yrs.
-http://www.duskglow.com - 712-546-5886

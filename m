@@ -1,28 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293357AbSCSAbE>; Mon, 18 Mar 2002 19:31:04 -0500
+	id <S293348AbSCSAgy>; Mon, 18 Mar 2002 19:36:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293348AbSCSAay>; Mon, 18 Mar 2002 19:30:54 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:5822 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293357AbSCSAat>;
-	Mon, 18 Mar 2002 19:30:49 -0500
-Date: Mon, 18 Mar 2002 16:27:28 -0800 (PST)
-Message-Id: <20020318.162728.83689693.davem@redhat.com>
-To: cort@fsmlabs.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: 7.52 second kernel compile
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020318172705.O4783@host110.fsmlabs.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S293361AbSCSAgo>; Mon, 18 Mar 2002 19:36:44 -0500
+Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:3733 "EHLO
+	scaup.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S293348AbSCSAg1>; Mon, 18 Mar 2002 19:36:27 -0500
+Date: Mon, 18 Mar 2002 19:41:30 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [CFT] delayed allocation and multipage I/O patches for 2.5.6.
+Message-ID: <20020318194130.A18120@rushmore>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Cort Dougan <cort@fsmlabs.com>
-   Date: Mon, 18 Mar 2002 17:27:05 -0700
-   
-   Any suggestions for a structure, Dave?
+2.5.6 with Andrew's everything patch on ext2 
+filesystem mounted with delalloc came up with
+these MB/second on k6-2/475 with IDE disk:
 
-Structure?  Of what?
+dbench 128	
+2.5.6		2.5.6-akpme	akpm % faster
+8.4 		12.5 		48
+
+tiobench seq reads (8 - 128 threads avg 3 runs)
+2.5.6		2.5.6-akpme	%
+9.36 		12.97		38
+
+tiobench seq writes (8 - 128 threads avg 3 runs)
+2.5.6		2.5.6-akpme	%
+15.3		19.29		26
+
+Both kernels needed reiserfs patches for 2.5.6, but
+above tests are on ext2.  
+
+More on these tests and a few other akpm patches at:
+http://home.earthlink.net/~rwhron/kernel/akpm.html
+
+-- 
+Randy Hron
+

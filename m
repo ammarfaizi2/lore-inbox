@@ -1,66 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263280AbSJWJfl>; Wed, 23 Oct 2002 05:35:41 -0400
+	id <S263544AbSJWJjy>; Wed, 23 Oct 2002 05:39:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263316AbSJWJd4>; Wed, 23 Oct 2002 05:33:56 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:4164 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S263280AbSJWJa1>; Wed, 23 Oct 2002 05:30:27 -0400
-Date: Wed, 23 Oct 2002 02:44:55 -0700 (PDT)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: linux-kernel@vger.kernel.org
-cc: lkcd-devel@lists.sourceforge.net
-Subject: [PATCH] LKCD for 2.5.44 (7/8): dump configuration
-In-Reply-To: <Pine.LNX.4.44.0210230241050.27315-100000@nakedeye.aparity.com>
-Message-ID: <Pine.LNX.4.44.0210230244440.27315-100000@nakedeye.aparity.com>
+	id <S264611AbSJWJjf>; Wed, 23 Oct 2002 05:39:35 -0400
+Received: from 62-190-219-22.pdu.pipex.net ([62.190.219.22]:20487 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S263544AbSJWJhz>; Wed, 23 Oct 2002 05:37:55 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210230953.g9N9rVIL000743@darkstar.example.net>
+Subject: Re: 2.5 Problem Report Status
+To: tmolina@cox.net (Thomas Molina)
+Date: Wed, 23 Oct 2002 10:53:31 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0210222038380.8594-100000@dad.molina> from "Thomas Molina" at Oct 22, 2002 09:07:13 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds the ability to configure crash dumps in the
-kernel, including optional compression mechanisms and loading
-of network crash dump capabilities.
+> Following is the latest version of my status report web page.  It can be 
+> found at:
+> 
+> http://members.cox.net/tmolina/kernprobs/status.html
+> 
+> I've seen a lot of positive feedback for Martin's proposal to create a 
+> bugzilla for kernel bug reports so this is likely to be my last formal 
+> posting on this subject.  I intend to enter these as the "seed" bug 
+> reports for his effort, so any comment on this is welcome.  
 
- arch/i386/config.in |    7 +++++++
- lib/Config.in       |    2 ++
- 2 files changed, 9 insertions(+)
+> --------------------------------------------------------------------------
+>    open                   17 Oct 2002 IDE not powered down on shutdown
+>   55. http://marc.theaimsgroup.com/?l=linux-kernel&m=103476420012508&w=2
+> 
+> --------------------------------------------------------------------------
 
-diff -Naur linux-2.5.44.orig/arch/i386/config.in linux-2.5.44.lkcd/arch/i386/config.in
---- linux-2.5.44.orig/arch/i386/config.in	Fri Oct 18 21:01:21 2002
-+++ linux-2.5.44.lkcd/arch/i386/config.in	Wed Oct 23 01:39:30 2002
-@@ -455,6 +455,17 @@
-    dep_bool 'Software Suspend (EXPERIMENTAL)' CONFIG_SOFTWARE_SUSPEND $CONFIG_PM
- fi
- 
-+tristate 'Crash dump support' CONFIG_CRASH_DUMP
-+if [ "$CONFIG_CRASH_DUMP" != "n" ]; then
-+   dep_tristate '  Crash dump block device driver' CONFIG_CRASH_DUMP_BLOCKDEV $CONFIG_CRASH_DUMP
-+   dep_tristate '  Crash dump RLE compression' CONFIG_CRASH_DUMP_COMPRESS_RLE $CONFIG_CRASH_DUMP
-+   dep_tristate '  Crash dump GZIP compression' CONFIG_CRASH_DUMP_COMPRESS_GZIP $CONFIG_CRASH_DUMP
-+else
-+   define_tristate CONFIG_CRASH_DUMP_BLOCKDEV n
-+   define_tristate CONFIG_CRASH_DUMP_COMPRESS_RLE n
-+   define_tristate CONFIG_CRASH_DUMP_COMPRESS_GZIP n
-+fi
-+
- bool 'Kernel debugging' CONFIG_DEBUG_KERNEL
- if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; then
-    bool '  Check for stack overflows' CONFIG_DEBUG_STACKOVERFLOW
-diff -Naur linux-2.5.44.orig/lib/Config.in linux-2.5.44.lkcd/lib/Config.in
---- linux-2.5.44.orig/lib/Config.in	Fri Oct 18 21:01:10 2002
-+++ linux-2.5.44.lkcd/lib/Config.in	Sat Oct 19 12:39:15 2002
-@@ -26,10 +26,12 @@
- fi
- 
- if [ "$CONFIG_PPP_DEFLATE" = "y" -o \
-+     "$CONFIG_CRASH_DUMP_COMPRESS_GZIP" = "y" -o \
-      "$CONFIG_JFFS2_FS" = "y" ]; then
-    define_tristate CONFIG_ZLIB_DEFLATE y
- else
-   if [ "$CONFIG_PPP_DEFLATE" = "m" -o \
-+       "$CONFIG_CRASH_DUMP_COMPRESS_GZIP" = "m" -o \
-        "$CONFIG_JFFS2_FS" = "m" ]; then
-      define_tristate CONFIG_ZLIB_DEFLATE m
-   else
+This doesn't happen on every shutdown, but randomly on about 30% of
+shutdowns.  Only observed with 2.5.43.  Has somebody changed the order
+of the flush and spindown commands to the IDE devices?
 
+I will try 2.5.44 on the machine later today, and report
+success/failiure.
+
+John.

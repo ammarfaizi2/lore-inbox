@@ -1,88 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVCDHWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262595AbVCDHRa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVCDHWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 02:22:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbVCDHTG
+	id S262595AbVCDHRa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 02:17:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVCDHPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 02:19:06 -0500
-Received: from fire.osdl.org ([65.172.181.4]:29615 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262501AbVCDHRt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 02:17:49 -0500
-Date: Thu, 3 Mar 2005 23:17:16 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: gene.heskett@verizon.net, linux-kernel@vger.kernel.org, kraxel@bytesex.org
-Subject: Re: 2.6.11 vs DVB cx88 stuffs
-Message-Id: <20050303231716.14a48f5f.akpm@osdl.org>
-In-Reply-To: <20050303224438.2952f63e.akpm@osdl.org>
-References: <200503032119.04675.gene.heskett@verizon.net>
-	<20050303224438.2952f63e.akpm@osdl.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 4 Mar 2005 02:15:38 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60647 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262590AbVCDHPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 02:15:12 -0500
+Message-ID: <42280AEC.4020405@pobox.com>
+Date: Fri, 04 Mar 2005 02:14:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: chrisw@osdl.org, olof@austin.ibm.com, paulus@samba.org, rene@exactcode.de,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
+References: <422756DC.6000405@pobox.com>	<16935.36862.137151.499468@cargo.ozlabs.ibm.com>	<20050303225542.GB16886@austin.ibm.com>	<20050303175951.41cda7a4.akpm@osdl.org>	<20050304022424.GA26769@austin.ibm.com>	<20050304055451.GN5389@shell0.pdx.osdl.net>	<20050303220631.79a4be7b.akpm@osdl.org>	<4227FC5C.60707@pobox.com>	<20050304062016.GO5389@shell0.pdx.osdl.net>	<20050303222335.372d1ad2.akpm@osdl.org>	<20050304064759.GP5389@shell0.pdx.osdl.net>	<422808A4.105@pobox.com> <20050303231203.411d204d.akpm@osdl.org>
+In-Reply-To: <20050303231203.411d204d.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> wrote:
->
->  >
->  > I've a new pcHDTV-3000 card, and I thought maybe it would
->  >  be a good idea to build the cx88 stuff in the DVB section
->  >  of a make xconfig.
->  > 
->  >  It doesn't build, spitting out this bailout:
->  > 
->  >    CC [M]  drivers/media/video/cx88/cx88-cards.o
->  >  drivers/media/video/cx88/cx88-cards.c: In function `hauppauge_eeprom_dvb':
->  >  drivers/media/video/cx88/cx88-cards.c:694: error: `PLLTYPE_DTT7595' undeclared (first use in this function)
->  >  drivers/media/video/cx88/cx88-cards.c:694: error: (Each undeclared identifier is reported only once
->  >  drivers/media/video/cx88/cx88-cards.c:694: error: for each function it appears in.)
->  >  drivers/media/video/cx88/cx88-cards.c:698: error: `PLLTYPE_DTT7592' undeclared (first use in this function)
->  >  drivers/media/video/cx88/cx88-cards.c: In function `cx88_card_setup':
->  >  drivers/media/video/cx88/cx88-cards.c:856: error: `PLLTYPE_DTT7579' undeclared (first use in this function)
+Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
 > 
->  OK, this is one for Gerd.  Those identifiers just aren't anywhere in the tree.
->
+>>The boot param is rather lame, IMO, since it affects a -bunch- of 
+>> laptops.  But whatever...
+> 
+> 
+> My main desktop (a recent Dell), running 2.6.11-rc4-mm1 needs i8042.nopnp=1
+> (sic.  It got renamed) so I can type stuff too.  (rerekicks self). I expect
+> this machine would require i8042.noacpi=1 if it was running 2.6.11.
+> 
+> Lots of machines are affected.  It's a bit of a howler.
 
-<googles>
+Definitely a linux-release candidate then.
 
-OK, the below should get you going again.  It fixes up a warning too.
- 
->  The reason this wasn't picked up is that neither `make allyesconfig' or
->  `make allmodconfig' enables CONFIG_VIDEO_CX88_DVB or
->  CONFIG_VIDEO_CX88_DVB_MODULE.
->
->  For coverage purposes it would be excellent to fix that up too, please.
+On a side note, it would be nice to give you access to push things into 
+the linux-release tree yourself.
 
-Wise words, those.
+	Jeff
 
-
-
-diff -puN drivers/media/dvb/frontends/cx22702.h~c8xx-cards-build-fix drivers/media/dvb/frontends/cx22702.h
---- 25/drivers/media/dvb/frontends/cx22702.h~c8xx-cards-build-fix	2005-03-03 23:13:59.000000000 -0800
-+++ 25-akpm/drivers/media/dvb/frontends/cx22702.h	2005-03-03 23:14:17.000000000 -0800
-@@ -30,6 +30,10 @@
- 
- #include <linux/dvb/frontend.h>
- 
-+#define PLLTYPE_DTT7592 1
-+#define PLLTYPE_DTT7595 2
-+#define PLLTYPE_DTT7579 3
-+
- struct cx22702_config
- {
- 	/* the demodulator's i2c address */
-diff -puN drivers/media/video/cx88/cx88-cards.c~c8xx-cards-build-fix drivers/media/video/cx88/cx88-cards.c
---- 25/drivers/media/video/cx88/cx88-cards.c~c8xx-cards-build-fix	2005-03-03 23:15:09.000000000 -0800
-+++ 25-akpm/drivers/media/video/cx88/cx88-cards.c	2005-03-03 23:15:35.000000000 -0800
-@@ -707,6 +707,7 @@ static int hauppauge_eeprom_dvb(struct c
- 
- 	core->pll_addr = 0x61;
- 	core->demod_addr = 0x43;
-+	return 0;
- }
- #endif
- 
-_
 

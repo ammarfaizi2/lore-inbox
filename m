@@ -1,104 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270651AbRHNSbd>; Tue, 14 Aug 2001 14:31:33 -0400
+	id <S270641AbRHNSaD>; Tue, 14 Aug 2001 14:30:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270653AbRHNSbT>; Tue, 14 Aug 2001 14:31:19 -0400
-Received: from etpmod.phys.tue.nl ([131.155.111.35]:45618 "EHLO
-	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
-	id <S270643AbRHNSa1>; Tue, 14 Aug 2001 14:30:27 -0400
-Date: Tue, 14 Aug 2001 19:35:43 +0200
-From: Kurt Garloff <garloff@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kurt Garloff <garloff@suse.de>, Andries.Brouwer@cwi.nl,
-        alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mantel@suse.de,
-        rubini@vision.unipv.it
-Subject: Re: [PATCH] make psaux reconnect adjustable
-Message-ID: <20010814193543.V1085@gum01m.etpnet.phys.tue.nl>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
-	alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
-	mantel@suse.de, rubini@vision.unipv.it
-In-Reply-To: <20010814170306.Q1085@gum01m.etpnet.phys.tue.nl> <Pine.LNX.4.33.0108140954390.1679-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="GOaLjq+VdFesH+wR"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108140954390.1679-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.20i
-X-Operating-System: Linux 2.4.7 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: TU/e(NL), SuSE(DE)
+	id <S270630AbRHNS3x>; Tue, 14 Aug 2001 14:29:53 -0400
+Received: from lips.borg.umn.edu ([160.94.232.50]:53253 "EHLO
+	lips.borg.umn.edu") by vger.kernel.org with ESMTP
+	id <S270643AbRHNS3u>; Tue, 14 Aug 2001 14:29:50 -0400
+Message-ID: <3B794B4F.1000303@thebarn.com>
+Date: Tue, 14 Aug 2001 11:01:19 -0500
+From: Russell Cattelan <cattelan@thebarn.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010802
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Andre Pang <ozone@algorithm.com.au>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: usb-uhci + SMP -> bad
+In-Reply-To: <20010814002131.A26321@bubba.toscano.org> <E15Wdc6-00016N-00@the-village.bc.nu> <997794181.326309.1471.nullmailer@bozar.algorithm.com.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andre Pang wrote:
 
---GOaLjq+VdFesH+wR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>On Tue, Aug 14, 2001 at 01:48:06PM +0100, Alan Cox wrote:
+>
+>>>	- use the uhci USB driver when I'm using a USB printer.  If I
+>>>	  use the usb-uhci driver with my USB printer, the whole system
+>>>	  locks.  This has been reported a few times on LKML,
+>>>	  linux-usb-users, and linux-usb-developers and nobody helped,
+>>>	  but a few people wrote back with "me too"s.  It was broken in
+>>>	  the trasnition from 2.4.3 to 2.4.4 and only seems to affect
+>>>	  SMP systems.  I just gave up on USB printing and went back to
+>>>	  my parallel port.
+>>>
+>>usb-uhci seems to not be SMP safe. Ultimately we don't need both uhci
+>>drivers so that hasnt been one that worried me.  Probably we should drop
+>>the other uhci driver over time (2.5 maybe)
+>>
+>
+>i'd just thought i'd verify that usb-uchi seems to be causing
+>some havoc on SMP boxes.
+>
+>i've had complete crashes (Alt-SysRq-s doesn't respond) when i
+>try to print stuff to a USB printer using the usb-uchi and
+>printer modules.  this is on an SMP box.
+>
+>however -- 2.4.2 works perfectly for that.  it broke from 2.4.4
+>onward (tried 2.4.[5-7], i'm presuming .8 hasn't fixed the
+>problem.)
+>
+>if anybody wants me to help them diagnose the problem, i'd be
+>more than happy to, but i'm not sure where to start at the
+>moment.
+>
 
-Hi Linus,
+Note the usb sound driver does that same thing even on a UP box (with 
+SMP kernel and UP kernel)
 
-thanks for your comments.
+I've tried to debug the problem but setting nmi_watchdog=1 at boot time 
+does seem
+to catch the problem so I don't have much to go on.
 
-On Tue, Aug 14, 2001 at 09:58:55AM -0700, Linus Torvalds wrote:
-> I really have two comments, but I haven't followed the whole discussion,
-> so feel free to just say that it's been hashed out already:
->=20
->  - sysconf entries are suspicious for stuff like this. If some code really
->    requires this to work correctly, that's exactly the kind of code that
->    would run automatically at bootup. A sysconf doesn't really help people
->    in that case - we'd be much better off with just a bootup switch.
+If you haven't set nmi_watchdog yet you may want to try it and see if 
+you have
+better luck.
 
-Maybe that's the difference of whether you define the kernel behaviour by
-deciding what goes in and the one that tries to avoid a breakage without
-changing the default behaviour ...
-Of course the sysctl is less intrusive (from a user's point of view).
+And yes comfirmed 2.4.3 works 2.4.[45678] does not.
 
->  - do we actually need the config switch AT ALL, whether at bootup or not?
->    What exactly breaks if we just always pass the AA 00 values through?
->    Apparently nothing ever breaks, which makes me suspect that people are
->    just being unnecessarily defensive.
 
-PS2 mouses need this ping thing to be operational after being plugged.
-But, there's no reason it needs to be done in the kernel.
-* It works for plain PS2 only (not: imps2, synps2, ...)
-* The userspace driver (gpm, X11) can do it as well, AFAICS
+-Russell Cattelan
 
-I guess the thing has been introduced because it was more convenient than
-fixing userspace.
-Maybe the kernel does it a bit more efficient by throwing away the queue ...
 
-> In short, I'd prefer a patch that just unconditionally removes the code,
-> unless somebody KNOWS that it could break something. That failing, a
-> simple kernel command line option sounds better than more files in /proc.
-
-I'd be happy with removing it.
-Patch will follow!
-
-> Remember: the biggest mistake to do is to overdesign. The road to hell is
-> paved with good intentions.
-
-A few sysctls don't qualify as overdesign yet, I hope.
-
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers         Linux kernel development
-SuSE GmbH, Nuernberg, DE                                SCSI, Security
-
---GOaLjq+VdFesH+wR
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7eWFvxmLh6hyYd04RAid0AJkBRbQAelKjAXzaA8rRQifEPscH2ACfUUsp
-BqZqeLRrmag8Bsup3yELdnY=
-=dhec
------END PGP SIGNATURE-----
-
---GOaLjq+VdFesH+wR--

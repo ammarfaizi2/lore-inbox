@@ -1,74 +1,220 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277271AbRJQWxO>; Wed, 17 Oct 2001 18:53:14 -0400
+	id <S277282AbRJQXGp>; Wed, 17 Oct 2001 19:06:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277276AbRJQWwz>; Wed, 17 Oct 2001 18:52:55 -0400
-Received: from netdoor.com ([208.137.128.6]:46831 "EHLO pike.netdoor.com")
-	by vger.kernel.org with ESMTP id <S277271AbRJQWwq>;
-	Wed, 17 Oct 2001 18:52:46 -0400
-Message-ID: <3BCE0C28.9090001@netdoor.com>
-Date: Wed, 17 Oct 2001 17:54:32 -0500
-From: Brad Chandler <mbc@netdoor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-2 i686; en-US; 0.7) Gecko/20010316
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S277284AbRJQXGg>; Wed, 17 Oct 2001 19:06:36 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:33013 "EHLO
+	blue.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S277282AbRJQXGR>; Wed, 17 Oct 2001 19:06:17 -0400
+Date: Wed, 17 Oct 2001 16:15:06 -0700
+From: Seth Arnold <sarnold@wirex.com>
 To: linux-kernel@vger.kernel.org
-Subject: kernel panic when adding ram
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: IDE CDROM problems -- No medium found -- 2.4.12-ac3
+Message-ID: <20011017161506.C930@wirex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I apologize if this isn't the appropriate place for this question. I'm 
-having trouble when I try to add a second stick of ram to the #2 slot on 
-my motherboard. At this point I don't know whether it's a hardware or 
-software problem.
+Greetings;
 
-I have two 256mb ECC Crucial ram that I cannot get to work in Linux. At 
-first I thought one of the sticks was bad, but I've been able to get 
-both sticks to work when used alone in the first slot. Both sticks 
-together will not work.  The computer will boot up fine and the bios 
-passes things off to the OS.  The bios appears to detect all the ram.  
-Linux (RedHat 7.1) will start to boot but will kernel panic soon after.  
-I've tried it with Kernel 2.4.2-2 and Kernel 2.4.12.
+I've been having difficulties mounting CD-ROMs with 2.4.12-ac3 on my x86
+uniproc machine (with only Rik's vmpatch applied).
 
+mount will sometimes give:
+$ sudo mount /dev/hdc /mnt/cdrom
+mount: block device /dev/hdc is write-protected, mounting read-only
+mount: No medium found
 
-Here is everything I could get off the screen when it kernel panics:
+Other times, mount will give:
+$ mount /mnt/cdrom
+mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
+       or too many mounted file systems
+       (aren't you trying to mount an extended partition,
+       instead of some logical partition inside?)
 
-IP: routing cache hash table of 4096 buckets, 32kbytes
-uhici.c: cc00: host system error, PCI problems?
-uhici.c: cc00: host controller halted. very bad.
-TCP: Hash tables configured (established 32768 bind 32768)
-Unable to handle kernel paging request at virtual address 177e7038
-printing eip:
-c0124b73
-*pde=00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[] Not tainted
-Eflags: 00010807
-eax: cde3b808 ebx: c1807280 ecx: dfef9000 edx: c02a9a9c
-esi: 00000246 edi: f1dc0400 ebp: c1807280 esp: c181ff30
-dsi: 0018 es: 0018 ss:0018
-Processor swapper (pid: 1 stackpage=c181f000)
-Stack 81240001 c029367d c0208c01 c18063do 000003f0 c02ccab4
-00008124 c02cca94
-c0293673 c0293676 c0147d98 c181ffac c029367d 00008124
-00000001 c02cca44
-c02cca94 c02e4b09 c0293679 00000000 c1809c40 0008e000
-c02132f9 00000020
-Call Trace: [] []
-
-Code f3 ab 8d 45 01 3d ff 01 00 00 8d 7b 4c 8b 74 24 04 77 14 89
-<0> Kernel panic: Attempted to kill init
+Others are much more succinct:
+$ mount /mnt/cdrom
+mount: No medium found
 
 
+Other times, in this same uptime, the same CD-ROMs mount just fine, with
+the same commands to perform the mounting.
 
-Could someone please tell me what is happening? Thanks in advance for
-any help.
-
-Could you please CC my address since I'm not subscribed to the list.
-
-Brad Chandler
+To my knowledge, I am not doing any of that funky ide-scsi stuff. I have
+been using grip's cdparanoia to rip CDs; those usually work quite well.
 
 
+Included here is a list of everything in my .config that had =y or =m.
+(The only loaded modules at the moment are: vfat, fat, and usb-uhci.)
+
+I haven't been able to find a pattern of work/failure that makes any
+sense. I am hoping someone else here has seen similar problems, or may
+have ideas what to do to find the problem. :)
+
+Cheers! :)
+
+
+CONFIG_X86=y
+CONFIG_ISA=y
+CONFIG_UID16=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_MODULES=y
+CONFIG_KMOD=y
+CONFIG_M686=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_TSC=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_PGE=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_CPUID=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_NET=y
+CONFIG_PCI=y
+CONFIG_PCI_GOANY=y
+CONFIG_PCI_BIOS=y
+CONFIG_PCI_DIRECT=y
+CONFIG_PCI_NAMES=y
+CONFIG_HOTPLUG=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_KCORE_ELF=y
+CONFIG_BINFMT_ELF=y
+CONFIG_PM=y
+CONFIG_APM=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=m
+CONFIG_PACKET=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_IDEDMA_IVB=y
+CONFIG_BLK_DEV_IDE_MODES=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_SCSI_DEBUG_QUEUES=y
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_NETDEVICES=y
+CONFIG_NET_ETHERNET=y
+CONFIG_NET_VENDOR_3COM=y
+CONFIG_VORTEX=y
+CONFIG_INPUT=y
+CONFIG_INPUT_KEYBDEV=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_JOYDEV=y
+CONFIG_INPUT_EVDEV=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_SERIAL=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_MOUSE=y
+CONFIG_PSMOUSE=y
+CONFIG_VIDEO_DEV=m
+CONFIG_VIDEO_CPIA=m
+CONFIG_VIDEO_CPIA_USB=m
+CONFIG_AUTOFS4_FS=y
+CONFIG_FAT_FS=m
+CONFIG_MSDOS_FS=m
+CONFIG_VFAT_FS=m
+CONFIG_TMPFS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVFS_DEBUG=y
+CONFIG_DEVPTS_FS=y
+CONFIG_EXT2_FS=y
+CONFIG_NFS_FS=y
+CONFIG_NFSD=y
+CONFIG_SUNRPC=y
+CONFIG_LOCKD=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FB_VESA=y
+CONFIG_FB_VGA16=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FBCON_ADVANCED=y
+CONFIG_FBCON_CFB8=y
+CONFIG_FBCON_VGA_PLANES=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_SOUND=y
+CONFIG_SOUND_ES1371=y
+CONFIG_USB=y
+CONFIG_USB_DEBUG=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+CONFIG_USB_UHCI=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_OHCI=m
+CONFIG_USB_AUDIO=m
+CONFIG_USB_BLUETOOTH=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
+CONFIG_USB_STORAGE_FREECOM=y
+CONFIG_USB_STORAGE_DPCM=y
+CONFIG_USB_ACM=m
+CONFIG_USB_PRINTER=m
+CONFIG_USB_HID=m
+CONFIG_USB_WACOM=m
+CONFIG_USB_DC2XX=m
+CONFIG_USB_MDC800=m
+CONFIG_USB_SCANNER=m
+CONFIG_USB_MICROTEK=m
+CONFIG_USB_IBMCAM=m
+CONFIG_USB_OV511=m
+CONFIG_USB_DSBR=m
+CONFIG_USB_DABUSB=m
+CONFIG_USB_PLUSB=m
+CONFIG_USB_PEGASUS=m
+CONFIG_USB_SERIAL=m
+CONFIG_USB_SERIAL_GENERIC=y
+CONFIG_USB_SERIAL_BELKIN=m
+CONFIG_USB_SERIAL_WHITEHEAT=m
+CONFIG_USB_SERIAL_DIGI_ACCELEPORT=m
+CONFIG_USB_SERIAL_EMPEG=m
+CONFIG_USB_SERIAL_FTDI_SIO=m
+CONFIG_USB_SERIAL_VISOR=m
+CONFIG_USB_SERIAL_EDGEPORT=m
+CONFIG_USB_SERIAL_KEYSPAN_PDA=m
+CONFIG_USB_SERIAL_KEYSPAN=m
+CONFIG_USB_SERIAL_KEYSPAN_USA28=y
+CONFIG_USB_SERIAL_KEYSPAN_USA28X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19=y
+CONFIG_USB_SERIAL_KEYSPAN_USA18X=y
+CONFIG_USB_SERIAL_KEYSPAN_USA19W=y
+CONFIG_USB_SERIAL_KEYSPAN_USA49W=y
+CONFIG_USB_SERIAL_MCT_U232=m
+CONFIG_USB_SERIAL_OMNINET=m
+CONFIG_USB_RIO500=m
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y

@@ -1,55 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131662AbRC3VpT>; Fri, 30 Mar 2001 16:45:19 -0500
+	id <S130317AbRC3Tx2>; Fri, 30 Mar 2001 14:53:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131658AbRC3VpJ>; Fri, 30 Mar 2001 16:45:09 -0500
-Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:26992 "EHLO
-	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
-	id <S131654AbRC3Vo7>; Fri, 30 Mar 2001 16:44:59 -0500
-Date: Fri, 30 Mar 2001 15:44:13 -0600 (CST)
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-To: "Manuel A. McLure" <mmt@unify.com>
-cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: Kernel 2.4.3 fails to compile
-In-Reply-To: <419E5D46960FD211A2D5006008CAC79902E5C163@pcmailsrv1.sac.unify.com>
-Message-ID: <Pine.LNX.3.96.1010330154345.8826W-100000@mandrakesoft.mandrakesoft.com>
+	id <S130532AbRC3TxR>; Fri, 30 Mar 2001 14:53:17 -0500
+Received: from clueserver.org ([206.163.47.224]:265 "HELO clueserver.org")
+	by vger.kernel.org with SMTP id <S130317AbRC3TxM>;
+	Fri, 30 Mar 2001 14:53:12 -0500
+Date: Fri, 30 Mar 2001 12:06:40 -0800 (PST)
+From: Alan Olsen <alan@clueserver.org>
+To: Bruno Avila <jisla@elogica.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: How to compile linux 0.0.0.1?
+In-Reply-To: <OJECKBFFEMDBJMBOKGEDEEIDCCAA.jisla@elogica.com.br>
+Message-ID: <Pine.LNX.4.10.10103301204570.23679-100000@clueserver.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 30 Mar 2001, Bruno Avila wrote:
 
+>        I can't find this anywhere. What is the version of the tools to
+> compile linux kernel 0.0.0.1 (../Historic)? And where can i find them?
 
-On Fri, 30 Mar 2001, Manuel A. McLure wrote:
+Well, first you have to find a good source of obsidean, a couple of sharp
+rocks, and some flint...
 
-> Jeff Garzik wrote:
-> > On Fri, 30 Mar 2001, Manuel A. McLure wrote:
-> > 
-> > > ...
-> > > gcc -D__KERNEL__ -I/usr/src/linux/include -Wall 
-> > -Wstrict-prototypes -O2
-> > > -fomit-frame-pointer -fno-strict-aliasing -pipe 
-> > -mpreferred-stack-boundary=2
-> > > -march=athlon  -DMODULE -DMODVERSIONS -include
-> > > /usr/src/linux/include/linux/modversions.h   -c -o buz.o buz.c
-> > > buz.c: In function `v4l_fbuffer_alloc':
-> > > buz.c:188: `KMALLOC_MAXSIZE' undeclared (first use in this function)
-> > > buz.c:188: (Each undeclared identifier is reported only once
-> > > buz.c:188: for each function it appears in.)
-> > 
-> > Easy solution -- just delete the entire test
-> > 
-> > 	if (size > KMALLOC_MAXSIZE) {
-> > 		...
-> > 	}
-> 
-> Thanks, I'll do that. It just seemed strange that the file was being
-> compiled in the first place when the config option was not set.
-
-buz is built with CONFIG...ZORAN as well as CONFIG...BUZ.  I dunno if
-that's a bug or not...
-
-	Jeff
-
-
+alan@ctrl-alt-del.com | Note to AOL users: for a quick shortcut to reply
+Alan Olsen            | to my mail, just hit the ctrl, alt and del keys.
+    "In the future, everything will have its 15 minutes of blame."
 

@@ -1,73 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316265AbSEVRUx>; Wed, 22 May 2002 13:20:53 -0400
+	id <S316269AbSEVRYJ>; Wed, 22 May 2002 13:24:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316268AbSEVRUx>; Wed, 22 May 2002 13:20:53 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:31250 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S316265AbSEVRUv>; Wed, 22 May 2002 13:20:51 -0400
-Message-ID: <3CEBC496.9030900@evision-ventures.com>
-Date: Wed, 22 May 2002 18:17:26 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.17 /dev/ports
-In-Reply-To: <E17AZoV-0002I7-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S316293AbSEVRYI>; Wed, 22 May 2002 13:24:08 -0400
+Received: from smtp.eol.ca ([205.189.152.19]:242 "HELO smtp.eol.ca")
+	by vger.kernel.org with SMTP id <S316269AbSEVRYH>;
+	Wed, 22 May 2002 13:24:07 -0400
+Date: Wed, 22 May 2002 13:24:04 -0400
+From: William Park <opengeometry@yahoo.ca>
+To: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
+Subject: Re: Safety of -j N when building kernels?
+Message-ID: <20020522132404.A449@node1.opengeometry.ca>
+Mail-Followup-To: "Linux kernel mailing list (lkml)" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020522165320.GC18059@lanl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Alan Cox napisa?:
->>Anybody: if you've ever used /dev/ports, holler _now_.
+On Wed, May 22, 2002 at 10:53:20AM -0600, Eric Weigle wrote:
+> Ok, stupid question of the moment-
 > 
+> I always read about the kernel compilation benchmarks people run on the
+> ultra-snazzy new machines, but do people actually run the kernels thus
+> generated?
 > 
-> Holler. I posted a list of examples to linux-kernel already. iopl and ioperm
-> are not portable in the way /dev/port is. ioperm/iopl also doesnt work
-> with most scripting languages, java tools trying to avoid JNI etc
-
-What?
-
-#include <linux/io.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-int main(char *argv[], int argc)
-{
-	int port = aoit(argv[0]);
-	 int byte = aoit(argv[1]);
-
-	if (port > 0)
-		return inb(port);		
-	 else
-			outb(port, byte);
-
-
-		return 0;
-}
-
-and then syscall("/sbin/doportio")
-
-Is certainly *NOT IMPOSSIBLE*. But it's of course too
-much of a burden...
-
-BTW> Under java it's rather hard to get around
-CAP_RAWIO if you ask me without going down to JNI.
-
-> I've seen it used in tools written in java, python, perl, even tcl
+> I have visions of a process being backgrounded to generate some files, and
+> not completing before the one of the old files gets linked into the kernel
+> (because not all files were listed as dependencies, for example).
 > 
-> Other examples include libieee1284, the pic 16x84 programmer, hwclock,
-> older kbdrate, /sbin/clock on machines that don't have /dev/rtc.
+> So are the kernel's current Makefiles really SMP safe -- can one really
+> run multiple jobs when building Linux kernels? Any horror stories, or am
+> I just paranoid?
 
-All the examples above are samples of bad coding practice - I have
-uncovered already here in C what can be expected inside there!
+I usually do
+    make menuconfig
+    make -j3 dep
+    make -j3 bzImage modules	
+    make -j3 bzlilo modules_install
+where I separate the compile and install part.  But, this depends on what
+you are compiling.  I usually have problem with Compaq and Hamradio stuffs,
+so I have them commented out.
 
-> Not everything in the world is an x86, and not every app wants to be Linux/x86
-> specific or use weird syscalls
-
-Yes and in esp. everything in the world is a __m68000__!
-
+-- 
+William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>
+8-CPU Cluster, Hosting, NAS, Linux, LaTeX, python, vim, mutt, tin

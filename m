@@ -1,35 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264453AbRFORCs>; Fri, 15 Jun 2001 13:02:48 -0400
+	id <S264458AbRFORD6>; Fri, 15 Jun 2001 13:03:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264455AbRFORCj>; Fri, 15 Jun 2001 13:02:39 -0400
-Received: from [207.21.185.24] ([207.21.185.24]:11791 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP
-	id <S264453AbRFORC1>; Fri, 15 Jun 2001 13:02:27 -0400
-Message-ID: <3B2A3F90.799ACAC4@lnxw.com>
-Date: Fri, 15 Jun 2001 10:02:08 -0700
-From: Petko Manolov <pmanolov@Lnxw.COM>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en, bg
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: kmalloc
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264456AbRFORDs>; Fri, 15 Jun 2001 13:03:48 -0400
+Received: from geos.coastside.net ([207.213.212.4]:55733 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S264458AbRFORDc>; Fri, 15 Jun 2001 13:03:32 -0400
+Mime-Version: 1.0
+Message-Id: <p0510030cb74fef8a9b2a@[207.213.214.37]>
+In-Reply-To: <20010615171632.C9522@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <Pine.GSO.4.21.0106130044390.942-100000@weyl.math.psu.edu>
+ <Pine.GSO.4.21.0106150100210.7244-100000@weyl.math.psu.edu>
+ <20010615171632.C9522@parcelfarce.linux.theplanet.co.uk>
+Date: Fri, 15 Jun 2001 10:02:55 -0700
+To: Matthew Wilcox <matthew@wil.cx>, Alexander Viro <viro@math.psu.edu>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: [Final call for testers][PATCH] superblock handling changes
+ (2.4.6-pre3)
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi there,
+At 5:16 PM +0100 2001-06-15, Matthew Wilcox wrote:
+>I think this could be clearer.
+>
+>	struct list_head *tmp;
+>restart:
+>	spin_lock(&sb_lock);
+>	list_for_each(tmp, super_blocks) {
+>		struct super_block *sb = sb_entry(tmp);
+>		if (!sb->s_dirt)
+>			continue;
+>		spin_unlock(&sb_lock);
+>		down_read(&sb->s_umount);
+>		write_super(sb);
+>		drop_super(sb);
+>		goto restart;
+>	}
+>	spin_unlock(&sb_lock);
 
-AFAIK there was similar discusion almos a year
-ago but i can't remember the details.
+A minor improvement, IMO, is:
 
-kmalloc fails to allocate more than 128KB of
-memory regardless of the flags (GFP_KERNEL/USER/ATOMIC)
+	struct list_head *tmp;
+restart:
+	spin_lock(&sb_lock);
+	list_for_each(tmp, super_blocks) {
+		struct super_block *sb = sb_entry(tmp);
+		if (sb->s_dirt) {
+			sb->s_count++;
+			spin_unlock(&sb_lock);
+			down_read(&sb->s_umount);
+			write_super(sb);
+			drop_super(sb);
+			goto restart;
+		}
+	}
+	spin_unlock(&sb_lock);
 
-Any ideas?
-
-I am not quite sure if this is the expected behavior.
-
-
-	Petko
+-- 
+/Jonathan Lundell.

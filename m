@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265332AbUBANUD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Feb 2004 08:20:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265333AbUBANUD
+	id S265296AbUBANMs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Feb 2004 08:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265298AbUBANMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Feb 2004 08:20:03 -0500
-Received: from mail-08.iinet.net.au ([203.59.3.40]:33463 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265332AbUBANUA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Feb 2004 08:20:00 -0500
-Message-ID: <401CFCDE.3030108@cyberone.com.au>
-Date: Mon, 02 Feb 2004 00:19:26 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
+	Sun, 1 Feb 2004 08:12:48 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:18632 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S265296AbUBANMq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Feb 2004 08:12:46 -0500
+Subject: FW: Linux device driver using c++!
+Date: Sun, 1 Feb 2004 18:37:19 +0530
 MIME-Version: 1.0
-To: Henti Smith <henti@geekware.co.za>
-CC: "Jinu M." <jinum@esntechnologies.co.in>, linux-kernel@vger.kernel.org
-Subject: Re: Linux device driver using c++!
-References: <1118873EE1755348B4812EA29C55A9720DE151@esnmail.esntechnologies.co.in> <20040201150529.649bda55.henti@geekware.co.za>
-In-Reply-To: <20040201150529.649bda55.henti@geekware.co.za>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <1118873EE1755348B4812EA29C55A9720DE156@esnmail.esntechnologies.co.in>
+X-MS-Has-Attach: 
+Content-class: urn:content-classes:message
+X-MS-TNEF-Correlator: 
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Thread-Topic: Linux device driver using c++!
+Thread-Index: AcPowwfKmK7SdruuR92jP8cOEZLfcgAAH77gAAAw6sA=
+From: "Jinu M." <jinum@esntechnologies.co.in>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is there someway I can make use of a OS independent C++ code. This code has classes, new, delete etc.. My plan was to build a static library using the C++ code and then write a simple OS interface module which has the init, cleanup, read, write, ioctl etc but calls C++ functions in the library.
+
+Is this scenario possible?
+
+-Jinu
 
 
-Henti Smith wrote:
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Måns Rullgård
+Sent: Sunday, February 01, 2004 6:32 PM
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux device driver using c++!
 
->On Sun, 1 Feb 2004 18:17:08 +0530
->"Jinu M." <jinum@esntechnologies.co.in> wrote:
->
->
->>I am new to Linux based device driver development.
->>I wanted to know if it is possible to write a Linux device driver
->>(kernel loadable module) using C++.
->>
->
->It's possible, but like having sex with a cactus
->
->very painful,
->very silly, 
->very unsatisfactory 
->
->and no sane person would touch the cactus afterwards ;P 
->
->
+"Jinu M." <jinum@esntechnologies.co.in> writes:
 
-Oh yeah and if you trim off the spikes you might as well
-just do it with C^Hyour hand, right?
+> I am new to Linux based device driver development.  I wanted to know
+> if it is possible to write a Linux device driver (kernel loadable
+> module) using C++.
 
-Why haven't I ever thought of this wonderful analogy before?
+It's impossible.
 
+-- 
+Måns Rullgård
+mru@kth.se
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

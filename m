@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbREWUXo>; Wed, 23 May 2001 16:23:44 -0400
+	id <S263251AbREWUq3>; Wed, 23 May 2001 16:46:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263247AbREWUXZ>; Wed, 23 May 2001 16:23:25 -0400
-Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:49141 "EHLO
-	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
-	id <S263246AbREWUXQ>; Wed, 23 May 2001 16:23:16 -0400
-Message-ID: <3B0C1C27.D8D4D280@bigfoot.com>
-Date: Wed, 23 May 2001 13:23:03 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20p2aa1-a i686)
-X-Accept-Language: en
+	id <S263252AbREWUqJ>; Wed, 23 May 2001 16:46:09 -0400
+Received: from 136-CORU-X12.libre.retevision.es ([62.83.49.136]:14994 "HELO
+	trasno.mitica") by vger.kernel.org with SMTP id <S263251AbREWUqA>;
+	Wed, 23 May 2001 16:46:00 -0400
+To: alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] hga depmod fix
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+Date: 23 May 2001 22:44:38 +0200
+Message-ID: <m2ofsju761.fsf@trasno.mitica>
 MIME-Version: 1.0
-To: Dave Mielke <dave@mielke.cc>
-CC: "Linux Kernel (mailing list)" <linux-kernel@vger.kernel.org>
-Subject: Re: nfs mount by label not working.
-In-Reply-To: <Pine.LNX.4.30.0105231505330.995-100000@dave.private.mielke.cc>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-v2.10r works.
 
-[tim@abit tim]# mount -V
-mount: mount-2.10r
-[tim@abit tim]# tune2fs -L spare /dev/hda10
-tune2fs 1.19, 13-Jul-2000 for EXT2 FS 0.5b, 95/08/09
-[tim@abit tim]# mount -L spare /mnt
-[tim@abit tim]# df /mnt
-Filesystem           1k-blocks      Used Available Use% Mounted on
-/dev/hda10             3028080   2100116    927964  69% /mnt
-[tim@abit tim]# cat /proc/version
-Linux version 2.2.20p2aa1-a (root@abit) (gcc version egcs-2.91.66
-19990314/Linux (egcs-1.1.2 release)) #2 Sat May 19 18:46:38 PDT 2001
+Hi
+        if you compile hga as a module, you get unresolved symbols,
+        you need the following patch for it.
+        The patch is trivial.  Apply, please.
 
-Dave Mielke wrote:
-> 
-> Using kernel 2.2.17-14 as supplied by RedHat, and using mount from
-> mount-2.9u-4, mounting by label using the -L option does not work.
-> 
->     mount -L backup1 /a
->     mount: no such partition found
-...
-> Does something need to be enabled to make this work? What else might I be doing
-> wrong?
+Later, Juan.
+
+--- linux/drivers/video/hgafb.c.~1~	Mon May 21 08:56:08 2001
++++ linux/drivers/video/hgafb.c	Mon May 21 09:04:00 2001
+@@ -712,7 +712,7 @@
+ 
+ 	hga_gfx_mode();
+ 	hga_clear_screen();
+-#ifdef MODULE
++#ifndef MODULE
+ 	if (!nologo) hga_show_logo();
+ #endif /* MODULE */
+ 
 
 
---
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

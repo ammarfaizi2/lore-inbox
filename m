@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289346AbSBEHtl>; Tue, 5 Feb 2002 02:49:41 -0500
+	id <S289352AbSBEHvl>; Tue, 5 Feb 2002 02:51:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289347AbSBEHtb>; Tue, 5 Feb 2002 02:49:31 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:45372 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S289346AbSBEHtS>; Tue, 5 Feb 2002 02:49:18 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Werner Almesberger <wa@almesberger.net>,
-        "Erik A. Hendriks" <hendriks@lanl.gov>,
-        Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <3C58CAE0.4040102@zytor.com> <20020131103516.I26855@lanl.gov>
-	<m1elk6t7no.fsf@frodo.biederman.org> <3C59DB56.2070004@zytor.com>
-	<m1r8o5a80f.fsf@frodo.biederman.org> <3C5A5F25.3090101@zytor.com>
-	<m1hep19pje.fsf@frodo.biederman.org> <3C5ADDD1.6000608@zytor.com>
-	<20020204134927.A5079@almesberger.net>
-	<m1sn8h6ngb.fsf@frodo.biederman.org>
-	<20020204220234.B5079@almesberger.net> <3C5EF846.1070501@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 05 Feb 2002 00:45:33 -0700
-In-Reply-To: <3C5EF846.1070501@zytor.com>
-Message-ID: <m1aduo74o2.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S289348AbSBEHvb>; Tue, 5 Feb 2002 02:51:31 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23306 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289347AbSBEHvW>;
+	Tue, 5 Feb 2002 02:51:22 -0500
+Message-ID: <3C5F8EF7.7CEB475E@mandrakesoft.com>
+Date: Tue, 05 Feb 2002 02:51:19 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
+In-Reply-To: <200202041324.g14DOcv7001338@tigger.cs.uni-dortmund.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-
-> Werner Almesberger wrote:
+Horst von Brand wrote:
 > 
-> > 
-> > Well, it keeps things simple for the kernel, and bootimg(8) needs
-> > to know the target architecture anyway. But there isn't really a
-> > design reason why it would have to use pages, agreed.
-> > 
+> Jeff Garzik <garzik@havoc.gtf.org> said:
+> > On Fri, Feb 01, 2002 at 03:03:13PM +0000, Alan Cox wrote:
+> > > > If you have a dependency concern, you put yourself in the
+> > > > right initcall group.  You don't depend ever on the order within the
+> > > > group, thats the whole idea.  You can't depend on that, so you must
+> > > > group things correctly.
 > 
+> > > This was proposed right back at the start. Linus point blank vetoed it.
 > 
-> I looked at this point at some time, and I found that it made it a lot
-> easier to write code to permute memory arbitrarily, as may be required.
->   The reason is that you really want to keep an array that's O(N) in the
-> size of memory to keep track of where things are, and in order to do that,
-> realistically, you need to have some reasonably large granularity -- 4K
-> pages are just about right.
+> > My ideal would be to express dependencies in driver.conf (when that is
+> > implemented), and that will in turn affect the link order by
+> > autogenerating part of vmlinux.lds.  Until then, initcall groups are
+> > fine with me...
+> 
+> Not _one_ central file telling everything, please! Let each driver declare
+> what it needs and provides, and sort it out from there.
 
-On the kernel side I still plan to use pages, though my ideal case
-would be to allocate one great big slab of non-conflicting memory, and
-just copy everything to where it needs to go.
+"driver.conf" is a reference is a metadata file per driver or
+per-subdirectory, not one big file.
 
-On the user space side what I am proposing actually increases the
-granularity quite a bit.  For a linux kernel with a ramdisk you should
-only need to pass the kernel 3 segments.  (Assuming everything is
-contiguous in user space memory).  The setup code, the kernel, and the
-ramdisk.
+Linus suggested this back in December.  See the links I posted.
 
-> Of course, maybe I was just using a dumb algorithm... :)
 
-Perhaps.  So far I don't need an array that is O(N) in the size of
-memory just O(N) in the size of the image I am copying.   The
-permutations that are necessary to avoid conflicts in the pathological
-cases are a pain.  But I've already done that...
+> Why do I have this uneasy feeling it would somehow overlap with CML2's job?
 
-Anyway now it's back to the trenches...
+It could either (a) generate CML2 or (b) make CML2 irrelevant, depending
+on the implementation.
 
-Eric
+	Jeff
+
+
+
+-- 
+Jeff Garzik      | "I went through my candy like hot oatmeal
+Building 1024    |  through an internally-buttered weasel."
+MandrakeSoft     |             - goats.com

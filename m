@@ -1,43 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289099AbSBZXju>; Tue, 26 Feb 2002 18:39:50 -0500
+	id <S289191AbSBZXjL>; Tue, 26 Feb 2002 18:39:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289239AbSBZXjc>; Tue, 26 Feb 2002 18:39:32 -0500
-Received: from ns.suse.de ([213.95.15.193]:62473 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S289099AbSBZXjO>;
-	Tue, 26 Feb 2002 18:39:14 -0500
-Date: Wed, 27 Feb 2002 00:39:05 +0100
-From: Dave Jones <davej@suse.de>
-To: Roberto Nibali <ratz@drugphish.ch>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.5-dj2
-Message-ID: <20020227003905.C9189@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Roberto Nibali <ratz@drugphish.ch>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020226223406.A26905@suse.de> <3C7C1AF0.3000103@drugphish.ch>
+	id <S289099AbSBZXi5>; Tue, 26 Feb 2002 18:38:57 -0500
+Received: from charger.oldcity.dca.net ([207.245.82.76]:61062 "EHLO
+	charger.oldcity.dca.net") by vger.kernel.org with ESMTP
+	id <S289191AbSBZXiq>; Tue, 26 Feb 2002 18:38:46 -0500
+Date: Tue, 26 Feb 2002 18:38:33 -0500
+From: christophe =?iso-8859-15?Q?barb=E9?= 
+	<christophe.barbe.ml@online.fr>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 3c59x and cardbus
+Message-ID: <20020226233832.GK803@ufies.org>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020226173038.GD803@ufies.org> <3C7BC897.8D607D08@zip.com.au> <20020226175819.GE803@ufies.org> <20020226181510.GF803@ufies.org> <3C7BD91C.3B758704@zip.com.au> <20020226185907.GG803@ufies.org> <20020226230010.GI803@ufies.org> <3C7C1B07.92F9B8E0@zip.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="++alDQ2ROsODg1x+"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C7C1AF0.3000103@drugphish.ch>; from ratz@drugphish.ch on Wed, Feb 27, 2002 at 12:32:00AM +0100
+In-Reply-To: <3C7C1B07.92F9B8E0@zip.com.au>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: debian SID Gnu/Linux 2.4.18 on i586
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 27, 2002 at 12:32:00AM +0100, Roberto Nibali wrote:
 
- > make distclean removes ../include/linux/version.h and thus your patch 
- > doesn't apply cleanly on a fresh 2.5.5 tree.
+--++alDQ2ROsODg1x+
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- Yup. All went well until ALSA arrived with its own version.h
- Before then, I had version.h in my diff exclusion list, and everything
- 'just worked'. Oh well.. I'll add some more magic to autohch.pl[*]
+On Tue, Feb 26, 2002 at 03:32:23PM -0800, Andrew Morton wrote:
+> christophe barb=E9 wrote:
+> >=20
+> > Now that the forget_option bug is solved I have the following :
+> >=20
+> > Each time I suspend, the card resume in a bad state but return in a good
+> > state after that :
+> >=20
+> > NETDEV WATCHDOG: eth0: transmit timed out
+>=20
+> The transceiver didn't power up, or came up in silly
+> mode.  I'll see if I can reproduce any of this.
+> What NIC are you using?
+>=20
 
- Dave.
+My card is a 3com Megahertz 10/100 model 3CCFE575CT
 
- [*] my 'check for silly mistakes' script I run diffs through before
-     uploading.
+Could you give me a hint of where to look in the source or/and in the
+output from my previous mail ? I would like to understand the problem.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Thanks,
+Christophe
+
+--=20
+Christophe Barb=E9 <christophe.barbe@ufies.org>
+GnuPG FingerPrint: E0F6 FADF 2A5C F072 6AF8  F67A 8F45 2F1E D72C B41E
+
+Dogs believe they are human. Cats believe they are God.
+
+--++alDQ2ROsODg1x+
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Pour information voir http://www.gnupg.org
+
+iD8DBQE8fBx4j0UvHtcstB4RAtInAJwNPbvc4+gV1CyMxazDow2Gy4WpTwCeKBdS
+z7sQvOWrl337p+QVyvLrqrM=
+=IrtO
+-----END PGP SIGNATURE-----
+
+--++alDQ2ROsODg1x+--

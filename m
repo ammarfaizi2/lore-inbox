@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282717AbRK0Bcr>; Mon, 26 Nov 2001 20:32:47 -0500
+	id <S282723AbRK0Bph>; Mon, 26 Nov 2001 20:45:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282716AbRK0Bch>; Mon, 26 Nov 2001 20:32:37 -0500
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:64206 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S282715AbRK0Bc0>; Mon, 26 Nov 2001 20:32:26 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: "Alok K. Dhir" <alok@dhir.net>
-Date: Tue, 27 Nov 2001 12:31:49 +1100 (EST)
-MIME-Version: 1.0
+	id <S282724AbRK0Bp1>; Mon, 26 Nov 2001 20:45:27 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:59756 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S282723AbRK0BpQ>; Mon, 26 Nov 2001 20:45:16 -0500
+Date: Tue, 27 Nov 2001 02:45:17 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Nathan G. Grennan" <ngrennan@okcforum.org>, linux-kernel@vger.kernel.org
+Subject: Re: Unresponiveness of 2.4.16
+Message-ID: <20011127024517.A1465@athlon.random>
+In-Reply-To: <1006812135.1420.0.camel@cygnusx-1.okcforum.org> <E168U3m-00077F-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15362.60677.183036.620610@esther.cse.unsw.edu.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Possible md bug in 2.4.16-pre1
-In-Reply-To: message from Alok K. Dhir on Monday November 26
-In-Reply-To: <000c01c1769c$187cc390$9865fea9@pcsn630778>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <E168U3m-00077F-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Nov 26, 2001 at 10:17:06PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Monday November 26, alok@dhir.net wrote:
+On Mon, Nov 26, 2001 at 10:17:06PM +0000, Alan Cox wrote:
+> > 2.4.16 becomes very unresponsive for 30 seconds or so at a time during
+> > large unarchiving of tarballs, like tar -zxf mozilla-src.tar.gz. The
+> > file is about 36mb. I run top in one window, run free repeatedly in
 > 
-> On kernel 2.4.16-pre1 software RAID (tested with levels 0 and 1 on the
-> same two drives), it is not possible to "raidstop /dev/md0" after
-> mounting and using it, even though the partition is unmounted.  Attempts
-> are rejected with "/dev/md0: Device or resource busy".  Even shutting
-> down to single user mode does not release the device for stopping.  I
-> had to reboot to single user mode, then I was able to stop it,
-> unconfigure it, etc.
+> This seems to be one of the small as yet unresolved problems with the newer
+> VM code in 2.4.16. I've not managed to prove its the VM or the differing
 
-I think this might be due to a buggy "raidstop".  I seem to recall
-someone having a similar problem some months ago.  It turned out that
-they we using a vendor supplied raidstop that did the wrong thing.
+can you reproduce on 2.4.15aa1?
 
-Could you try compiling raid-tools from 
-http://www.kernel.org/pub/linux/daemons/raid/alpha/raidtools-19990824-0.90.tar.bz2   
-
-and see if that works.
-
-Alternaltely, get mdctl from
-
-  http://www.cse.unsw.edu.au/~neilb/source/mdctl/
-
-and use 
-   mdctl --stop /dev/md0
-
-If this still doesn't work, please send me an "strace" of raidstop
-running and failing.
-
-NeilBrown
+Andrea

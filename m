@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262927AbTIRC2U (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 22:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262931AbTIRC2U
+	id S262942AbTIRD0J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 23:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262943AbTIRD0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 22:28:20 -0400
-Received: from [208.191.98.137] ([208.191.98.137]:24448 "EHLO xorgate.com")
-	by vger.kernel.org with ESMTP id S262927AbTIRC2T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 22:28:19 -0400
-Message-ID: <001a01c37d94$e13032d0$3eac18ac@geosxp>
-From: "George" <george@xorgate.com>
-To: "Oleg Drokin" <green@namesys.com>, "Hans Reiser" <reiser@namesys.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <000501c37a0c$e2ad24a0$3eac18ac@geosxp> <3F63E898.4010803@namesys.com> <20030914084141.GA28617@namesys.com>
-Subject: Re: 2.6 kernel large file create problem
-Date: Wed, 17 Sep 2003 21:28:06 -0600
+	Wed, 17 Sep 2003 23:26:09 -0400
+Received: from CPEdeadbeef0000-CM000039d4cc6a.cpe.net.cable.rogers.com ([67.60.40.239]:48770
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id S262942AbTIRD0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 23:26:06 -0400
+Date: Wed, 17 Sep 2003 23:26:04 -0400 (EDT)
+From: Shawn Starr <spstarr@sh0n.net>
+To: Michael Frank <mhf@linuxmail.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Keyboard problems: magic key + h stuck, and keyboard errors,stuck
+ keys with 2.6.0-test5-bk3
+In-Reply-To: <200309171845.13790.mhf@linuxmail.org>
+Message-ID: <Pine.LNX.4.44.0309172323530.22608-100000@coredump.sh0n.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Oleg Drokin" <green@namesys.com>
-> Indeed.
-> Try this patch, it should help.
-> Tell us if you experience any problems with the patch.
+
+Issue 1: magic key + h noise
+
+I have determined that LILO on the remote box is feeding noise back to the
+other machine while it's booted. When I commented the serial port in
+inittab and init q'd. Shut the other machine down and brought it up. I saw
+no such noise spewed out.
+
+This is not a kernel issue.
+
+As for the keyboard sticky issue other users are reporting this as well.
+
+Shawn S.
+On Wed, 17 Sep 2003, Michael Frank wrote:
+
+> On powerup the ports may see breaks.
 >
-
-I have been off into the LVM2 muttle puddle, between kernels 2.4.22 and
-2.6.0-t5. . .
-
-If I do not include LVM2 below reiserfs then, yes, the 2.6.0 reiserfs file.c
-patch you provided works (for files larger than 4GB).  Thanks!
-
-However, if I include LVM2 on the 2.6.0-t5 kernel and place a reiserfs on
-top of LVM2 logical volume, I get "Input/output errors" from diff commands
-for files >2GB.
-
-Again if I use a similar file system config. using the 2.4.22 kernel
-everything works fine.  More on this latter.  ( I may  missing
-omething  ->[more research].)
+> Disable magic sysrq on the ports by which both machines connect ;)
+>
+> So, either use seperate ports or turn of magic sysrq - can alos do
+> in proc fs.
+>
+> Regards
+> Michael
+>
+> On Monday 15 September 2003 14:12, Shawn Starr wrote:
+> > I have two systems, When I turn the system next to me on the machine thats
+> > currently powered on spews out this each time, why is the magic key
+> > (alt+sysrq h) being dumped?
+> >
+> > Also, what is the best way to debug a kernel over serial when the system
+> > on the other end is completely locked?
+>
+> KGDB
+>
+> Alternatives KDB via keyboard or KGDB via ethernet
+>
+> >
+> > The other issue is:
+>
+> Also interface problem but sorry, don't know how to fix
+>
+> Regards
+> Michael
+>
+>
+>
 

@@ -1,112 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbUKBNIi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262330AbUKBNKB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262459AbUKBNIi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 08:08:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262992AbUKBNFO
+	id S262330AbUKBNKB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 08:10:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbUKBNKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 08:05:14 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:5565 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262958AbUKBM7g (ORCPT
+	Tue, 2 Nov 2004 08:10:00 -0500
+Received: from [212.209.10.221] ([212.209.10.221]:5077 "EHLO krynn.se.axis.com")
+	by vger.kernel.org with ESMTP id S262987AbUKBNFN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 07:59:36 -0500
-Date: Tue, 2 Nov 2004 18:33:16 +0530
-From: Suresh Kodati <kodatisu@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: andrea@novell.com
-Subject: 2.6 kernel - Oops in parport_wait_peripheral
-Message-ID: <20041102130316.GA10103@2fdyhf0.in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Tue, 2 Nov 2004 08:05:13 -0500
+From: "Mikael Starvik" <mikael.starvik@axis.com>
+To: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+Subject: [PATCH 9/10] CRIS architecture update - Move drivers2
+Date: Tue, 2 Nov 2004 14:04:53 +0100
+Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C748D@exmail1.se.axis.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_01E3_01C4C0E4.ED9814E0"
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
 
-While running some tests we observed a kernel oops in parport driver with the
-following trace
+------=_NextPart_000_01E3_01C4C0E4.ED9814E0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 
-f91f9234
-*pde = 359d4001
-Oops: 0000 [#1]
-SMP
-CPU:    1
-EIP:    0060:[<f91f9234>]    Not tainted
-EFLAGS: 00010286   (2.6.5-7.111-bigsmp)
-EIP is at parport_wait_event+0x14/0xc0 [parport]
-eax: 00000000   ebx: f6278400   ecx: 0000000a   edx: 00000001
-esi: f6278400   edi: f58fc000   ebp: 000356ab   esp: f58fde84
-ds: 007b   es: 007b   ss: 0068
-Process test (pid: 2837, threadinfo=f58fc000 task=f61c2c80)
-Stack: 00100100 00200200 0003568d 00000001 4b87ad6e c0130470 f61c2c80 00000000
-       f6278400 00000000 f91f93ad 000001f4 88884350 f58fdf40 f6278400 0000000a
-       00037d93 f58fc000 f91fa921 f602cf80 f6363001 00000001 00000000 00000044
-Call Trace:
- [<c0130470>] process_timeout+0x0/0x10
- [<f91f93ad>] parport_wait_peripheral+0xcd/0x120 [parport]
- [<f91fa921>] parport_ieee1284_write_compat+0xa1/0x200 [parport]
- [<f91fa880>] parport_ieee1284_write_compat+0x0/0x200 [parport]
- [<f91f9a8f>] parport_write+0x9f/0x126 [parport]
- [<f91e7c5f>] lp_write+0x18f/0x3f0 [lp]
- [<c016bd52>] vfs_write+0xc2/0x140
- [<c0130cc7>] del_singleshot_timer_sync+0x17/0x30
- [<c016bfe1>] sys_write+0x91/0xf0
- [<c0130470>] process_timeout+0x0/0x10
- [<c0109199>] sysenter_past_esp+0x52/0x71
+Patches to update Makefiles after drivers have been moved.
 
-I have observed the same problem with linux-2.6.10-rc1 also.
+Signed-Off-By: starvik@axis.com
 
-Debugging the problem we found that lp driver calls parport_release, 
-while parport_write is still in progress. 
+/Mikael
 
-lp_write does:
+------=_NextPart_000_01E3_01C4C0E4.ED9814E0
+Content-Type: application/octet-stream;
+	name="cris269_9.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+	filename="cris269_9.patch"
 
-	a. down_interruptible
-	b. lp_claim_parport_or_block (sets LP_PARPORT_CLAIMED and calls 
-	   parport_claim_or_block to claim parport)
-	c. parport_write
+--- 269_clean/arch/cris/arch-v10/drivers/Makefile	Thu Jan 22 09:24:12 =
+2004=0A=
++++ 269_modified/arch/cris/arch-v10/drivers/Makefile	Tue Nov  2 12:33:30 =
+2004=0A=
+@@ -2,15 +2,11 @@=0A=
+ # Makefile for Etrax-specific drivers=0A=
+ #=0A=
+ =0A=
+-obj-$(CONFIG_ETRAX_ETHERNET)            +=3D ethernet.o=0A=
+-obj-$(CONFIG_ETRAX_SERIAL)              +=3D serial.o=0A=
+ obj-$(CONFIG_ETRAX_AXISFLASHMAP)        +=3D axisflashmap.o=0A=
+ obj-$(CONFIG_ETRAX_I2C) 	        +=3D i2c.o=0A=
+ obj-$(CONFIG_ETRAX_I2C_EEPROM)          +=3D eeprom.o=0A=
+ obj-$(CONFIG_ETRAX_GPIO) 	        +=3D gpio.o=0A=
+ obj-$(CONFIG_ETRAX_DS1302)              +=3D ds1302.o=0A=
+ obj-$(CONFIG_ETRAX_PCF8563)		+=3D pcf8563.o=0A=
+-obj-$(CONFIG_ETRAX_IDE)                 +=3D ide.o=0A=
+-obj-$(CONFIG_ETRAX_USB_HOST)            +=3D usb-host.o=0A=
+ =0A=
+ =0A=
+--- 269_clean/drivers/net/Makefile	Tue Oct 19 15:09:44 2004=0A=
++++ 269_modified/drivers/net/Makefile	Tue Nov  2 12:34:49 2004=0A=
+@@ -194,5 +194,6 @@=0A=
+ obj-$(CONFIG_NET_TULIP) +=3D tulip/=0A=
+ obj-$(CONFIG_HAMRADIO) +=3D hamradio/=0A=
+ obj-$(CONFIG_IRDA) +=3D irda/=0A=
++obj-$(CONFIG_ETRAX_ETHERNET) +=3D cris/=0A=
+ =0A=
+ obj-$(CONFIG_NETCONSOLE) +=3D netconsole.o=0A=
+--- 269_clean/drivers/net/cris/Makefile	Thu Jan  1 01:00:00 1970=0A=
++++ 269_modified/drivers/net/cris/Makefile	Tue Nov  2 13:07:12 2004=0A=
+@@ -0,0 +1 @@=0A=
++obj-$(CONFIG_ETRAX_ARCH_V10)		+=3D v10/=0A=
+--- 269_clean/drivers/net/cris/v10/Makefile	Thu Jan  1 01:00:00 1970=0A=
++++ 269_modified/drivers/net/cris/v10/Makefile	Tue Nov  2 12:35:35 2004=0A=
+@@ -0,0 +1 @@=0A=
++obj-y		:=3D ethernet.o=0A=
+--- 269_clean/drivers/ide/Makefile	Mon Aug 16 14:38:33 2004=0A=
++++ 269_modified/drivers/ide/Makefile	Tue Nov  2 12:28:53 2004=0A=
+@@ -52,3 +52,4 @@=0A=
+ =0A=
+ obj-$(CONFIG_BLK_DEV_IDE)		+=3D legacy/ arm/=0A=
+ obj-$(CONFIG_BLK_DEV_HD)		+=3D legacy/=0A=
++obj-$(CONFIG_ETRAX_IDE)			+=3D cris/=0A=
+\ No newline at end of file=0A=
+--- 269_clean/drivers/ide/cris/Makefile	Thu Jan  1 01:00:00 1970=0A=
++++ 269_modified/drivers/ide/cris/Makefile	Tue Nov  2 13:06:57 2004=0A=
+@@ -0,0 +1,3 @@=0A=
++obj-$(CONFIG_ETRAX_ARCH_V10)		+=3D v10/=0A=
++=0A=
++EXTRA_CFLAGS	:=3D -Idrivers/ide=0A=
+--- 269_clean/drivers/ide/cris/v10/Makefile	Thu Jan  1 01:00:00 1970=0A=
++++ 269_modified/drivers/ide/cris/v10/Makefile	Tue Nov  2 12:33:19 2004=0A=
+@@ -0,0 +1,3 @@=0A=
++obj-y		:=3D ide.o=0A=
++=0A=
++EXTRA_CFLAGS	:=3D -Idrivers/ide=0A=
+--- 269_clean/drivers/serial/Makefile	Mon Aug 16 10:14:33 2004=0A=
++++ 269_modified/drivers/serial/Makefile	Tue Nov  2 12:36:08 2004=0A=
+@@ -41,3 +41,4 @@=0A=
+ obj-$(CONFIG_SERIAL_SGI_L1_CONSOLE) +=3D sn_console.o=0A=
+ obj-$(CONFIG_SERIAL_CPM) +=3D cpm_uart/=0A=
+ obj-$(CONFIG_SERIAL_MPC52xx) +=3D mpc52xx_uart.o=0A=
++obj-$(CONFIG_ETRAX_SERIAL) +=3D cris/=0A=
+--- 269_clean/drivers/serial/cris/Makefile	Thu Jan  1 01:00:00 1970=0A=
++++ 269_modified/drivers/serial/cris/Makefile	Tue Nov  2 13:07:26 2004=0A=
+@@ -0,0 +1 @@=0A=
++obj-$(CONFIG_ETRAX_ARCH_V10)		:=3D v10/=0A=
+--- 269_clean/drivers/serial/cris/v10/Makefile	Thu Jan  1 01:00:00 1970=0A=
++++ 269_modified/drivers/serial/cris/v10/Makefile	Tue Nov  2 12:37:12 =
+2004=0A=
+@@ -0,0 +1 @@=0A=
++obj-y		:=3D serial.o=0A=
+--- 269_clean/drivers/usb/Makefile	Mon Jun 21 12:31:30 2004=0A=
++++ 269_modified/drivers/usb/Makefile	Tue Nov  2 12:38:11 2004=0A=
+@@ -67,3 +67,5 @@=0A=
+ obj-$(CONFIG_USB_TIGL)		+=3D misc/=0A=
+ obj-$(CONFIG_USB_USS720)	+=3D misc/=0A=
+ obj-$(CONFIG_USB_PHIDGETSERVO)	+=3D misc/=0A=
++=0A=
++obj-$(CONFIG_ETRAX_USB_HOST)	+=3D host/cris/=0A=
+\ No newline at end of file=0A=
+--- 269_clean/drivers/usb/host/cris/Makefile	Thu Jan  1 01:00:00 1970=0A=
++++ 269_modified/drivers/usb/host/cris/Makefile	Tue Nov  2 13:07:37 2004=0A=
+@@ -0,0 +1 @@=0A=
++obj-$(CONFIG_ETRAX_ARCH_V10)		+=3D v10/=0A=
+--- 269_clean/drivers/usb/host/cris/v10/Makefile	Thu Jan  1 01:00:00 1970=0A=
++++ 269_modified/drivers/usb/host/cris/v10/Makefile	Tue Nov  2 12:38:56 =
+2004=0A=
+@@ -0,0 +1 @@=0A=
++obj-y		:=3D usb-host.o=0A=
+\ No newline at end of file=0A=
 
+------=_NextPart_000_01E3_01C4C0E4.ED9814E0--
 
-and LPGETSTATUS ioctl does
-	d. lp_claim_parport_or_block (sets already set LP_PARPORT_CLAIMED bit)
-	e. gets status
-	f. lp_release_parport (clears LP_PARPORT_CLAIMED bit _and_ calls 
-	   parport_release to release parport).
-
-
-Because of parport_release in step f, port->cad was set to NULL. As 
-a result, the write issued in step c trapped accessing the NULL pointer. 
-It happens because ioctl LPGETSTATUS do not check if there is any 
-pending write before releasing the port.
-
-There appears to be other places where similar problem exists (lp_reset, 
-lp_release ?).
-
-The following fix has resolved the problem. Can somebody comment on this
-
-
-Signed-off-by :Suresh Kodati (kodatisu@in.ibm.com)
-
---- linux-2.6.10-rc1-orig/drivers/char/lp.c     2004-11-02 16:53:22.573053168 +0530
-+++ linux-2.6.10-rc1/drivers/char/lp.c  2004-11-02 15:53:59.000000000 +0530
-@@ -609,9 +609,12 @@
-                                return -EFAULT;
-                        break;
-                case LPGETSTATUS:
-+                       if (down_interruptible (&lp_table[minor].port_mutex))
-+                               return -EINTR;
-                        lp_claim_parport_or_block (&lp_table[minor]);
-                        status = r_str(minor);
-                        lp_release_parport (&lp_table[minor]);
-+                       up (&lp_table[minor].port_mutex);
-
-                        if (copy_to_user(argp, &status, sizeof(int)))
-                                return -EFAULT;
-
-
-
--- 
-Thanks and regards,
-   Suresh Kodati
-Linux Technology center,
-IBM Software Labs, Bangalore.

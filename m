@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267164AbSLEAr7>; Wed, 4 Dec 2002 19:47:59 -0500
+	id <S267163AbSLEAsw>; Wed, 4 Dec 2002 19:48:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267166AbSLEAr7>; Wed, 4 Dec 2002 19:47:59 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57348 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267164AbSLEAr6>;
-	Wed, 4 Dec 2002 19:47:58 -0500
-Message-ID: <3DEEA3E0.2000306@pobox.com>
-Date: Wed, 04 Dec 2002 19:54:56 -0500
+	id <S267166AbSLEAsw>; Wed, 4 Dec 2002 19:48:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59396 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267163AbSLEAsu>;
+	Wed, 4 Dec 2002 19:48:50 -0500
+Message-ID: <3DEEA417.5080006@pobox.com>
+Date: Wed, 04 Dec 2002 19:55:51 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Gibson <david@gibson.dropbear.id.au>
-CC: James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel@vger.kernel.org
+To: "Adam J. Richter" <adam@yggdrasil.com>
+CC: James.Bottomley@SteelEye.com, davem@redhat.com,
+       linux-kernel@vger.kernel.org, miles@gnu.org
 Subject: Re: [RFC] generic device DMA implementation
-References: <200212041747.gB4HlEF03005@localhost.localdomain> <20021205004744.GB2741@zax.zax>
-In-Reply-To: <20021205004744.GB2741@zax.zax>
+References: <200212050043.QAA03207@adam.yggdrasil.com>
+In-Reply-To: <200212050043.QAA03207@adam.yggdrasil.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Gibson wrote:
-> On Wed, Dec 04, 2002 at 11:47:14AM -0600, James Bottomley wrote:
->>The new DMA API allows a driver to advertise its level of consistent memory 
->>compliance to dma_alloc_consistent.  There are essentially two levels:
->>
->>- I only work with consistent memory, fail if I cannot get it, or
->>- I can work with inconsistent memory, try consistent first but return 
->>inconsistent if it's not available.
+Adam J. Richter wrote:
+> On 2002-12-04, James Bottomley wrote:
 > 
 > 
-> Do you have an example of where the second option is useful?  Off hand
-> the only places I can think of where you'd use a consistent_alloc()
-> rather than map_single() and friends is in cases where the hardware's
-> behaviour means you absolutely positively have to have consistent
-> memory.
+>>Now that we have the generic device model, it should be equally possible to 
+>>rephrase the entire [DMA] API for generic devices instead of pci_devs.
+> 
+> 
+> 	Yes.  This issue has come up repeatedly.  I'd really like to
+> see a change like yours integrated soon to stop the spread of fake PCI
+> devices (including the pcidev==NULL convention) and other contortions
+> being used to work around this.  Also, such a change would enable
+> consolidation of certain memory allocations and their often buggy
+> error branches from hundred of drivers into a few places.
 
 
-agreed, good catch.  Returning inconsistent memory when you asked for 
-consistent makes not much sense:  the programmer either knows what the 
-hardware wants, or the programmer is silly and should not be using 
-alloc_consistent anyway.
+Agreed.  I'm glad James is doing this work, it will clean up a lot of 
+assumptions and corner-case-uglies...
+
+	Jeff
+
 
 

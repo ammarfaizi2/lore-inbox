@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283724AbRLWXAf>; Sun, 23 Dec 2001 18:00:35 -0500
+	id <S283266AbRLWWyz>; Sun, 23 Dec 2001 17:54:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284163AbRLWXAP>; Sun, 23 Dec 2001 18:00:15 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:4781
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S283724AbRLWXAJ>; Sun, 23 Dec 2001 18:00:09 -0500
-Date: Sun, 23 Dec 2001 17:46:08 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Cameron Simpson <cs@zip.com.au>,
-        David Garfield <garfield@irving.iisd.sra.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Configure.help editorial policy
-Message-ID: <20011223174608.A25335@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Rik van Riel <riel@conectiva.com.br>,
-	Cameron Simpson <cs@zip.com.au>,
-	David Garfield <garfield@irving.iisd.sra.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011224094211.A15930@zapff.research.canon.com.au> <Pine.LNX.4.33L.0112232052360.12081-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33L.0112232052360.12081-100000@imladris.surriel.com>; from riel@conectiva.com.br on Sun, Dec 23, 2001 at 08:53:41PM -0200
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+	id <S283771AbRLWWyq>; Sun, 23 Dec 2001 17:54:46 -0500
+Received: from smtp-rt-12.wanadoo.fr ([193.252.19.60]:28900 "EHLO
+	tamaris.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S283266AbRLWWye>; Sun, 23 Dec 2001 17:54:34 -0500
+Message-ID: <3C266031.7040408@wanadoo.fr>
+Date: Sun, 23 Dec 2001 23:52:33 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: "steve j. kondik" <shade@chemlab.org>
+CC: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: oops on boot w/ lvm root & xfs
+In-Reply-To: <20011223220547.GA16992@chemlab.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br>:
-> I take it this is your way of volunteering to always
-> keep all kernel documentation accurate as well as
-> answer questions from newbies who've never seen
-> 'KiB' before ? ;)
+steve j. kondik wrote:
 
-One of the arguments for the KiB declaration, despite the ugliness of
-"kibibytes", is that a newbie seeing "32KiB" is quite likely to deduce
-what's meant from context.  Let's not exaggerate the difficulties
-here.
+
+> devfs: devfs_do_symlink(root): could not append to parent, err: -17
+> change_root: old root has d_count=2
+
+http://www.atnf.csiro.au/~rgooch/linux/docs/devfs.html#faq-messages
+
+Pierre
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
 
-Where rights secured by the Constitution are involved, there can be no
-rule making or legislation which would abrogate them.
-        -- Miranda vs. Arizona, 384 US 436 p. 491

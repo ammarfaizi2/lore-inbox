@@ -1,47 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274627AbRITUKH>; Thu, 20 Sep 2001 16:10:07 -0400
+	id <S274828AbRIUUsj>; Fri, 21 Sep 2001 16:48:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274628AbRITUJ5>; Thu, 20 Sep 2001 16:09:57 -0400
-Received: from [194.213.32.137] ([194.213.32.137]:1796 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S274627AbRITUJs>;
-	Thu, 20 Sep 2001 16:09:48 -0400
-Date: Thu, 20 Sep 2001 09:23:14 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Knut.Neumann@rz.uni-duesseldorf.de
-Subject: Re: SonyPI Driver
-Message-ID: <20010920092313.A38@toy.ucw.cz>
-In-Reply-To: <20010918182011.G14639@come.alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20010918182011.G14639@come.alcove-fr>; from stelian.pop@fr.alcove.com on Tue, Sep 18, 2001 at 06:20:11PM +0200
+	id <S274827AbRIUUsa>; Fri, 21 Sep 2001 16:48:30 -0400
+Received: from smtp016.mail.yahoo.com ([216.136.174.113]:52488 "HELO
+	smtp016.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S274826AbRIUUsS>; Fri, 21 Sep 2001 16:48:18 -0400
+X-Apparently-From: <kratkin@yahoo.com>
+Date: Thu, 20 Sep 2001 16:15:55 +0400 (MSD)
+From: <kratkin@yahoo.com>
+X-X-Sender: <kratkin@niktar.egar.egartech.com>
+To: David Chow <davidtl@rcn.com.hk>
+cc: Alexander Viro <viro@math.psu.edu>, Oystein Viggen <oysteivi@tihlde.org>,
+        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: Wrapfs a stackable file system
+In-Reply-To: <Pine.LNX.4.33.0109220014130.11730-100000@uranus.planet.rcn.com.hk>
+Message-ID: <Pine.LNX.4.31.0109201611210.220-100000@niktar.egar.egartech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > I noticed that when running the sonypi driver on my VAIO z600tek, APM Suspend
-> > does no longer work: The power button (to suspend) does no longer work and -
-> > well - it will still suspend if I force it to, by apm -s but it does not
-> > resume (powers on, but blank screen and no input gets processed).
-> 
-> Yep, using the sonypi driver switches the laptop in a pseudo acpi
-> mode and APM based suspend will get disabled.
-...
-> You'll have to wait for ACPI suspend support in the kernel
-> (some support will get into the 2.5 kernel series) or choose between
-> the sonypi driver and APM suspend.
 
-Patrick Mochel has some patches for ACPI to enable suspend-to-ram
-[problems with vesafb nd evices, otherwise ok], and
-I'm currently working on suspend-to-disk [will work in easy cases].
-See acpi list.
-								Pavel
+Some docs about stackable fs (aka wrapfs):
+http://www.isi.edu/~johnh/WORK/ucla.html
+and:
+http://www.isi.edu/~johnh/PAPERS/index.html
 
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+On Sat, 22 Sep 2001, David Chow wrote:
+
+> On Fri, 21 Sep 2001, Alexander Viro wrote:
+>
+> >
+> >
+> > On 21 Sep 2001, Oystein Viggen wrote:
+> >
+> > > * [	David Chow]
+> > >
+> > > > The idea is orinigally from FiST, a stackable file system. But the FiST
+> > > > owner Erez seems given up to maintain the project. At the time I receive
+> > > > the code, it is so buggy, even unusable, lots of segmentation fault
+> > > > problems. I have debugging the fs for quite a while. Now it is useful in
+> > > > just use as a file system wrapper. It is useful in chroot environments
+> > > > and hardlinks aren't available. It wraps a directory and mount to
+> > > > another directory on tops of any filesystems.
+> > >
+> > > Is this not essentially what we already have with mount --bind in 2.4?
+> >
+> > Bindings can be used to get the same result, but underlying mechanics is
+> > different.  Wrapfs is not the most interesting application of FiST, so it's
+> > hardly a surprise...
+> >
+>
+> I think you people didn't understand what is wrapfs, if is only a template
+> for FiST. The aim is to provide a properly maintained stackable template
+> under linux, and so that people can use FiST to develop their own
+> filesystem. Currently the wrapfs template is so buggy, I spend weeks to
+> fix all the bugs and even rewriting some of the code to make it more
+> efficient. This dosn't means --bind, it means it also fix up tons of FS'es
+> that is previously produced by using the old buggy FiST template, FiST is
+> good for developing new stackable file system, the current problem is that
+> the templates are buggy.... you got it??? If you know something is good
+> but it is not properly maintained, why not give it a hand and do all the
+> people a flavour?
+>
+> regards,
+>
+> David
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288584AbSAHXnT>; Tue, 8 Jan 2002 18:43:19 -0500
+	id <S288594AbSAHXqt>; Tue, 8 Jan 2002 18:46:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288585AbSAHXnJ>; Tue, 8 Jan 2002 18:43:09 -0500
-Received: from mxzilla3.xs4all.nl ([194.109.6.49]:26642 "EHLO
-	mxzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S288584AbSAHXmx>; Tue, 8 Jan 2002 18:42:53 -0500
-Date: Wed, 9 Jan 2002 00:42:48 +0100
-From: jtv <jtv@xs4all.nl>
-To: Greg KH <greg@kroah.com>
-Cc: Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: __FUNCTION__
-Message-ID: <20020109004248.C26154@xs4all.nl>
-In-Reply-To: <3C3B664B.3060103@intel.com> <20020108220149.GA15816@kroah.com> <20020108235649.A26154@xs4all.nl> <20020108231147.GA16313@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020108231147.GA16313@kroah.com>; from greg@kroah.com on Tue, Jan 08, 2002 at 03:11:47PM -0800
+	id <S288593AbSAHXqj>; Tue, 8 Jan 2002 18:46:39 -0500
+Received: from sweetums.bluetronic.net ([66.57.88.6]:58042 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S288592AbSAHXq0>; Tue, 8 Jan 2002 18:46:26 -0500
+Date: Tue, 8 Jan 2002 18:46:17 -0500 (EST)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Stephan von Krawczynski <skraw@ithnet.com>,
+        Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: Two hdds on one channel - why so slow?
+In-Reply-To: <E16MZEf-00053p-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.4.33.0201081838470.28783-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 08, 2002 at 03:11:47PM -0800, Greg KH wrote:
-> 
-> Any reason _why_ they would want to break tons of existing code in this
-> manner?  Just the fact that the __func__ symbol is there to use?
- 
-At a guess, it probably gives the gcc folks some more leeway as to where 
-they implement the feature relative to string constant concatenation and 
-such.  If that is indeed the case, it could lead to cleaner code.
+On Fri, 4 Jan 2002, Alan Cox wrote:
+>Right at the moment the same process seems to work for IDE drives with 1
+>year warranties.
 
+*grin* SCSI drives last a long time and have long warranties.  IDE drives
+fail often and have short warranties.  It all averages out.  The point is
+how often do you send a drive back?  With IDE, it's all the time.  With
+SCSI it's rare.
 
-> Since the C99 spec does not state anything about __FUNCTION__, changing
-> it from the current behavior does not seem like a wise thing to do.
+Case in point, how many SCSI drives have been bad right out of the box vs.
+IDE?  In my experience, I've never had a bad SCSI drive from the get-go.
+I currently have one Maxtor waiting to be sent back.  And 2 out of 16 for
+a 1G array were defective at powerup.  (2 more failed within a week.)
 
-I'm pretty sure it's got to be in there somewhere--it was in the summary I 
-read at the time.  :)
+Which is cheaper... asprin and shipping charges, or going SCSI from the
+get go? (I know, but I don't like headaches! and the lovely Caen Raptor
+line makes things way too expensive for my boss.)
 
+--Ricky
 
-Jeroen
 

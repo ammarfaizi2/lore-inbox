@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312670AbSCVFYc>; Fri, 22 Mar 2002 00:24:32 -0500
+	id <S310201AbSCVFs0>; Fri, 22 Mar 2002 00:48:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312671AbSCVFYX>; Fri, 22 Mar 2002 00:24:23 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:56838
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312670AbSCVFYO>; Fri, 22 Mar 2002 00:24:14 -0500
-Date: Thu, 21 Mar 2002 21:23:36 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Stephen Williams <mrsteve@midsouth.rr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.19pre3-ac5
-In-Reply-To: <1016734453.1017.11.camel@swilliam.home.net>
-Message-ID: <Pine.LNX.4.10.10203212115360.4958-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S311294AbSCVFsQ>; Fri, 22 Mar 2002 00:48:16 -0500
+Received: from angband.namesys.com ([212.16.7.85]:35716 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S310201AbSCVFsE>; Fri, 22 Mar 2002 00:48:04 -0500
+Date: Fri, 22 Mar 2002 08:48:00 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: sneakums@zork.net, linux-kernel@vger.kernel.org,
+        trond.myklebust@fys.uio.no
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+Message-ID: <20020322084800.A6792@namesys.com>
+In-Reply-To: <200203110018.BAA11921@webserver.ithnet.com> <15499.64058.442959.241470@charged.uio.no> <20020311091458.A24600@namesys.com> <20020311114654.2901890f.skraw@ithnet.com> <20020311135256.A856@namesys.com> <20020311155937.A1474@namesys.com> <20020321180750.A2706@namesys.com> <20020321181516.24ea3fbd.skraw@ithnet.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Mar 2002, Stephen Williams wrote:
+Hello!
 
-> I can compile ac-5 fine but when trying to boot I get the following
-> error:
-> 
-> kernel BUG at ide-cd.c:790!
-> invalid operand: 0000
-> 
-> I am running 2.4.19pre3 without a problem.  I didn't have a way (as far
-> as I know) to get the full panic output but I can copy by hand and post
-> here if needed.
-> 
-> Have a good one,
-> Steve
+On Thu, Mar 21, 2002 at 06:15:16PM +0100, Stephan von Krawczynski wrote:
 
-It is a BUG() check to see if there are cases where the interrupt handler
-is being set (re armed) while it is currently set for another event.
+> It now works, depending on which fs I mount first. Remeber both are completely
+> new 3.6 fs. I can really reproduce mounting "a", then "b" works, but first
+> mounting "b", then "a" has the problem. Did you try something like this (play
+> with the mounting sequence)?
 
-if (HWGROUP(drive)->handler != NULL)
-     BUG();
-ide_set_handler(drive, handler, timeout, expirey);
+Yes, I tried to change order of mounts with no apparent success (or perhaps
+failure).
 
-If we are reloading the handler but it was set but something else , never
-called during a completion, and/or is dangling.  It is a typo my bad :-(
-
-Edit and change it from "==" to "!="
-
-Apology for the typo folks.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
+Bye,
+    Oleg 

@@ -1,105 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbTBJDa4>; Sun, 9 Feb 2003 22:30:56 -0500
+	id <S261448AbTBJDd0>; Sun, 9 Feb 2003 22:33:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261368AbTBJDaz>; Sun, 9 Feb 2003 22:30:55 -0500
-Received: from mithra.wirex.com ([65.102.14.2]:18693 "EHLO mail.wirex.com")
-	by vger.kernel.org with ESMTP id <S261356AbTBJDaw>;
-	Sun, 9 Feb 2003 22:30:52 -0500
-Message-ID: <3E471F21.4010803@wirex.com>
-Date: Sun, 09 Feb 2003 19:40:17 -0800
-From: Crispin Cowan <crispin@wirex.com>
-Organization: WireX Communications, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
+	id <S261451AbTBJDd0>; Sun, 9 Feb 2003 22:33:26 -0500
+Received: from 3-157.ctame701-1.telepar.net.br ([200.193.161.157]:46720 "EHLO
+	3-157.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S261448AbTBJDdY>; Sun, 9 Feb 2003 22:33:24 -0500
+Date: Mon, 10 Feb 2003 01:42:28 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Con Kolivas <ckolivas@yahoo.com.au>, lkml <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK]
+ 2.4.20-ck3 / aa / rmap with contest]
+In-Reply-To: <20030209144622.GB31401@dualathlon.random>
+Message-ID: <Pine.LNX.4.50L.0302100127250.12742-100000@imladris.surriel.com>
+References: <20030209133013.41763.qmail@web41404.mail.yahoo.com>
+ <20030209144622.GB31401@dualathlon.random>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: LA Walsh <law@tlinx.org>
-Cc: "'Christoph Hellwig'" <hch@infradead.org>, torvalds@transmeta.com,
-       linux-security-module@wirex.com, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] LSM changes for 2.5.59
-References: <001001c2d0b0$cf49b190$1403a8c0@sc.tlinx.org>
-X-Enigmail-Version: 0.65.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-md5;
- protocol="application/pgp-signature";
- boundary="------------enigAFD7B6430F191C642C988C1A"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigAFD7B6430F191C642C988C1A
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, 9 Feb 2003, Andrea Arcangeli wrote:
 
-LA Walsh wrote:
+> The only way to get the minimal possible latency and maximal fariness is
+> my new stochastic fair queueing idea.
 
->>From: Crispin Cowan
->>
->>LSM does have a careful design.... meeting a 
->>goal stated by Linus nearly two years ago.
->>    
->>
->	A security model that mediates access to security objects by
->logging all access and blocking access if logging cannot continue is
->unsupportable in any straight forward, efficient and/or non-kludgy, ugly
->way. 
->
-Because Linus asked for access control support, not audit logging 
-support, it is not surprising that logging models don't fit so well.
+"The only way" ?   That sounds like a lack of fantasy ;))
 
->  Some security people were banned from the kernel
->devel. summit because their thoughts were deemed 'dangerous': fear was they
->were too persuasive about ideas that were deemed 'ignorant' and would
->fool those poor kernel lambs at the summit.
->
-Internal SGI politics.
+Having said that, I like the idea of using SFQ for fairness,
+since it seems to work really well for networking...
+I'll definately try such a patch.
 
->	Also unsupported: The "no-security" model -- where all security 
->is thrown out (to save memory space and cycles) that was desired for embedded work.
->
-False: capabilities is now a removable module, which is what Linus asked 
-for.
+> The only other possible fix would be to reduce the I/O queue to say
+> 512kbytes and to take advantage of the FIFO behaviour of the queue
+> wakeups, I tried that, it works so well, you can trivially test it with
+> my elevator-lowlatency by just changing a line, but the problem is 512k
+> is a too small I/O pipeline, i.e. it is not enough to guarantee the
+> maximal throughput during contigous I/O.
 
->	LSM also doesn't support standard LSPP-B1 style graded security
->where mandatory access checks are logged as security violations before
->DAC checks are even looked at for an object.
->
-Because doing so would have required approx. 6-10X as many LSM hooks as 
-the current LSM. Speak up if you think LSM should be 10X bigger to be 
-able to support Common Criteria standards compliant audit logging ...
+Maybe you want to count the I/O pipeline size in disk seeks
+and not in disk blocks ?
 
->	At one point a plan was proposed (by Casey Schaufler, SGI) and 
->_\implemented\_ (team members & prjct lead Linda Walsh) to move all
->security checks out of the kernel into a 'default policy' module.
->The code to implement this was submitted to the LSM list in June 1991.
->
-And I actually like that plan. But I still believe it to be too radical 
-for 2.6. It has many nice properties, but is much more invasive to the 
-kernel. I think it is a very interesting idea for 2.7, and should be 
-floated past the maintainers who will be impacted to see if it has a 
-hope in hell.
+In the time of one disk seek plus half rotational latency
+(12 ms) you can do a pretty large amount of reading (>400kB).
+This means that for near and medium disk seeks you don't care
+all that much about how large the submitted IO is. Track buffers
+further reduce this importance.
 
-Crispin
+OTOH, if you're seeking to the track next-door, or have mixed
+read and write operations on the same track, the seek time
+goes to near-zero and only the rotational latency counts. In
+that case the size of the IO does have an influence on the
+speed the request can be handled.
 
+> the stochastic fair queueing will also make the anticipatory scheduling
+> a very low priority to have. Stochasting fair queueing will be an order
+> of magnitude more important than anticipatory scheduling IMHO.
+
+On the contrary, once we have SFQ to fix the biggest elevator
+problems the difference made by the anticipatory scheduler should
+be much more visible.
+
+Think of a disk with 6 track buffers for reading and a system with
+10 active reader processes. Without the anticipatory scheduler you'd
+need to go to the platter for almost every OS read (because each
+process flushes out the track buffer for the others), while with the
+anticipatory scheduler you've got a bigger chance of having the data
+you want in one of the drive's track buffers, meaning that you don't
+need to go to the platter but can just do a silicon to silicon copy.
+
+If you look at the academic papers of an anticipatory scheduler, you'll
+find that it gives as much as a 73% increase in throughput.
+On real-world tasks, not even on specially contrived benchmarks.
+
+The only aspect of the anticipatory scheduler that is no longer needed
+with your SFQ idea is the distinction between reads and writes, since
+your idea already makes the (better, I guess) distinction between
+synchronous and asynchronous requests.
+
+regards,
+
+Rik
 -- 
-Crispin Cowan, Ph.D.
-Chief Scientist, WireX                      http://wirex.com/~crispin/
-Security Hardened Linux Distribution:       http://immunix.org
-Available for purchase: http://wirex.com/Products/Immunix/purchase.html
-			    Just say ".Nyet"
-
-
---------------enigAFD7B6430F191C642C988C1A
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+Rx8o5ZkfjX2CNDARAaf4AJ96UU5EQ1qTi0fu9OUt0LU77y8rYwCfRNE7
-vzwilVzhD8It1Y9IkMieYgs=
-=D4oT
------END PGP SIGNATURE-----
-
---------------enigAFD7B6430F191C642C988C1A--
-
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,172 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267515AbUHSXFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267505AbUHSXGK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267515AbUHSXFm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 19:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267510AbUHSXFl
+	id S267505AbUHSXGK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 19:06:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267509AbUHSXGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 19:05:41 -0400
-Received: from holomorphy.com ([207.189.100.168]:40643 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S267509AbUHSXDU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 19:03:20 -0400
-Date: Thu, 19 Aug 2004 16:03:15 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernbench on 512p
-Message-ID: <20040819230315.GE11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org
-References: <200408191216.33667.jbarnes@engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Aug 2004 19:06:09 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:39089 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267505AbUHSXCw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 19:02:52 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Fri, 20 Aug 2004 01:02:04 +0200
+User-Agent: KMail/1.6.2
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org,
+       fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com
+References: <200408191732.i7JHWSkL005470@laptop14.inf.utfsm.cl>
+In-Reply-To: <200408191732.i7JHWSkL005470@laptop14.inf.utfsm.cl>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200408191216.33667.jbarnes@engr.sgi.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408200102.04377.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 19, 2004 at 12:16:33PM -0400, Jesse Barnes wrote:
-> This is a 64p profile only.  If I set the prof_cpu_mask to include all 512 
-> CPUs, the system livelocks.  I reset the counter right after the warmup run, 
-> partly through the half load run, and collected it after a few runs were 
-> complete.
+On Thursday 19 August 2004 19:32, Horst von Brand wrote:
+> Joerg Schilling <schilling@fokus.fraunhofer.de> said:
+> > Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> said:
+> > >> As a security fix it was sufficiently important that it had to be
+> > >> done.
+> > >
+> > >IMO work-rounding this in kernel is a bad idea and could break a lot of
+> > >existing apps (some you even don't know about).  Much better way to deal
+> > >with this is to create library for handling I/O commands submission and
+> > >gradually teach user-space apps to use it.
+>
+> Nonsense (as I just said in another message).
 
-Not tremendously intelligent, as concurrent readers of /proc/profile
-can render each other's results gibberish, however, this should
-mitigate some of the cacheline bouncing of prof_buffer.
+Please read Mark Lord's mail and my reply.
 
-Some kind of proper IO should be possible given sufficient effort, but
-I gave up immediately when my first attempt didn't work, and this
-should be enough for getting /proc/profile to stop bouncing madly for
-users that can tolerate the concurrent IO constraint. I suppose that
-in principle one could hackishly guard collation and copying of
-prof_buffer with a semaphore in the per-cpu case. I'll work on fixing
-this eventually.
+> > This is exactly what libscg is for......
+> > libscg already includes similar support for Solaris 9 & Solaris 10.
+>
+> OK, their problem.
+>
+> > Cdrtools is is code freeze state. This is why I say the best idea is to
+> > remove this interface change from the current Linux kernel and wait until
+> > there will be new cdrtools alpha for 2.02 releases. These alpha could get
+> > support for uid switching. If Linux then would again switch the changes
+> > on, it makes sense.
+>
+> Sorry, you have absolutely no say in the development of the kernel
+> here. You fix your broken app, code freeze or no code freeze. Or let others
+> that fix it alone.
+>
+> > BTW: it makes absolutely no sense to have a list of "safe" commands in
+> > the kernel as the kernel simply cannot know which SCSI commands are
+> > "safe" and which not.
+>
+> "Normal" read/write commands are safe, others are off-limits unless you
+> have the required capability (one which allows you to set the device on
+> fire at will, that is).
+>
+> >                        The list would be if ever subject to changess on a
+> > dayly base which is a real bad idea.
+>
+> Not unless standard SCSI commands change by the day. And I somewhat doubt
+> that to be the case.
 
-Use perpcu_profile on the kernel command line to activate the feature.
+theory != practice
 
+> > Note that having such a list of aparently safe commands would cause a lot
+> > of untracable problems (why does it run for you but not for me....).
+>
+> Right. But better "Funny, it doesn't work here..." than "Sh*t! Another
+> CD/DVD-writer turned into a brick!".
 
-Index: mm2-2.6.8.1/kernel/profile.c
-===================================================================
---- mm2-2.6.8.1.orig/kernel/profile.c	2004-08-19 13:22:11.000000000 -0700
-+++ mm2-2.6.8.1/kernel/profile.c	2004-08-19 15:11:40.000000000 -0700
-@@ -10,12 +10,14 @@
- #include <linux/mm.h>
- #include <linux/cpumask.h>
- #include <linux/profile.h>
-+#include <linux/percpu.h>
- #include <asm/sections.h>
- 
- static atomic_t *prof_buffer;
- static unsigned long prof_len, prof_shift;
--static int prof_on;
-+static int prof_on, percpu_profile;
- static cpumask_t prof_cpu_mask = CPU_MASK_ALL;
-+static DEFINE_PER_CPU(atomic_t *, cpu_prof_buffer);
- 
- static int __init profile_setup(char * str)
- {
-@@ -37,15 +39,35 @@
- }
- __setup("profile=", profile_setup);
- 
-+static int __init profile_setup_percpu(char *str)
-+{
-+	percpu_profile = 1;
-+	return 1;
-+}
-+__setup("percpu_profile", profile_setup_percpu);
-+
- 
- void __init profile_init(void)
- {
-+	size_t len;
-+	int cpu;
-+
- 	if (!prof_on) 
- 		return;
-  
- 	/* only text is profiled */
- 	prof_len = (_etext - _stext) >> prof_shift;
--	prof_buffer = alloc_bootmem(prof_len*sizeof(atomic_t));
-+	len = prof_len * sizeof(atomic_t);
-+	prof_buffer = alloc_bootmem(len);
-+	for_each_cpu(cpu) {
-+		if (!percpu_profile)
-+			per_cpu(cpu_prof_buffer, cpu) = prof_buffer;
-+		else {
-+			pg_data_t *pgdat = NODE_DATA(cpu_to_node(cpu));
-+			per_cpu(cpu_prof_buffer, cpu)
-+				= alloc_bootmem_node(pgdat, len);
-+		}
-+	}
- }
- 
- /* Profile event notifications */
-@@ -165,11 +187,15 @@
- void profile_hit(int type, void *__pc)
- {
- 	unsigned long pc;
-+	atomic_t *buf;
- 
--	if (prof_on != type || !prof_buffer)
-+	if (prof_on != type)
- 		return;
- 	pc = ((unsigned long)__pc - (unsigned long)_stext) >> prof_shift;
--	atomic_inc(&prof_buffer[min(pc, prof_len - 1)]);
-+	buf = per_cpu(cpu_prof_buffer, get_cpu());
-+	if (buf)
-+		atomic_inc(&buf[min(pc, prof_len - 1)]);
-+	put_cpu();
- }
- 
- void profile_tick(int type, struct pt_regs *regs)
-@@ -223,6 +249,21 @@
- 	entry->write_proc = prof_cpu_mask_write_proc;
- }
- 
-+static void collate_per_cpu_profiles(void)
-+{
-+	unsigned long i;
-+
-+	for (i = 0; i < prof_len; ++i)  {
-+		int cpu;
-+
-+		atomic_set(&prof_buffer[i], 0);
-+		for_each_online_cpu(cpu) {
-+			atomic_t *buf = per_cpu(cpu_prof_buffer, cpu);
-+			atomic_add(atomic_read(&buf[i]), &prof_buffer[i]);
-+		}
-+	}
-+}
-+
- /*
-  * This function accesses profiling information. The returned data is
-  * binary: the sampling step and the actual contents of the profile
-@@ -247,6 +288,8 @@
- 		put_user(*((char *)(&sample_step)+p),buf);
- 		buf++; p++; count--; read++;
- 	}
-+	if (percpu_profile)
-+		collate_per_cpu_profiles();
- 	pnt = (char *)prof_buffer + p - sizeof(atomic_t);
- 	if (copy_to_user(buf,(void *)pnt,count))
- 		return -EFAULT;
-@@ -278,7 +321,15 @@
- 	}
- #endif
- 
--	memset(prof_buffer, 0, prof_len * sizeof(atomic_t));
-+	if (percpu_profile) {
-+		int cpu;
-+
-+		for_each_online_cpu(cpu) {
-+			atomic_t *buf = per_cpu(cpu_prof_buffer, cpu);
-+			memset(buf, 0, prof_len * sizeof(atomic_t));
-+		}
-+	} else
-+		memset(prof_buffer, 0, prof_len * sizeof(atomic_t));
- 	return count;
- }
- 
+Horst, the fact that Joerg is hard to deal with and usually not right doesn't 
+mean that he can't be right sometimes. ;-)
+
+Bartlomiej

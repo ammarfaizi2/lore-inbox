@@ -1,81 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288327AbSAHU64>; Tue, 8 Jan 2002 15:58:56 -0500
+	id <S288342AbSAHU76>; Tue, 8 Jan 2002 15:59:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288353AbSAHU6v>; Tue, 8 Jan 2002 15:58:51 -0500
-Received: from fencepost.gnu.org ([199.232.76.164]:12815 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S288334AbSAHU5N>; Tue, 8 Jan 2002 15:57:13 -0500
-Date: Tue, 8 Jan 2002 15:56:51 -0500 (EST)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: proski@marabou.research.att.com
-To: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: binfmt_misc module gets stuck
-Message-ID: <Pine.LNX.4.43.0201081531180.1744-100000@marabou.research.att.com>
+	id <S288334AbSAHU6z>; Tue, 8 Jan 2002 15:58:55 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:49170 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S288327AbSAHU5o>; Tue, 8 Jan 2002 15:57:44 -0500
+Message-ID: <3C3B5C02.9929B8@zip.com.au>
+Date: Tue, 08 Jan 2002 12:52:18 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Christoph Hellwig <hch@caldera.de>
+CC: Robert Love <rml@tech9.net>, David Howells <dhowells@redhat.com>,
+        torvalds@transmeta.com, arjanv@redhat.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] preempt abstraction
+In-Reply-To: <10940.1010511619@warthog.cambridge.redhat.com> <1010516250.3229.21.camel@phantasy>,
+		<1010516250.3229.21.camel@phantasy>; from rml@tech9.net on Tue, Jan 08, 2002 at 01:57:28PM -0500 <20020108195920.A14642@caldera.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Alexander!
+Christoph Hellwig wrote:
+> 
+> On Tue, Jan 08, 2002 at 01:57:28PM -0500, Robert Love wrote:
+> > Why not use the more commonly named conditional_schedule instead of
+> > preempt() ?  In addition to being more in-use (low-latency, lock-break,
+> > and Andrea's aa patch all use it) I think it better conveys its meaning,
+> > which is a schedule() but only conditionally.
+> 
+> I think the choice is very subjective, but I prefer preempt().
+> It's nicely short to type (!) and similar in spirit to Ingo's yield()..
+> 
 
-I'm using Linux 2.4.18pre2 on i686.  I compiled binfmt_misc as module.  I
-can load it using modprobe but I cannot unload it.
+naah.  preempt() means preempt.  But the implementation
+is in fact maybe_preempt(), or preempt_if_needed().
 
-I wrote some debugging code tracking how the use counter changes.  It 
-turns out that the call to kern_mount() in init_misc_binfmt() increases 
-the counter when the module is loaded.  kern_umount() is called when the 
-module is unloaded, but this code cannot be executed before the use count 
-becomes 0, which requires calling kern_umount().
+I use (verbosely) (simplified):
 
-I understand that kern_mount() is supposed to mount the filesystem.  On
-the other hand, I scanned the LKML archives and found that
-/proc/sys/fs/binfmt_misc is supposed to be mounted from the userspace - it 
-is no longer mounted by the kernel itself.
+#define conditional_schedule_needed()	unlikely(current->need_resched)
+#define unconditional_schedule()	do {
+						__set_current_state(TASK_RUNNING)
+						schedule();
+					} while(0);
+#define conditional_schedule()		if (conditional_schedule_needed())
+						unconditional_schedule();
 
-I believe that kern_mount() and kern_umount() are remnants from the time
-when the binfmt_misc filesystem was mounted automatically by the kernel.  
-Removing them preserves all functionality (I did check it) while allows
-unloading binfmt_misc if and only if the binfmt_misc filesystem is not
-used for any mounts.
+...
 
-Here's the patch against 2.4.18pre2.
+foo()
+{
+	...
+	conditional_schedule();
+	...
+}
 
-================================
---- linux.orig/fs/binfmt_misc.c
-+++ linux/fs/binfmt_misc.c
-@@ -693,16 +693,9 @@ static int __init init_misc_binfmt(void)
- {
- 	int err = register_filesystem(&bm_fs_type);
- 	if (!err) {
--		bm_mnt = kern_mount(&bm_fs_type);
--		err = PTR_ERR(bm_mnt);
--		if (IS_ERR(bm_mnt))
-+		err = register_binfmt(&misc_format);
-+		if (err) {
- 			unregister_filesystem(&bm_fs_type);
--		else {
--			err = register_binfmt(&misc_format);
--			if (err) {
--				unregister_filesystem(&bm_fs_type);
--				kern_umount(bm_mnt);
--			}
- 		}
- 	}
- 	return err;
-@@ -712,7 +705,6 @@ static void __exit exit_misc_binfmt(void
- {
- 	unregister_binfmt(&misc_format);
- 	unregister_filesystem(&bm_fs_type);
--	kern_umount(bm_mnt);
- }
- 
- EXPORT_NO_SYMBOLS;
-================================
-
-P.S. Similar patch should probaly be applied to fs/devpts/inode.c as well.
-
--- 
-Regards,
-Pavel Roskin
-
+bar()
+{
+	...
+	if (conditional_schedule_needed()) {
+		spin_unlock(&piggy_lock);
+		unconditional_schedule();
+		spin_lock(&piggy_lock);
+		goto clean_up_mess;
+	}
+	...
+}

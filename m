@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312915AbSDKUln>; Thu, 11 Apr 2002 16:41:43 -0400
+	id <S312920AbSDKUmT>; Thu, 11 Apr 2002 16:42:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312920AbSDKUlm>; Thu, 11 Apr 2002 16:41:42 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28049 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S312915AbSDKUll>;
-	Thu, 11 Apr 2002 16:41:41 -0400
-Date: Thu, 11 Apr 2002 16:41:40 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [prepatch] address_space-based writeback
-In-Reply-To: <a94r5k$m23$1@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0204111629370.21089-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312928AbSDKUmS>; Thu, 11 Apr 2002 16:42:18 -0400
+Received: from ip-75.linuxis.net ([64.71.162.75]:57550 "HELO moria.linuxis.net")
+	by vger.kernel.org with SMTP id <S312920AbSDKUmQ>;
+	Thu, 11 Apr 2002 16:42:16 -0400
+Date: Thu, 11 Apr 2002 13:38:19 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Re: The latest -ac patch to the stable Linux kernels
+Message-ID: <20020411203819.GA32605@flounder.net>
+In-Reply-To: <20020409233710.GD22300@flounder.net> <Pine.LNX.4.44.0204091646380.28293-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Adam McKenna <adam-dated-1018989500.4371a1@flounder.net>
+X-Delivery-Agent: TMDA/0.49 (Python 2.1.2 on linux2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 11 Apr 2002, Linus Torvalds wrote:
-
-> >As long as your patches don't break that is possible to have I am happy... 
-> >But from what you are saying above I have a bad feeling you are somehow 
-> >assuming that a mapping's host is an inode...
+On Tue, Apr 09, 2002 at 04:47:47PM -0700, David Lang wrote:
+> all the -ac kernels need to be treated as -pre
 > 
-> It's not Andrew who is assuming anything: it _is_. Look at <linux/fs.h>,
-> and notice the
-> 
-> 	struct inode            *host;
+> if you watch in detail you can pick ones that are more likly to be stable
+> then others, but some of them will be intentionally cutting edge.
 
-True.  However, Andrew _is_ assuming that you can get from inode->i_mapping to 
-&FOOFS_I(inode)->secondary_address_space, which is simply not true.
+I was under the impression that the -ac line has a bunch of VM fixes that
+haven't been merged into the main tree yet, which should make it better under
+high loads than the standard kernel.
 
-Consider a filesystem that uses address_space to store, say it, EA of inode.
-Now look at device node on such fs.  What we have is
+Is this no longer the case?
 
-inode_1: sits on our fs, has i_mapping pointing to inode_2->i_data and
-EA_address_space in fs-private part of inode;
+--Adam
 
-inode_2: block device inode, sits on bdev.
-
-inode_1->i_mapping == &inode_2->i_data
-inode_1->i_mapping->host == inode2
-FOOFS_I(inode_1)->EA_address_space.host = inode_1
-
-Looks OK?  Now look at Andrew's proposal - he suggests to have
-method of inode_1->i_mapping to be responsible for writing out
-&FOOFS_I(inode_1)->EA_address_space.
-
-See where it breaks?  After we'd followed ->i_mapping we lose information
-about private parts of inode.  And that's OK - that's precisely what we
-want for, say it, block devices.  There ->i_mapping should be the same
-for _all_ inodes with this major:minor.  However, that makes "scan all
-superblocks, for each of them scan dirty inodes, for each of them do
-some work on ->i_mapping" hopeless as a way to reach all address_spaces
-in the system.
-
-FWIW, correct solution might be to put dirty address_spaces on a list -
-per-superblock or global.
-
+-- 
+Adam McKenna <adam@flounder.net>   | GPG: 17A4 11F7 5E7E C2E7 08AA
+http://flounder.net/publickey.html |      38B0 05D0 8BF7 2C6D 110A

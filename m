@@ -1,62 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318468AbSGSIUT>; Fri, 19 Jul 2002 04:20:19 -0400
+	id <S318471AbSGSI0M>; Fri, 19 Jul 2002 04:26:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318469AbSGSIUT>; Fri, 19 Jul 2002 04:20:19 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:40852 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S318468AbSGSIUS>; Fri, 19 Jul 2002 04:20:18 -0400
-Date: Fri, 19 Jul 2002 10:41:07 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Doug Ledford <dledford@redhat.com>
-Cc: Dale Amon <amon@vnl.com>, <linux-kernel@vger.kernel.org>,
-       Frank Davis <fdavis@si.rr.com>
-Subject: Re: 2.5.26 : drivers/scsi/BusLogic.c
-In-Reply-To: <20020718210340.A28235@redhat.com>
-Message-ID: <Pine.LNX.4.44.0207190857570.29194-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318472AbSGSI0M>; Fri, 19 Jul 2002 04:26:12 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:50442 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S318471AbSGSI0G>; Fri, 19 Jul 2002 04:26:06 -0400
+Date: Fri, 19 Jul 2002 10:29:06 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020719102906.A5131@krusty.dt.e-technik.uni-dortmund.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20020716124956.GK7955@tahoe.alcove-fr> <Pine.LNX.4.44.0207161107550.17919-100000@innerfire.net> <20020716153926.GR7955@tahoe.alcove-fr> <20020716194542.GD22053@merlin.emma.line.org> <20020716150422.A6254@q.mn.rr.com> <20020716161158.A461@shookay.newview.com> <20020716152231.B6254@q.mn.rr.com> <20020717114501.GB28284@merlin.emma.line.org> <20020717190259.GA31503@clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020717190259.GA31503@clusterfs.com>; from adilger@clusterfs.com on Wed, Jul 17, 2002 at 01:02:59PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 18 Jul 2002, Doug Ledford wrote:
+On Wed, 17 Jul 2002, Andreas Dilger wrote:
 
-> Attached you will find a patch that compiles cleanly, but is totally 
-> untested.  Testing would be appreciated.  I suspect FlashPoint controllers 
-> *might* have a problem, but MultiMaster (or whatever they are called) 
-> should work properly.  WARNING: This could eat a filesystem, it's totally 
-> untested DMA mapping code and I have *no* BusLogic controllers to do any 
-> sort of verifications with.  The brave at heart are needed to let me know 
-> if this thing works ;-)
+> On Jul 17, 2002  13:45 +0200, Matthias Andree wrote:
+> > On Tue, 16 Jul 2002, Shawn wrote:
+> > > In this case, can you use a RAID mirror or something, then break it?
+> > > 
+> > > Also, there's the LVM snapshot at the block layer someone already
+> > > mentioned, which when used with smaller partions is less overhead.
+> > > (less FS delta)
+> > 
+> > All these "solutions" don't work out, I cannot remount R/O my partition,
+> > and LVM low-level snapshots or breaking a RAID mirror simply won't work
+> > out. I would have to remount r/o the partition to get a consistent image
+> > in the first place, so the first step must fail already...
+> 
+> Have you been reading my emails at all?  LVM snapshots DO ensure that
+> the snapshot filesystem is consistent for journaled filesystems.
 
-Boots and is in multiuser right now =) I'll thrash it about right now and 
-see if anything falls over. However i commented out scsi_mark_host_reset, 
-but it doesn't seem to be defined anywhere.
+What kernel version is necessary to achieve this on production kernels
+(i. e. 2.4)?
 
-Thanks,
-	Zwane
+Does "consistent" mean "fsck proof"?
 
-scsi: ***** BusLogic SCSI Driver Version 2.1.16 of 18 July 2002 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-scsi0: Configuring BusLogic Model BT-958 PCI Wide Ultra SCSI Host 
-Adapter
-scsi0:   Firmware Version: 5.07B, I/O Address: 0x1080, IRQ Channel: 
-11/Level
-scsi0:   PCI Bus: 0, Device: 16, Address: 0xFD000000, Host Adapter SCSI 
-ID: 7
-scsi0:   Parity Checking: Enabled, Extended Translation: Enabled
-scsi0:   Synchronous Negotiation: Ultra, Wide Negotiation: Enabled
-scsi0:   Disconnect/Reconnect: Enabled, Tagged Queuing: Enabled
-scsi0:   Scatter/Gather Limit: 128 of 8192 segments, Mailboxes: 211
-scsi0:   Driver Queue Depth: 211, Host Adapter Queue Depth: 192
-scsi0:   Tagged Queue Depth: Automatic, Untagged Queue Depth: 3
-scsi0:   Error Recovery Strategy: Default, SCSI Bus Reset: Enabled
-scsi0: *** BusLogic BT-958 Initialized Successfully ***
-scsi0 : BusLogic BT-958
+Here's what I tried, on Linux-2.4.19-pre10-ac3 (IIRC) (ext3fs):
+
+(from memory, history not available, different machine):
+lvcreate --snapshot snap /dev/vg0/home
+e2fsck -f /dev/vg0/snap
+dump -0 ...
+
+It reported zero dtime for one file and two bitmap differences.
+
+Does "consistent" mean "consistent after you replay the log?" If so,
+that's still a losing game, because I cannot fsck the snapshot (it's R/O
+in the LVM case at least) to replay the journal -- and I don't assume
+dump 0.4b29 (which I'm using) goes fishing in the journal, but did not
+use the dump source code.
+
+dump did not complain however, and given what e2fsck had to complain,
+I'd happily force mount such a file system when just a deletion has not
+completed.
 
 -- 
-function.linuxpower.ca
-
-
-
+Matthias Andree

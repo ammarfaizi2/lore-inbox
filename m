@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263734AbTKKUVj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 15:21:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbTKKUVj
+	id S263439AbTKKUYH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 15:24:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTKKUYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 15:21:39 -0500
-Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:15257 "HELO
-	cenedra.office") by vger.kernel.org with SMTP id S263734AbTKKUVh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 15:21:37 -0500
-From: Andrew Walrond <andrew@walrond.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel.bkbits.net off the air
-Date: Tue, 11 Nov 2003 20:21:34 +0000
-User-Agent: KMail/1.5.4
-References: <fa.eto0cvm.1v20528@ifi.uio.no> <200311111438.47868.andrew@walrond.org> <bore48$ubl$1@cesium.transmeta.com>
-In-Reply-To: <bore48$ubl$1@cesium.transmeta.com>
+	Tue, 11 Nov 2003 15:24:07 -0500
+Received: from ppp-62-245-162-69.mnet-online.de ([62.245.162.69]:41856 "EHLO
+	frodo.midearth.frodoid.org") by vger.kernel.org with ESMTP
+	id S263439AbTKKUYE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 15:24:04 -0500
+To: Erik Andersen <andersen@codepoet.org>
+Cc: Julien Oster <lkml-20031111@mc.frodoid.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: A7N8X (Deluxe) Madness
+From: Julien Oster <lkml-20031111@mc.frodoid.org>
+Organization: FRODOID.ORG
+X-Face: #C"_SRmka_V!KOD9IoD~=}8-P'ekRGm,8qOM6%?gaT(k:%{Y+\Cbt.$Zs<[X|e)<BNuB($kI"KIs)dw,YmS@vA_67nR]^AQC<w;6'Y2Uxo_DT.yGXKkr/s/n'Th!P-O"XDK4Et{`Di:l2e!d|rQoo+C6)96S#E)fNj=T/rGqUo$^vL_'wNY\V,:0$q@,i2E<w[_l{*VQPD8/h5Y^>?:O++jHKTA(
+Date: Tue, 11 Nov 2003 21:24:03 +0100
+In-Reply-To: <20031111200922.GA9276@codepoet.org> (Erik Andersen's message
+ of "Tue, 11 Nov 2003 13:09:22 -0700")
+Message-ID: <frodoid.frodo.87k766zmak.fsf@usenet.frodoid.org>
+User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
+References: <frodoid.frodo.87r80eznz9.fsf@usenet.frodoid.org>
+	<20031111200922.GA9276@codepoet.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311112021.34631.andrew@walrond.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 11 Nov 2003 7:43 pm, H. Peter Anvin wrote:
->
-> OK... this still doesn't deal with how to get mirrors to pick stuff up
-> with a minimum of fuss.  The "minimum of fuss" bit is *extremely*
-> important... I still haven't managed to get all mirrors to use rsync.
->
+Erik Andersen <andersen@codepoet.org> writes:
 
-1. Don't bother with cvs.Just host a clone of the main bk repository
-2. Persuade Larry to release a 'clone/pull-only' version of bk which *anyone* 
-can use to  access open source software
-3. Having lit the blue touch paper, run...
+Hello Erik,
 
-Seriously though; There isn't another way that I can see for mirroring cvs 
-repos coherently, unless cvsup does something clever? Anyone know?
+>> I have an ASUS A7N8X Deluxe mainboard. Yeah, right, that thing causing
+>> serious trouble. I'm getting hard lockups all the time. No panic, no
+>> message, no sysrq, no blinking cursor in the framebuffer. Gone for good.
 
-Andrew Walrond
+> Does it help if you go into the BIOS and set the IDE controller
+> to "Compatible Mode" rather than "Enhanced Mode"?
 
+I'm sorry, but I just can't find that option... it's the newest BIOS
+version, however?
+
+Regards,
+Julien

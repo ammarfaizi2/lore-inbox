@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262665AbTHWNGa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 09:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTHWNG3
+	id S263579AbTHWNQ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 09:16:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbTHWNQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 09:06:29 -0400
-Received: from modemcable009.53-202-24.mtl.mc.videotron.ca ([24.202.53.9]:16256
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S262665AbTHWNG1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 09:06:27 -0400
-Date: Sat, 23 Aug 2003 09:03:17 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org, lkml@kcore.org
-Subject: Re: Pentium-M?
-In-Reply-To: <200308231236.h7NCaMl0018383@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.53.0308230901200.15935@montezuma.fsmlabs.com>
-References: <200308231236.h7NCaMl0018383@harpo.it.uu.se>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 23 Aug 2003 09:16:56 -0400
+Received: from main.gmane.org ([80.91.224.249]:4998 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S263579AbTHWNQy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Aug 2003 09:16:54 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?Leandro_Guimar=E3es_Faria_Corsetti_Dutra?= 
+	<lgcdutra@terra.com.br>
+Subject: Re: SCO's "proof"
+Date: Sat, 23 Aug 2003 15:16:29 +0200
+Organization: =?ISO-8859-1?Q?=20Fam=C3=ADlia?= Dutra
+Message-ID: <pan.2003.08.23.13.16.29.3307@terra.com.br>
+References: <3F458064.4070409@unix-zone.org> <Pine.GSO.4.21.0308221032450.12543-100000@waterleaf.sonytel.be> <yw1xsmnux9nq.fsf@users.sourceforge.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Pan/0.14.0 (I'm Being Nibbled to Death by Cats!)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Aug 2003, Mikael Pettersson wrote:
+On Fri, 22 Aug 2003 12:35:05 +0200, Måns Rullgård wrote:
 
-> On Sat, 23 Aug 2003 13:50:02 +0200, Jan De Luyck <lkml@kcore.org> wrote:
-> >Just a short question. For the Pentium-M as used in the centrino platform, 
-> >what do I select in the 2.6.0-test4 kernel configuration as the CPU?
-> >
-> >I figure it's not a PIV, but is it a P3? Or is it something special?
-> 
-> The P-M core is PIII, to which SSE2, some P4-like model-specific
-> registers, and (it seems) a P4 bus were added.
-> 
-> For now, treat it simply as a PIII.
+> AFAIK, C source code doesn't contain any font information, not even in
+> comments.
 
-That's interesting, intel compiler recommends P4 type optimisations, 
-also worth noting that the P-M has hardware prefetch.
+	Good morning, the font was applied in the PowerPoint slides...
+
+
+-- 
+ _   Leandro Guimarães Faria Corsetti Dutra     +41 (21) 648 11 34
+/ \  http://br.geocities.com./lgcdutra/         +41 (78) 778 11 34
+\ /  Answer to the list, not to me directly!    +55 (11) 5686 2219
+/ \  Rate this if helpful: http://svcs.affero.net/rm.php?r=leandro
+
+

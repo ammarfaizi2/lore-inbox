@@ -1,76 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129363AbRCEQBK>; Mon, 5 Mar 2001 11:01:10 -0500
+	id <S129372AbRCEQBJ>; Mon, 5 Mar 2001 11:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129373AbRCEQA6>; Mon, 5 Mar 2001 11:00:58 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:20610 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129363AbRCEQAr>; Mon, 5 Mar 2001 11:00:47 -0500
-Date: Mon, 5 Mar 2001 10:59:48 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jan Nieuwenhuizen <janneke@gnu.org>
-cc: Pavel Machek <pavel@suse.cz>, Erik Hensema <erik@hensema.xs4all.nl>,
+	id <S129363AbRCEQA7>; Mon, 5 Mar 2001 11:00:59 -0500
+Received: from team.iglou.com ([192.107.41.45]:25311 "EHLO iglou.com")
+	by vger.kernel.org with ESMTP id <S129372AbRCEQAq>;
+	Mon, 5 Mar 2001 11:00:46 -0500
+Date: Mon, 5 Mar 2001 10:59:43 -0500
+From: Jeff Mcadams <jeffm@iglou.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: John Kodis <kodis@mail630.gsfc.nasa.gov>,
+        "Richard B. Johnson" <root@chaos.analogic.com>,
         linux-kernel@vger.kernel.org, bug-bash@gnu.org
-Subject: Re: [PATCH]: print missing interpreter name [Was: Re: binfmt_script and ^M]
-In-Reply-To: <m3vgpo462x.fsf@appel.lilypond.org>
-Message-ID: <Pine.LNX.3.95.1010305105132.9913B-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: binfmt_script and ^M
+Message-ID: <20010305105943.A25964@iglou.com>
+In-Reply-To: <20010305095512.A30787@tux.gsfc.nasa.gov> <Pine.LNX.4.21.0103051224450.5591-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.21.0103051224450.5591-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Mon, Mar 05, 2001 at 12:25:13PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5 Mar 2001, Jan Nieuwenhuizen wrote:
+Also sprach Rik van Riel
+>On Mon, 5 Mar 2001, John Kodis wrote:
+>> On Mon, Mar 05, 2001 at 08:40:22AM -0500, Richard B. Johnson wrote:
+>> > Somebody must have missed the boat entirely. Unix does not, never
+>> > has, and never will end a text line with '\r'.
 
-> "Richard B. Johnson" <root@chaos.analogic.com> writes:
-> 
-> > So why would you even consider breaking bash as a work-around for
-> > a broken script?
-> 
-> I don't.
-> 
-> > Somebody must have missed the boat entirely. Unix does not, never
-> > has, and never will end a text line with '\r'. It's Microsoft junk
-> > that does that, a throwback to CP/M, a throwback to MDS/200.
-> 
-> Yes, we all know that, but you missed the point.  As far as this patch
-> goes, it's got nothing to do with the '\r'.  It's meant to get a more
-> informative error message from bash, if ``#!INTERPRETER'' does not
-> exist.  Look:
-> 
->     $ cat /bin/foo.sh
->     #!/foo/bar/baz
->     echo bar
->     $ /bin/bash -c /bin/foo.sh 
->     /bin/bash: /bin/foo.sh: No such file or directory
->     $ ./build/bash -c /bin/foo.sh 
->     ./build/bash: /foo/bar: No such file or directory
-> 
-> Maybe the message could even be better, but having `/foo/bar' printed,
-> ie, the file that the kernel says does not exist, iso `/bin/foo.sh',
-> the name of the script, that certainly does exist, may help.  Possibly
-> both should be printed.
-> 
-> Greetings,
-> Jan.
+>> Unix does not, never has, and never will end a text line with ' ' (a
+>> space character) or with \t (a tab character).  Yet if I begin a
+>> shell script with '#!/bin/sh ' or '#!/bin/sh\t', the training white
+>> space is striped and /bin/sh gets exec'd.  Since \r has no special
+>> significance to Unix, I'd expect it to be treated the same as any
+>> other whitespace character -- it should be striped, and /bin/sh
+>> should get exec'd.
 
-No. I did not miss the point. The 'No such file or directory' error
-(when you can see the ^$^$)#@@*& filename with 'ls'), usually means
-that there is something wrong with the file. Usually, I have found
-that it was an executable linked against some other runtime library
-than what I have. `strace` finds this quickly.
+>Makes sense, IMHO...
 
-A common problem after a so-called upgrade. So, the bash error output
-(without additional text) is consistent when there is something wrong with
-the file-name as well. 
+That only makes sense if:
+#!/bin/shasdf\n
+would also exec /bin/sh.
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+" " and \t are whitespace, \r is not whitespace.
+-- 
+Jeff McAdams                            Email: jeffm@iglou.com
+Head Network Administrator              Voice: (502) 966-3848
+IgLou Internet Services                        (800) 436-4456

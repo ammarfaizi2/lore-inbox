@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129267AbQK0RwF>; Mon, 27 Nov 2000 12:52:05 -0500
+        id <S129260AbQK0SBq>; Mon, 27 Nov 2000 13:01:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129361AbQK0Rvz>; Mon, 27 Nov 2000 12:51:55 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:17412 "EHLO
-        penguin.e-mind.com") by vger.kernel.org with ESMTP
-        id <S129267AbQK0Rvg>; Mon, 27 Nov 2000 12:51:36 -0500
-Date: Mon, 27 Nov 2000 18:21:13 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Werner.Almesberger@epfl.ch, adam@yggdrasil.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] removal of "static foo = 0"
-Message-ID: <20001127182113.A15029@athlon.random>
-In-Reply-To: <200011270556.VAA12506@baldur.yggdrasil.com> <20001127094139.H599@almesberger.net> <200011270839.AAA28672@pizda.ninka.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200011270839.AAA28672@pizda.ninka.net>; from davem@redhat.com on Mon, Nov 27, 2000 at 12:39:55AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+        id <S129340AbQK0SBg>; Mon, 27 Nov 2000 13:01:36 -0500
+Received: from ife.ee.ethz.ch ([129.132.29.2]:25841 "EHLO ife.ee.ethz.ch")
+        by vger.kernel.org with ESMTP id <S129260AbQK0SB0>;
+        Mon, 27 Nov 2000 13:01:26 -0500
+Date: Mon, 27 Nov 2000 18:31:20 +0100 (MET)
+From: Thomas Sailer <sailer@ife.ee.ethz.ch>
+Message-Id: <200011271731.eARHVKv05965@eldrich.ee.ethz.ch>
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: [PATCH]: USB Audio 2.2.18pre
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 27, 2000 at 12:39:55AM -0800, David S. Miller wrote:
-> Also I believe linkers are allowed to arbitrarily reorder members in
-> the data and bss sections.  I could be wrong on this one though.
+This patch adds a workaround for the Dallas chip; the chip tags
+its 8bit formats with PCM8 but expects signed data.
 
-I'm not sure either, but we certainly rely on that behaviour somewhere.
-Just to make an example fs/dquot.c:
-
-	int nr_dquots, nr_free_dquots;
-
-kernel/sysctl.c:
-
-	{FS_NRDQUOT, "dquot-nr", &nr_dquots, 2*sizeof(int),
-
-The above is ok also on mips in practice though.
-
-In 2.2.x there was more of them.
-
-Regardless if we're allowed to rely on the ordering the above is bad coding
-practice because somebody could forget about the dependency on the ordering and
-put something between nr_dquotes and nr_free_dquotes :), so such dependency
-should be avoided anyways...
-
-Andrea
+--- drivers/usb/audio.c.orig	Mon Oct  2 15:23:28 2000
++++ drivers/usb/audio.c	Mon Nov 27 00:08:54 2000
+@@ -89,6 +89,9 @@
+  *              Somewhat peculiar due to OSS interface limitations. Only works
+  *              for channels where a "slider" is already in front of it (i.e.
+  *              a MIXER unit or a FEATURE unit with volume capability).
++ * 2000-11-26:  Thomas Sailer
++ *              Workaround for Dallas DS4201. The DS4201 uses PCM8 as format tag for
++ *              its 8 bit modes, but expects signed data (and should therefore have used PCM).
+  *
+  */
+ 
+@@ -1551,6 +1554,7 @@
+ 		       dev->devnum, u->interface, fmt->altsetting, d->srate, data[0] | (data[1] << 8) | (data[2] << 16)));
+ 		d->srate = data[0] | (data[1] << 8) | (data[2] << 16);
+ 	}
++	dprintk((KERN_DEBUG "usbaudio: set_format_in: USB format 0x%x, DMA format 0x%x srate %u\n", u->format, d->format, d->srate));
+ 	return 0;
+ }
+ 
+@@ -1647,6 +1651,7 @@
+ 		       dev->devnum, u->interface, fmt->altsetting, d->srate, data[0] | (data[1] << 8) | (data[2] << 16)));
+ 		d->srate = data[0] | (data[1] << 8) | (data[2] << 16);
+ 	}
++	dprintk((KERN_DEBUG "usbaudio: set_format_out: USB format 0x%x, DMA format 0x%x srate %u\n", u->format, d->format, d->srate));
+ 	return 0;
+ }
+ 
+@@ -2851,6 +2856,9 @@
+ 				continue;
+ 			}
+ 			format = (fmt[5] == 2) ? (AFMT_U16_LE | AFMT_U8) : (AFMT_S16_LE | AFMT_S8);
++			/* Dallas DS4201 workaround */
++			if (dev->descriptor.idVendor == 0x04fa && dev->descriptor.idProduct == 0x4201)
++				format = (AFMT_S16_LE | AFMT_S8);
+ 			fmt = find_csinterface_descriptor(buffer, buflen, NULL, FORMAT_TYPE, asifout, i);
+ 			if (!fmt) {
+ 				printk(KERN_ERR "usbaudio: device %u interface %u altsetting %u FORMAT_TYPE descriptor not found\n", 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

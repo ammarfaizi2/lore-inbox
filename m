@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135623AbRD1UBL>; Sat, 28 Apr 2001 16:01:11 -0400
+	id <S135625AbRD1URa>; Sat, 28 Apr 2001 16:17:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135625AbRD1UBB>; Sat, 28 Apr 2001 16:01:01 -0400
-Received: from hamachi.synopsys.com ([204.176.20.26]:25057 "EHLO
-	hamachi.synopsys.com") by vger.kernel.org with ESMTP
-	id <S135623AbRD1UAy>; Sat, 28 Apr 2001 16:00:54 -0400
-Message-ID: <3AEB2164.75835700@Synopsys.COM>
-Date: Sat, 28 Apr 2001 22:00:36 +0200
-From: Harald Dunkel <harri@synopsys.COM>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Peter Osterlund <peter.osterlund@mailbox.swipnet.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4 sluggish under fork load
-In-Reply-To: <Pine.LNX.4.33.0104281322070.1159-100000@ppro.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135626AbRD1URU>; Sat, 28 Apr 2001 16:17:20 -0400
+Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:24075 "HELO
+	mail.cvsnt.org") by vger.kernel.org with SMTP id <S135625AbRD1URN>;
+	Sat, 28 Apr 2001 16:17:13 -0400
+Subject: just-in-time debugging?
+From: Tony Hoyle <tmh@nothing-on.tv>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+X-Mailer: Evolution (0.9 - Preview Release)
+Date: 28 Apr 2001 21:17:10 +0100
+Mime-Version: 1.0
+Message-Id: <20010428201708.E629E13F6A@mail.cvsnt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Osterlund wrote:
-> 
-> I have noticed that 2.4.4 feels a lot less responsive than 2.4.3 under
-> fork load. This is caused by the "run child first after fork" patch. I
-> have tested on two different UP x86 systems running redhat 7.0.
-> 
-> For example, when running the gcc configure script, the X mouse pointer is
-> very jerky. The configure script itself runs approximately as fast as in
-> 2.4.3.
-> 
+Is there a way (kernel or userspace... doesn't matter) that gdb/ddd
+could be invoked when a program is about
+to dump core, or perhaps on a certain signal (that the app could deliver
+to itself when required).  The latter case
+is what I need right now, as I have to debug an app that breaks
+seemingly randomly & I need to halt when
+certain assertions fail.  Core dumps aren't much use as you can't resume
+them, otherwise I'd just force a segfault
+or something.
 
-That explains why xtoolwait did not work anymore. After applying the
-patch everything is OK again.
+I had a look at the do_coredump stuff and it looks like it could be
+altered to call gdb in the same way that
+modprobe gets called by kmod... however I don't sufficiently know the
+code to work out whether it'd work properly
+or not.  
 
+A patch to glibc would perhaps be better, but I know that code even
+less!
 
-Many thanx
+Something like responding to SIGTRAP would probably be ideal.
 
-Harri
+Tony
+
+-- 
+
+"Two weeks before due date, the programmers work 22 hour days cobbling an
+ application from... (apparently) one programmer bashing his face into the
+ keyboard." -- Dilbert
+
+tmh@magenta-netlogic.com                http://www.nothing-on.tv 
+

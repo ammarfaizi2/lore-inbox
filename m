@@ -1,65 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264569AbUFJJsj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264551AbUFJJsj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264569AbUFJJsj (ORCPT <rfc822;willy@w.ods.org>);
+	id S264551AbUFJJsj (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 10 Jun 2004 05:48:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264551AbUFJJqa
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266013AbUFJJqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 05:46:30 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:38629 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S264569AbUFJJRq (ORCPT
+	Thu, 10 Jun 2004 05:46:22 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:37580 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S264551AbUFJJQP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 05:17:46 -0400
+	Thu, 10 Jun 2004 05:16:15 -0400
+Date: Thu, 10 Jun 2004 11:15:56 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+cc: Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Linux-fbdev-devel] PATCH: 2.6.7-rc3 drivers/video/fbmem.c:
+ user/kernel pointer bugs
+In-Reply-To: <1086821199.32054.111.camel@dooby.cs.berkeley.edu>
+Message-ID: <Pine.GSO.4.58.0406101114480.14266@waterleaf.sonytel.be>
+References: <1086821199.32054.111.camel@dooby.cs.berkeley.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16584.9947.222378.506457@alkaid.it.uu.se>
-Date: Thu, 10 Jun 2004 11:16:11 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Paul Jackson <pj@sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][2.6.7-rc3-mm1] perfctr cpumask cleanup
-In-Reply-To: <20040609154750.241df741.pj@sgi.com>
-References: <200406092050.i59KoWoa000621@alkaid.it.uu.se>
-	<20040609154750.241df741.pj@sgi.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson writes:
- > > Clean up perfctr/virtual by using the new cpus_andnot() operation
- > 
- > Neat.
- > 
- > Do you still need "tmp" ?  Perhaps you could further add the
- > following patch (untested, unbuilt, ...).
- > 
- > This saves copies and stack space for one cpumask (that's
- > 512 bits on my SN2 systems).
- > 
- > Signed-off-by: Paul Jackson <pj@sgi.com>
- > 
- > Index: 2.6.7-rc3-mm1/drivers/perfctr/virtual.c
- > ===================================================================
- > --- 2.6.7-rc3-mm1.orig/drivers/perfctr/virtual.c	2004-06-09 15:34:34.000000000 -0700
- > +++ 2.6.7-rc3-mm1/drivers/perfctr/virtual.c	2004-06-09 15:38:32.000000000 -0700
- > @@ -403,11 +403,10 @@
- >  		return -EFAULT;
- >  
- >  	if (control.cpu_control.nractrs || control.cpu_control.nrictrs) {
- > -		cpumask_t tmp, old_mask, new_mask;
- > +		cpumask_t old_mask, new_mask;
- >  
- > -		tmp = perfctr_cpus_forbidden_mask;
- >  		old_mask = tsk->cpus_allowed;
- > -		cpus_andnot(new_mask, old_mask, tmp);
- > +		cpus_andnot(new_mask, old_mask, perfctr_cpus_forbidden_mask);
+On Thu, 9 Jun 2004, Robert T. Johnson wrote:
+> Since sprite is a user pointer, reading sprite->mask or sprite->image.data
+> requires unsafe dereferences.  Let me know if you have any questions or if
+> I've made a mistake.
 
-Doesn't work because cpus_andnot() requires all three parameters
-to be lvalues. In UP and PowerPC builds, perfctr_cpus_forbidden_mask
-is #define:d to CPU_MASK_NONE to allow client-side optimisations.
+I sent this one (untested, except for a compile test) to linux-fbdev-devel a
+few days ago.
 
-Making it always be a variable will slow down UP and PowerPC with
-unoptimisable cpumask tests; alternatively I'll have to wrap my
-cpumask uses with optimisation macros and/or #ifdefs.
+It also makes cursor.mask const, just like image.data.
 
-/Mikael
+--- linux-2.6.7-rc1/drivers/video/fbmem.c.orig	2004-05-24 11:38:04.000000000 +0200
++++ linux-2.6.7-rc1/drivers/video/fbmem.c	2004-06-07 22:38:42.000000000 +0200
+@@ -916,26 +916,30 @@ fb_cursor(struct fb_info *info, struct f
+
+ 	if (cursor.set & FB_CUR_SETSHAPE) {
+ 		int size = ((cursor.image.width + 7) >> 3) * cursor.image.height;
++		char *data, *mask;
++
+ 		if ((cursor.image.height != info->cursor.image.height) ||
+ 		    (cursor.image.width != info->cursor.image.width))
+ 			cursor.set |= FB_CUR_SETSIZE;
+
+-		cursor.image.data = kmalloc(size, GFP_KERNEL);
+-		if (!cursor.image.data)
++		data = kmalloc(size, GFP_KERNEL);
++		if (!data)
+ 			return -ENOMEM;
+
+-		cursor.mask = kmalloc(size, GFP_KERNEL);
+-		if (!cursor.mask) {
+-			kfree(cursor.image.data);
++		mask = kmalloc(size, GFP_KERNEL);
++		if (!mask) {
++			kfree(data);
+ 			return -ENOMEM;
+ 		}
+
+-		if (copy_from_user(cursor.image.data, sprite->image.data, size) ||
+-		    copy_from_user(cursor.mask, sprite->mask, size)) {
+-			kfree(cursor.image.data);
+-			kfree(cursor.mask);
++		if (copy_from_user(data, sprite->image.data, size) ||
++		    copy_from_user(mask, sprite->mask, size)) {
++			kfree(data);
++			kfree(mask);
+ 			return -EFAULT;
+ 		}
++		cursor.image.data = data;
++		cursor.mask = mask;
+ 	}
+ 	info->cursor.set = cursor.set;
+ 	info->cursor.rop = cursor.rop;
+--- linux-2.6.7-rc1/include/linux/fb.h.orig	2004-05-24 11:14:01.000000000 +0200
++++ linux-2.6.7-rc1/include/linux/fb.h	2004-06-07 22:38:01.000000000 +0200
+@@ -375,7 +375,7 @@ struct fb_cursor {
+ 	__u16 set;		/* what to set */
+ 	__u16 enable;		/* cursor on/off */
+ 	__u16 rop;		/* bitop operation */
+-	char *mask;		/* cursor mask bits */
++	const char *mask;	/* cursor mask bits */
+ 	struct fbcurpos hot;	/* cursor hot spot */
+ 	struct fb_image	image;	/* Cursor image */
+ };
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

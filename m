@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269333AbUIYNuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269337AbUIYOLw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269333AbUIYNuY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 09:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269335AbUIYNuY
+	id S269337AbUIYOLw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 10:11:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269340AbUIYOLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 09:50:24 -0400
-Received: from p5089F3FB.dip.t-dialin.net ([80.137.243.251]:2052 "EHLO
-	timbaland.dnsalias.org") by vger.kernel.org with ESMTP
-	id S269333AbUIYNuW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 09:50:22 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: OOM-killer killed everything
-Date: Sat, 25 Sep 2004 15:50:20 +0200
-User-Agent: KMail/1.7
-Cc: Zwane Mwaikambo <zwane@linuxpower.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <200409251326.13915.petkov@uni-muenster.de> <Pine.LNX.4.53.0409251553420.11618@musoma.fsmlabs.com> <20040925125707.GO9106@holomorphy.com>
-In-Reply-To: <20040925125707.GO9106@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 25 Sep 2004 10:11:52 -0400
+Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:55996 "EHLO
+	garbo.kenjo.org") by vger.kernel.org with ESMTP id S269337AbUIYOLu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 10:11:50 -0400
+Subject: Re: Sluggishness in 2.6.7 caused by IDE stack
+From: Kenneth Johansson <ken@kenjo.org>
+To: Scott A Crosby <scrosby@cs.rice.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <oydsm964jro.fsf@bert.cs.rice.edu>
+References: <oydsm964jro.fsf@bert.cs.rice.edu>
+Content-Type: text/plain
+Date: Sat, 25 Sep 2004 16:11:25 +0200
+Message-Id: <1096121485.2760.5.camel@tiger>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200409251550.20587.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 25 September 2004 14:57, William Lee Irwin III wrote:
-> On Sat, 25 Sep 2004, William Lee Irwin III wrote:
-> >> Usually I only get "Kernel panic: Out of memory and no killable
-> >> processes..." from local DoS testcases; I'd be surprised if anyone
-> >> tripped over such cases by accident unless they're doing something
-> >> particularly stressful (e.g. forking server with zillions of clients) or
-> >> there's a
-> >> particularly outrageously offensive memory leak.
->
-> On Sat, Sep 25, 2004 at 03:54:59PM +0300, Zwane Mwaikambo wrote:
-> > The burning CD audio one is a known issue afaik, i've run into it before
-> > too.
->
-> That would be the particularly outrageously offensive memory leak, then.
->
->
-> -- wli
+On Sat, 2004-09-25 at 07:26 -0500, Scott A Crosby wrote:
+> Much of the CPU time was spent in system mode. I setup a quick
+> oprofile, which blamed the function task_no_data_intr, but an
+> opannotate reports confusing results, possibly from interrupts? dmesg
+> reported nothing interesting.
+> 
+> 
+> Scott
+> 
+> 
+> *** vmstat output ***
+> 
+> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+>  1  1 410496   8520  14224 1253716    0    0  2180    16  409   633 10 43  0 48
+>  7  1 410496   6920  14236 1255380    0    0  1668    20  589   832  9 18  0 73
+>  3  0 410496   8264  14232 1253988    0    0  2436    80  334   438 18 82  0  0
+>  0  1 410496   8384  14244 1253860    0    0  1932     0  464   706 13 35  0 52
+>  5  1 410496   8056  14264 1253872  328    0  2280     0  717   965 14 20  0 65
+>  8  1 410496   7352  14268 1254640    0    0  2692     0  351   485 17 83  0  0
+>  2  2 410496   6968  14264 1255036   32    0  2336     0  332   522 17 83  0  0
+>  5  0 410496   8568  14276 1253384    0    0  2192    12  464   794 19 33  0 48
 
-Thanks to you all guys for the help, I've applied the 2 akpm mm3 patches for 
-the 2.6.8.1.  I'll try to repeat the stress test and burn an audio cd at the 
-same time but I think not freeing pages of unaligned audio frames while 
-burning an audio cd was the reason for the memory leak.
+I think you have the same problem as me. The interrupt rate drops under
+1000 during use of the DVD and that is strange as the HZ is 1000 and
+that should be the lowest possible value unless I misunderstood
+something.  
 
-Regards,
-Boris.
+
+
+
+

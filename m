@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVC0RJ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVC0RMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVC0RJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 12:09:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVC0RJ5
+	id S261163AbVC0RMg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 12:12:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVC0RMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 12:09:57 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:13576 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261482AbVC0RJ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 12:09:56 -0500
-Date: Sun, 27 Mar 2005 19:09:36 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Aaron Gyes <floam@sh.nu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-Message-ID: <20050327170936.GQ30052@alpha.home.local>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <Pine.LNX.4.61.0503271052130.22393@yvahk01.tjqt.qr>
+	Sun, 27 Mar 2005 12:12:35 -0500
+Received: from colin2.muc.de ([193.149.48.15]:49159 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261163AbVC0RMZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Mar 2005 12:12:25 -0500
+Date: 27 Mar 2005 19:12:20 +0200
+Date: Sun, 27 Mar 2005 19:12:20 +0200
+From: Andi Kleen <ak@muc.de>
+To: davidm@hpl.hp.com
+Cc: Christoph Lameter <clameter@sgi.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Dave Hansen <haveblue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mel Gorman <mel@csn.ul.ie>, linux-ia64@vger.kernel.org,
+       Jens.Maurer@gmx.net
+Subject: Re: [PATCH] add a clear_pages function to clear pages of higher order
+Message-ID: <20050327171220.GA18506@muc.de>
+References: <Pine.LNX.4.58.0503101229420.13911@schroedinger.engr.sgi.com> <200503111008.12134.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0503161720570.1787@schroedinger.engr.sgi.com> <200503181154.37414.vda@port.imtp.ilyichevsk.odessa.ua> <Pine.LNX.4.58.0503180652350.15022@schroedinger.engr.sgi.com> <20050318192808.GB38053@muc.de> <16963.2075.713737.485070@napali.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0503271052130.22393@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.4i
+In-Reply-To: <16963.2075.713737.485070@napali.hpl.hp.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 27, 2005 at 10:57:13AM +0200, Jan Engelhardt wrote:
-> > BTW, to all you "But my drivers must be proprietary!" nerds out there,
-> > take a look at 3ware, Adaptec, etc.  They have _great_ hardware and yet
-> > they release all of their drivers under the GPL.  They get free updates
-> > to new kernel APIs too!
-> 
-> Well, it boils down to the full sourcecode. NVidia does only half.
-> Other good examples besides 3ware are: VMware kernel modules and
-> SUNWut/SRSS3 Linux Kernel modules.
-> 
-> Looks like there's only the GPU industry left that thinks somebody could 
-> "mis"use the kmod to make them (:one company) inferior on the market.
+> Clearly, if the CPU that's clearing the page is likely to use that
+> same page soon after, it'd be useful to use temporal stores.
 
-Probably because it's true. What if everyone could notice that they are
-cheating such as rendering one inferior frame every other frame or things
-like this to increase performance ? Afterall, opensource also prevents you
-from cheating, or at least lets others fix your "bugs".
+That is always the case in the current code (without Christophers 
+pre cleaning daemon). The page fault handler clears and user space
+is guaranteed to need at least one cacheline from the fresh page
+because it just did a page fault on it. With non temporal stores
+you guarantee at least one hard cache miss directly after
+the return to user space.
 
-Willy
+I suspect even with precleaning the average time from cleaning to use will be 
+quite short.
 
+-Andi

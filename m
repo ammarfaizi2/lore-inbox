@@ -1,77 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263597AbTGKPld (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 11:41:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263894AbTGKPld
+	id S263997AbTGKPq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 11:46:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264023AbTGKPq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 11:41:33 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:48084
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263597AbTGKPla
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 11:41:30 -0400
-Date: Fri, 11 Jul 2003 11:56:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Fri, 11 Jul 2003 11:46:59 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:27615 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S263997AbTGKPqy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 11:46:54 -0400
+Date: Fri, 11 Jul 2003 18:01:30 +0200
+From: Wiktor Wodecki <wodecki@gmx.de>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5 'what to expect'
-Message-ID: <20030711155613.GC2210@gtf.org>
-References: <20030711140219.GB16433@suse.de> <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <20030711160130.GA640@gmx.de>
+References: <20030711140219.GB16433@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-In-Reply-To: <1057933578.20636.17.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20030711140219.GB16433@suse.de>
+X-message-flag: Linux - choice of the GNU generation
+X-Operating-System: Linux 2.5.75 i686
+X-PGP-KeyID: 182C9783
+X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 11, 2003 at 03:26:19PM +0100, Alan Cox wrote:
-> > - (Possibly linked to above bug) VIA APIC routing is currently broken.
-> >   boot with 'noapic'.
-> 
-> Does 2.5 not have the INTD routing fix yet ?
 
-It does.  It is in both 2.4 and 2.5 mainline now.
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Jul 11, 2003 at 03:02:19PM +0100, Dave Jones wrote:
+> Oprofile.
+> ~~~~~~~~~
+> A system wide performance profiler has been included in 2.5.
+> With this option compiled in, you'll get an oprofilefs filesystem
+> which you can mount, that the userspace utilities talk to.
+> You can find out more at http://oprofile.sourceforge.net/oprofile-2.5.html
 
-> > IDE.
-> > ~~~~
-> > - Known problems with the current IDE code. 
-> >   o  Serverworks OSB4 may panic on bad blocks or other non fatal errors
-> FIXED
-> >   o  PCMCIA IDE hangs on eject
-> Should be fixed in 2.5, fixed(ish) in 2.4
-> >   o  ide_scsi is completely broken in 2.5.x. Known problem. If you need it
-> >      either use 2.4 or fix it 8)
-> > - IDE disk geometry translators like OnTrack, EZ Partition, Disk Manager
-> >   are no longer supported. The only way forward is to remove the translator
-> >   from the drive, and start over.
-> 
-> Or to use device mapper to remap the disk.
+this link is not valid, use http://oprofile.sourceforge.net/ instead.
 
-Definitely.  I'm hoping that people will decide upon a userland that
-supports the popular (non-raid) partition tables as well as the simple
-raid partitions, too.  Maybe that's a pipe dream, though ;-)
+--=20
+Regards,
 
+Wiktor Wodecki
 
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> > Ports.
-> > ~~~~~~
-> > - 2.5 features support for several new architectures.
-> >   - x86-64 (AMD Hammer)
-> >   - ppc64
-> >   - UML (User mode Linux)
-> >     See http://user-mode-linux.sf.net for more information.
-> >   - uCLinux: m68k(w/o MMU), h8300 and v850.  sh also added a uCLinux option.
-> > - The 64 bit s390x port got collapsed into a single port, appearing
-> >   as a config option in the base s390 arch.
-> > - In the opposite direction, arm26 was split out from arm.
-> 
-> sh64 ?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-Only in 2.4.
+iD8DBQE/Dt9a6SNaNRgsl4MRAl08AJ9QhuWyTl88g8tZde0hnvP8od935ACfeLZg
+6DkOWRkkyVVI9ZcwW3nwkso=
+=/3lN
+-----END PGP SIGNATURE-----
 
-	Jeff
-
-
-
+--9jxsPFA5p3P2qPhR--

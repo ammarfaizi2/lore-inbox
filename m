@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292962AbSB1AlR>; Wed, 27 Feb 2002 19:41:17 -0500
+	id <S293021AbSB1Ast>; Wed, 27 Feb 2002 19:48:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293086AbSB1AlG>; Wed, 27 Feb 2002 19:41:06 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:48657 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S293104AbSB1Akt>; Wed, 27 Feb 2002 19:40:49 -0500
-Date: Wed, 27 Feb 2002 16:40:35 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Ben Clifford <benc@hawaga.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.5-dj2 oops
-In-Reply-To: <Pine.LNX.4.33.0202271633120.11102-100000@barbarella.hawaga.org.uk>
-Message-ID: <Pine.LNX.4.10.10202271639490.13029-100000@www.transvirtual.com>
+	id <S293100AbSB1AsH>; Wed, 27 Feb 2002 19:48:07 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:36612 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S293099AbSB1Ara>; Wed, 27 Feb 2002 19:47:30 -0500
+Subject: Re: Linux 2.4.19pre1-ac1
+To: afranck@gmx.de (Andreas Franck)
+Date: Thu, 28 Feb 2002 01:02:16 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), florin@iucha.net (Florin Iucha),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <02022801273203.01097@dg1kfa> from "Andreas Franck" at Feb 28, 2002 01:27:32 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16gExc-0006hG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> +               if ( !vma || (pages && vma->vm_flags & VM_IO) || !(flags & 
+> vma->vm_flags) )
+> +                       return i ? : -EFAULT;
+> ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ <- This looks somewhat bogus, 
+> shouldn't it be "return i ? i : -EFAULT;" instead?
 
-> > > http://www.transvirtual.com/~jsimmons/console/console_8.diff
-> >
-> > Okay. This time I believe I see what caused the oops. Give it a try again.
-> 
-> Yes, that cures both the oopses when mingetty runs and the oops when X
-> starts up.
+Its the same thing - its an ugly Gcc extension.
 
-Okay. Then it was a probable of pm_con being NULL. I added a sanity test
-for that. Now to send the patch to David Jones.
-
-
-
+One other person who reported the problem reports 2.4.18-ac2 is ok, in
+which case it might be the slight mismerge in ac1 tho I'm puzzled why.
+Certainly my testing here is behaving so far

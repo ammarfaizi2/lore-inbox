@@ -1,38 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272960AbTGaKAK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 06:00:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272970AbTGaKAK
+	id S272963AbTGaKAC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 06:00:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272960AbTGaKAC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 06:00:10 -0400
-Received: from f6.mail.ru ([194.67.57.36]:59148 "EHLO f6.mail.ru")
-	by vger.kernel.org with ESMTP id S272960AbTGaKAI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 06:00:08 -0400
-From: =?koi8-r?Q?=22?=Kirill Korotaev=?koi8-r?Q?=22=20?= <kksx@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: atomic_set & gcc. atomicity question
+	Thu, 31 Jul 2003 06:00:02 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:64159 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S272963AbTGaJ5Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Jul 2003 05:57:24 -0400
+Date: Thu, 31 Jul 2003 11:57:13 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Pawel Kot <pkot@linuxnews.pl>
+Cc: Keith Owens <kaos@ocs.com.au>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: module-init-tools don't support gzipped modules.
+Message-ID: <20030731095713.GL12849@louise.pinerecords.com>
+References: <20030731091909.GK12849@louise.pinerecords.com> <Pine.LNX.4.33.0307311149110.11927-100000@urtica.linuxnews.pl>
 Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.133.213.194]
-Date: Thu, 31 Jul 2003 14:00:06 +0400
-Reply-To: =?koi8-r?Q?=22?=Kirill Korotaev=?koi8-r?Q?=22=20?= 
-	  <kksx@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E19iAEA-0006Fy-00.kksx-mail-ru@f6.mail.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0307311149110.11927-100000@urtica.linuxnews.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> [pkot@linuxnews.pl]
+> 
+> > > Rusty Russell <rusty@rustcorp.com.au> wrote:
+> > > >I don't want to require zlib, though.  The modutils I have (Debian)
+> > > >doesn't support it, either.
+> > >
+> > > Really?  modutils 2.4: ./configure --enable-zlib
+> >
+> > Keith, I believe Rusty meant the standard Debian package had binaries
+> > compiled w/o '--enable-zlib'.
+> >
+> > (And so has Slackware btw.)
+> 
+> Slackware since 8.0 uses compression for the kernel modules by
+> default and uses --enable-zlib for modutils.
+> See:
+> ftp://ftp.slackware.com/pub/slackware/slackware-9.0/source/a/modutils/modutils.SlackBuild
 
-Thinking about atomicity of some operations in kernel I've got the following question about atomic_XXX operations.
-atomic_set and atomic_read (on i386+ and some others) are simple write to and read from memory, i.e. they are defined as:
-#define atomic_set(v,i)         (((v)->counter) = (i))
-#define atomic_read(v)          ((v)->counter)
+Hmmm, things change. :)
+Thanks for correcting me.
 
-If we call atomic_set() with constant 2nd argument it's ok - it's a simple write to var. But what if we do atomic_set(var, var1+var2)?
-Probably, it can happen that compiler will do "var=var1; var+=var2", can't it? If so, atomic_read() can return intermediate value and write won't seem atomic at all. Who guarentees that compiler won't compile it this way? Optimization? gcc developers?
-
-Kirill
-
+-- 
+Tomas Szepe <szepe@pinerecords.com>

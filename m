@@ -1,82 +1,155 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbTHSTlo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 15:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbTHSTk7
+	id S261305AbTHSTsE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbTHSTrh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 15:40:59 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:31616 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261388AbTHSTjA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 15:39:00 -0400
-Message-Id: <200308191938.h7JJcpBC004873@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Daniel Gryniewicz <dang@fprintf.net>
-Cc: Andi Kleen <ak@muc.de>, Lars Marowsky-Bree <lmb@suse.de>, davem@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices 
-In-Reply-To: Your message of "Tue, 19 Aug 2003 15:17:00 EDT."
-             <1061320620.3744.16.camel@athena.fprintf.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <mdtk.Zy.1@gated-at.bofh.it> <mgUv.3Wb.39@gated-at.bofh.it> <mgUv.3Wb.37@gated-at.bofh.it> <miMw.5yo.31@gated-at.bofh.it> <m365ktxz3k.fsf@averell.firstfloor.org>
-            <1061320620.3744.16.camel@athena.fprintf.net>
+	Tue, 19 Aug 2003 15:47:37 -0400
+Received: from mail.kroah.org ([65.200.24.183]:49285 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261305AbTHSTqZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:46:25 -0400
+Date: Tue, 19 Aug 2003 12:45:33 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrey Borzenkov <arvidjaar@mail.ru>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: 2.6 - sysfs sensor nameing inconsistency
+Message-ID: <20030819194533.GA5738@kroah.com>
+References: <200307152214.38825.arvidjaar@mail.ru> <200308161938.47935.arvidjaar@mail.ru> <20030816165016.GE9735@kroah.com> <200308192319.01895.arvidjaar@mail.ru>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1094003853P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 19 Aug 2003 15:38:51 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200308192319.01895.arvidjaar@mail.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1094003853P
-Content-Type: text/plain; charset=us-ascii
+On Tue, Aug 19, 2003 at 11:19:01PM +0400, Andrey Borzenkov wrote:
+> On Sat, Jul 26, 2003 at 10:00:51PM +0400, Andrey Borzenkov wrote:
+> > Assuming this patch (or variant thereof) is accepted I can then
+> > produce libsensors patch that will easily reuse current sensors.conf.
+> > I have already done it for gkrellm and as Mandrake is going to
+> > include 2.6 in next release sensors support becomes more of an issue.
+> 
+> There are more issues than just type_name.
 
-On Tue, 19 Aug 2003 15:17:00 EDT, Daniel Gryniewicz said:
+Hey, one thing at a time :)
 
-> So, changing your default route is a "hack"?  That's all that's
-> necessary.  You can even do it with "route del/route add".
+> In libsensors only one file need to be touched - proc.c (file that deals with 
+> kernel interface). Unfortunately, not all information expected by libsensors 
+> is currently available is sysfs. Here is output of first stab:
+> 
+> {pts/1}% LD_LIBRARY_PATH=$PWD/lib ./prog/sensors/sensors
+> as99127f-i2c-0-2d
+> Adapter: DUMMY
+> Algorithm: DUMMY
+> VCore 1:   +1.70 V  (min =  +1.49 V, max =  +1.81 V)
+> +3.3V:     +3.47 V  (min =  +2.98 V, max =  +3.63 V)
+> +5V:       +5.00 V  (min =  +4.52 V, max =  +5.48 V)
+> +12V:     +11.37 V  (min = +10.82 V, max = +13.13 V)
+> -12V:     -11.51 V  (min = -12.33 V, max = -15.07 V)       ALARM
+> -5V:       -5.03 V  (min =  -4.50 V, max =  -5.49 V)
+> CPU:      4753 RPM  (min = 3000 RPM, div = 2)
+> Front:    2909 RPM  (min = 3000 RPM, div = 2)              ALARM
+> ERROR: Can't get TEMP1 data!
+> ERROR: Can't get TEMP2 data!
+> ERROR: Can't get TEMP3 data!
+> vid:      +1.650 V
+> alarms:
+> beep_enable:
+>           Sound alarm enabled
+> 
+> So we have following problems:
+> 
+> 1. I do not know where to get information on adapters (called busses actually 
+> in libsensors) and algorithms. I.e. the information corresponding to 2.4:
+> 
+> {pts/2}% cat ~/tmp/i2c-bus
+> i2c-0   smbus           SMBus I801 adapter at e800              Non-I2C SMBus adapter
 
-(trimming down a bit)
+Look in /sys/class/i2c-adapter/  It shows all of the i2c adapters in the
+system, and points to where they are in the device tree.  For example,
+on my desktop:
 
-% ip link show
-3: eth3: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    link/ether 00:06:5b:ea:8e:4e brd ff:ff:ff:ff:ff:ff
-6: eth1: <BROADCAST,MULTICAST,NOTRAILERS,UP> mtu 1500 qdisc pfifo_fast qlen 100
-    link/ether 00:02:2d:5c:11:48 brd ff:ff:ff:ff:ff:ff
-% ip route sho
-198.82.168.0/24 dev eth1  proto kernel  scope link  src 198.82.168.169 
-128.173.12.0/22 dev eth3  proto kernel  scope link  src 128.173.14.107 
-127.0.0.0/8 dev lo  scope link 
-default via 128.173.12.1 dev eth3 
+$ tree ../class/i2c-adapter/
+../class/i2c-adapter/
+|-- i2c-0
+|   |-- device -> ../../../devices/pci0000:00/0000:00:1f.3/i2c-0
+|   `-- driver -> ../../../bus/i2c/drivers/i2c_adapter
+`-- i2c-1
+    |-- device -> ../../../devices/legacy/i2c-1
+    `-- driver -> ../../../bus/i2c/drivers/i2c_adapter
 
-eth1 is an 11mbit wireless on a fairly loaded net, eth3 is a 100mbit line.
+Then look at the device directory for the i2c-0 adapter:
 
-If I try 'ip ro add default dev eth1 metric 1 via 198.82.168.1', things
-actually work As Expected - if I'm in the docking station, traffic goes via
-eth3 because it's lower cost, if I'm wandering it goes via wireless.
+$ ls /sys/class/i2c-adapter/i2c-0/device/
+0-0048/  0-0049/  0-0053/  detach_state  name  power/
 
-Until I fall out of the 128.173.12.1 ARP cache, it ARPS for my eth3 address,
-and my laptop gratuitously answers via eth1 - and since that isn't even the
-same router, it doesn't listen.  Meanwhile, my laptop *doesnt* fall over to
-using wireless because it still has a lower-cost default route for the 100mbit
-side (and even if it did, any existing connections would still be hosed).
+Hm, a name file:
+$ cat /sys/class/i2c-adapter/i2c-0/device/name 
+SMBus I801 adapter at 8000
 
-I can't believe I need to go beat my kernel over the head with 'arpfilter' or
-other crap just to get 2 interfaces to each reliably say "here I am" on their
-own damned subnet, not the OTHER subnet where nobody gives a rat's posterior
-about the other interface....
+Ah, the same info as you showed for 2.4 :)
 
+> 2. I do not know - and sysfs does not provide any information - how to 
+> identify chips-of-interest as opposed to generic i2c devices. I.e. w83781d 
+> has both clients and subclients (2.4 again):
+> 
+> {pts/2}% cat ~/tmp/i2c-0-bus
+> 2d      AS99127F chip                           W83781D sensor driver
+> 48      AS99127F subclient                      W83781D sensor driver
+> 49      AS99127F subclient                      W83781D sensor driver
+> 
+> and we are interested in clients only. In 2.4 we get this information from 
+> kernel as result of sysctl :))
+> 
+> {pts/2}% cat ~/tmp/i2c-sysctl-chips
+> 256     as99127f-i2c-0-2d
+> 
+> while in 2.6 we see in sysfs all three devices:
+> 
+> pts/2}% l /sys/bus/i2c/devices
+> 0-002d@  0-0048@  0-0049@
+> 
+> without any obvious way to know which one(s) to use.
 
---==_Exmh_-1094003853P
-Content-Type: application/pgp-signature
+That's what you are going to have to set the name file to in the
+i2c_client structure, much like your patch did.  Then look at the
+different name files in each device directory to see what kind of device
+it is (chip, subclient, etc.)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> 3. libsensors asks for hysteresis value. This one does not exist in sysfs (so 
+> all temp readings fail). Is it emulated by kernel or read off chip?
 
-iD8DBQE/QnzLcC3lWbTT17ARAgRxAKD9i5x0avXDR5PsFHvd2JwxQOnbdgCcD898
-A+oyKFOtJXLAvnRhRyugjRs=
-=GK71
------END PGP SIGNATURE-----
+The kernel is exporting all of the info that it knows about through
+sysfs.  If we missed a value somewhere, please let us know.  I'm pretty
+sure they are all present:
 
---==_Exmh_-1094003853P--
+$ ls /sys/class/i2c-adapter/i2c-0/device/0-0048/
+detach_state  name  power/  temp_input  temp_max  temp_min
+
+> 4. I do not have the slightest idea how ISA adapters look like in sysfs and 
+> where they are located. Anyone can give me example?
+
+They show up on the legacy bus:
+
+$ tree /sys/class/i2c-adapter/i2c-1/
+/sys/class/i2c-adapter/i2c-1/
+|-- device -> ../../../devices/legacy/i2c-1
+`-- driver -> ../../../bus/i2c/drivers/i2c_adapter
+
+$ ls /sys/class/i2c-adapter/i2c-1/device/
+detach_state  name  power
+
+I don't have any drivers loaded that are attached to this adapter right
+now, but I think you get the idea (it's the same as for pci devices.)
+
+> So the patch to ibsensors is actually trivial enough. Main issue is contents 
+> of sysfs
+
+You might want to take a look at libsysfs, it makes finding all of the
+devices and attributes in the sysfs tree a whole lot easer.
+
+Hope this helps,
+
+greg k-h

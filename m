@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUHWWrg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268000AbUHWXHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267904AbUHWWrg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 18:47:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268128AbUHWWrX
+	id S268000AbUHWXHn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 19:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268129AbUHWXHj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 18:47:23 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:36489 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267705AbUHWWlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 18:41:20 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P8
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040823210151.GA10949@elte.hu>
-References: <20040816040515.GA13665@elte.hu>
-	 <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu>
-	 <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net>
-	 <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu>
-	 <20040820133031.GA13105@elte.hu> <20040820195540.GA31798@elte.hu>
-	 <20040821140501.GA4189@elte.hu>  <20040823210151.GA10949@elte.hu>
+	Mon, 23 Aug 2004 19:07:39 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61145 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S268000AbUHWXG3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 19:06:29 -0400
+Subject: Re: IA32 (2.6.8.1 - 2004-08-22.21.30) - 3 New warnings (gcc 3.2.2)
+From: John Cherry <cherry@osdl.org>
+To: Greg KH <greg@kroah.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040823213431.GA4371@kroah.com>
+References: <200408231251.i7NCpJDK006874@cherrypit.pdx.osdl.net>
+	 <20040823213431.GA4371@kroah.com>
 Content-Type: text/plain
-Message-Id: <1093300882.826.28.camel@krustophenia.net>
+Message-Id: <1093302139.12874.143.camel@cherrybomb.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 23 Aug 2004 18:41:23 -0400
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Mon, 23 Aug 2004 16:02:20 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-08-23 at 17:01, Ingo Molnar wrote:
-> i've uploaded the -P8 patch:
-> 
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8.1-P8
-> 
-> Changes since -P8:
-> 
->  - fixes the DRI/DRM latency in radeon (and other drivers). The concept 
->    was investigated/tested by Dave Airlie.
-> 
->  - reduce netdev_max_backlog to 8 (Mark H Johnson)
-> 
+Greg,
 
-Should this fix the 500+ usec latency I saw in rt_garbage_collect?  This
-one took a while to occur (overnight).
+Yes, these are valid warnings (as most warning are).  I am just flagging
+these since they are NEW to the build.  These particular warnings are
+likely to go away soon after Jan 1, which is good information to know. 
+These warning will not show up again as NEW warnings.
 
-Lee
+BTW, Linus flagged these warning cases as part of changeset 1.1803.1.58.
+
+John
+
+
+On Mon, 2004-08-23 at 14:34, Greg KH wrote:
+> On Mon, Aug 23, 2004 at 05:51:19AM -0700, John Cherry wrote:
+> > drivers/cpufreq/cpufreq_userspace.c:157:2: warning: #warning The /proc/sys/cpu/ and sysctl interface to cpufreq will be removed from the 2.6. kernel series soon after 2005-01-01
+> > drivers/cpufreq/proc_intf.c:15:2: warning: #warning This module will be removed from the 2.6. kernel series soon after 2005-01-01
+> 
+> Um, these look like valid warnings to me, you might want to review these
+> by hand before sending them out.
+> 
+> thanks,
+> 
+> greg k-h
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

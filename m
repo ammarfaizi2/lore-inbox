@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129094AbQKKBoB>; Fri, 10 Nov 2000 20:44:01 -0500
+	id <S129501AbQKKBpV>; Fri, 10 Nov 2000 20:45:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129132AbQKKBnv>; Fri, 10 Nov 2000 20:43:51 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:23556 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129094AbQKKBnj>; Fri, 10 Nov 2000 20:43:39 -0500
-Message-ID: <3A0CA3E9.B51FB18A@transmeta.com>
-Date: Fri, 10 Nov 2000 17:42:02 -0800
-From: "H. Peter Anvin" <hpa@transmeta.com>
-Organization: Transmeta Corporation
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en, sv, no, da, es, fr, ja
-MIME-Version: 1.0
-To: Ralf Baechle <ralf@uni-koblenz.de>
-CC: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+	id <S129322AbQKKBpM>; Fri, 10 Nov 2000 20:45:12 -0500
+Received: from u-172.karlsruhe.ipdial.viaginterkom.de ([62.180.19.172]:38405
+	"EHLO u-172.karlsruhe.ipdial.viaginterkom.de") by vger.kernel.org
+	with ESMTP id <S129501AbQKKBoy>; Fri, 10 Nov 2000 20:44:54 -0500
+Date: Sat, 11 Nov 2000 02:44:40 +0100
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
 Subject: Re: sendmail fails to deliver mail with attachments in /var/spool/mqueue
-In-Reply-To: <3A0C3F30.F5EB076E@timpanogas.org> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <26054.973893835@euclid.cs.niu.edu> <8uhs7c$2hr$1@cesium.transmeta.com> <20001111023521.D29352@bacchus.dhis.org>
+Message-ID: <20001111024440.E29352@bacchus.dhis.org>
+In-Reply-To: <3A0C3F30.F5EB076E@timpanogas.org> <3A0C6B7C.110902B4@timpanogas.org> <3A0C6E01.EFA10590@timpanogas.org> <26054.973893835@euclid.cs.niu.edu> <8uhs7c$2hr$1@cesium.transmeta.com> <3A0C76C0.CAC8B9D4@timpanogas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <3A0C76C0.CAC8B9D4@timpanogas.org>; from jmerkey@timpanogas.org on Fri, Nov 10, 2000 at 03:29:20PM -0700
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralf Baechle wrote:
+Jeff,
+
+On Fri, Nov 10, 2000 at 03:29:20PM -0700, Jeff V. Merkey wrote:
+
+> Well, here's what the sendmail folks **REAL** opinion of Linux is and
+> the way load average is calculated (senders name removed)
 > 
-> On Fri, Nov 10, 2000 at 02:18:20PM -0800, H. Peter Anvin wrote:
+> [... sendmail person ...]
 > 
-> > Numerically high load averages aren't inherently a bad thing.  There
-> > isn't anything bad about a system with a loadavg of 20 if it does what
-> > it should in the time you'd expect.  However, if your daemons start
-> > blocking because they assume this number means badness, than that is
-> > the problem, not the loadavg in itself.
-> 
-> The problem seems to me that the load figure doesn't express what most
-> people seem to expect it to - CPU load.
-> 
+>  Ok, here's my blunt answer: Linux sucks.  Why does it have a load
+> > average of 10 if there are two processes running? Let's check the
+> > man page:
+> > 
+> >             and the three load averages for the system.  The load
+> >             averages  are  the average number of process ready to
+> >             run during the last 1, 5 and 15 minutes.   This  line
+> >             is  just  like  the  output of uptime(1).
+> > 
+> > So: Linux load average on these systems is broken.
 
-Actually, what most people expect it to represent is schedulability of
-new tasks.  The problem is more one of:
+Or the documentation is b0rken?  This is how the load figure is actually
+calculated:
 
-a) Expecting a fixed relationship between the specific number and the
-behaviour of the machine;
-b) The long time constants.
+/*
+ * Nr of active tasks - counted in fixed-point numbers
+ */
+static unsigned long count_active_tasks(void)
+{
+        struct task_struct *p;
+        unsigned long nr = 0;
 
-On an 8-way machine a load average of 16 is not particularly high, even
-if you only count runnable processes, for example.
+        read_lock(&tasklist_lock);
+        for_each_task(p) {
+                if ((p->state == TASK_RUNNING ||
+                     (p->state & TASK_UNINTERRUPTIBLE)))
+                        nr += FIXED_1;
+        }
+        read_unlock(&tasklist_lock);
+        return nr;
+}
 
-	-hpa
-
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+  Ralf
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

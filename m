@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265501AbUEZLnM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265502AbUEZLp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265501AbUEZLnM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 07:43:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265498AbUEZLnM
+	id S265502AbUEZLp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 07:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265503AbUEZLp1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 07:43:12 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:54196 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S265501AbUEZLnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 07:43:07 -0400
-From: "Buddy Lumpkin" <b.lumpkin@comcast.net>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'John Bradford'" <john@grabjohn.com>
-Cc: "'William Lee Irwin III'" <wli@holomorphy.com>, <orders@nodivisions.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: why swap at all?
-Date: Wed, 26 May 2004 04:46:53 -0700
+	Wed, 26 May 2004 07:45:27 -0400
+Received: from smtp104.mail.sc5.yahoo.com ([66.163.169.223]:35685 "HELO
+	smtp104.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S265502AbUEZLpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 07:45:12 -0400
+Message-ID: <40B4833F.1060700@yahoo.com.au>
+Date: Wed, 26 May 2004 21:45:03 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+To: Anton Altaparmakov <aia21@cam.ac.uk>
+CC: mingo@elte.hu, lkml <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@zwane.ca>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>
+Subject: Re: 2.6.7-rc1-bk: SMT scheduler bug / crashes on kernel boot
+References: <1085568719.2666.53.camel@imp.csi.cam.ac.uk>	 <1085569838.2666.60.camel@imp.csi.cam.ac.uk>  <40B47F47.20504@yahoo.com.au> <1085571285.2666.75.camel@imp.csi.cam.ac.uk>
+In-Reply-To: <1085571285.2666.75.camel@imp.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-In-Reply-To: <40B467DA.4070600@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-Thread-Index: AcRDBo+F4Ob4sLpWTkWfS+f+LvquIgAD6PSw
-Message-Id: <S265501AbUEZLnH/20040526114307Z+464@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> 
->> That's true, but it's not a magical property of swap space
->> - extra physical
->> RAM would do more or less the same thing.
->> 
+Anton Altaparmakov wrote:
+> On Wed, 2004-05-26 at 12:28, Nick Piggin wrote:
+> 
+>>Anton Altaparmakov wrote:
+>>
+>>
+>>>The kernel shows a warning about the number of siblings being 2 but only
+>>>1 being detected.  Perhaps this is the cause of the problem.  Even if
+>>
+>>Probably this is the cause of the problem.
+>>
+>>What is the exact message?
+> 
+> 
+> You can see it in the PNG I attached in the original post.  But here it
+> is copied out:
+> 
+> WARNING: 1 siblings found for CPU0, should be 2
+> 
 
-> Well it is a magical property of swap space, because extra RAM
-> doesn't allow you to replace unused memory with often used memory.
+OK thanks... I think I even wrote that :P
 
-> The theory holds true no matter how much RAM you have. Swap can
-> improve performance. It can be trivially demonstrated.
+The problem is smp_num_siblings is set to 2, but phys_proc_id
+doesn't seem to be set up right (or it could be cpu_callout_map).
+That would cause the sched-domains to get set up wrong, sure. Maybe
+we should just go bug in this case? Or try to fix up?
 
-I bet you have demonstrated this. It strikes me of an observation that could
-be made in a lab environment. But your failing to realize that:
-
-1) you will fill physical memory with pages eventually or your not doing
-work.
-
-2) pages do not just silently move to the swap device. They move as a result
-of a memory shortfall
-
-3) once physical memory is full, file system I/O will only benefit from
-reads that incur a minor fault. All other file system operations are bound
-by the rate you can reclaim pages from physical memory.
-
-4) non-filesystem backed pages are still effected the same way, nothing has
-changed. When you run your next filesystem related operation, those pages
-will be faulted into physical memory, and something will be evicted to it's
-backing store (remember, memory is full).
-
---Buddy
+Anyone have any idea why this is happening?
 

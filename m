@@ -1,107 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281235AbRKEQi7>; Mon, 5 Nov 2001 11:38:59 -0500
+	id <S281219AbRKEQkT>; Mon, 5 Nov 2001 11:40:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281233AbRKEQiu>; Mon, 5 Nov 2001 11:38:50 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:42766 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S281230AbRKEQij>;
-	Mon, 5 Nov 2001 11:38:39 -0500
-Subject: Re: Regression testing of 2.4.x before release?
-From: "Timothy D. Witham" <wookie@osdl.org>
-To: Dan Kegel <dank@kegel.com>
-Cc: Luigi Genoni <kernel@Expansa.sns.it>, Mike Galbraith <mikeg@wen-online.de>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        stp@osdl.org
-In-Reply-To: <3BE5F0B5.52274D07@kegel.com>
-In-Reply-To: <Pine.LNX.4.33.0111041955290.30596-100000@Expansa.sns.it> 
-	<3BE5F0B5.52274D07@kegel.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.100+cvs.2001.11.02.21.57 (Preview Release)
-Date: 05 Nov 2001 08:39:37 -0800
-Message-Id: <1004978377.1226.22.camel@wookie-laptop.pdx.osdl.net>
-Mime-Version: 1.0
+	id <S281239AbRKEQkD>; Mon, 5 Nov 2001 11:40:03 -0500
+Received: from oracle.clara.net ([195.8.69.94]:10256 "EHLO oracle.clara.net")
+	by vger.kernel.org with ESMTP id <S281223AbRKEQjt>;
+	Mon, 5 Nov 2001 11:39:49 -0500
+To: linux-kernel@vger.kernel.org
+Path: softins.clara.co.uk!not-for-mail
+From: tony@softins.clara.co.uk (Tony Mountifield)
+Newsgroups: linux.kernel
+Subject: aic7xxx problems with AHA2930CU
+Date: 5 Nov 2001 16:39:46 -0000
+Organization: Software Insight Ltd., Winchester, UK
+Message-ID: <9s6fci$3f7$1@softins.clara.co.uk>
+X-Newsreader: trn 4.0-test69 (20 September 1998)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2001-11-04 at 17:51, Dan Kegel wrote:
-> Luigi Genoni wrote:
-> > Problem is:
-> > there is a lot of HW out there, and we should ALL do stress tests, to have
-> > a wide basis for HWs and test cases.  Basically it is very hard to agree
-> > about a set of stress tests, because we all have different needs, and our
-> > tests are based on our needs. That is a streght, because they tend to be
-> > real life tests.
-> 
+Hi, I originally posted this query on aic7xxx@freebsd.org back in August,
+but had no responses at all. I hope someone here can advise. I have added
+a bit more at the end.
 
-  I agree having the users run their applications and under their usage
-model is a very good way of testing code drops.  Dan, I think that what
-you are trying to say is that it might be a good idea to take a group
-of tests and make them the standard set of "pass/fail" that people
-should look to before doing their own testing.
+---start original query
 
-> Sure, no argument there.
-> 
-> > In my esperience, if some default set of tests comes out, then software
-> > tend to be optimized for this set. And that is badly wrong.
->
+I have a completely SCSI-based system which uses an AHA2930CU host adapter
+on a SiS-based motherboard to drive two hard drives and a CD-ROM. It has
+been running RedHat 6.2 with kernel 2.2.16 very happily for a long time.
+This has aic7xxx 5.1.30/3.2.4.
 
-  Any time you start optimizing for a set of performance tests you
-take the chance of doing things that only benefit the single test. The
-good part about open source is that if somebody tries to do that
-the rest of us can point out what a useless (or even counter productive)
-optimization they are trying to implement. 
+In order to get USB support for my ADSL modem I decided to upgrade to RH
+7.1. But the installer's aic7xxx wouldn'trun properly, giving many SCSI
+errors, usually starting with Data Overrun errors due to an unexpected data
+phase, and ending up complaining of CHECK condition during REQUEST SENSE.
+This was aic7xxx 5.2.4/5.2.0.
 
-  Regression type pass/fail tests don't tend to have the benchmark
-optimization issue but like any test they usually only find the
-problems that you either already have had in the past or that are
-obvious.  Not complete but they should be dynamic environment that
-things are being added to all the time.  Also the nice part about a
-knows series of tests is that if a problem pops up it is much
-easier to reproduce for debugging purposes.
+I also tried the RawHide install disk and the one from Mandrake 8.0. Both
+exhibited similar problems.
 
-> My post was motivated by two observations:
-> 
-> 1. Alan Cox complains occasionally that Linus' trees are not well tested,
->    and can't survive the torture tests that the ac tree goes through before
->    release.  (e.g.
-> "2.4.8-ac12
->         I'm trying to make sure I can keep this testable
->         as 2.4.9 vanilla isnt being stable on my test sets "
-> 
-> 2. The STP at OSDLab seems like a great resource that we might be able
-> to leverage to solve the problem Alan points out.
->
+Using expert install and selecting aic7xxx_mod was no better.
 
-  The nice part about the way that STP was designed is that it is 
-extensible.  If somebody comes up with another test we can add it.
-If we need to add additional equipment to get the run times down
-to a usable level then that is easy to do also. 
- 
-> I'm not suggesting anyone do any less testing.  Just the opposite;
-> if we set things up properly with the STP, we might be able to run
-> many more tests before each final release.
->
+The next thing I tried was installing the RedHat 6.2 update to kernel
+2.2.19. This has aic7xxx 5.1.33/3.2.4. It also failed to boot, with
+similar SCSI errors to those described above.
 
-  We are in the process of setting up the Kernel STP to automatically
-grab the Linus and -ac kernels and run the full setup.  This will
-do part of what Dan is asking for and it will also allow people who
-are looking to supply patches a baseline for there patch testing.
+I found Doug's SCSI driver page and downloaded the 5.1.33 patch. I then
+reverse-applied it to the 2.2.19 kernel tree to downgrade the aic7xxx from
+5.1.33 to 5.1.31 and rebuilt the kernel. This kernel DID boot successfully
+with no SCSI errors at all!
 
-Tim
+So something in the mega-update from 5.1.31 to 5.1.33 severely broke the
+AHA2930CU card (AIC7860), at least on my system, and this brokenness has
+persisted through the few later versions that I've tried.
 
- 
-> - Dan
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+How can I help solve this? Are the later 6.2.x drivers likely to be better?
+
+---end original query
+
+I have been running fine for over two months with 2.2.19 and the old 5.1.31
+SCSI driver. When Red Hat 7.2 came out recently I though I would try again,
+and created a boot floppy and a driver floppy.
+
+Booting with these still displayed the problems I described.
+Using aic7xxx_mod (6.1.13) instead of aic7xxx resulted in a kernel panic.
+
+I'd really like to move to the 2.4 kernels - how can I determine what needs
+doing to the aic7xxx to support the 2930CU card?
+
+Cheers,
+Tony
+
 -- 
-Timothy D. Witham - Lab Director - wookie@osdlab.org
-Open Source Development Lab Inc - A non-profit corporation
-15275 SW Koll Parkway - Suite H - Beaverton OR, 97006
-(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
-(503)-626-2436     (fax)
-
-
+Tony Mountifield
+Work: tony@softins.co.uk - http://www.softins.co.uk
+Play: tony@mountifield.org - http://tony.mountifield.org

@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264810AbSKEIhy>; Tue, 5 Nov 2002 03:37:54 -0500
+	id <S264814AbSKEImC>; Tue, 5 Nov 2002 03:42:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264811AbSKEIhy>; Tue, 5 Nov 2002 03:37:54 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:1684 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S264810AbSKEIhx>; Tue, 5 Nov 2002 03:37:53 -0500
-Message-ID: <3DC784E3.2090001@namesys.com>
-Date: Tue, 05 Nov 2002 00:44:19 -0800
-From: reiser <reiser@namesys.com>
-Reply-To: reiser@namesys.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021016
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alexander Zarochentcev <zam@namesys.com>
-CC: Nikita Danilov <Nikita@namesys.com>, Tomas Szepe <szepe@pinerecords.com>,
-       lkml <linux-kernel@vger.kernel.org>, Oleg Drokin <green@namesys.com>,
-       umka <umka@namesys.com>
-Subject: Re: [BK][PATCH] Reiser4, will double Linux FS performance, pleaseapply
-References: <3DC19F61.5040007@namesys.com>	<200210312334.18146.Dieter.Nuetzel@hamburg.de>	<3DC1B2FA.8010809@namesys.com>	<3DC1D63A.CCAD78EF@digeo.com>	<3DC1D885.6030902@namesys.com>	<3DC1D9D0.684326AC@digeo.com>	<3DC1DF02.7060307@namesys.com>	<20021101102327.GA26306@louise.pinerecords.com>	<15810.46998.714820.519167@crimson.namesys.com>	<20021102132421.GJ28803@louise.pinerecords.com>	<15814.21309.758207.21416@laputa.namesys.com>	<3DC773B0.4070701@namesys.com> <15815.33089.583184.62816@crimson.namesys.com>
-In-Reply-To: <3DC19F61.5040007@namesys.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264815AbSKEImC>; Tue, 5 Nov 2002 03:42:02 -0500
+Received: from users.linvision.com ([62.58.92.114]:13965 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S264814AbSKEImB>; Tue, 5 Nov 2002 03:42:01 -0500
+Date: Tue, 5 Nov 2002 09:47:42 +0100
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "David D. Hagood" <wowbagger@sktc.net>,
+       Rik van Riel <riel@conectiva.com.br>, "Theodore Ts'o" <tytso@mit.edu>,
+       Dax Kelson <dax@gurulabs.com>, Rusty Russell <rusty@rustcorp.com.au>,
+       linux-kernel@vger.kernel.org, davej@suse.de
+Subject: Re: Filesystem Capabilities in 2.6?
+Message-ID: <20021105094741.A32344@bitwizard.nl>
+References: <3DC47659.4060006@sktc.net> <Pine.LNX.4.44.0211021803240.2300-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211021803240.2300-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Zarochentcev wrote:
-
+On Sat, Nov 02, 2002 at 06:05:09PM -0800, Linus Torvalds wrote:
+> 
+> On Sat, 2 Nov 2002, David D. Hagood wrote:
+> > Linus Torvalds wrote:
 > > >
-> > >In reiser4 allocation of disk space is delayed to transaction commit. It
-> > >is not possible to estimate precisely amount of disk space that will be
-> > >allocated during commit, and hence statfs(2) results are not updated
-> > >until one does sync(2) (forcing commit) or transaction is committed due
-> > >to age (10 minutes by default).
-> > >
-> > >  
-> > >
-> > The above is badly phrased, and the behavior complained of is indeed a 
-> > bug not a feature.  Please fix.  
+> > > And pathnames are a _hell_ of a lot better and straightforward interface
+> > > than inode numbers are. It's confusing when you change the permission on
+> > > one path to notice that another path magically changed too.
 > > 
-> > statfs should be updated immediately in accordance with estimates used 
-> > by the space reservation code, and then adjusted at commit time in 
-> > accordance with actual usage.
->
->We should not do that unless we implement forcing of commits at out of free
->space situation.
->
-I thought we had agreed to do forcing of commits at out of free space 
-quite some time ago?  In any event, we should do forcing of commits at 
-out of free space.  Yes?
+> > Would this not allow a user to add permissions to a file, by creating a 
+> > new directory entry and linking it to an existing inode?
+> > 
+> > Would that not be a greater security hole?
+> 
+> No. The file itself has _no_ capabilities at all. If you just link to it,
+> you can give it whatever capabilities _you_ have as a user (well, normal
+> users don't really have any capabilities to give, but you get the idea).
 
+Capabilties done right, means that normal users DO have capabilities. 
+Normal users have the capability to call normal syscalls like "read", 
+"write" and "execve".
+
+And once you have these included in the capabilities (which normal users
+and programs normally have by default), you can take them away if you
+want. For example, a non-scripting webserver may not require any use of
+the "execve" system call.
+
+Oh, it's easy to get a "vector" of over 100 capabilities this way. This
+might be inefficient. Thus, it would be required that we get two levels:
+first level as you're thinking of it: split capabilities for what 
+"root" now has, and the other also splitting the "normal user"'s 
+capabilities (and splitting the root-kinds even further).
+
+
+
+		Roger.
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* The Worlds Ecosystem is a stable system. Stable systems may experience *
+* excursions from the stable situation. We are currently in such an      * 
+* excursion: The stable situation does not include humans. ***************

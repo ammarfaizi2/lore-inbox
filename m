@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311376AbSCMVLe>; Wed, 13 Mar 2002 16:11:34 -0500
+	id <S311377AbSCMVMQ>; Wed, 13 Mar 2002 16:12:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311375AbSCMVLP>; Wed, 13 Mar 2002 16:11:15 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:8199 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S311376AbSCMVK6>; Wed, 13 Mar 2002 16:10:58 -0500
-Message-ID: <3C8FC054.2000009@lexus.com>
-Date: Wed, 13 Mar 2002 13:10:44 -0800
-From: J Sloan <jjs@lexus.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S311375AbSCMVMF>; Wed, 13 Mar 2002 16:12:05 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:25337 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S311377AbSCMVLz>;
+	Wed, 13 Mar 2002 16:11:55 -0500
+Message-ID: <3C8FC065.4060904@us.ibm.com>
+Date: Wed, 13 Mar 2002 13:11:01 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: David Ford <david+cert@blue-labs.org>
-CC: linux <linux-kernel@vger.kernel.org>
-Subject: Re: uname reports 'unknown'
-In-Reply-To: <1015897420.3054.0.camel@coredump> <3C8D8F35.7090608@tmsusa.com> <3C8FA7FA.1030103@blue-labs.org>
+To: walter <walt@nea-fast.com>
+CC: linux-kernel@vger.kernel.org, davis@jdhouse.org,
+        Gerrit Huizenga <gerrit@us.ibm.com>
+Subject: Re: oracle rmap kernel version
+In-Reply-To: <794826DE8867D411BAB8009027AE9EB913D03D23@FMSMSX38> <3C8FAB25.1080706@us.ibm.com> <200203132056.PAA04508@int1.nea-fast.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So it would seem, since the fix is easy...
+walter wrote:
+> Not sure right off the top of my head. I'm planning on using 2 controllers, 
+> each from a different manufactures. My reasoning behind this is two fold. 
+> Number one is in case a "bug" creeps up with one of the drivers I can still 
+> string all the drives off the other controller. Performance will decrease, 
+> but I'd rather be slow than dead in the water. The second reason is the 
+> probability of both controllers failing (hardware) at same time due to a bad 
+> chip batch at the manufacture.  Do you have any suggestions on controllers? 
+> Adaptec and IBM (not sure which models) ?
 
-Maybe it's a portability concern...
+I haven't done any of the testing myself.  But, I was told that the 
+Adaptec AIC stuff is good.  I think that the LSE patch has been tested 
+on with Adaptec (aic7xxx) and QLogic fiber channel controllers.  I guess 
+that the QLogic stuff is liked because the drivers are open source.
 
-Joe
+I was surprised to see that the ServeRAID driver isn't touched by the 
+lse patch.  I thought that it still uses the io_request_lock in 2.4.
 
+Care to add anything, Gerrit?
 
-
-David Ford wrote:
-
-> Seems to me that it is the fault of the original package of 'sh-utils'.
->
-> -d
->
-> J Sloan wrote:
->
->> Shawn Starr wrote:
->>
->>> Linux coredump 2.4.19-pre2-ac4-xfs-shawn10 #2 Mon Mar 11 03:36:35 EST
->>> 2002 i586 unknown
->>>
->>>
->>> what should 'unknown' really be? I've never seen it different on Intel
->>> systems.
->>>
->>
->> Many vendors ship a broken sh-utils.
->>
->> They don't have to:
->>
->> Linux neo.mirai.cx 2.4.19-pre2aa1 #1 Fri Mar 8 19:55:24 PST 2002 i686 
->> GenuineIntel
->>
->> Linux emerald.mirai.cx 2.4.19pre1aa1 #1 Sat Mar 2 20:55:06 PST 2002 
->> i586 AuthenticAMD
->>
->> Cheers,
->>
->> Joe
->
->
->
->
-
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,58 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265296AbTLGEeh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 23:34:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265298AbTLGEeh
+	id S265298AbTLGEtC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 23:49:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265300AbTLGEtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 23:34:37 -0500
-Received: from ca1.symonds.net ([66.92.42.136]:18305 "EHLO symonds.net")
-	by vger.kernel.org with ESMTP id S265296AbTLGEee (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 23:34:34 -0500
-Message-ID: <02a901c3bc7b$69294ee0$7a01a8c0@gandalf>
-From: "Mark Symonds" <mark@symonds.net>
-To: "Philippe Troin" <phil@fifi.org>
-Cc: <linux-kernel@vger.kernel.org>
-References: <20031207023650.GA772@symonds.net> <87he0ds3sv.fsf@ceramic.fifi.org>
-Subject: Re: 2.4.23 hard lock, 100% reproducible.
-Date: Sat, 6 Dec 2003 20:34:32 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 6 Dec 2003 23:49:02 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:24803 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S265298AbTLGEs7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 23:48:59 -0500
+Date: Sat, 6 Dec 2003 21:48:57 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-usb-users@lists.sourceforge.net
+Subject: Re: Beaver in Detox!)
+Message-ID: <20031207044857.GV912@stop.crashing.org>
+References: <Pine.LNX.4.58.0311261239510.1524@home.osdl.org> <20031128182625.GP2541@stop.crashing.org> <20031206184901.GH2455@meier-geinitz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031206184901.GH2455@meier-geinitz.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[...]
+On Sat, Dec 06, 2003 at 07:49:01PM +0100, Henning Meier-Geinitz wrote:
+> Hi,
 > 
-> Not even sysrq?
->  
+> On Fri, Nov 28, 2003 at 11:26:25AM -0700, Tom Rini wrote:
+> > On Wed, Nov 26, 2003 at 12:55:00PM -0800, Linus Torvalds wrote:
+> > 
+> > [snip]
+> > > I give you "Beaver in Detox", aka linux-2.6.0-test11. This is mainly
+> > > brought on by the fact that the old aic7xxx driver was broken in -test10,
+> > > and Ingo found this really evil test program that showed an error case in
+> > > do_fork() that we had never handled right. Well, duh!
+> > 
+> > I've found an odd problem that's in at least 2.6.0-test11.
+> 
+> Did it happen in older versions of Linux? I haven't heard of any
+> similar bug reports until now.
 
-I did get msgs twice here in the past few hours, 
-but only sometimes does it give anything.  Here's 
-what it said: 
+I hadn't tried.
 
-Unable to handle kernel NULL pointer
-dereference at virtual address: 00000000
+> > I've
+> > reproduced this twice now with an Epson 1240 USB scanner
+> > (0x04b8/0x010b).  What happens is if I run xsane from gimp, acquire a
+> > preview, start to scan and then cancel, the scanner becomes
+> > unresponsive.
+> 
+> This may be a bug in the plustek backend which supports that scanner.
+> The cancel handling is pretty complicated with some scanners.
+> 
+> > If I try and quit xsane, it gets stuck.
+> 
+> That sometimes happens with other scanners, too. E.g. some don't like
+> to get a "stop scan" command in certain situations. They just hang
+> after that command and further commands run into the USB timeout.
+> 
+> > Unplugging /
+> > replugging and then trying to kill xsane locked the machine up hard.
+> 
+> Well, obviously that should't happen. But it's really hard to debug
+> without any oops. There was a bug in the scanner driver that occured
+> when a device was open, then unplugged and then an application wrote
+> to it. But it's fixed since some time.
+> 
+> Does the freeze also happen if no other USB devices are attached? I guess
+> working without a keyboard is not that easy but it may be worth a test.
 
- printing eip:
-c02363dd
-*pde=00000000
-Oops: 0000
-CPU: 0
-EIP: 0010:[<c02363d>]  Not tainted
-EFLAGS: 00010217
-
-eax: 00000006   ebx: 00000000  ecx: 7a01a8c0   ecx: c700b2a0
-esi: c0299ce0   edi: 000001b7  ebp: c0299d94   esp: c0299c54
-ds: 0018  es: 0018  ss: 0018
-
-process: swapper (pid: 0, stackpage = c0299000)
-
-Other than that, nothing.  Is there a patch out there 
-that will simply make 2.4.22 secure?  Things run great
-on that kernel. 
+I can xhost things to another machine rather easily.  But Greg KH talked
+me into switching to libusb for the scanner, and everything works
+perfectly now.  Do you still want me to give it a go?  Thanks.
 
 -- 
-Mark
-
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129412AbQKUOpK>; Tue, 21 Nov 2000 09:45:10 -0500
+	id <S129150AbQKUPGx>; Tue, 21 Nov 2000 10:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129453AbQKUOpA>; Tue, 21 Nov 2000 09:45:00 -0500
-Received: from mail1.digital.com ([204.123.2.50]:54799 "EHLO mail1.digital.com")
-	by vger.kernel.org with ESMTP id <S129412AbQKUOot>;
-	Tue, 21 Nov 2000 09:44:49 -0500
-From: jg@pa.dec.com (Jim Gettys)
-Date: Tue, 21 Nov 2000 06:14:42 -0800 (PST)
-Message-Id: <200011211414.eALEEgj112604@pachyderm.pa.dec.com>
-X-Mailer: Pachyderm (client pachyderm.pa-x.dec.com, user jg)
-To: Dennis Noordsij <dennis.noordsij@wiral.com>
-cc: linux-kernel@vger.kernel.org
-In-Reply-To: <00112116072601.01134@dennis>
-Subject: Re: Framebuffer orientation
-Mime-Version: 1.0
-Content-Type: text/plain
+	id <S129752AbQKUPGo>; Tue, 21 Nov 2000 10:06:44 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:42131 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129150AbQKUPG0>; Tue, 21 Nov 2000 10:06:26 -0500
+Date: Tue, 21 Nov 2000 15:31:36 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Benjamin.Monate@lri.fr, linux-kernel@vger.kernel.org
+Subject: Re: Strange lockup of the timer with 2.4.0-test10 SMP (and older)
+In-Reply-To: <E13xvRr-0003u9-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.3.96.1001121151759.19886A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The right place to ask is "xpert@xfree86.org".
+On Mon, 20 Nov 2000, Alan Cox wrote:
 
-The answer is that if performance is not a major issue, implementing
-this for a given graphics card is now pretty easy, using the shadow
-frame buffer code.
+> > a lock of the PCI bus (as SCSI and NIC are still working). Only the
+> > timer interrupts and NMI seem to be stuck : can a driver cause
+> > something so "lowlevel" ?
+> 
+> Something stopping the timers on the APIC I guess. But quite what or how I
+> don't know
 
-For straight frame buffers, the TinyX server will now do this "out of the
-box".
-					- Jim
+ I guess not -- the timer interrupt and the NMI use different I/O APIC
+inputs.  If both are stuck, it's probably 8254 that gets reprogrammed.  I
+suppose XFree86 might be at fault -- does it happen with the NMI watchdog
+disabled, either? 
 
-> Sender: linux-kernel-owner@vger.kernel.org
-> From: Dennis Noordsij <dennis.noordsij@wiral.com>
-> Date: 	Tue, 21 Nov 2000 16:07:26 +0200
-> To: linux-kernel@vger.kernel.org
-> Subject: Framebuffer orientation
-> -----
-> Hi,
-> 
-> Is there any way to use the framebuffer on the i386 architecture in a
-> 'portrait' way? I am using a QBE web tablet and it favours the screen in that
-> position. (768x1024).
-> 
-> I know X can do it for a few videocards, but not this one :-)
-> 
-> 
-> Regards,
-> Dennis
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
---
-Jim Gettys
-Technology and Corporate Development
-Compaq Computer Corporation
-jg@pa.dec.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

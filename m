@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267341AbUJNS7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUJNS67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267341AbUJNS7A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 14:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267345AbUJNS4G
+	id S267283AbUJNS67 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 14:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267335AbUJNS44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 14:56:06 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:11301 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S267352AbUJNSyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 14:54:19 -0400
-Date: Thu, 14 Oct 2004 14:54:18 -0400
-From: Jeffrey Mahoney <jeffm@csh.rit.edu>
-To: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Hans Reiser <reiser@namesys.com>
-Subject: [PATCH 1/2] reiserfs: support for REISERFS_UNSUPPORTED_OPT notation
-Message-ID: <20041014185418.GB9619@locomotive.unixthugs.org>
+	Thu, 14 Oct 2004 14:56:56 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:4593 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S267283AbUJNSw4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 14:52:56 -0400
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U0
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20041014002433.GA19399@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
+	 <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu>
+	 <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu>
+	 <20041013061518.GA1083@elte.hu>  <20041014002433.GA19399@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Message-Id: <1097779972.30253.947.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.5-7.108-smp (i686)
-X-GPG-Fingerprint: A16F A946 6C24 81CC 99BB  85AF 2CF5 B197 2B93 0FB2
-X-GPG-Key: http://www.csh.rit.edu/~jeffm/jeffm.gpg
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 14 Oct 2004 11:52:52 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds a REISERFS_UNSUPPORTED_OPT flag to denote when a mount option
-is allowable, but is unsupported in the running configuration. This allows
-the potential for the set of mount options to be consistent, regardless of
-what features the kernel is compiled with.
+On Wed, 2004-10-13 at 17:24, Ingo Molnar wrote:
+> To solve all these fundamental problems, i improved/fixed/changed all of
+> these locking methods to be preemption-friendly. Most of the time it was
+> necessary to introduce an additional API variant because e.g.
+> rcu_read_lock() is anonymous (it doesnt identify the data protected), so
+> i introduced a variant that takes the write-lock as an argument. In the
+> PREEMPT_REALTIME case we can thus properly serialize on that lock.
 
-Rather than failing the mount, a warning is issued and the mount succeeds.
+When I was reviewing this it seemed like it would be possible to keep
+RCU anonymous by moving the callback processing out of the tasklet . The
+reason it was moved into a tasklet was to reduce latency. But if you
+serialize it like you have, aren't you removing all the benefits of the
+RCU type lock in those section that are converted to the new API ?
 
-Signed-off-by: Jeff Mahoney <jeffm@novell.com>
 
-diff -ruPX dontdiff linux-2.6.8/fs/reiserfs/super.c linux-2.6.8.fix/fs/reiserfs/super.c
---- linux-2.6.8/fs/reiserfs/super.c	2004-10-08 16:46:09.070660248 -0400
-+++ linux-2.6.8.fix/fs/reiserfs/super.c	2004-10-08 16:42:59.896419104 -0400
-@@ -659,8 +659,14 @@
-     for (opt = opts; opt->option_name; opt ++) {
- 	if (!strncmp (p, opt->option_name, strlen (opt->option_name))) {
- 	    if (bit_flags) {
--		*bit_flags &= ~opt->clrmask;
--		*bit_flags |= opt->setmask;
-+                if (opt->clrmask == (1 << REISERFS_UNSUPPORTED_OPT))
-+                    reiserfs_warning (s, "%s not supported.", p);
-+                else
-+                    *bit_flags &= ~opt->clrmask;
-+                if (opt->setmask == (1 << REISERFS_UNSUPPORTED_OPT))
-+                    reiserfs_warning (s, "%s not supported.", p);
-+                else
-+                    *bit_flags |= opt->setmask;
- 	    }
- 	    break;
- 	}
-diff -ruPX dontdiff linux-2.6.8/include/linux/reiserfs_fs_sb.h linux-2.6.8.fix/include/linux/reiserfs_fs_sb.h
---- linux-2.6.8/include/linux/reiserfs_fs_sb.h	2004-10-08 16:46:04.541348808 -0400
-+++ linux-2.6.8.fix/include/linux/reiserfs_fs_sb.h	2004-10-08 16:31:50.641161368 -0400
-@@ -467,6 +467,7 @@
-     REISERFS_TEST2,
-     REISERFS_TEST3,
-     REISERFS_TEST4,
-+    REISERFS_UNSUPPORTED_OPT,
- };
- 
- #define reiserfs_r5_hash(s) (REISERFS_SB(s)->s_mount_opt & (1 << FORCE_R5_HASH))
+> For per-cpu variables i introduced a new API variant that creates a
+> spinlock-array for the per-cpu-variable, and users must make sure the
+> cpu field doesnt change. Migration to another CPU can happen within the
+> critical section, but 'statistically' the variable is still per-CPU and
+> update correctness is fully preserved.
+
+Why not have a per cpu mutex instead of a per variable per cpu mutex?
+I'm not sure what the trade off are, except size.
+
+
+
+
+Daniel
+

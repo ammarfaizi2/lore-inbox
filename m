@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136202AbREGP2P>; Mon, 7 May 2001 11:28:15 -0400
+	id <S136227AbREGPkK>; Mon, 7 May 2001 11:40:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136197AbREGP2F>; Mon, 7 May 2001 11:28:05 -0400
-Received: from mail.clemson.edu ([130.127.28.87]:62652 "EHLO CLEMSON.EDU")
-	by vger.kernel.org with ESMTP id <S136196AbREGP1t>;
-	Mon, 7 May 2001 11:27:49 -0400
-Message-ID: <000701c0d70a$923fbf70$3cac7f82@crb50>
-From: "Hai Xu" <xhai@CLEMSON.EDU>
-To: <linux-kernel@vger.kernel.org>
-Subject: A simple question.
-Date: Mon, 7 May 2001 11:29:56 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	id <S136216AbREGPkB>; Mon, 7 May 2001 11:40:01 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:45842 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S136213AbREGPjy>; Mon, 7 May 2001 11:39:54 -0400
+From: "Rob Turk" <r.turk@chello.nl>
+Subject: Re: SCSI Tape corruption - update
+Date: Mon, 7 May 2001 17:39:03 +0200
+Organization: Cistron Internet Services B.V.
+Message-ID: <9d6fk8$m7p$1@ncc1701.cistron.net>
+In-Reply-To: <Pine.WNT.4.31.0105071638470.346-100000@pc209.sinfopragma.it>
+X-Trace: ncc1701.cistron.net 989249992 22777 213.46.44.164 (7 May 2001 15:39:52 GMT)
+X-Complaints-To: abuse@cistron.nl
 X-Priority: 3
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2462.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+X-Newsreader: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+"Lorenzo Marcantonio" <lorenzo.marcantonio@sinfopragma.it> wrote in message
+news:cistron.Pine.WNT.4.31.0105071638470.346-100000@pc209.sinfopragma.it...
+>
+> As of my latest build [2.4.5-pre1] I've STILL got the tape corruption
+> problem. Some new facts:
+>
+> (1) It happens only writing the tape (tried exchanging tapes with a
+> brand new Alpha Digital Tru64 box). I can read her tape, she can't read
+> my tape. Tried with GNU tar and gzip.
+>
 
-After I compile and upgrade to a newer Kernel, do I need to copy the
-System.map from /usr/src/linux/ to /boot/System-xxxx and link it to
-System.map?
+Lorenzo,
 
-Thanks in advance
-Hai Xu
+Have you ruled out hardware failures? There's been a few isolated reports
+about tape drives returning good status on write, where in fact they were
+writing corrupt data. This can happen when the compression hardware is
+malfunctioning. On many tape drives, read-back check isn't carried all the
+way back to the original (uncompressed) data.
+
+Rob
+
+
+
 

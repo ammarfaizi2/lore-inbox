@@ -1,115 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUBJSwy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Feb 2004 13:52:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266175AbUBJSwy
+	id S266190AbUBJSX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Feb 2004 13:23:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266161AbUBJSTx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Feb 2004 13:52:54 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:19938
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S266304AbUBJSvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Feb 2004 13:51:42 -0500
-Date: Tue, 10 Feb 2004 19:51:37 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Reserved page flaging of 2.4 kernel memory changed recently?
-Message-ID: <20040210185137.GD4478@dualathlon.random>
-References: <200402050941.34155.mhf@linuxmail.org> <20040208020624.GG31926@dualathlon.random> <200402100625.41288.mhf@linuxmail.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200402100625.41288.mhf@linuxmail.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Tue, 10 Feb 2004 13:19:53 -0500
+Received: from cabm.rutgers.edu ([192.76.178.143]:37646 "EHLO
+	lemur.cabm.rutgers.edu") by vger.kernel.org with ESMTP
+	id S266164AbUBJSRy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Feb 2004 13:17:54 -0500
+Date: Tue, 10 Feb 2004 13:17:53 -0500 (EST)
+From: Ananda Bhattacharya <anandab@cabm.rutgers.edu>
+To: Ananda Bhattacharya <anandab@cabm.rutgers.edu>,
+       Hunter Moseley <hunter@cabm.rutgers.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Kernel Fault 2.4.20 (fwd)
+Message-ID: <Pine.LNX.4.58.0402101317360.16489@puma.cabm.rutgers.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 10, 2004 at 11:24:01PM +0800, Michael Frank wrote:
-> By what I read on LKML, 64bit is probably more fussy then 32bit. eg when 
-> accessing non-existing memory such as on a system with memory holes 
-> with /dev/mem often causes MCE's. 
+There was a kernel fault today, I am not quite sure what 
+just happened, if anyone has any ideas and can point me in 
+the right direction.
+Thanks a lot 
 
-yes, this happens on ia64 and it may happen on x86-64 too.
+	-A
 
-> And here is an example of touching non-RAM going wrong on a x86 PC:
-> 
-> One swsusp user received a MCE on swsusp accessing 0xa0000 (video). 
-> This seems to be quite recent hardware: a Athlon mobile XP 20000.
-> This Compaq evo is running alright with NOMCE on the commandline.
+Feb 10 08:04:34 n07 kernel: Unable to handle kernel paging 
+request at virtual address b70c1040
+Feb 10 08:04:34 n07 kernel:  printing eip:
+Feb 10 08:04:34 n07 kernel: c012cf87
+Feb 10 08:04:34 n07 kernel: *pde = 00000000
+Feb 10 08:04:34 n07 kernel: Oops: 0000 
+Feb 10 08:04:34 n07 kernel: nfs lockd sunrpc autofs 3c59x 
+bcm5700 ide-cd cdrom usb-ohci usbcore ext3 jbd raid1
+Feb 10 08:04:34 n07 kernel: CPU:    0
+Feb 10 08:04:34 n07 kernel: EIP:    0010:[<c012cf87>]    Not 
+tainted
+Feb 10 08:04:34 n07 kernel: EFLAGS: 00010286
+Feb 10 08:04:34 n07 kernel: 
+Feb 10 08:04:34 n07 kernel: EIP is at find_vma [kernel] 0x37 
+(2.4.20-20.7custom)
+Feb 10 08:04:34 n07 kernel: eax: f7649540   ebx: 07217a48   
+ecx: f7649540   edx: b70c1050
+Feb 10 08:04:34 n07 kernel: esi: f7736540   edi: c0116260   
+ebp: 07217a48   esp: f7143e10
+Feb 10 08:04:34 n07 kernel: ds: 0018   es: 0018   ss: 0018
+Feb 10 08:04:34 n07 kernel: Process pbs_mom (pid: 1100, 
+stackpage=f7143000)
+Feb 10 08:04:34 n07 kernel: Stack: f7736540 00000000 
+c01162ef f7736540 07217a48 c012b321 f7217ac0 f7142000
+Feb 10 08:04:34 n07 kernel:        f7142000 00000000 
+00000000 00030001 7fffffff f6eeb580 c02562d5 f6eeb580
+Feb 10 08:04:34 n07 kernel:        00000000 00000018 
+f75c0980 f6eeb580 ffffffec c1c40030 00000286 00000282
+Feb 10 08:04:34 n07 kernel: Call Trace:   [<c01162ef>] 
+do_page_fault [kernel] 0x8f (0xf7143e18))
+Feb 10 08:04:34 n07 kernel: [<c012b321>] do_wp_page [kernel] 
+0xc1 (0xf7143e24))
+Feb 10 08:04:34 n07 kernel: [<c02562d5>] unix_stream_connect 
+[kernel] 0x3c5 (0xf7143e48))
+Feb 10 08:04:34 n07 kernel: [<c020b57c>] sk_free [kernel] 
+0x6c (0xf7143e90))
+Feb 10 08:04:34 n07 kernel: [<c012c1f4>] handle_mm_fault 
+[kernel] 0x124 (0xf7143ea8))
+Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
+[kernel] 0x0 (0xf7143ebc))
+Feb 10 08:04:34 n07 kernel: [<c0108c54>] error_code [kernel] 
+0x34 (0xf7143ec4))
+Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
+[kernel] 0x0 (0xf7143ee0))
+Feb 10 08:04:34 n07 kernel: [<c012cf87>] find_vma [kernel] 
+0x37 (0xf7143ef8))
+Feb 10 08:04:34 n07 kernel: [<c01162ef>] do_page_fault 
+[kernel] 0x8f (0xf7143f0c))
+Feb 10 08:04:34 n07 kernel: [<c0208f70>] sock_release 
+[kernel] 0x10 (0xf7143f3c))
+Feb 10 08:04:34 n07 kernel: [<c02094df>] sock_close [kernel] 
+0x2f (0xf7143f48))
+Feb 10 08:04:34 n07 kernel: [<c0143a6a>] filp_open [kernel] 
+0x3a (0xf7143f70))
+Feb 10 08:04:34 n07 kernel: [<c014eb4d>] getname [kernel] 
+0x5d (0xf7143f90))
+Feb 10 08:04:34 n07 kernel: [<c0116260>] do_page_fault 
+[kernel] 0x0 (0xf7143fb0))
+Feb 10 08:04:34 n07 kernel: [<c0108c54>] error_code [kernel] 
+0x34 (0xf7143fb8))
+Feb 10 08:04:34 n07 kernel: 
+Feb 10 08:04:34 n07 kernel: 
+Feb 10 08:04:34 n07 kernel: Code: 39 5a f0 8d 42 e8 76 f1 39 
+5a ec 89 c1 77 e2 85 c9 74 03 89
+Feb 10 09:10:49 n07 syslogd 1.4.1: restart.
 
-this is possible too.
-
-> Here is a patch for 2.4.2[45], which marks non-ram, CPU-broken-pages, and 
-> nosave kernel-pages pages with PG_nosave. 
-> 
-> Applications such as swsusp, netdump or debuggers have just to check 
-> the PG_nosave bit to be safe.
-> 
-> I actually would like to rename the bit PG_nosave to PG_donttouch ;)
-
-;)
-
-> 
-> diff -uN -r -X /home/mhf/sys/dont/dontdiff linux-2.4.24-Vanilla/arch/i386/mm/init.c linux-2.4.24-mhf179/arch/i386/mm/init.c
-> --- linux-2.4.24-Vanilla/arch/i386/mm/init.c	2004-01-21 15:53:01.000000000 +0800
-> +++ linux-2.4.24-mhf179/arch/i386/mm/init.c	2004-02-10 06:15:31.000000000 +0800
-> @@ -451,15 +451,18 @@
->  {
->  	if (!page_is_ram(pfn)) {
->  		SetPageReserved(page);
-> +		SetPageNosave(page);
->  		return;
->  	}
->  	
->  	if (bad_ppro && page_kills_ppro(pfn)) {
->  		SetPageReserved(page);
-> +		SetPageNosave(page);
->  		return;
->  	}
->  	
->  	ClearPageReserved(page);
-> +	ClearPageNosave(page);
-
-why this clearpagenosave? looks superflous, you're not doing it in the
-normal zone anyways.
-
-> +#if defined(__nosave_begin)
-
-this won't work right, __nosave_begin isn't a preprocessor thing so it
-will be ignored when you uncomment it. You probably can use #if 0
-instead and a comment near __nosave_begin to turn it to 1 when enabling
-the suspend code.
-
-> What is your opinion of this approach?
-
-except for the above two nitpicks, the patch is correct and needed for
-safe suspend IMHO. 2.6 seems to miss this thing too, why not add it to
-2.6 first?
-
-> BTW, The patch below is needed to run it with a nosave region on 
-> Vanilla 2.4.2[45]:
-> 
-> diff -ruN linux-2.4.24/arch/i386/vmlinux.lds software-suspend-linux-2.4.24-rev7/arch/i386/vmlinux.lds
-> --- linux-2.4.24/arch/i386/vmlinux.lds	2004-01-22 19:46:03.000000000 +1300
-> +++ software-suspend-linux-2.4.24-rev7/arch/i386/vmlinux.lds	2004-01-30 15:23:38.000000000 +1300
-> @@ -53,6 +53,12 @@
->    __init_end = .;
->  
->    . = ALIGN(4096);
-> +  __nosave_begin = .;
-> +  .data_nosave : { *(.data.nosave) }
-> +  . = ALIGN(4096);
-> +  __nosave_end = .;
-> +
-> +  . = ALIGN(4096);
->    .data.page_aligned : { *(.data.idt) }
->  
->    . = ALIGN(32);
-> 
-> also uncomment in mm/init.c the line:
-> //extern char __nosave_begin, __nosave_end; 
-
-yep.

@@ -1,61 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289355AbSAJJPG>; Thu, 10 Jan 2002 04:15:06 -0500
+	id <S289357AbSAJJRg>; Thu, 10 Jan 2002 04:17:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289357AbSAJJO6>; Thu, 10 Jan 2002 04:14:58 -0500
-Received: from mail1-gui.server.ntli.net ([194.168.222.13]:9961 "EHLO
-	mail1-gui.server.ntli.net") by vger.kernel.org with ESMTP
-	id <S289355AbSAJJOs>; Thu, 10 Jan 2002 04:14:48 -0500
-Date: Thu, 10 Jan 2002 09:14:42 +0000
-From: Nick Craig-Wood <ncw@axis.demon.co.uk>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: Ivan Passos <ivan@cyclades.com>, Andrew Morton <akpm@zip.com.au>,
-        "Michael H. Warfield" <mhw@wittsend.com>,
-        David Weinehall <tao@acc.umu.se>, linux-kernel@vger.kernel.org
-Subject: Re: Serial Driver Name Question (kernels 2.4.x)
-Message-ID: <20020110091442.B9541@axis.demon.co.uk>
-In-Reply-To: <200201062012.g06KCIu16158@vindaloo.ras.ucalgary.ca> <3C38BC19.72ECE86@zip.com.au> <200201070636.g076asR25565@vindaloo.ras.ucalgary.ca> <3C3A7DA7.381D033D@zip.com.au> <20020108071548.J5235@khan.acc.umu.se> <3C3A9048.CB80061A@zip.com.au> <20020108165851.B26294@alcove.wittsend.com> <3C3B6E96.8FB0341A@zip.com.au> <3C3B81D7.F1F43495@cyclades.com> <200201091636.g09GaU705860@vindaloo.ras.ucalgary.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200201091636.g09GaU705860@vindaloo.ras.ucalgary.ca>; from rgooch@ras.ucalgary.ca on Wed, Jan 09, 2002 at 09:36:30AM -0700
+	id <S289358AbSAJJR0>; Thu, 10 Jan 2002 04:17:26 -0500
+Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:26517
+	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
+	id <S289357AbSAJJRN>; Thu, 10 Jan 2002 04:17:13 -0500
+Message-ID: <3C3D5C14.5070800@debian.org>
+Date: Thu, 10 Jan 2002 10:17:08 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: esr@thyrsus.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: CML2-2.0.4 is available
+In-Reply-To: <fa.ijumnqv.13juc98@ifi.uio.no> <fa.fvl9anv.u6q1pu@ifi.uio.no> <3C3C02E2.4050008@debian.org> <20020109121337.A23105@thyrsus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 09, 2002 at 09:36:30AM -0700, Richard Gooch wrote:
-> Since you have to change all the drivers anyway, I'd prefer if
-> _tty_make_name() was left unchanged, and instead you put the "%d" in
-> each driver.name, thusly:
-> #ifdef CONFIG_DEVFS_FS
-> 	wod_driver.name = "tts/N%d";
-> #else
-> 	wod_driver.name = "ttyN%d";
-> #endif
+Eric S. Raymond wrote:
+
+> Giacomo Catenazzi <cate@debian.org>:
 > 
-> The reason: maximum flexibility in the kinds of names we can
-> support. If for some reason we want a name like "tts/N%d_A" and
-> "tts/N%d_B" (say a driver with linked ttys, like the pty driver), we
-> don't need to make a global change.
+>>Maybe better: use other keystrings. I.e. Control + key.
+>>In this way is more difficult to press the wrong key sequence, but we
+>>still have the full features in all modes.
+>>
+> 
+> Not a bad idea, but where possible I like to keep the ttyconfig and menuconfig
+> commands the same -- and ttyconfig can't easily see control characters.
 
-I think that is a good idea.
 
-However these names appear in /proc/devices too which looks rather
-ugly running with devfs at the moment...
+Debian uses the big letter. i.e. in dselect 'Q' and 'X', 'R' will force some
+symbols changes.
+Control is better because of no 'Control Caps Lock'.
 
-# cat /proc/devices 
-Character devices:
-  1 mem
-  2 pty/m%d
-  3 pty/s%d
-  4 ttys/%d
-  5 serial/%d
- 10 misc
-108 ppp
-128 ptm
-136 pts/%d
-162 raw
+	giacomo
 
--- 
-Nick Craig-Wood
-ncw@axis.demon.co.uk

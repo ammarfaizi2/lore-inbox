@@ -1,54 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263468AbTEIVTq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 17:19:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263473AbTEIVTq
+	id S263482AbTEIVcl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 17:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263483AbTEIVcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 17:19:46 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:39998 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263468AbTEIVTp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 17:19:45 -0400
-Date: Fri, 9 May 2003 14:28:28 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Paul Fulghum <paulkf@microgate.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.69 Interrupt Latency
-Message-Id: <20030509142828.59552d0a.akpm@digeo.com>
-In-Reply-To: <1052512235.2997.8.camel@diemos>
-References: <1052323940.2360.7.camel@diemos>
-	<1052336482.2020.8.camel@diemos>
-	<20030507152856.2a71601d.akpm@digeo.com>
-	<1052402187.1995.13.camel@diemos>
-	<20030508122205.7b4b8a02.akpm@digeo.com>
-	<1052503920.2093.5.camel@diemos>
-	<1052512235.2997.8.camel@diemos>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 May 2003 17:32:41 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:23444
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S263482AbTEIVcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 17:32:39 -0400
+Message-ID: <3EBC2164.6050605@redhat.com>
+Date: Fri, 09 May 2003 14:45:08 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030506
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "H. Peter Anvin" <hpa@zytor.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: hammer: MAP_32BIT
+References: <3EBB5A44.7070704@redhat.com> <20030509092026.GA11012@averell> <16059.37067.925423.998433@gargle.gargle.HOWL> <20030509113845.GA4586@averell> <b9gr03$42n$1@cesium.transmeta.com> <3EBC0084.4090809@redhat.com> <3EBC15B5.4070604@zytor.com>
+In-Reply-To: <3EBC15B5.4070604@zytor.com>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 May 2003 21:32:19.0463 (UTC) FILETIME=[782A5970:01C31672]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Fulghum <paulkf@microgate.com> wrote:
->
-> In the process of eliminating kernel options to isolate
-> the problem, eliminating USB completely appears to fix it.
-> 
-> One machine (server) was using usb-uhci and
-> the other (laptop) was using usb-ohci.
-> 
-> So it looks like something with USB in 2.5.68-bk11
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-ah, that helps.
+H. Peter Anvin wrote:
 
-This code was added to wakeup_hc().  It is called from uhci_irq():
+> No, it requires 31-bit addresses, and there was a discussion about how
+> some things need 31-bit and some 32-bit addresses.
 
-+	/* Global resume for 20ms */
-+	outw(USBCMD_FGR | USBCMD_EGSM, io_addr + USBCMD);
-+	wait_ms(20);
+That's completely irrelevant to my point.  Whether MAP_32BIT actually
+has a 31 bit limit or not doesn't matter, it's limited as well in the
+possible mmap blocks it can return.
 
-The changelog just says "Minor patch for uhci-hcd.c"
+The only thing I care about is to have a hint and not a fixed
+requirement for mmap().  All your proposals completely ignored this.
 
-Can you delete the wait_ms() and see if that is our culprit?
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+vCFk2ijCOnn/RHQRAnw1AKChzyuZ3g9iXAX5wH088rhko/s8YgCgku12
+CayuZsLJGzPO//WCJVWyLxk=
+=rkBk
+-----END PGP SIGNATURE-----
+

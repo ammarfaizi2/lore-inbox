@@ -1,34 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132010AbRCVMMW>; Thu, 22 Mar 2001 07:12:22 -0500
+	id <S131990AbRCVMIC>; Thu, 22 Mar 2001 07:08:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132011AbRCVMMN>; Thu, 22 Mar 2001 07:12:13 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:14598 "EHLO
+	id <S132000AbRCVMHx>; Thu, 22 Mar 2001 07:07:53 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12038 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132009AbRCVMMA>; Thu, 22 Mar 2001 07:12:00 -0500
-Subject: Re: cramfs b0rken on HIGHMEM machines
-To: ingo.oeser@informatik.tu-chemnitz.de (Ingo Oeser)
-Date: Thu, 22 Mar 2001 12:13:42 +0000 (GMT)
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20010322051956.A11126@nightmaster.csn.tu-chemnitz.de> from "Ingo Oeser" at Mar 22, 2001 05:19:57 AM
+	id <S131999AbRCVMHj>; Thu, 22 Mar 2001 07:07:39 -0500
+Subject: Re: Sound issues with m805lr motheboard
+To: brent@biglinux.tccw.wku.edu (Brent D. Norris)
+Date: Thu, 22 Mar 2001 12:09:50 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (Kernel-mailing list)
+In-Reply-To: <Pine.LNX.4.30.0103212050580.3677-100000@biglinux.tccw.wku.edu> from "Brent D. Norris" at Mar 21, 2001 09:08:34 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14g3yL-0002Pa-00@the-village.bc.nu>
+Message-Id: <E14g3ub-0002Of-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> just look at fs/cramfs/inode.c:cramfs_read_page()
-> It uses page_address instead of kmap().
-> 
-> I would have fixed it myself, but I don't know, how I should
-> kunmap() it, once we have memory pressure.
+> here http://www.eurocomla.com/m805lr.htm)  I have to get it working to
+> stream our meetings with realserver.  as such I cannot use the new 2.4
+> kernels with it since Realserver won't work with them.  I am having
 
-Take a look at ramfs. kmap isnt really a 'pressure' thing. You want to kunmap
-the page as soon as you can. The kmap/unmap operations are fairly fast but
-there is a limited pool of maps.
-
-Alan
+That seems strange. What is realserver failing with ?
 

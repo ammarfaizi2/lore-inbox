@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUGIFGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264260AbUGIFJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUGIFGc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 01:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbUGIFGc
+	id S264260AbUGIFJr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 01:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbUGIFJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 01:06:32 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31415 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264261AbUGIFGa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 01:06:30 -0400
-Date: Thu, 8 Jul 2004 22:05:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christopher Swingley <cswingle@iarc.uaf.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IRQ issues, (nobody cared, disabled), not USB
-Message-Id: <20040708220522.73839ea3.akpm@osdl.org>
-In-Reply-To: <20040708155356.GG22065@iarc.uaf.edu>
-References: <20040708155356.GG22065@iarc.uaf.edu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 9 Jul 2004 01:09:47 -0400
+Received: from smtp105.mail.sc5.yahoo.com ([66.163.169.225]:27504 "HELO
+	smtp105.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S264260AbUGIFJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 01:09:40 -0400
+Message-ID: <40EE288F.20301@yahoo.com.au>
+Date: Fri, 09 Jul 2004 15:09:35 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: "David S. Miller" <davem@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.7-mm6
+References: <20040705023120.34f7772b.akpm@osdl.org> <20040706125438.GS21066@holomorphy.com> <20040706233618.GW21066@holomorphy.com> <20040706170247.5bca760c.davem@redhat.com> <20040707073510.GA27609@elte.hu> <20040707140249.2bfe0a4b.davem@redhat.com> <40EE06B1.1090202@yahoo.com.au> <20040709025151.GV21066@holomorphy.com>
+In-Reply-To: <20040709025151.GV21066@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Swingley <cswingle@iarc.uaf.edu> wrote:
->
-> Greetings!
+William Lee Irwin III wrote:
+
+> On Fri, Jul 09, 2004 at 12:45:05PM +1000, Nick Piggin wrote:
 > 
-> For the past few iterations of 2.6 (including the vanilla 2.6.7 I'm 
-> running now) I've had this problem:
+>>We could make CLONE_IDLETASK clones not do the wakeup?
+>>Ingo? I guess an alternative is to have the arch explicitly
+>>make a call to dequeue it.
 > 
->  03:27:26 kernel: irq 7: nobody cared!
-> ...
-> I've tried booting without ACPI, and I've tried an eepro100 card instead 
-> of the 8139too that's causing the error above.  I believe I've tried 
-> different PCI slots for the second ethernet card too, but I may be 
-> mistaken about that.  No matter what I've tried, under 2.6, the second 
-> ethernet card gets disabled at some point between a few hours and a few 
-> days after the system boots.
+> 
+> This is all just context switching and bootstrap ordering, but I really
+> have other vastly more urgent things to do at the moment than cleanups.
 
-hmm, so the eepro100 failed in the same way as the rtl8139?
+If you could help that would be great. You needn't do anything
+other than test. The patch sort of enables run cloned thread
+last which allows us to remove balance on clone, which is important.
+For me.
 
-That would tend to point at the PIC losing its brains.
+> Please present a self-contained fixed-up init_idle() cleanup for me to
+> testboot. Even the one in -mm is not so, as it depends on later patches
+> to even compile.
 
-It would be useful if you could go back to 2.6.5 for a while, so we can
-mostly-eliminate a hardware glitch.
+The patch I just sent (which is on top of -mm6) should hopefully
+work... if you feel like testing a solution that may still get
+vetoed by Ingo.
+
+Also, what compile errors are you getting? i386 seems to compile
+kernel/ fine with only the first sched- patch applied.
+

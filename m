@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262835AbTDOSHk (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 14:07:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTDOSHk 
+	id S262883AbTDOSHo (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 14:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262894AbTDOSHo 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 14:07:40 -0400
-Received: from f25.law8.hotmail.com ([216.33.241.25]:20491 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S262835AbTDOSHj 
+	Tue, 15 Apr 2003 14:07:44 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:39079 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S262883AbTDOSHm 
 	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 14:07:39 -0400
-X-Originating-IP: [67.86.246.131]
-X-Originating-Email: [seandarcy@hotmail.com]
-From: "sean darcy" <seandarcy@hotmail.com>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.67-bk4 & 5 - boot oops at USB Mass Storage
-Date: Tue, 15 Apr 2003 14:19:25 -0400
+	Tue, 15 Apr 2003 14:07:42 -0400
+Subject: Re: [RFC][PATCH] Extended Attributes for Security Modules
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: richard offer <offer@sgi.com>
+Cc: Andreas Gruenbacher <ag@bestbits.at>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lsm <linux-security-module@wirex.com>, "Ted Ts'o" <tytso@mit.edu>,
+       lkml <linux-kernel@vger.kernel.org>, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <385390000.1050425884@changeling.engr.sgi.com>
+References: <Pine.LNX.4.33.0304140033100.12311-100000@muriel.parsec.at>
+	 <1050414107.16051.70.camel@moss-huskers.epoch.ncsc.mil>
+	 <385390000.1050425884@changeling.engr.sgi.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1050430776.1051.137.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F25oXM7e0C9guA8M6XQ0000020c@hotmail.com>
-X-OriginalArrivalTime: 15 Apr 2003 18:19:25.0930 (UTC) FILETIME=[8BE35CA0:01C3037B]
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Apr 2003 14:19:39 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It now works again in bk6.
+On Tue, 2003-04-15 at 12:58, richard offer wrote:
+> I see modules as empheral, but attritbutes as permanant. If I'm running one
+> LSM module, I reboot and use a different LSM module, what happens to the
+> attributes that the first module added to the file ?
 
-But without the call trace the rest of the oops was:
-EFLAGS: 00010282
-eax 00000040  ebx fffffff8 ecx fffffff0 edx ffff0001
-esi 00000040  edi 00000000 ebp c0404858 esp c151df50
-ds  007b es 007b  ss 0068
-Process swapper ( pid: 1 threadinfo c151c00 task dff8e040 )
-........
-<0> Kernel panic: Attempted to kill init!
+I'm not going to switch between a SELinux "module" and a non-SELinux
+"module" or vice versa without relabeling the filesystem to an
+appropriate initial state of security labels that is meaningful to the
+"module" I want to use.  I also wouldn't be performing such switching at
+all on any real systems.
 
-that was as far as I got before my "energy-star" monitor went to power save 
-:).
+> Either we should guarantee that modules only touch attributes they know
+> about---ignoring all others (but not overwriting them), or we have separate
+> namespaces for each module's attributes.
 
->From: Greg KH <greg@kroah.com>
->To: sean darcy <seandarcy@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: 2.5.67-bk4 & 5  - boot oops at  USB Mass Storage
->Date: Tue, 15 Apr 2003 09:33:14 -0700
->
->On Tue, Apr 15, 2003 at 08:42:53AM -0400, sean darcy wrote:
-> > 2.5.67 boots fine. With bk4 or bk5 I get an oops right after:
-> >
-> > USB Mass Storage support registered
-> >
-> > Unable to handle kernel NULL pointer dereference at virtual address 
->00000040
-> > printing EIP:
-> > c026af44
-> > *pde=00000000
-> > oops: 0002 [#1]
-> > cpu: 0
-> > EIP: 0060:[c026af44] Not tainted
->
->Ah, so close, can you please report back everything that the oops
->message said?
->
->thanks,
->
->greg k-h
+A security module can sanity check the first few bytes of the attribute
+value if it desires, and handle a mismatch as it desires.  That is a
+policy issue and up to the module writer.
 
+You also need to consider the implications for userspace of using a
+separate attribute name for each security module.  Do you really want to
+maintain your own patches for all of the utilities to let users get and
+set file security labels using your attribute name?  Note that we can
+add or remove security attributes to/from the SELinux security context
+without requiring changes to our patches for the utilities; the utility
+patches don't have to be tied to a specific security model.
 
-_________________________________________________________________
-MSN 8 with e-mail virus protection service: 2 months FREE*  
-http://join.msn.com/?page=features/virus
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 

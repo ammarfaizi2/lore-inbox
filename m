@@ -1,57 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267034AbSKWRAR>; Sat, 23 Nov 2002 12:00:17 -0500
+	id <S267057AbSKWRIT>; Sat, 23 Nov 2002 12:08:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267049AbSKWRAR>; Sat, 23 Nov 2002 12:00:17 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:18941 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S267034AbSKWRAQ>; Sat, 23 Nov 2002 12:00:16 -0500
-Date: Sat, 23 Nov 2002 18:07:22 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>, Jack_Hammer@adaptec.com
-Subject: Re: Linux 2.4.20-rc3
-Message-ID: <20021123170721.GJ14886@fs.tum.de>
-References: <Pine.LNX.4.44L.0211221520230.22247-100000@freak.distro.conectiva>
+	id <S267059AbSKWRIS>; Sat, 23 Nov 2002 12:08:18 -0500
+Received: from cmailm2.svr.pol.co.uk ([195.92.193.210]:37386 "EHLO
+	cmailm2.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S267057AbSKWRIS>; Sat, 23 Nov 2002 12:08:18 -0500
+Date: Sat, 23 Nov 2002 17:15:27 +0000
+From: Loic Jaquemet <jal@les3stagiaires.freeserve.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.49 doesn't compile - IPSEC symbole missing for linking
+Message-Id: <20021123171527.4170bb5a.jal@les3stagiaires.freeserve.co.uk>
+In-Reply-To: <20021123160307.05049096.jal@les3stagiaires.freeserve.co.uk>
+References: <20021123160307.05049096.jal@les3stagiaires.freeserve.co.uk>
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L.0211221520230.22247-100000@freak.distro.conectiva>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
- 
-the patch below is still needed to fix a .text.exit error.
- 
-Please apply
-Adrian
+On Sat, 23 Nov 2002 16:03:07 +0000
+Loic Jaquemet <jal@les3stagiaires.freeserve.co.uk> wrote stupids things
 
---- linux-2.4.19-full-nohotplug/drivers/scsi/ips.c.old	2002-10-04 18:49:10.000000000 +0200
-+++ linux-2.4.19-full-nohotplug/drivers/scsi/ips.c	2002-10-04 18:50:02.000000000 +0200
-@@ -305,21 +305,21 @@
-        name:		ips_hot_plug_name,
-        id_table:	ips_pci_table,
-        probe:		ips_insert_device,
--       remove:		ips_remove_device,
-+       remove:		__devexit_p(ips_remove_device),
-    }; 
-            
-    struct pci_driver ips_pci_driver_5i = {
-        name:		ips_hot_plug_name,
-        id_table:	ips_pci_table_5i,
-        probe:		ips_insert_device,
--       remove:		ips_remove_device,
-+       remove:		__devexit_p(ips_remove_device),
-    };
- 
-    struct pci_driver ips_pci_driver_i960 = {
-        name:		ips_hot_plug_name,
-        id_table:	ips_pci_table_i960,
-        probe:		ips_insert_device,
--       remove:		ips_remove_device,
-+       remove:		__devexit_p(ips_remove_device),
-    };
- 
- #endif
+
+CONFIG_CRYPTO_HMAC=y
+
+
+-- 
++----------------------------------------------+
+|Jaquemet Loic                                 |
+|Eleve ingenieur en informatique FIIFO, ORSAY  |
++----------------------------------------------+
+http://sourceforge.net/projects/ffss/
+#wirelessfr @ irc.freenode.net

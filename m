@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317453AbSF1PH4>; Fri, 28 Jun 2002 11:07:56 -0400
+	id <S317454AbSF1PKL>; Fri, 28 Jun 2002 11:10:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317454AbSF1PHz>; Fri, 28 Jun 2002 11:07:55 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:1669 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S317453AbSF1PHz>;
-	Fri, 28 Jun 2002 11:07:55 -0400
-Subject: Re: [PATCH] compile fix for 2.5 kdev_t compatibility macros
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Steven Cole <elenstev@mesatop.com>
-Cc: Stephen Lord <lord@sgi.com>, Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1025275076.27133.131.camel@spc9.esa.lanl.gov>
-References: <1025272233.1168.21.camel@n236> 
-	<1025275076.27133.131.camel@spc9.esa.lanl.gov>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 28 Jun 2002 17:10:08 +0200
-Message-Id: <1025277008.1643.6.camel@tux>
-Mime-Version: 1.0
+	id <S317463AbSF1PKK>; Fri, 28 Jun 2002 11:10:10 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:5765 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317454AbSF1PKJ> convert rfc822-to-8bit;
+	Fri, 28 Jun 2002 11:10:09 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: USB doesn't work
+Date: Fri, 28 Jun 2002 17:12:34 +0200
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <mailman.1025183101.8745.linux-kernel2news@redhat.com> <200206281504.g5SF4rA19032@devserv.devel.redhat.com>
+In-Reply-To: <200206281504.g5SF4rA19032@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200206281712.34860.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-06-28 at 16:37, Steven Cole wrote:
+On Friday 28 June 2002 17:04, Pete Zaitcev wrote:
+> > Running 2.4.19-rc1 or 2.4.18, the following chipset won't work with a
+> > USB= =20
+> > keyboard attached:
+> >
+> > usb-ohci.c: USB OHCI at membase 0xc4802000, IRQ 10
+> > usb-ohci.c: usb-00:13.0, Compaq Computer Corporation ZFMicro Chipset USB
+> > usb-ohci.c: USB HC TakeOver failed!
+>
+> This is a BIOS screwage. What was the last kernel that worked?
 
-[snip]
-> That's an odd-looking patch.  Is this what you meant?
-> 
-> Steven
-> 
-> --- linux-2.4.19-rc1/include/linux/kdev_t.h.orig	Fri Jun 28 08:31:27 2002
-> +++ linux-2.4.19-rc1/include/linux/kdev_t.h	Fri Jun 28 08:32:36 2002
-> @@ -81,7 +81,7 @@
->  #define minor(d)	MINOR(d)
->  #define kdev_same(a,b)	((a) == (b))
->  #define kdev_none(d)	(!(d))
-> -#define kdev_val(d)	((unsigned int)(d)
-> +#define kdev_val(d)	((unsigned int)(d))
->  #define val_to_kdev(d)	((kdev_t(d))
->  
->  /*
+It's never worked. I've actually given up - it was during some testing of some 
+Samsung early prototype set-top-computers ... They hang if I try to disable 
+USB legacy support in BIOS. They hang if I try to reboot, and they hang if I 
+use red post-it notes on them
 
-And here's one more...
+thanks anyway
 
---- linux-2.4.19-rc1/include/linux/kdev_t.h.orig	Fri Jun 28 16:59:48 2002
-+++ linux-2.4.19-rc1/include/linux/kdev_t.h	Fri Jun 28 17:01:12 2002
-@@ -82,7 +82,7 @@
- #define kdev_same(a,b)	((a) == (b))
- #define kdev_none(d)	(!(d))
- #define kdev_val(d)	((unsigned int)(d))
--#define val_to_kdev(d)	((kdev_t(d))
-+#define val_to_kdev(d)	(kdev_t(d))
- 
- /*
- As long as device numbers in the outside world have 16 bits only,
+roy
 
 -- 
-/Martin
+Roy Sigurd Karlsbakk, Datavaktmester
 
-Never argue with an idiot. They drag you down to their level, then beat
-you with experience.
+Computers are like air conditioners.
+They stop working when you open Windows.
+

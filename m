@@ -1,34 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267855AbTBJMVj>; Mon, 10 Feb 2003 07:21:39 -0500
+	id <S267821AbTBJMPh>; Mon, 10 Feb 2003 07:15:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267839AbTBJMVi>; Mon, 10 Feb 2003 07:21:38 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:33922 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S267855AbTBJMUu>;
-	Mon, 10 Feb 2003 07:20:50 -0500
-Date: Mon, 10 Feb 2003 13:30:06 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Andrew Morton <akpm@digeo.com>, reiser@namesys.com, jakob@unthought.net,
-       david.lang@digitalinsight.com, riel@conectiva.com.br,
-       ckolivas@yahoo.com.au, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
-Message-ID: <20030210123006.GK31401@dualathlon.random>
-References: <3E4779DD.7080402@namesys.com> <20030210101539.GS31401@dualathlon.random> <3E4781A2.8070608@cyberone.com.au> <20030210111017.GV31401@dualathlon.random> <3E478C09.6060508@cyberone.com.au> <20030210113923.GY31401@dualathlon.random> <20030210034808.7441d611.akpm@digeo.com> <3E4792B7.5030108@cyberone.com.au> <20030210041245.68665ff6.akpm@digeo.com> <3E479AA1.3050308@cyberone.com.au>
+	id <S267823AbTBJMPh>; Mon, 10 Feb 2003 07:15:37 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17069
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S267821AbTBJMPf>; Mon, 10 Feb 2003 07:15:35 -0500
+Subject: Re: Monta Vista software license terms
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Oliver Xymoron <oxymoron@waste.org>
+Cc: jeff millar <wa1hco@adelphia.net>, Christoph Hellwig <hch@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030210071854.GH28107@waste.org>
+References: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net>
+	 <20030205171613.GB14909@nevyn.them.org>
+	 <87adhafx0d.fsf@topo.binary-only.priv>
+	 <20030205175428.A23701@infradead.org>
+	 <01c601c2cd7c$be4002a0$6a01a8c0@wa1hco>  <20030210071854.GH28107@waste.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044883477.418.11.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E479AA1.3050308@cyberone.com.au>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Feb 2003 13:24:38 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 10, 2003 at 11:27:13PM +1100, Nick Piggin wrote:
-> Is there a magic number above which you see the improvement,
-> Andrea? Or does it steadily climb?
+On Mon, 2003-02-10 at 07:18, Oliver Xymoron wrote:
+> >     1. Can MontaVista add separate terms to their purchase agreement that
+> > forbid/discourage/impede publishing the source?
+> 
+> Can they or do they? I know that people I've worked with have signed
+> broad NDAs on code they've gotten from MontaVista, though such
+> agreements almost certainly qualify as 'additional restrictions'
+> against the GPL.
 
-I recall more than 512k wasn't worthwhile anymore
+The GPL doesn't permit such restrictions (its an additional restriction)
+but as I understand it the MontaVista packages include a lot more than
+just free software, so the GPL rights probably only apply to the GPL
+packages in their setup
 
-Andrea
+-- 
+Alan Cox <alan@lxorguk.ukuu.org.uk>

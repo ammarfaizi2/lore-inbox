@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266401AbRGFL1h>; Fri, 6 Jul 2001 07:27:37 -0400
+	id <S266422AbRGFLna>; Fri, 6 Jul 2001 07:43:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266410AbRGFL11>; Fri, 6 Jul 2001 07:27:27 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:55485 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S266404AbRGFL1S>;
-	Fri, 6 Jul 2001 07:27:18 -0400
-Message-ID: <3B45A08D.408D56@mandrakesoft.com>
-Date: Fri, 06 Jul 2001 07:27:09 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
+	id <S266428AbRGFLnU>; Fri, 6 Jul 2001 07:43:20 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:42216 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S266422AbRGFLnE>;
+	Fri, 6 Jul 2001 07:43:04 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Steffen Persvold <sp@scali.no>, Helge Hafting <helgehaf@idb.hist.no>,
-        Vasu Varma P V <pvvvarma@techmas.hcltech.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: DMA memory limitation?
-In-Reply-To: <E15ITTf-0004Dz-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15173.42054.208635.41503@pizda.ninka.net>
+Date: Fri, 6 Jul 2001 04:43:02 -0700 (PDT)
+To: Cort Dougan <cort@fsmlabs.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Why Plan 9 C compilers don't have asm("")
+In-Reply-To: <20010706023835.A5224@ftsoj.fsmlabs.com>
+In-Reply-To: <200107040337.XAA00376@smarty.smart.net>
+	<20010703233605.A1244@zalem.puupuu.org>
+	<20010704002436.C1294@ftsoj.fsmlabs.com>
+	<9hvjd4$1ok$1@penguin.transmeta.com>
+	<20010706023835.A5224@ftsoj.fsmlabs.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> No ifdefs are needed
-> 
->         GFP_DMA - ISA dma reachable
->         pci_alloc_* and friends - PCI usable memory
 
-pci_alloc_* is designed to support ISA.
+Cort Dougan writes:
+ > I'm talking about _modern_ processors, not processors that dominate the
+ > modern age.  This isn't x86.
 
-Pass pci_dev==NULL to pci_alloc_* for ISA devices, and it allocs GFP_DMA
-for you.
+Linus mentioned Alpha specifically.  I don't see how any of the things
+he said were x86-centric in any way shape or form.
 
--- 
-Jeff Garzik      | A recent study has shown that too much soup
-Building 1024    | can cause malaise in laboratory mice.
-MandrakeSoft     |
+All of his examples are entirely accurate on sparc64 for example, and
+to even moreso his Alpha commentary can nearly directly be applied to
+the MIPS.
+
+Calls suck ass, even on modern cpus.  I've seen several hundreds of
+cycles go out of the fault path by eliminating them.  If you can kill
+a leaf level call, you can avoid saving the whole frame, and on Sparc
+(for example) this means saving a potential window spill trap which
+can be quite costly.
+
+Calls are less simple than branches to do (via prediction etc.) at
+"zero cost" because usually there is a write port necessary (to write
+the call instruction's address into the "return" register).
+
+Let's not even start talking about calls in PIC code :-)
+
+Later,
+David S. Miller
+davem@redhat.com

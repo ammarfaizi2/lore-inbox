@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290421AbSAXWfz>; Thu, 24 Jan 2002 17:35:55 -0500
+	id <S290422AbSAXWgx>; Thu, 24 Jan 2002 17:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290424AbSAXWfi>; Thu, 24 Jan 2002 17:35:38 -0500
-Received: from AMontpellier-201-1-1-52.abo.wanadoo.fr ([193.252.31.52]:45061
-	"EHLO awak") by vger.kernel.org with ESMTP id <S290421AbSAXWej> convert rfc822-to-8bit;
-	Thu, 24 Jan 2002 17:34:39 -0500
-Subject: Re: RFC: booleans and the kernel
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: timothy.covell@ashavan.org
-Cc: Oliver Xymoron <oxymoron@waste.org>,
+	id <S290424AbSAXWgs>; Thu, 24 Jan 2002 17:36:48 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:3007 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S290422AbSAXWgH>;
+	Thu, 24 Jan 2002 17:36:07 -0500
+Date: Thu, 24 Jan 2002 17:36:04 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Timothy Covell <timothy.covell@ashavan.org>
+cc: Robert Love <rml@tech9.net>, Oliver Xymoron <oxymoron@waste.org>,
         "Richard B. Johnson" <root@chaos.analogic.com>,
         Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200201242123.g0OLNAL06617@home.ashavan.org.>
-In-Reply-To: <Pine.LNX.4.44.0201241433110.2839-100000@waste.org> 
-	<200201242123.g0OLNAL06617@home.ashavan.org.>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 24 Jan 2002 23:33:40 +0100
-Message-Id: <1011911622.2631.6.camel@bip>
-Mime-Version: 1.0
+        Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: booleans and the kernel
+In-Reply-To: <200201242228.g0OMSlL06826@home.ashavan.org.>
+Message-ID: <Pine.GSO.4.21.0201241735280.21209-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-le ven 25-01-2002 à 22:24, Timothy Covell a écrit :
-> On Thursday 24 January 2002 14:39, Oliver Xymoron wrote:
-> >
-> > The compiler _will_ turn if(a==0) into a test of a with itself rather than
-> > a comparison against a constant. Since PDP days, no doubt.
-> 
-> I thought that the whole point of booleans was to stop silly errors
-> like 
-> 
-> if ( x = 1 )
-> {
-> 	printf ("\nX is true\n");
-> }
-> else
-> {
-> 	# we never get here...
-> }
-> 
 
-gcc already warns you about such errors.
 
-	Xav
+On Fri, 25 Jan 2002, Timothy Covell wrote:
+
+> What about 
+> 
+> {
+>     char x;
+> 
+>     if ( x )
+>     {
+>         printf ("\n We got here\n");
+>     }
+>     else
+>     {
+>         // We never get here
+>         printf ("\n We never got here\n");
+>     }
+> }
+
+What???  Learn the fscking C.
 

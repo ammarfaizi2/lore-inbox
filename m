@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262384AbTBERIn>; Wed, 5 Feb 2003 12:08:43 -0500
+	id <S262089AbTBERKj>; Wed, 5 Feb 2003 12:10:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262394AbTBERIl>; Wed, 5 Feb 2003 12:08:41 -0500
-Received: from ECE.CMU.EDU ([128.2.136.200]:59600 "EHLO ece.cmu.edu")
-	by vger.kernel.org with ESMTP id <S262384AbTBERIi>;
-	Wed, 5 Feb 2003 12:08:38 -0500
-Date: Wed, 5 Feb 2003 12:18:11 -0500 (EST)
-From: Nilmoni Deb <ndeb@ece.cmu.edu>
-To: Robert Love <rml@mvista.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Monta Vista software license terms
-In-Reply-To: <1044465050.810.31.camel@phantasy>
-Message-ID: <Pine.LNX.3.96L.1030205121225.19700C-100000@frodo.ece.cmu.edu>
+	id <S261857AbTBERKi>; Wed, 5 Feb 2003 12:10:38 -0500
+Received: from 216-239-45-4.google.com ([216.239.45.4]:5970 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id <S262394AbTBERKg>; Wed, 5 Feb 2003 12:10:36 -0500
+Message-ID: <3E4147A0.4050709@google.com>
+Date: Wed, 05 Feb 2003 09:19:28 -0800
+From: Ross Biro <rossb@google.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: alan@redhat.com, Stephan von Krawczynski <skraw@ithnet.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+References: <20030202161837.010bed14.skraw@ithnet.com>	 <3E3D4C08.2030300@pobox.com> <20030202185205.261a45ce.skraw@ithnet.com>	 <3E3D6367.9090907@pobox.com>  <20030205104845.17a0553c.skraw@ithnet.com>	 <1044443761.685.44.camel@zion.wanadoo.fr>  <3E414243.4090303@google.com> <1044465151.685.149.camel@zion.wanadoo.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Benjamin Herrenschmidt wrote:
 
-
-On 5 Feb 2003, Robert Love wrote:
-
-> On Wed, 2003-02-05 at 06:58, Nilmoni Deb wrote:
-> 
-> > 	Its the last sentence that is of concern. Does this mean no 3rd
-> > party (who is not a customer) can get the GPL source code part of their
-> > products ? Seems like a GPL violation of clause 3b in
-> > http://www.gnu.org/licenses/gpl.html .
-> 
-> The GPL only requires that source accompanies any distributed binaries.
-> In other words, with distribution comes the requirement of source. 
-> MontaVista provides all the source to all GPL components as part of
-> their products.
+>While I agree with you here, I don't think it's what's happening.
+>	/* clear INTR & ERROR flags */
+>	hwif->OUTB(dma_stat|6, hwif->dma_status);
 >
-> The GPL places no requirement on giving source away to the world at
-> large, which would be silly. If you do not distribute anything, you do
-> not have to make available the source. If you do, you need to give the
-> recipients the source as well.
+>  
+>
+You have way to much faith in the hardware.  Promise is especially known 
+for not keeping to the spec.  I wouldn't trust the interrupt bit to be 
+valid unless a dma is actually active, i.e. that
 
-U missed the point. This is not the case of "If you do not distribute
-anything, you do not have to make available the source." because the
-vendor is distributing the binaries and source to the customers just fine.
-The issue is whether any 3rd party (who is not purchasing the binaries) 
-has the right to get the source too as per clause 3b of
-http://www.gnu.org/licenses/gpl.html . More specifically, is it true that
-if u obey clause 3a, u don't have to follow clause 3b ?
+                  hwif->OUTB(hwif->INB(dma_base)|1, dma_base);
 
+has actually been written.  
 
-> 
-> That line is in the FAQ because many customers are concerned of their
-> obligations with GPL software.
-> 
-> 	Robert Love
-> 
-> 
+I've actually had a manufacturer tell me that they don't worry about the 
+spec, just making things work with Windows.
+
+    Ross
 

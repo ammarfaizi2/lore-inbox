@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265059AbTFYUuI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 16:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTFYUuI
+	id S265087AbTFYU4U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 16:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265090AbTFYU4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 16:50:08 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:32521 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S265059AbTFYUtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 16:49:52 -0400
-Date: Wed, 25 Jun 2003 22:03:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: mocm@mocm.de
-Cc: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-       Marcus Metzler <mocm@metzlerbros.de>,
-       Michael Hunold <hunold@convergence.de>, Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: DVB Include files
-Message-ID: <20030625220358.B13814@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, mocm@mocm.de,
-	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
-	Marcus Metzler <mocm@metzlerbros.de>,
-	Michael Hunold <hunold@convergence.de>,
-	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
-References: <20030625182409.A29252@infradead.org> <16121.56382.444838.485646@sheridan.metzler> <20030625185036.C29537@infradead.org> <16121.58735.59911.813354@sheridan.metzler> <20030625191532.A1083@infradead.org> <16121.60747.537424.961385@sheridan.metzler> <20030625194250.GF1770@wohnheim.fh-wedel.de> <16122.379.321217.737557@sheridan.metzler> <20030625202312.GG1770@wohnheim.fh-wedel.de> <16122.2724.417649.622538@sheridan.metzler>
+	Wed, 25 Jun 2003 16:56:20 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:62946 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S265087AbTFYU4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 16:56:17 -0400
+Date: Wed, 25 Jun 2003 23:09:45 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Paul.Clements@steeleye.com, torvalds@transmeta.com,
+       kernel list <linux-kernel@vger.kernel.org>
+Cc: ldl@aros.net, steve@chygwyn.com
+Subject: NBD maintainer change [was Re: Anyone for NBD maintainer]
+Message-ID: <20030625210945.GD5164@elf.ucw.cz>
+References: <20030625175849.GB4988@elf.ucw.cz> <Pine.LNX.4.10.10306251645580.11076-100000@clements.sc.steeleye.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <16122.2724.417649.622538@sheridan.metzler>; from mocm@metzlerbros.de on Wed, Jun 25, 2003 at 10:48:36PM +0200
+In-Reply-To: <Pine.LNX.4.10.10306251645580.11076-100000@clements.sc.steeleye.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 25, 2003 at 10:48:36PM +0200, Marcus Metzler wrote:
-> That was kind of the point. If I have to check and copy the includes
-> all the time I may run into trouble because of such changes. Whereas
-> without that, I only have to recompile. I don't have to check each and
-> evry possible place where old headers may be, which may even be
-> different for every distribution.
+Hi!
 
-If that's your attitude we should drop dvb from the kernel again.  The Linux
-Kernel has a stable userspace ABI.
+> > BTW Anyone wanting to become nbd maintainer? I'm not much interested
+> > in nbd these days...
+> 
+> I would like to take this on, if you don't want to do it anymore. I've
+> been keeping up with the nbd source for quite a while now, so I think
+> I'm ready to give it a shot.
 
+Linus, I no longer have time/interest in maintaining NBD. Please
+apply,
+
+								Pavel
+
+--- clean/MAINTAINERS	2003-06-24 12:27:38.000000000 +0200
++++ linux/MAINTAINERS	2003-06-25 23:03:26.000000000 +0200
+@@ -1265,8 +1265,8 @@
+ S:	Maintained
+ 
+ NETWORK BLOCK DEVICE
+-P:	Pavel Machek
+-M:	pavel@atrey.karlin.mff.cuni.cz
++P:	Paul Clements
++M:	Paul.Clements@steeleye.com
+ S:	Maintained
+ 
+ NETWORK DEVICE DRIVERS
+
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262216AbUJZKpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbUJZKxr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262216AbUJZKpL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 06:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbUJZKpK
+	id S262213AbUJZKxr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 06:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbUJZKxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 06:45:10 -0400
-Received: from mail.aei.ca ([206.123.6.14]:63424 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262213AbUJZKpD (ORCPT
+	Tue, 26 Oct 2004 06:53:47 -0400
+Received: from relay01.pair.com ([209.68.5.15]:33297 "HELO relay01.pair.com")
+	by vger.kernel.org with SMTP id S262213AbUJZKxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 06:45:03 -0400
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: My thoughts on the "new development model"
-Date: Tue, 26 Oct 2004 06:44:46 -0400
-User-Agent: KMail/1.7
-Cc: Bill Davidsen <davidsen@tmr.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-References: <200410260142_MC3-1-8D2A-45C2@compuserve.com>
-In-Reply-To: <200410260142_MC3-1-8D2A-45C2@compuserve.com>
+	Tue, 26 Oct 2004 06:53:44 -0400
+X-pair-Authenticated: 66.190.53.4
+Message-ID: <417E2CB7.4090608@cybsft.com>
+Date: Tue, 26 Oct 2004 05:53:43 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Alexander Batyrshin <abatyrshin@ru.mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+References: <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com> <20041025203807.GB27865@elte.hu>
+In-Reply-To: <20041025203807.GB27865@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410260644.47307.edt@aei.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 October 2004 01:40, Chuck Ebbert wrote:
-> Bill Davidsen wrote:
+Ingo Molnar wrote:
+> * K.R. Foley <kr@cybsft.com> wrote:
 > 
-> > I don't see the need for a development kernel, and it is desirable to be 
-> > able to run kernel.org kernels.
 > 
->   Problem is, kernel.org 'release' kernels are quite buggy.  For example 2.6.9
-> has a long list of bugs:
+>>Actually pertaining to V0.2. I just got my UP system booted up on V0.2
+>>and got this in the log. I did notice that this is not new to this
+>>release. It has been here at least since U10.3. Sorry I didn't catch
+>>it sooner.
+>>
+>>Oct 25 13:31:56 daffy kernel: IRQ#11 thread RT prio: 43.
+>>Oct 25 13:31:56 daffy kernel: ip/2432: BUG in enable_irq at 
+>>kernel/irq/manage.c:112
 > 
->   - superio parports don't work
->   - TCP networking using TSO gives memory allocation failures
->   - s390 has a serious security bug (sacf)
->   - ppp hangup is broken with some peers
->   - exec leaks POSIX timer memory and loses signals
->   - auditing can deadlock
->   - O_DIRECT and mmap IO can't be used together
->   - procfs shows the wrong parent PID in some cases
->   - i8042 fails to initialize with some boards using legacy USB
->   - kswapd still goes into a frenzy now and then
 > 
->   Sure, the next release will (may?) fix these bugs, but it will definitely
-> add a whole set of new ones.
+> this is pretty harmless and has been happening in -mm for some time. The
+> e100 device will work fine afterwards.
+> 
+> 	Ingo
+> 
 
-To my mind this just points out the need for a bug fix branch.   e.g. a
-branch containing just bug/security fixes against the current stable
-kernel.  It might also be worth keeping the branch active for the n-1
-stable kernel too.
+Several things in regard to V0.2:
 
-Ed
+1) Interactive responsiveness seems to be noticably sluggish at times on
+all three of the systems I have tested this on.
+2) My 450MHz UP system is definitely the worst by far. Scrolling through
+the syslog in a telnet session produces pauses every few seconds for
+about a second, that is while it's still responding. These problems seem
+to be network related, but there are no indications of what the problem
+is. This system also at times will just stop responding to network requests.
+3) Both of the SMP systems are lacking the snappy responsiveness in X
+that I have become accustomed to with previous patches, but the 2.6GHz
+Xeon (w/HT) is worse than the 933MHz Xeon. Again no indications of
+problems in the logs.
+4) Using amlat to run the RTC at 1kHz will kill any of these systems
+very quickly.
 
-PS.  we could call this the Bug/Security or bs kernels.
+kr
+
+

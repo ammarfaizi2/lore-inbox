@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVBLNKO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVBLNUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVBLNKO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Feb 2005 08:10:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVBLNKO
+	id S261401AbVBLNUy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Feb 2005 08:20:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVBLNUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Feb 2005 08:10:14 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:22752 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261400AbVBLNJ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Feb 2005 08:09:58 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: [RFC] Reliable video POSTing on resume
-To: Kendall Bennett <kendallb@scitechsoft.com>, mjg59@srcf.ucam.org,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Sat, 12 Feb 2005 14:10:42 +0100
-References: <fa.fmtnc0t.131o1g5@ifi.uio.no> <fa.eiu608d.10522qb@ifi.uio.no>
-User-Agent: KNode/0.7.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1Czx2p-0000ih-I7@be1.7eggert.dyndns.org>
+	Sat, 12 Feb 2005 08:20:54 -0500
+Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:10504 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261401AbVBLNUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Feb 2005 08:20:48 -0500
+Date: Sat, 12 Feb 2005 14:21:03 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Stelian Pop <stelian@popies.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, acpi-devel@lists.sourceforge.net,
+       Pekka Enberg <penberg@gmail.com>
+Subject: Re: [PATCH, new ACPI driver] new sony_acpi driver
+Message-Id: <20050212142103.5e1a79f9.khali@linux-fr.org>
+In-Reply-To: <20050211113636.GI3263@crusoe.alcove-fr>
+References: <20050210161809.GK3493@crusoe.alcove-fr>
+	<20050211113636.GI3263@crusoe.alcove-fr>
+X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kendall Bennett <kendallb@scitechsoft.com> wrote:
+> Based on feedback from Jean Delvare and Pekka Enberg, here is an
+> updated version.
 
-> Laptops are a little different as they will make calls from the Video
-> BIOS into the system BIOS, so you need to make sure that the system BIOS
-> is also available in the execution environment.
+Works for me (Vaio PCG-GR214EP). Tested with 2.6.11-rc3-bk8.
 
-Any video BIOS (especially EGA) may call system BIOS functions, e.g. via the
-old INT10 (which will get copied to INT42).
+I then enabled the debug mode. I couldn't find anything relevant WRT
+what each additional file is supposed to do, but I still have noticed a
+number of things you might be interested in.
 
-HGC and VGA are in the system BIOS. They don't need magic, but they need to
-be initialized on order to keep the monitor from burning. On the other hand,
-they used to be initialised correctly.
+ctr doesn't seem to affect the contrast for me. I also noticed that the
+value seems to be stored on 8 bits. Higher bits are ignored (e.g. write
+300, read 44). Default value is 64.
+
+cmi behaves strangely. Its default value is 0. Whatever I write to it
+(including 0), next read returns 131.
+
+pbr seems to be stored on 4 bits. Higher bits are ignored (e.g. write
+20, read 4). Default value is 0.
+
+csxb is the dangerous one. Default 0. Writing 41 to it deadlocked my
+system. Writing 42 changed pbr from 0 to 8 as a side effect. Each write
+generates an error in the logs:
+  sony_acpi: acpi_evaluate_object failed
+
+cmi and csxb are reset to 0 on sony_acpi module cycling. brightness, ctr
+and pbr are preserved.
+
+Hope that helps. Let me know if you want me to test specific things.
+-- 
+Jean Delvare

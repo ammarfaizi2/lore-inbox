@@ -1,110 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVCVSzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVCVS4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVCVSzi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 13:55:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVCVSzi
+	id S261623AbVCVS4f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 13:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261653AbVCVS4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 13:55:38 -0500
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:23767 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S261501AbVCVSzZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 13:55:25 -0500
-Date: Tue, 22 Mar 2005 22:22:01 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Ram <linuxram@us.ibm.com>
-Cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Jesse Barnes <jbarnes@engr.sgi.com>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Jay Lan <jlan@engr.sgi.com>,
-       Erich Focht <efocht@hpce.nec.com>, Gerrit Huizenga <gh@us.ibm.com>,
-       elsa-devel <elsa-devel@lists.sourceforge.net>
-Subject: Re: [patch 1/2] fork_connector: add a fork connector
-Message-ID: <20050322222201.0fa25d34@zanzibar.2ka.mipt.ru>
-In-Reply-To: <1111515979.5860.57.camel@localhost>
-References: <1111050243.306.107.camel@frecb000711.frec.bull.fr>
-	<200503170856.57893.jbarnes@engr.sgi.com>
-	<20050318003857.4600af78@zanzibar.2ka.mipt.ru>
-	<200503171405.55095.jbarnes@engr.sgi.com>
-	<1111409303.8329.16.camel@frecb000711.frec.bull.fr>
-	<1111438349.5860.27.camel@localhost>
-	<1111475252.8465.23.camel@frecb000711.frec.bull.fr>
-	<1111515979.5860.57.camel@localhost>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Tue, 22 Mar 2005 13:56:35 -0500
+Received: from mail.fh-wedel.de ([213.39.232.198]:2690 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261623AbVCVS4P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 13:56:15 -0500
+Date: Tue, 22 Mar 2005 19:56:05 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+Subject: Re: 2.6.12-rc1-mm1: REISER4_FS <-> 4KSTACKS
+Message-ID: <20050322185605.GB27733@wohnheim.fh-wedel.de>
+References: <20050321025159.1cabd62e.akpm@osdl.org> <20050322171340.GE1948@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [194.85.82.65]); Tue, 22 Mar 2005 21:54:43 +0300 (MSK)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050322171340.GE1948@stusta.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Mar 2005 10:26:19 -0800
-Ram <linuxram@us.ibm.com> wrote:
-
-> On Mon, 2005-03-21 at 23:07, Guillaume Thouvenin wrote:
-> > On Mon, 2005-03-21 at 12:52 -0800, Ram wrote:
-> > >      If a bunch of applications are listening for fork events, 
-> > >      your patch allows any application to turn off the 
-> > >      fork event notification?  Is this the right behavior?
-> > 
-> > Yes it is. The main management is done by application so, if several
-> > applications are listening for fork events you need to choose which one
-> > will turn off the fork connector. 
-> > 
-> > I want to keep this turn on/off mechanism simple but if it's needed I
-> > can manage the variable "cn_fork_enable" as a counter. Thus the callback
-> > could be something like:
-> > 
-> > static void cn_fork_callback(void *data)
-> > {
-> >   int start; 
-> >   struct cn_msg *msg = (struct cn_msg *)data;
-> > 
-> >   if (cn_already_initialized && (msg->len == sizeof(cn_fork_enable))) {
-> >     memcpy(&start, msg->data, sizeof(cn_fork_enable));
-> >     if (start)
-> >       cn_fork_enable++;
-> >     else
-> >       cn_fork_enable > 0 ? cn_fork_enable-- : 0;
-> >   }
-> > }
+On Tue, 22 March 2005 18:13:40 +0100, Adrian Bunk wrote:
 > 
-> I think a better way is:
+> REISER4_FS is the only option with a dependency on !4KSTACKS which is 
+> bad since 8 kB stacks on i386 won't stay forever.
 > 
->    Providing a different connector channel called the administrator 
->    channel which can be used only by a super-user, and gives you
->    the ability to switch on or off any connector channel including the
->    fork-connector channel.
-
-Only super-user can bind netlink socket to multicast group.
-
->    For lack of better term I am using the word 'channel' to mean
->    something that carries events of particular type through the
->    connector-infrastructure.
-
-I still do not see why it is needed.
-Super-user can run ip command and turn network interface off
-not waiting while apache or named exits or unbind.
-
-In theory I can create some kind of userspace registration mechanism,
-when userspace application reports it's pid to the connector, 
-and then it sends data to the specified pids, but does not 
-allow controlling from userspace.
-But I really do not think it is a good idea to permit
-non-priviledged userspace processes to know about deep
-kernel internals through connector's messages.
-
-> RP
+> Could fix the problems with 4 kB stacks?
 > 
+> Running
 > 
-> > 
-> > 
-> > What do you think about this implementation? 
-> > 
-> > Guillaume
-> > 
+>   make checkstacks | grep reiser4
+> 
+> inside te kernel sources after compiling gives you hints where problems 
+> might come from.
+
+Actually, I've run the Big Ol' checkstack program on reiser4 once.
+Without recursions, the code is well below 3k, but some of the
+recursions look a bit daunting.  Here is the relevant output:
+
+WARNING: recursion detected:
+       8  jload_gfp
+      36  eflush_del
+      24  eflush_free
+      36  ef_free_block
+       0  reiser4_dealloc_block
+      28  reiser4_dealloc_blocks
+       0  sa_dealloc_blocks
+      32  dealloc_blocks_bitmap
+      36  load_and_lock_bnode
+      20  prepare_bnode
+
+WARNING: recursion detected:
+       8  zload
+      16  zload_ra
+      68  formatted_readahead
+       0  reiser4_get_right_neighbor
+     264  reiser4_get_neighbor
+     108  renew_neighbor
+      44  renew_sibling_link
+      48  far_next_coord
+
+WARNING: recursion detected:
+      32  reiser4_grab_space
+      12  txnmgr_force_commit_all
+       0  force_commit_atom_nolock
+       4  txn_restart_current
+       8  txn_restart
+       8  txn_end
+      36  commit_txnh
+      16  try_commit_txnh
+      28  commit_current_atom
+      24  flush_current_atom
+     404  jnode_flush
+      88  alloc_pos_and_ancestors
+      96  alloc_one_ancestor
+      20  allocate_znode
+      32  allocate_znode_loaded
+      84  allocate_znode_update
+       0  reiser4_alloc_block
+      24  reiser4_alloc_blocks
+
+stackframes for call path too long (2808):
+    size  function
+     460  rename_hashed
+     112  safe_link_add
+     108  store_black_box
+      52  insert_by_key
+     224  coord_by_key
+      60  handle_eottl
+     124  carry
+      88  lock_carry_node
+      72  add_tree_root
+       8  zload
+      16  zload_ra
+      68  formatted_readahead
+     264  reiser4_get_neighbor
+       0  reiser4_get_parent
+      28  reiser4_get_parent_flags
+       8  longterm_unlock_znode
+      20  forget_znode
+       8  uncapture_page
+      36  eflush_del
+      24  eflush_free
+      28  reiser4_dealloc_blocks
+      32  dealloc_blocks_bitmap
+      20  jinit_new
+      20  jnode_get_page_locked
+      16  find_or_create_page
+      24  add_to_page_cache_lru
+      24  add_to_page_cache
+       8  radix_tree_preload
+      12  kmem_cache_alloc
+      52  __alloc_pages
+       8  out_of_memory
+       8  mmput
+      16  exit_aio
+      20  __put_ioctx
+      40  do_munmap
+      36  split_vma
+      40  vma_adjust
+       8  fput
+       8  __fput
+     208  locks_remove_flock
+      20  lease_modify
+      16  panic
+       8  bust_spinlocks
+       4  unblank_screen
+      24  do_unblank_screen
+      20  redraw_screen
+      16  clear_selection
+      24  invert_screen
+       8  printk
+     100  vprintk
+      20  vscnprintf
+      40  vsnprintf
+     100  number
 
 
-	Evgeniy Polyakov
+Jörn
 
-Only failure makes us experts. -- Theo de Raadt
+-- 
+People will accept your ideas much more readily if you tell them
+that Benjamin Franklin said it first.
+-- unknown

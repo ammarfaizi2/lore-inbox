@@ -1,55 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286322AbSCSSDo>; Tue, 19 Mar 2002 13:03:44 -0500
+	id <S287817AbSCSSIE>; Tue, 19 Mar 2002 13:08:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286311AbSCSSDf>; Tue, 19 Mar 2002 13:03:35 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:46835
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S286322AbSCSSD0>; Tue, 19 Mar 2002 13:03:26 -0500
-Date: Tue, 19 Mar 2002 10:04:17 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, MrChuoi <MrChuoi@yahoo.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.19-pre3-ac1
-Message-ID: <20020319180417.GP2254@matchmail.com>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
-	MrChuoi <MrChuoi@yahoo.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0203190753140.25412-100000@netfinity.realnet.co.sz> <E16nJin-0007iU-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S287858AbSCSSHz>; Tue, 19 Mar 2002 13:07:55 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:35858 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S287817AbSCSSHs>; Tue, 19 Mar 2002 13:07:48 -0500
+Path: Home.Lunix!not-for-mail
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and
+    2.2.21-pre3 (client)
+Date: Tue, 19 Mar 2002 15:42:33 +0000 (UTC)
+Organization: lunix confusion services
+In-Reply-To: <shswuwkujx5.fsf@charged.uio.no>
+    <200203110018.BAA11921@webserver.ithnet.com>
+    <15499.64058.442959.241470@charged.uio.no>
+    <200203180707.g2I771Z00657@mule.m17n.org> <shs8z8qb8c5.fsf@charged.uio.no>
+    <200203180933.g2I9XTg07727@mule.m17n.org>
+    <15509.47571.248407.537415@charged.uio.no>
+NNTP-Posting-Host: kali.eth
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+X-Trace: quasar.home.lunix 1016552553 21107 10.253.0.3 (19 Mar 2002
+    15:42:33 GMT)
+X-Complaints-To: abuse-0@ton.iguana.be
+NNTP-Posting-Date: Tue, 19 Mar 2002 15:42:33 +0000 (UTC)
+X-Newsreader: knews 1.0b.0
+Xref: Home.Lunix mail.linux.kernel:142687
+X-Mailer: Perl5 Mail::Internet v1.33
+Message-Id: <a77m99$kjj$1@post.home.lunix>
+From: linux-kernel@ton.iguana.be (Ton Hospel)
+To: linux-kernel@vger.kernel.org
+Reply-To: linux-kernel@ton.iguana.be (Ton Hospel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 19, 2002 at 01:32:13PM +0000, Alan Cox wrote:
-> > actually been *allocated* as per requests, but not necesserily in use? 
-> > This one is my home box, looks a bit crazy don't you think? The box has 
+In article <15509.47571.248407.537415@charged.uio.no>,
+	Trond Myklebust <trond.myklebust@fys.uio.no> writes:
+> The solution is not to keep flogging the dead horse that is unfsd. It
+> is to put the effort into fixing knfsd so that it can cope with all
+> those cases where people are using unfsd today.
 > 
-> Yes
-> 
-> > about ~120 processes right now, heavy X session (2000x2000@32 virtual, 
-> > KDE2 with lots of eye candy), two kernel builds in the background and 
-> > cdrecord. 
-> 
-> I'm chasing a leak or two somewhere. One common theme seems to be KDE so
-> my guess is there is something like an mprotect/mremap/shared page path that
-> isnt correctly accounted and kde triggers more than most other stuff (eg
-> because of the strange way KDE execs new processes). 
-> 
-> Last night I added some validator code for the non shmfs cases to see if
-> I can find it. 
+> Cheers,
+>    Trond
 
-Hmm, you must have missed my report I sent to you earlier.
-
-After a fresh reboot, I booted into the console (no X/kde started) and ran the
-while looped kernel compile for a couple days.  Then I switched to single
-user mode to see if the address space was recovered, but it was not.
-
-Is there any way (I don't thing so, but...) that KDE can affect this when
-there aren't any KDE processes running?
-
-Mike
+<HINT_HINT>
+well, the only reasons I still use unfsd is link_relative and re-export
+</HINT_HINT>

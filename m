@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262912AbVDAVVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262911AbVDAVVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262912AbVDAVVO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 16:21:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbVDAVUa
+	id S262911AbVDAVVM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 16:21:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbVDAVUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 16:20:30 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:55529 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262912AbVDAVSg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 16:18:36 -0500
-Subject: Re: NFS client latencies
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050401043022.GA22753@elte.hu>
-References: <20050331065942.GA14952@elte.hu>
-	 <20050330231801.129b0715.akpm@osdl.org> <20050331073017.GA16577@elte.hu>
-	 <1112270304.10975.41.camel@lade.trondhjem.org>
-	 <1112272451.10975.72.camel@lade.trondhjem.org>
-	 <20050331135825.GA2214@elte.hu>
-	 <1112279522.20211.8.camel@lade.trondhjem.org>
-	 <20050331143930.GA4032@elte.hu> <20050331145015.GA4830@elte.hu>
-	 <1112322516.2509.28.camel@mindpipe>  <20050401043022.GA22753@elte.hu>
+	Fri, 1 Apr 2005 16:20:55 -0500
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:61435 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262911AbVDAVS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 16:18:56 -0500
+Subject: Re: [PATCH] clean up kernel messages
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050401204629.GJ15453@waste.org>
+References: <20050401200851.GG15453@waste.org>
+	 <20050401122641.7c52eaab.akpm@osdl.org>  <20050401204629.GJ15453@waste.org>
 Content-Type: text/plain
-Date: Fri, 01 Apr 2005 16:18:34 -0500
-Message-Id: <1112390315.7062.11.camel@mindpipe>
+Organization: Kihon Technologies
+Date: Fri, 01 Apr 2005 16:18:42 -0500
+Message-Id: <1112390323.578.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-04-01 at 06:30 +0200, Ingo Molnar wrote:
-> * Lee Revell <rlrevell@joe-job.com> wrote:
-> 
-> > > > ah - cool! This was a 100 MB writeout so having 3.7 msecs to process 
-> > > > 20K+ pages is not unreasonable. To break the latency, can i just do a 
-> > > > simple lock-break, via the patch below?
+On Fri, 2005-04-01 at 12:46 -0800, Matt Mackall wrote:
+> On Fri, Apr 01, 2005 at 12:26:41PM -0800, Andrew Morton wrote:
+> > Matt Mackall <mpm@selenic.com> wrote:
+> > >
+> > > This patch tidies up those annoying kernel messages. A typical kernel
+> > >  boot now looks like this:
 > > > 
-> > > with this patch the worst-case latency during NFS writeout is down to 40 
-> > > usecs (!).
+> > >  Loading Linux... Uncompressing kernel...
+> > >  #
 > > > 
-> > > Lee: i've uploaded the -42-05 release with this patch included - could 
-> > > you test it on your (no doubt more complex than mine) NFS setup?
+> > >  See? Much nicer. This patch saves about 375k on my laptop config and
+> > >  nearly 100k on minimal configs.
+> > > 
 > > 
-> > This fixes all the NFS related latency problems I was seeing.  Now the 
-> > longest latency from an NFS kernel compile with "make -j64" is 391 
-> > usecs in get_swap_page.
+> > heh.  Please take a look at
+> > http://www.uwsg.iu.edu/hypermail/linux/kernel/0004.2/0709.html, see if
+> > Graham did anything which you missed.
 > 
-> great! The latest patches (-42-08 and later) have the reworked 
-> nfs_scan_list() lock-breaker, which should perform similarly.
-> 
-> i bet these NFS patches also improve generic NFS performance on fast 
-> networks. I've attached the full patchset with all fixes and 
-> improvements included - might be worth a try in -mm?
+> He's got a bunch of stuff that's not strictly related in there and
+> stuff I've already dealt with (vprintk and the like) and stuff that's
+> still forthcoming (panic tweaks, etc.). I also leave in all the APIs
+> like dmesg, they just no longer do anything.
 
-With tracing disabled on the C3 (which is the NFS server, don't ask),
-the maximum latency during the same kernel compile is about 2ms.  So
-tracing overhead probably doubled or tripled the latencies.
+Looking at your other patches, I'm assuming that this is just another
+April 1st type of patch. Is it?
 
-I'll try again with tracing enabled to determine whether these code
-paths are related to the NFS server or not.  It's either going to be
-that or the get_swap_page stuff.  But the client side is OK now.
+-- Steve
 
-Lee
 

@@ -1,62 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264478AbTE1CKS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 22:10:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264479AbTE1CKS
+	id S264479AbTE1CRK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 22:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264480AbTE1CRK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 22:10:18 -0400
-Received: from scrye.com ([216.17.180.1]:37038 "HELO scrye.com")
-	by vger.kernel.org with SMTP id S264478AbTE1CKR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 22:10:17 -0400
+	Tue, 27 May 2003 22:17:10 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:47564 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S264479AbTE1CRJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 22:17:09 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Ricky Beam <jfbeam@bluetronic.net>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Linux 2.5.70
+Date: Wed, 28 May 2003 04:30:27 +0200
+User-Agent: KMail/1.5.1
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.GSO.4.33.0305271245290.4448-100000@sweetums.bluetronic.net>
+In-Reply-To: <Pine.GSO.4.33.0305271245290.4448-100000@sweetums.bluetronic.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Tue, 27 May 2003 20:23:25 -0600
-From: Kevin Fenzi <kevin@scrye.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Dave Jones <davej@codemonkey.org.uk>
-X-Mailer: VM 7.07 under 21.4 (patch 12) "Portable Code" XEmacs Lucid
-Subject: Re: Lockups with DRI in APM resume
-References: <1054085378.18380.81.camel@sherkaner.pao.digeo.com>
-Message-Id: <20030528022328.8BF30F7FA5@voldemort.scrye.com>
+Content-Disposition: inline
+Message-Id: <200305280430.27941.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tuesday 27 May 2003 18:58, Ricky Beam wrote:
+> On Mon, 26 May 2003, Linus Torvalds wrote:
+> >... to start the "pre-2.6" series ...
+>
+> You're kidding, right?  2.5 is no where near ready to be called anything
+> like "2.6".
 
->>>>> "Jeremy" == Jeremy Fitzhardinge <jeremy@goop.org> writes:
+Don't freak out too much - remember how long the -test series lasted last time 
+(most of a year).  Hopefully it will be faster this time, but even twice as 
+fast will still give people time to beat on their favorite features and 
+drivers.
 
-Jeremy> If I enable DRI for my Radeon Mobility M6, it crashes when I
-Jeremy> resume from an APM suspend.  If I do the suspend while at a
-Jeremy> text console, it resumes properly, but then crashes when I
-Jeremy> switch to the X server.
+Regards,
 
-Jeremy> I noticed that Andrew has a mention of DRI resume problems in
-Jeremy> the must-fix list, so I presume this is an instance of that
-Jeremy> problem.  I wonder if there's any patches I can try out, or
-Jeremy> anything else I can do to help fix this problem.
-
-Yeah, take a look at: 
-
-http://cpbotha.net/dri_resume.html
-
-Works great here on my Mobility M7 (radeon 7500). 
-I can do software suspend even while running 3d apps. 
-
-Jeremy> My hardware is an IBM ThinkPad X31, which is fitted with an
-Jeremy> ATI Radeon Mobility M6 LY.  I'm running 2.5.70-mm1 (.config
-Jeremy> attached); I'm running RH 9.0, with XFree86 4.3.0.
-
-Jeremy> Thanks, J
-
-kevin
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.8 <http://mailcrypt.sourceforge.net/>
-
-iD8DBQE+1B2g3imCezTjY0ERAtUXAJ4mlHbNmT1BXdiquuz6L+EBA7pNlACfXX/a
-6lGiSWWk4qpiqtFhVRrAdF8=
-=jhvx
------END PGP SIGNATURE-----
+Daniel

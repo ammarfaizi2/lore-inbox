@@ -1,88 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264367AbUFDGSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264373AbUFDGe1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264367AbUFDGSY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 02:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264373AbUFDGSY
+	id S264373AbUFDGe1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 02:34:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265637AbUFDGe1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 02:18:24 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:28155 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S264367AbUFDGSV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 02:18:21 -0400
-Subject: [PATCH] NUMA-aware per-cpu allocation
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Anton Blanchard <anton@samba.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@muc.de>
-Content-Type: text/plain
-Message-Id: <1086329823.7990.1101.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 04 Jun 2004 16:17:04 +1000
-Content-Transfer-Encoding: 7bit
+	Fri, 4 Jun 2004 02:34:27 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:41526 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S264373AbUFDGeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jun 2004 02:34:24 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: lotsa oops - 2.6.5 (preempt + unable handle virutal address +
+    more?)
+X-Attribution: anupam
+References: <E1BW7gZ-00066c-00@mail.kbs.net.au>
+From: Anupam Kapoor <anupam.kapoor@veritas.com>
+Face: iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAHlBMVEX29feBVUXQw8AoGxf5 
+    9/v49/q2g23f2Nfx7/H7+v1tv7dGAAACQklEQVR4nGWSQW/UMBCFfUnZ3vBG+EyNWJ93LbX3aiLh
+    21LFhR6zRQauvqS9FSS2/QEG5H/LG3uzKTCKnGS+eW/GicXTgxBiUda/o4KF+I88zU9Rm4e54Pjw
+    vbXWKiNm0Hg2i5xHfJnNGr8VYm8PsWk8vx/jdgL2tfd+zp8c8/bC+6aYND0K3szA3pMvbj5120X7
+    DLxMftvApc/55xUnZJCTV2nC4NratQwIKVu7SV2xopzTe9TLsNOrMEi76ciRF81NzvmagQq7As6J
+    a0XjsF4WBccg2/NMyAmPha7QQio4VcDBgOiDXWNgudMMNgdA5KlroZDrEIDbiwr65Ih+t0ifyzDw
+    Rl8dALlEJ7cQhEFhJtl+5XwCIHL7W54JQKl1e59Tok74vqe8GiYA5SnGJBJ93/UAqgI5SNVTmqyq
+    Qg+7lQIt+wNwObl9BeoMYFmcqADa1x78vSroPHbeeboqgH2CXBJb5XJ4+vRNKjUUDZrflH0I/rvu
+    l+TgYeXO1Z0LzyfrsuQDr2/zAeCoNPROTqHyM4ABjk7Lv0B23DYw+VTS+FZVkc4mq/Jt8Y8AHOgC
+    CstnRxoe1iVWUBKPkRUtny59B4Grio+jNkPxwY/U+q7HweJD/UKPcTz20EabG0pb8fQYzTjGCaio
+    tTanyYtoIvLjKlSzJdJw/tEISBnoUOMz3kY96gfBFQbXAXAZhxblFkezmoApCYBYKyrYaVZwl3+A
+    iRWMUWBhXwzJAtSW5gC1FwoLwI3LZ6CjjjDDTZdZxvEPCh8u8qEw0iIAAAAASUVORK5CYII=
+Date: Fri, 04 Jun 2004 11:56:37 +0530
+In-Reply-To: <E1BW7gZ-00066c-00@mail.kbs.net.au> 
+    (pods@dodo.com.au's message of "Fri, 4 Jun 2004 11:26:13 +0530")
+Message-ID: <87fz9b96ua.fsf@seldon.vxindia.veritas.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stolen from x86_64: if we have NUMA, then use alloc_bootmem_node.
+looks like you are using nvidia ?
 
-Can't hurt, I figure.
+anupam
 
-In 2.7, my cunning plan is to require contiguous sections, and allocate
-similar sections for the dynamic per-cpu allocations, so this won't work
-(archs will need to use tricks to create virtually-contiguous memory
-from different NUMA nodes).  I have a bitrotted implementation.
+"Pods" <pods@dodo.com.au> writes:
 
-Meanwhile, this compiles: does it help performance?
-
-Name: Per-CPU Memory On Right Nodes
-Status: Untested
-
-Stolen from x86_64: for NUMA machines, allocate the per-cpu memory
-using alloc_bootmem_node so it's optimally placed.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1784-linux-2.6.7-rc2-bk4/include/asm-ppc64/percpu.h .1784-linux-2.6.7-rc2-bk4.updated/include/asm-ppc64/percpu.h
---- .1784-linux-2.6.7-rc2-bk4/include/asm-ppc64/percpu.h	2004-02-04 15:39:11.000000000 +1100
-+++ .1784-linux-2.6.7-rc2-bk4.updated/include/asm-ppc64/percpu.h	2004-06-04 14:49:59.000000000 +1000
-@@ -1,6 +1,8 @@
- #ifndef __ARCH_PPC64_PERCPU__
- #define __ARCH_PPC64_PERCPU__
- 
-+/* Big sloppy arch needs more per-cpu room than usual */
-+#define PERCPU_ENOUGH_ROOM 65536
- #include <asm-generic/percpu.h>
- 
- #endif /* __ARCH_PPC64_PERCPU__ */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .1784-linux-2.6.7-rc2-bk4/init/main.c .1784-linux-2.6.7-rc2-bk4.updated/init/main.c
---- .1784-linux-2.6.7-rc2-bk4/init/main.c	2004-05-31 09:57:40.000000000 +1000
-+++ .1784-linux-2.6.7-rc2-bk4.updated/init/main.c	2004-06-04 14:53:17.000000000 +1000
-@@ -338,12 +338,26 @@ static void __init setup_per_cpu_areas(v
- 		size = PERCPU_ENOUGH_ROOM;
- #endif
- 
-+	/* Multiple allocs for non-NUMA just wastes memory. */
-+#ifdef CONFIG_NUMA
-+	for (i = 0; i < NR_CPUS; i++) { 
-+		pg_data_t *pgdat;
-+
-+		pgdat = NODE_DATA(cpu_to_node(i));
-+		ptr = alloc_bootmem_node(pgdat, size);
-+		if (!ptr)
-+			panic("Cannot allocate cpu data for CPU %ld\n", i);
-+		__per_cpu_offset[i] = ptr - __per_cpu_start;
-+		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
-+	}
-+#else
- 	ptr = alloc_bootmem(size * NR_CPUS);
- 
- 	for (i = 0; i < NR_CPUS; i++, ptr += size) {
- 		__per_cpu_offset[i] = ptr - __per_cpu_start;
- 		memcpy(ptr, __per_cpu_start, __per_cpu_end - __per_cpu_start);
- 	}
-+#endif /* CONFIG_NUMA */
- }
- #endif /* !__GENERIC_PER_CPU */
- 
-
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+>    Hi, sorry for the not very descriptive subject.
+>
+>    I have a problem with linux 2.6.5, it crashes, a lot. Some times it
+>    spews
+>    out oops at me, sometimes i dotn know if it oopsed or not because the
+>    machine doesnt respond.
+>
+>    I can reproduce this by several means, including playing a dvd,
+>    compiling
+>    firefox, mplayer or thunderbird and i can be doing something not quite
+>    a
+>    hard on the system such as browsing the web or chatting... It'll find
+>    some
+>    way to piss me off.
+>
+>    Now, i have supplied several oops, each on containing the full output
+>    of
+>    dmesg via the kernel logging daemon. I have also supplied my hardware
+>    specs
+>    (mobo + lspci -vvv) and out put of ver_linux?... All these files can
+>    be
+>    found @ [1]http://users.quickfox.org/~pods/linux-issues/.
+>
+>    I didnt want to post them here because each oops IIRC is different.
+>    Just to
+>    let you know if have tried several way in which to correct this.
+>
+>    * several different kernels ( 2.4.18-bf24, 2.4.26, 2.6.5 )
+>    ** with ide shareirq
+>    ** noapic
+>    ** + apic
+>    ** noacpi
+>    ** + acpi
+>    ** lots of other differences
+>
+>    * Recently i had turned to bios and have disabled many things
+>    including apic
+>    (just incase you where wondering, bios had mps @ 1.4)
+>
+>    If you would rather me add the very large amoung of oops to this
+>    email, tell
+>    me and i'll do so. Thanks in advance.
+>
+>    P.S Im not subscribed to the list, i may consider it depending on the
+>    amount
+>    of feedback i get and how involved i need to be, but for now i'd
+>    rather if
+>    people could CC me their response. Thank you
+>    again.
+>
+>    ________________________________________________
+>
+>    Message sent using
+>    Dodo Internet Webmail Server
+>
+>    -
+>    To unsubscribe from this list: send the line "unsubscribe
+>    linux-kernel" in
+>    the body of a message to majordomo@vger.kernel.org
+>    More majordomo info at  [2]http://vger.kernel.org/majordomo-info.html
+>    Please read the FAQ at  [3]http://www.tux.org/lkml/
+>
+> References
+>
+>    1. http://users.quickfox.org/~pods/linux-issues/
+>    2. http://vger.kernel.org/majordomo-info.html
+>    3. http://www.tux.org/lkml/

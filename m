@@ -1,44 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292328AbSB0K44>; Wed, 27 Feb 2002 05:56:56 -0500
+	id <S292330AbSB0LC3>; Wed, 27 Feb 2002 06:02:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292324AbSB0K4q>; Wed, 27 Feb 2002 05:56:46 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:1670 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S289299AbSB0K4e>; Wed, 27 Feb 2002 05:56:34 -0500
-Date: Wed, 27 Feb 2002 11:56:30 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: neilb@unsw.edu.au
-Subject: [PATCH 2.5.6-bk] Compile fix for nfsd / module.
-Message-ID: <20020227105630.GC19173@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S292324AbSB0LCS>; Wed, 27 Feb 2002 06:02:18 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:20745 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S292326AbSB0LCM>;
+	Wed, 27 Feb 2002 06:02:12 -0500
+Date: Wed, 27 Feb 2002 08:01:45 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: <m.knoblauch@teraport.de>
+Cc: <Martin.Bligh@us.ibm.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in thetree
+In-Reply-To: <3C7CB28A.CAD095B5@TeraPort.de>
+Message-ID: <Pine.LNX.4.33L.0202270800420.7820-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The new svc_reserve function is not exported from net/sunrpc/sunrpc_syms.c
-but is used in fs/nfsd/*, making nfsd incompilable as a module.
+On Wed, 27 Feb 2002, Martin Knoblauch wrote:
 
-The attached trivial patch fix this.
+> > > Not to begin the flamewar, but no thanks. rmap-12f blows -aa away AFAIK
+> > > on this P200 w/ 64MB ram.
+> >
+> > rmap still sucks on large systems though. I'd love to see rmap
+> > in the main kernel, but it needs to get the scalability fixed first.
+> > The main problem seems to be pagemap_lru_lock ... Rik & crew
+> > know about this problem, but let's give them some time to fix it
+> > before rmap gets put into mainline ....
+>
+>  just out of curiosity: where does "large systems" start in your
+> context?
 
-Stelian.
+My guess it would start at about 4 or 8 CPUs.
 
-===== net/sunrpc/sunrpc_syms.c 1.5 vs edited =====
---- 1.5/net/sunrpc/sunrpc_syms.c	Tue Feb  5 08:45:39 2002
-+++ edited/net/sunrpc/sunrpc_syms.c	Wed Feb 27 11:25:23 2002
-@@ -75,6 +75,7 @@
- EXPORT_SYMBOL(svc_drop);
- EXPORT_SYMBOL(svc_process);
- EXPORT_SYMBOL(svc_recv);
-+EXPORT_SYMBOL(svc_reserve);
- EXPORT_SYMBOL(svc_wake_up);
- EXPORT_SYMBOL(svc_makesock);
- 
+Systems which have a lot of pagetable overhead would also
+suffer with -rmap, until -rmap supports pte_highmem.
 
+regards,
+
+Rik
 -- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

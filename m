@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290490AbSBKVhg>; Mon, 11 Feb 2002 16:37:36 -0500
+	id <S290472AbSBKVg4>; Mon, 11 Feb 2002 16:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290496AbSBKVh1>; Mon, 11 Feb 2002 16:37:27 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:16046 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S290490AbSBKVhQ>; Mon, 11 Feb 2002 16:37:16 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200202112137.g1BLb3I19212@eng2.beaverton.ibm.com>
-Subject: Re: patch: aio + bio for raw io
-To: bcrl@redhat.com (Benjamin LaHaise)
-Date: Mon, 11 Feb 2002 13:37:03 -0800 (PST)
-Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20020208025313.A11893@redhat.com> from "Benjamin LaHaise" at Feb 08, 2002 01:53:13 AM PST
-X-Mailer: ELM [version 2.5 PL3]
+	id <S290490AbSBKVgq>; Mon, 11 Feb 2002 16:36:46 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:19210 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290472AbSBKVgf>;
+	Mon, 11 Feb 2002 16:36:35 -0500
+Date: Mon, 11 Feb 2002 19:36:28 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Andrew Rodland <arodland@noln.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH *] rmap based VM 12e
+In-Reply-To: <20020211084426.21907cfb.arodland@noln.com>
+Message-ID: <Pine.LNX.4.33L.0202111935400.12554-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Quick message: this patch makes aio use bio directly for brw_kvec_async.  
-> This is against yesterday's patchset.  Comments?
-> 
-Hi Ben,
+On Mon, 11 Feb 2002, Andrew Rodland wrote:
+> On Mon, 11 Feb 2002 00:15:24 -0200 (BRST)
+> Rik van Riel <riel@conectiva.com.br> wrote:
+>
+> > The fifth maintenance release of the 12th version of the reverse
+> > mapping based VM is now available.
+>
+> I don't have any evil benchmarks to run, but it works just great on my
+> little laptop (192mb ram, 73mb swap). The O(1)-K3 patch against 12c also
+> applies fine, and does the right thing.
+>
+> This is cool-beans stuff. Makes me glad that I'm just a bit adventurous.
 
-I have one more question on your latest aio patch.
+No evil benchmarks required.  If this patch makes your machine
+behave better for what you do ... that's all we need ;)
 
-raw_kvec_rw() seem to handle max upto 512K (max_sectors = 2500). 
-But I don't see any where you loop thro to satisfy the entire 
-IO request.
+regards,
 
-Infact, generic_aio_read() is mapping the user buffer for the iosize 
-and calling file->f_op->kvec_read(file, cb, iosize, pos). 
-How does the io > 512K gets handled ?
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-NOTE: I have not looked at the userlevel code. Is IO split at max 512K
-      at userlevel ?
+http://www.surriel.com/		http://distro.conectiva.com/
 
-Thanks,
-Badari

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130030AbQKXJNp>; Fri, 24 Nov 2000 04:13:45 -0500
+        id <S129728AbQKXJOP>; Fri, 24 Nov 2000 04:14:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129971AbQKXJNf>; Fri, 24 Nov 2000 04:13:35 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:20214 "EHLO cs.columbia.edu")
-        by vger.kernel.org with ESMTP id <S129728AbQKXJNU>;
-        Fri, 24 Nov 2000 04:13:20 -0500
-Date: Fri, 24 Nov 2000 00:43:06 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Andre Hedrick <andre@linux-ide.org>
-cc: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <Pine.LNX.4.10.10011232155540.2957-100000@master.linux-ide.org>
-Message-ID: <Pine.LNX.4.21.0011240025570.16450-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S129971AbQKXJOG>; Fri, 24 Nov 2000 04:14:06 -0500
+Received: from linus.st-and.ac.uk ([138.251.32.11]:63220 "EHLO
+        linus.st-andrews.ac.uk") by vger.kernel.org with ESMTP
+        id <S129728AbQKXJNn>; Fri, 24 Nov 2000 04:13:43 -0500
+Date: Fri, 24 Nov 2000 08:42:06 GMT
+Message-Id: <200011240842.IAA07873@hindleyhome.st-andrews.ac.uk>
+From: Mark Hindley <mh15@st-andrews.ac.uk>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] ? ide-scsi 2.4.0-test11. Can't mount iso9660 cd
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Nov 2000, Andre Hedrick wrote:
+I can not mount an  cd in either my cdrom or cdrw drives. Both are ide
+drives using scsi-ide emulation.
 
-> Since there have been not kernel changes to the driver that effect the
-> code since 2.4.0-test5 or test6 and it now randomly shows up after five or
-> six revisions out from the change, and the changes were chipset only.
-> 
-> Please make your point.
+During the mount the logs show:
 
-My point is simple: I'm trying to see if there is a pattern. I've had
-filesystems corrupted with 2.2.18 + the backported IDE driver. Other
-people have had filesystems corrupted with 2.4.0 + the same IDE driver.
-If *all* people seeing f/s corruption have IDE disks and *none* of them
-have SCSI, there might be something worth looking into. It might as well 
-be pure coincidence.
+Nov 23 10:03:27 hindleyhome kernel: VFS: Disk change detected on device sr(11,0)
+Nov 23 10:03:29 hindleyhome kernel: ISO 9660 Extensions: Microsoft Joliet Level 3
+Nov 23 10:03:29 hindleyhome kernel: ISO 9660 Extensions: RRIP_1991A
+Nov 23 10:05:38 hindleyhome kernel:  I/O error: dev 0b:00, sector 0
+Nov 23 10:05:38 hindleyhome kernel:  I/O error: dev 0b:00, sector 0
+Nov 23 10:05:38 hindleyhome kernel: MSDOS: Hardware sector size is 2048
+Nov 23 10:05:38 hindleyhome kernel:  I/O error: dev 0b:00, sector 0
+Nov 23 10:05:38 hindleyhome kernel: FAT bread failed
+Nov 23 10:05:38 hindleyhome kernel: MSDOS: Hardware sector size is 2048
+Nov 23 10:05:38 hindleyhome kernel:  I/O error: dev 0b:00, sector 0
+Nov 23 10:05:38 hindleyhome kernel: FAT bread failed
 
-What's especially bothering me is the fact that I've seen the IDE driver
-choke on DMA or something, and then continue on with life, while serving
-*bad* *data* to the upper layers. Even if there were real problems with
-the DMA transfers (which is not the case, 2.2.18pre without the IDE patch
-runs flawlessly), a driver should never ever serve bad blocks to the f/s
-layer. Locking up the machine completely, like some SCSI low-level drivers
-do, is much better.
+The boot logs are:
 
-************************************************************************
-So I'm asking the same question, to all those who have seen unexplained
-filesystem corruption with 2.4.0: are you using IDE drives? If the answer
-is yes, can you check the logs and see if, at *any* point before the
-corruption occurred, the IDE driver choked and disabled DMA for *any* of
-your disks?
-************************************************************************
+Nov 23 09:00:48 hindleyhome kernel: Linux version 2.4.0-test11 (root@HindleyHome) (gcc version 2.95.2 20000220 (Debian GNU/Linux)) #59 Thu Nov 23 08:54:15 GMT 2000
+(...)
+Nov 23 09:00:48 hindleyhome kernel: ide-cd: passing drive hdc to ide-scsi emulation.
+Nov 23 09:00:48 hindleyhome kernel: ide-cd: passing drive hdd to ide-scsi emulation.
+(...)
+Nov 23 09:00:48 hindleyhome kernel: SCSI subsystem driver Revision: 1.00
+Nov 23 09:00:48 hindleyhome kernel: scsi0 : SCSI host adapter emulation for IDE ATAPI devices
+Nov 23 09:00:48 hindleyhome kernel:   Vendor: YAMAHA    Model: CRW4416E          Rev: 1.0h
+Nov 23 09:00:48 hindleyhome kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+Nov 23 09:00:48 hindleyhome kernel:   Vendor: PIONEER   Model: CD-ROM DR-A24X    Rev: 1.04
+Nov 23 09:00:48 hindleyhome kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
+Nov 23 09:00:48 hindleyhome kernel: Detected scsi CD-ROM sr0 at scsi0, channel 0, id 0, lun 0
+Nov 23 09:00:48 hindleyhome kernel: Detected scsi CD-ROM sr1 at scsi0, channel 0, id 1, lun 0
+Nov 23 09:00:48 hindleyhome kernel: sr0: scsi3-mmc drive: 6x/6x writer cd/rw xa/form2 cdda tray
+Nov 23 09:00:48 hindleyhome kernel: Uniform CD-ROM driver Revision: 3.11
+Nov 23 09:00:48 hindleyhome kernel: sr1: scsi3-mmc drive: 20x/20x
+xa/form2 cdda tray
 
-Even if 90% of the installed base is IDE and 10% is SCSI, in terms of how
-heavily the hardware is being stressed the advantage of IDE over SCSI is
-definitely not 9:1.
+I have now reverted to test10 with the same setup and all works fine.
 
-And Andre, don't take this personally. We're just trying to save our
-precious data here, nothing more. :-) If something comes out of this
-inquiry, it might just give you a lead.
+Hope that is useful
 
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Mark
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

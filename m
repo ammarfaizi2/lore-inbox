@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315539AbSECCgk>; Thu, 2 May 2002 22:36:40 -0400
+	id <S315540AbSECCpu>; Thu, 2 May 2002 22:45:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315540AbSECCgj>; Thu, 2 May 2002 22:36:39 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:16647 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S315539AbSECCgj>; Thu, 2 May 2002 22:36:39 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Replace exec_permission_lite() with inlined vfs_permission() 
-cc: pmenage@ensim.com
-In-Reply-To: Your message of "Thu, 02 May 2002 22:16:37 EDT."
-             <Pine.GSO.4.21.0205022159040.17171-100000@weyl.math.psu.edu> 
+	id <S315541AbSECCpt>; Thu, 2 May 2002 22:45:49 -0400
+Received: from mail-infomine.ucr.edu ([138.23.89.48]:46045 "EHLO
+	mail-infomine.ucr.edu") by vger.kernel.org with ESMTP
+	id <S315540AbSECCps>; Thu, 2 May 2002 22:45:48 -0400
+Date: Thu, 2 May 2002 19:45:38 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.4.19pre8, Link Failure
+Message-ID: <20020503024538.GB28504@mail-infomine.ucr.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 02 May 2002 19:36:23 -0700
-Message-Id: <E173Svn-0004LE-00@pmenage-dt.ensim.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Fnord: +++ath
+X-WebTV-Stationery: Standard; BGColor=black; TextColor=black
+X-Message-Flag: Message text blocked: ADULT LANGUAGE/SITUATIONS
+X-BeenThere: crackmonkey@crackmonkey.org
+From: ruschein@mail-infomine.ucr.edu (Johannes Ruscheinski)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->IMO it's a bad idea.  In many cases we have ->permission() but it's
->perfectly OK with being called under dcache_lock - either always or
->in (fs-specific) "fast case".
->
->I would prefer ->permission_light() that would always be called
->under dcache_lock and besides the usual values could return -EAGAIN.
->In that case ->permission() would be called in a normal way.
->
+On a uniprocessor compile (.config available upon request) I get the following
+error:
 
-OK - a few details/matters of taste:
+init/main.o: In function `smp_init':
+init/main.o(.text.init+0x641): undefined reference to `skip_ioapic_setup'
+arch/i386/kernel/kernel.o: In function `broken_pirq':
+arch/i386/kernel/kernel.o(.text.init+0x3607): undefined reference to `skip_ioapic_setup'
+make: *** [vmlinux] Error 1
+-- 
+Johannes
+--
+Dr. Johannes Ruscheinski
+EMail:    ruschein_AT_infomine.ucr.edu ***          Linux                  ***
+Location: science library, room G40    *** The Choice Of A GNU Generation! ***
+Phone:    (909) 787-2279
 
-- how about similar dcache_lock-safe versions of d_op->revalidate()
-and i_op->follow_link()?
-
-- an alternative to separate methods is to add a "noblock" argument 
-to the existing methods. This entails more breakage in the short term.
-
-- permission_light() or permission_lite()? :-)
-
-Paul
-
+"He's alive.  He's alive!  Oh, that fellow at RadioShack said I was mad!
+Well, who's mad now?"
+                            -- Montgomery C. Burns

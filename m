@@ -1,68 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272855AbTHPLqL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Aug 2003 07:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272858AbTHPLqL
+	id S272851AbTHPL4W (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Aug 2003 07:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272858AbTHPL4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Aug 2003 07:46:11 -0400
-Received: from mail.suse.de ([213.95.15.193]:2833 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S272855AbTHPLqI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Aug 2003 07:46:08 -0400
-Date: Sat, 16 Aug 2003 13:44:10 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Adrian Bunk <bunk@fs.tum.de>, isdn4linux@listserv.isdn4linux.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] ISDN PCBIT: #ifdef MODULE some code
-Message-ID: <20030816114410.GA15437@pingi3.kke.suse.de>
-Mail-Followup-To: Rusty Russell <rusty@rustcorp.com.au>,
-	Adrian Bunk <bunk@fs.tum.de>, isdn4linux@listserv.isdn4linux.de,
-	linux-kernel@vger.kernel.org
-References: <20030728202500.GM25402@fs.tum.de> <20030815184720.B0E502CE86@lists.samba.org>
+	Sat, 16 Aug 2003 07:56:22 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:49110
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S272851AbTHPL4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Aug 2003 07:56:20 -0400
+Date: Sat, 16 Aug 2003 13:56:27 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.22pre6aa1
+Message-ID: <20030816115627.GE7862@dualathlon.random>
+References: <200307231521.15897.rathamahata@php4.ru> <200307251510.59062.rathamahata@php4.ru> <20030725190220.GD2659@x30.random> <200308032112.00185.rathamahata@php4.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030815184720.B0E502CE86@lists.samba.org>
+In-Reply-To: <200308032112.00185.rathamahata@php4.ru>
 User-Agent: Mutt/1.4i
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.4.21-0-default i686
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 02:51:20AM +1000, Rusty Russell wrote:
-> In message <20030728202500.GM25402@fs.tum.de> you write:
-> > I got the following error at the final linkage of 2.6.0-test2 if 
-> > CONFIG_ISDN_DRV_PCBIT is compiled statically:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   LD      .tmp_vmlinux1
-> > ...
-> > drivers/built-in.o(.exit.text+0xe183): In function `pcbit_exit':
-> > : undefined reference to `pcbit_terminate'
-> > make: *** [.tmp_vmlinux1] Error 1
+On Sun, Aug 03, 2003 at 09:12:00PM +0400, Sergey S. Kostyliov wrote:
+> Hello Andrea,
 > 
-> AFAICT This is also broken in 2.4.22-rc2, which makes me wonder if
-> anyone actually cares about this driver?
+> On Friday 25 July 2003 23:02, Andrea Arcangeli wrote:
+> > Hi Sergey,
+> >
+> > On Fri, Jul 25, 2003 at 03:10:59PM +0400, Sergey S. Kostyliov wrote:
+> > > I doubt it depends on bigpages because they
+> > > are not used in my setup. But I can live with that. Rule: do not run
+> > > `swapoff -a` under load doesn't sound as impossible in my case (if this
+> > > is the only way to trigger this problem).
+> >
+> > can you reproduce it with 2.4.21rc8aa1? If not, then likely it's a
+> > 2.5/2.6 bug that went in 2.4 during the backport. I spoke with Hugh an
+> > hour ago about this, he will soon look into this too.
 > 
-> Taken anyway, for both.
+> Sorry for late responce. I wasn't able to reproduce neither oops nor
+> lockup with 2.4.21rc8aa1.
 
-It is used, I got some reports last year (but this card is only sold in
-Portugal and is expensiv so far I know and so not so much people
-using this card and linux).
+ok good. I'm betting it's the shm backport that destabilized something.
+I had no time to look further into it during vacations ;), but the first
+suspect thing I mentioned to Hugh during OLS was this:
 
-Here 2 reasons why such thinks don't matter today:
-1. 99% compile the ISDN stuff as module (and some parts are only work as
-   modules)
-2. In 2.4 the exit function is removed at compile time, if not compiled as
-   modul.
+static void shmem_removepage(struct page *page)
+{
+	if (!PageLaunder(page))
+		shmem_free_blocks(page->mapping->host, 1);
+}
 
-I preparing lot of bugfixes for ISDN and 2.6, but testing needs much time and
-many things are broken not only at compile time.
+It's not exactly obvious how the accounting should change in function of
+the Launder bit. I mean, a writepage can happen even w/o the launder
+bitflag set (if it's not invoked by the vm) and I don't see how a msync
+or a vm pressure writepage trigger should be different in terms of
+accounting of the blocks in an inode.
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Overall I need a bit more of time on Monday to digest the whole backport
+to be sure of what's going on and if the above is right after all.
+
+Andrea

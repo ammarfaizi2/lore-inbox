@@ -1,53 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265198AbUFMQJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265199AbUFMQXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265198AbUFMQJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 12:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUFMQJ2
+	id S265199AbUFMQXb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 12:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265201AbUFMQXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 12:09:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:10181 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265198AbUFMQJ0 (ORCPT
+	Sun, 13 Jun 2004 12:23:31 -0400
+Received: from ozlabs.org ([203.10.76.45]:56483 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265199AbUFMQXa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 12:09:26 -0400
-Date: Sun, 13 Jun 2004 09:09:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>, dhowells@redhat.com,
-       linux-kernel@vger.kernel.org, apw@shadowen.org
-Subject: Re: [PATCH] Permit inode & dentry hash tables to be allocated >
- MAX_ORDER size
-In-Reply-To: <20040611161920.0a40e49d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0406130905410.2969@evo.osdl.org>
-References: <20040611034809.41dc9205.akpm@osdl.org> <567.1086950642@redhat.com>
- <1056.1086952350@redhat.com> <20040611150419.11281555.akpm@osdl.org>
- <3066250000.1086995005@flay> <20040611161920.0a40e49d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 13 Jun 2004 12:23:30 -0400
+Date: Mon, 14 Jun 2004 02:21:50 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Roland Dreier <roland@topspin.com>,
+       linuxppc64-dev <linuxppc64-dev@lists.linuxppc.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix ppc64 out_be64
+Message-ID: <20040613162150.GA25389@krispykreme>
+References: <521xkk77xh.fsf@topspin.com> <1087141822.8210.176.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1087141822.8210.176.camel@gaston>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi,
 
-On Fri, 11 Jun 2004, Andrew Morton wrote:
+> Ugh ? The syntax of std is std rS, ds(rA), so your fix doesn't look
+> good to me, and it definitely builds with the current syntax, though I
+> agree the type is indeed wrong. I also spotted another bug where we
+> forgot to change an eieio into sync in there though.
 > 
-> Confused.  Why do we have that test in there at all?  We should just toss
-> the pages one at a time into the buddy list and let the normal coalescing
-> work it out.  That way we'd end up with a single 16MB "page" followed by N
-> 256MB "pages".
+> Does this totally untested patch works for you ?
 
-Doesn't work that way. We use the base of the memory area as the "zero
-point", and while the buddy allocator itself shouldn't really care where
-that zero-point is, anybody who expects physical alignment would be really
-upset if it doesn't get it.
+It would be nice to make val unsigned long too :)
 
-So the base address has to be as aligned as anybody could ever want. And
-"anybody" wants quite a bit of alignment. Largepages usually want
-alignment guarantees, and on most architectures that means a minimum
-_physical_ address alignment of at least a few megabytes.
+Anton
 
-So the rule really should be: make sure that the buddy system base address 
-is maximally aligned, and if your memory doesn't actually _start_ at that 
-alignment point, just add the pages and let the buddy allocator build up 
-all the bitmaps etc for you.
-
-		Linus
+> @@ -358,7 +358,7 @@
+>  
+>  static inline void out_be64(volatile unsigned long *addr, int val)
+>  {
+> -	__asm__ __volatile__("std %1,0(%0); sync" : "=m" (*addr) : "r" (val));
+> +	__asm__ __volatile__("std%U0%X0 %1,%0; sync" : "=m" (*addr) : "r" (val));
+>  }
+>  
+>  #ifndef CONFIG_PPC_ISERIES 

@@ -1,191 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbUKVQzh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262190AbUKVQzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbUKVQzh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 11:55:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262207AbUKVQnq
+	id S262190AbUKVQzg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 11:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbUKVQyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 11:43:46 -0500
-Received: from dea.vocord.ru ([217.67.177.50]:30942 "EHLO vocord.com")
-	by vger.kernel.org with ESMTP id S262178AbUKVQT0 (ORCPT
+	Mon, 22 Nov 2004 11:54:05 -0500
+Received: from lilah.hetzel.org ([199.250.128.2]:45798 "EHLO lilah.hetzel.org")
+	by vger.kernel.org with ESMTP id S261537AbUKVQvN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 11:19:26 -0500
-Subject: Re: [2.6 patch] drivers/w1/dscore: fix the inline mess
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-To: Adrian Bunk <bunk@stusta.de>
-Cc: sensors@stimpy.netroedge.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20041122155223.GF19419@stusta.de>
-References: <20041122155223.GF19419@stusta.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Li04+331fWbMXJ22H58G"
-Organization: MIPT
-Date: Mon, 22 Nov 2004 19:22:31 +0300
-Message-Id: <1101140551.9784.2.camel@uganda>
+	Mon, 22 Nov 2004 11:51:13 -0500
+Date: Mon, 22 Nov 2004 13:13:07 -0500
+From: Dorn Hetzel <kernel@dorn.hetzel.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Dorn Hetzel <kernel@dorn.hetzel.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, jgarzik@pobox.com
+Subject: Re: r8169.c
+Message-ID: <20041122181307.GA3625@lilah.hetzel.org>
+References: <20041119162920.GA26836@lilah.hetzel.org> <20041119201203.GA13522@electric-eye.fr.zoreil.com> <20041120003754.GA32133@lilah.hetzel.org> <20041120002946.GA18059@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (vocord.com [192.168.0.1]); Mon, 22 Nov 2004 16:18:17 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041120002946.GA18059@electric-eye.fr.zoreil.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Nov 20, 2004 at 01:29:46AM +0100, Francois Romieu wrote:
+> Dorn Hetzel <kernel@dorn.hetzel.org> :
+> 
+> You have two options (or more) on top of 2.6.10-rc2:
+> - ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm2/2.6.10-rc2-mm2.bz2
+> - http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.10-rc2-netdev1.patch.bz2
+>
+I have gotten as far as rc2-mm2, which was a fairly complete failure.  After
+just a couple of pings on the interface, the whole system started to freeze
+up fairly hard.  Please see   http://www.hetzel.org/8169/rc2-mm2/   for a
+set of information on the system state this time around.  The last two
+lines in messages.txt are:
 
---=-Li04+331fWbMXJ22H58G
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+illyria kernel: NETDEV WATCHDOG: eth0: transmit timed out
+illyria kernel: eth0: interrupt 0001 taken in poll
 
-On Mon, 2004-11-22 at 16:52 +0100, Adrian Bunk wrote:
-> <--  snip  -->
->=20
-> ...
->   CC      drivers/w1/ds_w1_bridge.o
-> drivers/w1/ds_w1_bridge.c: In function `ds9490r_touch_bit':
-> drivers/w1/dscore.h:154: sorry, unimplemented: inlining failed in call=20
-> to 'ds_touch_bit': function body not available
-> drivers/w1/ds_w1_bridge.c:37: sorry, unimplemented: called from here
-> make[2]: *** [drivers/w1/ds_w1_bridge.o] Error 1
->=20
-> <--  snip  -->
->=20
->=20
-> The patch below removes inline's in the following cases:
-> - inline at the function prototype but not at the actual function
-> - EXPORT_SYMBOL'ed inline functions
+Then things go south pretty hard and fast...
 
-I'm ok with your changes and have applied it to my tree, thank you.
+I'll try the other patches on top of rc2-mm2 tonight and see if that turns
+out any better :)
 
->=20
-> diffstat output:
->  drivers/w1/dscore.c |   40 ++++++++++++++++++++--------------------
->  drivers/w1/dscore.h |   34 +++++++++++++++++-----------------
->  2 files changed, 37 insertions(+), 37 deletions(-)
->=20
->=20
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->=20
-> --- linux-2.6.10-rc2-mm3-full/drivers/w1/dscore.h.old	2004-11-22 15:04:42=
-.000000000 +0100
-> +++ linux-2.6.10-rc2-mm3-full/drivers/w1/dscore.h	2004-11-22 15:08:14.000=
-000000 +0100
-> @@ -151,23 +151,23 @@
-> =20
->  };
-> =20
-> -inline int ds_touch_bit(struct ds_device *, u8, u8 *);
-> -inline int ds_read_byte(struct ds_device *, u8 *);
-> -inline int ds_read_bit(struct ds_device *, u8 *);
-> -inline int ds_write_byte(struct ds_device *, u8);
-> -inline int ds_write_bit(struct ds_device *, u8);
-> -inline int ds_start_pulse(struct ds_device *, int);
-> -inline int ds_set_speed(struct ds_device *, int);
-> -inline int ds_reset(struct ds_device *, struct ds_status *);
-> -inline int ds_detect(struct ds_device *, struct ds_status *);
-> -inline int ds_stop_pulse(struct ds_device *, int);
-> -inline int ds_send_data(struct ds_device *, unsigned char *, int);
-> -inline int ds_recv_data(struct ds_device *, unsigned char *, int);
-> -inline int ds_recv_status(struct ds_device *, struct ds_status *);
-> -inline struct ds_device * ds_get_device(void);
-> -inline void ds_put_device(struct ds_device *);
-> -inline int ds_write_block(struct ds_device *, u8 *, int);
-> -inline int ds_read_block(struct ds_device *, u8 *, int);
-> +int ds_touch_bit(struct ds_device *, u8, u8 *);
-> +int ds_read_byte(struct ds_device *, u8 *);
-> +int ds_read_bit(struct ds_device *, u8 *);
-> +int ds_write_byte(struct ds_device *, u8);
-> +int ds_write_bit(struct ds_device *, u8);
-> +int ds_start_pulse(struct ds_device *, int);
-> +int ds_set_speed(struct ds_device *, int);
-> +int ds_reset(struct ds_device *, struct ds_status *);
-> +int ds_detect(struct ds_device *, struct ds_status *);
-> +int ds_stop_pulse(struct ds_device *, int);
-> +int ds_send_data(struct ds_device *, unsigned char *, int);
-> +int ds_recv_data(struct ds_device *, unsigned char *, int);
-> +int ds_recv_status(struct ds_device *, struct ds_status *);
-> +struct ds_device * ds_get_device(void);
-> +void ds_put_device(struct ds_device *);
-> +int ds_write_block(struct ds_device *, u8 *, int);
-> +int ds_read_block(struct ds_device *, u8 *, int);
-> =20
->  #endif /* __DSCORE_H */
-> =20
-> --- linux-2.6.10-rc2-mm3-full/drivers/w1/dscore.c.old	2004-11-22 15:05:19=
-.000000000 +0100
-> +++ linux-2.6.10-rc2-mm3-full/drivers/w1/dscore.c	2004-11-22 15:07:50.000=
-000000 +0100
-> @@ -35,26 +35,26 @@
->  int ds_probe(struct usb_interface *, const struct usb_device_id *);
->  void ds_disconnect(struct usb_interface *);
-> =20
-> -inline int ds_touch_bit(struct ds_device *, u8, u8 *);
-> -inline int ds_read_byte(struct ds_device *, u8 *);
-> -inline int ds_read_bit(struct ds_device *, u8 *);
-> -inline int ds_write_byte(struct ds_device *, u8);
-> -inline int ds_write_bit(struct ds_device *, u8);
-> -inline int ds_start_pulse(struct ds_device *, int);
-> -inline int ds_set_speed(struct ds_device *, int);
-> -inline int ds_reset(struct ds_device *, struct ds_status *);
-> -inline int ds_detect(struct ds_device *, struct ds_status *);
-> -inline int ds_stop_pulse(struct ds_device *, int);
-> -inline int ds_send_data(struct ds_device *, unsigned char *, int);
-> -inline int ds_recv_data(struct ds_device *, unsigned char *, int);
-> -inline int ds_recv_status(struct ds_device *, struct ds_status *);
-> -inline struct ds_device * ds_get_device(void);
-> -inline void ds_put_device(struct ds_device *);
-> +int ds_touch_bit(struct ds_device *, u8, u8 *);
-> +int ds_read_byte(struct ds_device *, u8 *);
-> +int ds_read_bit(struct ds_device *, u8 *);
-> +int ds_write_byte(struct ds_device *, u8);
-> +int ds_write_bit(struct ds_device *, u8);
-> +int ds_start_pulse(struct ds_device *, int);
-> +int ds_set_speed(struct ds_device *, int);
-> +int ds_reset(struct ds_device *, struct ds_status *);
-> +int ds_detect(struct ds_device *, struct ds_status *);
-> +int ds_stop_pulse(struct ds_device *, int);
-> +int ds_send_data(struct ds_device *, unsigned char *, int);
-> +int ds_recv_data(struct ds_device *, unsigned char *, int);
-> +int ds_recv_status(struct ds_device *, struct ds_status *);
-> +struct ds_device * ds_get_device(void);
-> +void ds_put_device(struct ds_device *);
-> =20
->  static inline void ds_dump_status(unsigned char *, unsigned char *, int)=
-;
-> -static inline int ds_send_control(struct ds_device *, u16, u16);
-> -static inline int ds_send_control_mode(struct ds_device *, u16, u16);
-> -static inline int ds_send_control_cmd(struct ds_device *, u16, u16);
-> +static int ds_send_control(struct ds_device *, u16, u16);
-> +static int ds_send_control_mode(struct ds_device *, u16, u16);
-> +static int ds_send_control_cmd(struct ds_device *, u16, u16);
-> =20
->=20
->  static struct usb_driver ds_driver =3D {
-> @@ -503,7 +503,7 @@
->  	return 0;
->  }
-> =20
-> -inline int ds_read_block(struct ds_device *dev, u8 *buf, int len)
-> +int ds_read_block(struct ds_device *dev, u8 *buf, int len)
->  {
->  	struct ds_status st;
->  	int err;
-> @@ -529,7 +529,7 @@
->  	return err;
->  }
-> =20
-> -inline int ds_write_block(struct ds_device *dev, u8 *buf, int len)
-> +int ds_write_block(struct ds_device *dev, u8 *buf, int len)
->  {
->  	int err;
->  	struct ds_status st;
---=20
+> Once you have applied one of the patch above, the patch below will improve
+> your "transmit timed out" (please apply in order and enable NAPI):
+> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-rc2-mm1/r8169-250.patch
+> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-rc2-mm1/r8169-255.patch
+> 
+> If things perform better you may want to use bigger frames and apply as
+> well r8169-260.patch and r8169-265.patch.
+> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-rc2-mm1/r8169-260.patch
+> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.10-rc2-mm1/r8169-265.patch
+>
 
---=-Li04+331fWbMXJ22H58G
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Thanks again for all your help!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBBohJHIKTPhE+8wY0RAg/4AJwOIyF/oh2s48p6/yYCN40iv1O5xACdGHUf
-oGa9v97h2HNikpGorF8iHQk=
-=WorS
------END PGP SIGNATURE-----
-
---=-Li04+331fWbMXJ22H58G--
-
+-Dorn
+ 

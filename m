@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261457AbTCJThm>; Mon, 10 Mar 2003 14:37:42 -0500
+	id <S261460AbTCJTkx>; Mon, 10 Mar 2003 14:40:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261463AbTCJThl>; Mon, 10 Mar 2003 14:37:41 -0500
-Received: from fed1mtao04.cox.net ([68.6.19.241]:31696 "EHLO
-	fed1mtao04.cox.net") by vger.kernel.org with ESMTP
-	id <S261457AbTCJThl>; Mon, 10 Mar 2003 14:37:41 -0500
-Message-ID: <3E6CEC00.4030707@cox.net>
-Date: Mon, 10 Mar 2003 12:48:16 -0700
-From: "Kevin P. Fleming" <kpfleming@cox.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030228
-X-Accept-Language: en-us, en
+	id <S261467AbTCJTkx>; Mon, 10 Mar 2003 14:40:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62993 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261460AbTCJTkw>; Mon, 10 Mar 2003 14:40:52 -0500
+Date: Mon, 10 Mar 2003 11:49:29 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: george anzinger <george@mvista.com>
+cc: Andrew Morton <akpm@digeo.com>, <cobra@compuserve.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Runaway cron task on 2.5.63/4 bk?
+In-Reply-To: <3E6CEA91.9060603@mvista.com>
+Message-ID: <Pine.LNX.4.44.0303101147200.2542-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: "Rechenberg, Andrew" <ARechenberg@shermanfinancialgroup.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: OOPS in do_try_to_free_pages with VERY large software RAID array
-References: <8075D5C3061B9441944E1373776451180F0761@cinshrexc03.shermfin.com> <6240000.1047324468@flay>
-In-Reply-To: <6240000.1047324468@flay>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> At a wild guess (OK, I only looked for about 1 minute),
-> md_status_read_proc is generating more than 4K of information, and overwriting
-> the end of it's 4K page. Throw some debug in there, and get it to printk
-> how much of the buffer it thinks it's using (just printk sz every time it
-> changes it). If it's > 4K, convert it to the seq_file interface.
-> 
-> May not be it, but it seems likely given the unusual scale of what you're
-> doing, and it's easy to check.
-> 
-> M.
 
-I posted a patch to do exactly this last week to the Linux-RAID mailing list. If 
-you check the archives you should find it. This problem also occurs if you use 
-the device-mapper under 2.5.X, because it makes all 256 md minors appear in the 
-tables and /proc/mdstat wants to tell you about all of them.
+On Mon, 10 Mar 2003, george anzinger wrote:
+> 
+> Lets consider this one on its own merits.  What SHOULD sleep do when 
+> asked to sleep for MAX_INT number of jiffies or more, i.e. when 
+> jiffies overflows?  My notion, above, it that it is clearly an error. 
 
+My suggestion (in order of preference):
+ - sleep the max amount, and then restart as if a signal had happened
+ - sleep the max amount (old behaviour)
+ - consider it an error (new behaviour)
+
+In this case the error case actually helped find the other unrelated bug, 
+so in this case the error actually _helped_ us. However, that was only 
+"help" from a kernel perspective, from a user perspective I definitely 
+think that it makes no sense to have "sleep(largenum)" return -EINVAL.
+
+And in the end it's the user that matters.
+
+		Linus
 

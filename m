@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262783AbVDAQeL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262786AbVDAQfC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262783AbVDAQeL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 11:34:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262784AbVDAQeL
+	id S262786AbVDAQfC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 11:35:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262785AbVDAQe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 11:34:11 -0500
-Received: from pat.uio.no ([129.240.130.16]:63397 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262783AbVDAQeI (ORCPT
+	Fri, 1 Apr 2005 11:34:28 -0500
+Received: from dbl.q-ag.de ([213.172.117.3]:957 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S262784AbVDAQeY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 11:34:08 -0500
-Subject: Re: NFS client latencies
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Orion Poplawski <orion@cora.nwra.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d2js2h$v74$1@sea.gmane.org>
-References: <20050331065942.GA14952@elte.hu>
-	 <20050330231801.129b0715.akpm@osdl.org> <20050331073017.GA16577@elte.hu>
-	 <1112270304.10975.41.camel@lade.trondhjem.org>
-	 <1112272451.10975.72.camel@lade.trondhjem.org>
-	 <20050331135825.GA2214@elte.hu>
-	 <1112279522.20211.8.camel@lade.trondhjem.org>
-	 <20050331143930.GA4032@elte.hu> <20050331145015.GA4830@elte.hu>
-	 <1112322516.2509.28.camel@mindpipe> <20050401043022.GA22753@elte.hu>
-	 <d2js2h$v74$1@sea.gmane.org>
-Content-Type: text/plain
-Date: Fri, 01 Apr 2005 11:33:51 -0500
-Message-Id: <1112373231.1009.5.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+	Fri, 1 Apr 2005 11:34:24 -0500
+Message-ID: <424D7809.4030908@colorfullife.com>
+Date: Fri, 01 Apr 2005 18:34:17 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RE: Industry db benchmark result on recent 2.6 kernels
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.42, required 12,
-	autolearn=disabled, AWL 1.53, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fr den 01.04.2005 Klokka 09:16 (-0700) skreiv Orion Poplawski:
-> Just a question - would these changes be expected to improve NFS client 
-> *read* access at all, or just write?
+On Mon, 28 Mar 2005, Chen, Kenneth W wrote:
+> With that said, here goes our first data point along with some historical data
+> we have collected so far.
+>
+> 2.6.11	-13%
+> 2.6.9		- 6%
+> 2.6.8		-23%
+> 2.6.2		- 1%
+> baseline	(rhel3)
 
-Just write.
+Is it possible to generate an instruction level oprofile for one recent kernel?
+I have convinced Mark Wong from OSDL to generate a few for postgres DBT-2, but postgres is limited by it's user space buffer manager, thus it wasn't that useful:
 
-Cheers,
-  Trond
+http://khack.osdl.org/stp/299167/oprofile/
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+
+--
+	Manfred
 

@@ -1,70 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263115AbUCRWXg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 17:23:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263192AbUCRWX3
+	id S263200AbUCRWWY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 17:22:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263192AbUCRWWX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 17:23:29 -0500
-Received: from hellhawk.shadowen.org ([212.13.208.175]:36368 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S263115AbUCRWXR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 17:23:17 -0500
-Date: Thu, 18 Mar 2004 22:21:45 +0000
-From: Andy Whitcroft <apw@shadowen.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>
-cc: anton@samba.org, ak@suse.de, raybry@sgi.com,
-       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       lkml <linux-kernel@vger.kernel.org>, mbligh@aracnet.com
-Subject: Re: [Lse-tech] Re: Hugetlbpages in very large memory
- machines.......
-Message-ID: <378619693.1079648505@[192.168.0.89]>
-In-Reply-To: <1079644967.12704.216.camel@moss-spartans.epoch.ncsc.mil>
-References: <40528383.10305@sgi.com> <20040313034840.GF4638@wotan.suse.de>	
- <20040313184547.6e127b51.akpm@osdl.org>	
- <20040314040634.GC19737@krispykreme>	
- <37640233.1079550324@42.150.104.212.access.eclipse.net.uk>	
- <20040318122524.3904db7d.akpm@osdl.org>
- <1079644967.12704.216.camel@moss-spartans.epoch.ncsc.mil>
-X-Mailer: Mulberry/3.1.0 (Win32)
+	Thu, 18 Mar 2004 17:22:23 -0500
+Received: from userel174.dsl.pipex.com ([62.188.199.174]:5763 "EHLO
+	einstein.homenet") by vger.kernel.org with ESMTP id S263200AbUCRWWM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 17:22:12 -0500
+Date: Thu, 18 Mar 2004 22:20:07 +0000 (GMT)
+From: Tigran Aivazian <tigran@veritas.com>
+X-X-Sender: tigran@einstein.homenet
+To: Justin Piszcz <jpiszcz@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Microcode Question
+In-Reply-To: <Law10-F95ihL5C2Skqk00028182@hotmail.com>
+Message-ID: <Pine.LNX.4.44.0403182215360.3732-100000@einstein.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On 18 March 2004 16:22 -0500 Stephen Smalley <sds@epoch.ncsc.mil> wrote:
+Hi Justin,
 
-> On Thu, 2004-03-18 at 15:25, Andrew Morton wrote:
->> Seems reasonable, although "vm_enough_acctdom" makes my eyes pop.  Why
->> not keep the "vm_enough_memory" identifier?
->>
->> I've asked Stephen for comment - assuming he's OK with it I'd ask you to
->> finish this off please.
+The answer to your question is that some Intel CPUs (just like any other
+hardware or software) contain bugs and, fortunately, their architecture is
+flexible enough to provide a way to fix those bugs by means of loading the
+microcode update on the fly, i.e. while the OS is running with no need
+to reboot (in fact, rebooting or otherwise resetting the CPU causes the
+update to be lost and requires to run the update again).
 
-I have no emotional attachment to any of the names.  If we can come up with 
-a more sensible name then all for the best.  I was trying to find something 
-which implied the 'measurement' thing which didn't overlap with any of the 
-other memory grouping concepts.  As the domains overlap nodes and zones.
+This is the advantage. There are no disadvantages. After the microcode 
+update has been loaded into the CPUs, the microcode driver can be removed 
+to save a tiny amount of memory that it takes:
 
-> To keep the name, he needs to update all callers, right?  Current patch
-> appears to add a static inline for security_vm_enough_memory that
-> retains the old interface to avoid having to update most callers.
+# rmmod microcode
 
-Yes this is the main reason for the name change.  This is at the dirty hack 
-stage in that sense, minimal changes to prove the concept.  I think that we 
-should be changing all the callers if this is going mainline in the longer 
-term.  Although then the do cross 4 architecture and with it being in the 
-security interface it also interfaces with selinux as well (sigh).
+Yes, it does matter which Intel CPUs you have. The driver selects the 
+appropriate chunk of microcode for every CPU present on the system and 
+loads it accordingly. You may even have mixed CPUs (i.e. of different 
+kind) in an SMP system and this is handled automatically.
 
-I'll put together a more complete change over of the interface, keep the 
-name the same and see how intrusive that seems.  Then we'll get some 
-testing on it.
+Kind regards
+Tigran
 
-> I don't have any fundamental problem with the nature of the change.  As
-> a side note, patch was malformed (at least as I received it), not sure
-> if that was just a problem on my end.
+On Thu, 18 Mar 2004, Justin Piszcz wrote:
 
-Steven, I'll send you a copy of the patch under separate cover.
+> The URL: http://www.urbanmyth.org/microcode/
+> 
+> The microcode_ctl utility is a companion to the IA32 microcode driver 
+> written by Tigran Aivazian <tigran@veritas.com>. The utility has two uses:
+> 
+>     * it decodes and sends new microcode to the kernel driver to be uploaded 
+> to Intel IA32 processors. (Pentium Pro, PII, PIII, Pentium 4, Celeron, Xeon 
+> etc - all P6 and above, which does NOT include pentium classics)
+>     * it signals the kernel driver to release any buffers it may hold
+> 
+> The microcode update is volatile and needs to be uploaded on each system 
+> boot i.e. it doesn't reflash your cpu permanently, reboot and it reverts 
+> back to the old microcode.
+> 
+> My question is, what are the advantages vs disadvantages in updating your 
+> CPU's microcode?
+> 
+> Is it worth it?
+> 
+> Does it matter what type of Intel CPU you have?
+> 
+> Do some CPU's benefit more than others for microcode updates?
+> 
+> I know RedHat distributions usually do this by default, but others do not.
+> 
+> Can anyone explain reasons to or not to update the CPU microcode?
+> 
+> _________________________________________________________________
+> FREE pop-up blocking with the new MSN Toolbar – get it now! 
+> http://clk.atdmt.com/AVE/go/onm00200415ave/direct/01/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
--apw

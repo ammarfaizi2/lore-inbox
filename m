@@ -1,42 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290292AbSAXINt>; Thu, 24 Jan 2002 03:13:49 -0500
+	id <S290291AbSAXIL7>; Thu, 24 Jan 2002 03:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290295AbSAXINl>; Thu, 24 Jan 2002 03:13:41 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:61406 "EHLO
-	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S290292AbSAXINb>; Thu, 24 Jan 2002 03:13:31 -0500
-Date: 24 Jan 2002 08:59:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8HSVvR$1w-B@khms.westfalen.de>
-In-Reply-To: <a2kac1$m0a$1@cesium.transmeta.com>
-Subject: Re: Why not "attach" patches?
-X-Mailer: CrossPoint v3.12d.kh8 R/C435
+	id <S290292AbSAXILu>; Thu, 24 Jan 2002 03:11:50 -0500
+Received: from bs1.dnx.de ([213.252.143.130]:38568 "EHLO bs1.dnx.de")
+	by vger.kernel.org with ESMTP id <S290291AbSAXILf>;
+	Thu, 24 Jan 2002 03:11:35 -0500
+Date: Thu, 24 Jan 2002 09:09:50 +0100 (CET)
+From: Robert Schwebel <robert@schwebel.de>
+X-X-Sender: <robert@callisto.local>
+Reply-To: <robert@schwebel.de>
+To: <marcelo@conectiva.com.br>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: New version of AMD Elan patch
+In-Reply-To: <Pine.LNX.4.33.0201210821570.21377-100000@callisto.local>
+Message-ID: <Pine.LNX.4.33.0201240905010.893-100000@callisto.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <a2kac1$m0a$1@cesium.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hpa@zytor.com (H. Peter Anvin)  wrote on 22.01.02 in <a2kac1$m0a$1@cesium.transmeta.com>:
+Hi Marcelo,
 
-> The common ground most people seems to be able to accept is:
->
-> a. Go ahead and make patches as attachments, if your MUA makes it easier;
-> b. Be bloody certain they're text/plain attachments.
+thanks for applying the Elan patch. Unfortunately, I've discovered a typo,
+patch below.
 
-... and that they have Content-Transfer-Encoding: 7bit or 8bit.
+For the list: the remaining stuff against -pre7 is as usual on
 
-*Not* quoted-printable or base64.
+  http://www.pengutronix.de/software/elan_en.wml
 
-Which means that you lose if the patch contains chars whose 8th bit is  
-set, if any MTA between you and Linus/Alan/etc. doesn't like that. Which  
-is not quite unlikely. (But most MUAs won't allow you to send something  
-like that anyway.)
+Changelog:
 
-MfG Kai
+01/24/2002      Robert Schwebel <robert@schwebel.de>
+
+                - Revision 2.4.18-pre7.1 released.
+                - Marcelo has integrated everything but the serial
+                  driver stuff into the latest pre-patch. I'll have
+                  to send the rest to tytso...
+                - striped out the applied stuff
+                - typo in arch/i386/kernel/setup.c
+
+Robert
+
+----------8<----------
+diff -urN -X kernel-patches/dontdiff linux-2.4.18-pre7/arch/i386/kernel/setup.c linux-2.4.18-pre7-elan/arch/i386/kernel/setup.c
+--- linux-2.4.18-pre7/arch/i386/kernel/setup.c	Thu Jan 24 07:36:14 2002
++++ linux-2.4.18-pre7-elan/arch/i386/kernel/setup.c	Thu Jan 24 08:51:01 2002
+@@ -329,7 +329,7 @@
+ 	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
+ 	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
+ };
+-#ifdef CONFIG_ELAN
++#ifdef CONFIG_MELAN
+ standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
+ standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
+ #endif
+----------8<----------
+--
+ +--------------------------------------------------------+
+ | Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de |
+ | Pengutronix - Linux Solutions for Science and Industry |
+ |   Braunschweiger Str. 79,  31134 Hildesheim, Germany   |
+ |    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4    |
+ +--------------------------------------------------------+
+

@@ -1,70 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbTEEGzx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 02:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262001AbTEEGzx
+	id S262008AbTEEHCX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 03:02:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTEEHCW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 02:55:53 -0400
-Received: from dsl-62-3-122-162.zen.co.uk ([62.3.122.162]:28332 "EHLO
-	marx.trudheim.com") by vger.kernel.org with ESMTP id S261973AbTEEGzw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 02:55:52 -0400
-Subject: Re: Linux 2.5.69
-From: Anders Karlsson <anders@trudheim.com>
-To: LKML <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-In-Reply-To: <1052116306.31300.50.camel@marx>
-References: <Pine.LNX.4.44.0305042137370.6183-100000@home.transmeta.com>
-	 <1052116306.31300.50.camel@marx>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-VCqTPs8Q+SqW8S4B/it/"
-Organization: Trudheim Technology Limited
-Message-Id: <1052118495.25950.55.camel@marx>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4Rubber Turnip 
-Date: 05 May 2003 08:08:16 +0100
+	Mon, 5 May 2003 03:02:22 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:57705 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262008AbTEEHCW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 03:02:22 -0400
+Date: Mon, 5 May 2003 03:14:50 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: linux-kernel@vger.kernel.org
+cc: Andi Kleen <ak@suse.de>
+Subject: Re: [Announcement] "Exec Shield", new Linux security feature
+Message-ID: <Pine.LNX.4.44.0305050314240.26441-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-VCqTPs8Q+SqW8S4B/it/
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On 4 May 2003, Andi Kleen wrote:
 
-On Mon, 2003-05-05 at 07:31, Anders Karlsson wrote:
-> On Mon, 2003-05-05 at 05:41, Linus Torvalds wrote:
->=20
-> > Make sure to also test with regular 1x AGP (and no fast write stuff etc=
-).=20
-> > A lot of motherboards really aren't going to like 4x and some other=20
-> > settings (in particular, enabling fast writes seems to be a very iffy=20
-> > proposition indeed).
->=20
-> Will try that in case that fixes the problems I see.
+> Ingo Molnar <mingo@redhat.com> writes:
+> 
+> > ie. if the binary anywhere has code that does:
+> > 
+> > 	system("/bin/sh")
+> 
+> You just need system(char *arg) { ... } (= in every libc). Then put
+> /bin/sh somewhere and a pointer to it on the stack as argument and
+> overwrite some return address on the stack to jump to it.
 
-Hi there again,
+well, how do you put the pointer on the stack if your only way to get into
+the ASCII-area is to stop the overflow early and use the final \0 ? [and
+the parameter has to be put _after_ the enclosing \0. ] It's not 100%
+impossible, but in the common case looks quite unlikely.
 
-This did indeed fix the problem seen on the IBM X31
-with Radeon Mobility LY. Setting AGPMode to 1 cured it
-of the "black screen on 2nd and later starts". This is
-on kernel 2.4.21-rc1, acpi and apm both switched off.
-
-Many many thanks for that tip Linus. :-)))
-
-Regards,
-
-/Anders
-
---=-VCqTPs8Q+SqW8S4B/it/
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA+tg3fLYywqksgYBoRAuVMAJ9BufZ9UF/aSXqVr0SiuI2OGWGwQwCg4xNj
-fDj1TLVJwAaplgtqUBSuHlI=
-=uVdW
------END PGP SIGNATURE-----
-
---=-VCqTPs8Q+SqW8S4B/it/--
+	Ingo
 

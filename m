@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269966AbUJNEhT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269967AbUJNEod@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269966AbUJNEhT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 00:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269967AbUJNEhT
+	id S269967AbUJNEod (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 00:44:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269970AbUJNEoc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 00:37:19 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:53120 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S269966AbUJNEhR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 00:37:17 -0400
-Date: Thu, 14 Oct 2004 13:42:53 +0900
+	Thu, 14 Oct 2004 00:44:32 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:24812 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S269967AbUJNEoE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 00:44:04 -0400
+Date: Thu, 14 Oct 2004 13:49:40 +0900
 From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
-Subject: Re: 2.6.9-rc4-mm1
-In-reply-to: <20041011032502.299dc88d.akpm@osdl.org>
+Subject: Re: bug in 2.6.9-rc4-mm1 ia64/mm/init.c
+In-reply-to: <416CEF0E.1060406@jp.fujitsu.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <416E03CD.8080701@jp.fujitsu.com>
+Cc: davidm@hpl.hp.com, akepner@sgi.com, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org, jbarnes@sgi.com
+Message-id: <416E0564.9030002@jp.fujitsu.com>
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii; format=flowed
 Content-transfer-encoding: 7bit
 X-Accept-Language: en-us, en
 User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3)
  Gecko/20040910
-References: <20041011032502.299dc88d.akpm@osdl.org>
+References: <Pine.LNX.4.33.0410121705510.31839-100000@localhost.localdomain>
+ <16748.57721.66330.638048@napali.hpl.hp.com> <416CEADA.2060207@jp.fujitsu.com>
+ <16748.60002.875945.950324@napali.hpl.hp.com> <416CEF0E.1060406@jp.fujitsu.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Andrew
+Hi Andrew
 
-I need this patch for compiling 2.6.9-rc4-mm1 on my ia64 box (tiger4).
-I don't know this patch is enough good or not.
+this patch removes problematic GRANULEROUNDDOWN/GRANULEROUNDUP lines
+from 2.6.9-rc4-mm1, arch/ia64m/mm/init.c.
+
+I think aligning memmap patch should be removed now,
+and be discussed when it really looks necessary.
+
+Thanks.
 
 Kame <kamezawa.hiroyu@jp.fujitsu.com>
 
-Additonal Info:
-gcc version is 3.2.3.
-CONFIG_IA64_GENERIC=y
-
 ---
 
-  linux-2.6.9-rc4-mm1-kamezawa/include/asm-ia64/machvec.h      |    8 ++++----
-  linux-2.6.9-rc4-mm1-kamezawa/include/asm-ia64/machvec_init.h |    1 +
-  2 files changed, 5 insertions(+), 4 deletions(-)
+  linux-2.6.9-rc4-mm1-kamezawa/arch/ia64/mm/init.c |    2 --
+  1 files changed, 2 deletions(-)
 
-diff -puN include/asm-ia64/machvec.h~ia64_compile include/asm-ia64/machvec.h
---- linux-2.6.9-rc4-mm1/include/asm-ia64/machvec.h~ia64_compile	2004-10-14 10:24:41.318281363 +0900
-+++ linux-2.6.9-rc4-mm1-kamezawa/include/asm-ia64/machvec.h	2004-10-14 10:29:05.813395311 +0900
-@@ -63,10 +63,10 @@ typedef void ia64_mv_outb_t (unsigned ch
-  typedef void ia64_mv_outw_t (unsigned short, unsigned long);
-  typedef void ia64_mv_outl_t (unsigned int, unsigned long);
-  typedef void ia64_mv_mmiowb_t (void);
--typedef unsigned char ia64_mv_readb_t (void *);
--typedef unsigned short ia64_mv_readw_t (void *);
--typedef unsigned int ia64_mv_readl_t (void *);
--typedef unsigned long ia64_mv_readq_t (void *);
-+typedef unsigned char ia64_mv_readb_t (const volatile void *);
-+typedef unsigned short ia64_mv_readw_t (const volatile void *);
-+typedef unsigned int ia64_mv_readl_t (const volatile void *);
-+typedef unsigned long ia64_mv_readq_t (const volatile void *);
-  typedef unsigned char ia64_mv_readb_relaxed_t (void *);
-  typedef unsigned short ia64_mv_readw_relaxed_t (void *);
-  typedef unsigned int ia64_mv_readl_relaxed_t (void *);
-diff -puN include/asm-ia64/machvec_init.h~ia64_compile include/asm-ia64/machvec_init.h
---- linux-2.6.9-rc4-mm1/include/asm-ia64/machvec_init.h~ia64_compile	2004-10-14 11:10:44.690317824 +0900
-+++ linux-2.6.9-rc4-mm1-kamezawa/include/asm-ia64/machvec_init.h	2004-10-14 11:11:06.924692552 +0900
-@@ -1,3 +1,4 @@
-+#include <asm/io.h>
-  #include <asm/machvec.h>
+diff -puN arch/ia64/mm/init.c~ia64_bugfix arch/ia64/mm/init.c
+--- linux-2.6.9-rc4-mm1/arch/ia64/mm/init.c~ia64_bugfix	2004-10-14 07:26:04.283256397 +0900
++++ linux-2.6.9-rc4-mm1-kamezawa/arch/ia64/mm/init.c	2004-10-14 07:26:23.644584285 +0900
+@@ -410,8 +410,6 @@ virtual_memmap_init (u64 start, u64 end,
+  	struct page *map_start, *map_end;
 
-  extern ia64_mv_send_ipi_t ia64_send_ipi;
+  	args = (struct memmap_init_callback_data *) arg;
+-	start = GRANULEROUNDDOWN(start);
+-	end = GRANULEROUNDUP(end);
+  	map_start = vmem_map + (__pa(start) >> PAGE_SHIFT);
+  	map_end   = vmem_map + (__pa(end) >> PAGE_SHIFT);
+
 
 _
 

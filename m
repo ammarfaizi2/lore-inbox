@@ -1,69 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267388AbUIJNJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267400AbUIJNJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267388AbUIJNJT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 09:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267400AbUIJNJT
+	id S267400AbUIJNJk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 09:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267401AbUIJNJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 09:09:19 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43723 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267388AbUIJNJR (ORCPT
+	Fri, 10 Sep 2004 09:09:40 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:54724 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S267400AbUIJNJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 09:09:17 -0400
-Date: Fri, 10 Sep 2004 15:10:40 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mark_H_Johnson@raytheon.com
-Cc: Lee Revell <rlrevell@joe-job.com>, Free Ekanayaka <free@agnula.org>,
-       Eric St-Laurent <ericstl34@sympatico.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
-       Daniel Schmitt <pnambic@unu.nu>,
-       "P.O. Gaillard" <pierre-olivier.gaillard@fr.thalesgroup.com>,
-       nando@ccrma.stanford.edu, luke@audioslack.com, free78@tin.it
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-R1
-Message-ID: <20040910131040.GA7561@elte.hu>
-References: <OFFF07CECA.A4F18108-ON86256F0B.00472BB6-86256F0B.00472BCC@raytheon.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFFF07CECA.A4F18108-ON86256F0B.00472BB6-86256F0B.00472BCC@raytheon.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 10 Sep 2004 09:09:31 -0400
+Message-Id: <200409101308.i8AD8cDF003406@localhost.localdomain>
+To: Hans Reiser <reiser@namesys.com>
+cc: Paul Jakma <paul@clubi.ie>, "Theodore Ts'o" <tytso@mit.edu>,
+       Robin Rosenberg <robin.rosenberg.lists@dewire.com>,
+       William Stearns <wstearns@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea ofwhat reiser4 wants to do with metafiles and why 
+In-Reply-To: Message from Hans Reiser <reiser@namesys.com> 
+   of "Thu, 09 Sep 2004 22:04:38 MST." <414135E6.8050103@namesys.com> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
+Date: Fri, 10 Sep 2004 09:08:38 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hans Reiser <reiser@namesys.com> said:
+> Paul Jakma wrote:
+> > On Thu, 9 Sep 2004, Hans Reiser wrote:
+> >> It is not part of it at one level, but in the shell it is part of it.
 
-* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+> > Just one of many applications. Watch Joe-user save their word 
+> > processing file sometime, they'll use spaces, quotes, etc.
 
-> 00000001 0.000ms (+0.000ms): spin_lock (get_swap_page)
-> 00000001 0.000ms (+0.000ms): spin_lock (<00000000>)
-> 00000001 0.000ms (+0.000ms): spin_lock (get_swap_page)
-> 00000002 0.000ms (+0.113ms): spin_lock (<00000000>)
-> 00010002 0.113ms (+0.000ms): do_nmi (get_swap_page)
+> With great unhappiness they will.
 
-> Are you SURE the spin lock counter works properly on SMP systems?
-> I did a quick check of yesterday's results:
->   # grep -ir '<.*>' latencytest0.42-png/lt040909  | wc -l
->   6978
->   # grep -ir '<.*>' latencytest0.42-png/lt040909  | grep -v '<00000000>' |
-> less -im
->   ...
+Given the right GUI, they won't even notice.
 
-> No entries that are non zero and lock related.
+> >> Have you looked at the political process at all? Or by lots of 
+> >> people, do you mean a sizable minority?
 
-it works fine here. To double-check i've created a contention testcase:
+> > Kernel development does 
 
- 00000001 0.000ms (+0.000ms): spin_lock (sys_gettimeofday)
- 00000001 0.000ms (+0.000ms): spin_lock (<000012ce>)
+> did you mean to have a "not" here?
 
-this spin_lock() spun 4814 times before it got the lock.
+> > require deep understanding by the majority of computer users. Only 
+> > kernel developers need deep understanding. ;)
 
-Linux locking is pretty uncontended on 2-way boxes.
+> What makes you think kernel developers have a deep understanding of the 
+> value of connectivity in the OS?
 
-	Ingo
+Enlighten us. Never heard of "conectivity in the OS" before.
+
+>                                  They don't. The average kernel 
+> developer is not particularly bright.
+
+Right.
+
+>                                       Just ask Ted why htrees are slower 
+> than reiser4, or ext2 tail combining is slower, and, well, he has no 
+> clue.
+
+Great PR move, again: Go on publicly insulting the people who you are
+trying to convince.
+
+>       He is happy to explain how architects don't do real work and 
+> should not attend the Linux Kernel Summit, and then when reiser4 blows 
+> htrees away he undoubtedly still thinks I just take the credit away from 
+> the programmers who do the real work. They did real work, and they are 
+> the best in the field, but architecture also matters --- quite a lot 
+> actually.
+
+Right you are about architecture.
+
+[...]
+
+> This is why I just want to be left alone to tinker with reiser4. It is 
+> faster than other filesystems. People should assume I know what I am 
+> doing, and leave me to tinker in my little fs. 5 years later others will 
+> follow, or not, I don't care.
+
+Great idea.
+
+> > The real question though is: Have you given Al Viro technical answers 
+> > to his technical questions?
+
+> Yes, I did.
+
+Haven't seen them.
+
+>             Got no response. Would you like me to post something nice 
+> and technical to this thread?;-)
+
+That is what this list is supposed to be about: Technical discussion of the
+Linux kernel development.
+
+>                                  I can send a summary of my design, and 
+> the answers I sent to Viro and Linus.
+
+Please do. Together with the questions, so we can see the whole picture.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310151AbSCFToh>; Wed, 6 Mar 2002 14:44:37 -0500
+	id <S310138AbSCFTrh>; Wed, 6 Mar 2002 14:47:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310149AbSCFToT>; Wed, 6 Mar 2002 14:44:19 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:24448 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S292685AbSCFToO>; Wed, 6 Mar 2002 14:44:14 -0500
-Date: Wed, 6 Mar 2002 14:44:02 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Dario Bahena Tapia <dario.bahena@correo.unam.mx>
-cc: linux-c-programming@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: getting process i/o wasted time ...
-In-Reply-To: <200203061911.g26JB5e01303@est196.fciencias.unam.mx>
-Message-ID: <Pine.LNX.3.95.1020306144031.13735A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S310139AbSCFTr1>; Wed, 6 Mar 2002 14:47:27 -0500
+Received: from monk.debian.net ([216.185.54.61]:36792 "EHLO monk.verbum.org")
+	by vger.kernel.org with ESMTP id <S310138AbSCFTrR>;
+	Wed, 6 Mar 2002 14:47:17 -0500
+Subject: Re: [opensource] Re: Petition Against Official Endorsement of
+	BitKeeper by Linux Maintainers
+From: Colin Walters <walters@debian.org>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
+In-Reply-To: <Pine.LNX.4.44L.0203061300500.2181-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.44L.0203061300500.2181-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 06 Mar 2002 14:46:43 -0500
+Message-Id: <1015444003.18074.7.camel@space-ghost>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Mar 2002, Dario Bahena Tapia wrote:
-
-> Hi linux hackers ...
+On Wed, 2002-03-06 at 11:04, Rik van Riel wrote:
+> I strongly object to the fact that you're trying to stop
+> me from advocating the best piece of source control
+> software that I know.
 > 
-> I'd like to know, if there's a way to get the ammount of time wasted by a
-> process, while it was making i/o. I've seen that the rusage
-> makes available the ammount of i/o blocks, but I'm thinking in something
-> like:
-> 
->           process warawara ...
->           time wasted in disks i/o .... XXX
->           time wasted in net i/o   .... XXX
->           etc. ???
-> 
-> Doest it makes sense? it could be done in linux?
-> 
-> I supposed ,that I can insert some system calls in the right places
-> in the program to make this... but I'm interested in a non-intrusive
-> method ...
-> 
-> Thanks in advance
-> 
-> saludos
-> dario estepario ...
+> <endorsement>
 
-Time for I/O is not generally "wasted" as you say. It is given to
-other tasks. Of course if there are no other tasks that want the
-CPU then, I guess, you could call it wasted.
+That's fine; you are free to ignore the petition, as was stated earlier.
 
-You can measure the time from when you make a system call to
-the time your code gets control back. There are several
-high-resolution (rdtsc) and low resolution (gettimeofday) ways
-to do this. 
+> Now, are you about censoring my free speech in the name of
+> "protecting freedom and free software" 
 
+We don't have the power (or will) to censor you; only you and perhaps
+your government have that power.
 
-Cheers,
-Dick Johnson
+> or are you going to
+> write free version control software with the functionality
+> of bitkeeper so there is a free alternative ?
 
-Penguin : Linux version 2.4.18 on an i686 machine (799.53 BogoMips).
+Since this seems to be a good representative of the "Why don't you write
+your own" argument, I'll just respond to this one.  
 
-	Bill Gates? Who?
+The petition is in no way exclusive of writing our own versioning
+control software.  Some of us might go on from here to hack on one, like
+arch.  But if we had been associated with a particular competitior to
+BitKeeper, then it would have been unethical to send the petition, since
+it would be just a form of advertising for us.
+
+I admit I have done a completely trivial amount of work on the Debian
+package of arch, but besides that, I don't think any signer of the
+petition was associated with a BitKeeper competitior.  We are just Linux
+users who are concerned about the direction the kernel maintainers are
+taking, because of the various problems associated with BitKeeper.
+
+That being said, I personally will probably start getting more involved
+with arch.  Hacking on a verison control system looks like fun.
+
 

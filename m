@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268368AbUJMFa1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268360AbUJMFef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268368AbUJMFa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 01:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268392AbUJMFa1
+	id S268360AbUJMFef (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 01:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUJMFef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 01:30:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36782 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268368AbUJMFaS (ORCPT
+	Wed, 13 Oct 2004 01:34:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:51118 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S268360AbUJMFed (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 01:30:18 -0400
-Message-ID: <416CBC9C.8010905@osdl.org>
-Date: Tue, 12 Oct 2004 22:26:52 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Raj <inguva@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, pazke@donpac.ru
-Subject: Re: Build problems with APM/Subarch type
-References: <b2fa632f04101204385c09459f@mail.gmail.com>	 <416CB8FC.9020503@osdl.org> <b2fa632f041012222745006916@mail.gmail.com>
-In-Reply-To: <b2fa632f041012222745006916@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 13 Oct 2004 01:34:33 -0400
+Date: Tue, 12 Oct 2004 22:32:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hirokazu Takata <takata.hirokazu@renesas.com>
+Cc: jgarzik@pobox.com, takata@linux-m32r.org, linux-kernel@vger.kernel.org,
+       paul.mundt@nokia.com, nico@cam.org, netdev@oss.sgi.com
+Subject: Re: [PATCH 2.6.9-rc4-mm1] [m32r] Fix smc91x driver for m32r
+Message-Id: <20041012223227.45a62301.akpm@osdl.org>
+In-Reply-To: <20041013.121547.863739114.takata.hirokazu@renesas.com>
+References: <416BFD79.1010306@pobox.com>
+	<20041013.105243.511706221.takata.hirokazu@renesas.com>
+	<416C8E0B.4030409@pobox.com>
+	<20041013.121547.863739114.takata.hirokazu@renesas.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raj wrote:
->>Using an editor or make *config?  which *config?
->>
-> 
-> xconfig
-> 
-> 
->>>The build failed with an error 'Undefined reference to machine_real_restart'
->>
->>Yep, I see that also.
->>
->>
->>>It seems that , unless Subarch is PC-Compatible ( CONFIG_PC ) ,
->>>CONFIG_X86_BIOS_REBOOT will not be set and thusly, reboot.c would not be
->>>compiled.
->>>
->>>( yeah, i know messing around with configs is suicidal, but.... )
->>>
->>>Can this be fixed ?? At the very least, hide APM options #if !(CONFIG_PC) ??
->>
->>Do you/we/maintainer know that APM is not applicable to all of the
->>other PC sub-arches?
->>
->>I agree that it should be fixed, one way or another.
-> 
-> 
-> i am not aware much about the apm dependencies. maintainers might answer 
-> this more correctly. 
+Hirokazu Takata <takata.hirokazu@renesas.com> wrote:
+>
+>  This patch has been already applied to 2.6.9-rc4-mm1 kernel and 
+>  you can also find it as
+>  ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/m32r-trivial-fix-of-smc91xh.patch
 
-True.  I should have copied Andrey on it earlier.
+Well actually:
 
-Andrey, any thoughts about how to keep VISWS from building APM
-support?  use Kconfig?  or does VISWS support APM?
+smc91x-revert-11923358-m32r-modify-drivers-net-smc91xc.patch
+smc91x-assorted-minor-cleanups.patch
+smc91x-set-the-mac-addr-from-the-smc_enable-function.patch
+smc91x-fold-smc_setmulticast-into-smc_set_multicast_list.patch
+smc91x-simplify-register-bank-usage.patch
+smc91x-move-tx-processing-out-of-irq-context-entirely.patch
+smc91x-use-a-work-queue-to-reconfigure-the-phy-from.patch
+smc91x-fix-possible-leak-of-the-skb-waiting-for-mem.patch
+smc91x-display-pertinent-register-values-from-the.patch
+smc91x-straighten-smp-locking.patch
+smc91x-cosmetics.patch
+m32r-trivial-fix-of-smc91xh.patch
+smc91x-fix-smp-lock-usage.patch
+smc91x-more-smp-locking-fixes.patch
+smc91x-fix-compilation-with-dma-on-pxa2xx.patch
+smc91x-receives-two-bytes-too-many.patch
+smc91x-release-on-chip-rx-packet-memory-asap.patch
 
--- 
-~Randy
+I'll unload all those onto Jeff...

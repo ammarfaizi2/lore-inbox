@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261754AbTIECwg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 22:52:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbTIECwg
+	id S261713AbTIEDVd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 23:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261871AbTIEDVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 22:52:36 -0400
-Received: from main.gmane.org ([80.91.224.249]:21481 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261754AbTIECwf (ORCPT
+	Thu, 4 Sep 2003 23:21:32 -0400
+Received: from b0jm34bky18he.bc.hsia.telus.net ([64.180.152.77]:44805 "EHLO
+	antichrist") by vger.kernel.org with ESMTP id S261713AbTIEDVb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 22:52:35 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Thu, 4 Sep 2003 23:21:31 -0400
+Date: Thu, 4 Sep 2003 20:21:00 -0700
+From: carbonated beverage <ramune@net-ronin.org>
 To: linux-kernel@vger.kernel.org
-From: Charles Lepple <clepple@ghz.cc>
-Subject: Re: PROBLEM: blank boot screen on linux-2.6.0-test4 (with workaround)
-Date: Thu, 04 Sep 2003 22:52:42 -0400
-Message-ID: <bj8tpg$28f$1@sea.gmane.org>
-References: <005e01c37105$1bddc600$323be90c@bananacabana>
+Subject: cpu not being found by 2.6.0-test4, input event bug too
+Message-ID: <20030905032100.GA32489@net-ronin.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-In-Reply-To: <005e01c37105$1bddc600$323be90c@bananacabana>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Peterson wrote:
-> Why does "vga=773" work with linux-2.4.20, but not linux-2.60-test4? Why
-> does linux-2.6.0-test4 require "video=vga16:off", but linux-2.4.20 does not?
+Hi all,
 
-IIRC, 'vga=' parameters > 256 are handled by the VESA driver.
+	Can anyone think of a change that went in recently to the 2.6.0-test*
+tree that could have caused one of my CPUs to not be detected by the kernel?
+It's a dual P2/333 system based on an Intel 440DX chipset, don't remember
+the exact model of the motherboard off-hand.  The latest BIOS update (rather
+old) has been installed on the system already.
 
-Try posting both .config files if enabling CONFIG_FB_VESA doesn't work 
-with vga=773.
+	Debian/woody-based system.
 
--C
+The dmesg is also being FLOODED with the following:
+barbeque/kittens:doc: dmesg|head -2 ; dmesg | tail -2
+ue: 0
+evbug.c: Event. Dev: isa0060/serio1/input0, Type: 2, Code: 0, Value: -3
+evbug.c: Event. Dev: isa0060/serio0/input0, Type: 1, Code: 28, Value: 1
+evbug.c: Event. Dev: isa0060/serio0/input0, Type: 0, Code: 0, Value: 0
 
+As you can see from the truncation, the kernel buffer's being wrapped.
+Once I get a login prompt and hop in, that's all there is.  The dmesg
+saved by the init scripts in /var/log/dmesg is also filled with just that.
 
+tail -f'ing the syslog file when I was still enabling the logging of that
+from evbug.c:evbug_event() pretty much scrolled by looking like a pretty
+text flood.
+
+	As there's a TON of information, I put the config and other stuff
+on the 'net at:
+
+http://www.net-ronin.org/~ramune/kconf
+
+-- DN
+Daniel

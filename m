@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285548AbRL2VD7>; Sat, 29 Dec 2001 16:03:59 -0500
+	id <S285516AbRL2VBp>; Sat, 29 Dec 2001 16:01:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285517AbRL2VDq>; Sat, 29 Dec 2001 16:03:46 -0500
-Received: from lacrosse.corp.redhat.com ([12.107.208.154]:32615 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S285568AbRL2VDf>; Sat, 29 Dec 2001 16:03:35 -0500
-Date: Sat, 29 Dec 2001 16:03:34 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Oliver Xymoron <oxymoron@waste.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        linux-kernel@vger.kernel.org
-Subject: Re: The direction linux is taking
-Message-ID: <20011229160334.A9919@redhat.com>
-In-Reply-To: <20011229190600.2556C36DE6@hog.ctrl-c.liu.se> <Pine.LNX.4.43.0112291313160.18183-100000@waste.org> <20011229113749.D19306@work.bitmover.com>
-Mime-Version: 1.0
+	id <S285506AbRL2VBf>; Sat, 29 Dec 2001 16:01:35 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:62215
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S285516AbRL2VBX>; Sat, 29 Dec 2001 16:01:23 -0500
+Date: Sat, 29 Dec 2001 12:58:59 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Jens Axboe <axboe@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: You WIN ... 
+In-Reply-To: <20011229151534.D609@suse.de>
+Message-ID: <Pine.LNX.4.10.10112291246190.31392-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011229113749.D19306@work.bitmover.com>; from lm@bitmover.com on Sat, Dec 29, 2001 at 11:37:49AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29, 2001 at 11:37:49AM -0800, Larry McVoy wrote:
-> If you have N people trying to patch the same file, you'll require N
-> releases and some poor shlep is going to have to resubmit their patch
-> N-1 times before it gets in.
 
-Wrong.  Most patches are independant, and even touch different functions.  
-Things like "add member foo of type baz to struct z" are independant 
-changes even if they conflict when patching.
+Jens,
 
-> Anyway, I'm interested to see if there are screams of "all I ever do is
-> merge and I hate it" or "merging?  what's that?".
+You win -- it is not worth trying to work with you at this time.
+All you and I have done is become bitter enemies.
 
-How about "I'm sick of resending this one line bugfix to maintainer of 
-$foo who keeps dropping it"?  That's the problem that patchbot is meant 
-to solve, not the merging problem.  If the people responsible for applying 
-patches were perfect, we wouldn't need it.
+Next, I do not know all the details of the kernel, but what I know is
+that neither one of us is willing to listen and learn.  However, I have
+tried to get answers from you public and private, and nothing.  You may
+get your wish granted to replace me in the future, as this has been your
+stated goal from the past to me directly.
 
-		-ben
+In closing, there were several cases of filesystem corruption based on
+partition offsets and other various items.  This was totally unacceptable
+for the most part.  I truly think that you do not see what the object of
+"BLOCK" is all about, regardless that you are clever and quick.  You have
+decided that block will define the interface to the drivers and thus the
+drivers can not conform to standards set forth by the people creating the
+physical layer.
+
+Finally, I offer a public apology to you and all who have suffered on LKML.
+
+Respectfully,
+
+Andre Hedrick
+CEO/President, LAD Storage Consulting Group
+Linux ATA Development
+Linux Disk Certification Project
+

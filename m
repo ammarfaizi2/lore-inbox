@@ -1,76 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262660AbTDEVXI (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 16:23:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbTDEVXI (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 16:23:08 -0500
-Received: from imladris.surriel.com ([66.92.77.98]:3036 "EHLO
-	imladris.surriel.com") by vger.kernel.org with ESMTP
-	id S262660AbTDEVXH (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 16:23:07 -0500
-Date: Sat, 5 Apr 2003 16:34:24 -0500 (EST)
-From: Rik van Riel <riel@imladris.surriel.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@digeo.com>, "" <mbligh@aracnet.com>,
-       "" <mingo@elte.hu>, "" <hugh@veritas.com>, "" <dmccr@us.ibm.com>,
-       "" <linux-kernel@vger.kernel.org>, "" <linux-mm@kvack.org>
-Subject: Re: objrmap and vmtruncate
-In-Reply-To: <20030405163003.GD1326@dualathlon.random>
-Message-ID: <Pine.LNX.4.50L.0304051614330.2553-100000@imladris.surriel.com>
-References: <20030404163154.77f19d9e.akpm@digeo.com> <12880000.1049508832@flay>
- <20030405024414.GP16293@dualathlon.random> <20030404192401.03292293.akpm@digeo.com>
- <20030405040614.66511e1e.akpm@digeo.com> <20030405163003.GD1326@dualathlon.random>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id S262663AbTDEVc1 (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 16:32:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbTDEVc0 (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 16:32:26 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:46352
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S262663AbTDEVcZ (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 16:32:25 -0500
+Date: Sat, 5 Apr 2003 13:39:13 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Stephan van Hienen <kernel@ddx.a2000.nu>
+cc: Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
+Subject: Re: onboard ICH4 seen as ICH3 (ultra100 controller onboard)
+ (2.4.20/2.4.21-pre7)
+In-Reply-To: <Pine.LNX.4.53.0304052324360.16674@ddx.a2000.nu>
+Message-ID: <Pine.LNX.4.10.10304051337470.29290-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 5 Apr 2003, Andrea Arcangeli wrote:
 
-> I'm not questioning during paging rmap is more efficient than objrmap,
-> but your argument about rmap having lower complexity of objrmap and that
-> rmap is needed is wrong. The fact is that with your 100 mappings per
-> each of the 100 tasks case, both algorithms works in O(N) where N is
-> the number of the pagetables mapping the page. No difference in
-> complexity.  I don't care how many cycles you spend to reach the 100x100
-> pagetables, those are fixed cycles, the fact is that there are 100x100
-> pagetables,
+NO, since they all use the same timings there is no problem.
+Intel never made an Ultra 133, and all the timings from PIIX forward build
+on each other.
 
-Umm no.  The fact that a VMA is "mapping" the page doesn't
-mean the page is resident in any page tables.   For example,
-think about the MAP_PRIVATE mapping of the relocation tables
-from libc.so ... every process will have its own, modified,
-copy of that data.  The original page might not be mapped by
-the page tables of any processes.
+There is no bug, except in your BIOS maybe.
 
-> rmap won't change the complexity of the algorithm at all,
+Cheers,
 
-It will for some cases (as shown above), but I agree that for
-most common situations objrmap and pte rmap should have very
-similar algorithmic complexity in the pageout path.
+On Sat, 5 Apr 2003, Stephan van Hienen wrote:
 
-> that's mandated by the hardware and by your application, we can't do
-> better than O(N) with N the number of pagetables to unmap a single page.
-> Even rmap has the O(N) complexity, it won't be allowed to reach only 100
-> pagetables instead of 100000 pagetables.
+> On Sat, 5 Apr 2003, Mark Hahn wrote:
+> 
+> > > > > I don't think it is doing U100 :
+> > > >
+> > > > why?  25 MB/s is exactly what you should expect from a disk
+> > > > which has around 15 GB/platter density.  the transfer mode
+> > > > doesn't matter, as long as it's 10-20% faster than the transfer
+> > > > rate of the disk's outer tracks.
+> > >
+> > > because it is the same disk (WD1800BB (180GB)) only difference is the
+> > > controller...
+> >
+> > is the 80-pin cable validly configured and properly detected?
+> > or did you cover this already?
+> 
+> all disks and cables are the same
+> (i have 15 of these disks in this server)
+> only difference are the controllers
+> 
+> and since the kernel is giving me incorrect info at boottime
+> (ICH3 (instead of what is really there (ICH4))
+> i really think this is an kernel problem
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-There is one common situation where objrmap is O(N^2) while
-pte rmap is only O(N).  However, this case isn't interesting
-because this workload tends to run mlocked anyway.
+Andre Hedrick
+LAD Storage Consulting Group
 
-This is, of course, Oracle on 32 bit systems with gazillions
-of windows into the larger-than-virtual-memory shared memory
-area.
-
-This aspect of Oracle can be special-cased with remap_file_pages
-and the reverse mapping can be skipped alltogether since Oracle's
-shared memory area should (IMHO) be mlocked anyway.
-
-In short, I agree with you that we probably want object rmap for
-all the common cases.
-
-cheers,
-
-Rik
--- 
-Engineers don't grow up, they grow sideways.
-http://www.surriel.com/		http://kernelnewbies.org/

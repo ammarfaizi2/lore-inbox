@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265445AbRGBWQK>; Mon, 2 Jul 2001 18:16:10 -0400
+	id <S265443AbRGBWSU>; Mon, 2 Jul 2001 18:18:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265440AbRGBWQA>; Mon, 2 Jul 2001 18:16:00 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:56847 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S265443AbRGBWPt>; Mon, 2 Jul 2001 18:15:49 -0400
-Subject: Re: [RFC] I/O Access Abstractions
-To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
-Date: Mon, 2 Jul 2001 23:15:27 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20010702220848.12689@smtp.wanadoo.fr> from "Benjamin Herrenschmidt" at Jul 03, 2001 12:08:48 AM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265441AbRGBWSA>; Mon, 2 Jul 2001 18:18:00 -0400
+Received: from mail.missioncriticallinux.com ([208.51.139.18]:13063 "EHLO
+	missioncriticallinux.com") by vger.kernel.org with ESMTP
+	id <S265440AbRGBWRz>; Mon, 2 Jul 2001 18:17:55 -0400
+Message-ID: <3B40F36D.3080701@missioncriticallinux.com>
+Date: Mon, 02 Jul 2001 18:19:25 -0400
+From: "Patrick O'Rourke" <orourke@missioncriticallinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.3 i686; en-US; rv:0.9.1) Gecko/20010607 Netscape6/6.1b1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "SATHISH.J" <sathish.j@tatainfotech.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Reg crash utility installation
+In-Reply-To: <Pine.LNX.4.10.10107012004510.30427-100000@blrmail>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15HByZ-0006hZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  - Parsing of this cookie on each inx/outx access, which can
-> take a bit of time (typically looking up the host bridge)
+SATHISH.J wrote:
 
-It depends on the implementation obviously, but its typically something like
+> I installed crash2.6 on my machine. 
+> When I give the command "crash" from the prompt it says "no debugging
+> symbols found in /boot/vmlinux2.2.14-12". Why does this message show.
 
-	take lock
-	writew(port&0xFFFF, port&0xFFFF0000);
-	writew(data, port&0xFFFF0000+1);
-	drop lock
 
-Assuming you can drop the bridges on 64K boundaries in pci mem space, or
-one extra deref and a register load if not.
+crash relies on debug info and so it needs access to an uncompressed
+vmlinux file which was built using -g.  The following URL offers more
+info:
 
-Can you give me an idea of what sort of cookie decoding a PPC/PMac would need
-and why - Im working off things like pa-risc so I dont have a full picture.
+	http://oss.missioncriticallinux.com/projects/crash/usage.php
+
+Pat
+
+-- 
+Patrick O'Rourke
+orourke@missioncriticallinux.com
 

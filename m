@@ -1,51 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318916AbSH1TwE>; Wed, 28 Aug 2002 15:52:04 -0400
+	id <S318925AbSH1T6Y>; Wed, 28 Aug 2002 15:58:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318925AbSH1TwE>; Wed, 28 Aug 2002 15:52:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31492 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318916AbSH1TwD>; Wed, 28 Aug 2002 15:52:03 -0400
-Date: Wed, 28 Aug 2002 12:58:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Cort Dougan <cort@fsmlabs.com>, Dominik Brodowski <devel@brodo.de>,
-       <cpufreq@www.linux.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.5.32] CPU frequency and voltage scaling (0/4)
-In-Reply-To: <1030562708.7190.59.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0208281249520.4507-100000@penguin.transmeta.com>
+	id <S318933AbSH1T6Y>; Wed, 28 Aug 2002 15:58:24 -0400
+Received: from pD9E23990.dip.t-dialin.net ([217.226.57.144]:23491 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318925AbSH1T6X>; Wed, 28 Aug 2002 15:58:23 -0400
+Date: Wed, 28 Aug 2002 14:02:15 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Pavel Machek <pavel@suse.cz>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Matthew Dobson <colpatch@us.ibm.com>, Andrew Morton <akpm@zip.com.au>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>, Martin Bligh <mjbligh@us.ibm.com>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+Subject: Re: [patch] SImple Topology API v0.3 (1/2)
+In-Reply-To: <20020828192917.GC10487@atrey.karlin.mff.cuni.cz>
+Message-ID: <Pine.LNX.4.44.0208281400580.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On 28 Aug 2002, Alan Cox wrote:
+On Wed, 28 Aug 2002, Pavel Machek wrote:
+> > Because NUMA is subordinate to X86, and another technology named NUMA 
+> > might appear? Nano-uplinked micro-array... No Ugliness Munched Archive? 
+> > Whatever...
 > 
-> Systems designers are designing on the basis of thermal slowdowns being
-> the optimal way to build some systems. Its actually quite reasonable for
-> many workloads.
+> NUMA means non-uniform memory access. At least IBM, AMD and SGI do
+> NUMA; and I guess anyone with 100+ nodes *has* numa machine. (BUt as
+> andrea already explained, CONFIG_NUMA is already taken for generic
+> NUMA support.)
 
-Absolutely. Thermal policy is often an overriding thing, where even 
-non-transmeta CPU's will simply do the decision "on their own", without 
-input from the OS. That's simply because some designs will literally not 
-work above certain temperatures and do not have the heat sink capacity to 
-get out of a tight spot by purely external cooling. 
+I'm aware of that. You didn't get my point, though. I was just suggesting 
+that there might be other things called NUMA, so CONFIG_X86_NUMA may be 
+just right.
 
-But that's just one part of it. Even aside from thermal concerns, you want 
-to drop frequency aggressively when the machine is idle, because dropping 
-the frequency allows you to drop the voltage and effetively gets you a 
-cubed power reduction (which not only saves your battery, but also cools 
-the chip down so that when you _do_ start going full speed again you have 
-more thermal headroom).
-
-So in order to avoid the thermal shutdown, you need to be proactive about 
-the frequency. Which again means that a user-level "once a second" or 
-"once in a blue moon" approach is fundamentally flawed.
-
-I don't disagree with _also_ being able to set the frequency statically. 
-However, I do disagree with an interface that seems to be _purely_ 
-designed for this, and nothing else. 
-
-		Linus
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

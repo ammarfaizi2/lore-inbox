@@ -1,51 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131981AbRBKHdB>; Sun, 11 Feb 2001 02:33:01 -0500
+	id <S131968AbRBKHog>; Sun, 11 Feb 2001 02:44:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131948AbRBKHcv>; Sun, 11 Feb 2001 02:32:51 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:55300 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S132006AbRBKHco>; Sun, 11 Feb 2001 02:32:44 -0500
-Message-ID: <3A86387B.D3142DD9@namesys.com>
-Date: Sun, 11 Feb 2001 10:00:11 +0300
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.14 i686)
-X-Accept-Language: en, ru
+	id <S131995AbRBKHo0>; Sun, 11 Feb 2001 02:44:26 -0500
+Received: from www.wen-online.de ([212.223.88.39]:41226 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S131968AbRBKHoW>;
+	Sun, 11 Feb 2001 02:44:22 -0500
+Date: Sun, 11 Feb 2001 08:43:09 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.1-ac7
+In-Reply-To: <Pine.LNX.4.21.0102101942550.2378-100000@duckman.distro.conectiva>
+Message-ID: <Pine.Linu.4.10.10102110701300.723-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-To: Daniel Stone <daniel@kabuki.eyep.net>
-CC: Chris Wedgwood <cw@f00f.org>, Chris Mason <mason@suse.com>,
-        David Rees <dbr@spoke.nols.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "reiserfs-list@namesys.com" <reiserfs-list@namesys.com>,
-        Chris Mason <mason@suse.com>, Alexander Zarochentcev <zam@namesys.com>
-Subject: Re: [reiserfs-list] Re: Apparent instability of reiserfs on 2.4.1
-In-Reply-To: <479040000.981564496@tiny>
-		<E14QkfM-0004EL-00@piro.kabuki.eyep.net> 
-		<20010211020200.A9570@metastasis.f00f.org> <E14RZiG-0001s1-00@piro.kabuki.eyep.net>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Stone wrote:
+On Sat, 10 Feb 2001, Rik van Riel wrote:
+
+> On Sat, 10 Feb 2001, Mike Galbraith wrote:
+> > On Sat, 10 Feb 2001, Rik van Riel wrote:
+> > > On Sat, 10 Feb 2001, Marcelo Tosatti wrote:
+> > > > On Sat, 10 Feb 2001, Mike Galbraith wrote:
+> > > > 
+> > > > > This change makes my box swap madly under load.
+> > > > 
+> > > > Swapped out pages were not being counted in the flushing limitation.
+> > > > 
+> > > > Could you try the following patch? 
+> > > 
+> > > Marcelo's patch should do the trick wrt. to making page_launder()
+> > > well-behaved again.  It should fix the problems some people have
+> > > seen with bursty swap behaviour.
+> > 
+> > It's still reluctant to shrink cache.  I'm hitting I/O saturation
+> > at 20 jobs vs 30 with ac5.  (difference seems to be the delta in
+> > space taken by cache.. ~same space shows as additional swap volume).
 > 
-> On 11 Feb 2001 02:02:00 +1300, Chris Wedgwood wrote:
-> > On Thu, Feb 08, 2001 at 05:34:44PM +1100, Daniel Stone wrote:
-> >
-> >     I run Reiser on all but /boot, and it seems to enjoy corrupting my
-> >     mbox'es randomly.
-> >
-> > what kind of corruption are you seeing?
-> 
-> Zeroed bytes.
+> Indeed, to "fix" that we'll need to work at refill_inactive().
 
-This sounds like the same bug as the syslog bug, please try to help Chris
-reproduce it.
+If this reluctance to munch cache can be relaxed a little, I think
+we'll see the end of a long standing problem.  I often see a scenario
+wherein we flush everything flushable, then steal the entire cache
+before doing any paging.  The result (we hit a wall) is a mondo swapout
+followed immediately by swapping it all right back in.  We seem to have
+done a complete turnaround wrt paging vs flush/cache reap preference,
+and that does effectively cure this scenario.. but methinks optimal
+(-ENOENT?) lies somewhere in between.
 
-zam, if Chris can't reproduce it by Monday, please give it a try.
+> However, I am very much against tuning the VM for one particular
+> workload. If you can show me that this problem also happens under
+> other workloads we can work at changing it, but I don't think it's
+> right to optimise the VM for a specific workload...
 
-Hans
+I'll watch behavior under other loads.  (I don't have enough network
+capacity to do anything stressful there, and whatever load I pick
+has to be compute bound as to not end up benchmarking my modest I/O
+capacity.. suggestions welcome.  I use make -j primarily because it
+doesn't need much I/O bandwidth for itself, but does allocate quite
+a bit.. that leaves most I/O capacity free for vm usage)
+
+Something else I see while watching it run:  MUCH more swapout than
+swapin.  Does that mean we're sending pages to swap only to find out
+that we never need them again?
+
+	-Mike
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

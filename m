@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279994AbRKISia>; Fri, 9 Nov 2001 13:38:30 -0500
+	id <S279988AbRKIS27>; Fri, 9 Nov 2001 13:28:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279997AbRKISiT>; Fri, 9 Nov 2001 13:38:19 -0500
-Received: from wks121.navicsys.com ([207.180.73.121]:43891 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S279994AbRKISiM>; Fri, 9 Nov 2001 13:38:12 -0500
+	id <S279994AbRKIS2u>; Fri, 9 Nov 2001 13:28:50 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:13235 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S279988AbRKIS2j>;
+	Fri, 9 Nov 2001 13:28:39 -0500
+Date: Fri, 09 Nov 2001 15:28:56 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.13 pcd problems?
-From: Nick Papadonis <nick@coelacanth.com>
-Organization: None
-X-Face: 01-z%.O)i7LB;Cnxv)c<Qodw*J*^HU}]Y-1MrTwKNn<1_w&F$rY\\NU6U\ah3#y3r<!M\n9
- <vK=}-Z{^\-b)djP(pD{z1OV;H&.~bX4Tn'>aA5j@>3jYX:)*O6:@F>it.>stK5,i^jk0epU\$*cQ9
- !)Oqf[@SOzys\7Ym}:2KWpM=8OCC`
-Date: 09 Nov 2001 13:38:05 -0500
-Message-ID: <m3y9lfiycy.fsf@localhost.localdomain>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Civil Service)
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: 2.2.19 causing looping oops
+Message-ID: <13290000.1005319736@araucaria>
+X-Mailer: Mulberry/2.1.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is anyone having similar problems with pcd using Kernel v2.4.13?  I'm trying
-to get my BackPack 6 working.  I don't think I should be passing any
-other parameters to pcd.
+This is a manually decoded oops from 2.2.19 - the top of the
+oops ran off the serial console buffer (sigh) and there was nothing
+in the files, so I decoded the stack manually with 'ksymoops -A'
+on every stack entry. This gives a looping stack like below
+(I've this is a representative sample from the end of the oops
+output. Note the last section is the only but with the mmput
+in.
 
-Any insight much appreciated.
-
-- Nick
-
-$ 540 /home/nick -> modprobe paride
-$ 541 /home/nick -> modprobe bpck6
-$ 542 /home/nick -> modprobe pcd
-/lib/modules/2.4.13/kernel/drivers/block/paride/pcd.o: init_module: Operation not permitted
-Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters
-/lib/modules/2.4.13/kernel/drivers/block/paride/pcd.o: insmod /lib/modules/2.4.13/kernel/drivers/block/paride/pcd.o failed
-/lib/modules/2.4.13/kernel/drivers/block/paride/pcd.o: insmod pcd failed
+Any idea what could cause this (& why it didn't just Oops
+once, and stop). I presume it continued in a cyclic manner
+until the stack filled up and then everything died.
 
 
-I get the following:
-$ 539 /home/nick -> lsmod
-Module                  Size  Used by
-i810_audio             18032   0  (autoclean)
-ac97_codec              9376   0  (autoclean) [i810_audio]
-soundcore               3984   3  (autoclean) [i810_audio]
-i810                   65248   1 
-agpgart                17312   7  (autoclean)
-autofs                  9504   0  (autoclean) (unused)
-e100                   60720   1 
-usb-uhci               22176   0  (unused)
-usbcore                51744   1  [usb-uhci]
+Adhoc c0109208 <error_code+34/40>           <------- LOOP END HERE
+Adhoc c0116e0c <exit_notify+1c/1dc>
+Adhoc c01171fa <do_exit+22e/274>
+Adhoc c0109614 <die_if_no_fixup+0/40>
+Adhoc c01df5f6 <tvecs+eb6/36c0>
+Adhoc c01e112e <tvecs+29ee/36c0>
+Adhoc c010e8c4 <do_page_fault+2c4/3b0>
+Adhoc c01e112e <tvecs+29ee/36c0>
+Adhoc c010e600 <do_page_fault+0/3b0>        <------- LOOP START HERE
+Adhoc c0109208 <error_code+34/40>           <------- LOOP END HERE
+Adhoc c0116e0c <exit_notify+1c/1dc>
+Adhoc c01171fa <do_exit+22e/274>
+Adhoc c0109614 <die_if_no_fixup+0/40>
+Adhoc c01df5f6 <tvecs+eb6/36c0>
+Adhoc c01e112e <tvecs+29ee/36c0>
+Adhoc c010e8c4 <do_page_fault+2c4/3b0>
+Adhoc c01e112e <tvecs+29ee/36c0>
+Adhoc c010e600 <do_page_fault+0/3b0>
+Adhoc c0109208 <error_code+34/40>           <------- LOOP START HERE
+Adhoc c01171c0 <do_exit+1f4/274>            <------- LOOP END HERE (*)
+Adhoc c0109614 <die_if_no_fixup+0/40>
+Adhoc c01df5f6 <tvecs+eb6/36c0>
+Adhoc c01e112e <tvecs+29ee/36c0>
+Adhoc c010e8c4 <do_page_fault+2c4/3b0>
+Adhoc c01e112e <tvecs+29ee/36c0>
+Adhoc c010e600 <do_page_fault+0/3b0>
+Adhoc c0109208 <error_code+34/40>           <------- LOOP START
+Adhoc c011276c <mmput+4/34>                 <------- HERE
+Adhoc c011708c <do_exit+c0/274>
+Adhoc c0109614 <die_if_no_fixup+0/40>
+Adhoc c01df5f6 <tvecs+eb6/36c0>
+Adhoc c01e112e <tvecs+29ee/36c0>
+Adhoc c010e8c4 <do_page_fault+2c4/3b0>
+Adhoc c01e112e <tvecs+29ee/36c0>
+Adhoc c010e600 <do_page_fault+0/3b0>
 
--- 
-Nick
+(*)=this cycle a little different - note do_exit+1f4
+
+--
+Alex Bligh

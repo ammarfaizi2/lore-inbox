@@ -1,69 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268353AbTCFVFO>; Thu, 6 Mar 2003 16:05:14 -0500
+	id <S268384AbTCFVVp>; Thu, 6 Mar 2003 16:21:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268354AbTCFVFO>; Thu, 6 Mar 2003 16:05:14 -0500
-Received: from fmr02.intel.com ([192.55.52.25]:17607 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S268353AbTCFVFN> convert rfc822-to-8bit; Thu, 6 Mar 2003 16:05:13 -0500
-content-class: urn:content-classes:message
-Subject: RE: HT and idle = poll
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: Thu, 6 Mar 2003 13:15:43 -0800
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Message-ID: <3014AAAC8E0930438FD38EBF6DCEB56401338853@fmsmsx407.fm.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: HT and idle = poll
-Thread-Index: AcLkHBDwySW7UZjxTqqnW6VYpkX2XwABh6pQ
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: "Linus Torvalds" <torvalds@transmeta.com>,
-       "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Mar 2003 21:15:44.0664 (UTC) FILETIME=[8CC81180:01C2E425]
+	id <S268391AbTCFVVp>; Thu, 6 Mar 2003 16:21:45 -0500
+Received: from tapu.f00f.org ([202.49.232.129]:52400 "EHLO tapu.f00f.org")
+	by vger.kernel.org with ESMTP id <S268384AbTCFVVo>;
+	Thu, 6 Mar 2003 16:21:44 -0500
+Date: Thu, 6 Mar 2003 13:32:17 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: yoshfuji@linux-ipv6.org, kazunori@miyazawa.org, kuznet@ms2.inr.ac.ru,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, usagi@linux-ipv6.org
+Subject: Re: (usagi-core 12294) Re: [PATCH] IPv6 IPsec support
+Message-ID: <20030306213217.GA6358@f00f.org>
+References: <20030305233025.784feb00.kazunori@miyazawa.org> <20030305.072149.121185037.davem@redhat.com> <20030306.004820.41101302.yoshfuji@linux-ipv6.org> <20030305.154100.28816301.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030305.154100.28816301.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Wed, Mar 05, 2003 at 03:41:00PM -0800, David S. Miller wrote:
 
-That's correct. Basically mwait is similar to hlt, but you can avoid IPI to wake up the processor waiting. A write to the address specified by monitor wakes up the processor, unlike hlt.
+> Note that this coincides with the idea to eventually have an
+> address-family independant flow cache.
 
-So our plan is to use monitor/mwait in the idle loop, for example, in the kernel to lower the latency.
+Actually... at that point being able to monitor updates to the
+flow-cache would be useful for various statistical purposes and
+applications, especially if the flow cache was able to periodically
+export utilization counters...
 
-Jun
 
-> -----Original Message-----
-> From: Linus Torvalds [mailto:torvalds@transmeta.com]
-> Sent: Thursday, March 06, 2003 12:09 PM
-> To: Alan Cox
-> Cc: Linux Kernel Mailing List
-> Subject: Re: HT and idle = poll
-> 
-> 
-> On 6 Mar 2003, Alan Cox wrote:
-> > On Thu, 2003-03-06 at 19:30, Linus Torvalds wrote:
-> > > >So, don't use idle=poll with HT when you know your workload has idle
-> time!  I
-> > > >have not tried oprofile, but it stands to reason that this would be a
-> >
-> > idle=poll probably needs to be doing "rep nop" in a tight loop.
-> 
-> We already do that. It's not enough. The HT thing will still steal cycles
-> continually, since the "rep nop" is really only equivalent to a
-> "sched_yield()".
-> 
-> Think of "rep nop" as yielding, and "mwait" as a true wait.
-> 
-> (I don't actually have any real information on "mwait", so I may be wrong
-> about the details on the new instructions. They looked obvious enough,
-> though).
-> 
-> 		Linus
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+  --cw

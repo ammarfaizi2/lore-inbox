@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261741AbRE1PTs>; Mon, 28 May 2001 11:19:48 -0400
+	id <S263078AbRE1Pck>; Mon, 28 May 2001 11:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263067AbRE1PTi>; Mon, 28 May 2001 11:19:38 -0400
-Received: from eamail1-out.unisys.com ([192.61.61.99]:47069 "EHLO
-	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
-	id <S261741AbRE1PTb>; Mon, 28 May 2001 11:19:31 -0400
-Message-ID: <DD0DC14935B1D211981A00105A1B28DB033ED2F0@NL-ASD-EXCH-1>
-From: "Leeuw van der, Tim" <tim.leeuwvander@nl.unisys.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.5-ac2
-Date: Mon, 28 May 2001 10:19:01 -0500
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	id <S263079AbRE1Pca>; Mon, 28 May 2001 11:32:30 -0400
+Received: from albireo.ucw.cz ([62.168.0.14]:55044 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263078AbRE1PcN>;
+	Mon, 28 May 2001 11:32:13 -0400
+Date: Mon, 28 May 2001 17:31:52 +0200
+From: Martin Mares <mj@suse.cz>
+To: pazke@orbita1.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][RFC][REPOST] __init_msg(x) and friends macro
+Message-ID: <20010528173152.A808@albireo.ucw.cz>
+In-Reply-To: <20010528155841.A24736@orbita1.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010528155841.A24736@orbita1.ru>; from pazke@orbita1.ru on Mon, May 28, 2001 at 03:58:41PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi!
 
-> > Performance is back to that of 2.4.2-ac26, and stability is a lot >
-better. Under 
-> > heavy FS pressure 2.4.5-ac2 is about 5-10% faster than vanilla 2.4.5, >
-the aa1,2 
-> > kernels have the same performance of vanilla 2.4.5. 
-> > 
-> > Which one of your changes affected performance so much? 
+> Patch adds __init_msg (and friends) macro that places its argument 
+> (string constant) into corresponding .data.init section and returns
+> pointer to it. The goal of this patch is to allow constructions like this:
+> 
+>         static void __init foo(void)
+> 	{
+> 		printk(__init_msg(KERN_INFO "Some random long message "
+> 				  "going to .data.init and then to bit bucket\n"));
+> 	}
+> 
+> I hope this patch can save some memory and will be usefull :))
 
-> Its much more a case that the 2.4.5 tree got fixed and I picked up the >
-2.4.5 
-> changes. Its still not perfect (bigmem will deadlock again as in 2.4.5 >
-vanilla 
-> now) but its a much better basis to work from again 
+I think it's better to teach GCC understanding another function attribute
+defining the default section of all read-only data defined in the function.
 
-But the claim was that 2.4.5-ac2 is faster than 2.4.5 plain, so which
-changes are in 2.4.5-ac2 that would make it faster than 2.4.5 plain? Also, I
-don't know if 2.4.5-ac1 is as fast as 2.4.5-ac2 for Fabio. If not, then it's
-a change in the 2.4.5-ac2 changelog. If it is as fast, it is one of the
-changes in the 2.4.5-ac1 changelog.
-
-I haven't tried plain kernels for a long time, but 2.4.5-ac1 is definately a
-lot slower for interactive use than 2.4.4-ac8 so I've gone back to using
-that version. I haven't tried 2.4.5-ac2 to see if that improves upon -ac1.
-
-The VM in 2.4.5 might be largely 'fixed' and I know that the VM changes in
--ac were considered to be but still broken, however for me they worked
-better than what is in 2.4.5.
-
-I have a rather aging P5MMX at 200MHz with 64MB RAM, and I'm only judging
-interactive use (not measuring anything like compile times etc).
-
-
-with greetings,
-
---Tim
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares <mj@ucw.cz> <mj@suse.cz> http://atrey.karlin.mff.cuni.cz/~mj/
+Even nostalgia isn't what it used to be.

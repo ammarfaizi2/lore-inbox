@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136173AbRBFBi4>; Mon, 5 Feb 2001 20:38:56 -0500
+	id <S136240AbRBFBmH>; Mon, 5 Feb 2001 20:42:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136241AbRBFBir>; Mon, 5 Feb 2001 20:38:47 -0500
-Received: from home2.meteo.yu ([194.247.208.23]:23817 "HELO
-	c00l.home.lucidtech.org") by vger.kernel.org with SMTP
-	id <S136173AbRBFBim>; Mon, 5 Feb 2001 20:38:42 -0500
-From: "Vladimir Kukuruzovic" <kuki@sezampro.yu>
-To: <linux-kernel@vger.kernel.org>
-Subject: hpt370
-Date: Tue, 6 Feb 2001 02:38:29 +0100
-Message-ID: <NEBBKCIPKLPNDBIKKMBACENIFFAA.kuki@sezampro.yu>
+	id <S136241AbRBFBl5>; Mon, 5 Feb 2001 20:41:57 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:60033 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S136240AbRBFBlq>;
+	Mon, 5 Feb 2001 20:41:46 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
-Importance: Normal
+Message-ID: <14975.22030.765975.161693@pizda.ninka.net>
+Date: Mon, 5 Feb 2001 17:40:30 -0800 (PST)
+To: linux-kernel@vger.kernel.org
+CC: netdev@oss.sgi.com
+Subject: [UPDATE] New zerocopy against 2.4.2-pre1
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Maybe you don't know, but current Linux kernel (starting somewhere in
-testNN, probably test10 series) won't boot with HPT370 controller. With
-current setup (only one disk on that controller, no raid, no fancy stuff)
-the kernel locks after writing ide2: line :( Well, it used to work earlier,
-can it be unpatched so it starts working again? :)
 
-Regards, Vladimir
+In the usual spot:
 
+ftp://ftp.kernel.org/pub/linux/kernel/people/davem/zerocopy-2.4.2p1-1.diff.gz
+
+Changes since last installment:
+
+1) Merge in lots of AC patch fixes, from Alan.
+2) Use more reasonable MTU for loopback under
+   Zerocopy, basically it's 16K + sizeof TCP/IP headers now.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

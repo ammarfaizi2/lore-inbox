@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVBUThn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVBUTn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbVBUThn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 14:37:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVBUThY
+	id S262084AbVBUTn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 14:43:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262089AbVBUTmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 14:37:24 -0500
-Received: from main.gmane.org ([80.91.229.2]:1164 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262120AbVBUTeC (ORCPT
+	Mon, 21 Feb 2005 14:42:43 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:58060 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262085AbVBUTmc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 14:34:02 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Erik van Konijnenburg <ekonijn@xs4all.nl>
-Subject: Re: [ANNOUNCE] yaird, a mkinitrd based on hotplug concepts
-Date: Mon, 21 Feb 2005 19:13:55 +0000 (UTC)
-Message-ID: <loom.20050221T200156-316@post.gmane.org>
-References: <20050217210620.A20645@banaan.localdomain> <pan.2005.02.19.17.28.01.674334@dungeon.inka.de>
+	Mon, 21 Feb 2005 14:42:32 -0500
+Date: Mon, 21 Feb 2005 20:42:27 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Matthias-Christian Ott <matthias.christian@tiscali.de>,
+       =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: 2.6.11rc4: irq 5, nobody cared
+Message-ID: <20050221194227.GH6722@wiggy.net>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+	Matthias-Christian Ott <matthias.christian@tiscali.de>,
+	=?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
+	linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+References: <20050220155600.GD5049@vanheusden.com> <4218C692.9040106@tiscali.de> <20050220180550.GA18606@ime.usp.br> <200502211943.59887.bzolnier@elka.pw.edu.pl> <421A2D8F.3050704@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 80.126.2.237 (Mozilla)
-X-Gmane-MailScanner: Found to be clean
-X-Gmane-MailScanner: Found to be clean
-X-MailScanner-From: glk-linux-kernel@m.gmane.org
-X-MailScanner-To: linux-kernel@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <421A2D8F.3050704@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Jellinghaus <aj <at> dungeon.inka.de> writes:
-> it looks like yaird does use pivot_root.
-> however pivot_root and initramfs cause a kernel crash
-> (once you unmount /initrd in the real system).
-> use run-init from klibc instead and you are fine.
+Previously Jeff Garzik wrote:
+> You should add this to your procmailrc :)
+> 
+> # Nuke duplicate messages
+> :0 Wh: msgid.lock
+> | $FORMAIL -D 32768 msgid.cache
 
-You're right: pivot_root and initramfs don't mix, so yaird uses 
-pivot_root only in the Debian template, which still has initrd.
-The initramfs template manages to boot without run-init using a
-hack that's too embarrasing to quote without rot13; klibc is needed
-indeed.
+That has the nasty side-effect of spreading messages for a single
+discussion amongst many different mailboxes depending on which path
+happens to be the first to deliver an email to you.
 
-Thanks,
-Erik
+Wichert.
 
-
-
-
-
-
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

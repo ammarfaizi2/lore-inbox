@@ -1,64 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291600AbSBAIB7>; Fri, 1 Feb 2002 03:01:59 -0500
+	id <S291604AbSBAIF7>; Fri, 1 Feb 2002 03:05:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291601AbSBAIBt>; Fri, 1 Feb 2002 03:01:49 -0500
-Received: from dsl-213-023-043-113.arcor-ip.net ([213.23.43.113]:4009 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S291600AbSBAIBm>;
-	Fri, 1 Feb 2002 03:01:42 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
-        Stuart Young <sgy@amc.com.au>
-Subject: Re: Wanted: Volunteer to code a Patchbot
-Date: Fri, 1 Feb 2002 09:05:52 +0100
+	id <S291605AbSBAIFt>; Fri, 1 Feb 2002 03:05:49 -0500
+Received: from pop.gmx.net ([213.165.64.20]:51144 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S291604AbSBAIFf>;
+	Fri, 1 Feb 2002 03:05:35 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Hanno =?iso-8859-15?q?B=F6ck?= <hanno@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Patch for eepro100 to support more cards
+Date: Fri, 1 Feb 2002 09:06:26 +0100
 X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200201312205.g0VM54cS001547@tigger.cs.uni-dortmund.de>
-In-Reply-To: <200201312205.g0VM54cS001547@tigger.cs.uni-dortmund.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16WYhk-0000V1-00@starship.berlin>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020201080545Z291604-13996+15441@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 31, 2002 11:05 pm, Horst von Brand wrote:
-> Stuart Young <sgy@amc.com.au> said:
-> 
-> [...]
-> 
-> > Possibly, but then it'll reply to the spammer and you'll get bounces left 
-> > and right. Perhaps it's a simple case that the patcher submitting will
-> > have to have registered the email address before submitting their patch. 
-> > Only needs to be done once (not every time a patch is submitted, that's 
-> > mad!), and weeds out the noise.
-> 
-> And then lkml will be swamped with questions as to why the automated patch
-> system doesn't work, or it will just not be used at all because it is more
-> work than just firing off a patch at lkml.
+This patch adds support for the
+Intel Pro/100 VE
+Network card to the eepro100.c
 
-The plan is to have both open and registered-users-only patchbots.  The 
-second kind is the kind to which maintainers themselves submit to, so the 
-forwarded stream of patches is guaranteed to come from trustworthy sources.  
-Maintainers themselves can configure their own patchbots to be open or closed 
-as they see fit.  In essense, neither submitters not maintainers will see any 
-change at all in their procedures, except for the address to which they send 
-the patch.[1]
+This card is installed in my notebook (Sony Vaio PCG-GR114MK). Seems to work 
+fine.
 
-There will be a very significant change in the results of this process from 
-the submitter's point of view, since everybody will know where to look to see 
-what patches have been submitted, to whom, when, why etc.
+Patch is for Kernel 2.4.17
 
-There are a lot of things we can do with the patches once they're all sitting 
-in the patchbot's database, including tracking the state - applied, rejected, 
-being revised, etc.  That's for later, the task at hand is simply to clarify 
-and streamline the lines of communication between submitters and maintainers.
+--- linux/drivers/net/eepro100.c        Fri Dec 21 18:41:54 2001
++++ linux-2.4.17-patch/drivers/net/eepro100.c   Thu Jan 31 15:51:50 2002
+@@ -168,6 +168,9 @@
+ #ifndef PCI_DEVICE_ID_INTEL_ID1030
+ #define PCI_DEVICE_ID_INTEL_ID1030 0x1030
+ #endif
++#ifndef PCI_DEVICE_ID_INTEL_ID1031              // Support for Intel Pro/100 
+VE added by Hanno Boeck <hanno@gmx.de>
++#define PCI_DEVICE_ID_INTEL_ID1031 0x1031
++#endif
 
-[1] Submitters *may* chose to fill in a few lines of metadata in their patch 
-to specify, for example, a one-line description which is different from the 
-email subject, or that they are not interested in confirmation.  Such 
-metadata is not required - the patchbots will accept patches in exactly the 
-format we are used to.
 
--- 
-Daniel
+ static int speedo_debug = 1;
+@@ -2270,6 +2273,8 @@
+        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1029,
+                PCI_ANY_ID, PCI_ANY_ID, },
+        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1030,
++               PCI_ANY_ID, PCI_ANY_ID, },
++       { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ID1031,         // Support 
+for 
+Intel Pro/100 VE added by Hanno Boeck <hanno@gmx.de>
+                PCI_ANY_ID, PCI_ANY_ID, },
+        { PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_7,
+                PCI_ANY_ID, PCI_ANY_ID, },

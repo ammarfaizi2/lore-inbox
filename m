@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbULGAU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbULGAXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbULGAU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 19:20:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbULGAU2
+	id S261714AbULGAXH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 19:23:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbULGAWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 19:20:28 -0500
-Received: from quickstop.soohrt.org ([81.2.155.147]:1480 "EHLO
-	quickstop.soohrt.org") by vger.kernel.org with ESMTP
-	id S261713AbULGAUR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 19:20:17 -0500
-Date: Tue, 7 Dec 2004 01:20:12 +0100
-From: Karsten Desler <kdesler@soohrt.org>
-To: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
-Cc: "David S. Miller" <davem@davemloft.net>, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: _High_ CPU usage while routing (mostly) small UDP packets
-Message-ID: <20041207002012.GB30674@quickstop.soohrt.org>
-References: <20041206224107.GA8529@soohrt.org> <E1CbSf8-00047p-00@calista.eckenfels.6bone.ka-ip.net>
+	Mon, 6 Dec 2004 19:22:47 -0500
+Received: from main.gmane.org ([80.91.229.2]:6803 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261711AbULGAVA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 19:21:00 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Jon Masters <jonathan@jonmasters.org>
+Subject: Re: Booting 2.6.10-rc3
+Date: Tue, 07 Dec 2004 00:13:57 +0000
+Organization: World Organi[sz]ation Of Broken Dreams
+Message-ID: <cp2sk5$61r$2@sea.gmane.org>
+References: <1102256916.29858.210104494@webmail.messagingengine.com>   <41B36A5D.50901@verizon.net> <1102322642.18071.210148617@webmail.messagingengine.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1CbSf8-00047p-00@calista.eckenfels.6bone.ka-ip.net>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: apogee.jonmasters.org
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040918)
+X-Accept-Language: en-us, en
+In-Reply-To: <1102322642.18071.210148617@webmail.messagingengine.com>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Cc: kernelnewbies@nl.linux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Eckenfels <ecki-news2004-05@lina.inka.de> wrote:
-> In article <20041206224107.GA8529@soohrt.org> you wrote:
-> > Removing the iptables rules helps reducing the load a little, but the
-> > majority of time is still spent somewhere else.
+Anandraj wrote:
+
+> Now it works after makingsome changes in the grub.conf
 > 
-> In handling Interrupts. Are those equally sidtributed on eth0 and eth1?
+> all i did was, in the grub.conf changed the 
+> 
+> kernel /vmlinuz-2.6.10-rc3 ro root=LABLE=/ rhgb quiet
+> 
+> to 
+> 
+> kernel /vmlinuz-2.6.10-rc3
+> 
+> but, i have no idea , this works!
+> can anybody shed some light on this ?
 
-Yes they are.
+There's a repeated typo in your root=LABLE=/ entry, since it should be 
+LABEL instead of LABLE.
 
-Thanks,
- Karsten
+That entry tells the kernel to look for a filesystem which contains a 
+label in its superblock that matches the one you gave via grub.
 
-           CPU0       CPU1       
-  0:  117199776  133677244    IO-APIC-edge  timer
-  1:          0          9    IO-APIC-edge  i8042
-  8:          0          4    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
-169:        139  893669684   IO-APIC-level  eth0
-177:  919803109      30665   IO-APIC-level  eth1
-209:     414257     413316   IO-APIC-level  libata
-NMI:          0          0 
-LOC:  250918849  250918819 
-ERR:          0
-MIS:          0
+Cheers,
+
+Jon.
+
+

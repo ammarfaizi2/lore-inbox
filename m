@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284610AbSABVoy>; Wed, 2 Jan 2002 16:44:54 -0500
+	id <S284795AbSABVsE>; Wed, 2 Jan 2002 16:48:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284545AbSABVoo>; Wed, 2 Jan 2002 16:44:44 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:45699
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284542AbSABVo2>; Wed, 2 Jan 2002 16:44:28 -0500
-Date: Wed, 2 Jan 2002 16:30:43 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Dave Jones <davej@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-Message-ID: <20020102163043.A16513@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Dave Jones <davej@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020102161347.A16223@thyrsus.com> <Pine.LNX.4.33.0201022230240.427-100000@Appserv.suse.de>
-Mime-Version: 1.0
+	id <S284538AbSABVry>; Wed, 2 Jan 2002 16:47:54 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:49415 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S284542AbSABVrm>; Wed, 2 Jan 2002 16:47:42 -0500
+Message-ID: <3C337EF1.4C7C72AB@zip.com.au>
+Date: Wed, 02 Jan 2002 13:43:13 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: vda <vda@port.imtp.ilyichevsk.odessa.ua>, linux-kernel@vger.kernel.org
+Subject: Re: Extern variables in *.c files
+In-Reply-To: <02010216180403.01928@manta> <Pine.LNX.4.43.0201021322120.30079-100000@waste.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201022230240.427-100000@Appserv.suse.de>; from davej@suse.de on Wed, Jan 02, 2002 at 10:31:35PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones <davej@suse.de>:
-> Questionable. Dumping this in /proc just to make kernel autoconfig
-> easier seems dreadful overkill.
+Oliver Xymoron wrote:
+> 
+> On Wed, 2 Jan 2002, vda wrote:
+> 
+> > I grepped kernel *.c (not *.h!) files for extern variable definitions.
+> > Much to my surprize, I found ~1500 such defs.
+> >
+> > Isn't that bad C code style? What will happen if/when type of variable gets
+> > changed? (int->long).
+> 
+> Yes; Int->long won't change anything on 32-bit machines and will break
+> silently on 64-bit ones. The trick is finding appropriate places to put
+> such definitions so that all the things that need them can include them
+> without circular dependencies.
+> 
 
-Actually, that's far from the only reason I can think of for including it.
+Isn't there some way to get the linker to detect the differing
+sizes?
 
-Consider the lives of people administering large server farms or clusters.
-Their hardware is not necessarily homogenous, and the ability to query the DMI
-tables on the fly could be useful both for administration and automatic
-process migration.
--- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-The right to buy weapons is the right to be free.
-        -- A.E. Van Vogt, "The Weapon Shops Of Isher", ASF December 1942
+-

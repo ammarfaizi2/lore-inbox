@@ -1,118 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262525AbVC3XN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbVC3XSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262525AbVC3XN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 18:13:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVC3XN1
+	id S262552AbVC3XSM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 18:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262557AbVC3XSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 18:13:27 -0500
-Received: from smtpout.mac.com ([17.250.248.85]:57809 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S262525AbVC3XM0 (ORCPT
+	Wed, 30 Mar 2005 18:18:11 -0500
+Received: from pat.uio.no ([129.240.130.16]:52108 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262552AbVC3XRv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 18:12:26 -0500
-In-Reply-To: <424AFA98.9080402@grupopie.com>
-References: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl> <OofSaT76.1112169183.7124470.khali@localhost> <d2er4p$qp$1@sea.gmane.org> <424AFA98.9080402@grupopie.com>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <aae129062f1e3992c8ec025d5f239be9@mac.com>
+	Wed, 30 Mar 2005 18:17:51 -0500
+Subject: Re: [RFC] Add support for semaphore-like structure with support
+	for asynchronous I/O
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org,
+       Linux Filesystem Development <linux-fsdevel@vger.kernel.org>
+In-Reply-To: <20050330143409.04f48431.akpm@osdl.org>
+References: <1112219491.10771.18.camel@lade.trondhjem.org>
+	 <20050330143409.04f48431.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 30 Mar 2005 18:17:43 -0500
+Message-Id: <1112224663.18019.39.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
-Cc: Shankar Unni <shankarunni@netscape.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, bunk@stusta.de, khali@linux-fr.org
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Big GCC bug!!! [Was: Re: Do not misuse Coverity please]
-Date: Wed, 30 Mar 2005 18:11:43 -0500
-To: Paulo Marques <pmarques@grupopie.com>
-X-Mailer: Apple Mail (2.619.2)
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.763, required 12,
+	autolearn=disabled, AWL 1.24, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 30, 2005, at 14:14, Paulo Marques wrote:
-> Just a minor nitpick, though: wouldn't it be possible for an
-> application to catch the SIGSEGV and let the code proceed,
-> making invalid the assumption made by gcc?
+on den 30.03.2005 Klokka 14:34 (-0800) skreiv Andrew Morton:
 
-Uhh, it's even worse than that.  Have a look at the following code:
-> #include <stdio.h>
-> #include <stdlib.h>
-> #include <string.h>
-> #include <errno.h>
-> #include <sys/types.h>
-> #include <sys/mman.h>
->
-> struct test {
->         int code;
-> };
-> int test_check_first(struct test *a) {
->         int ret;
->         if (!a) return -1;
->         ret = a->code;
->         return ret;
-> }
-> int test_check_last(struct test *a) {
->         int ret;
->         ret = a->code;
->         if (!a) return -1;
->         return ret;
-> }
->
-> int main() {
->         int i;
->         struct test *nullmem = mmap(NULL, 4096, PROT_READ|PROT_WRITE,
->                         MAP_ANON|MAP_FIXED|MAP_PRIVATE, -1, 0);
->         if (nullmem == MAP_FAILED) {
->                 fprintf(stderr,"mmap: %s\n",strerror(errno));
->                 exit(1);
->         }
->         for (i = 0; i < 2; i++) {
->                 nullmem[i].code = i;
->                 printf("nullmem[%d].code = %d\n",i,i);
->                 printf("test_check_first(&nullmem[%d]) = %d\n",i,
->                         test_check_first(&nullmem[i]));
->                 printf("test_check_last(&nullmem[%d]) = %d\n",i,
->                         test_check_last(&nullmem[i]));
->         }
->         munmap(nullmem,4096);
->         exit(0);
-> }
+> > Anyhow, the following is a simple implementation of semaphores designed
+> > to satisfy the needs of those I/O subsystems that want to support
+> > asynchronous behaviour too. Please comment.
+> > 
+> 
+> So I've been staring at this code for a while and I Just Don't Get It.  If
+> I want some custom callback function to be called when someone does an
+> iosem_unlock(), how do I do it?
 
-Without optimization:
-> king:~# gcc -o mmapnull mmapnull.c
-> king:~# ./mmapnull
-> nullmem[0].code = 0
-> test_check_first(&nullmem[0]) = -1
-> test_check_last(&nullmem[0]) = -1
-> nullmem[1].code = 1
-> test_check_first(&nullmem[1]) = 1
-> test_check_last(&nullmem[1]) = 1
+I haven't added support for arbitrary callback functions. It is quite
+possible to expand the interfaces to do so should someone need that
+functionality, however my current needs only dictate that I be able to
+grant the iosem token to a workqueue item, then schedule that work for
+execution by keventd.
 
-With optimization:
-> king:~# gcc -O2 -o mmapnull mmapnull.c
-> king:~# ./mmapnull
-> nullmem[0].code = 0
-> test_check_first(&nullmem[0]) = -1
-> test_check_last(&nullmem[0]) = 0
-                         BUG ==> ^^^
-> nullmem[1].code = 1
-> test_check_first(&nullmem[1]) = 1
-> test_check_last(&nullmem[1]) = 1
+This is required in order to allow threads such as rpciod or keventd
+itself (for which sleeping may cause deadlocks) to ask the iosem manager
+code to simply queue the work that need to run once the iosem has been
+granted. That work function is then, of course, responsible for
+releasing the iosem when it is done.
 
-This is on multiple platforms, including PPC Linux, X86 Linux, and
-PPC Mac OS X.  All exhibit the exact same behavior and output.  I
-think I'll probably go report a GCC bug now :-D
+> Or have I misunderstood the intent?  Some /* comments */ would be appropriate..
 
-Dereferencing null pointers is relied upon by a number of various
-emulators and such, and is "platform-defined" in the standard, so
-since Linux allows mmap at NULL, GCC shouldn't optimize that case
-any differently.
+Will do.
 
 Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
-!y?(-)
-------END GEEK CODE BLOCK------
-
+  Trond
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 

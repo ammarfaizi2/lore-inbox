@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262611AbSI0TLY>; Fri, 27 Sep 2002 15:11:24 -0400
+	id <S262578AbSI0TGC>; Fri, 27 Sep 2002 15:06:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262609AbSI0TLY>; Fri, 27 Sep 2002 15:11:24 -0400
-Received: from magic.adaptec.com ([208.236.45.80]:64177 "EHLO
-	magic.adaptec.com") by vger.kernel.org with ESMTP
-	id <S262608AbSI0TLW>; Fri, 27 Sep 2002 15:11:22 -0400
-Date: Fri, 27 Sep 2002 13:16:16 -0600
-From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
-       Matthew Jacob <mjacob@feral.com>,
-       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
-       Mathieu Chouquet-Stringer <mathieu@newview.com>,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Warning - running *really* short on DMA buffers while doingfile
-   transfers
-Message-ID: <2561606224.1033154176@aslan.btc.adaptec.com>
-In-Reply-To: <3D94AC8B.4AB6EB09@digeo.com>
-References: <200209271721.g8RHLTn05231@localhost.localdomain>
- <2543856224.1033153019@aslan.btc.adaptec.com> <3D94AC8B.4AB6EB09@digeo.com>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+	id <S262581AbSI0TGC>; Fri, 27 Sep 2002 15:06:02 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54030 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262578AbSI0TGB>;
+	Fri, 27 Sep 2002 15:06:01 -0400
+Message-ID: <3D94AD35.4050505@pobox.com>
+Date: Fri, 27 Sep 2002 15:10:45 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Christoph Hellwig <hch@sgi.com>
+CC: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][5th RESENT] backport 2.5 inode allocation changes
+References: <20020927212707.B4733@sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Which unfortunately characterizes only a single symptom without breaking
->> it down on a transaction by transaction basis.  We need to understand
->> how many writes were queued by the OS to the drive between each read to
->> know if the drive is actually allowing writes to pass reads or not.
->> 
+Christoph Hellwig wrote:
+> It allows to break worst-offenders like NFS out of the big inode union
+> and make VM balancing better by wasting less ram for inodes.  It also
+> speedups filesystems that don't want to touch that union in struct
+> inode, like JFS, XFS or FreeVxFS (once switched over).  It is a straight
+> backport from Al's code in 2.5 and has proven stable in Red Hat's
+> recent beta releases (limbo, null).  Al has ACKed my patch submission.
 > 
-> Given that I measured a two-second read latency with four tags,
-> that would be about 60 megabytes of write traffic after the
-> read was submitted.  Say, 120 requests.  That's with a tag
-> depth of four.
+> Credits go to Daniel Phillips for the initial design.
+> 
+> NOTE: you want my b_inode removal patch applied before this one.
 
-I still don't follow your reasoning.  Your benchmark indicates the
-latency for several reads (cat kernel/*.c), not the per-read latency.
-The two are quite different and unless you know the per-read latency and
-whether it was affected by filling the drive's entire cache with
-pent up writes (again these are writes that are above and beyond
-those still assigned tags) you are still speculating that writes
-are passing reads.
 
-If you can tell me exactly how you ran your benchmark, I'll find the
-information I want by using a SCSI bus analyzer to sniff the traffic
-on the bus.
+IMO this patch (and b_inode before it) look ok...
 
---
-Justin
+but I have a feeling we will have a public disagreement over actually 
+shrinking the size of the inode struct...  [but this patch does not do 
+that, so IMO it's fine]
+

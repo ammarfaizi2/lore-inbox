@@ -1,45 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270203AbRHGM3W>; Tue, 7 Aug 2001 08:29:22 -0400
+	id <S270204AbRHGMkM>; Tue, 7 Aug 2001 08:40:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270204AbRHGM3M>; Tue, 7 Aug 2001 08:29:12 -0400
-Received: from ch-12-44-139-249.lcisp.com ([12.44.139.249]:29824 "HELO
-	dual.lcisp.com") by vger.kernel.org with SMTP id <S270203AbRHGM2x>;
-	Tue, 7 Aug 2001 08:28:53 -0400
-From: "Kevin Krieser" <kkrieser_list@footballmail.com>
-To: "Sean Hunter" <sean@dev.sportingbet.com>,
-        "Evgeny Polyakov" <johnpol@2ka.mipt.ru>
-Cc: "Ryan Mack" <rmack@mackman.net>, <linux-kernel@vger.kernel.org>
+	id <S270207AbRHGMjx>; Tue, 7 Aug 2001 08:39:53 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:45440 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S270205AbRHGMjs>; Tue, 7 Aug 2001 08:39:48 -0400
+Date: Tue, 7 Aug 2001 08:39:14 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Kevin Krieser <kkrieser_list@footballmail.com>
+cc: Sean Hunter <sean@dev.sportingbet.com>,
+        Evgeny Polyakov <johnpol@2ka.mipt.ru>, Ryan Mack <rmack@mackman.net>,
+        linux-kernel@vger.kernel.org
 Subject: RE: Encrypted Swap
-Date: Tue, 7 Aug 2001 07:28:46 -0500
-Message-ID: <NDBBLFLJADKDMBPPNBALGEEJEPAA.kkrieser_list@footballmail.com>
+In-Reply-To: <NDBBLFLJADKDMBPPNBALGEEJEPAA.kkrieser_list@footballmail.com>
+Message-ID: <Pine.LNX.3.95.1010807083831.5144A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-In-Reply-To: <20010807082324.C9202@dev.sportingbet.com>
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I guess you don't want to run a laptop computer, or even on a good UPS,
-since you could just steal the UPS too, and leave the computer running :)
+On Tue, 7 Aug 2001, Kevin Krieser wrote:
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Sean Hunter
-Sent: Tuesday, August 07, 2001 2:23 AM
-To: Evgeny Polyakov
-Cc: Ryan Mack; linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
+> I guess you don't want to run a laptop computer, or even on a good UPS,
+> since you could just steal the UPS too, and leave the computer running :)
+> 
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Sean Hunter
+> Sent: Tuesday, August 07, 2001 2:23 AM
+> To: Evgeny Polyakov
+> Cc: Ryan Mack; linux-kernel@vger.kernel.org
+> Subject: Re: Encrypted Swap
+> 
+> 
+> Right, now you, (as black hat) have physically stolen my machine.  Remember
+> that in order to do that you need to turn the power off.  You know my
+> algorithim for key generation: how do you recover the key?
+> 
 
+A kind word and a gun?
 
-Right, now you, (as black hat) have physically stolen my machine.  Remember
-that in order to do that you need to turn the power off.  You know my
-algorithim for key generation: how do you recover the key?
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
 

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266493AbRGDDgX>; Tue, 3 Jul 2001 23:36:23 -0400
+	id <S266496AbRGDDtI>; Tue, 3 Jul 2001 23:49:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266495AbRGDDgN>; Tue, 3 Jul 2001 23:36:13 -0400
-Received: from cp912944-a.mtgmry1.md.home.com ([24.18.149.178]:64896 "EHLO
-	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S266493AbRGDDgI>;
-	Tue, 3 Jul 2001 23:36:08 -0400
-Date: Tue, 3 Jul 2001 23:36:05 -0400
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-Message-ID: <20010703233605.A1244@zalem.puupuu.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200107040337.XAA00376@smarty.smart.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200107040337.XAA00376@smarty.smart.net>; from humbubba@smarty.smart.net on Tue, Jul 03, 2001 at 11:37:28PM -0400
+	id <S266497AbRGDDs7>; Tue, 3 Jul 2001 23:48:59 -0400
+Received: from gc-nas-02-s4.cinergycom.net ([216.135.20.68]:7297 "EHLO
+	kmw.yi.org") by vger.kernel.org with ESMTP id <S266496AbRGDDsj>;
+	Tue, 3 Jul 2001 23:48:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Kurt Maxwell Weber <kmw@rowsw.com>
+Reply-To: kmw@rowsw.com
+Organization: ROW Software and Web Design
+To: Mike Sklar <sklarm@screwdecaf.cx>
+Subject: Re: history of mrproper
+Date: Tue, 3 Jul 2001 22:48:22 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.33L2.0107032029560.2818-100000@d13.com>
+In-Reply-To: <Pine.LNX.4.33L2.0107032029560.2818-100000@d13.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Message-Id: <01070322482200.00261@zaphodbeeblebrox>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 03, 2001 at 11:37:28PM -0400, Rick Hohensee wrote:
-> In other words, if you know the push sequence of your C compiler's
-> function calls, you don't need asm("");.
+On Tuesday 03 July 2001 22:33, Mike Sklar ignorantly blabbered:
+> Hopefully someone could enlighten me on the history of mrproper. I think
+> its a great name for making sources *proper*. In particular I'd like to
+> know what the *mr* might stand for.
 
-You are very much forgetting _inline_ asm.  And if you think that's
-unimportant for performance, well, as Al would say, go back playing
-with Hurd.
+To differentiate it from Mrs. Proper.
 
-  OG.
-
+-- 
+Regards,
+Kurt Weber
+kmw@rowsw.com

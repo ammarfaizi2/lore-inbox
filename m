@@ -1,116 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266097AbUGILro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266132AbUGIL42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266097AbUGILro (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 07:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266113AbUGILro
+	id S266132AbUGIL42 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 07:56:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266136AbUGIL42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 07:47:44 -0400
-Received: from mx2.magma.ca ([206.191.0.250]:19686 "EHLO mx2.magma.ca")
-	by vger.kernel.org with ESMTP id S266097AbUGILpU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 07:45:20 -0400
-Subject: Re: 2.6.7-mm7
-From: Jesse Stockall <stockall@magma.ca>
-To: Stefano Rivoir <s.rivoir@gts.it>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <40EE732C.5020404@gts.it>
-References: <20040708235025.5f8436b7.akpm@osdl.org>
-	 <40EE5418.2040000@gts.it> <20040709024112.7ef44d1d.akpm@osdl.org>
-	 <40EE732C.5020404@gts.it>
-Content-Type: text/plain
-Message-Id: <1089373506.8067.7.camel@homer.blizzard.org>
+	Fri, 9 Jul 2004 07:56:28 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:50328 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266132AbUGIL41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 07:56:27 -0400
+Date: Fri, 9 Jul 2004 12:55:31 +0100
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Christoph Hellwig <hch@infradead.org>, Erik Rigtorp <erik@rigtorp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] swsusp bootsplash support
+Message-ID: <20040709115531.GA28343@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@suse.cz>, Christoph Hellwig <hch@infradead.org>,
+	Erik Rigtorp <erik@rigtorp.com>, linux-kernel@vger.kernel.org
+References: <20040708110549.GB9919@linux.nu> <20040708133934.GA10997@infradead.org> <20040708204840.GB607@openzaurus.ucw.cz> <20040708210403.GA18049@infradead.org> <20040708225216.GA27815@elf.ucw.cz> <20040708225501.GA20143@infradead.org> <20040709051528.GB23152@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 09 Jul 2004 07:45:07 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040709051528.GB23152@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-07-09 at 06:27, Stefano Rivoir wrote:
-> 
-> It seems that hotplug "subsystem" is having problems (I use debian/sid), 
-> because it stucks during
-> 
-> /sbin/modprobe -s -q ehci_hcd
-> 
-> Note that I'm seeing this after a /etc/init.d/hotplug start (after a 
-> successfull boot), but just before I had a kernel oops (see attached 
-> file) when issuing a /etc/init.d/hotplug stop.
+On Fri, Jul 09, 2004 at 07:15:28AM +0200, Pavel Machek wrote:
 
-Hi
+ > But I guess swsusp is going to make this more "interesting" as
+ > progressbar is nice to have there, and userland can not help at that
+ > point.
 
-This is a known issue that appeared in 2.6.7-mm6. See below for a
-temporary fix. Check the [2.6.7-mm6 -  USB problems] thread on
-linux-usb-devel@lists.sourceforge.net for more info.
+Personally I'd prefer the effort went into making suspend actually
+work on more machines rather than painting eyecandy for the minority
+of machines it currently works on.
 
-Jesse
-
-<-- msg from Alan Stern -->
-
-This patch fixes a problem with my recent set of locking changes for
-USB.
-The problem is that rw-semaphores don't have the semantics I need.  I
-need
-something where, if the semaphore is locked for reading and a writer is
-waiting for the lock, another reader will be granted a readlock
-immediately.  That's because there are several places where a thread
-holding the readlock will acquire the readlock again, in a nested or
-recursive fashion.  If a writer is waiting for the first readlock to be
-released, the standard semantics will yield deadlock.
-
-This patch implements those alternate semantics by putting writers on a 
-separate wait queue.  It's a little bit awkward and has a definite 
-roll-you-own flavor, but it works.  Please apply.
-
-Alan Stern
-
-
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
-===== drivers/usb/core/usb.c 1.281 vs edited =====
---- 1.281/drivers/usb/core/usb.c        Wed Jun 30 09:44:26 2004
-+++ edited/drivers/usb/core/usb.c       Wed Jul  7 15:47:23 2004
-@@ -64,6 +64,7 @@
-                        /* Not honored on modular build */
- 
- static DECLARE_RWSEM(usb_all_devices_rwsem);
-+static DECLARE_WAIT_QUEUE_HEAD(usb_all_devices_wqh);
- 
- 
- static int generic_probe (struct device *dev)
-@@ -933,6 +934,7 @@
- {
-        up(&udev->serialize);
-        up_read(&usb_all_devices_rwsem);
-+       wake_up(&usb_all_devices_wqh);
- }
- 
- /**
-@@ -940,10 +942,15 @@
-  *
-  * This is necessary when registering a new driver or probing a bus,
-  * since the driver-model core may try to use any usb_device.
-+ *
-+ * Unfortunately we have to use a separate wait queue, because we need
-+ * to make sure that a thread waiting for a writelock won't block other
-+ * threads from acquiring a readlock.
-  */
- void usb_lock_all_devices(void)
- {
--       down_write(&usb_all_devices_rwsem);
-+       wait_event(usb_all_devices_wqh,
-+                       down_write_trylock(&usb_all_devices_rwsem));
- }
- 
- /**
-@@ -952,6 +959,7 @@
- void usb_unlock_all_devices(void)
- {
-        up_write(&usb_all_devices_rwsem);
-+       wake_up(&usb_all_devices_wqh);
- }
-
--- 
-Jesse Stockall <stockall@magma.ca>
+		Dave
 

@@ -1,52 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263034AbVAFUSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVAFVDq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263034AbVAFUSN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 15:18:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263011AbVAFUQh
+	id S261173AbVAFVDq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 16:03:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbVAFVAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 15:16:37 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:2733 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S263025AbVAFUNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 15:13:08 -0500
-Date: Thu, 6 Jan 2005 20:13:03 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
-Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050106201303.GA24321@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Paul E. McKenney" <paulmck@us.ibm.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org,
-	viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
-References: <20050106190538.GB1618@us.ibm.com> <20050106191355.GA23345@infradead.org> <20050106200738.GG1292@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106200738.GG1292@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-uCc: akpm@osdl.org, linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 6 Jan 2005 16:00:20 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:10437 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261173AbVAFU6F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 15:58:05 -0500
+Message-ID: <41DDA6CB.6050307@sgi.com>
+Date: Thu, 06 Jan 2005 14:59:55 -0600
+From: Ray Bryant <raybry@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Paul Jackson <pj@sgi.com>, Steve Longerbeam <stevel@mwwireless.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: page migration patchset
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 12:07:38PM -0800, Paul E. McKenney wrote:
-> > What out of tree filesystem, and what the heck is it doing?
-> 
-> MVFS, as was correctly guessed from my diff.  It is providing a view into
-> a source-code control system, so that a given process can specify the
-> version it wishes to see.  Yes, different processes then see a different
-> filesystem tree at the same mount point.
+Andi,
 
-We have that in the VFS as namespace and it has no business in a filesystem
-driver.  And we have been telling this for more than a year.
+Under the topic of modifying a processes's mems_allowed bitmask,
+Paul Jackson has been telling me that this is hard, in general.
+This is unfortunate, as part of the page migration work I am
+doing, it seems that part of the necessary work is to change
+the NUMA memory policy so newly allocated pages go onto the
+new nodes.
 
-> > Without proper explanation it's vetoed.
-> 
-> What additional explanation are you looking for?
+Now I know there is no locking protection around the mems_allowed
+bitmask, so changing this while the process is still running
+sounds hard.  But part of the plan I am working under assumes
+that the process is stopped before it is migrated.  (Shared
+pages that are only shared among processes all of whom are to be
+moved would similarly be handled; pages shsared among migrated
+and non-migrated processes, e. g. glibc pages, would not
+typically need to be moved at all, since they likely reside
+somewhere outside the set of nodes to be migrated from.)
 
-The explanation is so good that we can veto that patch with a reason,
-as it should really be obvious to you an anyone involved.
+But if the process is suspended, isn't all that is needed just
+to do the obvious translation on the mems_allowed vector?
+(Similarly for the dedicated node stuff, I forget the name for
+that at the moment...)
 
+Am I missing something big here that makes this task harder
+than I am thinking it is?
+-- 
+Best Regards,
+Ray
+-----------------------------------------------
+                   Ray Bryant
+512-453-9679 (work)         512-507-7807 (cell)
+raybry@sgi.com             raybry@austin.rr.com
+The box said: "Requires Windows 98 or better",
+            so I installed Linux.
+-----------------------------------------------

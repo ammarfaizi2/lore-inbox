@@ -1,32 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287866AbSA1NFX>; Mon, 28 Jan 2002 08:05:23 -0500
+	id <S288174AbSA1NIN>; Mon, 28 Jan 2002 08:08:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287874AbSA1NFD>; Mon, 28 Jan 2002 08:05:03 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:25604 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287866AbSA1NEs>; Mon, 28 Jan 2002 08:04:48 -0500
-Subject: Re: Don't use dbench for benchmarks
-To: phillips@bonn-fries.net (Daniel Phillips)
-Date: Mon, 28 Jan 2002 13:17:02 +0000 (GMT)
-Cc: alex14641@yahoo.com (Alex Davis), linux-kernel@vger.kernel.org
-In-Reply-To: <E16VAOw-00009Y-00@starship.berlin> from "Daniel Phillips" at Jan 28, 2002 12:56:42 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288302AbSA1NIK>; Mon, 28 Jan 2002 08:08:10 -0500
+Received: from mustard.heime.net ([194.234.65.222]:33227 "EHLO
+	mustard.heime.net") by vger.kernel.org with ESMTP
+	id <S288174AbSA1NHF>; Mon, 28 Jan 2002 08:07:05 -0500
+Date: Mon, 28 Jan 2002 14:06:54 +0100 (CET)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Diego Calleja <grundig@teleline.es>, lkml <linux-kernel@vger.kernel.org>,
+        <guido.leenders@invantive.com>
+Subject: Re: PROBLEM: 2.4.17 crashes (VM bug?) after heavy system load
+In-Reply-To: <E16UxfD-0002uK-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.30.0201281405540.27898-100000@mustard.heime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16VBeg-0000YT-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I must be having a bad day, I can only think of irritable things to post.
-> Continuing that theme: please don't use dbench for benchmarks.  At all.
-> It's an unreliable indicator of anything in particular except perhaps
-> stability.  Please, use something else for your benchmarks.
+On Sun, 27 Jan 2002, Alan Cox wrote:
 
-Im not 100% sure that is the case. Done 30 or 40 times and done from a 
-reboot for the 30-40 pass sequence its quite a passable guide to
-both stability and I/O behaviour under some server loads. 
+> > On 27 ene 2002, 22:49:17, Guido Leenders wrote:
+> > >
+> > > [1.] One line summary of the problem:
+> > >
+> > > Especially during times of heavy I/O, swapping and CPU processing, the
+> > > OS crashes with an Oops.
+> > I think andrea's patches should be applied into stable mainline NOW.
+>
+> Its up to Andrea to break up his patches and feed them to Marcelo as he
+> has been asked. It also won't make any odds to this trace I suspect.
+>
+> Trying 2.4.18pre7 or applying the LRU patch to 2.4.17 that Ben LaHaise did
+> should sort most of the 2.4.17 crashes out
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-Alan
+What makes Andrea's patches better than Rik's?
+
+My recent problem with the vm was easily solved with rmap.
+
+See http://karlsbakk.net/dev/kernel/vm-fsckup.txt for more info
+
+roy
+
+--
+Roy Sigurd Karlsbakk, MCSE, MCNE, CLS, LCA
+
+Computers are like air conditioners.
+They stop working when you open Windows.
+

@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262390AbVAPCTh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262387AbVAPCTg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262390AbVAPCTh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 21:19:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262393AbVAPCEZ
+	id S262387AbVAPCTg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 21:19:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbVAPCEN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 21:04:25 -0500
-Received: from news.cistron.nl ([62.216.30.38]:46788 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262387AbVAPCCW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 21:02:22 -0500
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Make pipe data structure be a circular list of pages, rather
-Date: Sun, 16 Jan 2005 02:02:19 +0000 (UTC)
-Organization: Cistron
-Message-ID: <cschvb$p6d$1@news.cistron.nl>
-References: <20050115234204.20123.qmail@science.horizon.com> <1105829719.16028.3.camel@localhost.localdomain> <Pine.LNX.4.58.0501151611540.8178@ppc970.osdl.org>
+	Sat, 15 Jan 2005 21:04:13 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27662 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262393AbVAPCBx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 21:01:53 -0500
+Date: Sun, 16 Jan 2005 03:01:50 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch i386 traps.c: make a function static (fwd)
+Message-ID: <20050116020150.GL4274@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1105840939 25805 194.109.0.112 (16 Jan 2005 02:02:19 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (mikevs)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0501151611540.8178@ppc970.osdl.org>,
-Linus Torvalds  <torvalds@osdl.org> wrote:
->
->On Sat, 15 Jan 2005, Alan Cox wrote:
->>
->> Alan Cox (the other Alan Cox not me)
->
->Oh no! You guys are multiplying! 
+The patch forwarded below still applies and compiles against 
+2.6.11-rc1-mm1.
 
-http://www.imdb.com/name/nm0184893/
+Please apply.
 
-Mike.
+
+----- Forwarded message from Adrian Bunk <bunk@stusta.de> -----
+
+Date:	Sun, 12 Dec 2004 03:11:08 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: [2.6 patch i386 traps.c: make a function static
+
+The patch below makes a needlessly global function static.
+
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/traps.c.old	2004-12-11 23:51:43.000000000 +0100
++++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/traps.c	2004-12-11 23:51:50.000000000 +0100
+@@ -898,7 +898,7 @@
+ 	math_error((void __user *)regs->eip);
+ }
+ 
+-void simd_math_error(void __user *eip)
++static void simd_math_error(void __user *eip)
+ {
+ 	struct task_struct * task;
+ 	siginfo_t info;
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+----- End forwarded message -----
 

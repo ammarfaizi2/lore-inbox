@@ -1,100 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267211AbUHIUeX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267185AbUHIUeW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267211AbUHIUeX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 16:34:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266879AbUHIUcN
+	id S267185AbUHIUeW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 16:34:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266850AbUHIUc1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 16:32:13 -0400
-Received: from louise.pinerecords.com ([213.168.176.16]:55176 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S266850AbUHIUQ3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 16:16:29 -0400
-Date: Mon, 9 Aug 2004 22:15:56 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, netdev@oss.sgi.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100 wireless driver
-Message-ID: <20040809201556.GB9677@louise.pinerecords.com>
-References: <20040714114135.GA25175@elf.ucw.cz> <Pine.LNX.4.60.0407141947270.27995@boston.corp.fedex.com> <20040714115523.GC2269@elf.ucw.cz>
+	Mon, 9 Aug 2004 16:32:27 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:24587 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267185AbUHIUSP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 16:18:15 -0400
+Message-ID: <311601c90408091318699d0141@mail.gmail.com>
+Date: Mon, 9 Aug 2004 14:18:10 -0600
+From: Eric Mudama <edmudama@gmail.com>
+To: Tupshin Harper <tupshin@tupshin.com>
+Subject: Re: Re: /dev/hdl not showing up because of fix-ide-probe-double-detection patch
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4117C028.7080905@tupshin.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040714115523.GC2269@elf.ucw.cz>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <411013F7.7080800@tupshin.com> <4111651E.1040406@tupshin.com>	 <20040804224709.3c9be248.akpm@osdl.org> <1091720165.8041.4.camel@localhost.localdomain> <4117C028.7080905@tupshin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jul-14 2004, Wed, 13:55 +0200
-Pavel Machek <pavel@suse.cz> wrote:
-
-> > >What is the status of ipw2100? Is there chance that it would be pushed
-> > >into mainline?
-> > >
-> > >I have few problems with that:
-> > >
-> > >* it will not compile with gcc-2.95. Attached patch fixes one problem
-> > >but more remain.
-> > 
-> > I've given up hope on that. Don't think it'll ever compile on 2.95. I'm 
-> > using ndiswrapper and it works nicely.
+On Mon, 09 Aug 2004 11:19:20 -0700, Tupshin Harper <tupshin@tupshin.com> wrote:
+> I originally thought that the problem might be not enough bytes being
+> checked, but now I'm concerned that Maxtor has some problem with not
+> having a proper serial number recorded for some drives. hdparm -i also
+> show M0000000000000000000 for both of these drives. Below is the output
+> of hdparm -i for the two drives, and below that, the output of catting
+> /dev/ide/hdk and hdl.
 > 
-> No, I think that can be fixed... I'll rather fix ipw2100 than use
-> ndiswrapper.
+> Doing a google search on "M0000000000000000000" shows that there have a
+> been a handful of reports of maxtor drives showing this as the serial
+> number, but I don't see any explanation of why.
 
-ipw2100 0.51 from ipw2100.sf.net builds using gcc-2.95.3 "out of the box."
-Also make sure to use the attached patch for 2.6.8pre.
+The SN# is garbage in the ID block, I don't know why this is occurring
+with our drives.  I am going to forward this note to our program lead
+for that product to see if he's aware of the issue.  Unfortunately, if
+the utility zone configuration is corrupt, I am not sure anything can
+be done in the field to fix it... the drives might require an RMA. =/
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
-
-
-diff -urN linux-2.6.7/drivers/net/wireless/ipw2100/ipw2100_fw.c linux-2.6.7.x/drivers/net/wireless/ipw2100/ipw2100_fw.c
---- linux-2.6.7/drivers/net/wireless/ipw2100/ipw2100_fw.c	2004-08-09 21:37:11.000000000 +0200
-+++ linux-2.6.7.x/drivers/net/wireless/ipw2100/ipw2100_fw.c	2004-08-09 21:36:15.000000000 +0200
-@@ -200,7 +200,7 @@
- 			goto fail;
- 			
- 		}
--		if (read(fd, c->buf, c->len) != c->len) {
-+		if (sys_read(fd, c->buf, c->len) != c->len) {
- 			printk(KERN_INFO "Failed to read chunk firmware "
- 			       "chunk %d.\n", i);
- 			goto fail;
-@@ -231,17 +231,17 @@
- 	INIT_LIST_HEAD(&fw->fw.chunk_list);
- 	INIT_LIST_HEAD(&fw->uc.chunk_list);
- 	
--	fd = open(fn, 0, 0);
-+	fd = sys_open(fn, 0, 0);
- 	if (fd == -1) {
- 		printk(KERN_INFO "Unable to load '%s'.\n", fn);
- 		return 1;
- 	}
--	l = lseek(fd, 0L, 2);
--	lseek(fd, 0L, 0);
-+	l = sys_lseek(fd, 0L, 2);
-+	sys_lseek(fd, 0L, 0);
- 	
- 	IPW2100_DEBUG_FW("Loading %ld bytes for firmware '%s'\n", l, fn);
- 	
--	if (read(fd, (char *)&h, sizeof(h)) != sizeof(h)) {
-+	if (sys_read(fd, (char *)&h, sizeof(h)) != sizeof(h)) {
- 		printk(KERN_INFO "Failed to read '%s'.\n", fn);
- 		goto fail;
- 	}
-@@ -262,12 +262,12 @@
- 	if (ipw2100_fw_load(fd, &fw->uc, h.uc_size))
- 		goto fail;
- 
--	close(fd);
-+	sys_close(fd);
- 	return 0;
- 
-  fail:
- 	ipw2100_fw_free(fw);
--	close(fd);
-+	sys_close(fd);
- 	return 1;
- }
- 
+--eric

@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129400AbRA2XYG>; Mon, 29 Jan 2001 18:24:06 -0500
+	id <S129532AbRA2Xbm>; Mon, 29 Jan 2001 18:31:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129532AbRA2XX5>; Mon, 29 Jan 2001 18:23:57 -0500
-Received: from adsl-209-182-168-213.value.net ([209.182.168.213]:46600 "EHLO
-	draco.foogod.com") by vger.kernel.org with ESMTP id <S129400AbRA2XXl>;
-	Mon, 29 Jan 2001 18:23:41 -0500
-Date: Mon, 29 Jan 2001 15:23:35 -0800
-From: alex@foogod.com
-To: Alan Olsen <alan@clueserver.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Recommended swap for 2.4.x.
-Message-ID: <20010129152335.H11411@draco.foogod.com>
-In-Reply-To: <Pine.LNX.4.10.10101291348330.9791-100000@penguin.transmeta.com> <Pine.LNX.4.10.10101291452120.31258-100000@clueserver.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
-In-Reply-To: <Pine.LNX.4.10.10101291452120.31258-100000@clueserver.org>
+	id <S129798AbRA2Xbb>; Mon, 29 Jan 2001 18:31:31 -0500
+Received: from webmail.metabyte.com ([216.218.208.53]:13319 "EHLO
+	webmail.metabyte.com") by vger.kernel.org with ESMTP
+	id <S129532AbRA2XbM>; Mon, 29 Jan 2001 18:31:12 -0500
+Message-ID: <3A75F4D7.D7957633@metabyte.com>
+Date: Mon, 29 Jan 2001 14:55:19 -0800
+From: Pete Zaitcev <zaitcev@metabyte.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.14-5.0 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Maxwell strikes the heart (ECN: Clearing the air)
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Jan 2001 22:55:46.0894 (UTC) FILETIME=[9DF72EE0:01C08A46]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 29, 2001 at 02:57:44PM -0800, Alan Olsen wrote:
+> From: Gregory Maxwell (greg@linuxpower.cx)
+> Date: Sun Jan 28 2001 - 14:42:04 EST 
 > 
-> What is the recommended amount of swap with the 2.4.x kernels?
+> On Sun, Jan 28, 2001 at 01:29:52PM +0000, James Sutherland wrote: 
+> > > There is nothing silly with the decision, davem is simply a modern day 
+> > > internet hero. 
+> > 
+> > No. If it were something essential, perhaps, but it's just a minor 
+> > performance tweak to cut packet loss over congested links. It's not 
+> > IPv6. It's not PMTU. It's not even very useful right now! 
+> 
+> No. ECN is essential to the continued stability of the Internet. Without 
+> probabilistic queuing (i.e. RED) and ECN the Internet will continue to have 
+> retransmit synchronization and once congested stay congested until people get 
+> frustrated and give it up for a little bit. 
+> 
+> It's a real issue, and it's actually important to have it implemented. It's 
+> not just a performance hack. 
 
-AFAIK, swap requirements for applications running under a 2.4 kernel have not 
-changed significantly from 2.2 kernels (please anyone correct me if I'm wrong),
-so the basic answer is:  About as much as you needed with for a 2.2 kernel.
+I always "knew" that the stability of the Internet is secured by the
+exponential backoff in TCP. A small packet loss on uncongested links
+is a part of this technique, and it existed long before ATM studies
+produced RED (which infiltrated backwards). It also requires sending
+stacks to "give up for a little bit" (actually to give up a lot, and
+together with the slow start it produced the well known "saw" of the
+window size).
 
-> The standard rule is usually memory x 2.  (But that is more a Solaris
-> superstition than anything else.)
+So far I fail to see how a repainted NAK, kludged into a NAKless protocol,
+would improve stability of the Internet. If anything, it is going to
+exaggerate traffic oscillations. I would appreciate couple of links
+to reputable studies or discussions on the subject.
 
-This always struck me as the most stupid rule of thumb I'd ever heard of.  
-With this metric, systems which precisely need swap the most (low-RAM systems) 
-get the least of it, and those that need it the least (those with gigs of RAM) 
-get tons of swap they don't need.  I don't know how this keeps perpetuating, 
-as it should be plainly brain damaged to anybody who thinks about it for a 
-couple of seconds, but somehow it does.
-
-My general recommendation is:
-1) Take the best guess you can at how much total memory you're ever going to 
-   need at one time.  This can vary with the type of tasks you're doing 
-   (server/desktop/image-editing/etc), the software programs you're using, and 
-   so on.  There is no easy way to figure this out, but I would recommend that 
-   if you come up with anything less than 128MB, you're probably being too 
-   optimistic.
-2) Subtract the amount of RAM you have (believe it or not, the more RAM you 
-   have, the less swap you need.  Imagine that).
-3) Round up to a nice breaking point (multiples of 64MB are nice and are easy 
-   to remember), just for convenience.
-4) Add a little bit of extra just in case (it's better to have too much than 
-   too little, particularly since disk is cheap).  I usually add somewhere 
-   around 64MB.
-
-For most people, for most systems, this comes out somewhere between 128MB and 
-256MB of swap needed (in some cases you may need 512MB or more, but if you've 
-got those sorts of memory demands you may want to carefully consider whether 
-more RAM wouldn't be a good investment).  If in doubt, go for the larger 
-number.  After all, with an 8.1GB drive, how much are you going to miss a puny 
-0.25GB (256MB) chunk of it?
-
--alex
+-- Pete
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

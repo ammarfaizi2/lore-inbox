@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbQKFS4L>; Mon, 6 Nov 2000 13:56:11 -0500
+	id <S129999AbQKFS5B>; Mon, 6 Nov 2000 13:57:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129850AbQKFS4B>; Mon, 6 Nov 2000 13:56:01 -0500
-Received: from anime.net ([63.172.78.150]:26122 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S129387AbQKFSz6>;
-	Mon, 6 Nov 2000 13:55:58 -0500
-Date: Mon, 6 Nov 2000 10:55:49 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: "James A. Sutherland" <jas88@cam.ac.uk>
-cc: David Woodhouse <dwmw2@infradead.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <00110613370501.01541@dax.joh.cam.ac.uk>
-Message-ID: <Pine.LNX.4.21.0011061054080.23388-100000@anime.net>
+	id <S129984AbQKFS4v>; Mon, 6 Nov 2000 13:56:51 -0500
+Received: from humbolt.geo.uu.nl ([131.211.28.48]:50704 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S129850AbQKFS4l>; Mon, 6 Nov 2000 13:56:41 -0500
+Date: Mon, 6 Nov 2000 19:56:23 +0100 (CET)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Szabolcs Szakacsits <szaka@f-secure.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Looking for better VM
+In-Reply-To: <Pine.LNX.4.21.0011060854110.1242-100000@fs129-190.f-secure.com>
+Message-ID: <Pine.LNX.4.05.10011061954520.26327-100000@humbolt.nl.linux.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, James A. Sutherland wrote:
-> So autoload the module with a "dont_screw_with_mixer" option. When the kernel
-> first boots, initialise the mixer to suitable settings (load the module with 
-> "do_screw_with_mixer" or whatever); thereafter, the driver shouldn't change
-> the mixer settings on load.
+On Mon, 6 Nov 2000, Szabolcs Szakacsits wrote:
+> On Wed, 1 Nov 2000, Rik van Riel wrote:
+> 
+> > but simply because 
+> > it appears there has been amazingly little research on this 
+> > subject and it's completely unknown which approach will work 
+> 
+> There has been lot of research, this is the reason most Unices support
+> both non-overcommit and overcommit memory handling default to
+> non-overcommit [think of reliability and high availability].
 
-You are asking for real trouble on hotplug hardware if you insist on this.
+It's a shame you didn't take the trouble to actually
+go out and see that non-overcommit doesn't solve the
+"out of memory" deadlock problem.
 
--Dan
+[if you want an explanation, look in the archives,
+we've explained this a dozen times now]
+
+regards,
+
+Rik
+--
+The Internet is not a network of computers. It is a network
+of people. That is its real strength.
+
+http://www.conectiva.com/		http://www.surriel.com/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

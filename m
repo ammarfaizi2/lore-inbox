@@ -1,558 +1,333 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129240AbRBZXPR>; Mon, 26 Feb 2001 18:15:17 -0500
+	id <S129172AbRBZXPi>; Mon, 26 Feb 2001 18:15:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129232AbRBZXPI>; Mon, 26 Feb 2001 18:15:08 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57097 "EHLO
+	id <S129232AbRBZXP2>; Mon, 26 Feb 2001 18:15:28 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:57865 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129172AbRBZXOx>; Mon, 26 Feb 2001 18:14:53 -0500
-Subject: Linux 2.4.2ac5
+	id <S129172AbRBZXPS>; Mon, 26 Feb 2001 18:15:18 -0500
+Subject: Linux 2.2.19pre15
 To: linux-kernel@vger.kernel.org
-Date: Mon, 26 Feb 2001 23:18:00 +0000 (GMT)
+Date: Mon, 26 Feb 2001 23:18:37 +0000 (GMT)
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-Message-Id: <E14XWu4-0002Ch-00@the-village.bc.nu>
+Message-Id: <E14XWue-0002Cs-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
-
-2.4.2-ac5
-o	Add Epson 1240U scanners to usb scanner		(Joel Becker)
-o	Fix eth= compatibility				(Andrew Morton)
-	| Should fix 3c509 problems for one
-o	Add Pnp table to opl3sa2			(Bill Nottingham)
-o	Update loop driver fixes			(Jens Axboe, Andrea
-							 Arcangeli, Al Viro)
-o	Fix busy loop in usb storage			(Arjan van de Ven)
-o	Add cardbus support to olympic			(Mike Phillips)
-o	Make BUG() configurable to save space		(Arjan van de Ven)
-o	Add configurability to most kernel debugging	(various people)
-	functions on x86
-o	Richard Günther/binfmt_misc page move		(Richard Günther)
-o	Fix de4x5 crash					(Nikita Schmidt)
-o	Hopefully fix the smc-mca driver		(me)
-o	Don't run the disk queue if we didnt launder	(Marcelo Tosatti)
-	any pages
-o	ALi 6 channel audio and sp/dif updates		(Matt Wu)
-o	Fix USB thread wakeup scheduling		(Arjan van de Ven)
-o	Fix alignment problems with uni16_to_x8		(Ivan Kokshaysky)
-
-2.4.2-ac4
-o	Fix Make xconfig failure			(J Magallon)
-o	Fix a typo in the ISDN docs			(Jim Freeman)
-o	Fix the 3ware driver a bit more			(Ben LaHaise)
-	| should now be usable
-o	Update Dave Jones contact info			(Dave Jones)
-o	Revert wavelan inline->macro change		(Jean Tourillhes)
-	| CVS gcc and 2.96-74 don't accidentally unline it now
-o	Zerocopy TCP/IP patches				(Dave Miller, 
-							 Alexey Kuznetsov,
-							 and many more)
-o	Fix up command line options to old ncr driver	(Martin Storsjö)
-o	NFS locking should call fs layer locking if	(Brian Dixon)
-	present
-o	Fix cs46xx wakeup/poll problem			(David Huggins-Daines)
-o	Add some missing MTD config help texts		(Steven Cole,
-							 David Woodhouse)
-o	Fix Alpha build bug				(Sven Koch)
-o	Final i386/ptrace bit
-o	Finish off the vmalloc/WP fixup			(me)
-o	Include file config.h fixes			(Niels Jensen)
-o	More dscc4 updates				(Francois Romieu)
-
-2.4.2-ac3
-o	Add documentation for the fb interfaces		(Brad Douglas)
-o	Work around apic disable_irq hardware bugs	(Maciej Rozycki)
-o	Rage128 not "Rage 128"				(Brad Douglas)
-o	Make ioremap debugging conditional		(J Magallon)
-o	Merge Ninja pcmcia scsi driver			(YOKOTA Hiroshi)
-o	Update 8139too docs				(Jeff Garzik)
-o	Tulip updates, merge bits from 0.92 		(Jeff Garzik,
-							 Don Becker)
-o	Epic100 update					(Jeff Garzik)
-o	Clean up Ariadne driver				(Jeff Garzik)
-o	Remove dead wavelan prototype			(Jeff Garzik)
-o	Remove unused arlan variable			(Jeff Garzik)
-o	Clean up lance public symbols			(Jeff Garzik)
-o	Switch fmv18x to spinlocks, fix other bits	(Jeff Garzik)
-o	Clean up acenic global symbols			(Jeff Garzik)
-o	Fix IDE blocking kmalloc with irqs off		(Arjan van de Ven)
-	| I've redone the code a bit so it might be wrong again 8)
-
-2.4.2-ac2
-o	Merge the loop device fixes			(Jens Axboe)
-o	Fix af_unix SYSCTL=n build failure		(Russell King)
-o	Adjust the throttling point for write		(Jens Axboe)
-	throttles
-o	Fix sunhme ioremap				(Andrey Panin)
-o	Fix disk change handling with removable sd	(Alex Davis)
-o	Update/fix irq docs				(Matthew Wilcox)
-o	Update PPC gmac and ncr885e drivers		(Cort Dougan)
-	| bmac patch dropped as it loses other fixes
+2.2.19pre15
+o	Hugh Blemings has moved				(Hugh Blemings)
+o	Add support for usb hubs with many ports	(Randy Dunlap)
+o	Reapply make xconfig isdn fix		(Andrzej Krzysztofowicz)
+o	Fix the tcp problems				(Alexey Kuznetsov)
 o	Kai Petzke has moved				(Kai Petzke)
-o	Fix starfire driver so pump doesnt kill it	(Ion Badulescu)
+o	Add BUG() to S/390				(Ulrich Weigand)
+o	Further S/390 fixes				(Ulrich Weigand)
+o	Add keventd from 2.4 to 2.2			(Ulrich Weigand)
+	| Needed for S/390 drivers
+o	Remove dead isdn_init call		(Andrzej Krzysztofowicz)
+o	Remove bogus aha1542/aha1740 sense check	(Nick Holloway)
+o	FPU emu fix					(Ulrich Weigand)
+o	EEpro100 posted writes fix			(Ion Badulescu)
 
-2.4.2-ac1
-o	Merge Linus 2.4.2 tree
-	| We now have disagreeing ymfpci fixes. I've kept the ones
-	| I tested for now.
-o	Back out sr.c change				(me)
-o	Fix moxa smartio driver				(Tom Mraz)
-o	Hugh Blemings change of address			(Hugh Blemings)
-o	Allow more i2o config time for slow calls
-o	Aty128fb updates				(Brad Douglas,
-						      Benjamin Herrenschmidt,
-							 Michel Danzer,
-							 Andreas Hundt)
-o	Add "loop" name to the root dev names		(Barry Nathan)
-o	Further spelling cleanups			(Dag Wieers)
-o	Remove bogus warning emissions from aha1740	(Nick Holloway)
-o	Remove surplus assignment in vmalloc		(Francis Galiegue)
-o	Remove unneeded ifdef in i386/kernel/irq.c	(Francis Galiegue)
-o	Add door locking ioctl to ide-floppy		(Francis Galiegue)
-o	Allow scsi disk opening O_NDELAY for removables	(me)
-o	Fix cosa compile warnings			(me)
-o	Clean up dumpable/setuid write ordering		(me)
-o	Hopefully fix the 3ware crashes 		(me)
+2.2.19pre14
+o	Update slhc code for endianness			(Dave Miller)
+o	Update s390 dasd driver				(Ulrich Weigand)
+o	Allow more than 4K of partitions		(Ulrich Weigand)
+o	Fix check in sockfilter				(Dave Miller)
+o	Sparc updates (quad sbus sunhme detect, BUG())	(Dave Miller)
+o	Fix hid locking and ston32 bugs			(Paul Mackerras)
+o	Update 3c59x drivers		(Andrew Morton, Maciej Rozycki, 
+					 Fred Maciel, Georg Engstrand,
+					 Brett Frankenberger, Don Becker,
+o	Fix a usb message				(Randy Dunlap)
+o	Eicon driver updates				(Armin Schindler)
+o	Update 8139too driver				(Jens David)
+o	Fix USB hub locks				(Paul Mackerras)
+o	Fix missing keyspan config line			(Paul Mackerras)
+o	Merge S/390 bug fixes				(Ulrich Weigand)
+o	Some S/390 cleanups				(Ulrich Weigand)
+o	Update S/390 ELF magic 				(Ulrich Weigand)
+o	Update hwc driver				(Ulrich Weigand)
+o	Update ctc driver				(Ulrich Weigand)
+o	Update iucv driver				(Ulrich Weigand)
+o	S/390 warning fixes				(Ulrich Weigand)
 
-2.4.1-ac20
-o	Update fusion drivers				(Steve Ralston)
-o	Further VM page launder balancing		(Rik van Riel)
-o	Hopefully fix ext2 block size checking		(Andries Brouwer)
-o	Update the i810 random number generator		(Jeff Garzik)
-o	Hopefully fix the bonding crash on down/reboot	(Dave Miller)
-o	Tulip update (add accton comets, clean up pm)	(Jeff Garzik)
-o	Merge wavelan_cs, pcnet_cs and fmvj18x_cs	(Jeff Garzik)
-	changes from Dave Hinds tree
-o	Make awe32 behave in 2.4 like 2.2 if given an	(Bill Nottingham)
-	io
-o	Fix alpha build problems in stallion, c101     (Andrzej Krzysztofowicz)
-	synclink and wavfront drivers
-o	Add isa_check_signature and missing ioctl ids  (Andrzej Krzysztofowicz)
-	for hayesesp
-o	Fix math emulation bug				(Martin Schwidefsky)
-o	Disable APIC during APM to avoid suspend/resume (Mikael Pettersson)
-	problems.
-o	SMP kernel on UP hardware APIC fixes		(Maciej Rozycki)
-o	Code cleanups in nmi, reduce NMI rate to 1Hz	(Mikael Pettersson)
+2.2.19pre13
+o	Fix up missing bits of Soohoon Lee's exec patch	(Michael Jaegerman)
+	| not sure where some bits of it escaped too...
+o	Revert serial driver locking patch		(me)
+	| Seems to be causing crashes
+o	PPC BUG(), and other compile fixes needed   (Benjamin Herrenschmidt)
+o	ide_pmac_init to fix IDE probe power off    (Benjamin Herrenschmidt)
+o	atyfb128 and serial for pmac		    (Benjamin Herrenschmidt)
+o	Workaround early imac firmware bug	    (Benjamin Herrenschmidt)
+o	Ensure task is running in mm faults		(Roger Larsson)
+	| from 2.4
+o	Fix nfs cache bug				(Neil Brown)
+o	Further config.in cleanups/fixing	    (Andrzej Krzysztofowicz)
+o	Clean up tulip changes remove accidental fix	(Jeff Garzik)
+	reversions
+o	Update defconfig				(Jeff Garzik)
+o	Update usb printer driver in 2.2 to match 2.4 	(Randy Dunlap)
+o	Fix posix compliance on sockopts
 
-2.4.1-ac19
-o	Fix second module/exception table race		(me)
-	| I hope ;)
-o	Additional CPIA usb ident			(Adam J Richter)
-o	Add SA1100 udc and also stall recovery to 	(Oleg Drokin)
-	usbnet
-o	Limit smbfs to 2Gig/file			(Urban Widmark)
-o	Config/doc update for the eicon driver		(Armin Schindler)
-o	Update PMS driver to new request_region		(Andrey Panin)
-o	sys_semop bug check is overcareful		(Hugh Dickins)
-o	Fix ipc off by one on checks in ipc		(Hugh Dickins)
-o	Allow exceptions during module init		(Philipp Rumpf)
-o	Driver namespace cleanup			(Jeff Garzik)
-o	Network driver cleanups				(Jeff Garzik, 
-o	PPC irq updates					(Paul Mackerras)
-o	SMP fixes for PPC boxes				(Paul Mackerras)
-o	Fix tmpfs block size reporting			(Christoph Rohland)
-o	Update maintainers to add missing YAM maintainer(Jean-Paul Roubelat)
-o	Add hooks for /proc/rtas			(Paul Mackerras)
-o	Fix wrong bogomip reporting on SMP ppc		(Paul Mackerras)
-o	Remove unused dbcf inline function on PPC	(Paul Mackerras)
-o	Update Cort Dougans email/urls			(Paul Mackerras)
-o	Dont assume bit settings on pcnet/pci chips	(Paul Mackerras)
-o	Add mac ppc serial console hooks		(Paul Mackerras)
-o	Frame buffer driver updates for ppc		(Paul Mackerras)
-o	Fix devfs names for ppc serial			(Paul Mackerras)
-o	Move some symbols out of net where they didnt	
-	belong, and into right export locations     (Andrzej Krzysztofowicz)
-o	Tidy and fix up syncppp drivers			(Krzysztof Halasa)
+2.2.19pre12
+o	Update the DAC960 driver			(Leonard Zubkoff)
+o	Small PPC fixes					(Benjamin Herrenschmidt)
+o	Document irda options config			(Steven Cole)
+o	Small isdn fixes/obsolete code removal		(Kai Germaschewski)
+o	Fix alpha kernel builds				(Michal Jaegermann)
+o	Update ver_linux to match the 2.4 one		(Steven Cole)
+o	AVM isdn driver updates				(Carsten Paeth)
+o	ISDN capi/ppp fixes				(Kai Germaschewski)
 
-2.4.1-ac18
-o	Fix SO_SNDTIMEO bugs				(Alexey Kuznetsov)
-o	Fix tmpfs fsync					(Lennert Buytenhek)
-o	PPC now uses generic pci bus setup		(Paul Mackerras)
-o	Remove PPC boot argument printing		(Paul Mackerras)
-o	Jeff Tranter has moved				(Jeff Tranter)
-o	ymf_pci driver cleanups				(Pete Zaitcev)
-o	Fix USB 2.0 compliance in hub.c			(Brad Hards)
-o	Fix usb hub device claim race			(Paul Mackerras)
-o	Fix some bugs in mac_hid driver			(Paul Mackerras)
-o	Fix more typos					(Dag Wieers)
-o	PPC compile warnings/symbol export fixes	(Paul Mackerras)
+2.2.19pre11
+o	Corrected version of ipc/shm.c fix		(Christoph Rohland)
+o	Update/cleanup starfire				(Ion Badulescu)
+o	Update isdn makefiles				(Kai Germaschewski)
+o	Eicon driver updates/new driver			(Armin Schindler)
+	| code 
+o	Hysdn driver					(Werner Cornelius)
+o	Hisax updates					(Kai Germaschewski)
 
-2.4.1-ac17
-o	Fix pegasus for bigendian			(Roman Weissgaerber)
-o	Further smbfs fixes				(Urban Widmark)
-o	Update ISDN version tags			(Kai Germaschewski)
-o	Finish ISDN move to new style module_init	(Kai Germaschewski)
-o	Small Eicon driver updates/fix license bug	(Armin Schindler)
-o	Fix reiserfs tail packing problem		(Alexander Zarochentcev
-							 Chris Mason)
-o	Export aci symbols from drivers/sound/aci.c	(Alexandr Kanevskiy)
-o	Merge Linus 2.4.2pre4
-o	Starfire update					(Ionu Badulescu)
-o	Fix 3270 merge					(Richard Hitt)
+2.2.19pre10
+o	Update aic7xxx driver to 5.1.33			(Doug Ledford)
+o	Revert shm change - its unsafe			(Richard Nelson)
+o	Update sunrpc code, add rpc ping congestion	(Trond Myklebust)
+	checks
+o	Fix wrong kfree in cosa driver			(Jan Kasprzak)
+o	NFS client fixes				(Trond Myklebust)
+o	Better dcache/inode hashes			(Dave Miller)
+o	Fix missing skb->protocol init in AX.25		(Thomas Osterried)
+o	EEpro100 reporting fix as per 2.4		(Ion Badulescu)
+o	Starfire ethernet driver			(Don Becker,
+							 Ion Badulescu,
+							 Jeff Garzik, ...)
+o	Memory handling fixes for ISDN core code	(Kai Germaschewski)
+o	ISDN module locking fixes			(Kai Germaschewski)
+o	Fix ISDN modem profile reading 			(Kai Germaschewski)
+o	Fix missing mark_bh calls in isdn		(Kai Germaschewski)
+o	Fix problems make xconfig has with config  (Andrzej Krzysztofowicz)
+o	Clean up isdn to user new __init etc		(Kai Germaschewski)
 
-2.4.1-ac16
-o	Fix the exception table/unload race		(me)
-o	Further tulip fixup				(Manfred Spraul)
-o	Fix USB oops on traverse/delete race		(Randy Dunlap)
-o	Set max_sectors to 255 for hd/xd drivers	(Paul Gortmaker)
-	| This should make them work again
-o	Fix typo in USB makefile			(Arjan van de Ven)
-o	Fix accidental change to scsi_scan		(Steve Ralston)
-o	Hid rollover/endian fixes			(Paul Mackerras)
-o	Drop via pci fixup				(me)
-o	Further hp5300 fixups				(Arjan van de Ven)
-o	PCnet 32 init changes for non SEPROM cards	(Eli Carter)
-o	Fix acpi idle reporting on SMP			(Philipp Hahn)
-o	Add non PCI pci device list walk macro		(me)
-	| pointed out by Mikael Pettersson
-o	IBM S/390 3270 drivers				(Richard Hitt)
+2.2.19pre9
+o	Merge all the pending NFS server fixes		(Neil Brown)
+o	Neil becomes NFS server maintainer 		(Neil Brown)
+o	Update to aic7xxx 5.1.32			(Doug Ledford)
+o	Fix cs89x0 media selection			(Frank Copeland)
+o	Tidy APM stuff, make buggy bios selector tighter(Stephen Rothwell)
+o	Fix i2o config typo				(YOSHIMURA Keitaro)
+o	Network updates, fix possible classifier hang	(Dave Miller)
+o	Sparc updates (nfs compat, syscalls)		(Dave Miller)
+o	Sparc watchdog driver				(Eric Brower)
+o	Remove experimental tag on QoS code		(Dave Miller)
+o	Move dumpable extra logic into binfmt avoiding	(Solar Designer)
+	other changes to arch code. Back out old stuff
+o	Fix sysctl miscastings from signed/unsigned	(Greg Kroah-Hartmann)
+o	Alpha OSF syscall remove error printk	
+o	Don't trust IRQ routing on the ruffian ARC	(Ivan Kokshaysky)
 
-2.4.1-ac15
-o	Fix the non booting winchip/cyrix problem	(me)
-	| Nasty interaction with the vmalloc fix 
-	| wants a cleaner solution. This one is a hack
-	| to get people up and running again
-o	Fix typo in vfat changes			(OGAWA Hirofumi)
-o	Update scsi blacklist table			(Karsten Hopp)
-o	dscc4 wan driver update				(Francois Romieu)
-o	Fix clgenfb warning				(Bryan Headley)
-	
-2.4.1-ac14
-o	Fix tulip problems introduced by in ac13	(Manfred Spraul)
-o	S/390x build fixes				(Ulrich Weigand)
-o	Fix off by one error in octagon driver		(David Woodhouse)
-o	Fix dasd driver for new queues			(Holger Smolinksi)
-o	Networking standards compliance fixes
-o	Fix binary layout assumptions in sym53c416	(Arjan van de Ven)
-o	tmpfs timestamps				(Christoph Rohland)
-o	Further mkdep changes				(Keith Owens)
-o	Fix 16bit vfat handling				(OGAWA Hirofumi)
-o	JIS nls fixes					(OGAWA Hirofumi)
-o	Handle more than 8 luns				(Eric Youngdale,
-							 Doug Gilbert)
-o	Minor scsi clean ups				(Eric Youngdale)
+2.2.19pre8
+o	Add support for ICS1893 PHY to sis900		(L C Chang)
+o	Fix typo in nautilus code			(Tom Vier)
+o	Clean up usb bandwidth messages			(Randy Dunlap)
+o	USB ACM loosen up end point rules		(Randy Dunlap)
+o	Fix tty module count corruptions		(Maciej Rozycki)
+o	i2o block updates				(Boji Kannanthanam)
+o	menuconfig updates				(Kirk Reiser)
+o	Fix dmi/apm ordering bug			(Keith Owens,
+							 Neale Banks)
+o	Alpha SMP build fix				(Herbert Xu)
+o	Fix igmp bugs					(Stefan Jonsson)
+o	Fix USB config.in problems			(Greg Kroah-Hartmann)
+o	Update Cort Dougan's info			(Cort Dougan)
+o	Update to 2.4.0 style A20 gate handler		(Randy Dunlap)
+o	Fix unneeded compat defines on S/390 ctc	(Kurt Roeckx)
+o	Macintosh HID driver fixes			(Cort Dougan)
+o	Fix ppc config/input layer and ksyms		(Cort Dougan)
+o	ISDN updates					(Kai Germaschewski)
+o	TGAfb as a module			(Andrzej Krzysztofowicz)
+o	Syscall table updates for sparc64		(Ben Collins)
+o	8139too driver updates				(Jens David)
+o	Tighten packet length checks in masq/tproxy	(Julian Anastasov)
+o	Fix udp port selection hang			(Dave Miller)
 
-2.4.1-ac13
-o	Fix pnic tulip problems				(Manfred Spraul)
-o	Fix USB printer read and poll problems		(Johannes Erdfelt)
-o	Fix parport pci list corrupt bug		(Tim Waugh)
-o	Fix sbpcd driver crashes			(Paul Gortmaker)
-o	Clarify the locking doc				(Rusty Russell)
-o	i810 audio doesnt need OSS			(Jeff Garzik)
-o	Fix vmalloc fault race				(Mark Hemment)
-o	Makedep fixes					(Keith Owens)
-o	Fix missing unlock_kernel on usb hub		(Paul Mundt)
-o	Fix smbfs+bigmem, buffer and listing bugs	(Urban Widmark)
-o	Merge tms380 isa token ring support		(Jochen Friedrich)
-o	Sigmatel change didnt help, removed		(Jeff Garzik)
+2.2.19pre7
+o	Remove dead arm files				(Russell King)
+o	Fix VIA rhine build failure for a few folks	(Peter Monta)
+o	ARM ptrace fixes				(Russell King)
+o	Fix ymfpci setup for legacy devices		(Pete Zaitcev)
+o	xspeed dsl needs pci				(Lars Holmberg)
+o	Typo fix					(Dave Miller)
+o	Update ftdi usb serial driver			(Greg Kroah-Hartmann)
+o	Update keyspan usb serial drivers		(Greg Kroah-Hartmann)
+o	Sparc updates					(Dave Miller)
+o	Remove incorrect lp printk			(Tim Waugh)
+o	Fix ppa panic on timeout			(Tim Waugh)
+o	Maestro3 needs ac97 codec			(Oleg Krivosheev)
+o	Fix kwhich versus old bash			(Pete Zaitcev)
+o	Fix ip checksum compiler behaviour assumption	(Dave Miller)
+o	Fix real audio masq in presence of options	(John Villalovos)
+o	ne2k-pci version printing tweaks		(J. Magallon)
+o	Fix incorrect minors for some dasd devices as	(Holger Smolinski)
+	root
+o	Fix alpha exception table printk	    (Andrzej Krzysztofowicz)
+o	USB config updates				(Greg Kroah-Hartmann)
+o	USB audio driver updates			(Greg Kroah-Hartmann)
+o	Fix missing unlock_kernel in usbdev		(Greg Kroah-Hartmann)
+o	Update USB hid driver				(Greg Kroah-Hartmann)
+o	USB rio driver update				(Greg Kroah-Hartmann)
+o	Hopefully fix CyrixIII panic on boot		(Ingo Oeser, 
+							 H Peter Anvin)
+o	Further CMOS lock fixes, move ioctls		(Paul Gortmaker)
+o	Dumpable should now work right again		(Zack Weinberg,
+							 me)
 
-2.4.1-ac12
-o	Make tmpfs use link counts of 2 on directories	(Christoph Rohland)
-o	Update Documentation/sound/Introductions	(Wade Hampton)
-o	Fix bug in new tlb shootdown code		(Ben LaHaise)
-o	Add isa_* api to the Alpha			(Richard Henderson)
-o	Export down_trylock on Alpha			(Richard Henderson)
-o	Fix maestro3 build on ia64			(Bill Nottingham)
+2.2.19pre6
+o	Yamaha PCI sound updates			(Pete Zaitcev)
+o	Alpha SMP ASN reuse races			(Andrea Arcangeli)
+o	Alpha bottom half SMP race fixes		(Andrea Arcangeli)
+o	Alpha SMP read_unloc race fix			(Andrea Arcangeli)
+o	Show registers across CPUs on SMP alpha death	(Andrea Arcangeli)
+o	Print the 8K of stack not the top 4K on x86	(Andrea Arcangeli)
+o	Dcache aging					(Andrea Arcangeli)
+o	Kill unused parameter in free_inode_memory	(Andrea Arcangeli)
 
-2.4.1-ac11
-o	Hack the setup code to do the right thing for	(me)
-	Cyrix processors. Cpuid on cyrix should now work
-o	Change sigmatel codec inits			(Jeff Garzik)
-o	Revised TLB shootdown patch			(Ben LaHaise)
-o	Use pci quirks to handle the nonstandard irq	(Andrey Panin)
-	setup for VIA ACPI
-o	If a user sets an io on the opl3sa2 assume they (me)
-	mean it even if isapnp isnt turned off
-o	Fix xmms cpu burn on i810 audio			(Marcus Sundberg)
-o	Fix pnic problems with tulip driver		(Manfred Spraul)
-o	Add pci skeleton driver				(Jeff Garzik)
-o	Fix vfat mishandling of 16bit characters	(Kazuki Yasumatsu)
-o	Fix syntax things found by his source code	(Jean-Luc Leger)
-	analyser
-o	Fix pcmcia ixj build bug			(Florian)
-o	Remove dead via sound docs			(Jeff Garzik)
-o	add __dev_alloc_skb for drivers needing to force(Jeff Garzik)
-	allocation types
-o	Fix arcnet initializers				(Jeff Garzik)
-o	Fix various warnings				(Keith Owens)
-o	Further MPT fusion updates			(Steve Ralston)
-o	sock_alloc_send_skb fix				(Manfred Spraul)
-o	Fix signed/unsigned handling on 8139too		(Jeff Garzik)
-o	Document problem with old powertweak		(Dave Jones)
-o	s/controler/controller/ spelling fixes
-o	S/390 build fixes				(Neale Ferguson)
+2.2.19pre5
+o	Fix dumpable stuff				(Wolfgang Walter)
+o	PPA driver update				(Tim Waugh)
+o	ARM updates (Russell - ptrace.c errored please	(Russell King)
+		resolve)
+o	Fix NFS data alignment on ARM			(Russell King)
+o	Fix hang on boot with ALi5451 shared irq midi	(Stephen Usher)
+o	ESS Maestro 3 driver				(Zach 'Fufu' Brown)
+o	Belorussia/Ukraine NLS table (koi8-ru)		(Andy Rysin)
 
-2.4.1-ac10
-o	Merge with Linus 2.4.2pre3
-o	More net driver clean up			(Jeff Garzik)
-o	Further maxiradio fix				(Francois Romieu)
-o	Lock reclaiming fixes				(MCL)
-o	Update ver_linux				(Steven Cole)
-o	Add support for the Socket LP-E CF+ ethernet	(Nicolas Pitre)
-o	Fix microtek scanner abort handling		(Oliver Neukum)
-o	Fix very dumb bug in my dma.c changes that 	(me)
-	Linus noticed
-o	Clean up AGP alloc/destroy a little 		(me)
-	| Again a Linus request
-o	Remove dead 8129 config help			(Dave Jones)
-o	Clean up extra unneeded check in setup.c	(Dave Jones)
-o	Improve mkdep, remove acpi special case		(Keith Owens)
-o	Fix bogus dead comment in fs.h			(Jens Axboe)
-o	Clean up config.in syntax errors		(Christoph Hellwig)
-o	Offer Duron in CPU option list for clarity	(Terje Rosten)
-o	New binutils need --oformat, old ones handle it	(Andreas Jaeger)
-o	Move bitops include in fs.h inside __KERNEL__	(Herbert Xu)
-o	Fix misspellings of weird			(Felix Odenkirchen)
-o	Fix typos of 'valid' while we are at it		(Luuk van der Duim)
+2.2.19pre4
+o	Fixed duplicate info on the microcode driver	(Daniel Rogers)
+o	Update watchdog structs for nice user export	(Eric Brower)
+o	Update Documentation/devices.txt		(H Peter Anvin)
+o	Tweak sched.h to handle limit in Sparc		(Andrea Arcangeli)
+	'make check_asm'
+o	Move isdn pci definitions into pci.h		(Kai Germaschewski)
+o	Tidy init data/static vars in the isdn code	(Kai Germaschewski)
+o	Fix abuse of int for bitops in isdn		(Kai Germaschewski)
+o	Use named initializers on the AVM B1		(Kai Germaschewski)
+o	Switch capi message length to unsigned		(Kai Germaschewski)
+o	ISDN updates					(Kai Germaschewski)
+o	Update microcode code to check features right	(Tigran Aivazian)
+	in 2.2
+o	E820 handling fixup 				(Andrea Arcangeli)
+o	Fix ne2k-pci driver build bug 			(J.A. Magallon)
+o	DC390 driver updates				(Kurt Garloff)
+o	Handle thinkpad E820 edx overwriting		(Marc Joosen)
+o	Update the osst driver to 0.8.6.1		(Kurt Garloff, 
+							 Willem Riede)
+o	Init the cmpci if compiled in		(Raúl Núñez de Arenas Coronado)
+o	ATP870U SCSI updates to fix disconnect bug	(Wittman Li)
+o	Clean up the usbdevfs backport			(Dan Streetman)
+o	Fix ATI rage makefiles				(Brad Douglas)
 
-2.4.1-ac9
-o	Merge with Linus 2.4.2pre2
-o	Highmem bounce fixes				(Ingo Molnar)
-o	Fix cosa driver kfree				(Jan Kasprzak)
-o	Clean up pdoc202xx driver sleeps		(Vojtech Pavlik)
-o	Final bits of NFS file handle changes		(Trond Myklebust)
-o	Fix usbnet driver 				(David Brownell)
-o	ATM includes fixes				(Werner Almesberger)
-o	Remove unneeded vm_enough_memory check		(Werner Almesberger)
-o	Fix free_dma prototype case			(Bill Nottingham)
-o	Fix build bugs from pci_match_device fix	(me)
-o	HP5300 USB scanner driver			(Oliver Neukum,
-							 John Fremlin,
-							 Jeremy Hall)
-o	DSP_SETFRAGMENT fixes for ymfpci		(Pavel Roskin)
-o	Fix codafs error returns			(Rob Radez)
-o	Fix 48 misspellings of interrupt		(André Dahlqvist)
-o	Fix 20 misspellings of successful		(André Dahlqvist)
-o	Fix 11 misspellings of suppress			(André Dahlqvist)
-o	Fix 46 misspellings of address			(André Dahlqvist)
-o	Fix 26 misspellings of receive			(André Dahlqvist)
-o	Fix 7 misspellings of acquire			(André Dahlqvist)
-o	Fix 4 misspellings of unneccessary		(André Dahlqvist)
-o	Fix 13 misspellings of until			(André Dahlqvist)
-
-2.4.1-ac8
-o	Fix irlap speed changes and kfrees		(Jean Tourrilhes)
-o	Further NTFS updates				(Anton Altaparmakov,
-						Yuri Per, Rob Radez)
-o	Fix buglets in config.in for aic7xxx	       (Andrzej Krzysztofowicz)
-o	Cleanup irda QoS code				(Jean Tourrilhes)
-o	Fix mca documentations				(Rob Radez)
-o	Fix irlan device attach problems		(Dag Brattli)
-o	Fix irda dongle crash case			(Dag Brattli)
-o	Change Kaweth firmware loading, add DU-E10	(Eric Sandeen)
-o	pci_enable cleanups for networking		(Jeff Garzik)
-o	Fix rcpci45 probing				(Jeff Garzik)
-o	Use SET_MODULE_OWNER() in lanstreamer		(Jeff Garzik)
-o	Use pcmcia defines as per seperate pcmcia net	(Jeff Garzik)
-o	Fix people calling netif_start_queue from a 	(Jeff Garzik)
-	timeout
-o	Remove 8129 driver (use 8139too)		(Jeff Garzik)
-o	Remove dead malloc.h from net drivers		(Jeff Garzik)
-o	Update eata driver to 6.04			(Dario Ballabio)
-o	Add DE320 support to ne2.c			(Alfred Arnold)
-o	Kernel hacking doc updates			(John Levon)
-o	Fix CPU detection offsets in head.S		(Mikael Pettersson)
-o	Fix apic init/cpu detect problems		(Mikael Pettersson)
-
-2.4.1-ac7
-o	Rebalance the 2.4.1 VM				(Rik van Riel)
-	| This should make things feel a lot faster especially
-	| on small boxes .. feedback to Rik
-o	Silence osf syscall error printk		(Ivan Kokshaysky)
-o	Don't trust ARC irq routing on ruffian		(Ivan Kokshaysky)
-o	Report the right module on 3c59x for pcmcia	(Arjan van de Ven)
-o	Update i82365 driver to add locks, delays, and	(Arjan van de Ven)
-	'bouncing' on the card detect
-o	Get the name right on ide-cs (v ide_cs) and do	(Arjan van de Ven)
-	resource claims
-o	Merge parport_cs				(David Hinds)
-o	Merge sedlbauer_cs				(Marcus Niemann)
-o	Fix a bug in the Cyrix pirq routing		(me)
-
-2.4.1-ac6
-o	Fix eepro100 reporting on lockup fix		(Ion Badulescu)
-o	Clean up i810 error message			(me)
-o	Fix S390 build bug				(me)
-o	Update version id on cpqarray driver		(Charles White)
-o	Further aic7xxx fixes				(Doug Ledford)
-	| again please report aic7xxx stuff to Doug
-o	Further maxiradio cleanups		(Dimitromanolakis Apostolos)
-o	Change ide to use mdelay cleanly		(Petr Vandrovec)
-	| Still broken for PROMISE if no IDE_CS
-o	Fix duplicated ncpfs fix			(Petr Vandrovec)
-o	Improve inode hash function			(Dave Miller)
-o	Correct 62 misspellings of transferred		(Andre Dahlqvist)
-o	Update AC97 codec setup and tables		(Jeff Garzik)
-
-2.4.1-ac5
-o	Fix zero page corruption			(Ben La Haise)
-o	Elevator corruption fixes			(Jens Axboe, Linus)
-o	Fix fdatasync possible corruption problem	(Arjan van de Ven)
-o	Further KSLI ethernet fixes			(Eric Sandeen)
-o	Merge the correct version of the pm fixes	(me)
-	| noted by Mikael Pettersson
-o	Account for inode/dcache in free memory 	(Rik van Riel)
-o	Add info on how to check reiserfsprogs versions	(Steven Cole)
-o	Disable write combining on serverworks LE chips	(Mark Rusk)
-o	Fix via audio crashes				(Jeff Garzik)
-o	Fix ip accounting rules bug			(Rusty Russell)
-o	Handle USB printers that use device not 	(Johannes Erdfelt)
-	interface descriptors
-o	Fix wheel on graphire usb tablet		(Peter Hofmann)
-o	Clean up maxiradio driver			(Francois Romieu)
-o	Fix visor USB size reporting on buffers		(Greg Kroah-Hartmann)
-o	Update USB serial documentation			(Greg Kroah-Hartmann)
-o	Fix locking on etherworks3 ethernet		(Jeff Garzik)
-o	Fix empeg USB driver problems			(Gary Brubaker)
-o	Generic USB serial driver fixes			(Greg Kroah-Hartmann)
-o	Update USB serial configure.help		(Greg Kroah-Hartmann)
-o	Add more device support to mct_u232 USB		(Cornel Ciocirlan)
-o	Fix typo in asm-ppc/semaphore.h			(Andre Dahlqvist)
-o	Report reiserfs tools in ver_linux		(Steven Cole)
-o	Fix resource leaks in NCR_53c406, atari_scsi	(Rasmus Andersen)
-	and qlogicisp
-o	Move pci_enable_device earlier for hamachi	(Dave Jones)
-o	Type 6 drives are apparently floppy 2.88M	(Dave Jones)
-o	Remove duplicate pci_enable_device in ne2kpci	(Dave Jones)
-
-2.4.1-ac4
-o	Fix sk_in use counting in svcsock.c		(Neil Brown)
-	| Not yet a complete and final agreed solution
-o	Add support for KLSI USB ethernet 		(Brad Hards,
-				 Stephane Alnet, 'the Zapman', and co)
-o	Update aic7xxx driver				(Doug Ledford)
-	| Please test this carefully and cc reports to Doug
-o	Add help for CONFIG_INPUT			(Steven Cole)
-o	3c523 driver update				(Tom Sightler)
-o	Fix reiserfs Changes entry further		(Steven Cole)
-o	Limit ide scatter gather to 128 blocks		(Jens Axboe)
-o	Merge hppa config.in changes			(Matthew Wilcox)
-o	Fix tx timeout recovery on via rhine		(Manfred Spraul)
-o	Fix stale comments in fs/block_dev.c		(Tigran Aivazian)
-o	Further defxx driver work			(Maciej Rozycki)
-o	winbond 840 reported wrong setting value	(Maciej Rozycki)
-o	Guillemot Maxi radio support		(Dimitromanolakis Apostolos)
-o	Allow sleeping in pm callbacks but with locking	(me)
-	working
-
-2.4.1-ac3
-o	Remove ancient dead net/Changes file		(Janice Girouard)
-o	Merge Linus 2.4.2pre1
-o	Resync xirc2ps with Dave Hinds tree		(dilinger)
-o	Finish sorting out ramfs problems		(Mike Galbraith)
-o	Update AWE32 documentation			(Andre Dahlqvist)
-o	Remove reference to dead PPP documentation	(Andre Dahlqvist)
-o	Make max_map tunable 				(Werner Almesberger)
-o	Fix dead references to java support in some	(Andre Dahlqvist)
-	arch/config
-o	Make shmfs estimate size limits if none set	(Christoph Rohland)
-o	Revert Crusoe hanging pci hanging changes
-	| Im still chasing something weird in this
-	| area that some of the pci changes I have fixes...
-o	Merge HPPA hackers into CREDITS			(Mathew Wilcox)
-o	Merge some of the HPPA updates			(Mathew Wilcox)
-o	Add Reiserfs tools to changes			(Steven Cole)
-o	Fix i2o Configure.help typo			(YOSHIMURA Keitaro)
-o	SuperH HD64465 host bridge support		(Greg Banks)
-o	Fix modversion.h includes			(Keith Owens)
-o	Tlan driver probing updates			(Jeff Garzik)
-o	Change media drivers to use new style module	(me)
-	locking
-	| Janitorial job - fix the last ones that
-	| don't use module_*() and dump the init code
-
-2.4.1-ac2
-o	Fix matrox G450 framebuffer support		(Petr Vandrovec)
-o	Fix description of DMA-mapping.txt		(Dave Miller)
-o	Fix accidental revert of classifier bug		(Dave Miller)
-o	Fix accidental revert of isdn change
-o	Fix datagram hang on shutdown			(Alexey Kuznetsov)
-o	Fix 64bit build of clntproc			(Michal Jaegermann)
-	| wants a tidier solution yet
-o	Fix ide toc caching bug introduced in 2.4.0	(Fredrik Vraalsen)
-	| this should fix the DVD playback problems
-o	Swapfs renaming and final bits			(Christoph Rohland)
-o	Further APIC/NMI updates			(Mikael Pettersson)
-o	Add further kernel doc contributions		(John Levon)
-o	ACPI battery tweaks				(Pavel Machek)
-o	Further ramfs fixes				(Ingo Oeser)
-o	ROMFS fixes					(Mike Galbraith)
-o	CS4281 fixes					(Thomas Woller)
-o	Shift to authors official fixes for acenic	(Jes Sorensen)
-o	Update the usb host<->host network drivers	(David Brownell)
-	| Experimental but he wanted feedback so if you
-	| have one beat it up a bit
-
-2.4.1-ac1
-o	Resync with Linus 2.4.1
-o	Fix recursive make_request crash		(Ingo Molnar)
-o	Updated VIA IDE driver				(Vojtech Pavlik)
-	| Please exercise due care and caution testing this
-	| bit...
-o	Fix case where threaded apps might write to 	(Ben LaHaise)
-	freed kernel memory
-o	Fix ACPI oopses on tecra (apparently bios bugs)	(Pavel Machek)
-o	AHA152x fixes from maintainer			(Juergen Fischer)
-o	Fix case where scsi could hang on boot waiting	(Rogier Wolff)
-	for a disk spinup
-o	Further maestro3 pm work			(Zach Brown)
-o	Further NTFS fixes				(Yuri Per)
-o	Add GNU make to the list of URLs in Changes	(Steven Cole)
-o	Make dmx3191d enable device before touching it	(Rasmus Andersen)
-o	Make the sbpcd driver actually useful in 2.4	(Paul Gortmaker)
-o	Make buslogic enable device before touching it	(Rasmus Andersen)
-o	Fix tty module locking mishandling		(Maciej Rozycki)
-o	Workaround code for APIC problems with ne2k	(Maciej Rozycki)
-	| this will break original 82489DX devices for now
-	| ie _very_ early dual pentium boards
-o	Fix iptos netfilter bug				(Rusty Russell)
-o	Fix get/set_fpu_mxcsr to check xmm ont fxsr	(Doug Ledford)
-o	Fix name_to_kdev_t symbol			(Adam J Richter)
-o	Update magic sysrq docs				(Jeremy Dolan)
-o	Support for ETinc PCIsync boards		(Francois Romieu)
-o	Mass duplicated word spelling fixes 		(Dave Jones)
-o	Update sb driver to use spinlocks		(Chris Rankin)
-o	Fix leak in bmac driver				(Hans Grobler)
-o	Fix kmalloc check in atm/common			(Hans Grobler)
-o	Fix buffer leak in defxx			(Hans Grobler)
-o	Fix kmalloc check in netrom driver		(Hans Grobler)
-	|BTW side exercise - how about using vmalloc here ?
-o	Ditto for rose					(Hans Grobler)
-	|Ditto for comment ;)
-o	Fix lockd 64bit handling			(H J Lu)
-o	Tidy pci_match_device ifdefs			(Rasmus Andersen)
-o	Fix qla1280 handling of registration failure	(Rasmus Andersen
-							 Rakesh Rakesh)
-o	Config include fixes				(Niels Jensen)
-o	MatroxFB updates				(Petr Vandrovec)
-o	Tidy fat_read_super to use get_hardsect_size	(Tigran Aivazian)
-o	Fix m68k bitops	ffs()				(Geert Uytterhoeven)
-o	Fix ip_nat_standalone ksyms stuff		(Rusty Russell)
-o	Fix copy_from_user mishandling in ip_fw_compat	(Rusty Russell)
-o	Fix romfs for 2.4ac maxbytes 			(Mike Galbraith)
-o	filemap/aging updates				(Rik van Riel)
-o	Enable device before reading irq in ne2k-pci	(Martin Diehl)
-o	Remove surplus nr_ioapics definition		(Rasmus Andersen)
-o	S/390 build fixes				(Florian Laroche)
-o	Advansys driver fixes/portability		(Arnaldo Carvalho
-							 de Melo)
-o	Fix out of message handling error in i2o_block	(Jason Lai)
-o	Fix bit granularity of 32 in ACPI driver	(Adam J Richter)
-o	Fix unsafe casting for ARM on NFS root mount	(Russell King)
-o	Fix mxcsr masking on pentium IV			(Doug Ledford)
-o	Update u14/eata drivers to 6.03			(Dario Ballabio)
-o	Fix signed/unsigned mess in sysctl handlers	(me)
+2.2.19pre3
+o	Merge ADMtek-comet tulip support		(Jim McQuillan)
+o	Update microcode driver				(Tigran Aivazian)
+o	Merge Don Becker's NE2K full duplex support	(Juan Lacarta)
+o	Optimise kernel compiler detect, kgcc before	(Peter Samuelson)
+	gcc272 also
+o	Fix compile combination problems		(Arjan van de Ven)
+o	Update via-rhine driver to include Don's changes(Urban Widmark)
+	for VT6102
+o	Documentation updates				(Tim Waugh)
+o	Add ISDN PCI defines to pci.h			(Kai Germaschewski)
+o	Fix smb/fat handling for pre 1980 dates		(Igor Zhbanov)
+o	SyncLink updates				(Paul Fulghum)
+o	ICP vortex driver updates 			(Andreas Köpf)
+o	mdacon clean up					(Pavel Rabel)
+o	Fix bugs in es1370/es1371/sonicvibes/solo1/	(Thomas Sailer)
+	dabusb
+o	Speed up x86 irq/fault paths by avoiding xchg	(Mikael Pettersson)
+	locked cycles (from Brian Gerst's 2.4test change)
+o	Tighten up K6 check in bug tests		(Mikael Pettersson)
+o	Backport configure scripts bug fixes		(Mikael Pettersson)
+o	Fix duplicat help entries			(Riley Williams)
+o	Fix small asm bug in constant size uaccess	(David Kutz)
+o	Update ymfpci driver to handle legacy audio	(Daisuke Nagano)
+o	Remove ymfsb driver now no longer needed	(Daisuke Nagano)
+o	Add Empeg support to usb-serial			(Gary Brubaker)
+o	Fix e820 handling				(Andrea Arcangeli)
+o	Fix lanstreamer SMP locking			(George Staikos)
+o	Fix S/390 non SMP build				(Kurt Roeckx)
+o	Fix the PCI syscall on PowerMac		(Benjamin Herrenschmidt)
+o	Fix IPC_RMID behaviour				(Christoph Rohland)
+o	Fix NETCTL_GETFD on sparc64			(Dave Miller)
+o	Tidy unneeded restore_flags/save sequence  (Arnaldo Carvalho de Melo)
+	on the ultrastor
+o	Fix resource clean up on error in 89xo     (Arnaldo Carvalho de Melo)
+	driver
+o	Update wireless headers				(Jean Tourrilhes)
+o	Fix non modular emu10k init			(Mikael Pettersson)
+o	Fix cpuid/msr driver crashes			(Andrew Morton)
+o	Write core files sparse				(Christoph Rohland)
+o	Merge the i810 tco (watchdog) timer		(me)
+	| original by Jeff Garzik
 
 
----
+2.2.19pre2
+o	Drop the page aging for a moment to merge the
+	Andrea VM
+o	Merge Andrea's VM-global patch			(Andrea Arcangeli)
+
+2.2.19pre1
+o	Basic page aging				(Neil Schemenauer)
+	| This is a beginning to trying to get the VM right
+	| Next stage is to go through Andrea's stuff and sort 
+	| it out the way I want it.
+o	E820 memory detect backport from 2.4		(Michael Chen)
+o	Fix cs46xx refusing to run on emachines400	(me)
+o	Fix parport docs				(Tim Waugh)
+o	Fix USB serial name reporting			(me)
+o	Fix else warning in initio scsi			(John Fort)
+o	Fix incorrect timeout (that couldnt occur
+	fortunately) in sched.c				(Andrew Archibald)
+o	Fix A20 fix credits				(Christian Lademann)
+o	Support for OnStream SC-x0 tape drives		(Willem Riede, 
+							 Kurt Garloff)
+o	Intel 815 added to the AGPGART code		(Robert M Love)
+o	3Ware scsi fixes			(Arnaldo Carvalho de Melo)
+o	Clean up scsi_init_malloc no mem case	(Arnaldo Carvalho de Melo)
+o	Fix dead module parameter in ip_masq_user.c	(Keith Owens)
+o	Switch max_files and friends to a struct to	(Tigran Aivazian)
+	be sure they stay together
+o	Update microcode driver				(Tigran Aivazian)
+o	Fix free memory dereference in lance driver	(Eli Carter)
+o	ISOfs fixes 					(Andries Brouwer)
+o	Watchdog driver for Advantech boards		(Marek Michalkiewicz)
+o	ISDN updates					(Karsten Keil)
+o	Docs fix 					(Pavel Rabel)
+o	wake_one semantics for accept()			(Andrew Morton)
+o	Masquerade updates				(Juanjo Ciarlante)
+o	Add support for long serialnums on the Metricom	(Alex Belits)
+o	Onboard ethernet driver for the Intel 'Panther'	(Ard van Breemen,
+	boards						 Andries Brouwer)
+o	VIA686a timer reset to 18Hz background		(Vojtech Pavlik)
+o	3c527 driver rewrite				(Richard Procter)
+	| This supercedes my driver because
+	| - it works for more people
+	| - he has time to use his MCA box to debug it
+o	Minix subpartition support			(Anand Krishnamurthy 
+							 Rajeev Pillai)
+o	Remove unused() crap from DRM. You will need
+	to hand load agp as well if needed		(me)
+
+
+--
 Alan Cox <alan@lxorguk.ukuu.org.uk>
 Red Hat Kernel Hacker
 & Linux 2.2 Maintainer                        Brainbench MVP for TCP/IP
 http://www.linux.org.uk/diary                 http://www.brainbench.com
+

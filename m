@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280277AbRJaPzI>; Wed, 31 Oct 2001 10:55:08 -0500
+	id <S280275AbRJaPyu>; Wed, 31 Oct 2001 10:54:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280247AbRJaPyu>; Wed, 31 Oct 2001 10:54:50 -0500
-Received: from zero.tech9.net ([209.61.188.187]:1037 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S280245AbRJaPy3>;
-	Wed, 31 Oct 2001 10:54:29 -0500
-Subject: Re: 2.4.14-pre6 + preempt dri lockup
-From: Robert Love <rml@tech9.net>
-To: safemode <safemode@speakeasy.net>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011031152822Z280263-17408+8294@vger.kernel.org>
-In-Reply-To: <20011031152822Z280263-17408+8294@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.28.13.59 (Preview Release)
-Date: 31 Oct 2001 10:55:05 -0500
-Message-Id: <1004543705.1209.23.camel@phantasy>
-Mime-Version: 1.0
+	id <S280247AbRJaPy3>; Wed, 31 Oct 2001 10:54:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4360 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S280245AbRJaPy0>; Wed, 31 Oct 2001 10:54:26 -0500
+Date: Wed, 31 Oct 2001 07:52:43 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Lorenzo Allegrucci <lenstra@tiscalinet.it>, <linux-kernel@vger.kernel.org>
+Subject: Re: new OOM heuristic failure  (was: Re: VM: qsbench)
+In-Reply-To: <Pine.LNX.4.33L.0110311259570.2963-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.33.0110310744070.32330-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-10-31 at 10:28, safemode wrote:
-> Using 2.4.14-pre6 and Love's preempt patch, i recompiled my X's matrox drm 
-> driver and loaded it.  All seemed well and good and i started X and it locked 
-> up.  I had to reboot.  Upon rebooting I started X without loading the drm 
-> module and disabling DRI and it loaded fine.  Tis not good.   The drm module 
-> worked in every kernel prior to this one with and without the preempt patch.  
-> I couldn't get an error message or anything but i did hear my monitor resync, 
-> it just never displayed any kind of image.  The entire system was 
-> unresponsive.
 
-Did you try it in 2.4.14-pre6 w/o preempt patch?
+On Wed, 31 Oct 2001, Rik van Riel wrote:
+>
+> Linus, it seems Lorenzo's test program gets killed due
+> to the new out_of_memory() heuristic ...
 
-Are you using the new non-atomic preempt patch (released last night for
-pre5)?  If so, can you try an old version on pre6?  Apply the pre2
-version to pre6 and see if it repeats...
+Hmm.. The oom killer really only gets invoced if we're really down to zero
+swapspace (that's the _only_ non-rate-based heuristic in the whole thing).
 
-	Robert Love
+Lorenzo, can you do a "vmstat 1" and show the output of it during the
+interesting part of the test (ie around the kill).
+
+I could probably argue that the machine really _is_ out of memory at this
+point: no swap, and it obviously has to work very hard to free any pages.
+Read the "out_of_memory()" code (which is _really_ simple), with the
+realization that it only gets called when "try_to_free_pages()" fails and
+I think you'll agree.
+
+That said, it may be "try_to_free_pages()" itself that just gives up way
+too easily - it simply didn't matter before, because all callers just
+looped around and asked for more memory if it failed. So the code could
+still trigger too easily not because the oom() logic itself is all that
+bad, but simply because it makes the assumption that try_to_free_pages()
+only fails in bad situations.
+
+		Linus
 

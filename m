@@ -1,59 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262114AbUGIBT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbUGIBYz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262114AbUGIBT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 21:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbUGIBT0
+	id S262356AbUGIBYz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 21:24:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbUGIBYz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 21:19:26 -0400
-Received: from dsl-217-155-222-126.zen.co.uk ([217.155.222.126]:13536 "EHLO
-	mail.recruit2recruit.net") by vger.kernel.org with ESMTP
-	id S262114AbUGIBTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 21:19:24 -0400
-Message-ID: <33035.82.69.73.113.1089335947.squirrel@82.69.73.113>
-In-Reply-To: <40EDE956.80705@kolivas.org>
-References: <40EC13C5.2000101@kolivas.org>	<40EC1930.7010805@comcast.net>	<40EC1B0A.8090802@kolivas.org>	<20040707213822.2682790b.akpm@osdl.org>	<cone.1089268800.781084.4554.502@pc.kolivas.org>	<20040708001027.7fed0bc4.akpm@osdl.org>	<cone.1089273505.418287.4554.502@pc.kolivas.org>	<20040708010842.2064a706.akpm@osdl.org>	<40ED7534.4010409@kolivas.org>
-    <20040708094406.2b0293ea.akpm@osdl.org> <40EDE956.80705@kolivas.org>
-Date: Fri, 9 Jul 2004 02:19:07 +0100 (BST)
-Subject: Re: [ck] Re: [PATCH] Autotune swappiness
-From: "Kerin Millar" <kerin@recruit2recruit.net>
-To: "Con Kolivas" <kernel@kolivas.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, ck@vds.kolivas.org,
-       linux-kernel@vger.kernel.org
-User-Agent: SquirrelMail/1.4.3a
-X-Mailer: SquirrelMail/1.4.3a
+	Thu, 8 Jul 2004 21:24:55 -0400
+Received: from sunumail.sn ([213.154.64.11]:21897 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S262356AbUGIBYv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Jul 2004 21:24:51 -0400
+Message-ID: <1345.216.139.180.12.1089334435.sunumail@www.sunumail.sn>
+Date: Fri, 9 Jul 2004 00:53:55 -0000 (GMT)
+Subject: IT'S  ME  YOUR  FRIEND
+From: nelson_rufus@sunumail.sn
+To: nelson_rufus@sunumail.sn
+User-Agent: SUNUMAIL/1.4.2
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
+X-Priority: 3
 Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<snip>
+DEAR PARTTNER,
 
-> I need someone with more varied hardware to test it for me. I can
-> recreate equivalent results on my current machine which has similar
-> hardware, but I think results showing improvement on different machines
->   and different loads is what you're looking for... and since I'm
-> currently quite low on hardware I can only offer results from this one
-> (and my wife is hating it being offline o_0)
->
-> Anyone willing to offer to do some tests?
+ MY NAME IS MR. NELSON RUFUS. I AM WRITING IN RESPECT OF FOREIGN CUSTOMER
+OF MY BANK WHO DIED IN A PLANE CRASH (ALASKA AIRLINES FLIGHT 261) WHICH
+CRASHED ON JANUARY 31 2000, INCLUDING HIS WIFE AND ONLY DAUGHTER SINCE
+THE DEATH OF THIS CUSTOMER, I PERSONALLY HAVE WATCHED WITH KEEN INTEREST
+TO SEE THE NEXT OF KIN BUT ALL HAS PROVED ABORTIVE AS NO ONE HAS COME TO
+CLAIM HIS FUNDS OF US$10.5M (TEN MILLION, FIVE HUNDRED THOUSAND UNITED
+STATES DOLLARS) WHICH HAS BEEN WITH MY BANK FOR A VERY LONG TIME.ON THIS
+NOTE I DECIDED TO SEEK FOR WHOSE NAME SHALL BE USED AS THE NEXT OF KIN AS
+NO ONE HAS COME UP TO BE THE NEXT OF KIN. IN VIEW OF THIS I GOT YOUR
+CONTACT THROUGH MY COUNTRY`S FOREIGN TRADE MISSION AFTER I WAS CONVINCED
+BY PROVIDENCE THAT YOU COULD BE USED AS THE NEXT OF KIN. THE REQUEST OF
+THE FOREIGNER AS A NEXT OF KIN IN THIS BUSINESS IS OCCASIONED BY THE FACT
+THAT THE CUSTOMER WAS A FOREIGNER AND A NIGERIAN CANNOT STAND AS THE NEXT
+OF KIN TO FOREIGNER.
 
-Yes - I would. If you can define a digestible framework for testing then I
-would be more than happy to work through it - digestible for mere mortals,
-that is ;). I have three machines on which I currently have the
-opportunity to conduct such tests:
+I AGREED THAT 30% OF THIS MONEY WILL BE FOR YOU AS A FOREIGN PARTNER
+,WHILE THE REST WILL BE FOR ME, THERE AFTER,I WILL VISIT YOUR COUNTRY FOR
+DISBURSEMENT AS I AM ALMOST DUE FOR RETIREMENT.THEREFORE, TO FACILITATE
+THE IMMEDIATE TRANSFER OF THIS FUND TO YOUR ACCOUNT AS ARRANGED, YOU MUST
+APPLY FIRST TO THE BANK AS A RELATION TO THE DECEASED INDICATING YOUR
+PRIVATE TELEPHONE NUMBER, AND FAX NUMBER FOR EASY COMMUNICATION AND
+LOCATION WHERE THE MONEY WILL BE REMITTED.UPON THE RECEIPT OF YOUR REPLY,
+I WILL SEND YOU BY FAX OR E-MAIL THE NEXT STEP TO TAKE.
 
-* PIII (733MHz), 384Mb RAM, VIA Apollo MVP3 chipset
-* Compaq Presario, P4 2GHz, 256Mb RAM, Brookdale-G chipset
-* Compaq Proliant ML370 G3 server, P4 Xeon 3.06GHz (HT), 1Gb RAM
+ I WILL NOT FAIL TO BRING TO YOUR NOTICE THAT THIS BUSINESS IS HITCH-FREE
+AND THAT YOU SHOULD NOT ENTERTAIN ANY FEAR AS THE WHOLE REQUIRED
+ARRANGEMENT HAS BEEN MADE FOR THE TRANSFER.
 
-All machines have similar software characteristics - identical toolchain,
-same versions of core GNU tools and so forth. By all means, let me know if
-there is anything I can do to help.
+YOU SHOULD CONTACT ME THROUGH THIS EMAIL (nelsonruf@graffiti.net )
+IMMEDIATELY AS SOON AS YOU RECEIVE THIS LETTER
 
-Regards,
+TRUSTING TO HEAR FROM YOU.
 
---Kerin Francis Millar
+YOUR RESPECTFULLY,
 
+ MR. NELSON RUFUS

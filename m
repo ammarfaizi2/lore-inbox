@@ -1,160 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261726AbSJGTVg>; Mon, 7 Oct 2002 15:21:36 -0400
+	id <S262643AbSJGTnB>; Mon, 7 Oct 2002 15:43:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262563AbSJGTVg>; Mon, 7 Oct 2002 15:21:36 -0400
-Received: from mail2.ameuro.de ([62.208.90.8]:20127 "EHLO mail2.ameuro.de")
-	by vger.kernel.org with ESMTP id <S261726AbSJGTVc>;
-	Mon, 7 Oct 2002 15:21:32 -0400
-Date: Mon, 7 Oct 2002 21:26:58 +0200
-From: Anders Larsen <al@alarsen.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.41 qnx4fs (1/2): ISO C initializers
-Message-ID: <20021007192658.GA1568@errol.alarsen.net>
+	id <S262644AbSJGTnB>; Mon, 7 Oct 2002 15:43:01 -0400
+Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:42995 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262643AbSJGTnA>; Mon, 7 Oct 2002 15:43:00 -0400
+Subject: Re: New PCI Device Driver
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Patrick Jennings <jennings@red-river.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <NFBBJBMDCLFFHHFEAKNAMEEHCBAA.jennings@red-river.com>
+References: <NFBBJBMDCLFFHHFEAKNAMEEHCBAA.jennings@red-river.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Oct 2002 20:58:26 +0100
+Message-Id: <1034020706.26549.7.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
-this patch (contributed by Art Haas) changes the structure initializers
-in the qnx4fs code to the new ISO C style to bring it in line with the
-rest of the kernel.
-Please apply.
+On Mon, 2002-10-07 at 18:24, Patrick Jennings wrote:
+> I have been tasked with writing a driver for my companies digital radio.
+> The card has 16K of PCI space at BAR0.  I need to memory map this into user
+> space, and provide DMA and isr handling.  First things first i want to get
+> the mapping working.   When i run the code below after inserting the module
+> i seg. fault.  I know this is what happens when engineers have to write
+> code, but can someone point me in the right direction?
 
-Cheers
- Anders (maintainer)
+First things I'd pick on are the obvious ones - we have headers defining
+KERN_ERR etc as <1> so use them 8)
 
-diff -ur linux-2.5.41-vanilla/fs/qnx4/dir.c linux-2.5.41/fs/qnx4/dir.c
---- linux-2.5.41-vanilla/fs/qnx4/dir.c	Tue Oct  1 09:07:09 2002
-+++ linux-2.5.41/fs/qnx4/dir.c	Fri Oct  4 22:09:55 2002
-@@ -85,17 +85,17 @@
- 
- struct file_operations qnx4_dir_operations =
- {
--	read:		generic_read_dir,
--	readdir:	qnx4_readdir,
--	fsync:		file_fsync,
-+	.read		= generic_read_dir,
-+	.readdir	= qnx4_readdir,
-+	.fsync		= file_fsync,
- };
- 
- struct inode_operations qnx4_dir_inode_operations =
- {
--	lookup:		qnx4_lookup,
-+	.lookup		= qnx4_lookup,
- #ifdef CONFIG_QNX4FS_RW
--	create:		qnx4_create,
--	unlink:		qnx4_unlink,
--	rmdir:		qnx4_rmdir,
-+	.create		= qnx4_create,
-+	.unlink		= qnx4_unlink,
-+	.rmdir		= qnx4_rmdir,
- #endif
- };
-diff -ur linux-2.5.41-vanilla/fs/qnx4/file.c linux-2.5.41/fs/qnx4/file.c
---- linux-2.5.41-vanilla/fs/qnx4/file.c	Tue Oct  1 09:06:30 2002
-+++ linux-2.5.41/fs/qnx4/file.c	Fri Oct  4 22:21:30 2002
-@@ -24,21 +24,19 @@
-  */
- struct file_operations qnx4_file_operations =
- {
--	llseek:			generic_file_llseek,
--	read:			generic_file_read,
-+	.llseek		= generic_file_llseek,
-+	.read		= generic_file_read,
-+	.mmap		= generic_file_mmap,
-+	.sendfile	= generic_file_sendfile,
- #ifdef CONFIG_QNX4FS_RW
--	write:			generic_file_write,
-+	.write		= generic_file_write,
-+	.fsync		= qnx4_sync_file,
- #endif
--	mmap:			generic_file_mmap,
--#ifdef CONFIG_QNX4FS_RW
--	fsync:			qnx4_sync_file,
--#endif
--	sendfile:		generic_file_sendfile,
- };
- 
- struct inode_operations qnx4_file_inode_operations =
- {
- #ifdef CONFIG_QNX4FS_RW
--	truncate:		qnx4_truncate,
-+	.truncate	= qnx4_truncate,
- #endif
- };
-diff -ur linux-2.5.41-vanilla/fs/qnx4/inode.c linux-2.5.41/fs/qnx4/inode.c
---- linux-2.5.41-vanilla/fs/qnx4/inode.c	Tue Oct  1 09:06:28 2002
-+++ linux-2.5.41/fs/qnx4/inode.c	Fri Oct  4 22:23:09 2002
-@@ -131,19 +131,17 @@
- 
- static struct super_operations qnx4_sops =
- {
--	alloc_inode:	qnx4_alloc_inode,
--	destroy_inode:	qnx4_destroy_inode,
--	read_inode:	qnx4_read_inode,
-+	.alloc_inode	= qnx4_alloc_inode,
-+	.destroy_inode	= qnx4_destroy_inode,
-+	.read_inode	= qnx4_read_inode,
-+	.put_super	= qnx4_put_super,
-+	.statfs		= qnx4_statfs,
-+	.remount_fs	= qnx4_remount,
- #ifdef CONFIG_QNX4FS_RW
--	write_inode:	qnx4_write_inode,
--	delete_inode:	qnx4_delete_inode,
-+	.write_inode	= qnx4_write_inode,
-+	.delete_inode	= qnx4_delete_inode,
-+	.write_super	= qnx4_write_super,
- #endif
--	put_super:	qnx4_put_super,
--#ifdef CONFIG_QNX4FS_RW
--	write_super:	qnx4_write_super,
--#endif
--	statfs:		qnx4_statfs,
--	remount_fs:	qnx4_remount,
- };
- 
- static int qnx4_remount(struct super_block *sb, int *flags, char *data)
-@@ -449,12 +447,12 @@
- 	return generic_block_bmap(mapping,block,qnx4_get_block);
- }
- struct address_space_operations qnx4_aops = {
--	readpage: qnx4_readpage,
--	writepage: qnx4_writepage,
--	sync_page: block_sync_page,
--	prepare_write: qnx4_prepare_write,
--	commit_write: generic_commit_write,
--	bmap: qnx4_bmap
-+	.readpage	= qnx4_readpage,
-+	.writepage	= qnx4_writepage,
-+	.sync_page	= block_sync_page,
-+	.prepare_write	= qnx4_prepare_write,
-+	.commit_write	= generic_commit_write,
-+	.bmap		= qnx4_bmap
- };
- 
- static void qnx4_read_inode(struct inode *inode)
-@@ -564,11 +562,11 @@
- }
- 
- static struct file_system_type qnx4_fs_type = {
--	owner:		THIS_MODULE,
--	name:		"qnx4",
--	get_sb:		qnx4_get_sb,
--	kill_sb:	kill_block_super,
--	fs_flags:	FS_REQUIRES_DEV,
-+	.owner		= THIS_MODULE,
-+	.name		= "qnx4",
-+	.get_sb		= qnx4_get_sb,
-+	.kill_sb	= kill_block_super,
-+	.fs_flags	= FS_REQUIRES_DEV,
- };
- 
- static int __init init_qnx4_fs(void)
+Second you probably want to use the pci_module_init api then multiple
+cards will basically just work, cardbus will just work and even hotplug
+should come for free.
+
+Beyond that you get the pci resources correctly, you enable the device
+first as you should. You then ruin it all by poking around directly into
+I/O space you have not mapped.
+
+The kernel isn't running in physical space, and on other platforms it
+gets even more exciting as to what goes on. Its all abstracted do
+
+	addr = ioremap(io_base_start, len);
+        databuf = read(addr + 0x590);
+
+
+Finally note that we have a radio interface layer as part of
+video4linux. Other than some basic tuning ioctls it probably has little
+in common with digital radio (assuming you mean something like
+Eureka-147 (aka DAB) rather than digital tuner/mixer for analogue
+radio.It would nice to make use of that API and extend it logically if
+you want to get a driver into the base kernel eventually.
+
+Alan
 

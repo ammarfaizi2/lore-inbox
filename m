@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287106AbSAZVrt>; Sat, 26 Jan 2002 16:47:49 -0500
+	id <S287145AbSAZWFd>; Sat, 26 Jan 2002 17:05:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287111AbSAZVrj>; Sat, 26 Jan 2002 16:47:39 -0500
-Received: from gadolinium.btinternet.com ([194.73.73.111]:51339 "EHLO
-	gadolinium.btinternet.com") by vger.kernel.org with ESMTP
-	id <S287106AbSAZVrZ>; Sat, 26 Jan 2002 16:47:25 -0500
-From: "Chris Mason" <chris@bash.sh>
-To: <linux-kernel@vger.kernel.org>
-Subject: SPARCstation 5 (sun4m) and 2.4.17
-Date: Sat, 26 Jan 2002 21:48:07 -0000
-Message-ID: <000401c1a6b3$24bac020$0100a8c0@krad>
+	id <S287148AbSAZWFN>; Sat, 26 Jan 2002 17:05:13 -0500
+Received: from beasley.gator.com ([63.197.87.202]:13577 "EHLO
+	beasley.gator.com") by vger.kernel.org with ESMTP
+	id <S287145AbSAZWFE>; Sat, 26 Jan 2002 17:05:04 -0500
+From: "George Bonser" <george@gator.com>
+To: "Keith Owens" <kaos@ocs.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux console at boot 
+Date: Sat, 26 Jan 2002 14:04:54 -0800
+Message-ID: <CHEKKPICCNOGICGMDODJOEEFGCAA.george@gator.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+In-Reply-To: <CHEKKPICCNOGICGMDODJEEEDGCAA.george@gator.com>
 Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The machine in question appears to have an Intel L440GX motherboard.
+The firmware is probably out of date so I am going to flash it current
+before complaining any more about it. Strange that pre6 works every
+time but pre7 fails consistantly every time though.
 
-I know I have seen this discussed before on various mailing lists, but
-it was generally regarding the 2.4.0-test kernels.  I am attempting to
-use 2.4.17 on a SPARCstation 5 (sun4m) with 192MB of RAM.
 
-On attempting to boot the kernel I get the following message;
 
-SILO boot:
-PROMLIB: obio_ranges 1
-bootmem_init: Scan sp_banks,
-init_bootmem(spfn[41ad],bpfn[4a1d],mlpfn[c000])
 
-It then pauses for a period of about 3 mins then I get the following (as
-expected),
+>
+> Well I have been all through the incremental from pre6 to pre7 and
+> dont see anything obvious that would cause it not to see the disks.
+> Nobody else has complained of it ... so weird.
 
-Watchdog Reset, Rebooting.
-Resetting ...
-
-I have attempted to pass it mem=16M as some earlier posts suggested to
-do on 2.4.0-test kernels with no luck.  On enable PROM_DEBUG_CONSOLE in
-/usr/src/linux/arch/sparc/kernel/setup.c I see that the kernel does
-oops, however as the screen moves up very quickly I cannot read what it
-is saying.
-
-Thanks in advance,
-Chris
 

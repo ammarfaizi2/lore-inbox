@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311839AbSDSIJa>; Fri, 19 Apr 2002 04:09:30 -0400
+	id <S311917AbSDSIdp>; Fri, 19 Apr 2002 04:33:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311841AbSDSIJa>; Fri, 19 Apr 2002 04:09:30 -0400
-Received: from artemis.rus.uni-stuttgart.de ([129.69.1.28]:59088 "EHLO
-	artemis.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S311839AbSDSIJ2>; Fri, 19 Apr 2002 04:09:28 -0400
-Date: Fri, 19 Apr 2002 10:09:35 +0200 (CEST)
-From: Erich Focht <focht@ess.nec.de>
-X-X-Sender: focht@beast.local
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>,
-        Ingo Molnar <mingo@elte.hu>,
-        Kimio Suganuma <k-suganuma@mvj.biglobe.ne.jp>,
-        <torvalds@transmeta.com>
-Subject: Re: [PATCH] migration thread fix
-In-Reply-To: <20020419023015.GQ23767@holomorphy.com>
-Message-ID: <Pine.LNX.4.44.0204190857400.2593-100000@beast.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311919AbSDSIdo>; Fri, 19 Apr 2002 04:33:44 -0400
+Received: from f10.pav0.hotmail.com ([64.4.33.81]:39185 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S311917AbSDSIdo>;
+	Fri, 19 Apr 2002 04:33:44 -0400
+X-Originating-IP: [202.88.226.140]
+From: "blesson paul" <blessonpaul@msn.com>
+To: linux-kernel@vger.kernel.org
+Subject: /dev/zero
+Date: Fri, 19 Apr 2002 14:03:38 +0530
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F10qwZ2cFXvmBUCsQrU0000e2b7@hotmail.com>
+X-OriginalArrivalTime: 19 Apr 2002 08:33:38.0557 (UTC) FILETIME=[E74C1AD0:01C1E77C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Bill,
+Hi
+		I need some more information about /dev/zero. I need to replace the device 
+driver of /dev/zero(I do not know whether I can name the program controlling 
+the /dev/zero as device driver). How to do the job. If I cannot replace the 
+device driver of /dev/zero, how to create a new charecter device and load my 
+device driver.
 
-> Sounds fairly thoroughly tested; this is actually more systems than I
-> myself have access to. Just to sort of doublecheck the references, is
-> there a mailing list archive where I can find reports of this problem
-> and/or successes of others using it?
-
-there is some email exchange with Jesse Barnes from SGI on the LSE and
-linux-ia64 mailing lists.
-  Date: 1.-5. March, 2002
-  Subject: Re: [Linux-ia64] O(1) scheduler K3+ for IA64
-The success report was a personal email.
-
-On LSE and linux-kernel there were some emails related to the node affine
-scheduler which contains the same migration mechanism (but a different
-load balancer):
-  Date: 13. March and later
-  Subject: Node affine NUMA scheduler
-
-Besides, Matt Dobson from IBM adapted the node affine scheduler to work
-on NUMA-Q and tested it quite a bit, that email exchange was direct, too.
-
-The testing on our side wasn't publicized, either, but our production
-kernel for AzusA (which contains these patches) is about to be sent out to
-customers and has undergone quite some testing.
+regards
+Blesson Paul
 
 
-It's a pity that there's so much duplicated effort in the Linux community,
-but that's how it goes, you probably know it better than I do.
-
-Best regards,
-Erich
 
 
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
 

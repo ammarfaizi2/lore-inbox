@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272985AbRINSsW>; Fri, 14 Sep 2001 14:48:22 -0400
+	id <S273448AbRINSye>; Fri, 14 Sep 2001 14:54:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273445AbRINSsM>; Fri, 14 Sep 2001 14:48:12 -0400
-Received: from home.nohrsc.nws.gov ([192.46.108.2]:17804 "HELO nohrsc.nws.gov")
-	by vger.kernel.org with SMTP id <S273444AbRINSr7>;
-	Fri, 14 Sep 2001 14:47:59 -0400
-Date: Fri, 14 Sep 2001 13:48:16 -0500 (CDT)
-From: kelley eicher <keicher@nws.gov>
-X-X-Sender: <keicher@home.nohrsc.nws.gov>
-To: J <jack@i2net.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 0-order allocation failed in 2.4.10-pre8
-In-Reply-To: <3BA24EB0.5000402@i2net.com>
-Message-ID: <Pine.LNX.4.33.0109141342340.14906-100000@home.nohrsc.nws.gov>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S273446AbRINSyY>; Fri, 14 Sep 2001 14:54:24 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:60424 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S273445AbRINSyT>;
+	Fri, 14 Sep 2001 14:54:19 -0400
+Date: Fri, 14 Sep 2001 12:50:54 -0600
+From: Cort Dougan <cort@fsmlabs.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: Val Henson <val@nmt.edu>, becker@scyld.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Endian-ness bugs in yellowfin.c
+Message-ID: <20010914125054.A23502@ftsoj.fsmlabs.com>
+In-Reply-To: <20010913195141.B799@boardwalk> <Pine.LNX.3.96.1010914014755.8683B-100000@mandrakesoft.mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.3.96.1010914014755.8683B-100000@mandrakesoft.mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Sep 14, 2001 at 01:49:03AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Sep 2001, J wrote:
+Only the PPC-based gemini board uses that driver (ncr885e) and Val is the
+maintainer of that board.  These patches that she sent fix yellowfin.c for
+the ncr885e chip on the big-endian PPC.  I just pointed at the junk pile,
+Val is actually doing the work to put the ncr885e drivers there.
 
-> Hello,
->     I am reporting the same problem that kelley eicher
-> has, "0-order allocation failed (gfp=0x70/1)", hopefully
-> my info is helpfull. I added BUG() after the printk's in
-> "mm/page_alloc.c:505". I am able to get this message
-> when ever I copy a large (2+ gig) file from one XFS filesystem
-> to another on the same disk controller. I have attached klogd -p output
-> and an output of /proc/slabinfo from <= 1 second before the
-> Oops. If anyone would like more info, or for me to apply dangerous
-> patches, or to shut up even, let me know.
->
-> Jack
->
-> Machine:
-> Kernel Version 2.4.10-pre8 with SGI-XFS patches and IBM-JFS patches.
-> compiled with egcs 2.91-66 ;) (Some more info @ http://whatevr.i2net.com)
-> SMP P3 Box with 2 Gig of memory
+This is a truly rare patch, it allows the removal of entire drivers
+not just a few lines.  As an encore I suggest combining the >5 Zilog 8530
+drivers.
 
-after spending a few dayz trying to figure out where this is happening, i
-noticed that the alloc_pages() errors only occur after used memory goes
-above 899MB. this is the limit of physical memory unless you enable the
-himem option. the machines i had been seeing this on all had 1G+ memory
-and i had enabled the 4G himem option on each of them. so turn that option
-off and you will no longer see alloc_pages errors. you'll have to suffer
-through only having 900MB of memory to play with though. ;>
-
--kelley
-
+} I may be missing some context... have you tested yellowfin on big endian
+} boxes?  If so, go ahead and remove it.  Cort said it was destined for
+} the scrapheap a while ago, and IIRC it disappeared from the 'ac' tree
+} for a while...

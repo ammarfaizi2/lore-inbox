@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290541AbSARAAT>; Thu, 17 Jan 2002 19:00:19 -0500
+	id <S290543AbSARAC3>; Thu, 17 Jan 2002 19:02:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290543AbSARAAJ>; Thu, 17 Jan 2002 19:00:09 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:8717 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S290541AbSAQX77>; Thu, 17 Jan 2002 18:59:59 -0500
-Date: Thu, 17 Jan 2002 18:59:30 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH *] rmap VM 11c
-In-Reply-To: <Pine.LNX.4.33L.0201171721230.32617-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.3.96.1020117185411.4089A-100000@gatekeeper.tmr.com>
+	id <S290542AbSARACT>; Thu, 17 Jan 2002 19:02:19 -0500
+Received: from jffdns01.or.intel.com ([134.134.248.3]:60120 "EHLO
+	ganymede.or.intel.com") by vger.kernel.org with ESMTP
+	id <S290543AbSARACI>; Thu, 17 Jan 2002 19:02:08 -0500
+Message-ID: <59885C5E3098D511AD690002A5072D3C42D853@orsmsx111.jf.intel.com>
+From: "Grover, Andrew" <andrew.grover@intel.com>
+To: "'Dave Jones'" <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>
+Cc: Jes Sorensen <jes@wildopensource.com>,
+        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: RE: [patch] VAIO irq assignment fix
+Date: Thu, 17 Jan 2002 16:01:51 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, Rik van Riel wrote:
+> From: Dave Jones [mailto:davej@suse.de]
+>  I was under the impression that the Intel ACPI folks had things in
+>  mind for acpitable.c along the lines of 'rm', in favour of having 
+>  their new interpretor do a "Load, setup, get the hell out" approach
+>  for those that didn't want it staying around.
 
-> For this release, IO tests are very much welcome ...
-> 
-> 
-> The third maintenance release of the 11th version of the reverse
-> mapping based VM is now available.
-> This is an attempt at making a more robust and flexible VM
-> subsystem, while cleaning up a lot of code at the same time.
-> The patch is available from:
-> 
->            http://surriel.com/patches/2.4/2.4.17-rmap-11c
-> and        http://linuxvm.bkbits.net/
+acpitable.c was written to support machines with a bad MPS table but a valid
+$PIR. The 20011218 ACPI patch more closely integrates that code with the
+rest, but the ability to get at the MADT (the ACPI MPS replacement table)
+and other tables without the interpreter is still supported. The code is
+under drivers/acpi, though.
 
-Rik, I tried a simple test, building a kernel in a 128M P-II-400, and when
-the load average got up to 50 or so the system became slow;-) On the other
-hand it was still usable for most normal things other then incoming mail
-which properly blocks at LA>10 or so.
+I don't see that option going away any time soon.
 
-I'll be trying it on a large machine tomorrow, but it at least looks
-stable. In real life no sane person would do that, would they? Make with a
-nice -10 was essentially invisible.
+However, without a valid $PIR (which is what is becoming more common and is
+the Sony's problem) you need the interpreter, like Kai mentioned. We are
+working to incorporate Kai's code into the next acpi patch, which will
+evaluate and use _PRT properly. In fact, that's just what I was working on
+this afternoon, so Real Soon Now. ;-)
 
-Maybe tomorrow the lateest -aa kernel on the same machine, with and
-without my own personal patch.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Regards -- Andy

@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270608AbTGURsv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 13:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270673AbTGURrK
+	id S270639AbTGURwB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 13:52:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270673AbTGURvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 13:47:10 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:59300 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S270650AbTGURos (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 13:44:48 -0400
-Message-ID: <3F1C0DBD.9060507@cornell.edu>
-Date: Mon, 21 Jul 2003 11:58:53 -0400
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-kernel@vger.kernel.org,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: TCQ problems in 2.6.0-test1: the summary
-References: <3F19C838.8040301@cornell.edu> <20030721123334.GF10781@suse.de>
-In-Reply-To: <20030721123334.GF10781@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jul 2003 13:51:19 -0400
+Received: from mailg.telia.com ([194.22.194.26]:14822 "EHLO mailg.telia.com")
+	by vger.kernel.org with ESMTP id S270671AbTGURuM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 13:50:12 -0400
+X-Original-Recipient: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.0-test1-mm2] unable to mount root fs on unknown-block(0,0)
+From: Christian Axelsson <smiler@lanil.mine.nu>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030721173826.333bfa01.florian.huber@mnet-online.de>
+References: <20030720125547.11466aa4.florian.huber@mnet-online.de>
+	 <1058738091.5980.63.camel@localhost.localdomain>
+	 <20030721173826.333bfa01.florian.huber@mnet-online.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-WdECaoW8DFhv6W/9ii+s"
+Message-Id: <1058810706.11170.2.camel@sm-wks1.lan.irkk.nu>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 21 Jul 2003 20:05:06 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> This is really strange. The only difference between using 8 or 32 tags
-> is when ide-disk stops attempting to queue. Are you getting any errors
-> in dmesg when this happens? Reading the start io path for this, it looks
-> correct to me. I'll have to try and reproduce when I get back.
+--=-WdECaoW8DFhv6W/9ii+s
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I get filesystem errors.
-Well, reiserfs refuses to pass the filesystem check every time with a 
-queue of depth 8. The one time that I decied to bypass it to look for 
-errors, I got a bunch:
+On Mon, 2003-07-21 at 17:38, Florian Huber wrote:
+> On 20 Jul 2003 14:54:52 -0700
+> Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+>=20
+> > Setting root=3D0303 (in your case) might helps things along.
+>=20
+> Thanks Jeremy, it's working :)
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0307.1/1307.html
+Yea this helps (I use root=3D0301 for /dev/hda1) but is the reason behind
+this behavior located and fixed?
 
-XFS will boot, but corrupts the fs after a while, and I got an oops there:
+--=20
+Christian Axelsson
+  smiler@lanil.mine.nu
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0307.1/2583.html
+GPG ID:
+  6C3C55D9 @ ldap://keyserver.pgp.com
 
-Other than that - no messages.
+--=-WdECaoW8DFhv6W/9ii+s
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-> If it's an ide tcq bug, it isn't very interesting. You can safely fry
-> that partition.
+iD8DBQA/HCtQyqbmAWw8VdkRAgthAJ9A8q9DSPrtJBlgrj5NUTbD8vuIjQCgmD1b
+j3QnkTOmptev2DKPuEz3fuA=
+=w714
+-----END PGP SIGNATURE-----
 
-Already done.
-
-
+--=-WdECaoW8DFhv6W/9ii+s--
 

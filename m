@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135615AbRDSK5O>; Thu, 19 Apr 2001 06:57:14 -0400
+	id <S135617AbRDSK7Y>; Thu, 19 Apr 2001 06:59:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135617AbRDSK5E>; Thu, 19 Apr 2001 06:57:04 -0400
-Received: from gate.terreactive.ch ([212.90.202.121]:26353 "HELO
-	toe.terreactive.ch") by vger.kernel.org with SMTP
-	id <S135615AbRDSK44>; Thu, 19 Apr 2001 06:56:56 -0400
-Message-ID: <3ADEC3CE.CC58F06A@tac.ch>
-Date: Thu, 19 Apr 2001 12:54:06 +0200
-From: Roberto Nibali <ratz@tac.ch>
-Organization: terreActive
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
-X-Accept-Language: en, de-CH, zh-CN
-MIME-Version: 1.0
-To: Ion Badulescu <ionut@cs.columbia.edu>
-CC: Steve Hill <steve@navaho.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Fix for Donald Becker's DP83815 network driver (v1.07)
-In-Reply-To: <Pine.LNX.4.33.0104181330200.32629-100000@age.cs.columbia.edu>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+	id <S135619AbRDSK7P>; Thu, 19 Apr 2001 06:59:15 -0400
+Received: from fjordland.nl.linux.org ([131.211.28.101]:21514 "EHLO
+	fjordland.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S135617AbRDSK7K>; Thu, 19 Apr 2001 06:59:10 -0400
+From: Daniel Phillips <phillips@nl.linux.org>
+To: phillips@nl.linux.org, riel@conectiva.com.br
+Subject: Re: Ext2 Directory Index - Delete Performance
+Cc: adilger@turbolinux.com, ext2-devel@lists.sourceforge.net,
+        jaharkes@cs.cmu.edu, linux-kernel@vger.kernel.org
+Message-Id: <20010419105540Z92314-11602+5@humbolt.nl.linux.org>
+Date: Thu, 19 Apr 2001 12:55:28 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Rik van Riel wrote:
+> On Thu, 19 Apr 2001, Daniel Phillips wrote:
+> > Jan Harkes wrote:
+> > > On Thu, Apr 19, 2001 at 02:27:48AM +0200, Daniel Phillips wrote:
+> > > > more memory.  If you have enough memory, the inode cache won't thrash,
+> > > > and even when it does, it does so gracefully - performance falls off
+> > > > nice and slowly.  For example, 250 Meg of inode cache will handle 2
+> > > > million inodes with no thrashing at all.
+> > >
+> > > What inode cache are you talking about? According to the slabinfo output
+> > > on my machine every inode takes up 480 bytes in the inode_cache slab. So
+> > > 250MB is only able to hold about half a million inodes in memory.
+> >
+> > Sorry, I was a little loose with terminology there.  I should have
+> > said "inode blocks in cache".  The inode cache is related.  When an
+> > Ext2 inode is pushed out of the inode cache it gets transfered to a
+> > dirty block in memory, where it shrinks to 128 bytes and shares the
+> > block with 31 other inodes.  These blocks are in the buffer cache, and
+> > this is the cache I'm talking about.
+> 
+> Hmmm, considering this, it may be wise to limit the amount of
+> inodes in the inode cache to, say, 10% of RAM ... because we
+> can cache MORE inodes if we store them in the buffer cache
+> instead!
 
-> True, I plead guilty to the "replying at 3:30am" sin. :-) I meant to reply
-> to Roberto's mail, and accidentally replied to yours..
+Yes, one struct inode is worth 3.5 buffer cache inodes.  The expense of
+converting the inode via read_inode and update_inode is pretty small.  To
+come up with a balancing formula, we should consider:
 
-That's what I thought ...
- 
-> Anyway, Roberto, if you could give the starfire driver in 2.2.19 a try,
-> I'd appreciate it. You mentioned looking at the code, did you actually
-> test it?
+  - Ratio between struct inode size and inode disk image size
+  - CPU cost of converting an inode disk image to struct inode
+  - CPU cost of converting a struct inode to a disk image
+  - average time to read, write a block of N inodes.
+  - Load on memory
+  - Bandwidth of disk, heaviness of disk traffic
+  - Other factors I forgot
 
-Today I started testing it and indeed, as the code shows, I works now. The
-main problem was that if you compiled the driver into the kernel and only
-had one Quadboard, it would get initialized twice. It worked but was nasty
-to configure ;).
-Now I started my tests with the new driver from plain vanilla 2.2.19 kernel
-and it worked for my problem above. I've you're interested I could send you
-some dmesg and proc-fs outputs. I'm working on a Intel L440GX+ SMP board 
-but with one processor, a stopper card and SMP disabled. Unfortunately a
-guy back here destroyed the board by trying to hotplug the Quadboard and
-touching the motherboard's voltage regulator. I have to get a new one to
-continue my tests with 3 or 4 Quadboards. Will be back in a few hours with
-the remaining results.
+Or we could just set the inode cache size lower and see what happens. :-)
 
-Best regards,
-Roberto Nibali, ratz
-
--- 
-mailto: `echo NrOatSz@tPacA.cMh | sed 's/[NOSPAM]//g'`
+--
+Daniel

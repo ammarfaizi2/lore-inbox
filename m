@@ -1,54 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317916AbSGWCxh>; Mon, 22 Jul 2002 22:53:37 -0400
+	id <S317917AbSGWDCN>; Mon, 22 Jul 2002 23:02:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317917AbSGWCxh>; Mon, 22 Jul 2002 22:53:37 -0400
-Received: from ns1i.atr.co.jp ([210.146.67.2]:55242 "EHLO mailgw1.atr.co.jp")
-	by vger.kernel.org with ESMTP id <S317916AbSGWCxg>;
-	Mon, 22 Jul 2002 22:53:36 -0400
-Message-ID: <3D3CC5C4.54E9EF72@atr.co.jp>
-Date: Tue, 23 Jul 2002 11:56:04 +0900
-From: "J. Hart" <jhart@atr.co.jp>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: jhart@atr.co.jp
-Subject: Re: File Corruption in Kernel 2.4.18
-Content-Type: text/plain; charset=us-ascii
+	id <S317924AbSGWDCN>; Mon, 22 Jul 2002 23:02:13 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:21930 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S317917AbSGWDCL>;
+	Mon, 22 Jul 2002 23:02:11 -0400
+Date: Mon, 22 Jul 2002 19:54:26 -0700 (PDT)
+Message-Id: <20020722.195426.14578063.davem@redhat.com>
+To: thunder@ngforever.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Another DMA question
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <Pine.LNX.4.44.0207222035420.3241-100000@hawkeye.luckynet.adm>
+References: <Pine.LNX.4.44.0207222035420.3241-100000@hawkeye.luckynet.adm>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Thunder from the hill <thunder@ngforever.de>
+   Date: Mon, 22 Jul 2002 20:38:51 -0600 (MDT)
 
-Here is a further update on the file corruption question :
-
-     I ran the DFT utility which picked up two bad sectors, which I then
-repaired.  A rerun of DFT after that gave no further reports of any problems.  I
-then tried the directory tree copy (cp -a aminet aminet1) which produced one
-corrupted file at the destination.  All the other destination files in the tree
-(70652 files, 7.6G) appeared to be correct.
-
-     An additional rerun of the IBM DFT utility after this reported no problems
-despite the corrupt copy.
-
-     In order to resolve this issue, my employer is considering the replacement
-of my current machine with a new one having the following specifications :
-
-
-motherboard: Asus P4T AGP Pro/4X
-ram        : 1Gb
-OS         : Linux 2.4.7-10 i686 unknown
-CPU        : Intel(R) Pentium(R) 4 CPU 1800MHz
-Gfx        : Matrox Graphics, Inc. MGA G400 AGP
-drives     : Seagate 40gb UATA ST340810A (two of these)
-controller : Intel PIIX4 Ultra 100 Chipset
-           : (Intel Corporation 82801BA IDE U100)
-chipset    : Intel Corporation 82850 850 (Tehama) Chipset Host Bridge (MCH)
-
-     Are there any outstanding issues with machines of this new configuration as
-there seemed to be with my old machine ?
-
-With Thanks,
-
-     J. Hart
+   How can I get the _real_ address of a pci_map_single area, if needed? The 
+   thing bus_to_virt() did, basically. My problem is that I have code which 
+   changed the first byte of a buffer of stuff read via DMA, and I can't 
+   because the previous user did bus_to_virt() to get a pointer into that. I 
+   don't know how to get another pointer.
+   
+   After all the confusion, is the question clear?
+   
+You need to keep track of the back translations yourself.  See how the
+various net drivers do this by keeping a RX and TX ring of the SKB
+buffers mapped into the various rings.

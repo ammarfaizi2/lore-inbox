@@ -1,83 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVANVP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVANVRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbVANVP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:15:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVANVNq
+	id S262064AbVANVRY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:17:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262109AbVANVQ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:13:46 -0500
-Received: from h-66-134-203-88.snvacaid.covad.net ([66.134.203.88]:59981 "EHLO
-	mail.zanfx.com") by vger.kernel.org with ESMTP id S262169AbVANVMl
+	Fri, 14 Jan 2005 16:16:26 -0500
+Received: from alog0392.analogic.com ([208.224.222.168]:20608 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262064AbVANVNR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 16:12:41 -0500
-Message-ID: <41E835EF.2030908@zanfx.com>
-Date: Fri, 14 Jan 2005 13:13:19 -0800
-From: "Paul A. Sumner" <paul@zanfx.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041031
-X-Accept-Language: en-us, en
+	Fri, 14 Jan 2005 16:13:17 -0500
+Date: Fri, 14 Jan 2005 16:12:38 -0500 (EST)
+From: linux-os <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Avishay Traeger <atraeger@cs.sunysb.edu>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adding a new system call from a module in 2.6
+In-Reply-To: <1105735760.3253.23.camel@avishay.fsl.cs.sunysb.edu>
+Message-ID: <Pine.LNX.4.61.0501141554530.6747@chaos.analogic.com>
+References: <1105735760.3253.23.camel@avishay.fsl.cs.sunysb.edu>
 MIME-Version: 1.0
-To: Aaron Gowatch <aarong@divinia.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aacraid fails when RAID1 array is in anything but Optimal state
-References: <Pine.LNX.4.44.0501141156580.28993-100000@nuevo.divinia.com>
-In-Reply-To: <Pine.LNX.4.44.0501141156580.28993-100000@nuevo.divinia.com>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You might try the new aacraid module: 1.1.5[2371] from Adaptec's site. I 
-had some newer firmware that combined w/ the stock 1.1.2-lk2... got the 
-exact 'SCSI hang ?' msg... w/ the new module no such problems. 2.6.9 is 
-stable for me except it seems I don't have the write performance I 
-should yet (see my last post).
+On Fri, 14 Jan 2005, Avishay Traeger wrote:
 
-Hope this helps.
+> Now that the sys_call_table is no longer exported, what would be the
+> best way to add a new system call from a module in 2.6?  I have only
+> seen the system call table in assembly code (such as in
+> arch/i386/kernel/entry.S) and do not know how to export it.  I know that
+> doing this is not recommended, but it would save me a lot of time while
+> developing new system calls (no need to recompile kernel and reboot for
+> every change).  Thanks in advance for any suggestions.
+>
+> Avishay Traeger
+>
 
-Aaron Gowatch wrote:
-> We're using Dell PowerEdge 750s with a Dell rebranded Adaptec CERC 1.5/6ch 
-> SATA adapter.  The systems have 2 disks configured as RAID1.  If the array 
-> is in any other state than 'Optimal' (ie. 'Degraded' or 'Rebuilding') the 
-> following error is displayed and the box subsequently panics because its 
-> unable to mount the root filesystem.
-> 
-> We've had the same experience with 2.6.7 and 2.6.9.  Yesterday as a test, 
-> I installed RedHat ES 3.0 and it does not exhibit this behavior, but thats 
-> kernel 2.4 with different aacraid driver.  We've also updated to the 
-> latest recommended firmware in attempt to correct this.
-> 
-> Is there any way to make this work with kernel 2.6?  Or is this expected 
-> behavior for this controller under 2.6?
-> 
-> Red Hat/Adaptec aacraid driver (1.1.2-lk2 Jan 14 2005)
-> AAC0: kernel 4.1.4 build 7403
-> AAC0: monitor 4.1.4 build 7403
-> AAC0: bios 4.1.0 build 7403
-> AAC0: serial bf91c8fafaf001
-> scsi0 : aacraid
->   Vendor: DELL      Model: CERC Mirror       Rev: V1.0
->   Type:   Direct-Access                      ANSI SCSI revision: 02
-> SCSI device sda: 78057216 512-byte hdwr sectors (39965 MB)
-> sda: Write Protect is off
-> SCSI device sda: drive cache: write through
->  sda:<3>aacraid: Host adapter reset request. SCSI hang ?
-> aacraid: Host adapter appears dead
-> scsi: Device offlined - not ready after error recovery: host 0 channel 0 
-> id 0 lun 0
-> SCSI error : <0 0 0 0> return code = 0x6000000
-> end_request: I/O error, dev sda, sector 0
-> Buffer I/O error on device sda, logical block 0
-> scsi0 (0:0): rejecting I/O to offline device
-> Buffer I/O error on device sda, logical block 0
->  unable to read partition table
-> Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
-> 
-> Thanks,
-> Aa.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Just add some dummy function pointers at the end of the table
+and have them point to a procedure that returns -ENOSYS.
+
+ 	existing:
+
+ 	.long	sys_request_key
+ 	.long	sys_keyctl
+syscall_table_size = (. -sys_call_table)
+
+ 	new:
+
+ 	.long	sys_request_key
+ 	.long	sys_keyctl
+mine:	.long	sys_in_syscall
+ 	.long	sys_in_syscall
+ 	.long	sys_in_syscall
+ 	.long	sys_in_syscall
+
+.global	mine
+.type	mine,@object
+
+syscall_table_size = (. -sys_call_table)
+
+Export whatever you want to find your entries in your module.
+Your module modifies the pointers at will ('mine' is now an
+array of 4 pointers). To prevent crashes, save what was in
+the pointer you modified and put it back before your module exits!
+
+Just don't expect this to be put into a standard kernel.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

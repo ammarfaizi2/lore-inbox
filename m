@@ -1,57 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVC3H4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVC3IA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261792AbVC3H4O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 02:56:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVC3H4O
+	id S261810AbVC3IA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 03:00:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVC3IA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 02:56:14 -0500
-Received: from smtp.wp.pl ([212.77.101.1]:21171 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S261792AbVC3H4M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 02:56:12 -0500
-Date: Wed, 30 Mar 2005 09:56:19 +0200
-From: abuas_z <rocky7@wp.pl>
-X-Mailer: The Bat! (v3.0.2.10) Professional
-Reply-To: abuas_z <rocky7@wp.pl>
-Organization: Madnet.pl
-X-Priority: 3 (Normal)
-Message-ID: <548301398.20050330095619@wp.pl>
-To: David Gibson <david@gibson.dropbear.id.au>
-CC: Pavel Roskin <proski@gnu.org>,
-       Orinoco Development List <orinoco-devel@lists.sourceforge.net>,
-       <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [Orinoco-devel] [0/5] Orinoco merge updates, part the fourth
-In-Reply-To: <20050330034238.GF6478@localhost.localdomain>
-References: <20050330034238.GF6478@localhost.localdomain>
+	Wed, 30 Mar 2005 03:00:57 -0500
+Received: from zone4.gcu-squad.org ([213.91.10.50]:28389 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261810AbVC3IAt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 03:00:49 -0500
+Date: Wed, 30 Mar 2005 09:53:03 +0200 (CEST)
+To: vonbrand@inf.utfsm.cl
+Subject: Re: Do not misuse Coverity please
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <OofSaT76.1112169183.7124470.khali@localhost>
+In-Reply-To: <200503300125.j2U1PFQ9005082@laptop11.inf.utfsm.cl>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Andrew Morton" <akpm@osdl.org>, "Adrian Bunk" <bunk@stusta.de>,
+       "LKML" <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-SPAM: NO AS1=NO(Body=1 Fuz1=1 Fuz2=1) AS2=NO(0.989065) AS3=NO AS4=NO                          
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-DG> Here's yet another batch of orinoco updates.
+Hi Horst,
 
-Will this patches be included in CVS-Head code? Now I checked and the
-last modification of orinoco.c was about 4 days ago, when switch to
-enable monitor mode on all firmwares was included...
+> > > No, there is a third case: the pointer can be NULL, but the compiler
+> > > happened to move the dereference down to after the check.
+>
+> > Wow. Great point. I completely missed that possibility. In fact I didn't
+> > know that the compiler could possibly alter the order of the
+> > instructions. For one thing, I thought it was simply not allowed to. For
+> > another, I didn't know that it had been made so aware that it could
+> > actually figure out how to do this kind of things. What a mess. Let's
+> > just hope that the gcc folks know their business :)
+>
+> The compiler is most definitely /not/ allowed to change the results the
+> code gives.
 
-DG> Smaller and less significant than the last,
+I think that Andrew's point was that the compiler could change the order
+of the instructions *when this doesn't change the result*, not just in
+the general case, of course. In our example, The instructions:
 
-What was the last?
+    v = p->field;
+    if (!p) return;
 
-DG> this is basically a handful of remaining small updates before
-DG> tackling the big changes (wext v15, monitor and scanning).
+can be seen as equivalent to
 
-So, the next thing that will be do, will be WPA and monitor mode
-improvement (maybe in all firmwares)?
+    if (!p) return;
+    v = p->field;
 
--- 
-Bye,
- abuas_z                            mailto:rocky7@wp.pl
+by the compiler, which might actually optimize the first into the second
+(and quite rightly so, as it actually is faster in the null case). The
+fact that doing so prevents an oops is unknown to the compiler, so it
+just wouldn't care.
 
-The Bat! v3.0.2.10, Windows XP 5.1, Build 2600, Service Pack 1
+Now I don't know what gcc actually does or not, but Andrew's point
+makes perfect sense to me in the theory, and effectively voids my own
+argument if gcc performs this kind of optimizations. (The prefered
+approach to fix these bugs is a different issue though.)
 
+--
+Jean Delvare

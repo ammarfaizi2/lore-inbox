@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRAEMJQ>; Fri, 5 Jan 2001 07:09:16 -0500
+	id <S129183AbRAEMWs>; Fri, 5 Jan 2001 07:22:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129744AbRAEMJG>; Fri, 5 Jan 2001 07:09:06 -0500
-Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:47372 "HELO
-	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
-	id <S129267AbRAEMIu>; Fri, 5 Jan 2001 07:08:50 -0500
-Date: Fri, 5 Jan 2001 12:08:48 +0000 (GMT)
-From: Chris Evans <chris@scary.beasts.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] dcache 2nd chance replacement
-In-Reply-To: <E14EEUU-00066D-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0101051208030.7992-100000@ferret.lmh.ox.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129267AbRAEMWi>; Fri, 5 Jan 2001 07:22:38 -0500
+Received: from sith.mimuw.edu.pl ([193.0.97.1]:55818 "HELO sith.mimuw.edu.pl")
+	by vger.kernel.org with SMTP id <S129183AbRAEMWd>;
+	Fri, 5 Jan 2001 07:22:33 -0500
+Date: Fri, 5 Jan 2001 13:25:14 +0100
+From: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+To: torvalds@transmeta.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.4.0 drivers/atm/Makefile...
+Message-ID: <20010105132514.H2665@sith.mimuw.edu.pl>
+Mail-Followup-To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
+	torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.4.0-prerelease i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+...is still broken. It does not build Fore 200e driver.
 
-On Thu, 4 Jan 2001, Alan Cox wrote:
+Jan
 
-> > On Thu, Jan 04, 2001 at 02:59:49PM -0200, Rik van Riel wrote:
-> > > Unfortunately you seem to ignore my arguments, so lets
-> > I've not ignored them, as said they were either obviously wrong of offtopic.
->
-> Would the two of you ajourn this debate to alt.flame
-
-Better still stop _theorizing_ and start _measuring_
-
-Cheers
-Chris
-
+--- linux/drivers/atm/Makefile.orig	Tue Jan  2 10:18:25 2001
++++ linux/drivers/atm/Makefile	Tue Jan  2 12:00:05 2001
+@@ -46,7 +46,7 @@
+   endif
+ endif
+ 
+-obj-$(CONFIG_ATM_FORE200E) += fore200e.o $(FORE200E_FW_OBJS)
++obj-$(CONFIG_ATM_FORE200E) += fore_200e.o
+ 
+ include $(TOPDIR)/Rules.make
+ 
+-- 
+Jan Rêkorajski            |  ALL SUSPECTS ARE GUILTY. PERIOD!
+baggins<at>mimuw.edu.pl   |  OTHERWISE THEY WOULDN'T BE SUSPECTS, WOULD THEY?
+BOFH, MANIAC              |                   -- TROOPS by Kevin Rubio
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

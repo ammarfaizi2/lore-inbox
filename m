@@ -1,48 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266100AbSK1RGS>; Thu, 28 Nov 2002 12:06:18 -0500
+	id <S266323AbSK1RK6>; Thu, 28 Nov 2002 12:10:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266116AbSK1RGR>; Thu, 28 Nov 2002 12:06:17 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15885 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S266100AbSK1RGQ>; Thu, 28 Nov 2002 12:06:16 -0500
-Date: Thu, 28 Nov 2002 12:12:18 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Dave Jones <davej@codemonkey.org.uk>
-cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19/20, 2.5 missing P4 ifdef ?
-In-Reply-To: <20021128142437.GA23664@suse.de>
-Message-ID: <Pine.LNX.3.96.1021128121018.12997B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266359AbSK1RK5>; Thu, 28 Nov 2002 12:10:57 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:56532 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S266323AbSK1RK4>;
+	Thu, 28 Nov 2002 12:10:56 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 28 Nov 2002 18:18:15 +0100 (MET)
+Message-Id: <UTC200211281718.gASHIFE04317.aeb@smtp.cwi.nl>
+To: Andries.Brouwer@cwi.nl, James.Bottomley@steeleye.com
+Subject: Re: [PATCH] scsi/hosts.c device_register fix
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Nov 2002, Dave Jones wrote:
+	From James.Bottomley@steeleye.com  Thu Nov 28 17:57:52 2002
 
-> On Thu, Nov 28, 2002 at 03:17:53PM +0100, Margit Schubert-While wrote:
->  > Just noticed this in "include/asm-i386/processor.h" :
->  > 
->  > --- snip ---
->  > /* Prefetch instructions for Pentium III and AMD Athlon */
->  > #ifdef  CONFIG_MPENTIUMIII
->  > #define ARCH_HAS_PREFETCH
->  > extern inline void prefetch(const void *x)
->  > {
->  >         __asm__ __volatile__ ("prefetchnta (%0)" : : "r"(x));
->  > }
->  > #elif CONFIG_X86_USE_3DNOW
->  > --- end snip ---
->  > 
->  > The P4 has SSE and prefetch or no ?
-> 
-> It does. You seem to have found a bug.
+	Actually, the patch is wrong.
+	The device_register has to be done in scsi_add_host,
+	The correct fix is to move the corresponding device_unregister
+	into scsi_remove_host so that they match.
 
-A bug? An inefficiency, obviously, but it should be functionally correct,
-no? Or is there a problem I've missed other than performance?
+Very good. That was what I had done first, but a google search
+turned up your patch and I thought that it was also OK.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+	I'll also commit it to the scsi-misc-2.5 BK tree.
 
+Hope to see it in 2.5.51.
+
+Andries

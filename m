@@ -1,70 +1,117 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267709AbTACWug>; Fri, 3 Jan 2003 17:50:36 -0500
+	id <S267706AbTACW6h>; Fri, 3 Jan 2003 17:58:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267710AbTACWug>; Fri, 3 Jan 2003 17:50:36 -0500
-Received: from 5-116.ctame701-1.telepar.net.br ([200.193.163.116]:59528 "EHLO
-	5-116.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S267709AbTACWue>; Fri, 3 Jan 2003 17:50:34 -0500
-Date: Fri, 3 Jan 2003 20:58:50 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [STUPID] Best looking code to transfer to a t-shirt
-In-Reply-To: <Pine.LNX.4.44.0301031419560.11311-100000@dns.toxicfilms.tv>
-Message-ID: <Pine.LNX.4.50L.0301032057380.2429-100000@imladris.surriel.com>
-References: <Pine.LNX.4.44.0301031419560.11311-100000@dns.toxicfilms.tv>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S267710AbTACW6h>; Fri, 3 Jan 2003 17:58:37 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:58629 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267706AbTACW6f>;
+	Fri, 3 Jan 2003 17:58:35 -0500
+Message-ID: <3E161776.3060404@walrond.org>
+Date: Fri, 03 Jan 2003 23:06:30 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Shureih, Tariq" <tariq.shureih@intel.com>
+CC: "'Ranjeet Shetye'" <ranjeet.shetye@zultys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+References: <8A9A5F4E6576D511B98F00508B68C20A1508E435@orsmsx106.jf.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jan 2003, Maciej Soltysiak wrote:
+I knew we should have stayed ;)
 
-> I am in a t-shirt transfering frenzy and was wondering which part of the
-> kernel code it would be best to have on my t-shirt.
+[I'm joking - honest!!!]
 
-> How about we have a poll of the most frightening pieces of the kernel ?
+Andrew [ British ;) ]
 
-How about drivers/net/sunhme.c ?
+Shureih, Tariq wrote:
+> The greatest enemy to knowledge is not ignorance; it's the illusion of
+> knowledge.
+> 
+> Shame on you!
+> 
+> --
+> Tariq Shureih
+> Opinions are my own and don't represent my employer
+> 
+> -----Original Message-----
+> From: Ranjeet Shetye [mailto:ranjeet.shetye@zultys.com] 
+> Sent: Friday, January 03, 2003 2:10 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: RE: Nvidia and its choice to read the GPL "differently"
+> 
+> 
+> Hi RMS,
+> 
+> Saw you here and thought I'd remind you. I got under your skin quite a
+> few years back cos I wrote this perl-based cscope which I released for
+> free - with a modified BSD licence stating that no one in pakistan or no
+> person of pakistani nationality could use it and that this licence could
+> not be modified to allow pakis to use it. You might ask why I did that ?
+> Well, I am an Indian and I thought I'd just needle some pakis cos they
+> are such nincompoops. Anyways, 9/11 proved me right that pakis (+
+> saudis) suck ass big time.
+> 
+> Getting back to open-licence software, if you hadn't been such a
+> nitpicking ideologue, the free s/w world would have had a cscope at
+> least 2 years earlier than it did. I gave you my version of a "free"
+> licence, and you didn't like it one bit! That was the OTHER reason I did
+> it. To prove a point to you, that EVEN in a Free software world, there
+> might be some other price to be paid.
+> 
+> A full-freedom software world might turn out to be a grey tasteless
+> odourless flavourless communist world. Even free s/w needs competition
+> to keep it on its toes, and money is the best damned motivation for
+> normal people! While everyone, including me, appreciates what you've
+> achieved in the past, your intransigence over your untenable extreme
+> views on software freedom is the primary reason why you are losing
+> ground everyday with your own supporters. Think about it.
+> 
+> Ranjeet Shetye
+> 
+> 
+>>-----Original Message-----
+>>From: linux-kernel-owner@vger.kernel.org 
+>>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+>>Christoph Hellwig
+>>Sent: Friday, January 03, 2003 1:28 PM
+>>To: Richard Stallman
+>>Cc: efault@gmx.de; Hell.Surfers@cwctv.net; 
+>>linux-kernel@vger.kernel.org
+>>Subject: Re: Nvidia and its choice to read the GPL "differently"
+>>
+>>
+>>On Fri, Jan 03, 2003 at 03:31:07PM -0500, Richard Stallman wrote:
+>>
+>>>If you call the system "Linux", you are misinforming other people: 
+>>>teaching them a false picture of the system's history.  
+>>
+>>Some of them 
+>>
+>>>may become so attached to the false picture that it distorts their 
+>>>thinking.  If you call it "GNU/Linux", this won't happen.
+>>
+>>The term Linux for the whole system might be inaccurate, but 
+>>it's what is used and as long as the owner of the name Linux 
+>>(Linus) doesn't complain that's fine.  Calling it GNU/Linux 
+>>is 1984-style changing of history, though.
+>>
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-It's not scary, but it is absolutely hilarious, even to
-people who don't even know C.
 
-static void happy_meal_tcvr_write(struct happy_meal *hp,
-                                  unsigned long tregs, int reg,
-                                  unsigned short value)
-{
-        int tries = TCVR_WRITE_TRIES;
-
-        ASD(("happy_meal_tcvr_write: reg=0x%02x value=%04x\n", reg,
-value));
-
-        /* Welcome to Sun Microsystems, can I take your order please? */
-        if (!hp->happy_flags & HFLAG_FENABLE)
-                return happy_meal_bb_write(hp, tregs, reg, value);
-
-        /* Would you like fries with that? */
-        hme_write32(hp, tregs + TCVR_FRAME,
-                    (FRAME_WRITE | (hp->paddr << 23) |
-                     ((reg & 0xff) << 18) | (value & 0xffff)));
-        while (!(hme_read32(hp, tregs + TCVR_FRAME) & 0x10000) && --tries)
-                udelay(20);
-
-        /* Anything else? */
-        if (!tries)
-                printk(KERN_ERR "happy meal: Aieee, transceiver MIF write
-bolixed\n");
-
-        /* Fifty-two cents is your change, have a nice day. */
-}
-
-
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://guru.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>

@@ -1,57 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130520AbRCWKVk>; Fri, 23 Mar 2001 05:21:40 -0500
+	id <S130516AbRCWKVU>; Fri, 23 Mar 2001 05:21:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130517AbRCWKVa>; Fri, 23 Mar 2001 05:21:30 -0500
-Received: from [166.70.28.69] ([166.70.28.69]:42808 "EHLO flinx.biederman.org")
-	by vger.kernel.org with ESMTP id <S129112AbRCWKVR>;
-	Fri, 23 Mar 2001 05:21:17 -0500
-To: Kurt Garloff <garloff@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux kernel list <linux-kernel@vger.kernel.org>
+	id <S130515AbRCWKVL>; Fri, 23 Mar 2001 05:21:11 -0500
+Received: from mail-out.chello.nl ([213.46.240.7]:23831 "EHLO
+	amsmta05-svc.chello.nl") by vger.kernel.org with ESMTP
+	id <S129112AbRCWKU7>; Fri, 23 Mar 2001 05:20:59 -0500
+Date: Fri, 23 Mar 2001 11:18:26 +0100
+From: Kurt Garloff <garloff@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Linux kernel list <linux-kernel@vger.kernel.org>
 Subject: Re: SMP on assym. x86
-In-Reply-To: <Pine.LNX.4.10.10103211122500.10337-100000@coffee.psychology.mcmaster.ca> <E14fsET-0001Mg-00@the-village.bc.nu> <20010322130029.A4212@garloff.casa-etp.nl>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Mar 2001 03:19:28 -0700
-In-Reply-To: Kurt Garloff's message of "Thu, 22 Mar 2001 13:00:29 +0100"
-Message-ID: <m1snk423f3.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <20010323111826.E12408@garloff.casa-etp.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	Pavel Machek <pavel@suse.cz>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010321165541.H3514@garloff.casa-etp.nl> <99anl4oi@penguin.transmeta.com> <20010322132040.A31@(none)>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="mrJd9p1Ce66CJMxE"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010322132040.A31@(none)>; from pavel@suse.cz on Thu, Mar 22, 2001 at 01:20:40PM +0000
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kurt Garloff <garloff@suse.de> writes:
 
-> On Wed, Mar 21, 2001 at 11:41:33PM +0000, Alan Cox wrote:
-> > > > handle the situation with 2 different CPUs (AMP = Assymmetric
-> > > > multiprocessing ;-) correctly.
-> > > 
-> > > "correctly".  Intel doesn't support this (mis)configuration:
-> > > especially with different steppings, not to mention models.
-> 
-> I wouldn't call it misconfiguration, just because it's a bit more difficult
-> to handle.
-> On the iontel side: You should watch out for matching APICs, voltages and
-> cache coherency (MESI) protocol. Actually, Deschutes and Coppermine just
-> work fine in spite of slightly different voltage.
+--mrJd9p1Ce66CJMxE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The spooky thing is if there is that it may work just fine most of the
-time but the differences between the CPU's might cause very strange
-behavior every once in a great while.  Which is a hardware argument, for
-why you shouldn't trust such a configuration.
+On Thu, Mar 22, 2001 at 01:20:40PM +0000, Pavel Machek wrote:
+> > Kurt Garloff  <garloff@suse.de> wrote:
+> Notice, that one of your CPUs is twice as fast as second one. You'll
+> need some heavy updates in scheduler.
 
-However it is still worth some thought.  The hardware argument gets much
-weaker when you have something like dual AMD's.  The reason is that
-with a point to point bus you may actually be able to sanely support
-multiple cpu revs and speeds without even any theoretical hardware consequences.
+I know that making sure to have a fair scheduling on non-symmetric
+multiprocessor machiens would require some more work.
+I can live with imperfect scheduling ...
 
-And NUMA machines make this argument even stronger.
+Or are you refering to something more serious than non-fairness?
+Note: My machine just runs fine for a couple of days now ...
 
-However I would suggest that we build some good kernel->kernel apis
-for dealing with kernels with a wicked fast interconnect.  And then
-for NUMA and for the other cases where it really matters we can run multiple
-kernels, and the mismatch problems just drop away.
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, FRG                               SCSI, Security
 
+--mrJd9p1Ce66CJMxE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Eric
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6uyLyxmLh6hyYd04RAtoQAJ412NiUT1DrplUNkzLhdROhyBuSPwCgzvjm
+6cw2wFcR83NHBbYhviHdWJc=
+=el4w
+-----END PGP SIGNATURE-----
+
+--mrJd9p1Ce66CJMxE--

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264547AbTLGVg3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 16:36:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTLGV2J
+	id S264585AbTLGV6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 16:58:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264588AbTLGV6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 16:28:09 -0500
-Received: from amsfep12-int.chello.nl ([213.46.243.18]:33849 "EHLO
-	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264540AbTLGUzv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:55:51 -0500
-Date: Sun, 7 Dec 2003 21:51:35 +0100
-Message-Id: <200312072051.hB7KpZbV000807@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 146] M68k Documentation
+	Sun, 7 Dec 2003 16:58:16 -0500
+Received: from main.gmane.org ([80.91.224.249]:19906 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264585AbTLGV6O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 16:58:14 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Adrian Knoth <adi@drcomp.erfurt.thur.de>
+Subject: [PATCH 2.6] floppy-statement in linux/README
+Date: Sun, 7 Dec 2003 21:58:11 +0000 (UTC)
+Message-ID: <slrnbt78jj.ds4.adi@drcomp.erfurt.thur.de>
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: slrn/0.9.7.4 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k Documentation: framebuffer.txt no longer exists in the m68k directory
-(from Nikita Melnikov)
+Hi,
 
---- linux-2.4.23/Documentation/m68k/00-INDEX	1997-11-29 19:33:18.000000000 +0100
-+++ linux-m68k-2.4.23/Documentation/m68k/00-INDEX	2003-11-27 12:07:24.000000000 +0100
-@@ -1,7 +1,5 @@
- 00-INDEX
- 	- this file
--framebuffer.txt
--	- info about the Linux/m68k frame buffer device
- kernel-options.txt
- 	- command line options for Linux/m68k
- 
+I wanted to boot my laptop from floppy and found a wrong statement
+in the README. Patch follows. (I'm not very amused about this
+decision, I was really used to this feature)
 
-Gr{oetje,eeting}s,
 
-						Geert
+--- linux/README        Fri Oct 10 16:36:40 2003
++++ linux-new/README    Sun Dec  7 22:50:57 2003
+@@ -203,8 +203,9 @@
+    image (found in .../linux/arch/i386/boot/bzImage after compilation)
+    to the place where your regular bootable kernel is found.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+-   For some, this is on a floppy disk, in which case you can copy the
+-   kernel bzImage file to /dev/fd0 to make a bootable floppy.
++   Please keep in mind that you cannot use "dd if=bzImage of=/dev/fd0"
++   to make a bootable floppy. You'll have to use LILO or syslinux in
++   addition.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+    If you boot Linux from the hard drive, chances are you use LILO which
+    uses the kernel image as specified in the file /etc/lilo.conf.  The
+
+
+
+-- 
+mail: adi@thur.de  	http://adi.thur.de	PGP: v2-key via keyserver
+
+Du hast MEHRFACH in verschiedene Gruppen gepostet. DAS IST BOESE!
+

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265924AbTFST2H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 15:28:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265925AbTFST2G
+	id S265915AbTFSTYy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 15:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbTFSTYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 15:28:06 -0400
-Received: from moutvdom.kundenserver.de ([212.227.126.251]:30970 "EHLO
-	moutvdom.kundenserver.de") by vger.kernel.org with ESMTP
-	id S265924AbTFST2A convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 15:28:00 -0400
-From: Thorsten =?iso-8859-1?q?K=F6rner?= <thorstenkoerner@123tkshop.org>
-To: linux-kernel@vger.kernel.org
+	Thu, 19 Jun 2003 15:24:54 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6528 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265915AbTFSTYn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 15:24:43 -0400
+Date: Thu, 19 Jun 2003 15:38:19 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Jesse Pollard <jesse@cats-chateau.net>
+cc: Thorsten =?iso-8859-1?q?K=F6rner?= 
+	<thorstenkoerner@123tkshop.org>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Troll Tech [was RE: Sco vs. IBM]
-Date: Thu, 19 Jun 2003 21:41:46 +0200
-User-Agent: KMail/1.5.1
-References: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com> <200306192108.13032.thorstenkoerner@123tkshop.org> <03061914300200.25966@tabby>
 In-Reply-To: <03061914300200.25966@tabby>
+Message-ID: <Pine.LNX.4.53.0306191534370.1060@chaos>
+References: <170EBA504C3AD511A3FE00508BB89A920234CD34@exnanycmbx4.ipc.com>
+ <03061913583400.25866@tabby> <200306192108.13032.thorstenkoerner@123tkshop.org>
+ <03061914300200.25966@tabby>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200306192141.47313.thorstenkoerner@123tkshop.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 19. Juni 2003 21:30 schrieb Jesse Pollard:
+On Thu, 19 Jun 2003, Jesse Pollard wrote:
+
 > On Thursday 19 June 2003 14:08, Thorsten Körner wrote:
 > > Hi Jesse
 > >
@@ -53,35 +57,54 @@ Am Donnerstag, 19. Juni 2003 21:30 schrieb Jesse Pollard:
 > > > SCO releases Linux code under GPL...
 > >
 > > Did they ?!? No they didn't
-> > They are talking about old Unix-Licenses, not about Linux. And SCO also
-> > has not licensed Unix to IBM themselves.
+> > They are talking about old Unix-Licenses, not about Linux. And SCO also has
+> > not licensed Unix to IBM themselves.
 >
 > It was my understanding that you could download SCO Linux up until about a
-> month after they started the lawsuit. By that time, all/most of the
-> contested code had to already be in the kernel. Since SCO was supplying it,
-> it was released (my opinion).
-The lawsuit has nothing to do with Caldera or SCO-Linux. It's to make money.
-The SCO-People seem to have read the book "How to make money while doing 
-nothing" ;-)
+> month after they started the lawsuit. By that time, all/most of the contested
+> code had to already be in the kernel. Since SCO was supplying it, it was
+> released (my opinion).
 >
 > IMHO IBM AIX doesn't owe anything to SCO. Sure in the early days, IBM did
-> consider using System V... but it had so many problems being ported that
-> they completely dropped it, and continued with AIX development instead.
+> consider using System V... but it had so many problems being ported that they
+> completely dropped it, and continued with AIX development instead.
 >
-> I've used both.. and believe me, AIX doesn't work ANYTHING like System V.
-> no virtualization (disks), no partitioning (systems), no distributed
-> operations, minimal networking, no Power support... (this was a 202e
-> prototype at the time I believe...
+> I've used both.. and believe me, AIX doesn't work ANYTHING like System V. no
+> virtualization (disks), no partitioning (systems), no distributed operations,
+> minimal networking, no Power support... (this was a 202e prototype at the
+> time I believe...
 >
-> All of that belonged to AIX. which even had SMP beginnings (some
-> platforms). Even shared memory was not exactly working well on System V
-> (semaphores were very slow).
+> All of that belonged to AIX. which even had SMP beginnings (some platforms).
+> Even shared memory was not exactly working well on System V (semaphores were
+> very slow).
 
-That maybe right, I've never used AIX. But one single line of code would be 
-enough for SCO. And I think there maybe some more than one line. Surely is it 
-old code. But they say it's owned by IBM.
-I hope that one day jugdes will stop companies and people from making money 
-that dark way. But I think that this hope is slightly irrealistic.
 
-CU
-Thorsten
+If something is so well known that somebody skilled in
+the art could reconstruct it. That, having been abandoned
+by many over 20 years, if I have a license to use it,
+having paid for this license before it became obsolete
+many years ago, do I have the privilege of suing those
+who acquired knowledge of how to build it from public
+information? I think not. And, the first line of defense
+against such frivolous lawsuits was supposed to have been
+the lawyers. I hope that IBM does not settle out-of-court
+and takes the challenge. Once it gets into court there
+are going to be some Lawyers who lose their licenses to
+practice law.
+
+This is how you stop this kind of abuse. Typically large
+companies will decide to settle some claim against them
+when the accountants total up how much money it will cost
+to defend against the suit. They make some "deal" in
+which they admit no wrongdoing, but simply pay off the
+extortionists. This is how many of these instances are
+"resolved". Unfortunately, this resolution leaves the
+door open for other extortionists and the situation
+continues.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+

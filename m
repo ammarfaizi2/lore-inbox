@@ -1,49 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279163AbRJZUq6>; Fri, 26 Oct 2001 16:46:58 -0400
+	id <S279228AbRJZU7s>; Fri, 26 Oct 2001 16:59:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279169AbRJZUqs>; Fri, 26 Oct 2001 16:46:48 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:23027 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S279163AbRJZUqp>; Fri, 26 Oct 2001 16:46:45 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Fri, 26 Oct 2001 14:46:42 -0600
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: Looking for bsd file system tools under linux .
-Message-ID: <20011026144642.V23590@turbolinux.com>
-Mail-Followup-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-	Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0110261427220.5754-100000@filesrv1.baby-dragons.com>
-Mime-Version: 1.0
+	id <S279229AbRJZU7i>; Fri, 26 Oct 2001 16:59:38 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34545 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S279228AbRJZU7a>; Fri, 26 Oct 2001 16:59:30 -0400
+Message-ID: <3BD9CE9F.16B2E2B5@mvista.com>
+Date: Fri, 26 Oct 2001 13:59:11 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: How should we do a 64-bit jiffies?
+In-Reply-To: <1164.1003813848@ocs3.intra.ocs.com.au> <3BD52454.218387D9@mvista.com> <9r43b6$1as$1@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0110261427220.5754-100000@filesrv1.baby-dragons.com>
-User-Agent: Mutt/1.3.22i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Oct 26, 2001  14:58 -0400, Mr. James W. Laferriere wrote:
-> 	Hello All ,  I am looking for pointers to bsd file system tools
-> 	for use under Linux .  A couple of searchs left me empty .
-> 	I am hoping someone here has a pointer or two .
-> 	What this is for is ,  I have a disk drive off of a bsd4.2 system
-> 	that may have been used in a penetration of another system .
-> 	The fstab file points at there having been a /var file system but
-> 	when I do a 'fdisk -l' a partition for /var does not exist .  Only
-> 	two partitions are there for / & /usr .  I am looking for some
-> 	tools to see if the partiton was removed or if 'parted' may have
-> 	been been used to squeese it out .  Thank you for any pointers .
+Linus Torvalds wrote:
+> 
+> In article <3BD52454.218387D9@mvista.com>,
+> george anzinger  <george@mvista.com> wrote:
+> >
+> >I am beginning to think that defining a u64 and casting, i.e.:
+> >
+> >#define jiffies (unsigned long volitial)jiffies_u64
+> >
+> >is the way to go.
+> 
+> ..except for gcc being bad at even 64->32-bit casts like the above.  It
+> will usually still load the full 64-bit value, and then only use the low
+> bits.
+> 
+> The efficient and sane way to do it is:
+> 
+>         /*
+>          * The 64-bit value is not volatile - you MUST NOT read it
+>          * without holding the spinlock
+>          */
+Given that the spinlock would have to be spin_lock_irq (jiffies is
+updated in clock interrupt code), is there a way to avoid the lock?  The
+following code does it for UP systems, given it is not rearranged.  Is
+there something like this that will work for 
+SMP systems?
 
-You may need to have BSD partition support enabled in the kernel in order
-to access the partition.  I would think fdisk would be able to show the
-right data in all cases, but I've never used BSD partitions before either.
+ (assumeing the defines below):
 
-Cheers, Andreas
---
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+	do {
+		jiffies_f = jiffies;
+		jiffies_64_f = jiffies_64;
+	}
+	while ( jiffies_f != jiffies);
 
+If all things are in order, this will work on UP.  Order could be
+enforced by using locked instructions for the jiffies access...
+
+George
+
+
+>         u64 jiffies_64;
+> 
+>         /*
+>          * Most people don't necessarily care about the full 64-bit
+>          * value, so we can just get the "unstable" low bits without
+>          * holding the lock. For historical reasons we also mark
+>          * it volatile so that busy-waiting doesn't get optimized
+>          * away in old drivers.
+>          */
+>         #if defined(__LITTLE_ENDIAN) || (BITS_PER_LONG > 32)
+>         #define jiffies (((volatile unsigned long *)&jiffies_64)[0])
+>         #else
+>         #define jiffies (((volatile unsigned long *)&jiffies_64)[1])
+>         #endif
+> 
+> which looks ugly, but the ugliness is confined to that one place, and
+> none of the users will ever have to care..
+> 
+>                 Linus

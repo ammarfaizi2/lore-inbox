@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261486AbVA1Gjc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVA1GpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261486AbVA1Gjc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 01:39:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVA1Gjc
+	id S261485AbVA1GpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 01:45:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVA1GpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 01:39:32 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:10191 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261486AbVA1Gj3 (ORCPT
+	Fri, 28 Jan 2005 01:45:08 -0500
+Received: from egg.hpc2n.umu.se ([130.239.45.244]:52627 "EHLO egg.hpc2n.umu.se")
+	by vger.kernel.org with ESMTP id S261485AbVA1GpD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 01:39:29 -0500
-Date: Fri, 28 Jan 2005 07:38:57 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Jack O'Quin" <joq@io.com>, Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       rlrevell@joe-job.com, CK Kernel <ck@vds.kolivas.org>,
-       utz <utz@s2y4n2c.de>, Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-Message-ID: <20050128063857.GA32658@elte.hu>
-References: <87hdl940ph.fsf@sulphur.joq.us> <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu> <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us> <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us> <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us> <1106796360.5158.39.camel@npiggin-nld.site>
+	Fri, 28 Jan 2005 01:45:03 -0500
+Date: Fri, 28 Jan 2005 07:44:58 +0100
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Ake <Ake.Sandgren@hpc2n.umu.se>, linux-kernel@vger.kernel.org,
+       Rik van Riel <riel@redhat.com>
+Subject: Re: Bug in 2.4.26 in mm/filemap.c when using RLIMIT_RSS
+Message-ID: <20050128064458.GB12325@hpc2n.umu.se>
+References: <20050126110750.GE7349@hpc2n.umu.se> <20050126144904.GE26308@logos.cnet> <20050127063849.GA11119@hpc2n.umu.se> <20050127074459.GH26308@logos.cnet> <Pine.LNX.4.61.0501281502540.10979@goblin.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1106796360.5158.39.camel@npiggin-nld.site>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.61.0501281502540.10979@goblin.wat.veritas.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Ake.Sandgren@hpc2n.umu.se (Ake)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> But the important elements are lost. The standard provides a
-> deterministic scheduling order, and a deterministic scheduling latency
-> (of course this doesn't mean a great deal for Linux, but I think we're
-> good enough for a lot of soft-rt applications now).
+On Fri, Jan 28, 2005 at 03:09:40PM +0000, Hugh Dickins wrote:
+> > > BTW do you know if there is any plans for 2.6++ to actually use
+> > > RLIMIT_RSS? I saw a hint in that direction in mm/thrash.c
+> > > grab_swap_token but it is commented out and only skeleton code...
+> > 
+> > Nope, RLIMIT_RSS does not seem to be used at all in v2.6:
+> > 
+> > Its there for compatibility reasons, support for it might be added
+> > in the future?
 > 
-> >  [1] http://www.opengroup.org/onlinepubs/007908799/xsh/realtime.html
+> Rik had a patch implementing RLIMIT_RSS in 2.6-mm for a while.
+> But I think there were a couple of problems with it, and no great
+> demand for the feature, so Andrew dropped it until someone makes
+> a better case for it.
 
-no, the patch does not break POSIX. POSIX compliance means that there is
-an environment that meets POSIX. Any default install of Linux 'breaks'
-POSIX in a dozen ways, you have to take a number of steps to get a
-strict, pristine POSIX environment. The only thing that changes is that
-now you have to add "set RT_CPU ulimit to 0 or 100" to that (long) list
-of things.
+Well, the use for it is for compute clusters where you really would like
+to be able to limit this. Esp on smp boxes where there is multiple
+compute jobs running simultaneously. Be it mpi or separate jobs you
+really want to limit their RSS use so they don't steal memory from each
+other.
 
-	Ingo
+-- 
+Ake Sandgren, HPC2N, Umea University, S-90187 Umea, Sweden
+Internet: ake@hpc2n.umu.se	Phone: +46 90 7866134 Fax: +46 90 7866126
+Mobile: +46 70 7716134 WWW: http://www.hpc2n.umu.se

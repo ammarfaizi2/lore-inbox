@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287950AbSABUWe>; Wed, 2 Jan 2002 15:22:34 -0500
+	id <S287951AbSABUYZ>; Wed, 2 Jan 2002 15:24:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287949AbSABUWZ>; Wed, 2 Jan 2002 15:22:25 -0500
-Received: from svr3.applink.net ([206.50.88.3]:7687 "EHLO svr3.applink.net")
-	by vger.kernel.org with ESMTP id <S287944AbSABUWL>;
-	Wed, 2 Jan 2002 15:22:11 -0500
-Message-Id: <200201022021.g02KL8Sr021924@svr3.applink.net>
-Content-Type: text/plain; charset=US-ASCII
-From: Timothy Covell <timothy.covell@ashavan.org>
-Reply-To: timothy.covell@ashavan.org
-To: Jonathan Amery <jdamery@chiark.greenend.org.uk>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-Date: Wed, 2 Jan 2002 14:17:25 -0600
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011220203223.GO7414@vega.digitel2002.hu> <20011220164948.M23621@mail.cafes.net> <E16Lp0s-0003aS-00@chiark.greenend.org.uk>
-In-Reply-To: <E16Lp0s-0003aS-00@chiark.greenend.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S287944AbSABUYG>; Wed, 2 Jan 2002 15:24:06 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:17169 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S287945AbSABUXr>;
+	Wed, 2 Jan 2002 15:23:47 -0500
+Date: Wed, 2 Jan 2002 21:23:35 +0100
+From: Jens Axboe <axboe@suse.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+        Matthew Dharm <mdharm@one-eyed-alien.net>, Greg KH <greg@kroah.com>
+Subject: Re: [linux-usb-devel] Re: highmem and usb [was "sr: unaligned transfer" in 2.5.2-pre1]
+Message-ID: <20020102212335.B482@suse.de>
+In-Reply-To: <20011230212700.B652@one-eyed-alien.net> <20011231125157.D1246@suse.de> <20011231145455.C6465@one-eyed-alien.net> <065e01c192fd$fe066e20$6800000a@brownell.org> <20020101233423.I16092@suse.de> <06c801c1934e$1fc01a20$6800000a@brownell.org> <20020102103252.B28530@suse.de> <07c401c193bc$90ad5d60$6800000a@brownell.org> <20020102194404.A482@suse.de> <07e501c193bf$14cb7800$6800000a@brownell.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <07e501c193bf$14cb7800$6800000a@brownell.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 January 2002 11:17, Jonathan Amery wrote:
-> In article <3C2315D6.40105@purplet.demon.co.uk> you write:
-> >Engineers not (yet) being familiar with the relatively new SI (and IEEE)
-> >binary prefixes is just about acceptable. "Engineers" that misuse k/K
-> >and (worse!) m/M should be in a different field entirely. The SI system
-> >is generally taught as basic science to pre-teenagers. There is no
-> >excuse!
->
->  How many of them learn it though?
->
->  Jonathan (occasionally guilty of s/kB/KB/ himself).
->
+On Wed, Jan 02 2002, David Brownell wrote:
+> > > OK, I think I'm clear on this much then:  in 2.5, to support block drivers
+> > > over USB (usb-storage only, for now) there needs to be an addition to
+> > > the buffer addressing model in usbcore, as exposed by URBs.
+> > > 
+> > >   - Current "transfer_buffer" + "transfer_buffer_length" mode needs to
+> > >     stay, since most drivers aren't block drivers.
+> > 
+> > Why? Surely USB block drivers are not the only ones that want to support
+> > highmem.
+> 
+> Once the capability is there, it'll find other uses.  But allowing
+> them is not the same as requiring them.  Getting rid of the current
+> model would break every USB driver, rather than just ones that want to
+> support highmem.
 
-For the 10th time, the K v. k issue is due to the standards
-body ignoring common sense and following tradition instead.
-All positive powers of ten should have upper-case letters
-	(D,H,K,M,T,P)
-and negative powers of ten should use lower-case letters.
-	(d,c,m,n,p)
+So? Either you want to fix this now, or leave it that way forever. Just
+IMO of course, but you might as well just make a clean break.
 
-The KB meaning 2^10 B instead of 10^3 B is just plain dumb,
-and that's why the standards body tried to fix it with KiB.
-But again, this solution was considered to look and sound
-goofy and to be based on stupid mathematical games;
-hence this whole long thread.   <rant>A thread which has shown
-to me that most comp. sci. folks lack common sense and
-are pendantic to the max.</rant>
+> > >   - Add some kind of "page + offset" addressing model.
+> > 
+> > Yes
+> > 
+> > > Discussion of details can be taken off LKML, it'd seem.  Though
+> > > I'm curious when the scatterlist->address field will vanish,
+> > > making these changes a requirement.  Is that a 2.5.2 thing?
+> > 
+> > Maybe 2.5.3, dunno for sure.
+> 
+> A bit of  a delay would make things a bit easier ... :) Of course, if
+> scatterlist->address doesn't work any more, it won't matter much.
 
+A bit of delay will only make things worse, afaics.
 
 -- 
-timothy.covell@ashavan.org.
+Jens Axboe
+

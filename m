@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262858AbSJLJUQ>; Sat, 12 Oct 2002 05:20:16 -0400
+	id <S262847AbSJLJTE>; Sat, 12 Oct 2002 05:19:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262850AbSJLJUQ>; Sat, 12 Oct 2002 05:20:16 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:7399 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262842AbSJLJUP>; Sat, 12 Oct 2002 05:20:15 -0400
-Message-Id: <4.3.2.7.2.20021012112501.00b4c640@mail.dns-host.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Sat, 12 Oct 2002 11:25:57 +0200
-To: linux-kernel@vger.kernel.org
-From: Margit Schubert-While <margit@margit.com>
-Subject: Build fail 2.5.42
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S262850AbSJLJTE>; Sat, 12 Oct 2002 05:19:04 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4296 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S262847AbSJLJTD>; Sat, 12 Oct 2002 05:19:03 -0400
+Date: Sat, 12 Oct 2002 11:24:48 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Mitchell Blank Jr <mitch@sfgoth.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: Linux v2.5.42
+In-Reply-To: <Pine.LNX.4.44.0210112134160.7166-100000@penguin.transmeta.com>
+Message-ID: <Pine.NEB.4.44.0210121121150.8340-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o 
-init/do_mounts.o
-         ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s 
-arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o 
---start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o 
-arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o 
-fs/built-in.o  ipc/built-in.o  security/built-in.o  lib/lib.a 
-arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o 
-arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
-net/built-in.o: In function `p8022_request':
-net/built-in.o(.text+0xd8e9): undefined reference to 
-`llc_build_and_send_ui_pkt'
-net/built-in.o: In function `register_8022_client':
-net/built-in.o(.text+0xd932): undefined reference to `llc_sap_open'
-net/built-in.o: In function `unregister_8022_client':
-net/built-in.o(.text+0xd95e): undefined reference to `llc_sap_close'
-net/built-in.o: In function `snap_request':
-net/built-in.o(.text+0xdaa0): undefined reference to 
-`llc_build_and_send_ui_pkt'
-net/built-in.o: In function `snap_init':
-net/built-in.o(.text.init+0x59b): undefined reference to `llc_sap_open'
-make: *** [vmlinux] Error 1
+On Fri, 11 Oct 2002, Linus Torvalds wrote:
+
+>...
+> Summary of changes from v2.5.41 to v2.5.42
+> ============================================
+>...
+> Christoph Hellwig <hch@lst.de>:
+>   o initcalls for ATM
+>...
+
+
+This patch fixed part of the kbuild breakage in drivers/atm/Makefile, the
+following patch fixes the rest:
+
+
+--- linux-2.5.42-full/drivers/atm/Makefile.old	2002-10-12 11:13:48.000000000 +0200
++++ linux-2.5.42-full/drivers/atm/Makefile	2002-10-12 11:20:15.000000000 +0200
+@@ -36,7 +36,7 @@
+   fore_200e-objs		+= fore200e_pca_fw.o
+   # guess the target endianess to choose the right PCA-200E firmware image
+   ifeq ($(CONFIG_ATM_FORE200E_PCA_DEFAULT_FW),y)
+-    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo pca200e.bin; else echo pca200e_ecd.bin2; fi)
++    CONFIG_ATM_FORE200E_PCA_FW = $(shell if test -n "`$(CC) -E -dM $(src)/../../include/asm/byteorder.h | grep ' __LITTLE_ENDIAN '`"; then echo drivers/atm/pca200e.bin; else echo drivers/atm/pca200e_ecd.bin2; fi)
+   endif
+ endif
+
+
+
+Please apply
+Adrian
+
+-- 
+
+"Is there not promise of rain?" Ling Tan asked suddenly out
+of the darkness. There had been need of rain for many days.
+"Only a promise," Lao Er said.
+                                Pearl S. Buck - Dragon Seed
+
 

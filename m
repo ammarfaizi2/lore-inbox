@@ -1,53 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVAMKKC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVAMKLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVAMKKC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 05:10:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVAMKKC
+	id S261513AbVAMKLl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 05:11:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVAMKLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 05:10:02 -0500
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:21733
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S261513AbVAMKJp (ORCPT
+	Thu, 13 Jan 2005 05:11:41 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:4057 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261513AbVAMKLb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 05:09:45 -0500
-Message-ID: <41E648D4.1050906@bio.ifi.lmu.de>
-Date: Thu, 13 Jan 2005 11:09:24 +0100
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
+	Thu, 13 Jan 2005 05:11:31 -0500
+Date: Thu, 13 Jan 2005 10:11:30 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Avoiding fragmentation through different allocator
+In-Reply-To: <20050113073146.GB1226@holomorphy.com>
+Message-ID: <Pine.LNX.4.58.0501131002430.31154@skynet>
+References: <Pine.LNX.4.58.0501122101420.13738@skynet> <20050113073146.GB1226@holomorphy.com>
 MIME-Version: 1.0
-To: Andres Salomon <dilinger@voxel.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-as1
-References: <1105605448.7316.13.camel@localhost>
-In-Reply-To: <1105605448.7316.13.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andres Salomon wrote
+On Wed, 12 Jan 2005, William Lee Irwin III wrote:
 
-> Hi,
-> 
-> I'm announcing a new kernel tree; -as.  The goal of this tree is to form
-> a stable base for vendors/distributors to use for their kernels.  In
-> order to do this, I intend to include only security fixes and obvious
-> bugfixes, from various sources.  I do not intend to include driver
-> updates, large subsystem fixes, cleanups, and so on.  Basically, this is
-> what I'd want 2.6.10.1 to contain.
+> On Wed, Jan 12, 2005 at 09:09:24PM +0000, Mel Gorman wrote:
+> > So... What the patch does. Allocations are divided up into three different
+> > types of allocations;
+> > UserReclaimable - These are userspace pages that are easily reclaimable. Right
+> > 	now, I'm putting all allocations of GFP_USER and GFP_HIGHUSER as
+> > 	well as disk-buffer pages into this category. These pages are trivially
+> > 	reclaimed by writing the page out to swap or syncing with backing
+> > 	storage
+> > KernelReclaimable - These are pages allocated by the kernel that are easily
+> > 	reclaimed. This is stuff like inode caches, dcache, buffer_heads etc.
+> > 	These type of pages potentially could be reclaimed by dumping the
+> > 	caches and reaping the slabs (drastic, but you get the idea). We could
+> > 	also add pages into this category that are known to be only required
+> > 	for a short time like buffers used with DMA
+> > KernelNonReclaimable - These are pages that are allocated by the kernel that
+> > 	are not trivially reclaimed. For example, the memory allocated for a
+> > 	loaded module would be in this category. By default, allocations are
+> > 	considered to be of this type
+>
+> I'd expect to do better with kernel/user discrimination only, having
+> address-ordering biases in opposite directions for each case.
+>
 
-Very nice idea! Not only for distributors! Thanks for doing this!
-Do you plan to maintain -as only for the latest release, i.e., will
-2.6.10-as still be maintained with security fixes even when 2.6.11-as
-comes up?
+I thought about this and was not 100% sure. I'll explain how I see it
+before I go redo large portions of the patch.
 
-cu,
-Frank
+1. Discriminating kernel/user will leave the kernel area fragmented much
+worse than my approach. On my systems I tested, I found that a significant
+portion of kernel memory was taken up by slabs like buffer_head,
+ext3_inode_cache, ntfs_inode_cache, ntfs_big_inode_cache and
+radix_tree_node. I did not want to mix these allocations, which
+potentially are easy to get rid of, with allocations that are incredibly
+difficult.  (Totally aside, I also found that slab caches suffer from
+terrible internal fragmentation, sometimes wasting up to 60% of their
+memory but thats a separate problem)
+
+2. Address-ordering biases was also something I looked at early on, but
+then figured it didn't matter. If I don't reserve a 2^MAX_ORDER blocks,
+the system will just get terribly fragmented under memory presure when
+they meet in the middle. If I do reserve, I just end up with a similar
+layout to what I have now.
 
 -- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
-* Rekursion kann man erst verstehen, wenn man Rekursion verstanden hat. *
+Mel Gorman

@@ -1,175 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVASJIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVASJDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbVASJIc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 04:08:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVASIEi
+	id S261661AbVASJDe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 04:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbVASJAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 03:04:38 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54207 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261640AbVASHdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 02:33:44 -0500
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <fastboot@lists.osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH 7/29] x86_64-apic-virtwire-on-shutdown
-Date: Wed, 19 Jan 2005 0:31:37 -0700
-Message-ID: <x86-64-apic-virtwire-on-shutdown-11061198973345@ebiederm.dsl.xmission.com>
-X-Mailer: patch-bomb.pl@ebiederm.dsl.xmission.com
-In-Reply-To: <x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
-References: <overview-11061198973484@ebiederm.dsl.xmission.com>
-	<x86-rename-apic-mode-exint-11061198973109@ebiederm.dsl.xmission.com>
-	<x86-local-apic-fix-11061198972413@ebiederm.dsl.xmission.com>
-	<x86-64-e820-64bit-11061198971581@ebiederm.dsl.xmission.com>
-	<x86-i8259-shutdown-11061198973856@ebiederm.dsl.xmission.com>
-	<x86-64-i8259-shutdown-11061198973969@ebiederm.dsl.xmission.com>
-	<x86-apic-virtwire-on-shutdown-11061198973730@ebiederm.dsl.xmission.com>
+	Wed, 19 Jan 2005 04:00:00 -0500
+Received: from er-systems.de ([217.172.180.163]:11242 "EHLO er-systems.de")
+	by vger.kernel.org with ESMTP id S261692AbVASI7I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 03:59:08 -0500
+Date: Wed, 19 Jan 2005 09:59:43 +0100 (CET)
+From: Thomas Voegtle <tv@lio96.de>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [rfc] i810_audio: offset LVI from CIV to avoid stalled start
+In-Reply-To: <20050118224248.GA17785@gondor.apana.org.au>
+Message-ID: <Pine.LNX.4.58.0501190954590.28787@er-systems.de>
+References: <20050117183708.GD4348@tuxdriver.com> <20050117203930.GA9605@gondor.apana.org.au>
+ <20050117214420.GH4348@tuxdriver.com> <20050117232323.GA21365@gondor.apana.org.au>
+ <20050118180745.GA6883@tuxdriver.com> <20050118224248.GA17785@gondor.apana.org.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 19 Jan 2005, Herbert Xu wrote:
 
-When coming out of apic mode attempt to set the appropriate
-apic back into virtual wire mode.  This improves on previous versions
-of this patch by by never setting bot the local apic and the ioapic
-into veritual wire mode.
+> On Tue, Jan 18, 2005 at 01:07:47PM -0500, John W. Linville wrote:
+> > 
+> > No, that does not fix it. :-(  In fact, it doesn't seem to alter the
+> > problem at all...
+> 
+> OK.  In that case I agree with your patch.  The overruns that I
+> attributed to it were probably caused by other bugs that's been
+> fixed since.
+> 
+> Cheers,
+> 
 
-This code looks at data from the mptable to see if an ioapic has
-an ExtInt input to make this decision.  A future improvement
-is to figure out which apic or ioapic was in virtual wire mode
-at boot time and to remember it.  That is potentially a more accurate
-method, of selecting which apic to place in virutal wire mode.
+
+Here is the same patch against 2.6.11-rc1-bk6. Works for me.
 
 
-Signed-off-by: Eric Biederman <ebiederm@xmission.com>
----
-
- arch/x86_64/kernel/apic.c    |   38 +++++++++++++++++++++++++++++++++++++-
- arch/x86_64/kernel/io_apic.c |   36 ++++++++++++++++++++++++++++++++++--
- include/asm-x86_64/apic.h    |    2 +-
- 3 files changed, 72 insertions(+), 4 deletions(-)
-
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/x86_64/kernel/apic.c linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/arch/x86_64/kernel/apic.c
---- linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/x86_64/kernel/apic.c	Fri Jan 14 04:28:33 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/arch/x86_64/kernel/apic.c	Tue Jan 18 22:45:16 2005
-@@ -132,7 +132,7 @@
- 	}
- }
+--- linux-2.6.11-rc1-bk6/sound/oss/i810_audio.c.old	2005-01-19 09:47:20.438345600 +0100
++++ linux-2.6.11-rc1-bk6/sound/oss/i810_audio.c	2005-01-19 09:48:43.618700264 +0100
+@@ -1196,10 +1196,20 @@
+ 	if (count < fragsize)
+ 		return;
  
--void disconnect_bsp_APIC(void)
-+void disconnect_bsp_APIC(int virt_wire_setup)
- {
- 	if (pic_mode) {
- 		/*
-@@ -144,6 +144,42 @@
- 		apic_printk(APIC_QUIET, "disabling APIC mode, entering PIC mode.\n");
- 		outb(0x70, 0x22);
- 		outb(0x00, 0x23);
-+	}
-+	else {
-+		/* Go back to Virtual Wire compatibility mode */
-+		unsigned long value;
-+
-+		/* For the spurious interrupt use vector F, and enable it */
-+		value = apic_read(APIC_SPIV);
-+		value &= ~APIC_VECTOR_MASK;
-+		value |= APIC_SPIV_APIC_ENABLED;
-+		value |= 0xf;
-+		apic_write_around(APIC_SPIV, value);
-+
-+		if (!virt_wire_setup) {
-+			/* For LVT0 make it edge triggered, active high, external and enabled */
-+			value = apic_read(APIC_LVT0);
-+			value &= ~(APIC_MODE_MASK | APIC_SEND_PENDING |
-+				APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
-+				APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED );
-+			value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
-+			value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_EXTINT);
-+			apic_write_around(APIC_LVT0, value);
-+		}
-+		else {
-+			/* Disable LVT0 */
-+			apic_write_around(APIC_LVT0, APIC_LVT_MASKED);
-+		}
-+
-+		/* For LVT1 make it edge triggered, active high, nmi and enabled */
-+		value = apic_read(APIC_LVT1);
-+		value &= ~(
-+			APIC_MODE_MASK | APIC_SEND_PENDING |
-+			APIC_INPUT_POLARITY | APIC_LVT_REMOTE_IRR |
-+			APIC_LVT_LEVEL_TRIGGER | APIC_LVT_MASKED);
-+		value |= APIC_LVT_REMOTE_IRR | APIC_SEND_PENDING;
-+		value = SET_APIC_DELIVERY_MODE(value, APIC_MODE_NMI);
-+		apic_write_around(APIC_LVT1, value);
- 	}
- }
- 
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/x86_64/kernel/io_apic.c linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/arch/x86_64/kernel/io_apic.c
---- linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/arch/x86_64/kernel/io_apic.c	Fri Jan 14 04:32:23 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/arch/x86_64/kernel/io_apic.c	Tue Jan 18 22:45:17 2005
-@@ -327,7 +327,7 @@
- /*
-  * Find the pin to which IRQ[irq] (ISA) is connected
-  */
--static int __init find_isa_irq_pin(int irq, int type)
-+static int find_isa_irq_pin(int irq, int type)
- {
- 	int i;
- 
-@@ -1125,12 +1125,44 @@
-  */
- void disable_IO_APIC(void)
- {
-+	int pin;
- 	/*
- 	 * Clear the IO-APIC before rebooting:
- 	 */
- 	clear_IO_APIC();
- 
--	disconnect_bsp_APIC();
-+	/*
-+	 * If the i82559 is routed through an IOAPIC
-+	 * Put that IOAPIC in virtual wire mode
-+	 * so legacy interrups can be delivered.
++	/* if we are currently stopped, then our CIV is actually set to our
++	 * *last* sg segment and we are ready to wrap to the next.  However,
++	 * if we set our LVI to the last sg segment, then it won't wrap to
++	 * the next sg segment, it won't even get a start.  So, instead, when
++	 * we are stopped, we set both the LVI value and also we increment
++	 * the CIV value to the next sg segment to be played so that when
++	 * we call start, things will operate properly
 +	 */
-+	pin = find_isa_irq_pin(0, mp_ExtINT);
-+	if (pin != -1) {
-+		struct IO_APIC_route_entry entry;
-+		unsigned long flags;
-+
-+		memset(&entry, 0, sizeof(entry));
-+		entry.mask            = 0; /* Enabled */
-+		entry.trigger         = 0; /* Edge */
-+		entry.irr             = 0;
-+		entry.polarity        = 0; /* High */
-+		entry.delivery_status = 0;
-+		entry.dest_mode       = 0; /* Physical */
-+		entry.delivery_mode   = 7; /* ExtInt */
-+		entry.vector          = 0;
-+		entry.dest.physical.physical_dest = 0;
-+
-+
-+		/*
-+		 * Add it to the IO-APIC irq-routing table:
-+		 */
-+		spin_lock_irqsave(&ioapic_lock, flags);
-+		io_apic_write(0, 0x11+2*pin, *(((int *)&entry)+1));
-+		io_apic_write(0, 0x10+2*pin, *(((int *)&entry)+0));
-+		spin_unlock_irqrestore(&ioapic_lock, flags);
-+	}
-+
-+	disconnect_bsp_APIC(pin != -1);
- }
+ 	if (!dmabuf->enable && dmabuf->ready) {
+ 		if (!(dmabuf->trigger & trigger))
+ 			return;
  
- /*
-diff -uNr linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/include/asm-x86_64/apic.h linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/include/asm-x86_64/apic.h
---- linux-2.6.11-rc1-mm1-nokexec-x86-apic-virtwire-on-shutdown/include/asm-x86_64/apic.h	Fri Jan  7 12:54:16 2005
-+++ linux-2.6.11-rc1-mm1-nokexec-x86_64-apic-virtwire-on-shutdown/include/asm-x86_64/apic.h	Tue Jan 18 22:45:17 2005
-@@ -77,7 +77,7 @@
- extern int get_maxlvt (void);
- extern void clear_local_APIC (void);
- extern void connect_bsp_APIC (void);
--extern void disconnect_bsp_APIC (void);
-+extern void disconnect_bsp_APIC (int virt_wire_setup);
- extern void disable_local_APIC (void);
- extern int verify_local_APIC (void);
- extern void cache_APIC_registers (void);
++		CIV_TO_LVI(state->card, port, 1);
++
+ 		start(state);
+ 		while (!(I810_IOREADB(state->card, port + OFF_CR) & ((1<<4) | (1<<2))))
+ 			;
+
+
+
+
+
+
+-- 
+ Thomas Vögtle    email: thomas@voegtle-clan.de
+ ----- http://www.voegtle-clan.de/thomas ------

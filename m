@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264955AbUELCot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264957AbUELC5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264955AbUELCot (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 22:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264952AbUELCot
+	id S264957AbUELC5i (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 22:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264958AbUELC5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 22:44:49 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55288 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S264955AbUELCoq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 22:44:46 -0400
-Message-ID: <40A18F94.4000607@mvista.com>
-Date: Tue, 11 May 2004 19:44:36 -0700
-From: Todd Poynor <tpoynor@mvista.com>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
-X-Accept-Language: en-us, en
+	Tue, 11 May 2004 22:57:38 -0400
+Received: from host213-123-250-229.in-addr.btopenworld.com ([213.123.250.229]:26413
+	"EHLO 2003SERVER.sbs2003.local") by vger.kernel.org with ESMTP
+	id S264957AbUELC5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 May 2004 22:57:33 -0400
+thread-index: AcQ3zVJErHtSIADhR7uzTmx5OXUh/g==
+X-Sieve: Server Sieve 2.2
+From: <Valdis.Kletnieks@vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: <Administrator@vger.kernel.org>
+Message-ID: <000001c437cd$52469fc0$d100000a@sbs2003.local>
+Cc: <akpm@osdl.org>, <benh@kernel.crashing.org>,
+       <linux-kernel@vger.kernel.org>, <linuxppc-dev@lists.linuxppc.org>
+Subject: Re: [PATCH 1/2] PPC32: New OCP core support 
+In-Reply-To: Your message of "Tue, 11 May 2004 18:01:44 PDT."             <20040511180144.A4901@home.com> 
+References: <20040511170150.A4743@home.com> <200405120039.i4C0dHs0010426@turing-police.cc.vt.edu>            <20040511180144.A4901@home.com>
 MIME-Version: 1.0
-To: ncunningham@linuxmail.org
-CC: Greg KH <greg@kroah.com>, mochel@digitalimplant.org,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Hotplug events for system suspend/resume
-References: <20040511010015.GA21831@dhcp193.mvista.com> <20040511230001.GA26569@kroah.com> <40A17251.2000500@mvista.com> <200405121216.02787.ncunningham@linuxmail.org>
-In-Reply-To: <200405121216.02787.ncunningham@linuxmail.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Date: Wed, 12 May 2004 04:00:46 +0100
+Content-Type: text/plain;
+	charset="us-ascii"
+X-Mailing-List: <linuxppc-dev@lists.linuxppc.org>
+X-Loop: linuxppc-dev@lists.linuxppc.org
+Envelope-to: paul@sumlocktest.fsnet.co.uk
+Content-Class: urn:content-classes:message
+X-me-spamlevel: not-spam
+Importance: normal
+X-me-spamrating: 7.132641
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.132
+X-OriginalArrivalTime: 12 May 2004 03:00:46.0171 (UTC) FILETIME=[524B5AB0:01C437CD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham wrote:
 
-> Unless I'm missing something, this will break all existing implementations of 
-> S3 and S4 because they all freeze userspace processes prior to suspending 
-> drivers. They do this because they assume it is the responsibility of 
-> userspace to handle these actions prior to telling the kernel to suspend.
+On Tue, 11 May 2004 18:01:44 PDT, Matt Porter said:
 
-The patch hooks into the power subsystem prior to freezing processes and 
-after unfreezing processes, so I don't think it's a concern (unless 
-something is using the power subsystem rather oddly).  This patch sends 
-a single notification of system suspend and a single notification of 
-system resume, in case there's any confusion with the individual device 
-state change notifiers also recently discussed.  It's been run 
-successfully on one ACPI system and one non-ACPI system.
+> Actually, OCP stands for On-Chip Peripheral and is the basic system
+> we've used in ppc32 for some time now to abstract dumb peripherals
+> behind a standard API. BenH did yet another rewrite of OCP in 2.4
+> sometime ago and I picked up that work to port to 2.6 and the new
+> device model. It is a software abstraction, and easily allows us to
+> plug in SoC descriptors when new chips come out and use standard apis
+> to modify device entries on a per-board basis during "setup_arch()
+> time". It used to be PPC4xx-specific, but now is being used by
+> PPC85xx, MV64xxx, and MPC52xx based PPC systems. "Now", meaning that
+> the respective developers for those parts are using the OCP working
+> tree to base their 2.6 ports off of.
 
-> In my mind, this approach is simpler and makes more sense: userspace should 
-> worry about userspace actions related to suspending before calling 
-> kernelspace. Kernel space should then only worry about saving and restoring 
-> driver states and should be transparent to user space. ...
+Wrap a /* */ around that paragraph and add it to the top of ppc/syslib/ocp.c :)
 
-Agreed, with the minor reservations listed in a previous email (suspend 
-initiated by drivers must coordinate ad-hoc with userspace, etc.).
+** Sent via the linuxppc-dev mail list. See http://lists.linuxppc.org/
 
-I'll let anybody who cares more deeply about this speak up now, 
-otherwise this isn't a battle I'll be fighting on behalf of others any 
-more.  Thanks -- Todd
 

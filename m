@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272621AbRIGMah>; Fri, 7 Sep 2001 08:30:37 -0400
+	id <S272627AbRIGMg1>; Fri, 7 Sep 2001 08:36:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272622AbRIGMa1>; Fri, 7 Sep 2001 08:30:27 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:11790 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S272621AbRIGMaW>;
-	Fri, 7 Sep 2001 08:30:22 -0400
-Date: Fri, 7 Sep 2001 14:30:21 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: riel@conectiva.com.br, jaharkes@cs.cmu.edu, marcelo@conectiva.com.br,
-        linux-kernel@vger.kernel.org
-Subject: Re: page_launder() on 2.4.9/10 issue
-Message-Id: <20010907143021.3cefbf74.skraw@ithnet.com>
-In-Reply-To: <20010906174422Z16127-26184+6@humbolt.nl.linux.org>
-In-Reply-To: <Pine.LNX.4.33L.0109060851020.31200-100000@imladris.rielhome.conectiva>
-	<20010906122459Z16031-32383+3771@humbolt.nl.linux.org>
-	<20010906151015.69d2afb2.skraw@ithnet.com>
-	<20010906174422Z16127-26184+6@humbolt.nl.linux.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S272628AbRIGMgR>; Fri, 7 Sep 2001 08:36:17 -0400
+Received: from mons.uio.no ([129.240.130.14]:27102 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S272627AbRIGMgK>;
+	Fri, 7 Sep 2001 08:36:10 -0400
+MIME-Version: 1.0
+Message-ID: <15256.48964.101213.439253@charged.uio.no>
+Date: Fri, 7 Sep 2001 14:36:20 +0200
+To: ptb@it.uc3m.es
+Cc: Mike Black <mblack@csihq.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.8 NFS Problems
+In-Reply-To: <200109071206.OAA24577@nbd.it.uc3m.es>
+In-Reply-To: <shsae07md9d.fsf@charged.uio.no>
+	<200109071206.OAA24577@nbd.it.uc3m.es>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Sep 2001 19:51:26 +0200 Daniel Phillips <phillips@bonn-fries.net>
-wrote:
+>>>>> " " == Peter T Breuer <ptb@it.uc3m.es> writes:
 
-> On September 6, 2001 03:10 pm, Stephan von Krawczynski wrote:
-> > [...]
-> > to lots on the nfs-data. Even if the nfs-data would only have one single
-hit,
-> > the old CD image should have been removed, because it is inactive and
-_older_.
-> 
-> OK, this is not related to what we were discussing (IO latency).  It's not
-too
-> hard to fix, we just need to do a little aging whenever there are
-allocations,
-> whether or not there is memory_pressure.  I don't think it's a real problem
-> though, we have at least two problems we really do need to fix (oom and
-> high order failures).
+    >> Soft mount timeouts are not only due to network problems, but
+    >> can equally well be due to internal congestion. The rate at
+    >> which the network can transmit requests is usually (unless you
+    >> are using Gigabit) way below the rate at which your machine can
+    >> generate them.
 
-Hm, I am not quite sure about that. Can you _show_ me how to fix this?
+     > But soft mounts at least break nicely and automatically.  And
+     > since failures are inevitable, I prefer them.
 
-Regards,
-Stephan
+The problem is that they need careful tuning if they are to work at
+all. They assume a perfect setup.
 
+For instance most servers will drop UDP requests if they don't have a
+free thread to serve them. They assume that you will automatically
+retry. soft mounts do retry, but give up eventually. IOW even on an
+otherwise working setup you will, every once in a blue moon, get an
+EIO due to a soft timeout and you will lose data.
+
+Cheers,
+  Trond

@@ -1,77 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbUBWI7I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 03:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUBWI7I
+	id S261891AbUBWJHM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 04:07:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbUBWJHM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 03:59:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55734 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261885AbUBWI7E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 03:59:04 -0500
-Date: Mon, 23 Feb 2004 00:59:48 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vm-fix-all_zones_ok (was Re: 2.6.3-mm3)
-Message-Id: <20040223005948.10a3b325.akpm@osdl.org>
-In-Reply-To: <4039BE41.1000804@cyberone.com.au>
-References: <20040222172200.1d6bdfae.akpm@osdl.org>
-	<40395ACE.4030203@cyberone.com.au>
-	<20040222175507.558a5b3d.akpm@osdl.org>
-	<40396ACD.7090109@cyberone.com.au>
-	<40396DA7.70200@cyberone.com.au>
-	<4039B4E6.3050801@cyberone.com.au>
-	<4039BE41.1000804@cyberone.com.au>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 23 Feb 2004 04:07:12 -0500
+Received: from [206.191.46.196] ([206.191.46.196]:32009 "EHLO mdant.atkin.com")
+	by vger.kernel.org with ESMTP id S261891AbUBWJHD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 04:07:03 -0500
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: 2.6.2 issues (IPSec+NAT, RFC2684 bridge)
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Mon, 23 Feb 2004 04:06:36 -0500
+Message-ID: <66187D861C1747499BE1365B74E036917B5F82@mdant.atkin.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.2 issues (IPSec+NAT, RFC2684 bridge)
+Thread-Index: AcP57FcYf1hF0VovRPG0DIBSTwFSRQ==
+From: "Samofatov, Nickolay" <Nickolay@BroadViewSoftware.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <piggin@cyberone.com.au> wrote:
->
-> 
-> 
-> Nick Piggin wrote:
-> 
-> >
-> > Humph. OK you're right.
-> 
-> 
-> Aha but you've broken something!
+Hi!
 
-I'm a microsoft spy.
+Here is a list of minor issues I encountered when migrated my AMD64
+machine to 2.6.2 kernel (64-bit).
 
-> Tell me I'm still useful.
+1) Attempts to combine IPSec and NAT result in various kinds of
+failures. The easiest to reproduce is reliable hard system lock-up when
+IKE session needs to be initiated because of request from masqueraded
+machine.
+(workaround is to run cron job keeping IPSec connection active)
 
-You're still useful.
+2) I had to add following line to my routing rules to get IPSec working
+locally:
+--
+route add -m 172.20.0.0 netmask 255.255.0.0 gw 172.21.113.1
+--
+172.20.0.0 here is VPN subnet I'm interested in. 172.21.113.1 is the
+address assigned to eth0 interface which is also IP address of this
+machine in VPN.
+Before I added this rule TCP connections from localhost failed with no
+route to host. The result works for most applications, but not all. For
+example, SSH fails.
+(my workaround is to use SOCKS5 proxy running locally for local SSH
+connections over IPSec tunnels)
 
-> diff -puN mm/vmscan.c~vm-fix-all_zones_ok mm/vmscan.c
-> --- linux-2.6/mm/vmscan.c~vm-fix-all_zones_ok	2004-02-23 19:44:06.000000000 +1100
-> +++ linux-2.6-npiggin/mm/vmscan.c	2004-02-23 19:45:10.000000000 +1100
-> @@ -1008,10 +1008,12 @@ static int balance_pgdat(pg_data_t *pgda
->  
->  			if (nr_pages)		/* Software suspend */
->  				to_reclaim = min(to_free, SWAP_CLUSTER_MAX*8);
-> -			else			/* Zone balancing */
-> +			else {			/* Zone balancing */
->  				to_reclaim = zone->reclaim_batch;
-> +				if (zone->pages_high < zone->free_pages)
-> +					all_zones_ok = 0;
-> +			}
+3) RFC2684 bridge oopses when I try to run it with my ATM device
+(SpeedTouch USB) not plugged.
+(workaround is to check if device is really plugged and initialized in
+usbfs before attempting to start bridge)
+BTW, if you build SpeedTouch driver as module and build ATM bridge into
+kernel you get oopses during bridge initialization.
+(AFAIU, they work fine only if both built into kernel)
 
-I wouldna spotted that in a million years.  That all_zones_ok code was a
-bitch to test and really needs retesting.
+4) My attempts to use preemptable kernel failed miserably. Kernel
+produces lots of warnings during boot and usually oopses before system
+init finishes. If I disable RFC2684 bridge it successfully boots more
+often, but attempts to do any big work, for example to start X fail in
+any case.
+(workaround is to build non-preeptable kernel, bad for multimedia
+applications, but tolerable)
 
-We used to have <= in there actually:
+If there is interest, I may provide as much information as required to
+resolve the problems.
 
-		to_reclaim = zone->pages_high-zone->free_pages;
-		if (to_reclaim <= 0)
-			continue;
+But in general, 2.6.2 kernel works great. When I find a way to work
+around hard system lockups when NPTL is used in combination with NVIDIA
+XFree drivers I'll be totally happy.
 
-We've never clearly defined whether pages_high == free_pages means the zone
-is under limits.  According to __alloc_pages() it means that the zone is
-not under limits, so you've fixed two bugs there.
+
+Nickolay Samofatov
 

@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262905AbUFSANq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263741AbUFSARm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262905AbUFSANq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 20:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263851AbUFRUxR
+	id S263741AbUFSARm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 20:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264962AbUFSARj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 16:53:17 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:62922 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S262085AbUFRUtq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 16:49:46 -0400
-Date: Fri, 18 Jun 2004 22:49:38 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cross-sparse
-In-Reply-To: <Pine.LNX.4.58.0406180925210.4669@ppc970.osdl.org>
-Message-ID: <Pine.GSO.4.58.0406182245540.23356@waterleaf.sonytel.be>
-References: <Pine.GSO.4.58.0406172304170.1495@waterleaf.sonytel.be>
- <Pine.LNX.4.58.0406180925210.4669@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 18 Jun 2004 20:17:39 -0400
+Received: from outmail1.freedom2surf.net ([194.106.33.237]:22944 "EHLO
+	outmail.freedom2surf.net") by vger.kernel.org with ESMTP
+	id S263741AbUFSAPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 20:15:12 -0400
+Date: Sat, 19 Jun 2004 01:14:16 +0100
+From: Ian Molton <spyro@f2s.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: david-b@pacbell.net, linux-kernel@vger.kernel.org, greg@kroah.com,
+       tony@atomide.com, jamey.hicks@hp.com, joshua@joshuawise.com
+Subject: Re: DMA API issues
+Message-Id: <20040619011416.64d16c4e.spyro@f2s.com>
+In-Reply-To: <1087603453.2135.224.camel@mulgrave>
+References: <1087582845.1752.107.camel@mulgrave>
+	<20040618193544.48b88771.spyro@f2s.com>
+	<1087584769.2134.119.camel@mulgrave>
+	<20040618195721.0cf43ec2.spyro@f2s.com>
+	<40D34078.5060909@pacbell.net>
+	<20040618204438.35278560.spyro@f2s.com>
+	<1087588627.2134.155.camel@mulgrave>
+	<20040619002522.0c0d8e51.spyro@f2s.com>
+	<1087601363.2078.208.camel@mulgrave>
+	<20040619005106.15b8c393.spyro@f2s.com>
+	<1087603453.2135.224.camel@mulgrave>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.9.12-gtk2-20040617 (GTK+ 2.4.1; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jun 2004, Linus Torvalds wrote:
-> On Thu, 17 Jun 2004, Geert Uytterhoeven wrote:
-> > I wanted to give sparse a try on m68k, and noticed the current infrastructure
-> > doesn't handle cross-compilation (no sane m68k people compile kernels natively
-> > anymore, unless they run a Debian autobuilder ;-).
-> >
-> > After hacking the include paths in the sparse sources, installing the resulting
-> > binary as m68k-linux-sparse, and applying the following patch, it seems to work
-> > fine!
->
-> Hmm.. It does make sense, but at the same time, sparse isn't even really
-> supposed to _care_ about the architecture. Especially not for a kernel
-> build.
->
-> Which part breaks when not just using the native sparse? As far as I know,
-> a kernel build should use all-kernel header files, with the exception of
-> "stdarg.h" which I thought was also architecture-independent (but hey,
-> maybe I'm just a retard, and am wrong).
+On 18 Jun 2004 19:04:11 -0500
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
 
-IIRC, actually the first error I got when using the native sparse was that it
-couldn't find stdarg.h.
+> Because the piece of memory you wish to access is bus remote. 
 
-And even the non-native sparse doesn't know about architecture-specific defines
-like __mc68000__, causing some code paths being wrong. Guess I have to replace
-them by e.g. CONFIG_M68K.
+No, its *not*
 
-Gr{oetje,eeting}s,
+my CPU can write there directly.
 
-						Geert
+no strings attached.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+the DMA API just only understands how to map from RAM, not anything
+else.

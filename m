@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVCIDOA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVCIDR1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVCIDOA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 22:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261521AbVCIDOA
+	id S261521AbVCIDR1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 22:17:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVCIDR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 22:14:00 -0500
-Received: from fmr22.intel.com ([143.183.121.14]:57319 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261516AbVCIDN6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 22:13:58 -0500
-Message-Id: <200503090313.j293Dog17032@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: "'Andrew Morton'" <akpm@osdl.org>
-Subject: Bug fix in slab.c:alloc_arraycache
-Date: Tue, 8 Mar 2005 19:13:50 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcUkVgOxEsoxvoSsTpq+ImpbGFczFQ==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 8 Mar 2005 22:17:27 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:38501 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261521AbVCIDR0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 22:17:26 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=oW8NJN9+RAXvQxW3vl7mWErnGSQzWqcII86m00VEIvwaRcn4XjkpzAU8wvv93O/BQ5dII5ddqH5IaxtKb9zo1Qz7O6/7O0u3SGYOmPflb2fXjTkwYznhJy67z8sxboIA37kzQrUwwQiN5/JLNlsi9QyWNmLIvRQ5mEU7Kusak3o=
+Message-ID: <9e47339105030819172eecc324@mail.gmail.com>
+Date: Tue, 8 Mar 2005 22:17:25 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] VGA arbitration: draft of kernel side
+Cc: xorg@freedesktop.org, Egbert Eich <eich@freedesktop.org>,
+       Jon Smirl <jonsmirl@yahoo.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110326565.32556.7.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <1110265919.13607.261.camel@gaston>
+	 <1110319304.13594.272.camel@gaston>
+	 <9e47339105030815477d0c7688@mail.gmail.com>
+	 <1110326565.32556.7.camel@gaston>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kmem_cache_alloc_node is not capable of handling a null cachep
-pointer as its input argument.
+How do I do the 'disable all, post, renable last active' sequence in
+this scheme?
 
-If I try to increase a slab limit by echoing a very large number
-into /proc/slabinfo, kernel will panic from alloc_arraycache()
-because Kmem_find_general_cachep() can actually return a NULL
-pointer if the size argument is sufficiently large.
-
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-
-
---- linux-2.6.11/mm/slab.c	Mon Oct 18 14:55:43 2004
-+++ linux-2.6.11.ken/mm/slab.c	Tue Mar  1 19:14:07 2005
-@@ -643,8 +645,10 @@
- 	struct array_cache *nc = NULL;
-
- 	if (cpu != -1) {
--		nc = kmem_cache_alloc_node(kmem_find_general_cachep(memsize,
--					GFP_KERNEL), cpu_to_node(cpu));
-+		kmem_cache_t * cachep;
-+		cachep = kmem_find_general_cachep(memsize, GFP_KERNEL);
-+		if (cachep)
-+			nc = kmem_cache_alloc_node(cachep, cpu_to_node(cpu));
- 	}
- 	if (!nc)
- 		nc = kmalloc(memsize, GFP_KERNEL);
-
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

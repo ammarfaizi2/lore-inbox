@@ -1,44 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290120AbSBYUVy>; Mon, 25 Feb 2002 15:21:54 -0500
+	id <S292231AbSBYU1y>; Mon, 25 Feb 2002 15:27:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287565AbSBYUVp>; Mon, 25 Feb 2002 15:21:45 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12554 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S289844AbSBYUVZ>;
-	Mon, 25 Feb 2002 15:21:25 -0500
-Message-ID: <3C7A9C75.F6A4BA05@zip.com.au>
-Date: Mon, 25 Feb 2002 12:20:05 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
+	id <S292217AbSBYU1o>; Mon, 25 Feb 2002 15:27:44 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:37126 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S292169AbSBYU1g>; Mon, 25 Feb 2002 15:27:36 -0500
+Date: Mon, 25 Feb 2002 16:18:46 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.18
+In-Reply-To: <3AB544CBBBE7BF428DA7DBEA1B85C79C01101FE2@nocmail.ma.tmpw.net>
+Message-ID: <Pine.LNX.4.21.0202251613300.31438-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: christophe =?iso-8859-1?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-CC: linux-pm-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: suspend/resume and 3c59x
-In-Reply-To: <20020225200056.GW12719@ufies.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-christophe barbé wrote:
+
+
+On Mon, 25 Feb 2002, Holzrichter, Bruce wrote:
+
 > 
-> Hi,
 > 
-> I use the kernel 2.4.17 and the hotplug facilities for my 3com cardbus
-> (driver 3c59x). It works well when I insert and remove the card.
-> But If I don't remove the card before suspending (apm -s) my laptop,
-> The card is in a bad state when I resume the laptop and I need to remove
-> and insert the card to get it back. I have tried to ifdown and rmmod
-> before suspending but the result is the same.
+> > Ok, DAMN. I missed the -rc4 patch in 2.4.18. Real sorry about that.
+> > 
+> > 2.4.19-pre1 will contain it. 
 > 
+> Should 2.4.18 final get a -dontuse tag or something?  
 
-Did you provide the `enable_wol=1' module parameter?
+No. A "-dontuse" tag should be only used when the kernel can cause damage
+in some way.
 
-	options 3c59x enable_wol=1
+The patch which I missed only breaks static apps on _some_ architectures
+(not including x86).
 
-Despite its name, this turns on some power management
-functionality.  Should have been a separate "enable_pm".
+> Some people may get confused grabbing 2.4.18 and not getting the fixes
+> that went into rc-4? Just a thought...
 
--
+I already changed ftp.kernel.org's changelog adding:
+
+"Update: The SET_PERSONALITY fix in rc4 has _not_ 
+been included in the final 2.4.18 by mistake."
+
+I guess thats enough.
+

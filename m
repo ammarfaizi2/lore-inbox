@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129109AbRBIJjo>; Fri, 9 Feb 2001 04:39:44 -0500
+	id <S129027AbRBIJqE>; Fri, 9 Feb 2001 04:46:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129055AbRBIJjd>; Fri, 9 Feb 2001 04:39:33 -0500
-Received: from TK212017114173.teleweb.at ([212.17.114.173]:57352 "HELO
-	tk212017114173.teleweb.at") by vger.kernel.org with SMTP
-	id <S129109AbRBIJjX>; Fri, 9 Feb 2001 04:39:23 -0500
-Date: Fri, 9 Feb 2001 10:39:20 +0100
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: [reiserfs-list] Re: ReiserFS Oops (2.4.1, deterministic, symlink
-Message-ID: <20010209103920.A19496@hostmaster.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-In-Reply-To: <3A7AEFBF.2FBA5822@namesys.com> <200102021825.f12IPCu20705@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200102021825.f12IPCu20705@devserv.devel.redhat.com>; from alan@redhat.com on Fri, Feb 02, 2001 at 01:25:12PM -0500
+	id <S129055AbRBIJpy>; Fri, 9 Feb 2001 04:45:54 -0500
+Received: from www.wen-online.de ([212.223.88.39]:28179 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S129027AbRBIJpu>;
+	Fri, 9 Feb 2001 04:45:50 -0500
+Date: Fri, 9 Feb 2001 10:45:48 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: christophe barbe <christophe.barbe@inup.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] Animated framebuffer logo for 2.4.1
+In-Reply-To: <20010209091227.A28797@pc8.inup.com>
+Message-ID: <Pine.Linu.4.10.10102090955270.1886-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 9 Feb 2001, christophe barbe wrote:
 
---k+w/mQv8wyuph6w0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On ven, 09 fév 2001 08:03:14 Mike Galbraith wrote:
+> > I hope that nothing like this is _ever_ integrated (and doubt I need
+> > be concerned;).  IMHO, hiding output from users arrogantly assumes
+> > that they are too stupid/ignorant to have any use for such information.
+> 
+> Most user don't want to learn the internal stuff of their OS. They only want to use it and assume (or would like to) that everything is ok. 
+> You hope graphic boot capability will never be integrated in the kernel but I'm sure you are aware of what is an "OPTION".
 
-> Since egcs-1.1.2 and gcc 2.95 miscompile the kernel strstr code dont forg=
-et
-> to stop those being used as well. Oh look you'll need CVS gcc to build the
-> kernel... ah but wait that misbuilds DAC960.c...
-How did you come to the conclusion that egcs-1.1.2 miscompiles the kernel?
-I am using gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release) for=
- a
-while now and did not notice anything weird.
+I give users more credit in the curiosity/observation department.  In
+my experience, when a user fires up his/her box, independent of OS,
+they watch it pretty closely.  This behavior begins roughly the first
+time they lose a chunk of work ;-)
 
-Tom
+Whether the boot process is graphic or text doesn't matter.. some will
+watch it and some will ignore it.
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-       mail pgp-key-request@hostmaster.org
+If I were an employer, I'd feel a lot better about my staff if I walk
+by and catch them staring blankly at cryptic text vs a splash screen.
 
---k+w/mQv8wyuph6w0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+> Sure it's not a vital need. Distribution makers can already add this on their kernels (and in fact they do that, per example by using aurora). But it could result in a proper implementation. Required modifications are really small.
 
------BEGIN PGP SIGNATURE-----
-Version: 2.6.3ia
+Yup.  Distributors can add whatever whistles/bells that fit their needs.
 
-iQEVAgUBOoO6x2D1OYqW/8uJAQE/nAgAgN6Odf2ZAkCcL+vODAX0Hud1S09rPSyP
-wMyBIRpcSJNQuZNv3Rj67i6nPziJqiPeVtwsxbTY2LyWDVzmH0fah+dtLGCSccq7
-g5UunMAhgJwBHhcohCHvYm9Z8lMOQ65vn0PG5hJNbAh2NXiIU4wJNpC2nl8PmJM6
-2MEzQ8XwVe4EYodJvtBp9qlmaAY47dt86hefsDMh87Y0rCXBE1FLCmOWgeDDifpj
-Ou5WfNMeNkuPkKUdK8QnJGmdCJ7inFnq/90ScuOwI6fvXMT0dQKkZh75c9qwrKi5
-AGtR1PNB2F3aKOt2oZ/DHl+ID1U3IHeu08ZBnBP1cg/Yk5FaNwOZdQ==
-=F2fh
------END PGP SIGNATURE-----
+	-Mike
 
---k+w/mQv8wyuph6w0--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267197AbUHOWgx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267199AbUHOWpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267197AbUHOWgx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Aug 2004 18:36:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267205AbUHOWgx
+	id S267199AbUHOWpY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Aug 2004 18:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267209AbUHOWpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Aug 2004 18:36:53 -0400
-Received: from gate.crashing.org ([63.228.1.57]:49556 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S267198AbUHOWgi (ORCPT
+	Sun, 15 Aug 2004 18:45:24 -0400
+Received: from gate.crashing.org ([63.228.1.57]:54676 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S267199AbUHOWpV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Aug 2004 18:36:38 -0400
-Subject: Re: Radeon FB slightly broken in 2.6.8.x
+	Sun, 15 Aug 2004 18:45:21 -0400
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
+	pte locks?
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Clemens Schwaighofer <cs@tequila.co.jp>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <411F5F7F.9050403@tequila.co.jp>
-References: <411F5F7F.9050403@tequila.co.jp>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-ia64@vger.kernel.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>
+In-Reply-To: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
 Content-Type: text/plain
-Message-Id: <1092608961.9529.23.camel@gaston>
+Message-Id: <1092609485.9538.27.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 16 Aug 2004 08:29:22 +1000
+Date: Mon, 16 Aug 2004 08:38:06 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-08-15 at 23:05, Clemens Schwaighofer wrote:
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> Hi,
-> 
-> I am a forced owner of a Radeon 7500 in my Sony Laptop. with 2.6.7 the
-> framebuffer works perfectly fine, but with 2.6.8.x I get strange
-> colerful ascii garbage on the bottom of the screen during booten and
-> then good 10 or more lines are sort of "hidden" outside of the screen.
-> It seems like the screen is not positioned to the end of the output.
-> Kinda strange, cause I first thought it stopped loading exim4 for some
-> reason and not until after I pressed enter a lot I saw that I had a
-> login screen just very far outside of my visual area :)
-> 
-> Config attached, but it hasn't chagned to 2.6.7 in the FB area.
+On Sun, 2004-08-15 at 23:50, Christoph Lameter wrote:
+> Well this is more an idea than a real patch yet. The page_table_lock
+> becomes a bottleneck if more than 4 CPUs are rapidly allocating and using
+> memory. "pft" is a program that measures the performance of page faults on
+> SMP system. It allocates memory simultaneously in multiple threads thereby
+> causing lots of page faults for anonymous pages.
 
-Does it get back to normal at the end of boot ?
+Just a note: on ppc64, we already have a PTE lock bit, we use it to
+guard against concurrent hash table insertion, it could be extended
+to the whole page fault path provided we can guarantee we will never
+fault in the hash table on that PTE while it is held. This shouldn't
+be a problem as long as only user pages are locked that way (which
+should be the case with do_page_fault) provided update_mmu_cache()
+is updated to not take this lock, but assume it already held.
 
 Ben.
+
 

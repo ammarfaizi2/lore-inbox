@@ -1,35 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129953AbRA0Ruq>; Sat, 27 Jan 2001 12:50:46 -0500
+	id <S131046AbRA0RzB>; Sat, 27 Jan 2001 12:55:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130324AbRA0Rug>; Sat, 27 Jan 2001 12:50:36 -0500
-Received: from [193.120.224.170] ([193.120.224.170]:34945 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S129953AbRA0RuU>;
-	Sat, 27 Jan 2001 12:50:20 -0500
-Date: Sat, 27 Jan 2001 17:50:14 +0000 (GMT)
-From: Paul Jakma <paulj@itg.ie>
-To: <linux-kernel@vger.kernel.org>
-Subject: routing between different subnets on same if.
-Message-ID: <Pine.LNX.4.32.0101271742250.15191-100000@rossi.itg.ie>
+	id <S130324AbRA0Ryv>; Sat, 27 Jan 2001 12:54:51 -0500
+Received: from smtp1.free.fr ([212.27.32.5]:36106 "EHLO smtp1.free.fr")
+	by vger.kernel.org with ESMTP id <S131046AbRA0Ryf>;
+	Sat, 27 Jan 2001 12:54:35 -0500
+To: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+Subject: Re: stripping symbols from modules
+Message-ID: <980618073.3a730b592258c@imp.free.fr>
+Date: Sat, 27 Jan 2001 18:54:33 +0100 (MET)
+From: Willy Tarreau <wtarreau@free.fr>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188095C@xsj02.sjs.agilent.com>
+In-Reply-To: <FEEBE78C8360D411ACFD00D0B747797188095C@xsj02.sjs.agilent.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.3
+X-Originating-IP: 212.27.43.84
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i'm trying to get linux to do routing between 2 different subnets that
-are on the same physical interface, because windows hosts don't seem
-to accept the redirects.
+Hi !
 
-how do i do it? how do i get linux to fully route between these
-subnets on behalf of clients? turn send_redirects off doesn't work,
-and nothing obvious shows up with 'ip route help'... (and there's no
-man page for it to tell me).
+> Is there any way to strip symbols from modules .o files ?
 
-i'm using the RedHat 2.2.16 kernel.
+there are many symbols you have to keep. You also have to keep modules args
+and exported modules. I personnaly use this method which seems to work OK even
+if it's really awful (although I'm not sure it will work under all
+circumstances) :
 
-regards,
+for i in *.o; do
+       objcopy -R __ksymtab -R .comment -R .note -x `nm $i |
+          grep ' ? \(__module_parm_\)\|\(__ks..tab_\)' |
+          sed -e 's/\(__module_parm_\)\(.*\)/\2/'
+              -e 's/\(__ks..tab_\)\(.*\)/\2/' | cut -f3- -d' ' | sort -u |
+          awk '{printf " -K "$1}'` $i
+done
 
---paulj
+
+After this, I even compress the modules because you can often gain about a 2.5
+ratio.
+
+Cheers,
+Willy
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269657AbUHZWCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269725AbUHZWJS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269657AbUHZWCt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 18:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269712AbUHZV6s
+	id S269725AbUHZWJS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 18:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269688AbUHZWIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 17:58:48 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:32943 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S269727AbUHZVml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 17:42:41 -0400
-Date: Thu, 26 Aug 2004 22:41:38 +0100
-From: Dave Jones <davej@redhat.com>
-To: jmerkey@comcast.net
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-       jmerkey@drdos.com
-Subject: Re: 1GB/2GB/3GB User Space Splitting Patch 2.6.8.1 (PSEUDO SPAM)
-Message-ID: <20040826214138.GA11336@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, jmerkey@comcast.net,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Roland Dreier <roland@topspin.com>, linux-kernel@vger.kernel.org,
-	jmerkey@drdos.com
-References: <082620042024.23755.412E47050006895C00005CCB2200751150970A059D0A0306@comcast.net>
+	Thu, 26 Aug 2004 18:08:36 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:59403 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S269712AbUHZWFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 18:05:14 -0400
+Date: Fri, 27 Aug 2004 00:05:01 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+Subject: Re: netfilter IPv6 support
+Message-ID: <20040826220501.GA564@alpha.home.local>
+References: <1093546367.3497.23.camel@hostmaster.org> <20040826130024.6ff83dff.davem@redhat.com> <1093555510.3497.33.camel@hostmaster.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <082620042024.23755.412E47050006895C00005CCB2200751150970A059D0A0306@comcast.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1093555510.3497.33.camel@hostmaster.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 08:24:38PM +0000, jmerkey@comcast.net wrote:
+On Thu, Aug 26, 2004 at 11:25:10PM +0200, Thomas Zehetbauer wrote:
+> On Don, 2004-08-26 at 13:00 -0700, David S. Miller wrote:
+> > Stateful netfilter is not there because it's a total waste
+> > to completely duplicate all of the connection tracking et al.
+> > code into ipv6 counterparts when %80 of the code is roughly
+> > the same.  People are working on a consolidation of these
+> > things so that there is no code duplication but it is a lot
+> > of work and there are bigger fires to put out at the moment.
+> 
+> Of course it's a waste to duplicate the code but as far as I remember
+> the status of netfilter for IPv6 has not changed for almost a year. As
+> said there is still not even the basic REJECT target available.
+
+These features are available in patch-o-matic-ng. They're not in mainline
+because the netfilter team only pushes well tested and non-intrusive changes.
+But there are lots of people using features from patch-o-matic in production.
+You can get those here :
+
+    ftp://ftp.netfilter.org/pub/patch-o-matic-ng/
+
+Please also take a look at the mailing list archives since it's an area
+which is currently moving :
  
- > What do you plan to do when the driver base becomes as 
- > large as the one in WIndows 2000/XP
+    http://marc.theaimsgroup.com/?l=netfilter-devel
 
-There's a slew of drivers for ancient hardware in Linux that will /never/
-be supported in Windows 2000/XP. Given we also support a majority of modern
-hardware, chances are we're either comparable, or maybe even surpassing
-Microsoft in terms of number of drivers shipped.
-
- > and you don't have enough memory to load all the drivers.
-
-Since when do we load /all/ the drivers ? That would be silly.
-
- > Right now, iptables barfs even with 3GB of address space when you load up
- > about a dozen virtual network interfaces ?
-
-I'll hazard a guess this has nothing whatsoever do to with address space sizes.
-
- > Microsoft had this same problem (only at a much sooner juncture in their
- > platform evolution) and went to VM support in the kernel
- > itself to increase virtual address space for kernel apps, file systems, and
- > drivers when thye hit the wall.    It's coming time to start thinking about
- > it.  
-
-If we did stupid things like trying to load every single driver, maybe.
-But we don't, so I think you're chasing ghosts.
-
-		Dave
+Regards,
+Willy
 

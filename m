@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316250AbSEZSjr>; Sun, 26 May 2002 14:39:47 -0400
+	id <S316265AbSEZSlM>; Sun, 26 May 2002 14:41:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316261AbSEZSjq>; Sun, 26 May 2002 14:39:46 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:58354 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316250AbSEZSjo>; Sun, 26 May 2002 14:39:44 -0400
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Larry McVoy <lm@bitmover.com>
-Cc: David Schleef <ds@schleef.org>, Karim Yaghmour <karim@opersys.com>,
-        Wolfgang Denk <wd@denx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020525210330.A20253@work.bitmover.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 26 May 2002 20:40:44 +0100
-Message-Id: <1022442044.11859.131.camel@irongate.swansea.linux.org.uk>
+	id <S316264AbSEZSlL>; Sun, 26 May 2002 14:41:11 -0400
+Received: from ns.suse.de ([213.95.15.193]:21767 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316263AbSEZSlJ>;
+	Sun, 26 May 2002 14:41:09 -0400
+Date: Sun, 26 May 2002 20:41:09 +0200
+From: Dave Jones <davej@suse.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>,
+        Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Subject: Re: trivial: pcnet32 whitespace
+Message-ID: <20020526204109.K16102@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Pavel Machek <pavel@ucw.cz>,
+	kernel list <linux-kernel@vger.kernel.org>,
+	Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>
+In-Reply-To: <20020526183056.GA10669@elf.ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-05-26 at 05:03, Larry McVoy wrote:
-> Me too.  I've been here before, I was one of about 8 people who actually
-> knew that AT&T should have won the BSD lawsuit because I diffed the code.
-> And you can't diff it with a perl script, that simply doesn't work.  The
+On Sun, May 26, 2002 at 08:30:56PM +0200, Pavel Machek wrote:
+ > - *  compile-command: "gcc -D__KERNEL__ -I/usr/src/linux/net/inet -Wall -Wstrict-prototypes -O6 -m486 -c pcnet32.c"
+ > + *  compile-command: "gcc -D__KERNEL__ -I/usr/src/linux/include/linux -Wall -Wstrict-prototypes -O2 -m486 -c pcnet32.c"
 
-And then went on to cite bmap which is clearly different. Yes Larry, now
-would you mind returning to the ward like a good patient 8)
+Better would be to not have an absolute path in there at all.
 
-> only real ways that I know of are
->     a) have a human do it, function by function
->     b) compile the code to an expression tree and then diff the expression
->        trees.
-
-b) doesn't work because copyright does not apply to the fundamental
-algorithms. If you want to look at it at that level you need to remember
-there are many different implementations which are very different but
-which in pure mathematics are strictly identical.
-
-Alan
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

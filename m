@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUAGX6y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 18:58:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266325AbUAGX6y
+	id S264283AbUAHAJF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 19:09:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbUAHAJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 18:58:54 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:11275 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S266304AbUAGX6a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 18:58:30 -0500
-Date: Thu, 8 Jan 2004 00:55:26 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: James Simmons <jsimmons@infradead.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Blank Screen in 2.6.0
-In-Reply-To: <Pine.LNX.4.44.0401071741570.31020-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.4.56.0401080052170.9700@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.44.0401071741570.31020-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jan 2004 19:09:05 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:1578 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S264283AbUAHAJB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 19:09:01 -0500
+Date: Wed, 7 Jan 2004 16:08:51 -0800
+From: Jeremy Higdon <jeremy@sgi.com>
+To: Greg KH <greg@kroah.com>
+Cc: Jesse Barnes <jbarnes@sgi.com>, Grant Grundler <grundler@parisc-linux.org>,
+       Matthew Wilcox <willy@debian.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040108000850.GA339772@sgi.com>
+References: <20040107175801.GA4642@sgi.com> <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk> <20040107222142.GB14951@colo.lackof.org> <20040107230712.GB6837@sgi.com> <20040107232754.GA2807@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040107232754.GA2807@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 07, 2004 at 03:27:54PM -0800, Greg KH wrote:
+> On Wed, Jan 07, 2004 at 03:07:12PM -0800, Jesse Barnes wrote:
+> > 
+> >   1) add pcix_enable_relaxed() and read_relaxed() (read() would always be
+> >      ordered)
+> 
+> This probably preserves the current situation best, enabling driver
+> writers to be explicit in knowing what is happening.
+> 
+> thanks,
+> 
+> greg k-h
 
-On Wed, 7 Jan 2004, James Simmons wrote:
+I like this best too.  That way, a driver can enable a relaxed read
+in the performance path and not have to audit the other reads.
 
-> Yeah!!!
->
-> > The bad news is that it still doesn't work quite right.
->
-> I expected that. Newer Nvidia cards are not properly supported.
->
+So in a generic PCI driver, you'd call pcix_enable_relaxed() and
+then use read() for initialization, error recovery, etc., and
+use read_relaxed() in the main execution path where it is determined
+to be safe.
 
-Ok, just know that I'm willing to test any patches you may have for rivafb.
+The default would be the standard behavior that we have.
 
+One question I have is what the need for pcix_enable_relaxed() is.
+Are we thinking that this sets some bit in one or more registers?
+What happens if you use read_relaxed() and you didn't call
+pcix_enable_relaxed() previously?
 
-> > Also, after starting X (using the "nv" driver, not a fb X server) - if I
-> > switch back to a text console then the screen is completely garbled - I
-> > can switch back to X just fine though.
->
-> Try using the UseFBDev flag for teh X server. That usually helps.
->
-
-Ok, I'll try that "soonish" and report the result.
-For now I'm simply using vesafb which works well.
-
-
--- Jesper Juhl
-
+jeremy

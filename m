@@ -1,29 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270680AbTHAGKp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 02:10:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275054AbTHAGKp
+	id S275053AbTHAGHE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 02:07:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275054AbTHAGHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 02:10:45 -0400
-Received: from [211.111.152.178] ([211.111.152.178]:27408 "HELO sslee")
-	by vger.kernel.org with SMTP id S270680AbTHAGKo (ORCPT
+	Fri, 1 Aug 2003 02:07:04 -0400
+Received: from luli.rootdir.de ([213.133.108.222]:22152 "HELO luli.rootdir.de")
+	by vger.kernel.org with SMTP id S275053AbTHAGHA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 02:10:44 -0400
-From: brussell_2@erols.com
-To: linux-kernel@vger.kernel.org
-Subject: LOL
+	Fri, 1 Aug 2003 02:07:00 -0400
+Date: Fri, 1 Aug 2003 08:06:47 +0200
+From: Claas Langbehn <claas@rootdir.de>
+To: Kernel List <linux-kernel@vger.kernel.org>
+Subject: Just FYI: nvidia X11 driver on kernel 2.6.0-test* works
+Message-ID: <20030801060647.GA4717@rootdir.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Date: Fri, 1 Aug 2003 15:07:57 +0900
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-Message-Id: <S270680AbTHAGKo/20030801061044Z+2564@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Reply-By: Mon Aug  4 08:03:19 CEST 2003
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.0-test1-ac3 i686
+X-No-archive: yes
+X-Uptime: 08:03:19 up 11:06,  6 users,  load average: 0.17, 0.13, 0.12
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hey its me again.. did you see this site?
+Hello,
 
-Don't pass up this amazing opportunity to change your life!
 
-With the money you save, put it towards a new car!
+just for your information: You can use the nvidia X11 driver with kernel
+2.6.0-test*.
 
-http://btrack.iwon.com/r.pl?redir=http://money@buynow3sx.com/viewso65/index.asp?RefID=198478
+Latest Version: NVIDIA 1.0-4496
+More information and patches here: www.minion.de/nvidia/
+For unofficial support /join #nvidia (irc.freenode.net)
+
+
+Bye,
+claas

@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262945AbUJ0WUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbUJ0Vgx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262945AbUJ0WUp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUJ0WSC
+	id S262724AbUJ0Vgx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 17:36:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262692AbUJ0VdH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:18:02 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:29903 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262918AbUJ0WNG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:13:06 -0400
-Subject: 2.6.10-rc4-mm1 hpet compile fix for AMD64
-From: Badari Pulavarty <pbadari@us.ibm.com>
+	Wed, 27 Oct 2004 17:33:07 -0400
+Received: from havoc.gtf.org ([69.28.190.101]:65173 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S262724AbUJ0VbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 17:31:13 -0400
+Date: Wed, 27 Oct 2004 17:31:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-UFrdo1C6rtXJ/yWsP0uq"
-Organization: 
-Message-Id: <1098914436.20643.155.camel@dyn318077bld.beaverton.ibm.com>
+Cc: mbligh@aracnet.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+       bzolnier@gmail.com, rddunlap@osdl.org, wli@holomorphy.com,
+       axboe@suse.de
+Subject: Re: [PATCH] Re: news about IDE PIO HIGHMEM bug (was: Re: 2.6.9-mm1)
+Message-ID: <20041027213111.GA13627@havoc.gtf.org>
+References: <58cb370e041027074676750027@mail.gmail.com> <417FBB6D.90401@pobox.com> <1246230000.1098892359@[10.10.2.4]> <1246750000.1098892883@[10.10.2.4]> <417FCE4E.4080605@pobox.com> <20041027142914.197c72ed.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Oct 2004 15:00:37 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041027142914.197c72ed.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 27, 2004 at 02:29:14PM -0700, Andrew Morton wrote:
+> spose so.  The scatterlist API is being a bit silly there.
 
---=-UFrdo1C6rtXJ/yWsP0uq
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Well, it depends on your perspective :)
 
-Hi Andrew,
+Each scatterlist entry is supposed to map to a physical segment to be
+passed to h/w.  Hardware S/G tables just want to see a addr/len pair,
+and don't care about machine page size.  scatterlist follows a similar
+model.
 
-Here is the HPET compile fix for AMD64. Without this, you 
-get following link error. (without HPET)
+dma_map_sg() and other helpers create a favorable situation, where >90%
+of the drivers don't have to care about the VM-size details.
+Unfortunately those drivers that need need to do their own data transfer
+(like ATA's PIO, instead of DMA) need direct access to each member of an
+s/g list.
 
-arch/x86_64/kernel/built-in.o(.text+0x6426): In function `timer_resume':
-arch/x86_64/kernel/time.c:971: undefined reference to `is_hpet_enabled'
-
-
-Thanks,
-Badari
-
+	Jeff
 
 
---=-UFrdo1C6rtXJ/yWsP0uq
-Content-Disposition: attachment; filename=hpet_compile_fix.patch
-Content-Type: text/plain; name=hpet_compile_fix.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
---- linux.org/arch/x86_64/kernel/time.c	2004-10-27 15:33:22.369395312 -0700
-+++ linux/arch/x86_64/kernel/time.c	2004-10-27 15:36:09.458993832 -0700
-@@ -968,8 +968,10 @@ static int timer_resume(struct sys_devic
- 	unsigned long flags;
- 	unsigned long sec;
- 
-+#ifdef CONFIG_HPET_EMULATE_RTC
- 	if (is_hpet_enabled())
- 		hpet_reenable();
-+#endif
- 
- 	sec = get_cmos_time() + clock_cmos_diff;
- 	write_seqlock_irqsave(&xtime_lock,flags);
-
---=-UFrdo1C6rtXJ/yWsP0uq--
 

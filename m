@@ -1,52 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264223AbTCXOLX>; Mon, 24 Mar 2003 09:11:23 -0500
+	id <S264231AbTCXOKZ>; Mon, 24 Mar 2003 09:10:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264215AbTCXOLW>; Mon, 24 Mar 2003 09:11:22 -0500
-Received: from ns2.uk.superh.com ([193.128.105.170]:64139 "EHLO
-	ns2.uk.superh.com") by vger.kernel.org with ESMTP
-	id <S264223AbTCXOK4>; Mon, 24 Mar 2003 09:10:56 -0500
-Date: Mon, 24 Mar 2003 14:21:58 +0000
-From: Richard Curnow <Richard.Curnow@superh.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: struct nfs_fattr alignment problem in nfs3proc.c
-Message-ID: <20030324142158.GD17163@malvern.uk.w2k.superh.com>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030321175206.GA17163@malvern.uk.w2k.superh.com> <shs7karzmwv.fsf@charged.uio.no> <20030324120923.GB17163@malvern.uk.w2k.superh.com> <20030324134927.GC17163@malvern.uk.w2k.superh.com> <shsel4wsvtr.fsf@charged.uio.no>
+	id <S264232AbTCXOKZ>; Mon, 24 Mar 2003 09:10:25 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:29425 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP
+	id <S264231AbTCXOKW>; Mon, 24 Mar 2003 09:10:22 -0500
+Subject: Re: Ded-Fat 8.0 and ext3
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: root@chaos.analogic.com
+Cc: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.53.0303240909410.24249@chaos>
+References: <Pine.LNX.4.53.0303211420170.13876@chaos>
+	 <1048324118.3306.3.camel@LNX.iNES.RO>
+	 <Pine.LNX.4.53.0303240909410.24249@chaos>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ilpaJgqO6gXyFh4l5qO9"
+Organization: Red Hat, Inc.
+Message-Id: <1048515655.1636.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <shsel4wsvtr.fsf@charged.uio.no>
-User-Agent: Mutt/1.4i
-X-OS: Linux 2.4.19 i686
-X-OriginalArrivalTime: 24 Mar 2003 14:22:03.0820 (UTC) FILETIME=[BDD756C0:01C2F210]
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 24 Mar 2003 15:20:55 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Trond Myklebust <trond.myklebust@fys.uio.no> [2003-03-24]:
-> >>>>> " " == Richard Curnow <Richard.Curnow@superh.com> writes:
-> 
->      > + if (((unsigned long) arg & 0x7) != 0) {
->      > + printk("nfs3_proc_unlink_setup : arg not 8-byte aligned!\n");
->      > + }
->      > + if (((unsigned long) res & 0x7) != 0) {
->      > + printk("nfs3_proc_unlink_setup : res not 8-byte aligned!\n");
->      > + }
-> 
-> Nope...
-> 
 
-Well spotted, ignore those checks :-)  At least they showed that the
-change higher up was making a difference.
+--=-ilpaJgqO6gXyFh4l5qO9
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Once there's general agreement about this fix, I'll generate some
-patches for up-to-date 2.4 and 2.5.
+On Mon, 2003-03-24 at 15:11, Richard B. Johnson wrote:
 
-Cheers
-Richard
+> I did not bother to go any further than `make oldconfig` and
+> `make dep` in this "Show-and-tell". As previously reported,
 
--- 
-Richard \\\ SuperH Core+Debug Architect /// .. At home ..
-  P.    /// richard.curnow@superh.com  ///  rc@rc0.org.uk
-Curnow  \\\ http://www.superh.com/    ///  www.rc0.org.uk
-Speaking for myself, not on behalf of SuperH
+as previously report to YOU: you have to do a make mrproper first.
+Then it just works.
+
+I've not received a SINGLE report where starting with make mrproper
+didn't fix this issue. You can claim I ignore this issue, but I don't.
+It's just not an issue at all so far!
+
+--=-ilpaJgqO6gXyFh4l5qO9
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+fxRHxULwo51rQBIRAqWBAJ9+vRbDd7ajqIRdPiVN2yIobZq3VQCbB7kx
+VrOmUFRZb8C1dCIrWPz5Q/4=
+=SUOK
+-----END PGP SIGNATURE-----
+
+--=-ilpaJgqO6gXyFh4l5qO9--

@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVBUVmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVBUVsf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262140AbVBUVmk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 16:42:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVBUVmj
+	id S262136AbVBUVsf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 16:48:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVBUVse
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 16:42:39 -0500
-Received: from fire.osdl.org ([65.172.181.4]:31634 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262140AbVBUVmh (ORCPT
+	Mon, 21 Feb 2005 16:48:34 -0500
+Received: from levante.wiggy.net ([195.85.225.139]:34770 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262136AbVBUVsb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 16:42:37 -0500
-Date: Mon, 21 Feb 2005 13:42:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Hicks <mort@wildopensource.com>
-Cc: pj@sgi.com, linux-kernel@vger.kernel.org, raybry@sgi.com
-Subject: Re: [PATCH/RFC] A method for clearing out page cache
-Message-Id: <20050221134220.2f5911c9.akpm@osdl.org>
-In-Reply-To: <20050221192721.GB26705@localhost>
-References: <20050214154431.GS26705@localhost>
-	<20050214193704.00d47c9f.pj@sgi.com>
-	<20050221192721.GB26705@localhost>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 21 Feb 2005 16:48:31 -0500
+Date: Mon, 21 Feb 2005 22:48:29 +0100
+From: Wichert Akkerman <wichert@wiggy.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       Matthias-Christian Ott <matthias.christian@tiscali.de>,
+       =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: 2.6.11rc4: irq 5, nobody cared
+Message-ID: <20050221214829.GI6722@wiggy.net>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+	Matthias-Christian Ott <matthias.christian@tiscali.de>,
+	=?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
+	linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+References: <20050220155600.GD5049@vanheusden.com> <4218C692.9040106@tiscali.de> <20050220180550.GA18606@ime.usp.br> <200502211943.59887.bzolnier@elka.pw.edu.pl> <421A2D8F.3050704@pobox.com> <20050221194227.GH6722@wiggy.net> <421A4574.1000604@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <421A4574.1000604@pobox.com>
+User-Agent: Mutt/1.5.6+20040907i
+X-SA-Exim-Connect-IP: <locally generated>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Hicks <mort@wildopensource.com> wrote:
->
-> This patch introduces a new sysctl for NUMA systems that tries to drop
->  as much of the page cache as possible from a set of nodes.  The
->  motivation for this patch is for setting up High Performance Computing
->  jobs, where initial memory placement is very important to overall
->  performance.
+Previously Jeff Garzik wrote:
+> These are _duplicate_ messages.  The To/CC doesn't vary in my 
+> experience.  Therefore, sorting on To/CC always guarantees my messages 
+> go into the correct folder.
 
-- Using a write to /proc for this seems a bit hacky.  Why not simply add
-  a new system call for it?
+It depends highly on how you filter. It do not use To/Cc headers
+to choose the mailbox to deliver a message in since that will not work
+with things like bounces and aliases. Using headers like List-Id or
+X-Mailing-List is reliable, but does not work with the duplicate
+filtering you suggested.
 
-- Starting a kernel thread for each node might be overkill.  Yes, it
-  would take longer if one process was to do all the work, but does this
-  operation need to be very fast?
+It is a matter of choosing your own preference. And ours seem to differ.
 
-  If it does, then userspace could arrange for that concurrency by
-  starting a number of processes to perform the toss, each with a different
-  nodemask.
+Wichert.
 
-- Dropping "as much pagecache as possible" might be a bit crude.  I
-  wonder if we should pass in some additional parameter which specifies how
-  much of the node's pagecache should be removed.
-
-  Or, better, specify how much free memory we will actually require on
-  this node.  The syscall terminates when it determines that enough
-  pagecache has been removed.
-
-- To make the syscall more general, we should be able to reclaim mapped
-  pagecache and anonymous memory as well.
-
-
-So what it comes down to is
-
-sys_free_node_memory(long node_id, long pages_to_make_free, long what_to_free)
-
-where `what_to_free' consists of a bunch of bitflags (unmapped pagecache,
-mapped pagecache, anonymous memory, slab, ...).
+-- 
+Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
+http://www.wiggy.net/                   It is hard to make things simple.

@@ -1,27 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266125AbUGEOSu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUGEOYA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266125AbUGEOSu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 10:18:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUGEOSu
+	id S266124AbUGEOYA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 10:24:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUGEOYA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 10:18:50 -0400
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:30130 "EHLO
+	Mon, 5 Jul 2004 10:24:00 -0400
+Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:8885 "EHLO
 	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id S266125AbUGEOSq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 10:18:46 -0400
-Message-ID: <313680C9A886D511A06000204840E1CF08F42FD4@whq-msgusr-02.pit.comms.marconi.com>
+	id S266124AbUGEOX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 10:23:57 -0400
+Message-ID: <313680C9A886D511A06000204840E1CF08F42FD5@whq-msgusr-02.pit.comms.marconi.com>
 From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Cc: "'Mike Galbraith'" <efault@gmx.de>
-Subject: RE: Maximum frequency of re-scheduling (minimum time quantum) que
-	stio n
-Date: Mon, 5 Jul 2004 10:18:42 -0400 
+To: "'Mike Galbraith'" <efault@gmx.de>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Maximum frequency of re-scheduling (minimum time quantum) questi 
+	n
+Date: Mon, 5 Jul 2004 10:23:49 -0400 
 MIME-Version: 1.0
 X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Corrected couple of "typos" in my previous e-mail
+
+-----Original Message-----
+From: Povolotsky, Alexander 
+Sent: Monday, July 05, 2004 10:19 AM
+To: 'linux-kernel@vger.kernel.org'
+Cc: 'Mike Galbraith'
+Subject: RE: Maximum frequency of re-scheduling (minimum time quantum)
+questio n
+
 
 Hello Mike,
 
@@ -32,11 +43,11 @@ Thanks for replying/answering !
 >over an indeterminate amount of time.  
 
 Mike - the part of my original question was - what is the minimum "measure"
-(in time ticks or is fraction of the time tick ?) of that "(almost) any time
-? In another words, assuming what is the latency between the moment, when
-the higher priority process (or thread ) is becoming available  to run (and
+(in time ticks or is it a fraction of the time tick ?) of that "(almost) any
+time" ? In another words, what is the latency between the moment, when the
+higher priority process (or thread ) is becoming available  to run (and
 assuming that "schedule()" system call is not explicitly called at that time
-...)and the moment when the scheduler STARTS (I am not including context
+...) and the moment when the scheduler STARTS (I am not including context
 switch time into the question here) the process of preemtion (start of the
 context switch). Is this time  settable (at compile time ) ? 
 

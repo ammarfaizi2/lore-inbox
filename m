@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263491AbUALWkS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 17:40:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUALWkS
+	id S266445AbUALW3q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 17:29:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266472AbUALW3p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 17:40:18 -0500
-Received: from gprs214-71.eurotel.cz ([160.218.214.71]:384 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263491AbUALWkM (ORCPT
+	Mon, 12 Jan 2004 17:29:45 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:61105 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S266445AbUALW3m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 17:40:12 -0500
-Date: Mon, 12 Jan 2004 23:39:15 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: suspend/resume support for PIT (time.c)
-Message-ID: <20040112223915.GA204@elf.ucw.cz>
-References: <20040110200332.GA1327@elf.ucw.cz> <1073932405.28098.43.camel@cog.beaverton.ibm.com>
+	Mon, 12 Jan 2004 17:29:42 -0500
+Date: Mon, 12 Jan 2004 14:28:39 -0800
+From: Paul Jackson <pj@sgi.com>
+To: joe.korty@ccur.com
+Cc: hch@infradead.org, schwab@suse.de, paulus@samba.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: seperator error in __mask_snprintf_len
+Message-Id: <20040112142839.3dbda2d0.pj@sgi.com>
+In-Reply-To: <20040112220024.GA12748@tsunami.ccur.com>
+References: <20040107165607.GA11483@rudolph.ccur.com>
+	<20040107113207.3aab64f5.akpm@osdl.org>
+	<20040108051111.4ae36b58.pj@sgi.com>
+	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
+	<20040109064619.35c487ec.pj@sgi.com>
+	<je1xq9duhc.fsf@sykes.suse.de>
+	<20040109152533.A25396@infradead.org>
+	<20040109092309.42bb6049.pj@sgi.com>
+	<20040112000923.GA2743@tsunami.ccur.com>
+	<20040112134112.2dd0ec42.pj@sgi.com>
+	<20040112220024.GA12748@tsunami.ccur.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1073932405.28098.43.camel@cog.beaverton.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> MASK_CHUNKSZ is a named constant not a variable.  Once we pick a value
+> it can never change.  The specified legal values are for 1) varying to
+> test for algorithmic correctness, and 2) giving the list of values from
+> which we must pick the permanent value before too much more time goes by.
 
-> On Sat, 2004-01-10 at 12:03, Pavel Machek wrote:
-> > +static int pit_suspend(struct sys_device *dev, u32 state)
-> [snip]
-> > +static int pit_resume(struct sys_device *dev)
-> > +{
-> > +	write_seqlock_irq(&xtime_lock);
-> > +	xtime.tv_sec = get_cmos_time() + clock_cmos_diff;
-> > +	xtime.tv_nsec = 0; 
-> > +	write_sequnlock_irq(&xtime_lock);
-> > +	return 0;
-> > +}
-> [snip]
-> >  static struct sysdev_class pit_sysclass = {
-> > +	.resume = pit_resume,
-> > +	.suspend = pit_suspend,
-> >  	set_kset_name("pit"),
-> >  };
-> 
-> As none of this really has anything to do w/ the PIT, and to avoid
-> confusion w/ the PIT timesource code, could we rename this to
-> "time_suspend" and "time_resume"?
+I can see where the testing for algorithmic correctness would be useful.
 
-Applied, altrough I'll not try to push it for a while. (I'm not sure
-if Andrew applied previous patches and do not want to clash).
+The final code should reflect the final choices.
 
-								Pavel
+> No.  snprintf will fill to the end of the buffer and not place the
+
+Correct - snprintf will not nul terminate if it runs out of buffer.
+
+But then again, I wouldn't expect a "mask_snprintf" (such as might wrap
+this __mask_snprintf_len() code) to guarantee nul termination in the
+full buffer case either.  Rather the caller has to watch for a returned
+length that is too close to the length of the buffer, and handle it as
+an error.  If you look at the cpumask_snprintf() calls, they do just
+this.
+
+snprintf-like calls should behave like snprintf calls, no fancier.
+
+> I am pretty sure the code is within a hairsbreadth of being minimal.
+
+We'll see.  I'm still poking at it.
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

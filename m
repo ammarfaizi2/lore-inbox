@@ -1,222 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbULWBna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbULWBtc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbULWBna (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 20:43:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbULWBmq
+	id S261151AbULWBtc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 20:49:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbULWBtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 20:42:46 -0500
-Received: from omx3-ext.sgi.com ([192.48.171.20]:56771 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S262039AbULWBku (ORCPT
+	Wed, 22 Dec 2004 20:49:11 -0500
+Received: from THUNK.ORG ([69.25.196.29]:42912 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261172AbULWBsy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 20:40:50 -0500
-From: Mike Werner <werner@sgi.com>
-Reply-To: werner@sgi.com
-To: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: [resend patch 2.6.10-rc3 2/3] agpgart: allow multiple backends to be initialized
-Date: Wed, 22 Dec 2004 17:42:37 -0800
-User-Agent: KMail/1.6.2
-MIME-Version: 1.0
+	Wed, 22 Dec 2004 20:48:54 -0500
+Date: Wed, 22 Dec 2004 20:45:27 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Rob Browning <rlb@defaultvalue.org>
+Cc: Pete Zaitcev <zaitcev@redhat.com>,
+       Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+       Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
+Message-ID: <20041223014527.GA25558@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Rob Browning <rlb@defaultvalue.org>,
+	Pete Zaitcev <zaitcev@redhat.com>,
+	Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
+	"Randy.Dunlap" <rddunlap@osdl.org>, Adrian Bunk <bunk@stusta.de>,
+	Greg KH <greg@kroah.com>, linux-usb-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
+References: <20041220001644.GI21288@stusta.de> <20041220003146.GB11358@kroah.com> <20041220013542.GK21288@stusta.de> <20041219205104.5054a156@lembas.zaitcev.lan> <41C65EA0.7020805@osdl.org> <20041220062055.GA22120@one-eyed-alien.net> <20041219223723.3e861fc5@lembas.zaitcev.lan> <87u0qepxd3.fsf@trouble.defaultvalue.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200412221742.37842.werner@sgi.com>
+In-Reply-To: <87u0qepxd3.fsf@trouble.defaultvalue.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch adds support for initializing and addressing multiple AGP
-bridges using the agpgart driver. In particular, it extends agp_acquire
-and agp_allocate_memory so that different bridges can be acquired
-and memory allocated within a specific AGP aperature.
+On Wed, Dec 22, 2004 at 02:10:00AM -0600, Rob Browning wrote:
+> The sample Kconfig warnings I saw posted later in this thread would
+> certainly have given enough information to know to avoid the driver,
+> though if true, this might be even clearer:
+> 
+>   Note: this driver does not coexist well with usb-storage, and
+>   usb-storage is is often the best driver for common devices like
+>   external drive enclosures.  At the moment, usb-storage may peform
+>   dramatically better for those devices.
+> 
+>   If you're not certain you need this driver, you should probably
+>   say 'N' here, and choose usb-storage instead.
 
-Signed-off-by: Mike Werner <werner@sgi.com>
+The other caveat which is worth adding is that currently, the UB
+device only supports a single LUN.  Some devices, most notably USB
+readers that support multiple types of compact flash/secure
+digital/smart media/et.al., and the PalmOne T5 PDA export multiple
+LUN's.  
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# Add drm support for new multiple agp bridge agpgart api
-#
-diff -Nru a/drivers/char/drm/drmP.h b/drivers/char/drm/drmP.h
---- a/drivers/char/drm/drmP.h	2004-12-17 12:12:56 -08:00
-+++ b/drivers/char/drm/drmP.h	2004-12-17 12:12:56 -08:00
-@@ -481,6 +481,7 @@
- 	DRM_AGP_KERN       agp_info;	/**< AGP device information */
- 	drm_agp_mem_t      *memory;	/**< memory entries */
- 	unsigned long      mode;	/**< AGP mode */
-+	struct agp_bridge_data  *bridge;
- 	int                enabled;	/**< whether the AGP bus as been enabled */
- 	int                acquired;	/**< whether the AGP device has been acquired */
- 	unsigned long      base;
-@@ -778,7 +779,7 @@
- 					   drm_device_t *dev);
- extern void	     DRM(ioremapfree)(void *pt, unsigned long size, drm_device_t *dev);
- 
--extern DRM_AGP_MEM   *DRM(alloc_agp)(int pages, u32 type);
-+extern DRM_AGP_MEM   *DRM(alloc_agp)(struct agp_bridge_data *bridge, int pages, u32 type);
- extern int           DRM(free_agp)(DRM_AGP_MEM *handle, int pages);
- extern int           DRM(bind_agp)(DRM_AGP_MEM *handle, unsigned int start);
- extern int           DRM(unbind_agp)(DRM_AGP_MEM *handle);
-@@ -896,11 +897,11 @@
- extern void          DRM(vbl_send_signals)( drm_device_t *dev );
- 
- 				/* AGP/GART support (drm_agpsupport.h) */
--extern drm_agp_head_t *DRM(agp_init)(void);
-+extern drm_agp_head_t *DRM(agp_init)(drm_device_t *dev);
- extern void           DRM(agp_uninit)(void);
- extern int            DRM(agp_acquire)(struct inode *inode, struct file *filp,
- 				       unsigned int cmd, unsigned long arg);
--extern void           DRM(agp_do_release)(void);
-+extern void           DRM(agp_do_release)(drm_device_t *dev);
- extern int            DRM(agp_release)(struct inode *inode, struct file *filp,
- 				       unsigned int cmd, unsigned long arg);
- extern int            DRM(agp_enable)(struct inode *inode, struct file *filp,
-@@ -915,7 +916,7 @@
- 				      unsigned int cmd, unsigned long arg);
- extern int            DRM(agp_bind)(struct inode *inode, struct file *filp,
- 				    unsigned int cmd, unsigned long arg);
--extern DRM_AGP_MEM    *DRM(agp_allocate_memory)(size_t pages, u32 type);
-+extern DRM_AGP_MEM    *DRM(agp_allocate_memory)(struct agp_bridge_data *bridge, size_t pages, u32 type);
- extern int            DRM(agp_free_memory)(DRM_AGP_MEM *handle);
- extern int            DRM(agp_bind_memory)(DRM_AGP_MEM *handle, off_t start);
- extern int            DRM(agp_unbind_memory)(DRM_AGP_MEM *handle);
-diff -Nru a/drivers/char/drm/drm_agpsupport.h b/drivers/char/drm/drm_agpsupport.h
---- a/drivers/char/drm/drm_agpsupport.h	2004-12-17 12:12:56 -08:00
-+++ b/drivers/char/drm/drm_agpsupport.h	2004-12-17 12:12:56 -08:00
-@@ -100,7 +100,7 @@
- {
- 	drm_file_t	 *priv	 = filp->private_data;
- 	drm_device_t	 *dev	 = priv->dev;
--	int              retcode;
-+	
- 
- 	if (!dev->agp)
- 		return -ENODEV;
-@@ -108,8 +108,8 @@
- 		return -EBUSY;
- 	if (!drm_agp->acquire)
- 		return -EINVAL;
--	if ((retcode = drm_agp->acquire()))
--		return retcode;
-+	if (!(dev->agp->bridge = drm_agp->acquire(dev->pdev)))
-+		return -ENODEV;
- 	dev->agp->acquired = 1;
- 	return 0;
- }
-@@ -133,7 +133,7 @@
- 
- 	if (!dev->agp || !dev->agp->acquired || !drm_agp->release)
- 		return -EINVAL;
--	drm_agp->release();
-+	drm_agp->release(dev->agp->bridge);
- 	dev->agp->acquired = 0;
- 	return 0;
- 
-@@ -144,10 +144,10 @@
-  *
-  * Calls drm_agp->release().
-  */
--void DRM(agp_do_release)(void)
-+void DRM(agp_do_release)(drm_device_t *dev)
- {
- 	if (drm_agp->release)
--		drm_agp->release();
-+		drm_agp->release(dev->agp->bridge);
- }
- 
- /**
-@@ -176,7 +176,7 @@
- 		return -EFAULT;
- 
- 	dev->agp->mode    = mode.mode;
--	drm_agp->enable(mode.mode);
-+	drm_agp->enable(dev->agp->bridge, mode.mode);
- 	dev->agp->base    = dev->agp->agp_info.aper_base;
- 	dev->agp->enabled = 1;
- 	return 0;
-@@ -218,7 +218,7 @@
- 	pages = (request.size + PAGE_SIZE - 1) / PAGE_SIZE;
- 	type = (u32) request.type;
- 
--	if (!(memory = DRM(alloc_agp)(pages, type))) {
-+	if (!(memory = DRM(alloc_agp)(dev->agp->bridge, pages, type))) {
- 		DRM(free)(entry, sizeof(*entry), DRM_MEM_AGPLISTS);
- 		return -ENOMEM;
- 	}
-@@ -395,16 +395,24 @@
-  * via the inter_module_* functions. Creates and initializes a drm_agp_head
-  * structure.
-  */
--drm_agp_head_t *DRM(agp_init)(void)
-+drm_agp_head_t *DRM(agp_init)(drm_device_t *dev)
- {
- 	drm_agp_head_t *head         = NULL;
- 
- 	drm_agp = DRM_AGP_GET;
--	if (drm_agp) {
-+	if (!drm_agp)
-+		DRM_ERROR("DRM_AGP_GET returned NULL\n");
-+	else
-+		{
- 		if (!(head = DRM(alloc)(sizeof(*head), DRM_MEM_AGPLISTS)))
- 			return NULL;
- 		memset((void *)head, 0, sizeof(*head));
--		drm_agp->copy_info(&head->agp_info);
-+		if (!(head->bridge = drm_agp->acquire(dev->pdev))) {
-+			DRM(free)(head, sizeof(*head), DRM_MEM_AGPLISTS);
-+			return NULL;
-+		}	
-+		drm_agp->copy_info(head->bridge, &head->agp_info);
-+		drm_agp->release(head->bridge);
- 		if (head->agp_info.chipset == NOT_SUPPORTED) {
- 			DRM(free)(head, sizeof(*head), DRM_MEM_AGPLISTS);
- 			return NULL;
-@@ -433,11 +441,11 @@
- }
- 
- /** Calls drm_agp->allocate_memory() */
--DRM_AGP_MEM *DRM(agp_allocate_memory)(size_t pages, u32 type)
-+DRM_AGP_MEM *DRM(agp_allocate_memory)(struct agp_bridge_data *bridge, size_t pages, u32 type)
- {
- 	if (!drm_agp->allocate_memory)
- 		return NULL;
--	return drm_agp->allocate_memory(pages, type);
-+	return drm_agp->allocate_memory(bridge, pages, type);
- }
- 
- /** Calls drm_agp->free_memory() */
-diff -Nru a/drivers/char/drm/drm_drv.h b/drivers/char/drm/drm_drv.h
---- a/drivers/char/drm/drm_drv.h	2004-12-17 12:12:56 -08:00
-+++ b/drivers/char/drm/drm_drv.h	2004-12-17 12:12:56 -08:00
-@@ -318,7 +318,7 @@
- 		}
- 		dev->agp->memory = NULL;
- 
--		if ( dev->agp->acquired ) DRM(agp_do_release)();
-+		if ( dev->agp->acquired ) DRM(agp_do_release)( dev);
- 
- 		dev->agp->acquired = 0;
- 		dev->agp->enabled  = 0;
-@@ -490,7 +490,7 @@
- 
- 	if (drm_core_has_AGP(dev))
- 	{
--		dev->agp = DRM(agp_init)();
-+		dev->agp = DRM(agp_init)(dev);
- 		if (drm_core_check_feature(dev, DRIVER_REQUIRE_AGP) && (dev->agp == NULL)) {
- 			DRM_ERROR( "Cannot initialize the agpgart module.\n" );
- 			DRM(stub_unregister)(dev->minor);
-diff -Nru a/drivers/char/drm/drm_memory.h b/drivers/char/drm/drm_memory.h
---- a/drivers/char/drm/drm_memory.h	2004-12-17 12:12:56 -08:00
-+++ b/drivers/char/drm/drm_memory.h	2004-12-17 12:12:56 -08:00
-@@ -343,9 +343,9 @@
- 
- #if __OS_HAS_AGP
- /** Wrapper around agp_allocate_memory() */
--DRM_AGP_MEM *DRM(alloc_agp)(int pages, u32 type)
-+DRM_AGP_MEM *DRM(alloc_agp)(struct agp_bridge_data *bridge, int pages, u32 type)
- {
--	return DRM(agp_allocate_memory)(pages, type);
-+	return DRM(agp_allocate_memory)(bridge, pages, type);
- }
- 
- /** Wrapper around agp_free_memory() */
+(I was scratching my head for a while trying to figure out why the T5
+documentation claimed that you could access both the internal flash
+memory as well as the Secure Digital external memory via the USB
+interface until I realized it was because I was using the UB driver,
+and it didn't support multiple LUN's.)
+
+						- Ted

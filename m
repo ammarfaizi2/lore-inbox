@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268908AbTGOQaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 12:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268836AbTGOQ2d
+	id S268748AbTGOQdw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 12:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268790AbTGOQdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 12:28:33 -0400
-Received: from eta.fastwebnet.it ([213.140.2.50]:58532 "EHLO eta.fastwebnet.it")
-	by vger.kernel.org with ESMTP id S268727AbTGOQ0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 12:26:23 -0400
-Date: Tue, 15 Jul 2003 18:42:51 +0200
-From: Mattia Dongili <dongili@supereva.it>
-To: ian.soboroff@nist.gov
+	Tue, 15 Jul 2003 12:33:52 -0400
+Received: from 12-240-128-156.client.attbi.com ([12.240.128.156]:56029 "EHLO
+	carlthompson.net") by vger.kernel.org with ESMTP id S268748AbTGOQdt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 12:33:49 -0400
+Message-ID: <1058287708.48b29132da9b9@carlthompson.net>
+X-Priority: 3 (Normal)
+Date: Tue, 15 Jul 2003 09:48:28 -0700
+From: Carl Thompson <cet@carlthompson.net>
+To: Martin Zwickel <martin.zwickel@technotrend.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test1 - cpu_freg sysfs nodes?
-Message-ID: <20030715164251.GA2623@inferi.kami.home>
-Reply-To: dongili@supereva.it
-Mail-Followup-To: ian.soboroff@nist.gov, linux-kernel@vger.kernel.org
-References: <m34r1n3e93.fsf@euphrates.ncsl.nist.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Problems compiling modules outside of tree in 2.6.0test1
+References: <1058251587.eec14da73ec3b@carlthompson.net>
+	<20030715104006.79c58435.martin.zwickel@technotrend.de>
+In-Reply-To: <20030715104006.79c58435.martin.zwickel@technotrend.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Disposition: inline
-In-Reply-To: <m34r1n3e93.fsf@euphrates.ncsl.nist.gov>
-User-Agent: Mutt/1.5.4i
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) 4.0-cvs
+X-Originating-IP: 192.168.0.163
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 01:12:56PM -0400, ian.soboroff@nist.gov wrote:
-> 
-> I'm running 2.6.0-test1 on my Fujitsu P-2110 laptop, but the cpufreq
-> stuff doesn't seem to be working.  Well, this is the symptom, but the
-> problem might actually be higher up:
-> 
-> # ls /sys/class/
-> input  net  pcmcia_socket  scsi_device  scsi_host  tty  usb  usb_host
-> 
-> Note, no 'cpu' class.  /proc/cpufreq no longer works (as
-> expected)... using the longrun utility to frob the MSR manually works
-> fine.
+Quoting Martin Zwickel <martin.zwickel@technotrend.de>:
 
-find /sys -iname 'cpu*'
+> On Mon, 14 Jul 2003 23:46:27 -0700
+> Carl Thompson <cet@carlthompson.net> bubbled:
+>
+> What about:
+>
+> CFLAGS += -I/usr/include/asm/mach-default/
 
-/sys/firmware/acpi/namespace/ACPI/CPU0
-/sys/devices/system/cpu
-/sys/devices/system/cpu/cpu0
-/sys/devices/system/cpu/cpu0/cpufreq
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
-/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq
+This is what I'm doing now.  But this is architecture specific.  On some
+i386 architectures you might want "include/asm/mach-voyager" or
+"include/asm/mach-visws" instead.  I don't think I should have to keep
+track of architecture specific include paths when the kernel build system
+already does that for me.  The correct files should automatically be found
+when included by kernel headers, in my opinion.  Or there out to be a
+"include/asm/mach-platform" which is handled like "include/asm" as a
+symbolic link which is made by the build system.
 
-:)
--- 
-mattia
-:wq!
+> Martin Zwickel <martin.zwickel@technotrend.de>
+
+Carl Thompson
+
+

@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318894AbSHMAsM>; Mon, 12 Aug 2002 20:48:12 -0400
+	id <S318895AbSHMBGK>; Mon, 12 Aug 2002 21:06:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318895AbSHMAsM>; Mon, 12 Aug 2002 20:48:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17418 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318894AbSHMAsL>;
-	Mon, 12 Aug 2002 20:48:11 -0400
-Message-ID: <3D5857A4.FE358FA2@zip.com.au>
-Date: Mon, 12 Aug 2002 17:49:40 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
-X-Accept-Language: en
+	id <S318896AbSHMBGK>; Mon, 12 Aug 2002 21:06:10 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:29197 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S318895AbSHMBGK>; Mon, 12 Aug 2002 21:06:10 -0400
+Date: Mon, 12 Aug 2002 22:09:41 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Thomas Molina <tmolina@cox.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: pte_chain leak in rmap code (2.5.31)
+In-Reply-To: <Pine.LNX.4.44.0208121942371.25611-100000@dad.molina>
+Message-ID: <Pine.LNX.4.44L.0208122208510.23404-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-To: Adam Kropelin <akropel1@rochester.rr.com>
-CC: lkml <linux-kernel@vger.kernel.org>, riel@conectiva.com.br
-Subject: Re: [patch 1/21] random fixes
-References: <3D56146B.C3CAB5E1@zip.com.au> <20020811142938.GA681@www.kroptech.com> <3D56A83E.ECF747C6@zip.com.au> <20020812002739.GA778@www.kroptech.com> <3D57406E.D39E9B89@zip.com.au> <20020813002603.GA20817@www.kroptech.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Kropelin wrote:
-> 
-> ...
-> > You can make 2.5 use the 2.4 settings with
+On Mon, 12 Aug 2002, Thomas Molina wrote:
+> On Mon, 12 Aug 2002, Rik van Riel wrote:
+> > On Mon, 12 Aug 2002, Christian Ehrhardt wrote:
 > >
-> > cd /proc/sys/vm
-> > echo 30 > dirty_background_ratio
-> > echo 60 > dirty_async_ratio
-> > echo 70 > dirty_sync_ratio
-> 
-> These settings bring -akpm in line with stock 2.5.31, but they are both
-> still slower than 2.4.19 (which itself could do better, I think).
+> > > Note the strange use of continue and break which both achieve the same!
+> > > What was meant to happen (judging from rmap-13c) is that we break
+> > Excellent hunting!   Thank you!
+> Any chance this is the cause of the following?
 
-In that case I'm confounded.  It worked sweetly for me.  Just
+Yes, quite possible.
 
-	wget ftp://other-machine/600-meg-file
+> From:     Adam Kropelin <akropel1@rochester.rr.com>
+> Date:     2002-08-12 2:54:31
 
-on a machine booted with mem=160m.  Took 63 seconds over 100bT,
-steady column of writes in vmstat.
+> But we do have a repeatable inconsistency happening with ntpd and
+> memory pressure.  That may be related, but in that case it's probably
+> related to mlock().
 
-Which ftp client are you using?  And can you strace it, to see how
-much data it's writing per system call?
+kind regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

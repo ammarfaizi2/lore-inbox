@@ -1,77 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbUCQXZK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 18:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbUCQXZK
+	id S262169AbUCQXZm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 18:25:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbUCQXZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 18:25:10 -0500
-Received: from aea152.neoplus.adsl.tpnet.pl ([83.31.137.152]:3844 "EHLO
-	satan.blackhosts") by vger.kernel.org with ESMTP id S262165AbUCQXY5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 18:24:57 -0500
-Date: Thu, 18 Mar 2004 00:31:35 +0100
-From: Jakub Bogusz <qboosh@pld-linux.org>
-To: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
-Subject: [PATCH 2.6][RESEND] fbcon margins colour fix
-Message-ID: <20040317233135.GB3510@satan.blackhosts>
+	Wed, 17 Mar 2004 18:25:42 -0500
+Received: from ns.suse.de ([195.135.220.2]:4842 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262169AbUCQXZd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Mar 2004 18:25:33 -0500
+Subject: Re: 2.6.4-mm2
+From: Chris Mason <mason@suse.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: daniel@osdl.org, linux-kernel@vger.kernel.org, linux-aio@kvack.org
+In-Reply-To: <20040317150909.7fd121bd.akpm@osdl.org>
+References: <20040314172809.31bd72f7.akpm@osdl.org>
+	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
+	 <1079474312.4186.927.camel@watt.suse.com>
+	 <20040316152106.22053934.akpm@osdl.org>
+	 <20040316152843.667a623d.akpm@osdl.org>
+	 <20040316153900.1e845ba2.akpm@osdl.org>
+	 <1079485055.4181.1115.camel@watt.suse.com>
+	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
+	 <20040316180043.441e8150.akpm@osdl.org>
+	 <1079554288.4183.1938.camel@watt.suse.com>
+	 <20040317123324.46411197.akpm@osdl.org>
+	 <1079563568.4185.1947.camel@watt.suse.com>
+	 <20040317150909.7fd121bd.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1079566076.4186.1959.camel@watt.suse.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 17 Mar 2004 18:27:57 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2004-03-17 at 18:09, Andrew Morton wrote:
+> Chris Mason <mason@suse.com> wrote:
+> >
+> > wait_on_page_writeback_range() does a pagevec_lookup_tag on 
+> >  min(end - index + 1, (pgoff_t)PAGEVEC_SIZE)
+> > 
+> >  Which translates to: (unsigned long)-1 - 0 + 1, which is 0.
+> 
+> I made a mental note to test that code.
+> 
+> How's this look?
+> 
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Looks good, but I'm still having problems convincing pagevec_lookup_tag
+to return anything other than 0 when called from
+wait_on_page_writeback_range (ext2, ext3, reiserfs).  Any ideas?
 
-I sent it a few times to linux-kernel and at least one to
-linux-fbdev-devel, but haven't seen any comments - and this annoying
-changing margins colour seems to be still there in 2.6.4 (at least on
-tdfxfb).
+I'm running with all the fixes discussed so far, including
+clear_page_dirty_for_io(page)
+
+-chris
 
 
--- 
-Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
-
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="linux-fbcon-margins.patch"
-
-This fixes "margin colour" (colour used to clear top and bottom margins -
-e.g. remaining half of line at the bottom of 100x37 console on 800x600
-framebuffer).
-
-I don't know what was the intention behind using attr_bgcol_ec() here,
-but it caused using of background colour of last erase character to clear
-margins (thus it was changing from time to time when switching consoles
-or so).
-I think that margin colour should be equal overscan colour, which seems
-to be always black.
-This patch changes margin colour to black (or colour 0 in palette modes)
-in accel_clear_margins() and removes unused then bgshift variable.
-
-	-- Jakub Bogusz <qboosh@pld-linux.org>
-
---- linux-2.6.4/drivers/video/console/fbcon.c.orig	2004-03-11 03:55:36.000000000 +0100
-+++ linux-2.6.4/drivers/video/console/fbcon.c	2004-03-17 20:47:38.749388312 +0100
-@@ -489,7 +489,6 @@
- void accel_clear_margins(struct vc_data *vc, struct fb_info *info,
- 				int bottom_only)
- {
--	int bgshift = (vc->vc_hi_font_mask) ? 13 : 12;
- 	unsigned int cw = vc->vc_font.width;
- 	unsigned int ch = vc->vc_font.height;
- 	unsigned int rw = info->var.xres - (vc->vc_cols*cw);
-@@ -498,7 +497,7 @@
- 	unsigned int bs = info->var.yres - bh;
- 	struct fb_fillrect region;
- 
--	region.color = attr_bgcol_ec(bgshift, vc);
-+	region.color = 0; /* margins color = overscan color */
- 	region.rop = ROP_COPY;
- 
- 	if (rw && !bottom_only) {
-
---jI8keyz6grp/JLjh--

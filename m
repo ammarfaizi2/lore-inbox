@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbUBTVJO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Feb 2004 16:09:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbUBTVIA
+	id S261310AbUBTVRo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Feb 2004 16:17:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUBTVRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Feb 2004 16:08:00 -0500
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:14797 "EHLO
-	ti3.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S261414AbUBTVFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Feb 2004 16:05:06 -0500
-Date: Fri, 20 Feb 2004 16:04:52 -0500
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, brugolsky@telemetry-investments.com
-Subject: [PATCH][4/4] poll()/select() timeout behavior
-Message-ID: <20040220210452.GE1912@ti19.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+	Fri, 20 Feb 2004 16:17:43 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:61200 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261310AbUBTVRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Feb 2004 16:17:41 -0500
+Date: Fri, 20 Feb 2004 21:17:32 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Daniel Phillips <phillips@arcor.de>
+Cc: paulmck@us.ibm.com, "Stephen C. Tweedie" <sct@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+Subject: Re: Non-GPL export of invalidate_mmap_range
+Message-ID: <20040220211732.A10079@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Daniel Phillips <phillips@arcor.de>, paulmck@us.ibm.com,
+	"Stephen C. Tweedie" <sct@redhat.com>,
+	Andrew Morton <akpm@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	linux-mm <linux-mm@kvack.org>
+References: <20040216190927.GA2969@us.ibm.com> <200402200007.25832.phillips@arcor.de> <20040220120255.GA1269@us.ibm.com> <200402201535.47848.phillips@arcor.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200402201535.47848.phillips@arcor.de>; from phillips@arcor.de on Fri, Feb 20, 2004 at 03:37:26PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch forces select() to wait *at least* the specified timeout if
-no events have occurred, same as poll(). The SUSv3 man page for select(2)
-says:
+On Fri, Feb 20, 2004 at 03:37:26PM -0500, Daniel Phillips wrote:
+> It does, thanks for the catch.  Please bear with me for a moment while I 
+> reroll this, then hopefully we can move on to the more interesting discussion 
+> of whether it's worth it.  (Yes it is :)
 
-   "If the timeout parameter is not a null pointer, it specifies a maximum
-   interval to wait for the selection to complete. If the specified
-   time interval expires without any requested operation becoming ready,
-   the function shall return."
+What about to the more interesting question who needs it.  It think this
+whole discussion who needs what and which approach is better is pretty much
+moot as long as we don't have an intree users.
 
-Additionally:
+Instead of wasting your time on different designs you should hurry of
+getting your filesystems encumbrance-reviewed, cleaned up and merged -
+with intree users we have a chance of finding the right API.  And your
+newly started dicussion shows pretty much that with only out of tree users
+we'll never get a sane API.
 
-   "If the requested timeout interval requires a finer granularity than
-   the implementation supports, the actual timeout interval shall be
-   rounded up to the next supported value."
-
-Unfortunately, fixing the fencepost error places a hard lower limit of
-1/HZ on the time slept, and increases the average minimum sleep time
-threefold, from 1/(2*HZ) jiffy to 3/(2*HZ).
-
-Please consider applying.
-
-	Bill Rugolsky
-
---- linux/fs/select.c	2004-02-20 14:29:11.000000000 -0500
-+++ linux/fs/select.c	2004-02-20 14:30:18.326814232 -0500
-@@ -313,8 +313,8 @@
- 		if (sec < 0 || usec < 0 || usec >= 1000000)
- 			goto out_nofds;
- 
--		if ((unsigned long) sec < (MAX_SCHEDULE_TIMEOUT-1) / HZ - 1) {
--			timeout = ROUND_UP(usec, 1000000/HZ);
-+		if ((unsigned long) sec < (MAX_SCHEDULE_TIMEOUT-2) / HZ - 1) {
-+			timeout = ROUND_UP(usec, 1000000/HZ) + 1;
- 			timeout += sec * (unsigned long) HZ;
- 		} else {
- 			timeout = MAX_SCHEDULE_TIMEOUT-1;

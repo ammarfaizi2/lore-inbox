@@ -1,443 +1,259 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266116AbUIPCcR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266555AbUIPCfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266116AbUIPCcR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 22:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266555AbUIPCcR
+	id S266555AbUIPCfK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 22:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266603AbUIPCfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 22:32:17 -0400
-Received: from [205.233.219.253] ([205.233.219.253]:63393 "EHLO
-	conifer.conscoop.ottawa.on.ca") by vger.kernel.org with ESMTP
-	id S266116AbUIPCbt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 22:31:49 -0400
-Date: Wed, 15 Sep 2004 22:31:18 -0400
-From: Jody McIntyre <realtime-lsm@modernduck.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: James Morris <jmorris@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20040916023118.GE2945@conscoop.ottawa.on.ca>
-References: <Xine.LNX.4.44.0409120956150.16684-100000@thoron.boston.redhat.com> <871xh7thzx.fsf@sulphur.joq.us>
+	Wed, 15 Sep 2004 22:35:10 -0400
+Received: from mail.renesas.com ([202.234.163.13]:53994 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S266555AbUIPCeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 22:34:04 -0400
+Date: Thu, 16 Sep 2004 11:33:53 +0900 (JST)
+Message-Id: <20040916.113353.596543062.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2.6.9-rc1-mm5] [m32r] Slim arch/m32r/Kconfig
+From: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, Zwane Mwaikambo <zwane@linuxpower.ca>,
+       takata@linux-m32r.org
+X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <871xh7thzx.fsf@sulphur.joq.us>
-User-Agent: Mutt/1.5.4i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 12, 2004 at 02:16:50PM -0500, Jack O'Quin wrote:
+Hello,
 
-> I have not implemented that yet because (1) the current approach has
-> proven adequate for the Linux audio user community, and (2) I haven't
-> wanted to spend time mastering the internal kernel interfaces for
-> accessing /proc from an LSM.  I know it's not difficult, but I had
-> other things I'd rather do.  :-)
+Here is a patch to slim arch/m32r/Kconfig.
+Useless CONFIG_ options are removed for m32r.
+Please apply.
 
-Here's a patch based on the one posted in
-<1095117752.1360.5.camel@krustophenia.net> that adds a sysctl
-(/proc/sys) interface.  These sysctls don't seem to fit into any of the
-existing groups, so I added CTL_SECURITY (/proc/sys/security).
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: 2.6.9-rc1-mm3
+Date: Fri, 3 Sep 2004 08:48:27 -0400 (EDT)
+> - arch/m32r/Kconfig could do with some trimming.
 
-Example:
+Thanks.
 
-# modprobe realtime
-# echo 29 > /proc/sys/security/realtime/gid
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
-Signed-off-by: Jody McIntyre <realtime-lsm@modernduck.com>
+ arch/m32r/Kconfig |  182 ------------------------------------------------------
+ 1 files changed, 2 insertions(+), 180 deletions(-)
 
 
-Index: linux/Documentation/realtime-lsm.txt
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux/Documentation/realtime-lsm.txt	2004-09-15 15:47:39.000000000 -0400
-@@ -0,0 +1,47 @@
-+
-+		    Realtime Linux Security Module
-+
-+
-+This Linux Security Module (LSM) enables realtime capabilities.  It
-+was written by Torben Hohn and Jack O'Quin, under the provisions of
-+the GPL (see the COPYING file).  We make no warranty concerning the
-+safety, security or even stability of your system when using it.  But,
-+we will fix problems if you report them.
-+
-+Once the LSM has been installed and the kernel for which it was built
-+is running, the root user can load it and pass parameters as follows:
-+
-+  # modprobe realtime any=1
-+
-+  Any program can request realtime privileges.  This allows any local
-+  user to crash the system by hogging the CPU in a tight loop or
-+  locking down too much memory.  But, it is simple to administer.  :-)
-+
-+  # modprobe realtime gid=29
-+
-+  All users belonging to group 29 and programs that are setgid to that
-+  group have realtime privileges.  Use any group number you like.
-+
-+  # modprobe realtime mlock=0
-+
-+  Grants realtime scheduling privileges without the ability to lock
-+  memory using mlock() or mlockall() system calls.  This option can be
-+  used in conjunction with any of the other options.
-+
-+  # modprobe realtime allcaps=1
-+
-+  Enables all capabilities, including CAP_SETPCAP.  This is equivalent
-+  to the 2.4 kernel capabilities patch.  It is needed for root
-+  programs to assign realtime capabilities to other processes.  This
-+  option can be used in conjunction with any of the other options.
-+
-+  The JACK Audio Connection Kit (jackit.sourceforge.net) includes a
-+  `jackstart' program which uses CAP_SETPCAP to run the JACK daemon
-+  and its clients with realtime capabilities.
-+
-+  There are serious security exposures with CAP_SETPCAP.  If an
-+  attacker manages to subvert some system daemon running with root
-+  privileges, it can use this capability to deny needed privileges to
-+  other root processes.
-+
-+Jack O'Quin, joq@joq.us
-Index: linux/security/Makefile
-===================================================================
---- linux.orig/security/Makefile	2004-09-15 15:47:11.000000000 -0400
-+++ linux/security/Makefile	2004-09-15 15:47:39.000000000 -0400
-@@ -15,3 +15,4 @@ obj-$(CONFIG_SECURITY)			+= security.o d
- obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
- obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
- obj-$(CONFIG_SECURITY_ROOTPLUG)		+= commoncap.o root_plug.o
-+obj-$(CONFIG_SECURITY_REALTIME)		+= commoncap.o realtime.o
-Index: linux/security/realtime.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux/security/realtime.c	2004-09-15 17:54:18.000000000 -0400
-@@ -0,0 +1,283 @@
-+/*
-+ * Realtime Capabilities Linux Security Module
-+ *
-+ *  Copyright (C) 2003 Torben Hohn
-+ *  Copyright (C) 2003, 2004 Jack O'Quin
-+ *
-+ *	This program is free software; you can redistribute it and/or modify
-+ *	it under the terms of the GNU General Public License as published by
-+ *	the Free Software Foundation; either version 2 of the License, or
-+ *	(at your option) any later version.
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/security.h>
-+#include <linux/file.h>
-+#include <linux/mm.h>
-+#include <linux/mman.h>
-+#include <linux/pagemap.h>
-+#include <linux/swap.h>
-+#include <linux/smp_lock.h>
-+#include <linux/skbuff.h>
-+#include <linux/netlink.h>
-+#include <linux/ptrace.h>
-+#include <linux/sysctl.h>
-+
-+#ifdef CONFIG_SECURITY
-+
-+#define RT_LSM "Realtime LSM "		/* syslog module name prefix */
-+#define RT_ERR "Realtime: "		/* syslog error message prefix */
-+
-+#include <linux/vermagic.h>
-+MODULE_INFO(vermagic,VERMAGIC_STRING);
-+
-+/* this is needed for the proc_dointvec_minmax for allowed GID */
-+static int maxuid = 65535;
-+static int minuid = -1;
-+
-+/* module parameters */
-+static int any = 0;			/* if TRUE, any process is realtime */
-+MODULE_PARM(any, "i");
-+MODULE_PARM_DESC(any, " grant realtime privileges to any process.");
-+
-+static int gid = -1;			/* realtime group id, or NO_GROUP */
-+MODULE_PARM(gid, "i");
-+MODULE_PARM_DESC(gid, " the group ID with access to realtime privileges.");
-+
-+static int mlock = 1;			/* enable mlock() privileges */
-+MODULE_PARM(mlock, "i");
-+MODULE_PARM_DESC(mlock, " enable memory locking privileges.");
-+
-+static int allcaps = 0;			/* enable all capabilities */
-+MODULE_PARM(allcaps, "i");
-+MODULE_PARM_DESC(allcaps, " enable all capabilities, including CAP_SETPCAP.");
-+
-+static kernel_cap_t cap_bset_save;	/* place to save cap-bound */
-+
-+int realtime_bprm_set_security(struct linux_binprm *bprm)
-+{
-+	/* Copied from security/commoncap.c: cap_bprm_set_security()... */
-+	/* Copied from fs/exec.c:prepare_binprm. */
-+	/* We don't have VFS support for capabilities yet */
-+	cap_clear(bprm->cap_inheritable);
-+	cap_clear(bprm->cap_permitted);
-+	cap_clear(bprm->cap_effective);
-+
-+	/*  If a non-zero `any' parameter was specified, we grant
-+	 *  realtime privileges to every process.  If the `gid'
-+	 *  parameter was specified and it matches the group id of the
-+	 *  executable, of the current process or any supplementary
-+	 *  groups, we grant realtime capabilites.
-+	 */
-+
-+	if (any || (gid != -1)) {
-+
-+		int rt_ok = 1;
-+
-+		/* check group permissions */
-+		if ((gid != -1) &&
-+		    (gid != bprm->e_gid) &&
-+		    (gid != current->gid)) {
-+			int i;
-+			rt_ok = 0;
-+
-+			get_group_info(current->group_info);
-+			for (i = 0; i < current->group_info->ngroups; ++i) {
-+				if (gid == GROUP_AT(current->group_info, i)) {
-+ 					rt_ok = 1;
-+ 					break;
-+ 				}
-+ 			}
-+			put_group_info(current->group_info);
-+		}
-+
-+		if (rt_ok)  {
-+			cap_raise(bprm->cap_effective, CAP_SYS_NICE);
-+			cap_raise(bprm->cap_permitted, CAP_SYS_NICE);
-+			if (mlock) {
-+				cap_raise(bprm->cap_effective, CAP_IPC_LOCK);
-+				cap_raise(bprm->cap_permitted, CAP_IPC_LOCK);
-+				cap_raise(bprm->cap_effective,
-+					  CAP_SYS_RESOURCE);
-+				cap_raise(bprm->cap_permitted,
-+					  CAP_SYS_RESOURCE);
-+			}
-+		}
-+	}
-+
-+	/*  To support inheritance of root-permissions and suid-root
-+	 *  executables under compatibility mode, we raise all three
-+	 *  capability sets for the file.
-+	 *
-+	 *  If only the real uid is 0, we only raise the inheritable
-+	 *  and permitted sets of the executable file.
-+	 */
-+
-+	if (bprm->e_uid == 0 || current->uid == 0) {
-+		cap_set_full (bprm->cap_inheritable);
-+		cap_set_full (bprm->cap_permitted);
-+	}
-+	if (bprm->e_uid == 0)
-+		cap_set_full (bprm->cap_effective);
-+
-+	return 0;
-+}
-+
-+static struct security_operations capability_ops = {
-+	.ptrace =			cap_ptrace,
-+	.capget =			cap_capget,
-+	.capset_check =			cap_capset_check,
-+	.capset_set =			cap_capset_set,
-+	.capable =			cap_capable,
-+	.netlink_send =			cap_netlink_send,
-+	.netlink_recv =			cap_netlink_recv,
-+	.bprm_apply_creds =		cap_bprm_apply_creds,
-+	.bprm_set_security =		realtime_bprm_set_security,
-+	.bprm_secureexec =		cap_bprm_secureexec,
-+	.task_post_setuid =		cap_task_post_setuid,
-+	.task_reparent_to_init =	cap_task_reparent_to_init,
-+	.syslog =                       cap_syslog,
-+	.vm_enough_memory =             cap_vm_enough_memory,
-+};
-+
-+#define MY_NAME __stringify(KBUILD_MODNAME)
-+
-+static ctl_table realtime_table[] =
-+{
-+	{ .ctl_name	= 1,
-+	  .procname	= "any",
-+	  .data		= &any,
-+	  .maxlen	= sizeof(int),
-+	  .mode		= 0644,
-+	  .proc_handler	= &proc_dointvec,
-+	},
-+	{ .ctl_name	= 2,
-+	  .procname	= "gid",
-+	  .data		= &gid,
-+	  .maxlen	= sizeof(int),
-+	  .mode		= 0644,
-+	  .proc_handler	= &proc_dointvec_minmax,
-+	  .extra1	= &minuid,
-+	  .extra2	= &maxuid
-+	},
-+	{ .ctl_name	= 3,
-+	  .procname	= "mlock",
-+	  .data		= &mlock,
-+	  .maxlen	= sizeof(int),
-+	  .mode		= 0644,
-+	  .proc_handler	= &proc_dointvec,
-+	},
-+	{ .ctl_name	= 4,
-+	  .procname	= "allcaps",
-+	  .data		= &allcaps,
-+	  .maxlen	= sizeof(int),
-+	  .mode		= 0644,
-+	  .proc_handler	= &proc_dointvec,
-+	},
-+	{ }
-+};
-+
-+static ctl_table realtime_root_table[] =
-+{
-+	{ .ctl_name	= SECURITY_REALTIME,
-+	  .procname	= "realtime",
-+	  .mode		= 0555,
-+	  .child	= realtime_table },
-+	{ }
-+};
-+
-+static ctl_table security_root_table[] =
-+{
-+	{ .ctl_name	= CTL_SECURITY,
-+	  .procname	= "security",
-+	  .mode		= 0555,
-+	  .child	= realtime_root_table },
-+	{ }
-+};
-+
-+static struct ctl_table_header *sysctl_header;
-+
-+static void __exit exit_sysctl(void)
-+{
-+	unregister_sysctl_table(sysctl_header);
-+}
-+
-+/* flag to keep track of how we were registered */
-+static int secondary;
-+
-+static void __exit exit_security(void)
-+{
-+	cap_bset = cap_bset_save;	/* restore cap-bound */
-+
-+	/* remove ourselves from the security framework */
-+	if (secondary) {
-+		if (mod_unreg_security(MY_NAME, &capability_ops))
-+			printk(KERN_INFO RT_ERR "Failure unregistering "
-+				"capabilities with primary module.\n");
-+
-+	} else if (unregister_security(&capability_ops)) {
-+		printk(KERN_INFO RT_ERR
-+		       "Failure unregistering capabilities with the kernel\n");
-+	}
-+	printk(KERN_INFO "Realtime Capability LSM exiting\n");
-+}
-+
-+static int __init capability_init(void)
-+{
-+	/* register ourselves with the security framework */
-+	if (register_security(&capability_ops)) {
-+
-+		/* try registering with primary module */
-+		if (mod_reg_security(MY_NAME, &capability_ops)) {
-+			printk(KERN_INFO RT_ERR "Failure registering "
-+			       "capabilities with primary security module.\n");
-+			printk(KERN_INFO RT_ERR "Is kernel configured "
-+			       "with CONFIG_SECURITY_CAPABILITIES=m?\n");
-+			return -EINVAL;
-+		}
-+		secondary = 1;
-+	}
-+
-+	cap_bset_save = cap_bset;	/* save cap-bound */
-+
-+	sysctl_header = register_sysctl_table(security_root_table, 0);
-+	if (!sysctl_header) {
-+		exit_security();
-+		return -ENOMEM;
-+	}
-+
-+	if (allcaps) {
-+		cap_bset = to_cap_t(~0);
-+		printk(KERN_INFO RT_LSM "enabling all capabilities\n");
-+	}
-+
-+	if (any)
-+		printk(KERN_INFO RT_LSM
-+		       "initialized (all groups, mlock=%d)\n", mlock);
-+	else if (gid == -1)
-+		printk(KERN_INFO RT_LSM
-+		       "initialized (no groups, mlock=%d)\n", mlock);
-+	else
-+		printk(KERN_INFO RT_LSM
-+		       "initialized (group %d, mlock=%d)\n", gid, mlock);
-+		
-+	return 0;
-+}
-+
-+static void __exit capability_exit(void)
-+{
-+	exit_sysctl();
-+	exit_security();
-+}
-+
-+security_initcall(capability_init);
-+module_exit(capability_exit);
-+
-+MODULE_DESCRIPTION("Realtime Capabilities Security Module");
-+MODULE_LICENSE("GPL");
-+
-+#endif	/* CONFIG_SECURITY */
-Index: linux/include/linux/sysctl.h
-===================================================================
---- linux.orig/include/linux/sysctl.h	2004-09-15 11:59:54.000000000 -0400
-+++ linux/include/linux/sysctl.h	2004-09-15 16:56:21.000000000 -0400
-@@ -61,7 +61,14 @@ enum
- 	CTL_DEV=7,		/* Devices */
- 	CTL_BUS=8,		/* Busses */
- 	CTL_ABI=9,		/* Binary emulation */
--	CTL_CPU=10		/* CPU stuff (speed scaling, etc) */
-+	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
-+	CTL_SECURITY=11         /* Security modules */
-+};
-+
-+/* CTL_SECURITY names: */
-+enum
-+{
-+	SECURITY_REALTIME=1	/* Realtime LSM */
- };
+--- linux-2.6.9-rc1-mm5.orig/arch/m32r/Kconfig	2004-09-13 21:44:05.000000000 +0900
++++ linux-2.6.9-rc1-mm5/arch/m32r/Kconfig	2004-09-15 20:23:08.000000000 +0900
+@@ -219,18 +219,12 @@ config SMP
+ 	  singleprocessor machines. On a singleprocessor machine, the kernel
+ 	  will run faster if you say N here.
  
- /* CTL_BUS names: */
-Index: linux/security/Kconfig
-===================================================================
---- linux.orig/security/Kconfig	2004-09-15 15:47:11.000000000 -0400
-+++ linux/security/Kconfig	2004-09-15 15:47:39.000000000 -0400
-@@ -44,6 +44,20 @@ config SECURITY_ROOTPLUG
- 	  
- 	  If you are unsure how to answer this question, answer N.
+-	  Note that if you say Y here and choose architecture "586" or
+-	  "Pentium" under "Processor family", the kernel will not work on 486
+-	  architectures. Similarly, multiprocessor kernels for the "PPro"
+-	  architecture may not work on all Pentium based boards.
+-
+ 	  People using multiprocessor machines who say Y here should also say
+ 	  Y to "Enhanced Real Time Clock Support", below. The "Advanced Power
+ 	  Management" code will be disabled if you say Y here.
  
-+config SECURITY_REALTIME
-+	tristate "Realtime Capabilities"
-+	depends on SECURITY && SECURITY_CAPABILITIES!=y
-+	default n
-+	help
-+	  Answer M to build realtime support as a Linux Security
-+	  Module.  Answering Y to build realtime capabilities into the
-+	  kernel makes no sense.
-+
-+	  This module selectively grants realtime privileges
-+	  controlled by load-time parameters.
-+
-+	  If you are unsure how to answer this question, answer N.
-+
- source security/selinux/Kconfig
+ 	  See also the <file:Documentation/smp.tex>,
+-	  <file:Documentation/smp.txt>, <file:Documentation/i386/IO-APIC.txt>,
+-	  <file:Documentation/nmi_watchdog.txt> and the SMP-HOWTO available at
++	  <file:Documentation/smp.txt> and the SMP-HOWTO available at
+ 	  <http://www.linuxdoc.org/docs.html#howto>.
  
+ 	  If you don't know what to do here, say N.
+@@ -271,158 +265,6 @@ config BOOT_IOREMAP
  endmenu
+ 
+ 
+-menu "Power management options (ACPI, APM)"
+-
+-source kernel/power/Kconfig
+-
+-config APM
+-	tristate "Advanced Power Management BIOS support"
+-	depends on PM
+-	---help---
+-	  APM is a BIOS specification for saving power using several different
+-	  techniques. This is mostly useful for battery powered laptops with
+-	  APM compliant BIOSes. If you say Y here, the system time will be
+-	  reset after a RESUME operation, the /proc/apm device will provide
+-	  battery status information, and user-space programs will receive
+-	  notification of APM "events" (e.g. battery status change).
+-
+-	  If you select "Y" here, you can disable actual use of the APM
+-	  BIOS by passing the "apm=off" option to the kernel at boot time.
+-
+-	  Note that the APM support is almost completely disabled for
+-	  machines with more than one CPU.
+-
+-	  In order to use APM, you will need supporting software. For location
+-	  and more information, read <file:Documentation/pm.txt> and the
+-	  Battery Powered Linux mini-HOWTO, available from
+-	  <http://www.linuxdoc.org/docs.html#howto>.
+-
+-	  This driver does not spin down disk drives (see the hdparm(8)
+-	  manpage ("man 8 hdparm") for that), and it doesn't turn off
+-	  VESA-compliant "green" monitors.
+-
+-	  This driver does not support the TI 4000M TravelMate and the ACER
+-	  486/DX4/75 because they don't have compliant BIOSes. Many "green"
+-	  desktop machines also don't have compliant BIOSes, and this driver
+-	  may cause those machines to panic during the boot phase.
+-
+-	  Generally, if you don't have a battery in your machine, there isn't
+-	  much point in using this driver and you should say N. If you get
+-	  random kernel OOPSes or reboots that don't seem to be related to
+-	  anything, try disabling/enabling this option (or disabling/enabling
+-	  APM in your BIOS).
+-
+-	  Some other things you should try when experiencing seemingly random,
+-	  "weird" problems:
+-
+-	  1) make sure that you have enough swap space and that it is
+-	  enabled.
+-	  2) pass the "no-hlt" option to the kernel
+-	  3) switch on floating point emulation in the kernel and pass
+-	  the "no387" option to the kernel
+-	  4) pass the "floppy=nodma" option to the kernel
+-	  5) pass the "mem=4M" option to the kernel (thereby disabling
+-	  all but the first 4 MB of RAM)
+-	  6) make sure that the CPU is not over clocked.
+-	  7) read the sig11 FAQ at <http://www.bitwizard.nl/sig11/>
+-	  8) disable the cache from your BIOS settings
+-	  9) install a fan for the video card or exchange video RAM
+-	  10) install a better fan for the CPU
+-	  11) exchange RAM chips
+-	  12) exchange the motherboard.
+-
+-	  To compile this driver as a module ( = code which can be inserted in
+-	  and removed from the running kernel whenever you want), say M here
+-	  and read <file:Documentation/modules.txt>. The module will be called
+-	  apm.
+-
+-config APM_IGNORE_USER_SUSPEND
+-	bool "Ignore USER SUSPEND"
+-	depends on APM
+-	help
+-	  This option will ignore USER SUSPEND requests. On machines with a
+-	  compliant APM BIOS, you want to say N. However, on the NEC Versa M
+-	  series notebooks, it is necessary to say Y because of a BIOS bug.
+-
+-config APM_DO_ENABLE
+-	bool "Enable PM at boot time"
+-	depends on APM
+-	---help---
+-	  Enable APM features at boot time. From page 36 of the APM BIOS
+-	  specification: "When disabled, the APM BIOS does not automatically
+-	  power manage devices, enter the Standby State, enter the Suspend
+-	  State, or take power saving steps in response to CPU Idle calls."
+-	  This driver will make CPU Idle calls when Linux is idle (unless this
+-	  feature is turned off -- see "Do CPU IDLE calls", below). This
+-	  should always save battery power, but more complicated APM features
+-	  will be dependent on your BIOS implementation. You may need to turn
+-	  this option off if your computer hangs at boot time when using APM
+-	  support, or if it beeps continuously instead of suspending. Turn
+-	  this off if you have a NEC UltraLite Versa 33/C or a Toshiba
+-	  T400CDT. This is off by default since most machines do fine without
+-	  this feature.
+-
+-config APM_CPU_IDLE
+-	bool "Make CPU Idle calls when idle"
+-	depends on APM
+-	help
+-	  Enable calls to APM CPU Idle/CPU Busy inside the kernel's idle loop.
+-	  On some machines, this can activate improved power savings, such as
+-	  a slowed CPU clock rate, when the machine is idle. These idle calls
+-	  are made after the idle loop has run for some length of time (e.g.,
+-	  333 mS). On some machines, this will cause a hang at boot time or
+-	  whenever the CPU becomes idle. (On machines with more than one CPU,
+-	  this option does nothing.)
+-
+-config APM_DISPLAY_BLANK
+-	bool "Enable console blanking using APM"
+-	depends on APM
+-	help
+-	  Enable console blanking using the APM. Some laptops can use this to
+-	  turn off the LCD backlight when the screen blanker of the Linux
+-	  virtual console blanks the screen. Note that this is only used by
+-	  the virtual console screen blanker, and won't turn off the backlight
+-	  when using the X Window system. This also doesn't have anything to
+-	  do with your VESA-compliant power-saving monitor. Further, this
+-	  option doesn't work for all laptops -- it might not turn off your
+-	  backlight at all, or it might print a lot of errors to the console,
+-	  especially if you are using gpm.
+-
+-config APM_RTC_IS_GMT
+-	bool "RTC stores time in GMT"
+-	depends on APM
+-	help
+-	  Say Y here if your RTC (Real Time Clock a.k.a. hardware clock)
+-	  stores the time in GMT (Greenwich Mean Time). Say N if your RTC
+-	  stores localtime.
+-
+-	  It is in fact recommended to store GMT in your RTC, because then you
+-	  don't have to worry about daylight savings time changes. The only
+-	  reason not to use GMT in your RTC is if you also run a broken OS
+-	  that doesn't understand GMT.
+-
+-config APM_ALLOW_INTS
+-	bool "Allow interrupts during APM BIOS calls"
+-	depends on APM
+-	help
+-	  Normally we disable external interrupts while we are making calls to
+-	  the APM BIOS as a measure to lessen the effects of a badly behaving
+-	  BIOS implementation.  The BIOS should reenable interrupts if it
+-	  needs to.  Unfortunately, some BIOSes do not -- especially those in
+-	  many of the newer IBM Thinkpads.  If you experience hangs when you
+-	  suspend, try setting this to Y.  Otherwise, say N.
+-
+-config APM_REAL_MODE_POWER_OFF
+-	bool "Use real mode APM BIOS call to power off"
+-	depends on APM
+-	help
+-	  Use real mode APM BIOS calls to switch off the computer. This is
+-	  a work-around for a number of buggy BIOSes. Switch this option on if
+-	  your computer crashes instead of powering off properly.
+-
+-endmenu
+-
+-
+ menu "Bus options (PCI, PCMCIA, EISA, MCA, ISA)"
+ 
+ config PCI
+@@ -485,27 +327,7 @@ config ISA
+ 	help
+ 	  Find out whether you have ISA slots on your motherboard.  ISA is the
+ 	  name of a bus system, i.e. the way the CPU talks to the other stuff
+-	  inside your box.  Other bus systems are PCI, EISA, MicroChannel
+-	  (MCA) or VESA.  ISA is an older system, now being displaced by PCI;
+-	  newer boards don't support it.  If you have ISA, say Y, otherwise N.
+-
+-config EISA
+-	bool "EISA support"
+-	depends on ISA
+-	---help---
+-	  The Extended Industry Standard Architecture (EISA) bus was
+-	  developed as an open alternative to the IBM MicroChannel bus.
+-
+-	  The EISA bus provided some of the features of the IBM MicroChannel
+-	  bus while maintaining backward compatibility with cards made for
+-	  the older ISA bus.  The EISA bus saw limited use between 1988 and
+-	  1995 when it was made obsolete by the PCI bus.
+-
+-	  Say Y here if you are building a kernel for an EISA-based machine.
+-
+-	  Otherwise, say N.
+-
+-source "drivers/eisa/Kconfig"
++	  inside your box.  If you have ISA, say Y, otherwise N.
+ 
+ source "drivers/pcmcia/Kconfig"
+ 
+
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

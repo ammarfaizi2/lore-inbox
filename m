@@ -1,54 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269804AbTGPHQg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 03:16:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270158AbTGPHQg
+	id S270173AbTGPHUq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 03:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270175AbTGPHUp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 03:16:36 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:33759 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S269804AbTGPHQf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 03:16:35 -0400
-Message-Id: <200307160731.h6G7VP609690@zeus.kernel.org>
-From: "ERC - Equipe =?ISO-8859-1?Q?=20Reda=E7=E3o?= Comercial" 
-	<redacaodecartas@bol.com.br>
-To: <linux-kernel@vger.kernel.org>
-Subject: 540 Modelos de Cartas Comerciais
+	Wed, 16 Jul 2003 03:20:45 -0400
+Received: from c2mailgwalt.mailcentro.com ([207.183.238.112]:16341 "EHLO
+	c2mailgw03.mailcentro.net") by vger.kernel.org with ESMTP
+	id S270173AbTGPHUo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 03:20:44 -0400
+X-Version: Mailcentro 1.0
+X-SenderIP: 80.58.9.46
+X-SenderID: 7831070
+From: "Jose Luis Alarcon" <jlalarcon@chevy.zzn.com>
+Message-Id: <C12506F5015D8FD47A30563EE997D686@jlalarcon.chevy.zzn.com>
+Date: Wed, 16 Jul 2003 09:35:27 +0200
+X-Priority: Normal
+Content-Type: text/plain; charset=iso-8859-1
+To: navneet_panda@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6.0-test-acl   make modules errors
+X-Mailer: Web Based Pronto
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Date: Wed, 16 Jul 2003 03:28:46 -0300
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As cartas comerciais, têm grande importância na administração de qualquer
-empreendimento, pois uma parte significativa das transações mundiais se
-realiza por esse meio.  A carta é o instrumento que faz a conexão entre os
-negociantes. 
+---- Begin Original Message ----
 
-A ERC (Equipe de Redação Comercial) lança o "CD MODELOS DE CARTAS COMERCIAIS
-2003", que sana suas dúvidas na elaboração de todos os tipos de cartas e
-documentos empresariais: agradecimentos, atestados e declarações, avisos, 
-cartas de cobrança, cartas em inglês, comunicados,  convites,  contratos,
-propostas, empregos, solicitações e pedidos, telegramas, cartas por e-mail,
-etc.
+hi
 
-O CD contém mais de 540 modelos de Cartas Comerciais e inúmeras técnicas de
-Redação Comercial. 
+I wished to bring to ur attention the following
+problems I experienced while trying to install the new
+kernel.
 
-Indicado para: secretárias em geral, gerências, Rh, executivos, estudantes,
-empresas de toda ordem, etc.
+I downloaded the entire source for 2.6 and then
+applied the patch 2.6.0-test1-ac1
 
-O custo deste CD é ínfimo em relação ao que poderá gerar no aperfeiçoamento
-da comunicação de sua empresa.
+Initially I just tried with my old config file from
+kernel 2.4.20 and accepting all the defaults. The
+problem faced was in the file riscom8.c and the output
+was
+
+.....
+
+I couldn't get over this error. This is my first post
+to the list and I am sorry if I have made any
+mistakes. I just wanted to help.
+
+Thanks
+Panda
+
+---- End Original Message ----
+
+  Hi Panda.
+
+  Have you the module-init-tools package installed?.
+
+  Regards.
+
+  Jose.
 
 
-Acesse-nos para mais detalhes e pedido, em:
+http://linuxespana.scripterz.org
 
-http://www.cartascd.cjb.net
+FreeBSD RELEASE 4.8.
+Mandrake Linux 9.1 Kernel 2.5.75 XFS.
+Registered BSD User 51101.
+Registered Linux User #213309.
+Memories..... You are talking about memories. 
+Rick Deckard. Blade Runner.
 
 
-Ps: para não receber esta mensagem novamente acesse:
-
-
-http://www.removamail.cjb.net
+Get your Free E-mail at http://chevy.zzn.com
+___________________________________________________________
+Get your own Web-based E-mail Service at http://www.zzn.com

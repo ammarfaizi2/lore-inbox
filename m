@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129143AbRAYXIy>; Thu, 25 Jan 2001 18:08:54 -0500
+	id <S129367AbRAYXJz>; Thu, 25 Jan 2001 18:09:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129367AbRAYXIp>; Thu, 25 Jan 2001 18:08:45 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:8849 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129143AbRAYXIi>; Thu, 25 Jan 2001 18:08:38 -0500
-Date: Thu, 25 Jan 2001 18:08:11 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
-Subject: Re: Linux Post codes during runtime, possibly OT
-In-Reply-To: <3A70A989.EAEB7AF9@transmeta.com>
-Message-ID: <Pine.LNX.3.95.1010125180648.24692A-100000@chaos.analogic.com>
+	id <S129393AbRAYXJp>; Thu, 25 Jan 2001 18:09:45 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:48394 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129367AbRAYXJb>; Thu, 25 Jan 2001 18:09:31 -0500
+Date: Thu, 25 Jan 2001 23:09:23 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Ookhoi <ookhoi@dds.nl>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: pcmcia delay causes bootp not to work
+In-Reply-To: <20010126000007.U21704@ookhoi.dds.nl>
+Message-ID: <Pine.LNX.4.30.0101252307360.2734-100000@imladris.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jan 2001, H. Peter Anvin wrote:
+On Fri, 26 Jan 2001, Ookhoi wrote:
 
-> Matthew Dharm wrote:
-> > 
-> > It occurs to me that it might be a good idea to pick a different port for
-> > these things.  I know a lot of people who want to use port 80h for
-> > debugging data, especially in embedded x86 systems.
-> > 
-> 
-> Find a safe port, make sure it is tested the hell out of, and we'll
-> consider it.
-> 
-> 	-hpa
-> 
+> And unfortunately, the guy who mailed me didn't respond at my cry
+> for help, so now I try the list again. :-)
 
-You could use the DMA scratch register at 0x19. I'm sure Linux doesn't
-"save" stuff there when setting up the DMA controller.
+Sorry, try this patch.
 
+Index: drivers/pcmcia/yenta.c
+===================================================================
+RCS file: /inst/cvs/linux/drivers/pcmcia/Attic/yenta.c,v
+retrieving revision 1.1.2.23
+diff -u -r1.1.2.23 yenta.c
+--- drivers/pcmcia/yenta.c	2000/12/05 13:30:42	1.1.2.23
++++ drivers/pcmcia/yenta.c	2001/01/25 23:07:35
+@@ -855,11 +855,12 @@
+ 	   initialisation later. We can't do this here,
+ 	   because, er, because Linus says so :)
+ 	*/
+-	socket->tq_task.routine = yenta_open_bh;
+-	socket->tq_task.data = socket;
++	//	socket->tq_task.routine = yenta_open_bh;
++	//	socket->tq_task.data = socket;
+ 
+ 	MOD_INC_USE_COUNT;
+-	schedule_task(&socket->tq_task);
++	//	schedule_task(&socket->tq_task);
++	yenta_open_bh(socket);
+ 
+ 	return 0;
+ }
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+-- 
+dwmw2
 
 
 -

@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144874AbRA2Cn0>; Sun, 28 Jan 2001 21:43:26 -0500
+	id <S144975AbRA2CpU>; Sun, 28 Jan 2001 21:45:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144961AbRA2CnR>; Sun, 28 Jan 2001 21:43:17 -0500
-Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:58002 "EHLO
-	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
-	id <S144874AbRA2CnE>; Sun, 28 Jan 2001 21:43:04 -0500
-Date: Mon, 29 Jan 2001 03:43:00 +0100
-From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Making Cyrix III boot
-Message-ID: <20010129034300.I1173@nightmaster.csn.tu-chemnitz.de>
-In-Reply-To: <Pine.LNX.4.10.10101281020540.3850-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S145006AbRA2CpL>; Sun, 28 Jan 2001 21:45:11 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:23561 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S144961AbRA2CpE>;
+	Sun, 28 Jan 2001 21:45:04 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101290245.f0T2j2Y438757@saturn.cs.uml.edu>
+Subject: Re: [PATCH] dynamic IP support for 2.4.0 (SIOCKILLADDR)
+To: vii@altern.org (John Fremlin)
+Date: Sun, 28 Jan 2001 21:45:02 -0500 (EST)
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, paulus@linuxcare.com,
+        linux-ppp@vger.kernel.org, linux-net@vger.kernel.org
+In-Reply-To: <m2d7d838sj.fsf@boreas.yi.org.> from "John Fremlin" at Jan 27, 2001 10:54:51 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.10.10101281020540.3850-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Jan 28, 2001 at 10:31:52AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+John Fremlin writes:
 
-On Sun, Jan 28, 2001 at 10:31:52AM -0800, Linus Torvalds wrote:
-> I just uploaded it to kernel.org, and I expect that I'll do the final
-> 2.4.1 tomorrow, before leaving for NY and LinuxWorld. Please test that the
-> pre-kernel works for you..
+> When the IP address of an interface changes, TCP connections with the
+> old source address are useless. Applications are not notified of this
+> and time out ordinarily, just as if nothing had happened. This is
+> behaviour isn't very helpful when you have a dynamic IP and know
+> you're probably not going to get the old one back. In that case, you
+...
+> I patched userspace ppp-2.4.0 to use this functionality. It would be
+> better if SIOCKILLADDR were not used until we are sure that the new IP
+> is in fact different from the old one, but pppd in demand mode would
 
-The Cyrix III of my employer doesn't boot without this patch.
-Reason: There are no MSRs in this range.
-
-Since hpa didn't send a better fix, I attached the band-aid fix
-for you, so that people can boot.
-
-Linus, please apply.
-
-Regards
-
-Ingo Oeser
-
---- linux-2.4.1-pre11/arch/i386/kernel/setup.c.orig	Mon Jan 29 03:35:08 2001
-+++ linux-2.4.1-pre11/arch/i386/kernel/setup.c	Mon Jan 29 03:36:41 2001
-@@ -1401,10 +1401,11 @@
- 					wrmsr (0x1107, lo, hi);
- 
- 					set_bit(X86_FEATURE_CX8, &c->x86_capability);
-+					/* FIXME: This is only band-aid. Will be fixed properly -ioe
- 					rdmsr (0x80000001, lo, hi);
- 					if (hi & (1<<31))
- 						set_bit(X86_FEATURE_3DNOW, &c->x86_capability);
--
-+					*/
- 					get_model_name(c);
- 					display_cacheinfo(c);
- 					break;
-
--- 
-10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
-         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
+I get the same IP about 2/3 of the time, so it is pretty important
+to avoid killing connections until after the new IP is known.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

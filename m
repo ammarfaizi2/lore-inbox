@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272124AbRIEMXT>; Wed, 5 Sep 2001 08:23:19 -0400
+	id <S272129AbRIEM2K>; Wed, 5 Sep 2001 08:28:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272126AbRIEMXK>; Wed, 5 Sep 2001 08:23:10 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:5896 "HELO dvmwest.gt.owl.de")
-	by vger.kernel.org with SMTP id <S272124AbRIEMW7>;
-	Wed, 5 Sep 2001 08:22:59 -0400
-Date: Wed, 5 Sep 2001 14:23:18 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.9-ac6
-Message-ID: <20010905142318.B20609@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <NOEJJDACGOHCKNCOGFOMAEAPDLAA.davids@webmaster.com> <E15ebSj-0005ig-00@the-village.bc.nu> <3B9617BA.F771914E@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3B9617BA.F771914E@redhat.com>; from arjanv@redhat.com on Wed, Sep 05, 2001 at 01:16:58PM +0100
-X-Operating-System: Linux mail 2.4.5 
+	id <S272130AbRIEM2A>; Wed, 5 Sep 2001 08:28:00 -0400
+Received: from relay01.cablecom.net ([62.2.33.101]:8711 "EHLO
+	relay01.cablecom.net") by vger.kernel.org with ESMTP
+	id <S272129AbRIEM1w>; Wed, 5 Sep 2001 08:27:52 -0400
+Message-Id: <200109051227.f85CRwe27842@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: reliable debug output
+Date: Wed, 5 Sep 2001 14:27:57 +0200
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E15ebCR-0005eF-00@the-village.bc.nu>
+In-Reply-To: <E15ebCR-0005eF-00@the-village.bc.nu>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2001-09-05 13:16:58 +0100, Arjan van de Ven <arjanv@redhat.com>
-wrote in message <3B9617BA.F771914E@redhat.com>:
-> Alan Cox wrote:
-> > > based upon whether you have the source or not. What should logically taint
-> > > the kernel are modules that weren't compiled for that exact kernel version
-> > > or are otherwise mismatched.
-> > Setting a flag for the insmod -f required case as well is an extremely good
-> > idea. This is entirely about making information available nothing else and
-> > your suggestion there is a good one.
-> 
-> How about making the "tainted" field a bitmask ?
-> eg bit 0 --> non GPL/BSD module
->    bit 1 --> insmod -f
+do i need klogd?
 
-Basically, I don't like that idea. 'insmod -f' should only be
-required if the module in question is some kind of a commercial (TM)
-module. Setting a "GPL/BSD" flag might be somewhat interesting
-(but enlarges needed on-disk-space), but I don't like to help
-those commercials to ease the use of their broken, binary-only
-modules.
-
-MfG, JBG
-
--- 
-Jan-Benedict Glaw . jbglaw@lug-owl.de . +49-172-7608481
+On Wednesday 05 September 2001 13:50, Alan Cox wrote:
+> > when debugging drivers using printk i've the problem that most often
+> > the msg passed to printk don't show up on the console since the machine
+> > crashed before. i also what to use my own ASSERT macros which halt the
+>
+> printk writes to the console synchronously unless you have configured
+> syslogk to process the messages and log them itself. You may want to boot
+> with syslogk disabled and see if that is your problem.
+>
+> 2.4 also supports serial console which can be useful when the box insists
+> on crashing in X11

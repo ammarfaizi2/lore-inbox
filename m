@@ -1,32 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271857AbRIQRG0>; Mon, 17 Sep 2001 13:06:26 -0400
+	id <S271905AbRIQRN0>; Mon, 17 Sep 2001 13:13:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271865AbRIQRGR>; Mon, 17 Sep 2001 13:06:17 -0400
-Received: from intranet.resilience.com ([209.245.157.33]:21889 "EHLO
-	intranet.resilience.com") by vger.kernel.org with ESMTP
-	id <S271857AbRIQRGE>; Mon, 17 Sep 2001 13:06:04 -0400
-Mime-Version: 1.0
-Message-Id: <p05100303b7cbdde50ddd@[10.128.7.49]>
-In-Reply-To: <Pine.LNX.3.95.1010917123904.14830A-100000@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.3.95.1010917123904.14830A-100000@chaos.analogic.com>
-Date: Mon, 17 Sep 2001 10:06:21 -0700
-To: linux-kernel@vger.kernel.org
-From: Jonathan Lundell <jlundell@pobox.com>
-Subject: Re: [Q] Implementation of spin_lock on i386: why "rep;nop" ?
-Content-Type: text/plain; charset="us-ascii" ; format="flowed"
+	id <S271906AbRIQRNR>; Mon, 17 Sep 2001 13:13:17 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:41479 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S271905AbRIQRNE>; Mon, 17 Sep 2001 13:13:04 -0400
+Message-ID: <3BA62F35.86B5F099@zip.com.au>
+Date: Mon, 17 Sep 2001 10:13:25 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-ac10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: ahmedg@dacafe.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3com 575 on Sony PCG-F590
+In-Reply-To: <1000733749.mailspinnerdV3.2.5.3@smtp.dacafe.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 12:42 PM -0400 2001-09-17, Richard B. Johnson wrote:
->  > What is the intent behind this "rep;nop" ? Does it really rely on an
->  > undocumented behaviour ?
->
->Well it's now documented although you have to search a web-site to
->find it. Basically, it runs the CPU at low clock-speed when it's
->busy-waiting. Since most all spin-locks lock for mere microseconds
->it's unlikely that it does anything useful, but it can't hurt.
+ahmedg@dacafe.com wrote:
+> 
+> Hello all,
+> 
+> I have a vaio PCG-F590 with 3Com Megahertz cardbus model 3CCFE575CT, I
+> tried to install linux 2.4.4-4GB but unfortunately I couldn't configure
+> it correctly.
+> 
+> It works if I eject the card during booting and insert it again.
+> 
+> Does anybody know a solution for it?
+> 
 
-Sounds like a good opportunity for a comment....
--- 
-/Jonathan Lundell.
+There seems to be a problem specific to the 575's wherein the
+cardbus layer fails to allocate the PCI IO resources correctly.
+I don't have the hardware and I have yet to pin down someone
+who has the time/knowledge to poke into the PCI layer to find
+out what's going on.
+
+Could you please boot the system with the card inserted, and then
+send me the output of `dmesg'?
+
+Thanks.

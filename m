@@ -1,71 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263338AbTGAS4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 14:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263407AbTGAS4I
+	id S263407AbTGATFY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 15:05:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263451AbTGATFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 14:56:08 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:49321 "EHLO
-	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S263338AbTGAS4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 14:56:05 -0400
-Message-Id: <200307011911.h61JBrP8026175@pasta.boston.redhat.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: semtimedop() support on s390/s390x
-In-Reply-To: Your message of "Mon, 30 Jun 2003 15:06:09 EDT."
-Date: Tue, 01 Jul 2003 15:11:53 -0400
-From: Ernie Petrides <petrides@redhat.com>
+	Tue, 1 Jul 2003 15:05:23 -0400
+Received: from dsl2.external.hp.com ([192.25.206.7]:37128 "EHLO
+	dsl2.external.hp.com") by vger.kernel.org with ESMTP
+	id S263407AbTGATFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 15:05:18 -0400
+Date: Tue, 1 Jul 2003 13:19:41 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: Jens Axboe <axboe@suse.de>, ak@suse.de, davem@redhat.com,
+       suparna@in.ibm.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Alex Williamson <alex_williamson@hp.com>,
+       Bjorn Helgaas <bjorn_helgaas@hp.com>
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode
+Message-ID: <20030701191941.GF14683@dsl2.external.hp.com>
+References: <1057077975.2135.54.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1057077975.2135.54.camel@mulgrave>
+User-Agent: Mutt/1.3.28i
+X-Home-Page: http://www.parisc-linux.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 30-Jun-2003 at 15:6 EDT, Pete Zaitcev wrote:
+On Tue, Jul 01, 2003 at 11:46:12AM -0500, James Bottomley wrote:
+...
+> However, a fair number come with
+> the caveat that actually using the IOMMU is expensive.
 
-> > Date: Mon, 30 Jun 2003 14:33:28 -0400
-> > From: Ernie Petrides <petrides@redhat.com>
->
-> > On Friday, 27-Jun-2003 at 23:5 EDT, Pete Zaitcev wrote:
->
-> > > > +-	if (call <= SEMCTL)
-> > > > ++	if (call <= SEMTIMEDOP)
-> > > >   		switch (call) {
-> > > >  +		case SEMTIMEDOP:
-> > >
-> > > I guess this is the reason for the ENOSYS. Good catch!
-> >
-> > Thanks ... there's no substitute for actual testing.  :)
-> >
-> > That odd "switch-optimization" sequence in the s390x compat code
-> > is also in several 2.5.73 (....) architectures, but none of
-> > them have yet implemented semtimedop() support:
-> >
-> > 	h8300, m68k, m68knommu, sh, sparc, sparc64
-> >
-> > They'll all hit the same problem if/when they ever do semtimedop().
->
-> What do folks think about the attached patch, then?
->
-> Linus was making noises that he wishes to throttle "cleanups",
-> and this is a cleanup. But still... It's contained in arch code.
-> I'm pretty sure I can slip it in quietly if there's a sense
-> it is likely to save us the same problem in the future.
->
-> Also, I hate "<=" irrationally for some reason. I always
-> use "<" and ">=". This has something to do with programming
-> in pseudo-code and compiling by hand. On some brain-dead CPUs
-> and with some data types it is a better comparison.
->
-> I'll replicate to s390 and see if s390 -S output changes
-> if the source level looks ok to Martin's & Ulrich's eyes.
->
-> -- Pete
+Clarification:
+IOMMU mapping is slightly more expensive than direct physical on HP boxes.
+(yes davem, you've told me how wonderful sparc IOMMU is ;^)
+But obviously alot less expensive than bounce buffers.
 
-Actually, what I called the "odd switch-optimization sequence" is in
-fact a lose-lose.  To clean up the code, the 3 "switch" constructs
-that are guarded by 3 "if" statements should be merged into a single
-conventional "switch".  On s390, this would reduce the code size by
-96 bytes and only increase the .rodata section size by 88 bytes.  So,
-there would be a minor memory savings, more efficient code execution,
-and more maintainable source code.
+> The Problem:
+> 
+> At the moment, the block layer assumes segments may be virtually
+> mergeable (i.e. two phsically discondiguous pages may be treated as a
+> single SG entity for DMA because the IOMMU will patch up the
+> discontinuity) if an IOMMU is present in the system.
 
-Cheers.  -ernie
+The symptom is drivers which have limits on DMA entries will return
+errors (or crash) when the IOMMU code doesn't actually merge as much
+as the BIO code expected.
+
+Specifically, sym53c8xx_2 only takes 96 DMA entries per IO and davidm
+hit that pretty easily on ia64.
+MPT/Fusion (LSI u32) doesn't seem to have a limit.
+IDE limit is PAGE_SIZE/8 (or 16k/8=2k for ia64).
+I haven't checked other drivers.
+
+...
+> +/* Is the queue dma_mask eligible to be bypassed */
+> +#define __BIO_CAN_BYPASS(q) \
+> +	((BIO_VMERGE_BYPASS_MASK) && ((q)->dma_mask & (BIO_VMERGE_BYPASS_MASK)) == (BIO_VMERGE_BYPASS_MASK))
+
+Like Andi, I had suggested a callback into IOMMU code here.
+But I'm pretty sure james proposal will work for ia64 and parisc.
+
+Ideally, I don't like to see two seperate chunks of code performing
+the "let's see what I can merge now" loops. Instead, BIO could merge
+"intra-page" segments and call the IOMMU code to "merge" remaining
+"inter-page" segments. IOMMU code needs to know how many physical entries
+are allowed (when to stop processing) and could return the number of
+sg list entries it was able to merge.
+
+thanks james!
+grant

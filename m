@@ -1,55 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281553AbRKUBEF>; Tue, 20 Nov 2001 20:04:05 -0500
+	id <S281242AbRKUBIF>; Tue, 20 Nov 2001 20:08:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281554AbRKUBDz>; Tue, 20 Nov 2001 20:03:55 -0500
-Received: from freeside.toyota.com ([63.87.74.7]:17674 "EHLO
-	freeside.toyota.com") by vger.kernel.org with ESMTP
-	id <S281553AbRKUBDo>; Tue, 20 Nov 2001 20:03:44 -0500
-Message-ID: <3BFAFD65.9930EE18@lexus.com>
-Date: Tue, 20 Nov 2001 17:03:33 -0800
-From: J Sloan <jjs@lexus.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-pre6 i686)
-X-Accept-Language: en
+	id <S281554AbRKUBHp>; Tue, 20 Nov 2001 20:07:45 -0500
+Received: from paloma16.e0k.nbg-hannover.de ([62.159.219.16]:27821 "HELO
+	paloma16.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S281242AbRKUBHh>; Tue, 20 Nov 2001 20:07:37 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Nikita Danilov <Nikita@Namesys.COM>
+Subject: Re: [REISERFS TESTING] new patches on ftp.namesys.com: 2.4.15-pre7
+Date: Wed, 21 Nov 2001 02:06:55 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: ReiserFS List <reiserfs-list@Namesys.COM>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-CC: "Ryan M. McConahy" <jfanonymous@yahoo.com>,
-        Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-Subject: Re: Loop.c File !!!!
-In-Reply-To: <Pine.LNX.4.21.0111202025290.6299-100000@brick>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Message-Id: <20011121010744Z281242-17408+16783@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Ryan M. McConahy" wrote:
-
-> On Tue, 20 Nov 2001, Miguel Maria Godinho de Matos wrote:
+Am Mittwoch, 21. November 2001 01:47 schrieb Dieter Nützel:
+> Am Mittwoch, 21. November 2001 01:07 schrieb Dieter Nützel:
+> > Sorry Nikita,
+> >
+> > but kernel 2.4.15-pre7 + preempt + ReiserFS A-N do _NOT_ boot for me.
+> > I've tried it with "old" and "new" (current) N-inode-attrs.patch. But
+> > that doesn't matter.
+> >
+> > [-]
+> > IP: routing cache hash table of 8192 buckets, 64Kbytes
+> > TCP: Hash tables configured (established 262144 bind 65536)
+> > NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+> > reiserfs: checking transaction log (device 08:03) ...
+> > Using r5 hash to sort names
+> > ReiserFS version 3.6.25
+> > VFS: Mounted root (reiserfs filesystem) readonly.
+> > Freeing unused kernel memory: 208k freed
+> > "Warning: unable to open an initial console."
+> >
+> OK, I've found it.
 >
-> > The problem is the following:
-> >
-> > Some one told me i should edit the loop.c file and even tried to explained me
-> > why but i couldn't understand.
-> >
-> > He said something about my new kernel wouldn't be able to compile if two or
-> > three lines weren't comented!
-> >
-> > I didn't understand this fact so i would like to know why should i edit the
-> > /usr/src/linux/drivers/block/loop.c file!!!!
->
-> What lines did he want you to comment out? Tell us more! I don't think you
-> would need to.
+> N-inode-attrs.patch (both versions) is broken. After I've backed it out
+> 2.4.15-pre7 + preempt + ReiserFS A-M is up and running.
 
-He's doubtless referring to the deactivate_page()
-thing that's been talked to death on this list for
-the past 2 weeks...
+Apart from the above problems with the new N-inode-attrs.patch
+2.4.15-pre7 + preempt + ReiserFS patches A-M flies.
 
-Better solution is go to 2.4.15-pre7, which has
-fixes for that and many other things as well -
+dbench/dbench> time ./dbench 32
+32 clients started
+...........................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................+....++.......+........+....+...++...++++.++.++++...++..++++++++++.++********************************
+Throughput 43.2101 MB/sec (NB=54.0126 MB/sec  432.101 MBit/sec)
+13.880u 51.700s 1:38.77 66.3%   0+0k 0+0io 937pf+0w
 
-Then again, it sure looks like 2.4.15-final is RSN.
+Dbench 32 is 10 seconds and nearly 3 MB/sec faster then all kernels I've 
+tried before.
 
-cu
+Thanks Andrea, Linus and the whole ReiserFS team.
 
-jjs
+-Dieter
 
+BTW If only the little MP3 playback (Noatun, KDE-2.2.2) hiccup after 9-10 
+seconds of the dbench test would disappear. I think we need IO reservation or 
+priority, no?
+
+BTW2 Dear ReiserFS team have you read the thread about ACLs/extended file 
+attributes on LKML lately?

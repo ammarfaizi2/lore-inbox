@@ -1,89 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262728AbSIPR2y>; Mon, 16 Sep 2002 13:28:54 -0400
+	id <S262126AbSIPRjv>; Mon, 16 Sep 2002 13:39:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262747AbSIPR2y>; Mon, 16 Sep 2002 13:28:54 -0400
-Received: from 66.148.196.79.nw.nuvox.net ([66.148.196.79]:59023 "HELO
-	greatwhite.teamics.com") by vger.kernel.org with SMTP
-	id <S262728AbSIPR2x>; Mon, 16 Sep 2002 13:28:53 -0400
-Subject: Re: Problem:  RFC1166 addressing
-To: Gerhard Mack <gmack@innerfire.net>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.6a  January 17, 2001
-Message-ID: <OFE0F05D6B.6256F71D-ON86256C36.006060FE@teamics.com>
-From: tomc@teamics.com
-Date: Mon, 16 Sep 2002 12:33:54 -0500
-X-MIMETrack: Serialize by Router on greatwhite/teamics(Release 5.0.8 |June 18, 2001) at
- 09/16/2002 12:33:55 PM
+	id <S262747AbSIPRju>; Mon, 16 Sep 2002 13:39:50 -0400
+Received: from mail.parknet.co.jp ([210.134.213.6]:23314 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP
+	id <S262126AbSIPRju>; Mon, 16 Sep 2002 13:39:50 -0400
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix for ptrace breakage
+References: <Pine.LNX.4.44.0209161349270.29027-100000@localhost.localdomain>
+	<87vg565eo2.fsf@devron.myhome.or.jp>
+	<87wupmrtn1.fsf@devron.myhome.or.jp>
+	<20020916130735.GA3920@nevyn.them.org>
+	<87sn0at3di.fsf@devron.myhome.or.jp>
+	<20020916144204.GA7991@nevyn.them.org>
+	<87fzwasz96.fsf@devron.myhome.or.jp>
+	<20020916160537.GA12905@nevyn.them.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 17 Sep 2002 02:44:29 +0900
+In-Reply-To: <20020916160537.GA12905@nevyn.them.org>
+Message-ID: <87k7llsubm.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Jacobowitz <dan@debian.org> writes:
 
-You are correct sir.   I was just quite surprised to find that it works,
-and that I can reassign the 127 network to any interface I like.
+> > > We have the tasklist lock.  How can there be a race here?  The parent
+> > > can't detach while we're holding the tasklist lock.  If there is a race
+> > > with PTRACE_SETOPTIONS, then PTRACE_SETOPTIONS should take the lock.
+> > 
+> > No. If the real parent don't change ->ptrace, it doesn't need
+> > lock.
+> 
+> I don't understand what you mean by that.  Do you mean, "if it does
+> change ->ptrace, it doesn't need a lock"?
 
-tc
+Basically, only tracer can change ->ptrace of traced child. And, it
+doesn't need lock. (there are some exceptions)
 
+> > Ah, ok. I think, it's longtime (odd) behavior. And you think, it's
+> > a bug. Right?
+> > 
+> > And, both of your and old code has odd behavior. yes?
+> 
+> Before your patch, do_notify_parent didn't get called; I think that
+> perhaps it should be.  I'll think about that.  After your patch the
+> process group will be unexpectedly orphaned, which is not now the case.
+> 
+> Let me sit on this for a couple of hours.  I'll send you an alternative
+> patch to look at.
 
-                                                                                                                
-                    Gerhard Mack                                                                                
-                    <gmack@innerfi       To:     tomc@teamics.com                                               
-                    re.net>              cc:     linux-kernel@vger.kernel.org                                   
-                                         Subject:     Re: Problem:  RFC1166 addressing                          
-                    09/16/02 12:25                                                                              
-                    PM                                                                                          
-                                                                                                                
-                                                                                                                
-
-
-
-
-On Mon, 16 Sep 2002 tomc@teamics.com wrote:
-
-> Date: Mon, 16 Sep 2002 11:50:36 -0500
-> From: tomc@teamics.com
-> To: linux-kernel@vger.kernel.org
-> Subject: Problem:  RFC1166 addressing
->
-> RFC 1166 states that:
->
->
->  The class A network number 127 is assigned the "loopback"
->          function, that is, a datagram sent by a higher level protocol
->          to a network 127 address should loop back inside the host.  No
->          datagram "sent" to a network 127 address should ever appear on
->          any network anywhere.
->
->  Linux does not enforce this.  I have uncovered some users using this
-> function to attempt to circumvent the firewall.  I am able to "create"
-127
-> network traffic as follows:
->
-> Machine 1:   ifconfig eth0:1 127.1.2.3   [ running kernel 2.2.14 ]
->
-> Machine 2:   ifconfig eth0:1 127.1.2.4  [ running kernel 2.4.19 ]
->
-> Machine 2:  ping 127.1.2.3
->
-> Packets move between the hosts.    Also seems to work on Macintosh.
-
-
-I would call that a bug in the firewall rules.  Depending on the hosts to
-behave in such a way as to make life easier for the firewall makes for a
-losing proposition.
-
-     Gerhard
-
-
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
-
-
-
-
+Ok. But I'll sleep soon. So, I'll look it, after having come back from
+the office.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

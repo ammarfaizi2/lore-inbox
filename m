@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265116AbUELQKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265117AbUELQLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265116AbUELQKN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 12:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265117AbUELQKN
+	id S265117AbUELQLe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 12:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUELQLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 12:10:13 -0400
-Received: from mail.kroah.org ([65.200.24.183]:16572 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265116AbUELQKJ (ORCPT
+	Wed, 12 May 2004 12:11:32 -0400
+Received: from mail.tmr.com ([216.238.38.203]:20232 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S265117AbUELQLI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 12:10:09 -0400
-Date: Wed, 12 May 2004 08:08:18 -0700
-From: Greg KH <greg@kroah.com>
-To: Todd Poynor <tpoynor@mvista.com>
-Cc: mochel@digitalimplant.org, linux-hotplug-devel@lists.sourceforge.net,
+	Wed, 12 May 2004 12:11:08 -0400
+Date: Wed, 12 May 2004 12:07:52 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
        linux-kernel@vger.kernel.org
-Subject: Re: Hotplug events for system suspend/resume
-Message-ID: <20040512150818.GE10924@kroah.com>
-References: <20040511010015.GA21831@dhcp193.mvista.com> <20040511230001.GA26569@kroah.com> <40A17251.2000500@mvista.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40A17251.2000500@mvista.com>
-User-Agent: Mutt/1.5.6i
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+In-Reply-To: <20040511165013.08ef86cd.akpm@osdl.org>
+Message-ID: <Pine.LNX.3.96.1040512115750.23213A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 11, 2004 at 05:39:45PM -0700, Todd Poynor wrote:
+On Tue, 11 May 2004, Andrew Morton wrote:
+
+> Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> wrote:
+> >
+> > There was some evidence from AKPM (and Arjan AFAIR).
+> > [ BTW wasn't the corruption only seen with nvidia module? ]
+> > I think we can prevent it by adding something ala 4kstack flag
+> > to the module.
 > 
-> But again, I'll let the embedded system designers jump in here if they'd 
-> like to add some insight.  In both of the above cases, some ad-hoc 
-> method of kernel-to-userspace notification could be used, but I am 
-> trying to gauge interest in using hotplug as a generic notifier for these.
+> "4KSTACKS" already is present in the module version string.
+> 
+> And RHL is shipping now with 4k stacks, so presumably any disasters
+> are relatively uncommon...
 
-Ok, I'm not going to accept this until some people who would actually
-use it step up and want to push for its inclusion.  None of this "patch
-by proxy" stuff...
+RHL and kernel.org have a lot of unshared bugs and features,
+unfortunately. I take that information as an encouraging proof of concept,
+not a waranty that the kernel.org code will behave in a similar way.
 
-thanks,
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-greg k-h

@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267874AbTBKO1d>; Tue, 11 Feb 2003 09:27:33 -0500
+	id <S267890AbTBKOcN>; Tue, 11 Feb 2003 09:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267875AbTBKO1d>; Tue, 11 Feb 2003 09:27:33 -0500
-Received: from poup.poupinou.org ([195.101.94.96]:8996 "EHLO poup.poupinou.org")
-	by vger.kernel.org with ESMTP id <S267874AbTBKO1b>;
-	Tue, 11 Feb 2003 09:27:31 -0500
-Date: Tue, 11 Feb 2003 15:37:17 +0100
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
-       Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH] [1/1] acpi_wakeup.S
-Message-ID: <20030211143717.GC25632@poup.poupinou.org>
-Reply-To: ducrot@poupinou.org
-References: <20030211142533.GM25625@poup.poupinou.org>
+	id <S267893AbTBKOcN>; Tue, 11 Feb 2003 09:32:13 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:2749 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267890AbTBKOcM>;
+	Tue, 11 Feb 2003 09:32:12 -0500
+Date: Tue, 11 Feb 2003 15:41:43 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Jason Lunz <lunz@falooley.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: stochastic fair queueing in the elevator [Re: [BENCHMARK] 2.4.20-ck3 / aa / rmap with contest]
+Message-ID: <20030211144143.GR930@suse.de>
+References: <20030209133013.41763.qmail@web41404.mail.yahoo.com> <20030209144622.GB31401@dualathlon.random> <20030210162301.GB443@elf.ucw.cz> <20030211114936.GE22275@dualathlon.random> <20030211124330.GK930@suse.de> <slrnb4i27n.3s0.lunz@stoli.localnet>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="EVF5PPMfhYS0aIcm"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030211142533.GM25625@poup.poupinou.org>
-User-Agent: Mutt/1.4i
-From: Ducrot Bruno <poup@poupinou.org>
+In-Reply-To: <slrnb4i27n.3s0.lunz@stoli.localnet>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Feb 11 2003, Jason Lunz wrote:
+> axboe@suse.de said:
+> > Coolest would to simply stack these schedulers any way you want. Sneak
+> > the uid based fairness scheduler in front of the pid based one, and
+> > you have per-user with per-process fairness.
+> 
+> Which again reminds us of the network queueing. You all seem to be
+> reinventing alexey's wheel here. The above reminds me of HTB with SFQ
+> leaf nodes.
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+There's no wheel reinventing here, just applying the goodies from
+network scheduling to disk scheduling.
 
+> By all means, do the same thing with disk i/o. It's been a smashing
+> success with packet queueing.
 
-Patch from Pavel Macheck.  Just in case it was
-lost..
-
-
-
+Well, that's the point.
 
 -- 
-Ducrot Bruno
-http://www.poupinou.org        Page profaissionelle
-http://toto.tu-me-saoules.com  Haume page
+Jens Axboe
 
---EVF5PPMfhYS0aIcm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="01_acpi_wakeup.diff"
-
---- linux-2.5.60/arch/i386/kernel/acpi_wakeup.S	2003/02/11 14:02:07	1.2
-+++ linux-2.5.60/arch/i386/kernel/acpi_wakeup.S	2003/02/11 14:02:54
-@@ -31,7 +31,7 @@
- 	movw	%cs, %ax
- 	movw	%ax, %ds					# Make ds:0 point to wakeup_start
- 	movw	%ax, %ss
--	mov	wakeup_stack - wakeup_code, %sp			# Private stack is needed for ASUS board
-+	mov	$(wakeup_stack - wakeup_code), %sp		# Private stack is needed for ASUS board
- 	movw	$0x0e00 + 'S', %fs:(0x12)
- 
- 	pushl	$0						# Kill any dangerous flags
-
---EVF5PPMfhYS0aIcm--

@@ -1,90 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317611AbSHNMpu>; Wed, 14 Aug 2002 08:45:50 -0400
+	id <S317793AbSHNMyg>; Wed, 14 Aug 2002 08:54:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317793AbSHNMpu>; Wed, 14 Aug 2002 08:45:50 -0400
-Received: from grendel.firewall.com ([66.28.56.41]:50890 "EHLO
-	grendel.firewall.com") by vger.kernel.org with ESMTP
-	id <S317611AbSHNMpt>; Wed, 14 Aug 2002 08:45:49 -0400
-Date: Wed, 14 Aug 2002 14:49:40 +0200
-To: Matt Bernstein <mb/lkml@dcs.qmul.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GA-7DX+ crashes
-Message-ID: <20020814124940.GB1824@thanes.org>
-References: <Pine.LNX.4.44.0208141239380.1472-100000@r2-pc.dcs.qmul.ac.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0208141239380.1472-100000@r2-pc.dcs.qmul.ac.uk>
-User-Agent: Mutt/1.4i
-Organization: I just...
-X-GPG-Fingerprint: 0F0B 21EE 7145 AA2A 3BF6  6D29 AB7F 74F4 621F E6EA
-X-message-flag: Outlook - A program to spread viri, but it can do mail too.
-From: grendel@thanes.org (Grendel)
+	id <S317829AbSHNMyg>; Wed, 14 Aug 2002 08:54:36 -0400
+Received: from richardson.uni2.net ([130.227.52.104]:44510 "EHLO
+	richardson.uni2.net") by vger.kernel.org with ESMTP
+	id <S317793AbSHNMyf> convert rfc822-to-8bit; Wed, 14 Aug 2002 08:54:35 -0400
+Message-ID: <D0B43857843DD41185DE0060979AC20C2FD38E@intermail.pallas.dk>
+From: Agust Karlsson <Gusti@pallas.dk>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Semaphore block in fs/super.c mount_root
+Date: Wed, 14 Aug 2002 14:58:21 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have been trying to get a jffs2 file system to mount as root with kernel
+2.4.18.
+If I mount it as a "normal" mount point everything is OK, but if I use it as
+a root device it blocks forever.
+I have traced it down to the function mount_root in fs/super.c where I can
+see that there is an up_read(&sb->s_umount) (line 1061) when we get the
+super block directly just before the goto mount_it.
+But where my jffs2 superblock gets read (line 1073) there is no such
+up_read() and by tracing the calls from blkdev_put() (line 1077) I'll find
+an down_read(&s->s_umount) in the function get_super() (line 518 same file).
 
---H1spWtNR+x+ondvy
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+By putting in an up_read(&sb->s_umount) just before blkdev_put() solves my
+problem.
+Do I need to increase the sb->s_active as well ???
 
-On Wed, Aug 14, 2002 at 01:12:43PM +0100, Matt Bernstein scribbled:
-> Hi,
->=20
-> We're very much at a loss as to why the 60 new PCs we've bought largely
-> don't run Linux (various 2.4 kernels including 2.4.19, limbo1-BOOT) for
-[snip]
-> Has anyone else had success or failure stories in particular with this=20
-> motherboard? We don't really have a significant number of data points jus=
-t=20
-> yet, but are willing to try pretty much anything anyone might suggest!
->=20
-> Matt
->=20
-> symptoms
-> - random data corruption (sometimes memory, more often HDD)
-> - somtimes oopsing, but never in the same place
->=20
-> what we think we've ascertained so far
-> - they pass memtest86
-> - we've tried different HDDs, no effect
-> - tried ide=3Dnodma, possibly makes it crash after longer
-> - tried noapic, no effect
-> - tried all sorts of BIOS settings, no effect (except--possibly--turning=
-=20
-> 	off the on board IDE controller and playing nfsroot games)
-> - ..and yet they seem to run that other OS fine :-(
-> - extra cooling/underclocking doesn't seem to help
-> - seems to be fs-independent (tried ext3, reiserfs, jfs)
-I've had very similar (actually identical) problems with the ASUS A7V333
-mobo. The mobo is completely VIA-based (both north and south) but the
-southbridge seems to be much the same. What I did to make the machine run
-stable was to - turn the USB2 support off (by hardware, a solder point on
-the mobo) and short the solder point which is responsible for the CPU
-functional settings data readout (the ROMSIP setting) to read the data from
-a BIOS table instead of from the CPU itself. That seemed to have been enough
-for me - now the mobo is stable (I'm gonna get rid of it, though...).
+Just wantet to point this out in case this is a bug.
+BTW the down_write() just before the goto mount_it; has no effect as the
+first statement after the label is up_write() on the same semapohre
 
-Another thing you might check is the CPU voltage - make sure it is the
-standard 3.3 and not 3.5 as some manufacturers set it.
+Hereis a list of the relevant part of super.c with my alteration:
+from line 1056:
+	sb = get_super(ROOT_DEV);
+	if (sb) {
+		/* FIXME */
+		p = (char *)sb->s_type->name;
+		atomic_inc(&sb->s_active);
+		up_read(&sb->s_umount);
+		down_write(&sb->s_umount);
+		goto mount_it;
+	}
+	for (p = fs_names; *p; p += strlen(p)+1) { 
+		struct file_system_type * fs_type = get_fs_type(p);
+		if (!fs_type)
+  			continue;
+		atomic_inc(&bdev->bd_count);
+		retval = blkdev_get(bdev, mode, 0, BDEV_FS);
+		if (retval)
+			goto Eio;
+  		sb = read_super(ROOT_DEV, bdev, fs_type,
+				root_mountflags, root_mount_data);
+		put_filesystem(fs_type);
+		if (sb) {
+                                    up_read(&sb->s_umount);  //This works
+for jffs2
+			blkdev_put(bdev, BDEV_FS);
+			goto mount_it;
+		}
+	}
 
-hope that helps a bit,
+Best regards
+Gusti
+--
+Agust Karlsson            mailto:gusti@pallas.dk
+Pallas Informatik A/S     http://www.pallas.dk
+Allerød Stationsvej 2D    Tel.: +45 48 10 24 10
+DK-3450 Allerød           Fax.: +45 48 10 24 01
 
-marek
 
---H1spWtNR+x+ondvy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9WlHjq3909GIf5uoRAu7rAJ9zQ4nEpA22um1r5uR4YO3JoDt58wCfYM9L
-7tQuJ9cDOMOuXpf8wOrWuEY=
-=DhJi
------END PGP SIGNATURE-----
-
---H1spWtNR+x+ondvy--

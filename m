@@ -1,148 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263204AbTDYOPY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 10:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263206AbTDYOPY
+	id S263260AbTDYOYF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 10:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263261AbTDYOYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 10:15:24 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:55727 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S263204AbTDYOPV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 10:15:21 -0400
-Subject: Re: Linux 2.4.21-rc1
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Andreas Metzler <lkml-2003-03@downhill.at.eu.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b8bfuk$g1$1@main.gmane.org>
-References: <Pine.LNX.4.53L.0304211545580.12940@freak.distro.conectiva>
-	 <b8bfuk$g1$1@main.gmane.org>
-Content-Type: multipart/mixed; boundary="=-Hic5hc/+6f2aDGzRzjzB"
-Organization: 
-Message-Id: <1051280848.5939.61.camel@tux.rsn.bth.se>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 25 Apr 2003 16:27:28 +0200
+	Fri, 25 Apr 2003 10:24:04 -0400
+Received: from mx12.arcor-online.net ([151.189.8.88]:14829 "EHLO
+	mx12.arcor-online.net") by vger.kernel.org with ESMTP
+	id S263260AbTDYOYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 10:24:03 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Werner Almesberger <wa@almesberger.net>
+Subject: Re: Flame Linus to a crisp!
+Date: Fri, 25 Apr 2003 16:37:31 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0304232012400.19176-100000@home.transmeta.com> <20030424182945.7065812EFF1@mx12.arcor-online.net> <20030424201522.G1425@almesberger.net>
+In-Reply-To: <20030424201522.G1425@almesberger.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030425143613.8646E130965@mx12.arcor-online.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 25 April 2003 01:15, Werner Almesberger wrote:
+> Daniel Phillips wrote:
+> > Open source + Linux + DRM could be used to solve the Quake client-side
+> > cheating problem:
+>
+> Yes, but in return you'd be excluded from playing Quake unless
+> you're running one of those signed kernels or modules.
+>
+> So, if I, say, want to test some TCP fix, new VM feature, file
+> system improvement, etc., none of the applications that rely on
+> DRM would work. This doesn't only affect developers, but also
+> their potential testers.
 
---=-Hic5hc/+6f2aDGzRzjzB
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Yes, Ick.  You might see some kind of Linux-Trusted-Quake club rise up, with 
+the specific goal of running cheatless deathmatches, but we are getting very 
+far from reality here.
 
-On Fri, 2003-04-25 at 16:15, Andreas Metzler wrote:
-> Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
-> > Here goes the first candidate for 2.4.21.
->  
-> > Please test it extensively.
-> 
-> I'd love to, but the problem reported in 
-> 
-> Subject: [2.4.21-pre5] compile error in ip_conntrack_ftp.c:440:
-> Date: Wed, 5 Mar 2003 12:56:37 +0000 (UTC)
-> Message-ID: <b44s65$pdl$1@main.gmane.org>
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0303.0/1008.html
-> 
-> still applies - I cannot compile the kernel.
+To get cheatless online gaming, you would have to necessarily give up a lot 
+of flexibility.  I imagine the likelihood of people running completely 
+separate DRM Linux boxes, just to participate in DRM-controlled online games, 
+is not high.  Only when if you are faced with absolute necessity of running 
+DRM, are you actually going to do it by choice.  There's going to be a whole 
+pile of new ways for computers to fail to work too, because of this.  Then 
+there's the certainty that there will be exploits - the whole concept is 
+inherently fragile, there are just too many parts involved.  From a security 
+point of view, we would end up worse off than without it, given a newfound 
+false sense of security.
 
-I have a fix for this. I just have to get it approved before I can
-submit it. It should make it possible for you to compile with your
-config.
+So, just call all of the above a valiant effort on my part to find something 
+good about this.  Hopefully, after a few years of silliness and much wasted 
+effort, it will all fade away like copy-protected floppy disks.
 
-It's attached.
+Regards,
 
--- 
-/Martin
-
---=-Hic5hc/+6f2aDGzRzjzB
-Content-Disposition: attachment; filename=netfilter-ipv4-config-fix
-Content-Type: text/x-patch; name=netfilter-ipv4-config-fix; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
-
-diff -urN linux-2.4.21-pre7-bk.orig/net/ipv4/netfilter/Makefile linux-2.4.2=
-1-pre7-bk/net/ipv4/netfilter/Makefile
---- linux-2.4.21-pre7-bk.orig/net/ipv4/netfilter/Makefile	2003-04-14 02:42:=
-11.000000000 +0200
-+++ linux-2.4.21-pre7-bk/net/ipv4/netfilter/Makefile	2003-04-14 02:42:44.00=
-0000000 +0200
-@@ -31,27 +31,25 @@
- # connection tracking
- obj-$(CONFIG_IP_NF_CONNTRACK) +=3D ip_conntrack.o
-=20
--# Amanda protocol support
-+# connection tracking helpers
- obj-$(CONFIG_IP_NF_AMANDA) +=3D ip_conntrack_amanda.o
--obj-$(CONFIG_IP_NF_NAT_AMANDA) +=3D ip_nat_amanda.o
--ifdef CONFIG_IP_NF_NAT_AMANDA
-+ifdef CONFIG_IP_NF_AMANDA
- 	export-objs +=3D ip_conntrack_amanda.o
- endif
-=20
--
--# connection tracking helpers
- obj-$(CONFIG_IP_NF_TFTP) +=3D ip_conntrack_tftp.o
- obj-$(CONFIG_IP_NF_FTP) +=3D ip_conntrack_ftp.o
--ifdef CONFIG_IP_NF_NAT_FTP
-+ifdef CONFIG_IP_NF_FTP
- 	export-objs +=3D ip_conntrack_ftp.o
- endif
-=20
- obj-$(CONFIG_IP_NF_IRC) +=3D ip_conntrack_irc.o
--ifdef CONFIG_IP_NF_NAT_IRC
-+ifdef CONFIG_IP_NF_IRC
- 	export-objs +=3D ip_conntrack_irc.o
- endif
-=20
- # NAT helpers=20
-+obj-$(CONFIG_IP_NF_NAT_AMANDA) +=3D ip_nat_amanda.o
- obj-$(CONFIG_IP_NF_NAT_TFTP) +=3D ip_nat_tftp.o
- obj-$(CONFIG_IP_NF_NAT_FTP) +=3D ip_nat_ftp.o
- obj-$(CONFIG_IP_NF_NAT_IRC) +=3D ip_nat_irc.o
-diff -urN linux-2.4.21-pre7-bk.orig/net/ipv4/netfilter/ip_conntrack_amanda.=
-c linux-2.4.21-pre7-bk/net/ipv4/netfilter/ip_conntrack_amanda.c
---- linux-2.4.21-pre7-bk.orig/net/ipv4/netfilter/ip_conntrack_amanda.c	2003=
--04-14 02:42:11.000000000 +0200
-+++ linux-2.4.21-pre7-bk/net/ipv4/netfilter/ip_conntrack_amanda.c	2003-04-1=
-4 02:42:44.000000000 +0200
-@@ -229,5 +229,7 @@
- 	return 0;
- }
-=20
-+EXPORT_SYMBOL(ip_amanda_lock);
-+
- module_init(init);
- module_exit(fini);
-diff -urN linux-2.4.21-pre7-bk.orig/net/ipv4/netfilter/ip_conntrack_ftp.c l=
-inux-2.4.21-pre7-bk/net/ipv4/netfilter/ip_conntrack_ftp.c
---- linux-2.4.21-pre7-bk.orig/net/ipv4/netfilter/ip_conntrack_ftp.c	2003-04=
--14 02:42:02.000000000 +0200
-+++ linux-2.4.21-pre7-bk/net/ipv4/netfilter/ip_conntrack_ftp.c	2003-04-14 0=
-2:42:44.000000000 +0200
-@@ -436,9 +436,7 @@
- 	return 0;
- }
-=20
--#ifdef CONFIG_IP_NF_NAT_NEEDED
- EXPORT_SYMBOL(ip_ftp_lock);
--#endif
-=20
- MODULE_LICENSE("GPL");
- module_init(init);
-diff -urN linux-2.4.21-pre7-bk.orig/net/ipv4/netfilter/ip_conntrack_irc.c l=
-inux-2.4.21-pre7-bk/net/ipv4/netfilter/ip_conntrack_irc.c
---- linux-2.4.21-pre7-bk.orig/net/ipv4/netfilter/ip_conntrack_irc.c	2002-11=
--29 00:53:15.000000000 +0100
-+++ linux-2.4.21-pre7-bk/net/ipv4/netfilter/ip_conntrack_irc.c	2003-04-14 0=
-2:42:44.000000000 +0200
-@@ -305,9 +305,7 @@
- 	}
- }
-=20
--#ifdef CONFIG_IP_NF_NAT_NEEDED
- EXPORT_SYMBOL(ip_irc_lock);
--#endif
-=20
- module_init(init);
- module_exit(fini);
-
---=-Hic5hc/+6f2aDGzRzjzB--
+Daniel

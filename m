@@ -1,56 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271311AbTHHNK5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 09:10:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271313AbTHHNK5
+	id S271336AbTHHNZO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 09:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271337AbTHHNZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 09:10:57 -0400
-Received: from ns0.eris.qinetiq.com ([128.98.1.1]:46181 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S271311AbTHHNKy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 09:10:54 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: Innovision EIO DM-8301H/R SATA cards...
-Date: Fri, 8 Aug 2003 14:08:16 +0100
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200308081408.16564.m.watts@eris.qinetiq.com>
+	Fri, 8 Aug 2003 09:25:14 -0400
+Received: from pub237.cambridge.redhat.com ([213.86.99.237]:56556 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id S271336AbTHHNZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 09:25:11 -0400
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase
+From: David Woodhouse <dwmw2@infradead.org>
+To: Bernardo Innocenti <bernie@develer.com>
+Cc: Nicolas Pitre <nico@cam.org>, Willy Tarreau <willy@w.ods.org>,
+       Christoph Hellwig <hch@lst.de>, lkml <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+In-Reply-To: <200307290102.01313.bernie@develer.com>
+References: <Pine.LNX.4.44.0307281307480.6507-100000@xanadu.home>
+	 <200307290102.01313.bernie@develer.com>
+Content-Type: text/plain
+Message-Id: <1060349104.25209.364.camel@passion.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
+Date: Fri, 08 Aug 2003 14:25:04 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, 2003-07-29 at 00:02, Bernardo Innocenti wrote:
+> I've read in the Kconfig help that JFFS2 still depends on mtdblock even
+> though it doesn't use it for I/O. I think I've also seen some promise
+> that this dependency will eventually be removed...
 
+It's already been removed from everything but the Kconfig file... :)
 
-My local supplier has started doing some SATA cards....
-
-http://www.ivmm.com/eio/products_sata_pci_host.html
-
-
-The chip on the board i the screenshot looks vaguely like a Silicon Image chip 
-- - am I correct in thinking that these are supported in linux?
-
-Cheers,
-
-Mark.
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ TIM
-St Andrews Road, Malvern
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/M6DABn4EFUVUIO0RApDvAJoDz1ExF/zNuzsydq8/q/pB8ZaCvwCg58pW
-Rq7zYfp+o7KKEnVIUw/IDmI=
-=kCCB
------END PGP SIGNATURE-----
+-- 
+dwmw2
 

@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280339AbRKOC7B>; Wed, 14 Nov 2001 21:59:01 -0500
+	id <S280323AbRKOCvj>; Wed, 14 Nov 2001 21:51:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280480AbRKOC6v>; Wed, 14 Nov 2001 21:58:51 -0500
-Received: from ppp01.ts1-1.NewportNews.visi.net ([209.8.196.1]:34808 "EHLO
-	blimpo.internal.net") by vger.kernel.org with ESMTP
-	id <S280339AbRKOC6e>; Wed, 14 Nov 2001 21:58:34 -0500
-Date: Wed, 14 Nov 2001 21:58:15 -0500
-From: Ben Collins <bcollins@debian.org>
-To: Alex Adriaanse <alex_a@caltech.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: LFS stopped working
-Message-ID: <20011114215815.S329@visi.net>
-In-Reply-To: <JIEIIHMANOCFHDAAHBHOOEOLCMAA.alex_a@caltech.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <JIEIIHMANOCFHDAAHBHOOEOLCMAA.alex_a@caltech.edu>
-User-Agent: Mutt/1.3.23i
+	id <S280339AbRKOCv2>; Wed, 14 Nov 2001 21:51:28 -0500
+Received: from anime.net ([63.172.78.150]:15371 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S280323AbRKOCvO>;
+	Wed, 14 Nov 2001 21:51:14 -0500
+Date: Wed, 14 Nov 2001 18:50:06 -0800 (PST)
+From: Dan Hollis <goemon@anime.net>
+To: Hans-Peter Jansen <hpj@urpla.net>
+cc: <sensors@stimpy.netroedge.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [lm_sensors] hard lockup on modprobe w83781d with Tyan Dual
+ K7/Thunder
+In-Reply-To: <20011114215215.0692E1097@shrek.lisa.de>
+Message-ID: <Pine.LNX.4.30.0111141847300.31580-100000@anime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 14, 2001 at 02:05:21PM -0800, Alex Adriaanse wrote:
-> Hey,
-> 
-> I've been running 2.4.14 for a few days now.  I needed LFS support, so I
-> recompiled glibc 2.1.3 with the new 2.4 headers, and after that I could
-> create large files (e.g. using dd if=/dev/zero of=test bs=1M count=0
-> seek=3000) just fine.
-> 
-> However, as of yesterday, I couldn't create files bigger than 2GB anymore.
-> I did not change kernels, nor did I mess with libc or anything else (I did
-> some Debian package upgrades/installations/recompiles, but I don't think
-> they should affect this) - I'm not quite sure what happened.  Now commands
-> such as the dd command I mentioned above will die with the message "File
-> size limit exceeded", leaving a 2GB file behind.  Rebooting didn't solve
-> anything.  My ulimits seem to be fine (file size = unlimited).
+On Wed, 14 Nov 2001, Hans-Peter Jansen wrote:
+> fan1:     7180 RPM  (min = 3000 RPM, div = 2)                       <3590>
+> fan2:     7105 RPM  (min = 3000 RPM, div = 2)                       <3515>
 
-Actually it does affect it. Recompiling glibc isn't the end all to LFS
-support. In fact, 2.1.3 has less than adequate support for LFS, IIRC, so
-use 2.2.x. For Debian, that just means upgrading to woody(testing).
+Fan divisor is wrong.
+adjust /proc/sys/dev/sensors/w83782d-i2c-0-2d/fan_div as needed.
 
-Your problem extends from programs also needing to be recompiled with
-LFS support. This involves some special LFS CFLAGS, and most common
-programs detect whether to do this using autoconf (fileutils, gzip and
-tar are perfect examples of programs that use this feature).
+> temp1:    +77.0°C   (limit = +60°C, hysteresis = +50°C) sensor = thermistor
+> <46°C>
+> temp2:    +76.5°C   (limit = +60°C, hysteresis = +50°C) sensor = thermistor
+> <41°C>
+> temp3:    +77.0°C   (limit = +60°C, hysteresis = +50°C) sensor = thermistor
+> <46°C>
 
+thermistor type is wrong.
 
-Ben
+echo "2" > /proc/sys/dev/sensors/w83782d-i2c-0-2d/sensor{1..3}
 
+-Dan
 -- 
- .----------=======-=-======-=========-----------=====------------=-=-----.
-/                   Ben Collins    --    Debian GNU/Linux                  \
-`  bcollins@debian.org  --  bcollins@openldap.org  --  bcollins@linux.com  '
- `---=========------=======-------------=-=-----=-===-======-------=--=---'
+[-] Omae no subete no kichi wa ore no mono da. [-]
+

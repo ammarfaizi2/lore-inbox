@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273463AbRJDLCS>; Thu, 4 Oct 2001 07:02:18 -0400
+	id <S273748AbRJDLPV>; Thu, 4 Oct 2001 07:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273487AbRJDLCI>; Thu, 4 Oct 2001 07:02:08 -0400
-Received: from mons.uio.no ([129.240.130.14]:39346 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S273463AbRJDLBs>;
-	Thu, 4 Oct 2001 07:01:48 -0400
-To: Nicolas Mailhot <Nicolas.Mailhot@one2team.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Symlinks broken on 2.4.10-ac[3-4] nfs
-In-Reply-To: <20011004115236.A9373@ulysse.olympe.o2t>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 04 Oct 2001 13:02:14 +0200
-In-Reply-To: Nicolas Mailhot's message of "Thu, 4 Oct 2001 11:52:36 +0200"
-Message-ID: <shshetfvfbd.fsf@charged.uio.no>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Cuyahoga Valley)
+	id <S273723AbRJDLPC>; Thu, 4 Oct 2001 07:15:02 -0400
+Received: from dutepp0.et.tudelft.nl ([130.161.38.38]:35847 "EHLO
+	dutepp0.et.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S273691AbRJDLOy>; Thu, 4 Oct 2001 07:14:54 -0400
+From: Bert Meijs <L.Meijs@dutepp0.et.tudelft.nl>
+Message-Id: <200110041115.f94BFNN14226@dutepp0.et.tudelft.nl>
+Subject: keyboard not detected krnl v2.4.10
+To: linux-kernel@vger.kernel.org
+Date: Thu, 4 Oct 2001 13:15:22 +0200 (CEST)
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, who can help me with my problem.
 
-It's a known bug in the 2.4.10 NFS server code. The following patch
-fixes it...
+I have a system with an ASUS A7A266 chipset ALiMaGiK 1 chipset
 
-Cheers,
-  Trond
+I installed this system with RH linux 7.1 and it works fine.
 
-diff -u --recursive --new-file linux-2.4.10/fs/nfsd/nfs3xdr.c linux-2.4.10-symlinks/fs/nfsd/nfs3xdr.c
---- linux-2.4.10/fs/nfsd/nfs3xdr.c	Mon Sep 24 00:33:20 2001
-+++ linux-2.4.10-symlinks/fs/nfsd/nfs3xdr.c	Thu Oct  4 12:59:49 2001
-@@ -99,7 +99,7 @@
- 	char		*name;
- 	int		i;
- 
--	if ((p = xdr_decode_string_inplace(p, namp, lenp, NFS3_MAXPATHLEN)) != NULL) {
-+	if ((p = xdr_decode_string(p, namp, lenp, NFS3_MAXPATHLEN)) != NULL) {
- 		for (i = 0, name = *namp; i < *lenp; i++, name++) {
- 			if (*name == '\0')
- 				return NULL;
+Then I need some modules for ipadmin and ipmasq en get the
+latest kernel v2.4.10.
 
+After I compiled this kernel and reboot my system I see a 
+kernel message, keybord not detected, and when the system is
+running, my keyboard don't work.
+
+On older motherboards everything works fine.
+
+	greetings, bert
+
+-- 
+-- Bert Meijs                             --- Email: L.Meijs@its.tudelft.nl --
+-- Unix System Manager of the Computer Engineering group		    --
+-- CARDIT, Delft University of Technology ------------ Tel: (31)-15-2781366 --
+-- P.O.Box 5031, 2600 GA Delft, The Netherlands ------ Fax: (31)-15-2784898 --

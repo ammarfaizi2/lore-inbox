@@ -1,53 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317917AbSGaKOM>; Wed, 31 Jul 2002 06:14:12 -0400
+	id <S317977AbSGaK6g>; Wed, 31 Jul 2002 06:58:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317926AbSGaKOM>; Wed, 31 Jul 2002 06:14:12 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:19690 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S317917AbSGaKOL>;
-	Wed, 31 Jul 2002 06:14:11 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20020731115818.A26329@ucw.cz> 
-References: <20020731115818.A26329@ucw.cz>  <20020730225736.K7677@flint.arm.linux.org.uk> <20020730122638.A11153@ucw.cz> <20020730122918.A11248@ucw.cz> <20020730152255.A20071@ucw.cz> <20020730152342.B20071@ucw.cz> <20020730221722.A22761@ucw.cz> <20020730225736.K7677@flint.arm.linux.org.uk> <9658.1028109354@redhat.com> 
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
-       linuxconsole-dev@lists.sourceforge.net
-Subject: Re: [patch] Fix suspend of the kseriod thread 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 31 Jul 2002 11:07:21 +0100
-Message-ID: <10657.1028110041@redhat.com>
+	id <S317980AbSGaK6f>; Wed, 31 Jul 2002 06:58:35 -0400
+Received: from sunny.pacific.net.au ([203.25.148.40]:28401 "EHLO
+	sunny.pacific.net.au") by vger.kernel.org with ESMTP
+	id <S317977AbSGaK6f>; Wed, 31 Jul 2002 06:58:35 -0400
+From: "David Luyer" <david@luyer.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Subject: RE: Linux 2.4.19ac3rc3 on IBM x330/x340 SMP - "ps" time skew
+Date: Wed, 31 Jul 2002 21:01:45 +1000
+Message-ID: <00b601c23881$a8dfa180$638317d2@pacific.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I wrote:
 
-vojtech@suse.cz said:
->  Ok. Is the use in drivers/input/serio.c buggy? 
+> In Linux 2.4.19ac3rc3 on IBM x330/x340 SMP systems we're seeing this:
+> 
+> luyer@praxis8:~$ ps auxwww | tail -1
+> luyer     1025  0.0  0.0  1276  352 pts/2    S    Aug06   0:00 tail -1
+> luyer@praxis8:~$ date
+> Wed Jul 31 12:35:16 EST 2002
 
-If it matters that the thread can miss wakeup events and sleep indefinitely 
-while there's a 'SERIO_RESCAN' event pending, then yes it looks buggy.
+(UP systems are fine, SMP have this problem)
 
-	serio_thread()				serio_rescan()
-	--------------				--------------
+Reason:
 
-	serio_handle_events();
-						serio->event |= SERIO_RESCAN;
-						wake_up(&serio_wait);
-	sleep_on(&serio_wait);
+luyer@praxis8:~$ ps --info 2>&1 | grep Hertz
+EUID=111 TTY=136,3 Hertz=50
 
-	...sleeps...
+procps is getting the hertz value wrong, it's computing it as:
 
-If both serio_thread() and serio_rescan() hold the BKL you're OK. It looks 
-like serio_rescan() doesn't, though.
+  h = (unsigned long)( (double)jiffies/seconds/smp_num_cpus );
 
-> What should be it replaced with?
+but we're only getting timer interrupts on CPU 0, and hence
+jiffies is only incrementing once per 100th of a second.
 
-In general, the response 'anything but sleep_on' is considered appropriate.
-Try wait_event().
+luyer@praxis8:~/procps/procps-2.0.7.orig/proc$ cat /proc/interrupts
+           CPU0       CPU1
+  0:   52459351          0  local-APIC-edge  timer
+  1:          0          2    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+ 24:     883655     863043   IO-APIC-level  ips
+ 26:          7          9   IO-APIC-level  aic7xxx
+ 27:          8          8   IO-APIC-level  aic7xxx
+ 28:   97880608   96542591   IO-APIC-level  eth0
+NMI:          0          0
+LOC:   52456889   52456887
+ERR:          0
+MIS:          0
 
---
-dwmw2
+procps version is 2.0.7 (Debian 3.0).
 
+Where's the mistake -- should timer interrupts be on both
+CPUs (I think this is the problem), or is procps miscalculating
+Hz (seems less likely, someone would have noticed by now...)?
+
+David.
 

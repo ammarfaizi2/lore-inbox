@@ -1,78 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbUCZWGE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 17:06:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbUCZWGE
+	id S261351AbUCZWLP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 17:11:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbUCZWLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 17:06:04 -0500
-Received: from dhcp18-183.bio.purdue.edu ([128.210.18.183]:14720 "EHLO
-	lapdog.ravenhome.net") by vger.kernel.org with ESMTP
-	id S261357AbUCZWF6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 17:05:58 -0500
-From: Praedor Atrebates <praedor@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: System clock speed too high - 2.6.3 kernel
-Date: Fri, 26 Mar 2004 17:05:55 -0500
-User-Agent: KMail/1.6.1
-References: <200403261430.18629.praedor@yahoo.com> <200403261800.32717.praedor@yahoo.com> <1080338266.5408.316.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1080338266.5408.316.camel@cog.beaverton.ibm.com>
+	Fri, 26 Mar 2004 17:11:15 -0500
+Received: from mail1.webmaster.com ([216.152.64.168]:4357 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP id S261351AbUCZWLM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 17:11:12 -0500
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Binary-only firmware covered by the GPL?
+Date: Fri, 26 Mar 2004 14:10:48 -0800
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEKGLEAA.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403261705.55657.praedor@yahoo.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2096
+In-Reply-To: <E1B6t8T-0000KZ-00@chiark.greenend.org.uk>
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Fri, 26 Mar 2004 13:49:13 -0800
+	(not processed: message from valid local sender)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Friday 26 March 2004 04:57 pm, john stultz held forth thus:
-> On Fri, 2004-03-26 at 15:00, Praedor Atrebates wrote:
-[...]
-> > On Friday 26 March 2004 04:22 pm, john stultz held forth thus:
-> > > On Fri, 2004-03-26 at 11:30, Praedor Atrebates wrote:
-> > > > In doing a web search on system clock speeds being too high, I found
-> > > > entries describing exactly what I am experiencing in the linux-kernel
-> > > > list archives, but have not yet found a resolution.
-> > > >
-> > > > I have Mandrake 10.0, kernel-2.6.3-7mdk installed, on an IBM Thinkpad
-> > > > 1412 laptop, celeron 366, 512MB RAM.  I am finding that my system
-> > > > clock is ticking away at a rate of about 3:1 vs reality, ie, I count
-> > > > ~3 seconds
-[...]
-> > > Does booting w/ "clock=pit" help?
-[...]
-> I noticed in the dmesg you sent me that you're using the ACPI PM time
-> source. There has just recently been a bug opened for a very similar
-> issue (see http://bugme.osdl.org/show_bug.cgi?id=2375 ).
->
-> First of all, scratch trying "clock=pit" and test booting w/
-> "clock=tsc". If that resolves the issue, disable ACPI PM timesource
-> support (under the ACPI menu) in your kerel and that should fix you for
-> the short term.
+> Matt Reuther wrote:
 
-Hmpf.  I'll try the clock=tsc switch next.  I did boot using the clock=pit 
-switch and the clock was normal...but I had also changed the append statement 
-acpi=on to acpi=off as well.  I'll set it back to "on" and try "clock=tsc" in 
-combination.
+> >I think the real question is this: if this binary blob is not
+> >GPL, then how
+> >can it be in the kernel? It should be pulled out and put in a
+> >separate file,
+> >which can be loaded with the firmware mechanism.
 
-My bios is very limited.  This is a rather old laptop and there is just not a 
-lot I can do.  I'll check it one more time as I reboot.
+> Correct.
 
-Thanks for the help.
+> >If it is firmware, then would it be legal to reverse engineer
+> >the assembler,
+> >assuming one can find the instruction set for the chip?
 
-praedor
+> That depends on your local jurisdiction.
 
-- -- 
-"George W. Bush is a deserter, an election thief, a drunk driver, a WMD 
-liar and a functional illiterate. And he poops his pants." 
-- --Barbara Bush, his mother
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+	IANAL, but I believe you have the absolute right to reverse engineer and
+modify it. All of that engineering and modification would be to/from a file
+that was placed under the GPL, and the GPL contains no restrictions against
+reverse engineering or modification. It specifically prohibits the
+imposition of any addional restrictions upon those who receive the file as
+far as how they can use, modify, and distribute it.
 
-iD8DBQFAZKlDSTapoRk9vv8RAvmWAJ94jPIPaSwdrtOoNkwKpz4eKokBjwCglolS
-ih1YhCpj706DtrVFt7Y42bs=
-=oW8n
------END PGP SIGNATURE-----
+	There might be a question if the reverse engineering exceeds the scope of
+the file itself. For example, if you reverse engineer the hardware that the
+firmware runs on or if the firmware runs on a custom processor and you have
+to reverse engineer the processor itself. But I certainly think you can
+reverse engineer the contents of the firmware file (disassemble it) and make
+modified versions of that firmware with absolute impunity.
+
+	DS
+

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbUEECQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261234AbUEECt6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbUEECQv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 22:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUEECQv
+	id S261234AbUEECt6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 22:49:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbUEECt6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 22:16:51 -0400
-Received: from smtp101.mail.sc5.yahoo.com ([216.136.174.139]:41608 "HELO
-	smtp101.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261468AbUEECQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 22:16:48 -0400
-Message-ID: <40984E89.6070501@yahoo.com.au>
-Date: Wed, 05 May 2004 12:16:41 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Tue, 4 May 2004 22:49:58 -0400
+Received: from mail-ext.curl.com ([66.228.88.132]:62732 "HELO
+	mail-ext.curl.com") by vger.kernel.org with SMTP id S261234AbUEECt5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 22:49:57 -0400
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Load hid.o module synchronously?
+References: <s5g8ygi4l3q.fsf@patl=users.sf.net>
+	<408D65A7.7060207@nortelnetworks.com>
+	<s5gisfm34kq.fsf@patl=users.sf.net> <c6od9g$53k$1@gatekeeper.tmr.com>
+	<s5ghdv0i8w4.fsf@patl=users.sf.net> <20040504200147.GA26579@kroah.com>
+	<s5ghduvdg1u.fsf@patl=users.sf.net> <20040504223550.GA32155@kroah.com>
+From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
+Message-ID: <s5gy8o7bnhv.fsf@patl=users.sf.net>
+Date: 04 May 2004 22:49:56 -0400
+In-Reply-To: <20040504223550.GA32155@kroah.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Shantanu Goel <sgoel01@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [VM PATCH 2.6.6-rc3-bk5] Dirty balancing in the presence of mapped
- pages
-References: <20040505002029.11785.qmail@web12821.mail.yahoo.com> <20040504180345.099926ec.akpm@osdl.org>
-In-Reply-To: <20040504180345.099926ec.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Shantanu Goel <sgoel01@yahoo.com> wrote:
-> 
->>Presently the kernel does not collection information
->>about the percentage of memory that processes have
->>dirtied via mmap until reclamation.  Nothing analogous
->>to balance_dirty_pages() is being done for mmap'ed
->>pages.  The attached patch adds collection of dirty
->>page information during kswapd() scans and initiation
->>of background writeback by waking up bdflush.
-> 
-> 
-> And what were the effects of this patch?
-> 
+Greg KH <greg@kroah.com> writes:
 
-I havea modified patch from Nikita that does the
-if (ptep_test_and_clear_dirty) set_page_dirty from
-page_referenced, under the page_table_lock.
+> On Tue, May 04, 2004 at 05:56:48PM -0400, Patrick J. LoPresti wrote:
+>
+> > But what if it fails to bind?  For example, what if an error occurs?
+> > Or what if the keyboard is on the module's blacklist?  How do I know
+> > when to stop waiting?
+> 
+> You do not, sorry.
 
-So it also picks up pages coming off the active list.
+That is disappointing.  I mean, I deal with Microsoft products a lot,
+where "unreliable by design" is normal.  But I expected better from
+Linux.
 
-It doesn't do the wakeup_bdflush thing, but that sounds
-like a good idea. What does wakeup_bdflush(-1) mean?
+> > Ideally, what I would like is for "modprobe <driver>" to wait
+> > until all hardware handled by that driver is either ready for use
+> > or is never going to be.  That seems simple and natural to me.
+> 
+> Sorry, but this is not going to happen.  It does not fit into the
+> way the kernel handles drivers anymore.  Again, sorry.
 
+OK, an arbitrary flaky delay it is.  Thanks!
+
+ - Pat

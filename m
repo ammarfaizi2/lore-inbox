@@ -1,53 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130116AbRBLRHi>; Mon, 12 Feb 2001 12:07:38 -0500
+	id <S130295AbRBLRKI>; Mon, 12 Feb 2001 12:10:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130177AbRBLRH2>; Mon, 12 Feb 2001 12:07:28 -0500
-Received: from gate.in-addr.de ([212.8.193.158]:46351 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S130116AbRBLRH0>;
-	Mon, 12 Feb 2001 12:07:26 -0500
-Date: Mon, 12 Feb 2001 18:07:15 +0100
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: Mike Harrold <mharrold@cas.org>
+	id <S130385AbRBLRJ6>; Mon, 12 Feb 2001 12:09:58 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10771 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S130295AbRBLRJj>; Mon, 12 Feb 2001 12:09:39 -0500
+Subject: Re: 2.2.16-22 -> 2.4.0 breaks cpuid on Cyrix/IBM 6x86L-PR200+
+To: fpn@pobox.com
+Date: Mon, 12 Feb 2001 17:10:23 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re:  lkml subject line
-Message-ID: <20010212180715.G11465@marowsky-bree.de>
-In-Reply-To: <20010213014814.7d7f7d33.bruce@ask.ne.jp> <200102121656.LAA17900@mah21awu.cas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.3i
-In-Reply-To: <200102121656.LAA17900@mah21awu.cas.org>; from "Mike Harrold" on 2001-02-12T11:56:00
-X-Ctuhulu: HASTUR
+In-Reply-To: <20010212090434.A8834@fpn.dyndns.org> from "fpn@pobox.com" at Feb 12, 2001 09:04:34 AM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14SMUc-0007Wx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2001-02-12T11:56:00,
-   Mike Harrold <mharrold@cas.org> said:
+> I run RedHat 7 with 2.2.16-22 and 2.4.0
+> Under 2.2.16-22 that is not the case (it just works). I think (but can't
+> easily verify) that I never saw that problem under 2.2.x.
+> The Processor in question is a 6x86-L-PR200 from Cyrix/IBM.
 
-> Maybe I don't *want* the LKML messages in a seperate folder.
-> Maybe I just want to identify them at a pinch in my inbox?
-
-You can use procmail to modify the subject line of incoming mail too.
-
-> Maybe my employer doesn't allow me to install additional software anyway?
-
-Those would all be your problems and I would suggest using a different account
-for mail then.
-
-This discussion happens on every mailing list occasionally, and it is just a
-generally bad idea, period.
-
-Especially for a list which is as often crossposted to as lk.
-
-Can we now move on?
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Perfection is our goal, excellence will be tolerated. -- J. Yahl
+Can you tell me if it works ok in 2.4.1ac9. I think its fixed indirectly from
+a couple of other things. If not I know whats up I think
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

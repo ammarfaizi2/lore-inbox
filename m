@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261441AbTCGJNY>; Fri, 7 Mar 2003 04:13:24 -0500
+	id <S261468AbTCGJXl>; Fri, 7 Mar 2003 04:23:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261442AbTCGJNY>; Fri, 7 Mar 2003 04:13:24 -0500
-Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:37390 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S261441AbTCGJNX>; Fri, 7 Mar 2003 04:13:23 -0500
-Message-Id: <200303070913.h279Cpu07949@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Russell King <rmk@arm.linux.org.uk>
-Subject: Re: Make ipconfig.c work as a loadable module.
-Date: Fri, 7 Mar 2003 11:10:15 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Jeff Garzik <jgarzik@pobox.com>, Robin Holt <holt@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       netdev@oss.sgi.com
-References: <Pine.LNX.4.44.0303061500310.31368-100000@mandrake.americas.sgi.com> <20030306231905.M838@flint.arm.linux.org.uk> <1046996987.17718.144.camel@irongate.swansea.linux.org.uk>
-In-Reply-To: <1046996987.17718.144.camel@irongate.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S261469AbTCGJXk>; Fri, 7 Mar 2003 04:23:40 -0500
+Received: from imap.gmx.net ([213.165.65.60]:23736 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261468AbTCGJXk>;
+	Fri, 7 Mar 2003 04:23:40 -0500
+Message-Id: <5.2.0.9.2.20030307103430.00c87df8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 07 Mar 2003 10:38:47 +0100
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303071003060.6318-100000@localhost.localdom
+ ain>
+References: <5.2.0.9.2.20030307093435.01a8fe88@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 March 2003 02:29, Alan Cox wrote:
-> On Thu, 2003-03-06 at 23:19, Russell King wrote:
-> > "klibc doesnt really matter"
-> >
-> > I'd prefer not to have to have thousands of special programs around
-> > just to be able to boot my machines, especially when it was all in-
-> > kernel up until this point.
-> >
-> > klibc yes, dietlibc with random other garbage in some random
-> > filesystem which'd need maintaining - no thanks.
->
-> You can build the dhcp client with glibc static into your initrd.
+At 10:03 AM 3/7/2003 +0100, Ingo Molnar wrote:
 
-Anything built static against glibs tends to be 400K+.
---
-vda
+>here's sched-2.5.64-B0:
+
+KABOOM!  Major explosions on boot.  First time I booted, I got an instant 
+reboot.  Second time, I got a couple of double faults and then explosion 
+during fsck (uhoh;).  PID is 1684368482 :-/
+
+Time to reboot into .virgin for (hopefully) a couple of fretful 
+moments.  (rebooting into .virgin after first explosion would have been a 
+bit smarter;)
+
+         -Mike  
+

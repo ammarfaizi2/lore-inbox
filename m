@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263679AbUEGQRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263671AbUEGQRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263679AbUEGQRK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 12:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263684AbUEGQRK
+	id S263671AbUEGQRH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 12:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263684AbUEGQRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 12:17:10 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:45706 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S263679AbUEGQRG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 12:17:06 -0400
-Date: Fri, 07 May 2004 09:16:51 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>,
-       linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net,
-       lhns-devel@lists.sourceforge.net
-Subject: Re: [ANNOUNCE] [PATCH] Node Hotplug Support
-Message-ID: <540080000.1083946609@[10.10.2.4]>
-In-Reply-To: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
-References: <20040508003904.63395ca7.tokunaga.keiich@jp.fujitsu.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 7 May 2004 12:17:07 -0400
+Received: from outgoingmail.adic.com ([63.81.117.28]:22972 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263671AbUEGQRD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 12:17:03 -0400
+Message-ID: <409BB532.50904@xfs.org>
+Date: Fri, 07 May 2004 11:11:30 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040502)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Arjan van de Ven <arjanv@redhat.com>
+CC: Dave Jones <davej@redhat.com>, Paul Jakma <paul@clubi.ie>,
+       Valdis.Kletnieks@vt.edu, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
+References: <20040505013135.7689e38d.akpm@osdl.org> <200405051312.30626.dominik.karall@gmx.net> <200405051822.i45IM2uT018573@turing-police.cc.vt.edu> <20040505215136.GA8070@wohnheim.fh-wedel.de> <200405061518.i46FIAY2016476@turing-police.cc.vt.edu> <1083858033.3844.6.camel@laptop.fenrus.com> <Pine.LNX.4.58.0405070136010.1979@fogarty.jakma.org> <20040507065105.GA10600@devserv.devel.redhat.com> <20040507151317.GA15823@redhat.com> <409BAFAC.70601@xfs.org> <20040507155941.GA17850@devserv.devel.redhat.com>
+In-Reply-To: <20040507155941.GA17850@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ACPI is used to do some hardware manipulation.
-> There is no general purpose interface to get hardware information
-> and manipulate hardware today, but hardware proprietary interfaces.
-> ACPI is one of them, and I decided to use it because:
+Arjan van de Ven wrote:
+> On Fri, May 07, 2004 at 10:47:56AM -0500, Steve Lord wrote:
 > 
->   - Its spec is open.
->   - I can use it without any hardware special knowledge:)
+>>>-	if (mlen > sizeof(buf))
+>>>+	obj.data = kmalloc(1024, GFP_KERNEL);
+>>>+	if (!obj.data)
+>>>+		return -ENOMEM;
+>>>+
+>>>+	if (mlen > 1024) {
+>>
+>>That's what I hate about all of this, just think how much stack that
+>>kmalloc can take in low memory situations.... it might end up in
+>>writepage on another nfs file....
+> 
+> 
+> it clearly needs to be GFP_NOFS
 
-You can't base platform-independant Linux code on ACPI, when not all
-NUMA boxes will support it. The fact that your particular box may
-support it doesn't make it a generally applicable idea ;-)
+That was not really my point, consider any memory allocation on the
+stack which is being replaced with an allocate to save space. Then replace
+the saved stack space with the potential stack space used to
+free memory by writing it out via a filesystem. You cannot make all
+the allocations in the kernel GFP_NOFS.
 
-You need a better abstraction (and preferably one without the massive 
-complexity whilst you're at it).
+Now at least if the memory is allocated high enough up in the
+call chain it fixes the problems of a function with a large
+stack frame with a deep stack underneath it. It does not fix
+anything if the function is already deep in the stack.
 
-M.
+All this is doing is papering over the cracks.
+
+Steve
+
 

@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263081AbTCLA1I>; Tue, 11 Mar 2003 19:27:08 -0500
+	id <S263055AbTCLAiJ>; Tue, 11 Mar 2003 19:38:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263042AbTCLA0m>; Tue, 11 Mar 2003 19:26:42 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:58089 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263020AbTCLAXi>;
-	Tue, 11 Mar 2003 19:23:38 -0500
-Date: Tue, 11 Mar 2003 16:34:08 -0800 (PST)
-Message-Id: <20030311.163408.124083653.davem@redhat.com>
-To: shemminger@osdl.org
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
+	id <S263054AbTCLAhx>; Tue, 11 Mar 2003 19:37:53 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:21149 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S263047AbTCLAhj>;
+	Tue, 11 Mar 2003 19:37:39 -0500
 Subject: Re: [PATCH] (8/8) Kill brlock
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1047429105.15875.123.camel@dell_ss3.pdx.osdl.net>
-References: <1047428123.15872.113.camel@dell_ss3.pdx.osdl.net>
-	<20030311.162323.94095868.davem@redhat.com>
-	<1047429105.15875.123.camel@dell_ss3.pdx.osdl.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "David S. Miller" <davem@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-net@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0303111644060.3002-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0303111644060.3002-100000@home.transmeta.com>
+Content-Type: text/plain
+Organization: Open Source Devlopment Lab
+Message-Id: <1047430098.15869.128.camel@dell_ss3.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 11 Mar 2003 16:48:18 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stephen Hemminger <shemminger@osdl.org>
-   Date: 11 Mar 2003 16:31:46 -0800
-   
-   The caller's didn't need to stop packet processing, just remove their type
-   from a list or some other call back hook.  A simple pointer update takes
-   care of removing a simple call back. The list delete rcu code takes care
-   of the memory barriers and doing the updates in the right order.
-   This ensures no future packet processing will grab that token
-   
-Ok, I'm fine with this then.  Linus you can apply all of his patches.
+On Tue, 2003-03-11 at 16:44, Linus Torvalds wrote:
+> On Tue, 11 Mar 2003, David S. Miller wrote:
+> >    
+> > Ok, I'm fine with this then.  Linus you can apply all of his patches.
+> 
+> I'm a lazy bum, and I would _really_ want this tested more before it hits 
+> my tree. I think it makes sense, but still..
+
+
+I agree, given the number of sub-pieces it deserves some more time...
+

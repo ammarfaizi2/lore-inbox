@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265495AbRF1DFM>; Wed, 27 Jun 2001 23:05:12 -0400
+	id <S265494AbRF1DJW>; Wed, 27 Jun 2001 23:09:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265503AbRF1DEx>; Wed, 27 Jun 2001 23:04:53 -0400
-Received: from alumnus.caltech.edu ([131.215.50.236]:8165 "EHLO
-	alumnus.caltech.edu") by vger.kernel.org with ESMTP
-	id <S265494AbRF1DEn>; Wed, 27 Jun 2001 23:04:43 -0400
-Date: Wed, 27 Jun 2001 20:04:41 -0700 (PDT)
-From: "Daniel R. Kegel" <dank@alumni.caltech.edu>
-Message-Id: <200106280304.UAA07087@alumnus.caltech.edu>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>, x@xman.org
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: A signal fairy tale
+	id <S265496AbRF1DJM>; Wed, 27 Jun 2001 23:09:12 -0400
+Received: from [32.97.182.101] ([32.97.182.101]:47514 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265494AbRF1DJF>;
+	Wed, 27 Jun 2001 23:09:05 -0400
+Message-ID: <3B3A2ABC.B9B4CEB6@vnet.ibm.com>
+Date: Wed, 27 Jun 2001 13:49:33 -0500
+From: Tom Gall <tom_gall@vnet.ibm.com>
+X-Mailer: Mozilla 4.7 [en] (Win98; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: RFC: Changes for PCI
+In-Reply-To: <3B3A58FC.2728DAFF@vnet.ibm.com>
+		<3B3A5B00.9FF387C9@mandrakesoft.com>
+		<20010628091704.B23627@krispykreme> <15162.33445.396761.71174@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Smith <x@xman.org> wrote:
 
-> Jamie Lokier <lk@tantalophile.demon.co.uk> wrote:
-> > Btw, this functionality is already available using sigaction().  Just
-> > search for a signal whose handler is SIG_DFL.  If you then block that
-> > signal before changing, checking the result, and unblocking the signal,
-> > you can avoid race conditions too.  (This is what my programs do).
-> 
-> It's more than whether a signal is blocked or not, unfortunately. Lots of 
-> applications will invoke sigwaitinfo() on whatever the current signal mask 
-> is, which means you can't rely on sigaction to solve your problems. :-(
 
-As Chris points out, allocating a signal by the scheme Jamie
-describes is neccessary but not sufficient.  The problem Chris
-ran into is that he allocated a signal fair and square, only to find
-the application picking it up via sigwaitinfo()!
-Yes, this is a bug in the application -- but it's interesting that this
-bug only shows up when you try to integrate a new, well-behaved, library 
-into the app.  It's a fragile part of the Unix API.  sigopen() is
-a way for libraries to defend themselves against misuse of sigwaitinfo()
-by big applications over which you have no control.
+"David S. Miller" wrote:
 
-So sigopen() is a technological fix to a social problem, I guess.
-- Dan
+> Looks, ppc64 is really still experimental right?
+
+Heck no.
+
+> Which means it is
+> 2.5.x material, and 2.5.x has been quoted as being a week or two away.
+
+I sure hope that ppc64 is NOT considered 2.5.x material.
+
+> So we can solve this problem for real, with system bus domains, and
+> get ppc64 working all within the framework of 2.5.x which is just
+> around the corner.
+
+A real solution would be nice. And if the real solution can ONLY be in 2.5, then
+is it such a bad idea moving the bus number type to unsigned int for 2.4.x?
+
+> For now, I am rather sure your systems for testing have < 256 physical
+> PCI busses and you can for 2.4.x use the remapping scheme sparc64 uses.
+
+Wellll, remember that post about more than 256 PCI buses? I meant it.
+
+Regards,
+
+Tom
+--
+Tom Gall - PPC64 Maintainer      "Where's the ka-boom? There was
+Linux Technology Center           supposed to be an earth
+(w) tom_gall@vnet.ibm.com         shattering ka-boom!"
+(w) 507-253-4558                 -- Marvin Martian
+(h) tgall@rochcivictheatre.org
+http://www.ibm.com/linux/ltc/projects/ppc
+
+

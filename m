@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272449AbRIKNBs>; Tue, 11 Sep 2001 09:01:48 -0400
+	id <S272452AbRIKNBM>; Tue, 11 Sep 2001 09:01:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272448AbRIKNBa>; Tue, 11 Sep 2001 09:01:30 -0400
-Received: from mnh-1-19.mv.com ([207.22.10.51]:57860 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S272449AbRIKNBK>;
-	Tue, 11 Sep 2001 09:01:10 -0400
-Message-Id: <200109111418.JAA01522@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: "J.Brown (Ender/Amigo)" <ender@enderboi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9ac10 compile failure (hz_to_std) 
-In-Reply-To: Your message of "Tue, 11 Sep 2001 15:39:30 +0800."
-             <Pine.LNX.4.31.0109111538280.5196-100000@shaker.worfie.net> 
+	id <S272448AbRIKNA7>; Tue, 11 Sep 2001 09:00:59 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:27059 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S272449AbRIKNAs>;
+	Tue, 11 Sep 2001 09:00:48 -0400
+Date: Tue, 11 Sep 2001 18:35:34 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: alan@lxorguk.ukuu.org.uk
+Cc: Paul Mckenney <paul.mckenney@us.ibm.com>,
+        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10pre7aa1
+Message-ID: <20010911183534.A2340@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 11 Sep 2001 09:18:41 -0500
-From: Jeff Dike <jdike@karaya.com>
+X-Mailer: Mutt 1.0.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is the patch which fixes it which I haven't sent to Alan yet.
+In article <E15gmqD-0002YK-00@the-village.bc.nu> you wrote:
+>> BTW, I fixed a few more issues in the rcu patch (grep for
+>> down_interruptible for instance), here an updated patch (will be
+>> included in 2.4.10pre8aa1 [or later -aa]) with the name of rcu-2.
 
-				Jeff
+> I've been made aware of one other isue with the RCU patch
+> US Patent #05442758
 
-diff -Naur linux/include/asm-um/param.h uml/include/asm-um/param.h
---- linux/include/asm-um/param.h	Thu Sep  6 17:51:01 2001
-+++ uml/include/asm-um/param.h	Thu Sep  6 19:19:12 2001
-@@ -5,6 +5,8 @@
- #define HZ 20
- #endif
- 
-+#define hz_to_std(a) (((a)*HZ)/100)
-+
- #define EXEC_PAGESIZE   4096
- 
- #ifndef NGROUPS
+> In the absence of an actual real signed header paper patent use grant for GPL 
+> usage from the Sequent folks that seems to be rather hard to fix.
 
+> Alan
+
+Hi Alan,
+
+IBM bought us a couple of years ago and linux RCU is an IBM approved 
+project. I am not sure I understand what exactly is needed for patent use 
+grant for GPL, but whatever it is, I see absolutely no problem getting it done.
+I would appreciate if you let me know what is needed for GPL.
+
+Thanks
+Dipankar 
+-- 
+Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
+Linux Technology Center, IBM Software Lab, Bangalore, India.

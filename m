@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261159AbTETURK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 16:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbTETURK
+	id S261175AbTETUSv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 May 2003 16:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbTETUSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 16:17:10 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:4235 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261159AbTETURI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 16:17:08 -0400
-Message-Id: <200305202030.h4KKU1ug011128@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: "Luck, Tony" <tony.luck@intel.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@linuxia64.org
-Subject: Re: /proc/kcore - how to fix it 
-In-Reply-To: Your message of "Tue, 20 May 2003 13:05:15 PDT."
-             <DD755978BA8283409FB0087C39132BD101B00DDE@fmsmsx404.fm.intel.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <DD755978BA8283409FB0087C39132BD101B00DDE@fmsmsx404.fm.intel.com>
+	Tue, 20 May 2003 16:18:50 -0400
+Received: from hqemgate00.nvidia.com ([216.228.112.144]:43012 "EHLO
+	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
+	id S261175AbTETUSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 May 2003 16:18:49 -0400
+From: Terence Ripperda <tripperda@nvidia.com>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+To: mikpe@csd.uu.se
+Cc: Terence Ripperda <tripperda@nvidia.com>, linux-kernel@vger.kernel.org
+Date: Tue, 20 May 2003 15:31:32 -0500
+From: <tripperda@nvidia.com>
+Subject: Re: pat support in the kernel
+Message-ID: <20030520203132.GF1050@hygelac>
+References: <20030520185409.GB941@hygelac> <16074.33371.411219.528228@gargle.gargle.HOWL>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1928944008P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 20 May 2003 16:30:01 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16074.33371.411219.528228@gargle.gargle.HOWL>
+User-Agent: Mutt/1.4i
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.4.19 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1928944008P
-Content-Type: text/plain; charset=us-ascii
+Thanks Mikael,
 
-On Tue, 20 May 2003 13:05:15 PDT, "Luck, Tony" said:
+I was unaware of the errata, I'll check into that.
 
-> What about discontiguous memory.  Since /proc/kcore is super-user only
-> we could continue with the attitude that the user should be careful not
-> to touch memory that doesn't exist, or we could be kind and provide an
-> API so that the architecture specific code that finds the memory can tell
-> /proc/kcore what exists.
+Terence
 
-"don't touch memory that doesn't exist" is a bad idea unless there is *some*
-sort of API that allows the program to intuit what does/doesn't exist.  If
-the program can't find out what is legal without hitting an oops or worse,
-nobody will use /proc/kcore, and then why bother implementing it?
-
-(Note that I'd consider "look *here* for a pointer to known-existing memory,
-then look 24 bytes into there for a pointer to a linked list of memory
-block address/size pairs" sufficient, no need for a fancy /proc interface.
-Of course, that's just my opinion - those who don't have memories of
-pointer chasing in S/360 assembler under OS/MVT may have other opinions ;)
-
---==_Exmh_1928944008P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+ypBIcC3lWbTT17ARAq1KAJ4o/hjlZcsI9Tv9LBpvY9zxbwhO/QCbBoZo
-EBcJ1g8p6RFULfWBxzh0/vk=
-=uCNH
------END PGP SIGNATURE-----
-
---==_Exmh_1928944008P--
+On Tue, May 20, 2003 at 09:30:35PM +0200, mikpe@csd.uu.se wrote:
+> Terence Ripperda <tripperda@nvidia.com>, <tripperda@nvidia.com> writes:
+>  > Hello all,
+>  > 
+>  > I've discussed adding Page Attribute Table (PAT) support to the kernel w/ a few developers offline. They were very supportive and suggested I bring the discussion to lkml so others could get involved.
+> 
+> Not that I disagre with utilising the PAT, but I don't see anything in this code to
+> deal with the widespread PAT indexing erratum in Intel's processors. I don't have
+> the errata sheets here, but it definitely affected the PIIIs and I think also some P4s.
+> (Large pages ignoring PAT index bit 2, or something like that.)
+> 
+> /Mikael

@@ -1,56 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129130AbRBHQQc>; Thu, 8 Feb 2001 11:16:32 -0500
+	id <S129057AbRBHQRC>; Thu, 8 Feb 2001 11:17:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129253AbRBHQQW>; Thu, 8 Feb 2001 11:16:22 -0500
-Received: from linux2.viasys.com ([194.100.28.129]:9737 "HELO mail.viasys.com")
-	by vger.kernel.org with SMTP id <S129130AbRBHQQG>;
-	Thu, 8 Feb 2001 11:16:06 -0500
-Date: Thu, 8 Feb 2001 18:16:01 +0200
-From: Ville Herva <vherva@viasys.com>
-To: Doug Ledford <dledford@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Jarkko Sireeni <jarkko.sireeni@viasys.com>,
-        Tapani Parmanen <tpa@viasys.com>, Markus Kemppinen <mkp@viasys.com>
-Subject: Re: Aic7xxx troubles with 2.4.1ac6
-Message-ID: <20010208181601.H2223@viasys.com>
-In-Reply-To: <20010208135606.F2223@viasys.com> <3A8296E3.FC1EE707@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3i
-In-Reply-To: <3A8296E3.FC1EE707@redhat.com>
+	id <S129253AbRBHQQx>; Thu, 8 Feb 2001 11:16:53 -0500
+Received: from delta.ds2.pg.gda.pl ([153.19.144.1]:55968 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S129057AbRBHQQg>; Thu, 8 Feb 2001 11:16:36 -0500
+Date: Thu, 8 Feb 2001 17:05:58 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
+cc: Mikael Pettersson <mikpe@csd.uu.se>, linux-kernel@vger.kernel.org,
+        mingo@redhat.com, hpa@transmeta.com
+Subject: Re: [PATCH] Re: UP APIC reenabling vs. cpu type detection o
+In-Reply-To: <14E3B9B878C2@vcnet.vc.cvut.cz>
+Message-ID: <Pine.GSO.3.96.1010208165851.29177P-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 08, 2001 at 07:53:55AM -0500, you [Doug Ledford] claimed:
-> Ville Herva wrote:
-> > 
-> > It looks like ac6 (which I believe includes the patch you posted) is
-> > still a no-go with 7892. The boot halts and it just prints this once a
-> > second:
-> > 
-> > (SCSI0:0:3:1) Synchronous at 160 Mbyte/sec offset 31
-> > (SCSI0:0:3:1) CRC error during data in phase
-> > (SCSI0:0:3:1)   CRC error in intermediate CRC packet
-> 
-> Check your cables, especially the connector on the card and the drive.  Look
-> for any possible bent pins.  The message you are seeing is *usually*, but not
-> always, a legitimate data corruption issue.  It doesn't show up under the
-> 5.2.1 driver because it limits your Quantum drive to 80MByte/s and that
-> particular speed doesn't include CRC checking.  On this driver you have to be
-> running at 160MByte/s before CRC checking is enabled.
+On Thu, 8 Feb 2001, Petr Vandrovec wrote:
 
-I checked the cables. I think HP didn't supply proper 160 MB/S capable
-cables (aren't those the ones with wattlings?). When I forced the drive to
-80MB/s from bios, not only did aic7xxx/ac6 work like charm, but the BIOS
-also found the "missing" MBR. Stupid problem ;).
+> So it came to my mind - why (on K7 we easy can, as counter has 48 bits)
+> we do not reload NMI watchdog in each timer interrupt with 5sec timeout,
+> and if we receive even one NMI, we are locked up? It should increase
+> performance, as we'll do same number of MSR writes anyway (100/s), but
+> we will not receive any NMI during normal operation, so we save time
+> spent in processing this. Or do I miss something?
 
-Thanks for your help!
+ I guess it's the external watchdog heritage.  The code is common for both
+kinds of the watchdog at the moment.  It might get separated, I suppose. 
 
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 
---
-Ville Herva            vherva@viasys.com             +358-50-5164500
-Viasys Oy              Hannuntie 6  FIN-02360 Espoo  +358-9-2313-2160
-PGP key available: http://www.iki.fi/v/pgp.html  fax +358-9-2313-2250
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

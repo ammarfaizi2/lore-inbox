@@ -1,77 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUGFSzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264270AbUGFS4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbUGFSzv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 14:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbUGFSzv
+	id S264270AbUGFS4e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 14:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264296AbUGFS4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 14:55:51 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:28357 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264261AbUGFSzt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 14:55:49 -0400
-Date: Tue, 6 Jul 2004 20:55:48 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.7-mm6
-Message-ID: <20040706185547.GM18841@lug-owl.de>
-Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-	linux-kernel@vger.kernel.org,
-	William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>
-References: <20040705023120.34f7772b.akpm@osdl.org> <20040706125438.GS21066@holomorphy.com> <200407061251.18702.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hF9BROpwVWvPzXeD"
-Content-Disposition: inline
-In-Reply-To: <200407061251.18702.dtor_core@ameritech.net>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.6i
+	Tue, 6 Jul 2004 14:56:34 -0400
+Received: from mlf.linux.rulez.org ([192.188.244.13]:6666 "EHLO
+	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S264270AbUGFS4Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 14:56:25 -0400
+Date: Tue, 6 Jul 2004 20:56:22 +0200 (MEST)
+From: Szakacsits Szabolcs <szaka@sienet.hu>
+To: Andries Brouwer <Andries.Brouwer@cwi.nl>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Andries Brouwer <aebr@win.tue.nl>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
+       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
+       linux-kernel@vger.kernel.org, Andrew Clausen <clausen@gnu.org>,
+       buytenh@gnu.org, msw@redhat.com
+Subject: Re: Restoring HDIO_GETGEO semantics for 2.6 (was: Re: [RFC] Restoring
+ HDIO_GETGEO semantics)
+In-Reply-To: <20040706015620.GA12659@apps.cwi.nl>
+Message-ID: <Pine.LNX.4.21.0407061811090.4511-100000@mlf.linux.rulez.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---hF9BROpwVWvPzXeD
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 6 Jul 2004, Andries Brouwer wrote:
 
-On Tue, 2004-07-06 12:51:16 -0500, Dmitry Torokhov <dtor_core@ameritech.net>
-wrote in message <200407061251.18702.dtor_core@ameritech.net>:
-> --- 1.43/drivers/Makefile	2004-06-28 23:00:49 -05:00
-> +++ edited/drivers/Makefile	2004-07-06 12:46:54 -05:00
-> @@ -15,6 +15,9 @@
->  # char/ comes before serial/ etc so that the VT console is the boot-time
->  # default.
->  obj-y				+=3D char/
-> +# we also need input/serio early so seio bus is initialized by the time
-                                       ^^^^
-Typo:)
+> We agree about most of the facts, and I am too lazy to quarrel anyway.
 
-MfG, JBG
+I only waited for straight, technical answers what you always avoided.
+When you answer, you repeat off-topic or too general things. This is not
+enough to make a competent, responsible decision to soften the damage 2.6
+kernels cause.
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
+> Such a waste of time. But we draw different conclusions.
 
---hF9BROpwVWvPzXeD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Please point out where I draw a conclusion? When I wrote RFC (request for
+comments)? Or "restoring" (implying attention for discussion). I've never
+written "restore!" (imperative mood).
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Or when you or anybody else failed to give any reasonable technical answer
+why not to restore, I wrote (unfortunately in pretty broken English, but I
+hope it was still understandable, so no change now either),
 
-iD8DBQFA6vWzHb1edYOZ4bsRAisLAJ9AfZgsJpJDeEvWyZi2T1wfLcnWMgCdHhRp
-tX8y3YH2l+tdMIhUU9Elw80=
-=ImCu
------END PGP SIGNATURE-----
+  "it seems logical from practical point of view, that the restoration of
+   the old HDIO_GETGEO functionality (or something that's very close to
+   its behaviour) _temporarily_ for 2.6 kernels makes sense."
 
---hF9BROpwVWvPzXeD--
+In this context, the important words are "seems" and "make sense". It's
+still a suggestion based on the collected information. At least that's
+what I've meant.
+
+Explanation: it's pretty impossible to make any conclusion when you don't
+provide straight answers. 
+
+> We discover that the present combination of 2.6 and parted is
+> unfortunate. Because of bugs in parted. 
+
+And because of the 2.4 -> 2.6 HDIO_GETGEO _semantic_ change.
+
+> OK - so lets fix them.
+
+That's what people are waiting for over 8 months, at least. Both needs
+handling, not only one.
+
+> You prefer a larger change to the kernel above a smaller change
+> to parted, 
+
+These are your words, again, not mine. Read here what I wrote and if you
+still don't understand, no problem I'll try to write it down a different
+way,
+
+   http://groups.google.com/groups?selm=2eAC2-7Zf-7%40gated-at.bofh.it
+
+At the same time I also apologize for the tree separate, big capital
+words. I've meant them to emphasize visually, too, that there are
+fundamentally _three_ different things to solve. If one shouts, then 
+HE USUALLY CAPITALIZES MANY WORDS NEXT TO EACH OTHER. But I've never 
+did, never will! Not even in this email for demonstration! ;)
+
+So, please check the email out again because you answered the two
+off-topic problems and gave an off-topic answer for the on-topic one. 
+I also recommend going through the old emails by reading them much more
+carefully and then thinking about them a bit. Please also don't forget 
+to check out the mentioned URL's, links, reading user comments.
+
+Of course, only if you care about the issue on the _kernel_ side.
+
+> the change to the kernel makes the kernel buggier.
+
+This was your most productive comment so far in the subject ;)
+
+Why does it make the kernel buggier? Please detail. Deeply, technically.
+Many of us would greatly appreciate. Seriously. But not the general, too
+high level way, you explained over the last two years and to Jeff last
+time. That's not enough in the current situation.
+
+You mentioned a RAID that needs the 2.6 geometry. What's that? Would it
+break by the change? Could it be fixed? Could something else break?
+
+Why don't you even consider the temporary restoration when you keep saying
+geometry doesn't exist, geometry doesn't matter? If it didn't matter then
+it can be anything, so why not the one that doesn't break compatibility?
+We would have much less data loss, just as with 2.4 kernels.
+
+What would happen if it returns 0? How current [lib]parted handles
+it? Other things? 
+
+> You say that other utilities are affected. Maybe, yes. So let us look
+> at them. In the time spent writing all these letters we probably could
+> have fixed a few.
+
+Sorry, off-topic. This thread is not about patching utilities. Please keep
+the subject.
+
+	Szaka
+

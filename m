@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbTESWR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 18:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbTESWR2
+	id S263298AbTESWTc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 18:19:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263302AbTESWTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 18:17:28 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:4022 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S262737AbTESWR0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 18:17:26 -0400
-Date: Mon, 19 May 2003 15:29:37 -0700
-From: Jesse Barnes <jbarnes@sgi.com>
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Subject: Re: [PATCH] pull $CROSS_COMPILE from env. if present
-Message-ID: <20030519222937.GA20366@sgi.com>
-Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-References: <20030519195333.GC18426@sgi.com> <20030519215917.GA1281@mars.ravnborg.org>
-Mime-Version: 1.0
+	Mon, 19 May 2003 18:19:32 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:11268 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263298AbTESWTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 18:19:30 -0400
+Message-ID: <3EC95B58.7080807@zytor.com>
+Date: Mon, 19 May 2003 15:31:52 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, sv
+MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Recent changes to sysctl.h breaks glibc
+References: <20030519165623.GA983@mars.ravnborg.org>	<Pine.LNX.4.44.0305191039320.16596-100000@home.transmeta.com>	<babhik$sbd$1@cesium.transmeta.com> <m1d6ie37i8.fsf@frodo.biederman.org>
+In-Reply-To: <m1d6ie37i8.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030519215917.GA1281@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 19, 2003 at 11:59:17PM +0200, Sam Ravnborg wrote:
-> On Mon, May 19, 2003 at 12:53:33PM -0700, Jesse Barnes wrote:
-> > Simple patch to pull CROSS_COMPILE from the environment if it's
-> > present, which makes it easier to compile the kernel with different
-> > compiler versions and such.
+Eric W. Biederman wrote:
 > 
-> I like it, but...
+> ABI changes or ABI additions?
 > 
-> If we do it for CROSS_COMPILE we should do it for ARCH as well.
-> Something like
-> ifeq ($(origin ARCH), undefined)
-> ARCH := $(SUBARCH)
-> endif
+> If the ABI is not fixed that is a bug.  Admittedly some interfaces
+> in the development kernel are still under development and so have not
+> stabilized on an ABI but that is a different issue.
 > 
-> And then group ARCH and CROSS_COMPILE togeher in the Makefile, and
-> provide a few meaningful comments.
-> I will test it tomorrow if you do not beat me in it.
 
-That's a good idea too, I used that awhile back when all my ia64
-compiles were x86->ia64 cross-compiles...
+ABI fixes and ABI additions, as well as outright ABI changes (yes they
+suck, but they happen.)
+> 
+>>ABI headers is the only realistic solution.  We
+>>can't realistically get real ABI headers for 2.5, so please don't just
+>>break things randomly until then.
+> 
+> As the ABI remains fixed I remain unconvinced.  Multiple implementations
+> against the same ABI should be possible.  The real question which is the
+> more scalable way to do the code.
 
-Thanks,
-Jesse
+The ABI doesn't remain fixed.  Like everything else it evolves.
+
+> What I find truly puzzling is that after years glibc still needs
+> kernel headers at all.
+
+What I find truly puzzling is that obviously intelligent people like
+yourself still seem to think that ABIs remain fixed.
+
+	-hpa
+
+

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271269AbTG2F4A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 01:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271270AbTG2Fz7
+	id S270497AbTG2Fro (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 01:47:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271269AbTG2Fro
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 01:55:59 -0400
-Received: from [203.145.184.221] ([203.145.184.221]:55817 "EHLO naturesoft.net")
-	by vger.kernel.org with ESMTP id S271269AbTG2Fz7 (ORCPT
+	Tue, 29 Jul 2003 01:47:44 -0400
+Received: from fw.osdl.org ([65.172.181.6]:15326 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270497AbTG2Frn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 01:55:59 -0400
-Subject: Re: 2.6.0-test2 - UML compile error
-From: Vinay K Nallamothu <vinay-rc@naturesoft.net>
-To: Brice Goglin <Brice.Goglin@ens-lyon.fr>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030728084657.GE23898@ens-lyon.fr>
-References: <20030728084657.GE23898@ens-lyon.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-11) 
-Date: 29 Jul 2003 11:43:22 +0530
-Message-Id: <1059459202.1311.8.camel@lima.royalchallenge.com>
+	Tue, 29 Jul 2003 01:47:43 -0400
+Date: Mon, 28 Jul 2003 22:47:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Shawn <core@enodev.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm1: Can't mount root
+Message-Id: <20030728224756.56912a08.akpm@osdl.org>
+In-Reply-To: <1059456725.4781.9.camel@localhost>
+References: <1059428584.6146.9.camel@localhost>
+	<20030728144704.49c433bc.akpm@osdl.org>
+	<1059430015.6146.15.camel@localhost>
+	<20030728150245.42f57f89.akpm@osdl.org>
+	<1059444271.4786.25.camel@localhost>
+	<20030728193633.1b2bc9d8.akpm@osdl.org>
+	<1059456725.4781.9.camel@localhost>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-28 at 14:16, Brice Goglin wrote:
-> Hi,
+Shawn <core@enodev.com> wrote:
+>
+>  > What was the most recent kernel which works?
 > 
-> I just downloaded 2.6.0-test2, make defconfig ARCH=um
-> and make linux ARCH=um
-You need additional patches available at
-http://user-mode-linux.sourceforge.net/dl-sf.html
+>  Looks like vanilla -test2 passes muster. Boots, etc.
 
-Vinay
+drat, so I have a dud patch.
 
+The simplest but boringest way to find it is a binary search through the
+patches.  The `series' file holds the patching order.  it'd be painful
+without using the scripts though.
 
+You could try randomly reverting nforce2-acpi-fixes.patch.

@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266675AbSK1SVC>; Thu, 28 Nov 2002 13:21:02 -0500
+	id <S266652AbSK1SXR>; Thu, 28 Nov 2002 13:23:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266678AbSK1SVB>; Thu, 28 Nov 2002 13:21:01 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:30442 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266675AbSK1SVB>;
-	Thu, 28 Nov 2002 13:21:01 -0500
-Date: Thu, 28 Nov 2002 18:25:54 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Sebastian Benoit <benoit-lists@fb12.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: drivers/pci/quirks.c / Re: Linux v2.5.50
-Message-ID: <20021128182554.GE930@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-	Sebastian Benoit <benoit-lists@fb12.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@transmeta.com>
-References: <Pine.LNX.4.44.0211271456160.18214-100000@penguin.transmeta.com> <20021128111528.A28437@turing.fb12.de> <1038500743.10021.1.camel@irongate.swansea.linux.org.uk> <20021128200207.A23822@jurassic.park.msu.ru> <20021128173007.GB930@suse.de> <1038509652.10168.28.camel@irongate.swansea.linux.org.uk>
+	id <S266665AbSK1SXR>; Thu, 28 Nov 2002 13:23:17 -0500
+Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:23255
+	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
+	id <S266652AbSK1SXQ>; Thu, 28 Nov 2002 13:23:16 -0500
+Date: Thu, 28 Nov 2002 13:34:22 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: Adam Belay <ambx1@neo.rr.com>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: Possible Linux Theme Song :)
+Message-ID: <20021128133422.A17920@animx.eu.org>
+References: <20021128132259.GA364@neo.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1038509652.10168.28.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+X-Mailer: Mutt 0.95.3i
+In-Reply-To: <20021128132259.GA364@neo.rr.com>; from Adam Belay on Thu, Nov 28, 2002 at 01:22:59PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 28, 2002 at 06:54:12PM +0000, Alan Cox wrote:
- > >  > +	/* Mae rhaid in i beidio a edrych ar y lleoliad I/O hyn */
- > > You gotta be kidding me ?  Amusing as the welsh language may be,
- > > comments really should be readable to more than 0.01% of those likely
- > > to be looking at them.
- > Some people have no sense of humour.
+> I just ran across this song, recorded by Lyle Lovett.  As you can see, he really
+> likes penguins.  If you'd like to hear the song, I'd be glad to send you a tape.
 
-Maybe I just have too many not so fond memories of compulsory welsh classes
-in my youth 8-)
+I think I'm loosing my Herring...
 
-		Dave
-
+> Album: I Love Everybody
+> Title: Penguins
+> 
+> I go for Penguins
+> I don't go for fancy cars
+> For diamond rings
+> Or movie stars
+> I go for penguins
+> Oh Lord I go for penguins
+> 
+> Throw your money out the door
+> We'll just sit around
+> And watch it snow
+> I go for penguins
+> Oh Lord I go for penguins
+> 
+> Penguins are so sensitive
+> Penguins are so sensitive
+> Penguins are so sensitive
+> To my needs
+> To my needs
+> To my needs
+> To my needs
+> --Lyle Lovett
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+ Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317586AbSGTXMR>; Sat, 20 Jul 2002 19:12:17 -0400
+	id <S317592AbSGTXRl>; Sat, 20 Jul 2002 19:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317587AbSGTXMR>; Sat, 20 Jul 2002 19:12:17 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:38130 "EHLO
+	id <S317593AbSGTXRl>; Sat, 20 Jul 2002 19:17:41 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:42226 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317586AbSGTXMQ>; Sat, 20 Jul 2002 19:12:16 -0400
-Subject: Re: [PATCH] generalized spin_lock_bit
+	id <S317592AbSGTXRl>; Sat, 20 Jul 2002 19:17:41 -0400
+Subject: Re: [PATCH] VM strict overcommit
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rml@tech9.net, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, riel@conectiva.com.br,
-       wli@holomorphy.com
-In-Reply-To: <20020720.152703.102669295.davem@redhat.com>
-References: <1027196511.1555.767.camel@sinai> 
-	<20020720.152703.102669295.davem@redhat.com>
+To: Robert Love <rml@tech9.net>
+Cc: akpm@zip.com.au, Linus Torvalds <torvalds@transmeta.com>,
+       riel@conectiva.com.br, linux-kernel@vger.kernel.org
+In-Reply-To: <1027196403.1086.751.camel@sinai>
+References: <1027196403.1086.751.camel@sinai>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Jul 2002 01:26:25 +0100
-Message-Id: <1027211185.17234.48.camel@irongate.swansea.linux.org.uk>
+Date: 21 Jul 2002 01:32:36 +0100
+Message-Id: <1027211556.17234.55.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-07-20 at 23:27, David S. Miller wrote:
-> Why not just use the existing bitops implementation?  The code is
-> going to be mostly identical, ala:
-> 
-> 	while (test_and_set_bit(ptr, nr)) {
-> 		while (test_bit(ptr, nr))
-> 			barrier();
-> 	}
+wapless strict overcommit. The total address space
+> +		commit for the system is not permitted to exceed 95% of
+> +		free memory. This mode utilizes the new stricter accounting
 
-Firstly your code is wrong for Intel already
+Robert. If you are going to submit changes based on my code please
+understand the code first. Your changes are bogus. Think about PTE table
+overhead. Go do some simulation runs on a 2Gb box running Oracle.
 
-Secondly many platforms want to implement their locks in other ways.
-Atomic bitops are an x86 luxury so your proposal simply generates
-hideously inefficient code compared to arch specific sanity
+The original code implements modes where the overcommit rules are
+
+0. Heuristic
+
+1. Never refuse
+
+2. Never overcommit above swap for anonymous pages
+
+3. Overcommit on the basis the kernel will never use > 50% of RAM
+
+Your 95% mode is pure crap. I tried various values and I can assure you
+that your code will fail dismally to do anything useful unless you are
+below 65% when running Oracle for example.
+
+I took the time to *measure* this stuff and test it in real world
+setups. Please don't randomly frob with it unless you are going to
+repeat the oracle test sets. 
+
+Linus can you either drop this patch out or take the original version.
+These changes will simply confuse people into thinking they have the
+feature when they do not.
+
 
 

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264289AbTFYNcw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 09:32:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTFYNcw
+	id S264308AbTFYNkU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 09:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbTFYNkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 09:32:52 -0400
-Received: from ip212-226-133-178.adsl.kpnqwest.fi ([212.226.133.178]:7591 "EHLO
-	jumper") by vger.kernel.org with ESMTP id S264289AbTFYNcv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 09:32:51 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.71 go boom
-References: <87isr7cjra.fsf@jumper.lonesom.pp.fi>
-	<20030615191125.I5417@flint.arm.linux.org.uk>
-	<87el1vcdrz.fsf@jumper.lonesom.pp.fi>
-	<20030615212814.N5417@flint.arm.linux.org.uk>
-	<87he6qc3bb.fsf@jumper.lonesom.pp.fi>
-	<20030616085403.A5969@flint.arm.linux.org.uk>
-	<3EEE173A.8040802@telia.com>
-	<20030616212700.J13312@flint.arm.linux.org.uk>
-	<3EEEAA9C.5060801@telia.com> <87wufjmahp.fsf@jumper.lonesom.pp.fi>
-	<20030618205827.B12994@flint.arm.linux.org.uk>
-From: Jaakko Niemi <liiwi@lonesom.pp.fi>
-Date: Wed, 25 Jun 2003 16:48:09 +0300
-In-Reply-To: <20030618205827.B12994@flint.arm.linux.org.uk> (Russell King's
- message of "Wed, 18 Jun 2003 20:58:27 +0100")
-Message-ID: <87wufatgiu.fsf@jumper.lonesom.pp.fi>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
+	Wed, 25 Jun 2003 09:40:20 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:3235 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S264308AbTFYNkR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Jun 2003 09:40:17 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [PATCH] 2.5.72-mm3 O(1) interactivity enhancements
+Date: Wed, 25 Jun 2003 23:56:21 +1000
+User-Agent: KMail/1.5.2
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <1056368505.746.4.camel@teapot.felipe-alfaro.com> <200306240015.23613.kernel@kolivas.org> <1056394444.587.2.camel@teapot.felipe-alfaro.com>
+In-Reply-To: <1056394444.587.2.camel@teapot.felipe-alfaro.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306252356.21814.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk@arm.linux.org.uk> writes:
-
-> On Wed, Jun 18, 2003 at 10:49:54PM +0300, Jaakko Niemi wrote:
->> Next, how to get my d-link dwl-650 wlan card up and running. If I insert
->> it, link light on it lights up, and cardctl sees it in socket. However
->> the drivers do not find it, and there is no interface available. This
->> happens at least with 2.5.70 to .72. Anyone got suggestions where to
->> start looking?
+On Tue, 24 Jun 2003 04:54, Felipe Alfaro Solana wrote:
+> On Mon, 2003-06-23 at 16:15, Con Kolivas wrote:
+> > For those who aren't familiar, you've utilised the secret desktop weapon:
+> >
+> > +		if (!(p->time_slice % MIN_TIMESLICE) &&
+> >
+> > This is not how Ingo intended it. This is my desktop bastardising of the
+> > patch. It was originally about 50ms (timeslice granularity). This changes
+> > it to 10ms which means all running tasks round robin every 10ms - this is
+> > what I use in -ck and is great for a desktop but most probably of
+> > detriment elsewhere. Having said that, it does nice things to desktops
+> > :-)
 >
-> Anything in /var/log/messages from cardmgr?
+> I lost the track to Ingo's patch sometime ago, so I borrowed it from
+> your latest patchset ;-) It does really nice things on desktops. It
+> brings 2.5 to a new life on my 700Mhz laptop.
+>
+> What impact would have increasing MIN_TIMESLICE from 10 to, let's say,
+> 50?
 
- Solved, the card was in monitor mode after playing with Kismet. 
- I took it back to normal mode and everything works great now.
+It stops being helpful :) 50 was the default Ingo used but this was far too 
+long for say X to be waiting just to get to move the mouse again - this is 
+why the mouse movement is so much less jerky with this set to 10.
 
- It would be nice improvement to the driver to see the status.
+Con
 
- Thanks.
-
-                --j

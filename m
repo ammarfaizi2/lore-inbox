@@ -1,50 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVC2Uhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVC2Ugm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVC2Uhf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 15:37:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVC2Ugu
+	id S261369AbVC2Ugm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 15:36:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVC2Ugl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 15:36:50 -0500
-Received: from ns1.lanforge.com ([66.165.47.210]:59052 "EHLO www.lanforge.com")
-	by vger.kernel.org with ESMTP id S261391AbVC2Ug3 (ORCPT
+	Tue, 29 Mar 2005 15:36:41 -0500
+Received: from smtp16.wxs.nl ([195.121.6.39]:36325 "EHLO smtp16.wxs.nl")
+	by vger.kernel.org with ESMTP id S261369AbVC2Ug2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 15:36:29 -0500
-Message-ID: <4249BC48.6080608@candelatech.com>
-Date: Tue, 29 Mar 2005 12:36:24 -0800
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Lennert Buytenhek <buytenh@wantstofly.org>
-Subject: Re: PCI interrupt problem: e1000 & Super-Micro X6DVA motherboard
- (Solved)
-References: <42421FF2.7050501@candelatech.com> <20050324081003.GA23453@xi.wantstofly.org> <42431734.3030905@candelatech.com>
-In-Reply-To: <42431734.3030905@candelatech.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Mar 2005 15:36:28 -0500
+Date: Tue, 29 Mar 2005 22:36:24 +0200
+From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
+Subject: [PATCH] embarassing typo
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Message-id: <1112128584.25954.6.camel@tux.lan>
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2)
+Content-type: multipart/mixed; boundary="Boundary_(ID_bXmPGALhbkKnQ5vz+kzClg)"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For posterity's sake:
 
-The problem is evidently a hardware problem, and I'll have to
-return the board to the manufacturer so they can solder on another
-part.
+--Boundary_(ID_bXmPGALhbkKnQ5vz+kzClg)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 
-So, if you want to use 4-port NICs in slot-5 of the SuperMicro X6DVA-EG
-board, then purchase the X6DVA-4G instead, as the X6DVA-EG will NOT work.
+Hi Andrew,
 
-Actually, anything that tries to use the 3rd PCI function will probably fail
-as well...
+for some unknown reason, I suddenly found the attached typo. It doesn't
+cause anything bad (at least not on my computer according to some
+tests), but is still very much so embarassing, so please apply to the
+kernel tree. Who knows, maybe it fixes some obscure unfixeable bug for
+some people.
 
-Enjoy,
-Ben
+Signed-off-by: Ronald S. Bultje <rbultje@ronald.bitfreak.net>
+
+Thanks,
+
+Ronald
 
 -- 
-Ben Greear <greearb@candelatech.com>
-Candela Technologies Inc  http://www.candelatech.com
+Ronald S. Bultje <rbultje@ronald.bitfreak.net>
 
+--Boundary_(ID_bXmPGALhbkKnQ5vz+kzClg)
+Content-type: text/plain; name=x; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: attachment; filename=x
+
+? .tmp_versions
+Index: zr36050.c
+===================================================================
+RCS file: /cvsroot/mjpeg/driver-zoran/zr36050.c,v
+retrieving revision 1.2
+diff -u -r1.2 zr36050.c
+--- linux-2.6.5/drivers/media/video/zr36050.c.old	16 Sep 2004 22:53:27 -0000	1.2
++++ linux-2.6.5/drivers/media/video/zr36050.c	29 Mar 2005 20:30:23 -0000
+@@ -419,7 +419,7 @@
+ 	dri_data[2] = 0x00;
+ 	dri_data[3] = 0x04;
+ 	dri_data[4] = ptr->dri >> 8;
+-	dri_data[5] = ptr->dri * 0xff;
++	dri_data[5] = ptr->dri & 0xff;
+ 	return zr36050_pushit(ptr, ZR050_DRI_IDX, 6, dri_data);
+ }
+ 
+
+--Boundary_(ID_bXmPGALhbkKnQ5vz+kzClg)--

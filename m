@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261870AbUCILJk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 06:09:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261875AbUCILJk
+	id S261875AbUCILLb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 06:11:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbUCILLb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 06:09:40 -0500
-Received: from fw.osdl.org ([65.172.181.6]:19116 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261870AbUCILI5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 06:08:57 -0500
-Date: Tue, 9 Mar 2004 03:09:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: andrea@suse.de, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to
- avoid 4:4 in <=16G machines)
-Message-Id: <20040309030907.71a53a7c.akpm@osdl.org>
-In-Reply-To: <20040309110233.GA3819@elte.hu>
-References: <20040308202433.GA12612@dualathlon.random>
-	<20040309105226.GA2863@elte.hu>
-	<20040309110233.GA3819@elte.hu>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 9 Mar 2004 06:11:31 -0500
+Received: from smtp05.web.de ([217.72.192.209]:1803 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S261875AbUCILKD convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Mar 2004 06:10:03 -0500
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
+Date: Tue, 9 Mar 2004 12:09:50 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200403090014.03282.thomas.schlichter@web.de> <20040308163316.47b8172b.akpm@osdl.org>
+In-Reply-To: <20040308163316.47b8172b.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200403091209.52324.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+Am Dienstag, 9. März 2004 01:33 schrieb Andrew Morton:
+> Thomas Schlichter <thomas.schlichter@web.de> wrote:
+> > P.S.: Wouldn't it be nice if gcc complained about these mistakes?
 >
-> or run the attached test-mmap2.c code, which simulates a very small DB
->  app using only 1800 vmas per process: it only maps 8 MB of shm and
->  spawns 32 processes. This has an even more lethal effect than the
->  previous code.
+> It does, with -W.  But -W creates vast amounts of less useful warnings.
 
-Do these tests actually make any forward progress at all, or is it some bug
-which has sent the kernel into a loop?
+Ah, OK... Thanks!
 

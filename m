@@ -1,93 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbUKRI15@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbUKRIe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbUKRI15 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Nov 2004 03:27:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbUKRI15
+	id S262665AbUKRIe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Nov 2004 03:34:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262669AbUKRIe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Nov 2004 03:27:57 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:8922 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261781AbUKRI1x (ORCPT
+	Thu, 18 Nov 2004 03:34:56 -0500
+Received: from gaz.sfgoth.com ([69.36.241.230]:26848 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S262665AbUKRIez (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Nov 2004 03:27:53 -0500
-Date: Thu, 18 Nov 2004 03:27:42 -0500 (EST)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Ross Kendall Axe <ross.axe@blueyonder.co.uk>
-cc: netdev@oss.sgi.com, Stephen Smalley <sds@epoch.ncsc.mil>,
-       lkml <linux-kernel@vger.kernel.org>, Chris Wright <chrisw@osdl.org>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH] linux 2.9.10-rc1: Fix oops in unix_dgram_sendmsg when
- using SELinux and SOCK_SEQPACKET
-In-Reply-To: <Xine.LNX.4.44.0411180257300.3144-100000@thoron.boston.redhat.com>
-Message-ID: <Xine.LNX.4.44.0411180305060.3192-100000@thoron.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 18 Nov 2004 03:34:55 -0500
+Date: Thu, 18 Nov 2004 00:37:52 -0800
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Cc: linux-kernel@vger.kernel.org, Keir.Fraser@cl.cam.ac.uk,
+       Christian.Limpach@cl.cam.ac.uk
+Subject: Re: [patch 2] Xen core patch : arch_free_page return value
+Message-ID: <20041118083752.GA35159@gaz.sfgoth.com>
+References: <E1CUZXm-00053v-00@mta1.cl.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CUZXm-00053v-00@mta1.cl.cam.ac.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a fix for the SELinux related problem.
+One tiny suggestion...
 
-What's happening is that mixing stream and dgram ops for SEQPACKET is
-having some unfortunate side effects.
+Ian Pratt wrote:
+> -void arch_free_page(struct page *page, int order)
+> +int arch_free_page(struct page *page, int order)
 
-One of these is that there is a race between client sendmsg() and server
-accept().  The server child socket is attached via sock_graft() after the 
-client has entered unix_dgram_sendmsg() and called 
+How about just changing that to...
 
-	security_unix_may_send(sk->sk_socket, other->sk_socket);
+	void __arch_free_page(struct page *page, int order)
 
-other->sk_socket will thus be null, causing the oops in SELinux and any 
-other LSM which tries to dereference the pointer.
+... and leave the rest of the function alone.  Then:
 
-The fix is a combination of some of Ross's ideas:
+> -extern void arch_free_page(struct page *page, int order);
+> +extern int arch_free_page(struct page *page, int order);
 
-1) SOCK_SEQPACKET is connection oriented, and there no need to call 
-security_unix_may_send() for each packet.  security_unix_stream_connect() 
-is sufficient.
+Do...
 
-2) Ensure that unix_dgram_sendmsg() fails for SOCK_SEQPACKET sockets which
-are not connected, otherwise someone could bypass LSM by sending on an
-unconnected socket.
+    extern void __arch_free_page(struct page *page, int order);
+    #define arch_free_page(page, order) (__arch_free_page((page), (order)), 0)
 
-Note that this only solves the problem for the LSM hook.
+That way the compiler can omit the "if(...) return" even on UML
 
-Patch below, please review.
-
-The other issue discussed -- server goes into a hard loop (and/or various
-lock/refcount related bugs) when the client sends a message via sendto()
-with an address supplied -- needs to be resolved separately.
-
----
-
- net/unix/af_unix.c |   11 ++++++++---
- 1 files changed, 8 insertions(+), 3 deletions(-)
-
-diff -purN -X dontdiff linux-2.6.10-rc2.o/net/unix/af_unix.c linux-2.6.10-rc2.w/net/unix/af_unix.c
---- linux-2.6.10-rc2.o/net/unix/af_unix.c	2004-11-15 13:18:56.000000000 -0500
-+++ linux-2.6.10-rc2.w/net/unix/af_unix.c	2004-11-18 02:54:03.283777544 -0500
-@@ -1261,6 +1261,9 @@ static int unix_dgram_sendmsg(struct kio
- 	long timeo;
- 	struct scm_cookie tmp_scm;
- 
-+	if (sk->sk_type == SOCK_SEQPACKET && sk->sk_state != TCP_ESTABLISHED)
-+		return -ENOTCONN;
-+
- 	if (NULL == siocb->scm)
- 		siocb->scm = &tmp_scm;
- 	err = scm_send(sock, msg, siocb->scm);
-@@ -1354,9 +1357,11 @@ restart:
- 	if (other->sk_shutdown & RCV_SHUTDOWN)
- 		goto out_unlock;
- 
--	err = security_unix_may_send(sk->sk_socket, other->sk_socket);
--	if (err)
--		goto out_unlock;
-+	if (sk->sk_type != SOCK_SEQPACKET) {
-+		err = security_unix_may_send(sk->sk_socket, other->sk_socket);
-+		if (err)
-+			goto out_unlock;
-+	}
- 
- 	if (unix_peer(other) != sk &&
- 	    (skb_queue_len(&other->sk_receive_queue) >
-
+-Mitch

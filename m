@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318334AbSHUOaQ>; Wed, 21 Aug 2002 10:30:16 -0400
+	id <S318297AbSHUOfx>; Wed, 21 Aug 2002 10:35:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318342AbSHUOaQ>; Wed, 21 Aug 2002 10:30:16 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3460 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318334AbSHUOaP>; Wed, 21 Aug 2002 10:30:15 -0400
-Date: Wed, 21 Aug 2002 10:36:13 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: lists@corewars.org
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Bad Network SIGIO on Linux-2.4.19
-In-Reply-To: <20020821162406.C10368@corewars.org>
-Message-ID: <Pine.LNX.3.95.1020821103155.31858B-100000@chaos.analogic.com>
+	id <S318332AbSHUOfx>; Wed, 21 Aug 2002 10:35:53 -0400
+Received: from www.wen-online.de ([212.223.88.39]:45830 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S318297AbSHUOfw>;
+	Wed, 21 Aug 2002 10:35:52 -0400
+Message-ID: <3D63A54D.8010902@gmx.de>
+Date: Wed, 21 Aug 2002 16:35:57 +0200
+From: Mike Galbraith <EFAULT@gmx.de>
+User-Agent: Mozilla/5.0 (Windows; U; Win95; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
+CC: Bhavana Nagendra <Bhavana.Nagendra@3dlabs.com>,
+       Gilad Ben-Yossef <gilad@benyossef.com>, linux-kernel@vger.kernel.org
+Subject: Re: Alloc and lock down large amounts of memory
+References: <Pine.LNX.4.44.0208211528180.3407-100000@pc40.e18.physik.tu-muenchen.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Aug 2002 lists@corewars.org wrote:
+Roland Kuhn wrote:
 
-> This is a fix included since 2.4.19-pre5-aa1. 
-> 
+>On Wed, 21 Aug 2002, Mike Galbraith wrote:
+>
+>>At 03:08 PM 8/20/2002 -0500, Bhavana Nagendra wrote:
+>>
+>>>>Curiosity:  why do you want to do device DMA buffer
+>>>>allocation from userland?
+>>>>
+>>>I need 256M memory for a graphics operation.  It's a requiremment,
+>>>can't change it. There will be other reasonably sized allocs in kernel
+>>>space, this is a special case that will be done from userland. As
+>>>discussed earlier in this thread, there's no good way of alloc()ing
+>>>and pinning that much in DMA memory space, is there?
+>>>
+>>Not that I know of.  It seems to me that any interface that tried
+>>to provide this would have to know what kind of device is going
+>>to DMA from/to that ram.
+>>
+>>Usually, when someone needs a large gob of contiguous ram,
+>>folks suggest doing the allocation in kernel, and early.
+>>
+>BTW: What is the limit for pci_alloc_consistent and friends? Can it really 
+>provide 256MB?
+>
 
-Well if this is a 'fix' there is a lot of legacy software that
-just got broken. It was discovered when the new kernel was booted
-on some very reliable file-servers.
+Dunno.  The page allocator however (lowest) can deliver 1 << MAX_ORDER 
+contiguous
+pages per request.. unless fragmentation gets you that is, so I doubt 
+it's remotely possible
+to get 256MB of _physically_ contiguous ram without doing early 
+allocation of some sort.
+(bootmem, bigphysarea patches or whatnot)
 
-> You're assuming that every SIGIO coming your way
-> 1) is coming via fd 0
-> 2) is a POLL_IN interrupt
-> 
-> You should either be polling the file descriptor (0) from the signal
-> handler, or using SA_SIGINFO (see sigaction(2)) to determine
-> which interrupt it is.
-> 
+    -Mike
 
-I wrote the software to demonstrate the problem, not as an example
-of how to poll the keyboard.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
 

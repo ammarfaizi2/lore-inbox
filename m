@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129664AbQLROi6>; Mon, 18 Dec 2000 09:38:58 -0500
+	id <S130195AbQLROsL>; Mon, 18 Dec 2000 09:48:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130098AbQLROit>; Mon, 18 Dec 2000 09:38:49 -0500
-Received: from virtualro.ic.ro ([194.102.78.138]:53003 "EHLO virtualro.ic.ro")
-	by vger.kernel.org with ESMTP id <S129664AbQLROii>;
-	Mon, 18 Dec 2000 09:38:38 -0500
-Date: Mon, 18 Dec 2000 16:07:26 +0200 (EET)
-From: Jani Monoses <jani@virtualro.ic.ro>
-To: twaugh@redhat.com
-cc: linux-kernel@vger.kernel.org
-Subject: [patch] inode.c doc fix
-Message-ID: <Pine.LNX.4.10.10012181605000.14823-100000@virtualro.ic.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130192AbQLROsB>; Mon, 18 Dec 2000 09:48:01 -0500
+Received: from hera.cwi.nl ([192.16.191.1]:14252 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S129391AbQLROrt>;
+	Mon, 18 Dec 2000 09:47:49 -0500
+Date: Mon, 18 Dec 2000 15:17:10 +0100 (MET)
+From: Andries.Brouwer@cwi.nl
+Message-Id: <UTC200012181417.PAA167011.aeb@aak.cwi.nl>
+To: tigran@veritas.com, torvalds@transmeta.com
+Subject: Re: [patch-2.4.0-test13-pre3] rootfs boot param. support
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    From: Tigran Aivazian <tigran@veritas.com>
 
-Hi
-	here's a patch for documenting the newly introduced flags field
-in mark_inode_dirty().
+    +    rootfs=        [KNL] Use filesystem type specified (e.g. rootfs=ext2) for root.
 
-Jani.
+(i) I prefer "rootfstype". Indeed, "rootfs" is ambiguous.
+It gives some property of the root filesystem, but which?
+     
+    +static char rootfs[128] __initdata = "ext2";
 
---- /usr/src/linux/fs/inode.c	Mon Dec 18 15:57:34 2000
-+++ inode.c	Mon Dec 18 16:08:14 2000
-@@ -125,8 +125,10 @@
- /**
-  *	__mark_inode_dirty -	internal function
-  *	@inode: inode to mark
-+ *	@flags: dirty flag mask (i.e. I_DIRTY)
-  *
-- *	Mark an inode as dirty. Callers should use mark_inode_dirty.
-+ *	Mark an inode as dirty by setting the specified flags in the inode's i_state field. 
-+ *	Callers should use mark_inode_dirty() or mark_inode_dirty_sync().
-  */
-  
- void __mark_inode_dirty(struct inode *inode, int flags)
+(ii) It is a bad idea to arbitrarily select "ext2".
+Moreover, we want to recognize the case where a boot option was given,
+see below.
+     
+    +    fs_type = get_fs_type(rootfs);
+    +    if (fs_type) {
+    +          sb = read_super(ROOT_DEV,bdev,fs_type,root_mountflags,NULL,1);
+    +        if (sb)
+    +            goto mount_it;
+    +    }
 
+(iii) I probably give the rootfstype explicitly because bad things
+(like disk corruption) happen when the kernel misrecognizes some
+filesystem, and perhaps starts updating access times or so.
+Thus, if the boot option rootfstype is given, I prefer a boot failure
+over a kernel attempt to try all filesystems it knows about, just like
+mount(8) only will start guessing when no explicit type was given.
 
+Andries
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

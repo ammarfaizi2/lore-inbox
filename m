@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315921AbSFTXsd>; Thu, 20 Jun 2002 19:48:33 -0400
+	id <S315925AbSFTXwK>; Thu, 20 Jun 2002 19:52:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315925AbSFTXsc>; Thu, 20 Jun 2002 19:48:32 -0400
-Received: from h24-68-93-250.vc.shawcable.net ([24.68.93.250]:5511 "EHLO
-	me.bcgreen.com") by vger.kernel.org with ESMTP id <S315921AbSFTXsb>;
-	Thu, 20 Jun 2002 19:48:31 -0400
-Message-ID: <3D1269B6.90307@bcgreen.com>
-Date: Thu, 20 Jun 2002 16:48:06 -0700
-From: Stephen Samuel <samuel@bcgreen.com>
-Organization: Just Another Radical
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-CC: "Shipman, Jeffrey E" <jeshipm@sandia.gov>,
-       inux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: GPL module question
-References: <03781128C7B74B4DBC27C55859C9D73809840643@es06snlnt> <3D10AF67.20204@bcgreen.com> <20020619103125.A6759@vger.timpanogas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S315929AbSFTXwJ>; Thu, 20 Jun 2002 19:52:09 -0400
+Received: from grunt.ksu.ksu.edu ([129.130.12.17]:63899 "EHLO
+	mailhub.cns.ksu.edu") by vger.kernel.org with ESMTP
+	id <S315925AbSFTXwI>; Thu, 20 Jun 2002 19:52:08 -0400
+Date: Thu, 20 Jun 2002 18:52:09 -0500
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: ACLs for ext[23]?  When?
+Message-ID: <20020620185208.A22063@ksu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-School: Kansas State University
+X-vi-or-emacs: vi
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't think that there's any disagreement between what I said
-and what Jeff said. Code that you write is yours to GPL or not
-GPL, as you wish.  There are, however functional issues to consider,
-like the fact that some people will 'complain' about your not
-releasing your  source code, and that some (most?) of the more
-common distributions will have issues (either legal or moral)
-about including 'closed' code in their distributions.
+Hello.
 
-The simple case is where you're including the drivers with
-your hardware on a disk that is entirely free of GPL code.
-In that case, you can do whatever the hell you want with
-the source code.
+I'm sort of new to the discussion of ACLs.  Will we always have to
+  patch the official kernels to get ACLs for ext2 and ext3, are ACLs
+  slated to be supported in the official kernels sometime?  If so, when?
+Thanks!
 
-To get some of the other advantages of OS code (like community
-support for your drivers and easy inclusion in common
-distributions), chances are that you'll have to release
-the source code.
-
-Jeff V. Merkey wrote:
- > Unless you lift someone's code "whole cloth" and use it, there
- > is no obligation to GPL any of your module code.  Just make certain
- > you stick to exported functions in /proc/ksyms.  If you add functions,
- > and export anything declared "static" in the kernel, then you may
- > have a requirement to GPL any code that touches these areas.
-.....
-
+-Joseph
 -- 
-Stephen Samuel +1(604)736-2266                samuel@bcgreen.com
-		   http://www.bcgreen.com/~samuel/
-Powerful committed communication, reaching through fear, uncertainty and
-doubt to touch the jewel within each person and bring it to life.
-
+Joseph======================================================jap3003@ksu.edu
+"[...]this, they say, cost about $40 too much, and about 20,000 Iowans 
+ bought [Windows] 98.  Which gives us a tab of $800,000, i.e. the
+ equivalent of a rounding error in Redmond's vast war chest." -The Register

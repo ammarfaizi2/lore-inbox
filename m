@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261785AbSJIOde>; Wed, 9 Oct 2002 10:33:34 -0400
+	id <S261786AbSJIOgs>; Wed, 9 Oct 2002 10:36:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261788AbSJIOde>; Wed, 9 Oct 2002 10:33:34 -0400
-Received: from ztxmail04.ztx.compaq.com ([161.114.1.208]:783 "EHLO
-	ztxmail04.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S261785AbSJIOdc>; Wed, 9 Oct 2002 10:33:32 -0400
-Date: Wed, 9 Oct 2002 08:35:21 -0600
+	id <S261806AbSJIOgs>; Wed, 9 Oct 2002 10:36:48 -0400
+Received: from zcamail05.zca.compaq.com ([161.114.32.105]:53778 "EHLO
+	zcamail05.zca.compaq.com") by vger.kernel.org with ESMTP
+	id <S261786AbSJIOgo>; Wed, 9 Oct 2002 10:36:44 -0400
+Date: Wed, 9 Oct 2002 08:38:28 -0600
 From: Stephen Cameron <steve.cameron@hp.com>
 To: linux-kernel@vger.kernel.org
 Cc: axboe@suse.de
-Subject: [PATCH] 2.5.41, cciss, tape code cleanup (3 of 5)
-Message-ID: <20021009083521.C6746@zuul.cca.cpqcorp.net>
+Subject: [PATCH] 2.5.41, cciss, factor dup'ed code (4 of 5)
+Message-ID: <20021009083828.D6746@zuul.cca.cpqcorp.net>
 Reply-To: steve.cameron@hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -21,83 +21,135 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch removes a bit of bogus code that doesn't actually do 
-anything anymore.  (Was related to cciss tape drive code which
-once upon a time tried to engage the scsi subsystem at init time, 
-which can't be done as block drivers load before the scsi
-subsystem is ready.) -- steve
+This patch factors out duplicated code for doing a READ_CAPACITY
+into a common function.  Applies to 2.5.41
+ cciss.c |   98 ++++++++++++++++++++--------------------------------------------
+ 1 files changed, 32 insertions, 66 deletions -- steve
 
-diff -urN linux-2.5.41-0/drivers/block/cciss.c linux-2.5.41-b/drivers/block/cciss.c
---- linux-2.5.41-0/drivers/block/cciss.c	Mon Oct  7 14:35:37 2002
-+++ linux-2.5.41-b/drivers/block/cciss.c	Mon Oct  7 14:59:31 2002
-@@ -2454,9 +2454,6 @@
- 		set_capacity(disk, drv->nr_blocks);
- 		add_disk(disk);
- 	}
--
--	cciss_register_scsi(i, 1);  /* hook ourself into SCSI subsystem */
--
- 	return(1);
+diff -urN linux-2.5.41-a-scsi/drivers/block/cciss.c linux-2.5.41-b-factor/drivers/block/cciss.c
+--- linux-2.5.41-a-scsi/drivers/block/cciss.c	Mon Oct  7 14:59:31 2002
++++ linux-2.5.41-b-factor/drivers/block/cciss.c	Tue Oct  8 08:48:00 2002
+@@ -113,6 +113,9 @@
+ 
+ static inline void addQ(CommandList_struct **Qptr, CommandList_struct *c);
+ static void start_io( ctlr_info_t *h);
++static int sendcmd( __u8 cmd, int ctlr, void *buff, size_t size,
++	unsigned int use_unit_num, unsigned int log_unit, __u8 page_code,
++	unsigned char *scsi3addr);
+ 
+ #ifdef CONFIG_PROC_FS
+ static int cciss_proc_get_info(char *buffer, char **start, off_t offset, 
+@@ -1003,6 +1006,30 @@
+         return(return_status);
+ 
  }
- 
-diff -urN linux-2.5.41-0/drivers/block/cciss_scsi.c linux-2.5.41-b/drivers/block/cciss_scsi.c
---- linux-2.5.41-0/drivers/block/cciss_scsi.c	Fri Sep 27 16:49:15 2002
-+++ linux-2.5.41-b/drivers/block/cciss_scsi.c	Mon Oct  7 14:59:11 2002
-@@ -89,8 +89,10 @@
-    working even with the SCSI system.  It's so 
-    scsi_unregister_host will differentiate the controllers. 
-    When register_scsi_module is called, each host template is 
--   customized (name change) in cciss_register_scsi() 
--   (that's called from cciss.c:cciss_init_one()) */
-+   customized (name change) in cciss_register_scsi() (that's 
-+   called from cciss_engage_scsi, called from 
-+   cciss.c:cciss_proc_write(), on "engage scsi" being received 
-+   from user space.) */
- 
- static 
- Scsi_Host_Template driver_template[MAX_CTLR] =
-@@ -1549,7 +1551,7 @@
- }
- 
- static int 
--cciss_register_scsi(int ctlr, int this_is_init_time)
-+cciss_register_scsi(int ctlr)
++static void 
++cciss_read_capacity(int ctlr, int logvol, ReadCapdata_struct *buf,
++		int withirq, unsigned int *total_size, unsigned int *block_size)
++{
++	int return_code;
++	memset(buf, 0, sizeof(*buf));
++	if (withirq)
++		return_code = sendcmd_withirq(CCISS_READ_CAPACITY, 
++			ctlr, buf, sizeof(*buf), 1, logvol, 0 );
++	else
++		return_code = sendcmd(CCISS_READ_CAPACITY, 
++			ctlr, buf, sizeof(*buf), 1, logvol, 0, NULL );
++	if (return_code == IO_OK) {
++		*total_size = be32_to_cpu(*((__u32 *) &buf->total_size[0]))+1;
++		*block_size = be32_to_cpu(*((__u32 *) &buf->block_size[0]));
++	} else { /* read capacity command failed */ 
++		printk(KERN_WARNING "cciss: read capacity failed\n");
++		*total_size = 0;
++		*block_size = BLOCK_SIZE;
++	}
++	printk(KERN_INFO "      blocks= %d block_size= %d\n", 
++		*total_size, *block_size);
++	return;
++}
+ static int register_new_disk(int ctlr)
  {
- 	unsigned long flags;
- 
-@@ -1559,15 +1561,10 @@
- 	driver_template[ctlr].module = THIS_MODULE;;
- 
- 	/* Since this is really a block driver, the SCSI core may not be 
--	   initialized yet, in which case, calling scsi_register_host
--	   would hang.  instead, we will do it later, via /proc filesystem 
-+	   initialized at init time, in which case, calling scsi_register_host
-+	   would hang.  Instead, we do it later, via /proc filesystem 
- 	   and rc scripts, when we know SCSI core is good to go. */
- 
--	if (this_is_init_time) {
--		CPQ_TAPE_UNLOCK(ctlr, flags);
--		return 0;
--	}
+         struct gendisk *disk;
+@@ -1149,38 +1176,8 @@
+ 		/* there could be gaps in lun numbers, track hightest */
+ 	if(hba[ctlr]->highest_lun < lunid)
+ 		hba[ctlr]->highest_lun = logvol;
+-		
+-	memset(size_buff, 0, sizeof(ReadCapdata_struct));
+-	return_code = sendcmd_withirq(CCISS_READ_CAPACITY, ctlr, size_buff,
+-		sizeof( ReadCapdata_struct), 1, logvol, 0 );
+-	if (return_code == IO_OK)
+-	{
+-		total_size = (0xff & 
+-			(unsigned int)(size_buff->total_size[0])) << 24;
+-		total_size |= (0xff & 
+-				(unsigned int)(size_buff->total_size[1])) << 16;
+-		total_size |= (0xff & 
+-				(unsigned int)(size_buff->total_size[2])) << 8;
+-		total_size |= (0xff & (unsigned int)
+-				(size_buff->total_size[3])); 
+-		total_size++; // command returns highest block address
 -
- 	/* Only register if SCSI devices are detected. */
- 	if (ccissscsi[ctlr].ndevices != 0) {
- 		((struct cciss_scsi_adapter_data_t *) 
-@@ -1601,7 +1598,7 @@
- 	}
- 	spin_unlock_irqrestore(CCISS_LOCK(ctlr), flags);
- 	cciss_update_non_disk_devices(ctlr, -1);
--	cciss_register_scsi(ctlr, 0);
-+	cciss_register_scsi(ctlr);
- 	return 0;
- }
- 
-@@ -1627,7 +1624,7 @@
- 
- #define cciss_find_non_disk_devices(cntl_num)
- #define cciss_unregister_scsi(ctlr)
--#define cciss_register_scsi(ctlr, this_is_init_time)
-+#define cciss_register_scsi(ctlr)
- #define cciss_proc_tape_report(ctlr, buffer, pos, len)
- 
- #endif /* CONFIG_CISS_SCSI_TAPE */
+-		block_size = (0xff & 
+-				(unsigned int)(size_buff->block_size[0])) << 24;
+-               	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[1])) << 16;
+-               	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[2])) << 8;
+-               	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[3]));
+-	} else /* read capacity command failed */ 
+-	{
+-			printk(KERN_WARNING "cciss: read capacity failed\n");
+-			total_size = 0;
+-			block_size = BLOCK_SIZE;
+-	}	
+-	printk(KERN_INFO "      blocks= %d block_size= %d\n", 
+-					total_size, block_size);
++	cciss_read_capacity(ctlr, logvol, size_buff, 1,
++		&total_size, &block_size);
+ 	/* Execute the command to read the disk geometry */
+ 	memset(inq_buff, 0, sizeof(InquiryData_struct));
+ 	return_code = sendcmd_withirq(CISS_INQUIRY, ctlr, inq_buff,
+@@ -2184,39 +2181,8 @@
+ 		ld_buff->LUN[i][0], ld_buff->LUN[i][1],ld_buff->LUN[i][2], 
+ 		ld_buff->LUN[i][3], hba[cntl_num]->drv[i].LunID);
+ #endif /* CCISS_DEBUG */
+-
+-	  	memset(size_buff, 0, sizeof(ReadCapdata_struct));
+-	  	return_code = sendcmd(CCISS_READ_CAPACITY, cntl_num, size_buff, 
+-				sizeof( ReadCapdata_struct), 1, i, 0, NULL );
+-	  	if (return_code == IO_OK)
+-		{
+-			total_size = (0xff & 
+-				(unsigned int)(size_buff->total_size[0])) << 24;
+-			total_size |= (0xff & 
+-				(unsigned int)(size_buff->total_size[1])) << 16;
+-			total_size |= (0xff & 
+-				(unsigned int)(size_buff->total_size[2])) << 8;
+-			total_size |= (0xff & (unsigned int)
+-				(size_buff->total_size[3])); 
+-			total_size++; // command returns highest block address
+-
+-			block_size = (0xff & 
+-				(unsigned int)(size_buff->block_size[0])) << 24;
+-                	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[1])) << 16;
+-                	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[2])) << 8;
+-                	block_size |= (0xff & 
+-				(unsigned int)(size_buff->block_size[3]));
+-		} else /* read capacity command failed */ 
+-		{
+-			printk(KERN_WARNING "cciss: read capacity failed\n");
+-			total_size = 0;
+-			block_size = BLOCK_SIZE;
+-		}	
+-		printk(KERN_INFO "      blocks= %d block_size= %d\n", 
+-					total_size, block_size);
+-
++		cciss_read_capacity(cntl_num, i, size_buff, 0,
++			&total_size, &block_size);
+ 		/* Execute the command to read the disk geometry */
+ 		memset(inq_buff, 0, sizeof(InquiryData_struct));
+ 		return_code = sendcmd(CISS_INQUIRY, cntl_num, inq_buff,

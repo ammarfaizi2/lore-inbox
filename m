@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263425AbUDGBsW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 21:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263457AbUDGBsV
+	id S263440AbUDGBvR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 21:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263448AbUDGBvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 21:48:21 -0400
-Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:50162 "EHLO
-	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S263425AbUDGBsS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 21:48:18 -0400
-Message-ID: <40735DE1.2020708@blueyonder.co.uk>
-Date: Wed, 07 Apr 2004 02:48:17 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: mm-kernels, 4K stacks, and NVIDIA... am I crazy?
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 6 Apr 2004 21:51:17 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:45930 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263440AbUDGBvP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 21:51:15 -0400
+Date: Tue, 6 Apr 2004 18:49:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org, mbligh@aracnet.com, akpm@osdl.org,
+       wli@holomorphy.com, colpatch@us.ibm.com
+Subject: Re: [PATCH] mask ADT: new mask.h file [2/22]
+Message-Id: <20040406184904.1f257856.pj@sgi.com>
+In-Reply-To: <1081255616.28514.72.camel@bach>
+References: <20040329041253.5cd281a5.pj@sgi.com>
+	<1081128401.18831.6.camel@bach>
+	<20040405000528.513a4af8.pj@sgi.com>
+	<1081150967.20543.23.camel@bach>
+	<20040405010839.65bf8f1c.pj@sgi.com>
+	<1081227547.15274.153.camel@bach>
+	<20040405230601.62c0b84c.pj@sgi.com>
+	<1081233543.15274.190.camel@bach>
+	<20040405234552.23f810cd.pj@sgi.com>
+	<1081235999.28514.9.camel@bach>
+	<20040406034055.1dbe2eac.pj@sgi.com>
+	<1081255616.28514.72.camel@bach>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Apr 2004 01:48:19.0631 (UTC) FILETIME=[6718BBF0:01C41C42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Believe it, I inadvertently mangled one disk completely when I forgot 
-and tried nvidia 5336 with 2.6.5-mm1 after I'd had success with 
-2.6.5-clo1 and had another one not completing boot up before I knew of 
-the problem. It would be nice if Andrew made it a config option until 
-NVidia fixes the problem. There is a patch to change back from 4KSTACKS 
-in the list recently. The last time, I changed it in .config then did a 
-make oldconfig which changed it back and BOOM!
-Regards
-Sid.
+> OK, cool.  We can have that debate [cpumask api changes] later.
 
-On 2004-04-02 08:21:46 -0600 Norberto Bensa 
-<norberto+linux-kernel@xxxxxxxxxxxx> wrote:
+Good - I look forward to it ;).
 
-    Michael Baehr wrote:
+>	if (__builtin_constant_p(nbits) && nbits <= BITS_PER_LONG)
 
-        06:55:05 <+delysid|~> grep 4K /usr/src/linux/.config
-        CONFIG_4KSTACKS=y
-        06:55:08 <+delysid|~>
+Good idea.  I'll play around with it, and see what goodness I can
+find in it.
 
-        And I have yet to have a single problem. In fact, everything is
-        working swimmingly!
+> The normal kernel naming scheme is two underscores (__bitmap_and),
 
+Ok - two it is.
 
-    Are you sure you are using nvidia's binary driver?
-
-    $ dmesg | grep nvidia
-    $ grep -i nvidia /var/log/XF*
-
-    Regards,
-    Norberto
-
-    PS: I'm recompiling my kernel with 4KSTACKS, but I doubt it will work.
-
-
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,58 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264534AbSIVUxV>; Sun, 22 Sep 2002 16:53:21 -0400
+	id <S264533AbSIVUso>; Sun, 22 Sep 2002 16:48:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264539AbSIVUxV>; Sun, 22 Sep 2002 16:53:21 -0400
-Received: from p508E9036.dip.t-dialin.net ([80.142.144.54]:39113 "EHLO
-	minerva.local.lan") by vger.kernel.org with ESMTP
-	id <S264534AbSIVUxU>; Sun, 22 Sep 2002 16:53:20 -0400
-From: Martin Loschwitz <madkiss@madkiss.org>
-Date: Sun, 22 Sep 2002 22:58:22 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.5.38-ml3
-Message-ID: <20020922205822.GA5154@minerva.local.lan>
+	id <S264538AbSIVUsO>; Sun, 22 Sep 2002 16:48:14 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:10368 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S264534AbSIVUrL>;
+	Sun, 22 Sep 2002 16:47:11 -0400
+Date: Sat, 21 Sep 2002 23:09:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Grover <andrew.grover@intel.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Thermal fix
+Message-ID: <20020921210915.GA31794@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fUYQa+Pmc3FrFX/N"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---fUYQa+Pmc3FrFX/N
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Without this, thermal support will happily cook your machine. Well if
+it does cook it was non-compliant, it should have shut down. Anyway,
+this is important, please apply.
+								Pavel
+PS: Is it possible that broken thermal support killed my harddrive? I
+was experiencing some overheats, now drive developed bad sectors :-(.
 
-Added typo fixes and Ext3FS version number fix.
+--- clean/drivers/acpi/processor.c	2002-07-29 20:02:23.000000000 +0200
++++ linux-swsusp/drivers/acpi/processor.c	2002-09-21 13:07:50.000000000 +0200
+@@ -1468,6 +1468,9 @@
+ 	 * performance state.
+ 	 */
+ 
++	px = pr->limit.thermal.px;
++	tx = pr->limit.thermal.tx;
++
+ 	switch (type) {
+ 
+ 	case ACPI_PROCESSOR_LIMIT_NONE:
 
-Summary of changes from v2.5.38-ml2 to v2.5.38-ml3
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-o TYPO fixes 1 (Adrian Bunk <bunk@fs.tum.de>)
-o TYPO fixes 2 (Alexander Viro <viro@math.psu.edu>)
-o ext3 version information fix (Marc-Christian Petersen <m.c.p@gmx.net>)
-
-Linux 2.5.38-ml3 is available at http://www.madkiss.org/kernel/2.5.38/
-
---=20
-  .''`.   Name: Martin Loschwitz
- : :'  :  E-Mail: madkiss@madkiss.org
- `. `'`   www: http://www.madkiss.org/=20
-   `-     Use Debian GNU/Linux - http://www.debian.org   =20
-
---fUYQa+Pmc3FrFX/N
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE9ji7uHPo+jNcUXjARAmLlAJ4nCpXJN2UQ3H5dm6KJWwN0zPQwbgCfcbqI
-vnHCKtgQ8AJ046/AG+qtzE0=
-=Rald
------END PGP SIGNATURE-----
-
---fUYQa+Pmc3FrFX/N--
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

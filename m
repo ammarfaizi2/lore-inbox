@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289093AbSANWTO>; Mon, 14 Jan 2002 17:19:14 -0500
+	id <S289091AbSANWTO>; Mon, 14 Jan 2002 17:19:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289099AbSANWTE>; Mon, 14 Jan 2002 17:19:04 -0500
-Received: from waste.org ([209.173.204.2]:3736 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S289098AbSANWTC>;
-	Mon, 14 Jan 2002 17:19:02 -0500
-Date: Mon, 14 Jan 2002 16:18:41 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>
-cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Mr. James W. Laferriere" <babydr@baby-dragons.com>,
-        Giacomo Catenazzi <cate@debian.org>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Hardwired drivers are going away?
-In-Reply-To: <20020114151748.B19776@thyrsus.com>
-Message-ID: <Pine.LNX.4.43.0201141613580.31316-100000@waste.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S289098AbSANWTF>; Mon, 14 Jan 2002 17:19:05 -0500
+Received: from ns.suse.de ([213.95.15.193]:56073 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S289094AbSANWTA>;
+	Mon, 14 Jan 2002 17:19:00 -0500
+Date: Mon, 14 Jan 2002 23:18:55 +0100
+From: Dave Jones <davej@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114231855.A21353@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>, esr@thyrsus.com,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020114132618.G14747@thyrsus.com> <m16QCNJ-000OVeC@amadeus.home.nl> <20020114145035.E17522@thyrsus.com> <20020114213732.M15139@suse.de> <20020114153844.A20537@thyrsus.com> <3C4356A9.367BC989@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3C4356A9.367BC989@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Mon, Jan 14, 2002 at 05:07:37PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Jan 2002, Eric S. Raymond wrote:
+On Mon, Jan 14, 2002 at 05:07:37PM -0500, Jeff Garzik wrote:
+ > 
+ > For network cards one needs only to issue the ETHTOOL_GDRVINFO ioctl to
+ > find out what hardware is associated with an ethernet interface.
 
-> Alexander Viro <viro@math.psu.edu>:
-> > But it still leaves you with tristate - instead of yes/module/no it's
-> > yes/yes, but don't put it on initramfs/no.  However, dependencies become
-> > simpler - all you need is "I want this, that and that on initramfs" and
-> > the rest can be found by depmod (i.e. configurator doesn't have to deal
-> > with "FOO goes on initramfs (== old Y), so BAR and BAZ must go there
-> > (== can't be M)").
->
-> Actually I think we may no longer be in tristate-land.  Instead, some
-> devices have the property "This belongs in initramfs if it's configured
-> at all" -- specifically, drivers for potential boot devices.  Everything
-> else can dynamic-load after boot time.
-
-The knowledge of what's required to boot can and should be moved out of
-the kernel to distro land. 'make install' should call the distro's install
-script that sez /boot and /lib are on ext3 on /dev/sd?, ergo I need to
-include the ext3 and relevant SCSI modules.
+ but not all the net drivers support this yet do they?
 
 -- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

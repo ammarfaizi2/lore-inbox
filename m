@@ -1,81 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbTICO2F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 10:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbTICO2F
+	id S262147AbTICOif (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 10:38:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263432AbTICOif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 10:28:05 -0400
-Received: from mailwasher.lanl.gov ([192.16.0.25]:20026 "EHLO
-	mailwasher-b.lanl.gov") by vger.kernel.org with ESMTP
-	id S262364AbTICO2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 10:28:00 -0400
-Subject: Re: Scaling noise
-From: Steven Cole <elenstev@mesatop.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: CaT <cat@zip.com.au>, Anton Blanchard <anton@samba.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20030903050859.GD10257@work.bitmover.com>
-References: <20030903040327.GA10257@work.bitmover.com>
-	 <20030903041850.GA2978@krispykreme>
-	 <20030903042953.GC10257@work.bitmover.com>
-	 <20030903043355.GC2019@zip.com.au>
-	 <20030903050859.GD10257@work.bitmover.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1062599136.1724.84.camel@spc9.esa.lanl.gov>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
-Date: 03 Sep 2003 08:25:36 -0600
+	Wed, 3 Sep 2003 10:38:35 -0400
+Received: from smtp.terra.es ([213.4.129.129]:38079 "EHLO tsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S262147AbTICOiJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 10:38:09 -0400
+Message-ID: <3F55FC69.7050404@terra.es>
+Date: Wed, 03 Sep 2003 16:36:25 +0200
+From: tonildg <tonildg@terra.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030830 Debian/1.4-3.he-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Martin Willemoes Hansen <mwh@sysrq.dk>
+CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Airo Net 340 PCMCIA WiFi Card trouble
+References: <1062498150.356.9.camel@spiril.sysrq.dk>	 <20030902113610.D29984@flint.arm.linux.org.uk>	 <1062500366.642.11.camel@hugoboss.sysrq.dk>  <3F555B68.2010408@terra.es> <1062591834.8758.18.camel@hugoboss.sysrq.dk>
+In-Reply-To: <1062591834.8758.18.camel@hugoboss.sysrq.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-09-02 at 23:08, Larry McVoy wrote:
-> On Wed, Sep 03, 2003 at 02:33:56PM +1000, CaT wrote:
-> > I think Anton is referring to the fact that on a 4-way cpu machine with
-> > HT enabled you basically have an 8-way smp box (with special conditions)
-> > and so if 4-way machines are becoming more popular, making sure that 8-way
-> > smp works well is a good idea.
+Hi again, read below...
+
+> On Wed, 2003-09-03 at 05:09, tonildg wrote:
 > 
-> Maybe this is a better way to get my point across.  Think about more CPUs
-> on the same memory subsystem.  I've been trying to make this scaling point
-> ever since I discovered how much cache misses hurt.  That was about 1995
-> or so.  At that point, memory latency was about 200 ns and processor speeds
-> were at about 200Mhz or 5 ns.  Today, memory latency is about 130 ns and
-> processor speeds are about .3 ns.  Processor speeds are 15 times faster and
-> memory is less than 2 times faster.  SMP makes that ratio worse.
+>> >The error message:
+>> >cardmgr[19]: starting, version is 3.2.4
+>> >cs: memory probe 0x0c0000-0x0ffff: excluding >0xc0000-0xcbfff
+>>
+>>  I had the same problem you have (but in other range of memory and with 
+>>another wireless card) and it started too with 2.4.19. 
+>>
+>> I solved it testing with memory ranges in the config.opts file that 
+>>comes with your pcmcia_cs version.
+>>
+>>   You have to play with them until one fits and boots. "I had to use 
+>>windows to see the memory adresses my cardbus used." 
 > 
-> It's called asymptotic behavior.  After a while you can look at the graph
-> and see that more CPUs on the same memory doesn't make sense.  It hasn't
-> made sense for a decade, what makes anyone think that is changing?
+> 
+< Umh can I check it out on Linux as well? And how? I can boot correctly
+> with 2.4.19.
 
-You're right about the asymptotic behavior and you'll just get more
-right as time goes on, but other forces are at work.
+  I had to look to the windows cardbus device properties to get it work, 
+but i think that by playing with some values you can get it working too 
+without needing that crappy OS.
 
-What is changing is the number of cores per 'processor' is increasing. 
-The Intel Montecito will increase this to two, and rumor has it that the
-Intel Tanglewood may have as many as sixteen.  The IBM Power6 will
-likely be similarly capable.
+   My  Excuse: The reason i looked into windows whas that i was setting 
+up  a laptop whith the host_ap module support and i needed it working 
+for giving a wireless talk and  had no time to play. :-)
 
-The Tanglewood is not some far off flight of fancy; it may be available
-as soon as the 2.8.x stable series, so planning to accommodate it should
-be happening now.  
+> 
+>>Usually, when 
+>>comenting the "include memory 0xc0000-0xfffff" solves it.
+> 
+> 
+> Yes when I comment that include out I can boot but the card is not
+> properly intitialized, here is the errors I get:
+> 
+> airo: register interrupt 0 failed, rc -16
+> airo_cs: RequestConfiguration: Operation succeeded
+> 
+> cardmgr[20]: get dev info on socket 0 failed: Resource temporarily
+> unavailable.
+> 
+    I can only give you this link where the problem is referenced and 
+have some instructions to guess wich memory addresses to reserve for the 
+cardbus.
+  http://pcmcia-cs.sourceforge.net/ftp/doc/PCMCIA-HOWTO-3.html#ss3.5
 
-With companies like SGI building Altix systems with 64 and 128 CPUs
-using the current single-core Madison, just think of what will be
-possible using the future hardware. 
+>>However this problem is not caused by the Airo driver. And, (i think) it 
+>>is not a  kernel problem. Maybe a pcmcia_cs one.
+> 
+> 
+> Okay so the kernel changed something and is now using that memory area?
+> 
+    No. I think kernel does not change anything. Maybe is that the 
+kernel fits a region of memory originally reserved for the cardbus as is 
+defined in config.opts. Maybe because those new kernel are a few Kb 
+bigger than before one's.
 
-In four years, Michael Dell will still be saying the same thing, but
-he'll just fudge his answer by a factor of four. 
+    Remembering this thing makes me think that this "issue" is more a 
+pcmcia_cs thing than a kernel/driver one.
 
-The question which will continue to be important in the next kernel
-series is: How to best accommodate the future many-CPU machines without
-sacrificing performance on the low-end?  The change is that the 'many'
-in the above may start to double every few years.
+Hope it helps you or any other developer/list__member here.
 
-Some candidate answers to this have been discussed before, such as
-cache-coherent clusters.  I just hope this gets worked out before the
-hardware ships.
-
-Steven
+PD: Excuse my poor english.
 

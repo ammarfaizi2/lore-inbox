@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277030AbRJKW4w>; Thu, 11 Oct 2001 18:56:52 -0400
+	id <S277027AbRJKW4m>; Thu, 11 Oct 2001 18:56:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277029AbRJKW4m>; Thu, 11 Oct 2001 18:56:42 -0400
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:19654 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S277028AbRJKW4c>;
-	Thu, 11 Oct 2001 18:56:32 -0400
-Date: Thu, 11 Oct 2001 23:57:00 +0100 (BST)
-From: James Sutherland <jas88@cam.ac.uk>
-X-X-Sender: <jas88@red.csi.cam.ac.uk>
-To: Christopher Friesen <cfriesen@nortelnetworks.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: unkillable process in R state?
-In-Reply-To: <3BC5F0A0.56F644B7@nortelnetworks.com>
-Message-ID: <Pine.SOL.4.33.0110112355540.12759-100000@red.csi.cam.ac.uk>
+	id <S277029AbRJKW4c>; Thu, 11 Oct 2001 18:56:32 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:35596 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S277027AbRJKW4Z>;
+	Thu, 11 Oct 2001 18:56:25 -0400
+Date: Thu, 11 Oct 2001 16:01:35 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Mark Zealey <mark@zealos.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Question and patch about spinlocks (x86)
+In-Reply-To: <20011011213655.D7138@itsolve.co.uk>
+Message-ID: <Pine.LNX.4.40.0110111555170.968-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Oct 2001, Christopher Friesen wrote:
+On Thu, 11 Oct 2001, Mark Zealey wrote:
 
-> Okay, I just tried this, and the pertinant results were:
-(gdb hangs, trying to attach)
+> Just looking through at the spinlock assembly I noticed a few things which I
+> think are bugs:
 >
-> (gdb) attach 31075
-> Attaching to program: /usr/bin/find, Pid 31075
+>  	"js 2f\n" \
+>  	".section .text.lock,\"ax\"\n" \
+>  	"2:\t" \
+> 	"cmpb $0,%0\n\t" \
+>  	"rep;nop\n\t" \
+> 	"jle 2b\n\t" \
+>  	"jmp 1b\n" \
+>  	".previous"
 >
-> Attaching to another program worked fine.
->
-> Any other ideas?
+> We do the cmp loop as a 'soft' check, as the lock operand locks the whole system
+> bus, stopping the system for a while (as much as 70 cycles, I believe). However,
+> I don't understand why it was put before the 'rep; nop' which just sets the
+> processor to wait for a bit. Surely it would be better to test *after* we have
+> waited, as then we have a better chance of it being correct.
 
-Take a look in /proc/31075 and see what's going on in there, if you can.
+The effect of the rep-nop is not to wait but to slow down the cpu to the
+speed of the memory bus.
+This to not overload ( due pipeline prefetch ) the memory controller with
+requests that 1) will be useless coz the watched memory location can
+change only at the membus speed 2) will have a big cost on loop exit due
+the invalidation of a number>1 requests issued on the memory controller.
+Beside this i kindly agree to move the pause before the cmp.
+There should be a valid reason to not have followed the intel scheme but i
+don't know why.
 
-Obvious one: what was find doing - where was it looking?
 
 
-James.
---
-"Our attitude with TCP/IP is, `Hey, we'll do it, but don't make a big
-system, because we can't fix it if it breaks -- nobody can.'"
+- Davide
 
-"TCP/IP is OK if you've got a little informal club, and it doesn't make
-any difference if it takes a while to fix it."
-		-- Ken Olson, in Digital News, 1988
 

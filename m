@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbUELWoz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbUELWqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbUELWoz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 18:44:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbUELWoz
+	id S262272AbUELWqi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 18:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262996AbUELWqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 18:44:55 -0400
-Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:16104 "EHLO
-	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S262176AbUELWoy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 18:44:54 -0400
-Date: Wed, 12 May 2004 18:44:54 -0400
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
-       linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>,
-       Sridhar Samudrala <sri@us.ibm.com>, davem@redhat.com,
-       George Anzinger <george@mvista.com>
-Subject: Re: MSEC_TO_JIFFIES is messed up...
-Message-ID: <20040512224454.GJ21953@ti64.telemetry-investments.com>
-Reply-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-	Andrew Morton <akpm@osdl.org>, mingo@elte.hu,
-	linux-kernel@vger.kernel.org, Netdev <netdev@oss.sgi.com>,
-	Sridhar Samudrala <sri@us.ibm.com>, davem@redhat.com,
-	George Anzinger <george@mvista.com>
-References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512205407.GD25515@ti64.telemetry-investments.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 12 May 2004 18:46:37 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:42983 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262272AbUELWq3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 18:46:29 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Doug Maxey <dwm@austin.ibm.com>
+Subject: Re: ppc64 HDIO_TASK_* ioctls 2.4, 2.6
+Date: Thu, 13 May 2004 00:47:49 +0200
+User-Agent: KMail/1.5.3
+References: <200405122209.i4CM9vqS013716@falcon10.austin.ibm.com>
+In-Reply-To: <200405122209.i4CM9vqS013716@falcon10.austin.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040512205407.GD25515@ti64.telemetry-investments.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200405130047.49860.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 04:54:07PM -0400, Bill Rugolsky Jr. wrote:
-> The attached patch combines Sridhar's consolidation patch with my
-> more accurate routines in the spirit of the rest of time.h.  It is against
-> 2.6.6-rc3-bk3.  Feedback welcome.  I'm happy to rediff against latest kernel,
-> I just haven't had time the last few days.
- 
-Sorry to reply to myself, but please ignore the patch that I sent;
-upon reflection, the 64-bit logic is (still) wrong.
+On Thursday 13 of May 2004 00:09, Doug Maxey wrote:
+> Howdy,
+>
+>   I need a some guidance on enabling the ioctls on ppc64 to allow
+>   the smartmontools to run the appropriate set of commands.
+>
+>   Does this look ok?
 
-	Bill Rugolsky
++COMPATIBLE_IOCTL(HDIO_DRIVE_CMD)
++#ifdef CONFIG_IDE_TASK_IOCTL
++COMPATIBLE_IOCTL(HDIO_DRIVE_TASKFILE),
++COMPATIBLE_IOCTL(HDIO_DRIVE_TASK),
++#endif CONFIG_IDE_TASK_IOCTL
+ 
+HDIO_DRIVE_TASK is _always_ available
+
+>   Have sniff tested, and the smart tools do run without ioctl errors.
+>
+> ++doug
+

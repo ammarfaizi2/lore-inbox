@@ -1,106 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbULULKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbULULQD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbULULKA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Dec 2004 06:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbULULKA
+	id S261732AbULULQD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Dec 2004 06:16:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbULULQD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Dec 2004 06:10:00 -0500
-Received: from mail-03.iinet.net.au ([203.59.3.35]:26497 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261490AbULULJz
-	(ORCPT <rfc822;Linux-Kernel@Vger.Kernel.ORG>);
-	Tue, 21 Dec 2004 06:09:55 -0500
-Message-ID: <41C8047E.1030403@cyberone.com.au>
-Date: Tue, 21 Dec 2004 22:09:50 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Tue, 21 Dec 2004 06:16:03 -0500
+Received: from web60608.mail.yahoo.com ([216.109.119.82]:1208 "HELO
+	web60608.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261732AbULULPx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 21 Dec 2004 06:15:53 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=zARjDUMYATN6tT4L7mfLsROjKPxj952MtvOhK6F3d6I9PSHzb4YLw7oKtuiiseNfsiHTB047p4Z9wGsvXvFgD/78ioI0jUna+9uJI9X76QtFPe4OK8jmLgJlASIEGFQdyKUv9vJYnc1UJTd08rc2HiCWGYnUBIVv7Jxk8vOYQFI=  ;
+Message-ID: <20041221111552.34872.qmail@web60608.mail.yahoo.com>
+Date: Tue, 21 Dec 2004 03:15:52 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: Re : Re: Error - Kernel panic - not syncing:VFS:unable to mount root fs on unknown block (0,0)
+To: Margus Eha <margus.eha@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <f396da0804122102561d30d04e@mail.gmail.com>
 MIME-Version: 1.0
-To: Loic Domaigne <loic-dev@gmx.net>
-CC: nptl@bullopensource.org, Linux-Kernel@Vger.Kernel.ORG, mingo@elte.hu
-Subject: Re: OSDL Bug 3770
-References: <9785.1103562168@www38.gmx.net>
-In-Reply-To: <9785.1103562168@www38.gmx.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  I am already having linux kernel 2.4 series which is
+working quite well. It also resides on the same root
+partition. I do have IDE. 
+  Should I reconfigure  kernel 2.6 with all types of
+IDE support or is there any other way?
 
+Thanks,
+selva
 
-Loic Domaigne wrote:
+--- Margus Eha <margus.eha@gmail.com> wrote:
 
->Hello Nick,
->
->Thanks for your reply! 
+> Seems you are missing ide.
 > 
->L = Loic 
->N = Nick 
->
->N> lkml: We're discussing the fact that on SMP machines, our realtime 
->N> scheduling policies are per-CPU only. This caused a problem where a 
->N> high priority task on one CPU caused all lower priority tasks on that 
->N> CPU to be starved, while tasks on another CPU with the same low 
->N> priority were able to run.
->
->That summary should readily motivate you to make a patch ;-) 
->
->But thing are a bit worse actually. It is easily to build an example 
->where a lower priority thread is executing while a higer priority thread
->is waiting. For instance, something like: 
->
->CPU0:
->Thread with prio 30 gets the CPU.
->Thread with prio 25 is waiting.
->
->CPU1:
->Thread with prio 20 gets the CPU.
->Thread with prio 15 is waiting.
->
->
+> Margus
+> 
+> 
+> On Tue, 21 Dec 2004 02:34:54 -0800 (PST), selvakumar
+> nagendran
+> <kernelselva@yahoo.com> wrote:
+> >   I installed the latest stable 2.6.9 kernel in my
+> > system. When I rebooted the system with the kernel
+> it
+> > showed the following error.
+> > 
+> >      "Kernel panic - not syncing:VFS:unable to
+> mount
+> > root fs on unknown block (3,1)"
+> > 
+> >     What is the solution to get rid of this error?
+> >     What is the measure to prevent such errors in
+> the
+> > future?
+> >      I downloaded the kernel source tar ball from
+> > kernel.org
+> >     Can anyone help me regarding this?
+> > 
+> > Thanks,
+> > selva
+> > 
+> > __________________________________
+> > Do you Yahoo!?
+> > All your favorites on one personal page – Try My
+> Yahoo!
+> > http://my.yahoo.com
+> > -
+> > To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> 
 
-Yep.
 
-
-[snip]
-
->L> The reason is extremely simple: the application *CANNOT* necessarily 
->L> known that it gets stuck behind a higher-priority thread (though it 
->L> could had run on another CPU if the scheduler had decided otherwise). 
->L> That's *NOT* doable to program in a deterministic fashion in such 
->L> "realtime"-environement
->N>
->N>
->N> You could use CPU binding. I'd argue that this may be nearly a
->N> requirement for any realtime system of significant complexity on 
->N> an SMP system.
->
->Agree. Real-world system will likely want to have a control on which 
->CPU the threads runs on SMP machine. 
->
->Does Linux tolerate hard CPU binding? By hard CPU binding, I mean 
->that the application tells the scheduler "I want to run there", 
->and the scheduler schedules the thread(s) "there" regardless if it 
->makes sense or not ( The decision is left to the application). 
->
->With such hard CPU binding, it seems to me that our "unfortunate 
->behavior" isn't problematic anymore. Because the application can gain 
->control again over the scheduler (so to speak). 
->
->On the other hand, if the scheduler might ignore the CPU binding 
->(thus, not hard binding, but rather CPU affinity), then I am afraid 
->that the issue might remain problematic.  
->
->
-
-Yes, it does support hard CPU binding - sched_setaffinity
-
-[snip interesting dialogue]
-
-Thanks for your detailed comments, they were interesting.
-
-I hope that the fact we have hard CPU binding is a sufficient
-solution to the problem.
-
-Thanks
-Nick
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

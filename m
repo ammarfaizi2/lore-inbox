@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVAGTL0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVAGTNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVAGTL0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 14:11:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVAGTKE
+	id S261538AbVAGTNu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 14:13:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVAGTNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 14:10:04 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:22956 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261534AbVAGTHj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 14:07:39 -0500
-From: Arnd Bergmann <arnd@arndb.de>
-To: Shakthi Kannan <shakstux@yahoo.com>
-Subject: Re: mount PCI-express RAM memory as block device
-Date: Fri, 7 Jan 2005 20:00:35 +0100
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050107183645.72411.qmail@web54501.mail.yahoo.com>
-In-Reply-To: <20050107183645.72411.qmail@web54501.mail.yahoo.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1;
-  boundary="Boundary-02=_Uxt3BdaZ8rxlAkq";
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200501072000.36842.arnd@arndb.de>
+	Fri, 7 Jan 2005 14:13:50 -0500
+Received: from [213.146.154.40] ([213.146.154.40]:13763 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261538AbVAGTMg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 14:12:36 -0500
+Date: Fri, 7 Jan 2005 19:12:34 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>, Vladimir Saveliev <vs@namesys.com>,
+       linux-mm <linux-mm@kvack.org>, Andrew Morton <akpm@osdl.org>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] per thread page reservation patch
+Message-ID: <20050107191234.GA14108@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Vladimir Saveliev <vs@namesys.com>, linux-mm <linux-mm@kvack.org>,
+	Andrew Morton <akpm@osdl.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20050103011113.6f6c8f44.akpm@osdl.org> <20050103114854.GA18408@infradead.org> <41DC2386.9010701@namesys.com> <1105019521.7074.79.camel@tribesman.namesys.com> <20050107144644.GA9606@infradead.org> <1105118217.3616.171.camel@tribesman.namesys.com> <20050107190545.GA13898@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050107190545.GA13898@infradead.org>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Now the big question is, what's synchronizing access to
+> current->private_pages?
 
---Boundary-02=_Uxt3BdaZ8rxlAkq
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Umm, it's obviously correct as we're thread-local.  Objection taken back :)
 
-On Freedag 07 Januar 2005 19:36, Shakthi Kannan wrote:
-> I would like to know as to how we can mount a
-> filesystem for RAM memory on a PCI-express card.
-> System for development is x86 with 2.4.22 kernel.
->=20
-You could use the MTD block driver with on the phram device
-by simply specifying the address/size of the memory as a module
-parameter.  If you need autodetection, the easiest way to do that
-would be including the phram MTD driver in your pci device driver.
-
-If you are completely stuck on 2.4.22, it might be easier to
-use the old slram driver instead of phram, but generally you
-should try to hack on a modern kernel level like 2.6.10 anyway.
-
-	Arnd <><
-
---Boundary-02=_Uxt3BdaZ8rxlAkq
-Content-Type: application/pgp-signature
-Content-Description: signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBB3txU5t5GS2LDRf4RAm1LAJ0SZ/v40xcqpF7zDRwrfmsVSURCcwCfdZpC
-/SU0wbJi5ZTslrg1XxfhWv8=
-=UJc4
------END PGP SIGNATURE-----
-
---Boundary-02=_Uxt3BdaZ8rxlAkq--

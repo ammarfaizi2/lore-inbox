@@ -1,296 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284917AbRLXOEZ>; Mon, 24 Dec 2001 09:04:25 -0500
+	id <S284918AbRLXONR>; Mon, 24 Dec 2001 09:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284916AbRLXOEP>; Mon, 24 Dec 2001 09:04:15 -0500
-Received: from fepz.post.tele.dk ([195.41.46.133]:46269 "EHLO
-	fepZ.post.tele.dk") by vger.kernel.org with ESMTP
-	id <S284917AbRLXODw>; Mon, 24 Dec 2001 09:03:52 -0500
-Date: Mon, 24 Dec 2001 15:03:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: really mason_at_soo_dot_com <lnx-kern@Sophia.soo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.2-pre1 oddness under X
-Message-ID: <20011224150340.B593@suse.de>
-In-Reply-To: <20011223144800.A22538@Sophia.soo.com> <Pine.LNX.4.33.0112231457070.5312-100000@coffee.psychology.mcmaster.ca> <20011223160419.A22752@Sophia.soo.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="LSp5EJdfMPwZcMS1"
-Content-Disposition: inline
-In-Reply-To: <20011223160419.A22752@Sophia.soo.com>
+	id <S284926AbRLXONH>; Mon, 24 Dec 2001 09:13:07 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:24354 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S284918AbRLXOMy>;
+	Mon, 24 Dec 2001 09:12:54 -0500
+Message-ID: <002a01c18c85$30136140$d500a8c0@mshome.net>
+From: "Astinus" <Astinus@netcabo.pt>
+To: <linux-kernel@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <m16IMMg-0005khC@gherkin.frus.com>
+Subject: WHICH MACHINE?????
+Date: Mon, 24 Dec 2001 14:13:35 -0000
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 24 Dec 2001 14:11:20.0638 (UTC) FILETIME=[DC854DE0:01C18C84]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is not a direct question about the kernel itself, so if u don't want to
+help me with this just ignore it!!!!!
 
---LSp5EJdfMPwZcMS1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+well, i m about to invest in a new machine, in which i will only run one of
+linux distros ( haven't decided which but probably suse 7.x or red hat
+7.x ).
 
-On Sun, Dec 23 2001, really mason_at_soo_dot_com wrote:
-> The funny thing still is that i get this error regardless
-> of whether i overclock, underclock, or leave as is using
-> kernel 2.5.2-pre1, when i start X:
-> 
-> Inconsistency detected by ld.so: dynamic-link.h: 62: elf_get_dynamic_info: Assertion `! "bad dynamic tag"' failed!
-> 
-> X eventually starts, minus the Sawfish window manager.
+I talked to some guys, and came up with this machine:
 
-Very good to have a test case that is easy triggerable. Could you please
-try with this patch applied? Check dmesg for any kernel messages or
-oopses, thanks. Also, send me your .config.
+        Motherboard => Intel D850GB Al ( with network and sound )
+        Processor => Intel P4 2 GHz
+        Hard Drive => Seagate SCSI Cheata 10 000 rmp ( i think it is written
+like this: Cheata ) with 16 megs of cache
+        Scsi controler => adaptec scsi ultra 160 whith two channels
+        Ram => 1000 mb ram 2x 512 rims
+        Video card => (haven't decided but probably a geforce 2 with 64 mb
+ram )
 
-> Everything's fine from kernel version 2.5.1 down.  If it
-> is indeed disk corruption of some kind, i guess i better 
-> run an older kernel and fsck.
+Well these are the main components that i am thinking to use for building a
+new machine.
 
-Yes that would be a good idea.
+I would like u to tell me if it is a good choice, or if i should buy a dual
+xenon processor machine instead.....
 
--- 
-Jens Axboe
+Also if one of u kernel hackers/and any other ppl who  has the knowlege and
+patince to indicate me alll the main components of a good machine i would
+appreciate that.
+
+I am also trying to build a machine that won't give me problems with the
+kernel itself... like hardware imcompatibilities..... and so on!!
+
+and one last thing, what kind of computers do u guys use?? Tower ones as
+this i am about to buy or laptop ones.
+
+I find the laptop a funny toy, though i am not sure if it is a good
+investment....
+
+Plz some one... give me some advice so i can choose the best set up machine
+possible ( and that i can affor ).
+
+If u want to know, this machine set up  i posted plus taxes and cd-rom, and
+cd-writter, costs arround 8 500 dollars i think.
+
+I live in Europe.. and thing s tend to be more expensive than in the states.
 
 
---LSp5EJdfMPwZcMS1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=bio-252p1-2
 
-diff -ur -X exclude /opt/kernel/linux-2.5.2-pre1/drivers/block/elevator.c linux/drivers/block/elevator.c
---- /opt/kernel/linux-2.5.2-pre1/drivers/block/elevator.c	Sun Dec 23 17:11:54 2001
-+++ linux/drivers/block/elevator.c	Sun Dec 23 15:53:07 2001
-@@ -124,21 +124,21 @@
- inline int elv_try_merge(struct request *__rq, struct bio *bio)
- {
- 	unsigned int count = bio_sectors(bio);
--
--	if (!elv_rq_merge_ok(__rq, bio))
--		return ELEVATOR_NO_MERGE;
-+	int ret = ELEVATOR_NO_MERGE;
- 
- 	/*
- 	 * we can merge and sequence is ok, check if it's possible
- 	 */
--	if (__rq->sector + __rq->nr_sectors == bio->bi_sector) {
--		return ELEVATOR_BACK_MERGE;
--	} else if (__rq->sector - count == bio->bi_sector) {
--		__rq->elevator_sequence -= count;
--		return ELEVATOR_FRONT_MERGE;
-+	if (elv_rq_merge_ok(__rq, bio)) {
-+		if (__rq->sector + __rq->nr_sectors == bio->bi_sector) {
-+			ret = ELEVATOR_BACK_MERGE;
-+		} else if (__rq->sector - count == bio->bi_sector) {
-+			__rq->elevator_sequence -= count;
-+			ret = ELEVATOR_FRONT_MERGE;
-+		}
- 	}
- 
--	return ELEVATOR_NO_MERGE;
-+	return ret;
- }
- 
- int elevator_linus_merge(request_queue_t *q, struct request **req,
-@@ -172,15 +172,17 @@
- 		 */
- 		if (__rq->elevator_sequence-- <= 0)
- 			break;
-+
- 		if (__rq->flags & (REQ_BARRIER | REQ_STARTED))
- 			break;
- 		if (!(__rq->flags & REQ_CMD))
- 			continue;
--		if (__rq->elevator_sequence < 0)
--			break;
- 
- 		if (!*req && bio_rq_in_between(bio, __rq, &q->queue_head))
- 			*req = __rq;
-+
-+		if (__rq->elevator_sequence < bio_sectors(bio))
-+			break;
- 
- 		if ((ret = elv_try_merge(__rq, bio))) {
- 			*req = __rq;
-diff -ur -X exclude /opt/kernel/linux-2.5.2-pre1/drivers/block/ll_rw_blk.c linux/drivers/block/ll_rw_blk.c
---- /opt/kernel/linux-2.5.2-pre1/drivers/block/ll_rw_blk.c	Sun Dec 23 17:11:54 2001
-+++ linux/drivers/block/ll_rw_blk.c	Mon Dec 24 14:50:46 2001
-@@ -155,6 +155,11 @@
- 	blk_queue_max_sectors(q, MAX_SECTORS);
- 	blk_queue_hardsect_size(q, 512);
- 
-+	/*
-+	 * by default assume old behaviour and bounce for any highmem page
-+	 */
-+	blk_queue_bounce_limit(q, BLK_BOUNCE_HIGH);
-+
- 	init_waitqueue_head(&q->queue_wait);
- }
- 
-@@ -603,9 +608,6 @@
- 		return 0;
- 
- 	/* Merge is OK... */
--	if (q->last_merge == &next->queuelist)
--		q->last_merge = NULL;
--
- 	req->nr_phys_segments = total_phys_segments;
- 	req->nr_hw_segments = total_hw_segments;
- 	return 1;
-@@ -812,12 +814,8 @@
- 	q->plug_tq.data		= q;
- 	q->queue_flags		= (1 << QUEUE_FLAG_CLUSTER);
- 	q->queue_lock		= lock;
-+	q->last_merge		= NULL;
- 	
--	/*
--	 * by default assume old behaviour and bounce for any highmem page
--	 */
--	blk_queue_bounce_limit(q, BLK_BOUNCE_HIGH);
--
- 	blk_queue_segment_boundary(q, 0xffffffff);
- 
- 	blk_queue_make_request(q, __make_request);
-@@ -886,6 +884,12 @@
- 	if (!rq && (gfp_mask & __GFP_WAIT))
- 		rq = get_request_wait(q, rw);
- 
-+	if (rq) {
-+		rq->flags = 0;
-+		rq->buffer = NULL;
-+		rq->bio = rq->biotail = NULL;
-+		rq->waiting = NULL;
-+	}
- 	return rq;
- }
- 
-@@ -953,10 +977,15 @@
- 	/*
- 	 * debug stuff...
- 	 */
--	if (insert_here == &q->queue_head) {
--		struct request *__rq = __elv_next_request(q);
-+	if (insert_here->next != &q->queue_head) {
-+		struct request *__rq = list_entry_rq(insert_here->next);
- 
-+#if 0
- 		BUG_ON(__rq && (__rq->flags & REQ_STARTED));
-+#else
-+		if (__rq->flags & REQ_STARTED)
-+			printk("add_request: irk, next is started\n");
-+#endif
- 	}
- 
- 	/*
-@@ -972,11 +1001,15 @@
- void blkdev_release_request(struct request *req)
- {
- 	struct request_list *rl = req->rl;
-+	request_queue_t *q = req->q;
- 
- 	req->rq_status = RQ_INACTIVE;
- 	req->q = NULL;
- 	req->rl = NULL;
- 
-+	if (q && q->last_merge == &req->queuelist)
-+		q->last_merge = NULL;
-+
- 	/*
- 	 * Request may not have originated from ll_rw_blk. if not,
- 	 * it didn't come out of our reserved rq pools
-@@ -1571,21 +1604,23 @@
- 
- inline void blk_recalc_rq_sectors(struct request *rq, int nsect)
- {
--	rq->hard_sector += nsect;
--	rq->hard_nr_sectors -= nsect;
--	rq->sector = rq->hard_sector;
--	rq->nr_sectors = rq->hard_nr_sectors;
-+	if (rq->flags & REQ_CMD) {
-+		rq->hard_sector += nsect;
-+		rq->hard_nr_sectors -= nsect;
-+		rq->sector = rq->hard_sector;
-+		rq->nr_sectors = rq->hard_nr_sectors;
- 
--	rq->current_nr_sectors = bio_iovec(rq->bio)->bv_len >> 9;
--	rq->hard_cur_sectors = rq->current_nr_sectors;
-+		rq->current_nr_sectors = bio_iovec(rq->bio)->bv_len >> 9;
-+		rq->hard_cur_sectors = rq->current_nr_sectors;
- 
--	/*
--	 * if total number of sectors is less than the first segment
--	 * size, something has gone terribly wrong
--	 */
--	if (rq->nr_sectors < rq->current_nr_sectors) {
--		printk("blk: request botched\n");
--		rq->nr_sectors = rq->current_nr_sectors;
-+		/*
-+		 * if total number of sectors is less than the first segment
-+		 * size, something has gone terribly wrong
-+		 */
-+		if (rq->nr_sectors < rq->current_nr_sectors) {
-+			printk("blk: request botched\n");
-+			rq->nr_sectors = rq->current_nr_sectors;
-+		}
- 	}
- }
- 
-diff -ur -X exclude /opt/kernel/linux-2.5.2-pre1/include/linux/blkdev.h linux/include/linux/blkdev.h
---- /opt/kernel/linux-2.5.2-pre1/include/linux/blkdev.h	Sun Dec 23 17:11:55 2001
-+++ linux/include/linux/blkdev.h	Sun Dec 23 17:15:02 2001
-@@ -196,8 +196,7 @@
- #define RQ_SCSI_DISCONNECTING	0xffe0
- 
- #define QUEUE_FLAG_PLUGGED	0	/* queue is plugged */
--#define QUEUE_FLAG_NOSPLIT	1	/* can process bio over several goes */
--#define QUEUE_FLAG_CLUSTER	2	/* cluster several segments into 1 */
-+#define QUEUE_FLAG_CLUSTER	1	/* cluster several segments into 1 */
- 
- #define blk_queue_plugged(q)	test_bit(QUEUE_FLAG_PLUGGED, &(q)->queue_flags)
- #define blk_mark_plugged(q)	set_bit(QUEUE_FLAG_PLUGGED, &(q)->queue_flags)
-diff -ur -X exclude /opt/kernel/linux-2.5.2-pre1/mm/highmem.c linux/mm/highmem.c
---- /opt/kernel/linux-2.5.2-pre1/mm/highmem.c	Sun Dec 23 17:11:56 2001
-+++ linux/mm/highmem.c	Mon Dec 24 13:59:21 2001
-@@ -25,7 +25,9 @@
- 
- static void *page_pool_alloc(int gfp_mask, void *data)
- {
--	return alloc_page(gfp_mask);
-+	int gfp = gfp_mask | (int) data;
-+
-+	return alloc_page(gfp);
- }
- 
- static void page_pool_free(void *page, void *data)
-@@ -252,7 +254,7 @@
- 	if (isa_page_pool)
- 		return 0;
- 
--	isa_page_pool = mempool_create(ISA_POOL_SIZE, page_pool_alloc, page_pool_free, NULL);
-+	isa_page_pool = mempool_create(ISA_POOL_SIZE, page_pool_alloc, page_pool_free, (void *) __GFP_DMA);
- 	if (!isa_page_pool)
- 		BUG();
- 
-@@ -272,7 +274,7 @@
- 	int i;
- 
- 	__bio_for_each_segment(tovec, to, i, 0) {
--		fromvec = &from->bi_io_vec[i];
-+		fromvec = from->bi_io_vec + i;
- 
- 		/*
- 		 * not bounced
-@@ -301,7 +303,7 @@
- 	 * free up bounce indirect pages used
- 	 */
- 	__bio_for_each_segment(bvec, bio, i, 0) {
--		org_vec = &bio_orig->bi_io_vec[i];
-+		org_vec = bio_orig->bi_io_vec + i;
- 		if (bvec->bv_page == org_vec->bv_page)
- 			continue;
- 
-@@ -394,7 +397,7 @@
- 		if (!bio)
- 			bio = bio_alloc(bio_gfp, (*bio_orig)->bi_vcnt);
- 
--		to = &bio->bi_io_vec[i];
-+		to = bio->bi_io_vec + i;
- 
- 		to->bv_page = mempool_alloc(pool, gfp);
- 		to->bv_len = from->bv_len;
-
---LSp5EJdfMPwZcMS1--

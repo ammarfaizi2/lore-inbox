@@ -1,71 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261434AbTCGH4S>; Fri, 7 Mar 2003 02:56:18 -0500
+	id <S261439AbTCGHy0>; Fri, 7 Mar 2003 02:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261435AbTCGH4S>; Fri, 7 Mar 2003 02:56:18 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:46351 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S261434AbTCGH4P>; Fri, 7 Mar 2003 02:56:15 -0500
-To: akpm@digeo.com
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix fs/binfmt_elf.c build
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 07 Mar 2003 09:05:26 +0100
-Message-ID: <wrpy93r61q1.fsf@hina.wild-wind.fr.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261440AbTCGHy0>; Fri, 7 Mar 2003 02:54:26 -0500
+Received: from pop.gmx.net ([213.165.65.60]:33747 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S261439AbTCGHyY>;
+	Fri, 7 Mar 2003 02:54:24 -0500
+Message-Id: <5.2.0.9.2.20030307085949.00ce8008@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Fri, 07 Mar 2003 09:09:32 +0100
+To: Ingo Molnar <mingo@elte.hu>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Cc: Andrew Morton <akpm@digeo.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <rml@tech9.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0303070842420.4572-100000@localhost.localdom
+ ain>
+References: <5.2.0.9.2.20030307075851.00cf5448@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+At 08:45 AM 3/7/2003 +0100, Ingo Molnar wrote:
 
-The stack reducing patch that recently went in prevent alpha from
-building (missing some ELF_CORE_COPY_XFPREGS ifdefs). The excluded
-patch fixes it.
+>On Fri, 7 Mar 2003, Mike Galbraith wrote:
+>
+> > Weeeeell, FWIW my box (p3-500/128mb/rage128) disagrees.
+>
+>UP box, right?
 
-Thanks,
+Yes, p3/500 w. 128mb ram and rage128.
 
-        M.
+> > I can still barely control the box when a make -j5 bzImage is running
+> > under X/KDE in one terminal and a vmstat (SCHED_RR) in another. I'm not
+> > swapping, though a bit of idle junk does page out.  IOW, I think I'm
+> > seeing serious cpu starvation.
+>
+>which precise scheduler are you using, BK-curr? And to see whether the
+>problem is related to scheduling at all, could you try to renice X to -10?
+>[this is not a solution, this is just a test to see the problem is
+>scheduling related.]
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1046  -> 1.1047 
-#	     fs/binfmt_elf.c	1.39    -> 1.40   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/03/07	maz@hina.wild-wind.fr.eu.org	1.1047
-# fs/binfmt_elf.c : #ifdef XFPREGS stuff when needed.
-# --------------------------------------------
-#
-diff -Nru a/fs/binfmt_elf.c b/fs/binfmt_elf.c
---- a/fs/binfmt_elf.c	Fri Mar  7 09:00:08 2003
-+++ b/fs/binfmt_elf.c	Fri Mar  7 09:00:08 2003
-@@ -1194,7 +1194,9 @@
-  	LIST_HEAD(thread_list);
-  	struct list_head *t;
- 	elf_fpregset_t *fpu = NULL;
-+#ifdef ELF_CORE_COPY_XFPREGS
- 	elf_fpxregset_t *xfpu = NULL;
-+#endif
- 	int thread_status_size = 0;
- 
- 	/*
-@@ -1400,7 +1402,9 @@
- 	kfree(psinfo);
- 	kfree(notes);
- 	kfree(fpu);
-+#ifdef ELF_CORE_COPY_XFPREGS
- 	kfree(xfpu);
-+#endif
- 	return has_dumped;
- #undef NUM_NOTES
- }
+I plugged your combo patch into virgin .64.
 
--- 
-Places change, faces change. Life is so very strange.
+>is there any way we could exclude/isolate the VM as the source of
+>interactivity problems? Eg. any chance to get more RAM into that box?
+
+I can (could with your earlier patches anyway) eliminate the X stalls by 
+setting X junk to SCHED_FIFO.  I don't have ram to plug in, but I'm as 
+certain as I can be without actually doing so that it's not ram shortage.
+
+Best would be for other testers to run some tests.  With the make -j30 
+weirdness, I _suspect_ that other oddities (hmm... multi-client db load... 
+query service time) will show.
+
+         -Mike 
+

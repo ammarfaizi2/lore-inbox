@@ -1,212 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317040AbSFAUCf>; Sat, 1 Jun 2002 16:02:35 -0400
+	id <S317034AbSFAUFQ>; Sat, 1 Jun 2002 16:05:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317036AbSFAUBV>; Sat, 1 Jun 2002 16:01:21 -0400
-Received: from p508872AA.dip.t-dialin.net ([80.136.114.170]:29115 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317046AbSFAUAu>; Sat, 1 Jun 2002 16:00:50 -0400
-Date: Sat, 1 Jun 2002 14:00:37 -0600 (MDT)
-From: Lightweight patch manager <patch@luckynet.dynu.com>
-X-X-Sender: patch@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Kernel Build -- Daniel Phillips <phillips@bonn-fries.net>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] kbuild-2.5 10/12: s/390x dependant stuff
-Message-ID: <Pine.LNX.4.44.0206011359570.4854-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317038AbSFAUFP>; Sat, 1 Jun 2002 16:05:15 -0400
+Received: from holomorphy.com ([66.224.33.161]:61855 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317034AbSFAUEj>;
+	Sat, 1 Jun 2002 16:04:39 -0400
+Date: Sat, 1 Jun 2002 13:04:14 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 12/16] fix race between writeback and unlink
+Message-ID: <20020601200414.GD14918@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CF88933.2EC13C8F@zip.com.au> <Pine.LNX.4.44.0206010935290.10978-100000@home.transmeta.com> <3CF91E48.C76B34FA@zip.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kbuild-2.5 - s/390x dependant stuff
+Linus Torvalds wrote:
+>> The general VFS layer really shouldn't have assigned that strogn a meaning
+>> to "i_nlink" anyway, it's not for the VFS layer to decide (and it only
+>> causes problems for any non-UNIX-on-a-disk filesystems).
 
-You will need this patch for kbuild-2.5 on s/390x boxes.
-You will need most other kbuild-2.5 patches, too!
+On Sat, Jun 01, 2002 at 12:19:36PM -0700, Andrew Morton wrote:
+> Yes, I suspect all the inode refcounting, locking, I_FREEING, I_LOCK, etc
+> could do with a spring clean. Make it a bit more conventional.  I'll 
+> discuss with Al when he resurfaces.
 
-This patch is also available from
-<URL:ftp://luckynet.dynu.com/pub/linux/kbuild-2.5/many-files/kbuild-2.5-arch-s390x.patch>
+I'm somewhat concerned about the protection of ->i_size, since that
+appears to be accessed in generic_file_read() without any protection
+against writers to the field. From a quick glance at current 2.5 (it
+looks like 2.4 has this too) it looks like it's written to by
+vmtruncate() through notify_change() with the ->i_sem and BKL held at
+the moment, but generic_file_read() doesn't take either before reading
+it, and there may be still other writers. I also don't see the anything
+like read_barrier_depends() for lockless algorithms or any atomic reads.
+Even on machines with extremely strong memory consistency models like
+i386, as loff_t is long long, it would seem possible to catch a partial
+update and see an entirely bogus ->i_size value. It also appears
+->i_size is used to provide some protection against reads of truncated
+pages, which may be unreliable without some protection of ->i_size.
 
-diff -Nur kbuild-2.5/arch/s390x/asm-offsets.c kbuild-2.5/arch/s390x/asm-offsets.c
---- kbuild-2.5/arch/s390x/asm-offsets.c Fri May 31 15:49:46 2002
-+++ kbuild-2.5/arch/s390x/asm-offsets.c Fri May 31 15:49:46 2002 +0000 thunder (thunder-2.5/arch/s390x/asm-offsets.c 1.1 0644)
-@@ -0,0 +1,31 @@
-+/*
-+ * Generate definitions needed by assembly language modules.
-+ * This code generates raw asm output which is post-processed to extract
-+ * and format the required data.
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/sched.h>
-+
-+/* Use marker if you need to separate the values later */
-+
-+#define DEFINE(sym, val, marker) \
-+	asm volatile("\n->" #sym " %0 " #val " " #marker : : "i" (val))
-+
-+#define BLANK() asm volatile("\n->" : : )
-+
-+int main(void)
-+{
-+	DEFINE(__THREAD_info, offsetof(struct task_struct, thread_info),);
-+	DEFINE(__THREAD_ar2, offsetof(struct task_struct, thread.ar2),);
-+	DEFINE(__THREAD_ar4, offsetof(struct task_struct, thread.ar4),);
-+	DEFINE(__THREAD_ksp, offsetof(struct task_struct, thread.ksp),);
-+	DEFINE(__THREAD_per, offsetof(struct task_struct, thread.per_info),);
-+	BLANK();
-+	DEFINE(__TI_task, offsetof(struct thread_info, task),);
-+	DEFINE(__TI_domain, offsetof(struct thread_info, exec_domain),);
-+	DEFINE(__TI_flags, offsetof(struct thread_info, flags),);
-+	DEFINE(__TI_cpu, offsetof(struct thread_info, cpu),);
-+	DEFINE(__TI_precount, offsetof(struct thread_info, preempt_count),);
-+	return 0;
-+}
-diff -Nur kbuild-2.5/arch/s390x/boot/config.install-2.5 kbuild-2.5/arch/s390x/boot/config.install-2.5
---- kbuild-2.5/arch/s390x/boot/config.install-2.5 Fri May 31 15:49:46 2002
-+++ kbuild-2.5/arch/s390x/boot/config.install-2.5 Fri May 31 15:49:46 2002 +0000 thunder (thunder-2.5/arch/s390x/boot/config.install-2.5 1.1 0644)
-@@ -0,0 +1,35 @@
-+mainmenu_name "ix86 Installation"
-+
-+choice 'Format to compile kernel in' \
-+	"vmlinux	CONFIG_VMLINUX \
-+	 image		CONFIG_IMAGE" image
-+
-+bool 'Use a prefix on install paths' CONFIG_INSTALL_PREFIX
-+if [ "$CONFIG_INSTALL_PREFIX" = "y" ]; then
-+  string '  Prefix for install paths' CONFIG_INSTALL_PREFIX_NAME ""
-+fi
-+string 'Where to install the kernel' CONFIG_INSTALL_KERNEL_NAME "/lib/modules/KERNELRELEASE/KERNELBASENAME"
-+bool 'Install System.map' CONFIG_INSTALL_SYSTEM_MAP
-+if [ "$CONFIG_INSTALL_SYSTEM_MAP" = "y" ]; then
-+  string '  Where to install System.map' CONFIG_INSTALL_SYSTEM_MAP_NAME "/lib/modules/KERNELRELEASE/System.map"
-+fi
-+bool 'Install .config' CONFIG_INSTALL_CONFIG
-+if [ "$CONFIG_INSTALL_CONFIG" = "y" ]; then
-+  string '  Where to install .config' CONFIG_INSTALL_CONFIG_NAME "/lib/modules/KERNELRELEASE/.config"
-+fi
-+if [ "$CONFIG_VMLINUX" != "y" ]; then
-+  bool '  Install vmlinux for debugging' CONFIG_INSTALL_VMLINUX
-+  if [ "$CONFIG_INSTALL_VMLINUX" = "y" ]; then
-+    string '    Where to install vmlinux' CONFIG_INSTALL_VMLINUX_NAME "/lib/modules/KERNELRELEASE/vmlinux"
-+  fi
-+fi
-+bool 'Run a post-install script or command' CONFIG_INSTALL_SCRIPT
-+if [ "$CONFIG_INSTALL_SCRIPT" = "y" ]; then
-+  string '  Post-install script or command name' CONFIG_INSTALL_SCRIPT_NAME ""
-+fi
-+
-+# FIXME: These critical config options should be in arch/$(ARCH)/config.in.  For
-+# coexistence of kbuild 2.4 and 2.5 it is easier to put them here, move them
-+# later.  KAO
-+
-+# define_string CONFIG_KBUILD_CRITICAL_ARCH_S390X "CONFIG_ARCH_S390X"
-diff -Nur kbuild-2.5/arch/s390x/vmlinux.lds.S kbuild-2.5/arch/s390x/vmlinux.lds.S
---- kbuild-2.5/arch/s390x/vmlinux.lds.S Fri May 31 15:49:46 2002
-+++ kbuild-2.5/arch/s390x/vmlinux.lds.S Fri May 31 15:49:46 2002 +0000 thunder (thunder-2.5/arch/s390x/vmlinux.lds.S 1.1 0644)
-@@ -0,0 +1,103 @@
-+/* ld script to make s390 Linux kernel
-+ * Written by Martin Schwidefsky (schwidefsky@de.ibm.com)
-+ */
-+#include <linux/config.h>
-+
-+OUTPUT_FORMAT("elf64-s390", "elf64-s390", "elf64-s390")
-+OUTPUT_ARCH(s390)
-+ENTRY(_start)
-+SECTIONS
-+{
-+  . = 0x00000000;
-+  _text = .;			/* Text and read-only data */
-+  .text : {
-+	*(.text)
-+	*(.fixup)
-+	*(.gnu.warning)
-+	} = 0x0700
-+#ifndef CONFIG_SHARED_KERNEL
-+  .rodata : { *(.rodata) *(.rodata.*) }
-+#else /* CONFIG_SHARED_KERNEL */
-+  .rodata : { *(.rodata) }
-+#endif /* CONFIG_SHARED_KERNEL */
-+  .kstrtab : { *(.kstrtab) }
-+
-+  . = ALIGN(16);		/* Exception table */
-+  __start___ex_table = .;
-+  __ex_table : { *(__ex_table) }
-+  __stop___ex_table = .;
-+
-+  __start___ksymtab = .;	/* Kernel symbol table */
-+  __ksymtab : { *(__ksymtab) }
-+  __stop___ksymtab = .;
-+
-+  __start___kallsyms = .;       /* All kernel symbols */
-+  __kallsyms : { *(__kallsyms) }
-+  __stop___kallsyms = .;
-+
-+#ifdef CONFIG_SHARED_KERNEL
-+  . = ALIGN(1048576);		/* VM shared segments are 1MB aligned */
-+#endif /* CONFIG_SHARED_KERNEL */
-+
-+  _etext = .;			/* End of text section */
-+
-+  .data : {			/* Data */
-+	*(.data)
-+	CONSTRUCTORS
-+	}
-+
-+  _edata = .;			/* End of data section */
-+
-+  . = ALIGN(16384);		/* init_task */
-+  .data.init_task : { *(.data.init_task) }
-+
-+  . = ALIGN(4096);		/* Init code and data */
-+  __init_begin = .;
-+  .text.init : { *(.text.init) }
-+  .data.init : { *(.data.init) }
-+  . = ALIGN(4096);
-+  __init_end = .;
-+
-+  __setup_start = .;
-+  .setup.init : { *(.setup.init) }
-+  __setup_end = .;
-+  __initcall_start = .;
-+  .initcall.init : {
-+	*(.initcall1.init) 
-+	*(.initcall2.init) 
-+	*(.initcall3.init) 
-+	*(.initcall4.init) 
-+	*(.initcall5.init) 
-+	*(.initcall6.init) 
-+	*(.initcall7.init)
-+  }
-+  __initcall_end = .;
-+  . = ALIGN(256);
-+  __per_cpu_start = .;
-+  .date.percpu  : { *(.data.percpu) }
-+  __per_cpu_end = .;
-+  . = ALIGN(4096);
-+  __init_end = .;
-+
-+  . = ALIGN(32);
-+  .data.cacheline_aligned : { *(.data.cacheline_aligned) }
-+
-+  . = ALIGN(4096);
-+  .data.page_aligned : { *(.data.idt) }
-+
-+
-+  __bss_start = .;		/* BSS */
-+  .bss : {
-+	*(.bss)
-+	}
-+  _end = . ;
-+
-+  /* Stabs debugging sections.  */
-+  .stab 0 : { *(.stab) }
-+  .stabstr 0 : { *(.stabstr) }
-+  .stab.excl 0 : { *(.stab.excl) }
-+  .stab.exclstr 0 : { *(.stab.exclstr) }
-+  .stab.index 0 : { *(.stab.index) }
-+  .stab.indexstr 0 : { *(.stab.indexstr) }
-+  .comment 0 : { *(.comment) }
-+}
+If these issues are not what I believe them to be I would be more than
+happy to have these impressions corrected.
 
+Cheers,
+Bill

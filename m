@@ -1,78 +1,115 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129713AbQKAVg2>; Wed, 1 Nov 2000 16:36:28 -0500
+	id <S129135AbQKAVnL>; Wed, 1 Nov 2000 16:43:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131541AbQKAVgS>; Wed, 1 Nov 2000 16:36:18 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:61709 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129713AbQKAVgP>; Wed, 1 Nov 2000 16:36:15 -0500
-Message-ID: <3A008BEB.D33EE394@timpanogas.org>
-Date: Wed, 01 Nov 2000 14:32:27 -0700
-From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-Organization: TRG, Inc.
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
+	id <S129889AbQKAVnA>; Wed, 1 Nov 2000 16:43:00 -0500
+Received: from thalia.fm.intel.com ([132.233.247.11]:16142 "EHLO
+	thalia.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S129520AbQKAVmv> convert rfc822-to-8bit; Wed, 1 Nov 2000 16:42:51 -0500
+Message-ID: <D5E932F578EBD111AC3F00A0C96B1E6F07DBDBF3@orsmsx31.jf.intel.com>
+From: "Dunlap, Randy" <randy.dunlap@intel.com>
+To: 'Pasi Kärkkäinen' <pk@edu.joroinen.fi>,
+        Rik van Riel <riel@conectiva.com.br>
+Cc: "Forever shall I be." <zinx@microsoftisevil.com>,
+        linux-kernel@vger.kernel.org
+Subject: RE: 3-order allocation failed
+Date: Wed, 1 Nov 2000 13:42:17 -0800 
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@innominate.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18Pre Lan Performance Rocks!
-In-Reply-To: <39FF3D53.C46EB1A8@timpanogas.org> <20001031140534.A22819@work.bitmover.com> <39FF4488.83B6C1CE@timpanogas.org> <20001031142733.A23516@work.bitmover.com> <39FF49C8.475C2EA7@timpanogas.org> <20001101023010.G13422@athlon.random> <20001031183809.C9733@.timpanogas.org> <20001101164106.F9774@athlon.random> <3A005217.88D2CA0D@timpanogas.org> <3A005476.17F0F253@timpanogas.org> <20001101190732.A19767@athlon.random> <3A00621F.7CC77F5A@timpanogas.org> <news2mail-3A008792.BAA8F70D@innominate.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-
-Daniel Phillips wrote:
+> From: Pasi Kärkkäinen [mailto:pk@edu.joroinen.fi]
 > 
-> "Jeff V. Merkey" wrote:
-> >
-> > Andrea Arcangeli wrote:
-> > >
-> > > Speaking only for myself: on the technical side I don't think you can't be much
-> > > faster than moving the performance critical services into the kernel and by
-> > > skipping the copies (infact I also think that for fileserving skipping the
-> > > copies and making sendfile to work and to work in zero copy will be enough).
-> > > So I don't think losing robusteness this way can be explained in any technical
-> > > way and no, it's not by showing me money that you'll convince me that's a good
-> > > idea.
-> >
-> > This would help, but not as much as full ring 0.
+> On Thu, 26 Oct 2000, Rik van Riel wrote:
 > 
-> My experience is that I can get pretty much the same performance in ring
-> 3 as ring 0 as long as I don't reload segment registers or take CR3.  Is
-> this right, or am I missing some fundamental kind of ring 3 overhead?
+> > On Thu, 26 Oct 2000, Forever shall I be. wrote:
+> > > On Thu, Oct 26, 2000 at 02:57:30PM +0300, Pasi Kärkkäinen wrote:
+> > 
+> > > > __alloc_pages: 2-order allocation failed.
+> > > > __alloc_pages: 2-order allocation failed.
+> > > > __alloc_pages: 5-order allocation failed.
+> > > > __alloc_pages: 4-order allocation failed.
+> > > > __alloc_pages: 3-order allocation failed.
+> > > > __alloc_pages: 2-order allocation failed.
+> > > > __alloc_pages: 5-order allocation failed.
+> > > > 
+> > > > Any ideas?
+> > > 
+> > > I'm getting __alloc_pages: 7-order allocation failed.
+> > > all the time in 2.4.0-test9 on my "pIII (Katmai)".. kernel's
+> > > compiled with 2.95.2 + bounds, without -fbounds-checking
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Are there many places in the kernel that
+do that (alloc 2^8 = 256 pages) .. after init?
+Do you know where/what it is?  Sound driver maybe?
+
+> > It means something in the system is trying to allocate a
+> > large continuous area of memory that isn't available...
+> > 
+> > The printk is basically a debug output indicating that we
+> > don't have the large physically contiguous area available
+> > that's being requested.
+> > 
+> > Basically everything bigger than order-1 (2 contiguous
+> > pages) is unreliable at runtime. Orders 2 and 3 should
+> > usually be available (if you only allocate very few of
+> > them) and higher orders should not be relied upon.
+> > 
+> > If somebody is seeing a lot of these messages, it means
+> > that some driver in the system is asking unreasonable
+> > things from the VM subsystem ;)
+> > 
+> > (and buffer allocations are failing)
+> > 
 > 
-> Even in ring 0, you can mostly protect processes from each other using
-> segments: if you don't reload the segments you can restrict damage to
-> your own segment.  It's not 100% safety but it is an enormous
-> improvement over running in the same address space as the OS kernel.  I
-> don't have any problem at all with the idea of running a lot of parallel
-> tasks in the same address space: the safety of this comes down to the
-> compiler you use to compile the processes.  If the compiler doesn't have
-> ops that let processes damage each other then you won't get damage,
-> assuming no bugs in your underlying implementation.
+> I got those order-x messages when I was running a script, that looked
+> something like this:
 > 
-> BTW, let me add my 'me too': go for it, there is obviously a pot of gold
-> there, just don't let Sauron^H^H^H^H^H^H Bill get to it first.
-
-
-Amen to that one.  BTW.  The package we mailed out to you from Brian
-went yesterday.  Let me know when it arrives.  I sent it to the address
-in Berlin you provided.     
-
-:-)
-
-Jeff
-
+> 	streamer -s 320x240 -o webcam.jpg
+> 	sleep 5
 > 
-> --
-> Daniel
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> It worked fine for about 20 minutes, and after I started to get those
+> messages and the camera didn't work anymore.
+> 
+> Solution: I'm now using a program, that is "using the camera all the
+> time" and it just saves the frames with 5 seconds delay.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Makes sense.  Good, practical workaround solution.
+
+I looked thru cpia_usb_open() and everything that it
+calls or causes in your scenario, and the only
+order-2 allocation that I see is in cpia_usb_open().
+
+If order-1 allocs are much better than order-2 allocs,
+like Rik said, then you could change
+drivers/media/video/cpia_usb.c line 41 (in 2.4.0-test10)
+to be: #define FRAMES_PER_DESC	8
+instead of 10.  That would make the kmalloc()'s in
+cpia_usb_open() be order-1 instead of order-2.
+All of the other kmalloc()s in the USB subsystem in this
+scenarios are already small (less than 1 page).
+Please let me/us know how this works if you try it.
+
+
+> The script I was running previously used streamer, that 
+> initializes and 
+> opens the v4l-device everytime I run it.
+> 
+> Is this bug in the usb-driver (usb-uhci), in the camera's driver
+> (cpia_usb) or in the v4l?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Could there be a memory leak as well?  But I expect that
+it's simply that memory is just fragmented so that enough
+contiguous pages aren't available, like Rik said.
+
+~Randy
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,59 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262036AbSIYRan>; Wed, 25 Sep 2002 13:30:43 -0400
+	id <S262034AbSIYRma>; Wed, 25 Sep 2002 13:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262037AbSIYRan>; Wed, 25 Sep 2002 13:30:43 -0400
-Received: from thunk.org ([140.239.227.29]:53662 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id <S262036AbSIYRam>;
-	Wed, 25 Sep 2002 13:30:42 -0400
-To: torvalds@transmeta.com
+	id <S262037AbSIYRma>; Wed, 25 Sep 2002 13:42:30 -0400
+Received: from magic.adaptec.com ([208.236.45.80]:48054 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP
+	id <S262034AbSIYRm3>; Wed, 25 Sep 2002 13:42:29 -0400
+Date: Wed, 25 Sep 2002 11:47:36 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: "Cress, Andrew R" <andrew.r.cress@intel.com>
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] loop device broken in 2.5.38
-From: tytso@mit.edu
-Phone: (781) 391-3464
-Message-Id: <E17uG42-0002gm-00@think.thunk.org>
-Date: Wed, 25 Sep 2002 13:35:06 -0400
+Subject: Re: aic7xxx support for aic7902?
+Message-ID: <1338716224.1032976056@aslan.btc.adaptec.com>
+In-Reply-To: <A5974D8E5F98D511BB910002A50A66470580D20D@hdsmsx103.hd.intel.com>
+References: <A5974D8E5F98D511BB910002A50A66470580D20D@hdsmsx103.hd.intel.com
+ >
+X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Justin,
+> 
+> I've seen a special U320 driver aic79xx v1.10, but I suppose that the new
+> U320 controllers will be folded into a new version of your aic7xxx driver
+> (?).
 
-The loop device driver was broken in 2.5.38 when it was converted over
-to use gendisk.  I discovered this while doing final regression testing
-on the ext3 htree code.
+Nope.  The U320 chips will never be supported in the aic7xxx driver due
+to their very different architecture.  aic79xx v1.1.0 (or 1.1.1 which
+includes the port to the 2.5.X kernels) is what you want.
 
-The problem is that figure_loop_size() is setting the capacity of the
-loop device in kilobytes (because that's what compute_loop_size()
-returns), but set_capacity() expects the size in 512 byte sectors.
+> If so, I'd like to know which version of the aic7xxx driver will
+> include support of the new aic7902 controller, and which kernel version
+> will be targeted to have that folded in.  
 
-I've enclosed a patch which fixes the problem, as well as simplifying
-the code by eliminating compute_loop_size(), since it is a static
-function is only used once by figure_loop_size().
+Which kernel version it will be folded into is beyond my control.  The
+code has been sent to both Marcelo and Linus.
 
-						- Ted
-
-===== drivers/block/loop.c 1.57 vs edited =====
---- 1.57/drivers/block/loop.c	Sat Sep 21 02:08:48 2002
-+++ edited/drivers/block/loop.c	Wed Sep 25 13:28:37 2002
-@@ -157,18 +157,12 @@
- 
- #define MAX_DISK_SIZE 1024*1024*1024
- 
--static unsigned long
--compute_loop_size(struct loop_device *lo, struct dentry * lo_dentry)
--{
--	loff_t size = lo_dentry->d_inode->i_mapping->host->i_size;
--	return (size - lo->lo_offset) >> BLOCK_SIZE_BITS;
--}
--
- static void figure_loop_size(struct loop_device *lo)
- {
--	set_capacity(disks + lo->lo_number, compute_loop_size(lo,
--					lo->lo_backing_file->f_dentry));
--					
-+	loff_t size = lo->lo_backing_file->f_dentry->d_inode->i_size;
-+
-+	set_capacity(disks + lo->lo_number,
-+		     (size - lo->lo_offset) >> (BLOCK_SIZE_BITS-1));
- }
- 
- static inline int lo_do_transfer(struct loop_device *lo, int cmd, char *rbuf,
+--
+Justin

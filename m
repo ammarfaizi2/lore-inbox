@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317680AbSFRX7r>; Tue, 18 Jun 2002 19:59:47 -0400
+	id <S317683AbSFSADj>; Tue, 18 Jun 2002 20:03:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317681AbSFRX7q>; Tue, 18 Jun 2002 19:59:46 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:45284 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S317680AbSFRX7p>;
-	Tue, 18 Jun 2002 19:59:45 -0400
-Date: Wed, 19 Jun 2002 01:57:48 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Michael Hohnbaum <hohnbaum@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       <linux-kernel@vger.kernel.org>, <colpatch@us.ibm.com>
-Subject: Re: latest linus-2.5 BK broken
-In-Reply-To: <1024443480.1514.33.camel@w-hbaum>
-Message-ID: <Pine.LNX.4.44.0206190145580.28144-100000@e2>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317685AbSFSADi>; Tue, 18 Jun 2002 20:03:38 -0400
+Received: from dsl092-013-071.sfo1.dsl.speakeasy.net ([66.92.13.71]:2179 "EHLO
+	pelerin.serpentine.com") by vger.kernel.org with ESMTP
+	id <S317683AbSFSADh>; Tue, 18 Jun 2002 20:03:37 -0400
+Subject: RE: Cache-attribute conflict bug in the kernel exposed on newer A
+	MD Athlon CPUs
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: richard.brunner@amd.com, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0206181908040.5120-100000@freak.distro.conectiva>
+References: <Pine.LNX.4.44.0206181908040.5120-100000@freak.distro.conectiva>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-fqqkoc2Cb8z9ZerrRZ3a"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 18 Jun 2002 17:03:38 -0700
+Message-Id: <1024445018.3203.8.camel@camp4.serpentine.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 18 Jun 2002, Michael Hohnbaum wrote:
+--=-fqqkoc2Cb8z9ZerrRZ3a
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> A bit mask is a very good choice for the sched_setaffinity()
-> interface.  [...]
+On Tue, 2002-06-18 at 15:08, Marcelo Tosatti wrote:
 
-thanks :)
+> I'll wait for your confirmation so this patch can go in -rc1.
 
-> [...] I would suggest an additional argument be added
-> which would indicate the resource that the process is to be
-> affined to.  That way this interface could be used for binding
-> processes to cpus, memory nodes, perhaps NUMA nodes, and, 
-> as discussed recently in another thread, other processes.
-> Personally, I see NUMA nodes as an overkill, if a process
-> can be bound to cpus and memory nodes.
+Users of NVIDIA AGP graphics cards using NVIDIA's closed-source drivers
+on recent Athlon CPUs should note that this patch will probably not fix
+any stability problems they may be seeing.
 
-are you sure we want one generic, process-based affinity interface?
+A temporary workaround for those users is to turn off AGP altogether.=20
+If you are using such a setup and see stability issues, please let me
+know.
 
-i think the affinity to certain memory regions might need to be more
-finegrained than this. Eg. it could be useful to define a per-file
-(per-inode) 'backing store memory node' that the file is affine to. This
-will eg. cause the pagecache to be allocated in the memory node.
-Process-based affinity does not describe this in a natural way. Another
-example, memory maps: we might want to have a certain memory map (vma)  
-allocated in a given memory node, independently of where the process that
-is faulting a given pages resides.
+	<b
 
-and it might certainly make sense to have some sort of 'default memory
-affinity' for a process as well, but this should be a different syscall -
-it really does a much different thing than CPU affinity. The CPU resource
-is 'used' only temporarily with little footprint, while memory usage is
-often for a very long timespan, and the affinity strategies differ
-greatly. Also, memory as a resource is much more complex than CPU, eg. it
-must handle things like over-allocation, fallback to 'nearby' nodes if a
-node is full, etc.
+--=-fqqkoc2Cb8z9ZerrRZ3a
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-so i'd suggest to actually create a good memory-affinity syscall interface
-instead of trying to generalize it into the simple, robust, finite
-CPU-affinity syscalls.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-	Ingo
+iD8DBQA9D8paG8PvG6BKogcRAvHpAKDAVnfkysAcrfj7B9E6dA1YTdiYYgCgvDSG
+cYRn1RUTQSTENyPCt1/9TKQ=
+=sRXn
+-----END PGP SIGNATURE-----
 
+--=-fqqkoc2Cb8z9ZerrRZ3a--

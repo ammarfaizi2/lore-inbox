@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129106AbRBXF2P>; Sat, 24 Feb 2001 00:28:15 -0500
+	id <S129108AbRBXFaP>; Sat, 24 Feb 2001 00:30:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129108AbRBXF2F>; Sat, 24 Feb 2001 00:28:05 -0500
-Received: from web9210.mail.yahoo.com ([216.136.129.43]:15621 "HELO
-	web9210.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S129106AbRBXF1w>; Sat, 24 Feb 2001 00:27:52 -0500
-Message-ID: <20010224052747.33042.qmail@web9210.mail.yahoo.com>
-Date: Fri, 23 Feb 2001 21:27:47 -0800 (PST)
+	id <S129181AbRBXFaG>; Sat, 24 Feb 2001 00:30:06 -0500
+Received: from web9204.mail.yahoo.com ([216.136.129.27]:38410 "HELO
+	web9204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129108AbRBXF35>; Sat, 24 Feb 2001 00:29:57 -0500
+Message-ID: <20010224052955.75158.qmail@web9204.mail.yahoo.com>
+Date: Fri, 23 Feb 2001 21:29:55 -0800 (PST)
 From: bradley mclain <bradley_kernel@yahoo.com>
 Subject: Re: APM suspend system lockup under 2.4.2 and 2.4.2ac1
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
@@ -18,8 +18,8 @@ Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i thought that it was my network driver, but i
-recompiled 2.4.2 without sound support and apm
+i thought that it was my network driver (xircom), but
+i recompiled 2.4.2 without sound support and apm
 --suspend has begun to work again.
 
 the sound card is a yamaha YMF-744B.  i hadn't been

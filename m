@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263349AbTC0RgL>; Thu, 27 Mar 2003 12:36:11 -0500
+	id <S263321AbTC0RKO>; Thu, 27 Mar 2003 12:10:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263354AbTC0RgL>; Thu, 27 Mar 2003 12:36:11 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:30728 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S263349AbTC0RgK>;
-	Thu, 27 Mar 2003 12:36:10 -0500
-Date: Thu, 27 Mar 2003 09:46:22 -0800
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at sched.c:564! (2.4.20, 2.4.21-pre5-ac3)
-Message-ID: <20030327174622.GC32667@kroah.com>
-References: <20030326162538.GG2695@spackhandychoptubes.co.uk> <20030326185236.GE24689@kroah.com> <20030326192520.GH2695@spackhandychoptubes.co.uk> <20030326193437.GI24689@kroah.com> <20030327111600.GI2695@spackhandychoptubes.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263314AbTC0RJZ>; Thu, 27 Mar 2003 12:09:25 -0500
+Received: from dsl-213-023-212-049.arcor-ip.net ([213.23.212.49]:32131 "EHLO
+	server1.intern.kubla.de") by vger.kernel.org with ESMTP
+	id <S263317AbTC0RIf> convert rfc822-to-8bit; Thu, 27 Mar 2003 12:08:35 -0500
+From: Dominik Kubla <dominik@kubla.de>
+To: Chris Wedgwood <cw@f00f.org>, Larry McVoy <lm@work.bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: ECC error in 2.5.64 + some patches
+Date: Thu, 27 Mar 2003 18:19:41 +0100
+User-Agent: KMail/1.5.1
+References: <20030324212813.GA6310@osiris.silug.org> <20030327160220.GA29195@work.bitmover.com> <20030327170039.GA26452@f00f.org>
+In-Reply-To: <20030327170039.GA26452@f00f.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20030327111600.GI2695@spackhandychoptubes.co.uk>
-User-Agent: Mutt/1.4i
+Message-Id: <200303271819.41971.dominik@kubla.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 27, 2003 at 11:16:00AM +0000, Chris Sykes wrote:
-> 
-> No Oopsen or errors in dmesg as yet. (Before I was getting many errors
-> about 0 size writes).
+Am Donnerstag, 27. März 2003 18:00 schrieb Chris Wedgwood:
 
-Great, thanks for testing.
+> > Message from syslogd@slovax at Thu Mar 27 05:53:49 2003 ...
+> > slovax kernel: Bank 1: 9000000000000151
+>
+> Status: (9000000000000151) Restart IP valid.
+>
+> *Exactly* what this means I don't know --- but I'm guessing the CPU is
+> overheating.  Check fans, air-flow, etc. and see if that helps.  So
+> far whenever I've seen the above problem it's *ALWAYS* been related to
+> the CPU getting too hot.
 
-> I can keep working under 2.5.66 for now to see if I experience any
-> problems, but it would appear that the race is gone in 2.5.66
-> (CONFIG_PREEMPT=y)
-> 
-> If you'd like me to try any patches against 2.4 just let me know.
+Well the internal busses and buffers of modern CPU's and in many cases also 
+the on-die caches have ECC logic.  And if i should hazard a guess: "Restart 
+IP valid" => Restarted Instruction Pre-Fetch resulted in a valid state of the 
+pre-fetch queue.
 
-Will do, if I get the chance to make any up :)
+In Larry's case i'd remove the cpu cooler, clean everything and reassemble, 
+since i would assume that there is a hot-spot on the die.
 
-thanks again,
+Regards,
+  Dominik
+-- 
+Be at war with your voices, at peace with your neighbors, and let every new
+year find you a better man. (Benjamin Franklin, 1706-1790)
 
-greg k-h

@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVCIV50@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVCIV3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVCIV50 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 16:57:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVCIV5Z
+	id S262372AbVCIV3W (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 16:29:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVCIVYk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 16:57:25 -0500
-Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:56326 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S261592AbVCIVzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 16:55:50 -0500
-Date: Wed, 9 Mar 2005 22:55:59 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Daniel Staaf <dst@bostream.nu>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Andrei Mikhailovsky <andrei@arhont.com>,
-       Ian Campbell <icampbell@arcom.com>,
-       Ronald Bultje <rbultje@ronald.bitfreak.net>,
-       Gerd Knorr <kraxel@bytesex.org>, stable@kernel.org
-Subject: Re: [PATCH 2.6] Fix i2c messsage flags in video drivers
-Message-Id: <20050309225559.061058dd.khali@linux-fr.org>
-In-Reply-To: <20050309184055.GX28536@shell0.pdx.osdl.net>
-References: <1110024688.5494.2.camel@whale.core.arhont.com>
-	<422A5473.7030306@osdl.org>
-	<1110115990.5611.2.camel@whale.core.arhont.com>
-	<422CCBF4.1060902@osdl.org>
-	<20050308201504.6aee36d5.khali@linux-fr.org>
-	<20050308202530.2fbfae9a.khali@linux-fr.org>
-	<20050309184055.GX28536@shell0.pdx.osdl.net>
-X-Mailer: Sylpheed version 1.0.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 9 Mar 2005 16:24:40 -0500
+Received: from animx.eu.org ([216.98.75.249]:53152 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262473AbVCIVVH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 16:21:07 -0500
+Date: Wed, 9 Mar 2005 16:26:30 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.11.2
+Message-ID: <20050309212630.GB24278@animx.eu.org>
+Mail-Followup-To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+References: <20050309083923.GA20461@kroah.com> <Pine.LNX.4.61.0503090950200.7496@student.dei.uc.pt> <Pine.LNX.4.62.0503091104180.22598@numbat.sonytel.be> <Pine.LNX.4.61.0503091014580.7496@student.dei.uc.pt>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0503091014580.7496@student.dei.uc.pt>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chris,
-
-> > While working on the saa7110 driver I found a problem with the way
-> > various video drivers (found on Zoran-based boards) prepare i2c
-> > messages to be used by i2c_transfer. The drivers improperly copy the
-> > i2c client flags as the message flags, while both sets are mostly
-> > unrelated. The net effect in this case is to trigger an I2C block
-> > read instead of the expected I2C block write. The fix is simply not
-> > to pass any flag, because none are needed.
-> > 
-> > I think this patch qualifies hands down as a "critical bug fix" to
-> > be included in whatever bug-fix-only trees exist these days. As far
-> > as I can see, all Zoran-based boards are broken in 2.6.11 without
-> > this patch.
+Marcos D. Marado Torres wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> Are people reporting this as a problem?
+> On Wed, 9 Mar 2005, Geert Uytterhoeven wrote:
+> 
+> >>>which is a patch against the 2.6.11.1 release.  If consensus arrives
+> >>>that this patch should be against the 2.6.11 tree, it will be done that
+> >>>way in the future.
+> >>
+> >>IMHO it sould be against 2.6.11 and not 2.6.11.1, like -rc's that are'nt
+> >>againt
+> >>the last -rc but against 2.6.x.
+> >
+> >It's a stable release, not a pre/rc, so against 2.6.11.1 sounds most 
+> >logical to
+> >me.
+> 
+> Well, yes, _if_ 2.6.12 patch is going to be to aply against 2.6.11.last 
+> instead
+> of 2.6.11. And, well, either one will cause great panic for hose who aren't 
+> and
+> the mailing lists and just visit kernel.org to downoad the latest stuff.
 
-Not that I know. For adv7175 it couldn't be reported so far anyway
-because people would hit the oops in saa7110 before (same board: DC10+,
-oops fixed in a different patch).
+<mode="enduser">
+IMHO, as long as 2.6.12 patches against 2.6.11, I'm cool with 2.6.11.2
+patching against 2.6.11.1, but I think it should patch against 2.6.11
+instead
+</mode>
 
-It is possible that people are able to get their board to still work
-without my patch, if the chips were properly configured in the first
-place and they don't attempt to reconfigure them (like norm change). I
-don't know the chips well enough to tell how probable this is.
-
-Thanks,
 -- 
-Jean Delvare
+ Lab tests show that use of micro$oft causes cancer in lab animals

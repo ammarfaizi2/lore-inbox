@@ -1,42 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275591AbTHOAQm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 20:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275593AbTHOAQm
+	id S275579AbTHOAJS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 20:09:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275584AbTHOAJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 20:16:42 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:46084
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S275591AbTHOAQl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 20:16:41 -0400
-Date: Thu, 14 Aug 2003 17:16:32 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Matt Mackall <mpm@selenic.com>,
-       James Morris <jmorris@intercode.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, davem@redhat.com
-Subject: Network Card Entropy? was: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030815001632.GI1027@matchmail.com>
-Mail-Followup-To: Jamie Lokier <jamie@shareable.org>,
-	Theodore Ts'o <tytso@mit.edu>, Matt Mackall <mpm@selenic.com>,
-	James Morris <jmorris@intercode.com.au>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, davem@redhat.com
-References: <20030809173329.GU31810@waste.org> <Mutt.LNX.4.44.0308102317470.7218-100000@excalibur.intercode.com.au> <20030810174528.GZ31810@waste.org> <20030811020919.GD10446@mail.jlokier.co.uk> <20030813035257.GB1244@think> <20030813183628.GC4405@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Aug 2003 20:09:18 -0400
+Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:1203 "EHLO
+	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
+	id S275579AbTHOAJN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 20:09:13 -0400
+From: "Bryan D. Stine" <admin@kentonet.net>
+Organization: KentoNET Communications
+To: "Joseph D. Wagner" <wagnerjd@prodigy.net>
+Subject: Re: GNU server "compromised"? Gimme a break!
+Date: Thu, 14 Aug 2003 20:09:48 -0400
+User-Agent: KMail/1.5.3
+References: <000601c362bf$7eadc9a0$62a14943@joe>
+In-Reply-To: <000601c362bf$7eadc9a0$62a14943@joe>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20030813183628.GC4405@mail.jlokier.co.uk>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200308142009.53875.admin@kentonet.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 07:36:28PM +0100, Jamie Lokier wrote:
-> Unfortunately it isn't airtight if the attacker can see the file in
-> flight to your NFS-mounted diskless box, although booting over NFS
-> would tend to introduce enough entropy by itself so we are fine here :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Assuming that all network drivers are contributing entropy...
+Err...have you ever used GRSec or SELinux? Both do (in-kernel btw) what you 
+claim does not exist in GNU/Linux. And SELinux is in 2.6... Do some research 
+next time.
 
-Was Robert Love's patch for this ever merged?
+On Thursday 14 August 2003 07:55 pm, Joseph D. Wagner wrote:
+> I just think this goes a long way to say that GNU/Linux security sucks, the
+> theory of a thousand eyes isn't true because the eyes aren't looking,
+> GNU/Linux security sucks, FSF is administrated by incompetent boobs (notice
+> that even their pre-hacked backups could be compromised -- um, "offsite
+> backups" anyone?), GNU/Linux security sucks, auditing is non-existent
+> because they can't tell who did what (they'd first need ACL's for this),
+> GNU/Linux security sucks, backdoors can be in open source code, ... and did
+> I mention that GNU/Linux security sucks?
+>
+> > -----Original Message-----
+> > From: Scott McCollum [mailto:scott@worldtechtribune.com]
+> > Sent: Thursday, August 14, 2003 5:14 PM
+> > To: Joseph D. Wagner; bob@bobadkins.com
+> > Subject: GNU server "compromised"? Gimme a break!
+> >
+> > http://www.internetnews.com/article.php/2248811
+> >
+> > So the excuse is that the GNU/Linux servers holding source code for the
+> > Free Software Foundation was compromised will be how Stallman and his
+> > cronies explain the fact that SCO-owned intellectual property got onto
+> > their servers.
+> >
+> > How crazy does it sound when you say this out loud: "A hacker broke into
+> > our open source servers and slipped proprietary code into the source code
+> > of GNU/Linux in an attempt to plant evidence to frame us"?
+> > -
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+- -- 
+Bryan D. Stine
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/PCTQ4Cdq/Vbot6MRAtrtAJ4lFIA9Daxb/NeUW/4xJtT53f/4NACgiLVf
+fhyqyKwYrU8CcCm5d4qre8A=
+=rhKA
+-----END PGP SIGNATURE-----
+

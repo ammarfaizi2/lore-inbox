@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265271AbSJaR5a>; Thu, 31 Oct 2002 12:57:30 -0500
+	id <S265297AbSJaSBG>; Thu, 31 Oct 2002 13:01:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265261AbSJaRz4>; Thu, 31 Oct 2002 12:55:56 -0500
-Received: from waste.org ([209.173.204.2]:37053 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S265267AbSJaRxw>;
-	Thu, 31 Oct 2002 12:53:52 -0500
-Date: Thu, 31 Oct 2002 12:00:09 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alexander Viro <viro@math.psu.edu>, Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel@vger.kernel.org
+	id <S265294AbSJaSBG>; Thu, 31 Oct 2002 13:01:06 -0500
+Received: from main.gmane.org ([80.91.224.249]:18136 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S265297AbSJaSBD>;
+	Thu, 31 Oct 2002 13:01:03 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
 Subject: Re: What's left over.
-Message-ID: <20021031180009.GC3620@waste.org>
-References: <20021031163650.GC25906@waste.org> <Pine.LNX.4.44.0210310937550.1410-100000@penguin.transmeta.com>
+Date: Thu, 31 Oct 2002 13:08:28 -0500
+Message-ID: <aprrei$ete$1@main.gmane.org>
+References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com> <1036059364.2419.1.camel@aurora.localdomain>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210310937550.1410-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1036087571 15278 130.127.121.177 (31 Oct 2002 18:06:11 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Thu, 31 Oct 2002 18:06:11 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 31, 2002 at 09:38:41AM -0800, Linus Torvalds wrote:
+Trever L. Adams wrote:
+
+> On Wed, 2002-10-30 at 21:31, Linus Torvalds wrote:
 > 
-> Note that as far as ACL's go, enough people have convinced me that we want 
-> them, with clear real-life issues. So don't worry about them, I'll merge 
-> it.
+>> > ext2/ext3 ACLs and Extended Attributes
+>> 
+>> I don't know why people still want ACL's. There were noises about them
+>> for samba, but I'v enot heard anything since. Are vendors using this?
+>> 
+> 
+> I am sure I don't count (not being a vendor), but Intermezzo offers
+> support for this (they are waiting on feature freeze to redo it to 2.5
+> according to an email I have).  I want this stuff.  Yes, u+g+w is nice,
+> but good ACLs are even better.  Please, if this is technically correct
+> in implementation, do put it in.
+> 
 
-Ok, so now lets work on a Documentation/filesystems patch pointing
-out a few of the common pitfalls, as I definitely agree they invite
-some grave mistakes and are best avoided in most scenarios.
+I agree, having them is far better then the standard u+g+w that's been 
+around for ages.  I think it gives the "finer" grain of control over your 
+system that a lot of users may desire.  Not to mention the fact that ACL's 
+are well supported by the recently merged XFS.  If I'm not mistaken, AFS 
+uses them as well.  I *really* don't see the overhead cost here in terms of 
+compiled kernel size when they are turned off.  As for the size of the 
+source tarball, who cares?  People should quit whining about the size of 
+the sources and get over it!  Storage is cheap and broadband is in 
+widespread use.
 
-- /tmp-style symlink issues on shared directories
-- vast majority of software (including security tools) ACL-unaware
-- much harder to check for correctness
+Cheers,
+Nicholas
 
-Al, I'm sure you have more..
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

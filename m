@@ -1,69 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263625AbTJWP4i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 11:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263627AbTJWP4h
+	id S263639AbTJWQD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 12:03:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbTJWQD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 11:56:37 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:36738 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263625AbTJWP4g (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 11:56:36 -0400
-Message-Id: <200310231556.h9NFuGqm007878@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: Flavio Bruno Leitner <fbl@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel/initrd and rootfs over LVM 
-In-Reply-To: Your message of "Thu, 23 Oct 2003 13:44:25 -0300."
-             <20031023164425.GC21031@conectiva.com.br> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031023164425.GC21031@conectiva.com.br>
+	Thu, 23 Oct 2003 12:03:29 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:7434 "EHLO www.home.local")
+	by vger.kernel.org with ESMTP id S263639AbTJWQD0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 12:03:26 -0400
+Date: Thu, 23 Oct 2003 18:03:02 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: laforge@gnumonks.org
+Cc: Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH-2.4] NF_REPEAT was ignored !
+Message-ID: <20031023160302.GA13255@alpha.home.local>
+References: <20031008094447.GL25743@sunbeam.de.gnumonks.org> <Pine.LNX.4.33.0310090854360.22077-100000@blackhole.kfki.hu> <20031022102556.GA10540@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1409194144P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 23 Oct 2003 11:56:16 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031022102556.GA10540@alpha.home.local>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1409194144P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <7860.1066924562.1@turing-police.cc.vt.edu>
+Hi Harald !
 
-On Thu, 23 Oct 2003 13:44:25 -0300, Flavio Bruno Leitner <fbl@conectiva.com.br>  said:
-> 
-> I'm using kernel 2.6.0-test7 and as far I understand 
-> prepare_namespace() checks if saved_root_name[0] is
-> not null (I'm passing root=/dev/vg0/lvroot), then
-> name_to_dev_t() try to guess what MINOR and MAJOR 
-> are used by the root device. 
+Just replying to myself to state that vanilla 2.4.23-pre8 has the same problem
+(linux-kernel cc'd for this matter), and the patch applies to it too. There is
+a difference, though, because I found no user of NF_REPEAT in 2.4.23-pre8, so
+as of today, no mainline code seems affected, but the bug is waiting for
+someone to bite :-)
 
-What I ended up doing to get that working back in the 2.5.4x days was to have
-my initrd's linuxrc do a 'lvm vgscan' to get the volume group online, and then
-an 'lvdisplay' - this of course wedged up after it since there wasn't a proper
-root=, but it revealed the numbers I needed.
+Please review, comment and/or apply.
 
-As far as I can tell, if you're using the device-mapper in 2.6, you'll want
-MAJOR=, and then the MINOR= seems to be stable across 2.4/2.6/lvm1/lvm2 (So if
-you're building the system under 2.4 and have LVM running there, you can get
-the minor number from lvdisplay there, and use it with major=254 to get your
-2.6 up and running.  For lilo, I ended up using this:
+Regards,
+Willy
 
-        root=65029
-# magic number is major=254 * 256 + minor=5
+==== original mail below ====
 
-Grub you're on your own.  Yes, I should upgrade, but lilo *does* work for this machine, sooo.
+On Wed, Oct 22, 2003 at 12:25:56PM +0200, Willy Tarreau wrote:
+Hi,
 
---==_Exmh_1409194144P
-Content-Type: application/pgp-signature
+after updating the production firewalls to handle the CW->CL state, I saw the
+rate of drops decrease, but not as much as I would have expected it to.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+I captured lots of data (/p/n/ip_conntrack, logs, tcpdump) and discovered
+another problem with tcp_window_tracking that I could easily reproduce on
+a lab : if a client reused a port too early, then the SYN/ACK from the
+server was dropped, and the client could only connect after the next SYN
+retransmit. I simply checked it with nc -p 1234 server 80. The first one
+succeeds immediately, the second one needs 3 seconds to establish. There
+is a logical explication to this :
 
-iD8DBQE/l/ogcC3lWbTT17ARArj0AJ42t9a7UjAP1k9kDGNpQFTXySUXiACg/Nyq
-+0Fr7WQLEbbsXkqR21fPDDc=
-=SOhj
------END PGP SIGNATURE-----
+The client completes a first connection to server:80 with spt=1234. A few
+seconds later, he reuses the same port to initiate a new connection to the
+server. The firewall still sees the connection in TIME_WAIT state, so its
+state matrix switches it to SYN_SENT  (orig:sTW--(SY)-->sSS).
 
---==_Exmh_1409194144P--
+In ip_conntrack_proto_tcp.c:tcp_packet(), there is a test for this case. The
+existing session is deleted and NF_REPEAT is returned so that the caller tries
+again (here, ip_conntrack_core.c:ip_conntrack_in()). This one simply returns
+the same code NF_REPEAT to its caller which will call it again (nf_iterate()).
+
+The problem is that once ip_conntrack_in() is called again with the same pskb,
+it already has its ->nfct filled, so ip_conntrack_in() immediately returns
+NF_ACCEPT without doing any lookup. The result is that the SYN is passed to
+the server, and the deleted session is not recreated. When the server replies
+with a SYN/ACK, this one has no matching session it is blocked by the firewall
+rules. Then, 3 seconds later, the client retransmits its SYN, which reaches
+the firewall without any matching session, and correctly initiates a new one.
+
+The solution is to correctly clear the ->nfct field in ip_conntrack_in() if
+we return NF_REPEAT. This is what the following patch does. It's to be applied
+to 2.4+POM-20030912, but I'm confident it may be easily applied and/or ported
+to later versions.
+
+I've not checked yet if the mainline conntrack code is also affected, but this
+could be possible.
+
+Regards,
+Willy
+
+
+--- ./net/ipv4/netfilter/ip_conntrack_core.c.orig	Tue Oct 21 14:21:08 2003
++++ ./net/ipv4/netfilter/ip_conntrack_core.c	Tue Oct 21 16:14:53 2003
+@@ -856,6 +861,14 @@
+ 	IP_NF_ASSERT((*pskb)->nfct);
+ 
+ 	ret = proto->packet(ct, (*pskb)->nh.iph, (*pskb)->len, ctinfo);
++
++	if (ret == NF_REPEAT) {
++		/* we must loop here again */
++		nf_conntrack_put((*pskb)->nfct);
++		(*pskb)->nfct = NULL;
++		return ret;
++	}
++
+ 	if (ret == -1) {
+ 		/* Invalid */
+ 		nf_conntrack_put((*pskb)->nfct);
+
+

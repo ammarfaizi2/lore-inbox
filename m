@@ -1,59 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265134AbSKRWTb>; Mon, 18 Nov 2002 17:19:31 -0500
+	id <S265059AbSKRWOc>; Mon, 18 Nov 2002 17:14:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265135AbSKRWTM>; Mon, 18 Nov 2002 17:19:12 -0500
-Received: from adedition.com ([216.209.85.42]:53004 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S265140AbSKRWSE>;
-	Mon, 18 Nov 2002 17:18:04 -0500
-Date: Mon, 18 Nov 2002 17:32:14 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Grant Taylor <gtaylor+lkml_cjiia111802@picante.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S265085AbSKRWOc>; Mon, 18 Nov 2002 17:14:32 -0500
+Received: from dc-mx10.cluster1.charter.net ([209.225.8.20]:4583 "EHLO
+	dc-mx10.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id <S265059AbSKRWOL>; Mon, 18 Nov 2002 17:14:11 -0500
+Message-ID: <3DD96838.9040106@free-market.net>
+Date: Mon, 18 Nov 2002 14:22:48 -0800
+From: "Matthew D. Hall" <mhall@free-market.net>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.2b) Gecko/20021016
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Jakub Jelinek <jakub@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ulrich Drepper <drepper@redhat.com>
 Subject: Re: [rfc] epoll interface change and glibc bits ...
-Message-ID: <20021118223214.GC14649@mark.mielke.cc>
-References: <200211182204.gAIM47mU030748@habanero.picante.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211182204.gAIM47mU030748@habanero.picante.com>
-User-Agent: Mutt/1.4i
+References: <Pine.LNX.4.44.0211180823580.979-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.44.0211180823580.979-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 18, 2002 at 05:04:07PM -0500, Grant Taylor wrote:
-> OTOH, I really hate the "user pointer in struct epollfd" thing...
+Davide Libenzi wrote:
 
-Are you saying you see no way of using the 'user pointer in struct epollfd'
-to accelerate event dispatching?
+>On Mon, 18 Nov 2002, Jakub Jelinek wrote:
+>
+>  
+>
+>>That is as bad as unsigned long - it is different between 32-bit and 64-bit
+>>ABIs.
+>>    
+>>
+>
+>Yeah, you right. I did thin about 32bit and 64bit as two diffferent
+>kernel-glibc environment, I did not think about 32-64 ABI compatibility.
+>Ouch, adding a 64bit object will double the size of the event structure :(
+>
+>
+>
+>- Davide
+>
+>
+>
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+>Yeah, you right. I did thin about 32bit and 64bit as two diffferent
+>kernel-glibc environment, I did not think about 32-64 ABI compatibility.
+>Ouch, adding a 64bit object will double the size of the event structure :(
+>  
+>
+Pros of a 64-bit opaque user pointer:
+- Simpler programming for userland.
+- Fewer cache misses, because there is no need for accessing part of a 
+separate and large fd->pointer table in userland before being able to 
+act upon event notification (some implementations can get around this, 
+but it's very common practice).
 
-For a perfectly good example of a use for it that has nothing to do
-with pointers, consider the possibility that the structure could hold
-a priority number. Sure the FD could be used as an index into an array
-(taking up lots of cache memory, btw) or an index into a hash (more
-expensive to process), but wouldn't it be useful to sort high priority
-events before low priority events without having to dereference every
-single fd? I would even tend to delay executing low priority events
-until epoll_wait(0) stopped telling me about high priority events.
+Cons:
+- 4 bytes memory wastage on 32-bit platforms per struct.  Note that it 
+is not the full 8, because userland needs to have that table of pointers 
+anyway.
 
-An opaque field gives me, the event loop designer, freedom. No opaque
-field because a few event loop designers are convinced that it will be
-used as a data pointer, and they believe this to be wrong, is a
-limitation. epoll provides a very efficient alternative to poll. Forcing
-epoll to look like poll somewhat defeats the purpose. I don't mind having
-a bigger event loop, or two different event loops (one used when epoll is
-available, and one used when epoll isn't).
+Notes:
+- No memory wastage for nontrivial applications on 64-bit platforms.
 
-mark
+Matthew D. Hall
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
-
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
-
-                           http://mark.mielke.cc/
 

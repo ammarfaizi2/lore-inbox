@@ -1,96 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319355AbSHOBX3>; Wed, 14 Aug 2002 21:23:29 -0400
+	id <S319319AbSHOBYo>; Wed, 14 Aug 2002 21:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319356AbSHOBX3>; Wed, 14 Aug 2002 21:23:29 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:14309 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S319355AbSHOBX0>;
-	Wed, 14 Aug 2002 21:23:26 -0400
-Message-ID: <3D5B03A9.4E3CE764@alphalink.com.au>
-Date: Thu, 15 Aug 2002 11:28:09 +1000
-From: Greg Banks <gnb@alphalink.com.au>
-Organization: Corpus Canem Pty Ltd.
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
+	id <S319329AbSHOBYo>; Wed, 14 Aug 2002 21:24:44 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:54020 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S319319AbSHOBYU>; Wed, 14 Aug 2002 21:24:20 -0400
+Message-ID: <3D5B03A5.5050703@zytor.com>
+Date: Wed, 14 Aug 2002 18:28:05 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+Organization: Zytor Communications
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
+X-Accept-Language: en, sv
 MIME-Version: 1.0
-To: Peter Samuelson <peter@cadcamlab.org>
-CC: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-       linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: [patch] config language dep_* enhancements
-References: <Pine.LNX.4.44.0208120924320.5882-100000@chaos.physics.uiowa.edu> <3D587483.1C459694@alphalink.com.au> <20020813033951.GF761@cadcamlab.org> <3D59110B.6D9A1223@alphalink.com.au> <20020813155330.GG761@cadcamlab.org> <3D59AEB7.7B80F33@alphalink.com.au> <20020814032841.GM761@cadcamlab.org> <3D59F22E.D0DA5FC6@alphalink.com.au> <20020814142228.GB17969@cadcamlab.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Willy Tarreau <willy@w.ods.org>, Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
+References: <3D56B13A.D3F741D1@zip.com.au>	<Pine.NEB.4.44.0208132322340.1351-100000@mimas.fachschaften.tu-muenchen.de>	<ajc095$hk1$1@cesium.transmeta.com> <20020814194019.A31761@bitwizard.nl>	<3D5AB250.3070104@zytor.com> <20020814204556.GA7440@alpha.home.local> 	<3D5AC481.2080505@zytor.com> <1029374634.28240.26.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Samuelson wrote:
+Alan Cox wrote:
+> On Wed, 2002-08-14 at 21:58, H. Peter Anvin wrote:
 > 
-> [Greg Banks]
-> > [...CONFIG_SERIAL and CONFIG_PCMCIA warnings...]
-> >
-> Hmmm, either I missed those in your earlier messages, or you didn't
-> post them.
-
-Probably I didn't post them.  What I posted was a small subset of the full log.
-
-> > > +   dep_tristate '  I2C bit-banging interfaces' CONFIG_I2C_ALGOBIT $CONFIG_I2C
-> >
-> > Are you sure want this one there?
+>>Since some processors now have "busy wait delay" instructions, this
+>>would also make it possible to do:
 > 
-> I didn't like it either, but it's needed in a couple odd places.  What
-> would you suggest - moving the whole i2c menu up?
-
-Not all the way up to the new menu, but before the bits that depend on them,
-which are in drivers/video/ drivers/media/video and drivers/ieee1394 IIRC.
-
-> Thanks, your "oracle" feedback is much appreciated.
-
-I'm hoping to have an RPM out this weekend so you can do the augury yourself.
-
-> > @@ -210,2 +210,5 @@
-> >      2      CONFIG_FB
-> > +    2      CONFIG_KMOD
-> > +    2      CONFIG_MODULES
-> > +    2      CONFIG_MODVERSIONS
-> >      2      CONFIG_RTC
 > 
-> What does that mean?  All I did there was to combine two toplevel
-> menus into one.  Did this do something bad?
-
-Apparently.  In the stock kernel:
-
-warning:arch/mips/config.in:224:"CONFIG_KMOD" has overlapping definitions
-warning:init/Config.in:19:location of previous definition
-warning:arch/parisc/config.in:53:"CONFIG_KMOD" has overlapping definitions
-warning:init/Config.in:19:location of previous definition
-
-Did I mention Gordian knot?
-
-> > -36     overlapping-definitions
-> > +38     overlapping-definitions
-> >      11     CONFIG_SOUND_CMPCI_FMIO
-> > @@ -261,2 +263,3 @@
-> >      2      CONFIG_PARPORT
-> > +    2      CONFIG_USB
+> Nobody should be using an empty busy loop. If its a short timed busy
+> loop then they should be using udelay, if its a long one
+> schedule_timeout()
 > 
-> OK, I see CONFIG_USB in arch/cris/drivers/Config.in - is there another
-> instance I'm missing?
 
-There's two in the same file, lines 185 and 189.
+Indeed.
 
-> > -8      different-compound-type
-> > -3290   total
-> > +10     different-compound-type
-> > +3055   total
-> 
-> different-compound-type?
+> If its polling hardware then it isnt an empty loop
 
-Please ignore that one.  It's an artifact of the way I check for symbols
-not declared anywhere at all, related to config.in's using the same banner
-for a menu and a comment.
+True indeed as well, although we should still have a busy_wait(); macro
+that can insert whatever hint instruction the architecture might or
+might not have.
 
-Greg.
--- 
-the price of civilisation today is a courageous willingness to prevail,
-with force, if necessary, against whatever vicious and uncomprehending
-enemies try to strike it down.     - Roger Sandall, The Age, 28Sep2001.
+	-hpa
+
+

@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268538AbTBWUi0>; Sun, 23 Feb 2003 15:38:26 -0500
+	id <S268935AbTBWUky>; Sun, 23 Feb 2003 15:40:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267992AbTBWUi0>; Sun, 23 Feb 2003 15:38:26 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:60642 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S268538AbTBWUiZ>; Sun, 23 Feb 2003 15:38:25 -0500
-To: David Lang <david.lang@digitalinsight.com>
-cc: Benjamin LaHaise <bcrl@redhat.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: Minutes from Feb 21 LSE Call 
-In-reply-to: Your message of Sun, 23 Feb 2003 00:07:50 PST.
-             <Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com> 
+	id <S268943AbTBWUky>; Sun, 23 Feb 2003 15:40:54 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:16876 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S268935AbTBWUkx>; Sun, 23 Feb 2003 15:40:53 -0500
+Date: Sun, 23 Feb 2003 12:50:59 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <16920000.1046033458@[10.10.2.4]>
+In-Reply-To: <1046031687.2140.32.camel@bip.localdomain.fake>
+References: <E18moa2-0005cP-00@w-gerrit2>
+ <Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com>
+ <20030223082036.GI10411@holomorphy.com> <b3b6oa$bsj$1@penguin.transmeta.com>
+ <1046031687.2140.32.camel@bip.localdomain.fake>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <30656.1046033299.1@us.ibm.com>
-Date: Sun, 23 Feb 2003 12:48:19 -0800
-Message-Id: <E18n32q-0007yW-00@w-gerrit2>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Feb 2003 00:07:50 PST, David Lang wrote:
-> Garrit, you missed the preior posters point. IA64 had the same fundamental
-> problem as the Alpha, PPC, and Sparc processors, it doesn't run x86
-> binaries.
+>> And the baroque instruction encoding on the x86 is actually a _good_
+>> thing: it's a rather dense encoding, which means that you win on icache. 
+>> It's a bit hard to decode, but who cares? Existing chips do well at
+>> decoding, and thanks to the icache win they tend to perform better - and
+>> they load faster too (which is important - you can make your CPU have
+>> big caches, but _nothing_ saves you from the cold-cache costs). 
+> 
+> Next step: hardware gzip ?
 
-IA64 *can* run IA32 binaries, just more slowly than native IA64 code.
+They did that already ... IBM were demonstrating such a thing a couple of
+years ago. Don't see it helping with icache though, as it unpacks between
+memory and the processory, IIRC.
 
-gerrit
+M.
+

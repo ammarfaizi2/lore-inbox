@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284187AbRLROyy>; Tue, 18 Dec 2001 09:54:54 -0500
+	id <S284010AbRLROzy>; Tue, 18 Dec 2001 09:55:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284163AbRLROyh>; Tue, 18 Dec 2001 09:54:37 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:6414 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284010AbRLROyZ>; Tue, 18 Dec 2001 09:54:25 -0500
-Subject: Re: The direction linux is taking
-To: dana.lacoste@peregrine.com (Dana Lacoste)
-Date: Tue, 18 Dec 2001 15:04:13 +0000 (GMT)
-Cc: linuz_kernel_q@hotmail.com ('Eyal Sohya'), linux-kernel@vger.kernel.org
-In-Reply-To: <B51F07F0080AD511AC4A0002A52CAB445B2A05@ottonexc1.ottawa.loran.com> from "Dana Lacoste" at Dec 18, 2001 06:32:55 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S284163AbRLROzl>; Tue, 18 Dec 2001 09:55:41 -0500
+Received: from rwcrmhc51.attbi.com ([204.127.198.38]:16310 "EHLO
+	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
+	id <S284010AbRLROy6>; Tue, 18 Dec 2001 09:54:58 -0500
+Message-ID: <3C1F57C6.23DECC61@didntduck.org>
+Date: Tue, 18 Dec 2001 09:50:46 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.5.1-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Holger Lubitz <h.lubitz@internet-factory.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: modify_ldt returning ENOMEM on highmem
+In-Reply-To: <200112171852.fBHIqJR05703@orp.orf.cx> <3C1F5076.3B6A509E@internet-factory.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16GLmv-0007d4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 1. Are we satisfied with the source code control system ?
+Holger Lubitz wrote:
 > 
-> Yes.  Alan (2.2) and Marcelo (2.4) and Linus (2.5) are doing
-> a good job with source control.
-
-Not really. We do a passable job. Stuff gets dropped, lost, 
-deferred and forgotten, applied when it conflicts with other work
-- much of this stuff that software wouldnt actually improve on over a 
-person
-
-> Although this seems annoying, it's just one facet of the
-> primary difference between Linux and a commercially based
-> kernel : if you want to know how something works and how
-> it's being developed, then you MUST participate, in this
-> and other mailing lists.
-
-That wont help you - most discussion occurs in private because l/k 
-is too noisy and many key people dont read it.
-
-> > 3. There is no central bug tracking database. At least people
-> > should know the status of the bugs they have found with some
-> > releases.
+> Leigh Orf proclaimed:
+> > Do you have an NTFS disk mounted? I had a similar problem which was
+> > "fixed" by not having an NTFS vol mounted. Apparently the ntfs code
+> > makes a lot of calls to vmalloc which leads to badness.
 > 
-> There is no central product, so there can be no central bug track.
-> (see below)
+> Yes, I have. I'll try not mounting it. Which would be a better
+> workaround than disabling 1/8 of my RAM.
+> The funny thing is just - why does it work fine with up to 896 MB, but
+> gives ENOMEM with _more_ RAM?
 
-Rubbish. Ask the engineering world about fault tracking. You won't get
-"different products no central flaw tracking" you'll get extensive cross
-correlation, statistical tools and the like in any syste, where reliability
-matters
+Because of the way the kernel uses its 1GB of virtual address space. 
+Physical memory is mapped 1:1 up to 960 MB, with the remaining virtual
+address space (64MB or more) is reserved for virtual mappings like
+vmalloc and ioremap.
 
-Many kernel bug reports end up invisible to some of the developers.
+-- 
 
-Alan
+						Brian Gerst

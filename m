@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270138AbTGaPAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 11:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272500AbTGaPAJ
+	id S272500AbTGaPCA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 11:02:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272504AbTGaPCA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 11:00:09 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:30848 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270138AbTGaPAE
+	Thu, 31 Jul 2003 11:02:00 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:46085 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S272500AbTGaPB7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 11:00:04 -0400
-Date: Thu, 31 Jul 2003 15:59:37 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       Johoho <johoho@hojo-net.de>, wodecki@gmx.de, Valdis.Kletnieks@vt.edu,
+	Thu, 31 Jul 2003 11:01:59 -0400
+To: David Weinehall <tao@acc.umu.se>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, Ren <l.s.r@web.de>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O10int for interactivity
-Message-ID: <20030731145937.GD6410@mail.jlokier.co.uk>
-References: <200307280112.16043.kernel@kolivas.org> <20030728143545.1d989946.akpm@osdl.org> <3F28B8D5.4040600@cyberone.com.au> <200307311743.17370.kernel@kolivas.org>
-Mime-Version: 1.0
+Subject: Re: [PATCH] Inline vfat_strnicmp()
+References: <20030727172150.15f8df7f.l.s.r@web.de>
+	<87wue4udxl.fsf@devron.myhome.or.jp>
+	<200307311224.h6VCOMj19676@Port.imtp.ilyichevsk.odessa.ua>
+	<87r846yfag.fsf@devron.myhome.or.jp>
+	<20030731140442.GE16315@khan.acc.umu.se>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Fri, 01 Aug 2003 00:00:36 +0900
+In-Reply-To: <20030731140442.GE16315@khan.acc.umu.se>
+Message-ID: <874r12yc4r.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200307311743.17370.kernel@kolivas.org>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> On Thu, 31 Jul 2003 16:36, Nick Piggin wrote:
-> > Oh, and the process scheduler can definitely be a contributing factor.
-> > Even if it looks like your process is getting enough cpu, if your
-> > process doesn't get woken in less than 5ms after its read completes,
-> > then AS will give up waiting for it.
-> 
-> This part interests me. It would seem that either 
-> 1. The AS scheduler should not bother waiting at all if the process is not 
-> going to wake up in that time
+David Weinehall <tao@acc.umu.se> writes:
 
-How about something as simple as: if process sleeps, and AS scheduler
-is waiting since last request from that process, AS scheduler stops
-waiting immediately?
+> And how big is the performance loss?  Is it even measurable?
+> And even if it is, is optimizing this really worth the trouble?
 
-In other words, a hook in the process scheduler when a process goes to
-sleep, to tell the AS scheduler to stop waiting.
-
-Although this would not always be optimal, for many cases the point of
-AS is that the process is continuing to run, not sleeping, and will
-issue another request shortly.
-
--- Jamie
-
+48bytes smaller than prev. I think It's not a clear reason for
+rejecting a patch.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

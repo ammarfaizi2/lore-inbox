@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271501AbRH3VdH>; Thu, 30 Aug 2001 17:33:07 -0400
+	id <S270973AbRH3VbI>; Thu, 30 Aug 2001 17:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271364AbRH3Vc5>; Thu, 30 Aug 2001 17:32:57 -0400
-Received: from oboe.it.uc3m.es ([163.117.139.101]:10506 "EHLO oboe.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S271671AbRH3Vcr>;
-	Thu, 30 Aug 2001 17:32:47 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108302132.f7ULWt221345@oboe.it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-In-Reply-To: <10868.999206096@redhat.com> from "David Woodhouse" at "Aug 30,
- 2001 10:14:56 pm"
-To: "David Woodhouse" <dwmw2@infradead.org>
-Date: Thu, 30 Aug 2001 23:32:55 +0200 (MET DST)
-CC: ptb@it.uc3m.es, "Herbert Rosmanith" <herp@wildsau.idv-edu.uni-linz.ac.at>,
-        linux-kernel@vger.kernel.org, dhowells@cambridge.redhat.com
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S270165AbRH3Va5>; Thu, 30 Aug 2001 17:30:57 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:2546
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S270973AbRH3Vam>; Thu, 30 Aug 2001 17:30:42 -0400
+Date: Thu, 30 Aug 2001 14:30:55 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Reiserfs: how to mount without journal replay?
+Message-ID: <20010830143055.B6933@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010826130858.A39@toy.ucw.cz> <15246.11218.125243.775849@gargle.gargle.HOWL> <20010830225323.A18630@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010830225323.A18630@atrey.karlin.mff.cuni.cz>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David Woodhouse wrote:"
+On Thu, Aug 30, 2001 at 10:53:23PM +0200, Pavel Machek wrote:
 > 
-> ptb@it.uc3m.es said:
-> >  And I was hoping that somebody could produce some gcc magic
-> > replacement for BUG() that means "don't compile me". Perhaps a bit of
-> > illegal assembler code with a line reference in? Surely gcc must have
-> > something like __builtin_wont_compile()? It just needs to be a leaf of
-> > the RTL that evokes a compile error.
-> 
-> It's done. I believe it was called __builtin_ct_assertion(). I don't think 
-> it got merged (yet?).
+> No stack trace, sorry. It refused to mount saying that attempting to
+> write into log block.. That's panic. Reiserfsck is not usable in such
+> case, because ... how do you run reiserfsck from partition you can't
+> mount?
+> 								Pavel
 
-Now I think of it, I suppose
+And how do you deal with that situation on xfs, ext3, or any other journaled
+fs?  I don't think it even needs to be journaled at all.
 
-    unsafe_min_or_max_at_line_##__LINE__()
+If you have a broken ext2, and can't mount root, you're screwed until you
+put it in another system to fix it...
 
-will definitely evoke a meaningful link error.
-
-I still suspect that illegal assembler will do the job, since it must
-be treated after gcc has produced assembler itself and line references
-must still be present then for the assembler to be able to give meaningful
-error messages (;), but assembler is not something I write, so someone
-else needs to say.
-
-Peter
+Mike

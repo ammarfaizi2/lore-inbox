@@ -1,58 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbTIUNCx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 09:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbTIUNCx
+	id S262394AbTIUM41 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 08:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbTIUM41
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 09:02:53 -0400
-Received: from smtp1.fre.skanova.net ([195.67.227.94]:43971 "EHLO
-	smtp1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S262396AbTIUNCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 09:02:51 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 7/11] input: Fix psmouse->pktcnt in Synaptics mode
-References: <10639672012999@twilight.ucw.cz>
-From: Peter Osterlund <petero2@telia.com>
-Date: 21 Sep 2003 15:02:40 +0200
-In-Reply-To: <10639672012999@twilight.ucw.cz>
-Message-ID: <m2k782waz3.fsf@p4.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Sep 2003 08:56:27 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:64955 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S262394AbTIUM4Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 08:56:25 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 21 Sep 2003 14:56:17 +0200 (MEST)
+Message-Id: <UTC200309211256.h8LCuHG29226.aeb@smtp.cwi.nl>
+To: jpcartal@free.fr, linux-kernel@vger.kernel.org
+Subject: [PATCH] Re: suid bit behaviour modification in 2.6.0-test5
+Cc: akpm@osdl.org, torvalds@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+jpcartal@free.fr writes:
 
-> ChangeSet@1.1345, 2003-09-19 01:20:33-07:00, vojtech@suse.cz
->   psmouse-base.c:
->     Make sure psmouse->pktcnt is zero after passing a byte
->     to be processed by synaptics code.
+	I noticed that contrary to what was happening with 2.4.x kernel, suid 
+	root files don't loose their suid bit when they get overwritten by a 
+	normal user (see example below)
 
-This patch breaks synaptics support, because the pktcnt variable is
-now used by the synaptics code. (Previously the synpatics code used a
-private buffer, which was unnecessary and therefore removed.)
-Reverting this patch makes the touchpad work again for me using kernel
-2.6.0-test5-bk8:
+	Is this the intended behaviour or a bug ?
 
- linux-petero/drivers/input/mouse/psmouse-base.c |    1 -
- 1 files changed, 1 deletion(-)
+	Example :
 
-diff -puN drivers/input/mouse/psmouse-base.c~fix-psmouse-breakage drivers/input/mouse/psmouse-base.c
---- linux/drivers/input/mouse/psmouse-base.c~fix-psmouse-breakage	2003-09-21 14:51:59.000000000 +0200
-+++ linux-petero/drivers/input/mouse/psmouse-base.c	2003-09-21 14:52:10.000000000 +0200
-@@ -173,7 +173,6 @@ static irqreturn_t psmouse_interrupt(str
- 		 * so it needs to receive all bytes one at a time.
- 		 */
- 		synaptics_process_byte(psmouse, regs);
--		psmouse->pktcnt = 0;
- 		goto out;
- 	}
+	[root@localhost test]# chown root ~cartaljp/test/suid_test
+	[root@localhost test]# chmod 4775 ~cartaljp/test/suid_test
+	[root@localhost test]# exit
+	[cartaljp@localhost test]$ cp /bin/ls suid_test
+	[cartaljp@localhost test]$ ls -l
+	total 72
+	-rwsrwxr-x    1 root     cartaljp    67668 Sep 19 07:56 suid_test <- 
+	Suid bit is still set whereas with 2.4.x kernel it was reset.
+
+Yes. Here 2.4 had the terrible code
+
+     mode = (inode->i_mode & S_IXGRP)*(S_ISGID/S_IXGRP) | S_ISUID;
+
+while 2.6 does things via notify_change().
+However, in 2.6 notify_change() does not allow removal of the SUID bit
+because you are not owner of the file :-).
+So, we have to convince inode_change_ok() to do it anyway.
+Below a patch.
+
+Andries
+
+
+diff -u --recursive --new-file -X /linux/dontdiff a/mm/filemap.c b/mm/filemap.c
+--- a/mm/filemap.c	Sat Aug 23 13:30:20 2003
++++ b/mm/filemap.c	Sun Sep 21 13:55:38 2003
+@@ -1437,7 +1437,7 @@
  
-
-_
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+ 	/* was any of the uid bits set? */
+ 	if (mode && !capable(CAP_FSETID)) {
+-		newattrs.ia_valid = ATTR_KILL_SUID | ATTR_KILL_SGID;
++		newattrs.ia_valid = ATTR_KILL_SUID | ATTR_KILL_SGID | ATTR_FORCE;
+ 		notify_change(dentry, &newattrs);
+ 	}
+ }

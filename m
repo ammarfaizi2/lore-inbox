@@ -1,56 +1,65 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315828AbSEEHdj>; Sun, 5 May 2002 03:33:39 -0400
+	id <S315829AbSEEHhA>; Sun, 5 May 2002 03:37:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315829AbSEEHdi>; Sun, 5 May 2002 03:33:38 -0400
-Received: from CPE-203-51-25-114.nsw.bigpond.net.au ([203.51.25.114]:29948
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S315828AbSEEHdh>; Sun, 5 May 2002 03:33:37 -0400
-Message-ID: <3CD4E04C.33E9518@eyal.emu.id.au>
-Date: Sun, 05 May 2002 17:33:32 +1000
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8-aa2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Mike Fedyk <mfedyk@matchmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre8aa1 & vm-34: zftape-init.c compile error
-In-Reply-To: <20020503203738.E1396@dualathlon.random> <3CD328C5.2C6D389A@eyal.emu.id.au> <20020505010804.GB2392@matchmail.com>
+	id <S315830AbSEEHg7>; Sun, 5 May 2002 03:36:59 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:49404
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S315829AbSEEHg7>; Sun, 5 May 2002 03:36:59 -0400
+Date: Sun, 5 May 2002 00:36:56 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Neil Conway <nconway_kernel@yahoo.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH, IDE corruption, 2.4.18
+Message-ID: <20020505073656.GD2392@matchmail.com>
+Mail-Followup-To: Neil Conway <nconway_kernel@yahoo.co.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020505002212.GA2392@matchmail.com> <20020505015417.76681.qmail@web21510.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk wrote:
+On Sun, May 05, 2002 at 02:54:17AM +0100, Neil Conway wrote:
+> Hi...
 > 
-> On Sat, May 04, 2002 at 10:18:13AM +1000, Eyal Lebedinsky wrote:
-> > Andrea Arcangeli wrote:
-> > >
-> > > Full patchkit:
-> > > http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa1.gz
-> >
-> > linux-2.4-pre-aa/drivers/char/ftape/zftape/zftape-init.c fails to build,
-> > a declaration is put in an illegal place.
-> >
+>  --- Mike Fedyk <mfedyk@matchmail.com> wrote: > On Sat, May 04, 2002 at
+> 01:15:20PM +0100, Neil Conway wrote:
+> > > -	byte stat;
+> > > +	byte stat,unit;
+> > 
+> > [snip]
+> > 
+> > >  #if defined(CONFIG_BLK_DEV_IDEDMA) && !defined(CONFIG_DMA_NONPCI)
+> > > -	byte unit = (drive->select.b.unit & 0x01);
+> > > +	unit = (drive->select.b.unit & 0x01);
+> > 
+> > Why are you moving the init of "unit" out of that ifdef?
 > 
-> Why is it illegal to put that before the ifdef instead of after?
+> Basically to make it compile.  I'm only moving the declaration, and
+> that's only because I need to abort the routine BEFORE the second line
+> of the ifdef switches off DMA on that unit.  I did compile a version
+> with the ifdef split into two bits but I decided that was a little
+> messy. (It won't compile if my check goes in before the first line of
+> the ifdef as originally written as it declares a variable and C won't
+> let declarations follow plain code.)
+>
 
-In standard C, declarations must precede statements in a block. When the
-#if is true, the declaration is exposed, and it is after an assignment,
-a syntax error.
+Right.  Duh on my part, sorry.
 
-The most general solution is to always open a new block if you need a
-declaration, but here the code fragment is small enough to not do so
-(but one needs to be alert).
+> > Can you see if this problem is still in 2.5 also? 
+> 
+> I haven't got a 2.5.13 tree but I found 2.5.7 on a source browser
+> online and verified that, back then at least, ide-features.c was still
+> basically the same.  Of course, the routines in between
+> ide_register_subdriver and ide_config_drive_speed might have been
+> different.  If someone can look at the code-path between these two
+> routines in 2.5.13 to see if there is any check on whether or not the
+> hwgroup is busy (or simply whether or not DMA is in progress) that
+> would clear it up.  I'll probably download 2.5.13 sometime soon anyway.
+> 
 
-#if ...
-{
-	int	x;
-	x = ...
-}
-#endif
-
-
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Andre cleaims that the situation is worse on 2.5.13 or so.  I wouldn't hurt
+to test-run the code though.

@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261969AbRE2BTB>; Mon, 28 May 2001 21:19:01 -0400
+	id <S261990AbRE2Blx>; Mon, 28 May 2001 21:41:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261974AbRE2BSl>; Mon, 28 May 2001 21:18:41 -0400
-Received: from isis.its.uow.edu.au ([130.130.68.21]:61671 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S261969AbRE2BSc>; Mon, 28 May 2001 21:18:32 -0400
-Message-ID: <3B12F761.FE676BEF@uow.edu.au>
-Date: Tue, 29 May 2001 11:12:01 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Kieu <haiquy@yahoo.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.4.5-ac2 OOPs when run pppd ?
-In-Reply-To: <3B125E62.1DD4712E@uow.edu.au>,
-		<20010528084855.10604.qmail@web10402.mail.yahoo.com>
-		<E154NQp-000386-00@the-village.bc.nu>
-		<3B125E62.1DD4712E@uow.edu.au> <200105281821.f4SIL5000350@mobilix.atnf.CSIRO.AU>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261996AbRE2Blo>; Mon, 28 May 2001 21:41:44 -0400
+Received: from [209.249.10.20] ([209.249.10.20]:746 "EHLO ns1.yggdrasil.com")
+	by vger.kernel.org with ESMTP id <S261987AbRE2Bl3>;
+	Mon, 28 May 2001 21:41:29 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Mon, 28 May 2001 18:38:46 -0700
+Message-Id: <200105290138.SAA01532@baldur.yggdrasil.com>
+To: alan@lxorguk.ukuu.org.uk
+Subject: Re: Fwd: Copyright infringement in linux/drivers/usb/serial/keyspan*fw.h
+Cc: aaronl@vitelus.com, acahalan@cs.uml.edu, adam@yggdrasil.com,
+        dledford@redhat.com, jas88@cam.ac.uk, linux-kernel@vger.kernel.org,
+        lk@tantalophile.demon.co.uk, lm@bitmover.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
-> 
-> How about having a helper function for interrupt handlers which queues
-> characters to be sent to the console? kconsoled anyone? Blocking
-> interrupts is quite distressing, so we need to be consoled ;-)
+> = Alan Cox
+>>  = lk@tantalophile.demon.co.uk?
+>>> = ??
 
-I don't think we need it, Richard.  These writes to tty
-devices from interrupt context are coming from line
-disciplines - n_hdlc, ppp, r3964, etc.
+>>> AFAICS, the firmware is just a file served up to the device as needed
+>>> - no more a derivative work from the kernel than my homepage is a
+>>> derivative work of Apache.
+>> 
+>> Indeed.  But if you compiled your home page, linked it into Emacs to
+>> display on startup, and distributed the binary, the _combination_
+>> "Emacs+homepage" binary would be a derived work, and you'd be required
+>> to offer source for both parts.
 
-Now, while it may be amusing to see if you can successfully
-negotiate a PPP session by typing raw LCP, there really isn't,
-I believe, a useful reason for attaching one of these ldiscs
-to the console tty.
+>In which case GNU Emacs violates the GPL by containing a copy of COPYING which
+>is more restricted than the GPL. After all it displays copying on a hotkey
+>combination
 
-Interrupt-context writes to the *console*, as opposed to
-the console *tty* work just fine, of course.  printk.
+	"M-x describe-copying" just displays the file
+/usr/share/emacs/<version>/etc/COPYING.   The emacs binaries do not
+contain the text of GPL.
+
+	By the way, if one wanted to #include the text of the GPL,
+then, in the specific case of the GPL, one could argue that the
+restrictions on modifying the GPL are part of the GPL and, therefore
+not further restrictions.  (Even though those restrictions occur before
+the "preamble", they're just as binding and removing them would be a
+change to the GPL, so they are an existing restriction of the GPL rather
+than a further restriction.)
+
+	That said, I have long advocated that authors use
+GPL-compatible copying conditions for everything, including plain text,
+to facilitate free software effects on platforms that comingle code
+and documentation, such as many web pages and some other interactive
+media.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
+A
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

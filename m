@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265016AbRGEMcq>; Thu, 5 Jul 2001 08:32:46 -0400
+	id <S265024AbRGEMhG>; Thu, 5 Jul 2001 08:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265024AbRGEMch>; Thu, 5 Jul 2001 08:32:37 -0400
-Received: from mercury.Sun.COM ([192.9.25.1]:29337 "EHLO mercury.Sun.COM")
-	by vger.kernel.org with ESMTP id <S265016AbRGEMc0>;
-	Thu, 5 Jul 2001 08:32:26 -0400
-Message-ID: <3B445E56.11BE8249@Sun.COM>
-Date: Thu, 05 Jul 2001 14:32:22 +0200
-From: Julien Laganier <Julien.Laganier@Sun.COM>
-Organization: Sun Microsystems
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+	id <S265042AbRGEMg4>; Thu, 5 Jul 2001 08:36:56 -0400
+Received: from [202.140.153.5] ([202.140.153.5]:20997 "EHLO
+	techctd.techmas.hcltech.com") by vger.kernel.org with ESMTP
+	id <S265024AbRGEMgo>; Thu, 5 Jul 2001 08:36:44 -0400
+Message-ID: <3B445FA5.8CB55F45@techmas.hcltech.com>
+Date: Thu, 05 Jul 2001 18:07:57 +0530
+From: Vasu Varma P V <pvvvarma@techmas.hcltech.com>
+Organization: HCL Technologies
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Naveen Kumar Pagidimarri <naveen.pagidimarri@wipro.com>
+To: arjanv@redhat.com
 CC: linux-kernel@vger.kernel.org
-Subject: Re: code of ps command
-In-Reply-To: <GFZZVD00.2E5@vindhya.mail.wipro.com>
+Subject: Re: DMA memory limitation?
+In-Reply-To: <3B4453E6.F4342781@techmas.hcltech.com> <3B44558A.B52B5C60@redhat.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Naveen Kumar Pagidimarri wrote:
-> 
-> Hai All,
-> 
-> 
->       please help me out to find the source code of ps command or
-> 
->         tell me the source where i can get the information about the
-> 
-> 
->       data structures/related system calls used for the
-> 
->   implementation of the ps command.
-> 
->  thank u all in advance for the interest u have shown in me.
-> 
->  thank u
-> 
-> naveen
+but we have a macro in include/asm-i386/dma.h,
+MAX_DMA_ADDRESS  (PAGE_OFFSET+0x1000000).
 
-You can get the sourcecode of ps in
-http://ftp.debian.org/debian/dists/potato/main/source/admin/psmisc_19.orig.tar.gz
+if i change it to a higher value, i am able to get more dma
+memory. Is there any way i can change this without compiling
+the kernel?
 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Arjan van de Ven wrote:
 
--- 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
---
+> Vasu Varma P V wrote:
+> >
+> > Hi,
+> >
+> > Is there any limitation on DMA memory we can allocate using
+> > kmalloc(size, GFP_DMA)? I am not able to acquire more than
+> > 14MB of the mem using this on my PCI SMP box with 256MB ram.
+> > I think there is restriction on ISA boards of 16MB.
+> > Can we increase it ?
+>
+> Why?
+> YOu don't have to allocate GFP_DMA memory for PCI cards!
+> GFP_DMA is for ISA cards only
 
-    Julien Laganier
-     Student Intern
-Sun Microsystem Laboratories

@@ -1,89 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265391AbSJWWac>; Wed, 23 Oct 2002 18:30:32 -0400
+	id <S265259AbSJWWeO>; Wed, 23 Oct 2002 18:34:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265387AbSJWWaa>; Wed, 23 Oct 2002 18:30:30 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38385 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S265383AbSJWWa2>;
-	Wed, 23 Oct 2002 18:30:28 -0400
-Message-ID: <3DB7245E.B68D1FF4@mvista.com>
-Date: Wed, 23 Oct 2002 15:36:14 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S265276AbSJWWeO>; Wed, 23 Oct 2002 18:34:14 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:34692 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265259AbSJWWeN> convert rfc822-to-8bit;
+	Wed, 23 Oct 2002 18:34:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: James Cleverdon <jamesclv@us.ibm.com>
+Reply-To: jamesclv@us.ibm.com
+Organization: IBM xSeries Linux Solutions
+To: James Stevenson <james@stev.org>
+Subject: Re: One for the Security Guru's
+Date: Wed, 23 Oct 2002 15:39:43 -0700
+User-Agent: KMail/1.4.1
+Cc: Gilad Ben-ossef <gilad@benyossef.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20021023130251.GF25422@rdlg.net> <200210231514.07192.jamesclv@us.ibm.com> <1035411422.5377.11.camel@god.stev.org>
+In-Reply-To: <1035411422.5377.11.camel@god.stev.org>
 MIME-Version: 1.0
-To: mbs <mbs@mc.com>
-CC: jim.houston@ccur.com,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] alternate Posix timer patch
-References: <200210230838.g9N8cac00490@linux.local> <3DB6ED10.A81B0429@mvista.com> <3DB6FD0A.74BB3AD0@ccur.com> <200210232112.RAA09961@mc.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210231539.43167.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mbs wrote:
-> 
-> the way I handled this was that the timerid was the (kernel space) address of
-> the dynamically allocated timer structure.  this provides a fairly low
-> likelyhood of duplicate timerid's value....
+On Wednesday 23 October 2002 03:17 pm, James Stevenson wrote:
+> > Be surprised:  I run "gpg --verify foo.tgz.sign foo.tgz" every time I
+> > download from kernel.org.  And, "rpm --checksig *.rpm" on stuff from
+> > redhat.com too.
+>
+> and when an attacker looks into your .bash_history see this and modifies
+> gpg and rpm ?
 
-Yes, but this is a VERY messy pointer which must be verified
-to not cause a kernel fault before it can even be
-dereferenced... nuff said.
+First, I use ksh, so the kiddie is looking into the wrong history.   ;^)
 
--g
+Second, I'm trying to keep him/her/git out by not loading a trojaned package.  
+Once the scumbag is inside your box, it's much harder to throw them out.  In 
+fact, a reinstall is usually in order.
 
-by the way, the address mbs@mc.com fails.  Maybe you could
-use something I can mail to.
-> 
-> On Wednesday 23 October 2002 15:48, Jim Houston wrote:
-> > george anzinger wrote:
-> > > Jim Houston wrote:
-> > > I have also looked at the timer index stuff and made a few
-> > > changes.  If it get it working today, I will include it
-> > > also.  My changes mostly revolved around not caring about
-> > > reusing a timer id.  Would you care to comment on why you
-> > > think reuse is bad?
-> > >
-> > > With out this feature the code is much simpler and does not
-> > > keep around dead trees.
-> > >
-> > > -g
-> >
-> > Hi George,
-> >
-> > I assume the rationale is that not reusing the same id immediately helps
-> > catch errors in user code.  Since the id space is global, there
-> > is more chance that one process may be manipulating another processes
-> > timer.  Reusing the same id makes this sort of problem harder to
-> > catch.
-> >
-> > The main reason I changed this in my patch is to avoid the CONFIG
-> > limit on the number of timers.  Since I don't have the fixed array,
-> > I need a way to safely translate a user-space id into a kernel pointer.
-> >
-> > Jim Houston Concurrent Computer Corp.
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> --
-> /**************************************************
-> **   Mark Salisbury       ||      mbs@mc.com     **
-> ** If you would like to sponsor me for the       **
-> ** Mass Getaway, a 150 mile bicycle ride to for  **
-> ** MS, contact me to donate by cash or check or  **
-> ** click the link below to donate by credit card **
-> **************************************************/
-> https://www.nationalmssociety.org/pledge/pledge.asp?participantid=86736
+Third, if they don't do it already, I'd like kpackage, gnorpm, and similar 
+tools to always check signatures before loading a package.  (And, for the GPG 
+public keys used to have come with trust signatures from the installation 
+CD.)  That would really help with all the newbies to *nix coming on board 
+now.
+
+PS:  If you don't trust your gpg or rpm, boot off install CD # 1, switch to a 
+text console, and use the ones on the CD.  QED.    :^)
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+James Cleverdon
+IBM xSeries Linux Solutions
+{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot com
+

@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310270AbSCAA56>; Thu, 28 Feb 2002 19:57:58 -0500
+	id <S293515AbSCAA4F>; Thu, 28 Feb 2002 19:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310261AbSCAA4H>; Thu, 28 Feb 2002 19:56:07 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:44560 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310272AbSCAAwx>; Thu, 28 Feb 2002 19:52:53 -0500
-Subject: Re: 2.4.19-preX: What we really need: -AA patches finally in the
-To: riel@conectiva.com.br (Rik van Riel)
-Date: Fri, 1 Mar 2002 01:04:26 +0000 (GMT)
-Cc: davidsen@tmr.com (Bill Davidsen), hch@caldera.de (Christoph Hellwig),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <Pine.LNX.4.33L.0202282002260.2801-100000@imladris.surriel.com> from "Rik van Riel" at Feb 28, 2002 08:04:38 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S310270AbSCAAwY>; Thu, 28 Feb 2002 19:52:24 -0500
+Received: from are.twiddle.net ([64.81.246.98]:32404 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S310261AbSCAAwM>;
+	Thu, 28 Feb 2002 19:52:12 -0500
+Date: Thu, 28 Feb 2002 16:52:05 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Maze of include files, all producing errors...
+Message-ID: <20020228165205.B947@twiddle.net>
+Mail-Followup-To: Russell King <rmk@arm.linux.org.uk>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020228204826.C13564@flint.arm.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gbTG-0001rM-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020228204826.C13564@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Thu, Feb 28, 2002 at 08:48:26PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> or (c) have proponents of the inclusion of the O(1) scheduler
-> fix all drivers before having the O(1) scheduler considered
-> for inclusion.
+On Thu, Feb 28, 2002 at 08:48:26PM +0000, Russell King wrote:
+> For now, I'm going to reverse the include changes in this changeset so
+> things build again.
 
-According to find and grep the patch in general use does precisely that
-except for Andrea's yield loops on init kill funnies that still lurk in
-the non x86 parts of rmap. If rmap doesnt need them I guess they should go ?
+That's what I did for alpha too.
 
+
+r~

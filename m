@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317107AbSH0Vcq>; Tue, 27 Aug 2002 17:32:46 -0400
+	id <S316971AbSH0VeB>; Tue, 27 Aug 2002 17:34:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317264AbSH0Vcq>; Tue, 27 Aug 2002 17:32:46 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:50833 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317107AbSH0Vcp>;
-	Tue, 27 Aug 2002 17:32:45 -0400
-Date: Tue, 27 Aug 2002 14:31:17 -0700 (PDT)
-Message-Id: <20020827.143117.108811619.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
-Subject: Re: readsw/writesw readsl/writesl
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1030469124.5695.9.camel@irongate.swansea.linux.org.uk>
-References: <Pine.LNX.4.10.10208262321150.24156-100000@master.linux-ide.org>
-	<20020827.003027.26962443.davem@redhat.com>
-	<1030469124.5695.9.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S317253AbSH0VeA>; Tue, 27 Aug 2002 17:34:00 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:23269 "EHLO tsmtp5.mail.isp")
+	by vger.kernel.org with ESMTP id <S316971AbSH0VeA>;
+	Tue, 27 Aug 2002 17:34:00 -0400
+Date: Tue, 27 Aug 2002 23:37:40 +0200
+From: Arador <diegocg@teleline.es>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.32: compilation error in pnpbios_core.c
+Message-Id: <20020827233740.31bbda2e.diegocg@teleline.es>
+X-Mailer: Sylpheed version 0.7.4claws (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 27 Aug 2002 18:25:24 +0100
 
-   On Tue, 2002-08-27 at 08:30, David S. Miller wrote:
-   > It used to be an optimization when cpus were really slow.
-   
-   readsl becomes relevant once people start shipping bridges that can do
-   asynchronous pci mmio read or burst mode to order however
-   
-This would be relevant if the MMIO address were to increment,
-but bursting from the same MMIO word?  That's what readsl
-is meant to do, just as insl does for port I/O addresses.
-
-UltraSPARC can do what you mention using 64-byte block loads and
-stores, the same ones we use for fast memcpy/memset.  It just looks
-like a huge 64-byte MMIO on the pci bus.
+make[2]: Entering directory `/usr/src/unstable/drivers/pnp'
+  gcc -Wp,-MD,./.pnpbios_core.o.d -D__KERNEL__ -I/usr/src/unstable/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=pnpbios_core -DEXPORT_SYMTAB  -c -o pnpbios_core.o pnpbios_core.c
+make[2]: Leaving directory `/usr/src/unstable/drivers/pnp'
+make[1]: Leaving directory `/usr/src/unstable/drivers'
+nvalid lvalue in unary `&'
+pnpbios_core.c:169: invalid lvalue in unary `&'
+pnpbios_core.c:169: invalid lvalue in unary `&'
+pnpbios_core.c: In function `pnpbios_init':
+pnpbios_core.c:1276: invalid lvalue in unary `&'
+pnpbios_core.c:1276: invalid lvalue in unary `&'
+pnpbios_core.c:1277: invalid lvalue in unary `&'
+pnpbios_core.c:1277: invalid lvalue in unary `&'
+pnpbios_core.c:1278: invalid lvalue in unary `&'
+pnpbios_core.c:1278: invalid lvalue in unary `&'
+make[2]: *** [pnpbios_core.o] Error 1
+make[1]: *** [pnp] Error 2
+make: *** [drivers] Error 2

@@ -1,33 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310507AbSCGUeU>; Thu, 7 Mar 2002 15:34:20 -0500
+	id <S310515AbSCGUjb>; Thu, 7 Mar 2002 15:39:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310512AbSCGUeK>; Thu, 7 Mar 2002 15:34:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:9491 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S310507AbSCGUd5>; Thu, 7 Mar 2002 15:33:57 -0500
-Subject: Re: 160gb maxtor with promise ultra 100
-To: h.lubitz@internet-factory.de (Holger Lubitz)
-Date: Thu, 7 Mar 2002 20:48:48 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C87C6CB.F05C3B96@internet-factory.de> from "Holger Lubitz" at Mar 07, 2002 09:00:11 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S310517AbSCGUjZ>; Thu, 7 Mar 2002 15:39:25 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:14466 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S310515AbSCGUjL>; Thu, 7 Mar 2002 15:39:11 -0500
+Date: Thu, 7 Mar 2002 15:38:09 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+        riel@surriel.com, hch@infradead.org, phillips@bonn-fries.net
+Subject: Re: 2.4.19pre2aa1
+In-Reply-To: <20020307201819.GF786@holomorphy.com>
+Message-ID: <Pine.LNX.3.95.1020307152948.22256A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16j4oi-0003Y1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> machine (which is the not so recent 2.4.14) the drives are misdetected
-> as only 137gb (of course, no 48 bit support) but otherwise the machine
-> works, even with the drives connected to the promise.
-> 
-> so the situation is - either i use the full 160 gb, but only mdma2 data
-> transfer. or i use udma 100, but only 137 gb of the drives. i can't seem
-> to have both.
+On Thu, 7 Mar 2002, William Lee Irwin III wrote:
 
-Seems to be the case. Promise posted some driver updates today, which in
-part appear to address precisely this issue. It just needs the IDE update
-and the promise code merging then hopefully it can be in for 2.4.19
+> On Thu, Mar 07, 2002 at 06:03:00PM +0100, Andrea Arcangeli wrote:
+> > For the other points I think you shouldn't really complain (both at
+> > runtime and in code style as well, please see how clean it is with the
+> > wait_table_t thing), I made a definitive improvement to your code, the
+> > only not obvious part is the hashfn but I really cannot see yours
+> > beating mine because of the total random input, infact it could be the
+> > other way around due the fact if something there's the probability the
+> > pages are physically consecutive and I take care of that fine.
+> 
+> 
+> I don't know whose definition of clean code this is:
+> 
+> +static inline wait_queue_head_t * wait_table_hashfn(struct page * page, wait_table_t * wait_table)
+> +{
+> +#define i (((unsigned long) page)/(sizeof(struct page) & ~ (sizeof(struct page) - 1)))
+> +#define s(x) ((x)+((x)>>wait_table->shift))
+> +	return wait_table->head + (s(i) & (wait_table->size-1));
+> +#undef i
+> +#undef s
+> +}
+> 
+> 
+> I'm not sure I want to find out.
+> 
+> 
+> Bill
+
+Methinks there is entirely too much white-space in the code. It
+is almost readable *;). It probably could be fixed up to slip through
+the compiler with no possibility of human interpretation, but that would
+take a bit more work ;^)
+
+The choice of temporaries makes me think of a former President
+who, when confronted with a lie, said; "It depends upon what 'is' is!"
+Keep up the good work!
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.18 on an i686 machine (799.53 BogoMips).
+
+	Bill Gates? Who?
+

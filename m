@@ -1,691 +1,458 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262137AbSJFRUK>; Sun, 6 Oct 2002 13:20:10 -0400
+	id <S261819AbSJFRvk>; Sun, 6 Oct 2002 13:51:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262150AbSJFRUJ>; Sun, 6 Oct 2002 13:20:09 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:55556 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262137AbSJFRSw>; Sun, 6 Oct 2002 13:18:52 -0400
-Subject: PATCH: 2.5.40 first pass at the ancient wd7000 crap
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Sun, 6 Oct 2002 18:15:38 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261978AbSJFRvj>; Sun, 6 Oct 2002 13:51:39 -0400
+Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:37014
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261819AbSJFRvd>; Sun, 6 Oct 2002 13:51:33 -0400
+Date: Sun, 6 Oct 2002 13:45:04 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, <dahinds@users.sourceforge.net>
+Subject: [PATCH][2.5] smc91c92 ethtool support take 2
+Message-ID: <Pine.LNX.4.44.0210060257510.20917-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17yF0E-0001ss-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Wants indenting but I'll do an indenting pass after the code changes
-are accepted)
+Hi Jeff, David
+	I tested the current register bank caching, didn't yield any 
+performance benefits. This patch is ethtool only, but fixes a bug when you 
+unplug the UTP port the driver will force the card to 10base2 operation 
+with no way of reverting (no modules in kernel) since the link beat logic 
+stops operating at that point. I also threw in support for cards with 
+mii's using the standard mii library for those parts. Tested on a  
+smc91c94 rev 1.
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.40/drivers/scsi/wd7000.c linux.2.5.40-ac5/drivers/scsi/wd7000.c
---- linux.2.5.40/drivers/scsi/wd7000.c	2002-10-02 21:32:55.000000000 +0100
-+++ linux.2.5.40-ac5/drivers/scsi/wd7000.c	2002-10-06 01:09:06.000000000 +0100
-@@ -145,6 +145,19 @@
-  * 12/31/2001 - Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-  *
-  * use host->host_lock, not io_request_lock, cleanups
-+ *
-+ * 2002/10/04 - Alan Cox <alan@redhat.com>
-+ *
-+ * Use dev_id for interrupts, kill __FUNCTION__ pasting
-+ * Add a lock for the scb pool, clean up all other cli/sti usage stuff
-+ * Use the adapter lock for the other places we had the cli's
-+ *
-+ * 2002/10/06 - Alan Cox <alan@redhat.com>
-+ *
-+ * Switch to new style error handling
-+ * Clean up delay to udelay, and yielding sleeps
-+ * Make host reset actually reset the card
-+ * Make everything static
-  */
+	Zwane
+-- 
+function.linuxpower.ca
+
+Index: linux-2.5.40/drivers/net/pcmcia/smc91c92_cs.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.40/drivers/net/pcmcia/smc91c92_cs.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 smc91c92_cs.c
+--- linux-2.5.40/drivers/net/pcmcia/smc91c92_cs.c	1 Oct 2002 12:27:48 -0000	1.1.1.1
++++ linux-2.5.40/drivers/net/pcmcia/smc91c92_cs.c	6 Oct 2002 17:38:05 -0000
+@@ -8,7 +8,7 @@
  
- #include <linux/module.h>
-@@ -254,19 +267,12 @@
- #define NUM_DMAS (sizeof(wd7000_dma)/sizeof(short))
+     Copyright (C) 1999 David A. Hinds -- dahinds@users.sourceforge.net
  
- /*
-- * possible irq range
-+ * The following is set up by wd7000_detect, and used thereafter for
-+ * proc and other global ookups
-  */
--#define IRQ_MIN   3
--#define IRQ_MAX   15
--#define IRQS      (IRQ_MAX - IRQ_MIN + 1)
--
--/*
-- * The following is set up by wd7000_detect, and used thereafter by
-- * wd7000_intr_handle to map the irq level to the corresponding Adapter.
-- * Note that if SA_INTERRUPT is not used, wd7000_intr_handle must be
-- * changed to pick up the IRQ level correctly.
-- */
--static struct Scsi_Host *wd7000_host[IRQS];
-+ 
-+#define UNITS	8
-+static struct Scsi_Host *wd7000_host[UNITS];
+-    smc91c92_cs.c 1.113 2001/10/13 00:08:53
++    smc91c92_cs.c 1.2 2002/09/28 15:00:00
+     
+     This driver contains code written by Donald Becker
+     (becker@scyld.com), Rowan Hughes (x-csrdh@jcu.edu.au),
+@@ -43,6 +43,8 @@
+ #include <linux/skbuff.h>
+ #include <linux/if_arp.h>
+ #include <linux/ioport.h>
++#include <linux/ethtool.h>
++#include <linux/mii.h>
  
- #define BUS_ON    64	/* x 125ns = 8000ns (BIOS default) */
- #define BUS_OFF   15	/* x 125ns = 1875ns (BIOS default) */
-@@ -580,6 +586,7 @@
- static Scb scbs[MAX_SCBS];
- static Scb *scbfree;		/* free list         */
- static int freescbs = MAX_SCBS;	/* free list counter */
-+static spinlock_t scbpool_lock; /* guards the scb free list and count */
- 
- /*
-  *  END of data/declarations - code follows.
-@@ -621,16 +628,16 @@
- 	(void)get_options(str, ARRAY_SIZE(ints), ints);
- 
- 	if (wd7000_card_num >= NUM_CONFIGS) {
--		printk(KERN_ERR __FUNCTION__
--			": Too many \"wd7000=\" configurations in "
--			"command line!\n");
-+		printk(KERN_ERR
-+			"%s: Too many \"wd7000=\" configurations in "
-+			"command line!\n", __FUNCTION__);
- 		return 0;
- 	}
- 
- 	if ((ints[0] < 3) || (ints[0] > 5)) {
--		printk(KERN_ERR __FUNCTION__ ": Error in command line!  "
-+		printk(KERN_ERR "%s: Error in command line!  "
- 			"Usage: wd7000=<IRQ>,<DMA>,IO>[,<BUS_ON>"
--			"[,<BUS_OFF>]]\n");
-+			"[,<BUS_OFF>]]\n", __FUNCTION__);
- 	} else {
- 		for (i = 0; i < NUM_IRQS; i++)
- 			if (ints[1] == wd7000_irq[i])
-@@ -812,14 +819,6 @@
- }
- 
- 
--static inline void delay (unsigned how_long)
--{
--    register unsigned long time = jiffies + how_long;
--
--    while (time_before(jiffies, time));
--}
--
--
- static inline int command_out (Adapter * host, unchar * cmd, int len)
- {
-     if (!WAIT (host->iobase + ASC_STAT, ASC_STATMASK, CMD_RDY, 0)) {
-@@ -853,43 +852,44 @@
-  */
- static inline Scb *alloc_scbs(struct Scsi_Host *host, int needed)
- {
--    register Scb *scb, *p;
-+    register Scb *scb, *p = NULL;
-     register unsigned long flags;
-     register unsigned long timeout = jiffies + WAITnexttimeout;
-     register unsigned long now;
--    static int busy = 0;
-     int i;
- 
-     if (needed <= 0)
- 	return (NULL);		/* sanity check */
- 
--    save_flags (flags);
--    cli ();
--    while (busy) {		/* someone else is allocating */
--	spin_unlock_irq(host->host_lock);
--	for (now = jiffies; now == jiffies; );	/* wait a jiffy */
--	spin_lock_irq(host->host_lock);
--    }
--    busy = 1;			/* not busy now; it's our turn */
--
-+    spin_unlock_irq(host->host_lock);
-+	
-+retry:
-     while (freescbs < needed) {
- 	timeout = jiffies + WAITnexttimeout;
- 	do {
--	    spin_unlock_irq(host->host_lock);
--	    for (now = jiffies; now == jiffies; );	/* wait a jiffy */
--	    spin_lock_irq(host->host_lock);
-+	    /* FIXME: can we actually just yield here ?? */
-+	    for (now = jiffies; now == jiffies; )
-+	    	cpu_relax();	/* wait a jiffy */
- 	} while (freescbs < needed && time_before_eq(jiffies, timeout));
- 	/*
- 	 *  If we get here with enough free Scbs, we can take them.
- 	 *  Otherwise, we timed out and didn't get enough.
- 	 */
- 	if (freescbs < needed) {
--	    busy = 0;
- 	    printk (KERN_ERR "wd7000: can't get enough free SCBs.\n");
--	    restore_flags (flags);
-+	    spin_unlock_irq(host->host_lock);
- 	    return (NULL);
- 	}
-     }
-+
-+    /* Take the lock, then check we didnt get beaten, if so try again */
-+    spin_lock_irqsave(&scbpool_lock, flags);
-+    if(freescbs < needed)
-+    {
-+    	spin_unlock_irqrestore(&scbpool_lock, flags);
-+    	goto retry;
-+    }
-+    	
-     scb = scbfree;
-     freescbs -= needed;
-     for (i = 0; i < needed; i++) {
-@@ -897,10 +897,10 @@
- 	scbfree = p->next;
-     }
-     p->next = NULL;
--    busy = 0;			/* we're done */
--
--    restore_flags (flags);
-+   
-+    spin_unlock_irqrestore(&scbpool_lock, flags);
- 
-+    spin_lock_irq(host->host_lock);
-     return (scb);
- }
- 
-@@ -909,26 +909,25 @@
- {
-     register unsigned long flags;
- 
--    save_flags (flags);
--    cli ();
-+    spin_lock_irqsave(&scbpool_lock, flags);
- 
-     memset (scb, 0, sizeof (Scb));
-     scb->next = scbfree;
-     scbfree = scb;
-     freescbs++;
- 
--    restore_flags (flags);
-+    spin_unlock_irqrestore(&scbpool_lock, flags);
- }
- 
- 
- static inline void init_scbs (void)
- {
-     int i;
--    unsigned long flags;
- 
--    save_flags (flags);
--    cli ();
-+    spin_lock_init(&scbpool_lock);
- 
-+    /* This is only ever called before the SCB pool is active */
-+    
-     scbfree = &(scbs[0]);
-     memset (scbs, 0, sizeof (scbs));
-     for (i = 0; i < MAX_SCBS - 1; i++) {
-@@ -937,8 +936,6 @@
-     }
-     scbs[MAX_SCBS - 1].next = NULL;
-     scbs[MAX_SCBS - 1].SCpnt = NULL;
--
--    restore_flags (flags);
- }
- 
- 
-@@ -956,8 +953,7 @@
-     dprintk("wd7000_mail_out: 0x%06lx", (long) scbptr);
- 
-     /* We first look for a free outgoing mailbox */
--    save_flags (flags);
--    cli ();
-+    spin_lock_irqsave(host->sh->host_lock, flags);
-     ogmb = *next_ogmb;
-     for (i = 0; i < OGMB_CNT; i++) {
- 	if (ogmbs[ogmb].status == 0) {
-@@ -971,8 +967,8 @@
- 	else
- 	    ogmb = (ogmb + 1) % OGMB_CNT;
-     }
--    restore_flags (flags);
--
-+    spin_unlock_irqrestore(host->sh->host_lock, flags);
-+    
-     dprintk(", scb is 0x%06lx", (long) scbptr);
- 
-     if (i >= OGMB_CNT) {
-@@ -999,7 +995,7 @@
- }
- 
- 
--int make_code (unsigned hosterr, unsigned scsierr)
-+static int make_code (unsigned hosterr, unsigned scsierr)
- {
- #ifdef WD7000_DEBUG
-     int in_error = hosterr;
-@@ -1056,14 +1052,14 @@
- 
- #define wd7000_intr_ack(host)   outb (0, host->iobase + ASC_INTR_ACK)
- 
--void wd7000_intr_handle (int irq, void *dev_id, struct pt_regs *regs)
-+static void wd7000_intr_handle (int irq, void *dev_id, struct pt_regs *regs)
- {
-     register int flag, icmb, errstatus, icmb_status;
-     register int host_error, scsi_error;
-     register Scb *scb;		/* for SCSI commands */
-     register IcbAny *icb;	/* for host commands */
-     register Scsi_Cmnd *SCpnt;
--    Adapter *host = (Adapter *) wd7000_host[irq - IRQ_MIN]->hostdata;	/* This MUST be set!!! */
-+    Adapter *host = (Adapter *)dev_id;
-     Mailbox *icmbs = host->mb.icmb;
- 
-     host->int_counter++;
-@@ -1139,7 +1135,7 @@
-     dprintk("wd7000_intr_handle: return from interrupt handler\n");
- }
- 
--void do_wd7000_intr_handle (int irq, void *dev_id, struct pt_regs *regs)
-+static void do_wd7000_intr_handle (int irq, void *dev_id, struct pt_regs *regs)
- {
-     unsigned long flags;
-     struct Scsi_Host *host = dev_id;
-@@ -1150,7 +1146,7 @@
- }
- 
- 
--int wd7000_queuecommand (Scsi_Cmnd *SCpnt, void (*done) (Scsi_Cmnd *))
-+static int wd7000_queuecommand (Scsi_Cmnd *SCpnt, void (*done) (Scsi_Cmnd *))
- {
-     register Scb *scb;
-     register Sgb *sgb;
-@@ -1197,25 +1193,31 @@
- 	any2scsi (scb->dataptr, isa_virt_to_bus(SCpnt->request_buffer));
- 	any2scsi (scb->maxlen, SCpnt->request_bufflen);
-     }
-+    
-+    /* FIXME: drop lock and yield here ? */
- 
--    while (!mail_out (host, scb));	/* keep trying */
-+    while (!mail_out (host, scb))
-+    	cpu_relax();	/* keep trying */
- 
--    return (1);
-+    return 0;
- }
- 
- 
--int wd7000_command (Scsi_Cmnd *SCpnt)
-+static int wd7000_command (Scsi_Cmnd *SCpnt)
- {
-     wd7000_queuecommand (SCpnt, wd7000_scsi_done);
- 
-     while (SCpnt->SCp.phase > 0)
--	barrier ();		/* phase counts scbs down to 0 */
-+    {
-+    	cpu_relax();
-+	barrier();		/* phase counts scbs down to 0 */
-+    }
- 
-     return (SCpnt->result);
- }
- 
- 
--int wd7000_diagnostics (Adapter *host, int code)
-+static int wd7000_diagnostics (Adapter *host, int code)
- {
-     static IcbDiag icb = {ICB_OP_DIAGNOSTICS};
-     static unchar buf[256];
-@@ -1233,7 +1235,10 @@
-     mail_out (host, (struct scb *) &icb);
-     timeout = jiffies + WAITnexttimeout;	/* wait up to 2 seconds */
-     while (icb.phase && time_before(jiffies, timeout))
--	barrier ();		/* wait for completion */
-+    {
-+	cpu_relax();		/* wait for completion */
-+	barrier();
-+    }
- 
-     if (icb.phase) {
- 	printk ("wd7000_diagnostics: timed out.\n");
-@@ -1249,7 +1254,7 @@
- }
- 
- 
--int wd7000_init (Adapter *host)
-+static int wd7000_adapter_reset(Adapter *host)
- {
-     InitCmd init_cmd =
-     {
-@@ -1263,19 +1268,18 @@
- 	ICMB_CNT
-     };
-     int diag;
--
-     /*
-      *  Reset the adapter - only.  The SCSI bus was initialized at power-up,
-      *  and we need to do this just so we control the mailboxes, etc.
-      */
-     outb (ASC_RES, host->iobase + ASC_CONTROL);
--    delay (1);			/* reset pulse: this is 10ms, only need 25us */
-+    udelay(40);			/* reset pulse: this is 40us, only need 25us */
-     outb (0, host->iobase + ASC_CONTROL);
-     host->control = 0;		/* this must always shadow ASC_CONTROL */
- 
-     if (WAIT (host->iobase + ASC_STAT, ASC_STATMASK, CMD_RDY, 0)) {
- 	printk ("wd7000_init: WAIT timed out.\n");
--	return (0);		/* 0 = not ok */
-+	return -1;		/* -1 = not ok */
-     }
- 
-     if ((diag = inb (host->iobase + ASC_INTR_STAT)) != 1) {
-@@ -1296,31 +1300,38 @@
- 		     break;
- 	    default: printk ("diagnostic code 0x%02Xh received.\n", diag);
- 	}
--	return (0);
-+	return -1;
-     }
--
--    /* Clear mailboxes */
-+   /* Clear mailboxes */
-     memset (&(host->mb), 0, sizeof (host->mb));
- 
-     /* Execute init command */
-     any2scsi ((unchar *) & (init_cmd.mailboxes), (int) &(host->mb));
-     if (!command_out (host, (unchar *) &init_cmd, sizeof (init_cmd))) {
--	printk ("wd7000_init: adapter initialization failed.\n");
--	return (0);
-+	printk (KERN_ERR "wd7000_adapter_reset: adapter initialization failed.\n");
-+	return -1;
-     }
- 
-     if (WAIT (host->iobase + ASC_STAT, ASC_STATMASK, ASC_INIT, 0)) {
--	printk ("wd7000_init: WAIT timed out.\n");
--	return (0);
-+	printk ("wd7000_adapter_reset: WAIT timed out.\n");
-+	return -1;
-     }
-+    return 0;
-+}
- 
--    if (request_irq (host->irq, do_wd7000_intr_handle, SA_INTERRUPT, "wd7000", NULL)) {
-+static int wd7000_init (Adapter *host)
-+{
-+    if(wd7000_adapter_reset(host) == -1)
-+    	return 0;
-+
-+ 
-+    if (request_irq (host->irq, do_wd7000_intr_handle, SA_INTERRUPT, "wd7000", host)) {
- 	printk ("wd7000_init: can't get IRQ %d.\n", host->irq);
- 	return (0);
-     }
-     if (request_dma (host->dma, "wd7000")) {
- 	printk ("wd7000_init: can't get DMA channel %d.\n", host->dma);
--	free_irq (host->irq, NULL);
-+	free_irq (host->irq, host);
- 	return (0);
-     }
-     wd7000_enable_dma (host);
-@@ -1336,7 +1347,7 @@
- }
- 
- 
--void wd7000_revision (Adapter *host)
-+static void wd7000_revision (Adapter *host)
- {
-     static IcbRevLvl icb =
-     {ICB_OP_GET_REVISION};
-@@ -1350,7 +1361,10 @@
-      */
-     mail_out (host, (struct scb *) &icb);
-     while (icb.phase)
--	barrier ();		/* wait for completion */
-+    {
-+	cpu_relax();		/* wait for completion */
-+	barrier();
-+    }
-     host->rev1 = icb.primary;
-     host->rev2 = icb.secondary;
- }
-@@ -1359,27 +1373,19 @@
- #undef SPRINTF
- #define SPRINTF(args...) { if (pos < (buffer + length)) pos += sprintf (pos, ## args); }
- 
--int wd7000_set_info (char *buffer, int length, struct Scsi_Host *host)
-+static int wd7000_set_info (char *buffer, int length, struct Scsi_Host *host)
- {
--    unsigned long flags;
--
--    save_flags (flags);
--    cli ();
--
-     dprintk("Buffer = <%.*s>, length = %d\n", length, buffer, length);
- 
-     /*
-      * Currently this is a no-op
-      */
-     dprintk("Sorry, this function is currently out of order...\n");
--
--    restore_flags (flags);
--
-     return (length);
- }
- 
- 
--int wd7000_proc_info (char *buffer, char **start, off_t offset, int length, int hostno, int inout)
-+static int wd7000_proc_info (char *buffer, char **start, off_t offset, int length, int hostno, int inout)
- {
-     struct Scsi_Host *host = NULL;
-     Scsi_Device *scd;
-@@ -1396,7 +1402,7 @@
-     /*
-      * Find the specified host board.
-      */
--    for (i = 0; i < IRQS; i++)
-+    for (i = 0; i < UNITS; i++)
- 	if (wd7000_host[i] && (wd7000_host[i]->host_no == hostno)) {
- 	    host = wd7000_host[i];
- 
-@@ -1417,9 +1423,7 @@
- 
-     adapter = (Adapter *) host->hostdata;
- 
--    save_flags (flags);
--    cli ();
--
-+    spin_lock_irqsave(host->host_lock, flags);
-     SPRINTF ("Host scsi%d: Western Digital WD-7000 (rev %d.%d)\n", hostno, adapter->rev1, adapter->rev2);
-     SPRINTF ("  IO base:      0x%x\n", adapter->iobase);
-     SPRINTF ("  IRQ:          %d\n", adapter->irq);
-@@ -1484,7 +1488,7 @@
- 
-     SPRINTF ("\n");
- 
--    restore_flags (flags);
-+    spin_unlock_irqrestore(host->host_lock, flags);
- 
-     /*
-      * Calculate start of next buffer, and return value.
-@@ -1510,13 +1514,15 @@
-  *  calling scsi_unregister.
-  *
-  */
--int wd7000_detect (Scsi_Host_Template *tpnt)
-+
-+static int wd7000_detect (Scsi_Host_Template *tpnt)
- {
-     short present = 0, biosaddr_ptr, sig_ptr, i, pass;
-     short biosptr[NUM_CONFIGS];
-     unsigned iobase;
-     Adapter *host = NULL;
-     struct Scsi_Host *sh;
-+    int unit = 0;
- 
-     dprintk("wd7000_detect: started\n");
- 
-@@ -1525,7 +1531,7 @@
- 		wd7000_setup(wd7000);     
+ #include <pcmcia/version.h>
+ #include <pcmcia/cs_types.h>
+@@ -88,6 +90,9 @@
+ #define DEBUG(n, args...)
  #endif
  
--    for (i = 0; i < IRQS; wd7000_host[i++] = NULL) ;
-+    for (i = 0; i < UNITS; wd7000_host[i++] = NULL) ;
-     for (i = 0; i < NUM_CONFIGS; biosptr[i++] = -1) ;
++#define DRV_NAME	"smc91c92_cs"
++#define DRV_VERSION	"1.2"
++
+ /*====================================================================*/
  
-     tpnt->proc_name = "wd7000";
-@@ -1579,6 +1585,9 @@
+ /* Operational parameter that usually are not changed. */
+@@ -109,6 +114,7 @@
+ struct smc_private {
+     dev_link_t			link;
+     struct net_device		dev;
++    spinlock_t			lock;
+     u_short			manfid;
+     u_short			cardid;
+     struct net_device_stats	stats;
+@@ -122,7 +128,7 @@
+     u_short			media_status;
+     u_short			fast_poll;
+     u_short			link_status;
+-    int				phy_id;
++    struct mii_if_info		mii_if;
+ };
  
- 	if (configs[pass].irq < 0)
- 	    continue;
-+	    
-+	if (unit == UNITS)
-+	    continue;
+ /* Special definitions for Megahertz multifunction cards */
+@@ -292,9 +298,11 @@
+ static void smc_set_xcvr(struct net_device *dev, int if_port);
+ static void smc_reset(struct net_device *dev);
+ static void media_check(u_long arg);
+-static void mdio_sync(ioaddr_t addr);
+-static int mdio_read(ioaddr_t addr, int phy_id, int loc);
+-static void mdio_write(ioaddr_t addr, int phy_id, int loc, int value);
++static void smc_mdio_sync(ioaddr_t addr);
++static int smc_mdio_read(struct net_device *dev, int phy_id, int loc);
++static void smc_mdio_write(struct net_device *dev, int phy_id, int loc, int value);
++static int smc_ioctl(struct net_device *dev, struct ifreq *rq, int cmd);
++static int smc_link_ok(struct net_device *dev);
  
- 	iobase = configs[pass].iobase;
+ /*======================================================================
  
-@@ -1591,7 +1600,8 @@
- 	     * ASC reset...
- 	     */
- 	    outb (ASC_RES, iobase + ASC_CONTROL);
--	    delay (1);
-+	    set_current_state(TASK_UNINTERRUPTIBLE);
-+	    schedule_timeout(HZ/100);
- 	    outb (0, iobase + ASC_CONTROL);
- 
- 	    if (WAIT (iobase + ASC_STAT, ASC_STATMASK, CMD_RDY, 0)) {
-@@ -1624,7 +1634,8 @@
- 		host->int_counter = 0;
- 		host->bus_on = configs[pass].bus_on;
- 		host->bus_off = configs[pass].bus_off;
--		host->sh = wd7000_host[host->irq - IRQ_MIN] = sh;
-+		host->sh = wd7000_host[unit] = sh;
-+		unit++;
- 
- 		dprintk("wd7000_detect: Trying init WD-7000 card at IO "
- 			"0x%x, IRQ %d, DMA %d...\n",
-@@ -1649,7 +1660,7 @@
- 		if (biosaddr_ptr != NUM_ADDRS)
- 		    biosptr[pass] = biosaddr_ptr;
- 
--		printk ("Western Digital WD-7000 (rev %d.%d) ",
-+		printk (KERN_INFO "Western Digital WD-7000 (rev %d.%d) ",
- 			host->rev1, host->rev2);
- 		printk ("using IO 0x%x, IRQ %d, DMA %d.\n",
- 			host->iobase, host->irq, host->dma);
-@@ -1679,34 +1690,53 @@
- /*
-  *  I have absolutely NO idea how to do an abort with the WD7000...
-  */
--int wd7000_abort (Scsi_Cmnd *SCpnt)
-+static int wd7000_abort (Scsi_Cmnd *SCpnt)
- {
-     Adapter *host = (Adapter *) SCpnt->host->hostdata;
- 
-     if (inb (host->iobase + ASC_STAT) & INT_IM) {
- 	printk ("wd7000_abort: lost interrupt\n");
- 	wd7000_intr_handle (host->irq, NULL, NULL);
+@@ -346,7 +354,7 @@
+     if (!smc) return NULL;
+     memset(smc, 0, sizeof(struct smc_private));
+     link = &smc->link; dev = &smc->dev;
 -
--	return (SCSI_ABORT_SUCCESS);
-+	return FAILED;
-     }
--
--    return (SCSI_ABORT_SNOOZE);
-+    return FAILED;
- }
++    spin_lock_init(&smc->lock);
+     link->release.function = &smc91c92_release;
+     link->release.data = (u_long)link;
+     link->io.NumPorts1 = 16;
+@@ -369,6 +377,7 @@
+     dev->get_stats = &smc91c92_get_stats;
+     dev->set_config = &s9k_config;
+     dev->set_multicast_list = &set_rx_mode;
++    dev->do_ioctl = &smc_ioctl;
+     ether_setup(dev);
+     dev->open = &smc91c92_open;
+     dev->stop = &smc91c92_close;
+@@ -377,6 +386,12 @@
+     dev->watchdog_timeo = TX_TIMEOUT;
+ #endif
+     dev->priv = link->priv = link->irq.Instance = smc;
++   
++    smc->mii_if.dev = dev;
++    smc->mii_if.mdio_read = smc_mdio_read;
++    smc->mii_if.mdio_write = smc_mdio_write;
++    smc->mii_if.phy_id_mask = 0x1f;
++    smc->mii_if.reg_num_mask = 0x1f;
+     
+     /* Register with Card Services */
+     link->next = dev_list;
+@@ -1044,10 +1059,10 @@
+ 	SMC_SELECT_BANK(3);
  
- 
- /*
-  *  I also have no idea how to do a reset...
-  */
--int wd7000_reset (Scsi_Cmnd *SCpnt, unsigned int unused)
-+
-+static int wd7000_bus_reset (Scsi_Cmnd *SCpnt)
- {
--    return (SCSI_RESET_PUNT);
-+    return FAILED;
-+}
-+
-+static int wd7000_device_reset (Scsi_Cmnd *SCpnt)
-+{
-+    return FAILED;
-+}
-+
-+/*
-+ *  Last resort. Reinitialize the board.
-+ */
-+ 
-+static int wd7000_host_reset (Scsi_Cmnd *SCpnt)
-+{
-+    Adapter *host = (Adapter *) SCpnt->host->hostdata;
-+    
-+    if(wd7000_adapter_reset(host)<0)
-+	    return FAILED;
-+    wd7000_enable_intr (host);
-+    return SUCCESS;
- }
- 
- 
- /*
-  *  This was borrowed directly from aha1542.c. (Zaga)
-  */
--int wd7000_biosparam (Disk *disk, struct block_device *bdev, int *ip)
-+
-+static int wd7000_biosparam (Disk *disk, struct block_device *bdev, int *ip)
- {
-     dprintk("wd7000_biosparam: dev=%s, size=%d, ", bdevname(bdev),
- 	    disk->capacity);
-@@ -1743,8 +1773,8 @@
- 	    ip[2] = info[2];
- 
- 	    if (info[0] == 255)
--		printk(KERN_INFO __FUNCTION__ ": current partition table is "
--			"using extended translation.\n");
-+		printk(KERN_INFO "%s: current partition table is "
-+			"using extended translation.\n", __FUNCTION__);
+ 	for (i = 0; i < 32; i++) {
+-	    j = mdio_read(dev->base_addr + MGMT, i, 1);
++	    j = smc_mdio_read(dev, i, 1);
+ 	    if ((j != 0) && (j != 0xffff)) break;
  	}
-     }
+-	smc->phy_id = (i < 32) ? i : -1;
++	smc->mii_if.phy_id = (i < 32) ? i : -1;
+ 	if (i < 32) {
+ 	    DEBUG(0, "  MII transceiver at index %d, status %x.\n", i, j);
+ 	} else {
+@@ -1190,7 +1205,7 @@
+ #define MDIO_DATA_WRITE1	(MDIO_DIR_WRITE | MDIO_DATA_OUT)
+ #define MDIO_DATA_READ		0x02
  
-@@ -1754,6 +1784,8 @@
-     return (0);
+-static void mdio_sync(ioaddr_t addr)
++static void smc_mdio_sync(ioaddr_t addr)
+ {
+     int bits;
+     for (bits = 0; bits < 32; bits++) {
+@@ -1199,12 +1214,13 @@
+     }
  }
  
-+MODULE_AUTHOR("Thomas Wuensche, John Boyd, Miroslav Zagorac");
-+MODULE_DESCRIPTION("Driver for the WD7000 series ISA controllers");
- MODULE_LICENSE("GPL");
+-static int mdio_read(ioaddr_t addr, int phy_id, int loc)
++static int smc_mdio_read(struct net_device *dev, int phy_id, int loc)
+ {
++    ioaddr_t addr = dev->base_addr + MGMT;
+     u_int cmd = (0x06<<10)|(phy_id<<5)|loc;
+     int i, retval = 0;
  
- /* Eventually this will go into an include file, but this will be later */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.40/drivers/scsi/wd7000.h linux.2.5.40-ac5/drivers/scsi/wd7000.h
---- linux.2.5.40/drivers/scsi/wd7000.h	2002-10-02 21:32:55.000000000 +0100
-+++ linux.2.5.40-ac5/drivers/scsi/wd7000.h	2002-10-06 01:05:29.000000000 +0100
-@@ -13,14 +13,16 @@
+-    mdio_sync(addr);
++    smc_mdio_sync(addr);
+     for (i = 13; i >= 0; i--) {
+ 	int dat = (cmd&(1<<i)) ? MDIO_DATA_WRITE1 : MDIO_DATA_WRITE0;
+ 	outb(dat, addr);
+@@ -1218,12 +1234,13 @@
+     return (retval>>1) & 0xffff;
+ }
  
- #include <linux/types.h>
+-static void mdio_write(ioaddr_t addr, int phy_id, int loc, int value)
++static void smc_mdio_write(struct net_device *dev, int phy_id, int loc, int value)
+ {
++    ioaddr_t addr = dev->base_addr + MGMT;
+     u_int cmd = (0x05<<28)|(phy_id<<23)|(loc<<18)|(1<<17)|value;
+     int i;
  
--int wd7000_set_info (char *buffer, int length, struct Scsi_Host *host);
--int wd7000_proc_info (char *buffer, char **start, off_t offset, int length, int hostno, int inout);
--int wd7000_detect (Scsi_Host_Template *);
--int wd7000_command (Scsi_Cmnd *);
--int wd7000_queuecommand (Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
--int wd7000_abort (Scsi_Cmnd *);
--int wd7000_reset (Scsi_Cmnd *, unsigned int);
--int wd7000_biosparam (Disk *, struct block_device *, int *);
-+static int wd7000_set_info (char *buffer, int length, struct Scsi_Host *host);
-+static int wd7000_proc_info (char *buffer, char **start, off_t offset, int length, int hostno, int inout);
-+static int wd7000_detect (Scsi_Host_Template *);
-+static int wd7000_command (Scsi_Cmnd *);
-+static int wd7000_queuecommand (Scsi_Cmnd *, void (*done)(Scsi_Cmnd *));
-+static int wd7000_abort (Scsi_Cmnd *);
-+static int wd7000_bus_reset (Scsi_Cmnd *);
-+static int wd7000_host_reset (Scsi_Cmnd *);
-+static int wd7000_device_reset (Scsi_Cmnd *);
-+static int wd7000_biosparam (Disk *, struct block_device *, int *);
+-    mdio_sync(addr);
++    smc_mdio_sync(addr);
+     for (i = 31; i >= 0; i--) {
+ 	int dat = (cmd&(1<<i)) ? MDIO_DATA_WRITE1 : MDIO_DATA_WRITE0;
+ 	outb(dat, addr);
+@@ -1777,6 +1794,7 @@
+ static void set_rx_mode(struct net_device *dev)
+ {
+     ioaddr_t ioaddr = dev->base_addr;
++    struct smc_private *smc = dev->priv;
+     u_int multicast_table[ 2 ] = { 0, };
+     unsigned long flags;
+     u_short rx_cfg_setting;
+@@ -1795,16 +1813,15 @@
+     }
+     
+     /* Load MC table and Rx setting into the chip without interrupts. */
+-    save_flags(flags);
+-    cli();
++    spin_lock_irqsave(&smc->lock, flags);
+     SMC_SELECT_BANK(3);
+     outl(multicast_table[0], ioaddr + MULTICAST0);
+     outl(multicast_table[1], ioaddr + MULTICAST4);
+     SMC_SELECT_BANK(0);
+     outw(rx_cfg_setting, ioaddr + RCR);
+     SMC_SELECT_BANK(2);
+-    restore_flags(flags);
+-    
++    spin_unlock_irqrestore(&smc->lock, flags);
++ 
+     return;
+ }
  
- #ifndef NULL
- #define NULL 0L
-@@ -48,7 +50,9 @@
- 	command:		wd7000_command,			\
- 	queuecommand:		wd7000_queuecommand,		\
- 	abort:			wd7000_abort,			\
--	reset:			wd7000_reset,			\
-+	eh_bus_reset_handler:	wd7000_bus_reset,		\
-+	eh_device_reset_handler:wd7000_device_reset,		\
-+	eh_host_reset_handler:	wd7000_host_reset,		\
- 	bios_param:		wd7000_biosparam,		\
- 	can_queue:		WD7000_Q,			\
- 	this_id:		7,				\
+@@ -1917,11 +1934,11 @@
+ 	SMC_SELECT_BANK(3);
+ 
+ 	/* Reset MII */
+-	mdio_write(ioaddr + MGMT, smc->phy_id, 0, 0x8000);
++	smc_mdio_write(dev, smc->mii_if.phy_id, 0, 0x8000);
+ 
+ 	/* Restart MII autonegotiation */
+-	mdio_write(ioaddr + MGMT, smc->phy_id, 0, 0x0000);
+-	mdio_write(ioaddr + MGMT, smc->phy_id, 0, 0x1200);
++	smc_mdio_write(dev, smc->mii_if.phy_id, 0, 0x0000);
++	smc_mdio_write(dev, smc->mii_if.phy_id, 0, 0x1200);
+     }
+ 
+     /* Enable interrupts. */
+@@ -1942,7 +1959,6 @@
+     struct net_device *dev = &smc->dev;
+     ioaddr_t ioaddr = dev->base_addr;
+     u_short i, media, saved_bank;
+-    ioaddr_t mii_addr = dev->base_addr + MGMT;
+     u_short link;
+ 
+     saved_bank = inw(ioaddr + BANK_SELECT);
+@@ -1974,20 +1990,20 @@
+     }
+ 
+     if (smc->cfg & CFG_MII_SELECT) {
+-	if (smc->phy_id < 0)
++	if (smc->mii_if.phy_id < 0)
+ 	    goto reschedule;
+ 
+ 	SMC_SELECT_BANK(3);
+-	link = mdio_read(mii_addr, smc->phy_id, 1);
++	link = smc_mdio_read(dev, smc->mii_if.phy_id, 1);
+ 	if (!link || (link == 0xffff)) {
+   	    printk(KERN_INFO "%s: MII is missing!\n", dev->name);
+-	    smc->phy_id = -1;
++	    smc->mii_if.phy_id = -1;
+ 	    goto reschedule;
+ 	}
+ 
+ 	link &= 0x0004;
+ 	if (link != smc->link_status) {
+-	    u_short p = mdio_read(mii_addr, smc->phy_id, 5);
++	    u_short p = smc_mdio_read(dev, smc->mii_if.phy_id, 5);
+ 	    printk(KERN_INFO "%s: %s link beat\n", dev->name,
+ 		(link) ? "found" : "lost");
+ 	    if (link) {
+@@ -2043,6 +2059,191 @@
+     SMC_SELECT_BANK(saved_bank);
+ }
+ 
++static int smc_link_ok(struct net_device *dev)
++{
++    ioaddr_t ioaddr = dev->base_addr;
++    struct smc_private *smc = dev->priv;
++
++    if (smc->cfg & CFG_MII_SELECT) {
++	return mii_link_ok(&smc->mii_if);
++    } else {
++        SMC_SELECT_BANK(0);
++	return inw(ioaddr + EPH) & EPH_LINK_OK;
++    }
++}
++
++static int smc_netdev_get_ecmd(struct net_device *dev, struct ethtool_cmd *ecmd)
++{
++    u16 tmp;
++    ioaddr_t ioaddr = dev->base_addr;
++
++    ecmd->supported = (SUPPORTED_TP | SUPPORTED_AUI |
++	SUPPORTED_10baseT_Half | SUPPORTED_10baseT_Full);
++		
++    SMC_SELECT_BANK(1);
++    tmp = inw(dev->base_addr + CONFIG);
++    ecmd->port = (tmp & CFG_AUI_SELECT) ? PORT_AUI : PORT_TP;
++    ecmd->transceiver = XCVR_INTERNAL;
++    ecmd->speed = SPEED_10;
++    ecmd->phy_address = dev->base_addr + MGMT;
++
++    SMC_SELECT_BANK(0);
++    tmp = inw(dev->base_addr + TCR);
++    ecmd->duplex = (tmp & TCR_FDUPLX) ? DUPLEX_FULL : DUPLEX_HALF;
++
++    return 0;
++}
++
++static int smc_netdev_set_ecmd(struct net_device *dev, struct ethtool_cmd *ecmd)
++{
++    u16 tmp;
++    ioaddr_t ioaddr = dev->base_addr;
++
++    if (ecmd->speed != SPEED_10)
++    	return -EINVAL;
++    if (ecmd->duplex != DUPLEX_HALF && ecmd->duplex != DUPLEX_FULL)
++    	return -EINVAL;
++    if (ecmd->port != PORT_TP && ecmd->port != PORT_AUI)
++	return -EINVAL;
++    if (ecmd->transceiver != XCVR_INTERNAL)
++    	return -EINVAL;
++
++    if (ecmd->port == PORT_AUI)
++	smc_set_xcvr(dev, 1);
++    else
++	smc_set_xcvr(dev, 0);
++
++    SMC_SELECT_BANK(0);
++    tmp = inw(dev->base_addr + TCR);
++    if (ecmd->duplex == DUPLEX_FULL)
++	tmp |= TCR_FDUPLX;
++    else
++	tmp &= ~TCR_FDUPLX;
++    outw(dev->base_addr + TCR, tmp);
++	
++    return 0;
++}
++
++static int smc_ethtool_ioctl (struct net_device *dev, void *useraddr)
++{
++    u32 ethcmd;
++    struct smc_private *smc = dev->priv;
++
++    if (get_user(ethcmd, (u32 *)useraddr))
++	return -EFAULT;
++
++    switch (ethcmd) {
++
++    case ETHTOOL_GDRVINFO: {
++	struct ethtool_drvinfo info = { ETHTOOL_GDRVINFO };
++	strcpy(info.driver, DRV_NAME);
++	strcpy(info.version, DRV_VERSION);
++	if (copy_to_user(useraddr, &info, sizeof(info)))
++	    return -EFAULT;
++	return 0;
++    }
++
++    /* get settings */
++    case ETHTOOL_GSET: {
++	int ret;
++	struct ethtool_cmd ecmd = { ETHTOOL_GSET };
++	spin_lock_irq(&smc->lock);
++	if (smc->cfg & CFG_MII_SELECT)
++	    ret = mii_ethtool_gset(&smc->mii_if, &ecmd);
++	else
++	    ret = smc_netdev_get_ecmd(dev, &ecmd);
++	spin_unlock_irq(&smc->lock);
++	if (copy_to_user(useraddr, &ecmd, sizeof(ecmd)))
++	    return -EFAULT;
++	return ret;
++    }
++
++    /* set settings */
++    case ETHTOOL_SSET: {
++	int ret;
++	struct ethtool_cmd ecmd;
++	if (copy_from_user(&ecmd, useraddr, sizeof(ecmd)))
++	    return -EFAULT;
++	spin_lock_irq(&smc->lock);
++	if (smc->cfg & CFG_MII_SELECT)
++	    ret = mii_ethtool_sset(&smc->mii_if, &ecmd);    
++	else
++	    ret = smc_netdev_set_ecmd(dev, &ecmd);
++	spin_unlock_irq(&smc->lock);
++	return ret;
++    }
++
++    /* get link status */
++    case ETHTOOL_GLINK: {
++	struct ethtool_value edata = { ETHTOOL_GLINK };
++	spin_lock_irq(&smc->lock);
++	edata.data = smc_link_ok(dev);
++	spin_unlock_irq(&smc->lock);
++	if (copy_to_user(useraddr, &edata, sizeof(edata)))
++	    return -EFAULT;
++	return 0;
++    }
++
++#ifdef PCMCIA_DEBUG
++    /* get message-level */
++    case ETHTOOL_GMSGLVL: {
++	struct ethtool_value edata = { ETHTOOL_GMSGLVL };
++	edata.data = pc_debug;
++	if (copy_to_user(useraddr, &edata, sizeof(edata)))
++	    return -EFAULT;
++	return 0;
++    }
++    
++    /* set message-level */
++    case ETHTOOL_SMSGLVL: {
++	struct ethtool_value edata;
++	if (copy_from_user(&edata, useraddr, sizeof(edata)))
++	    return -EFAULT;
++	pc_debug = edata.data;
++	return 0;
++    }
++#endif
++    /* restart autonegotiation */
++    case ETHTOOL_NWAY_RST: {
++	if (smc->cfg & CFG_MII_SELECT)
++	    return mii_nway_restart(&smc->mii_if);
++	else
++	    return -EOPNOTSUPP;
++    }
++    
++    default:
++	break;
++    }
++
++    return -EOPNOTSUPP;
++}
++
++static int smc_ioctl (struct net_device *dev, struct ifreq *rq, int cmd)
++{
++    struct smc_private *smc = dev->priv;
++    struct mii_ioctl_data *mii;
++    int rc = 0;
++
++    mii = (struct mii_ioctl_data *) &rq->ifr_data;
++    if (!netif_running(dev))
++    	return -EINVAL;
++
++    switch (cmd) {
++    case SIOCETHTOOL:
++	rc = smc_ethtool_ioctl(dev, (void *) rq->ifr_data);
++	break;
++    
++    default:
++	spin_lock_irq(&smc->lock);
++	rc = generic_mii_ioctl(&smc->mii_if, mii, cmd, NULL);
++	spin_unlock_irq(&smc->lock);
++	break;
++    }
++
++    return rc;
++}
++
++
+ /*====================================================================*/
+ 
+ static int __init init_smc91c92_cs(void)
+@@ -2069,3 +2270,4 @@
+ 
+ module_init(init_smc91c92_cs);
+ module_exit(exit_smc91c92_cs);
++
+

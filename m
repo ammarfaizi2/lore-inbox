@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286734AbSAGUb0>; Mon, 7 Jan 2002 15:31:26 -0500
+	id <S286993AbSAGUcV>; Mon, 7 Jan 2002 15:32:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286841AbSAGUaC>; Mon, 7 Jan 2002 15:30:02 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:4114 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S286734AbSAGU3v>; Mon, 7 Jan 2002 15:29:51 -0500
-Date: Mon, 7 Jan 2002 12:28:31 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Matthew Kirkwood <matthew@hairy.beasts.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] Lightweight user-level semaphores
-In-Reply-To: <Pine.LNX.4.33.0201071902070.5064-101000@sphinx.mythic-beasts.com>
-Message-ID: <Pine.LNX.4.33.0201071223450.6942-100000@penguin.transmeta.com>
+	id <S286841AbSAGUcI>; Mon, 7 Jan 2002 15:32:08 -0500
+Received: from daytona.gci.com ([205.140.80.57]:27657 "EHLO daytona.gci.com")
+	by vger.kernel.org with ESMTP id <S286993AbSAGUbj>;
+	Mon, 7 Jan 2002 15:31:39 -0500
+Message-ID: <BF9651D8732ED311A61D00105A9CA31506DB462C@berkeley.gci.com>
+From: Leif Sawyer <lsawyer@gci.com>
+To: esr@thyrsus.com, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: RE: CML2-2.0.0 is available -- major release announcement
+Date: Mon, 7 Jan 2002 11:31:25 -0900 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric S. Raymond [esr@thyrsus.com] writes:
+> Subject: CML2-2.0.3 is available
 
-On Mon, 7 Jan 2002, Matthew Kirkwood wrote:
->
->  * It leaks.  How were you going to refcount the kernel
->    portions?  Could they be attached to the VM mapping?
->    Would a lockfs be too expensive?
+Just some feedback on 2.0.3 running against 2.5.2-pre9 on my i686.
 
-Yes, I was going to just attach to the vma, along with potentially also
-require a flag at mmap time (MAP_SEMAPHORE - some other unixes have
-something like it already) to tell the OS about the consistency issues
-that might come up on some architectures (on x86 it would be a no-op).
 
->  * It doesn't have a timeout.  Is there something like a
->    down_timeout() available?
+installed, ran as 
+	make autoprobe config
 
-Not as-is, but all the kernel infrastructure should be there in theory.
 
->  * I don't do the:
->
-> 	if (kfs->user_address != fs)
-> 		goto bad_sem;
->
->    because it doesn't seem to add anything, and prevents
->    putting these locks in a non-fixed file or SysV SHM
->    map.
+picked up my processor/mobo/options, rtc, network, video, sound correctly.
 
-Fair enough. I think I suggested that just as another sanity check, and
-because some architectures _will_ require address issues (not necessarily
-total equality, but at least "modulo X equality").
+picked up ISA/PCI/AGP right.
 
-			Linus
+Picked USB HCI's as modular (building all) from VIA motherboard.
+	(Don't really need the OHCI built here)
 
+picked up file systems, framebuffer, network rules, block devices right.
+
+picked up SCSI, Input, game ports and serial ports correctly.
+
+Missed HOTPLUG (based on USB, and configure_help - this may just be cleanup
+			in the help text to remove references to USB if
+hotplug
+			is not needed/required)
+
+Missed APM support (is enabled in running kernel)
+
+Missed my parallel port.
+Missed SCSI_Generic
+Missed my floppy drive!
+Missed Unix Domain Sockets!
+Missed Packet Socket (based on running kernel)
+Missed PS/2 mouse
+
+
+
+Other than those above, it seems pretty good.
+
+thanks!
+Leif

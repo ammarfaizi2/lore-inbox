@@ -1,43 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVC2X0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbVC2XfI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVC2X0G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 18:26:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261633AbVC2X0F
+	id S261654AbVC2XfI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 18:35:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbVC2XfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 18:26:05 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:4285 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261648AbVC2XZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 18:25:52 -0500
-Message-ID: <4249E3F4.8070005@nortel.com>
-Date: Tue, 29 Mar 2005 17:25:40 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Tue, 29 Mar 2005 18:35:08 -0500
+Received: from pat.uio.no ([129.240.130.16]:54437 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261656AbVC2Xef (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 18:34:35 -0500
+Subject: Re: NFS client latencies
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 To: Lee Revell <rlrevell@joe-job.com>
-CC: Marcin Dalecki <martin@dalecki.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Takashi Iwai <tiwai@suse.de>
-Subject: Re: Mac mini sound woes
-References: <1111966920.5409.27.camel@gaston>	 <1112067369.19014.24.camel@mindpipe>	 <4a7a16914e8d838e501b78b5be801eca@dalecki.de>	 <1112084311.5353.6.camel@gaston>	 <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de> <1112134385.5386.22.camel@mindpipe>
-In-Reply-To: <1112134385.5386.22.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1112139155.5386.35.camel@mindpipe>
+References: <1112137487.5386.33.camel@mindpipe>
+	 <1112138283.11346.2.camel@lade.trondhjem.org>
+	 <1112139155.5386.35.camel@mindpipe>
+Content-Type: text/plain
+Date: Tue, 29 Mar 2005 18:34:23 -0500
+Message-Id: <1112139263.11892.0.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.424, required 12,
+	autolearn=disabled, AWL 1.53, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+ty den 29.03.2005 Klokka 18:32 (-0500) skreiv Lee Revell:
+> On Tue, 2005-03-29 at 18:18 -0500, Trond Myklebust wrote:
+> > ty den 29.03.2005 Klokka 18:04 (-0500) skreiv Lee Revell:
+> > > I am seeing long latencies in the NFS client code.  Attached is a ~1.9
+> > > ms latency trace.
+> > 
+> > What kind of workload are you using to produce these numbers?
+> > 
+> 
+> Just a kernel compile over NFS.
 
-> This is the exact line of reasoning that led to Winmodems.
+In other words a workload consisting mainly of mmap()ed writes?
 
-My main issue with winmodems is not so much the software offload, but 
-rather that the vendors don't release full specs.
+Cheers,
+  Trond
 
-If all winmodem manufacturers released full hardware specs, I doubt 
-people would really complain all that much.  There's a fairly large pool 
-of talent available to write drivers once the interfaces are known.
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-Chris

@@ -1,45 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVCTVll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVCTVpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVCTVll (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 16:41:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVCTVll
+	id S261285AbVCTVpI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 16:45:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVCTVpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 16:41:41 -0500
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:10669 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261288AbVCTVl2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 16:41:28 -0500
-Date: Sun, 20 Mar 2005 22:45:59 +0100 (CET)
-From: Bodo Eggert <7eggert@gmx.de>
-To: Bodo Eggert <7eggert@gmx.de>
-Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>, Vojtech Pavlik <vojtech@suse.cz>,
-       video4linux-list@redhat.com
-Subject: [PATCH 2.6.11.2][SECURITY] printk with anti-cluttering-feature
-In-Reply-To: <Pine.LNX.4.58.0503202151360.2869@be1.lrz>
-Message-ID: <Pine.LNX.4.58.0503202243220.3051@be1.lrz>
-References: <Pine.LNX.4.58.0503200528520.2804@be1.lrz> <423D6353.5010603@tls.msk.ru>
- <Pine.LNX.4.58.0503201425080.2886@be1.lrz> <Pine.LNX.4.58.0503202151360.2869@be1.lrz>
+	Sun, 20 Mar 2005 16:45:08 -0500
+Received: from mail.dif.dk ([193.138.115.101]:30172 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S261285AbVCTVoz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 16:44:55 -0500
+Date: Sun, 20 Mar 2005 22:46:38 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, Ingo Molnar <mingo@redhat.com>,
+       Robert Love <rml@tech9.net>
+Subject: [RFC] spinlock_t & rwlock_t break_lock member initialization (patch
+ seeking comments included)
+Message-ID: <Pine.LNX.4.62.0503202205480.2508@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Security fix against a log spamming DoS in tuner.c, compile-tested
 
-Signed-Off-By: Bodo Eggert <7eggert@gmx.de>
+I'm often building the tree with gcc -W to look for potential trouble 
+spots, and of course I see a lot of warning messages. I'm well aware that 
+most of these don't indicate actual problems and should just be ignored, 
+but the less warnings there are the easier it is to zoom in on the ones 
+that might actually matter, so I try to also locate those that can be 
+silenced safely even when they don't indicate a real problem - just to cut 
+down on the number of warnings I have to sift through.
+One class of warnings that belong in the "not really a problem but I 
+believe I can silence it without doing any harm" category are these : 
 
---- linux-2.6.11/drivers/media/video/tuner.c	2005-03-20 20:54:54.000000000 +0100
-+++ hotfix/drivers/media/video/tuner.c	2005-03-20 21:10:33.000000000 +0100
-@@ -1048,8 +1048,9 @@ static void set_tv_freq(struct i2c_clien
- 		   right now we don't have that in the config
- 		   struct and this way is still better than no
- 		   check at all */
--		printk("tuner: TV freq (%d.%02d) out of range (%d-%d)\n",
--		       freq/16,freq%16*100/16,tv_range[0],tv_range[1]);
-+		if(printk_ratelimit())
-+			printk("tuner: TV freq (%d.%02d) out of range (%d-%d)\n",
-+			       freq/16,freq%16*100/16,tv_range[0],tv_range[1]);
- 		return;
- 	}
- 	t->tv_freq(c,freq);
+include/linux/wait.h:82: warning: missing initializer
+include/linux/wait.h:82: warning: (near initialization for `(anonymous).break_lock')
+
+include/asm/rwsem.h:88: warning: missing initializer
+include/asm/rwsem.h:88: warning: (near initialization for `(anonymous).break_lock')
+
+These stem from the fact that when you enable CONFIG_PREEMPT spinlock_t 
+and rwlock_t each gain an extra member "break_lock", but the lock 
+initialization code neglects to initialize this extra member in that case.
+
+If you enable CONFIG_PREEMPT and build with gcc -W you'll see a *lot* of 
+those, since spinlocks and rwlocks are used all over the place.
+
+I've come up with a patch to that silence those warnings by making sure 
+the "break_lock" member will be initialized when CONFIG_PREEMPT is 
+enabled.
+
+I would like to know if a patch like this is welcome or just considered 
+clutter for no real gain. I would also like to know if I've overlooked 
+some implications of doing this - it seems to me that this should be 
+completely safe to do and without significant overhead, but I'm also well 
+aware that my knowledge of this code is quite shallow, so I need comments 
+(especially since lock performance is quite performance critical, so I 
+don't want to screw up here).
+
+Here's the patch I came up with - comments are very welcome.
+
+
+(no Signed-off-by since this is not intended to be merged just yet)
+
+--- linux-2.6.11-mm4-orig/include/asm-i386/spinlock.h	2005-03-02 08:37:50.000000000 +0100
++++ linux-2.6.11-mm4/include/asm-i386/spinlock.h	2005-03-20 22:40:46.000000000 +0100
+@@ -32,7 +32,13 @@
+ #define SPINLOCK_MAGIC_INIT	/* */
+ #endif
+ 
+-#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT }
++#ifdef CONFIG_PREEMPT
++#define SPINLOCK_BREAK_INIT	, 0
++#else
++#define SPINLOCK_BREAK_INIT	/* */
++#endif
++
++#define SPIN_LOCK_UNLOCKED (spinlock_t) { 1 SPINLOCK_MAGIC_INIT SPINLOCK_BREAK_INIT }
+ 
+ #define spin_lock_init(x)	do { *(x) = SPIN_LOCK_UNLOCKED; } while(0)
+ 
+@@ -182,7 +188,13 @@
+ #define RWLOCK_MAGIC_INIT	/* */
+ #endif
+ 
+-#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT }
++#ifdef CONFIG_PREEMPT
++#define RWLOCK_BREAK_INIT	, 0
++#else
++#define RWLOCK_BREAK_INIT	/* */
++#endif
++
++#define RW_LOCK_UNLOCKED (rwlock_t) { RW_LOCK_BIAS RWLOCK_MAGIC_INIT RWLOCK_BREAK_INIT }
+ 
+ #define rwlock_init(x)	do { *(x) = RW_LOCK_UNLOCKED; } while(0)
+ 
+

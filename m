@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264880AbTFQSha (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 14:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTFQSh3
+	id S264881AbTFQSpe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 14:45:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264882AbTFQSpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 14:37:29 -0400
-Received: from main.gmane.org ([80.91.224.249]:21430 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S264880AbTFQSh3 (ORCPT
+	Tue, 17 Jun 2003 14:45:34 -0400
+Received: from fe7.rdc-kc.rr.com ([24.94.162.160]:15879 "EHLO mail7.kc.rr.com")
+	by vger.kernel.org with ESMTP id S264881AbTFQSpd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 14:37:29 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: 2.5.71 compile error on alpha
-Date: 17 Jun 2003 20:26:35 +0200
-Message-ID: <yw1xk7bk36hw.fsf@zaphod.guide>
-References: <3EEE4A14.4090505@g-house.de> <wrpr85te3fa.fsf@hina.wild-wind.fr.eu.org> <3EEF585E.9030404@g-house.de>
+	Tue, 17 Jun 2003 14:45:33 -0400
+Date: Tue, 17 Jun 2003 13:59:03 -0500
+From: Greg Norris <haphazard@kc.rr.com>
+To: Paul Larson <plars@linuxtestproject.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, rml@tech9.net
+Subject: Re: 2.5.72 oops (scheduling while atomic)
+Message-ID: <20030617185903.GA32280@glitch.localdomain>
+Mail-Followup-To: Paul Larson <plars@linuxtestproject.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>, rml@tech9.net
+References: <20030617143551.GA3057@glitch.localdomain> <1055873875.948.13.camel@plars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1055873875.948.13.camel@plars>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Kujau <evil@g-house.de> writes:
+On Tue, Jun 17, 2003 at 01:17:54PM -0500, Paul Larson wrote:
+> I submitted a bug on this a while back, bug #800 in bugme:
+> http://bugme.osdl.org/show_bug.cgi?id=800
+> 
+> I saw it starting with 2.5.70-bk15.  It looks like it did not have this
+> problem in 2.5.70-bk14.  Does this seem to be the case with you as
+> well?  I have not yet had time to hunt down more than is in that bug
+> report.
 
-> oh, just before vmlinux was made! before & after applying the patch i
-> did "make clean" (do i have to make clean "before" applying patches
-> anyway? after applying patches and before making targets, yes.)
+It certainly looks like the same problem.  I'll try out 2.5.70-bk14/15
+sometime tonite if I have a chance, and see if that's where it breaks
+for me as well.  In the meantime, I'm comparing our .config files.
 
-I don't think so.
-
-> oh, and this alpha is named "Avanti" but a kernel compile needs 80mins
-> or so :-)
-
-That's typical for the slower Avantis.  Is your's something like 100 MHz?
-
--- 
-Måns Rullgård
-mru@users.sf.net
-
+Thanx!

@@ -1,68 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270011AbRHJU1z>; Fri, 10 Aug 2001 16:27:55 -0400
+	id <S270015AbRHJUaz>; Fri, 10 Aug 2001 16:30:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270012AbRHJU1q>; Fri, 10 Aug 2001 16:27:46 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:33287 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S270011AbRHJU1m>; Fri, 10 Aug 2001 16:27:42 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: vmstats patch against 2.4.8pre7 and new userlevel hack
-Date: Fri, 10 Aug 2001 22:33:31 +0200
-X-Mailer: KMail [version 1.2]
-Cc: Andrew Morton <akpm@zip.com.au>, Zach Brown <zab@osdlab.org>,
-        linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.21.0108090326470.14424-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0108090326470.14424-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Message-Id: <01081022333100.00293@starship>
-Content-Transfer-Encoding: 7BIT
+	id <S270016AbRHJUaq>; Fri, 10 Aug 2001 16:30:46 -0400
+Received: from guestpc.physics.umanitoba.ca ([130.179.72.122]:2311 "EHLO
+	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S270015AbRHJUad>; Fri, 10 Aug 2001 16:30:33 -0400
+Date: Fri, 10 Aug 2001 15:30:41 -0500
+Message-Id: <200108102030.f7AKUfa05113@mobilix.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Douglas Gilbert <dougg@torque.net>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFT] #2 Support for ~2144 SCSI discs, scsi_debug
+In-Reply-To: <3B73D9F0.8BE1B0D1@torque.net>
+In-Reply-To: <200108020642.f726g0L15715@mobilix.ras.ucalgary.ca>
+	<3B735FCF.E197DD5B@torque.net>
+	<200108100431.f7A4VkG01068@mobilix.ras.ucalgary.ca>
+	<3B73D9F0.8BE1B0D1@torque.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 August 2001 08:45, Marcelo Tosatti wrote:
-> I've updated the vmstats patch to use Andrew Morton's statcount facilities
-> (which is in initial development state). I've also removed/added some
-> statistics due to VM changes.
+Douglas Gilbert writes:
+> Richard Gooch wrote:
+> > 
+> > Douglas Gilbert writes:
+> 
+> > > $ ls -l /devfs/scsi/host46/bus0/target0/lun0/*
+> > > brw-------    1 root     root     114,  16 Dec 31  1969
+> > >                         /devfs/scsi/host46/bus0/target0/lun0/disc
+> > > brw-------    1 root     root     114,  17 Dec 31  1969
+> > >                         /devfs/scsi/host46/bus0/target0/lun0/part1
+> > > brw-------    1 root     root     114,  18 Dec 31  1969
+> > >                         /devfs/scsi/host46/bus0/target0/lun0/part2
+> > > brw-------    1 root     root     114,  19 Dec 31  1969
+> > >                         /devfs/scsi/host46/bus0/target0/lun0/part3
+> > >
+> > > Note the large major device number that devfs is pulling
+> > > from the unused pool. Devfs makes some noise when
+> > > 'rmmod scsi_debug' is executed but otherwise things looked
+> > > ok.
+> > 
+> > What was the message?
+> 
+> After several seconds of silence, lots of these appeared:
+>  devfs_dealloc_unique_number(): number 128 was already free
+>  devfs_dealloc_unique_number(): number 128 was already free
 
-I applied it and added some of my own statistics.  Very nice, much nicer than 
-the traditional compile-reboot-measure-the-time cycle.
+I'm not able to debug this for the time being. Could you poke around
+and figure out what's happening? The first thing to check for is to
+see whether block major 128 was even allocated in the first
+place. Check /proc/devices to see (make sure you don't pass devfs=only
+at the boot line).
 
-For one thing, it means you can watch the system in operation under a test 
-load and see what it's really doing.  Chances are, you know right then 
-whether it's running well or not and don't have to wait till the end of a 
-long test run.
+Next step is to hack in drivers/scsi/sd.c:sd_alloc_majors() and
+sd_dealloc_majors() and add printk() calls. Is it possible
+sd_dealloc_majors() is being called more than once?
 
-Problem: none of the statistics show up in proc until the first time the 
-kernel hits them.  The /proc/stats entry isn't even there until the kernel 
-hits the first statistic.  This isn't user-friendly.
+Is 128 the only major number that it complains about? Any other
+bitching and moaning?
 
-I can see that this patch is going to break a lot between kernel updates, 
-because it touches precisely the places we work on all the time - that's why 
-the stats are there, right?  I'd suggest breaking it into two patchs, one 
-with all the support and a few basic statistics in stable places, and another 
-that adds in the rest of your current favorite vm stats.  It would also be 
-nice if the stats were broken up into sets that can be catted out of proc 
-onto the screen, in other words, sets of 23 or less.  This would mean that 
-that something like watch cat /proc/stats/vm is already an effective 
-interface.
+				Regards,
 
-I already learned a lot more about the what's actually happening inside the 
-vm using this.  One thing that surprised me is how few locked pages there 
-actually are on the inactive_dirty list.  I suppose I'd need a heavy mmap 
-load to see more activity there.  Maybe a heavy write load would show up more 
-there, but for now it looks like there are so few of those locked pages it 
-won't interfere with scanning performance at all.
-
-> On the userlevel side, I got zab's cpustat nice tool and transformed it
-> into an ugly hack which allows me to easily add/remove statistic
-> counters.
-
-I didn't get that to work.  It seemed to be looking at the wrong /proc file.
-I didn't look into it further.
-
---
-Daniel
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

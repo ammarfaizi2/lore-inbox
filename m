@@ -1,70 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281323AbRLEF6n>; Wed, 5 Dec 2001 00:58:43 -0500
+	id <S280537AbRLEGAX>; Wed, 5 Dec 2001 01:00:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281124AbRLEF6X>; Wed, 5 Dec 2001 00:58:23 -0500
-Received: from donna.siteprotect.com ([64.41.120.44]:52745 "EHLO
-	donna.siteprotect.com") by vger.kernel.org with ESMTP
-	id <S280967AbRLEF6N>; Wed, 5 Dec 2001 00:58:13 -0500
-Date: Wed, 5 Dec 2001 00:58:07 -0500 (EST)
-From: John Clemens <john@deater.net>
-X-X-Sender: <john@pianoman.cluster.toy>
-To: Cory Bell <cory.bell@usa.net>
-cc: <linux-kernel@vger.kernel.org>, <mj@ucw.cz>
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-In-Reply-To: <1007529416.2339.0.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0112050036440.25305-100000@pianoman.cluster.toy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281124AbRLEGAD>; Wed, 5 Dec 2001 01:00:03 -0500
+Received: from zok.sgi.com ([204.94.215.101]:1981 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S280967AbRLEF77>;
+	Wed, 5 Dec 2001 00:59:59 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: eddantes@wanadoo.fr
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Bug report 2.4.16: local symbols in discarded section .text.exit 
+In-Reply-To: Your message of "Sun, 02 Dec 2001 22:40:05 BST."
+             <3C0A9FB5.8040302@wanadoo.fr> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 05 Dec 2001 16:59:45 +1100
+Message-ID: <4157.1007531985@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 02 Dec 2001 22:40:05 +0100, 
+eddantes@wanadoo.fr wrote:
+>drivers/char/char.o(.data+0x46b4): undefined reference to `local symbols
+>in discarded section .text.exit'
+>drivers/net/net.o(.data+0xb4): undefined reference to `local symbols in
+>discarded section .text.exit'
 
-On 4 Dec 2001, Cory Bell wrote:
-> 11. Using the patch below (shamelessly stolen from John Clemens and
-> modified slightly -
-> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0111.2/0005.html),
+The latest binutils will flag references to symbols in discarded
+sections.  Tables that refer to code marked __devexit are now flagged
+as an error when the code is built in, because __devexit code is
+discarded.  Quick and dirty work around, while I think about a better
+fix.
 
-someone noticed! ;) Glad to see you also noticed my minor oversight in
-using INTERRUPT_PIN instead of the correct INTERRUPT_LINE.  Glad someone
-found the work useful... A few people have asked me separately for my
-patch and are using it successfully on thier laptops with no failure
-reports.
-
-> What I'm wondering is - what's broken?
-> Is it:
-> 1) Bad BIOS? (changing the date is as configurable as it gets - and I
-> have updated to the latest available version)
-
-Most probably.. that in combination with number 3.. And, to top it all
-off, ACPI is thrown in there too as a non-PCI device on IRQ9.  All in all,
-quite a quirky laptop (for reference, I own an N5430, an earlier version
-of your notebook).
-
-> 2) Bad Linux interperetation of ALi IRQ router? (comments in
-> linux/arch/i386/kernel/pci-irq.c seem to suggest it's possible)
-
-Doubtful, as I have an Ali Aladdin7 board in my desktop (don't get much
-more obscure than that one), and the Router works fine, as well as in a
-Magik1 based motherboard I've used.
-
-> Is there a "correct" way to fix this? Info follows. If anyone would like
-> additional info (full dmesg output, etc) I'd be happy to email it
-> seperately.
-
-I've been wondering this one myself... one thing these laptops do
-implement is a complete DMI table.. maybe we can do some sort of fixup
-through there... does anyone know of any way to use the "DMI workarounds"
-to effect PCI IRQ mapping -without- modifying the generic pci code?
-
-And I like you patch, it's a slightly cleaner for of ugly than mine :).
-
-john.c
-
--- 
-John Clemens          http://www.deater.net/john
-john@deater.net     ICQ: 7175925, IM: PianoManO8
-      "I Hate Quotes" -- Samuel L. Clemens
-
-
+Index: 16.1/drivers/char/serial.c
+--- 16.1/drivers/char/serial.c Sat, 10 Nov 2001 21:05:25 +1100 kaos (linux-2.4/b/c/22_serial.c 1.1.3.2.2.3.2.2.1.8.1.1 644)
++++ 16.1(w)/drivers/char/serial.c Wed, 05 Dec 2001 16:54:24 +1100 kaos (linux-2.4/b/c/22_serial.c 1.1.3.2.2.3.2.2.1.8.1.1 644)
+@@ -4896,7 +4896,9 @@ MODULE_DEVICE_TABLE(pci, serial_pci_tbl)
+ static struct pci_driver serial_pci_driver = {
+        name:           "serial",
+        probe:          serial_init_one,
++#ifdef MODULE
+        remove:	       serial_remove_one,
++#endif
+        id_table:       serial_pci_tbl,
+ };
+ 
+Index: 16.1/drivers/net/via-rhine.c
+--- 16.1/drivers/net/via-rhine.c Sat, 10 Nov 2001 21:05:25 +1100 kaos (linux-2.4/h/c/19_via-rhine. 1.1.1.4.1.2.1.3.1.2.1.1.1.1 644)
++++ 16.1(w)/drivers/net/via-rhine.c Wed, 05 Dec 2001 16:57:23 +1100 kaos (linux-2.4/h/c/19_via-rhine. 1.1.1.4.1.2.1.3.1.2.1.1.1.1 644)
+@@ -1667,7 +1667,9 @@ static struct pci_driver via_rhine_drive
+ 	name:		"via-rhine",
+ 	id_table:	via_rhine_pci_tbl,
+ 	probe:		via_rhine_init_one,
++#ifdef MODULE
+ 	remove:		via_rhine_remove_one,
++#endif
+ };
+ 
+ 
 

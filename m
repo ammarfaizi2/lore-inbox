@@ -1,51 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267485AbRGQWXN>; Tue, 17 Jul 2001 18:23:13 -0400
+	id <S267518AbRGQWcZ>; Tue, 17 Jul 2001 18:32:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267487AbRGQWWx>; Tue, 17 Jul 2001 18:22:53 -0400
-Received: from thebsh.namesys.com ([212.16.0.238]:19724 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S267485AbRGQWWp>; Tue, 17 Jul 2001 18:22:45 -0400
-Message-ID: <3B54BA7A.42B0E107@namesys.com>
-Date: Wed, 18 Jul 2001 02:21:46 +0400
-From: Hans Reiser <reiser@namesys.com>
-Organization: Namesys
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en, ru
+	id <S267548AbRGQWcP>; Tue, 17 Jul 2001 18:32:15 -0400
+Received: from joat.prv.ri.meganet.net ([209.213.80.2]:1743 "EHLO
+	joat.prv.ri.meganet.net") by vger.kernel.org with ESMTP
+	id <S267518AbRGQWcM>; Tue, 17 Jul 2001 18:32:12 -0400
+Message-ID: <3B54BD3C.A8E1E47F@ueidaq.com>
+Date: Tue, 17 Jul 2001 18:33:32 -0400
+From: Alex Ivchenko <aivchenko@ueidaq.com>
+Organization: UEI, Inc.
+X-Mailer: Mozilla 4.76 [en] (Windows NT 5.0; U)
+X-Accept-Language: en,pdf
 MIME-Version: 1.0
-To: Craig Soules <soules@happyplace.pdl.cmu.edu>
-CC: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: NFS Client patch
-In-Reply-To: <Pine.LNX.3.96L.1010717180713.13980K-100000@happyplace.pdl.cmu.edu>
-Content-Type: text/plain; charset=koi8-r
+To: root@chaos.analogic.com
+CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.6 possible problem
+In-Reply-To: <Pine.LNX.3.95.1010717153319.6035A-100000@chaos.analogic.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Craig Soules wrote:
-> 
-> On Wed, 18 Jul 2001, Hans Reiser wrote:
-> > I take issue with the word "properly".  We have bastardized our FS design to do it.  NFS should not
-> > be allowed to impose stable cookie maintenance on filesystems, it violates layering.  Simply
-> > returning the last returned filename is so simple to code, much simpler than what we have to do to
-> > cope with cookies.  Linux should fix the protocol for NFS, not ask Craig to screw over his FS
-> > design.  Not that I think that will happen.....
-> 
-> Unfortunately to comply with NFSv2, the cookie cannot be larger than
-> 32-bits.  I believe this oversight has been correct in later NFS versions.
-> 
-> I do agree that forcing the underlying fs to "fix" itself for NFS is the
-> wrong solution. I can understand their desire to follow unix semantics
-> (although I don't entirely agree with them), so until I think up a more
-> palatable solution for the linux community, I will just keep my patches to
-> myself :)
-> 
-> Craig
+Dick,
 
-64 bits as in NFS v4 is still not large enough to hold a filename.  For practical reasons, ReiserFS
-does what is needed to work with NFS, but what is needed bad design features, and any FS designer
-who doesn't feel the need to get along with NFS should not have acceptance of bad design be made a
-criterion for the acceptance of his patches.  Just let NFS not work for Craig's FS, what is the
-problem with that?
+"Richard B. Johnson" wrote:
+> 
+> On Tue, 17 Jul 2001, Linus Torvalds wrote:
+> 
+> > In article <Pine.LNX.3.95.1010717103652.1430A-100000@chaos.analogic.com>,
+> > Richard B. Johnson <root@chaos.analogic.com> wrote:
+> > >
+> > >    ticks = 1 * HZ;        /* For 1 second */
+> > >    while((ticks = interruptible_sleep_on_timeout(&wqhead, ticks)) > 0)
+> > >                  ;
+> >
+> > Don't do this.
+> >
+> > Imagine what happens if a signal comes in and wakes you up? The signal
+> > will continue to be pending, which will make your "sleep loop" be a busy
+> > loop as you can never go to sleep interruptibly with a pending signal.
 
-Hans
+Sleep like this is useless in real code. You either want your ioctl to unblock
+when event (or time-out) happens or use sleep function to make driver wait certain 
+amount of time (if you need to access poorly-designed hardware).
+
+Off-topic:
+
+>     I was going to compile a list of innovations that could be
+>     attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+>     was handled in the BIOS, I found that there aren't any.
+Well, give 'em at least some credit for copycating :-)
+As a system architect I would say a *good* copycating.
+
+For example:
+
+Win32 events (CreateEvent(), WaitForxxxObject()) are very useful things.
+The whole reason I was asking my questions is because I want to emulate Win32-like
+event mechanism it Linux driver. I wouldn't mind to have this mechanism built into
+Linux kernel. 
+
+Say, one of the user process threads calls:
+ret = WaitForSingleObject(hObject, dwTimeoutms);
+or
+ret = WaitForMultipleObjects(nNumber, hObjects[], FALSE, dwTimeoutms);
+
+and waits until time-out or one (or more) objects are set.
+
+>From the driver side you call:
+KeSetEvent(hNotifyEvent, (KPRIORITY)1, FALSE);
+when you want to release object.
+
+It's very useful.
+For example, with our hardware I can have up to 16*4 = 64 totally separated 
+subsystems. Each subsystem can fire event asynchronously. It's much easier to
+control each subsystem in separate thread and Win32 events are very handy.
+
+-- 
+Regards,
+Alex
+
+--
+Alex Ivchenko, Ph.D.
+United Electronic Industries, Inc.
+"The High-Performance Alternative (tm)"
+--
+10 Dexter Avenue
+Watertown, Massachusetts 02472
+Tel: (617) 924-1155 x 222 Fax: (617) 924-1441
+http://www.ueidaq.com

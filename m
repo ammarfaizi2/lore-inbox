@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132177AbRCVUKR>; Thu, 22 Mar 2001 15:10:17 -0500
+	id <S132169AbRCVUJh>; Thu, 22 Mar 2001 15:09:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132176AbRCVUKH>; Thu, 22 Mar 2001 15:10:07 -0500
-Received: from pcp001515pcs.wireless.meeting.ietf.org ([135.222.67.247]:48644
-	"EHLO think") by vger.kernel.org with ESMTP id <S132172AbRCVUJ5>;
-	Thu, 22 Mar 2001 15:09:57 -0500
-Date: Thu, 22 Mar 2001 14:08:52 -0600
-From: Theodore Tso <tytso@mit.edu>
-To: Geir Thomassen <geirt@powertech.no>
-Cc: linux-kernel@vger.kernel.org, tytso@mit.edu
-Subject: Re: Serial port latency
-Message-ID: <20010322140852.A4110@think>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Geir Thomassen <geirt@powertech.no>, linux-kernel@vger.kernel.org
-In-Reply-To: <3ABA42A8.A806D0E7@powertech.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <3ABA42A8.A806D0E7@powertech.no>; from geirt@powertech.no on Thu, Mar 22, 2001 at 07:21:28PM +0100
+	id <S132172AbRCVUJ1>; Thu, 22 Mar 2001 15:09:27 -0500
+Received: from monster.amazon.com ([209.191.164.156]:60364 "HELO
+	monster.amazon.com") by vger.kernel.org with SMTP
+	id <S132169AbRCVUJM>; Thu, 22 Mar 2001 15:09:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: "Jason T. Murphy" <jtmurphy@amazon.com>
+Organization: Amazon.com
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>,
+        Neal Gieselman <Neal.Gieselman@Visionics.com>
+Subject: Re: Where is the RAM?
+Date: Thu, 22 Mar 2001 12:05:16 -0800
+X-Mailer: KMail [version 1.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <D0FA767FA2D5D31194990090279877DA5736B2@dbimail.digitalbiometrics.com> <20010322160607.A9434@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010322160607.A9434@arthur.ubicom.tudelft.nl>
+MIME-Version: 1.0
+Message-Id: <0103221205160A.21570@mullen>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 22, 2001 at 07:21:28PM +0100, Geir Thomassen wrote:
-> My program controls a device (a programmer for microcontrollers) via the
-> serial port. The program sits in a tight loop, writing a few (typical 6)
-> bytes to the port, and waits for a few (typ. two) bytes to be returned from
-> the programmer. 
+On Thursday 22 March 2001 07:06 am, Erik Mouw wrote:
+> On Thu, Mar 22, 2001 at 08:29:14AM -0600, Neal Gieselman wrote:
+> > I have a Redhat 6.1 WS that was installed with 64 MB RAM.  I added
+> > another 64 MB, booted, BIOS sees it, but top, free, etc still see only 64
+> > MB. Any clues on what to do?
+>
+> Upgrade to linux-2.2.18 or linux-2.4.2.
 
-Check out the man page for the "low_latency" configuration parameter
-in the setserial man page.  This will cause the serial driver to burn
-a small amount of additional CPU overhead when processing characters,
-but it will lower the time between when characters arrive at the
-RS-232 port and when they are made available to the user program.  The
-preferable solution is to use a intelligent windowing protocol that
-isn't heavily latency dependent (all modern protocols, such as kermit,
-zmodem, tcp/ip, etc. do this).  But if you can't, using setserial to
-set the "low_latency" flag will allow you to work around a dumb
-communications protocol.
+Also, some motherboards (Abit BH6's comes to mind) with certain older BIOS 
+won't let 2.2.X kernels see all 128 megs. Check your motherboard makers 
+website for BIOS update or other like information.
 
-						- Ted
+>
+>
+> Erik
+
+-- 
+Jason T. Murphy
+System Administrator
+Amazon.com
+jtmurphy@amazon.com

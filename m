@@ -1,48 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266127AbUFUFrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUFUFrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266127AbUFUFrb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 01:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUFUFrb
+	id S266124AbUFUFrT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 01:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUFUFrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 01:47:31 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:62429 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S266127AbUFUFr1 (ORCPT
+	Mon, 21 Jun 2004 01:47:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36996 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266124AbUFUFrP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 01:47:27 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Takao Indoh <indou.takao@soft.fujitsu.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@muc.de>
-Subject: Re: [3/4] [PATCH]Diskdump - yet another crash dump function 
-In-reply-to: Your message of "Thu, 17 Jun 2004 14:13:56 +0200."
-             <20040617121356.GA24338@elte.hu> 
+	Mon, 21 Jun 2004 01:47:15 -0400
+Date: Mon, 21 Jun 2004 01:29:21 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: "R. J. Wysocki" <rjwysocki@sisk.pl>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: Opteron bug
+Message-ID: <20040621052921.GC21264@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <200406192229.14296.rjwysocki@sisk.pl> <200406201347.17967.rjwysocki@sisk.pl> <20040620120247.GA21264@devserv.devel.redhat.com> <200406210254.53124.vda@port.imtp.ilyichevsk.odessa.ua>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 21 Jun 2004 15:46:11 +1000
-Message-ID: <1642.1087796771@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <200406210254.53124.vda@port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jun 2004 14:13:56 +0200, 
-Ingo Molnar <mingo@elte.hu> wrote:
->but there's another possible method (suggested by Alan Cox) that
->requires no changes to the timer API hotpaths: 'clear' all timer lists
->upon a crash [once all CPUs have stopped and irqs are disabled] and just
->let the drivers use the normal timer APIs. Drive timer execution via a
->polling method.
->
->this basically approximates your polling based implementation but uses
->the existing kernel timer data structures and timer mechanism so should
->be robust and compatible. It doesnt rely on any previous state (because
->all currently pending timers are discarded) so it's as crash-safe as
->possible.
+On Mon, Jun 21, 2004 at 02:54:53AM +0300, Denis Vlasenko wrote:
+> On Sunday 20 June 2004 15:02, Jakub Jelinek wrote:
+> > On Sun, Jun 20, 2004 at 01:47:17PM +0200, R. J. Wysocki wrote:
+> > > Well, is there any case in which the gcc can produce such stuff?
+> >
+> > GCC doesn't ever generate std instruction (only cld), though users
+> > can use it in inline assembly or assembly source file.
+> > AFAIK x86_64 glibc doesn't use it at all either.
+> 
+> glibc-2.3/sysdeps/i386/memcopy.h:
+> 
+> #define BYTE_COPY_BWD(dst_ep, src_ep, nbytes)                                 \
+>   do                                                                          \
+>     {                                                                         \
+>       int __d0;                                                               \
+>       asm volatile(/* Set the direction flag, so copying goes backwards.  */  \
+>                    "std\n"                                                    \
+>                    /* Copy bytes.  */                                         \
+>                    "rep\n"                                                    \
+>                    "movsb\n"                                                  \
+>                    /* Clear the dir flag.  Convention says it should be 0. */ \
+>                    "cld" :                                                    \
+>                    "=D" (dst_ep), "=S" (src_ep), "=c" (__d0) :                \
+>                    "0" (dst_ep - 1), "1" (src_ep - 1), "2" (nbytes) :         \
+>                    "memory");                                                 \
+>       dst_ep += 1;                                                            \
+>       src_ep += 1;                                                            \
+>     } while (0)
+> 
+> WORD_COPY_BWD also does this
 
-Don't forget live crash dumping.  The system is running and is behaving
-strangely so you want to take a dump for investigation, but you do not
-want to kill the system afterwards.  Live crash dumping is very useful
-for problem diagnosis.
+I know, but I said x86_64 glibc, which doesn't do this.
 
-It is a little more complex than dumping after an oops because you must
-not destroy any kernel data, including timer lists.
-
+	Jakub

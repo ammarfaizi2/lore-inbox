@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264616AbRFUBy2>; Wed, 20 Jun 2001 21:54:28 -0400
+	id <S264641AbRFUB4S>; Wed, 20 Jun 2001 21:56:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264595AbRFUByS>; Wed, 20 Jun 2001 21:54:18 -0400
-Received: from toscano.org ([64.50.191.142]:31944 "HELO bubba.toscano.org")
-	by vger.kernel.org with SMTP id <S264591AbRFUByH>;
-	Wed, 20 Jun 2001 21:54:07 -0400
-Date: Wed, 20 Jun 2001 21:53:02 -0400
-From: Pete Toscano <pete@toscano.org>
-To: Ted Gervais <ve1drg@ve1drg.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ip_tables/ipchains
-Message-ID: <20010620215302.A4636@bubba.toscano.org>
-Mail-Followup-To: Pete Toscano <pete@toscano.org>,
-	Ted Gervais <ve1drg@ve1drg.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0106200804160.2944-100000@ve1drg.com>
-Mime-Version: 1.0
+	id <S264654AbRFUB4J>; Wed, 20 Jun 2001 21:56:09 -0400
+Received: from mailhost.idcomm.com ([207.40.196.14]:53706 "EHLO
+	mailhost.idcomm.com") by vger.kernel.org with ESMTP
+	id <S264641AbRFUB4E>; Wed, 20 Jun 2001 21:56:04 -0400
+Message-ID: <3B31548A.5CD51796@idcomm.com>
+Date: Wed, 20 Jun 2001 19:57:30 -0600
+From: "D. Stimits" <stimits@idcomm.com>
+Reply-To: stimits@idcomm.com
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre1-xfs-4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
+In-Reply-To: <200106202120.f5KLKO5320707@saturn.cs.uml.edu> <0106201412240B.00776@localhost.localdomain> <3B3142DB.F4658CA4@idcomm.com> <0106201618550H.00776@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0106200804160.2944-100000@ve1drg.com>; from ve1drg@ve1drg.com on Wed, Jun 20, 2001 at 08:05:41AM -0300
-X-Unexpected: The Spanish Inquisition
-X-Uptime: 9:52pm  up 10 min,  2 users,  load average: 1.10, 0.54, 0.24
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a similar problem with this yesterday.  Try moving your .config
-file to a safe place, making mrproper, then moving your .config back and
-rebuilding.  I did this and all was well.
-
-HTH,
-pete
-
-On Wed, 20 Jun 2001, Ted Gervais wrote:
-
-> Wondering something..
-> I ran insmod to bring up ip_tables.o and I received the following error:
+Rob Landley wrote:
 > 
-> /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
-> symbol nf_unregister_sockopt
-> /lib/modules/2.4.5/kernel/net/ipv4/netfilter/ip_tables.o: unresolved
-> symbol nf_register_sockopt
+> On Wednesday 20 June 2001 20:42, D. Stimits wrote:
+> > Rob Landley wrote:
+> > ...snip...
+> >
+> > > The patches-linus-actuall-applies mailing list idea is based on how Linus
+> > > says he works: he appends patches he likes to a file and then calls patch
+> > > -p1 < thatfile after a mail reading session.  It wouldn't be too much
+> > > work for somebody to write a toy he could use that lets him work about
+> > > the same way but forwards the messages to another folder where they can
+> > > go out on an otherwise read-only list.  (No extra work for Linus.  This
+> > > is EXTREMELY important, 'cause otherwise he'll never touch it.)
+> >
+> > What if the file doing patches from is actually visible on a web page?
+> > Or better yet, if the patch command itself was modified such that at the
+> > same time it applies a patch, the source and the results were added to a
+> > MySQL server which in turn shows as a web page?
 > 
-> This is with kernel 2.4.5 and Slackware 7.1 is the distribution.
-> Does anyone know what these unresolved symbols are about??
+> His patch file already has a bunch of patches glorped together.  In theory
+> they could be separated again by parsing the mail headers.  I suppose that
+> would be less work for Linus...
+> 
+> The point is, the difference between the patches WE get and the patches LINUS
+> gets is the granularity.  He's constantly extorting other people to watch the
+> granularity of what they send him (small patches, each doing one thing, with
+> good documentation as to what they do and why, in seperate messages), but
+> what WE get is a great big diff about once a week.
+
+If patch was itself modified, the one big patch file could easily be
+considered in terms of all of its smaller patches in any processing it
+does as a publication aid.
+
+> 
+> So what I'm trying to figure out is if we can impose on Linus to cc: a
+> mailing list on the stream of individual patch messages he's applying to his
+> tree, so we can follow it better.  And he IS willing to do a LITTLE work for
+> us.  He's issuing changelogs now.  This would be significantly less effort
+> than that...
+
+The patch command already considers one large file to be a lot of
+smaller patches in most cases. Why not, as it does its work, let it
+document what it has done?
+
+> 
+> MySQL is overkill, and since these things started as mail messages why should
+> they be converted into a foriegn format?  There's threaded archivers for
+> mailing lists and newsgroups and stuff already, why reinvent the wheel?
+
+MySQL is just a sample. I mention it because it is quite easy to link a
+web server to. Imagine patch running on a large file that is a
+conglomeration of 50 small patches; it could easily summarize this, and
+storing it through MySQL adds a lot of increased web flexibility (such
+as searching and sorting). It is, however, just one example of a way to
+make "patch" become autodocumenting.
+
+> 
+> Rob

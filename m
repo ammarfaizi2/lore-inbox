@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312558AbSE2XHC>; Wed, 29 May 2002 19:07:02 -0400
+	id <S315631AbSE2XHa>; Wed, 29 May 2002 19:07:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315693AbSE2XHB>; Wed, 29 May 2002 19:07:01 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:35589 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S312558AbSE2XHA>; Wed, 29 May 2002 19:07:00 -0400
-Date: Thu, 30 May 2002 01:06:57 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Nicolas Pitre <nico@cam.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.19 - What's up with the kernel build?
-Message-ID: <20020529230657.GB2851@louise.pinerecords.com>
-In-Reply-To: <3CF540F8.6000802@mandrakesoft.com> <Pine.LNX.4.44.0205291827130.23147-100000@xanadu.home>
+	id <S315693AbSE2XH3>; Wed, 29 May 2002 19:07:29 -0400
+Received: from jalon.able.es ([212.97.163.2]:22232 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S315631AbSE2XH2>;
+	Wed, 29 May 2002 19:07:28 -0400
+Date: Thu, 30 May 2002 01:06:44 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>,
+        Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, davej@suse.de
+Subject: Re: [PATCH] intel-x86 model config cleanup
+Message-ID: <20020529230644.GC3174@werewolf.able.es>
+In-Reply-To: <20020529143544.GA2224@werewolf.able.es> <3CF53C03.5040301@mandrakesoft.com> <3CF53C34.2080300@mandrakesoft.com> <20020529224423.GA3174@werewolf.able.es> <3CF55C3D.6030008@mandrakesoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: GNU/Linux 2.4.19-pre9/sparc SMP
-X-Uptime: 3:14
+Content-Transfer-Encoding: 8bit
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well, I really like Keith's kbuild25 too, but Linus said (at least once) 
-> > he wanted an evolution to a new build system... not an unreasonable 
-> > request to at least consider.  Despite Keith's quality of code (again -- 
-> > I like kbuild25), his 3 patch submissions seemed a lot like ultimatums, 
-> > very "take it or leave it dammit".  Not the best way to win friends and 
-> > influence people.
-> > 
-> > If Keith is indeed leaving it, I'm hoping someone will maintain it, or 
-> > work with Kai to integrate it into 2.5.x.
-> 
-> When I suggested to Keith he push kbuild25 the way Linus likes, he (Keith) 
-> considered that was a "stupid comment" and that he'd ignore stupid comments.
 
-What remains to be answered is, how does one split a system of a myriad of
-build rule files into a reasonable amount of small patches.
+On 2002.05.30 Jeff Garzik wrote:
+>
+>The basic thing to remember is that "generic_foo" or "cpu_intel_foo" 
+>options should very rarely, if ever, appear in the config.in or sources. 
+> We simply want to use the generic or cpu-specific user selection to 
+>determine (a) compiler flags, (b) CONFIG_xxx symbols for specific CPU 
+>features and optimizations, [like CONFIG_X86_F00F_BUG] and maybe (c) 
+>enable and disable CPU-specific drivers.  (c) will be a special case, 
+>since very few drivers should require a specific CPU type... but some 
+>drivers simply don't work on 386.
+>
 
-Of course, you could have hundreds of patches each consisting of a single
-Makefile.in, but how would that make the reviewing/integrating easier? In
-the end you'd end up reading the same input, only you'd complement it by
-frequently pressing your favorite show-me-the-next-mail key.
+Grep on the tree showed this:
 
-The solution here is not to create "artificial splitting," but rather spare
-the good ol' system for the time being and have kbuild25 coexist with it until
-all build issues are resolved and everything works acceptably -- and that's
-what has been offered. 2.5 is certain to span a long enough period for such
-treatment, and Keith will be so kind as to keep updating his work.
+drivers/char/serial.c:
 
-Alright I really didn't want to get involved in another kbuild thread but
-couldn't help it. Sorry.
+#if defined(__i386__) && (defined(CONFIG_M386) || defined(CONFIG_M486))
+#define SERIAL_INLINE
+#endif
 
+include/asm-i386/processor.h:
 
-T.
+/* Prefetch instructions for Pentium III and AMD Athlon */
+#ifdef  CONFIG_MPENTIUMIII
+
+#define ARCH_HAS_PREFETCH
+extern inline void prefetch(const void *x)
+{
+    __asm__ __volatile__ ("prefetchnta (%0)" : : "r"(x));
+}
+
+#elif CONFIG_X86_USE_3DNOW
+
+#define ARCH_HAS_PREFETCH
+#define ARCH_HAS_PREFETCHW
+#define ARCH_HAS_SPINLOCK_PREFETCH
+
+More candidates for CONFIG_X86_xxxxx.
+But these spawn over other architextures:
+include/asm-alpha/processor.h:#define ARCH_HAS_PREFETCH
+include/asm-ppc/processor.h:#define ARCH_HAS_PREFETCH
+...
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Mandrake Linux release 8.3 (Cooker) for i586
+Linux werewolf 2.4.19-pre9-jam1 #1 SMP mié may 29 02:20:48 CEST 2002 i686

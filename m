@@ -1,39 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262741AbUDAX0H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 18:26:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263158AbUDAX0H
+	id S263338AbUDAX3n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 18:29:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263346AbUDAX3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 18:26:07 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:15246
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S262741AbUDAX0G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 18:26:06 -0500
-Date: Fri, 2 Apr 2004 01:26:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       kenneth.w.chen@intel.com
-Subject: Re: disable-cap-mlock
-Message-ID: <20040401232603.GE18585@dualathlon.random>
-References: <20040401223619.GB18585@dualathlon.random> <Pine.LNX.4.44.0404011807350.5589-100000@chimarrao.boston.redhat.com>
+	Thu, 1 Apr 2004 18:29:43 -0500
+Received: from rav-az.mvista.com ([65.200.49.157]:44067 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S263338AbUDAX3l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 18:29:41 -0500
+Subject: Re: epoll reporting events when it hasn't been asked to
+From: Steven Dake <sdake@mvista.com>
+Reply-To: sdake@mvista.com
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Ben Mansell <ben@zeus.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0404011125510.2509-100000@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.44.0404011125510.2509-100000@bigblue.dev.mdolabs.com>
+Content-Type: text/plain
+Organization: MontaVista Software, Inc.
+Message-Id: <1080862174.9534.112.camel@persist.az.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0404011807350.5589-100000@chimarrao.boston.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 01 Apr 2004 16:29:35 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 01, 2004 at 06:08:18PM -0500, Rik van Riel wrote:
-> Oracle seems to be using it just fine in a certain 2.4
-> based kernel, so why exactly do you think it would be
-> useless for the problem you want to solve ?
+On Thu, 2004-04-01 at 12:28, Davide Libenzi wrote:
+> On Thu, 1 Apr 2004, Ben Mansell wrote:
 > 
-> Also, what would need to be fixed in order for it to
-> not be useless ? ;)
+> > > It is a feature. epoll OR user events with POLLHUP|POLLERR so that even if
+> > > the user sets the event mask to zero, it can still know when something
+> > > like those abnormal condition happened. Which problem do you see with this?
+> > 
+> > What should the application do if it gets events that it didn't ask for?
+> > If you choose to ignore them, the next time epoll_wait() is called it
+> > will return instantly with these same messages, so the app will spin and
+> > eat CPU.
+> 
+> Shouldn't the application handle those exceptional conditions instead of 
+> ignoring them?
+> 
+> 
 
-tell me how to call shmget(SHM_HUGETLB) without having the CAP_IPC_LOCK
-with the rlimit patch.
+If an exception occurs (example a socket is disconnected) the socket
+should be removed from the fd list.  There is really no point in passing
+in an excepted fd.
+
+epoll works just like poll and the expected SUS behavior in this regard.
+
+Thanks
+-steve
+
+

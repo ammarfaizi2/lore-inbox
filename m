@@ -1,65 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275990AbRKSSW4>; Mon, 19 Nov 2001 13:22:56 -0500
+	id <S280537AbRKSSWq>; Mon, 19 Nov 2001 13:22:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276424AbRKSSWr>; Mon, 19 Nov 2001 13:22:47 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59494 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S275990AbRKSSWa>; Mon, 19 Nov 2001 13:22:30 -0500
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM-related Oops: 2.4.15pre1
-In-Reply-To: <Pine.LNX.4.33.0111190833440.8103-100000@penguin.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Nov 2001 11:03:20 -0700
-In-Reply-To: <Pine.LNX.4.33.0111190833440.8103-100000@penguin.transmeta.com>
-Message-ID: <m1wv0m7i53.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S276424AbRKSSW0>; Mon, 19 Nov 2001 13:22:26 -0500
+Received: from mons.uio.no ([129.240.130.14]:8165 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S275990AbRKSSWR>;
+	Mon, 19 Nov 2001 13:22:17 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15353.19920.461805.879956@charged.uio.no>
+Date: Mon, 19 Nov 2001 19:22:08 +0100
+To: Birger Lammering <b.lammering@science-computing.de>
+Cc: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
+Subject: more tcpdumpinfo for nfs3 problem: aix-server --- linux 2.4.15pre5 client
+In-Reply-To: <15353.13652.591045.916300@stderr.science-computing.de>
+In-Reply-To: <15352.56551.709659.146271@stderr.science-computing.de>
+	<E165mPr-0006F5-00@the-village.bc.nu>
+	<15353.13652.591045.916300@stderr.science-computing.de>
+X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+>>>>> " " == Birger Lammering <b.lammering@science-computing.de> writes:
 
-> That's fine - if you have two threads modifying the same variable at the
-> same time, you need to lock it.
-> 
-> That's not the case under discussion.
-> 
-> The case under discussion is gcc writing back values to a variable that
-> NEVER HAD ANY VALIDITY, even in the single-threaded case. And it _is_
-> single-threaded at that point, you only have other users that test the
-> value, not change it.
-> 
-> That's not an optimization, that's just plain broken. It breaks even
-> user-level applications that use sigatomic_t.
-> 
-> And note how gcc doesn't actually do it. I'm not saying that gcc is broken
-> - I' saying that gcc is NOT broken, and we depend on it being not broken.
+     > 3133:3289(156) ack 514936 win 60032 16:27:26.282843 >
+     > capc25.muc.799 > caes04.muc.nfs: . 514936:514936(0) ack 3289
+     > win 8576 (DF)
 
-Linus I agree that gcc works.  And even if page->flags is written
-to, with two separate write operations page->flags & PG_locked should
-still be true.
+     > from now on we get lot's of these:
 
-However this case seems to violate code clarity.  If you can have
-other users testing PG_locked it is non-intuitive that you can still
-normally assign to page->flags.
+     > 16:27:26.489024 > capc25.muc.576126976 > caes04.muc.nfs: 40
+     > null (DF) 16:27:26.489647 < caes04.muc.nfs >
+     > capc25.muc.576126976: reply ok 24 null
 
-Would it make sense to add a set_bits macro that is a just an
-assignment except on extremely weird architectures or to work
-around compiler bugs?  I'm just thinking it would make sense
-to document that we depend on the compiler not writing some
-strange intermediate values into the variable.
+     > The cp command on the Linux nfs3-client side hangs and cannot
+     > be killed. We get:
 
-I can't imagine why a compiler ever would but it is remotely possible
-a compiler but generate an instruction sequence like:
-xorl flags, $0xFFFFFFFF
-xorl flags, $0xFFFFFFFe
+     > dmesg: nfs: server caes04 not responding, still trying
 
-To flip the low bit.  I would be terribly surprised, and it would
-certainly break sigatomic_t if it was a plain typedef, but stranger
-things have happened.
+     > then after a while: dmesg: nfs: server caes04 OK
 
-Eric
+     > qx09820@capc25 /home/qx09820 > netstat | grep caes04 tcp 0 0
+     > capc25.muc:798 caes04.muc:nfs ESTABLISHED
 
+Ho hum... It looks to me as if the problem is that the Linux NFS
+client is falling asleep before a write, and then not waking
+up. That sort of points at the write_space() callback.
+
+When the socket buffer is full, and we get an EAGAIN response to our
+sendmsg() request, we normally put the request to sleep, block the
+socket, and rely on write_space() to wake us up when there is enough
+memory to proceed.
+
+Assuming that this is the case, there are 2 possible causes:
+
+   1) A bug in the IPV4 TCP layer in which we don't call write_space()
+      despite having liberated enough memory to proceed.
+
+   2) I've misunderstood the IPV4 tcp api, and so the check for
+      sock_writeable() in net/sunrpc/xprt.c:tcp_write_space() is
+      incorrect.
+
+Alexey: Do you have any comments? Is it correct to check for
+sock_writeable() on a TCP socket?
+
+
+Birger: could you try the following patch, that simply removes the
+check for sock_writeable()?
+
+Cheers,
+  Trond
+
+--- linux-2.4.15-pre6/net/sunrpc/xprt.c.orig	Mon Oct  8 21:36:07 2001
++++ linux-2.4.15-pre6/net/sunrpc/xprt.c	Mon Nov 19 19:07:09 2001
+@@ -1071,10 +1071,6 @@
+ 	if (xprt->shutdown)
+ 		return;
+ 
+-	/* Wait until we have enough socket memory */
+-	if (!sock_writeable(sk))
+-		return;
+-
+ 	if (!xprt_test_and_set_wspace(xprt)) {
+ 		spin_lock(&xprt->sock_lock);
+ 		if (xprt->snd_task && xprt->snd_task->tk_rpcwait == &xprt->sending)

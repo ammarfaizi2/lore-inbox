@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129109AbQKFPMO>; Mon, 6 Nov 2000 10:12:14 -0500
+	id <S129042AbQKFPX6>; Mon, 6 Nov 2000 10:23:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129096AbQKFPME>; Mon, 6 Nov 2000 10:12:04 -0500
-Received: from underdog.barkingdogstudios.com ([206.186.109.131]:4882 "EHLO
-	underdog.barkingdogstudios.com") by vger.kernel.org with ESMTP
-	id <S129109AbQKFPLs>; Mon, 6 Nov 2000 10:11:48 -0500
-Date: Mon, 6 Nov 2000 10:11:11 -0500 (EST)
-From: Michael Vines <mjvines@undergrad.math.uwaterloo.ca>
-To: Catalin BOIE <util@deuroconsult.ro>
-cc: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel hook for open
-In-Reply-To: <20001106155702.F12348@arthur.ubicom.tudelft.nl>
-Message-ID: <Pine.LNX.4.10.10011061009490.9936-100000@barkingdogstudios.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129053AbQKFPXs>; Mon, 6 Nov 2000 10:23:48 -0500
+Received: from mnh-1-28.mv.com ([207.22.10.60]:62215 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S129042AbQKFPXi>;
+	Mon, 6 Nov 2000 10:23:38 -0500
+Message-Id: <200011061631.LAA02504@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org
+Subject: Play Kernel Hangman!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 06 Nov 2000 11:31:44 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Nov 2000, Erik Mouw wrote:
+After a stranger than usual late-night #kernelnewbies session on Thursday, I 
+was inspired to come up with Kernel Hangman.  This is the traditional game of 
+hangman, except that the words you have to guess are kernel symbols.
 
-> On Mon, Nov 06, 2000 at 03:55:41PM +0200, Catalin BOIE wrote:
-> > I wish to know if there is something like a kernel hook for open function.
-> > I want to monitor a file (someting like watchdog on Solaris) and to read
-> > from my own process (module?) and from the file.
-> 
-> I don't know what watchdog is, but maybe strace is what you want (man
-> strace for more info).
-> 
-> > I tried with LD_SO_PRELOAD but it haven't any effect on the so libraries.
-> > For example:
-> > If I use function getpwent (that is in a so library) and my home
-> > made .so library that overwrite "open" function and is in
-> > /etc/ld.so.preload file it doesn't work.
-> > Of course, if I use open ("/etc/hosts") the so library execute my
-> > function. 
-> 
-> Use LD_PRELOAD instead.
+So, test your knowledge of kernel trivia and play it at 
+http://user-mode-linux.sourceforge.net/cgi-bin/hangman
 
-You could also write a simple kernel module that replaces the open system
-call.  See the Linux Kernel Module Programming Guide for details. 
-http://www.linuxdoc.org/guides.html
+				Jeff
 
-specifically http://www.linuxdoc.org/LDP/lkmpg/node20.html
-
-        Michael
-       
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

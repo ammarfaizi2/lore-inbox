@@ -1,70 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263310AbTJQF4t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 01:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTJQF4t
+	id S263314AbTJQGbb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 02:31:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263315AbTJQGbb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 01:56:49 -0400
-Received: from fw.osdl.org ([65.172.181.6]:65192 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263310AbTJQF4s (ORCPT
+	Fri, 17 Oct 2003 02:31:31 -0400
+Received: from smtp2.cwidc.net ([154.33.63.112]:17641 "EHLO smtp2.cwidc.net")
+	by vger.kernel.org with ESMTP id S263314AbTJQGba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 01:56:48 -0400
-Date: Thu, 16 Oct 2003 22:56:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alberto Bertogli <albertogli@telpin.com.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test5/6 (and probably 7 too) size-4096 memory leak
-Message-Id: <20031016225653.7f3ff0c3.akpm@osdl.org>
-In-Reply-To: <20031016025554.GH4292@telpin.com.ar>
-References: <20031016025554.GH4292@telpin.com.ar>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 17 Oct 2003 02:31:30 -0400
+Message-ID: <3F8F8CEA.9000000@tequila.co.jp>
+Date: Fri, 17 Oct 2003 15:32:10 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en, ja
+MIME-Version: 1.0
+To: linux-hotplug-devel@lists.sourceforge.net
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] udev 003 release
+References: <20031017055652.GA7712@kroah.com>
+In-Reply-To: <20031017055652.GA7712@kroah.com>
+X-Enigmail-Version: 0.76.7.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alberto Bertogli <albertogli@telpin.com.ar> wrote:
->
-> I want to report a memory leak for 2.6.0-test5 that I've noticed today on
->  a mail server after 32 days of uptime.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-'twas in ext3.
+Greg KH wrote:
 
- fs/jbd/commit.c  |    8 ++++++++
- fs/jbd/journal.c |    2 ++
- 2 files changed, 10 insertions(+)
+> The new udev FAQ is included in this release, and can also be found at:
+> 	kernel.org/pub/linux/utils/kernel/hotplug/hotplug/udev-FAQ
 
-diff -puN fs/jbd/commit.c~jbd-leak-fix fs/jbd/commit.c
---- 25/fs/jbd/commit.c~jbd-leak-fix	2003-10-16 21:47:28.000000000 -0700
-+++ 25-akpm/fs/jbd/commit.c	2003-10-16 22:10:58.000000000 -0700
-@@ -172,6 +172,14 @@ void journal_commit_transaction(journal_
- 	while (commit_transaction->t_reserved_list) {
- 		jh = commit_transaction->t_reserved_list;
- 		JBUFFER_TRACE(jh, "reserved, unused: refile");
-+		/*
-+		 * A journal_get_undo_access()+journal_release_buffer() may
-+		 * leave undo-committed data.
-+		 */
-+		if (jh->b_committed_data) {
-+			kfree(jh->b_committed_data);
-+			jh->b_committed_data = NULL;
-+		}
- 		journal_refile_buffer(journal, jh);
- 	}
- 
-diff -puN fs/jbd/journal.c~jbd-leak-fix fs/jbd/journal.c
---- 25/fs/jbd/journal.c~jbd-leak-fix	2003-10-16 22:11:45.000000000 -0700
-+++ 25-akpm/fs/jbd/journal.c	2003-10-16 22:11:56.000000000 -0700
-@@ -1729,6 +1729,8 @@ static void __journal_remove_journal_hea
- 			J_ASSERT_BH(bh, buffer_jbd(bh));
- 			J_ASSERT_BH(bh, jh2bh(jh) == bh);
- 			BUFFER_TRACE(bh, "remove journal_head");
-+			J_ASSERT_BH(bh, !jh->b_frozen_data);
-+			J_ASSERT_BH(bh, !jh->b_committed_data);
- 			bh->b_private = NULL;
- 			jh->b_bh = NULL;	/* debug, really */
- 			clear_buffer_jbd(bh);
+one hotplug too much it's just
+       ftp://kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
 
-_
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+Tequila Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/j4zqjBz/yQjBxz8RAjtiAJ9kQkj/vtjmWJshUc7lM82e0RV0lwCgvavU
+fzrvdDR+/FpmrSQ9SOvusr8=
+=1eA1
+-----END PGP SIGNATURE-----
 

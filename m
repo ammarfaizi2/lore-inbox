@@ -1,43 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275108AbTHLIvl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 04:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275124AbTHLIvl
+	id S275110AbTHLI7X (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 04:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275124AbTHLI7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 04:51:41 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:777 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S275108AbTHLIvj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 04:51:39 -0400
-Date: Tue, 12 Aug 2003 10:51:37 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Christoph Hellwig <hch@infradead.org>, linux-scsi@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops in sd_shutdown
-Message-ID: <20030812085137.GA6168@win.tue.nl>
-References: <Pine.LNX.4.53.0308111426570.16008@thevillage.soulcatcher> <20030812002844.B1353@pclin040.win.tue.nl> <20030812075353.A18547@infradead.org>
+	Tue, 12 Aug 2003 04:59:23 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19473 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S275110AbTHLI7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 04:59:22 -0400
+Date: Tue, 12 Aug 2003 09:59:18 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: David Hinds <dhinds@sonic.net>
+Cc: Jochen Friedrich <jochen@scram.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       dahinds@users.sourceforge.net
+Subject: Re: PCI1410 Interrupt Problems
+Message-ID: <20030812095918.A10895@flint.arm.linux.org.uk>
+Mail-Followup-To: David Hinds <dhinds@sonic.net>,
+	Jochen Friedrich <jochen@scram.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	dahinds@users.sourceforge.net
+References: <20030807000914.J16116@flint.arm.linux.org.uk> <Pine.LNX.4.44.0308112028300.10344-100000@gfrw1044.bocc.de> <20030811120048.A13992@sonic.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030812075353.A18547@infradead.org>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030811120048.A13992@sonic.net>; from dhinds@sonic.net on Mon, Aug 11, 2003 at 12:00:48PM -0700
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 12, 2003 at 07:53:53AM +0100, Christoph Hellwig wrote:
+On Mon, Aug 11, 2003 at 12:00:48PM -0700, David Hinds wrote:
+> I do think there is room for having some sane default settings to be
+> used when an unconfigured bridge is detected.  For most of the TI
+> bridges, there is only one reasonable default for how to enable PCI
+> interrupt delivery.  The important part here is "unconfigured bridge":
+> never fool with interrupt delivery on a bridge that has been set up
+> by the BIOS, which covers essentially all laptops.
 
-> > I see an Oops in the SCSI code, caused by the fact that sdkp is NULL
-> > in sd_shutdown. "How can that be?", you will ask - dev->driver_data was set
-> > in sd_probe. But in my case sd_probe never finished. An insmod usb-storage
-> > hangs forever, or at least for more than six hours, giving ample opportunity
-> > to observe this race between sd_probe and sd_shutdown.
-> > (Of course sd_probe hangs in sd_revalidate disk.)
-> 
-> Well, this same problem could show upb in any other driver.  Could
-> you instead send a patch to Pat that the driver model never calls
-> the shutdown method for a driver that hasn't finished ->probe?
+Note that I will be looking into this shortly - I've been putting off
+a lot of kernel work over the last week due to the rediculously high
+temperatures we've been experiencing in the UK, not wanting to add
+any extra heat from either people or machines to an already baking
+house.
 
-Yes, that is the next stage. But it takes a few hours instead of a
-few seconds.
-
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

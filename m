@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310372AbSCSHFL>; Tue, 19 Mar 2002 02:05:11 -0500
+	id <S310289AbSCSHbk>; Tue, 19 Mar 2002 02:31:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310259AbSCSHFB>; Tue, 19 Mar 2002 02:05:01 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:34480 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S310283AbSCSHEt>; Tue, 19 Mar 2002 02:04:49 -0500
-Date: Tue, 19 Mar 2002 08:46:59 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: MrChuoi <MrChuoi@yahoo.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.19-pre3-ac1
-In-Reply-To: <20020319062030.GN2254@matchmail.com>
-Message-ID: <Pine.LNX.4.44.0203190845040.25705-100000@netfinity.realnet.co.sz>
+	id <S310295AbSCSHba>; Tue, 19 Mar 2002 02:31:30 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:4883 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S310289AbSCSHbR>; Tue, 19 Mar 2002 02:31:17 -0500
+Message-Id: <200203190728.g2J7Srq31344@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Russ Weight <rweight@us.ibm.com>, mingo@elte.hu
+Subject: Re: [PATCH] Scalable CPU bitmasks
+Date: Tue, 19 Mar 2002 09:28:25 -0200
+X-Mailer: KMail [version 1.3.2]
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020318140700.A4635@us.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002, Mike Fedyk wrote:
+On 18 March 2002 20:07, Russ Weight wrote:
+>           While systems with more than 32 processors are still
+>   out in the future, these interfaces provide a path for gradual
+>   code migration. One of the primary goals is to provide current
+>   functionality without affecting performance.
 
-> What's your uptime?
+Not so far in the future. "7.52 second kernel compile" thread is about
+timing kernel compile on the 32 CPU SMP box.
 
-Almost a day
- 
-> I've been able to get "Committed AS" to just grow and grow with a kernel
-> compile within a while loop after a couple days (pii 350, so faster machines
-> should show that sooner...).
+I don't know whether BUG() in inlines makes them too big, but
+_for() _loops_ in inline functions definitely do that.
+Here's one of the overgrown inlines:
 
-Hmm i can check after about 2 days, i usually thrash the box really hard 
-so that might increase if i spend a bit more time on it.
- 
-> When you get a chance, go into single user mode and see if "Committed AS"
-> goes down to a sane level.  If not, you're seeing what I am.
-
-I'll try that out.
-
-Cheers,
-	Zwane
-
-
+> +static inline char *cpumap_format(cpumap_t map, char *buf, int size)
+> +{
+> +	if (size < CPUMAP_BUFSIZE) {
+> +		BUG();
+> +	}
+> +
+> +#if CPUMAP_SIZE > 1
+> +	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[CPUMAP_SIZE-1]);
+> +	{
+> +		int i;
+> +		char *p = buf + strlen(buf);
+> +		for (i = CPUMAP_SIZE-2; i >= 0; i--, p += (sizeof(long) + 1)) {
+> +			sprintf(p, " " CPUMAP_FORMAT_STR, map[i]);
+> +		}
+> +	}
+> +#else
+> +	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[0]);
+> +#endif
+> +	return(buf);
+> +}
+--
+vda

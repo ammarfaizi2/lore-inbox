@@ -1,24 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267237AbUHTNio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267423AbUHTNmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267237AbUHTNio (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 09:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267341AbUHTNio
+	id S267423AbUHTNmA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 09:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267320AbUHTNmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 09:38:44 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:65485 "EHLO
+	Fri, 20 Aug 2004 09:42:00 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:54991 "EHLO
 	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S267237AbUHTNi2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 09:38:28 -0400
+	id S267553AbUHTNln (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 09:41:43 -0400
 From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Fri, 20 Aug 2004 15:37:22 +0200
-To: vonbrand@inf.utfsm.cl, schilling@fokus.fraunhofer.de
-Cc: linux-kernel@vger.kernel.org, kernel@wildsau.enemy.org,
-       fsteiner-mail@bio.ifi.lmu.de, diablod3@gmail.com,
-       B.Zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk
+Date: Fri, 20 Aug 2004 15:40:39 +0200
+To: mj@ucw.cz, aia21@cam.ac.uk
+Cc: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       kernel@wildsau.enemy.org, diablod3@gmail.com
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <4125FE92.nail8LD4QVROS@burner>
-References: <200408191732.i7JHWSkL005470@laptop14.inf.utfsm.cl>
-In-Reply-To: <200408191732.i7JHWSkL005470@laptop14.inf.utfsm.cl>
+Message-ID: <4125FF57.nail8LD5FBNEQ@burner>
+References: <200408041233.i74CX93f009939@wildsau.enemy.org>
+ <d577e5690408190004368536e9@mail.gmail.com>
+ <4124A024.nail7X62HZNBB@burner> <20040819131026.GA9813@ucw.cz>
+ <Pine.LNX.4.60.0408191909570.23309@hermes-1.csi.cam.ac.uk>
+In-Reply-To: <Pine.LNX.4.60.0408191909570.23309@hermes-1.csi.cam.ac.uk>
 User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -26,25 +28,23 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+Anton Altaparmakov <aia21@cam.ac.uk> wrote:
 
-> > This is exactly what libscg is for...... 
-> > libscg already includes similar support for Solaris 9 & Solaris 10.
+> On Thu, 19 Aug 2004, Martin Mares wrote:
+> > (BTW: I am not sure I haven't missed anything in the long cdrecord-related
+> > threads on the LKML, but I still haven't seen what is exactly so broken on the
+> > cdrecord shipped by SUSE.)
 >
-> OK, their problem.
+> I have been following the discussion quite closely and I concur with you.  
+> Noone has actually said what is broken and all I can say is that I use 
+> SuSE (9.0 and 9.1 since it came out) and have burnt several CD-Rs and 
+> CD-RWs with its version of cdrecord just fine...
 
-If yopu don't understans what we are talking, plaese don't send useless 
-comments like this.
+Let me repeat: I like to do useful things (e.g. finishing the incremental 
+restore code in star) and not constantly be asked to tell you why it is broken.
 
-> Sorry, you have absolutely no say in the development of the kernel
-> here. You fix your broken app, code freeze or no code freeze. Or let others
-> that fix it alone.
-
-Sorry, you have absolutely nothing to say in the development of the kernel
-
-The Linux kernel is broken because it it did break existing interfaces - period.
-
-
+I did this nuch more than ance in related mailinglist. The fact that you are 
+not hit by the bugs is just meanlingless.
 
 Jörg
 

@@ -1,127 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbULOPbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbULOPda@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbULOPbT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Dec 2004 10:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbULOPbS
+	id S262360AbULOPda (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Dec 2004 10:33:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbULOPda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Dec 2004 10:31:18 -0500
-Received: from [218.244.111.2] ([218.244.111.2]:16141 "EHLO lb1.ctrip.com")
-	by vger.kernel.org with ESMTP id S262359AbULOPbN (ORCPT
+	Wed, 15 Dec 2004 10:33:30 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:38370 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262360AbULOPdH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Dec 2004 10:31:13 -0500
-Date: Wed, 15 Dec 2004 23:26:36 +0800 (CST)
-From: Wensong Zhang <wensong@linux-vs.org>
-To: "David S. Miller" <davem@davemloft.net>
-cc: Adrian Bunk <bunk@stusta.de>, Julian Anastasov <ja@ssi.bg>,
-       lvs-users@linuxvirtualserver.org, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] net/ipvs/: make some code static
-In-Reply-To: <20041215005801.GB11972@stusta.de>
-Message-ID: <Pine.LNX.4.61.0412152300200.1048@penguin.linux-vs.org>
-References: <20041215005801.GB11972@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 15 Dec 2004 10:33:07 -0500
+From: David Howells <dhowells@redhat.com>
+To: akpm@osdl.org
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix nommu MAP_SHARED handling
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.3
+Date: Wed, 15 Dec 2004 15:32:52 +0000
+Message-ID: <2149.1103124772@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The attached patch does the following things:
 
-Hi Dave,
+ (1) It uniquifies permitted overlapping VMAs (eg: MAP_SHARED on chardevs) in
+     nommu_vma_tree. Identical entries break the assumptions on which rbtrees
+     work. Since we don't need to share VMAs in this case, we uniquify such
+     VMAs by using the pointer to the VMA. They're only kept in the tree for
+     /proc/maps visibility.
 
-Please apply Adrian's patch.
+ (2) Extracts VMA unlinking into its own function so that the source is
+     adjacent to the VMA linking function.
 
-Thanks,
+ (3) No longer releases memory belonging to a shared chardev or file (the
+     underlying driver is expected to provide mappable memory).
 
-Wensong
+ (4) Frees the file attached to a VMA whether or not that VMA is shared or is
+     a memory-mapped I/O mapping.
 
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
+warthog1>diffstat nommu-rb-2610rc3.diff 
+ nommu.c |   66 ++++++++++++++++++++++++++++++++++++++++++++++++----------------
+ 1 files changed, 50 insertions(+), 16 deletions(-)
 
-On Wed, 15 Dec 2004, Adrian Bunk wrote:
-
-> The patch below makes some needlessly global code static.
->
->
-> diffstat output:
-> net/ipv4/ipvs/ip_vs_app.c        |    2 +-
-> net/ipv4/ipvs/ip_vs_conn.c       |    2 +-
-> net/ipv4/ipvs/ip_vs_ctl.c        |    2 +-
-> net/ipv4/ipvs/ip_vs_proto.c      |    4 ++--
-> net/ipv4/ipvs/ip_vs_proto_icmp.c |    4 ++--
-> 5 files changed, 7 insertions(+), 7 deletions(-)
->
->
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
-> --- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_app.c.old	2004-12-14 05:15:21.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_app.c	2004-12-14 05:15:28.000000000 +0100
-> @@ -65,7 +65,7 @@
-> /*
->  *	Allocate/initialize app incarnation and register it in proto apps.
->  */
-> -int
-> +static int
-> ip_vs_app_inc_new(struct ip_vs_app *app, __u16 proto, __u16 port)
-> {
-> 	struct ip_vs_protocol *pp;
-> --- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_conn.c.old	2004-12-14 05:15:44.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_conn.c	2004-12-14 05:15:51.000000000 +0100
-> @@ -64,7 +64,7 @@
-> } __attribute__((__aligned__(SMP_CACHE_BYTES)));
->
-> /* lock array for conn table */
-> -struct ip_vs_aligned_lock
-> +static struct ip_vs_aligned_lock
-> __ip_vs_conntbl_lock_array[CT_LOCKARRAY_SIZE] __cacheline_aligned;
->
-> static inline void ct_read_lock(unsigned key)
-> --- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_ctl.c.old	2004-12-14 05:17:03.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_ctl.c	2004-12-14 05:17:14.000000000 +0100
-> @@ -62,7 +62,7 @@
-> /* 1/rate drop and drop-entry variables */
-> int ip_vs_drop_rate = 0;
-> int ip_vs_drop_counter = 0;
-> -atomic_t ip_vs_dropentry = ATOMIC_INIT(0);
-> +static atomic_t ip_vs_dropentry = ATOMIC_INIT(0);
->
-> /* number of virtual services */
-> static int ip_vs_num_services = 0;
-> --- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_proto.c.old	2004-12-14 05:17:33.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_proto.c	2004-12-14 05:17:47.000000000 +0100
-> @@ -45,7 +45,7 @@
-> /*
->  *	register an ipvs protocol
->  */
-> -int register_ip_vs_protocol(struct ip_vs_protocol *pp)
-> +static int register_ip_vs_protocol(struct ip_vs_protocol *pp)
-> {
-> 	unsigned hash = IP_VS_PROTO_HASH(pp->protocol);
->
-> @@ -62,7 +62,7 @@
-> /*
->  *	unregister an ipvs protocol
->  */
-> -int unregister_ip_vs_protocol(struct ip_vs_protocol *pp)
-> +static int unregister_ip_vs_protocol(struct ip_vs_protocol *pp)
-> {
-> 	struct ip_vs_protocol **pp_p;
-> 	unsigned hash = IP_VS_PROTO_HASH(pp->protocol);
-> --- linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_proto_icmp.c.old	2004-12-14 05:18:02.000000000 +0100
-> +++ linux-2.6.10-rc3-mm1-full/net/ipv4/ipvs/ip_vs_proto_icmp.c	2004-12-14 05:18:37.000000000 +0100
-> @@ -22,7 +22,7 @@
->
-> static char * icmp_state_name_table[1] = { "ICMP" };
->
-> -struct ip_vs_conn *
-> +static struct ip_vs_conn *
-> icmp_conn_in_get(const struct sk_buff *skb,
-> 		 struct ip_vs_protocol *pp,
-> 		 const struct iphdr *iph,
-> @@ -49,7 +49,7 @@
-> #endif
-> }
->
-> -struct ip_vs_conn *
-> +static struct ip_vs_conn *
-> icmp_conn_out_get(const struct sk_buff *skb,
-> 		  struct ip_vs_protocol *pp,
-> 		  const struct iphdr *iph,
->
+diff -uNrp linux-2.6.10-rc3-mm1-base/mm/nommu.c linux-2.6.10-rc3-mm1-nommu-rb/mm/nommu.c
+--- linux-2.6.10-rc3-mm1-base/mm/nommu.c	2004-12-13 17:34:22.000000000 +0000
++++ linux-2.6.10-rc3-mm1-nommu-rb/mm/nommu.c	2004-12-15 14:32:07.000000000 +0000
+@@ -315,25 +315,51 @@ static inline struct vm_area_struct *fin
+ static void add_nommu_vma(struct vm_area_struct *vma)
+ {
+ 	struct vm_area_struct *pvma;
++	struct address_space *mapping;
+ 	struct rb_node **p = &nommu_vma_tree.rb_node;
+ 	struct rb_node *parent = NULL;
+ 
++	/* add the VMA to the master list */
+ 	while (*p) {
+ 		parent = *p;
+ 		pvma = rb_entry(parent, struct vm_area_struct, vm_rb);
+ 
+-		if (vma->vm_start < pvma->vm_start)
++		if (vma->vm_start < pvma->vm_start) {
+ 			p = &(*p)->rb_left;
+-		else if (vma->vm_start > pvma->vm_start)
++		}
++		else if (vma->vm_start > pvma->vm_start) {
+ 			p = &(*p)->rb_right;
+-		else
+-			BUG(); /* shouldn't happen by this point */
++		}
++		else {
++			/* mappings are at the same address - this can only
++			 * happen for shared-mem chardevs and shared file
++			 * mappings backed by ramfs/tmpfs */
++			BUG_ON(!(pvma->vm_flags & VM_SHARED));
++
++			if (vma < pvma)
++				p = &(*p)->rb_left;
++			else if (vma > pvma)
++				p = &(*p)->rb_right;
++			else
++				BUG();
++		}
+ 	}
+ 
+ 	rb_link_node(&vma->vm_rb, parent, p);
+ 	rb_insert_color(&vma->vm_rb, &nommu_vma_tree);
+ }
+ 
++static void delete_nommu_vma(struct vm_area_struct *vma)
++{
++	struct address_space *mapping;
++
++	/* remove from the master list */
++	rb_erase(&vma->vm_rb, &nommu_vma_tree);
++}
++
++/*
++ * handle mapping creation for uClinux
++ */
+ unsigned long do_mmap_pgoff(struct file *file,
+ 			    unsigned long addr,
+ 			    unsigned long len,
+@@ -633,27 +659,33 @@ unsigned long do_mmap_pgoff(struct file 
+ 	return -ENOMEM;
+ }
+ 
++/*
++ * handle mapping disposal for uClinux
++ */
+ static void put_vma(struct vm_area_struct *vma)
+ {
+ 	if (vma) {
+ 		down_write(&nommu_vma_sem);
+ 
+ 		if (atomic_dec_and_test(&vma->vm_usage)) {
+-			rb_erase(&vma->vm_rb, &nommu_vma_tree);
++			delete_nommu_vma(vma);
+ 
+ 			if (vma->vm_ops && vma->vm_ops->close)
+ 				vma->vm_ops->close(vma);
+ 
+-			if (!(vma->vm_flags & VM_IO) && vma->vm_start) {
++			/* IO memory and memory shared directly out of the pagecache from
++			 * ramfs/tmpfs mustn't be released here */
++			if (!(vma->vm_flags & (VM_IO | VM_SHARED)) && vma->vm_start) {
+ 				realalloc -= kobjsize((void *) vma->vm_start);
+ 				askedalloc -= vma->vm_end - vma->vm_start;
+-				if (vma->vm_file)
+-					fput(vma->vm_file);
+ 				kfree((void *) vma->vm_start);
+ 			}
+ 
+ 			realalloc -= kobjsize(vma);
+ 			askedalloc -= sizeof(*vma);
++
++			if (vma->vm_file)
++				fput(vma->vm_file);
+ 			kfree(vma);
+ 		}
+ 
+@@ -664,6 +696,7 @@ static void put_vma(struct vm_area_struc
+ int do_munmap(struct mm_struct *mm, unsigned long addr, size_t len)
+ {
+ 	struct vm_list_struct *vml, **parent;
++	unsigned long end = addr + len;
+ 
+ #ifdef MAGIC_ROM_PTR
+ 	/* For efficiency's sake, if the pointer is obviously in ROM,
+@@ -677,15 +710,16 @@ int do_munmap(struct mm_struct *mm, unsi
+ #endif
+ 
+ 	for (parent = &mm->context.vmlist; *parent; parent = &(*parent)->next)
+-		if ((*parent)->vma->vm_start == addr)
+-			break;
+-	vml = *parent;
++		if ((*parent)->vma->vm_start == addr &&
++		    (*parent)->vma->vm_end == end)
++			goto found;
+ 
+-	if (!vml) {
+-		printk("munmap of non-mmaped memory by process %d (%s): %p\n",
+-		       current->pid, current->comm, (void *) addr);
+-		return -EINVAL;
+-	}
++	printk("munmap of non-mmaped memory by process %d (%s): %p\n",
++	       current->pid, current->comm, (void *) addr);
++	return -EINVAL;
++
++ found:
++	vml = *parent;
+ 
+ 	put_vma(vml->vma);
+ 

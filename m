@@ -1,32 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266942AbRGHRky>; Sun, 8 Jul 2001 13:40:54 -0400
+	id <S266946AbRGHRmo>; Sun, 8 Jul 2001 13:42:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266943AbRGHRko>; Sun, 8 Jul 2001 13:40:44 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:51730 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266942AbRGHRkc>; Sun, 8 Jul 2001 13:40:32 -0400
-Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
-To: pavel@suse.cz (Pavel Machek)
-Date: Sun, 8 Jul 2001 18:37:51 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), srwalter@yahoo.com (Steven Walter),
-        andyw@edafio.com (Andy Ward), linux-kernel@vger.kernel.org
-In-Reply-To: <20010630135804.A142@toy.ucw.cz> from "Pavel Machek" at Jun 30, 2001 01:58:05 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S266944AbRGHRme>; Sun, 8 Jul 2001 13:42:34 -0400
+Received: from eax.student.umd.edu ([129.2.236.2]:6673 "EHLO
+	eax.student.umd.edu") by vger.kernel.org with ESMTP
+	id <S266945AbRGHRm3>; Sun, 8 Jul 2001 13:42:29 -0400
+Date: Sun, 8 Jul 2001 13:42:28 -0500 (EST)
+From: Adam <adam@cfar.umd.edu>
+X-X-Sender: <cfar@eax.student.umd.edu>
+To: Chris Wedgwood <cw@f00f.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: recvfrom and sockaddr_in.sin_port
+In-Reply-To: <20010709052100.E28809@weta.f00f.org>
+Message-ID: <Pine.LNX.4.33.0107081338140.936-100000@eax.student.umd.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15JIVD-0000Qc-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > possible on the memory bus. Several people have reported that machines that
-> > are otherwise stable on the bios fast options require  the proper conservative
-> > settings to be stable with the Athlon optimisations
-> 
-> Do we need patch to memtest to use 3dnow?
+>     isn't it set? to quote from the example I have attached:
+>       socklen_t fromlen = sizeof(struct sockaddr_in);
+> sorry, I misread the source (the memset line)
+> you are using raw sockets, what does port mean for raw sockets?
 
-Possibly yes. Although memtest86 really tries to test for onchip not bus
-related problems
+well, from raw(7) man page:
+
+       raw_socket = socket(PF_INET, SOCK_RAW, int protocol);
+       [...]
+       All packets [...] matching the protocol number  speci
+       fied  for the raw socket are passed to this socket.
+
+so it seem to imply that only tcp packets only are to be passed.
+still group "SOCK_RAW" is subset of the PF_INET group (the way
+I see it), so from ip(7) man page I should use sockaddr_in
+structure, which should be defined in this particular case,
+as it ought be for IPPROTO_UDP.
+
 

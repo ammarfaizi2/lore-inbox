@@ -1,55 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263415AbTJBQnn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 12:43:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263418AbTJBQnn
+	id S263420AbTJBQok (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 12:44:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263427AbTJBQoh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 12:43:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57497 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263415AbTJBQnm (ORCPT
+	Thu, 2 Oct 2003 12:44:37 -0400
+Received: from fw.osdl.org ([65.172.181.6]:61337 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263424AbTJBQoU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 12:43:42 -0400
-Subject: Re: 2.6.0-test6-mm2 (compile statistics)
-From: John Cherry <cherry@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <20031002022341.797361bc.akpm@osdl.org>
-References: <20031002022341.797361bc.akpm@osdl.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1065113020.15172.35.camel@cherrytest.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 02 Oct 2003 09:43:40 -0700
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Oct 2003 12:44:20 -0400
+Date: Thu, 2 Oct 2003 09:40:01 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@localhost.localdomain
+To: Pavel Machek <pavel@ucw.cz>
+cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix oops after saving image
+In-Reply-To: <20031001223751.GA6402@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.44.0310020933140.997-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I added the mm builds to the compile regressions.  The full set of
-compile data can be found at:
 
-   http://developer.osdl.org/cherry/compile/mm/index.html
+> --- tmp/linux/kernel/power/swsusp.c	2003-10-02 00:04:35.000000000 +0200
+> +++ linux/kernel/power/swsusp.c	2003-10-01 23:56:49.000000000 +0200
+> @@ -345,7 +348,7 @@
+>  	printk( "|\n" );
+>  
+>  	MDELAY(1000);
+> -	free_page((unsigned long) buffer);
+> +	/* Trying to free_page((unsigned long) buffer) here is bad idea, not sure why */
+>  	return 0;
+>  }
 
-For the -test6 mm builds, the compile regress summary is...
+Patches like this really do a disservice to anyone trying to read the code 
+and figure out what is going on. I've spent a considerable amount of time 
+deciphering and santizing the swsusp code, which is why pmdisk exists. 
 
-Kernel version: 2.6.0-test6-mm2
-Kernel build: 
-   Making bzImage (defconfig): 0 warnings, 0 errors
-   Making modules (defconfig): 0 warnings, 0 errors
-   Making bzImage (allyesconfig): 179 warnings, 13 errors
-   Making modules (allyesconfig): 9 warnings, 0 errors
-   Making bzImage (allmodconfig): 3 warnings, 0 errors
-   Making modules (allmodconfig): 252 warnings, 4 errors
+The patch is simply a band-aid, and completely meaningless without the 
+context of the email. If I applied this, one would be able to ascertain 
+the reason for the patch, if they manipulated the BK tools correctly. 
+However, seeing that line solely in the context on the rest of the source 
+makes one cock their head, squint their eyes and pray that they never have 
+to look at that file again. 
 
-Kernel version: 2.6.0-test6-mm1
-Kernel build: 
-   Making bzImage (defconfig): 0 warnings, 0 errors
-   Making modules (defconfig): 0 warnings, 0 errors
-   Making bzImage (allyesconfig): 179 warnings, 11 errors
-   Making modules (allyesconfig): 9 warnings, 0 errors
-   Making bzImage (allmodconfig): 3 warnings, 0 errors
-   Making modules (allmodconfig): 252 warnings, 2 errors
+If you're seeing an Oops, please search more for the cause and submit a 
+real fix for it. 
 
-John
+Or, simply change the semantics of the code enough to eliminate the
+possibility of a problem. In the pmdisk code, I've statically declared the 
+header, so we don't need that alloc/free. Please see that file for an 
+example. 
+
+
+	Pat
 

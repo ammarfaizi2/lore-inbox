@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283250AbRK2OgC>; Thu, 29 Nov 2001 09:36:02 -0500
+	id <S283261AbRK2OlM>; Thu, 29 Nov 2001 09:41:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283254AbRK2Ofx>; Thu, 29 Nov 2001 09:35:53 -0500
-Received: from pop.gmx.net ([213.165.64.20]:29073 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S283250AbRK2Ofp> convert rfc822-to-8bit;
-	Thu, 29 Nov 2001 09:35:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Sebastian =?iso-8859-1?q?Dr=F6ge?= <sebastian.droege@gmx.de>
-Reply-To: sebastian.droege@gmx.de
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: 2.5.1-pre2 compile error in ide-scsi.o ide-scsi.c
-Date: Thu, 29 Nov 2001 15:37:07 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011128135552.204311E532@Cantor.suse.de> <20011129140517.8650E1E122@Cantor.suse.de> <20011129152310.L10601@suse.de>
-In-Reply-To: <20011129152310.L10601@suse.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011129143545Z283250-17408+23743@vger.kernel.org>
+	id <S283260AbRK2OlC>; Thu, 29 Nov 2001 09:41:02 -0500
+Received: from albatross.mail.pas.earthlink.net ([207.217.120.120]:9127 "EHLO
+	albatross.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S283259AbRK2Okn>; Thu, 29 Nov 2001 09:40:43 -0500
+Date: Thu, 29 Nov 2001 09:40:40 -0500 (EST)
+Message-Id: <20011129.094040.124092017.wscott@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Cc: jmd@turbogeek.org
+Subject: Re: Extraneous whitespace removal?
+From: Wayne Scott <wscott@bitmover.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Am Donnerstag, 29. November 2001 15:23 schrieben Sie:
-> On Thu, Nov 29 2001, Slo Mo Snail wrote:
-> > > But wait :)
-> > > I'll first test 2.5.1-pre3 + Alan's Patch + your sg-sr patch + your bio
-> > > patch Bye
-> >
-> > Hmm it works :)
+From: Jeremy M. Dolan <jmd@turbogeek.org>
+> Pluses:
+>  - clean up messy whitespace
+>  - cut precious picoseconds off compile time
+>  - cut kernel tree by 200k (+/- alot)
 >
-> Just to confirm -- 2.5.1-pre3 + Alan's patch + my bio-pre3-1 patch,
-> right? pre3 already contains the sg-sr part.
->
-> > I'll test some more things with my CD drives ;)
-> > Maybe I'll find some bugs
->
-> Please do :)
-Sorry my mistake
-I've meant this patch: 
-http://kernel.org/pub/linux/kernel/people/axboe/patches/v2.5/2.5.1-pre3/bio-pre3-1.gz
+> Minuses:
+>  - adds 3.8M bzip2 or 4.7M gzip to next diff
 
-So it's 2.5.1-pre3 + Alan's patch + bio-pre3-1 + the patch you've posted 
-after the 2.5.1-pre3 don't-use mail
+As someone who has spend a lot of time working on version control and
+file merging, let be tell you the big minus you missed. 
 
-There were no failures while patching so I think this patches are compatible 
-each other ;)
+After this patch go into the Linux kernel, everyone who is maintaining
+a set of patches in parallel with the main kernel has a lot of extra
+work resolving the conflicts caused by this change.  You have touched
+a huge number of lines and people will have to walk a list of merge
+conflicts everywhere they have made local changes and pick their side.
+And anytime people do a whole series of the same edits over and over
+they will miss that real conflict in the middle and lose some
+important change.
 
-And it works well... no data corruption, no oopses, no nothing ;)
-Later the day I'll test burning a CD
-Bye
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+The other problem that occurs is for people who maintain version
+histories.  It is really useful to know where (and why) a line was
+last changed.  This obscures that information by a layer of edits that
+made no change.
 
-iD8DBQE8BkgVvIHrJes3kVIRAiQQAKCG0efeie+bKhbKe+BHXaI4XCCSuACfS7T/
-806yy00KSYP+zID3ijLskfQ=
-=idKY
------END PGP SIGNATURE-----
+While saving a little space is nice, it is not worth the pain and risk
+it involves.  I much prefer the solution suggested where incoming
+patches are filtered before they are applied. Used consistantly, the
+whitespace will be removed over time.
+
+-Wayne

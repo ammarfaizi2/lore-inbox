@@ -1,54 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316751AbSGLS1v>; Fri, 12 Jul 2002 14:27:51 -0400
+	id <S316753AbSGLSaq>; Fri, 12 Jul 2002 14:30:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316753AbSGLS1u>; Fri, 12 Jul 2002 14:27:50 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:39157 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S316751AbSGLS1t>;
-	Fri, 12 Jul 2002 14:27:49 -0400
-Message-ID: <3D2F1225.C46E4B42@mvista.com>
-Date: Fri, 12 Jul 2002 10:30:13 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S316757AbSGLSap>; Fri, 12 Jul 2002 14:30:45 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:64013 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S316753AbSGLSak>; Fri, 12 Jul 2002 14:30:40 -0400
+Message-ID: <3D2F20DD.1030704@zytor.com>
+Date: Fri, 12 Jul 2002 11:33:01 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Stevie O <oliver@klozoff.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: HZ, preferably as small as possible
-References: <Pine.LNX.4.10.10207110847170.6183-100000@zeus.compusonic.fi>
-		<5.1.0.14.2.20020711201602.022387b0@whisper.qrpff.net>
-		<3D2E2C48.DCB509D7@mvista.com> <52adoxrb1f.fsf@topspin.com>
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE/ATAPI in 2.5
+References: <Pine.LNX.4.44.0207121050230.14359-100000@home.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
+Linus Torvalds wrote:
 > 
-> >>>>> "george" == george anzinger <george@mvista.com> writes:
+> On Fri, 12 Jul 2002, Martin Dalecki wrote:
 > 
->     george> Well, in truth it has nothing to do with interrupts.  It
->     george> is just that that is the way most systems keep time.  The
->     george> REAL definition of HZ is in its relationship to jiffies
->     george> and seconds.
+>>So Linus what's your opinnion please?
 > 
->     george> I.e. jiffies * HZ = seconds, by definition.
 > 
-> I'm sure you know the truth, but this isn't quite right.  Just to be
-> pedantic and make sure the correct definition is out there:
+> I will violently oppose anything that implies that the IDE layer uses the
+> SCSI layer normally.  No way, Jose. I'm all for scrapping, but the thing
+> that should be scrapped is ide-scsi.
 > 
->   jiffies / HZ = seconds
+> The higher layers already have much of what the SCSI layer does, and the
+> SCSI layer itself is slowly moving in that direction.
 > 
-> For example if HZ is 100 then the jiffy counter is incremented 100
-> times each second.
-> 
-Of course you are right.  Must have been a brain fart :)
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Then *please* make a *compatible* interface available to user space. 
+This certainly can be done; the parallel port IDE interface stuff had 
+exactly such an interface (/dev/pg*) -- we could have a /dev/hg* 
+interface presumably.  That is an acceptable solution.
+
+Note again that this discussion (and it's a discussion, not a voting 
+session -- technical pros and cons is what applies) apply to ATAPI (SCSI 
+over IDE) only.  Alan has already brought up the fact of non-hard disk 
+non-ATAPI devices, and IMO those devices are explicitly out of scope. 
+Maturity of drivers is another, but right now we're suffering through 
+having to deal with multiple drivers for the same hardware, or with user 
+space having to choose different interfaces depending on connection 
+interface, and either which way that's pretty pathetic.
+
+	-hpa
+
+

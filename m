@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130469AbRADWdg>; Thu, 4 Jan 2001 17:33:36 -0500
+	id <S129183AbRADWg4>; Thu, 4 Jan 2001 17:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130667AbRADWd3>; Thu, 4 Jan 2001 17:33:29 -0500
-Received: from ezri.xs4all.nl ([194.109.253.9]:12736 "HELO ezri.xs4all.nl")
-	by vger.kernel.org with SMTP id <S130469AbRADWdU> convert rfc822-to-8bit;
-	Thu, 4 Jan 2001 17:33:20 -0500
-Date: Thu, 4 Jan 2001 23:33:17 +0100 (CET)
-From: Eric Lammerts <eric@lammerts.org>
-To: Igmar Palsenberg <maillist@chello.nl>
-cc: Andre Hedrick <andre@linux-ide.org>, Sven Koch <haegar@cut.de>,
-        Kernel devel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
-In-Reply-To: <Pine.LNX.4.21.0101042241420.4090-100000@server.serve.me.nl>
-Message-ID: <Pine.LNX.4.31.0101042316010.2045-100000@ally.lammerts.org>
+	id <S132210AbRADWgr>; Thu, 4 Jan 2001 17:36:47 -0500
+Received: from mailout1-1.nyroc.rr.com ([24.92.226.146]:17704 "EHLO
+	mailout1-1.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S129183AbRADWgf>; Thu, 4 Jan 2001 17:36:35 -0500
+Message-ID: <003a01c0769f$0a12b650$0701a8c0@morph>
+From: "Dan Maas" <dmaas@dcine.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.e3022cv.v2ucim@ifi.uio.no> <fa.naq8vev.74ai08@ifi.uio.no>
+Subject: Re: Journaling: Surviving or allowing unclean shutdown?
+Date: Thu, 4 Jan 2001 17:38:11 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > Being able to shut down by hitting the power switch is a little luxury
+> > for which I've been willing to invest more than a year of my life to
+> > attain.  Clueless newbies don't know why it should be any other way, and
+> > it's essential for embedded devices.
 
-On Thu, 4 Jan 2001, Igmar Palsenberg wrote:
-> Yeah.. I removed the clipping, and the machine won't boot. It halts after
-> PnP init. Any way to use full capacity with the clipping enabled ?
+Just some food for thought - hitting the power switch on my old Indy
+actually performs the equivalent of "shutdown -r now"; the system only cuts
+the power when it's done cleaning up (sometimes several minutes later). I
+suspect most workstation-class systems do similar things.
 
-I had the same problem with my 80Gb Maxtor. (Asus P2L97, works with
-60Gb but hangs with 80Gb :-/) After clipping the drive with ibmsetmax
-(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0012.1/0249.html)
-and removing the jumper, unclipping worked fine (kernel is 2.2.18+ide).
+Of course this creates a confusing distinction between "pulling the plug"
+and "hitting the power switch." Uninformed users might even be more
+bewildered by the flurry of disk activity after performing the latter; heck,
+I wouldn't blame someone who freaks out and pull the plug to make it stop
+=).
 
-Andre: can you add unclipping support to 2.4 too?
+Also, such a system obviously has little benefit in the event of an AC power
+failure.
 
-Eric
+Dan
 
--- 
-Eric Lammerts <eric@lammerts.org>  | "It is a mistake to think you can solve
-http://www.lammerts.org            |  any major problems just with potatoes"
-                                   |                   - Douglas Adams
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,55 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbUBWDdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 22:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbUBWDdZ
+	id S261794AbUBWDeS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 22:34:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbUBWDeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 22:33:25 -0500
-Received: from mail.aei.ca ([206.123.6.14]:57042 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261790AbUBWDdY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 22:33:24 -0500
-From: Ed Tomlinson <edt@aei.ca>
-Organization: me
+	Sun, 22 Feb 2004 22:34:18 -0500
+Received: from smtp808.mail.sc5.yahoo.com ([66.163.168.187]:21131 "HELO
+	smtp808.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261794AbUBWDeK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 22:34:10 -0500
+Date: Sun, 22 Feb 2004 19:34:08 -0800
 To: linux-kernel@vger.kernel.org
-Subject: Re: Large slab cache in 2.6.1
-Date: Sun, 22 Feb 2004 22:33:20 -0500
-User-Agent: KMail/1.5.93
-Cc: Mike Fedyk <mfedyk@matchmail.com>
-References: <4037FCDA.4060501@matchmail.com> <200402220903.08299.edt@aei.ca> <40396551.9030002@matchmail.com>
-In-Reply-To: <40396551.9030002@matchmail.com>
-MIME-Version: 1.0
+Subject: Re: 2.6.3-mm3
+Message-ID: <20040223033408.GB26929@triplehelix.org>
+Mail-Followup-To: joshk@triplehelix.org, linux-kernel@vger.kernel.org
+References: <20040222172200.1d6bdfae.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200402222233.20426.edt@aei.ca>
+In-Reply-To: <20040222172200.1d6bdfae.akpm@osdl.org>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+From: joshk@triplehelix.org (Joshua Kwan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On February 22, 2004 09:28 pm, Mike Fedyk wrote:
-> Ed Tomlinson wrote:
-> > On February 21, 2004 10:28 pm, Linus Torvalds wrote:
-> >>On Sat, 21 Feb 2004, Chris Wedgwood wrote:
-> >>>Maybe gradual page-cache pressure could shirnk the slab?
-> >>
-> >>What happened to the experiment of having slab pages on the (in)active
-> >>lists and letting them be free'd that way? Didn't somebody already do
-> >>that? Ed Tomlinson and Craig Kulesa?
-> >
-> > You have a good memory.
-> >
-> > We dropped this experiment since there was a lot of latency between the
-> > time a slab page became freeable and when it was actually freed.  The
-> > current call back scheme was designed to balance slab preasure and
-> > vmscaning.
->
-> Does it really matter if there is a lot of latency?  How does this
-> affect real-world results?  IOW, if it's not at the end of the LRU, then
-> there's probably something better to free instead...
 
-It mattered.  People noticed and complained.  In any case, as Andrew 
-pointed out, we get the same effect, without long latencies, in a simplier 
-manner with the current scheme.
+--CdrF4e02JqNVZeln
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ed
+On Sun, Feb 22, 2004 at 05:22:00PM -0800, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.3/2.6.3=
+-mm2/
+
+Rusty's patch 'add-MODULE_VERSION-macro.patch' is missing a change that
+results in modules_install installing all of the modules AND their
+constituent source files into /lib/modules. The change, which did appear
+in Makefile.modpost correctly, follows here.
+
+--- scripts/Makefile.modinst~	2004-02-22 19:31:28.000000000 -0800
++++ scripts/Makefile.modinst	2004-02-22 19:31:49.000000000 -0800
+@@ -9,7 +9,7 @@
+=20
+ #
+=20
+-__modules :=3D $(shell cat /dev/null $(wildcard $(MODVERDIR)/*.mod))
++__modules :=3D $(shell head -q -n1 $(wildcard $(MODVERDIR)/*.mod))
+ modules :=3D $(patsubst %.o,%.ko,$(wildcard $(__modules:.ko=3D.o)))
+=20
+ ifneq ($(filter-out $(modules),$(__modules)),)
+=20
+--=20
+Joshua Kwan
+
+--CdrF4e02JqNVZeln
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iQIVAwUBQDl0rqOILr94RG8mAQL8FxAAhQeuYImRos5pfO9Qsl20iPBViB428inf
+9wNAZkqfmvyVOM1VFMDPUikxvcUVmq8cDWdEh1MFQBz5JhRfWpCiwYUyV9b3JdxL
+DZ1oDwo4p0sQlkOHXayYNiadOI/K3jwCskKvsuMiHOjLbt9h1hkEJcPb6wBI6jhC
+Wb1ZoPUAvig2JJLiqPC0UCNULdChs5MSKPu4tr2XF+XZrBHQnAE3cxBP+Vf58yvY
+DYPflg6vYi7e6vmVWu39FutzE/r8mRSh1aPZStG1tdmsTEoZmDCz/poPdZTjaOlW
++9Uh8GgFiI56b3dopNWL0BTwQ5r3m1idV8C6xoUTCIFspBpr/WqgYouSYYRcJ014
+BSoA4oW/3E1CYqU8G5E0zlSbsX86E3QGOl+dcL641/Vu7ZFXZMO6qbw1izNOFWDV
+LD9JrJZISl/M+Iu1RLLZIbB4PpHT8Z9UDren5yyc8vNOy1weISONUums/WzlZ8af
+P+87XTEGgvlun6rZoQcaYDnGiCTgTlvTURwJa2efyKFMrMLEgRx/50WDHLEg5h9D
+xzG4I7rCgh1iJBVbDSTFubede49szLsXDHdzEgeMg/r3Ot1UFiR/mxR1p6mS3CR7
+woJJW8faExOcFjAyAiOnuBzVjBXq9G1PRs8zpyTGgDQJrvkMgOlvEyhLh9xEAfno
+0xEjC1Xj+mo=
+=hyJT
+-----END PGP SIGNATURE-----
+
+--CdrF4e02JqNVZeln--

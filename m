@@ -1,76 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261365AbSKHTM2>; Fri, 8 Nov 2002 14:12:28 -0500
+	id <S262248AbSKHTUq>; Fri, 8 Nov 2002 14:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261557AbSKHTM2>; Fri, 8 Nov 2002 14:12:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36364 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261365AbSKHTM1>;
-	Fri, 8 Nov 2002 14:12:27 -0500
-Date: Fri, 8 Nov 2002 19:19:07 +0000
-From: Matthew Wilcox <willy@debian.org>
-To: "Van Maren, Kevin" <kevin.vanmaren@unisys.com>
-Cc: "'Matthew Wilcox '" <willy@debian.org>,
-       "''Linus Torvalds ' '" <torvalds@transmeta.com>,
-       "''Jeremy Fitzhardinge ' '" <jeremy@goop.org>,
-       "''William Lee Irwin III ' '" <wli@holomorphy.com>,
-       "''linux-ia64@linuxia64.org ' '" <linux-ia64@linuxia64.org>,
-       "''Linux Kernel List ' '" <linux-kernel@vger.kernel.org>,
-       "''rusty@rustcorp.com.au ' '" <rusty@rustcorp.com.au>,
-       "''dhowells@redhat.com ' '" <dhowells@redhat.com>,
-       "''mingo@elte.hu ' '" <mingo@elte.hu>
-Subject: Re: [Linux-ia64] reader-writer livelock problem
-Message-ID: <20021108191907.N12011@parcelfarce.linux.theplanet.co.uk>
-References: <3FAD1088D4556046AEC48D80B47B478C0101F4EE@usslc-exch-4.slc.unisys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FAD1088D4556046AEC48D80B47B478C0101F4EE@usslc-exch-4.slc.unisys.com>; from kevin.vanmaren@unisys.com on Fri, Nov 08, 2002 at 12:05:30PM -0600
+	id <S262250AbSKHTUq>; Fri, 8 Nov 2002 14:20:46 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:23721 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262248AbSKHTUp>;
+	Fri, 8 Nov 2002 14:20:45 -0500
+Date: Fri, 8 Nov 2002 11:22:38 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Douglas Gilbert <dougg@torque.net>
+cc: <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
+Subject: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
+In-Reply-To: <3DCBBCDA.3050203@torque.net>
+Message-ID: <Pine.LNX.4.33L2.0211081118250.32726-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 08, 2002 at 12:05:30PM -0600, Van Maren, Kevin wrote:
-> Absolutely you should minimize the locking contention.
-> However, that isn't always possible, such as when you
-> have 64 processors contending on the same resource.
+On Sat, 9 Nov 2002, Douglas Gilbert wrote:
 
-if you've got 64 processors contending on the same resource, maybe you
-need to split that resource up so they can have a copy each.  all that
-cacheline bouncing can't do your numa boxes any good.
+| In lk 2.5.46-bk3 the expression in the subject line
+| fails to write into "i" and returns 0. Drop the minus
+| sign and it works.
 
-> With the current kernel, the trivial example with reader/
-> writer locks was having them all call gettimeofday().
-
-i hear x86-64 has a lockless gettimeofday.  maybe that's the solution.
-
-> But try having 64 processors fstat() the same file,
-> which I have also seen happen (application looping,
-> waiting for another process to finish setting up the
-> file so they can all mmap it).
-
-umm.. the call trace:
-
-sys_fstat
-|-> vfs_fstat
-|   |-> fget
-|	|-> read_lock(&files->file_lock)
-|   |-> vfs_getattr
-|	|-> inode->i_op->getattr
-|	|-> generic_fillattr
-|-> cp_new_stat64
-    |-> memset
-    |-> copy_to_user
-
-so you're talking about contention on files->file_lock, right?  it's really
-not the kernel's fault that your app is badly written.  that lock's private
-to process & children, so it's not like another application can hurt you.
-
-> What MCS locks do is they reduce the number of times
-> the cacheline has to be flung around the system in
-> order to get work done: they "scale" much better with
-> the number of processors: O(N) instead of O(N^2).
-
-yes, but how slow are they in the uncontended case?
+Here's an unobstrusive patch to correct that.
+Please apply.
 
 -- 
-Revolutions do not require corporate support.
+~Randy
+
+
+
+--- ./lib/vsprintf.c%signed	Mon Nov  4 14:30:49 2002
++++ ./lib/vsprintf.c	Fri Nov  8 11:20:03 2002
+@@ -517,6 +517,7 @@
+ {
+ 	const char *str = buf;
+ 	char *next;
++	char *dig;
+ 	int num = 0;
+ 	int qualifier;
+ 	int base;
+@@ -638,12 +639,13 @@
+ 		while (isspace(*str))
+ 			str++;
+
+-		if (!*str
+-                    || (base == 16 && !isxdigit(*str))
+-                    || (base == 10 && !isdigit(*str))
+-                    || (base == 8 && (!isdigit(*str) || *str > '7'))
+-                    || (base == 0 && !isdigit(*str)))
+-			break;
++		dig = (*str == '-') ? (str + 1) : str;
++		if (!*dig
++                    || (base == 16 && !isxdigit(*dig))
++                    || (base == 10 && !isdigit(*dig))
++                    || (base == 8 && (!isdigit(*dig) || *dig > '7'))
++                    || (base == 0 && !isdigit(*dig)))
++				break;
+
+ 		switch(qualifier) {
+ 		case 'h':
+

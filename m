@@ -1,62 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVB1V1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVB1V3h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbVB1V1S (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 16:27:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVB1V1S
+	id S261757AbVB1V3h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 16:29:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVB1V3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 16:27:18 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:10469 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261741AbVB1V1N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 16:27:13 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=KHmzUy2DDzNin9SmJ8OrVnkS6xoTsQMe/TYjyKg9l0u7GYmJGdDT5S5OtbQtOHYSslHC3rHsD3vELqRL4bcmq4+zjnuewmPiQC4z8uYXlzFk3XLJgrMAqP5SxFQZNOHyCSFYpjYh8PoX4Ek0vjphKD2d5m55TZIT4Yuqkdb0+fs=
-Message-ID: <70fda32050228132743998647@mail.gmail.com>
-Date: Mon, 28 Feb 2005 15:27:13 -0600
-From: micah milano <micaho@gmail.com>
-Reply-To: micah milano <micaho@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [CAN-2005-0204]: AMD64, allows local users to write to privileged IO ports via OUTS instruction
+	Mon, 28 Feb 2005 16:29:36 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:55532 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261752AbVB1V3a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 16:29:30 -0500
+Date: Mon, 28 Feb 2005 21:29:20 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: andrew.vasquez@qlogic.com, James.Bottomley@SteelEye.com,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] drivers/scsi/qla2xxx/: cleanups
+Message-ID: <20050228212920.GA18162@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@stusta.de>, andrew.vasquez@qlogic.com,
+	James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+References: <20050228210024.GM4021@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050228210024.GM4021@stusta.de>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Feb 28, 2005 at 10:00:24PM +0100, Adrian Bunk wrote:
+> This patch contains the following cleanups:
+> - make needlessly global code static
+> - kill the unused global *_version and *_version_str variables
+>   in the firmware files
 
-CAN-2005-0204 reads:
-
-Linux kernel before 2.6.9, when running on the AMD64 and Intel EM64T
-architectures, allows local users to write to privileged IO ports via
-the OUTS instruction.
-
-Although this says "before 2.6.9" this *includes* 2.6.8 (and 2.4.29)
-as well as  2.6.9 and apparantly it includes 2.6.10 and soon to be
-released 2.6.11 based on my browsing through the changelogs and not
-seeing a mention of this, or that particular file being changed. I do
-see that the particular function where this is located has changed
-slightly, the patch still seems applicable.
-
-Kernel 2.4.29 appears to have a similar vulnerability, although this
-patch would not apply cleanly to that tree, but looks relatively
-trivial to modify appropriately.
-
-Apparantly this hole has not migrated upstream somehow and so I am
-posting this message to find out where its at.
-
-REDHAT:RHSA-2005:092
-URL:http://www.redhat.com/support/errata/RHSA-2005-092.html
-
-The RedHat bug associated with this is located at:
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=148855
-
-A patch to fix the problem is located here (also linked to the RedHat bug):
-https://bugzilla.redhat.com/bugzilla/attachment.cgi?id=110424&action=view
-
-This apparantly only affects AMD64 and EM64T.
-
-Thanks,
-micah
+The firmware files are generated, so it'd be better to leave them
+alone.

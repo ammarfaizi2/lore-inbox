@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287386AbRL3MGY>; Sun, 30 Dec 2001 07:06:24 -0500
+	id <S287400AbRL3MOF>; Sun, 30 Dec 2001 07:14:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287387AbRL3MGN>; Sun, 30 Dec 2001 07:06:13 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:28178 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S287386AbRL3MGF>;
-	Sun, 30 Dec 2001 07:06:05 -0500
-Date: Sun, 30 Dec 2001 10:05:44 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: safemode <safemode@speakeasy.net>
-Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH *] 2.4.17 rmap based VM #9
-In-Reply-To: <1009699023.343.0.camel@psuedomode>
-Message-ID: <Pine.LNX.4.33L.0112301004560.24031-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S287395AbRL3MNu>; Sun, 30 Dec 2001 07:13:50 -0500
+Received: from web1.oops-gmbh.de ([212.36.232.3]:6674 "EHLO
+	sabine.freising-pop.de") by vger.kernel.org with ESMTP
+	id <S287390AbRL3MNd>; Sun, 30 Dec 2001 07:13:33 -0500
+Message-ID: <3C2F035C.92D492C5@sirius-cafe.de>
+Date: Sun, 30 Dec 2001 13:06:52 +0100
+From: Martin Knoblauch <knobi@sirius-cafe.de>
+Reply-To: knobi@knobisoft.de
+Organization: Knobisoft :-), Freising
+X-Mailer: Mozilla 4.6 [en] (X11; I; IRIX 6.5 IP22)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: kaih@khms.westfalen.de
+Subject: Re: Configure.help editorial policy
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Dec 2001, safemode wrote:
+> Re: Configure.help editorial policy
+> 
+> 
+> > Standards exist to make peoples lives easier, the fact the hard drive
+> > and memory vendors currently don't use these phrases right now doesn't
+> > make the standard wrong --- this world is full of clue-less marketing
+> > people and nothing will change this.
+> 
+> Oh, it can be changed. Just the way car advertising has been changed to
+> use kW. (Well, it has over here.) And the way monitor size advertising is
+> in the process of being changed to use SI units, not US ones.
+> 
+> Fair advertising laws can be rather effective.
+> 
 
-> Seems that not all of the live-deadlocks were fixed.  The one i saw in
-> the last version is still present.   It occurs when you're heavily
-> swapping out and the nall of a sudden require something to heavily swap
+ frankly speaking, the advertising on cars, monitors and other stuff
+only changed, because it is illegal to do otherwise (you can use the old
+units, but not alone and not prominently). IMHO in most peoples minds
+the old units are still prevalent.
 
-I've reproduced it with 'mem=12m'.  It seems the system spends all
-of its time in try_to_free_pages() and friends, now I need to find
-out why ;)
+ When looking at the new new notation for binary units, I just think the
+standards organisations made a huge maistake :-( But standard is
+standard. Better take it now.
 
-regards,
-
-Rik
+Martin
 -- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
++-----------------------------------------------------+
+|Martin Knoblauch                                     |
+|-----------------------------------------------------|
+|http://www.knobisoft.de/cats                         |
+|-----------------------------------------------------|
+|e-mail: knobi@knobisoft.de                           |
++-----------------------------------------------------+

@@ -1,75 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275843AbRI1FrV>; Fri, 28 Sep 2001 01:47:21 -0400
+	id <S275845AbRI1Fsv>; Fri, 28 Sep 2001 01:48:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275842AbRI1FrC>; Fri, 28 Sep 2001 01:47:02 -0400
-Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:34544 "EHLO
-	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
-	id <S275844AbRI1Fq6>; Fri, 28 Sep 2001 01:46:58 -0400
-From: junio@siamese.dhis.twinsun.com
-To: Alan Cox <laughing@shared-source.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] link failur in Linux 2.4.9-ac16 around apm.o and sysrq.o
-In-Reply-To: <20010927185107.A17861@lightning.swansea.linux.org.uk>
-	<7v8zezki0b.fsf@siamese.dhis.twinsun.com>
-Date: 27 Sep 2001 22:47:21 -0700
-In-Reply-To: <7v8zezki0b.fsf@siamese.dhis.twinsun.com>
-Message-ID: <7v1ykrkgt2.fsf@siamese.dhis.twinsun.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S275846AbRI1Fsl>; Fri, 28 Sep 2001 01:48:41 -0400
+Received: from oe55.law11.hotmail.com ([64.4.16.63]:45837 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S275845AbRI1Fsd>;
+	Fri, 28 Sep 2001 01:48:33 -0400
+X-Originating-IP: [64.180.168.53]
+From: "David Grant" <davidgrant79@hotmail.com>
+To: "Steven Joerger" <steven@spock.2y.net>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010928041519.968EA4FA00@spock>
+Subject: Re: ide drive problem?
+Date: Thu, 27 Sep 2001 22:44:53 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-ID: <OE55yDnSI4nHp4PlNMu00004f47@hotmail.com>
+X-OriginalArrivalTime: 28 Sep 2001 05:48:55.0728 (UTC) FILETIME=[42D0D300:01C147E1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "JNH" == junio  <junio@siamese.dhis.twinsun.com> writes:
+I think the standard response people would give you is that your IDE cable
+is too long, of bad quality, or you are using a 40-pin cable instead of an
+80-pin cable (although I'm pretty sure that should have been detected, and
+DMA should automatically have not been used, but I heard at one point that
+the code which detected this on motherboards using the vt82c686b chip didn't
+really work in some cases).
 
-JNH> 2.4.9-ac16 fails to link with CONFIG_APM=y and
-JNH> CONFIG_MAGIC_SYSRQ=n.  This is because apm.c unconditionally
-JNH> makes calls to functions (__sysrq_lock_table and friends)
-JNH> defined in sysrq.c.
+That's the standard answer, but I used to get this messages on my machine as
+well (I think it was back when I was trying to use my VIA chipset with
+Redhat 7.1).  I don't seem to get them anymore though, but maybe that's just
+because I'm trying to install distros newer than Redhat 7.1.  That makes me
+think that I never had CRC errors, it was just some buggy VIA code.
 
-JNH> I can think of a couple of different approaches to work this
-JNH> around, but is there an established proper way to resolve this
-JNH> kind of dependency in the kernel code?
+I just get the dma timeout errors now with my VIA IDE controller.  I also
+get them with the Promise controller (sigh...).
 
-The approaches I listed as (1) and (3) in my previous message
-are non solutions, since it will result in a kernel where apm.o
-makes calls into sysrq functions, whose proper operations would
-depend on sysrq.o to have been properly initialized by other
-parts of the kernel, which still think CONFIG_MAGIC_SYSRQ is not
-defined.
+David Grant
 
-The below should be a better fix.
-
---- 2.4.9-ac16.sffix/arch/i386/kernel/apm.c	Thu Sep 27 12:46:43 2001
-+++ 2.4.9-ac16.sffix/arch/i386/kernel/apm.c	Thu Sep 27 22:41:53 2001
-@@ -201,7 +201,9 @@
- #include <asm/uaccess.h>
- #include <asm/desc.h>
- 
-+#ifdef CONFIG_MAGIC_SYSRQ
- #include <linux/sysrq.h>
-+#endif
- 
- extern unsigned long get_cmos_time(void);
- extern void machine_real_restart(unsigned char *, int);
-@@ -697,12 +699,16 @@
- 		                        struct kbd_struct *kbd, struct tty_struct *tty) {
- 	        apm_power_off();
- }
-+#ifdef CONFIG_MAGIC_SYSRQ
- struct sysrq_key_op sysrq_poweroff_op = {
- 	handler:        handle_poweroff,
- 	help_msg:       "Off",
- 	action_msg:     "Power Off\n"
- };
--
-+#else
-+# define register_sysrq_key(ig,no) /*re*/
-+# define unregister_sysrq_key(ig,no) /*re*/
-+#endif
- 
- #ifdef CONFIG_APM_DO_ENABLE
- static int apm_enable_power_management(int enable)
+----- Original Message -----
+From: "Steven Joerger" <steven@spock.2y.net>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, September 27, 2001 9:02 PM
+Subject: ide drive problem?
 
 
+> List,
+>
+> When I enable support for my chipset in the kernel (via kt133) I always
+get
+> these messages:
+>
+> hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+>
+> over and over and ....
+>
+> Any clues to whats going on?
+>
+> Thanks,
+> Steven Joerger
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

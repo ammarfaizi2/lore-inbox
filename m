@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129581AbQKUXQ5>; Tue, 21 Nov 2000 18:16:57 -0500
+	id <S129319AbQKUX0I>; Tue, 21 Nov 2000 18:26:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130132AbQKUXQs>; Tue, 21 Nov 2000 18:16:48 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:17677 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S129581AbQKUXQa>; Tue, 21 Nov 2000 18:16:30 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Anil kumar <anils_r@yahoo.com>
-Date: Wed, 22 Nov 2000 09:19:54 +1100 (EST)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14874.62730.601259.997774@notabene.cse.unsw.edu.au>
+	id <S129412AbQKUXZ5>; Tue, 21 Nov 2000 18:25:57 -0500
+Received: from jalon.able.es ([212.97.163.2]:2293 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129319AbQKUXZk>;
+	Tue, 21 Nov 2000 18:25:40 -0500
+Date: Tue, 21 Nov 2000 23:55:29 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Bartlomiej Zolnierkiewicz <dake@staszic.waw.pl>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID Benchmarking
-In-Reply-To: message from Anil kumar on Tuesday November 21
-In-Reply-To: <20001121194018.9178.qmail@web6103.mail.yahoo.com>
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: Re: [PATCH] removal of "static foo = 0" from drivers/ide (test11)
+Message-ID: <20001121235529.E925@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <Pine.LNX.4.21.0011211438490.756-100000@tricky>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.4.21.0011211438490.756-100000@tricky>; from dake@staszic.waw.pl on Tue, Nov 21, 2000 at 22:25:01 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday November 21, anils_r@yahoo.com wrote:
-> Hi,
->  I want to know , how to Benchmark the performance of
->  RAID.Is there any tool for benchmarking?
+
+On Tue, 21 Nov 2000 22:25:01 Bartlomiej Zolnierkiewicz wrote:
 > 
+> Quick removal of unnecessary initialization to 0.
+> 
+>  
+> -static int basePort = 0;	/* base port address */
+> -static int regPort = 0;		/* port for register number */
+> -static int dataPort = 0;	/* port for register data */
+> +static int basePort;	/* base port address */
+> +static int regPort;	/* port for register number */
+> +static int dataPort;	/* port for register data */
 
-It all depends on what you want to measure.
-If you want to measure "how well will this work for me", then you need
-a tool that generates a load that has similar characteristics to the
-load that you are likely to impose on the system.
+That is not too much confidence on the ANSI-ness of the compiler ???
 
-If that is large single threaded sequential reads or sequential
-writes, then bonnie is a pretty good tool.  However, this isn't a very
-typical load for me.
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
 
-I have been using bonnie and dbench which can be found at
-   ftp://samba.org/pub/tridge/dbench/
+Linux 2.2.18-pre22-vm #7 SMP Sun Nov 19 03:29:20 CET 2000 i686 unknown
 
-I have heard that iozone is pretty good too, though I haven't tried it
-yet:
-     http://www.iozone.org/
-
-If you are looking at software raid5 in 2.4, you might like to look at
-    http://www.cse.unsw.edu.au/~neilb/wiki/?LinuxRaidTest
-
-which has a number of neat graphs and links to some patches that make
-raid5 in 2.4 much faster.
-
-You might also like to look at Gary Murakami's page at
-
-  http://www.research.att.com/~gjm/linux/ide-i75raid.html
-
-particularly if you are thinking IDE raid.
-
-Hope this helps.
-
-NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

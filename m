@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262856AbRFYT51>; Mon, 25 Jun 2001 15:57:27 -0400
+	id <S265904AbRFYUA5>; Mon, 25 Jun 2001 16:00:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265888AbRFYT5R>; Mon, 25 Jun 2001 15:57:17 -0400
-Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:61602 "HELO
-	tsunami.webofficenow.com") by vger.kernel.org with SMTP
-	id <S262856AbRFYT5B>; Mon, 25 Jun 2001 15:57:01 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@webofficenow.com>
-Reply-To: landley@webofficenow.com
-To: <asmith@14inverleith.freeserve.co.uk>, <Wayne.Brown@altec.com>
-Subject: Re: Microsoft and Xenix.
-Date: Mon, 25 Jun 2001 10:54:22 -0400
-X-Mailer: KMail [version 1.2]
-Cc: <landley@webofficenow.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.33.0106251812020.18127-100000@vtrl22.vtrl.co.uk>
-In-Reply-To: <Pine.LNX.4.33.0106251812020.18127-100000@vtrl22.vtrl.co.uk>
+	id <S265905AbRFYUAj>; Mon, 25 Jun 2001 16:00:39 -0400
+Received: from adsl-65-68-16-200.dsl.ltrkar.swbell.net ([65.68.16.200]:22619
+	"EHLO etmain.edafio.com") by vger.kernel.org with ESMTP
+	id <S265904AbRFYUAY> convert rfc822-to-8bit; Mon, 25 Jun 2001 16:00:24 -0400
+Subject: RE: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+Date: Mon, 25 Jun 2001 14:55:29 -0500
+Message-ID: <3BDF3E4668AD0D49A7B0E3003B294282BC95@etmain.edafio.com>
 MIME-Version: 1.0
-Message-Id: <01062510542205.04704@localhost.localdomain>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.4417.0
+Thread-Topic: VIA Southbridge bug (Was: Crash on boot (2.4.5))
+content-class: urn:content-classes:message
+Thread-Index: AcD9RL2A00f4ZAneTQWC1C+aqER/kwAa5gew
+From: "Andy Ward" <andyw@edafio.com>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+        "Steven Walter" <srwalter@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 June 2001 13:14, asmith@14inverleith.freeserve.co.uk wrote:
-> Hi,
->
-> If you're really keen on old mags and manuals I'll go up to attic and look
-> around.  I know there are old SCO Xenix & TCP/IP, as well as Byte and Dr
-> Dobbs
->
+oh really?   I have my memory timings set to 133/cas2/6-4-4-4.  One
+wonders... *ponder*
 
-Ooh!  Yes!  Very much so.
+I have noticed some general flakyness (hard to pin down) on the system,
+though...  random program crashes, minor visual corruption in X (which
+fixes itself when you move things around), etc...  Anyone want to take a
+swing at that?
 
-Thanks,
+-- andyw
 
-Rob
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Monday, June 25, 2001 2:07 AM
+To: Steven Walter
+Cc: Andy Ward; linux-kernel@vger.kernel.org
+Subject: Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))
 
-The mailing list for this discussion is:
-http://lists.sourceforge.net/lists/listinfo/penguicon-comphist
+
+> Great, glad to here it.  Who (if anyone) is still attempting to
+unravel
+> the puzzle of the Via southbridge bug?  You, Andy, should try and get
+in
+> touch with them and help debug this thing, if you're up to it.
+
+The IWILL problem seems unrelated. Its the board that more than others
+people
+report fails totally when streaming memory copies using movntq
+instructions.
+
+The Athlon optimised kernel places pretty much the absolute maximum load
+
+possible on the memory bus. Several people have reported that machines
+that
+are otherwise stable on the bios fast options require  the proper
+conservative
+settings to be stable with the Athlon optimisations
+
+Alan
+

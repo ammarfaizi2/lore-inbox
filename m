@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264641AbTDZJYh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Apr 2003 05:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264642AbTDZJYh
+	id S263384AbTDZKVr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Apr 2003 06:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263800AbTDZKVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Apr 2003 05:24:37 -0400
-Received: from dsl-213-023-064-149.arcor-ip.net ([213.23.64.149]:56196 "EHLO
-	neon.pearbough.net") by vger.kernel.org with ESMTP id S264641AbTDZJYh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Apr 2003 05:24:37 -0400
-Date: Sat, 26 Apr 2003 11:36:48 +0200
-From: Axel Siebenwirth <axel@pearbough.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21-rc1-ac2] undefined reference to `sync_dquots_dev'
-Message-ID: <20030426093648.GB19591@neon.pearbough.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030426092938.GA19569@neon.pearbough.net> <20030426093319.GA19591@neon.pearbough.net>
+	Sat, 26 Apr 2003 06:21:47 -0400
+Received: from mux2.uit.no ([129.242.5.252]:49419 "EHLO mux2.uit.no")
+	by vger.kernel.org with ESMTP id S263384AbTDZKVq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Apr 2003 06:21:46 -0400
+Date: Sat, 26 Apr 2003 12:33:56 +0200
+From: Tobias Brox <tobias@stud.cs.uit.no>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: nfsroot.c + ipconfig.c (2.4.20)
+Message-ID: <20030426123356.C12540@stud.cs.uit.no>
+Reply-To: tobias@stud.cs.uit.no
+References: <200304231510.h3NFAh430564@lgserv3.stud.cs.uit.no> <shs8yu1uqak.fsf@charged.uio.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030426093319.GA19591@neon.pearbough.net>
-User-Agent: Mutt/1.4.1i
-Organization: pearbough.net
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <shs8yu1uqak.fsf@charged.uio.no>; from trond.myklebust@fys.uio.no on Wed, Apr 23, 2003 at 06:33:39PM +0200
+Organization: =?iso-8859-1?Q?University_of_Troms=F8?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi linux-kernel!
+[Trond Myklebust - Wed at 06:33:39PM +0200]
+>    ftp://ftp.uninett.no/pub/linux/docs/HOWTO/mini/NFS-Root
 
-On Sat, 26 Apr 2003, Axel Siebenwirth wrote:
+I'm pretty sure my problems stems from something fishy in the kernel
+code, not simply because I don't know what I'm doing.
 
-> On Sat, 26 Apr 2003, Axel Siebenwirth wrote:
-> 
-> > fs/fs.o(.text+0x1baf9): In function `do_quotactl':
-> > : undefined reference to `sync_dquots_dev'
-> > 
-> > Setting CONFIG_QUOTA helps out, but I don't want no quota support ;)
-> 
-> Forgive me!!! It was still rc1-ac1. Thats the result of testing patch with
-> --dry-run and then don't really apllying...
+The FAQ above is not much up-to-date, either.  I have a creeping
+feeling that the nfsroot feature is not much used together with the
+more recent kernel versions, as most modern computers are equipped
+with harddisks.  I'd like to hear success-stories from people that
+have managed to do a diskless boot with a kernel of version 2.4.20 or
+more recent.
 
-I am going crazy. Yes it is rc1-ac2. Alan forgot to change EXTRAVERSION
-again.
-The build problem without CONFIG_QUOTA being set, still persists.
+According to a an earlier mail to this list (available at
+http://www.geocrawler.com/archives/3/35/2001/6/0/6079479/ ) ipconfig
+should be called from init/main.c:checksetup() - I can say for sure
+that this does not take place, regardless of what options I feed the
+kernel with.
 
-Axel Siebenwirth
+In the 2.5.66-version of the kernel, the function above has been
+renamed to obsolete_checksetup.
+
+When booting up with 2.5.66, it also fails to load the network driver
+in time.  I know I have compiled the right driver into the kernel (and
+not as a module).
+
+-- 
+Check our new Mobster game at http://hstudd.cs.uit.no/mobster/
+(web game, updates every 4th hour, no payment, no commercials)

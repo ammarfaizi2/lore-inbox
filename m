@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264972AbTANSva>; Tue, 14 Jan 2003 13:51:30 -0500
+	id <S264963AbTANS4Y>; Tue, 14 Jan 2003 13:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264975AbTANSv3>; Tue, 14 Jan 2003 13:51:29 -0500
-Received: from [66.70.28.20] ([66.70.28.20]:23051 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S264972AbTANSv3>; Tue, 14 Jan 2003 13:51:29 -0500
-Date: Tue, 14 Jan 2003 19:59:34 +0100
-From: DervishD <raul@pleyades.net>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Changing argv[0] under Linux.
-Message-ID: <20030114185934.GA49@DervishD>
+	id <S264983AbTANS4Y>; Tue, 14 Jan 2003 13:56:24 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3283 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S264963AbTANS4V>; Tue, 14 Jan 2003 13:56:21 -0500
+Date: Tue, 14 Jan 2003 20:05:07 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: "Rodrigo F. Baroni" <rodrigobaroni@yahoo.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Docs to a beginner
+Message-ID: <20030114190507.GA15211@fs.tum.de>
+References: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030114150521.94386.qmail@web11102.mail.yahoo.com>
 User-Agent: Mutt/1.4i
-Organization: Pleyades
-User-Agent: Mutt/1.4i <http://www.mutt.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi all :))
+On Tue, Jan 14, 2003 at 12:05:21PM -0300, Rodrigo F. Baroni wrote:
 
-    I'm not sure whether this issue belongs to the kernel or to the
-libc, but I think that is more on the kernel side, that's why I ask
-here.
+> Hello all,
+> 
+> 
+>     I'm a computer science grad student, and I would
+> like to know some suggestions about links, docs and
+> books to start study the kernel linux, if wouldn't
+> bother anyone.
+>...
 
-    Let's go to the matter: I want to change the argv[0] a program
-shows, in order to be pretty-printed when issuing 'ps', 'top' or
-other commands. What I'm doing now is just writing over the existing
-argv[0] string, but then I must use a *shorter-or-equal* string in
-order to fit it on the existing space. What if I need to put a
-*larger* string on argv[0]? Is this possible at all?
+    Alessandro Rubini and Jonathan Corbet.  Linux device drivers.
+    O'Reilly, second edition, 2001.  Online version: 
+    http://www.xml.com/ldd/chapter/book/index.html
 
-    Thanks in advance :)
-    Raúl
+
+>   Thanks a lot
+> Rodrigo F Baroni
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

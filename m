@@ -1,69 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283788AbRLEI1Z>; Wed, 5 Dec 2001 03:27:25 -0500
+	id <S283803AbRLEIgR>; Wed, 5 Dec 2001 03:36:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283796AbRLEI1P>; Wed, 5 Dec 2001 03:27:15 -0500
-Received: from smtpde02.sap-ag.de ([194.39.131.53]:43508 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S283795AbRLEI1H>; Wed, 5 Dec 2001 03:27:07 -0500
-From: Christoph Rohland <cr@sap.com>
-To: Tachino Nobuhiro <tachino@open.nm.fujitsu.co.jp>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, padraig@antefacto.com (Padraig Brady),
-        scho1208@yahoo.com (Roy S.C. Ho), david@gibson.dropbear.id.au,
-        linux-kernel@vger.kernel.org
-Subject: Re: question about kernel 2.4 ramdisk
-In-Reply-To: <3C0D2843.5060708@antefacto.com>
-	<E16BLxI-0003Ic-00@the-village.bc.nu>
-	<snaqhzhj.wl@nisaaru.dvs.cs.fujitsu.co.jp>
-Organisation: SAP LinuxLab
-Date: 05 Dec 2001 09:23:03 +0100
-In-Reply-To: <snaqhzhj.wl@nisaaru.dvs.cs.fujitsu.co.jp>
-Message-ID: <m3wv02oz2w.fsf@linux.local>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
-MIME-Version: 1.0
+	id <S283804AbRLEIgH>; Wed, 5 Dec 2001 03:36:07 -0500
+Received: from [12.36.112.226] ([12.36.112.226]:29435 "EHLO golux.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S283801AbRLEIf7>;
+	Wed, 5 Dec 2001 03:35:59 -0500
+Date: Wed, 5 Dec 2001 03:29:54 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Cameron Simpson <cs@zip.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
+        kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+Subject: Re: Converting the 2.5 kernel to kbuild 2.5
+Message-ID: <20011205032954.B4836@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Cameron Simpson <cs@zip.com.au>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@caldera.de>, Keith Owens <kaos@ocs.com.au>,
+	kbuild-devel@lists.sourceforge.net, torvalds@transmeta.com
+In-Reply-To: <20011204120305.A16578@thyrsus.com> <E16BJcB-0002o7-00@the-village.bc.nu> <20011205125938.A21170@zapff.research.canon.com.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
-X-SAP: out
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011205125938.A21170@zapff.research.canon.com.au>; from cs@zip.com.au on Wed, Dec 05, 2001 at 12:59:38PM +1100
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Tachino,
+Cameron Simpson <cs@zip.com.au>:
+> ESR, is it practical to have CML2 transcribe a CML1 config file?
 
-On Wed, 05 Dec 2001, Tachino Nobuhiro wrote:
-> +		if (!strcmp(optname, "maxfilesize") && value) {
-> +			p->filepages = simple_strtoul(value, &value, 0)
-> +				/ K_PER_PAGE;
-> +			if (*value)
-> +				return -EINVAL;
-> +		} else if (!strcmp(optname, "maxsize") && value) {
-> +			p->pages = simple_strtoul(value, &value, 0)
-> +				/ K_PER_PAGE;
-> +			if (*value)
-> +				return -EINVAL;
-> +		} else if (!strcmp(optname, "maxinodes") && value) {
-> +			p->inodes = simple_strtoul(value, &value, 0);
-> +			if (*value)
-> +				return -EINVAL;
-> +		} else if (!strcmp(optname, "maxdentries") && value) {
-> +			p->dentries = simple_strtoul(value, &value, 0);
-> +			if (*value)
-> +				return -EINVAL;
-> +		}
+No, alas.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-Please! If you do the limit checking for ramfs adapt the same options
-like shmem.c i.e. size,nr_inodes,nr_blocks,mode(+uid+gid). Don't
-invent yet another mount option set. Also give them the same
-semantics. Best would be to use shmem_parse_options.
-
-Further thought: Wouldn't it be better to add a no_swap mount option
-to shmem and try to merge the two? There is a lot of code duplication
-between mm/shmem.c and fs/ramfs/inode.c.
-
-Greetings
-		Christoph
-
-
+Government should be weak, amateurish and ridiculous. At present, it
+fulfills only a third of the role.
+	-- Edward Abbey

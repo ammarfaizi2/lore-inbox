@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264098AbUIDWbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264113AbUIDWdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264098AbUIDWbY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 18:31:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUIDWbY
+	id S264113AbUIDWdL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 18:33:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264147AbUIDWdL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 18:31:24 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:52183 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S264098AbUIDWbX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 18:31:23 -0400
-Subject: Re: [PATCH 4/4][diskdump] x86-64 support
-From: Lee Revell <rlrevell@joe-job.com>
-To: Takao Indoh <indou.takao@soft.fujitsu.com>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <9AC48F3A62CFC4indou.takao@soft.fujitsu.com>
-References: <20040828112324.B8000@infradead.org>
-	 <9AC48F3A62CFC4indou.takao@soft.fujitsu.com>
-Content-Type: text/plain
-Message-Id: <1094337090.6575.474.camel@krustophenia.net>
+	Sat, 4 Sep 2004 18:33:11 -0400
+Received: from fw.osdl.org ([65.172.181.6]:42410 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264113AbUIDWdH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 18:33:07 -0400
+Date: Sat, 4 Sep 2004 15:29:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: torvalds@osdl.org, hch@infradead.org, linux-kernel@vger.kernel.org,
+       dcn@sgi.com
+Subject: Re: [IA64] allow OEM written modules to make calls to ia64 OEM SAL
+ functions.
+Message-Id: <20040904152949.5bf7bca8.akpm@osdl.org>
+In-Reply-To: <20040904093745.GB5313@devserv.devel.redhat.com>
+References: <200409032207.i83M7CKj015068@hera.kernel.org>
+	<1094280707.2801.0.camel@laptop.fenrus.com>
+	<20040904103529.C13149@infradead.org>
+	<20040904093745.GB5313@devserv.devel.redhat.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 04 Sep 2004 18:31:31 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-31 at 05:10, Takao Indoh wrote:
-> >As in the scsi code spin_is_locked checks are bogus and racy.  Only
-> >a spin_trylock would be safe.  hd can't be NULL.
+Arjan van de Ven <arjanv@redhat.com> wrote:
+>
+> On Sat, Sep 04, 2004 at 10:35:29AM +0100, Christoph Hellwig wrote:
+> > On Sat, Sep 04, 2004 at 08:51:47AM +0200, Arjan van de Ven wrote:
+> > > On Wed, 2004-08-25 at 20:27, Linux Kernel Mailing List wrote:
+> > > > ChangeSet 1.1803.128.1, 2004/08/25 18:27:33+00:00, dcn@sgi.com
+> > > > 
+> > > > 	[IA64] allow OEM written modules to make calls to ia64 OEM SAL functions.
+> > > > 	
+> > > > 	Add wrapper functions for SAL_CALL(), SAL_CALL_NOLOCK(), and
+> > > > 	SAL_CALL_REENTRANT() that allow OEM written modules to make
+> > > > 	calls to ia64 OEM SAL functions.
+> > > > 	
+> > > 
+> > > are there any such modules? Are they GPL licensed or all proprietary ?
+> > 
+> > SGI has stated they have propritary modules that need this, that's why it's
+> > got added despite my objections.
 > 
-> Could you explain to me why spin_is_locked is not safe?
-> 
+> if there are no open source modules that use these exports I would like to
+> ask these exports to be undone again..
 
-Say you have a door with a lock, and someone on the other side.  You 
-look at the lock, see that it's unlocked, then open the door.  You
-cannot guarantee that the door will open because the person on the other
-side could have locked it between the time you looked and turned the
-handle.
+Yes.  Guys, these are the rules we all live by.
 
-The only way to know for sure whether the door is locked is to turn the
-handle and see if it opens.
-
-Lee
-
+Arjan, please submit a patch.

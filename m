@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265457AbTBCXNa>; Mon, 3 Feb 2003 18:13:30 -0500
+	id <S265523AbTBCXTJ>; Mon, 3 Feb 2003 18:19:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265523AbTBCXNa>; Mon, 3 Feb 2003 18:13:30 -0500
-Received: from ns.suse.de ([213.95.15.193]:55053 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265457AbTBCXNa>;
-	Mon, 3 Feb 2003 18:13:30 -0500
-Date: Tue, 4 Feb 2003 00:22:20 +0100
-From: Andi Kleen <ak@suse.de>
+	id <S266939AbTBCXTI>; Mon, 3 Feb 2003 18:19:08 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:921 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265523AbTBCXTI>; Mon, 3 Feb 2003 18:19:08 -0500
+Date: Mon, 3 Feb 2003 18:31:56 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
 To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
        lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [Lse-tech] gcc 2.95 vs 3.21 performance
-Message-ID: <20030203232220.GA15469@wotan.suse.de>
-References: <336780000.1044313506@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Subject: Re: gcc 2.95 vs 3.21 performance
 In-Reply-To: <336780000.1044313506@flay>
-User-Agent: Mutt/1.4i
+Message-ID: <Pine.LNX.3.95.1030203182417.7651A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 03:05:06PM -0800, Martin J. Bligh wrote:
-> The results below leaves me distinctly unconvinced by the supposed 
-> merits of modern gcc's. Not really better or worse, within experimental
-> error. But much slower to compile things with.
+On Mon, 3 Feb 2003, Martin J. Bligh wrote:
 
-Curious - could you compare it with a gcc 3.3 snapshot too?
+> People keep extolling the virtues of gcc 3.2 to me, which I'm
+> reluctant to switch to, since it compiles so much slower. But
+> it supposedly generates better code, so I thought I'd compile
+> the kernel with both and compare the results. This is gcc 2.95
+> and 3.2.1 from debian unstable on a 16-way NUMA-Q. The kernbench
+> tests still use 2.95 for the compile-time stuff.
+>
+[SNIPPED tests...]
 
-It should be even slower at compiling, but generate better code.
+Don't let this get out, but egcs-2.91.66 compiled FFT code
+works about 50 percent of the speed of whatever M$ uses for
+Visual C++ Version 6.0  I was awfully disheartened when I
+found that identical code executed twice as fast on M$ than
+it does on Linux. I tried to isolate what was causing the
+difference. So I replaced 'hypot()' with some 'C' code that
+does sqrt(x^2 + y^2) just to see if it was the 'C' library.
+It didn't help. When I find out what type (section) of code
+is running slower, I'll report. In the meantime, it's fast
+enough, but I don't like being beat by M$.
 
--Andi
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
+
+

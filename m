@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263727AbTDXOwV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 10:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbTDXOwV
+	id S263637AbTDXO5n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 10:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263730AbTDXO5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 10:52:21 -0400
-Received: from almesberger.net ([63.105.73.239]:19721 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S263727AbTDXOwU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 10:52:20 -0400
-Date: Thu, 24 Apr 2003 12:04:03 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Matthias Schniedermeyer <ms@citd.de>
-Cc: Pat Suwalski <pat@suwalski.net>, Jamie Lokier <jamie@shareable.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-Message-ID: <20030424120403.N3557@almesberger.net>
-References: <20030423214332.H3557@almesberger.net> <20030424011137.GA27195@mail.jlokier.co.uk> <20030423231149.I3557@almesberger.net> <25450000.1051152052@[10.10.2.4]> <20030424003742.J3557@almesberger.net> <20030424071439.GB28253@mail.jlokier.co.uk> <20030424103858.M3557@almesberger.net> <20030424134904.GA18149@citd.de> <3EA7EFF5.3060900@suwalski.net> <20030424143433.GA18374@citd.de>
+	Thu, 24 Apr 2003 10:57:43 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13962 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263729AbTDXO5n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 10:57:43 -0400
+Date: Thu, 24 Apr 2003 16:09:50 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Timothy Miller <miller@techsource.com>
+Cc: Steven Cole <elenstev@mesatop.com>,
+       Johannes Ruscheinski <ruschein@mail-infomine.ucr.edu>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: How did the Spelling Police miss this one?
+Message-ID: <20030424150950.GW10374@parcelfarce.linux.theplanet.co.uk>
+References: <200304230936_MC3-1-35AA-864B@compuserve.com> <1051109635.29423.20.camel@spc9.esa.lanl.gov> <20030424033913.GA32423@mail-infomine.ucr.edu> <1051158383.22271.123.camel@spc> <3EA7F8AE.8050402@techsource.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030424143433.GA18374@citd.de>; from ms@citd.de on Thu, Apr 24, 2003 at 04:34:33PM +0200
+In-Reply-To: <3EA7F8AE.8050402@techsource.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Schniedermeyer wrote:
-> Maybe it depends on hardware, or your mixer "transparently" unmutes the
-> channel when you increase volume.
+On Thu, Apr 24, 2003 at 10:46:06AM -0400, Timothy Miller wrote:
+ 
+> On the other hand, "canonicalize", while strange and new, unambiguously 
+> means (b).
+> 
+> Is there an already-existing word which means (b)?
 
-Hmm, KMix doesn't do either, but if I mute the main volume and
-restart KMix, it will come up unmuted, but the volume set to
-zero.
-
-Other mixers (XMixer, aumix) don't seem know of the concept of
-muting at all. (And switching input sources doesn't seem to
-have much effect on what gets sent to the speakers.)
-
-Also, a quick grep through linux-*/sound/ doesn't find the
-word "mute". Are you sure this isn't a feature of the mixer
-instead of the sound API ?
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+% webster normalize
+nor-mal-ize \'no[0xC7]r-me-,l[0xF5]^-z\ vt  -ized; -iz-ing
+(1865)
+1: to make conform to or reduce to a norm or standard
+2: to make normal (as by a transformation of variables)
+3: to bring or restore (as relations between countries) to a normal
+     condition
+-- nor-mal-iz-able \-,l[0xF5]^--ze-bel\ adj 
+-- nor-mal-iza-tion \,no[0xC7]r-me-le-'za^--shen\ n 

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263985AbTI2Rqq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 13:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263969AbTI2Rqe
+	id S263807AbTI2SES (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 14:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264110AbTI2SCc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 13:46:34 -0400
-Received: from [193.138.115.2] ([193.138.115.2]:51210 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S263985AbTI2Rpb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 13:45:31 -0400
-Date: Mon, 29 Sep 2003 19:44:39 +0200 (CEST)
-From: Jesper Juhl <jju@dif.dk>
-To: John Cherry <cherry@osdl.org>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.0-test6 (compile statistics)
-In-Reply-To: <1064853054.914.5.camel@cherrytest.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.56.0309291937350.12255@jju_lnx.backbone.dif.dk>
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org>
- <1064853054.914.5.camel@cherrytest.pdx.osdl.net>
+	Mon, 29 Sep 2003 14:02:32 -0400
+Received: from lucidpixels.com ([66.45.37.187]:26546 "HELO lucidpixels.com")
+	by vger.kernel.org with SMTP id S264109AbTI2SAI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 14:00:08 -0400
+Date: Mon, 29 Sep 2003 14:00:06 -0400 (EDT)
+From: Justin Piszcz <jpiszcz@lucidpixels.com>
+X-X-Sender: jpiszcz@p500
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.22 ide-scsi problem.
+In-Reply-To: <Pine.LNX.4.44.0309271338590.2874-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0309291359110.11560@p500>
+References: <Pine.LNX.4.44.0309271338590.2874-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes, similiar to a buffer underrun, I thought it was the media at first,
+but after 4-6 cds, it seems like it is the kernel.
 
-On Mon, 29 Sep 2003, John Cherry wrote:
+I am going to do some more testing with 2.4.21, more burns with current
+media I am using to make fully sure it is or is not the kernel.
 
-> Linux 2.6 Compile Statistics (gcc 3.2.2)
-> ----------------------------------------
+
+On Mon, 29 Sep 2003, Marcelo Tosatti wrote:
+
 >
-> Warnings/Errors Summary
+> What do you mean with "barf" ?
 >
-> Kernel         bzImage    bzImage  modules  bzImage   modules
->              (defconfig)  (allyes) (allyes) (allmod) (allmod)
-> -----------  -----------  -------- -------- -------- ---------
-> 2.6.0-test6    0w/0e      188w/ 1e  12w/0e   3w/0e    260w/ 2e
-> 2.6.0-test5    0w/0e      205w/ 9e  15w/1e   0w/0e    305w/ 5e
-> 2.6.0-test4    0w/0e      797w/55e  68w/1e   3w/0e   1016w/34e
-> 2.6.0-test3    0w/0e      755w/66e  62w/1e   7w/9e    984w/42e
-> 2.6.0-test2    0w/0e      952w/65e  63w/2e   7w/9e   1201w/43e
-> 2.6.0-test1    0w/0e     1016w/60e  75w/1e   8w/9e   1319w/38e
+> You get IO errors?
 >
-
-I was wondering if there would be any point in doing these builds with
-"allnoconfig" as well?
-Could this possibly flush out some warnings/errors that only occur when
-something is left out?
-
-
-/Jesper Juhl
-
+> On Tue, 23 Sep 2003, Justin Piszcz wrote:
+>
+> > While executing two parallel burns, when one goes to finalize the disc,
+> > the other one barfs (each drive = Plextor 12/10/32a (buffer underrun
+> > protection)).
+> >
+> > This has never occured with 2.4.[0-21].
+> >
+> > What happened in 2.4.22 with IDE-SCSI/IDE stuff?
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+>
+>

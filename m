@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129563AbRCBWFt>; Fri, 2 Mar 2001 17:05:49 -0500
+	id <S129568AbRCBWGJ>; Fri, 2 Mar 2001 17:06:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129561AbRCBWFl>; Fri, 2 Mar 2001 17:05:41 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6404 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S129552AbRCBWFZ>;
-	Fri, 2 Mar 2001 17:05:25 -0500
-Date: Thu, 1 Mar 2001 12:41:59 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Sébastien HINDERER <jrf3@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Keyboard simulation
-Message-ID: <20010301124158.E34@(none)>
-In-Reply-To: <3a9cc5953b575371@citronier.wanadoo.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <3a9cc5953b575371@citronier.wanadoo.fr>; from jrf3@wanadoo.fr on Wed, Feb 28, 2001 at 10:38:03AM -0000
+	id <S129567AbRCBWFy>; Fri, 2 Mar 2001 17:05:54 -0500
+Received: from ns.dkik.dk ([194.234.39.2]:31240 "HELO dkik.dk")
+	by vger.kernel.org with SMTP id <S129554AbRCBWFl> convert rfc822-to-8bit;
+	Fri, 2 Mar 2001 17:05:41 -0500
+Message-ID: <003a01c0a364$e95cbd00$5f01a8c0@worm>
+From: "Christian Worm Mortensen" <worm@dkik.dk>
+To: <lartc@mailman.ds9a.nl>, <linux-kernel@vger.kernel.org>,
+        <linux-net@vger.kernel.org>
+Subject: [ANNOUNCE] New version of the WRR network scheduler
+Date: Fri, 2 Mar 2001 23:05:37 +0100
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.2919.6700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> I'm writting a driver so that my soft braille display can work with the
-> BRLTTY daemon.
-> My braille computer contains a braille display, and a braille keyboard
-> which I can use to enter characters that are transmitted to the computer.
-> When my driver gets "normla" chars, he writes them to /dev/console. So for
-> applications, it looks as if they came from the normal keyboard.
-> Now, I'd like to be able to change the current virtual console and to view
-> previously displayed screens (equivalent to shift+page up) just by pressing
-> keys on the braille keyboard.
-> So my question is: What should my driver do when it detects that the
-> "change tty" key or the "scroll key" was pressed on the braille keyboard?
-> Should the driver change the current tty itself (scroll the screen), or is
-> it possible to call the kernel exactly like the normal keyboard driver
-> would do (transmit keycodes), saying "alt + function key was pressed", or
-> "shift + page up/down was pressed".
+I have just released a new version of the WRR scheduler supporting the 
+2.4 kernels besides 2.2 as always . The WRR scheduler is an extension 
+to the Traffic Control/network bandwidth management part of the Linux 
+kernels. The scheduler was developed to support distributing bandwidth 
+on a shared Internet connection fairly between local machines.
 
-Transmit keycodes is AFAIK not implemented in official drivers.
+Further comments:
 
-Take a look at vojtech's new input suite.
-								Pavel
--- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
+* As a default all local machines will get equally much
+  of the bandwidth if they have sufficient demand. This
+  is obtained by doing so-called weighted round robin (wrr)
+  scheduling.
+* It is possible to give machines transferring much data
+  over a long or short period of time less bandwidth.
+* It can work on a bridge, a router or on a firewall.
+* Supports accounting locally generated masqgraded packets
+  to the correct local machine.
+* On the WRR home page an extension is available which
+  includes patches for Squid and the Nec socks5 proxy servers
+  so that proxied packets can also be accounted to the
+  correct local machine.
+* Includes a configuration file based set of scripts that
+  will setup everything without changing your basic network
+  setup. The scripts will allow you to shape both incoming
+  and outgoing traffic.
+
+
+Christian
 

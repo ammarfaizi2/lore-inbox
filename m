@@ -1,48 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316795AbSGBPP3>; Tue, 2 Jul 2002 11:15:29 -0400
+	id <S316797AbSGBPWr>; Tue, 2 Jul 2002 11:22:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316797AbSGBPP2>; Tue, 2 Jul 2002 11:15:28 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:15888 "EHLO
+	id <S316798AbSGBPWr>; Tue, 2 Jul 2002 11:22:47 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16400 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S316795AbSGBPP2>; Tue, 2 Jul 2002 11:15:28 -0400
-Date: Tue, 2 Jul 2002 11:13:01 -0400 (EDT)
+	id <S316797AbSGBPWq>; Tue, 2 Jul 2002 11:22:46 -0400
+Date: Tue, 2 Jul 2002 11:20:19 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: Adrian Bunk <bunk@fs.tum.de>
+To: "Stephen C. Tweedie" <sct@redhat.com>
 cc: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OKS] Kernel release management
-In-Reply-To: <Pine.NEB.4.44.0207012045110.24810-100000@mimas.fachschaften.tu-muenchen.de>
-Message-ID: <Pine.LNX.3.96.1020702110848.27954D-100000@gatekeeper.tmr.com>
+Subject: Re: [OKS] Module removal
+In-Reply-To: <20020702123718.A4711@redhat.com>
+Message-ID: <Pine.LNX.3.96.1020702111607.27954E-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jul 2002, Adrian Bunk wrote:
+On Tue, 2 Jul 2002, Stephen C. Tweedie wrote:
 
-> This is IMHO a very bad idea:
-> - A stable base to start new development upon is a very good thing
->   (and I don't believe in the stability of 2.6.0).
-> - Something I'd call the "Debian syndrome" will appear:
->     There are only very few developers who run Debian stable because even
->     during the release cycle there's always an unstable tree. One of the
->     results is that many of the Debian developers aren't that much
->     focussed on working on the next stable release (the current stable
->     release of Debian is nearly two years old and doesn't support kernel
->     2.4...).
->   If 2.7 doesn't start before 2.6 is _really_ stable everyone who wants
->   to have a new development tree is more interested in making 2.6 a really
->   good kernel instead of focussing immediately on 2.7 .
+> > 2 - restarting NICs when total reinitialization is needed. In server
+> > applications it's sometimes necessary to move or clear a NIC connection,
+> > force renegotiation because the blade on the switch was set wrong, etc.
+> > It's preferable to take down one NIC for a moment than suffer a full
+> > outage via reboot.
+> 
+> Again, you might want to do this even with a non-modular driver, or if
+> you had one module driving two separate NICs --- the shutdown of one
+> card shouldn't necessarily require the removal of the module code from
+> the kernel, which is all Rusty was talking about doing.
 
-Seems the reason this is being suggested is that lots of new stuff got
-shoved into 2.2 and 2.4 in the early stages, and they were NOT stable.
-Since far more influential people than I are suggesting this, obviously at
-least some of the folks feel it's worth trying something different.
+Then you need a new ioctl to get the driver to go through the
+initialization all over again, because the only time the cards are fully
+probed is when the module is loaded. You can ifconfig up and down all day
+and nothing improves. Oh, and reload resets the counts in the driver, that
+sometimes very desirable as well.
 
-The maintainer can alway push really new stuff into 2.7, and Linus can
-always refuse to take a feature into 2.7 until something else is fixed in
-2.6. Looking at how hard people are working to backport things from 2.5 to
-2.4 I have faith that extra effort will be taken.
+Not that it can't be done, just that it works now, and reinventing modules
+without remove seems a lot of work when we can just have some broken
+modules which don't remove.
+
+Also, as someone mentioned, it means a reboot every time you need to try
+something new while doing module development. That doesn't sound like a
+great idea...
 
 -- 
 bill davidsen <davidsen@tmr.com>

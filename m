@@ -1,78 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269205AbUIAAsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269049AbUHaTlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269205AbUIAAsz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 20:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269131AbUIAAsh
+	id S269049AbUHaTlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 15:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268877AbUHaThw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 20:48:37 -0400
-Received: from kinesis.swishmail.com ([209.10.110.86]:3341 "EHLO
-	kinesis.swishmail.com") by vger.kernel.org with ESMTP
-	id S268840AbUHaTl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 15:41:29 -0400
-Message-ID: <4134DC9E.4060904@techsource.com>
-Date: Tue, 31 Aug 2004 16:16:30 -0400
-From: Timothy Miller <miller@techsource.com>
+	Tue, 31 Aug 2004 15:37:52 -0400
+Received: from mx-out.forthnet.gr ([193.92.150.6]:5910 "EHLO
+	mx-out-04.forthnet.gr") by vger.kernel.org with ESMTP
+	id S268873AbUHaTgd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 15:36:33 -0400
+From: V13 <v13@priest.com>
+To: Spam <spam@tnonline.net>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
+Date: Tue, 31 Aug 2004 22:35:34 +0300
+User-Agent: KMail/1.7
+Cc: Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, reiserfs-list@namesys.com
+References: <41323AD8.7040103@namesys.com> <200408312055.56335.v13@priest.com> <36793180.20040831201736@tnonline.net>
+In-Reply-To: <36793180.20040831201736@tnonline.net>
 MIME-Version: 1.0
-To: Julien Oster <usenet-20040502@usenet.frodoid.org>
-CC: Miles Lane <miles.lane@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-References: <200408191822.48297.miles.lane@comcast.net> <87hdqyogp4.fsf@killer.ninja.frodoid.org>
-In-Reply-To: <87hdqyogp4.fsf@killer.ninja.frodoid.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408312235.35733.v13@priest.com>
+X-Spam-Flag: NO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tuesday 31 August 2004 21:17, Spam wrote:
+> > On Sunday 29 August 2004 23:21, Hans Reiser wrote:
+> >> The Idea
+> >>
+> >> You should be able to access metadata about a file the same way you
+> >> access the file's data, but with a name based on the filename followed
+> >> by a name to select the metadata of interest.
+> >>
+> >> Examples:
+> >>
+> >> cat song_of_silence/metas/owner
+> >> cat song_of_silence/metas/permissions
+> >> cat 10 > song_of_silence/metas/mixer_defaults/volume
+> >> cat song_of_silence/metas/license
+> >
+> > Maybe I'm crazy but:
+> >
+> >  You're talking about a major change in the way filesystems work if this
+> > is going to be used by other FSs too. If  I understand this correctly it
+> > is a completely new thing and trying to do it by patching existing
+> > well-known 'primitives' may be wrong.
+> >
+> >   AFAIK and AFAICS the metadata are not files or directories. You can
+> > look at them as files/dirs but they are not, just like a tar is not a
+> > directory. I believe that the correct thing to do (tm) is to add a new
+> > 'concept' named 'metadata' (which already exists). This way you'll have
+> > files, directories and metadata (or whatever you call them). So, each
+> > directory can have metadatas and files and each file can have metadatas.
+> > Then you have to provide some new methods of accessing them and not to
+> > use chdir() etc. (lets say chdir_meta() to enter the meta dir which will
+> > work for files too). After entering the 'metadir' you'll be able to use
+> > existing methods etc to access its 'files'.
+> >
+> >   This approach doesn't mess with existing things and can be extended for
+> > other filesystems too.
+> >
+> > (Just a thought)
+>
+>   It  is a good thought. However I think they are trying to figure out
+>   a  way  to have the metadata and streams to be accesible with legacy
+>   applications.
 
+They will be since after chdir_meta() the user will be able to look at the 
+metadata just like Hans described it. The only thing that changes (from the 
+userland POV) is the way someone can enter the 'metadata directory'. This way 
+you don't have to have a special name, just a special function and no 
+existing application (like tar) can possibly break because it will not know 
+how to enter this 'metadata directory'.
 
-Julien Oster wrote:
-> Miles Lane <miles.lane@comcast.net> writes:
-> 
-> 
->>http://www.theregister.co.uk/2004/07/08/dtrace_user_take/:
->>"Sun sees DTrace as a big advantage for Solaris over other versions of Unix 
->>and Linux."
-> 
-> 
-> That article is way too hypey.
-> 
-> It sounds like one of those strange american commercials you see
-> sometimes at night, where two overenthusiastic persons are telling you
-> how much that strange fruit juice machine has changed their lives,
-> with making them loose 200 pounds in 6 days and improving their
-> performance at beach volleyball a lot due to subneutronic antigravity
-> manipulation. You usually can't watch those commercials for longer
-> than 5 minutes.
-> 
-> The same applies to that article, I couldn't even read it completely,
-> it was just too much.
-> 
-> And is it just me or did that article really take that long to
-> mentioning what dtrace actually IS?
-> 
-> Come on, it's profiling. As presented by that article, it is even more
-> micro optimization than one would think. What with tweaking the disk
-> I/O improvements and all... If my harddisk accesses were a microsecond
-> more immediate or my filesystem giving a quantum more transfer rate,
-> it would be nice, but I certainly wouldn't get enthusiastic and I bet
-> nobody would even notice.
-> 
-> Maybe, without that article, I would recognize it as a fine thing (and
-> by "fine" I don't mean "the best thing since sliced bread"), but that
-> piece of text was just too ridiculous to take anything serious.
-> 
-> I sure hope that article is meant sarcastically. By the way, did I
-> miss something or is profiling suddenly a new thing again?
-> 
-
-[I have 4000 emails from lkml to read, so please forgive me if this 
-discussion is dead.]
-
-DTrace was exactly what we needed here to figure out what was making our 
-E450 server perform so badly.  We managed to find and eliminate all 
-sorts of bottlenecks, and now, all of our NFS activity is CPU bound on 
-the server.
-
-Perhaps Linux never suffers from these sorts of problems that require 
-tuning things such as inode cache sizes, etc???
-
+<<V13>>

@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267859AbTB1MgB>; Fri, 28 Feb 2003 07:36:01 -0500
+	id <S267841AbTB1MdJ>; Fri, 28 Feb 2003 07:33:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267869AbTB1MgB>; Fri, 28 Feb 2003 07:36:01 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:11396 "EHLO
-	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
-	id <S267859AbTB1MgA>; Fri, 28 Feb 2003 07:36:00 -0500
-Date: Fri, 28 Feb 2003 12:48:06 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrew Morton <akpm@digeo.com>
-cc: Con Kolivas <kernel@kolivas.org>, <dmccr@us.ibm.com>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: Rising io_load results Re: 2.5.63-mm1
-In-Reply-To: <20030227160656.40ebeb93.akpm@digeo.com>
-Message-ID: <Pine.LNX.4.44.0302281245170.1203-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S267844AbTB1MdI>; Fri, 28 Feb 2003 07:33:08 -0500
+Received: from kiruna.synopsys.com ([204.176.20.18]:20465 "HELO
+	kiruna.synopsys.com") by vger.kernel.org with SMTP
+	id <S267841AbTB1MdH>; Fri, 28 Feb 2003 07:33:07 -0500
+Date: Fri, 28 Feb 2003 13:43:14 +0100
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20-ck4
+Message-ID: <20030228124314.GS5239@riesen-pc.gr05.synopsys.com>
+Reply-To: alexander.riesen@synopsys.COM
+References: <200302281545.01222.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302281545.01222.kernel@kolivas.org>
+User-Agent: Mutt/1.4i
+Organization: Synopsys, Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Feb 2003, Andrew Morton wrote:
+Con Kolivas, Fri, Feb 28, 2003 05:45:01 +0100:
+> I've updated my patchset
 > 
-> No, it is still wrong.  Mapped cannot exceed MemTotal.
+> It includes:
+> O(1) scheduler
+> Preempt
+> Low Latency
+> AA VM addons
+> Read Latency2
+> SuperMount
+> XFS
+> ACPI
+> DVD/CDRW packet writing
+> Desktop Tuning
+> optional extras:
+> Compressed caching
+> Rmap15d
+> 
 
-It needs this in addition to Dave's patch from yesterday:
+You do not include ALSA anymore. Is that just because of lack of time,
+or did i miss some serious problem with it?
 
---- 2.5.63-objfix-1/mm/rmap.c	Thu Feb 27 23:37:28 2003
-+++ 2.5.63-objfix-2/mm/rmap.c	Fri Feb 28 12:33:58 2003
-@@ -349,7 +349,8 @@
- 			BUG();
- 		if (atomic_read(&page->pte.mapcount) == 0)
- 			BUG();
--		atomic_dec(&page->pte.mapcount);
-+		if (atomic_dec_and_test(&page->pte.mapcount))
-+			dec_page_state(nr_mapped);
- 		return;
- 	}
- 
+Thanks for you patches, anyway
 
+-alex

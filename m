@@ -1,65 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTJSIlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 04:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTJSIlQ
+	id S262101AbTJSIgS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 04:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbTJSIgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 04:41:16 -0400
-Received: from users.linvision.com ([62.58.92.114]:45697 "HELO bitwizard.nl")
-	by vger.kernel.org with SMTP id S262070AbTJSIlP (ORCPT
+	Sun, 19 Oct 2003 04:36:18 -0400
+Received: from holomorphy.com ([66.224.33.161]:55424 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262101AbTJSIgQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 04:41:15 -0400
-Date: Sun, 19 Oct 2003 10:41:13 +0200
-From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+	Sun, 19 Oct 2003 04:36:16 -0400
+Date: Sun, 19 Oct 2003 01:35:51 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Hans Reiser <reiser@namesys.com>
-Cc: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Norman Diamond '" <ndiamond@wta.att.ne.jp>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>,
-       "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>,
-       "'nikita@namesys.com '" <nikita@namesys.com>,
-       "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Russell King '" <rmk+lkml@arm.linux.org.uk>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>,
-       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+Cc: Larry McVoy <lm@bitmover.com>, Norman Diamond <ndiamond@wta.att.ne.jp>,
+       Wes Janzen <superchkn@sbcglobal.net>,
+       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, Pavel Machek <pavel@ucw.cz>,
+       Justin Cormack <justin@street-vision.com>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Vitaly Fertman <vitaly@namesys.com>, Krzysztof Halasa <khc@pm.waw.pl>,
+       axboe@suse.de
 Subject: Re: Blockbusting news, results are in
-Message-ID: <20031019084113.GC21346@bitwizard.nl>
-References: <785F348679A4D5119A0C009027DE33C105CDB300@mcoexc04.mlm.maxtor.com> <3F92488C.6030808@namesys.com>
+Message-ID: <20031019083551.GA1108@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hans Reiser <reiser@namesys.com>, Larry McVoy <lm@bitmover.com>,
+	Norman Diamond <ndiamond@wta.att.ne.jp>,
+	Wes Janzen <superchkn@sbcglobal.net>,
+	Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+	John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+	nikita@namesys.com, Pavel Machek <pavel@ucw.cz>,
+	Justin Cormack <justin@street-vision.com>,
+	Russell King <rmk+lkml@arm.linux.org.uk>,
+	Vitaly Fertman <vitaly@namesys.com>,
+	Krzysztof Halasa <khc@pm.waw.pl>, axboe@suse.de
+References: <1c6401c395e7$16630d00$3eee4ca5@DIAMONDLX60> <20031019041553.GA25372@work.bitmover.com> <3F924660.4040405@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F92488C.6030808@namesys.com>
-User-Agent: Mutt/1.3.28i
-Organization: BitWizard.nl
+In-Reply-To: <3F924660.4040405@namesys.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 19, 2003 at 12:17:16PM +0400, Hans Reiser wrote:
-> What are the common sources of data corruption, is one of them that the 
-> drive head starts bumping the media more and more often because a 
-> bearing (or something) has started to show signs of wear?
+Larry McVoy wrote:
+>> I've told you guys over and over that you need to CRC the data in user
+>> space, we do that in our backup scripts and it tells us when the drives
+>> are going bad.  S
 
-I'm not sure if the manufacturer knows. Datarecovery companies
-know. 
+On Sun, Oct 19, 2003 at 12:08:00PM +0400, Hans Reiser wrote:
+> Why do the CRC in user space, that requires modifying every one of 7000+ 
+> applications (if I understand you correctly, which is far from a sure 
+> thing;-) )?
+> Write a reiser4 CRC file plugin.  It would take a weekend, and most of the 
+> work would be cut and pasting from the default file plugin..  
+> I understand why you do it in BK, but for user space as a whole user space 
+> is the wrong place.
 
-Sources of dataloss are: 
+I think the fs driver layer might be the wrong thing too; maybe it'd be
+best to do the CRC and/or checksumming at the block layer?
 
-	- Software
-	- crooked platters (especially on laptop drives)
-	- heads bouncing on platter
-	- broken electronics. 
+At the very least, I see a lack of genericity with respect to making it a
+plugin to a specific fs. I'm going to try not to delve too far into
+specifics, as my knowledge in these areas is limited, but I'd welcome any
+corrections of misunderstandings I might have about feasibility, value,
+or importance of these things, and even techhical misconceptions.
 
-They more or less happen in about the same number of cases. 
+Jens, I apologize if advance if this is just another lame flamewar best
+bitbucketed as opposed to answered.
 
-The fact that we see less "high end" disks doesn't mean they break
-down less. It might mean that they get sold less (true), or that the 
-people that buy them make better backups (probably also true). 
+Thanks.
 
-	Roger. 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****
+-- wli

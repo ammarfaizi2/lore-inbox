@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262446AbTLPVGc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Dec 2003 16:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTLPVGc
+	id S262674AbTLPVOG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Dec 2003 16:14:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262687AbTLPVOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Dec 2003 16:06:32 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:13323 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262446AbTLPVGa
+	Tue, 16 Dec 2003 16:14:05 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:10422 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262674AbTLPVNZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Dec 2003 16:06:30 -0500
-To: linux-kernel@vger.kernel.org
-Path: gatekeeper.tmr.com!davidsen
-From: davidsen@tmr.com (bill davidsen)
-Newsgroups: mail.linux-kernel
-Subject: Re: 2.6 and IDE "geometry"
-Date: 16 Dec 2003 20:55:01 GMT
-Organization: TMR Associates, Schenectady NY
-Message-ID: <brnrf5$1e3$1@gatekeeper.tmr.com>
-References: <20031212131704.A26577@animx.eu.org> <20031214144046.GA11870@win.tue.nl> <20031214112728.A8201@animx.eu.org> <20031214202741.GA11909@win.tue.nl>
-X-Trace: gatekeeper.tmr.com 1071608101 1475 192.168.12.62 (16 Dec 2003 20:55:01 GMT)
-X-Complaints-To: abuse@tmr.com
-Originator: davidsen@gatekeeper.tmr.com
+	Tue, 16 Dec 2003 16:13:25 -0500
+Date: Tue, 16 Dec 2003 22:13:22 +0100 (CET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: Shawn <core@enodev.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Mainboard on which X86_UP_IOAPIC works? (mine crashes hard)
+In-Reply-To: <3FDF4DCF.8090205@backtobasicsmgmt.com>
+Message-ID: <Pine.LNX.4.55.0312162210070.8262@jurand.ds.pg.gda.pl>
+References: <1071597008.2115.23.camel@www.enodev.com>  <3FDF47F0.7070409@backtobasicsmgmt.com>
+ <1071598789.2115.31.camel@www.enodev.com> <3FDF4DCF.8090205@backtobasicsmgmt.com>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031214202741.GA11909@win.tue.nl>,
-Andries Brouwer  <aebr@win.tue.nl> wrote:
-| On Sun, Dec 14, 2003 at 11:27:28AM -0500, Wakko Warner wrote:
-| 
-| > > Or does it suffice to take */255/63 always?
-| > 
-| > I would say most cases use the 255/63
-| 
-| Good. So you can try constant geometry setting with *fdisk.
-| 
-| > with drives >4gb.  Is there anyway to query the bios to ask it?
-| 
-| Yes, and that is what the kernel used to do.
-| In general, however, the answer is unreliable. 
+On Tue, 16 Dec 2003, Kevin P. Fleming wrote:
 
-Unless I misread his question, he didn't ask how to make it reliable,
-he just wants the partitioning software to use it. Not to use something
-he provides by hand, to ask the BIOS and use the numbers, right or
-wrong.
+> > Would you postulate that since the KV7 is a KT600, that the Asus A7V600
+> > would also be "ok"? I ask because my local parts hole has the Asus and
+> > not the Abit...
+> 
+> I'd gamble and say probably yes, since the hardware is pretty much the 
+> same. I know that the BIOS can have some impact on this, though.
 
-With old BIOS versions I will agree that using any other geometry, no
-matter how correct or reliable, will result in a failure to boot.
+ Since the reported APIC errors are a result of a bad design of inter-APIC
+wiring, chances are the same chips may work just fine on one board and do
+not work on another one.  Even routing of traces on the PCB is important.
 
-I wish I had an answer to the original question, but I don't. Fdisk
-tries to intuit what partition info if there is at least one partition
-already created, if that's the partitioning software you are already
-using, I can't offer any other help.
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

@@ -1,59 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316228AbSEQOHm>; Fri, 17 May 2002 10:07:42 -0400
+	id <S316232AbSEQOUA>; Fri, 17 May 2002 10:20:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316229AbSEQOHl>; Fri, 17 May 2002 10:07:41 -0400
-Received: from urtica.linuxnews.pl ([217.67.200.130]:14343 "EHLO
-	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
-	id <S316228AbSEQOHk>; Fri, 17 May 2002 10:07:40 -0400
-Date: Fri, 17 May 2002 16:07:37 +0200 (CEST)
-From: Pawel Kot <pkot@linuxnews.pl>
-To: <linux-kernel@vger.kernel.org>
-cc: <linux-ntfs-dev@lists.sourceforge.net>
-Subject: Re: [ANN] NTFS 2.0.7c for Linux 2.4.18
-In-Reply-To: <Pine.LNX.4.33.0205170249300.377-100000@bzzzt.slackware.pl>
-Message-ID: <Pine.LNX.4.33.0205171603450.493-100000@urtica.linuxnews.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316233AbSEQOT7>; Fri, 17 May 2002 10:19:59 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:1805 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316232AbSEQOT6>; Fri, 17 May 2002 10:19:58 -0400
+Date: Fri, 17 May 2002 16:19:28 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Halil Demirezen <halild@bilmuh.ege.edu.tr>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: Just an offer
+Message-ID: <20020517141928.GC6613@louise.pinerecords.com>
+In-Reply-To: <20020517122946.18213.qmail@bilmuh.ege.edu.tr> <Pine.LNX.3.95.1020517085300.4551A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.99i
+X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 1 day, 5:42)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 17 May 2002, Pawel Kot wrote:
+> The remaining problem is how one trips a reboot if the remote machine
+> doesn't come up correctly. That problem can be handled by temporarily
+> changing panic() to a hard reset.
 
-Hi,
+Trouble is, this couldn't "detect" problems like unresolved symbols in
+ethernet drivers or a troublesome fix that makes init/mount malfunction
+and many more common issues that make you have to get in the car and
+drive off to reset the damn beast.
 
-> As Arek Miskiewicz reported to me, the previous NTFS TNG versions didn't
-> compile with CONFIG_HIGHMEM. The compilation failed due to lack of the
-> definition of the KM_BIO_IRQ used in the NTFS code.
->
-> In this release KM_BIO_IRQ was added to km_type enum on all platforms
-> supporting it (sparc, ppm, i386).
->
-> If you don't use HIGHMEM support or use other architecture the changes
-> don't touch you.
-
-Unfortunately the patch fixes only the case when NTFS is compiled into the
-kernel. There are missing exports of kmap_pte and kmap_prot when you use
-ntfs as the kernel module and depmod fails then.
-
-The following patch adresses this issue. Could anyone please test it with
-a highmem box? The patch will be included in the next release (2.0.7d or
-2.0.8a).
-
---- kernel/ksyms.c~	Thu May 16 10:39:39 2002
-+++ kernel/ksyms.c	Fri May 17 14:12:04 2002
-@@ -121,6 +121,8 @@
- EXPORT_SYMBOL(kunmap_high);
- EXPORT_SYMBOL(highmem_start_page);
- EXPORT_SYMBOL(create_bounce);
-+EXPORT_SYMBOL(kmap_pte);
-+EXPORT_SYMBOL(kmap_prot);
- #endif
-
- /* filesystem internal functions */
-
-pkot
 -- 
-mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
-http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
-
+"when you do things right, people won't be sure you've done anything at all."
+- god to bender

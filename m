@@ -1,34 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272835AbTGaIFI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Jul 2003 04:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272916AbTGaIFH
+	id S272870AbTGaIFR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Jul 2003 04:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272921AbTGaIFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Jul 2003 04:05:07 -0400
-Received: from [218.19.12.45] ([218.19.12.45]:38418 "ehlo pub.guangzhou.gd.cn")
-	by vger.kernel.org with ESMTP id S272835AbTGaIFD (ORCPT
+	Thu, 31 Jul 2003 04:05:17 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:9631 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S272870AbTGaIFH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Jul 2003 04:05:03 -0400
-From: =?GB2312?B?1sHNqNDFz6LXytS0?= <ztinfo@pub.guangzhou.gd.cn>
-Subject: Looking for China Supplier?
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;charset="GB2312"
-Reply-To: ztinfo@pub.guangzhou.gd.cn
-Date: Thu, 31 Jul 2003 16:04:56 +0800
-X-Priority: 3
-X-Mailer: Foxmail 4.1 [cn]
-Message-Id: <S272835AbTGaIFD/20030731080503Z+1435@vger.kernel.org>
+	Thu, 31 Jul 2003 04:05:07 -0400
+Date: Thu, 31 Jul 2003 10:04:56 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: thornber@sistina.com, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: dm: v4 ioctl interface (was: Re: Linux v2.6.0-test2)
+In-Reply-To: <20030730143933.5f8d1ba4.akpm@osdl.org>
+Message-ID: <Pine.GSO.4.21.0307311002360.29569-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking for China Supplier?  
+On Wed, 30 Jul 2003, Andrew Morton wrote:
+> Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+> > >   o dm: v4 ioctl interface
+> > 
+> > This interface code contains a local `resume()' routine, which conflicts with
+> > the `resume()' defined by many architectures in <asm/*.h>. The patch below
+> > fixes this by renaming the local routine to `do_resume()'.
+> 
+> ok..
+> 
+> > However, after this change it still doesn't compile...
+> 
+> It does for me.  What is it doing wrong for you?
 
-Come and visit us: http://www.trade-ok.com
+It fails in finding DM_DIR and other related definitions.
 
-Dear Sirs,
+Apparently a very important include file is missing, the patch below fixes
+this. I don't see how it could compile on ia32 though (I'm cross-compiling for
+m68k):
 
-INFO-LINK Co., Ltd., attached to CCPIT (China Council for The Promotion of International Trade), is a leading trade facilitator by providing the information of the most active China suppliers to the worldwide buyers through magazines, CD-ROMs. 
+--- linux-2.6.0-test2/drivers/md/dm-ioctl-v4.c.orig	Wed Jul 30 23:17:16 2003
++++ linux-2.6.0-test2/drivers/md/dm-ioctl-v4.c	Thu Jul 31 10:02:13 2003
+@@ -14,6 +14,7 @@
+ #include <linux/blk.h>
+ #include <linux/slab.h>
+ #include <linux/devfs_fs_kernel.h>
++#include <linux/dm-ioctl.h>
  
-Our trading website( www.trade-ok.com.) aggregates and formats industry-specific China supplier and products. It covers 14 categories, thousands of products, offers efficient two-way communication via powerful inquiry-quotation system.
+ #include <asm/uaccess.h>
+ 
 
-Register now! Enjoy our free buyer membership service. 
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,92 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263519AbTC3FK7>; Sun, 30 Mar 2003 00:10:59 -0500
+	id <S263521AbTC3FvD>; Sun, 30 Mar 2003 00:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263520AbTC3FK7>; Sun, 30 Mar 2003 00:10:59 -0500
-Received: from [12.47.58.124] ([12.47.58.124]:52716 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id <S263519AbTC3FK6>; Sun, 30 Mar 2003 00:10:58 -0500
-Date: Sat, 29 Mar 2003 21:23:30 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-Cc: rml@tech9.net, linux-kernel@vger.kernel.org
-Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
-Message-Id: <20030329212330.225a96b6.akpm@digeo.com>
-In-Reply-To: <1048996723.3058.41.camel@iso-8590-lx.zeusinc.com>
-References: <3E8610EA.8080309@telia.com>
-	<1048987260.679.7.camel@teapot>
-	<1048989922.13757.20.camel@localhost>
-	<200303301233.03803.kernel@kolivas.org>
-	<1048992365.13757.23.camel@localhost>
-	<1048996723.3058.41.camel@iso-8590-lx.zeusinc.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Mar 2003 05:22:10.0091 (UTC) FILETIME=[50270FB0:01C2F67C]
+	id <S263522AbTC3FvD>; Sun, 30 Mar 2003 00:51:03 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:13320
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S263521AbTC3FvB>; Sun, 30 Mar 2003 00:51:01 -0500
+Date: Sat, 29 Mar 2003 21:58:48 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+cc: Jeremy Jackson <jerj@coplanar.net>, linux-kernel@vger.kernel.org
+Subject: Re: linux kernel IDE development process question
+In-Reply-To: <Pine.SOL.4.30.0303291815560.27420-100000@mion.elka.pw.edu.pl>
+Message-ID: <Pine.LNX.4.10.10303292154361.5484-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Sightler <ttsig@tuxyturvy.com> wrote:
->
-> On my system I get a starvation issue with just about any CPU intensive
-> task.  For example if create a bzip'd tar file from the linux kernel
-> source with the command:
+
+Bart,
+
+When you do, let me know.
+I would like to suggest how to decouple the hwgroup in general but not
+lose it because of a need to sync the iops during setup and hba recovery.
+The dirt on why it has to be done is not public per NDA's, but this will
+help the driver.  Additionally, movement to create hwif->queue for
+load-balance and threading of the channel IO is a must now.  As SATA
+arrives in bulk, their will be more effective hwif's per hba and the
+rules for assignment must change.
+
+Cheers,
+
+On Sat, 29 Mar 2003, Bartlomiej Zolnierkiewicz wrote:
+
 > 
-> tar cvp linux | bzip2 -9 > linux.tar.bz2
+> Hey,
+> 
+> On 29 Mar 2003, Jeremy Jackson wrote:
+> 
+> > Hello IDE people,
+> >
+> > I'd like to get input from everyone involved in drivers/ide/ on the
+> > current development process.
+> >
+> > I would like to know what code is kept in sync between 2.4/2.5
+> > (2.2/2.0?).  This way I can start by understanding what is already being
+> > done. This is related to the recent "hdparm and removable IDE?" thread
+> > on LKML.
+> >
+> > I would like to start by declaring ide_hwifs[] static, and removing the
+> > extern ide_hwifs from ide.h.  all references to ide_hwifs[] will be
+> > converted to macros and/or access method functions, that return a
+> > pointer to a particular ide_hwifs_t.  for_each_hwif() and replacements
+> > for whatever else is in use will be provided as well, initially just
+> > doing the same thing that is done now, ie iterating through ide_hwifs[].
+> 
+> Yes, I've been thinking about this recently and I think this is the way to
+> go.
+> 
+> > There's more to my plan, that's just to get the discussion going.  I
+> > will only address what can be easily merged into all currently supported
+> > kernel trees, I just need to know what they are.
+> 
+> If it will be merged any time soon you may call yourself lucky :-).
+> 
+> > by creating a new file ide-kernel.[ch], and moving the ide_hwifs[] and
+> > accessor functions to it, each kernel tree can implement it differently
+> > without complicating backports for the common stuff.  Initially the
+> > changes will *not* alter any behaviour, just jockeying stuff into place
+> 
+> You should just commit changes to 2.5 and later port it to 2.4.
+> 
+> > to make that painless when the time comes.  (think about it: if the
+> > access methods return pointers, who's going to notice when ide_hwifs[]
+> > is replaced with a linked list?)
+> 
+> Yep, but probably there will be some problems in transition.
+> 
+> > My motivation: I'd *really* like to be able to sell entry level PC
+> > servers with hotswap raid1.  I'm not in a hurry, baby steps are ok, I
+> > just want to get the ball rolling.  It's all negotiable.  I'm no expert
+> > here.
+> >
+> > Regards,
+> >
+> > Jeremy
+> > --
+> > Jeremy Jackson <jerj@coplanar.net>
+> 
+> Regards
+> --
+> Bartlomiej Zolnierkiewicz
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-Ingo has determined that Linus's backboost trick is causing at least some
-of these problems. Please test and report upon the below patch.
-
-I have another workload which is showing starvation with or without this
-patch - it is the bitkeeper verification step in a `bk clone' on a
-uniprocessor kernel.  Still poking at that one.
-
-
-
-
-
-
-From: Ingo Molnar <mingo@elte.hu>
-
-the patch below fixes George's setiathome problems (as expected).  It
-essentially turns off Linus' improvement, but i dont think it can be fixed
-sanely.
-
-the problem with setiathome is that it displays something every now and
-then - so it gets a backboost from X, and hovers at a relatively high
-priority.
-
-
-
- kernel/sched.c |   13 +------------
- 1 files changed, 1 insertion(+), 12 deletions(-)
-
-diff -puN kernel/sched.c~sched-interactivity-backboost-revert kernel/sched.c
---- 25/kernel/sched.c~sched-interactivity-backboost-revert	2003-03-28 22:30:08.000000000 -0800
-+++ 25-akpm/kernel/sched.c	2003-03-28 22:30:08.000000000 -0800
-@@ -379,19 +379,8 @@ static inline int activate_task(task_t *
- 		 * boosting tasks that are related to maximum-interactive
- 		 * tasks.
- 		 */
--		if (sleep_avg > MAX_SLEEP_AVG) {
--			if (!in_interrupt()) {
--				sleep_avg += current->sleep_avg - MAX_SLEEP_AVG;
--				if (sleep_avg > MAX_SLEEP_AVG)
--					sleep_avg = MAX_SLEEP_AVG;
--
--				if (current->sleep_avg != sleep_avg) {
--					current->sleep_avg = sleep_avg;
--					requeue_waker = 1;
--				}
--			}
-+		if (sleep_avg > MAX_SLEEP_AVG)
- 			sleep_avg = MAX_SLEEP_AVG;
--		}
- 		if (p->sleep_avg != sleep_avg) {
- 			p->sleep_avg = sleep_avg;
- 			p->prio = effective_prio(p);
-
-_
+Andre Hedrick
+LAD Storage Consulting Group
 

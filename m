@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265570AbRF1Guc>; Thu, 28 Jun 2001 02:50:32 -0400
+	id <S265574AbRF1HAO>; Thu, 28 Jun 2001 03:00:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265571AbRF1GuW>; Thu, 28 Jun 2001 02:50:22 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:8459 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S265570AbRF1GuM>; Thu, 28 Jun 2001 02:50:12 -0400
-Date: Thu, 28 Jun 2001 03:34:06 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Zou Pengcheng <zoupch@necas.nec.co.jp>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/scsi missing on 2.4.2
-Message-ID: <20010628033406.Y3514@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Zou Pengcheng <zoupch@necas.nec.co.jp>, linux-kernel@vger.kernel.org
-In-Reply-To: <3B3ACF60.2186FB7B@necas.nec.co.jp>
-Mime-Version: 1.0
+	id <S265575AbRF1HAE>; Thu, 28 Jun 2001 03:00:04 -0400
+Received: from mail.muc.eurocyber.net ([195.143.108.5]:40386 "EHLO
+	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S265574AbRF1G7y>; Thu, 28 Jun 2001 02:59:54 -0400
+Message-ID: <3B3AD5DC.EE9A2B82@TeraPort.de>
+Date: Thu, 28 Jun 2001 08:59:40 +0200
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac19 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <Pine.LNX.4.33L.0106271512570.23373-100000@duckman.distro.conectiva>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <3B3ACF60.2186FB7B@necas.nec.co.jp>; from zoupch@necas.nec.co.jp on Thu, Jun 28, 2001 at 02:32:00PM +0800
-X-Url: http://advogato.org/person/acme
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Thu, Jun 28, 2001 at 02:32:00PM +0800, Zou Pengcheng escreveu:
-> hi,
+Rik van Riel wrote:
 > 
-> i cannot find the directory /proc/scsi on my redhat7.1 box (using kernel 2.4.2). i dont have scsi device on this system.
+> On Wed, 27 Jun 2001, Martin Knoblauch wrote:
 > 
-> for 2.2.x, /proc/scsi is always there no matter i really have scsi device or not.
+> >  I do not care much whether the cache is using 99% of the systems memory
+> > or 50%. As long as there is free memory, using it for cache is great. I
+> > care a lot if the cache takes down interactivity, because it pushes out
+> > processes that it thinks idle, but that I need in 5 seconds. The caches
+> > pressure against processes
 > 
-> wonder why.
+> Too bad that processes are in general cached INSIDE the cache.
+> 
+> You'll have to write a new balancing story now ;)
+> 
 
-Maybe RH compiled the base support for SCSI statically for 2.2 kernels and
-now they use it as modules?
+ maybe that is part of "the answer" :-)
 
-- Arnaldo
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

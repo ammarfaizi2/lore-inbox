@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263524AbTJLUaw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Oct 2003 16:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263525AbTJLUav
+	id S263535AbTJLU2P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Oct 2003 16:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263536AbTJLU2P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Oct 2003 16:30:51 -0400
-Received: from gprs149-193.eurotel.cz ([160.218.149.193]:25473 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S263524AbTJLUau (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Oct 2003 16:30:50 -0400
-Date: Sun, 12 Oct 2003 22:30:24 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Lars Marowsky-Bree <lmb@suse.de>
-Cc: Ivo Palli <ivo@palli.nl>, linux-kernel@vger.kernel.org
-Subject: Re: Linux kernel GPL violation (EasyRDP)
-Message-ID: <20031012203023.GB664@elf.ucw.cz>
-References: <3F86FF16.6010006@palli.nl> <20031010191456.GG1084@marowsky-bree.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031010191456.GG1084@marowsky-bree.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sun, 12 Oct 2003 16:28:15 -0400
+Received: from nat-pool-bos.redhat.com ([66.187.230.200]:38660 "EHLO
+	cluless.boston.redhat.com") by vger.kernel.org with ESMTP
+	id S263535AbTJLU2N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Oct 2003 16:28:13 -0400
+Date: Sun, 12 Oct 2003 16:28:09 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@cluless.boston.redhat.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: linux-kernel@vger.kernel.org, <akpm@osdl.org>
+Subject: Re: [RFC] invalidate_mmap_range() misses remap_file_pages()-affected
+ targets
+In-Reply-To: <20031012084842.GB765@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0310121626260.31963-100000@cluless.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 12 Oct 2003, William Lee Irwin III wrote:
 
-> > A complete description and dissection of the product can be found on my 
-> > website: http://www.palli.nl/~ivo/rdp/
-> 
-> You are right technically, but hey, you informed them of a copyright
-> violation which may mean a lot of internal hassles. Without giving them
-> any slack because what they are doing _IS_ stupid, calm down a little. 1
-> day is a hardly a timeframe in which they can respond adequately, in
-> particular at the end of the week. You should have allowed them a week
-> or so...
+> invalidate_mmap_range(), and hence vmtruncate(), can miss its targets
+> due to remap_file_pages()
 
-Well, it looks to me like 1 day is 1 day more than they
-deserve. All they have seems to be modified rdesktop; I do believe
-that wireless routers are honest mistake, EasyRDP looks *way*
-worse.
-								Pavel
+Please don't.   Remap_file_pages() not 100% working the way
+a normal mmap() works should be a case of "doctor, it hurts".
+
+Making the VM more complex just to support the (allegedly
+low overhead) hack of remap_file_pages() doesn't seem like
+a worthwhile tradeoff to me.
+
+In fact, I wouldn't mind if remap_file_pages() was simplified ;)
+
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

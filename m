@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264235AbTEZEGj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 00:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264237AbTEZEGj
+	id S264246AbTEZEIQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 00:08:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264248AbTEZEIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 00:06:39 -0400
-Received: from rth.ninka.net ([216.101.162.244]:48515 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264235AbTEZEGi (ORCPT
+	Mon, 26 May 2003 00:08:16 -0400
+Received: from rth.ninka.net ([216.101.162.244]:50819 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id S264246AbTEZEIP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 00:06:38 -0400
-Subject: Re: Tigon3 auto-negotiation and force media
+	Mon, 26 May 2003 00:08:15 -0400
+Subject: Re: Aix7xxx unstable in 2.4.21-rc2? (RE: Linux 2.4.21-rc2)
 From: "David S. Miller" <davem@redhat.com>
-To: karbas-lkml@frontier.tky.hut.fi
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20030523200314.GA25173@frontier.tky.hut.fi>
-References: <20030523200314.GA25173@frontier.tky.hut.fi>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, gibbs@scsiguy.com
+In-Reply-To: <20030524064340.GA1451@alpha.home.local>
+References: <1053732598.1951.13.camel@mulgrave>
+	 <20030524064340.GA1451@alpha.home.local>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1053922725.14018.9.camel@rth.ninka.net>
+Message-Id: <1053922871.14018.11.camel@rth.ninka.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 25 May 2003 21:18:46 -0700
+Date: 25 May 2003 21:21:12 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-05-23 at 13:03, Kari Kallioinen wrote:
-> So how I can force specified media technology with tg3-driver?
+On Fri, 2003-05-23 at 23:43, Willy Tarreau wrote:
+> As I said, I really hope that we'll have a quick 2.4.22 with bug fixes taken
+> as a priority. The current pre-releases are as frequent and as big as what
+> used to be full releases in the past.
 
-Just like for any other ethernet driver, you use the
-'ethtool' utility to do this.
 
 -- 
 David S. Miller <davem@redhat.com>

@@ -1,61 +1,140 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbTJSTAW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 15:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbTJSTAW
+	id S262053AbTJSTIA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 15:08:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbTJSTIA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 15:00:22 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:56784 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S262050AbTJSTAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 15:00:20 -0400
-Message-ID: <01f601c39671$553cbaa0$fb457dc0@tgasterix>
-Reply-To: "Thomas Giese" <Thomas.Giese@gmx.de>
-From: "Thomas Giese" <Thomas.Giese@gmx.de>
-To: "Paul Blazejowski" <paulb@blazebox.homeip.net>
-Cc: <linux-kernel@vger.kernel.org>
-References: <1066588403.1232.57.camel@blaze.homeip.net>
-Subject: Re: Linux-2.6.0-test8, e1000 timeouts.
-Date: Sun, 19 Oct 2003 20:46:40 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Seen: false
-X-ID: SgX63iZLQeTFN3ev3tSQhpXYO96Tg70Y-BdjncpOX9f9znFvasrNUF@t-dialin.net
+	Sun, 19 Oct 2003 15:08:00 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7588 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262053AbTJSTH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 15:07:56 -0400
+Date: Sun, 19 Oct 2003 21:07:55 +0200
+From: Jan Kara <jack@ucw.cz>
+To: torvalds@osdl.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Quota locking fix
+Message-ID: <20031019190755.GB8169@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-i got this in /var/log/messages with 3c59x on 2.6.0-test8, and lan is very
-slow:
+  Hi Linus,
 
-Oct 19 18:55:19 linux kernel: eth0: Transmit error, Tx status register 82.
-Oct 19 18:55:19 linux kernel: Probably a duplex mismatch.  See
-Documentation/networking/vortex.txt
-Oct 19 18:55:19 linux kernel:    Flags; bus-master 1, dirty 2761(9) current
-2761(9)
-Oct 19 18:55:19 linux kernel:   Transmit list 00000000 vs. cfcf57a0.
-Oct 19 18:55:19 linux kernel:   0: @cfcf5200  length 80000043 status
-00010043
-Oct 19 18:55:19 linux kernel:   1: @cfcf52a0  length 80000043 status
-00010043
-Oct 19 18:55:19 linux kernel:   2: @cfcf5340  length 80000043 status
-00010043
-Oct 19 18:55:19 linux kernel:   3: @cfcf53e0  length 80000043 status
-00010043
-Oct 19 18:55:19 linux kernel:   4: @cfcf5480  length 80000043 status
-00010043
+  I'm resending patch which fixes a quota locking problem causing deadlock
+(when inode was being released from icache and it caused newly created
+quota structure to be written). The patch against 2.6.0-test7 and should
+apply at test8 too. Please apply.
 
+								Honza
 
+------------- cut here ---------------
 
------Ursprüngliche Nachricht----- 
-Von: "Paul Blazejowski" <paulb@blazebox.homeip.net>
-An: "LKML" <linux-kernel@vger.kernel.org>
-Gesendet: Sonntag, 19. Oktober 2003 20:33
-Betreff: Linux-2.6.0-test8, e1000 timeouts.
-
-
+diff -ruNX /home/jack/.kerndiffexclude linux-2.6.0-test7/fs/dquot.c linux-2.6.0-test7-1-lockfix/fs/dquot.c
+--- linux-2.6.0-test7/fs/dquot.c	Tue Oct 14 15:52:08 2003
++++ linux-2.6.0-test7-1-lockfix/fs/dquot.c	Tue Oct 14 16:26:28 2003
+@@ -826,28 +826,49 @@
+ }
+ 
+ /*
+- * Release all quota for the specified inode.
+- *
+- * Note: this is a blocking operation.
++ *	Remove references to quota from inode
++ *	This function needs dqptr_sem for writing
+  */
+-static void dquot_drop_nolock(struct inode *inode)
++static void dquot_drop_iupdate(struct inode *inode, struct dquot **to_drop)
+ {
+ 	int cnt;
+ 
+ 	inode->i_flags &= ~S_QUOTA;
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+-		if (inode->i_dquot[cnt] == NODQUOT)
+-			continue;
+-		dqput(inode->i_dquot[cnt]);
++		to_drop[cnt] = inode->i_dquot[cnt];
+ 		inode->i_dquot[cnt] = NODQUOT;
+ 	}
+ }
+ 
++/*
++ * 	Release all quotas referenced by inode
++ */
+ void dquot_drop(struct inode *inode)
+ {
++	struct dquot *to_drop[MAXQUOTAS];
++	int cnt;
++	
+ 	down_write(&sb_dqopt(inode->i_sb)->dqptr_sem);
+-	dquot_drop_nolock(inode);
++	dquot_drop_iupdate(inode, to_drop);
+ 	up_write(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
++		if (to_drop[cnt] != NODQUOT)
++			dqput(to_drop[cnt]);
++}
++
++/*
++ *	Release all quotas referenced by inode.
++ *	This function assumes dqptr_sem for writing
++ */
++void dquot_drop_nolock(struct inode *inode)
++{
++	struct dquot *to_drop[MAXQUOTAS];
++	int cnt;
++
++	dquot_drop_iupdate(inode, to_drop);
++	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
++		if (to_drop[cnt] != NODQUOT)
++			dqput(to_drop[cnt]);
+ }
+ 
+ /*
+@@ -862,6 +883,10 @@
+ 		warntype[cnt] = NOWARN;
+ 
+ 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	if (IS_NOQUOTA(inode)) {
++		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++		return QUOTA_OK;
++	}
+ 	spin_lock(&dq_data_lock);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		if (inode->i_dquot[cnt] == NODQUOT)
+@@ -894,6 +919,10 @@
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++)
+ 		warntype[cnt] = NOWARN;
+ 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	if (IS_NOQUOTA(inode)) {
++		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++		return QUOTA_OK;
++	}
+ 	spin_lock(&dq_data_lock);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		if (inode->i_dquot[cnt] == NODQUOT)
+@@ -923,6 +952,10 @@
+ 	unsigned int cnt;
+ 
+ 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	if (IS_NOQUOTA(inode)) {
++		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++		return;
++	}
+ 	spin_lock(&dq_data_lock);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		if (inode->i_dquot[cnt] == NODQUOT)
+@@ -942,6 +975,10 @@
+ 	unsigned int cnt;
+ 
+ 	down_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++	if (IS_NOQUOTA(inode)) {
++		up_read(&sb_dqopt(inode->i_sb)->dqptr_sem);
++		return;
++	}
+ 	spin_lock(&dq_data_lock);
+ 	for (cnt = 0; cnt < MAXQUOTAS; cnt++) {
+ 		if (inode->i_dquot[cnt] == NODQUOT)

@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUD3WGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbUD3WHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbUD3WGP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Apr 2004 18:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUD3WGP
+	id S261628AbUD3WHr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Apr 2004 18:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUD3WHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Apr 2004 18:06:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:49868 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261576AbUD3WGL (ORCPT
+	Fri, 30 Apr 2004 18:07:47 -0400
+Received: from colin2.muc.de ([193.149.48.15]:49931 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S261628AbUD3WHm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Apr 2004 18:06:11 -0400
-Date: Fri, 30 Apr 2004 15:08:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: corbet@lwn.net (Jonathan Corbet)
-Cc: ak@muc.de, linux-kernel@vger.kernel.org
+	Fri, 30 Apr 2004 18:07:42 -0400
+Date: 1 May 2004 00:07:40 +0200
+Date: Sat, 1 May 2004 00:07:40 +0200
+From: Andi Kleen <ak@muc.de>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, akpm@osdl.org
 Subject: Re: [MICROPATCH] Make x86_64 build work without GART_IOMMU
-Message-Id: <20040430150828.1594ad6a.akpm@osdl.org>
-In-Reply-To: <20040430214040.25268.qmail@lwn.net>
-References: <m3ad0t9o54.fsf@averell.firstfloor.org>
-	<20040430214040.25268.qmail@lwn.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Message-ID: <20040430220740.GA45095@colin2.muc.de>
+References: <m3ad0t9o54.fsf@averell.firstfloor.org> <20040430214040.25268.qmail@lwn.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040430214040.25268.qmail@lwn.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-corbet@lwn.net (Jonathan Corbet) wrote:
->
+On Fri, Apr 30, 2004 at 03:40:40PM -0600, Jonathan Corbet wrote:
 > > > My Radeon 9200SE goes nuts if I build a GART-enabled
 > > > kernel.  Haven't figured out why...
 > > 
 > > Define 'nuts' and supply full boot log (with GART enabled)
 > 
 > Oops, sorry for the technical term...:)
-
-"No User Time Scheduled".  Silly Andi.
-
-> Andrew asked for a profile to help track down where the kernel loop is.  I
-> just did one, but the results are less than illuminating:
 > 
-> 	105219 total                                      0.0448
-> 	 85232 __delay                                  2663.5000
-> 	 14076 default_idle                             293.2500
-> 	  4679 __do_softirq                              26.5852
-> 	   474 check_poison_obj                           1.0216
-> 	   197 handle_IRQ_event                           2.0521
-> 	    91 kmem_cache_free                            0.1034
+> "Nuts" means that the X server goes into an unkillable, 100% system time
+> state.  It manages to scribble a mess onto the screen first.  Pointer moves
+> (I believe that's in hardware) but the server does not respond to anything.
 
-Yup, that's the one.  There are various loops where the driver spins on a
-hardware register, with an mdelay() in the loop.
+Most likely it is a problem with the AGP driver. I assume you have AGP 
+compiled in. Does it work when you boot with agp=off ? 
 
-Can you get a sysrq-p trace?
+IOMMU GART initialises the AGP driver early.
 
-
+-Andi

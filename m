@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288535AbSAHWur>; Tue, 8 Jan 2002 17:50:47 -0500
+	id <S288537AbSAHW5S>; Tue, 8 Jan 2002 17:57:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288534AbSAHWui>; Tue, 8 Jan 2002 17:50:38 -0500
-Received: from dorf.wh.uni-dortmund.de ([129.217.255.136]:24844 "HELO
-	mail.dorf.wh.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S288564AbSAHWu0>; Tue, 8 Jan 2002 17:50:26 -0500
-Date: Tue, 8 Jan 2002 23:49:58 +0100
-From: Patrick Mau <mau@oscar.prima.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Still linker errors in 2.5.2-pre10
-Message-ID: <20020108224958.GA8594@oscar.dorf.de>
-Reply-To: Patrick Mau <mau@oscar.prima.de>
+	id <S288538AbSAHW5H>; Tue, 8 Jan 2002 17:57:07 -0500
+Received: from mxzilla3.xs4all.nl ([194.109.6.49]:6673 "EHLO
+	mxzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S288537AbSAHW4z>; Tue, 8 Jan 2002 17:56:55 -0500
+Date: Tue, 8 Jan 2002 23:56:49 +0100
+From: jtv <jtv@xs4all.nl>
+To: Greg KH <greg@kroah.com>
+Cc: Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: __FUNCTION__
+Message-ID: <20020108235649.A26154@xs4all.nl>
+In-Reply-To: <3C3B664B.3060103@intel.com> <20020108220149.GA15816@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020108220149.GA15816@kroah.com>; from greg@kroah.com on Tue, Jan 08, 2002 at 02:01:50PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Tue, Jan 08, 2002 at 02:01:50PM -0800, Greg KH wrote:
+> 
+> Can you point me to the place in the spec this is defined?  I don't see
+> __FUNCTION__ defined anywhere in the ISO/IEC 9899:1999 (the official C99)
+> specification.
 
-I'm still unable to build 2.5.2-pre10 because of binutils
-stricter symbol handling.
+Don't have a C99 spec, but here's what info gcc has to say about it:
 
-Finding objects, 521 objects, ignoring 0 module(s)
-Finding conglomerates, ignoring 50 conglomerate(s)
-Scanning objects
-Error: ./drivers/char/serial.o .data refers to 000030d4 R_386_32 .text.exit
-Error: ./drivers/net/eepro100.o .data refers to 000000d4 R_386_32 .text.exit
-Done
+[...description of "function names" extension as currently found in gcc...]
 
-cheers,
-Patrick
+   Note that these semantics are deprecated, and that GCC 3.2 will
+handle `__FUNCTION__' and `__PRETTY_FUNCTION__' the same way as
+`__func__'.  `__func__' is defined by the ISO standard C99:
+
+     The identifier `__func__' is implicitly declared by the translator
+     as if, immediately following the opening brace of each function
+     definition, the declaration
+          static const char __func__[] = "function-name";
+     
+     appeared, where function-name is the name of the lexically-enclosing
+     function.  This name is the unadorned name of the function.
+
+
+Jeroen
+

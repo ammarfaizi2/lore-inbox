@@ -1,69 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271587AbRHUIJK>; Tue, 21 Aug 2001 04:09:10 -0400
+	id <S271592AbRHUIRB>; Tue, 21 Aug 2001 04:17:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271592AbRHUIJC>; Tue, 21 Aug 2001 04:09:02 -0400
-Received: from ns.roland.net ([65.112.177.35]:30728 "EHLO earth.roland.net")
-	by vger.kernel.org with ESMTP id <S271587AbRHUIIw>;
-	Tue, 21 Aug 2001 04:08:52 -0400
-Message-ID: <003401c12a18$d65c4f00$bb1cfa18@JimWS>
-From: "Jim Roland" <jroland@roland.net>
-To: "Clint Maxwell" <clint_maxwell@yahoo.com>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <FBEJLMIEKBNCFFPBBGEPMEGPCAAA.clint_maxwell@yahoo.com>
-Subject: Re: Kernel suggestion
-Date: Tue, 21 Aug 2001 03:11:10 -0500
+	id <S271593AbRHUIQu>; Tue, 21 Aug 2001 04:16:50 -0400
+Received: from hal.astr.lu.lv ([195.13.134.67]:23812 "EHLO hal.astr.lu.lv")
+	by vger.kernel.org with ESMTP id <S271592AbRHUIQk>;
+	Tue, 21 Aug 2001 04:16:40 -0400
+Message-Id: <200108210816.f7L8Gm605286@hal.astr.lu.lv>
+Content-Type: text/plain; charset=US-ASCII
+From: Andris Pavenis <pavenis@latnet.lv>
+To: linux-kernel@vger.kernel.org
+Subject: i810 audio doesn't work with 2.4.9
+Date: Tue, 21 Aug 2001 11:16:48 +0300
+X-Mailer: KMail [version 1.3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What software are you trying to use to burn a CD?
+i810 audio didn't work for me with kernel 2.4.9 (artsd from KDE goes into infinite loop, no sound). 
 
-Release notes on the XCDRoast website said that since direct ATAPI support
-for CDROM drives aren't included anymore (author said there was no point),
-to enable ide-scsi for your drives.  I have had to do this to see all of my
-drives.  Append this string at your LILO boot prompt (assuming hdc is your
-CDRW drive and hdb is your CDROM reader):
-    hdb=ide-scsi hdc=ide-scsi
+Reverting to kernel 2.4.7 or replacing in 2.4.9 drivers/sound/ac97_codec.c, drivers/sound/i810_audio.c, 
+include/linux/ac97_codec.h from 2.4.8-ac8 fixed the problem for me
 
-If it works, use it in your append= statement in your /etc/lilo.conf (in the
-section for your default linux config).
+Andris
 
-Regards,
-Jim Roland, RHCE
+small fragment of strace output from artsd (not modified 2.4.9):
 
------ Original Message -----
-From: "Clint Maxwell" <clint_maxwell@yahoo.com>
-To: <linux-kernel@vger.kernel.org>
-Sent: Sunday, August 19, 2001 3:11 AM
-Subject: Kernel suggestion
-
-
-> Hi, I have a suggestion for any upcoming version of the kernel, if you
-could
-> pass this on to the appropriate people who might be interested in tackling
-> this project.  I would like to see, if possible, support for the Philips
-> CDD4801 CD-R/RW.  Your work on this would be greatly appreciated.
->
-> Sincerely,
-> Clint Maxwell
-> clint_maxwell@yahoo.com
->
->
-> _________________________________________________________
-> Do You Yahoo!?
-> Get your free @yahoo.com address at http://mail.yahoo.com
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+09:22:28.328650 select(9, [4 6], [8], [6 8], {0, 119135}) = 1 (out [8], left {0, 120000})
+09:22:28.328935 ioctl(8, SNDCTL_DSP_GETOSPACE, 0xbffff5ec) = 0
+09:22:28.328984 write(8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 608) = 96
+09:22:28.329071 gettimeofday({998374948, 329087}, NULL) = 0
+09:22:28.329116 gettimeofday({998374948, 329132}, NULL) = 0
+09:22:28.329161 select(9, [4 6], [8], [6 8], {0, 118624}) = 1 (out [8], left {0, 120000})
+09:22:28.329401 ioctl(8, SNDCTL_DSP_GETOSPACE, 0xbffff5ec) = 0
+09:22:28.329450 write(8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 592) = 80
+09:22:28.329537 gettimeofday({998374948, 329553}, NULL) = 0
+09:22:28.329582 gettimeofday({998374948, 329599}, NULL) = 0
+09:22:28.329628 select(9, [4 6], [8], [6 8], {0, 118157}) = 1 (out [8], left {0, 120000})
+09:22:28.329912 ioctl(8, SNDCTL_DSP_GETOSPACE, 0xbffff5ec) = 0
+09:22:28.329964 write(8, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 608) = 96
+09:22:28.330051 gettimeofday({998374948, 330067}, NULL) = 0
+09:22:28.330096 gettimeofday({998374948, 330113}, NULL) = 0

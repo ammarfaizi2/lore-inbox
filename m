@@ -1,73 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262629AbTCSV4J>; Wed, 19 Mar 2003 16:56:09 -0500
+	id <S262626AbTCSVzI>; Wed, 19 Mar 2003 16:55:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262638AbTCSV4J>; Wed, 19 Mar 2003 16:56:09 -0500
-Received: from ns.suse.de ([213.95.15.193]:8458 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S262629AbTCSV4H>;
-	Wed, 19 Mar 2003 16:56:07 -0500
-Date: Wed, 19 Mar 2003 23:06:22 +0100
-From: Kurt Garloff <garloff@suse.de>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Tigran Aivazian <tigran@veritas.com>, "H. Peter Anvin" <hpa@zytor.com>,
-       mirrors <mirrors@kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Deprecating .gz format on kernel.org
-Message-ID: <20030319220622.GT15385@E227.suse.de>
-Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
-	Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Arjan van de Ven <arjanv@redhat.com>,
-	Tigran Aivazian <tigran@veritas.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, mirrors <mirrors@kernel.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303192107270.3901-100000@einstein31.homenet> <1048110127.1534.8.camel@laptop.fenrus.com> <20030319215551.GD19088@conectiva.com.br>
+	id <S262627AbTCSVzI>; Wed, 19 Mar 2003 16:55:08 -0500
+Received: from spc1.esa.lanl.gov ([128.165.67.191]:2176 "EHLO
+	spc1.esa.lanl.gov") by vger.kernel.org with ESMTP
+	id <S262626AbTCSVzH>; Wed, 19 Mar 2003 16:55:07 -0500
+Subject: Re: 2.5.65-mm2
+From: "Steven P. Cole" <elenstev@mesatop.com>
+Reply-To: elenstev@mesatop.com
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <1048107434.1743.12.camel@spc1.esa.lanl.gov>
+References: <20030319012115.466970fd.akpm@digeo.com>
+	 <1048103489.1962.87.camel@spc9.esa.lanl.gov>
+	 <20030319121055.685b9b8c.akpm@digeo.com>
+	 <1048107434.1743.12.camel@spc1.esa.lanl.gov>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048111359.1807.13.camel@spc1.esa.lanl.gov>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cjNiBkmi8s9yAE0W"
-Content-Disposition: inline
-In-Reply-To: <20030319215551.GD19088@conectiva.com.br>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.4.19-UL1 i686
-X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
-X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
-Organization: SuSE(DE), TU/e(NL)
+X-Mailer: Ximian Evolution 1.2.2-1mdk 
+Date: 19 Mar 2003 15:02:39 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2003-03-19 at 13:57, Steven P. Cole wrote:
+> On Wed, 2003-03-19 at 13:10, Andrew Morton wrote:
+> > Steven Cole <elenstev@mesatop.com> wrote:
+> > >
+> > > On Wed, 2003-03-19 at 02:21, Andrew Morton wrote:
+> > > > 
+> > > > http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.65/2.5.65-mm2/
+> > > > 
+> > > 
+> > > I am seeing a significant degradation of interactivity under load with
+> > > recent -mm kernels.  The load is dbench on a reiserfs file system with
+> > > increasing numbers of clients.  The test machine is single PIII, IDE,
+> > > 256MB memory, all kernels PREEMPT.
+> > 
+> > (This email brought to you while running dbench 128 on ext3)
+> > 
+> > There's a pretty big reiserfs patch in -mm.  Are you able to whip up
+> > an ext2 partition and see if that displays the same problem?
+> > 
+> 
+> I repeated the test on an ext3 partition, and the response with 28
+> dbench clients running is definitely better, although I'm starting to
+> get some stalls of a couple seconds while typing this in Evolution on
+> the machine under test.  Now it's becoming intolerable, so I aborted the
+> dbench run so I could finish this email.
+> 
+> This was with 2.5.65-mm2 and elevator=as.  I'll repeat soon with
+> elevator=deadline.  I didn't try typing in Evolution with 2.5.65-bk
+> under high loads, so I'll also give that a try.
+> 
+> Summary: using ext3, the simple window shake and scrollbar wiggle tests
+> were much improved, but really using Evolution left much to be desired.
 
---cjNiBkmi8s9yAE0W
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Replying to myself for a followup,
 
-Hi,
+I repeated the tests with 2.5.65-mm2 elevator=deadline and the situation
+was similar to elevator=as.  Running dbench on ext3, the response to
+desktop switches and window wiggles was improved over running dbench on
+reiserfs, but typing in Evolution was subject to long delays with dbench
+clients greater than 16.
 
-On Wed, Mar 19, 2003 at 06:55:52PM -0300, Arnaldo Carvalho de Melo wrote:
-> Em Wed, Mar 19, 2003 at 10:42:07PM +0100, Arjan van de Ven escreveu:
-> > I can't speak for the others, but Red Hat Linux uses the .bz2 files in
-> > kernel rpms
->=20
-> Conectiva too.
+I rebooted with 2.5.65-bk and ran dbench on ext3 again.  Everything was
+going smoothly, excellent interactivity, and then with dbench 28, the
+system froze.  No response to pings, no response to alt-sysrq-b (after
+alt-sysrq-s).  A hard reset was required.  Nothing interesting logged.
+Too bad.  Before it crashed, 2.5.65-bk was responding to typing in an
+Evolution new message window better than -mm2.
 
-=2E.. and so does SuSE.
+I'll see if this is repeatable.
 
-Regards,
---=20
-Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
-GPG key: See mail header, key servers                 SuSE Labs (Head)
-SuSE Linux AG, Nuernberg, DE                            SCSI, Security
-
---cjNiBkmi8s9yAE0W
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQE+eOnexmLh6hyYd04RArnzAKCwhVaEPLTfsCcYcWlUjSKBvPDL2QCdGOJ9
-0T2ezEk7KdzZLlKoJMuz0yg=
-=UN1L
------END PGP SIGNATURE-----
-
---cjNiBkmi8s9yAE0W--
+Steven

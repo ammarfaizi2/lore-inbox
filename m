@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314037AbSDKMsc>; Thu, 11 Apr 2002 08:48:32 -0400
+	id <S314040AbSDKMwL>; Thu, 11 Apr 2002 08:52:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314038AbSDKMsb>; Thu, 11 Apr 2002 08:48:31 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60678 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S314037AbSDKMsb>; Thu, 11 Apr 2002 08:48:31 -0400
-Date: Thu, 11 Apr 2002 08:45:20 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        "Alexis S. L. Carvalho" <alexis@cecm.usp.br>,
+	id <S314041AbSDKMwK>; Thu, 11 Apr 2002 08:52:10 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:4626 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S314040AbSDKMwK>; Thu, 11 Apr 2002 08:52:10 -0400
+Message-Id: <200204111249.g3BCnnX10316@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Jurgen Philippaerts <jurgen@pophost.eunet.be>,
         linux-kernel@vger.kernel.org
-Subject: Re: implementing soft-updates
-In-Reply-To: <20020410025504.GD424@turbolinux.com>
-Message-ID: <Pine.LNX.3.96.1020411083829.3677A-100000@gatekeeper.tmr.com>
+Subject: Re: arch/sparc64/kernel/traps.c
+Date: Thu, 11 Apr 2002 15:53:01 -0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <20020409212000.GK9996@sparkie.is.traumatized.org> <200204110547.g3B5l3X08802@Port.imtp.ilyichevsk.odessa.ua> <20020411103444.GA7280@sparkie.is.traumatized.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 9 Apr 2002, Andreas Dilger wrote:
+On 11 April 2002 08:34, Jurgen Philippaerts wrote:
+> > > here's the output that i get (i'm not quite sure what to expect, so i
+> > > hope this is what you need:)
+> >
+> > [snip]
+> >
+> > > Error (Oops_bfd_perror): set_section_contents Bad value
+> >
+> > [snip]
+> >
+> > I've seen the same when ksymoops was linked against old libbfd.
+> > It builds without errors but could not disassemble oopsed code.
+> > Check for old libbfd lying around.
+>
+>sorry for the long lines, but it would't be very readable otherwise
+>:)
 
-> On Apr 09, 2002  20:41 -0400, Albert D. Cahalan wrote:
-> > In case you are still thinking about what to do, here are a
-> > few filesystem ideas that you might like:
+>$ locate libbfd | xargs ls -ld
+>-rwxr-xr-x    1 root     root       632951 Apr 10 15:18 /usr/lib/libbfd-2.12.so
+>-rw-r--r--    1 root     root       737648 Apr 10 15:18 /usr/lib/libbfd.a
+>-rwxr-xr-x    1 root     root          771 Apr 10 15:18 /usr/lib/libbfd.la
+>lrwxrwxrwx    1 root     root           14 Apr 10 15:24 /usr/lib/libbfd.so -> libbfd-2.12.so
 
-> > mark idle filesystems clean; mark dirty before non-atomic updates
-> - maybe marginally useful
+>$ locate bfd.h | xargs ls -ld
+>-rw-r--r--    1 root     root       134077 Apr 10 15:18 /usr/include/bfd.h
 
-  I would think far mnore than marginally useful... this would provide
-an improved possibility of avoiding fsck, something many people would find
-desirable. And along that line I'll offer one more idea, not to increment
-the mount count if a f/s is mounted and no writes are done to the f/s,
-such as ro mount, noatime mount and no writes, etc. The check for fsck
-after N mounts was designed to assist with reliability, not be a penalty
-in boot time.
+>it all looks like the new version to me
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Double check that you built ksymoops against these libs, not older ones.
+Even if you deleted them, you may still be using old ksymoops binary!
+--
+vda

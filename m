@@ -1,72 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131256AbQLUSFW>; Thu, 21 Dec 2000 13:05:22 -0500
+	id <S131158AbQLUSPm>; Thu, 21 Dec 2000 13:15:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131283AbQLUSFM>; Thu, 21 Dec 2000 13:05:12 -0500
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:30696 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id <S131256AbQLUSFE>; Thu, 21 Dec 2000 13:05:04 -0500
-From: ianh@iahastie.clara.net (Ian Hastie)
-To: linux-kernel@vger.kernel.org
-Date: Thu, 21 Dec 2000 17:27:48 +0000 (UTC)
-Subject: Oop in 2.4.0-test12
-Organization: home using Linux
-Message-ID: <slrn944fck.hdt.ianh@iahastie.local.net>
+	id <S131195AbQLUSPc>; Thu, 21 Dec 2000 13:15:32 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:35684 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131158AbQLUSPR>; Thu, 21 Dec 2000 13:15:17 -0500
+Date: Thu, 21 Dec 2000 18:44:24 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Andrew Morton <andrewm@uow.edu.au>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org, "David S. Miller" <davem@redhat.com>
+Subject: Re: Linux 2.2.19pre2
+Message-ID: <20001221184424.C29083@athlon.random>
+In-Reply-To: <20001221161952.B20843@athlon.random> <Pine.LNX.4.21.0012211502400.1613-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0012211502400.1613-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Thu, Dec 21, 2000 at 03:07:08PM -0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks like page_launder is still causing problems.  I was using
-ReiserFS version 3.6.23.  As far as I remember it was running
-Seti@Home 3.03 and compile qt-2.2.3.  I was able to run ksymoops
-without rebooting.
+On Thu, Dec 21, 2000 at 03:07:08PM -0200, Rik van Riel wrote:
+> c) will also implement a) in an obviously right and simple way.
 
-ksymoops 2.3.5 on i686 2.4.0-test12.  Options used
-     -v /boot/vmlinux-2.4.0-test12 (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.0-test12/ (default)
-     -m /boot/System.map-2.4.0-test12 (specified)
+So go ahead. If you think that's so simple and obviously right you can post
+here a patch here against 2.2.19pre2 that implements C) to show real facts.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000c
-c012cf63
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c012cf63>]
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010202
-eax: 00000000   ebx: c1097d0c   ecx: 000004ba   edx: 00000002
-esi: c1097cf0   edi: 00003a33   ebp: 00000000   esp: c1479fb4
-ds: 0018   es: 0018   ss: 0018
-Process bdflush (pid: 6, stackpage=c1479000)
-Stack: c1478000 c027703c 00000000 0008e000 00000000 c1478000 00000000 00003a32 
-       00000000 c01361bd 00000003 00000000 00010f00 c145ff8c c145ffd8 c0109043 
-       c145ffc4 c145ffc4 c145ffc4 
-Call Trace: [<c01361bd>] [<c0109043>] 
-Code: 8b 40 0c 8b 10 85 d2 0f 84 85 04 00 00 83 7c 24 18 00 75 4e 
+My B is here:
 
->>EIP; c012cf63 <page_launder+1d3/800>   <=====
-Trace; c01361bd <bdflush+8d/120>
-Trace; c0109043 <kernel_thread+23/30>
-Code;  c012cf63 <page_launder+1d3/800>
-00000000 <_EIP>:
-Code;  c012cf63 <page_launder+1d3/800>   <=====
-   0:   8b 40 0c                  mov    0xc(%eax),%eax   <=====
-Code;  c012cf66 <page_launder+1d6/800>
-   3:   8b 10                     mov    (%eax),%edx
-Code;  c012cf68 <page_launder+1d8/800>
-   5:   85 d2                     test   %edx,%edx
-Code;  c012cf6a <page_launder+1da/800>
-   7:   0f 84 85 04 00 00         je     492 <_EIP+0x492> c012d3f5 <page_launder+665/800>
-Code;  c012cf70 <page_launder+1e0/800>
-   d:   83 7c 24 18 00            cmpl   $0x0,0x18(%esp,1)
-Code;  c012cf75 <page_launder+1e5/800>
-  12:   75 4e                     jne    62 <_EIP+0x62> c012cfc5 <page_launder+235/800>
+	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/patches/v2.2/2.2.19pre2/wake-one-2
 
--- 
-Ian.
+Then we will see how much C) is obviously right and simple way compared to B).
 
-I don't have a sig either!
+I don't need to see C) implemented to see how much it's obviously right
+and simple but if you think I'm wrong again: go ahead.
+
+It would also be nice if you could show a real life
+showstopper-production-bottleneck where we need C) to fix it. I cannot see any
+useful usage of C in production 2.2.x.
+
+Doing waitqueues in 2.2.x and 2.4.x is an irrelevant point (keeping the same
+API and semantics is much better than anything else for 2.2.x unless there's
+some serious showstopper that isn't possible to fix with B) and that I still
+cannot see).
+
+People backporting drivers from 2.4.x will use wake-all as they had to do
+during the whole 2.3.x, that's obviously safe and trivial. If they know what
+they're doing they can also use the 2.2.x wake-one API if their task is
+registered only in 1 waitqueues (as 99% of usages I'm aware of given
+whole 2.3.x implemented B too).
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

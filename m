@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266569AbUHINsG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266561AbUHINw3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266569AbUHINsG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 09:48:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUHINsG
+	id S266561AbUHINw3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 09:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266574AbUHINw3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 09:48:06 -0400
-Received: from astra.telenet-ops.be ([195.130.132.58]:35560 "EHLO
-	astra.telenet-ops.be") by vger.kernel.org with ESMTP
-	id S266569AbUHINr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 09:47:59 -0400
-Subject: AES assembler optimizations
-From: Bob Deblier <bob.deblier@telenet.be>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1092059277.4332.8.camel@orion>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 09 Aug 2004 15:47:57 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 9 Aug 2004 09:52:29 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:23468 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S266561AbUHINw2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 09:52:28 -0400
+Date: Mon, 9 Aug 2004 15:51:48 +0200 (CEST)
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Message-Id: <200408091351.i79DpmvZ010434@burner.fokus.fraunhofer.de>
+To: axboe@suse.de, skraw@ithnet.com
+Cc: James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org,
+       schilling@fokus.fraunhofer.de
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just picked up on KernelTrap that there were some problems with
-optimized AES code; if you wish, I can provide my own LGPL licensed (or
-I can relicense them for you under GPL), as included in the BeeCrypt
-Cryptography Library.
 
-I have generic i586 code and SSE-optimized code available in GNU
-assembler format. Latest version is always available on SourceForge
-(http://sourceforge.net/cvs/?group_id=8924).
+>From: Jens Axboe <axboe@suse.de>
 
-Please cc: me for responses, as I'm not a list subscriber.
+>Joergs intentions are just as clear as ever - he would much much rather
+>bash linux than fix whatever issues there might be with it, because if
+>they get fixed, he would have nothing else to complain about. It's
+>ironic that Linux is most likely his largest user base.
 
-Sincerely,
+You could easily prove that you are wrong:
 
-Bob Deblier
+Just fix the bugs from the List I send you and wait some time......
 
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
+       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
+ URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

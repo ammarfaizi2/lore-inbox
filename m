@@ -1,131 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVA1KoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVA1K5C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVA1KoE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 05:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVA1KoE
+	id S261270AbVA1K5C (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 05:57:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVA1K5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 05:44:04 -0500
-Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:4742 "EHLO
-	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261254AbVA1Knw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 05:43:52 -0500
-Date: Fri, 28 Jan 2005 10:43:49 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Andrew Morton <akpm@osdl.org>
-cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Advice sought on how to lock multiple pages in ->prepare_write
- and ->writepage
-In-Reply-To: <20050127165822.291dbd2d.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.60.0501280849120.7887@hermes-1.csi.cam.ac.uk>
-References: <1106822924.30098.27.camel@imp.csi.cam.ac.uk>
- <20050127165822.291dbd2d.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-X-Cam-AntiVirus: No virus found
-X-Cam-SpamDetails: Not scanned
+	Fri, 28 Jan 2005 05:57:02 -0500
+Received: from styx.suse.cz ([82.119.242.94]:22947 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261270AbVA1K4b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 Jan 2005 05:56:31 -0500
+Date: Fri, 28 Jan 2005 11:59:37 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
+Subject: Re: Possible bug in keyboard.c (2.6.10)
+Message-ID: <20050128105937.GA5963@ucw.cz>
+References: <Pine.LNX.4.61.0501270318290.4545@82.117.197.34> <20050127125637.GA6010@pclin040.win.tue.nl> <Pine.LNX.4.61.0501272248380.6118@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0501272248380.6118@scrub.home>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-
-Thanks a lot for your help!  Some comments below...
-
-On Thu, 27 Jan 2005, Andrew Morton wrote:
-> Anton Altaparmakov <aia21@cam.ac.uk> wrote:
-> >
-> > What would you propose can I do to perform the required zeroing in a
-> > deadlock safe manner whilst also ensuring that it cannot happen that a
-> > concurrent ->readpage() will cause me to miss a page and thus end up
-> > with non-initialized/random data on disk for that page?
+On Fri, Jan 28, 2005 at 01:39:08AM +0100, Roman Zippel wrote:
+> Hi,
 > 
-> The only thing I can think of is to lock all the pages.
-
-Yes, that is what I was thinking, too.
-
-> There's no other place in the kernel above you which locks multiple 
-> pagecache pages, but we can certainly adopt the convention that 
-> multiple-page-locking must proceed in ascending file offset order.
-
-That sounds sensible.
-
-> Which means that you'll need to drop and reacquire the page lock in
-> ->prepare_write and in ->writepage, which could get unpleasant.
-
-Yes, this is the bit I was worried about...
-
-> For ->prepare_write it should be OK: the caller has a ref on the inode and
-> you can check ->mapping after locking the page to see if a truncate flew
-> past (OK, you have i_sem, but writepage will need to do this check).
-
-Ok.  One down.
-
-> For writepage() or writepages() with for_reclaim=0 you're OK: the caller
-> has a ref on the inode and has taken sb->s_umount, so you can safely drop
-> and retake the page lock.
-
-Ok.
-
-> For ->writepage with for_reclaim=1 the problem is that the inode can
-> disappear on you altogether: you have no inode ref and if you let go of
-> that page lock, truncate+reclaim or truncate+umount can zap the inode.
+> On Thu, 27 Jan 2005, Andries Brouwer wrote:
 > 
-> So hrm.  I guess your ->writepage(for_reclaim=1) could do a trylock on
-> s_umount and fail the writepage if that didn't work out.
-
-Ok, this should cause no problems.  I have already other places inside 
-writepage (for metadata writes) which do trylock on an ntfs internal inode 
-lock (it was necessary due to lock reversal: pagelock is held already in 
-writepage but usually the ntfs lock is taken first and then pages are 
-locked - now we just redirty the page in writepage if the trylock fails).
-
-> That leaves the problem of preventing truncate+reclaim from zapping the
-> inode when you've dropped the page lock.  I don't think you'll want to take
-> a ref on the inode because the subsequent iput() can cause a storm of
-> activity and I have vague memories that iput() inside
-> ->writepage(for_reclaim=1) is a bad deal.  Maybe do a trylock on i_sem and
-> fail the writepage if that doesn't work out?
-
-The trylock is once again no problem.  But holding i_sem without a 
-reference to the inode seems dodgy.  Will it really be sufficient?  I 
-mean, yes it will exclude truncate but couldn't a reclaim kick in after 
-the truncate has released i_sem and we have taken it?  Or am I missing 
-something here?
-
-In any case, once I relock the page I will need to check that it 
-is still inside i_size I assume and also that it is in fact still dirty.
-
-> That way, once you have i_sem and s_umount you can unlock the target page
-> then populate+lock all the pages in the 64k segment.
+> > In short - raw mode in 2.6 is badly broken.
 > 
-> Not very pretty though.
+> I think not just that. The whole keyboard input layer needs some serious 
+> review. Just the complete lack of any locking is frightening, I'd really 
+> like to know how the input layer could become the standard.
 
-No, not pretty at all.  Especially as I will have to drop all sorts of 
-NTFS locks (as my code is at present) which will cause me to have to redo 
-a lot of work after reaquiring those locks.  I guess I will have to put in 
-a "if (cluster_size > PAGE_CACHE_SIZE) detect hole" logic really early on 
-and do the page cache magic at this stage and only then start taking NTFS 
-locks and doing the work.
+I'm very sorry about the locking, but the thing grew up in times of
+kernel 2.0, which didn't require any locking. There are a few possible
+races with device registration/unregistration, and it's on my list to
+fix that, however under normal operation there shouldn't be any need for
+locks, as there are no complex structures built that'd become
+inconsistent. 
 
-But it doesn't matter that it is not pretty.  It is not the usual scenario 
-after all.  Normally a file gets created/opened and writing begins so the 
-problem does not really occur as we would always be starting with the 
-first page in a cluster and hence we would not need to drop its lock at 
-all.  Also, the problem only occurs if cluster size > PAGE_CACHE_SIZE 
-which will be false for the majority of cases.  (In NTFS using cluster 
-size > 4kiB causes all sorts of negative side effects such as compression 
-and possibly encryption being disabled for example and Windows will in 
-fact never use cluster size > 4kiB by default but some people override the 
-default due to special usage scenarios or really large volumes: with 4kiB 
-clusters and the current artificial limit of 2^32-1 clusters imposed by 
-Windows the maximum volume size is 16TiB.)
+If you find scenarios which will lead to trouble in the event delivery
+system, please tell me, and I'll try to fix that as soon as possible.
 
-Best regards,
+> I tried to find a few times to find any discussion about the input
+> layer design, but I couldn't find anything.
 
-	Anton
+You have to search in very old archives. There was quite a lot of it,
+and it was going off on a lot of tangents. In the end, I just wrote it.
+
+> Some of my favourites in the input layer:
+> - the keyboard sound/led handling: the keyboard driver basically fakes 
+> events for the device and input_event() is "clever" enough to also tell 
+> the device about it. This is quite an abuse of event system for general 
+> device/driver communication.
+
+The intention here is that we have two types of events, input and
+output. Most events are input (REL, ABS, ...), while some travel the
+opposite direction. For simplicity, the interface is the same -
+input_event(), which then, based on the event type decides where to
+forward it - whether up or down the stream (or both, where other users
+of the device may be interested in the change).
+
+> - a single input device structure for all types: this structure is quite 
+> big, where most of its contents is irrelevant for most devices.
+
+I actually think this is a big plus. 
+
+Real word devices cannot be confined into predefined structures, as
+hardware develops, mice get more buttons, wheels, force feedback, 
+
+The structure, if the size is a problem, can be made smaller by having
+the larger bitmaps allocated separately.
+
+> - fine grained matching/filtering: I have no idea why the input layer has 
+> to do this down to the single event instead of just the event type.
+
+I wonder what do you mean by this, the layer itself doesn't have any
+codepaths dependent directly on event code, just on the types.
+
+If you wonder why the input_event() function checks whether the event
+generated by a device really is possible for that device and ignores it
+if not, that's to make the drivers life easier by, in the example of a
+PS/2 mouse always reporting the state of the middle button, even when
+the PS/2 mouse is a 2-button mouse. The driver only needs to say that
+the middle button doesn't exist in the bitmap setup and the packet
+processing routine doesn't need to care about it.
+
+And if you wonder whether struct input_dev needs to even know what event
+codes for each type are generated by the device - that's there to tell
+the event handlers (whether kernel or userspace), so they will know what
+to expect and can make decisions based on it.
+
+> Vojtech, could you please explain a bit the reason for the above and what 
+> are your plans to e.g. fix the locking?
+
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Vojtech Pavlik
+SuSE Labs, SuSE CR

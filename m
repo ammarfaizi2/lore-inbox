@@ -1,57 +1,55 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314504AbSDZXXJ>; Fri, 26 Apr 2002 19:23:09 -0400
+	id <S314525AbSDZX2X>; Fri, 26 Apr 2002 19:28:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314525AbSDZXXI>; Fri, 26 Apr 2002 19:23:08 -0400
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:6574
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S314504AbSDZXXH>; Fri, 26 Apr 2002 19:23:07 -0400
-Date: Fri, 26 Apr 2002 19:30:19 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 160gb disk showing up as 137gb
-Message-ID: <20020426193019.C8578@animx.eu.org>
-In-Reply-To: <20020426171836.A3160@animx.eu.org> <Pine.LNX.4.33L2.0204261416040.14014-100000@dragon.pdx.osdl.net> <20020426163445.A16100@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+	id <S314526AbSDZX2W>; Fri, 26 Apr 2002 19:28:22 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:30475 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S314525AbSDZX2W>; Fri, 26 Apr 2002 19:28:22 -0400
+Message-ID: <3CC9D3EC.80504@evision-ventures.com>
+Date: Sat, 27 Apr 2002 00:25:48 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
+X-Accept-Language: en-us, pl
+MIME-Version: 1.0
+To: Oliver Xymoron <oxymoron@waste.org>
+CC: Linus Torvalds <torvalds@transmeta.com>, Pavel Machek <pavel@ucw.cz>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.10 IDE 42
+In-Reply-To: <Pine.LNX.4.44.0204261454440.30456-100000@waste.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> If you are using a 3Ware adapter, you will need to upgrade 
-> the firmware to enable 48 bit lba.  Ditto other RAID controllers.
+>>Somewhat agreed. Also, the above is just not the right way to do
+>>printouts.
+>>
+>>I'd suggest rewriting the whole big mess as something like
+>>
+>>	#define STAT_STR(x,s) \
+>>		((stat & x ##_STAT) ? s " " : "")
+>>
+>>	...
+>>
+>>	printf("IDE: %s%s%s%s%s%s..\n"
+>>		STAT_STR(READY, "DriveReady"),
+>>		STAT_STR(WERR, "DeviceFault"),
+>>		...
+> 
+> 
+> I'd go even further and suggest that pulling the mapping from a mask or
+> key to string out into a table and looping through it is preferable for
+> this sort of thing. You win later if you decide you need the same mapping
+> elsewhere or if you want to format your messages differently, add bits to
+> it, etc. Tables are generally easier to inspect for errors than code,
+> although Linus' version is very nearly a table.
+> 
+> Maintaining tables as code is a pain and is generally only a win for
+> small or sparse state machines.
 
-It's not on a raid controller.  The machine has a PIIX3 ide controller and a
-AHA-2940UW scsi controller.  Both exibit the same problem.
 
-> > | Just bought a maxtor 160gb disk and it shows upt as a 137gb disk.  I thought
-> > | this might be the system board's ide chipset limitation so I put a scsi->ide
-> > | adapter on the drive.  Same situation occurs.  I'm looking at what the kernel
-> > | reports when it finds the drive.  /proc/partitions shows this drive as:
-> > |    8     0  134217727 sda
-> > | /proc/scsi/scsi shows:
-> > | Attached devices:
-> > | Host: scsi0 Channel: 00 Id: 00 Lun: 00
-> > |   Vendor: Maxtor 4 Model: G160J8           Rev: GAK8
-> > |   Type:   Direct-Access                    ANSI SCSI revision: 02
-> > |
-> > | I tried kernel 2.4.14 and 2.4.18.  Any ideas?
-> > 
-> > Hi,
-> > 
-> > There was a thread on this 2-3 months back.
-> > IDE in 2.4 doesn't have a 48-bit block address interface IIRC,
-> > although Andre has some patches for this.
-> > This is necessary to go above 137 GB.
-> > 
-> > -- 
-> > ~Randy
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Once could have a look at the ll_rw_blk.c file. There is
+a function there, which is dissecting the differnt request
+attributes, which are stored as bitfields there.
+

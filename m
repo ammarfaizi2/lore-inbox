@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVCHR1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVCHR25@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVCHR1b (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 12:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVCHR1b
+	id S261431AbVCHR25 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 12:28:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVCHR24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 12:27:31 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:31120 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261431AbVCHR1E (ORCPT
+	Tue, 8 Mar 2005 12:28:56 -0500
+Received: from wproxy.gmail.com ([64.233.184.196]:42281 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261431AbVCHR1j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 12:27:04 -0500
-Subject: Re: [PATCH] 2.6.10 -  direct-io async short read bug
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: suparna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>,
-       =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>,
-       "linux-aio@kvack.org" <linux-aio@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050308090946.GA4100@in.ibm.com>
-References: <1110189607.11938.14.camel@frecb000686>
-	 <20050307223917.1e800784.akpm@osdl.org>  <20050308090946.GA4100@in.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1110302614.24286.61.camel@dyn318077bld.beaverton.ibm.com>
+	Tue, 8 Mar 2005 12:27:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ftkp9HKaGzYmUoVCnWbFXfmBBBuyREOC1aWs8o0DN+EDpzPV/H2H5NVv6osqOiB3RDdyesLRuZr05c7WnhcWb1w+G6cER9yA7kz+4HTI1dFF0AznksEsn7ussYW+ow2nu/YYGf5SPU6vtla5kDmWBJDtz1ORpUVgKfJEyoeftYU=
+Message-ID: <c26b959205030809271b8a5886@mail.gmail.com>
+Date: Tue, 8 Mar 2005 22:57:26 +0530
+From: Imanpreet Arora <imanpreet@gmail.com>
+Reply-To: Imanpreet Arora <imanpreet@gmail.com>
+To: Robert Love <rml@novell.com>
+Subject: Re: Question regarding thread_struct
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1110302000.23923.14.camel@betsy.boston.ximian.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 08 Mar 2005 09:23:35 -0800
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+References: <c26b959205030809044364b923@mail.gmail.com>
+	 <1110302000.23923.14.camel@betsy.boston.ximian.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-08 at 01:09, Suparna Bhattacharya wrote:
-
+On Tue, 08 Mar 2005 12:13:20 -0500, Robert Love <rml@novell.com> wrote:
+> On Tue, 2005-03-08 at 22:34 +0530, Imanpreet Arora wrote:
 > 
-> Hmm, shouldn't dio->result ideally have been adjusted to be within
-> i_size at the time of io submission, so we don't have to deal with
-> this during completion ? We are creating bios with the right size
-> after all. 
+> >       I am wondering if someone could provide information as to how
+> > thread_struct is kept in memory. Robert Love mentions that it is kept
+> > at the "lowest"  kernel address in case of x86 based platform. Could
+> > anyone answer these questions.
 > 
-> We have this: 
-> 		if (!buffer_mapped(map_bh)) {
-> 				....
-> 				if (dio->block_in_file >=
->                                         i_size_read(dio->inode)>>blkbits) {
->                                         /* We hit eof */
->                                         page_cache_release(page);
->                                         goto out;
->                                 }
+> Kernel _stack_ address for the given process.
 > 
-
-This check will catch only if there is no block on the disk. In the
-current test case, the filesize = 3K and filesystem blocksize=4K.
-So, we have a block (beyond filesize). The test tries to read 4K.
-None of the checks catch this case and it submits 4K IO. 
-
-> and
-> 		dio->result += iov[seg].iov_len -
->                         ((dio->final_block_in_request - dio->block_in_file) <<
->                                         blkbits);
+> > a)    When a stack is resized, is the thread_struct structure copied onto
+> > a new place?
 > 
-> 
-> can you spot what is going wrong here that we have to try and
-> workaround this later ?
+> This is the kernel stack, not any potential user-space stack.  Kernel
+> stacks are not resized.
+
+This has been a doubt for a couple of days, and I am wondering if this
+one could also be cleared. When you say kernel stack, can't be resized
 
 
-Andrew, please don't apply the original patch. We shouldn't even attempt
-to submit IO beyond the filesize. We should truncate the IO request to
-filesize. I will send a patch today to fix this.
+a)       Does it mean that the _whole_ of the kernel is restricted to
+that 8K or 16K of memory?
 
-Thanks,
-Badari
+b)        Or does it mean that a particular stack for a particular
+process, can't be resized?
 
+c)         And for that matter how exactly do we define a kernel stack?
+
+TIA                     
+-- 
+
+Imanpreet Singh Arora

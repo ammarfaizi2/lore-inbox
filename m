@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbRBZXsV>; Mon, 26 Feb 2001 18:48:21 -0500
+	id <S129250AbRBZXwA>; Mon, 26 Feb 2001 18:52:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129268AbRBZXsK>; Mon, 26 Feb 2001 18:48:10 -0500
-Received: from boreas.isi.edu ([128.9.160.161]:19087 "EHLO boreas.isi.edu")
-	by vger.kernel.org with ESMTP id <S129250AbRBZXrx>;
-	Mon, 26 Feb 2001 18:47:53 -0500
-To: linux-kernel@vger.kernel.org
-From: Craig Milo Rogers <Rogers@ISI.EDU>
-Subject: 2.2.19pre15: drivers/net/Config.in: 359: bad if condition
-Date: Mon, 26 Feb 2001 15:47:51 -0800
-Message-ID: <28703.983231271@ISI.EDU>
+	id <S129281AbRBZXvu>; Mon, 26 Feb 2001 18:51:50 -0500
+Received: from kanga.kvack.org ([216.129.200.3]:51217 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id <S129274AbRBZXvc>;
+	Mon, 26 Feb 2001 18:51:32 -0500
+Date: Mon, 26 Feb 2001 18:47:33 -0500 (EST)
+From: "Benjamin C.R. LaHaise" <blah@kvack.org>
+To: "David S. Miller" <davem@redhat.com>
+cc: michael@linuxmagic.com, Jan Rekorajski <baggins@sith.mimuw.edu.pl>,
+        Chris Wedgwood <cw@f00f.org>, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com, waltje@uWalt.NL.Mugnet.ORG
+Subject: Re: [UPDATE] zerocopy.. While working on ip.h stuff
+In-Reply-To: <15002.58854.215318.882641@pizda.ninka.net>
+Message-ID: <Pine.LNX.3.96.1010226184514.9835E-100000@kanga.kvack.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After building a patched source tree, and running "make xmenu" on a
-RH6.2 system with most relevant RPMs installed, I see:
+On Mon, 26 Feb 2001, David S. Miller wrote:
 
-drivers/net/Config.in: 359: bad if condition
+> Not to my knowledge.  Routers already change the time to live field,
+> so I see no reason why they can't do smart things with special IP
+> options either (besides efficiency concerns :-).
 
-The following line:
-if [ "$CONFIG_EXPERIMENTAL" = y -a "$CONFIG_WAN_ROUTER" != "n" ]; then
+A number of ISPs patch the MSS value to 1492 due to the ridiculous number
+of PMTU black holes out on the net.  Since the ip header fits in the cache
+of some CPUs (like the P4), this becoming a cheaper operation than ever
+before.
 
-should be:
-if [ "$CONFIG_EXPERIMENTAL" = "y" -a "$CONFIG_WAN_ROUTER" != "n" ]; then
+		-ben
 
-
-					Craig Milo Rogers

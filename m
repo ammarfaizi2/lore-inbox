@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbUBUMuw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 07:50:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUBUMsy
+	id S261551AbUBUMuz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 07:50:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbUBUMtb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 07:48:54 -0500
-Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:7162 "EHLO
-	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261552AbUBUMse
+	Sat, 21 Feb 2004 07:49:31 -0500
+Received: from p062096.ppp.asahi-net.or.jp ([221.113.62.96]:6906 "EHLO
+	mitou.ysato.dip.jp") by vger.kernel.org with ESMTP id S261415AbUBUMse
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 21 Feb 2004 07:48:34 -0500
-Date: Sat, 21 Feb 2004 21:48:26 +0900
-Message-ID: <m2brnsbntx.wl%ysato@users.sourceforge.jp>
+Date: Sat, 21 Feb 2004 21:48:15 +0900
+Message-ID: <m2d688bnu8.wl%ysato@users.sourceforge.jp>
 From: Yoshinori Sato <ysato@users.sourceforge.jp>
 To: Linus Torvalds <torvalds@osdl.org>
 Cc: linux kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] H8/300 include cleanup
+Subject: [PATCH] H8/300 io.h bussizing problem fix
 User-Agent: Wanderlust/2.11.20 (Wonderwall) SEMI/1.14.5 (Awara-Onsen)
  LIMIT/1.14.7 (Fujiidera) APEL/10.6 Emacs/21.3 (i386-pc-linux-gnu)
  MULE/5.0 (SAKAKI)
@@ -23,81 +23,306 @@ Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-- duplicate define marge.
-- unused define delete.
-- reduced code size.
+- fix warning
+- byte swap miss fix
+- 16bit bus access problem fix
 
-diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/aki3068net/machine-depend.h linux-2.6.3-h8300/include/asm-h8300/aki3068net/machine-depend.h
---- linux-2.6.3/include/asm-h8300/aki3068net/machine-depend.h	2004-01-09 15:59:56.000000000 +0900
-+++ linux-2.6.3-h8300/include/asm-h8300/aki3068net/machine-depend.h	2004-02-20 02:44:28.000000000 +0900
-@@ -2,7 +2,6 @@
+diff -X .exclude-diff -Nru linux-2.6.3/arch/h8300/platform/h8300h/aki3068net/timer.c linux-2.6.3-h8300/arch/h8300/platform/h8300h/aki3068net/timer.c
+--- linux-2.6.3/arch/h8300/platform/h8300h/aki3068net/timer.c	2004-01-09 15:59:10.000000000 +0900
++++ linux-2.6.3-h8300/arch/h8300/platform/h8300h/aki3068net/timer.c	2004-02-20 02:03:07.000000000 +0900
+@@ -27,10 +27,10 @@
  
- /* TIMER rate define */
- #ifdef H8300_TIMER_DEFINE
--#include <linux/config.h>
- #define H8300_TIMER_COUNT_DATA 20000*10/8192
- #define H8300_TIMER_FREQ 20000*1000/8192
+ void __init platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
+ {
+-	outb(H8300_TIMER_COUNT_DATA,TCORA2);
+-	outb(0x00,_8TCSR2);
++	ctrl_outb(H8300_TIMER_COUNT_DATA,TCORA2);
++	ctrl_outb(0x00,_8TCSR2);
+ 	request_irq(40,timer_int,0,"timer",0);
+-	outb(0x40|0x08|0x03,_8TCR2);
++	ctrl_outb(0x40|0x08|0x03,_8TCR2);
+ }
+ 
+ void platform_timer_eoi(void)
+diff -X .exclude-diff -Nru linux-2.6.3/arch/h8300/platform/h8300h/generic/timer.c linux-2.6.3-h8300/arch/h8300/platform/h8300h/generic/timer.c
+--- linux-2.6.3/arch/h8300/platform/h8300h/generic/timer.c	2004-01-09 15:59:26.000000000 +0900
++++ linux-2.6.3-h8300/arch/h8300/platform/h8300h/generic/timer.c	2004-02-20 02:03:07.000000000 +0900
+@@ -29,13 +29,14 @@
+ 
+ #if defined(CONFIG_H83007) || defined(CONFIG_H83068)
+ #include <asm/regs306x.h>
++#define CMFA 6
+ 
+ int platform_timer_setup(void (*timer_int)(int, void *, struct pt_regs *))
+ {
+-	outb(H8300_TIMER_COUNT_DATA,TMR8CMA2);
+-	outb(0x00,TMR8TCSR2);
+-	request_irq_boot(40,timer_int,0,"timer",0);
+-	outb(0x40|0x08|0x03,TMR8TCNT2);
++	ctrl_outb(H8300_TIMER_COUNT_DATA,TCORA2);
++	ctrl_outb(0x00,_8TCSR2);
++	request_irq(40,timer_int,0,"timer",0);
++	ctrl_outb(0x40|0x08|0x03,_8TCR2);
+ 	return 0;
+ }
+ 
+@@ -65,19 +66,19 @@
+ {
+ 	*(unsigned short *)GRA= H8300_TIMER_COUNT_DATA;
+ 	*(unsigned short *)TCNT=0;
+-	outb(0x23,TCR);
+-	outb(0x00,TIOR);
++	ctrl_outb(0x23,TCR);
++	ctrl_outb(0x00,TIOR);
+ 	request_timer_irq(26,timer_int,0,"timer",0);
+-	outb(inb(TIER) | 0x01,TIER);
+-	outb(inb(TSNC) & ~0x01,TSNC);
+-	outb(inb(TMDR) & ~0x01,TMDR);
+-	outb(inb(TSTR) | 0x01,TSTR);
++	ctrl_outb(inb(TIER) | 0x01,TIER);
++	ctrl_outb(inb(TSNC) & ~0x01,TSNC);
++	ctrl_outb(inb(TMDR) & ~0x01,TMDR);
++	ctrl_outb(inb(TSTR) | 0x01,TSTR);
+ 	return 0;
+ }
+ 
+ void platform_timer_eoi(void)
+ {
+-	outb(inb(TSR) & ~0x01,TSR);
++	ctrl_outb(inb(TSR) & ~0x01,TSR);
+ }
  #endif
-@@ -12,13 +11,8 @@
  
- #define NE2000_ADDR		0x200000
- #define NE2000_IRQ              5
--#define NE2000_IRQ_VECTOR	(12 + NE2000_IRQ)
- #define	NE2000_BYTE		volatile unsigned short
+diff -X .exclude-diff -Nru linux-2.6.3/arch/h8300/platform/h8300h/h8max/timer.c linux-2.6.3-h8300/arch/h8300/platform/h8300h/h8max/timer.c
+--- linux-2.6.3/arch/h8300/platform/h8300h/h8max/timer.c	2004-01-09 15:59:08.000000000 +0900
++++ linux-2.6.3-h8300/arch/h8300/platform/h8300h/h8max/timer.c	2004-02-20 02:03:07.000000000 +0900
+@@ -27,10 +27,10 @@
  
--#define IER                     0xfee015
--#define ISR			0xfee016
--#define IRQ_MASK		(1 << NE2000_IRQ)
+ void __init platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
+ {
+-	outb(H8300_TIMER_COUNT_DATA,TCORA2);
+-	outb(0x00,_8TCSR2);
++	ctrl_outb(H8300_TIMER_COUNT_DATA,TCORA2);
++	ctrl_outb(0x00,_8TCSR2);
+ 	request_irq(40,timer_int,0,"timer",0);
+-	outb(0x40|0x08|0x03,_8TCR2);
++	ctrl_outb(0x40|0x08|0x03,_8TCR2);
+ }
+ 
+ void platform_timer_eoi(void)
+diff -X .exclude-diff -Nru linux-2.6.3/arch/h8300/platform/h8s/edosk2674/timer.c linux-2.6.3-h8300/arch/h8300/platform/h8s/edosk2674/timer.c
+--- linux-2.6.3/arch/h8300/platform/h8s/edosk2674/timer.c	2004-01-09 15:59:33.000000000 +0900
++++ linux-2.6.3-h8300/arch/h8300/platform/h8s/edosk2674/timer.c	2004-02-20 02:03:07.000000000 +0900
+@@ -29,13 +29,13 @@
+ int __init platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
+ {
+ 	unsigned char mstpcrl;
+-	mstpcrl = inb(MSTPCRL);                  /* Enable timer */
++	mstpcrl = ctrl_inb(MSTPCRL);                  /* Enable timer */
+ 	mstpcrl &= ~0x01;
+-	outb(mstpcrl,MSTPCRL);
+-	outb(H8300_TIMER_COUNT_DATA,_8TCORA1);
+-	outb(0x00,_8TCSR1);
++	ctrl_outb(mstpcrl,MSTPCRL);
++	ctrl_outb(H8300_TIMER_COUNT_DATA,_8TCORA1);
++	ctrl_outb(0x00,_8TCSR1);
+ 	request_irq(76,timer_int,0,"timer",0);
+-	outb(0x40|0x08|0x03,_8TCR1);
++	ctrl_outb(0x40|0x08|0x03,_8TCR1);
+ 	return 0;
+ }
+ 
+diff -X .exclude-diff -Nru linux-2.6.3/arch/h8300/platform/h8s/generic/timer.c linux-2.6.3-h8300/arch/h8300/platform/h8s/generic/timer.c
+--- linux-2.6.3/arch/h8300/platform/h8s/generic/timer.c	2004-01-09 15:59:33.000000000 +0900
++++ linux-2.6.3-h8300/arch/h8300/platform/h8s/generic/timer.c	2004-02-20 02:03:07.000000000 +0900
+@@ -25,10 +25,10 @@
+ 
+ int platform_timer_setup(irqreturn_t (*timer_int)(int, void *, struct pt_regs *))
+ {
+-	outb(H8300_TIMER_COUNT_DATA,_8TCORA1);
+-	outb(0x00,_8TCSR1);
++	ctrl_outb(H8300_TIMER_COUNT_DATA,_8TCORA1);
++	ctrl_outb(0x00,_8TCSR1);
+ 	request_irq(76,timer_int,0,"timer",0);
+-	outb(0x40|0x08|0x03,_8TCR1);
++	ctrl_outb(0x40|0x08|0x03,_8TCR1);
+ 	return 0;
+ }
+ 
+diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/io.h linux-2.6.3-h8300/include/asm-h8300/io.h
+--- linux-2.6.3/include/asm-h8300/io.h	2004-02-20 01:08:06.000000000 +0900
++++ linux-2.6.3-h8300/include/asm-h8300/io.h	2004-02-20 03:00:03.000000000 +0900
+@@ -6,6 +6,15 @@
+ #include <linux/config.h>
+ #include <asm/virtconvert.h>
+ 
++#if defined(CONFIG_H83007) || defined(CONFIG_H83068)
++#include <asm/regs306x.h>
++#elif defined(CONFIG_H8S2678)
++#include <asm/regs2678.h>
++#else
++#error UNKNOWN CPU TYPE
++#endif
++
++
+ /*
+  * These are for ISA/PCI shared memory _only_ and should never be used
+  * on any other type of memory, including Zorro memory. They are meant to
+@@ -30,6 +39,7 @@
+  * 020325   Added some #define's for the COBRA5272 board
+  *          (hede)
+  */
++
+ static inline unsigned short _swapw(volatile unsigned short v)
+ {
+     return ((v << 8) | (v >> 8));
+@@ -41,20 +51,19 @@
+ }
+ 
+ #define readb(addr) \
+-    ({ unsigned char __v = (*(volatile unsigned char *) (addr & 0x00ffffff)); __v; })
++    ({ unsigned char __v = (*(volatile unsigned char *) ((addr) & 0x00ffffff)); __v; })
+ #define readw(addr) \
+-    ({ unsigned short __v = (*(volatile unsigned short *) (addr & 0x00ffffff)); __v; })
++    ({ unsigned short __v = (*(volatile unsigned short *) ((addr) & 0x00ffffff)); __v; })
+ #define readl(addr) \
+-    ({ unsigned int __v = (*(volatile unsigned int *) (addr & 0x00ffffff)); __v; })
++    ({ unsigned int __v = (*(volatile unsigned int *) ((addr) & 0x00ffffff)); __v; })
+ 
++#define writeb(b,addr) (void)((*(volatile unsigned char *) ((addr) & 0x00ffffff)) = (b))
++#define writew(b,addr) (void)((*(volatile unsigned short *) ((addr) & 0x00ffffff)) = (b))
++#define writel(b,addr) (void)((*(volatile unsigned int *) ((addr) & 0x00ffffff)) = (b))
+ #define readb_relaxed(addr) readb(addr)
+ #define readw_relaxed(addr) readw(addr)
+ #define readl_relaxed(addr) readl(addr)
+ 
+-#define writeb(b,addr) (void)((*(volatile unsigned char *) (addr & 0x00ffffff)) = (b))
+-#define writew(b,addr) (void)((*(volatile unsigned short *) (addr & 0x00ffffff)) = (b))
+-#define writel(b,addr) (void)((*(volatile unsigned int *) (addr & 0x00ffffff)) = (b))
 -
- #define WCRL                    0xfee023
- #define MAR0A                   0xffff20
- #define ETCR0A                  0xffff24
-diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/h8300_ne.h linux-2.6.3-h8300/include/asm-h8300/h8300_ne.h
---- linux-2.6.3/include/asm-h8300/h8300_ne.h	2004-01-09 15:59:19.000000000 +0900
-+++ linux-2.6.3-h8300/include/asm-h8300/h8300_ne.h	2004-02-20 02:43:02.000000000 +0900
-@@ -13,6 +13,7 @@
+ #define __raw_readb readb
+ #define __raw_readw readw
+ #define __raw_readl readl
+@@ -62,12 +71,24 @@
+ #define __raw_writew writew
+ #define __raw_writel writel
  
- #define H8300_NE_DEFINE
- #include <asm/machine-depend.h>
-+#define NE2000_IRQ_VECTOR	(12 + NE2000_IRQ)
- #undef  H8300_NE_DEFINE
++static inline int h8300_buswidth(unsigned int addr)
++{
++	return (*(volatile unsigned char *)ABWCR & (1 << (addr >> 21) & 7)) == 0;
++}
++
+ static inline void io_outsb(unsigned int addr, void *buf, int len)
+ {
+-	volatile unsigned char *ap = (volatile unsigned char *) addr;
++	volatile unsigned char  *ap_b = (volatile unsigned char *) addr;
++	volatile unsigned short *ap_w = (volatile unsigned short *) addr;
+ 	unsigned char *bp = (unsigned char *) buf;
+-	while (len--)
+-		*ap = *bp++;
++
++	if(h8300_buswidth(addr) && (addr & 1)) {
++		while (len--)
++			*ap_w = *bp++;
++	} else {
++		while (len--)
++			*ap_b = *bp++;
++	}
+ }
  
- /****************************************************************************/
-diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/h8max/machine-depend.h linux-2.6.3-h8300/include/asm-h8300/h8max/machine-depend.h
---- linux-2.6.3/include/asm-h8300/h8max/machine-depend.h	2004-01-09 15:59:47.000000000 +0900
-+++ linux-2.6.3-h8300/include/asm-h8300/h8max/machine-depend.h	2004-02-20 02:44:41.000000000 +0900
-@@ -14,9 +14,6 @@
- #define NE2000_IRQ_VECTOR	(12 + NE2000_IRQ)
- #define	NE2000_BYTE		volatile unsigned short
+ static inline void io_outsw(unsigned int addr, void *buf, int len)
+@@ -75,7 +96,7 @@
+ 	volatile unsigned short *ap = (volatile unsigned short *) addr;
+ 	unsigned short *bp = (unsigned short *) buf;
+ 	while (len--)
+-		*ap = _swapw(*bp++);
++		*ap = *bp++;
+ }
  
--#define IER                     0xfee015
--#define ISR			0xfee016
--#define IRQ_MASK		(1 << NE2000_IRQ)
- /* sorry quick hack */
- #if defined(outb)
- # undef outb
-diff -X .exclude-diff -Nru linux-2.6.3/include/asm-h8300/system.h linux-2.6.3-h8300/include/asm-h8300/system.h
---- linux-2.6.3/include/asm-h8300/system.h	2004-01-09 15:59:27.000000000 +0900
-+++ linux-2.6.3-h8300/include/asm-h8300/system.h	2004-02-20 01:50:32.000000000 +0900
-@@ -57,14 +57,14 @@
- #define __cli() asm volatile ("orc  #0x80,ccr")
+ static inline void io_outsl(unsigned int addr, void *buf, int len)
+@@ -83,13 +104,18 @@
+ 	volatile unsigned int *ap = (volatile unsigned int *) addr;
+ 	unsigned int *bp = (unsigned int *) buf;
+ 	while (len--)
+-		*ap = _swapl(*bp++);
++		*ap = *bp++;
+ }
  
- #define __save_flags(x) \
--       asm volatile ("stc ccr,r0l\n\tmov.l er0,%0":"=r" (x) : : "er0")
-+       asm volatile ("stc ccr,%w0":"=r" (x))
+ static inline void io_insb(unsigned int addr, void *buf, int len)
+ {
+-	volatile unsigned char *ap = (volatile unsigned char *) addr;
++	volatile unsigned char  *ap;
+ 	unsigned char *bp = (unsigned char *) buf;
++
++	if(h8300_buswidth(addr))
++		ap = (volatile unsigned char *)(addr ^ 1);
++	else
++		ap = (volatile unsigned char *)addr;
+ 	while (len--)
+ 		*bp++ = *ap;
+ }
+@@ -99,7 +125,7 @@
+ 	volatile unsigned short *ap = (volatile unsigned short *) addr;
+ 	unsigned short *bp = (unsigned short *) buf;
+ 	while (len--)
+-		*bp++ = _swapw(*ap);
++		*bp++ = *ap;
+ }
  
- #define __restore_flags(x) \
--       asm volatile ("mov.l %0,er0\n\tldc r0l,ccr": :"r" (x) : "er0")
-+       asm volatile ("ldc %w0,ccr": :"r" (x))
+ static inline void io_insl(unsigned int addr, void *buf, int len)
+@@ -107,7 +133,7 @@
+ 	volatile unsigned int *ap = (volatile unsigned int *) addr;
+ 	unsigned int *bp = (unsigned int *) buf;
+ 	while (len--)
+-		*bp++ = _swapl(*ap);
++		*bp++ = *ap;
+ }
  
- #define	irqs_disabled()			\
- ({					\
--	unsigned long flags;		\
-+	unsigned char flags;		\
- 	__save_flags(flags);	        \
- 	((flags & 0x80) == 0x80);	\
- })
+ /*
+@@ -119,12 +145,12 @@
+ #define memcpy_fromio(a,b,c)	memcpy((a),(void *)(b),(c))
+ #define memcpy_toio(a,b,c)	memcpy((void *)(a),(b),(c))
+ 
+-#define inb(addr)      readb(addr)
+-#define inw(addr)    readw(addr)
+-#define inl(addr)    readl(addr)
+-#define outb(x,addr) ((void) writeb(x,addr))
+-#define outw(x,addr) ((void) writew(x,addr))
+-#define outl(x,addr) ((void) writel(x,addr))
++#define inb(addr)    ((h8300_buswidth(addr))?readb(addr ^ 1) & 0xff:readb(addr))
++#define inw(addr)    _swapw(readw(addr))
++#define inl(addr)    _swapl(readl(addr))
++#define outb(x,addr) ((void)((h8300_buswidth(addr) && (addr & 1))?writew(x,addr):writeb(x,addr)))
++#define outw(x,addr) ((void) writew(_swapw(x),addr))
++#define outl(x,addr) ((void) writel(_swapl(x),addr))
+ 
+ #define inb_p(addr)    inb(addr)
+ #define inw_p(addr)    inw(addr)
+@@ -153,19 +179,19 @@
+ extern void *__ioremap(unsigned long physaddr, unsigned long size, int cacheflag);
+ extern void __iounmap(void *addr, unsigned long size);
+ 
+-extern inline void *ioremap(unsigned long physaddr, unsigned long size)
++static inline void *ioremap(unsigned long physaddr, unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
+ }
+-extern inline void *ioremap_nocache(unsigned long physaddr, unsigned long size)
++static inline void *ioremap_nocache(unsigned long physaddr, unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_NOCACHE_SER);
+ }
+-extern inline void *ioremap_writethrough(unsigned long physaddr, unsigned long size)
++static inline void *ioremap_writethrough(unsigned long physaddr, unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_WRITETHROUGH);
+ }
+-extern inline void *ioremap_fullcache(unsigned long physaddr, unsigned long size)
++static inline void *ioremap_fullcache(unsigned long physaddr, unsigned long size)
+ {
+ 	return __ioremap(physaddr, size, IOMAP_FULL_CACHING);
+ }
 
 -- 
 Yoshinori Sato
-<ysato@usrs.sourceforge.jp>
+<ysato@users.sourceforge.jp>

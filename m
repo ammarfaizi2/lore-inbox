@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261392AbRETCwV>; Sat, 19 May 2001 22:52:21 -0400
+	id <S261268AbRETDPW>; Sat, 19 May 2001 23:15:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261394AbRETCwL>; Sat, 19 May 2001 22:52:11 -0400
-Received: from lpce017.lss.emc.com ([168.159.62.17]:36612 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S261392AbRETCwF>; Sat, 19 May 2001 22:52:05 -0400
-Date: Sat, 19 May 2001 22:51:17 -0400
-Message-Id: <200105200251.f4K2pHT02925@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Matthew Wilcox <matthew@wil.cx>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Andrew Clausen <clausen@gnu.org>, Ben LaHaise <bcrl@redhat.com>,
-        torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <Pine.GSO.4.21.0105192232560.7162-100000@weyl.math.psu.edu>
-In-Reply-To: <200105200222.f4K2Mto02608@mobilix.ras.ucalgary.ca>
-	<Pine.GSO.4.21.0105192232560.7162-100000@weyl.math.psu.edu>
+	id <S261396AbRETDPN>; Sat, 19 May 2001 23:15:13 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:21000 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S261268AbRETDPD>;
+	Sat, 19 May 2001 23:15:03 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Ben Bridgwater <bennyb@ntplx.net>
+cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Brown-paper-bag bug in m68k, sparc, and sparc64 config files 
+In-Reply-To: Your message of "Sat, 19 May 2001 22:14:33 -0400."
+             <3B072889.1DC9E69A@ntplx.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 20 May 2001 13:14:52 +1000
+Message-ID: <12428.990328492@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro writes:
-> 
-> 
-> On Sat, 19 May 2001, Richard Gooch wrote:
-> 
-> > The transaction(2) syscall can be just as easily abused as ioctl(2) in
-> > this respect. People can pass pointers to ill-designed structures very
-> 
-> Right. Moreover, it's not needed. The same functionality can be
-> trivially implemented by write() and read(). As the matter of fact,
-> had been done in userland context for decades. Go and buy
-> Stevens. Read it. Then come back.
+On Sat, 19 May 2001 22:14:33 -0400, 
+Ben Bridgwater <bennyb@ntplx.net> wrote:
+>To present a dumbed down UI targeted for "Aunt Millie" or
+>whoever against the protests of the mainstream kernel tool audience
+>makes zero sense to me, as don't Eric's repeated antagonistic comments.
 
-I don't need to read it. Don't be insulting. Sure, you *can* use a
-write(2)/read(2) cycle. But that's two syscalls compared to one with
-ioctl(2) or transaction(2). That can matter to some applications.
+How many times do we have to say this?  CML2 supports everybody from
+Aunt Millie (novice mode) through non-standard machine configurations
+(expert mode) through Linus (vi .config, make oldconfig).  Pick the
+level of configuration that you need.
 
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

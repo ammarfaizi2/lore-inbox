@@ -1,74 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265323AbTGAAtx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 20:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265757AbTGAAtx
+	id S265251AbTGABGM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 21:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265757AbTGABGM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 20:49:53 -0400
-Received: from adsl-67-124-159-170.dsl.pltn13.pacbell.net ([67.124.159.170]:3552
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S265323AbTGAAtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 20:49:52 -0400
-Date: Mon, 30 Jun 2003 18:04:13 -0700
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] O1int 0307010922 for 2.5.73 interactivity
-Message-ID: <20030701010412.GA21496@triplehelix.org>
-References: <200307010944.46971.kernel@kolivas.org> <200307010952.26595.kernel@kolivas.org>
+	Mon, 30 Jun 2003 21:06:12 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:29128 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265251AbTGABGJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 21:06:09 -0400
+Subject: [PATCH 2.5.73-mm2] aio O_DIRECT no readahead
+From: Daniel McNeil <daniel@osdl.org>
+To: Andrew Morton <akpm@digeo.com>, Suparna Bhattacharya <suparna@in.ibm.com>,
+       Benjamin LaHaise <bcrl@kvack.org>,
+       "linux-aio@kvack.org" <linux-aio@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-IPr35xIgC/e818QE/2M/"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Jun 2003 18:19:51 -0700
+Message-Id: <1057022391.22702.18.camel@dell_ss5.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
-Content-Disposition: inline
-In-Reply-To: <200307010952.26595.kernel@kolivas.org>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---SUOF0GtieIMvvwua
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-IPr35xIgC/e818QE/2M/
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+
+More testing on AIO with O_DIRECT and /dev/raw/.  Doing AIO reads was
+using a lot more cpu time than using dd on the raw partition even with
+the io_queue_wait patch.  Found out that aio is doing readahead even
+for O_DIRECT.  Here's a patch that fixes it.  Here are some output
+from time on reading a 90mb partition on a raw device with 32k i/o:
+
+CMD             Kernel                  I/O     real    user    sys
+RUN             version                 size
+===             ======                  ===     ====    ====    ===
+dd              2.5.73-mm2:             32k     2.514s  0.000s  0.200s
+aio (1 iocb)    2.5.73-mm2:             32k     3.408s  1.120s  2.250s
+aio (32 iocb)   2.5.73-mm2:             32k     2.994s  0.830s  2.160s
+aio (1 iocb)    2.5.73-mm2+patch.aiodio 32k     2.509s  0.850s  1.660s
+aio (1 iocb)    2.5.73-mm2+patch.aiodio
+                   +patch.io_queue_wait 32k     2.566s  0.010s  0.240s
+aio (32 iocb)   2.5.73-mm2+patch.aiodio
+                   +patch.io_queue_wait 32k     2.465s  0.010s  0.080s
+
+With this patch and my previous io_queue_wait patch the cpu time
+drops down to very little when doing AIO with O_DIRECT.
+
+Daniel McNeil <daniel@osdl.org>
+
+--=-IPr35xIgC/e818QE/2M/
+Content-Disposition: attachment; filename=patch-2.5.73-mm2.aiodio
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=patch-2.5.73-mm2.aiodio; charset=ISO-8859-1
 
-On Tue, 1 Jul 2003 09:44, Con Kolivas wrote:
-> Here is an evolution of the O1int design to minimise audio skips/smooth X.
-> I've been forced to work with even less sleep than usual because of this
-> but I'm getting quite happy with it now.
-[snip]
-> More thrashing please. I know these had been coming out frequently but I
-> needed to assess every small increment. I hope not to need to do too much
-> from here.
+--- linux-2.5.73-mm2/fs/aio.c	2003-06-30 16:39:15.874216228 -0700
++++ linux-2.5.73-mm2.aiodio/fs/aio.c	2003-06-30 15:38:46.000000000 -0700
+@@ -1380,15 +1380,20 @@ ssize_t aio_setup_iocb(struct kiocb *kio
+ 			break;
+ 		ret =3D -EINVAL;
+ 		if (file->f_op->aio_read) {
+-			struct address_space *mapping =3D
+-				file->f_dentry->d_inode->i_mapping;
+-			unsigned long index =3D kiocb->ki_pos >> PAGE_CACHE_SHIFT;
+-			unsigned long end =3D (kiocb->ki_pos + kiocb->ki_left)
+-				>> PAGE_CACHE_SHIFT;
+-
+-			for (; index < end; index++) {
+-				page_cache_readahead(mapping, &file->f_ra,
+-							file, index);
++			/*
++			 * Do not do readahead for DIRECT i/o
++			 */
++			if (!(file->f_flags & O_DIRECT)) {
++				struct address_space *mapping =3D
++					file->f_dentry->d_inode->i_mapping;
++				unsigned long index =3D kiocb->ki_pos >> PAGE_CACHE_SHIFT;
++				unsigned long end =3D (kiocb->ki_pos + kiocb->ki_left)
++					>> PAGE_CACHE_SHIFT;
++
++				for (; index < end; index++) {
++					page_cache_readahead(mapping, &file->f_ra,
++								file, index);
++				}
+ 			}
+ 			kiocb->ki_retry =3D aio_pread;
+ 		}
 
-Well, this doesn't quite work. It initially seemed to prevent audio
-skips, but now I can't launch a new Eterm (with translucency) with the
-music not skipping, no change from stock -mm. It seems to work better
-under heavy load (extracting a chroot tarball for example) than when
-nothing is happening, which kind of puzzles me. In both cases I launch
-a new Eterm while music is playing.
+--=-IPr35xIgC/e818QE/2M/--
 
-Inexplicably, it sometimes prevents skipping entirely.
-
-I'm on a P4 2.0GHz with 256MB of SDRAM.
-
-Regards
-Josh
-
---=20
-A man may be so much of everything that he is nothing of anything.
-        -- Samuel Johnson
-
-
---SUOF0GtieIMvvwua
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/AN4MT2bz5yevw+4RAhsoAJ91pkH9iZyR+Mc6ebgTeZZcs/qBlACaAz/L
-g2jXUc8iAddIrKlwti20GnM=
-=mO3w
------END PGP SIGNATURE-----
-
---SUOF0GtieIMvvwua--

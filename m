@@ -1,112 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262460AbTIELfO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 07:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbTIELfO
+	id S262484AbTIEMBj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 08:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262496AbTIEMBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 07:35:14 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:19630 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262460AbTIELfD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 07:35:03 -0400
-Date: Fri, 5 Sep 2003 17:07:14 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>
-Subject: [PATCH] d_delete-d_lookup race fix
-Message-ID: <20030905113714.GB1272@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
+	Fri, 5 Sep 2003 08:01:39 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55227 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262484AbTIEMBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 08:01:37 -0400
+Date: Fri, 5 Sep 2003 14:01:36 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Michael Frank <mhf@linuxmail.org>,
+       Swsusp mailing list <swsusp-devel@lists.sourceforge.net>
+Cc: Rob Landley <rob@landley.net>, Patrick Mochel <mochel@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       Nigel Cunningham <ncunningham@clear.net.nz>,
+       swsusp-devel <swsusp-devel@lists.sourceforge.net>
+Subject: Re: Fix up power managment in 2.6
+Message-ID: <20030905120136.GG16859@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.44.0309011509450.5614-100000@cherise> <200309051856.05873.mhf@linuxmail.org> <20030905110841.GE16859@atrey.karlin.mff.cuni.cz> <200309051951.42424.mhf@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <200309051951.42424.mhf@linuxmail.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Viro,
+Hi!
 
-Thanks for pointing out the race. The patch is appended. 
+> > > > 2.6 swsusp development is not really done on that list.
+> > >
+> > > Oh Really - do I have to dig out the message in which you agreed to
+> > > consolidate the effort on that list?
+> >
+> > How long ago was that?
+> 
+> Wed, 9 Jul 2003 20:18:30 +0200 
+> 
+> http://lister.fornax.hu/pipermail/swsusp/2003-July/003011.html
+>
+> > >http://sourceforge.net/mailarchive/forum.php?thread_id=2977276&forum_id=34880
 
-Andrew, please include this in next -mm, if Viro is ok with it.
+Ahha, this message. Sorry, we have not understood each other.
 
-Thanks
-Maneesh
+I used old fornax mailling list and someone told me not to do that. I
+agreed to not use fornax ml any more (and changed my muttrc). When
+I'll have something to say about swsusp-2.4, I'm going to use new list
+address, but I did not want to imply that I'll send swsusp-2.6 stuff
+to that list.
 
+[I'm ccing this message to swsusp@sf, that should clear up any
+confusion].
 
-- d_delete() calls dentry_iput() after releasing the per dentry lock. This
-  can race with __d_lookup and lead to situation where we can make dentry 
-  negative with ref count > 1. The following patch makes dentry_iput() to hold
-  per dentry lock till d_inode is NULL and dentry has been removed from 
-  d_alias list.
-
-
- fs/dcache.c |   12 ++++++------
- 1 files changed, 6 insertions(+), 6 deletions(-)
-
-diff -puN fs/dcache.c~d_delete-d_lookup-race-fix fs/dcache.c
---- linux-2.6.0-test4-mm6/fs/dcache.c~d_delete-d_lookup-race-fix	2003-09-05 16:16:56.000000000 +0530
-+++ linux-2.6.0-test4-mm6-maneesh/fs/dcache.c	2003-09-05 16:50:49.000000000 +0530
-@@ -82,7 +82,7 @@ static void d_free(struct dentry *dentry
- /*
-  * Release the dentry's inode, using the filesystem
-  * d_iput() operation if defined.
-- * Called with dcache_lock held, drops it.
-+ * Called with dcache_lock and per dentry lock held, drops both.
-  */
- static inline void dentry_iput(struct dentry * dentry)
- {
-@@ -90,13 +90,16 @@ static inline void dentry_iput(struct de
- 	if (inode) {
- 		dentry->d_inode = NULL;
- 		list_del_init(&dentry->d_alias);
-+		spin_unlock(&dentry->d_lock);
- 		spin_unlock(&dcache_lock);
- 		if (dentry->d_op && dentry->d_op->d_iput)
- 			dentry->d_op->d_iput(dentry, inode);
- 		else
- 			iput(inode);
--	} else
-+	} else {
-+		spin_unlock(&dentry->d_lock);
- 		spin_unlock(&dcache_lock);
-+	}
- }
- 
- /* 
-@@ -177,9 +180,8 @@ kill_it: {
-   			dentry_stat.nr_unused--;
-   		}
-   		list_del(&dentry->d_child);
-- 		spin_unlock(&dentry->d_lock);
- 		dentry_stat.nr_dentry--;	/* For d_free, below */
--		/* drops the lock, at that point nobody can reach this dentry */
-+		/*drops the locks, at that point nobody can reach this dentry */
- 		dentry_iput(dentry);
- 		parent = dentry->d_parent;
- 		d_free(dentry);
-@@ -341,7 +343,6 @@ static inline void prune_one_dentry(stru
- 
- 	__d_drop(dentry);
- 	list_del(&dentry->d_child);
-- 	spin_unlock(&dentry->d_lock);
- 	dentry_stat.nr_dentry--;	/* For d_free, below */
- 	dentry_iput(dentry);
- 	parent = dentry->d_parent;
-@@ -1116,7 +1117,6 @@ void d_delete(struct dentry * dentry)
- 	spin_lock(&dcache_lock);
- 	spin_lock(&dentry->d_lock);
- 	if (atomic_read(&dentry->d_count) == 1) {
--		spin_unlock(&dentry->d_lock);
- 		dentry_iput(dentry);
- 		return;
- 	}
-
-_
+								Pavel
 -- 
-Maneesh Soni
-Linux Technology Center, 
-IBM Software Lab, Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-5044999 Fax: 91-80-5268553
-T/L : 9243696
+Horseback riding is like software...
+...vgf orggre jura vgf serr.

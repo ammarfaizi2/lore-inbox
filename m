@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261493AbSKBXUg>; Sat, 2 Nov 2002 18:20:36 -0500
+	id <S261531AbSKBXK0>; Sat, 2 Nov 2002 18:10:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261499AbSKBXUg>; Sat, 2 Nov 2002 18:20:36 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:2061 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S261493AbSKBXUg> convert rfc822-to-8bit; Sat, 2 Nov 2002 18:20:36 -0500
-Date: Sun, 3 Nov 2002 00:27:04 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>
-cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Kernel GUI config
-In-Reply-To: <20021102231435.GA2384@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44.0211030020260.13258-100000@serv>
-References: <20021102231435.GA2384@werewolf.able.es>
+	id <S261544AbSKBXKZ>; Sat, 2 Nov 2002 18:10:25 -0500
+Received: from mail.scram.de ([195.226.127.117]:57033 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S261531AbSKBXKZ>;
+	Sat, 2 Nov 2002 18:10:25 -0500
+Date: Sun, 3 Nov 2002 00:10:43 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Greg KH <greg@kroah.com>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] USB Kernel bug in 2.5.45
+In-Reply-To: <20021102204419.GB22607@kroah.com>
+Message-ID: <Pine.LNX.4.44.0211030010060.18761-100000@gfrw1044.bocc.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Greg,
 
-On Sun, 3 Nov 2002, J.A. Magallón wrote:
+> If you disable devfs does it work ok?
 
-> To reduce implementation efforts (and bug chasing), as someone said, you
-> can take all the current parts toolkit-independent (parsers, etc.) from
-> qconf and split them in a library.
+Yes, it does...
 
-$ ll scripts/kconfig/libkconfig.so 
--rwxr-xr-x    1 roman    users       76335 Oct 31 22:36 scripts/kconfig/libkconfig.so
+drivers/usb/core/usb.c: deregistering driver hiddev
+drivers/usb/core/usb.c: deregistering driver hid
 
-It's already done.
+and the module is gone.
 
-bye, Roman
+--jochen
 

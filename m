@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262488AbTEFJXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 05:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTEFJXZ
+	id S262483AbTEFJZx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 05:25:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbTEFJZx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 05:23:25 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:6303 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262488AbTEFJXY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 05:23:24 -0400
-Date: Tue, 6 May 2003 15:08:56 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: Rusty Russell <rusty@au1.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@zip.com.au
-Subject: Re: [PATCH] kmalloc_percpu
-Message-ID: <20030506093856.GA9875@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20030506050744.GA29352@in.ibm.com> <20030506082949.F2A3217DE0@ozlabs.au.ibm.com> <20030506093411.GB29352@in.ibm.com>
+	Tue, 6 May 2003 05:25:53 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:56592 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262483AbTEFJZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 05:25:52 -0400
+Date: Tue, 6 May 2003 10:38:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Thomas Horsten <thomas@horsten.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__ defined (trivial)
+Message-ID: <20030506103823.B27816@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Thomas Horsten <thomas@horsten.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.40.0305061034030.8287-100000@jehova.dsm.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030506093411.GB29352@in.ibm.com>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.40.0305061034030.8287-100000@jehova.dsm.dk>; from thomas@horsten.com on Tue, May 06, 2003 at 11:16:45AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 06, 2003 at 03:04:11PM +0530, Ravikiran G Thirumalai wrote:
-> > Doesn't break with sparce CPU #s, but yes, it is inefficient.
-> > 
+On Tue, May 06, 2003 at 11:16:45AM +0200, Thomas Horsten wrote:
+> Hi,
 > 
-> If you don't reduce NR_CPUS with CONFIG_NR_CPUS, you waste space (32 bit folks
-> won't like it) and if you say change CONFIG_NR_CPUS to 2, 
-> and we have cpuid 4 on a 2 way you break right?  If we have to address these
-> issues at all, why can't we use the simpler kmalloc_percpu patch
-> which  I posted in the morning and avoid so much complexity and arch
-> dependency?  
+> In 2.4.21-rc1 some inline functions are added to asm-i386/byteorder.h.
+> When __STRICT_ANSI__ is defined, __u64 doesn't get defined by
+> asm-i386/types.h, but it is used in one of the new inline functions,
+> __arch__swab64.
+> 
+> This causes files that use __STRICT_ANSI__ and include any file that
+> relies on byteorder.h to give a compile error:
 
-We can have something like that for !CONFIG_NUMA and a NUMA-aware
-allocator with additional dereferencing cost for CONFIG_NUMA.
-Hopefully gains from numa-awareness will more than offset
-dereferencing costs.
+It's very simple, don't include kernel headers from userland..
 
-Thanks
-Dipankar

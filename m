@@ -1,33 +1,28 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSHGVA2>; Wed, 7 Aug 2002 17:00:28 -0400
+	id <S313537AbSHGVEy>; Wed, 7 Aug 2002 17:04:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSHGVA2>; Wed, 7 Aug 2002 17:00:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37339 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S293203AbSHGU7q>;
-	Wed, 7 Aug 2002 16:59:46 -0400
-Date: Wed, 07 Aug 2002 13:50:38 -0700 (PDT)
-Message-Id: <20020807.135038.57454567.davem@redhat.com>
-To: zaitcev@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Buglet in irq compat code in 2.5.30
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020807165443.A3730@devserv.devel.redhat.com>
-References: <20020807165443.A3730@devserv.devel.redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S313477AbSHGVEy>; Wed, 7 Aug 2002 17:04:54 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:14795 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S313537AbSHGVEx>;
+	Wed, 7 Aug 2002 17:04:53 -0400
+Date: Wed, 7 Aug 2002 23:07:14 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Thunder from the hill <thunder@ngforever.de>
+Cc: <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Why 'mrproper'?
+Message-ID: <20020807210714.GA322@win.tue.nl>
+References: <20020807185105.GA268@win.tue.nl> <Pine.LNX.4.44.0208071406271.10270-100000@hawkeye.luckynet.adm>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0208071406271.10270-100000@hawkeye.luckynet.adm>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pete Zaitcev <zaitcev@redhat.com>
-   Date: Wed, 7 Aug 2002 16:54:43 -0400
+On Wed, Aug 07, 2002 at 02:07:09PM -0600, Thunder from the hill wrote:
 
-   The save_flags used to save flags, while local_irq_save saves AND
-   closes interrupts, and local_irq_save_off simply does not exist.
-   I did not see anything on the list, perhaps nobody is bold enough
-   to use 2.5.30?
-   
-These things really will die very soon, probably best not
-to rely on them at all :-)
+> Hmmm... Anyone still have 0.99p14?
+
+See ftp://ftp.win.tue.nl/pub/linux-local/kernel.archive/0.99/linux-0.99.14.tar.gz

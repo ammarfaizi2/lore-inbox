@@ -1,65 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUL1V72@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbUL1WSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbUL1V72 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 16:59:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbUL1V72
+	id S261265AbUL1WSl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 17:18:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbUL1WSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 16:59:28 -0500
-Received: from viper.oldcity.dca.net ([216.158.38.4]:6317 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261235AbUL1V7Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 16:59:25 -0500
-Subject: Re: Real-time rw-locks (Re: [patch] Real-Time Preemption,
-	-RT-2.6.10-rc2-mm3-V0.7.32-15)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
-       Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
-       "K.R. Foley" <kr@cybsft.com>,
-       Fernando Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
-       Amit Shah <amit.shah@codito.com>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Adam Heath <doogie@debian.org>, emann@mrv.com,
-       Gunther Persoons <gunther_persoons@spymac.com>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, Shane Shrybman <shrybman@aei.ca>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-In-Reply-To: <20041227210614.GA11052@nietzsche.lynx.com>
-References: <Pine.OSF.4.05.10412271655270.18818-100000@da410.ifa.au.dk>
-	 <1104165560.20042.108.camel@localhost.localdomain>
-	 <20041227210614.GA11052@nietzsche.lynx.com>
-Content-Type: text/plain
-Date: Tue, 28 Dec 2004 16:59:23 -0500
-Message-Id: <1104271163.20714.44.camel@krustophenia.net>
+	Tue, 28 Dec 2004 17:18:41 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:16561
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261265AbUL1WSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 17:18:39 -0500
+Date: Tue, 28 Dec 2004 14:17:10 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Roland Dreier <roland@topspin.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       openib-general@openib.org
+Subject: Re: [PATCH][v5][0/24] Latest IB patch queue
+Message-Id: <20041228141710.4daebcfb.davem@davemloft.net>
+In-Reply-To: <52pt0unr0i.fsf@topspin.com>
+References: <200412272150.IBRnA4AvjendsF8x@topspin.com>
+	<20041227225417.3ac7a0a6.davem@davemloft.net>
+	<52pt0unr0i.fsf@topspin.com>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-12-27 at 13:06 -0800, Bill Huey wrote:
-> I was just having a discussion about this last night with a friend
-> of mine and I'm going to pose this question to you and others.
-> 
-> Is a real-time enabled kernel still relevant for high performance
-> video even with GPUs being as fast as they are these days ?
->
-> The context that I'm working with is that I was told (been out of
-> gaming for a long time now) that GPus are so fast these days that
-> shortage of frame rate isn't a problem any more. An RTOS would be
-> able to deliver a data/instructions to the GPU under a much tighter
-> time period and could delivery better, more consistent frame rates.
-> 
-> Does this assertion still apply or not ? why ? (for either answer)
+On Tue, 28 Dec 2004 11:48:13 -0800
+Roland Dreier <roland@topspin.com> wrote:
 
-Yes, an RTOS certainly helps.  Otherwise you cannot guarantee a minimum
-frame rate - if a long running disk ISR fires then you are screwed,
-because jsut as with low latency audio you have a SCHED_FIFO userspace
-process that is feeding data to the GPU at a constant rate.  Its a worse
-problem with audio because you absolutely cannot drop a frame or you
-will hear it.  With video it's likely to be imperceptible.
+> Speaking of build failures, one of my test builds is cross-compiling
+> for sparc64 with gcc 3.4.2, which adds __attribute__((warn_unused_result))
+> to copy_to_user() et al.  The -Werror in the arch/sparc64 means the
+> build fails with
 
-Lee
+Thanks, I'll check that out.
 
+I believe that you didn't test the sparc64 build of the infiniband stuff
+because arch/sparc64/Kconfig needs to explicitly include the infiniband
+Kconfig since it does not use drivers/Kconfig.  You didn't send me any
+such changes.
+
+There are a few platforms which also are in this situation.
+I added the sparc64 one to my tree while integrating your changes,
+but the others need to be attended to if you wish infiniband to
+be configurable on them.

@@ -1,57 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267881AbUJOOfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267904AbUJOOlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267881AbUJOOfH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 10:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267903AbUJOOfG
+	id S267904AbUJOOlm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 10:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267936AbUJOOlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 10:35:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:25728 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S267881AbUJOOet
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 10:34:49 -0400
-Date: Fri, 15 Oct 2004 10:34:43 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: OOPS while loading a Linux-2.6.8 module
-Message-ID: <Pine.LNX.4.61.0410151030490.25333@chaos.analogic.com>
+	Fri, 15 Oct 2004 10:41:42 -0400
+Received: from promon2.netbox.cz ([83.240.31.171]:38664 "EHLO brno.promon.cz")
+	by vger.kernel.org with ESMTP id S267904AbUJOOlk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 10:41:40 -0400
+To: linux-kernel@vger.kernel.org
+Subject: promise (105a:3319) unattended boot
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-Mailer: Lotus Notes Release 6.0.3 September 26, 2003
+Message-ID: <OF77D5B4E1.A38CC6EC-ONC1256F2E.004E78A5-C1256F2E.0050B72C@promon.cz>
+From: a.ledvinka@promon.cz
+Date: Fri, 15 Oct 2004 16:41:37 +0200
+X-MIMETrack: Serialize by Router on Brno/Micronic(Release 6.5.2|June 01, 2004) at
+ 15.10.2004 16:41:41,
+	Serialize complete at 15.10.2004 16:41:41
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-If you were to execute `strip` on a Linux-2.6.8 module,
-you can OOPS the kernel. Gotta patch? I'll test immediately.
+Got here http://pciids.sourceforge.net/iii/?i=105a3319
+As http://linux.yyz.us/sata/faq-sata-raid.html#tx4 calls it 
+soft/accelerator raid version
+Going to use latest kernel from /pub/linux/kernel/v2.4/
 
+But bios even with keyboard unplugged requires me to press one of 2 keys 
+to either define array OR continue booting in case no array is defined.
 
-HeavyLink: falsely claims to have parameter shmem
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-  printing eip:
-00000000
-*pde = 07469001
-Oops: 0000 [#1]
-SMP 
-Modules linked in: HeavyLink parport_pc lp parport autofs4 rfcomm l2cap bluetooth sunrpc 3c59x e100 mii ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables floppy sg sr_mod microcode dm_mod uhci_hcd ehci_hcd button battery asus_acpi ac ipv6 ext3 jbd ata_piix libata aic7xxx sd_mod scsi_mod
-CPU:    0
-EIP:    0060:[<00000000>]    Not tainted
-EFLAGS: 00010202   (2.6.8) 
-EIP is at 0x0
-eax: 00000000   ebx: c0341da0   ecx: c0341da0   edx: 00000000
-esi: f0a60f80   edi: c0341d84   ebp: c0341d84   esp: de38dfa4
-ds: 007b   es: 007b   ss: 0068
-Process insmod (pid: 25326, threadinfo=de38c000 task=ee9ab730)
-Stack: c0138897 bffffc1a 00000004 0807a018 00000000 00000000 de38c000 c0106e4d
-        0807a018 0000c3e0 0807a008 00000000 00000000 bfffcc08 00000080 0000007b
-        0000007b 00000080 ffffe410 00000073 00000206 bfffcbb0 0000007b 
-Call Trace:
-  [<c0138897>] sys_init_module+0x107/0x220
-  [<c0106e4d>] sysenter_past_esp+0x52/0x71
-Code:  Bad EIP value.
+What would you recommend me to do?
+- stay with ft3xx module from promise  and 10 level RAID array and not use 
+sata_promise?
+- define some array in bios and completely ignore that fact and use 
+sata_promise, bypass bios and define custom linux soft raid arrays?
+- anything else (no bios flashing and no hw hacking)?
 
+AlL.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
+please CC me... but anyway if you forget i will have a look into archive.
 

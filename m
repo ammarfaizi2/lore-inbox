@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290347AbSAXVwm>; Thu, 24 Jan 2002 16:52:42 -0500
+	id <S290356AbSAXVwc>; Thu, 24 Jan 2002 16:52:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290361AbSAXVwd>; Thu, 24 Jan 2002 16:52:33 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:25259 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S290347AbSAXVwV> convert rfc822-to-8bit; Thu, 24 Jan 2002 16:52:21 -0500
-Date: Thu, 24 Jan 2002 22:52:18 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@infcip10.uni-trier.de
-To: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-cc: Daniel Nofftz <nofftz@castor.uni-trier.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] amd athlon cooling on kt266/266a chipset
-In-Reply-To: <Pine.LNX.4.44.0201242206010.1347-100000@grignard.amagerkollegiet.dk>
-Message-ID: <Pine.LNX.4.40.0201242251100.9957-100000@infcip10.uni-trier.de>
+	id <S290361AbSAXVwY>; Thu, 24 Jan 2002 16:52:24 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:43651 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S290356AbSAXVwM>; Thu, 24 Jan 2002 16:52:12 -0500
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200201242152.g0OLq4n08807@eng2.beaverton.ibm.com>
+Subject: O_DIRECT broken in 2.5.3-preX ?
+To: axboe@suse.de (Jens Axboe)
+Date: Thu, 24 Jan 2002 13:52:04 -0800 (PST)
+Cc: andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org (lkml),
+        pbadari@us.ibm.com
+In-Reply-To: <20020115145549.M31878@suse.de> from "Jens Axboe" at Jan 15, 2002 01:55:49 PM PST
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002, Rasmus Bøg Hansen wrote:
-> Somewhere a long way down the "ACPI troubles (Was:[...]" thread someone
-> told me, that the Asus A7V family is broken and implement the power-off
-> funtion in a wrong manner. You have to update ACPI to make it work (but
-> now it works like a charm). You should be able to find the links in the
-> other thread.
+Hi,
 
-ok ... so it looks like it is a known problem and will be fixed by future
-updates to the kernel :)
-one thing less i have to look at :)
+I am reading the O_DIRECT code patch for 2.5.3-pre4. I was wondering
+how is this working in 2.5.X ? Here is my concern:
 
-daniel
+generic_direct_IO() creates a blocks[] list and passes it to
+brw_kiovec() with a single kiobuf.
+	
+	retval = brw_kiovec(rw, 1, &iobuf, inode->i_dev, blocks, blocksize);
+
+But brw_kiovec() uses only b[0] to call ll_rw_bio().
+
+	for (i = 0; i < nr; i++) {
+                iobuf = iovec[i];
+                iobuf->errno = 0;
+
+                ll_rw_kio(rw, iobuf, dev, b[i] * (size >> 9));
+        }
 
 
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
+Note that nr = 1 here. ll_rw_kio() uses b[0] as starting sector
+and does the entire IO (for iobuf->length). This is wrong !!!
+It is doing IO from wrong blocks.  Some one should use other 
+block numbers from blocks[] list. Isn't it ?
 
+What am I missing here ? Please let me know.
+
+Thanks,
+Badari

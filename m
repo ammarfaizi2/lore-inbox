@@ -1,73 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265274AbSJaTFH>; Thu, 31 Oct 2002 14:05:07 -0500
+	id <S265341AbSJaSng>; Thu, 31 Oct 2002 13:43:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265287AbSJaTFH>; Thu, 31 Oct 2002 14:05:07 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:2235 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S265274AbSJaTEq> convert rfc822-to-8bit; Thu, 31 Oct 2002 14:04:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: jt@hpl.hp.com, Jean Tourrilhes <jt@bougret.hpl.hp.com>,
-       Juan Gomez <juang@us.ibm.com>
-Subject: Re: How to get a local IPv4 address from within a kernel module?
-Date: Thu, 31 Oct 2002 13:09:35 -0600
-User-Agent: KMail/1.4.1
-Cc: Josh Myer <jbm@joshisanerd.com>, jbm@blessed.joshisanerd.com,
-       linux-kernel@vger.kernel.org
-References: <OFA4AB1D53.AE6E9560-ON87256C63.006382A4@us.ibm.com> <20021031183009.GB2972@bougret.hpl.hp.com>
-In-Reply-To: <20021031183009.GB2972@bougret.hpl.hp.com>
+	id <S265342AbSJaSnf>; Thu, 31 Oct 2002 13:43:35 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:8204 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265341AbSJaSnd>; Thu, 31 Oct 2002 13:43:33 -0500
+Date: Thu, 31 Oct 2002 10:49:10 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Chris Wedgwood <cw@f00f.org>
+cc: Jeff Garzik <jgarzik@pobox.com>, Dax Kelson <dax@gurulabs.com>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>
+Subject: Re: What's left over.
+In-Reply-To: <20021031181252.GB24027@tapu.f00f.org>
+Message-ID: <Pine.LNX.4.44.0210311040080.1526-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210311309.35451.pollard@admin.navo.hpc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 31 October 2002 12:30 pm, Jean Tourrilhes wrote:
->         Now, there is only one thing that could qualify as "the node
-> IP address", this is the IP address associated with the hostname :
->                 gethostbyname(hostname());
->         IMHO, if you define the interface you are proposing, it should
-> always return the result above, because this is a well defined
-> semantic and it is more useful.
 
-Ummmmm... not quite the right answer - gethostbyname(hostname());
-doesn't even have to return an IP number.
+On Thu, 31 Oct 2002, Chris Wedgwood wrote:
+> 
+> It's synchronous and assume everything is synchronous.  Lots of
+> hardware (most) doesn't work that way.
 
-I have an environment right now that would make that result
-useless. It is equivalent to using the 127.0.0.1 loopback.
+Think of it another way: many users will likely _require_ atomic
+encryption / decryption (done in softirq contexts etc), and thus a 
+synchronous interface. Also, it simplifies the code and makes it more 
+efficient.
 
-We have a cluster where the address assgned to the hostname
-is a nonroutable address, used only for internal communication
-with other nodes in a cluster. The only way to get a "proper"
-internet address is to request DNS for the address. And then
-you might get back 35 addresses (would get 330 if the library
-function would work properly).
+Any hardware that needs to go off and think about how to encrypt something
+sounds like it's so slow as to be unusable. I suspect that anything that
+is over the PCI bus is already so slow (even if it adds no extra cycles of
+its own) that you're better off using the CPU for the encryption rather
+than some external hardware.
 
-It is also possible that NONE of the interfaces are assigned the
-same name as the local host name. One of our environments
-identifies a node by a frame/node construct. Addressing is
-totally independant.
+In short, from what I can tell, there is no huge actual reason to ever
+allow a asynchronous interface. Such interfaces are likely fine for things
+like network cards that can do encryption on their own on outgoing or
+incoming packets, but that is not a general-purpose encryption engine, and
+would not merit being part of an encryption library anyway.
 
-This association is only a convention, and is not something
-mandatory.
+[ Such a card is just a way to _avoid_ using the encryption library - the
+  same way we can avoid using the checksumming stuff for network cards 
+  that can do their own checksums ]
 
-Even at home, my systems have two or three addreses.
+We'll see. I'd rather have a simpler interface that works for all relevant
+cases today, and then if external crypto chips end up being common and
+sufficiently efficient, we can always re-consider. Are the DMA-over-PCI
+roundtrip (and resulting cache invalidations) overheads really worth the
+extra hardware?
 
-<external IP> applied to the firewall for external use
-192.168.1.x for a small wireless network
-192.168.0.x for the internal network
-<external IP> for a dummy network device to make Kerberos work
-192.168.2.x for a cluster network (some experimental systems).
+		Linus
 
-The firewall has the first three, my workstation has the third and
-fourth, and my toy cluster has the third and last.
-
-There is no "node" IP number. Especially if you have more
-than one network device.
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

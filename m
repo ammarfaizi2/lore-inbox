@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279998AbRK1TBi>; Wed, 28 Nov 2001 14:01:38 -0500
+	id <S280059AbRK1TNS>; Wed, 28 Nov 2001 14:13:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280035AbRK1TBb>; Wed, 28 Nov 2001 14:01:31 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:31181 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S280027AbRK1TBQ>; Wed, 28 Nov 2001 14:01:16 -0500
-Subject: [ANNOUNCEMENT]  Journaled File System (JFS)  release 1.0.10
-To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
-Message-ID: <OFB0BF2ECD.D74BD3BE-ON85256B12.00684829@raleigh.ibm.com>
-From: "Steve Best" <sbest@us.ibm.com>
-Date: Wed, 28 Nov 2001 13:01:07 -0600
-X-MIMETrack: Serialize by Router on D04NM201/04/M/IBM(Release 5.0.8 |June 18, 2001) at
- 11/28/2001 02:01:09 PM
+	id <S280037AbRK1TNJ>; Wed, 28 Nov 2001 14:13:09 -0500
+Received: from mail.science.uva.nl ([146.50.4.51]:31168 "EHLO
+	mail.science.uva.nl") by vger.kernel.org with ESMTP
+	id <S280059AbRK1TMu>; Wed, 28 Nov 2001 14:12:50 -0500
+X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
+X-URL: http://www.science.uva.nl/
+Date: Wed, 28 Nov 2001 20:11:59 +0100 (MET)
+From: Kamil Iskra <kamil@science.uva.nl>
+To: Andrew Morton <akpm@zip.com.au>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Problems with APM suspend and ext3
+In-Reply-To: <3C03CEFB.780622F1@zip.com.au>
+Message-ID: <Pine.SOL.4.30.0111282007440.26732-100000@carol.wins.uva.nl>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Release 1.0.10 of JFS was made available today.
+On Tue, 27 Nov 2001, Andrew Morton wrote:
 
-Drop 48 on November 28, 2001 (jfs-2.4-1.0.10-patch.tar.gz
-and jfsutils-1.0.10.tar.gz) includes fixes to the file system
-and utilities.
+> I don't understand what can be causing the behaviour which you
+> report.  Presumably, some application is generating disk writes,
+> and kjournald is thus performing disk IO every five seconds.
 
-Function and Fixes in release 1.0.10
+The only such "application" could be syslogd or apmd.  There is virtually
+nothing more running in single user mode.
 
-- fsck shouldn't endian swap dtree struct twice
-- Christoph Hellwig: put inodes later on hash queues
-- Fix boundary case in xtTruncate
-- When invalidating metadata, try to flush the dirty buffers
-  rather than sync them.
-- Add another sanity check to avoid trapping when imap is corrupt
-- Fix file truncate while removing large file (assert(cmp == 0))
-- read_cache_page returns ERR_PTR, not NULL on error
-- Add dtSearchNode and dtRelocate
-- Christoph Hellwig: JFS needs to use generic_file_open &
-  generic_file_llseek
-- Remove lazyQwait, etc. It created an unnecessary bottleneck in TxBegin.
+> If possible, could you please edit fs/jbd/journal.c and change
+>
+>       journal->j_commit_interval = (HZ * 5);
+> to
+>       journal->j_commit_interval = (HZ * 30);
 
-For more details about JFS, please see the README or changelog.jfs.
+Just tried it.  Unfortunately, it didn't improve anything.  Consistent
+failure what doing "apm -s".  I tried some 15 times or so in single user
+mode.
 
-Steve
-JFS for Linux http://oss.software.ibm.com/jfs
+Should you, or anybody else, have further suggestions, I'll be happy to
+try them out.
+
+-- 
+Kamil Iskra                 http://www.science.uva.nl/~kamil/
+Section Computational Science, Faculty of Science, Universiteit van Amsterdam
+kamil@science.uva.nl  tel. +31 20 525 75 35  fax. +31 20 525 74 90
+Kruislaan 403  room F.202  1098 SJ Amsterdam  The Netherlands
 

@@ -1,185 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288803AbSAEMx3>; Sat, 5 Jan 2002 07:53:29 -0500
+	id <S288804AbSAEM7u>; Sat, 5 Jan 2002 07:59:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288804AbSAEMxV>; Sat, 5 Jan 2002 07:53:21 -0500
-Received: from ns1.yggdrasil.com ([209.249.10.20]:22249 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S288803AbSAEMxM>; Sat, 5 Jan 2002 07:53:12 -0500
-Date: Sat, 5 Jan 2002 04:53:11 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: braam@clusterfs.com, linux-kernel@vger.kernel.org
-Subject: Patch: linux-2.5.2-pre8/fs/intermezzo kdev_t compilation fixes
-Message-ID: <20020105045311.A24785@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="3MwIy2ne0vdjdPXF"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S288805AbSAEM7l>; Sat, 5 Jan 2002 07:59:41 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:42508 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S288804AbSAEM7W>; Sat, 5 Jan 2002 07:59:22 -0500
+Date: Sat, 5 Jan 2002 04:59:23 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: Andreas Hartmann <andihartmann@freenet.de>
+cc: Stephan von Krawczynski <skraw@ithnet.com>, <brownfld@irridia.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <3C36BBAA.1010609@athlon.maya.org>
+Message-ID: <Pine.LNX.4.33.0201050355300.11089-100000@shell1.aracnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 5 Jan 2002, Andreas Hartmann wrote:
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> I don't like special test-programs. They seldom show up the reality.
+> What we need is a kernel that behaves fine in reality - not in
+> testcases.  And before starting the test, take care, that most of ram
+> is already used for cache or buffers or applications.
 
-	The following patch enables linux-2.5.2-pre8/fs/intermezzo
-to compile, adjusting it to the new kdev_t scheme.  I have not
-tested it.  I only know that it compiles.
+OK, here's some pseduo-code for a real-world test case. I haven't had a
+chance to code it up, but I'm guessing I know what it's going to do. I'd
+*love* to be proved wrong :).
 
-	In the long term, the Intermezzo team may want to look into
-whether kdev_t will reliably not use the most significant bit of
-an int (the sign bit), which seems to be the assumption in some of
-the error handling code.  I don't think that problem is imminent,
-however, as I think the currently planned kdev_t expansion is only
-to twenty bits.
+# build and boot a kernel with "Magic SysRq" turned on
+# echo  1 > /proc/sys/kernel/sysrq
+# fire up "nice --19 top" as "root"
+# read "MemTotal" from /proc/meminfo
+
+# now start the next two jobs concurrently
+
+# write a disk file with "MemTotal" data or more in it
+
+# perform a 2D in-place FFT of total size at least "MemTotal/2" but less
+# than "MemTotal"
+
+Watch the "top" window like a hawk. "Cached" will grow because of the
+disk write and "free" will drop because the page cache is growing and
+the 2D FFT is using *its* memory. Eventually the two will start
+competing for the last bits of free memory. "kswapd" and "kupdated" will
+start working furiously, bringing the system CPU utilization to 99+
+percent.  At this point the system will appear highly unresponsive.
+
+Even with the "nice --19" setting, "top" is going to have a hard time
+keeping its five-second screen updates going. You will quite possibly
+end up going to the console and doing alt-sysrq-m, which dumps the
+memory status on the console and into /var/log/messages. Then if you do
+alt-sysrq-i, which kills everything but "init", you should be able to
+log on again.
+
+I'm going to try this on my 512 MB machine just to see what happens, but
+I'd like to see what someone with a larger machine, say 4 GB, gets when
+they do this. I think attempting to write a large file and do a 2D FFT
+concurrently is a perfectly reasonable thing to expect an image
+processing system to do in the real world. A "traditional" UNIX would do
+the I/O of the file write and the compute/memory processing of the FFT
+together with little or no problem. But because the 2.4 kernel insists
+on keeping all those buffers around, the 2D FFT is going to have
+difficulty, because it has to have its data in core.
+
+What's worse is if the page cache gets so big that the FFT has to start
+swapping. For those who aren't familiar with 2D FFTs, they take two
+passes over the data. The first pass will be unit strides -- sequential
+addresses. But the second pass will be large strides -- a power of two.
+That second pass is going to be brutal if every page it hits has to be
+swapped in!
+
+The solution is to limit page cache size to, say, 1/4 of "MemTotal",
+which I'm guessing will have a *negligible* impact on the performance of
+the file write. I used to work in an image processing lab, which is
+where I learned this little trick for bringing a VM to its knees, and
+which is probably where the designers of other UNIX systems learned that
+the memory used for buffering I/O needs to be limited :). There's
+probably a VAX or two out there still that shudders when it remembers
+what I did to it. :))
 
 -- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+M. Edward Borasky
 
---3MwIy2ne0vdjdPXF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="intermezzo.diffs"
+znmeb@borasky-research.net
+http://www.borasky-research.net
 
-Only in linux/fs/intermezzo: CVS
-diff -u -r linux-2.5.2-pre8/fs/intermezzo/cache.c linux/fs/intermezzo/cache.c
---- linux-2.5.2-pre8/fs/intermezzo/cache.c	Sun Nov 11 10:20:21 2001
-+++ linux/fs/intermezzo/cache.c	Sat Jan  5 04:49:07 2002
-@@ -46,7 +46,7 @@
- 
- static inline int presto_cache_hash(kdev_t dev)
- {
--        return (CACHES_MASK) & ((0x000F & (dev)) + ((0x0F00 & (dev)) >>8));
-+	return (CACHES_MASK) & ((0x000F & minor(dev)) + (0x000F & major(dev)));
- }
- 
- inline void presto_cache_add(struct presto_cache *cache, kdev_t dev)
-@@ -73,7 +73,7 @@
-         lh = tmp = &(presto_caches[presto_cache_hash(dev)]);
-         while ( (tmp = lh->next) != lh ) {
-                 cache = list_entry(tmp, struct presto_cache, cache_chain);
--                if ( cache->cache_dev == dev ) {
-+                if ( kdev_same(cache->cache_dev, dev) ) {
-                         return cache;
-                 }
-         }
-@@ -89,8 +89,8 @@
-         /* find the correct presto_cache here, based on the device */
-         cache = presto_find_cache(inode->i_dev);
-         if ( !cache ) {
--                printk("WARNING: no presto cache for dev %x, ino %ld\n",
--                       inode->i_dev, inode->i_ino);
-+                printk("WARNING: no presto cache for dev %x:%x, ino %ld\n",
-+                       major(inode->i_dev), minor(inode->i_dev), inode->i_ino);
-                 EXIT;
-                 return NULL;
-         }
-@@ -174,7 +174,7 @@
-         cache = presto_get_cache(inode);
-         if ( !cache )
-                 return 0;
--        return (inode->i_dev == cache->cache_dev);
-+        return kdev_same(inode->i_dev, cache->cache_dev);
- }
- 
- /* setup a cache structure when we need one */
-diff -u -r linux-2.5.2-pre8/fs/intermezzo/psdev.c linux/fs/intermezzo/psdev.c
---- linux-2.5.2-pre8/fs/intermezzo/psdev.c	Fri Jan  4 19:40:37 2002
-+++ linux/fs/intermezzo/psdev.c	Sat Jan  5 04:49:07 2002
-@@ -290,7 +290,7 @@
-                 }
- 
-                 len = readmount.io_len;
--                minor = MINOR(dev);
-+                minor = minor(dev);
-                 PRESTO_ALLOC(tmp, char *, len);
-                 if (!tmp) {
-                         EXIT;
-@@ -627,7 +627,7 @@
-                         EXIT;
-                         return error;
-                 }
--                minor = MINOR(dev);
-+                minor = minor(dev);
-                 if (cmd == PRESTO_SETOPT)
-                         error = dosetopt(minor, &kopt);
- 
-diff -u -r linux-2.5.2-pre8/fs/intermezzo/sysctl.c linux/fs/intermezzo/sysctl.c
---- linux-2.5.2-pre8/fs/intermezzo/sysctl.c	Fri Jan  4 19:40:37 2002
-+++ linux/fs/intermezzo/sysctl.c	Sat Jan  5 04:49:07 2002
-@@ -162,14 +162,15 @@
- 		 */
- 		int errorval = upc_comms[minor].uc_errorval;
- 		if (errorval < 0) {
-+			kdev_t dev = to_kdev_t(-errorval);
- 			if (newval == 0)
--				set_device_ro(-errorval, 0);
-+				set_device_ro(dev, 0);
- 			else
- 				printk("device %s already read only\n",
--				       kdevname(-errorval));
-+				       kdevname(dev));
- 		} else {
- 			if (newval < 0)
--				set_device_ro(-newval, 1);
-+				set_device_ro(to_kdev_t(-newval), 1);
- 			upc_comms[minor].uc_errorval = newval;
- 			CDEBUG(D_PSDEV, "setting errorval to %d\n", newval);
- 		}
-@@ -224,9 +225,10 @@
- #ifdef PSDEV_DEBUG
- 	case PSDEV_ERRORVAL: {
- 		int errorval = upc_comms[minor].uc_errorval;
--		if (errorval < 0 && is_read_only(-errorval))
-+		kdev_t dev = to_kdev_t(-errorval);
-+		if (errorval < 0 && is_read_only(dev))
- 			printk(KERN_INFO "device %s has been set read-only\n",
--			       kdevname(-errorval));
-+			       kdevname(dev));
- 		opt->optval = upc_comms[minor].uc_errorval;
- 		break;
- 	}
-diff -u -r linux-2.5.2-pre8/fs/intermezzo/vfs.c linux/fs/intermezzo/vfs.c
---- linux-2.5.2-pre8/fs/intermezzo/vfs.c	Tue Nov 13 09:20:56 2001
-+++ linux/fs/intermezzo/vfs.c	Sat Jan  5 04:49:07 2002
-@@ -136,7 +136,7 @@
-         if (errorval && errorval == (long)value && !is_read_only(dev)) {
-                 CDEBUG(D_SUPER, "setting device %s read only\n", kdevname(dev));
-                 BLKDEV_FAIL(dev, 1);
--                upc_comms[minor].uc_errorval = -dev;
-+                upc_comms[minor].uc_errorval = -kdev_t_to_nr(dev);
-         }
- }
- #else
-@@ -602,7 +602,7 @@
-                 goto exit_lock;
- 
-         error = -EXDEV;
--        if (dir->d_inode->i_dev != inode->i_dev)
-+        if (!kdev_same(dir->d_inode->i_dev, inode->i_dev))
-                 goto exit_lock;
- 
-         /*
-@@ -1609,7 +1609,7 @@
-         if (error)
-                 return error;
- 
--        if (new_dir->i_dev != old_dir->i_dev)
-+        if (!kdev_same(new_dir->i_dev, old_dir->i_dev))
-                 return -EXDEV;
- 
-         if (!new_dentry->d_inode)
-@@ -1690,7 +1690,7 @@
-         if (error)
-                 return error;
- 
--        if (new_dir->i_dev != old_dir->i_dev)
-+        if (!kdev_same(new_dir->i_dev, old_dir->i_dev))
-                 return -EXDEV;
- 
-         if (!new_dentry->d_inode)
-
---3MwIy2ne0vdjdPXF--

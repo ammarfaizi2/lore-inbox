@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262523AbSJ1NXX>; Mon, 28 Oct 2002 08:23:23 -0500
+	id <S262497AbSJ1NUT>; Mon, 28 Oct 2002 08:20:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262597AbSJ1NXX>; Mon, 28 Oct 2002 08:23:23 -0500
-Received: from p043.as-l031.contactel.cz ([212.65.234.235]:10880 "EHLO
-	ppc.vc.cvut.cz") by vger.kernel.org with ESMTP id <S262523AbSJ1NXW>;
-	Mon, 28 Oct 2002 08:23:22 -0500
-Date: Mon, 28 Oct 2002 14:27:52 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: "Zephaniah E. Hull" <warp@mercury.d2dc.net>
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Problem with mousedev.c
-Message-ID: <20021028132752.GB1253@ppc.vc.cvut.cz>
-References: <20021027010538.GA1690@babylon.d2dc.net>
-Mime-Version: 1.0
+	id <S262523AbSJ1NUT>; Mon, 28 Oct 2002 08:20:19 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:60176 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S262497AbSJ1NUS>; Mon, 28 Oct 2002 08:20:18 -0500
+From: Nikita Danilov <Nikita@Namesys.COM>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021027010538.GA1690@babylon.d2dc.net>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15805.15113.459553.881857@laputa.namesys.com>
+Date: Mon, 28 Oct 2002 16:26:33 +0300
+X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
+X-PGP-Key-ID: CCAAAC92
+X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
+To: Marcus Alanen <marcus@infa.abo.fi>
+Cc: Manfred Spraul <manfred@colorfullife.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH,RFC] faster kmalloc lookup
+In-Reply-To: <200210281318.PAA19085@infa.abo.fi>
+References: <3DBBEA2F.6000404@colorfullife.com>
+	<3DBAEB64.1090109@colorfullife.com>
+	<1035671412.13032.125.camel@irongate.swansea.linux.org.uk>
+	<3DBBBB30.20409@colorfullife.com>
+	<15805.13847.945978.673664@laputa.namesys.com>
+	<200210281318.PAA19085@infa.abo.fi>
+X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
+Microsoft: Where `market lock-in' means throwing away the keys.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 26, 2002 at 09:05:38PM -0400, Zephaniah E. Hull wrote:
-> To make a long story short, mousedev.c does not properly implement the
-> EXPS/2 protocol, specificly dealing with the wheel.
-> 
-> The lower 8 bits of the 4th byte are supposed to be 0x1 or 0xf to
-> indicate movement of the first wheel, and 0x2 or 0xe for the second
-> wheel.
+Marcus Alanen writes:
+ > >Most kmalloc calls get constant size argument (usually
+ > >sizeof(something)). So, if switch() is used in stead of loop (and
+ > >kmalloc made inline), compiler would be able to optimize away
+ > >cache_sizes[] selection completely. Attached (ugly) patch does this.
+ > 
+ > Perhaps a compile-time test to check if the argument is
+ > a constant, and only in that case call your new kmalloc, otherwise
+ > a non-inline kmalloc call? With your current patch, a non-constant
+ > size argument to kmalloc means that the function is inlined anyway,
+ > leading to unnecessary bloat in the resulting image.
 
-Hi,
-  I was talking about this problem with Vojtech some months ago,
-and unfortunately we were not able to find correct way to implement it:
-there are mouses (probably majority) which have only one wheel, and
-which reports fast wheel movement as 2,3,4... or 0xe,0xd,.... Protocol
-is documented this way on Microsoft web pages.
+Yes, exactly.
 
-  Then there is another group of mices (mine A4Tech with two wheels
-being one of them) which reports vertical wheel always as 1/0xF, and
-horizontal as 2/0xE (and if you move both, they reports once horizontal
-and once vertical wheel).
+ > 
+ > Marcus
+ > 
 
-  Unfortunately we were not able to find how to detect these mouses in
-advance, and when I asked A4Tech, I got back answer that I should use
-their mouse driver, and not one delivered by Microsoft (although Linux
-was every third word in question). From this answer I conclude that
-there is no way to autodetect it, and it has to be specified by some
-options passed to mouse driver.
-
-					Petr Vandrovec
-					vandrove@vc.cvut.cz
-
+Nikita.

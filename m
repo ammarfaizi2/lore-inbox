@@ -1,89 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283012AbSAHJy3>; Tue, 8 Jan 2002 04:54:29 -0500
+	id <S284138AbSAHKBJ>; Tue, 8 Jan 2002 05:01:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282861AbSAHJyU>; Tue, 8 Jan 2002 04:54:20 -0500
-Received: from smtp2.libero.it ([193.70.192.52]:6554 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id <S282482AbSAHJyF>;
-	Tue, 8 Jan 2002 04:54:05 -0500
-Message-ID: <3C3AC150.BE4FFAFE@alsa-project.org>
-Date: Tue, 08 Jan 2002 10:52:16 +0100
-From: Abramo Bagnara <abramo@alsa-project.org>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.17 i586)
-X-Accept-Language: en, it
+	id <S283783AbSAHKA7>; Tue, 8 Jan 2002 05:00:59 -0500
+Received: from tmhoyle.gotadsl.co.uk ([195.149.46.162]:8 "EHLO mail.cvsnt.org")
+	by vger.kernel.org with ESMTP id <S283340AbSAHKAt>;
+	Tue, 8 Jan 2002 05:00:49 -0500
+Mailbox-Line: From tmh@nothing-on.tv  Tue Jan  8 10:00:45 2002
+Message-ID: <3C3AC361.20302@nothing-on.tv>
+Date: Tue, 08 Jan 2002 10:01:05 +0000
+From: Tony Hoyle <tmh@nothing-on.tv>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020105
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>, Jaroslav Kysela <perex@suse.cz>
-Cc: "J.A. Magallon" <jamagallon@able.es>, Alan Cox <alan@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christoph Hellwig <hch@ns.caldera.de>, sound-hackers@zabbo.net,
-        linux-sound@vger.rutgers.edu, linux-kernel@vger.kernel.org
-Subject: Re: [s-h] Re: ALSA patch for 2.5.2pre9 kernel
-In-Reply-To: <20020108102833.A2927@werewolf.able.es> <20020108103046.A3545@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii
+To: Anthony DeRobertis <asd@suespammers.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_HIMEM instability?
+In-Reply-To: <A44AD072-0364-11D6-BB09-00039355CFA6@suespammers.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" wrote:
+Anthony DeRobertis wrote:
+
+>> Unfortunately memtest86 is incompatible with this mobo, but the memory 
+>> checks out on another machine I tried it on, so I expect it's OK.
 > 
-> On 20020108 Linus Torvalds wrote:
-> >
-> >On Mon, 7 Jan 2002, Alan Cox wrote:
-> >> > Would't it be better to split drivers:
-> >> >
-> >> > sound/core.c
-> >> > sound/alsa/alsa-core.c
-> >> > sound/alsa/drivers/alsa-emu10k.c
-> >> > sound/oss/oss-core.c
-> >> > sound/oss/drivers/oss-emu10k.c
-> >>
-> >> Thats much harder to do randomg greps on and to find stuff,than drivers
-> >> first
-> >
-> >I agree. Put drivers separately, let's not split it up more than that.
-> >
-> 
-> What would you do with drivers with the same name (source code file)
-> in alsa and oss ?
-> Sound is special because you have two implementations of the same subsystem
-> living together. And eventually in a (near?) future, the oss subtree
-> will be killed and the alsa one would go up one level, just as is. Much
-> cleaner. And you will end with
-> 
-> sound/alsa-core.c
-> sound/drivers/alsa-driver.c
 
-I think it's better to face this big change once and to move the OSS
-stuff now in its definitive place (where it might be removed in future).
 
-So we'd have:
-sound/
-sound/oss_native
-sound/oss_emul
-sound/synth
-sound/include
-drivers/sound/i2c
-drivers/sound/isa
-drivers/sound/pci
-drivers/sound/ppc
+I've had no other instablility problems, and downgrading gkrellm to the 
+previous version seems to have stopped it dying.  Mozilla started being 
+very unstable at the same time..  it could just be a coincidence that 
+they all happened at the same time.
 
-I still have some doubts about hardware specific include files:
-a) sound/include
-b) drivers/sound/{i2c,isa,pci,ppc}
-c) drivers/sound/include
 
-Currently my vote would go for b), but I see drawbacks for this solution
-(for generic chip include files, like ac97 or ak4531 ones). Perhaps it's
-better to have a mixed solution (partly b) and partly c)
+> I've had DIMMs not get along. So have other people. This little tester 
+> seems to find that fairly well, stunningly --- even when Memtest86 can't 
+> find them at all. It found mine in about 30min (512mb box); another 
+> persons in an hour or two.
 
-Will this solution be able to satisfy everybody? ;-)
 
--- 
-Abramo Bagnara                       mailto:abramo@alsa-project.org
+I'll run it & see if anything fails.
 
-Opera Unica                          Phone: +39.546.656023
-Via Emilia Interna, 140
-48014 Castel Bolognese (RA) - Italy
+ 
+> PS: You did report the failure to the memtest86 people, right?
 
-ALSA project               http://www.alsa-project.org
-It sounds good!
+
+Their website says not to report bugs unless you're prepared to do a 
+fair bit of debugging yourself.  It also says individual problems won't 
+normally be dealt with...  I took the hint and didn't bother.
+
+Tony
+
+
+
+
+

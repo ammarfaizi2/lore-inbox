@@ -1,54 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310806AbSC2CBP>; Thu, 28 Mar 2002 21:01:15 -0500
+	id <S313149AbSC2CH4>; Thu, 28 Mar 2002 21:07:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311915AbSC2CBF>; Thu, 28 Mar 2002 21:01:05 -0500
-Received: from roc-24-95-199-137.rochester.rr.com ([24.95.199.137]:51191 "EHLO
-	filestore.kroptech.com") by vger.kernel.org with ESMTP
-	id <S310806AbSC2CBC>; Thu, 28 Mar 2002 21:01:02 -0500
-Message-ID: <00a601c1d6c5$93620320$02c8a8c0@kroptech.com>
-From: "Adam Kropelin" <akropel1@rochester.rr.com>
-To: "Dave Jones" <davej@suse.de>, "Bob Miller" <rem@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200203281216.32590@xsebbi.de> <00c801c1d655$d8e75cd0$02c8a8c0@kroptech.com> <20020328095352.A6291@doc.pdx.osdl.net> <20020328200331.B5064@suse.de>
-Subject: Re: [2.5.7-dj2] Compile Error
-Date: Thu, 28 Mar 2002 21:01:01 -0500
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-X-OriginalArrivalTime: 29 Mar 2002 02:01:01.0313 (UTC) FILETIME=[93692F10:01C1D6C5]
+	id <S313146AbSC2CHr>; Thu, 28 Mar 2002 21:07:47 -0500
+Received: from c17736.belrs2.nsw.optusnet.com.au ([211.28.31.90]:33249 "EHLO
+	bozar") by vger.kernel.org with ESMTP id <S313149AbSC2CHd>;
+	Thu, 28 Mar 2002 21:07:33 -0500
+Date: Fri, 29 Mar 2002 13:06:39 +1100
+From: Andre Pang <ozone@algorithm.com.au>
+To: linux-kernel@vger.kernel.org
+Cc: Marc Wilson <msw@cox.net>
+Subject: Re: Screen corruption in 2.4.18
+Mail-Followup-To: linux-kernel@vger.kernel.org, Marc Wilson <msw@cox.net>
+In-Reply-To: <200203192112.WAA09721@jagor.srce.hr> <20020323160647.GA22958@hapablap.dyn.dhs.org> <1016953516.189201.5912.nullmailer@bozar.algorithm.com.au> <200203241507.g2OF7WN26069@ls401.hinet.hr> <1017020598.420771.13343.nullmailer@bozar.algorithm.com.au> <20020325085053.GB1382@moonkingdom.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+Message-Id: <1017367599.231295.13364.nullmailer@bozar.algorithm.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Dave Jones" <davej@suse.de>
-To: "Bob Miller" <rem@osdl.org>
-Cc: "Adam Kropelin" <akropel1@rochester.rr.com>; <linux-kernel@vger.kernel.org>
-Sent: Thursday, March 28, 2002 2:03 PM
-Subject: Re: [2.5.7-dj2] Compile Error
+On Mon, Mar 25, 2002 at 12:50:53AM -0800, Marc Wilson wrote:
 
-
-> On Thu, Mar 28, 2002 at 09:53:52AM -0800, Bob Miller wrote:
->  > So if you build with CONFIG_BSD_PROCESS_ACCT not set you're build will
->  > break.  I'm in the process of generating a patch that will make acct.c
->  > again conditionally compile based on CONFIG_BSD_PROCESS_ACCT.  This
->  > should be done in a little bit and I'll post.
->  > 
->  > Dave, where did you get the patch for acct.c?
+> On Mon, Mar 25, 2002 at 12:43:18PM +1100, Andre Pang wrote:
+> > Can somebody with a KT133/KT133A do a "lspci -n" and grep for
+> > '8305'?  If it doesn't appear, I'll send off my patch.
 > 
-> Al Viro's 0-aliases-c-C7-pre2
-> It looks like killing the first occurance of acct.o in kernel/Makefile
-> should do the trick. Let me know if that works out.
+> Sorry to disappoint you:
+> 
+> $ sudo lspci -n | grep 8305
+> 00:01.0 Class 0604: 1106:8305
+> 
+> It's an Abit KT7A-RAID, which is a KT133A.
+> 
+> Having said that, I've been seeing odd video artifacts in xawtv windows
+> since the patch was expanded from merely clearing bit 7. :)
 
-Works For Me (tm).
-
-(but see my other message for an oops report)
-
---Adam
+What kind of video card do you have?
 
 
+-- 
+#ozone/algorithm <ozone@algorithm.com.au>          - trust.in.love.to.save

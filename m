@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287261AbRL2X6I>; Sat, 29 Dec 2001 18:58:08 -0500
+	id <S287271AbRL2X7s>; Sat, 29 Dec 2001 18:59:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287269AbRL2X56>; Sat, 29 Dec 2001 18:57:58 -0500
-Received: from net090s.hetnet.nl ([194.151.104.183]:35077 "EHLO hetnet.nl")
-	by vger.kernel.org with ESMTP id <S287267AbRL2X5q>;
-	Sat, 29 Dec 2001 18:57:46 -0500
-Message-Id: <5.1.0.14.2.20011230004059.00a2ac90@pop.hetnet.nl>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 30 Dec 2001 00:56:25 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Henk de Groot <henk.de.groot@hetnet.nl>
-Subject: Re: AX25/socket kernel PATCHes
-Cc: linux-hams@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <E16KNor-00059i-00@the-village.bc.nu>
-In-Reply-To: <5.1.0.14.2.20011229174504.00a291b0@pop.hetnet.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S287285AbRL2X7a>; Sat, 29 Dec 2001 18:59:30 -0500
+Received: from waste.org ([209.173.204.2]:27864 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S287275AbRL2X7S>;
+	Sat, 29 Dec 2001 18:59:18 -0500
+Date: Sat, 29 Dec 2001 17:59:15 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: The direction linux is taking
+In-Reply-To: <20011229153518.B21760@work.bitmover.com>
+Message-ID: <Pine.LNX.4.43.0112291739140.18183-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+On Sat, 29 Dec 2001, Larry McVoy wrote:
 
-At 18:02 29-12-01 +0000, Alan Cox wrote:
->If you change
+> On Sat, Dec 29, 2001 at 05:29:52PM -0600, Oliver Xymoron wrote:
+> > > Is it really true that there are any significant number of patches
+> > > submitted that don't even compile?
+> >
+> > No
 >
->                        if (skb2->nh.raw < skb2->data || skb2->nh.raw >= skb2->...
->                                if (net_ratelimit())
->
->So that it checks
->                        < skb2->data || nh.raw > ..
->
->Let me know if that fixes it. It shouldn't but it would be good to know if
+> OK, so there are no significant numbers of patches that the patchbot will
+> eliminate, by your admission.
 
-I thought I understood but I'm not so sure anymore. I applied the following patch to dev.c:
+Except for the ones that get garbage collected after each new kernel
+release WHEN THE VALIDITY OF THE QUEUE IS RECHECKED. Which will catch all
+the duplicates or conflicts that were queued but not applied. See original
+pseudo-code (which happened to be Python). And filtering by checking for
+apply/compile was only half of the original suggestion.
 
---------------------------------------------------------------------------
---- linux/net/core/dev.c.orig   Sun Dec 30 00:31:43 2001
-+++ linux/net/core/dev.c        Sun Dec 30 00:33:27 2001
-@@ -940,7 +940,7 @@
-                         */
-                        skb2->mac.raw = skb2->data;
- 
--                       if (skb2->nh.raw < skb2->data || skb2->nh.raw > skb2->tail) {
-+                       if (skb2->nh.raw < skb2->data || nh.raw > skb2->tail) {
-                                if (net_ratelimit())
-                                        printk(KERN_DEBUG "protocol %04x is buggy, dev %s\n", skb2->protocol, dev->name);
-                                skb2->nh.raw = skb2->data;
---------------------------------------------------------------------------
+> So what's the point?  What is the problem you have solved?  And where's
+> the code?  This sounds like you have whittled it down to a cgi-script of
+> about 100 lines of perl.  How about building it and demonstrating the
+> usefulness rather than telling us how great it is going to be?
 
-This however gives compilation errors, 'nh' undeclared. So no buggy messages anymore :-)...
+The original suggestion (about the possibility of compile-testing patches
+incrementally) was dependent on kbuild and CML2 being in the kernel
+already, but I do have a proof-of-concept for the rest in the works.
 
-It's easy for me to generate these buggy messages (each raw transmission seems to produce them) so if there is anything I can try out I'll be happy to do it.
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 
-Kind regards,
 
-Henk.
-
-P.S. I'm using a SuSE flavour of the kernel so I have to use the linux-2.4.16.tar.bz2 kernel with SuSE's suse-2.4.16-7.bz2 patches as there are no SuSE addaptations for the 2.4.17 kernel yet (at least last time I checked, i.e. yesterday).
 

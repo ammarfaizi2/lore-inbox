@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbTJADN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 23:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbTJADN0
+	id S261885AbTJADWq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 23:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTJADWq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 23:13:26 -0400
-Received: from fw.osdl.org ([65.172.181.6]:7832 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261881AbTJADNZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 23:13:25 -0400
-Date: Tue, 30 Sep 2003 20:14:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: jun.nakajima@intel.com, davej@redhat.com, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, richard.brunner@amd.com
-Subject: Re: [PATCH] Mutilated form of Andi Kleen's AMD prefetch errata
- patch
-Message-Id: <20030930201418.2a1cdeb4.akpm@osdl.org>
-In-Reply-To: <20031001025128.GD32209@mail.shareable.org>
-References: <7F740D512C7C1046AB53446D3720017304AFCE@scsmsx402.sc.intel.com>
-	<20031001025128.GD32209@mail.shareable.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 30 Sep 2003 23:22:46 -0400
+Received: from stroke.of.genius.brain.org ([206.80.113.1]:17876 "EHLO
+	stroke.of.genius.brain.org") by vger.kernel.org with ESMTP
+	id S261885AbTJADWp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 23:22:45 -0400
+Date: Tue, 30 Sep 2003 23:22:38 -0400
+From: "Murray J. Root" <murrayr@brain.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test6 scheduling(?) oddness
+Message-ID: <20031001032238.GB1416@Master>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier <jamie@shareable.org> wrote:
->
-> Nakajima, Jun wrote:
-> > Oh, I thought you already closed this issue and you were discussing a
-> > different thing.
-> > 
-> > I agree. They kernel should fix up userspace for this CPU errata.
-> 
-> Our question is whether kernels configured specifically for non-AMD
-> (e.g. Winchip or Elan kernels) must have the AMD fixup code (it is a
-> few hundred bytes), refuse to boot on AMD, ignore the problem, or work
-> but not fix up userspace.
+P4 2G
+1G PC2700 RAM
+ASUS P4S533 
 
-Refusing to boot would be best I think.  Fixing it up anyway would be OK
-too.
+Large tasks (like raytrace rendering) take double the amount of time they used
+to take, although the system is nicer to the user while they run. In 
+2.6.0-test5 had a little trouble with it and Piggin pointed me to a patch that
+fixed it and is now in -test6, however the patch didn't slow the rendering as
+much as it does in test6. (Con Koliva's patch, I believe it was).
+For example - rendering an image that took 15 minutes in 2.5.65 takes 20 
+minutes in 2.6.0-test5 (with patch) and 30 minutes in 2.6.0-test6 (raw from
+kernel.org). Same config options (everything I use builtin - no modules).
 
-Ignoring the problem in kernel and/or userspace could be viewed as a
-response to pilot error but as always it would be nice if, given a choice,
-we can help the pilot.
+A new issue (which also doesn't happen in -test5 with the patch):
+When running cpu intense tasks, new (large) tasks will not start till the first
+one finishes.
+For example, using POV-Ray 3.5 to render an image that takes 30 minutes when it
+is the only program running, start oowriter.
+The render finishes in the same 30 minutes, then oowriter starts.
+oowriter takes about 3 seconds to load if no rendering is going on.
+I can use apps that are already open but can't start new ones while rendering.
+In 2.6.0-test5 (with patch) opening oowriter while rendering takes about 1 
+minute.
+In 2.5.65 opening oowriter while rendering takes about 2 minutes (and X gets
+very hard to use till oowriter is completely done opening).
+
+-- 
+Murray J. Root
+

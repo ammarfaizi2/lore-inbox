@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280656AbRKJNqt>; Sat, 10 Nov 2001 08:46:49 -0500
+	id <S280660AbRKJNrj>; Sat, 10 Nov 2001 08:47:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280658AbRKJNqj>; Sat, 10 Nov 2001 08:46:39 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:16768 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S280656AbRKJNqV>;
-	Sat, 10 Nov 2001 08:46:21 -0500
-Date: Sat, 10 Nov 2001 05:44:45 -0800 (PST)
-Message-Id: <20011110.054445.79069608.davem@redhat.com>
-To: anton@samba.org
-Cc: ak@suse.de, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: speed difference between using hard-linked and modular drives?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011110.052917.41199152.davem@redhat.com>
-In-Reply-To: <20011109073946.A19373@wotan.suse.de>
-	<20011110155603.B767@krispykreme>
-	<20011110.052917.41199152.davem@redhat.com>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S280663AbRKJNra>; Sat, 10 Nov 2001 08:47:30 -0500
+Received: from gannet.scg.man.ac.uk ([130.88.94.110]:22536 "EHLO
+	gannet.scg.man.ac.uk") by vger.kernel.org with ESMTP
+	id <S280660AbRKJNrR>; Sat, 10 Nov 2001 08:47:17 -0500
+Date: Sat, 10 Nov 2001 13:44:34 +0000
+From: John Levon <moz@compsoc.man.ac.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Adding KERN_INFO to some printks #2
+Message-ID: <20011110134434.A94031@compsoc.man.ac.uk>
+In-Reply-To: <01110913474600.02130@nemo> <1005321383.1209.8.camel@phantasy> <01110923204702.00807@nemo> <1005342348.808.18.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1005342348.808.18.camel@phantasy>
+User-Agent: Mutt/1.3.19i
+X-Url: http://www.movement.uklinux.net/
+X-Record: Truant - Neither Work Nor Leisure
+X-Toppers: N/A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "David S. Miller" <davem@redhat.com>
-   Date: Sat, 10 Nov 2001 05:29:17 -0800 (PST)
+On Fri, Nov 09, 2001 at 04:45:48PM -0500, Robert Love wrote:
 
-   Anton, are you bored?  :-) If so, could you test out the patch
-   below on your ppc64 box?  It does the "page hash table via bootmem"
-   thing.  It is against 2.4.15-pre2
+> I went over the patch and found a few things...
+> 
+> printk(KERN_INFO "No local APIC present or hardware disabled\n");
+> 
+>  I'd make this a KERN_WARNING.  Consider the case where I compile my own
+> kernel and I add APIC support.  If the driver is failing to find my APIC
+> then either (a) my BIOS is broken or (b) I should remove the driver. 
+> Either way I would want to know.
 
-Erm, ignore this patch, it was incomplete, I'll diff it up
-properly.  Sorry...
+This isn't what's happening - check apic.c. It is re-enabled if possible,
+or a local APIC really doesn't exist. Either way I don't see the point
+in a warning.
 
-Franks a lot,
-David S. Miller
-davem@redhat.com
+regards
+john
+
+-- 
+"I know I believe in nothing but it is my nothing"
+	- Manic Street Preachers

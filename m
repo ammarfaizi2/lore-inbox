@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbUFCNfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261904AbUFCNih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262215AbUFCNfa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Jun 2004 09:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUFCNf3
+	id S261904AbUFCNih (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Jun 2004 09:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbUFCNih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Jun 2004 09:35:29 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60634 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262215AbUFCNfZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Jun 2004 09:35:25 -0400
-Date: Thu, 3 Jun 2004 15:10:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Takao Indoh <indou.takao@soft.fujitsu.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]Diskdump - yet another crash dump function
-Message-ID: <20040603131007.GB3915@openzaurus.ucw.cz>
-References: <1CC443CDA50AF2indou.takao@soft.fujitsu.com>
+	Thu, 3 Jun 2004 09:38:37 -0400
+Received: from mail.tmr.com ([216.238.38.203]:30478 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261904AbUFCNig (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Jun 2004 09:38:36 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: why swap at all?
+Date: Thu, 03 Jun 2004 09:38:56 -0400
+Organization: TMR Associates, Inc
+Message-ID: <c9n9dj$ppd$1@gatekeeper.tmr.com>
+References: <5D3C2276FD64424297729EB733ED1F7606242C53@email1.mitretek.org> <20040527124145.GD22648@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1CC443CDA50AF2indou.takao@soft.fujitsu.com>
-User-Agent: Mutt/1.3.27i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1086269684 26413 192.168.12.100 (3 Jun 2004 13:34:44 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+In-Reply-To: <20040527124145.GD22648@holomorphy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Although I know about LKCD and netdump, I'm developing yet another crash
-> dump, which is a polling-based disk dump as netdump do. Because it
-> disables any interrupts during doing dump, it can avoid lots of problems
-> LKCD has.
+William Lee Irwin III wrote:
+> On Thu, May 27, 2004 at 08:31:26AM -0400, Piszcz, Justin Michael wrote:
 > 
-> Main Feature
-> - Reliability
->    Diskdump disables interrupts, stops other cpus and writes to the 
->    disk with polling mode. Therefore, unnecessary functions(like
->    interrupt handler) don't disturb dumping.
+>>If I have 16GB of ram should I use swap?
+>>Would swap cause the machine to slow down?
+> 
+> 
+> Yes. You want swap so you can physically relocate anonymous pages in the
+> rare case one ends up somewhere it could cause memory pressure against
+> allocations that can only be satisfied by a restricted range of memory.
 
-Hmm... with this, better design of swsusp mifht be feasible.
+It would seem that the o/s has enough information to separate pages into 
+  categories such as 'part of a program,' 'unwritten user write() data,' 
+'user read() data sequential," 'user read data random' (read after seek) 
+and the like. It would be nice if admins could do tuning on how the o/s 
+weights giving these memory. The swappiness tuner is certainly a start, 
+in practice it does help with atypical loads.
 
-				Pavel
+And Nick's latest stuff against 2.6.7-rc1-mm1 certainly seems to work 
+very well on my little 96MB slow box with a few dozen windows open. I 
+would call it the best I've run on this box, ever.
+
+
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
-
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

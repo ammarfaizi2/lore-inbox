@@ -1,64 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290231AbSAOSUH>; Tue, 15 Jan 2002 13:20:07 -0500
+	id <S290232AbSAOSUh>; Tue, 15 Jan 2002 13:20:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290240AbSAOST6>; Tue, 15 Jan 2002 13:19:58 -0500
-Received: from Morgoth.esiway.net ([193.194.16.157]:7180 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S290232AbSAOSTk>; Tue, 15 Jan 2002 13:19:40 -0500
-Date: Tue, 15 Jan 2002 19:19:38 +0100 (CET)
-From: Marco Colombo <marco@esi.it>
-To: Thomas Duffy <Thomas.Duffy.99@alumni.brown.edu>
-cc: Linux Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
- the elegant solution)
-In-Reply-To: <1011114263.1145.13.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.33.0201151910530.11441-100000@Megathlon.ESI>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290222AbSAOSU2>; Tue, 15 Jan 2002 13:20:28 -0500
+Received: from chello212186127068.14.vie.surfer.at ([212.186.127.68]:27043
+	"EHLO server.home.at") by vger.kernel.org with ESMTP
+	id <S290232AbSAOSUO>; Tue, 15 Jan 2002 13:20:14 -0500
+Subject: Re: floating point exception
+From: Christian Thalinger <e9625286@student.tuwien.ac.at>
+To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+        "Richard B. Johnson" <root@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.33.0201151633300.2080-100000@netfinity.realnet.co.sz>
+In-Reply-To: <Pine.LNX.4.33.0201151633300.2080-100000@netfinity.realnet.co.sz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 15 Jan 2002 19:19:13 +0100
+Message-Id: <1011118755.13266.0.camel@sector17.home.at>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jan 2002, Thomas Duffy wrote:
-
-> On Tue, 2002-01-15 at 04:29, Andrew Pimlott wrote:
+On Tue, 2002-01-15 at 15:34, Zwane Mwaikambo wrote:
+> On 14 Jan 2002, Christian Thalinger wrote:
 > 
-> > - Building from source is good karma.
-> > 
-> > You might think these are trifles and < 1% cases.  My intuition
-> > tells me that they add up in the long run.  At least it's worth
-> > considering.
+> > It seems the floating point exception is only raised with a new data
+> > package. Is there a simple way to raise such a exception?
 > 
-> - Someday, a stupid government or court decides that there is a strict
-> separation between source and binary.  Source is protected speech, but
-> binaries are not.  Linux decides it wants a really fast DVD decryption
-> in the kernel, so it adds it in drivers.  But now, distro's cannot
-> compile and distribute a binary kernel package and the end user will
-> need to compile the source code in order to watch their DVD.
+> New data package? And does the same behaviour re-occur after the fpu
+> exception? ie programs start segfaulting etc. Can you try doing a "dmesg"
+> after the segfaults and fpu exception and see if there is anything in the
+> kernel ring buffer too.
 > 
-> Why is it unrealistic for everybody to compile their kernel when they do
-> an install?  If it is rather automated, then it just becomes another
-> step on the progress bar.
-
-Every distro supplies a package with the source used to build their own
-kernel. Just recomplile it. You can do it today. Yes, it takes longer
-than building an autoconfigured kernel, since you're compiling a lot
-of unused stuff. Yet the autoconfigurator belongs to the 'Kernel compiling
-sybsystem' of that distribution. Don't forget that vanilla kernels can
-even be incompatible with the one provided by the distro maker.
-
-Doing it at install time is somewhat unrelated (it's even more distro-
-dependant).
-
-> 
-> -tduffy
+> Regards,
+> 	Zwane Mwaikambo
 > 
 
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
+There are .sah files, in which the data is stored to analyse. So i
+deleted these files and the client downloads a new package -> new data
+package.
+
+Yes, it did happen that the segfault reoccured and there is nothing in
+the dmesg. This was also my first thought, then checked
+/var/log/messages with a tail and it stucked. No ctrl-c.
+
+Tried this:
+
+#define _GNU_SOURCE 1
+#include <fenv.h>
+
+main() {
+    double zero=0.0;
+    double one=1.0;
+    
+    feenableexcept(FE_ALL_EXCEPT);
+    
+    one /=zero;
+}
+
+...but nothing happens.
 

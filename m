@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266647AbUBMAbW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 19:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266658AbUBMAbW
+	id S266632AbUBMAk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 19:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266634AbUBMAk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 19:31:22 -0500
-Received: from mail019.syd.optusnet.com.au ([211.29.132.73]:52150 "EHLO
-	mail019.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266647AbUBMAbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 19:31:21 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	Thu, 12 Feb 2004 19:40:26 -0500
+Received: from CPE-65-28-18-238.kc.rr.com ([65.28.18.238]:52133 "EHLO
+	mail.2thebatcave.com") by vger.kernel.org with ESMTP
+	id S266632AbUBMAkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 19:40:22 -0500
+Message-ID: <52044.192.168.1.12.1076632825.squirrel@mail.2thebatcave.com>
+In-Reply-To: <Pine.LNX.4.58.0402121715310.27694@student.dei.uc.pt>
+References: <46246.192.168.1.12.1076553774.squirrel@mail.2thebatcave.com>    
+    <Pine.LNX.4.58.0402120457250.28596@student.dei.uc.pt>  
+    <50365.192.168.1.12.1076590069.squirrel@mail.2thebatcave.com><50391.192.168.1.12.1076590842.squirrel@mail.2thebatcave.com>
+    <Pine.LNX.4.58.0402121715310.27694@student.dei.uc.pt>
+Date: Thu, 12 Feb 2004 18:40:25 -0600 (CST)
+Subject: Re: /proc/partitions not done updating when init is ran?
+From: "Nick Bartos" <spam99@2thebatcave.com>
+To: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16428.6596.169494.822812@wombat.chubb.wattle.id.au>
-Date: Fri, 13 Feb 2004 11:26:44 +1100
-To: root@chaos.analogic.com
-Cc: wdebruij@dds.nl, sting sting <zstingx@hotmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: printk and long long 
-In-Reply-To: <Pine.LNX.4.53.0402111021160.18798@chaos>
-References: <Sea2-F7mFkwDjKqc3eQ0001c385@hotmail.com>
-	<1076506513.402a2f9120fb8@webmail.dds.nl>
-	<Pine.LNX.4.53.0402111021160.18798@chaos>
-X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Richard" == Richard B Johnson <root@chaos.analogic.com> writes:
+>
+> Well, does it still happen with 2.4.25-rc2 ?
+>
 
-Richard> On Wed, 11 Feb 2004 wdebruij@dds.nl wrote:
->> how about simply using a shift to output two regular longs, i.e.
->> 
->> printk("%ld%ld",loff_t >> (sizeof(long) * 8), loff_t <<
->> sizeof(long) * 8 >> sizeof(long) * 8);
+yes it does, and it does for 2.6.2 as well.
 
-Why bother?  printk already handles 64-bit types just fine.
+I did a couple of dmesg's and it looks like the usb device is not being
+detected until after init is ran.  I would think that the kernel would
+have done all the device detection before running init but I guess not.
 
-Do
-	loff_t x;
-	printk("%lld\n" (long long)x)
+Is there a way to check somewhere to make sure it is done detecting
+devices?  I cannot just check to see if any of the usb/scsi stuff exists
+since some systems may be booting off ide and have no usb bus enabled.
 
-You need the cast, because on 64-bit architectures, loff_t is long not
-long long.
+Here are a few of the lines that get added after I wait for a few seconds
+in my init script:
 
-Peter c
++scsi0 : SCSI emulation for USB Mass Storage devices
++  Vendor: OEI-USB2  Model: CompactFlash      Rev: 1.04
++  Type:   Direct-Access                      ANSI SCSI revision: 02
++Attached scsi removable disk sda at scsi0, channel 0, id 0, lun 0
++SCSI device sda: 250880 512-byte hdwr sectors (128 MB)
++sda: Write Protect is off
++ /dev/scsi/host0/bus0/target0/lun0: p1 p2
++WARNING: USB Mass Storage data integrity not assured
++USB Mass Storage device found at 2
+
+
+

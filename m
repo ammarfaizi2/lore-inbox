@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316210AbSFJUiP>; Mon, 10 Jun 2002 16:38:15 -0400
+	id <S316158AbSFJUeg>; Mon, 10 Jun 2002 16:34:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316167AbSFJUgs>; Mon, 10 Jun 2002 16:36:48 -0400
-Received: from psmtp1.dnsg.net ([193.168.128.41]:31402 "HELO psmtp1.dnsg.net")
-	by vger.kernel.org with SMTP id <S316194AbSFJUgg>;
-	Mon, 10 Jun 2002 16:36:36 -0400
-Subject: 2.5.21 - autofs_wqt_t.
-To: linux-kernel@vger.kernel.org
-Date: Tue, 11 Jun 2002 00:30:51 +0200 (CEST)
-CC: torvalds@transmeta.com
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S316161AbSFJUef>; Mon, 10 Jun 2002 16:34:35 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:50694 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S316158AbSFJUee>; Mon, 10 Jun 2002 16:34:34 -0400
+Subject: Re:  2.5.21: "ata_task_file: unknown command 50"
+From: Miles Lane <miles@megapathdsl.net>
+To: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D04777D.2040705@st-peter.stw.uni-erlangen.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17HXgZ-0000Yy-00@skybase>
-From: Martin Schwidefsky <martin.schwidefsky@debitel.net>
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 10 Jun 2002 13:32:07 -0700
+Message-Id: <1023741128.1793.0.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-06-10 at 02:55, Svetoslav Slavtchev wrote:
+> >raid0_make_request bug: can't convert block across chunks or bigger than 
+> >64k 94712 8
+> >raid0_make_request bug: can't convert block across chunks or bigger than 
+> >64k 1340144 12
+> >raid0_make_request bug: can't convert block across chunks or bigger than 
+> >64k 1342192 20
+> 
+> that's a problem of the raid-0 code
+> it needs a request splitter and/or more bio changes
+> it's here since 2.5.5 AFAIK 
+> are you using raid
+> 
+> i'm useing lvm over soft raid-0 and i can not mount my
+> xfs LV's because of that
 
-Hi,
-s390x needs to be added to the autofs_wqt_t type #if since it is one of
-the architectures that can execute 32- and 64-bit binaries. Because s390
-can live with autofs_wqt_t as int as well we use __s390__ in the #if.
-That leads to the question if the whole #if can be removed. Or is there
-a 32 bit architecture with a bits per int != bits per long ?
+Yeah, I am using software raid0, as well.
 
-blue skies,
-  Martin.
+	Miles
 
-diff -urN linux-2.5.21/include/linux/auto_fs.h linux-2.5.21-s390/include/linux/auto_fs.h
---- linux-2.5.21/include/linux/auto_fs.h	Sun Jun  9 07:26:22 2002
-+++ linux-2.5.21-s390/include/linux/auto_fs.h	Tue Jun  4 09:52:06 2002
-@@ -45,7 +45,8 @@
-  * If so, 32-bit user-space code should be backwards compatible.
-  */
- 
--#if defined(__sparc__) || defined(__mips__) || defined(__x86_64__) || defined(__powerpc__)
-+#if defined(__sparc__) || defined(__mips__) || defined(__x86_64) \
-+ || defined(__powerpc__) || defined(__s390__)
- typedef unsigned int autofs_wqt_t;
- #else
- typedef unsigned long autofs_wqt_t;

@@ -1,67 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266188AbUFULEW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266193AbUFULEd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266188AbUFULEW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 07:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266193AbUFULEV
+	id S266193AbUFULEd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 07:04:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266195AbUFULEb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 07:04:21 -0400
-Received: from gprs187-64.eurotel.cz ([160.218.187.64]:45440 "EHLO
-	midnight.ucw.cz") by vger.kernel.org with ESMTP id S266188AbUFULEA
+	Mon, 21 Jun 2004 07:04:31 -0400
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:55170 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S266194AbUFULEE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 07:04:00 -0400
-Date: Mon, 21 Jun 2004 13:04:35 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Milan Gabor <milan.gabor@utrip.net>
-Cc: Peter Cordes <peter@cordes.ca>, ak@suse.de, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [discuss] x86-64: double timer interrupts in recent 2.4.x
-Message-ID: <20040621110435.GB1721@ucw.cz>
-References: <20040616192826.GD14043@cordes.ca> <40D6BC5F.4070200@utrip.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 21 Jun 2004 07:04:04 -0400
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4.27-rc1 system clock is running two times too fast
+Date: Mon, 21 Jun 2004 12:01:20 +0100
+User-Agent: KMail/1.6
+Cc: zebul666 <zebul666@voila.fr>
+References: <40D6C6DD.40607@voila.fr>
+In-Reply-To: <40D6C6DD.40607@voila.fr>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <40D6BC5F.4070200@utrip.net>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406211201.21040.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 21, 2004 at 12:45:51PM +0200, Milan Gabor wrote:
-> Hi!
-> 
-> I have Suse 9.0 and dual Opteron on MSI K8T Master 2 motherboard.
-> I also get  interrupts only on one cpu and my clock is ticking strange, 
-> so I have to synchronize it with NTP server frequently.
-> 
-> This is from my system:
->            CPU0       CPU1
->   0:      30434   16139843    IO-APIC-edge  timer
->   1:        944          0    IO-APIC-edge  keyboard
->   2:          0          0          XT-PIC  cascade
->  14:         30          1    IO-APIC-edge  ide0
->  16:     657371          0   IO-APIC-level  eth0
->  20:     261267          0   IO-APIC-level  libata
-> NMI:     694146     873271
-> LOC:   16167676   16167576
-> ERR:          1
-> MIS:          0
-> 
-> Linux www 2.4.21-226-smp #1 SMP Tue Jun 15 09:14:10 UTC 2004 x86_64 
-> x86_64 x86_64 GNU/Linux
-> 
-> 
-> I am also running irq_balance and acpi=off set from grub boot menu.
-> Without acpi=off system never boots.
-> 
-> Is there any solution, so clock will work OK and interrupts will be on 
-> both CPUs?
-> 
-> MIlan
+On Monday 21 Jun 2004 12:30, zebul666 wrote:
+> System is running 2 times faster than it should
 
-This patch could fix that (replace i386 with x86_64):
+Could this be related to the recent 2.6.7-bk troubles? Have similar patches 
+made it into 2.4?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108774225111967&w=2
+(Check back a few messages or archives for details)
 
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Andrew Walrond

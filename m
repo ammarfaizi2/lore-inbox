@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293361AbSCOVyx>; Fri, 15 Mar 2002 16:54:53 -0500
+	id <S293380AbSCOV4Y>; Fri, 15 Mar 2002 16:56:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293362AbSCOVyn>; Fri, 15 Mar 2002 16:54:43 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:7394 "HELO palrel12.hp.com")
-	by vger.kernel.org with SMTP id <S293361AbSCOVyc>;
-	Fri, 15 Mar 2002 16:54:32 -0500
-From: "Jim Hollenback" <jholly@cup.hp.com>
-Message-Id: <1020315135426.ZM923@fry.cup.hp.com>
-Date: Fri, 15 Mar 2002 13:54:26 -0800
-X-Mailer: Z-Mail (5.0.0 30July97)
-To: linux-kernel@vger.kernel.org
-Subject: readv() return and errno
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293373AbSCOV4O>; Fri, 15 Mar 2002 16:56:14 -0500
+Received: from zero.tech9.net ([209.61.188.187]:41478 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S293362AbSCOVz7>;
+	Fri, 15 Mar 2002 16:55:59 -0500
+Subject: Re: [OOPS] Kernel powerdown
+From: Robert Love <rml@tech9.net>
+To: "Udo A. Steinberg" <reality@delusion.de>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+        "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <3C926B56.FC147170@delusion.de>
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7D01@orsmsx111.jf.intel.com> 
+	<3C926B56.FC147170@delusion.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 15 Mar 2002 16:55:49 -0500
+Message-Id: <1016229350.1148.63.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- In doing some testing on the project I'm working on I came
- across something that is causing a bit of confusion on my part.
+On Fri, 2002-03-15 at 16:44, Udo A. Steinberg wrote:
 
- According to readv(2) EINVAL is returned for an invalid
- argument.  The examples given were count might be greater than
- MAX_IOVEC or zero. The test case I am working with has count = 0
- and I get return of 0 and errno 0 instead of the expected -1
- and errno EINVAL.
+> > Does the machine power off successfully using ACPI when the NMI watchdog is
+> > not enabled?
+> 
+> No, it never managed to power off with ACPI. It works with APM though.
 
- Am I missing something?
+Ah, that is the problem, then.
 
-Thanks!
+> > APM doesn't turn off the NMI afaik so why should ACPI have to?
+> 
+> Imho the problem will most likely go away when poweroff works properly
+> on my board. I can supply whatever info you need to make it work, too ;)
+> 
+> The board is an Asus A7V.
 
-Jim Hollenback
+See if the attached patch fixes it ...
+
+	Robert Love
+
+diff -urN linux-2.4.19/drivers/acpi/hardware/hwsleep.c linux/drivers/acpi/hardware/hwsleep.c
+--- linux-2.4.19/drivers/acpi/hardware/hwsleep.c	Fri Mar 15 00:28:10 2002
++++ linux/drivers/acpi/hardware/hwsleep.c	Fri Mar 15 16:54:57 2002
+@@ -152,6 +152,15 @@
+ 		return status;
+ 	}
+ 
++	/*
++	 * Broken ACPI table on ASUS A7V:
++	 * it reports type 7, but poweroff is type 2
++	 */
++	if (type_a == 7 && type_b == 7 && sleep_state == ACPI_STATE_S5
++			&& !memcmp(acpi_gbl_DSDT->oem_id, "ASUS\0\0", 6)
++			&& !memcmp(acpi_gbl_DSDT->oem_table_id, "A7V", 3)) {
++		type_a = type_b = 2;
++	}
+ 	/* run the _PTS and _GTS methods */
+ 
+ 	MEMSET(&arg_list, 0, sizeof(arg_list));
+

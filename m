@@ -1,39 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264471AbTDPQaq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Apr 2003 12:30:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264468AbTDPQaq
+	id S264468AbTDPQba (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Apr 2003 12:31:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264477AbTDPQb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Apr 2003 12:30:46 -0400
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:23791 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id S264471AbTDPQap
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Apr 2003 12:30:45 -0400
-Date: Wed, 16 Apr 2003 18:54:08 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: linux-kernel@vger.kernel.org
-Subject: RedHat 9 and 2.5.x support
-Message-ID: <20030416165408.GD30098@wind.cocodriloo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	Wed, 16 Apr 2003 12:31:29 -0400
+Received: from [203.117.131.12] ([203.117.131.12]:8128 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id S264468AbTDPQbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Apr 2003 12:31:25 -0400
+Message-ID: <3E9D8823.5060105@metaparadigm.com>
+Date: Thu, 17 Apr 2003 00:43:15 +0800
+From: Michael Clark <michael@metaparadigm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: James Bourne <jbourne@hardrock.org>
+Cc: Lincoln Dale <ltd@cisco.com>, Jurjen Oskam <jurjen@quadpro.stupendous.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Booting from Qlogic qla2300 fibre channel card
+References: <Pine.LNX.4.44.0304160952470.1406-100000@cafe.hardrock.org>
+In-Reply-To: <Pine.LNX.4.44.0304160952470.1406-100000@cafe.hardrock.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Actually i just realized after checking - we are using 6.04 also (standard
+- not failover). The error and abort messages in my previous were from
+the 6.04 driver.
 
-I've just installed RedHat 9 on my desktop machine and I'd like
-if it will support running under 2.5.65+ instead of his usual
-2.4.19+.
+Happens on 2 different machines that do around 200 IOs/sec during the day.
 
-I've got a separate machine for mail, compiling and whatever
-else I need for real work. I just need to assure I can run
-my 2.5 kernel on this distro and use it for desktop. Do I
-need some special packages, manual installs, etc...???
+We are beginning to suspect heat from a e1000 in a slot next door.
+All the crashes occur when our thermostat switches to one aircon instead
+of two although the ambient temp is around 25 celcius which is still
+relatively cool. Sometimes after the failure, the card will fail to
+re-initialise after a cold boot but works after leaving the machine
+off for about 20 minutes.
 
-I can recall there are modutils issues, and would not mind
-compiling/installing my own, but are there any other issues?
+~mc
 
-Greets, Antonio.
+On 04/16/03 23:56, James Bourne wrote:
+> On Wed, 16 Apr 2003, Michael Clark wrote:
+> 
+> 
+>>Hi,
+> 
+> ...
+> 
+>>I'm currently looking for alternatives to qlogic HBAs after a year of
+>>not being able to find a stable driver combo (one that can stand up
+>>for more than a few weeks). Does any one out there have experience
+>>with the LSI HBAs and Fusion MPT drivers or perhaps Emulex?
+> 
+> 
+> We are currently using the EMC approved 6.04-fo qla2300 driver with great
+> success.  With multiple connections to a CX600 fail over occurs properly, it
+> also does failover for the tape drives, and the system has been running for
+> about 40 days without any problems...
+> 
+> YMMV, but for us it has been working quite well.
+> 
+> Regards
+> James Bourne
+> 
 
-ps. cowahead! ;)

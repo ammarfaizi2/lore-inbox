@@ -1,67 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277301AbRJEDZM>; Thu, 4 Oct 2001 23:25:12 -0400
+	id <S277302AbRJEDyv>; Thu, 4 Oct 2001 23:54:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277302AbRJEDZD>; Thu, 4 Oct 2001 23:25:03 -0400
-Received: from albatross-ext.wise.edt.ericsson.se ([194.237.142.116]:53913
-	"EHLO albatross-ext.wise.edt.ericsson.se") by vger.kernel.org
-	with ESMTP id <S277301AbRJEDYw>; Thu, 4 Oct 2001 23:24:52 -0400
-Date: Fri, 05 Oct 2001 11:27:04 +0800 (SGT)
-From: Gregory Hosler <gregory.hosler@eno.ericsson.se>
-Subject: kernel: svc: bad direction / kernel: svc: short len 4, dropping request
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-to: gregory.hosler@eno.ericsson.se
-Message-id: <XFMail.011005112704.gregory.hosler@eno.ericsson.se>
-Organization: Ericsson Telecommunications, Pte Ltd
-MIME-version: 1.0
-X-Mailer: XFMail 1.3 [p0] on Linux
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 8bit
-X-Priority: 3 (Normal)
+	id <S277303AbRJEDym>; Thu, 4 Oct 2001 23:54:42 -0400
+Received: from mccammon.ucsd.edu ([132.239.16.211]:25267 "EHLO
+	mccammon.ucsd.edu") by vger.kernel.org with ESMTP
+	id <S277302AbRJEDyd>; Thu, 4 Oct 2001 23:54:33 -0400
+Date: Thu, 4 Oct 2001 20:55:25 -0700 (PDT)
+From: Alexei Podtelezhnikov <apodtele@mccammon.ucsd.edu>
+X-X-Sender: <apodtele@chemcca18.ucsd.edu>
+To: Rob Landley <landley@trommello.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: VM: 2.4.10 vs. 2.4.10-ac2 and qsort()
+In-Reply-To: <01100418021503.02393@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0110042025440.1042-100000@chemcca18.ucsd.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 4 Oct 2001, Rob Landley wrote:
 
-I'm running Linux kernel 2.4.7, and I'm seeing the following in my syslog:
+> On Thursday 04 October 2001 20:03, Alexei Podtelezhnikov wrote:
+> > Hi guys,
+> >
+> > I've already expressed my concern about using srand(1) in private e-mails.
+> > I think it's unscientific to use one particular random sequence. Since
+> > no one checked if that matters, I changed srand(1) to srand(time(NULL))
+> > and I'm posting my results. I don't do testing of Alan or Linus's kernels,
+> > but use recent Red Hat kernel. I think I've shown that it does matter.
+> 
+> One advantage of srand(1) is that it has a chance of being repeatable.  You 
+> don't WANT a truly random sequence, you want a sequence that simulates a 
+> reproducable work load.  That's why it makes sense to initialize the random 
+> number generator with a known seed, so we can do it again after applying a 
+> patch and see what kind of difference it made.
 
-Oct  5 09:13:44 camelot kernel: svc: short len 4, dropping request
-Oct  5 09:13:45 camelot kernel: svc: short len 4, dropping request
-Oct  5 09:13:46 camelot kernel: svc: bad direction 525795537, dropping request
-Oct  5 09:13:46 camelot kernel: svc: short len 4, dropping request
-Oct  5 09:13:47 camelot kernel: svc: short len 4, dropping request
-Oct  5 09:13:48 camelot kernel: svc: bad direction 525861077, dropping request
-Oct  5 09:13:48 camelot kernel: svc: bad direction 525927291, dropping request
-Oct  5 09:13:48 camelot kernel: svc: bad direction 525992033, dropping request
-Oct  5 09:13:48 camelot kernel: svc: bad direction 526057939, dropping request
-Oct  5 09:13:48 camelot kernel: svc: bad direction 526123899, dropping request
-Oct  5 09:13:48 camelot kernel: svc: short len 4, dropping request
-Oct  5 09:13:49 camelot kernel: svc: short len 4, dropping request
-Oct  5 09:13:49 camelot kernel: svc: bad direction 526189001, dropping request
-Oct  5 09:13:50 camelot kernel: svc: short len 4, dropping request
-Oct  5 09:13:50 camelot kernel: svc: bad direction 526254179, dropping request
+I agree with this. All I was trying to show is that srand(1) makes it ONE 
+VERY PARTICULAR LOAD. Optimizing for this load doesn't make sense at all 
+because it is so particular. Optimizing for lower average make more sense. 
+That is what you would call TYPE of load. And the average is reproducible 
+statistically.
 
-several (3 to 5) messages per second.
+> There's nothing wrong with using different seed values for srand, but testing 
+> different VMs with different seed values has the possibility of being apples 
+> to oranges.
+> 
 
-I have tracked down these messages to coming out of:
+Again, the averages and deviations are reproducible for each particular VM 
+algorithm, and provide a good comparison on this type of load. They are 
+the fruits.
 
-        /usr/src/linux/net/sunrpc/svc.c
+Speaking of deviations, I was very surprised to see such a significant 
+deviation. I think we want it to be smaller. That is what we would call 
+predictability of a VM scheme. We need this quality, e.g. for predicting 
+the imminent OOM when possible. It would be interesting to compare these 
+too for Rik's and Andrea's schemes.
 
-but I do not understand what's triggering them, or what to do about them.
+Lastly, I think this sort of simple tests can be adjusted to mimic some 
+certain interesting loads by cooking non-random sequences. This is 
+different from srand(1), because those sequences can make sense. That's 
+were the test becomes deterministic rather than statistical, and qsort() 
+becomes irrelevant too.  
 
-any suggestions, pointers, hints appreciated.
+Alexei
 
-thank you, and regards,
-
--Greg
-
-----------------------------------
-E-Mail: Gregory Hosler <gregory.hosler@eno.ericsson.se>
-Date: 05-Oct-01
-Time: 11:23:35
-
-   You can release software that's good, software that's inexpensive, or
-   software that's available on time.  You can usually release software
-   that has 2 of these 3 attributes -- but not all 3.
-
-----------------------------------

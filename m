@@ -1,75 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282640AbRLFTBw>; Thu, 6 Dec 2001 14:01:52 -0500
+	id <S282413AbRLFTEe>; Thu, 6 Dec 2001 14:04:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282547AbRLFTBf>; Thu, 6 Dec 2001 14:01:35 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:48646 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S282502AbRLFTA1>; Thu, 6 Dec 2001 14:00:27 -0500
-Date: Thu, 6 Dec 2001 11:11:27 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-cc: "David S. Miller" <davem@redhat.com>, <lm@bitmover.com>,
-        <rusty@rustcorp.com.au>, "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
-        Rik vav Riel <riel@conectiva.com.br>, <lars.spam@nocrew.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, <hps@intermeta.de>,
-        lkml <linux-kernel@vger.kernel.org>, <jmerkey@timpanogas.org>
-Subject: Re: SMP/cc Cluster description
-In-Reply-To: <20011206112731.C22534@vger.timpanogas.org>
-Message-ID: <Pine.LNX.4.40.0112061046110.1603-100000@blue1.dev.mcafeelabs.com>
+	id <S282499AbRLFTE1>; Thu, 6 Dec 2001 14:04:27 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48900 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282413AbRLFTCJ>; Thu, 6 Dec 2001 14:02:09 -0500
+Date: Thu, 6 Dec 2001 10:55:26 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro  -- clusters
+In-Reply-To: <E16C3Kn-0002XC-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.33.0112061044150.10877-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Dec 2001, Jeff V. Merkey wrote:
 
-> Guys,
+On Thu, 6 Dec 2001, Alan Cox wrote:
 >
-> I am the maintaner of SCI, the ccNUMA technology standard.  I know
-> alot about this stuff, and have been involved with SCI since
-> 1994.  I work with it every day and the Dolphin guys on some huge
-> supercomputer accounts, like Los Alamos and Sandia Labs in NM.
-> I will tell you this from what I know.
->
-> A shared everything approach is a programmers dream come true,
-> but you can forget getting reasonable fault tolerance with it.  The
-> shared memory zealots want everyone to believe ccNUMA is better
-> than sex, but it does not scale when compared to Shared-Nothing
-> programming models.  There's also a lot of tough issues for dealing
-> with failed nodes, and how you recover when peoples memory is
-> all over the place across a nuch of machines.
+> The scsi controller is akin to a network driver. The stuff that matters is
+> stuff like the scsi disk, scsi cd and scsi tape drivers. Scsi disk and CD
+> need to do a lot of error recovery (especially CD-ROM).
 
-If you can afford rewriting/rearchitecting your application it's pretty
-clear that the share-nothing model is the winner one.
-But if you can rewrite your application using a share-nothing model you
-don't need any fancy clustering architectures since beowulf like cluster
-would work for you and they'll give you a great scalability over the
-number of nodes.
-The problem arises when you've to choose between a new architecture
-( share nothing ) using conventional clusters and a
-share-all/keep-all-your-application-as-is one.
-The share nothing is cheap and gives you a very nice scalability, these
-are the two mayor pros for this solution.
-On the other side you've a vary bad scalability and a very expensive
-solution.
-But you've to consider :
+Ok, we agree here.
 
-1) rewriting is risky
+The problem is that we've done things the "wrong way around". If you think
+of the problem as a network controller, together with "packets" that have
+SCSI commands in them, then it is clear how you should NOT have
 
-2) good developers to rewrite your stuff are expensive ( $100K up to $150K
-	in my area )
+ - read/write ->
+	- driver IO request ->
+		SCSI layer ->
+			driver
 
-These are the reason that let me think that conventional SMP machines will
-have a future in addition to my believing that technology will help a lot
-to improve scalability.
+because that is equivalent to doing TCP with
 
+ - read/write ->
+	driver request ->
+		TCP layer ->
+			driver
 
+which is bogus.
 
+However, what's bogus about it is not that the old SCSI layer was above
+the driver, but the fact that it was _below_ the "ll_rw_block" and request
+queueing interface. That's the _packet_ interface. You don't do TCP or UDP
+below the packet interface.
 
-- Davide
+We should try to have some of the error recovery etc at a really _high_
+level, preferably in user space. Especially the "complicated" cases are
+hard to do any other way, as some IO errors require you to start sending
+magic "unlock drive using this key" packets to the drive, and just
+stupidly retrying simply will not work.
 
+But that is not something that the SCSI layer should really care about.
 
+> It would be nice if a lot of the CD error/recovery logic could be in the
+> cdrom libraries because the logic (close the door, lock the door, try
+> half speed, ..) is the same in scsi and ide.
 
+Not CD-ROM library.
+
+Instead, what I and Jens have been talking about, and what the next
+pre-patch will actually have is to move some of the higher-level logic
+_up_, to above the "packet interface".
+
+Think of "struct request" as a packet, and think of a disk driver as
+nothing but a specialized network driver.
+
+So what do you get? Rip out all of drivers/scsi/scsi_ioctl.c, and replace
+it with a much higher-level interface that parses the ioctl and passes
+down the appropriate packets.
+
+So "close door" is equivalent to a ICMP packet.
+
+Normal read/write is TCP - we do merging, sorting, re-ordering etc, again
+at a higher level. The packet that makes it to the low-level driver is
+just a packet. This is the only layer that does retransmit etc.
+
+And then you have the old "raw packet" interface, where user-level apps
+can send commands down to the disk.
+
+> For those of us who want to run a standards based operating system can
+> you do the 32bit dev_t.
+
+You asked for an _internal_ data structure. dev_t is the external
+representation, and has _nothing_ to do with any drivers at all.
+
+		Linus
 

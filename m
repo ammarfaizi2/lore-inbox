@@ -1,63 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317610AbSGJUjZ>; Wed, 10 Jul 2002 16:39:25 -0400
+	id <S317611AbSGJUkh>; Wed, 10 Jul 2002 16:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317611AbSGJUjY>; Wed, 10 Jul 2002 16:39:24 -0400
-Received: from twilight.cs.hut.fi ([130.233.40.5]:24524 "EHLO
-	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
-	id <S317610AbSGJUjY>; Wed, 10 Jul 2002 16:39:24 -0400
-Date: Wed, 10 Jul 2002 23:41:56 +0300
-From: Ville Herva <vherva@niksula.hut.fi>
-To: Robert Love <rml@tech9.net>
-Cc: Cort Dougan <cort@fsmlabs.com>, linux-kernel@vger.kernel.org
-Subject: Re: [STATUS 2.5]  July 10, 2002
-Message-ID: <20020710204156.GH1465@niksula.cs.hut.fi>
-Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
-	Robert Love <rml@tech9.net>, Cort Dougan <cort@fsmlabs.com>,
-	linux-kernel@vger.kernel.org
-References: <3D2B89AC.25661.91896FEB@localhost> <1026323661.1178.73.camel@sinai> <20020710191824.GT1548@niksula.cs.hut.fi> <1026331418.1244.82.camel@sinai> <20020710142005.U762@host110.fsmlabs.com> <1026332738.1244.86.camel@sinai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1026332738.1244.86.camel@sinai>
-User-Agent: Mutt/1.3.25i
+	id <S317616AbSGJUkg>; Wed, 10 Jul 2002 16:40:36 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:4624 "HELO
+	garrincha.netbank.com.br") by vger.kernel.org with SMTP
+	id <S317611AbSGJUke>; Wed, 10 Jul 2002 16:40:34 -0400
+Date: Wed, 10 Jul 2002 17:42:41 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Sebastian Droege <sebastian.droege@gmx.de>
+cc: linux-kernel@vger.kernel.org, <akpm@zip.com.au>, <linux-mm@kvack.org>
+Subject: Re: [PATCH][RFT](2) minimal rmap for 2.5 - akpm tested
+In-Reply-To: <20020710193545.272bedab.sebastian.droege@gmx.de>
+Message-ID: <Pine.LNX.4.44L.0207101741380.14432-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 10, 2002 at 01:25:38PM -0700, you [Robert Love] wrote:
-> On Wed, 2002-07-10 at 13:20, Cort Dougan wrote:
-> 
-> > Why was the rate incremented to maintain interactive performance?  Wasn't
-> > that the whole idea of the pre-empt work?  Does the burden of pre-empt
-> > actually require this?
-> 
-> I did not say it was increased to improve interactivity response - and
-> it certainly has little or nothing to do with kernel preemption being
-> merged.
-> 
-> I suspect a big benefit would be poll/select performance.  I think this
-> is why RedHat increased HZ in their kernels.
+On Wed, 10 Jul 2002, Sebastian Droege wrote:
+> On Sat, 6 Jul 2002 02:31:38 -0300 (BRT)
+> Rik van Riel <riel@conectiva.com.br> wrote:
+>
+> > If you have some time left this weekend and feel brave,
+> > please test the patch which can be found at:
+> >
+> > 	http://surriel.com/patches/2.5/2.5.25-rmap-akpmtested
 
-Red Hat Limbo ChangeLog says:
+> after running your patch some time I have to say that the old VM
+> implementation and the full rmap patch (by Craig Kulesa) was better. The
+> system becomes very slow and has to swap in too much after some uptime
+> (4 hours - 2 days) and memory intensive tasks...
+> Maybe this happens only to me but it's fully reproducable
 
-"The kernel used in this release supports the following list of improvements
-and new features. The kernel is based on the 2.4.19- pre10-ac2 release for
-this beta."
+It's a known problem with use-once. Users of plain 2.4.18
+are complaining about it, too.
 
-"HZ=1000 on i686 and Athlon means that the system clock ticks 10 times as
-fast as on other x86 platforms (i386 and i586); HZ=100 has been the Linux
-default on x86 platforms for the entire history of the Linux kernel. This
-change provides better interactive response, lower latency response from
-some programs, and better response from the scheduler. We have adjusted the
-/proc filesystem to report numbers as if using the default HZ=100, but it is
-possible that issues could arise -- please test and report bugs, as always."
+This is something to touch on after the rmap mechanism
+has been merged, Linus has indicated that he wants to merge
+the thing in small bits so that's what we'll be doing ;)
 
-So they aim for interactive response. Otoh, I think they don't include
-pre-emp nor any low-lat work. I might be wrong. But the network console and
-crash dump functionality they include (by Ingo Molner, I reckon) seems
-sweet.
+kind regards,
 
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
--- v --
+http://www.surriel.com/		http://distro.conectiva.com/
 
-v@iki.fi

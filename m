@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268260AbRHAVUz>; Wed, 1 Aug 2001 17:20:55 -0400
+	id <S268295AbRHAVUz>; Wed, 1 Aug 2001 17:20:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268295AbRHAVUs>; Wed, 1 Aug 2001 17:20:48 -0400
-Received: from [64.175.255.50] ([64.175.255.50]:44700 "HELO kobayashi.soze.net")
-	by vger.kernel.org with SMTP id <S268260AbRHAVU2>;
-	Wed, 1 Aug 2001 17:20:28 -0400
-Date: Wed, 1 Aug 2001 14:20:08 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OT: Virii on vger.kernel.org lists 
-In-Reply-To: <Pine.LNX.4.33.0108011406320.15992-100000@sol.compendium-tech.com>
-Message-ID: <Pine.LNX.4.33.0108011416100.8520-100000@kobayashi.soze.net>
+	id <S268310AbRHAVUr>; Wed, 1 Aug 2001 17:20:47 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:13040 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S268295AbRHAVUg>; Wed, 1 Aug 2001 17:20:36 -0400
+Message-ID: <3B68728C.7D23FFBC@mvista.com>
+Date: Wed, 01 Aug 2001 14:20:12 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: No 100 HZ timer !
+In-Reply-To: <3B683AC4.E0F2BF9E@mvista.com> <3B6859B2.F1E2C95B@nortelnetworks.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001, Dr. Kelsey Hudson wrote:
+Chris Friesen wrote:
+> 
+> george anzinger wrote:
+> 
+> > The testing I have done seems to indicate a lower overhead on a lightly
+> > loaded system, about the same overhead with some load, and much more
+> > overhead with a heavy load.  To me this seems like the wrong thing to
+> 
+> What about something that tries to get the best of both worlds?  How about a
+> tickless system that has a max frequency for how often it will schedule?  This
 
-> On Tue, 31 Jul 2001, Craig Milo Rogers wrote:
-> > 	Better than that, simply strip all non-text MIME attachments,
-> > or bounce the messages containing them.  End of story.
+How would you do this?  Larger time slices?  But _most_ context switches
+are not related to end of slice.   Refuse to switch?  This just idles
+the cpu.
 
-> That has the rather stupid effect of also killing gzip/bzip2ed patches
-> that come to the list. Survey says: BZZZZZT!
+> would give the tickless advantage for big iron running many lightly loaded
+> virtual instances, but have some kind of cap on the overhead under heavy load.
+> 
+> Does this sound feasable?
+> 
+I don't think so.  The problem is that the test to see if the system
+should use one or the other way of doing things would, it self, eat into
+the overhead.
 
-and the response to that argument was that such patches are just as hard
-or harder to turn into readable/usable form when included on the list as
-when posted on an ftp/web site, so it's better to spare people's mailboxes
-from huge attachments and just provide a url to the patch.
+Note that we are talking about 0.12% over head for a ticked system.  Is
+it really worth it for what amounts to less than 0.05% (if that much)?
 
-
-justin
-
+George

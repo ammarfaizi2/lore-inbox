@@ -1,75 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277576AbRJLIYd>; Fri, 12 Oct 2001 04:24:33 -0400
+	id <S277580AbRJLI2P>; Fri, 12 Oct 2001 04:28:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277580AbRJLIYX>; Fri, 12 Oct 2001 04:24:23 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:15910 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S277576AbRJLIYJ>; Fri, 12 Oct 2001 04:24:09 -0400
-Date: Fri, 12 Oct 2001 10:24:09 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Robert Cohen <robert.cohen@anu.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BENCH] Problems with IO throughput and fairness with 2.4.10 and 2.4.9-ac15
-Message-ID: <20011012102409.S714@athlon.random>
-In-Reply-To: <3BB31F99.941813DD@anu.edu.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S277581AbRJLI2F>; Fri, 12 Oct 2001 04:28:05 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:8134 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S277580AbRJLI1q>;
+	Fri, 12 Oct 2001 04:27:46 -0400
+Date: Fri, 12 Oct 2001 09:28:12 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+        Paul McKenney <Paul.McKenney@us.ibm.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Peter Rival <frival@zk3.dec.com>,
+        Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Jay.Estabrook@compaq.com,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        Richard Henderson <rth@twiddle.net>, cardoza@zk3.dec.com,
+        woodward@zk3.dec.com,
+        Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists
+ with
+Message-ID: <946453649.1002878892@[195.224.237.69]>
+In-Reply-To: <200110120543.f9C5hvZ224264@saturn.cs.uml.edu>
+In-Reply-To: <200110120543.f9C5hvZ224264@saturn.cs.uml.edu>
+X-Mailer: Mulberry/2.1.0 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3BB31F99.941813DD@anu.edu.au>; from robert.cohen@anu.edu.au on Thu, Sep 27, 2001 at 10:46:17PM +1000
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 27, 2001 at 10:46:17PM +1000, Robert Cohen wrote:
-> Overall, the total throughput is not that bad, but the fact that it
-> achieves this by starving clients to let one client at a time proceed is
-> completely unacceptable for a file server.
 
-So the problem here is starvation if I understand well.
 
-This one isn't related to the VM, so it's normal that you don't see much
-difference among the different VM, it's more likely either related to
-netatalk or tcp or I/O elevator.
+--On Friday, 12 October, 2001 1:43 AM -0400 "Albert D. Cahalan" 
+<acahalan@cs.uml.edu> wrote:
 
-Anyways you can pretty well rule out the elevator using elvtune -r 1 -w
-1 /dev/hd[abcd] and see if the starvation goes away.
+> There is a memory barrier instruction called "eieio"
 
-> poor throughput that is seen in this test I associate with poor elevator
-> performance. If the elevator doesnt group requests enough you get disk
-> behaviour like "small read, seek, small read, seek" instead of grouping
-> things into large reads or multiple reads between seeks. 
+This must be April 1 by some calendar.
 
-If you hear the seeks that's very good for the fairness, making the
-elevator even more aggressive could only increase starvation of some
-client.
+With a read/write here, a read/write there... (etc.)
 
-> The problem where one client gets all the bandwidth has to be some kind
-> of livelock.
+Guess the engineer was called Mr/Ms McDonald.
 
-netatalk may be processing the I/O requests not in a fair manner and if
-the unfariness is introduced by netatalk no matter what tcp and I/O
-subsystem do, we can do nothing to fix it from the kernel side. OTOH you
-said that in the "cached" test netatalk was providing a fair
-fileserving, but I'd still prefer if you could reproduce without using
-netatalk, you can just use a rsh pipe to do the read and writes of the
-files over the network for example, it should stress tcp and I/O
-subsystem the same way. If you can't reproduce with rsh please file a
-report to the netatalk people.
-
-I doubt it's the tcp congestion control, of course it's unfair too
-across multiple streams but I wouldn't expect it to generate that bad
-fariness results.
-
-> that they are just doing 8k reads and writes. The files are not opened
-> O_SYNC and the file server process arent doing any fsync calls. This is
-
-ok.
-
-> supported by the fact that the performance is fine with 256 Megs of
-> memory.
-
-yes.
-
-Andrea
+--
+Alex Bligh

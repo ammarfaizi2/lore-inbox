@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263803AbTLORK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 12:10:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263805AbTLORK2
+	id S263840AbTLORD3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 12:03:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbTLORD3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 12:10:28 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:12456 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id S263803AbTLORKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 12:10:23 -0500
-Date: Mon, 15 Dec 2003 18:08:43 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Vladimir Kondratiev <vladimir.kondratiev@intel.com>,
-       "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
-       Mark Hahn <hahn@physics.mcmaster.ca>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Martin Mares <mj@ucw.cz>
-Subject: Re: PCI Express support for 2.4 kernel
-Message-ID: <20031215170843.GA10857@louise.pinerecords.com>
-References: <Pine.LNX.4.44.0312150917170.32061-100000@coffee.psychology.mcmaster.ca> <3FDDD8C6.3080804@intel.com> <3FDDDC68.80209@backtobasicsmgmt.com> <3FDDE39E.1050300@intel.com> <Pine.LNX.4.53.0312151150090.10342@chaos>
+	Mon, 15 Dec 2003 12:03:29 -0500
+Received: from fw.osdl.org ([65.172.181.6]:57318 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263840AbTLORD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 12:03:28 -0500
+Date: Mon, 15 Dec 2003 09:03:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Jackson <pj@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rearrange cpumask.h headers in conventional structure
+Message-Id: <20031215090331.2ca5a755.akpm@osdl.org>
+In-Reply-To: <20031215001045.41b98136.pj@sgi.com>
+References: <20031215001045.41b98136.pj@sgi.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0312151150090.10342@chaos>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dec-15 2003, Mon, 11:55 -0500
-Richard B. Johnson <root@chaos.analogic.com> wrote:
+Paul Jackson <pj@sgi.com> wrote:
+>
+> ...
+> The convention for any facility that is partially generic,
+>  partially arch specific is for each include/asm-* arch to
+>  have it's own arch-specific header file (picked up via the
+>  include/asm symlink to the current arch), and for those
+>  arch-specific header files in turn to include asm-generic
+>  headers, if and to the extend that they choose to make use of
+>  the generic implementation.
+> 
+> ...
+>  -#include <linux/cpumask.h>
+>  +#include <asm/cpumask.h>
 
-> Easy way to remember is that if you have either a static or a global
-> variable that is initialized, it will be in the .data segment and,
-> therefore take up space in the executable. If it is not initialized,
-> it will be in the .bss segment, automatically zeroed by the loader.
-> In this case, the executable contains length information, not the data.
-> Local variables are never initialized unless there's an '=' in the
-> code.
+Personally, I rather prefer that include/linux/cpumask.h be retained, and
+that it perform the inclusion of <asm/cpumask.h>.  This provides some level
+of information hiding and gives us somewhere to place cpumask things which
+we _know_ are arch-independent.
 
-I think you guys are all missing Vladimir's point, which is that gcc
-is able to detect that an explicit initialization of a static variable
-happens to be to the value of ZERO, and place the variable in .bss
-_in spite of the initialization_.
-
--- 
-Tomas Szepe <szepe@pinerecords.com>

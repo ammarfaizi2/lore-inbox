@@ -1,63 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263942AbRFRMgX>; Mon, 18 Jun 2001 08:36:23 -0400
+	id <S261881AbRFRND0>; Mon, 18 Jun 2001 09:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263943AbRFRMgM>; Mon, 18 Jun 2001 08:36:12 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:26666 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S263942AbRFRMgB>; Mon, 18 Jun 2001 08:36:01 -0400
-Date: Mon, 18 Jun 2001 14:35:59 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: German Gomez Garcia <german@piraos.com>
-Cc: Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Strange behaviour of swap under 2.4.5-ac15
-Message-ID: <20010618143559.A23006@athlon.random>
-In-Reply-To: <Pine.LNX.4.33.0106181150320.11843-100000@hal9000.piraos.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S261268AbRFRNDQ>; Mon, 18 Jun 2001 09:03:16 -0400
+Received: from c012-h012.c012.sfo.cp.net ([209.228.13.212]:59313 "HELO
+	c012.sfo.cp.net") by vger.kernel.org with SMTP id <S262076AbRFRNDD>;
+	Mon, 18 Jun 2001 09:03:03 -0400
+Date: 18 Jun 2001 06:03:02 -0700
+Message-ID: <20010618130302.15892.cpmta@c012.sfo.cp.net>
+X-Sent: 18 Jun 2001 13:03:02 GMT
+Content-Type: text/plain
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0106181150320.11843-100000@hal9000.piraos.com>; from german@piraos.com on Mon, Jun 18, 2001 at 12:14:01PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Mime-Version: 1.0
+To: linux-kernel@vger.kernel.org
+From: Ralph Jones <ralph.jones@altavista.com>
+X-Mailer: Web Mail 3.9.3.1
+Subject: pivot_root from non-interactive script
+X-Sent-From: ralph.jones@altavista.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 18, 2001 at 12:14:01PM +0200, German Gomez Garcia wrote:
-> 	Hello,
-> 
-> 	I've running 2.4.5-ac15 for almost a day (22 hours) and I found
-> some strange behaviour of the kswap, at least it was not present in
-> 2.4.5-ac9. The swap memory increase with time as the cache dedicated
-> memory also increase, that is swapping process at a very fast rate, even
-> when no program is getting more memory. Is that the expected behaviour?
-> 	An example, with no process running (just the usual daemons and
-> none of them getting extra memory) the command:
-> 
-> 	free ; sleep 60; free
-> 
->              total       used       free     shared    buffers     cached
-> Mem:        513416     393184     120232        364      63276     254576
-> -/+ buffers/cache:      75332     438084
-> Swap:       530104      14228     515876
-> 
->              total       used       free     shared    buffers     cached
-> Mem:        513416     393192     120224        364      63276     258412
-> -/+ buffers/cache:      71504     441912
-> Swap:       530104      18064     512040
-> 
-> 	Any idea?
+Greetings,
 
-either apply this patch to 2.4.5ac15:
+I have followed the instructions given in Documentation/initrd.txt with regard to pivot_root, but am unable to unmount the filesystem, when everything is called from a non-interactive script. 
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.5aa3/00_fix-unusable-vm-on-alpha-1
+ie. When I set a link from linuxrc to /bin/ash and then manually go through the commands in the shell script, I am able to unmount the old initrd filesystem.  However, when linuxrc is a shell script containing the same commands, I am unable to umount the old initrd fs.  I get instead: "Device or resource busy".
 
-(note it is not an alpha specific bug, it's just that I was triggering
-all the time on alpha so I called the patch that way)
+The contents of my linuxrc script are as follows:
+--------------------
+#!/bin/ash
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+ 
+cd /
+mkdir /new
+mount -t shm /dev/shm /new
+cp -pdR * new
+ 
+cd new
+pivot_root . initrd
+ 
+cd /
+exec chroot . /bin/ash <dev/console > dev/console 2>&1
+-------------
+ash is a static binary.  chroot, mount and pivot_root are from busybox.  
 
-or better use 2.4.6pre3aa1:
+- Ralph Jones
 
-	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre3aa1.bz2
-
-If the problem persists let me know thanks.
-
-Andrea
+Find the best deals on the web at AltaVista Shopping!
+http://www.shopping.altavista.com

@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264902AbUELINz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263228AbUELI2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264902AbUELINz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 04:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264996AbUELINz
+	id S263228AbUELI2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 04:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264920AbUELI2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 04:13:55 -0400
-Received: from fw.osdl.org ([65.172.181.6]:40349 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264902AbUELINc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 04:13:32 -0400
-Date: Wed, 12 May 2004 01:13:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: sboyce@blueyonder.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm1
-Message-Id: <20040512011306.74d2fa32.akpm@osdl.org>
-In-Reply-To: <409F78FF.9010100@blueyonder.co.uk>
-References: <409F78FF.9010100@blueyonder.co.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 12 May 2004 04:28:16 -0400
+Received: from mail006.syd.optusnet.com.au ([211.29.132.63]:41356 "EHLO
+	mail006.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263228AbUELI2P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 04:28:15 -0400
+From: "Cef (LKML)" <cef-lkml@optusnet.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [RFC] adding support for .patches and /proc/patches.gz
+Date: Wed, 12 May 2004 18:28:53 +1000
+User-Agent: KMail/1.6.2
+References: <1084157289.7867.0.camel@latitude> <c7r676$gvo$1@gatekeeper.tmr.com> <1084337968.31228.35.camel@latitude>
+In-Reply-To: <1084337968.31228.35.camel@latitude>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405121828.54644.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce <sboyce@blueyonder.co.uk> wrote:
+On Wed, 12 May 2004 14:59, Jon Oberheide wrote:
+> Any patches applied against the current vanilla kernel.org kernel would
+> be listed in .patches.  This would include vendor, third-party, and even
+> pre/bk/mm patches.
 >
-> Oops on x86_only, x86_64 is OK.
-> 
-> ...
-> Unable to handle kernel NULL pointer dereference at virtual address 00000000
-> printing eip:
-> c0163921
-> *pde = 00000000
->  Oops: 0000 [#1]
->  PREEMPT DEBUG_PAGEALLOC
->  CPU:    0
->  EIP:    0060:[<c0163921>]    Not tainted VLI
->  EFLAGS: 00010296   (2.6.6-mm1) 
->  EIP is at locks_alloc_lock+0x1/0x20
->  eax: de016f6c   ebx: bffff1e0   ecx: bffff1e0   edx: 00000007
->  esi: bffff1e0   edi: 00000000   ebp: dff7bf90   esp: dff7bf34
->  ds: 007b   es: 007b   ss: 0068
->  Process init (pid: 1, threadinfo=dff7b000 task=dff7ca70)
->  Stack: dff7bf90 c0165856 00000000 00000246 fffbd13f fffbd13f 00000007 de016f6c 
->         dff7bf94 c011a52c ffffffff 000001ff bffff008 fa49babf 00000000 003fffff 
->         00000000 fffbd13f dff7bf9c dff7bfac bffff1e0 ffffffea 00000000 dff7bfa4 
->  Call Trace:
->   [<c01061e6>] show_stack+0xa6/0xb0
->   [<c0106358>] show_registers+0x148/0x1c0
->   [<c0106505>] die+0xa5/0x110
->   [<c0112682>] do_page_fault+0x3b2/0x538
->   [<c0105e55>] error_code+0x2d/0x38
->   [<c01618a5>] generic_file_fcntl+0xd5/0x1e0
->   [<c0161ae0>] sys_fcntl64+0x80/0xa0
->   [<c0105c4b>] syscall_call+0x7/0xb
+> Keep in mind, .patches would not contain the entire patch, as that would
+> be WAY to large, but just a short entry such as the name, date last
+> modified, and date applied of the patch file.
 
-Is this repeatable?  A null-pointer deref at
-locks_alloc_lock+0x1/0x20 seems not possible.
+A URI would always be nice. That way the originator of the patch can be 
+contacted and/or the patch can be fetched easily, all without the original 
+kernel source.
 
-Please send the output of
+In fact, it seems to me that BK (or in fact any patch management system) could 
+prove useful here. Not only could it list merged changesets in .patches, it 
+could also provide a URI for the author or the repo/patch. And as the kernel 
+tree moves and the patches get pushed into releases, the .patches file gets 
+cleared of everything that exists in the base tree. Really, something like a 
+translated output of the BK changelog for a tree would probably do the job. 
+Much like lk-changelog.pl, but more compact information wise. Providing a 
+tool at least would get it out in the open and used.
 
-	nm -n vmlinux | grep -5 locks_alloc_lock
+Of course, then you have to define what the base is, and really this should be 
+the first thing in .patches - You need to state what the baseline is you're 
+comparing against. It'd be good if it wasn't in a separate place. That 
+increases it's versatility greatly.
 
+For something like this to happen with BK (ie: as a BitMover provided app), 
+you may want to talk to Larry McVoy - it's his baby after all. Of course, you 
+could just hack on lk-changelog.pl yourself.
 
+-- 
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

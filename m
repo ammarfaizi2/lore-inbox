@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263150AbTH0OB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 10:01:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263373AbTH0OB6
+	id S263385AbTH0OVN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 10:21:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbTH0OVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 10:01:58 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:8326 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S263150AbTH0OB5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 10:01:57 -0400
-Date: Wed, 27 Aug 2003 15:01:21 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Jim Houston <jim.houston@comcast.net>, linux-kernel@vger.kernel.org,
-       jim.houston@ccur.com
-Subject: Re: [PATCH] Pentium Pro - sysenter - doublefault
-Message-ID: <20030827140121.GA1973@mail.jlokier.co.uk>
-References: <1061498486.3072.308.camel@new.localdomain> <20030825040514.GA20529@mail.jlokier.co.uk> <20030826122621.GB3140@malvern.uk.w2k.superh.com>
+	Wed, 27 Aug 2003 10:21:13 -0400
+Received: from 213.237.25.228.adsl.van.worldonline.dk ([213.237.25.228]:59952
+	"EHLO www.zensonic.dk") by vger.kernel.org with ESMTP
+	id S263385AbTH0OVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 10:21:11 -0400
+Date: Wed, 27 Aug 2003 16:20:35 +0200
+From: "Thomas S. Iversen" <zensonic@zensonic.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Help with debugging of a framebuffer driver on a legacyfree system.
+Message-ID: <20030827142035.GA25937@zensonic.dk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030826122621.GB3140@malvern.uk.w2k.superh.com>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Curnow wrote:
-> OK, since I get something different to the other reports I saw:
-> 
->  1:20PM-malvern-0-534-% ./sysenter
->  1:20PM-malvern-STKFLT-535-% echo $?
-> 144
+Hi there 
 
-Hi Richard,
+As part of a project I am trying to write a framebuffer device
+driver for a graphic chip. Up until now I have compiled my
+code as a module and been doing insmod, rmmod and that have worked
+nicely.
 
-That's because you ran it on a 2.5/2.6 kernel, right?  The test code
-is meant for 2.4 kernels and earlier :)
+I then tried to compile the driver into the kernel but that
+makes the kernel hang. As my development system are a legacy
+free laptop and my driver initializes the screen, the kernel
+hangs without me being able to figure out where and why that
+happend.
 
-Here is a more universal test:
+So I seek advice on how to debug the driver! As said, the
+laptop are legacy free, so I have not got a serial port. 
+I have tried a usb->serial adapter, but that requires a driver.
+Can I do USB->USB on another computer? Or?
 
-	int main () {
-		asm ("movl %%esp,%%ebp;sysenter" : : "a" (1), "b" (0));
-		return 0;
-	}
+Or am I stuck with coding my own printk variant and writing to the
+screen or is there any other option I have not thought of?
 
-I expect it to do the first of these which is applicable:
-
-	- raise SIGILL on Pentium and earlier Intel CPUs
-	- raise SIGILL on non-Intel CPUs which don't have the SEP capability
-	- raise SIGSEGV on Pentium Pro CPUs
-	- raise SIGSEGV on Pentium II CPUs with model == 3 and stepping < 3
-	- raise SIGSEGV on 2.4 kernels
-	- exit with status 0 on 2.6 kernels
-
-Enjoy,
--- Jamie
+Regards Thomas, Denmark

@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbTFDKdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Jun 2003 06:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTFDKdQ
+	id S263187AbTFDKke (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Jun 2003 06:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263195AbTFDKke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Jun 2003 06:33:16 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:8714 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S263183AbTFDKdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Jun 2003 06:33:15 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: -rc7   Re: Linux 2.4.21-rc6
-Date: Wed, 4 Jun 2003 12:46:33 +0200
-User-Agent: KMail/1.5.2
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Georg Nikodym <georgn@somanetworks.com>,
-       lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.55L.0305282019160.321@freak.distro.conectiva> <200306041235.07832.m.c.p@wolk-project.de> <20030604104215.GN4853@suse.de>
-In-Reply-To: <20030604104215.GN4853@suse.de>
+	Wed, 4 Jun 2003 06:40:34 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:52627 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S263187AbTFDKkd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Jun 2003 06:40:33 -0400
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200306041246.21636.m.c.p@wolk-project.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16093.53191.406196.811094@gargle.gargle.HOWL>
+Date: Wed, 4 Jun 2003 12:53:59 +0200
+From: mikpe@csd.uu.se
+To: Keith Owens <kaos@ocs.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2[01] i386 does not reenable local apic
+In-Reply-To: <1648.1054702960@kao2.melbourne.sgi.com>
+References: <1648.1054702960@kao2.melbourne.sgi.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 June 2003 12:42, Jens Axboe wrote:
+Keith Owens writes:
+ > arc/i386/kernel/apic.c::detect_init_APIC()
+ > 
+ > 	switch (boot_cpu_data.x86_vendor) {
+ > 	case X86_VENDOR_AMD:
+ > 		if (boot_cpu_data.x86 == 6 && boot_cpu_data.x86_model > 1)
+ > 			break;
+ > 		if (boot_cpu_data.x86 == 15 && cpu_has_apic)
+ > 			break;
+ > 		goto no_apic;
+ > 	case X86_VENDOR_INTEL:
+ > 		if (boot_cpu_data.x86 == 6 ||
+ > 		    (boot_cpu_data.x86 == 15 && cpu_has_apic) ||
+ > 		    (boot_cpu_data.x86 == 5 && cpu_has_apic))
+ > 			break;
+ > 		goto no_apic;
+ > 	default:
+ > 		goto no_apic;
+ > 	}
+ > 
+ > 	if (!cpu_has_apic) {
+ > 		/*
+ > 		 * Some BIOSes disable the local APIC in the
+ > 		 * APIC_BASE MSR. This can only be done in
+ > 		 * software for Intel P6 and AMD K7 (Model > 1).
+ > 		 */
+ > 		rdmsr(MSR_IA32_APICBASE, l, h);
+ > 		if (!(l & MSR_IA32_APICBASE_ENABLE)) {
+ > 			printk("Local APIC disabled by BIOS -- reenabling.\n");
+ > 			l &= ~MSR_IA32_APICBASE_BASE;
+ > 			l |= MSR_IA32_APICBASE_ENABLE | APIC_DEFAULT_PHYS_BASE;
+ > 			wrmsr(MSR_IA32_APICBASE, l, h);
+ > 		}
+ > 	}
+ > 
+ > Because boot_cpu_data.x86 == 15 and the local APIC is disabled in BIOS,
+ > detect_init_APIC() skips the code that reenables the local APIC.  This
+ > test is back to front.  Change the code to force X86_VENDOR_INTEL to
+ > drop through and it successfully reenables the local apic, I even get
+ > NMI events.
 
-Hi Jens,
+The correct fix is to delete the "&& cpu_has_apic" test for family 15
+CPUs. Simply falling through for VENDOR_INTEL will oops UP P5s.
 
-> > > the issue with batching in 2.4, is that it is blocking at 0 and waking
-> > > at batch_requests. But it's not blocking new get_request to eat
-> > > requests in the way back from 0 to batch_requests. I mean, there are
-> > > two directions, when we move from batch_requests to 0 get_requests
-> > > should return requests. in the way back from 0 to batch_requests the
-> > > get_request should block (and it doesn't in 2.4, that is the problem)
-> > do you see a chance to fix this up in 2.4?
-> Nick posted a patch to do so the other day and asked people to test.
-Silly mcp. His mail was CC'ed to me :( ... F*ck huge inbox.
+I've seen a few P4 owners being caught by this. OTOH, several of those
+had crap BIOSen that caused hangs with local APIC enabled.
 
-ciao, Marc
+I'll do a patch for 2.4.22-pre, if we ever actually get a 2.4.21 final...
 
+/Mikael

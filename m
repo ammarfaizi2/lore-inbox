@@ -1,82 +1,234 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVBSWQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVBSW2B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVBSWQc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 17:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVBSWQc
+	id S262066AbVBSW2B (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 17:28:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262087AbVBSW2B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 17:16:32 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:161 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261581AbVBSWQZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 17:16:25 -0500
-Date: Sat, 19 Feb 2005 17:16:24 -0500
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: slab corruption on 2.6.10-rc4-bk7
-Message-ID: <20050219221624.GB803@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org
+	Sat, 19 Feb 2005 17:28:01 -0500
+Received: from smtpout4.uol.com.br ([200.221.4.195]:60096 "EHLO
+	smtp.uol.com.br") by vger.kernel.org with ESMTP id S262066AbVBSW1i
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Feb 2005 17:27:38 -0500
+Date: Sat, 19 Feb 2005 20:27:31 -0200
+From: =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
+       hostap@shmoo.com
+Subject: Re: 2.6.10: irq 12 nobody cared!
+Message-ID: <20050219222730.GA5928@ime.usp.br>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Joshua Kwan <joshk@triplehelix.org>, linux-kernel@vger.kernel.org,
+	hostap@shmoo.com
+References: <4214450B.6090006@triplehelix.org> <Pine.LNX.4.58.0502171632120.2371@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0502171632120.2371@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(This has actually been there for a while, but I only
- noticed it in dmesg this morning).
-During boot on a dual em64t I see ..
+On Feb 17 2005, Linus Torvalds wrote:
+> Does the box still work? It may well be that once all drivers have had a 
+> chance to initialize their hardware properly, the problem is just gone, 
+> and that the interim reports about not being able to handle the irq are 
+> just temporary noise.
 
-scsi2 : ata_piix
-isa bounce pool size: 16 pages
-slab error in cache_free_debugcheck(): cache `size-2048': double free, or memory outside object was overwritten
+I started seeing a similar message (irq 10: nobody cared!) right after I've
+bought a (IDE) DVD recorder and decided to rearrange my drives so that each
+one would not interfere with the others.
 
-Call Trace:<ffffffff80163448>{cache_free_debugcheck+392} <ffffffff801646aa>{kfree+234}
-       <ffffffff88065189>{:libata:ata_pci_init_one+937} <ffffffff801fe9ea>{pci_bus_read_config_word+122}
-       <ffffffff880707f2>{:ata_piix:piix_init_one+498} <ffffffff80202926>{pci_device_probe+134}
-       <ffffffff802691ad>{driver_probe_device+77} <ffffffff802692cb>{driver_attach+75}
-       <ffffffff802696c9>{bus_add_driver+169} <ffffffff802025e3>{pci_register_driver+131}
-       <ffffffff88074010>{:ata_piix:piix_init+16} <ffffffff80152c58>{sys_init_module+344}
-       <ffffffff8010e52a>{system_call+126}
-ffff81011e49f4a0: redzone 1: 0x5a2cf071, redzone 2: 0x5a2cf071.
+An excerpt of the messages that I get with kernel 2.6.10-rc4 is the
+following:
 
-and..
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+Linux version 2.6.11-rc4-1 (root@dumont) (gcc version 3.3.5 (Debian 1:3.3.5-8)) #1 Sun Feb 13 15:23:03 BRST 2005
+(...)
+ACPI: RSDP (v000 ASUS                                  ) @ 0x000f6a90
+ACPI: RSDT (v001 ASUS   A7V      0x30303031 MSFT 0x31313031) @ 0x0ffec000
+ACPI: FADT (v001 ASUS   A7V      0x30303031 MSFT 0x31313031) @ 0x0ffec080
+ACPI: BOOT (v001 ASUS   A7V      0x30303031 MSFT 0x31313031) @ 0x0ffec040
+ACPI: DSDT (v001   ASUS A7V      0x00001000 MSFT 0x0100000b) @ 0x00000000
+ACPI: PM-Timer IO Port: 0xe408
+(...)
+ACPI: Interpreter enabled
+ACPI: Using PIC for interrupt routing
+ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 9 10 *11 12 14 15)
+ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 9 *10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 *5 6 7 9 10 11 12 14 15)
+ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 *9 10 11 12 14 15)
+ACPI: PCI Root Bridge [PCI0] (00:00)
+PCI: Probing PCI hardware (bus 00)
+PCI: Via IRQ fixup
+ACPI: PCI Interrupt Routing Table [\_SB_.PCI0._PRT]
+(...)
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 0000:00:04.1
+VP_IDE: chipset revision 16
+VP_IDE: not 100% native mode: will probe irqs later
+VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci0000:00:04.1
+    ide0: BM-DMA at 0xd800-0xd807, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xd808-0xd80f, BIOS settings: hdc:DMA, hdd:pio
+Probing IDE interface ide0...
+hda: HL-DT-ST DVDRAM GSA-4160B, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+hdc: Hewlett-Packard CD-Writer Plus 9100, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+PDC20265: IDE controller at PCI slot 0000:00:11.0
+PCI: 0000:00:11.0 has unsupported PM cap regs version (1)
+ACPI: PCI Interrupt Link [LNKB] enabled at IRQ 10
+PCI: setting IRQ 10 as level-triggered
+ACPI: PCI interrupt 0000:00:11.0[A] -> GSI 10 (level, low) -> IRQ 10
+PDC20265: chipset revision 2
+PDC20265: 100% native mode on irq 10
+PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0x7400-0x7407, BIOS settings: hde:pio, hdf:pio
+    ide3: BM-DMA at 0x7408-0x740f, BIOS settings: hdg:pio, hdh:pio
+Probing IDE interface ide2...
+hde: QUANTUM FIREBALL CX13.0A, ATA DISK drive
+ide2 at 0x8800-0x8807,0x8402 on irq 10
+Probing IDE interface ide3...
+hdg: QUANTUM FIREBALLlct15 30, ATA DISK drive
+irq 10: nobody cared!
+ [<c0128fc1>] __report_bad_irq+0x31/0x77
+ [<c012906b>] note_interrupt+0x4c/0x71
+ [<c0128c86>] __do_IRQ+0x93/0xbd
+ [<c0104635>] do_IRQ+0x19/0x24
+ [<c010335a>] common_interrupt+0x1a/0x20
+ [<c011935c>] __do_softirq+0x2c/0x7d
+ [<c01193cf>] do_softirq+0x22/0x26
+ [<c010463a>] do_IRQ+0x1e/0x24
+ [<c010335a>] common_interrupt+0x1a/0x20
+ [<c0128d89>] enable_irq+0x88/0x8d
+ [<c021edc0>] probe_hwif+0x2da/0x366
+ [<c021a137>] ata_attach+0xa3/0xbd
+ [<c021ee5c>] probe_hwif_init_with_fixup+0x10/0x74
+ [<c0221597>] ide_setup_pci_device+0x72/0x7f
+ [<c0216f82>] pdc202xx_init_one+0x15/0x18
+ [<c039182e>] ide_scan_pcidev+0x34/0x59
+ [<c039186f>] ide_scan_pcibus+0x1c/0x88
+ [<c039179f>] probe_for_hwifs+0xb/0xd
+ [<c03917e5>] ide_init+0x44/0x59
+ [<c037c6ce>] do_initcalls+0x4b/0x99
+ [<c0100272>] init+0x0/0xce
+ [<c0100299>] init+0x27/0xce
+ [<c0101245>] kernel_thread_helper+0x5/0xb
+handlers:
+[<c021c2a6>] (ide_intr+0x0/0xee)
+Disabling IRQ #10
+irq 10: nobody cared!
+ [<c0128fc1>] __report_bad_irq+0x31/0x77
+ [<c012906b>] note_interrupt+0x4c/0x71
+ [<c0128c86>] __do_IRQ+0x93/0xbd
+ [<c0104635>] do_IRQ+0x19/0x24
+ [<c010335a>] common_interrupt+0x1a/0x20
+ [<c011935c>] __do_softirq+0x2c/0x7d
+ [<c01193cf>] do_softirq+0x22/0x26
+ [<c010463a>] do_IRQ+0x1e/0x24
+ [<c010335a>] common_interrupt+0x1a/0x20
+ [<c0128d89>] enable_irq+0x88/0x8d
+ [<c021cfb7>] ide_config_drive_speed+0x168/0x30d
+ [<c02165c2>] pdc202xx_tune_chipset+0x38c/0x396
+ [<c021ee0a>] probe_hwif+0x324/0x366
+ [<c021a137>] ata_attach+0xa3/0xbd
+ [<c021ee5c>] probe_hwif_init_with_fixup+0x10/0x74
+ [<c0221597>] ide_setup_pci_device+0x72/0x7f
+ [<c0216f82>] pdc202xx_init_one+0x15/0x18
+ [<c039182e>] ide_scan_pcidev+0x34/0x59
+ [<c039186f>] ide_scan_pcibus+0x1c/0x88
+ [<c039179f>] probe_for_hwifs+0xb/0xd
+ [<c03917e5>] ide_init+0x44/0x59
+ [<c037c6ce>] do_initcalls+0x4b/0x99
+ [<c0100272>] init+0x0/0xce
+ [<c0100299>] init+0x27/0xce
+ [<c0101245>] kernel_thread_helper+0x5/0xb
+handlers:
+[<c021c2a6>] (ide_intr+0x0/0xee)
+Disabling IRQ #10
+irq 10: nobody cared!
+ [<c0128fc1>] __report_bad_irq+0x31/0x77
+ [<c012906b>] note_interrupt+0x4c/0x71
+ [<c0128c86>] __do_IRQ+0x93/0xbd
+ [<c0104635>] do_IRQ+0x19/0x24
+ [<c010335a>] common_interrupt+0x1a/0x20
+ [<c011935c>] __do_softirq+0x2c/0x7d
+ [<c01193cf>] do_softirq+0x22/0x26
+ [<c010463a>] do_IRQ+0x1e/0x24
+ [<c010335a>] common_interrupt+0x1a/0x20
+ [<c0128d89>] enable_irq+0x88/0x8d
+ [<c021cfb7>] ide_config_drive_speed+0x168/0x30d
+ [<c02165c2>] pdc202xx_tune_chipset+0x38c/0x396
+ [<c02168da>] config_chipset_for_dma+0x216/0x227
+ [<c0216922>] pdc202xx_config_drive_xfer_rate+0x37/0x6c
+ [<c021ee31>] probe_hwif+0x34b/0x366
+ [<c021a137>] ata_attach+0xa3/0xbd
+ [<c021ee5c>] probe_hwif_init_with_fixup+0x10/0x74
+ [<c0221597>] ide_setup_pci_device+0x72/0x7f
+ [<c0216f82>] pdc202xx_init_one+0x15/0x18
+ [<c039182e>] ide_scan_pcidev+0x34/0x59
+ [<c039186f>] ide_scan_pcibus+0x1c/0x88
+ [<c039179f>] probe_for_hwifs+0xb/0xd
+ [<c03917e5>] ide_init+0x44/0x59
+ [<c037c6ce>] do_initcalls+0x4b/0x99
+ [<c0100272>] init+0x0/0xce
+ [<c0100299>] init+0x27/0xce
+ [<c0101245>] kernel_thread_helper+0x5/0xb
+handlers:
+[<c021c2a6>] (ide_intr+0x0/0xee)
+Disabling IRQ #10
+ide3 at 0x8000-0x8007,0x7802 on irq 10
+hde: max request size: 128KiB
+hde: 25429824 sectors (13020 MB) w/418KiB Cache, CHS=25228/16/63, UDMA(33)
+hde: cache flushes not supported
+ hde: hde1 hde2 hde3 hde4
+hdg: max request size: 128KiB
+hdg: 58633344 sectors (30020 MB) w/418KiB Cache, CHS=58168/16/63, UDMA(66)
+hdg: cache flushes not supported
+ hdg: hdg1
+hda: ATAPI 40X DVD-ROM DVD-R-RAM CD-R/RW drive, 2048kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+hdc: ATAPI 32X CD-ROM CD-R/RW drive, 4096kB Cache, UDMA(33)
+(...)
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+I already tried booting with options irqpoll, acpi=off, acpi=noirq etc, but
+none of these things made the problem go away.
+
+The only thing that made it really go away was when I disconnected the
+/dev/hdg drive. Then, no scary message is shown, but, of course, I need the
+/dev/hdg drive. :-(
+
+Here is what /proc/interrupts says about my computer:
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+           CPU0       
+  0:    6083684          XT-PIC  timer
+  1:          9          XT-PIC  i8042
+  2:          0          XT-PIC  cascade
+  7:      14134          XT-PIC  parport0
+  8:          4          XT-PIC  rtc
+  9:     321152          XT-PIC  acpi, uhci_hcd, uhci_hcd, eth0, eth1
+ 10:     662550          XT-PIC  ide2, ide3, ohci1394
+ 11:      30183          XT-PIC  Ensoniq AudioPCI, mga@PCI:1:0:0
+ 12:     100706          XT-PIC  i8042
+ 14:         26          XT-PIC  ide0
+ 15:         26          XT-PIC  ide1
+NMI:          0 
+LOC:    6083598 
+ERR:         31
+MIS:          0
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Is there anything that I can do to make this error message go away? Please,
+don't hesitate to ask for any further information.
 
 
-SELinux: initialized (dev sysfs, type sysfs), uses genfs_contexts
-Slab corruption: start=ffff81011e49f4a8, len=2048
-Redzone: 0x170fc2a5/0x170fc2a5.
-Last user: [<ffffffff8015290c>](load_module+0x180c/0x1a00)
-000: 38 e0 35 80 ff ff ff ff b8 f9 49 1e 01 81 ff ff
-010: e0 f4 49 1e 01 81 ff ff 80 e7 08 88 ff ff ff ff
-020: 24 01 00 00 5a 5a 5a 5a 10 0b 15 80 ff ff ff ff
-030: 00 00 00 00 00 00 00 00 2e 74 65 78 74 00 5a 5a
-040: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-050: 5a 5a 5a 5a 5a 5a 5a 5a 00 e0 07 88 ff ff ff ff
-Prev obj: start=ffff81011e49ec90, len=2048
-Redzone: 0x170fc2a5/0x170fc2a5.
-Last user: [<ffffffff88064c79>](ata_probe_ent_alloc+0x29/0xc0 [libata])
-000: 90 ec 49 1e 01 81 ff ff 90 ec 49 1e 01 81 ff ff
-010: 80 8e 26 08 00 81 ff ff 60 24 07 88 ff ff ff ff
-slab error in cache_alloc_debugcheck_after(): cache `size-2048': double free, or memory outside object was overwritten
+Thank you very much in advance for any help, Rogério.
 
-Call Trace:<ffffffff802d52c1>{alloc_skb+81} <ffffffff8016375a>{cache_alloc_debugcheck_after+186}
-       <ffffffff801638e8>{__kmalloc+216} <ffffffff802d52c1>{alloc_skb+81}
-       <ffffffff801f66e4>{send_uevent+84} <ffffffff801f6bb0>{kobject_hotplug+592}
-       <ffffffff801f635d>{kobject_add+349} <ffffffff8026a377>{class_device_add+135}
-       <ffffffff8026ab0d>{class_simple_device_add+317} <ffffffff80133a53>{__wake_up+67}
-       <ffffffff8023ab8d>{init_dev+1197} <ffffffff80243f3b>{vcs_make_devfs+43}
-       <ffffffff8024941e>{con_open+158} <ffffffff8023bebe>{tty_open+574}
-       <ffffffff801e51ea>{selinux_file_alloc_security+42}
-       <ffffffff80188d79>{chrdev_open+393} <ffffffff801e51ea>{selinux_file_alloc_security+42}
-       <ffffffff8017ef46>{dentry_open+246} <ffffffff8017f09e>{filp_open+62}
-       <ffffffff8017f18b>{get_unused_fd+219} <ffffffff8017f2dc>{sys_open+76}
-       <ffffffff8010e52a>{system_call+126}
-ffff81011e49f4a0: redzone 1: 0x170fc2a5, redzone 2: 0x170fc2a5.
-SELinux: initialized (dev usbfs, type usbfs), uses genfs_contexts
-
-This box got new hardware just before xmas, and a >24hr run of memtest86
-so I can probably rule out bad memory.
-
-		Dave
-
+-- 
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  Rogério Brito - rbrito@ime.usp.br - http://www.ime.usp.br/~rbrito
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266367AbTBVQc7>; Sat, 22 Feb 2003 11:32:59 -0500
+	id <S266286AbTBVQ37>; Sat, 22 Feb 2003 11:29:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266771AbTBVQc6>; Sat, 22 Feb 2003 11:32:58 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:15234
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S266367AbTBVQc6>; Sat, 22 Feb 2003 11:32:58 -0500
-Subject: Re: Box freezes if I enable "AMD 76x native power management"
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Oleg Drokin <green@namesys.com>
-Cc: thetech@folkwolf.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030222163057.A884@namesys.com>
-References: <20030222163057.A884@namesys.com>
-Content-Type: text/plain
+	id <S266292AbTBVQ36>; Sat, 22 Feb 2003 11:29:58 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:51898 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S266286AbTBVQ36>; Sat, 22 Feb 2003 11:29:58 -0500
+Date: Sat, 22 Feb 2003 08:39:27 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Larry McVoy <lm@bitmover.com>
+cc: "David S. Miller" <davem@redhat.com>, lse-tech@lists.sf.et,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <28900000.1045931966@[10.10.2.4]>
+In-Reply-To: <20030222163318.GB11953@work.bitmover.com>
+References: <20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay> <20030222024721.GA1489@work.bitmover.com> <14450000.1045888349@[10.10.2.4]> <20030222050514.GA3148@work.bitmover.com> <1045903113.26056.6.camel@rth.ninka.net> <20030222143440.GA10546@work.bitmover.com> <26210000.1045928873@[10.10.2.4]> <20030222161356.GA11953@work.bitmover.com> <27920000.1045931373@[10.10.2.4]> <20030222163318.GB11953@work.bitmover.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045935866.4723.3.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 22 Feb 2003 17:44:27 +0000
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-02-22 at 13:30, Oleg Drokin wrote:
-> Hello!
+>> But we're talking about linux ... and we're talking about profit, not
+>> revenue. I'd guess that 99% of their desktop sales are for Windows. 
+>> And I'd guess they make 100 times as much profit on a big server as they 
+>> do on a desktop PC. 
 > 
->    Starting from 2.4.20 until now (including 2.4.21-pre4 and 2.4.21-pre4-ac5",
->    whenever I enable "AMD 76x native power management" in my kernel config, I get
->    kernel that hangs at boot after reporting elevator stuff about my IDE drives.
->    Is anybody interested?
-> 
+> You are thinking in today's terms.  Find the asymptote and project out.
 
-It doesnt work with some tyan boards. I've never found out why. Most of them you
-load the module, it stops, you poke the button and it wakes up again and then works
+OK, I predict that Linux will take over the whole of the high end server
+market ... if people stop complaining about us fixing scalability. That
+should give some nicer numbers ....
 
-
+M.

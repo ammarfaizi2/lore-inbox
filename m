@@ -1,64 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271545AbTGQVcV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 17:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271550AbTGQVcV
+	id S271550AbTGQVfl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 17:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271551AbTGQVfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 17:32:21 -0400
-Received: from main.gmane.org ([80.91.224.249]:18652 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S271545AbTGQVcP (ORCPT
+	Thu, 17 Jul 2003 17:35:37 -0400
+Received: from dsl-gte-19434.linkline.com ([64.30.195.78]:15747 "EHLO server")
+	by vger.kernel.org with ESMTP id S271550AbTGQVf3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 17:32:15 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jason Lunz <lunz@falooley.org>
-Subject: Re: Wireless linux router
-Date: Thu, 17 Jul 2003 21:46:05 +0000 (UTC)
-Organization: PBR Streetgang
-Message-ID: <slrnbhe6aq.95n.lunz@stoli.localnet>
-References: <200307171924.UAA21477@mauve.demon.co.uk>
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: slrn/0.9.7.4 (Linux)
+	Thu, 17 Jul 2003 17:35:29 -0400
+Message-ID: <016401c34cad$5b1f58a0$3400a8c0@W2RZ8L4S02>
+From: "Jim Gifford" <maillist@jg555.com>
+To: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Fw: about the crash of the 2.4.20
+Date: Thu, 17 Jul 2003 14:49:52 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="ISO-8859-15"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-root@mauve.demon.co.uk said:
-> A while ago there was much discussion about wireless routers with
-> linux kernels, and no source.
-> 
-> Are there any readily available ones that do, and that I can edit the 
-> image, and that have a couple of meg of RAM/ROM free?
 
-I've been playing with the Dell Truemobile 1184. It has 16M ram + 16M
-flash, an ethernet interface for the internet uplink, another ethernet
-interface hardwired to a four-port 10/100 switch, and a prism2 wireless
-interface. If you open up the box, the machine has a serial console if
-you can connect something to the pins.
+----- Original Message ----- 
+From: "Arnaud Ligot" <spyroux@freegates.be>
+To: "Jim Gifford" <maillist@jg555.com>
+Sent: Thursday, July 17, 2003 1:59 PM
+Subject: about the crash of the 2.4.20
 
-It runs 2.2.14 arm linux, and you can telnet into it on port 333, though
-there isn't much you can do there.  The kernel source is shipped along
-with it on a CD, but there's no source for any of the other GPL code on
-the machine, like brctl, ifconfig, reaim, and dproxy. I haven't checked
-whether the kernel tarball contains code for all the weird hardware
-devices, like the machine's LEDs.
 
-Also, something seems fishy with the bridging. The machine's switch
-interface is bridged to the prism0 interface with the linux bridging
-module, and the bridge device shows up as br0. But "brctl show br0"
-doesn't show the bridged devices. Maybe they're hardwired or something.
+Le jeu 17/07/2003 à 21:50, Jim Gifford a écrit :
+> ----- Original Message ----- 
+> From: "Marcelo Tosatti" <marcelo@conectiva.com.br>
+> To: "Jim Gifford" <maillist@jg555.com>
+> Cc: "lkml" <linux-kernel@vger.kernel.org>
+> Sent: Thursday, July 17, 2003 11:46 AM
+> Subject: Re: 2.4.22-pre6 deadlock
+>
+>
+> >
+> > Jim,
+> >
+> > I just noticed your kernel is tained.
+> >
+> > For what reason?
+> >
+> >
+>
+> The only patches I use are for netfilter options and the updated megaraid
+> driver everything else is stock.
+>
+> Do you think some of the netfilter options could be causing the problems??
+I don't know I use a vanilla kernel (without any patch) and my problem
+seems to come from the Reiserfs support.
 
-http://trilug.org/~chrish/dell-1184/
 
-has some details. The firmware image he points to is a zipfile that
-contains a gzipped binary blob. There's a kernel, a romfs, and who knows
-what else in that blob (the romfs goes from 0xE2CE4 to the end of the
-file). You could probably modify the firmware before sending it to the
-machine and get your own code on there, but I haven't been brave enough
-to do that yet.
+Marcelo,
+    I thought you should see this.
 
-I intend to eventually upload my own firmware to it, but I still have a
-lot of investigating to do before i'm confident I won't turn it into a
-paperweight. Any help would be appreciated. :)
-
-Jason
 

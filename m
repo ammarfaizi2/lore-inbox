@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbTKQTRd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 14:17:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbTKQTRc
+	id S263619AbTKQT0a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 14:26:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263625AbTKQT0a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 14:17:32 -0500
-Received: from bristol.phunnypharm.org ([65.207.35.130]:18345 "EHLO
-	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
-	id S263574AbTKQTRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 14:17:31 -0500
-Date: Mon, 17 Nov 2003 13:38:05 -0500
-From: Ben Collins <bcollins@debian.org>
-To: James Simmons <jsimmons@infradead.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [FBDEV UPDATE] Newer patch.
-Message-ID: <20031117183805.GB476@phunnypharm.org>
-References: <20031023234552.GB554@phunnypharm.org> <Pine.LNX.4.44.0310301833140.4560-100000@phoenix.infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310301833140.4560-100000@phoenix.infradead.org>
+	Mon, 17 Nov 2003 14:26:30 -0500
+Received: from mail.gmx.net ([213.165.64.20]:26010 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263619AbTKQT02 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Nov 2003 14:26:28 -0500
+X-Authenticated: #20450766
+Date: Mon, 17 Nov 2003 20:25:19 +0100 (CET)
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: DMA_NONE data_direction in scsi
+Message-ID: <Pine.LNX.4.44.0311172013230.2258-100000@poirot.grange>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 30, 2003 at 06:38:46PM +0000, James Simmons wrote:
-> 
-> > I noticed one thing, and that is that the mach64 used to use software
-> > cursor it seems (I remember wondering why atyfb_cursor was never used
-> > anywhere). It's now using the hw cursor.
-> 
-> Yeap. I'm in the process of getting several driver to use there hardware 
-> cursors.
->  
-> > Also, I notice with this new code that the random vertical shifting of
-> > the console doesn't occur anymore like it does with current 2.6.0-test8
-> > code. For as long as I can remember 2.6.0-test, and way back into
-> > 2.5.5x, this has been a problem with highly active console programs
-> > (mutt, vim, etc...). Good to see it's going away :)
-> 
-> :-)
-> 
-> I have fixed the problems you have reported. I have a newer patch. Note 
-> this is updated with the LCD support. I like to see if the patch works on 
-> sparc. I has updates from the latest 2.4.X kernels. Please give it a try.
-> 
-> http://phoenix.infradead.org/~jsimmons/fbdev.diff.gz
-> 
-> Let me know the results.
+Hello
 
-FYI, this new code is working for me on my Blade100. The cursor is much
-better now.
+While trying to fix tmscsim for 2.6, I've arrived at the Oops below, which
+is caused by the BUG_ON() in dma_map_page(). In the backtrace below,
+data_direction is set to DMA_BIDIRECTIONAL in sd_revalidate_disk(),
 
--- 
-Debian     - http://www.debian.org/
-Linux 1394 - http://www.linux1394.org/
-Subversion - http://subversion.tigris.org/
-WatchGuard - http://www.watchguard.com/
+                sreq->sr_data_direction = DMA_BIDIRECTIONAL;
+
+, but already in sd_spinup_disk() it is reset to DMA_NONE:
+
+                        SRpnt->sr_data_direction = DMA_NONE;
+
+So, the question is: is this the correct behaviour, and, if so - how is
+the driver supposed to map this request - which direction to pass to
+dma_map_*?
+
+Thanks
+Guennadi
+---
+Guennadi Liakhovetski
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+

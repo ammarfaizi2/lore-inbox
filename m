@@ -1,328 +1,184 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265816AbUBKOZq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 09:25:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265886AbUBKOZq
+	id S265777AbUBKOVy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 09:21:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265791AbUBKOVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 09:25:46 -0500
-Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:12465 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S265816AbUBKOZ3 convert rfc822-to-8bit (ORCPT
+	Wed, 11 Feb 2004 09:21:53 -0500
+Received: from ns2.len.rkcom.net ([80.148.32.9]:24493 "EHLO ns2.len.rkcom.net")
+	by vger.kernel.org with ESMTP id S265777AbUBKOVo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 09:25:29 -0500
+	Wed, 11 Feb 2004 09:21:44 -0500
+From: Florian Schanda <ma1flfs@bath.ac.uk>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 99% System load
+Date: Wed, 11 Feb 2004 14:22:44 +0000
+User-Agent: KMail/1.6
 MIME-Version: 1.0
-To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
-Subject: lk-changelog.pl 0.232
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Wed_Feb_11_14_25_24_UTC_2004_0@merlin.emma.line.org>
-Content-type: text/plain; charset=iso-8859-1
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20040211142524.C51A0AB163@merlin.emma.line.org>
-Date: Wed, 11 Feb 2004 15:25:24 +0100 (CET)
+Content-Disposition: inline
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_0qjKAlotJmXoe/E"
+Message-Id: <200402111423.02217.ma1flfs@bath.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a semi-automatic announcement.
 
-lk-changelog.pl aka. shortlog version 0.232 has been released.
+--Boundary-00=_0qjKAlotJmXoe/E
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This script is used by Linus and Marcelo to rearrange and reformat BK
-ChangeSet logs into a more human-readable format, and the official
-repository is Parent repository is http://bktools.bkbits.net/bktools
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-As the script has grown large, this mail only contains a diff against
-the last released version.
+Hello,
 
-You can always download the full script and GPG signatures from
-http://home.pages.de/~mandree/linux/kernel/
+I have experianced a strage problem with recent 2.6.{0,1,2} kernels:
 
-My thanks go to Vitezslav Samel who has spent a lot of time on digging
-out the real names for addresses sending in BK ChangeSets.
+Sometimes (not allways, thats the problem, otherwise I could just avoid the=
+=20
+offending command) during paralel builds (for instance kde-libs or kde-base)
+the build just stops, and I get a 99% system load.
 
-Note that your mailer must be MIME-capable to save this mail properly,
-because it is in the "quoted-printable" encoding.
+=46or instance, just now I have (from top):
 
-= <- if you see just an equality sign, but no "3D", your mailer is fine.
-= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
-= <- into metamail.
+Tasks:  89 total,   5 running,  84 sleeping,   0 stopped,   0 zombie
+ Cpu0 :  0.3% us, 99.7% sy,  0.0% ni,  0.0% id,  0.0% wa,  0.0% hi,  0.0% si
+ Cpu1 :  0.3% us, 99.7% sy,  0.0% ni,  0.0% id,  0.0% wa,  0.0% hi,  0.0% si
+ Cpu2 :  1.3% us, 98.7% sy,  0.0% ni,  0.0% id,  0.0% wa,  0.0% hi,  0.0% si
+ Cpu3 :  1.0% us, 99.0% sy,  0.0% ni,  0.0% id,  0.0% wa,  0.0% hi,  0.0% si
+Mem:   2071872k total,  1220772k used,   851100k free,    48080k buffers
+Swap:   401616k total,        0k used,   401616k free,   892428k cached
 
--- 
-A sh script on behalf of Matthias Andree
--------------------------------------------------------------------------
-Changes since last release:
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 5197 ma1flfs   25   0  2256  884 2184 R 99.5  0.0   6:29.38 sh
+ 5199 ma1flfs   25   0  2260  888 2184 R 99.5  0.0   6:28.02 sh
+ 5201 ma1flfs   25   0  2260  884 2184 R 98.5  0.0   6:29.99 sh
+ 5208 ma1flfs   25   0  1560  440 1404 R 98.5  0.0   6:32.03 grep
+<snip>
 
-----------------------------
-revision 0.232
-date: 2004/02/11 14:17:23;  author: vita;  state: Exp;  lines: +12 -1
-merge Linus' additions; add few more addresses
-----------------------------
-revision 0.231
-date: 2004/02/07 12:03:29;  author: vita;  state: Exp;  lines: +5 -1
-4 new addresses
-----------------------------
-revision 0.230
-date: 2004/02/05 15:06:05;  author: vita;  state: Exp;  lines: +2 -1
-added Robert Love's address
-----------------------------
-revision 0.229
-date: 2004/02/02 11:11:36;  author: vita;  state: Exp;  lines: +3 -1
-2 new addresses
-----------------------------
-revision 0.228
-date: 2004/01/31 15:33:47;  author: emma;  state: Exp;  lines: +2 -1
-Add new address for Dominik Brodowski.
-----------------------------
-revision 0.227
-date: 2004/01/30 11:36:34;  author: vita;  state: Exp;  lines: +10 -1
-add 9 new addresses
-----------------------------
-revision 0.226
-date: 2004/01/29 11:17:19;  author: vita;  state: Exp;  lines: +2 -1
-add Steve Hill's address
-----------------------------
-revision 0.225
-date: 2004/01/28 12:22:18;  author: vita;  state: Exp;  lines: +2 -1
-add Yoichi Yuasa's address
-----------------------------
-revision 0.224
-date: 2004/01/27 14:40:49;  author: emma;  state: Exp;  lines: +5 -1
-New EXAMPLE added, 'What am I about to pull?'.
-=============================================================================
-Index: lk-changelog.pl
-===================================================================
-RCS file: /var/CVS/lk-changelog/lk-changelog.pl,v
-retrieving revision 0.224
-retrieving revision 0.232
-diff -u -r0.224 -r0.232
---- lk-changelog.pl	27 Jan 2004 14:40:49 -0000	0.224
-+++ lk-changelog.pl	11 Feb 2004 14:17:23 -0000	0.232
-@@ -8,7 +8,7 @@
- #			Tomas Szepe <szepe@pinerecords.com>
- #			Vitezslav Samel <samel@mail.cz>
- #
--# $Id: lk-changelog.pl,v 0.224 2004/01/27 14:40:49 emma Exp $
-+# $Id: lk-changelog.pl,v 0.232 2004/02/11 14:17:23 vita Exp $
- # ----------------------------------------------------------------------
- # Distribution of this script is permitted under the terms of the
- # GNU General Public License (GNU GPL) v2.
-@@ -307,6 +307,7 @@
- 'borisitk:fortunet.com' => 'Boris Itkis', # by Kristian Peters
- 'boutcher:us.ibm.com' => 'Dave Boutcher',
- 'braam:clusterfs.com' => 'Peter Braam',
-+'brad:wasp.net.au' => 'Brad Campbell',
- 'brett:bad-sports.com' => 'Brett Pemberton',
- 'brihall:pcisys.net' => 'Brian Hall', # google
- 'brm:murphy.dk' => 'Brian Murphy',
-@@ -324,6 +325,7 @@
- 'c-d.hailfinger.kernel.2002-07:gmx.net' => 'Carl-Daniel Hailfinger',
- 'c-d.hailfinger.kernel.2002-q4:gmx.net' => 'Carl-Daniel Hailfinger', # himself
- 'c-d.hailfinger.kernel.2003:gmx.net' => 'Carl-Daniel Hailfinger', # himself
-+'c-d.hailfinger.kernel.2004:gmx.net' => 'Carl-Daniel Hailfinger',
- 'cagle:mindspring.com' => 'John Cagle', # Alan
- 'calum.mackay:cdmnet.org' => 'Calum Mackay', # lbdb
- 'cananian:lesser-magoo.lcs.mit.edu' => 'C. Scott Ananian',
-@@ -417,8 +419,10 @@
- 'davej:redhat.com' => 'Dave Jones', # lbdb
- 'davej:suse.de' => 'Dave Jones',
- 'davej:tetrachloride.(none)' => 'Dave Jones',
-+'davem:cheetah.(none)' => 'David S. Miller',
- 'davem:hera.kernel.org' => 'David S. Miller',
- 'davem:kernel.bkbits.net' => 'David S. Miller',
-+'davem:nuts.davemloft.net' => 'David S. Miller',
- 'davem:redhat.com' => 'David S. Miller',
- 'david-b:net.rmk.(none)' => 'David Brownell',
- 'david-b:pacbell.com' => 'David Brownell',
-@@ -468,10 +472,12 @@
- 'dledford:flossy.devel.redhat.com' => 'Doug Ledford',
- 'dledford:redhat.com' => 'Doug Ledford',
- 'dlstevens:us.ibm.com' => 'David Stevens',
-+'dlsy:snoqualmie.dp.intel.com' => 'Dely Sy',
- 'dmccr:us.ibm.com' => 'Dave McCracken',
- 'dmo:osdl.org' => 'Dave Olien',
- 'doj:cubic.org' => 'Dirk Jagdmann',
- 'dok:directfb.org' => 'Denis Oliver Kropp',
-+'domen:coderock.org' => 'Domen Puncer',
- 'dougg:torque.net' => 'Douglas Gilbert',
- 'drb:med.co.nz' => 'Ross Boswell',
- 'drepper:redhat.com' => 'Ulrich Drepper',
-@@ -481,6 +487,7 @@
- 'dsaxena:com.rmk' => 'Deepak Saxena',
- 'dsaxena:com.rmk.(none)' => 'Deepak Saxena',
- 'dsaxena:mvista.com' => 'Deepak Saxena',
-+'dsaxena:plexity.net' => 'Deepak Saxena',
- 'dsteklof:us.ibm.com' => 'Daniel E. F. Stekloff',
- 'dth:dth.net' => 'Danny ter Haar', # guessed
- 'dtor_core:ameritech.net' => 'Dmitry Torokhov',
-@@ -500,6 +507,7 @@
- 'edward_peng:dlink.com.tw' => 'Edward Peng',
- 'efocht:ess.nec.de' => 'Erich Focht',
- 'ehabkost:conectiva.com.br' => 'Eduardo Pereira Habkost',
-+'eike-hotplug:sf-tec.de' => 'Rolf Eike Beer',
- 'eike-kernel:sf-tec.de' => 'Rolf Eike Beer', # sent by himself
- 'eike:bilbo.math.uni-mannheim.de' => 'Rolf Eike Beer',
- 'elenstev:com.rmk.(none)' => 'Steven Cole',
-@@ -510,6 +518,7 @@
- 'emann:mrv.com' => 'Eran Mann',
- 'emcnabb:cs.byu.edu' => 'Evan N. McNabb',
- 'emoore:lsil.com' => 'Eric Dean Moore',
-+'ender:debian.org' => 'David Martínez Moreno',
- 'engebret:au1.ibm.com' => 'David Engebretsen',
- 'engebret:brule.rchland.ibm.com' => 'David Engebretsen',
- 'engebret:us.ibm.com' => 'David Engebretsen',
-@@ -525,6 +534,7 @@
- 'erlend-a:us.his.no' => 'Erlend Aasland',
- 'erlend-a:ux.his.no' => 'Erlend Aasland',
- 'ernstp:mac.com' => 'Ernst Persson', # lbdb
-+'eugene.teo:eugeneteo.net' => 'Eugene Teo',
- 'eugeneteo:eugeneteo.net' => 'Eugene Teo',
- 'eyal:eyal.emu.id.au' => 'Eyal Lebedinsky', # lbdb
- 'faikuygur:ttnet.net.tr' => 'Faik Uygur',
-@@ -747,6 +757,7 @@
- 'jim.houston:attbi.com' => 'Jim Houston',
- 'jkenisto:us.ibm.com' => 'James Keniston',
- 'jkt:helius.com' => 'Jack Thomasson',
-+'jlcooke:certainkey.com' => 'Jean-Luc Cooke',
- 'jmcmullan:linuxcare.com' => 'Jason McMullan',
- 'jmm:informatik.uni-bremen.de' => 'Moritz Mühlenhoff',
- 'jmorris:intercode.com.au' => 'James Morris',
-@@ -769,10 +780,13 @@
- 'john:deater.net' => 'John Clemens',
- 'john:grabjohn.com' => 'John Bradford',
- 'john:larvalstage.com' => 'John Kim',
-+'john:neggie.net' => 'John Belmonte',
- 'johnf:whitsunday.net.au' => 'John W. Fort',
- 'johnpol:2ka.mipt.ru' => 'Evgeniy Polyakov',
-+'johnrose:austin.ibm.com' => 'John Rose',
- 'johnstul:us.ibm.com' => 'John Stultz',
- 'jones:ingate.com' => 'Jones Desougi',
-+'jonsmirl:yahoo.com' => 'Jon Smirl',
- 'joris:struyve.be' => 'Joris Struyve',
- 'josh:joshisanerd.com' => 'Josh Myer',
- 'jsiemes:web.de' => 'Josef Siemes',
-@@ -785,6 +799,7 @@
- 'jsm:udlkern.fc.hp.com' => 'John S. Marvin',
- 'jsun:mvista.com' => 'Jun Sun',
- 'jt:bougret.hpl.hp.com' => 'Jean Tourrilhes',
-+'jt:bougret.jpl.hp.com' => 'Jean Tourrilhes',	# jpl? Whaa? hpl!
- 'jt:hpl.hp.com' => 'Jean Tourrilhes',
- 'jtyner:cs.ucr.edu' => 'John Tyner',
- 'judd:jpilot.org' => 'Judd Montgomery',
-@@ -829,6 +844,7 @@
- 'khalid_aziz:hp.com' => 'Khalid Aziz',
- 'khc:pc.waw.pl' => 'Krzysztof Halasa',
- 'khc:pm.waw.pl' => 'Krzysztof Halasa',
-+'kieran:mgpenguin.net' => 'Kieran Morrissey',
- 'kiran:in.ibm.com' => 'Ravikiran G. Thirumalai',
- 'kisza:sch.bme.hu' => 'Andras Kis-Szabo', # google (netfilter-ext HOWTO)
- 'kkeil:isdn4linux.de' => 'Karsten Keil',
-@@ -857,6 +873,7 @@
- 'kyle:debian.org' => 'Kyle McMartin',
- 'kyle:engsoc.carleton.ca' => 'Kyle McMartin',
- 'l.s.r:web.de' => 'René Scharfe',
-+'ladis:linux-mips.org' => 'Ladislav Michl',
- 'ladis:psi.cz' => 'Ladislav Michl',
- 'laforge:gnumonks.org' => 'Harald Welte',
- 'laforge:netfilter.org' => 'Harald Welte',
-@@ -886,6 +903,7 @@
- 'linux-usb:gemeinhardt.info' => 'Lars Gemeinhardt',
- 'linux:brodo.de' => 'Dominik Brodowski',
- 'linux:de.rmk.(none)' => 'Dominik Brodowski',
-+'linux:dominikbrodowski.de' => 'Dominik Brodowski',
- 'linux:hazard.jcu.cz' => 'Jan Marek',
- 'linux:thorsten-knabe.de' => 'Thorsten Knabe',
- 'lionel.bouton:inet6.fr' => 'Lionel Bouton',
-@@ -988,6 +1006,7 @@
- 'mgreer:mvista.com' => 'Mark A. Greer', # lbdb
- 'mhoffman:lightlink.com' => 'Mark M. Hoffman',
- 'mhopf:innominate.com' => 'Mark-André Hopf',
-+'michael.krauth:web.de' => 'Michael Krauth',
- 'michael:metaparadigm.com' => 'Michael Clark',
- 'michael_e_brown:dell.com' => 'Michael E. Brown', # lbdb
- 'michaelw:foldr.org' => 'Michael Weber', # google
-@@ -1084,6 +1103,7 @@
- 'ntfs:flatcap.org' => 'Richard Russon', # lbdb
- 'nuno:itsari.org' => 'Nuno Monteiro',
- 'obelix123:toughguy.net' => 'Raj',		# Hmm..
-+'ogasawara:osdl.org' => 'Leann Ogasawara',
- 'okir:suse.de' => 'Olaf Kirch', # lbdb
- 'okurth:gmx.net' => 'Oliver Kurth',
- 'olaf.dietsche#list.linux-kernel:t-online.de' => 'Olaf Dietsche',
-@@ -1134,6 +1154,7 @@
- 'pazke:donpac.ru' => 'Andrey Panin',
- 'pazke:orbita1.ru' => 'Andrey Panin',
- 'pbadari:us.ibm.com' => 'Badari Pulavarty',
-+'pcaulfie:redhat.com' => 'Patrick Caulfield',
- 'pdelaney:lsil.com' => 'Pam Delaney',
- 'pe1rxq:amsat.org' => 'Jeroen Vreeken',
- 'pebl:math.ku.dk' => 'Peter Berg Larsen',
-@@ -1237,6 +1258,7 @@
- 'rmk:arm.linux.org.uk' => 'Russell King',
- 'rmk:flint.arm.linux.org.uk' => 'Russell King',
- 'rml:tech9.net' => 'Robert Love',
-+'rml:ximian.com' => 'Robert Love',
- 'rnp:paradise.net.nz' => 'Richard Procter',
- 'rob:landley.net' => 'Rob Landley',
- 'rob:osinvestor.com' => 'Rob Radez',
-@@ -1291,9 +1313,11 @@
- 'sarolaht:cs.helsinki.fi' => 'Pasi Sarolahti',
- 'sawa:yamamoto.gr.jp' => 'sawa',
- 'scameron:quandary.cca.cpqcorp.net' => 'Steve Cameron',
-+'schierlm:gmx.de' => 'Michael Schierl',
- 'schlicht:uni-mannheim.de' => 'Thomas Schlichter',
- 'schlicht:uni-mannheimn.de' => 'Thomas Schlichter',	# it's typo IMHO
- 'schoenfr:gaaertner.de' => 'Erik Schoenfelder',
-+'scholnik:radar.nrl.navy.mil' => 'Dan Scholnik',
- 'schwab:suse.de' => 'Andreas Schwab',
- 'schwidefsky:de.ibm.com' => 'Martin Schwidefsky',
- 'scole:zianet.com' => 'Steven Cole', # lk, Alan Cox 20030904
-@@ -1316,6 +1340,7 @@
- 'sfrost:snowman.net' => 'Stephen Frost',
- 'shaggy:austin.ibm.com' => 'Dave Kleikamp',
- 'shaggy:kleikamp.austin.ibm.com' => 'Dave Kleikamp',
-+'shaggy:kleikamp.dyn.webahead.ibm.com' => 'Dave Kleikamp',
- 'shaggy:shaggy.austin.ibm.com' => 'Dave Kleikamp', # lbdb
- 'sheilds:msrl.com' => 'Michael Shields', # typo
- 'shemminger:osdl.org' => 'Stephen Hemminger',
-@@ -1366,6 +1391,7 @@
- 'steve:chygwyn.com' => 'Steven Whitehouse',
- 'steve:gw.chygwyn.com' => 'Steven Whitehouse',
- 'steve:kbuxd.necst.nec.co.jp' => 'Steve Baur',
-+'steve:navaho.co.uk' => 'Steve Hill',
- 'steved:redhat.com' => 'Steve Dickson',
- 'stevef:linux.local' => 'Steve French', # guessed
- 'stevef:smfhome1.austin.rr.com' => 'Steve French',
-@@ -1413,6 +1439,7 @@
- 'thomas:stewarts.org.uk' => 'Thomas Stewart',
- 'thomas:winischhofer.net' => 'Thomas Winischhofer', # whois
- 'thomr9am:ss1000.ms.mff.cuni.cz' => 'Rudo Thomas',
-+'thornber:redhat.com' => 'Joe Thornber',
- 'thornber:sistina.com' => 'Joe Thornber',
- 'thunder:ngforever.de' => 'Thunder From The Hill',
- 'tigran:aivazian.name' => 'Tigran Aivazian',
-@@ -1430,6 +1457,7 @@
- 'tommy.christensen:tpack.net' => 'Tommy Christensen',
- 'tommy:home.tig-grr.com' => 'Tom Marshall',
- 'tony.luck:intel.com' => 'Tony Luck',
-+'tony:atomide.com' => 'Tony Lindgren',
- 'tony:cantech.net.au' => 'Anthony J. Breeds-Taurima',
- 'tony:com.rmk.(none)' => 'Tony Lindgren',
- 'tonyb:cybernetics.com' => 'Tony Battersby',
-@@ -1441,6 +1469,7 @@
- 'trini:mvista.com' => 'Tom Rini',
- 'trini:opus.bloom.county' => 'Tom Rini',
- 'trini:org.rmk.(none)' => 'Tom Rini',
-+'tritol:trilogic.cz' => 'Lubomír Bláha',
- 'trivial:rustcorp.com.au' => 'Rusty Russell',
- 'trond.myklebust:fys.uio.no' => 'Trond Myklebust',
- 'tsk:ibakou.com' => 'Kawazoe Tomonori',
-@@ -1528,6 +1557,7 @@
- 'yoshfuji:linux-ipv6.org' => 'Hideaki Yoshifuji', # lbdb
- 'yoshfuji:nuts.ninka.net' => 'Hideaki Yoshifuji',
- 'ysato:users.sourceforge.jp' => 'Yoshinori Sato', # lbdb
-+'yuasa:hh.iij4u.or.jp' => 'Yoichi Yuasa',
- 'yuri:acronis.com' => 'Yuri Per', # lbdb
- 'zaitcev:redhat.com' => 'Pete Zaitcev',
- 'zecke:flint.arm.linux.org.uk' => 'Holger Freyther',
+I cannot kill -9 those processes. Is there some way to get rid of them with=
+out=20
+a reboot?
 
+The strange thing is, resuming the build after the reboot with exactly the=
+=20
+same command (make -j4) will work fine... It's just not reproducible at all=
+,=20
+but it happend often enought to make it annoying.
+
+(BTW, this never happened with non-paralel builds)
+
+I have no idea where to start looking... I have attached a "ps -axfu" in ca=
+se=20
+that helps.
+
+	Florian Schanda
+=2D----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQFAKjq5fCf8muQVS4cRApTDAJ9firqIMAEMYC0sWmtEYtpA+s8tKwCfXj8W
+DKkrA9MxZxKXhoJcgxAuiL0=3D
+=3DfV1B
+=2D----END PGP SIGNATURE-----
+
+--Boundary-00=_0qjKAlotJmXoe/E
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="proclist"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="proclist"
+
+USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+root         1  0.0  0.0  1484  492 ?        S    12:03   0:04 init [5]  
+root         2  0.0  0.0     0    0 ?        SW   12:03   0:00 [migration/0]
+root         3  0.0  0.0     0    0 ?        SWN  12:03   0:00 [ksoftirqd/0]
+root         4  0.0  0.0     0    0 ?        SW   12:03   0:00 [migration/1]
+root         5  0.0  0.0     0    0 ?        SWN  12:03   0:00 [ksoftirqd/1]
+root         6  0.0  0.0     0    0 ?        SW   12:03   0:00 [migration/2]
+root         7  0.0  0.0     0    0 ?        SWN  12:03   0:00 [ksoftirqd/2]
+root         8  0.0  0.0     0    0 ?        SW   12:03   0:00 [migration/3]
+root         9  0.0  0.0     0    0 ?        SWN  12:03   0:00 [ksoftirqd/3]
+root        10  0.0  0.0     0    0 ?        SW<  12:03   0:00 [events/0]
+root        11  0.0  0.0     0    0 ?        SW<  12:03   0:00 [events/1]
+root        12  0.0  0.0     0    0 ?        SW<  12:03   0:00 [events/2]
+root        13  0.0  0.0     0    0 ?        SW<  12:03   0:00 [events/3]
+root        14  0.0  0.0     0    0 ?        SW<  12:03   0:00 [kblockd/0]
+root        15  0.0  0.0     0    0 ?        SW<  12:03   0:00 [kblockd/1]
+root        16  0.0  0.0     0    0 ?        SW<  12:03   0:00 [kblockd/2]
+root        17  0.0  0.0     0    0 ?        SW<  12:03   0:00 [kblockd/3]
+root        18  0.0  0.0     0    0 ?        SW   12:03   0:00 [khubd]
+root        22  0.0  0.0     0    0 ?        SW   12:03   0:00 [kswapd0]
+root        21  0.0  0.0     0    0 ?        SW   12:03   0:00 [pdflush]
+root        19  0.0  0.0     0    0 ?        SW   12:03   0:00 [kirqd]
+root        20  0.0  0.0     0    0 ?        SW   12:03   0:02 [pdflush]
+root        23  0.0  0.0     0    0 ?        SW<  12:03   0:00 [aio/0]
+root        24  0.0  0.0     0    0 ?        SW<  12:03   0:00 [aio/1]
+root        25  0.0  0.0     0    0 ?        SW<  12:03   0:00 [aio/2]
+root        26  0.0  0.0     0    0 ?        SW<  12:03   0:00 [aio/3]
+root        27  0.0  0.0     0    0 ?        SW<  12:03   0:01 [xfslogd/0]
+root        28  0.0  0.0     0    0 ?        SW<  12:03   0:00 [xfslogd/1]
+root        29  0.0  0.0     0    0 ?        SW<  12:03   0:00 [xfslogd/2]
+root        30  0.0  0.0     0    0 ?        SW<  12:03   0:00 [xfslogd/3]
+root        31  0.0  0.0     0    0 ?        SW<  12:03   0:00 [xfsdatad/0]
+root        32  0.0  0.0     0    0 ?        SW<  12:03   0:00 [xfsdatad/1]
+root        33  0.0  0.0     0    0 ?        SW<  12:03   0:00 [xfsdatad/2]
+root        34  0.0  0.0     0    0 ?        SW<  12:03   0:00 [xfsdatad/3]
+root        35  0.0  0.0     0    0 ?        SW   12:03   0:00 [pagebufd]
+root        36  0.0  0.0     0    0 ?        SW   12:03   0:00 [scsi_eh_0]
+root        37  0.0  0.0     0    0 ?        SW   12:03   0:00 [ahc_dv_0]
+root        38  0.0  0.0     0    0 ?        SW   12:03   0:00 [kseriod]
+root        39  0.0  0.0     0    0 ?        SW   12:03   0:00 [xfs_syncd]
+root        85  0.0  0.0     0    0 ?        SW   12:03   0:00 [xfs_syncd]
+root       140  0.0  0.0  1536  596 ?        S    12:03   0:00 syslogd -m 0
+root       143  0.0  0.0  2252 1344 ?        S    12:03   0:00 klogd
+#1         166  0.0  0.0  1600  432 ?        S    12:03   0:00 /sbin/portmap
+nobody     172  0.0  0.0  1660  716 ?        S    12:03   0:00 rpc.statd
+root       178  0.0  0.0     0    0 ?        SW   12:03   0:00 [rpciod]
+root       179  0.0  0.0     0    0 ?        SW   12:03   0:00 [lockd]
+root       185  0.0  0.0  3116 1344 ?        S    12:03   0:00 /usr/sbin/sshd -p 50000
+root       198  0.0  0.0  2808  736 ?        S    12:03   0:00 /opt/kde3/bin/kdm
+root       206  1.4  0.8 281556 18176 ?      SL   12:03   1:59  \_ /usr/X11R6/bin/X vt7 -auth /var/run/xauth/A:0-AoIuu1
+root       207  0.0  0.0  2972 1080 ?        S    12:03   0:00  \_ -:0              
+ma1flfs    219  0.0  0.0  2280 1052 ?        S    12:04   0:00      \_ /bin/sh /opt/kde3/bin/startkde
+ma1flfs    286  0.0  0.0  1480  328 ?        S    12:04   0:00          \_ kwrapper ksmserver
+root       200  0.0  0.0  1476  416 tty1     S    12:03   0:00 /sbin/agetty vc/1 9600
+root       201  0.0  0.0  1480  420 tty2     S    12:03   0:00 /sbin/agetty vc/2 9600
+root       202  0.0  0.0  1480  420 tty3     S    12:03   0:00 /sbin/agetty vc/3 9600
+root       203  0.0  0.0  1480  420 tty4     S    12:03   0:00 /sbin/agetty vc/4 9600
+root       204  0.0  0.0  1480  420 tty5     S    12:03   0:00 /sbin/agetty vc/5 9600
+root       205  0.0  0.0  1480  420 tty6     S    12:03   0:00 /sbin/agetty vc/6 9600
+ma1flfs    240  0.0  0.4 21804 9836 ?        S    12:04   0:00 kdeinit: Running...      
+ma1flfs    245  0.0  0.5 23148 11280 ?       S    12:04   0:00  \_ kdeinit: klauncher       
+ma1flfs    280  1.3  0.5 40528 11536 ?       S    12:04   1:46  \_ /opt/kde3/bin/artsd -F 10 -S 4096 -a alsa -b 16 -s 60 -m artsmessage -c drkonqi -l 3 -f
+ma1flfs    289  0.0  0.7 24656 14552 ?       S    12:04   0:07  \_ kdeinit: kwin            
+ma1flfs    330  0.0  0.5 24624 12124 ?       S    12:06   0:01  \_ kdeinit: kio_pop3 pop3s /tmp/ksocket-ma1flfs/klauncherFD5c2b.slave-socket /tmp/ksocket-ma1flfs/kmailzuxKna.slave-socket
+ma1flfs   5211  0.0  0.5 22744 10364 ?       S    14:03   0:00  \_ kdeinit: kio_file file /tmp/ksocket-ma1flfs/klauncherFD5c2b.slave-socket /tmp/ksocket-ma1flfs/kateCddIFa.slave-socket
+ma1flfs   5249  0.1  0.7 26540 15656 ?       S    14:09   0:00  \_ kdeinit: konsole         
+ma1flfs   5250  0.0  0.0  2412 1356 pts/1    R    14:09   0:00  |   \_ /bin/bash
+ma1flfs   5263  0.0  0.0  2316  764 pts/1    R    14:17   0:00  |       \_ ps axfu
+ma1flfs   5261  0.0  0.5 22752 10432 ?       S    14:17   0:00  \_ kdeinit: kio_file file /tmp/ksocket-ma1flfs/klauncherFD5c2b.slave-socket /tmp/ksocket-ma1flfs/kateYyJMVa.slave-socket
+ma1flfs    243  0.0  0.4 21580 9900 ?        S    12:04   0:01 kdeinit: dcopserver --nosid
+ma1flfs    248  0.0  0.7 26956 15800 ?       S    12:04   0:02 kdeinit: kded            
+ma1flfs    255  0.0  0.6 24316 14040 ?       S    12:04   0:00 kdeinit: kxkb            
+ma1flfs    282  0.0  0.8 29380 17656 ?       S    12:04   0:00 kdeinit: knotify         
+ma1flfs    288  0.0  0.6 23164 12720 ?       S    12:04   0:00 kdeinit: ksmserver       
+ma1flfs    291  0.0  0.7 25612 16160 ?       S    12:04   0:03 kdeinit: kdesktop        
+ma1flfs    293  0.4  0.8 26796 17404 ?       S    12:04   0:32 kdeinit: kicker          
+ma1flfs    296  0.0  0.0  1688  728 ?        S    12:04   0:00  \_ ksysguardd
+ma1flfs    300  0.0  0.6 24184 13216 ?       S    12:04   0:00 kalarmd --login
+ma1flfs    301  0.0  0.7 26320 15656 ?       S    12:04   0:00 kgpg
+ma1flfs    302  0.0  0.7 26976 16044 ?       S    12:04   0:00 kalarm --tray
+ma1flfs    311  0.0  0.6 24888 14460 ?       S    12:05   0:00 kdeinit: kio_uiserver    
+ma1flfs    315  0.0  0.6 23488 13744 ?       S    12:05   0:00 kwalletmanager
+ma1flfs    321  0.6  1.1 34464 23852 ?       S    12:05   0:48 juk -caption JuK -icon juk.png -miniicon juk.png
+ma1flfs   5197 98.5  0.0  2256  884 ?        R    14:03  14:36 /bin/sh ../../libtool --silent --mode=compile --tag=CXX g++ -DHAVE_CONFIG_H -I. -I. -I../.. -I/opt/kde3/include -I/opt/qt/include -I/usr/X11R6/include -DQT_THREAD_SUPPORT -D_REENTRANT -Wnon-virtual-dtor -Wno-long-long -Wundef -Wall -W -Wpointer-arith -Wwrite-strings -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -DNDEBUG -DNO_DEBUG -O2 -O3 -march=pentium4 -mcpu=pentium4 -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common -DQT_CLEAN_NAMESPACE -DQT_NO_ASCII_CAST -DQT_NO_STL -DQT_NO_COMPAT -DQT_NO_TRANSLATION -D_GNU_SOURCE -MT kcmlocale.lo -MD -MP -MF .deps/kcmlocale.Tpo -c -o kcmlocale.lo kcmlocale.cpp
+ma1flfs   5199 97.8  0.0  2260  888 ?        R    14:03  14:30 /bin/sh ../../libtool --silent --mode=compile --tag=CXX g++ -DHAVE_CONFIG_H -I. -I. -I../.. -I/opt/kde3/include -I/opt/qt/include -I/usr/X11R6/include -DQT_THREAD_SUPPORT -D_REENTRANT -Wnon-virtual-dtor -Wno-long-long -Wundef -Wall -W -Wpointer-arith -Wwrite-strings -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -DNDEBUG -DNO_DEBUG -O2 -O3 -march=pentium4 -mcpu=pentium4 -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common -DQT_CLEAN_NAMESPACE -DQT_NO_ASCII_CAST -DQT_NO_STL -DQT_NO_COMPAT -DQT_NO_TRANSLATION -D_GNU_SOURCE -MT toplevel.lo -MD -MP -MF .deps/toplevel.Tpo -c -o toplevel.lo toplevel.cpp
+ma1flfs   5201 97.9  0.0  2260  884 ?        R    14:03  14:31 /bin/sh ../../libtool --silent --mode=compile --tag=CXX g++ -DHAVE_CONFIG_H -I. -I. -I../.. -I/opt/kde3/include -I/opt/qt/include -I/usr/X11R6/include -DQT_THREAD_SUPPORT -D_REENTRANT -Wnon-virtual-dtor -Wno-long-long -Wundef -Wall -W -Wpointer-arith -Wwrite-strings -ansi -D_XOPEN_SOURCE=500 -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -DNDEBUG -DNO_DEBUG -O2 -O3 -march=pentium4 -mcpu=pentium4 -Wformat-security -Wmissing-format-attribute -fno-exceptions -fno-check-new -fno-common -DQT_CLEAN_NAMESPACE -DQT_NO_ASCII_CAST -DQT_NO_STL -DQT_NO_COMPAT -DQT_NO_TRANSLATION -D_GNU_SOURCE -MT klanguagebutton.lo -MD -MP -MF .deps/klanguagebutton.Tpo -c -o klanguagebutton.lo klanguagebutton.cpp
+ma1flfs   5208 98.2  0.0  1560  440 ?        R    14:03  14:33 grep ^# ### BEGIN LIBTOOL TAG CONFIG: CXX$
+ma1flfs   5246  1.8  4.0 97124 84304 ?       S    14:08   0:09 kmail -caption KMail -icon kmail -miniicon kmail
+ma1flfs   5260  3.3  1.0 30200 20724 pts/1   S    14:17   0:01 kate proclist
+
+--Boundary-00=_0qjKAlotJmXoe/E--

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317883AbSGKTpq>; Thu, 11 Jul 2002 15:45:46 -0400
+	id <S317884AbSGKTpT>; Thu, 11 Jul 2002 15:45:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317885AbSGKTpp>; Thu, 11 Jul 2002 15:45:45 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:23308 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S317883AbSGKTpn>; Thu, 11 Jul 2002 15:45:43 -0400
-Date: Thu, 11 Jul 2002 21:48:20 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Daniel Phillips <phillips@arcor.de>
-cc: Rusty Russell <rusty@rustcorp.com.au>, Alexander Viro <viro@math.psu.edu>,
-       "David S. Miller" <davem@redhat.com>, <adam@yggdrasil.com>,
-       <R.E.Wolff@bitwizard.nl>, <linux-kernel@vger.kernel.org>
-Subject: Re: Rusty's module talk at the Kernel Summit
-In-Reply-To: <E17SigN-0002V1-00@starship>
-Message-ID: <Pine.LNX.4.44.0207112059580.8911-100000@serv>
+	id <S317885AbSGKTpS>; Thu, 11 Jul 2002 15:45:18 -0400
+Received: from mm02snlnto.sandia.gov ([132.175.109.21]:48903 "HELO
+	mm02snlnto.sandia.gov") by vger.kernel.org with SMTP
+	id <S317884AbSGKTpR>; Thu, 11 Jul 2002 15:45:17 -0400
+X-Server-Uuid: 95b8ca9b-fe4b-44f7-8977-a6cb2d3025ff
+Message-ID: <03781128C7B74B4DBC27C55859C9D73809840658@es06snlnt>
+From: "Shipman, Jeffrey E" <jeshipm@sandia.gov>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: ioctl between user/kernel space
+Date: Thu, 11 Jul 2002 13:48:00 -0600
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-Filter-Version: 1.8 (sass2426)
+X-WSS-ID: 11333FDA3577993-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I'm not sure if this is the right place to ask this, but
+I have a question about ioctl(). I have a situation where
+I need to parse a file and build a hash table out of the
+information in user space. Then, I must pass that hash
+table into my module that's in kernel space. My question 
+is: is ioctl() the way to go about this? I really don't
+know much about the function, but some people have mentioned
+it to me as the way to pass information between user and
+kernel space.
 
-On Thu, 11 Jul 2002, Daniel Phillips wrote:
+If anyone has advice on if this is the way to go about it
+or how we could go about doing this would be greatly
+appreciated. Also, if anyone knows of any websites which
+may be helpful in this area, we'd appreciate that as
+well.
 
-> > Please check try_inc_mod_count(). It's already done.
->
-> It's a good start, but it's not quite right.  Deregister_filesystem has to be
-> the authority on whether the module can be deleted or not, and there's no
-> interface for that at the moment.
+Thanks.
 
-That's right, but the filesystem code shows that this is not strictly
-necessary. In get_fs_type() you can't get access to a filesystem that will
-be removed, either it's first marked deleted or the use count is
-incremented, both are protected by the unload_lock. file_systems_lock now
-takes care that get_fs_type() doesn't see an invalid filesystem/owner
-pointer.
-
-> In short, it's close to the truth, but it's not quite there in its current
-> form.  Al said as much himself.
-
-He was talking about a generic interface. I stared now long enough at
-that code, could anyone point me to where exactly is there a race in
-the filesystem code??? IMO it's more complex than necessary (because it
-has to work around the problem that unregister can't fail), but it should
-work.
-BTW this example shows also the limitation of the current module
-interface. It's impossible for a module to control itself, whether it can
-be unloaded or not. All code for this must be outside of this module,
-after __MOD_DEC_USE_COUNT() the module must not be touched anymore (so
-this call can't be inside of a module).
-
-bye, Roman
+Jeff Shipman - CCD
+Sandia National Laboratories
+(505) 844-1158 / MS-1372
 

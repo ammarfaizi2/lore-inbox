@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267380AbTAQDJM>; Thu, 16 Jan 2003 22:09:12 -0500
+	id <S267120AbTAQDSP>; Thu, 16 Jan 2003 22:18:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267381AbTAQDJL>; Thu, 16 Jan 2003 22:09:11 -0500
-Received: from f130.law14.hotmail.com ([64.4.21.130]:42503 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S267380AbTAQDJL>;
-	Thu, 16 Jan 2003 22:09:11 -0500
-X-Originating-IP: [200.210.102.111]
-From: "Adriano Carvalho" <ch0wn_@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Ethernet Conexant LANfinity doesnt send anything
-Date: Fri, 17 Jan 2003 01:16:37 -0200
+	id <S267135AbTAQDSP>; Thu, 16 Jan 2003 22:18:15 -0500
+Received: from out004pub.verizon.net ([206.46.170.142]:8867 "EHLO
+	out004.verizon.net") by vger.kernel.org with ESMTP
+	id <S267120AbTAQDSP>; Thu, 16 Jan 2003 22:18:15 -0500
+Date: Thu, 16 Jan 2003 22:38:10 -0500
+From: daveman@bellatlantic.net
+To: Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: any brand recomendation for a linux laptop ?
+Message-ID: <20030117033810.GA2319@bellatlantic.net>
+Reply-To: daveman@bellatlantic.net
+References: <200301161100.45552.Nicolas.Turro@sophia.inria.fr> <20030116104154.GL25246@pegasys.ws> <3E26BE43.6000406@walrond.org> <20030116144045.GC30736@work.bitmover.com> <20030116153727.GA27441@lug-owl.de> <20030116154004.GD31419@work.bitmover.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Message-ID: <F130FmvnW6jN2MQnccw00005e36@hotmail.com>
-X-OriginalArrivalTime: 17 Jan 2003 03:16:37.0569 (UTC) FILETIME=[D8AD6B10:01C2BDD6]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030116154004.GD31419@work.bitmover.com>
+User-Agent: Mutt/1.4i
+X-Authentication-Info: Submitted using SMTP AUTH LOGIN at out004.verizon.net from [151.201.17.206] at Thu, 16 Jan 2003 21:27:07 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 16, 2003 at 07:40:04AM -0800, Larry McVoy wrote:
+> On Thu, Jan 16, 2003 at 04:37:27PM +0100, Jan-Benedict Glaw wrote:
+> > On Thu, 2003-01-16 06:40:45 -0800, Larry McVoy <lm@bitmover.com>
+> > wrote in message <20030116144045.GC30736@work.bitmover.com>:
+> > > On Thu, Jan 16, 2003 at 02:14:27PM +0000, Andrew Walrond wrote:
+> > 
+> > > I like the T23 myself.  Wireless, ethernet, modem, DVD, fast.
+> > 
+> > Serial modem, or some winmodem type? I'd prefer to have a "real" modem,
+> > though...
+> 
+> Winmodem.  I'm pretty sure I got it to work under Linux at some point but
+> I'll admit that I boot into windows on those rare occasions I need a modem.
+> Getting that stuff to work under Linux is fragile at best.
+> -- 
+> ---
+> Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
 
+Xircom Cardbus Realport: 10/100, 56k(V.90) and I never break dongles anymore! It has worked effortlessly on my thinkpad.
 
-
-I have a Compaq Laptop 1400 14xl244, with Modem HCF conexant , and ethernet 
-card Conexant LANfinity. They are COMBO, and they use IRQ 11. When I startup 
-module (tulip) for my ethernet card, its ok. But when I try send or receive 
-anything, I dont get. PCMCIA card uses IRQ 11 too, so I get it out from 
-kernel, but it doesnt solve. Here is my /proc/interrupts :
-
-11: 20 XT-PIC hcf, eth0 this was after a time of try ping, and the number 
-"20" after stays 1691, after 2000... Donald Becker (tulip developer) told me 
-to send these lines : Compaq 12XL125 machine detected. Enabling interrupts 
-during APM calls. ... Local APIC disabled by BIOS -- reenabling. Found and 
-enabled local APIC! .. PCI: Using IRQ router VIA [1106/0686] at 00:07.0 PCI: 
-Found IRQ 11 for device 00:0a.0 PCI: Sharing IRQ 11 with 00:09.0 PCI: 
-Sharing IRQ 11 with 00:09.1 PCI: Disabling Via external APIC routing
-
-anybody can help me ?? Thanks for all.
-
-Adriano Carvalho.
-PS : If I take off APIC support, this doesnt change anything. it doesnt 
-solve it
-
-_________________________________________________________________
-MSN Hotmail, o maior webmail do Brasil. http://www.hotmail.com
-
+--David Shepard

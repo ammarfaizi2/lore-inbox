@@ -1,67 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270067AbUJHRgJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270023AbUJHRgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270067AbUJHRgJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 13:36:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270072AbUJHRgJ
+	id S270023AbUJHRgk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 13:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270045AbUJHRgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 13:36:09 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:12725 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S270067AbUJHRgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 13:36:07 -0400
-Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
-From: Lee Revell <rlrevell@joe-job.com>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Cc: Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
-       mark_h_johnson@raytheon.com,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
-In-Reply-To: <41664364.20604@bigpond.net.au>
-References: <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
-	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>
-	 <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
-	 <20041007105230.GA17411@elte.hu>
-	 <56697.195.245.190.93.1097157219.squirrel@195.245.190.93>
-	 <32798.192.168.1.5.1097191570.squirrel@192.168.1.5>
-	 <1097213813.1442.2.camel@krustophenia.net> <20041008070654.GA30926@elte.hu>
-	 <41664364.20604@bigpond.net.au>
-Content-Type: text/plain
-Message-Id: <1097256432.1442.6.camel@krustophenia.net>
+	Fri, 8 Oct 2004 13:36:39 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:47870 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S270023AbUJHRgg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 13:36:36 -0400
+Date: Fri, 8 Oct 2004 19:36:25 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: s390 patches for -bk.
+Message-ID: <20041008173624.GA7356@mschwid3.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 08 Oct 2004 13:27:13 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-08 at 03:36, Peter Williams wrote:
-> Ingo Molnar wrote:
-> > * Lee Revell <rlrevell@joe-job.com> wrote:
-> > 
-> > 
-> >>On Thu, 2004-10-07 at 19:26, Rui Nuno Capela wrote:
-> >>
-> >>>Ingo Molnar wrote:
-> >>>
-> >>>>>i've released the -T3 VP patch:
-> >>>>>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
-> >>>>>
-> >>>>
-> >>>OK. Just to let you know, both of my personal machines are now running on
-> >>>bleeding-edge 2.6.9-rc3-mm3-T3, and very happily may I assure :)
-> >>
-> >>This actually feels a _lot_ snappier than mm2, which seemed prone to
-> >>weird stalls.  I don't have any numbers to back this up yet.
-> > 
-> > 
-> > yeah, -mm is back to the development branch of the stock scheduler. 
-> > (i.e. the scheduler changes destined for 2.6.10.)
-> 
-> It's also got a fix for the cache hot timing bug which was causing havoc 
-> with the load balancer.
+Hi Andrew,
+I have 12 patches for -bk. The first 7 are bug fixes and small improvements.
+The remaining 5 pathces are new features. I'd suggest to push the bug fixes
+to -bk right away (probably minus the zfcp one since it isn't really small
+and we are quite late into 2.6.9 already) and keep the new features back
+for early 2.6.10 and add them to -mm in the meantime.
 
-Wouldn't this only be an issue on SMP?  I am on a UP system.
+Short overview:
+1) s390 core changes
+2) common i/o layer bug fixes
+3) dasd driver bug fixes
+4) monitor stream stack reduction
+5) add module parameter for dcss block driver
+6) qeth driver bug fix.
+7) zfcp adapter bug fixes.
 
-Lee
+8) layer 2 support for osa-express cards (qeth driver)
+9) z/VM watchdog timer support (new driver)
+10) z/VM log reader support (new driver)
+11) add support for zero-pad and crypto express II (crypto driver)
+12) add support to read z/VM monitor records (new driver)
+
+blue skies,
+  Martin.
 

@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263600AbUFFN14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263609AbUFFNbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263600AbUFFN14 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 09:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263624AbUFFN14
+	id S263609AbUFFNbO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 09:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263612AbUFFNbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 09:27:56 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48812 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263600AbUFFN1w
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 09:27:52 -0400
-Date: Sun, 6 Jun 2004 14:27:51 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: trond.myklebust@fys.uio.no, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       willy@debian.org, linux-kernel@vger.kernel.org
-Subject: Killing POSIX deadlock detection
-Message-ID: <20040606132751.GZ5850@parcelfarce.linux.theplanet.co.uk>
-References: <200406050725.i557P3hQ004052@supreme.pcug.org.au> <20040606130422.0c8946b3.sfr@canb.auug.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 6 Jun 2004 09:31:14 -0400
+Received: from astro.futurequest.net ([69.5.28.104]:26248 "HELO
+	astro.futurequest.net") by vger.kernel.org with SMTP
+	id S263609AbUFFNbL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 09:31:11 -0400
+From: Daniel Schmitt <pnambic@unu.nu>
+To: ktech@wanadoo.es
+Subject: Re: 2.6.7-rc1 breaks forcedeth
+Date: Sun, 6 Jun 2004 15:31:45 +0200
+User-Agent: KMail/1.6.2
+References: <E1BWxTh-0002dx-KR@mb06.in.mad.eresmas.com>
+In-Reply-To: <E1BWxTh-0002dx-KR@mb06.in.mad.eresmas.com>
+Cc: manfred@colorfullife.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040606130422.0c8946b3.sfr@canb.auug.org.au>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200406061531.45891.pnambic@unu.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 06, 2004 at 01:04:22PM +1000, Stephen Rothwell wrote:
-> Here's my (contrived) example:
-> 
-> Process P1 contains threads T1 and T2
-> Process P2
-> 
-> I am using "process id" and "thread id" in the POSIX sense.  These are
-> exclusive, whole file locks for simplicity.
-> 
-> T1 locks file F1 -> lock (P1, F1)
-> P2 locks file F2 -> lock (P2, F2)
-> P2 locks file F1 -> blocks against (P1, F1)
-> T1 locks file F2 -> blocks against (P2, F2)
+Hi,
 
-Less contrived example -- T2 locks file F2.  We report deadlock here too,
-even though T1 is about to unlock file F1.
+> Daniel, how do you fix or suggest to fix that? Any way I can get my network
+> card on, in your opinion?
 
-I pointed this out over a year ago when NPTL first went in and nobody
-seemed interested in having the discussion then.  All I got was a private
-reply from Andi Kleen suggesting that we shouldn't remove it.
+if what I suspect about MY problem is in fact true, then for your problem I'd 
+try the following:
 
-So, final call.  Any objections to never returning -EDEADLCK?
+ - switch on APIC and IO-APIC support on uniprocessors in your kernel config
+ - if there is such a setting, switch on APIC mode in your BIOS
+ - see if this suffices (your dmesg output seems more sane than mine)
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+If the problem doesn't go away, try the patch at the top of my mail. If it 
+still doesn't work, well, I might be completely wrong, or you might also be 
+suffering from BIOS and/or DSDT problems, but I'm even more out of my depth 
+there than with the issue I saw...
+
+Good luck,
+
+Daniel.

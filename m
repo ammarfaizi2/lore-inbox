@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264087AbTEOPNT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 11:13:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264086AbTEOPMs
+	id S264078AbTEOPJT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 11:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264071AbTEOPIi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 11:12:48 -0400
-Received: from deviant.impure.org.uk ([195.82.120.238]:7331 "EHLO
-	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S264080AbTEOPLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 11:11:36 -0400
-Date: Thu, 15 May 2003 16:25:14 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: kraxel@suse.de, jsimmons@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
-Message-ID: <20030515152514.GB6724@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Andi Kleen <ak@muc.de>, kraxel@suse.de, jsimmons@infradead.org,
-	linux-kernel@vger.kernel.org
-References: <20030515145640.GA19152@averell> <20030515151633.GA6128@suse.de> <20030515152011.GA19271@averell>
+	Thu, 15 May 2003 11:08:38 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:53429 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S264075AbTEOPI1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 11:08:27 -0400
+Date: Thu, 15 May 2003 08:20:43 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Dean McEwan <dean_mcewan@linuxmail.org>
+Cc: lm@bitmover.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: Re: DRM, doesn't BK use it successfully? :-)
+Message-ID: <20030515152043.GA22451@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Dean McEwan <dean_mcewan@linuxmail.org>, lm@bitmover.com,
+	wli@holomorphy.com, linux-kernel@vger.kernel.org
+References: <20030515150439.8269.qmail@linuxmail.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030515152011.GA19271@averell>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030515150439.8269.qmail@linuxmail.org>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 15, 2003 at 05:20:11PM +0200, Andi Kleen wrote:
+On Thu, May 15, 2003 at 03:04:39PM +0000, Dean McEwan wrote:
+> Which is why I wonder if Larry has any Ideas
 
- > > There are PCI ET4000's too.  Though if we can get the PCI IDs for those,
- > > we can work around them with a quirk.  I have one *somewhere*, but it'll
- > > take me a while to dig it out.
- > 
- > To make all 0.001 users left of them happy yes. I think the patch should
- > be applied anyways.
-
-Agreed.
-
-		Dave
-
+I have lots of ideas but unless they are somehow related to the kernel I 
+think everyone would appreciate it if I kept those ideas to myself or 
+discussed them in a more appropriate forum.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

@@ -1,58 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265376AbUA2KwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jan 2004 05:52:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUA2KwZ
+	id S265200AbUA2Kob (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jan 2004 05:44:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265376AbUA2Kob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jan 2004 05:52:25 -0500
-Received: from mail-07.iinet.net.au ([203.59.3.39]:22698 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S265376AbUA2KwW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jan 2004 05:52:22 -0500
-Message-ID: <4018E524.8060200@cyberone.com.au>
-Date: Thu, 29 Jan 2004 21:49:08 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Catalin BOIE <util@deuroconsult.ro>
-CC: linux-kernel@vger.kernel.org, linux-smp@vger.kernel.org
-Subject: Re: 2.6.2-rc2 Interactivity problems with SMP + HT
-References: <Pine.LNX.4.58.0401291239320.23046@hosting.rdsbv.ro>
-In-Reply-To: <Pine.LNX.4.58.0401291239320.23046@hosting.rdsbv.ro>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 29 Jan 2004 05:44:31 -0500
+Received: from mail.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:24498 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S265200AbUA2Ko3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jan 2004 05:44:29 -0500
+Date: Thu, 29 Jan 2004 11:44:25 +0100
+From: Matthias Andree <matthias.andree@gmx.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.2-rc in BK: Oops loading parport_pc.
+Message-ID: <20040129104425.GA8619@merlin.emma.line.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20040125115129.GA10387@merlin.emma.line.org> <20040125151454.70b5011e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040125151454.70b5011e.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 25 Jan 2004, Andrew Morton wrote:
 
+> There is one known problem in this area: unloading 8250_pnp will wreck the
+> kobject tree.  Try
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.2-rc1/2.6.2-rc1-mm3/broken-out/8250_pnp-cleanup.patch
 
-Catalin BOIE wrote:
+Works for me. Thank you.
 
->Hello!
->
->First, thank you very much for the effort you put for Linux!
->
->I have a Intel motherboard with SATA (2 Maxtor disks).
->CPUs: 2 x 2.4GHz PIV HT = 4 processors (2 virtual)
->1 GB RAM.
->
->Load: postgresql and apache. Very low load (3-4 clients).
->
->RAID: Yes, soft RAID1 between the 2 disks.
->
->I have times when the console freeze for 3-4 seconds!
->2.6.0-test11 had the same problem (maybe longer times).
->2.6.1-rc2 worked good in this respect but crashed after 2 days. :(
->2.6.2-rc2 is back with the delay.
->
->Do you know why this can happen?
->
->
+-- 
+Matthias Andree
 
-There haven't been many scheduler changes there recently so
-maybe its something else.
-
-But you could try the latest -mm kernels. They have some
-Hyperthreading work in them (you need to enable CONFIG_SCHED_SMT).
-
+Encrypt your mail: my GnuPG key ID is 0x052E7D95

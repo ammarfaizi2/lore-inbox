@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136490AbREDTtY>; Fri, 4 May 2001 15:49:24 -0400
+	id <S136496AbREDUB2>; Fri, 4 May 2001 16:01:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136491AbREDTtF>; Fri, 4 May 2001 15:49:05 -0400
-Received: from [64.64.109.142] ([64.64.109.142]:35082 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP
-	id <S136490AbREDTsu>; Fri, 4 May 2001 15:48:50 -0400
-Message-ID: <3AF30781.B98EF7AF@didntduck.org>
-Date: Fri, 04 May 2001 15:48:17 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-X-Mailer: Mozilla 4.76 [en] (WinNT; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Seth Goldberg <bergsoft@home.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: REVISED: Experimentation with Athlon and fast_page_copy
-In-Reply-To: <3AF2E569.47AED98D@home.com>
+	id <S136494AbREDUBS>; Fri, 4 May 2001 16:01:18 -0400
+Received: from bitmover.com ([207.181.251.162]:14864 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S136492AbREDUBG>;
+	Fri, 4 May 2001 16:01:06 -0400
+Date: Fri, 4 May 2001 13:01:03 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: linux-kernel@vger.kernel.org
+Subject: 3ware 6410 RAID 10 performance?
+Message-ID: <20010504130103.T22922@work.bitmover.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0pre3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seth Goldberg wrote:
-> 
-> Hi,
-> 
->  After removing my head from my a**, I revised the code that checks
-> the memory copy in the fast_page_copy routine.  The machine then
-> proceeded
-> not to stop at my panic, but I got my "normal" oopses.  I then had an
-> idea and removed all the prefetch instructions from the beginning of the
-> routine and tried the resultin kernel.  I now have no crashes.
-> What could this mean?
+I'm looking for people who know about the 3ware 6410 driver.  I've got one
+of these and sometimes it goes fast and sometimes it doesn't.  The bad 
+case seems to happen after memory has a lot of cached blocks in it.
 
-What are your "normal" oopses?
+I've tried 2.2.15, 2.4.4, and 2.4.3-ac9 and they all behave pretty similarly.
 
---
+I'm most interested in seeing this fixed in the 2.4 series so if there is
+someone who wants to go into a test/debug cycle with me, speak up.  I'd
+really like this thing to work well.
 
-				Brian Gerst
+hardware config:
+
+K7 @ 750Mhz
+ASUS K7V motherboard
+512MB
+4x 3c905
+boot disk on the motherboard
+4 WD 40GB 7200 drives on one 3ware 6410
+matrox g200 AGP
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,73 +1,188 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316770AbSEaUfB>; Fri, 31 May 2002 16:35:01 -0400
+	id <S316788AbSEaUmD>; Fri, 31 May 2002 16:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316774AbSEaUfA>; Fri, 31 May 2002 16:35:00 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:19568 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S316770AbSEaUe7>; Fri, 31 May 2002 16:34:59 -0400
-Date: Fri, 31 May 2002 22:34:54 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Christoph Hellwig <hch@infradead.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre8aa3
-Message-ID: <20020531203454.GQ1172@dualathlon.random>
-In-Reply-To: <20020515212733.GA1025@dualathlon.random> <20020516202626.A13795@infradead.org>
+	id <S316803AbSEaUmC>; Fri, 31 May 2002 16:42:02 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:43534 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S316788AbSEaUl5>;
+	Fri, 31 May 2002 16:41:57 -0400
+Date: Fri, 31 May 2002 22:44:26 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: [PATCH] kbuild: Allow strings with special characters in config file
+Message-ID: <20020531224426.C13857@mars.ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="SnV5plBeK2Ge1I9g"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 16, 2002 at 08:26:26PM +0100, Christoph Hellwig wrote:
-> On Wed, May 15, 2002 at 11:27:33PM +0200, Andrea Arcangeli wrote:
-> > o	minor bdflush tuning difference to avoid char-writer in bonnie
-> > 	to stall and to slowdown too much (can make a difference in real
-> > 	life)
-> 
-> ...
-> 
-> > Only in 2.4.19pre8aa3: 00_bdflush-tuning-1
-> > 
-> > 	Put the mid watermark at 50% (near the high watermark so we don't stall
-> > 	too much).
-> 
-> As the 2.4.19-pre mainline got your buffer throtteling changes I guess it
-> has the same issues?  Do you think it's worth to submit that patch to Marcelo
-> even that late in the release cycle?
 
-it is not very important, but of course it could go in too.
+--SnV5plBeK2Ge1I9g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> 
-> > Only in 2.4.19pre8aa2: 05_vm_10_read_write_tweaks-1
-> > Only in 2.4.19pre8aa3: 05_vm_10_read_write_tweaks-2
-> > 
-> > 	Avoid backing out the flush_page_to_ram in this vm patch,
-> > 	the one on the pagecache is still needed before the memcpy
-> > 	on the pagecache during the early cow (would be cleaner
-> > 	to move it up, if Hugh wants to clean it up that's welcome,
-> > 	it will be an orthogonal patch, so far I just avoid to
-> > 	change that area in my changes, not high prio to clean it up
-> > 	as DaveM side it's more high prio to conver the users of
-> > 	flush_page_to_ram API to flush_dcache_page/icache new API during 2.5).
-> 
-> It seems to me you ignore the comments akpm put in the split patches you
-> merged :)  Not only the comment to this change is superflous now, but also
+Escape double quotes on eval so the quotes are still there on the second evaluation.
+This is required to handle strings with special characters.
 
-updated :)
+Credit for this patch goes to Keith Owens, I simply extracted it from kbuild-2.5.
 
-> I'd really like to get an answer to the remaining part of it as Andrew's
-> comment about that part beeing buggy makes a lot of sense to me..
+	Sam
 
-well, as Andrew said it's a microoptimization, but it's not buggy. It is
-used to avoid marking a page referenced twice if somebody reads with an
-userspace buffer granularity smaller than PAGE_SIZE, the same
-optimization exists in the read side (there it is a bit more of a
-microoptimization because the writer never activates pages but the
-readers activates pages without such check).
+--SnV5plBeK2Ge1I9g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="double_qoutes.diff"
 
-Andrea
+--- Menuconfig.orig	Fri May 31 21:55:40 2002
++++ Menuconfig	Fri May 31 21:42:16 2002
+@@ -73,6 +73,10 @@
+ # - Support for multiple conditions in dep_tristate().
+ # - Implemented new functions: define_tristate(), define_int(), define_hex(),
+ #   define_string(), dep_bool().
++#
++# 12 November 2001, Keith Owens <kaos@ocs.com.au>
++# Escape double quotes on eval so the quotes are still there on the second
++# evaluation, required to handle strings with special characters.
+ # 
+ 
+ 
+@@ -105,11 +109,11 @@
+     eval x=\$$1
+     if [ -z "$x" ]; then
+ 	eval `sed -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
+-	eval x=\${$1:-"$2"}
++	eval x=\${$1:-\"$2\"}
+ 	eval $1=$x
+ 	eval INFO_$1="' (NEW)'"
+     fi
+-    eval info="\$INFO_$1"
++    eval info=\"\$INFO_$1\"
+ }
+ 
+ #
+@@ -151,7 +155,7 @@
+ }
+ 
+ function define_string () {
+-	eval $1="$2"
++	eval $1=\"$2\"
+ }
+ 
+ #
+@@ -333,7 +337,7 @@
+ 
+ 	while [ -n "$2" ]
+ 	do
+-		if eval [ "_\$$2" = "_y" ]
++		if eval [ \"_\$$2\" = \"_y\" ]
+ 		then
+ 			current=$1
+ 			break
+@@ -543,9 +547,9 @@
+ 			# we avoid them:
+ 			if expr "$answer" : '0$' '|' "$answer" : '[1-9][0-9]*$' '|' "$answer" : '-[1-9][0-9]*$' >/dev/null
+ 			then
+-				eval $2="$answer"
++				eval $2=\"$answer\"
+ 			else
+-				eval $2="$3"
++				eval $2=\"$3\"
+ 				echo -en "\007"
+ 				${DIALOG} --backtitle "$backtitle" \
+ 					--infobox "You have made an invalid entry." 3 43
+@@ -576,9 +580,9 @@
+ 
+ 			if expr "$answer" : '[0-9a-fA-F][0-9a-fA-F]*$' >/dev/null
+ 			then
+-				eval $2="$answer"
++				eval $2=\"$answer\"
+ 			else
+-				eval $2="$3"
++				eval $2=\"$3\"
+ 				echo -en "\007"
+ 				${DIALOG} --backtitle "$backtitle" \
+ 					--infobox "You have made an invalid entry." 3 43
+@@ -676,9 +680,9 @@
+ 	do
+ 		if [ "$2" = "$choice" ]
+ 		then
+-			eval $2="y"
++			eval $2=\"y\"
+ 		else
+-			eval $2="n"
++			eval $2=\"n\"
+ 		fi
+ 		
+ 		shift ; shift
+@@ -941,9 +945,9 @@
+ 
+ 			[ "_" = "_$ALT_CONFIG" ] && break
+ 
+-			if eval [ -r "$ALT_CONFIG" ]
++			if eval [ -r \"$ALT_CONFIG\" ]
+ 			then
+-				eval load_config_file "$ALT_CONFIG"
++				eval load_config_file \"$ALT_CONFIG\"
+ 				break
+ 			else
+ 				echo -ne "\007"
+@@ -1067,12 +1071,12 @@
+ 	#
+ 	function bool () {
+ 		set_x_info "$2" "n"
+-		eval define_bool "$2" "$x"
++		eval define_bool \"$2\" \"$x\"
+ 	}
+ 
+ 	function tristate () {
+ 		set_x_info "$2" "n"
+-		eval define_tristate "$2" "$x"
++		eval define_tristate \"$2\" \"$x\"
+ 	}
+ 
+ 	function dep_tristate () {
+@@ -1138,19 +1142,19 @@
+ 	}
+ 
+ 	function define_hex () {
+-		eval $1="$2"
++		eval $1=\"$2\"
+                	echo "$1=$2"			>>$CONFIG
+ 		echo "#define $1 0x${2##*[x,X]}"	>>$CONFIG_H
+ 	}
+ 
+ 	function define_int () {
+-		eval $1="$2"
++		eval $1=\"$2\"
+ 		echo "$1=$2" 			>>$CONFIG
+ 		echo "#define $1 ($2)"		>>$CONFIG_H
+ 	}
+ 
+ 	function define_string () {
+-		eval $1="$2"
++		eval $1=\"$2\"
+ 		echo "$1=\"$2\""		>>$CONFIG
+ 		echo "#define $1 \"$2\""	>>$CONFIG_H
+ 	}
+@@ -1160,7 +1164,7 @@
+ 	}
+ 
+ 	function define_tristate () {
+-		eval $1="$2"
++		eval $1=\"$2\"
+ 
+    		case "$2" in
+          	y)
+@@ -1199,7 +1203,7 @@
+ 		set -- $choices
+ 		while [ -n "$2" ]
+ 		do
+-			if eval [ "_\$$2" = "_y" ]
++			if eval [ \"_\$$2\" = \"_y\" ]
+ 			then
+ 				current=$1
+ 				break
+
+--SnV5plBeK2Ge1I9g--

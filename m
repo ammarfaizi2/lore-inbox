@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130901AbQKZLGI>; Sun, 26 Nov 2000 06:06:08 -0500
+        id <S129722AbQKZLLi>; Sun, 26 Nov 2000 06:11:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130900AbQKZLFt>; Sun, 26 Nov 2000 06:05:49 -0500
-Received: from 194-73-188-238.btconnect.com ([194.73.188.238]:26628 "EHLO
-        penguin.homenet") by vger.kernel.org with ESMTP id <S129722AbQKZLFp>;
-        Sun, 26 Nov 2000 06:05:45 -0500
-Date: Sun, 26 Nov 2000 10:37:07 +0000 (GMT)
+        id <S130874AbQKZLL2>; Sun, 26 Nov 2000 06:11:28 -0500
+Received: from 194-73-188-238.btconnect.com ([194.73.188.238]:30724 "EHLO
+        penguin.homenet") by vger.kernel.org with ESMTP id <S129722AbQKZLLP>;
+        Sun, 26 Nov 2000 06:11:15 -0500
+Date: Sun, 26 Nov 2000 10:43:08 +0000 (GMT)
 From: Tigran Aivazian <tigran@veritas.com>
-To: Tim Waugh <twaugh@redhat.com>
-cc: James A Sutherland <jas88@cam.ac.uk>, Andries Brouwer <aeb@veritas.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
+To: John Alvord <jalvo@mbay.net>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] removal of "static foo = 0"
-In-Reply-To: <20001125235511.A16662@redhat.com>
-Message-ID: <Pine.LNX.4.21.0011261036001.1015-100000@penguin.homenet>
+In-Reply-To: <3a219890.57346310@mail.mbay.net>
+Message-ID: <Pine.LNX.4.21.0011261039120.1015-100000@penguin.homenet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2000, Tim Waugh wrote:
+On Sun, 26 Nov 2000, John Alvord wrote:
+> It also says "I do not know much about the details of the kernel C
+> environment. In particular I do not know that all static variables are
+> initialized to 0 in the kernel startup. I have not read setup.S."
 
-> On Sat, Nov 25, 2000 at 10:53:00PM +0000, James A Sutherland wrote:
-> 
-> > Which is silly. The variable is explicitly defined to be zero
-> > anyway, whether you put this in your code or not.
-> 
-> Why doesn't the compiler just leave out explicit zeros from the
-> 'initial data' segment then?  Seems like it ought to be tought to..
+John, please stop insulting Andries, you would be _surprized_ to find out
+how much he actually knows about a multitude of things.
 
-yes, taught to, _BUT_ never let this to be a default option, please.
-Because there are valid cases where a programmer things "this is in .data"
-and that means this should be in .data. Think of binary patching an object
-as one valid example (there may be others, I forgot).
+As for Andries' point of loss of information, he has a point, _but_ James'
+suggestion to put that extra info in the comment, imho, outweighs the
+small disadvantages (code looks a bit uglier) which Andries pointed out to
+counter it.
 
 Regards,
-Tigran
+Tigran.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

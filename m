@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267613AbUHWJ3V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267618AbUHWJeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267613AbUHWJ3V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 05:29:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267617AbUHWJ3V
+	id S267618AbUHWJeN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 05:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUHWJeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 05:29:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:9900 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267613AbUHWJ3U (ORCPT
+	Mon, 23 Aug 2004 05:34:13 -0400
+Received: from mailhost.tue.nl ([131.155.2.7]:29710 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S267618AbUHWJeM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 05:29:20 -0400
-Date: Mon, 23 Aug 2004 02:27:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: arjanv@redhat.com
+	Mon, 23 Aug 2004 05:34:12 -0400
+Date: Mon, 23 Aug 2004 11:34:07 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Alexandre <almeida@urbi.com.br>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] via-velocity: use common crc16 code for WOL
-Message-Id: <20040823022729.09b7ce62.akpm@osdl.org>
-In-Reply-To: <1093247839.2792.7.camel@laptop.fenrus.com>
-References: <200408222213.i7MMDm57014913@hera.kernel.org>
-	<1093247839.2792.7.camel@laptop.fenrus.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Subject: Re: PROBLEM: wrong IDE disk size
+Message-ID: <20040823093407.GA2682@pclin040.win.tue.nl>
+References: <008601c488c3$a607dd30$21c3060a@nheotfd7dz4lxz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <008601c488c3$a607dd30$21c3060a@nheotfd7dz4lxz>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: dmv.com: mailhost.tue.nl 1181; Body=1 Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjanv@redhat.com> wrote:
->
-> On Sat, 2004-07-03 at 08:20, Linux Kernel Mailing List wrote:
-> > ChangeSet 1.1757.72.2, 2004/07/03 02:20:30-04:00, romieu@fr.zoreil.com
-> > 
-> > 	[PATCH] via-velocity: use common crc16 code for WOL
-> > 	
-> > 	- use common crc16 code for WOL;
-> > 	- remove unused ether_crc.
-> > 	
-> 
-> 
-> ehhh my BK tree doesn't have linux/crc16.h ...
-> 
+On Mon, Aug 23, 2004 at 12:45:35AM -0300, Alexandre wrote:
 
-Other patches are in flight.  It should be fixed tomorrow.
+> I installed two new SAMSUNG SP1203N (120GB) drives on the same IDE.
+> But, from the boot log:
+> 
+> hdc: attached ide-disk driver.
+> hdc: host protected area => 1
+> hdc: 234493056 sectors (120060 MB) w/2048KiB Cache, CHS=14596/255/63,
+> UDMA(100)
+> hdd: attached ide-disk driver.
+> hdd: host protected area => 1
+> hdd: setmax_ext LBA 234493056, native  66055248
+> hdd: 66055248 sectors (33820 MB) w/2048KiB Cache, CHS=4111/255/63, UDMA(100)
+> 
+> So the second one get its capacity limited to ~33GB.
+> 
+> I'm running kernel 2.4.25. CONFIG_IDEDISK_STROKE is off.
+
+You may have set the jumpers on this second disk to limit capacity.
+
+Correct jumper settings and/or try enabling CONFIG_IDEDISK_STROKE.

@@ -1,50 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264356AbTLYShF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Dec 2003 13:37:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264343AbTLYShF
+	id S262033AbTLYSpz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Dec 2003 13:45:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTLYSpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Dec 2003 13:37:05 -0500
-Received: from pooh.lsc.hu ([195.56.172.131]:63904 "EHLO pooh.lsc.hu")
-	by vger.kernel.org with ESMTP id S264356AbTLYShD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Dec 2003 13:37:03 -0500
-Date: Thu, 25 Dec 2003 19:22:38 +0100
-From: GCS <gcs@lsc.hu>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Peter Osterlund <petero2@telia.com>
-Subject: Re: 2.6.0-mm1
-Message-ID: <20031225182238.GA32439@lsc.hu>
-References: <20031224095921.GA8147@lsc.hu> <20031224033200.0763f2a2.akpm@osdl.org> <200312250411.55881.dtor_core@ameritech.net>
+	Thu, 25 Dec 2003 13:45:55 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:44555 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262033AbTLYSpy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 25 Dec 2003 13:45:54 -0500
+Date: Thu, 25 Dec 2003 18:45:53 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Andreas Jellinghaus <aj@dungeon.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add sysfs mem device support  [2/4]
+Message-ID: <20031225184553.A25397@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Andreas Jellinghaus <aj@dungeon.inka.de>,
+	linux-kernel@vger.kernel.org
+References: <20031223002126.GA4805@kroah.com> <20031223002439.GB4805@kroah.com> <20031223002609.GC4805@kroah.com> <20031223131523.B6864@infradead.org> <1072193516.3472.3.camel@fur> <20031223163904.A8589@infradead.org> <pan.2003.12.25.17.47.43.603779@dungeon.inka.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200312250411.55881.dtor_core@ameritech.net>
-X-Operating-System: GNU/Linux
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <pan.2003.12.25.17.47.43.603779@dungeon.inka.de>; from aj@dungeon.inka.de on Thu, Dec 25, 2003 at 06:48:51PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 25, 2003 at 04:11:54AM -0500, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
-> I am sending 2 patches - one to remove mouse jitter with Synaptics when
-> it is used through mousedev (PS/2 emulation) - mousedev will use 3 point
-> history and average when calculating deltas, the other one is the fix for
-> the problem you are experiencing. They should apply to 2.6.0-mm1 and to
-> stock 2.6.0 with minimal jitter.
- I have applied both to 2.6.0-mm1. They are just working, no jumping
-mouse pointer when I release the touchpad, and both touchpad+usb mouse
-working on console and under XFree86 as well. OK, I could not really
-understand how they are working, as for me it seems gpm interprets
-/dev/psaux only, and get both pointing device right, still XFree86 which
-reads data replicated by gpm via gpmdata can't handle the USB mouse
-directly. I had to use a separate config, which reads /dev/input/mice as
-well. I think it's because XFree86's synaptics driver skip events from
-the USB mouse. Anyway, thanks for your help and work!
+On Thu, Dec 25, 2003 at 06:48:51PM +0100, Andreas Jellinghaus wrote:
+> On Tue, 23 Dec 2003 16:47:44 +0000, Christoph Hellwig wrote:
+> > I disagree. For fully static devices like the mem devices the udev
+> > indirection is completely superflous.
+> 
+> If sysfs does not contain data on mem devices, we will need makedev.
+> 
+> devfs did replace makedev. until udev can create all devices,
+> it would need to re-introduce makedev.
 
-Merry Christmas!
-GCS
--- 
-BorsodChem Joint-Stock Company				Linux Support Center
-Software engineer					Developer
-+36-48-511211/12-99                                     +36-20-4441745
+So what?
+

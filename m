@@ -1,35 +1,53 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S.rGyPg155299>; Wed, 26 May 1999 08:19:56 -0400
-Received: by vger.rutgers.edu id <S.rGazR155496>; Tue, 25 May 1999 05:39:41 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:1912 "HELO ms2.inr.ac.ru") by vger.rutgers.edu with SMTP id <S.rGM4O155553>; Mon, 24 May 1999 12:43:06 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <199905241635.UAA05408@ms2.inr.ac.ru>
-Subject: Re: linux-2.2.9/traceroute/packet loss
-To: signal@shreve.net (Brian)
-Date: Mon, 24 May 1999 20:35:55 +0400 (MSK DST)
-Cc: linux-kernel@vger.rutgers.edu
-In-Reply-To: <Pine.LNX.4.10.9905241127040.25502-100000@mercury.shreve.net> from "Brian" at May 24, 99 11:27:46 am
-X-Mailer: ELM [version 2.4 PL24]
+Received: by vger.rutgers.edu via listexpand id <S.rHlVT160432>; Fri, 28 May 1999 18:27:43 -0400
+Received: by vger.rutgers.edu id <S.rHhHm154073>; Fri, 28 May 1999 13:40:02 -0400
+Received: from deliverator.sgi.com ([204.94.214.10]:17899 "EHLO deliverator.sgi.com") by vger.rutgers.edu with ESMTP id <S.rHNe.169006>; Thu, 27 May 1999 15:18:24 -0400
+Message-ID: <374D98F4.CF01D27C@engr.sgi.com>
+Date: Thu, 27 May 1999 12:11:48 -0700
+From: Dan Koren <dkoren@cthulhu.engr.sgi.com>
+Reply-To: Dan.Koren@sgi.com
+Organization: Silicon Graphics Computer Systems
+X-Mailer: Mozilla 4.51C-SGI [en] (X11; I; IRIX 6.5 IP22)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: mcai7et2@stud.umist.ac.uk, linux-kernel@vger.rutgers.edu
+Subject: Re: XFS and journalling filesystems
+References: <E10m0gq-0000pk-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Hello!
+Alan Cox wrote:
+> 
+> > journalling filesystem will be opensourced this summer) what is "the
+> > panel's" view of the continuing devlopment of ext3/whatever the linux
+> > jfs will be called. Should we adopt XFS as the defacto replacement for
+> > ext2?
+> 
+> XFS is 50,000 odd lines of mainframe class filing system code.
 
-> Whats the purpose of this?  I mean, I understand nothing is broke per say,
-> but I get people emailing me "10% packet loss" traceroutes and wanting
-> explainations............
+You're understimating it... :)
 
-Purpose is not to help interlopers to flood networks
-with useless data.
+> Its unlikely to be the ideal fs for a small appliance or a
+> desktop at home even if it kicks butt as a server fs.
+> 
+> Alan
 
-When someone probes you with 3 packets, spaced by 1 sec,
-he wants to make sure that you are alive.
+Quite the contrary. The fewer disk spindles on a system, the
+greater the performance gains from XFS' very sophisticated
+i/o scheduling. In addition, XFS code is layered neatly
+enough that unwanted features/options can be left out if
+one so wants.
 
-If it stresses you more, he is apparently an interloper
-or just brainless robot sort of http://www.research.digital.com/cgi-bin/trace
-8)8)
+thx,
 
-Alexey Kuznetsov
+
+Dan Koren                                        Dan.Koren@sgi.com
+Engineering Manager, File Systems        phone: (USA) 650-933-3678
+Silicon Graphics, Inc.                   pager: (USA) 888-769-0874
+1600 Amphiteatre Pkwy. M/S 08U-500       or dkoren_p@pager.sgi.com
+Mountain View, CA 94043-1351               fax: (USA) 650-933-3542
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317423AbSFROVe>; Tue, 18 Jun 2002 10:21:34 -0400
+	id <S317426AbSFROUo>; Tue, 18 Jun 2002 10:20:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317424AbSFROVd>; Tue, 18 Jun 2002 10:21:33 -0400
-Received: from web13202.mail.yahoo.com ([216.136.174.187]:7713 "HELO
-	web13202.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317423AbSFROVc>; Tue, 18 Jun 2002 10:21:32 -0400
-Message-ID: <20020618142133.53974.qmail@web13202.mail.yahoo.com>
-Date: Tue, 18 Jun 2002 07:21:33 -0700 (PDT)
-From: "X.Xiao" <joyhaa@yahoo.com>
-Subject: static inline vs. extern inline;  inline vs.  __inline__
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <yrxn0ts65vh.fsf@catbert.mcs.anl.gov>
-MIME-Version: 1.0
+	id <S317427AbSFROUn>; Tue, 18 Jun 2002 10:20:43 -0400
+Received: from ns.suse.de ([213.95.15.193]:778 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317426AbSFROUm>;
+	Tue, 18 Jun 2002 10:20:42 -0400
+Date: Tue, 18 Jun 2002 16:20:43 +0200
+From: Dave Jones <davej@suse.de>
+To: "White, Charles" <Charles.White@hp.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Filip Sneppe <filip.sneppe@chello.be>,
+       linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>, Arrays <arrays@hp.com>
+Subject: Re: 2.4.19-pre10 link error - cpqarray related ?
+Message-ID: <20020618162043.T758@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	"White, Charles" <Charles.White@hp.com>,
+	Adrian Bunk <bunk@fs.tum.de>, Filip Sneppe <filip.sneppe@chello.be>,
+	linux-kernel@vger.kernel.org,
+	Marcelo Tosatti <marcelo@conectiva.com.br>, Arrays <arrays@hp.com>
+References: <A2C35BB97A9A384CA2816D24522A53BB01E88FF0@cceexc18.americas.cpqcorp.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <A2C35BB97A9A384CA2816D24522A53BB01E88FF0@cceexc18.americas.cpqcorp.net>; from Charles.White@hp.com on Tue, Jun 18, 2002 at 09:11:23AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-After seeing various 'static inline', 'extern inline',
-'inline' and '__inline__' in the kernel source, and
-reading GCC's Inline subsection, it's still hard to
-use them in a clear way:
-1. what's the key difference between 'static' and
-'extern' for inline? is there a rule to pick which one
-during development(such as library or driver coding)
-2. what's the difference between 'inline' and
-'__inline__'?
+On Tue, Jun 18, 2002 at 09:11:23AM -0500, White, Charles wrote:
+ > Interesting... It compiled for me fine.  Both statically and dynamic. 
+ >  
+ > What version of the compiler are you using?
 
-I wish the answer were in FAQ but it's not.
+__devexit/__devexit_p problems are a binutils issue.
+Likely you have an older binutils which doesn't exhibit this problem.
 
-Thanks a lot!
-X.Xiao
+        Dave
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! - Official partner of 2002 FIFA World Cup
-http://fifaworldcup.yahoo.com
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

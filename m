@@ -1,51 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272980AbRIMKel>; Thu, 13 Sep 2001 06:34:41 -0400
+	id <S273137AbRIMKqy>; Thu, 13 Sep 2001 06:46:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273069AbRIMKec>; Thu, 13 Sep 2001 06:34:32 -0400
-Received: from chfdns02.ch.intel.com ([143.182.246.25]:37312 "EHLO
-	melete.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S272980AbRIMKeW>; Thu, 13 Sep 2001 06:34:22 -0400
-Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B2731C@hasmsx52.iil.intel.com>
-From: "Hen, Shmulik" <shmulik.hen@intel.com>
-To: "'David Woodhouse'" <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: find struct pci_dev from struct net_device 
-Date: Thu, 13 Sep 2001 13:34:39 +0300
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S273209AbRIMKqe>; Thu, 13 Sep 2001 06:46:34 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:25862 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S273137AbRIMKq2>; Thu, 13 Sep 2001 06:46:28 -0400
+Date: Thu, 13 Sep 2001 12:46:23 +0200
+From: Erich Schubert <erich.schubert@mucl.de>
+To: linux-kernel@vger.kernel.org
+Subject: Compaq Presario Notebook Keyboard "Extensions"
+Message-ID: <20010913124623.A22927@erich.xmldesign.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
+X-GPG: 4B3A135C 6073 C874 8488 BCDA A6A9  B761 9ED0 78EF 4B3A 135C
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just trying to repent by contributing something good back to the community
-;-)
+Compaq Presario Notebooks (i don't know which ones, at least my Presario
+1400 and a friend's Presario 1200) have some additional Keys on the keyboard
 
-Actually, I'm using this exact code and in an open source project too (we
-have those too you know).
+These keys apparently do not generate scancodes, i also noticed no
+interrupts being generated.
+I also tried using "kbd-init", but it didn't help either.
 
------Original Message-----
-From: David Woodhouse [mailto:dwmw2@infradead.org]
-Sent: Thursday, September 13, 2001 12:42 PM
-To: Hen, Shmulik
-Cc: 'Sebastian Heidl'; linux-kernel@vger.kernel.org
-Subject: Re: find struct pci_dev from struct net_device 
+I tried getting information from Compaq, but from their support adress i
+got only trashy responses ("we don't support linux on this unix, but you
+can try the following [... guide how to connect to the internet with
+windows ...]")
 
+Searching with google i found lot's of requests in newsgroups, the
+suggestions of using showkeys and xev, but no solution.
 
+Any idea how i might get these keys to work?
 
-shmulik.hen@intel.com said:
-> Take the value of dev->base_addr, mask it's lowest 4 bits, do a scan
-> of all PCI net devices and in each PCI device try to match to each of
-> the 6 address regs: 
+I was wondering if there might be an additional set of scancodes, or
+some other initialization of the keyboard driver required.
+Perhaps someone has contacts to compaq and could get this information
+from them. They have some detailed information about their armada
+notebook series on their webpage (with detailed listing of non-standard
+keycodes etc.), but i could not find analogical information on these
+Presario Notebooks.
 
-We have to assume this isn't a deliberate attempt to mislead, and that you 
-really do things like this in your own code.
+http://www.compaq.com/support/techpubs/technical_reference_guides/
 
-I suspect that whatever chance there was of someone trying to help out some
-poor user unfortunate or ignorant enough to use the binary-only modules that
-you are working on has just bitten the dust. 
+Thanks for your great work on the Linux kernel.
 
---
-dwmw2
-
+Greetings,
+Erich

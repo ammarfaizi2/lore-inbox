@@ -1,69 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268452AbUIWN1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268455AbUIWN3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268452AbUIWN1P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 09:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268453AbUIWN1O
+	id S268455AbUIWN3N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 09:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268457AbUIWN3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 09:27:14 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:29575 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S268452AbUIWN1G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 09:27:06 -0400
-From: Duncan Sands <baldrick@free.fr>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: external modules make clean doesn't do much
-Date: Thu, 23 Sep 2004 15:26:59 +0200
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200408311347.52754.baldrick@free.fr> <20040831170148.GB7310@mars.ravnborg.org>
-In-Reply-To: <20040831170148.GB7310@mars.ravnborg.org>
-MIME-Version: 1.0
+	Thu, 23 Sep 2004 09:29:13 -0400
+Received: from ozlabs.org ([203.10.76.45]:18147 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S268455AbUIWN3H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 09:29:07 -0400
+Date: Thu, 23 Sep 2004 23:12:29 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Dan Kegel <dank@kegel.com>
+Cc: Herbert Poetzl <herbert@13thfloor.at>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       arjanv@redhat.com
+Subject: Re: 2.6.8 link failure for powerpc-970?
+Message-ID: <20040923131229.GA4785@krispykreme>
+References: <414E93BC.4080107@kegel.com> <1095669339.2800.3.camel@laptop.fenrus.com> <4150EF69.1060007@kegel.com> <4151AB3D.3040003@kegel.com> <20040922222723.GD30109@MAIL.13thfloor.at> <41525E05.7020506@kegel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409231526.59656.baldrick@free.fr>
+In-Reply-To: <41525E05.7020506@kegel.com>
+User-Agent: Mutt/1.5.6+20040818i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 August 2004 19:01, Sam Ravnborg wrote:
-> On Tue, Aug 31, 2004 at 01:47:52PM +0200, Duncan Sands wrote:
-> > make clean for an external module only seems to clean
-> > .tmp_versions:
-> > 
-> > $ make clean
-> > make -C /lib/modules/2.6.9-rc1/build M=`pwd` clean
-> > make[1]: Entering directory `/home/duncan/Linux/linux-2.5'
-> >   CLEAN   /home/duncan/SpeedTouch/.tmp_versions
-> > make[1]: Leaving directory `/home/duncan/Linux/linux-2.5'
-> > $
-> > 
-> > This leaves all the .o etc files which doesn't sound right...
-> Nope - let me try.
-> 
-> sam@mars rtl8180 $ ls *o
-> built-in.o   r8180_if.o        rtl8180.ko     rtl8180.o
-> priv_part.o  r8180_pci_init.o  rtl8180.mod.o  usercopy.o
-> sam@mars rtl8180 $ make -C ~/bk/kbuild M=$PWD clean
-> make: Entering directory `/home/sam/bk/kbuild'
->   CLEAN   /home/sam/bk/external/rtl8180/.tmp_versions
-> make: Leaving directory `/home/sam/bk/kbuild'
-> sam@mars rtl8180 $ ls *o
-> ls: *o: No such file or directory
-> sam@mars rtl8180 $ cat Makefile
-> obj-m           := rtl8180.o
-> rtl8180-y       += r8180_if.o r8180_pci_init.o usercopy.o
-> rtl8180-y       += priv_part.o
->   
-> 
-> Looks to be OK here.
-> Please let me see the Makefile you use for SpeedTouch
+ 
+> Sure.  For ppc64, beyond allnoconfig, I had to enable
+> CONFIG_SYSVIPC
+> CONFIG_SYSCTL
+> CONFIG_NET
+> ... um, but that didn't fix everything.  Now it fails with
 
-Hi Sam, as I mentioned in another mail, if you get to your
-current working directory via a symlink, then clean doesn't
-work properly (this was the problem I hit).  Did you work out
-what's going on?
+OK, I guess we need some better wrapping of compat code.
+ 
+> Um, why is it using the host's gcc?  I ran make with
+> make V=1 ARCH=ppc64 
+> CROSS_COMPILE=/opt/crosstool/powerpc64-unknown-linux-gnu/gcc-3.4.2-glibc-2.3.3/bin/powerpc64-unknown-linux-gnu-
+> so it really should know better, shouldn't it?
 
-Thanks for your help,
+Check out arch/ppc64/boot/Makefile, in particular CROSS32_COMPILE. The
+boot wrapper is a 32bit binary. 
 
-Duncan.
+Now that the toolchain is biarch capable we could get rid of that and
+use gcc -m32 instead. But for the moment specify a CROSS32_COMPILE ant
+things should link.
+
+Anton

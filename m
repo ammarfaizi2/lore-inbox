@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315805AbSHBQJQ>; Fri, 2 Aug 2002 12:09:16 -0400
+	id <S315449AbSHBQG6>; Fri, 2 Aug 2002 12:06:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315485AbSHBQI2>; Fri, 2 Aug 2002 12:08:28 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:32018
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S315456AbSHBQHY>; Fri, 2 Aug 2002 12:07:24 -0400
-Date: Fri, 2 Aug 2002 09:04:03 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ed Tomlinson <tomlins@cam.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.5.30 ide problems booting 
-In-Reply-To: <200208020726.51659.tomlins@cam.org>
-Message-ID: <Pine.LNX.4.10.10208020838420.32582-100000@master.linux-ide.org>
+	id <S315483AbSHBQG6>; Fri, 2 Aug 2002 12:06:58 -0400
+Received: from mta04bw.bigpond.com ([139.134.6.87]:53732 "EHLO
+	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S315456AbSHBQGD>; Fri, 2 Aug 2002 12:06:03 -0400
+Message-ID: <3D4AAFCB.7090700@snapgear.com>
+Date: Sat, 03 Aug 2002 02:14:03 +1000
+From: gerg <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Russell King <rmk@arm.linux.org.uk>
+CC: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: linux-2.5.30uc0 MMU-less patches
+References: <20020802145034.B24631@parcelfarce.linux.theplanet.co.uk> <3D4AAA87.8050508@snapgear.com> <20020802170007.E11451@flint.arm.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Aug 2002, Ed Tomlinson wrote:
+Hi Russell,
 
-> reiserfs: checking transaction log (ide2(33,3)) for (ide2(33,3))
-> hde: dma_intr: bad DMA status (dma_stat=36)
-> hde: ide_dma_intr: status=0x50 [ drive ready,seek complete] 
-> hde: request error, nr. 1
+Russell King wrote:
+> On Sat, Aug 03, 2002 at 01:51:35AM +1000, gerg wrote:
+> 
+>>Matthew Wilcox wrote:
+>>
+>>> - the Makefile changes seem terribly inappropriate.
+>>
+>>Some simplify cross compilation (like the ARCH and CROSS_COMPILE changes).
+> 
+> 
+> make ARCH=foo CROSS_COMPILE=arm-linux-
+> 
+> variables on makes command line override variables in the makefile.
 
-How the heck did you get get bit 4 of the dma_status register to report
-anything other than "0" ??
-
-Next "HTH", did it manage to invoke an DMA Error and Interrupt and return
-a the drive back in to command mode with a 50 stat ?
-
-I have never been so amazed by this driver's ablity to invoke hardware
-events that can not happen.
+That should help clean up that Makefile patch a bit :-)
 
 
+>>> - drivers/char/mcfserial.c needs to be converted to the new serial core
+>>>   and moved to drivers/serial.
+>>> - ditto arch/m68knommu/platform/68360/quicc/uart.c
+>>
+>>Yep, I am looking at that now. That will take me a little
+>>effort and time to put together.
+> 
+> 
+> You should be aware that I'm going to be submitting a minor change in
+> the interface (as detailed in Documentation/serial/driver) soon, mainly
+> to make Dave Miller happy.  Patch soon to be available.
 
-Andre Hedrick
-LAD Storage Consulting Group
+OK, I'll keep an eye out for that.
+
+Thanks
+Greg
+
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
 

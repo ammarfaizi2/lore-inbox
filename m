@@ -1,46 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269308AbRHCEjd>; Fri, 3 Aug 2001 00:39:33 -0400
+	id <S269312AbRHCErP>; Fri, 3 Aug 2001 00:47:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269312AbRHCEjY>; Fri, 3 Aug 2001 00:39:24 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:3720 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S269308AbRHCEjL>;
-	Fri, 3 Aug 2001 00:39:11 -0400
-Message-ID: <3B6A2CC8.7D17F96F@randomlogic.com>
-Date: Thu, 02 Aug 2001 21:47:04 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S269313AbRHCErF>; Fri, 3 Aug 2001 00:47:05 -0400
+Received: from battlejitney.wdhq.scyld.com ([216.254.93.178]:55024 "EHLO
+	vaio.greennet") by vger.kernel.org with ESMTP id <S269312AbRHCEqy>;
+	Fri, 3 Aug 2001 00:46:54 -0400
+Date: Fri, 3 Aug 2001 00:46:56 -0400 (EDT)
+From: Donald Becker <becker@scyld.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: David Flynn <Dave@keston.u-net.com>,
+        linux kernel mailinglist <linux-kernel@vger.kernel.org>,
+        tulip@scyld.com
+Subject: Re: [tulip] Re: Tulip Driver, or is it the PCI subsystem ?
+In-Reply-To: <E15STO2-0002AC-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10108030028530.850-100000@vaio.greennet>
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
-Subject: Kernel 2.4.7 Source Code Documentation
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am attempting to get my slow UP PIII 800 here at work to parse the 2.4.7 source and annotate it so that I can put it up on my other web server. When it is
-done, I will upload it to the server and it should be available at this URL:
+On Fri, 3 Aug 2001, Alan Cox wrote:
 
-http://www.randomlogic.com/kernel/
+> > now, all that i want to know, is What on earth has been changed to
+> > COMPLETELY retard what i saw as a usefull card and driver, for my (and other
+> > people), the card is useless, and even worse, so is the damn server its
+> > connected to.
+> 
+> Well the obvious thing is the pci scanning and hot plug interface means that
+> PCI ordering is now a more generic issue. I suspect what you'd need to do
+> is to implement a version of 
+> 
+> 	pcibios_sort()
 
-This may or may not happen tonight since this machine is nowhere near as fast as my K7 at home and the K7 takes a few hours to do it all, but the U/L bandwidth
-is much better here (DS3 compared to cable). I do expect to have it up before the weekend.
+This doesn't really address the problem.
 
-(NOTE: I compared kernel compile times between the two, no official numbers, just compiling on both machines. I started the PIII 800 about 1 min before the K7
-Thunder. The K7 Thunder was done with make dep, bzImage, modules, and modules_install before the PIII was 50% complete with bzImage. The K7 was running 2
-SETI@Home sessions as well as compiling, the PIII was doing nothing else.)
+The (Scyld) tulip driver now back-installs the EEPROM information to
+already detected interfaces that didn't have an EEPROM.
 
-I plan to update the documentation with every stable kernel release. (So please, don't crank them out too fast, I'd hate to spend my life U/L 1GB+ of HTML every
-other day!! ;-)
+The problem is the broken BIOS IRQ settings.
+The tulip driver has long had patch-up code, for x86 only, to work
+around this problem.
 
-PGA
+The driver used to only forward-copy the EEPROM info, and used the same
+code to forward copy the IRQ setting.  If the probe order was backwards,
+the user set reverse_probe=1 because of the obviously bogus media
+table.  This fixed up the IRQ (which was never *obviously* broken.)
 
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+Reviewing the code, I now understand the crux of your bug report.
+While the current driver will back-copy and forward-copy the EEPROM
+media information, the IRQ setting is only forward copied.
+
+See the references to "last_irq" in probe1().
+
+Here is a patch that might fix your problem.  The code around line 1106
+does the back-copy of the EEPROM media table.  Please try adding the
+lines with the "+"
+
+	if (ee_data[19] > 1) {
+		struct net_device *prev_dev;
+		struct tulip_private *otp;
+		/* This is a multiport board.  The probe order may be "backwards", so
+		   we patch up already found devices. */
+		last_ee_data = ee_data;
+		for (prev_dev = tp->next_module; prev_dev; prev_dev = otp->next_module) {
+			otp = (struct tulip_private *)prev_dev->priv;
+			if (otp->eeprom[0] == 0xff  &&  otp->mtable == 0) {
++#if defined(__i386__)		/* Patch up x86 BIOS bug. */
++				prev_dev->irq = dev->irq;
++#endif
+				parse_eeprom(prev_dev);
+				start_link(prev_dev);
+			} else
+				break;
+		}
+		controller_index = 0;
+	}
+
+
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
+

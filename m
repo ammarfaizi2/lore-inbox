@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269898AbUJHAtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269899AbUJHAqC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269898AbUJHAtu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 20:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269876AbUJHAts
+	id S269899AbUJHAqC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 20:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269988AbUJHAla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 20:49:48 -0400
-Received: from havoc.gtf.org ([69.28.190.101]:5342 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S269898AbUJHAsR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 20:48:17 -0400
-Date: Thu, 7 Oct 2004 20:47:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Dave Jones <davej@redhat.com>, "Jeff V. Merkey" <jmerkey@drdos.com>,
-       Kyle Moffett <mrmacman_g4@mac.com>,
-       "jmerkey@comcast.net" <jmerkey@comcast.net>, jonathan@jonmasters.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone
-Message-ID: <20041008004734.GA28489@havoc.gtf.org>
-References: <100120041740.9915.415D967600014EC2000026BB2200758942970A059D0A0306@comcast.net> <35fb2e590410011509712b7d1@mail.gmail.com> <415DD1ED.6030101@drdos.com> <1096738439.25290.13.camel@localhost.localdomain> <41659748.9090906@drdos.com> <8B592DC4-18A9-11D9-ABEB-000393ACC76E@mac.com> <4165B265.2050506@drdos.com> <20041007221826.GB5302@redhat.com> <4165BA70.5050208@drdos.com> <20041007224108.GI12153@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041007224108.GI12153@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 7 Oct 2004 20:41:30 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:3230 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S269949AbUJHAiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 20:38:08 -0400
+Date: Fri, 08 Oct 2004 09:43:40 +0900
+From: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Subject: Re: [Lhms-devel] Re: [PATCH] no buddy bitmap patch : for ia64 [2/2]
+In-reply-to: <1097163793.3625.47.camel@localhost>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>,
+       Andrew Morton <akpm@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       "Luck, Tony" <tony.luck@intel.com>,
+       Hirokazu Takahashi <taka@valinux.co.jp>
+Message-id: <4165E2BC.3070906@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.6)
+ Gecko/20040113
+References: <4165399D.7010600@jp.fujitsu.com>
+ <1097163793.3625.47.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 07, 2004 at 06:41:08PM -0400, Dave Jones wrote:
-> You seem to be under the deluded illusion that all kernel hackers
-> do what they do for the money[1].
+Dave Hansen wrote:
+> The real way to do this is to put it in a Kconfig file.  
 > 
-> Please, either cut down the dosage, or increase it.
+> something like:
 > 
-> 		Dave
+> config HOLES_IN_ZONE
+> 	bool
+> 	depends on VIRTUAL_MEM_MAP
 > 
+> right below where 'config VIRTUAL_MEM_MAP' is defined.  That way, if any
+> other architectures need it, they alter their Kconfig files instead of
+> headers.  Also, it leaves the possibility of having an arch-independent
+> Kconfig file for memory-related options which I'd like to do in the
+> future.
 > 
-> [1] Whereas everyone knows, its all about the fast cars and chicks.
-
-I dunno about you, but I'm in it for the beer.
-
-	Jeff
+Ok, it looks better. I'll move it.
+Updated version will be posted in a day.
 
 
+Kame <kamezawa.hiroyu@jp.fujitsu.com>
 

@@ -1,51 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314658AbSDTQ4W>; Sat, 20 Apr 2002 12:56:22 -0400
+	id <S314663AbSDTRFr>; Sat, 20 Apr 2002 13:05:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314659AbSDTQ4T>; Sat, 20 Apr 2002 12:56:19 -0400
-Received: from panic.tn.gatech.edu ([130.207.137.62]:1162 "HELO gtf.org")
-	by vger.kernel.org with SMTP id <S314658AbSDTQ4Q>;
-	Sat, 20 Apr 2002 12:56:16 -0400
-Date: Sat, 20 Apr 2002 12:56:14 -0400
-From: Jeff Garzik <garzik@havoc.gtf.org>
-To: Nils Philippsen <nils@wombat.dialup.fht-esslingen.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S314664AbSDTRFq>; Sat, 20 Apr 2002 13:05:46 -0400
+Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:6794 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314663AbSDTRFq>;
+	Sat, 20 Apr 2002 13:05:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Anton Altaparmakov <aia21@cantab.net>
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-Message-ID: <20020420125614.A3327@havoc.gtf.org>
-In-Reply-To: <E16ya3u-0000RG-00@starship> <20020420115416.B617@havoc.gtf.org> <1019320151.25439.11.camel@wombat>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Fri, 19 Apr 2002 19:05:52 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020420170907.06e87550@pop.cus.cam.ac.uk> <5.1.0.14.2.20020420174422.00ad1390@pop.cus.cam.ac.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16ybpZ-0000V4-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 20, 2002 at 06:29:11PM +0200, Nils Philippsen wrote:
-> On Sat, 2002-04-20 at 17:54, Jeff Garzik wrote:
-> > On Fri, Apr 19, 2002 at 05:12:33PM +0200, Daniel Phillips wrote:
-> > > Please do not misinterpret my position: I count Larry as something more than 
-> > > a personal acquaintance.  I strongly support his efforts to build a business 
-> > > for himself out of his Bitkeeper creation.  I even like Jeff Garzik's
-> > > documentation, the subject of this patch.  I do not support the infusion of 
-> > 
-> > It's also really, really, low class to not even CC me in your attempt
-> > to remove the documentation I wrote from the kernel tree, and placed
-> > into the kernel tree at Linus's request.
-> > 
-> > Rot in hell, closed mind.
-> 
-> You seriously have to improve your manners. Dubbing someone low class
-> while using such phrases is pretty double standards. Is it really so
-> difficult to calm down before replying? But I guess I'm just restricting
-> your freedom of speech.
+On Saturday 20 April 2002 18:51, you wrote:
+> The fact that some developers use bitkeeper has no effect on other 
+> developers.
 
-I never claimed I was not low class[1] ;-)  And no, you're not
-restricting free speech at all...  Posts like yours are a celebration of
-free speech.
+On the contrary, I think it has divided the kernel developers firmly into
+two classes: the "ins" and the "outs".
 
-	Jeff
+> Well ok, it means that the bk using developers can work faster 
+> but that is not at issue here...
 
+Oh I don't disagree at all.  Bitkeeper is a big improvement over what
+existed before.  But it is proprietary.  Which other tool in the tool chain
+is proprietary?
 
+Heck, it's not even that proprietary.  As far as I know I can still download
+the source.  But... looking at those files sitting in the Documentation
+directory, it looks to me like a big old Marlbourough[TM] ad.
 
-[1] I often joke with my friends, "I've got plenty of class... all of it
-low."  Usually after telling a tasteless joke :)
+> I don't see why there should be any kind of split or anything like that. 
+> Everything continues as before. It's just that some developers now have a 
+> much easier life...
+
+And some have a more difficult one.  So it goes.
+
+-- 
+Daniel

@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135820AbREFUAv>; Sun, 6 May 2001 16:00:51 -0400
+	id <S135828AbREFUKc>; Sun, 6 May 2001 16:10:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135823AbREFUAm>; Sun, 6 May 2001 16:00:42 -0400
-Received: from idiom.com ([216.240.32.1]:28426 "EHLO idiom.com")
-	by vger.kernel.org with ESMTP id <S135820AbREFUAa>;
-	Sun, 6 May 2001 16:00:30 -0400
-Message-ID: <3AF5C81E.C52CF4F2@namesys.com>
-Date: Sun, 06 May 2001 14:54:38 -0700
-From: Hans Reiser <reiser@namesys.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14cl i686)
-X-Accept-Language: en
+	id <S135829AbREFUKV>; Sun, 6 May 2001 16:10:21 -0400
+Received: from vill.ha.smisk.nu ([212.75.83.8]:20746 "HELO mail.fbab.net")
+	by vger.kernel.org with SMTP id <S135828AbREFUKR>;
+	Sun, 6 May 2001 16:10:17 -0400
+X-Qmail-Scanner-Mail-From: mag@fbab.net via mail.fbab.net
+X-Qmail-Scanner-Rcpt-To: marko@l-t.ee linux-kernel@vger.kernel.org
+X-Qmail-Scanner: 0.94 (No viruses found. Processed in 7.909841 secs)
+Message-ID: <000d01c0d668$bd8c3840$020a0a0a@totalmef>
+From: "Magnus Naeslund\(f\)" <mag@fbab.net>
+To: "Marko Kreen" <marko@l-t.ee>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <00fb01c0d596$afb30690$020a0a0a@totalmef> <20010505223034.C9629@l-t.ee> <018701c0d5c2$67a2ad20$020a0a0a@totalmef> <20010506023917.A22722@l-t.ee>
+Subject: Re: 2.4.4 fork() problems (maybe)
+Date: Sun, 6 May 2001 22:11:30 +0200
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ReiserFS seems to be stable as of 2.4.4
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bug reports that are hardware failures masquerading as reiserfs bugs
-dominate our mailing list.  We also get bug reports from users with
-versions that are prior to 2.4.4.  We are now working on making the code
-more likely to identify a hardware failure as a hardware failure
-(without killing performance, which means there are many things we can
-do but we can't fully cure that problem).
+From: "Marko Kreen" <marko@l-t.ee>
+> On Sun, May 06, 2001 at 02:20:50AM +0200, Magnus Naeslund(f) wrote:
+> > From: "Marko Kreen" <marko@l-t.ee>
+> > > On Sat, May 05, 2001 at 09:07:53PM +0200, Magnus Naeslund(f) wrote:
+> > > > When i do a "su - <user>" it just hangs.
+> > > > When i run strace on it i see that it forks and wait()s on the
+child.
+>
+> > No i use redhat 6.2 (on a alpha system).
+> > It works fine with 2.4.3, which i am running now ( i backed out 2.4.4 ).
+>
+> Could you try 2.4.5-pre1?  If that too works then the problem
+> quite possibly was indeed fork() child-first change.  If not,
+> well, then it gets interesting...
+>
 
-fsck is the one non-solid piece of our code, and that has greatly
-improved and will hopefully be solid by June 1.  Two persons are working
-on it full-time.
+I can confirm that 2.4.5pre1 does NOT have this problem at all.
+Now everything works as it should.
+I'll run this until next stable, and will report any trouble.
 
-We have one bugfix in reiserfs that is not yet in the main kernel,
-mainly because it is a deep bugfix that we are being careful with so
-that it does not add more bugs.  One user only so far has hit that bug.
+> --
+> marko
 
-We have some new code that we are saving for 2.5.1, to relocate, resize,
-and generally tune the journal, and to mark blocks bad for users that
-need to do that for long enough to get a new disk drive (if you see bad
-blocks, usually your drive is no longer worth trusting your home
-directory to.)
+Magnus Naeslund
 
-We will improve performance throughout 2.5, with a new block allocator
-and a journal tuning and relocation patch, being the most important
-changes likely to happen soon.
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+ Programmer/Networker [|] Magnus Naeslund
+ PGP Key: http://www.genline.nu/mag_pgp.txt
+-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-All in all, things look good for starting work on reiser4 on June 1.:)
 
-Hans
+

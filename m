@@ -1,86 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbUCVAJe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Mar 2004 19:09:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUCVAJe
+	id S261531AbUCVAS5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Mar 2004 19:18:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbUCVAS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Mar 2004 19:09:34 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:24714
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261530AbUCVAJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Mar 2004 19:09:31 -0500
-Date: Mon, 22 Mar 2004 01:10:23 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: do we want to kill VM_RESERVED or not? [was Re: 2.6.5-rc1-aa3]
-Message-ID: <20040322001023.GD3649@dualathlon.random>
-References: <20040320210306.GA11680@dualathlon.random> <20040321120005.GC10787@dualathlon.random> <20040321121526.GD10787@dualathlon.random> <200403212042.18092@WOLK>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200403212042.18092@WOLK>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Sun, 21 Mar 2004 19:18:57 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:65408 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261531AbUCVASz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Mar 2004 19:18:55 -0500
+To: =?iso-8859-1?q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Davide Libenzi <davidel@xmailserver.org>,
+       "Patrick J. LoPresti" <patl@users.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cowlinks v2
+References: <20040321125730.GB21844@wohnheim.fh-wedel.de>
+	<Pine.LNX.4.44.0403210944310.12359-100000@bigblue.dev.mdolabs.com>
+	<20040321181430.GB29440@wohnheim.fh-wedel.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Mar 2004 17:18:41 -0700
+In-Reply-To: <20040321181430.GB29440@wohnheim.fh-wedel.de>
+Message-ID: <m1y8ptu42m.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 21, 2004 at 08:42:18PM +0100, Marc-Christian Petersen wrote:
-> On Sunday 21 March 2004 13:15, Andrea Arcangeli wrote:
+Jörn Engel <joern@wohnheim.fh-wedel.de> writes:
+
+> On Sun, 21 March 2004 09:59:39 -0800, Davide Libenzi wrote:
+> > 
+> > When I did that, fumes of an in-kernel implementation invaded my head for 
+> > a little while. Then you start thinking that you have to teach apps of new 
+> > open(2) semantics, you have to bloat kernel code a little bit and you have 
+> > to deal with a new set of errors cases that open(2) is not expected to 
+> > deal with. A fully userspace implementation did fit my needs at that time, 
+> > even if the LD_PRELOAD trick might break if weak aliases setup for open 
+> > functions change inside glibc.
 > 
-> Hi Andrea,
+> 209 fairly simple lines definitely have more appear than a full
+> in-kernel implementation with many new corner-cases, yes.  But it
+> looks as if you ignore the -ENOSPC case, so you cheated a little. ;)
 > 
-> first: many thanks for all your effort for objrmap and anon_vma.
-> I really appreciate it!
+> No matter how you try, there is no way around an additional return
+> code for open(), so we have to break compatibility anyway.  The good
+> news is that a) people not using this feature won't notice and b) all
+> programs I tried so far can deal with the problem.  Vim even has a
+> decent error message - as if my patch was anticipated already.
 
-You're welcome, you should also thank Dave and Hugh even before you
-thank me ;), since they solved many of the problems to make this
-possible years ago even before I started working on the objrmap myself.
+Actually there is...  You don't do the copy until an actual write occurs.
+Some files are opened read/write when there is simply the chance they might
+be written to so delaying the copy is generally a win.
 
-> > and here the vmware proper fix: --- vmmon-only/linux/driver.c.~1~
-> > 2004-03-21 13:07:02.869326296 +0100
-> > +++ vmmon-only/linux/driver.c	2004-03-21 13:07:28.320457136 +0100
-> > @@ -1083,6 +1083,7 @@ static int LinuxDriverMmap(struct file *
-> >     }
-> >     /* Clear VM_IO, otherwise SuSE's kernels refuse to do get_user_pages */
-> >     vma->vm_flags &= ~VM_IO;
-> > +   vma->vm_flags |= VM_RESERVED;
-> >  #if LINUX_VERSION_CODE < KERNEL_VERSION(2, 2, 3)
-> >     vma->vm_file = filp;
-> >     filp->f_count++;
-> > You should apply both (though just applying one of the two will fix it).
-> 
-> ok, without the VMware fix, see attached oops report.
+A coworker of mine implemented a version of this idea as a filesystem.
+It did the copy in the kernel, it handled directories, and could be
+used to atomically snapshot your filesystem.  The only case that was
+still a little sketchy was how do you handle cow to a file with hard
+links. 
 
-it's not an oops report, it's a warning only and it should not affect
-functionality in any way (vmware should still work). The vmware fix will
-shutdown the warning so you won't be annoyed anymore by it ;)
+The interesting case for us is when you have multiple machines sharing
+the same root filesystem.
 
-> With the VMware fix, it works fine.
-
-Good.
-
-> Both, for sure, with 2.6.5-rc2-aa1.
-> 
-> What I have noticed is this from VMware _without_ the VMware fix:
-> 
-> Mar 21 20:23:56 codeman kernel: /dev/vmnet: hub 8 does not exist, allocating 
-> memory.
-> Mar 21 20:23:56 codeman kernel: /dev/vmnet: port on hub 8 successfully opened
-> Mar 21 20:23:56 codeman VMware[init]: Unable to sendto: Operation not		<------ 
-> permitted
-> Mar 21 20:23:56 codeman VMware[init]: 
-> Mar 21 20:23:56 codeman kernel: /dev/vmnet: open called by PID 10497 
-> (vmnet-netifup)
-> Mar 21 20:23:56 codeman kernel: /dev/vmnet: port on hub 8 successfully opened
-> 
-> 
-> With the VMware fix applied, the "Unable to sendto..." line disappears.
-
-maybe a delay generated by the printk, not sure why there's a relation
-between the two, or if it's only a coincidence. WARN_ON after triggering
-should only generate a delay, no other effects.
-
-thanks!
+Eric

@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265446AbTAWPrR>; Thu, 23 Jan 2003 10:47:17 -0500
+	id <S265368AbTAWPxv>; Thu, 23 Jan 2003 10:53:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265470AbTAWPrQ>; Thu, 23 Jan 2003 10:47:16 -0500
-Received: from mail.fibrespeed.net ([216.168.105.35]:20997 "HELO
-	mail.fibrespeed.net") by vger.kernel.org with SMTP
-	id <S265446AbTAWPrQ>; Thu, 23 Jan 2003 10:47:16 -0500
-Message-ID: <3E3010AA.4040107@fibrespeed.net>
-Date: Thu, 23 Jan 2003 10:56:26 -0500
-From: "Michael T. Babcock" <mbabcock@fibrespeed.net>
-Organization: FibreSpeed Ltd.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	id <S265378AbTAWPxv>; Thu, 23 Jan 2003 10:53:51 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:63119 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265368AbTAWPxu> convert rfc822-to-8bit; Thu, 23 Jan 2003 10:53:50 -0500
+Date: Thu, 23 Jan 2003 11:04:18 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: User & <breno_silva@beta.bandnet.com.br>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Expand VM 
+In-Reply-To: <20030123155627.M95099@beta.bandnet.com.br>
+Message-ID: <Pine.LNX.3.95.1030123110049.32244A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: devik <devik@cdi.cz>
-CC: linux-kernel@vger.kernel.org, lartc@mailman.ds9a.nl
-Subject: Re: [LARTC] TCP probably broken in W2K
-References: <Pine.LNX.4.33.0301231309020.518-100000@devix>
-In-Reply-To: <Pine.LNX.4.33.0301231309020.518-100000@devix>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-devik wrote:
+On Thu, 23 Jan 2003, User & wrote:
 
->this is not exactly Linux problem but it is VERY interesting
->and as I'm linux developer I'm posting it here.
->  
->
+> 
+> Hi all
+> 
+> I have one idea , and this is about expand virtual memory on linux boxes 
+> connected in LAN.
+> Example: Linux A is processing come information , and need more memory , so 
+> with this source , Linux A could access virtual memory on Linux B in LAN.
+> But i don´t know how translate the virtual address between Linux A and B , to 
+> have success in acess VM, or how to send all the process for Linux B to be 
+> processed.
+> 
+> Any ideas ?
+> 
+> Thanks
+> Breno
 
-I have Win2k and XP machines and I've had many symptoms of a broken 
-TCP/IP stack in my TCP programming on those platforms.  I communicate 
-with Linux 2.2.19 and 2.2.21 machines running tcpserver _a lot_ from 
-these, and I have to do a number of strange things to make it all work. 
- I don't know if my layer-4 problems would help, but if they would, I 
-could try and describe them for you.
+Use a swap-file on another machine on the LAN to extend your virtual
+memory if you run out of local swap-file space.
 
--- 
-Michael T. Babcock
-C.T.O., FibreSpeed Ltd.
-http://www.fibrespeed.net/~mbabcock
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 
 

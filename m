@@ -1,152 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317682AbSGOWpn>; Mon, 15 Jul 2002 18:45:43 -0400
+	id <S317678AbSGOXFx>; Mon, 15 Jul 2002 19:05:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317683AbSGOWpm>; Mon, 15 Jul 2002 18:45:42 -0400
-Received: from web10410.mail.yahoo.com ([216.136.128.123]:53359 "HELO
-	web10410.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S317682AbSGOWpl>; Mon, 15 Jul 2002 18:45:41 -0400
-Message-ID: <20020715224836.15368.qmail@web10410.mail.yahoo.com>
-Date: Tue, 16 Jul 2002 08:48:36 +1000 (EST)
-From: =?iso-8859-1?q?Steve=20Kieu?= <haiquy@yahoo.com>
-Subject: 2.4.19-rc1-ac3+preempt; hda: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-To: kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-4972122-1026773316=:15247"
-Content-Transfer-Encoding: 8bit
+	id <S317687AbSGOXFw>; Mon, 15 Jul 2002 19:05:52 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:53649 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S317678AbSGOXFw>;
+	Mon, 15 Jul 2002 19:05:52 -0400
+Date: Tue, 16 Jul 2002 02:08:45 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Ketil Froyn <ketil-kernel@froyn.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks
+Message-ID: <20020716020845.Z28720@mea-ext.zmailer.org>
+References: <s5g7kjwsn12.fsf@egghead.curl.com> <Pine.LNX.4.44.0207152356430.19217-100000@lexx.infeline.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207152356430.19217-100000@lexx.infeline.org>; from ketil-kernel@froyn.net on Mon, Jul 15, 2002 at 11:59:48PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-4972122-1026773316=:15247
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
+On Mon, Jul 15, 2002 at 11:59:48PM +0200, Ketil Froyn wrote:
+> On 15 Jul 2002, Patrick J. LoPresti wrote:
+> > Without calling fsync(), you *never* know when the data will hit the
+> > disk.
+> 
+> Doesn't bdflush ensure that data is written to disk within 30 seconds or 
+> some tunable number of seconds?
 
+  It TRIES TO, it does not guarantee anything.
 
-I found it once in the dmesg log (attached here); I
-have nerver found it when running previous kernel
-(2.4.18; 2.4.19-pre6 and less than pre6). The
-performance is really good. It seems to use the cache
-much more effectively. I will check if the problem
-persist. Is there any danger to my hard drive if I
-keep using this kernel?
+  The MTA systems are an example of software suites which have
+  transaction requirements.  The goal has been usually stated
+  as:  must not fail to deliver.
 
-Regards,
+  Practical implementations without full-blown all encompassing
+  transactions will usually mean that the message "will be delivered
+  at least once", e.g. double-delivery can happen.
 
+  One view to MTA behaviour is moving the message from one substate
+  to another during its processing.
 
+  These days, usually, the transaction database for MTAs is UNIX
+  filesystem.   For ZMailer I have considered (although not actually
+  done - yet) using SleepyCat DB files for the transaction subsystem.
+  There are great challenges in failure compartementalisation, and
+  integrity, when using that kind of integrated database mechanisms.
+  Getting SEGV is potentially _very_ bad thing!
 
-=====
-Steve Kieu
+> Ketil
 
-http://www.sold.com.au - SOLD.com.au
-- Find yourself a bargain!
---0-4972122-1026773316=:15247
-Content-Type: application/octet-stream; name="dmesg.log"
-Content-Transfer-Encoding: base64
-Content-Description: dmesg.log
-Content-Disposition: attachment; filename="dmesg.log"
-
-TGludXggdmVyc2lvbiAyLjQuMTktcmMxLWFjMy1ybWwgKHNrQExpbnV4KSAo
-Z2NjIHZlcnNpb24gMi45NiAyMDAwMDczMSAoTWFuZHJha2UgTGludXggOC4x
-IDIuOTYtMC42My4xbWRrKSkgIzEgTW9uIEp1bCAxNSAxODowMDo0MyBVVEMg
-MjAwMgpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6CiBCSU9TLWU4
-MjA6IDAwMDAwMDAwMDAwMDAwMDAgLSAwMDAwMDAwMDAwMDlmYzAwICh1c2Fi
-bGUpCiBCSU9TLWU4MjA6IDAwMDAwMDAwMDAwOWZjMDAgLSAwMDAwMDAwMDAw
-MGEwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAwMDAwMDBmMDAw
-MCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAw
-MDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAwMDAwN2YwMDAwMCAodXNhYmxlKQog
-QklPUy1lODIwOiAwMDAwMDAwMGZmYjAwMDAwIC0gMDAwMDAwMDEwMDAwMDAw
-MCAocmVzZXJ2ZWQpCjEyN01CIExPV01FTSBhdmFpbGFibGUuCk9uIG5vZGUg
-MCB0b3RhbHBhZ2VzOiAzMjUxMgp6b25lKDApOiA0MDk2IHBhZ2VzLgp6b25l
-KDEpOiAyODQxNiBwYWdlcy4Kem9uZSgyKTogMCBwYWdlcy4KS2VybmVsIGNv
-bW1hbmQgbGluZTogQk9PVF9JTUFHRT0yNDE5cmMxYWMzIHJvIHJvb3Q9MzAz
-IHF1aWV0CkluaXRpYWxpemluZyBDUFUjMApEZXRlY3RlZCA0MDAuOTE3IE1I
-eiBwcm9jZXNzb3IuCkNvbnNvbGU6IGNvbG91ciBWR0ErIDgweDI1CkNhbGli
-cmF0aW5nIGRlbGF5IGxvb3AuLi4gNzk5LjUzIEJvZ29NSVBTCk1lbW9yeTog
-MTI2NTQway8xMzAwNDhrIGF2YWlsYWJsZSAoOTYzayBrZXJuZWwgY29kZSwg
-MzEyMGsgcmVzZXJ2ZWQsIDIwNWsgZGF0YSwgODBrIGluaXQsIDBrIGhpZ2ht
-ZW0pCkRlbnRyeSBjYWNoZSBoYXNoIHRhYmxlIGVudHJpZXM6IDE2Mzg0IChv
-cmRlcjogNSwgMTMxMDcyIGJ5dGVzKQpJbm9kZSBjYWNoZSBoYXNoIHRhYmxl
-IGVudHJpZXM6IDgxOTIgKG9yZGVyOiA0LCA2NTUzNiBieXRlcykKTW91bnQg
-Y2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAyMDQ4IChvcmRlcjogMiwgMTYz
-ODQgYnl0ZXMpCnJhbWZzOiBtb3VudGVkIHdpdGggb3B0aW9uczogPGRlZmF1
-bHRzPgpyYW1mczogbWF4X3BhZ2VzPTE1ODE3IG1heF9maWxlX3BhZ2VzPTAg
-bWF4X2lub2Rlcz0wIG1heF9kZW50cmllcz0xNTgxNwpCdWZmZXIgY2FjaGUg
-aGFzaCB0YWJsZSBlbnRyaWVzOiA0MDk2IChvcmRlcjogMiwgMTYzODQgYnl0
-ZXMpClBhZ2UtY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3Jk
-ZXI6IDUsIDEzMTA3MiBieXRlcykKQ1BVOiBCZWZvcmUgdmVuZG9yIGluaXQs
-IGNhcHM6IDAxODNmOWZmIDAwMDAwMDAwIDAwMDAwMDAwLCB2ZW5kb3IgPSAw
-CkNQVTogTDEgSSBjYWNoZTogMTZLLCBMMSBEIGNhY2hlOiAxNksKQ1BVOiBM
-MiBjYWNoZTogMTI4SwpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAw
-MTgzZjlmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApJbnRlbCBtYWNo
-aW5lIGNoZWNrIGFyY2hpdGVjdHVyZSBzdXBwb3J0ZWQuCkludGVsIG1hY2hp
-bmUgY2hlY2sgcmVwb3J0aW5nIGVuYWJsZWQgb24gQ1BVIzAuCkNQVTogICAg
-IEFmdGVyIGdlbmVyaWMsIGNhcHM6IDAxODNmOWZmIDAwMDAwMDAwIDAwMDAw
-MDAwIDAwMDAwMDAwCkNQVTogICAgICAgICAgICAgQ29tbW9uIGNhcHM6IDAx
-ODNmOWZmIDAwMDAwMDAwIDAwMDAwMDAwIDAwMDAwMDAwCkNQVTogSW50ZWwg
-Q2VsZXJvbiAoTWVuZG9jaW5vKSBzdGVwcGluZyAwNQpFbmFibGluZyBmYXN0
-IEZQVSBzYXZlIGFuZCByZXN0b3JlLi4uIGRvbmUuCkNoZWNraW5nICdobHQn
-IGluc3RydWN0aW9uLi4uIE9LLgpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5n
-IGJ5IFVOSUZJWAptdHJyOiB2MS40MCAoMjAwMTAzMjcpIFJpY2hhcmQgR29v
-Y2ggKHJnb29jaEBhdG5mLmNzaXJvLmF1KQptdHJyOiBkZXRlY3RlZCBtdHJy
-IHR5cGU6IEludGVsClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4xMCBlbnRy
-eSBhdCAweGZiMzAwLCBsYXN0IGJ1cz0xClBDSTogVXNpbmcgY29uZmlndXJh
-dGlvbiB0eXBlIDEKUENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZQpVbmtub3du
-IGJyaWRnZSByZXNvdXJjZSAyOiBhc3N1bWluZyB0cmFuc3BhcmVudApQQ0k6
-IFVzaW5nIElSUSByb3V0ZXIgUElJWCBbODA4Ni8yNDIwXSBhdCAwMDoxZi4w
-CkxpbnV4IE5FVDQuMCBmb3IgTGludXggMi40CkJhc2VkIHVwb24gU3dhbnNl
-YSBVbml2ZXJzaXR5IENvbXB1dGVyIFNvY2lldHkgTkVUMy4wMzkKSW5pdGlh
-bGl6aW5nIFJUIG5ldGxpbmsgc29ja2V0CmFwbTogQklPUyB2ZXJzaW9uIDEu
-MiBGbGFncyAweDA3IChEcml2ZXIgdmVyc2lvbiAxLjE2KQpTdGFydGluZyBr
-c3dhcGQKcHR5OiAyNTYgVW5peDk4IHB0eXMgY29uZmlndXJlZApTZXJpYWwg
-ZHJpdmVyIHZlcnNpb24gNS4wNWMgKDIwMDEtMDctMDgpIHdpdGggTUFOWV9Q
-T1JUUyBTSEFSRV9JUlEgU0VSSUFMX1BDSSBlbmFibGVkCnR0eVMwMCBhdCAw
-eDAzZjggKGlycSA9IDQpIGlzIGEgMTY1NTBBCnR0eVMwMSBhdCAweDAyZjgg
-KGlycSA9IDMpIGlzIGEgMTY1NTBBCmJsb2NrOiAyNDAgc2xvdHMgcGVyIHF1
-ZXVlLCBiYXRjaD02MApVbmlmb3JtIE11bHRpLVBsYXRmb3JtIEUtSURFIGRy
-aXZlciBSZXZpc2lvbjogNi4zMQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3Rl
-bSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVi
-dXM9eHgKUElJWDQ6IElERSBjb250cm9sbGVyIG9uIFBDSSBidXMgMDAgZGV2
-IGY5ClBJSVg0OiBjaGlwc2V0IHJldmlzaW9uIDEKUElJWDQ6IG5vdCAxMDAl
-IG5hdGl2ZSBtb2RlOiB3aWxsIHByb2JlIGlycXMgbGF0ZXIKICAgIGlkZTA6
-IEJNLURNQSBhdCAweGYwMDAtMHhmMDA3LCBCSU9TIHNldHRpbmdzOiBoZGE6
-RE1BLCBoZGI6RE1BCiAgICBpZGUxOiBCTS1ETUEgYXQgMHhmMDA4LTB4ZjAw
-ZiwgQklPUyBzZXR0aW5nczogaGRjOnBpbywgaGRkOnBpbwpoZGE6IEZVSklU
-U1UgTVBGMzEwMkFULCBBVEEgRElTSyBkcml2ZQpoZGI6IElERS9BVEFQSSBD
-RC1ST00gNTJYUywgQVRBUEkgQ0QvRFZELVJPTSBkcml2ZQppZGUwIGF0IDB4
-MWYwLTB4MWY3LDB4M2Y2IG9uIGlycSAxNApoZGE6IGhvc3QgcHJvdGVjdGVk
-IGFyZWEgPT4gMQpoZGE6IDIwMDE1ODU2IHNlY3RvcnMgKDEwMjQ4IE1CKSB3
-LzUxMktpQiBDYWNoZSwgQ0hTPTEyNDUvMjU1LzYzLCBVRE1BKDMzKQpQYXJ0
-aXRpb24gY2hlY2s6CiBoZGE6IGhkYTEgaGRhMiBoZGEzIGhkYTQKUFBQIGdl
-bmVyaWMgZHJpdmVyIHZlcnNpb24gMi40LjIKUFBQIERlZmxhdGUgQ29tcHJl
-c3Npb24gbW9kdWxlIHJlZ2lzdGVyZWQKTGludXggYWdwZ2FydCBpbnRlcmZh
-Y2UgdjAuOTkgKGMpIEplZmYgSGFydG1hbm4KYWdwZ2FydDogTWF4aW11bSBt
-YWluIG1lbW9yeSB0byB1c2UgZm9yIGFncCBtZW1vcnk6IDk0TQphZ3BnYXJ0
-OiBEZXRlY3RlZCBhbiBJbnRlbCBpODEwIENoaXBzZXQuCmFncGdhcnQ6IEFH
-UCBhcGVydHVyZSBpcyA2NE0gQCAweGQ4MDAwMDAwCk5FVDQ6IExpbnV4IFRD
-UC9JUCAxLjAgZm9yIE5FVDQuMApJUCBQcm90b2NvbHM6IElDTVAsIFVEUCwg
-VENQCklQOiByb3V0aW5nIGNhY2hlIGhhc2ggdGFibGUgb2YgNTEyIGJ1Y2tl
-dHMsIDRLYnl0ZXMKVENQOiBIYXNoIHRhYmxlcyBjb25maWd1cmVkIChlc3Rh
-Ymxpc2hlZCA4MTkyIGJpbmQgODE5MikKTkVUNDogVW5peCBkb21haW4gc29j
-a2V0cyAxLjAvU01QIGZvciBMaW51eCBORVQ0LjAuClZGUzogTW91bnRlZCBy
-b290IChleHQyIGZpbGVzeXN0ZW0pIHJlYWRvbmx5LgpGcmVlaW5nIHVudXNl
-ZCBrZXJuZWwgbWVtb3J5OiA4MGsgZnJlZWQKQWRkaW5nIFN3YXA6IDcyMjU2
-ayBzd2FwLXNwYWNlIChwcmlvcml0eSAtMSkKTVNET1MgRlM6IElPIGNoYXJz
-ZXQgaXNvODg1OS0xCk1TRE9TIEZTOiBVc2luZyBjb2RlcGFnZSA4NTAKW2Ry
-bV0gQUdQIDAuOTkgb24gSW50ZWwgaTgxMCBAIDB4ZDgwMDAwMDAgNjRNQgpb
-ZHJtXSBJbml0aWFsaXplZCBpODEwIDEuMi4wIDIwMDEwOTIwIG9uIG1pbm9y
-IDAKbXRycjogYmFzZSgweGQ4MDAwMDAwKSBpcyBub3QgYWxpZ25lZCBvbiBh
-IHNpemUoMHgxMmMwMDApIGJvdW5kYXJ5CmhkYTogc3RhdHVzIGVycm9yOiBz
-dGF0dXM9MHg1OCB7IERyaXZlUmVhZHkgU2Vla0NvbXBsZXRlIERhdGFSZXF1
-ZXN0IH0KCmhkYTogZHJpdmUgbm90IHJlYWR5IGZvciBjb21tYW5kCmhkYjog
-QVRBUEkgMTFYIENELVJPTSBkcml2ZSwgMTI4a0IgQ2FjaGUsIFVETUEoMzMp
-ClVuaWZvcm0gQ0QtUk9NIGRyaXZlciBSZXZpc2lvbjogMy4xMgpJU08gOTY2
-MCBFeHRlbnNpb25zOiBSUklQXzE5OTFBCklTTyA5NjYwIEV4dGVuc2lvbnM6
-IE1pY3Jvc29mdCBKb2xpZXQgTGV2ZWwgMwpJU08gOTY2MCBFeHRlbnNpb25z
-OiBSUklQXzE5OTFBClBDSTogRm91bmQgSVJRIDUgZm9yIGRldmljZSAwMDox
-Zi41ClBDSTogU2V0dGluZyBsYXRlbmN5IHRpbWVyIG9mIGRldmljZSAwMDox
-Zi41IHRvIDY0CmludGVsOHgwOiBjbG9ja2luZyB0byA0ODAwMAptdHJyOiBi
-YXNlKDB4ZDgwMDAwMDApIGlzIG5vdCBhbGlnbmVkIG9uIGEgc2l6ZSgweDEy
-YzAwMCkgYm91bmRhcnkK
-
---0-4972122-1026773316=:15247--
+/Matti Aarnio

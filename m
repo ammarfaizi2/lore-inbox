@@ -1,48 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270745AbTGUV31 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:29:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270744AbTGUV30
+	id S270729AbTGUVjE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:39:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270731AbTGUVjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:29:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2060 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S270743AbTGUV3Z (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Mon, 21 Jul 2003 17:29:25 -0400
-Date: Mon, 21 Jul 2003 23:44:17 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
-Cc: linux-kernel@vger.redhat.com
-Subject: Re: swsusp / 2.6.0-test1
-Message-ID: <20030721214417.GI436@elf.ucw.cz>
-References: <1058805510.15585.7.camel@simulacron> <20030721193615.GB473@elf.ucw.cz> <3F1C5C26.10607@kolumbus.fi> <20030721213141.GF436@elf.ucw.cz> <3F1C5F05.5030903@kolumbus.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F1C5F05.5030903@kolumbus.fi>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Mon, 21 Jul 2003 17:39:04 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:49300 "EHLO
+	VL-MO-MR005.ip.videotron.ca") by vger.kernel.org with ESMTP
+	id S270729AbTGUVjC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 17:39:02 -0400
+Date: Mon, 21 Jul 2003 17:55:51 -0400
+From: Simon Boulet <simon.boulet@divahost.net>
+Subject: Re: 2.6.0-test1+ Alsa + Intel 82801CA/CAM AC'97 Audio OOPS
+In-reply-to: <"from tiwai"@suse.de>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <20030721215551.GC1704@i2650>
+MIME-version: 1.0
+X-Mailer: Balsa 2.0.12
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+Content-disposition: inline
+References: <20030719021012.GA919@i2650> <s5h4r1gj6t2.wl@alsa2.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Yes, CONFIG_FRAME_POINTER does fix my issues with ALSA. And the patch 
+submited by Valdis some days ago fixed OSS.
 
-> ah ok, so at this stage swsuspending a X desktop doesn't work in general 
-> case, of course depending on video hardware? If X had some notion of 
-> suspend/resume things would be easier, than insisting every single 
-> driver save and restore all. After all the pci config space should be 
-> enough for kernel drivers?
+Thank you
 
-Look how swsusp handles it: we switch to text console (which means X
-gets told to bring vga card to some sane state). We should do the same
-for S3.
+Simon
 
-I'm using vesafb, which needs no special support for suspend/resume
-;-). [And its very good for system stability; with notebook's LCD I
-don't care about low refresh (1).]
-								Pavel
-(1). I've seen notebooks LCD flashing at 25Hz, but VESA modes are
-fortunately better than *that*. 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+On 2003.07.21 10:25, Takashi Iwai wrote:
+> At Fri, 18 Jul 2003 22:10:12 -0400,
+> Simon Boulet wrote:
+> >
+> > [1  <text/plain; ISO-8859-1 (7bit)>]
+> > Hello everyone,
+> >
+> > In case I am sending this to a list, please CC to me regarding
+> anything
+> > related to this issue. I am not a member of the list.
+> >
+> > I am having a Kernel OOPS with 2.6.0-test1-ac2 (same thing under
+> non-
+> > ac2) using ALSA with OSS compatibily enabled on an Intel 82801CA/
+> CAM
+> 
+> > AC'97 (ICH3 mobile) integrated Audio.
+> 
+> perhaps a known problem.
+> a workaround is to turn on the framepointer.
+> 
+> 
+> Takashi
+> 
+> 

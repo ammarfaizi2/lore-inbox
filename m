@@ -1,63 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315438AbSEYWyB>; Sat, 25 May 2002 18:54:01 -0400
+	id <S315442AbSEYW5w>; Sat, 25 May 2002 18:57:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315439AbSEYWyA>; Sat, 25 May 2002 18:54:00 -0400
-Received: from ns.suse.de ([213.95.15.193]:63495 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315438AbSEYWx7>;
-	Sat, 25 May 2002 18:53:59 -0400
-Date: Sun, 26 May 2002 00:53:59 +0200
-From: Dave Jones <davej@suse.de>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: Luca Barbieri <ldb@ldb.ods.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [2.4] [2.5] [i386] Add support for GCC 3.1 -march=pentium{-mmx,3,4}
-Message-ID: <20020526005359.E16102@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Luca Barbieri <ldb@ldb.ods.org>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1022360474.21238.5.camel@ldb> <20020525233739.GA2022@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S315443AbSEYW5v>; Sat, 25 May 2002 18:57:51 -0400
+Received: from dsl-213-023-040-043.arcor-ip.net ([213.23.40.43]:34769 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S315442AbSEYW5u>;
+	Sat, 25 May 2002 18:57:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc,patch] breaking up sched.h
+Date: Sun, 26 May 2002 00:57:34 +0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <Pine.LNX.4.33.0205242219001.30843-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17BkTf-0003p3-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 26, 2002 at 01:37:39AM +0200, J.A. Magallon wrote:
- > Could you also split 
- > 	Pentium-Pro/Celeron/Pentium-II     CONFIG_M686
- > into
- > 	
- > 	Pentium-Pro            CONFIG_M686
- > 	Pentium-II/Celeron     CONFIG_MPENTIUMII
- > 
- > Gcc-3.1 has also a -march=pentium2 specific target, that is not a synomym
- > for any other.
+On Friday 24 May 2002 22:34, Tim Schmielau wrote:
+> While it's quite common to do "current->foo", every file doing
+> so needs to #include <linux/sched.h> for the declaration of
+> task_struct.
+> In order to reduce the number of #include <linux/sched.h>, I'd propose to
+> move task_struct to a separate header file (patch below), and include it
+> from <asm/current.h>.
 
-There are also a few extra Athlon targets iirc. athlon-xp and the like,
-which I'm not sure the purpose of. Some gcc know-all want to clue me in
-to what these offer over -march=athlon ?
+Such separation of data vs function declarations is a good thing.  This
+results in a source tree which is easier to work with and contains fewer
+strange hacks to get around include order problems.  Possibly, the kernel
+may end up compiling faster as well, if some of the includes aimed merely
+at obtaining the data definitions don't have to pick up the (much
+bulkier) operation definitions as well.
 
- > BTW, I think an option to enable -mmmx would also be useful. Nothing more,
- > because afaik sse is only floating point.
-
-Another interesting recently-added option which may be worth
-benchmarking on modern CPUs is the prefetch-loops option.
-In a lot of cases, the kernel 'knows better' and is adding the
-prefetches itself, but it may be interesting to see what difference
-gcc can make here. (More interesting would be examining the output to
-see *where* gcc is putting the prefetches)
-
-Given the immaturity of all these options, I'd doubt they're that good
-an idea for 2.4. Getting them tested during 2.5 may prove to get any
-bugs shaken out in time for $compiler_of_the_choice for 2.6 though.
-
-    Dave
+This is the same technique I used in my 'early_page' patch set, which 
+gave me the ability to rewrite all the address operations in the page.h
+and pgtable.h headers as inline functions instead of macros.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Daniel

@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbUK3ABD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261870AbUK3ABU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbUK3ABD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 19:01:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbUK3ABD
+	id S261870AbUK3ABU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 19:01:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbUK3ABU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 19:01:03 -0500
-Received: from mail.dif.dk ([193.138.115.101]:48835 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261869AbUK3AA7 (ORCPT
+	Mon, 29 Nov 2004 19:01:20 -0500
+Received: from hera.kernel.org ([63.209.29.2]:23682 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S261870AbUK3ABO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 19:00:59 -0500
-Date: Tue, 30 Nov 2004 01:10:46 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Domen Puncer <domen@coderock.org>, janitor@sternwelten.at,
-       linux-kernel@vger.kernel.org, akpm@digeo.com
-Subject: Re: ds1620: replace schedule_timeout() with 	msleep()
-In-Reply-To: <20041129224240.D5614@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.61.0411300110010.3432@dragon.hygekrogen.localhost>
-References: <E1C2cAP-0007Rx-JK@sputnik> <Pine.LNX.4.61.0411281835430.3389@dragon.hygekrogen.localhost>
- <20041129140929.GC7889@nd47.coderock.org> <Pine.LNX.4.61.0411292336320.3389@dragon.hygekrogen.localhost>
- <20041129224240.D5614@flint.arm.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 29 Nov 2004 19:01:14 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: efficeon and longrun
+Date: Tue, 30 Nov 2004 00:01:05 +0000 (UTC)
+Organization: Mostly alphabetical, except Q, which We do not fancy
+Message-ID: <cogd81$2nt$1@terminus.zytor.com>
+References: <16810.26231.936086.930240@metzlerbros.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1101772865 2814 127.0.0.1 (30 Nov 2004 00:01:05 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Tue, 30 Nov 2004 00:01:05 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Nov 2004, Russell King wrote:
-
-> On Mon, Nov 29, 2004 at 11:37:48PM +0100, Jesper Juhl wrote:
-> > On Mon, 29 Nov 2004, Domen Puncer wrote:
-> > > It's right:
-> > > schedule_timeout(2*HZ) sleeps for 2 seconds;
-> > > msleep(2000) sleeps for 2000 miliseconds, and does not depend on what
-> > > HZ is.
-> >
-> > It seems I didn't understand schedule_timeout() properly, thank you for 
-> > the clarification.
+Followup to:  <16810.26231.936086.930240@metzlerbros.de>
+By author:    Ralph Metzler <rjkm@metzlerbros.de>
+In newsgroup: linux.dev.kernel
 > 
-> As part-author of this driver, and actually of this particular bit
-> of code, a 2 second delay is intented here.  The fan needs to be run
-> at full power in order to start running, so the idea here is to give
-> it full power for 2 seconds and then to restore the temperature trip
-> points to the configured values.
+> I recently got a Sharp MP70G with a 1.6 GHz efficeon processor 
+> and have some questions regarding longrun support. I am using 
+> longrun-0.9-15 and kernel 2.6.10-rc2.
 > 
-That makes sense - thanks.
 
--- 
-Jesper
+longrun-0.9 is hideously out of date, and was never debugged to begin
+with.  Given that these days longrun is handled via cpufreq, there
+doesn't seem to be much reason for the standalone longrun program.
 
+> In arch/i386/kernel/cpu/proc.c the kernel seems to check bit 3
+> for the lrti capability, longrun.c checks bit2. 
+
+Bit 3 is correct.
+
+> Are thermal extensions different on the efficeon compared to the crusoe?
+> No matter what I choose (between 0 and 7) the level field in the ATM
+> register is always 0. 
+
+You shouldn't muck with it anyway.  And yes, they are different.  The
+thermal extensions are handled via ACPI code, so as long as the ACPI
+is handled correctly, it shouldn't matter.
+
+> Are there any new efficeon features not yet supported in the kernel or
+> the longrun utility? Is there any register information available
+> anywhere? I looked on the transmeta pages but did not find anything
+> about this.
+
+The algorithms are very different, but it's all under-the-hood stuff
+implemented in firmware.
+
+> The BIOS also allows one to select C4 as possible power level,
+> /proc/acpi/processor/CPU0/power only offers C1, C2 and C3. 
+
+C4 support (DSX) is pretty keen.
+
+> I ask because under Windows, if nothing is running, the fan will
+> stay off. Under Linux it is turning on about every two minutes and
+> will then run for about a minute (also with everything turned off, and
+> about every daemon shut down).
+
+	-hpa

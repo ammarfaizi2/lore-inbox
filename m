@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVCBSYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVCBS3v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbVCBSYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 13:24:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVCBSYE
+	id S262417AbVCBS3v (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 13:29:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVCBS3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 13:24:04 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:42985 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262413AbVCBSWI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 13:22:08 -0500
-Date: Wed, 2 Mar 2005 12:22:05 -0600
+	Wed, 2 Mar 2005 13:29:48 -0500
+Received: from smtp.gentoo.org ([134.68.220.30]:29588 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S262417AbVCBS3N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 13:29:13 -0500
+Subject: Re: [PATCH] Resend: Determine SCx200 CB address at run-time
+From: Henrik Brix Andersen <brix@gentoo.org>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-ia64@vger.kernel.org,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       "Luck, Tony" <tony.luck@intel.com>
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-Message-ID: <20050302182205.GI1220@austin.ibm.com>
-References: <422428EC.3090905@jp.fujitsu.com> <42249A44.4020507@pobox.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1109787158.12086.11.camel@sponge.fungus>
+References: <1109787158.12086.11.camel@sponge.fungus>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UjpzivquCicy3fEipd9I"
+Organization: Gentoo Linux
+Date: Wed, 02 Mar 2005 19:29:09 +0100
+Message-Id: <1109788149.4204.1.camel@sponge.fungus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 01, 2005 at 08:49:45AM -0800, Linus Torvalds was heard to remark:
-> 
-> The new API is what _allows_ a driver to care. It doesn't handle DMA, but
-> I think that's because nobody knows how to handle it (ie it's probably
-> hw-dependent and all existign implementations would thus be
-> driver-specific anyway).
 
-?  
-We could add a call 
+--=-UjpzivquCicy3fEipd9I
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-int pci_was_there_an_error_during_dma (struct pci_dev);
+On Wed, 2005-03-02 at 19:12 +0100, Henrik Brix Andersen wrote:
+> The current SCx200 drivers use a fixed base address of 0x9000 for the
+> Configuration Block, but some systems (at least the Soekris net4801)
+> uses a base address of 0x6000. This patch first tries the fixed address
+> then - if no configuration block could be found - tries the address
+> written to the Configuration Block Address Scratchpad register by the
+> BIOS.
+>=20
+> This was first sent at Wed, 23 Feb 2005 13:53:33 +0100.
+>=20
+> Signed-off-by: Henrik Brix Andersen <brix@gentoo.org>
 
-right?  And it could return true/false, right?  I can certainly 
-do that today with ppc64.  I just can't tell you which dma triggered
-the problem.
+Seems like my GPG signature messed up the in-line patch - it's available
+from http://dev.gentoo.org/~brix/files/net4801/linux-2.6.11-scx200.patch
 
-> And yes, CLEARLY drivers will have to do all the heavy lifting. 
+Sincerely,
+Brix
+--=20
+Henrik Brix Andersen <brix@gentoo.org>
+Gentoo Linux
 
-well .. maybe.  On ppc64, we have one hack-ish solution for
-hotplug-capable but pci-error-unaware device drivers, and that
-is to hot unplug the driver, clear the pci error condition, and 
-and replug the driver.  Works great for ethernet; haven't tested 
-USB.
+--=-UjpzivquCicy3fEipd9I
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-I'm getting greif from the guys over here because my hack-ish code
-is hackish, and isn't arch-generic, and Paul Mackerras doesn't like it, 
-which is why Benh is threatening to re-write it, and etc. ... 
-which is why Seto is involved, and we're having this conversation ... 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
+iD8DBQBCJgX1v+Q4flTiePgRAmx/AKCylIj+8dSXLkpX2flm2DSpkmL6NACcDScu
+pa3FlfLt6XUPLdMBhXqtZEw=
+=yRft
+-----END PGP SIGNATURE-----
 
---linas
+--=-UjpzivquCicy3fEipd9I--
 

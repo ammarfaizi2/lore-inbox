@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267401AbUJBK67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUJBLcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267401AbUJBK67 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 06:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267403AbUJBK67
+	id S262085AbUJBLcl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 07:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUJBLck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 06:58:59 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:41132 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id S267401AbUJBK64 (ORCPT
+	Sat, 2 Oct 2004 07:32:40 -0400
+Received: from pop.gmx.net ([213.165.64.20]:54674 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262085AbUJBLci (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 06:58:56 -0400
-Date: Sat, 2 Oct 2004 12:58:53 +0200
-From: Tim Cambrant <cambrant@acc.umu.se>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.9-rc3-mm1 build failure
-Message-ID: <20041002105853.GD11386@shaka.acc.umu.se>
-References: <20041002091644.GA8431@gamma.logic.tuwien.ac.at> <20041002022921.0e1aceb3.akpm@osdl.org> <20041002105038.GB2470@stusta.mhn.de>
+	Sat, 2 Oct 2004 07:32:38 -0400
+X-Authenticated: #4399952
+Date: Sat, 2 Oct 2004 13:47:32 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: alsa-devel <alsa-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [Alsa-devel] alsa-driver will not compile with kernel
+ 2.6.9-rc2-mm4-S7
+Message-ID: <20041002134732.7c38d39e@mango.fruits.de>
+In-Reply-To: <1096675930.27818.74.camel@krustophenia.net>
+References: <1096675930.27818.74.camel@krustophenia.net>
+X-Mailer: Sylpheed-Claws 0.9.12a (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041002105038.GB2470@stusta.mhn.de>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: SunOS shaka.acc.umu.se 5.8 Generic_117000-05 sun4u sparc SUNW,Ultra-250 Solaris
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 02, 2004 at 12:50:38PM +0200, Adrian Bunk wrote:
-> On Sat, Oct 02, 2004 at 02:29:21AM -0700, Andrew Morton wrote:
-> > Norbert Preining <preining@logic.at> wrote:
-> > >
-> > > ..
-> > >    LD      .tmp_vmlinux1
-> > >  arch/i386/kernel/built-in.o(.text+0x111f5): In function `end_level_ioapic_irq':
-> > >  : undefined reference to `irq_mis_count'
-> > >  kernel/built-in.o(.text+0x1eba7): In function `ack_none':
-> > >  : undefined reference to `ack_APIC_irq'
-> > >  make[1]: *** [.tmp_vmlinux1] Fehler 1
-> > >  make[1]: Leaving directory `/usr/src/linux-2.6.9-rc3-mm1'
-> > 
-> > hm, that's clever.
-> > 
-> > See if arch/i386/kernel/io_apic.c needs
+On Fri, 01 Oct 2004 20:12:10 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
+
+> At first I thought my build was incorrect, but I reproduced this error
+> with a clean build and ALSA CVS from today:
 > 
-> s/io_apic.c/irq.c/ and it should solve Norberts problem.
+>   CC [M] 
+>   /home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore/pcm_native.o
+> /home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3202:57: macro
+> "io_remap_page_range" requires 5 arguments, but only 4
+> given/home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c: In
+> function
+> `snd_pcm_lib_mmap_iomem':/home/rlrevell/cvs/alsa/alsa-driver/acore/pc
+> m_native.c:3200: error: `io_remap_page_range' undeclared (first use in
+> this
+> function)/home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3200:
+> error: (Each undeclared identifier is reported only
+> once/home/rlrevell/cvs/alsa/alsa-driver/acore/pcm_native.c:3200:
+> error: for each function it appears in.) make[3]: ***
+> [/home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore/pcm_native.o]
+> Error 1 make[2]: ***
+> [/home/rlrevell/cvs/alsa/alsa-driver/kbuild/../acore] Error 2 make[1]:
+> *** [_module_/home/rlrevell/cvs/alsa/alsa-driver/kbuild] Error 2
+> make[1]: Leaving directory
+> `/home/rlrevell/kernel-source/linux-2.6.9-rc2-mm4-S7' make: ***
+> [compile] Error 2
 > 
-> > #include <asm/io_apic.h>
-> >...
-> 
-
-Sorry, forgot to cc LKML. The following patch works for me.
+> I am not sure if this is an ALSA issue or -mm4.  I suspect -mm4
+> because-mm3-S6 worked.  The VP patch does not seem to be involved.
 
 
---- linux-2.6.9-rc3-mm1/arch/i386/kernel/irq.c.orig     2004-10-02 12:52:57.833294096 +0200
-+++ linux-2.6.9-rc3-mm1/arch/i386/kernel/irq.c  2004-10-02 12:53:14.935694136 +0200
-@@ -17,6 +17,7 @@
- 
- #include <asm/uaccess.h>
- #include <asm/hardirq.h>
-+#include <asm/io_apic.h>
- 
- #ifdef CONFIG_4KSTACKS
- /*
+Hmm, i have no problems compiling the alsa drivers included with the
+kernel [yes, i'm on mm4-S7]..
 
+tapas@mango:~$ gcc --version
+gcc (GCC) 3.3.4 (Debian 1:3.3.4-13)
 
--- 
-
-        Tim Cambrant
-     cambrant@acc.umu.se
-http://www.acc.umu.se/~cambrant/
+flo

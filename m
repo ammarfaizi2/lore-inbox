@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264412AbSIQRdO>; Tue, 17 Sep 2002 13:33:14 -0400
+	id <S264427AbSIQRgC>; Tue, 17 Sep 2002 13:36:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264417AbSIQRdO>; Tue, 17 Sep 2002 13:33:14 -0400
-Received: from ns1.cypress.com ([157.95.67.4]:42475 "EHLO ns1.cypress.com")
-	by vger.kernel.org with ESMTP id <S264412AbSIQRdN>;
-	Tue, 17 Sep 2002 13:33:13 -0400
-Message-ID: <3D876861.9000601@cypress.com>
-Date: Tue, 17 Sep 2002 12:37:37 -0500
-From: Thomas Dodd <ted@cypress.com>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.1) Gecko/20020827
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
-CC: Greg KH <greg@kroah.com>, gen-lists@blueyonder.co.uk
-Subject: Re: Problems accessing USB Mass Storage
-References: <1032261937.1170.13.camel@stimpy.angelnet.internal> <20020917151816.GB2144@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+	id <S264440AbSIQRgC>; Tue, 17 Sep 2002 13:36:02 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:26432 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S264427AbSIQRgB>; Tue, 17 Sep 2002 13:36:01 -0400
+Date: Tue, 17 Sep 2002 19:41:23 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Peter Waechtler <pwaechtler@mac.com>
+Cc: linux-kernel@vger.kernel.org, mingo@redhat.com
+Subject: Re: Oops in sched.c on PPro SMP
+Message-ID: <20020917174123.GU11605@dualathlon.random>
+References: <20020916154233.GH11605@dualathlon.random> <8F7381E4-CA60-11D6-8873-00039387C942@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <8F7381E4-CA60-11D6-8873-00039387C942@mac.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 17, 2002 at 07:11:52PM +0200, Peter Waechtler wrote:
+> Once I had a machine check exception - sine then I lowered the CPU clock.
+> After the box was running fine with 180MHz I switched to 200MHz
+> (yes, I overclocked the CPUs with 233MHz 2 or 3 years - without problems)
 
+I guess this explain the corruption. Please make sure the cpu are not
+overclocked at all and then try to reproduce. You cannot choose 180mhz
+or 200mhz randomly based on which kernel crashes or not, if the cpu are
+180mhz ppro you should use 180mhz only, 200mhz will break.  It won't
+break so easily as 233mhz, but it will, the timings are strict on smp.
+So please try to reproduce at 180mhz if the cpu should run at 180mhz.
 
-Greg KH wrote:
-> On Tue, Sep 17, 2002 at 12:25:37PM +0100, Mark C wrote:
-> 
->>mount /dev/sda /mnt/camera
-> 
-> 
-> Did you try /dev/sda1?
+I don't want to sound boring but please next times try if you can
+reproduce on non overclocked hardware before reporting anything to l-k.
 
-High Greg,
-
-Yes he did. Same results.
-Same for dd from either sda or sda1 as well.
-
-I get the feeling it's not a true mass storage device.
-
-The windows drivers talk about TWAIN. And the vendor ID
-is for ViewQuest Technologies, which has a similar camera,
-also with TWAIN drivers. I can send you the drivers from both
-if you think they would help.
-
-http://www.digitaldreamco.com/shop/epsilon.htm
-http://www.digitaldreamco.com/support/downloads/windows/epsilon.exe
-and
-http://www.vqti.com/VIEWQUEST_ENGLISH/product_detail.asp?NUMBERS=VQ780S
-http://www.vqti.com/viewquest/driver/VQ780S-setup.exe
-
-	-Thomas
-
+Andrea

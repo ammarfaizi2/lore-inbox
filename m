@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263830AbTLJSWB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 13:22:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263840AbTLJSWA
+	id S263870AbTLJSMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 13:12:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263883AbTLJSMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 13:22:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:155 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263830AbTLJSV7 (ORCPT
+	Wed, 10 Dec 2003 13:12:09 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:24478 "EHLO dodge.jordet.nu")
+	by vger.kernel.org with ESMTP id S263870AbTLJSMG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 13:21:59 -0500
-Date: Wed, 10 Dec 2003 10:21:54 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Schwartz <davids@webmaster.com>
-cc: Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEBDIKAA.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.58.0312101018470.29676@home.osdl.org>
-References: <MDEHLPKNGKAHNMBLJOLKIEBDIKAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 10 Dec 2003 13:12:06 -0500
+Subject: Re: PPP over ttyUSB (visor.o, Treo)
+From: Stian Jordet <liste@jordet.nu>
+To: Jan Kasprzak <kas@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031210165540.B26394@fi.muni.cz>
+References: <20031210165540.B26394@fi.muni.cz>
+Content-Type: text/plain
+Message-Id: <1071079933.4348.0.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 10 Dec 2003 19:12:14 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ons, 10.12.2003 kl. 16.55 skrev Jan Kasprzak:
+> 	Hello @subscribers,
+> 
+> does anybody have working PPP over ttyUSB device in 2.6 kernels?
+> When I connect the Handspring Treo to the 2.6.0-test11 machine,
+> I am able to synchronize it, but not to run PPP to it (it can work
+> as modem). I am able to dial the modem connection using AT commands,
+> but I am not able to run PPP over it. Firstly the chat(1) program
+> complains about not being able to get terminal attributes (TCGETATTR,
+> from strace output), and then pppd(8) complains about not being able
+> to set terminal attributes (TCSETATTR from the strace output).
+> In 2.4 the same setup works OK.
+> 
+> 	Any hints? (Kernel config and other details are available
+> on request). Thanks,
 
+Try to run pppd with "nodetach". Don't ask me why, but it works for me.
 
-On Wed, 10 Dec 2003, David Schwartz wrote:
->
-> I really hope you're wrong.
+Best regards,
+Stian
 
-My opinion literally shouldn't matter to you.
-
-You can do anything you want. But if you start linking with the kernel,
-you should talk to your lawyer, because it is going to be _your_ problem
-(not mine) if you're found to be in violation of copyright.
-
-I'm trying to explain what is _clearly_ ok.
-
-It is _clearly_ ok to make a module that is 100% GPL'd.
-
-And it is _clearly_ ok to do anything you want with user space programs.
-
-Everything else, you need to convince _your_ lawyers that it is ok before
-you do it. They may say "go ahead". But you're not getting a "get out of
-jail" card from _me_.
-
-			Linus

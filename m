@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318002AbSGLVQx>; Fri, 12 Jul 2002 17:16:53 -0400
+	id <S318011AbSGLVSm>; Fri, 12 Jul 2002 17:18:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318003AbSGLVQw>; Fri, 12 Jul 2002 17:16:52 -0400
-Received: from stargazer.compendium-tech.com ([64.156.208.76]:56333 "EHLO
-	stargazer.compendium.us") by vger.kernel.org with ESMTP
-	id <S318002AbSGLVQw>; Fri, 12 Jul 2002 17:16:52 -0400
-Date: Fri, 12 Jul 2002 14:18:37 -0700 (PDT)
-From: Kelsey Hudson <khudson@compendium.us>
-X-X-Sender: khudson@betelgeuse.compendium-tech.com
-To: linux-kernel@vger.kernel.org
-Subject: Re: What is the most stable kernel to date?
-In-Reply-To: <1026494183.2561.151.camel@spc9.esa.lanl.gov>
-Message-ID: <Pine.LNX.4.44.0207121357570.1540-100000@betelgeuse.compendium-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318012AbSGLVSl>; Fri, 12 Jul 2002 17:18:41 -0400
+Received: from gateway2.ensim.com ([65.164.64.250]:7692 "EHLO
+	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
+	id <S318011AbSGLVSk>; Fri, 12 Jul 2002 17:18:40 -0400
+X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
+From: Paul Menage <pmenage@ensim.com>
+To: Dave Jones <davej@suse.de>
+cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Rearranging struct dentry for cache affinity 
+cc: pmenage@ensim.com
+In-reply-to: Your message of "Fri, 12 Jul 2002 22:58:28 +0200."
+             <20020712225828.E18503@suse.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 12 Jul 2002 14:21:04 -0700
+Message-Id: <E17T7qa-0007FC-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Jul 2002, Steven Cole wrote:
+>On Fri, Jul 12, 2002 at 01:38:35PM -0700, Paul Menage wrote:
+>
+> > -		dentry->d_vfs_flags |= DCACHE_REFERENCED;
+> > +#ifdef CONFIG_SMP
+> > +		if(!(dentry->d_vfs_flags & DCACHE_REFERENCED))
+> > +#endif
+> > +			dentry->d_vfs_flags |= DCACHE_REFERENCED;
+>
+>Yuck. Is doing this conditional on UP really a measurable effect?
 
-> Even with an early 2.4.x kernel, you can get good results.  I guess it
-> really depends on your load.
+I'm don't know yet - I did some brief tests on x86 UP to see how much
+positive/negative effect the branch misses versus the cache dirtying
+had, and (using an exponentially decaying distribution of entries being
+tested/set) the if() statement did show an improvement for sufficiently
+skewed distributions. But I've no idea yet how that matches up to the
+distributions that we'd see in the dcache in actual use.
 
-indeed -- i had a box colocated in an ISP's basement running 2.4.2 on an 
-abit bp6, twin 366MHz celerons, that stayed up for nearly 300 days. I 
-think the grand total was 284 days or something ridiculous like that; 
-impressive for both such an old release of the kernel and inherently 
-broken hardware. the isp has since gone out of business due to financial 
-problems, and that's the only reason the machine went down, otherwise i'm 
-certain it would still be up now.
+As I said in an earlier email, it might be nice to have an
+__ensure_bit_set() function that uses architecture-specific knowledge to
+make sure a particular bit is set as efficiently as possible. (e.g.
+taking advantage of predicated writes, etc).
 
-i still maintain that the latest kernel should be the one in use unless 
-it's noted as a keep away kernel *ahem*2.4.11*ahem* -- the newest has got 
-all the latest bug fixes, vm changes, features, etc. however, as always 
-with varying hardware configurations, your mileage may vary
+>If you must microoptimise
+>to this level, at least try and keep the code clean.
 
- Kelsey Hudson                                       khudson@compendium.us
- Software Engineer/UNIX Systems Administrator
- Compendium Technologies, Inc                               (619) 725-0771
----------------------------------------------------------------------------
+Sure - this is just a quick [RFC] hack.
+
+Paul
 

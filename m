@@ -1,132 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262798AbULQMsz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262797AbULQNCB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262798AbULQMsz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 07:48:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbULQMsy
+	id S262797AbULQNCB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 08:02:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbULQNCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 07:48:54 -0500
-Received: from mail.renesas.com ([202.234.163.13]:64703 "EHLO
-	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S262798AbULQMrr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 07:47:47 -0500
-Date: Fri, 17 Dec 2004 21:47:35 +0900 (JST)
-Message-Id: <20041217.214735.859512432.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, takata@linux-m32r.org
-Subject: [PATCH 2.6.10-rc3-mm1] m32r: Update include/asm-m32r/mmu_context.h
-From: Hirokazu Takata <takata@linux-m32r.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.15 (Security Through Obscurity)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Fri, 17 Dec 2004 08:02:01 -0500
+Received: from srv94-252.ip-tech.ch ([195.129.94.252]:4281 "EHLO
+	srv94-252.ip-tech.ch") by vger.kernel.org with ESMTP
+	id S262797AbULQNB4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Dec 2004 08:01:56 -0500
+Message-ID: <41C2E6B6.20701@fippu.ch>
+Date: Fri, 17 Dec 2004 15:01:26 +0100
+From: "Philipp E, Imhof" <fippu@fippu.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] it8212.c, kernel 2.6.9-ac16
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello!
 
-This patch updates include/asm-m32r/mmu_context.h.
-Please apply.
+I am using an ITE 8211 controller that did not work with
+2.6.9-ac16, because of the PCI device ID.
 
-	* include/asm-m32r/mmu_context.h:
-	- Add #ifdef __KERNEL__
-	- Change __inline__ to inline for __KERNEL__ portion.
+I created a trivial (but useful) patch that adds the device
+ID to the driver and a small comment for people grepping the
+sources for the controller type.
 
-Thanks,
-
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
-
- include/asm-m32r/mmu_context.h |   21 +++++++++++----------
- 1 files changed, 11 insertions(+), 10 deletions(-)
+I do not know whether the 8212 and the 8211 are fully
+compatible, but in my computer, 8211 works fine with 8212's
+driver.
 
 
-diff -ruNp a/include/asm-m32r/mmu_context.h b/include/asm-m32r/mmu_context.h
---- a/include/asm-m32r/mmu_context.h	2004-12-15 12:56:47.000000000 +0900
-+++ b/include/asm-m32r/mmu_context.h	2004-12-16 18:20:01.000000000 +0900
-@@ -1,7 +1,7 @@
- #ifndef _ASM_M32R_MMU_CONTEXT_H
- #define _ASM_M32R_MMU_CONTEXT_H
- 
--/* $Id */
-+#ifdef __KERNEL__
- 
- #include <linux/config.h>
- 
-@@ -34,13 +34,13 @@ extern unsigned long mmu_context_cache_d
- #define mm_context(mm)		mm->context[smp_processor_id()]
- #endif /* not CONFIG_SMP */
- 
--#define set_tlb_tag(entry, tag)	(*entry = (tag & PAGE_MASK)|get_asid())
-+#define set_tlb_tag(entry, tag)		(*entry = (tag & PAGE_MASK)|get_asid())
- #define set_tlb_data(entry, data)	(*entry = (data | _PAGE_PRESENT))
- 
- #ifdef CONFIG_MMU
- #define enter_lazy_tlb(mm, tsk)	do { } while (0)
- 
--static __inline__ void get_new_mmu_context(struct mm_struct *mm)
-+static inline void get_new_mmu_context(struct mm_struct *mm)
- {
- 	unsigned long mc = ++mmu_context_cache;
- 
-@@ -59,7 +59,7 @@ static __inline__ void get_new_mmu_conte
- /*
-  * Get MMU context if needed.
-  */
--static __inline__ void get_mmu_context(struct mm_struct *mm)
-+static inline void get_mmu_context(struct mm_struct *mm)
- {
- 	if (mm) {
- 		unsigned long mc = mmu_context_cache;
-@@ -75,7 +75,7 @@ static __inline__ void get_mmu_context(s
-  * Initialize the context related info for a new mm_struct
-  * instance.
-  */
--static __inline__ int init_new_context(struct task_struct *tsk,
-+static inline int init_new_context(struct task_struct *tsk,
- 	struct mm_struct *mm)
- {
- #ifndef CONFIG_SMP
-@@ -97,12 +97,12 @@ static __inline__ int init_new_context(s
-  */
- #define destroy_context(mm)	do { } while (0)
- 
--static __inline__ void set_asid(unsigned long asid)
-+static inline void set_asid(unsigned long asid)
- {
- 	*(volatile unsigned long *)MASID = (asid & MMU_CONTEXT_ASID_MASK);
- }
- 
--static __inline__ unsigned long get_asid(void)
-+static inline unsigned long get_asid(void)
- {
- 	unsigned long asid;
- 
-@@ -116,13 +116,13 @@ static __inline__ unsigned long get_asid
-  * After we have set current->mm to a new value, this activates
-  * the context for the new mm so we see the new mappings.
-  */
--static __inline__ void activate_context(struct mm_struct *mm)
-+static inline void activate_context(struct mm_struct *mm)
- {
- 	get_mmu_context(mm);
- 	set_asid(mm_context(mm) & MMU_CONTEXT_ASID_MASK);
- }
- 
--static __inline__ void switch_mm(struct mm_struct *prev,
-+static inline void switch_mm(struct mm_struct *prev,
- 	struct mm_struct *next, struct task_struct *tsk)
- {
- #ifdef CONFIG_SMP
-@@ -165,5 +165,6 @@ static __inline__ void switch_mm(struct 
- 
- #endif /* not __ASSEMBLY__ */
- 
--#endif /* _ASM_M32R_MMU_CONTEXT_H */
-+#endif /* __KERNEL__ */
- 
-+#endif /* _ASM_M32R_MMU_CONTEXT_H */
+diff -ur linux/drivers/ide/pci/it8212.c
+linux-2.6.9-ite/drivers/ide/pci/it8212.c
+--- linux/drivers/ide/pci/it8212.c	2004-12-17 14:43:39.000000000
++0100
++++ linux-2.6.9-ite/drivers/ide/pci/it8212.c	2004-12-17
+14:48:43.000000000 +0100
+@@ -16,6 +16,8 @@
+   *  as an IDE controller. Smart mode only understands DMA
+read/write and
+   *  identify, none of the fancier commands apply.
+   *
++ *  This driver also supports ITE8211.
++ *
+   *  Errata:
+   *  o	Rev 0x10 also requires master/slave hold the same DMA
+timings and
+   *	cannot do ATAPI MWDMA.
+@@ -831,6 +833,7 @@
+  }
+
+  static struct pci_device_id it8212_pci_tbl[] = {
++	{ PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_8211,  PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 0},
+  	{ PCI_VENDOR_ID_ITE, PCI_DEVICE_ID_ITE_8212,  PCI_ANY_ID,
+PCI_ANY_ID, 0, 0, 0},
+  	{ 0, },
+  };
+diff -ur linux/include/linux/pci_ids.h
+linux-2.6.9-ite/include/linux/pci_ids.h
+--- linux/include/linux/pci_ids.h	2004-12-17 14:43:39.000000000 +0100
++++ linux-2.6.9-ite/include/linux/pci_ids.h	2004-12-17
+14:30:01.000000000 +0100
+@@ -1659,6 +1659,7 @@
+  #define PCI_VENDOR_ID_ITE		0x1283
+  #define PCI_DEVICE_ID_ITE_IT8172G	0x8172
+  #define PCI_DEVICE_ID_ITE_IT8172G_AUDIO 0x0801
++#define PCI_DEVICE_ID_ITE_8211		0x8211
+  #define PCI_DEVICE_ID_ITE_8212		0x8212
+  #define PCI_DEVICE_ID_ITE_8872		0x8872
+  #define PCI_DEVICE_ID_ITE_IT8330G_0	0xe886
 
 
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+--- END ---
+
+Thank you very much for all your work.
+
+Kind regards
+
+Philipp Imhof, fippu@fippu.ch
+
+PS: Please cc: me for comments, feedback or flames, as I
+am not subscribed to the list (shame!) due to my lack
+of knowledge...
+
+

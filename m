@@ -1,49 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136636AbRAHDSw>; Sun, 7 Jan 2001 22:18:52 -0500
+	id <S135237AbRAHD3U>; Sun, 7 Jan 2001 22:29:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136595AbRAHDSm>; Sun, 7 Jan 2001 22:18:42 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:53257 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136649AbRAHDS3>; Sun, 7 Jan 2001 22:18:29 -0500
-Date: Sun, 7 Jan 2001 19:18:17 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Albert Cranford <ac9410@bellsouth.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Related VIA PCI crazyness?
-In-Reply-To: <3A58D962.FAEBBAC7@bellsouth.net>
-Message-ID: <Pine.LNX.4.10.10101071915400.28661-100000@penguin.transmeta.com>
+	id <S135998AbRAHD3K>; Sun, 7 Jan 2001 22:29:10 -0500
+Received: from [216.114.12.3] ([216.114.12.3]:3294 "EHLO mail.nconnect.net")
+	by vger.kernel.org with ESMTP id <S135237AbRAHD25>;
+	Sun, 7 Jan 2001 22:28:57 -0500
+From: "Josh Straub" <tookycat@nconnect.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: <andre@linux-ide.org>
+Subject: IDE HD DMA not being enabled in 2.4.0
+Date: Sun, 7 Jan 2001 21:28:50 -0600
+Message-ID: <003701c07923$1e642630$0101010a@jstraub128nt>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook 8.5, Build 4.71.2377.0
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello, this is my first post to Linux-Kernel so I hope I get this right.
 
+On my Pentium 200 system with Intel i430VX chipset and PIIX3, my Maxtor
+3.5GB IDE HD would always have DMA enabled even in 2.4.0-test10, but then
+sometime between 2.4.0-test12 and 2.4.0 (final), DMA was not being enabled
+anymore upon boot.
 
-On Sun, 7 Jan 2001, Albert Cranford wrote:
-> > Could anybody with a VIA chip who has the energy please do something for
-> > me:
-> >  - enable DEBUG in arch/i386/kernel/pci-i386.h
-> >  - do a "/sbin/lspci -xxvvv" on the interrupt routing chip (it's the
-> >    "ISA bridge" chip - the VIA numbers are 82c586, 82c596, the PCI
-> >    numbers for them are 1106:0586 and 1106:0596, I think)
-> >  - do a cat /proc/pci
-> > 
-> 
-> Does this help.
+Here is my relevant "dmesg" from 2.4.0-test10:
 
-Ahh, no.
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PIIX3: IDE controller on PCI bus 00 dev 39
+PIIX3: chipset revision 0
+PIIX3: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+hda: Maxtor 83500A4, ATA DISK drive
+hdb: ST31220A, ATA DISK drive
+hdc: ATAPI CDROM, ATAPI CDROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 6839440 sectors (3502 MB) w/256KiB Cache, CHS=848/128/63, (U)DMA
+hdb: 2116296 sectors (1084 MB) w/256KiB Cache, CHS=524/64/63, DMA
 
-A SMP kernel (or one with UP IO-APIC) is not going to be helpful for this,
-actually. SMP will take the irq data from the MP block, not the pirq table
-(that can be considered something of a misfeature right now, but getting
-the mixture of PCI irq redirection from the MP tables and the pirq irq
-routing information right together is probably not worth it - especially
-as I don't think any MS OS has ever done that either, so the BIOS writers
-have never experienced that combination - so it's almost guaranteed to
-result in strange results).
+Notice the drive being picked up as (U)DMA, and the Seagate 1.2GB being
+picked up as DMA.
 
-		Linus
+Now look at my 2.4.0 dmesg:
+
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with
+idebus=xx
+PIIX3: IDE controller on PCI bus 00 dev 39
+PIIX3: chipset revision 0
+PIIX3: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+hda: Maxtor 83500A4, ATA DISK drive
+hdb: ST31220A, ATA DISK drive
+hdc: ATAPI CDROM, ATAPI CDROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: 6839440 sectors (3502 MB) w/256KiB Cache, CHS=848/128/63
+hdb: 2116296 sectors (1084 MB) w/256KiB Cache, CHS=524/64/63, DMA
+
+Here you can see that DMA is still configured, because the Seagate retains
+DMA.  But for some reason the Maxtor is now getting no DMA at all.  I can
+use "hdparm" to enable it manually and I did an "updatedb" to generate some
+heavy test disk activity, and it worked fine.  So I cannot assume that DMA
+is being disabled on my Maxtor on purpose, because of some bad hardware or
+something, and I am guessing something changed in the IDE driver recently
+that buggered the DMA enabling.
+
+Please CC all correspondence to my email, since I don't subscribe to
+Linux-Kernel.  Thanks!
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+Josh Straub ô¿ô tookycat@nconnect.net
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

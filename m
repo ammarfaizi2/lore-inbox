@@ -1,63 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVCUTNf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVCUTQg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbVCUTNf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 14:13:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVCUTNf
+	id S261812AbVCUTQg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 14:16:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVCUTQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 14:13:35 -0500
-Received: from mail1.skjellin.no ([80.239.42.67]:55230 "EHLO mx1.skjellin.no")
-	by vger.kernel.org with ESMTP id S261861AbVCUTM5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 14:12:57 -0500
-Message-ID: <423F1CB3.2040803@tomt.net>
-Date: Mon, 21 Mar 2005 20:12:51 +0100
-From: Andre Tomt <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Carlos Fernandez Sanz <cfs-lk@nisupu.com>, linux-kernel@vger.kernel.org
-Subject: Re: Status of SATA support
-References: <423EB3B0.8070500@nisupu.com> <423F0A5F.1010200@pobox.com> <423F0BE0.9090606@tomt.net> <423F0E09.50101@pobox.com>
-In-Reply-To: <423F0E09.50101@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Mar 2005 14:16:35 -0500
+Received: from fmr21.intel.com ([143.183.121.13]:15251 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261852AbVCUTO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 14:14:57 -0500
+Date: Mon, 21 Mar 2005 11:14:49 -0800
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Paul Ionescu <i_p_a_u_l@yahoo.com>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [ACPI] Re: [RFC/Patch 0/12] ACPI based root bridge hot-add
+Message-ID: <20050321111449.A5052@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <20050318133856.A878@unix-os.sc.intel.com> <pan.2005.03.19.13.50.15.938352@yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <pan.2005.03.19.13.50.15.938352@yahoo.com>; from i_p_a_u_l@yahoo.com on Sat, Mar 19, 2005 at 03:50:16PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Andre Tomt wrote:
+On Sat, Mar 19, 2005 at 03:50:16PM +0200, Paul Ionescu wrote:
 > 
->> Jeff Garzik wrote:
->>
->>> Carlos Fernandez Sanz wrote:
->>>
->>>> Since this document is a bit our of date:
->>>>
->>>> http://linux.yyz.us/sata/sata-status.html
->>>
->>>
->>>
->>>
->>> What's out-of-date about that URL?
->>>
->>>     Jeff
->>>
->>
->> A update on the Marvell status? :-P
+> Does this mean that when it will be ported for i386, I will be able to
+> really use my Docking Station ?
+
+No. The current patches only trigger when a _root_ bridge is
+hot-added, not a PCI to PCI bridge (which is what the docking 
+station is). The code to support p2p bridge hotplug will benefit
+from these patches but more code is needed to support that.
+
+> Does it rescan the DSDT to find new additions to ACPI devices ?
 > 
-> No Marvell status change, so no need to update...
+It scans the ACPI namespace under the root bridge that was added.
+Any pci devices underneath are scanned and added, but there isn't
+any code to look for non-PCI devices there.
 
-My main point is that if its listed as "in progress", other parties that 
-are interrested in developing a driver would most likely think it is on 
-the way and thus just wait it out instead. We both know it has stalled ;-)
-
->> Anyway, is there any of the current work on Marvell available 
->> somewhere, so that someone could possibly pick up on it?
-> 
-> It's mainly a skeleton that I would rather not release.  Someone with 
-> docs (and you need docs) could re-create it in ten seconds.
-
-Whats missing? Manpower? Hardware?
-
-Are anyone planning AHCI based PCI-X/PCI-E boards? :-)
+Rajesh

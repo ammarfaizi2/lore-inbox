@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266794AbTAPEPJ>; Wed, 15 Jan 2003 23:15:09 -0500
+	id <S266952AbTAPEUD>; Wed, 15 Jan 2003 23:20:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266952AbTAPEPJ>; Wed, 15 Jan 2003 23:15:09 -0500
-Received: from samar.sasken.com ([164.164.56.2]:11991 "EHLO samar.sasken.com")
-	by vger.kernel.org with ESMTP id <S266794AbTAPEPI>;
-	Wed, 15 Jan 2003 23:15:08 -0500
-Date: Thu, 16 Jan 2003 09:51:43 +0530 (IST)
-From: Madhavi <madhavis@sasken.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: ioremap_nocache() behavior
-Message-ID: <Pine.LNX.4.33.0301160942330.3848-100000@pcz-madhavis.sasken.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S267008AbTAPEUD>; Wed, 15 Jan 2003 23:20:03 -0500
+Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:5088
+	"EHLO kanoe.ludicrus.net") by vger.kernel.org with ESMTP
+	id <S266952AbTAPEUC>; Wed, 15 Jan 2003 23:20:02 -0500
+Date: Wed, 15 Jan 2003 20:28:53 -0800
+To: linux-kernel@vger.kernel.org
+Subject: [2.5] X losing keyboard
+Message-ID: <20030116042853.GA1636@fuuma>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
+From: "Joshua M. Kwan" <joshk@mspencer.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I am testing the Device driver for a PCI network device on linux-2.4.19
-and x86 platform.
+X loses the keyboard after switching to a TTY in 2.5.58-dj1-bk and then=20
+back to X. This is 100% reproducible. Is this a known bug?
 
-I have noticed that the system hangs when I do a writel to a PCI MMIO
-region. I tried ioremap_nocache() instead of ioremap() and the behavior
-was unpredictable. It hung in a few cases and didn't hang in others. If I
-did ioremap_nocache() just before calling writel(), writel seems to work
-fine. I have checked the Base address in PCI configuration space using
-"lspci -x" command and the driver is getting the correct values.
+Also, I get a lot of MTRR 1 and MTRR 2 not used notices after I quit X.=20
+But the performance seems the same either way (X performance compared=20
+between 2.4 and 2.5 kernels,) so is this a false positive?
 
-Any guesses why I am getting this problem? It would be very helpful for me
-even if you can give a very vague idea.
+Hope to hear from you all soon...
 
-One more question - How do I unmap the memory remapped using
-ioremap_nocache()?
+Regards
+Josh
 
-Thanks in advance.
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Madhavi.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE+JjUF6TRUxq22Mx4RArRTAJ0fxPnDwEh01k8KY8t+Au0eO6EfJwCeNCyz
+bL8Un5LN4EY96rK59Jf8k08=
+=QXMy
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--

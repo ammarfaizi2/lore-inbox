@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316540AbSFEXFV>; Wed, 5 Jun 2002 19:05:21 -0400
+	id <S316532AbSFEXNL>; Wed, 5 Jun 2002 19:13:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316541AbSFEXFU>; Wed, 5 Jun 2002 19:05:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:49548 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316540AbSFEXFT>;
-	Wed, 5 Jun 2002 19:05:19 -0400
-Date: Wed, 05 Jun 2002 16:02:01 -0700 (PDT)
-Message-Id: <20020605.160201.76773422.davem@redhat.com>
-To: zaitcev@redhat.com
-Cc: wjhun@ayrnetworks.com, linux-kernel@vger.kernel.org
-Subject: Re: Deprecate pci_dma_sync_{single,sg}()?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206052156.g55LuTI15282@devserv.devel.redhat.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316535AbSFEXNK>; Wed, 5 Jun 2002 19:13:10 -0400
+Received: from mta06bw.bigpond.com ([139.134.6.96]:56316 "EHLO
+	mta06bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S316532AbSFEXNK>; Wed, 5 Jun 2002 19:13:10 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Dave Jones <davej@suse.de>
+Subject: Re: [patch] i386 "General Options" - begone [take 2]
+Date: Thu, 6 Jun 2002 09:11:20 +1000
+User-Agent: KMail/1.4.5
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        trivial@rustcorp.com.au
+In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7ED5@orsmsx111.jf.intel.com> <200206051134.24063.bhards@bigpond.net.au> <20020605122939.H5277@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200206060911.20027.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Pete Zaitcev <zaitcev@redhat.com>
-   Date: Wed, 5 Jun 2002 17:56:29 -0400
+On Wed, 5 Jun 2002 20:29, Dave Jones wrote:
+> On Wed, Jun 05, 2002 at 11:34:23AM +1000, Brad Hards wrote:
+>  > One idea that comes to mind is putting the power management config
+>  > options in a "Power Management" section
+>
+> *nod* sounds sensible 8)
+>
+>  > then PNPBIOS in with the other PnP stuff, and
+>  > so on (read: don't know were to put MPS yet, and don't know what $PIR is
+>  > :)
+>
+> It's an interrupt routing table.
+>
+> MPS and interrupt routing are both CPU related features, so the best
+> place we currently have is under the CPU menu imho.
+Is it fundamentally different _functionality_ to the stuff that is in "Plug 
+and Play configuration" (which makes devices automatically get the right 
+itnerrupts)?  [ Ignore implementation for a second - we can always solve this 
+with another layer of abstraction. :-]
 
-   >[...]
-   > In the current linux-mips implementation, this has some subtle problems:
-   > pci_unmap_{single,sg}() is essentially a no-op. Thus, in the above
-   > example, a driver would break (stale cachelines from a previous
-   > pci_dma_sync_*/read would not be invalidated). One might argue that a
-   > cache invalidate should happen in the pci_unmap_single(). But then the
-   > other case (where a driver does a pci_map, DMAs, does a pci_unmap, and
-   > sends it up the stack) would require an additional cache
-   > flush/invalidate that is not needed at all.
-   
-   Frist, fix mips, it is broken.
+Of course, putting all this into the CPU menu (which is obviously a per-arch 
+config.in change) would make drivers/arch/acpi/Config.in look a lot cleaner.
 
-No, MIPS is not broken.  If there is no intervening call into
-the PCI DMA layer between the read of the data and giving
-the buffer back to the device, it has no reason to flush.
+I'll try to work with Andy Grover off-list with this, and come up with an 
+agreed position.
 
-It flushes when it should, at pci_map_single() time for
-PCI_DMA_FROM_DEVICE direction.
+Rusty: This is starting to get a little non-trivial. Please drop the two 
+patches I've sent. I'll get back to you later.
 
-This provides the behavior exactly as inteded by the API.
-It is precisely the optimization non-cache-coherent cpu
-systems are expected to do for best performance.
+Brad
+-- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267268AbRG2BXk>; Sat, 28 Jul 2001 21:23:40 -0400
+	id <S267446AbRG2Brm>; Sat, 28 Jul 2001 21:47:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267419AbRG2BXa>; Sat, 28 Jul 2001 21:23:30 -0400
-Received: from femail28.sdc1.sfba.home.com ([24.254.60.18]:19451 "EHLO
-	femail28.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S267268AbRG2BXN>; Sat, 28 Jul 2001 21:23:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Steve Snyder <swsnyder@home.com>
-Reply-To: swsnyder@home.com
-To: linux-kernel@vger.kernel.org
-Subject: What does "Neighbour table overflow" message indicate?
-Date: Sat, 28 Jul 2001 20:23:14 -0500
-X-Mailer: KMail [version 1.2]
+	id <S267449AbRG2Brb>; Sat, 28 Jul 2001 21:47:31 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:20497 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S267446AbRG2BrV>; Sat, 28 Jul 2001 21:47:21 -0400
+Message-ID: <3B636CA1.337A9C1A@zip.com.au>
+Date: Sun, 29 Jul 2001 11:53:37 +1000
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01072820231401.01125@mercury.snydernet.lan>
-Content-Transfer-Encoding: 7BIT
+To: Thomas Kotzian <thomasko321k@gmx.at>
+CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: missing symbols in 2.4.7-ac2
+In-Reply-To: <E15Q8Uz-0005l0-00@the-village.bc.nu> <01072902183404.02683@kiwiunixman.nodomain.nowhere> <0dee01c11785$3a874f80$0301a8c0@none56n4x0fcnq>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-I just got this sequence of messages in my system log:
+Thomas Kotzian wrote:
+> 
+> when compiling with highmem = 4GB
+> problem in 3c59x - module:
+> unresolved symbol nr_free_highpages ...
+> 
 
-Jul 28 19:47:44 sunburn kernel: Neighbour table overflow.
-Jul 28 19:47:44 sunburn last message repeated 9 times
-Jul 28 19:47:49 sunburn kernel: NET: 53 messages suppressed.
-Jul 28 19:47:49 sunburn kernel: Neighbour table overflow.
-Jul 28 19:48:07 sunburn kernel: NET: 21 messages suppressed.
-Jul 28 19:48:07 sunburn kernel: Neighbour table overflow.
-Jul 28 19:48:09 sunburn last message repeated 3 times
-Jul 28 19:48:14 sunburn kernel: NET: 4 messages suppressed.
-Jul 28 19:48:14 sunburn kernel: Neighbour table overflow.
+Ah.  Sorry.
 
-This is on a RedHat v7.1 + SMP kernel v2.4.7 system.  What is the kernel 
-trying to tell me here?
+Alan, is it OK to export this symbol?
 
-Please cc me as I am not a subscriber to this list.
 
-Thanks.
+--- linux-2.4.7-ac1/kernel/ksyms.c	Sun Jul 29 11:43:01 2001
++++ ac/kernel/ksyms.c	Sun Jul 29 11:43:05 2001
+@@ -122,6 +122,7 @@ EXPORT_SYMBOL(kmap_high);
+ EXPORT_SYMBOL(kunmap_high);
+ EXPORT_SYMBOL(highmem_start_page);
+ EXPORT_SYMBOL(create_bounce);
++EXPORT_SYMBOL(nr_free_highpages);
+ #endif
+ 
+ /* filesystem internal functions */

@@ -1,127 +1,131 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUDTLOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262709AbUDTL3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUDTLOS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 07:14:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUDTLOS
+	id S262709AbUDTL3n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 07:29:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262476AbUDTL3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 07:14:18 -0400
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:49076 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262574AbUDTLON convert rfc822-to-8bit (ORCPT
+	Tue, 20 Apr 2004 07:29:42 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52612 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262431AbUDTL3e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 07:14:13 -0400
+	Tue, 20 Apr 2004 07:29:34 -0400
+Message-ID: <40850987.1080603@redhat.com>
+Date: Tue, 20 Apr 2004 01:29:11 -1000
+From: Warren Togami <wtogami@redhat.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040418)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
-Subject: BK-kernel-tools/shortlog update
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Tue_Apr_20_11_14_02_UTC_2004_0@merlin.emma.line.org>
-Content-Type: text/plain; charset=US-ASCII
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20040420111402.EAB442C2B@merlin.emma.line.org>
-Date: Tue, 20 Apr 2004 13:14:02 +0200 (CEST)
+To: Jens Axboe <axboe@suse.de>
+CC: Markus Lidel <Markus.Lidel@shadowconnect.com>,
+       Arjan van de Ven <arjanv@redhat.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Alan Cox <alan@redhat.com>
+Subject: Re: [PATCH] i2o_block Fix, possible CFQ elevator problem?
+References: <4083BA03.1090606@redhat.com> <20040419121225.GT1966@suse.de> <408471E2.8060201@redhat.com> <40848159.7090605@togami.com> <20040420070805.GC25806@suse.de> <4084D83D.8060405@redhat.com> <20040420080325.GD25806@suse.de> <4084E671.4090509@redhat.com> <20040420090523.GE25806@suse.de> <40850143.1090709@redhat.com> <20040420105622.GK25806@suse.de>
+In-Reply-To: <20040420105622.GK25806@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+Jens Axboe wrote:
+>>>
+>>>Repeat the tests that made it crash. The last patch I sent should work
+>>>for you, at least until the real issue is found.
+>>>
+>>
+>>Tested your patch, it indeed does seem to keep the system stable.  If I 
+>>am understanding it right, the patch disables merging in the case where 
+>>it would have caused a BUG condition?  (Less efficiency.)
+> 
+> 
 
-you can either use "bk receive" to patch with this mail,
-or you can
-Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
-or in cases of dire need, you can apply the patch below.
+Bad news... much later during the test the system locked up.  During 
+this test we did not use "sync" but just let all four bonnie++'s run.
 
-BK: Parent repository is http://bktools.bkbits.net/bktools
+http://togami.com/~warren/archive/2004/i2o_cfq_quad_bonnie3.txt
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at cfq_iosched:404
+invalid operand: 0000 [1] SMP
+CPU 0
+Pid: 0, comm: swapper Not tainted 2.6.5-1.326changeme
+RIP: 0010:[<ffffffff80234f74>] <ffffffff80234f74>{cfq_next_request+35}
+RSP: 0018:ffffffff804a9048  EFLAGS: 00010046
+RAX: 000001007f2c6000 RBX: 000001004483b340 RCX: 0000000000000000
+RDX: 000001007f2ca600 RSI: 0000000000180000 RDI: 000001007f2c6000
+RBP: 000001007f2c6000 R08: 0000010037ffa568 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000001000 R12: 000001007f2c6000
+R13: 000001007f2c6000 R14: ffffffff804adf08 R15: 0000000000000000
+FS:  0000002a9555f360(0000) GS:ffffffff804a4e80(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000856348 CR3: 0000000000101000 CR4: 00000000000006e0
+Process swapper (pid: 0, stackpage=ffffffff803cf5c0)
+Stack: ffffffffa003a880 00000100348b2300 ffffffffa003a880 ffffffff8022b444
+        00000100348b2300 ffffffffa003a880 000000000001ac00 ffffffffa0036b82
+        ffffffff803f40a0 00000100629a5e80
+Call Trace:<IRQ> <ffffffff8022b444>{elv_next_request+238} 
+<ffffffffa0036b82>{:i2o_block:i2ob_request+233}
+        <ffffffffa003670e>{:i2o_block:i2o_block_reply+1162}
+        <ffffffff8013e13a>{__mod_timer+807} 
+<ffffffff801310b5>{load_balance+1046}
+        <ffffffff8013e7f9>{update_wall_time+12} 
+<ffffffffa002908a>{:i2o_core:i2o_run_queue+124}
+        <ffffffffa002b60e>{:i2o_core:i2o_pci_interrupt+9} 
+<ffffffff80113d85>{handle_IRQ_event+44}
+        <ffffffff801140b8>{do_IRQ+285} <ffffffff8013a894>{__do_softirq+76}
+        <ffffffff8010f590>{default_idle+0} 
+<ffffffff8011185f>{ret_from_intr+0}
+         <EOI> <ffffffff8010f590>{default_idle+0} 
+<ffffffff8010f5b4>{default_idle+36}
+        <ffffffff8010f627>{cpu_idle+24} <ffffffff804af7ea>{start_kernel+512}
+        <ffffffff804af17c>{x86_64_start_kernel+144}
 
-Patch description:
-ChangeSet@1.154, 2004-04-20 13:13:22+02:00, matthias.andree@gmx.de
-  Five new address mappings.
-
-Matthias
-
-------------------------------------------------------------------------
-
-##### DIFFSTAT #####
-# shortlog |    7 ++++++-
-# 1 files changed, 6 insertions(+), 1 deletion(-)
-
-##### GNUPATCH #####
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/04/20 13:13:22+02:00 matthias.andree@gmx.de 
-#   Five new address mappings.
-# 
-# shortlog
-#   2004/04/20 13:13:22+02:00 matthias.andree@gmx.de +6 -1
-#   Five new address mappings.
-# 
-diff -Nru a/shortlog b/shortlog
---- a/shortlog	Tue Apr 20 13:14:02 2004
-+++ b/shortlog	Tue Apr 20 13:14:02 2004
-@@ -8,7 +8,7 @@
- #			Tomas Szepe <szepe@pinerecords.com>
- #			Vitezslav Samel <samel@mail.cz>
- #
--# $Id: lk-changelog.pl,v 0.263 2004/04/15 08:37:42 vita Exp $
-+# $Id: lk-changelog.pl,v 0.265 2004/04/20 11:13:21 emma Exp $
- # ----------------------------------------------------------------------
- # Distribution of this script is permitted under the terms of the
- # GNU General Public License (GNU GPL) v2.
-@@ -287,6 +287,7 @@
- 'bart.de.schuymer:pandora.be' => 'Bart De Schuymer',
- 'bart:samwel.tk' => 'Bart Samwel',
- 'bbosch:iphase.com' => 'Bradley A. Bosch',
-+'bbuesker:qualcomm.com' => 'Brian Buesker',
- 'bcollins:debian.org' => 'Ben Collins',
- 'bcrl:bob.home.kvack.org' => 'Benjamin LaHaise',
- 'bcrl:redhat.com' => 'Benjamin LaHaise',
-@@ -815,6 +816,7 @@
- 'jholmes:psu.edu' => 'Jason Holmes',
- 'jiho:c-zone.net' => 'Jim Howard',
- 'jim.houston:attbi.com' => 'Jim Houston',
-+'jim.houston:comcast.net' => 'Jim Houston',
- 'jkenisto:us.ibm.com' => 'James Keniston',
- 'jkt:helius.com' => 'Jack Thomasson',
- 'jlcooke:certainkey.com' => 'Jean-Luc Cooke',
-@@ -1178,14 +1180,17 @@
- 'mzyngier:freesurf.fr' => 'Marc Zyngier',
- 'n0ano:n0ano.com' => 'Don Dugger',
- 'nahshon:actcom.co.il' => 'Itai Nahshon',
-+'nathanl:austin.ibm.com' => 'Nathan Lynch',
- 'nathans:bruce.melbourne.sgi.com' => 'Nathan Scott',
- 'nathans:sgi.com' => 'Nathan Scott',
- 'naveenb:cisco.com' => 'Naveen Burmi', # lbdb
-+'ncunningham:users.sourceforge.net' => 'Nigel Cunningham',
- 'neilb:cse.unsw.edu.au' => 'Neil Brown',
- 'neilt:slimy.greenend.org.uk' => 'Neil Turton',
- 'nemosoft:smcc.demon.nl' => 'Nemosoft Unv.',
- 'netfilter:interlinx.bc.ca' => 'Brian J. Murrell',
- 'nick.holloway:pyrites.org.uk' => 'Nick Holloway',
-+'nickpiggin:yahoo.com.au' => 'Nick Piggin',
- 'nico:cam.org' => 'Nicolas Pitre',
- 'nico:org.rmk' => 'Nicolas Pitre',
- 'nico:org.rmk.(none)' => 'Nicolas Pitre',
-
-##### BKPATCH #####
-This BitKeeper patch contains the following changesets:
-1.154
-## Wrapped with gzip_uu ##
+Code: 0f 0b 78 3a 32 80 ff ff ff ff 94 01 f6 43 10 10 48 8b 73 68
+RIP <ffffffff80234f74>{cfq_next_request+35} RSP <ffffffff804a9048>
+  <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
+  NMI Watchdog detected LOCKUP on CPU1, registers
+CPU 1
+Pid: 1525, comm: bonnie++ Not tainted 2.6.5-1.326changeme
+RIP: 0010:[<ffffffff8022f332>] <ffffffff8022f332>{.text.lock.ll_rw_blk+95}
+RSP: 0018:000001005b553808  EFLAGS: 00000086
+RAX: 0000000000000000 RBX: 0000010037ffb118 RCX: 0000010064b61800
+RDX: 0000000000000000 RSI: 000001005b553830 RDI: 000001007f2c6000
+RBP: 000001007f2c6000 R08: 0000000000000000 R09: 00000100498666c0
+R10: 00000100498666c0 R11: 00000100498666c0 R12: 0000000000000060
+R13: 0000000000000008 R14: 00000000007ca9b7 R15: 0000000000000000
+FS:  0000002a9555f360(0000) GS:ffffffff804a4f00(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 0000002a9555a000 CR3: 000000007fe2f000 CR4: 00000000000006e0
+Process bonnie++ (pid: 1525, stackpage=1007e5363c0)
+Stack: 0000010000000000 0000000000000001 000001005cc8d6e8 0000000000000000
+        0000000000001000 00000100583a0cc0 000001005b553898 0000000000000000
+        00000100583a0cc0 0000000000000060
+Call Trace:<ffffffff8022e4a7>{generic_make_request+331} 
+<ffffffff8022e5b1>{submit_bio+247}
+        <ffffffff801961c6>{mpage_bio_submit+27} 
+<ffffffff801964d7>{do_mpage_readpage+493}
+        <ffffffff801b3f63>{ext2_get_block+0} 
+<ffffffff801b3f63>{ext2_get_block+0}
+        <ffffffff801b3f63>{ext2_get_block+0} 
+<ffffffff8015428c>{add_to_page_cache+129}
+        <ffffffff801b3f63>{ext2_get_block+0} 
+<ffffffff80196653>{mpage_readpages+161}
+        <ffffffff8015a5c3>{read_pages+57} 
+<ffffffff80158035>{buffered_rmqueue+510}
+        <ffffffff801580fe>{__alloc_pages+158} 
+<ffffffff8015ab04>{do_page_cache_readahead+515}
+        <ffffffff801545e8>{__lock_page+213} 
+<ffffffff8015acbd>{page_cache_readahead+396}
+        <ffffffff80154c04>{do_generic_mapping_read+193} 
+<ffffffff80154e28>{file_read_actor+0}
+        <ffffffff80155084>{__generic_file_aio_read+360} 
+<ffffffff80155157>{generic_file_read+116}
+        <ffffffff80181a75>{link_path_walk+2806} 
+<ffffffff80165bf4>{vma_merge+166}
+        <ffffffff802f5707>{thread_return+0} <ffffffff80172e01>{vfs_read+208}
+        <ffffffff80173006>{sys_read+57} <ffffffff801112ba>{system_call+126}
 
 
-M'XL( /H%A4   \54VT[<,!!]7G_%2"#M R1K._=(B^@";;<@BJCX *]CDG03
-M.XV399'R\742=KE(/-!6:F)%<F;.S)FCHSF .RWJ>%*RILERIFTFDUH(= !?
-ME6[B25IN[:2_WBIEKC/=:C%;BUJ*8K:X-,<:+U:C5*&12;QA#<]@(VH=3XCM
-M[/\TCY6()[<77^ZN/MTB-)_#6<9D*GZ(!N9SU*AZPXI$GU9"IFTN[:9F4I>B
-M83979;?/[2C&U+R$.MCWHHY&ON=U@@K/XRYAJR ,!*<ORE4\"K"M=%+8JDY?
-M%W*Q2SSB$]\-.TP<ZJ-S(#;Q7,#NS!R*@3BQ.90>81IC#&]T.AWU@2,"%D8+
-M^,=3G"$.G_.- "D>@"6FH]:&0E7E,M4VN@1"L8MNGI5$U@<?A###Z.29>*9*
-M\8:USE3=%"H=27LDQ($;D+!S2!!YW;V(V#T/<,2P2-@J>4>B5U6,[F9V8A2G
-MG>=$3C#X89?QR@Y_S>=]*[QAM'>"X_@X')U @P\[P0>+_ <GC#)^!ZM^V/;'
-MVAI?[";\ UN<$P($+8?O 1PNDQB*M<4'VJ:B717'&\ V]3WHY=MI1 :-"(BR
-M9'"QK> 0+6D8F2+3U:H5VFR+^%?+"J-!V0LQA?D)3!=USB0LQOCT&"U#$O20
-MGWEI9ZK5C9*Q2>9,-[84S0CZEI=F20W!'D*,#WJ,9(TA6<3,1(SL^>I%G^LA
-M!E>/DF=/&&? \%9*HV3&RM@LN%K;6K4U%_?&)N*YXW5N9H>S?>Y3B7 HD?-U
-ME:=I+N-'EBG5-[59NP/R-=P,48/9KT2>";[6;3GW"5Z%H8O1;_&01AR/!0  
- 
+Code: 7e f9 e9 aa ea ff ff 90 90 90 41 57 41 56 41 55 49 89 fd bf
+console shuts up ...
 

@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262439AbVAEOP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVAEOSf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbVAEOP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 09:15:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbVAEOP2
+	id S262440AbVAEOSf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 09:18:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVAEOSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 09:15:28 -0500
-Received: from gate.firmix.at ([80.109.18.208]:13699 "EHLO gate.firmix.at")
-	by vger.kernel.org with ESMTP id S262439AbVAEOPY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 09:15:24 -0500
-Subject: Re: Purpose of do{}while(0) in #define spin_lock_init(x)	do {
-	(x)->lock = 0; } while(0)
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: "Kotian, Deepak" <Deepak.Kotian@patni.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <374639AB1012AA4C840022842AA95BC203E0E7E3@ruby.patni.com>
-References: <374639AB1012AA4C840022842AA95BC203E0E7E3@ruby.patni.com>
+	Wed, 5 Jan 2005 09:18:35 -0500
+Received: from cpc2-colc3-4-0-cust236.colc.cable.ntl.com ([81.107.32.236]:25256
+	"EHLO sofa.co.uk") by vger.kernel.org with ESMTP id S262440AbVAEOSd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 09:18:33 -0500
+Subject: Re: PROBLEM: 2.6.10 oops on startup
+From: Paul Bain <prbain@essex.ac.uk>
+To: Coywolf Qi Hunt <coywolf@gmail.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <2cd57c9005010422241a1e36da@mail.gmail.com>
+References: <1104605177.6137.92.camel@sofa.co.uk>
+	 <41DAE494.1020807@osdl.org> <1104899778.1992.45.camel@sofa.co.uk>
+	 <2cd57c9005010422241a1e36da@mail.gmail.com>
 Content-Type: text/plain
-Organization: Firmix Software GmbH
-Message-Id: <1104934513.28504.18.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.5 
-Date: Wed, 05 Jan 2005 15:15:14 +0100
 Content-Transfer-Encoding: 7bit
+Message-Id: <1104934699.1652.49.camel@sofa.co.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 05 Jan 2005 14:18:19 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-05 at 19:31 +0530, Kotian, Deepak wrote:
-> Is there any specific reason why do{}while(0) is 
-> there in this definition
-> #define spin_lock_init(x)	do { (x)->lock = 0; } while(0)
+On Wed, 2005-01-05 at 06:24, Coywolf Qi Hunt wrote:
+> This is a quick fix. Please try the attached patch.
 > 
-> What could happen if it is replaced by
-> #define spin_lock_init(x)	{ (x)->lock = 0; } 
+> 
+>  coywolf
+> 
 
-http://kernelnewbies.org/faq/index.php3#dowhile
+Still gives the same oops, but now I get a new message during ACPI
+initialization:
+acpi-thermal-0400 [11] acpi_thermal_get_trip_: invalid active threshold
+[0]
 
-	Bernd
 -- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
-
+Paul Bain <prbain@essex.ac.uk>

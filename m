@@ -1,91 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262941AbUDAQJm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 11:09:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbUDAQJm
+	id S262948AbUDAQNb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 11:13:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262949AbUDAQNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 11:09:42 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:39435 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262941AbUDAQJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 11:09:39 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Nikita V. Youshchenko" <yoush@cs.msu.su>, linux-kernel@vger.kernel.org
-Subject: Re: Strange 'zombie' problem both in 2.4 and 2.6
-Date: Thu, 1 Apr 2004 19:09:20 +0300
-User-Agent: KMail/1.5.4
-References: <200404011442.18078@zigzag.lvk.cs.msu.su> <200404011617.08261.vda@port.imtp.ilyichevsk.odessa.ua> <200404011920.55030@zigzag.lvk.cs.msu.su>
-In-Reply-To: <200404011920.55030@zigzag.lvk.cs.msu.su>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 1 Apr 2004 11:13:31 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:61620 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262948AbUDAQN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 11:13:29 -0500
+Subject: Re: finding out the value of HZ from userspace
+From: Albert Cahalan <albert@users.sf.net>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Albert Cahalan <albert@users.sourceforge.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Peter Williams <peterw@aurema.com>,
+       arjanv@redhat.com, ak@muc.de, Richard.Curnow@superh.com, aeb@cwi.nl,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040401155420.GB25502@mail.shareable.org>
+References: <1079453698.2255.661.camel@cube>
+	 <20040320095627.GC2803@devserv.devel.redhat.com>
+	 <1079794457.2255.745.camel@cube> <405CDA9C.6090109@aurema.com>
+	 <20040331134009.76ca3b6d.rddunlap@osdl.org>
+	 <1080776817.2233.2326.camel@cube>
+	 <20040401155420.GB25502@mail.shareable.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1080835938.1587.14.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 01 Apr 2004 11:12:18 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404011909.20671.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > It looks like at some moment kernel looses the abitily to inform
-> > > process that their threads are over. AKAIK, this is done by SIGCHLD?
-> > > Anyway, manual sending SIGCHLD to the parent of zombies does not help.
-> >
-> > Did you try stracing parent process? It can receive SIGCHLD but
-> > ignore/mishandle it.
->
-> I tried to use strace -f, so all threads exist in the output. No signals
-> arrive, expect those send manually by kill().
-> Stracing same binary on another host shows that SIGRT_1 arrives to the
-> parent.
-> I may send the strace logs, but they are somewhat large.
-> So kernel really stops devivering signals.
+On Thu, 2004-04-01 at 10:54, Jamie Lokier wrote:
+> Albert Cahalan wrote:
+> > If you rely on sysconf(_SC_CLK_TCK) to work, then
+> > your software will support:
+> > 
+> > * all systems with a 2.6.xx kernel
+> > * all systems with a 2.4.xx kernel and recent glibc
+> > * all i386 systems running with the default HZ
+> > 
+> > That's quite a bit I suppose. Maybe you have no
+> > interest in supporting a 1200 HZ Alpha with an old
+> > kernel or glibc. Maybe you don't care about somebody
+> > running a 2.2.xx kernel with modified HZ.
+> 
+> I'm still unclear.  Does sysconf(_SC_CLK_TCK), when it is reliable,
+> return HZ or USER_HZ?
 
-Post reasonably small pieces of them.
+I consider "reliable" to mean it returns whatever is
+used by /proc and other kernel interfaces. Prior to the
+2.6.xx (and late 2.5.xx) kernels USER_HZ did not exist.
 
-> As far as I understand, in case of threads SIGRT_1 is used instead of
-> SIGCHLD.
-> So I tried to send SIGRT_1 to the parent manually. And zombies disappeared!
-> However, new zombies appear soon. They may still be removed by manual
-> SIGRT_1, but it is not a solution for a kernel bug :).
+On a 2.6.xx kernel, you get back USER_HZ.
 
-Maybe. Maybe not. I am no expert, I'd try to learn out how SIGRT_1
-is generated in normal case (I suppose kernel does not distinguish
-between threads and processes, maybe it's done by threading libs?)
+On a 2.4.xx kernel with recent glibc, you get
+back HZ, which works OK since there isn't any
+HZ to USER_HZ conversion.
 
-> > Probably they get reparented to init and it wait()'s for them,
-> > ending their afterlife. So SIGCHLD works (at least in this case).
->
-> Seems that signal passing works only after reparenting zombies.
->
-> > > Unfortunately, this did not eliminate the problem: it happened today
-> > > again. The difference is that when running in 2.6, most binaries use
-> > > NPTL libs from /lib/i686/cmov/, and seem not to be affected by the
-> > > problem (i.e. no zombies from them). However, users need to run some
-> > > statically-linked binaries (without source available) that have
-> > > non-NPTL libs statically linked and so still use linuxthreads; those
-> > > are affected (i.e. do create zombies). So problem is not rendering
-> > > server unusable (so it no longer that critical), but it still exists
-> > > in the 2.6 kernel.
-> >
-> > Sounds like userspace problem in threading libraries.
-> > What version of glibc/linuxthreads was in use before?
-> > Maybe post your report on linuxthreads mailing list.
->
-> I doubt it is a userspace problem.
-> It happens with the same userspace libs and binaries (or even same running
-> processes) with which it did not happen sometime ago.
-> It happens at the same moment with different processes running from
-> different accounts.
-> Restarting processes doesn't help.
-> It is not reprodusable on other hosts.
-> Manual signal send (kill -33 <parentpid>) removes already existing zombies.
-> I can hardly imagine a userspace problem that behaves like this.
+On any i386 system with the default HZ, you
+will get back 100. On older systems, glibc is
+just giving you a constant value -- so it is
+correct if your system is an i386 without any
+non-Linus modifications. An old glibc can only
+do sysconf(_SC_CLK_TCK) this way.
 
-I won't argue. One thing is clear: not enough info at this time :(
-
-Try to instrument (printk("...")) parts of kernel responsible for
-handling exit() etc.
---
-vda
->
-> Nikita
 

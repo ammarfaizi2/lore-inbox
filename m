@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132488AbRC1DPB>; Tue, 27 Mar 2001 22:15:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132501AbRC1DOm>; Tue, 27 Mar 2001 22:14:42 -0500
-Received: from blackhole.compendium-tech.com ([206.55.153.26]:12798 "EHLO sol.compendium-tech.com") by vger.kernel.org with ESMTP id <S132488AbRC1DOh>; Tue, 27 Mar 2001 22:14:37 -0500
-Date: Tue, 27 Mar 2001 19:13:38 -0800 (PST)
-From: "Dr. Kelsey Hudson" <kernel@blackhole.compendium-tech.com>
-To: "Heusden, Folkert van" <f.v.heusden@ftr.nl>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: mysterious card
-In-Reply-To: <27525795B28BD311B28D00500481B7601F104E@ftrs1.intranet.ftr.nl>
-Message-ID: <Pine.LNX.4.30.0103271909130.11653-100000@sol.compendium-tech.com>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand id <S132501AbRC1DWP>; Tue, 27 Mar 2001 22:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id <S132524AbRC1DWF>; Tue, 27 Mar 2001 22:22:05 -0500
+Received: from 3-123.cwb-adsl.telepar.net.br ([200.193.162.123]:530 "EHLO imladris.rielhome.conectiva") by vger.kernel.org with ESMTP id <S132510AbRC1DV6>; Tue, 27 Mar 2001 22:21:58 -0500
+Date: Wed, 28 Mar 2001 00:21:01 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Doug Ledford <dledford@redhat.com>
+cc: james <jdickens@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: Ideas for the oom problem
+In-Reply-To: <3AC13ADD.1341E7AE@redhat.com>
+Message-ID: <Pine.LNX.4.21.0103280020110.8261-100000@imladris.rielhome.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Mar 2001, Heusden, Folkert van wrote:
+On Tue, 27 Mar 2001, Doug Ledford wrote:
 
-> Hi,
->
-> I have this mysterious 8 bit ISA card with nothing more then 2 smb-mounted
-> ic's
-> and a button. It seems to be something that should force a system memory
-> dump.
-> I think I can handle the code-writing, but since there's no documentation I
-> have
-> to find out how things are working.
-> Ok, the question is: does anyone know a place on the web where I can find
-> specifications of ISA-slots? I need to know what is supposed to be connected
-> to
-> the pins (1, 2, 6, etc.)
+> I've been using our internal tree for my testing, and I'm reluctant to
+> let my experiences there cause me to draw conclusions about other
+> trees.  So, will you please tell me which version of the kernel you
+> think has a vm that only triggers the oom killer in emergency
+> situations so I can test it here to see if you are right?
 
-http://www.hardwarebook.net/co_ISA.html
-has the information you want...
+Detecting WHEN we're OOM is quite unrelated from chosing WHAT
+to do when we're OOM.
 
-V/R
--kelsey
+There is currently no kernel that I'm aware of which does the
+OOM kill at the "exact right" moment.
+
+regards,
+
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

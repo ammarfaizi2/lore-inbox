@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbTDYBTA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 21:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263025AbTDYBTA
+	id S263073AbTDYBWp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 21:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263080AbTDYBWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 21:19:00 -0400
-Received: from sj-core-2.cisco.com ([171.71.177.254]:5316 "EHLO
-	sj-core-2.cisco.com") by vger.kernel.org with ESMTP id S263019AbTDYBS7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 21:18:59 -0400
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
-Subject: RE: Fix SWSUSP & !SWAP
-Date: Thu, 24 Apr 2003 18:31:00 -0700
-Message-ID: <CDEDIMAGFBEBKHDJPCLDMEBCDMAA.hzhong@cisco.com>
+	Thu, 24 Apr 2003 21:22:45 -0400
+Received: from mail1.dac.neu.edu ([129.10.1.75]:5138 "EHLO mail1.dac.neu.edu")
+	by vger.kernel.org with ESMTP id S263073AbTDYBWo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 21:22:44 -0400
+Message-ID: <3EA890D0.6080707@ccs.neu.edu>
+Date: Thu, 24 Apr 2003 21:35:12 -0400
+From: Stan Bubrouski <stan@ccs.neu.edu>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4a) Gecko/20030401
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Flame Linus to a crisp!
+References: <20030424051510.GK8931@holomorphy.com> <Pine.LNX.4.44.0304232217550.19326-100000@home.transmeta.com> <20030424061500.GN8978@holomorphy.com> <20030424074400.GD28253@mail.jlokier.co.uk> <20030424080326.GH19139@lug-owl.de> <20030425011618.GA7781@delft.aura.cs.cmu.edu>
+In-Reply-To: <20030425011618.GA7781@delft.aura.cs.cmu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
-In-Reply-To: <b8a2le$p88$1@cesium.transmeta.com>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It would be nice, so GRUB has no problem any more for using journaling file
-system on boot partition.
+Jan Harkes wrote:
 
-> Shouldn't we be syncing them all before the suspend anyway, to
-> minimize corruption in case the user chooses to mount the filesystem
-> *without* resuming (think a dual-boot configuration.)  This would be
-> another application for the "supersync" operation that was discussed
-> at OLS 2002 -- a need for an operation which not only flushes all
-> blocks to disk but also forces the journal to be replayed and
-> truncated.
->
-> 	-hpa
->
-> --
-> <hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-> "Unix gives you enough rope to shoot yourself in the foot."
-> Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+> Are companies required to provide me (as legal owner) of a new copy/CD
+> when my harddrive breaks, as the new harddrive will probably change the
+> 'trusted' signature of my 'legal playback device'.  What if I buy a new
+> computer/player, and all my licensed applications have to be resigned?
+> 
+
+Yeah seriously...there are so many issues with DRM that are not clear
+cut and have yet to be worked out properly.  Competing ideas with
+completely different strategies does not bode well with me.  As a
+consumer the idea is absurd until something stable, legal, AND FAIR is
+implemented.  Until then I don't even want to see this issue again
+on this list because it is moot.  How many DRM prodcts support Linux or
+even plan to...yeah...most of them are win32  and have no plans for
+even Macs nevermind Linux...
+
+-Stan
+
+> Jan
+
 

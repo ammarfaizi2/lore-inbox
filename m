@@ -1,50 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313575AbSDICPs>; Mon, 8 Apr 2002 22:15:48 -0400
+	id <S313633AbSDICmg>; Mon, 8 Apr 2002 22:42:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313596AbSDICPr>; Mon, 8 Apr 2002 22:15:47 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:33700 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S313575AbSDICPq>; Mon, 8 Apr 2002 22:15:46 -0400
-Date: Mon, 08 Apr 2002 19:14:44 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrew Morton <akpm@zip.com.au>
-cc: linux-kernel@vger.kernel.org, Tony.P.Lee@nokia.com, kessler@us.ibm.com,
-        alan@lxorguk.ukuu.org.uk, Dave Jones <davej@suse.de>
-Subject: Re: Event logging vs enhancing printk
-Message-ID: <1934841354.1018293283@[10.10.2.3]>
-In-Reply-To: <3CB222AB.64005F3B@zip.com.au>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S313788AbSDICmf>; Mon, 8 Apr 2002 22:42:35 -0400
+Received: from c207-202-243-179.sea1.cablespeed.com ([207.202.243.179]:21063
+	"EHLO darklands.localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S313633AbSDICme>; Mon, 8 Apr 2002 22:42:34 -0400
+Date: Mon, 8 Apr 2002 19:42:32 -0700
+From: Thomas Zimmerman <thomas@zimres.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Reworked CONFIG_IDE_TASKFILE_IO help text
+Message-ID: <20020409024232.GA23839@darklands.zimres.net>
+Reply-To: Thomas <thomas@zimres.net>
+Mail-Followup-To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0203291842530.6417-100000@freak.distro.conectiva> <Pine.NEB.4.44.0204042146520.7845-100000@mimas.fachschaften.tu-muenchen.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
 Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux darklands 2.4.19-pre3-darklands 
+X-Operating-Status: 14:53:47 up  5:05,  1 user,  load average: 7.81, 2.33, 0.80
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ah.  Yes, that will definitely happen.  We only have atomicity
-> at the level of a single printk call.
-> 
-> It would be feasible to introduce additional locking so that
-> multiple printks can be made atomic.  This should be resisted
-> though - printk needs to be really robust, and needs to have
-> a good chance of working even when the machine is having hysterics.
-> It's already rather complex.
-> 
-> For the rare cases which you cite we can use a local staging
-> buffer and sprintf, or just live with it, I suspect.
 
-Right - what I'm proposing would be a generic equivalent of the
-local staging buffer and sprintf - basically just a little wrapper
-that does this for you, keeping a per task buffer somewhere.
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The reason I want to do it like this, rather than what you suggest,
-is that there are over 5000 of these "rare cases" of a printk without
-a newline, according to the IBM RAS group's code search ;-) I don't
-fancy changing that for 5000 instances (obviously some of those are
-grouped together, but the count is definitely non-trivial). I'd 
-attach the report they sent me, but it's 657K long ;-) 
+On 04-Apr 09:50, Adrian Bunk wrote:
+> Hi Marcelo,
+>=20
+> Configure.help contains the help text below that sounds more like a
+> comment to a patch than a helpful help message for a user of a stable
+> kernel:
+>=20
+> +CONFIG_IDE_TASKFILE_IO
+> +  This is the "Jewel" of the patch.  It will go away and become the new
+> +  driver core.  Since all the chipsets/host side hardware deal w/ their
+> +  exceptions in "their local code" currently, adoption of a
+> +  standardized data-transport is the only logical solution.
+> +  Additionally we packetize the requests and gain rapid performance and
+> +  a reduction in system latency.  Additionally by using a memory struct
+> +  for the commands we can redirect to a MMIO host hardware in the next
+> +  generation of controllers, specifically second generation Ultra133
+> +  and Serial ATA.
+> +
+> +  Since this is a major transition, it was deemed necessary to make the
+> +  driver paths buildable in separtate models.  Therefore if using this
+> +  option fails for your arch then we need to address the needs for that
+> +  arch.
+> +
+> +  If you want to test this functionality, say Y here.
+>=20
+> Could anyone provide a more useful help text?
 
-M.
+Maybe this is better?=20
 
+CONFIG_IDE_TASKFILE_IO
+  This option enables a new standardized data-transport driver. It replaces
+  code currently in each chipset/host driver. This should help reduce
+  bugs and allow better data protection. This new code also packetizes
+  requests to enable rapid performance and reduce system latency. It also u=
+ses
+  structures so MMIO hardware can be used in second generation Ultra133 and
+  Serial ATA chipsets.
+
+  Since this a a major reworking of current code, this will live along side
+  current drivers for now. If this doesn't work on your arch yell.=20
+
+  If you want to test this new driver (and have backups), say Y here.=20
+
+>=20
+> TIA
+> Adrian
+>=20
+>=20
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8slUYUHPW3p9PurIRAopjAKCpQHJr+PBDRP0ZO+WRp7Cw78iCwACggNJa
+wo4ibVnXRtgBPfm5hFRuiZo=
+=A1qJ
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--

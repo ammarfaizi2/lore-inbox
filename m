@@ -1,68 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261670AbUJaVlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbUJaVlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261670AbUJaVlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 16:41:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbUJaVhq
+	id S261604AbUJaVlW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 16:41:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbUJaViG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 16:37:46 -0500
-Received: from washoe.rutgers.edu ([165.230.95.67]:41919 "EHLO
-	washoe.rutgers.edu") by vger.kernel.org with ESMTP id S261656AbUJaVfZ
+	Sun, 31 Oct 2004 16:38:06 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:49124 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S261539AbUJaVgl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 16:35:25 -0500
-Date: Sun, 31 Oct 2004 16:35:23 -0500
-From: Yaroslav Halchenko <kernel@onerussian.com>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: ipod vfat
-Message-ID: <20041031213523.GO1530@washoe.rutgers.edu>
-Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+	Sun, 31 Oct 2004 16:36:41 -0500
+Date: Sun, 31 Oct 2004 13:35:59 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+       Xavier Bestel <xavier.bestel@free.fr>,
+       James Bruce <bruce@andrew.cmu.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Andrea Arcangeli <andrea@novell.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BK kernel workflow
+Message-ID: <20041031213559.GF27728@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pavel Machek <pavel@suse.cz>,
+	Ram?n Rey Vicente <ramon.rey@hispalinux.es>,
+	Xavier Bestel <xavier.bestel@free.fr>,
+	James Bruce <bruce@andrew.cmu.edu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	Andrea Arcangeli <andrea@novell.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org> <4180B9E9.3070801@andrew.cmu.edu> <20041028135348.GA18099@work.bitmover.com> <1098972379.3109.24.camel@gonzales> <20041028151004.GA3934@work.bitmover.com> <41827B89.4070809@hispalinux.es> <20041029173642.GA5318@work.bitmover.com> <20041031210323.GG5578@elf.ucw.cz> <20041031211436.GE27728@work.bitmover.com> <20041031212111.GF1430@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Image-Url: http://www.onerussian.com/img/yoh.png
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20041031212111.GF1430@elf.ucw.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> "Is
+> Halle Berry allowed to write CVS2ARCH tool, using documented
+> interfaces, with free version of bitkeeper?"
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Dear Kernel Developers,
-
-Is it possible to incorporate the next patch which I had to introduce to
-have the vfat fs of my ipod to get mounted under Linux.
-
-Originally its vfat was mounting ok, but then at some point which I
-didn't clearly mentioned, it stopped... probably it happened after I
-attached ipod to some windows box, because now windows still can easily
-mount it whenever vanilla linux kernel refuses...
-
-Or should I just adjust my ipod's fs definition?
-
-Thank you in advance
-
+Hey, if Halle Berry wants to use BK for just about anything, she is welcome
+to do it, with my blessing.  
 -- 
-Yaroslav Halchenko
-  Graduate Student  CS Dept. UNM,  ABQ
-        Linux User  175555
-      lynx -source  http://www.onerussian.com/gpg-yoh.asc | gpg --import
-   GPG fingerprint  3BB6 E124 0643 A615 6F00  6854 8D11 4563 75C0 24C8
-
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="patch-ipodfs.patch"
-
---- linux-2.6.5/fs/fat/inode.c	2004-05-10 18:09:15.000000000 +0000
-+++ linux-2.6.6-preX/fs/fat/inode.c	2004-05-09 19:49:04.000000000 +0000
-@@ -984,6 +984,8 @@
- 	}
- 	if (FAT_FIRST_ENT(sb, media) == first) {
- 		/* all is as it should be */
-+	} else if (media == 0xf8 && FAT_FIRST_ENT(sb, 0xff) == first) {
-+		/* bad, reported on yarik's ipod */
- 	} else if (media == 0xf8 && FAT_FIRST_ENT(sb, 0xfe) == first) {
- 		/* bad, reported on pc9800 */
- 	} else if (media == 0xf0 && FAT_FIRST_ENT(sb, 0xf8) == first) {
-
---Dxnq1zWXvFF0Q93v--
+---
+Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com

@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUH3WQ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264502AbUH3WRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264443AbUH3WQ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 18:16:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUH3WQ3
+	id S264502AbUH3WRY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 18:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUH3WRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 18:16:29 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:9641 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S264443AbUH3WQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 18:16:27 -0400
-Date: Mon, 30 Aug 2004 18:16:38 -0400
-To: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: TG3(Tigoon) & Kernel 2.4.27
-Message-ID: <20040830221638.GA3596@fastmail.fm>
+	Mon, 30 Aug 2004 18:17:24 -0400
+Received: from users.linvision.com ([62.58.92.114]:1162 "HELO bitwizard.nl")
+	by vger.kernel.org with SMTP id S264502AbUH3WRJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 18:17:09 -0400
+Date: Tue, 31 Aug 2004 00:17:06 +0200
+From: Rogier Wolff <R.E.Wolff@harddisk-recovery.nl>
+To: "Theodore Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: Driver retries disk errors.
+Message-ID: <20040830221706.GA31968@bitwizard.nl>
+References: <20040830163931.GA4295@bitwizard.nl> <20040830174632.GA21419@thunk.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040722i
-From: neroden@fastmail.fm (Nathanael Nerode)
+In-Reply-To: <20040830174632.GA21419@thunk.org>
+User-Agent: Mutt/1.3.28i
+Organization: Harddisk-recovery.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
->The tg3 firmware is just a bunch of MIPS instructions.
-Well, good to know that.  It's the first I'd heard of it.
+On Mon, Aug 30, 2004 at 01:46:32PM -0400, Theodore Ts'o wrote:
+> > a filesystem: if we recover one block this way, the next block will be
+> > errorred and the filesystem "crashes" anyway. In fact this behaviour
+> > may masquerade the first warnings that something is going wrong....
+> 
+> If the block gets successfully read after 2 or 3 tries, it might be a
+> good idea for the kernel to automatically do a forced rewrite of the
+> block, which should cause the disk to do its own disk block
+> sparing/reassignment.  
 
->I guess if I ran objdump --disassemble on the image and
->used the output of that in the tg3 driver and "compiled
->that source" they'd be happy.  And this makes the situation
->even more ludicrious.
+Hi Ted, 
 
-Before you blithely made this claim, you should have actually tried running
-objdump --disassemble on the image.
+I agree that this is the theory. In practise however, I've never
+seen it work correctly. We've seen several disks with say 1-5 bad
+blocks and nothing else, and "dd if=/dev/zero of=/dev/<disk>" doesn't
+seem to cure them.
 
-It's not packed up in a standard ELF/COFF/etc format, so that doesn't
-actually work.  You can use simple assembler trickery to pack it up into a
-normal object file *if* you have an assembler for mips *and* you know whether
-the chip is running little-endian or big-endian (I have no idea). You may
-need other information as well.  :-P  Then and only then can you try to
-dissassemble it with objdump.  Then you have to separate data in the text
-section out from the code in order to get something which actually
-approximates source code.
-
-Much simpler for Broadcom to just release the source code.  :-P
+	Roger. 
 
 -- 
-This space intentionally left blank.
++-- Rogier Wolff -- www.harddisk-recovery.nl -- 0800 220 20 20 --
+| Files foetsie, bestanden kwijt, alle data weg?!
+| Blijf kalm en neem contact op met Harddisk-recovery.nl!

@@ -1,84 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136944AbREJV0e>; Thu, 10 May 2001 17:26:34 -0400
+	id <S136950AbREJVep>; Thu, 10 May 2001 17:34:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136943AbREJV0Z>; Thu, 10 May 2001 17:26:25 -0400
-Received: from dfw-smtpout2.email.verio.net ([129.250.36.42]:39909 "EHLO
-	dfw-smtpout2.email.verio.net") by vger.kernel.org with ESMTP
-	id <S136945AbREJV0T>; Thu, 10 May 2001 17:26:19 -0400
-Message-ID: <3AFB0778.1C97E416@bigfoot.com>
-Date: Thu, 10 May 2001 14:26:16 -0700
-From: Tim Moore <timothymoore@bigfoot.com>
-Organization: Yoyodyne Propulsion Systems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.20pre2-amd-via-ide i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ed Tomlinson <tomlins@cam.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ATAPI Tape Driver Failure in Kernel 2.4.4, More
-In-Reply-To: <3AF9558F.9C76953C@tpr.com> <3AF9B411.2A0F3F43@tpr.com> <3AF9B876.FDB1B6DD@bigfoot.com> <3AFA8A1D.A9BBB4DF@tpr.com> <3AFAD0DC.90510557@windsormachine.com> <20010510204813.856F56A69@oscar.casa.dyndns.org>
+	id <S136951AbREJVeZ>; Thu, 10 May 2001 17:34:25 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:37168 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S136950AbREJVeP>; Thu, 10 May 2001 17:34:15 -0400
+Date: Thu, 10 May 2001 23:32:25 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ulrich.Weigand@de.ibm.com,
+        linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
+Subject: Re: Deadlock in 2.2 sock_alloc_send_skb?
+Message-ID: <20010510233225.Y848@athlon.random>
+In-Reply-To: <C1256A48.00451BD1.00@d12mta11.de.ibm.com> <E14xq0v-0004j0-00@the-village.bc.nu> <20010510193047.A22970@gruyere.muc.suse.de> <20010510231300.W848@athlon.random> <20010510231717.A25610@gruyere.muc.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20010510231717.A25610@gruyere.muc.suse.de>; from ak@suse.de on Thu, May 10, 2001 at 11:17:17PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > to do is be able to write to the tape, but not read from it.
-> > Even in 2.2.x, putting the IDE patches in, breaks it.  Apparently
-> > the HP's aren't completely ATAPI compatible
+On Thu, May 10, 2001 at 11:17:17PM +0200, Andi Kleen wrote:
+> On Thu, May 10, 2001 at 11:13:00PM +0200, Andrea Arcangeli wrote:
+> > On Thu, May 10, 2001 at 07:30:47PM +0200, Andi Kleen wrote:
+> > > On Thu, May 10, 2001 at 01:57:49PM +0100, Alan Cox wrote:
+> > > > > If that happens, and the socket uses GFP_ATOMIC allocation, the while (1)
+> > > > > loop in sock_alloc_send_skb() will endlessly spin, without ever calling
+> > > > > schedule(), and all the time holding the kernel lock ...
+> > > > 
+> > > > If the socket is using GFP_ATOMIC allocation it should never loop. That is
+> > > > -not-allowed-. 
+> > > 
+> > > It is just not clear why any socket should use GFP_ATOMIC. I can understand
+> > > it using GFP_BUFFER e.g. for nbd, but GFP_ATOMIC seems to be rather radical
+> > > and fragile.
+> > 
+> > side note, the only legal use of GFP_ATOMIC in sock_alloc_send_skb is
+> > with noblock set and fallback zero, remeber GFP_BUFFER will sleep, it
+> > may not sleep in vanilla 2.2.19 but the necessary lowlatency hooks in
+> > the memory balancing that for example I have on my 2.2 tree will make it
+> > to sleep.
+> 
+> Even with nonblock set the socket code will sleep in some circumstances
+> (e.g. when aquiring the socket lock) so interrupt operation is out anyways.
+> 
+> 
+> > The patch self contained looks perfect (I didn't checked that the
+> > callers are happy with a -ENOMEM errorcode though), if alloc_skb()
+> > failed that's a plain -ENOMEM. The caller must _not_ try again, they
+> > must take a recovery fail path instead.
+> 
+> I think the callers are likely broken.
+> The patch is still good of course, but not for GFP_ATOMIC. 
 
-scsi0 : SCSI host adapter emulation for IDE ATAPI devices
-scsi : 1 host.
-  Vendor: HP        Model: COLORADO 20GB     Rev: 4.01
-  Type:   Sequential-Access                  ANSI SCSI revision: 02
-Detected scsi tape st0 at scsi0, channel 0, id 0, lun 0
+you said interrupt won't call that function so I don't see the
+GFP_ATOMIC issue.
 
-The following all work with the above, either ide.2.2.19.04092001.patch or
-ide.2.2.18.1221.patch:
+I also don't what's the issue with GFP_ATOMIC regardless somebody uses
+it or not, the patch itself has nothing to do with GFP_ATOMIC. All
+gfpmasks can fail, allock_skb can fail regardless of the gfpmask, not
+only GFP_ATOMIC will fail, of course GFP_ATOMIC can fail even if the
+machine is not totally out of memory but you never know and you cannot
+assume anything and when alloc_skb fails you must assume the machine is
+totally out of memory or you will deadlock, so if alloc_skb fails we
+must return -ENOMEM and take the fail path and the patch does the right
+thing in such case as well.
 
-linux-2.2.19pre17-ide
-linux-2.2.19-intel-hpt-smp
-linux-2.2.19-amd-via-ide
-linux-2.2.20p2-amd-via-ide
-
-
-[14:17] abit:/etc/dump > more *.block
-::::::::::::::
-dump0-abit-2.2.19-050401-06:43:36.block
-::::::::::::::
-/       0       dump
-/usr    90113   dump
-/var    3593378 dump
-/tmp    3675075 dump
-/home   3692644 dump
-/kits   5237605 dump
-/big    9440550 dump
-::::::::::::::
-dump1-abit-2.2.20-050901-17:10:08.block
-::::::::::::::
-/       14567911        dump
-/usr    14574120        dump
-/var    14810569        dump
-/tmp    14832970        dump
-/home   14833227        dump
-/kits   15199116        dump
-/big    15850029        dump
-[14:17] abit:/etc/dump > mt seek 14567911
-[14:18] abit:/etc/dump > mt tell
-At block 14567911.
-[14:20] abit:/etc/dump > /sbin/restore -t -f /dev/nst0 | head
-Level 1 dump of / on abit:/dev/hda2
-Label: "abit-2.2.20"
-Dump   date: Wed May  9 17:11:53 2001
-Dumped from: Fri May  4 06:43:36 2001
-         2      .
-        11      ./lost+found
-      4065      ./lost+found/#4065
-      4019      ./dev
-      4030      ./dev/initctl
-      4083      ./dev/audio
-      4084      ./dev/audio1
-      4111      ./dev/console
-
-rgds,
-tim.
---
+Andrea

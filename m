@@ -1,59 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUJHVam@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUJHVqQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265331AbUJHVam (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 17:30:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUJHVam
+	id S265395AbUJHVqQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 17:46:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265477AbUJHVqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 17:30:42 -0400
-Received: from h151_115.u.wavenet.pl ([217.79.151.115]:27592 "EHLO
-	alpha.polcom.net") by vger.kernel.org with ESMTP id S265331AbUJHVak
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 17:30:40 -0400
-Date: Fri, 8 Oct 2004 23:30:34 +0200 (CEST)
-From: Grzegorz Kulewski <kangur@polcom.net>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Make gcc -align options .config-settable
-In-Reply-To: <200410082342.40682.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.60.0410082319170.17797@alpha.polcom.net>
-References: <2KBq9-2S1-15@gated-at.bofh.it> <200410081710.58766.vda@port.imtp.ilyichevsk.odessa.ua>
- <Pine.LNX.4.60.0410081618530.10253@alpha.polcom.net>
- <200410082342.40682.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 8 Oct 2004 17:46:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:44204 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265395AbUJHVqD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 17:46:03 -0400
+Date: Fri, 8 Oct 2004 14:45:39 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       Jody McIntyre <realtime-lsm@modernduck.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de,
+       "Jack O'Quin" <joq@io.com>
+Subject: Re: [PATCH] Realtime LSM
+Message-ID: <20041008144539.K2357@build.pdx.osdl.net>
+References: <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net> <87k6ubcccl.fsf@sulphur.joq.us> <1096663225.27818.12.camel@krustophenia.net> <20041001142259.I1924@build.pdx.osdl.net> <1096669179.27818.29.camel@krustophenia.net> <20041001152746.L1924@build.pdx.osdl.net> <877jq5vhcw.fsf@sulphur.joq.us> <1097193102.9372.25.camel@krustophenia.net> <1097269108.1442.53.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1097269108.1442.53.camel@krustophenia.net>; from rlrevell@joe-job.com on Fri, Oct 08, 2004 at 04:58:29PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Oct 2004, Denis Vlasenko wrote:
+* Lee Revell (rlrevell@joe-job.com) wrote:
+> +  # sysctl -w security/realtime/any=0
+> +  # sysctl -w security/realtime/gid=29
+> +  # sysctl -w security/realtime/mlock=1
+> +
 
-> On Friday 08 October 2004 17:30, Grzegorz Kulewski wrote:
->>> Also bencmarking people may do little research on real usefulness of
->>> various kinds of alignment.
->>
->> I think that removing aligns completly will be very bad. I am Gentoo user
->> and I set my user space CFLAGS for all system to -falign-loops
->> -fno-align-<everything else>. I did not tested it in depth, but my simple
->> tests show that unaligning loops is a very bad idea. Unaligning functions
->
-> That depends on how often that loop runs. 90% of code runs only
-> 10% of time. I think ultimately we want to mark other 10% of code with:
+I think these should move to sysfs.
 
-Well, loops should probably always be aligned because aligning them will 
-not make the code significantly larger (I think, I did not mensure it), 
-but it will make the code significantly faster, and more friendly to
-processor's cache.
+> +Jack O'Quin, joq@joq.us
+> diff -ruN -X /home/joq/bin/kdiff.exclude linux-2.6.8.1/include/linux/sysctl.h linux-2.6.8.1-rt02/include/linux/sysctl.h
+> --- linux-2.6.8.1/include/linux/sysctl.h	Sat Aug 14 05:55:33 2004
+> +++ linux-2.6.8.1-rt02/include/linux/sysctl.h	Sun Oct  3 10:56:16 2004
+> @@ -61,7 +61,14 @@
+>  	CTL_DEV=7,		/* Devices */
+>  	CTL_BUS=8,		/* Busses */
+>  	CTL_ABI=9,		/* Binary emulation */
+> -	CTL_CPU=10		/* CPU stuff (speed scaling, etc) */
+> +	CTL_CPU=10,		/* CPU stuff (speed scaling, etc) */
+> +	CTL_SECURITY=11         /* Security modules */
+> +};
+> +
+> +/* CTL_SECURITY names: */
+> +enum
+> +{
+> +	SECURITY_REALTIME=1	/* Realtime LSM */
+>  };
 
+Without adding this extra bit.
 
->> is safer since small and fast functions should be always inlined.
->
-> Concept of alignment does not apply to inlined functions at all.
+> diff -ruN -X /home/joq/bin/kdiff.exclude linux-2.6.8.1/security/Kconfig linux-2.6.8.1-rt02/security/Kconfig
+> --- linux-2.6.8.1/security/Kconfig	Sat Aug 14 05:55:47 2004
+> +++ linux-2.6.8.1-rt02/security/Kconfig	Sun Oct  3 10:56:17 2004
+> @@ -84,6 +84,17 @@
+>  	  
+>  	  If you are unsure how to answer this question, answer N.
+>  
+> +config SECURITY_REALTIME
+> +	tristate "Realtime Capabilities"
+> +	depends on SECURITY && SECURITY_CAPABILITIES!=y
 
-That is my point. It is safe not to align functions because fast and often 
-called ones will be inlined and will not be slowed down by lack of 
-alignment.
+Capabilities can be disabled on boot command line.
 
+> --- linux-2.6.8.1/security/realtime.c	Wed Dec 31 18:00:00 1969
+> +++ linux-2.6.8.1-rt02/security/realtime.c	Mon Oct  4 21:35:41 2004
+> +static int any = 0;			/* if TRUE, any process is realtime */
 
-Thanks,
+unecessary init to 0
 
-Grzegorz Kulewski
+> +MODULE_PARM(any, "i");
 
+please use module_param (bonus, you get free entry on command line when
+non-modular, and entry in /sysfs if you want).
+
+> +MODULE_PARM_DESC(any, " grant realtime privileges to any process.");
+> +
+> +static int gid = -1;			/* realtime group id, or NO_GROUP */
+> +MODULE_PARM(gid, "i");
+
+module_param.
+
+> +MODULE_PARM_DESC(gid, " the group ID with access to realtime privileges.");
+> +
+> +static int mlock = 1;			/* enable mlock() privileges */
+> +MODULE_PARM(mlock, "i");
+
+module_param.
+
+> +MODULE_PARM_DESC(mlock, " enable memory locking privileges.");
+> +
+> +/* helper function for testing group membership */
+> +static inline int gid_ok(int gid, int e_gid) {
+> +	int i;
+> +	int rt_ok = 0;
+> +
+> +	if (gid == -1)
+> +		return 0;
+> +
+> +	if ((gid == e_gid) || (gid == current->gid))
+> +		return 1;
+> +
+> +	get_group_info(current->group_info);
+> +	for (i = 0; i < current->group_info->ngroups; ++i) {
+> +		if (gid == GROUP_AT(current->group_info, i)) {
+> +			rt_ok = 1;
+> +			break;
+> +		}
+> +	}
+
+why not in_group_p?
+
+> +	put_group_info(current->group_info);
+> +
+> +	return rt_ok;
+> +}
+> +
+> +int realtime_bprm_set_security(struct linux_binprm *bprm)
+> +{
+> +	/* Copied from security/commoncap.c: cap_bprm_set_security()... */
+> +	/* Copied from fs/exec.c:prepare_binprm. */
+> +	/* We don't have VFS support for capabilities yet */
+> +	cap_clear(bprm->cap_inheritable);
+> +	cap_clear(bprm->cap_permitted);
+> +	cap_clear(bprm->cap_effective);
+> +
+> +	/*  If a non-zero `any' parameter was specified, we grant
+> +	 *  realtime privileges to every process.  If the `gid'
+> +	 *  parameter was specified and it matches the group id of the
+> +	 *  executable, of the current process or any supplementary
+> +	 *  groups, we grant realtime capabilites.
+> +	 */
+> +
+> +	if (any || gid_ok(gid, bprm->e_gid)) {
+> +		cap_raise(bprm->cap_effective, CAP_SYS_NICE);
+> +		cap_raise(bprm->cap_permitted, CAP_SYS_NICE);
+> +		if (mlock) {
+> +			cap_raise(bprm->cap_effective, CAP_IPC_LOCK);
+> +			cap_raise(bprm->cap_permitted, CAP_IPC_LOCK);
+> +			cap_raise(bprm->cap_effective,
+> +				  CAP_SYS_RESOURCE);
+> +			cap_raise(bprm->cap_permitted,
+> +				  CAP_SYS_RESOURCE);
+> +		}
+> +	}
+
+Maybe it would be better to call cap_bprm_set_security first, then or in
+the bits you care about.  That way you don't have to worry about any changes
+over there.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

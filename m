@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261823AbSJQGag>; Thu, 17 Oct 2002 02:30:36 -0400
+	id <S261828AbSJQGjZ>; Thu, 17 Oct 2002 02:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261824AbSJQGag>; Thu, 17 Oct 2002 02:30:36 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:63160 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261823AbSJQGag>;
-	Thu, 17 Oct 2002 02:30:36 -0400
-Date: Wed, 16 Oct 2002 23:28:54 -0700 (PDT)
-Message-Id: <20021016.232854.133268321.davem@redhat.com>
-To: acme@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ipv4: remove the hack, using seq->private to hold state
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20021017052349.GB11445@conectiva.com.br>
-References: <20021017052349.GB11445@conectiva.com.br>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S261829AbSJQGjZ>; Thu, 17 Oct 2002 02:39:25 -0400
+Received: from inet-mail2.oracle.com ([148.87.2.202]:4266 "EHLO
+	inet-mail2.oracle.com") by vger.kernel.org with ESMTP
+	id <S261828AbSJQGjY>; Thu, 17 Oct 2002 02:39:24 -0400
+Date: Wed, 16 Oct 2002 23:45:10 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: [PATCH] superbh, fractured blocks, and grouped io
+Message-ID: <20021017064510.GX22117@nic1-pc.us.oracle.com>
+References: <20021014135100.GD28283@suse.de> <20021017005109.GV22117@nic1-pc.us.oracle.com> <20021017055942.GC9245@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021017055942.GC9245@suse.de>
+User-Agent: Mutt/1.4i
+X-Burt-Line: Trees are cool.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-   Date: Thu, 17 Oct 2002 02:23:49 -0300
+On Thu, Oct 17, 2002 at 07:59:42AM +0200, Jens Axboe wrote:
+> Eh no, it actually doesn't bounce anything! I added a test to bypass
+> bouncing temporarily in blk_queue_bounce() (see the BH_Super test in
+> there), but forgot to replace it with the real thing. The superbh
+> contains no data, so is not a candidate for bouncing.
 
-   master.kernel.org:/home/acme/BK/net-2.5
-   
-Pulled, thanks.
+	I understand that the superbh isn't a candidate for bouncing.
+The problem is that the rest of the bhs are, and they never get bounced.
+scsi_merge.c checks "if (PageHighMem(bh->b_page)) BUG();" in
+__init_io(), and that obviously crashes.
 
-   	It is extremely fortunate that all this discussion about
-   seq_file proper usage has happened
+Joel
 
-Indeed :)
+-- 
 
+"Conservative, n.  A statesman who is enamoured of existing evils,
+ as distinguished from the Liberal, who wishes to replace them
+ with others."
+	- Ambrose Bierce, The Devil's Dictionary
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle Corporation
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

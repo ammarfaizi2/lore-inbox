@@ -1,108 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbTKJFnb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 00:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262925AbTKJFnb
+	id S262925AbTKJF4I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 00:56:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262927AbTKJF4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 00:43:31 -0500
-Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:24507 "EHLO
-	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
-	id S262914AbTKJFn3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 00:43:29 -0500
-Message-ID: <20031110054327.22352.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
+	Mon, 10 Nov 2003 00:56:08 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4801 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262925AbTKJF4G
+	(ORCPT <rfc822;Linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 00:56:06 -0500
+Date: Mon, 10 Nov 2003 05:56:04 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Andrew Morton <akpm@osdl.org>,
+       Burton Windle <bwindle@fint.org>, Linux-kernel@vger.kernel.org
+Subject: Re: slab corruption in test9 (NFS related?)
+Message-ID: <20031110055603.GF7665@parcelfarce.linux.theplanet.co.uk>
+References: <16303.131.838605.661991@notabene.cse.unsw.edu.au> <Pine.LNX.4.44.0311092007451.3002-100000@home.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Gavin Baker" <gavbaker@linuxmail.org>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 10 Nov 2003 13:43:27 +0800
-Subject: (HPT372A) cat /proc/ide/hpt366 == crash
-X-Originating-Ip: 213.130.156.17
-X-Originating-Server: ws5-7.us4.outblaze.com
+In-Reply-To: <Pine.LNX.4.44.0311092007451.3002-100000@home.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an Highpoint "RocketRaid 133" dual channel PCI IDE "raid" controller that uses an HPT372A.
+On Sun, Nov 09, 2003 at 08:09:40PM -0800, Linus Torvalds wrote:
+> 
+> On Mon, 10 Nov 2003, Neil Brown wrote:
+> >
+> > An extra dput was introduced in nfsd_rename 20 months ago....
+> > 
+> > time to remove it.
+> 
+> Oh, you stand-up comedian you.
+> 
+> I'm just wondering how the hell this hasn't bit us seriously until now?  
+> What's up?
+> 
+> In other words, your patch certainly looks obviously correct, but it also
+> looks _so_ obviously correct that my alarm bells are going off. If the
+> code was quite that broken at counting dentries, how the hell did it ever
+> work AT ALL?
+> 
+> Call me suspicious, but I find this really strange..
 
-With the latest 2.4's and 2.6.0-test9, if I cat /proc/ide/hpt366 I get the ide channel status followed shortly after by:
+Arrgh...
 
-  hdg: status timeout: status=0xd0 {Busy}
-                                                                                               
-  hdg: DMA disabled 
-  hdg: drive not ready for command
-  ide3: reset: master: error (0x00?)
-  hdg: status timeout: status=0xd0 {Busy}
-                                                                                               
-  hdg: drive not ready for command
-  ide3: reset: master: error (0x00?)
-  end-request: I/O error, dev hdg, sector xxxxxx
-  EXT3-fs error (device md0): ext3_get_inode_loc: unable to read inode
-  block - inode = xxxxxx, block = xxxxxx
-
-With the last two lines repeating until there is total filesystem corruption.
-
-In regular usage they have been fine (I've built my distro from source without a problem).
-
-dmesg:								                                     
-HPT372A: IDE controller at PCI slot 0000:02:06.0
-HPT372A: chipset revision 1
-HPT37X: using 33MHz PCI clock
-HPT372A: 100% native mode on irq 18
-    ide2: BM-DMA at 0xd800-0xd807, BIOS settings: hde:DMA, hdf:pio
-HPT366: reg5ah=0x00 ATA-66 Cable Port0
-    ide3: BM-DMA at 0xd808-0xd80f, BIOS settings: hdg:DMA, hdh:pio
-HPT366: reg5ah=0x00 ATA-66 Cable Port0
-hde: ST3120026A, ATA DISK drive
-ide2 at 0xc800-0xc807,0xcc02 on irq 18
-hdg: ST3120026A, ATA DISK drive
-ide3 at 0xd000-0xd007,0xd402 on irq 18
-                                                                                                 
-hde: max request size: 1024KiB
-hde: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=16383/255/63,
-UDMA(100)
- /dev/ide/host2/bus0/target0/lun0: p1 p2 p3
-hdg: max request size: 1024KiB
-hdg: 234441648 sectors (120034 MB) w/8192KiB Cache, CHS=16383/255/63,
-UDMA(100)
- /dev/ide/host2/bus1/target0/lun0: p1 p2 p3
-                                                                                               
-                                                                                               
-lspci:
-02:06.0 RAID bus controller: Triones Technologies, Inc. HPT372A (rev
-01)
-        Subsystem: Triones Technologies, Inc.: Unknown device 0001
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium
->TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Latency: 120 (2000ns min, 2000ns max)
-        Interrupt: pin A routed to IRQ 18
-        Region 0: I/O ports at c800 [size=8]
-        Region 1: I/O ports at cc00 [size=4]
-        Region 2: I/O ports at d000 [size=8]
-        Region 3: I/O ports at d400 [size=4]
-        Region 4: I/O ports at d800 [size=256]
-        Expansion ROM at <unassigned> [disabled] [size=128K]
-        Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-Both drives are new seagate barracudas. They both have DMA enabled. I use regular kernel raid0, not the software raid drivers.
-
-Probably related, the SMART data from these drives is showing Hardware_ECC_Recovered is up over 31 and 120 million, with Power_On_Hours less than 250.
-
-Any ideas?
-
-Thanks,
-Gavin Baker
-(PS, please CC: me)
--- 
-______________________________________________
-Check out the latest SMS services @ http://www.linuxmail.org 
-This allows you to send and receive SMS through your mailbox.
-
-
-Powered by Outblaze
+No, Neil is right - it was a plain and simple fsckup on my part.  No hidden
+logics is there; his fix is correct.

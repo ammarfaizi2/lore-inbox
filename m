@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281777AbRK1LKY>; Wed, 28 Nov 2001 06:10:24 -0500
+	id <S281865AbRK1LIn>; Wed, 28 Nov 2001 06:08:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281877AbRK1LKO>; Wed, 28 Nov 2001 06:10:14 -0500
-Received: from bagel.indexdata.dk ([212.242.69.115]:4033 "EHLO
-	bagel.indexdata.dk") by vger.kernel.org with ESMTP
-	id <S281777AbRK1LKE>; Wed, 28 Nov 2001 06:10:04 -0500
-Date: Wed, 28 Nov 2001 12:10:02 +0100
-From: Heikki Levanto <heikki@indexdata.dk>
+	id <S281861AbRK1LIc>; Wed, 28 Nov 2001 06:08:32 -0500
+Received: from sr1.terra.com.br ([200.176.3.16]:35285 "EHLO sr1.terra.com.br")
+	by vger.kernel.org with ESMTP id <S281832AbRK1LIR>;
+	Wed, 28 Nov 2001 06:08:17 -0500
+Message-ID: <3C04C594.3030604@terra.com.br>
+Date: Wed, 28 Nov 2001 09:08:04 -0200
+From: Piter Punk <piterpk@terra.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Thank you: 2.4.16: "Address family not supported" on RH IBM T23
-Message-ID: <20011128121002.B17183@indexdata.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Subject: Re: 'spurious 8259A interrupt: IRQ7'
+In-Reply-To: <XFMail.20011127152007.ast@domdv.de> <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com> <20011128005619.A7340@suse.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Thanks to all who helped me out with this. The problem was CONFIG_NETLINK
-and CONFIG_RTNETLINK, which I had not got around to trying. 
-
-I guess this problem will pop up again in the future, when more RH7.2 users
-want to compile their own kernels. Therefore it would be good to default
-those options to yes, or even remove the options completely, as has been
-proposed.
-
-
-- Heikki
+> On Tue, Nov 27, 2001 at 02:38:13PM -0000, Martin A. Brooks wrote:
+> 
+>>>As far as I remember this was talked about earlier. Different mobos,
+>>>chipsets, processor brands, but always IRQ 7. /me wonders.
+>>>
+>>In my research before posting, a common thread seemed to be the presence of
+>>a tulip card in the machine.  Has anyone seen this on a non-tulip box?
 
 
-P.S. 
-On Tue, Nov 27, 2001 at 11:23:23PM -0000, Alex Bligh - linux-kernel wrote:
-> AGP support is broken right now, haven't found out why.
-> The netlink error sounds like CONFIG_NETLINK, and/or
-> CONFIG_RTNETLINK isn't set. Try stealing the .config
-> file off my site.
-
-Thanks! Didn't get your site, didn't get google cache. Will look again in
-the near future. 
-
+I have the same message in my home computer too (Athlon, A7A266 ALi chipset, 
+256Mb DDR, Realtek 8139). But i don't see any problems...
 
 -- 
-Heikki Levanto            heikki@indexdata.dk            "In Murphy We Turst"
+   ____________
+  / Piter PUNK \_____________________________________________________
+|                                                                   |
+|      |        E-Mail: piterpk@terra.com.br         (personal)     |
+|     .|.               roberto.freires@gds-corp.com (professional) |
+|     /V\                                                           |
+|    // \\      UIN: 116043354  Homepage: www.piterpunk.hpg.com.br  |
+|   /(   )\                                                         |
+|    ^`~'^         ----> Slackware Linux - The Best One! <----      |
+|   #105432                                                         |
+`-------------------------------------------------------------------'
+

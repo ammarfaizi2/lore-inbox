@@ -1,40 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVAIWRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVAIW3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbVAIWRs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 17:17:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbVAIWRs
+	id S261868AbVAIW3g (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 17:29:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261869AbVAIW3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 17:17:48 -0500
-Received: from rproxy.gmail.com ([64.233.170.193]:38618 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261837AbVAIWRr (ORCPT
+	Sun, 9 Jan 2005 17:29:35 -0500
+Received: from gate.firmix.at ([80.109.18.208]:46763 "EHLO gate.firmix.at")
+	by vger.kernel.org with ESMTP id S261868AbVAIW3b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 17:17:47 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=VJJeoR7YTLvuykb++DoFGcBLu6kC4vEdoZh+bsGIG4d7ESNnaSfpEFsGtTlPG01mRlgvcXvKMWIYZ3NVmotFdccpX/iqNxbpcm55WR0ax1df0GkcYuvSdRD+480bPqY1w4IYvduZ8QTVhYO7PL/82VGFS/fEQZq5X+N+LEx7AoI=
-Message-ID: <884a349a05010914177eb5c924@mail.gmail.com>
-Date: Sun, 9 Jan 2005 23:17:47 +0100
-From: Roseline Bonchamp <roseline.bonchamp@gmail.com>
-Reply-To: Roseline Bonchamp <roseline.bonchamp@gmail.com>
-To: indrek.kruusa@tuleriit.ee
-Subject: Re: remove Attach another file remove Attach another file remove Attach another file USB mass storage not always detecting my 1GB PQI intelligent stick
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41E1854A.40201@tuleriit.ee>
+	Sun, 9 Jan 2005 17:29:31 -0500
+Subject: Re: Open hardware wireless cards
+From: Bernd Petrovitsch <bernd@firmix.at>
+To: Norbert van Nobelen <norbert-kernel@edusupport.nl>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <200501091059.04839.norbert-kernel@edusupport.nl>
+References: <20050105192447.GJ5159@ruslug.rutgers.edu>
+	 <20050105210929.GC10325@irc.pl> <20050108204759.GQ14108@stusta.de>
+	 <200501091059.04839.norbert-kernel@edusupport.nl>
+Content-Type: text/plain
+Organization: http://www.firmix.at/
+Date: Sun, 09 Jan 2005 23:28:23 +0100
+Message-Id: <1105309703.8365.25.camel@gimli.at.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-References: <884a349a050109082516b0740e@mail.gmail.com>
-	 <41E15F09.70502@tuleriit.ee>
-	 <884a349a0501091112300009ac@mail.gmail.com>
-	 <41E1854A.40201@tuleriit.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Which distro/kernel do you have? Have you looked at your distro's
-> bugzilla/buglist? Have you all latest update packages installed?
-> 
+On Sun, 2005-01-09 at 10:59 +0100, Norbert van Nobelen wrote:
+> On Saturday 08 January 2005 21:47, you wrote:
+> > On Wed, Jan 05, 2005 at 10:09:29PM +0100, Tomasz Torcz wrote:
+> > > On Wed, Jan 05, 2005 at 03:14:34PM -0500, Lennart Sorensen wrote:
+[...]
+> > > > Being open doesn't mean you aren't violating some stupid patent.
+> > >
+> > >  Only in some countries. We can ignore those countries.
 
-I use kernel 2.6.10 vanilla.
+Hardly. (Almost) all of the western world is included (and probably most
+of the rest).
 
-The distro has nothing to do here I suppose, but it's debian unstable.
+> > Patents on hardware are legal and common in _many_ countries including
+> > all countries in the EU.
+
+In general yes.
+
+> There are several independent designs in the market for these chipsets, but as 
+> far as I know the patents only govern the complete chipset, thus the contents 
+> of the chipset is not to be worried about.
+> The other patent issue is the 802.11 standard itself. Is that patent free? 
+> (IE: That would be a stupid patent)
+
+You know how many "stupid" patents out there?
+An yes, they are granted and they (actually their holders) wait until
+they are legal.
+
+	Bernd
+-- 
+Firmix Software GmbH                   http://www.firmix.at/
+mobil: +43 664 4416156                 fax: +43 1 7890849-55
+          Embedded Linux Development and Services
+
+
+

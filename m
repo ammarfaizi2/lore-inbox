@@ -1,33 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261177AbSJCUTi>; Thu, 3 Oct 2002 16:19:38 -0400
+	id <S261356AbSJCUQe>; Thu, 3 Oct 2002 16:16:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261238AbSJCUTi>; Thu, 3 Oct 2002 16:19:38 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59922 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S261177AbSJCUTh>; Thu, 3 Oct 2002 16:19:37 -0400
-Date: Thu, 3 Oct 2002 13:24:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-cc: Andreas Dilger <adilger@clusterfs.com>, <peterc@gelato.unsw.edu.au>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Large Block device patch part 3/4
-In-Reply-To: <15772.42409.841005.571964@wombat.chubb.wattle.id.au>
-Message-ID: <Pine.LNX.4.33.0210031323590.23619-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261364AbSJCUQe>; Thu, 3 Oct 2002 16:16:34 -0400
+Received: from surf.cadcamlab.org ([156.26.20.182]:59864 "EHLO
+	surf.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S261356AbSJCUQd>; Thu, 3 Oct 2002 16:16:33 -0400
+Date: Thu, 3 Oct 2002 15:20:55 -0500
+To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
+       kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: RfC: Don't cd into subdirs during kbuild
+Message-ID: <20021003202055.GP1536@cadcamlab.org>
+References: <Pine.LNX.4.44.0210022153090.10307-100000@chaos.physics.uiowa.edu> <20021003220120.B17403@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021003220120.B17403@mars.ravnborg.org>
+User-Agent: Mutt/1.4i
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 4 Oct 2002, Peter Chubb wrote:
->
-> Theoretically as long as individual members are <1TB the
-> sector_div/do_div macro can be used (I'm not an asm-386 expert: will
-> do_div work for the full range of divisor? i.e., 0 to 2^32-1?  Someone
-> on the LKML said it wouldn't)
+[Sam Ravnborg]
+> > +ifdef list-multi
+> > +$(warning kbuild: list-multi ($(list-multi)) is obsolete in 2.5. Please fix!)
+> > +endif
+> Since kbuild no longer support list-multi this should be $(error ....)
 
-It certainly _should_ work fine, although maybe I've missed something..
+Except that it is harmless.  list-multi is a hint which the kbuild
+system no longer needs.  Code with list-multi is (I believe) still
+compatible with today's kbuild, so there's no need to *force* a
+cleanup.
 
-		Linus
-
+Peter

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265449AbSJXOcg>; Thu, 24 Oct 2002 10:32:36 -0400
+	id <S265466AbSJXOgC>; Thu, 24 Oct 2002 10:36:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265457AbSJXOcg>; Thu, 24 Oct 2002 10:32:36 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:43990 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S265449AbSJXOcf>; Thu, 24 Oct 2002 10:32:35 -0400
-Date: Thu, 24 Oct 2002 09:38:06 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, Bill Davidsen <davidsen@tmr.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Andrew Morton <akpm@digeo.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
-Message-ID: <9100000.1035470286@baldur.austin.ibm.com>
-In-Reply-To: <2832683854.1035444175@[10.10.2.3]>
-References: <Pine.LNX.3.96.1021024064536.14473B-100000@gatekeeper.tmr.com>
- <2832683854.1035444175@[10.10.2.3]>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	id <S265469AbSJXOgC>; Thu, 24 Oct 2002 10:36:02 -0400
+Received: from mail.hometree.net ([212.34.181.120]:1490 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S265466AbSJXOgC>; Thu, 24 Oct 2002 10:36:02 -0400
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <hps@intermeta.de>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Workqueues and the Nvidia driver
+Date: Thu, 24 Oct 2002 14:42:13 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <ap90s5$dkf$1@forge.intermeta.de>
+References: <20021024125951.24497.qmail@webmail30.rediffmail.com>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1035470533 27576 212.34.181.4 (24 Oct 2002 14:42:13 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Thu, 24 Oct 2002 14:42:13 +0000 (UTC)
+X-Copyright: (C) 1996-2002 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Ashwin  Sawant" <sawant_ashwin@rediffmail.com> writes:
 
---On Thursday, October 24, 2002 07:22:56 -0700 "Martin J. Bligh"
-<mbligh@aracnet.com> wrote:
+>Adding a MODULE_LICENSE("GPL") line to the nvidia driver would 
+>have been quicker but I don't somehow think that's allowed :)
 
->> Another thought, how does this play with NUMA systems? I don't have the
->> problem, but presumably there are implications.
-> 
-> At some point we'll probably only want one shared set per node.
-> Gets tricky when you migrate processes across nodes though - will
-> need more thought
+If you don't distribute the resulting binary and the modified source
+code, of course it is. It's unethical though. And ugly, too. :-)
 
-Page tables can only be shared when they're pointing to the same data pages
-anyway, so I think it's just part of the larger problem of node-local
-memory.
+	Regards
+		Henning
 
-Dave McCracken
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

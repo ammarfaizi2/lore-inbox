@@ -1,41 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262374AbREUUmR>; Mon, 21 May 2001 16:42:17 -0400
+	id <S262492AbREUVdj>; Mon, 21 May 2001 17:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262375AbREUUmJ>; Mon, 21 May 2001 16:42:09 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:29428 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262356AbREUUlu>;
-	Mon, 21 May 2001 16:41:50 -0400
-Date: Mon, 21 May 2001 16:41:48 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Pavel Machek <pavel@suse.cz>, Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Matthew Wilcox <matthew@wil.cx>, Andrew Clausen <clausen@gnu.org>,
-        Ben LaHaise <bcrl@redhat.com>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
-In-Reply-To: <E151wAN-0000pE-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0105211639250.12245-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262496AbREUVd3>; Mon, 21 May 2001 17:33:29 -0400
+Received: from jalon.able.es ([212.97.163.2]:21697 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S262492AbREUVdL>;
+	Mon, 21 May 2001 17:33:11 -0400
+Date: Mon, 21 May 2001 23:33:03 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <laughing@shared-source.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac12
+Message-ID: <20010521233303.A7310@werewolf.able.es>
+In-Reply-To: <20010521201418.A2863@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010521201418.A2863@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Mon, May 21, 2001 at 21:14:18 +0200
+X-Mailer: Balsa 1.1.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Mon, 21 May 2001, Alan Cox wrote:
-
-> > > I don't need to read it. Don't be insulting. Sure, you *can* use a
-> > > write(2)/read(2) cycle. But that's two syscalls compared to one with
-> > > ioctl(2) or transaction(2). That can matter to some applications.
-> > 
-> > I just don't think so. Where did you see performance-critical use of
-> > ioctl()?
+On 05.21 Alan Cox wrote:
 > 
-> AGP, video4linux,...
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/2.4/
+> 
+> 		 Intermediate diffs are available from
+> 			http://www.bzimage.org
+> 
+> 
+> 2.4.4-ac12
+> o	Just tracking Linus 2.4.5pre4			
+> 	- A chunk more merged with Linus
+> 	- dropped out some oddments that are now
+> 	  obsolete
+> 
 
-Which, BTW, is a wonderful reason for having multiple channels. Instead
-of write(fd, "critical_command", 8); read(fd,....); you read from the right fd.
-Opened before you enter the hotspot. Less overhead than ioctl() would
-have...
+Two buglets:
+- missing version bump from ac11 to ac12...
+- missing change in binfmt_misc.c from lookup_one to lookup_one_len
+	(is this the correct fix ? len is not already on Node...)
+
+--- linux-2.4.4-ac12/fs/binfmt_misc.c.orig	Mon May 21 23:22:29 2001
++++ linux-2.4.4-ac12/fs/binfmt_misc.c	Mon May 21 23:24:53 2001
+@@ -501,7 +501,7 @@
+ 
+ 	root = dget(sb->s_root);
+ 	down(&root->d_inode->i_sem);
+-	dentry = lookup_one(e->name, root);
++	dentry = lookup_one_len(e->name, root, strlen(e->name));
+ 	err = PTR_ERR(dentry);
+ 	if (!IS_ERR(dentry)) {
+ 		down(&root->d_inode->i_zombie);
+
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.4-ac11 #2 SMP Fri May 18 12:27:06 CEST 2001 i686
 

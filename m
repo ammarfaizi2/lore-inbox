@@ -1,59 +1,197 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284970AbSANPFJ>; Mon, 14 Jan 2002 10:05:09 -0500
+	id <S285828AbSANPNJ>; Mon, 14 Jan 2002 10:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285828AbSANPFB>; Mon, 14 Jan 2002 10:05:01 -0500
-Received: from maynard.mail.mindspring.net ([207.69.200.243]:8965 "EHLO
-	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S285692AbSANPEt>; Mon, 14 Jan 2002 10:04:49 -0500
-Message-ID: <3C42F477.7090508@elegant-software.com>
-Date: Mon, 14 Jan 2002 10:08:39 -0500
-From: Russ Leighton <russ@elegant-software.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.14-5.0 i686; en-US; 0.8) Gecko/20010216
-X-Accept-Language: en
+	id <S286336AbSANPNA>; Mon, 14 Jan 2002 10:13:00 -0500
+Received: from [203.117.131.12] ([203.117.131.12]:51392 "EHLO
+	gort.metaparadigm.com") by vger.kernel.org with ESMTP
+	id <S285828AbSANPMl>; Mon, 14 Jan 2002 10:12:41 -0500
+Message-ID: <3C42F561.5010808@metaparadigm.com>
+Date: Mon, 14 Jan 2002 23:12:33 +0800
+From: Michael Clark <michael@metaparadigm.com>
+Organization: Metaparadigm Pte Ltd
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20020105
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <3C41A545.A903F24C@linux-m68k.org> <20020113153602.GA19130@fenrus.demon.nl> <E16PzHb-00006g-00@starship.berlin> <20020113223438.A19324@hq.fsmlabs.com>
+To: Ani Joshi <ajoshi@shell.unixbox.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] radeonfb: probe BIOS scratch registers for flat panel info
+In-Reply-To: <3C429AC6.4080209@metaparadigm.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+BTW - DDC detection is not supported with my LCD. This is the same problem
+I had with Xfree86 4.1.99 untill they added detection with BIOS registers.
+The X guys must have come to the same conclusion.
 
-This is getting silly ... feeback like "ll is better than PK", "feels 
-smooth", "is reponsive",  "my kernel
-compile is faster than yours", etc. is not getting us any closer to the 
-"how" of making a better kernel.
+# get-edid
+get-edid: get-edid version 1.4.1
 
-What's the goal? How should SMP and NUMA behave? How is success measured?
+     Performing real mode VBE call
+     Interrupt 0x10 ax=0x4f00 bx=0x0 cx=0x0
+     Function supported
+     Call successful
 
-It would be good to be very clear on the ultimate purpose before making 
-radical changes. All of
-these changes are dancing around some vague concept of 
-reponsiveness...so define it!
+     VBE version 200
+     VBE string at 0x11110 "ATI RADEON III"
 
-These comments seem to set a better tone for this thread, perhaps we can 
-concentrate  on _useful_ debate
-around some well defined goal.
+VBE/DDC service about to be called
+     Report DDC capabilities
 
-yodaiken@fsmlabs.com wrote:
+     Performing real mode VBE call
+     Interrupt 0x10 ax=0x4f15 bx=0x0 cx=0x0
+     Function supported
+     Call successful
 
-> The key one is some idea of being able to assure processes
-> of some rate of progress.  This is not classical RT, but it is important to multimedia and 
-> databases and also to some applications we are interested in looking at. 
+     Monitor and video card combination does not support DDC1 transfers
+     Monitor and video card combination does not support DDC2 transfers
+     0 seconds per 128 byte EDID block transfer
+     Screen is not blanked during DDC transfer
 
+Reading next EDID block
 
-Andrew Morton wrote:
+VBE/DDC service about to be called
+     Read EDID
 
-> But we can **make** it useful.  I believe that internal preemption is
-> the foundation to improve 2.5 kernel latency.  But first we need
-> consensus that we **want** linux to be a low-latency kernel.
+     Performing real mode VBE call
+     Interrupt 0x10 ax=0x4f15 bx=0x1 cx=0x0
+     Function supported
+     Call failed
+
+The EDID data should not be trusted as the VBE call failed
+Error: output block unchanged
+
+Also solved my vanishing cursor problem by removing this line:
+
+  	radeon_update_default_var(rinfo);
+- 	radeonfb_default_var.bits_per_pixel = 32;
+  	return 1;
+
+Seems the cursor only works correctly in 8bit mode.
+
+~mc
+
+Michael Clark wrote:
+
+> Hi Ani,
 > 
-> Do we have that?
+> I tried the latest 2.4.18-pre1 radeonfb driver with the posted compile
+> fixes (*) on my Radeon LY(M6) based laptop with Samsumg Flat Panel and
+> it still doesn't correctly detect my flat panel.
 > 
-> If we do, then as I've said before, holding a lock for more than N milliseconds
-> becomes a bug to be fixed.  We can put tools in the hands of testers to
-> locate those bugs.  Easy.
+> So I had a look at the code and noticed EDID DFP detection is only used
+> on PPC through open firmware info and DFP info is not probed on other 
+> archs.
 > 
+> I rememeber having the same problem with XFree 4.1.99 radeon code a couple
+> months back but a fix was added to get the DFP info from the BIOS scratch
+> registers. Here's a patch that adds probing of BIOS scratch registers (if
+> available) for DFP info - same logic as in radeon XFree driver.
+> 
+> The patch applies on top of 2.4.18-pre2 with the radeon compile fix
+> referenced here:
+> 
+>   (*) http://marc.theaimsgroup.com/?l=linux-kernel&m=101046020806692&w=2
+> 
+> radeonfb now correctly comes up on my laptop in 1400x1050 mode.
+> 
+> radeonfb: ref_clk=2700, ref_div=60, xclk=16600 from BIOS
+> radeonfb: Failed to detect DFP panel size using EDID
+> radeonfb: panel ID string: Samsung LTN150P1-L02
+> radeonfb: detected DFP panel size from BIOS: 1400x1050
+> Console: switching to colour frame buffer device 175x65
+> radeonfb: ATI Radeon M6 LY  DDR SGRAM 16 MB
+> radeonfb: DVI port DFP monitor connected
+> radeonfb: CRT port no monitor connected
+> 
+> The only remaining problem I have is when switching from X back to the
+> console I loose my cursor. Other virtual consoles seem to have cursors of
+> varying colors - any ideas?
+> 
+> ~mc
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> --- linux-2.4.18-pre2-radeonfix-orig/drivers/video/radeonfb.c	Mon Jan 14 11:53:49 2002
+> +++ linux-2.4.18-pre2-radeonfix/drivers/video/radeonfb.c	Mon Jan 14 14:55:19 2002
+> @@ -645,6 +645,7 @@
+>  static char *radeon_find_rom(struct radeonfb_info *rinfo);
+>  static void radeon_get_pllinfo(struct radeonfb_info *rinfo, char *bios_seg);
+>  static void radeon_get_moninfo (struct radeonfb_info *rinfo);
+> +static int radeon_get_bios_dfpinfo (struct radeonfb_info *rinfo);
+>  static int radeon_get_dfpinfo (struct radeonfb_info *rinfo);
+>  static void radeon_get_EDID(struct radeonfb_info *rinfo);
+>  static int radeon_dfp_parse_EDID(struct radeonfb_info *rinfo);
+> @@ -933,7 +936,8 @@
+>  
+>  	if ((rinfo->dviDisp_type == MT_DFP) || (rinfo->dviDisp_type == MT_LCD) ||
+>  	    (rinfo->crtDisp_type == MT_DFP)) {
+> -		if (!radeon_get_dfpinfo(rinfo)) {
+> +		if (!radeon_get_dfpinfo(rinfo) &&
+> +		    !radeon_get_bios_dfpinfo(rinfo)) {
+>  			iounmap ((void*)rinfo->mmio_base);
+>  			release_mem_region (rinfo->mmio_base_phys,
+>  					    pci_resource_len(pdev, 2));
+> @@ -1365,6 +1369,48 @@
+>  
+>  
+>  
+> +static int radeon_get_bios_dfpinfo (struct radeonfb_info *rinfo)
+> +{
+> +	char *biosstart, *fpbiosstart;
+> +	char *tmp, *tmp0;
+> +	int i;
+> +	char stmp[30];
+> +
+> +	if(!(biosstart = radeon_find_rom(rinfo))) goto out;
+> +	if(!(fpbiosstart = biosstart + readw(biosstart + 0x48))) goto out;
+> +	if(!(tmp = biosstart + readw(fpbiosstart + 0x40))) goto out;
+> +
+> +	for(i=0; i<24; i++) stmp[i] = readb(tmp+i+1);
+> +	stmp[24] = 0; 
+> +	printk("radeonfb: panel ID string: %s\n", stmp);
+> +	rinfo->panel_xres = readw(tmp + 25);
+> +	rinfo->panel_yres = readw(tmp + 27);
+> +	printk("radeonfb: detected DFP panel size from BIOS: %dx%d\n",
+> +	       rinfo->panel_xres, rinfo->panel_yres);
+> +	for(i=0; i<20; i++) {
+> +		tmp0 = biosstart + readw(tmp+64+i*2);
+> +		if(tmp0 == 0) break;
+> +		if((readw(tmp0) == rinfo->panel_xres) &&
+> +		   (readw(tmp0+2) == rinfo->panel_yres)) {
+> +			rinfo->hblank = (readw(tmp0+17) - readw(tmp0+19)) * 8;
+> +			rinfo->hOver_plus = (readw(tmp0+21) - readw(tmp0+19) - 1) * 8;
+> +			rinfo->hSync_width = readb(tmp0+23) * 8;
+> +			rinfo->vblank = readw(tmp0+24) - readw(tmp0+26);
+> +			rinfo->vOver_plus = (readw(tmp0+28) & 0x7ff) - readw(tmp0+26);
+> +			rinfo->vSync_width = (readw(tmp0+28) & 0xf800) >> 11;
+> +			rinfo->clock = readw(tmp0+9);
+> +			radeon_update_default_var(rinfo);
+> +			radeonfb_default_var.bits_per_pixel = 32;
+> +			return 1;
+> +		}
+> +	}
+> + out:
+> +	printk("radeonfb: Failed to detect DFP panel size using BIOS\n");
+> +	return 0;
+> +}
+> +
+> +
+> +
+>  static int radeon_get_dfpinfo (struct radeonfb_info *rinfo)
+>  {
+>  	unsigned int tmp;
+> @@ -1406,7 +1452,7 @@
+>  			rinfo->panel_xres = 1600;
+>  			break;
+>  		default:
+> -			printk("radeonfb: Failed to detect DFP panel size\n");
+> +			printk("radeonfb: Failed to detect DFP panel size using EDID\n");
+>  			return 0;
+>  	}
+>  
+> 
+
 

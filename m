@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132299AbRBDU14>; Sun, 4 Feb 2001 15:27:56 -0500
+	id <S132289AbRBDUfR>; Sun, 4 Feb 2001 15:35:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132283AbRBDU1q>; Sun, 4 Feb 2001 15:27:46 -0500
-Received: from jalon.able.es ([212.97.163.2]:23492 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S132175AbRBDU1f>;
-	Sun, 4 Feb 2001 15:27:35 -0500
-Date: Sun, 4 Feb 2001 21:27:22 +0100
-From: "J . A . Magallon" <jamagallon@able.es>
-To: mathieu_dube@videotron.ca
-Cc: linux-kernel@vger.kernel.org, davids@webmaster.com
-Subject: RE: accept
-Message-ID: <20010204212722.A1029@werewolf.able.es>
-In-Reply-To: <NCBBLIEPOCNJOAEKBEAKGEICNHAA.davids@webmaster.com> <01020411401700.00110@grndctrl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <01020411401700.00110@grndctrl>; from mathieu_dube@videotron.ca on Sun, Feb 04, 2001 at 17:37:43 +0100
-X-Mailer: Balsa 1.1.0
+	id <S132305AbRBDUfI>; Sun, 4 Feb 2001 15:35:08 -0500
+Received: from gear.torque.net ([204.138.244.1]:55556 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S132289AbRBDUfA>;
+	Sun, 4 Feb 2001 15:35:00 -0500
+Message-ID: <3A7DB935.4170BEBC@torque.net>
+Date: Sun, 04 Feb 2001 15:19:01 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Friedrich Lindenberg <frlind@gmx.net>
+Subject: Re: AW: ATAPI CDRW which doesn't work -> devfs problems
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Friedrich Lindenberg wrote:
+> I was trying to burn cds under linux-2.4.1 with 
+> devFS enabled. But x-cd-roast (and also cdrecord)
+> do not find any scsi drives. I guess they have been
+> renamed or something like that, I cannot find them 
+> in /dev, nor anywhere in /dev/scsi ...
 
-On 02.04 Mathieu Dube wrote:
-> Ok, but fd 0 cant be a valid socket since its the stdin
-> 
-> I posted that on this mailing list coz I thought that this might be a scaling
-> problem since it happens when theres already several clients connected to the
-> server
-> 
+xcdroast expects to find a whole swag of sg device
+filenames (/dev/sg[0-16], /dev/sg[a-q]) and scsi
+cdrom names (/dev/sr[0-15]) when it starts. The
+xcdroast tarball comes with a MAKEDEVICES.sh script to
+create them. If they are not all there it seems to
+get upset.
 
-It just mean that your stdin was closed some time in the past...
-As the prog is a daemon, probably it closed its std{in,out,err} and its
-controlling tty.
+This is not very devfs friendly since its policy
+is only to show /dev entries for devices that you
+actually have connected and that a driver is 
+controlling.
 
-I do not know if Linux follows the rule that the first fd you get is the
-first available. That means that after 'daemonize' you should get the 0
-in the first connection. If fd reuse is delayed, you can get the 0 any time
-after...
+So the hack solution is to edit out of MAKEDEVICES.sh
+those file names that you actually have then execute
+it. IMO this is not a devfs problem, xcdroast needs an 
+improved device scanning algorithm.
 
--- 
-J.A. Magallon                                                      $> cd pub
-mailto:jamagallon@able.es                                          $> more beer
+BTW the /dev/sga,b,c style of sg device names are
+deprecated in favour of the numeric style.
 
-Linux werewolf 2.4.2-pre1 #1 SMP Sun Feb 4 13:04:30 CET 2001 i686
+Doug Gilbert
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,68 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268829AbTBZRPQ>; Wed, 26 Feb 2003 12:15:16 -0500
+	id <S268821AbTBZRN5>; Wed, 26 Feb 2003 12:13:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268830AbTBZRPQ>; Wed, 26 Feb 2003 12:15:16 -0500
-Received: from mms1.broadcom.com ([63.70.210.58]:23308 "EHLO mms1.broadcom.com")
-	by vger.kernel.org with ESMTP id <S268829AbTBZRPK>;
-	Wed, 26 Feb 2003 12:15:10 -0500
-From: "Kimball Brown" <kimball@serverworks.com>
-To: "Alan Cox" <alan@redhat.com>, davej@codemonkey.org.uk
-cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: RE: Tighten up serverworks workaround.
-Date: Wed, 26 Feb 2003 09:27:26 -0800
-Message-ID: <OMEEJAEPHFDBEBPLINBDCELACNAA.kimball@serverworks.com>
-MIME-Version: 1.0
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-Importance: Normal
-In-Reply-To: <200302261636.h1QGaAv21387@devserv.devel.redhat.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
-X-WSS-ID: 124227E4376257-01-01
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S268829AbTBZRN4>; Wed, 26 Feb 2003 12:13:56 -0500
+Received: from palrel12.hp.com ([156.153.255.237]:63401 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id <S268821AbTBZRNy>;
+	Wed, 26 Feb 2003 12:13:54 -0500
+Date: Wed, 26 Feb 2003 09:22:15 -0800
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Invalid compilation without -fno-strict-aliasing
+Message-ID: <20030226172215.GB3731@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20030225234646.GB30611@bougret.hpl.hp.com> <200302261538.h1QFcAiF004085@eeyore.valparaiso.cl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200302261538.h1QFcAiF004085@eeyore.valparaiso.cl>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How can e help?  Please give me a configuration and how the bug manifests
-inself.
+On Wed, Feb 26, 2003 at 04:38:10PM +0100, Horst von Brand wrote:
+> Jean Tourrilhes <jt@bougret.hpl.hp.com> said:
+> > 	It looks like a compiler bug to me...
+> > 	Some users have complained that when the following code is
+> > compiled without the -fno-strict-aliasing, the order of the write and
+> > memcpy is inverted (which mean a bogus len is mem-copied into the
+> > stream).
+> > 	Code (from linux/include/net/iw_handler.h) :
+> > --------------------------------------------
+> > static inline char *
+> > iwe_stream_add_event(char *	stream,		/* Stream of events */
+> > 		     char *	ends,		/* End of stream */
+> > 		     struct iw_event *iwe,	/* Payload */
+> > 		     int	event_len)	/* Real size of payload */
+> > {
+> > 	/* Check if it's possible */
+> > 	if((stream + event_len) < ends) {
+> > 		iwe->len = event_len;
+> > 		memcpy(stream, (char *) iwe, event_len);
+> > 		stream += event_len;
+> > 	}
+> > 	return stream;
+> > }
+> > --------------------------------------------
+> > 	IMHO, the compiler should have enough context to know that the
+> > reordering is dangerous. Any suggestion to make this simple code more
+> > bullet proof is welcomed.
+> 
+> The compiler is free to assume char *stream and struct iw_event *iwe point
+> to separate areas of memory, due to strict aliasing.
 
-Kim Brown
-VP, Business Development
-kimball@serverworks.com
-2451 Mission College Blvd
-Santa Clara, CA 95054
-(408)922-3174
-(408)799-3500 (Mobile)
-(408)922-3192 (FAX)
+	Which is true and which is not the problem I'm complaining about.
+	Have fun...
 
------Original Message-----
-From: Alan Cox [mailto:alan@redhat.com]
-Sent: Wednesday, February 26, 2003 8:36 AM
-To: davej@codemonkey.org.uk
-Cc: alan@redhat.com; torvalds@transmeta.com; linux-kernel@vger.kernel.org
-Subject: Re: Tighten up serverworks workaround.
-
-> I've reports of people with rev6's who have reported success
-> with that workaround commented out.  Could be they never
-> pushed the machine hard enough to trigger a bug, but I'd
-> have thought this breakage would show up pretty quickly.
-
-It doesn't. It requires the right patterns and took Dell quite
-some time to identify and pin down. If its like the 450NX one
-which I suspect it is then you have to have pending misordered
-stores to a write gathering target evicted by another read.
-
-> My attempts to contact serverworks in the past have fallen on
-> deaf ears. maybe you have better luck ?
-
-I'll try. I got on ok with them for the OSB4 stuff but thats
-a long time ago and they've been eaten since then
-
-[Bcc'd to the person I suspect is the right starting point]
-
-Alan
-
-
+	Jean

@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262138AbSJAQg3>; Tue, 1 Oct 2002 12:36:29 -0400
+	id <S262151AbSJAQli>; Tue, 1 Oct 2002 12:41:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262139AbSJAQg3>; Tue, 1 Oct 2002 12:36:29 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8876 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262138AbSJAQg1>;
-	Tue, 1 Oct 2002 12:36:27 -0400
-Date: Tue, 1 Oct 2002 18:41:36 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Cc: Dave Jones <davej@codemonkey.org.uk>, venom@sns.it,
-       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [PATCH] Remove LVM from 2.5 (resend)
-Message-ID: <20021001164136.GG5755@suse.de>
-References: <Pine.GSO.4.21.0210011010380.4135-100000@weyl.math.psu.edu> <Pine.LNX.4.43.0210011650490.12465-100000@cibs9.sns.it> <20021001154808.GD126@suse.de> <20021001160608.GX3867@suse.de> <20021001163508.GA30457@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021001163508.GA30457@fib011235813.fsnet.co.uk>
+	id <S262146AbSJAQli>; Tue, 1 Oct 2002 12:41:38 -0400
+Received: from 200-184-71-82.chies.com.br ([200.184.71.82]:63090 "EHLO
+	elipse.com.br") by vger.kernel.org with ESMTP id <S262151AbSJAQlJ>;
+	Tue, 1 Oct 2002 12:41:09 -0400
+Message-ID: <029401c2696a$9adc8bb0$1c00a8c0@elipse.com.br>
+Reply-To: "Felipe W Damasio" <felipewd@elipse.com.br>
+From: "Felipe W Damasio" <felipewd@elipse.com.br>
+To: "Kent Yoder" <key@austin.ibm.com>, "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>, <tsbogend@alpha.franken.de>
+References: <Pine.LNX.4.44.0210011129330.14607-100000@ennui.austin.ibm.com>
+Subject: Re: [PATCH] pcnet32 cable status check
+Date: Tue, 1 Oct 2002 13:50:10 -0300
+Organization: Elipse Software
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-OriginalArrivalTime: 01 Oct 2002 16:50:10.0546 (UTC) FILETIME=[9ADD9D20:01C2696A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 01 2002, Joe Thornber wrote:
-> On Tue, Oct 01, 2002 at 06:06:08PM +0200, Jens Axboe wrote:
-> > On Tue, Oct 01 2002, Dave Jones wrote:
-> > > Consider it patch 1/2 of the device mapper merge 8-)
-> > 
-> > Indeed, the patches are also arriving out of order though, LVM remove
-> > patch should be 2/2 not 1/2. IMO.
-> 
-> If LVM remotely worked I would agree with you.
 
-No matter the state of lvm, it's much better to day "1, here's the
-replacement - 2, rip the old one out". What if device mapper for 2.5
-really sucks? Maybe it's so bad that we'd rather fix up lvm1? Apparently
-davej has patches that sort-of makes lvm work.
+----- Original Message -----
+From: "Kent Yoder" <key@austin.ibm.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>
+Cc: <linux-kernel@vger.kernel.org>; <tsbogend@alpha.franken.de>
+Sent: Tuesday, October 01, 2002 1:34 PM
+Subject: Re: [PATCH] pcnet32 cable status check
 
-It's not likely, but still :-)
 
--- 
-Jens Axboe
+>
+>   Hi,
+>
+>   Here's the updated version, now dependent on Jeff's new mii code.  This
+is
+> a bit more modular as well and new functionality can be added inside the
+> watchdog function without anything depending on mii.
+
+    You should use netif_carrier_{on|off} to notify the upper layer of a
+link change/loss (until the otherwise is true). Check the 8139cp driver.
+
+    Also, you shouldn't need the timer stuff to keep track of link change.
+Just the mii_check_media and netif_carrier_{on|off} and you should be fine.
+
+Felipe
 

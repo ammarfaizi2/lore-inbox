@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbTIRKc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 06:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262107AbTIRKc3
+	id S262108AbTIRKjg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 06:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbTIRKjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 06:32:29 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:60291 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S262106AbTIRKcR (ORCPT
+	Thu, 18 Sep 2003 06:39:36 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:61571 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S262108AbTIRKjf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 06:32:17 -0400
-Date: Thu, 18 Sep 2003 12:32:13 +0200
+	Thu, 18 Sep 2003 06:39:35 -0400
+Date: Thu, 18 Sep 2003 12:39:32 +0200
 From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Stevie-O <oliver@klozoff.com>
+To: Aki Tossavainen <cmouse@quakenet.org>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Aliasing physical memory using virtual memory (from a d
-Message-ID: <20030918103212.GA7174@vana.vc.cvut.cz>
-References: <80BC15566D@vcnet.vc.cvut.cz> <3F68FEEC.5020809@klozoff.com> <3F6905FE.5030106@klozoff.com>
+Subject: Re: PROBLEM: Unable to enable DMA mode on 2.4.22 (was able to do that before)
+Message-ID: <20030918103932.GA8527@vana.vc.cvut.cz>
+References: <Pine.LNX.4.53.0309181300380.16634@mordor.desteem.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F6905FE.5030106@klozoff.com>
+In-Reply-To: <Pine.LNX.4.53.0309181300380.16634@mordor.desteem.org>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 17, 2003 at 09:10:22PM -0400, Stevie-O wrote:
-> Stevie-O wrote:
+On Thu, Sep 18, 2003 at 01:06:59PM +0300, Aki Tossavainen wrote:
+> I attemted to set DMA mode on with kernel 2.4.22 using
+> hdparm -d 1 /dev/hda
+> and I got:
 > 
-> >
-> >I grepped my 2.4 kernel source for 'vmap' and the only results that 
-> >seemed meaningful were vmap_pte_range or vmap_pmd_range in 
-
-2.4.22-ac1 has it. In mm/vmalloc.c. You cannot (well, I believe) use
-any functions which take page array if pages were not allocated one
-by one. Maybe you can try using page and page+1, but I'm under
-impression that it will not work as expected, and that you'll hit
-some BUG() somewhere.
-
-> >mips/mm/umap.c and mips64/mm/umap.c. Is this documented somewhere? I 
-> >suffer from the 'i'm new at this, but this looks possible' syndrome. I 
-> >don't actually know how anything is accomplished.
-> >
-> >Btw, am I right about kmalloc(35000) effectively grabbing 64K?
-
-Yes.  
-
-> I did a freetext search of the LXR for 'remap' and came up with this 
-> function:
+> /dev/hda:
+>  setting using_dma to 1 (on)
+>  HDIO_SET_DMA failed: Operation not permitted
+>  using_dma    =  0 (off)
 > 
-> 820 /*
-> 821  * maps a range of physical memory into the requested pages. the old
-> 822  * mappings are removed. any references to nonexistent pages results
-> 823  * in null mappings (currently treated as "copy-on-access")
-> 824  */
-> 825 static inline void remap_pte_range(pte_t * pte, unsigned long address, 
-> unsigned long size,
-> 826         unsigned long phys_addr, pgprot_t prot)
+> HDPARM version is 5.4
+> 
+> Before updating kernel I had no problems with this.
+> 
+> 00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 10)
+> (prog-if 8a [Master SecP PriP])
 
-Unavailable outside of mm. You must use remap_page_range. And this function
-can only remap memory which does not have its 'struct page' (i.e. MMIO on
-PCI busses) or pages marked as Reserved. So if you want to use it on
-regular memory, you must mark pages reserved... And then you have to do
-black magic to correctly remove 'PageReserved' bit at correct time - if 
-process does fork, and you'll clear this bit too early, you'll get
-page_count < 0 and BUG(). If you'll do that too late, you'll leak memory.
-vmmon did this in the past, but it was impossible to get it right under all
-possible circumstances.
+> # CONFIG_BLK_DEV_VIA82CXXX is not set
 
-Other problem is that this functions is targeted for remapping userspace
-addresses, not kernel space, and I would not trust this function for using
-with from in kernel space. Definitely 2.6.x with 4G/4G patch will do bad
-things.
-						Best regards,
-							Petr Vandrovec
-							vandrove@vc.cvut.cz
+Hi Aki,
+  what do you expect without enabling driver for your IDE chipset?
+Enable it, and hdparm will work...
+
+  You are supposed to run 'make oldconfig' after each kernel upgrade,
+and answer all new questions it asks you... Otherwise you'll not
+notice that IDE driver got split to the couple of chipset modules.
+					Best regards,
+						Petr Vandrovec
+						vandrove@vc.cvut.cz

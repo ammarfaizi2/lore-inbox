@@ -1,68 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317026AbSFFRxZ>; Thu, 6 Jun 2002 13:53:25 -0400
+	id <S317035AbSFFRx4>; Thu, 6 Jun 2002 13:53:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSFFRxY>; Thu, 6 Jun 2002 13:53:24 -0400
-Received: from 24-205-207-61.cs-dyn.charterpipeline.net ([24.205.207.61]:37508
-	"EHLO tarot.internal.aom.geek") by vger.kernel.org with ESMTP
-	id <S317026AbSFFRxX>; Thu, 6 Jun 2002 13:53:23 -0400
-Date: Thu, 6 Jun 2002 10:52:59 -0700
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: 3dfx framebuffer driver borked in 2.5.19 kernel
-Message-ID: <20020606175259.GB14272@ahrairah.internal.aom.geek>
-In-Reply-To: <20020530165031.GA18544@kira.glasswings.com.au> <Pine.LNX.4.10.10205301139260.9282-100000@www.transvirtual.com>
+	id <S317036AbSFFRxz>; Thu, 6 Jun 2002 13:53:55 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:31218 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S317035AbSFFRxy>; Thu, 6 Jun 2002 13:53:54 -0400
+Subject: Re: [patch] CONFIG_NR_CPUS
+From: Robert Love <rml@tech9.net>
+To: Adam Kropelin <akropel1@rochester.rr.com>
+Cc: "David S. Miller" <davem@redhat.com>, akpm@zip.com.au,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020606170935.GA32506@www.kroptech.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 06 Jun 2002 10:52:42 -0700
+Message-Id: <1023385962.13771.7.camel@sinai>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/04w6evG8XlLl3ft"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: idalton@ferret.dyndns.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2002-06-06 at 10:09, Adam Kropelin wrote:
 
---/04w6evG8XlLl3ft
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> This isn't quite true now...
 
-On Thu, May 30, 2002 at 11:40:14AM -0700, James Simmons wrote:
->=20
-> > With the port to the new fbdev interface in kernel
-> > 2.5.19 the system now only displays a few unchanging coloured pixels
-> > on the first line of the screen.  The rest of the screen remains black
-> > until X11 starts.  I am using append=3D"video=3Dtdfx:1024x768" in LILO.
->=20
-> I'm tracking down the bug you are experiencing. Almost done.=20
+Ah, but it is on i386 which is what that configure entry is... since
+this is in architecture-specific configure options, each arch must
+maintain its only Config.help and Configure.in code.
 
-Does the new interface handle multihead any better? I have a dual tdfx
-system..
+Arches with 64-bit longs can s/32/64/ there..
 
-Am interested in testing patches. Head up?
+	Robert Love
 
---=20
-Ferret
-
--- Support your government, give Echelon / Carnivore something to parse --
-classfield top-secret government restricted data  information project  CIA
-Microsoft terrorist Allah Natasha Gregori destroy destruct attack will own
-send Russia bank system compromise  World Trade Center  international rule
-presidental elections  policital foreign fnord embassy  takeover democracy
---------------------------------------------------------------------------
-
---/04w6evG8XlLl3ft
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8/6F7e0DNEkH06HMRAvGiAKCCEiiNuCc9vdRbirudy9dUCdAVUACgwijQ
-iL4FRjnqxXgL+T7vKMqhLX4=
-=a3tI
------END PGP SIGNATURE-----
-
---/04w6evG8XlLl3ft--

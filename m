@@ -1,65 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266452AbTGERJz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Jul 2003 13:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266456AbTGERJy
+	id S266428AbTGERHS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Jul 2003 13:07:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266423AbTGERHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Jul 2003 13:09:54 -0400
-Received: from arbi.Informatik.uni-oldenburg.de ([134.106.1.7]:15890 "EHLO
-	arbi.Informatik.Uni-Oldenburg.DE") by vger.kernel.org with ESMTP
-	id S266452AbTGERJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Jul 2003 13:09:34 -0400
-Subject: PATCH 2.4.21 nfsroot.c buffercheck
-To: linux-kernel@vger.kernel.org (kernel linux)
-Date: Sat, 5 Jul 2003 19:24:01 +0200 (MEST)
-X-Mailer: ELM [version 2.5 PL6]
+	Sat, 5 Jul 2003 13:07:18 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:49569 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266444AbTGERGv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Jul 2003 13:06:51 -0400
+Date: Sat, 5 Jul 2003 10:20:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+cc: Christoph Hellwig <hch@infradead.org>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Andrew Morton <akpm@osdl.org>, <Andries.Brouwer@cwi.nl>,
+       Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cryptoloop
+In-Reply-To: <3F068F49.1883BE0D@pp.inet.fi>
+Message-ID: <Pine.LNX.4.44.0307051018280.5900-100000@home.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E19YqlV-000ITc-00@grossglockner.Informatik.Uni-Oldenburg.DE>
-From: "Walter Harms" <Walter.Harms@Informatik.Uni-Oldenburg.DE>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Liste,
-this patches fixes a wrong bordercheck  and simplifies it.
-Strings with NFS_MAXPATHLEN would pass in the old code.
 
-walter
+On Sat, 5 Jul 2003, Jari Ruusu wrote:
+>
+> This tests only low level cipher functions aes_encrypt() and aes_decrypt()
+> from linux-2.5.74/crypto/aes.c with all CryptoAPI overhead removed. In real
+> use, including CryptoAPI overhead, these numbers should be a little bit
+> smaller.
+> 
+> key length 128 bits, encrypt speed 68.5 Mbits/sec
+...
 
+Note that the issue that started the discussion is somewhat different: the 
+performance impact of having to map the pages with sleeping kmap's because 
+of the old virtual-address-pointer interfaces.
 
---- fs/nfs/nfsroot.c.org        2003-07-03 23:23:18.000000000 +0200
-+++ fs/nfs/nfsroot.c    2003-07-03 23:36:51.000000000 +0200
-@@ -207,7 +207,8 @@
- {
-        char buf[NFS_MAXPATHLEN];
-        char *cp;
--
-+       int ret;
-+
-        /* Set some default values */
-        memset(&nfs_data, 0, sizeof(nfs_data));
-        nfs_port          = -1;
-@@ -230,14 +231,15 @@
-        /* Override them by options set on kernel command-line */
-        root_nfs_parse(name, buf);
- 
--       cp = system_utsname.nodename;
--       if (strlen(buf) + strlen(cp) > NFS_MAXPATHLEN) {
--               printk(KERN_ERR "Root-NFS: Pathname for remote directory too long.\n");
--               return -1;
--       }
--       sprintf(nfs_path, buf, cp);
-+       ret=snprintf(nfs_path,NFS_MAXPATHLEN, buf, system_utsname.nodename);
- 
--       return 1;
-+       if (ret < NFS_MAXPATHLEN) 
-+               return 1;
-+        else {
-+               printk(KERN_ERR "Root-NFS: Pathname for remote directory too long.\n");
-+               return -1;
-+       }
-+
- }
- 
+That won't even show up on most setups, but it can be rather nasty on big 
+boxes with lots of ram and several CPU's. Do we care? Possibly not, but I 
+think from a design standpoint it would be better to not have the problem.
+
+			Linus
 

@@ -1,36 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266493AbUGUUZi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266657AbUGUU2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266493AbUGUUZi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jul 2004 16:25:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266625AbUGUUZi
+	id S266657AbUGUU2X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jul 2004 16:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266659AbUGUU2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jul 2004 16:25:38 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:44686 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266493AbUGUUZh
+	Wed, 21 Jul 2004 16:28:22 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:15259 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S266657AbUGUU2S
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jul 2004 16:25:37 -0400
-Subject: Re: Inode question
+	Wed, 21 Jul 2004 16:28:18 -0400
+Subject: Re: What is the BUG() call in ll_rw_blk.c (2.4.26) for?
 From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: sankarshana rao <san_wipro@yahoo.com>
+To: Tom Dickson <tdickson@inostor.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040721183951.98507.qmail@web50906.mail.yahoo.com>
-References: <20040721183951.98507.qmail@web50906.mail.yahoo.com>
+In-Reply-To: <40FEB7B8.2050501@inostor.com>
+References: <40FEB7B8.2050501@inostor.com>
 Content-Type: text/plain
-Message-Id: <1090441528.17486.25.camel@shaggy.austin.ibm.com>
+Message-Id: <1090441662.17490.28.camel@shaggy.austin.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 21 Jul 2004 15:25:28 -0500
+Date: Wed, 21 Jul 2004 15:27:42 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-21 at 13:39, sankarshana rao wrote:
-> Hi,
-> I want to call namei() function in order to derive an
-> inode from a path name. Can I do this inside a kernel
-> module???
+On Wed, 2004-07-21 at 13:36, Tom Dickson wrote:
 
->From a kernel module, you should probably call path_lookup().
+> void submit_bh(int rw, struct buffer_head * bh)
+> {
+> ~        int count = bh->b_size >> 9;
+> 
+> 
+> ~        if (!test_bit(BH_Lock, &bh->b_state))
+> ~                BUG();
+> 
+> Does anyone know what that BUG(); is testing? We're seeing it and want
+> to track down what we're doing that is causing it.
+
+You must lock the buffer_head before calling submit_bh.  If the
+buffer_head is not locked, you see the BUG.
 
 Shaggy
 -- 

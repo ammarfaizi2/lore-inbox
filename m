@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268021AbUI1SbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268028AbUI1Sj3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268021AbUI1SbO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 14:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268028AbUI1SbO
+	id S268028AbUI1Sj3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 14:39:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268035AbUI1Sj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 14:31:14 -0400
-Received: from bender.bawue.de ([193.7.176.20]:42124 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S268021AbUI1SbK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 14:31:10 -0400
-Date: Tue, 28 Sep 2004 20:31:03 +0200
-From: Joerg Sommrey <jo175@sommrey.de>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: nmi watchdog failure on dual Athlon box
-Message-ID: <20040928183103.GA10593@sommrey.de>
-Mail-Followup-To: Joerg Sommrey <jo175@sommrey.de>,
-	"Maciej W. Rozycki" <macro@linux-mips.org>,
-	Linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040928163324.GA5759@sommrey.de> <Pine.LNX.4.58L.0409281802270.32231@blysk.ds.pg.gda.pl>
-Mime-Version: 1.0
+	Tue, 28 Sep 2004 14:39:29 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:7340 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S268028AbUI1Sj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 14:39:27 -0400
+To: akpm@osdl.org, benh@kernel.crashing.org
+Cc: linux-kernel@vger.kernel.org
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <roland@topspin.com>
+Date: Tue, 28 Sep 2004 11:39:25 -0700
+Message-ID: <52is9yb5lu.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH] Fix ppc64 cross-compilation
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58L.0409281802270.32231@blysk.ds.pg.gda.pl>
-User-Agent: Mutt/1.5.6+20040722i
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 28 Sep 2004 18:39:26.0494 (UTC) FILETIME=[7B3DE3E0:01C4A58A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 06:08:37PM +0100, Maciej W. Rozycki wrote:
-> On Tue, 28 Sep 2004, Joerg Sommrey wrote:
-> 
-> > just tried Ingo's "lockupcli" nmi watchdog test - it fails to unlock the
-> > box.
-> > 
-> > boot-parm:
-> > ...nmi_watchdog=2...
-> 
->  The local APIC NMI watchdog has limited capabilities.  It may fail to 
-> trigger for certain lockups because there is no available event that would 
-> happen periodically regardless of the CPU state.  I can only suspect what 
-> "lockupcli" does (where is it available from, anyway?), but if it runs 
-> "cli; hlt", then the watchdog *will* fail.
+After the "ppc64 monster cleanup," I get
 
-Here's the quote from Ingo's mail:
-In <2Jo20-7ry-33@gated-at.bofh.it> Ingo Molnar <mingo@elte.hu> writes:
-|once the NMI watchdog is up and running it should catch all hard lockups
-|and print backtraces to the serial console - even if you are within X
-|while the lockup happens. You can test hard lockups by running the
-|attached 'lockupcli' userspace code as root - it turns off interrupts
-|and goes into an infinite loop => instant lockup. The NMI watchdog
-|should notice this condition after a couple of seconds and should abort
-|the task, printing a kernel trace as well. Your box should be back in
-|working order after that point.
+    powerpc-750-linux-gnu-strip: vmlinux: File format not recognized
 
-[...]
+from my ppc32 strip command when cross-compiling a ppc64 kernel, since
+vmlinux is a 64-bit ELF file.  This patch fixes my build (and the
+resulting kernel boots fine).
 
-|--- lockupcli.c
-|
-|main ()
-|{
-|	iopl(3);
-|	for (;;) asm("cli");
-|}
+Thanks,
+  Roland
 
-Does this mean there is a good reason for further investigations on why
-the IO-APIC NMI watchdog doesn't work? Until now I thought it would
-be ok as long as the local APIC NMI watchdog is set up.
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
--jo
-
--- 
--rw-r--r--  1 jo users 63 2004-09-28 18:42 /home/jo/.signature
+Index: linux-bk/arch/ppc64/boot/Makefile
+===================================================================
+--- linux-bk.orig/arch/ppc64/boot/Makefile	2004-09-28 11:22:48.000000000 -0700
++++ linux-bk/arch/ppc64/boot/Makefile	2004-09-28 11:23:07.000000000 -0700
+@@ -31,7 +31,7 @@
+ BOOTLD		:= $(CROSS32_COMPILE)ld
+ BOOTLFLAGS	:= -Ttext 0x00400000 -e _start -T $(srctree)/$(src)/zImage.lds
+ BOOTOBJCOPY	:= $(CROSS32_COMPILE)objcopy
+-BOOTSTRIP	:= $(CROSS32_COMPILE)strip
++BOOTSTRIP	:= $(CROSS_COMPILE)strip
+ OBJCOPYFLAGS    := contents,alloc,load,readonly,data
+ 
+ src-boot := crt0.S string.S prom.c main.c zlib.c imagesize.c div64.S

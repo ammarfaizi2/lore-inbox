@@ -1,71 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262480AbVAEPle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVAEPld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262480AbVAEPle (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 10:41:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVAEPjM
+	id S262279AbVAEPld (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 10:41:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262480AbVAEPjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 10:39:12 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:22661 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262474AbVAEPVQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 10:21:16 -0500
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Chris Wright <chrisw@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Jack O'Quin" <joq@io.com>, Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Paul Davis <paul@linuxaudiosystems.com>
-In-Reply-To: <20050105115213.GA17816@elte.hu>
-References: <1104374603.9732.32.camel@krustophenia.net>
-	 <20050103140359.GA19976@infradead.org>
-	 <1104862614.8255.1.camel@krustophenia.net>
-	 <20050104182010.GA15254@infradead.org> <87u0pxhvn0.fsf@sulphur.joq.us>
-	 <1104865198.8346.8.camel@krustophenia.net>
-	 <1104878646.17166.63.camel@localhost.localdomain>
-	 <20050104175043.H469@build.pdx.osdl.net>
-	 <1104890131.18410.32.camel@krustophenia.net>
-	 <20050105115213.GA17816@elte.hu>
-Content-Type: text/plain
-Date: Wed, 05 Jan 2005 10:21:11 -0500
-Message-Id: <1104938472.8589.8.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jan 2005 10:39:25 -0500
+Received: from mail48-s.fg.online.no ([148.122.161.48]:24295 "EHLO
+	mail48-s.fg.online.no") by vger.kernel.org with ESMTP
+	id S262478AbVAEPWe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 10:22:34 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Logitech MX1000 Horizontal Scrolling
+From: Esben Stien <b0ef@esben-stien.name>
+X-Home-Page: http://www.esben-stien.name
+Date: Wed, 05 Jan 2005 16:22:59 +0100
+Message-ID: <873bxfoq7g.fsf@quasar.esben-stien.name>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-05 at 12:52 +0100, Ingo Molnar wrote:
-> the RT-LSM thing is a bit dangerous because it doesnt really protect
-> against a runaway, buggy app. So i think the right way to approach this
-> problem is to not apply RT-LSM for the time being, but to provide an
-> 'advanced latency needs' scheduling class that is _still_ safe even if
-> the task is runaway, but behaves with near-RT priorities if the task is
-> 'nice' (i.e. doesnt use up large amount of CPU time.)
-> 
-> incidentally, there is such a scheduling class already: negative nice
-> levels. Please skip any preconceptions you might have about nice levels,
-> nice levels have been improved in 2.6.10, the timeslices are now given
-> out exponentially, giving nice -20 tasks far more weight and priority
-> than they used to have. (They are obviously still preemptable if they
-> keep looping burning CPU - but that we can consider a feature.) (Also,
-> in 2.6 the negative nice levels have a much more agressive interactivity
-> setting, allowing them to preempt everything lower-prio.)
-> 
-> so, could you try vanilla 2.6.10 (without LSM and without jackd running
-> with RT priorities), with jackd set to nice -20? Make sure the
-> jack-client process gets this priority too. Best to achieve this is to
-> renice a shell to -20 and start up everything from there - the nice
-> settings will be inherited. How does such an audio test compare to a
-> test done with jackd running at SCHED_FIFO with RT priority 1?
-> 
-> if this works out well then we could achieve something comparable to
-> RT-LSM, via nice levels alone.
+I got a 12 button logitech MX1000 mouse. The buttons 11 and 12 which
+are the horizontal direction of the tilt wheel gives me this the log
 
-Ugh, screwed up the cc: list.  Sorry for the WOB.
+Jan  5 15:56:26 quasar keyboard.c: can't emulate rawmode for keycode 240
 
-Paul, care to comment on the above?
+.. every time I press either button 11 or 12
 
-Lee
+I needed CONFIG_INPUT_EVDEV to read these events, btw
 
+This gives me problems in some applications it seems, as it won't
+allow me to move in one of the horizontal directions by holding the
+tilt wheel for a period. It only moves me the length of a single
+click. I can continue clicking myself in a direction, but when holding
+down the tilt wheel, I'll only move one click in the direction.
+
+-- 
+Esben Stien is b0ef@esben-stien.name
+http://www.esben-stien.name
+irc://irc.esben-stien.name/%23contact
+[sip|iax]:b0ef@esben-stien.name

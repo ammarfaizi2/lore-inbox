@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264513AbRFYN2j>; Mon, 25 Jun 2001 09:28:39 -0400
+	id <S264508AbRFYNdj>; Mon, 25 Jun 2001 09:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264511AbRFYN2a>; Mon, 25 Jun 2001 09:28:30 -0400
-Received: from [213.22.80.107] ([213.22.80.107]:11531 "EHLO vega.net.dhis.org")
-	by vger.kernel.org with ESMTP id <S264508AbRFYN2O>;
-	Mon, 25 Jun 2001 09:28:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Claudio Martins <ctpm@vega.net.dhis.org>
-To: Rodrigo Ventura <yoda@isr.ist.utl.pt>, linux-kernel@vger.kernel.org
-Subject: Re: MemShared == 0 ?
-Date: Mon, 25 Jun 2001 14:26:34 +0100
+	id <S264516AbRFYNd3>; Mon, 25 Jun 2001 09:33:29 -0400
+Received: from wet.kiss.uni-lj.si ([193.2.98.10]:12047 "EHLO
+	wet.kiss.uni-lj.si") by vger.kernel.org with ESMTP
+	id <S264511AbRFYNdV>; Mon, 25 Jun 2001 09:33:21 -0400
+Content-Type: text/plain;
+  charset="iso-8859-2"
+From: Rok =?iso-8859-2?q?Pape=BE?= <rok.papez@kiss.uni-lj.si>
+Reply-To: rok.papez@kiss.uni-lj.si
+To: landley@webofficenow.com
+Subject: Re: The Joy of Forking
+Date: Mon, 25 Jun 2001 09:24:59 +0200
 X-Mailer: KMail [version 1.2]
-In-Reply-To: <lx1yo86erg.fsf@pixie.isr.ist.utl.pt>
-In-Reply-To: <lx1yo86erg.fsf@pixie.isr.ist.utl.pt>
+In-Reply-To: <Pine.LNX.4.33.0106241545320.31190-100000@Expansa.sns.it> <0106241050420D.01519@localhost.localdomain>
+In-Reply-To: <0106241050420D.01519@localhost.localdomain>
+Cc: <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <01062514263402.20445@vega>
-Content-Transfer-Encoding: 7BIT
+Message-Id: <01062509245900.01161@strader.home>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Monday 25 June 2001 11:21, Rodrigo Ventura wrote:
-> /proc> cat version meminfo
-> Linux version 2.4.6-pre3 (yoda@damasio) (gcc version 2.95.2 19991024
-> (release)) #3 Mon Jun 18 19:00:11 WEST 2001 total:    used:    free: 
-> shared: buffers:  cached:
-> Mem:  261779456 256925696  4853760        0 134025216 82280448
-> Swap: 271425536 10993664 260431872     ^^^^
-> MemTotal:       255644 kB                  \
-> MemFree:          4740 kB                   \
-> MemShared:           0 kB  <<<<<<<<<< **** What's the meaning of this?
-> ***** Buffers:        130884 kB
->
+On Sunday 24 June 2001 16:50, Rob Landley wrote:
 
-  From the discussion I've read elsewhere in this list, it means that this 
-value is just not computed anymore and is kept at 0 for compatibility with 
-old programs that parse this table. It seems that presenting this number was 
-computationaly expensive for the kernel.
+> distant from ascii after the printer drivers get done with it.  And that
+> text processing itself is, regrettably, moving to Unicode.)
 
-regards
-cumprimentos
+Bad standard is better than no standard.
 
-  Claudio
-
+-- 
+best regards,
+Rok Pape¾.

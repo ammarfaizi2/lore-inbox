@@ -1,65 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269738AbSISPEv>; Thu, 19 Sep 2002 11:04:51 -0400
+	id <S271196AbSISPSA>; Thu, 19 Sep 2002 11:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269727AbSISPEv>; Thu, 19 Sep 2002 11:04:51 -0400
-Received: from mout1.freenet.de ([194.97.50.132]:3310 "EHLO mout1.freenet.de")
-	by vger.kernel.org with ESMTP id <S269738AbSISPEu>;
-	Thu, 19 Sep 2002 11:04:50 -0400
-Date: Thu, 19 Sep 2002 17:09:59 +0200
-From: axel@hh59.org
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>, riel@conectiva.com.br
-Subject: Re: 2.5.36-mm1
-Message-ID: <20020919150959.GA1887@prester.hh59.org>
-Mail-Followup-To: Andrew Morton <akpm@digeo.com>,
-	lkml <linux-kernel@vger.kernel.org>,
-	"linux-mm@kvack.org" <linux-mm@kvack.org>, riel@conectiva.com.br
-References: <3D8839B5.B37DF31C@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3D8839B5.B37DF31C@digeo.com>
-Organization: hh59.org
-User-Agent: Mutt/1.5.1i
+	id <S271302AbSISPSA>; Thu, 19 Sep 2002 11:18:00 -0400
+Received: from packet.digeo.com ([12.110.80.53]:46227 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S271196AbSISPR6> convert rfc822-to-8bit;
+	Thu, 19 Sep 2002 11:17:58 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: CDCether.c
+Date: Thu, 19 Sep 2002 08:22:57 -0700
+Message-ID: <4C568C6A13479744AA1EA3E97EEEB32328EE9A@schumi.digeo.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: CDCether.c
+Thread-Index: AcJfpZ9qFs+31pCzRRih/4BTCKUyuQAR6ufg
+From: "Michael Duane" <Mike.Duane@digeo.com>
+To: "Brad Hards" <bhards@bigpond.net.au>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
 
-On Wed, 18 Sep 2002, Andrew Morton wrote:
 
-> A reminder that this changes /proc files.  Updated top(1) and
-> vmstat(1) source is available at http://surriel.com/procps/
+> -----Original Message-----
+> From: Brad Hards [mailto:bhards@bigpond.net.au]
+> Sent: Wednesday, September 18, 2002 11:21 PM
+> To: Michael Duane; linux-kernel@vger.kernel.org
+> Subject: Re: CDCether.c
+> 
+> 
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> On Thu, 19 Sep 2002 09:49, Michael Duane wrote:
+> > Who is the maintainer of CDCEther.c?  I am having a problem
+> > with packets getting "wedged" somewhere on the way out
+> > and need to know if others have reported this problem.
+> Others have reported probems that normally look something 
+> like "it works fine 
+> for some minutes to days, and then all connectivity stops, 
+> till I reboot or 
+> re-insert the module", but I can't duplicate. Does this match 
+> your problem?
 
-Well. I have retrieved procps from CVS and built it. But then vmstat gets an
-segmentation fault. It looks like this..
+No, this is quite different. It appears to be a function of packet 
+size. ping -s <size> <host> will generate packet loss up to 100 
+percent with any size of (86+(64*n)).  All other values work fine.
+tcpdump on the linux side sees multiple packet retries with 
+correct back-off timeing, but the network side never sees the
+packet. Now for the odd part - any network activity on another
+session to the same box will free the "wedged" packet and the
+network will recieve the last packet sent in the linux retry
+sequence.
 
-prester:/root# vmstat
-   procs                      memory      swap          io     system
-cpu
- r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy
-id
-Segmentation fault
-Exit 139
+I don't know that it is in the CDCEther driver, but here are the
+combinations I have tried:
 
-And with strace it looks like this...
+    linux -> usb -> cdcether -> broadcom modem -> network : FAILS
+    linux -> usb -> pegasus -> linksys adaptor -> 3com DOCSIS -> network : OKAY
+    windows -> usb -> broadcom driver -> broadcom modem -> network : OKAY
 
-...
-getdents64(0x5, 0x804d038, 0x400, 0)    = 0
-close(5)                                = 0
-open("/proc/meminfo", O_RDONLY)         = 5
-lseek(5, 0, SEEK_SET)                   = 0
-read(5, "MemTotal:       191112 kB\nMemFre"..., 1023) = 543
-open("/proc/stat", O_RDONLY)            = 6
-read(6, "cpu  35477 2 4565 80407 9871\ncpu"..., 8191) = 815
-close(6)                                = 0
---- SIGSEGV (Segmentation fault) ---
-+++ killed by SIGSEGV +++
+> 
+> > I'm running the 2.4.17 kernel and using a Broadcom DOCSIS
+> > modem based around a 3345.
+> Most people have reported the problem with Via UHCI chipsets, 
+> and usb-uhci 
+> driver. Does this match your configuration?
 
-Don't know what I have done wrong. Or is the procps package for mm-series a
-special one differing from the regular procps by Rik?
+I'm using usb-uhci with an Intel 810e2.  I have tried the 2.4.19
+kernel with the same results. This is a proprietary hardware platform
+and I haven't been able to get the 2.5.36 kernel to boot yet.
 
-Best regards,
-Axel
+> 
+> You might care to upgrade the kernel too.
+> 
+> Brad
+> 
+> - -- 
+> http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. 
+> Birds in Black.
+> -----BEGIN PGP SIGNATURE-----
+> Version: GnuPG v1.0.6 (GNU/Linux)
+> Comment: For info see http://www.gnupg.org
+> 
+> iD8DBQE9iWzJW6pHgIdAuOMRAvXrAJ9JfDSnx25dKI7yXvQC2XjNEydS+wCgpKMe
+> kSP0H8AB5Sj8Ebo6SGAPVNs=
+> =RTI4
+> -----END PGP SIGNATURE-----
+> 
+> 

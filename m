@@ -1,98 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbULBIdw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbULBIed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbULBIdw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Dec 2004 03:33:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbULBIdw
+	id S261444AbULBIed (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Dec 2004 03:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbULBIeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Dec 2004 03:33:52 -0500
-Received: from smtp08.auna.com ([62.81.186.18]:30642 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S261442AbULBIds convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Dec 2004 03:33:48 -0500
-Date: Thu, 02 Dec 2004 08:33:44 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: What if?
-To: linux-kernel@vger.kernel.org
-References: <41AE5BF8.3040100@gmail.com> <20041202044034.GA8602@thunk.org>
-In-Reply-To: <20041202044034.GA8602@thunk.org> (from tytso@mit.edu on Thu
-	Dec  2 05:40:34 2004)
-X-Mailer: Balsa 2.2.6
-Message-Id: <1101976424l.5095l.0l@werewolf.able.es>
-MIME-Version: 1.0
+	Thu, 2 Dec 2004 03:34:25 -0500
+Received: from havoc.gtf.org ([69.28.190.101]:45213 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S261444AbULBIeK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Dec 2004 03:34:10 -0500
+Date: Thu, 2 Dec 2004 03:29:30 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: linux-ide@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: libata-dev queue updated
+Message-ID: <20041202082930.GA7512@havoc.gtf.org>
+Reply-To: linux-ide@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2004.12.02, Theodore Ts'o wrote:
-> On Thu, Dec 02, 2004 at 05:34:08AM +0530, Imanpreet Singh Arora wrote:
-> > 
-> >    I realize most of the unhappiness lies with C++ compilers being 
-> > slow. Also the fact that a lot of Hackers around here are a lot more 
-> > familiar with C, rather than C++. However other than that what are the  
-> > _implementation_  issues that you hackers might need to consider if it 
-> > were to be implemented in C++. 
-> 
-> The suckitude of C++ compilers is only part of the issues.
-> 
-> > My question is regarding how will kernel 
-> > deal with C++ doing too much behind the back, Calling constructors, 
-> > templates exceptions and other. What are the possible issues of such an 
-> > approach while writing device drivers?  What sort of modifications do 
-> > you reckon might be needed if such a move were to be made?
-> 
-> The way the kernel will deal with C++ language being a complete
-> disaster (where something as simple as "a = b + c + d +e" could
-> involve a dozen or more memory allocations, implicit type conversions,
-> and overloaded operators) is to not use it.  Think about the words of
-> wisdom from the movie Wargames: "The only way to win is not to play
-> the game".
-> 
+I just updated libata-dev queue in BitKeeper, to the latest upstream kernel.
 
-Don't ge silly. I have written C++ code to deal with SSE operations
-on vectors, and there you really need to control the assembler produced,
-and with the correct const and & on correct places the code is as
-efficient as C. Or more. You can control everything. No more temporal
-objects, no more copies, but still the type checking. I can send you,
-for example, the code for a Vector class (no __asm in it),
-and the assembler that g++ spits for a thing like a = b+c.
-You would do not better in handcoded asm.
+No patch yet, I'll post in a day or two.  You can generate your own
+patch using Documentation/BK-usage/gcapatch script in the kernel tree.
 
-It is as all things, you need to know it deeply to use it well.
-There are a ton of myths around C++.
+Here's a summary of the stuff sitting in this testing queue:
+* new driver ata_adma (Pacific Digital PATA and SATA)
+* new hardware ULi 5281 supported in sata_uli driver
+* new hardware VT6421 SATA supported in sata_via driver
+* support for PATA ports on Promise SATA cards
+* support for newer Promise PATA cards
+* ATA passthru (read: SMART support)
+* other minor stuff
 
-For the kernel, you don't need exceptions nor iostreams, so don't use
-the C++ runtime library.
+BK users:
 
-Constructor/destuctor is needed, and also virtual single inheritance.
-And those two things are already being done by hand with function
-pointers inside structs in the kernel. The cost of (single and multiple)
-inheritance in C++ is also just an indexed jump, the difference is that
-in the pseudo object oriented things done in the kernel you have to
-always initializa the funtions pointers, and C++ will do it for you.
-How many bugs have you seen because somebody wrote a bad
-.method = the wrong_func in an initializer ?
+	bk pull bk://gkernel.bkbits.net/libata-dev-2.6
 
-The kernel is full of things like
-if (__builtin_constant_pointer(xxxx) and others to check if an argument
-is constant and optimize some path, and in C++ you could write
-class T {
-	T& f();
-	const T& f() const;
-}
-and the compiler will do it at compile time also.
+This will update the following files:
 
-In short, with C++ you can generate code as efficient as C or asm.
-You just have to know how.
+ Documentation/DocBook/libata.tmpl |  192 ++++++++++
+ drivers/scsi/Kconfig              |   18 
+ drivers/scsi/Makefile             |    2 
+ drivers/scsi/ahci.c               |    5 
+ drivers/scsi/ata_adma.c           |  636 ++++++++++++++++++++++++++++++++++
+ drivers/scsi/libata-core.c        |   48 ++
+ drivers/scsi/libata-scsi.c        |  413 ++++++++++++++++++++++
+ drivers/scsi/libata.h             |    2 
+ drivers/scsi/pata_pdc2027x.c      |  694 ++++++++++++++++++++++++++++++++++++++
+ drivers/scsi/sata_promise.c       |   56 ++-
+ drivers/scsi/sata_uli.c           |   51 +-
+ drivers/scsi/sata_via.c           |  202 ++++++++---
+ include/linux/ata.h               |    1 
+ include/linux/libata.h            |    2 
+ include/scsi/scsi.h               |    3 
+ 15 files changed, 2221 insertions(+), 104 deletions(-)
 
-But C++ is not supported in the kernel. I can live with it.
+through these ChangeSets:
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-rc2-jam4 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #2
+<albertcc:tw.ibm.com>:
+  o [libata pdc2027x] fix incorrect pio and mwdma masks
+  o [libata pdc2027x] remove quirks and ROM enable
+  o [libata] add driver for Promise PATA 2027x
 
+<andyw:pobox.com>:
+  o [libata scsi] support 12-byte passthru CDB
+  o [libata scsi] passthru CDB check condition processing
+  o T10/04-262 ATA pass thru - patch
+
+<erikbenada:yahoo.ca>:
+  o [libata sata_promise] support PATA ports on SATA controllers
+
+Brad Campbell:
+  o libata basic detection and errata for PATA->SATA bridges
+
+Jeff Garzik:
+  o [libata docs] add chapter on libata driver API
+  o [libata] add new driver ata_adma
+  o [libata ahci] minor fixes
+  o [libata sata_uli] add 5281 support, fix SATA phy setup for others
+  o [libata sata_via] add support for VT6421 SATA
+  o [libata sata_via] minor cleanups
+  o [libata] fix DocBook bugs
+  o [libata pdc2027x] update for upstream struct device conversion
+  o [libata sata_promise] fix merge bugs
+  o [libata] fix build breakage
+  o [libata] fix SATA->PATA bridge detect compile breakage
+  o [libata] fix printk warning
+
+John W. Linville:
+  o libata: SMART support via ATA pass-thru
+
+Tobias Lorenz:
+  o libata-scsi: get-identity ioctl support
 

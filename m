@@ -1,36 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUIJT43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267769AbUIJUOf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267863AbUIJT43 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 15:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267860AbUIJT42
+	id S267769AbUIJUOf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 16:14:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267772AbUIJUOe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 15:56:28 -0400
-Received: from [213.217.113.151] ([213.217.113.151]:334 "EHLO fjoras.ohse.de")
-	by vger.kernel.org with ESMTP id S267866AbUIJT4Z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 15:56:25 -0400
-Date: 10 Sep 2004 19:54:06 -0000
-Message-ID: <20040910195406.20598.qmail@fjoras.ohse.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <20040910.105040.30177815.wscott@bitmover.com>
-From: uwe@ohse.de (Uwe Ohse)
-References: <1094797973.4838.4.camel@almond.st-and.ac.uk>
-	<4141504B.8030104@namesys.com>
-	<4141CCA2.9010005@techsource.com>
-Organization: 
+	Fri, 10 Sep 2004 16:14:34 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:60429 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267769AbUIJUOb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Sep 2004 16:14:31 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] adding per sb inode list to make invalidate_inodes() faster
+Date: Fri, 10 Sep 2004 23:14:24 +0300
+User-Agent: KMail/1.5.4
+Cc: William Lee Irwin III <wli@holomorphy.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <4140791F.8050207@sw.ru> <20040909120818.7f127d14.akpm@osdl.org> <41416BCA.3020005@sw.ru>
+In-Reply-To: <41416BCA.3020005@sw.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409102314.24906.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wayne Scott wrote:
+> >> The only motive I'm aware of is for latency in the presence of things
+> >> such as autofs. It's also worth noting that in the presence of things
+> >> such as removable media umount is also much more common. I personally
+> >> find this sufficiently compelling. Kirill may have additional
+> >> ammunition.
+> >
+> > Well.  That's why I'm keeping the patch alive-but-unmerged.  Waiting to
+> > see who wants it.
+> >
+> > There are people who have large machines which are automounting hundreds
+> > of different NFS servers.  I'd certainly expect such a machine to
+> > experience ongoing umount glitches.  But no reports have yet been sighted
+> > by this little black duck.
+>
+> I think It's not always evident where the problem is. For many people
+> waiting 2 seconds is ok and they pay no much attention to this small
+> little hangs.
+>
+> 1. I saw the bug in bugzilla from NFS people you pointed to me last time
+> yourself where the same problem was detected.
 
->One advantage of ':' is that portable programs already have to avoid
->it because of NTFS alternate data streams:
+What bug? Are you talking about umount being not so fast or something else?
+--
+vda
 
-this is not going to work:
-
-lynx www.site.tld:8080
-ls /usr/share/man/man3/*::*            ## perl stuff
-http://cr.yp.to/proto/maildir.html
-
-Regards, Uwe

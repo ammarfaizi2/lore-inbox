@@ -1,56 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266370AbRGBFiN>; Mon, 2 Jul 2001 01:38:13 -0400
+	id <S266371AbRGBFmD>; Mon, 2 Jul 2001 01:42:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266371AbRGBFiD>; Mon, 2 Jul 2001 01:38:03 -0400
-Received: from mnmai05.mn.mediaone.net ([24.131.1.59]:27573 "EHLO
-	mnmai05.mn.mediaone.net") by vger.kernel.org with ESMTP
-	id <S266370AbRGBFhr> convert rfc822-to-8bit; Mon, 2 Jul 2001 01:37:47 -0400
-From: Steve Brueggeman <brewgyman@mediaone.net>
+	id <S266372AbRGBFlx>; Mon, 2 Jul 2001 01:41:53 -0400
+Received: from barnowl.demon.co.uk ([158.152.23.247]:49414 "EHLO
+	barnowl.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S266371AbRGBFlh>; Mon, 2 Jul 2001 01:41:37 -0400
+Mail-Copies-To: nobody
 To: linux-kernel@vger.kernel.org
 Subject: Re: Uncle Sam Wants YOU!
-Date: Mon, 02 Jul 2001 00:37:46 -0500
-Message-ID: <04vvjts22os5dq2cb77jkulpi373gj1iu5@4ax.com>
-In-Reply-To: <3B3F5F5C.40907@lycosmail.com> <20010701130151.A10989@ChaoticDreams.ORG> <3B3FB754.8040305@kalifornia.com> <20010701191121.C12476@vger.timpanogas.org>
-In-Reply-To: <20010701191121.C12476@vger.timpanogas.org>
-X-Mailer: Forte Agent 1.8/32.548
+In-Reply-To: <3B3F5F5C.40907@lycosmail.com>
+	<20010701130151.A10989@ChaoticDreams.ORG>
+	<3B3FB754.8040305@kalifornia.com>
+	<20010701171101.A13223@ChaoticDreams.ORG>
+	<007e01c10290$3f0da6d0$bb1cfa18@JimWS>
+From: Graham Murray <graham@barnowl.demon.co.uk>
+Date: Mon, 02 Jul 2001 05:40:53 +0000
+In-Reply-To: <007e01c10290$3f0da6d0$bb1cfa18@JimWS> ("Jim Roland"'s message
+ of "Sun, 1 Jul 2001 19:45:09 -0500")
+Message-ID: <m2d77jx50a.fsf@barnowl.demon.co.uk>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/20.7
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-G'damn!!!!  That's so poetically accurate, I've added it to my sig list.
+"Jim Roland" <jroland@roland.net> writes:
 
-I've worked in a large tech corporation for many years, (20+) and I've
-relatively recently had to attempt to `open` some managerial minds, and
-discovered futility of it all.
+> What some people don't realize is that Microsoft *DID* do Unix a long time
+> ago, they were even into OS/2 Development.  :-)
 
-"A company's public perception is an invaluable asset, that must be dealt with
-kid gloves"  (not to mention managerial politics and positioning)
-
-P.S.  Yes, I think that Microsoft does have some of the better software products
-out there, but they'll never be able to take away my right to choose.  Without
-Linux, I probably wouldn't say that with such confidence!!!
-
-PPSS  Microsoft has proven that performance, is in fact, not everything, but
-Gnome, and KDE have taken that point to an extreme.
-
-PPPSSS I'm looking for that to change within 5 years.
-
-Steve Brueggeman
-
-
-On Sun, 1 Jul 2001 19:11:21 -0700, you wrote:
-
->On Sun, Jul 01, 2001 at 04:50:44PM -0700, Ben Ford wrote:
->
->Microsoft is like a mountain with their installed base.  Like it 
->or not, no matter how loud the wind howls, the mountain cannot bow
->to it.
->
->:-)
->
->Jeff
->
+And they annoyed not just a few application vendors when just a few
+months after giving the message "Go with OS/2, it is the way forward",
+they abandoned it in favour of NT.
 

@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280012AbRLMKU0>; Thu, 13 Dec 2001 05:20:26 -0500
+	id <S282378AbRLMK2M>; Thu, 13 Dec 2001 05:28:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282378AbRLMKUR>; Thu, 13 Dec 2001 05:20:17 -0500
-Received: from porsta.cs.Helsinki.FI ([128.214.48.124]:5190 "EHLO
-	porsta.cs.Helsinki.FI") by vger.kernel.org with ESMTP
-	id <S282190AbRLMKUK>; Thu, 13 Dec 2001 05:20:10 -0500
-Message-Id: <200112131020.fBDAK3g14078@porsta.cs.Helsinki.FI>
-Content-Type: text/plain; charset=US-ASCII
-From: Pasi Sarolahti <sarolaht@cs.Helsinki.FI>
-To: linux-kernel@vger.kernel.org
-Subject: Re: TCP LAST-ACK state broken in 2.4.17-pre2
-Date: Thu, 13 Dec 2001 12:19:56 +0200
-X-Mailer: KMail [version 1.3.1]
+	id <S282190AbRLMK2D>; Thu, 13 Dec 2001 05:28:03 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:37391 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S280771AbRLMK1n>;
+	Thu, 13 Dec 2001 05:27:43 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Wayne Whitney <whitney@math.berkeley.edu>
+Date: Thu, 13 Dec 2001 11:27:10 MET-1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: Repost: could ia32 mmap() allocations grow downward?
+CC: LKML <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.40
+Message-ID: <BDD02BB0D67@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On 12 Dec 01 at 22:28, Wayne Whitney wrote:
 
-Hello,
+> BTW, if one were trying to port some code that uses brk() directly and
+> even frees memory that way, then it seems that with glibc's malloc(), one
+> could make it work by instructing malloc() always to use mmap().
 
-Mika wrote:
-> Looks like there are still problems after applying your quick patch.
-> Back at the lab we observed a case where the FIN-ACK packet is dropped
-> and Linux fails to retransmit it. See the attached dump for the details
-> (Linux is 10.0.5.11). The action ends there, with Linux timing out to
-> CLOSED state and the remote stuck in FIN-WAIT-2.
+> P.S.  I am 100% sure that the particular application of mine that started
+> me thinking about this, MAGMA, uses its own allocator built on top of
+> brk() and never calls malloc() itself.
 
-I think following might happen: When the receiver gets FIN and acks it, it
-should be in CLOSE_WAIT or LAST_ACK state depending on the situation,
-right? In tcp_rcv_state_process() the receiver calls ack_snd_check, which
-has the following test:
+If you have legacy app, how it comes that it uses mmap? And if I do
+not use mmap, I have nothing at 1GB:
 
-            if (!tcp_ack_scheduled(tp)) {
-		/* We sent a data segment already. */
-		return;
-	}
-	__tcp_ack_snd_check(sk, 1);
+void main() { sleep(10); brk((void*)0xBF000000); pause(); }
 
-I think in this situation it may be possible that ack_scheduled is false,
-which would mean that the receiver never acks the further FIN segments if
-the first FIN-ack is lost. Maybe something like the following might work,
-although it looks pretty ugly :-)
+/proc/`pidof x`/maps says during sleep(10):
 
-       if (!tcp_ack_scheduled(tp) &&
-                                      (sk->state == TCP_ESTABLISHED ||
-                                       sk->state == TCP_FIN_WAIT1)) {
-                /* We sent a data segment already. */
-                return;
-        }
+08048000-080a1000 r-xp 00000000 03:03 230941   /usr/src/linus/x
+080a1000-080a5000 rw-p 00058000 03:03 230941   /usr/src/linus/x
+080a5000-080a6000 rwxp 00000000 00:00 0
+bffff000-c0000000 rwxp 00000000 00:00 0
 
-(Btw, I'm not on the lkml, so I would like to be cc'd of the further
-discussion on this thread)
+and after brk() (which suceeded after I did ulimit -d unlimited
+and 'echo 1 >/proc/sys/vm/overcommit_memory') I see:
 
-- - Pasi
+08048000-080a1000 r-xp 00000000 03:03 230941   /usr/src/linus/x
+080a1000-080a5000 rw-p 00058000 03:03 230941   /usr/src/linus/x
+080a5000-bf000000 rwxp 00000000 00:00 0
+bffff000-c0000000 rwxp 00000000 00:00 0
 
-- -- 
-http://www.cs.helsinki.fi/u/sarolaht/
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8GIDRoNa7NH1G2csRAvoLAKC5JbdYF524KMGKOG7X7jObLIkifgCffIbG
-tA/Cr4FqSeWhEArt/mPlHGY=
-=KD8M
------END PGP SIGNATURE-----
+So maybe MAGMA uses some API which it should not use under any
+circumstances... Such as that you linked it with libc6 stdio.
+                                                    Best regards,
+                                                        Petr Vandrovec
+                                                        vandrove@vc.cvut.cz
+                                                        

@@ -1,106 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262553AbSJBTSS>; Wed, 2 Oct 2002 15:18:18 -0400
+	id <S262539AbSJBTQl>; Wed, 2 Oct 2002 15:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262554AbSJBTSS>; Wed, 2 Oct 2002 15:18:18 -0400
-Received: from va.cs.wm.edu ([128.239.2.31]:13585 "EHLO va.cs.wm.edu")
-	by vger.kernel.org with ESMTP id <S262553AbSJBTSQ>;
-	Wed, 2 Oct 2002 15:18:16 -0400
-Date: Wed, 02 Oct 2002 15:23:46 -0400
-From: Bruce Lowekamp <lowekamp@CS.WM.EDU>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.20-pre8 swaps ide controller order on A7V266-E
-Message-ID: <15570000.1033586626@chorus.cs.wm.edu>
-X-Mailer: Mulberry/3.0.0a4 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S262545AbSJBTQl>; Wed, 2 Oct 2002 15:16:41 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:54796
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262539AbSJBTQk>; Wed, 2 Oct 2002 15:16:40 -0400
+Subject: Re: flock(fd, LOCK_UN) taking 500ms+ ?
+From: Robert Love <rml@tech9.net>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Andrew Morton <akpm@digeo.com>, John Levon <levon@movementarian.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20021002193052.B28586@parcelfarce.linux.theplanet.co.uk>
+References: <20021002023901.GA91171@compsoc.man.ac.uk>
+	 <20021002032327.GA91947@compsoc.man.ac.uk>
+	 <20021002141435.A18377@parcelfarce.linux.theplanet.co.uk>
+	 <3D9B2734.D983E835@digeo.com>
+	 <20021002193052.B28586@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033586465.24108.77.camel@phantasy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 02 Oct 2002 15:21:06 -0400
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2002-10-02 at 14:30, Matthew Wilcox wrote:
 
-Starting with 2.4.19 and continuing in 2.4.20-pre8, the order the kernel 
-associates with the two IDE controllers (one VIA vt8233 and one PDC20265 
-intended for RAID use) on the A7V266-E has been reversed.  The BIOS and 
-GRUB consider the VIA to be first, so root(hd0,0) loads the kernel from the 
-first device on the VIA controller.  Prior to 2.4.19, the OS then booted 
-with that drive identified as hda.  Beginning with 2.4.19, however, the 
-kernel instead identifies the PDC as ide0 and ide1, and puts the VIA at 
-ide2 and ide3, resulting in the boot drive being hde.
+> Heh, you're so focused on perf tuning, Andrew!  It's not a matter of
+> locking, it's a matter of semantics.  Here's the comment:
+> 
+>  *  FL_FLOCK locks never deadlock, an existing lock is always removed before
+>  *  upgrading from shared to exclusive (or vice versa). When this happens
+>  *  any processes blocked by the current lock are woken up and allowed to
+>  *  run before the new lock is applied.
+>  *  Andy Walker (andy@lysaker.kvaerner.no), June 09, 1995
 
-I found an earlier mention of this on the mailing list, but no solution or 
-workaround was suggested.  We are using a workaround where 2.4.19 and later 
-kernels are booted with root=/dev/hde1 and earlier with hda1, and fstab 
-lists both hda2 and hde2 as swap partitions, simply failing to insert one. 
-This works, but the general ugliness and maintenance headaches since this 
-is different than the typical machine config we use around here make it 
-difficult to use in the long run.
+Oh, I understand now.  In this case, you actually do need to call
+yield() as gross as it is.
 
-I'm not sure what the process of identifying order of controllers involves, 
-but the discrepancy between the BIOS, older kernels, and newer kernels 
-seems like something that should be fixed if possible.
+You have four options:
 
-Thanks for any help,
-Bruce Lowekamp
-------------------------
-lspci reports the same information in 2.4.18, 2.4.19, and 2.4.20-pre8:
-00:06.0 Unknown mass storage controller: Promise Technology, Inc. 20265 
-(rev 02)
-00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06)
+- call schedule().  This will result in the highest priority task
+running again which may be you.  You will certainly end up running again
+in the near future and there may be processes blocked by the current
+lock which will not run before you continue.
 
-The relevant portion of the bootup messages from dmesg:
-2.4.18:
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PDC20265: IDE controller on PCI bus 00 dev 30
-PCI: Found IRQ 9 for device 00:06.0
-PCI: Sharing IRQ 9 with 00:11.2
-PCI: Sharing IRQ 9 with 00:11.3
-PCI: Sharing IRQ 9 with 00:11.4
-PDC20265: chipset revision 2
-PDC20265: not 100% native mode: will probe irqs later
-PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide2: BM-DMA at 0xa000-0xa007, BIOS settings: hde:pio, hdf:pio
-    ide3: BM-DMA at 0xa008-0xa00f, BIOS settings: hdg:pio, hdh:pio
-VP_IDE: IDE controller on PCI bus 00 dev 89
-PCI: Found IRQ 11 for device 00:11.1
-PCI: Sharing IRQ 11 with 01:00.0
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
-    ide0: BM-DMA at 0x9400-0x9407, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0x9408-0x940f, BIOS settings: hdc:DMA, hdd:pio
-hda: IC35L060AVER07-0, ATA DISK drive
-hdc: TOSHIBA DVD-ROM SD-M1612, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
+- call cond_resched().  Same as above but avoid the superfluous
+reschedule back to yourself, since if need_resched is unset we won't
+call schedule().
 
-2.4.20-pre8:
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-PDC20265: IDE controller on PCI bus 00 dev 30
-PCI: Found IRQ 9 for device 00:06.0
-PCI: Sharing IRQ 9 with 00:11.2
-PCI: Sharing IRQ 9 with 00:11.3
-PCI: Sharing IRQ 9 with 00:11.4
-PDC20265: chipset revision 2
-PDC20265: not 100% native mode: will probe irqs later
-PDC20265: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
-    ide0: BM-DMA at 0xa000-0xa007, BIOS settings: hda:pio, hdb:pio
-    ide1: BM-DMA at 0xa008-0xa00f, BIOS settings: hdc:pio, hdd:pio
-VP_IDE: IDE controller on PCI bus 00 dev 89
-PCI: Found IRQ 11 for device 00:11.1
-PCI: Sharing IRQ 11 with 01:00.0
-VP_IDE: chipset revision 6
-VP_IDE: not 100% native mode: will probe irqs later
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-VP_IDE: VIA vt8233 (rev 00) IDE UDMA100 controller on pci00:11.1
-    ide2: BM-DMA at 0x9400-0x9407, BIOS settings: hde:DMA, hdf:pio
-    ide3: BM-DMA at 0x9408-0x940f, BIOS settings: hdg:DMA, hdh:pio
-hde: IC35L060AVER07-0, ATA DISK drive
-hdg: TOSHIBA DVD-ROM SD-M1612, ATAPI CD/DVD-ROM drive
-ide2 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide3 at 0x170-0x177,0x376 on irq 15
+- call yield().  You are put at the end of the runqueue and thus all
+runnable tasks should run before you get to run again.
+
+- do nothing.  Always my choice :)
+
+So yield() is the only way to guarantee that all lock holders run before
+you do (it does not even do that, however: it is possible for you to get
+reinserted into the active array and thus it only guarantees that all
+lock holders at or above your priority get to run before you). 
+cond_resched() will guarantee all higher priority tasks run before you.
+
+If you REALLY want to assure you do not run at all until all the other
+lock holders ran, you would need to down() a semaphore and not wake up
+until all of them have run again (I have no idea how the flock code
+looks, if this is even feasible...). 
+
+> > If there really is a solid need to hand the CPU over to some now-runnable
+> > higher-priority process then a cond_resched() will suffice.
+> 
+> I think that's the right thing to do.  If I understand right, we'll
+> check needs_resched at syscall exit, so we don't need to do it for
+> unlocks, right?
+
+Right.  On return to user-space need_resched will be checked and
+schedule() called if it is set.
+
+However, it is only set if the newly woken up tasks have a higher
+priority than you.  Otherwise, schedule() would just select you again.
+
+	Robert Love
 

@@ -1,49 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbTIZMRO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 08:17:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262108AbTIZMPM
+	id S262128AbTIZM04 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 08:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbTIZM04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 08:15:12 -0400
-Received: from ptb-mailc05.plus.net ([212.159.14.211]:5893 "EHLO
-	ptb-mailc05.plus.net") by vger.kernel.org with ESMTP
-	id S262074AbTIZMOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 08:14:51 -0400
-Date: Fri, 26 Sep 2003 13:15:35 +0100
-From: Chris Sykes <chris@spackhandychoptubes.co.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Kernel panic on 2.4.22 (no TSC) when compiled for i486
-Message-ID: <20030926121535.GB16991@spackhandychoptubes.co.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030926084848.GA16991@spackhandychoptubes.co.uk> <16244.9644.70305.752172@gargle.gargle.HOWL>
+	Fri, 26 Sep 2003 08:26:56 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:15004 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262128AbTIZM0w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 08:26:52 -0400
+Date: Fri, 26 Sep 2003 14:26:46 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Matthew Wilcox <willy@debian.org>
+Cc: Steven Dake <sdake@mvista.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: kernel BUG using multipath on 2.6.0-test5
+Message-ID: <20030926122646.GA15415@suse.de>
+References: <1064541435.4763.51.camel@persist.az.mvista.com> <20030926121703.GG24824@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16244.9644.70305.752172@gargle.gargle.HOWL>
-x-gpg-fingerprint: 1D0A 139D DDA3 F02F 6FC0  B2CA CBC6 5EC0 540A F377
-x-gpg-key: wwwkeys.pgp.net
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030926121703.GG24824@parcelfarce.linux.theplanet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 26, 2003 at 01:40:28PM +0200, Mikael Pettersson wrote:
-> system which triggers when you change an option which has
-> derived options.
+On Fri, Sep 26 2003, Matthew Wilcox wrote:
+> On Thu, Sep 25, 2003 at 06:57:15PM -0700, Steven Dake wrote:
+> > kernel BUG at drivers/scsi/scsi_lib.c:544!
 > 
-> In this case, when first configuring for a CPU with TSC the
-> derived CONFIG_X86_TSC option is added. Then when reconfiguring
-> for a TSC-less CPU (e.g., 486) the derived option stays because
-> it derived from something that _was_ defined at the start of the
-> config run.
+>         BUG_ON(!cmd->use_sg);
 > 
-> The workaround is to do an additional 'make oldconfig', after
-> which the derived option will be gone.
+> >  [<c01f631d>] scsi_init_io+0x7a/0x13d
+> 
+> static int scsi_init_io(struct scsi_cmnd *cmd)
+>         struct request     *req = cmd->request;
+>         cmd->use_sg = req->nr_phys_segments;
+>         sgpnt = scsi_alloc_sgtable(cmd, GFP_ATOMIC);
+> 
+> >  [<c01f6455>] scsi_prep_fn+0x75/0x171
+> 
+> static int scsi_prep_fn(struct request_queue *q, struct request *req)
+>         struct scsi_cmnd *cmd;
+>         cmd->request = req;
+>         ret = scsi_init_io(cmd);
+> 
+> .. this is getting outside my area of confidence.  Ask axboe why we might
+> get a zero nr_phys_segments request passed in.
 
-OK.  Thanks for the info.
+Looks like an mp bug. I'd suggest adding something ala
+
+	if (!rq->nr_phys_segments || !rq->nr_hw_segments) {
+		blk_dump_rq_flags(req, "scsi_init_io");
+		return BLKPREP_KILL;
+	}
+
+inside the first
+
+	} else if (req->flags & (REQ_CMD | REQ_BLOCK_PC)) {
+
+drivers/scsi/scsi_lib.c:scsi_prep_fn(). That will show the state of such
+a buggy request. I'm pretty sure this is an mp bug though.
 
 -- 
-
-(o-  Chris Sykes  -- GPG Key: http://www.sigsegv.plus.com/key.txt
-//\       "Don't worry. Everything is getting nicely out of control ..."
-V_/_                          Douglas Adams - The Salmon of Doubt
+Jens Axboe
 

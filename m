@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310190AbSIDRjf>; Wed, 4 Sep 2002 13:39:35 -0400
+	id <S311025AbSIDRlG>; Wed, 4 Sep 2002 13:41:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311749AbSIDRjf>; Wed, 4 Sep 2002 13:39:35 -0400
-Received: from to-velocet.redhat.com ([216.138.202.10]:23023 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S310190AbSIDRje>; Wed, 4 Sep 2002 13:39:34 -0400
-Date: Wed, 4 Sep 2002 13:44:07 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "Joseph N. Hall" <joseph@5sigma.com>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: IDE-DVD problems [excuse former idiotic topic]
-Message-ID: <20020904134407.H1394@redhat.com>
-References: <200209041553.g84Frl130632@mx1.redhat.com>
+	id <S311749AbSIDRlG>; Wed, 4 Sep 2002 13:41:06 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:1620 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S311025AbSIDRlF>; Wed, 4 Sep 2002 13:41:05 -0400
+Date: Wed, 4 Sep 2002 13:45:33 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Itai Nahshon <nahshon@actcom.co.il>
+Cc: linux-kernel@vger.kernel.org, mdharm-usb@one-eyed-alien.net
+Subject: Re: Linux 2.4.20-pre4-ac2
+Message-ID: <20020904134533.A8891@devserv.devel.redhat.com>
+References: <200208261035.g7QAZ4G19985@devserv.devel.redhat.com> <200208270201.53750.nahshon@actcom.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200209041553.g84Frl130632@mx1.redhat.com>; from joseph@5sigma.com on Wed, Sep 04, 2002 at 09:11:00AM -0700
+In-Reply-To: <200208270201.53750.nahshon@actcom.co.il>; from nahshon@actcom.co.il on Tue, Aug 27, 2002 at 02:01:53AM +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 04, 2002 at 09:11:00AM -0700, Joseph N. Hall wrote:
-> Right, but it will work with or without DMA, for some definition
-> of "work."  Or it should work, right?
+> From: Itai Nahshon <nahshon@actcom.co.il>
+> Date: Tue, 27 Aug 2002 02:01:53 +0300
 
-Define "work".  hdparm -d1 doesn't just work, it requires making sure that 
-the drive and interface are properly programmed to the correct transfer rates 
-first (read as: hdparm -d1 can be Bad).  Using the kernel defaults is much 
-better as the probe code will make sure that everything is setup correctly.  
-Andre can provide more details and help fix things if it doesn't actually 
-work for your drive.
+> +++ linux-2.4.20-pre4-ac2-i2/drivers/usb/storage/transport.c	Mon Aug 26 
+> 23:24:53 2002
+> @@ -1164,6 +1164,10 @@
+>  				ret = USB_STOR_TRANSPORT_ABORTED;
+>  				goto out;
+>  			}
+> +			if (result == US_BULK_TRANSFER_FAILED) {
+> +				ret = USB_STOR_TRANSPORT_FAILED;
+> +				goto out;
+> +			}
+>  		}
+>  	}
+> 
+> There's a check for US_BULK_TRANSFER_FAILED after
+> a call to usb_stor_transfer everywhere except here... Is it for 
+> a reason?
 
-> Do you know anyone who has gotten this particular drive to work?
-> Or for that matter if there are any troubles with the KT333
-> chipset?  I wouldn't be surprised if there are some interrupt
-> "issues" with KT333 because my plain old IDE performance was
-> not good under the stock 2.4.18-3 kernel ... it would do some
-> of the same things (lots of system time, temporary "pauses",
-> etc.).
+Itai, submit this to Matt. I saw it too, coming from our Japan
+support office. They claim a probem with installs from USB CD-ROM.
+The report was very murky and I was unable to get any details
+or confirm it, but it seems independent at least.
 
-You might need to upgrade from the -3 kernel (several errata have 
-been released) as there were a few known problems with some network 
-drivers, as well as NFS and ext3.  Different drives also have varing 
-amounts of cache, and it might be this that you're noticing.
-
-> I am also having problems with the C-Media onboard audio +
-> ALSA (0.9 rc3) ... it hangs the system (totally) after playing
-> for a few seconds.  So that is another strike against this
-> particular h/w configuration.
-
-Again, try a newer kernel.  I'm using a C-Media at home and it works 
-pretty well for ogg/DVD playback.
-
-		-ben
--- 
-"You will be reincarnated as a toad; and you will be much happier."
+-- Pete

@@ -1,240 +1,192 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284902AbRLKHHQ>; Tue, 11 Dec 2001 02:07:16 -0500
+	id <S284914AbRLKHI0>; Tue, 11 Dec 2001 02:08:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284914AbRLKHG5>; Tue, 11 Dec 2001 02:06:57 -0500
-Received: from [202.135.142.194] ([202.135.142.194]:24588 "EHLO
-	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
-	id <S284913AbRLKHGr>; Tue, 11 Dec 2001 02:06:47 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org
-cc: lse-tech@lists.sourceforge.net
-Subject: hackbench: New Multiqueue Scheduler Benchmark
-Date: Tue, 11 Dec 2001 18:07:39 +1100
-Message-Id: <E16Dh0t-0003yl-00@wagner.rustcorp.com.au>
+	id <S284918AbRLKHIS>; Tue, 11 Dec 2001 02:08:18 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:64272 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S284914AbRLKHIK>; Tue, 11 Dec 2001 02:08:10 -0500
+Message-ID: <3C15B0B3.1399043B@zip.com.au>
+Date: Mon, 10 Dec 2001 23:07:31 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.16 & OOM killer screw up (fwd)
+In-Reply-To: <Pine.LNX.4.21.0112101705281.25362-100000@freak.distro.conectiva> <3C151F7B.44125B1@zip.com.au>,
+		<3C151F7B.44125B1@zip.com.au>; from akpm@zip.com.au on Mon, Dec 10, 2001 at 12:47:55PM -0800 <20011211011158.A4801@athlon.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Andrea Arcangeli wrote:
+> 
+> On Mon, Dec 10, 2001 at 12:47:55PM -0800, Andrew Morton wrote:
+> > Marcelo Tosatti wrote:
+> > >
+> > > Andrea,
+> > >
+> > > Could you please start looking at any 2.4 VM issues which show up ?
+> > >
+> >
+> > Just fwiw, I did some testing on this yesterday.
+> >
+> > Buffers and cache data are sitting on the active list, and shrink_caches()
+> > is *not* getting them off the active list, and onto the inactive list
+> > where they can be freed.
+> 
+> please check 2.4.17pre4aa1, see the per-classzone info, they will
+> prevent all the problems with the refill inactive with highmem.
 
-	I've cut down the chat benchmark into a version which doesn't
-use threads or semaphores, and called it hackbench:
+This is not highmem-related.  But the latest -aa patch does
+appear to have fixed this bug.  Stale memory is no longer being
+left on the active list, and all buffercache memory is being reclaimed
+before the oom-killer kicks in (swapless case).
 
-On a 12-way PPC64:
-2.4.17-pre7:
-	hackbench 50: Time: 851.469 Time: 847.143 Time: 826.868
+Also, (and this is in fact the same problem), the patched kernel
+has less tendency to push in-use memory out to swap while leaving
+tens of megs of old memory on the active list.  This is all good.
 
-2.4.17-pre7-multiqueue-patch:
-	hackbench 50: Time: 15.120 Time: 14.766 Time: 15.067
+Which of your changes has caused this?
 
-"hackbench 1" creates a group of 20 processes listening on a socket
-each, and 20 writers: each of the writers writes 100 messages to each
-socket (ie. 20 x 100 messages each).
+Could you please separate this out into one or more specific patches for
+the 2.4.17 series?
 
-"hackbench 50" simply runs 50 of these groups in parallel.  You'd
-expect it to be 5 times slower than hackbench 10, but without the
-multiqueue patch:
 
-10: Time: 10.573 Time: 13.471 Time: 9.289
-50: Time: 851.469 Time: 847.143 Time: 826.868
 
-Enjoy,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-/* Test groups of 20 processes spraying to 20 receivers */
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/wait.h>
-#include <sys/time.h>
-#include <sys/poll.h>
 
-#define DATASIZE 100
-static unsigned int loops = 100;
-static int use_pipes = 0;
+Why does this code exist at the end of refill_inactive()?
 
-static void barf(const char *msg)
-{
-	fprintf(stderr, "%s (error: %s)\n", msg, strerror(errno));
-	exit(1);
-}
+        if (entry != &active_list) {
+                list_del(&active_list);
+                list_add(&active_list, entry);
+        }
 
-static void fdpair(int fds[2])
-{
-	if (use_pipes) {
-		if (pipe(fds) == 0)
-			return;
-	} else {
-		if (socketpair(AF_UNIX, SOCK_STREAM, 0, fds) == 0)
-			return;
-	}
-	barf("Creating fdpair");
-}
 
-/* Block until we're ready to go */
-static void ready(int ready_out, int wakefd)
-{
-	char dummy;
-	struct pollfd pollfd = { .fd = wakefd, .events = POLLIN };
 
-	/* Tell them we're ready. */
-	if (write(ready_out, &dummy, 1) != 1)
-		barf("CLIENT: ready write");
 
-	/* Wait for "GO" signal */
-	if (poll(&pollfd, 1, -1) != 1)
-		barf("poll");
-}
 
-/* Sender sprays loops messages down each file descriptor */
-static void sender(unsigned int num_fds,
-		   int out_fd[num_fds],
-		   int ready_out,
-		   int wakefd)
-{
-	char data[DATASIZE];
-	unsigned int i, j;
+This test on a 64 megabyte machine, on ext2:
 
-	ready(ready_out, wakefd);
+	time (tar xfz /nfsserver/linux-2.4.16.tar.gz ; sync)
 
-	/* Now pump to every receiver. */
-	for (i = 0; i < loops; i++) {
-		for (j = 0; j < num_fds; j++) {
-			int ret, done = 0;
+On 2.4.17-pre7 it takes 21 seconds.  On -aa it is much slower: 36 seconds.
 
-		again:
-			ret = write(out_fd[j], data + done, sizeof(data)-done);
-			if (ret < 0)
-				barf("SENDER: write");
-			done += ret;
-			if (done < sizeof(data))
-				goto again;
-		}
-	}
-}
+This is probably due to the write scheduling changes in fs/buffer.c.
+This chunk especially will, under some conditions, cause bdflush
+to madly spin in a loop unplugging all the disk queues:
 
-/* One receiver per fd */
-static void receiver(unsigned int num_packets,
-		     int in_fd,
-		     int ready_out,
-		     int wakefd)
-{
-	unsigned int i;
+@@ -2787,7 +2795,7 @@
+ 
+                spin_lock(&lru_list_lock);
+                if (!write_some_buffers(NODEV) || balance_dirty_state() < 0) {
+-                       wait_for_some_buffers(NODEV);
++                       run_task_queue(&tq_disk);
+                        interruptible_sleep_on(&bdflush_wait);
+                }
+        }
 
-	/* Wait for start... */
-	ready(ready_out, wakefd);
+Why did you make this change?
 
-	/* Receive them all */
-	for (i = 0; i < num_packets; i++) {
-		char data[DATASIZE];
-		int ret, done = 0;
 
-	again:
-		ret = read(in_fd, data + done, DATASIZE - done);
-		if (ret < 0)
-			barf("SERVER: read");
-		done += ret;
-		if (done < DATASIZE)
-			goto again;
-	}
-}
 
-/* One group of senders and receivers */
-static unsigned int group(unsigned int num_fds,
-			  int ready_out,
-			  int wakefd)
-{
-	unsigned int i;
-	unsigned int out_fds[num_fds];
 
-	for (i = 0; i < num_fds; i++) {
-		int fds[2];
 
-		/* Create the pipe between client and server */
-		fdpair(fds);
+Execution time for `make -j12 bzImage' on a 64meg RAM/512 meg swap
+dual x86:
 
-		/* Fork the receiver. */
-		switch (fork()) {
-		case -1: barf("fork()");
-		case 0:
-			close(fds[1]);
-			receiver(num_fds*loops, fds[0], ready_out, wakefd);
-			exit(0);
-		}
+-aa:					4 minutes 20 seconds
+2.4.7-pre8				4 minutes 8 seconds
+2.4.7-pre8 plus the below patch:	3 minutes 55 seconds
 
-		out_fds[i] = fds[1];
-		close(fds[0]);
-	}
+Now it could be that this performance regression is due to the
+write merging mistake in fs/buffer.c.  But with so much unrelated
+material in the same patch it's hard to pinpoint the source.
 
-	/* Now we have all the fds, fork the senders */
-	for (i = 0; i < num_fds; i++) {
-		switch (fork()) {
-		case -1: barf("fork()");
-		case 0:
-			sender(num_fds, out_fds, ready_out, wakefd);
-			exit(0);
-		}
-	}
 
-	/* Close the fds we have left */
-	for (i = 0; i < num_fds; i++)
-		close(out_fds[i]);
 
-	/* Return number of children to reap */
-	return num_fds * 2;
-}
+--- linux-2.4.17-pre8/mm/vmscan.c	Thu Nov 22 23:02:59 2001
++++ linux-akpm/mm/vmscan.c	Mon Dec 10 22:34:18 2001
+@@ -537,7 +537,7 @@ static void refill_inactive(int nr_pages
+ 
+ 	spin_lock(&pagemap_lru_lock);
+ 	entry = active_list.prev;
+-	while (nr_pages-- && entry != &active_list) {
++	while (nr_pages && entry != &active_list) {
+ 		struct page * page;
+ 
+ 		page = list_entry(entry, struct page, lru);
+@@ -551,6 +551,7 @@ static void refill_inactive(int nr_pages
+ 		del_page_from_active_list(page);
+ 		add_page_to_inactive_list(page);
+ 		SetPageReferenced(page);
++		nr_pages--;
+ 	}
+ 	spin_unlock(&pagemap_lru_lock);
+ }
+@@ -561,6 +562,12 @@ static int shrink_caches(zone_t * classz
+ 	int chunk_size = nr_pages;
+ 	unsigned long ratio;
+ 
++	shrink_dcache_memory(priority, gfp_mask);
++	shrink_icache_memory(priority, gfp_mask);
++#ifdef CONFIG_QUOTA
++	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
++#endif
++
+ 	nr_pages -= kmem_cache_reap(gfp_mask);
+ 	if (nr_pages <= 0)
+ 		return 0;
+@@ -568,17 +575,13 @@ static int shrink_caches(zone_t * classz
+ 	nr_pages = chunk_size;
+ 	/* try to keep the active list 2/3 of the size of the cache */
+ 	ratio = (unsigned long) nr_pages * nr_active_pages / ((nr_inactive_pages + 1) * 2);
++	if (ratio == 0)
++		ratio = nr_pages;
+ 	refill_inactive(ratio);
+ 
+ 	nr_pages = shrink_cache(nr_pages, classzone, gfp_mask, priority);
+ 	if (nr_pages <= 0)
+ 		return 0;
+-
+-	shrink_dcache_memory(priority, gfp_mask);
+-	shrink_icache_memory(priority, gfp_mask);
+-#ifdef CONFIG_QUOTA
+-	shrink_dqcache_memory(DEF_PRIORITY, gfp_mask);
+-#endif
+ 
+ 	return nr_pages;
+ }
 
-int main(int argc, char *argv[])
-{
-	unsigned int i, num_groups, total_children;
-	struct timeval start, stop, diff;
-	unsigned int num_fds = 20;
-	int readyfds[2], wakefds[2];
-	char dummy;
+> ...
+> 
+> >
+> > In my swapless testing, I burnt HUGE amounts of CPU in flush_tlb_others().
+> > So we're madly trying to swap pages out and finding that there's no swap
+> > space.  I beleive that when we find there's no swap left we should move
+> > the page onto the active list so we don't keep rescanning it pointlessly.
+> 
+> yes, however I think the swap-flood with no swap isn't a very
+> interesting case to optimize.
 
-	if (argv[1] && strcmp(argv[1], "-pipe") == 0) {
-		use_pipes = 1;
-		argc--;
-		argv++;
-	}
+Running swapless is a valid configuration, and the kernel is doing
+great amounts of pointless work.  I would expect a diskless workstation
+to suffer from this.  The problem remains in latest -aa.  It would be
+useful to find a fix.
+ 
+> 
+> I don't have any pending bug report. AFIK those bugs are only in
+> mainline. If you can reproduce with -aa please send me a bug report.
+> thanks,
 
-	if (argc != 2 || (num_groups = atoi(argv[1])) == 0)
-		barf("Usage: hackbench [-pipe] <num groups>\n");
+Bugs which are only fixed in -aa aren't much use to anyone.
 
-	fdpair(readyfds);
-	fdpair(wakefds);
+The VM code lacks comments, and nobody except yourself understands
+what it is supposed to be doing.  That's a bug, don't you think?
 
-	total_children = 0;
-	for (i = 0; i < num_groups; i++)
-		total_children += group(num_fds, readyfds[1], wakefds[0]);
-
-	/* Wait for everyone to be ready */
-	for (i = 0; i < total_children; i++)
-		if (read(readyfds[0], &dummy, 1) != 1)
-			barf("Reading for readyfds");
-
-	gettimeofday(&start, NULL);
-
-	/* Kick them off */
-	if (write(wakefds[1], &dummy, 1) != 1)
-		barf("Writing to start them");
-
-	/* Reap them all */
-	for (i = 0; i < total_children; i++) {
-		int status;
-		wait(&status);
-		if (!WIFEXITED(status))
-			exit(1);
-	}
-
-	gettimeofday(&stop, NULL);
-
-	/* Print time... */
-	timersub(&stop, &start, &diff);
-	printf("Time: %lu.%03lu\n", diff.tv_sec, diff.tv_usec/1000);
-	exit(0);
-}
+-

@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266073AbUHARci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266085AbUHAReJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266073AbUHARci (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 13:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266114AbUHARcg
+	id S266085AbUHAReJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 13:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266081AbUHAReJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 13:32:36 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:11941 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S266073AbUHARb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 13:31:57 -0400
-Date: Sun, 1 Aug 2004 19:31:52 +0200
-From: Harald Welte <laforge@netfilter.org>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: James Morris <jmorris@intercode.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
-Subject: Re: [2.6 patch] netfilter/ip_nat_snmp_basic.c: fix inlines (fwd)
-Message-ID: <20040801173152.GG14539@sunbeam2>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	Adrian Bunk <bunk@fs.tum.de>,
-	James Morris <jmorris@intercode.com.au>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	netfilter-devel@lists.netfilter.org
-References: <20040729212048.GD23589@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xs+9IvWevLaxKUtW"
-Content-Disposition: inline
-In-Reply-To: <20040729212048.GD23589@fs.tum.de>
-User-Agent: Mutt/1.5.6+20040523i
-X-Spam-Score: -4.9 (----)
+	Sun, 1 Aug 2004 13:34:09 -0400
+Received: from wsip-68-14-253-125.ph.ph.cox.net ([68.14.253.125]:905 "EHLO
+	office.labsysgrp.com") by vger.kernel.org with ESMTP
+	id S266116AbUHARdG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Aug 2004 13:33:06 -0400
+Message-ID: <410D2949.20503@backtobasicsmgmt.com>
+Date: Sun, 01 Aug 2004 10:32:57 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back To Basics Network Management
+User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Phillips <phillips@istop.com>
+CC: "Walker, Bruce J" <bruce.walker@hp.com>,
+       Discussion of clustering software components including
+	 GFS <linux-cluster@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       opengfs-devel@lists.sourceforge.net,
+       opengfs-users@lists.sourceforge.net,
+       opendlm-devel@lists.sourceforge.net
+Subject: Re: [Linux-cluster] Re: [ANNOUNCE] OpenSSI 1.0.0 released!!
+References: <3689AF909D816446BA505D21F1461AE4C750E6@cacexc04.americas.cpqcorp.net> <200408011330.01848.phillips@istop.com>
+In-Reply-To: <200408011330.01848.phillips@istop.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
 
---xs+9IvWevLaxKUtW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Saturday 31 July 2004 12:00, Walker, Bruce J wrote:
+> 
+>>In the 2.4 implementation, providing this one capability by
+>>leveraging devfs was quite economic, efficient and has been very stable.
+> 
+> 
+> I wonder if device-mapper (slightly hacked) wouldn't be a better approach for 
+> 2.6+.
 
-On Thu, Jul 29, 2004 at 11:20:49PM +0200, Adrian Bunk wrote:
->=20
-> FYI:
-> The patch forwarded below is still required in 2.6.8-rc2-mm1.
-
-I've pushed your patch to DaveM now.  Apparently some gcc-3.4 specific
-issue...
-
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---xs+9IvWevLaxKUtW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBDSkIXaXGVTD0i/8RAsD8AJ4txHIHfG1T6pLzJ2iCaqwxvZ3avQCeNN5y
-L3IoXydcPIb8H0N9IxwcIO8=
-=plPE
------END PGP SIGNATURE-----
-
---xs+9IvWevLaxKUtW--
+It appeared from the original posting that their "cluster-wide devfs" 
+actually supported all types of device nodes, not just block devices. I 
+don't know whether accessing a character device on another node would 
+ever be useful, but certainly using device-mapper wouldn't help for that 
+case.

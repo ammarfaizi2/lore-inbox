@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263454AbTCNSVt>; Fri, 14 Mar 2003 13:21:49 -0500
+	id <S263440AbTCNSS0>; Fri, 14 Mar 2003 13:18:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263455AbTCNSVt>; Fri, 14 Mar 2003 13:21:49 -0500
-Received: from employees.nextframe.net ([213.160.234.200]:31477 "EHLO
-	toosexy.nextframe.net") by vger.kernel.org with ESMTP
-	id <S263454AbTCNSVr>; Fri, 14 Mar 2003 13:21:47 -0500
-Date: Fri, 14 Mar 2003 19:34:16 +0100
-From: Morten Helgesen <morten.helgesen@nextframe.net>
-To: alan@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re:  Linux 2.5.64-ac4
-Message-ID: <20030314183416.GA1462@toosexy>
-Reply-To: morten.helgesen@nextframe.net
-References: <200303141509.h2EF9R017016@devserv.devel.redhat.com> <20030314165317.GA543@toosexy>
+	id <S263441AbTCNSS0>; Fri, 14 Mar 2003 13:18:26 -0500
+Received: from mcgroarty.net ([64.81.147.195]:38035 "EHLO pinkbits.internal")
+	by vger.kernel.org with ESMTP id <S263437AbTCNSSZ>;
+	Fri, 14 Mar 2003 13:18:25 -0500
+Date: Fri, 14 Mar 2003 12:29:41 -0600
+To: Larry McVoy <lm@work.bitmover.com>, Lars Marowsky-Bree <lmb@suse.de>,
+       Pavel Machek <pavel@suse.cz>,
+       kernel list <linux-kernel@vger.kernel.org>, vojtech@suse.cz,
+       lm@bitmover.com
+Subject: Re: Never ever use word BitKeeper if Larry does not like you
+Message-ID: <20030314182941.GA18586@mcgroarty.net>
+References: <20030314105132.GB14270@atrey.karlin.mff.cuni.cz> <20030314115055.GR1211@marowsky-bree.de> <20030314144347.GA8937@work.bitmover.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030314165317.GA543@toosexy>
-User-Agent: Mutt/1.4i
-X-Editor: VIM - Vi IMproved 6.1
-X-Operating-System: Slackware Linux (of course)
+In-Reply-To: <20030314144347.GA8937@work.bitmover.com>
+From: Brian McGroarty <brian@mcgroarty.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 14, 2003 at 05:53:17PM +0100, Morten Helgesen wrote:
-> Hi Alan, 
+On Fri, Mar 14, 2003 at 06:43:47AM -0800, Larry McVoy wrote:
+> On Fri, Mar 14, 2003 at 12:50:55PM +0100, Lars Marowsky-Bree wrote:
+> > 
+> > Ok, Larry, you have finally done the coyote stunt. Please report how it really
+> > feels, stepping of the cliff.
 > 
-> On Fri, Mar 14, 2003 at 10:09:27AM -0500, Alan Cox wrote:
-> > Linux 2.5.64-ac4
+> It feels just fine, perhaps because I haven't stepped off any cliff. 
 > 
-> it looks like someone changed the prototypes in includes/linux/fb.h 
-> without changing the actual functions ... 
+> You might want to stop and consider what SuSE would do if someone decided
+> they didn't like SuSE and came up with a pathetic shell script and started
+> describing it as "a system compatible with SuSE".  I'm pretty sure that
+> your lawyers would be all over them in about 30 seconds.  Ditto for Red
 
-s/includes/include/ ... doh
+To make the analogy more appropriate...
 
-> 
-> -extern void cfb_fillrect(struct fb_info *info, struct fb_fillrect *rect);
-> -extern void cfb_copyarea(struct fb_info *info, struct fb_copyarea *area);
-> -extern void cfb_imageblit(struct fb_info *info, struct fb_image *image);
-> +extern void cfb_fillrect(struct fb_info *info, const struct fb_fillrect *rect);
-> +extern void cfb_copyarea(struct fb_info *info, const struct fb_copyarea *area);
-> +extern void cfb_imageblit(struct fb_info *info, const struct fb_image *image);
-> 
-> drivers/video/cfbcopyarea.c:346: conflicting types for `cfb_copyarea'
-> include/linux/fb.h:459: previous declaration of `cfb_copyarea'
-> make[3]: *** [drivers/video/cfbcopyarea.o] Error 1
-> make[2]: *** [drivers/video] Error 2
-> 
-> == Morten
-> 
-> -- 
-> 
-> "Livet er ikke for nybegynnere" - sitat fra en klok person.
-> 
-> Morten Helgesen 
-> UNIX System Administrator & C Developer 
-> Nextframe AS
-> morten.helgesen@nextframe.net / 93445641
-> http://www.nextframe.net
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-
-"Livet er ikke for nybegynnere" - sitat fra en klok person.
-
-Morten Helgesen 
-UNIX System Administrator & C Developer 
-Nextframe AS
-morten.helgesen@nextframe.net / 93445641
-http://www.nextframe.net
+I am sure that SuSE would be all over the party titling and promoting
+the shell script, but I don't think SuSE would be so quick to mention
+anything to do with the employer of the person who independently
+created the shell script.

@@ -1,41 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129883AbQKGHaB>; Tue, 7 Nov 2000 02:30:01 -0500
+	id <S130307AbQKGHdl>; Tue, 7 Nov 2000 02:33:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130555AbQKGH3v>; Tue, 7 Nov 2000 02:29:51 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:50562 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129883AbQKGH3e>;
-	Tue, 7 Nov 2000 02:29:34 -0500
-Date: Mon, 6 Nov 2000 23:14:35 -0800
-Message-Id: <200011070714.XAA02517@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: ak@suse.de
-CC: jordy@napster.com, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-In-Reply-To: <20001107081604.A2410@gruyere.muc.suse.de> (message from Andi
-	Kleen on Tue, 7 Nov 2000 08:16:04 +0100)
+	id <S130403AbQKGHdd>; Tue, 7 Nov 2000 02:33:33 -0500
+Received: from 64.124.41.10.napster.com ([64.124.41.10]:7428 "EHLO
+	foobar.napster.com") by vger.kernel.org with ESMTP
+	id <S130307AbQKGHdV>; Tue, 7 Nov 2000 02:33:21 -0500
+Message-ID: <3A07B01A.1E70EE20@napster.com>
+Date: Mon, 06 Nov 2000 23:32:42 -0800
+From: Jordan Mendelson <jordy@napster.com>
+Organization: Napster, Inc.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
 Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-In-Reply-To: <3A07662F.39D711AE@napster.com> <200011070428.UAA01710@pizda.ninka.net> <3A079127.47B2B14C@napster.com> <200011070533.VAA02179@pizda.ninka.net> <3A079D83.2B46A8FD@napster.com> <200011070603.WAA02292@pizda.ninka.net> <20001107080342.A2159@gruyere.muc.suse.de> <200011070659.WAA02448@pizda.ninka.net> <20001107081604.A2410@gruyere.muc.suse.de>
+In-Reply-To: <3A07662F.39D711AE@napster.com> <200011070428.UAA01710@pizda.ninka.net> <3A079127.47B2B14C@napster.com> <200011070533.VAA02179@pizda.ninka.net> <3A079D83.2B46A8FD@napster.com> <200011070603.WAA02292@pizda.ninka.net> <3A07A4B0.A7E9D62@napster.com> <200011070656.WAA02435@pizda.ninka.net> <3A07AC45.DCC961FF@napster.com> <200011070712.XAA02511@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Tue, 7 Nov 2000 08:16:04 +0100
-   From: Andi Kleen <ak@suse.de>
+"David S. Miller" wrote:
+> 
+>    Date: Mon, 06 Nov 2000 23:16:21 -0800
+>    From: Jordan Mendelson <jordy@napster.com>
+> 
+>    "David S. Miller" wrote:
+>    > It is clear though, that something is messing with or corrupting the
+>    > packets.  One thing you might try is turning off TCP header
+>    > compression for the PPP link, does this make a difference?
+> 
+>    Actually, there has been several reports that turning header
+>    compression does help.
+> 
+> If this is what is causing the TCP sequence numbers to change
+> then either Win98's or Earthlink terminal server's implementation
+> of TCP header compression is buggy.
+> 
+> Assuming this is true, it explains why Win98's TCP does not "see" the
+> data sent by Linux, because such a bug would make the TCP checksum of
+> these packets incorrect and thus dropped by Win98's TCP.
 
-   Hmm. One of these weird bandwidth limiters again?
+Ok, but why doesn't 2.2.16 exhibit this behavior?
 
-In a more recent mail, TCP header compression in Win98 or Earthlink's
-terminal servers have become the current prime suspect. :-)
+We've had reports from quite a number of people complaining about this
+and I'm fairly certain not all of them are from Earthlink.
 
-   The RTT is lower than 2.2's initial 3s RTT, so 2.2 would never see
-   it.
 
-The 240 traces are using an RTT of 3s (look at the time difference of
-the first retransmit), so this is not it.
-
-Later,
-David S. Miller
-davem@redhat.com
-
+Jordan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

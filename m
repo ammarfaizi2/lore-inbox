@@ -1,99 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289214AbSA1P22>; Mon, 28 Jan 2002 10:28:28 -0500
+	id <S289222AbSA1PaU>; Mon, 28 Jan 2002 10:30:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289218AbSA1P2V>; Mon, 28 Jan 2002 10:28:21 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:25184 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289214AbSA1P2I>; Mon, 28 Jan 2002 10:28:08 -0500
-Date: Mon, 28 Jan 2002 16:29:16 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18pre4aa1
-Message-ID: <20020128162916.B1309@athlon.random>
-In-Reply-To: <20020124002342.A630@earthlink.net> <E16ToWW-0002mf-00@starship.berlin> <20020125010907.D25170@athlon.random> <E16V8Te-00008L-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E16V8Te-00008L-00@starship.berlin>; from phillips@bonn-fries.net on Mon, Jan 28, 2002 at 10:53:25AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S289219AbSA1PaJ>; Mon, 28 Jan 2002 10:30:09 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:63617 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S289218AbSA1PaC>; Mon, 28 Jan 2002 10:30:02 -0500
+Date: Mon, 28 Jan 2002 10:32:03 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Alex Davis <alex14641@yahoo.com>
+cc: Daniel Phillips <phillips@bonn-fries.net>, linux-kernel@vger.kernel.org
+Subject: Re: Don't use dbench for benchmarks
+In-Reply-To: <20020128144319.67654.qmail@web9203.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1020128100010.15936A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 28, 2002 at 10:53:25AM +0100, Daniel Phillips wrote:
-> On January 25, 2002 01:09 am, Andrea Arcangeli wrote:
-> > On Thu, Jan 24, 2002 at 07:27:43AM +0100, Daniel Phillips wrote:
-> > > On January 24, 2002 06:23 am, rwhron@earthlink.net wrote:
-> > > > Benchmarks on 2.4.18pre4aa1 and lots of other kernels at:
-> > > > http://home.earthlink.net/~rwhron/kernel/k6-2-475.html
-> > > 
-> > >   "dbench 64, 128, 192 on ext2fs. dbench may not be the best I/O 
-> > >   benchmark, but it does create a high load, and may put some pressure on 
-> > >   the cpu and i/o schedulers. Each dbench process creates about 21 
-> > >   megabytes worth of files, so disk usage is 1.3 GB, 2.6 GB and 4.0 GB 
-> > >   for the dbench runs. Big enough so the tests cannot run from the 
-> > >   buffer/page caches on this box."
-> > > 
-> > > Thanks kindly for the testing, but please don't use dbench any more for 
-> > > benchmarks.  If you are testing stability, fine, but dbench throughput 
-> > > numbers are not good for much more than wild goose chases.
-> > > 
-> > > Even when mostly uncached, dbench still produces flaky results.
+On Mon, 28 Jan 2002, Alex Davis wrote:
+
+> 
+> --- Daniel Phillips <phillips@bonn-fries.net> wrote:
+> > On January 27, 2002 05:35 am, Alex Davis wrote:
+> > > I ran dbench on three different kernels: 2.4.17 w/ rmap12a, 2.4.18pre7, and
+> > > 2.4.18pre7 w/ rmap12a. 2.4.18pre7 had better throughput by a substantial 
+> > > margin. The results are at http://www.dynamicbullet.com/rmap.html
 > > 
-> > this is not enterely true. dbench has a value.
+> > I must be having a bad day, I can only think of irritable things to post.
+> I don't consider this "irritable".
+> > Continuing that theme: please don't use dbench for benchmarks.  At all.
+> > It's an unreliable indicator of anything in particular except perhaps
+> > stability.  Please, use something else for your benchmarks.
+> What do you suggest as an acceptable benchmark??? 
 > 
-> Yes, but not for benchmarks.  It has value only as a stability test - while 
-> it may in some cases provide some general indication of performance, its 
-> variance is far too large, even under controlled conditions, for it to have 
-> any value as a benchmark.  I'm surprised you'd even suggest this.
-> 
-> Andrea, please, if we want good benchmarks let's at least be clear on what 
-> tools benchmarkers should/should not be using.
-> 
-> > the only problem with
-> > dbench is that you can trivially cheat and change the kernel in a broken
-> > way, but optimal _only_ for dbench, just to get stellar dbench numbers,
-> 
-> No, this is not the only problem.  DBench is just plain *flaky*.  You don't
-> appear to be clear on why.  In short, dbench has two main flaws:
-> 
->   - It's extremely sensitive to scheduling.  If one process happens to make
->     progress then it gets more heavily cached and its progress becomes even
->     greater.  The benchmark completes much more quickly in this case, whereas
->     if all processes progress at nearly the same rate (by chance) it runs
->     more slowly.
-> 
->   - It can happen (again by chance) that dbench files get deleted while still
->     in cache, and this process completes in a fraction of the time that real 
->     disk IO would require.
-> 
-> I've seen successsive runs of dbench *under identical conditions* (that is, 
-> from a clean reboot etc.) vary by as much as 30%.  Others report even greater 
-> variance.  Can we please agree that dbench is useless for benchmarks?
 
-I never seen it to vary 30% on the same kernel.
+A major problem with all known benchmarks is that, once you define one,
+an OS can be tuned to maximize perceived performance while, in fact,
+destroying other "unmeasurables" like "snappy interactive performance".
 
-Anyways dbench tells you mostly about elevator etc... it's a good test
-to check the elevator is working properly, the ++ must be mixed with the
-dots etc... if the elevator is aggressive enough. Of course that means
-the elevator is not perfectly fair but that's the whole point about
-having an elevator. It is also an interesting test for page replacement,
-but with page replacement it would be possible to write a broken
-algorithm that produces good numbers, that's the thing I believe to be
-bad about dbench (oh, like tiotest fake numbers too of course). Other
-than this it just shows rmap12a has an elevator not aggressive enough
-which is probably true, I doubt it has anything to do with the VM
-changes in rmap (of course rmap design significant overhead is helping
-to slow it down too though), more likely the bomb_segments logic from
-Andrew that Rik has included, infact the broken page replacement that
-lefts old stuff in cache if something might generate more unfairness
-that should generate faster dbench numbers for rmap, but on this last
-bit I'm not 100% sure (AFIK to get a fast dbench by cheating with the vm
-you need to make sure to cache lots of the readahead as well (also the
-one not used yet), but I'm not 100% sure on the effect of lefting old
-pollution in cache rather than recycling it, I never attempted it).
+It seems that compiling the Linux Kernel while burning a CDROM gives
+a good check of "acceptable" performance. But, such operations are
+not "benchmarks". The trick is to create a benchmark that performs
+many "simultaneous" independent and co-dependent operations using
+I/O devices that everyone is likely to have. I haven't seen anything
+like this yet.
 
-Andrea
+Such a benchmark might have multiple tasks performing things like:
+
+(1)	Real Math on large arrays.
+
+(2)	Data-base indexed lookups.
+
+(3)	Data-base keys sorting.
+
+(4)	Small file I/O with multiple creations and deletions.
+
+(5)	Large file I/O operations with many seeks.
+
+(6)	Multiple "network" Client/Server tasks through loop-back.
+
+(7)	Simulated compiles by searching directory trees for
+	"include" files, reading them and closing them, while
+	performing string-searches to simulate compiler parsing.
+
+(8)	Two or more tasks communicating using shared-RAM. This
+	can be a "nasty" performance hog, but tests the performance
+	of threaded applications without having to write those
+	applications.
+
+(9)	And more....
+
+
+These tasks would be given a "performance weighting value", a heuristic
+that relates to perceived overall performance. But, even this is
+full of holes. You could tune a fast machine with much RAM and then
+have terrible performance with machines that sleep, waiting for I/O.
+
+So, one of the first things that has to be done, before any benchmark
+can attempt to be valid, is to stabililize the testing environment.
+This is difficult to do under software control. For instance,
+if I had a RAM-eater which was going to use up RAM until there was
+only a certain amount left, I would need to prevent the RAM-eater from
+using the CPU after it had performed its work. The RAM-eater would
+have to lock pages into place, pages it would not be accessing during
+the rest of the benchmark. If I didn't do this, the kernel would
+be spending a lot of time swapping, messing up benchmark results.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (797.90 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
+

@@ -1,132 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313563AbSGQNWG>; Wed, 17 Jul 2002 09:22:06 -0400
+	id <S313537AbSGQNV6>; Wed, 17 Jul 2002 09:21:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313638AbSGQNWG>; Wed, 17 Jul 2002 09:22:06 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:41665 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S313563AbSGQNWD>; Wed, 17 Jul 2002 09:22:03 -0400
-Date: Wed, 17 Jul 2002 15:24:59 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
+	id <S313563AbSGQNV6>; Wed, 17 Jul 2002 09:21:58 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:10000 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S313537AbSGQNV5>;
+	Wed, 17 Jul 2002 09:21:57 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
 To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: input subsystem config ?
-Message-ID: <20020717132459.GF14581@tahoe.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Vojtech Pavlik <vojtech@suse.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020716143415.GO7955@tahoe.alcove-fr> <20020717095618.GD14581@tahoe.alcove-fr> <20020717120135.A12452@ucw.cz> <20020717101001.GE14581@tahoe.alcove-fr> <20020717140804.B12529@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020717140804.B12529@ucw.cz>
-User-Agent: Mutt/1.3.25i
+Date: Wed, 17 Jul 2002 15:24:39 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: PS2 Input Core Support
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+X-mailer: Pegasus Mail v3.50
+Message-ID: <B2875E55BFC@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 02:08:04PM +0200, Vojtech Pavlik wrote:
-
-> > i8042.c: 60 -> i8042 (command) [65]
-> > i8042.c: 77 -> i8042 (parameter) [65]
-> > i8042.c: d4 -> i8042 (command) [65]
-> > i8042.c: f6 -> i8042 (parameter) [65]
+On 17 Jul 02 at 15:01, Vojtech Pavlik wrote:
+> On Wed, Jul 17, 2002 at 02:55:21PM +0200, Petr Vandrovec wrote:
+> > On 17 Jul 02 at 14:44, Vojtech Pavlik wrote:
+> > 
+> > > > --- a/drivers/input/mouse/psmouse.c     Wed Jul 17 12:19:13 2002
+> > > > +++ b/drivers/input/mouse/psmouse.c     Wed Jul 17 12:19:13 2002
+> > > > @@ -142,7 +142,7 @@
+> > > >   */
+> > > > 
+> > > >         if (psmouse->type == PSMOUSE_IMEX) {
+> > > > -               input_report_rel(dev, REL_WHEEL, (int) (packet[3] & 8) - (int) (packet[2] & 7));
+> > > > +               input_report_rel(dev, REL_WHEEL, (int) (packet[3] & 8) - (int) (packet[3] & 7));
+> > > >                 input_report_key(dev, BTN_SIDE, (packet[3] >> 4) & 1);
+> > > >                 input_report_key(dev, BTN_EXTRA, (packet[3] >> 5) & 1);
+> > > >         }
+> > 
+> > Hi,
+> >   any plans to support A4Tech mouse? It uses IMEX protocol, but
+> >   
+> > switch(packet[3] & 0x0F) {
+> >     case 0: /* nothing */
+> >     case 1: vertical_wheel--; break;
+> >     case 2: horizontal_wheel++; break;
+> >     case 0xE: horizontal_wheel--; break;
+> >     case 0xF: vertical_wheel++; break;
+> > }
+> > 
+> > and obviously it never reports wheel move > 1 in one sample.
 > 
-> This is the bug. :) It tries to talk to the mouse before enabling the
-> mouse interface. I wonder how it could work ... probably many chipsets
-> ignore the disable bit altogether.
-> 
-> Please try with the attached i8042.c.
+> Is there a way to detect whether it's an ImEx or A4? Or will we need a
+> command line parameter ... ?
 
-I'm afraid it doesn't work either:
-...
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
- hda: 23579136 sectors w/512KiB Cache, CHS=23392/16/63, UDMA(33)
- hda: [PTBL] [1467/255/63] hda1 hda2 hda3 < hda5 hda6 >
-mice: PS/2 mouse device common for all mice
-i8042.c: fa <- i8042 (flush, kbd) [0]
-i8042.c: 20 -> i8042 (command) [0]
-i8042.c: 47 <- i8042 (return) [0]
-i8042.c: 60 -> i8042 (command) [0]
-i8042.c: 56 -> i8042 (parameter) [0]
-i8042.c: d3 -> i8042 (command) [0]
-i8042.c: 5a -> i8042 (parameter) [0]
-i8042.c: a5 <- i8042 (return) [0]
-i8042.c: a9 -> i8042 (command) [0]
-i8042.c: 00 <- i8042 (return) [0]
-i8042.c: a7 -> i8042 (command) [1]
-i8042.c: 20 -> i8042 (command) [1]
-i8042.c: 76 <- i8042 (return) [1]
-i8042.c: a9 -> i8042 (command) [1]
-i8042.c: 00 <- i8042 (return) [1]
-i8042.c: a8 -> i8042 (command) [1]
-i8042.c: 20 -> i8042 (command) [1]
-i8042.c: 56 <- i8042 (return) [1]
-i8042.c: 60 -> i8042 (command) [2]
-i8042.c: 74 -> i8042 (parameter) [2]
-i8042.c: 60 -> i8042 (command) [2]
-i8042.c: 54 -> i8042 (parameter) [2]
-i8042.c: 60 -> i8042 (command) [2]
-i8042.c: 56 -> i8042 (parameter) [2]
-i8042.c: d4 -> i8042 (command) [2]
-i8042.c: f6 -> i8042 (parameter) [2]
-i8042.c: 60 -> i8042 (command) [3]
-i8042.c: 56 -> i8042 (parameter) [3]
-i8042.c: 60 -> i8042 (command) [92]
-i8042.c: 54 -> i8042 (parameter) [92]
-i8042.c: 60 -> i8042 (command) [93]
-i8042.c: 56 -> i8042 (parameter) [93]
-i8042.c: d4 -> i8042 (command) [93]
-i8042.c: f5 -> i8042 (parameter) [93]
-i8042.c: 60 -> i8042 (command) [93]
-i8042.c: 56 -> i8042 (parameter) [93]
-i8042.c: 60 -> i8042 (command) [182]
-i8042.c: 54 -> i8042 (parameter) [182]
-serio: i8042 AUX port at 0x60,0x64 irq 12
-i8042.c: 60 -> i8042 (command) [182]
-i8042.c: 44 -> i8042 (parameter) [182]
-i8042.c: 60 -> i8042 (command) [182]
-i8042.c: 45 -> i8042 (parameter) [182]
-i8042.c: f6 -> i8042 (kbd-data) [182]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [185]
-i8042.c: f2 -> i8042 (kbd-data) [185]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [187]
-i8042.c: ab <- i8042 (interrupt, kbd, 1) [193]
-i8042.c: 60 -> i8042 (command) [194]
-i8042.c: 44 -> i8042 (parameter) [194]
-i8042.c: 60 -> i8042 (command) [194]
-i8042.c: 45 -> i8042 (parameter) [194]
-i8042.c: f5 -> i8042 (kbd-data) [194]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [197]
-i8042.c: f2 -> i8042 (kbd-data) [197]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [200]
-i8042.c: ab <- i8042 (interrupt, kbd, 1) [205]
-i8042.c: 41 <- i8042 (interrupt, kbd, 1) [210]
-i8042.c: ea -> i8042 (kbd-data) [210]
-i8042.c: fe <- i8042 (interrupt, kbd, 1) [212]
-i8042.c: f0 -> i8042 (kbd-data) [212]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [215]
-i8042.c: 02 -> i8042 (kbd-data) [215]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [218]
-i8042.c: f0 -> i8042 (kbd-data) [218]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [221]
-i8042.c: 00 -> i8042 (kbd-data) [221]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [224]
-i8042.c: 41 <- i8042 (interrupt, kbd, 1) [226]
-input.c: calling /sbin/hotplug input [HOME=/ PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=add PRODUCT=11/1/2/ab02 NAME=AT Set 2 keyboard]
-input.c: hotplug returned -2
-input: AT Set 2 keyboard on isa0060/serio0
-i8042.c: f8 -> i8042 (kbd-data) [229]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [232]
-i8042.c: ed -> i8042 (kbd-data) [232]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [235]
-i8042.c: 00 -> i8042 (kbd-data) [236]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [241]
-i8042.c: f4 -> i8042 (kbd-data) [241]
-i8042.c: fa <- i8042 (interrupt, kbd, 1) [244]
-serio: i8042 KBD port at 0x60,0x64 irq 1
-NET4: Linux TCP/IP 1.0 for NET4.0
-...
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+I'm not aware of any way. It behaves like proper ExPS/2 mouse: after reset
+it returns id0, after ImPS/2 sequence 3, and after ExPS/2 sequence 4.
+In both ImPS/2 and ExPS/2 modes it uses 2/0xE(0xFE) in fourth byte of
+packet for horizontal wheel.
+
+Windows .INF talks about "A4M0004", but it looks to me like an internal
+.INF identifier and not as an identification string obtainable from mouse.
+
+I'll try to write email to them, maybe they'll answer.
+                                            Thanks,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

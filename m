@@ -1,105 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261895AbTERALe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 20:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTERALe
+	id S261874AbTERAxc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 20:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbTERAxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 20:11:34 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:52908 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261895AbTERALc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 20:11:32 -0400
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 17 May 2003 20:53:31 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:52657
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S261874AbTERAxa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 20:53:30 -0400
+Date: Sun, 18 May 2003 03:06:21 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Schwartz <davids@webmaster.com>
+Cc: dak@gnu.org, linux-kernel@vger.kernel.org
 Subject: Re: Scheduling problem with 2.4?
-References: <x54r3tddhs.fsf@lola.goethe.zz>
-	<20030517174100.GT1429@dualathlon.random>
-	<x5r86x74ci.fsf@lola.goethe.zz>
-	<20030517203045.GZ1429@dualathlon.random>
-	<x565o9717j.fsf@lola.goethe.zz>
-	<20030517215345.GA1429@dualathlon.random>
-	<x53cjd5hf6.fsf@lola.goethe.zz>
-	<20030517235048.GB1429@dualathlon.random>
-Reply-To: dak@gnu.org
-From: David.Kastrup@t-online.de (David Kastrup)
-Date: 18 May 2003 02:24:10 +0200
-In-Reply-To: <20030517235048.GB1429@dualathlon.random>
-Message-ID: <x5of213xw5.fsf@lola.goethe.zz>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
-MIME-Version: 1.0
+Message-ID: <20030518010621.GC1429@dualathlon.random>
+References: <20030517235048.GB1429@dualathlon.random> <MDEHLPKNGKAHNMBLJOLKIELBDAAA.davids@webmaster.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIELBDAAA.davids@webmaster.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> writes:
-
-> On Sun, May 18, 2003 at 12:37:01AM +0200, David Kastrup wrote:
-> > Of course it does.  I told it to do so.  But there is no necessity to
-> > do an immediate context switch: it would be completely sufficient if
-> > Emacs (which is waiting on select) were put in the run queue and
-> > scheduled when the time slice of dd was up.  Performance gets better
+On Sat, May 17, 2003 at 05:16:33PM -0700, David Schwartz wrote:
 > 
-> the switch happens because emacs has higher dynamic priority, as it
-> was sleeping for the longest time. without these special cases for
-> the interactive tasks we couldn't use these long timeslices without
-> making the system not responsive.
-
-Then we will need a smaller timeslice for making this decision.  If I
-have a sending process able to write 1000000 characters per second,
-it is wasteful if such a process is scheduled away after writing a
-single line (most processes running inside of a shell will work
-line-buffered, won't they?).
-
-> > But if I am doing process communication with other processes, the I/O
-> > _will_ arrive in small portions, and when the generating processes are
-> > running on the same CPU instead of being I/O bound, I don't stand a
-> > chance of working efficiently, namely utilizing the pipes, if I do a
+> > I see what you mean, but I still don't think it is a problem. If
+> > bandwidth matters you will have to use large writes and reads anyways,
+> > if bandwidth doesn't matter the number of ctx switches doesn't matter
+> > either and latency usually is way more important with small messages.
 > 
-> writing 1 byte per syscall isn't very efficient in the first place
-> (no matter if the cxt switch happens or not).
-
-Sure, but we are more typically talking about writing a line at a
-time, which is easily by a factor 50 smaller than the pipe capacity
-for typical output.
-
-> I see what you mean, but I still don't think it is a problem. If
-> bandwidth matters you will have to use large writes and reads
-> anyways, if bandwidth doesn't matter the number of ctx switches
-> doesn't matter either and latency usually is way more important with
-> small messages.
+> > Andrea
 > 
-> you're applying small messages to a "throughput" test, this is why
-> you have a problem. If you really did interprocess communication
-> (and not a throughput benchmark) you would probably want the
-> smallest delay in the delivery of the signal/message.
+> 	This is the danger of pre-emption based upon dynamic priorities. You can
+> get cases where two processes each are permitted to make a very small amount
+> of progress in alternation. This can happen just as well with large writes
+> as small ones, the amount of data is irrelevent, it's the amount of CPU time
+> that's important, or to put it another way, it's how far a process can get
+> without suffering a context switch.
+> 
+> 	I suggest that a process be permitted to use up at least some portion of
+> its timeslice exempt from any pre-emption based solely on dynamic
+> priorities.
 
-Not when I could have my pipe filled within a fraction of a
-millisecond _without_ idling (starting up the reading process the
-moment that the writing process has taken more than its due of time
-or is in itself waiting is, of course, perfectly sensible).
+that's the issue yes. but then when a multithreaded app sends a signal
+to another process  it can take up to this "x" timeslice portion before
+the signal will run (I mean in UP). Same goes for mouse clicks etc..
+1msec for mouse clicks should not be noticeable though. And over all I
+don't see a real big issue in the current code.
 
-Xterm:
-time dd if=/dev/zero bs=16k count=16|od -v
-real    0m8.656s
-user    0m0.240s
-sys     0m0.090s
+To try it probably the simpler way to add a need_resched_timeout
+along to need_resched, and to honour the need_resched only when the
+timeout triggers, immediate need_resched will set the timeout = jiffies
+so it'll trigger immediatly, the timer interrupt will check it. The
+reschedule_idle on a non idle cpu will be the only one to set the
+timeout. Effectively I'm curious to see what will happen. Not all archs
+would need to check against it (the entry.S code is the main reader of
+need_resched), it'll be an hint only and idle() for sure must not check
+it at all. this would guarantee minimal timeslice reserved up to 1/HZ by
+setting the timeout to jiffies + 2 (jiffies + 1 would return a mean of
+1/HZ/2 but the worst case would be ~0, in practice even + 1 would be
+enough) Does anybody think this could have a value? If yes I can make a
+quick hack to see what happens.
 
-time dd if=/dev/zero bs=16k count=16|od -v|dd obs=16k
-real    0m3.794s
-user    0m0.240s
-sys     0m0.060s
-
-Do you really think that I would have appreciated the "smaller
-latency" of few milliseconds at best in the first case?  Note that
-this is exclusively a uni-processor problem: the fast context switch
-will starve the writing process from CPU time and make sure that even
-if it could crank out hundreds of writes in millisecond, it will only
-get a single one of them placed into the pipe, ever, unless the
-receiving end gets preempted before reaching select, at which time the
-writer can finally stuff the pipe completely.
-
-This all-or-nothing utilization of a pipe or pty is not a sane
-tradeoff.
-
--- 
-David Kastrup, Kriemhildstr. 15, 44793 Bochum
+Andrea

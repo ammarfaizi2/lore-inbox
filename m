@@ -1,78 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266287AbUHJOtw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266252AbUHJOy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266287AbUHJOtw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 10:49:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266295AbUHJOtw
+	id S266252AbUHJOy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 10:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266258AbUHJOy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 10:49:52 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:8686 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S266287AbUHJOtt (ORCPT
+	Tue, 10 Aug 2004 10:54:26 -0400
+Received: from pop.gmx.de ([213.165.64.20]:41907 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266252AbUHJOyX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 10:49:49 -0400
-X-Sender-Authentication: net64
-Date: Tue, 10 Aug 2004 16:49:47 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: alan@lxorguk.ukuu.org.uk, axboe@suse.de, diablod3@gmail.com,
-       dwmw2@infradead.org, eric@lammerts.org, james.bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-Id: <20040810164947.7f363529.skraw@ithnet.com>
-In-Reply-To: <200408101427.i7AERDld014134@burner.fokus.fraunhofer.de>
-References: <200408101427.i7AERDld014134@burner.fokus.fraunhofer.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 10 Aug 2004 10:54:23 -0400
+X-Authenticated: #4399952
+Date: Tue, 10 Aug 2004 17:04:27 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
+Message-Id: <20040810170427.46eaa186@mango.fruits.de>
+In-Reply-To: <1092147415.5818.2.camel@mindpipe>
+References: <1090832436.6936.105.camel@mindpipe>
+	<20040726124059.GA14005@elte.hu>
+	<20040726204720.GA26561@elte.hu>
+	<20040729222657.GA10449@elte.hu>
+	<20040801193043.GA20277@elte.hu>
+	<20040809104649.GA13299@elte.hu>
+	<20040809130558.GA17725@elte.hu>
+	<20040809190201.64dab6ea@mango.fruits.de>
+	<1092103522.761.2.camel@mindpipe>
+	<1092117141.761.15.camel@mindpipe>
+	<20040810075331.GB25238@elte.hu>
+	<1092147415.5818.2.camel@mindpipe>
+X-Mailer: Sylpheed-Claws 0.9.12 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Aug 2004 16:27:13 +0200 (CEST)
-Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
+On Tue, 10 Aug 2004 10:16:55 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-> >From: Stephan von Krawczynski <skraw@ithnet.com>
-> >> Indeed! Altough minor things could be better with Debian too, Debian is
-> >the> only true Open Source Linux distribution. Other distributions modify
-> >programs> without reason and do not cooperate with the original authors :-(
+> On Tue, 2004-08-10 at 03:53, Ingo Molnar wrote:
+> > can you trigger similar latencies via the attached mlock testcode?
+> > (written by Florian. Run it as root.)
+> > 
 > 
-> >Would you mind to stop your general accusations against "other
-> >distributions" and your talking for people (i.e. authors) that you don't
-> >know or haven't talked to in your whole lifetime.
-> 
-> >Fortunately everybody can decide for himself what distro he likes best. And
-> >if someone thinks he has to modify the original GPL source, then he should
-> >do. If you don't like that, don't use GPL, because the right to modify
-> >foreign sources is a major part of it.
-> 
-> You seem to forget that the main problems are:
-> 
-> -	These distributions do not talk with the original Authors which
-> 	demonstrates that they do not like to benefit from OSS.
+> Yup, using only 100000 bytes, I get a bunch of these:
 
-"My car is blue, that's why it rains tommorrow." 
-I can very well understand why some people refuse to talk to you, but I cannot
-really see the relation to OSS in general.
-Really, have you listened to yourself lately: "Commercial distros do not like
-to benefit from OSS." ??? 
-How do you define their primary goal, arguing with Joerg Schilling, or what?
+Hi, just to make sure: Those weren't 100000 kbytes actually?
 
-> -	The modified versions of cdrtools found in distributions are _all_
-> 	worse than the original. As some of the distributions (e.g. SuSE)
-> 	even published versions known to be defective, they violate 
-> 	the GPL (subsection 6 of the preamble).
+Flo
 
-Has there been one single day in your life where you accepted someone elses
-opinion, differing from yours ?
-It is obvious _for me_, that programmers at SuSE think your software needs some
-changes and try to improve it according to their ideas. It is _your_ problem
-that you cannot accept their point of view, not theirs'. 
-If you see GPL violation, sue them. If you don't want your software to be
-changed in any way, don't use GPL.
-
-Regards,
-Stephan
-
-
-
+-- 
+Palimm Palimm!
+http://affenbande.org/~tapas/
 

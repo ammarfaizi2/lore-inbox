@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264156AbTEGWqY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 18:46:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264177AbTEGWqY
+	id S263979AbTEGWti (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 18:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTEGWti
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 18:46:24 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:7723 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264156AbTEGWqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 18:46:24 -0400
-Date: Wed, 7 May 2003 15:55:12 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Nicolas <linux@1g6.biz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: slab oops with 2.5.69
-Message-Id: <20030507155512.0cc146a1.akpm@digeo.com>
-In-Reply-To: <200305072317.47119.linux@1g6.biz>
-References: <200305072317.47119.linux@1g6.biz>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 May 2003 18:49:38 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:32645
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263979AbTEGWth (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 18:49:37 -0400
+Subject: Re: [PATCH] 2.5 ide 48-bit usage
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: hps@intermeta.de
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <b9bupr$jkm$2@tangens.hometree.net>
+References: <20030507084920.GA823@suse.de>
+	 <Pine.LNX.4.44.0305070915470.2726-100000@home.transmeta.com>
+	 <20030507164613.GN823@suse.de>  <b9bupr$jkm$2@tangens.hometree.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 May 2003 22:58:54.0104 (UTC) FILETIME=[3B962980:01C314EC]
+Organization: 
+Message-Id: <1052345009.3060.54.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 07 May 2003 23:03:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nicolas <linux@1g6.biz> wrote:
->
-> Last user: [<d3a18226>](0xd3a18226)
+On Mer, 2003-05-07 at 22:45, Henning P. Schmiedehausen wrote:
+> Jens Axboe <axboe@suse.de> writes:
+> 
+> >I dunno what the purpose of that would be exactly, I guess to cater to
+> >some hardware odditites?
+> 
+> Wild guess: You can use larger transfer sizes with the 48 bit
+> interface, even when adressing the lower 28 bit space?
 
-We need to know which module was the last one to play with that size-32
-object.
+The ide-disk logic Jens did already switches to LBA48 for large requests
+as well as requests high up on the disk
 
-Which modules were loaded, and had been in use?

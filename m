@@ -1,69 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261800AbRESNSw>; Sat, 19 May 2001 09:18:52 -0400
+	id <S261808AbRESN6E>; Sat, 19 May 2001 09:58:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261803AbRESNSc>; Sat, 19 May 2001 09:18:32 -0400
-Received: from [206.11.178.253] ([206.11.178.253]:58119 "EHLO
-	wind.enjellic.com") by vger.kernel.org with ESMTP
-	id <S261800AbRESNSV>; Sat, 19 May 2001 09:18:21 -0400
-Message-Id: <200105191318.f4JDICT08904@wind.enjellic.com>
-From: greg@wind.enjellic.com (G.W. Wettstein)
-Date: Sat, 19 May 2001 08:18:11 -0500
-In-Reply-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-       "Re: /dev/sch0 interface" (May 15,  6:35pm)
-Reply-To: greg@enjellic.com
-X-Mailer: Mail User's Shell (7.2.5 10/14/92)
-To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: /dev/sch0 interface
+	id <S261807AbRESN5z>; Sat, 19 May 2001 09:57:55 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:51100 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261805AbRESN5s>;
+	Sat, 19 May 2001 09:57:48 -0400
+Date: Sat, 19 May 2001 09:57:46 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Why side-effects on open(2) are evil. (was Re: [RFD w/info-PATCH]
+ device arguments from lookup)
+In-Reply-To: <Pine.LNX.4.33.0105190138150.6079-100000@toomuch.toronto.redhat.com>
+Message-ID: <Pine.GSO.4.21.0105190940310.5339-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 15,  6:35pm, "Jeff V. Merkey" wrote:
-} Subject: Re: /dev/sch0 interface
+	Folks, before you get all excited about cramming side effects into
+open(2), consider the following case:
 
-> On Tue, May 15, 2001 at 11:44:23PM +0000, Thorsten Kranzkowski wrote:
-> > On Tue, May 15, 2001 at 03:08:01PM -0600, Jeff V. Merkey wrote:
+1) opening "/dev/zero/start_nuclear_war" has a certain side effect.
 
-> > > Is anyone actuaslly using the /dev/sch0 interface for SCSI tape changers
-> > > in Linux?  I noticed that the device definitions are present, but I do not 
-> > > see any driver shipped in the standard base that actually uses it.
+2) Local user does the following:
+	ln -sf /dev/zero/start_nuclear_war bar
+	while true; do
+		mkdir foo
+		rmdir foo
+		ln -sf bar foo
+		rm foo
+	done
 
-> > http://www.in-berlin.de/User/kraxel/linux.html
-> > 
-> > works very well here (needs a minor #include to compile correctly, though)
-> > 
-> > I actually wonder why this isn't in the mainline kernel.
+3) Comes the night and root runs (from crontab) updatedb(8). Said beast
+includes find(1). With sufficiently bad timing find _will_ be tricked
+into attempt to open foo. It will honestly lstat() it, all right. But
+there's no way to make sure that subsequent open() on the found directory
+will get the same object.
 
-Just as a point of reference we are using this code to control a
-couple of big StorageTek tape libraries (9710 and 9730).  It has
-worked flawlessly.  It also supports reading the VOLID barcodes.
+4) Side effect happens...
 
-I would second the notion that it should go into the mainline sources
-if the author is interested.  Very useful utility in big IT shops
-doing serious backup.
+Similar scenarios can be found for other programs run by/as root, but I
+think that the point is obvious - side effects on open() are not a good
+idea. Yes, we can play with checking for O_DIRECTORY, yodda, yodda, but
+I wouldn't bet a dime on security of a system with such side effects.
+A lot of stuff relies on the fact that close(open(foo, O_RDONLY)) is a
+no-op. Breaking that assumption is a Bad Thing(tm).
 
-> > > Thanks
-> > > 
-> > > Jeff
-
-> > Thorsten
-
-> Thanks.
-> 
-> Jeff
-
-Best regards from North Dakota.
-
-}-- End of excerpt from "Jeff V. Merkey"
-
-As always,
-Dr. G.W. Wettstein, Ph.D.   Enjellic Systems Development, LLC.
-4206 N. 19th Ave.           Specializing in information infra-structure
-Fargo, ND  58102            development.
-PH: 701-281-4950            WWW: http://www.enjellic.com
-FAX: 701-281-3949           EMAIL: greg@enjellic.com
-------------------------------------------------------------------------------
-"MS can classify NT however they like.  Calling a pig a bird still
-doesn't get you flying ham, however."
-                                -- Steven N. Hirsch

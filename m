@@ -1,68 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267625AbSLFV7M>; Fri, 6 Dec 2002 16:59:12 -0500
+	id <S267629AbSLFWKD>; Fri, 6 Dec 2002 17:10:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267627AbSLFV7M>; Fri, 6 Dec 2002 16:59:12 -0500
-Received: from 216-42-72-140.ppp.netsville.net ([216.42.72.140]:33674 "EHLO
-	tiny.suse.com") by vger.kernel.org with ESMTP id <S267625AbSLFV7L>;
-	Fri, 6 Dec 2002 16:59:11 -0500
-Subject: Re: [patch] fix the ext3 data=journal unmount bug
-From: Chris Mason <mason@suse.com>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
-       ext3 users list <ext3-users@redhat.com>
-In-Reply-To: <1039209773.5300.84.camel@sisko.scot.redhat.com>
-References: <3DF0F69E.FF0E513A@digeo.com> <1039203287.9244.97.camel@tiny> 
-	<3DF0FE4F.5F473D5E@digeo.com> 
-	<1039204675.5301.55.camel@sisko.scot.redhat.com> 
-	<1039206858.9244.130.camel@tiny> 
-	<1039209773.5300.84.camel@sisko.scot.redhat.com>
-Content-Type: text/plain
+	id <S267630AbSLFWKD>; Fri, 6 Dec 2002 17:10:03 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:28422 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267629AbSLFWKC>;
+	Fri, 6 Dec 2002 17:10:02 -0500
+Message-ID: <3DF121DD.6070206@pobox.com>
+Date: Fri, 06 Dec 2002 17:17:01 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrick Mochel <mochel@osdl.org>
+CC: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: /proc/pci deprecation?
+References: <Pine.LNX.4.33.0212061506060.1010-100000@localhost.localdomain>
+In-Reply-To: <Pine.LNX.4.33.0212061506060.1010-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Dec 2002 17:07:00 -0500
-Message-Id: <1039212420.9244.173.camel@tiny>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-12-06 at 16:22, Stephen C. Tweedie wrote:
-> Hi,
+Patrick Mochel wrote:
+> ISTR /proc/pci being deprecated at one point in the past. It may have only
+> been discussed, though. In which case, is it possible to deprecate it?
+> lscpi(8) is considered a superior means to derive the same information.
 > 
-> On Fri, 2002-12-06 at 20:34, Chris Mason wrote:
-> 
-> > The bulk of the sync(2) will be async though, since most of the io is
-> > actually writing dirty data buffers out.  We already do that in two
-> > stages.
-> 
-> Not with data journaling.  That's the whole point: the VFS assumes too
-> much about where the data is being written, when.
+> Elimination of it would eliminate a chunk of code in drivers/pci/proc.c, 
+> and obviate the use of struct device::name by the PCI layer. This change 
+> would probably allow us to remove the name field altogether, since PCI is 
+> the only code that really relies on it (and only for /proc/pci AFAICT).
 
-But with data journaling, there's a limited amount data pending that
-needs to be sent to the log.  It isn't like the data pages in the
-data=writeback, where there might be gigs and gigs worth of pages.  
 
-Most data=journal setups are for synchronous writes, where the
-transactions will be small, so sending things to the log won't take
-long.
+Historically, this was a Linus call :)
 
-> 
-> > For 2.5, if an FS really wanted a two stage sync for it's non-data
-> > pages
-> 
-> But it's data that is the problem.  For sync() semantics,
-> data-journaling only requires that the pages have hit the journal.  For
-> umount, it is critical that we complete the final writeback before
-> destroying the inode lists.
+IIRC it was one of (a) deprecated, (b) removed, or (c) almost removed in 
+the past, and Linus un-deprecated it.  The logic back then was that it 
+provides a quick summary of a lot of useful info, a la /proc/cpuinfo and 
+/proc/meminfo.  i.e. you don't need lspci installed, just been /bin/cat.
 
-Well, I was trying to find a word for pages involved w/the journal and
-failed ;-)  My only real point is we can add an async sync without
-changing the way supers get processed.
+Personally, I think it would be nice to eliminate /proc/pci -- in favor 
+of something that provides similar functionality from sysfs:  "cat 
+/sys/all-busses" or somesuch.  I dunno how feasible that is.  The main 
+idea is to list as many attached devices as possible in one go, without 
+having to cat 40 different files :)  [unfortunately I think this means I 
+am disagreeing with you ;)]
 
-It seems like a natural progression to start adding journal address
-spaces to deal with this instead of extra stuff in the super code, where
-locking and super flag semantics make things sticky.
+I do grant you it would make various __init sections and in-memory 
+structures smaller if we eliminated the names...   do we want to?  Sure 
+we have lseisa and lspci and lsusb, et. al.  Does that obviate the need 
+for a simple summary of attached hardware?
 
--chris
+	Jeff
+
 
 

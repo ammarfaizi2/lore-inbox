@@ -1,17 +1,17 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266552AbTABV2S>; Thu, 2 Jan 2003 16:28:18 -0500
+	id <S266627AbTABV34>; Thu, 2 Jan 2003 16:29:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266622AbTABV11>; Thu, 2 Jan 2003 16:27:27 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:52932 "EHLO
+	id <S266652AbTABV2v>; Thu, 2 Jan 2003 16:28:51 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:56004 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S266584AbTABV1C>; Thu, 2 Jan 2003 16:27:02 -0500
+	id <S266627AbTABV1r>; Thu, 2 Jan 2003 16:27:47 -0500
 From: Tomas Szepe <kala@pinerecords.com>
-Date: Thu, 02 Jan 2003 22:35:29 +0100
+Date: Thu, 02 Jan 2003 22:36:14 +0100
 To: torvalds@transmeta.com
 Cc: linux-kernel@vger.kernel.org
-Subject: [unify netdev config  6/22] arch-m68k_nommu
-Message-ID: <3E14B0A1.mailLRY1FHVU5@louise.pinerecords.com>
+Subject: [unify netdev config  9/22] arch-parisc
+Message-ID: <3E14B0CE.mailLSS1102C7@louise.pinerecords.com>
 User-Agent: nail 10.3 11/29/02
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -19,14 +19,13 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -urN a/arch/m68knommu/Kconfig b/arch/m68knommu/Kconfig
---- a/arch/m68knommu/Kconfig	2002-12-16 07:01:45.000000000 +0100
-+++ b/arch/m68knommu/Kconfig	2003-01-01 19:51:39.000000000 +0100
-@@ -611,47 +611,6 @@
+diff -urN a/arch/parisc/Kconfig b/arch/parisc/Kconfig
+--- a/arch/parisc/Kconfig	2002-12-16 07:01:45.000000000 +0100
++++ b/arch/parisc/Kconfig	2003-01-01 19:51:02.000000000 +0100
+@@ -276,46 +276,6 @@
  
  source "net/Kconfig"
  
--
 -menu "Network device support"
 -	depends on NET
 -
@@ -67,6 +66,6 @@ diff -urN a/arch/m68knommu/Kconfig b/arch/m68knommu/Kconfig
 -
 -endmenu
 -
- source "net/ax25/Kconfig"
+ #source "net/ax25/Kconfig"
  
  source "net/irda/Kconfig"

@@ -1,96 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbUEDW45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbUEDXBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbUEDW45 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 18:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUEDW45
+	id S261568AbUEDXBi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 19:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbUEDXBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 18:56:57 -0400
-Received: from zlynx.org ([199.45.143.209]:30214 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S261528AbUEDW4v (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 18:56:51 -0400
-Subject: Re: sigaction, fork, malloc, and futex
-From: Zan Lynx <zlynx@acm.org>
-To: chris@scary.beasts.org
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405042315001.24297@sphinx.mythic-beasts.com>
-References: <200405042015.i44KFb0R001900@emess.mscd.edu>
-	 <Pine.LNX.4.58.0405042315001.24297@sphinx.mythic-beasts.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-LeZ+qdJeNP6oUZ9/D39G"
-Message-Id: <1083711395.29189.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7jb) 
-Date: Tue, 04 May 2004 16:56:36 -0600
+	Tue, 4 May 2004 19:01:38 -0400
+Received: from [213.171.41.46] ([213.171.41.46]:7684 "EHLO
+	kaamos.homelinux.net") by vger.kernel.org with ESMTP
+	id S261568AbUEDXBf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 19:01:35 -0400
+From: Alexey Kopytov <alexeyk@mysql.com>
+Organization: MySQL AB
+To: Ram Pai <linuxram@us.ibm.com>
+Subject: Re: Random file I/O regressions in 2.6
+Date: Wed, 5 May 2004 03:01:31 +0400
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au, peter@mysql.com,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+References: <200405022357.59415.alexeyk@mysql.com> <1083683034.13688.7.camel@localhost.localdomain> <1083699554.13688.64.camel@localhost.localdomain>
+In-Reply-To: <1083699554.13688.64.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200405050301.32355.alexeyk@mysql.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ram Pai wrote:
+>Without the patch:
+>------------------
+>Time spent for test:  20.6661s
+>
+>no of times window reset because of hits: 0
+>no of times window reset because of misses: 7
+>no of times window was shrunk because of hits: 6716
+>no of times the page request was non-contiguous: 5880
+>no of times the page request was contiguous : 19639
+>
+>With the patch:
+>--------------
+>Time spent for test:  19.5370s
+>
+>no of times window got reset because of hits: 0
+>no of times window got reset because of misses: 0
+>no of times window was shrunk because of hits: 5844
+>no of times the page request was non-contiguous: 5830
+>no of times the page request was contiguous : 20232
+>
+>Would be nice if Alexey tries the patch on his machine and sees any
+>major difference.
 
---=-LeZ+qdJeNP6oUZ9/D39G
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Here's what I have (same hardware and test setups):
 
-On Tue, 2004-05-04 at 16:30, chris@scary.beasts.org wrote:
-> Hi-
->=20
-> On Tue, 4 May 2004, Steve Beaty wrote:
->=20
-> >
-> > 	anyone have a clue on this one?  we set up a signal handler, create
-> > 	a child that sends that signal, and have the signal handler fork
-> > 	another child.  if there is a malloc(), the second child gets stuck
-> > 	in a futex(); without the malloc(), no problem.  2.4.20-30.9
-> > 	kernel.  straces at the end.  any help would be appreciated.
-> > 	thanks!
->=20
-> Your signal handler function is illegally calling non-reentrant functions=
-.
-> The *printf() family of functions are going to need to call malloc() to
-> allocate buffers. malloc() cannot be re-entered.
->=20
-> So specifically your deadlock sequence is:
->=20
-> Parent:
-> fork()
-> fprintf()
-> -> malloc()
->    -> take a malloc() lock
-> (Child schedules and sends SIGALRM at this point)
-> SIGALRM:
-> fprintf()
-> -> malloc()
->    -> try to take a malloc() lock
->       -> deadlock, lock is already taken and will never be released!
->=20
-> Modern glibc / kernel combinations which use futexes in the malloc code
-> really seem to expose this race.
->=20
-> Cheers
-> Chris
+Without the patch (but with Ram's patch applied):
+------------------
+Time spent for test: 125.4429s
 
-No, it's nothing to do with the fprintf.  I tried the program without
-any fprints at all and got the same result.
+no of times window reset because of hits: 0
+no of times window reset because of misses: 127
+no of times window was shrunk because of hits: 1153
+no of times the page request was non-contiguous: 3968
+no of times the page request was contiguous : 10686
 
-I'm pretty sure the problem is in glibc.  Look at malloc_atfork and
-free_atfork in glibc's malloc/arena.c.  I think the reason you are only
-seeing it happen when you malloc is that glibc only initializes the
-malloc system when you first use it.
+With the patch:
+---------------
+Time spent for test:  86.5459s
 
-I am not sure it is really a problem though.  I don't think you should
-be allowed to fork inside a signal handler.  That seems very wrong.
---=20
-Zan Lynx <zlynx@acm.org>
+no of times window reset because of hits: 0
+no of times window reset because of misses: 0
+no of times window was shrunk because of hits: 1066
+no of times the page request was non-contiguous: 5860
+no of times the page request was contiguous : 18099
 
---=-LeZ+qdJeNP6oUZ9/D39G
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+I wonder if there are some plans to further improve 2.6 behavior on this 
+workload to match that of 2.4? Is the remaing regression a result of the 
+different readahead handling, or it might be caused by IDE driver or I/O 
+scheduler tuning?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+-- 
+Alexey Kopytov, Software Developer
+MySQL AB, www.mysql.com
 
-iD8DBQBAmB+jG8fHaOLTWwgRAq/0AKCj3rtUWKKjifAsTaWvY4lwUeRQOgCeOQcp
-ipsxNgWy9H1EL0QPB6Gu6XY=
-=JJih
------END PGP SIGNATURE-----
-
---=-LeZ+qdJeNP6oUZ9/D39G--
-
+Are you MySQL certified?  www.mysql.com/certification

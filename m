@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314683AbSDTSNv>; Sat, 20 Apr 2002 14:13:51 -0400
+	id <S314685AbSDTSQY>; Sat, 20 Apr 2002 14:16:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314684AbSDTSNu>; Sat, 20 Apr 2002 14:13:50 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:19725 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S314683AbSDTSNs>;
-	Sat, 20 Apr 2002 14:13:48 -0400
-Date: Sat, 20 Apr 2002 15:13:41 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        <linux-kernel@vger.kernel.org>
+	id <S314688AbSDTSQW>; Sat, 20 Apr 2002 14:16:22 -0400
+Received: from dsl-213-023-039-128.arcor-ip.net ([213.23.39.128]:58250 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S314685AbSDTSOm>;
+	Sat, 20 Apr 2002 14:14:42 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: ebiederm@xmission.com (Eric W. Biederman)
 Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
-In-Reply-To: <E16yb92-0000Tk-00@starship>
-Message-ID: <Pine.LNX.4.44L.0204201513170.1960-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+Date: Fri, 19 Apr 2002 20:15:14 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <E16ya3u-0000RG-00@starship> <m1elha45q0.fsf@frodo.biederman.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16ycuh-0000Wg-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Apr 2002, Daniel Phillips wrote:
+All of what you said, 100% agreed, and insightful, in particular:
 
-> As always, what I do is in the interest of Linux and freedom.
+On Saturday 20 April 2002 19:53, Eric W. Biederman wrote:
+> I can see the potential for this to break down.  However we should
+> not be crying wolf until this actually does break down.
 
-Then why do you want to deny us the freedom to have a very
-useful piece of documentation in the kernel tree ?
+Do we want it to break down first?  I don't want that.
 
-Rik
 -- 
-Bravely reimplemented by the knights who say "NIH".
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Daniel

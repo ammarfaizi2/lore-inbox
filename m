@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262296AbRERLbF>; Fri, 18 May 2001 07:31:05 -0400
+	id <S261444AbRERS6b>; Fri, 18 May 2001 14:58:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262294AbRERLaz>; Fri, 18 May 2001 07:30:55 -0400
-Received: from [192.203.80.144] ([192.203.80.144]:23311 "HELO kaiser.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262296AbRERLan>;
-	Fri, 18 May 2001 07:30:43 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200105141821.WAA15869@ms2.inr.ac.ru>
-Subject: Re: IPv6: the same address can be added multiple times
-To: pekkas@netcore.fi (Pekka Savola)
-Date: Mon, 14 May 2001 22:21:43 +0400 (MSK DST)
+	id <S261453AbRERS6V>; Fri, 18 May 2001 14:58:21 -0400
+Received: from dl0td.afthd.tu-darmstadt.de ([130.83.113.30]:19204 "EHLO
+	dl0td.afthd.tu-darmstadt.de") by vger.kernel.org with ESMTP
+	id <S261444AbRERS6G>; Fri, 18 May 2001 14:58:06 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Jens David <dg1kjd@afthd.tu-darmstadt.de>
+Organization: AFTHD
+To: Santiago Garcia Mantinan <manty@udc.es>
+Subject: Re: 8139too on 2.2.19 doesn't close file descriptors
+Date: Thu, 3 Aug 2000 03:38:51 +0100
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010518000450.A3755@man.beta.es>
+In-Reply-To: <20010518000450.A3755@man.beta.es>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0105132319120.3026-100000@netcore.fi> from "Pekka Savola" at May 13, 1 11:26:23 pm
-X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
+Message-Id: <00080303385100.01193@dg1kjd.ampr.org>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
->  2) no significant restrictions (==this)
+On Thursday 17 May 2001 23:04, you wrote:
+> Hi!
+>
+> I was tracking down a problem with Debian installation freezing when doing
+> the ifconfig of the 8139too driver on 2.2.19 kernel, and found that this
+> was caused by 8139too for 2.2.19 not closing it's file descriptors.
+>
+> The original code by Jeff for the 2.4 series is ok, and searching for the
+> cause of the problem I have found a difference in the way rtl8139_thread
+> exits on both versions:
+>
+> 2.2 version:
+>         up (&tp->thr_exited);
+>         return 0;
+>
+> 2.4 version:
+>         up_and_exit (&tp->thr_exited, 0);
+>
+> I think the problem must be there, not doing the do_exit on the 2.2
+> version, but I may be wrong, can anybody look this up?
 
-When user asks to create some object, the only required thing
-of any reasonable interface is to return an error when the object
-is not added.
+I added the exit_files(current) to the version in my source repository. Will 
+be contained in the next releases. Thanks!
+Btw.: CC'ing me was a good idea, I'm not on linux-kernel, only on linux-net
+due to mail volume.
 
-KAME's one is broken, ours is _one_ of right ones.
-
-
-Another example of bad mistake is mine: I have made some crap with creating
-tunnels: adding tunnel does not fail, when such tunnel already exists,
-so that user has no idea, whether did it create tunnel (and should it
-delete it) or someone another made this work. Note, that if we would
-be able to create _duplicate_ tunnels on each new request (like IPv6 addresses),
-this would be also right approach.
-
-Alexey
+  -- Jens

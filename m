@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265933AbUAULlb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 06:41:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265934AbUAULlb
+	id S265942AbUAULut (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 06:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265943AbUAULut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 06:41:31 -0500
-Received: from joel.ist.utl.pt ([193.136.198.171]:21441 "EHLO joel.ist.utl.pt")
-	by vger.kernel.org with ESMTP id S265933AbUAULl0 (ORCPT
+	Wed, 21 Jan 2004 06:50:49 -0500
+Received: from smtp.dei.uc.pt ([193.137.203.228]:58344 "EHLO smtp.dei.uc.pt")
+	by vger.kernel.org with ESMTP id S265942AbUAULum (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 06:41:26 -0500
-Date: Wed, 21 Jan 2004 11:41:22 +0000 (WET)
-From: Rui Saraiva <rmps@joel.ist.utl.pt>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.2-rc1] Oops while rmmod'ing parport_pc (PnP related?)
-Message-ID: <Pine.LNX.4.58.0401211140310.13077@joel.ist.utl.pt>
+	Wed, 21 Jan 2004 06:50:42 -0500
+Date: Wed, 21 Jan 2004 11:49:32 +0000 (WET)
+From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.2-rc1
+In-Reply-To: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org>
+Message-ID: <Pine.LNX.4.58.0401211147020.14338@student.dei.uc.pt>
+References: <Pine.LNX.4.58.0401202037530.2123@home.osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-UC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
+X-UC-DEI-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-	I got this Oops while rmmod'ing parport_pc. Acording to
-/sys/bus/pnp/devices/00:01/resources, PnP device 00:01 is my parallel port.
-I'm using "options parport_pc dma=3 io=0x378 irq=7" in /etc/modprobe.conf.
-After this I was unable do read /proc/modules or run any process that uses
-it, as it has stale in D state... I could only reboot with SysRq+B.
-	If you need more info, just ask.
+On Tue, 20 Jan 2004, Linus Torvalds wrote:
 
-	Regards,
-		Rui Saraiva
+> Ok, this is the next "big merge" with things from Andrew's -mm tree, along
+> with a number of new drivers and arch updates.
 
----[ dmesg output ]-------------------------------------------------------
+Hi Linus,
 
-PnPBIOS: set_dev_node: invalid parameters were passed
-pnp: Failed to disable device 00:01.
-Unable to handle kernel paging request at virtual address d1bc1e44
- printing eip:
-c0228ebf
-*pde = 0f75a067
-*pte = 00000000
-Oops: 0002 [#1]
-CPU:    0
-EIP:    0060:[<c0228ebf>]    Not tainted
-EFLAGS: 00010246
-EIP is at unlink+0x5f/0x90
-eax: d1a8b060   ebx: c03e7d84   ecx: c03e8140   edx: d1bc1e40
-esi: c03e7dcc   edi: d1a8b044   ebp: c59c9f04   esp: c59c9ef0
-ds: 007b   es: 007b   ss: 0068
-Process rmmod (pid: 16117, threadinfo=c59c8000 task=cebee960)
-Stack: c035504b 00000042 d1a8b044 c03e7d80 d1a8b014 c59c9f14 c02291b4 d1a8b044
-       c03e7d80 c59c9f30 c027ae86 d1a8b044 00000042 d1a8b01c d1a8b014 00000000
-       c59c9f48 c027b2ca d1a8b014 c4249df8 00000000 00000000 c59c9f5c d1a8674b
-Call Trace:
- [<c02291b4>] kobject_unregister+0x14/0x20
- [<c027ae86>] bus_remove_driver+0x76/0x90
- [<c027b2ca>] driver_unregister+0x1a/0x42
- [<d1a8674b>] cleanup_module+0x3b/0x5c [parport_pc]
- [<c014510f>] sys_delete_module+0x13f/0x160
- [<c0166307>] sys_munmap+0x57/0x80
- [<c010a14f>] syscall_call+0x7/0xb
+Could you please add
 
-Code: 89 4a 04 89 11 89 40 04 89 47 1c 8b 47 28 8b 18 8d 4b 48 89
+pentium-m-support.patch
+  add Pentium M and Pentium-4 M options
+
+from -mm sources to the main tree?
+
+It's proven functional and it's good for us, Centrino users...
+
+
+Keep up the good work,
+Mind Booster Noori
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Made with pgp4pine 1.76
+
+iD8DBQFADmdOmNlq8m+oD34RAsKkAJ0Yjk/nN1n611jvP1Q5OPtjlMeMEQCfZpWi
+eb7Wt09GLoPUHH4BUiZEbqw=
+=3HoV
+-----END PGP SIGNATURE-----
+

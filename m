@@ -1,55 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264939AbUD2TlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264941AbUD2TlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264939AbUD2TlR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 15:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264933AbUD2TlR
+	id S264941AbUD2TlN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 15:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264940AbUD2TlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 15:41:17 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:39812 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264939AbUD2Tk4 (ORCPT
+	Thu, 29 Apr 2004 15:41:13 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:6893 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264933AbUD2Tku (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 15:40:56 -0400
-Date: Thu, 29 Apr 2004 21:41:30 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Zinx Verituse <zinx@epicsol.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Trivial fix for hid-tmff driver
-Message-ID: <20040429194130.GA7960@ucw.cz>
-References: <20040429192656.GA13053@bliss>
-Mime-Version: 1.0
+	Thu, 29 Apr 2004 15:40:50 -0400
+Date: Thu, 29 Apr 2004 12:38:58 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: greg@kroah.com, hannal@us.ibm.com, roms@lpg.ticalc.org,
+       jb@technologeek.org
+Subject: [PATCH 2.6.6-rc3] Add class support to drivers/usb/misc/tiglusb.c
+Message-ID: <79660000.1083267538@dyn318071bld.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040429192656.GA13053@bliss>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 29, 2004 at 02:26:56PM -0500, Zinx Verituse wrote:
-> Well, this has been a problem for quite some time due to a change in
-> the list code way back when, and my mails don't seem to be getting
-> through to Vojtech Pavlik, so here's the patch..  The problem may still
-> exist in the other drivers..
 
-I'll get it into my tree asap.
+Patch adds class support to the Texas Instruments graphing calculator with USB
+connector. I have verified it compiles and the class dir is created but do not have
+the hardware to test it.
 
-> 
-> -- 
-> Zinx Verituse                                    http://zinx.xmms.org/
+Thanks.
 
-> diff -ru linux-2.6.5.orig/drivers/usb/input/hid-tmff.c linux-2.6.5/drivers/usb/input/hid-tmff.c
-> --- linux-2.6.5.orig/drivers/usb/input/hid-tmff.c	2003-10-25 13:43:59.000000000 -0500
-> +++ linux-2.6.5/drivers/usb/input/hid-tmff.c	2003-12-18 01:00:41.000000000 -0600
-> @@ -110,7 +110,7 @@
->  {
->  	struct tmff_device *private;
->  	struct list_head *pos;
-> -	struct hid_input *hidinput = list_entry(&hid->inputs, struct hid_input, list);
-> +	struct hid_input *hidinput = list_entry(hid->inputs.next, struct hid_input, list);
->  
->  	private = kmalloc(sizeof(struct tmff_device), GFP_KERNEL);
->  	if (!private)
+Hanna Linder
+IBM Linux Technology Center
+------------
+diff -Nrup -Xdontdiff linux-2.6.6-rc3/drivers/usb/misc/tiglusb.c linux-2.6.6-rc3p/drivers/usb/misc/tiglusb.c
+--- linux-2.6.6-rc3/drivers/usb/misc/tiglusb.c	2004-04-27 18:34:59.000000000 -0700
++++ linux-2.6.6-rc3p/drivers/usb/misc/tiglusb.c	2004-04-29 12:28:29.000000000 -0700
+@@ -33,6 +33,7 @@
+ #include <linux/usb.h>
+ #include <linux/smp_lock.h>
+ #include <linux/devfs_fs_kernel.h>
++#include <linux/device.h>
+ 
+ #include <linux/ticable.h>
+ #include "tiglusb.h"
+@@ -49,6 +50,8 @@
+ 
+ static tiglusb_t tiglusb[MAXTIGL];
+ static int timeout = TIMAXTIME;	/* timeout in tenth of seconds     */
++static struct class_simple *tiglusb_class;
++static int class_minor;
+ 
+ /*---------- misc functions ------------------------------------------- */
+ 
+@@ -336,7 +339,7 @@ tiglusb_probe (struct usb_interface *int
+ {
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+ 	int minor = -1;
+-	int i;
++	int i, err = 0;
+ 	ptiglusb_t s;
+ 
+ 	dbg ("probing vendor id 0x%x, device id 0x%x",
+@@ -347,18 +350,23 @@ tiglusb_probe (struct usb_interface *int
+ 	 * the TIGL hardware, there's only 1 configuration.
+ 	 */
+ 
+-	if (dev->descriptor.bNumConfigurations != 1)
+-		return -ENODEV;
++	if (dev->descriptor.bNumConfigurations != 1) {
++		err = -ENODEV;
++		goto out;
++	}
+ 
+ 	if ((dev->descriptor.idProduct != 0xe001)
+-	    && (dev->descriptor.idVendor != 0x451))
+-		return -ENODEV;
++	    && (dev->descriptor.idVendor != 0x451)) {
++		err = -ENODEV;
++		goto out;
++	}
+ 
+ 	// NOTE:  it's already in this config, this shouldn't be needed.
+ 	// is this working around some hardware bug?
+ 	if (usb_reset_configuration (dev) < 0) {
+ 		err ("tiglusb_probe: reset_configuration failed");
+-		return -ENODEV;
++		err = -ENODEV;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -372,8 +380,10 @@ tiglusb_probe (struct usb_interface *int
+ 		}
+ 	}
+ 
+-	if (minor == -1)
+-		return -ENODEV;
++	if (minor == -1) {
++		err = -ENODEV;
++		goto out;
++	}
+ 
+ 	s = &tiglusb[minor];
+ 
+@@ -383,17 +393,30 @@ tiglusb_probe (struct usb_interface *int
+ 	up (&s->mutex);
+ 	dbg ("bound to interface");
+ 
+-	devfs_mk_cdev(MKDEV(TIUSB_MAJOR, TIUSB_MINOR) + s->minor,
++	class_minor = (TIUSB_MINOR + s->minor);
++	class_simple_device_add(tiglusb_class, MKDEV(TIUSB_MAJOR, TIUSB_MINOR + s->minor),
++			NULL, "usb%d", s->minor);
++	err = devfs_mk_cdev(MKDEV(TIUSB_MAJOR, TIUSB_MINOR) + s->minor,
+ 			S_IFCHR | S_IRUGO | S_IWUGO,
+ 			"ticables/usb/%d", s->minor);
+ 
++	if (err)
++		goto out_class;
++
+ 	/* Display firmware version */
+ 	info ("firmware revision %i.%02x",
+ 		dev->descriptor.bcdDevice >> 8,
+ 		dev->descriptor.bcdDevice & 0xff);
+ 
+ 	usb_set_intfdata (intf, s);
+-	return 0;
++	err = 0;
++	goto out;
++
++out_class:
++	class_simple_device_remove(MKDEV(TIUSB_MAJOR, TIUSB_MINOR + s->minor));
++	class_simple_destroy(tiglusb_class);
++out:
++	return err;
+ }
+ 
+ static void
+@@ -423,6 +446,8 @@ tiglusb_disconnect (struct usb_interface
+ 	s->dev = NULL;
+ 	s->opened = 0;
+ 
++	class_simple_device_remove(MKDEV(TIUSB_MAJOR, TIUSB_MINOR + s->minor));
++	class_simple_destroy(tiglusb_class);
+ 	devfs_remove("ticables/usb/%d", s->minor);
+ 
+ 	info ("device %d removed", s->minor);
+@@ -473,7 +498,7 @@ static int __init
+ tiglusb_init (void)
+ {
+ 	unsigned u;
+-	int result;
++	int result, err = 0;
+ 
+ 	/* initialize struct */
+ 	for (u = 0; u < MAXTIGL; u++) {
+@@ -490,28 +515,42 @@ tiglusb_init (void)
+ 	/* register device */
+ 	if (register_chrdev (TIUSB_MAJOR, "tiglusb", &tiglusb_fops)) {
+ 		err ("unable to get major %d", TIUSB_MAJOR);
+-		return -EIO;
++		err = -EIO;
++		goto out;
+ 	}
+ 
+ 	/* Use devfs, tree: /dev/ticables/usb/[0..3] */
+ 	devfs_mk_dir ("ticables/usb");
+ 
++	tiglusb_class = class_simple_create(THIS_MODULE, "tiglusb");
++	if (IS_ERR(tiglusb_class)) {
++		err = PTR_ERR(tiglusb_class);
++		goto out_chrdev;
++	}
+ 	/* register USB module */
+ 	result = usb_register (&tiglusb_driver);
+ 	if (result < 0) {
+-		unregister_chrdev (TIUSB_MAJOR, "tiglusb");
+-		return -1;
++		err = -1;
++		goto out_chrdev;
+ 	}
+ 
+ 	info (DRIVER_DESC ", version " DRIVER_VERSION);
+ 
+-	return 0;
++	err = 0;
++	goto out;
++
++out_chrdev:
++	unregister_chrdev (TIUSB_MAJOR, "tiglusb");
++out:
++	return err;
+ }
+ 
+ static void __exit
+ tiglusb_cleanup (void)
+ {
+ 	usb_deregister (&tiglusb_driver);
++	class_simple_device_remove(MKDEV(TIUSB_MAJOR, class_minor));
++	class_simple_destroy(tiglusb_class);
+ 	devfs_remove("ticables/usb");
+ 	unregister_chrdev (TIUSB_MAJOR, "tiglusb");
+ }
 
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

@@ -1,124 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277196AbRJNR7Y>; Sun, 14 Oct 2001 13:59:24 -0400
+	id <S277237AbRJNSJq>; Sun, 14 Oct 2001 14:09:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277263AbRJNR7O>; Sun, 14 Oct 2001 13:59:14 -0400
-Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:8201 "EHLO si.rr.com")
-	by vger.kernel.org with ESMTP id <S277261AbRJNR7C>;
-	Sun, 14 Oct 2001 13:59:02 -0400
-Message-ID: <3BC9D2C7.1020903@si.rr.com>
-Date: Sun, 14 Oct 2001 14:00:39 -0400
-From: Frank Davis <fdavis@si.rr.com>
-Reply-To: fdavis@si.rr.com
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
-X-Accept-Language: en-us
-MIME-Version: 1.0
+	id <S277261AbRJNSJg>; Sun, 14 Oct 2001 14:09:36 -0400
+Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:51212 "EHLO
+	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S277237AbRJNSJY>; Sun, 14 Oct 2001 14:09:24 -0400
+From: thunder7@xs4all.nl
+Date: Sun, 14 Oct 2001 20:07:19 +0200
 To: linux-kernel@vger.kernel.org
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [PATCH] 2.4.12-ac1: last of drivers/net MODULE_LICENSE patches
-Content-Type: multipart/mixed;
- boundary="------------020406010706050809030309"
+Subject: NR_IRQS when CONFIG_ALPHA_GENERIC is chosen
+Message-ID: <20011014200719.A1758@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020406010706050809030309
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+If you compile an alpha kernel for CONFIG_ALPHA_GENERIC, NR_IRQS is
+set at 2048. Comment in include/arch-alpha/irq.h: 'Enough for WILDFIRE
+WITH 8 QBB's'. I'm not sure what a QBB is (Quality BarBecue?) but 2048
+interrupts is ridiculous, and overloads /proc/stat.
 
-Hello,
-    I have attached a few more (last of them, I hope :) ) drivers/net 
-MODULE_LICENSE patches. Please review.
-Regards,
-Frank
+A /proc/stat that is that long crashes several user-space programs, like
+vmstat, xosview etc.
 
---------------020406010706050809030309
-Content-Type: text/plain;
- name="MAC89X0"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="MAC89X0"
+The reason I use CONFIG_ALPHA_GENERIC is that I get keyboard timeouts
+in dmesg at boot-time when I use CONFIG_ALPHA_MIATA, with every kernel >
+2.4.9-ac-x; I've not tested earlier.
 
---- drivers/net/mac89x0.c.old	Fri Oct 12 18:37:15 2001
-+++ drivers/net/mac89x0.c	Sun Oct 14 13:37:22 2001
-@@ -627,6 +627,7 @@
- 
- MODULE_PARM(debug, "i");
- MODULE_PARM_DESC(debug, "CS89[02]0 debug level (0-5)");
-+MODULE_LICENSE("GPL");
- 
- EXPORT_NO_SYMBOLS;
- 
+The alpha kernel mailing-list seems dead.
 
---------------020406010706050809030309
-Content-Type: text/plain;
- name="MACE"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="MACE"
+Is there some reason to keep NR_IRQ at 2048? I'd assume a
+CONFIG_ALPHA_GENERIC kernel is a lot more common than a Wildfire with 8
+QBB's, so it would be better to tone it down a little. Also, can anybody
+point me at some good ways to debug that keyboard timeout?
 
---- drivers/net/mace.c.old	Wed Jun 20 14:10:53 2001
-+++ drivers/net/mace.c	Sun Oct 14 13:38:24 2001
-@@ -913,6 +913,7 @@
- 
- MODULE_AUTHOR("Paul Mackerras");
- MODULE_DESCRIPTION("PowerMac MACE driver.");
-+MODULE_LICENSE("GPL");
- 
- static void __exit mace_cleanup (void)
- {
-
---------------020406010706050809030309
-Content-Type: text/plain;
- name="MACSONIC"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="MACSONIC"
-
---- drivers/net/macsonic.c.old	Fri Oct 12 18:42:55 2001
-+++ drivers/net/macsonic.c	Sun Oct 14 13:39:20 2001
-@@ -584,6 +584,7 @@
- 
- MODULE_PARM(sonic_debug, "i");
- MODULE_PARM_DESC(sonic_debug, "macsonic debug level (1-4)");
-+MODULE_LICENSE("GPL");
- 
- EXPORT_NO_SYMBOLS;
- 
-
---------------020406010706050809030309
-Content-Type: text/plain;
- name="MVME147"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="MVME147"
-
---- drivers/net/mvme147.c.old	Thu Apr 12 15:15:25 2001
-+++ drivers/net/mvme147.c	Sun Oct 14 13:40:30 2001
-@@ -188,6 +188,8 @@
- }
- 
- #ifdef MODULE
-+MODULE_LICENSE("GPL");
-+
- int init_module(void)
- {
- 	root_lance_dev = NULL;
-
---------------020406010706050809030309
-Content-Type: text/plain;
- name="MYRI_SBU"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="MYRI_SBU"
-
---- drivers/net/myri_sbus.c.old	Thu Apr 19 12:34:52 2001
-+++ drivers/net/myri_sbus.c	Sun Oct 14 13:41:37 2001
-@@ -1153,3 +1153,4 @@
- 
- module_init(myri_sbus_probe);
- module_exit(myri_sbus_cleanup);
-+MODULE_LICENSE("GPL");
-
---------------020406010706050809030309--
-
+Thanks,
+Jurriaan
+-- 
+HORROR FILM WISDOM:
+9. If your car runs out of gas at night, do not go to the nearby
+deserted-looking house to phone for help.
+GNU/Linux 2.4.10-ac12 SMP/ReiserFS 2x1402 bogomips load av: 0.06 0.11 0.05

@@ -1,55 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267375AbUJTOmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264443AbUJUOOI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267375AbUJTOmk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 10:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUJTOjO
+	id S264443AbUJUOOI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 10:14:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268734AbUJUOLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 10:39:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28171 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266574AbUJTOeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 10:34:24 -0400
-Date: Wed, 20 Oct 2004 15:34:16 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Rate of change
-Message-ID: <20041020153416.E14627@flint.arm.linux.org.uk>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Dave Jones <davej@redhat.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <41758410.2020200@pobox.com> <20041019213758.GE22334@redhat.com> <20041019213932.GA7383@havoc.gtf.org>
+	Thu, 21 Oct 2004 10:11:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50820 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269116AbUJUOJM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 10:09:12 -0400
+Date: Wed, 20 Oct 2004 15:59:27 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Brian Gerst <bgerst@quark.didntduck.org>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove last reference to LDFLAGS_BLOB
+Message-ID: <20041020175927.GE14780@logos.cnet>
+References: <4175C6E2.1080201@quark.didntduck.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041019213932.GA7383@havoc.gtf.org>; from jgarzik@pobox.com on Tue, Oct 19, 2004 at 05:39:32PM -0400
+In-Reply-To: <4175C6E2.1080201@quark.didntduck.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 19, 2004 at 05:39:32PM -0400, Jeff Garzik wrote:
-> On Tue, Oct 19, 2004 at 05:37:59PM -0400, Dave Jones wrote:
-> > On Tue, Oct 19, 2004 at 05:16:00PM -0400, Jeff Garzik wrote:
-> >  > 
-> >  > 850 changesets and 3383 revisions since 2.6.9 was released,
-> >  > a little over 24 hours ago.
-> >  > 
-> >  > That's pretty impressive.
-> > 
-> > Given a lot of these are backlogs from folks being
-> > conservative whilst we were in -rc, perhaps this is an
-> > indication we need shorter -rc periods ?
-> 
-> 
-> Actually, we need longer non-rc periods :)
 
-Personally, I think both of you are right.  One major kernel release a
-month seemed to be about the right rate.  Maybe a week and a half of
-non-rc plus two and a half weeks of -rc would be the right kind of
-balance?
+No, do not remove that initramfs_data.S section!
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+People with older binutils (like me) rely on it. 
+
+Make it obsolete on 2.7.x.
+
+On Tue, Oct 19, 2004 at 10:01:06PM -0400, Brian Gerst wrote:
+> Nothing uses LDFLAGS_BLOB anymore, now that the arm binutils are fixed.
+> 
+> --
+> 				Brian Gerst
+
+> diff -urN linux-2.6.9-bk/arch/m32r/Makefile linux/arch/m32r/Makefile
+> --- linux-2.6.9-bk/arch/m32r/Makefile	2004-10-18 20:34:14.000000000 -0400
+> +++ linux/arch/m32r/Makefile	2004-10-19 17:40:55.614157644 -0400
+> @@ -5,7 +5,6 @@
+>  LDFLAGS		:=
+>  OBJCOPYFLAGS	:= -O binary -R .note -R .comment -S
+>  LDFLAGS_vmlinux	:= -e startup_32
+> -LDFLAGS_BLOB	:= --format binary --oformat elf32-m32r
+>  
+>  CFLAGS += -pipe -fno-schedule-insns
+>  CFLAGS_KERNEL += -mmodel=medium
+> diff -urN linux-2.6.9-bk/usr/initramfs_data.S linux/usr/initramfs_data.S
+> --- linux-2.6.9-bk/usr/initramfs_data.S	2003-12-17 21:59:42.000000000 -0500
+> +++ linux/usr/initramfs_data.S	2004-10-19 17:41:16.191659582 -0400
+> @@ -1,28 +1,6 @@
+>  /*
+>    initramfs_data includes the compressed binary that is the
+>    filesystem used for early user space.
+> -  Note: Older versions of "as" (prior to binutils 2.11.90.0.23
+> -  released on 2001-07-14) dit not support .incbin.
+> -  If you are forced to use older binutils than that then the
+> -  following trick can be applied to create the resulting binary:
+> -
+> -
+> -  ld -m elf_i386  --format binary --oformat elf32-i386 -r \
+> -  -T initramfs_data.scr initramfs_data.cpio.gz -o initramfs_data.o
+> -   ld -m elf_i386  -r -o built-in.o initramfs_data.o
+> -
+> -  initramfs_data.scr looks like this:
+> -SECTIONS
+> -{
+> -       .init.ramfs : { *(.data) }
+> -}
+> -
+> -  The above example is for i386 - the parameters vary from architectures.
+> -  Eventually look up LDFLAGS_BLOB in an older version of the
+> -  arch/$(ARCH)/Makefile to see the flags used before .incbin was introduced.
+> -
+> -  Using .incbin has the advantage over ld that the correct flags are set
+> -  in the ELF header, as required by certain architectures.
+>  */
+>  
+>  .section .init.ramfs,"a"
+

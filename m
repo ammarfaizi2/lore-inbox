@@ -1,70 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTDEEj7 (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 23:39:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbTDEEj7 (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 23:39:59 -0500
-Received: from mail.ocs.com.au ([203.34.97.2]:9735 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id S261798AbTDEEj5 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 23:39:57 -0500
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Ed Vance <EdV@macrolink.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: your mail 
-In-reply-to: Your message of "Fri, 04 Apr 2003 16:38:50 PST."
-             <11E89240C407D311958800A0C9ACF7D1A33E27@EXCHANGE> 
-Mime-Version: 1.0
+	id S261789AbTDEEiU (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 23:38:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbTDEEiU (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 23:38:20 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:31886 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S261789AbTDEEiT (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Apr 2003 23:38:19 -0500
+Date: Fri, 04 Apr 2003 20:49:25 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Rik van Riel <riel@surriel.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@digeo.com>,
+       mingo@elte.hu, hugh@veritas.com, dmccr@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: objrmap and vmtruncate
+Message-ID: <8950000.1049518163@[10.10.2.4]>
+In-Reply-To: <20030405041018.GG993@holomorphy.com>
+References: <20030405024414.GP16293@dualathlon.random> <Pine.LNX.4.44.0304042255390.32336-100000@chimarrao.boston.redhat.com> <20030405041018.GG993@holomorphy.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 05 Apr 2003 14:51:16 +1000
-Message-ID: <30498.1049518276@ocs3.intra.ocs.com.au>
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 4 Apr 2003 16:38:50 -0800 , 
-Ed Vance <EdV@macrolink.com> wrote:
->On Fri, Apr 04, 2003 at 3:21 PM, Keith Owens wrote:
->> 
->> On Fri, 4 Apr 2003 14:10:16 -0800 , 
->> Ed Vance <EdV@macrolink.com> wrote:
->> >Perhaps there is a middle ground. Leave the list open, but require a
->> >confirmation reply prior to passing along posts from addresses that:
->> >
->> >1. are not members of the list, AND
->> >2. have not previously done a proper confirmation reply.
->> 
->> 30 seconds after doing that, the spammers will forge email that claims
->> to be from LT, AC, DM, MT etc.  Not to mention all the viruses that
->> forge the headers.  Verification by 'From:' line on an open list is
->> pointless.
->> 
->The goal was to greatly reduce, in one swell foop, the volume of spam that
->the filters (and postmaster) must interactively deal with. I thought that
->perhaps this method could replace one of more of the troublesome filtering
->techniques to achieve the same net spam reduction without evoking as much
->whining.
+>> The only issues with objrmap seems to be mremap, which Hugh
+>> seems to have taken care of, and the case of a large number
+>> of processes mapping different parts of the same file multiple
+>> times (1000 processes mapping each 1000 parts of the same file),
+>> which would grow the complexity of the VMA search from linear
+>> to quadratical.
+>> That last case is also fixable, though, probably best done using
+>> k-d trees.
+>> Except for nonlinear VMAs I don't think there are any big obstacles
+>> left that would keep us from switching to object rmap.
+> 
+> The k-d trees only solve the "external" interference case, that is,
+> it thins the search space by eliminating vma's the page must
+> necessarily be outside of.
+> 
+> They don't solve the "internal" interference case, where the page does
+> fall into all of the vma's, but only a few out of those have actually
+> faulted the page into the pagetables. This is likely only "fixable" by
+> pointwise methods, which seem to come with notable maintenance expense.
 
-Paraphrase: Replace filtering code that catches spam with filtering
-code based on checking header content that can be trivially forged by
-spammers.
+I don't think we have an app that has 1000 processes mapping the whole
+file 1000 times per process. If we do, shooting the author seems like 
+the best course of action to me.
 
->Matti, 
->Roughly what percentage of the spam actually hitting vger today (and
->bouncing off) is based on Keith's flavor of spoofing? Is it even 1 percent? 
-
-Current figures are irrelevant, spammers react to spam filters and they
-react very quickly[*].  If you replace "reject HTML bodies" with "allow
-HTML based on known From: lines" then the spammers will send HTML
-bodies with forged headers, because they know it will get through.
-That will require the original HTML filters to be reintroduced, the end
-result is you added an extra step for new posters without reducing the
-spam or users whining "my mail does not get through".
-
-[*] About 24 hours after slashdot carried a story on Baysian spam
-    filters, I started receiving HTML spam that contained comments that
-    were designed to fool the Baysian filters, like this.
-
-    FREE 1 MONTH SUPP<!--kernel-->Y WITH THIS
-
-    The comment has no effect on the spam display but the use of
-    non-spam words skews the Baysian rules on whether the content is
-    spam or not.
+M.
 

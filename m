@@ -1,36 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbTJAS2d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 14:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262572AbTJAS1i
+	id S261239AbTJASX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 14:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbTJASX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 14:27:38 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:8970 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S262181AbTJASZ2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 14:25:28 -0400
-Date: Wed, 1 Oct 2003 20:25:07 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: beh@icemark.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5 (>>2.5.62)/2.6 keyboard oddity
-Message-ID: <20031001182507.GA1686@win.tue.nl>
-References: <Pine.LNX.4.58.0310011940340.13575@berenium.icemark.net>
+	Wed, 1 Oct 2003 14:23:57 -0400
+Received: from mta03-svc.ntlworld.com ([62.253.162.43]:33970 "EHLO
+	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S261239AbTJASXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 14:23:53 -0400
+Subject: What Processor family for Centrino Pentium M?
+From: Jonathan Brown <jbrown@emergence.uk.net>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Ee/oD2++QYPjzgTgfkFI"
+Message-Id: <1065032627.9643.57.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0310011940340.13575@berenium.icemark.net>
-User-Agent: Mutt/1.3.25i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 01 Oct 2003 19:23:47 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 01, 2003 at 08:06:33PM +0200, beh@icemark.net wrote:
 
-> Since quite some time I upgraded to the latest kernel
-> (2.6.0-test6).
+--=-Ee/oD2++QYPjzgTgfkFI
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-But 2.6.0-test6 is only a few days old. Is your "quite some time"
-two days, or are you talking about some older version?
+Is the Pentium M a P3 or a P4? What should I set in my kernel config?
 
--test5 and -test6 are very different in this respect.
+--=20
+Jonathan Brown
+http://emergence.uk.net/
+
+
+--=-Ee/oD2++QYPjzgTgfkFI
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQA/exuzBzOIZcLkrTMRAjQbAKDIsJkKJKwtzgJgmfF+Z3Im6yikwACgzP6d
+dzO+2hD7jpjCerY3Br74ngI=
+=wnMs
+-----END PGP SIGNATURE-----
+
+--=-Ee/oD2++QYPjzgTgfkFI--
 

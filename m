@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289855AbSAXAow>; Wed, 23 Jan 2002 19:44:52 -0500
+	id <S289621AbSAXAtC>; Wed, 23 Jan 2002 19:49:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289866AbSAXAon>; Wed, 23 Jan 2002 19:44:43 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:30954 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S289855AbSAXAo2>; Wed, 23 Jan 2002 19:44:28 -0500
-From: Badari Pulavarty <pbadari@us.ibm.com>
-Message-Id: <200201240044.g0O0iOh24822@eng2.beaverton.ibm.com>
-Subject: [PATCH] small bugfix for ll_rw_bio() for 2.5.3-pre3
-To: axboe@suse.de (Jens Axboe), linux-kernel@vger.kernel.org
-Date: Wed, 23 Jan 2002 16:44:24 -0800 (PST)
-In-Reply-To: <20020115145549.M31878@suse.de> from "Jens Axboe" at Jan 15, 2002 01:55:49 PM PST
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S290230AbSAXAsw>; Wed, 23 Jan 2002 19:48:52 -0500
+Received: from mta7.pltn13.pbi.net ([64.164.98.8]:966 "EHLO
+	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
+	id <S289621AbSAXAsl>; Wed, 23 Jan 2002 19:48:41 -0500
+Date: Wed, 23 Jan 2002 16:46:13 -0800
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: depmod problem for 2.5.2-dj4
+To: Greg KH <greg@kroah.com>, Vojtech Pavlik <vojtech@suse.cz>
+Cc: Torrey Hoffman <thoffman@arnor.net>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        linux-usb-devel@lists.sourceforge.net
+Message-id: <003701c1a470$86b6bda0$6800000a@brownell.org>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7BIT
+X-Priority: 3
+X-MSMail-priority: Normal
+In-Reply-To: <1011744752.2440.0.camel@shire.arnor.net>
+ <20020123045405.GA12060@kroah.com> <20020123094414.D5170@suse.cz>
+ <20020123212435.GB15259@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> > > Vojtech, is this a USB function that you want added to usb.c?
+> > 
+> > Yes, please. This will change later when Pat Mochels devicefs kicks in,
 
-Here is a small bug fix for ll_rw_bio() for 2.5.3-pre3. 
-kio->io_count can be safely incremented only after 
-bio_alloc() success. 
+What's the story on "driverfs" happening, by the way?  Last I knew, the
+PCI bits weren't yet ready.
 
-Thanks,
-Badari
 
---- linux-253pre3/fs/bio.c	Thu Dec 27 08:15:15 2001
-+++ linux-253pre3.new/fs/bio.c	Wed Jan 23 17:32:59 2002
-@@ -368,8 +368,6 @@
- 	if (nr_pages > total_nr_pages)
- 		nr_pages = total_nr_pages;
- 
--	atomic_inc(&kio->io_count);
--
- 	/*
- 	 * allocate bio and do initial setup
- 	 */
-@@ -377,6 +375,8 @@
- 		err = -ENOMEM;
- 		goto out;
- 	}
-+
-+	atomic_inc(&kio->io_count);
- 
- 	bio->bi_sector = sector;
- 	bio->bi_dev = dev;
+> > but for the time being, it'd be very useful.
+>
+> +int usb_make_path(struct usb_device *dev, char *buf, size_t size)
+
+I don't think that patch is necessary.  It's simpler to just
+
+    strncpy (buf, dev->devpath, min_t(size_t, size, sizeof dev->devpath));
+
+Use like you'd use pci_dev->slot_name ... no mallocation necessary.
+It's just the path from root hub down to device, /2/1/7 and so on:  the
+physical path, which stays the same so long as you don't recable your
+tree of USB devices and hubs.
+
+I'd expect the typical "driverfs" path for a USB device to be the
+path for the root hub (normally a PCI slot like 00:0f.3) followed by
+what "devpath" now shows.
+
+- Dave
+
+
 

@@ -1,213 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272886AbRIXVlH>; Mon, 24 Sep 2001 17:41:07 -0400
+	id <S273643AbRIXVss>; Mon, 24 Sep 2001 17:48:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272829AbRIXVku>; Mon, 24 Sep 2001 17:40:50 -0400
-Received: from mackman.submm.caltech.edu ([131.215.85.46]:9856 "EHLO
-	mackman.net") by vger.kernel.org with ESMTP id <S272795AbRIXVka>;
-	Mon, 24 Sep 2001 17:40:30 -0400
-Date: Mon, 24 Sep 2001 14:40:55 -0700 (PDT)
-From: Ryan Mack <rmack@mackman.net>
-To: <linux-kernel@vger.kernel.org>, <ext2-devel@lists.sourceforge.net>
-Subject: [BUG?] ext3 0.9.10-2410 - assertion failed
-In-Reply-To: <Pine.LNX.4.33.0109241409490.990-100000@mackman.net>
-Message-ID: <Pine.LNX.4.33.0109241428420.1298-500000@mackman.net>
+	id <S273663AbRIXVsi>; Mon, 24 Sep 2001 17:48:38 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:48394 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S273643AbRIXVsX>; Mon, 24 Sep 2001 17:48:23 -0400
+Date: Mon, 24 Sep 2001 18:48:33 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Rob Landley <landley@trommello.org>
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        VDA <VDA@port.imtp.ilyichevsk.odessa.ua>,
+        Andrea Arcangeli <andrea@suse.de>, Alexander Viro <viro@math.psu.edu>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Linux VM design
+In-Reply-To: <01092413273805.02280@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L.0109241842410.1864-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-679268779-817930155-1001367655=:1298"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, 24 Sep 2001, Rob Landley wrote:
 
----679268779-817930155-1001367655=:1298
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+> Out of morbid curiosity, how much of that research either said
+> or assumed that microkernels were a good idea?
 
-At the time, I was running lilo and the system was reconstructing one of
-two RAID-1 mirrors on a pair of SCSI drives connected via a Adaptec
-AHA-2940U2/W controller.  Other than that the system was not under any
-load.
+*grin*
 
-Thanks, Ryan
+None that I can remember even dealt with this. The
+page replacement research I've read was both generic
+OS and database page replacement, maybe 50 to 100
+papers total...
 
----679268779-817930155-1001367655=:1298
-Content-Type: TEXT/plain; name="assert.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0109241440550.1298@mackman.net>
-Content-Description: 
-Content-Disposition: attachment; filename="assert.txt"
+cheers,
 
-QXNzZXJ0aW9uIGZhaWx1cmUgaW4gam91cm5hbF9mbHVzaCgpIGF0IGpvdXJu
-YWwuYzoxMjIxOiAiIWpvdXJuYWwtPmpfcnVubmluZ190cmFuc2FjdGlvbiIN
-CmludmFsaWQgb3BlcmFuZDogMDAwMA0KQ1BVOiAgICAwDQpFSVA6ICAgIDAw
-MTA6WzxjMDE2M2Q3OT5dDQpFRkxBR1M6IDAwMDEwMjkyDQplYXg6IDAwMDAw
-MDVkICAgZWJ4OiAwMDAwMTJiNSAgIGVjeDogMDAwMDAwMTIgICBlZHg6IGNm
-NjJkZjY0DQplc2k6IGNmZjNmODAwICAgZWRpOiAwMDAwMDAwMCAgIGVicDog
-YzAxNTc3YzAgICBlc3A6IGNiYjZmZjU4DQpkczogMDAxOCAgIGVzOiAwMDE4
-ICAgc3M6IDAwMTgNClByb2Nlc3MgbGlsbyAocGlkOiAxMDk1LCBzdGFja3Bh
-Z2U9Y2JiNmYwMDApDQpTdGFjazogYzAyMGNhYTAgYzAyMGNlYzAgYzAyMGNh
-NzEgMDAwMDA0YzUgYzAyMGNlYTAgY2JmMWI3ZmMgY2JmMWI3ZmMgY2NkNDIz
-NDANCiAgICAgICBjMDE1NzdlZCBjZmYzZjgwMCBiZmZmZTJlOCBjMDE0M2Nm
-OSBjYmYxYjdmYyAwMDAwMDAwMCBiZmZmZTJlOCBjY2Q0MjM0MA0KICAgICAg
-IDAwMDAwMDAxIGZmZmZmZmU3IGMwMTQzZjYyIGNjZDQyMzQwIDAwMDAwMDAx
-IGJmZmZlMmU4IGNiYjZlMDAwIDA4MDU3MTQwDQpDYWxsIFRyYWNlOiBbPGMw
-MTU3N2VkPl0gWzxjMDE0M2NmOT5dIFs8YzAxNDNmNjI+XSBbPGMwMTA2ZjFi
-Pl0NCg0KQ29kZTogMGYgMGIgODMgYzQgMTQgOGIgNTYgMzAgODUgZDIgNzQg
-MjMgNjggZTAgY2UgMjAgYzAgNjggYzYgMDQNCiB6c2g6IHNlZ21lbnRhdGlv
-biBmYXVsdCAgbGlsbw0K
----679268779-817930155-1001367655=:1298
-Content-Type: TEXT/plain; name="ksymoops.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0109241440551.1298@mackman.net>
-Content-Description: 
-Content-Disposition: attachment; filename="ksymoops.txt"
+Rik
+--
+IA64: a worthy successor to the i860.
 
-a3N5bW9vcHMgMi40LjAgb24gaTY4NiAyLjQuMTAuICBPcHRpb25zIHVzZWQN
-CiAgICAgLVYgKGRlZmF1bHQpDQogICAgIC1rIC9wcm9jL2tzeW1zIChkZWZh
-dWx0KQ0KICAgICAtbCAvcHJvYy9tb2R1bGVzIChkZWZhdWx0KQ0KICAgICAt
-byAvbGliL21vZHVsZXMvMi40LjEwLyAoZGVmYXVsdCkNCiAgICAgLW0gL2Jv
-b3QvU3lzdGVtLm1hcC0yLjQuMTAgKGRlZmF1bHQpDQoNCldhcm5pbmc6IFlv
-dSBkaWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmluZCBzeW1ib2wgaW5mb3Jt
-YXRpb24uICBJIHdpbGwNCmFzc3VtZSB0aGF0IHRoZSBsb2cgbWF0Y2hlcyB0
-aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJlIHJ1bm5pbmcNCnJpZ2h0
-IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQgb3B0aW9ucyBhYm92ZSBm
-b3Igc3ltYm9sIHJlc29sdXRpb24uDQpJZiB0aGUgY3VycmVudCBrZXJuZWwg
-YW5kL29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRoZSBsb2csIHlvdSBjYW4g
-Z2V0DQptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0ZWxsaW5nIG1lIHRoZSBr
-ZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmluZA0KbWFwLCBtb2R1bGVz
-LCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBsYWlucyB0aGUgb3B0aW9u
-cy4NCg0KV2FybmluZyAoY29tcGFyZV9tYXBzKTogbWlzbWF0Y2ggb24gc3lt
-Ym9sIHBhcnRpdGlvbl9uYW1lICAsIGtzeW1zX2Jhc2Ugc2F5cyBjMDFiNmRh
-MCwgU3lzdGVtLm1hcCBzYXlzIGMwMTUyYzMwLiAgSWdub3Jpbmcga3N5bXNf
-YmFzZSBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKTogbWlzbWF0Y2gg
-b24gc3ltYm9sIGF1ZGlvX2RldnMgICwgc291bmQgc2F5cyBkMDkzZDg4MCwg
-L2xpYi9tb2R1bGVzLzIuNC4xMC9rZXJuZWwvZHJpdmVycy9zb3VuZC9zb3Vu
-ZC5vIHNheXMgZDA5M2QyMDAuICBJZ25vcmluZyAvbGliL21vZHVsZXMvMi40
-LjEwL2tlcm5lbC9kcml2ZXJzL3NvdW5kL3NvdW5kLm8gZW50cnkNCldhcm5p
-bmcgKGNvbXBhcmVfbWFwcyk6IG1pc21hdGNoIG9uIHN5bWJvbCBtaWRpX2Rl
-dnMgICwgc291bmQgc2F5cyBkMDkzZDhmMCwgL2xpYi9tb2R1bGVzLzIuNC4x
-MC9rZXJuZWwvZHJpdmVycy9zb3VuZC9zb3VuZC5vIHNheXMgZDA5M2QyNzAu
-ICBJZ25vcmluZyAvbGliL21vZHVsZXMvMi40LjEwL2tlcm5lbC9kcml2ZXJz
-L3NvdW5kL3NvdW5kLm8gZW50cnkNCldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6
-IG1pc21hdGNoIG9uIHN5bWJvbCBtaXhlcl9kZXZzICAsIHNvdW5kIHNheXMg
-ZDA5M2Q4OTgsIC9saWIvbW9kdWxlcy8yLjQuMTAva2VybmVsL2RyaXZlcnMv
-c291bmQvc291bmQubyBzYXlzIGQwOTNkMjE4LiAgSWdub3JpbmcgL2xpYi9t
-b2R1bGVzLzIuNC4xMC9rZXJuZWwvZHJpdmVycy9zb3VuZC9zb3VuZC5vIGVu
-dHJ5DQpXYXJuaW5nIChjb21wYXJlX21hcHMpOiBtaXNtYXRjaCBvbiBzeW1i
-b2wgbnVtX2F1ZGlvZGV2cyAgLCBzb3VuZCBzYXlzIGQwOTNkODk0LCAvbGli
-L21vZHVsZXMvMi40LjEwL2tlcm5lbC9kcml2ZXJzL3NvdW5kL3NvdW5kLm8g
-c2F5cyBkMDkzZDIxNC4gIElnbm9yaW5nIC9saWIvbW9kdWxlcy8yLjQuMTAv
-a2VybmVsL2RyaXZlcnMvc291bmQvc291bmQubyBlbnRyeQ0KV2FybmluZyAo
-Y29tcGFyZV9tYXBzKTogbWlzbWF0Y2ggb24gc3ltYm9sIG51bV9taWRpcyAg
-LCBzb3VuZCBzYXlzIGQwOTNkOTA4LCAvbGliL21vZHVsZXMvMi40LjEwL2tl
-cm5lbC9kcml2ZXJzL3NvdW5kL3NvdW5kLm8gc2F5cyBkMDkzZDI4OC4gIEln
-bm9yaW5nIC9saWIvbW9kdWxlcy8yLjQuMTAva2VybmVsL2RyaXZlcnMvc291
-bmQvc291bmQubyBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKTogbWlz
-bWF0Y2ggb24gc3ltYm9sIG51bV9taXhlcnMgICwgc291bmQgc2F5cyBkMDkz
-ZDhhYywgL2xpYi9tb2R1bGVzLzIuNC4xMC9rZXJuZWwvZHJpdmVycy9zb3Vu
-ZC9zb3VuZC5vIHNheXMgZDA5M2QyMmMuICBJZ25vcmluZyAvbGliL21vZHVs
-ZXMvMi40LjEwL2tlcm5lbC9kcml2ZXJzL3NvdW5kL3NvdW5kLm8gZW50cnkN
-Cldhcm5pbmcgKGNvbXBhcmVfbWFwcyk6IG1pc21hdGNoIG9uIHN5bWJvbCBu
-dW1fc3ludGhzICAsIHNvdW5kIHNheXMgZDA5M2Q4ZWMsIC9saWIvbW9kdWxl
-cy8yLjQuMTAva2VybmVsL2RyaXZlcnMvc291bmQvc291bmQubyBzYXlzIGQw
-OTNkMjZjLiAgSWdub3JpbmcgL2xpYi9tb2R1bGVzLzIuNC4xMC9rZXJuZWwv
-ZHJpdmVycy9zb3VuZC9zb3VuZC5vIGVudHJ5DQpXYXJuaW5nIChjb21wYXJl
-X21hcHMpOiBtaXNtYXRjaCBvbiBzeW1ib2wgc3ludGhfZGV2cyAgLCBzb3Vu
-ZCBzYXlzIGQwOTNkOGMwLCAvbGliL21vZHVsZXMvMi40LjEwL2tlcm5lbC9k
-cml2ZXJzL3NvdW5kL3NvdW5kLm8gc2F5cyBkMDkzZDI0MC4gIElnbm9yaW5n
-IC9saWIvbW9kdWxlcy8yLjQuMTAva2VybmVsL2RyaXZlcnMvc291bmQvc291
-bmQubyBlbnRyeQ0KV2FybmluZyAoY29tcGFyZV9tYXBzKTogbWlzbWF0Y2gg
-b24gc3ltYm9sIHVzYl9kZXZmc19oYW5kbGUgICwgdXNiY29yZSBzYXlzIGQw
-OTE0ODgwLCAvbGliL21vZHVsZXMvMi40LjEwL2tlcm5lbC9kcml2ZXJzL3Vz
-Yi91c2Jjb3JlLm8gc2F5cyBkMDkxNDNhMC4gIElnbm9yaW5nIC9saWIvbW9k
-dWxlcy8yLjQuMTAva2VybmVsL2RyaXZlcnMvdXNiL3VzYmNvcmUubyBlbnRy
-eQ0KaW52YWxpZCBvcGVyYW5kOiAwMDAwDQpDUFU6ICAgIDANCkVJUDogICAg
-MDAxMDpbPGMwMTYzZDc5Pl0NClVzaW5nIGRlZmF1bHRzIGZyb20ga3N5bW9v
-cHMgLXQgZWxmMzItaTM4NiAtYSBpMzg2DQpFRkxBR1M6IDAwMDEwMjkyDQpl
-YXg6IDAwMDAwMDVkICAgZWJ4OiAwMDAwMTJiNSAgIGVjeDogMDAwMDAwMTIg
-ICBlZHg6IGNmNjJkZjY0DQplc2k6IGNmZjNmODAwICAgZWRpOiAwMDAwMDAw
-MCAgIGVicDogYzAxNTc3YzAgICBlc3A6IGNiYjZmZjU4DQpkczogMDAxOCAg
-IGVzOiAwMDE4ICAgc3M6IDAwMTgNClByb2Nlc3MgbGlsbyAocGlkOiAxMDk1
-LCBzdGFja3BhZ2U9Y2JiNmYwMDApDQpTdGFjazogYzAyMGNhYTAgYzAyMGNl
-YzAgYzAyMGNhNzEgMDAwMDA0YzUgYzAyMGNlYTAgY2JmMWI3ZmMgY2JmMWI3
-ZmMgY2NkNDIzNDANCiAgICAgICBjMDE1NzdlZCBjZmYzZjgwMCBiZmZmZTJl
-OCBjMDE0M2NmOSBjYmYxYjdmYyAwMDAwMDAwMCBiZmZmZTJlOCBjY2Q0MjM0
-MA0KICAgICAgIDAwMDAwMDAxIGZmZmZmZmU3IGMwMTQzZjYyIGNjZDQyMzQw
-IDAwMDAwMDAxIGJmZmZlMmU4IGNiYjZlMDAwIDA4MDU3MTQwDQpDYWxsIFRy
-YWNlOiBbPGMwMTU3N2VkPl0gWzxjMDE0M2NmOT5dIFs8YzAxNDNmNjI+XSBb
-PGMwMTA2ZjFiPl0NCkNvZGU6IDBmIDBiIDgzIGM0IDE0IDhiIDU2IDMwIDg1
-IGQyIDc0IDIzIDY4IGUwIGNlIDIwIGMwIDY4IGM2IDA0DQoNCj4+RUlQOyBj
-MDE2M2Q3OSA8am91cm5hbF9mbHVzaCtmOS8xZTA+ICAgPD09PT09DQpUcmFj
-ZTsgYzAxNTc3ZWQgPGV4dDNfYm1hcCsyZC81MD4NClRyYWNlOyBjMDE0M2Nm
-OSA8ZmlsZV9pb2N0bCthOS8xNzA+DQpUcmFjZTsgYzAxNDNmNjIgPHN5c19p
-b2N0bCsxYTIvMjAwPg0KVHJhY2U7IGMwMTA2ZjFiIDxzeXN0ZW1fY2FsbCsz
-My8zOD4NCkNvZGU7ICBjMDE2M2Q3OSA8am91cm5hbF9mbHVzaCtmOS8xZTA+
-DQowMDAwMDAwMCA8X0VJUD46DQpDb2RlOyAgYzAxNjNkNzkgPGpvdXJuYWxf
-Zmx1c2grZjkvMWUwPiAgIDw9PT09PQ0KICAgMDogICAwZiAwYiAgICAgICAg
-ICAgICAgICAgICAgIHVkMmEgICAgICA8PT09PT0NCkNvZGU7ICBjMDE2M2Q3
-YiA8am91cm5hbF9mbHVzaCtmYi8xZTA+DQogICAyOiAgIDgzIGM0IDE0ICAg
-ICAgICAgICAgICAgICAgYWRkICAgICQweDE0LCVlc3ANCkNvZGU7ICBjMDE2
-M2Q3ZSA8am91cm5hbF9mbHVzaCtmZS8xZTA+DQogICA1OiAgIDhiIDU2IDMw
-ICAgICAgICAgICAgICAgICAgbW92ICAgIDB4MzAoJWVzaSksJWVkeA0KQ29k
-ZTsgIGMwMTYzZDgxIDxqb3VybmFsX2ZsdXNoKzEwMS8xZTA+DQogICA4OiAg
-IDg1IGQyICAgICAgICAgICAgICAgICAgICAgdGVzdCAgICVlZHgsJWVkeA0K
-Q29kZTsgIGMwMTYzZDgzIDxqb3VybmFsX2ZsdXNoKzEwMy8xZTA+DQogICBh
-OiAgIDc0IDIzICAgICAgICAgICAgICAgICAgICAgamUgICAgIDJmIDxfRUlQ
-KzB4MmY+IGMwMTYzZGE4IDxqb3VybmFsX2ZsdXNoKzEyOC8xZTA+DQpDb2Rl
-OyAgYzAxNjNkODUgPGpvdXJuYWxfZmx1c2grMTA1LzFlMD4NCiAgIGM6ICAg
-NjggZTAgY2UgMjAgYzAgICAgICAgICAgICBwdXNoICAgJDB4YzAyMGNlZTAN
-CkNvZGU7ICBjMDE2M2Q4YSA8am91cm5hbF9mbHVzaCsxMGEvMWUwPg0KICAx
-MTogICA2OCBjNiAwNCAwMCAwMCAgICAgICAgICAgIHB1c2ggICAkMHg0YzYN
-Cg0KDQoxMSB3YXJuaW5ncyBpc3N1ZWQuICBSZXN1bHRzIG1heSBub3QgYmUg
-cmVsaWFibGUuDQo=
----679268779-817930155-1001367655=:1298
-Content-Type: TEXT/plain; name="lspci.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0109241440552.1298@mackman.net>
-Content-Description: 
-Content-Disposition: attachment; filename="lspci.txt"
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-MDA6MDAuMCBIb3N0IGJyaWRnZTogSW50ZWwgQ29ycG9yYXRpb24gNDQwQlgv
-WlggLSA4MjQ0M0JYL1pYIEhvc3QgYnJpZGdlIChyZXYgMDMpDQowMDowMS4w
-IFBDSSBicmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDQ0MEJYL1pYIC0gODI0
-NDNCWC9aWCBBR1AgYnJpZGdlIChyZXYgMDMpDQowMDowNy4wIElTQSBicmlk
-Z2U6IEludGVsIENvcnBvcmF0aW9uIDgyMzcxQUIgUElJWDQgSVNBIChyZXYg
-MDIpDQowMDowNy4xIElERSBpbnRlcmZhY2U6IEludGVsIENvcnBvcmF0aW9u
-IDgyMzcxQUIgUElJWDQgSURFIChyZXYgMDEpDQowMDowNy4yIFVTQiBDb250
-cm9sbGVyOiBJbnRlbCBDb3Jwb3JhdGlvbiA4MjM3MUFCIFBJSVg0IFVTQiAo
-cmV2IDAxKQ0KMDA6MDcuMyBCcmlkZ2U6IEludGVsIENvcnBvcmF0aW9uIDgy
-MzcxQUIgUElJWDQgQUNQSSAocmV2IDAyKQ0KMDA6MTEuMCBFdGhlcm5ldCBj
-b250cm9sbGVyOiAzQ29tIENvcnBvcmF0aW9uIDNjOTA1QiAxMDBCYXNlVFgg
-W0N5Y2xvbmVdDQowMDoxMy4wIFBDSSBicmlkZ2U6IERpZ2l0YWwgRXF1aXBt
-ZW50IENvcnBvcmF0aW9uIERFQ2NoaXAgMjExNTIgKHJldiAwMykNCjAxOjAw
-LjAgVkdBIGNvbXBhdGlibGUgY29udHJvbGxlcjogblZpZGlhIENvcnBvcmF0
-aW9uIFJpdmEgVG5UMiBbTlY1XSAocmV2IDExKQ0KMDI6MGEuMCBTQ1NJIHN0
-b3JhZ2UgY29udHJvbGxlcjogQWRhcHRlYyBBSEEtMjk0MFUyL1cgLyA3ODkw
-DQowMjowZS4wIFNDU0kgc3RvcmFnZSBjb250cm9sbGVyOiBBZGFwdGVjIEFJ
-Qy03ODgwVSAocmV2IDAxKQ0K
----679268779-817930155-1001367655=:1298
-Content-Type: TEXT/plain; name="ver_linux.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.33.0109241440553.1298@mackman.net>
-Content-Description: 
-Content-Disposition: attachment; filename="ver_linux.txt"
-
-SWYgc29tZSBmaWVsZHMgYXJlIGVtcHR5IG9yIGxvb2sgdW51c3VhbCB5b3Ug
-bWF5IGhhdmUgYW4gb2xkIHZlcnNpb24uDQpDb21wYXJlIHRvIHRoZSBjdXJy
-ZW50IG1pbmltYWwgcmVxdWlyZW1lbnRzIGluIERvY3VtZW50YXRpb24vQ2hh
-bmdlcy4NCiANCkxpbnV4IG1hY2ttYW4ubmV0IDIuNC4xMCAjMSBTTVAgTW9u
-IFNlcCAyNCAwMjozNzo0MSBQRFQgMjAwMSBpNjg2IHVua25vd24NCiANCkdu
-dSBDICAgICAgICAgICAgICAgICAgMi45Ng0KR251IG1ha2UgICAgICAgICAg
-ICAgICAzLjc5LjENCmJpbnV0aWxzICAgICAgICAgICAgICAgMi4xMC45MS4w
-LjINCnV0aWwtbGludXggICAgICAgICAgICAgMi4xMWYNCm1vdW50ICAgICAg
-ICAgICAgICAgICAgMi4xMWINCm1vZHV0aWxzICAgICAgICAgICAgICAgMi40
-LjINCmUyZnNwcm9ncyAgICAgICAgICAgICAgMS4yMw0KTGludXggQyBMaWJy
-YXJ5ICAgICAgICAyLjIuMg0KRHluYW1pYyBsaW5rZXIgKGxkZCkgICAyLjIu
-Mg0KUHJvY3BzICAgICAgICAgICAgICAgICAyLjAuNw0KTmV0LXRvb2xzICAg
-ICAgICAgICAgICAxLjU3DQpDb25zb2xlLXRvb2xzICAgICAgICAgIDAuMy4z
-DQpTaC11dGlscyAgICAgICAgICAgICAgIDIuMA0KTW9kdWxlcyBMb2FkZWQg
-ICAgICAgICAzYzU5eCBjczQyMzIgdWFydDQwMSBhZDE4NDggc291bmQgc291
-bmRjb3JlIGlzYS1wbnAgbW91c2VkZXYgaGlkIGlucHV0IHVoY2kgdXNiY29y
-ZQ0K
----679268779-817930155-1001367655=:1298--

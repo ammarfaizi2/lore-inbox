@@ -1,54 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264147AbTEGR1W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 13:27:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264150AbTEGR1V
+	id S264092AbTEGRiB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 13:38:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264102AbTEGRiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 13:27:21 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:33036 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S264147AbTEGR1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 13:27:12 -0400
-Date: Wed, 7 May 2003 10:39:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: mikpe@csd.uu.se
-cc: Dave Jones <davej@codemonkey.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] restore sysenter MSRs at resume
-In-Reply-To: <16057.16684.101916.709412@gargle.gargle.HOWL>
-Message-ID: <Pine.LNX.4.44.0305071033400.2997-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 May 2003 13:38:01 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:23781 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264092AbTEGRh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 13:37:59 -0400
+Date: Wed, 7 May 2003 19:50:33 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 ide 48-bit usage
+Message-ID: <20030507175033.GR823@suse.de>
+References: <20030507173341.GP823@suse.de> <Pine.LNX.4.44.0305071039490.2997-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305071039490.2997-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Wed, 7 May 2003 mikpe@csd.uu.se wrote:
+On Wed, May 07 2003, Linus Torvalds wrote:
 > 
-> We don't do apm suspend/resume on SMP, so this is no different from the
-> current situation. I don't know if acpi does it or not.
-
-Well, the thing is, if we ever do want to support it (and I suspect we 
-do), we should have the infrastructure ready. It shouldn't be too hard to 
-support SMP suspend in a 2.7.x timeframe, since it from a technology angle 
-looks like simply hot-plug CPU's. Some of the infrastructure for that 
-already exists.
-
-But I seriously doubt we want to do CPU hot-plug as a device driver. 
-Having a hook in place for it in the arch directory will make it easyish 
-to add once we integrate all the other hotplug code (which is very 
-unlikely in the 2.6.x timeframe).
-
-> I could probably get away with simply having apm.c invoke the C code
-> in suspend.c, which does restore the SYSENTER MSRs. suspend.c itself
-> doesn't seem to depend on the SOFTWARE_SUSPEND machinery, but
-> suspend_asm.S does.
+> On Wed, 7 May 2003, Jens Axboe wrote:
+> > > 
+> > > And testing. In particular, you might want to test whether a device 
+> > > properly supports 48-bit addressing, either from the kernel or from user 
+> > > programs.
+> > 
+> > For that, a forced 48-bit hwif->addressing inherited by drives will
+> > suffice. And I agree, we should have that.
 > 
-> Does that sound reasonable?
+> No no no.
+> 
+> You definitely do NOT want to set "hwif->addressing" to 1 before you've 
+> tested whether it even _works_.
 
-Sounds reasonable to me. In fact, it looks like it really already exists
-as the current "restore_processor_state()" thing.
+Well duh, of course not. Whether a given request is executed in 48-bit
+or not is a check that _includes_ drive capabilities too of course.
 
-In fact, that one already _does_ call "enable_sep_cpu()", so what's up?
+> Imagine something like "hdparm" - other things are already in progress,
+> the system is up, and IDE commands are potentially executing concurrently.  
+> What something like that wants to do is to send one request out to check
+> whether 48-bit addressing works, but it absolutely does NOT want to set 
+> some interface-global flag that affects other commands.
 
-		Linus
+Then it just puts a taskfile request on the request queue and lets it
+reach the drive, nicely syncronized with the other requests. There's no
+need to toggle any special bits for that.
+
+> Only after it has verified that 48-bit addressing does work should it set 
+> the global flag.
+
+Sounds fine.
+
+-- 
+Jens Axboe
 

@@ -1,378 +1,527 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266106AbTLaEUb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Dec 2003 23:20:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266109AbTLaEUa
+	id S266108AbTLaEVK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Dec 2003 23:21:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266111AbTLaEVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Dec 2003 23:20:30 -0500
-Received: from dp.samba.org ([66.70.73.150]:12442 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S266106AbTLaEUT (ORCPT
+	Tue, 30 Dec 2003 23:21:10 -0500
+Received: from dp.samba.org ([66.70.73.150]:13210 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S266108AbTLaEUT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 30 Dec 2003 23:20:19 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: torvalds@osdl.org, akpm@osdl.org
 Cc: mingo@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] kthread_create
-Date: Wed, 31 Dec 2003 14:31:08 +1100
-Message-Id: <20031231042016.958DC2C04B@lists.samba.org>
+Subject: [PATCH 2/2] Use kthread primitives
+Date: Wed, 31 Dec 2003 15:17:58 +1100
+Message-Id: <20031231042016.A68802C079@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+And this is the patch actually uses the kthread primitives,
+simplifying and shrinking the code a little bit.
 
-	Ingo read through this before and liked it: this is the basis
-of the Hotplug CPU patch, and as such has been stressed fairly well.
-Tested stand-alone, and included here for wider review.
-
-Feedback welcome!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
-
-Name: Kernel Thread Control Primitives
+Name: Use Kthread For Core Kernel Threads
 Author: Rusty Russell
 Status: Tested on 2.6.0-bk3
+Depends: Hotcpu/kthread.patch.gz
 
-D: The hotplug CPU code introduces two major problems:
+D: This simply changes over the migration threads, the workqueue
+D: threads and the ksoftirqd threads to use kthread.
 D: 
-D: 1) Threads which previously never stopped (migration thread,
-D:    ksoftirqd, keventd) have to be stopped cleanly as CPUs go offline.
-D: 2) Threads which previously never had to be created now have
-D:    to be created when a CPU goes online.
+D: Changes:
+D:  - kernel/sched.c: Split migration_thread() into
+D:    migration_kthread_init() and migration_kthread() for use with
+D:    kthread.  Simplifies startup greatly.
+D:    - No need for migration_startup_t.
 D: 
-D: Unfortunately, stopping a thread is fairly baroque, involving memory
-D: barriers, a completion and spinning until the task is actually dead.
+D:  - kernel/softirq.c: Split ksoftirqd() into ksoftirqd_init() and
+D:    ksoftirqd(). 
 D: 
-D: There are also three problems in starting a thread:
-D: 1) Doing it from a random process context risks environment contamination:
-D:    better to do it from keventd to guarantee a clean environment, a-la
-D:    call_usermodehelper.
-D: 2) Getting the task struct without races is a hard: see kernel/sched.c
-D:    migration_call(), kernel/workqueue.c create_workqueue_thread().
-D: 3) There are races in starting a thread for a CPU which is not yet
-D:    online: migration thread does a complex dance at the moment for
-D:    a similar reason (there may be no migration thread to migrate us).
-D: 
-D: Place all this logic in some primitives to make life easier:
-D: kthread_create(), kthread_start() and kthread_destroy().  These
-D: primitives require no extra data-structures in the caller: they operate
-D: on normal "struct task_struct"s.
-D: 
-D: Other changes:
-D:   - Expose keventd_up(), as keventd and migration threads will use
-D:     kthread to launch, and kthread normally uses workqueues and must
-D:     recognize this case.
+D:  - kernel/workqueue.c: Split worker_thread() into worker_thread_init()
+D:    and worker_thread(). 
+D:    - Change waitqueue to task pointer (we need it anyway, and there's
+D:      always only one).
+D:    - Remove exit completion (kthread_destroy handles that for us).
+D:    - Make create_workqueue_thread() return a task struct directly,
+D:      since kthread_create gives us that without needing to use
+D:      a structure for the thread to put it in.
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .32392-linux-2.6.0-test11-bk6/include/linux/kthread.h .32392-linux-2.6.0-test11-bk6.updated/include/linux/kthread.h
---- .32392-linux-2.6.0-test11-bk6/include/linux/kthread.h	1970-01-01 10:00:00.000000000 +1000
-+++ .32392-linux-2.6.0-test11-bk6.updated/include/linux/kthread.h	2003-12-09 17:42:29.000000000 +1100
-@@ -0,0 +1,38 @@
-+#ifndef _LINUX_KTHREAD_H
-+#define _LINUX_KTHREAD_H
-+/* Simple abstraction for kernel thread usage: the initfn is called at
-+ * the start, if that's successful (ie. returns 0), then the thread
-+ * sleeps.
-+ *
-+ * Every time the thread is woken, it will run corefn, until that
-+ * returns an error.  The thread must be ended by calling
-+ * kthread_destroy().
-+ */
-+#include <linux/err.h>
-+struct task_struct;
-+
-+/* Part I: create a kthread: if fork fails return ERR_PTR(-errno). */
-+struct task_struct *kthread_create(int (*initfn)(void *data),
-+				   int (*corefn)(void *data),
-+				   void *data,
-+				   const char namefmt[], ...);
-+
-+/* Part II: have thread call initfn(); return thread if successful,
-+   otherwise ERR_PTR(-errno). */
-+struct task_struct *kthread_start(struct task_struct *k);
-+
-+/* Convenient wrapper for both of the above. */
-+#define kthread_run(initfn, corefn, data, namefmt, ...)			      \
-+({									      \
-+	struct task_struct *__k						      \
-+		= kthread_create(initfn,corefn,data,namefmt, ## __VA_ARGS__); \
-+	if (!IS_ERR(__k))						      \
-+		__k = kthread_start(__k);				      \
-+	__k;								      \
-+})
-+
-+/* Stop the thread.  Return value is last return of corefn() (ie. zero
-+ * if exited as normal).  Can be called before kthread_start(). */
-+int kthread_destroy(struct task_struct *k);
-+
-+#endif /* _LINUX_KTHREAD_H */
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .32392-linux-2.6.0-test11-bk6/include/linux/workqueue.h .32392-linux-2.6.0-test11-bk6.updated/include/linux/workqueue.h
---- .32392-linux-2.6.0-test11-bk6/include/linux/workqueue.h	2003-09-22 10:07:08.000000000 +1000
-+++ .32392-linux-2.6.0-test11-bk6.updated/include/linux/workqueue.h	2003-12-09 17:42:29.000000000 +1100
-@@ -60,6 +60,7 @@ extern int FASTCALL(schedule_work(struct
- extern int FASTCALL(schedule_delayed_work(struct work_struct *work, unsigned long delay));
- extern void flush_scheduled_work(void);
- extern int current_is_keventd(void);
-+extern int keventd_up(void);
- 
- extern void init_workqueues(void);
- 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .32392-linux-2.6.0-test11-bk6/kernel/Makefile .32392-linux-2.6.0-test11-bk6.updated/kernel/Makefile
---- .32392-linux-2.6.0-test11-bk6/kernel/Makefile	2003-10-09 18:03:02.000000000 +1000
-+++ .32392-linux-2.6.0-test11-bk6.updated/kernel/Makefile	2003-12-09 17:42:29.000000000 +1100
-@@ -6,7 +6,8 @@ obj-y     = sched.o fork.o exec_domain.o
- 	    exit.o itimer.o time.o softirq.o resource.o \
- 	    sysctl.o capability.o ptrace.o timer.o user.o \
- 	    signal.o sys.o kmod.o workqueue.o pid.o \
--	    rcupdate.o intermodule.o extable.o params.o posix-timers.o
-+	    rcupdate.o intermodule.o extable.o params.o posix-timers.o \
-+	    kthread.o
- 
- obj-$(CONFIG_FUTEX) += futex.o
- obj-$(CONFIG_GENERIC_ISA_DMA) += dma.o
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .32392-linux-2.6.0-test11-bk6/kernel/kthread.c .32392-linux-2.6.0-test11-bk6.updated/kernel/kthread.c
---- .32392-linux-2.6.0-test11-bk6/kernel/kthread.c	1970-01-01 10:00:00.000000000 +1000
-+++ .32392-linux-2.6.0-test11-bk6.updated/kernel/kthread.c	2003-12-09 17:42:29.000000000 +1100
-@@ -0,0 +1,228 @@
-+/* Kernel thread helper functions.
-+ *   Copyright (C) 2003 IBM Corporation, Rusty Russell.
-+ *
-+ * Everything uses keventd, so that we get a clean environment even if
-+ * we're invoked from userspace (think modprobe, hotplug cpu).
-+ */
-+#include <linux/sched.h>
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27587-2.6.0-bk3-use-kthread.pre/kernel/sched.c .27587-2.6.0-bk3-use-kthread/kernel/sched.c
+--- .27587-2.6.0-bk3-use-kthread.pre/kernel/sched.c	2003-12-31 10:04:41.000000000 +1100
++++ .27587-2.6.0-bk3-use-kthread/kernel/sched.c	2003-12-31 14:17:42.000000000 +1100
+@@ -37,6 +37,7 @@
+ #include <linux/rcupdate.h>
+ #include <linux/cpu.h>
+ #include <linux/percpu.h>
 +#include <linux/kthread.h>
-+#include <linux/completion.h>
-+#include <linux/err.h>
-+#include <asm/semaphore.h>
-+
-+/* This makes sure only one kthread is being talked to at once. */
-+static DECLARE_MUTEX(kthread_control);
-+
-+/* This coordinates communication between the kthread and routine
-+ * controlling it.  Strictly unneccessary, but without it it's barrier
-+ * hell. */
-+static spinlock_t ktm_lock = SPIN_LOCK_UNLOCKED;
-+
-+/* All thread comms is command -> ack, so we keep it simple. */
-+struct kt_message
-+{
-+	struct task_struct *from, *to;
-+	void *info;
-+};
-+
-+static struct kt_message ktm;
-+
-+static void ktm_send(struct task_struct *to, void *info)
-+{
-+	spin_lock(&ktm_lock);
-+	ktm.to = to;
-+	ktm.from = current;
-+	ktm.info = info;
-+	if (ktm.to)
-+		wake_up_process(ktm.to);
-+	spin_unlock(&ktm_lock);
-+}
-+
-+static struct kt_message ktm_receive(void)
-+{
-+	struct kt_message m;
-+
-+	for (;;) {
-+		spin_lock(&ktm_lock);
-+		if (ktm.to == current)
-+			break;
-+		current->state = TASK_INTERRUPTIBLE;
-+		spin_unlock(&ktm_lock);
-+		schedule();
-+	}
-+	m = ktm;
-+	spin_unlock(&ktm_lock);
-+	return m;
-+}
-+
-+struct kthread
-+{
-+	int (*initfn)(void *data);
-+	int (*corefn)(void *data);
-+	void *data;
-+	char *name;
-+};
-+
-+/* Check if we're being told to stop. */
-+static int time_to_die(struct kt_message *m)
-+{
-+        int ret = 0;
-+
-+        spin_lock(&ktm_lock);
-+        if (ktm.to == current && ktm.info == NULL) {
-+                *m = ktm;
-+                ret = 1;
-+        }
-+        spin_unlock(&ktm_lock);
-+        return ret;
-+}
-+
-+static int kthread(void *data)
-+{
-+	/* Copy data: it's on keventd_init's stack */
-+	struct kthread k = *(struct kthread *)data;
-+	struct kt_message m;
-+	int ret = 0;
-+	sigset_t blocked;
-+
-+	strcpy(current->comm, k.name);
-+
-+	/* Block and flush all signals. */
-+	sigfillset(&blocked);
-+	sigprocmask(SIG_BLOCK, &blocked, NULL);
-+	flush_signals(current);
-+
-+	/* Send to spawn_kthread, so it knows who we are. */
-+	ktm_send(ktm.info, current);
-+
-+	/* Receive from kthread_start or kthread_destroy */
-+	m = ktm_receive();
-+	if (!m.info)
-+		goto stop;
-+	if (k.initfn && (ret = k.initfn(k.data)) < 0)
-+		goto stop;
-+	ktm_send(m.from, current);
-+
-+	for (;;) {
-+		if (time_to_die(&m))
-+			break;
-+
-+		/* If it fails, just wait until kthread_destroy. */
-+		if (k.corefn && (ret = k.corefn(k.data)) < 0)
-+			k.corefn = NULL;
-+
-+		if (time_to_die(&m))
-+			break;
-+
-+		schedule();
-+	}
-+
-+	current->state = TASK_RUNNING;
-+stop:
-+	ktm_send(m.from, ERR_PTR(ret));
-+	return ret;
-+}
-+
-+struct kthread_create
-+{
-+	struct task_struct *result;
-+	struct kthread k;
-+	struct completion done;
-+};
-+
-+/* We are keventd().  We create a thread. */
-+static void spawn_kthread(void *data)
-+{
-+	struct kthread_create *kc = data;
-+	int ret;
-+
-+	/* Set up message so they know who their parent is. */
-+	ktm_send(NULL, current);
-+
-+	/* We want our own signal handler (we take no signals by default). */
-+	ret = kernel_thread(kthread, &kc->k, CLONE_FS | CLONE_FILES | SIGCHLD);
-+	if (ret < 0)
-+		kc->result = ERR_PTR(ret);
-+	else {
-+		/* They tell us who they are. */
-+		struct kt_message m = ktm_receive();
-+		kc->result = m.info;
-+	}
-+	complete(&kc->done);
-+}
-+
-+struct task_struct *kthread_create(int (*initfn)(void *data),
-+				   int (*corefn)(void *data),
-+				   void *data,
-+				   const char namefmt[],
-+				   ...)
-+{
-+	va_list args;
-+	struct kthread_create kc;
-+	DECLARE_WORK(work, spawn_kthread, &kc);
-+	/* Or, as we like to say, 16. */
-+	char name[sizeof(((struct task_struct *)0)->comm)];
-+
-+	va_start(args, namefmt);
-+	vsnprintf(name, sizeof(name), namefmt, args);
-+	va_end(args);
-+
-+	init_completion(&kc.done);
-+	kc.k.initfn = initfn;
-+	kc.k.corefn = corefn;
-+	kc.k.data = data;
-+	kc.k.name = name;
-+
-+	down(&kthread_control);
-+	/* If we're being called to start the first workqueue, we
-+	 * can't use keventd. */
-+	if (!keventd_up())
-+		work.func(work.data);
-+	else {
-+		schedule_work(&work);
-+		wait_for_completion(&kc.done);
-+	}
-+	up(&kthread_control);
-+	return kc.result;
-+}
-+
-+static void wait_for_death(struct task_struct *k)
-+{
-+	while (!(k->state & TASK_ZOMBIE) && !(k->state & TASK_DEAD))
-+		yield();
-+}
-+
-+struct task_struct *kthread_start(struct task_struct *k)
-+{
-+	struct kt_message m;
-+
-+	get_task_struct(k);
-+
-+	down(&kthread_control);
-+	ktm_send(k, k);
-+	m = ktm_receive();
-+	up(&kthread_control);
-+
-+	if (IS_ERR(m.info))
-+		wait_for_death(k);
-+	put_task_struct(k);
-+
-+	return m.info;
-+}
-+
-+int kthread_destroy(struct task_struct *k)
-+{
-+	struct kt_message m;
-+
-+	get_task_struct(k);
-+
-+	down(&kthread_control);
-+	ktm_send(k, NULL);
-+	m = ktm_receive();
-+	up(&kthread_control);
-+
-+	wait_for_death(k);
-+	put_task_struct(k);
-+
-+	return PTR_ERR(m.info);
-+}
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .32392-linux-2.6.0-test11-bk6/kernel/workqueue.c .32392-linux-2.6.0-test11-bk6.updated/kernel/workqueue.c
---- .32392-linux-2.6.0-test11-bk6/kernel/workqueue.c	2003-09-22 10:27:38.000000000 +1000
-+++ .32392-linux-2.6.0-test11-bk6.updated/kernel/workqueue.c	2003-12-09 17:42:29.000000000 +1100
-@@ -359,6 +359,11 @@ void flush_scheduled_work(void)
- 	flush_workqueue(keventd_wq);
+ 
+ #ifdef CONFIG_NUMA
+ #define cpu_to_node_mask(cpu) node_to_cpumask(cpu_to_node(cpu))
+@@ -2640,64 +2641,54 @@ static void move_task_away(struct task_s
+ 	local_irq_restore(flags);
  }
  
-+int keventd_up(void)
+-typedef struct {
+-	int cpu;
+-	struct completion startup_done;
+-	task_t *task;
+-} migration_startup_t;
+-
+ /*
+  * migration_thread - this is a highprio system thread that performs
+  * thread migration by bumping thread off CPU then 'pushing' onto
+  * another runqueue.
+  */
+-static int migration_thread(void * data)
++static int migration_kthread_init(void *data)
+ {
+ 	/* Marking "param" __user is ok, since we do a set_fs(KERNEL_DS); */
+ 	struct sched_param __user param = { .sched_priority = MAX_RT_PRIO-1 };
+-	migration_startup_t *startup = data;
+-	int cpu = startup->cpu;
+-	runqueue_t *rq;
+-	int ret;
+-
+-	startup->task = current;
+-	complete(&startup->startup_done);
+-	set_current_state(TASK_UNINTERRUPTIBLE);
+-	schedule();
++	unsigned int cpu = (long)data;
+ 
+ 	BUG_ON(smp_processor_id() != cpu);
+ 
+-	daemonize("migration/%d", cpu);
+ 	set_fs(KERNEL_DS);
+ 
+-	ret = setscheduler(0, SCHED_FIFO, &param);
+-
+-	rq = this_rq();
+-	rq->migration_thread = current;
++	setscheduler(0, SCHED_FIFO, &param);
++	return 0;
++}
+ 
+-	for (;;) {
+-		struct list_head *head;
+-		migration_req_t *req;
++static int migration_kthread(void *data)
 +{
-+	return keventd_wq != NULL;
++	runqueue_t *rq;
++	struct list_head *head;
++	migration_req_t *req;
+ 
+-		if (current->flags & PF_FREEZE)
+-			refrigerator(PF_IOTHREAD);
++	rq = this_rq();
+ 
+-		spin_lock_irq(&rq->lock);
+-		head = &rq->migration_queue;
+-		current->state = TASK_INTERRUPTIBLE;
+-		if (list_empty(head)) {
+-			spin_unlock_irq(&rq->lock);
+-			schedule();
+-			continue;
+-		}
++	spin_lock_irq(&rq->lock);
++	head = &rq->migration_queue;
++	while (!list_empty(head)) {
+ 		req = list_entry(head->next, migration_req_t, list);
+ 		list_del_init(head->next);
+-		spin_unlock_irq(&rq->lock);
+ 
++		spin_unlock_irq(&rq->lock);
+ 		move_task_away(req->task,
+ 			       any_online_cpu(req->task->cpus_allowed));
+ 		complete(&req->done);
++		spin_lock_irq(&rq->lock);
++		current->state = TASK_INTERRUPTIBLE;
+ 	}
++	current->state = TASK_INTERRUPTIBLE;
++	spin_unlock_irq(&rq->lock);
++
++	/* FIXME: Should this be in kthread.c? --RR */
++	if (current->flags & PF_FREEZE)
++		refrigerator(PF_IOTHREAD);
++
++	return 0;
+ }
+ 
+ /*
+@@ -2709,35 +2700,31 @@ static int migration_call(struct notifie
+ 			  void *hcpu)
+ {
+ 	long cpu = (long) hcpu;
+-	migration_startup_t startup;
++	struct task_struct *p;
+ 
+ 	switch (action) {
+ 	case CPU_ONLINE:
+-
+ 		printk("Starting migration thread for cpu %li\n", cpu);
+-
+-		startup.cpu = cpu;
+-		startup.task = NULL;
+-		init_completion(&startup.startup_done);
+-
+-		kernel_thread(migration_thread, &startup, CLONE_KERNEL);
+-		wait_for_completion(&startup.startup_done);
+-		wait_task_inactive(startup.task);
+-
+-		startup.task->thread_info->cpu = cpu;
+-		startup.task->cpus_allowed = cpumask_of_cpu(cpu);
+-
+-		wake_up_process(startup.task);
+-
+-		while (!cpu_rq(cpu)->migration_thread)
+-			yield();
+-
++		p = kthread_create(migration_kthread_init, migration_kthread,
++				   hcpu, "migration/%ld", cpu);
++		if (IS_ERR(p))
++			return NOTIFY_BAD;
++		/* Manually bind to CPU: thread stopped, so this is OK. */
++		p->thread_info->cpu = cpu;
++		p->cpus_allowed = cpumask_of_cpu(cpu);
++		if (IS_ERR(kthread_start(p)))
++			return NOTIFY_BAD;
++		cpu_rq(cpu)->migration_thread = p;
+ 		break;
+ 	}
+ 	return NOTIFY_OK;
+ }
+ 
+-static struct notifier_block migration_notifier = { &migration_call, NULL, 0 };
++/* Want this before the other threads, so they can use set_cpus_allowed. */
++static struct notifier_block __devinitdata migration_notifier = { 
++	.notifier_call = migration_call,
++	.priority = 10,
++};
+ 
+ __init int migration_init(void)
+ {
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27587-2.6.0-bk3-use-kthread.pre/kernel/softirq.c .27587-2.6.0-bk3-use-kthread/kernel/softirq.c
+--- .27587-2.6.0-bk3-use-kthread.pre/kernel/softirq.c	2003-10-09 18:03:02.000000000 +1000
++++ .27587-2.6.0-bk3-use-kthread/kernel/softirq.c	2003-12-31 14:17:42.000000000 +1100
+@@ -14,6 +14,7 @@
+ #include <linux/notifier.h>
+ #include <linux/percpu.h>
+ #include <linux/cpu.h>
++#include <linux/kthread.h>
+ 
+ /*
+    - No shared variables, all the data are CPU local.
+@@ -333,36 +334,30 @@ void __init softirq_init(void)
+ 	register_cpu_notifier(&tasklet_nb);
+ }
+ 
+-static int ksoftirqd(void * __bind_cpu)
++static int ksoftirqd_init(void *__bind_cpu)
+ {
+-	int cpu = (int) (long) __bind_cpu;
+-
+-	daemonize("ksoftirqd/%d", cpu);
+-	set_user_nice(current, 19);
+-	current->flags |= PF_IOTHREAD;
++	unsigned int cpu = (long) __bind_cpu;
+ 
+ 	/* Migrate to the right CPU */
+ 	set_cpus_allowed(current, cpumask_of_cpu(cpu));
+ 	BUG_ON(smp_processor_id() != cpu);
+ 
+-	__set_current_state(TASK_INTERRUPTIBLE);
+-	mb();
+-
+-	__get_cpu_var(ksoftirqd) = current;
+-
+-	for (;;) {
+-		if (!local_softirq_pending())
+-			schedule();
+-
+-		__set_current_state(TASK_RUNNING);
+-
+-		while (local_softirq_pending()) {
+-			do_softirq();
+-			cond_resched();
+-		}
++	set_user_nice(current, 19);
++	current->flags |= PF_IOTHREAD;
++	return 0;
++}
+ 
+-		__set_current_state(TASK_INTERRUPTIBLE);
++static int ksoftirqd(void *__bind_cpu)
++{
++again:
++	set_current_state(TASK_INTERRUPTIBLE);
++	if (local_softirq_pending()) {
++		current->state = TASK_RUNNING;
++		do_softirq();
++		cond_resched();
++		goto again;
+ 	}
++	return 0;
+ }
+ 
+ static int __devinit cpu_callback(struct notifier_block *nfb,
+@@ -370,15 +365,16 @@ static int __devinit cpu_callback(struct
+ 				  void *hcpu)
+ {
+ 	int hotcpu = (unsigned long)hcpu;
++	struct task_struct *p;
+ 
+ 	if (action == CPU_ONLINE) {
+-		if (kernel_thread(ksoftirqd, hcpu, CLONE_KERNEL) < 0) {
++		p = kthread_run(ksoftirqd_init, ksoftirqd, hcpu,
++				"ksoftirqd/%d", hotcpu);
++		if (IS_ERR(p)) {
+ 			printk("ksoftirqd for %i failed\n", hotcpu);
+ 			return NOTIFY_BAD;
+ 		}
+-
+-		while (!per_cpu(ksoftirqd, hotcpu))
+-			yield();
++		per_cpu(ksoftirqd, hotcpu) = p;
+  	}
+ 	return NOTIFY_OK;
+ }
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .27587-2.6.0-bk3-use-kthread.pre/kernel/workqueue.c .27587-2.6.0-bk3-use-kthread/kernel/workqueue.c
+--- .27587-2.6.0-bk3-use-kthread.pre/kernel/workqueue.c	2003-12-31 14:17:42.000000000 +1100
++++ .27587-2.6.0-bk3-use-kthread/kernel/workqueue.c	2003-12-31 14:17:42.000000000 +1100
+@@ -25,6 +25,7 @@
+ #include <linux/completion.h>
+ #include <linux/workqueue.h>
+ #include <linux/slab.h>
++#include <linux/kthread.h>
+ 
+ /*
+  * The per-CPU workqueue.
+@@ -43,13 +44,10 @@ struct cpu_workqueue_struct {
+ 	long insert_sequence;	/* Next to add */
+ 
+ 	struct list_head worklist;
+-	wait_queue_head_t more_work;
++	struct task_struct *worker;
+ 	wait_queue_head_t work_done;
+ 
+ 	struct workqueue_struct *wq;
+-	task_t *thread;
+-	struct completion exit;
+-
+ } ____cacheline_aligned;
+ 
+ /*
+@@ -80,7 +78,7 @@ int queue_work(struct workqueue_struct *
+ 		spin_lock_irqsave(&cwq->lock, flags);
+ 		list_add_tail(&work->entry, &cwq->worklist);
+ 		cwq->insert_sequence++;
+-		wake_up(&cwq->more_work);
++		wake_up_process(cwq->worker);
+ 		spin_unlock_irqrestore(&cwq->lock, flags);
+ 		ret = 1;
+ 	}
+@@ -101,7 +99,7 @@ static void delayed_work_timer_fn(unsign
+ 	spin_lock_irqsave(&cwq->lock, flags);
+ 	list_add_tail(&work->entry, &cwq->worklist);
+ 	cwq->insert_sequence++;
+-	wake_up(&cwq->more_work);
++	wake_up_process(cwq->worker);
+ 	spin_unlock_irqrestore(&cwq->lock, flags);
+ }
+ 
+@@ -127,6 +125,27 @@ int queue_delayed_work(struct workqueue_
+ 	return ret;
+ }
+ 
++static int worker_thread_init(void *__cwq)
++{
++	struct k_sigaction sa;
++	struct cpu_workqueue_struct *cwq = __cwq;
++	int cpu = cwq - cwq->wq->cpu_wq;
++
++	set_cpus_allowed(current, cpumask_of_cpu(cpu));
++	BUG_ON(smp_processor_id() != cpu);
++
++	allow_signal(SIGCHLD);
++	current->flags |= PF_IOTHREAD;
++	set_user_nice(current, -10);
++
++	/* Install a handler so SIGCLD is delivered */
++	sa.sa.sa_handler = SIG_IGN;
++	sa.sa.sa_flags = 0;
++	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
++	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
++	return 0;
 +}
 +
- int current_is_keventd(void)
+ static inline void run_workqueue(struct cpu_workqueue_struct *cwq)
  {
+ 	unsigned long flags;
+@@ -153,65 +172,22 @@ static inline void run_workqueue(struct 
+ 		cwq->remove_sequence++;
+ 		wake_up(&cwq->work_done);
+ 	}
++	current->state = TASK_INTERRUPTIBLE;
+ 	spin_unlock_irqrestore(&cwq->lock, flags);
+ }
+ 
+-typedef struct startup_s {
+-	struct cpu_workqueue_struct *cwq;
+-	struct completion done;
+-	const char *name;
+-} startup_t;
+-
+-static int worker_thread(void *__startup)
++static int worker_thread(void *__cwq)
+ {
+-	startup_t *startup = __startup;
+-	struct cpu_workqueue_struct *cwq = startup->cwq;
+-	int cpu = cwq - cwq->wq->cpu_wq;
+-	DECLARE_WAITQUEUE(wait, current);
+-	struct k_sigaction sa;
+-
+-	daemonize("%s/%d", startup->name, cpu);
+-	allow_signal(SIGCHLD);
+-	current->flags |= PF_IOTHREAD;
+-	cwq->thread = current;
+-
+-	set_user_nice(current, -10);
+-	set_cpus_allowed(current, cpumask_of_cpu(cpu));
+-
+-	complete(&startup->done);
+-
+-	/* Install a handler so SIGCLD is delivered */
+-	sa.sa.sa_handler = SIG_IGN;
+-	sa.sa.sa_flags = 0;
+-	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
+-	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
+-
+-	for (;;) {
+-		set_task_state(current, TASK_INTERRUPTIBLE);
+-
+-		add_wait_queue(&cwq->more_work, &wait);
+-		if (!cwq->thread)
+-			break;
+-		if (list_empty(&cwq->worklist))
+-			schedule();
+-		else
+-			set_task_state(current, TASK_RUNNING);
+-		remove_wait_queue(&cwq->more_work, &wait);
+-
+-		if (!list_empty(&cwq->worklist))
+-			run_workqueue(cwq);
++	struct cpu_workqueue_struct *cwq = __cwq;
+ 
+-		if (signal_pending(current)) {
+-			while (waitpid(-1, NULL, __WALL|WNOHANG) > 0)
+-				/* SIGCHLD - auto-reaping */ ;
++	if (signal_pending(current)) {
++		while (waitpid(-1, NULL, __WALL|WNOHANG) > 0)
++			/* SIGCHLD - auto-reaping */ ;
+ 
+-			/* zap all other signals */
+-			flush_signals(current);
+-		}
++		/* zap all other signals */
++		flush_signals(current);
+ 	}
+-	remove_wait_queue(&cwq->more_work, &wait);
+-	complete(&cwq->exit);
+-
++	run_workqueue(cwq);
+ 	return 0;
+ }
+ 
+@@ -259,39 +235,33 @@ void flush_workqueue(struct workqueue_st
+ 	}
+ }
+ 
+-static int create_workqueue_thread(struct workqueue_struct *wq,
+-				   const char *name,
+-				   int cpu)
++static struct task_struct *create_workqueue_thread(struct workqueue_struct *wq,
++						   const char *name,
++						   int cpu)
+ {
+-	startup_t startup;
+ 	struct cpu_workqueue_struct *cwq = wq->cpu_wq + cpu;
+-	int ret;
++	struct task_struct *p;
+ 
+ 	spin_lock_init(&cwq->lock);
+ 	cwq->wq = wq;
+-	cwq->thread = NULL;
++	cwq->worker = NULL;
+ 	cwq->insert_sequence = 0;
+ 	cwq->remove_sequence = 0;
+ 	INIT_LIST_HEAD(&cwq->worklist);
+-	init_waitqueue_head(&cwq->more_work);
+ 	init_waitqueue_head(&cwq->work_done);
+-	init_completion(&cwq->exit);
+ 
+-	init_completion(&startup.done);
+-	startup.cwq = cwq;
+-	startup.name = name;
+-	ret = kernel_thread(worker_thread, &startup, CLONE_FS | CLONE_FILES);
+-	if (ret >= 0) {
+-		wait_for_completion(&startup.done);
+-		BUG_ON(!cwq->thread);
+-	}
+-	return ret;
++	p = kthread_create(worker_thread_init, worker_thread, cwq, 
++			   "%s/%d", name, cpu);
++	if (!IS_ERR(p))
++		cwq->worker = p;
++	return p;
+ }
+ 
+ struct workqueue_struct *create_workqueue(const char *name)
+ {
+ 	int cpu, destroy = 0;
+ 	struct workqueue_struct *wq;
++	struct task_struct *p;
+ 
+ 	BUG_ON(strlen(name) > 10);
+ 
+@@ -302,8 +272,12 @@ struct workqueue_struct *create_workqueu
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+ 		if (!cpu_online(cpu))
+ 			continue;
+-		if (create_workqueue_thread(wq, name, cpu) < 0)
++		p = create_workqueue_thread(wq, name, cpu);
++		if (IS_ERR(p))
+ 			destroy = 1;
++		else
++			kthread_start(p);
++
+ 	}
+ 	/*
+ 	 * Was there any error during startup? If yes then clean up:
+@@ -320,13 +294,8 @@ static void cleanup_workqueue_thread(str
  	struct cpu_workqueue_struct *cwq;
+ 
+ 	cwq = wq->cpu_wq + cpu;
+-	if (cwq->thread) {
+-		/* Tell thread to exit and wait for it. */
+-		cwq->thread = NULL;
+-		wake_up(&cwq->more_work);
+-
+-		wait_for_completion(&cwq->exit);
+-	}
++	if (cwq->worker)
++		kthread_destroy(cwq->worker);
+ }
+ 
+ void destroy_workqueue(struct workqueue_struct *wq)
+@@ -375,7 +344,7 @@ int current_is_keventd(void)
+ 		if (!cpu_online(cpu))
+ 			continue;
+ 		cwq = keventd_wq->cpu_wq + cpu;
+-		if (current == cwq->thread)
++		if (current == cwq->worker)
+ 			return 1;
+ 	}
+ 	return 0;
+
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,56 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262121AbUCETq2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Mar 2004 14:46:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbUCETq2
+	id S262686AbUCETow (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Mar 2004 14:44:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbUCETow
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Mar 2004 14:46:28 -0500
-Received: from mail2.efi.com ([192.68.228.89]:22802 "EHLO
-	fcexgw02.efi.internal") by vger.kernel.org with ESMTP
-	id S262121AbUCETq0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Mar 2004 14:46:26 -0500
-Subject: [PATCH 2.6.3] swsusp.c - Serial Console
-From: Frederic Roussel <frederic.roussel@efi.com>
-To: pavel@suse.cz, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1078515963.4686.193.camel@frasc.efi.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Fri, 05 Mar 2004 11:46:03 -0800
+	Fri, 5 Mar 2004 14:44:52 -0500
+Received: from www.gawab.com ([204.97.230.36]:20239 "HELO gawab.com")
+	by vger.kernel.org with SMTP id S262686AbUCETou (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Mar 2004 14:44:50 -0500
+From: "Ramy M. Hassan" <ramy@gawab.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Advanced storage management ( suggestion )
+Date: Fri, 5 Mar 2004 21:44:20 +0200
+Message-ID: <003801c402ea$44437190$ba10a8c0@ramy>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 05 Mar 2004 19:46:03.0885 (UTC) FILETIME=[7E5D19D0:01C402EA]
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I see many people interested in designing of new filesystems for
+different purposes, and one of the common tasks all filesystem designers
+will do is to manage device blocks. 
+I just thought of starting a new project that aims to create an
+advanced, scalable and high performance block level storage management
+layer for the Linux kernel. 
+This layer should provide low level storage services to simplify the
+development of filesystems, DBMS, LDAP servers, or any other
+applications that require high performance storage.
+The planned features are :
+1- Very fast block allocation ( Using balanced trees for tracking free
+blocks comes into my mind now, but I still it is early to decide the
+design ).
+2- Support for multi-disk/multi-host storage pool.
+3- Meta data storage and block storage can be isolated for better
+performance.
+4- Meta data and block replication options.
+5- Transactional options for journaling filesystems or transactional
+databases.
+6- Supports clustering through lock managers where multiple hosts can
+read/write to same storage devices concurrently ( suitable for SANs )
+7- Transparent recovery from corruption or hardware failure.
+8- Direct access from userland ( for DBMS, LDAP, and other userland
+applications ). 
+9- Plugins support ( like those of reiserfs 4).
 
-That's a very simple patch to allow swsusp on systems with serial
-console only.
 
-Please apply.
+If you know of any similar effort, or any technical obstacle I am
+missing , please let me know.
 
-Thanks
+Ramy
 
---- linux-2.6.3/kernel/power/swsusp.c	2004-03-05 11:22:05.000000000
--0800
-+++ linux/kernel/power/swsusp.c	2004-03-05 11:22:30.000000000 -0800
-@@ -610,9 +610,11 @@
- 	spin_unlock_irq(&suspend_pagedir_lock);
- 	device_resume();
- 
-+#ifdef SUSPEND_CONSOLE
- 	acquire_console_sem();
- 	update_screen(fg_console);	/* Hmm, is this the problem? */
- 	release_console_sem();
-+#endif
- 
- 	PRINTK( "Fixing swap signatures... " );
- 	mark_swapfiles(((swp_entry_t) {0}), MARK_SWAP_RESUME);
-
-
--- 
-Frederic.R.Roussel         -o)                                    (o-
-                           /\\  Join the penguin force  (o_  (o_  //\
-                          _\_v   The Linux G3N3R47!0N   (/)_ (/)_ v_/_
 
 

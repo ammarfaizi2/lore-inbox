@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267940AbUIIWWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUIIWgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267940AbUIIWWs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 18:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267999AbUIIWWs
+	id S266585AbUIIWgi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 18:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266669AbUIIWgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 18:22:48 -0400
-Received: from adsl-67-117-73-34.dsl.sntc01.pacbell.net ([67.117.73.34]:11539
-	"EHLO muru.com") by vger.kernel.org with ESMTP id S267940AbUIIWWg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 18:22:36 -0400
-Date: Thu, 9 Sep 2004 15:28:19 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, pavel@suse.cz, Andi Kleen <ak@suse.de>
-Subject: Re: swsusp on x86-64 w/ nforce3
-Message-ID: <20040909222818.GB11843@atomide.com>
-References: <200409061836.21505.rjw@sisk.pl> <200409082252.38350.rjw@sisk.pl> <20040909011802.GN8142@atomide.com> <200409091219.17347.rjw@sisk.pl>
+	Thu, 9 Sep 2004 18:36:38 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7609 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266585AbUIIWgg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 18:36:36 -0400
+Date: Thu, 9 Sep 2004 15:36:06 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: eric.valette@free.fr, linux-kernel@vger.kernel.org, petkan@nucleusys.com
+Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver : fixed
+Message-ID: <20040909223605.GA17655@kroah.com>
+References: <413DB68C.7030508@free.fr> <4140256C.5090803@free.fr> <20040909152454.14f7ebc9.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200409091219.17347.rjw@sisk.pl>
+In-Reply-To: <20040909152454.14f7ebc9.akpm@osdl.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Rafael J. Wysocki <rjw@sisk.pl> [040909 03:19]:
-> On Thursday 09 of September 2004 03:18, Tony Lindgren wrote:
-> > * Rafael J. Wysocki <rjw@sisk.pl> [040908 13:52]:
-> > > On Wednesday 08 of September 2004 22:42, Tony Lindgren wrote:
-> > > > 
-> > > > Just FYI, swsusp works nicely here on my m6805 laptop :)
-> > > 
-> > > Can you, please, send me your .config?
+On Thu, Sep 09, 2004 at 03:24:54PM -0700, Andrew Morton wrote:
+> Eric Valette <eric.valette@free.fr> wrote:
+> >
+> > Here is a small patch that makes the card functionnal again. I've 
+> > forwarded the patch to driver author also.
 > > 
-> > You can get my current m6805 .config at (I just updated it):
-> > 
-> > http://www.muru.com/linux/amd64/config
-> > 
+> > --- linux/drivers/usb/net/rtl8150.c-2.6.9-rc1-mm4.orig	2004-09-09 11:15:11.000000000 +0200
+> > +++ linux/drivers/usb/net/rtl8150.c	2004-09-09 11:15:46.000000000 +0200
+> > @@ -341,7 +341,7 @@
+> >  
+> >  static int rtl8150_reset(rtl8150_t * dev)
+> >  {
+> > -	u8 data = 0x11;
+> > +	u8 data = 0x10;
 > 
-> Please excuse me, but Is your laptop nforce3-based?  I see that you have set 
-> CONFIG_BLK_DEV_VIA82CXXX rather than CONFIG_BLK_DEV_AMD74XX in the .config, 
-> which indicates that it's VIA-based.
+> hm, OK.  Presumably the change (which comes in via the bk-usb tree) was
+> made for a reason.  So I suspect both versions are wrong ;)
+> 
+> But it might be risky for Greg to merge this patch up at present.
 
-Yeah, it's VIA chipset.
+As all your patch does is revert the patch in my tree (it was a one line
+change), mainline should work just fine for you, right?
 
-Tony
+I'll defer to Petkan as to what to do about this, as he sent me that
+patch for a good reason I imagine :)
+
+thanks,
+
+greg k-h

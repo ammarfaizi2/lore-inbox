@@ -1,69 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129237AbRBML3R>; Tue, 13 Feb 2001 06:29:17 -0500
+	id <S129233AbRBML11>; Tue, 13 Feb 2001 06:27:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129350AbRBML3I>; Tue, 13 Feb 2001 06:29:08 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:44810 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129237AbRBML24>; Tue, 13 Feb 2001 06:28:56 -0500
-Date: Tue, 13 Feb 2001 06:29:20 -0500 (EST)
-From: "Mike A. Harris" <mharris@opensourceadvocate.org>
-X-X-Sender: <mharris@asdf.capslock.lan>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: lkml subject line
-In-Reply-To: <E14SdRY-0001Sr-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0102130624370.8874-100000@asdf.capslock.lan>
-X-Unexpected-Header: The Spanish Inquisition
-Copyright: Copyright 2001 by Mike A. Harris - All rights reserved
+	id <S129445AbRBML1R>; Tue, 13 Feb 2001 06:27:17 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:44040 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129233AbRBML06>; Tue, 13 Feb 2001 06:26:58 -0500
+Subject: Re: [PATCH] swapin flush cache bug
+To: gniibe@m17n.org (NIIBE Yutaka)
+Date: Tue, 13 Feb 2001 11:26:14 +0000 (GMT)
+Cc: rmk@arm.linux.org.uk (Russell King),
+        marcelo@conectiva.com.br (Marcelo Tosatti),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (lkml)
+In-Reply-To: <200102131053.TAA11808@mule.m17n.org> from "NIIBE Yutaka" at Feb 13, 2001 07:53:11 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Sdb6-0001V5-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Feb 2001, Alan Cox wrote:
+> Suppose there's I/O to the physical page P asynchronously, and the
+> page is placed in the swap cache.  It remains cache entry, say,
+> indexed kernel virtual address K.  Then, process maps P at U.  U and K
+> (may) indexes differently.  The process will get the data from memory
+> (not the one in the cashe), if it's not flushed.
 
->> >Is there a mail reader nowadays that doesn't let you do some sort of
->> >filtering?
->>
->> He uses Elm, which as far as I know is obsolete, unmaintained and
->> full of bugs and even has Y2K problems.  That is the last I heard
->> anyway.  Alan Cox would likely know more, and has perhaps even
->> fixed Elm.
->
->Elm has maintainers it has the bugs fixed, it just doesnt want to evolve
->any further. Rumours of its death have been greatly exaggerated.
-
-Ok.  Didn't know that it was maintained.  I knew that you would
-set the record straight either way though.  ;o)
-
->> PINE is virtually everywhere, and is a good elm replacement,
->> having been initially based on the elm code... (PINE==Pine Is Not
->> Elm)
->
->I've played with both pine and mutt. mutt is by the better mail system IMHO,
->but pine has an easier learning curve.
-
-I can't comment there much..  I've used PINE since about 1993 and
-fell in love with it after using PMDF in VMS (which sucks by
-comparison).  PINE by default is simple to use for beginners, but
-if you go into setup and enable all the advanced stuff it is
-incredibly powerful.  I tried mutt once but couldn't handle the
-non-intuitive UI.  (intuitivity being in the eye of the beholder
-of course)  ;o)
-
-I know many people who swear by mutt though, but I prefer the
-nicer UI of PINE.  The only thing I hate about PINE is the
-restricted source code license that makes it impossible to
-contribute bugfixes effectively.  ;o(
-
-TIA
-
-----------------------------------------------------------------------
-    Mike A. Harris  -  Linux advocate  -  Free Software advocate
-          This message is copyright 2001, all rights reserved.
-  Views expressed are my own, not necessarily shared by my employer.
-----------------------------------------------------------------------
-If you're looking for Linux books, guides, and other documentation, visit 
-the Linux Documentation Project homepage:  http://www.linuxdoc.org
+Ok we need to handle that case a bit more intelligently so those flushes dont
+get into other ports code paths. 
 

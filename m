@@ -1,42 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270998AbTGVTcH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jul 2003 15:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270999AbTGVTcH
+	id S270854AbTGVTix (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jul 2003 15:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270860AbTGVTix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jul 2003 15:32:07 -0400
-Received: from 206-158-102-129.prx.blacksburg.ntc-com.net ([206.158.102.129]:13768
-	"EHLO wombat.ghz.cc") by vger.kernel.org with ESMTP id S270998AbTGVTcC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jul 2003 15:32:02 -0400
-Message-ID: <14435.216.12.38.216.1058903213.squirrel@www.ghz.cc>
-In-Reply-To: <3F1D91F0.2020900@rackable.com>
-References: <Pine.LNX.4.44.0307221146120.714-100000@serv>
-    <Pine.LNX.4.44.0307221735160.5483-100000@phoenix.infradead.org>
-    <20030722191746.A13975@infradead.org>
-    <20030722191646.GB2003@mars.ravnborg.org>
-    <3F1D91F0.2020900@rackable.com>
-Date: Tue, 22 Jul 2003 15:46:53 -0400 (EDT)
-Subject: Re: Make menuconfig broken
-From: "Charles Lepple" <clepple@ghz.cc>
-To: "Samuel Flory" <sflory@rackable.com>
-Cc: "Sam Ravnborg" <sam@ravnborg.org>, "Christoph Hellwig" <hch@infradead.org>,
-       "James Simmons" <jsimmons@infradead.org>,
-       "Roman Zippel" <zippel@linux-m68k.org>, "michaelm" <admin@www0.org>,
-       linux-kernel@vger.kernel.org, vojtech@suse.cz
-User-Agent: SquirrelMail/1.4.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+	Tue, 22 Jul 2003 15:38:53 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:19328 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S270854AbTGVTiv (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jul 2003 15:38:51 -0400
+Message-Id: <200307221953.h6MJroXb001837@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [ON TOPIC] HELP: Getting lousy memory throughput from Abit KD7 
+In-Reply-To: Your message of "Tue, 22 Jul 2003 15:34:51 EDT."
+             <Pine.LNX.4.53.0307221520290.5609@chaos> 
+From: Valdis.Kletnieks@vt.edu
+References: <3F1711B5.9020800@techsource.com> <3F1D8EAB.6020801@techsource.com>
+            <Pine.LNX.4.53.0307221520290.5609@chaos>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_439975274P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 22 Jul 2003 15:53:50 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-please drop my email from the cc line-- I'll catch up on this thread later.
+--==_Exmh_439975274P
+Content-Type: text/plain; charset=us-ascii
 
-thanks,
+On Tue, 22 Jul 2003 15:34:51 EDT, "Richard B. Johnson" said:
 
--- 
-Charles Lepple <clepple@ghz.cc>
-http://www.ghz.cc/charles/
+> If I needed to really find the memory access time, I would write
+> a program to test it.
+
+> (4) Warm the cache first by reading everything in the buffer you
+>     are going to test.
+
+At which point you're measuring the cache speed not the memory speed.
+
+> You will probably be amazed at how well your system performs. This
+> dual CPU 400 MHz thing, with 100 MHz memory does 1,900++ MiB/sec.
+
+Which probably explains this result.  Do a quick sanity check - this number
+seems to indicate 20 bytes per memory clock, EVERY clock - either there's
+some VERY creative use of prefetching to make sure that you never hit a
+cache line miss, or you're measuring the cache.. ;)
+
+--==_Exmh_439975274P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/HZZNcC3lWbTT17ARAlk6AJ9JZdkInkg6CCiX3NA0XcXqYM5mbwCfUaaG
+nNkE481Tl5/y60ofxUG961U=
+=pCb6
+-----END PGP SIGNATURE-----
+
+--==_Exmh_439975274P--

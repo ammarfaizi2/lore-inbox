@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271941AbRIILFd>; Sun, 9 Sep 2001 07:05:33 -0400
+	id <S271946AbRIIMKH>; Sun, 9 Sep 2001 08:10:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271943AbRIILFO>; Sun, 9 Sep 2001 07:05:14 -0400
-Received: from warande3094.warande.uu.nl ([131.211.123.94]:57930 "EHLO
-	warande3094.warande.uu.nl") by vger.kernel.org with ESMTP
-	id <S271941AbRIILFD>; Sun, 9 Sep 2001 07:05:03 -0400
-Date: Sun, 9 Sep 2001 13:05:23 +0200
-From: Guus Sliepen <guus@warande3094.warande.uu.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: AMD 760 (761?) AGP
-Message-ID: <20010909130523.B7635@sliepen.warande.net>
-Mail-Followup-To: Guus Sliepen <guus@sliepen.warande.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3B97D334.E27BDA25@pp.htv.fi> <3B998088.6070206@zianet.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="H+4ONPRPur6+Ovig"
-Content-Disposition: inline
-In-Reply-To: <3B998088.6070206@zianet.com>
-User-Agent: Mutt/1.3.20i
-X-oi: oi
+	id <S271950AbRIIMJ5>; Sun, 9 Sep 2001 08:09:57 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:16145 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S271946AbRIIMJn>; Sun, 9 Sep 2001 08:09:43 -0400
+Date: Sun, 9 Sep 2001 09:09:53 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: linux-2.4.10-pre5
+In-Reply-To: <Pine.LNX.4.33.0109082115270.1161-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0109090909001.21049-100000@duckman.distro.conectiva>
+X-supervisor: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 8 Sep 2001, Linus Torvalds wrote:
 
---H+4ONPRPur6+Ovig
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> It's only filesystems that have modified buffers without marking them
+> dirty (by virtue of having pointers to buffers and delaying the dirtying
+> until later) that are broken by the "try to make sure all buffers are
+> up-to-date by reading them in" approach.
 
-On Fri, Sep 07, 2001 at 08:20:56PM -0600, Steven Spence wrote:
+Think of the inode and dentry caches.  I guess we need
+some way to invalidate those.
 
-> If you have it as a module try loading it with  agp_try_unsupported=3D1.
-> If its not a module try appending it to lilo.  I have that chipset and=20
-> everything
-> works fine with those options.  I have a GF2U however not a Radeon.  I can
-> get 4x working with side band addressing and fast write.
+Rik
+--
+IA64: a worthy successor to the i860.
 
-I have an Asus A7M266 with a AMD 761 chipset. I can get agpgart to work with
-agp_try_unsupported=3D1, and it works fine, but I only get AGP 1x support.
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
---=20
-Met vriendelijke groet / with kind regards,
-  Guus Sliepen <guus@sliepen.warande.net>
-
---H+4ONPRPur6+Ovig
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7m0zzAxLow12M2nsRAqDpAJ9AC4z03+twK4iI4gkfty/2mkyp6ACfU9JB
-udgPM5y9kgx+fYVYLTEBO4s=
-=8ZOQ
------END PGP SIGNATURE-----
-
---H+4ONPRPur6+Ovig--

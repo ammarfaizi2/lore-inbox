@@ -1,80 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129718AbRAXKe1>; Wed, 24 Jan 2001 05:34:27 -0500
+	id <S129401AbRAXKvD>; Wed, 24 Jan 2001 05:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129855AbRAXKeR>; Wed, 24 Jan 2001 05:34:17 -0500
-Received: from cx518206-b.irvn1.occa.home.com ([24.21.107.123]:47622 "EHLO
-	cx518206-b.irvn1.occa.home.com") by vger.kernel.org with ESMTP
-	id <S129718AbRAXKeM>; Wed, 24 Jan 2001 05:34:12 -0500
-From: "Barry K. Nathan" <barryn@cx518206-b.irvn1.occa.home.com>
-Message-Id: <200101241034.CAA03629@cx518206-b.irvn1.occa.home.com>
-Subject: Re: 2.4 disk speed 66% slowdown...
-To: law@sgi.com (Linda Walsh)
-Date: Wed, 24 Jan 2001 02:34:24 -0800 (PST)
-Cc: linux-kernel@vger.kernel.org (lkml)
-Reply-To: barryn@pobox.com
-In-Reply-To: <3A6E1C97.3B87EE00@sgi.com> from "Linda Walsh" at Jan 23, 2001 04:06:47 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129511AbRAXKuy>; Wed, 24 Jan 2001 05:50:54 -0500
+Received: from mail.zmailer.org ([194.252.70.162]:4360 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S129401AbRAXKul>;
+	Wed, 24 Jan 2001 05:50:41 -0500
+Date: Wed, 24 Jan 2001 12:50:31 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: What that Majordomo testing was about ...
+Message-ID: <20010124125031.W25659@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="livrSZtJkVq9DDdS"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linda Walsh wrote:
-> I think we're on to something.  I did gen's of the kernel with
-[snip]
-> The REAL problem was in disk performance.  The apm made no difference:
-> 
-> hdparm -t /dev/hda1 /dev/hda3 /dev/hda4 /dev/hda5 /dev/hda7
-> 1) 2.2.17
-> /dev/hda1: Timing buffered disk reads:  64 MB in  4.76 seconds = 13.45 MB/sec
-> /dev/hda3: Timing buffered disk reads:  64 MB in  4.57 seconds = 14.00 MB/sec
-> /dev/hda4: Timing buffered disk reads:  64 MB in  6.47 seconds =  9.89 MB/sec
-> /dev/hda5: Timing buffered disk reads:  64 MB in  5.08 seconds = 12.60 MB/sec
-> /dev/hda7: Timing buffered disk reads:  64 MB in  5.10 seconds = 12.55 MB/sec
-> 
-> 2) 2.4 w/apm
-> /dev/hda1: Timing buffered disk reads:  64 MB in 16.03 seconds =  3.99 MB/sec
-> /dev/hda3: Timing buffered disk reads:  64 MB in 15.87 seconds =  4.03 MB/sec
-> /dev/hda4: Timing buffered disk reads:  64 MB in 15.67 seconds =  4.08 MB/sec
-> /dev/hda5: Timing buffered disk reads:  64 MB in 15.82 seconds =  4.05 MB/sec
-> /dev/hda7: Timing buffered disk reads:  64 MB in 15.85 seconds =  4.04 MB/sec
-[snip]
 
-Your slowdown's different from mine, then. hdparm gives me 16.5 MB/sec
-(or so) for both 2.2 & 2.4 (with APM in both cases). I must stress that
-I haven't tried 2.4.0 or 2.4.1pre on my Inspiron 5000e yet, so I don't
-even know if the problem that caused my slowdown still exists.
+--livrSZtJkVq9DDdS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-(Just to clarify my case: 750MHz Pentium III, 256MB RAM, 32GB IBM HD,
-Intel 440BX chipset. If you need more data, I'll collect it when I get a
-chance, but I'd be surprised if 2.4.1 doesn't come out first.)
+Ok, I think I have waited enough to be fairly sure that
+now the thing worked.
 
-While I'm writing this email, I may as well mention that I have a problem
-with booting my Inspiron 5000e under 2.4 (all of my actual 2.4test usage
-on that machines has been with Slackware 7.1's Disc 2 and the
-corresponding rootdisk). That machine has Red Hat 7.0 installed on an ext2
-disk image file, stored on a vfat partition and loop mounted. (Actually,
-/usr and a subdirectory of /home are each on different image files now,
-for 3 total, but booting never gets far enough for that to be relevant.)
 
-The RAM disk I use for booting off the hard drive is the default one set
-up by the Red Hat 7 installer, except there are no modules on it (I
-compile in everything that's needed for booting) and the last line of
-linuxrc has an echo statement. After that echo statement runs, I get the
-following error message under 2.4.0, but not 2.2.1[678]: (from memory, so
-the exact message might be slightly different)
+The first goal was to create configuration which detects
+the presense of:
+   X-Mailing-List: linux-kernel@vger.kernel.org
+header, and blocks it.
+That should prevent loops in the list when somebody
+goofs up and sends email out from their fetchmail, or
+whatever, to the VISIBLE headers of the message.
 
-panic: I have no root and I must scream
+Tabooing some discussion subjects isn't primary goal, but
+apparently such is also possible, if needed.
 
-If I comment out that panic, I get some rather interestng messages, but I
-don't remember any of them. I wasn't planning on reporting this until I
-got a chance to put together a self-contained package & instructions for
-reproducing the problem, but since I'm writing an email to the list, here
-it is...
+Also tabooing messages which contain juicy key phrases
+which spammers often use to "legitimize" their postings
+is possible, although presently not very much such spam
+email makes to the system (and thus thru the lists).
+It is amazing what RBL+DUL+RSS trio can filter quickly.
 
--Barry K. Nathan <barryn@pobox.com>
+... and none of that discussion above should make to the list
+under subject of "Third Majordomo Test" ;)
+
+/Matti Aarnio
+
+--livrSZtJkVq9DDdS
+Content-Type: message/rfc822
+Content-Disposition: inline
+
+Received: (from localhost user: 'mea' uid#500 fake: STDIN (mea@zmailer.org))
+	by mail.zmailer.org id <S2622111AbRAXKjc>;
+	Wed, 24 Jan 2001 12:39:32 +0200
+Date: Wed, 24 Jan 2001 12:39:32 +0200
+Sender: Matti Aarnio <mea@zmailer.org>
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: linux-kernel@vger.kernel.org
+Subject: Third Majordomo taboo_header test
+Message-ID: <20010124123932.V25659@mea-ext.zmailer.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: <mea@zmailer.org>
+X-Envelope-To: <mea@zmailer.org> (uid 500)
+X-Orcpt: rfc822;mea@mea-ext.zmailer.org
+
+The first goal is to create configuration which detects
+the presense of:
+   X-Mailing-List: linux-kernel@vger.kernel.org
+header, and blocks it.
+That should prevent loops in the list when somebody
+goofs up and sends email out from their fetchmail, or
+whatever, to the VISIBLE headers of the message.
+
+Tabooing some discussion subjects isn't primary goal, but
+apparently such is also possible, if needed.
+
+... and none of that discussion should make to the list ;)
+
+/Matti Aarnio
+
+--livrSZtJkVq9DDdS--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

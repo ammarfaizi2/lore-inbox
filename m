@@ -1,25 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289854AbSAXAmC>; Wed, 23 Jan 2002 19:42:02 -0500
+	id <S289748AbSAXAko>; Wed, 23 Jan 2002 19:40:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289855AbSAXAl5>; Wed, 23 Jan 2002 19:41:57 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:55501 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S289854AbSAXAlu>;
-	Wed, 23 Jan 2002 19:41:50 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18-pre7 
-In-Reply-To: Your message of "Wed, 23 Jan 2002 19:55:46 -0200."
-             <Pine.LNX.4.21.0201231953410.4134-100000@freak.distro.conectiva> 
+	id <S289854AbSAXAjn>; Wed, 23 Jan 2002 19:39:43 -0500
+Received: from firewall.digsol.net ([63.228.1.219]:60411 "EHLO
+	flanders.digsol.net") by vger.kernel.org with ESMTP
+	id <S289748AbSAXAji>; Wed, 23 Jan 2002 19:39:38 -0500
+Date: Wed, 23 Jan 2002 18:39:32 -0600
+From: "Marc A. Ohmann" <marc@ds6.net>
+To: linux-kernel@vger.kernel.org
+Subject: AMD 2.4.17 hard freeze
+Message-ID: <20020123183932.A5077@flanders.digsol.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 24 Jan 2002 11:41:40 +1100
-Message-ID: <32417.1011832900@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Three generated files have crept into the patch.  They need to be
-deleted.  rm drivers/sound/*_boot.h
+I don't know if this is related to the "Athlon PSE/AGP Bug" thread since that seems to be openGL related.
 
+I recently built an Athlon 1700+, 1GB DDR, GeForce2 MX-400 AGP system on a Soyo SY-K7V Dragon for a customer.  Slack 8 installed without a hitch but once I got the system up and running 2.4.17 the system would randomly freeze.  The freezes often happen during kernel compiles but they have also happened under no load at all.
+
+I thought it sounded like a hardware problem but I installed W2k on it the other night and now it has been up for 2 days with no problems.
+
+I really don't have much to offer for diagnostics but I am willing to try anything that is suggested.
+
+The freezes seem to be fairly repeatable and happen on 8/10 kernel compiles.  I have tried compiling in init 3 and with no modules loaded but it still freezes.
+
+Thanks for any help,
+ 
+-- 
+------ Marc A. Ohmann  marc@ds6.net ------ Digital Solutions, Inc. ------
+|                                    |   .~.                            | 
+|  - Internet Hosting                |   /V\          L I N U X         | 
+|  - Application Programming         |  // \\                           |
+|  - Network Administration          | /(   )\    Solution Provider     |
+|                                    |  ^^-^^                           |
+-----------<a href="http://ds6.net">Digital Solutions, Inc</a>-----------

@@ -1,64 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264920AbSLaX3p>; Tue, 31 Dec 2002 18:29:45 -0500
+	id <S264925AbSLaXj2>; Tue, 31 Dec 2002 18:39:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264925AbSLaX3p>; Tue, 31 Dec 2002 18:29:45 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:50653 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP
-	id <S264920AbSLaX3n>; Tue, 31 Dec 2002 18:29:43 -0500
-Date: Tue, 31 Dec 2002 15:44:21 -0800
-From: David Brownell <david-b@pacbell.net>
-Subject: Re: [PATCH] generic device DMA (dma_pool update)
-To: Andrew Morton <akpm@digeo.com>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, James.Bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org
-Message-id: <3E122BD5.6020400@pacbell.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en, fr
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
-References: <200212312202.OAA10841@adam.yggdrasil.com>
- <3E121D28.47282D77@digeo.com> <3E1226FF.9010407@pacbell.net>
- <3E1227F4.E4B98632@digeo.com>
+	id <S264939AbSLaXj2>; Tue, 31 Dec 2002 18:39:28 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:11027 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S264925AbSLaXj1>; Tue, 31 Dec 2002 18:39:27 -0500
+Message-Id: <200212312347.gBVNlnK04199@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: David Brownell <david-b@pacbell.net>
+cc: Andrew Morton <akpm@digeo.com>, "Adam J. Richter" <adam@yggdrasil.com>,
+       James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] generic device DMA (dma_pool update) 
+In-Reply-To: Message from David Brownell <david-b@pacbell.net> 
+   of "Tue, 31 Dec 2002 15:23:43 PST." <3E1226FF.9010407@pacbell.net> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 31 Dec 2002 17:47:49 -0600
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, that was exactly what I was demonstrating ... those are
-the callbacks that'd be supplied to mempool_create(), showing
-that it doesn't need to change for that kind of usage.  (Which
-isn't allocating DMA buffers, note!)
+david-b@pacbell.net said:
+> USB device drivers tend to either allocate and reuse one dma buffer
+> (kmalloc/kfree usage pattern) or use dma mapping ... so far. 
 
-But we still need lower level allocators that are reasonable
-for use with 1/Nth page allocations ... which isn't a problem
-that mempool even attempts to solve.  Hence dma_pool, in any of
-its implementations, would go underneath mempool to achieve what
-Adam was describing (for drivers that need it).
+Please be careful with this in drivers.  Coherent memory can be phenomenally 
+expensive to obtain on some hardware.  Sometimes it has to be implemented by 
+turning off caching  and globally flushing the tlb.  Thus it really makes 
+sense most of the time for drivers to allocate all the coherent memory they 
+need initially and not have it go through the usual memory allocate/free cycle 
+except under extreme conditions.  That's sort really what both pci_pool and 
+mempool aim for.
 
-- Dave
-
-
-Andrew Morton wrote:
-> David Brownell wrote:
-> 
->>        void *mempool_alloc_td (int mem_flags, void *pool)
->>        {
->>                struct td *td;
->>                dma_addr_t dma;
->>
->>                td = dma_pool_alloc (pool, mem_flags, &dma);
->>                if (!td)
->>                        return td;
->>                td->td_dma = dma;       /* feed to the hardware */
->>                ... plus other init
->>                return td;
->>        }
-> 
-> 
-> The existing mempool code can be used to implement this, I believe.  The
-> pool->alloc callback is passed an opaque void *, and it returns
-> a void * which can point at any old composite caller-defined blob.
-> 
-
+James
 
 

@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267450AbUIPBNt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUIPBOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267450AbUIPBNt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 21:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267416AbUIPBMs
+	id S267522AbUIPBOa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 21:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267527AbUIPBO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 21:12:48 -0400
-Received: from mail-relay-1.tiscali.it ([213.205.33.41]:46223 "EHLO
-	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
-	id S267450AbUIPBHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 21:07:06 -0400
-Date: Thu, 16 Sep 2004 03:05:09 +0200
-From: Andrea Arcangeli <andrea@novell.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, paul@clubi.ie, netdev@oss.sgi.com,
-       leonid.grossman@s2io.com, linux-kernel@vger.kernel.org
-Subject: Re: The ultimate TOE design
-Message-ID: <20040916010509.GP15426@dualathlon.random>
-References: <4148991B.9050200@pobox.com> <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org> <1095275660.20569.0.camel@localhost.localdomain> <20040915135308.78bf74f0.davem@davemloft.net>
+	Wed, 15 Sep 2004 21:14:29 -0400
+Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:896 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S267427AbUIPBOH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 21:14:07 -0400
+Date: Wed, 15 Sep 2004 21:18:21 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: monoholitic, hybrid or not monoholitic?
+Message-ID: <20040916011821.GA689@kurtwerks.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <4148271D.9050009@devilcode.de> <20040915141237.GB2429@teh.ath.cx> <20040915192231.1153a0d4.Tommy.Reynolds@MegaCoder.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040915135308.78bf74f0.davem@davemloft.net>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040915192231.1153a0d4.Tommy.Reynolds@MegaCoder.com>
+User-Agent: Mutt/1.4.2.1i
+X-Operating-System: Linux 2.4.26
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 01:53:08PM -0700, David S. Miller wrote:
-> There are absolutely no justified economics in these
-> TOE engines.  By the time you deploy them, the cpus
-> and memory catch up and what's more those are general
-> purpose and not just for networking as David Stevens
-> and others have said.
+On Wed, Sep 15, 2004 at 07:22:31PM -0500, Tommy Reynolds took 69 lines to write:
 
-I'm not sure if economics are the worst part of what is being shipped,
-to me the worst part is security, I'd never trust myself such a
-non-open-source TCP stack for something critical even if it was going to
-be much cheaper and performant. Even my PDA is using the linux tcp
-stack, and my cell phone only speaks UDP with the wap server anyways.
-TCP segment offload OTOH doesn't involve much "intelligence" in the NIC
-and it's very reasonable to trust it especially because all the incoming
-packets (the real potential offenders) are still processed by the linux
-tcp stack.
+[mumble]
+
+> All else is quibbling about the color of the ribbon used to wrap up
+> the module code ;-)
+
+Or what color to paint the bike shed.
+
+Kurt
+-- 
+Whatever is not nailed down is mine.  What I can pry loose is not
+nailed down.
+	-- Collis P. Huntingdon

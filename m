@@ -1,39 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310528AbSCVACj>; Thu, 21 Mar 2002 19:02:39 -0500
+	id <S310560AbSCVAFT>; Thu, 21 Mar 2002 19:05:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310538AbSCVAC3>; Thu, 21 Mar 2002 19:02:29 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:11015 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S310528AbSCVAC0>; Thu, 21 Mar 2002 19:02:26 -0500
-Message-ID: <3C9A747F.7EA87A2F@linux-m68k.org>
-Date: Fri, 22 Mar 2002 01:02:07 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "David S. Miller" <davem@redhat.com>, lm@bitmover.com, pavel@ucw.cz,
+	id <S310538AbSCVAFK>; Thu, 21 Mar 2002 19:05:10 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:45355 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S310546AbSCVAE6>; Thu, 21 Mar 2002 19:04:58 -0500
+Date: Thu, 21 Mar 2002 19:04:51 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Patrick Mansfield <patmans@us.ibm.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-scsi@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: Re: Bitkeeper licence issues
-In-Reply-To: <E16o9ZV-0006EZ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2 questions about SCSI initialization
+Message-ID: <20020321190451.A1054@devserv.devel.redhat.com>
+In-Reply-To: <20020321000553.A6704@devserv.devel.redhat.com> <20020321142635.A6555@eng2.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> Date: Thu, 21 Mar 2002 14:26:35 -0800
+> From: Patrick Mansfield <patmans@us.ibm.com>
 
-Alan Cox wrote:
+> > #2: What does  if (GET_USE_COUNT(tpnt->module) != 0)  do in
+> > scsi_unregister_device? The circomstances are truly bizzare:
+> > a) the error code is NEVER used
+> > b) it can be called either from module unload.
+> > I would like to kill that check.
 
-> > repeating work. Most development which is moved to india is also the type
-> > of development which is most likely to be automated by better tools. So if
-> > india just relies on this it will be hit very badly.
-> 
-> Read the book 8)
+>[...]
+> If the count is really non zero, the function should not be called
+> (rmmod won't call into it if the module is in use; if calling via
+> scsi_register_device_module on failure, it should be impossible
+> to increment count - it should be impossible to call sd_open or
+> sg_open).
 
-Does it also contain the part, how it should apply to nations? I can see
-how applies in situations, when there is a halfway working market, but
-the relationship between nations is simply different.
+The last line of reasoning is faulty, because sys_init_module()
+does  atomic_set(&mod->uc.usecount,1); before calling init_sg()
+or init_sd(). Thus, it's not only possible, but it is guaranteed
+that the counter is non-zero when control gets
+to scsi_register_device_module, and to the failure path.
 
-bye, Roman
+> --- scsi.c.orig	Thu Mar 21 13:51:27 2002
+> +++ scsi.c	Thu Mar 21 13:52:54 2002
+> @@ -2331,8 +2331,8 @@
+>  	/*
+>  	 * If we are busy, this is not going to fly.
+>  	 */
+> -	if (GET_USE_COUNT(tpnt->module) != 0)
+> -		goto error_out;
+> +	if (tpnt->module && (GET_USE_COUNT(tpnt->module) != 0))
+> +		BUG();
+
+Guaranteed to trigger BUG() is out_of_memory gets set.
+
+I still think we better kill this check altogether.
+Any more objections?
+
+-- Pete

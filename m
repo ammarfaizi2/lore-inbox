@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267546AbRGXOyP>; Tue, 24 Jul 2001 10:54:15 -0400
+	id <S267550AbRGXPAf>; Tue, 24 Jul 2001 11:00:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267547AbRGXOyF>; Tue, 24 Jul 2001 10:54:05 -0400
-Received: from [212.141.54.117] ([212.141.54.117]:34949 "EHLO
-	mailweb7.inwind.it") by vger.kernel.org with ESMTP
-	id <S267546AbRGXOxr> convert rfc822-to-8bit; Tue, 24 Jul 2001 10:53:47 -0400
-Date: Tue, 24 Jul 2001 16:53:47 +0200
-Message-Id: <GGZG1N$IUdIOnzYcrd2i0brgDIkl7XCtbAQK_Zw0pdyqLQY9plM@inwind.it>
-Subject: URGENT: Bug in ptrace()
-MIME-Version: 1.0
-X-Priority: 1 (Highest)
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "mazzaro@inwind.it" <mazzaro@inwind.it>
+	id <S267556AbRGXPA0>; Tue, 24 Jul 2001 11:00:26 -0400
+Received: from [62.225.179.11] ([62.225.179.11]:48912 "EHLO mail.degrp.org")
+	by vger.kernel.org with ESMTP id <S267550AbRGXPAK>;
+	Tue, 24 Jul 2001 11:00:10 -0400
+Message-ID: <9DD550E9A9B0D411A16700D0B7E38BA4515130@POL-EML-SRV1>
+From: "Antwerpen, Oliver" <Antwerpen@netsquare.org>
 To: linux-kernel@vger.kernel.org
-Cc: alan.cox@linux.org
-X-XaM3-API-Version: 1.1.9.1.36
-X-SenderIP: 217.12.160.32
+Subject: udp-broadcast
+Date: Tue, 24 Jul 2001 17:00:45 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi all,
- 
-The exploit found on http://www.securiteam.com/exploits/5NP061P4AW.html
- 
-Still works on the latest 2.2 that's to say (I Think), 2.2.19
- 
-How can it be?
- 
-There are still a lot of machines on the net which use that ker.
- 
-Thank you for your attenction...
- 
-P.S.
-The exploit works even on the latest kernel (of the 2.2 series, off course), found on
-ftp://updates.redhat.com/6.2/en/
- 
-P.P.S.
-I'm trying to follow the ML, but the traffic is too high for me...:-(
-So, if you can... could you answer to my address?
- 
-Thank you,
- 
-Silvio Mazzaro
+Moin!
 
+I don't know if this is the right place to ask, so I'll ask:
+
+I try to send udp to my networks broadcast-address. All I get is a
+"permission denied", so I tried to use setsockopt, but that doesn't work
+either. It gives my a "protocol not available".
+
+What do I have to do to send my package?
+
+--snip--
+
+  ret = setsockopt(my_socket, IPPROTO_UDP, SO_BROADCAST, (void *)&flag,
+sizeof(flag) );
+
+
+  ret = sendto(
+                  my_socket,
+                  wake_msg,
+                  strlen(wake_msg),
+                  0,
+                  (struct sockaddr *)&dst_address,
+                  sizeof(struct sockaddr)
+                  );
+
+
+--snip--
+
+Olli
+
+please cc: me when answering...

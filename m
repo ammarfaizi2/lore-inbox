@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129069AbQKNJym>; Tue, 14 Nov 2000 04:54:42 -0500
+	id <S129147AbQKNJ6m>; Tue, 14 Nov 2000 04:58:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129186AbQKNJyc>; Tue, 14 Nov 2000 04:54:32 -0500
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:27915 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S129069AbQKNJyP>; Tue, 14 Nov 2000 04:54:15 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: Modprobe local root exploit
-In-Reply-To: <3864.974181019@kao2.melbourne.sgi.com>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 14 Nov 2000 10:19:31 +0100
-In-Reply-To: Keith Owens's message of "Tue, 14 Nov 2000 16:50:19 +1100"
-Message-ID: <tgy9ymlxlo.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S129212AbQKNJ6c>; Tue, 14 Nov 2000 04:58:32 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:65292 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S129147AbQKNJ6X>; Tue, 14 Nov 2000 04:58:23 -0500
+Message-ID: <3A1105B4.187F3270@idb.hist.no>
+Date: Tue, 14 Nov 2000 10:28:20 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
+To: Michael Peddemors <michael@linuxmagic.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Re: reliability of linux-vm subsystem
+In-Reply-To: <Pine.LNX.4.30.0011132116420.20626-100000@fs129-190.f-secure.com> <20001114004547.D12931@arthur.ubicom.tudelft.nl> <0011131653231G.24220@mistress>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au> writes:
+Michael Peddemors wrote:
+> 
+> > up to the sysadmin to enforce the policy. For the home user it means
+> > that the distribution providers have to set decent limits,
+> 
+> What is decent today may not be with tommorows' newest softwares....
+>
+Which is why you upgrade your distribution now and then.  Or have 
+a script setting a dynamic limit depending on available
+memory & swap.
+ 
+> >  for enterprises it means that they have to hire a sysadmin.
+> 
+> That is one of the reasons that small businesses are afraid to go to Linux
+> now, because of the difficulty in finding skilled Linux sysadmins..
+> 
+The small business should use the distribution provided limit.
 
-> All these patches against request_module are attacking the problem at
-> the wrong point.
+> "At least with the 'XX' Os, all they need to do is hire someone that can
+> click buttons, either on the computer, or to the tech support line" is the
+> perception, and with Linux they are already worried enough that they have to
+> find a 'genius' to work on their systems fulltime..
+> 
+There are tech support lines for linux too, if you _pay_ for a
+distribution.  You pay if you need it.
 
-Agreed.
+> It would be nice if 'advanced administration' can be kept to the minimum, so
+> we can service MORE than one enterprise each :>
 
-> The kernel can request any module name it likes, using any string it
-> likes, as long as the kernel generates the name.  The real problem
-> is when the kernel blindly accepts some user input and passes it
-> straight to modprobe, then the kernel is acting like a setuid
-> wrapper for a program that was never designed to run setuid.
+Sure.  My impression is that most of the advanced stuff is in the
+installation and initial configuration.  There is very little
+regular maintenance with linux.  Less than your typical GUI os anyway.
+Easy installation looses its charm when you have to do it twice or more.
 
-I don't think it's a good idea to distribute such stuff over the whole
-kernel.  Better control it at a single place, either when passing the
-parameter down to modprobe, or in modprobe itself.  Everything else is
-too error-prone.
-
--- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

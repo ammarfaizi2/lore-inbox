@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269474AbUICCdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269320AbUIBXsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269474AbUICCdY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 22:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269447AbUICALz
+	id S269320AbUIBXsH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 19:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269346AbUIBXpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 20:11:55 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:21492 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S269401AbUIBX5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 19:57:50 -0400
-Date: Thu, 2 Sep 2004 20:02:12 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Matt Mackall <mpm@selenic.com>,
-       William Lee Irwin III <wli@holomorphy.com>, Keith Owens <kaos@sgi.com>
-Subject: [PATCH][0/8] Arch agnostic completely out of line locks
-Message-ID: <Pine.LNX.4.58.0409020905540.4481@montezuma.fsmlabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Sep 2004 19:45:52 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:4498 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269305AbUIBXgf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:36:35 -0400
+Subject: Re: silent semantic changes with reiser4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Lee Revell <rlrevell@joe-job.com>, Spam <spam@tnonline.net>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
+       Chris Wedgwood <cw@f00f.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+In-Reply-To: <20040902205857.GF8653@atrey.karlin.mff.cuni.cz>
+References: <rlrevell@joe-job.com>
+	 <1094079071.1343.25.camel@krustophenia.net>
+	 <200409021425.i82EPn9i005192@laptop11.inf.utfsm.cl>
+	 <1535878866.20040902214144@tnonline.net>
+	 <20040902194909.GA8653@atrey.karlin.mff.cuni.cz>
+	 <1094155277.11364.92.camel@krustophenia.net>
+	 <20040902204351.GE8653@atrey.karlin.mff.cuni.cz>
+	 <1094158060.1347.16.camel@krustophenia.net>
+	 <20040902205857.GF8653@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094164385.6163.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 02 Sep 2004 23:33:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch achieves out of line spinlocks by creating kernel/spinlock.c
-and using the _raw_* inline locking functions. Now, as much as this is
-supposed to be arch agnostic, there was still a fair amount of rummaging
-about in archs, mostly for the cases where the arch already has out of
-line locks and i wanted to avoid the extra call, saving that extra call
-also makes lock profiling easier. PPC32/64 was an example of such an arch
-and i have added the necessary profile_pc() function as an example.
+On Iau, 2004-09-02 at 21:58, Pavel Machek wrote:
+> Uservfs.sf.net.
+> 
+> Unlike alan, I do not think that "do it all in library" is good
+> idea. I put it in the userspace as "codafs" server, and let
+> applications see it as a regular filesystem.
 
-Size differences are with CONFIG_PREEMPT enabled since we wanted to
-determine how much could be saved by moving that lot out of line too.
+That works for me too, providing someone has fixed all the user mode fs
+deadlocks with paging
 
-ppc64 = 259897 bytes:
-   text    data     bss     dec     hex filename
-5489808 1962724  709064 8161596  7c893c vmlinux-after
-5749577 1962852  709064 8421493  808075 vmlinux-before
-
-sparc64 = 193368 bytes:
-  text    data     bss     dec     hex filename
-3472037  633712  308920 4414669  435ccd vmlinux-after
-3665285  633832  308920 4608037  465025 vmlinux-before
-
-i386 = 524115 bytes
-   text    data     bss     dec     hex filename
-5695619  870906  328112 6894637  69342d vmlinux-after
-6221254  870634  326864 7418752  713380 vmlinux-before
-
-x86-64 = 282446 bytes
-   text    data     bss     dec     hex filename
-4598025 1450644  523632 6572301  64490d vmlinux-after
-4881679 1449436  523632 6854747  68985b vmlinux-before
-
-It has been compile tested (UP, SMP, PREEMPT) on i386, x86-64, sparc,
-sparc64, ppc64, ppc32 and runtime tested on i386 and x86-64. I still have
-to get benchmarks done (most probably i386). The patch is currently
-against 2.6.9-rc1-mm1 because we'd have to back out the i386/x86_64 out of
-line lock patches since this does it in a different way, i can merge later
-on.
-
-Thanks,
-	Zwane

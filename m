@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262602AbTAVT1R>; Wed, 22 Jan 2003 14:27:17 -0500
+	id <S262449AbTAVTZm>; Wed, 22 Jan 2003 14:25:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262780AbTAVT1Q>; Wed, 22 Jan 2003 14:27:16 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54790 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S262602AbTAVT1P>; Wed, 22 Jan 2003 14:27:15 -0500
-Date: Wed, 22 Jan 2003 14:33:14 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: James Simmons <jsimmons@infradead.org>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] Re: Linux in the News! WooHoo!
-In-Reply-To: <Pine.LNX.4.44.0301212108460.4030-100000@phoenix.infradead.org>
-Message-ID: <Pine.LNX.3.96.1030122141723.3958C-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262472AbTAVTZm>; Wed, 22 Jan 2003 14:25:42 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:65494 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262449AbTAVTZl>;
+	Wed, 22 Jan 2003 14:25:41 -0500
+Date: Wed, 22 Jan 2003 19:34:46 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org
+Subject: Re: {sys_,/dev/}epoll waiting timeout
+Message-ID: <20030122193446.GA5438@bjl1.asuk.net>
+References: <20030122132040.GA4752@bjl1.asuk.net> <Pine.LNX.4.33L2.0301221112160.3511-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0301221112160.3511-100000@dragon.pdx.osdl.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Jan 2003, James Simmons wrote:
-
+Randy.Dunlap wrote:
+> | > Why assume HZ=1000?  Would not:
+> | >
+> | > timeout = (unsigned long)(timeout*HZ+(HZ-1))/HZ+1;
+> | >
+> | > make more sense?
+> |
+> | No, that's silly.  Why do you want to multiply by HZ and then divide by HZ?
 > 
-> > http://eastbay.bizjournals.com/eastbay/stories/2003/01/20/story1.html
-> > 
-> > The hardcopy edition is better.
-> > It has sweet little TUX snacking on a Windows Logo!
-> > Go to http://eastbay.bizjournals.com/eastbay/ next saturday and see this
-> > weeks print cover on the web!
+> OK, I don't get it.  All Ed did was replace 1000 with HZ and
+> 999 with (HZ-1).  What's bad about that?  Seems to me like
+> the right thing to do.  Much more portable.
 > 
->    Linux will NEVER move into the desktop market!!! Linux has found it 
-> niche in the server market and some aspects of the embedded market. Well 
-> it is struggling to keep alive in the embedded space. Why is this?
+> What if HZ changes?  Who's going to audit the kernel for changes?
 
-Ah, the force of evil have gone from hiring people to write letters to
-congressmen and editors to posting trolls in mailing lists...
+You're being dense.  The input timeout is measured in milliseconds;
+see poll(2).  The calculated timeout is measured in jiffies.  Hence
+multiply by jiffies and divide by milliseconds.
 
-The truth is that HP is selling Linux machines now for desktop use,
-Wal-Mart (of all places) is selling them, mail order houses are starting
-to offer Linux installed... the Cro-Magnon and Neanderthal coexisted for
-millenia, Linux can coexist with an evolutionary dead end as well. Only I
-suspect that it will be a few decades in this case.
-
-Don't believe that the desktop drives the computer room, either. The
-dollar drives both, and if non-tech companies like Boscov's department
-store are going to Linux servers, I would assume the cost of Windows on
-the desktop isn't invisible in those places. Erosion is barely visible
-until the landslide.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+-- Jamie

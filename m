@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262822AbUBZQhr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 11:37:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbUBZQhq
+	id S262828AbUBZQkr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 11:40:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262821AbUBZQkr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 11:37:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22202 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262822AbUBZQhp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 11:37:45 -0500
-Message-ID: <403E20CC.7070109@pobox.com>
-Date: Thu, 26 Feb 2004 11:37:32 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: tulip-users@lists.sourceforge.net,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.4] Tulip 21041 port breakage
-References: <Pine.GSO.4.58.0401031203001.3219@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0401031203001.3219@waterleaf.sonytel.be>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 26 Feb 2004 11:40:47 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:52126 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S262826AbUBZQke (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 11:40:34 -0500
+Date: Thu, 26 Feb 2004 17:40:30 +0100
+From: Christophe Saout <christophe@saout.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2/2] dm-crypt end_io bv_offset fix
+Message-ID: <20040226164029.GB12597@leto.cs.pocnet.net>
+References: <20040226162324.GA12597@leto.cs.pocnet.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040226162324.GA12597@leto.cs.pocnet.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, I'll throw this into the 2.4 tree.
+We should copy the bvec array for read requests so that we still
+have the unmodified bvec array to decrypt the data afterwards.
 
-Does de2104x work for you in 2.6?
+(as discussed earlier this day for highmem bounces)
 
-	Jeff
-
-
-
+--- linux.orig/drivers/md/dm-crypt.c	2004-02-26 16:54:08.068578768 +0100
++++ linux/drivers/md/dm-crypt.c	2004-02-26 16:59:35.780758944 +0100
+@@ -593,8 +593,21 @@
+ 				return NULL;
+ 			}
+ 		}
+-	} else
+-		clone = bio_clone(bio, GFP_NOIO);
++	} else {
++		/*
++		 * The block layer might modify the bvec array, so always
++		 * copy the required bvecs because we need the original
++		 * one in order to decrypt the whole bio data *afterwards*.
++		 */
++		clone = bio_alloc(GFP_NOIO, bio_segments(bio));
++		if (clone) {
++			clone->bi_idx = 0;
++			clone->bi_vcnt = bio_segments(bio);
++			clone->bi_size = bio->bi_size;
++			memcpy(clone->bi_io_vec, bio_iovec(bio),
++			       sizeof(struct bio_vec) * clone->bi_vcnt);
++		}
++	}
+ 
+ 	if (!clone)
+ 		return NULL;

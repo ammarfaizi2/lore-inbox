@@ -1,59 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129048AbQJ3MHj>; Mon, 30 Oct 2000 07:07:39 -0500
+	id <S129057AbQJ3M1t>; Mon, 30 Oct 2000 07:27:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129060AbQJ3MH3>; Mon, 30 Oct 2000 07:07:29 -0500
-Received: from deckard.concept-micro.com ([62.161.229.193]:10306 "EHLO
-	deckard.concept-micro.com") by vger.kernel.org with ESMTP
-	id <S129048AbQJ3MHY>; Mon, 30 Oct 2000 07:07:24 -0500
-Message-ID: <XFMail.20001030130943.petchema@concept-micro.com>
-X-Mailer: XFMail 1.4.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S129062AbQJ3M1k>; Mon, 30 Oct 2000 07:27:40 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:29701 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S129057AbQJ3M1g>; Mon, 30 Oct 2000 07:27:36 -0500
+Message-ID: <39FD693D.7B3E8893@idb.hist.no>
+Date: Mon, 30 Oct 2000 13:27:41 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: no, da, en
 MIME-Version: 1.0
-In-Reply-To: <39FCB13E.6267C38D@haque.net>
-Date: Mon, 30 Oct 2000 13:09:43 +0200 (CET)
-X-Face: #eTSL0BRng*(!i1R^[)oey6`SJHR{3Sf4dc;"=af8%%;d"%\#"Hh0#lYfJBcm28zu3r^/H^
- d6!9/eElH'p0'*,L3jz_UHGw"+[c1~ceJxAr(^+{(}|DTZ"],r[jSnwQz$/K&@MT^?J#p"n[J>^O[\
- "%*lo](u?0p=T:P9g(ta[hH@uvv
-Organization: Concept Micro
-From: Pierre Etchemaite <petchema@concept-micro.com>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-Subject: RE: ide/disk perf?
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+To: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: GPL Question
+In-Reply-To: <E13pGUS-0004pj-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan Cox wrote:
+> 
+> >       If the answer to this is "yes", then Microsoft should own some rights to
+> > every piece of software that uses the Windows API.
+> 
+> As US copyright law stands of the last few days Microsoft are entitled to
+> require a magic constant is passed in one register to 'unlock' an API syscall.
+> If you disassemble code to find that constant you could be jailed.
 
-Le 30-Oct-2000, Mohammad A. Haque écrivait :
-> Could someone who knows ide and drive inside and out (Andre?) please
-> take a look at these figures? Am I forgetting to do something (or doing
-> something I'm not suposed to) to get the best numbers? I thought I'd be
-> able to get more than ~4MB/sec off the HPT366 and a UDMA66 drive.
+Anyone figuring out such a constant could post it anonymously on some
+website/newsgroup.  Anybody abusing the constant later, including the
+real discoverer, can simply claim they got it from that anonymous
+sensation
+posting.  It is now common knowledge.  No reverse engineering here...
 
-It could be unrelated, but I had problems several times with Maxtor drives
-recently; Their performances are usually high (some models give >20 Mb/s
-both reads and writes), but under some conditions that I couldn't narrow down
-yet, the read throughput is stuck to the floor (a few megabytes/sec) until
-next reboot. The write performance is always ok.
-
-I don't think it's a chipset problem, with a box filled with several Maxtor
-drives and I observe the problem with some disk and not others at the same time.
-
-I don't think it's a Linux problem either, since it can be observed with
-Windows benchmarking tools too.
-
-
-As a side note, I usually get better results tweaking disks using kernel
-compiling options ("default to DMA", "autotune chipset", ...) than using hdparm
--d1 and friends, give it a try.
-
-
--- 
-Linux blade.workgroup 2.4.0-test10 #1 Sat Oct 28 18:00:09 CEST 2000 i686 unknown
-  1:09pm  up 1 day, 19:01,  2 users,  load average: 1.04, 1.08, 1.09
-
+Helge Hafting
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

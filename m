@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268638AbUHLR6m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268643AbUHLSGg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268638AbUHLR6m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 13:58:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268639AbUHLR6m
+	id S268643AbUHLSGg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 14:06:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268645AbUHLSGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 13:58:42 -0400
-Received: from mail.xor.ch ([212.55.210.163]:27661 "HELO mail.xor.ch")
-	by vger.kernel.org with SMTP id S268638AbUHLR6k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 13:58:40 -0400
-Message-ID: <411BAFCA.92217D16@orpatec.ch>
-Date: Thu, 12 Aug 2004 19:58:33 +0200
-From: Otto Wyss <otto.wyss@orpatec.ch>
-Reply-To: otto.wyss@orpatec.ch
-X-Mailer: Mozilla 4.78 (Macintosh; U; PPC)
-X-Accept-Language: de,en
-MIME-Version: 1.0
-To: "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: New concept of ext3 disk checks
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 12 Aug 2004 14:06:34 -0400
+Received: from ctb-mesg1.saix.net ([196.25.240.73]:33415 "EHLO
+	ctb-mesg1.saix.net") by vger.kernel.org with ESMTP id S268643AbUHLSGK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 14:06:10 -0400
+Subject: Re: Linux SATA RAID FAQ
+From: Martin Schlemmer <azarah@nosferatu.za.org>
+Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+In-Reply-To: <411B0F45.8070500@pobox.com>
+References: <411B0F45.8070500@pobox.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kUe/qycidqdNud/X2deK"
+Message-Id: <1092334161.8976.65.camel@nosferatu.lan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 12 Aug 2004 20:09:22 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just read about "Increasing ext3 Disk Checks In The Event Of
-Improper Shutdown" in Kernel-Traffic. Since in theory journalling file
-systems may prevent any disk corruption the disk checks from the ext2
-area doesn't make much sense anymore. Also more and more system don't
-boot regularly anymore so the time frame between check isn't
-predictable. To take into account that the practice not always behaves
-as the theory says, I suggest another concept for ext3 disk checks:
 
-- Instead of checks forced during startup checks are done during runtime
-(at low priority). It has to be determined if these checks are _only_
-checks or if they also include possible fixes. Possible solution might
-distinct between the severity of any discovered problem.
+--=-kUe/qycidqdNud/X2deK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The advantage of such a concept are rather obvious, desktop systems
-don't have to use ridiculous high check interval values or disable
-checks altogether and server systems may run forever. Also checks may be
-done first on the written disk sectors. On an average loaded system,
-this way malfunctioning software are detected within minutes and
-hardware possibly within days, a rather high improvement to the current
-detection time of sometimes months.
+On Thu, 2004-08-12 at 08:33, Jeff Garzik wrote:
+> As author of the current Linux SATA driver, I get the brunt of the=20
+> questions and "bug reports" about "Linux doesn't support my hardware=20
+> SATA RAID".  Sigh.  Silly marketing departments.
+>=20
+> Thus, I have created a FAQ.  You might sense a theme...
+>=20
+> http://www.kernel.org/pub/linux/kernel/people/jgarzik/faq-sata-raid.html
+>=20
 
-O. Wyss
+Would be nice if somebody though could add how to compile dmraid
+with make-3.80 :/
 
--- 
-See a huge pile of work at "http://wyodesktop.sourceforge.net/"
+
+--=20
+Martin Schlemmer
+
+--=-kUe/qycidqdNud/X2deK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBG7JRqburzKaJYLYRAv4VAKCcZscyeK8CBonGF9Mf7aYoqBsLkgCggGd4
+X4BSSzqitvngDQwkBh1gY1Q=
+=irBF
+-----END PGP SIGNATURE-----
+
+--=-kUe/qycidqdNud/X2deK--
+

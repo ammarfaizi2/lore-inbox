@@ -1,32 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265887AbUGTOjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUGTOmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265887AbUGTOjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 10:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUGTOjN
+	id S265930AbUGTOmV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 10:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUGTOmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 10:39:13 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:36813 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S265887AbUGTOge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 10:36:34 -0400
-Date: Tue, 20 Jul 2004 10:39:39 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Mark Watts <m.watts@eris.qinetiq.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel oops while shutting down (2.6.8rc1)
-In-Reply-To: <200407190922.34480.m.watts@eris.qinetiq.com>
-Message-ID: <Pine.LNX.4.58.0407201008460.21932@montezuma.fsmlabs.com>
-References: <200407161011.36677.m.watts@eris.qinetiq.com>
- <Pine.LNX.4.58.0407161331090.26950@montezuma.fsmlabs.com>
- <200407190918.04053.m.watts@eris.qinetiq.com> <200407190922.34480.m.watts@eris.qinetiq.com>
+	Tue, 20 Jul 2004 10:42:21 -0400
+Received: from Mail.MNSU.EDU ([134.29.1.12]:55709 "EHLO mail.mnsu.edu")
+	by vger.kernel.org with ESMTP id S265930AbUGTOjZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jul 2004 10:39:25 -0400
+Message-ID: <40FD2E99.20707@mnsu.edu>
+Date: Tue, 20 Jul 2004 09:39:21 -0500
+From: "Jeffrey E. Hundstad" <jeffrey.hundstad@mnsu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Steve Lord <lord@xfs.org>
+CC: Cahya Wirawan <cwirawan@email.archlab.tuwien.ac.at>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 4K stack kernel get Oops in Filesystem stress test
+References: <20040720114418.GH21918@email.archlab.tuwien.ac.at> <40FD0A61.1040503@xfs.org>
+In-Reply-To: <40FD0A61.1040503@xfs.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Jul 2004, Mark Watts wrote:
+Steve Lord wrote:
 
-> Sorry - read that as 'run lsmod'
+> Don't use 4K stacks and XFS. What you hit here is a path where the
+> filesystem is getting full and it needs to free some reserved space
+> by flushing cached data which is using reserved extents. Reserved
+> extents do not yet have an on disk address and they include a
+> reservation for the worst case metadata usage. Flushing them will
+> get you room back.
+>
+> As you can see, it is a pretty deep call stack, most of XFS is going
+> to work just fine with a 4K stack, but there are end cases like
+> this one which will just not fit.
 
-No problem, i seem to have fired off a premature email too, i'll eyeball
-the patches on the bugzilla report (http://bugme.osdl.org/process_bug.cgi).
+
+If this is a known truth with XFS maybe it would be a good idea to have 
+4K stacks and XFS be an impossible combination using the config tool.
+
+-- 
+jeffrey hundstad

@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264430AbTCXVxl>; Mon, 24 Mar 2003 16:53:41 -0500
+	id <S264429AbTCXVxG>; Mon, 24 Mar 2003 16:53:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264431AbTCXVxh>; Mon, 24 Mar 2003 16:53:37 -0500
-Received: from bitmover.com ([192.132.92.2]:24215 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S264430AbTCXVxd>;
-	Mon, 24 Mar 2003 16:53:33 -0500
-Date: Mon, 24 Mar 2003 14:04:35 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, lm@bitmover.com,
-       venkatesh.pallipadi@intel.com, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: lmbench results for 2.4 and 2.5 -- updated results
-Message-ID: <20030324220435.GA11421@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Andrew Morton <akpm@digeo.com>,
-	"Martin J. Bligh" <mbligh@aracnet.com>, lm@bitmover.com,
-	venkatesh.pallipadi@intel.com, linux-kernel@vger.kernel.org,
-	torvalds@transmeta.com
-References: <C8C38546F90ABF408A5961FC01FDBF19010485F1@fmsmsx405.fm.intel.com> <20030324200105.GA5522@work.bitmover.com> <543480000.1048540161@flay> <20030324153602.28b44e23.akpm@digeo.com>
+	id <S264430AbTCXVxG>; Mon, 24 Mar 2003 16:53:06 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:19597 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S264429AbTCXVxF>; Mon, 24 Mar 2003 16:53:05 -0500
+Date: Mon, 24 Mar 2003 22:04:04 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: conntrack related slab corruption in 2.5.65
+Message-ID: <20030324220404.GB3034@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030324153602.28b44e23.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 03:36:02PM -0800, Andrew Morton wrote:
-> "Martin J. Bligh" <mbligh@aracnet.com> wrote:
-> >
-> > On a slightly related note, I played with lmbench a bit over the weekend,
-> > but the results were too unstable to be useful ... they're also too short
-> > to profile ;-( 
-> > 
-> > I presume it does 100 iterations of a test (like fork latency?). Or does 
-> > it just do one? Can I make it do 1,000,000 iterations or something
-> > fairly easily ? ;-) I didn't really look closely, just apt-get install
-> > lmbench ... 
-> 
-> Yes, that is something I've wanted several times.  Just a way to say "run
-> this test for ever so I can profile the thing".
-> 
-> Even a sleazy environment string would suffice.
+Slab corruption: start=cf480a84, expend=cf480bb7, problemat=cf480aec
+Last user: [<c03ed43a>](destroy_conntrack+0xf8/0x159)
+Data: ********************************************************************************************************EC 0A 48 CF EC 0A 48 CF ***************************************************************************************************************************************************************************************************A5 
+Next: 71 F0 2C .3A D4 3E C0 71 F0 2C .********************
+slab error in check_poison_obj(): cache `ip_conntrack': object was modified after freeing
+Call Trace:
+ [<c0144496>] check_poison_obj+0x155/0x195
+ [<c0145e4b>] kmem_cache_alloc+0x139/0x177
+ [<c03edfba>] init_conntrack+0x8d/0x44f
+ [<c03edfba>] init_conntrack+0x8d/0x44f
+ [<c03ee586>] ip_conntrack_in+0x20a/0x2bc
+ [<c03db2eb>] udp_connect+0xa8/0x353
+ [<c03aa074>] nf_iterate+0x5f/0x93
+ [<c03b9634>] dst_output+0x0/0x2d
+ [<c03aa3db>] nf_hook_slow+0xa9/0x205
+ [<c03b9634>] dst_output+0x0/0x2d
+ [<c03b7a84>] ip_queue_xmit+0x435/0x525
+ [<c03b9634>] dst_output+0x0/0x2d
+ [<c039d1df>] __kfree_skb+0x89/0xfe
+ [<c014437c>] check_poison_obj+0x3b/0x195
+ [<c03d0eeb>] tcp_v4_send_check+0x4d/0xd8
+ [<c03ca6ae>] tcp_transmit_skb+0x3b0/0x5b3
+ [<c03cd026>] tcp_connect+0x3af/0x47b
+ [<c02aa34e>] secure_tcp_sequence_number+0x82/0xa0
+ [<c03d0237>] tcp_v4_connect+0x393/0x5db
+ [<c03e3f1d>] inet_stream_connect+0x264/0x3bc
+ [<c0398ae2>] move_addr_to_kernel+0x6b/0x6f
+ [<c039a2d8>] sys_connect+0x78/0x99
+ [<c0398c00>] sock_destroy_inode+0x1d/0x21
+ [<c0398c00>] sock_destroy_inode+0x1d/0x21
+ [<c0178bbc>] destroy_inode+0x36/0x50
+ [<c017a493>] iput+0x63/0x7c
+ [<c01760b3>] dput+0x24/0x333
+ [<c039adb1>] sys_socketcall+0xb2/0x262
+ [<c015c938>] filp_close+0xe9/0x12d
+ [<c015ca13>] sys_close+0x97/0xdf
+ [<c010978f>] syscall_call+0x7/0xb
 
-It's been there, I suppose you need to read the source to figure it out
-though the lmbench script also plays with this I believe.
 
-work ~/LMbench2/bin/i686-pc-linux-gnu ENOUGH=1000000 time bw_pipe
-Pipe bandwidth: 655.37 MB/sec
-real    0m23.411s
-user    0m0.480s
-sys     0m1.180s
-
-work ~/LMbench2/bin/i686-pc-linux-gnu time bw_pipe
-Pipe bandwidth: 809.81 MB/sec
-
-real    0m2.821s
-user    0m0.480s
-sys     0m1.180s
-
-
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

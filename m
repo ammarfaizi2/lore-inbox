@@ -1,48 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310426AbSCBTXf>; Sat, 2 Mar 2002 14:23:35 -0500
+	id <S310430AbSCBTxF>; Sat, 2 Mar 2002 14:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310428AbSCBTXZ>; Sat, 2 Mar 2002 14:23:25 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:28939 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S310426AbSCBTXR>;
-	Sat, 2 Mar 2002 14:23:17 -0500
-Date: Fri, 1 Mar 2002 22:35:34 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Teodor.Iacob@astral.kappa.ro, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux-2.4.18 : lots of "state D" processes ....
-In-Reply-To: <20020302022853.E4431@inspiron.random>
-Message-ID: <Pine.LNX.4.44L.0203012232560.2181-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S310432AbSCBTwz>; Sat, 2 Mar 2002 14:52:55 -0500
+Received: from ja.mac.ssi.bg ([212.95.166.194]:57095 "EHLO u.domain.uli")
+	by vger.kernel.org with ESMTP id <S310430AbSCBTwl>;
+	Sat, 2 Mar 2002 14:52:41 -0500
+Date: Sat, 2 Mar 2002 21:52:12 +0000 (GMT)
+From: Julian Anastasov <ja@ssi.bg>
+X-X-Sender: ja@u.domain.uli
+To: erich@uruk.org
+cc: Szekeres Bela <szekeres@lhsystems.hu>,
+        Daniel Gryniewicz <dang@fprintf.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Network Security hole (was -> Re: arp bug )
+In-Reply-To: <E16hESa-0000Gn-00@trillium-hollow.org>
+Message-ID: <Pine.LNX.4.44.0203022051100.5003-100000@u.domain.uli>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Mar 2002, Andrea Arcangeli wrote:
-> On Fri, Mar 01, 2002 at 12:03:49AM +0200, Teodor Iacob wrote:
-> > Ok, I rushed to reply but it seems like I still get the perl process in a
-> > "D state", no matter if I compile USB as module or built-in, with rmap12g
-> > or with your patch. Anyway to track this?
->
-> SYSRQ+T run on top of 2.4.19pre1aa1 should allow to track down whatever
-> USB problem it is.
 
-I've seen this in 2.4.19-pre1 without USB, too.  Here the
-tasks were stuck in do_fork() and got unstuck minutes
-later.  They were not using any CPU time.
+	Hello,
 
-I'm not seeing any of these delays in -pre2 (yet?) and
-haven't had any time yet to figure out what's going on...
+On Sat, 2 Mar 2002 erich@uruk.org wrote:
 
-regards,
+> [My apologies for getting into this thread rather late, but I just
+>  came across this on a network I'm working with which is all on the
+>  same switch/VLAN...  I had 2 network  cards per machine and was
+>  puzzled why traffic destined for one interface went to the other]
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+	If another host (spoofer) on the LAN is faster all
+your devices lose the race.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+> I.e. the machine still may be accepting traffic destined for one
+> interface on another, even though it won't *advertise* that fact
+> any more.
+
+	You mix two different issues:
+
+1. ARP replying for same request through many devices
+
+2. ARP probes advertising same source IP through many devices
+
+	Your statement is related to (1). There are some golden
+rules on this issue:
+
+- use rp_filter protection for all your external interface
+
+- use different "external" interfaces for the different external
+networks if you want to differentiate the traffic from/to them
+and protect them with rp_filter
+
+- use rp_filter protection for all "internal" interfaces
+attached to same medium (hub) as the "external" interfaces
+
+- no need to use rp_filter protection for the other "internal"
+interfaces, it is recommended, though
+
+- if you want to differentiate traffic by protocol or ports
+use firewall rules (IPSec, stateful conntracking, etc)
+
+	As for (2) I don't see how this can be remotely
+exploited but my opinion is that it should be fixed.
+The current behavior is still valid: if you can talk
+from one local IP to some remote IP through one device
+then you should allow the reverse traffic to work. With
+my fix we just want to reduce the set of the local IPs
+that can be used for ARP announcement. It is only a local
+problem - ARP uses scope link routes. Make sure (1) does
+not lead to problems caused remotely.
+
+> Am I the only one that saw this kind of scary hole?
+
+	The users prefer protection provided from firewall
+rules, even for address spoofing, a matter of taste.
+
+Regards
+
+--
+Julian Anastasov <ja@ssi.bg>
 

@@ -1,37 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278636AbRJ1TCB>; Sun, 28 Oct 2001 14:02:01 -0500
+	id <S278643AbRJ1TNG>; Sun, 28 Oct 2001 14:13:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278643AbRJ1TBw>; Sun, 28 Oct 2001 14:01:52 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:55558 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S278636AbRJ1TBf>; Sun, 28 Oct 2001 14:01:35 -0500
-Message-ID: <3BDC54D8.213F7003@zip.com.au>
-Date: Sun, 28 Oct 2001 10:56:24 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.12-ac6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Zlatko Calusic <zlatko.calusic@iskon.hr>, Jens Axboe <axboe@suse.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-        lkml <linux-kernel@vger.kernel.org>
+	id <S278647AbRJ1TM5>; Sun, 28 Oct 2001 14:12:57 -0500
+Received: from cx518206-a.irvn1.occa.home.com ([24.21.107.122]:54520 "HELO
+	pobox.com") by vger.kernel.org with SMTP id <S278643AbRJ1TMo>;
+	Sun, 28 Oct 2001 14:12:44 -0500
 Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
-In-Reply-To: <E15xu2b-0008QL-00@the-village.bc.nu> <Pine.LNX.4.33.0110280945150.7360-100000@penguin.transmeta.com>
+To: zlatko.calusic@iskon.hr
+Date: Sun, 28 Oct 2001 11:13:28 -0800 (PST)
+Cc: torvalds@transmeta.com (Linus Torvalds), axboe@suse.de (Jens Axboe),
+        marcelo@conectiva.com.br (Marcelo Tosatti), linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org (lkml)
+Reply-To: barryn@pobox.com
+In-Reply-To: <87k7xfk6zd.fsf@atlas.iskon.hr> from "Zlatko Calusic" at Oct 28, 2001 06:30:14 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20011028191328.CCC828A6EA@pobox.com>
+From: barryn@pobox.com (Barry K. Nathan)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+> Unfortunately, things didn't change on my first disk (IBM 7200rpm
+> @home). I'm still getting low numbers, check the vmstat output at the
+> end of the email.
 > 
-> And it may be that the hpt366 IDE driver has always had this braindamage,
-> which the -ac code hides. Or something like this.
+> But, now I found something interesting, other two disk which are on
+> the standard IDE controller work correctly (writing is at 17-22
+> MB/sec). The disk which doesn't work well is on the HPT366 interface,
+> so that may be our culprit. Now I got the idea to check patches
+> retrogradely to see where it started behaving poorely.
 > 
+> Also, one more thing, I'm pretty sure that under strange circumstances
+> (specific alignment of stars) it behaves well (with appropriate
+> writing speed). I just haven't yet pinpointed what needs to be done to
+> get to that point.
 
-My hpt366, running stock 2.4.14-pre3 performs OK.
-	time ( dd if=/dev/zero of=foo bs=10240k count=100 ; sync )
-takes 35 seconds (30 megs/sec).  The same on current -ac kernels.
+I didn't read the entire thread, so this is a bit of a stab in the dark,
+but:
 
-Maybe Zlatko's drive stopped doing DMA?
+This really reminds me of a problem I once had with a hard drive of
+mine. It would usually go at 15-20MB/sec, but sometimes (under both
+Linux and Windows) would slow down to maybe 350KB/sec. The slowdown, or
+lack thereof, did seem to depend on the alignment of the stars. I lived
+with it for a number of months, then started getting intermittent I/O
+errors as well, as if the drive had bad sectors on disk.
+
+The problem turned out to be insufficient ventilation for the controller
+board on the bottom of the drive -- it was in the lowest 3.5" drive bay
+in my case, so the bottom of the drive was snuggled next to a piece of
+metal with ventilation holes. The holes were rather large (maybe 0.5"
+diameter) -- and so were the areas without holes. Guess where one of the
+drive's controller chips happened to be positioned, relative to the
+holes? :( Moving the drive up a bit in the case, so as to allow 0.5"-1"
+of space for air beneath the drive, fixed the problem (both the slowdown
+and the I/O errors).
+
+I don't know if this is your problem, but I'm mentioning it just in
+case it is...
+
+-Barry K. Nathan <barryn@pobox.com>

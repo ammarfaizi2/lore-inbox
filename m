@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVCAIpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVCAIr6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbVCAIpO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 03:45:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVCAIpO
+	id S261804AbVCAIr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 03:47:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVCAIr6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 03:45:14 -0500
-Received: from hirsch.in-berlin.de ([192.109.42.6]:52367 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261743AbVCAIpG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 03:45:06 -0500
-X-Envelope-From: kraxel@bytesex.org
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Potentially dead bttv cards from 2.6.10
-References: <422001CD.7020806@andrew.cmu.edu> <20050228134410.GA7499@bytesex>
-	<42232DFC.6090000@andrew.cmu.edu> <87mzto3c78.fsf@bytesex.org>
-	<42240EB3.6040504@andrew.cmu.edu>
-From: Gerd Knorr <kraxel@bytesex.org>
-Organization: SUSE Labs, Berlin
-Date: 01 Mar 2005 09:44:42 +0100
-In-Reply-To: <42240EB3.6040504@andrew.cmu.edu>
-Message-ID: <87is4b21s5.fsf@bytesex.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 1 Mar 2005 03:47:58 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:30672 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261804AbVCAIrv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 03:47:51 -0500
+Date: Tue, 1 Mar 2005 09:47:42 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] scsi/sata write barrier support
+Message-ID: <20050301084741.GD12295@suse.de>
+References: <20050127120244.GO2751@suse.de> <87acpxurwf.fsf@stark.xeocode.com> <20050222071340.GC2835@suse.de> <874qg4v81q.fsf@stark.xeocode.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <874qg4v81q.fsf@stark.xeocode.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bruce <bruce@andrew.cmu.edu> writes:
+On Tue, Feb 22 2005, Greg Stark wrote:
+> 
+> Jens Axboe <axboe@suse.de> writes:
+> 
+> > fsync has been working all along, since the initial barrier support for
+> > ide. only ext3 and reiserfs support it.
+> 
+> Really? That's huge news. Since what kernel version(s) is that?
 
-> If you could suggest a very well tested kernel for bttv (2.6.9?),
+Since 2.6.9.
 
-What do you expect?  With just one single report and not remotely
-being clear what exactly caused it ...
+> What about a non-journaled fs, or at least a meta-data-only-journaled fs?
+> Journaled FS's don't mix well with transaction based databases since they're
+> basically doing their own journaling anyways.
 
-> I've heard that there is some way to dump eeproms; Is there a way to
-> write them also?
+Only works on ext3 and reiserfs currently.
 
-Yes, you can.  That works only if you can still talk to it though.
-
-> If I could copy the eeprom from the unused cards to the (now broken)
-> pair that might fix things.
-
-No.  It's not accessable, not just the content scrambled.
-
-  Gerd
- 
 -- 
-#define printk(args...) fprintf(stderr, ## args)
+Jens Axboe
+

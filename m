@@ -1,77 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265489AbUHRXCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264704AbUHRXCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265489AbUHRXCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 19:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUHRXCZ
+	id S264704AbUHRXCT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 19:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266306AbUHRXCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 19:02:25 -0400
-Received: from mailfe04.swip.net ([212.247.154.97]:16520 "EHLO
-	mailfe04.swip.net") by vger.kernel.org with ESMTP id S265489AbUHRXCO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 19:02:14 -0400
-X-T2-Posting-ID: dCnToGxhL58ot4EWY8b+QGwMembwLoz1X2yB7MdtIiA=
-Date: Thu, 19 Aug 2004 01:02:11 +0200
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [samuel.thibault@ens-lyon.org: Re: warning: comparison is always false due to limited range of  data type]
-Message-ID: <20040818230211.GG22559@bouh.is-a-geek.org>
-Mail-Followup-To: Paul Jackson <pj@sgi.com>, linux-kernel@vger.kernel.org
+	Wed, 18 Aug 2004 19:02:19 -0400
+Received: from dp.samba.org ([66.70.73.150]:21225 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264704AbUHRXCN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 19:02:13 -0400
+Date: Wed, 18 Aug 2004 16:02:11 -0700
+From: Jeremy Allison <jra@samba.org>
+To: "Steve French (IBM LTC)" <smfltc@us.ibm.com>
+Cc: linux-cifs-client@lists.samba.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-cifs-client] re: Problem with CIFS
+Message-ID: <20040818230211.GD8700@legion.cup.hp.com>
+Reply-To: Jeremy Allison <jra@samba.org>
+References: <20040818120033.9DD101638C1@lists.samba.org> <41247C40.5DB76262@us.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.6i-nntp
+In-Reply-To: <41247C40.5DB76262@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Le lun 09 aoû 2004 à 04:50:04 +0200, Paul Jackson a tapoté sur son clavier :
-> Unfortunately, this patch uses the notorious "gcc warning suppression
-> by obfuscation" technique.
+On Thu, Aug 19, 2004 at 05:09:04AM -0500, Steve French (IBM LTC) wrote:
 > 
-> --- 2.6.8-rc2-mm2.orig/include/linux/highuid.h	2004-08-04 19:27:48.000000000 -0700
-> +++ 2.6.8-rc2-mm2/include/linux/highuid.h	2004-08-08 19:03:47.000000000 -0700
-> @@ -44,8 +44,8 @@ extern void __bad_gid(void);
->  #ifdef CONFIG_UID16
->  
->  /* prevent uid mod 65536 effect by returning a default value for high UIDs */
-> -#define high2lowuid(uid) ((uid) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
-> -#define high2lowgid(gid) ((gid) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
-> +#define high2lowuid(uid) ((uid) & ~0xFFFF ? (old_uid_t)overflowuid : (old_uid_t)(uid))
-> +#define high2lowgid(gid) ((gid) & ~0xFFFF ? (old_gid_t)overflowgid : (old_gid_t)(gid))
->  /*
-> ...
+> This is caused by an interesting bug in Samba, but one I should be able to
+> workaround.  Basically Samba is setting a flag in the negotiate response saying
+>     "I support extended security"
+> which indicates that this frame should be decoded as if it contained an SPNEGO blob
+> (ala RFC 2478) and a conflicting capability in the same frame which indicates
+>     "I am not capable of extended security"
+> The Samba server sets this SMB_FLAGS2_EXTENDED_SECURITY in the response even though
+> the client said - no extended security (Windows gets this right). 
+> ....
+> The Samba fix is pretty easy as well (it only hits source/smbd/negprot.c -
+> reply_negprot function), I will bounce the fix off jra before updating the Samba 3
+> source.
 
-Here is another approach. This should never warning, and should get
-optimized away as needed.
+Can you show me where the problem is ? Currently in smbd/negprot.c we have :
 
-Regards,
-Samuel
+        /* do spnego in user level security if the client
+           supports it and we can do encrypted passwords */
+                                                                                                               
+        if (global_encrypted_passwords_negotiated &&
+            (lp_security() != SEC_SHARE) &&
+            lp_use_spnego() &&
+            (SVAL(inbuf, smb_flg2) & FLAGS2_EXTENDED_SECURITY)) {
+                negotiate_spnego = True;
+                capabilities |= CAP_EXTENDED_SECURITY;
+        }
 
---- linux-2.6.8.1-orig/include/linux/highuid.h	2003-10-08 22:20:06.000000000 +0200
-+++ linux-2.6.8.1-perso/include/linux/highuid.h	2004-08-19 00:47:31.000000000 +0200
-@@ -44,8 +44,8 @@
- #ifdef CONFIG_UID16
- 
- /* prevent uid mod 65536 effect by returning a default value for high UIDs */
--#define high2lowuid(uid) ((uid) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
--#define high2lowgid(gid) ((gid) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
-+#define high2lowuid(uid) ((sizeof(uid) > 2 ? (uid) : 0) > 65535 ? (old_uid_t)overflowuid : (old_uid_t)(uid))
-+#define high2lowgid(gid) ((sizeof(gid) > 2 ? (gid) : 0) > 65535 ? (old_gid_t)overflowgid : (old_gid_t)(gid))
- /*
-  * -1 is different in 16 bits than it is in 32 bits
-  * these macros are used by chown(), setreuid(), ...,
-@@ -89,8 +89,8 @@
-  * Since these macros are used in architectures that only need limited
-  * 16-bit UID back compatibility, we won't use old_uid_t and old_gid_t
-  */
--#define fs_high2lowuid(uid) ((uid) > 65535 ? (uid16_t)fs_overflowuid : (uid16_t)(uid))
--#define fs_high2lowgid(gid) ((gid) > 65535 ? (gid16_t)fs_overflowgid : (gid16_t)(gid))
-+#define fs_high2lowuid(uid) ((sizeof(uid) > 2 ? (uid) : 0) > 65535 ? (uid16_t)fs_overflowuid : (uid16_t)(uid))
-+#define fs_high2lowgid(gid) ((sizeof(gid) > 2 ? (gid) : 0) > 65535 ? (gid16_t)fs_overflowgid : (gid16_t)(gid))
- 
- #define low_16_bits(x)	((x) & 0xFFFF)
- #define high_16_bits(x)	(((x) & 0xFFFF0000) >> 16)
+Which I thought should be correct.
 
+Cheers,
+
+	Jeremy.

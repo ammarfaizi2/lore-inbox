@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261514AbTCGK7B>; Fri, 7 Mar 2003 05:59:01 -0500
+	id <S261522AbTCGLL7>; Fri, 7 Mar 2003 06:11:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261513AbTCGK6k>; Fri, 7 Mar 2003 05:58:40 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:2564 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S261504AbTCGK5F>;
-	Fri, 7 Mar 2003 05:57:05 -0500
-Date: Thu, 6 Mar 2003 17:47:43 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Joel Becker <Joel.Becker@oracle.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "H. Peter Anvin" <hpa@zytor.com>,
+	id <S261535AbTCGLL7>; Fri, 7 Mar 2003 06:11:59 -0500
+Received: from poup.poupinou.org ([195.101.94.96]:2611 "EHLO poup.poupinou.org")
+	by vger.kernel.org with ESMTP id <S261520AbTCGLL6>;
+	Fri, 7 Mar 2003 06:11:58 -0500
+Date: Fri, 7 Mar 2003 12:22:25 +0100
+To: CaT <cat@zip.com.au>
+Cc: Dominik Brodowski <linux@brodo.de>, cpufreq@www.linux.org.uk,
        linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed *notrademarkhere* clone
-Message-ID: <20030306164743.GG2781@zaurus.ucw.cz>
-References: <200303020011.QAA13450@adam.yggdrasil.com> <3E615C38.7030609@pobox.com> <20030302014039.GC1364@dualathlon.random> <3E616224.6040003@pobox.com> <b3rtr2_rmg_1@cesium.transmeta.com> <3E623B9A.8050405@pobox.com> <20030303215356.GE2835@ca-server1.us.oracle.com>
+Subject: Re: 2.5.64 - cpu freq not turned on
+Message-ID: <20030307112225.GA3923@poup.poupinou.org>
+References: <20030306152616.GB432@zip.com.au> <20030306233228.GK1016@brodo.de> <20030307001724.GB588@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030303215356.GE2835@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20030307001724.GB588@zip.com.au>
+User-Agent: Mutt/1.4i
+From: Ducrot Bruno <poup@poupinou.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Fri, Mar 07, 2003 at 11:17:24AM +1100, CaT wrote:
+> Didn't apply the patch cos I don't see that in the lspci output:
+> 
+> 00:00.0 Host bridge: Intel Corp. 440BX/ZX - 82443BX/ZX Host bridge (rev 03)
+> 00:01.0 PCI bridge: Intel Corp. 440BX/ZX - 82443BX/ZX AGP bridge (rev 03)
+> 00:07.0 Bridge: Intel Corp. 82371AB PIIX4 ISA (rev 02)
+> 00:07.1 IDE interface: Intel Corp. 82371AB PIIX4 IDE (rev 01)
+> 00:07.2 USB Controller: Intel Corp. 82371AB PIIX4 USB (rev 01)
+> 00:07.3 Bridge: Intel Corp. 82371AB PIIX4 ACPI (rev 03)
+> 
 
-> 	The one thing BK does that makes it worthwhile is the three-way
-> merge.  This (and the resulting DAG) make handling code from Alan, from
-> Linus, from Andrew, and from everyone else possible.  With CVS,
-> subversion, or any other SCM I've worked with, you have to hand merge
-> anything past the first patch.  Ugh.
+PIIX4EM southbridges are still in reverse-engeenering process.
 
-What's so magical about 3way merge?
-I thought it would be easy to do even
-in CVS...
-				Pavel
+Im also wondering why Intel still make this old stuff under NDA?
+
+Cheers,
+
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
-
+Ducrot Bruno
+http://www.poupinou.org        Page profaissionelle
+http://toto.tu-me-saoules.com  Haume page

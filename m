@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUG2TVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265041AbUG2TWS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264954AbUG2TVm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 15:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264826AbUG2TT6
+	id S265041AbUG2TWS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 15:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264973AbUG2TV4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 15:19:58 -0400
-Received: from smtp2.rz.tu-harburg.de ([134.28.205.13]:16265 "EHLO
-	smtp2.rz.tu-harburg.de") by vger.kernel.org with ESMTP
-	id S264954AbUG2TSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 15:18:17 -0400
-Message-ID: <41094D69.9030008@tu-harburg.de>
-Date: Thu, 29 Jul 2004 21:18:01 +0200
-From: Jan Blunck <j.blunck@tu-harburg.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: akpm@osdl.org
-Subject: [PATCH] ext2_readdir() filp->f_pos fix
-Content-Type: multipart/mixed;
- boundary="------------070501090401010202010307"
+	Thu, 29 Jul 2004 15:21:56 -0400
+Received: from embeddededge.com ([209.113.146.155]:24589 "EHLO
+	penguin.netx4.com") by vger.kernel.org with ESMTP id S265041AbUG2TVZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 15:21:25 -0400
+In-Reply-To: <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com>
+References: <4108F845.7080305@timesys.com> <85C49799-E168-11D8-B0AC-000393DBC2E8@freescale.com>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <A46787F8-E194-11D8-B8DB-003065F9B7DC@embeddededge.com>
+Content-Transfer-Encoding: 7bit
+Cc: LKML <linux-kernel@vger.kernel.org>, Greg Weeks <greg.weeks@timesys.com>,
+       LinuxPPC-dev Development <linuxppc-dev@lists.linuxppc.org>
+From: Dan Malek <dan@embeddededge.com>
+Subject: Re: [BUG] PPC math-emu multiply problem
+Date: Thu, 29 Jul 2004 15:22:33 -0400
+To: Kumar Gala <kumar.gala@freescale.com>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070501090401010202010307
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
-If the whole inode is read, ext2_readdir() sets the f_pos to a multiple 
-of the page size (because of the conditions of the outer for loop). This 
-sets the wrong f_pos for directory inodes on ext2 partitions with a 
-block size differing from the page size.
+On Jul 29, 2004, at 10:06 AM, Kumar Gala wrote:
+
+>
+> On Jul 29, 2004, at 8:14 AM, Greg Weeks wrote:
+>
+>> I'm seeing what appears to be a bug in the ppc kernel trap math
+>> emulator. An extreme case for multiplies isn't working the way gcc
+>> soft-float or hardware floating point is.
+
+I'm not surprised.  I lifted this code from Sparc, glibc, and adapted
+it as best I could for PPC years ago for the 8xx.  I was happy when
+it appeared to work for the general cases. :-)
+
+Due to its overhead, I never expected it to be _the_ solution for
+processors that don't have floating point hardware.  Recompiling
+the libraries with soft-float and using that option when compiling
+is the way to go.
+
+Remember, don't mix soft-float compilation with libraries compiled
+with HW floating point, and trap emulations.  They are not
+compatible and will return erroneous results.
+
+Thanks.
 
 
---------------070501090401010202010307
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
+	-- Dan
 
-Signed-off-by: Jan Blunck <j.blunck@tu-harburg.de>
-
- dir.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-Index: testing-2.5/fs/ext2/dir.c
-===================================================================
---- testing-2.5.orig/fs/ext2/dir.c	2004-07-27 19:24:00.000000000 +0200
-+++ testing-2.5/fs/ext2/dir.c	2004-07-29 20:32:10.141354816 +0200
-@@ -251,7 +251,7 @@
- 	loff_t pos = filp->f_pos;
- 	struct inode *inode = filp->f_dentry->d_inode;
- 	struct super_block *sb = inode->i_sb;
--	unsigned offset = pos & ~PAGE_CACHE_MASK;
-+	unsigned int offset = pos & ~PAGE_CACHE_MASK;
- 	unsigned long n = pos >> PAGE_CACHE_SHIFT;
- 	unsigned long npages = dir_pages(inode);
- 	unsigned chunk_mask = ~(ext2_chunk_size(inode)-1);
-@@ -303,6 +303,7 @@
- 					goto success;
- 				}
- 			}
-+			filp->f_pos += le16_to_cpu(de->rec_len);
- 		}
- 		ext2_put_page(page);
- 	}
-@@ -310,7 +311,6 @@
- success:
- 	ret = 0;
- done:
--	filp->f_pos = (n << PAGE_CACHE_SHIFT) | offset;
- 	filp->f_version = inode->i_version;
- 	return ret;
- }
-
---------------070501090401010202010307--

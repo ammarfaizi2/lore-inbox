@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVCNPfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVCNPkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVCNPfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 10:35:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261550AbVCNPfI
+	id S261551AbVCNPkn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 10:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVCNPkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 10:35:08 -0500
-Received: from mail.dif.dk ([193.138.115.101]:14248 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261549AbVCNPe6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 10:34:58 -0500
-Date: Mon, 14 Mar 2005 16:36:22 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Steve French <smfrench@austin.rr.com>
-Cc: Steven French <sfrench@us.ibm.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][-mm][1/2] cifs: whitespace cleanups for file.c
-In-Reply-To: <1110812782.2294.2.camel@smfhome.smfdom>
-Message-ID: <Pine.LNX.4.62.0503141626400.2534@dragon.hyggekrogen.localhost>
-References: <OF5618ED86.7D1043E7-ON87256FC4.00196859-86256FC4.0019866B@us.ibm.com>
-  <Pine.LNX.4.62.0503141207550.2534@dragon.hyggekrogen.localhost>
- <1110812782.2294.2.camel@smfhome.smfdom>
+	Mon, 14 Mar 2005 10:40:43 -0500
+Received: from stark.xeocode.com ([216.58.44.227]:23937 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S261551AbVCNPki
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Mar 2005 10:40:38 -0500
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg Stark <gsstark@mit.edu>, s0348365@sms.ed.ac.uk,
+       linux-kernel@vger.kernel.org, pmcfarland@downeast.net
+Subject: Re: OSS Audio borked between 2.6.6 and 2.6.10
+References: <87u0ng90mo.fsf@stark.xeocode.com>
+	<200503130152.52342.pmcfarland@downeast.net>
+	<874qff89ob.fsf@stark.xeocode.com>
+	<200503140103.55354.s0348365@sms.ed.ac.uk>
+	<87sm2y7uon.fsf@stark.xeocode.com>
+	<20050313200753.20411bdb.akpm@osdl.org>
+	<87br9m7s8h.fsf@stark.xeocode.com> <87zmx66b2b.fsf@stark.xeocode.com>
+	<87u0nevc11.fsf@stark.xeocode.com>
+	<20050314015321.5e944d84.akpm@osdl.org>
+In-Reply-To: <20050314015321.5e944d84.akpm@osdl.org>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 14 Mar 2005 10:40:27 -0500
+Message-ID: <87is3uutg4.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 14 Mar 2005, Steve French wrote:
+Andrew Morton <akpm@osdl.org> writes:
 
-> OK - the first of them is merged in to the cifs bk tree.
+> Herbert tells me that this might be fixed in 2.6.11.  Did you try that?
 
-Thank you.
-
-
-> The second one looks like an improvement on structuring of the cifs open
-> logic but needs review.
-
-Yes, it certainly does. I may be able to install windows in vmware or 
-borrow a machine for it during the week to test the patch a bit myself, 
-I'll see what I can do.
+Nope. I'll try that. 
 
 
->  I may have a chance to test it later in the
-> week.
-> 
-Great.
-
-
-> Thanks.
-> 
-You're very welcome.
-
-Would it be useful if I split the second patch into a few parts for you? I 
-could split some of the (non cifs_open related) whitespace changes into 
-one, the kfree related changes into another and then a third with the 
-cifs_open rework. Would that make things easier for you?
-
+(Though I'm skeptical. It went from 2.6.6 to 2.6.10 without being noticed but
+now it's fixed without any reports?)
 
 -- 
-Jesper
-
+greg
 

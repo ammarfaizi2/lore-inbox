@@ -1,76 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130067AbRAEIat>; Fri, 5 Jan 2001 03:30:49 -0500
+	id <S129387AbRAEIct>; Fri, 5 Jan 2001 03:32:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130643AbRAEIaj>; Fri, 5 Jan 2001 03:30:39 -0500
-Received: from ns1.megapath.net ([216.200.176.4]:37898 "EHLO megapathdsl.net")
-	by vger.kernel.org with ESMTP id <S130067AbRAEIac>;
-	Fri, 5 Jan 2001 03:30:32 -0500
-Message-ID: <3A5585D1.5090903@megapathdsl.net>
-Date: Fri, 05 Jan 2001 00:29:05 -0800
-From: Miles Lane <miles@megapathdsl.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.0-test12-pre8 i686; en-US; m18) Gecko/20001231
-X-Accept-Language: en
+	id <S129183AbRAEIcj>; Fri, 5 Jan 2001 03:32:39 -0500
+Received: from hnlmail1.hawaii.rr.com ([24.25.227.33]:3083 "EHLO hawaii.rr.com")
+	by vger.kernel.org with ESMTP id <S129610AbRAEIcb>;
+	Fri, 5 Jan 2001 03:32:31 -0500
+From: "Ryan Sizemore" <ryan831@usa.net>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: Memory Corruption
+Date: Thu, 4 Jan 2001 22:33:43 -1000
+Message-ID: <NEBBIFHONDNEGJDKODONGEBNCEAA.ryan831@usa.net>
 MIME-Version: 1.0
-To: "Michael D. Crawford" <crawford@goingware.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Change of policy for future 2.2 driver submissions
-In-Reply-To: <3A55447D.995FB159@goingware.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael D. Crawford wrote:
+This message has a couple of questions to it, so maybe a few people might
+want to contribute to answering them all. My apologies in advance for the
+long length of this post.
 
-<snip>
+The Problem:
+I have an Alpha PC164 with 512 Meg of memory. As a friend and I were setting
+it up, we tried to compile mozilla. At some point during the install, a
+repeating error would scroll by the screen so fast that we could not read
+it. From what we could pick out, we determined that the error was memory
+related. We deduced that since compiling mozilla would fill the entire bank
+of memory, once gcc (or whatever directly writes to memory) tried to address
+the bad area of memory, gcc would produce the error. Also, after trying to
+recompile mozilla a number of times, the error would be at a random point,
+usually after about 15 or 20 minutes of compiling. From this information, we
+hazard to guess that one of the eight 64 Meg SIMMS was bad, or contained a
+bad area. Therefore, we removed the last 4 of the 8 modules, and the error
+never occurred.
 
+The suggested solution:
+We plan to swap out the 4 of the 4 remaining modules with the 4 that we
+removed earlier, one at a time, and try to compile mozilla, since it will
+fill all of the memory. Then, hopefully, we can rotate the modules to find
+the one that contains the bad area.
 
-> You might think this is great because of all the extra testing the new users
-> will do but I assert that it isn't.  The environment for Linux is quite
-> different these days than when 2.2 or 2.0 were released.
-> 
-> A lot of the people who will be using it are not technically savvy people, and
-> many of those who do know technology depend on its reliability for the
-> profitability of large businesses but may not read Linus' message that indicates
-> this is really just for testing.
+We are not quite sure what to do from there. Here are our ideas:
+1. One suggestion I made was to create a ram drive over the last 64 Meg of
+addressable memory, the simply not read or write to the drive. Is that even
+possible? Can I tell the kernel to create a ram drive over a certain area of
+memory?
+2. Another idea I had was to tell the kernel to only use a certain size of
+memory, with a modification to lilo.conf: append="mem=448m" since 512(the
+total memory) - 64(the size of the module) = 448Meg. Will this work? Any
+ideas?
 
-Alan's comments were addressed to driver developers, not users.
-It's driver developers who need to work with Alan to make sure
-he doesn't have to now do twice as much work as he used to
-(BTW:  I think this is a mental and physical impossibility).
+Another question:
+We are not sure if the memory is ECC or not, but we think that there is a
+good chance of it. Are there any kernel optimizations that can be made so
+that the kernel can map out the bad memory and mark it so that it cant be
+used? The machine is booted from an SRM prompt, if that helps.
 
-The distros will ship 2.4.0 kernels whenever they want to, which
-will probably be when they think there are no major gotchas in it.
+Please let me know if anyone had any ideas on these problems. Thanks in
+advance to all those out there who took the time to read this.
 
-If I remember correctly, when 2.2.0 was released, a similar process
-took place.  Alan helped get patches into the 2.0 kernel tree for
-a while.  When the 2.3.0 tree was opened up, Linus' attention
-shifted completely to that new development tree.  That left Alan
-to take up the slack by becoming the maintainer of the 2.2 tree.
-Very shortly after Alan moved onto the 2.2 tree, he announced that
-the vast amount of his work would be focussed there and not on the
-2.0 tree.
-
-As far as I know, 2.0 to 2.2 transition went really quite smoothly,
-so this process must be working.
-
-I would suggest that if you are writing drivers for the 2.2 tree,
-that you just work with Alan and make sure your code is also in
-the 2.4 tree.  Alan's doing you a favor by clearly spelling out
-what he can reasonably be expected to accomplish.  If he over-
-estimated his ability to process code changes, we'd all be in
-a world of hurt and disappointment.
-
-As for users, their fate is in the hands of the distribution
-developers.  It's the distribution developers' responsibility
-to ship good, solid code.  If you are scared that they won't
-do a good job of that, I guess you'll want to wait for one
-of their later releases.
-
-Best wishes,
-
-	Miles
+--Ryan Sizemore
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

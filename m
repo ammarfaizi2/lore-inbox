@@ -1,103 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129737AbRBHUeV>; Thu, 8 Feb 2001 15:34:21 -0500
+	id <S129664AbRBHUz1>; Thu, 8 Feb 2001 15:55:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130998AbRBHUeL>; Thu, 8 Feb 2001 15:34:11 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:65034 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129737AbRBHUeB>;
-	Thu, 8 Feb 2001 15:34:01 -0500
-Message-ID: <3A83017D.D84AD6B1@mandrakesoft.com>
-Date: Thu, 08 Feb 2001 15:28:45 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-pre1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-CC: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org,
-        jes@linuxcare.com, Donald Becker <becker@scyld.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <200102080152.f181q6G17259@moisil.dev.hydraweb.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129737AbRBHUy5>; Thu, 8 Feb 2001 15:54:57 -0500
+Received: from tepid.osl.fast.no ([213.188.9.130]:36878 "EHLO
+	tepid.osl.fast.no") by vger.kernel.org with ESMTP
+	id <S129041AbRBHUym>; Thu, 8 Feb 2001 15:54:42 -0500
+Date: Thu, 8 Feb 2001 21:10:55 GMT
+Message-Id: <200102082110.VAA87458@tepid.osl.fast.no>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, linux-irda@pasta.cs.uit.no
+From: Dag Brattli <dag@brattli.net>
+Reply-To: dag@brattli.net
+Subject: [patch] patch-2.4.1-irda1 (irtty)
+X-Mailer: Pygmy (v0.4.6)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ion Badulescu wrote:
-> 
-> Hi Jeff,
-> 
-> On Wed, 07 Feb 2001 14:57:16 -0500, Jeff Garzik <jgarzik@mandrakesoft.com> wrote:
-> 
-> > Here's the patch I have, against vanilla 2.4.2-pre1, with the
-> > pci_enable_device preferred changes included...
-> 
-> Well, I decided to bite the bullet and port my zerocopy starfire
-> changes to the official tree, properly ifdef'ed. So here it goes,
-> the patch was made against 2.4.1 vanilla and includes all the
-> fixes from Jeff and myself that were sent to the list so far.
+Linus,
 
-I would prefer that the zerocopy changes stay in DaveM's external patch
-until they are ready to be merged.  Zerocopy is still changing and being
-actively debugged, so it is possible that we might have to patch
-starfire.c again with zerocopy updates, before the final patch makes it
-to Linus.  Let's wait on zerocopy in the main tree..
+Here is a patch that fixes a kernel crash people have 
+experiended when using IrDA dongles with Linux-2.4.
 
+The problem was that the netdev was deallocated a bit
+to early at close time.
 
-> I've also added myself as the starfire maintainer -- I hope
-> nobody objects.
+Please apply to your latest 2.4 code.
 
-If you've got the hardware and time, I'm always happy to see someone
-step up ..   I must confess that I haven't seen much of your work to
-date, however.
+-- Dag
 
+--- linux/drivers/net/irda/irtty.c.orig	Sun Jan 21 23:35:44 2001
++++ linux/drivers/net/irda/irtty.c	Sun Jan 21 23:36:30 2001
+@@ -279,6 +279,11 @@ static void irtty_close(struct tty_struc
+ 	tty->flags &= ~(1 << TTY_DO_WRITE_WAKEUP);
+ 	tty->disc_data = 0;
+ 	
++	/* We are not using any dongle anymore! */
++	if (self->dongle)
++		irda_device_dongle_cleanup(self->dongle);
++	self->dongle = NULL;
++
+ 	/* Remove netdevice */
+ 	if (self->netdev) {
+ 		rtnl_lock();
+@@ -286,11 +291,6 @@ static void irtty_close(struct tty_struc
+ 		rtnl_unlock();
+ 	}
+ 	
+-	/* We are not using any dongle anymore! */
+-	if (self->dongle)
+-		irda_device_dongle_cleanup(self->dongle);
+-	self->dongle = NULL;
+-
+ 	/* Remove speed changing task if any */
+ 	if (self->task)
+ 		irda_task_delete(self->task);
 
-> +/*
-> + * The ia64 doesn't allow for unaligned loads even of integers being
-> + * misaligned on a 2 byte boundary. Thus always force copying of
-> + * packets as the starfire doesn't allow for misaligned DMAs ;-(
-> + * 23/10/2000 - Jes
-> + *
-> + * Neither does the Alpha. -Ion
-> + */
-> +#if defined(__ia64__) || defined(__alpha__)
-> +#define PKT_SHOULD_COPY(pkt_len)       1
-> +#else
-> +#define PKT_SHOULD_COPY(pkt_len)       (pkt_len < rx_copybreak)
-> +#endif
-
-Note that I have not yet sent this patch onto Linus for a reason... 
-Here is Don Becker's comment on the subject:
-
-Donald Becker wrote:
-> On Tue, 16 Jan 2001, Jeff Garzik wrote:
-> > * IA64 support (Jes)
-> Oh, and this is completely bogus.
-> This isn't a fix, it's a hack that covers up the real problem.
-> 
-> The align-copy should *never* be required because the alignment differs
-> between DIX and E-II encapsulated packets.  The machine shouldn't crash
-> because someone sends you a different encapsulation type!
-
-> @@ -757,14 +931,14 @@
-> 
->         dev->trans_start = jiffies;
->         np->stats.tx_errors++;
-> -       return;
-> +       netif_wake_queue(dev);
->  }
-
-this has not been sent on to linus/alan because, if you do not empty the
-Tx ring on tx_timeout, you should check to see if there is space on the
-ring before waking the queue.  Otherwise corruption/problems occur...
-
-	Jeff
-
-
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

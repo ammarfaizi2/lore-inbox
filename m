@@ -1,29 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbTENGUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 02:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbTENGUF
+	id S262106AbTENGKt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 02:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTENGKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 02:20:05 -0400
-Received: from rekin4.go2.pl ([212.126.20.8]:1710 "HELO rekin4.o2.pl")
-	by vger.kernel.org with SMTP id S262127AbTENGTc (ORCPT
+	Wed, 14 May 2003 02:10:39 -0400
+Received: from Mail1.KONTENT.De ([81.88.34.36]:63362 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S262106AbTENGJ4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 02:19:32 -0400
-From: fab@tlen.pl
+	Wed, 14 May 2003 02:09:56 -0400
+From: Oliver Neukum <oliver@neukum.org>
 To: linux-kernel@vger.kernel.org
-Cc: petero2@telia.com
-Subject: =?iso-8859-2?Q?Mount=20Rainier=20and=20kernel=202.6?=
-Date: Wed, 14 May 2003 08:32:16 +0100
-Content-Type: text/plain; charset="iso-8859-2";
-Content-Transfer-Encoding: 8bit
-X-Mailer: first3.pl WebMailv4.00. Usluga Poczty Elektronicznej dla o2.pl
-X-Originator: 213.76.136.68
-Message-Id: <20030514063216.2018C6EE92@rekin4.o2.pl>
+Subject: BK tree of yesterday crashes in agp_via_probe() on boot
+Date: Wed, 14 May 2003 08:23:09 +0200
+User-Agent: KMail/1.5.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200305140823.09216.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I would like to ask if support for Mount Rainier is inluded in 2.6 
-kernel (as it was written in artice info on page 
-http://kt.zork.net/kernel-traffic/kt20021021_189.html#3)
+Hi,
 
+2.5 doesn't boot for me oopsing in agp_via_probe().
+Is this a known problem? Anybody interested in the oops?
+
+	Regards
+		Oliver
 

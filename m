@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbUC0AyY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 19:54:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbUC0AyY
+	id S261531AbUC0A7a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 19:59:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbUC0A7a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 19:54:24 -0500
-Received: from fmr10.intel.com ([192.55.52.30]:54984 "EHLO
-	fmsfmr003.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261554AbUC0AyK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 19:54:10 -0500
-Subject: [BKPATCH] ACPI for 2.4
+	Fri, 26 Mar 2004 19:59:30 -0500
+Received: from fmr99.intel.com ([192.55.52.32]:33154 "EHLO
+	hermes-pilot.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261531AbUC0A70 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 19:59:26 -0500
+Subject: [BKPATCH] ACPI for 2.6
 From: Len Brown <len.brown@intel.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Linus Torvalds <torvalds@osdl.org>
 Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
        ACPI Developers <acpi-devel@lists.sourceforge.net>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1080348837.16211.28.camel@dhcppc4>
+Message-Id: <1080349151.16211.33.camel@dhcppc4>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.3 
-Date: 26 Mar 2004 19:53:58 -0500
+Date: 26 Mar 2004 19:59:11 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo, please do a 
+Hi Linus, please do a 
 
-	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.4.26
+	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.6.5
 
-	Three fixes, all interrupt related.
+	Three significant interrupt fixes.
 
 thanks,
 -Len
 
 ps. a plain patch is also available here:
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.4.26/acpi-20040326-2.4.26.diff.gz
+ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.6.5/acpi-20040326-2.6.5.diff.gz
 
 This will update the following files:
 
- arch/i386/kernel/acpi.c           |   18 +
- arch/x86_64/kernel/acpi.c         |   18 +
+ arch/i386/kernel/acpi/boot.c      |   18 +
  drivers/acpi/ec.c                 |    4 
  drivers/acpi/events/evgpe.c       |   11 -
  drivers/acpi/events/evgpeblk.c    |  242 ++++++++++++++++++++++----
@@ -68,15 +67,15 @@ This will update the following files:
  include/acpi/aclocal.h            |    7 
  include/acpi/actypes.h            |   84 +++++----
  include/acpi/acutils.h            |    1 
- 30 files changed, 548 insertions(+), 208 deletions(-)
+ 29 files changed, 537 insertions(+), 201 deletions(-)
 
 through these ChangeSets:
 
-<len.brown@intel.com> (04/03/26 1.1063.46.91)
+<len.brown@intel.com> (04/03/26 1.1608.1.56)
    [ACPI] Linux specific updates from ACPICA 20040326
    "acpi_wake_gpes_always_on" boot flag for old GPE behaviour
 
-<len.brown@intel.com> (04/03/26 1.1063.46.90)
+<len.brown@intel.com> (04/03/26 1.1608.1.55)
    [ACPI] ACPICA 20040326 from Bob Moore
    
    Implemented support for "wake" GPEs via interaction between
@@ -111,11 +110,11 @@ through these ChangeSets:
    Return proper status from AcpiUtMutexInitialize,
    not just simply AE_OK.
 
-<len.brown@intel.com> (04/03/26 1.1063.46.89)
+<len.brown@intel.com> (04/03/26 1.1608.1.54)
    [ACPI] proposed fix for non-identity-mapped SCI override
    http://bugme.osdl.org/show_bug.cgi?id=2366
 
-<len.brown@intel.com> (04/03/25 1.1302.46.18)
+<len.brown@intel.com> (04/03/25 1.1608.1.53)
    [ACPI] PCI interrupt link routing (Luming Yu)
    use _PRS to determine resource type for _SRS
    fixes HP Proliant servers

@@ -1,133 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270342AbTHSMsq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 08:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270386AbTHSMsq
+	id S270438AbTHSMyy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 08:54:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270447AbTHSMyy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 08:48:46 -0400
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:12298 "EHLO
-	young-lust.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id S270342AbTHSMsn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 08:48:43 -0400
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] EISA bus update
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: Tue, 19 Aug 2003 14:48:24 +0200
-Message-ID: <wrp3cfxn78n.fsf@hina.wild-wind.fr.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Aug 2003 08:54:54 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:33719 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S270438AbTHSMyx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 08:54:53 -0400
+Subject: RE: [SOLVED] RE: 2.6.0-test3 latest bk hangs when enabling IO-APIC
+From: Stian Jordet <liste@jordet.nu>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC7B@hdsmsx402.hd.intel.com>
+References: <BF1FE1855350A0479097B3A0D2A80EE009FC7B@hdsmsx402.hd.intel.com>
+Content-Type: text/plain
+Message-Id: <1061297641.649.4.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 19 Aug 2003 14:54:01 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+tir, 19.08.2003 kl. 05.17 skrev Brown, Len:
+> > So... concrete suggestions?  Overall, IMO, move everything under 
+> > CONFIG_ACPI, or, make CONFIG_ACPI_BOOT a _peer_ option, whose 
+> > selection 
+> > or lackthereof doesn't affect CONFIG_ACPI visibility at all.
+> 
+> Simply re-naming CONFIG_ACPI_HT to be CONFIG_ACPI_BOOT might help, as it
+> would be more clear that it is necessary for the rest of ACPI.  However,
+> it may not be obvious that it provides the minimal config to enable HT.
+> 
+> Re: peers
+> Unfortunately ACPI doesn't work so well if CONFIG_ACPI_BOOT is left out.
+> Yes, it's conceivable, but I spent several hours tinkering with it in
+> search of a "noht" build option, but ditched it b/c it seemed like a
+> build option very few would use.
+> 
+> Re: CONFIG_ACPI is the the master switch, and all other ACPI options
+> subservient...
+> If implemented literally, this is sort of a pain, as CONFIG_ACPI appears
+> all over the code.  However, a dummy config master ACPI config option
+> could be used to enable the menu that contains all the rest of ACPI...
 
-The enclosed patch fixes a few things for the EISA bus :
+Btw, (a little off-topic) should I file a bug-report that my motherboard
+doesn't boot without acpi (never has, not even with 2.4), or should I
+just smile and be happy because acpi works like a charm? (I already do
+that :)
 
-- Don't leave resource name uninitialized if CONFIG_EISA_NAME is not
-set.
-- Print root device bus_id (so we know which bridge is probed).
-- From Zwane Mwaikambo : Add a release method to virtual root, so it
-stays quiet if probing fails (because some pci-eisa bridge have been
-found before).
+Thanks.
 
-Please apply.
+Regards,
+Stian
 
-        M.
-
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1125  -> 1.1126 
-#	drivers/eisa/eisa-bus.c	1.18    -> 1.19   
-#	drivers/eisa/virtual_root.c	1.7     -> 1.8    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/08/19	maz@hina.wild-wind.fr.eu.org	1.1126
-# Don't leave resource name uninitialized if CONFIG_EISA_NAME is not set.
-# Print root device bus_id (so we know which bridge is probed).
-# From Zwane Mwaikambo :
-# Add a release method to virtual root, so it stays quiet 
-# if probing fails (because some pci-eisa bridge have been found before).
-# --------------------------------------------
-#
-diff -Nru a/drivers/eisa/eisa-bus.c b/drivers/eisa/eisa-bus.c
---- a/drivers/eisa/eisa-bus.c	Tue Aug 19 14:44:43 2003
-+++ b/drivers/eisa/eisa-bus.c	Tue Aug 19 14:44:43 2003
-@@ -172,6 +172,7 @@
- {
- 	char *sig;
-         unsigned long sig_addr;
-+	int i;
- 
- 	sig_addr = SLOT_ADDRESS (root, slot) + EISA_VENDOR_ID_OFFSET;
- 
-@@ -189,13 +190,13 @@
- 	edev->dev.dma_mask = &edev->dma_mask;
- 	sprintf (edev->dev.bus_id, "%02X:%02X", root->bus_nr, slot);
- 
-+	for (i = 0; i < EISA_MAX_RESOURCES; i++) {
- #ifdef CONFIG_EISA_NAMES
--	{
--	  int i;
--	  for (i = 0; i < EISA_MAX_RESOURCES; i++)
- 		edev->res[i].name = edev->pretty_name;
--	}
-+#else
-+		edev->res[i].name = edev->id.sig;
- #endif
-+	}
- 
- 	if (is_forced_dev (enable_dev, root, edev))
- 		edev->state = EISA_CONFIG_ENABLED | EISA_CONFIG_FORCED;
-@@ -274,7 +275,8 @@
-         int i, c;
- 	struct eisa_device *edev;
- 
--        printk (KERN_INFO "EISA: Probing bus %d\n", root->bus_nr);
-+        printk (KERN_INFO "EISA: Probing bus %d at %s\n",
-+		root->bus_nr, root->dev->bus_id);
- 
- 	/* First try to get hold of slot 0. If there is no device
- 	 * here, simply fail, unless root->force_probe is set. */
-diff -Nru a/drivers/eisa/virtual_root.c b/drivers/eisa/virtual_root.c
---- a/drivers/eisa/virtual_root.c	Tue Aug 19 14:44:43 2003
-+++ b/drivers/eisa/virtual_root.c	Tue Aug 19 14:44:43 2003
-@@ -22,6 +22,7 @@
- #endif
- 
- static int force_probe = EISA_FORCE_PROBE_DEFAULT;
-+static void virtual_eisa_release (struct device *);
- 
- /* The default EISA device parent (virtual root device).
-  * Now use a platform device, since that's the obvious choice. */
-@@ -29,6 +30,9 @@
- static struct platform_device eisa_root_dev = {
- 	.name = "eisa",
- 	.id   = 0,
-+	.dev  = {
-+		.release = virtual_eisa_release,
-+	},
- };
- 
- static struct eisa_root_device eisa_bus_root = {
-@@ -38,6 +42,11 @@
- 	.slots	       = EISA_MAX_SLOTS,
- 	.dma_mask      = 0xffffffff,
- };
-+
-+static void virtual_eisa_release (struct device *dev)
-+{
-+	/* nothing really to do here */
-+}
- 
- static int virtual_eisa_root_init (void)
- {
-
--- 
-Places change, faces change. Life is so very strange.

@@ -1,40 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264639AbUD1E1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264640AbUD1E2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264639AbUD1E1R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 00:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264640AbUD1E1R
+	id S264640AbUD1E2e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 00:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264641AbUD1E2e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 00:27:17 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:28289 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S264639AbUD1E1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 00:27:16 -0400
-Message-Id: <200404280210.i3S2Aiva022887@pincoya.inf.utfsm.cl>
-To: Marc Boucher <marc@linuxant.com>
-cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, rusty@rustcorp.com.au,
-       pmarques@grupopie.com, c-d.hailfinger.kernel.2004@gmx.net,
-       jon787@tesla.resnet.mtu.edu, malda@slashdot.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license 
-In-Reply-To: Message from Marc Boucher <marc@linuxant.com> 
-   of "Tue, 27 Apr 2004 12:58:19 -0400." <20040427165819.GA23961@valve.mbsi.ca> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
-Date: Tue, 27 Apr 2004 22:10:44 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	Wed, 28 Apr 2004 00:28:34 -0400
+Received: from smtp-out5.xs4all.nl ([194.109.24.6]:15377 "EHLO
+	smtp-out5.xs4all.nl") by vger.kernel.org with ESMTP id S264640AbUD1E2c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 00:28:32 -0400
+Date: Wed, 28 Apr 2004 06:27:42 +0200
+From: Jurriaan <thunder7@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: What does tainting actually mean?
+Message-ID: <20040428042742.GA1177@middle.of.nowhere>
+Reply-To: Jurriaan <thunder7@xs4all.nl>
+References: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <opr65eq9ncshwjtr@laptop-linux.wpcb.org.au>
+X-Message-Flag: Still using Outlook? As you can see, it has some errors.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marc Boucher <marc@linuxant.com> said:
-> On Tue, Apr 27, 2004 at 04:09:36AM +0200, Carl-Daniel Hailfinger wrote:
-> > Hi,
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Date: Wed, Apr 28, 2004 at 02:00:35PM +1000
+> Hi all.
+> 
+> I'm probably going to regret this, but seeing the current discussion on  
+> binary modules makes me wonder:
+> 
+> What does tainting actually mean?
+> 
+It means you can never be sure the bug is _not_ in some binary module.
+It may be unprobable, you may be able to find a bug in the kernel, but
+you're never _sure_.
 
-> > LinuxAnt offers binary only modules without any sources.
-
-> Not true. Linuxant modules come with full source for operating-system
-> specific code.
-
-If they don't distribute _all_ source, it is not distribution under GPL.
+Jurriaan
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+I am the pimple that forms before a really big date
+	Darkwing Duck
+Debian (Unstable) GNU/Linux 2.6.6-rc2-mm2 2x6062 bogomips 0.05 0.02

@@ -1,44 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136282AbRDVUBr>; Sun, 22 Apr 2001 16:01:47 -0400
+	id <S135276AbRDVUdm>; Sun, 22 Apr 2001 16:33:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136283AbRDVUBi>; Sun, 22 Apr 2001 16:01:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56849 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S136282AbRDVUBX>;
-	Sun, 22 Apr 2001 16:01:23 -0400
-Date: Sun, 22 Apr 2001 21:01:18 +0100
-From: Matthew Wilcox <matthew@wil.cx>
+	id <S136284AbRDVUdc>; Sun, 22 Apr 2001 16:33:32 -0400
+Received: from quechua.inka.de ([212.227.14.2]:18032 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S135276AbRDVUdW>;
+	Sun, 22 Apr 2001 16:33:22 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Architecture-specific include files
-Message-ID: <20010422210118.Z18464@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Subject: Re: Request for comment -- a better attribution system
+In-Reply-To: <20010422125132.A29277@thyrsus.com> <Pine.GSO.4.21.0104221251580.28681-100000@weyl.math.psu.edu>
+Organization: private Linux site, southern Germany
+Date: Sun, 22 Apr 2001 22:31:12 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14rQVm-0006a9-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 	* you've ignored the robustness of design behind the UNIX kernel.
+> These beasts keep going without falling apart even after serious injuries.
 
-Something which came up in one of the hallway discussions at the
-kernelsummit was that a lot of the architecture maintainers would find
-it more convenient if the arch-specific header files were moved from
-include/asm-$ARCH to arch/$ARCH/include.  Since we use a symlink _anyway_,
-no global changes to include statements are necessary, we'd merely need
-to change Makefile from
+Do you mean design or operation? In fact UNIX design has a number of
+serious errors/problems, we just have gotten accustomed to it so much
+that we don't care any more. Here the robustness is in fact inertia.
 
-symlinks:
-        rm -f include/asm
-        ( cd include ; ln -sf asm-$(ARCH) asm)
+Robust operation is possible with any halfway cleanly designed system,
+cf. VMS.
 
-to
-
-symlinks:
-        rm -f include/asm
-        ( cd include ; ln -sf ../arch/$(ARCH)/include asm)
-
-Would anyone have a problem with this change?  It'll make for a hell
-of a big patch from Linus, but it really will simplify the lives of the
-architecture maintainers.
-
--- 
-Revolutions do not require corporate support.
+Olaf

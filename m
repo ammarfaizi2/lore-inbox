@@ -1,113 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264120AbTE0U3x (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 16:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264121AbTE0U3x
+	id S264121AbTE0UaR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 16:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264122AbTE0UaR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 16:29:53 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:29411 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264107AbTE0U3k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 16:29:40 -0400
-Subject: Re: Linux 2.5.70
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054071760.2289.150.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 27 May 2003 14:42:41 -0700
+	Tue, 27 May 2003 16:30:17 -0400
+Received: from adsl-67-122-203-155.dsl.snfc21.pacbell.net ([67.122.203.155]:13771
+	"EHLO ext.storadinc.com") by vger.kernel.org with ESMTP
+	id S264121AbTE0UaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 16:30:10 -0400
+Message-ID: <3ED3CDB8.3000500@storadinc.com>
+Date: Tue, 27 May 2003 13:42:32 -0700
+From: manish <manish@storadinc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+CC: Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+References: <3ED2DE86.2070406@storadinc.com> <3ED3BDCE.4010200@storadinc.com> <20030527202047.GM3767@dualathlon.random> <200305272225.27720.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ompile statistics: 2.5.70
-Compiler: gcc 3.2.2
-Script: http://www.osdl.org/archive/cherry/stability/compregress.sh
+Marc-Christian Petersen wrote:
 
-          bzImage       bzImage        modules
-        (defconfig)  (allmodconfig) (allmodconfig)
+>On Tuesday 27 May 2003 22:20, Andrea Arcangeli wrote:
+>
+>Hi Andrea,
+>
+>
+>>>1. Stock 2.4.20
+>>>2. 2.4.20 with the io_request_lock removed.
+>>>The tests on the first one are still going. The tests on the second one
+>>>showed processes getting stuck for long times (> 5 minutes) and not
+>>>paused ...
+>>>
+>>sorry if it's a dumb question but what is the "io_request_lock removed"
+>>thing? Hope you didn't delete any io_request_lock, if you did you can
+>>get worse things than crashes (i.e. mm/fs corruption). the pausing bug
+>>was a genuine race (quite innocent, if you could trigger a disk unplug
+>>you could recover from it)
+>>
+>>Andrea
+>>
+>funny. I asked him the same ;)
+>
+>see his response:
+>
+>-----------------------------------------------------------------------
+>
+>>what is this io_request_lock patch you are talking about?
+>>
+>>ciao, Marc
+>>
+>We made some changes to the 2.4.20 kernel to remove the io_request_lock 
+>and replace with queue_lock and host_lock.
+>-----------------------------------------------------------------------
+>
+>ciao, Marc
+>
+We made a change in the 2.4.20 kernel to remove the io_request_lock and 
+replace with the host_lock and the queue_lock.  Probably, not a right 
+thing to do
 
-2.5.70  7 warnings    10 warnings   1366 warnings
-        0 errors       0 errors       57 errors
-
-2.5.69  7 warnings    11 warnings   1366 warnings
-        0 errors       0 errors       57 errors
-
-2.5.68  7 warnings    11 warnings   1975 warnings
-        0 errors       6 errors       60 errors
-
-2.5.67  8 warnings    12 warnings   2136 warnings
-        0 errors       6 errors       89 errros
-
-
-Compile statistics have been for kernel releases from 2.5.46 to 2.5.70
-at: www.osdl.org/archive/cherry/stability
-
-Failure summary:
-
-   drivers/block: 2 warnings, 1 errors
-   drivers/char: 237 warnings, 4 errors
-   drivers/isdn: 237 warnings, 8 errors
-   drivers/media: 102 warnings, 5 errors
-   drivers/mtd: 31 warnings, 1 errors
-   drivers/net: 336 warnings, 6 errors
-   drivers/scsi/aic7xxx: 0 warnings, 1 errors
-   drivers/video/i810: 3 warnings, 4 errors
-   drivers/video/matrox: 3 warnings, 10 errors
-   drivers/video: 81 warnings, 17 errors
-   sound/oss: 49 warnings, 3 errors
-   sound: 5 warnings, 3 errors
-
-
-Warning summary:
-
-
-   drivers/atm: 36 warnings, 0 errors
-   drivers/cdrom: 25 warnings, 0 errors
-   drivers/hotplug: 1 warnings, 0 errors
-   drivers/i2c: 3 warnings, 0 errors
-   drivers/ide: 32 warnings, 0 errors
-   drivers/md: 2 warnings, 0 errors
-   drivers/message: 1 warnings, 0 errors
-   drivers/pcmcia: 3 warnings, 0 errors
-   drivers/scsi/aacraid: 1 warnings, 0 errors
-   drivers/scsi/pcmcia: 4 warnings, 0 errors
-   drivers/scsi/sym53c8xx_2: 1 warnings, 0 errors
-   drivers/serial: 1 warnings, 0 errors
-   drivers/telephony: 10 warnings, 0 errors
-   drivers/usb: 13 warnings, 0 errors
-   drivers/video/aty: 4 warnings, 0 errors
-   drivers/video/sis: 3 warnings, 0 errors
-   fs/afs: 1 warnings, 0 errors
-   fs/cifs: 1 warnings, 0 errors
-   fs/intermezzo: 1 warnings, 0 errors
-   fs/lockd: 4 warnings, 0 errors
-   fs/nfsd: 2 warnings, 0 errors
-   fs/smbfs: 2 warnings, 0 errors
-   net: 30 warnings, 0 errors
-   security: 2 warnings, 0 errors
-   sound/isa: 3 warnings, 0 errors
-   sound/pci: 1 warnings, 0 errors
-   sound/usb: 2 warnings, 0 errors
-
-
-
-Other stability-related links:
-   OSDL Stability page:
-       http://osdl.org/projects/26lnxstblztn/results/
-   Nightly linux-2.5 bk build:
-       www.osdl.org/archive/cherry/stability/linus-tree/running.txt
-   2.5 porting items:
-       www.osdl.org/archive/cherry/stability/linus-tree/port_items.txt
-   2.5 porting items history:
-       www.osdl.org/archive/cherry/stability/linus-tree/port_history.txt
-
-John
+Thanks
+Manish
 
 
 

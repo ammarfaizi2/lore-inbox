@@ -1,65 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbUDCWyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 17:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUDCWyQ
+	id S262019AbUDCXCM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 18:02:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUDCXCM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 17:54:16 -0500
-Received: from mx02.cybersurf.com ([209.197.145.105]:29378 "EHLO
-	mx02.cybersurf.com") by vger.kernel.org with ESMTP id S262014AbUDCWyO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 17:54:14 -0500
-Subject: Re: [RFC, PATCH] netlink based mq_notify(SIGEV_THREAD)
-From: jamal <hadi@cyberus.ca>
-Reply-To: hadi@cyberus.ca
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       Michal Wronski <wrona@mat.uni.torun.pl>,
-       Krzysztof Benedyczak <golbi@mat.uni.torun.pl>
-In-Reply-To: <406F21FB.4010502@colorfullife.com>
-References: <406F13A1.4030201@colorfullife.com>
-	 <1081023487.2037.19.camel@jzny.localdomain>
-	 <406F21FB.4010502@colorfullife.com>
-Content-Type: text/plain
-Organization: jamalopolis
-Message-Id: <1081029667.2037.55.camel@jzny.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 03 Apr 2004 17:01:07 -0500
+	Sat, 3 Apr 2004 18:02:12 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:61594 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262019AbUDCXCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 18:02:07 -0500
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Grzegorz Kulewski <kangur@polcom.net>
+Subject: Re: 2.6.[45]-.*: weird behavior
+Date: Sun, 4 Apr 2004 01:09:13 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <200404032122.54823.rjwysocki@sisk.pl> <200404032314.27866.rjwysocki@sisk.pl> <Pine.LNX.4.58.0404032341450.18910@alpha.polcom.net>
+In-Reply-To: <Pine.LNX.4.58.0404032341450.18910@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404040109.13414.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-04-03 at 15:43, Manfred Spraul wrote:
+On Sunday 04 of April 2004 00:15, Grzegorz Kulewski wrote:
+> On Sat, 3 Apr 2004, R. J. Wysocki wrote:
+> > On Saturday 03 of April 2004 21:50, Grzegorz Kulewski wrote:
+> > > On Sat, 3 Apr 2004, R. J. Wysocki wrote:
+> >
+> > [...]
+> >
+> > > Can you attach config files for both the AMD64 and the laptop?
+> >
+> > The config for the laptop is attached, the other one must wait.  If you
+> > think of what they have in common, there's not much.
+>
+> Ok, some questions to that config file. Why do you have:
+> - scsi emulation
+> - scsi
+> - both generic ide options
+> - large block devices (2TB)?
 
-> Thus the kernel interface for mq_notify with sigev_notify==SIGEV_THREAD 
-> is an asynchroneous interface: the initial syscall just registers 
-> something and if a message arrives in the queue, then a notice is sent 
-> to user space. glibc must then create a SuS compatible interface on top 
-> of that.
+SCSI support is necessary for USB storage, the rest is just for fun. :-)
 
-The above is a good description of the challenge i think.
+> Can you post:
+> - distro name and version
 
-[..]
+RH9
 
-> I'm looking for the simplest interface to send 32 byte cookies from 
-> kernel to user space. The final send must be non-blocking, setup can 
-> block. Someone recommended that I should look at netlink. 
-> netlink_unicast was nearly perfect, except that I had to split setup and 
-> sending into two functions.
+> - dmesg or log at the end of testing - better after such kb lock if you
+> can reproduce, maybe after some stressing to see if any unnormal messages
+> appeared
+> - lspci -v
+> - lsmod
+> - mount
+> - hdparm hdparm -iIvtT for all drives
+> - some files from /proc describing configuration if you think they are
+> important.
 
-Your split of netlink_unicast seems fine ; 
-I guess the bigger question is whether this interface could be a
-speacilized netlink protocol instead? It doesnt seem too nasty as is
-right now, just tending towards cleanliness.
-It seems that user space must first open a netlink socket for this to
-work but somehow the result skb is passed back to userspace using the
-mq_notify and not via the socket interface opened? Why should user space
-even bother doing this? The kernel could on its behalf, no? Are you sure
-there will always be one and only one message outstanding always?
+Well, I _really_ had not much time to track this.  If I'd had time, I'd 
+probably have checked all these things already.  I don't think there are any 
+unusual things about what you list, though.
 
-cheers,
-jamal
+> Does any process sleep in D state in ps output all the time or bechaves
+> strangely? If so, maybe you should find and apply the patch for kernel
+> stack for each process in /proc (it was included in wolk for example) and
+> check what kernel function is causing the waits (for example I found some
+> usb problems causing D state lock of processes using some usb ioctls).
 
+Good idea, I can do that.
 
+> If it all does not help, maybe you should compile kernel with all debug
+> and kernel hacking options to see if some driver does not lock the kernel
+> and sleep or something like that, or possibly try to find what changeset
+> between 2.6.3 and 2.6.4 broke your setup :)
 
+Well, the patch-2.6.4.bz2 is 2.2+M big.  That's _a_ _lot_ of changesets, so I 
+don't think I can figure out this, unless I know which one could 
+_potentially_ cause the effects that I observe.  Please, give me a hint, if 
+you have any idea.
+
+-- 
+Rafael J. Wysocki,
+SiSK
+[tel. (+48) 605 053 693]
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

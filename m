@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263010AbUCSPf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Mar 2004 10:35:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263019AbUCSPf7
+	id S263005AbUCSPaT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Mar 2004 10:30:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbUCSPaT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Mar 2004 10:35:59 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:31193 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S263010AbUCSPf4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Mar 2004 10:35:56 -0500
-Date: Fri, 19 Mar 2004 16:35:54 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Chris Mason <mason@suse.com>
-Subject: [PATCH] barrier patch set
-Message-ID: <20040319153554.GC2933@suse.de>
+	Fri, 19 Mar 2004 10:30:19 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59409 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263005AbUCSPaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Mar 2004 10:30:15 -0500
+Date: Fri, 19 Mar 2004 15:30:08 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Margit Schubert-While <margitsw@t-online.de>
+Cc: linux-kernel@vger.kernel.org, ranty@debian.org
+Subject: Re: 2.6.xx - linux/firmware.h - missing include
+Message-ID: <20040319153008.D14431@flint.arm.linux.org.uk>
+Mail-Followup-To: Margit Schubert-While <margitsw@t-online.de>,
+	linux-kernel@vger.kernel.org, ranty@debian.org
+References: <5.1.0.14.2.20040319155257.00ac0af8@pop.t-online.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <5.1.0.14.2.20040319155257.00ac0af8@pop.t-online.de>; from margitsw@t-online.de on Fri, Mar 19, 2004 at 04:17:45PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Mar 19, 2004 at 04:17:45PM +0100, Margit Schubert-While wrote:
+> The prototype for request_firmware uses a struct device parameter.
+> This is only defined if linux/device.h is included.
+> Fix is simple : include linux/device.h in linux/firmware.h
 
-A first release of a collected barrier patchset for 2.6.5-rc1-mm2. I
-have a few changes planned to support dm/md + sata, I'll do those
-changes over the weekend.
+That way leads to madness in the includes.  firmware.h does not need
+the definition of struct device, it only needs to know that struct
+device exists.
 
-Reiser has the best barrier support, ext3 works but only if things don't
-go wrong. So only attempt to use the barrier feature on ext3 if on ide
-drives, not SCSI nor SATA.
+You can do this via:
 
-Also note that for reiser you need to add:
+struct device;
 
-	-o barrier=flush
-
-while ext3 currently wants:
-
-	-o barrier=1
-
-Cosmetic stuff that will get ironed out. You can find the patches here:
-
-ftp://ftp.kernel.org/pub/linux/kernel/people/axboe/patches/v2.6/2.6.5-rc1-mm2/
-
-ide-barrier-2.6.5-rc1-mm2-1
-	ide/core part
-
-ext3-barrier-2.6.5-rc1-mm2-1
-	ext3 part
-
-reiserfs-current-2.6.5-rc1-mm2-1
-	current reiser tree, get it here in parts:
-
-	ftp.suse.com/pub/people/mason/patches/data-logging/experimental/2.6.4
-
-	(use series.mm for apply order)
-
-reiserfs-barrier-2.6.5-rc1-mm2-1
-	reiser part.
-
-or just apply
-
-all-barrier-2.6.5-rc1-mm2-1
-	all rolled up into one patch.
+before its use - this works much the same way as a function declaration
+vs. function prototype.
 
 -- 
-Jens Axboe
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

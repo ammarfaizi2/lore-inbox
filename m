@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265866AbRFYDiv>; Sun, 24 Jun 2001 23:38:51 -0400
+	id <S265867AbRFYDkV>; Sun, 24 Jun 2001 23:40:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265867AbRFYDil>; Sun, 24 Jun 2001 23:38:41 -0400
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:56841 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S265866AbRFYDi1>; Sun, 24 Jun 2001 23:38:27 -0400
-Date: Sun, 24 Jun 2001 21:38:23 -0600
-From: Michal Jaegermann <michal@harddata.com>
+	id <S265868AbRFYDkN>; Sun, 24 Jun 2001 23:40:13 -0400
+Received: from 64-42-29-14.atgi.net ([64.42.29.14]:43272 "HELO
+	mail.clouddancer.com") by vger.kernel.org with SMTP
+	id <S265867AbRFYDkB>; Sun, 24 Jun 2001 23:40:01 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [OT] Re: Microsoft and Xenix.
-Message-ID: <20010624213823.A7205@mail.harddata.com>
-In-Reply-To: <E15DZbq-0008D8-00@roo.home> <m1ofrebnkx.fsf@frodo.biederman.org> <01062406364601.01519@localhost.localdomain> <0106250020400D.00430@starship>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <0106250020400D.00430@starship>; from phillips@bonn-fries.net on Mon, Jun 25, 2001 at 12:20:40AM +0200
+Subject: Re: What are the VM motivations??
+In-Reply-To: <9h54u8$341$1@ns1.clouddancer.com>
+In-Reply-To: <Pine.LNX.4.21.0106241332540.7419-100000@imladris.rielhome.conectiva> <20010624161502.4D75C784C4@mail.clouddancer.com> <9h54u8$341$1@ns1.clouddancer.com>
+Reply-To: klink@clouddancer.com
+Message-Id: <20010625034000.BB6BC784C4@mail.clouddancer.com>
+Date: Sun, 24 Jun 2001 20:40:00 -0700 (PDT)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 25, 2001 at 12:20:40AM +0200, Daniel Phillips wrote:
-> On Sunday 24 June 2001 12:36, Rob Landley wrote:
-> > On Saturday 23 June 2001 22:47, Eric W. Biederman wrote:
-> > > GEM was a gui from Digital Research I believe.
-> > > Geoworks/Geos was a seperate entity.
-> >
-> > Ah, the DR-DOS answer to dosshell/windows.  Cool.  (I used Dr. Dos byt
-> > never tried its gui.)
-> 
-> GEM had its moment of glory when Xerox used it for the gui of Ventura 
-> Publisher.
+In clouddancer.list.kernel, you wrote:
+>
+>On Sun, 24 Jun 2001, Colonel wrote:
+>
+>> It's simple.  I want the old reliable behavior back, the one I found
+>> in kernels from 1.1.41 thru 2.2.14.
+>
+>And which one would that be ?   Note that there have been
+>4 different VM subsystems in that time and the kernel has
+>made the transition from the buffer cache to the page cache
+>in that period.
 
-GEM (a slight variation) was also providing GUI on Atari ST.  At that
-time it was heavily beating pants off from anything M$ was able to
-cobble together on nominally much faster machines.
+Once again a typical Rik comment.  Completely misses the point and
+picks something obscure to comment upon, after carefully removing the
+remaining text.  PICK ONE!
 
-   Michal
+
+>Please make up your mind before making feature requests ;)
+
+Try OPENING yours.  There really is a world beyond your nose.
+
+
+-- 
+"Or heck, let's just make the VM a _real_ Neural Network, that self
+trains itself to the load you put on the system. Hideously complex and
+evil?  Well, why not wire up that roach on the floor, eating that stale
+cheese doodle. It can't do any worse job on VM that some of the VM
+patches I've seen..."  -- Jason McMullan
+
+ditto

@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130175AbQJaEVb>; Mon, 30 Oct 2000 23:21:31 -0500
+	id <S130196AbQJaEYV>; Mon, 30 Oct 2000 23:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130211AbQJaEVV>; Mon, 30 Oct 2000 23:21:21 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:37761 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S130210AbQJaEVI>;
-	Mon, 30 Oct 2000 23:21:08 -0500
-Date: Mon, 30 Oct 2000 20:06:59 -0800
-Message-Id: <200010310406.UAA05413@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: decklin@red-bean.com
-CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <20001030222644.A9869@gyah.this.is.broken> (message from Decklin
-	Foster on Mon, 30 Oct 2000 22:26:44 -0500)
-Subject: Re: test10-pre7 compile error in ip_forward.c
-In-Reply-To: <20001030222644.A9869@gyah.this.is.broken>
+	id <S130211AbQJaEYL>; Mon, 30 Oct 2000 23:24:11 -0500
+Received: from caperry-pc1.isot.com ([208.27.64.66]:32394 "HELO
+	onramp.southern-star-ranch.com") by vger.kernel.org with SMTP
+	id <S130196AbQJaEYA>; Mon, 30 Oct 2000 23:24:00 -0500
+Message-ID: <39FE5E75.91BEBD0@edolnx.net>
+Date: Mon, 30 Oct 2000 23:53:57 -0600
+From: Carl Perry <caperry@edolnx.net>
+Reply-To: caperry@edolnx.net
+X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.0-test9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is IPv4 totally broken in 2.4-test
+In-Reply-To: <39FE5C09.F1B13725@edolnx.net> <200010310404.UAA05392@pizda.ninka.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Duh.  And here I was thinking that was a good thing.  That did it.  What exactly
+does "Explicit Congestion Notification" do?  I figured it was going to put a
+message in syslog if the wire is full and packets were being dropped.  There
+weren't any docs in menuconfig - so I figured "what the hey?".  Boy - I was
+wrong.  Thanks for the quick response.  I haven't even gotten the post back yet.
 
-Sorry.  Please try this patch below.  Linus, please apply:
+"David S. Miller" wrote:
+> 
+> echo "0" >/proc/sys/net/ipv4/tcp_ecn
+> 
+> Or don't enable CONFIG_INET_ECN in your kernel configuration.
+> 
+> Later,
+> David S. Miller
+> davem@redhat.com
 
---- include/linux/netdevice.h.~1~	Mon Oct 30 17:57:20 2000
-+++ include/linux/netdevice.h	Mon Oct 30 20:05:38 2000
-@@ -55,6 +55,7 @@
- #define NET_RX_CN_MOD		2   /* Storm on its way! */
- #define NET_RX_CN_HIGH		5   /* The storm is here */
- #define NET_RX_DROP		-1  /* packet dropped */
-+#define NET_RX_BAD		-2  /* packet dropped due to kernel error */
- 
- #define net_xmit_errno(e)	((e) != NET_XMIT_CN ? -ENOBUFS : 0)
- 
+-- 
+	-Carl Perry
+	caperry@edolnx.net
+
+"Real programmers don't draw flowcharts.  Flowcharts are, after
+all, the illiterate's form of documentation.  Cavemen drew
+flowcharts; look how much good it did them."
+	-Fortune (The App, not the Magazine)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,44 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261539AbUARNdF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 08:33:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUARNdE
+	id S261605AbUAROVx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 09:21:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbUAROVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 08:33:04 -0500
-Received: from pf138.torun.sdi.tpnet.pl ([213.76.207.138]:36359 "EHLO
-	centaur.culm.net") by vger.kernel.org with ESMTP id S261492AbUARNdA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 08:33:00 -0500
-From: Witold Krecicki <adasi@kernel.pl>
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: Serial ATA (SATA) for Linux status report
-Date: Sun, 18 Jan 2004 14:32:55 +0100
-User-Agent: KMail/1.5.93
-References: <20031203204445.GA26987@gtf.org>
-In-Reply-To: <20031203204445.GA26987@gtf.org>
-MIME-Version: 1.0
+	Sun, 18 Jan 2004 09:21:53 -0500
+Received: from smtp1.wanadoo.fr ([193.252.22.30]:34232 "EHLO
+	mwinf0102.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S261605AbUAROVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jan 2004 09:21:51 -0500
+Date: Sun, 18 Jan 2004 15:21:48 +0100
+From: Romain Lievin <romain@rlievin.dyndns.org>
+To: Ozan Eren Bilgen <oebilgen@uekae.tubitak.gov.tr>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: True story: "gconfig" removed root folder...
+Message-ID: <20040118142148.GB2273@rlievin.dyndns.org>
+References: <1074177405.3131.10.camel@oebilgen>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401181432.55736.adasi@kernel.pl>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1074177405.3131.10.camel@oebilgen>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia Wednesday 03 of December 2003 21:44, Jeff Garzik napisa³:
-> Editor's preface:  This is clearly a first draft, only covering the
-> basics.  In order for this document to be effective, I request that
-> users and developers send me (or post) their SATA driver questions and
-> issues.  I will do my best to address them here.
->
->
-> Serial ATA (SATA) for Linux
-> status report
-> Dec 3, 2003
-What about SMART capabilities? with sii3112 I had it, but with libata I cannot 
-get any informations :/
+Hi,
+
+a patch for gconfig against kernel2.6.1.
+
+Thanks to Tomas and Ozan.
+
+Romain.
+
+================ [ cut here ] ===========
+diff -Naur linux-2.6.1/scripts/kconfig/gconf.c linux/scripts/kconfig/gconf.c
+--- linux-2.6.1/scripts/kconfig/gconf.c	2004-01-15 21:45:22.000000000 +0100
++++ linux/scripts/kconfig/gconf.c	2004-01-18 15:15:23.000000000 +0100
+@@ -23,6 +23,9 @@
+ #include <unistd.h>
+ #include <time.h>
+ #include <stdlib.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++
+ 
+ //#define DEBUG
+ 
+@@ -643,14 +646,29 @@
+ store_filename(GtkFileSelection * file_selector, gpointer user_data)
+ {
+ 	const gchar *fn;
++	gchar trailing;
++	gchar *safe_fn;
++	struct stat sb;
+ 
+-	fn = gtk_file_selection_get_filename(GTK_FILE_SELECTION
++	fn = gtk_file_selection_get_filename (GTK_FILE_SELECTION
+ 					     (user_data));
+ 
+-	if (conf_write(fn))
+-		text_insert_msg("Error", "Unable to save configuration !");
++	/* protect against 'root directory' bug */
++	trailing = fn[strlen (fn)-1];
++	stat (fn, &sb);
++	safe_fn = g_strdup (fn);
++
++	if (S_ISDIR(sb.st_mode))
++		if (trailing != '/')
++		{
++			g_free (safe_fn);
++			safe_fn = g_strconcat (fn, "/", NULL);
++		}
+ 
+-	gtk_widget_destroy(GTK_WIDGET(user_data));
++	if (conf_write (safe_fn))
++		text_insert_msg("Error", "Unable to save configuration !");
++	g_free (safe_fn);
++	gtk_widget_destroy (GTK_WIDGET(user_data));
+ }
+ 
+ void on_save_as1_activate(GtkMenuItem * menuitem, gpointer user_data)
+
 -- 
-Witold Krêcicki (adasi) adasi [at] culm.net
-GPG key: 7AE20871
-http://www.culm.net
+Romain Liï¿½vin (roms):         <roms@tilp.info>
+Web site:                     http://tilp.info
+"Linux, y'a moins bien mais c'est plus cher !"
+
+
+
+
+
+

@@ -1,108 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267370AbUGNUJy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267400AbUGNUNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267370AbUGNUJy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 16:09:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUGNUJy
+	id S267400AbUGNUNk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 16:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267408AbUGNUNk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 16:09:54 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:18118 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265545AbUGNUJl
+	Wed, 14 Jul 2004 16:13:40 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:22986 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP id S267400AbUGNUNe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 16:09:41 -0400
-Subject: Re: gettimeofday nanoseconds patch (makes it possible for the
-	posix-timer functions to return higher accuracy)
-From: john stultz <johnstul@us.ibm.com>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, ia64 <linux-ia64@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0407140940260.14704@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Message-Id: <1089835776.1388.216.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 14 Jul 2004 13:09:36 -0700
-Content-Transfer-Encoding: 7bit
+	Wed, 14 Jul 2004 16:13:34 -0400
+Date: Wed, 14 Jul 2004 16:15:59 -0400 (EDT)
+From: Pavel Roskin <proski@gnu.org>
+X-X-Sender: proski@marabou.research.att.com
+To: Francois Romieu <romieu@fr.zoreil.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       David Gibson <hermes@gibson.dropbear.id.au>, jt@hpl.hp.com,
+       Dan Williams <dcbw@redhat.com>
+Subject: Re: [PATCH] Slowly update in-kernel orinoco drivers to upstream
+ current CVS
+In-Reply-To: <20040712213349.A2540@electric-eye.fr.zoreil.com>
+Message-ID: <Pine.LNX.4.60.0407141605460.1799@marabou.research.att.com>
+References: <20040712213349.A2540@electric-eye.fr.zoreil.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-07-14 at 09:41, Christoph Lameter wrote:
-> I am working on some timer issues for the IA64 in order to make the timers
-> more efficient and return results with a higher accuracy.
-> 
-> However, in various locations do_gettimeofday is used and then the
-> resulting usecs are multiplied by 1000 to obtain nanoseconds. This is in
-> particular problematic for the posix timers and especially clock_gettime.
-> 
-> The following patch introduces a new gettimeofday function using
-> struct timespec instead of struct timeval. If a platforms supports time
-> interpolation then the new gettimeofday will use that to provide a
-> gettimeofday function with higher accuracy and then also clock_gettime
-> will return with nanosecond accuracy.
+On Mon, 12 Jul 2004, Francois Romieu wrote:
 
-Honestly, I'm not a fan of the patch. It realistically only helps ia64
-and and adds more confusing code to the generic time code. If there
-isn't an real/immediate need for this, I'd wait to 2.7 for a better
-cleanup. 
+> A serie of patches is available for at:
+> http://www.fr.zoreil.com/linux/kernel/2.6.x/2.6.7-mm7
+>
+> It contains 12 patches and applies against 2.6.7-mm7. The patches are
+> commented. The comments are partly taken from the cvs log by Pavel Roskin.
 
-None the less, I do understand the desire for the change (and am working
-to address it in 2.7), so could you at least use a better name then
-gettimeofday()? Maybe get_ns_time() or something? Its just too similar
-to do_gettimeofday and the syscall gettimeofday(). 
+I hope the patches lead to the CVS version on the "for_linus" branch which 
+has no compatibility code.  I'm quite comfortable with the "for_linus" and 
+"Standalone" branches.
 
-Really, I feel the cleaner method is to fix do_gettimeofday() so it
-returns a timespec and then convert it to a timeval in
-sys_gettimeofday(). However this would add overhead to the syscall, so I
-doubt folks would go for it.
+As for the HEAD branch, it has unfinished (skeleton only) prism_usb driver 
+meant for Intersil Prism USB devices (such as DWL-122).  It also has 
+working orinoco_usb driver.  Unfortunately, I don't feel good about that 
+code.  The way how this code is integrated with the common code is 
+questionable.  A lot of work would be needed to handle USB better. 
+That's not something that could be done before the next release.
 
-> I would be interested in feedback on this approach. In this context
-> the time interpolator patches that are being discussed on linux-ia64
-> would also be of interest. Those provide a generic way to utilize
-> any memory mapped or CPU counter to do the time interpolations for any
-> platforms and would allow an easy way to realize a nanosecond resolution
-> for all platforms.
+I'm very busy now and I don't have time to finish the little bits I 
+planned for the 0.15 release.  However, the CVS version on the "for_linus" 
+branch is releasable and has no known regressions compared to any previous 
+version.  Feel free to apply the patches to the kernel now.  I expect to 
+have more time for free software in the end of August.
 
-I think the ia64 time interpolation code is a step in the right
-direction (def better then the i386 bits), but it still isn't the
-cleanest and clearest way. My plan is to select a reliable timesource
-for the system, then use a periodic interrupt to accumulate time from
-the timesource (in order to avoid overflows). This avoids lost tick
-issues and cleanly separates the timer subsystem from the time of day
-subsystem.
+If David is OK, we could release the current code as version 0.15.  I'm OK 
+with it.  I have to adapt my ambitions to my time constraints.  I'll 
+appreciate if my name is added to the MAINTAINERS file once the new driver 
+is committed.
 
-> The patch is against 2.6.8-rc1
-> 
-> Index: linux-2.6.7/kernel/time.c
-> ===================================================================
-> --- linux-2.6.7.orig/kernel/time.c
-> +++ linux-2.6.7/kernel/time.c
-> @@ -421,6 +421,40 @@
-> 
->  EXPORT_SYMBOL(current_kernel_time);
-> 
-> +#ifdef TIME_INTERPOLATION
-> +void gettimeofday (struct timespec *tv)
-> +{
-> +        unsigned long seq;
-> +
-> +        do {
-> +                seq = read_seqbegin(&xtime_lock);
-> +                tv->tv_sec = xtime.tv_sec;
-> +                tv->tv_nsec = xtime.tv_nsec+time_interpolator_get_offset();
-> +        } while (unlikely(read_seqretry(&xtime_lock, seq)));
-> +
-> +        while (unlikely(tv->tv_nsec >= NSEC_PER_SEC)) {
-> +                tv->tv_nsec -= NSEC_PER_SEC;
-> +                ++tv->tv_sec;
-> +        }
-> +}
-
-You'll need to cap time_interpolator_get_offset() at the maximum NTP
-tick size, or else you may have time go backwards right after a timer
-interrupt. 
-
-thanks
--john
-
-
-
-
+-- 
+Regards,
+Pavel Roskin

@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263416AbRFEXRv>; Tue, 5 Jun 2001 19:17:51 -0400
+	id <S263419AbRFEXYv>; Tue, 5 Jun 2001 19:24:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263418AbRFEXRl>; Tue, 5 Jun 2001 19:17:41 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:25610 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S263416AbRFEXRb>; Tue, 5 Jun 2001 19:17:31 -0400
-Date: Tue, 5 Jun 2001 16:16:57 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: kswapd and MM overload fix
-In-Reply-To: <20010606004450.C27651@athlon.random>
-Message-ID: <Pine.LNX.4.31.0106051612500.9908-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263421AbRFEXYl>; Tue, 5 Jun 2001 19:24:41 -0400
+Received: from f00f.stub.clear.net.nz ([203.167.224.51]:61959 "HELO
+	metastasis.f00f.org") by vger.kernel.org with SMTP
+	id <S263419AbRFEXYW>; Tue, 5 Jun 2001 19:24:22 -0400
+Date: Wed, 6 Jun 2001 11:24:20 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: "David S. Miller" <davem@redhat.com>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, bjornw@axis.com,
+        linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org
+Subject: Re: Missing cache flush.
+Message-ID: <20010606112419.A24800@metastasis.f00f.org>
+In-Reply-To: <15132.22933.859130.119059@pizda.ninka.net> <13942.991696607@redhat.com> <3B1C1872.8D8F1529@mandrakesoft.com> <15132.15829.322534.88410@pizda.ninka.net> <20010605155550.C22741@metastasis.f00f.org> <25587.991730769@redhat.com> <15132.40298.80954.434805@pizda.ninka.net> <20010605190128.A12204@pcep-jamie.cern.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010605190128.A12204@pcep-jamie.cern.ch>; from lk@tantalophile.demon.co.uk on Tue, Jun 05, 2001 at 07:01:28PM +0200
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 05, 2001 at 07:01:28PM +0200, Jamie Lokier wrote:
+
+    Whether this works depends on the cache line replacement policy. 
+    It will always work with LRU, for example, and probably
+    everything else that exists.  But it is not guaranteed, is it?
+
+Getting way OT here... didn't the K6 or something have the ability to
+lock cache lines?
 
 
-On Wed, 6 Jun 2001, Andrea Arcangeli wrote:
->
-> Anybody running on a machine with some zone empty (<16Mbyte boxes (PDAs),
-> <1G x86 with highmem enabled kernel or an arch with an iommu like alpha)
-> probably noticed that the MM was unusable on those hardware
-> configurations (as I also incidentally mentioned a few times on l-k in
-> the last months).
->
-> Yesterday I checked and here it is the fix (included in 2.4.5aa3).
-
-I think the real problem is that zone->pages_{min,low,high} aren't
-initialized at all for empty zones. If they were initialized (to zero, of
-course), the shortage calculations would have worked automatically.
-
-Using uninitialized variables is always bad. Your patch is certainly fine,
-but I think we should also make the init code clear the zone data for
-empty zones so that these kinds of "use uninitialized stuff" things cannot
-happen. No?
-
-		Linus
-
+  --cw

@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266275AbUIYLrm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269284AbUIYLv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266275AbUIYLrm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Sep 2004 07:47:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269284AbUIYLrm
+	id S269284AbUIYLv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Sep 2004 07:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269311AbUIYLv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Sep 2004 07:47:42 -0400
-Received: from bhhdoa.org.au ([216.17.101.199]:37381 "EHLO bhhdoa.org.au")
-	by vger.kernel.org with ESMTP id S266275AbUIYLrk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Sep 2004 07:47:40 -0400
-Date: Sat, 25 Sep 2004 14:46:37 +0300 (EAT)
-From: Zwane Mwaikambo <zwane@fsmlabs.com>
-To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartmann <greg@kroah.com>, Len Brown <len.brown@intel.com>,
-       tony.luck@intel.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: acpi-devel@lists.sourceforge.net, linux-ia64@vger.kernel.orgRe:
- [PATCH] Updated patches for PCI IRQ resource deallocation support [3/3]
-In-Reply-To: <2HRhX-6Ad-21@gated-at.bofh.it>
-Message-ID: <Pine.LNX.4.53.0409251436390.2914@musoma.fsmlabs.com>
-References: <2HRhX-6Ad-21@gated-at.bofh.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Sep 2004 07:51:56 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:49299 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S269284AbUIYLvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Sep 2004 07:51:53 -0400
+Subject: Re: 2.6.9-rc2-mm1 swsusp bug report.
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Kevin Fenzi <kevin@scrye.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040925014546.200828E71E@voldemort.scrye.com>
+References: <20040924021956.98FB5A315A@voldemort.scrye.com>
+	 <20040924143714.GA826@openzaurus.ucw.cz>
+	 <20040924210958.A3C5AA2073@voldemort.scrye.com>
+	 <1096069216.3591.16.camel@desktop.cunninghams>
+	 <20040925014546.200828E71E@voldemort.scrye.com>
+Content-Type: text/plain
+Message-Id: <1096113235.5937.3.camel@desktop.cunninghams>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Sat, 25 Sep 2004 21:53:55 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Kenji,
+Hi.
 
-On Fri, 24 Sep 2004, Kenji Kaneshige wrote:
+On Sat, 2004-09-25 at 11:45, Kevin Fenzi wrote:
+> Nigel> The problem isn't really that you're out of memory. Rather, the
+> Nigel> memory is so fragmented that swsusp is unable to get an order 8
+> Nigel> allocation in which to store its metadata. There isn't really
+> Nigel> anything you can do to avoid this issue apart from eating
+> Nigel> memory (which swsusp is doing anyway).
+> 
+> Odd. I have never run into this before with either swsusp2 or
+> swsusp1. 
 
-> +		/*
-> +		 * If interrupt handlers still exists on the irq
-> +		 * associated with the gsi, don't unregister the
-> +		 * interrupt.
-> +		 */
-> +		if (unlikely(idesc->action)) {
-> +			iosapic_intr_info[vector].refcnt++;
-> +			spin_unlock_irqrestore(&idesc->lock, flags);
-> +			printk(KERN_WARNING "Cannot unregister GSI. IRQ %u is still in use.\n", irq);
-> +			return;
-> +		}
-> +
-> +		/* Clear the interrupt controller descriptor. */
-> +		idesc->handler = &no_irq_type;
+You won't run into it with suspend2 because it doesn't use high order
+allocations. There might be one exception, but apart from that, all of
+suspend2's data is stored in order zero allocated pages, so
+fragmentation is not an issue. This is the real solution to the problem.
+I had to do it this way because I aim to have suspend work without
+eating any memory.
 
-Hmm, what happens here if that vector was queued just before the local irq 
-disable in spin_lock_irqsave(idesc->lock...) ? Then when we unlock we'll 
-call do_IRQ to handle the irq associated with that vector. I haven't seen 
-the usage but it appears that iosapic_unregister_intr requires some 
-serialisation.
+> What causes memory to be so fragmented? 
 
-Thanks,
-	Zwane
+Normal usage; the pattern of pages being freed and allocated inevitably
+leads to fragmentation. The buddy allocator does a good job of
+minimising it, but what is really needed is a run-time defragmenter. I
+saw mention of this recently, but it's probably not that practical to
+implement IMHO.
+
+> Nothing can be done to prevent it?
+
+Apart from the above, no, sorry.
+
+Regards,
+
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+Many today claim to be tolerant. True tolerance, however, can cope with others
+being intolerant.
+

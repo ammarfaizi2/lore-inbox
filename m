@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274243AbRJBOZz>; Tue, 2 Oct 2001 10:25:55 -0400
+	id <S274617AbRJBOdZ>; Tue, 2 Oct 2001 10:33:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275044AbRJBOZp>; Tue, 2 Oct 2001 10:25:45 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32519 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S274243AbRJBOZd>; Tue, 2 Oct 2001 10:25:33 -0400
-Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
-To: greearb@candelatech.com (Ben Greear)
-Date: Tue, 2 Oct 2001 15:30:19 +0100 (BST)
-Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
-In-Reply-To: <3BB8F346.B7B9CD96@candelatech.com> from "Ben Greear" at Oct 01, 2001 03:50:46 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15oQYt-0004r1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S274270AbRJBOdP>; Tue, 2 Oct 2001 10:33:15 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:36465 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S274617AbRJBOdD>; Tue, 2 Oct 2001 10:33:03 -0400
+Date: Tue, 2 Oct 2001 15:33:15 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: printk while interrupts are disabled
+Message-ID: <20011002153315.G10442@redhat.com>
+In-Reply-To: <3BB9A6F4.6BDDAA81@berlin.de> <20011002102210.B1630@mueller.datastacks.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="A7r2ZSzTc5uUoZ5x"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011002102210.B1630@mueller.datastacks.com>; from crutcher@datastacks.com on Tue, Oct 02, 2001 at 10:22:10AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm all for anything that speeds up (and makes more reliable) high network
-> speeds, but I often run with 8+ ethernet devices, so IRQs have to be shared,
-> and a 10ms lockdown on an interface could lose lots of packets.  Although
-> it's not a perfect solution, maybe you could (in the kernel) multiple the
-> max by the number of things using that IRQ?  For example, if you have four
-> ethernet drivers on one IRQ, then let that IRQ fire 4 times faster than
-> normal before putting it in lockdown...
 
-What you really care about is limiting the total amount of CPU time used for
-interrupt processing so that usermode progress is made. The network layer
-shows this up paticularly badly because (and its kind of hard to avoid this)
-it frees resources on the hardware before userspace has processed them. 
+--A7r2ZSzTc5uUoZ5x
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Silencing a specific target cannot be done by IRQ masking, you have to 
-ask the controller to shut up. It may be the default "shut up" handler
-is disable_irq but that is non optimal.
+On Tue, Oct 02, 2001 at 10:22:10AM -0400, Crutcher Dunnavant wrote:
 
-Having driver callbacks as part of the irq handler also massively improves
-the effect of the event, because faced with an IRQ storm a card can
+> They get stuffed into a buffer to be printed later. It is possible to
+> overflow that buffer, and lose some of your printk messages.
 
--	decide if it is the guily party
+Incidentally, something I noticed today: when using a parallel printer
+console, 'Alt-SysRq-T' gave me a complete task list followed by the
+entire kernel ring buffer.
 
-If so
+I've taken a look at the code in lp.c, sysrq.c, and printk.c, and I
+don't see what can be causing it.  Anyone have ideas?
 
--	consider switching to polled mode
--	change its ring buffer size to reduce IRQ load and up latency
-	as a tradeoff
--	anything else magical the hardware has (like retuning irq
-	mitigation registers)
+This happened when the machine had locked up for some reason.
 
-Alan
+Tim.
+*/
 
-	
+--A7r2ZSzTc5uUoZ5x
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7udAqyaXy9qA00+cRAo5KAJ9VmurPVkEuQJP/3SCc3GbY9yLNIwCfX8yq
+qoKOBh1YD0qu47lWbuDPVi0=
+=Gsbf
+-----END PGP SIGNATURE-----
+
+--A7r2ZSzTc5uUoZ5x--

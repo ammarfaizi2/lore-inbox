@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbUKULus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263244AbUKULur@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbUKULus (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 06:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263214AbUKULsO
+	id S263244AbUKULur (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 06:50:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUKULqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 06:48:14 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:24008 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263223AbUKULr5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 06:47:57 -0500
-Date: Sun, 21 Nov 2004 13:50:23 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-Message-ID: <20041121125023.GC7972@elte.hu>
-References: <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <1100920963.1424.1.camel@krustophenia.net> <20041120125536.GC8091@elte.hu> <1100971141.6879.18.camel@krustophenia.net> <20041120191403.GA16262@elte.hu> <1100975745.6879.35.camel@krustophenia.net> <20041120201155.6dc43c39@mango.fruits.de> <20041120214035.2deceaeb@mango.fruits.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041120214035.2deceaeb@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 21 Nov 2004 06:46:00 -0500
+Received: from amsfep12-int.chello.nl ([213.46.243.17]:27480 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261954AbUKULoU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 06:44:20 -0500
+Date: Sun, 21 Nov 2004 12:38:33 +0100
+Message-Id: <200411211138.iALBcXm9032355@anakin.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 530] M68k HP300 DIO bus: Fix typo in dio_resource_len()
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HP300 DIO bus: Fix typo in dio_resource_len()
 
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-> So i don't really know how to go about this. [...]
+--- linux-2.6.10-rc2/include/linux/dio.h	2004-11-09 21:12:05.000000000 +0100
++++ linux-m68k-2.6.10-rc2/include/linux/dio.h	2004-11-21 10:52:25.000000000 +0100
+@@ -254,7 +254,7 @@
+ 
+ #define dio_resource_start(d) ((d)->resource.start)
+ #define dio_resource_end(d)   ((d)->resource.end)
+-#define dio_resource_len(d)   ((d)->resource.end-(z)->resource.start+1)
++#define dio_resource_len(d)   ((d)->resource.end-(d)->resource.start+1)
+ #define dio_resource_flags(d) ((d)->resource.flags)
+ 
+ #define dio_request_device(d, name) \
 
-you could try to use user-triggered tracing to capture a trace of one
-such longer delay.
+Gr{oetje,eeting}s,
 
-	Ingo
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

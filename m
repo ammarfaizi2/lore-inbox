@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264656AbUFGOJp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264663AbUFGOL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264656AbUFGOJp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 10:09:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbUFGOJp
+	id S264663AbUFGOL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 10:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264660AbUFGOL6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 10:09:45 -0400
-Received: from gprs214-178.eurotel.cz ([160.218.214.178]:896 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S264656AbUFGOFX (ORCPT
+	Mon, 7 Jun 2004 10:11:58 -0400
+Received: from zork.zork.net ([64.81.246.102]:50560 "EHLO zork.zork.net")
+	by vger.kernel.org with ESMTP id S264663AbUFGOKN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 10:05:23 -0400
-Date: Mon, 7 Jun 2004 16:05:11 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Sebastian Kloska <kloska@scienion.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APM realy sucks on 2.6.x
-Message-ID: <20040607140511.GA1467@elf.ucw.cz>
-References: <40C0E91D.9070900@scienion.de> <20040607123839.GC11860@elf.ucw.cz> <40C46F7F.7060703@scienion.de>
-Mime-Version: 1.0
+	Mon, 7 Jun 2004 10:10:13 -0400
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Russell Leighton <russ@elegant-software.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Using getpid() often, another way? [was Re: clone() <->
+ getpid() bug in 2.6?]
+References: <40C1E6A9.3010307@elegant-software.com>
+	<Pine.LNX.4.58.0406051341340.7010@ppc970.osdl.org>
+	<40C32A44.6050101@elegant-software.com>
+	<40C33A84.4060405@elegant-software.com>
+	<1086537490.3041.2.camel@laptop.fenrus.com>
+	<40C3AD9E.9070909@elegant-software.com>
+	<20040607121300.GB9835@devserv.devel.redhat.com>
+	<6uu0xn5vio.fsf@zork.zork.net> <20040607140009.GA21480@infradead.org>
+From: Sean Neakums <sneakums@zork.net>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, Arjan van de Ven
+	<arjanv@redhat.com>, Russell Leighton <russ@elegant-software.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Mon, 07 Jun 2004 15:10:08 +0100
+In-Reply-To: <20040607140009.GA21480@infradead.org> (Christoph Hellwig's
+	message of "Mon, 7 Jun 2004 15:00:09 +0100")
+Message-ID: <6upt8b5uin.fsf@zork.zork.net>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40C46F7F.7060703@scienion.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: sneakums@zork.net
+X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Christoph Hellwig <hch@infradead.org> writes:
 
-> >>I'm really willing  to help the APM developers to track down this bug
-> >>but don't have a clue how to debug this kind stuff.
-> >
-> >
-> >What APM developers? There are none as far as I know.
-> 
-> 
->   Hmmm ... So once again the Tooth Fairy and Santa Claus :-) ?
-> 
->   At least a
-> 
->   grep '<.*@' /usr/src/linux-2.6.6/arch/i386/kernel/apm.c | sed 's/.*<//' | 
->   sed 's/>.*//'
-> 
->   gives me:
-> 
-> <snip>
-> Ulrich.Windl@rz.uni-regensburg.de
-...
-> chen@ctpa04.mit.edu
-> </snip>
-> 
-> This is pretty much for no one. And I guess you knew since you're on
-> the list yourself. But I think you're right when meaning
-> that there is not much of active maintenance anymore. Which at
-> least I find a little bit discouraging when looking of the state
-> of the ACPI support.
+> On Mon, Jun 07, 2004 at 02:48:31PM +0100, Sean Neakums wrote:
+>> > for example ia64 doesn't have it.
+>> 
+>> Then what is the sys_clone2 implementation in arch/is64/kernel/entry.S for?
+>
+> It's clone with a slightly different calling convention.
 
-Yes, that's pretty much what I meant. ACPI has ~5 people actively
-working on it, some of them probably full-time. That's a lot of
-manpower, compared to APM.
-
-And ACPI is in pretty good state, btw, unless you want
-suspend-to-RAM. Unfortunately you want suspend-to-RAM.
-
-> >Try removing calls to device_* in apm.c. Better yet become APM
-> >developer.
-> 
->   It seems like I'm on my way to do so (still reluctantly). As I stated
->  in my previous mails I'm not born as a hardware/BIOS hacker (more the
->  application C++/Java stuff) but I'm willing to learn. When I'm
->  grown up I definitely want to be linux kernel hacker :-) ...
-> 
->   Currently I ripped down the 2.6.6 kernel to almost nothing
->  and add one module after the other checking for proper
->  suspend/resume behavior....
-> 
->   The most suspicious candidates on my list are currently  the
->  USB-UHCI driver and the ALSA sound system, which is my #1 candidate
->  since it has not been an integral part of the 2.4.x (x<=20) kernels.
-> 
-> 
->  So if anybody out there could give me guidance on how the apm code
->  might interact with the ALSA sound system it would be highly
->  appreciated....
-
-device_suspend() will propagate all the way to alsa.
-								Pavel
--- 
-934a471f20d6580d5aad759bf0d97ddc
+Ah.  I misintereted Arjan as saying that ia64 didn't have a clone at
+all, which would have been pretty wacky.  Sorry for the noise.

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314136AbSD2RxZ>; Mon, 29 Apr 2002 13:53:25 -0400
+	id <S314096AbSD2SCK>; Mon, 29 Apr 2002 14:02:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314140AbSD2RxY>; Mon, 29 Apr 2002 13:53:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:13481 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S314136AbSD2RxX>; Mon, 29 Apr 2002 13:53:23 -0400
-Message-ID: <3CCD884D.70009@us.ibm.com>
-Date: Mon, 29 Apr 2002 10:52:13 -0700
-From: Dave Hansen <haveblue@us.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc1) Gecko/20020417
-X-Accept-Language: en-us, en
+	id <S314239AbSD2SCJ>; Mon, 29 Apr 2002 14:02:09 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:4104 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S314096AbSD2SCI>; Mon, 29 Apr 2002 14:02:08 -0400
+Date: Mon, 29 Apr 2002 11:01:53 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: "Ivan G." <ivangurdiev@linuxfreemail.com>
+cc: LKML <linux-kernel@vger.kernel.org>,
+        Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: 2.5.11 framebuffer compilation error 
+In-Reply-To: <02042823533500.06684@cobra.linux>
+Message-ID: <Pine.LNX.4.10.10204291056490.15166-100000@www.transvirtual.com>
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: devfs: BKL *not* taken while opening devices
-In-Reply-To: <Pine.LNX.4.21.0204291937430.23113-100000@serv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
- > The BKL doesn't make a driver safe, remember that it's released on
- > schedule.
 
-Not safe, but _safer_, and definitely safe enough for almost all uses. 
-Some of the drivers rely on the fact that open() cannot be run 
-concurrently.  The BKL does provide this if open never blocks.
+> I'll know this kernel is ready for merger with the 2.4 when I can finally 
+> compile it :) ... must have tried 6-7 versions by now ...
+> 
+> Error:
+> Note...this is something new that I haven't tried to compile before.
+> Error might be caused by an earlier kernel.
+> However, 2.5.11 does contain a lot of screen_base changes. 
 
--- 
-Dave Hansen
-haveblue@us.ibm.com
+Thats my fault. I had all the correct changes locally but my experience
+with BK is just starting :-/ So this first time was a bit painful. I
+asked people to tes my stuff but no one compiled so I toke that as
+everything was okay. Please folks. Test the stuff. I even make classic
+diff patches for people as well. 
+
+I have fixes against 2.5.11 avaliable for this.
+
+Diff:
+
+http://www.transvirtual.com/~jsimmons/fbdev_fixs.diff
+
+Also I commited these changes to the BK repository. The URL for this is
+
+http://fbdev.bkbits.net/fbdev-2.5
+
 

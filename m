@@ -1,32 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264979AbSJPJEP>; Wed, 16 Oct 2002 05:04:15 -0400
+	id <S264981AbSJPJEw>; Wed, 16 Oct 2002 05:04:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264981AbSJPJEP>; Wed, 16 Oct 2002 05:04:15 -0400
-Received: from web21204.mail.yahoo.com ([216.136.131.77]:10061 "HELO
-	web21204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S264979AbSJPJEO>; Wed, 16 Oct 2002 05:04:14 -0400
-Message-ID: <20021016091011.9346.qmail@web21204.mail.yahoo.com>
-Date: Wed, 16 Oct 2002 02:10:11 -0700 (PDT)
-From: Melkor Ainur <melkorainur@yahoo.com>
-Subject: user space virtual address to a vm_area_struct
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S264982AbSJPJEw>; Wed, 16 Oct 2002 05:04:52 -0400
+Received: from mail.zmailer.org ([62.240.94.4]:41366 "EHLO mail.zmailer.org")
+	by vger.kernel.org with ESMTP id <S264981AbSJPJEw>;
+	Wed, 16 Oct 2002 05:04:52 -0400
+Date: Wed, 16 Oct 2002 12:10:46 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sendfile(2) behaviour has changed ?
+Message-ID: <20021016091046.GD9644@mea-ext.zmailer.org>
+References: <20021016084908.GA770@gemtek.lt>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021016084908.GA770@gemtek.lt>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Oct 16, 2002 at 10:49:08AM +0200, Zilvinas Valinskas wrote:
+> This sample code copies a file using sendfile(2) call works just fine on 
+> 2.2.x and 2.4.x kernels. On 2.5.x kernels (not sure starting which
+> version) it stopped working. Program terminates with EINVAL error. 
+>
+> $ ./sendfile
+> sendfile: Invalid argument
+> 
+> Is this expected behaviour ? that sendfile(2) on 2.5.4x linux kernel requires
+> socket as an output fd paramter ? 
 
-Is there a recommended way for a driver to take an
-application provided virtual address while executing
-in the syscall context of that same application and
-find the corresponding vm_area_struct (if exists for
-that address) that spans that virtual address?
+  It has only been intended for output to a TCP stream socket.
 
-Melkor
+> Was it ever legal to copy file(s) on filesystem using sendfile(2) ?
+> (which was kindda nice feature ... )
 
-__________________________________________________
-Do you Yahoo!?
-Faith Hill - Exclusive Performances, Videos & More
-http://faith.yahoo.com
+  No.  It was a nice misfeature.
+
+/Matti Aarnio

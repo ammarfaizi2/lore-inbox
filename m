@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315555AbSENJRS>; Tue, 14 May 2002 05:17:18 -0400
+	id <S315557AbSENJX0>; Tue, 14 May 2002 05:23:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315557AbSENJRR>; Tue, 14 May 2002 05:17:17 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:5893 "EHLO
+	id <S315560AbSENJXZ>; Tue, 14 May 2002 05:23:25 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:7429 "EHLO
 	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S315555AbSENJRQ>; Tue, 14 May 2002 05:17:16 -0400
-Date: Tue, 14 May 2002 11:17:04 +0200
+	id <S315557AbSENJXZ>; Tue, 14 May 2002 05:23:25 -0400
+Date: Tue, 14 May 2002 11:23:21 +0200
 From: Tomas Szepe <szepe@pinerecords.com>
-To: "Matthew D. Pitts" <mpitts@suite224.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 2
-Message-ID: <20020514091704.GA2947@louise.pinerecords.com>
-In-Reply-To: <7926.1021355489@kao2.melbourne.sgi.com> <001501c1fb26$d5548660$8ff583d0@pcs686>
+To: linux-kernel@vger.kernel.org,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>
+Subject: Re: Changelogs on kernel.org
+Message-ID: <20020514092321.GB2947@louise.pinerecords.com>
+In-Reply-To: <20020513144519.GC5134@louise.pinerecords.com> <Pine.LNX.4.44.0205131759480.5254-100000@alumno.inacap.cl> <20020514084339.GB1842@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,20 +21,37 @@ X-OS: Linux/sparc 2.2.21-rc3-ext3-0.0.7a SMP (up 11:57)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Even if Linus isn't ready for it to be included in the kernel, I am planning
-> to star releasing a patchset similar to that of Dave Jones. Kbuild will be
-> the first thing that I will work into my patchset. I will keep both ways of
-> building the kernel as I work on it, since another set of patches that I am
-> going to add breaks kbuild, until I fix it.
+> > +die "Usage $0 [-n] <Changelog file>\nThis Perl script is meant to simplify/beautify BK ChangeLogs\nfor the linux kernel\n\nn\tFormat for the output\n\t0 - Short mode (one changelog == one line)\n\t1 - Full mode (changelogs separated by dashed line)\n\t2 - Original mode (one line consisting of changelog and author)[DEFAULT]\n" unless defined $ARGV[0];
+> Why forbid filtering?
 
-That's nice, but doesn't quite solve Keith's problem:
+Jup, please keep that.
 
-<quote>
-	Keeping up to date with kernel changes is a significant effort,
-	Makefiles change all the time, especially when major subsystems like
-	sound and usb are reorganised.  There are also some changes to
-	architecture code to do it right under kbuild 2.5 and tracking those
-	against kernel changes can be painful.
-</quote>
+> > +my $fd = $ARGV[0];
+> > +
+> > +if (grep(/^-/,$ARGV[0])) {
+> > +	$mode = $ARGV[0];
+> > +	$mode =~ s/-//;
+> > +	$mode = 2 if ($mode > 2);
+> > +	$fd = $ARGV[1];
+> It's time for some Getopt::. I'll merge the interesting parts of 0.92
+> as posted by Tomas, my plan is: use the LINUX_BK2CHANGELOG variable for
+> defaults, but allow to override them with command line arguments.
 
--Tomas
+That's great as long as we're able to use the script both as a filter
+and as a file processor (allowing multiple filenames given on cmdline).
+
+> >  # minimum space between entry and author for the original mode
+> > @@ -160,7 +167,9 @@
+> >  	}
+> >  }
+> >  
+> > -while (<>)
+> > +open FD,$fd;
+> This gives room for nasty surprises, if $ARGV[whatever] starts with a
+> ">" or "|". Easy to fix, but we can avoid this, because Perl already
+> handles it for us. Check the docs on <> behaviour when extra command
+> line arguments are left over.
+
+Right.
+
+T.

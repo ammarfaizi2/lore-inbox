@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265812AbUFIQ1b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265828AbUFIQ24@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265812AbUFIQ1b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 12:27:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265828AbUFIQ1b
+	id S265828AbUFIQ24 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 12:28:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUFIQ2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 12:27:31 -0400
-Received: from fmr05.intel.com ([134.134.136.6]:20692 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S265812AbUFIQ13
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 12:27:29 -0400
-From: Mark Gross <mgross@linux.jf.intel.com>
-Organization: Intel
-To: Pavel Machek <pavel@ucw.cz>, Mark Gross <mgross@linux.jf.intel.com>
-Subject: Re: swsusp "not enough swap space" 2.6.5-mm6.
-Date: Wed, 9 Jun 2004 09:27:51 -0700
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200406080829.35120.mgross@linux.intel.com> <20040608230450.GA13916@elf.ucw.cz> <200406090832.04064.mgross@linux.intel.com>
-In-Reply-To: <200406090832.04064.mgross@linux.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 9 Jun 2004 12:28:55 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:9344 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S265828AbUFIQ2l (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 12:28:41 -0400
+Message-Id: <200406091628.i59GSj5q019193@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Nico Schottelius <nico-kernel@schottelius.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dev@grsecurity.net
+Subject: Re: security patches / lsm 
+In-Reply-To: Your message of "Wed, 09 Jun 2004 13:46:15 +0200."
+             <20040609114615.GK601@schottelius.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <20040122191158.GA1207@schottelius.org> <20040122150937.A8720@osdlab.pdx.osdl.net> <20040609090346.GG601@schottelius.org> <20040609112235.GA1088@pooh>
+            <20040609114615.GK601@schottelius.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_677664529P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200406090927.51206.mgross@linux.intel.com>
+Date: Wed, 09 Jun 2004 12:28:45 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 09 June 2004 08:32, Mark Gross wrote:
-> On Tuesday 08 June 2004 16:04, Pavel Machek wrote:
-> > Hi!
-> >
-> > > I'm sorry for not having more information, but the failing computer is
-> > > my home laptop (I'll get more details after work or I'll bring it in
-> > > tomorrow for more details).
-> > >
-> > > Anyway, this thing does software suspend using the 2.6.2-mm1 kernel,
-> > > and last night I was updating it to 2.6.5-mm6, and I started getting
-> > > these not enough disk space errors.
-> > >
-> > > I found your bug fix patch,
-> > > http://marc.theaimsgroup.com/?l=linux-kernel&m=107806008626357&w=2
-> > >  and checked that it is included in the 2.6.5-mm6 kernel I'm using.
-> > >
-> > > Without more information does this problem ring any bells?
-> > >
-> > > Can you recommend a "good" kernel version that does reliable swsusp?
-> >
-> > Get 2.6.6, and set swappiness to 100.
-> >
-> > 								Pavel
->
-> 2.6.6 still fails, just like the failure reported by the thread independent
-> of swappiness:
->
-> http://marc.theaimsgroup.com/?t=107806010900002&r=1&w=2
->
-> However; as hinted in the thread turning off premption does seem to fix the
-> problem.
->
+--==_Exmh_677664529P
+Content-Type: text/plain; charset=us-ascii
 
-Spoke too soon.  My build tree that had the success was 2.6.6-mm6, so I 
-re-built a clean 2.6.6 from tarball using the .config from the successful 
-run, CONFIG_PREEMPT=n.  It fails.  2.6.6-mm5 works, but only if 
-CONFIG_PREEMPT=n.
+On Wed, 09 Jun 2004 13:46:15 +0200, Nico Schottelius said:
 
-I have to get to my day job now, but whats up with the flakieness of the 
-swsusp?  Shouldn't it be mostly working by now?
+> I heard about that, but I wanted to know whether this statement is still
+> true. I think with grsecurity you get a great security enhanced kernel.
 
+grsecurity is also an incredibly intrusive patch, and as of last week Brad
+Spendler was dropping continuing support due to time/financial issues.
 
---mgross
+The Grsecurity stuff breaks down into several pieces:
 
+1) The PaX stuff, which is more intrusive than the RedHat exec-shield patch
+and doesn't buy us an obviously higher level of security - the major thing that
+PaX does that exec-shield doesn't is prevent calling mprotect() on a previously
+writable page to make it executable.  Note that mprotect() can be handled via
+an LSM exit as well, so that's an alternate route to take.  Note that the PaX
+stuff requires a patch to binutils and recompiling/relinking everything to take
+full advantage of it (OK, exec-shield does as well, but has the advantage that
+the GNU_PT_STACK stuff has already been pushed upstream).  Either way,
+we still have the Wine problem... ;)
+
+2) For better or worse, SELinux and LSM are already in the base kernel, so
+Brad's ACL stuff is a duplication of effort.  Feel free to drag that along
+yourself, but any percieved benefit of Brad's ACL system is outweighted (in
+my book at least) by the fact that SELinux is being actively worked into
+things like Fedora, Suse, and Debian.
+
+3) A bunch of things like hardening /tmp symlinks and chroot jails, which
+are just as doable via an LSM module - I posted a "first cut" a while back,
+and I'll probably put out another one very shortly that incorporates all the
+helpful feedback I got over on the SELinux and LSM lists (Thanks, guys! ;)
+
+4) When I looked at it, the remainder was basically just PID randomization
+and some network randomization tweaks (again, I posted a first-cut, and will
+probably post another shortly incorporating suggestions I got).
+
+That's my take on it, for what it's worth...
+
+--==_Exmh_677664529P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFAxzq9cC3lWbTT17ARApGcAJ91L7dg99eIy0I4m2B/cQhVn7aFdQCgq2cD
+rCTiZIrh8qYab7Hn0qqjMvA=
+=nVXu
+-----END PGP SIGNATURE-----
+
+--==_Exmh_677664529P--

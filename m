@@ -1,165 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVAaVgF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVAaViu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVAaVgF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 16:36:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVAaVgF
+	id S261384AbVAaViu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 16:38:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVAaViu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 16:36:05 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:52184 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261380AbVAaVfm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 16:35:42 -0500
-Message-ID: <41FEA4AA.1080407@us.ibm.com>
-Date: Mon, 31 Jan 2005 15:35:38 -0600
-From: Brian King <brking@us.ibm.com>
-Reply-To: brking@us.ibm.com
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Mon, 31 Jan 2005 16:38:50 -0500
+Received: from [139.30.44.16] ([139.30.44.16]:46729 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261384AbVAaVin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 Jan 2005 16:38:43 -0500
+Date: Mon, 31 Jan 2005 22:38:41 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [RFC] "biological parent" pid
+Message-ID: <Pine.LNX.4.53.0501311923440.18039@gockel.physik3.uni-rostock.de>
 MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, linuxppc64-dev@ozlabs.org,
-       linux-pci@vger.kernel.org, linux-arch@vger.kernel.org, paulus@samba.org
-Subject: Re: pci: Arch hook to determine config space size
-References: <200501281456.j0SEuI12020454@d01av01.pok.ibm.com> <20050128185234.GB21760@infradead.org> <20050129040647.GA6261@kroah.com> <41FE82B6.9060407@us.ibm.com> <20050131192955.GJ31145@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20050131192955.GJ31145@parcelfarce.linux.theplanet.co.uk>
-Content-Type: multipart/mixed;
- boundary="------------010301050405050001050904"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010301050405050001050904
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+The ppid of a process is not really helpful if I want to reconstruct the 
+real history of processes on a machine, since it may become 1 when the
+parent dies and the process is reparented to init.
 
-Matthew Wilcox wrote:
-> Basically, ppc64's config ops are broken and need to check the offset
-> being read.  Here's i386:
-> 
-> static int pci_conf1_write (int seg, int bus, int devfn, int reg, int len, u32 v
-> alue)
-> {
->         unsigned long flags;
-> 
->         if ((bus > 255) || (devfn > 255) || (reg > 255)) 
->                 return -EINVAL;
+I am not aware of concepts in Linux or other unices that apply to this
+case. So I made up the "biological parent pid" bioppid (in contrast to the
+adoptive parents pid) that just never changes.
+Any user of it must of course remember that it doesn't need to be a valid 
+pid anymore or might even belong to a different process that was forked in 
+the meantime. bioppid only had to be a valid pid at time btime (it's
+a (btime, pid) pair that unambiguously identifies a process).
 
-Here is a pure ppc64 implementation that does this.
+Comments? (other that I just broke /proc/nnn/status parsing once again :-)
 
-> 
-> I think all the config ops in ppc64 are broken and need to check for these
-> limits.  Also, it does some checks that are already performed by upper layers:
-> 
->         if (where & (size - 1))
->                 return PCIBIOS_BAD_REGISTER_NUMBER;
-> 
-> is checked for in drivers/pci/access.c
-
-I can submit a separate patch to clean that up.
-
--- 
-Brian King
-eServer Storage I/O
-IBM Linux Technology Center
-
---------------010301050405050001050904
-Content-Type: text/plain;
- name="ppc64_pcix_mode2_cfg.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ppc64_pcix_mode2_cfg.patch"
+Tim
 
 
+--- linux-2.6.10/include/linux/sched.h	2004-12-24 22:33:59.000000000 +0100
++++ linux-2.6.10-ppid/include/linux/sched.h	2005-01-31 19:20:00.000000000 +0100
+@@ -556,6 +556,7 @@ struct task_struct {
+ 	unsigned did_exec:1;
+ 	pid_t pid;
+ 	pid_t tgid;
++	pid_t bioppid;                  /* biological parents */
+ 	/* 
+ 	 * pointers to (original) parent process, youngest child, younger sibling,
+ 	 * older sibling, respectively.  (p->father can be replaced with 
 
-When working with a PCI-X Mode 2 adapter on a PCI-X Mode 1 PPC64
-system, the current code used to determine the config space size
-of a device results in a PCI Master abort and an EEH error, resulting
-in the device being taken offline. This patch checks OF to see if
-the PCI bridge supports PCI-X Mode 2 and fails config accesses beyond
-256 bytes if it does not.
-
-Signed-off-by: Brian King <brking@us.ibm.com>
----
-
- linux-2.6.11-rc2-bk9-bjking1/arch/ppc64/kernel/pSeries_pci.c |   25 +++++++++++
- linux-2.6.11-rc2-bk9-bjking1/include/asm-ppc64/prom.h        |    1 
- 2 files changed, 26 insertions(+)
-
-diff -puN arch/ppc64/kernel/pSeries_pci.c~ppc64_pcix_mode2_cfg arch/ppc64/kernel/pSeries_pci.c
---- linux-2.6.11-rc2-bk9/arch/ppc64/kernel/pSeries_pci.c~ppc64_pcix_mode2_cfg	2005-01-31 14:32:01.000000000 -0600
-+++ linux-2.6.11-rc2-bk9-bjking1/arch/ppc64/kernel/pSeries_pci.c	2005-01-31 15:09:53.000000000 -0600
-@@ -52,6 +52,16 @@ static int s7a_workaround;
+--- linux-2.6.10/kernel/fork.c	2004-12-24 22:33:59.000000000 +0100
++++ linux-2.6.10-ppid/kernel/fork.c	2005-01-31 18:15:39.000000000 +0100
+@@ -889,6 +889,7 @@ static task_t *copy_process(unsigned lon
+ 	p->tgid = p->pid;
+ 	if (clone_flags & CLONE_THREAD)
+ 		p->tgid = current->tgid;
++	p->bioppid = current->pid;
  
- extern struct mpic *pSeries_mpic;
- 
-+static int config_access_valid(struct device_node *dn, int where)
-+{
-+	struct device_node *hose_dn = dn->phb->arch_data;
-+
-+	if (where < 256 || hose_dn->pci_ext_config_space)
-+		return 1;
-+
-+	return 0;
-+}
-+
- static int rtas_read_config(struct device_node *dn, int where, int size, u32 *val)
- {
- 	int returnval = -1;
-@@ -62,6 +72,8 @@ static int rtas_read_config(struct devic
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 	if (where & (size - 1))
- 		return PCIBIOS_BAD_REGISTER_NUMBER;
-+	if (!config_access_valid(dn, where))
-+		return PCIBIOS_BAD_REGISTER_NUMBER;
- 
- 	addr = (dn->busno << 16) | (dn->devfn << 8) | where;
- 	buid = dn->phb->buid;
-@@ -110,6 +122,8 @@ static int rtas_write_config(struct devi
- 		return PCIBIOS_DEVICE_NOT_FOUND;
- 	if (where & (size - 1))
- 		return PCIBIOS_BAD_REGISTER_NUMBER;
-+	if (!config_access_valid(dn, where))
-+		return PCIBIOS_BAD_REGISTER_NUMBER;
- 
- 	addr = (dn->busno << 16) | (dn->devfn << 8) | where;
- 	buid = dn->phb->buid;
-@@ -270,6 +284,16 @@ static int phb_set_bus_ranges(struct dev
- 	return 0;
- }
- 
-+static void __devinit get_phb_config_space_type(struct device_node *dn)
-+{
-+	int *type = (int *)get_property(dn, "ibm,pci-config-space-type", NULL);
-+
-+	if (type && *type == 1)
-+		dn->pci_ext_config_space = 1;
-+	else
-+		dn->pci_ext_config_space = 0;
-+}
-+
- static int __devinit setup_phb(struct device_node *dev,
- 			       struct pci_controller *phb,
- 			       unsigned int addr_size_words)
-@@ -285,6 +309,7 @@ static int __devinit setup_phb(struct de
- 	phb->arch_data = dev;
- 	phb->ops = &rtas_pci_ops;
- 	phb->buid = get_phb_buid(dev);
-+	get_phb_config_space_type(dev);
- 
- 	return 0;
- }
-diff -puN include/asm-ppc64/prom.h~ppc64_pcix_mode2_cfg include/asm-ppc64/prom.h
---- linux-2.6.11-rc2-bk9/include/asm-ppc64/prom.h~ppc64_pcix_mode2_cfg	2005-01-31 14:32:01.000000000 -0600
-+++ linux-2.6.11-rc2-bk9-bjking1/include/asm-ppc64/prom.h	2005-01-31 14:32:01.000000000 -0600
-@@ -137,6 +137,7 @@ struct device_node {
- 	int	devfn;			/* for pci devices */
- 	int	eeh_mode;		/* See eeh.h for possible EEH_MODEs */
- 	int	eeh_config_addr;
-+	int	pci_ext_config_space;	/* for phb's or bridges */
- 	struct  pci_controller *phb;	/* for pci devices */
- 	struct	iommu_table *iommu_table;	/* for phb's or bridges */
- 
-_
+ 	if ((retval = security_task_alloc(p)))
+ 		goto bad_fork_cleanup_policy;
 
---------------010301050405050001050904--
+--- linux-2.6.10/fs/proc/array.c	2004-12-24 22:35:00.000000000 +0100
++++ linux-2.6.10-ppid/fs/proc/array.c	2005-01-31 18:19:02.000000000 +0100
+@@ -165,6 +165,7 @@ static inline char * task_state(struct t
+ 		"Tgid:\t%d\n"
+ 		"Pid:\t%d\n"
+ 		"PPid:\t%d\n"
++		"BioPPid:\t%d\n"
+ 		"TracerPid:\t%d\n"
+ 		"Uid:\t%d\t%d\t%d\t%d\n"
+ 		"Gid:\t%d\t%d\t%d\t%d\n",
+@@ -172,6 +173,7 @@ static inline char * task_state(struct t
+ 		(p->sleep_avg/1024)*100/(1020000000/1024),
+ 	       	p->tgid,
+ 		p->pid, pid_alive(p) ? p->group_leader->real_parent->tgid : 0,
++		p->bioppid,
+ 		pid_alive(p) && p->ptrace ? p->parent->pid : 0,
+ 		p->uid, p->euid, p->suid, p->fsuid,
+ 		p->gid, p->egid, p->sgid, p->fsgid);
+
+--- linux-2.6.10/kernel/acct.c	2004-12-24 22:34:58.000000000 +0100
++++ linux-2.6.10-ppid/kernel/acct.c	2005-01-31 18:19:35.000000000 +0100
+@@ -446,7 +446,7 @@ static void do_acct_process(long exitcod
+ #endif
+ #if ACCT_VERSION==3
+ 	ac.ac_pid = current->tgid;
+-	ac.ac_ppid = current->parent->tgid;
++	ac.ac_ppid = current->bioppid;
+ #endif
+ 
+ 	read_lock(&tasklist_lock);	/* pin current->signal */

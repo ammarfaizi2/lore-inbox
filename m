@@ -1,100 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314562AbSEBPUn>; Thu, 2 May 2002 11:20:43 -0400
+	id <S314554AbSEBPTU>; Thu, 2 May 2002 11:19:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314571AbSEBPUl>; Thu, 2 May 2002 11:20:41 -0400
-Received: from relay04.valueweb.net ([216.219.253.238]:4612 "EHLO
-	relay04.valueweb.net") by vger.kernel.org with ESMTP
-	id <S314562AbSEBPU3>; Thu, 2 May 2002 11:20:29 -0400
-Message-ID: <3CD15883.2FF10B60@opersys.com>
-Date: Thu, 02 May 2002 11:17:23 -0400
-From: Karim Yaghmour <karim@opersys.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en, French/Canada, French/France, fr-FR, fr-CA
-MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] Linux Trace Toolkit 0.9.5
-In-Reply-To: <Pine.LNX.4.21.0204251154510.31280-100000@serv>
+	id <S314555AbSEBPTT>; Thu, 2 May 2002 11:19:19 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:60411 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S314554AbSEBPTQ>; Thu, 2 May 2002 11:19:16 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.44.0205020913390.32217-100000@chaos.physics.uiowa.edu> 
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Thu, 02 May 2002 16:18:42 +0100
+Message-ID: <27186.1020352722@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello Roman,
+kai@tp1.ruhr-uni-bochum.de said:
+> > kbuild 2.5 deliberately does not support modversions, you can turn it
+> > on but it does nothing.  The original implementation of modversions
+> > does not fit with the way that people build kernels now (apply
+> > patches, change configs, rebuild without make mrproper).  To do
+> > modversions right needs a new version of modutils as well, there
+> > is no chance of that work being started until kbuild 2.5 is in 
+> > the kernel.
 
-Roman Zippel wrote:
-> > As I said earlier, a 2.5.x patch is available and LTT is ready to
-> > be integrated into the 2.5 series.
-> 
-> I'd really like to see it go in,
+> I would like to object here. Getting dependencies right for
+> modversions is very much possible in principle, after all modversions
+> are generated in a deterministic process. (It's also possible in
+> practise, though it's quite a bit of work).
 
-Thanks :)
+To what are you objecting? You aren't disagreeing with Keith here. He 
+merely said that there's no chance of him working on modversions until
+the newer build system that's sane w.r.t. dependencies is incorporated.
 
-> but I think some small problems are left,
-> mostly formatting. Please read Documentation/CodingStyle.
-> Please use tabs for indentation and not spaces.
+> Modversions is really essential for distributions, where it's badly
+> needed to keep users from causing hard to track down crashes by
+> inserting self-compiled or obtained from whereever else modules into a
+> kernel which was compiled with a different config.
 
-I'm aware of the formatting issues. I will correct the patch to conform with
-the kernel's coding style.
+Distributions are unlikely to be shipping 2.5 kernels. As long as 
+modversions can be reimplemented properly by the time 2.6 is released, 
+what's the harm in disabling it for a while?
 
-> You should consider using more inline functions, instead of lots of "do
-> {...} while(0)" macros.
+It's hard enough to keep kbuild-2.5 up to date with recent kernels as it 
+is; let's not keep moving the goalposts by adding new requirements for the 
+initial adoption -- once it's in and the makefiles are maintaining 
+themselves, we can concentrate on reimplementing the niche features.
 
-Sure, but what particular advantages do you see in this case?
+--
+dwmw2
 
-> Do we really need more usages of uint32_t or uint8_t in the kernel?
 
-I'd really like to avoid using them, but I don't see any other way
-since the binary traces have to be readable on multiple machine
-architectures and, indeed, multiple OSes. pid_t, for example, isn't
-a universally agreed upon type, hence the need for uintXYZ_t.
-
-> Instead of using lots of "#ifdef __arch__" you should move this into
-> <asm/trace.h>.
-
-I hadn't thought of it, thanks. Actually, there are only 2 files needing
-this, drivers/trace/tracer.h and drivers/trace/tracer.c. The variations
-among architectures in tracer.h will be dropped in any case in the near
-future. So there's only tracer.c who has a portion of isolated code which
-has lots of "#ifdef __arch__". Given that this code is very isolated (i.e.
-in only one segment of one function) and there will never be any need for
-it to propagate elsewhere in the trace code, is it worth it to create an
-<asm/trace.h> which will only have 2 lines for most archs?
-
-There's no problem in doing this, but I just want to make sure I'm not
-contributing to creating more files in the kernel source which won't
-be of use to anyone else.
-
-> Comments are nice, but IMO your code does a bit too much of it, e.g.:
-
-I understand your point of view, but there is a rational behind this
-way of coding. The purpose is to have the code and the explanation in
-the same place. So to come back to the snippet you were refering to:
-
->   /* Everything is OK */
->   return 0;
-
-I often see return's without explanations. The question is then: what
-does the value returned mean? This is what this comment is about.
-
-But I don't want to get into a religious fight over code commentary.
-The point is, I've been maintaining the kernel and user-space code this
-way for a while and it's paid off (i.e. most people reading the code
-understand it the first way through). If the comments weren't in sync
-with the code I'd agree that comments are dangerous, but this isn't
-the case so I don't see that there is any harm in this level of
-commenting.
-
-BTW, what about an m68k port? ;)
-
-Cheers,
-
-Karim
-
-===================================================
-                 Karim Yaghmour
-               karim@opersys.com
-      Embedded and Real-Time Linux Expert
-===================================================

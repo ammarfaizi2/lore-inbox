@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316199AbSGEJEK>; Fri, 5 Jul 2002 05:04:10 -0400
+	id <S316163AbSGEJOG>; Fri, 5 Jul 2002 05:14:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316163AbSGEJEJ>; Fri, 5 Jul 2002 05:04:09 -0400
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:6674 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316235AbSGEJEI>; Fri, 5 Jul 2002 05:04:08 -0400
-Date: Fri, 5 Jul 2002 10:06:37 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>, Hugh Dickins <hugh@veritas.com>,
-       Andrea Arcangeli <andrea@suse.de>
-Subject: Re: [patch 18/27] always update page->flags atomically
-Message-ID: <20020705100637.B23355@flint.arm.linux.org.uk>
-References: <3D24E04A.F4A8B170@zip.com.au>
+	id <S316182AbSGEJOF>; Fri, 5 Jul 2002 05:14:05 -0400
+Received: from holomorphy.com ([66.224.33.161]:1261 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S316163AbSGEJOE>;
+	Fri, 5 Jul 2002 05:14:04 -0400
+Date: Fri, 5 Jul 2002 02:12:27 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bill Davidsen <davidsen@tmr.com>, Rob Landley <landley@trommello.org>,
+       Tom Rini <trini@kernel.crashing.org>,
+       "J.A. Magallon" <jamagallon@able.es>,
+       Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OKS] O(1) scheduler in 2.4
+Message-ID: <20020705091227.GS22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Bill Davidsen <davidsen@tmr.com>,
+	Rob Landley <landley@trommello.org>,
+	Tom Rini <trini@kernel.crashing.org>,
+	"J.A. Magallon" <jamagallon@able.es>,
+	Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.3.96.1020703232322.2248C-100000@gatekeeper.tmr.com> <Pine.LNX.4.44.0207040846340.3309-100000@e2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3D24E04A.F4A8B170@zip.com.au>; from akpm@zip.com.au on Thu, Jul 04, 2002 at 04:54:50PM -0700
+In-Reply-To: <Pine.LNX.4.44.0207040846340.3309-100000@e2>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 04, 2002 at 04:54:50PM -0700, Andrew Morton wrote:
-> It had no right to go clearing PG_arch_1.  I'm now clearing PG_arch_1
-> inside rmqueue() which is still a bit presumptious.
+On Thu, Jul 04, 2002 at 08:56:01AM +0200, Ingo Molnar wrote:
+> are these hard numbers? I havent seen much hard data yet from real-life
+> servers using the O(1) scheduler. There was lots of feedback from
+> desktop-class systems that behave better, but servers used to be pretty
+> good with the previous scheduler as well.
 
-Davem should know the right behaviour for this bit.  It's not a generic
-"architecture" bit, but it has some defined behaviour behind it.  See
-cachetlb.txt:
+I seem to recall some testing having been done demonstrating such
+differences. I'll ask around when I get back from vacation, though I'll
+confess it's far afield from my usual interests.
 
-  void flush_dcache_page(struct page *page)
-...
-        There is a bit set aside in page->flags (PG_arch_1) as
-	"architecture private".  The kernel guarantees that,
-	for pagecache pages, it will clear this bit when such
-	a page first enters the pagecache.
 
-I think you may have broken this... ;(
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Cheers,
+Bill

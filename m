@@ -1,78 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264686AbSKSJdg>; Tue, 19 Nov 2002 04:33:36 -0500
+	id <S264883AbSKSJin>; Tue, 19 Nov 2002 04:38:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264715AbSKSJdg>; Tue, 19 Nov 2002 04:33:36 -0500
-Received: from packet.digeo.com ([12.110.80.53]:38887 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S264686AbSKSJdf>;
-	Tue, 19 Nov 2002 04:33:35 -0500
-Message-ID: <3DDA070F.CF2047BF@digeo.com>
-Date: Tue, 19 Nov 2002 01:40:31 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S264888AbSKSJin>; Tue, 19 Nov 2002 04:38:43 -0500
+Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:33015 "EHLO
+	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
+	id <S264883AbSKSJim>; Tue, 19 Nov 2002 04:38:42 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-To: vasya vasyaev <vasya197@yahoo.com>
-CC: "Nakajima, Jun" <jun.nakajima@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: Machine's high load when HIGHMEM is enabled
-References: <3DC94885.AD5B8A3B@digeo.com> <20021119092912.39541.qmail@web20510.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Nov 2002 09:40:32.0384 (UTC) FILETIME=[B4200000:01C28FAF]
+Message-ID: <15834.2112.854137.981987@wombat.chubb.wattle.id.au>
+Date: Tue, 19 Nov 2002 20:45:36 +1100
+To: rmack@mackman.net
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BUG] Orinoco Lock Up
+In-Reply-To: <665837332@toto.iv>
+X-Mailer: VM 7.04 under 21.4 (patch 10) "Military Intelligence" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-vasya vasyaev wrote:
-> 
-> Hi again,
-> 
-> Let me try to explain what is this all about...
-> 
-> Box has 1 GB of RAM, it's running oracle database.
-> After some disk activity disk cache has 400 Mb, so 600
-> Mb is free
+>>>>> "rmack" == rmack  <rmack@mackman.net> writes:
 
-And the other 400 megabytes will be freed up on demand.
+rmack> I was sleapilly typing away from my laptop when my wireless LAN
+rmack> connection hung.  The other end, a dual P3 system using a
+rmack> generic ISA->PCMCIA adapter and an Orinoco Silver v6.06 card
+rmack> had gone crazy.  I don't know if the whole system was locked up
+rmack> or not but removing the Orinoco card and re-inserting fixed the
+rmack> wireless LAN.
 
-> Oracle is tuned for using of 800 Mb of RAM for SGA (as
-> shared memory segment), so Oracle needs 800 Mb of RAM
-> to be free before it's start, right ?
 
-No...  If that were so, you'd never be able to start any
-applications.
+This is such a common problem, that I now run this little script all
+the time.  It triggers once or twice a day most days; more if I'm
+doing something that involves heavy network use.  FWIW, the later 2.5
+kernels seem to be better than 2.4.19.
 
-> So when oracle starts it can't allocate this 800 Mb
-> for SGA and fails to start...
-
-Well, maybe Oracle is failing to start.  But maybe that's
-not for the reasons you are assuming.
-
-> Where is a problem - in kernel which can't reduce disk
-> cache to allow allocating of shared memory segment or
-> in oracle ?
-
-If Oracle requests 800 megabytes from the kernel, it will get it.
-It won't be able to mlock it (I'm guessing here).
- 
-> BTW, free doesn't show that shared memory is in use
-> when oracle is started and requested shared memory
-> segment is allocated (and ipcs shows it).
-
-Yup, the "shared" accounting is always zero.  Maybe we should
-fix that, or remove it.
- 
-> We need to control disk cache to reduce it as much as
-> possible because it's not needed for oracle, much
-> better is to allow oracle to control the RAM
-> for it's use.
-> 
-> As to compare, on solaris we mount ufs with
-> "forcedirectio" mount option, which tells not to use
-> disk cache.
-
-Please ensure that the failure is not some Oracle-specific setup
-thing, and then provide specific details on the problem which you
-are observing.  The assumptions which you are making may not be
-correct.
-
-Thanks.
+----
+#!/bin/sh
+tail -f /var/log/kern.log |
+while read f
+do
+    if expr "$f" \: '.*eth1: Error' > /dev/null 2>&1
+    then
+	cardctl reset
+    fi
+done

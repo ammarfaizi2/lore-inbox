@@ -1,35 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263039AbTBTBFp>; Wed, 19 Feb 2003 20:05:45 -0500
+	id <S262201AbTBTBEH>; Wed, 19 Feb 2003 20:04:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263291AbTBTBFo>; Wed, 19 Feb 2003 20:05:44 -0500
-Received: from cpe-24-221-186-48.ca.sprintbbd.net ([24.221.186.48]:5636 "HELO
-	jose.vato.org") by vger.kernel.org with SMTP id <S263039AbTBTBFn>;
-	Wed, 19 Feb 2003 20:05:43 -0500
-From: "Tim Pepper" <tpepper@vato.org>
-Date: Wed, 19 Feb 2003 17:15:42 -0800
-To: Alexander Sandler <ASandler@store-age.com>
-Cc: linux-kernel@vger.kernel.org, Ohad Levin <OLevin@store-age.com>
-Subject: Re: Possible bug in ext3 versus filter drivers in 2.4.18-3, 2.4.18-14 and 2.4.20.
-Message-ID: <20030219171541.A1327@jose.vato.org>
-Mail-Followup-To: Tim Pepper <tpepper>,
-	Alexander Sandler <ASandler@store-age.com>,
-	linux-kernel@vger.kernel.org, Ohad Levin <OLevin@store-age.com>
-References: <AE0DC697C2336C4A9767AE031CE4B344134FCE@exchange.store-age.com>
-Mime-Version: 1.0
+	id <S263039AbTBTBEH>; Wed, 19 Feb 2003 20:04:07 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:38663 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id <S262201AbTBTBEF>; Wed, 19 Feb 2003 20:04:05 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200302200115.h1K1FVqQ002285@81-2-122-30.bradfords.org.uk>
+Subject: [ANNOUNCE] Kernel Bug Database documentation on-line
+To: linux-kernel@vger.kernel.org
+Date: Thu, 20 Feb 2003 01:15:31 +0000 (GMT)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <AE0DC697C2336C4A9767AE031CE4B344134FCE@exchange.store-age.com>; from ASandler@store-age.com on Tue, Feb 18, 2003 at 02:17:28PM +0200
-X-PGP-Key: http://vato.org/~tpepper/pubkey.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes...fix in -ac.  Comments from fix in 2.4.21pre.
+I've put some extensive documentation for the latest version of my
+Kernel Bug Database online at:
 
-t.
--- 
-*********************************************************
-*  tpepper@vato dot org             * Venimus, Vidimus, *
-*  http://www.vato.org/~tpepper     * Dolavimus         *
-*********************************************************
+http://grabjohn.com/kernelbugdatabase/documentation/
+
+The latest version of the Kernel Bug Database is at the usual location:
+
+http://grabjohn.com/kernelbugdatabase/
+
+Main new features since version 2.0:
+
+* A slightly redesigned layout that loads more quickly
+* Kernel versions are now sorted numerically by version number order
+* The list of all bug reports or confirmed bugs on the search screens
+  has been replaced with a list of the five most recent
+* Search results now include status information for the latest tested
+  kernel versions, not the latest versions. 
+* Automatic archiving of bug reports after four weeks
+* An active/archive flag for bug reports and confirmed bugs
+* A count of the number of returned bug reports, confirmed bugs or
+  patches for each search
+* A count of the number of non-returned due to being archived bug
+  reports or confirmed bugs for each relevant search
+* The searching of confirmed bugs page now replaces the initial main menu
+* An 'include status information for a particular kernel version'
+  toggle in bug reports and confirmed bug search pages
+
+I've written the code for automatic testing of patches to see whether
+they will apply to various kernel versions, but it will not be enabled
+until the machine that hosts http://grabjohn.com/ is replaced with a
+faster one with more disk space :-).
+
+Any comments and suggestions would be appreciated.
+
+John.

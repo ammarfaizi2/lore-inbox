@@ -1,59 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262729AbTJTSsh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 14:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbTJTSsh
+	id S262767AbTJTTBY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 15:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbTJTTBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 14:48:37 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:4323 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S262709AbTJTSsb (ORCPT
+	Mon, 20 Oct 2003 15:01:24 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:14233 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262767AbTJTTBU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 14:48:31 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Mon, 20 Oct 2003 15:01:20 -0400
+Date: Mon, 20 Oct 2003 12:10:25 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise
+To: =?ISO-8859-1?Q?David_H=E4rdeman?= <david@2gen.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Suspend with 2.6.0-test7-mm1
+In-Reply-To: <3F93A093.9060800@2gen.com>
+Message-ID: <Pine.LNX.4.44.0310201209300.13116-100000@cherise>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16276.11771.903857.778036@napali.hpl.hp.com>
-Date: Mon, 20 Oct 2003 11:48:27 -0700
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: davidm@hpl.hp.com, David Mosberger <davidm@napali.hpl.hp.com>,
-       Andrew Morton <akpm@osdl.org>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] prevent "dd if=/dev/mem" crash
-In-Reply-To: <200310200917.11074.bjorn.helgaas@hp.com>
-References: <200310171610.36569.bjorn.helgaas@hp.com>
-	<20031017165543.2f7e9d49.akpm@osdl.org>
-	<16272.34681.443232.246020@napali.hpl.hp.com>
-	<200310200917.11074.bjorn.helgaas@hp.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Mon, 20 Oct 2003 09:17:10 -0600, Bjorn Helgaas <bjorn.helgaas@hp.com> said:
 
-  Bjorn> On Friday 17 October 2003 6:21 pm, David Mosberger wrote:
-  >> What about memory-mapped device registers?  Isn't all memory
-  >> physically contiguous on x86 and that's why the "p >=
-  >> __pa(high_memory)" test saves you from that?
+> I've been playing with the suspend features of 2.6.0-test7-mm1 and I 
+> can't get it to work. When I do "echo -n standby > /sys/power/state", 
+> the screen flickers briefly and then the system is back to normal. In 
+> the logs I see the following message:
+> 
+> Oct 20 10:18:12 hansolo kernel: PM: Preparing system for suspend
+> Oct 20 10:18:12 hansolo kernel: Stopping tasks: 
+> ============================================================================|
+> Oct 20 10:18:12 hansolo kernel: Restarting tasks... done
+> 
+> Now, I wonder, what is causing the kernel to exit from the suspend 
+> immediately? Is it error in suspend code, drivers that doesn't support 
+> suspend or some program that is interrupting the sleep? How do I debug 
+> this further?
+> 
+> More hw/software info available on request, please CC me on any replies.
 
-  Bjorn> As others have mentioned, using read/write on /dev/mem to get
-  Bjorn> at memory-mapped registers is unlikely to work on ia64
-  Bjorn> anyway, because read/write use cacheable mappings.  Using
-  Bjorn> mmap does work (using uncacheable mappings), and my patch
-  Bjorn> doesn't change that path.
+Are you using ACPI? If so, could you please send the output of
+/proc/acpi/sleep? If not, then standby will not work for you at this time.
 
-True, I just find this whole thing rather disgusting: different
-behavior for read/write vs. mmap; but you're right, it's nothing
-new and probably the most pragmatic "solution".
+Thanks,
 
-  Bjorn> I bet that ia32 does have page tables for this case, and that
-  Bjorn> an attempt to read non-existent physical memory will cause a
-  Bjorn> TLB miss from which copy_*_user() can easily recover.
 
-True, but even this doesn't help for MMIO space, where a device may
-decode less than a full page.  So you'd still end up accessing address
-holes.  Just that x86 returns garbage in that case (I think).
+	Pat
 
-	--david

@@ -1,53 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263146AbUCMR4D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Mar 2004 12:56:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUCMR4D
+	id S263145AbUCMRyu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Mar 2004 12:54:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263147AbUCMRyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Mar 2004 12:56:03 -0500
-Received: from struggle.mr.itd.umich.edu ([141.211.14.79]:41601 "EHLO
-	struggle.mr.itd.umich.edu") by vger.kernel.org with ESMTP
-	id S263146AbUCMRzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Mar 2004 12:55:16 -0500
-Date: Sat, 13 Mar 2004 12:55:09 -0500 (EST)
-From: Rajesh Venkatasubramanian <vrajesh@umich.edu>
-X-X-Sender: vrajesh@ruby.engin.umich.edu
-To: riel@redhat.com
-cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, andrea@suse.de
+	Sat, 13 Mar 2004 12:54:49 -0500
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:5897
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263145AbUCMRyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Mar 2004 12:54:33 -0500
+Date: Sat, 13 Mar 2004 18:55:17 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@redhat.com>
+Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: anon_vma RFC2
-In-Reply-To: <Pine.GSO.4.58.0403121548530.2624@sapphire.engin.umich.edu>
-Message-ID: <Pine.LNX.4.58.0403131246580.28574@ruby.engin.umich.edu>
-References: <20040310080000.GA30940@dualathlon.random>
- <Pine.LNX.4.44.0403100759550.7125-100000@chimarrao.boston.redhat.com>
- <20040310135012.GM30940@dualathlon.random> <Pine.GSO.4.58.0403121149400.2624@sapphire.engin.umich.edu>
- <20040312172600.GC30940@dualathlon.random> <Pine.GSO.4.58.0403121548530.2624@sapphire.engin.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20040313175517.GL30940@dualathlon.random>
+References: <Pine.LNX.4.44.0403131653010.3585-100000@localhost.localdomain> <Pine.LNX.4.44.0403131227210.15971-100000@chimarrao.boston.redhat.com> <20040313175406.GK30940@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040313175406.GK30940@dualathlon.random>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> The only problem is mremap() after a fork(), and hell, we know that's a
-> special case anyway, and let's just add a few lines to copy_one_pte(),
-> which basically does:
->
->	if (PageAnonymous(page) && page->count > 1) {
->		newpage = alloc_page();
->		copy_page(page, newpage);
->		page = newpage;
->	}
->	/* Move the page to the new address */
->	page->index = address >> PAGE_SHIFT;
->
-> and now we have zero special cases.
-
-This part makes the problem so simple. If this is acceptable, then we
-have many choices. Since we won't have many mms in the anonmm list,
-I don't think we will have any search complexity problems. If we really
-worry again about search complexity, we can consider using prio_tree
-(adds 16 bytes per vma - we cannot share vma.shared.prio_tree_node).
-The prio_tree easily fits for anonmm after linus-mremap-simplification.
-
-Rajesh
-
-
+On Sat, Mar 13, 2004 at 06:54:06PM +0100, Andrea Arcangeli wrote:
+> after the for we'll screw them completely. I've no indication that this
+	       ^k

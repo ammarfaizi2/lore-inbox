@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268894AbUJFRQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269325AbUJFRSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268894AbUJFRQo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 13:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUJFRQn
+	id S269325AbUJFRSy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 13:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUJFRQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 13:16:43 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:44219 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S268894AbUJFRQ3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 13:16:29 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Stas Sergeev <stsp@aknet.ru>
-Date: Wed, 6 Oct 2004 19:18:53 +0200
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: ESP corruption bug - what CPUs are affected? (patch att
-Cc: linux-kernel@vger.kernel.org,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-X-mailer: Pegasus Mail v3.50
-Message-ID: <59EA54D0987@vcnet.vc.cvut.cz>
+	Wed, 6 Oct 2004 13:16:50 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:17323 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269286AbUJFRQb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 13:16:31 -0400
+Subject: Re: Problem - install scsi adapter and scanner
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jurek Ela Tryjarscy <jurekt@kabatnet.waw.pl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <41618A69.7050706@kabatnet.waw.pl>
+References: <41618A69.7050706@kabatnet.waw.pl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1097079242.29251.55.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 06 Oct 2004 17:14:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On  6 Oct 04 at 20:18, Stas Sergeev wrote:
-> Yes, if not for that anonymous guy, who kept posting
-> to me until he finally convinced me that the Ring-0
-> approach is not that difficult at all.
-> So I tried... It was much more difficult to code
-> up, but at the end it looks a little better
-> and localized to entry.S completely. OTOH it
-> touches the exception handlers, but not too much -
-> it adds only 5 insns on the fast path. And the
-> code is very fragile, but after I made all the
-> magic numbers a #define consts, it actually looks
-> not so bad.
-> I don't know which patch is really better, so
-> I am attaching both.
+On Llu, 2004-10-04 at 18:37, jurek Ela Tryjarscy wrote:
+> Hi ,
+> In my box I have Redhat 9.
+> I must connect via SCSI Interface Umax Mirage II scanner.
+> SCSI adapter is Acard AEC-6712TU.
+> 
+> System logs contain:
+> 
+> Oct  4 19:19:05 localhost kernel:    ACARD AEC-671X PCI Ultra/W SCSI-3 
+> Host Adapter: 0    IO:1000, IRQ:11.
+> Oct  4 19:19:05 localhost kernel:          ID:  7  Host Adapter
+> Oct  4 19:19:05 localhost kernel: scsi0 : ACARD AEC-6710/6712/67160 PCI 
+> Ultra/W/LVD SCSI-3 Adapter Driver V2.6+ac
 
-CPL0 solution is certainly more localized, but I have hard problems
-to convice myself that it is actually safe.
+The card didn't see the scanner, check your cabling/setup.
 
-I would appreciate if you could add comments what values are set
-by ESPFIX_SWITCH_16 + 8 + 4 and simillar moves, and what they actually
-do.  And convicing myself that ESPFIX_SWITCH_32 has just right value so
-
-pushl %eax
-pushl %es
-lss ESPFIX_SWITCH_32,%esp
-popl %es
-popl %eax
-
-actually works took almost an hour...
-                                                    Petr
-                                                    
+Alan
 

@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbUENSI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbUENSQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbUENSI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 14:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbUENSI5
+	id S262003AbUENSQT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 14:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262006AbUENSQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 14:08:57 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:50900 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S261988AbUENSIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 14:08:53 -0400
-Date: Fri, 14 May 2004 11:07:06 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH][4/7] perfctr-2.7.2 for 2.6.6-mm2: PowerPC
-Message-ID: <20040514180706.GR2196@smtp.west.cox.net>
-References: <200405141411.i4EEBdvW018419@alkaid.it.uu.se>
+	Fri, 14 May 2004 14:16:19 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:53996 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262003AbUENSQS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 May 2004 14:16:18 -0400
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+From: Adam Litke <agl@us.ibm.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, akpm <akpm@osdl.org>,
+       fastboot@lists.osdl.org, drepper@redhat.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <m1wu3fy46w.fsf@ebiederm.dsl.xmission.com>
+References: <20040511212625.28ac33ef.rddunlap@osdl.org>
+	 <40A1AF53.3010407@redhat.com> <m13c66qicb.fsf@ebiederm.dsl.xmission.com>
+	 <40A243C8.401@redhat.com> <m1brktod3f.fsf@ebiederm.dsl.xmission.com>
+	 <40A2517C.4040903@redhat.com> <m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
+	 <20040512143233.0ee0405a.rddunlap@osdl.org>
+	 <m1wu3fy46w.fsf@ebiederm.dsl.xmission.com>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1084558463.9305.33.camel@agtpad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200405141411.i4EEBdvW018419@alkaid.it.uu.se>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 14 May 2004 11:14:23 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 14, 2004 at 04:11:39PM +0200, Mikael Pettersson wrote:
+On Thu, 2004-05-13 at 22:21, Eric W. Biederman wrote:
+> Also been work on x86-64 and ppc32.   So if we are going to reserve
+> syscall numbers  it would also be nice to have those reserved as well.
 
-> perfctr-2.7.2 for 2.6.6-mm2, part 4/7:
-[snip]
-> --- linux-2.6.6-mm2/drivers/perfctr/ppc.c	1970-01-01 01:00:00.000000000 +0100
-[snip]
-> +#define SPRN_MMCR0	0x3B8	/* 604 and up */
-[snip]
-> +#define MMCR2_RESERVED		(MMCR2_SMCNTEN | MMCR2_SMINTEN | MMCR2__RESERVED)
-
-All of these belong in <asm-ppc/reg.h>.
-
-[snip]
- +static int __init generic_init(void)
-> +{
-> +	static char generic_name[] __initdata = "PowerPC 60x/7xx/74xx";
-> +	unsigned int features;
-> +	enum pll_type pll_type;
-> +	unsigned int pvr;
-> +
-> +	features = PERFCTR_FEATURE_RDTSC | PERFCTR_FEATURE_RDPMC;
-> +	pvr = mfspr(SPRN_PVR);
-> +	switch( PVR_VER(pvr) ) {
-> +	case 0x0004: /* 604 */
-> +		pm_type = PM_604;
-> +		pll_type = PLL_NONE;
-> +		features = PERFCTR_FEATURE_RDTSC;
-> +		break;
-
-This should all be done with cputable bits I would think.
-arch/ppc/kernel/cputable.c and include/asm-ppc/cputable.h
-(CPU_FTR_PERFCTR_PLL_{NONE,604e,...) and then
-if (cur_cpu_spec[i]->cpu_features & CPU_FTR_PERFCTL_PLL_NONE)
-  pll_type = PLL_NONE
-
-Or might that be bigger, code wise, in the end?
+Don't forget about ppc64.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Adam Litke - (agl at us.ibm.com)
+IBM Linux Technology Center
+

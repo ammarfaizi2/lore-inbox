@@ -1,36 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283606AbRK3NOi>; Fri, 30 Nov 2001 08:14:38 -0500
+	id <S283612AbRK3NST>; Fri, 30 Nov 2001 08:18:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283608AbRK3NO2>; Fri, 30 Nov 2001 08:14:28 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:17332 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S283606AbRK3NOR>; Fri, 30 Nov 2001 08:14:17 -0500
-Date: Fri, 30 Nov 2001 14:12:26 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, miquels@cistron-office.nl
-Subject: Re: XT-PIC vs IO-APIC and PCI devices
-In-Reply-To: <Pine.LNX.4.33.0111301443190.23494-100000@netfinity.realnet.co.sz>
-Message-ID: <Pine.GSO.3.96.1011130140806.15249K-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S283652AbRK3NSK>; Fri, 30 Nov 2001 08:18:10 -0500
+Received: from TK212017087078.teleweb.at ([212.17.87.78]:30450 "EHLO
+	elch.elche") by vger.kernel.org with ESMTP id <S283651AbRK3NSB>;
+	Fri, 30 Nov 2001 08:18:01 -0500
+Date: Fri, 30 Nov 2001 14:16:16 +0100
+From: Armin Obersteiner <armin@xos.net>
+To: Greg KH <greg@kroah.com>
+Cc: Armin Obersteiner <armin@xos.net>, linux-kernel@vger.kernel.org
+Subject: Re: usb slow in >2.4.10
+Message-ID: <20011130141616.B25328@elch.elche>
+In-Reply-To: <20011130040719.A21515@elch.elche> <20011129202959.B8633@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011129202959.B8633@kroah.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Nov 2001, Zwane Mwaikambo wrote:
+hi!
 
-> 22:          0          0   IO-APIC-level  pentanet0 <==
+sorry, with no error messages i totally forgot:
 
- Do you have sources for the driver?  Last time I looked at the driver, it
-was binary-only (the distribution contained a copy of the GNU GPL, yet the
-vendor refused to release sources I asked for) and it seemed to be broken
-horribly.  Be happy at least it works for you with interrupts routed
-through the 8259A. 
+00:04.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 06) (prog-if 00 [UHCI])
+        Subsystem: Unknown device 0925:1234
+        Flags: bus master, medium devsel, latency 64, IRQ 9
+        I/O ports at cc00 [size=32]
 
--- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+i beleive thats on the VT82C686 chip, isn't it?
 
+Nov 24 12:52:21 elch kernel: uhci.c: USB Universal Host Controller Interface driver v1.1
+Nov 24 12:52:21 elch kernel: uhci.c: USB UHCI at I/O 0xd000, IRQ 9
+Nov 24 12:52:21 elch kernel: uhci.c: detected 2 ports
+
+for each of the 2 controllers.
+
+> On Fri, Nov 30, 2001 at 04:07:19AM +0100, Armin Obersteiner wrote:
+> > hi!
+> > 
+> > all my usb devices work, but they are very slow (12 times slower) with kernels
+> > 2.4.14 and higher. it definetly was ok with 2.4.10.
+> 
+> Which USB Host controller driver are you using?
+> 
+> thanks,
+> 
+> greg k-h
+
+MfG,
+	Armin Obersteiner
+--
+armin@xos.net                        pgp public key on request        CU

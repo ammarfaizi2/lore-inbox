@@ -1,107 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264262AbTKZR1W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 12:27:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTKZR1W
+	id S264239AbTKZRj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 12:39:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264264AbTKZRj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 12:27:22 -0500
-Received: from eva.fit.vutbr.cz ([147.229.10.14]:14854 "EHLO eva.fit.vutbr.cz")
-	by vger.kernel.org with ESMTP id S264262AbTKZR1Q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 12:27:16 -0500
-Date: Wed, 26 Nov 2003 17:36:28 +0100
-From: David Jez <dave.jez@seznam.cz>
-To: davej@redhat.com
-Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
-Subject: [patch] agpgart via KT400 cleanup & KM400 support
-Message-ID: <20031126163628.GA13010@stud.fit.vutbr.cz>
+	Wed, 26 Nov 2003 12:39:57 -0500
+Received: from dsl-sj-66-219-74-27.broadviewnet.net ([66.219.74.27]:20097 "EHLO
+	server.perens.com") by vger.kernel.org with ESMTP id S264239AbTKZRjy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 12:39:54 -0500
+Date: Wed, 26 Nov 2003 09:39:53 -0800
+To: linux-kernel@vger.kernel.org
+Cc: torvalds@osdl.org
+Subject: Signal left blocked after signal handler.
+Message-ID: <20031126173953.GA3534@perens.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3lcZGd9BuhuYXNfi"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.4i
+From: bruce@perens.com (Bruce Perens)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---3lcZGd9BuhuYXNfi
-Content-Type: multipart/mixed; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
+A signal should be blocked while its signal handler is executing, and
+then unblocked when the handler returns - unless SA_NOMASK is set.
 
+-test9 and -test10 leave the signal _blocked_forever_.
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This causes the build-time confidence test for Electric Fence to break,
+and no doubt lots of other code.
 
-  Hi,
+If SA_NOMASK is set, the signal is not blocked.
 
-  this patch cleans double KT400 definition and adds support for KM400. Ple=
-ase
-aply.
+Test program attached below.
 
-  Regards,
---=20
--------------------------------------------------------
-  David "Dave" Jez                Brno, CZ, Europe
- E-mail: dave.jez@seznam.cz
-PGP key: finger xjezda00@eva.fit.vutbr.cz
----------=3D[ ~EOF ]=3D------------------------------------
+	Thanks
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="agpgart-km400.diff"
-Content-Transfer-Encoding: quoted-printable
+	Bruce
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <signal.h>
+#include <setjmp.h>
 
- linux/drivers/char/agp/agp.h        |    3 +++
- linux/drivers/char/agp/agpgart_be.c |    4 ++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+static sigjmp_buf	sjbuf;
+static int		sig = SIGINT;
 
-diff -urN linux.orig/drivers/char/agp/agp.h linux/drivers/char/agp/agp.h
---- linux.orig/drivers/char/agp/agp.h	Mon Nov 24 16:19:35 2003
-+++ linux/drivers/char/agp/agp.h	Mon Nov 24 16:48:48 2003
-@@ -178,6 +178,9 @@
- #ifndef PCI_DEVICE_ID_VIA_8385_0
- #define PCI_DEVICE_ID_VIA_8385_0	0x3188
- #endif=20
-+#ifndef PCI_DEVICE_ID_VIA_8378_0
-+#define PCI_DEVICE_ID_VIA_8378_0      0x3205
-+#endif
- #ifndef PCI_DEVICE_ID_INTEL_810_0
- #define PCI_DEVICE_ID_INTEL_810_0       0x7120
- #endif
-diff -urN linux.orig/drivers/char/agp/agpgart_be.c linux/drivers/char/agp/a=
-gpgart_be.c
---- linux.orig/drivers/char/agp/agpgart_be.c	Mon Nov 24 16:20:07 2003
-+++ linux/drivers/char/agp/agpgart_be.c	Mon Nov 24 16:49:39 2003
-@@ -6334,11 +6334,11 @@
- 		"Via",
- 		"Apollo Pro KT400",
- 		via_generic_setup },
--        { PCI_DEVICE_ID_VIA_8377_0,
-+        { PCI_DEVICE_ID_VIA_8378_0,
- 		PCI_VENDOR_ID_VIA,
- 		VIA_APOLLO_KT400,
- 		"Via",
--		"Apollo Pro KT400",
-+		"Apollo Pro KM400",
- 		via_generic_setup },
-         { PCI_DEVICE_ID_VIA_CLE266,
- 		PCI_VENDOR_ID_VIA,
+static void
+handler(int i)
+{
+	struct sigaction	act;
 
---ikeVEW9yuYc//A+q--
+	memset((void *)&act, 0, sizeof(act));
+	act.sa_handler = SIG_DFL;
 
---3lcZGd9BuhuYXNfi
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	fprintf(stderr, "Signal handler hit!\n");
+	fflush(stderr);
+	sigaction(sig, &act, 0);
+	siglongjmp(sjbuf, 1);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+}
 
-iD8DBQE/xNaIr2Hs6iMo1GgRAqVyAJ4u6KiWklKhtQxsKqe5q2jiqmxYkwCePVul
-KuAq3HlvQWsq5D8uK93haz4=
-=jbDh
------END PGP SIGNATURE-----
+static void
+invoke_signal()
+{
+	struct sigaction	act;
 
---3lcZGd9BuhuYXNfi--
+	memset((void *)&act, 0, sizeof(act));
+	act.sa_handler = handler;
+
+	/* act.sa_flags = SA_NOMASK; */
+
+	if ( sigsetjmp(sjbuf, 0) == 0 ) {
+		sigaction(sig, &act, 0);
+		fprintf(stderr, "Sending signal... ");
+		fflush(stderr);
+		kill(getpid(), sig);
+		fprintf(stderr, "Huh? Nothing happened. Signal was left blocked.\n");
+	}
+}
+
+int
+main(int argc, char * * argv)
+{
+	sigset_t	set;
+
+	sigemptyset(&set);
+	sigaddset(&set, sig);
+
+	invoke_signal();
+	invoke_signal();
+	fprintf(stderr, "Unblocking signal... ");
+	if ( sigsetjmp(sjbuf, 0) == 0 ) {
+		sigprocmask(SIG_UNBLOCK,  &set, 0);
+	}
+
+	return 0;
+}

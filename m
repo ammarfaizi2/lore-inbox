@@ -1,77 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVCGFey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVCGFlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261652AbVCGFey (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 00:34:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261675AbVCGFex
+	id S261630AbVCGFlG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 00:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVCGFlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 00:34:53 -0500
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:1183 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261652AbVCGFeX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 00:34:23 -0500
-Message-ID: <422BE7DA.5040304@yahoo.com.au>
-Date: Mon, 07 Mar 2005 16:34:18 +1100
+	Mon, 7 Mar 2005 00:41:06 -0500
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:29521 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261630AbVCGFlE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 00:41:04 -0500
+Message-ID: <422BE96E.9040006@yahoo.com.au>
+Date: Mon, 07 Mar 2005 16:41:02 +1100
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-CC: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+To: Willy Tarreau <willy@w.ods.org>
+CC: Ben Greear <greearb@candelatech.com>,
+       Christian Schmid <webmaster@rapidforum.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 10/13] remove aggressive idle balancing
-References: <1109229491.5177.71.camel@npiggin-nld.site> <1109229542.5177.73.camel@npiggin-nld.site> <1109229650.5177.78.camel@npiggin-nld.site> <1109229700.5177.79.camel@npiggin-nld.site> <1109229760.5177.81.camel@npiggin-nld.site> <1109229867.5177.84.camel@npiggin-nld.site> <1109229935.5177.85.camel@npiggin-nld.site> <1109230031.5177.87.camel@npiggin-nld.site> <20050224084118.GB10023@elte.hu> <421DC4DA.7000102@yahoo.com.au> <20050305214336.A9085@unix-os.sc.intel.com>
-In-Reply-To: <20050305214336.A9085@unix-os.sc.intel.com>
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+References: <4229E805.3050105@rapidforum.com> <422BAAC6.6040705@candelatech.com> <422BB548.1020906@rapidforum.com> <422BC303.9060907@candelatech.com> <422BE33D.5080904@yahoo.com.au> <20050307053032.GA30052@alpha.home.local>
+In-Reply-To: <20050307053032.GA30052@alpha.home.local>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Siddha, Suresh B wrote:
-
+Willy Tarreau wrote:
+> On Mon, Mar 07, 2005 at 04:14:37PM +1100, Nick Piggin wrote:
+>  
 > 
-> By code inspection, I see an issue with this patch
-> 	[PATCH 10/13] remove aggressive idle balancing
+>>I think you would have better luck in reproducing this problem if you
+>>did the full sendfile thing.
+>>
+>>I think it is becoming disk bound due to page reclaim problems, which
+>>is causing the slowdown.
+>>
+>>In that case, writing the network only test would help to confirm the
+>>problem is not a networking one - so not useless by any means.
 > 
-> Why are we removing cpu_and_siblings_are_idle check from active_load_balance?
-> In case of SMT, we  want to give prioritization to an idle package while
-> doing active_load_balance(infact, active_load_balance will be kicked
-> mainly because there is an idle package) 
 > 
-> Just the re-addition of cpu_and_siblings_are_idle check to 
-> active_load_balance might not be enough. We somehow need to communicate 
-> this to move_tasks, otherwise can_migrate_task will fail and we will 
-> never be able to do active_load_balance.
+> Not necessarily, Nick. I have written an HTTP testing tool which matches
+> the description of Ben's : non-blocking, single-threaded, no disk I/O,
+> etc... It works flawlessly under 2.4, and gives me random numbers in 2.6,
+
+No you're right, I'm not 100% sure, so I'm definitely not saying
+Ben's test will be useless. Just that if it is not too hard to
+make one with sendfile, I think he should.
+
+If he makes a network-only version and cannot reproduce the problems,
+that *doesn't* mean it is *not* a network problem. However if he
+reproduces the problem with a full sendfile version and not the network
+only one, then that is a better indicator... but I'm rambling.
+
+> especially if I start some CPU activity on the system, I can get pauses
+> of up to 13 seconds without this tool doing anything !!! At first I
+> believed it was because of the scheduler, but it might also be related
+> to what is described here since I had somewhat the same setup (gigE, 1500,
+> thousands of sockets). I never had enough time to investigate more, so I
+> went back to 2.4.
 > 
 
-Active balancing should only kick in after the prescribed number
-of rebalancing failures - can_migrate_task will see this, and
-will allow the balancing to take place.
-
-That said, we currently aren't doing _really_ well for SMT on
-some workloads, however with this patch we are heading in the
-right direction I think.
-
-I have been mainly looking at tuning CMP Opterons recently (they
-are closer to a "traditional" SMP+NUMA than SMT, when it comes
-to the scheduler's point of view). However, in earlier revisions
-of the patch I had been looking at SMT performance and was able
-to get it much closer to perfect:
-
-I was working on a 4 socket x440 with HT. The problem area is
-usually when the load is lower than the number of logical CPUs.
-So on tbench, we do say 450MB/s with 4 or more threads without
-HT, and 550MB/s with 8 or more threads with HT, however we only
-do 300MB/s with 4 threads.
-
-Those aren't the exact numbers, but that's basically what they
-look like. Now I was able to bring the 4 thread + HT case much
-closer to the 4 thread - HT numbers, but with earlier patchsets.
-When I get a chance I will do more tests on the HT system, but
-the x440 is infuriating for fine tuning performance, because it
-is a NUMA system, but it doesn't tell the kernel about it, so
-it will randomly schedule things on "far away" CPUs, and results
-vary.
-
-PS. Another thing I would like to see tested is a 3 level domain
-setup (SMT + SMP + NUMA). I don't have access to one though.
+I have heard other complaints about this, and they are definitely
+related to the scheduler (not saying yours is, but it is very possible).
 

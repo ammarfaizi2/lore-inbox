@@ -1,55 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269810AbTGKGys (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 02:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269811AbTGKGys
+	id S269812AbTGKHHW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 03:07:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269813AbTGKHHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 02:54:48 -0400
-Received: from AMarseille-201-1-5-121.w217-128.abo.wanadoo.fr ([217.128.250.121]:62503
-	"EHLO gaston") by vger.kernel.org with ESMTP id S269810AbTGKGyq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 02:54:46 -0400
-Subject: Re: Linux 2.5.75
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-In-Reply-To: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
-References: <Pine.LNX.4.44.0307101405490.4560-100000@home.osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1057907355.505.28.camel@gaston>
+	Fri, 11 Jul 2003 03:07:22 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:18642 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269812AbTGKHGj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 03:06:39 -0400
+Date: Fri, 11 Jul 2003 09:20:28 +0200
+From: Jens Axboe <axboe@suse.de>
+To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+Cc: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: cciss updates for 2.4.22-pre3  [1 of 6]
+Message-ID: <20030711072028.GB843@suse.de>
+References: <D4CFB69C345C394284E4B78B876C1CF104052A5D@cceexc23.americas.cpqcorp.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 11 Jul 2003 09:09:15 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF104052A5D@cceexc23.americas.cpqcorp.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-07-10 at 23:14, Linus Torvalds wrote:
-> Ok. This is it. We (Andrew and me) are going to start a "pre-2.6" series,
-> where getting patches in is going to be a lot harder. This is the last
-> 2.5.x kernel, so take note.
-> 
-> The probably most notable thing here is the anticipatory scheduler,
-> which has been in -mm for a long time, and was the major piece that
-> hadn't been merged. 
-> 
-> Some architecture updates: cris has been updated for 2.5, ia64 and arm26 
-> updates etc.  And various random (smallish) things.
+On Thu, Jul 10 2003, Miller, Mike (OS Dev) wrote:
+> These patches can be installed in any order EXCEPT the final 2 of the
+> 6. They are name p1* & p2* respectively.
 
-Hi Linus !
+Mike, the 6 patches all look fine to me. However, your mailer has
+screwed them up. There are random line breaks in there. For (partly, at
+least) broken mailers, attachments are sometimes more reliable.
 
-I'm quite concerned about Power Management. Patrick haven't yet merged
-the new implementation which changes the driver-side semantics to
-something sane and your above mail seem to imply this is now too late.
-
-While I agree these should have been merged a lot earlier, I'm also
-annoyed by the fact that the existing save_state/suspend semantics
-are just plain broken...
-
-What do you plan on this regard ? Patrick, do you still need to hold
-your patch until OLS ? They should get in now, that won't prevent
-you from doing your paper ;)
-
-Ben.
+-- 
+Jens Axboe
 

@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbUKQPd4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262349AbUKQPhp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262346AbUKQPd4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 10:33:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262349AbUKQPd4
+	id S262349AbUKQPhp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 10:37:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbUKQPhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 10:33:56 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:44246 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262346AbUKQPdI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 10:33:08 -0500
-Date: Tue, 16 Nov 2004 17:30:59 -0800
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: janitor@sternwelten.at
-Cc: netdev@oss.sgi.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org
-Subject: Re: [PATCH] Add ssleep_interruptible()
-Message-ID: <20041117013059.GA4218@us.ibm.com>
-References: <E1CO1vc-00022t-N2@sputnik> <20041101200749.GF1730@us.ibm.com>
+	Wed, 17 Nov 2004 10:37:45 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:44269 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262343AbUKQPhg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 10:37:36 -0500
+Date: Wed, 17 Nov 2004 16:37:07 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-ide@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH (for comment): ide-cd possible race in PIO mode
+Message-ID: <20041117153706.GH26240@suse.de>
+References: <1100697589.32677.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041101200749.GF1730@us.ibm.com>
-X-Operating-System: Linux 2.6.9-test-acpi (i686)
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1100697589.32677.3.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 01, 2004 at 12:07:49PM -0800, Nishanth Aravamudan wrote:
-> Description: Adds ssleep_interruptible() to allow longer delays to occur
-> in TASK_INTERRUPTIBLE, similarly to ssleep(). To be consistent with
-> msleep_interruptible(), ssleep_interruptible() returns the remaining time
-> left in the delay in terms of seconds. This required dividing the return
-> value of msleep_interruptible() by 1000, thus a cast to (unsigned long)
-> to prevent any floating point issues.
+On Wed, Nov 17 2004, Alan Cox wrote:
+> Working on tracing down Fedora bug #115458
+> (https://bugzilla.redhat.com/bugzilla/process_bug.cgi) I found what
+> appears to be a race between the IDE CD driver and the hardware status.
+> It doesn't appear to explain the bug at all but it does look like a bug
+> of itself
 > 
-> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+> When we issue an ide command the status bits don't become valid for
+> 400nS. In the DMA case ide_execute_command handles this but in the PIO
+> case we don't do the needed locking, use OUTBSYNC to avoid posting or
+> delay. This means that in some situations we can execute the command
+> handler in PIO mode before the command status bits are valid and the
+> handler may read and act wrongly.
 > 
-> --- 2.6.10-rc1-vanilla/include/linux/delay.h	2004-10-30 
-> 15:34:03.000000000 -0700
-> +++ 2.6.10-rc1/include/linux/delay.h	2004-11-01 12:06:11.000000000 -0800
-> @@ -46,4 +46,9 @@ static inline void ssleep(unsigned int s
-> 	msleep(seconds * 1000);
-> }
-> 
-> +static inline unsigned long ssleep_interruptible(unsigned int seconds)
-> +{
-> +	return (unsigned long)(msleep_interruptible(seconds * 1000) / 1000);
-> +}
-> +
-> #endif /* defined(_LINUX_DELAY_H) */
+> --- drivers/ide/ide-cd.c~	2004-11-17 14:08:42.950485320 +0000
+> +++ drivers/ide/ide-cd.c	2004-11-17 14:08:42.951485168 +0000
+> @@ -897,7 +897,10 @@
+>  		return ide_started;
+>  	} else {
+>  		/* packet command */
+> -		HWIF(drive)->OUTB(WIN_PACKETCMD, IDE_COMMAND_REG);
+> +		spin_lock_irqsave(&ide_lock, flags);
+> +		HWIF(drive)->OUTBSYNC(WIN_PACKETCMD, IDE_COMMAND_REG);
+> +		ndelay(400);
+> +		spin_unlock_irqsave(&ide_lock, flags);
+>  		return (*handler) (drive);
+>  	}
+>  }
 
-After a discussion on IRC, I believe it is pretty clear that this
-function has serious issues. Mainly, that if I request a delay of 1
-second, but msleep_interruptible() returns after 1 millisecond, then
-ssleep_interruptible() will return 0, claiming the entire delay was
-used (due to rounding).
+What good does the lock do?
 
-Perhaps we should just be satisfied with milliseconds being the grossest
-(in contrast to fine) measure of time, at least in terms of
-interruptible delays. ssleep() is unaffected by this problem, of course.
+-- 
+Jens Axboe
 
-Please revert this patch, if applied, as well as any of the other
-patches I sent using ssleep_interruptible() [only a handful].
-
-Thanks,
-Nish

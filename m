@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261739AbTCLBMv>; Tue, 11 Mar 2003 20:12:51 -0500
+	id <S261747AbTCLBSF>; Tue, 11 Mar 2003 20:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261694AbTCLBMv>; Tue, 11 Mar 2003 20:12:51 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:39873
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261691AbTCLBMu>; Tue, 11 Mar 2003 20:12:50 -0500
-Subject: Re: [PATCH] (8/8) Kill brlock
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, shemminger@osdl.org,
+	id <S261716AbTCLBSF>; Tue, 11 Mar 2003 20:18:05 -0500
+Received: from modemcable092.130-200-24.mtl.mc.videotron.ca ([24.200.130.92]:18664
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S261694AbTCLBSE>; Tue, 11 Mar 2003 20:18:04 -0500
+Date: Tue, 11 Mar 2003 20:25:40 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Stephen Hemminger <shemminger@osdl.org>
+cc: Linus Torvalds <torvalds@transmeta.com>, David Miller <davem@redhat.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-net@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0303111644060.3002-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0303111644060.3002-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1047436263.20968.5.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 12 Mar 2003 02:31:03 +0000
+       "" <linux-net@vger.kernel.org>
+Subject: Re: [PATCH] (5/8) Eliminate brlock from netfilter
+In-Reply-To: <1047428094.15872.105.camel@dell_ss3.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.50.0303112016580.6957-100000@montezuma.mastecende.com>
+References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
+ <1047428094.15872.105.camel@dell_ss3.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-03-12 at 00:44, Linus Torvalds wrote:
-> On Tue, 11 Mar 2003, David S. Miller wrote:
-> >    
-> > Ok, I'm fine with this then.  Linus you can apply all of his patches.
-> 
-> I'm a lazy bum, and I would _really_ want this tested more before it hits 
-> my tree. I think it makes sense, but still..
+On Tue, 11 Mar 2003, Stephen Hemminger wrote:
 
-If Linus is scared ;) then throw them at me for -ac by all means. Anyone
-running -ac IDE test sets is brave enough to run rcu network code 8)
+>  void nf_unregister_hook(struct nf_hook_ops *reg)
+>  {
+> -	br_write_lock_bh(BR_NETPROTO_LOCK);
+> +	spin_lock_bh(&nf_lock);
+>  	list_del(&reg->list);
+> -	br_write_unlock_bh(BR_NETPROTO_LOCK);
+> +	spin_unlock_bh(&nf_lock);
+> +
+> +	synchronize_kernel();
+>  }
 
+Won't that have to be list_del_rcu there?
+
+	Zwane
+-- 
+function.linuxpower.ca

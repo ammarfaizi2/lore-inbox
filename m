@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbTJNP2K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 11:28:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbTJNP2K
+	id S262522AbTJNPXN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 11:23:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbTJNPXN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 11:28:10 -0400
-Received: from colin2.muc.de ([193.149.48.15]:51726 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S262557AbTJNP2J (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 11:28:09 -0400
-Date: 14 Oct 2003 17:28:26 +0200
-Date: Tue, 14 Oct 2003 17:28:26 +0200
-From: Andi Kleen <ak@colin2.muc.de>
-To: Jens Axboe <axboe@suse.de>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ide barrier support, #2
-Message-ID: <20031014152826.GA9391@colin2.muc.de>
-References: <GurO.7cg.43@gated-at.bofh.it> <m3zng4ou90.fsf@averell.firstfloor.org> <20031014125723.GR1107@suse.de> <20031014150807.GA99122@colin2.muc.de> <20031014151230.GS1107@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031014151230.GS1107@suse.de>
-User-Agent: Mutt/1.4.1i
+	Tue, 14 Oct 2003 11:23:13 -0400
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:31124
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S262522AbTJNPXL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 11:23:11 -0400
+From: John Mock <kd6pag@qsl.net>
+To: linux-kernel@vger.kernel.org
+Originally-cc: Ben Collins <bcollins@debian.org>
+Subject: Re: slab corruption of hpsb_packet from ohci1394 + sbp2 on 2.6.0-test7
+Message-Id: <E1A9R0v-0001Ui-00@penngrove.fdns.net>
+Date: Tue, 14 Oct 2003 08:23:09 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> See the patch, WRITESYNC is used solely internally in raid1.
-> WRITEBARRIER is a bitmask of BIO_RW and BIO_RW_BARRIER and that is what
-> you want. I'll make that more clear. Writes will not be reordered around
-> the barrier either, btw.
+[Resending again due to broken DNS apparently causing messages to be rejected.]
 
-It would be still misnamed. I want a flush and not a barrier.
+Thank you very much, Ben, for a most helpful response.  Getting the 'tarball' 
+from:
+	http://www.linux1394.org/viewcvs/
 
-Anyways, when you apply the patch just change the cmd that what
-you think is right.
+and using its directory 'ieee1394/trunk/' in place of '.../drivers/ieee394'
+indeed allows 'modprobe ohci1394' to succeed and CD/RW operations to occur.
+There are still glitches, though, as 'rmmod sbp2' or 'rmmod ohci1394' give 
+me backtrace(s), bug reports of which have been sent privately (and will 
+be cheerfully provided upon request).  Software suspend also does not work
+properly with the associated device, but i have no idea whether that ever
+worked and does not appear to affect other non-CD/RW operations.
 
--Andi
+I will provide a summary of other VAIO R505EL issues with 2.6.0-test* in a
+separate post after i've gotten further with debugging an 'ide-cs' problem.
+
+Thanks again for the bug fix, as now i should be able to run a more modern
+kernel to write data CDs.
+				-- JM
+
+
+P.S. Reading via WWW archive rather than subscribing; please reply directly
+if you want something to be seen quickly.

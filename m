@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVDEJXP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVDEJ04@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVDEJXP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 05:23:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVDEJXN
+	id S261660AbVDEJ04 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 05:26:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVDEJ0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 05:23:13 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:43666 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261649AbVDEJWo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 05:22:44 -0400
-Subject: Re: [PATCH 00/04] Load keyspan firmware with hotplug
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Jan Harkes <jaharkes@cs.cmu.edu>, Greg KH <greg@kroah.com>,
-       Sven Luther <sven.luther@wanadoo.fr>,
-       Michael Poole <mdpoole@troilus.org>, debian-legal@lists.debian.org,
-       debian-kernel@lists.debian.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200504042351.22099.dtor_core@ameritech.net>
-References: <20050404100929.GA23921@pegasos>
-	 <20050404191745.GB12141@kroah.com>
-	 <20050405042329.GA10171@delft.aura.cs.cmu.edu>
-	 <200504042351.22099.dtor_core@ameritech.net>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 11:22:06 +0200
-Message-Id: <1112692926.8263.125.camel@pegasus>
+	Tue, 5 Apr 2005 05:26:54 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:54300 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261654AbVDEJZK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 05:25:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=bzFaE111bZCHGDFd1LyAwntz6zDS/Ja1u2tVym7kkna2JyX1uLzkLI42B2NFSfFJKg8IqbzAIJI1yAli60Row5Az2gY041b0jz4ct5bONlLwTP/l0aTe7yJSjgY8R3sfGjA+Exbx3tgnIB89a0y9JxSOBfWBU3t8Tr4Pt06i4Bo=
+Message-ID: <21d7e997050405022560e3f62f@mail.gmail.com>
+Date: Tue, 5 Apr 2005 19:25:10 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Paul Mackerras <paulus@samba.org>
+Subject: Re: 2.6.12-rc2-mm1
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+References: <20050405000524.592fc125.akpm@osdl.org>
+	 <20050405074405.GE26208@infradead.org>
+	 <21d7e99705040502073dfa5e5@mail.gmail.com>
+	 <16978.22617.338768.775203@cargo.ozlabs.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jan,
-
-> > > > Mmm, probably that 2001 discussion about the keyspan firmware, right ?
-> > > > 
-> > > >   http://lists.debian.org/debian-legal/2001/04/msg00145.html
-> > > > 
-> > > > Can you summarize the conclusion of the thread, or what you did get from it,
-> > > > please ? 
-> > > 
-> > > That people didn't like the inclusion of firmware, I posted how you can
-> > > fix it by moving it outside of the kernel, and asked for patches.
-> > > 
-> > > None have come.
-> > 
-> > Didn't know you were waiting for it. How about something like the
-> > following series of patches?
-> > 
-> > [01/04] - add simple Intel IHEX format parser to the firmware loader.
 > 
-> Firmware loader is format-agnostic, I think having IHEX parser in a separate
-> file would be better...
+> > Paulus these look like your patches care to update them with the "new"
+> > method of doing stuff..
+> 
+> What are we going to do about the DRM CVS?  Change it to the new way
+> and break everyone running 2.6.10 or earlier, or leave it at the old
+> way that will work for people with distro kernels, and have a
+> divergence between it and what's in the kernel?
 
-I agree with Dmitry on this point. The IHEX parser should not be inside
-firmware_class.c. What about using keyspan_ihex.[ch] for it?
+Yet more backwards compatibility is more than likely going to be
+needed, but if it is a biggie I'd be happy to drop the older 32/64-bit
+stuff from CVS and make it contingent on having 2.6.11 or greater as
+it is a new feature anyways and hasn't seen a release yet...
 
-Regards
+> 
+> Also, the compat_ioctl method is called without the BKL held, unlike
+> the ioctl method.  What impact will that have?  Do we need to take the
+> BKL in the compat_ioctl method?
 
-Marcel
+I don't think so as the DRM has its own locking that handles most of
+the issues at a higher level... I've been thinking of switching DRM to
+ioctl_unlocked but I'd really want someone with an SMP system to beat
+on it .. (not that the DRI has a great record on SMP anyways..)
 
+Dave.
 
+Dave.

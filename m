@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVASWS0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVASWSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbVASWS0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 17:18:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261925AbVASWPy
+	id S261940AbVASWSc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 17:18:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVASWQn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 17:15:54 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:40632 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261933AbVASWOY
+	Wed, 19 Jan 2005 17:16:43 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:23548 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261947AbVASWOh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 17:14:24 -0500
-Subject: Re: 2.6.10-mm1 hang
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: linux-os@analogic.com
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0501191658020.11665@chaos.analogic.com>
-References: <1106153215.3577.134.camel@dyn318077bld.beaverton.ibm.com>
-	 <20050119133136.7a1c0454.akpm@osdl.org>
-	 <Pine.LNX.4.61.0501191658020.11665@chaos.analogic.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1106171094.3577.156.camel@dyn318077bld.beaverton.ibm.com>
+	Wed, 19 Jan 2005 17:14:37 -0500
+Date: Wed, 19 Jan 2005 13:39:38 -0800
+From: Greg KH <greg@kroah.com>
+To: dtor_core@ameritech.net
+Cc: Hannes Reinecke <hare@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Vojtech Pawlik <vojtech@suse.cz>
+Subject: Re: [PATCH 0/2] Remove input_call_hotplug
+Message-ID: <20050119213938.GB4151@kroah.com>
+References: <41ED23A3.5020404@suse.de> <20050118213002.GA17004@kroah.com> <d120d50005011813495b49907c@mail.gmail.com> <20050118215820.GA17371@kroah.com> <d120d500050118142068157a78@mail.gmail.com> <20050119013133.GD23296@kroah.com> <41EE4AE0.9030308@suse.de> <d120d500050119063040de00a7@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 19 Jan 2005 13:44:54 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d500050119063040de00a7@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-01-19 at 14:01, linux-os wrote:
-> On Wed, 19 Jan 2005, Andrew Morton wrote:
+On Wed, Jan 19, 2005 at 09:30:14AM -0500, Dmitry Torokhov wrote:
+> If I understand correctly we do not have subclasses so it will look like
+> class
+> |- input_device
+> |  |- input0
+> |  |- input1
+> |
+> |- input
+> |  |-event0
+> |  |-event1
+> |  |-mouse0
 > 
-> > Badari Pulavarty <pbadari@us.ibm.com> wrote:
-> >>
-> >> I was playing with kexec+kdump and ran into this on 2.6.10-mm1.
-> >>  I have seen similar behaviour on 2.6.10.
-> >>
-> >>  I am using a 4-way P-III machine. I have a module which tries
-> >>  gets same spinlock twice. When I try to "insmod" this module,
-> >>  my system hangs. All my windows froze, no more new logins,
-> >>  console froze, doesn't respond to sysrq. I wasn't expecting
-> >>  a system hang. Why ? Ideas ?
-> >>
-> >
-> > Maybe all the other CPUs are stuck trying to send an IPI to this one?  An
-> > NMI watchdog trace would tell.
-> >
-> >>  #include <linux/init.h>
-> >>  #include <asm/uaccess.h>
-> >>  #include <linux/spinlock.h>
-> >>  spinlock_t mylock = SPIN_LOCK_UNLOCKED;
-> >>  static int __init panic_init(void)
-> >>  {
-> >>          spin_lock_irq(&mylock);
-> >>          spin_lock_irq(&mylock);
-> >>         return 1;
-> >>  }
-> > -
-> 
-> What would you expect this to do? After the first lock is
-> obtained, the second MUST fail forever or else the spin-lock
-> doesn't work. The code, above, just proves that spin-locks
-> work!
-> 
+> So breakage is really minimal.
 
-I was expecting that one CPU will spin for the lock, while
-3 other CPUs do real useful work (on 4-proc machine). Instead
-my machine is hung - all my windows froze up, no more "ssh",
-doesn't respond to sysrq to get traces. Only thing it does is,
-respond to "ping".
+I really want classes to be able to have "parent" classes someday.  It's
+not that tough of a change to the driver core, if someone wants to do
+the work.  That would enable this input stuff to be cleaner, right?
 
-Thanks,
-Badari
+It would also allow us to move the /sys/block stuff to use classes,
+which it can't right now due to the lack of the parent ability.
 
+thanks,
+
+greg k-h

@@ -1,29 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbUKEUpa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUKEUrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbUKEUpa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 15:45:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUKEUpa
+	id S261205AbUKEUrV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 15:47:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbUKEUrU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 15:45:30 -0500
-Received: from mail.kroah.org ([69.55.234.183]:56795 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261192AbUKEUpK (ORCPT
+	Fri, 5 Nov 2004 15:47:20 -0500
+Received: from soundwarez.org ([217.160.171.123]:58830 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261218AbUKEUpd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 15:45:10 -0500
-Date: Fri, 5 Nov 2004 12:43:52 -0800
-From: Greg KH <greg@kroah.com>
+	Fri, 5 Nov 2004 15:45:33 -0500
+Date: Fri, 5 Nov 2004 21:45:39 +0100
+From: Kay Sievers <kay.sievers@vrfy.org>
 To: Ashok Raj <ashok.raj@intel.com>
-Cc: Kay Sievers <kay.sievers@vrfy.org>, Adrian Bunk <bunk@stusta.de>,
+Cc: Greg KH <greg@kroah.com>, Adrian Bunk <bunk@stusta.de>,
        Andrew Morton <akpm@osdl.org>, rml@novell.com,
        linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
-       acpi-devel@lists.sourceforge.net, rusty@rustycorp.com.au.kroah.org
+       acpi-devel@lists.sourceforge.net, rusty@rustycorp.com.au
 Subject: Re: 2.6.10-rc1-mm3: ACPI problem due to un-exported hotplug_path
-Message-ID: <20041105204352.GB1204@kroah.com>
+Message-ID: <20041105204539.GA24175@vrfy.org>
 References: <20041105201012.GA24063@vrfy.org> <20041105123254.A17224@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20041105123254.A17224@unix-os.sc.intel.com>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -74,11 +74,14 @@ On Fri, Nov 05, 2004 at 12:32:56PM -0800, Ashok Raj wrote:
 > 
 > I dont know if adding ONLINE/OFFLINE is the right thing, or use the CHANGE notification 
 > to inform. 
+> 
+> This is an area that needs more though which is slightly different from how other devices are being handled.
 
-That's fine.  But call kobject_hotplug() if you want to do that.  Don't
-rewrite your own function, or you will loose out on a lot of the hotplug
-functionality (sequence numbers, kevent notifications, etc.)
+There is already an "offline" event used for cpu's in drivers/base/cpu.c.
+It was recently converted from calling /sbin/hotplug directly :)
 
-thanks,
+ChangeSet: 1.2021
+http://linus.bkbits.net:8080/linux-2.5/patch@1.2021?nav=index.html|src/|src/kernel|related/kernel/cpu.c|cset@1.2021
 
-greg k-h
+Kay
+

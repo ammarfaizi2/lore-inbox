@@ -1,72 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265893AbUGAPT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265897AbUGAP0k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265893AbUGAPT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 11:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265897AbUGAPT1
+	id S265897AbUGAP0k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 11:26:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265906AbUGAP03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 11:19:27 -0400
-Received: from mailgate01.slac.stanford.edu ([134.79.18.80]:55258 "EHLO
-	mailgate01.slac.stanford.edu") by vger.kernel.org with ESMTP
-	id S265893AbUGAPTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 11:19:25 -0400
-Date: Thu, 1 Jul 2004 08:19:06 -0700 (PDT)
-From: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
-X-X-Sender: gowdy@antonia.sgowdy.org
-Reply-To: "Stephen J. Gowdy" <gowdy@slac.stanford.edu>
-To: Duncan Sands <baldrick@free.fr>
-cc: linux-usb-users@lists.sourceforge.net, janne <sniff@xxx.ath.cx>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Linux-usb-users] linux 2.6.6, bttv and usb2 data corruption &
- lockups & poor performance
-In-Reply-To: <200407011623.09559.baldrick@free.fr>
-Message-ID: <Pine.LNX.4.58.0407010817440.4677@antonia.sgowdy.org>
-References: <Pine.LNX.4.40.0407010017360.1548-100000@xxx.xxx>
- <200407010904.39925.baldrick@free.fr> <Pine.LNX.4.58.0407010704570.4677@antonia.sgowdy.org>
- <200407011623.09559.baldrick@free.fr>
+	Thu, 1 Jul 2004 11:26:29 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:54427 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S265897AbUGAP01
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 11:26:27 -0400
+From: Duncan Sands <baldrick@free.fr>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [Linux-usb-users] linux 2.6.6, bttv and usb2 data corruption & lockups & poor performance
+Date: Thu, 1 Jul 2004 17:26:24 +0200
+User-Agent: KMail/1.6.2
+Cc: linux-usb-users@lists.sourceforge.net, janne <sniff@xxx.ath.cx>,
+       <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44L0.0407011107270.1083-100000@ida.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0407011107270.1083-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200407011726.24592.baldrick@free.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Normally I assume Mb/s is mega-bits and MB/s is mega-bytes. Of course I
-guess the author of the post should clarify if I've made the wrong
-assumption (and you didn't).
+Hi Alan,
 
-On Thu, 1 Jul 2004, Duncan Sands wrote:
+> > I get hard hangs with a Bt878 + disk activity (every time it hangs,
+> > the disk activity LED is on).  But I don't have usb2.  However I have
+> > a similar processor, Athlon XP 2100+, and motherboard, VIA KT333.
+> > I'm also using reiserfs (where an OOPS occurred in your system logs).
+> > I also have a realtek 8139 ethernet card.  We both have VIA usb 1.1
+> > controllers.  My hangs happen with both 2.4 and 2.6 kernels.  I only
+> > get hangs if I'm using the bttv card.
+> 
+> Is it possible that you are exceeding the capacity of your PCI bus?
 
-> On Thursday 01 July 2004 16:06, Stephen J. Gowdy wrote:
-> > On Thu, 1 Jul 2004, Duncan Sands wrote:
-> >
-> > > > First of all, usb2 throughput was disappointing, i only got about
-> > > > 5-15MB/s (usually about 8MB/s) while the manufacturer claims sustained
-> > > > datarate of 35MB/s.
-> > >
-> > > Are you sure you plugged your device into a usb 2 port, and not a usb
-> > > 1.1 port? Also, some products claim to be usb 2 devices, when they are
-> > > in fact only usb 1.1.
-> >
-> > 1.1 devices would only get less than 1MB/s.
->
-> Ah, I misread it as 8 M bits / s, which is max 1.1 speed.
->
-> Bye, Duncan.
->
->
-> -------------------------------------------------------
-> This SF.Net email sponsored by Black Hat Briefings & Training.
-> Attend Black Hat Briefings & Training, Las Vegas July 24-29 -
-> digital self defense, top technical experts, no vendor pitches,
-> unmatched networking opportunities. Visit www.blackhat.com
-> _______________________________________________
-> Linux-usb-users@lists.sourceforge.net
-> To unsubscribe, use the last form field at:
-> https://lists.sourceforge.net/lists/listinfo/linux-usb-users
->
+I guess so, but that's no reason to hang...  Or is overloading the PCI
+bus somehow problematic?
 
---
- /------------------------------------+-------------------------\
-|Stephen J. Gowdy                     | SLAC, MailStop 34,       |
-|http://www.slac.stanford.edu/~gowdy/ | 2575 Sand Hill Road,     |
-|http://calendar.yahoo.com/gowdy      | Menlo Park CA 94025, USA |
-|EMail: gowdy@slac.stanford.edu       | Tel: +1 650 926 3144     |
- \------------------------------------+-------------------------/
+Ciao,
+
+Duncan.

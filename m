@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267487AbUHaIxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267536AbUHaIyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267487AbUHaIxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 04:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267540AbUHaIvj
+	id S267536AbUHaIyb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 04:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267549AbUHaIxg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 04:51:39 -0400
-Received: from colin2.muc.de ([193.149.48.15]:44550 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S267487AbUHaIuA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 04:50:00 -0400
-Date: 31 Aug 2004 10:49:53 +0200
-Date: Tue, 31 Aug 2004 10:49:53 +0200
-From: Andi Kleen <ak@muc.de>
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]atomic_inc_return() for i386/x86_64 (Re: RCU issue with SELinux)
-Message-ID: <20040831084953.GA11113@muc.de>
-References: <2wJxj-7g2-23@gated-at.bofh.it> <2x2JC-3Uu-11@gated-at.bofh.it> <m3k6vjco9e.fsf@averell.firstfloor.org> <01b401c48f33$3fb05000$f97d220a@linux.bs1.fc.nec.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <01b401c48f33$3fb05000$f97d220a@linux.bs1.fc.nec.co.jp>
-User-Agent: Mutt/1.4.1i
+	Tue, 31 Aug 2004 04:53:36 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60576 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267526AbUHaIxL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 04:53:11 -0400
+Message-ID: <41343C66.3080804@pobox.com>
+Date: Tue, 31 Aug 2004 04:52:54 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
+CC: "John W. Linville" <linville@tuxdriver.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [patch] libata: add ioctls to support SMART
+References: <200408301531.i7UFVBg29089@ra.tuxdriver.com> <41336824.1040206@gmx.de> <41343B2A.80909@gmx.de>
+In-Reply-To: <41343B2A.80909@gmx.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 31, 2004 at 05:19:34PM +0900, Kaigai Kohei wrote:
-> Hi Andi, thanks for your comment.
-> Sorry, I have not noticed your mail in the flood of Linux-Kernel ML.
+Prakash K. Cheemplavam wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
 > 
-> > > atomic_inc_return() is not defined for arm,arm26,i386,x86_64 and um archtectures.
-> > > This attached patch adds atomic_inc_return() and atomic_dec_return() to arm,i386 and x86_64.
-> > >
-> > > It is implemented by 'xaddl' operation with LOCK prefix for i386 and x86_64.
-> > > But this operation is permitted after i486 processor only.
-> > > Another implementation may be necessary for i386SX/DX processor.
-> > > But 'xaddl' operation is used in 'include/asm-i386/rwsem.h' unconditionally.
-> > > I think it has agreed on using 'xaddl' operation in past days.
-> > 
-> > We don't support SMP on 386 boxes. What you can do for 386 is to use 
-> > alternative() and just use an non SMP safe version for 386 and xadd 
-> > for 486+ 
+> Prakash K. Cheemplavam wrote:
+> | John W. Linville wrote:
+> | | Support for HDIO_DRIVE_CMD and HDIO_DRIVE_TASK in libata.  Useful for
+> | | supporting SMART w/ unmodified smartctl and smartd userland binaries.
+> ~ > I just tried to give it a go with libata from 2.6.9-rc1. I had to fix
+> | one rejects but the patching seemed to go fine beside that. Nevertheless
+> | after a boot with patched libata I get:
+> |
+> | smartctl -a /dev/sda
+> [snip]
 > 
-> We can avoid the problem by the simple solution, since SMP
-> on 386 boxes isn't supported. It is to disable interrupt
-> while updating atomic_t variable.
+> | Device does not support SMART
+> 
+> Just wanted
+> 
+> Just wanted to say that smartctl -a -d ata /dev/sda works, as John
+> Linville and now Bruce aLlen suggested to try.
 
-The patch is wrong.  A CONFIG_M386 kernel can run on non
-386 SMP boxes. Your patch would be racy then. The only thing 
-that's not supported is a real 386 with multiple CPUs.
 
-You either have to check boot_cpu_data.x86 == 3 at runtime or 
-use alternative() like I earlier suggested.
+As I noted in another email, be careful...  that patch bypasses the SCSI 
+command synchronization, so you could potentially send a SMART command 
+to the hardware while another command is still in progress.
 
-> By the way, do you know why 'xadd' operation is used
-> unconditionally in 'include/asm-i386/rwsem.h'?
+	Jeff
 
-386 compatible kernels use a different rwsem implementation
-that doesn't use this include.
 
--Andi

@@ -1,50 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266497AbTABUbW>; Thu, 2 Jan 2003 15:31:22 -0500
+	id <S266460AbTABU3d>; Thu, 2 Jan 2003 15:29:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266489AbTABUbW>; Thu, 2 Jan 2003 15:31:22 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:53406 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S266491AbTABUbV> convert rfc822-to-8bit; Thu, 2 Jan 2003 15:31:21 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <paul@clubi.ie>
-CC: <Hell.Surfers@cwctv.net>, <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Thu, 2 Jan 2003 12:39:47 -0800
-In-Reply-To: <Pine.LNX.4.44.0301012356270.8691-100000@fogarty.jakma.org>
-Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+	id <S266480AbTABU3d>; Thu, 2 Jan 2003 15:29:33 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:32157 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S266460AbTABU3c>;
+	Thu, 2 Jan 2003 15:29:32 -0500
+Date: Thu, 2 Jan 2003 22:37:49 +0200
+From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
+To: Samuel Flory <sflory@rackable.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UDMA 133 on a 40 pin cable
+Message-ID: <20030102203749.GA30088@linux.kappa.ro>
+References: <20030102182932.GA27340@linux.kappa.ro> <1041536269.24901.47.camel@irongate.swansea.linux.org.uk> <20030102185921.GA28107@linux.kappa.ro> <3E14911C.7010009@rackable.com> <20030102192316.GA28781@linux.kappa.ro> <3E14976C.8090403@rackable.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030102203949.AAA9589@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E14976C.8090403@rackable.com>
+User-Agent: Mutt/1.3.25i
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 02, 2003 at 11:47:56AM -0800, Samuel Flory wrote:
+> 
+>  Try setting the cd-rw as a slave, and the hard drive as a master.
 
->How are the standard interfaces not covered by the GPL?
+My problem was that it was recognised as UDMA 133 on a 40 pin cable...
+actually after those errors ( which repeats 4 times in the log ) the hard-drive
+works fine.. I just thought of it as a bug.. I shall not use the hard-drive
+in this configuration anyway...
 
-	Surely you aren't arguing that someone can copyright
+> 
+> -- 
+> There is no such thing as obsolete hardware.
+> Merely hardware that other people don't want.
+> (The Second Rule of Hardware Acquisition)
+> Sam Flory  <sflory@rackable.com>
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-int open(const char *, int);
-
-	Are you?
-
-	There's the battle and there's the war. The GPL is the battle. If you argue 
-that any code that goes anywhere near anyone else's code is a derived work, 
-you may win the battle by buttressing the GPL, but you will lose the war.
-
-	The open source community wasn't the first to use  'int open(const char *, 
-int)'. If you want to argue that this is an interface that can be 
-copyrighted, then we're all screwed.
-
-	Defending fair use and first sale type doctrines and rejecting shrink wrap 
-agreements is far more important than defending the GPL.
-
-	Using someone else's header file to develop code is *use*, not distribution. 
-That's what header files are for -- that's how you *use* them, by including 
-them. If someone wants to substitute more stringent restrictions, then they 
-can do that by contract.
-
-	DS
-
-
+-- 
+      Teodor Iacob,
+Network Administrator
+Astral TELECOM Internet

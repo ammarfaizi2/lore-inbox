@@ -1,72 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264894AbSJORgD>; Tue, 15 Oct 2002 13:36:03 -0400
+	id <S263204AbSJORsO>; Tue, 15 Oct 2002 13:48:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264895AbSJORgD>; Tue, 15 Oct 2002 13:36:03 -0400
-Received: from mail18.svr.pol.co.uk ([195.92.67.23]:59406 "EHLO
-	mail18.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S264894AbSJORgA>; Tue, 15 Oct 2002 13:36:00 -0400
-Date: Tue, 15 Oct 2002 18:41:57 +0100
-To: Linux Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@transmeta.com>, Dave Jones <davej@suse.de>
-Subject: [PATCH] Device-mapper submission 1/7
-Message-ID: <20021015174156.GA27753@fib011235813.fsnet.co.uk>
+	id <S264707AbSJORrv>; Tue, 15 Oct 2002 13:47:51 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:24998 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264690AbSJORqP>;
+	Tue, 15 Oct 2002 13:46:15 -0400
+Date: Tue, 15 Oct 2002 10:44:23 -0700 (PDT)
+Message-Id: <20021015.104423.36363214.davem@redhat.com>
+To: maxk@qualcomm.com
+Cc: kuznet@ms2.inr.ac.ru, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Rename _bh to _softirq
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <5.1.0.14.2.20021015093146.05eb7738@mail1.qualcomm.com>
+References: <Pine.LNX.4.44.0210142119300.26635-100000@localhost.localdomain>
+	<200210150157.FAA13254@sex.inr.ac.ru>
+	<5.1.0.14.2.20021015093146.05eb7738@mail1.qualcomm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm hereby submitting the device-mapper patches for inclusion in 2.5.
-All of the patches can be pulled using bitkeeper from:
+   From: "Maksim (Max) Krasnyanskiy" <maxk@qualcomm.com>
+   Date: Tue, 15 Oct 2002 09:34:02 -0700
+   
+   But primary interface should be changed IMO.
 
-   bk://device-mapper@device-mapper.bkbits.net/dm-submission
+I totally disagree.
 
-[mempool]
-Most people use mempools in conjuction with slabs, this defines
-an allocator and free function to simplify this.
-
---- a/include/linux/mempool.h	Tue Oct 15 18:24:31 2002
-+++ b/include/linux/mempool.h	Tue Oct 15 18:24:31 2002
-@@ -27,4 +27,11 @@
- extern void * mempool_alloc(mempool_t *pool, int gfp_mask);
- extern void mempool_free(void *element, mempool_t *pool);
- 
-+/*
-+ * A mempool_alloc_t and mempool_free_t that get the memory from
-+ * a slab that is passed in through pool_data.
-+ */
-+void *mempool_alloc_slab(int gfp_mask, void *pool_data);
-+void mempool_free_slab(void *element, void *pool_data);
-+
- #endif /* _LINUX_MEMPOOL_H */
---- a/mm/mempool.c	Tue Oct 15 18:24:31 2002
-+++ b/mm/mempool.c	Tue Oct 15 18:24:31 2002
-@@ -259,8 +259,25 @@
- 	pool->free(element, pool->pool_data);
- }
- 
-+/*
-+ * A commonly used alloc and free fn.
-+ */
-+void *mempool_alloc_slab(int gfp_mask, void *pool_data)
-+{
-+	kmem_cache_t *mem = (kmem_cache_t *) pool_data;
-+	return kmem_cache_alloc(mem, gfp_mask);
-+}
-+
-+void mempool_free_slab(void *element, void *pool_data)
-+{
-+	kmem_cache_t *mem = (kmem_cache_t *) pool_data;
-+	kmem_cache_free(mem, element);
-+}
-+
- EXPORT_SYMBOL(mempool_create);
- EXPORT_SYMBOL(mempool_resize);
- EXPORT_SYMBOL(mempool_destroy);
- EXPORT_SYMBOL(mempool_alloc);
- EXPORT_SYMBOL(mempool_free);
-+EXPORT_SYMBOL(mempool_alloc_slab);
-+EXPORT_SYMBOL(mempool_free_slab);
+Keep _bh, it's cool.

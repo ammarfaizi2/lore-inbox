@@ -1,78 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269827AbUJGWIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269697AbUJGWSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269827AbUJGWIw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269847AbUJGWII
+	id S269697AbUJGWSb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 18:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269852AbUJGWQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:08:08 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:62909 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S269827AbUJGWFY
+	Thu, 7 Oct 2004 18:16:56 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:56770 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S269858AbUJGWP0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:05:24 -0400
-Message-ID: <4165BD38.4020403@rtr.ca>
-Date: Thu, 07 Oct 2004 18:03:36 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Mark Lord <lsml@rtr.ca>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: Re: [PATCH] QStor SATA/RAID driver for 2.6.9-rc3
-References: <4161A06D.8010601@rtr.ca> <416547B6.5080505@rtr.ca> <20041007150709.B12688@infradead.org> <4165624C.5060405@rtr.ca> <416565DB.4050006@pobox.com> <4165A45D.2090200@rtr.ca> <4165A766.1040104@pobox.com> <4165A85D.7080704@rtr.ca> <4165AB1B.8000204@pobox.com> <4165ACF8.8060208@rtr.ca> <20041007221537.A17712@infradead.org>
-In-Reply-To: <20041007221537.A17712@infradead.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 7 Oct 2004 18:15:26 -0400
+Subject: RE: [ckrm-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
+Cc: Paul Jackson <pj@sgi.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       Andrew Morton <akpm@osdl.org>, ckrm-tech@lists.sourceforge.net,
+       LSE Tech <lse-tech@lists.sourceforge.net>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       LKML <linux-kernel@vger.kernel.org>, simon.derr@bull.net,
+       frankeh@watson.ibm.com
+In-Reply-To: <NIBBJLJFDHPDIBEEKKLPIEMNCHAA.mef@cs.princeton.edu>
+References: <NIBBJLJFDHPDIBEEKKLPIEMNCHAA.mef@cs.princeton.edu>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1097186807.17473.22.camel@arrakis>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Thu, 07 Oct 2004 15:06:48 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(Christoph Hellwig wrote:
- >
->  - the !dev case in qs_scsi_queuecomman can't happen
+On Wed, 2004-10-06 at 21:12, Marc E. Fiuczynski wrote:
+> > ... thus making supporting interesting NUMA machines
+> > and SMT machines easier.
+> 
+> Would you be so kind and elaborate on the SMT part.
+> 
+> Marc
 
-Are you sure?
-I have seen it occur immediately after hot-removal
-of a drive.  There have been other structural changes
-since then, so perhaps it is no longer possible,
-but I'd rather have the test there than have the
-kernel ooops again.  If you feel strongly about it,
-then away it goes.
+Contrary to Paul's posting that no one saw, SMT is not a typo. ;)  What
+I was trying to get at is that there are already several differing
+implementations of SMT (Synchronous Multi-Threading) with different
+names and different characteristics.  Right now, they're all kind of
+handled the same.  In the future, however, I see each architecture
+defining their own SD_SIBLING_INIT for sibling domains, allowing their
+own cache timings, balancing rates, etc.  I feel that it would be easier
+to support potentially complicated and/or dynamic sibling 'CPU'
+relationships with my patch.  We've already run into some issues with
+hotplugging the siblings of 'real' CPUs on/off, and how the current
+sched_domains handles that.  Currently, as the code is static and based
+on config options rather than runtime variables, it tends to leave a
+single CPU in it's own domain, balancing amongst itself with no sibling
+(b/c it's been hotplugged off and CONFIG_SCHED_SMT is on).  My code was
+written with dynamic runtime changes in mind to prevent these kinds of
+suboptimal situations.
 
->  - never mess with eh_timeout from inside a driver
+-Matt
 
-Give us an interface for it, please.
-In the meanwhile, gone!
-
->  - please don't implemente the HDIO_ ioctls, Jeff said this can
->    be done via SG_IO
-
-SG_IO is incompatible with current user-mode toolsets.
-Once that interface becomes more mature, and the distributions
-gradually get updated with newer versions of the tools,
-then the HDIO_ stuff can go (as per the comments in the source).
-For now, it is essential for hdparm and smartmontools, among others.
-
-Alternatively, as Jeff has suggested, we may be able to implement
-a generic HDIO_ mechanism in libata that re-issues the commands
-through SG_IO (perhaps that is what you meant).  Is that there now?
-
->  - if ->info return a static string you can just store it into ->name
-
-So just nuke the _info() proc, and use .name = QS_DESC ?
-Okay, done.
-
->  - please use the kernel/kthread.c interface for your kernel thread
-
-Good -- I hadn't noticed that new interface before.
-
-It's quite hard to find all of this stuff first time through,
-as there are practically no existing drivers that don't have
-many of the same comments applicable to them.
-
-Perhaps this will be one of the first/few drivers
-to become totally compliant with the latest kernel APIs.
-
-Cheers
---
-Mark Lord
-(hdparm keeper & the original "Linux IDE Guy")

@@ -1,38 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265932AbUHQW4M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268502AbUHQXI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265932AbUHQW4M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 18:56:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268494AbUHQW4M
+	id S268502AbUHQXI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 19:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUHQXI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 18:56:12 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:15316 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265932AbUHQWy2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 18:54:28 -0400
-Date: Tue, 17 Aug 2004 15:53:21 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: hari@in.ibm.com, linux-kernel@vger.kernel.org, fastboot@osdl.org
-cc: akpm@osdl.org, Suparna Bhattacharya <suparna@in.ibm.com>, litke@us.ibm.com,
-       ebiederm@xmission.com
-Subject: Re: [PATCH][6/6]Device abstraction for linear/raw view of the dump
-Message-ID: <175200000.1092783201@flay>
-In-Reply-To: <20040817121332.GG3916@in.ibm.com>
-References: <20040817120239.GA3916@in.ibm.com> <20040817120531.GB3916@in.ibm.com> <20040817120717.GC3916@in.ibm.com> <20040817120809.GD3916@in.ibm.com> <20040817120911.GE3916@in.ibm.com> <20040817121017.GF3916@in.ibm.com> <20040817121332.GG3916@in.ibm.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Tue, 17 Aug 2004 19:08:27 -0400
+Received: from web13904.mail.yahoo.com ([216.136.175.67]:8578 "HELO
+	web13904.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S268502AbUHQXI0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 19:08:26 -0400
+Message-ID: <20040817230825.4509.qmail@web13904.mail.yahoo.com>
+Date: Tue, 17 Aug 2004 16:08:25 -0700 (PDT)
+From: <spaminos-ker@yahoo.com>
+Reply-To: spaminos-ker@yahoo.com
+Subject: Re: Scheduler fairness problem on 2.6 series (Attn: Nick Piggin and others)
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040811093945.GA10667@elte.hu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This patch contains the code that enables us to access the 
-> previous kernel's memory as /dev/hmem.
+--- Ingo Molnar <mingo@elte.hu> wrote:
 
-One of the bits of feedback we got at kernel summit was that nobody
-liked the /dev/hmem name ... could we change it to /dev/oldmem, perhaps?
+> 
+> could you also try the 2.6.8-rc4-mm1 kernel? It has the array-switch
+> disabled which _could_ lead to smoother timeslice distribution. It still
+> has wakeup bonuses though.
+> 
+> 	Ingo
 
-Thanks,
+Sorry I didn't have the chance to try this test before: I didn't try it on
+2.6.8.1-mm1 as I saw that maybe the patch related to the array sawitching was
+dropped.
 
-M.
+Anyway, I tried the test on 2.6.8-rc4-mm1 and it fails the test with 2 and 20
+threads (delays of about 3 seconds for 2 threads, and 5 seconds with 20).
+
+Nicolas
 

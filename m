@@ -1,39 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBJUgu>; Sat, 10 Feb 2001 15:36:50 -0500
+	id <S129143AbRBJUhu>; Sat, 10 Feb 2001 15:37:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129143AbRBJUgk>; Sat, 10 Feb 2001 15:36:40 -0500
-Received: from pneumatic-tube.sgi.com ([204.94.214.22]:64260 "EHLO
-	pneumatic-tube.sgi.com") by vger.kernel.org with ESMTP
-	id <S129142AbRBJUga>; Sat, 10 Feb 2001 15:36:30 -0500
-Message-ID: <3A85A5EC.EFE3F703@sgi.com>
-Date: Sat, 10 Feb 2001 12:34:52 -0800
-From: LA Walsh <law@sgi.com>
-Organization: Trust Technology, SGI
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.4.2-pre1 i686)
+	id <S129258AbRBJUha>; Sat, 10 Feb 2001 15:37:30 -0500
+Received: from smtp-rt-2.wanadoo.fr ([193.252.19.154]:50394 "EHLO
+	apeiba.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S129143AbRBJUh0>; Sat, 10 Feb 2001 15:37:26 -0500
+Message-ID: <3A85A692.E3FE8DAF@wanadoo.fr>
+Date: Sat, 10 Feb 2001 21:37:38 +0100
+From: Jean-luc Coulon <jean-luc.coulon@wanadoo.fr>
+Organization: personal system
+X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.19pre9 i586)
 X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: question on comment in fs.h
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Power off 2.4.xx and ACPI / APM
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Excuse my ignorance, but in file include/linux/fs.h, 2.4.x source
-in the struct buffer_head, there is a member:
-	unsigned short b_size;          /* block size */    
-later there is a member:
-	char * b_data;                  /* pointer to data block (512 byte) */ 
+Hi,
 
-Is the "(512 byte)" part of the comment in error or do I misunderstand
-the nature of 'b_size'
+I've read some messages some time ago about problems related to ACPI.
+But I've not found the clue to my problem.
 
--l
+With kernel 2.2.19 and APM enabled, the power supply switches off while
+the message Power down appears.
 
--- 
-Linda A Walsh                    | Trust Technology, Core Linux, SGI
-law@sgi.com                      | Voice: (650) 933-5338
+With 2.4.x, nothing occurs. I've to enable ACPI too to have this
+behaviour.
+
+But if I enable ACPI, I've a strange problem with my AX25 (hamradio)
+system :
+all the frames I send on the radio network are _very_ long without any
+data in it. The watchdog of the card (DRSI : works with the scc driver),
+
+switches the transmitter off after few seconds.
+
+Any idea ?
+
+----
+
+Regards
+
+  Jean-Luc
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

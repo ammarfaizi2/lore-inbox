@@ -1,93 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbUDSUaF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 16:30:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261996AbUDSUaE
+	id S262031AbUDSUjN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 16:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262041AbUDSUjM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 16:30:04 -0400
-Received: from mh57.com ([217.160.185.21]:25568 "EHLO mithrin.mh57.de")
-	by vger.kernel.org with ESMTP id S261937AbUDSU37 (ORCPT
+	Mon, 19 Apr 2004 16:39:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58347 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262031AbUDSUjH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 16:29:59 -0400
-Date: Mon, 19 Apr 2004 22:29:43 +0200
-From: Martin Hermanowski <lkml@martin.mh57.de>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mm4 (hci_usb module unloading oops)
-Message-ID: <20040419202943.GA5557@mh57.de>
-References: <20040410200551.31866667.akpm@osdl.org> <20040412101911.GA3823@mh57.de> <20040412220353.GC23692@kroah.com>
+	Mon, 19 Apr 2004 16:39:07 -0400
+Subject: [RFT] Ext3 online resize for 2.6.6-rc1
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: "ext2-devel@lists.sourceforge.net" <ext2-devel@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Andreas Dilger <adilger@clusterfs.com>, "Theodore Ts'o" <tytso@mit.edu>,
+       Stephen Tweedie <sct@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1082407133.2237.87.camel@sisko.scot.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
-Content-Disposition: inline
-In-Reply-To: <20040412220353.GC23692@kroah.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Broken-Reverse-DNS: no host name found for IP address 2001:8d8:81:4d0:8000::1
-X-Spam-Score: 0.0 (/)
-X-Authenticated-ID: martin
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 19 Apr 2004 21:38:53 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---2fHTh5uZTiUOsy+g
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Just to add to the recent storm of ext3 patches: the patch below is
+essentially just Arjan's last port of Andreas's last ext3-online-resize
+patch to 2.6.6-rc1.  I've cleaned up only a couple of error cases
+(brelse in the wrong place on an error path, EPERM instead of EACCES on
+!capable(CAP_SYS_RESOURCE).)
 
-On Mon, Apr 12, 2004 at 03:03:53PM -0700, Greg KH wrote:
-> On Mon, Apr 12, 2004 at 12:19:11PM +0200, Martin Hermanowski wrote:
-> > I get an oops when I try to unload the hci_usb module.
->=20
-> {sigh}  I'm hating that driver right now...
->=20
-> There are a number of pending bluetooth patches for that driver that fix
-> a number of different bugs, so I'm leary of trying to see if this is a
-> different one or not at this point in time.  Care to apply all of the
-> bluetooth patches and if this still happens, can you report it to the
-> linux-usb-devel and bluez-devel mailing lists?
+The bigger job was e2fsprogs --- the resize diffs conflict with the
+recent metadata-group work, but there's a merged patch against
+e2fsprogs-1.35 now under "patches" at
+http://sourceforge.net/projects/ext2resize/
 
-I can try these patches in the next days, can you point me to an url?
+direct link:
+http://sourceforge.net/tracker/download.php?group_id=3834&atid=303834&file_id=84253&aid=937934
 
-> > What other useful information can I provide?
->=20
-> CONFIG_DEBUG_DRIVER might be good to set, and then we can see if we are
-> not trying to remove the same device twice for some odd reason.  If you
-> do duplicate this, please include all of the debug log entries that
-> happen from when you unplug the device.
->=20
-> Also CONFIG_USB_DEBUG might help out.
+Note that ext2prepare still doesn't deal with the new reserved-space
+format: you need to create a new filesystem with "mke2fs -O
+resize_inode" in order to test the patch.  Getting the ext2resize user
+space tools updated for that is the next job.
 
-I just tried 2.6.6-rc1-mm1 (patched with mppe and iscsi), same problem.
+I'll do a proper 1.1.19 release of sourceforge ext2resize once I work
+out just how the sourceforge CVS tree needs to be put together. 
+Andreas, is it really deliberate that you've got both the input and
+output autoconf files (eg. Makefile and Makefile.in) under CVS control
+for ext2resize?
 
-I compiled with CONFIG_DEBUG_DRIVER and CONFIG_USB_DEBUG, after booting,
-I activate the usb-dongle (Fn+F5 on the IBM T41p), then I run `hciconfig
-down' and `rmmod hci_usb', which triggers the problem
+I've been giving this moderate testing so far and it has been surviving
+fine doing resizes under load and fscking after.  The patched e2fsprogs
+knows enough about the EXT2_RESIZE_INO reserved growth inode to avoid
+complaining about it during a fsck, but doesn't yet know enough to fully
+verify the contents of that inode or to repair it.  Other than that, the
+only problem I've seen so far under testing is that occasionally a fsck
+shows a minor refcount/block-bitmap inconsistency after a resize if we
+encountered ENOSPC during the test, but I can reproduce that even
+without resize so it seems like a core error-handling problem --- I'm
+currently chasing that.  (Seems to be related either to xattr or 1k
+blocksize.)
 
-I uploaded both the config and the whole syslog file from the boot until
-shutting down:
-
-http://mh57.de/~martin/config-2.6.6-rc1-mm1
-http://mh57.de/~martin/syslog-2.6.6-rc1-mm1
-
-> > Apr 12 12:07:48 localhost udev[22216]: removing device node '/dev/hci0'
->=20
-> Nice, glad to see udev is working for you :)
-
-I'm using udev 0.024-2 from debian, and it is working quite well :-)
-
-LLAP, Martin
-
---2fHTh5uZTiUOsy+g
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAhDa3mGb6Npij0ewRAoRiAKC4Q3VOfIc+nCzh7uczqrZQKZKLCwCgtOun
-UlCJKs0PYs+TiZzmI+tSAJE=
-=0vaA
------END PGP SIGNATURE-----
-
---2fHTh5uZTiUOsy+g--
+Cheers,
+ Stephen

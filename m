@@ -1,30 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130021AbQLPXBl>; Sat, 16 Dec 2000 18:01:41 -0500
+	id <S129655AbQLPXGM>; Sat, 16 Dec 2000 18:06:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130117AbQLPXBb>; Sat, 16 Dec 2000 18:01:31 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45325 "EHLO
+	id <S129799AbQLPXGC>; Sat, 16 Dec 2000 18:06:02 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:48141 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S130021AbQLPXBR>; Sat, 16 Dec 2000 18:01:17 -0500
-Subject: Re: Dropping chars on 16550
-To: thomassr@erols.com (Tom Vier)
-Date: Sat, 16 Dec 2000 22:32:29 +0000 (GMT)
-Cc: cwslist@main.cornernet.com (Chad Schwartz), linux-kernel@vger.kernel.org
-In-Reply-To: <20001216152833.A7536@zero> from "Tom Vier" at Dec 16, 2000 03:28:33 PM
+	id <S129704AbQLPXF4>; Sat, 16 Dec 2000 18:05:56 -0500
+Subject: Re: link failure (drivers/char/riscom8.c) (240test13p2)
+To: rasmus@jaquet.dk (Rasmus Andersen)
+Date: Sat, 16 Dec 2000 22:37:59 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, pgmdsg@ibi.com
+In-Reply-To: <20001216225222.D609@jaquet.dk> from "Rasmus Andersen" at Dec 16, 2000 10:52:22 PM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E147PsV-0003HP-00@the-village.bc.nu>
+Message-Id: <E147Pxr-0003IA-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> macs and sun machines use z85c30 chips, so there are some non-16550 boxes
-> out there.
+> drivers/char/char.o: In function `tty_init':
+> drivers/char/char.o(.text.init+0x259): undefined reference to `riscom8_init'
+> 
+> I guess this is bacause riscom8_init is now a static function and thus
+> tty_init cannot see it. If this is intentional or nat I cannot judge
+> but I guess the fix is either to remove the static or the initcall from
+> tty_init. The decision I leave with those who know what to do.
 
-SGI kit also tends to use Z85Cx30 based devices. Its unfortunate the 16xx0
-series serial controllers won as the Z85Cx30 is much more flexible ;)
+Remove the call from tty_init. riscom8 now uses the new style initialisers
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVCWK00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVCWKbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbVCWK00 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 05:26:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVCWK00
+	id S261505AbVCWKbz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 05:31:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVCWKbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 05:26:26 -0500
-Received: from grunt1.ihug.co.nz ([203.109.254.41]:14573 "EHLO
-	grunt1.ihug.co.nz") by vger.kernel.org with ESMTP id S261503AbVCWK0S
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 05:26:18 -0500
-Date: Wed, 23 Mar 2005 22:26:14 +1200 (NZST)
-From: steve@perfectpc.co.nz
-X-X-Sender: sk@steve.kieu
-Reply-To: steve@perfectpc.co.nz
-To: linux-kernel@vger.kernel.org
-Subject: Problem report. USB MP3 Player no longer work with kernel > 2.6.8
-Message-ID: <Pine.LNX.4.62.0503232217440.4187@steve.kieu>
+	Wed, 23 Mar 2005 05:31:55 -0500
+Received: from [202.159.243.45] ([202.159.243.45]:27141 "EHLO 202.159.243.45")
+	by vger.kernel.org with ESMTP id S261505AbVCWKbu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Mar 2005 05:31:50 -0500
+Message-ID: <003b01c52f8b$daef4280$be04000a@dKUxZUk>
+From: "Mary" <pizdes@89.ru>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: Re[5]:How do you do       
+Date: Wed, 23 Mar 2005 12:37:17 +0300
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="windows-1251"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greeting !	
 
-Hi,
+I think we had correspondence a long time ago if it was not you I am sorry.
+If it was I could not answer you because my Mozilla mail manager was down for a 
+long time and I could not fix it only with my friend's help I got the emails 
+address out for me ..:)
+I hope it was whom we were corresponded with you are still interested, as I am, 
+though I realize much time has passed since then...
+I really don't know where to start ....
+Maybe you could tell me a little about yourself since I lost our early letters, 
+your appearance,age , hobbies, and are you still in the search?
+If it was you I wrote to and you are interested to get to know me better, I have 
+a profile at :
+http://a.allonmyown.org/
 
-I have a mp3 player Digital MP3/WMA PLAYER using USB1. With kernel 2.6.9 
-when plug the device ; the kernel recognize the device
-dmesg show:
+Don't really know what else to say for now I hope this is the right address
+Let me know if you are interested, And I hope
+you won't run when you see my picture :-)
 
-usb 1-1: new full speed USB device using address 3
+see you later,
 
-But loading usb-storage ; it did not see the device
-dmesg shows:
-
-SCSI subsystem initialized
-Initializing USB Mass Storage driver...
-usbcore: registered new driver usb-storage
-USB Mass Storage support registered.
-
-of course nothing happend if I mount /dev/sda1 or /dev/sda etc..;
-
-With kernel 2.6.8 or 2.4.XX it works properly. Last time I tried with 
-2.6.10 and even 2.6.11, it did not work, but the error message is different.
-
-I am willing to help to debug the problem if asked.
-
-Kind regards,
+Mary
 
 
-Steve Kieu
-PerfectPC Ltd. Technical Division.
-Web: http://www.perfectpc.co.nz/
-Ph: 04 461 7489
-Mob: 021 137 0260
+

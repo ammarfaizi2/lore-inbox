@@ -1,80 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264711AbTBETmp>; Wed, 5 Feb 2003 14:42:45 -0500
+	id <S263991AbTBETvB>; Wed, 5 Feb 2003 14:51:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264749AbTBETmo>; Wed, 5 Feb 2003 14:42:44 -0500
-Received: from [195.223.140.107] ([195.223.140.107]:20864 "EHLO athlon.random")
-	by vger.kernel.org with ESMTP id <S264711AbTBETmm>;
-	Wed, 5 Feb 2003 14:42:42 -0500
-Date: Wed, 5 Feb 2003 20:51:51 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lm@bitmover.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-Message-ID: <20030205195151.GJ19678@dualathlon.random>
-References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030205114353.6591f4c8.akpm@digeo.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43
-X-PGP-Key: 1024R/CB4660B9
+	id <S264628AbTBETvB>; Wed, 5 Feb 2003 14:51:01 -0500
+Received: from impact.colo.mv.net ([199.125.75.20]:1945 "EHLO
+	impact.colo.mv.net") by vger.kernel.org with ESMTP
+	id <S263991AbTBETvA>; Wed, 5 Feb 2003 14:51:00 -0500
+Message-ID: <3E416D45.8090503@bogonomicon.net>
+Date: Wed, 05 Feb 2003 14:00:05 -0600
+From: Bryan Andersen <bryan@bogonomicon.net>
+Organization: Bogonomicon
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephan von Krawczynski <skraw@ithnet.com>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>, rossb@google.com,
+       alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.21-pre4: PDC ide driver problems with shared interrupts
+References: <20030202161837.010bed14.skraw@ithnet.com>	<3E3D4C08.2030300@pobox.com>	<20030202185205.261a45ce.skraw@ithnet.com>	<3E3D6367.9090907@pobox.com>	<20030205104845.17a0553c.skraw@ithnet.com>	<1044443761.685.44.camel@zion.wanadoo.fr>	<3E414243.4090303@google.com>	<1044465151.685.149.camel@zion.wanadoo.fr>	<3E4147A0.4050709@google.com>	<1044466495.684.153.camel@zion.wanadoo.fr> <20030205183808.3a2fa115.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 11:43:53AM -0800, Andrew Morton wrote:
-> Andrea Arcangeli <andrea@suse.de> wrote:
-> >
-> > In this context I don't mind which is the correct one.
-> > 
-> > I only would like to know what is supposed to be stored inside the
-> > 2.5.59 tarball on kernel.org and what is supposed to be changed between
-> > 2.5.59 and the 1.952.4.2 changeset.
-> > 
-> > The one I see in 2.5.59 (I double checked the tar.gz) is this:
-> > 
-> > void jfs_truncate(struct inode *ip)
-> > {
-> > 	jFYI(1, ("jfs_truncate: size = 0x%lx\n", (ulong) ip->i_size));
-> > 
-> > 	block_truncate_page(ip->i_mapping, ip->i_size, jfs_get_block);
-> > 
-> > And I see no changes in this area starting from 2.5.59, until changeset
-> > 1.952.4.2. So I deduce my software is right and that either the 2.5.59
-> > tarball or the 1.952.4.2 changeset are corrupt.
-> 
-> OK.  I see.
-> 
-> No, I cannot explain this either.  Shortly after 2.5.55, this change appears in the
-> web interface:
-> 
-> 
-> http://linux.bkbits.net:8080/linux-2.5/cset@1.879.43.1?nav=index.html|ChangeSet@-8w
 
-yes I found it too a few minutes ago.
+> Ok, yet another small brick in the wall: this mb has 64bit/66MHz PCI slots. PDC
+> is only 32bit/33MHz PCI. So it may well be that others are in fact _able_ to
+> produce a damn lot more data/interrupts than the PDC. I am pretty astonished by
+> the number of interrupts created by the 3com tg3 cards anyways...
 
-> 
-> And revtool shows that change on Jan 09 this year.
-> 
-> But it does not appear in Linus's 2.5.59 tarball, and there appears to be no
-> record in bitkeeper of where this change fell out of the tree.
+On my box one of the devices sharing the interrupt with the disk
+is the display, the USB is quiet with no devices connected.  I am 
+running 2.4.21-pre4-ac2.  I'd have redistributed interrupts but the 
+motherboard dosen't allow me to specifically set them and APIC isn't 
+supposed to work on the nForce2 yet.
 
-yes, this is exactly the problem I run into.
+cat /proc/interrupts
+            CPU0
+   0:     273068          XT-PIC  timer
+   1:       5547          XT-PIC  keyboard
+   2:          0          XT-PIC  cascade
+   5:     122188          XT-PIC  eth0
+  10:     641526          XT-PIC  ide2, ide3, usb-ohci, nvidia
+  11:          0          XT-PIC  NVIDIA nForce Audio, usb-ohci
+  12:      78237          XT-PIC  PS/2 Mouse
+  14:     109475          XT-PIC  ide0
+  15:     114178          XT-PIC  ide1
+NMI:          0
+LOC:     273027
+ERR:      18344
+MIS:          0
 
-> 
-> In fact the above URL shows two instances of the same patch, with different
-> human-written summaries, on the same day.
-> 
-> I believe that shaggy had some problem with the nobh stuff, so possibly the
-> January 9 change was reverted in some manner, and it was reapplied
-> post-2.5.59, and the web interface does now show the revert.  Revtool does
-> not show it either.  Nor the reapply.
-> 
-> It is quite confusing.  Yes, something might have gone wrong.
+- Bryan
 
-it might be simply an error in the tarball, maybe Linus's tree isn't in
-full sync with bk head. But something definitely is corrupt between
-tarball and bk.
-
-Andrea

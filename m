@@ -1,82 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264838AbUEKQbX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264827AbUEKQft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264838AbUEKQbX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 May 2004 12:31:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264866AbUEKQ24
+	id S264827AbUEKQft (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 May 2004 12:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264873AbUEKQfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 May 2004 12:28:56 -0400
-Received: from mail.tmr.com ([216.238.38.203]:31493 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S264826AbUEKQ1w (ORCPT
+	Tue, 11 May 2004 12:35:48 -0400
+Received: from pop.gmx.net ([213.165.64.20]:32486 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264827AbUEKQd6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 May 2004 12:27:52 -0400
-Date: Tue, 11 May 2004 12:24:24 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-rc3-mm2 (4KSTACK)
-In-Reply-To: <200405092025.41297.bzolnier@elka.pw.edu.pl>
-Message-ID: <Pine.LNX.3.96.1040511121328.16430C-100000@gatekeeper.tmr.com>
+	Tue, 11 May 2004 12:33:58 -0400
+X-Authenticated: #18147109
+From: Gerald Schaefer <gerald.schaefer@gmx.net>
+Reply-To: gerald.schaefer@gmx.net
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-2.6.5] oops when plugging CDC USB network
+Date: Tue, 11 May 2004 18:33:51 +0200
+User-Agent: KMail/1.6.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Disposition: inline
+Message-Id: <200405111833.51508.gerald.schaefer@gmx.net>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 May 2004, Bartlomiej Zolnierkiewicz wrote:
+Daniel Blueman wrote:
+> Unable to handle kernel NULL pointer dereference at virtual address 00000004
+>  printing eip:
+> c028ff64
+> *pde = 00000000
+> Oops: 0000 [#1]
+> DEBUG_PAGEALLOC
+> CPU:    0
+> EIP:    0060:[<c028ff64>]    Not tainted
+> EFLAGS: 00010296   (2.6.5) 
+> EIP is at usb_disable_interface+0x14/0x50
+> eax: df3a4ef8   ebx: 00000000   ecx: 00000000   edx: dffdaf38
+> esi: 00000001   edi: 00000000   ebp: df3aabf8   esp: df98bcfc   
+> ds: 007b   es: 007b   ss: 0068
+> Process khubd (pid: 5, threadinfo=df98a000 task=df9bb9e0)
+> Stack: 00000001 0000000b 00000001 00000001 df3d5d94 df3aabf8 c0290257
+> df3aabf8
+>        df3a4ef8 0000000b 00000001 00000001 00000001 00000000 00000000
+> 00001388
+>        00000000 df3a4ef8 df3d5d94 df3d5d94 df3d5d44 00000001 c029e301
+> df3aabf8
+> Call Trace:
+>  [<c0290257>] usb_set_interface+0xb7/0x1a0
 
-> On Sunday 09 of May 2004 19:00, Bill Davidsen wrote:
-> > No it's not that simple, this has nothing to do with binary modules, and
-> > everything to do with not making 4k stack the only available
-> > configuration in 2.6. Options are fine, but in a stable kernel series I
-> > don't think think that the default should change part way into the
-> > series, and certainly the availability of the original functionality
-> > shouldn't go away, which is what I read AKPMs original post to state as
-> > the goal.
-> 
-> What functionality are you talking about?
-> We don't care about out of tree kernel code (be it GPL or Proprietary).
+I had the same problem with my USB DSL Modem. After looking at
+usb_set_interface() I noticed that iface->cur_altsetting is set
+after calling usb_disable_interface(), although iface->cur_altsetting
+is being accessed at the beginning of usb_disable_interface().
 
-Let me say this one more time, since you keep changing the topic so you
-can say that you don't care about something I never mentioned. I am
-**NOT** talking about binary modules, I am **NOT** talking about out of
-tree code, I am talking about applications which make calls that cause the
-**IN TREE** code to use more than 4k.
+The following patch solved my problem, maybe it helps you too (the
+patch is for 2.6.6, but my problem also existed in 2.6.5).
+I am however not at all familiar with the USB kernel code, so it may
+be a good idea to wait for a comment on this patch from someone who is...
 
-> 
-> > Making changes to the kernel which will break existing applications
-> > seems to be the opposite of "stable." People who want a new kernel for
-> > fixes don't usually want to have to upgrade and/or rewrite their
-> > applications. The "we change the system interface everything we fix a
-> 
-> You don't understand what the patch is really about.
-> 
-> This is kernel stack not the user-space one so
-> this change can't brake any application.
 
-Right, the kernel code does not contain any places where the data passed
-in a system call isn't reflected in stack usage.
+--
+Gerald
 
-> 
-> > bug" approach comes from a well-known software company, but shouldn't be
-> > the way *good* software is done.
-> 
-> It doesn't change any kernel interface visible to user-space
-> and stack hungry kernel code needs fixing anyway.
-
-And what better way to detect it than to release it in a stable kernel.
-Don't bother to say "don't use -mm" AKPM has said it is intended for the
-stable kernel, work or not.
-
-===
-Third request for info
-===
-I still haven't seen any objective data showing that there is any
-measureable benefit from this, although I agree that smaller is good
-practice, I don't think that throwing in a feature in a stable kernel,
-which has been reported by others to corrupt data, is the best way to do
-it.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+--- linux-2.6.6/drivers/usb/core/message.c	2004-05-11 18:11:52.000000000 +0200
++++ linux-2.6.6-new/drivers/usb/core/message.c	2004-05-11 18:15:53.000000000 +0200
+@@ -965,9 +965,8 @@
+ 	 */
+ 
+ 	/* prevent submissions using previous endpoint settings */
+-	usb_disable_interface(dev, iface);
+-
+ 	iface->cur_altsetting = alt;
++	usb_disable_interface(dev, iface);
+ 
+ 	/* If the interface only has one altsetting and the device didn't
+ 	 * accept the request, we attempt to carry out the equivalent action

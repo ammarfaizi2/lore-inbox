@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318729AbSIKLsy>; Wed, 11 Sep 2002 07:48:54 -0400
+	id <S318736AbSIKMBD>; Wed, 11 Sep 2002 08:01:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318735AbSIKLsy>; Wed, 11 Sep 2002 07:48:54 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:40971 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S318729AbSIKLsx>; Wed, 11 Sep 2002 07:48:53 -0400
-Date: Wed, 11 Sep 2002 13:51:52 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Sam Ravnborg <sam@ravnborg.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: linux kernel conf 0.5
-In-Reply-To: <20020911131740.A17141@mars.ravnborg.org>
-Message-ID: <Pine.LNX.4.44.0209111344210.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318738AbSIKMBD>; Wed, 11 Sep 2002 08:01:03 -0400
+Received: from i050225.ap.plala.or.jp ([218.47.50.225]:8576 "HELO
+	mana.fennel.org") by vger.kernel.org with SMTP id <S318736AbSIKMBC>;
+	Wed, 11 Sep 2002 08:01:02 -0400
+Date: Wed, 11 Sep 2002 21:05:40 +0900 (JST)
+Message-Id: <20020911.210540.103443979.sian@big.or.jp>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] 2.5.34 partition off by one
+From: Hiroshi Takekawa <sian@big.or.jp>
+X-Mailer: Mew version 3.0.64 on Emacs 21.3 / Mule 5.0
+ =?iso-2022-jp?B?KBskQjgtTFobKEIvU0FLQUtJKQ==?=
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 11 Sep 2002, Sam Ravnborg wrote:
+I needed this patch to boot my machine, Linux-2.5.34 devfs enabled.
+My root fs is on /dev/hda6, the last partition of /dev/hda.
+create_dev("/dev/root", ...) in do_mounts.c failed because /dev/hda6
+was not found by devfs_get_handle().  It appears that
+devfs_register_partition() is not called for /dev/hda6...
 
-> make xconfig
-> - Do some selections
-> - Use mouse to select save icon on tool-bar
-> - File|Quit
-> ->Save Configuration? Press yes
-> End result is an empty .config file
+Please apply if this patch is right and it hasn't been fixed yet.
 
-I've seen it once too, but I couldn't remember how to reproduce it, but I
-now know what happens. A second save goes wrong if nothing changed since
-the last save. It's easy to fix, thanks for finding this.
+Sincerely,
 
-bye, Roman
+--
+Hiroshi Takekawa <sian@big.or.jp>
 
+
+--- check.c~    Tue Sep 10 19:34:55 2002
++++ check.c     Wed Sep 11 19:55:29 2002
+@@ -327,7 +327,7 @@
+        devfs_auto_unregister(dev->disk_de, slave);
+        if (!(dev->flags & GENHD_FL_DEVFS))
+                devfs_auto_unregister (slave, dir);
+-       for (part = 1, p++; part < max_p; part++, p++)
++       for (part = 1; part < max_p; part++, p++)
+                if (p->nr_sects)
+                        devfs_register_partition(dev, part);
+ #endif

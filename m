@@ -1,160 +1,210 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTLAJDC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 04:03:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262106AbTLAJDC
+	id S262174AbTLAJS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 04:18:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262321AbTLAJS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 04:03:02 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:40921 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262074AbTLAJCx (ORCPT
+	Mon, 1 Dec 2003 04:18:58 -0500
+Received: from dp.samba.org ([66.70.73.150]:46563 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262174AbTLAJSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 04:02:53 -0500
-Date: Mon, 1 Dec 2003 10:02:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Silicon Image 3112A SATA trouble
-Message-ID: <20031201090240.GJ6454@suse.de>
-References: <20031130165146.GY10679@suse.de> <3FCA2672.8020202@pobox.com> <20031130172855.GA6454@suse.de> <3FCA2BDA.60302@pobox.com> <20031130174552.GC6454@suse.de> <3FCA2F7F.8060206@pobox.com> <20031130182126.GE6454@suse.de> <3FCA3F44.6070401@pobox.com> <20031130193904.GG6454@suse.de> <3FCA548E.7070501@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FCA548E.7070501@pobox.com>
+	Mon, 1 Dec 2003 04:18:53 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Tiago Sant' Anna" <sapuglha@yahoo.com.br>
+Cc: sisopiii-l@cscience.org, linux-kernel@vger.kernel.org,
+       julianofs@pop.com.br
+Subject: Re: New feature: Removal of the exceptions wich belongs to the init section 
+In-reply-to: Your message of "Fri, 28 Nov 2003 15:58:53 -0200."
+             <20031128155853.33283fec.sapuglha@yahoo.com.br> 
+Date: Mon, 01 Dec 2003 17:03:09 +1100
+Message-Id: <20031201091853.2EC342C01B@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 30 2003, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >On Sun, Nov 30 2003, Jeff Garzik wrote:
-> >>Since the hardware request API is (and must be) completely decoupled 
-> >>from struct request API, I can achieve 1.5 x non-errata case.
-> >
-> >Hmm I don't follow that... Being a bit clever, you could even send off
-> >both A and B parts of the request in one go. Probably not worth it
-> >though, that would add some complexity (things like not spanning a page,
-> >stuff you probably don't want to bother the driver with).
-> [...]
-> >Indeed. The partial completions only exist at the driver -> block layer
-> >(or -> scsi) layer, not talking to the hardware. The hardware always
-> >gets 'a request', if that just happens to be only a part of a struct
-> >request so be it.
-> [...]
-> >Sure yes, the fewer completions the better. Where do you get the 1.5
-> >from? You need to split the request handling no matter what for the
-> >errata path, I would count that as 2 completions.
-> 
-> Taskfile completion and struct request completion are separate.  That 
+In message <20031128155853.33283fec.sapuglha@yahoo.com.br> you write:
+> Hello Rusty,
 
-Of course
+Hi,
 
-> results in
-> 
-> * struct request received by libata
-> * libata detects errata
-> * libata creates 2 struct ata_queued_cmd's
-> * libata calls ata_qc_push() 2 times
-> * Time passes
-> * ata_qc_complete called 2 times
-> Option 1: {scsi|block} complete called 2 times, once for each taskfile
-> Option 2: {scsi|block} complete called 1 time, when both taskfiles are done
-> 
-> one way:  2 h/w completions, 1 struct request completion == 1.5
-> another way:  2 h/w completions, 2 struct request completions == 2.0
+> We, Juliano (julianofs@pop.com.br) and I (Tiago Sant' Anna
+> (sapuglha@yahoo.com.br) developed this patch.
 
-Well that's implementation detail in your driver, I meant hardware
-completions. Doing one or 2 calls to scsi/block completion handling is
-not expensive, at least when compared to the hardware completion.
+	I've commented on your patch: I hope you find my feedback
+useful.
 
-And I'd greatly prefer option 1, so you end_io doesn't have to know
-about the request being partial or not.
+> diff -Nur linux-2.6.0-test9-vanilla/arch/alpha/mm/extable.c linux-2.6.0-test9-modified/arch/alpha/mm/extable.c
+> --- linux-2.6.0-test9-vanilla/arch/alpha/mm/extable.c	2003-10-25 16:42:52.000000000 -0200
+> +++ linux-2.6.0-test9-modified/arch/alpha/mm/extable.c	2003-11-28 10:43:18.000000000 -0200
+> @@ -27,3 +27,18 @@
+>  
+>          return NULL;
+>  }
 
-> Maybe another way of looking at it:
-> It's a question of where the state is stored -- in ata_queued_cmd or 
-> entirely in struct request -- and what are the benefits/downsides of each.
+It's generally not a good idea to write code for architectures which
+you don't have access to, but to leave them for arch maintainers to
+sort out.
 
-If you mangle the request, you only have to do it in one place. If your
-private command is easier to handle, that wont be tricky as well. Given
-that I don't really know your libata, I can't say for sure :)
+> +/* Exception_table_entry Comparison. Only the field insn is considered. 
+> +   Results:
+> +	equal: 0
+> +	ex1 less than ex2: -1
+> +	ex1 major than ex2: 1
+> +*/
 
-> When a single struct request causes the initiation of multiple 
-> ata_queued_cmd's, libata must be capable of knowing when multiple 
-> ata_queued_cmds forming a whole have completed.  struct request must 
+This comment is a little verbose: I would simply say:
 
-This is where I disagree. If you accept to serialize the request for the
-errata case, then it does _not_ need to know! That would be adding some
-complexity.
+/* Compare two exception table entries: < 0 if ex1 comes before ex2. */
 
-> also know this.  _But_.  The key distinction is that libata must handle 
-> multiple requests might not be based on sector progress.
-> 
-> For this SII errata, I _could_ do this at the block layer:
-> ata_qc_complete() -> blk_end_io(first half of sectors)
-> ata_qc_complete() -> blk_end_io(some more sectors)
-> 
-> And the request would be completed by the block layer (right?).
+> +int extable_cmp(const struct exception_table_entry ex1, const struct exception_table_entry ex2) {
+> +	
+> +	if (ex1.insn < ex2.insn)
+> +		return(-1);
+> +	else if (ex1.insn > ex2.insn)
+> +		return(1);
+> +	return(0);
+> +}
 
-Yes.
+And it can be implemented as "return (long)ex1.insn - ex2.insn;",
+making it a candidate for an inline function in the asm/uaccess.h
+header.
 
-> But under the hood, libata has to handle these situations:
-> * One or more ATA commands must complete in succession, before the 
-> struct request may be end_io'd.
+> +/* Verify if the addr belongs to the init section */
+> +static inline int within_mod_init_section(unsigned long addr, 
+> +                                          void *start, unsigned long size)
+> +{
+> +	    return ((void *)addr >= start && (void *)addr < start + size);
+> +}
+> +
+> +/* Remove exception table entries that point to init area.
+> + * It will be used in the unload of init section.
+> + */
+> +void remove_init_exceptions(struct module *mod) {
 
-That's not tricky, as I've mentioned it's a 1-2 lines of code in your
-end_io handling.
+This comment is not quite true.  The exception entries themselves are
+in the __ex_table section, which is in the module code.  Some of the
+"insn" pointers are into the module init section, which is to be
+discarded.
 
-> * One or more ATA commands must complete asynchronously, before the 
-> struct request may be end_io'd.
+This function should be in kernel/extable.c.
 
-Depends on whether you want to accept serialization of that request for
-the errata path.
+> +
+> +	static spinlock_t init_ex_remove = SPIN_LOCK_UNLOCKED;
 
-> * These ATA commands might not be sector based:  sometimes aggressive 
-> power management means that libata must issue and complete a PM-related 
-> taskfile, before issuing the {READ|WRITE} DMA passed to it in the struct 
-> request.
+Do not invent your own lock.  You only need to protect against the
+exception table walk by other CPUs, for which modlist_lock is
+sufficient.
 
-What's your point?
+> +
+> +	const struct exception_table_entry *local;
+> +	unsigned int i;
+> +	int num_init_ex=0;
+> +
+> +
+> +	local = mod->extable;
+> +	i = 1;
+> +
+> +	while (i <= mod->num_exentries) {
+> +		if (within_mod_init_section((unsigned long) local->insn, mod->module_init, mod->init_size)) {
+> +			num_init_ex++;			
+> +		}
+> +		else break;
+> +		local = local+1;
+> +		i++;
+> +	}
+> +
+> +	local = mod->extable;
 
-> I'm already storing and handling this stuff at the hardware-queue level. 
->   (remember hardware queues often bottleneck at the host and/or bus 
-> levels, not necessarily the request_queue level)
-> 
-> So what all this hopefully boils down to is:  if I have to do "internal 
-> completions" anyway, it's just more work for libata to separate out the 
-> 2 taskfiles into 2 block layer completions.  For both errata and 
-> non-errata paths, I can just say "the last taskfile is done, clean up"
+This code is incorrect.  The init section could be before or after the
+core section, meaning that all the init-related exceptions will be at
+the start, or at the end.  So, the code would look like this:
 
-I think you should just serialize the handling of that errata request.
-If you need to provide truly partial completions of a request (where X+1
-can complete before X), then you do need to clone the actual struct
-request and do other magic. If you serialize it, it's basically no added
-complexity.
+void remove_init_exceptions(struct module *mod)
+{
+	int i;
 
-> Yet another way of looking at it:
-> In order for all state to be kept at the block layer level, you would 
-> need this check:
-> 
-> 	if ((rq->expected_taskfiles == rq->completed_taskfiles) &&
-> 	    (rq->expected_sectors == rq->completed_sectors))
-> 		the struct request is "complete"
-> 
-> and each call to end_io would require both a taskfile count and a sector 
-> count, which would increment ->completed_taskfiles and ->completed_sectors.
+	if (!mod->module_init)
+		return;
 
-No it doesn't work at all still, you can't complete arbitrary parts of a
-request like that. I don't see why you would need the
-completed_taskfiles (and expected), if you complete more sectors per
-taskfile than your driver is broken. So struct request already has
-enough info for the above 'if', but it doesn't have (and will never
-have) enough state to complete random parts of it non-sequentially.
-That can't work for all requests anyways, consider barriers. The actual
-implementation doesn't allow it either, with the one-way stringing of
-bio's and partial completions (and wakeups) of those as well.
+	spin_lock(&modlist_lock);
+	if (mod->module_init > mod->module_core) {
+		/* init exception entries at the end.  Trim */
+		for (i = mod->num_exentries-1; i >= 0; i--)
+			if (within(mod->extable[i].insn,
+				   mod->module_init, mod->init_size))
+				mod->num_exentries--;
+	} else {
+		/* init exception entries at the start.  Move ptr. */
+		for (i = 0; i < mod->num_exentries; i++) {
+			if (!within(mod->extable[i].insn,
+				    mod->module_init, mod->init_size))
+				break;
+		}
+		mod->extable += i;
+		mod->num_exentries -= i;
+	}
+	spin_nulock(&modlist_lock);
+}
+		
+> +	/* Unload the init exceptions */
+> +	for(i=0; i < num_init_ex; ++i)
+> +		kfree(local+i);
 
-> Note1: s/taskfile/cdb/ if that's your fancy :)
+This doesn't make sense: these are not pointers, but are part of
+module->core!  They will be freed in the normal way.
 
-taskfile contains way more info that cdb, so I'll stick to that :)
+>  /* Free memory returned from module_alloc */
+>  void module_free(struct module *mod, void *module_region)
+> -{
+> +{	
+> +	/* Remove exception entries of the init section */
+> +	if (module_region == mod->module_init) {
+> +		remove_init_exceptions(mod);
+> +	}
+> +	
 
--- 
-Jens Axboe
+Call this from kernel/module.c directly.
 
+> +++ linux-2.6.0-test9-modified/include/linux/extable.h	2003-11-28 10:4
+0:57.000000000 -0200
+> @@ -0,0 +1,51 @@
+> +#ifndef _EXTABLE_H
+> +#define _EXTABLE_H
+> +
+> +/*
+> + * Functions regarding to exception's table.
+> + *
+> + *	* Written by Juliano Silva and Tiago Silva, 2003
+> + *	
+> + **/
+> +
+> +
+> +#include <linux/module.h>
+> +#include <asm/uaccess.h>
+> +#include <asm/sections.h>
+> +#include <linux/init.h>
+> + 
+> +/* Exception_table_entry Comparison. Only the field insn is considered.
+> + *   Results:
+> + *            equal: 0
+> + *            ex1 less than ex2: -1
+> + *            ex1 major than ex2: 1
+> + *                                                         */
+> +extern int extable_cmp(struct exception_table_entry ex1,
+> +                       struct exception_table_entry ex2);
+> +
+> +/* This code sorts an exception table. It is very used with modules code 
+> + * void __init_or_module sort_ex_table(struct exception_table_entry *start,
+> + * struct exception_table_entry *finish);
+> + */
+> +void __init_or_module sort_ex_table(struct exception_table_entry *start, struct exception_table_entry *finish)
+
+Never put non-inline functions in a header file.  And never inline a
+function this large.
+
+Since this is only called from module.c, perhaps put it in
+include/linux/moduleloader.h and the code in extable.c.
+
+Hope that helps,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

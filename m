@@ -1,23 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266171AbUGATgz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266227AbUGATjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266171AbUGATgz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 15:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266234AbUGATgz
+	id S266227AbUGATjY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 15:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266234AbUGATjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 15:36:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44747 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266171AbUGATgq (ORCPT
+	Thu, 1 Jul 2004 15:39:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55500 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266227AbUGATit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 15:36:46 -0400
-Date: Thu, 1 Jul 2004 14:01:36 -0400
-Message-Id: <200407011801.i61I1aOs011976@redrum.boston.redhat.com>
+	Thu, 1 Jul 2004 15:38:49 -0400
+Date: Wed, 30 Jun 2004 11:56:16 -0400
+Message-Id: <200406301556.i5UFuGg8009251@redrum.boston.redhat.com>
 From: Peter Martuccelli <peterm@redhat.com>
-To: linux-kernel@vger.kernel.org
+To: akpm@osdl.org
 Subject: [PATCH] IA64 audit support
-Cc: akpm@osdl.org
+Cc: peterm@redhat.com, faith@redhat.com, davidm@hpl.hp.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       ray.lanza@hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+Hello Andrew,
 
 Here is one of the audit tasks we talked about.  This patch adds 
 ia64 support to the audit subsystem.  I have tested the ia64 audit 
@@ -26,7 +30,9 @@ from Ray Lanza.  Requesting patch to be merged in the next version.
 
 Please CC me with any comments, problems, changes, etc.
 
-Peter-
+Regards,
+
+Peter
 
 
 diffstat:

@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265090AbTGHRuP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 13:50:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267525AbTGHRuP
+	id S265079AbTGHRuy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 13:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbTGHRuy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 13:50:15 -0400
-Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:62990 "EHLO
-	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
-	id S265090AbTGHRuM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 13:50:12 -0400
-Date: Wed, 09 Jul 2003 03:06:16 +0900 (JST)
-Message-Id: <20030709.030616.94815084.yoshfuji@linux-ipv6.org>
-To: arvidjaar@mail.ru
-Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: 2.5.74 - BUG in kfree during sys_close from netstat
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200307082155.49404.arvidjaar@mail.ru>
-References: <200307082155.49404.arvidjaar@mail.ru>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Tue, 8 Jul 2003 13:50:54 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:60328 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265079AbTGHRuw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 13:50:52 -0400
+Date: Tue, 8 Jul 2003 10:59:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jim Keniston <jkenisto@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.net, davem@redhat.com,
+       jgarzik@pobox.com, alan@lxorguk.ukuu.org.uk, rddunlap@osdl.org
+Subject: Re: [PATCH - RFC] [1/2] 2.6 must-fix list - kernel error reporting
+Message-Id: <20030708105912.57015026.akpm@osdl.org>
+In-Reply-To: <3F0AFFE6.E85FF283@us.ibm.com>
+References: <3F0AFFE6.E85FF283@us.ibm.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200307082155.49404.arvidjaar@mail.ru> (at Tue, 8 Jul 2003 21:59:50 +0400), Andrey Borzenkov <arvidjaar@mail.ru> says:
+Jim Keniston <jkenisto@us.ibm.com> wrote:
+>
+> The enclosed patches provide a mechanism for reporting error events
+> to user-mode applications via netlink.
 
-> Mandrake 9.1, kernel 2.5.74. Started kmail, started kppp, connected, attempted 
-> to send or receive - nothing happened. Run netstat -an - and got
+Seems sane to me.
 
-already fixed in Linus's tree.
+It needs to handle %z as well as %Z.
 
---yoshfuji
+The layout of `struct kern_log_entry' may be problematic.  Think of the
+situation where a 64-bit kernel constructs one of these and sends it up to
+32-bit userspace.  Will the structure layout be the same under the 32-bit
+compiler as under the 64-bit one?
+
+How do you actually intend to use this?  Will it be by adding new
+evt_printf() calls to particular drivers, or replacing existing printk's or
+both?
+
+Would it make sense for evt_printf() to fall back to printk() if nobody is
+listening to the log stream?
+

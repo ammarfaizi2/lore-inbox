@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265337AbTLHE66 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 23:58:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265338AbTLHE66
+	id S265342AbTLHFQ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 00:16:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265351AbTLHFQ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 23:58:58 -0500
-Received: from dodge.jordet.nu ([217.13.8.142]:62848 "EHLO dodge.jordet.nu")
-	by vger.kernel.org with ESMTP id S265337AbTLHE65 (ORCPT
+	Mon, 8 Dec 2003 00:16:27 -0500
+Received: from pat.uio.no ([129.240.130.16]:62443 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S265342AbTLHFQ0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 23:58:57 -0500
-Subject: Re: usbfs mount options doesn't work in 2.6, works fine with 2.4
-From: Stian Jordet <liste@jordet.nu>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <1070859138.1882.2.camel@chevrolet.hybel>
-References: <1070859138.1882.2.camel@chevrolet.hybel>
-Content-Type: text/plain
-Message-Id: <1070859550.2001.1.camel@chevrolet.hybel>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 08 Dec 2003 05:59:10 +0100
-Content-Transfer-Encoding: 7bit
+	Mon, 8 Dec 2003 00:16:26 -0500
+To: Kenny Simpson <theonetruekenny@yahoo.com>
+Cc: Philippe Troin <phil@fifi.org>, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net
+Subject: Re: [NFS client] NFS locks not released on abnormal process termination
+References: <20031208033933.16136.qmail@web20024.mail.yahoo.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 08 Dec 2003 00:16:20 -0500
+In-Reply-To: <20031208033933.16136.qmail@web20024.mail.yahoo.com>
+Message-ID: <shszne3risb.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Portable Code)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
+X-UiO-MailScanner: No virus found
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.9, required 12,
+	BAYES_00 -4.90)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-man, 08.12.2003 kl. 05.52 skrev Stian Jordet:
-> Is this something other people are
-> experiencing as well, or is this some kind of configuration problem? I'm
-And I just found:
+>>>>> " " == Kenny Simpson <theonetruekenny@yahoo.com> writes:
 
-http://bugzilla.kernel.org/show_bug.cgi?id=1418
+     > So, this patch has not found its way into any kernel yet?  Is
+     > there anyone actively persuing this bug?
 
-and
+Feel free. There are only so many hours in a day, and right now
+mine are pretty much overbooked with NFSv4 stuff...
 
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0307.3/0666.html
-
-Oh well. I can use my digital camera as root. No problem :P
-
-Best regards,
-Stian
-
+Cheers,
+  Trond

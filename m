@@ -1,81 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266732AbUFYOCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266740AbUFYODt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266732AbUFYOCR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 10:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266736AbUFYOCR
+	id S266740AbUFYODt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 10:03:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266742AbUFYODt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 10:02:17 -0400
-Received: from web81307.mail.yahoo.com ([206.190.37.82]:64651 "HELO
-	web81307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S266732AbUFYOCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 10:02:15 -0400
-Message-ID: <20040625140214.65080.qmail@web81307.mail.yahoo.com>
-Date: Fri, 25 Jun 2004 07:02:14 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: Continue: psmouse.c - synaptics touchpad driver sync problem
-To: Marc Waeckerlin <marc.waeckerlin@siemens.com>
-Cc: t.hirsch@web.de, laflipas@telefonica.net, linux-kernel@vger.kernel.org
+	Fri, 25 Jun 2004 10:03:49 -0400
+Received: from chnmfw01.eth.net ([202.9.145.21]:45073 "EHLO ETH.NET")
+	by vger.kernel.org with ESMTP id S266740AbUFYODe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 10:03:34 -0400
+Message-ID: <004e01c45abd$35f8c0b0$b18309ca@home>
+From: "Amit Gud" <gud@eth.net>
+To: "Pavel Machek" <pavel@ucw.cz>, "alan" <alan@clueserver.org>
+Cc: "Fao, Sean" <Sean.Fao@dynextechnologies.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Elastic Quota File System (EQFS)
+Date: Fri, 25 Jun 2004 19:32:44 +0530
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="0-145092153-1088172134=:64726"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 25 Jun 2004 13:55:52.0328 (UTC) FILETIME=[20C3F080:01C45ABC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---0-145092153-1088172134=:64726
-Content-Type: text/plain; charset=us-ascii
-Content-Id: 
-Content-Disposition: inline
+Hi all,
 
-Marc Waeckerlin wrote:
-> Am Donnerstag, 24. Juni 2004 18.11 schrieb Dmitry Torokhov unter "RE:
-> Continue: psmouse.c - synaptics touchpad driver sync problem":
-> > You still need to use "dmesg -s 100000" even if you specifie logbuf_len.
-> > Anyway, the data probably goes into /var/log/messages as well... If it
-> is
-> > there please send it my way (not on the list). I should be able to
-> handle
-> > 100K e-mail.
-> 
-> Of course, but there are still no other lines left...
-> 
-> I don't know how big I'd have to set the buffer, but I tried to set it to
-> 2^25
-> (~33E6), but then the buffer seems to be reset to default? What's the
-> limit?
-> 
-> See the attachment for the 1E5 buffer.
-> 
+>> > On one school server, theres 10MB quota. (Okay, its admins are
+>> > BOFHs^H^H^H^H^HSISAL). Everyone tries to run mozilla there (because
+>> > its installed as default!), and immediately fills his/her quota with
+>> > cache files, leading to failed login next time (gnome just will not
+>> > start if it can't write to ~).
+>> >
+>> > Imagine mozilla automatically marking cache files "elastic".
+>> >
+>> > That would solve the problem -- mozilla caches would go away when disk
+>> > space was demanded, still mozilla's on-disk caching would be effective
+>> > when there is enough disk space.
 
-Still don't have the initialization part... Is there any way you could
-make your /var/log/messages file accessible via ftp or http?
+Also this is applicable to mailboxes - automize the marking of old mails of
+the mailing list as elastic, whenever the threshold is reached, you might
+either want to put those mails as compressed archive or simply delete it.
+This has two advantages:
+ - No email bounces for the reason of 'mailbox full' and
+ - Optimized utlization of the mailbox
 
-Anyway, I also have a tiy patch to try out (attached, not tested/
-not compiled). Please let me know how ifit makes any improvement.
+Yes, this can be done using scripts too, but what if you are to use other
+users' space that they are not using? Of course script cannot do that! You
+need to have some FS support or a libquota hack.
 
-Thank you.
 
---
-Dmitry
---0-145092153-1088172134=:64726
-Content-Type: text/plain; name="i8042-muxerr.patch"
-Content-Description: i8042-muxerr.patch
-Content-Disposition: inline; filename="i8042-muxerr.patch"
+>>
+>> How does Mozilla (or any process) react when its files are deleted from
+>> under it?  Would the file remain until all the open processes close the
+>> file or would it just "disappear"?
+>
+>Of course, if mozilla marked them "elastic" it should better be
+>prepared for they disappearance. I'd disappear them with simple
+>unlink(), so they'd physically survive as long as someone held them
+>open.
+>
+>>  Would it delete entire directories or
+>> just some of the files?  How does it choose?  (First up against the
+delete
+>> when the drive space fills...)
+>
+>Probably just some of the files... Or you could delete directory, too,
+>if it was marked "elastic". What to delete first... probably file with
+>oldest access time? Or random file, with chance of being selected
+>proportional to file size?
 
-diff -urN 2.6.7/drivers/input/serio/i8042.c linux-2.6.7/drivers/input/serio/i8042.c
---- 2.6.7/drivers/input/serio/i8042.c	2004-06-23 15:09:26.091494400 -0500
-+++ linux-2.6.7/drivers/input/serio/i8042.c	2004-06-25 08:51:48.125136000 -0500
-@@ -406,12 +406,12 @@
- 	if (i8042_mux_values[0].exists && (str & I8042_STR_AUXDATA)) {
- 
- 		if (str & I8042_STR_MUXERR) {
-+			printk(KERN_INFO "i8042.c: MUX reports error condition %02x\n", data);
- 			switch (data) {
- 				case 0xfd:
- 				case 0xfe: dfl = SERIO_TIMEOUT; break;
- 				case 0xff: dfl = SERIO_PARITY; break;
- 			}
--			data = 0xfe;
- 		} else dfl = 0;
- 
- 		dbg("%02x <- i8042 (interrupt, aux%d, %d%s%s)",
+One can either even mark the whole directory as elastic. When it comes to
+taking action, I think I'II opt for random deletion of the files for not
+being unfair to any particular user.
 
---0-145092153-1088172134=:64726--
+AG
+

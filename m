@@ -1,131 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVBIJXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVBIJm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVBIJXf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 04:23:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVBIJXf
+	id S261776AbVBIJm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 04:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVBIJm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 04:23:35 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:27338 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261442AbVBIJXX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 04:23:23 -0500
-MIME-Version: 1.0
-To: torvalds@osdl.org
-Subject: BK-kernel-tools/shortlog update
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Wed,_09_Feb_2005_09_23_14_+0000_0@merlin.emma.line.org>
-Content-type: text/plain; charset=iso-8859-1
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20050209092314.D45AC77F04@merlin.emma.line.org>
-Date: Wed,  9 Feb 2005 10:23:14 +0100 (CET)
+	Wed, 9 Feb 2005 04:42:28 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:20637 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261776AbVBIJmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 04:42:18 -0500
+Date: Wed, 9 Feb 2005 10:42:18 +0100
+From: Jan Kara <jack@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix partial sysrq setting
+Message-ID: <20050209094216.GD27328@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="MAH+hnPXVZWQ5cD/"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
 
-you can either use "bk receive" to patch with this mail,
-or you can
-Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
-or in cases of dire need, you can apply the patch below.
+--MAH+hnPXVZWQ5cD/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-BK: Parent repository is http://bktools.bkbits.net/bktools
+  Hello!
 
-Patch description:
-ChangeSet@1.272, 2005-02-09 10:22:16+01:00, matthias.andree@gmx.de
-  Automerge
+  Attached patch fixes a regression introduced by my patch allowing
+separate enabling of magic-sysrq functions. The problem is that
+originally it was always possible to use /proc/sysrq-trigger regardless
+the value of /proc/sys/kernel/sysrq (which actually I didn't know ;)
+and my original patch disallowed it. As I think the original behaviour
+is more useful and has no security problems (only root can access
+sysrq-trigger) the patch implementing the old behaviour is attached.
+Please apply (it applies well also to 2.6.11-rc3-mm1).
 
-ChangeSet@1.269.1.2, 2005-02-09 06:53:57+01:00, samel@mail.cz
-  shortlog: add 7 new addresses
+								Honza
 
-Matthias
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
 
-------------------------------------------------------------------------
+--MAH+hnPXVZWQ5cD/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="fix-sysrq-2.6.11-rc2.diff"
 
-##### DIFFSTAT #####
- shortlog |    7 +++++++
- 1 files changed, 7 insertions(+)
+Allow again to use /proc/sysrq-trigger regardless the setting of
+/proc/sys/kernel/sysrq.
 
-##### GNUPATCH #####
---- 1.238.1.1/shortlog	2005-02-07 07:51:36 +01:00
-+++ 1.241/shortlog	2005-02-09 10:22:16 +01:00
-@@ -795,6 +795,7 @@
- 'dwmw2:redhat.com' => 'David Woodhouse',
- 'dwmw2:shinybook.infradead.org' => 'David Woodhouse',
- 'dz:cs.unitn.it' => 'Massimo Dal Zotto',
-+'e9925248:student.tuwien.ac.at' => 'Martin Kögler',
- 'ebiederm:xmission.com' => 'Eric W. Biederman',
- 'ebrower:gmail.com' => 'Eric Brower',
- 'ebrower:resilience.com' => 'Eric Brower',
-@@ -1333,6 +1334,7 @@
- 'josh:joshisanerd.com' => 'Josh Myer',
- 'josha:sgi.com' => 'Josh Aas',
- 'joshk:triplehelix.org' => 'Joshua Kwan',
-+'jpaana:s2.org' => 'Jarno Paananen',
- 'jparadis:redhat.com' => 'Jim Paradis',
- 'jparmele:wildbear.com' => 'Joseph Parmelee',
- 'jpk:sgi.com' => 'Jon Krueger',
-@@ -1665,6 +1667,7 @@
- 'marineam:gentoo.org' => 'Michael Marineau',
- 'marius:citi.umich.edu' => 'Marius Aamodt Eriksen',
- 'mark.fasheh:oracle.com' => 'Mark Fasheh',
-+'mark.haigh:spirentcom.com' => 'Mark F. Haigh',
- 'mark:alpha.dyndns.org' => 'Mark W. McClelland',
- 'mark:hal9000.dyndns.org' => 'Mark W. McClelland',
- 'mark:mtfhpc.demon.co.uk' => 'Mark Fortescue',
-@@ -1884,6 +1887,7 @@
- 'nfont:austin.ibm.com' => 'Nathan Fontenot',
- 'nhorman:gmail.com' => 'Neil Horman',
- 'nhorman:redhat.com' => 'Neil Horman',
-+'nib:cookinglinux.org' => 'Nicolas Bouliane',
- 'nick.holloway:pyrites.org.uk' => 'Nick Holloway',
- 'nickpiggin:cyberone.com.au' => 'Nick Piggin',
- 'nickpiggin:yahoo.com.au' => 'Nick Piggin',
-@@ -2383,6 +2387,7 @@
- 'simonb:lipsyncpost.co.uk' => 'Simon Burley',
- 'sivanich:sgi.com' => 'Dimitri Sivanich',
- 'sjackman:gmail.com' => 'Shaun Jackman',
-+'sjean:cookinglinux.org' => 'Samuel Jean',
- 'sjhill:realitydiluted.com' => 'Steven J. Hill',
- 'skewer:terra.com.br' => 'Marcelo Abreu',
- 'skip.ford:verizon.net' => 'Skip Ford',
-@@ -2494,6 +2499,7 @@
- 'swiergot:intersec.pl' => 'Jaroslaw Swierczynski',
- 'sxking:qwest.net' => 'Steven King',
- 'sylvain.meyer:worldonline.fr' => 'Sylvain Meyer',
-+'syntax:pa.net' => 'Daniel E. Markle',
- 'syrjala:sci.fi' => 'Ville Syrjala',
- 'szepe:pinerecords.com' => 'Tomas Szepe',
- 'sziwan:hell.org.pl' => 'Karol Kozimor',
-@@ -2761,6 +2767,7 @@
- 'ysauyuki.kozakai:toshiba.co.jp' => 'Yasuyuki Kozakai', # typo
- 'yuasa:hh.iij4u.or.jp' => 'Yoichi Yuasa',
- 'yuri:acronis.com' => 'Yuri Per', # lbdb
-+'yust:anti-leasure.ru' => 'Alex Yustasov',
- 'yuvalt:gmail.com' => 'Yuval Turgeman',
- 'zach:vmware.com' => 'Zachary Amsden',
- 'zaitcev:redhat.com' => 'Pete Zaitcev',
+Signed-off-by: Jan Kara <jack@suse.cz>
 
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.11-rc2-sysrq-enable/Documentation/sysrq.txt linux-2.6.11-rc2-sysrq-additional/Documentation/sysrq.txt
+--- linux-2.6.11-rc2-sysrq-enable/Documentation/sysrq.txt	2005-02-01 14:54:39.000000000 +0100
++++ linux-2.6.11-rc2-sysrq-additional/Documentation/sysrq.txt	2005-02-01 15:27:15.000000000 +0100
+@@ -33,6 +33,10 @@ in /proc/sys/kernel/sysrq:
+ You can set the value in the file by the following command:
+     echo "number" >/proc/sys/kernel/sysrq
+ 
++Note that the value of /proc/sys/kernel/sysrq influences only the invocation
++via a keyboard. Invocation of any operation via /proc/sysrq-trigger is always
++allowed.
++
+ *  How do I use the magic SysRq key?
+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ On x86   - You press the key combo 'ALT-SysRq-<command key>'. Note - Some
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.11-rc2-sysrq-enable/drivers/char/sysrq.c linux-2.6.11-rc2-sysrq-additional/drivers/char/sysrq.c
+--- linux-2.6.11-rc2-sysrq-enable/drivers/char/sysrq.c	2005-02-01 14:54:40.000000000 +0100
++++ linux-2.6.11-rc2-sysrq-additional/drivers/char/sysrq.c	2005-02-01 15:22:40.000000000 +0100
+@@ -333,7 +333,7 @@ void __sysrq_put_key_op (int key, struct
+  * as they are inside of the lock
+  */
+ 
+-void __handle_sysrq(int key, struct pt_regs *pt_regs, struct tty_struct *tty)
++void __handle_sysrq(int key, struct pt_regs *pt_regs, struct tty_struct *tty, int check_mask)
+ {
+ 	struct sysrq_key_op *op_p;
+ 	int orig_log_level;
+@@ -347,7 +347,10 @@ void __handle_sysrq(int key, struct pt_r
+ 
+         op_p = __sysrq_get_key_op(key);
+         if (op_p) {
+-		if (sysrq_enabled == 1 || sysrq_enabled & op_p->enable_mask) {
++		/* Should we check for enabled operations (/proc/sysrq-trigger should not)
++		 * and is the invoked operation enabled? */
++		if (!check_mask || sysrq_enabled == 1 ||
++		    sysrq_enabled & op_p->enable_mask) {
+ 			printk ("%s\n", op_p->action_msg);
+ 			console_loglevel = orig_log_level;
+ 			op_p->handler(key, pt_regs, tty);
+@@ -378,7 +381,7 @@ void handle_sysrq(int key, struct pt_reg
+ {
+ 	if (!sysrq_enabled)
+ 		return;
+-	__handle_sysrq(key, pt_regs, tty);
++	__handle_sysrq(key, pt_regs, tty, 1);
+ }
+ 
+ int __sysrq_swap_key_ops(int key, struct sysrq_key_op *insert_op_p,
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.11-rc2-sysrq-enable/fs/proc/proc_misc.c linux-2.6.11-rc2-sysrq-additional/fs/proc/proc_misc.c
+--- linux-2.6.11-rc2-sysrq-enable/fs/proc/proc_misc.c	2005-02-01 16:27:03.000000000 +0100
++++ linux-2.6.11-rc2-sysrq-additional/fs/proc/proc_misc.c	2005-02-01 16:25:44.000000000 +0100
+@@ -524,7 +524,7 @@ static ssize_t write_sysrq_trigger(struc
+ 
+ 		if (get_user(c, buf))
+ 			return -EFAULT;
+-		__handle_sysrq(c, NULL, NULL);
++		__handle_sysrq(c, NULL, NULL, 0);
+ 	}
+ 	return count;
+ }
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.11-rc2-sysrq-enable/include/linux/sysrq.h linux-2.6.11-rc2-sysrq-additional/include/linux/sysrq.h
+--- linux-2.6.11-rc2-sysrq-enable/include/linux/sysrq.h	2005-02-01 14:54:40.000000000 +0100
++++ linux-2.6.11-rc2-sysrq-additional/include/linux/sysrq.h	2005-02-01 15:30:22.000000000 +0100
+@@ -42,7 +42,7 @@ struct sysrq_key_op {
+  */
+ 
+ void handle_sysrq(int, struct pt_regs *, struct tty_struct *);
+-void __handle_sysrq(int, struct pt_regs *, struct tty_struct *);
++void __handle_sysrq(int, struct pt_regs *, struct tty_struct *, int check_mask);
+ int register_sysrq_key(int, struct sysrq_key_op *);
+ int unregister_sysrq_key(int, struct sysrq_key_op *);
+ struct sysrq_key_op *__sysrq_get_key_op(int key);
 
-
-##### BKPATCH #####
-
-## Wrapped with gzip_b64 ##
-H4sIAILWCUICA81WTW/bOBA9m7+CQA85dE2TlChaAlwkabrbNJu2SNHDHhlpIquWSIOkEmeh
-373npaR8uXW6yG4CrC0YJj3P8zjvzUiv8PFRNvHGXqq6cPtr0GVbaeKt0q4Br0humu7tUukS
-voDvOKU8vBmPaCLSjqeJEB1wECKPmTqXcwk5R6/wVwc2mzTK+2WlHFG6sABh/71xPpuUzYYU
-/fLMmLCcudbBbAVWQz07PAnXdFxMvTG1QyHws/L5El+CddmEkehux1+vIZucvfvt6+8HZwgt
-FviOK14s0DOfy6kG6v1GVTXJ/9xGi4CWAcsE75I44hwdYUZ4kpLwiamYUT6jKaZJJqJMyNeU
-ZZTirT/ErxmeUnSIn5n1W5RjtzTW16bMsCoKLLGGq/6bBefAoRMcKDOOPt9XD02f+EKIKore
-3JNfmga+Y37LYiQu2JzKWLJ5FzGZiu4CUnWRS5oqCoU6L7arswXuq51SIaKYdzRhiUQPpF7n
-qaTEuKImxpY7ZGIiFqFQiYi4GGWSDyRiNOM8Y8mNRN95eH/07ktqddD6UDpbAqrwPzhuqIGQ
-3ShfkFFwGqPTp8H+Z6rvLvgO+VPOWXIrf+j824itxv/PfNDPXTj0fJR0sUiFHM0UzXf1fMx3
-97x8MR890ul9uT7hqb3a9Nd0E/S/PdS/kP9YphIztAdpygWP55nzbQHaE99eVaCJyonye3jx
-Bu+dKusrjU/+Kmuwe7+gYxZFosd+WyulVeZ4369j7AdltQkzPuxr0ENwkgyJGmVXZKmqcpm5
-dWVDqlCfvkZ3SVb4V4Lf9xEDbj5PepyuzrPcmFWly7rS7eY+18cqN7Vy+NC0dRXS9agg4kDN
-fQOlH8F9UU0LNf4QIgZInA6J3LX2apOtFdFwc/IjpasQ+Y7gnl49ZpBJ1Idft+GOqLSvpjUo
-11ogth1RBzVs8B/hZ+XMZYA8PuJ+MOUw4eKHpozZkyccfdEJh4cRV/ww434+5m/8e/ok0PO5
-/e65I19CvnJts5DRBZ+HAYD+Bk5oardJCQAA
-
+--MAH+hnPXVZWQ5cD/--

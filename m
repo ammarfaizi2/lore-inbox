@@ -1,70 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTJJLOX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 07:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbTJJLOX
+	id S262046AbTJJLR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 07:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbTJJLR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 07:14:23 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:60305 "EHLO
-	pasta.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262033AbTJJLOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 07:14:21 -0400
-Message-Id: <200310101118.h9ABImIk026992@pasta.boston.redhat.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-cc: Mika Penttila <mika.penttila@kolumbus.fi>,
-       Dave Kleikamp <shaggy@austin.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BUG() in exec_mmap()
-In-Reply-To: Your message of "Fri, 10 Oct 2003 07:57:16 -0300."
-Date: Fri, 10 Oct 2003 07:18:48 -0400
-From: Ernie Petrides <petrides@redhat.com>
+	Fri, 10 Oct 2003 07:17:26 -0400
+Received: from slimnet.xs4all.nl ([194.109.194.192]:10403 "EHLO slimnas.slim")
+	by vger.kernel.org with ESMTP id S262046AbTJJLRY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 07:17:24 -0400
+Subject: [2.6.0-test7] cpufreq longhaul trouble
+From: Jurgen Kramer <gtm.kramer@inter.nl.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1065784536.2071.3.camel@paragon.slim>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-3) 
+Date: Fri, 10 Oct 2003 13:15:37 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 10-Oct-2003 at 7:57 -0300, Marcelo Tosatti wrote:
+Hi,
 
-> On Thu, 9 Oct 2003, Ernie Petrides wrote:
->
-> > On Thursday, 9-Oct-2003 at 17:47 -0300, Marcelo Tosatti wrote:
-> >
-> > > On Thu, 9 Oct 2003, Mika Penttilä wrote:
-> > >
-> > > > Hmm.. you still need to mmput(old_mm) etc, just remove the mm_users == 1
-> > > > optimization from the beginning of exec_mmap, so this patch is wrong!
-> > >
-> > > Right. Ill fix it up by hand.
-> >
-> > Mika is correct that the exit_mmap(old_mm) still needs to happen on the
-> > last use of the "mm_struct".  But whether it's called directly from
-> > exec_mmap() or indirectly from mmput() still needs to depend on the
-> > value of "mm_users".
-> >
-> > The original logic avoided the mmdrop(active_mm) call if there was an
-> > old_mm, so I'd infer that the mm_struct reference count is not bumped
-> > twice for both references from the task_struct (mm and active_mm).  So
-> > the patch would need to be reworked to avoid the double decrement, too.
->
-> I dont get you, sorry (I'm not a real expert on that piece of code,
-> so...).
->
-> From what I understand the "if (old_mm && mm_users == 1)" if case is just
-> an optimization to avoid the allocation of a new mm structure.
->
-> The functionality will be the same without that piece of code, it will
-> just be slower.
-
-I've checked your -pre7 patch now, and I see that the 2nd block of code
-was added back in.  So what you've got now should work fine.
+It seems that longhaul support in 2.6.0-test7 is still not working
+properly...:-(. 
 
 
-> > Is it possible to just use down_read(&old_mm->mmap_sem) and
-> > up_read(&old_mm->mmap_sem) inside exec_mmap() around the optimized call
-> > to exit_mmap() instead?
->
-> Doing that locking inside exit_mmap() not feasible IMO... it might be too
-> expensive.
+longhaul: VIA C3 'Ezra' [C5C] CPU detected. Longhaul v2 supported.
+longhaul: Bogus values Min:0.000 Max:0.000. Voltage scaling disabled.
+longhaul: MinMult=5.0x MaxMult=6.0x
+longhaul: FSB: 0MHz Lowestspeed=0MHz Highestspeed=0MHz
+------------[ cut here ]------------
+kernel BUG at drivers/cpufreq/cpufreq_userspace.c:502!
+invalid operand: 0000 [#1]
+CPU:    0
+EIP:    0060:[<c022b363>]    Not tainted
+EFLAGS: 00010246
+EIP is at cpufreq_governor_userspace+0xb3/0x1b0
+eax: 00000000   ebx: 00000001   ecx: c13410a0   edx: 00000000
+esi: cf53ae40   edi: 00000001   ebp: 00000000   esp: ccd63e64
+ds: 007b   es: 007b   ss: 0068
+Process modprobe (pid: 1898, threadinfo=ccd62000 task=cd3a4d80)
+Stack: 00000001 cf53ae40 00000001 cf53ae40 c022a8b8 cf53ae40 00000001
+00000000
+       00000000 ccd63ee4 cf53ae40 c022ac1e cf53ae40 00000001 cf53ae64
+ccd63ee4
+       cf53ae40 cf53ae84 c022acb9 cf53ae40 ccd63ee4 cf53ae40 00000000
+ccd62000
+Call Trace:
+ [<c022a8b8>] __cpufreq_governor+0x68/0x120
+ [<c022ac1e>] __cpufreq_set_policy+0xde/0x140
+ [<c022acb9>] cpufreq_set_policy+0x39/0x70
+ [<c022a405>] cpufreq_add_dev+0x185/0x2a0
+ [<c014d89c>] unmap_vm_area+0x2c/0x80
+ [<c01d9253>] sysdev_driver_register+0x93/0x100
+ [<c022af81>] cpufreq_register_driver+0x91/0xa0
+ [<d082e4d4>] longhaul_init+0x54/0x56 [longhaul]
+ [<c01366bd>] sys_init_module+0x10d/0x230
+ [<c010b247>] syscall_call+0x7/0xb
 
-Okay, sounds good.  Thanks for the follow-up.
+Code: 0f 0b f6 01 80 7c 2a c0 eb 82 0f 0b f4 01 80 7c 2a c0 e9 6e
 
+If more more details are needed, I'm happy to supply.
 
-Cheers.  -ernie
+Cheers,
+
+Jurgen
+

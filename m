@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131292AbRCRXjk>; Sun, 18 Mar 2001 18:39:40 -0500
+	id <S131300AbRCRXta>; Sun, 18 Mar 2001 18:49:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131296AbRCRXja>; Sun, 18 Mar 2001 18:39:30 -0500
-Received: from [212.171.206.243] ([212.171.206.243]:6916 "HELO
-	linux.ik5bcu.ampr.org") by vger.kernel.org with SMTP
-	id <S131292AbRCRXjS>; Sun, 18 Mar 2001 18:39:18 -0500
-Message-ID: <XFMail.20010319003933.ik5bcu@tin.it>
-X-Mailer: XFMail 1.4.7p2 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <200103180305.f2I35pL29485@mailout1-100bt.midsouth.rr.com>
-Date: Mon, 19 Mar 2001 00:39:33 +0100 (CET)
-From: Marco Calistri <ik5bcu@tin.it>
+	id <S131307AbRCRXtU>; Sun, 18 Mar 2001 18:49:20 -0500
+Received: from anchor-post-34.mail.demon.net ([194.217.242.92]:6157 "EHLO
+	anchor-post-34.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S131300AbRCRXtH>; Sun, 18 Mar 2001 18:49:07 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Re: IP Alias with 2.2.18?
+Path: not-for-mail
+From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
+Newsgroups: list.linux-kernel
+Subject: Re: Q: "kapm-idled" and CPU usage
+Date: 18 Mar 2001 23:47:40 -0000
+Organization: Alfie's Internet Node
+Message-ID: <993hes$2pb$1@alfie.demon.co.uk>
+In-Reply-To: <3AB50177.47489C00@mandrakesoft.com>
+X-Newsreader: NN version 6.5.0 CURRENT #119
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+jgarzik@mandrakesoft.com (Jeff Garzik) writes:
+> Is there some way to hack the scheduler statistics so that idle
+> processes are special cases, which do not accumulate CPU time nor
+> contribute to the load average?
 
-On 18-Mar-2001 Stephen "M." Williams wrote:
-> Marco,
-> 
->     Recompile your kernel and select IP: aliasing support under
->     Networking Options
-> 
-> 
-> Steve
- 
- 
-Infact that's the problem!
+I wondered about getting kapm-idled to take the CPU time allocated to
+itself, and reallocate to the idle task.  Something like the following
+at a strategic point inside the apm loop.
 
-Sorry everybody!  Marco
+    unsigned long user, system;
+    user = current->times.tms_utime;
+    system = current->times.tms_stime;
+    current->times.tms_utime = current->times.tms_stime = 0;
+    idle->times.tms_utime += user;
+    idle->times.tms_stime += system;
 
-> On 17 Mar 2001 22:06:44 +0100, Marco Calistri wrote:
->> My first post on the "top of mailing-list"...
->> 
->> Is there same IP aliasing support with kernel 2.2.18?
->> 
->> My eth0:0 doesn't works anymore.
->> 
->> Thanks!
->> 
->> -- 
->> Regards,: Marco Calistri <ik5bcu@tin.it>
->> gpg key available on http://www.qsl.net/ik5bcu
->> Xfmail 1.4.7p2 on linux RedHat 6.2
+I haven't looked to see what point would be a good idea, and investigated
+what locks need to be held.  I've also just peeked at the 2.4 code,
+and seen "current->per_cpu_utime[cpu]" -- does this need handling?
+Is it visible to user space?
+
+If you looked closely, you might see the CPU time falling for kapm-idled,
+but generally you would see it allocated to the idle task, and not
+kapm-idled.
+
+> I agree that it's not pretty to special case idle function process(es),
+> but those idle functions in turn are causing an incorrect picture of the
+> system state to be presented to userland.
+
+At least with this scheme, the special casing is inside the kapm specific
+code, and not within the general timer handling.
+
+Of course, this is no more than an idea.  I haven't got as far as
+running 2.4 on my only APM machine (486 Thinkpad), let alone trying out
+this scheme.
+
+-- 
+ `O O'  | Nick.Holloway@pyrites.org.uk
+// ^ \\ | http://www.pyrites.org.uk/

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265152AbUGMOM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUGMOOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265152AbUGMOM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 10:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265195AbUGMOM1
+	id S265195AbUGMOOX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 10:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265224AbUGMOOW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 10:12:27 -0400
-Received: from pop.gmx.net ([213.165.64.20]:6811 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265152AbUGMOMU (ORCPT
+	Tue, 13 Jul 2004 10:14:22 -0400
+Received: from mail.gmx.net ([213.165.64.20]:36784 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S265195AbUGMOOP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 10:12:20 -0400
+	Tue, 13 Jul 2004 10:14:15 -0400
 X-Authenticated: #19232476
 Subject: Re: DriveReady SeekComplete Error...
 From: Dhruv Matani <dhruvbird@gmx.net>
@@ -19,13 +19,16 @@ References: <1089721822.4215.3.camel@localhost.localdomain>
 	 <40F3D4AC.9050407@gardenali.biz>
 Content-Type: text/plain
 Organization: 
-Message-Id: <1089728850.3240.7.camel@localhost.localdomain>
+Message-Id: <1089728962.3240.10.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 13 Jul 2004 19:57:30 +0530
+Date: 13 Jul 2004 19:59:22 +0530
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+BTW, the multi-mode setting is already enabled. I made sure while
+re-compiling the kernel, and double-checked right now.
 
 On Tue, 2004-07-13 at 17:55, Evaldo Gardenali wrote:
 > -----BEGIN PGP SIGNED MESSAGE-----
@@ -66,54 +69,6 @@ On Tue, 2004-07-13 at 17:55, Evaldo Gardenali wrote:
 > ~  x
 > ~    x
 > ~  x If in doubt, say N.
-
-I don't think this will apply here, because the error that aI get
-associated with the error is: 
-
-Jul 12 00:19:52 localhost kernel: Freeing unused kernel memory: 92k
-freed
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
-DriveReady SeekComplete Error }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
-DriveReady SeekComplete Error }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
-DriveReady SeekComplete Error }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
-DriveReady SeekComplete Error }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jul 12 00:19:52 localhost kernel: ide0: reset: success
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
-DriveReady SeekComplete Error }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
-DriveReady SeekComplete Error }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
-DriveReady SeekComplete Error }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: status=0x51 {
-DriveReady SeekComplete Error }
-Jul 12 00:19:52 localhost kernel: hda: dma_intr: error=0x84 {
-DriveStatusError BadCRC }
-Jul 12 00:19:52 localhost kernel: ide0: reset: success
-Jul 12 00:19:52 localhost kernel: Real Time Clock Driver v1.10e
-
-And not set_multimode.
-
-I read somewhere, that some time interval has been changed to 20ms /
-50ms, and 100ms was the previous one, and Samsung HDDs have been konking
-off after that. What's this?
-
 > ~    x
 > ~  x
 > ~    x

@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbSKCDCo>; Sat, 2 Nov 2002 22:02:44 -0500
+	id <S261575AbSKCDMH>; Sat, 2 Nov 2002 22:12:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261570AbSKCDCo>; Sat, 2 Nov 2002 22:02:44 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:17668 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261568AbSKCDCo>; Sat, 2 Nov 2002 22:02:44 -0500
-Date: Sun, 3 Nov 2002 03:09:09 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: =?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kconfig (qt) -> Gconfig (gtk)
-Message-ID: <20021103030909.A11401@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	=?iso-8859-1?Q?J=2EA=2E_Magall=F3n?= <jamagallon@able.es>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <1036274342.16803.27.camel@irongate.swansea.linux.org.uk> <Pine.LNX.4.44.0211021652470.16432-100000@ibm-ps850.purdueriots.com> <20021102232836.GD731@gallifrey> <200211030943.13730.neroz@iinet.net.au> <Pine.LNX.4.44.0211030052410.13258-100000@serv> <20021103000641.GA5284@werewolf.able.es> <1036287009.18289.5.camel@irongate.swansea.linux.org.uk>
+	id <S261576AbSKCDMG>; Sat, 2 Nov 2002 22:12:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22799 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261575AbSKCDME>;
+	Sat, 2 Nov 2002 22:12:04 -0500
+Date: Sun, 3 Nov 2002 03:18:35 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: linux-kernel@vger.kernel.org
+Cc: Kai Germaschewski <kai-germaschewski@uiowa.edu>
+Subject: invalid character 45 in exportstr for include-config
+Message-ID: <20021103031835.Q20749@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1036287009.18289.5.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Nov 03, 2002 at 01:30:09AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03, 2002 at 01:30:09AM +0000, Alan Cox wrote:
-> On Sun, 2002-11-03 at 00:06, J.A. Magallón wrote:
-> > As I see it, the onle thing that should be included in a standard kernel
-> > would be something like a kconfig-xaw, that is sure to be on every box that
-> > has X, and could be a reference implementation.
-> 
-> Lots of people no longer include Xaw either nowdays 8)
-> 
-> Probably the easiest way to do this would be to move the GUI tools out
-> of the kernel (or maybe leave the common useful ones) and have make
-> guiconfig do
-> 
-> 	if [ -f /usr/sbin/kernel-gui-config ] ; then
-> 		/usr/sbin/kernel-gui-config
-> 	elif got_qt() ; then
-> 		qt config
-> 	elif got_gtk() ; then
-> 		gtk_config
-> 	else
-> 		warnign message
-> 		make config
-> 	fi
 
-Why does the kernel have to know about that tools at all?  Just put them
-into $PATH and let people just call $FOOCONFIG.  This works pretty well
-with mconfig on 2.2/2.4..
+Anyone else seeing this error message?  I figured out what it _actually_
+means is that the character `-' is not permitted in the symbol being
+exported.  so if we change include-config to include_config in Makefile
+and scripts/Makefile.build, everything is fine.
 
+How about the following patch?
+
+diff -u -p -r1.1.2.6 Makefile
+--- Makefile    31 Oct 2002 17:26:55 -0000      1.1.2.6
++++ Makefile    3 Nov 2002 03:15:06 -0000
+@@ -214,7 +216,7 @@ SUBDIRS             :=
+ 
+ ifeq ($(filter $(noconfig_targets),$(MAKECMDGOALS)),)
+ 
+-export include-config := 1
++export include_config := 1
+ 
+ -include .config
+ 
+diff -u -p -r1.1.2.1 Makefile.build
+--- scripts/Makefile.build      31 Oct 2002 17:28:39 -0000      1.1.2.1
++++ scripts/Makefile.build      3 Nov 2002 03:15:06 -0000
+@@ -7,7 +7,7 @@ src := $(obj)
+ .PHONY: __build
+ __build:
+ 
+-ifdef include-config
++ifdef include_config
+ include .config
+ endif
+ 
+
+
+-- 
+Revolutions do not require corporate support.

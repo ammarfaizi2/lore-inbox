@@ -1,77 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287874AbSBCWt3>; Sun, 3 Feb 2002 17:49:29 -0500
+	id <S287862AbSBCXBw>; Sun, 3 Feb 2002 18:01:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287866AbSBCWtK>; Sun, 3 Feb 2002 17:49:10 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:50311 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S287860AbSBCWtG>;
-	Sun, 3 Feb 2002 17:49:06 -0500
-Date: Mon, 4 Feb 2002 01:46:45 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] improving O(1)-J9 in heavily threaded situations
-In-Reply-To: <20020203154603.BDDDB9251@oscar.casa.dyndns.org>
-Message-ID: <Pine.LNX.4.33.0202040137070.19391-100000@localhost.localdomain>
+	id <S287863AbSBCXBl>; Sun, 3 Feb 2002 18:01:41 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19973 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S287862AbSBCXB3>; Sun, 3 Feb 2002 18:01:29 -0500
+Message-ID: <3C5DC138.3080106@zytor.com>
+Date: Sun, 03 Feb 2002 15:01:12 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rob Landley <landley@trommello.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
+In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org> <20020203221750.HMXG18301.femail20.sdc1.sfba.home.com@there> <3C5DB8B7.4030304@zytor.com> <20020203225841.IBCK18525.femail19.sdc1.sfba.home.com@there>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley wrote:
 
-On Sun, 3 Feb 2002, Ed Tomlinson wrote:
+> 
+> You can pivot_root after the bios hands control over to the kernel, sure.  
+> But if the bios can actually boot from arbitrary blocks on the CD before the 
+> kernel takes over, this is news to me.  And for the kernel to read from the 
+> CD, it needs its drivers already loaded for it, so they have to be in that 
+> 2.88 megs somewhere.  (Statically linked, ramdisk, etc.)
+> 
 
-> > these changes do two things: they decrease the timeslice of nice +19 tasks
-> > (pretty dramatically, relative to current kernels), and they make sure
-> > that heavily reniced tasks cannot reach interactive status easily.
-> >
-> > do you still see higher priority CPU-bound task starving?
->
-> The other half of this is does the java application remain responsive?
-> Remember it is interactive it that parts of it feed a local browser.
 
-yes. Priority boost/penalty works for reniced tasks just as well.
+No, the boot specification allows direct access to the CD.  See the El 
+Torito specification, specifically the parts that talk about "no 
+emulation" mode.
 
-with the -K2 scheduler (i will release the patch soon) it will be
-progressively harder for reniced tasks to gain 'heavily interactive'
-status (ie. to be reinserted into the active array). For nice +19 tasks it
-will be impossible to get this status. (for nice +15 tasks it's still
-possible.)
 
-> If system tasks are a problem its easy to exclude them.  I did not do
-> this since monitoring who was triggering this code did not show system
-> tasks.
+> I was just pointing out that small boot environments weren't going away any 
+> time soon, even if floppy drivers were to finally manage it.  When you 
+> install your system, the initial image you bootstrap from is generally tiny.
+> 
+> Now I'm not so familiar with that etherboot stuff, intel's whatsis 
+> specification (PXE?) for sucking a bootable image through the network.  All 
+> I've ever seen that boot is a floppy image, but I don't know if that's a 
+> limitation in the spec or just the way people are using it...
 
-the fact that we might need to 'exclude' certain tasks from a mechanism
-shows that the mechanism is not robust.
 
-> What happens when the java threads really _are_ interactive?  In my
-> case the test application is a freenet node.  Part of it is acting as
-> a http proxy.  Starving this results in an unresponsive system.  Why
-> should I have to renice at all?
+That's just the way *some* people are using it.  Look at PXELINUX for 
+something that doesn't.  PXELINUX can use the UDP API provided by the 
+PXE specification to download arbitrary files, specified at runtime, via 
+TFTP.
 
-you have to renice if you want to give non-java tasks a higher share of
-the CPU time. Java threads will still be interactive relative to each
-other.
+	-hpa
 
-> > i think your workload shows a weakness in the current handling of reniced
-> > workloads, which can be fixed without adding any new mechanism.
->
-> Are you sure we really want renice to be needed get good response for
-> common workloads? [...]
-
-'response' in terms of interactive latencies should be good, yes.
-
-'response' in terms of relative CPU time given to CPU hogs and interactive
-tasks wont be as 'good' as with the old scheduler. (ie. CPU hogs *will* be
-punished harder - this is what is needed for good interactivity after
-all.) So if you see that some of your interactive tasks are not as
-important as you'd like them to be, then renicing them somewhat will give
-more CPU time even to CPU hogs. The kernel wont be able to figure out what
-is important to you though - the default right now is that interactive
-tasks are more important. If the opposite is desired then the kernel needs
-external help - ie. nice values.
-
-	Ingo
 

@@ -1,72 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVDDWN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVDDWQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVDDWN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 18:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVDDWNB
+	id S261431AbVDDWQs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 18:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVDDWPG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 18:13:01 -0400
-Received: from fire.osdl.org ([65.172.181.4]:55953 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261373AbVDDWKm (ORCPT
+	Mon, 4 Apr 2005 18:15:06 -0400
+Received: from fire.osdl.org ([65.172.181.4]:36754 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261434AbVDDWMj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 18:10:42 -0400
-Date: Mon, 4 Apr 2005 15:10:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Hicks <mort@sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] meminfo: add Cached underflow check
-Message-Id: <20050404151049.53a30133.akpm@osdl.org>
-In-Reply-To: <20050404151105.GG10693@localhost>
-References: <20050404151105.GG10693@localhost>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 4 Apr 2005 18:12:39 -0400
+Message-ID: <4251BBC5.8000802@osdl.org>
+Date: Mon, 04 Apr 2005 15:12:21 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+Organization: OSDL
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: maximilian attems <janitor@sternwelten.at>
+CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       B.Zolnierkiewicz@elka.pw.edu.pl, rusty@rustcorp.com.au
+Subject: Re: [patch 2/3] hd eliminate bad section references
+References: <20050404181102.GB12394@sputnik.stro.at>
+In-Reply-To: <20050404181102.GB12394@sputnik.stro.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Hicks <mort@sgi.com> wrote:
->
-> Working on some code lately I've been getting huge values
-> for "Cached".  The cause is that get_page_cache_size() is an
-> approximate value, and for a sufficiently small returned value
-> of get_page_cache_size() the value underflows.
+maximilian attems wrote:
+> Fix hd section references:
+> make parse_hd_setup() __init
+> 
+> Error: ./drivers/ide/legacy/hd.o .text refers to 00000943 R_386_PC32
+> .init.text
+> 
+> Signed-off-by: maximilian attems <janitor@sternwelten.at>
+> 
+> 
+> --- linux-2.6.12-rc1-bk5/drivers/ide/legacy/hd.c.orig	2005-04-04 18:39:04.000000000 +0200
+> +++ linux-2.6.12-rc1-bk5/drivers/ide/legacy/hd.c	2005-04-04 19:02:57.908576221 +0200
+> @@ -851,7 +851,7 @@
+>  	goto out;
+>  }
+>  
+> -static int parse_hd_setup (char *line) {
+> +static int __init parse_hd_setup (char *line) {
+>  	int ints[6];
+>  
+>  	(void) get_options(line, ARRAY_SIZE(ints), ints);
 
-OK..
+This one is fairly interesting and needs some resolution by someone
+who knows....
 
-I think I'd prefer to do it this way - it's simpler and the original patch
-had a teeny race wrt changes in total_swapcache_pages.
+On the surface, the patch is correct.
+
+Rusty, can you explain when __setup functions are called relative
+to in-kernel init functions?  or put another way, can a __setup
+function safely call in __init function?
+
+Here's the function in question:
+
+static int parse_hd_setup (char *line) {
+	int ints[6];
+
+	(void) get_options(line, ARRAY_SIZE(ints), ints);
+	hd_setup(NULL, ints);
+
+	return 1;
+}
+__setup("hd=", parse_hd_setup);
 
 
-diff -puN fs/proc/proc_misc.c~meminfo-add-cached-underflow-check fs/proc/proc_misc.c
---- 25/fs/proc/proc_misc.c~meminfo-add-cached-underflow-check	Mon Apr  4 15:06:38 2005
-+++ 25-akpm/fs/proc/proc_misc.c	Mon Apr  4 15:10:24 2005
-@@ -126,6 +126,7 @@ static int meminfo_read_proc(char *page,
- 	unsigned long committed;
- 	unsigned long allowed;
- 	struct vmalloc_info vmi;
-+	long cached;
- 
- 	get_page_state(&ps);
- 	get_zone_counts(&active, &inactive, &free);
-@@ -140,6 +141,10 @@ static int meminfo_read_proc(char *page,
- 	allowed = ((totalram_pages - hugetlb_total_pages())
- 		* sysctl_overcommit_ratio / 100) + total_swap_pages;
- 
-+	cached = get_page_cache_size() - total_swapcache_pages - i.bufferram;
-+	if (cached < 0)
-+		cached = 0;
-+
- 	get_vmalloc_info(&vmi);
- 
- 	/*
-@@ -172,7 +177,7 @@ static int meminfo_read_proc(char *page,
- 		K(i.totalram),
- 		K(i.freeram),
- 		K(i.bufferram),
--		K(get_page_cache_size()-total_swapcache_pages-i.bufferram),
-+		K(cached),
- 		K(total_swapcache_pages),
- 		K(active),
- 		K(inactive),
-_
 
+Should we make parse_hd_setup() __init,
+or make hd_setup() non-__init, or something else?
+
+{time passes, he looks]
+
+OK, I looked at include/linux/init.h.  From what I can see
+there, __setup() causes an .init.setup section to be emitted,
+so marking __setup() function as __init would make sense.
+I think that this patch is good.
+
+Thanks.
+-- 
+~Randy

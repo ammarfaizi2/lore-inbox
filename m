@@ -1,46 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268926AbRHWR3l>; Thu, 23 Aug 2001 13:29:41 -0400
+	id <S269067AbRHWRaV>; Thu, 23 Aug 2001 13:30:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269067AbRHWR3b>; Thu, 23 Aug 2001 13:29:31 -0400
-Received: from users.havenet.com ([209.208.35.2]:9734 "EHLO mail.havenet.com")
-	by vger.kernel.org with ESMTP id <S268926AbRHWR3T>;
-	Thu, 23 Aug 2001 13:29:19 -0400
-Message-ID: <3B853C2A.1D60F860@aet-usa.com>
-Date: Thu, 23 Aug 2001 13:23:54 -0400
-From: Christopher Curtis <ccurtis@aet-usa.com>
-X-Mailer: Mozilla 4.78 [en] (Win98; U)
-X-Accept-Language: en-US,en,es
+	id <S269197AbRHWRaN>; Thu, 23 Aug 2001 13:30:13 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:22269 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S269067AbRHWRaB>; Thu, 23 Aug 2001 13:30:01 -0400
+Message-ID: <3B853D40.33BD96D9@mvista.com>
+Date: Thu, 23 Aug 2001 10:28:32 -0700
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux kernel <linux-kernel@vger.kernel.org>
-Subject: CMD649 RAID?
+To: Maksim Krasnyanskiy <maxk@qualcomm.com>
+CC: "Raj, Ashok" <ashok.raj@intel.com>,
+        "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: tasklet question...
+In-Reply-To: <4.3.1.0.20010822153241.01f40100@mail1>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Maksim Krasnyanskiy wrote:
+> 
+> >processing in the tasklet would like to reschedule tasklet again. will the following work
+> >
+> >tasklet_function()
+> >{
+> >         more_processing = DeferredProcessing()
+> >             if (more_processing)
+> >                tasklet_schedule() // this will schedule the same tasklet.
+> >}
+> >
+> >is the above legal.
+> It's fine and it will work.
+> 
+Does the tasklet get run again on the same interrupt (assuming that
+tasklets are run at the end of irq processing) or the next one?
 
-I have an IWILL KK-266R motherboard with an AMI HG80649 ATA100 IDE RAID
-controller that shows up as a CMD649 with lspci.  I've set up a RAID1
-array through the BIOS utility but Linux (2.4.[4-9]) can't seem to do
-anything with it ...
+If the same, it would seem to be better to just do it.
 
-hde and hdg are detected, but the IRQ probe fails so ide2 and ide3 are
-disabled.  I can't access the machine right now, else I'd send some
-logfiles.  I'm also running devfs and am a little lost, so I'm not sure
-if it is simply unsupported or if I'm missing something.
-
-With the motherboard comes a bootdisk that I can use to install RedHat
-with a 2.2 kernel, but from what I read, after I install it, I can't do
-anything else with the array.  There are some patches, but they seem to
-already be integrated into 2.4.x>7 (the ide-patches no longer apply & I
-get a lot of reversed patch messages).
-
-2.4.9 only seems to have 'generic' CMD649 support, no raid, and I can't
-find an entry in /proc or /dev relating to raid support.  Am I doing
-something wrong, or am I screwed with 80GB inaccessible disk space?
-
-Thanks in advance,
-Christopher
-
+George

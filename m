@@ -1,65 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317396AbSGOKBd>; Mon, 15 Jul 2002 06:01:33 -0400
+	id <S317410AbSGOKEv>; Mon, 15 Jul 2002 06:04:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317409AbSGOKBc>; Mon, 15 Jul 2002 06:01:32 -0400
-Received: from holomorphy.com ([66.224.33.161]:60583 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317396AbSGOKBb>;
-	Mon, 15 Jul 2002 06:01:31 -0400
-Date: Mon, 15 Jul 2002 03:03:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Serial: updated serial drivers
-Message-ID: <20020715100310.GF23693@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-References: <20020707010009.C5242@flint.arm.linux.org.uk>
+	id <S317414AbSGOKEu>; Mon, 15 Jul 2002 06:04:50 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:59406 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S317410AbSGOKEr>; Mon, 15 Jul 2002 06:04:47 -0400
+Date: Mon, 15 Jul 2002 12:07:19 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: "Griffiths, Richard A" <richard.a.griffiths@intel.com>
+Cc: "'Andrew Morton'" <akpm@zip.com.au>,
+       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'Carter K. George'" <carter@polyserve.com>,
+       "'Don Norton'" <djn@polyserve.com>,
+       "'James S. Tybur'" <jtybur@polyserve.com>,
+       "Gross, Mark" <mark.gross@intel.com>
+Subject: Re: fsync fixes for 2.4
+Message-ID: <20020715100719.GE34@dualathlon.random>
+References: <01BDB7EEF8D4D3119D95009027AE99951B0E6428@fmsmsx33.fm.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020707010009.C5242@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <01BDB7EEF8D4D3119D95009027AE99951B0E6428@fmsmsx33.fm.intel.com>
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 07, 2002 at 01:00:09AM +0100, Russell King wrote:
-> I've been maintaining a serial driver "off the side" of the ARM port
-> which cleans up the serial driver mess that we currently have, with
-> many duplications of serial.c, each with subtle bugs.
+On Fri, Jul 12, 2002 at 02:52:11PM -0700, Griffiths, Richard A wrote:
+> Mark is off climbing Mt. Hood, so he asked me to post the data on the fsync
+> patch.
+> It appears from these results that there is no appreciable improvement using
+> the
+> fsync patch - there is a slight loss of top end on 4 adapters 1 drive. 
 
-global_cli() overhead on my testbox is a significant problem.
+that's very much expected, as said with my new design by adding an
+additional pass (third pass), I could remove the slight loss that I
+expected from the simple patch that puts wait_on_buffer right in the
+first pass.
 
-Profile info from tbench 1024 with ttyS0 as stdout, taken on a 16 cpu
-i386 box with 16GB of RAM and irqbalance disabled, (needed to boot):
+I mentioned this in my first email of the thread, so it looks all right.
+For a rc2 the slight loss sounds like the simplest approch.
 
-90372662 total                                    713.6412
-44801051 default_idle                             861558.6731
-36220921 mod_timer                                113190.3781
-2510075 timer_bh                                 2764.3998
-2344795 __global_cli                             8620.5699
-1446315 __wake_up                                7693.1649
-1370742 do_gettimeofday                          10078.9853
-924996 schedule                                 831.8309
-512368 do_softirq                               2328.9455
-103136 tasklet_hi_action                        526.2041
- 40640 system_call                              923.6364
- 19238 do_page_fault                             14.2927
- 12835 add_wait_queue                           103.5081
- 10667 remove_wait_queue                         83.3359
-  7990 bh_action                                 38.4135
-  5303 pte_alloc_one                             27.6198
-  4665 schedule_timeout                          29.1562
-  4584 pgd_alloc                                 24.3830
-  3870 syscall_call                             351.8182
-  3633 try_to_wake_up                             6.3073
-  3100 exit_notify                                3.5068
-  2566 del_timer                                 14.9186
+If you care about it, with my new fsync accounting design we can fix it,
+just let me know if you're interested about it. Personally I'm pretty
+much fine with it this way too, as said in the first email if we block
+it's likely bdflush is pumping the queue for us. the slowdown is most
+probably due too early unplug of the queue generated by the blocking
+points.
 
-The disabling of irqbalance should make these profiling results valid.
+as for the scaling with async flushes to multiple devices, 2.4 has a
+single flushing thread, 2.5 as Andrew said (partly) fixes this as he
+explained me at OLS, with multiple pdflush. The only issue I seen in his
+design is that he works based on superblocks, so if a filesystem is on
+top of a lvm backed by a dozen of different harddisks, only one pdflush
+will pump on those dozen physical request queues, because the first
+pdflush entering the superblock will forbid other pdflush to work on the
+same superblock too. So the first physical queue that is full, will
+forbid pdflush to push more dirty pages to the other possibly empty
+physical queues.
 
+without lvm or raid that doesn't matter thoguh, nor it matters with
+hardware raid.
 
-Cheers,
-Bill
+Andrea

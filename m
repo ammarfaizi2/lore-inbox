@@ -1,54 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269978AbTGMP7M (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 11:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270017AbTGMP7M
+	id S270479AbTGNAcO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 20:32:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270478AbTGNAcN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 11:59:12 -0400
-Received: from mailg.telia.com ([194.22.194.26]:29905 "EHLO mailg.telia.com")
-	by vger.kernel.org with ESMTP id S269978AbTGMP7K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 11:59:10 -0400
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Jens Axboe <axboe@suse.de>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Incorrect timeout in CDROM_SEND_PACKET ioctl in 2.5 kernels
-From: Peter Osterlund <petero2@telia.com>
-Date: 13 Jul 2003 18:12:56 +0200
-Message-ID: <m2u19q1k3b.fsf@telia.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 13 Jul 2003 20:32:13 -0400
+Received: from h80ad2494.async.vt.edu ([128.173.36.148]:12439 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S270477AbTGNAcD (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 20:32:03 -0400
+Message-Id: <200307140046.h6E0kcMQ021180@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: TCP IP Offloading Interface 
+In-Reply-To: Your message of "Sun, 13 Jul 2003 16:53:23 PDT."
+             <20030713165323.3fc2601f.davem@redhat.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <ODEIIOAOPGGCDIKEOPILCEMBCMAA.alan@storlinksemi.com> <20030713004818.4f1895be.davem@redhat.com> <52u19qwg53.fsf@topspin.com> <20030713160200.571716cf.davem@redhat.com> <20030713233503.GA31793@work.bitmover.com> <20030713164003.21839eb4.davem@redhat.com> <20030713235424.GB31793@work.bitmover.com>
+            <20030713165323.3fc2601f.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_-797710378P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 13 Jul 2003 20:46:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The CDROM_SEND_PACKET ioctl passes a struct cdrom_generic_command from
-user space, which contains a timeout field. The timeout is measured in
-jiffies, but the conversion from user to kernel jiffies is missing,
-which makes the timeout 10 times shorter than it should be in 2.5
-kernels on x86. This causes CDRW formatting with cdrwtool to fail. The
-following patch fixes this problem.
+--==_Exmh_-797710378P
+Content-Type: text/plain; charset=us-ascii
 
---- linux/drivers/cdrom/cdrom.c.old	Sun Jul 13 16:34:37 2003
-+++ linux/drivers/cdrom/cdrom.c	Sun Jul 13 15:19:11 2003
-@@ -295,6 +295,8 @@
- #define cdinfo(type, fmt, args...) 
- #endif
- 
-+#define MULDIV(X,MUL,DIV) ((((X % DIV) * MUL) / DIV) + ((X / DIV) * MUL))
-+
- /* These are used to simplify getting data in from and back to user land */
- #define IOCTL_IN(arg, type, in)					\
- 	if (copy_from_user(&(in), (type *) (arg), sizeof (in)))	\
-@@ -2171,6 +2173,7 @@
- 			return -ENOSYS;
- 		cdinfo(CD_DO_IOCTL, "entering CDROM_SEND_PACKET\n"); 
- 		IOCTL_IN(arg, struct cdrom_generic_command, cgc);
-+		cgc.timeout = MULDIV(cgc.timeout, HZ, USER_HZ);
- 		return cdrom_do_cmd(cdi, &cgc);
- 		}
- 	case CDROM_NEXT_WRITABLE: {
+On Sun, 13 Jul 2003 16:53:23 PDT, "David S. Miller" said:
 
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340
+> I really don't see why receive is so much of a big deal
+> compared to send, and we do a send side version of this
+> stuff already with zero problems.
+
+Well.... there's optimizations you can do on the send side..
+
+> The NFS code is already basically ready to handle a fragmented packet
+> (headers + pages), and could stick the page part into the page cache
+> easily on receive.
+
+For example, in this case, you know a priori what the IP header will look
+like, so you can use tricks like scatter-gather to send the header from one
+place and a page-aligned data buffer from another, or start the packet at
+(page boundary - IP_hrd_len), or tricks of that sort.  In 20 years, I've seen
+a lot of vendors do a lot of ugly things to speed up their IP stack, often
+based on the fact that they knew a lot about the packet before they started
+assembling it.
+
+It's hard to do tricks like that when you don't know (for instance) how
+many IP option fields the packet has until you've already started sucking
+the packet off the wire - at which point either the NIC itself has to be clever
+(Hmm, there's that IP offload again) or you have literally about 30 CPU cycles
+to do interrrupt latency *and* decide what to do....
+
+--==_Exmh_-797710378P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE/Ef1ucC3lWbTT17ARArLqAJ9Nm0BoBW0sAS12YRjHQqnbS8taaACgisgU
+ouu0kT76znvhJ7TPiI5Nm8I=
+=J2r1
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-797710378P--

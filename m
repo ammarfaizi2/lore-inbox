@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270653AbTGUTVY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 15:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270669AbTGUTVY
+	id S270669AbTGUTVp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 15:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270671AbTGUTVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 15:21:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5395 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S270653AbTGUTVX (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Mon, 21 Jul 2003 15:21:23 -0400
-Date: Mon, 21 Jul 2003 21:36:15 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andreas Jellinghaus <aj@dungeon.inka.de>
-Cc: linux-kernel@vger.redhat.com
-Subject: Re: swsusp / 2.6.0-test1
-Message-ID: <20030721193615.GB473@elf.ucw.cz>
-References: <1058805510.15585.7.camel@simulacron>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1058805510.15585.7.camel@simulacron>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Mon, 21 Jul 2003 15:21:45 -0400
+Received: from smtp.netcabo.pt ([212.113.174.9]:57572 "EHLO smtp.netcabo.pt")
+	by vger.kernel.org with ESMTP id S270669AbTGUTVn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 15:21:43 -0400
+Message-ID: <3F1CA198.2040603@netcabo.pt>
+Date: Tue, 22 Jul 2003 03:29:44 +0100
+From: Pedro Ribeiro <deadheart@netcabo.pt>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: driver error in mm2 compilation
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Jul 2003 19:31:33.0101 (UTC) FILETIME=[B12701D0:01C34FBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I get this error when I try to compile mm2:
 
-> swsusp is working fine, but mplayer
-> in sdl and xv output mode displays a blank
-> screen after a resume. 
+drivers/video/riva/fbdev.c: In function `rivafb_cursor':
+drivers/video/riva/fbdev.c:1525: warning: passing arg 2 of 
+`move_buf_aligned' from incompatible pointer type
+drivers/video/riva/fbdev.c:1525: warning: passing arg 4 of 
+`move_buf_aligned' makes pointer from integer without a cast
+drivers/video/riva/fbdev.c:1525: too few arguments to function 
+`move_buf_aligned'
+drivers/video/riva/fbdev.c:1527: warning: passing arg 2 of 
+`move_buf_aligned' from incompatible pointer type
+drivers/video/riva/fbdev.c:1527: warning: passing arg 4 of 
+`move_buf_aligned' makes pointer from integer without a cast
+drivers/video/riva/fbdev.c:1527: too few arguments to function 
+`move_buf_aligned'
+make[3]: *** [drivers/video/riva/fbdev.o] Error 1
+make[2]: *** [drivers/video/riva] Error 2
+make[1]: *** [drivers/video] Error 2
+make: *** [drivers] Error 2
 
-What kernel version?
+PR
 
-> Piii, debian unstable, dell latitude c600, 
-> 01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility M3
-> AGP 2x (rev 02)
-> CONFIG_DRM=y
-> CONFIG_DRM_R128=y
-> 
-> what else shall I post, or how can I debug the problem?
-
-You probably need to write suspend/resume support for your card.
-
-								Pavel
-
-
-> 
-> other issues:
->  - hostap driver 0.0.3 doesn't work. But pcmcia stop/start
->    fixed it. but that required a kernel patch anyway, as
->    hostap still isn't part of the kernel and thus maybe not
->    up to date (don't know).
->  - there are at least two suspend events, one for pressing
->    and one for releasing the key. I wrote a script that
->    creates a pid file and removed it 30 seconds later -
->    and in the mean time ignored any request to suspend.
->    (if you press the suspend key longer, you get even more events.)
-> 
-> Regards, Andreas
-> 
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263841AbUDONbh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 09:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263798AbUDONb0
+	id S263892AbUDONjP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 09:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263908AbUDONjP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 09:31:26 -0400
-Received: from smtp.rol.ru ([194.67.21.9]:42128 "EHLO smtp.rol.ru")
-	by vger.kernel.org with ESMTP id S263719AbUDONbW (ORCPT
+	Thu, 15 Apr 2004 09:39:15 -0400
+Received: from moo.samara.net ([195.209.64.5]:50437 "EHLO moo.samara.net")
+	by vger.kernel.org with ESMTP id S263892AbUDONjI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 09:31:22 -0400
-From: Konstantin Sobolev <kos@supportwizard.com>
-To: Justin Cormack <justin@street-vision.com>
-Subject: Re: poor sata performance on 2.6
-Date: Thu, 15 Apr 2004 17:34:03 +0400
-User-Agent: KMail/1.6.1
-Cc: Ryan Geoffrey Bourgeois <rgb005@latech.edu>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-References: <200404150236.05894.kos@supportwizard.com> <200404151455.36307.kos@supportwizard.com> <1082030525.14389.70.camel@lotte.street-vision.com>
-In-Reply-To: <1082030525.14389.70.camel@lotte.street-vision.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="koi8-r"
+	Thu, 15 Apr 2004 09:39:08 -0400
+Subject: Promise SX-6000 and Kernel 2.6.5
+From: Alex Murphy <murphy@sgtp.samara.ru>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: SYS.NET.RU
+Message-Id: <1082036339.4960.63.camel@bene.samgtp>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Apr 2004 18:38:59 +0500
 Content-Transfer-Encoding: 7bit
-Message-Id: <200404151734.03786.kos@supportwizard.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 15 April 2004 16:02, Justin Cormack wrote:
-> Ah I see from your config you have himem_4G turned on. How much memory
-> do you have? Sii3112 appears (I dont actually have datasheets) to only
-> have 32 bit DMA support, and will use bounce buffers quite a lot of the
-> time if you turn on himem at all, reducing throughput substantially. Try
-> again with no himem support at all and see if it helps.
+Hello!!!
 
-I have 1.5 GB. I tried to disable highmem, now less than 1GB is visible, but 
-there is no noticable difference in SATA performance:
+ I am sorry for the letter, but already some weeks testing with subject.
+Has established Promise SX-6000 RAID. Has compiled an original nucleus
+2.6.5_rc2.
 
-siimage:
-/dev/hde:
- setting fs readahead to 8129
- setting 32-bit IO_support flag to 1
- setting multcount to 16
- multcount    = 16 (on)
- IO_support   =  1 (32-bit)
- unmaskirq    =  0 (off)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- readonly     =  0 (off)
- readahead    = 8128 (on)
- geometry     = 16383/255/63, sectors = 145226112, start = 0
- Timing buffer-cache reads:   1428 MB in  2.00 seconds = 713.75 MB/sec
- Timing buffered disk reads:  100 MB in  3.03 seconds =  32.99 MB/sec
+ In make menuconfig has disconnected support of all PDC Promise. Has
+included all I2O devices in a nucleus.
 
-libata
-/dev/sda:
- setting fs readahead to 8192
- readahead    = 8192 (on)
- Timing buffered disk reads:   82 MB in  3.02 seconds =  27.17 MB/sec
+ns linux # cat .config|grep I2O
+# I2O device support
+CONFIG_I2O=y
+CONFIG_I2O_PCI=y
+CONFIG_I2O_BLOCK=y
+CONFIG_I2O_SCSI=y
+CONFIG_I2O_PROC=y
 
--- 
-/KoS
-* Popularity is not the same as validity. 			      
+
+dmesg send 0 i2o controllers
+
+I2O Core - (C) Copyright 1999 Red Hat Software
+I2O: Event thread created as pid 17
+i2o: Checking for PCI I2O controllers...
+I2O configuration manager v 0.04.
+  (C) Copyright 1999 Red Hat Software
+I2O Block Storage OSM v0.9
+   (c) Copyright 1999-2001 Red Hat Software.
+i2o_block: Checking for Boot device...
+i2o_block: Checking for I2O Block devices...
+i2o_scsi.c: Version 0.1.2
+  chain_pool: 0 bytes @ f7ae85a0
+  (512 byte buffers X 4 can_queue X 0 i2o controllers)
+
+
+lspci:
+
+02:02.1 Class ff00: Intel Corp. 80960RM [i960RM Microprocessor] (rev 02)
+(prog-if 01)
+        Subsystem: Promise Technology, Inc. SuperTrak SX6000 I2O CPU
+        Flags: bus master, medium devsel, latency 32, IRQ 22
+        Memory at f6000000 (32-bit, prefetchable) [size=4M]
+        Expansion ROM at <unassigned> [disabled] [size=64K]
+
+
+ I use devfs. Distribution kit Gentoo. Long searched on the Internet,
+but and I can not start raid.
+
+Prompt where still to look please.
+
+Yours faithfully, Alexey.
+

@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129315AbRBORir>; Thu, 15 Feb 2001 12:38:47 -0500
+	id <S129154AbRBORm1>; Thu, 15 Feb 2001 12:42:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129119AbRBORih>; Thu, 15 Feb 2001 12:38:37 -0500
-Received: from [64.242.80.3] ([64.242.80.3]:28424 "EHLO TTGCS.teamtoolz.net")
-	by vger.kernel.org with ESMTP id <S129405AbRBORiW>;
-	Thu, 15 Feb 2001 12:38:22 -0500
-Message-ID: <85F1402515F13F498EE9FBBC5E07594220AD85@TTGCS.teamtoolz.net>
-From: Matt Liotta <mliotta@teamtoolz.com>
-To: "'Justin T. Gibbs'" <gibbs@scsiguy.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: aic7xxx (and sym53c8xx) plans 
-Date: Thu, 15 Feb 2001 09:38:12 -0800
+	id <S129119AbRBORmR>; Thu, 15 Feb 2001 12:42:17 -0500
+Received: from minster.cs.york.ac.uk ([144.32.40.2]:22705 "EHLO
+	minster.cs.york.ac.uk") by vger.kernel.org with ESMTP
+	id <S129258AbRBORmE>; Thu, 15 Feb 2001 12:42:04 -0500
+From: "Laramie Leavitt" <lar@cs.york.ac.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.1ac14
+Date: Thu, 15 Feb 2001 17:38:02 -0000
+Message-ID: <NEBBKCNHIKGLMACGICIGGEFNCHAA.lar@cs.york.ac.uk>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
 	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <E14TRlv-0000DG-00@the-village.bc.nu>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6600
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All of my boxes with that card are on 2.2.16. The rest are on 2.4.1, so I
-don't really have a need to test 2.2.18 as I would rather be on 2.4.x for
-all of my boxes.
+> 
+> > After building/playing around with some java apps on this 
+> version, something
+> > seems to have gone weird with X or the kernel..
+> > 
+> > david@prototype:~$ ps aux | grep X
+> > root       267  0.9 99.9 167640 4294965764 ? S<   06:50   1:11 
+> /usr/bin/X11/X vt7 -auth /var/lib/gdm/:0.Xauth :0
+> > 
+> > System seems mostly fine, a bit slow..
+> 
+> Yeah folks were wondering if our rss accounting was atomically 
+> safe. I guess
+> the answer from this one is 'probably not'
+> 
+> > Would having the huge swap have anything to do with it? Needed 
+> it to install
+> > oracle, but the blasted thing won't install anyway (Debian Sid).
+> 
+> It actually looks like the system is working fine other than 
+> miscounting the
+> resident size of the X process.
+> 
+> Rik, Ben ?
 
--Matt
+I noticed that these accounting values were a little weird last
+night (when using top) when it said that X was using something
+like 205% of my memory.  So there definately is something strange
+going on...
 
-> -----Original Message-----
-> From: Justin T. Gibbs [mailto:gibbs@scsiguy.com]
-> Sent: Thursday, February 15, 2001 9:36 AM
-> To: Matt Liotta
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: aic7xxx (and sym53c8xx) plans 
-> 
-> 
-> >I am still stuck on 2.2 because of this issue. I would 
-> really like to see
-> >this driver in 2.4.2.
-> 
-> Have you tested the 2.2.18 version of the new driver?  The patches
-> should work on most 2.2.X kernels, I just haven't gotten around to
-> verifying that.  The more testers, the merrier! :-)
-> 
-> --
-> Justin
-> 
+Laramie

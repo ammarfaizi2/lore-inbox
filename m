@@ -1,30 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287359AbSAGXPe>; Mon, 7 Jan 2002 18:15:34 -0500
+	id <S287368AbSAGXSe>; Mon, 7 Jan 2002 18:18:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287355AbSAGXP0>; Mon, 7 Jan 2002 18:15:26 -0500
-Received: from nile.gnat.com ([205.232.38.5]:53962 "HELO nile.gnat.com")
-	by vger.kernel.org with SMTP id <S287359AbSAGXPQ>;
-	Mon, 7 Jan 2002 18:15:16 -0500
-From: dewar@gnat.com
-To: jtv@xs4all.nl, tim.mcdaniel@tuxia.com, tim@hollebeek.com
-Subject: RE: [PATCH] C undefined behavior fix
-Cc: Dautrevaux@microprocess.com, dewar@gnat.com, gcc@gcc.gnu.org,
-        linux-kernel@vger.kernel.org, paulus@samba.org,
-        trini@kernel.crashing.org, velco@fadata.bg
-Message-Id: <20020107231515.1D9A1F28F1@nile.gnat.com>
-Date: Mon,  7 Jan 2002 18:15:15 -0500 (EST)
+	id <S287355AbSAGXSZ>; Mon, 7 Jan 2002 18:18:25 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:61965 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S287366AbSAGXSG>; Mon, 7 Jan 2002 18:18:06 -0500
+Date: Mon, 7 Jan 2002 15:18:14 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Ancient Memories [was: Two hdds on one channel - why so slow?]
+In-Reply-To: <20020107202324.A9953@home.softaplic.com.br>
+Message-ID: <Pine.LNX.4.33.0201071515540.7915-100000@shell1.aracnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<<In the above case it is unlikely that folding would present a problem,
-but volatile was created because hardware, or even seemingly unrelated
-software, can modify even the most unlikely memory locations.   If you
-want to break device drivers, go ahead and optimize your compiler. =20
->>
+On Mon, 7 Jan 2002, Edesio Costa e Silva wrote:
 
-No, I think that is the wrong domain of discourse here. We are not talking
-about compilers being friendly, but rather correct. Most cetainly volatile
-in Ada would not permit this optimzation (i.e. it would not be an optimization
-it would be a miscompilation), and I certainly thought that in this respect
-C was identical to Ada in semantics of volatile.
+> Since we are back to where I begun maybe you can help me. A friend of mine
+> and I are looking for a PDP-11 DOS/BATCH system image. We have images of
+> RSX-11, RTS, RT-11, etc. But DOS/BATCH is missing. I recall having
+> disassembled some parts of it and it was beautiful!
+
+Can't help you there, but I do have a fig-Forth listing for the PDP-11
+and an ILLIAC (I) Programmers Manual. :-)
+
+-- 
+M. Edward "Ancient Stripe" Borasky
+
+znmeb@borasky-research.net
+http://www.borasky-research.net
+
+Give me your brains or I'll blow your money out.
+

@@ -1,81 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136127AbREDLBs>; Fri, 4 May 2001 07:01:48 -0400
+	id <S135225AbREDLfM>; Fri, 4 May 2001 07:35:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136156AbREDLBi>; Fri, 4 May 2001 07:01:38 -0400
-Received: from mail.muc.eurocyber.net ([195.143.108.5]:5073 "EHLO
-	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
-	id <S136127AbREDLBZ>; Fri, 4 May 2001 07:01:25 -0400
-Message-ID: <3AF28C11.AD4528F7@TeraPort.de>
-Date: Fri, 04 May 2001 13:01:37 +0200
-From: "Martin.Knoblauch" <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-ac7 i686)
-X-Accept-Language: en, de
+	id <S136189AbREDLex>; Fri, 4 May 2001 07:34:53 -0400
+Received: from 13dyn74.delft.casema.net ([212.64.76.74]:30726 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id <S135225AbREDLeo>; Fri, 4 May 2001 07:34:44 -0400
+Message-Id: <200105041134.NAA03383@cave.bitwizard.nl>
+Subject: Re: Possible PCI subsystem bug in 2.4
+In-Reply-To: <Pine.LNX.4.21.0105031106030.30573-100000@penguin.transmeta.com>
+ from Linus Torvalds at "May 3, 2001 11:12:04 am"
+To: Linus Torvalds <torvalds@transmeta.com>
+Date: Fri, 4 May 2001 13:34:11 +0200 (MEST)
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Edward Spidre <beamz_owl@yahoo.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: pcmcia problems after upgrading from 2.4.3-ac7 to 2.4.4
-In-Reply-To: <E14vFZb-0005GA-00@the-village.bc.nu>
-Content-Type: multipart/mixed;
- boundary="------------8FA7973417DE1B51EBEE9B9D"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------8FA7973417DE1B51EBEE9B9D
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Alan Cox wrote:
+Linus Torvalds wrote:
 > 
-> >  my DE-620 pccard stopped working after upgrading the kernel from
-> > 2.4.3-ac7 to 2.4.4. This is on a Toshiba 4080XCDT. I used the "good"
-> > .config from the 2.4.3-ac7 build to do a make "oldconfig". The symptoms
-> > at startup are:
+> On Thu, 3 May 2001, Alan Cox wrote:
+> > 
+> > Obvious one is to go to the next power of two clear. 
 > 
-> 2.4.4 has older pcmcia than 2.4.3-ac7. It might be that. Does 2.4.4-ac work ?
+> The question is mainly _which_ power of two. 
+> 
+> I don't think we can round up infinitely, as that might just end up
+> causing us to not have any PCI space at all. Or we could end up deciding
+> that real PCI space is memory, and then getting a clash when a real device
+> tries to register its bios-allocated area that clashes with our extreme
+> rounding.
+> 
+> I suspect it would be safe to round up to the next megabyte, possibly up
+> to 64MB or so. But much more would make me nervous.
+> 
+> Any suggestions? 
 
- just some additional info. The card actually stopped working in
-2.4.3-a11 upwards with the same symptoms as in my original request.
+The amount of RAM in a machine almost always has just one or two "1"
+bits. 
 
- 2.4.3-ac9 is the last working one. Not sure about -ac10, because that
-one crashes during boot (not related to pcmcia as far as I can
-remember). So, what was added in ac11 or ac10 that could hurt pcmcia or
-the i82365 module?
+8, 16, 20, 24, 32, 36, 40, 48, 64, 80 Mb were the numbers that you'd
+see in the early Pentium times, right?
 
- I'll now try 2.4.4-ac4.
+So rounding up would mean: Add one until the number of 1-bits in the
+address is less than 3. People with 3 or more differently sized DIMMS
+in their machine will experience a slightly ineffcient round-up. 
 
-Martin
+Speed this up with: Find-lowest-1-bit, add that. 
+
+Example you quoted:
+                                                nr of 1 bits. 
+BIOS-proclaimed end-of-ram: 	0x13fff0000         15
+lowest 1-bit: 			0x000010000          1
+add:                            0x140000000          2
+
+
+long round_highmem (long val)
+{
+	while (hweight32 (val) > 2)
+		val += 1 << ffs (val); 
+	return val;
+}
+
+		Roger. 
+
+
 -- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-IT Services              |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
---------------8FA7973417DE1B51EBEE9B9D
-Content-Type: text/x-vcard; charset=us-ascii;
- name="Martin.Knoblauch.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for Martin.Knoblauch
-Content-Disposition: attachment;
- filename="Martin.Knoblauch.vcf"
-
-begin:vcard 
-n:Knoblauch;Martin
-tel;cell:+49-170-4904759
-tel;fax:+49-89-510857-111
-tel;work:+49-89-510857-309
-x-mozilla-html:FALSE
-url:http://www.teraport.de
-org:TeraPort GmbH;IT-Services
-adr:;;Garmischer Straße 4;München;Bayern;D-80339;Germany
-version:2.1
-email;internet:Martin.Knoblauch@TeraPort.de
-title:Senior System Engineer
-x-mozilla-cpt:;32160
-fn:Martin Knoblauch
-end:vcard
-
---------------8FA7973417DE1B51EBEE9B9D--
-
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+* There are old pilots, and there are bold pilots. 
+* There are also old, bald pilots. 

@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269096AbUJENpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269172AbUJENvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269096AbUJENpo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 09:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269057AbUJENpn
+	id S269172AbUJENvG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 09:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269139AbUJENvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 09:45:43 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:40105 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269113AbUJENpd (ORCPT
+	Tue, 5 Oct 2004 09:51:06 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44226 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S269289AbUJENuy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 09:45:33 -0400
-Date: Tue, 5 Oct 2004 15:47:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, "K.R. Foley" <kr@cybsft.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: [patch] voluntary-preempt-2.6.9-rc3-mm2-T1
-Message-ID: <20041005134707.GA32033@elte.hu>
-References: <414F8CFB.3030901@cybsft.com> <20040921071854.GA7604@elte.hu> <20040921074426.GA10477@elte.hu> <20040922103340.GA9683@elte.hu> <20040923122838.GA9252@elte.hu> <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu> <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu> <20041004215315.GA17707@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041004215315.GA17707@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 5 Oct 2004 09:50:54 -0400
+Date: Tue, 5 Oct 2004 09:50:44 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Hideo AOKI <aoki@sdl.hitachi.co.jp>
+cc: akpm@osdl.org, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6]  vm-thrashing-control-tuning
+In-Reply-To: <4162A359.8030701@sdl.hitachi.co.jp>
+Message-ID: <Pine.LNX.4.44.0410050949300.30172-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Oct 2004, Hideo AOKI wrote:
 
-i've released the -T1 VP patch:
+> I am exploring tuning policy.
+> 
+> Any comments or suggestions?
 
-  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-T1
+While I believe that a self tuning timeout might be better in
+the long run, this tunable will certainly help tune policy.
 
-Changes since -T0:
+Besides, even with a self tuning timeout we'll want to have
+this tunable visible in /proc so we can debug things by seeing
+what value the kernel set the tunable to ;)
 
- - added the read-lock fix from Hugh that affects SMP systems. This 
-   could fix Rui's problem - i've checked -T1 on a P4/HT box and saw no 
-   problems, BYMMV.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 
- - compilation fixes (for those who downloaded T0 early)
-
- - small tracer improvement
-
-to build a -T1 tree from scratch the patching order is:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
- + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc3.bz2
- + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc3/2.6.9-rc3-mm2/2.6.9-rc3-mm2.bz2
- + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm2-T1
-
-	Ingo

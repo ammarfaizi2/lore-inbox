@@ -1,104 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262807AbUCRRjK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 12:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262810AbUCRRjK
+	id S262801AbUCRRk1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 12:40:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262815AbUCRRk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 12:39:10 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9619 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262807AbUCRRjC (ORCPT
+	Thu, 18 Mar 2004 12:40:27 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:35327 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S262801AbUCRRkQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 12:39:02 -0500
-Date: Thu, 18 Mar 2004 09:39:02 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: mjy@geizhals.at, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_PREEMPT and server workloads
-Message-Id: <20040318093902.3513903e.akpm@osdl.org>
-In-Reply-To: <20040318145129.GA2246@dualathlon.random>
-References: <40591EC1.1060204@geizhals.at>
-	<20040318060358.GC29530@dualathlon.random>
-	<20040318015004.227fddfb.akpm@osdl.org>
-	<20040318145129.GA2246@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 18 Mar 2004 12:40:16 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16473.57066.436278.252046@alkaid.it.uu.se>
+Date: Thu, 18 Mar 2004 18:39:54 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: tulip (pnic) errors in 2.6.5-rc1
+In-Reply-To: <20040318090907.56a3d458.rddunlap@osdl.org>
+References: <16473.28514.341276.209224@alkaid.it.uu.se>
+	<40597123.8020903@pobox.com>
+	<405971B3.3080700@pobox.com>
+	<16473.32039.160055.63522@alkaid.it.uu.se>
+	<40597E68.7090908@pobox.com>
+	<16473.52851.367709.934661@alkaid.it.uu.se>
+	<20040318090907.56a3d458.rddunlap@osdl.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@suse.de> wrote:
->
-> > > Worst of all we're now taking spinlocks earlier than needed,
-> > 
-> > Where?  CPU scheduler?
-> 
-> Everywhere, see the kmaps, we spinlock before instead of spinlock after,
-> the scheduler, lots of places. I mean, people don't call
-> 
-> 	preempt_disable()
-> 	kmap_atomic
-> 	spin_lock
-> 
-> they do:
-> 
-> 	spin_lock
-> 	kmap_atomic
+Randy.Dunlap writes:
+ > On Thu, 18 Mar 2004 17:29:39 +0100 Mikael Pettersson wrote:
+ > 
+ > | Jeff Garzik writes:
+ > |  > Mikael Pettersson wrote:
+ > |  > > Jeff Garzik writes:
+ > |  > >  > er, oops... lemme find the right patch...
+ > |  > > 
+ > |  > > No change, still a flood of those tulip_rx() interrupt messages.
+ > |  > 
+ > |  > hmmm.  Well, it is something unrelated to tulip driver, then.
+ > | 
+ > | Testing older -bk versions I've found that 2.6.4-bk2
+ > | is Ok but 2.6.4-bk3 has this message flood problem.
+ > 
+ > Other than the netdev_priv() changes, I see removal of
+ > KERNEL_SYSCALLS and the addition of CONFIG_NET_POLL_CONTROLLER.
+ > Are you enabling CONFIG_NET_POLL_CONTROLLER?
+ > If so, can you test with it disabled?
 
-They do?   kmap_atomic() disables preemption anyway.
+No it wasn't NET_POLL_CONTROLLER (I didn't enable it).
 
-> so they're effectively optimizing for PREEMPT=y and I don't think this
-> is optimal for the long term. One can aruge the microscalability
-> slowdown isn't something to worry about, I certainly don't worry about
-> it too much either, it's more a bad coding habit to spinlock earlier
-> than needed to avoid preempt_disable.
-> 
-> > > and the preempt_count stuff isn't optmized away by PREEMPT=n,
-> > 
-> > It should be.  If you see somewhere where it isn't, please tell us.
-> 
-> the counter is definitely not optimized away, see:
-> 
-> #define inc_preempt_count() \
-> do { \
-> 	preempt_count()++; \
-> } while (0)
-> 
-> #define dec_preempt_count() \
-> do { \
-> 	preempt_count()--; \
-> } while (0)
-> 
-> #define preempt_count()	(current_thread_info()->preempt_count)
-> 
-> those are running regardless of PREEMPT=n.
+I split the bk2->bk3 patch in pieces, and traced the bug to the
+netdev_priv() change in in loopback.c. The bug is that loopback's
+dev is static and its ->priv actually points to kmalloc:d space.
+The netdev_priv() transformation is invalid for anything not
+allocated with alloc_etherdev or alloc_netdev, so the patch
+to loopback caused it to access and clobber static memory just
+after its own dev.
 
-The macros are needed for kmap_atomic().
+It was my bad luck that tulip was the victim of that clobber.
 
-The task->preempt field is also used for tracking the hardirq and softirq
-depths (in_interrupt(), in_irq(), in_softirq()) so it cannot be removed
-with CONFIG_PREEMPT=n.
+Reverting the patch below solves the problem.
 
-> > We unconditionally bump the preempt_count in kmap_atomic() so that we can
-> > use atomic kmaps in read() and write().  This is why four concurrent
-> > write(fd, 1, buf) processes on 4-way is 8x faster than on 2.4 kernels.
-> 
-> sorry, why should the atomic kmaps read the preempt_count? Are those ++
-> -- useful for anything more than debugging PREEMPT=y on a kernel
-> compiled with PREEMPT=n? I thought it was just debugging code with
-> PREEMPT=n.
-> 
-> I know why the atomic kmaps speedup write but I don't see how can
-> preempt_count help there when PREEMPT=n, the atomic kmaps are purerly
-> per-cpu and one can't schedule anyways while taking those kmaps (no
-> matter if inc_preempt_count or not).
+/Mikael
 
-We run inc_prempt_count() in kmap_atomic() so that we can perform
-copy_*_user() while holding an atomic kmap in read() and write(). 
-do_page_fault() will detect the elevated preempt count and will return a
-short copy.
-
-This could be implemented with a separate task_struct field but given that
-preempt_count is always there and the infrastructure exists anyway, using
-preempt_count() is tidier.
-
+diff -ruN linux-2.6.4-bk2/drivers/net/loopback.c linux-2.6.4-bk3/drivers/net/loopback.c
+--- linux-2.6.4-bk2/drivers/net/loopback.c	2004-03-11 14:01:28.000000000 +0100
++++ linux-2.6.4-bk3/drivers/net/loopback.c	2004-03-18 16:12:28.000000000 +0100
+@@ -123,7 +123,7 @@
+  */
+ static int loopback_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+-	struct net_device_stats *stats = (struct net_device_stats *)dev->priv;
++	struct net_device_stats *stats = netdev_priv(dev);
+ 
+ 	skb_orphan(skb);
+ 

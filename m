@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261605AbSI0CP7>; Thu, 26 Sep 2002 22:15:59 -0400
+	id <S261609AbSI0CXR>; Thu, 26 Sep 2002 22:23:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261608AbSI0CP7>; Thu, 26 Sep 2002 22:15:59 -0400
-Received: from packet.digeo.com ([12.110.80.53]:3572 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261605AbSI0CP7>;
-	Thu, 26 Sep 2002 22:15:59 -0400
-Message-ID: <3D93C093.464B158C@digeo.com>
-Date: Thu, 26 Sep 2002 19:21:07 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S261610AbSI0CXR>; Thu, 26 Sep 2002 22:23:17 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29705 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261609AbSI0CXQ>;
+	Thu, 26 Sep 2002 22:23:16 -0400
+Message-ID: <3D93C22F.9070006@pobox.com>
+Date: Thu, 26 Sep 2002 22:27:59 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: george anzinger <george@mvista.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       high-res-timers-discourse@lists.sourceforge.net
-Subject: Re: [PATCH] High-res-timers part 1 (core)
-References: <3D93A363.ACA56815@mvista.com>
-Content-Type: text/plain; charset=us-ascii
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Larry Kessler <kessler@us.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       "Andrew V. Savochkin" <saw@saw.sw.com.sg>,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Richard J Moore <richardj_moore@uk.ibm.com>
+Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice
+  driver
+References: <Pine.LNX.4.33.0209261604190.1712-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 Sep 2002 02:21:11.0351 (UTC) FILETIME=[8BD4D470:01C265CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> For 2.6.x I care about getting the drivers _working_.
 
-George, your patch has 479 instances of eight-contiguous-blanks.
-Please use tabs.
+Tangent question, is it definitely to be named 2.6?
 
-I have great deals going on used editors at present ;)
+Maybe it's just my impression from development speed, but it felt more 
+like a 3.0 to me :)
+
+	Jeff
+
+
+
+

@@ -1,40 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129886AbRALWDD>; Fri, 12 Jan 2001 17:03:03 -0500
+	id <S129811AbRALWEn>; Fri, 12 Jan 2001 17:04:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129811AbRALWCx>; Fri, 12 Jan 2001 17:02:53 -0500
-Received: from ns.stesmi.com ([212.209.57.62]:25672 "EHLO mckinley.stesmi.com")
-	by vger.kernel.org with ESMTP id <S129538AbRALWCi>;
-	Fri, 12 Jan 2001 17:02:38 -0500
-Message-ID: <3A5F7F85.62054716@hanse.com>
-Date: Fri, 12 Jan 2001 23:04:53 +0100
-From: Stefan Smietanowski <stefan@hanse.com>
-Organization: Hanse Communication
-X-Mailer: Mozilla 4.75 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Shawn Starr <Shawn.Starr@Home.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM]: Strange network problems with 2.4.0 and 3c59x.o
-In-Reply-To: <Pine.LNX.4.10.10101020019010.8957-100000@vaio.greennet> <3A51D40F.48B9ADB9@home.net> <3A5F791F.BCC236C1@Home.net>
+	id <S129538AbRALWEd>; Fri, 12 Jan 2001 17:04:33 -0500
+Received: from adsl-209-182-168-213.value.net ([209.182.168.213]:6406 "EHLO
+	draco.foogod.com") by vger.kernel.org with ESMTP id <S132660AbRALWES>;
+	Fri, 12 Jan 2001 17:04:18 -0500
+Date: Fri, 12 Jan 2001 14:04:11 -0800
+From: alex@foogod.com
+To: Jordan <jordang@pcc.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can't build small enough zImage for floppy
+Message-ID: <20010112140411.B5625@draco.foogod.com>
+In-Reply-To: <3A5F7BA7.B2FF852B@pcc.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A5F7BA7.B2FF852B@pcc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Fri, Jan 12, 2001 at 03:48:23PM -0600, Jordan wrote:
+> 1st, the Sony Vaio Z505HS appears to be an example of a machine which
+> will not boot a bzImage correctly, compaining about the compression
+> format.
 
-> Here's something strange that i've been noticing with 2.4.0. Some websites I am
-> unable to access now. For example:
+I can say from experience that this is not the case.  In fact, the kernel 
+binaries (RPM) I provide on my Z505 page (http://www.foogod.com/z505_linux) are 
+bzImages (currently those are still test5, though I have used later ones on my 
+own machine as well, and will probably be upgrading the page to 2.4.0 final 
+eventually).  I will admit that I haven't tried booting them from a floppy.. 
+perhaps this is where the problem lies.
 
-<snip about sites>
+The Z505HS does have a USB floppy drive, which is the only thing I can think 
+of that's different from most other machines which might affect this, but I do 
+know that that doesn't stop a 2.2 kernel from booting off of it (though there 
+are problems accessing the floppy after the initial boot without USB drivers, 
+of course)
 
-This is a FAQ. Check if you compiled with ECN enabled (CONFIG_INET_ECN).
-Some sites have broken firewalls that drop packets of that type. Either
-don't surf to those sites or disable ECN. This will all work when all
-sites upgrade their firewalls *cough*.
+I will look into building a 2.4.0 floppy-bootable kernel on my Z505 and see if 
+I can reproduce the problems you're having.
 
-// Stefan
+-alex
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

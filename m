@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268169AbUIKQoj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268206AbUIKQsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268169AbUIKQoj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 12:44:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268174AbUIKQoi
+	id S268206AbUIKQsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 12:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268215AbUIKQsI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 12:44:38 -0400
-Received: from cantor.suse.de ([195.135.220.2]:10646 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S268169AbUIKQoa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 12:44:30 -0400
-Message-ID: <41432AD4.2090003@suse.de>
-Date: Sat, 11 Sep 2004 18:41:56 +0200
-From: Stefan Seyfried <seife@suse.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: linux-kernel@vger.kernel.org, pavel@ucw.cz, kevin-linux-kernel@scrye.com
-Subject: Re: FYI: my current bigdiff
-References: <20040909134421.GA12204@elf.ucw.cz> <20040910041320.DF700E7504@voldemort.scrye.com> <200409101646.01558.bjorn.helgaas@hp.com>
-In-Reply-To: <200409101646.01558.bjorn.helgaas@hp.com>
+	Sat, 11 Sep 2004 12:48:08 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:59401 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268206AbUIKQp5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 12:45:57 -0400
+Date: Sat, 11 Sep 2004 17:45:52 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Mike Mestnik <cheako911@yahoo.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
+       Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       =?iso-8859-1?Q?Felix=5FK=FChling?= <fxkuehl@gmx.de>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: radeon-pre-2
+Message-ID: <20040911174552.B2956@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mike Mestnik <cheako911@yahoo.com>, Dave Airlie <airlied@linux.ie>,
+	Jon Smirl <jonsmirl@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	=?iso-8859-1?Q?Felix=5FK=FChling?= <fxkuehl@gmx.de>,
+	DRI Devel <dri-devel@lists.sourceforge.net>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+References: <20040911132727.A1783@infradead.org> <20040911124930.98551.qmail@web11906.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040911124930.98551.qmail@web11906.mail.yahoo.com>; from cheako911@yahoo.com on Sat, Sep 11, 2004 at 05:49:30AM -0700
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Sep 11, 2004 at 05:49:30AM -0700, Mike Mestnik wrote:
+> Not to step on toes, but...  From what I can tell the idea is to add code
+> into FB that calles functions in the DRM and vice vers.  This would seam
+> to  add another ABI.  Unless the code gets linked into one module, this
+> idea has been flamed and killed already.
 
+in-kernel ABIs are absolutely not an issue for Linux.
 
-Bjorn Helgaas wrote:
-
-> I'm completely ignorant about how swsusp works; I guess this is my
-> chance to learn.  "pci=routeirq" just causes us to do all the PCI
-> ACPI IRQ routing at boot-time, before the drivers start up.  This
-> happens in pci_acpi_init(), which is a subsys_initcall that is run
-> at initial boot-time, but (I assume) not during a resume.
-
-a resume is basically a fresh boot, including hardware initialization by
-the compiled-in drivers (but not modules) but before starting init /
-entering initrd, the old system state is read from swap, copied back and
-somehow we continue where we left off at suspend time. Now the resume
-methods of all device drivers are called, processes are restarted and we
-are back in the game. (At least this is how i understood it all :-)
-
-I can easily imagine that a driver with a slightly broken suspend /
-resume method may fail without pci=routeirq if it does not do the irq
-routing correctly during resume. It may work with pci=routeirq since
-then everything is prepared for it before the resume actually happens.
-
-Kevin may get away with unloading the usb host controller and the
-prism54 drivers before suspend and reloading them after resume.
-
-         Stefan

@@ -1,80 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270630AbUJUG0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269168AbUJTTZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270630AbUJUG0O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270406AbUJTT1J
+	id S269168AbUJTTZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 15:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270240AbUJTTTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:27:09 -0400
-Received: from mail.tmr.com ([216.238.38.203]:9993 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S270350AbUJTTX7 (ORCPT
+	Wed, 20 Oct 2004 15:19:51 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.51]:40843 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S269013AbUJTTSk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:23:59 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: Linux v2.6.9 and GPL Buyout
-Date: Wed, 20 Oct 2004 15:35:19 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cl6dhd$2lv$1@gatekeeper.tmr.com>
-References: <41757478.4090402@drdos.com><Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <1098235014.8126.34.camel@louise3.6s.nl>
+	Wed, 20 Oct 2004 15:18:40 -0400
+Date: Wed, 20 Oct 2004 21:18:39 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       chrisw@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2/3] lsm: add bsdjail module
+Message-ID: <20041020191839.GB30342@mail.13thfloor.at>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Serge E. Hallyn" <serue@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+	chrisw@osdl.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1097094103.6939.5.camel@serge.austin.ibm.com> <1097094270.6939.9.camel@serge.austin.ibm.com> <20041006162620.4c378320.akpm@osdl.org> <20041007190157.GA3892@IBM-BWN8ZTBWA01.austin.ibm.com> <20041010104113.GC28456@infradead.org> <1097502444.31259.19.camel@localhost.localdomain> <20041012070055.GB7003@DUMA.13thfloor.at> <20041012090057.GA15706@infradead.org> <20041012122733.GD8012@DUMA.13thfloor.at> <20041020153621.GA21916@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1098299757 2751 192.168.12.10 (20 Oct 2004 19:15:57 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
-In-Reply-To: <1098235014.8126.34.camel@louise3.6s.nl>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041020153621.GA21916@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bastiaan Spandaw wrote:
-> On Tue, 2004-10-19 at 22:09, Jeff V. Merkey wrote:
+On Wed, Oct 20, 2004 at 04:36:21PM +0100, Christoph Hellwig wrote:
+> On Tue, Oct 12, 2004 at 02:27:33PM +0200, Herbert Poetzl wrote:
+> > On Tue, Oct 12, 2004 at 10:00:57AM +0100, Christoph Hellwig wrote:
+> > > On Tue, Oct 12, 2004 at 09:00:55AM +0200, Herbert Poetzl wrote:
+> > > > and it works well, because we use it for almost
+> > > > a year now on linux-vserver ;)
+> > > 
+> > > Btw, could anyone explain the exact differences between linux-vserver
+> > > and this jail module?
+> > 
+> > hmm, okay I'll try ...
+> > 
+> > linux-vserver is a combination of kernel patch and
+> > userspace tools to create 'virtual servers' similar
+> > to UML, but sharing the resources (and kernel).
+> > 
+> > to do this, it uses process isolation, network
+> > isolation and disk space separation (tagging). 
+> > in addition it does resource management (accounting
+> > and limits) for various aspects (CPU, memory, 
+> > processes, sockets, filehandles, ...)
+> > 
+> > the jail module is recreating a limited subset of
+> > the isolation aspect via LSM (similar to the BSD
+> > jail) which allows to confine a process (and it's
+> > children) to a chroot() environment under certain
+> > limitations (resources)
 > 
+> So why
 > 
->>>>JFS, XFS, All SMP support in Linux, and RCU.
->>
->>And Numa also.
->>
->>
->>>This isn't SCO code. This goes back to SCO's claims of "control rights"
->>>over any source code that has been in the same room as UNIX code.
-> 
-> 
->>No.  They seem to have some factual concrete evidence IP covered under 
->>Employee agreements was used and subsequently converted into Linux, and they 
->>are very confident of this.  
+>  a) can't linux-vserver use LSM hooks where applicable
 
-Non-compete agreements are VERY tricky, and in some cases are only valid 
-until/unless the information is made available to the public. Let a 
-lawyer explain the details, but available to the public seems to mean 
-that if A steals the info and publishes it, B is no longer bound, or 
-something like that. Again, let a lawyer clarify, I know there is an 
-issue but I don't claim to understand the ramifications.
-> 
-> 
-> bwhahaha...
-> 
-> nice try..
-> 
-> Do you reallly think you (on your own) can defend al those claims?
+well, it could, and probably in future it will do so,
+but currently there are three reasons which keep me
+from doing that:
 
-Since they are SCO's claims, why should he? Or do you wish to attach his 
-opinion that SCO seems confident?
+ 1) some folks want to use LSM for other things, and
+    proper stackering of LSM was broken/missing last
+    time I looked at the code 
 
-> (better than all lawyers/persons involved???!?!?!)
-> Even though all of them (claims) have been disputed by people more
-> knowledgeable than you?
-> 
-> Please leave LKML.
-> 
-> We don't like you nor anything you have to say.
+ 2) performance: I'm not convinced that the LSM
+    hooks are a good choice, where a single check
+    of a flag (in current) is more than sufficient
+ 
+ 3) why move 20% of linux vserver to LSM, where
+    those 20% can not do anything useful without the
+    remaining 80% (or at least some part of it)
+    which can not be done with LSM for various
+    reasons.
 
-You don't like what he says so you try to shut him up? That argument 
-doesn't go far in court.
+>  b) can't the two projects share code so we don't only have a crippled
+>     version in mainline
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+I'm sure the projects can share code, and IMHO the
+best solution would be to create a 'cripled' version
+of linux-vserver and to include it in mainline (if
+that is what kernel folks want) and to slowly extend
+this version where possible, moving existing code
+from linux-vserver into mainline ...
+
+once CKRM is working and included, and LSM provides
+the 'security' features, linux-vserver might become
+a simple compile time option ...
+
+best,
+Herbert
+
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

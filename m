@@ -1,101 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266920AbUG1OAh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266919AbUG1OEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266920AbUG1OAh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 10:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266921AbUG1OAh
+	id S266919AbUG1OEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 10:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266921AbUG1OEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 10:00:37 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6568 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266920AbUG1OAY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 10:00:24 -0400
-Date: Wed, 28 Jul 2004 09:59:41 -0400
-From: Alan Cox <alan@redhat.com>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: PATCH: fix some 32bit isms
-Message-ID: <20040728135941.GA17409@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jul 2004 10:04:15 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35269 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266919AbUG1OEN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 10:04:13 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Alan Cox <alan@redhat.com>
+Subject: Re: PATCH: Add support for Innovision DM-8401H
+Date: Wed, 28 Jul 2004 16:10:54 +0200
+User-Agent: KMail/1.5.3
+References: <20040728134910.GA8514@devserv.devel.redhat.com>
+In-Reply-To: <20040728134910.GA8514@devserv.devel.redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200407281610.54961.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fairly self explanatory. int is not size_t.
- 
-Alan 
 
-OSDL Developer Certificate of Origin 1.0 included herein by reference
+[ cc: linux-ide, please! ]
 
+On Wednesday 28 of July 2004 15:49, Alan Cox wrote:
+> This is an SII 680 with strange PCI identifiers it appears
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc2/drivers/message/fusion/mptbase.c linux-2.6.8-rc2/drivers/message/fusion/mptbase.c
---- linux.vanilla-2.6.8-rc2/drivers/message/fusion/mptbase.c	2004-07-27 19:22:42.000000000 +0100
-+++ linux-2.6.8-rc2/drivers/message/fusion/mptbase.c	2004-07-28 14:27:53.603586584 +0100
-@@ -2417,7 +2417,7 @@
- 	} else {
- 		printk(MYIOC_s_ERR_FMT 
- 		     "Invalid IOC facts reply, msgLength=%d offsetof=%d!\n",
--		     ioc->name, facts->MsgLength, (offsetof(IOCFactsReply_t,
-+		     ioc->name, facts->MsgLength, (int)(offsetof(IOCFactsReply_t,
- 		     RequestFrameSize)/sizeof(u32)));
- 		return -66;
- 	}
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.8-rc2/drivers/mtd/inftlmount.c linux-2.6.8-rc2/drivers/mtd/inftlmount.c
---- linux.vanilla-2.6.8-rc2/drivers/mtd/inftlmount.c	2004-07-27 19:22:43.000000000 +0100
-+++ linux-2.6.8-rc2/drivers/mtd/inftlmount.c	2004-07-28 14:31:37.711517000 +0100
-@@ -58,7 +58,7 @@
- 	u8 buf[SECTORSIZE];
- 	struct INFTLMediaHeader *mh = &inftl->MediaHdr;
- 	struct INFTLPartition *ip;
--	int retlen;
-+	size_t retlen;
+No, this is a different chipset (produced by ITE).
+
+> Original patch: Alex Hewson
+> Verified by: Alan Cox <alan@redhat.com>
+
+I asked you to compare Sil and ITE datasheets
+(as I don't have one for Sil0680).
+
+Have you done this?
+
+> @@ -1634,6 +1634,7 @@
+>  #define PCI_VENDOR_ID_ITE		0x1283
+>  #define PCI_DEVICE_ID_ITE_IT8172G	0x8172
+>  #define PCI_DEVICE_ID_ITE_IT8172G_AUDIO 0x0801
+> +#define PCI_DEVICE_ID_ITE_DM8401	0x8212
+
+This chipset is used by other cards as well.
  
- 	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: find_boot_record(inftl=0x%x)\n",
- 		(int)inftl);
-@@ -288,7 +288,7 @@
- 		inftl->PUtable = kmalloc(inftl->nb_blocks * sizeof(u16), GFP_KERNEL);
- 		if (!inftl->PUtable) {
- 			printk(KERN_WARNING "INFTL: allocation of PUtable "
--				"failed (%d bytes)\n",
-+				"failed (%ld bytes)\n",
- 				inftl->nb_blocks * sizeof(u16));
- 			return -ENOMEM;
- 		}
-@@ -297,7 +297,7 @@
- 		if (!inftl->VUtable) {
- 			kfree(inftl->PUtable);
- 			printk(KERN_WARNING "INFTL: allocation of VUtable "
--				"failed (%d bytes)\n",
-+				"failed (%ld bytes)\n",
- 				inftl->nb_blocks * sizeof(u16));
- 			return -ENOMEM;
- 		}
-@@ -348,7 +348,8 @@
- static int check_free_sectors(struct INFTLrecord *inftl, unsigned int address,
- 	int len, int check_oob)
- {
--	int i, retlen;
-+	int i;
-+	size_t retlen;
- 	u8 buf[SECTORSIZE + inftl->mbd.mtd->oobsize];
- 
- 	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: check_free_sectors(inftl=0x%x,"
-@@ -382,7 +383,7 @@
-  */
- int INFTL_formatblock(struct INFTLrecord *inftl, int block)
- {
--	int retlen;
-+	size_t retlen;
- 	struct inftl_unittail uci;
- 	struct erase_info *instr = &inftl->instr;
- 	int physblock;
-@@ -551,7 +552,8 @@
- 	int chain_length, do_format_chain;
- 	struct inftl_unithead1 h0;
- 	struct inftl_unittail h1;
--	int i, retlen;
-+	int i;
-+	size_t retlen;
- 	u8 *ANACtable, ANAC;
- 
- 	DEBUG(MTD_DEBUG_LEVEL3, "INFTL: INFTL_mount(inftl=0x%x)\n", (int)s);
+> @@ -1108,7 +1111,8 @@
+>  static ide_pci_device_t siimage_chipsets[] __devinitdata = {
+>  	/* 0 */ DECLARE_SII_DEV("SiI680"),
+>  	/* 1 */ DECLARE_SII_DEV("SiI3112 Serial ATA"),
+> -	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA")
+> +	/* 2 */ DECLARE_SII_DEV("Adaptec AAR-1210SA"),
+> +	/* 3 */ DECLARE_SII_DEV("InnoVISION DM8401H")
+>  };
+
+ditto
+

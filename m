@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268141AbTBYNFh>; Tue, 25 Feb 2003 08:05:37 -0500
+	id <S268144AbTBYNO4>; Tue, 25 Feb 2003 08:14:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268144AbTBYNFh>; Tue, 25 Feb 2003 08:05:37 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:62676 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S268141AbTBYNFh>; Tue, 25 Feb 2003 08:05:37 -0500
-Date: Tue, 25 Feb 2003 14:15:46 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: chas@locutus.cmf.nrl.navy.mil
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.5.63: fore200e.c doesn't compile
-Message-ID: <20030225131546.GL7685@fs.tum.de>
-References: <Pine.LNX.4.44.0302241127050.13335-100000@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S268145AbTBYNO4>; Tue, 25 Feb 2003 08:14:56 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:20618 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S268144AbTBYNOz>;
+	Tue, 25 Feb 2003 08:14:55 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302241127050.13335-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
+Message-ID: <15963.28297.698245.741314@gargle.gargle.HOWL>
+Date: Tue, 25 Feb 2003 14:24:25 +0100
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Stelian Pop <stelian@popies.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: modutils: FATAL: Error running install... 
+In-Reply-To: <20030225012823.8C09A2C54A@lists.samba.org>
+References: <20030224172734.C29439@deep-space-9.dsnet>
+	<20030225012823.8C09A2C54A@lists.samba.org>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 11:32:07AM -0800, Linus Torvalds wrote:
->...
-> Summary of changes from v2.5.62 to v2.5.63
-> ============================================
->...
-> <chas@locutus.cmf.nrl.navy.mil>:
->   o [ATM]: use sock timestamp
->...
+Rusty Russell writes:
+ > In message <20030224172734.C29439@deep-space-9.dsnet> you write:
+ > > ===== kernel/kmod.c 1.24 vs edited =====
+ > > --- 1.24/kernel/kmod.c	Mon Feb 24 04:18:09 2003
+ > > +++ edited/kernel/kmod.c	Mon Feb 24 17:19:39 2003
+ > > @@ -154,6 +154,7 @@
+ > >  
+ > >  	/* Unblock all signals. */
+ > >  	flush_signals(current);
+ > > +	current->sighand->action[SIGCHLD-1].sa.sa_handler = SIG_DFL;
+ > >  	spin_lock_irq(&current->sighand->siglock);
+ > >  	flush_signal_handlers(current);
+ > >  	sigemptyset(&current->blocked);
+ > 
+ > Is there really no cleaner way that this?
 
-This change broke the compilation of fore200e.c:
-
-<--  snip  -->
-
-  gcc -Wp,-MD,drivers/atm/.fore200e.o.d -D__KERNEL__ -Iinclude -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
--pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include  -g  
--DKBUILD_BASENAME=fore200e -DKBUILD_MODNAME=fore_200e -c -o 
-drivers/atm/fore200e.o drivers/atm/fore200e.c
-drivers/atm/fore200e.c: In function `fore200e_push_rpd':
-drivers/atm/fore200e.c:1135: structure has no member named `timestamp'
-drivers/atm/fore200e.c:1136: structure has no member named `timestamp'
-make[2]: *** [drivers/atm/fore200e.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Linus cleaned it up in 2.5.63 -- he added a flag to flush_signal_handlers().

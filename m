@@ -1,99 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262872AbTFKSNZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 14:13:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263369AbTFKSNZ
+	id S263407AbTFKSOL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 14:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263449AbTFKSOL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 14:13:25 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:33711 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S262872AbTFKSNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 14:13:23 -0400
-Date: Wed, 11 Jun 2003 20:26:56 +0200
-From: Vojtech Pavlik <vojtech@ucw.cz>
-To: Peter Osterlund <petero2@telia.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Vojtech Pavlik <vojtech@suse.cz>, Joseph Fannin <jhf@rivenstone.net>
-Subject: Re: [PATCH] Synaptics TouchPad driver for 2.5.70
-Message-ID: <20030611202656.A6871@ucw.cz>
-References: <m2smqhqk4k.fsf@p4.localdomain> <20030611170246.A4187@ucw.cz> <m27k7sv5si.fsf@telia.com>
+	Wed, 11 Jun 2003 14:14:11 -0400
+Received: from 216-42-72-151.ppp.netsville.net ([216.42.72.151]:8115 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S263407AbTFKSOG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 14:14:06 -0400
+Subject: Re: [PATCH] io stalls (was: -rc7   Re: Linux 2.4.21-rc6)
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Nick Piggin <piggin@cyberone.com.au>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+In-Reply-To: <20030611181217.GX26270@dualathlon.random>
+References: <200306041246.21636.m.c.p@wolk-project.de>
+	 <20030604104825.GR3412@x30.school.suse.de>
+	 <3EDDDEBB.4080209@cyberone.com.au>
+	 <1055194762.23130.370.camel@tiny.suse.com>
+	 <20030611003356.GN26270@dualathlon.random>
+	 <1055292839.24111.180.camel@tiny.suse.com>
+	 <20030611010628.GO26270@dualathlon.random>
+	 <1055296630.23697.195.camel@tiny.suse.com>
+	 <20030611021030.GQ26270@dualathlon.random>
+	 <1055353360.23697.235.camel@tiny.suse.com>
+	 <20030611181217.GX26270@dualathlon.random>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1055356032.24111.240.camel@tiny.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m27k7sv5si.fsf@telia.com>; from petero2@telia.com on Wed, Jun 11, 2003 at 08:16:13PM +0200
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 11 Jun 2003 14:27:13 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 11, 2003 at 08:16:13PM +0200, Peter Osterlund wrote:
-
-> Actually, the runtime configuration may not be needed at all if we do
-> the ABS -> REL conversion in user space, because all parameters
-> control different aspects of this conversion.
-
-That'd be very nice.
-
-> > > The patch is available here:
-> > > 
-> > >         http://w1.894.telia.com/~u89404340/patches/synaptics_driver.patch
-> > > 
-> > > Comments?
-> > 
-> > IMO it should use ABS_ events and the relativization should be done in
-> > the XFree86 driver. Other than that, it looks quite OK.
+On Wed, 2003-06-11 at 14:12, Andrea Arcangeli wrote:
+> On Wed, Jun 11, 2003 at 01:42:41PM -0400, Chris Mason wrote:
+> > +		if (q->rq[rw].count >= q->batch_requests) {
+> > +			smp_mb();
+> > +			if (waitqueue_active(&q->wait_for_requests[rw]))
+> > +				wake_up(&q->wait_for_requests[rw]);
 > 
-> OK, the hardware state consists of 4 "axes" and 4 buttons, as defined
-> in the synaptics_hw_state struct:
+> in my tree I also changed this to:
 > 
->         struct synaptics_hw_state {
->         	int x;
->         	int y;
->         	int z;
->         	int w;
->         	int left;
->         	int right;
->         	int up;
->         	int down;
->         };
+> 				wake_up_nr(&q->wait_for_requests[rw], q->rq[rw].count);
 > 
-> x and y are the finger position, z is the finger pressure and w
-> contains information about multifinger taps and finger width (for palm
-> detection.) Left, right, up and down contain the state of the
-> corresponding physical buttons.
-> 
-> Is this mapping reasonable?
-> 
->         x     -> ABS_X
->         y     -> ABS_Y
->         z     -> ABS_PRESSURE
->         w     -> ABS_MISC
->         left  -> BTN_LEFT
->         right -> BTN_RIGHT
->         up    -> BTN_FORWARD
->         down  -> BTN_BACK
+> otherwise only one waiter will eat the requests, while multiple waiters
+> can eat requests in parallel instead because we freed not just 1 request
+> but many of them.
 
-Yes, this is fine.
+I tried a few variations of this yesterday and they all led to horrible
+latencies, but I couldn't really explain why.  I had a bunch of other
+stuff in at the time to try and improve throughput though, so I'll try
+it again.
 
-> The w value is somewhat special and not really a real axis. According
-> to the Synaptics TouchPad Interfacing Guide
-> (http://www.synaptics.com/decaf/utilities/ACF126.pdf), W is defined as
-> follows:
-> 
-> Value		Needed capability	Interpretation
-> W = 0		capMultiFinger		Two fingers on the pad.
-> W = 1		capMultiFinger		Three or more fingers on the pad.
-> W = 2		capPen			Pen (instead of finger) on the pad.
-> W = 3		Reserved.
-> W = 4-7		capPalmDetect		Finger of normal width.
-> W = 8-14	capPalmDetect		Very wide finger or palm.
-> W = 15		capPalmDetect		Maximum reportable width; extremely
-> 					wide contact.
-> 
-> Is there a better way than using ABS_MISC to pass the W information to
-> user space?
+I think part of the problem is the cascading wakeups from
+get_request_wait_wakeup().  So if we wakeup 32 procs they in turn wakeup
+another 32, etc.
 
-I think ABS_MISC is perfectly okay for this.
+-chris
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+

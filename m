@@ -1,57 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312254AbSGMNJ5>; Sat, 13 Jul 2002 09:09:57 -0400
+	id <S312560AbSGMNKq>; Sat, 13 Jul 2002 09:10:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312560AbSGMNJ4>; Sat, 13 Jul 2002 09:09:56 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:50363 "EHLO
-	svldns02.veritas.com") by vger.kernel.org with ESMTP
-	id <S312254AbSGMNJx>; Sat, 13 Jul 2002 09:09:53 -0400
-Date: Sat, 13 Jul 2002 14:11:58 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: davidm@hpl.hp.com
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Robert Love <rml@tech9.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: MAP_NORESERVE with MAP_SHARED
-In-Reply-To: <200207122039.g6CKdnV3004060@napali.hpl.hp.com>
-Message-ID: <Pine.LNX.4.21.0207131308400.1572-100000@localhost.localdomain>
+	id <S312590AbSGMNKp>; Sat, 13 Jul 2002 09:10:45 -0400
+Received: from ausadmmsps307.aus.amer.dell.com ([143.166.224.102]:7953 "HELO
+	AUSADMMSPS307.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S312560AbSGMNKm>; Sat, 13 Jul 2002 09:10:42 -0400
+X-Server-Uuid: 82a6c0aa-b49f-4ad3-8d2c-07dae6b04e32
+Message-ID: <F44891A593A6DE4B99FDCB7CC537BBBB0724D2@AUSXMPS308.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: greg@kroah.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+cc: jgarzik@mandrakesoft.com
+Subject: RE: Removal of pci_find_* in 2.5
+Date: Sat, 13 Jul 2002 08:13:24 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 112EF8F22241944-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 12 Jul 2002, David Mosberger wrote:
-> Is there a good reason why the MAP_NORESERVE flag is ignored when
-> MAP_SHARED is specified?  (Hint: it's the call to vm_enough_memory()
-> in shmem_file_setup() that's causing MAP_NORESERVE to be ignored.)
+> > ordering, is simply hard-coding something that should really be in 
+> > userspace.  Depending on pci_find_device logic / link order to 
+> > still-boot-the-system after adding new hardware sounds like an 
+> > incredibly fragile hope, not a reliable system users can trust.
 
-Normally MAP_NORESERVE has no effect when MAP_SHARED is specfied,
-since mods will be written out to file, so don't need memory+swap.
+Yes, but unfortunately it's all we've had for a long time.
 
-You're looking at the special case of a tmpfs file (actually,
-the even more special case of an internally created tmpfs file),
-which of course needs memory+swap, since it has no disk backing.
+> Yes, it still involves some handwaving at this moment in time, but it
+> will happen, and I do know about this requirement :)
 
-But (for whatever this jesuitical argument is worth: probably not
-much) it's the object which needs that memory+swap, not the shared
-mapping of that object.  Should MAP_NORESERVE apply to the object
-in this case?  At this moment, I'm uncertain (but since the object
-has been created internally purely to provide that mapping, it may
-be unhelpful to deny it).
+Then this will solve my #2 factory install problem.   I look forward to this
+restriction being removed properly. :-)
+(In case you're curious, #1 is customers can't specify the partition
+strategy they want at order time, so they wind up blowing away the FI
+anyhow).
 
-You were writing of mainline 2.4 or 2.5, where reservation isn't
-taken seriously anyway.  It becomes more serious in the -ac tree,
-or with rml's patch, where it's more than a question of MAP_NORESERVE.
-Check /proc/meminfo Committed_AS and you'll find we reserve twice the
-size of a shared anonymous mapping (in this tree, do_mmap_pgoff
-is calling vm_enough_memory even when MAP_SHARED but file NULL,
-then it's called again as you found in shmem_file_setup).
-But at least the numbers do balance out when unmapping.
+Thanks,
+Matt
 
-I'll take another look at this in a few days, right now I'm a
-little confused by it.  Just dropping check from shmem_file_setup
-won't be the answer, I believe SysV IPC SHM needs it, and in
-ac/rml it's needed to balance removal of the object.
-Thanks for raising the issue.
-
-Hugh
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
 

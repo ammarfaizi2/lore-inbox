@@ -1,237 +1,182 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262095AbSJIVoq>; Wed, 9 Oct 2002 17:44:46 -0400
+	id <S262100AbSJIVn4>; Wed, 9 Oct 2002 17:43:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262102AbSJIVoL>; Wed, 9 Oct 2002 17:44:11 -0400
-Received: from mail.ipinfusion.com ([65.223.109.2]:40084 "EHLO
-	gateway.ipinfusion.com") by vger.kernel.org with ESMTP
-	id <S262095AbSJIVnn>; Wed, 9 Oct 2002 17:43:43 -0400
-Message-ID: <3DA4A3A3.2090408@ipinfusion.com>
-Date: Wed, 09 Oct 2002 14:46:11 -0700
-From: Vividh Siddha <vividh@ipinfusion.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Interface address change netlink socket problem.(Patch attached)
-Content-Type: multipart/mixed;
- boundary="------------080204080403070204080404"
+	id <S262102AbSJIVnz>; Wed, 9 Oct 2002 17:43:55 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:10432 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S262100AbSJIVnl>;
+	Wed, 9 Oct 2002 17:43:41 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 9 Oct 2002 23:49:20 +0200 (MEST)
+Message-Id: <UTC200210092149.g99LnKl02510.aeb@smtp.cwi.nl>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] isofs fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080204080403070204080404
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+The patch below removes some dead code and nonsense code.
+The part that changes behaviour is
 
-[1.] One line summary of the problem:
-When a interface address is changed using ifconfig, the netlink socket 
-sends wrong intermediate messages.
+-       if (sbi->s_cruft == 'n' &&
+-           (volume_seq_no != 0) && (volume_seq_no != 1)) {
+-               printk(KERN_WARNING "Warning: defective CD-ROM "
+-                      "(volume sequence number %d). "
+-                      "Enabling \"cruft\" mount option.\n", volume_seq_no);
+-               sbi->s_cruft = 'y';
+-       }
 
-[2.] Full description of the problem/report:
-Imagine a interface eth0 with address 10.10.10.10, netmask 0xffffff00 
-and broadcast 10.10.10.255.
+that has already bitten lots of people.
+Nothing is wrong with a volume sequence number different from 0 or 1.
+(Cf. Ecma-119.pdf, Sections 4.17, 4.18, 6.6.)
 
-For eg: if the following command is issued:
-ifconfig eth0 10.10.10.50 netmask 0xffffff00 broadcast 10.10.10.255
-
-The kernel sends the following three sets of messages on the netlink socket:
-
-Interface address delete: (with address 10.10.10.10)
-Interface address add   : (with address 10.10.10.50)
-
-Interface address delete: (with address 10.10.10.50)
-Interface address add   : (with address 10.10.10.50)
-
-Interface address delete: (with address 10.10.10.50)
-Interface address add   : (with address 10.10.10.50)
-
-Ideally as only the interface address is changed only one address 
-delete/add should be sent.
-
-Attached patch solves this problem.
-
-[3.] Keywords (i.e., modules, networking, kernel):
-networking, kernel.
-
-[4.] Kernel version (from /proc/version):
-Linux version 2.4.19 (root@vividh.localdomain) (gcc version 2.96 
-20000731 (Red Hat Linux 7.1 2.96-98)) #8 SMP Tue Oct 8 14:13:24 PDT 2002
-
-[5.] Output of Oops.. message (if applicable) with symbolic information
-      resolved (see Documentation/oops-tracing.txt)
-None.
-
-[6.] A small shell script or example program which triggers the
-      problem (if possible)
-None.
-
-[7.] Environment
-x86 Linux.
-
-[7.1.] Software (add the output of the ver_linux script here)
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux vividh.localdomain 2.4.19 #8 SMP Tue Oct 8 14:13:24 PDT 2002 i686 
-unknown
-
-Gnu C                  2.96
-Gnu make               3.79.1
-binutils               2.11.90.0.8
-util-linux             2.11f
-mount                  2.11g
-modutils               2.4.6
-e2fsprogs              1.23
-reiserfsprogs          3.x.0j
-pcmcia-cs              3.1.22
-PPP                    2.4.1
-isdn4k-utils           3.1pre1
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Console-tools          0.3.3
-Sh-utils               2.0.11
-Modules Loaded         3c59x
-
-[7.2.] Processor information (from /proc/cpuinfo):
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 15
-model		: 0
-model name	: Intel(R) Pentium(R) 4 CPU 1500MHz
-stepping	: 10
-cpu MHz		: 1483.119
-cache size	: 256 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov 
-pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips	: 2955.67
-
-[7.3.] Module information (from /proc/modules):
-3c59x                  26016   2
-
-[7.4.] Loaded driver and hardware information (/proc/ioports, /proc/iomem)
-0000-001f : dma1
-0020-003f : pic1
-0040-005f : timer
-0060-006f : keyboard
-0080-008f : dma page reg
-00a0-00bf : pic2
-00c0-00df : dma2
-00f0-00ff : fpu
-0170-0177 : ide1
-01f0-01f7 : ide0
-02f8-02ff : serial(auto)
-0376-0376 : ide1
-03c0-03df : vga+
-03f6-03f6 : ide0
-03f8-03ff : serial(auto)
-0cf8-0cff : PCI conf1
-d800-d8ff : Intel Corp. 82801BA/BAM AC'97 Audio
-dc40-dc7f : Intel Corp. 82801BA/BAM AC'97 Audio
-dcd0-dcdf : Intel Corp. 82801BA/BAM SMBus
-e000-efff : PCI Bus #02
-   ec00-ec7f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
-     ec00-ec7f : 02:0c.0
-   ec80-ecff : 3Com Corporation 3c905B 100BaseTX [Cyclone]
-     ec80-ecff : 02:08.0
-ff60-ff7f : Intel Corp. 82801BA/BAM USB (Hub #2)
-   ff60-ff7f : usb-uhci
-ff80-ff9f : Intel Corp. 82801BA/BAM USB (Hub #1)
-   ff80-ff9f : usb-uhci
-ffa0-ffaf : Intel Corp. 82801BA IDE U100
-   ffa0-ffa7 : ide0
-   ffa8-ffaf : ide1
+Andries
 
 
-00000000-0009ffff : System RAM
-000a0000-000bffff : Video RAM area
-000c0000-000c7fff : Video ROM
-000c9800-000cbfff : Extension ROM
-000f0000-000fffff : System ROM
-00100000-0ff76fff : System RAM
-00100000-002979f0 : Kernel code
-002979f1-00334dff : Kernel data
-0ff77000-0ff95fff : ACPI Tables
-0ff96000-0fffffff : reserved
-f0000000-f7ffffff : Intel Corp. 82850 850 (Tehama) Chipset Host Bridge (MCH)
-f8000000-f9ffffff : PCI Bus #01
-f8000000-f9ffffff : nVidia Corporation Riva TnT2 [NV5]
-fc000000-fdffffff : PCI Bus #01
-fc000000-fcffffff : nVidia Corporation Riva TnT2 [NV5]
-fe100000-fe2fffff : PCI Bus #02
-fe1ff800-fe1ff87f : 3Com Corporation 3c905C-TX/TX-M [Tornado]
-fe1ffc00-fe1ffc7f : 3Com Corporation 3c905B 100BaseTX [Cyclone]
-fec00000-fec0ffff : reserved
-fee00000-fee0ffff : reserved
-ffb00000-ffffffff : reserved
-
-[7.5.] PCI information ('lspci -vvv' as root)
-Irrelevant.
-
-[7.6.] SCSI information (from /proc/scsi/scsi)
-Irrelevant.
-
-[7.7.] Other information that might be relevant to the problem
-        (please look in /proc and include all information that you
-        think to be relevant):
-[X.] Other notes, patches, fixes, workarounds:
-The attached file devinet.diff is a patch to the file 
-linux/net/ipv4/devinet.c
-
-This problem occurs on all kernel versions. A similar patch can be 
-applied if someone faces this problem.
-
---------------080204080403070204080404
-Content-Type: text/plain;
- name="devinet.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="devinet.diff"
-
-*** /tmp/download/linux-2.4.19/net/ipv4/devinet.c	Fri Aug  2 17:39:46 2002
---- devinet.c	Wed Oct  9 14:09:56 2002
-***************
-*** 609,624 ****
-  				if (ifa->ifa_local == sin->sin_addr.s_addr)
-  					break;
-  				inet_del_ifa(in_dev, ifap, 0);
-! 				ifa->ifa_broadcast = 0;
-! 				ifa->ifa_anycast = 0;
-  			}
-  
-  			ifa->ifa_address =
-  			ifa->ifa_local = sin->sin_addr.s_addr;
-  
-  			if (!(dev->flags&IFF_POINTOPOINT)) {
-- 				ifa->ifa_prefixlen = inet_abc_len(ifa->ifa_address);
-- 				ifa->ifa_mask = inet_make_mask(ifa->ifa_prefixlen);
-  				if ((dev->flags&IFF_BROADCAST) && ifa->ifa_prefixlen < 31)
-  					ifa->ifa_broadcast = ifa->ifa_address|~ifa->ifa_mask;
-  			} else {
---- 609,621 ----
-  				if (ifa->ifa_local == sin->sin_addr.s_addr)
-  					break;
-  				inet_del_ifa(in_dev, ifap, 0);
-! 
-  			}
-  
-  			ifa->ifa_address =
-  			ifa->ifa_local = sin->sin_addr.s_addr;
-  
-  			if (!(dev->flags&IFF_POINTOPOINT)) {
-  				if ((dev->flags&IFF_BROADCAST) && ifa->ifa_prefixlen < 31)
-  					ifa->ifa_broadcast = ifa->ifa_address|~ifa->ifa_mask;
-  			} else {
-
---------------080204080403070204080404--
-
+--- linux-2.5.41/linux/fs/isofs/inode.c	Sat Oct  5 13:46:10 2002
++++ linux-2.5.41a/linux/fs/isofs/inode.c	Wed Oct  9 23:34:06 2002
+@@ -34,11 +34,6 @@
+ 
+ #include "zisofs.h"
+ 
+-/*
+- * We have no support for "multi volume" CDs, but more and more disks carry
+- * wrong information within the volume descriptors.
+- */
+-#define IGNORE_WRONG_MULTI_VOLUME_SPECS
+ #define BEQUIET
+ 
+ #ifdef LEAK_CHECK
+@@ -556,19 +551,6 @@
+ 	if (!parse_options((char *) data, &opt))
+ 		goto out_freesbi;
+ 
+-#if 0
+-	printk("map = %c\n", opt.map);
+-	printk("rock = %c\n", opt.rock);
+-	printk("joliet = %c\n", opt.joliet);
+-	printk("check = %c\n", opt.check);
+-	printk("cruft = %c\n", opt.cruft);
+-	printk("unhide = %c\n", opt.unhide);
+-	printk("blocksize = %d\n", opt.blocksize);
+-	printk("gid = %d\n", opt.gid);
+-	printk("uid = %d\n", opt.uid);
+-	printk("iocharset = %s\n", opt.iocharset);
+-#endif
+-
+ 	/*
+ 	 * First of all, get the hardware blocksize for this device.
+ 	 * If we don't know what it is, or the hardware blocksize is
+@@ -673,19 +655,11 @@
+ 
+ 	if(sbi->s_high_sierra){
+ 	  rootp = (struct iso_directory_record *) h_pri->root_directory_record;
+-#ifndef IGNORE_WRONG_MULTI_VOLUME_SPECS
+-	  if (isonum_723 (h_pri->volume_set_size) != 1)
+-		goto out_no_support;
+-#endif /* IGNORE_WRONG_MULTI_VOLUME_SPECS */
+ 	  sbi->s_nzones = isonum_733 (h_pri->volume_space_size);
+ 	  sbi->s_log_zone_size = isonum_723 (h_pri->logical_block_size);
+ 	  sbi->s_max_size = isonum_733(h_pri->volume_space_size);
+ 	} else {
+ 	  rootp = (struct iso_directory_record *) pri->root_directory_record;
+-#ifndef IGNORE_WRONG_MULTI_VOLUME_SPECS
+-	  if (isonum_723 (pri->volume_set_size) != 1)
+-		goto out_no_support;
+-#endif /* IGNORE_WRONG_MULTI_VOLUME_SPECS */
+ 	  sbi->s_nzones = isonum_733 (pri->volume_space_size);
+ 	  sbi->s_log_zone_size = isonum_723 (pri->logical_block_size);
+ 	  sbi->s_max_size = isonum_733(pri->volume_space_size);
+@@ -898,11 +872,6 @@
+ 	printk(KERN_WARNING "Logical zone size(%d) < hardware blocksize(%u)\n",
+ 		orig_zonesize, opt.blocksize);
+ 	goto out_freebh;
+-#ifndef IGNORE_WRONG_MULTI_VOLUME_SPECS
+-out_no_support:
+-	printk(KERN_WARNING "Multi-volume disks not supported.\n");
+-	goto out_freebh;
+-#endif
+ out_unknown_format:
+ 	if (!silent)
+ 		printk(KERN_WARNING "Unable to identify CD-ROM format.\n");
+@@ -1313,7 +1282,7 @@
+ 		iso_date(de->date, high_sierra);
+ 
+ 	ei->i_first_extent = (isonum_733 (de->extent) +
+-					   isonum_711 (de->ext_attr_length));
++			      isonum_711 (de->ext_attr_length));
+ 
+ 	/* Set the number of blocks for stat() - should be done before RR */
+ 	inode->i_blksize = PAGE_CACHE_SIZE; /* For stat() only */
+@@ -1334,51 +1303,30 @@
+ 	/* get the volume sequence number */
+ 	volume_seq_no = isonum_723 (de->volume_sequence_number) ;
+ 
+-	/*
+-	 * Disable checking if we see any volume number other than 0 or 1.
+-	 * We could use the cruft option, but that has multiple purposes, one
+-	 * of which is limiting the file size to 16Mb.  Thus we silently allow
+-	 * volume numbers of 0 to go through without complaining.
+-	 */
+-	if (sbi->s_cruft == 'n' &&
+-	    (volume_seq_no != 0) && (volume_seq_no != 1)) {
+-		printk(KERN_WARNING "Warning: defective CD-ROM "
+-		       "(volume sequence number %d). "
+-		       "Enabling \"cruft\" mount option.\n", volume_seq_no);
+-		sbi->s_cruft = 'y';
+-	}
+-
+ 	/* Install the inode operations vector */
+-#ifndef IGNORE_WRONG_MULTI_VOLUME_SPECS
+-	if (sbi->s_cruft != 'y' &&
+-	    (volume_seq_no != 0) && (volume_seq_no != 1)) {
+-		printk(KERN_WARNING "Multi-volume CD somehow got mounted.\n");
+-	} else
+-#endif /*IGNORE_WRONG_MULTI_VOLUME_SPECS */
+-	{
+-		if (S_ISREG(inode->i_mode)) {
+-			inode->i_fop = &generic_ro_fops;
+-			switch ( ei->i_file_format ) {
++	if (S_ISREG(inode->i_mode)) {
++		inode->i_fop = &generic_ro_fops;
++		switch ( ei->i_file_format ) {
+ #ifdef CONFIG_ZISOFS
+-			case isofs_file_compressed:
+-				inode->i_data.a_ops = &zisofs_aops;
+-				break;
++		case isofs_file_compressed:
++			inode->i_data.a_ops = &zisofs_aops;
++			break;
+ #endif
+-			default:
+-				inode->i_data.a_ops = &isofs_aops;
+-				break;
+-			}
+-		} else if (S_ISDIR(inode->i_mode)) {
+-			inode->i_op = &isofs_dir_inode_operations;
+-			inode->i_fop = &isofs_dir_operations;
+-		} else if (S_ISLNK(inode->i_mode)) {
+-			inode->i_op = &page_symlink_inode_operations;
+-			inode->i_data.a_ops = &isofs_symlink_aops;
+-		} else
+-			/* XXX - parse_rock_ridge_inode() had already set i_rdev. */
+-			init_special_inode(inode, inode->i_mode,
+-					   kdev_t_to_nr(inode->i_rdev));
+-	}
++		default:
++			inode->i_data.a_ops = &isofs_aops;
++			break;
++		}
++	} else if (S_ISDIR(inode->i_mode)) {
++		inode->i_op = &isofs_dir_inode_operations;
++		inode->i_fop = &isofs_dir_operations;
++	} else if (S_ISLNK(inode->i_mode)) {
++		inode->i_op = &page_symlink_inode_operations;
++		inode->i_data.a_ops = &isofs_symlink_aops;
++	} else
++		/* XXX - parse_rock_ridge_inode() had already set i_rdev. */
++		init_special_inode(inode, inode->i_mode,
++				   kdev_t_to_nr(inode->i_rdev));
++
+  out:
+ 	if (tmpde)
+ 		kfree(tmpde);

@@ -1,57 +1,119 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268715AbTCCS7q>; Mon, 3 Mar 2003 13:59:46 -0500
+	id <S268717AbTCCTA4>; Mon, 3 Mar 2003 14:00:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268717AbTCCS7q>; Mon, 3 Mar 2003 13:59:46 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:22409 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S268715AbTCCS7m>; Mon, 3 Mar 2003 13:59:42 -0500
-Date: Mon, 3 Mar 2003 13:10:06 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Rusty Lynch <rusty@linux.co.intel.com>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.63-bk6 compile error] __crc_page_states__per_cpu not in
- per-cpu section
-In-Reply-To: <1046713129.2671.2.camel@vmhack>
-Message-ID: <Pine.LNX.4.44.0303031306390.16397-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268718AbTCCTA4>; Mon, 3 Mar 2003 14:00:56 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:49538 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S268717AbTCCTAw>; Mon, 3 Mar 2003 14:00:52 -0500
+Date: Mon, 3 Mar 2003 20:11:16 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: Christoph Hellwig <hch@infradead.org>, Andrew Walrond <andrew@walrond.org>,
+       linux-kernel@vger.kernel.org
+Subject: re: 2.5-bk menuconfig format problem
+Message-ID: <20030303191116.GG6946@louise.pinerecords.com>
+References: <3E637196.8030708@walrond.org> <20030303175844.A29121@infradead.org> <20030303184906.GF6946@louise.pinerecords.com> <20030303185337.A30585@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030303185337.A30585@infradead.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Mar 2003, Rusty Lynch wrote:
-
-> After updating my bk tree this morning, I am getting the 
-> following compile error:
+> [hch@infradead.org]
 > 
-> 4d13d7e9 A __crc_page_states__per_cpu not in per-cpu section
-> make: *** [vmlinux] Error 1
-
-It's a false positive from the script which checks whether all per-cpu 
-variables ended up in the correct section. __crc_page_states__per_cpu ends 
-in __per_cpu, that's why the script thinks it's a per-cpu variable, but
-it's not, it's just a checksum.
-
-Could you try if this patch fixes it, I don't really speak awk ;)
-
-You should be able to reproduce the error by just doing "rm vmlinux; make 
-vmlinux", but not anymore after applying the patch below.
-
---Kai
+> Ah, okay :)  I newer use either menuconfig nor xconfig so I can't comment
+> on it's placements.  If people who actually do use if feel that it's placed
+> wrongly feel free to submit a patch to fix it.
 
 
-===== scripts/per-cpu-check.awk 1.3 vs edited =====
---- 1.3/scripts/per-cpu-check.awk	Fri Jan 24 14:27:01 2003
-+++ edited/scripts/per-cpu-check.awk	Mon Mar  3 13:05:48 2003
-@@ -6,7 +6,7 @@
- 	IN_PER_CPU=0
- }
+*** Approach A ***
+
+diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2003-03-03 20:04:08.000000000 +0100
++++ b/arch/i386/Kconfig	2003-03-03 20:08:29.000000000 +0100
+@@ -5,6 +5,9 @@
  
--/__per_cpu$$/ && ! ( / __ksymtab_/ || / __kstrtab_/ || / __kcrctab_/ ) {
-+/__per_cpu$$/ && ! ( / __ksymtab_/ || / __kstrtab_/ || / __kcrctab_/ || / __crc_/ ) {
- 	if (!IN_PER_CPU) {
- 		print $$3 " not in per-cpu section" > "/dev/stderr";
- 		FOUND=1;
+ mainmenu "Linux Kernel Configuration"
+ 
++
++menu "Architecture specific options"
++
+ config X86
+ 	bool
+ 	default y
+@@ -23,9 +26,9 @@
+ 	default y
+ 	help
+ 	  This option allows you to choose whether you want to have support
+-	  for socalled swap devices or swap files in your kernel that are
+-	  used to provide more virtual memory than the actual RAM present
+-	  in your computer.  If unusre say Y.
++	  for the so-called swap devices or swap files.  There are used to
++	  provide more virtual memory than the actual RAM presents in your
++	  computer.  If unsure, say Y.
+ 
+ config SBUS
+ 	bool
+@@ -38,6 +41,9 @@
+ 	bool
+ 	default y
+ 
++endmenu
++
++
+ source "init/Kconfig"
+ 
+ 
+*** Approach B ***
+
+diff -urN a/arch/i386/Kconfig b/arch/i386/Kconfig
+--- a/arch/i386/Kconfig	2003-03-03 20:04:08.000000000 +0100
++++ b/arch/i386/Kconfig	2003-03-03 19:58:48.000000000 +0100
+@@ -18,15 +18,6 @@
+ 	bool
+ 	default y
+ 
+-config SWAP
+-	bool "Support for paging of anonymous memory"
+-	default y
+-	help
+-	  This option allows you to choose whether you want to have support
+-	  for socalled swap devices or swap files in your kernel that are
+-	  used to provide more virtual memory than the actual RAM present
+-	  in your computer.  If unusre say Y.
+-
+ config SBUS
+ 	bool
+ 
+diff -urN a/init/Kconfig b/init/Kconfig
+--- a/init/Kconfig	2003-02-11 01:09:48.000000000 +0100
++++ b/init/Kconfig	2003-03-03 20:02:11.000000000 +0100
+@@ -34,9 +34,18 @@
+ 
+ endmenu
+ 
+-
+ menu "General setup"
+ 
++config SWAP
++	depends on X86
++	bool "Support for paging of anonymous memory"
++	default y
++	help
++	  This option allows you to choose whether you want to have support
++	  for the so-called swap devices or swap files.  There are used to
++	  provide more virtual memory than the actual RAM presents in your
++	  computer.  If unsure, say Y.
++
+ config SYSVIPC
+ 	bool "System V IPC"
+ 	---help---
 
 
+
+You choose. ;)
+
+-- 
+Tomas Szepe <szepe@pinerecords.com>

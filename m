@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbUKUHDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbUKUHI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbUKUHDt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 02:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbUKUHDs
+	id S261888AbUKUHI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 02:08:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbUKUHI5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 02:03:48 -0500
-Received: from gate.crashing.org ([63.228.1.57]:10909 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261863AbUKUHDr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 02:03:47 -0500
-Subject: Re: [PATCH 1/2] pci: Block config access during BIST
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Brian King <brking@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Greg KH <greg@kroah.com>,
-       Paul Mackerras <paulus@samba.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <419FF598.9080606@us.ibm.com>
-References: <200411192023.iAJKNNSt004374@d03av02.boulder.ibm.com>
-	 <1100917635.9398.12.camel@localhost.localdomain>
-	 <1100934567.3669.12.camel@gaston>
-	 <1100954543.11822.8.camel@localhost.localdomain>
-	 <419FD58A.3010309@us.ibm.com> <1100995616.27157.44.camel@gaston>
-	 <419FF598.9080606@us.ibm.com>
-Content-Type: text/plain
-Date: Sun, 21 Nov 2004 18:03:02 +1100
-Message-Id: <1101020582.27157.59.camel@gaston>
+	Sun, 21 Nov 2004 02:08:57 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:32901 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261888AbUKUHIx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 02:08:53 -0500
+Date: Thu, 18 Nov 2004 15:46:34 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: pavel@ucw.cz, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
+Message-ID: <20041118144634.GA7922@openzaurus.ucw.cz>
+References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu> <20041117190055.GC6952@openzaurus.ucw.cz> <E1CUVkG-0005sV-00@dorka.pomaz.szeredi.hu> <20041117204424.GC11439@elf.ucw.cz> <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CUhTd-0006c8-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> I thought about that when coding this up and thought it would
-> be better to simply have the function do what it advertises and no
-> more. Seems strange that a function called pci_block_config_access
-> would go and do a bunch of pci config accesses, but we can
-> certainly add it if you like.
+> > I know I've asked before... but how is the "fuse-userspace-part
+> > swapped out and memory full of dirty data on fuse" deadlock solved?
+> 
+> By either
+> 
+>   1) not allowing share writable mappings 
+> 
+>   2) doing non-blocking asynchronous writepage
+> 
+> In the first case there will never be dirty data, since normal writes
+> go synchronously through the page cache.
 
-Well, considering that when blocked, reads return data from the cache,
-it makes sense to fill the cache when blocking ... or we'll end up
-returning crap.
+Ok, this one works, I agree... But it will be way slower than coda's
+file-backed approach, right?
 
-Ben.
+> In the second case there is no deadlock, because the memory subsystem
+> doesn't wait for data to be written.  If the filesystem refuses to
+> write back data in a timely manner, memory will get full and OOM
+> killer will go to work.  Deadlock simply cannot happen.
 
+Hmmm, so if userspace part is swapped out and data is dirtied
+"too quickly", OOM is practically guaranteed? That is not nice.
+
+What if userspave daemon is not fast enough to handle writes (going
+through slow network or something), is there some mechanksm to
+throttle back the writer, or will it just OOM?
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

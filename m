@@ -1,85 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283282AbRK2PuI>; Thu, 29 Nov 2001 10:50:08 -0500
+	id <S283287AbRK2Pt6>; Thu, 29 Nov 2001 10:49:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283286AbRK2Pt6>; Thu, 29 Nov 2001 10:49:58 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:20946 "EHLO
-	c0mailgw02.prontomail.com") by vger.kernel.org with ESMTP
-	id <S283282AbRK2Ptw>; Thu, 29 Nov 2001 10:49:52 -0500
-X-Version: gilat2home 7.5.3345.0
-From: "war war" <war@starband.net>
-Message-Id: <B7F1F9B7DE30EDF47ADB4F8F44CAC84B@war.starband.net>
-Date: Thu, 29 Nov 2001 10:46:40 -0500
-X-Priority: Normal
-Content-Type: text/plain; charset=iso-8859-1
-To: linux-kernel@vger.kernel.org
-Subject: Kernel 2.4.16 & Heavy I/O
-CC: war@starband.net
-X-Mailer: Web Based Pronto
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+	id <S283286AbRK2Pts>; Thu, 29 Nov 2001 10:49:48 -0500
+Received: from [64.42.30.110] ([64.42.30.110]:23561 "HELO mail.clouddancer.com")
+	by vger.kernel.org with SMTP id <S283282AbRK2Ptk>;
+	Thu, 29 Nov 2001 10:49:40 -0500
+To: irajasek@in.ibm.com, linux-kernel@vger.kernel.org
+Message-Id: <20011129154451.BF6667843A@phoenix.clouddancer.com>
+Date: Thu, 29 Nov 2001 07:44:51 -0800 (PST)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Issue:
+From: Colonel <klink@clouddancer.com>
+To: irajasek@in.ibm.com
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <OF8DFA00F6.3DAC22D2-ON65256B31.003CB38A@in.ibm.com>
+	(irajasek@in.ibm.com)
+Subject: Re: Routing table problems
+Reply-to: klink@clouddancer.com
+In-Reply-To:  <OF8DFA00F6.3DAC22D2-ON65256B31.003CB38A@in.ibm.com>
 
-Is it possible to set the disk cache size to a higher value to avoid 
-temporary freezing while untarring large files?  Memory is not an 
-issue, I have plenty of it.  The disk drive is a good drive, does 
-29.2MB/s sustained in single user mode, 25MB/s when I have a lot of 
-processes open.  Here is what I think is going on.  Sometimes, when I 
-untar things, or do things that consume a lot of disk space rapidly, 
-they do it VERY quickly, and then the disk rumbles on for 5-20 
-seconds after it is done.  What accounts for this?
+   From: "Rajasekhar Inguva" <irajasek@in.ibm.com>
+   Date:	Sat, 29 Dec 2001 17:17:48 +0530
 
-Example:
+   I am facing a problem ( ???, maybe it works that way, but i really dont
+   know ) with regards to routing table behavior when using ifconfig on a
+   network interface.
 
-[20:10]% tar -xf 2GB-FILE.tar
-[20:30]% # Hard disk is still grinding.
-[20:60]% # Hard disk stops grinding.
+   1) netstat -nr      Shows my default gateway for network 0.0.0.0
 
-In essence, the 'tar' command is finished, however, 30-60 seconds 
-after it has finished, it is actually still decompressing the data to 
-the file on the disk.
+   2) ifconfig eth0 down
 
-I have not tested ALL kernels for when or where this has started, but 
-could someone provide a further explanation as to why the disk 
-scheduluer works like this?
+   3) netstat -nr      No entry for the default gateway is shown (
+   understandable )
 
-On Solaris, when I untar a file, the disk stops grinding when the tar 
-process is finished, and the system is totally usuable.
+   4) ifconfig eth0 up
 
-With Linux, when I untar the file, the system may completely lock up 
-for 3-5 seconds during the duration after the initial untar (which is 
-30-60 seconds) after the untar processes has ended.
+   After the the 4'th command, my interface is up and has it's IP address set
+   correctly. But .....
 
-System Setup: P3/866
-              1GB RAM
-              2GB SWAP
-              Kernel 2.4.16
+   netstat -nr  does not show my default gateway for network 0.0.0.0 !!.
+   Pinging any IP outside of my subnet, results in "Network is unreachable"
+   error.
 
-Result:
 
-Just read this [bottom] after trying to burn 2 CD's (luckily on 
-CDRW's) at the same time on two different IDE bus controllers while 
-untarring a 1.6GB file.  With earlier kernels, this is usually not a 
-problem.
+While the linux kernel is certainly omnipotent, it's crystal ball is
+sometimes hazy.  How would it know what the default gateway should
+be???  Typically after the interface is configured, you command:
 
-CDRW1 = Plextor v1.09
-CDRW2 = HP 7510i
+/sbin/route add default gw $GATEWAY netmask 0.0.0.0 metric 1
 
-Burnproof kicked in for the Plextor, I love Plextor drives.
-With the HP, it didn't have enough data to fill the buffer, and 
-therefore caused a buffer underrun, easy to blank=toc and re-write 
-however.
+Some routing daemons will handle that for you, but even they need
+appropriate configuration.
 
-http://lwn.net/2001/1129/kernel.php3
 
-The current stable kernel release is 2.4.16. This release, the first 
-by Marcelo Tosatti, contains little beyond the filesystem fix. This 
-release does seem to deserve the name "stable," though there are 
-still some persistent complaints about interactive response in the 
-presence of heavy I/O. The culprit appears to be the disk I/O 
-scheduler; a real fix for that problem could be long in coming. The 
-2.4.17-pre1 prepatch contains a number of items including a new USB 
-maintainer and a devfs update. 
+

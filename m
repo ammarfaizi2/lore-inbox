@@ -1,91 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262719AbTJTR0X (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 13:26:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTJTR0X
+	id S262621AbTJTRQf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 13:16:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262637AbTJTRQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 13:26:23 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:1409 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S262719AbTJTR0V (ORCPT
+	Mon, 20 Oct 2003 13:16:35 -0400
+Received: from [65.172.181.6] ([65.172.181.6]:5578 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262621AbTJTRQc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 13:26:21 -0400
-Date: Mon, 20 Oct 2003 19:26:07 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: kraxel@bytesex.org
-Cc: linux-kernel@vger.kernel.org
-Subject: VBI capture dying in 2.6.0-test7/8?
-Message-ID: <20031020172607.GB26316@vana.vc.cvut.cz>
+	Mon, 20 Oct 2003 13:16:32 -0400
+Date: Mon, 20 Oct 2003 10:16:07 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "Noah J. Misch" <noah@caltech.edu>
+Cc: acme@conectiva.com.br, rddunlap@osdl.org, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [PATCH] Make LLC2 compile with PROC_FS=n
+Message-Id: <20031020101607.76e02647.shemminger@osdl.org>
+In-Reply-To: <Pine.GSO.4.58.0310171452540.13905@blinky>
+References: <Pine.GSO.4.58.0310171452540.13905@blinky>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-   since kernel update last thursday VBI capture is dying after (at most) 
-6 hours of grabbing. Grabbing process looks like if there is no input signal:
+Why make up a whole separate llc_proc.h file for two prototypes? 
+Put them on the end of llc.h
 
-t2            S D6EE7E78     0 29539  27884                     (NOTLB)
-d6ee7eb0 00000082 c0130a24 d6ee7e78 00942fc6 00000000 00100100 00200200
-       00942fc6 1d244b3c 00000246 00000005 d6f66960 00001adf 2031f544 0000091e
-       d6fa9960 d8238ef8 00000001 d6ee6000 d8238f58 e299a942 e2aeae94 00000000
-Call Trace:
- [<c0130a24>] schedule_timeout+0x9b/0xdf
- [<e299a942>] videobuf_waiton+0x92/0xee [video_buf]
- [<c012029c>] default_wake_function+0x0/0x2e
- [<e299bf5d>] videobuf_read_stream+0xc1/0x382 [video_buf]
- [<e2acf43c>] bttv_reinit_bt848+0x116/0x1cd [bttv]      << stale entry due to large videobuf_read_stream stack?
- [<e2ad2e65>] bttv_read+0xb8/0x13a [bttv]
- [<c016e911>] vfs_read+0xb0/0x119
- [<c016eb8c>] sys_read+0x42/0x63
- [<c0109ba7>] syscall_call+0x7/0xb
-
-When I attempt to attach strace to the process, I get (my program does not handle interrupted
-vbi read()):
-
-Process 29539 attached - interrupt to quit
-time([1066669984])                      = 1066669984
-rt_sigaction(SIGTSTP, {SIG_IGN}, {0x40045530, [], SA_RESTORER|SA_RESTART, 0x40091578}, 8) = 0
-poll([{fd=0, events=POLLIN}], 1, 0)     = 0
-poll([{fd=0, events=POLLIN}], 1, 0)     = 0
-write(1, "\33[2;46H\33[31m\33[40m04:57:06\33[0;10m"..., 144) = 144
-rt_sigaction(SIGTSTP, {0x40045530, [], SA_RESTORER|SA_RESTART, 0x40091578}, NULL, 8) = 0
-open("ct2", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 4
-fstat64(4, {st_mode=S_IFREG|0644, st_size=0, ...}) = 0
-old_mmap(NULL, 4096, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x40016000
-write(4, "TTXDATA 1.0\32\0\1\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096) = 4096
-write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0"..., 4096) = 4096
-write(4, "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 16) = 16
-_llseek(4, 0, [8208], SEEK_CUR)         = 0
-close(4)                                = 0
-munmap(0x40016000, 4096)                = 0
-close(3
-
-t2            D C10524E0     0 29539  26630                     (NOTLB)
-d6ee7e80 00000082 00000000 c10524e0 000001ef 00000286 00000000 c10b1c60
-       00001000 c10b1c60 00000246 c10b1c60 c9720960 0000293d 0c2f2d29 00001953
-       d6fa9960 d8238ef8 00000000 d6ee6000 d8238f58 e299a942 c9720abc 00000000
-Call Trace:
- [<e299a942>] videobuf_waiton+0x92/0xee [video_buf]
- [<c012029c>] default_wake_function+0x0/0x2e
- [<c012029c>] default_wake_function+0x0/0x2e
- [<e2adadcc>] bttv_dma_free+0x4a/0x9f [bttv]
- [<e299acf7>] videobuf_queue_cancel+0x10a/0x1c6 [video_buf]
- [<c01303de>] update_process_times+0x46/0x52
- [<e299be4e>] videobuf_read_stop+0x1b/0x69 [video_buf]
- [<e2ad3344>] bttv_release+0xc2/0x138 [bttv]
- [<c016fbc2>] __fput+0xdd/0xef
- [<c016e069>] filp_close+0x59/0x86
- [<c016e181>] sys_close+0xeb/0x1ed
- [<c010fec7>] do_syscall_trace+0x35/0x6a
- [<c0109ba7>] syscall_call+0x7/0xb
-
-
-and it stops here, forever. FD 3 is /dev/vbi1. Do you have any idea what can be wrong?
-Stacktrace suggests that bttv_reinit_bt848 was invoked before thing stopped working,
-but here my expertise ends :-( Kernel is UP, with spinlock debugging enabled.
-Last kernel known to work correctly is 2.6.0-test5-c1342 from Sep 25th.
-								Thanks,
-									Petr Vandrovec
-
+diff -Nru a/include/net/llc.h b/include/net/llc.h
+--- a/include/net/llc.h	Mon Oct 20 10:14:56 2003
++++ b/include/net/llc.h	Mon Oct 20 10:14:56 2003
+@@ -88,4 +88,12 @@
+ 
+ extern int llc_station_init(void);
+ extern void llc_station_exit(void);
++
++#ifdef CONFIG_PROC_FS
++extern int llc_proc_init(void);
++extern void llc_proc_exit(void);
++#else
++#define llc_proc_init()	(0)
++#define llc_proc_exit()	do { } while(0)
++#endif /* CONFIG_PROC_FS */
+ #endif /* LLC_H */
+diff -Nru a/include/net/llc_proc.h b/include/net/llc_proc.h
+--- a/include/net/llc_proc.h	Mon Oct 20 10:14:56 2003
++++ /dev/null	Wed Dec 31 16:00:00 1969
+@@ -1,18 +0,0 @@
+-#ifndef LLC_PROC_H
+-#define LLC_PROC_H
+-/*
+- * Copyright (c) 1997 by Procom Technology, Inc.
+- * 		 2002 by Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+- *
+- * This program can be redistributed or modified under the terms of the
+- * GNU General Public License as published by the Free Software Foundation.
+- * This program is distributed without any warranty or implied warranty
+- * of merchantability or fitness for a particular purpose.
+- *
+- * See the GNU General Public License for more details.
+- */
+-
+-extern int llc_proc_init(void);
+-extern void llc_proc_exit(void);
+-
+-#endif /* LLC_PROC_H */
+diff -Nru a/net/llc/af_llc.c b/net/llc/af_llc.c
+--- a/net/llc/af_llc.c	Mon Oct 20 10:14:56 2003
++++ b/net/llc/af_llc.c	Mon Oct 20 10:14:56 2003
+@@ -30,7 +30,6 @@
+ #include <net/llc_sap.h>
+ #include <net/llc_pdu.h>
+ #include <net/llc_conn.h>
+-#include <net/llc_proc.h>
+ 
+ /* remember: uninitialized global data is zeroed because its in .bss */
+ static u16 llc_ui_sap_last_autoport = LLC_SAP_DYN_START;
+diff -Nru a/net/llc/llc_proc.c b/net/llc/llc_proc.c
+--- a/net/llc/llc_proc.c	Mon Oct 20 10:14:56 2003
++++ b/net/llc/llc_proc.c	Mon Oct 20 10:14:56 2003
+@@ -14,7 +14,6 @@
+ 
+ #include <linux/config.h>
+ #include <linux/init.h>
+-#ifdef CONFIG_PROC_FS
+ #include <linux/kernel.h>
+ #include <linux/proc_fs.h>
+ #include <linux/errno.h>
+@@ -273,13 +272,3 @@
+ 	remove_proc_entry("core", llc_proc_dir);
+ 	remove_proc_entry("llc", proc_net);
+ }
+-#else /* CONFIG_PROC_FS */
+-int __init llc_proc_init(void)
+-{
+-	return 0;
+-}
+-
+-void llc_proc_exit(void)
+-{
+-}
+-#endif /* CONFIG_PROC_FS */

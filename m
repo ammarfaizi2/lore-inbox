@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbULGADF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261708AbULGAHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbULGADF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 19:03:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbULGADF
+	id S261708AbULGAHi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 19:07:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261706AbULGAHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 19:03:05 -0500
-Received: from HELIOUS.MIT.EDU ([18.238.1.151]:12458 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261707AbULGADA (ORCPT
+	Mon, 6 Dec 2004 19:07:38 -0500
+Received: from cs.columbia.edu ([128.59.16.20]:25476 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id S261708AbULGAHd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 19:03:00 -0500
-Date: Mon, 6 Dec 2004 19:03:19 -0500
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Matthieu Castet <castet.matthieu@free.fr>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.9+] PnPBIOS: Missing SMALL_TAG_ENDDEP tag
-Message-ID: <20041207000319.GA19103@neo.rr.com>
-Mail-Followup-To: ambx1@neo.rr.com,
-	Rene Herman <rene.herman@keyaccess.nl>,
-	Matthieu Castet <castet.matthieu@free.fr>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <41B3A963.4090003@keyaccess.nl> <20041206024218.GD3103@neo.rr.com> <41B3CCA6.1060507@keyaccess.nl> <20041206165929.GE3103@neo.rr.com> <41B4C95D.7030507@keyaccess.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41B4C95D.7030507@keyaccess.nl>
-User-Agent: Mutt/1.5.6+20040722i
-From: ambx1@neo.rr.com (Adam Belay)
+	Mon, 6 Dec 2004 19:07:33 -0500
+Message-ID: <41B4F445.6040403@cs.columbia.edu>
+Date: Mon, 06 Dec 2004 19:07:33 -0500
+From: Andrea G Forte <andreaf@cs.columbia.edu>
+User-Agent: Mozilla Thunderbird 0.9 (Windows/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: IP aliasing and IP change delay.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621, Antispam-Engine: 2.0.2.0, Antispam-Data: 2004.12.6.29
+X-PerlMx-Spam: Gauge=IIIIIII, Probability=7%, Report='__CT 0, __CTE 0, __CT_TEXT_PLAIN 0, __HAS_MSGID 0, __MIME_VERSION 0, __SANE_MSGID 0'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 06, 2004 at 10:04:29PM +0100, Rene Herman wrote:
-> Adam Belay wrote:
-> 
-> >I appreciate the additional information.  I looked through the binary files
-> >manually and confirmed that they are missing an end-dep tag.  It should be
-> >harmless however.  I think the error message needs to be debug or it could 
-> >be removed.
-> 
-> As far as I'm concerned, making it debug is not too useful. I normally 
-> have pnp debug enabled but not to debug my BIOS.
-> 
-> Hence attachment. Could you push it on yourself if you agree? Thanks...
-> 
-> Rene.
-> 
->
+Hello all,
 
-Even if there is a problematic usage of dep tags, the possible resource list
-will reflect it, so I'm fine with removing the message.  Thanks for the patch.
+I am new to this list but I hope you can help me.
+I have been trying to use two different IP addresses on the same PCMCIA 
+wireless card. For doing this I tried the classic
+ifconfig wlan0:0 inet xxx.xxx.xxx.xxx
+route ......
+and I also tried
+ip address add xxx.xxx.xxx.xxx dev wlan0
 
-Adam
+The problem is that after I issue the command, the IP is actually 
+changed several hundred of milliseconds later, while if I do not create 
+an alias and change the IP twice on the same interface (using ifconfig), 
+then the change of IP is really fast, practically it changes starting 
+from the packet following the command.
+Anybody has some ideas why there is such a double behaviour if using 
+wlan0 and wlan0:0 or using only wlan0??
 
+Thank you very much for your help,
+Andre

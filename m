@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269876AbUJMWP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269877AbUJMWQu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269876AbUJMWP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 18:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269877AbUJMWP7
+	id S269877AbUJMWQu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 18:16:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269880AbUJMWQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 18:15:59 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:53239 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269876AbUJMWP5 (ORCPT
+	Wed, 13 Oct 2004 18:16:50 -0400
+Received: from fw.osdl.org ([65.172.181.6]:25001 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S269877AbUJMWQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 18:15:57 -0400
-Date: Wed, 13 Oct 2004 15:15:59 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>
-cc: greg@kroah.com, hannal@us.ibm.com, chas@cmf.nrl.navy.mil
-Subject: [PATCH 2.6] ambassador.c replace pci_find_device with pci_get_device
-Message-ID: <194130000.1097705759@w-hlinder.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 13 Oct 2004 18:16:46 -0400
+Subject: Announcing Binary Compatibility/Testing
+From: "Timothy D. Witham" <wookie@osdl.org>
+To: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Open Source Development Lab, Inc.
+Date: Wed, 13 Oct 2004 15:16:53 -0700
+Message-Id: <1097705813.6077.52.camel@wookie-zd7>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Announcing Binary Compatibility/Testing 
 
-As pci_find_device is going away soon I have converted this file to use
-pci_get_device instead. I have compile tested it. If anyone has this ATM card
-and could test it that would be great.
+  In talking to end users, distributions, OSS developers and 
+large scale ISV's one issue kept popping up.  And that is 
+the fact that binaries keep breaking.  
 
-Hanna Linder
-IBM Linux Technology Center
+  This is a real problem for large end users deploying Linux
+in that they like to be able to run/roll forward the same version
+of an application for 5 or so years.  They can do this with their
+legacy operating systems and we need to be able to do this 
+with Linux.
 
-Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+One of the big problems is that these ISV's release and test
+on a cycle that is measured in calendar quarters and of course
+the OSS cycle is measured in days.   The idea is to move
+testing of these binary applications upstream to match
+the OSS development cycle.  For this purpose I've started
+a mailing list to discuss how to accomplish this.   I've
+got slides for anybody who is interested. (PDF.)
 
----
+http://lists.osdl.org/mailman/listinfo/binary_sig
 
-diff -Nrup linux-2.6.9-rc4-mm1cln/drivers/atm/ambassador.c linux-2.6.9-rc4-mm1patch/drivers/atm/ambassador.c
---- linux-2.6.9-rc4-mm1cln/drivers/atm/ambassador.c	2004-10-12 14:15:10.000000000 -0700
-+++ linux-2.6.9-rc4-mm1patch/drivers/atm/ambassador.c	2004-10-13 13:50:30.070951672 -0700
-@@ -2378,7 +2378,7 @@ static int __init amb_probe (void) {
-   
-   devs = 0;
-   pci_dev = NULL;
--  while ((pci_dev = pci_find_device
-+  while ((pci_dev = pci_get_device
-           (PCI_VENDOR_ID_MADGE, PCI_DEVICE_ID_MADGE_AMBASSADOR, pci_dev)
-           )) {
- 	if (do_pci_device(pci_dev) == 0)
-@@ -2387,7 +2387,7 @@ static int __init amb_probe (void) {
- 
-   
-   pci_dev = NULL;
--  while ((pci_dev = pci_find_device
-+  while ((pci_dev = pci_get_device
-           (PCI_VENDOR_ID_MADGE, PCI_DEVICE_ID_MADGE_AMBASSADOR_BAD, pci_dev)
-           ))
-     PRINTK (KERN_ERR, "skipped broken (PLX rev 2) card");
+http://groups.osdl.org/sig  (Follow binary testing for slides)
+
+Let the flaming start. :-)
+
+Tim
+
+
+-- 
+Timothy D. Witham - Chief Technology Officer - wookie@osdl.org
+Open Source Development Lab Inc - A non-profit corporation
+12725 SW Millikan Way - Suite 400 - Beaverton OR, 97005
+(503)-626-2455 x11 (office)    (503)-702-2871     (cell)
+(503)-626-2436     (fax)
 

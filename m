@@ -1,36 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132553AbRDUJyJ>; Sat, 21 Apr 2001 05:54:09 -0400
+	id <S132555AbRDUKdw>; Sat, 21 Apr 2001 06:33:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132555AbRDUJx7>; Sat, 21 Apr 2001 05:53:59 -0400
-Received: from spiral.extreme.ro ([212.93.159.205]:37249 "HELO
-	spiral.extreme.ro") by vger.kernel.org with SMTP id <S132553AbRDUJxo>;
-	Sat, 21 Apr 2001 05:53:44 -0400
-Date: Sat, 21 Apr 2001 12:53:29 +0300 (EEST)
-From: Dan Podeanu <pdan@spiral.extreme.ro>
-To: <Wayne.Brown@altec.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Current status of NTFS support
-In-Reply-To: <86256A34.0079A841.00@smtpnotes.altec.com>
-Message-ID: <Pine.LNX.4.30.0104211251340.16271-100000@spiral.extreme.ro>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132558AbRDUKdm>; Sat, 21 Apr 2001 06:33:42 -0400
+Received: from quechua.inka.de ([212.227.14.2]:6210 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S132557AbRDUKdW>;
+	Sat, 21 Apr 2001 06:33:22 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: light weight user level semaphores
+In-Reply-To: <E14qHRp-0007Yc-00@the-village.bc.nu> <Pine.LNX.4.31.0104190944090.4074-100000@penguin.transmeta.com> <E14qXEU-0005xo-00@g212.hadiko.de> <9bqgvi$63q$1@penguin.transmeta.com>
+Organization: private Linux site, southern Germany
+Date: Sat, 21 Apr 2001 12:13:06 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14quO3-0004RM-00@g212.hadiko.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Apr 2001 Wayne.Brown@altec.com wrote:
+> This is guaranteed behaviour of UNIX. You get file handles in order, or
+> you don't get them at all.
 
+You get the _next free_ file handle in order. What if your program
+assumes they are all contiguous, and it is called by some other
+program which forgot about FD_CLOEXEC and has some higher fds still
+open? (xdm did this for ten years with its listening socket, just to
+name a well-known example. So every program which asssumes contiguous
+fd allocations would fail if started from an xdm session.)
+
+If your program makes assumptions on its environment which are not
+guaranteed it's broken.
+
+What _is_ guaranteed is that after consecutive allocations of fds like
+  for (i=0; i<n; ++i)
+    fd[i]=open(...);
+the following property holds:
+    fd[i] > fd[j] if (i > j and fd[i]!=-1 and fd[j]!=-1).
+What is absolutely nowhere guaranteed is that
+    fd[i+1] = fd[i]+1.
+It is not possible to guarantee this since any fd may be already open
+before main() starts.
+
+Of course you can guarantee that the fds are available like this:
+  for (i=getdtablesize(); i>=0; --i)
+    close(i);
+and not calling library functions which may open fds.
+
+> 	pid = fork();
+> 	if (!pid) {
+> 		close(0);
+> 		close(1);
+> 		dup(pipe[0]);	/* input pipe */
+> 		dup(pipe[1]);	/* output pipe */
+> 		execve("child");
+> 		exit(1);
+> 	}
 >
-> So how risky is this?
+> The above is absolutely _standard_ behaviour. It's required to work.
 
-Risky enough. I had to chkdsk once for half an hour after copying on an
-NTFS 5. Of course, I'm not familiar with the internals of it.
+The reason why it works is that (a) the target fds are 0 and 1, and
+(b) you close them explicitly. For less trivial uses, there is always
+dup2().
 
->
-> Also, I'll have to recreate my Linux partitions after the upgrade.  Does anyone
-> know if FIPS can split a partition safely that was created under Windows
-> NT?
+> And btw, it's _still_ required to work even if there happens to be a
+> "malloc()" in between the close() and the dup() calls.
 
-As far as I know, it doesn't know about NTFS. I might be wrong though. Get
-some Partition Magic that is bit wiser.
+I wouldn't count on that. It's clearly not required to work if there's
+a getpwnam() in between. (I already had my share of problems with
+syslog() in exactly this situation.)
 
+Do we need a list of library functions which may open fds, like the
+infamous "list of functions which may move or purge memory" on the Mac
+(which grew longer with every OS release and Inside Mac supplement
+issue)? Do we need to know for each library routine how it is
+implemented?
+
+> Trust me. You're arguing for clearly broken behaviour. malloc() and
+> friends MUST NOT open file descriptors. It _will_ break programs that
+> rely on traditional and documented features.
+
+Traditional and documented is, in my view, the description as of the
+open(2) man page:
+
+       When the
+       call is successful, the file descriptor returned  will  be
+       the lowest file descriptor not currently open for the pro­
+       cess.
+
+which of course is exactly how it is implemented in the kernel.
+
+Olaf

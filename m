@@ -1,43 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbUKBV5Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbUKBV6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbUKBV5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:57:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbUKBV5Y
+	id S261570AbUKBV6P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:58:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbUKBVxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:57:24 -0500
-Received: from mail-relay-3.tiscali.it ([213.205.33.43]:27302 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S261570AbUKBV5H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:57:07 -0500
-Date: Tue, 2 Nov 2004 22:56:51 +0100
-From: Andrea Arcangeli <andrea@novell.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, nickpiggin@yahoo.com.au,
-       linux-kernel@vger.kernel.org
-Subject: Re: PG_zero
-Message-ID: <20041102215651.GU3571@dualathlon.random>
-References: <20041030141059.GA16861@dualathlon.random> <418671AA.6020307@yahoo.com.au> <161650000.1099332236@flay> <20041101223419.GG3571@dualathlon.random> <20041102022122.GJ3571@dualathlon.random> <11900000.1099410137@[10.10.2.4]> <20041102130910.3e779d32.akpm@osdl.org>
+	Tue, 2 Nov 2004 16:53:41 -0500
+Received: from hostmaster.org ([212.186.110.32]:53637 "EHLO hostmaster.org")
+	by vger.kernel.org with ESMTP id S261651AbUKBVwf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:52:35 -0500
+Subject: Re: 2.6.8 and 2.6.9 Dual Opteron glitches
+From: Thomas Zehetbauer <thomasz@hostmaster.org>
+To: Tomas Carnecky <tom@dbservice.com>
+Cc: Linux Mailing List Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4187CA0E.1010908@dbservice.com>
+References: <5AC1EEB8-2CD7-11D9-BF00-000A958E35DC@fhm.edu>
+	 <1099414727.4618.11.camel@hostmaster.org>  <4187CA0E.1010908@dbservice.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-RAi8RDoGdVH9Aa5YhCOQ"
+Date: Tue, 02 Nov 2004 22:52:27 +0100
+Message-Id: <1099432347.4618.65.camel@hostmaster.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041102130910.3e779d32.akpm@osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 01:09:10PM -0800, Andrew Morton wrote:
-> The cold pages are mainly intended to be the pages which will be placed
-> under DMA transfers.  We should never return hot pages in response for a
-> request for a cold page.
 
-after the DMA transfer often the cpu will touch the data contents
-(all the pagein/reads do that) and the previously cold page will become
-hotter than the other hot pages you left in the hot list. I doubt
-there's any difference between a cache shoop or a recycle of some cache
-entry because we run out of cache (in turn making some random hot cache
-as cold). There's a window of time during the dma that may run faster by
-allocating hot cache, but in the same window of time some other task may
-as well free some hot data in turn avoiding to enter the buddy at all
-and to take the zone lock.
+--=-RAi8RDoGdVH9Aa5YhCOQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Die, 2004-11-02 at 18:55 +0100, Tomas Carnecky wrote:
+> Even on Pentium 4 Processors with HT?
+
+Of course not, HyperThrading (HT) is just the operating system and the
+processor agreeing on the lie that there are two processors. Maybe this
+is still advantageous for operating systems still not supporting real
+preemptive multitasking.
+
+Tom
+
+--=20
+  T h o m a s   Z e h e t b a u e r   ( TZ251 )
+  PGP encrypted mail preferred - KeyID 96FFCB89
+      finger thomasz@hostmaster.org for key
+
+"Memory is like gasoline. You use it up when you are running. Of course you
+get it all back when you reboot..."
+                                        Microsoft Helpdesk
+
+
+
+
+--=-RAi8RDoGdVH9Aa5YhCOQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iQEVAwUAQYgBm2D1OYqW/8uJAQIctQgAgZtjP+RNtf801H6XeFLRwarBNtITPfx/
+WlUxyKxAI6rANvUbsp9Amt0LMfy2AwhFJRrPoNandJrGJKNNR9bC81DVHQTO6SWV
+jXPesQnoe+4+v/9g0P7TKgDzqVBS5FdoEa+W3+tFtVOHxJv2XisNHB9dVzQ2jEVJ
+RcT8uvuaFL75p/LY/A4oZKIP2/FyXd3wCEcmsvSDT/bQCZJcH6OmRdZIYKJKZif8
+NdEL8lVipyQ6uUTChJwdxFAKQc5Ctf3VurQ6hGcFLsRPdHoTAux9ODcgwlv8cPJd
+lTZaFps4NyB0/DnpGVi5v2BO9q8SzpRhBiv5tvfsv7o0yVe7DkZLZQ==
+=2f00
+-----END PGP SIGNATURE-----
+
+--=-RAi8RDoGdVH9Aa5YhCOQ--
+

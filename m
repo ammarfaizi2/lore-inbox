@@ -1,63 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318435AbSGYMAo>; Thu, 25 Jul 2002 08:00:44 -0400
+	id <S318436AbSGYMH5>; Thu, 25 Jul 2002 08:07:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318436AbSGYMAo>; Thu, 25 Jul 2002 08:00:44 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:39818 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S318435AbSGYMAf>; Thu, 25 Jul 2002 08:00:35 -0400
-Date: Thu, 25 Jul 2002 05:00:15 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: Ed Tomlinson <tomlins@cam.org>
-cc: Steven Cole <elenstev@mesatop.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Steven Cole <scole@lanl.gov>, Rik van Riel <riel@conectiva.com.br>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [PATCH 2/2] move slab pages to the lru, for 2.5.27
-In-Reply-To: <200207242012.59150.tomlins@cam.org>
-Message-ID: <Pine.LNX.4.44.0207241931060.17413-100000@loke.as.arizona.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318437AbSGYMH5>; Thu, 25 Jul 2002 08:07:57 -0400
+Received: from unthought.net ([212.97.129.24]:54690 "EHLO mail.unthought.net")
+	by vger.kernel.org with ESMTP id <S318436AbSGYMH5>;
+	Thu, 25 Jul 2002 08:07:57 -0400
+Date: Thu, 25 Jul 2002 14:11:09 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: RAID problems
+Message-ID: <20020725121109.GA25999@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	Kernel mailing list <linux-kernel@vger.kernel.org>
+References: <200207251354.04229.roy@karlsbakk.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200207251354.04229.roy@karlsbakk.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 25, 2002 at 01:54:04PM +0200, Roy Sigurd Karlsbakk wrote:
+> hi all
+> 
+> What is there to do when the following happens:
+> 
+> a 16 drive RAID fails, giving me an error message telling 4 drives have gone 
+> dead. In fact only one has.
+> 
+> How can I hack the superblock on the reminding disks to bring them "up", so 
+> the kernel can start using the spare?
 
-On Wed, 24 Jul 2002, Ed Tomlinson wrote:
+Just like the last time you asked this question on linux-kernel, the
+answer is in the Software RAID HOWTO, section 6.1, and it is still
+available at
 
-> This patch fixes the SMP problems for Steve.  
+http://unthought.net/Software-RAID.HOWTO/Software-RAID.HOWTO-6.html#ss6.1
 
-Good sleuthing!  Glad to hear this seems to solve the bizarre SMP
-out-of-memory problems.  However, you should know that there *might* still 
-be demons lurking about.
+Nothing has changed  :)
 
-I still have problems with 2.5.27-rmap-slablru with CONFIG_SMP booting on 
-a UP laptop, when 2.5.27-rmap (the big rmap patch) works fine in SMP mode. 
-I have spinlock debugging turned on and get oopses with modprobe trying to
-load the rtc module.  It fails this test in include/asm/spinlock.h:
+If you feel that the answer there is inadequate, please let me know.
 
-#ifdef CONFIG_DEBUG_SPINLOCK
-        if (lock->magic != SPINLOCK_MAGIC)
-                BUG();
-
-Modprobe also traps itself in infinite loops trying to load unix.o for 
-net-pf-1.  Eeeks.  I'll test on other UP boxes in SMP mode and see if I 
-can trigger anything. 
-
-
-For now, I've applied Ed's patch and tested that it doesn't cause any 
-problems for UP behavior, so I added it to the patch queue against 2.5.27 
-and is included in the rmap patches for 2.5.28, which you can download:
-
-	http://loke.as.arizona.edu/~ckulesa/kernel/rmap-vm/2.5.28/
-
-The only new change for 2.5.28 is fixing software suspend to work 
-with the full rmap patch.  I tested swsusp with 2.5.28-rmap-slablru, and 
-it's very cool. :)
-
-Although I suspect SMP folks will have their hands busy with *other* 
-things in 2.5.28, (!!) more SMP feedback regarding slab-on-LRU would be 
-most helpful!
-
-Thanks,
-Craig Kulesa
-
+-- 
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:

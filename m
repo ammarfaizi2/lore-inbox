@@ -1,51 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVCML1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVCMLab@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVCML1N (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 06:27:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVCML1N
+	id S261154AbVCMLab (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 06:30:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVCMLaa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 06:27:13 -0500
-Received: from weber.sscnet.ucla.edu ([128.97.42.3]:48020 "EHLO
-	weber.sscnet.ucla.edu") by vger.kernel.org with ESMTP
-	id S261153AbVCML1J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 06:27:09 -0500
-Message-ID: <42342355.2080908@cogweb.net>
-Date: Sun, 13 Mar 2005 03:26:13 -0800
-From: David Liontooth <liontooth@cogweb.net>
-User-Agent: Debian Thunderbird 1.0 (X11/20050118)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ide0=ata66 doesn't seem obsolete
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 13 Mar 2005 06:30:30 -0500
+Received: from pfepa.post.tele.dk ([195.41.46.235]:44408 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261154AbVCMLaK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 06:30:10 -0500
+Date: Sun, 13 Mar 2005 12:31:33 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org, Martin Waitz <tali@admingilde.org>
+Subject: Re: script to send changesets per mail
+Message-ID: <20050313113133.GA8083@mars.ravnborg.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Martin Waitz <tali@admingilde.org>
+References: <20050303105950.GH8617@admingilde.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050303105950.GH8617@admingilde.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 03, 2005 at 11:59:50AM +0100, Martin Waitz wrote:
+> hoi :)
+> 
+> I just tested my little script that can send changesets per mail.
+> okok, it still had a bug when I first tested it but that should be
+> fixed now.
 
-On my laptop, idebus=66 or nothing gets me this:
-hda: 78140160 sectors (40007 MB) w/1768KiB Cache, CHS=65535/16/63, UDMA(33)
+Greg has a similar script - could you take a look and tell
+which is the better (and why). We only want one in the kernel.
 
-In contrast, ide0=ata66 gets me this (never mind the geometry):
-ide_setup: ide0=ata66 -- OBSOLETE OPTION, WILL BE REMOVED SOON!
-hda: 78140160 sectors (40007 MB) w/1768KiB Cache, CHS=4864/255/63, UDMA(100)
+It is attached.
 
-What's not to like?
+	Sam
+	
+send_lots_of_emails.pl:
 
-# uname -r
-2.6.11.2
+#!/usr/bin/perl -w
 
-# lspci
-0000:00:00.0 Host bridge: ALi Corporation M1671 Super P4 Northbridge 
-[AGP4X,PCI and SDR/DDR] (rev 02)
-0000:00:01.0 PCI bridge: ALi Corporation PCI to AGP Controller
-0000:00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge 
-[Aladdin IV]
-0000:00:10.0 IDE interface: ALi Corporation M5229 IDE (rev c4)
-0000:00:11.0 Bridge: ALi Corporation M7101 PMU
+# horrible hack of a script to send off a large number of email messages, one after
+# each other, all chained together.  This is useful for large numbers of patches.
+#
+# Use at your own risk!!!!
+#
+# greg kroah-hartman Jan 8, 2002
+# <greg@kroah.com>a
+# 
+# updated to give a valid subject and CC the owner of the patch - Jan 2005
+# 
 
-Cheers,
-Dave
+# change this to your email address.
+$from = "SOMEONE <someone\@somewhere.com>";
+
+# modify these options each time you run the script
+$to = 'linux-kernel@vger.kernel.org';
+$initial_reply_to = '<20050203173208.GA23964@foobar.com>';
+$initial_subject = "[PATCH] XXX fixes for 2.6.11-rc3";
+@files = (
+"rev-1.2041.patch",
+"rev-1.2042.patch",
+"rev-1.2043.patch",
+"rev-1.2044.patch",
+"rev-1.2045.patch",
+"rev-1.2046.patch",
+);
+
+use Mail::Sendmail;
+
+
+# we make a "fake" message id by taking the current number
+# of seconds since the beginning of Unix time and tacking on
+# a random number to the end, in case we are called quicker than
+# 1 second since the last time we were called.
+sub make_message_id
+{
+	my $date = `date "+\%s"`;
+	chomp($date);
+	my $pseudo_rand = int (rand(4200));
+	$message_id = "<$date$pseudo_rand\@kroah.com>";
+	print "new message id = $message_id\n";
+}
+
+
+
+$cc = "";
+
+sub send_message
+{
+	%mail = (	To	=>	$to,
+			From	=>	$from,
+			CC	=>	$cc,
+			Subject	=>	$subject,
+			Message	=>	$message,
+			'Reply-to'	=>	"Greg K-H <greg\@kroah.com>",
+			'In-Reply-To'	=>	$reply_to,
+			'Message-ID'	=>	$message_id,
+			'X-Mailer'	=>	"gregkh_patchbomb",
+		);
+
+	$mail{smtp} = 'localhost';
+
+	sendmail(%mail) or die $Mail::Sendmail::error;
+
+	print "OK. Log says:\n", $Mail::Sendmail::log;
+	print "\n\n"
+}
+
+
+$reply_to = $initial_reply_to;
+make_message_id();
+$subject = $initial_subject;
+
+foreach $t (@files) {
+	$F = $t;
+	open F or die "can't open file $t";
+
+	# first line is the CC: list
+	$cc = <F>;
+	print "cc: $cc";
+	
+	# second line is the Subject:
+	$subject = <F>;
+	print "subject: $subject";
+
+	undef $/;
+	$message = <F>;	# slurp the whole file in
+	close F;
+	$/ = "\n";
+	send_message();
+
+	# set up for the next message
+	$reply_to = $message_id;
+	make_message_id();
+#	$subject = "Re: ".$initial_subject;
+}
 

@@ -1,52 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318011AbSGLVSm>; Fri, 12 Jul 2002 17:18:42 -0400
+	id <S318014AbSGLVWR>; Fri, 12 Jul 2002 17:22:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318012AbSGLVSl>; Fri, 12 Jul 2002 17:18:41 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:7692 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S318011AbSGLVSk>; Fri, 12 Jul 2002 17:18:40 -0400
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.4
-From: Paul Menage <pmenage@ensim.com>
-To: Dave Jones <davej@suse.de>
-cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Rearranging struct dentry for cache affinity 
-cc: pmenage@ensim.com
-In-reply-to: Your message of "Fri, 12 Jul 2002 22:58:28 +0200."
-             <20020712225828.E18503@suse.de> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 12 Jul 2002 14:21:04 -0700
-Message-Id: <E17T7qa-0007FC-00@pmenage-dt.ensim.com>
+	id <S318015AbSGLVWQ>; Fri, 12 Jul 2002 17:22:16 -0400
+Received: from pc132.utati.net ([216.143.22.132]:15237 "HELO
+	merlin.webofficenow.com") by vger.kernel.org with SMTP
+	id <S318014AbSGLVWP>; Fri, 12 Jul 2002 17:22:15 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: linux-kernel@vger.kernel.org
+Subject: No rule to make autoconf.h in 2.4.19-rc1?
+Date: Fri, 12 Jul 2002 11:26:44 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: marcelo@conectiva.com.br
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020712210434.271CA8B5@merlin.webofficenow.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->On Fri, Jul 12, 2002 at 01:38:35PM -0700, Paul Menage wrote:
->
-> > -		dentry->d_vfs_flags |= DCACHE_REFERENCED;
-> > +#ifdef CONFIG_SMP
-> > +		if(!(dentry->d_vfs_flags & DCACHE_REFERENCED))
-> > +#endif
-> > +			dentry->d_vfs_flags |= DCACHE_REFERENCED;
->
->Yuck. Is doing this conditional on UP really a measurable effect?
+Retry with a hopefully correct address for Marcelo.  (There's only one n in 
+conectiva.  Right.)
 
-I'm don't know yet - I did some brief tests on x86 UP to see how much
-positive/negative effect the branch misses versus the cache dirtying
-had, and (using an exponentially decaying distribution of entries being
-tested/set) the if() statement did show an improvement for sufficiently
-skewed distributions. But I've no idea yet how that matches up to the
-distributions that we'd see in the dcache in actual use.
+------------------
 
-As I said in an earlier email, it might be nice to have an
-__ensure_bit_set() function that uses architecture-specific knowledge to
-make sure a particular bit is set as efficiently as possible. (e.g.
-taking advantage of predicated writes, etc).
+I'm trying to put together a linux from scratch system (3.3 with extensive 
+tweaks) using a build script that happily built 2.4.18 but is dying at the 
+start of make bzImage in 19-rc1, complaining there's no rule to make 
+include/linux/autoconf.h (needed by include/config/MARKER).
 
->If you must microoptimise
->to this level, at least try and keep the code clean.
+I've confirmed I got the right patch and that it applied correctly (or at 
+least reproducibly without rejects and changed the version numbers in the top 
+level makefile)...  I untarred the 2.4.18 tarball into a fresh directory, 
+applied the patch, did "make dep" followed by "make clean" (I tried omitting 
+make clean and it didn't help) followed by make bzImage, at which point the 
+build process went off into the corner to sulk.
 
-Sure - this is just a quick [RFC] hack.
+Maybe I'm doing something small and simple wrong (although 2.4.18 built), but 
+I can't spot it.  I grepped the last couple weeks of my linux-kernel folder 
+and the only mention of autoconf.h was in patches, no descriptive text.
 
-Paul
+I also tried "touch include/linux/autoconf.h", which just makes 
+scripts/split-include die in find...
 
+What does the kernel use autoconf for?  (When did this get added?  I wrote a 
+kernel output parser and didn't see autoconf, and I'd expect it to run in ake 
+dep anyway...)
+
+Er... Help?
+
+Rob

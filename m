@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTLAQlI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 11:41:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbTLAQlI
+	id S263840AbTLARBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 12:01:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263855AbTLARBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 11:41:08 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:48773 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263777AbTLAQlF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 11:41:05 -0500
-Date: Mon, 1 Dec 2003 11:43:15 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Juergen Oberhofer <j.oberhofer@gmx.at>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: wake_up_interruptible problem
-Message-ID: <Pine.LNX.4.53.0312011138350.31222@chaos>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Dec 2003 12:01:16 -0500
+Received: from dodge.jordet.nu ([217.13.8.142]:42138 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id S263840AbTLARBO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 12:01:14 -0500
+Subject: Re: ACPI does not power off the machine automatically
+From: Stian Jordet <liste@jordet.nu>
+To: Boszormenyi Zoltan <zboszor@freemail.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3FCAF390.10202@freemail.hu>
+References: <3FCAF390.10202@freemail.hu>
+Content-Type: text/plain
+Message-Id: <1070298069.13093.3.camel@chevrolet.hybel>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 01 Dec 2003 18:01:09 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On -1 xxx -1, Juergen Oberhofer wrote:
-
+man, 01.12.2003 kl. 08.53 skrev Boszormenyi Zoltan:
 > Hi,
-> I'm trying to implement a timer, which on each timer interrupt wakes up
-> every process that got blocked by a read call.
-> My problem is the following: if I'm insmod'ing the module (I've attached the
-> file) the execution gets
-> blocked on the wake_up_interruptible(&timer_queue); call. If I'm
-> uncommenting this line everything
-> goes smooth and the timer counts without problems. Does somebody have a
-> hint? Some ideas?
-> Regards
-> Juergen
+> 
+> I have a n ABit BP6 board with 2 Celeron/400MHz with the latest
+> released version RU (beta) BIOS, it was released in 2000.
+> 
+> I am running 2.6.0-test10-mm1 at present
+> and it does not power off the machine. It writes
+> 
+> acpi_power_off called
+> 
+> at the end and stops there. But when I press Alt+SysRQ+o,
+> it switches off. 1 out of (maybe) 50 occasions, the machine
+> can switch itself off automatically.
 
-Well you don't provide enough code to actually compile NotGood(tm).
+I have the same problems on two different smp motherboards here. Works
+fine when booting with apm=power-off, though.
 
-I would guess that you failed to do:
-
-        init_waitqueue_head(&timer_queue);
-
-... in your initialization code, so wake_up_interruptible() is
-waiting forever...... Look at the drivers provided in the
-kernel source. All the initialization stuff is mandatory.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Best regards,
+Stian
 

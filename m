@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266987AbTAOUZb>; Wed, 15 Jan 2003 15:25:31 -0500
+	id <S267029AbTAOUhf>; Wed, 15 Jan 2003 15:37:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266996AbTAOUZb>; Wed, 15 Jan 2003 15:25:31 -0500
-Received: from pop-ls-7-1-dialup-5.freesurf.ch ([194.230.245.5]:3200 "EHLO
-	valsheda.taprogge.wh") by vger.kernel.org with ESMTP
-	id <S266987AbTAOUZa>; Wed, 15 Jan 2003 15:25:30 -0500
-Date: Wed, 15 Jan 2003 21:31:34 +0100
-From: jens.taprogge@rwth-aachen.de
-To: Yaacov Akiba Slama <ya@slamail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: [BUG] cardbus/hotplugging still broken in 2.5.56
-Message-ID: <20030115203134.GA2215@valsheda.taprogge.wh>
-Mail-Followup-To: jens.taprogge@rwth-aachen.de,
-	Yaacov Akiba Slama <ya@slamail.org>, linux-kernel@vger.kernel.org
-References: <3E25C0F3.9000208@slamail.org>
-Mime-Version: 1.0
+	id <S267057AbTAOUhf>; Wed, 15 Jan 2003 15:37:35 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:37644 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267029AbTAOUhd>; Wed, 15 Jan 2003 15:37:33 -0500
+Message-ID: <3E25B6ED.9594108A@linux-m68k.org>
+Date: Wed, 15 Jan 2003 20:30:53 +0100
+From: Roman Zippel <zippel@linux-m68k.org>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+CC: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: display bug in "make xconfig" in 2.5.58
+References: <Pine.LNX.4.44.0301150638170.24623-100000@dell>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E25C0F3.9000208@slamail.org>
-User-Agent: Mutt/1.5.3i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not sure if you have seen the patch I posted on l-k. It should fix
-both issues. 
+Hi,
 
-Jens
+"Robert P. J. Day" wrote:
 
-On Wed, Jan 15, 2003 at 10:13:39PM +0200, Yaacov Akiba Slama wrote:
-> Jens Taprogge wrote :
+>   "make xconfig" will not display simple config entries at
+> the top menu level.
 > 
-> >You are not freeing the possibly already allocated resources in case of
-> >a failure of either pci_assign_resource() or pca_enable_device(). In
-> >fact you are not even checking if pci_assign_resource() fails. That
-> >seems wrong to me.
-> 
-> There are two separate issues :
-> 1) Fix the "ressource collisions" problem (and irq not known).
-> 2) Freeing ressources in case of failure of some functions.
-> 
-> My patch solves the first issue only in order to make cardbus with rom work.
-> The point 2 is a janitor work.
-> 
-> Thanks,
-> Yaacov Akiba Slama
+>   granted, at the moment, there *are* none of these, but if
+> you examine arch/i386/Kconfig, it's clear that such things are
+> at least possible -- X86, MMU, SWAP and so on.  (i deduce that,
+> if a config entry has no label on its type attribute, it is
+> not to be displayed, right?)
 
--- 
-Jens Taprogge
+It's displayed, just push the back button until you get to the root.
+Soon it should be possible to turn such entries (automatically) into
+menuconfig entries, so they are displayed in the menu window.
+BTW label is maybe the wrong word, it's a user prompt. If there is none,
+it can't be displayed of course.
+
+bye, Roman
+
+

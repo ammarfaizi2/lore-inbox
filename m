@@ -1,145 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283481AbRLOSnM>; Sat, 15 Dec 2001 13:43:12 -0500
+	id <S283467AbRLOSrc>; Sat, 15 Dec 2001 13:47:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283467AbRLOSmx>; Sat, 15 Dec 2001 13:42:53 -0500
-Received: from freesurfmta01.sunrise.ch ([194.230.0.16]:17319 "EHLO
-	freesurfmail.sunrise.ch") by vger.kernel.org with ESMTP
-	id <S283430AbRLOSmm>; Sat, 15 Dec 2001 13:42:42 -0500
-Message-ID: <3C19C7E700017024@freesurfmail.sunrise.ch> (added by
-	    postmaster@freesurf.ch)
-From: Nicolas Vollmar <nv@bluewin.ch>
-To: linux-kernel@vger.kernel.org
-Subject: [Merge] I have add some changes from 2.4.17-pre1 to 2.5.1-pre11
-Date: Sat, 15 Dec 2001 19:42:49 +0100
-X-Mailer: KMail [version 1.3.1]
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_DNEE8XYK9S4EE0KLEULK"
+	id <S283496AbRLOSrW>; Sat, 15 Dec 2001 13:47:22 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:44699 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S283467AbRLOSrM>; Sat, 15 Dec 2001 13:47:12 -0500
+Date: Sat, 15 Dec 2001 13:47:11 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: mempool design
+Message-ID: <20011215134711.A30548@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0112152020030.25153-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0112152020030.25153-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Dec 15, 2001 at 08:40:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Dec 15, 2001 at 08:40:19PM +0100, Ingo Molnar wrote:
+> With all respect, even if i had read it before, i'd have done mempool.c
+> the same way as it is now. (but i'd obviously have Cc:-ed Ben on it during
+> its development.) I'd like to sum up Ben's patch (Ben please correct me if
+> i misrepresent your patch in any way):
 
---------------Boundary-00=_DNEE8XYK9S4EE0KLEULK
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+You're making the assumption that an incomplete patch is useless and 
+has no design pricipals behind it.  What I disagree with is the design 
+of mempool, not the implementation.  The design for reservations is to 
+use enforced accounting limits to achive the effect of seperate memory 
+pools.  Mempool's design is to build seperate pools on top of existing 
+pools of memory.  Can't you see the obvious duplication that implies?
 
-I hope some people can test this.
-(I do not have much experience in this...)
+The first implementation of the reservation patch is full of bogosities, 
+I'm the first one to admit that.  But am I going to go off and write an 
+entirely new patch that fixes everything and gets the design right to 
+replace mempool?  Not with the current rate of patches being ignored.
 
-Merge with 2.4.17-pre1
-
-- Add buggy 440GX to broken pirq blacklist 	(Arjan Van de Ven)
-- Added missing MODULE_LICENSE("GPL") in some   (Andreas Krennmair)
-  modules
-- Fix i810 sound driver problems		(Andris Pavenis)
-- Add new entry to Sound blaster ISAPNP list	(Arjan Van de Ven)
-- Updated URL for bigphysmem patch in v4l docs  (Adrian Bunk)
-
-Nicolas
-
-
---------------Boundary-00=_DNEE8XYK9S4EE0KLEULK
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="2.5.1-pre11-merge.diff"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="2.5.1-pre11-merge.diff"
-
-ZGlmZiAtTnVyIGxpbnV4L0RvY3VtZW50YXRpb24vdmlkZW80bGludXgvWm9yYW4gbGludXgtMi41
-LjEtcHJlMTEvRG9jdW1lbnRhdGlvbi92aWRlbzRsaW51eC9ab3JhbgotLS0gbGludXgvRG9jdW1l
-bnRhdGlvbi92aWRlbzRsaW51eC9ab3JhbglXZWQgSnVsICA0IDIzOjQxOjMzIDIwMDEKKysrIGxp
-bnV4LTIuNS4xLXByZTExL0RvY3VtZW50YXRpb24vdmlkZW80bGludXgvWm9yYW4JU2F0IERlYyAx
-NSAxOToxOToxMSAyMDAxCkBAIC0xNjAsOSArMTYwLDkgQEAKICAgc2V0IGFzaWRlIHRoZSBuZWNl
-c3NhcnkgbWVtb3J5IGR1cmluZyBib290IHRpbWUuIFRoZXJlIHNlZW0gdG8gYmUKICAgc2V2ZXJh
-bCB2ZXJzaW9ucyBvZiB0aGlzIHBhdGNoIGFnYWluc3QgdmFyaW91cyBrZXJuZWwgdmVyc2lvbnMK
-ICAgZmxvYXRpbmcgYXJvdW5kIGluIHRoZSBuZXQsIHlvdSBtYXkgb2J0YWluIG9uZSBlLmcuIGZy
-b206Ci0gIGh0dHA6Ly93d3cucG9seXdhcmUubmwvfm1pZGRlbGluL3BhdGNoL2JpZ3BoeXNhcmVh
-LTIuMi4xLnRhci5neiBZb3UKLSAgYWxzbyBoYXZlIHRvIGNvbXBpbGUgeW91ciBkcml2ZXIgQUZU
-RVIgaW5zdGFsbGluZyB0aGF0IHBhdGNoIGluIG9yZGVyCi0gIHRvIGdldCBpdCB3b3JraW5nCisr
-ICBodHRwOi8vd3d3LnBvbHl3YXJlLm5sL35taWRkZWxpbi9ob2ItdjRsLmh0bWwjYmlncGh5c2Fy
-ZWEKKysgIFlvdSBhbHNvIGhhdmUgdG8gY29tcGlsZSB5b3VyIGRyaXZlciBBRlRFUiBpbnN0YWxs
-aW5nIHRoYXQgcGF0Y2ggaW4KKysgIG9yZGVyIHRvIGdldCBpdCB3b3JraW5nCiAKICAgb3IKIApk
-aWZmIC1OdXIgbGludXgvYXJjaC9pMzg2L2tlcm5lbC9kbWlfc2Nhbi5jIGxpbnV4LTIuNS4xLXBy
-ZTExL2FyY2gvaTM4Ni9rZXJuZWwvZG1pX3NjYW4uYwotLS0gbGludXgvYXJjaC9pMzg2L2tlcm5l
-bC9kbWlfc2Nhbi5jCVNhdCBEZWMgMTUgMTk6MTc6NDkgMjAwMQorKysgbGludXgtMi41LjEtcHJl
-MTEvYXJjaC9pMzg2L2tlcm5lbC9kbWlfc2Nhbi5jCVNhdCBEZWMgMTUgMTk6MjA6NDkgMjAwMQpA
-QCAtNTcyLDYgKzU3MiwxMSBAQAogCQkJTUFUQ0goRE1JX0JJT1NfVkVSU0lPTiwiTDQ0MEdYMC44
-NkIuMDA5NC5QMTAiKSwKIAkJCU5PX01BVENILCBOT19NQVRDSAogICAgICAgICAgICAgICAgICAg
-ICAgICAgfSB9LAorCXsgYnJva2VuX3BpcnEsICJsNDRHWCBCaW9zIiwgeyAgICAgICAgCQkvKiBC
-YWQgJFBJUiAqLworCQkJTUFUQ0goRE1JX0JJT1NfVkVORE9SLCAiSW50ZWwgQ29ycG9yYXRpb24i
-KSwKKwkJCU1BVENIKERNSV9CSU9TX1ZFUlNJT04sIkw0NDBHWDAuODZCLjAxMjAuUDEyIiksCisJ
-CQlOT19NQVRDSCwgTk9fTUFUQ0gKKyAgICAgICAgICAgICAgICAgICAgICAgIH0gfSwKIAl7IGJy
-b2tlbl9waXJxLCAibDQ0R1ggQmlvcyIsIHsJCS8qIEJhZCAkUElSICovCiAJCQlNQVRDSChETUlf
-QklPU19WRU5ET1IsICJJbnRlbCBDb3Jwb3JhdGlvbiIpLAogCQkJTUFUQ0goRE1JX0JJT1NfVkVS
-U0lPTiwiTDQ0MEdYMC44NkIuMDEyNS5QMTMiKSwKZGlmZiAtTnVyIGxpbnV4L2RyaXZlcnMvc291
-bmQvaTgxMF9hdWRpby5jIGxpbnV4LTIuNS4xLXByZTExL2RyaXZlcnMvc291bmQvaTgxMF9hdWRp
-by5jCi0tLSBsaW51eC9kcml2ZXJzL3NvdW5kL2k4MTBfYXVkaW8uYwlGcmkgTm92ICA5IDIzOjA3
-OjQxIDIwMDEKKysrIGxpbnV4LTIuNS4xLXByZTExL2RyaXZlcnMvc291bmQvaTgxMF9hdWRpby5j
-CVNhdCBEZWMgMTUgMTk6MjQ6MjEgMjAwMQpAQCAtMTQwNSwxMCArMTQwNSw5IEBACiAJCWlmIChk
-bWFidWYtPmNvdW50IDwgMCkgewogCQkJZG1hYnVmLT5jb3VudCA9IDA7CiAJCX0KLQkJY250ID0g
-ZG1hYnVmLT5kbWFzaXplIC0gZG1hYnVmLT5mcmFnc2l6ZSAtIGRtYWJ1Zi0+Y291bnQ7Ci0JCS8v
-IHRoaXMgaXMgdG8gbWFrZSB0aGUgY29weV9mcm9tX3VzZXIgc2ltcGxlciBiZWxvdwotCQlpZihj
-bnQgPiAoZG1hYnVmLT5kbWFzaXplIC0gc3dwdHIpKQotCQkJY250ID0gZG1hYnVmLT5kbWFzaXpl
-IC0gc3dwdHI7CisJCWNudCA9IGRtYWJ1Zi0+ZG1hc2l6ZSAtIHN3cHRyOworCQlpZihjbnQgPiAo
-ZG1hYnVmLT5kbWFzaXplIC0gZG1hYnVmLT5jb3VudCkpCisJCQljbnQgPSBkbWFidWYtPmRtYXNp
-emUgLSBkbWFidWYtPmNvdW50OwogCQlzcGluX3VubG9ja19pcnFyZXN0b3JlKCZzdGF0ZS0+Y2Fy
-ZC0+bG9jaywgZmxhZ3MpOwogCiAjaWZkZWYgREVCVUcyCkBAIC0xNDE5LDE2ICsxNDE4LDEzIEBA
-CiAJCWlmIChjbnQgPD0gMCkgewogCQkJdW5zaWduZWQgbG9uZyB0bW87CiAJCQkvLyBUaGVyZSBp
-cyBkYXRhIHdhaXRpbmcgdG8gYmUgcGxheWVkCisJCQlpODEwX3VwZGF0ZV9sdmkoc3RhdGUsMCk7
-CiAJCQlpZighZG1hYnVmLT5lbmFibGUgJiYgZG1hYnVmLT5jb3VudCkgewogCQkJCS8qIGZvcmNl
-IHRoZSBzdGFydGluZyBpbmNhc2UgU0VUVFJJR0dFUiBoYXMgYmVlbiB1c2VkICovCiAJCQkJLyog
-dG8gc3RvcCBpdCwgb3RoZXJ3aXNlIHRoaXMgaXMgYSBkZWFkbG9jayBzaXR1YXRpb24gKi8KIAkJ
-CQlkbWFidWYtPnRyaWdnZXIgfD0gUENNX0VOQUJMRV9PVVRQVVQ7CiAJCQkJc3RhcnRfZGFjKHN0
-YXRlKTsKIAkJCX0KLQkJCS8vIFVwZGF0ZSB0aGUgTFZJIHBvaW50ZXIgaW4gY2FzZSB3ZSBoYXZl
-IGFscmVhZHkKLQkJCS8vIHdyaXR0ZW4gZGF0YSBpbiB0aGlzIHN5c2NhbGwgYW5kIGFyZSBqdXN0
-IHdhaXRpbmcKLQkJCS8vIG9uIHRoZSB0YWlsIGJpdCBvZiBkYXRhCi0JCQlpODEwX3VwZGF0ZV9s
-dmkoc3RhdGUsMCk7CiAJCQlpZiAoZmlsZS0+Zl9mbGFncyAmIE9fTk9OQkxPQ0spIHsKIAkJCQlp
-ZiAoIXJldCkgcmV0ID0gLUVBR0FJTjsKIAkJCQlnb3RvIHJldDsKQEAgLTE4NjAsNyArMTg1Niw3
-IEBACiAJCWlmKGRtYWJ1Zi0+bWFwcGVkKQogCQkJYWJpbmZvLmJ5dGVzID0gZG1hYnVmLT5jb3Vu
-dDsKIAkJZWxzZQotCQkJYWJpbmZvLmJ5dGVzID0gZG1hYnVmLT5kbWFzaXplIC0gZG1hYnVmLT5j
-b3VudDsKKwkJCWFiaW5mby5ieXRlcyA9IGRtYWJ1Zi0+ZG1hc2l6ZSAtIGRtYWJ1Zi0+ZnJhZ3Np
-emUgLSBkbWFidWYtPmNvdW50OwogCQlhYmluZm8uZnJhZ21lbnRzID0gYWJpbmZvLmJ5dGVzIC8g
-ZG1hYnVmLT51c2VyZnJhZ3NpemU7CiAJCXNwaW5fdW5sb2NrX2lycXJlc3RvcmUoJnN0YXRlLT5j
-YXJkLT5sb2NrLCBmbGFncyk7CiAjaWZkZWYgREVCVUcKZGlmZiAtTnVyIGxpbnV4L2RyaXZlcnMv
-c291bmQvc2JfY2FyZC5jIGxpbnV4LTIuNS4xLXByZTExL2RyaXZlcnMvc291bmQvc2JfY2FyZC5j
-Ci0tLSBsaW51eC9kcml2ZXJzL3NvdW5kL3NiX2NhcmQuYwlTYXQgRGVjIDE1IDE5OjE3OjUxIDIw
-MDEKKysrIGxpbnV4LTIuNS4xLXByZTExL2RyaXZlcnMvc291bmQvc2JfY2FyZC5jCVNhdCBEZWMg
-MTUgMTk6MjY6MjYgMjAwMQpAQCAtMzQ3LDcgKzM0Nyw3IEBACiAJCUlTQVBOUF9WRU5ET1IoJ0Mn
-LCdUJywnTCcpLCBJU0FQTlBfRlVOQ1RJT04oMHgwMDQzKSwKIAkJMCwwLDAsMCwKIAkJMCwxLDEs
-LTF9LAotCXsiU291bmQgQmxhc3RlciBBV0UgMzIiLCAKKwl7IlNvdW5kIEJsYXN0ZXIgQVdFIDMy
-IiwKIAkJSVNBUE5QX1ZFTkRPUignQycsJ1QnLCdMJyksIElTQVBOUF9ERVZJQ0UoMHgwMDM5KSwg
-CiAJCUlTQVBOUF9WRU5ET1IoJ0MnLCdUJywnTCcpLCBJU0FQTlBfRlVOQ1RJT04oMHgwMDMxKSwK
-IAkJMCwwLDAsMCwKQEAgLTM2OSw2ICszNjksMTEgQEAKIAkJMCwxLDEsLTF9LAogICAgICAgICB7
-IlNvdW5kIEJsYXN0ZXIgQVdFIDMyIiwKIAkJSVNBUE5QX1ZFTkRPUignQycsJ1QnLCdMJyksIElT
-QVBOUF9ERVZJQ0UoMHgwMDQ1KSwKKwkJSVNBUE5QX1ZFTkRPUignQycsJ1QnLCdMJyksIElTQVBO
-UF9GVU5DVElPTigweDAwMzEpLAorCQkwLDAsMCwwLAorCQkwLDEsMSwtMX0sCisJeyJTb3VuZCBC
-bGFzdGVyIEFXRSAzMiIsCisJCUlTQVBOUF9WRU5ET1IoJ0MnLCdUJywnTCcpLCBJU0FQTlBfREVW
-SUNFKDB4MDA0NyksCiAJCUlTQVBOUF9WRU5ET1IoJ0MnLCdUJywnTCcpLCBJU0FQTlBfRlVOQ1RJ
-T04oMHgwMDMxKSwKIAkJMCwwLDAsMCwKIAkJMCwxLDEsLTF9LApkaWZmIC1OdXIgbGludXgvZnMv
-aW5mbGF0ZV9mcy9pbmZsYXRlX3N5bXMuYyBsaW51eC0yLjUuMS1wcmUxMS9mcy9pbmZsYXRlX2Zz
-L2luZmxhdGVfc3ltcy5jCi0tLSBsaW51eC9mcy9pbmZsYXRlX2ZzL2luZmxhdGVfc3ltcy5jCVRo
-dSBPY3QgMjUgMjI6NTM6NTMgMjAwMQorKysgbGludXgtMi41LjEtcHJlMTEvZnMvaW5mbGF0ZV9m
-cy9pbmZsYXRlX3N5bXMuYwlTYXQgRGVjIDE1IDE5OjI3OjIwIDIwMDEKQEAgLTE5LDMgKzE5LDQg
-QEAKIEVYUE9SVF9TWU1CT0woemxpYl9mc19pbmZsYXRlUmVzZXQpOwogRVhQT1JUX1NZTUJPTCh6
-bGliX2ZzX2FkbGVyMzIpOwogRVhQT1JUX1NZTUJPTCh6bGliX2ZzX2luZmxhdGVTeW5jUG9pbnQp
-OworTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwpkaWZmIC1OdXIgbGludXgvZnMvbXNkb3MvbXNkb3Nm
-c19zeW1zLmMgbGludXgtMi41LjEtcHJlMTEvZnMvbXNkb3MvbXNkb3Nmc19zeW1zLmMKLS0tIGxp
-bnV4L2ZzL21zZG9zL21zZG9zZnNfc3ltcy5jCU1vbiBNYXIgMTMgMjE6MzU6MzkgMjAwMAorKysg
-bGludXgtMi41LjEtcHJlMTEvZnMvbXNkb3MvbXNkb3Nmc19zeW1zLmMJU2F0IERlYyAxNSAxOToy
-Nzo0MSAyMDAxCkBAIC00MCwzICs0MCw0IEBACiAKIG1vZHVsZV9pbml0KGluaXRfbXNkb3NfZnMp
-CiBtb2R1bGVfZXhpdChleGl0X21zZG9zX2ZzKQorTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwpkaWZm
-IC1OdXIgbGludXgvZnMvdmZhdC92ZmF0ZnNfc3ltcy5jIGxpbnV4LTIuNS4xLXByZTExL2ZzL3Zm
-YXQvdmZhdGZzX3N5bXMuYwotLS0gbGludXgvZnMvdmZhdC92ZmF0ZnNfc3ltcy5jCUZyaSBPY3Qg
-MTIgMjI6NDg6NDIgMjAwMQorKysgbGludXgtMi41LjEtcHJlMTEvZnMvdmZhdC92ZmF0ZnNfc3lt
-cy5jCVNhdCBEZWMgMTUgMTk6Mjg6MDIgMjAwMQpAQCAtMzMsMyArMzMsNCBAQAogCiBtb2R1bGVf
-aW5pdChpbml0X3ZmYXRfZnMpCiBtb2R1bGVfZXhpdChleGl0X3ZmYXRfZnMpCitNT0RVTEVfTElD
-RU5TRSgiR1BMIik7CmRpZmYgLU51ciBsaW51eC9uZXQvcGFja2V0L2FmX3BhY2tldC5jIGxpbnV4
-LTIuNS4xLXByZTExL25ldC9wYWNrZXQvYWZfcGFja2V0LmMKLS0tIGxpbnV4L25ldC9wYWNrZXQv
-YWZfcGFja2V0LmMJV2VkIE9jdCAzMSAwMDowODoxMiAyMDAxCisrKyBsaW51eC0yLjUuMS1wcmUx
-MS9uZXQvcGFja2V0L2FmX3BhY2tldC5jCVNhdCBEZWMgMTUgMTk6Mjg6MjggMjAwMQpAQCAtMTkw
-MiwzICsxOTAyLDQgQEAKIAogbW9kdWxlX2luaXQocGFja2V0X2luaXQpOwogbW9kdWxlX2V4aXQo
-cGFja2V0X2V4aXQpOworTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwo=
-
---------------Boundary-00=_DNEE8XYK9S4EE0KLEULK--
+		-ben

@@ -1,52 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266573AbUHSQBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266376AbUHSQEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266573AbUHSQBi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 12:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUHSQBi
+	id S266376AbUHSQEq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 12:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUHSQEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 12:01:38 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:9971 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266573AbUHSQBg
+	Thu, 19 Aug 2004 12:04:46 -0400
+Received: from tag.witbe.net ([81.88.96.48]:11454 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S266376AbUHSQDQ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 12:01:36 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Thu, 19 Aug 2004 12:03:16 -0400
+Message-Id: <200408191600.i7JG0Sq25765@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: <gene.heskett@verizon.net>, <linux-kernel@vger.kernel.org>
+Cc: "'Matthias Andree'" <matthias.andree@gmx.de>, "'Martin Mares'" <mj@ucw.cz>,
+       "'Joerg Schilling'" <schilling@fokus.fraunhofer.de>,
+       <kernel@wildsau.enemy.org>, <diablod3@gmail.com>
 Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Thu, 19 Aug 2004 18:00:56 +0200
-User-Agent: KMail/1.6.2
-Cc: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       kernel@wildsau.enemy.org, diablod3@gmail.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org> <4124BA10.6060602@bio.ifi.lmu.de> <1092925942.28353.5.camel@localhost.localdomain>
-In-Reply-To: <1092925942.28353.5.camel@localhost.localdomain>
+Date: Thu, 19 Aug 2004 18:00:27 +0200
+Organization: AS2917
 MIME-Version: 1.0
-Content-Disposition: inline
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200408191800.56581.bzolnier@elka.pw.edu.pl>
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <200408191136.49766.gene.heskett@verizon.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+thread-index: AcSGA28WJFfyQyMDQ762MpRzUWWDJwAAd1QQ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 August 2004 16:32, Alan Cox wrote:
-> On Iau, 2004-08-19 at 15:32, Frank Steiner wrote:
-> > What a stupid claim. When I call cdrecord on SuSE 9.1, I can burn CDs and
-> > DVDs as normal user, without root permissions, without suid, without
-> > ide-scsi, using /dev/hdc as device.
-> >
-> > And this just works fine. So where's the problem?
->
-> You can also erase the drive firmware as a user etc. That's the problem.
-> When you fix that cdrecord gets broken by the security fix if you are
-> using the SG_IO interface. Patches are kicking around to try and sort
-> things out so cd burning is safe as non-root. cdrecord works as root.
->
-> As a security fix it was sufficiently important that it had to be done.
+Hello,
 
-IMO work-rounding this in kernel is a bad idea and could break a lot of 
-existing apps (some you even don't know about).  Much better way to deal with 
-this is to create library for handling I/O commands submission and gradually 
-teach user-space apps to use it.
+> FWIW, I had to use smake, latest version from his site, in order to 
+> compile 2.01a37 just yesterday.  The error messages from make (very 
+> carefully programmed into the Makefile) indicated that the lost 
+> headers it couldn't find were a bug in make-3.80, and that his make 
+> suffered from no such errors.  It didn't.
+> 
+> Since the gnu make has only had, what, 2, maybe 3 revisions in almost 
+> a decade, maybe, just maybe, there is a grain of truth to Jorg's 
+> objections and often childish squawking, at least over the gnu make 
+> which he has mentioned, among others.
 
-Bartlomiej
+I did compile the cdrecord 2.01a37 on my machine no later than 
+yesterday.
+I was running my 2.6.8.1 kernel, and make says :
+GNU Make version 3.79.1, by Richard Stallman and Roland McGrath.
+Built for i386-redhat-linux-gnu
+Copyright (C) 1988, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 2000
+        Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+
+Report bugs to <bug-make@gnu.org>.
+
+Build process was really fine, no error was reported, and I don't have
+any smake stuff on my machine :
+17 [17:58] rol@donald:~/install/cdrtools-2.01a37> smake
+smake: Command not found.
+
+ 
+> [root@coyote cdrecord]# cdrecord --version
+> Cdrecord-Clone 2.01a37 (i686-pc-linux-gnu) Copyright (C) 1995-2004 
+> Jörg Schilling
+> cdrecord: Warning: Running on Linux-2.6.8-rc4
+> cdrecord: There are unsettled issues with Linux-2.5 and newer.
+> cdrecord: If you have unexpected problems, please try Linux-2.4 or 
+> Solaris.
+> 
+> However Jorg, since I built from your tarball, and used smake to do 
+> it, why is it now proclaiming to be a "Clone".
+
+Seems to be only related to the -clone option if you look at the code, 
+and it indicates the feature has been compile :
+#ifdef  CLONE_WRITE
+        error("\t-clone         Write disk in clone write mode.\n");
+#endif  
+
+Regards,
+Paul
+
+Paul Rolland, rol(at)as2917.net
+ex-AS2917 Network administrator and Peering Coordinator
+
+--
+
+Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
+
+"Some people dream of success... while others wake up and work hard at it" 
+
+
+

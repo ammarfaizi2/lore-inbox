@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266806AbSL3KWI>; Mon, 30 Dec 2002 05:22:08 -0500
+	id <S266844AbSL3K3s>; Mon, 30 Dec 2002 05:29:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266809AbSL3KWI>; Mon, 30 Dec 2002 05:22:08 -0500
-Received: from adsl-67-121-154-100.dsl.pltn13.pacbell.net ([67.121.154.100]:2528
-	"EHLO localhost") by vger.kernel.org with ESMTP id <S266806AbSL3KWI>;
-	Mon, 30 Dec 2002 05:22:08 -0500
-Date: Mon, 30 Dec 2002 02:30:25 -0800
-To: abacus an <abacus_an@yahoo.co.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel compilation: pls send cc to me
-Message-ID: <20021230103025.GA13892@localhost>
-References: <20021230102115.10986.qmail@web8202.mail.in.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021230102115.10986.qmail@web8202.mail.in.yahoo.com>
-User-Agent: Mutt/1.4i
-From: "Joshua M. Kwan" <joshk@ludicrus.ath.cx>
+	id <S266846AbSL3K3s>; Mon, 30 Dec 2002 05:29:48 -0500
+Received: from alfie.demon.co.uk ([158.152.44.128]:37638 "EHLO
+	bagpuss.pyrites.org.uk") by vger.kernel.org with ESMTP
+	id <S266844AbSL3K3r>; Mon, 30 Dec 2002 05:29:47 -0500
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Nick.Holloway@pyrites.org.uk (Nick Holloway)
+Newsgroups: list.linux-kernel
+Subject: Avoid large reads using parport_read() ?
+Date: 30 Dec 2002 10:32:01 -0000
+Organization: Alfie's Internet Node
+Message-ID: <aup7b1$i50$1@alfie.demon.co.uk>
+X-Newsreader: NN version 6.5.0 CURRENT #120
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, any of them. The kernel is meant to be very portable anyway.
-Although I prefer gcc-3.2 myself...
+I've been involved with the cpia_pp driver (parallel port Webcam), and
+found that X becomes very sluggish when capturing a stream of images.
+I suspect that this is due to reading the whole of each frame using
+parport_read(), which could be up to 200K.
 
-Regards
--Josh
+In the 2.0 kernel days (pre-parport layer), the cpia_pp driver would do
+its own parallel port banging, and would actually only read 16 bytes
+(fifo size) at a time before checking if it needed to reschedule.
+Now it fetches the whole image using a single call to parport_read().
 
-On Mon, Dec 30, 2002 at 10:21:15AM +0000, abacus an wrote:
-> hi,
-> 
-> Up to which versions of the kernel can we compile with
-> GCC 2.95.1.
-> 
-> regards,
-> abacus development team
-> 
-> ________________________________________________________________________
-> Missed your favourite TV serial last night? Try the new, Yahoo! TV.
->        visit http://in.tv.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+I did a quick check, and instead of issuing one parport_read for the whole
+image, I looped round issuing reads of 4096 bytes.  The responsiveness
+of the machine was much improved.
+
+Is there any problem with looping calls to parport_read() with a smaller
+buffer size, and performing cond_resched() each time through the loop?
+What size of buffer should I use?
+
+-- 
+ `O O'  | Nick.Holloway@pyrites.org.uk
+// ^ \\ | http://www.pyrites.org.uk/

@@ -1,59 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbTKOVsJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Nov 2003 16:48:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbTKOVsJ
+	id S262009AbTKOV7x (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Nov 2003 16:59:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262110AbTKOV7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Nov 2003 16:48:09 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:48658 "EHLO
-	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
-	id S262061AbTKOVsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Nov 2003 16:48:07 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: ramon.rey@hispalinux.es, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test9-BK20] [ALSA] Unable to handle kernel paging request	at virtual address d08a7000
-Organization: Core
-In-Reply-To: <1068928939.1127.2.camel@debian>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.2-20031002 ("Berneray") (UNIX) (Linux/2.4.22-1-686-smp (i686))
-Message-Id: <E1AL8Gk-0000Nr-00@gondolin.me.apana.org.au>
-Date: Sun, 16 Nov 2003 08:47:50 +1100
+	Sat, 15 Nov 2003 16:59:53 -0500
+Received: from smtp-send.myrealbox.com ([192.108.102.143]:14928 "EHLO
+	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
+	id S262009AbTKOV7v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Nov 2003 16:59:51 -0500
+Subject: PROBLEM: 2.6.0-test9 won't boot on HP ze5395 Laptop
+From: "Christopher S. Case" <macguyvok@myrealbox.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1068933591.25799.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Sat, 15 Nov 2003 16:59:51 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ram?n Rey Vicente <rrey@ranty.pantax.net> wrote:
-> 
-> Running mplayer, I get this:
-> 
-> Unable to handle kernel paging request at virtual address d08a7000
-> printing eip:
-> d0947964
-> *pde = 013f0067
-> *pte = 00000000
-> Oops: 0000 [#1]
-> CPU:    0
-> EIP:    0060:[<d0947964>]    Not tainted
-> EFLAGS: 00210202
-> EIP is at resample_expand+0x2e4/0x320 [snd_pcm_oss]
+PROBLEM: 2.6.0-test9 won't boot on HP ze5395 Laptop.
 
-It's a gcc bug.  Until that's fixed, apply this patch.
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-Index: kernel-source-2.5/sound/core/oss/Makefile
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.5/sound/core/oss/Makefile,v
-retrieving revision 1.1.1.3
-retrieving revision 1.2
-diff -u -r1.1.1.3 -r1.2
---- kernel-source-2.5/sound/core/oss/Makefile	24 Feb 2003 19:05:06 -0000	1.1.1.3
-+++ kernel-source-2.5/sound/core/oss/Makefile	11 Nov 2003 10:30:10 -0000	1.2
-@@ -10,3 +10,5 @@
- 
- obj-$(CONFIG_SND_MIXER_OSS) += snd-mixer-oss.o
- obj-$(CONFIG_SND_PCM_OSS) += snd-pcm-oss.o
-+
-+CFLAGS_rate.o := -fno-omit-frame-pointer
+I run Fedora Core 1, and I wanted to get suspend/resume, so I figured
+I'd give the new 2.6.0 kernel a try, and see how it works. I compiled
+the kernel, and everything without a hitch. I installed it, and my
+laptop brings up grub just fine. I select the entry for the 2.6.0test9
+kernel, and the system reboot. I've used the pause key to see that it
+reboots right after it finishes uncompressing the kernel. I've tried
+different processor settings, and nothing works. It doesn't get beyond
+this point. Any Ideas?
+
+ver_linux output:
+
+Linux TurboKat.G33X-Nexus 2.4.22-1.2115.nptl #1 Wed Oct 29 15:42:51 EST
+2003 i686 i686 i386 GNU/Linux
+
+Gnu C                  3.3.2
+Gnu make               3.79.1
+util-linux             2.11y
+mount                  2.11y
+module-init-tools      writing
+e2fsprogs              1.34
+jfsutils               1.1.3
+reiserfsprogs          3.6.8
+pcmcia-cs              3.1.31
+quota-tools            3.06.
+PPP                    2.4.1
+nfs-utils              1.0.6
+Linux C Library        2.3.2
+Dynamic linker (ldd)   2.3.2
+Procps                 2.0.17
+Net-tools              1.60
+Kbd                    1.08
+Sh-utils               5.0
+Modules Loaded         udf floppy sr_mod trident ac97_codec pcigame
+gameport soundcore binfmt_misc parport_pc lp parport autofs rfcomm l2cap
+bluez ds yenta_socket pcmcia_core orinoco_pci orinoco hermes natsemi
+ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables microcode
+ide-scsi scsi_mod ide-cd cdrom nls_iso8859-1 nls_cp437 vfat fat keybdev
+hid ehci-hcd usb-uhci usbcore thermal processor fan button battery
+asus_acpi ac mousedev input ext3 jbd
+
+cat /proc/cpuinfo: 
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 2
+model name      : Intel(R) Pentium(R) 4 CPU 2.66GHz
+stepping        : 7
+cpu MHz         : 2658.243
+cache size      : 512 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca
+cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
+bogomips        : 5295.30
+
+Let me know if there's anything else important.
+
+--Chris
+

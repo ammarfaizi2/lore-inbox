@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262647AbULPJPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbULPJWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262647AbULPJPd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 04:15:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262649AbULPJPc
+	id S261892AbULPJWg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 04:22:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbULPJWg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 04:15:32 -0500
-Received: from almesberger.net ([63.105.73.238]:51721 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262647AbULPJP2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 04:15:28 -0500
-Date: Thu, 16 Dec 2004 06:15:17 -0300
-From: Werner Almesberger <werner@almesberger.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Generalized prio_tree, revisited
-Message-ID: <20041216061517.O1229@almesberger.net>
-References: <20041216053118.M1229@almesberger.net> <41C14F1B.8000401@kolivas.org>
-Mime-Version: 1.0
+	Thu, 16 Dec 2004 04:22:36 -0500
+Received: from web90005.mail.scd.yahoo.com ([66.218.94.63]:22871 "HELO
+	web90005.mail.scd.yahoo.com") by vger.kernel.org with SMTP
+	id S261892AbULPJWf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 04:22:35 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=WV+i7xfAKaGxRjhNB7Zu24JoRodMNxmFjLFDKPLLzeN8QLji5MpFgaFMWgggoHG9CHcqNPqolXeH7kTq6aHOxBMgj/yNZzKJTwHE8M3PW2pnn7+ntEtw0buf3X6tS0zygHna218wzow2LmXpclk292+DIYjS6onp8aGqr6VEv1M=  ;
+Message-ID: <20041216092233.59744.qmail@web90005.mail.scd.yahoo.com>
+Date: Thu, 16 Dec 2004 01:22:33 -0800 (PST)
+From: ram mohan <madhaviram123@yahoo.com>
+Subject: Got Info - Linux - open design
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <87u0qpgjsa.fsf@goat.bogus.local>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41C14F1B.8000401@kolivas.org>; from kernel@kolivas.org on Thu, Dec 16, 2004 at 08:02:19PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas wrote:
-> While not being able to comment on the actual patch I think having a 1 
-> or 0 for different types is not clear.
+Hi All,
+Thanks for responding to my query.
+I found an article on the web in which OS is explained
+on a line to line basis of source code. This is sort
+of reverse engineering to what I wanted - build the
+design from code. 
+Posting this message for the curious to know the
+working of early UNIX operating system.
+v6.cuzuco.com/home.html.
+Thanks.
 
-Yeah, it's not pretty. I also hope this division to be very
-transitional, that's why I didn't bother to do anything nicer.
 
-> Naming them different struct names would seem to me much more readable.
-
-Struct names ? I'd rather not duplicate everything. Or did you mean
-initialization function names, e.g. INIT_RAW_PRIO_TREE_ROOT ?
-Or, for just the flag, maybe something like
-#define PRIO_TREE_RAW		1
-#define PRIO_TREE_NORMAL	0
-?
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina     werner@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+		
+__________________________________ 
+Do you Yahoo!? 
+All your favorites on one personal page – Try My Yahoo!
+http://my.yahoo.com 

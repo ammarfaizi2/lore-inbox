@@ -1,56 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318850AbSICQRo>; Tue, 3 Sep 2002 12:17:44 -0400
+	id <S318851AbSICQTN>; Tue, 3 Sep 2002 12:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318851AbSICQRn>; Tue, 3 Sep 2002 12:17:43 -0400
-Received: from gate.in-addr.de ([212.8.193.158]:3082 "HELO mx.in-addr.de")
-	by vger.kernel.org with SMTP id <S318850AbSICQRm>;
-	Tue, 3 Sep 2002 12:17:42 -0400
-Date: Tue, 3 Sep 2002 18:23:02 +0200
-From: Lars Marowsky-Bree <lmb@suse.de>
-To: "Peter T. Breuer" <ptb@it.uc3m.es>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] mount flag "direct"
-Message-ID: <20020903162302.GD2344@marowsky-bree.de>
-References: <Pine.SOL.3.96.1020903163309.14707D-100000@libra.cus.cam.ac.uk> <200209031544.g83FiAG03134@oboe.it.uc3m.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200209031544.g83FiAG03134@oboe.it.uc3m.es>
-User-Agent: Mutt/1.4i
-X-Ctuhulu: HASTUR
+	id <S318853AbSICQTN>; Tue, 3 Sep 2002 12:19:13 -0400
+Received: from ns.suse.de ([213.95.15.193]:14355 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S318851AbSICQTL>;
+	Tue, 3 Sep 2002 12:19:11 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Large block device patch, part 1 of 9
+References: <15732.34929.657481.777572@notabene.cse.unsw.edu.au.suse.lists.linux.kernel> <Pine.LNX.4.44.0209030900410.1997-100000@home.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 03 Sep 2002 18:23:43 +0200
+In-Reply-To: Linus Torvalds's message of "3 Sep 2002 18:07:05 +0200"
+Message-ID: <p73u1l7qbxs.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2002-09-03T17:44:10,
-   "Peter T. Breuer" <ptb@it.uc3m.es> said:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> No! I do not want /A/ fs, but /any/ fs, and I want to add the vfs
-> support necessary :-).
+> On Tue, 3 Sep 2002, Neil Brown wrote:
+> > 
+> > Effectively, this is a type-safe cast.  You still get the warning, but
+> > it looks more like the C that we are used to.
 > 
-> That's really what my question is driving at. I see that I need to
-> make VFS ops communicate "tag requests" to the block layer, in
-> order to implement locking. Now you and Rik have pointed out one
-> operation that needs locking. My next question is obviously: can you
-> point me more or less precisely at this operation in the VFS layer?
-> I've only started studying it and I am relatively unfamiliar with it.
+> I wonder if the right answer isn't to just make things like "__u64" be
+> "long long" even on 64-bit architectures (at least those on which it is 64
+> bit, of course. I _think_ that's true of all of them). And then just use 
+> "llu" for it all.
 
-Your approach is not feasible.
+x86-64 does that already. I did it originally to fix some printk warnings.
+But it caused even more. I didn't bother then to change it back. Doesn't
+seem to have too many bad side effects at least.
 
-Distributed filesystems have a lot of subtle pitfalls - locking, cache
-coherency, journal replay to name a few - which you can hardly solve at the
-VFS layer.
-
-Good reading would be any sort of entry literature on clustering, I would
-recommend "In search of clusters" and many of the whitepapers Google will turn
-up for you, as well as the OpenGFS source.
-
-
-Sincerely,
-    Lars Marowsky-Brée <lmb@suse.de>
-
--- 
-Immortality is an adequate definition of high availability for me.
-	--- Gregory F. Pfister
-
+-Andi

@@ -1,38 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318032AbSGRGX6>; Thu, 18 Jul 2002 02:23:58 -0400
+	id <S318034AbSGRGYn>; Thu, 18 Jul 2002 02:24:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318034AbSGRGX6>; Thu, 18 Jul 2002 02:23:58 -0400
-Received: from odin.cit.act.edu.au ([161.50.48.2]:8671 "EHLO
-	odin.cit.act.edu.au") by vger.kernel.org with ESMTP
-	id <S318032AbSGRGX5>; Thu, 18 Jul 2002 02:23:57 -0400
-Message-ID: <C1126026D9293645B970FB72C66907961F53EF@rdmail.cit.act.edu.au>
-From: "Piggin, Nick" <Nick.Piggin@cit.act.edu.au>
-To: "'Hell.Surfers@cwctv.net'" <Hell.Surfers@cwctv.net>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.19-rc1,2 + ext3 data=journal: data loss on unmount
-Date: Thu, 18 Jul 2002 16:22:52 +1000
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S318035AbSGRGYn>; Thu, 18 Jul 2002 02:24:43 -0400
+Received: from jive.SoftHome.net ([66.54.152.27]:13725 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S318034AbSGRGYk>;
+	Thu, 18 Jul 2002 02:24:40 -0400
+From: irfan_hamid@softhome.net
+To: linux-kernel@vger.kernel.org
+Reply-To: irfan_hamid@softhome.net
+Subject: cli()/sti() clarification
+Date: Thu, 18 Jul 2002 00:27:40 -0600
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [202.52.197.1]
+Message-ID: <courier.3D365FDC.0000712F@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've only tried rc1 and 2 on this machine and its never worked correctly
-with either.
+Hi, 
 
------Original Message-----
-From: Hell.Surfers@cwctv.net [mailto:Hell.Surfers@cwctv.net]
-Sent: Thursday, 18 July 2002 4:25 PM
-To: Nick.Piggin@cit.act.edu.au
-Subject: RE:2.4.19-rc1,2 + ext3 data=journal: data loss on unmount
+I added two system calls, blockintr() and unblockintr() to give cli()/sti() 
+control to userland programs (yes I know its not advisable) but I only want 
+to do it as a test. My test program looks like this: 
 
+	blockintr();
+	/* Some long calculations */
+	unblockintr(); 
 
-how long has the problem occurred?
+The problem is that if I press Ctrl+C during the calculation, the program
+terminates. So I checked the _syscallN() and __syscall_return() macros to 
+see if they explicitly call sti() before returning to userspace, but they 
+dont. 
 
-- I found it hard, it was hard to find, ohwell, whatever, nevermind. Kurt
-Cobain.
+Reading the lkml archives, I found that cli() disables only the interrupts, 
+exceptions are allowed, so it makes sense that the SIGINT was delivered, but 
+if thats the case, then how come the SIGINT was delivered from the Ctrl+C? 
+Doesnt this mean that the SIGINT signal was generated as a result of the 
+keyboard interrupt? 
 
-On 	Thu, 18 Jul 2002 16:12:49 +1000 	"Piggin, Nick"
-<Nick.Piggin@cit.act.edu.au> wrote:
+I know I am missing something here, would appreciate if someone could point 
+me in the right direction. 
+
+Regards,
+Irfan Hamid.

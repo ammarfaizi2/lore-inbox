@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288686AbSAQNRc>; Thu, 17 Jan 2002 08:17:32 -0500
+	id <S288696AbSAQNWW>; Thu, 17 Jan 2002 08:22:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288691AbSAQNRR>; Thu, 17 Jan 2002 08:17:17 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:59144 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288675AbSAQNQR>;
-	Thu, 17 Jan 2002 08:16:17 -0500
-Date: Thu, 17 Jan 2002 11:15:51 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Andrea Scrimieri <livore@karma.oltrelinux.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Rik spreading bullshit about VM
-In-Reply-To: <Pine.LNX.4.40L0.0201171326580.31442-100000@karma.oltrelinux.com>
-Message-ID: <Pine.LNX.4.33L.0201171113270.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S288691AbSAQNWM>; Thu, 17 Jan 2002 08:22:12 -0500
+Received: from [195.25.229.189] ([195.25.229.189]:31344 "EHLO
+	mailrennes.rennes.si.fr.atosorigin.com") by vger.kernel.org
+	with ESMTP id <S288696AbSAQNWH> convert rfc822-to-8bit; Thu, 17 Jan 2002 08:22:07 -0500
+Message-ID: <013901c19f59$d72beb50$8a140237@rennes.si.fr.atosorigin.com>
+From: "Yann E. MORIN" <yann.morin.1998@anciens.enib.fr>
+To: "lkml" <linux-kernel@vger.kernel.org>
+Subject: modules detection
+Date: Thu, 17 Jan 2002 14:21:14 +0100
+Organization: ENIB - Promo `98
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 17 Jan 2002 13:21:15.0389 (UTC) FILETIME=[D72AB2D0:01C19F59]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Jan 2002, Andrea Scrimieri wrote:
+Hi!
 
-> > I'm willing to take full responsability for what I mean,
-> > not for other people's interpretations of my words.
->
-> For the last time, i didn't change the interview text or cut anything.
-> If you want to continue throwing shit to me because you are not
+I need to know (in a script shell for instance) if a running kernel
+is compiled with/without module support. I don't have access to the
+source tree when detecting (though I have it mounted sometime later).
 
-Which part of "to interprete" do you not understand ?
+Reading the source (fs/proc/proc_misc.c), I understand that the file
+/proc/modules exists only when modules are supported by the running
+kernel. Is that true? If so, can I assume that the following script
+is correct?
 
-Interpreting my text is reading it and building a
-meaning for the words in your head. It doesn't mean
-the text needs to be changed ... the meaning can be
-different for each person reading the exact same
-words.
+-=-=-=-
+#!/bin/bash
+[ -e /proc/modules ] && echo Modules supported by running kernel. \
+                     || echo Modules not supported by running kernel.
+-=-=-=-
 
-I guess this is why politicians are very careful to
-not attach any meaning at all to their words, however
-I'm a programmer, not a politician ;)
+If not, how may I detect module support?
 
-> > It seems IRC isn't a good medium to do interviews so I
-> > won't do that again.
->
-> You chose IRC, I don't.
+(Yes, I could build two kernels supporting modules vs not supporting
+modules, but my machine is quite slow : 2h per compilation :-( ).
 
-And that was my mistake, indeed.
+Thanks for any reply.
 
-I think you're reading things into my words that I
-didn't want to put there.
+Regards,
+Yann E. MORIN.
 
-regards,
+--
+.---------------------------.----------------------.------------------.
+|       Yann E. MORIN       |  Real-Time Embedded  | ASCII RIBBON /"\ |
+|  phone: (33) 662 376 056  |  Software  Designer  |   CAMPAIGN   \ / |
+|   http://ymorin.free.fr   °----------------------:   AGAINST     X  |
+| yann.morin.1998@anciens.enib.fr                  |  HTML MAIL   / \ |
+°--------------------------------------------------°------------------°
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
 

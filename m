@@ -1,99 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbUBHCG3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 21:06:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbUBHCG2
+	id S261872AbUBHC3s (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 21:29:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbUBHC3s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 21:06:28 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51074
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S261837AbUBHCG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 21:06:26 -0500
-Date: Sun, 8 Feb 2004 03:06:24 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Michael Frank <mhf@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org,
-       Nigel Cunningham <ncunningham@users.sourceforge.net>
-Subject: Re: Reserved page flaging of 2.4 kernel memory changed recently?
-Message-ID: <20040208020624.GG31926@dualathlon.random>
-References: <200402050941.34155.mhf@linuxmail.org>
+	Sat, 7 Feb 2004 21:29:48 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:39078 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S261872AbUBHC3p (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 21:29:45 -0500
+Date: Sun, 8 Feb 2004 03:29:21 +0100
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Oopses on usbnet unload in 2.6.3-rc1
+Message-ID: <20040208022921.GA1337@buk.vc.cvut.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200402050941.34155.mhf@linuxmail.org>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 10:07:35AM +0800, Michael Frank wrote:
-> The question is related to saving the kernel with swsusp.
-> 
-> Looking at 2.4.24 x86 kernel page flags, kernel memory is flaged reserved 
-> the same way as video, BIOS pages.
-> 
-> Is this a recent change since using the aa vm and should it be like that?
+Hi,
+  recent thread about buggy sysfs fbdev support reminded me that situation
+with modules unloading is not quite correct... Besides floppy & nbd unload
+crashes (I already reported floppy/sysfs problem during Christmas), there 
+is a doublefree in usbnet's unload. I have no idea what's correct fix, but
+given fbdev's problems probably just removing kfree(dev->net).
 
-this is the same as 2.2 too, the reserved bit means this isn't a normal
-"ram" page, this is either non-ram in the mem_map region or a ram page
-being used by a device driver for source/destination dma or similar
-special usage.
+  For now I build my kernel without any modules, papering over all simillar
+bugs...
 
-> If so, should hardware related reserved pages i.e video, BIOS be flaged
-> PG_nosave upon init?
+Feb  8 02:00:45 ppc kernel: Linux version 2.6.3-rc1-c1560 (root@ppc) (gcc version 3.3.3 20040125 (prerelease) (Debian)) #2 Sun Feb 8 01:03:09 CET 2004
 
-the non-ram regions of the physical address space present in the
-mem_map_t array are marked as reserved at boot.
+Feb  8 02:00:46 ppc kernel: usb0: register usbnet at usb-0000:00:04.2-2, Prolific PL-2301/PL-2302
+Feb  8 02:00:46 ppc kernel: drivers/usb/core/usb.c: registered new driver usbnet
 
-About the ram pieces of the mem_map_t, it's by the time the device
-driver needs some ram to do dma on it, that you alloc one page with
-alloc_pages and you mark it reserved.
+Feb  8 02:09:04 ppc kernel: drivers/usb/core/usb.c: deregistering driver usbnet
+Feb  8 02:09:04 ppc kernel: usb0: unregister usbnet usb-0000:00:04.2-2, Prolific PL-2301/PL-2302
+Feb  8 02:09:05 ppc kernel: slab error in cache_free_debugcheck(): cache `size-1024': double free, or memory outside object was overwritten
+Feb  8 02:09:05 ppc kernel: Call Trace:
+Feb  8 02:09:05 ppc kernel:  [<c0154e1b>] kfree+0x2db/0x3f0
+Feb  8 02:09:05 ppc kernel:  [<e198cf23>] usbnet_disconnect+0x93/0xd0 [usbnet]
+Feb  8 02:09:05 ppc kernel:  [<e198cf23>] usbnet_disconnect+0x93/0xd0 [usbnet]
+Feb  8 02:09:05 ppc kernel:  [<c02d101b>] usb_unbind_interface+0x7b/0x80
+Feb  8 02:09:05 ppc kernel:  [<c0279e94>] device_release_driver+0x64/0x70
+Feb  8 02:09:05 ppc kernel:  [<c0279ec0>] driver_detach+0x20/0x30
+Feb  8 02:09:05 ppc kernel:  [<c027a171>] bus_remove_driver+0x61/0xa0
+Feb  8 02:09:05 ppc kernel:  [<c027a5da>] driver_unregister+0x1a/0x46
+Feb  8 02:09:05 ppc kernel:  [<c02d1101>] usb_deregister+0x31/0x40
+Feb  8 02:09:05 ppc kernel:  [<e198d44f>] usbnet_exit+0xf/0x13 [usbnet]
+Feb  8 02:09:05 ppc kernel:  [<c01445cd>] sys_delete_module+0x14d/0x1d0
+Feb  8 02:09:05 ppc kernel:  [<c0109abb>] syscall_call+0x7/0xb
+Feb  8 02:09:05 ppc kernel:
+Feb  8 02:09:05 ppc kernel: de162008: redzone 1: 0x0, redzone 2: 0x0.
+Feb  8 02:09:05 ppc kernel: ------------[ cut here ]------------
+Feb  8 02:09:05 ppc kernel: kernel BUG at mm/slab.c:1696!
+Feb  8 02:09:05 ppc kernel: invalid operand: 0000 [#1]
+Feb  8 02:09:05 ppc kernel: CPU:    0
+Feb  8 02:09:05 ppc kernel: EIP:    0060:[<c0154dbb>]    Not tainted
+Feb  8 02:09:05 ppc kernel: EFLAGS: 00010002
+Feb  8 02:09:05 ppc kernel: EIP is at kfree+0x27b/0x3f0
+Feb  8 02:09:05 ppc kernel: eax: de162000   ebx: 80010c00   ecx: 00001000   edx: 00000008
+Feb  8 02:09:05 ppc kernel: esi: c151a800   edi: de162000   ebp: de162008   esp: dd209e84
+Feb  8 02:09:05 ppc kernel: ds: 007b   es: 007b   ss: 0068
+Feb  8 02:09:05 ppc kernel: Process rmmod (pid: 1659, threadinfo=dd208000 task=d8f22960)
+Feb  8 02:09:05 ppc kernel: Stack: c151a800 de162008 00000000 00000000 1e162008 e198cf23 c151e3c0 00000286
+Feb  8 02:09:05 ppc kernel:        ddf40df8 df4d6ef8 df52ebf8 00000000 e198cf23 de162c00 de162c00 c1743ca8
+Feb  8 02:09:05 ppc kernel:        df52ebfc e198d85d df4d6ef8 e198e780 e198e7a0 c02d101b df4d6ef8 df4d6ef8
+Feb  8 02:09:05 ppc kernel: Call Trace:
+Feb  8 02:09:05 ppc kernel:  [<e198cf23>] usbnet_disconnect+0x93/0xd0 [usbnet]
+Feb  8 02:09:05 ppc kernel:  [<e198cf23>] usbnet_disconnect+0x93/0xd0 [usbnet]
+Feb  8 02:09:05 ppc kernel:  [<c02d101b>] usb_unbind_interface+0x7b/0x80
+Feb  8 02:09:05 ppc kernel:  [<c0279e94>] device_release_driver+0x64/0x70
+Feb  8 02:09:05 ppc kernel:  [<c0279ec0>] driver_detach+0x20/0x30
+Feb  8 02:09:05 ppc kernel:  [<c027a171>] bus_remove_driver+0x61/0xa0
+Feb  8 02:09:05 ppc kernel:  [<c027a5da>] driver_unregister+0x1a/0x46
+Feb  8 02:09:05 ppc kernel:  [<c02d1101>] usb_deregister+0x31/0x40
+Feb  8 02:09:05 ppc kernel:  [<e198d44f>] usbnet_exit+0xf/0x13 [usbnet]
+Feb  8 02:09:05 ppc kernel:  [<c01445cd>] sys_delete_module+0x14d/0x1d0
+Feb  8 02:09:05 ppc kernel:  [<c0109abb>] syscall_call+0x7/0xb
+Feb  8 02:09:05 ppc kernel:
+Feb  8 02:09:05 ppc kernel: Code: 0f 0b a0 06 da ef 39 c0 e9 e7 fe ff ff 0f 0b 9f 06 da ef 39
 
-marking physical ram pages as reserved is only needed when you want to
-make this page visible to userspace via ->mmap/mmap(2). if you only work
-with copy_to_user/copy_from_user read(2)/write(2), nothing will change
-if the page is reserved or not (same goes for the mmio areas part of the
-mem_map_t array).
+						Petr Vandrovec
 
-the PG_reserved plays a role by the time you map the page in userspace,
-then a fork() won't copy-on-write, such a page will be shared, since
-it's a special page that the hardware "owns", if you would copy-on-write
-you couldn't talk with the device anymore on the copied page. After all
-references to the device have been released, the release callback is run
-by the vfs, so you know the page isn't mapped in userspace anymore and
-if it's a ram page you can clear the PG_reserved and then free the page
-(if you free the page w/o clearing PG_reserved first you'll leak memory
-silenty).
 
-Those regions normally are also marked VM_IO in the vma, to avoid ptrace
-or rawio to mess with those dma pages, which isn't guaranteed to be safe
-and could lockup the bus.
-
-> What about iomemory?
-
-iomemory (i.e. MMIO) is not ram and normally it doesn't fit by mistake
-in the mem_map_t array either, so if there's no page struct they can't
-be marked reserved either. The vm will automatically recognize and
-threat pages outside the mem_map_t as reserved.
-
-ioremap is needed to access MMIO memory and it's a different matter.
-
-not sure what's the reason of the question though. with regard to
-suspend to disk you should probably use the original e820 map to find if
-the reserved pages are ram or non ram, the reserved ram pages should
-probably be saved/restored, however the saving/restore process should be
-probably directed by the device driver owning those reserved ram pages
-to be very safe (can suspend to disk be math safe at all? :). the non
-ram pages shouldn't need to be saved/restored (as you found there's the
-bios in there). Basically you've to differentiate between reserved ram
-pages and reserved non-ram (marked as reserved just because their
-physical address fits in the mem_map_t array).
-
-I've seen in 2.6 there's a PG_nosave, but it seems to have a different
-purpose than a "PG_ram" that tells you if the page is ram or not. From a
-quick read of the code it seems all reserved pages are stored except the
-ones in the nosave segment (which is also marked protected as part of
-the static kernel .text). So in short it looks like we save/restore the
-non-ram too, maybe it's ok, dunno but I would find it a lot safer not to
-touch that non-ram.

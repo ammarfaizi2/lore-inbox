@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318810AbSHWOGS>; Fri, 23 Aug 2002 10:06:18 -0400
+	id <S318811AbSHWOHH>; Fri, 23 Aug 2002 10:07:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318811AbSHWOGS>; Fri, 23 Aug 2002 10:06:18 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:29621 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S318810AbSHWOGR>;
-	Fri, 23 Aug 2002 10:06:17 -0400
-Message-ID: <1030111826.3d6642520a757@kolivas.net>
-Date: Sat, 24 Aug 2002 00:10:26 +1000
-From: conman@kolivas.net
-To: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Combined performance patches update for 2.4.19
-References: <Pine.LNX.4.44L.0208231012530.1857-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.44L.0208231012530.1857-100000@imladris.surriel.com>
+	id <S318812AbSHWOHH>; Fri, 23 Aug 2002 10:07:07 -0400
+Received: from pD9E2385F.dip.t-dialin.net ([217.226.56.95]:46744 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318811AbSHWOHF>; Fri, 23 Aug 2002 10:07:05 -0400
+Date: Fri, 23 Aug 2002 08:11:19 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Vincent Hanquez <tab@crans.org>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: Documentation Maintainer
+In-Reply-To: <20020823135858.GA25544@darwin.crans.org>
+Message-ID: <Pine.LNX.4.44.0208230811060.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Rik van Riel <riel@conectiva.com.br>:
+Hi,
 
-> On Fri, 23 Aug 2002 conman@kolivas.net wrote:
-> 
-> > I've completed merging the following patches:
-> >
-> > O(1) scheduler
-> > Preemptible
-> > Low latency
-> 
-> Could I interest you in the -rmap VM ? ;)
-> 
-> http://surriel.com/patches/
-> 
-> (needs one extra preempt patchlet, which I'll give to you if you want)
-> 
+On Fri, 23 Aug 2002, Vincent Hanquez wrote:
+> filesystems.
 
-Sure I'll give it a go, but it might kill me trying :P
+I'd suggest Al Viro.
 
-Con.
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

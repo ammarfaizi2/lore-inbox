@@ -1,31 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266270AbSLCLp6>; Tue, 3 Dec 2002 06:45:58 -0500
+	id <S266278AbSLCL7z>; Tue, 3 Dec 2002 06:59:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266271AbSLCLp6>; Tue, 3 Dec 2002 06:45:58 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:33274 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S266270AbSLCLp5>; Tue, 3 Dec 2002 06:45:57 -0500
-Date: Tue, 3 Dec 2002 12:49:38 +0100
-From: Alex Riesen <Alexander.Riesen@synopsys.com>
-To: mingo@redhat.com
+	id <S266285AbSLCL7z>; Tue, 3 Dec 2002 06:59:55 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:10501 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266278AbSLCL7z>;
+	Tue, 3 Dec 2002 06:59:55 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200212031218.gB3CIQwq005011@darkstar.example.net>
+Subject: Re: Input core support required for non-USB joystick
+To: bhards@bigpond.net.au (Brad Hards)
+Date: Tue, 3 Dec 2002 12:18:26 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: world read permissions on /proc/irq/prof_cpu_mask and ...smp_affinity
-Message-ID: <20021203114938.GD26745@riesen-pc.gr05.synopsys.com>
-Reply-To: Alexander.Riesen@synopsys.com
-Mime-Version: 1.0
+In-Reply-To: <200212032233.07229.bhards@bigpond.net.au> from "Brad Hards" at Dec 03, 2002 10:33:07 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+> > Using 2.4.20, (and possibly earlier versions, I haven't checked), it's
+> > necessary to enable input core support, before non-USB joystick
+> > support can be enabled.
+> >
+> > I thought that input core support related to USB specifically, is that
+> > incorrect?
 
-Is there any reason to set the permissions to 0600?
-It makes the admin to login as root just to look on the
-current system state.
-Is there something against 0644?
+> It is incorrect. 
+> When the input core support first went in, the old methods for handling 
+> joysticks went out.
 
--alex
+Ah, OK - in that case I think we should update the configuration help,
+it implies that it's for USB devices only:
+
+CONFIG_INPUT:
+
+Say Y here if you want to enable any of the following options for
+USB Human Interface Device (HID) support.
+
+Say Y here if you want to enable any of the USB HID options in the
+USB support section which require Input core support.
+
+Otherwise, say N.
+
+Especially as standard keyboards and mice don't require it.
+
+> Where do you think the low major number came from? :-)
+
+Good point :-).
+
+John.

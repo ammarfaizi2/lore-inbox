@@ -1,61 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVDAItA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVDAIuz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVDAItA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 03:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVDAIs7
+	id S261936AbVDAIuz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 03:50:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVDAIt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 03:48:59 -0500
-Received: from fire.osdl.org ([65.172.181.4]:62146 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261612AbVDAIsg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 03:48:36 -0500
-Date: Fri, 1 Apr 2005 00:48:04 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: johnpol@2ka.mipt.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cn_queue.c
-Message-Id: <20050401004804.52519e17.akpm@osdl.org>
-In-Reply-To: <1112344811.9334.146.camel@uganda>
-References: <20050331173215.49c959a0.akpm@osdl.org>
-	<1112341236.9334.97.camel@uganda>
-	<20050331235706.5b5981db.akpm@osdl.org>
-	<1112344811.9334.146.camel@uganda>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 1 Apr 2005 03:49:27 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:5536 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261657AbVDAIsv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 03:48:51 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: ncunningham@cyclades.com
+Subject: Re: [linux-pm] Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Date: Fri, 1 Apr 2005 10:49:00 +0200
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@suse.cz>, dtor_core@ameritech.net,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Vojtech Pavlik <vojtech@suse.cz>, Andy Isaacson <adi@hexapodia.org>,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Stefan Seyfried <seife@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050329181831.GB8125@elf.ucw.cz> <20050331221814.GC1802@elf.ucw.cz> <1112308137.18871.7.camel@desktop.cunningham.myip.net.au>
+In-Reply-To: <1112308137.18871.7.camel@desktop.cunningham.myip.net.au>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200504011049.01540.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
->
->  New object has 0 reference counter when created.
->  If some work is appointed to the object, then it's counter is atomically
->  incremented. It is decremented when the work is finished.
->  If object is supposed to be removed while some work
->  may be appointed to it, core ensures that no work _is_ appointed, 
->  and atomically disallows[for example removing workqueue, removing
->  callback, all with appropriate locks being hold] 
->  any other work appointment for the given object.
->  After it [when no work can be appointed to the object] if object
->  still has pending work [and thus has it's refcounter not zero], 
->  removing path waits untill appropriate refcnt hits zero. 
->  Since no _new_ work can be appointed at that level it is just
->  while (atomic_read(refcnt) != 0)
->    msleep();
+Hi,
 
-More like:
+On Friday, 1 of April 2005 00:28, Nigel Cunningham wrote:
+> Hi.
+> 
+> On Fri, 2005-04-01 at 08:18, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > > Ok, what do you think about this one?
+> > > > >
+> > > > > ===================================================================
+> > > > >
+> > > > > swsusp: disable usermodehelper after generating memory snapshot and
+> > > > >         before resuming devices, so when device fails to resume we
+> > > > >         won't try to call hotplug - userspace stopped anyway.
+> > > > 
+> > > > Hm, shouldn't we disable it before we start to freeze processes? We don't
+> > > > want any more processes trying to start up after we've taken care of
+> > > > them..
+> > > > 
+> > > 
+> > > Can't a device be removed (for any reason) _while_ we are freezing
+> > > processes? I think freeszing code will properly deal with it... What
+> > > about suspend semantics - if suspend fails do we say the device should
+> > > be operational or the system should attempt to re-initialize? I.e. we
+> > > are not doing suspend after all - can we still drop messages on the
+> > > floor? After all, we still have ability to run coldplug after failed
+> > > suspend.
+> > 
+> > I believe we should freeze hotplug before processes.
 
-	while (atomic_read(&obj->refcnt))
-		msleep();
-	kfree(obj);
+I agree.  IMO user space should not be considered as available once we have
+started freezing processes, so hotplug should be disabled before.  By the same
+token, it should only be enabled after the processes have been restarted
+during resume (or after suspend has failed).
 
-which introduces the possibility of someone grabbing a new ref on the
-object just before the kfree().  If there is no means by which any other
-actor can acquire a ref to this object then OK, no race.
+BTW, it seems to me that the forking of new processes could be disabled
+before we start to freeze the existing ones.
 
-But it's rather surprising that such a thing can be achieved without any
-locking.  What happens if another CPU has just entered
-cn_queue_del_callback(), for example?  It has a live cn_callback_entry in
-`cbq' which has a zero refcount - cn_queue_free_dev() can throw it away.
+> > Dropping messages on the floor should not be a problem, we should just
+> > call coldplug after failed suspend.
+> 
+> How will you know which devices to call coldplug for, post resume? (Or
+> does it figure that out itself somehow?)
 
+I think the drivers that need the hotplug to resume should defer their resume
+routines until usermodehelper is enabled (it seems to me that we can use
+a completion to handle this).
+
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

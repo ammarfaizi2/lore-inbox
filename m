@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262326AbRENKxv>; Mon, 14 May 2001 06:53:51 -0400
+	id <S262335AbRENLKZ>; Mon, 14 May 2001 07:10:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262327AbRENKxl>; Mon, 14 May 2001 06:53:41 -0400
-Received: from t2.redhat.com ([199.183.24.243]:32240 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S262326AbRENKxZ>; Mon, 14 May 2001 06:53:25 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <15103.19205.369749.71491@pizda.ninka.net> 
-In-Reply-To: <15103.19205.369749.71491@pizda.ninka.net>  <20010511162412.A11896@lucon.org> <15100.30085.5209.499946@pizda.ninka.net> <20010511165339.A12289@lucon.org> <m13da9ky7s.fsf@frodo.biederman.org> <20010513110707.A11055@lucon.org> <m1y9s1jbml.fsf@frodo.biederman.org> <20010513181006.A10057@lucon.org> <m1sni8k9io.fsf@frodo.biederman.org> 
-To: "David S. Miller" <davem@redhat.com>
-Cc: ebiederm@xmission.com (Eric W. Biederman), "H . J . Lu" <hjl@lucon.org>,
-        alan@lxorguk.ukuu.org.uk, linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Enable IP PNP for 2.4.4-ac8 
+	id <S262339AbRENLKP>; Mon, 14 May 2001 07:10:15 -0400
+Received: from mgw-x1.nokia.com ([131.228.20.21]:56763 "EHLO mgw-x1.nokia.com")
+	by vger.kernel.org with ESMTP id <S262335AbRENLJ6>;
+	Mon, 14 May 2001 07:09:58 -0400
+Date: Mon, 14 May 2001 14:07:09 +0300
+To: linux-kernel@vger.kernel.org
+Cc: olaf@bigred.inka.de
+Subject: Re: Question about ipip implementation
+Message-ID: <20010514140709.A3325@Hews1193nrc>
+In-Reply-To: <20010511173940.A418@Hews1193nrc> <E14yvjd-0002Rw-00@g212.hadiko.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 14 May 2001 11:52:56 +0100
-Message-ID: <27838.989837576@redhat.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <E14yvjd-0002Rw-00@g212.hadiko.de>; from olaf@bigred.inka.de on Sun, May 13, 2001 at 03:16:28PM +0200
+From: alexey.vyskubov@nokia.com (Alexey Vyskubov)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > I read net/ipv4/ipip.c. It seems to me that ipip_rcv() function after
+> > "unwrapping" tunelled IP packet creates "virtual Ethernet header" and submit
+> 
+> Does it? ipip_rcv() does this:
 
-davem@redhat.com said:
->  I hate config options that change how the core of the kernel boot
-> makes decisions.  Things like "where is root", "what is my network
-> address or where do I get that information" have no reasonable
-> default.  This is why the command line args are there.
+[SKIP]
 
-If you're told (by rdev because the poxy bootloader on the board can't 
-pass args to the kernel) that root is /dev/nfs, and you don't have a 
-command line telling you your IP information, then there _is_ a reasonable 
-default, and it is to do DHCP.
-
---
-dwmw2
+> 		netif_rx(skb);
+> 
+> The packet as submitted starts with the IP header and the skb pointers
+> are set up so that the MAC header has zero size.
 
 
+Yes, I was wrong. But is it possible in similar situation just call ip_rcv for
+the sk_buff?
+
+-- 
+Alexey

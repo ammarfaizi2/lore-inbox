@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263256AbUCPQ16 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 11:27:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263251AbUCPQUH
+	id S263348AbUCPQ15 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 11:27:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263256AbUCPQUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 11:20:07 -0500
-Received: from fire.osdl.org ([65.172.181.4]:25491 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S263983AbUCPQTf (ORCPT
+	Tue, 16 Mar 2004 11:20:23 -0500
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:53386 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S263982AbUCPQSh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 11:19:35 -0500
-Subject: Re: Linux 2.6.5-rc1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0403152154070.19853@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0403152154070.19853@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1079453971.2635.1.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 16 Mar 2004 08:19:31 -0800
-Content-Transfer-Encoding: 7bit
+	Tue, 16 Mar 2004 11:18:37 -0500
+Message-Id: <200403161618.i2GGITKK004831@eeyore.valparaiso.cl>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: unionfs 
+In-Reply-To: Your message of "Tue, 16 Mar 2004 00:52:43 +0100."
+             <20040315235243.GA21416@wohnheim.fh-wedel.de> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Tue, 16 Mar 2004 12:18:29 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+=?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de> said:
+> Horst von Brand <vonbrand@inf.utfsm.cl> said:
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
+[...]
 
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
+> What looks like a promising idea for this problem and others is to
+> have visible and invisible inodes.  All current filesystems know only
+> visible inodes.  Invisible ones have no dentry linking to them
+> directly, only indirectly through files/links with cow semantics.
 
-John
+But this is then _one_ filesystem, not a stack of them added/deleted in
+random order while running. _So_ it is easy... and mostly useless.
 
+[...]
 
+> > IIRC, this has been discussed a couple of times before, and the consensus
+> > each time was that it isn't /that hard/ to do, it is /hard or impossible/
+> > to find a sensible, simple semantics for this. The idea was then dropped...
 
+> Yeah, maybe.  My personal consensus right now is that this actually
+> looks very simple.  Not sure how much time I will find, but it should
+> definitely be finished for 2.8.
+
+As I said: Not too hard, doable. But not sensibly. And needs to mess with
+_all_ filesystems (on disk and kernel guts) if they want to someday perhaps
+somewhere participate...  Besides, the people asking for this mostly really
+want version control, or get what they want from symlink farms.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

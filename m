@@ -1,111 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbUKEPhL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbUKEPlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbUKEPhL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 10:37:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262681AbUKEPhL
+	id S261635AbUKEPlV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 10:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbUKEPlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 10:37:11 -0500
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:45576 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261647AbUKEPgv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 10:36:51 -0500
-To: "Clayton Weaver" <cgweav@email.com>
-Cc: linux-kernel@vger.kernel.org
+	Fri, 5 Nov 2004 10:41:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:38533 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261635AbUKEPlT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 10:41:19 -0500
+Date: Fri, 5 Nov 2004 07:41:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Adam Heath <doogie@debian.org>, Chris Wedgwood <cw@f00f.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: support of older compilers
-References: <20041104193349.9DE511F50B1@ws1-2.us4.outblaze.com>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: if SIGINT doesn't work, try a tranquilizer.
-Date: Fri, 05 Nov 2004 15:36:43 +0000
-In-Reply-To: <20041104193349.9DE511F50B1@ws1-2.us4.outblaze.com> (Clayton
- Weaver's message of "4 Nov 2004 20:03:05 -0000")
-Message-ID: <87is8k71f8.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+In-Reply-To: <20041105014146.GA7397@pclin040.win.tue.nl>
+Message-ID: <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
+ <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 4 Nov 2004, Clayton Weaver stated:
-> I found that none of the gcc 3.x versions could
-> correctly compile a construct like this
-> (independent of runtime glibc version):
+
+
+On Fri, 5 Nov 2004, Andries Brouwer wrote:
+>
+> [Ob l-k]
 > 
-> file1.h:
+> I have not yet investigated, but my (vanilla) 2.6.9
+> has a mouse problem that my vanilla 2.6.8.1 does not have:
+> it starts selecting text as soon as I touch it for the first
+> time, as if the initialization created a fake mouse-down event.
+
+USB? We have another bug that was just root-caused to USB initialization 
+sending a "clear suspend" packet, which apparently confuses some devices.
+
+> [old stuff]
 > 
-> /* header boilerplate to avoid multiple #includes of
->    the same file */
+> > There are probably people even using linux-1.2.
 > 
-> #define STR1  "string 1"
+> # uname -a
+> Linux knuth 1.2.11 #27 Sun Jul 30 03:39:01 MET DST 1995 i486
 > 
-> file2.c:
+> (486 DX/2, 66MHz, 8 MB)
 > 
-> #include "file1.h"
-> 
-> const char * str2 = "whatever"STR1"stuff this\n\
-> string has in it"STR1" and so on ad infinitum\n\
-> "STR1"yada yada"; 
-> 
-> /* this was actually about 40 lines, maybe more,
->    with maybe 10 instances of "../"STR1"..." */
-> 
-> All of the gcc-3.x versions would bail with
-> an error trying to compile that str2 definition
-> in file2.c.
+> -rw-r--r--   1 root     root       281572 Jul 30  1995 zImage-1.2.11
+> -rw-r--r--   1 root     root       277476 Apr  1  1995 zImage-1.2.2
 
-And do I see any bug reports from you in GCC bugzilla?  I do not (not
-under the name `Clayton Weaver', anyway).
+Ok, you da man. What do you use it for? Or is it just lying around for 
+nostalgic reasons?
 
-Further, the code you provide works in all the GCC-3.x versions I've got
-here.
-
-If you don't even *report* the bug, how can you expect it to get fixed?
-
-> They didn't always fail on literal string
-> concatenation (IIRC some short ones compiled
-> ok), but they consistently failed to concatenate
-> literal strings correctly for some source
-> files that gcc-2.95.3 would compile correctly
-> every time.
-
-The preprocessor was totally rewritten between GCC-2.95.x and GCC-3.x: a
-number of things that were valid in 2.95.x but invalid under ISO C were
-made to not work in 3.x (for example, the compiler warns about attempts
-to concatenate two things with ## that aren't preprocessing tokens, and
-eventually this was made a hard error, IIRC).
-
-This is, of course, not a bug.
-
-I can find no mention of string concatenation bugs against the new
-preprocessor relating to anything other than token pasting (and all of
-those bugs are people trying to token-paste things that aren't tokens,
-generally strings).
-
-> (The glibc trees had distributor patches, so I filed
-> the bug report via their support
-
-What? You found a compiler bug, so you reported it as a bug against
-glibc?
-
-> In sum: for production code it doesn't matter
-> what all a new C compiler version can do that
-> the old one could not if it won't compile
-> quite ordinary standard C correctly.
-
-... especially if the people who see the problems don't report them and
-don't provide reproducible testcases.
-
-> It would be good to have bugs fixed in the new compilers,
-
-It would be good if people would report bugs in the new compilers. :)
-
->                                                           because they
-> obviously have some advantages (I noticed that gcc-3.4.x seemed quite
-> a bit faster than 2.95.3 when compiling glibc,
-
-It is quite a bit slower :(
-
--- 
-`Preliminary analysis reveal there are few impact craters on Titan. This
- suggests Cassini has an active surface constantly being resurfaced.'
-              --- BBC News Online introduces a new planetary body
+		Linus

@@ -1,63 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262846AbVDAS2x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262841AbVDASvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262846AbVDAS2x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 13:28:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262845AbVDAS13
+	id S262841AbVDASvc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 13:51:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262849AbVDAS0f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 13:27:29 -0500
+	Fri, 1 Apr 2005 13:26:35 -0500
 Received: from webmail.topspin.com ([12.162.17.3]:34971 "EHLO
 	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S262846AbVDASZK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 13:25:10 -0500
+	id S262841AbVDASYy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 13:24:54 -0500
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [PATCH][6/6] IB: Remove incorrect comments
-In-Reply-To: <2005411023.Wt2K1CXaZGIHp9sH@topspin.com>
+Subject: [PATCH][1/6] IB: Keep MAD work completion valid
+In-Reply-To: 
 X-Mailer: Roland's Patchbomber
-Date: Fri, 1 Apr 2005 10:23:51 -0800
-Message-Id: <2005411023.sEUedyez566a4lDQ@topspin.com>
+Date: Fri, 1 Apr 2005 10:23:50 -0800
+Message-Id: <2005411023.BIKgS4OLfFzZN9qI@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: akpm@osdl.org
 Content-Transfer-Encoding: 7BIT
 From: Roland Dreier <roland@topspin.com>
-X-OriginalArrivalTime: 01 Apr 2005 18:23:51.0550 (UTC) FILETIME=[F46481E0:01C536E7]
+X-OriginalArrivalTime: 01 Apr 2005 18:23:51.0097 (UTC) FILETIME=[F41F6290:01C536E7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Hal Rosenstock <halr@voltaire.com>
+From: Sean Hefty <sean.hefty@intel.com>
 
-Eliminate unneeded and misleading comments
+Replace the *wc field in ib_mad_recv_wc from pointing to a structure
+on the stack to one allocated with the received MAD buffer.  This
+allows a client to access the *wc field after their receive completion
+handler has returned.
 
-Signed-off-by: Hal Rosenstock <halr@voltaire.com>
+Signed-off-by: Sean Hefty <sean.hefty@intel.com>
 Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
---- linux-export.orig/drivers/infiniband/core/agent.c	2005-03-31 19:06:48.000000000 -0800
-+++ linux-export/drivers/infiniband/core/agent.c	2005-04-01 10:09:02.621290525 -0800
-@@ -129,7 +129,6 @@
- 		goto out;
- 	agent_send_wr->mad = mad_priv;
+--- linux-export.orig/drivers/infiniband/core/mad.c	2005-03-31 19:07:01.000000000 -0800
++++ linux-export/drivers/infiniband/core/mad.c	2005-04-01 10:08:54.939957801 -0800
+@@ -1600,7 +1600,8 @@
+ 			 DMA_FROM_DEVICE);
  
--	/* PCI mapping */
- 	gather_list.addr = dma_map_single(mad_agent->device->dma_device,
- 					  &mad_priv->mad,
- 					  sizeof(mad_priv->mad),
-@@ -261,7 +260,6 @@
- 	list_del(&agent_send_wr->send_list);
- 	spin_unlock_irqrestore(&port_priv->send_list_lock, flags);
+ 	/* Setup MAD receive work completion from "normal" work completion */
+-	recv->header.recv_wc.wc = wc;
++	recv->header.wc = *wc;
++	recv->header.recv_wc.wc = &recv->header.wc;
+ 	recv->header.recv_wc.mad_len = sizeof(struct ib_mad);
+ 	recv->header.recv_wc.recv_buf.mad = &recv->mad.mad;
+ 	recv->header.recv_wc.recv_buf.grh = &recv->grh;
+--- linux-export.orig/drivers/infiniband/core/mad_priv.h	2005-03-31 19:07:14.000000000 -0800
++++ linux-export/drivers/infiniband/core/mad_priv.h	2005-04-01 10:08:54.961953027 -0800
+@@ -69,6 +69,7 @@
+ struct ib_mad_private_header {
+ 	struct ib_mad_list_head mad_list;
+ 	struct ib_mad_recv_wc recv_wc;
++	struct ib_wc wc;
+ 	DECLARE_PCI_UNMAP_ADDR(mapping)
+ } __attribute__ ((packed));
  
--	/* Unmap PCI */
- 	dma_unmap_single(mad_agent->device->dma_device,
- 			 pci_unmap_addr(agent_send_wr, mapping),
- 			 sizeof(agent_send_wr->mad->mad),
---- linux-export.orig/drivers/infiniband/core/mad.c	2005-04-01 10:08:56.473624910 -0800
-+++ linux-export/drivers/infiniband/core/mad.c	2005-04-01 10:09:02.768258624 -0800
-@@ -2283,7 +2283,6 @@
- 		/* Remove from posted receive MAD list */
- 		list_del(&mad_list->list);
- 
--		/* Undo PCI mapping */
- 		dma_unmap_single(qp_info->port_priv->device->dma_device,
- 				 pci_unmap_addr(&recv->header, mapping),
- 				 sizeof(struct ib_mad_private) -
 

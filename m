@@ -1,100 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbUEWRRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262951AbUEWRRy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbUEWRRV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 May 2004 13:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262574AbUEWRRV
+	id S262951AbUEWRRy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 May 2004 13:17:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263182AbUEWRRy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 May 2004 13:17:21 -0400
-Received: from mail-relay-3.tiscali.it ([212.123.84.93]:5812 "EHLO
-	mail-relay-3.tiscali.it") by vger.kernel.org with ESMTP
-	id S262020AbUEWRRS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 May 2004 13:17:18 -0400
-From: Lorenzo Allegrucci <l_allegrucci@despammed.com>
-Organization: -ENOENT
-To: Jens Axboe <axboe@suse.de>
-Subject: Re: 2.6.6-mm5 oops mounting ext3 or reiserfs with -o barrier
-Date: Sun, 23 May 2004 19:17:52 +0200
-User-Agent: KMail/1.6.2
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200405222107.55505.l_allegrucci@despammed.com> <200405231843.56591.l_allegrucci@despammed.com> <20040523165634.GS1952@suse.de>
-In-Reply-To: <20040523165634.GS1952@suse.de>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 23 May 2004 13:17:54 -0400
+Received: from stat1.steeleye.com ([65.114.3.130]:9687 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262574AbUEWRRm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 May 2004 13:17:42 -0400
+Subject: [BK PATCH] SCSI bug fixes for 2.6.6
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <200405231917.52517.l_allegrucci@despammed.com>
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 23 May 2004 12:17:36 -0500
+Message-Id: <1085332657.1763.5.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 May 2004 18:56, Jens Axboe wrote:
+After the early round of SCSI patches, these are the assorted fixups and
+driver updates.
 
-> > Untar, read, copy and remove the OpenOffice tarball, each test
-> > run with cold cache (mount/umount cycle).
->
-> I understand that, I just don't see how you can call it a regression.
-> It's a given that barrier will be slower.
+The patch is available at
 
-I'm sorry, I didn't know :)
+bk://linux-scsi.bkbits.net/scsi-for-linus-2.6
 
-I read from www.kerneltrap.org:
+The short Change Log is:
 
-Request barriers, also known as write barriers, provide a mechanism for 
-guaranteeing the order of disk I/O operations without actually waiting for 
-the data to be written to disk. Specifically, a request barrier guarantees 
-that any data queued up prior to the the barrier will be written to disk 
-before data queued up after the barrier. Without a request barrier, the block 
-layer can reorder how data is written to disk for maximum performance. The 
-problem with this being most notably with journaling filesystems which 
-require that their metadata be updated prior to actually updating data, 
-allowing true crash recovery. Without request barriers, a journaling 
-filesystem has to wait for the metadata change to be written to disk before 
-it can proceed with actually updating the filesystem. Hence, the addition of 
-request barriers provides a performance boost for journaled filesystems. In 
--mm5, request barriers are enabled by default for reiserfs and ext3.
 
-> > > but yes of course -o barrier=1 is going to
-> > > be slower than default + write back caching. What you should compare is
-> > > without barrier support and hdparm -W0 /dev/hdX, if -o barrier=1 with
-> > > caching on is slower then that's a regression :-)
-> >
-> > hdparm -W0 /dev/hda
-> >
-> > ext3 (-o barrier=0)
-> > untar		read		copy		remove
-> > 1m55.190s	0m27.633s	2m19.072s	0m21.348s
-> > 0m7.081s	0m1.189s	0m0.724s	0m0.083s
-> > 0m6.502s	0m3.244s	0m9.715s	0m1.633s
-> >
-> > ext3 (-o barrier=1)
-> > untar		read		copy		remove
-> > 1m55.358s	0m23.831s	2m16.674s	0m21.508s
-> > 0m7.153s	0m1.200s	0m0.748s	0m0.087s
-> > 0m6.775s	0m3.358s	0m9.985s	0m1.781s
-> >
-> >
-> > haparm -W1 /dev/hda
-> >
-> > ext3 (-o barrier=0)
-> > untar		read		copy		remove
-> > 0m55.405s	0m26.230s	1m28.765s	0m20.766s
-> > 0m7.195s	0m1.199s	0m0.773s	0m0.081s
-> > 0m6.502s	0m3.359s	0m9.672s	0m1.868s
-> >
-> > ext3 (-o barrier=1)
-> > untar		read		copy		remove
-> > 0m52.117s	0m28.502s	1m51.153s	0m25.561s
-> > 0m7.231s	0m1.209s	0m0.738s	0m0.071s
-> > 0m6.117s	0m3.191s	0m9.347s	0m1.635s
->
-> Your results look a bit over the map, how many runs are your averaging
-> for each one?
+<g.liakhovetski:gmx.de>:
+  o tmscsim: trivial updates
+  o tmscsim: remove legacy and void code
+  o tmscsim: no internal queue
+  o tmscsim: 64-bit cleanup
 
-Just one run, no averaging.
-Yes, it's not a scientific approach, but I have not enough time
-and this is my production machine :)
-By experience I can say that numbers between each run are quite
-stable and reproducible.
+Achim Leubner:
+  o gdth driver update to 3.04
 
--- 
-Lorenzo
+Alan Cox:
+  o initial 2.6 fixup for ATP870U scsi
+  o Do something about aacraid
+
+Andrew Morton:
+  o qlogicfas408.c warning fix
+
+Brian King:
+  o ipr driver version 2.0.7
+  o ipr remove anonymous unions for gcc 2.95
+  o ipr fix for ioa reset timeout oops
+  o ipr add error logs to abort and reset paths
+  o ipr gcc attributes fixes
+  o Make st support the scsi_device timeout
+
+Christoph Hellwig:
+  o remove an unused function from NC53c406a
+  o tmscsim: remove procfs write support from tmscsim
+  o fix assorted wd7000 warnings
+
+Douglas Gilbert:
+  o st.c for GET_IDLUN
+
+Go Taniguchi:
+  o Fix dpt_i2o
+
+Heiko Carstens:
+  o SCSI: fix Stack overflow when lldd returns SCSI_MLQUEUE_DEVICE_BUSY
+
+James Bottomley:
+  o SCSI: make inquiry timeout tuneable
+  o SCSI: make SCSI REPORT LUNS the default
+  o SCSI: deprecate BLIST_FORCELUN
+  o SCSI: logging optimisation
+  o scsi sg: fix smp_call_function() with intrs disabled
+  o Fix SCSI device state model
+
+Rusty Russell:
+  o [TRIVIAL 2.6] drivers_scsi_nsp32.c: kill duplicate
+
+This time, the diffstat is reasonable (no qlogic firmware):
+
+ drivers/scsi/Kconfig            |   17 
+ drivers/scsi/NCR53c406a.c       |    3 
+ drivers/scsi/aacraid/README     |    8 
+ drivers/scsi/aacraid/aacraid.h  |  157 --
+ drivers/scsi/aacraid/commctrl.c |   37 
+ drivers/scsi/aacraid/comminit.c |    9 
+ drivers/scsi/aacraid/commsup.c  |   81 -
+ drivers/scsi/aacraid/dpcsup.c   |   53 
+ drivers/scsi/aacraid/sa.c       |    5 
+ drivers/scsi/atp870u.c          |   40 
+ drivers/scsi/dc390.h            |   12 
+ drivers/scsi/dpt_i2o.c          |  156 +-
+ drivers/scsi/dpti.h             |    4 
+ drivers/scsi/gdth.c             | 3112
+++++++++++++++++++++++------------------
+ drivers/scsi/gdth.h             |  157 +-
+ drivers/scsi/gdth_ioctl.h       |   50 
+ drivers/scsi/gdth_proc.c        | 1591 ++++++--------------
+ drivers/scsi/gdth_proc.h        |   29 
+ drivers/scsi/ipr.c              |  131 -
+ drivers/scsi/ipr.h              |   29 
+ drivers/scsi/nsp32.c            |    1 
+ drivers/scsi/qlogicfas408.c     |    2 
+ drivers/scsi/qlogicfas408.h     |    2 
+ drivers/scsi/scsi_lib.c         |    4 
+ drivers/scsi/scsi_logging.h     |    2 
+ drivers/scsi/scsi_scan.c        |   39 
+ drivers/scsi/scsiiom.c          |   45 
+ drivers/scsi/sg.c               |  153 -
+ drivers/scsi/st.c               |   54 
+ drivers/scsi/st.h               |    1 
+ drivers/scsi/tmscsim.c          |  954 +-----------
+ drivers/scsi/tmscsim.h          |   23 
+ drivers/scsi/wd7000.c           |    7 
+ include/scsi/scsi_devinfo.h     |    6 
+ 34 files changed, 3091 insertions(+), 3883 deletions(-)
+
+James
+
+

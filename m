@@ -1,53 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263330AbTKFDem (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 22:34:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263334AbTKFDem
+	id S263339AbTKFENR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 23:13:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263343AbTKFENQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 22:34:42 -0500
-Received: from mid-1.inet.it ([213.92.5.18]:36021 "EHLO mid-1.inet.it")
-	by vger.kernel.org with ESMTP id S263330AbTKFDel (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 22:34:41 -0500
-From: Fabio Coatti <cova@ferrara.linux.it>
-Organization: FerraraLUG
-To: Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: test9 and bluetooth
-Date: Thu, 6 Nov 2003 04:34:36 +0100
-User-Agent: KMail/1.5.4
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200311021853.47300.cova@ferrara.linux.it> <1068031899.10388.180.camel@pegasus>
-In-Reply-To: <1068031899.10388.180.camel@pegasus>
+	Wed, 5 Nov 2003 23:13:16 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7430 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263339AbTKFENN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 23:13:13 -0500
+Date: Wed, 5 Nov 2003 20:11:48 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Steven Adams <steve@drifthost.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: no DRQ after issuing WRITE
+In-Reply-To: <01ba01c3a3f7$1da22100$dfb21ad3@drifthost>
+Message-ID: <Pine.LNX.4.10.10311052011140.28485-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200311060434.36613.cova@ferrara.linux.it>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alle 12:31, mercoledì 05 novembre 2003, Marcel Holtmann ha scritto:
 
-> > I get no informations/messages in logs.
-> > I'm using the same dogle and usb devices on a 2.4.21 kernel (on a
-> > different HW) and I can remove the dongle without any problem.
+It means DMA got disabled!
+
+It also means improper exit from the FSM.
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Thu, 6 Nov 2003, Steven Adams wrote:
+
+> anyone?
+> ----- Original Message ----- 
+> From: <steve@drifthost.com>
+> To: <linux-kernel@vger.kernel.org>
+> Sent: Wednesday, November 05, 2003 2:05 PM
+> Subject: hda: no DRQ after issuing WRITE
+> 
+> 
+> > Hey guys,
 > >
-> > If more informations or tries are needed just let me know.
->
-> please try this with a non SMP kernel and/or a non preempt kernel. Do
-> you have enabled the Bluetooth SCO support for the HCI USB driver?
-
-I've tried with UP kernel (test9 straight, no bk-wathever), preempt, and it 
-freezes in the very same way. Tomorrow I'll try with UP and SMP no preempt.
-the SCO module was compiled but not loaded.
-I've noticed several Oopses during system shutdown, but I can't say if this is 
-related to the bluetooth issue. Tomorrow I'll try again and I'll post also 
-the oopses. 
-
--- 
-Fabio Coatti       http://www.ferrara.linux.it/members/cova     
-Ferrara Linux Users Group           http://ferrara.linux.it
-GnuPG fp:9765 A5B6 6843 17BC A646  BE8C FA56 373A 5374 C703
-Old SysOps never die... they simply forget their password.
+> > i keep getting things like this in my dmesg
+> >
+> > ============================================
+> > hda: status timeout: status=0xd0 { Busy }
+> >
+> > hda: no DRQ after issuing WRITE
+> > ide0: reset: success
+> > hda: status timeout: status=0xd0 { Busy }
+> >
+> > hda: no DRQ after issuing WRITE
+> > ide0: reset: success
+> > =============================================
+> >
+> > From hdparm
+> > ============================================
+> > /dev/hda:
+> >
+> >  Model=IC35L080AVVA07-0, FwRev=VA4OA52A, SerialNo=VNC402A4CBRJLA
+> >  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+> >  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
+> >  BuffType=DualPortCache, BuffSize=1863kB, MaxMultSect=16, MultSect=off
+> >  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=160836480
+> >  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+> >  PIO modes:  pio0 pio1 pio2 pio3 pio4
+> >  DMA modes:  mdma0 mdma1 mdma2
+> >  UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
+> >  AdvancedPM=yes: disabled (255) WriteCache=enabled
+> >  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
+> > =================================================
+> >
+> > Ive searched high and low to try find out what this means, all ive found
+> > it people keep saying its all different kinds of things..
+> >
+> > I was wondering if this means my hdd is drying or is ti a setting?
+> >
+> > Thanks guys,
+> > Steve
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

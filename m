@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbUKVKnb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbUKVKnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbUKVKnb (ORCPT <rfc822;willy@w.ods.org>);
+	id S262036AbUKVKnb (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 05:43:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUKVKmT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262034AbUKVKmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:42:19 -0500
-Received: from sd291.sivit.org ([194.146.225.122]:43449 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S262037AbUKVKet (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:34:49 -0500
-Date: Mon, 22 Nov 2004 11:35:20 +0100
-From: Stelian Pop <stelian@popies.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, greg@kroah.com
-Subject: Re: [PATCH] usb-storage should enable scsi disk in Kconfig
-Message-ID: <20041122103520.GA3550@crusoe.alcove-fr>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	"Randy.Dunlap" <rddunlap@osdl.org>,
-	Matthew Dharm <mdharm-kernel@one-eyed-alien.net>,
-	Christoph Hellwig <hch@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, greg@kroah.com
-References: <20041119193350.GE2700@deep-space-9.dsnet> <20041119195736.GA8466@infradead.org> <20041119213942.GG2700@deep-space-9.dsnet> <20041119230820.GB32455@one-eyed-alien.net> <419FD192.1040604@osdl.org>
+	Mon, 22 Nov 2004 05:42:31 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:13464 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262038AbUKVKkW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 05:40:22 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 22 Nov 2004 11:29:33 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: var args in kernel?
+Message-ID: <20041122102933.GG29305@bytesex>
+References: <20041109074909.3f287966.akpm@osdl.org> <1100018489.7011.4.camel@lb.loomes.de> <20041109211107.GB5892@stusta.de> <1100037358.1519.6.camel@lb.loomes.de> <20041110082407.GA23090@bytesex> <1100085569.1591.6.camel@lb.loomes.de> <20041118165853.GA22216@bytesex> <419E689A.5000704@backtobasicsmgmt.com> <20041122094312.GC29305@bytesex> <20041122101646.GP10340@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <419FD192.1040604@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20041122101646.GP10340@devserv.devel.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 20, 2004 at 03:21:54PM -0800, Randy.Dunlap wrote:
+> You can call va_start on the same args list twice, both:
+> [ ... ]
+> and
+> void foo (int x, ...)
+> {
+>   va_list ap;
+>   va_start (ap, x);
+> ...
+>   va_end (ap);
+>   va_start (ap, x);
+> ...
+>   va_end (ap);
+> }
+> are ok.
 
-> >>>On Fri, Nov 19, 2004 at 08:33:50PM +0100, Stelian Pop wrote:
-> >>
-> >>Maybe we should add, just below the 'USB storage' Kconfig option another
-> >>one, let's say 'SCSI disk based USB storage support', which documentation
-> >>would talk about 'usb keys, memory stick readers, USB floppy drives etc',
-> >>which should just be a dummy option selecting  BLK_DEV_SD ?
+Fine, then my patch is ok, it does exactly this ;)
 
-> Until 'suggests' is available, does this help any?
-> It's tough getting people to read Help messages though.
-> 
-> Add comment/NOTE that USB_STORAGE probably needs BLK_DEV_SD also.
-> Add a few device types to help text and reformat it.
+>  What you can't do is e.g.
+>   va_list ap;
+>   va_start (ap, x);
+>   bar (x, ap);
+>   bar (x, ap);
+>   va_end (ap);
 
-Isn't my above suggestion even better ? A separate config option
-is much more visible IMHO...
+This is how the code looked before I fixed it.
 
-Stelian.
+Thanks,
+
+  Gerd
+
 -- 
-Stelian Pop <stelian@popies.net>    
+#define printk(args...) fprintf(stderr, ## args)

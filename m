@@ -1,60 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269303AbUJKVwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269309AbUJKVwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269303AbUJKVwb (ORCPT <rfc822;willy@w.ods.org>);
+	id S269309AbUJKVwb (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 11 Oct 2004 17:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269312AbUJKVvI
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269294AbUJKVwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 17:51:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:408 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269298AbUJKVtk (ORCPT
+	Mon, 11 Oct 2004 17:52:23 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:2276 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269293AbUJKVvc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 17:49:40 -0400
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jeff Moyer <jmoyer@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <16746.55283.192591.718383@segfault.boston.redhat.com>
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
-	 <20041005112752.GA21094@logos.cnet>
-	 <16739.61314.102521.128577@segfault.boston.redhat.com>
-	 <20041006120158.GA8024@logos.cnet>
-	 <1097119895.4339.12.camel@orbit.scot.redhat.com>
-	 <20041007101213.GC10234@logos.cnet>
-	 <1097519553.2128.115.camel@sisko.scot.redhat.com>
-	 <16746.55283.192591.718383@segfault.boston.redhat.com>
+	Mon, 11 Oct 2004 17:51:32 -0400
+Subject: Re: 2.6.9-rc4-mm1 HPET compile problems on AMD64
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20041011212529.GB31731@wotan.suse.de>
+References: <1097509362.12861.334.camel@dyn318077bld.beaverton.ibm.com>
+	 <20041011125421.106eff07.akpm@osdl.org>
+	 <1097526413.12861.374.camel@dyn318077bld.beaverton.ibm.com>
+	 <20041011212529.GB31731@wotan.suse.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
 Organization: 
-Message-Id: <1097531370.2128.356.camel@sisko.scot.redhat.com>
+Message-Id: <1097530924.12861.392.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 11 Oct 2004 22:49:30 +0100
+Date: 11 Oct 2004 14:42:05 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Mon, 2004-10-11 at 19:58, Jeff Moyer wrote:
-
-> sct> I think it's worth getting this right in the long term, though.
-> sct> Getting readahead of indirect blocks right has other benefits too ---
-> sct> eg. we may be able to fix the situation where we end up trying to read
-> sct> indirect blocks before we've even submitted the IO for the previous
-> sct> data blocks, breaking the IO pipeline ordering.
+On Mon, 2004-10-11 at 14:25, Andi Kleen wrote:
+> On Mon, Oct 11, 2004 at 01:26:53PM -0700, Badari Pulavarty wrote:
+> > On Mon, 2004-10-11 at 12:54, Andrew Morton wrote:
+> > 
+> > > 
+> > > I assume you have CONFIG_HPET=n and CONFIG_HPET_TIMER=n?
+> > > 
+> > > Andi, what's going on here?  Should the hpet functions in
+> > > arch/x86_64/kernel/time.c be inside CONFIG_HPET_TIMER?
+> > 
+> > I haven't enable HPET, but autoconf.h gets 
+> > 
+> > # grep HPET autoconf.h
+> > #define CONFIG_HPET_TIMER 1
+> > #define CONFIG_HPET_EMULATE_RTC 1
+> > 
+> > # grep HPET .config
+> > # CONFIG_HPET is not set
 > 
-> So for the short term, are you an advocate of the patch posted?
+> It should be inside CONFIG_HPET. Badari's patch was correct.
 
-In the short term, can't we just disable readahead for O_NONBLOCK?  That
-has true non-blocking semantics --- if the data is already available we
-return it, but if not, it's up to somebody else to retrieve it.
+make clean and oldconfig cleaned up little, but I still get
+following linking error (without my patch).
 
-That's exactly what you want if you're genuinely trying to avoid
-blocking at all costs on a really hot event loop, and the semantics seem
-to make sense to me.  It's not that different from the networking case
-where no amount of read() on a non-blocking fd will get you more data
-unless there's another process somewhere filling the stream.
+# grep HPET .config
+# CONFIG_HPET is not set
 
---Stephen
+# grep HPET autoconf.h
+#undef CONFIG_HPET
+
+  LD      .tmp_vmlinux1
+arch/x86_64/kernel/built-in.o(.init.text+0x2071): In function
+`late_hpet_init':
+arch/x86_64/kernel/entry.S:259: undefined reference to `hpet_alloc'
+
+Andi, one thing I am not sure is - do you want entire routine
+late_hpet_init() under CONFIG_HPET or only parts of it ?
+
+Thanks,
+Badari
 

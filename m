@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266001AbUBCNe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 08:34:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbUBCNe4
+	id S266000AbUBCNbK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 08:31:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266001AbUBCNbK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 08:34:56 -0500
-Received: from mail.scs.ch ([212.254.229.5]:4553 "EHLO mail.scs.ch")
-	by vger.kernel.org with ESMTP id S266001AbUBCNez (ORCPT
+	Tue, 3 Feb 2004 08:31:10 -0500
+Received: from main.gmane.org ([80.91.224.249]:41124 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266000AbUBCNbH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 08:34:55 -0500
-Subject: Re: [PATCH] es1371.c - 8 bit stereo (kernel version 2.4.24)
-From: Thomas Sailer <sailer@scs.ch>
-To: bnelson@onairusa.com
-Cc: sailer@ife.ee.ethz.ch, linux-kernel@vger.kernel.org,
-       Pete Cervasio <pcervasio@onairusa.com>
-In-Reply-To: <200402030057.i130v763003677@host21.onairusa.com>
-References: <200402030057.i130v763003677@host21.onairusa.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: SCS
-Message-Id: <1075815283.23177.157.camel@kronenbourg.scs.ch>
+	Tue, 3 Feb 2004 08:31:07 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: 2.6.0, cdrom still showing directories after being erased
+Date: Tue, 03 Feb 2004 14:31:04 +0100
+Message-ID: <yw1xad40i92f.fsf@kth.se>
+References: <20040203131837.GF3967@aurora.fi.muni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 03 Feb 2004 14:34:44 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:87suTKZteOn83MWiBlSmzzGfRlA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-03 at 01:57, Bob Nelson wrote:
+Martin Povolný <xpovolny@aurora.fi.muni.cz> writes:
 
-> Although the code in the ``es1371.c'' source is not lavishly commented,
+> I have debian's 2.6.0-686-smp only with PNP BIOS disabled (fails to
+> boot with enabled, as described by other people).
+>
+> I did
+>
+> $ mount /cdrom/
+> $ ls /cdrom/
+>
+> got listing of files and directories on the cdrom
+> then
+>
+> $ cdrecord dev=/dev/hdc -blank=fast -v
 
-That's because the hardware itself is not very well documented. I'm
-having serious trouble understanding what the P2_ENDINC bits should do.
+It's not very nice to go and erase the CD while it's mounted.  Unmount
+first and you'll be fine.
 
-> it appears that the intent of the author is to use 1 as the operand
-> of the shift for 8-bit audio. However, the original code does not take
-> into account ``SCTRL_P2SMB'', 8-bit stereo. The patch results in 1 being
-> used as the operand for any 8-bit audio file, stereo or mono.
-
-Have you also tried 16bit mono and stereo with your patch? does that
-still work?
-
-Tom
+-- 
+Måns Rullgård
+mru@kth.se
 

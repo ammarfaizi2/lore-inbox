@@ -1,52 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132580AbREIC3A>; Tue, 8 May 2001 22:29:00 -0400
+	id <S135216AbREICdK>; Tue, 8 May 2001 22:33:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135216AbREIC2k>; Tue, 8 May 2001 22:28:40 -0400
-Received: from juicer24.bigpond.com ([139.134.6.34]:27853 "EHLO
-	mailin3.email.bigpond.com") by vger.kernel.org with ESMTP
-	id <S132580AbREIC20>; Tue, 8 May 2001 22:28:26 -0400
-Message-Id: <m14xJmW-001QgaC@mozart>
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: page_launder() bug 
-In-Reply-To: Your message of "Sun, 06 May 2001 21:55:26 MST."
-             <15094.10942.592911.70443@pizda.ninka.net> 
-Date: Wed, 09 May 2001 12:32:51 +1000
+	id <S135789AbREICdA>; Tue, 8 May 2001 22:33:00 -0400
+Received: from shell.cyberus.ca ([209.195.95.7]:32682 "EHLO shell.cyberus.ca")
+	by vger.kernel.org with ESMTP id <S135216AbREICcx>;
+	Tue, 8 May 2001 22:32:53 -0400
+Date: Tue, 8 May 2001 22:31:23 -0400 (EDT)
+From: jamal <hadi@cyberus.ca>
+To: <netdev@oss.sgi.com>
+cc: <linux-kernel@vger.kernel.org>, <linux-net@vger.rutgers.edu>,
+        Sally Floyd <floyd@aciri.org>, <kk@teraoptic.com>, <jitu@aciri.org>
+Subject: ECN: Volunteers needed
+Message-ID: <Pine.GSO.4.30.0105082145200.447-100000@shell.cyberus.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <15094.10942.592911.70443@pizda.ninka.net> you write:
-> 
-> Jonathan Morton writes:
->  > >-			 page_count(page) == (1 + !!page->buffers));
->  > 
->  > Two inversions in a row?
-> 
-> It is the most straightforward way to make a '1' or '0'
-> integer from the NULL state of a pointer.
 
-Overall, I'd have to say that this:
+Folks,
 
--		dead_swap_page =
--			(PageSwapCache(page) &&
--			 page_count(page) == (1 + !!page->buffers));
--
+ECN is about to become a Proposed Standard RFC. Thanks to
+efforts from the Linux community, a few issues were discovered
+in the course of deploying the code. Special kudos go to Alexey
+Kuznetsov and David Miller.
 
-Is nicer as:
+I wont go into details of the issues other than to say some
+midlle-box vendors in the past have associated the semantics of the
+natural-language English word "reserved" to have a different meaning.
+visit Jeff Garzik's ECN-under-Linux Unofficial Vendor Support Page
+at: http://gtf.org/garzik/ecn/ for more details
 
-		int dead_swap_page = 0;
+Sally Floyd explains best why it is wrong for vendors of middle boxes to
+be doing this in the draft to be found at:
+ftp://ftp.normos.org/ietf/internet-drafts/draft-floyd-tcp-reset-00.txt
 
-		if (PageSwapCache(page)
-		    && page_count(page) == (page->buffers ? 1 : 2))
-			dead_swap_page = 1;
+So why am i posting this?
 
-After all, the second is what the code *means* (1 and 2 are magic
-numbers).
+This is to solicit volunteers who will help removing the remaining cruft.
+Some vendors (special positive mention goes to CISCO) have released
+patches which are unfortunately not being propagated by some of the
+site owners.
+Help is needed to contact these site owners and politely using a standard
+email ask them that their site was non-conformant.
+Point them to Sally's draft and the fact that ECN is becoming standard
+in the next week or so. Also to Jeff's ECN-under-Linux Unofficial
+Vendor Support Page, and to encourage them to have their firewall
+or load-balancer upgraded.
+I suppose the first volunteer needed is to draft such an email. We have to
+be polite and persistent for this to work.
 
-That said, anyone who doesn't understand the former should probably
-get some more C experience before commenting on others' code...
+Jitendra Padhye at ACIRI is running weekly tests to detect offending
+sites. Most recent results can be found at:
+http://www.aciri.org/tbit/ecn_test3A.html
+Any site with the word "RST" on the line should be considered
+non-conformant.
 
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
+Volunteers please send an email to ecn@gtf.org with subject "interested in
+volunteering"
+
+Flames etc please redirect to netdev (since that's the only list i am on).
+as well make sure you cc the other people (other than linux-kernel and
+linux-net)
+
+cheers,
+jamal
+
+
+

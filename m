@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313304AbSDHLOH>; Mon, 8 Apr 2002 07:14:07 -0400
+	id <S313312AbSDHL03>; Mon, 8 Apr 2002 07:26:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313307AbSDHLOG>; Mon, 8 Apr 2002 07:14:06 -0400
-Received: from netfinity.realnet.co.sz ([196.28.7.2]:49569 "HELO
+	id <S313307AbSDHL02>; Mon, 8 Apr 2002 07:26:28 -0400
+Received: from netfinity.realnet.co.sz ([196.28.7.2]:7846 "HELO
 	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S313304AbSDHLOG>; Mon, 8 Apr 2002 07:14:06 -0400
-Date: Mon, 8 Apr 2002 13:00:03 +0200 (SAST)
+	id <S313334AbSDHL01>; Mon, 8 Apr 2002 07:26:27 -0400
+Date: Mon, 8 Apr 2002 13:12:22 +0200 (SAST)
 From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
 X-X-Sender: zwane@netfinity.realnet.co.sz
-To: brian@schau.dk
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Oops in 2.4.18 - opl3sa2 related?
-In-Reply-To: <200204081016.g38AGiR22372@mail.schau.dk>
-Message-ID: <Pine.LNX.4.44.0204081251410.25445-100000@netfinity.realnet.co.sz>
+To: Peter =?iso-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Pierre Ficheux <pierre.ficheux@openwide.fr>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.18 AND Geode GX1/200Mhz problem
+In-Reply-To: <3CB16335.C4BF320C@loewe-komp.de>
+Message-ID: <Pine.LNX.4.44.0204081311370.25445-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 8 Apr 2002 brian@schau.dk wrote:
+On Mon, 8 Apr 2002, Peter Wächtler wrote:
 
-> It happens if I do a    cat /proc/ioports    after a   modprobe opl3sa2 io=0x370 mss_io=0x530 mpu_io=0x330 irq=5 dma=0 dma2=1
+> I want to translate this to:
 > 
+> Processor -> 586/K5/5x86/6x86/6x86MX
 > 
-> What to do now?   Will upgrading help?
+> right?
 
-Thanks for the bugreport, be sure to CC me for opl3sa2 issues. I can check 
-further and see where its dying. You can try running the latest -pre or 
-newer -ac (careful about Alan's *fun* bits though ;) as that has a 
-slightly updated version. I'm running 2.4.19-pre2-ac3 and can safely cat 
-/proc/ioports.
+Or you can boot with kernel parameter notsc which should have the effect.
 
-Cheers,
 	Zwane
 
 -- 
 http://function.linuxpower.ca
 		
-
 

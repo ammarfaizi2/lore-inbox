@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263665AbTGAUj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 16:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbTGAUj4
+	id S263802AbTGAU6s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 16:58:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbTGAU6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 16:39:56 -0400
-Received: from smtp3.wanadoo.fr ([193.252.22.25]:646 "EHLO
-	mwinf0604.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S263665AbTGAUjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 16:39:55 -0400
-Message-ID: <3F01F55F.7060703@wanadoo.fr>
-Date: Tue, 01 Jul 2003 22:55:59 +0200
-From: =?ISO-8859-1?Q?R=E9mi_Colinet?= <remi.colinet@wanadoo.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20020830
-X-Accept-Language: en-us, en
+	Tue, 1 Jul 2003 16:58:48 -0400
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:44302 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S263802AbTGAU6r convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 16:58:47 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Duncan Sands <baldrick@wanadoo.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73 / Speedtouch USB modem / configuration problem
-References: <3EFF3D04.9060208@wanadoo.fr> <200306300948.55455.baldrick@wanadoo.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [PATCH] 2.5.73, cciss, io hang
+Date: Tue, 1 Jul 2003 16:13:09 -0500
+Message-ID: <CBD6B29E2DA6954FABAC137771769D6504E157BD@cceexc19.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] 2.5.73, cciss, io hang
+Thread-Index: AcNAFboI1qWqZYhtRw+Ky2WgDJABZw==
+From: "Wiran, Francis" <francis.wiran@hp.com>
+To: <linux-kernel@vger.kernel.org>, <axboe@suse.de>
+X-OriginalArrivalTime: 01 Jul 2003 21:13:10.0515 (UTC) FILETIME=[933B8C30:01C34015]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Duncan Sands wrote:
 
->>I'm trying to use the Alcatel Speedtouch USB modem with 2.5.73. I'm
->>facing a configuration problem and couldn't find a solution using Google.
->>    
->>
->
->Hi Remi, it looks like you are trying to use the user space driver (the one
->from http://speedtouch.sourceforge.net/), but have the kernel driver loaded
->(the speedtch module; see http://www.linux-usb.org/SpeedTouch/).  These
->two drivers do not play nicely together.
->
-Hi Duncan,
-
-I wasn't aware about this point.
-
-I'm going to try with the kernel driver.
-
-Thanks very much for your help :-)
-Rémi
+  Changes:
+	* Fix for random hang doing large io on cciss driver in 2.5.x
+kernel
 
 
+
+ drivers/block/cciss.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+--- linux-2.5.73/drivers/block/cciss.c~cciss_2.5_iohang	Thu Jun 26
+14:25:11 2003
++++ linux-2.5.73-root/drivers/block/cciss.c	Thu Jun 26 19:44:16 2003
+@@ -1961,7 +1961,6 @@ queue:
+ 
+ 	goto queue;
+ startio:
+-	blk_stop_queue(q);
+ 	start_io(h);
+ }
+ 
+@@ -2021,7 +2020,7 @@ static irqreturn_t do_cciss_intr(int irq
+ 	/*
+ 	 * See if we can queue up some more IO
+ 	 */
+-	blk_start_queue(&h->queue);
++	do_cciss_request(&h->queue);
+ 	spin_unlock_irqrestore(CCISS_LOCK(h->ctlr), flags);
+ 	return IRQ_HANDLED;
+ }

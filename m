@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbULFQ6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbULFQ72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbULFQ6O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 11:58:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbULFQ6N
+	id S261568AbULFQ72 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 11:59:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbULFQ71
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 11:58:13 -0500
-Received: from web54705.mail.yahoo.com ([68.142.225.203]:57770 "HELO
-	web54705.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261565AbULFQ6L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 11:58:11 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=FxUSAnsN4jFYZ1SM1o/LA5yGeNYrvINbwbIyH+slL1iFyHKHWp+40hePR7pAlFJVjjhyGG30A7B+DjyHSY8I85BRzbH8Qsc3ESfnHyJhMktTf523k9dy4innQveFcUemWn1D/fyPVi8jG5tw38+ydI456diFNQMFEJ8HGwud5tE=  ;
-Message-ID: <20041206165810.43823.qmail@web54705.mail.yahoo.com>
-Date: Mon, 6 Dec 2004 08:58:10 -0800 (PST)
-From: Gang Xu <roaming_pig@yahoo.com>
-Subject: RSA in kernel
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Mon, 6 Dec 2004 11:59:27 -0500
+Received: from HELIOUS.MIT.EDU ([18.238.1.151]:22182 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261568AbULFQ7I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 11:59:08 -0500
+Date: Mon, 6 Dec 2004 11:59:29 -0500
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Matthieu Castet <castet.matthieu@free.fr>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6.9+] PnPBIOS: Missing SMALL_TAG_ENDDEP tag
+Message-ID: <20041206165929.GE3103@neo.rr.com>
+Mail-Followup-To: ambx1@neo.rr.com,
+	Rene Herman <rene.herman@keyaccess.nl>,
+	Matthieu Castet <castet.matthieu@free.fr>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <41B3A963.4090003@keyaccess.nl> <20041206024218.GD3103@neo.rr.com> <41B3CCA6.1060507@keyaccess.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41B3CCA6.1060507@keyaccess.nl>
+User-Agent: Mutt/1.5.6+20040722i
+From: ambx1@neo.rr.com (Adam Belay)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Dec 06, 2004 at 04:06:14AM +0100, Rene Herman wrote:
+> Adam Belay wrote:
+> 
+> >Could you please send me "pnp.tar" from something like this:
+> >
+> >mkdir /tmp/pnp; cp /proc/bus/pnp/[0-f][0-f] /tmp/pnp; tar -cf pnp.tar 
+> >/tmp/pnp; rm -fR /tmp/pnp
+> >
+> >make sure the pnpbios /proc interface is compiled into the kernel.
+> >
+> >I'd like to look at the node data to see what's going on.
+> 
+> Sure, attached. In case it's useful/easier, earlier I also booted with 
+> debugging printks added to pnpbios_parse_resource_option_data, noting 
+> the tag types encountered. This produced:
+>
 
-I am interested in using RSA functions in kernel. I
-searched RSA in the archive and read all threads. It
-seems that some developers (Tom, Joy, Serge and more?)
-were planning to start porting RSA to kernel in June.
-Is there a module available now? 
+I appreciate the additional information.  I looked through the binary files
+manually and confirmed that they are missing an end-dep tag.  It should be
+harmless however.  I think the error message needs to be debug or it could 
+be removed.
 
-many thanks,
-
-Gang, 
-
-
-
-
-	
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - You care about security. So do we. 
-http://promotions.yahoo.com/new_mail
+Thanks,
+Adam

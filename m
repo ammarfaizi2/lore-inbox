@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262646AbSKISGo>; Sat, 9 Nov 2002 13:06:44 -0500
+	id <S262416AbSKISLl>; Sat, 9 Nov 2002 13:11:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262648AbSKISGn>; Sat, 9 Nov 2002 13:06:43 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:6532 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S262646AbSKISGn>; Sat, 9 Nov 2002 13:06:43 -0500
-Message-ID: <3DCD5038.40001@nortelnetworks.com>
-Date: Sat, 09 Nov 2002 13:13:12 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S262420AbSKISLl>; Sat, 9 Nov 2002 13:11:41 -0500
+Received: from modemcable191.130-200-24.mtl.mc.videotron.ca ([24.200.130.191]:39172
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S262416AbSKISLk>; Sat, 9 Nov 2002 13:11:40 -0500
+Date: Sat, 9 Nov 2002 13:09:39 -0500 (EST)
+From: Zwane Mwaikambo <zwane@holomorphy.com>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Mikael Pettersson <mikpe@csd.uu.se>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH][2.5] notsc option needs some attention/TLC
+In-Reply-To: <1036847149.20313.2.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211091308250.10475-100000@montezuma.mastecende.com>
 MIME-Version: 1.0
-To: Paul P Komkoff Jr <i@stingr.net>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [FUNNY] Networking is very funny in 2.5.46
-References: <20021109151132.GF29935@stingr.net>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul P Komkoff Jr wrote:
-> I thought I was hallucinating :)
+On 9 Nov 2002, Alan Cox wrote:
+
+> On Sat, 2002-11-09 at 12:00, Mikael Pettersson wrote:
+> > If we configure for "I have a TSC, period" you add the option
+> > to disable it, which nullifies any benefit of the config option
+> > in the first place since we can't assume TSC presence any more.
+> > If we don't configure for TSC, you force tsc_disable, which means
+> > that a generic kernel _can't_ use the TSC.
 > 
-> [root@t stingray]# ping -n -R eminem
-> PING eminem.sgu.ru (212.193.33.36): 56 octets data
-> 64 octets from 212.193.33.36: icmp_seq=0 ttl=127 time=0.7 ms
-> RR:     35.32.193.212
->         1.33.193.212
->         36.33.193.212
->         8.32.193.212
->         35.32.193.212
+> 2.4 was modified to printk a message that TSC was not disabled. This
+> does confuse people
 
+This is all very confusing, notsc isnn't supposed to work with cpus with 
+TSCs?
 
-Is that a big-endian machine?  My intel box works fine with that command.
-
-Chris
-
-
-
+	Zwane
 -- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+function.linuxpower.ca
 

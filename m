@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270005AbUIDBZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269990AbUIDB5x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270005AbUIDBZR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 21:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269990AbUIDBZR
+	id S269990AbUIDB5x (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 21:57:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270012AbUIDB5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 21:25:17 -0400
-Received: from web14929.mail.yahoo.com ([216.136.225.94]:45665 "HELO
-	web14929.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270005AbUIDBZL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 21:25:11 -0400
-Message-ID: <20040904012510.77417.qmail@web14929.mail.yahoo.com>
-Date: Fri, 3 Sep 2004 18:25:10 -0700 (PDT)
-From: Jon Smirl <jonsmirl@yahoo.com>
-Subject: Re: New proposed DRM interface design
-To: Dave Airlie <airlied@linux.ie>, Alex Deucher <alexdeucher@gmail.com>
-Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0409040158400.25475@skynet>
+	Fri, 3 Sep 2004 21:57:53 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:56958 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269990AbUIDB5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Sep 2004 21:57:51 -0400
+Message-ID: <41392112.7030206@yahoo.com.au>
+Date: Sat, 04 Sep 2004 11:57:38 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [sched] fix sched_domains hotplug bootstrap ordering vs. cpu_online_map
+ issue
+References: <1094246465.1712.12.camel@mulgrave> <20040903145925.1e7aedd3.akpm@osdl.org> <20040903222212.GV3106@holomorphy.com> <20040903153434.15719192.akpm@osdl.org> <20040903224507.GX3106@holomorphy.com>
+In-Reply-To: <20040903224507.GX3106@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Dave Airlie <airlied@linux.ie> wrote:
-> >
-> > Will this redesign allow for multiple 3d accelerated cards in the
-> same
-> > machine?  could I have say an AGP radeon and a PCI radeon or a AGP
-> > matrox and a PCI sis and have HW accel on :0 and :1.  If not, I
-> think
-> > it's something we should consider.
+William Lee Irwin III wrote:
+> William Lee Irwin III <wli@holomorphy.com> wrote:
 > 
-> should be no problem at all, this is what I consider a DRM
-> requirement so
-> any design that doesn't fulfill it isn't acceptable...
+>>>This is the whole thing; the "other half" referred to a new hunk added to
+>>>the patch (identical to this one) posted in its entirety.
 > 
-> of course implemented code may need a bit of testing :-)
+> 
+> On Fri, Sep 03, 2004 at 03:34:34PM -0700, Andrew Morton wrote:
+> 
+>>ho-hum. changelog, please?
+> 
+> 
+> cpu_online_map is not set up at the time of sched domain initialization
+> when hotplug cpu paths are used for SMP booting. At this phase of
+> bootstrapping, cpu_possible_map can be used by the various
+> architectures using cpu hotplugging for SMP bootstrap, but the
+> manipulations of cpu_online_map done on behalf of NUMA architectures,
+> done indirectly via node_to_cpumask(), can't, because cpu_online_map
+> starts depopulated and hasn't yet been populated. On true NUMA
+> architectures this is a distinct cpumask_t from cpu_online_map and so
+> the unpatched code works on NUMA; on non-NUMA architectures the
+> definition of node_to_cpumask() this way breaks and would require an
+> invasive sweeping of users of node_to_cpumask() to change it to e.g.
+> cpu_possible_map, as cpu_possible_map is not suitable for use at
+> runtime as a substitute for cpu_online_map.
+> 
+> Signed-off-by: William Irwin <wli@holomorphy.com>
+> 
 
-I've been reworking the DRM code to better support two dissimilar video
-card. I pratice on a PCI Rage128 and AGP Radeon. 
+Yeah I guess this is probably the best thing to do for now.
 
-I would also like to start making infastructure changes to allow two
-independently logged in users, one on each head. Multihead DRM cards
-will show one device per head. If you set a merged fb mode the other
-head will get disabled. 
-
-This is the general plan I am working towards...
-http://lkml.org/lkml/2004/8/2/111
-
-
-=====
-Jon Smirl
-jonsmirl@yahoo.com
-
-
-		
-_______________________________
-Do you Yahoo!?
-Win 1 of 4,000 free domain names from Yahoo! Enter now.
-http://promotions.yahoo.com/goldrush
+Martin, I wonder if this patch fixes your z/VM problem?

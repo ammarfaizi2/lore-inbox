@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262439AbTEIK7j (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 06:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbTEIK7j
+	id S262431AbTEIKzT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 06:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTEIKzT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 06:59:39 -0400
-Received: from siaag1af.compuserve.com ([149.174.40.8]:56757 "EHLO
-	siaag1af.compuserve.com") by vger.kernel.org with ESMTP
-	id S262439AbTEIK7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 06:59:38 -0400
-Date: Fri, 9 May 2003 07:09:34 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: The disappearing sys_call_table export.
-To: Shachar Shemesh <lkml@shemesh.biz>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Steffen Persvold <sp@scali.com>, D.A.Fedorov@inp.nsk.su,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       Terje Eggestad <terje.eggestad@scali.com>
-Message-ID: <200305090711_MC3-1-3821-C039@compuserve.com>
+	Fri, 9 May 2003 06:55:19 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61666 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262431AbTEIKzS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 06:55:18 -0400
+Date: Fri, 9 May 2003 13:07:09 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][RFC] Sanitize hwif/drive addressing (was Re: [PATCH]
+ 2.5 ide 48-bit usage)
+In-Reply-To: <20030509082837.GG20941@suse.de>
+Message-ID: <Pine.SOL.4.30.0305091305080.2995-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Shachar Shemesh wrote:
 
-> I'm currently trying to work with some other subscribers of this list on 
-> a design. Getting 1, 2 and 3 is a complicated enough task, of course. I 
-> would like to hear estimates about inclusion chances should we manage to 
-> come up with an implmentation that lives up to all the above.
+On Fri, 9 May 2003, Jens Axboe wrote:
 
- How many users would want to actually modify the syscall parameters
-or change visible system behavior when a syscall happens?
+> On Fri, May 09 2003, Jens Axboe wrote:
+> > On Thu, May 08 2003, Alan Cox wrote:
+> > > On Iau, 2003-05-08 at 17:34, Jens Axboe wrote:
+> > > > Might not be a bad idea, drive->address_mode is a heck of a lot more to
+> > > > the point. I'll do a swipe of this tomorrow, if no one beats me to it.
+> > >
+> > > We don't know if in the future drives will support some random mask of modes.
+> > > Would
+> > >
+> > > 	drive->lba48
+> > > 	drive->lba96
+> > > 	drive->..
+> > >
+> > > be safer ?
+> >
+> > I had the same thought yesterday, that just because a device does lba89
+> > does not need it supports all of the lower modes. How about just using
 
- Maybe something like this would work?
+Actually it does for 48-bit.
 
-  1.  You can register to be notified when a syscall occurs,
-      either before or after or both.
-  2.  The only action you can take must be 'private' (within
-      your driver or subsystem.)
+> > the drive->address_mode as a supported field of modes?
+> >
+> > if (drive->address_mode & IDE_LBA48)
+> > 	lba48 = 1;
+>
+> How about something like the attached? Removes ->addressing from both
+> drive and hwif, and adds:
+>
+> drive->addr_mode: capability mask of addressing modes the drive supports
+> hwif->na_addr_mode: negated capability mask
 
+Sounds sane.
+--
+Bartlomiej
+
+> Patch isn't tested, so this is just a RFC. If we agree on the concept, I
+> can finalize it.
 

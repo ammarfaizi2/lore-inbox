@@ -1,43 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268016AbTCFMq7>; Thu, 6 Mar 2003 07:46:59 -0500
+	id <S268031AbTCFNBI>; Thu, 6 Mar 2003 08:01:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268019AbTCFMq7>; Thu, 6 Mar 2003 07:46:59 -0500
-Received: from meryl.it.uu.se ([130.238.12.42]:36275 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id <S268016AbTCFMq6>;
-	Thu, 6 Mar 2003 07:46:58 -0500
-From: Mikael Pettersson <mikpe@user.it.uu.se>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15975.17847.535048.258612@gargle.gargle.HOWL>
-Date: Thu, 6 Mar 2003 13:57:27 +0100
-To: Andi Kleen <ak@suse.de>
+	id <S268032AbTCFNBI>; Thu, 6 Mar 2003 08:01:08 -0500
+Received: from jive.SoftHome.net ([66.54.152.27]:52461 "HELO jive.SoftHome.net")
+	by vger.kernel.org with SMTP id <S268031AbTCFNBH>;
+	Thu, 6 Mar 2003 08:01:07 -0500
+References: <courier.3E646584.000059D3@softhome.net>
+            <1046800283.999.59.camel@phantasy.awol.org>
+In-Reply-To: <1046800283.999.59.camel@phantasy.awol.org> 
+From: prash_t@softhome.net
+To: Robert Love <rml@tech9.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86-64 fixes for 2.4.21-pre5
-In-Reply-To: <p73isuw67vv.fsf@amdsimf.suse.de>
-References: <15974.15180.311304.526712@gargle.gargle.HOWL.suse.lists.linux.kernel>
-	<p73isuw67vv.fsf@amdsimf.suse.de>
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Subject: Re: Inconsistency in changing the state of task ??
+Date: Thu, 06 Mar 2003 06:11:30 -0700
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [32.97.110.66]
+Message-ID: <courier.3E674902.000007D9@softhome.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen writes:
- > Mikael Pettersson <mikpe@user.it.uu.se> writes:
- > 
- > > This fixes a linkage error caused by the IDE layer's use of the
- > > new ndelay() macro. I simply cloned the i386 implementation.
- > > 
- > > This also silences two assembler warnings in bootsect.S and setup.S.
- > > Those warnings are caused by a change in binutils' behaviour a LONG
- > > time ago. This can't be fixed for i386 in the official stable kernel
- > > since it breaks old tool chains, but that's not an issue for x86-64.
- > 
- > I fixed it some time ago in my tree, but Marcelo dropped the fixes,
- > sorry.
+Thanks Robert for the reply.
+But I notice that __set_current_state() is same as current->state. So, I 
+didn't understand the safety factor on using __set_current_state( ). 
 
-Would that be your personal x86-64 tree?
-I had a look at x86-64.org's browsable CVS before I posted my patch,
-but none of the things my patch fixed were fixed there.
+Also why should I use __set_current_state() instead of set_current_state() 
+when the later is SMP safe. 
 
-/Mikael
+Thanks in advance....
+Prashanth 
+
+Robert Love writes: 
+
+> On Tue, 2003-03-04 at 03:36, prash_t@softhome.net wrote: 
+> 
+>>      while browsing through fs/select.c file of 2.4.19, I came across two 
+>> DIFFERENT ways of changing the state of the current task in do_select():  
+>> 
+>>             set_current_state = TASK_INTERRUPTIBLE;
+>>      AND    current->state = TASK_RUNNING;  
+>> 
+>> I am curious to know if the second line of code doesn't cause any problem in 
+>> SMP systems.  I also see the same situation in do_poll().
+> 
+> You normally want to use set_current_state(), which is a nice
+> abstraction and safe for SMP. 
+> 
+> Sometimes it is safe to use __set_current_state(), which does not
+> provide a memory barrier. 
+> 
+> The above open-coded line can be changed to
+> __set_current_state(TASK_RUNNING). 
+> 
+> 	Robert Love 
+> 
+ 

@@ -1,89 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292846AbSCAW2N>; Fri, 1 Mar 2002 17:28:13 -0500
+	id <S292879AbSCAW3X>; Fri, 1 Mar 2002 17:29:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292879AbSCAW2E>; Fri, 1 Mar 2002 17:28:04 -0500
-Received: from ja.mac.ssi.bg ([212.95.166.194]:32004 "EHLO u.domain.uli")
-	by vger.kernel.org with ESMTP id <S292846AbSCAW17>;
-	Fri, 1 Mar 2002 17:27:59 -0500
-Date: Sat, 2 Mar 2002 00:27:40 +0000 (GMT)
-From: Julian Anastasov <ja@ssi.bg>
-X-X-Sender: ja@u.domain.uli
-To: Kain <kain@kain.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Andi Kleen <ak@suse.de>
-Subject: Re: OOPS: Multipath routing 2.4.17
-Message-ID: <Pine.LNX.4.44.0203012316120.1420-100000@u.domain.uli>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293047AbSCAW3P>; Fri, 1 Mar 2002 17:29:15 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:54484 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S292879AbSCAW3F>; Fri, 1 Mar 2002 17:29:05 -0500
+Date: Fri, 1 Mar 2002 16:28:56 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Bongani Hlope <bonganilinux@mweb.co.za>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] #define yield() for 2.4 scheduler (anticipating O(1))
+Message-ID: <20020301162856.A14210@asooo.flowerfire.com>
+In-Reply-To: <20020301163237.GC16716@opeth.ath.cx> <20020301185825.GK2711@matchmail.com> <1015017496.2325.7.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1015017496.2325.7.camel@localhost.localdomain>; from bonganilinux@mweb.co.za on Fri, Mar 01, 2002 at 11:18:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I doubt this is an issue specific to the kernel or patches -- I've had
+O(1) running with -aa and -rmap for quite some time with no problems.  I
+was recoding rather than implementing the macro, but the concept was the
+same.
 
-	Hello,
+-- 
+Ken.
+brownfld@irridia.com
 
-Kain wrote:
-
-> impossible 888
-> divide error: 0000
-
-> > > EIP; c024c5ea <fib_select_multipath+5a/a0>   <=====
-> Trace; c02232e8 <ip_route_output_slow+318/670>
-
-	There is no write locking in fib_select_multipath,
-combined with high rate of route resolutions and ... boom,
-fi->fib_power is 0:
-
-w = jiffies % fi->fib_power;
-
-	What about a different algorithm to apply weighted
-round robin (idea mostly from LVS), something like
-this code (entirely not tested) where fi->fib_power is not used
-and where fib_sync_up and fib_sync_down don't need to play
-with nh_power on nh_flags change:
-
-void fib_select_multipath(const struct rt_key *key, struct fib_result *res)
-{
-	struct fib_info *fi = res->fi;
-	int w = -1, sel = 0;
-
-	write_lock(&fib_info_lock);
-
-	repeat:
-
-	change_nexthops(fi) {
-		if (nh->nh_power > w && !(nh->nh_flags&RTNH_F_DEAD)) {
-			w = nh->nh_power;
-			sel = nhsel;
-		}
-	} endfor_nexthops(fi);
-	if (w > 0) {
-		fi->fib_nh[sel].nh_power--;
-		write_unlock(&fib_info_lock);
-		res->nh_sel = sel;
-		return;
-	}
-
-	if (!w) {
-		change_nexthops(fi) {
-			if (!(nh->nh_flags&RTNH_F_DEAD)) {
-				nh->nh_power = nh->nh_weight;
-			}
-		} endfor_nexthops(fi);
-		w = -1;
-		goto repeat;
-	}
-
-	write_unlock(&fib_info_lock);
-
-#if 1
-	printk(KERN_CRIT "impossible 888\n");
-#endif
-	return;
-}
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
-
+On Fri, Mar 01, 2002 at 11:18:12PM +0200, Bongani Hlope wrote:
+| I once tried to apply the O(1) scheduler on 2.4.18-pre9 + aa vm and I
+| made a similar change (the O(1) patch was rejected on buffer.c) and it
+| caused so corruption on my file system (ext2), but I'm still not sure
+| what cause it that change was my main concern. I think Ingo is using
+| sys_sched_yield(); instead of yield. I will still be carefull about it
+| though.

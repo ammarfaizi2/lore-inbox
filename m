@@ -1,37 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319265AbSHNSjM>; Wed, 14 Aug 2002 14:39:12 -0400
+	id <S319266AbSHNSoP>; Wed, 14 Aug 2002 14:44:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319266AbSHNSjM>; Wed, 14 Aug 2002 14:39:12 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1152 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S319265AbSHNSjM>; Wed, 14 Aug 2002 14:39:12 -0400
-Date: Wed, 14 Aug 2002 14:43:01 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: jt@hpl.hp.com
-cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Problem : can't make pipe non-blocking on 2.5.X
-In-Reply-To: <20020814181902.GA24047@bougret.hpl.hp.com>
-Message-ID: <Pine.LNX.3.95.1020814143548.137A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319268AbSHNSoP>; Wed, 14 Aug 2002 14:44:15 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:23770 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S319266AbSHNSoO>; Wed, 14 Aug 2002 14:44:14 -0400
+Date: Wed, 14 Aug 2002 19:47:02 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, hch@infradead.org, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] clone_startup(), 2.5.31-A0
+Message-ID: <20020814194702.B26404@kushida.apsleyroad.org>
+References: <20020813164415.A11554@infradead.org> <Pine.LNX.4.44.0208131921020.4369-100000@localhost.localdomain> <20020814234824.08faf190.rusty@rustcorp.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020814234824.08faf190.rusty@rustcorp.com.au>; from rusty@rustcorp.com.au on Wed, Aug 14, 2002 at 11:48:24PM +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Aug 2002, Jean Tourrilhes wrote:
-
+Rusty Russell wrote:
+> > btw., with the help of these syscalls and futexes, the layer between Linux
+> > and pthreads became very thin - almost nonexistant in the majority of
+> > cases.
 > 
->   pipe(trigger_pipe);
-> 
-    if((flags = fcntl(trigger_pipe[0], F_GETFL)) != -1);
-       flags &= ~O_NDELAY;
-    fcntl(trigger_pipe[0], F_SETFL, flags);
- 
+> Woohoo!
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.19 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+Yes, futexes are wonderful, if quite difficult to figure out at first.
+(I still haven't understood why the futex example reader-writer locks are
+they way are.)
 
+Even things like waitpid() are potentially faster with futexes -- no pid
+to lookup!
+
+-- Jamie

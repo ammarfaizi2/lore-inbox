@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUFDSVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265931AbUFDSVc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265930AbUFDSVT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265923AbUFDSVS
+	id S265931AbUFDSVc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:21:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265911AbUFDSVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:21:18 -0400
-Received: from holomorphy.com ([207.189.100.168]:52647 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265921AbUFDSU3 (ORCPT
+	Fri, 4 Jun 2004 14:21:32 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:64721 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S265909AbUFDSSh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:20:29 -0400
-Date: Fri, 4 Jun 2004 11:20:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Paul Jackson <pj@sgi.com>, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-       joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-       Simon.Derr@bull.net
-Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based implementation
-Message-ID: <20040604182018.GH21007@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Paul Jackson <pj@sgi.com>, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-	rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, akpm@osdl.org,
-	ak@muc.de, ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
-	joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
-	Simon.Derr@bull.net
-References: <20040604093712.GU21007@holomorphy.com> <16576.17673.548349.36588@alkaid.it.uu.se> <20040604095929.GX21007@holomorphy.com> <16576.23059.490262.610771@alkaid.it.uu.se> <20040604112744.GZ21007@holomorphy.com> <20040604113252.GA21007@holomorphy.com> <20040604092316.3ab91e36.pj@sgi.com> <20040604162853.GB21007@holomorphy.com> <20040604104756.472fd542.pj@sgi.com> <20040604181233.GF21007@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040604181233.GF21007@holomorphy.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Fri, 4 Jun 2004 14:18:37 -0400
+Message-Id: <200406041817.i54IHFgZ004530@eeyore.valparaiso.cl>
+To: Pavel Machek <pavel@suse.cz>
+cc: Sau Dan Lee <danlee@informatik.uni-freiburg.de>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Giuseppe Bilotta <bilotta78@hotpop.com>, linux-kernel@vger.kernel.org,
+       Tuukka Toivonen <tuukkat@ee.oulu.fi>
+Subject: Re: keyboard problem with 2.6.6 
+In-Reply-To: Message from Pavel Machek <pavel@suse.cz> 
+   of "Fri, 04 Jun 2004 15:58:16 +0200." <20040604135816.GD11950@elf.ucw.cz> 
+X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 14)
+Date: Fri, 04 Jun 2004 14:17:14 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 04, 2004 at 11:12:33AM -0700, William Lee Irwin III wrote:
-> 	while (lower < upper) {
+Pavel Machek <pavel@suse.cz> said:
 
---- nr_cpus.c.orig	2004-06-04 11:16:16.492419568 -0700
-+++ nr_cpus.c	2004-06-04 11:16:26.508896832 -0700
-@@ -23,7 +23,7 @@
- 		if (!realloc(cpus, 2*upper))
- 			return -ENOMEM;
- 	}
--	while (lower < upper) {
-+	while (lower < upper - 1) {
- 		middle = (lower + upper)/2;
- 		if (!realloc(cpus, middle))
- 			return -ENOMEM;
+[...]
+
+> You get pretty nasty managment problems. How do you do init=/bin/bash
+> if your keyboard is userspace?
+
+You don't tell any kernel about that... it is the bootloader you are
+talking to. And that one may very well have integrated kbd support.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,48 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265151AbTIJSd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 14:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265465AbTIJSdZ
+	id S265465AbTIJSoo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 14:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbTIJSoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 14:33:25 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:657 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S265151AbTIJScr (ORCPT
+	Wed, 10 Sep 2003 14:44:44 -0400
+Received: from [207.188.30.29] ([207.188.30.29]:49443 "EHLO mpenc1.prognet.com")
+	by vger.kernel.org with ESMTP id S265465AbTIJSom (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 14:32:47 -0400
-Date: Wed, 10 Sep 2003 19:31:38 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@redhat.com>,
-       Mitchell Blank Jr <mitch@sfgoth.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] oops_in_progress is unlikely()
-Message-ID: <20030910183138.GA23783@mail.jlokier.co.uk>
-References: <20030907064204.GA31968@sfgoth.com> <20030907221323.GC28927@redhat.com> <20030910142031.GB2589@elf.ucw.cz> <20030910142308.GL932@redhat.com> <20030910152902.GA2764@elf.ucw.cz> <Pine.LNX.4.53.0309101147040.14762@chaos>
+	Wed, 10 Sep 2003 14:44:42 -0400
+Date: Wed, 10 Sep 2003 11:44:40 -0700
+From: Tom Marshall <tommy@home.tig-grr.com>
+To: linux-kernel@vger.kernel.org
+Subject: Synaptics Touchpad broken in 2.6.0-test
+Message-ID: <20030910184439.GA3499@home.tig-grr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="r5Pyd7+fXNt84Ff3"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.53.0309101147040.14762@chaos>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> I would guess that the compiler output might be:
 
-Your guess is incorrect.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> You are always going to take an extra jump in one execution
-> path after the function, and you will take a conditional jump
-> before the function call in the other execution path. So, you
-> always have the "extra" jumps, no matter.
+I have a Dell C400 laptop with both touchpad and pointing stick.  The
+touchpad doesn't work in 2.6.0-test.  The driver reports that the reset
+failed.
 
-That is not true.  The "likely" path has no taken jumps.
+If I use psmouse_noext=3D1 on boot, the touchpad works but the pointing sti=
+ck
+does not.  Curiously, after an APM suspend/resume cycle, the pointing stick
+works normally.
 
-Think about the code again.
-How would you optimise it, if you were writing assembly language yourself?
+I can provide more detail (config, dmesg, etc.) if this problem isn't
+already known and/or being investigated.
 
-(In more complex examples, another factor is that mis-predicted
-conditional jumps are much slower than unconditional jumps, so it is
-good to favour the latter in the likely path).
+--=20
+Any task can be completed in only one-third more time than is currently
+estimated.
+        -- Norman Augustine
 
--- Jamie
+--r5Pyd7+fXNt84Ff3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEARECAAYFAj9fcRcACgkQFMm9uvwPXW6ZDACdHtHrSDXs/xLfH50qH6/wOX1F
+KZEAnAo0979l7EvvoYzZyKv/3wTFUbqB
+=ijMD
+-----END PGP SIGNATURE-----
+
+--r5Pyd7+fXNt84Ff3--

@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbUKWTwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbUKWTwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbUKWTwi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 14:52:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbUKWTuf
+	id S261552AbUKWTwk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 14:52:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbUKWTuE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 14:50:35 -0500
-Received: from mail.kroah.org ([69.55.234.183]:63893 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261525AbUKWTrD (ORCPT
+	Tue, 23 Nov 2004 14:50:04 -0500
+Received: from [144.51.25.10] ([144.51.25.10]:17842 "EHLO epoch.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261552AbUKWTsX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 14:47:03 -0500
-Date: Tue, 23 Nov 2004 11:45:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Simon Fowler <simon@himi.org>, linux-kernel@vger.kernel.org
-Cc: rl@hellgate.ch
-Subject: Re: [2.6 PATCH] visor: Don't count outstanding URBs twice
-Message-ID: <20041123194557.GB1196@kroah.com>
-References: <20041116154943.GA13874@k3.hellgate.ch> <20041119174405.GE20162@kroah.com> <20041123193604.GA12605@k3.hellgate.ch>
+	Tue, 23 Nov 2004 14:48:23 -0500
+Subject: Re: [PATCH 2/5] selinux: adds a private inode operation
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Jeff Mahoney <jeffm@suse.com>
+Cc: Chris Wright <chrisw@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ReiserFS List <reiserfs-list@namesys.com>,
+       James Morris <jmorris@redhat.com>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <41A38F10.8000609@suse.com>
+References: <20041121001318.GC979@locomotive.unixthugs.org>
+	 <1101145050.18273.68.camel@moss-spartans.epoch.ncsc.mil>
+	 <41A22A2D.1000708@suse.com>
+	 <1101148090.18273.94.camel@moss-spartans.epoch.ncsc.mil>
+	 <41A23922.80501@suse.com> <20041122123000.C14339@build.pdx.osdl.net>
+	 <41A38F10.8000609@suse.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1101238981.19785.279.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041123193604.GA12605@k3.hellgate.ch>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 23 Nov 2004 14:43:02 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 23, 2004 at 08:36:04PM +0100, Roger Luethi wrote:
-> Guys, can you please CC me when discussing patches of mine?
-
-Your email client is putting headers in the messages that say not to do
-this.  Please fix your client :)
-
-> I don't read
-> LKML religiously, and my procmail filters are pretty dumb. Thanks. So
-> my previous patch fixed the oops, but the driver's still borked.
+On Tue, 2004-11-23 at 14:27, Jeff Mahoney wrote:
+> Chris Wright wrote:
+> | Why add extra hook, when this could be done in VFS with i_flags?
 > 
-> Incrementing the outstanding_urbs counter twice for the same URB can't
-> be good. No wonder Simon didn't get far syncing his Palm.
-> 
-> Signed-off-by: Roger Luethi <rl@hellgate.ch>
-> 
-> --- linux-2.6.10-rc2-bk8/drivers/usb/serial/visor.c.orig	2004-11-23 20:23:27.592097112 +0100
-> +++ linux-2.6.10-rc2-bk8/drivers/usb/serial/visor.c	2004-11-23 20:24:53.496037728 +0100
-> @@ -497,7 +497,6 @@ static int visor_write (struct usb_seria
->  		dev_dbg(&port->dev, "write limit hit\n");
->  		return 0;
->  	}
-> -	++priv->outstanding_urbs;
->  	spin_unlock_irqrestore(&priv->lock, flags);
->  
->  	buffer = kmalloc (count, GFP_ATOMIC);
+> Sure, it could be done w/ an i_flags bit. However, since it's explicitly
+> related to the security infrastructure, I think it's more appropriate
+> there. There's no change in the size of inode_security_struct, and the
+> addition of the deref is trivial given how many other places in the
+> file-io path use the same call table. That said, I'll change it to use
+> whatever ends up being agreed upon. I'm just looking to get selinux to
+> not call xattr routines on reiserfs-internal files/directories.
 
-Good catch.
+I suppose the question is whether the VFS maintainer thinks that this
+reiserfs private inode flag should be made visible in the i_flags, or
+whether it should remain private to reiserfs and only explicitly
+exported to the security modules via the new hook.  We can implement the
+corresponding SELinux support for handling such private inodes either
+way.  Would the VFS ever make use of the flag itself, e.g. to skip DAC
+permission checking on such inodes as well?
 
-But I'm not seeing people actually hit the write limit, according to the
-logs that people are posting.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-Can anyone test this patch to see if it fixes their issues?
-
-thanks,
-
-greg k-h

@@ -1,68 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbTJ3J7I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 04:59:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTJ3J7I
+	id S262306AbTJ3KPS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 05:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbTJ3KPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 04:59:08 -0500
-Received: from pan.togami.com ([66.139.75.105]:24194 "EHLO pan.mplug.org")
-	by vger.kernel.org with ESMTP id S262310AbTJ3J7D (ORCPT
+	Thu, 30 Oct 2003 05:15:18 -0500
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:38868 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S262306AbTJ3KPI convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 04:59:03 -0500
-Subject: 32bit agpgart + DRI on AMD64 K8 chipset
-From: Warren Togami <warren@togami.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1067507896.26667.22.camel@laptop>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-2) 
-Date: Wed, 29 Oct 2003 23:58:16 -1000
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Oct 2003 05:15:08 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Question on SIGFPE
+Date: Thu, 30 Oct 2003 15:43:42 +0530
+Message-ID: <94F20261551DC141B6B559DC491086727C8C63@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Question on SIGFPE
+Thread-Index: AcOezlLdBXzUFSEYRAmsichVrS3wTwAABHWA
+From: "Sreeram Kumar Ravinoothala" <sreeram.ravinoothala@wipro.com>
+To: "Magnus Naeslund(t)" <mag@fbab.net>
+Cc: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 30 Oct 2003 10:13:42.0796 (UTC) FILETIME=[7F0484C0:01C39ECE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Software:
-Fedora Core 0.95 x86
-Hardware:
-MSI Neo Athlon64 3200+
-VIA north and southbridge
-Built by ATI Radeon 9200 128MB
+Hi,
+	We get this problem when we run it on disk on chip where linux
+2.4.5 is used.
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=107805
-Please read this report for lspci, dmesg, XFree86.0.log and other
-information relating to this problem.
+Thanks and Regards
+Sreeram
 
-I was having trouble getting my Radeon 9200 working properly with DRI 3D
-acceleration.  DRI reports as "Yes" by glxinfo, but upon closer
-inspection, the rawhide 2.4.22 based kernel was failing to load agpgart,
-thus XFree86 was falling back successfully to pcigart.
+---Never doubt that a small group of thoughtful, committed people can
+change the world. Indeed, it is the only thing that ever has. -- Copied
+from a mail
+ 
 
-(This problem is due to the existence of more than one "northbridge",
-and the correct northbridge is actually onboard the AMD64 processor
-itself.)
+-----Original Message-----
+From: Magnus Naeslund(t) [mailto:mag@fbab.net] 
+Sent: Thursday, October 30, 2003 3:44 PM
+To: Sreeram Kumar Ravinoothala
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Question on SIGFPE
 
-Dave Jones suggested that I try the agpgart improvements in Marcelo's
-2.4.23-pre8.  I merged in everything from that patch that seemed
-relevant (although I did not look at the drm improvements), and agpgart
-now successfully loads.  Strangely though XFree86 still behaved with
-equally slow behavior.  Inspection of XFree86.0.log revealed that it was
-failing to use agpgart, and again falling back to pcigart.
 
-Just to confirm that I didn't make any mistakes while merging, vanilla
-2.4.23-pre8 exhibits the same behavior.
+Sreeram Kumar Ravinoothala wrote:
 
-My unskilled cursory inspection of the drivers/char/agp/* code makes it
-appear that the AMD_8151 stuff is intended to work only in x86_64 mode,
-and it wasn't designed with 32bit in mind?  I guess not though...
-because it compiles fine in 32bit.
+> Hi,
+> 	I am trying to run a multi threaded application on kernel 2.4.5.
+The 
+> application vanishes without leaving any trace (no core dump) when 
+> there is a link up on the hardware I use. If I try to debug I see the 
+> application being killed because of SIGFPE. Can anyone throw some 
+> light on this please? Also please cc the answer to me as I am not a 
+> member of the list.
+ >
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=107805
-Please read this report for more details about my testing.
+The most obvious thing is to check you code for a divide by zero error.
 
-Any ideas of other things to try?
-
-Thanks,
-Warren Togami
-warren@togami.com
-
+Magnus
 

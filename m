@@ -1,56 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276729AbRJHAyS>; Sun, 7 Oct 2001 20:54:18 -0400
+	id <S276734AbRJHBLc>; Sun, 7 Oct 2001 21:11:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276734AbRJHAx6>; Sun, 7 Oct 2001 20:53:58 -0400
-Received: from [213.97.199.90] ([213.97.199.90]:35456 "HELO fargo")
-	by vger.kernel.org with SMTP id <S276729AbRJHAx4> convert rfc822-to-8bit;
-	Sun, 7 Oct 2001 20:53:56 -0400
-From: "David =?ISO-8859-1?Q?G=F3mez" ?= <davidge@jazzfree.com>
-Date: Mon, 8 Oct 2001 02:51:32 +0200 (CEST)
-X-X-Sender: <huma@fargo>
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: Riley Williams <rhw@MemAlpha.CX>,
-        David =?unknown-8bit?Q?G=F3mez?= <davidge@jazzfree.com>,
-        Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: IDE DMA errors [was: Some ext2 errors]
-In-Reply-To: <20011007173237.A30930@mikef-linux.matchmail.com>
-Message-ID: <Pine.LNX.4.33.0110080240060.1690-100000@fargo>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S276736AbRJHBLN>; Sun, 7 Oct 2001 21:11:13 -0400
+Received: from zok.SGI.COM ([204.94.215.101]:441 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S276734AbRJHBLG>;
+	Sun, 7 Oct 2001 21:11:06 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.11-pre5 
+In-Reply-To: Your message of "Sun, 07 Oct 2001 22:49:09 +0200."
+             <Pine.NEB.4.40.0110072235410.3783-200000@mimas.fachschaften.tu-muenchen.de> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 08 Oct 2001 11:11:15 +1000
+Message-ID: <31815.1002503475@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 7 Oct 2001 22:49:09 +0200 (CEST), 
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>I get the error below. Must likely there's a problem when you build a
+>kernel without module support (my .config is attached).
+>...
+>gcc -D__KERNEL__ -I/home/bunk/linux/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=k6    -c -o exec_domain.o exec_domain.c
+>exec_domain.c: At top level:
+>exec_domain.c:234: parse error before `this_object_must_be_defined_as_export_objs_in_the_Makefile'
 
-Hi,
+My fault, Rules.make does not set EXPORT_SYMTAB for export-objs unless
+the kernel is configured for modules.  The test for EXPORT_SYMTAB must
+come after CONFIG_MODULES.  Against 2.4.11-pre5.
 
-> [...]
->
-> But we don't know what is happening with David's system.
->
-> To rule out some possible causes David, you should run these tests:
-> memtest86 (www.memtest86.org
-> badblocks -s /dev/hda (read only hard drive test, newer versions have a -p
-> option for safe write mode tests too)
-
-I checked yesterday the memory with memtest86, no errors, and i don't
-think the problem is caused by some bad blocks. Using another disk, which
-contains and ext3 partition, gave me another strange error (different from
-the ext2 one i posted to the list) with the ide drive handling, and it
-appeared only one time. So i think the guess that the problem is caused by
-the power supply is right..., so i'll get a new one and let's see if the
-problem doesn't show anymore ;)
-
-
-Thanks
-
-
-
-
-David Gómez
-
-"The question of whether computers can think is just like the question of
- whether submarines can swim." -- Edsger W. Dijkstra
-
+Index: 11-pre5.1/include/linux/module.h
+--- 11-pre5.1/include/linux/module.h Mon, 08 Oct 2001 10:58:25 +1000 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.2.6 644)
++++ 11-pre5.1(w)/include/linux/module.h Mon, 08 Oct 2001 11:08:09 +1000 kaos (linux-2.4/c/b/46_module.h 1.1.1.1.2.6 644)
+@@ -348,19 +348,19 @@ extern struct module *module_list;
+ #define EXPORT_SYMBOL_NOVERS(var)  error config_must_be_included_before_module
+ #define EXPORT_SYMBOL_GPL(var)  error config_must_be_included_before_module
+ 
+-#elif !defined(EXPORT_SYMTAB)
+-
+-#define __EXPORT_SYMBOL(sym,str)   error this_object_must_be_defined_as_export_objs_in_the_Makefile
+-#define EXPORT_SYMBOL(var)	   error this_object_must_be_defined_as_export_objs_in_the_Makefile
+-#define EXPORT_SYMBOL_NOVERS(var)  error this_object_must_be_defined_as_export_objs_in_the_Makefile
+-#define EXPORT_SYMBOL_GPL(var)  error this_object_must_be_defined_as_export_objs_in_the_Makefile
+-
+ #elif !defined(CONFIG_MODULES)
+ 
+ #define __EXPORT_SYMBOL(sym,str)
+ #define EXPORT_SYMBOL(var)
+ #define EXPORT_SYMBOL_NOVERS(var)
+ #define EXPORT_SYMBOL_GPL(var)
++
++#elif !defined(EXPORT_SYMTAB)
++
++#define __EXPORT_SYMBOL(sym,str)   error this_object_must_be_defined_as_export_objs_in_the_Makefile
++#define EXPORT_SYMBOL(var)	   error this_object_must_be_defined_as_export_objs_in_the_Makefile
++#define EXPORT_SYMBOL_NOVERS(var)  error this_object_must_be_defined_as_export_objs_in_the_Makefile
++#define EXPORT_SYMBOL_GPL(var)  error this_object_must_be_defined_as_export_objs_in_the_Makefile
+ 
+ #else
+ 
 

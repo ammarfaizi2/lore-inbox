@@ -1,56 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267711AbUBSCoy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 21:44:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267712AbUBSCoy
+	id S267687AbUBSCdo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 21:33:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267711AbUBSCdn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 21:44:54 -0500
-Received: from [140.239.227.29] ([140.239.227.29]:5251 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S267711AbUBSCov (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 21:44:51 -0500
-Date: Wed, 18 Feb 2004 21:44:26 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: tridge@samba.org
-Cc: Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 and case-insensitivity
-Message-ID: <20040219024426.GA3901@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>, tridge@samba.org,
-	Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
-References: <1qqzv-2tr-3@gated-at.bofh.it> <1qqJc-2A2-5@gated-at.bofh.it> <1qHAR-2Wm-49@gated-at.bofh.it> <1qIwr-5GB-11@gated-at.bofh.it> <1qIwr-5GB-9@gated-at.bofh.it> <1qIQ1-5WR-27@gated-at.bofh.it> <1qIZt-6b9-11@gated-at.bofh.it> <1qJsF-6Be-45@gated-at.bofh.it> <E1Atbi7-0004tf-O7@localhost> <16436.2817.900018.285167@samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 Feb 2004 21:33:43 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61587 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267687AbUBSCd2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 21:33:28 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jochen Becker <jochen@linux.it4free.de>
+Subject: Re: 2.6.3
+Date: Thu, 19 Feb 2004 03:39:41 +0100
+User-Agent: KMail/1.5.3
+References: <1077154272.3471.3.camel@jbdesktop> <20040218174630.05253fd6.akpm@osdl.org> <1077155738.3471.7.camel@jbdesktop>
+In-Reply-To: <1077155738.3471.7.camel@jbdesktop>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <16436.2817.900018.285167@samba.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+Message-Id: <200402190339.41053.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 12:01:53PM +1100, tridge@samba.org wrote:
-> The problem is that Samba isn't the only program to be accessing these
-> directories. Multi-protocol file servers and file servers where users
-> also have local access are common. That means we can't assume that
-> some other filesystem user hasn't created a file which matches in a
-> case-insensitive manner. That means we need to do an awful lot of
-> directory scans.
+On Thursday 19 of February 2004 02:55, Jochen Becker wrote:
+> hello recievers
+> andrew say to me that i have to send this to you.
 
-Actually, not necessarily.  What if Samba gets notifications of all
-filename renames and creates in the directory, so that after the
-initial directory scan, it can keep track of what filenames are
-present in the directory?  It can then "prove the negative", as you
-put it, without having to continuously do directory scans.
+Hi,
 
-Yeah, there can be some race conditions, but Samba already has to deal
-with the race condition where it tries to create "MaKeFiLe" either
-just before or just after a Posix process creates "Makefile".  
+> Jochen
+>
+> orig mail :
+>
+> Am Do, den 19.02.2004 schrieb Andrew Morton um 02:46:
+> > Jochen Becker <jochen@linux.it4free.de> wrote:
+> > > Hello Linus / Andrew
+> > >
+> > > i have now compiled the kernel 2.6.3 and have problems
+> > > a) the time out for the ide driver sil serial ata is to long when their
+> > > is no harddisc installed. the kernel detects 2 times for 10 secounds
+> >
+> > Please report this to
+> >
+> > Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> and
+> > Jeff Garzik <jgarzik@pobox.com> and
+> > linux-kernel@vger.kernel.org
 
-						- Ted
+Thanks for the report.  Unfortunately this is a known issue
+(http://bugzilla.kernel.org/show_bug.cgi?id=1009) and solution
+requires adding proper SATA detection to IDE driver which I won't do
+(cause there is libata SATA driver and libata SiI driver now).
+Though you can workaround it using "idex=noprobe" kernel parameter.
+
+--bart
+

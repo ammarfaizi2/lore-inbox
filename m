@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132471AbQLQLU5>; Sun, 17 Dec 2000 06:20:57 -0500
+	id <S132537AbQLQLV5>; Sun, 17 Dec 2000 06:21:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132487AbQLQLUs>; Sun, 17 Dec 2000 06:20:48 -0500
-Received: from [195.163.91.180] ([195.163.91.180]:7439 "EHLO frontpartner.com")
-	by vger.kernel.org with ESMTP id <S132471AbQLQLUk>;
-	Sun, 17 Dec 2000 06:20:40 -0500
-Message-ID: <3A3C9A23.553433CA@linux.se>
-Date: Sun, 17 Dec 2000 11:49:07 +0100
-From: Mathias Wiklander <eastbay@linux.se>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Mohammad A. Haque" <mhaque@haque.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx
-In-Reply-To: <3A3C2116.46C60CDE@linux.se> <3A3C95B5.7A4D0696@haque.net>
+	id <S132536AbQLQLVr>; Sun, 17 Dec 2000 06:21:47 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:21011 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S132537AbQLQLVh>;
+	Sun, 17 Dec 2000 06:21:37 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2) 
+In-Reply-To: Your message of "Sun, 17 Dec 2000 10:44:09 -0000."
+             <Pine.LNX.4.30.0012171039400.14423-100000@imladris.demon.co.uk> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 17 Dec 2000 21:51:04 +1100
+Message-ID: <2181.977050264@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry I've forgot that. It is 2.4.0-test12
+On Sun, 17 Dec 2000 10:44:09 +0000 (GMT), 
+David Woodhouse <dwmw2@infradead.org> wrote:
+>The conditional compilation is far more obvious to people than subtle
+>issues with link order. So I prefer to avoid the latter at all costs.
 
-/Eastbay
-"Mohammad A. Haque" wrote:
-> 
-> Helps if we could get a kernel version.
-> 
-> Mathias Wiklander wrote:
-> >
-> > Hi!
-> >
-> > I have problem using my scsi card. It is an Adaptec 2940 (SCSI2). When
-> > ever I try to load it as a module or if I compile it in the kernel I get
-> > the folowing error messages. The last 4 messages repeats for ever. The
-> > problem is on 3 diffrent machines. Anyone who know what it can be and
-> > how to fix it.
-> 
-> --
-> 
-> =====================================================================
-> Mohammad A. Haque                              http://www.haque.net/
->                                                mhaque@haque.net
-> 
->   "Alcohol and calculus don't mix.             Project Lead
->    Don't drink and derive." --Unknown          http://wm.themes.org/
->                                                batmanppc@themes.org
-> =====================================================================
+The rest of the kernel already depends totally on these "subtle" issues
+with link order.  Why should mtd be different?
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

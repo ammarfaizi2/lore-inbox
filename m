@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263501AbRFFP7I>; Wed, 6 Jun 2001 11:59:08 -0400
+	id <S263517AbRFFQE2>; Wed, 6 Jun 2001 12:04:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263502AbRFFP66>; Wed, 6 Jun 2001 11:58:58 -0400
-Received: from cloven-ext.nks.net ([216.139.204.130]:31515 "EHLO
-	homer.mkintl.com") by vger.kernel.org with ESMTP id <S263501AbRFFP6w>;
-	Wed, 6 Jun 2001 11:58:52 -0400
-Message-ID: <3B1E5316.F4B10172@illusionary.com>
-Date: Wed, 06 Jun 2001 11:58:14 -0400
-From: Derek Glidden <dglidden@illusionary.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
-X-Accept-Language: en
+	id <S263521AbRFFQES>; Wed, 6 Jun 2001 12:04:18 -0400
+Received: from 119-CORU-X34.libre.retevision.es ([62.83.57.119]:28546 "HELO
+	trasno.mitica") by vger.kernel.org with SMTP id <S263517AbRFFQEL>;
+	Wed, 6 Jun 2001 12:04:11 -0400
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix for initrd panic in 2.4.5
+In-Reply-To: <200106060408.AAA03634@localhost.localdomain>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <200106060408.AAA03634@localhost.localdomain>
+Date: 06 Jun 2001 18:03:32 +0200
+Message-ID: <m266e9wq7f.fsf@trasno.mitica>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-To: John Alvord <jalvo@mbay.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <3B1E4CD0.D16F58A8@illusionary.com> <3b204fe5.4014698@mail.mbay.net>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Alvord wrote:
-> 
-> On Wed, 06 Jun 2001 11:31:28 -0400, Derek Glidden
-> <dglidden@illusionary.com> wrote:
-> 
-> >
-> >I'm beginning to be amazed at the Linux VM hackers' attitudes regarding
-> >this problem.  I expect this sort of behaviour from academics - ignoring
-> >real actual problems being reported by real actual people really and
-> >actually experiencing and reporting them because "technically" or
-> >"theoretically" they "shouldn't be an issue" or because "the "literature
-> >[documentation] says otherwise - but not from this group.
-> 
-> There have been multiple comments that a fix for the problem is
-> forthcoming. Is there some reason you have to keep talking about it?
+>>>>> "james" == James Bottomley <James.Bottomley@SteelEye.com> writes:
 
-Because there have been many more comments that "The rule for 2.4 is
-'swap == 2*RAM' and that's the way it is" and "disk space is cheap -
-just add more" than there have been "this is going to be fixed" which is
-extremely discouraging and doesn't instill me with all sorts of
-confidence that this problem is being taken seriously.
+james> Not many people have seen this, but the i_bdev field in fake_inode in 
+james> ioctl_by_bdev() is uninitialised.  Since this field is dereferenced by 
+james> BLKFLSBUF in rd_ioctl, it can lead to a panic (depending on what happens to be 
+james> on the stack).  The attached fixes the problem and clears all the fields in 
+james> fake_inode to make any other problems like this show up.
 
-Or are you saying that if someone is unhappy with a particular
-situation, they should just keep their mouth shut and accept it?
+see the fix in ac kernels,  you have a bdev there to put in the
+fake_inode.
+
+Later, Juan.
+
+
+james> Index: fs/block_dev.c
+james> ===================================================================
+james> RCS file: /home/jejb/CVSROOT/linux/2.4/fs/block_dev.c,v
+james> retrieving revision 1.1.1.10
+james> diff -u -r1.1.1.10 block_dev.c
+james> --- fs/block_dev.c	2001/05/26 15:33:37	1.1.1.10
+james> +++ fs/block_dev.c	2001/06/02 13:14:35
+james> @@ -596,13 +596,14 @@
+james> int ioctl_by_bdev(struct block_device *bdev, unsigned cmd, unsigned long arg)
+james> {
+james> kdev_t rdev = to_kdev_t(bdev->bd_dev);
+james> -	struct inode inode_fake;
+james> +	struct inode inode_fake = { 0 };
+james> int res;
+james> mm_segment_t old_fs = get_fs();
+ 
+james> if (!bdev->bd_op->ioctl)
+james> return -EINVAL;
+james> inode_fake.i_rdev=rdev;
+james> +	inode_fake.i_bdev = bdev;
+james> init_waitqueue_head(&inode_fake.i_wait);
+james> set_fs(KERNEL_DS);
+james> res = bdev->bd_op->ioctl(&inode_fake, NULL, cmd, arg);
 
 -- 
--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-#!/usr/bin/perl -w
-$_='while(read+STDIN,$_,2048){$a=29;$b=73;$c=142;$t=255;@t=map
-{$_%16or$t^=$c^=($m=(11,10,116,100,11,122,20,100)[$_/16%8])&110;
-$t^=(72,@z=(64,72,$a^=12*($_%16-2?0:$m&17)),$b^=$_%64?12:0,@z)
-[$_%8]}(16..271);if((@a=unx"C*",$_)[20]&48){$h=5;$_=unxb24,join
-"",@b=map{xB8,unxb8,chr($_^$a[--$h+84])}@ARGV;s/...$/1$&/;$d=
-unxV,xb25,$_;$e=256|(ord$b[4])<<9|ord$b[3];$d=$d>>8^($f=$t&($d
->>12^$d>>4^$d^$d/8))<<17,$e=$e>>8^($t&($g=($q=$e>>14&7^$e)^$q*
-8^$q<<6))<<9,$_=$t[$_]^(($h>>=8)+=$f+(~$g&$t))for@a[128..$#a]}
-print+x"C*",@a}';s/x/pack+/g;eval 
-
-usage: qrpff 153 2 8 105 225 < /mnt/dvd/VOB_FILENAME \
-    | extract_mpeg2 | mpeg2dec - 
-
-http://www.eff.org/                    http://www.opendvd.org/ 
-         http://www.cs.cmu.edu/~dst/DeCSS/Gallery/
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

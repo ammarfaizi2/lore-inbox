@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVACSsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVACSsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVACSsO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 13:48:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVACSon
+	id S261533AbVACSsK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 13:48:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVACSpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 13:44:43 -0500
-Received: from gateway.penguincomputing.com ([64.243.132.186]:30412 "EHLO
-	inside.penguincomputing.com") by vger.kernel.org with ESMTP
-	id S261817AbVACSmW convert rfc822-to-8bit (ORCPT
+	Mon, 3 Jan 2005 13:45:23 -0500
+Received: from thunk.org ([69.25.196.29]:43935 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S261779AbVACSl5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 13:42:22 -0500
-X-Mda: Mail::Internet Mail::Sendmail Sendmail +mmhack 1.1 on Linux
-Cc: greg@kroah.com, phil@netroedge.com, linux-kernel@vger.kernel.org
-Subject: Re: Ticket #1851 - PATCH for adm1026.c, kernel 2.6.10-bk6
-User-Agent: Mutt/1.4.1i
-In-Reply-To: <20050101001205.6b2a44d3.khali@linux-fr.org>
-Content-Disposition: inline
-Date: Mon, 3 Jan 2005 11:43:55 -0800
-Message-Id: <20050103194355.GA11979@penguincomputing.com>
-References: <41D5D075.4000200@paradyne.com>
- <20050101001205.6b2a44d3.khali@linux-fr.org>
+	Mon, 3 Jan 2005 13:41:57 -0500
+Date: Mon, 3 Jan 2005 13:36:21 -0500
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Diego Calleja <diegocg@teleline.es>,
+       Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com, aebr@win.tue.nl,
+       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+Subject: Re: starting with 2.7
+Message-ID: <20050103183621.GA2885@thunk.org>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Bill Davidsen <davidsen@tmr.com>, Adrian Bunk <bunk@stusta.de>,
+	Diego Calleja <diegocg@teleline.es>,
+	Willy Tarreau <willy@w.ods.org>, wli@holomorphy.com,
+	aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
+	linux-kernel@vger.kernel.org
+References: <20050103134727.GA2980@stusta.de> <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-To: LM Sensors <sensors@stimpy.netroedge.com>
-Content-Transfer-Encoding: 8BIT
-From: Justin Thiessen <jthiessen@penguincomputing.com>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.96.1050103115639.27655A-100000@gatekeeper.tmr.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 01, 2005 at 12:12:05AM +0100, Jean Delvare wrote:
-> > anybody see how to get a divide by zero in 2.6 adm1026 set_fan_1_min()
-> > ??? It looks fine to me...
-> > 
-> > <http://secure.netroedge.com/~lm78/readticket.cgi?ticket=1851>
-> 
-> Easy. Try setting fan1_min or fan1_div before ever *reading* from the
-> sysfs files. The update fonction not having been called, fan_div[0] is
-> equal to 0.
-> 
-> Justin, can you confirm and provide a patch to fix the issue?
+On Mon, Jan 03, 2005 at 12:18:36PM -0500, Bill Davidsen wrote:
+> I have to say that with a few minor exceptions the introduction of new
+> features hasn't created long term (more than a few days) of problems. And
+> we have had that in previous stable versions as well. New features
+> themselves may not be totally stable, but in most cases they don't break
+> existing features, or are fixed in bk1 or bk2. What worries me is removing
+> features deliberately, and I won't beat that dead horse again, I've said
+> my piece.
 
-Sorry for the slow response.  Real World vacation time intervened.
+Indeed.  Part of the problem is that we don't get that much testing
+with the rc* releases, so there are a lot of problems that don't get
+noticed until after 2.6.x ships.  This has been true for both 2.6.9
+and 2.6.10.  My personal practice is to never run with 2.6.x release,
+but wait for 2.6.x plus one or 2 days (i.e. bk1 or bk2).  The problems
+with this approach are that (1) out-of-tree patches against official
+versions of the kernel (i.e., things like the mppc/mppe patch) don't
+necessarly apply cleanly, and (2) other more destablizing patches get
+folded in right after 2.6.x ships, so there is a chance bk1 or bk2 may
+not be stable.
 
-Yes, I confirmed the reported problem.  The patch below should fix it...
-It should also fix any other values-not-initialized- to-hardware-defaults 
-issues.
+We could delay the destablizing changes until after rc1 ships, and
+ship rc1 about 2-3 days after 2.6.x is released, so that the really
+obvious/critical regressions can be addressed immediately.  The
+problem with this approach though is that some people will just wait
+until rc1 ships before they start using a new kernel version, and we
+lose the testing we need to stablize the release.  
 
-Signed-off-by: Justin Thiessen <jthiessen@penguincomputing.com>
+The real key, as always, is getting users to download and test a
+release.  So another approach might be to shorten the time between
+2.6.x and 2.6.x+1 releases, so as to recreate more testing points,
+without training people to wait for -bk1, -bk2, -rc1, etc. before
+trying out the kernel code.  This is the model that we used with the
+2.3.x series, where the time between releases was often quite short.
+That worked fairly well, but we stopped doing it when the introduction
+of BitKeeper eliminated the developer synch-up problem.  But perhaps
+we've gone too far between 2.6.x releases, and should shorten the time
+in order to force more testing.  
 
-----------------
-
---- linux-2.6.10/drivers/i2c/chips/adm1026.c.orig	2005-01-02 15:21:58.000000000 -0800
-+++ linux-2.6.10/drivers/i2c/chips/adm1026.c	2005-01-02 16:09:52.000000000 -0800
-@@ -1752,6 +1752,10 @@ int adm1026_detect(struct i2c_adapter *a
- 	device_create_file(&new_client->dev, &dev_attr_temp2_auto_point2_pwm);
- 	device_create_file(&new_client->dev, &dev_attr_temp3_auto_point2_pwm);
- 	device_create_file(&new_client->dev, &dev_attr_analog_out);
-+
-+	/* Make sure hardware defaults are read into data structure */
-+	adm1026_update_device(&new_client->dev);
-+
- 	return 0;
- 
- 	/* Error out and cleanup code */
-
+							- Ted

@@ -1,80 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129271AbRBPMWQ>; Fri, 16 Feb 2001 07:22:16 -0500
+	id <S129355AbRBPMei>; Fri, 16 Feb 2001 07:34:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRBPMWH>; Fri, 16 Feb 2001 07:22:07 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:39689 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129355AbRBPMWD>; Fri, 16 Feb 2001 07:22:03 -0500
-Message-ID: <3A8D1B6B.E9CAD752@Hell.WH8.TU-Dresden.De>
-Date: Fri, 16 Feb 2001 13:22:03 +0100
-From: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Organization: Dept. Of Computer Science, Dresden University Of Technology
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac15 i686)
-X-Accept-Language: en, de-DE
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Spurious interrupts
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S129384AbRBPMe3>; Fri, 16 Feb 2001 07:34:29 -0500
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:27920 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S129355AbRBPMeW>; Fri, 16 Feb 2001 07:34:22 -0500
+From: aprasad@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
+To: linux-kernel@vger.kernel.org
+Message-ID: <CA2569F5.0045056E.00@d73mta05.au.ibm.com>
+Date: Fri, 16 Feb 2001 17:56:55 +0530
+Subject: query about sending udp packets in kernel mode
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All,
 
-Hi all,
+I need to send  udp packets in a kernel module. but i am unable to figure
+out how to specify fill the struct msghdr to be used by the sendmsg handler
+of the socket.
 
-After modifying some bios settings and assigning the parallel port
-IRQ5 instead of the IRQ7 it formerly had, I'm now getting kernel
-messages like this:
+my skeleton is something like (by going through the kernel code:>)
 
-spurious 8259A interrupt: IRQ7
+struct socket *sock;
+struct sockaddr_in sin;
+struct msghdr msg;
 
-IRQ7 is not in use by any device, but interrupts occur.
+sock_creat(PF_INET, SOCK_DGRAM, IPPROTO_UDP, &sock);
+sin.sin_family = AF_INET;
+sin.sin_port = htons((unsigned short)serv_port);
+sin.sin_addr.s_addr = htonl(INADDR_ANY); /*i am not sure about this*/
 
-Can someone tell me what's up with that?
+msg.msg_name = &sin;
+msg.msglen = sizeof(struct sockaddr_in);
+msg.msg_iov = iovec_containg the message;
+msg.msg_iovlen = 1;
+msg.msg_control = NULL;
+msg.msg_controllen=0;
+msg.msg_flags =0;
 
--Udo.
+sock->ops->sendmsg(sock,&msg,count,0);
+________________________________________________
 
---
 
-/proc/interrupts:
+i am getting EFAULT.
 
-           CPU0
-  0:      34556          XT-PIC  timer
-  1:        934          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  3:       1340          XT-PIC  serial
-  5:          1          XT-PIC  parport0
-  8:          1          XT-PIC  rtc
-  9:        308          XT-PIC  eth0, bttv
- 10:      65134          XT-PIC  ide0
- 11:          0          XT-PIC  EMU10K1
- 12:       3126          XT-PIC  PS/2 Mouse
- 14:          5          XT-PIC  ide2
-NMI:          0
-LOC:      34523
-ERR:          9
+or can anybody suggest me how to fill the address field of sin_addr in
+kernel of any known remote address(corresponding inet_addr) so that
+sendto/send can be used.
+Any pointers will be greatly appreciated.
 
-procinfo:
+Thanks,
+Anil.
 
-Linux 2.4.1-ac15 (root@Corona) (gcc 2.95.2 19991024 ) #1 Fri Feb 16 08:36:50 CET 2001 1CPU 
- 
-Memory:      Total        Used        Free      Shared     Buffers      Cached
-Mem:        255552      252180        3372           0      100704       84888
-Swap:       524152        1436      522716
- 
-Bootup: Fri Feb 16 13:14:08 2001    Load average: 1.11 0.90 0.42 2/71 246
- 
-user  :       0:00:16.57   4.4%  page in :   432579
-nice  :       0:03:28.11  55.0%  page out:     3564
-system:       0:00:18.43   4.9%  swap in :      816
-idle  :       0:02:15.58  35.8%  swap out:     1381
-uptime:       0:06:18.68         context :   187481
- 
-irq  0:     37869 timer                 irq  8:         1 rtc
-irq  1:      1141 keyboard              irq  9:       335 eth0, bttv
-irq  2:         0 cascade [4]           irq 10:     65145 ide0
-irq  3:      1550 serial                irq 11:         0 EMU10K1
-irq  5:         1 parport0 [3]          irq 12:      4248 PS/2 Mouse
-irq  6:         2                       irq 14:         5 ide2
-irq  7:        10
+

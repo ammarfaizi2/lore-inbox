@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267321AbUGNIXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267322AbUGNI2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267321AbUGNIXk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Jul 2004 04:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267318AbUGNIXk
+	id S267322AbUGNI2R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Jul 2004 04:28:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267318AbUGNI2R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Jul 2004 04:23:40 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:10682 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S267321AbUGNIXi (ORCPT
+	Wed, 14 Jul 2004 04:28:17 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:32385 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267325AbUGNI0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Jul 2004 04:23:38 -0400
-Date: Wed, 14 Jul 2004 11:23:36 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Mail System Error - Returned Mail
-Message-ID: <20040714082336.GM1486@mea-ext.zmailer.org>
-References: <200407132306.39569.gene.heskett@verizon.net>
+	Wed, 14 Jul 2004 04:26:32 -0400
+Date: Wed, 14 Jul 2004 13:56:22 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Ravikiran G Thirumalai <kiran@in.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Refcounting of objects part of a lockfree collection
+Message-ID: <20040714082621.GA4291@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20040714045345.GA1220@obelix.in.ibm.com> <20040714070700.GA12579@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200407132306.39569.gene.heskett@verizon.net>
+In-Reply-To: <20040714070700.GA12579@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 11:06:39PM -0400, Gene Heskett wrote:
-> Greetings;
+On Wed, Jul 14, 2004 at 12:07:00AM -0700, Greg KH wrote:
+> On Wed, Jul 14, 2004 at 10:23:50AM +0530, Ravikiran G Thirumalai wrote:
+> > 
+> > The attatched patch provides infrastructure for refcounting of objects
+> > in a rcu protected collection.
 > 
-> I'm getting a lot of these bounces, any good reason?
+> This is really close to the kref implementation.  Why not just use that
+> instead?
 
-Dunno,  but we also see (every now and then) that Verizon
-system rejects emails towards it with MAIL FROM giving
-vger.kernel.org  domain.
+Well, the kref has the same get/put race if used in a lock-free
+look-up. When you do a kref_get() it is assumed that another
+cpu will not see a 1-to-0 transition of the reference count.
+If that indeed happens, ->release() will get invoked more
+than once for that object which is bad. Kiran's patch actually
+solves this fundamental lock-free ref-counting problem.
 
-Reading deeper, the visible "To:" header, and "remote mta"
-line do say:   vgr.kernel.org   which isn't quite exactly right...
+The other issue is that there are many refcounted data structures
+like dentry, dst_entry, file etc. that do not use kref. If everybody
+were to use kref, we could possibly apply Kiran's lock-free extensions
+to kref itself and be done with it. Until then, we need the lock-free
+refcounting support from non-kref refcounting objects.
 
-Perhaps you should ask from the given  <postmaster@verizon.net>
-contact address for assistance ?  (And do send them the full
-version, not just this abridged one.)
-
->From the symptoms I do suspect that Verizon's DNS server(s) are
-malfunctioning somehow.
-
-An alternate is that their MTA software is treating temporary DNS
-failures (like lookup timeout) as instantly permanent failures and
-as a valid reason for reject, which would be a mad thing to do.
-
-I have seen even that to happen before, although mainly with SMTP-
-receivers, that report 500-series codes even for DNS timeouts.
-In that protocol there are also 400-series codes, that are supposed
-to be used in these "I can't find out now, do retry LATTER."
-
-/Matti Aarnio -- one of  <postmaster@vger.kernel.org>
-
-
-> ----------  Forwarded Message  ----------
-> 
-> Subject: Mail System Error - Returned Mail
-> Date: Tuesday 13 July 2004 13:34
-> From: Mail Administrator <Postmaster@verizon.net>
-> To: gene.heskett@verizon.net
-> 
->      Host vger.kernel.org not found
-> 
-> The following recipients did not receive this message:
-> 
->      <linux-kernel@vger.kernel.org>
-> 
-> Please reply to Postmaster@verizon.net
-> if you feel this message to be in error.
-> 
-> -- 
-> Cheers, Gene
-
-> Status: 5.1.2
-> Remote-MTA: dns; vgr.kernel.org
-
-> From: Gene Heskett <gene.heskett@verizon.net>
-> To: linux-kernel@vgr.kernel.org
-> Subject: Re: SATA disk device naming ?
-> Date: Tue, 13 Jul 2004 13:34:07 -0400
-> Content-Type: text/plain;
->   charset="us-ascii"
+Thanks
+Dipankar

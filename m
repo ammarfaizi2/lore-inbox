@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264706AbUD2OcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264624AbUD2OcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264706AbUD2OcF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 10:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264700AbUD2OcD
+	id S264624AbUD2OcP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 10:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUD2OcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 10:32:03 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:46826 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S264604AbUD2O3o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 10:29:44 -0400
-Date: Thu, 29 Apr 2004 15:24:03 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: William Lee Irwin III <wli@holomorphy.com>, Rik van Riel <riel@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
-       Russell King <rmk@arm.linux.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] rmap 18 i_mmap_nonlinear
-In-Reply-To: <1083246218.1804.1.camel@mulgrave>
-Message-ID: <Pine.LNX.4.44.0404291516380.5661-100000@localhost.localdomain>
+	Thu, 29 Apr 2004 10:32:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2774 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264665AbUD2Oa2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 10:30:28 -0400
+Date: Thu, 29 Apr 2004 10:29:20 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Andrew Morton <akpm@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       <brettspamacct@fastclick.com>, <jgarzik@pobox.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+In-Reply-To: <40907D23.7000103@yahoo.com.au>
+Message-ID: <Pine.LNX.4.44.0404291027050.9152-100000@chimarrao.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Apr 2004, James Bottomley wrote:
-> On Thu, 2004-04-29 at 01:10, Hugh Dickins wrote:
-> > That's right, arm and parisc do handle them differently: currently
-> > arm ignores i_mmap (and I think rmk was wondering a few months ago
-> > whether that's actually correct, given that MAP_SHARED mappings
-> > which can never become writable go in there - and that surprise is
-> > itself a very good reason for combining them), and parisc... ah,
-> > what it does in Linus' tree at present is about the same for both,
-> > but there are some changes on the way.
-> 
-> Actually, as I said before, parisc is reworking the cache flushing stuff
+On Thu, 29 Apr 2004, Nick Piggin wrote:
 
-Yes, not forgotten, that's what I meant by saying some changes on the way.
+> I'm not very impressed with the pagecache use-once logic, and I
+> have a patch to remove it completely and treat non-mapped touches
+> (IMO) more sanely.
 
-> in our tree.  As things currently stand we've altered our map allocation
-> so that we now treat i_mmap no differently from i_mmap_shared, so we'd
+The basic idea of use-once isn't bad (search for LIRS and
+ARC page replacement), however the Linux implementation
+doesn't have any of the checks and balances that the
+researched replacement algorithms have...
 
-Ah, not quite so in what you last showed me, but no matter...
+However, adding the checks and balancing required for LIRS,
+ARC and CAR(S) isn't easy since it requires keeping track of
+a number of recently evicted pages.  That could be quite a 
+bit of infrastructure, though it might be well worth it.
 
-> be fine with merging them.
-
-Great, thanks.  No need for you to refresh me: if I do go ahead with
-merging them (not my current priority), it'll be obvious from whatever
-patch I show against -mm, what change you'd want to make to your tree.
-
-Hugh
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

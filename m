@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263845AbUE1T7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263851AbUE1UA5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263845AbUE1T7m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 May 2004 15:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbUE1T7m
+	id S263851AbUE1UA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 May 2004 16:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263843AbUE1T7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 May 2004 15:59:42 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:14341 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S263876AbUE1T5N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 May 2004 15:57:13 -0400
-Date: Fri, 28 May 2004 21:57:09 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Sau Dan Lee <danlee@informatik.uni-freiburg.de>
-Cc: Chris Osicki <osk@osk.ch>, linux-kernel@vger.kernel.org
-Subject: Re: keyboard problem with 2.6.6
-Message-ID: <20040528195709.GB5175@pclin040.win.tue.nl>
-References: <20040525201616.GE6512@gucio> <xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <xb7hdu3fwsj.fsf@savona.informatik.uni-freiburg.de>
-User-Agent: Mutt/1.4.1i
-X-Spam-DCC: : 
+	Fri, 28 May 2004 15:59:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42398 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263826AbUE1T6y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 28 May 2004 15:58:54 -0400
+Message-ID: <40B799EB.8060000@pobox.com>
+Date: Fri, 28 May 2004 15:58:35 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nivedita Singhvi <niv@us.ibm.com>
+CC: Arjan van de Ven <arjanv@redhat.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Andrew Morton <akpm@osdl.org>,
+       Anton Blanchard <anton@samba.org>, linux-kernel@vger.kernel.org
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+References: <7F740D512C7C1046AB53446D372001730182BAE2@scsmsx402.amr.corp.intel.com> <40B7797F.2090204@pobox.com> <17750000.1085766378@flay> <20040528175724.GC9898@devserv.devel.redhat.com> <40B7984E.7040208@us.ibm.com>
+In-Reply-To: <40B7984E.7040208@us.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sau Dan Lee wrote:
+Nivedita Singhvi wrote:
+> I see networking interrupts requiring fine granularity
+> balancing, to avoid the potential for dropped packets and
+> long latencies.  That is, given a busy server that is
+> seeing a lot of interrupts, fair distribution of the
+> interrupts is required within a very small amount of time,
+> and we cannot require a user space daemon that parses the /proc
+> file system and applies a policy and then rebinds irqs
+> to different CPUs to run with that frequency.
 
-> Actually, I have a side issue with input/i8042 related things: The
-> keyboard on my laptop worked slightly different: On 2.4.*, SysRq is
-> activated using a [Fn] key-combo, which agrees with the keycap labels
-> on the laptop keyboard. After upgrading to 2.6, that key-combo no
-> longer works. Instead, I must use Alt-PrintScreen as the key for
-> SysRq. (And unfortunately, PrintScreen is a [Fn] combo on the laptop,
-> thus requiring press 3 keys at the same time for SysRq, and a fourth
-> key to use the various SysRq features. Very inconvenient.) Is this
-> again due to some dirty translation processes down in the input layer?
-> Is the input layer always assuming that Alt-PrintScreen == SysRq?
-> This is not always true. Can the input layer be so configured that it
-> never tries to interpret the scancodes, but pass them to the upper
-> layers?
 
-So, what scancodes do you get in 2.4? And in 2.6? (Use scancode -s.)
+Network is one of the areas where you _don't_ want to be constantly 
+pointing your NIC's irq to different CPUs.
 
-Andries
+Cache affinity, packet re-ordering problems, and other fun ensue.
+
+	Jeff
+
 

@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVAJECD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVAJEEY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbVAJECD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Jan 2005 23:02:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVAJECD
+	id S262069AbVAJEEY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Jan 2005 23:04:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbVAJEEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Jan 2005 23:02:03 -0500
-Received: from lon-del-03.spheriq.net ([195.46.50.99]:43683 "EHLO
-	lon-del-03.spheriq.net") by vger.kernel.org with ESMTP
-	id S262063AbVAJEBz convert rfc822-to-8bit (ORCPT
+	Sun, 9 Jan 2005 23:04:22 -0500
+Received: from animx.eu.org ([216.98.75.249]:30594 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262067AbVAJEEL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Jan 2005 23:01:55 -0500
-From: Alex LIU <alex.liu@st.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: The purpose of PT_TRACESYSGOOD
-Date: Mon, 10 Jan 2005 11:58:56 +0800
-Message-ID: <005c01c4f6c8$b4d3fba0$ac655e0a@sha.st.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-O-Virus-Status: No
-X-O-URL-Status: Not Scanned
-X-O-CSpam-Status: Not Scanned
-X-O-Spam-Status: Not scanned
-X-O-Image-Status: Not Scanned
-X-O-Att-Status: No
-X-SpheriQ-Ver: 1.8.3
+	Sun, 9 Jan 2005 23:04:11 -0500
+Date: Sun, 9 Jan 2005 23:15:31 -0500
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-kernel@vger.kernel.org
+Subject: High load with adaptec scsi cards?
+Message-ID: <20050110041530.GA5669@animx.eu.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
+I'm using 2.6.10 with 3 adaptec scsi cards.  All 3 cards (onboard aic78xx
+chip 2ch, aha-2940u/uw, aha-39160) that I use have this same problem.  When
+I do heavy I/O to any disk, the load goes way up and the cpu usage goes to
+100%
 
-What's the effect of PT_TRACESYSGOOD flag? I found it's used only set in ptrace_setoptions,which is called in the function ptrace_request. And the PT_TRACESYSGOOD flag will be requested in do_syscall_trace. What's the purpose of that flag? Thanks! 
+Top shows:
+Cpu0  :  0.7% us,  7.3% sy,  0.0% ni,  2.7% id, 87.0% wa,  0.0% hi,  2.3% si
+Cpu1  :  0.0% us,  0.0% sy,  0.0% ni, 97.7% id,  2.3% wa,  0.0% hi,  0.0% si
 
-Alex
+however, I do not see any program using all the cpu time int he process
+list.  The program doing all the disk I/O uses ~8% cpu.
 
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

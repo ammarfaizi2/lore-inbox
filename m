@@ -1,56 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265078AbTLHRxg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 12:53:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265087AbTLHRxg
+	id S262901AbTLHRuv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 12:50:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbTLHRuv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 12:53:36 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:51585 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S265078AbTLHRxe (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 12:53:34 -0500
-Message-Id: <200312081753.hB8HrQfD019477@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: davidsen@tmr.com (bill davidsen)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord hangs my computer 
-In-Reply-To: Your message of "Mon, 08 Dec 2003 16:21:54 GMT."
-             <br28f2$fen$1@gatekeeper.tmr.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20031207110122.GB13844@zombie.inka.de> <Pine.LNX.4.58.0312070812080.2057@home.osdl.org>
-            <br28f2$fen$1@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_54347400P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Mon, 8 Dec 2003 12:50:51 -0500
+Received: from terminus.zytor.com ([63.209.29.3]:56528 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S262901AbTLHRut
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 12:50:49 -0500
+Message-ID: <3FD4B9E6.9090902@zytor.com>
+Date: Mon, 08 Dec 2003 09:50:30 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: Arnd Bergmann <arnd@arndb.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: const versus __attribute__((const))
+References: <200312081646.42191.arnd@arndb.de>
+In-Reply-To: <200312081646.42191.arnd@arndb.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 08 Dec 2003 12:53:26 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_54347400P
-Content-Type: text/plain; charset=us-ascii
+Arnd Bergmann wrote:
+> H. Peter Anvin writes:
+> 
+>>I have made a patch against the current tree defining
+>>__attribute_const__ in <linux/compiler.h> and using it in the above
+>>cases; does anyone know any reason why I should *NOT* submit this to
+>>Linus?
+> 
+> 
+> I noticed before that gcc appearantly ignores __attribute__((const))
+> for inline functions, so both the original and your proposed code
+> is rather pointless as an optimization, except for extern declarations.
+> 
+> I'd rather remove the 'const' completely where it causes warnings for
+> inline functions.
+> 
 
-On Mon, 08 Dec 2003 16:21:54 GMT, davidsen@tmr.com (bill davidsen)  said:
+These functions are available to userspace, though, and can be compiled 
+with -O0; thus not inlined.
 
-> And the redeeming features of naming disks, CDs, and ide-floppy devices
-> hda..hdx in an order depending on the loading order of the device
-> drivers?
+	-hpa
 
-Amen.
-
-At least when network interfaces do it, I can use 'nameif' to beat them
-into submission.
-
---==_Exmh_54347400P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE/1LqVcC3lWbTT17ARAqcSAJ9varHBQkU1qN4B+CDUerrCMszjtwCg4/Q8
-K7BBaoDlAKjFh0ITfDzgpZU=
-=ZVdA
------END PGP SIGNATURE-----
-
---==_Exmh_54347400P--

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315222AbSFIVaw>; Sun, 9 Jun 2002 17:30:52 -0400
+	id <S315251AbSFIVe3>; Sun, 9 Jun 2002 17:34:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315232AbSFIVav>; Sun, 9 Jun 2002 17:30:51 -0400
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:9646 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S315222AbSFIVau>; Sun, 9 Jun 2002 17:30:50 -0400
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-From: Nicholas Miell <nmiell@attbi.com>
-To: Thunder from the hill <thunder@ngforever.de>
-Cc: Diego Calleja <diegocg@teleline.es>, phillips@bonn-fries.net,
-        adelton@informatics.muni.cz, christoph@lameter.com,
-        linux-kernel@vger.kernel.org, adelton@fi.muni.cz
-In-Reply-To: <Pine.LNX.4.44.0206091438280.8715-100000@hawkeye.luckynet.adm>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 09 Jun 2002 14:30:45 -0700
-Message-Id: <1023658246.1659.4.camel@entropy>
-Mime-Version: 1.0
+	id <S315235AbSFIVe2>; Sun, 9 Jun 2002 17:34:28 -0400
+Received: from [209.5.194.98] ([209.5.194.98]:55026 "EHLO orval.sprint.ca")
+	by vger.kernel.org with ESMTP id <S315232AbSFIVe2> convert rfc822-to-8bit;
+	Sun, 9 Jun 2002 17:34:28 -0400
+Message-ID: <41301-22002609225730160@ariz@attcanada>
+X-Priority: 3
+X-MSMail-Priority: Normal
+Organization: InfoSource
+From: "Barbara Caldwell" <infosource@on.aibn.com>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: The United States Healthcare Directory
+Date: Sun, 9 Jun 2002 17:57:30 -0500
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-06-09 at 13:40, Thunder from the hill wrote:
-> Hi,
-> 
-> On Sun, 9 Jun 2002, Diego Calleja wrote:
-> > I agree. M$ did .lnk _files_, but really, there's not symlinks in vfat
-> > world. Even msdos doesn't recognize them. I don't remember if it's the
-> > same in NTFS, W2000 & XP are so good that I can't work with them in 32MB
-> > RAM...
-> 
-> Some time ago I found a document proposing a different API for Windows 
-> 2002 which was supposed to include symlinks into ntfs, so I don't think 
-> it was there.
-> 
+We are publishers of specialized reports and directories 
+dealing with public affairs.  Our new directory, 
+"The United States Healthcare Directory" covers hospitals, 
+nursing homes, HMOs, medical manufacturers, etc.  It is available 
+at an introductory price of $285. If you are interested 
+in receiving this directory, please visit our website at 
+www.national-directories.com or contact us by phone at 
+905-751-0919.
 
-NTFS is a real filesystem, unlike VFAT. It has native support for hard
-links, and, IIRC, the version that ships with Windows XP can do
-something similar to symbolic links.
+
+
 

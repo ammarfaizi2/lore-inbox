@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbUJWXRW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbUJWTBu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbUJWXRW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 19:17:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbUJWXRW
+	id S261276AbUJWTBu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 15:01:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbUJWTBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 19:17:22 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:5735 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261332AbUJWXRN (ORCPT
+	Sat, 23 Oct 2004 15:01:50 -0400
+Received: from florka.hu ([195.70.50.34]:14482 "HELO mail.florka.hu")
+	by vger.kernel.org with SMTP id S261276AbUJWTBp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 19:17:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=egPoUn7enpyYhYWcIyBQHqt5/GOQ4uJB1+sIPLjI7BfPHz0azaUla0AkF6CGbK7KGjWI+G3KMMLQC5sWDICLl0pMKJdS6vzYI6ec+0GADbR5Go3lR5Mdn4bk7ATk1EY9E+jIO935Ja9/gTLmGQZu0XEp2rm56eFjE6hHCAIWzUI=
-Message-ID: <35fb2e5904102316177420f6a9@mail.gmail.com>
-Date: Sun, 24 Oct 2004 00:17:11 +0100
-From: Jon Masters <jonmasters@gmail.com>
-Reply-To: jonathan@jonmasters.org
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: How is user space notified of CPU speed changes?
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Robert Love <rml@novell.com>
-In-Reply-To: <1098571334.29081.21.camel@krustophenia.net>
-Mime-Version: 1.0
+	Sat, 23 Oct 2004 15:01:45 -0400
+Message-ID: <1078.217.232.234.250.1098558101.squirrel@florka.hu>
+In-Reply-To: <4179425A.3080903@namesys.com>
+References: <20041022032039.730eb226.akpm@osdl.org>
+    <4179425A.3080903@namesys.com>
+Date: Sat, 23 Oct 2004 21:01:41 +0200 (CEST)
+Subject: =?iso-8859-2?Q?Re:=A02.6.9-mm1?=
+From: "Hilzinger Marcel" <marcel@hilzinger.hu>
+To: "Hans Reiser" <reiser@namesys.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Reiserfs developers mail-list" <reiserfs-dev@namesys.com>,
+       "ReiserFS List" <reiserfs-list@namesys.com>
+Reply-To: marcel@hilzinger.hu
+User-Agent: SquirrelMail/1.4.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1098399709.4131.23.camel@krustophenia.net>
-	 <1098444170.19459.7.camel@localhost.localdomain>
-	 <1098508238.13176.17.camel@krustophenia.net>
-	 <1098566366.24804.8.camel@localhost.localdomain>
-	 <1098571334.29081.21.camel@krustophenia.net>
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Oct 2004 18:42:13 -0400, Lee Revell <rlrevell@joe-job.com> wrote:
+> Andrew Morton wrote:
+>
+>>
+>>  - reiser4: not sure, really.  The namespace extensions were disabled,
+>>    although all the code for that is still present.  Linus's filesystem
+>>    criterion used to be "once lots of people are using it, preferably
+>> when
+>>    vendors are shipping it".  That's a bit of a chicken and egg thing
+>> though.
+>>    Needs more discussion.
+>>
+[...]
 
-> Does anyone know how OSX/CoreAudio handles the situation?  Apparently
-> realtime apps work flawlessly on speed scaling laptops under OSX.
+> I would like to encourage its inclusion as an experimental filesystem
+> BEFORE vendors ship it. I think first putting experimental stuff in the
+> kernels used by hackers makes sense. I think it creates more of a
+> community.
+Too late, perhaps... SuSE Linux 9.2 will contain reiser4 (at least the
+beta testversions did). It cannot be set up via YaST during installation,
+but the tools are there. So anybody, who is curious about reiser4 can test
+it without further knowledge.
 
-The difference in implementation between the Intel TSC and PowerPC
-TB[LU] has been mentioned previously in this thread.
+If SuSE will be as successful with Reiser4, as with ReiserFS, then Reiser4
+will first be stable in SuSE Linux, than in the main kernel.
 
-Jon.
+If you do not want this to happen once again, please include it now!
+
+Marcel
+

@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129027AbRBNBgV>; Tue, 13 Feb 2001 20:36:21 -0500
+	id <S129051AbRBNB6K>; Tue, 13 Feb 2001 20:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129051AbRBNBgM>; Tue, 13 Feb 2001 20:36:12 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:47847 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129027AbRBNBgG>;
-	Tue, 13 Feb 2001 20:36:06 -0500
-Date: Tue, 13 Feb 2001 17:35:56 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Jes Sorensen <jes@linuxcare.com>
-cc: Manfred Spraul <manfred@colorfullife.com>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>, Alan Cox <alan@redhat.com>,
-        <linux-kernel@vger.kernel.org>, Donald Becker <becker@scyld.com>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device.
-In-Reply-To: <d3vgqfafzy.fsf@lxplus015.cern.ch>
-Message-ID: <Pine.LNX.4.30.0102131715460.14404-100000@age.cs.columbia.edu>
+	id <S129055AbRBNB6A>; Tue, 13 Feb 2001 20:58:00 -0500
+Received: from nat-pool.corp.redhat.com ([199.183.24.200]:44139 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S129051AbRBNB5s>; Tue, 13 Feb 2001 20:57:48 -0500
+Date: Tue, 13 Feb 2001 20:57:43 -0500 (EST)
+From: Elliot Lee <sopwith@redhat.com>
+X-X-Sender: <sopwith@devserv.devel.redhat.com>
+Reply-To: <sopwith@redhat.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Driver for Casio Cassiopia Fiva touchscreen, help with conversion
+ to 2.4
+Message-ID: <Pine.LNX.4.32.0102132034540.20720-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Feb 2001, Jes Sorensen wrote:
+Available at http://people.redhat.com/~sopwith/fidmour-linux.c is a driver
+for the touch screen used on the Cassiopia Fiva MPC-501 pen computer. It
+is a rather Bad Hack (seeing as it was built rather blindly to mimic the
+behaviour of the Windows driver, and has IRQ/port hardcoded in), but it
+works for me with the 2.2.16 kernel.
 
-> Ion> Yes, but I'd rather let people turn off the always-copy behavior
-> Ion> by simply changing rx_copybreak. The unused code is not really
-> Ion> that much of a deal, it's only a few lines.
-> 
-> However, it is in the hot path code where it hurts the most.
+The device outputs 5 byte packets - 1 status byte, 2 bytes each for X & Y
+coordinates. The devel branch of GTK+ has support for /dev/fidmour in the
+Linux framebuffer backend (gtk+/gdk/linux-fb/gdkmouse-fb.c), should you
+wish to see a code sample.
 
-I couldn't measure any difference, really. And for one extra branch, I 
-really wouldn't expect a measurable difference..
+I'm wondering if anyone has a resource that would provide information on
+porting this driver to the 2.4 kernel.
 
-Not even defining final_version, which removes a *lot* more conditional
-branches from the hot path, makes any measurable difference in the CPU
-utilization.
+I would welcome comments on this driver, or on the MPC-501 and Linux in
+general. Bonus points to anyone who actually understands why the driver
+works and how the hardware works. :)
 
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Hope this helps,
+-- Elliot
+Who me? I just wander from room to room.
 

@@ -1,87 +1,170 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266728AbTAIPJy>; Thu, 9 Jan 2003 10:09:54 -0500
+	id <S266735AbTAIPSO>; Thu, 9 Jan 2003 10:18:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266735AbTAIPJy>; Thu, 9 Jan 2003 10:09:54 -0500
-Received: from sj-msg-core-2.cisco.com ([171.70.145.30]:28083 "EHLO
-	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
-	id <S266728AbTAIPJw>; Thu, 9 Jan 2003 10:09:52 -0500
-Message-ID: <040b01c2b7f2$56ff0f40$a78b4d0a@apac.cisco.com>
-From: "Indukumar Ilangovan" <iilangov@cisco.com>
-To: <linux-kernel@vger.kernel.org>, <linux-mips@linux-mips.org>
-Subject: [OT] cross-compiler problem
-Date: Thu, 9 Jan 2003 20:48:18 +0530
+	id <S266755AbTAIPSO>; Thu, 9 Jan 2003 10:18:14 -0500
+Received: from web11102.mail.yahoo.com ([216.136.131.149]:54107 "HELO
+	web11102.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S266735AbTAIPSM>; Thu, 9 Jan 2003 10:18:12 -0500
+Message-ID: <20030109152654.8397.qmail@web11102.mail.yahoo.com>
+Date: Thu, 9 Jan 2003 12:26:54 -0300 (ART)
+From: "=?iso-8859-1?q?Rodrigo=20F.=20Baroni?=" <rodrigobaroni@yahoo.com.br>
+Reply-To: rodrigobaroni@yahoo.com.br
+Subject: [SOLVED] kernel compile error
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20030109021540.80049.qmail@web11105.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-x-mimeole: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
 
-I tried to build cross compiler on Red Hat Linux
-Kernel 2.4.2-2 on an i686.
-I use binutils-2.13, gcc-3.2, glibc-2.2.5, glibc-2.2.5-mips-build-gmon.diff,
-glibc-linuxthreads.tar.gz.
-I followed the instructions from
-http://www.ltc.com/~brad/mips/mipsel-linux-cross-toolchain-building.txt
+  The problem was the 2.4.18 kernel version. I got
+another 2.4.18 kernel and the compilation finished
+normally -without support to SMP (because I wasn't get
+install some modules with that other one).
 
-I installed binutils  without any problems.
+  So, problem solved  finally.
 
-While compiling glibc2.2.5 I get the following error.
+  
+----------------------------------------------
 
-../sysdeps/unix/syscall.S: Assembler messages:
-../sysdeps/unix/syscall.S:28: Error: absolute expression required `li'
-make[2]: *** [/home/iilangov/crossGCC/mips/mips-glibc/misc/syscall.o] Error
-1
-make[2]: Leaving directory `/home/iilangov/crossGCC/mips/glibc-2.2.5/misc'
-make[1]: *** [misc/subdir_lib] Error 2
-make[1]: Leaving directory `/home/iilangov/crossGCC/mips/glibc-2.2.5'
-make: *** [all] Error 2
+ --- "Rodrigo F. Baroni" <rodrigobaroni@yahoo.com.br>
+escreveu: > Hello all,
+> 
+> 
+>     There is a good time that I have trying to
+> compile
+> a kernel in a pc 233 mhz (motherboard lmr 591 -
+> chipset sis, all-on-board), and so the follow error
+> below happen.
+> 
+> 
+>      Does anybody knows what is going on please ?!
+> (it's a 2.4.18 kernel in a debian 3)
+> 
+> 
+> 
+> 
+> Rodrigo F Baroni
+> Computer Science Grad Student
+> 
+>
+_______________________________________________________________________
+> Busca Yahoo!
+> O melhor lugar para encontrar tudo o que você
+> procura na Internet
+> http://br.busca.yahoo.com/> make[2]: Entering
+directory
+> `/usr/src/kernel-source-2.4.18/kernel'
+> gcc -D__KERNEL__
+> -I/usr/src/kernel-source-2.4.18/include -Wall
+> -Wstrict-prototypes -Wno-trigraphs -O2
+> -fomit-frame-pointer -fno-strict-aliasing
+> -fno-common -pi
+> pe -mpreferred-stack-boundary=2 -march=i586  
+> -DKBUILD_BASENAME=ksyms  -DEXPORT_SYMTAB -c ksyms.c
+> In file included from
+>
+/usr/src/kernel-source-2.4.18/include/linux/modversions.h:64,
+>                  from
+>
+/usr/src/kernel-source-2.4.18/include/linux/module.h:21,
+>                  from ksyms.c:14:
+>
+/usr/src/kernel-source-2.4.18/include/linux/modules/dec_and_lock.ver:2:
+> warning: `atomic_dec_and_lock' redefined
+>
+/usr/src/kernel-source-2.4.18/include/linux/spinlock.h:48:
+> warning: this is the location of the previous
+> definition
+> In file included from
+>
+/usr/src/kernel-source-2.4.18/include/linux/modversions.h:117,
+>                  from
+>
+/usr/src/kernel-source-2.4.18/include/linux/module.h:21,
+>                  from ksyms.c:14:
+>
+/usr/src/kernel-source-2.4.18/include/linux/modules/i386_ksyms.ver:84:
+> warning: `cpu_data' redefined
+>
+/usr/src/kernel-source-2.4.18/include/asm/processor.h:79:
+> warning: this is the location of the previous
+> definition
+>
+/usr/src/kernel-source-2.4.18/include/linux/modules/i386_ksyms.ver:88:
+> warning: `smp_num_cpus' redefined
+>
+/usr/src/kernel-source-2.4.18/include/linux/smp.h:80:
+> warning: this is the location of the previous
+> definition
+>
+/usr/src/kernel-source-2.4.18/include/linux/modules/i386_ksyms.ver:90:
+> warning: `cpu_online_map' redefined
+>
+/usr/src/kernel-source-2.4.18/include/linux/smp.h:88:
+> warning: this is the location of the previous
+> definition
+>
+/usr/src/kernel-source-2.4.18/include/linux/modules/i386_ksyms.ver:104:
+> warning: `smp_call_function' redefined
+>
+/usr/src/kernel-source-2.4.18/include/linux/smp.h:87:
+> warning: this is the location of the previous
+> definition
+> In file included from
+>
+/usr/src/kernel-source-2.4.18/include/linux/modversions.h:144,
+>                  from
+>
+/usr/src/kernel-source-2.4.18/include/linux/module.h:21,
+>                  from ksyms.c:14:
+>
+/usr/src/kernel-source-2.4.18/include/linux/modules/ksyms.ver:526:
+> warning: `del_timer_sync' redefined
+>
+/usr/src/kernel-source-2.4.18/include/linux/timer.h:30:
+> warning: this is the location of the previous
+> definition
+> In file included from
+>
+/usr/src/kernel-source-2.4.18/include/linux/interrupt.h:45,
+>                  from ksyms.c:21:
+>
+/usr/src/kernel-source-2.4.18/include/asm/hardirq.h:37:
+> warning: `synchronize_irq' redefined
+>
+/usr/src/kernel-source-2.4.18/include/linux/modules/i386_ksyms.ver:92:
+> warning: this is the location of the previous
+> definition
+> In file included from ksyms.c:17:
+>
+/usr/src/kernel-source-2.4.18/include/linux/kernel_stat.h:
+> In function `kstat_irqs':
+>
+/usr/src/kernel-source-2.4.18/include/linux/kernel_stat.h:48:
+> `smp_num_cpus' undeclared (first use in this
+> function)
+>
+/usr/src/kernel-source-2.4.18/include/linux/kernel_stat.h:48:
+> (Each undeclared identifier is reported only once
+>
+/usr/src/kernel-source-2.4.18/include/linux/kernel_stat.h:48:
+> for each function it appears in.)
+> make[2]: *** [ksyms.o] Error 1
+> make[2]: Leaving directory
+> `/usr/src/kernel-source-2.4.18/kernel'
+> make[1]: *** [first_rule] Error 2
+> make[1]: Leaving directory
+> `/usr/src/kernel-source-2.4.18/kernel'
+> make: *** [_dir_kernel] Error 2
+> carol:/usr/src/kernel-source-2.4.18# 
+> 
+>  
 
-I have "asm/unistd.h" in the include path, still this problem is happening.
-Do you guys have any clue ?
-
-Thanks in Advance !
-Indu
-
-
------ Original Message -----
-From: "Alexandre Oliva" <aoliva@redhat.com>
-To: "Khantharat Anekboon" <dfos1@hotmail.com>
-Cc: <crossgcc@sources.redhat.com>
-Sent: Saturday, December 28, 2002 12:22 PM
-Subject: Re: cross-compiler problem
-
-
-| On Dec 28, 2002, "Khantharat Anekboon" <dfos1@hotmail.com> wrote:
-|
-| > ../sysdeps/unix/syscall.S:28: Error: absolute expression required 'li'
-|
-| Looks like you're missing the kernel headers where the syscall numbers
-| are defined.  (.../include/asm/unistd.h)
-|
-| --
-| Alexandre Oliva   Enjoy Guarana', see http://www.ic.unicamp.br/~oliva/
-| Red Hat GCC Developer                 aoliva@{redhat.com, gcc.gnu.org}
-| CS PhD student at IC-Unicamp        oliva@{lsd.ic.unicamp.br, gnu.org}
-| Free Software Evangelist                Professional serial bug killer
-|
-| ------
-| Want more information?  See the CrossGCC FAQ,
-http://www.objsw.com/CrossGCC/
-| Want to unsubscribe? Send a note to
-crossgcc-unsubscribe@sources.redhat.com
-
-********************************************************
-Indukumar Ilangovan
-HCL-Cisco Offshore development center,
-49-50, Nelson Manickam Road, Chennai - 600029 ,  India .
-TEL:  +91-44-2374 1939 x 2215 FAX: +91-44-3741038
-Email :iilangov@cisco.com
-
+_______________________________________________________________________
+Busca Yahoo!
+O melhor lugar para encontrar tudo o que você procura na Internet
+http://br.busca.yahoo.com/

@@ -1,56 +1,333 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318077AbSFTAoU>; Wed, 19 Jun 2002 20:44:20 -0400
+	id <S318079AbSFTApr>; Wed, 19 Jun 2002 20:45:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318078AbSFTAoT>; Wed, 19 Jun 2002 20:44:19 -0400
-Received: from holomorphy.com ([66.224.33.161]:23740 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S318077AbSFTAoS>;
-	Wed, 19 Jun 2002 20:44:18 -0400
-Date: Wed, 19 Jun 2002 17:43:51 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@zip.com.au>
+	id <S318080AbSFTApq>; Wed, 19 Jun 2002 20:45:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:21749 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP
+	id <S318079AbSFTApT>; Wed, 19 Jun 2002 20:45:19 -0400
+Subject: [PATCH] 2.5-dj: configurable NR_CPUS
+From: Robert Love <rml@tech9.net>
+To: davej@suse.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] 2.5.23 mpage io vs queue_max_sectors
-Message-ID: <20020620004351.GR22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
-References: <20020620002105.GL25360@holomorphy.com> <3D112401.6975E890@zip.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 19 Jun 2002 17:45:19 -0700
+Message-Id: <1024533919.921.46.camel@sinai>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
-Content-Disposition: inline
-In-Reply-To: <3D112401.6975E890@zip.com.au>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> This has been haunting me for a while on a 4 cpu Sequent S-quad with
->> 4GB of RAM, and a tray of 12 9GB DCHS09X's attached to a QLogicISP1020.
->> People keep saying "hands off" ... so here I am passing the buck.
->> Kernel BUG at ll_rw_blk.c:1639
+Dave,
 
-On Wed, Jun 19, 2002 at 05:38:25PM -0700, Andrew Morton wrote:
-> This is happening because we have BIO_MAX_SIZE = 64k,
-> but that particular driver doesn't like requests which are
-> that big.
+Attached patch is a lovely rendition of the CONFIG_NR_CPUS patch Andrew
+and I have been tossing around.
 
-Well, I'm not sure what the driver's doing (or not doing) but
-this check is on q->max_sectors...
+The patch allows the user to set a sane value for NR_CPUS at
+compile-time if building an SMP kernel.  The benefits are saved cycles
+and memory/object size reduction.
 
-On Wed, Jun 19, 2002 at 05:38:25PM -0700, Andrew Morton wrote:
-> This is the issuewhich Adam, Jens and I have been discussing.
-> Looks like the preferred solution is an add_page_to_bio() API
-> in the block layer.
-> But it's not there yet, so in the short-term, please just do
-> -#define MPAGE_BIO_MAX_SIZE BIO_MAX_SIZE
-> +#define MPAGE_BIO_MAX_SIZE 16384
-> in fs/mpage.c
+Further, this patch defines a per-arch default value for NR_CPUS thus
+64-bit architectures can support a value of 64 instead of the current
+global 32.
 
-Hmm, q->max_sectors is 64 in my case (and 96 was fed to the queue) so
-I'm not convinced I have to cripple it entirely, I'll go with 32K.
+The patch is tested on i386 with various values for NR_CPUS.  Other
+32-bit architectures will be fine with the default but may need minor
+fixing of poor assumptions to boot with other values.  64-bit
+architectures may need further fixing as I defaulted them to 64.
 
+Patch is against 2.5.23-dj2.  Enjoy,
 
-Cheers,
-Bill
+	Robert Love
+
+diff -urN linux-2.5.23-dj2/arch/alpha/config.in linux/arch/alpha/config.in
+--- linux-2.5.23-dj2/arch/alpha/config.in	Wed Jun 19 17:31:21 2002
++++ linux/arch/alpha/config.in	Wed Jun 19 17:26:35 2002
+@@ -232,6 +232,7 @@
+ 
+ if [ "$CONFIG_SMP" = "y" ]; then
+    define_bool CONFIG_HAVE_DEC_LOCK y
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
+ 
+ if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
+diff -urN linux-2.5.23-dj2/arch/i386/Config.help linux/arch/i386/Config.help
+--- linux-2.5.23-dj2/arch/i386/Config.help	Wed Jun 19 17:32:33 2002
++++ linux/arch/i386/Config.help	Wed Jun 19 17:26:35 2002
+@@ -25,6 +25,14 @@
+ 
+   If you don't know what to do here, say N.
+ 
++CONFIG_NR_CPUS
++  This allows you to specify the maximum number of CPUs which this
++  kernel will support.  The maximum supported value is 32 and the
++  minimum value which makes sense is 2.
++
++  This is purely to save memory - each supported CPU adds
++  approximately eight kilobytes to the kernel image.
++
+ CONFIG_PREEMPT
+   This option reduces the latency of the kernel when reacting to
+   real-time or interactive events by allowing a low priority process to
+diff -urN linux-2.5.23-dj2/arch/i386/config.in linux/arch/i386/config.in
+--- linux-2.5.23-dj2/arch/i386/config.in	Wed Jun 19 17:32:33 2002
++++ linux/arch/i386/config.in	Wed Jun 19 17:26:35 2002
+@@ -164,6 +164,7 @@
+       define_bool CONFIG_X86_IO_APIC y
+    fi
+ else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+    bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
+ fi
+ 
+diff -urN linux-2.5.23-dj2/arch/i386/defconfig linux/arch/i386/defconfig
+--- linux-2.5.23-dj2/arch/i386/defconfig	Wed Jun 19 17:32:33 2002
++++ linux/arch/i386/defconfig	Wed Jun 19 17:26:35 2002
+@@ -74,6 +74,7 @@
+ # CONFIG_PREEMPT is not set
+ # CONFIG_MULTIQUAD is not set
+ CONFIG_HAVE_DEC_LOCK=y
++CONFIG_NR_CPUS=32
+ 
+ #
+ # General options
+diff -urN linux-2.5.23-dj2/arch/ia64/config.in linux/arch/ia64/config.in
+--- linux-2.5.23-dj2/arch/ia64/config.in	Wed Jun 19 17:32:34 2002
++++ linux/arch/ia64/config.in	Wed Jun 19 17:26:35 2002
+@@ -95,6 +95,10 @@
+ tristate '/proc/pal support' CONFIG_IA64_PALINFO
+ tristate '/proc/efi/vars support' CONFIG_EFI_VARS
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
++
+ tristate 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
+ tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
+ 
+diff -urN linux-2.5.23-dj2/arch/ia64/defconfig linux/arch/ia64/defconfig
+--- linux-2.5.23-dj2/arch/ia64/defconfig	Wed Jun 19 17:31:23 2002
++++ linux/arch/ia64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -61,6 +61,7 @@
+ CONFIG_EFI_VARS=y
+ CONFIG_BINFMT_ELF=y
+ # CONFIG_BINFMT_MISC is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # ACPI Support
+diff -urN linux-2.5.23-dj2/arch/mips/config.in linux/arch/mips/config.in
+--- linux-2.5.23-dj2/arch/mips/config.in	Wed Jun 19 17:32:34 2002
++++ linux/arch/mips/config.in	Wed Jun 19 17:26:35 2002
+@@ -501,6 +501,8 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Run uncached' CONFIG_MIPS_UNCACHED
++else
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+ endmenu
+ 
+diff -urN linux-2.5.23-dj2/arch/mips64/config.in linux/arch/mips64/config.in
+--- linux-2.5.23-dj2/arch/mips64/config.in	Wed Jun 19 17:32:34 2002
++++ linux/arch/mips64/config.in	Wed Jun 19 17:26:35 2002
+@@ -248,6 +248,8 @@
+ bool 'Magic SysRq key' CONFIG_MAGIC_SYSRQ
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Run uncached' CONFIG_MIPS_UNCACHED
++else
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
+ endmenu
+ 
+diff -urN linux-2.5.23-dj2/arch/mips64/defconfig linux/arch/mips64/defconfig
+--- linux-2.5.23-dj2/arch/mips64/defconfig	Wed Jun 19 17:31:25 2002
++++ linux/arch/mips64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -32,6 +32,7 @@
+ # CONFIG_EISA is not set
+ # CONFIG_MCA is not set
+ # CONFIG_SBUS is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # CPU selection
+diff -urN linux-2.5.23-dj2/arch/parisc/config.in linux/arch/parisc/config.in
+--- linux-2.5.23-dj2/arch/parisc/config.in	Wed Jun 19 17:32:34 2002
++++ linux/arch/parisc/config.in	Wed Jun 19 17:26:35 2002
+@@ -18,6 +18,10 @@
+ # bool 'Symmetric multi-processing support' CONFIG_SMP
+ define_bool CONFIG_SMP n
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
++
+ bool 'Kernel Debugger support' CONFIG_KWDB
+ # define_bool CONFIG_KWDB n
+ 
+diff -urN linux-2.5.23-dj2/arch/ppc/config.in linux/arch/ppc/config.in
+--- linux-2.5.23-dj2/arch/ppc/config.in	Wed Jun 19 17:31:16 2002
++++ linux/arch/ppc/config.in	Wed Jun 19 17:26:35 2002
+@@ -172,6 +172,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+    bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
+ fi
+ if [ "$CONFIG_SMP" != "y" ]; then
+    bool 'Preemptible Kernel' CONFIG_PREEMPT
+diff -urN linux-2.5.23-dj2/arch/ppc64/config.in linux/arch/ppc64/config.in
+--- linux-2.5.23-dj2/arch/ppc64/config.in	Wed Jun 19 17:31:23 2002
++++ linux/arch/ppc64/config.in	Wed Jun 19 17:26:35 2002
+@@ -21,6 +21,7 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ if [ "$CONFIG_SMP" = "y" ]; then
+   bool '  Distribute interrupts on all CPUs by default' CONFIG_IRQ_ALL_CPUS
++  int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+   if [ "$CONFIG_PPC_PSERIES" = "y" ]; then
+     bool '  Hardware multithreading' CONFIG_HMT
+   fi
+diff -urN linux-2.5.23-dj2/arch/ppc64/defconfig linux/arch/ppc64/defconfig
+--- linux-2.5.23-dj2/arch/ppc64/defconfig	Wed Jun 19 17:31:23 2002
++++ linux/arch/ppc64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -38,6 +38,7 @@
+ CONFIG_IRQ_ALL_CPUS=y
+ # CONFIG_HMT is not set
+ # CONFIG_PREEMPT is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # General setup
+diff -urN linux-2.5.23-dj2/arch/s390/config.in linux/arch/s390/config.in
+--- linux-2.5.23-dj2/arch/s390/config.in	Wed Jun 19 17:31:26 2002
++++ linux/arch/s390/config.in	Wed Jun 19 17:26:35 2002
+@@ -20,6 +20,9 @@
+ comment 'Processor type and features'
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'IEEE FPU emulation' CONFIG_MATHEMU
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
+ endmenu
+ 
+ mainmenu_option next_comment
+diff -urN linux-2.5.23-dj2/arch/s390/defconfig linux/arch/s390/defconfig
+--- linux-2.5.23-dj2/arch/s390/defconfig	Wed Jun 19 17:31:26 2002
++++ linux/arch/s390/defconfig	Wed Jun 19 17:26:35 2002
+@@ -35,6 +35,7 @@
+ #
+ CONFIG_SMP=y
+ CONFIG_MATHEMU=y
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Base setup
+diff -urN linux-2.5.23-dj2/arch/s390x/config.in linux/arch/s390x/config.in
+--- linux-2.5.23-dj2/arch/s390x/config.in	Wed Jun 19 17:31:25 2002
++++ linux/arch/s390x/config.in	Wed Jun 19 17:26:35 2002
+@@ -19,6 +19,9 @@
+ mainmenu_option next_comment
+ comment 'Processor type and features'
+ bool 'Symmetric multi-processing support' CONFIG_SMP
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
+ bool 'Kernel support for 31 bit emulation' CONFIG_S390_SUPPORT
+ if [ "$CONFIG_S390_SUPPORT" = "y" ]; then
+   tristate 'Kernel support for 31 bit ELF binaries' CONFIG_BINFMT_ELF32 
+diff -urN linux-2.5.23-dj2/arch/s390x/defconfig linux/arch/s390x/defconfig
+--- linux-2.5.23-dj2/arch/s390x/defconfig	Wed Jun 19 17:31:25 2002
++++ linux/arch/s390x/defconfig	Wed Jun 19 17:26:35 2002
+@@ -36,6 +36,7 @@
+ CONFIG_SMP=y
+ CONFIG_S390_SUPPORT=y
+ CONFIG_BINFMT_ELF32=y
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Base setup
+diff -urN linux-2.5.23-dj2/arch/sparc/config.in linux/arch/sparc/config.in
+--- linux-2.5.23-dj2/arch/sparc/config.in	Wed Jun 19 17:31:21 2002
++++ linux/arch/sparc/config.in	Wed Jun 19 17:26:35 2002
+@@ -17,6 +17,10 @@
+ 
+ bool 'Symmetric multi-processing support (does not work on sun4/sun4c)' CONFIG_SMP
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-32)' CONFIG_NR_CPUS 32
++fi
++
+ # Identify this as a Sparc32 build
+ define_bool CONFIG_SPARC32 y
+ 
+diff -urN linux-2.5.23-dj2/arch/sparc64/config.in linux/arch/sparc64/config.in
+--- linux-2.5.23-dj2/arch/sparc64/config.in	Wed Jun 19 17:32:35 2002
++++ linux/arch/sparc64/config.in	Wed Jun 19 17:26:35 2002
+@@ -17,6 +17,10 @@
+ bool 'Symmetric multi-processing support' CONFIG_SMP
+ bool 'Preemptible kernel' CONFIG_PREEMPT
+ 
++if [ "$CONFIG_SMP" = "y" ]; then
++   int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
++fi
++
+ # Identify this as a Sparc64 build
+ define_bool CONFIG_SPARC64 y
+ 
+diff -urN linux-2.5.23-dj2/arch/sparc64/defconfig linux/arch/sparc64/defconfig
+--- linux-2.5.23-dj2/arch/sparc64/defconfig	Wed Jun 19 17:32:35 2002
++++ linux/arch/sparc64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -63,6 +63,7 @@
+ CONFIG_BINFMT_MISC=m
+ # CONFIG_SUNOS_EMUL is not set
+ CONFIG_SOLARIS_EMUL=m
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Parallel port support
+diff -urN linux-2.5.23-dj2/arch/x86_64/config.in linux/arch/x86_64/config.in
+--- linux-2.5.23-dj2/arch/x86_64/config.in	Wed Jun 19 17:31:25 2002
++++ linux/arch/x86_64/config.in	Wed Jun 19 17:29:25 2002
+@@ -54,6 +54,7 @@
+ fi
+ if [ "$CONFIG_SMP" = "y" ]; then
+     define_bool CONFIG_HAVE_DEC_LOCK y
++    int  'Maximum number of CPUs (2-64)' CONFIG_NR_CPUS 64
+ fi
+ 
+ define_bool CONFIG_X86_MCE y
+diff -urN linux-2.5.23-dj2/arch/x86_64/defconfig linux/arch/x86_64/defconfig
+--- linux-2.5.23-dj2/arch/x86_64/defconfig	Wed Jun 19 17:31:25 2002
++++ linux/arch/x86_64/defconfig	Wed Jun 19 17:26:35 2002
+@@ -51,6 +51,7 @@
+ CONFIG_HAVE_DEC_LOCK=y
+ CONFIG_X86_MCE=y
+ # CONFIG_X86_MCE_NONFATAL is not set
++CONFIG_NR_CPUS=64
+ 
+ #
+ # Power management options
+diff -urN linux-2.5.23-dj2/include/linux/threads.h linux/include/linux/threads.h
+--- linux-2.5.23-dj2/include/linux/threads.h	Wed Jun 19 17:31:07 2002
++++ linux/include/linux/threads.h	Wed Jun 19 17:26:35 2002
+@@ -8,10 +8,16 @@
+  * /proc/sys/kernel/threads-max.
+  */
+  
++/*
++ * Maximum supported processors that can run under SMP.  This value is
++ * set via configure setting.  The maximum is equal to the size of the
++ * bitmasks used on that platform, i.e. 32 or 64.  Setting this smaller
++ * saves quite a bit of memory.
++ */
+ #ifdef CONFIG_SMP
+-#define NR_CPUS	32		/* Max processors that can be running in SMP */
++#define NR_CPUS		CONFIG_NR_CPUS
+ #else
+-#define NR_CPUS 1
++#define NR_CPUS		1
+ #endif
+ 
+ #define MIN_THREADS_LEFT_FOR_ROOT 4
+

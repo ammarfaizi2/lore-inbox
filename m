@@ -1,61 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278922AbRJVU6A>; Mon, 22 Oct 2001 16:58:00 -0400
+	id <S278926AbRJVVAa>; Mon, 22 Oct 2001 17:00:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278915AbRJVU5l>; Mon, 22 Oct 2001 16:57:41 -0400
-Received: from adsl-64-161-26-50.dsl.sntc01.pacbell.net ([64.161.26.50]:10674
-	"EHLO linux700") by vger.kernel.org with ESMTP id <S278917AbRJVU5b>;
-	Mon, 22 Oct 2001 16:57:31 -0400
-Date: Mon, 22 Oct 2001 13:57:59 -0700
-From: Craig Dickson <crdic@yahoo.com>
-To: linux-kernel@vger.kernel.org
-Subject: RE: Linux 2.2.20pre10
-Message-ID: <20011022135759.A17384@crdic.ath.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S278925AbRJVVAU>; Mon, 22 Oct 2001 17:00:20 -0400
+Received: from thornbush.demon.co.uk ([194.222.0.69]:11648 "EHLO
+	thornbush.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S278917AbRJVVAD>; Mon, 22 Oct 2001 17:00:03 -0400
+Date: Mon, 22 Oct 2001 22:01:02 +0100 (BST)
+From: Darren Durbin <ddurbin@thornbush.demon.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Subject: Freeze with 'alloc_skb called nonatomically'
+Message-ID: <Pine.LNX.4.33.0110222147430.1064-100000@thornbush.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi All,
 
-> However until people stop shooting I'd prefer not to be a potential
-> target.
+I am getting repeatable machine freezes when trying to bring up a second
+channel with my Elsa PCI ISDN card. The system is RedHat 7.1.
 
-Mr. Cox,
+Whenever it attempts to bring up a second line I get a message saying
+'alloc_skb clled nonatomically from interrupt c01f8c13'. The whole
+machine then freezes and a reboot is required. The nearest symbol in System.map
+is rtmsg_fib.
 
-I understand your concern for your own safety, though I disagree with
-your evaluation of the danger in this case.
+I've tried various different -ac kernels, from 2.4.10-ac4 upto 2.4.12-ac5
+and all seem to exhibit the same behaviour
 
-However, I think it's fair to say that the production and distribution
-of complete changelogs, such that all users have access to them, is an
-important part of the job of being the official maintainer for a
-project, especially such an important project as the stable branch of
-the Linux kernel.
+Regards,
+Darren
 
-So it sounds to me like what you're really saying is that you are
-unwilling to take the risks that, under the current circumstances, you
-perceive as an unavoidable part of the task of maintaining the kernel.
-
-I don't buy the argument you seem to be implying, that you can fulfil
-your responsibilities as kernel maintainer by making this information
-available in such a way that US residents cannot obtain it. From the
-statistics I've seen in the past, a high percentage of Linux users are
-US residents. It is surely unreasonable to suggest that withholding
-information from all those people is compatible with being the official
-kernel maintainer.
-
-You are aware, no doubt, that Linus Torvalds is currently resident in
-the US. If you are unable to give him complete changelogs and
-explanations of the patches you submit to him, I can't imagine how you
-could continue to perform effectively as a Linux kernel developer.
-
-Perhaps you should step down. This would not only be the honest and
-honorable thing to do, if you truly believe that distributing changelogs
-to the US would place you in legal jeopardy, but it would also be a far
-more dramatic act of protest than merely censoring changelogs.
-
-Respectfully,
-
-Craig Dickson

@@ -1,55 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133066AbRDWNUX>; Mon, 23 Apr 2001 09:20:23 -0400
+	id <S133051AbRDWNTD>; Mon, 23 Apr 2001 09:19:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133073AbRDWNUN>; Mon, 23 Apr 2001 09:20:13 -0400
-Received: from t2.redhat.com ([199.183.24.243]:57838 "EHLO
-	warthog.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S133066AbRDWNUD>; Mon, 23 Apr 2001 09:20:03 -0400
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: alonz@nolaviz.org, linux-kernel@vger.kernel.org
-Subject: Re: light weight user level semaphores 
-In-Reply-To: Your message of "Sun, 22 Apr 2001 15:18:34 BST."
-             <27025.987949114@redhat.com> 
-Date: Mon, 23 Apr 2001 14:19:49 +0100
-Message-ID: <4411.988031989@warthog.cambridge.redhat.com>
-From: David Howells <dhowells@warthog.cambridge.redhat.com>
+	id <S133073AbRDWNSv>; Mon, 23 Apr 2001 09:18:51 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:12999 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S133066AbRDWNR4>; Mon, 23 Apr 2001 09:17:56 -0400
+Date: Mon, 23 Apr 2001 15:17:53 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Christoph Rohland <cr@sap.com>
+Cc: "David L. Parsley" <parsley@linuxjedi.org>, linux-kernel@vger.kernel.org,
+        viro@math.psu.edu
+Subject: Re: hundreds of mount --bind mountpoints?
+Message-ID: <20010423151753.C719@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <3AE307AD.821AB47C@linuxjedi.org> <m3r8yjrgdc.fsf@linux.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <m3r8yjrgdc.fsf@linux.local>; from cr@sap.com on Mon, Apr 23, 2001 at 01:43:27PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> wrote:
-> alonz@nolaviz.org said:
-> >  [BTW, another solution is to truly support opaque "handles" to kernel
-> > objects; I believe David Howells is already working on something like
-> > this for Wine?
+On Mon, Apr 23, 2001 at 01:43:27PM +0200, Christoph Rohland wrote:
+> On Sun, 22 Apr 2001, David L. Parsley wrote:
+> > attach packages inside it.  Since symlinks in a tmpfs filesystem
+> > cost 4k each (ouch!), I'm considering using mount --bind for
+> > everything.
+> 
+> What about fixing tmpfs instead?
 
-Yes. However, it uses a different system call set to use them. They translate
-to small object structures internally.
+The question is: How? If you do it like ramfs, you cannot swap
+these symlinks and this is effectively a mlock(symlink) operation
+allowed for normal users. -> BAD!
 
-> > The poll interface can be trivially extended to support
-> > waiting on those...]
+One idea is to only use a page, if the entry will be pushed into
+swap and thus only wasting swap, not memory (where we have more
+of it).
 
-No, they aren't files. I did not want to use "files" because this would incur
-a fairly major penalty for each object:
+But allocating a page on memory pressure is also not a bright
+idea.
 
-	struct file + struct dentry + struct inode
+OTOH we could force this entry to swap immedately, after we
+copied it from the dentry. So we can do an GFP_ATOMIC allocation
+and do not too much harm to memory pressure and only make the IO
+a bit stormier.
 
-Which would mean that Win32 File objects would require two of each, one set to
-hold the extra Win32 attributes and one set for the actual Linux file.
+I think there are a lot of races, which I don't see now.
 
-The way I've chosen uses somewhat less memory and should be faster.
+So please don't beat me too much, if this is a completly stupid
+idea, ok?  ;-)
 
-> ISTR it wasn't quite trivial to do it that way - it would require the 
-> addition of an extra argument to the fops->poll() method.
 
-Yes, the PulseEvent operation demands that all processes currently waiting on
-the event should be woken, but that no processes attaching immediately
-afterward get triggered.
+Regards
 
-This means that the PulseEvent handler has to be able to notify all the
-processes currently waiting on the queue and only those processes. I got it to
-do this by marking the waiter records each process links into the queue.
-
-Oh... and WaitForMultipleObjects also has a "wait for all" option.
-
-David
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

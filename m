@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315267AbSHMMdx>; Tue, 13 Aug 2002 08:33:53 -0400
+	id <S315275AbSHMMnL>; Tue, 13 Aug 2002 08:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315275AbSHMMdx>; Tue, 13 Aug 2002 08:33:53 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:8437 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S315267AbSHMMdx>;
-	Tue, 13 Aug 2002 08:33:53 -0400
-Date: Tue, 13 Aug 2002 08:37:38 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>,
-       riel@conectiva.com.br
-Cc: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [patch 1/21] random fixes
-Message-ID: <20020813123738.GA28603@www.kroptech.com>
-References: <20020811142938.GA681@www.kroptech.com> <3D56A83E.ECF747C6@zip.com.au> <20020812002739.GA778@www.kroptech.com> <3D57406E.D39E9B89@zip.com.au> <20020813002603.GA20817@www.kroptech.com> <3D5857A4.FE358FA2@zip.com.au> <20020813022550.GA6810@www.kroptech.com> <3D587706.A0F2DC21@zip.com.au> <20020813041011.GA12227@www.kroptech.com> <20020813052559.GC9642@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020813052559.GC9642@clusterfs.com>
-User-Agent: Mutt/1.3.28i
+	id <S315276AbSHMMnL>; Tue, 13 Aug 2002 08:43:11 -0400
+Received: from dsl-64-192-150-245.telocity.com ([64.192.150.245]:58382 "EHLO
+	bigk.eargle.com") by vger.kernel.org with ESMTP id <S315275AbSHMMnL>;
+	Tue, 13 Aug 2002 08:43:11 -0400
+Message-ID: <004401c242c7$842222f0$0b2b0a0a@zeusinc.com>
+From: "Tom Sightler" <ttsig@tuxyturvy.com>
+To: "Jeff Chua" <jeffchua@silk.corp.fedex.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0208131503350.1075-100000@boston.corp.fedex.com>
+Subject: Re: searching for dell 2650 PERC3-DI driver
+Date: Tue, 13 Aug 2002 08:46:40 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 11:25:59PM -0600, Andreas Dilger wrote:
-> On Aug 13, 2002  00:10 -0400, Adam Kropelin wrote:
-> > On Mon, Aug 12, 2002 at 08:03:34PM -0700, Andrew Morton wrote:
-> > > Are you _sure_ it was bad with ext2?
-> > 
-> > Yes.
-> > 
-> > [root@devbox adk0212] mount
-> > /dev/hda3 on / type ext2 (rw)
-> > /dev/hda1 on /boot type ext2 (rw)
-> > 
-> > Is it possible that the darn thing is mounted ext3 even though fstab and mount
-> > agree that it's ext2?
-> 
-> Yes, if you have a journal on your root filesystem, then it will be mounted
-> as ext3 regardless of what it says in /etc/fstab.  Since "mount" also
-> looks in /etc/fstab for writing the entry in /etc/mtab _after_ the root
-> filesystem is mounted, the output from "mount" can also be bogus.  You
-> need to check /proc/mounts to see the real answer.
+> I'm buying a Dell PowerEdge 2650 and need to know where to get driver for
+> the RAID controller
+>
+>         PERC3-DI, PERC3-DC, or PERC3-QC
+>
+> Does anyone know what kind of network adaptor is on the board?
 
-Ahhh, carp.
+The best place that I know of for information about ANY Dell server and
+Linux is at http://www.domsch.com/linux/.  There are instructions there on
+how to get recent versions of the aacraid driver to recognize this card
+during boot, assuming a fairly recent distribution.
 
-It's still ext3, precisely as you describe.
+The onboard network adapter is Broadcom NeXtreme Gigabit adapter.  I believe
+this is supported in recent distributions/kernels by the tg3 driver and Dell
+provides binary drivers from Broadcom as well.
 
-*/me hangs head in shame*
-
-When I get home tonight I'll reboot with a rescue disk and blow away the
-journal. *That* should fix its little red wagon.
-
---Adam
+Later,
+Tom
 

@@ -1,56 +1,103 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263327AbSJFEpJ>; Sun, 6 Oct 2002 00:45:09 -0400
+	id <S263336AbSJFEwc>; Sun, 6 Oct 2002 00:52:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263334AbSJFEpJ>; Sun, 6 Oct 2002 00:45:09 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:21642 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263327AbSJFEpI>;
-	Sun, 6 Oct 2002 00:45:08 -0400
-Date: Sat, 05 Oct 2002 21:43:37 -0700 (PDT)
-Message-Id: <20021005.214337.111206582.davem@redhat.com>
-To: alan@lxorguk.ukuu.org.uk
-Cc: lm@bitmover.com, drepper@redhat.com, bcollins@debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1033861827.4441.31.camel@irongate.swansea.linux.org.uk>
-References: <3D9F49D9.304@redhat.com>
-	<20021005162852.I11375@work.bitmover.com>
-	<1033861827.4441.31.camel@irongate.swansea.linux.org.uk>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S263339AbSJFEwc>; Sun, 6 Oct 2002 00:52:32 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:28831 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S263336AbSJFEwb>;
+	Sun, 6 Oct 2002 00:52:31 -0400
+Message-ID: <3D9FC2D9.8010805@candelatech.com>
+Date: Sat, 05 Oct 2002 21:58:01 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "David S. Miller" <davem@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: tg3 and Netgear GA302T x 2 locks machine
+References: <Mutt.LNX.4.44.0210051117240.23965-100000@blackbird.intercode.com.au>	<20021004.181537.104336257.davem@redhat.com>	<3D9F46A2.6050004@candelatech.com> <20021005.212355.122592301.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-   Date: 06 Oct 2002 00:50:27 +0100
+David S. Miller wrote:
+>    From: Ben Greear <greearb@candelatech.com>
+>    Date: Sat, 05 Oct 2002 13:08:02 -0700
+>    
+>    With raw ethernet packets, sent from user-space, at around 40Mbps bi-directional,
+>    I see loads of these messages:
+>    
+>    tg3: eth3: Error, poll already scheduled
+> 
+> This, frankly, isn't possible.
+> 
+> When we get the first interrupt, we hold the spinlock and have IRQs
+> disabled, in that environment we invoke netif_rx_schedule_prep(dev)
+> and then disable device interrupts....
+> 
+> is the tg3 sharing it's IRQ with something else?  That might be
+> an important clue.  In that case what you report might be possible.
 
-   Linus used to do about a patch every 2 days. Nowdays its a lot slower. I
-   put that down to buttkeeper
+Here is what the interrupts look like:
 
-You can get up to hourly patch snapshots, and the so-called
-buttkeeper is what makes that possible.  Ask Rik or Jgarzik,
-as I believe those are two folks who provide this service.
+[root@localhost lanforge]# cat /proc/interrupts
+            CPU0       CPU1
+   0:      14734      19562    IO-APIC-edge  timer
+   1:          3          1    IO-APIC-edge  keyboard
+   2:          0          0          XT-PIC  cascade
+   4:       1163       1124    IO-APIC-edge  serial
+   5:          0          0   IO-APIC-level  eth1
+   8:          0          1    IO-APIC-edge  rtc
+   9:        558          0   IO-APIC-level  eth2, eth4
+  10:          0          0   IO-APIC-level  usb-ohci
+  11:       1385       1454   IO-APIC-level  eth0, eth3, eth5
+  12:         20         12    IO-APIC-edge  PS/2 Mouse
+  14:       3958       4169    IO-APIC-edge  ide0
+  15:          7         13    IO-APIC-edge  ide1
+NMI:          0          0
+LOC:      34138      34183
+ERR:          0
+MIS:          0
+[root@localhost lanforge]#
 
-To me the ftp site patches serve what they should have always served,
-as major checkpoints.  The every-2-day patch thing was necessary back
-then because we had no other window into what was in Linus's tree
-at any given point in time.  Which was truly brutal for folks that
-needed to be merging with him on a daily basis just to keep the
-backlog in check.
 
-Now we have tons of windows into his live tree, some use bitkeeper
-others are in purely patch form and do not require the use of
-bitkeeper.  You can even click on a website to see "did Linus eat that
-XXX diff I sent him 2 hours ago?"
+eth0-1 is the 3com built-in nics
+eth2-3 is the e1000 dual nic
+eth4-5 is the tg3
 
-By all accounts, information is more available than it used to be.
-In fact, the information is available in so many formats and sources
-that you have quite a wide selection of how you get it.
+Oct  5 21:42:10 localhost kernel: tg3.c:v1.1 (Aug 30, 2002)
+Oct  5 21:42:11 localhost kernel: eth4: Tigon3 [partno(AC91002A1) rev 0105 PHY(5701)] (PCI:33MHz:32-bit) 10/100/1000BaseT Ethernet 00:40:f4:47:22:fd
+Oct  5 21:42:11 localhost kernel: eth5: Tigon3 [partno(AC91002A1) rev 0105 PHY(5701)] (PCI:33MHz:32-bit) 10/100/1000BaseT Ethernet 00:40:f4:47:20:56
 
-People like Andrew Morton even publish the "snapshot as of two hours
-ago" diffs of Linus's tree against the most recent FTP patch in their
-patch sets.
+
+Upon starting a user-space TCP connection to myself (no traffic running on eth2-3,
+eth1 is not plugged in to a cable.  eth0 is handling a small amount of traffic,
+no more than about 25 packets per second on average):
+
+[root@localhost lanforge]# tg3: eth5: Error, poll already scheduled
+tg3: eth5: Error, poll already scheduled
+tg3: eth5: Error, poll already scheduled
+tg3: eth5: Error, poll already scheduled
+tg3: eth5: Error, poll already scheduled
+tg3: eth5: Error, poll already scheduled
+tg3: eth5: Error, poll already scheduled
+
+
+Please let me know what other debugging info I can get you.
+
+> Otherwise the message you see appears to be totally impossible.
+
+I told the machine that...but it only blinked it's little leds in mirth!  ;)
+
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264841AbRGNTen>; Sat, 14 Jul 2001 15:34:43 -0400
+	id <S264853AbRGNTyq>; Sat, 14 Jul 2001 15:54:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264846AbRGNTed>; Sat, 14 Jul 2001 15:34:33 -0400
-Received: from [64.165.192.135] ([64.165.192.135]:27659 "EHLO
-	server1.skystream.com") by vger.kernel.org with ESMTP
-	id <S264841AbRGNTeU>; Sat, 14 Jul 2001 15:34:20 -0400
-Message-ID: <B25E2E5A003CD311B61E00902778AF2A02BBD74B@SERVER1>
-From: Brian Kuschak <brian.kuschak@skystream.com>
-To: "'paulus@linuxcare.com.au'" <paulus@linuxcare.com.au>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ppp_generic.c: last_channel_index
-Date: Sat, 14 Jul 2001 12:30:46 -0700
+	id <S264856AbRGNTyg>; Sat, 14 Jul 2001 15:54:36 -0400
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:56245 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S264853AbRGNTy2>; Sat, 14 Jul 2001 15:54:28 -0400
+Message-Id: <200107141954.f6EJsUS09999@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Gabriel Friedmann <gfriedmann@mediaone.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Again: Linux 2.4.x and AMD Athlon
+Date: Sat, 14 Jul 2001 15:54:22 -0400
+X-Mailer: KMail [version 1.2.3]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I found that after I repeatedly opened and closed PPP connections, I would
-get an Oops.  PPP daemon would try to allocate strange PPP interface numbers
-(ppp12, for example) and other sanity checks would fail (kind != INTERFACE
-|| CHANNEL)
+Thomas,  try recompiling your kernel with the  3dnow optimization line 
+commented out in arch/i386/config.in  .  
 
-The last_channel_index wasn't being cleaned up when the channel was closed,
-leading to these problems the next time a PPP channel was opened.  This
-patch fixes the problem for me.
+This has solved the crashes for me, but in my case, they are more severe.
 
-using ppp-2.4.0, patch against: linux-2.4.6
+I believe Alan has already commented on VIA problems and the problems with 
+their chipsets.. ahh, found it 
+"We believe its a VIA chipset problem. Don't expect anything to happen on 
+this front"
 
-Regards,
-Brian
+This bums me out.  AS i am using ABIT kt7a-raid with the kt133a chipset, and 
+3dnow kernel optimizations and i oops right as i boot (sometimes before i 
+complete any init-scripts).
 
-*** ppp_generic.c       Sun Apr 22 09:46:40 2001
---- /home/brian/linux/drivers/net/ppp_generic.c Fri Jul 13 18:38:30 2001
-***************
-*** 1871,1876 ****
---- 1796,1802 ----
-        ppp_disconnect_channel(pch);
-        wake_up_interruptible(&pch->file.rwait);
-        spin_lock_bh(&all_channels_lock);
-+       last_channel_index--;
-        list_del(&pch->file.list);
-        spin_unlock_bh(&all_channels_lock);
-        if (atomic_dec_and_test(&pch->file.refcnt)) 
+Anyways...  I am confirming a problem with my via chipset and 3dnow 
+optimizations.  VIA82CXXX in kernel support not affecting outcome.
+
+Gabriel Friedmann
+
+Let me know if i don't make sense.

@@ -1,67 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319158AbSH2Ixe>; Thu, 29 Aug 2002 04:53:34 -0400
+	id <S319148AbSH2IwX>; Thu, 29 Aug 2002 04:52:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319161AbSH2Ixe>; Thu, 29 Aug 2002 04:53:34 -0400
-Received: from wh8043.stw.uni-rostock.de ([139.30.108.43]:6592 "EHLO
-	wh8043.stw.uni-rostock.de") by vger.kernel.org with ESMTP
-	id <S319158AbSH2Ixd>; Thu, 29 Aug 2002 04:53:33 -0400
-Date: Thu, 29 Aug 2002 10:56:15 +0200
-From: Bjoern Krombholz <bjkro@gmx.de>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops while accessing /proc/stat (2.4.19)
-Message-ID: <20020829085615.GB3684@wh8043.stw.uni-rostock.de>
-Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>,
-	linux-kernel@vger.kernel.org
-References: <20020826145124.GA16273@wh8043.stw.uni-rostock.de> <Pine.NEB.4.44.0208282306490.2879-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0208282306490.2879-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.4i
+	id <S319151AbSH2IwX>; Thu, 29 Aug 2002 04:52:23 -0400
+Received: from maruja.satec.es ([213.164.38.66]:58607 "EHLO satec.es")
+	by vger.kernel.org with ESMTP id <S319148AbSH2IwV>;
+	Thu, 29 Aug 2002 04:52:21 -0400
+From: "Adriano Galano" <adriano@satec.es>
+To: "'Roy Sigurd Karlsbakk'" <roy@karlsbakk.net>,
+       "'Kernel mailing list'" <linux-kernel@vger.kernel.org>,
+       <linux-net@vger.kernel.org>
+Subject: RE: e1000 in 2.4?
+Date: Thu, 29 Aug 2002 10:53:44 +0200
+Message-ID: <011301c24f39$9551a040$1020a4d5@adriano>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
+In-Reply-To: <200208291045.36310.roy@karlsbakk.net>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 28, 2002 at 11:08:24PM +0200, Adrian Bunk wrote:
-> On Mon, 26 Aug 2002, Bjoern Krombholz wrote:
+Hi:
 
-Hi Adrian,
+Yes,
+http://sourceforge.net/project/showfiles.php?group_id=42302&release_id=10746
+2
 
-> > i'm currently have a problem that every program that tries to read from
-> > /proc/stat like `uptime', `free', `cat /proc/stat' etc. segfaults.
-> >...
-> > kernel: c01f2ad9
-> > kernel: Oops: 0002
-> > kernel: CPU:    0
-> > kernel: EIP:    0010:[number+1049/1088]    Tainted: PF
-> >...
-> 
-> which binary-only modules (e.g. NVidia) are loaded on your computer? Is
-> the problem reproducible without them ever loaded since the last reboot?
-> 
+Greetings,
 
-Actually it happened after the decission of not using NVidia drivers any
-longer. I didn't insmod them in this session and at the time of the crash
-I was happy to reach 10 days uptime (the system crashed quite often
-before, every 3 to 7 days, and completely locked, so I had no chance to
-get to know what these crashes were caused by).
+-Adriano (bryam)
+--
+Adriano M. Galano Diez
+http://www.satec.es
+Phone: (+34) 917 089 000
+CPhone: (+34) 600 990 798
 
-So, NVidia wasn't the problem, but maybe VMWare. I shut VMware down a few
-hours before the first Oops occured.
+> -----Mensaje original-----
+> De: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org]En nombre de Roy Sigurd
+> Karlsbakk
+> Enviado el: jueves, 29 de agosto de 2002 10:46
+> Para: Kernel mailing list; linux-net@vger.kernel.org
+> Asunto: e1000 in 2.4?
+>
+>
+> hi
+>
+> Is anyone working on backporting the intel e1000 driver to 2.4 yet?
+>
+> roy
+> --
+> Roy Sigurd Karlsbakk, Datavaktmester
+> ProntoTV AS - http://www.pronto.tv/
+> Tel: +47 9801 3356
+>
+> Computers are like air conditioners.
+> They stop working when you open Windows.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe
+> linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-
-Bjoern
-
-
-PS:
-One of the `crash|lock types' that happened most often is when the system/pci
-bus is on high load, e.g. copying some big files from one partition to
-another one while watching TV with xawtv (standard bttv driver); or while
-using "transcode" (converting video files) and whatching TV or whatching
-movies. It's always the same that the system locks while reading/writing
-(might be only one of those operations) to the hard disk; the HD LED keeps
-on.
-
-Maybe this is related to VIAs hardware in some way, I don't know but'd
-like to. :)

@@ -1,38 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbUJZDwv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbUJZB7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbUJZDwv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 23:52:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUJZDwq
+	id S261997AbUJZB7c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 21:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbUJZB5i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 23:52:46 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:43741
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262156AbUJZDtU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 23:49:20 -0400
-Date: Mon, 25 Oct 2004 20:41:47 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Werner Almesberger <wa@almesberger.net>
-Cc: hch@lst.de, davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove dead tcp exports
-Message-Id: <20041025204147.667ee2b1.davem@davemloft.net>
-In-Reply-To: <20041026000710.D3841@almesberger.net>
-References: <20041024134309.GB20267@lst.de>
-	<20041026000710.D3841@almesberger.net>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Oct 2004 21:57:38 -0400
+Received: from relay00.pair.com ([209.68.1.20]:32017 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S261997AbUJZB1d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Oct 2004 21:27:33 -0400
+X-pair-Authenticated: 68.42.66.6
+Subject: Re: The naming wars continue...
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <417D73C8.5040204@tmr.com>
+References: <1098485798.6028.83.camel@gaston>
+	 <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org>
+	 <1098566710.3872.149.camel@baythorne.infradead.org>
+	 <417D73C8.5040204@tmr.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Oct 2004 21:27:30 -0400
+Message-Id: <1098754050.19465.3.camel@athena.fprintf.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Oct 2004 00:07:10 -0300
-Werner Almesberger <wa@almesberger.net> wrote:
+On Mon, 2004-10-25 at 17:44 -0400, Bill Davidsen wrote:
+> David Woodhouse wrote:
+> 
+> > Damn right. If 2.6.10 doesn't boot on the G5 with i8042 and 8250 drivers
+> > built in, and doesn't sleep (well, more to the point doesn't resume) on
+> > my shinybook, I shall sulk :)
+> 
+> Suspend is Shakespearean, "to sleep, perchance to dream." I don't know 
+> why people are still trying the fix suspend, it works perfectly on all 
+> my machines, I would like to see some work on wake-the-@-up at this point.
+> 
+> The sad part is that using apm and 2.4, all my laptops seem happy to 
+> sleep and wake when asked. One of the reasons I'm running 2.4 on the old 
+> ones, the new ones boot fast enought that I don't care.
+> 
 
-> Wheee, you had me scared for a moment. But indeed, not even tcpcp
-> (tcpcp.sf.net) uses any of these. But I kind of wonder how you
-> determine they're "dead" ?
+Well, for me, 2.6.9 *broke* wake up.  Suspend still works fine, but I'm
+back to 2.6.9-rc4 to get working wake up.
 
-There are scripts which build everything as possible as modules
-then greps the symbol tables of the object files to see which
-symbols exported by the kernel are actually used.
+Daniel

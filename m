@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267554AbTAXFAz>; Fri, 24 Jan 2003 00:00:55 -0500
+	id <S267541AbTAXFPU>; Fri, 24 Jan 2003 00:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267550AbTAXFAz>; Fri, 24 Jan 2003 00:00:55 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:36071 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S267548AbTAXFAx>;
-	Fri, 24 Jan 2003 00:00:53 -0500
-Date: Thu, 23 Jan 2003 20:58:53 -0800 (PST)
-Message-Id: <20030123.205853.127871890.davem@redhat.com>
-To: gibbs@scsiguy.com
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
-       marcelo@conectiva.com.br
-Subject: Re: Aic7xxx 6.2.28 and Aic79xx 1.3.0 Released
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <756820000.1043384077@aslan.scsiguy.com>
-References: <739810000.1043382396@aslan.scsiguy.com>
-	<20030123.202727.102788332.davem@redhat.com>
-	<756820000.1043384077@aslan.scsiguy.com>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267542AbTAXFPU>; Fri, 24 Jan 2003 00:15:20 -0500
+Received: from [209.195.52.120] ([209.195.52.120]:49808 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id <S267541AbTAXFPT>; Fri, 24 Jan 2003 00:15:19 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: "Anoop J." <cs99001@nitc.ac.in>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Date: Thu, 23 Jan 2003 21:11:10 -0800 (PST)
+Subject: Re: your mail
+In-Reply-To: <40475.210.212.228.78.1043384883.webmail@mail.nitc.ac.in>
+Message-ID: <Pine.LNX.4.44.0301232104440.10187-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
-   Date: Thu, 23 Jan 2003 21:54:37 -0700
-   
-   You really make me laugh!
+The idea of page coloring is based on the fact that common implementations
+of caching can't put any page in memory in any line in the cache (such an
+implementation is possible, but is more expensive to do so is not commonly
+done)
 
-I'm glad that we've established that we both provide endless amounts
-of comedy for each other.
+With this implementation it means that if your program happens to use
+memory that cannot be mapped to half of the cache lines then effectivly
+the CPU cache is half it's rated size for your program. the next time your
+program runs it may get a more favorable memory allocation and be able to
+use all of the cache and therefor run faster.
 
-Look Justin, the fact remains that you get paid top dollar to maintain
-the Linux Adaptec driver.  If you can't be bothered to reliably
-integrate fixes that show up in Linus's and Marcelo's tree, then
-that's regretfully sad given your circumstances.
+Page coloring is an attampt to take this into account when allocating
+memory to programs so that every program gets to use all of the cache.
 
-Now that is what makes me laugh!
+David Lang
+
+
+ On Fri, 24 Jan 2003, Anoop J. wrote:
+
+> Date: Fri, 24 Jan 2003 10:38:03 +0530 (IST)
+> From: Anoop J. <cs99001@nitc.ac.in>
+> To: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+>
+>
+> How does page coloring work. Iwant its mechanism not the implementation.
+> I went through some pages of W.L.Lynch's paper on cache and VM. Still not
+> able to grasp it .
+>
+>
+> Thanks in advance
+>
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

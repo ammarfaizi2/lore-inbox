@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276309AbRJPN4Q>; Tue, 16 Oct 2001 09:56:16 -0400
+	id <S276312AbRJPN6G>; Tue, 16 Oct 2001 09:58:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276329AbRJPN4H>; Tue, 16 Oct 2001 09:56:07 -0400
-Received: from inway98.cdi.cz ([213.151.81.98]:48115 "EHLO luxik.cdi.cz")
-	by vger.kernel.org with ESMTP id <S276309AbRJPNzx>;
-	Tue, 16 Oct 2001 09:55:53 -0400
-Posted-Date: Tue, 16 Oct 2001 15:56:11 +0200
-Date: Tue, 16 Oct 2001 15:56:11 +0200 (CEST)
-From: Martin Devera <devik@cdi.cz>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: sendto syscall is slow
-In-Reply-To: <3BCC2F60.1753212@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10110161551340.13894-100000@luxik.cdi.cz>
+	id <S276318AbRJPN54>; Tue, 16 Oct 2001 09:57:56 -0400
+Received: from [213.237.118.153] ([213.237.118.153]:17024 "EHLO Princess")
+	by vger.kernel.org with ESMTP id <S276312AbRJPN5q>;
+	Tue, 16 Oct 2001 09:57:46 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Allan Sandfeld <linux@sneulv.dk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.13pre3aa1
+Date: Tue, 16 Oct 2001 15:55:27 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <20011016110708.D2380@athlon.random> <E15tTMq-0000E6-00@Princess> <20011016152126.01d58180.skraw@ithnet.com>
+In-Reply-To: <20011016152126.01d58180.skraw@ithnet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Cc: Stephan von Krawczynski <skraw@ithnet.com>
+Message-Id: <E15tUgv-0000Oh-00@Princess>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > i'm doing new qos discipline developement and use own
-> > mesurment tool. It simply uses PF_PACKET and then
-> > doing sendto/recv simulating various flows.
-> > (I use both lo and eth0 where I short-connected RX-TX
-> >  pins in single ethcard)
-> > 
-> > I can't get beyond 25 000 packets per second. gprof:
-> > Each sample counts as 0.01 seconds.
-> >   %   cumulative   self              self     total
-> >  time   seconds   seconds    calls  ms/call  ms/call  name
-> >  35.67      5.39     5.39   498750     0.01     0.01  sendto
-> >  26.67      9.42     4.03  1000826     0.00     0.00  poll
-> >  19.06     12.30     2.88   498750     0.01     0.01  recv
-> >[snip] 
-> 
-> Increase the HZ constant in the kernel, which is determining the
-> sceduler frequency, which is apparently due to BH handling acting
-> as a low-pass filder for your siganls here. However please
-> beware of many possible sideffects this may have on your system.
+On Tuesday 16 October 2001 15:21, you wrote:
+>
+> On my system I cannot see anything the like. Look at the execution time.
+> Ok, I must admit: I do not use brain-dead K stuff (warning: this is a very
+> personal opinion, don't flame me here :-).
+>
+> What does your setup look like? Have you ever tested without K?
+>
+No, I havent tried it without K. The system is quite responsive if I only run 
+updatedb, and swap around in either text-linux or a simple X setup. When 
+looking closer at the problem, it is the combination of running kmail with 
+HUGE folders (think linux-kernel archive), apt-get and anacron that thrashes 
+the system. All of these have a "relative" low impact when running alone or 
+two and two.
+It might be "what you expect" abusing the system like that. But as I said, it 
+is not a problem in 2.4.11-pre1 and 2.4.12-ac3. 
 
-I did. The no of packets decreased:
- 37.40      6.63     6.63   439050     0.02     0.02  sendto
- 25.66     11.19     4.55   881028     0.01     0.01  poll
- 20.19     14.77     3.58   439050     0.01     0.01  recv
+Princess:/home# cat /proc/meminfo
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  196304896 192466944  3837952        0  1327104 33628160
+Swap: 255426560 64491520 190935040
+MemTotal:       191704 kB
+MemFree:          3748 kB
+MemShared:           0 kB
+Buffers:          1296 kB
+Cached:          28196 kB
+SwapCached:       4644 kB
+Active:          23344 kB
+Inactive:        10792 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       191704 kB
+LowFree:          3748 kB
+SwapTotal:      249440 kB
+SwapFree:       186460 kB
 
-Not it is about 23 000/sec probably due to higher system overhead.
-I don't think it could affect this case because recieve queue is
-drained from softirq which is run when syscall returns to userspace.
-So that is should not be bound to scheculer timing (as I both send
-and recieve from single process).
+Princess:/proc# uname -r
+2.4.13-pre2
 
-Martin
+Princess:/proc# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/hda3             18975356   9843804   8167652  55% /
+/dev/hda1                 7318      7241         0 100% /boot
 
+ 15:52:56 up  1:03,  2 users,  load average: 3.44, 3.95, 3.16
+90 processes: 86 sleeping, 2 running, 2 zombie, 0 stopped
+CPU states:  23.7% user,   3.4% system,   0.0% nice,  73.0% idle
+Mem:    191704K total,   188024K used,     3680K free,     2652K buffers
+Swap:   249440K total,    61744K used,   187696K free,    21268K cached
+
+
+Does all this help you?
+
+Notice this is not worst case, just what I could reproduce by starting 
+updatedb and checksecurity while answering your mail. Switchtime from desktop 
+to desktop is 1 minute.
+
+`Allan

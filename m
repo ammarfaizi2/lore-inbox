@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262513AbTENQ1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262526AbTENQ1Q
+	id S262577AbTENQ3y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262578AbTENQ3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:27:16 -0400
-Received: from meryl.it.uu.se ([130.238.12.42]:25776 "EHLO meryl.it.uu.se")
-	by vger.kernel.org with ESMTP id S262513AbTENQ1P (ORCPT
+	Wed, 14 May 2003 12:29:54 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:15275 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262577AbTENQ2k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:27:15 -0400
-MIME-Version: 1.0
+	Wed, 14 May 2003 12:28:40 -0400
+Date: Wed, 14 May 2003 09:42:42 -0700
+From: Greg KH <greg@kroah.com>
+To: "Jon K. Akers" <jka@mbi.ufl.edu>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.69-mm5
+Message-ID: <20030514164242.GA2352@kroah.com>
+References: <CDD2FA891602624BB024E1662BC678ED843F9B@mbi-00.mbi.ufl.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16066.29023.973080.985528@gargle.gargle.HOWL>
-Date: Wed, 14 May 2003 18:39:59 +0200
-From: mikpe@csd.uu.se
-To: jgarzik@pobox.com
-CC: linux-kernel@vger.kernel.org
-Subject: 2.5.69: trivial tulip Kconfig correction
-X-Mailer: VM 6.90 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <CDD2FA891602624BB024E1662BC678ED843F9B@mbi-00.mbi.ufl.edu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While there is a separate driver for 2104x tulips (CONFIG_DE2104X),
-drivers/net/tulip/Kconfig states that CONFIG_TULIP also supports
-2104x tulips. This is not the case since that support was removed
-in December 2001. A user with an old tulip may thus be tricked into
-configuring the wrong driver. (I was, on my PMac 4400.)
+On Wed, May 14, 2003 at 12:35:26PM -0400, Jon K. Akers wrote:
+> Currently I do not use the -bk patches from Linus's tree, although I
+> suppose I could give it a shot. 
+> 
+> My .config for that section follows:
+> 
+> #
+> # USB support
+> #
+> # CONFIG_USB is not set
+> CONFIG_USB_GADGET=y
+> 
+> #
+> # USB Peripheral Controller Support
+> #
+> CONFIG_USB_NET2280=y
+> 
+> #
+> # USB Gadget Drivers
+> #
+> CONFIG_USB_ZERO=m
+> CONFIG_USB_ZERO_NET2280=y
+> CONFIG_USB_ETH=y
+> CONFIG_USB_ETH_NET2280=y
 
-The patch below removes this misinformation from tulip's Kconfig.
+Yeah, you can't compile both of these drivers directly in the kernel at
+the same time.  David Brownell posted a patch for this yesterday to lkml
+and I'll send it on to Linus later on today.
 
-/Mikael
+thanks,
 
---- linux-2.5.69/drivers/net/tulip/Kconfig.~1~	2003-05-05 22:56:29.000000000 +0200
-+++ linux-2.5.69/drivers/net/tulip/Kconfig	2003-05-14 18:27:19.000000000 +0200
-@@ -37,7 +37,7 @@
- 	---help---
- 	  This driver is developed for the SMC EtherPower series Ethernet
- 	  cards and also works with cards based on the DECchip 
--	  21040/21041/21140 (Tulip series) chips.  Some LinkSys PCI cards are
-+	  21140 (Tulip series) chips.  Some LinkSys PCI cards are
- 	  of this type.  (If your card is NOT SMC EtherPower 10/100 PCI
- 	  (smc9332dst), you can also try the driver for "Generic DECchip"
- 	  cards, above.  However, most people with a network card of this type
+greg k-h

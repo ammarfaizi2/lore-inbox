@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264873AbSKJODg>; Sun, 10 Nov 2002 09:03:36 -0500
+	id <S264868AbSKJOAI>; Sun, 10 Nov 2002 09:00:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264874AbSKJODf>; Sun, 10 Nov 2002 09:03:35 -0500
-Received: from maile.telia.com ([194.22.190.16]:16351 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S264873AbSKJODe>;
-	Sun, 10 Nov 2002 09:03:34 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-To: Marcelo Tosatti <marcelo@conectiva.com.br>, hch@lst.de
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.20-pre5
-References: <Pine.LNX.4.44.0208281946150.5234-100000@freak.distro.conectiva>
-From: Peter Osterlund <petero2@telia.com>
-Date: 10 Nov 2002 15:10:12 +0100
-In-Reply-To: <Pine.LNX.4.44.0208281946150.5234-100000@freak.distro.conectiva>
-Message-ID: <m23cq9ikhn.fsf@p4.localdomain>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264872AbSKJOAH>; Sun, 10 Nov 2002 09:00:07 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:16544 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264868AbSKJOAH>; Sun, 10 Nov 2002 09:00:07 -0500
+Subject: Re: [lkcd-devel] Re: What's left over.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Werner Almesberger <wa@almesberger.net>,
+       Suparna Bhattacharya <suparna@in.ibm.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "Matt D. Robinson" <yakker@aparity.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, Andy Pfiffer <andyp@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Mike Galbraith <efault@gmx.de>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+In-Reply-To: <m1k7jmcgo5.fsf@frodo.biederman.org>
+References: <Pine.LNX.4.44.0211091510060.1571-100000@home.transmeta.com>
+	<m1of8ycihs.fsf@frodo.biederman.org>
+	<1036894347.22173.6.camel@irongate.swansea.linux.org.uk> 
+	<m1k7jmcgo5.fsf@frodo.biederman.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Nov 2002 14:30:41 +0000
+Message-Id: <1036938641.1005.2.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti <marcelo@conectiva.com.br> writes:
+On Sun, 2002-11-10 at 02:16, Eric W. Biederman wrote:
+> To use kmapped memory I need to setup a page table to do the final copy.
+> And to setup a page table I need to know where the memory is going to be copied
+> to.
 
-> <hch@lst.de>:
->   o update drm to XFree 4.2 version
+And ?
 
-This patch removes two lines from drm_vm.h that are not removed in the
-XFree 4.2 tree. It looks like a merge error to me. Here is a patch for
-2.4.20-rc1 to restore the missing lines.
+I find it hard to believe you can't drive an MMU if you can write code
+that boots one Linux from another
 
---- linux/drivers/char/drm/drm_vm.h~	Tue Oct 29 19:01:06 2002
-+++ linux/drivers/char/drm/drm_vm.h	Sun Nov 10 15:06:45 2002
-@@ -471,10 +471,12 @@
- 		vma->vm_private_data = (void *)map;
- 				/* Don't let this area swap.  Change when
- 				   DRM_KERNEL advisory is supported. */
-+		vma->vm_flags |= VM_RESERVED;
- 		break;
- 	case _DRM_SCATTER_GATHER:
- 		vma->vm_ops = &DRM(vm_sg_ops);
- 		vma->vm_private_data = (void *)map;
-+		vma->vm_flags |= VM_RESERVED;
-                 break;
- 	default:
- 		return -EINVAL;	/* This should never happen. */
-
--- 
-Peter Osterlund - petero2@telia.com
-http://w1.894.telia.com/~u89404340

@@ -1,55 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279218AbRJWDEM>; Mon, 22 Oct 2001 23:04:12 -0400
+	id <S279222AbRJWDqI>; Mon, 22 Oct 2001 23:46:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279219AbRJWDEC>; Mon, 22 Oct 2001 23:04:02 -0400
-Received: from mail6.speakeasy.net ([216.254.0.206]:54025 "EHLO
-	mail6.speakeasy.net") by vger.kernel.org with ESMTP
-	id <S279218AbRJWDDw>; Mon, 22 Oct 2001 23:03:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: safemode <safemode@speakeasy.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: time tells all about kernel VM's
-Date: Mon, 22 Oct 2001 23:04:25 -0400
-X-Mailer: KMail [version 1.3.2]
+	id <S279223AbRJWDp6>; Mon, 22 Oct 2001 23:45:58 -0400
+Received: from hermes.toad.net ([162.33.130.251]:35549 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S279222AbRJWDpu>;
+	Mon, 22 Oct 2001 23:45:50 -0400
+Subject: Re: Linux 2.2.20pre10
+To: linux-kernel@vger.kernel.org
+Date: Mon, 22 Oct 2001 23:45:37 -0400 (EDT)
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011023030353Z279218-17408+3723@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <20011023034537.EC5811130@thanatos.toad.net>
+From: jdthood@home.dhs.org (Thomas Hood)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've all seen benchmarks and "load tests" and "real world runthroughs" on 
-the rik and aa kernel VM's.  But time does tell all.  I've had 
-2.4.12-ac3-hogstop up and running for over 5 days.   The first hiccup i found 
-was a day or so ago when trying out defragging an ext2 fs on a hdd just for 
-the hell of it.  I have 770MB of ram and 128MB of swap (since my other 128MB 
-of swap was on the drive i was defragging and i had swapoff'd it).   First 
-the kernel created about 600MB of buffer in addition to the application 
-specified 128MB of buffer i had it using (e2defrag -p 16384).   This brought 
-the system to a crawl.  So in some twisted reality that may be considered 
-normal kernel behavior, so i let it pass.  Then i created an insanely large 
-ps and tried loading it in ghostview, magnified it a couple times in 
-kghostview and what happens?  I wish i could tell you but i cant because the 
-system immediately went unresponsive and started swapping at a turtles pace.  
-I can tell what didn't happen though.  
+In your letter you describe Alan as an "official" maintainer
+of the stable kernel, but there isn't such a thing.  Alan
+is a volunteer who works his butt off integrating patches
+from other volunteers in order to produce a useful series of
+Linux kernels.  He has apparently decided, however, to limit
+his volunteer contributions to those that aren't liable to
+land him in jail sometime in the future.
 
-A.  OOM did not kick in and kill kghostview.  Why you may ask?  Read on to B. 
-B.  The VM has this need to redistribute cache and buffer so that an OOM 
-situation doesn't take place until all the ram is basically being used.  The 
-problem is that currently the VM will swap out stuff it isn't using and 
-without buffer it must read from the drive (which is being used to swap) 
-which takes more cpu which isn't there because the app is locking the kernel 
-up trying to allocate memory (see why dbench causes mp3 skips).  So what 
-happens is that the kernel cant swap because the hdd io is being strangled by 
-the process that's going out of control (kghostview) which means that the VM 
-is stuck doing this redistribution at a snails pace and the OOM situation 
-never occurs (or occurs many days later when you've died of starvation).  
-Leaving you deadlocked on a kernel with a VM that is supposed to conquer this 
-situation and make it a thing of the past.  
+You seem to think that Alan is just being paranoid or petty,
+but you are wrong.  U.S. law makes OSS coding legally risky.
+Alan's duties require him to handle a lot of code, which
+increases his exposure to the risk.  Furthermore, his
+position in the community makes him an attractive target for
+any entity that decides to attack the open source software
+community with legal weapons.  Remember Sklyarov.
 
-So what happens after a few days of uptime is that we see where the VM has 
-slight weaknesses that magnify over time and aren't aparent on the normal run 
-of tests done on each new release to decide if it's good or not.  
-Perhaps if i had not had any swap loaded at all this situation would have 
-been avoided.   
-I see this as a pretty serious bug 
+--
+Thomas Hood
+
+> Mr. Cox,
+> 
+> I understand your concern for your own safety, though I disagree with
+> your evaluation of the danger in this case.
+> 
+> However, I think it's fair to say that the production and distribution
+> of complete changelogs, such that all users have access to them, is an
+> important part of the job of being the official maintainer for a
+> project, especially such an important project as the stable branch of
+> the Linux kernel.
+> 
+> So it sounds to me like what you're really saying is that you are
+> unwilling to take the risks that, under the current circumstances, you
+> perceive as an unavoidable part of the task of maintaining the kernel.
+> 
+> I don't buy the argument you seem to be implying, that you can fulfil
+> your responsibilities as kernel maintainer by making this information
+> available in such a way that US residents cannot obtain it. From the
+> statistics I've seen in the past, a high percentage of Linux users are
+> US residents. It is surely unreasonable to suggest that withholding
+> information from all those people is compatible with being the official
+> kernel maintainer.
+> 
+> You are aware, no doubt, that Linus Torvalds is currently resident in
+> the US. If you are unable to give him complete changelogs and
+> explanations of the patches you submit to him, I can't imagine how you
+> could continue to perform effectively as a Linux kernel developer.
+> 
+> Perhaps you should step down. This would not only be the honest and
+> honorable thing to do, if you truly believe that distributing changelogs
+> to the US would place you in legal jeopardy, but it would also be a far
+> more dramatic act of protest than merely censoring changelogs.
+> 
+> Respectfully,
+> 
+> Craig Dickson
+-- 
+Thomas Hood
+(Don't reply to the From: address but to jdthood_AT_mail.com)

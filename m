@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVCUSXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVCUSb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVCUSXd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 13:23:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVCUSXd
+	id S261374AbVCUSb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 13:31:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVCUSb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 13:23:33 -0500
-Received: from atlmail.prod.rxgsys.com ([64.74.124.160]:38099 "EHLO
-	bastet.signetmail.com") by vger.kernel.org with ESMTP
-	id S261356AbVCUSXN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 13:23:13 -0500
-Date: Mon, 21 Mar 2005 13:22:54 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Dave Jones <davej@redhat.com>, Greg KH <greg@kroah.com>,
-       chas williams - CONTRACTOR <chas@cmf.nrl.navy.mil>,
-       Leendert van Doorn <leendert@watson.ibm.com>,
-       Reiner Sailer <sailer@watson.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] alpha build fixes
-Message-ID: <20050321182254.GA12553@havoc.gtf.org>
-References: <423BABBF.6030103@pobox.com> <20050319231116.GA4114@twiddle.net> <1111416728.14833.20.camel@localhost.localdomain> <20050321181618.GA7136@twiddle.net>
+	Mon, 21 Mar 2005 13:31:56 -0500
+Received: from lyle.provo.novell.com ([137.65.81.174]:53552 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261374AbVCUSbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 13:31:55 -0500
+Date: Mon, 21 Mar 2005 10:27:46 -0800
+From: Greg KH <gregkh@suse.de>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, akpm@osdl.org,
+       len.brown@intel.com, tony.luck@intel.com, dely.l.sy@intel.com
+Subject: Re: [RFC/Patch 0/12] ACPI based root bridge hot-add
+Message-ID: <20050321182745.GA5201@suse.de>
+References: <20050318133856.A878@unix-os.sc.intel.com> <20050319051331.GC21485@suse.de> <20050321100457.A4477@unix-os.sc.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050321181618.GA7136@twiddle.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050321100457.A4477@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 21, 2005 at 10:16:18AM -0800, Richard Henderson wrote:
-> On Mon, Mar 21, 2005 at 02:52:10PM +0000, Alan Cox wrote:
-> > The issue is bigger - it's needed for the CMD controllers on PA-RISC for
-> > example it appears - and anything else where IDE legacy IRQ is wired
-> > oddly.
+On Mon, Mar 21, 2005 at 10:04:57AM -0800, Rajesh Shah wrote:
+> > 	- Are you wanting the acpi specific patches to go into the tree
+> > 	  through the acpi developers?  How about the ia64 specific
+> > 	  patches?
 > 
-> Sure, but who queries this information?  That's my question.
+> I honestly don't know what the best approach is here - what do you
+> recommend? I did receive an email from Andrew indicating he wants
+> to pick these up for the next mm. Perhaps the best thing is to
+> let Andrew include the whole series after I've addressed all
+> feedback and you, Tony, Len etc. all agree these are OK to go in.
 
-IDE drivers.
+That sounds like a fine plan to me.
 
-Since its a detail that varies widely depending on platform, the arch
-should either provide it or at least have a way to override it.
+thanks,
 
-linux/pci.h would be fine place for the "generic version arch overrides
-with HAVE_ARCH_PCI_IDE_IRQ", or we could fix the asm-generic header to
-not need #ifdefs in -your- source just to be usable.
-
-	Jeff
-
-
-
+greg k-h

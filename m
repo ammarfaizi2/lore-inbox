@@ -1,40 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262143AbRETTM6>; Sun, 20 May 2001 15:12:58 -0400
+	id <S262148AbRETTMS>; Sun, 20 May 2001 15:12:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262150AbRETTMj>; Sun, 20 May 2001 15:12:39 -0400
-Received: from marks-43.caltech.edu ([131.215.92.43]:63647 "EHLO
-	velius.chaos2.org") by vger.kernel.org with ESMTP
-	id <S262149AbRETTM1>; Sun, 20 May 2001 15:12:27 -0400
-Date: Sun, 20 May 2001 12:12:16 -0700 (PDT)
-From: Jacob Luna Lundberg <jacob@velius.chaos2.org>
-To: Ingo Molnar <mingo@elte.hu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.4 del_timer_sync oops in schedule_timeout
-In-Reply-To: <Pine.LNX.4.33.0105201945370.31113-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.32.0105201209470.4055-100000@velius.chaos2.org>
+	id <S262150AbRETTMM>; Sun, 20 May 2001 15:12:12 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:37064 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262148AbRETTLy>;
+	Sun, 20 May 2001 15:11:54 -0400
+Date: Sun, 20 May 2001 15:11:53 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
+        Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Clausen <clausen@gnu.org>,
+        Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
+In-Reply-To: <Pine.LNX.4.21.0105201150110.7553-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0105201509060.8940-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 20 May 2001, Ingo Molnar wrote:
-> > Unable to handle kernel paging request at virtual address 78626970
-> this appears to be some sort of DMA-corruption or other memory scribble
-> problem. hexa 78626970 is ASCII "pibx", which shows in the direction of
-> some sort of disk-related DMA corruption.
-> we havent had any similar crash in del_timer_sync() for ages.
 
-Ahh.  Thanks then, I'll go look hard at the disk in that box.  :)
+On Sun, 20 May 2001, Linus Torvalds wrote:
 
--Jacob
+> Now, a good way to force the issue may be to just remove the "ioctl"
+> function pointer from the file operations structure altogether. We don't
+> have to force peopel to use "read/write" - we can just make it clear that
+> ioctl's _have_ to be wrapped, and that the only ioctl's that are
+> acceptable are the ones that are well-designed enough to be wrappable. So
+> we'd have a "linux/fs/ioctl.c" that would do all the wrapping, and would
+> also be able to do all the stuff that is currently done by pretty much
+> every single architecture out there (ie emulation of ioctl's for different
+> native modes).
 
--- 
+Pheeew... Could you spell "about megabyte of stuff in ioctl.c"?
 
-Only when work uses up all energy and people are too tired to
-enjoy the persuit of their passions are they ready to be reduced
-to the passively receptive state suitable for television.
+> It would probably not be that horrible. Many ioctl's are probably not all
+> that much used by any real programs any more. The most common ones by far
+> are the tty ones - and the truly generic ones like "FIONREAD" that it
+> actually would make sense to generalize more.
 
- - ``The Hacker Ethic'' by Pekka Himanen
+Networking stuff. It _is_ used.
+ 
+> Catching stuff like EJECT at a higher layer and turning THOSE kinds of
+> things into real block device operations would clean up drivers and make
+> them more uniform.
+> 
+> Would fs/ioctl.c be an ugly mess of some special cases? Yes. But would
+> that make the ugliness explicit and possibly easier to try to manage and
+> fix? Very probably. And it would mean that driver writers could not just
+> say "fuck design, I'm going to do this my own really ugly way". 
+
+How about moratorium on new ioctls in the meanwhile? Whatever we do in
+fs/ioctl.c, it _will_ take time.
+								Al
 

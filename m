@@ -1,75 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288299AbSACUbq>; Thu, 3 Jan 2002 15:31:46 -0500
+	id <S288302AbSACUc0>; Thu, 3 Jan 2002 15:32:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288300AbSACUbg>; Thu, 3 Jan 2002 15:31:36 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:4623 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S288299AbSACUbZ>; Thu, 3 Jan 2002 15:31:25 -0500
-Message-Id: <200201032028.g03KSsE29484@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: "vda@port.imtp.ilyichevsk.odessa.ua" 
-	<vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "H.J.Lu" <hjl@lucon.org>, Momchil Velikov <velco@fadata.bg>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        Russell King <rmk@arm.linux.org.uk>, Andrew Morton <akpm@zip.com.au>
-Subject: Re: Extern variables in *.c files (maintainers pls read this)
-Date: Thu, 3 Jan 2002 22:28:55 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <02010216180403.01928@manta> <3C340EA9.FE084B4C@zip.com.au> <20020103095742.A11443@flint.arm.linux.org.uk>
-In-Reply-To: <20020103095742.A11443@flint.arm.linux.org.uk>
+	id <S288305AbSACUcR>; Thu, 3 Jan 2002 15:32:17 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:23822 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S288301AbSACUcN>;
+	Thu, 3 Jan 2002 15:32:13 -0500
+Message-ID: <3C34BFCA.3010200@free.fr>
+Date: Thu, 03 Jan 2002 21:32:10 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+To: lkml@ohdarn.net, Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Second edition of the -mjc branch has been released
+In-Reply-To: <200201030929.g039TCZ02342@ohdarn.net>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So, you have a choice:
-> 1. Enable -fno-common
->    - detect variables that should be marked static which aren't
->    - don't detect size differences
-> 2. Disable -fno-common
->    - don't detect variables that should be marked static
->    - detect size differences as long as the variables aren't marked extern
->
-> As soon as someone has int foo in one file, and extern char foo in another,
-> you've lost no matter which option you take.
->
-> The header file approach is the most reliable (and imho correct) method to
-> solve this problem.
+lkml@ohdarn.net wrote:
 
-And this method is traditional for C. We have struct declarations and fn 
-propotypes in *.h, we should place extern vars there too. Always.
+> Performance and stability issues have been fixed to some degree.
+> A lot of the patches I have received either did not have names attached
+> or I was unable to locate a name.  Please contact me if changes must
+> be made.  All of the patches that have been included in this release can
+> be found at:
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/mjc/linux-2.4/included/mjc2
+> The release itself is located here:
+> 	ftp://ftp.kernel.org/pub/linux/kernel/people/mjc/linux-2.4/current
+> 
+> Below is a snippet from Changelog.mjc:
+> mjc2:
+> Reverse Mapping Patch #10                       (Rik van Riel)
+> Bootmem patch                                   (William Lee Irwin III)
+> entry.S speedups                                (Alex Khripin)
+> -fixed entry.S to apply to mjc tree             (Luuk van der Duim)
+> NFS Updates                                     (Trond Myklebust)
+> kmem_cache_estimate optimization                (Balbir Singh)
+> IRQrate                                         (Ingo Molnar)
+> Pagecache & Icache hash changes                 (Chuck Lever,
+>                                                 William Lee Irwin III,
+>                                                 Rusty Russell,
+>                                                 Anton Blanchard)
+> Voodoo Framebuffer Fixes                        (Jurriaan)
+> SiS 5513 Fixes                                  (Lionel Bouton)
+> 
 
-If you are a kernel subsystem or driver maintainer, you may wish to check 
-whether *your* part of kernel has any extern variable defs. Just run this
-hunter script in top dir of kernel source:
------------------------
-#!/bin/sh
 
-function do_grep() {
-    pattern="$1"
-    dir="$2"
-    shift;shift
-    
-    for i in $dir/$*; do
-        if ! test -d "$i"; then
-            if test -e "$i"; then
-		grep -E "$pattern" "$i" /dev/null
-	    fi
-        fi
-    done
-    for i in $dir/*; do
-        if test -d "$i"; then
-	    do_grep "$pattern" "$i" $*
-	fi
-    done
-}
+SiS 5513:
 
-do_grep 'extern [^()]*;' . "*.c" 2>&1 | tee ../extern.log
----------------------------------
+- Current state:
+I had no filesystem corruption on my SIS735 system since latest patch, 
+had it reviewed by several readers and think to have put correct init 
+code in...
 
-Output is not attached here, it's too big: ~100 KB, ~1500 lines for 2.5.1-pre8
---
-vda
+
+- Warning:
+I've not yet gotten the level of testing I'd like to (confirmation on 
+other SIS735 and reports for other 5513 derivatives).
+
+With old code ATA100 can work for some not at all for other and even for 
+many systems sometime work sometime fail (seems the most probable and 
+occured on my configuration).
+My guess is that the chip registers don't have a defined value at system 
+power on but some random probability of being right.
+
+So I consider these fixes alpha quality untill I have success reports on 
+a larger scale.
+
+
+- So:
+If you have SIS IDE and try the mjc branch, please report any success or 
+failure directly to me (with sis chipset used it would be good, with 
+mainboard model better and with BIOS rev it would be perfect).
+
+It's quite important for future devs as I'm not comfortable with the 
+current code (needed too much time to understand in my opinion). I'd 
+like to rewrite several chuncks (and in fact began to do so) but am 
+waiting for the current fixes to be tested on a larger scale.
+
+> ATI Rage128 Framebuffer Fixes                   (?)
+> [...]
+
+
+LB.
+

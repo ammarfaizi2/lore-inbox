@@ -1,30 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264145AbRFNWvi>; Thu, 14 Jun 2001 18:51:38 -0400
+	id <S264146AbRFNXBU>; Thu, 14 Jun 2001 19:01:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264157AbRFNWv2>; Thu, 14 Jun 2001 18:51:28 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27664 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264145AbRFNWvP>; Thu, 14 Jun 2001 18:51:15 -0400
-Subject: Re: 2.4.5 data corruption
-To: crosser@average.org (Eugene Crosser)
-Date: Thu, 14 Jun 2001 23:49:36 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <9gbdoa$cpi$1@pccross.average.org> from "Eugene Crosser" at Jun 15, 2001 02:27:22 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S264157AbRFNXBK>; Thu, 14 Jun 2001 19:01:10 -0400
+Received: from marine.sonic.net ([208.201.224.37]:7026 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S264146AbRFNXAz>;
+	Thu, 14 Jun 2001 19:00:55 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Thu, 14 Jun 2001 16:00:43 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: threading question (results after thread pooling)
+Message-ID: <20010614160043.G26165@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Afvk-0005aV-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0106141632200.3287-100000@gene.pbi.nrc.ca>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> any problems since 2.4.5 was published, they seem to have surfaced
-> immediately after I created a rather big file capturing video with
-> broadcast2000 (video card is bt848).  Filesystem is ext2.
+On Thu, Jun 14, 2001 at 04:42:29PM -0600, ognen@gene.pbi.nrc.ca wrote:
+> 2. The main thread sets up the data (which are global) and then signals
+> that there is work to be done on the same condition variable. The first
+> thread to get awaken takes the work. the remaining threads keep waiting.
 
-Thats something I've seen reported elsehwere. The high bandwidth capture card
-stuff seems to show up problems. It could be drivers could be hardware. On
-my AMD 751 pre release board I see that problem but on the 751 production board
-I dont
+For curiosities sake, at what point would this technique result in a
+thundering herd issue?  Does it happen near the level at which the number of
+schedulable entities equal the number of processors or does it have to be
+much greater than that?
+
+mrc
+-- 
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

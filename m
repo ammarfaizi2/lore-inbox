@@ -1,72 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVBVQ1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVBVQpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVBVQ1q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 11:27:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVBVQ1q
+	id S261160AbVBVQpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 11:45:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVBVQpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 11:27:46 -0500
-Received: from ns1.g-housing.de ([62.75.136.201]:62633 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261151AbVBVQ1o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 11:27:44 -0500
-Message-ID: <421B5D73.9020505@g-house.de>
-Date: Tue, 22 Feb 2005 17:27:31 +0100
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050212)
+	Tue, 22 Feb 2005 11:45:16 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:14836 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261160AbVBVQpA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 11:45:00 -0500
+Message-ID: <421B6188.2060403@mvista.com>
+Date: Tue, 22 Feb 2005 08:44:56 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Leigh Brown <leigh@solinno.co.uk>, Sebastian Heutling <sheutlin@gmx.de>,
-       Tom Rini <trini@kernel.crashing.org>, Meelis Roos <mroos@linux.ee>,
-       linuxppc-dev@ozlabs.org, Sven Hartge <hartge@ds9.gnuu.de>
-Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII  Utah)
- PCI IRQ map
-References: <20041206185416.GE7153@smtp.west.cox.net>	<Pine.SOC.4.61.0502221031230.6097@math.ut.ee>	<421B1F12.7050601@gmx.de> <5982.195.212.29.67.1109074991.squirrel@195.212.29.67>
-In-Reply-To: <5982.195.212.29.67.1109074991.squirrel@195.212.29.67>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+To: Puneet Kaushik <puneet_kaushik@persistent.co.in>
+CC: kernel-stuff@comcast.net, linux-kernel@vger.kernel.org
+Subject: Re: Needed faster implementation of do_gettimeofday()
+References: <34373.203.199.147.2.1108897097.squirrel@webmail.persistent.co.in>	 <200502201048.01424.kernel-stuff@comcast.net> <421AA1BD.7020706@mvista.com> <1109080575.21544.264.camel@ps2335.persistent.co.in>
+In-Reply-To: <1109080575.21544.264.camel@ps2335.persistent.co.in>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-Leigh Brown wrote:
->>>It detects the HBA, tries device discovery, gets a timeout, ABORT,
->>>timeout, TARGET RESET, timeout, BUS RESET, timeout, HOST RESET and
->>>there it hangs.
-
-it does not really hang, it just tries to initialize every target of the
-HBA (here: from sym0:0:0: to sym0:15:0, see [1] for more info) and it is
-so busy with it that the bootprocess seems to hang. after failing with the
-last target, booting continues just fine. (i have no disks attached,
-booting via nfsroot)
-
-> Ah, this could well be my fault.  Those patches were to improve support
-> of IBM RS/6000 PReP boxes.  Do those machines have residual data?  If
-> so, could anyone who has one send me the contents of /proc/residual?
+Puneet Kaushik wrote:
+> Hello Parag and George,
 > 
-> Also, a full boot log when working and failing would be cool.
+> Thanks for immediate reply.
+> The main problem is I am working on a SMP system. I have written a small
+> program that just calls the gettimeofday(), one billion times. I have
+> run it with time utility and it takes almost double time on SMP then a
+> UP.
+> 
+> 
+> 
+> with kernel 2.6.10 on UP
+> 
+> real    4m5.495s
+> user    1m17.088s
+> sys     2m48.046s
+> 
+> 
+> With Kernel 2.6.10 on SMP
+> 
+> real    6m24.485s
+> user    1m43.723s
+> sys     4m30.749s
+> 
+> 
+> And the fact is this SMP machine is faster and with more memory than the
+> UP one. In SMP systems it make a spinlock every time it got called,
+> synchronizes both the processors, and unlock them. Thats all I know
+> about it.
 
-[1] it's all here: http://nerdbynature.de/bits/hal/2.6.11-rc3/
+On 2.6 the lock is a r/w sequence lock.  The machines are not synchronized or 
+locked, but some of the sequence lock instructions around the locking are 
+"locked".  I find it hard to believe that this would double the time, however.
 
-(yes, they are from different dates, but the setup is the same. the
-kernelversion from messages is 2.6.11-rc2, the rest is all 2.6.11-rc3,
-from vanilla (-BK) sources)
+Ah..., now I remember.  On SMP x86 boxen, the accounting/ run_timer interrupt 
+comes from the lapic timer.  This is triggered at a 1/HZ rate and means that 
+there is an additional time keeping interrupt.  Actually, over the box, you get 
+(N+1)/HZ interrupts where N is the number of cpus.  Assuming that the PIT and 
+the lapic interrupt take about the same amount of time and that the PIT 
+interrupt is evenly distributed on the CPUs, the interrupt contention should go 
+from 1 to 1.5.  This alone would take your 4.084 sec UP time to 6.125 sec on an 
+SMP boxen (that is amazingly close to what you are seeing if you ask me).
 
-thanks,
-Christian.
-- --
-BOFH excuse #67:
+Again, I recommend my HRT patch.  There the accounting interrupt is generated by 
+an "all-but-self" IPI.  This is generated by the PIT interrupt code which also 
+does the accounting on the cpu handling the PIT interrupt.  Result: total time 
+keeping interrupts N/HZ where N is the number of CPUs.
 
-descramble code needed from software company
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFCG11y+A7rjkF8z0wRAvMoAKCWliE97XWNmFv+xf7d3yU5vN3tDQCffMCj
-Y8hf0xXrOsCA6WkZUPKkUa0=
-=ECSk
------END PGP SIGNATURE-----
+> 
+> George I am just working on your suggestion, let me know if it will work
+> for SMPs.
+
+See above.  Should solve your problem.
+> 
+> If there is some good implementation for SMP, please let me know.
+> 
+> Thanks,
+> 
+> - Puneet
+> 
+> 
+> 
+> 
+> On Tue, 2005-02-22 at 08:36, George Anzinger wrote:
+> 
+>>Parag Warudkar wrote:
+>>
+>>>On Sunday 20 February 2005 05:58 am, puneet_kaushik@persistent.co.in wrote:
+>>>
+>>>
+>>>>985913    8.6083  vmlinux                  mark_offset_tsc
+>>>>584473    5.1032  libc-2.3.2.so            getc
+>>>
+>>>
+>>>What makes you think mark_offset_tsc is slow? Do you have any comparative 
+>>>numbers?  It might just be that the workload you are throwing at it justifies 
+>>>it. (For e.g. if your workload does a zillion system calls, system_call will 
+>>>show up as a hot spot in oprofile - doesn't necessarily mean it is slow - 
+>>>it's just overused.) Can you post the relevant code?
+>>
+>>He really is right.  Mark offset is reading the PIT counter and that is not only 
+>>rather dumb but dog slow.
+>>
+>>A suggestion, try the high res timers patch.  Even if you don't use the timers 
+>>the mark offset there is MUCH faster.  It does not read the PIT.
+>>
+>>The difference is where we assume the jiffie bump is in time.  If we assume it 
+>>is at the point that the PIT interrupts, well then the only way to get to that 
+>>is to read the PIT.  If, on the other hand, we assume it is at the time after 
+>>the interrrupt where we mark offset, we can observe the "best" time for this 
+>>event based on the TSC and avoid reading the PIT.
+>>
+>>Try the HRT patch (see signature below) and see if if doesn't do better.
+>>
+
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+

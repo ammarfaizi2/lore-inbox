@@ -1,51 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318510AbSHLAht>; Sun, 11 Aug 2002 20:37:49 -0400
+	id <S318514AbSHLAiK>; Sun, 11 Aug 2002 20:38:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318514AbSHLAht>; Sun, 11 Aug 2002 20:37:49 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:61711 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S318510AbSHLAhs>; Sun, 11 Aug 2002 20:37:48 -0400
-Date: Sun, 11 Aug 2002 21:41:21 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Adam Kropelin <akropel1@rochester.rr.com>
-cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 1/21] random fixes
-In-Reply-To: <20020812002739.GA778@www.kroptech.com>
-Message-ID: <Pine.LNX.4.44L.0208112132570.23404-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S318516AbSHLAiK>; Sun, 11 Aug 2002 20:38:10 -0400
+Received: from web40301.mail.yahoo.com ([66.218.78.80]:7704 "HELO
+	web40301.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S318514AbSHLAiI>; Sun, 11 Aug 2002 20:38:08 -0400
+Message-ID: <20020812004151.479.qmail@web40301.mail.yahoo.com>
+Date: Sun, 11 Aug 2002 17:41:51 -0700 (PDT)
+From: Studying MTD <studying_mtd@yahoo.com>
+Subject: Re: kernel BUG at page_alloc.c
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020812002223.GE24456@louise.pinerecords.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 11 Aug 2002, Adam Kropelin wrote:
+I have noticed that difference in 2.4.1 and 2.5.25 is
+:-
 
-> fast IBM disk. Filesystem was ext3 in data=ordered mode. Test workload
-> was an inbound (from the point of view of the system under test) FTP
-> transfer of a 600 MB iso image. All test runs were from a clean boot
-> with all unnecessary services shut down.
+(2.4.1)
+if (BAD_RANGE(zone,page))
+	BUG();
+DEBUG_ADD_PAGE
 
-> machine stalled (FTP transfer halted, vmstat output paused, etc.). With
-> 2.5.31-akpm, the stalls were about 3-4 seconds in length. With 2.5.31,
-> the stalls were of the same duration, but slightly less frequent. With
+(2.2.25)
+if (bad_range(zone, page))
+      BUG();
+prep_new_page(page);
 
-Definately some writeout sillyness.  Why would we ever stop
-writing pages to disk while a transfer is going on and then
-suddenly decide to stall the system because pages are being
-dirtied at a rate faster than we write them ?
 
-If we can smooth out the writing we can keep the disks busy
-all the time and should in theory perform better. I wonder
-why Andrew made the writeout in 2.5 _more_ bursty ...
+prep_new_page(page) is replaced with DEBUG_ADD_PAGE
+and prep_newpage is :-
 
-regards,
+/*
+ * This page is about to be returned from the page
+allocator
+ */
+static inline void prep_new_page(struct page *page)
+{
+        BUG_ON(page->mapping);
+        BUG_ON(PagePrivate(page));
+        BUG_ON(PageLocked(page));
+        BUG_ON(PageLRU(page));
+        BUG_ON(PageActive(page));
+        BUG_ON(PageDirty(page));
+        BUG_ON(PageWriteback(page));
+        page->flags &= ~(1 << PG_uptodate | 1 <<
+PG_error |
+                        1 << PG_referenced | 1 <<
+PG_arch_1 |
+                        1 << PG_checked);
+        set_page_count(page, 1);
+}
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+vs
 
-http://www.surriel.com/		http://distro.conectiva.com/
+#define DEBUG_ADD_PAGE \
+if (PageActive(page) || PageInactiveDirty(page) || \
+	PageInactiveClean(page)) BUG();
 
+Can i also replace DEBUG_ADD_PAGE with prep_new_page
+in 2.4.1. Is it OK ?
+
+Thank you very much for your help.
+
+
+--- Tomas Szepe <szepe@pinerecords.com> wrote:
+> > I am using 2.4.1 on SH4 and using only 32 MB RAM
+> > without hard-disk, so only thing i am using is 32
+> MB
+> > RAM .
+> 
+> Could you try a more recent kernel?
+> 2.4.1 is now almost 2 years old.
+> 
+> T.
+
+
+__________________________________________________
+Do You Yahoo!?
+HotJobs - Search Thousands of New Jobs
+http://www.hotjobs.com

@@ -1,60 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUFUHH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265348AbUFUHN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUFUHH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 03:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUFUHH5
+	id S265348AbUFUHN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 03:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUFUHN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 03:07:57 -0400
-Received: from [195.255.196.126] ([195.255.196.126]:21478 "EHLO
-	gw.compusonic.fi") by vger.kernel.org with ESMTP id S266136AbUFUHHq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 03:07:46 -0400
-Date: Mon, 21 Jun 2004 10:07:44 +0300 (EEST)
-From: Hannu Savolainen <hannu@opensound.com>
-X-X-Sender: hannu@zeus.compusonic.fi
-To: 4Front Technologies <dev@opensound.com>
-Cc: David Lang <david.lang@digitalinsight.com>, Valdis.Kletnieks@vt.edu,
-       linux-kernel@vger.kernel.org
-Subject: Re: Stop the Linux kernel madness
-In-Reply-To: <40D636EA.7090704@opensound.com>
-Message-ID: <Pine.LNX.4.58.0406210933470.26543@zeus.compusonic.fi>
-References: <40D232AD.4020708@opensound.com> <3217460000.1087518092@flay><40D23701.1030302@opensound.com>
- <1087573691.19400.116.camel@winden.suse.de><40D32C1D.80309@opensound.com>
- <20040618190257.GN14915@schnapps.adilger.int><40D34CB2.10900@opensound.com><200406181940.i5IJeBDh032311@turing-police.cc.vt.edu><Pine.LNX.4.60.0406181326210.3688@dlang.diginsite.com>
- <Pine.LNX.4.58.0406191148570.30038@zeus.compusonic.fi>
- <Pine.LNX.4.60.0406201506360.6470@dlang.diginsite.com> <40D636EA.7090704@opensound.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 21 Jun 2004 03:13:58 -0400
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:16259 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S265348AbUFUHN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 03:13:56 -0400
+Date: Mon, 21 Jun 2004 09:11:59 +0200
+From: Guido Guenther <agx@sigxcpu.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch]: Fix rivafb's NV_ARCH_
+Message-ID: <20040621071159.GA7017@bogon.ms20.nix>
+References: <20040601041604.GA2344@bogon.ms20.nix> <1086064086.1978.0.camel@gaston> <20040601135335.GA5406@bogon.ms20.nix> <20040616070326.GE28487@bogon.ms20.nix> <20040620192549.GA4307@bogon.ms20.nix> <1087791100.24157.9.camel@gaston>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Content-Disposition: inline
+In-Reply-To: <1087791100.24157.9.camel@gaston>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 20 Jun 2004, 4Front Technologies wrote:
 
-> There are loads of other very specific drivers for embedded systems that
-> have no real applicability in the mainstream kernel like DSP boards, specialized
-> encryption board drivers, military grade video capture/display devices. There
-> are other things like PCI-Express "development" drivers that aren't stable and
-> developers need a way to build them outside the kernel.
-Everybody who still thinks it's going to be possible to have all possible
-drivers in the single package should go to /lib/modules and execute
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-du -sk */kernel
+On Sun, Jun 20, 2004 at 11:11:41PM -0500, Benjamin Herrenschmidt wrote:
+> On Sun, 2004-06-20 at 14:25, Guido Guenther wrote:
+> > Hi,
+> > On Wed, Jun 16, 2004 at 09:03:27AM +0200, Guido Guenther wrote:
+> > > here's another piece of rivafb fixing that helps the driver on ppc
+> > > pbooks again a bit further. It corrects several wrong NV_ARCH_20
+> > > settings which are actually NV_ARCH_10 as determined by the PCIId.
+> > Any comments on this patch?
+>=20
+> I don't, but did you ask on the linux-fbdev list ?
+I've sent a patch to James several weeks ago that removes the complete
+table with NV_ARCH_ mappings and uses PCI-IDs instead. He applied it to
+the fbdev tree, but it didn't end up in Linus tree yet.
+This patch just fixes what's obviously wrong. More cleanup to come once
+rivafb is in a usable shape for me again.
+Cheers,
+ -- Guido
 
-In my test machine the directory sizes seem to be between 10M and 300M
-depending on how the kernel was configured. For the Fedora Core 2 kernels
-the sizes are around 25M. When Linux was young it was possible to have the
-whole distribution fitted in that  amount of space.
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-What would the modules directory look like if the next generation devices
-get included there too? Or if all the drivers for currently
-unsupported defence, telecom, aviation, instrumentation and other special
-purpose devices get included in the kernel source tree?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Best regards,
+iD8DBQFA1oo/n88szT8+ZCYRAldQAJ9mnThibPr2ILHPuhCt1FhaZ3kdDgCfU80N
+QvnQxlwU2E6x2Adt0ftEqqg=
+=2xVZ
+-----END PGP SIGNATURE-----
 
-Hannu
------
-Hannu Savolainen (hannu@opensound.com)
-http://www.opensound.com (Open Sound System (OSS))
-http://www.compusonic.fi (Finnish OSS pages)
-OH2GLH QTH: Karkkila, Finland LOC: KP20CM
+--fdj2RfSjLxBAspz7--

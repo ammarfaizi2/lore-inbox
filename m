@@ -1,71 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275045AbRJJHw7>; Wed, 10 Oct 2001 03:52:59 -0400
+	id <S275078AbRJJIFv>; Wed, 10 Oct 2001 04:05:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275082AbRJJHwt>; Wed, 10 Oct 2001 03:52:49 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:1273 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S275045AbRJJHwj>;
-	Wed, 10 Oct 2001 03:52:39 -0400
-Date: Wed, 10 Oct 2001 13:28:30 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org, Paul McKenney <paul.mckenney@us.ibm.com>
-Subject: Re: [Lse-tech] Re: RFC: patch to allow lock-free traversal of lists with insertion
-Message-ID: <20011010132830.A17135@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S275082AbRJJIFl>; Wed, 10 Oct 2001 04:05:41 -0400
+Received: from 157-151.nwinfo.net ([216.187.157.151]:898 "EHLO
+	mail.morcant.org") by vger.kernel.org with ESMTP id <S275078AbRJJIFa>;
+	Wed, 10 Oct 2001 04:05:30 -0400
+Message-ID: <32879.24.255.76.12.1002701163.squirrel@webmail.morcant.org>
+Date: Wed, 10 Oct 2001 01:06:03 -0700 (PDT)
+Subject: Tainted Modules Help Notices
+From: "Morgan Collins [Ax0n]" <sirmorcant@morcant.org>
+To: linux-kernel@vger.kernel.org
+X-Mailer: SquirrelMail (version 1.0.6)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.33.0110092323450.1360-100000@penguin.transmeta.com> Linus Torvalds wrote:
-> On Wed, 10 Oct 2001, Paul Mackerras wrote:
->> The difficulty is in making sure that no reader is still inspecting
->> the list element you just removed before you free it, or modify any
->> field that the reader would be looking at (particularly the `next'
->> field :).
 
-> ..which implies _some_ sort of locking, even if it may be deferred.
+    After compiling 2.4.11 I noticed modprobe picking up some of the tainted modules that
+ were marked in the update.
 
-> The locking can be per-CPU, whatever - have a per-CPU count for "this many
-> traversals in progress", and have every lookup increment it before
-> starting, and decrement it after stopping.
+    What surprised me was the PPP compression modules, I didn't use PPP in 2.4.10 so maybe
+the notice was there in 2.4.10, but I didn't use them so I didn't see it. I shouldn't have
+been surprised, but I was. BSD compression, BSD license... doh... :>
 
-> Then the deleter can actually free the thing once he has seen every CPU go
-> down to zero, with the proper memory barriers.
+    I do however at times use the nls modules, and I see a great deal of them are BSD-NAC
+licensed. It's also nice to have ipchains_core laying around for compatibility at times as
+well. If I had known this at compile time I would have opted not to compile them, as
+modules or otherwise. Knowing now that there are modules in the kernel build tree that are
+not GPLed, and since I don't know which ones, I will grep for MODULE_LICENSE first from
+now on.
 
-> Yes, I see that it can work. But it sounds like a _lot_ of complexity for
-> not very much gain.
+    After this discovery, I would like to ask opinions on including licensing terms in
+item/module help files. It would be very convient if under dpt_i2o help it said that it
+was licensed under BSD-NAC.
 
-It can get really ugly since the deleter has to keep
-checking periodically for zero-traversal-count. During that peiod more
-deletions can happen and the resulting in the need to maintain
-deleters as well.
-
-An alternative approach is to divide the timeline
-of the kernel into cycles - periods where every CPU does atleast
-one context switch thereby losing reference to any pointer to
-kernel data. You can now batch all the deletions prior to the
-start of a period and finish them after the end of that period. Any
-new deletions that happens during  such a period get batched to the
-next such period. Any new traversal will see not see the older
-copy of the data since the global pointer(s) was updated.
-
-
-> Right now, you already have to have eight CPU's to see locking as a large
-> problem in normal life. People have normal patches to bring that easily up
-> to 16. Then how much hard-to-debug-with-subtle-memory-ordering-issues code
-> do you want to handle the few machines that aren't in that range?
-
-Yes, various degrees of weakness of memory ordering will make writing code
-harder, but it can be dealt with be defining primitives that
-behaves uniformly across different architectures. As for large machines
-are concerned, I hope the answer is "yes as long as it doesn't adversely
-affect the lower end" :-)
-
-Thanks
-Dipankar
 -- 
-Dipankar Sarma  <dipankar@in.ibm.com> Project: http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.
+Morgan Collins [Ax0n] http://sirmorcant.morcant.org
+Software is something like a machine, and something like mathematics, and something like
+language, and something like thought, and art, and information.... but software is not in
+fact any of those other things.
+

@@ -1,41 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269017AbTCAUYG>; Sat, 1 Mar 2003 15:24:06 -0500
+	id <S269019AbTCAUik>; Sat, 1 Mar 2003 15:38:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269018AbTCAUYG>; Sat, 1 Mar 2003 15:24:06 -0500
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.222]:35819 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S269017AbTCAUYF>; Sat, 1 Mar 2003 15:24:05 -0500
-Message-ID: <3E611959.7090507@sixbit.org>
-Date: Sat, 01 Mar 2003 15:34:33 -0500
-From: John Weber <weber@sixbit.org>
-Organization: My House
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021226 Debian/1.2.1-9
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.63 wireless loading problem
-References: <Pine.LNX.4.44.0302281955380.2070-200000@localhost.localdomain> <20030228181158.A1745@sonic.net>
-In-Reply-To: <20030228181158.A1745@sonic.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S269020AbTCAUik>; Sat, 1 Mar 2003 15:38:40 -0500
+Received: from probity.mcc.ac.uk ([130.88.200.94]:44295 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S269019AbTCAUik>; Sat, 1 Mar 2003 15:38:40 -0500
+Date: Sat, 1 Mar 2003 20:48:57 +0000
+From: John Levon <levon@movementarian.org>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Anton Blanchard <anton@samba.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       cliffw@osdl.org, akpm@zip.com.au, slpratt@austin.ibm.com,
+       haveblue@us.ibm.com
+Subject: Re: [PATCH] documentation for basic guide to profiling
+Message-ID: <20030301204857.GA24330@compsoc.man.ac.uk>
+References: <8550000.1046419962@[10.10.2.4]> <20030228002935.256ffa98.akpm@digeo.com> <20030228112238.GJ4911@codemonkey.org.uk> <20030228152838.GB32449@gtf.org> <20010101052723.GB22212@krispykreme> <447430000.1046473881@flay> <20030301175114.GA30911@codemonkey.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030301175114.GA30911@codemonkey.org.uk>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18pDuj-000HXP-00*S5Z0iXD5uBI*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Hinds wrote:
-> On Fri, Feb 28, 2003 at 07:59:47PM -0600, Thomas Molina wrote:
-> 
-> 
->># CONFIG_ISA is not set
-> 
-> 
-> The PCMCIA drivers decide whether or not ISA interrupts are available
-> based on CONFIG_ISA so you should turn this on.
-> 
-> Perhaps this is a misuse of this configuration option.  I'm not sure
-> what's the right thing to do.
+On Sat, Mar 01, 2003 at 05:51:14PM +0000, Dave Jones wrote:
 
-How about calling it "PCI<->PCMCIA bridge support" and making it a 
-sub-menu of CONFIG_PCI?
+>  > +start daemon	opcontrol --start-daemon
+> 
+> --start implies starting the daemon if it isn't started
+> already.
+> 
+>  > +stop		opcontrol --stop
+> 
+> --stop unsupported. use "--shutdown"
 
+Stop running 2.4 ! :)
 
+--stop works on 2.5 only ...
+
+regards
+john

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbTJVO5W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Oct 2003 10:57:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTJVO5W
+	id S263215AbTJVOvk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Oct 2003 10:51:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263461AbTJVOvk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Oct 2003 10:57:22 -0400
-Received: from holomorphy.com ([66.224.33.161]:7572 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263436AbTJVO5V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Oct 2003 10:57:21 -0400
-Date: Wed, 22 Oct 2003 07:57:11 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: Stephen Hemminger <shemminger@osdl.org>,
-       Sylvain Jeaugey <sylvain.jeaugey@bull.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: (1/4) [PATCH] cpuset -- 2.6.0-test8
-Message-ID: <20031022145711.GC1108@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Simon Derr <Simon.Derr@bull.net>,
-	Stephen Hemminger <shemminger@osdl.org>,
-	Sylvain Jeaugey <sylvain.jeaugey@bull.net>,
+	Wed, 22 Oct 2003 10:51:40 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:31761 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263215AbTJVOvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Oct 2003 10:51:39 -0400
+Date: Wed, 22 Oct 2003 15:51:37 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Pat Gefre <pfg@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Altix console driver
+Message-ID: <20031022155137.A23053@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pat Gefre <pfg@sgi.com>, Andrew Morton <akpm@osdl.org>,
 	linux-kernel@vger.kernel.org
-References: <Pine.A41.4.53.0310131503500.173334@isabelle.frec.bull.fr> <20031021162019.7089cee4.shemminger@osdl.org> <20031022000808.GA14431@holomorphy.com> <Pine.A41.4.53.0310221620420.139942@isabelle.frec.bull.fr>
+References: <20031022150759.A21653@infradead.org> <Pine.SGI.3.96.1031022093244.262870B-100000@fsgi900.americas.sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.A41.4.53.0310221620420.139942@isabelle.frec.bull.fr>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.SGI.3.96.1031022093244.262870B-100000@fsgi900.americas.sgi.com>; from pfg@sgi.com on Wed, Oct 22, 2003 at 09:39:12AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 21 Oct 2003, William Lee Irwin III wrote:
->> Best not to insist NR_CPUS % BITS_PER_LONG == 0.
+On Wed, Oct 22, 2003 at 09:39:12AM -0500, Pat Gefre wrote:
+> + > Were all the points which Christoph raised considered?
+> + 
+> + No.
+> + 
+> 
+> Which item(s), specifically, do you have an issue with ?
 
-On Wed, Oct 22, 2003 at 04:34:21PM +0200, Simon Derr wrote:
-> Actually we don't, but you're right, NR_CPUS should definately be used
-> here.
+You're still registering with the normal serial major/minor without
+using serial core.  That means the normal serial driver can't be used
+when sn_serial is loaded, e.g. for using a pci serial card in an
+altix.  The irq mess still isn't fixed - this isn't exactly an issue
+with this driver but I exposing the bloody mess outside arch/ia64/sn
+is a very bad idea.  I'd suggest kicking ajm to fix that up.
 
-The insistence mentioned was implicit, of course.
+pciio.h has no business beeing included in this driver that doesn't
+use anything PCIish, again a core SN issue that needs fixing.
 
+Also after reading through the new comment ontop of the file it might
+be a good idea to rename it to sn_console.c, especially now that there
+is a real ioc4 serial driver.
 
-On Tue, 21 Oct 2003, William Lee Irwin III wrote:
->> Unfair rwlocks can take boxen out when abused by quadratic algorithms.
-
-On Wed, Oct 22, 2003 at 04:34:21PM +0200, Simon Derr wrote:
-> I don't see exactly which lock you are talking about here ?
-> Anyway, the current state of the cpusets is OK for a 'gentle' use. I'm
-> sure some improvements are needed to protect it from 'evil' users ;-)
-
-tasklist_lock, infamous for setting off the NMI oopser (i.e. watchdogs
-that panic machines when interrupts are ignored for long periods of
-time) when users run many instances of top(1) or other nonsense. Not
-a performance concern per se, but it may very well be hopeless anyway.
-
-There are several threads about the rwlock algorithms being unfair and
-taking out machines and/or persistently starving writers. Probably the
-most recent one was started by Kevin van Maren. There Linus suggested
-eventually adding a fair rwlock primitive to address this.
-
-
--- wli

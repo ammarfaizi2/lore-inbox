@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280531AbRLBQRi>; Sun, 2 Dec 2001 11:17:38 -0500
+	id <S280190AbRLBQW6>; Sun, 2 Dec 2001 11:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280133AbRLBQR3>; Sun, 2 Dec 2001 11:17:29 -0500
-Received: from pl475.nas921.ichikawa.nttpc.ne.jp ([210.165.235.219]:44856 "EHLO
-	mbr.sphere.ne.jp") by vger.kernel.org with ESMTP id <S280190AbRLBQRM>;
-	Sun, 2 Dec 2001 11:17:12 -0500
-Date: Mon, 3 Dec 2001 01:17:03 +0900
-From: Bruce Harada <bruce@ask.ne.jp>
-To: Kilobug <kilobug@freesurf.fr>
+	id <S280805AbRLBQWs>; Sun, 2 Dec 2001 11:22:48 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:18449 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S280190AbRLBQWi>; Sun, 2 Dec 2001 11:22:38 -0500
+Subject: Re: Coding style - a non-issue
+To: stano@meduna.org (Stanislav Meduna)
+Date: Sun, 2 Dec 2001 16:31:27 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.5.1-pre5] Unresolved symbols in nfs module
-Message-Id: <20011203011703.13a2ee1a.bruce@ask.ne.jp>
-In-Reply-To: <3C0A4E56.1070409@freesurf.fr>
-In-Reply-To: <3C0A4E56.1070409@freesurf.fr>
-X-Mailer: Sylpheed version 0.6.5 (GTK+ 1.2.6; i686-pc-linux-gnu)
-X-Face: $qrUU,Lz=B[A}i%m2Rg^Ik;~V@]$Ay)$S`wUf3:^aZ1UdLf,_;1y7_xbEh=Yv*wB0=Fv]a1hj14_qQsl[f1KX]q4IdhwmSIeP6>Ap@[e$c$G;;ObLI7?Y<H5";4<{GAPoak2U)!da]-ZJb}!.#>Xsq*)M'3Jp<M,l~'4F{qWpM$%"%p'
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <200112020801.fB281Wt07893@meduna.org> from "Stanislav Meduna" at Dec 02, 2001 09:01:32 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16AZWZ-0003ml-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 02 Dec 2001 16:52:54 +0100
-Kilobug <kilobug@freesurf.fr> wrote:
+> The need of the VM change is probably a classical example -
+> why was it not clear at the 2.4.0-pre1, that the current
+> implementation is broken to the point of no repair? I am
 
-> make modules_install:
-> 
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.1-pre5; fi
-> depmod: *** Unresolved symbols in 
-> /lib/modules/2.5.1-pre5/kernel/fs/nfs/nfs.o
-> depmod:         seq_escape
-> depmod:         seq_printf
+Because nobody had run good test sets by then - anyway it was repairable.
+Linus kept ignoring, refusing and merging conflicting patches. The -ac tree
+since 2.4.9-ac or so with Rik's actual fixes he wanted Linus to takes passes
+the Red Hat test suite. 2.4.16 kind of passes it now. 
 
-The following patch is not guaranteed to not eat your entire HD, chew it up
-and spit it out, or for that matter to work.
-(Original patch from Tommy Reynolds, but if it breaks anything for you, don't
-blame him and preferably not me either).
+It had nothing to do with the VM being broken and everything to do with
+what Linus applied. As it happens it looks like the new VM is better
+performing for low loads which is good, but the whole VM mess wasn't bad QA
+and wasn't bad design.
 
---- ksyms.c_ORIG        Mon Dec  3 01:08:46 2001
-+++ ksyms.c     Mon Dec  3 01:12:30 2001
-@@ -46,6 +46,7 @@
- #include <linux/tty.h>
- #include <linux/in6.h>
- #include <linux/completion.h>
-+#include <linux/seq_file.h>
- #include <asm/checksum.h>
- 
- #if defined(CONFIG_PROC_FS)
-@@ -553,3 +554,12 @@
- 
- EXPORT_SYMBOL(tasklist_lock);
- EXPORT_SYMBOL(pidhash);
-+
-+/* Sequential file systems */
-+
-+EXPORT_SYMBOL(seq_open);
-+EXPORT_SYMBOL(seq_read);
-+EXPORT_SYMBOL(seq_lseek);
-+EXPORT_SYMBOL(seq_release);
-+EXPORT_SYMBOL(seq_escape);
-+EXPORT_SYMBOL(seq_printf);
+Linus was even ignoring patches that fixed comments in the VM code that
+referenced old behaviour. And due to the complete lack of VM documentation
+at the moment I can only assume he's been dropping Andrea's VM comments/docs 
+too.
+
+Alan

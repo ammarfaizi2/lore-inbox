@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269008AbTBWXXk>; Sun, 23 Feb 2003 18:23:40 -0500
+	id <S269021AbTBWXer>; Sun, 23 Feb 2003 18:34:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269012AbTBWXXk>; Sun, 23 Feb 2003 18:23:40 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18187 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S269008AbTBWXXi>; Sun, 23 Feb 2003 18:23:38 -0500
-Date: Sun, 23 Feb 2003 18:29:18 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ben Greear <greearb@candelatech.com>
-cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Minutes from Feb 21 LSE Call
-In-Reply-To: <3E57FD42.7030606@candelatech.com>
-Message-ID: <Pine.LNX.3.96.1030223182350.999E-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269024AbTBWXer>; Sun, 23 Feb 2003 18:34:47 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:8929 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S269021AbTBWXeq>;
+	Sun, 23 Feb 2003 18:34:46 -0500
+Date: Sun, 23 Feb 2003 15:45:17 -0800
+From: Mike Anderson <andmike@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Patrick Mochel <mochel@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Bug with (maybe not *in*) sysfs
+Message-ID: <20030223234517.GA3158@beaverton.ibm.com>
+Mail-Followup-To: "Martin J. Bligh" <mbligh@aracnet.com>,
+	Patrick Mochel <mochel@osdl.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <5480000.1046028715@[10.10.2.4]> <Pine.LNX.4.33.0302231310500.923-100000@localhost.localdomain> <20030223202401.GA1452@beaverton.ibm.com> <12070000.1046032398@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12070000.1046032398@[10.10.2.4]>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.0.32 on an i486
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Feb 2003, Ben Greear wrote:
+Martin J. Bligh [mbligh@aracnet.com] wrote:
+> OK, so two similar, but not identical cards using the same driver?
+> First patch mentioned looks very simple, but won't apply to 2.5.62
 
-> Mark Hahn wrote:
+Are you seeing this problem on 2.5.62? The registration problem I
+described should be gone in 2.5.62.
 
-> > oh, come on.  the issue is whether memory is fast and flat.
-> > most "scalability" efforts are mainly trying to code around the fact
-> > that any ccNUMA (and most 4-ways) is going to be slow/bumpy.
-> > it is reasonable to worry that optimizations for imbalanced machines
-> > will hurt "normal" ones.  is it worth hurting uni by 5% to give
-> > a 50% speedup to IBM's 32-way?  I think not, simply because 
-> > low-end machines are more important to Linux.
-> > 
-> > the best way to kill Linux is to turn it into an OS best suited 
-> > for $6+-digit machines.
-> 
-> Linux has a key feature that most other OS's lack:  It can (easily, and by all)
-> be recompiled for a particular architecture.  So, there is no particular reason why
-> optimizing for a high-end system has to kill performance on uni-processor
-> machines.
-
-This is exactly correct, although build just the optimal kernel for a
-machine is still somewhat art rather than science. You have to choose the
-trade-offs carefully.
-
-> For instance, don't locks simply get compiled away to nothing on
-> uni-processor machines?
-
-Preempt causes most of the issues of SMP with few of the benefits. There
-are loads for which it's ideal, but for general use it may not be the
-right feature, and I ran it during the time when it was just a patch, but
-lately I'm convinced it's for special occasions.
-
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com
 

@@ -1,98 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319574AbSIHHc2>; Sun, 8 Sep 2002 03:32:28 -0400
+	id <S319572AbSIHHc0>; Sun, 8 Sep 2002 03:32:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319575AbSIHHc2>; Sun, 8 Sep 2002 03:32:28 -0400
-Received: from packet.digeo.com ([12.110.80.53]:49562 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S319574AbSIHHcZ>;
-	Sun, 8 Sep 2002 03:32:25 -0400
-Message-ID: <3D7B0179.2F9ED774@digeo.com>
-Date: Sun, 08 Sep 2002 00:51:21 -0700
+	id <S319575AbSIHHc0>; Sun, 8 Sep 2002 03:32:26 -0400
+Received: from packet.digeo.com ([12.110.80.53]:49050 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319572AbSIHHcY>;
+	Sun, 8 Sep 2002 03:32:24 -0400
+Message-ID: <3D7B0177.6A35FE9B@digeo.com>
+Date: Sun, 08 Sep 2002 00:51:19 -0700
 From: Andrew Morton <akpm@digeo.com>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.33 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>
-CC: linux-kernel@vger.kernel.org
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Paolo Ciarrocchi <ciarrocchi@linuxmail.org>, linux-kernel@vger.kernel.org
 Subject: Re: LMbench2.0 results
-References: <20020907180937.16081.qmail@linuxmail.org>
+References: <20020907121854.10290.qmail@linuxmail.org> <3D7A2768.E5C85EB@digeo.com> <20020907200334.GI888@holomorphy.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Sep 2002 07:37:01.0016 (UTC) FILETIME=[84DCFD80:01C2570A]
+X-OriginalArrivalTime: 08 Sep 2002 07:36:58.0860 (UTC) FILETIME=[839402C0:01C2570A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paolo Ciarrocchi wrote:
+William Lee Irwin III wrote:
 > 
-> ...
-> File & VM system latencies in microseconds - smaller is better
-> --------------------------------------------------------------
-> Host                 OS   0K File      10K File      Mmap    Prot    Page
->                         Create Delete Create Delete  Latency Fault   Fault
-> --------- ------------- ------ ------ ------ ------  ------- -----   -----
-> frodo      Linux 2.4.18   68.9   16.0  185.8   31.6    425.0 0.789 2.00000
-> frodo      Linux 2.4.19   68.9   14.9  186.5   29.8    416.0 0.798 2.00000
-> frodo      Linux 2.5.33   77.8   19.1  211.6   38.3    774.0 0.832 3.00000
-> frodo     Linux 2.5.33x   77.2   18.8  206.7   37.0    769.0 0.823 3.00000
+> Paolo Ciarrocchi wrote:
+> >> Hi all,
+> >> I've just ran lmbench2.0 on my laptop.
+> >> Here the results (again, 2.5.33 seems to be "slow", I don't know why...)
+> 
+> On Sat, Sep 07, 2002 at 09:20:56AM -0700, Andrew Morton wrote:
+> > The fork/exec/mmap slowdown is the rmap overhead.  I have some stuff
+> > which partialy improves it.
+> 
+> Hmm, Where does it enter the mmap() path? PTE instantiation is only done
+> for the VM_LOCKED case IIRC. Otherwise it should be invisible.
 > 
 
-The create/delete performance is filesystem-specific.
+lat_mmap seems to do a mmap, faults in ten pages and then
+a munmap().  Most of the CPU cost is in cache misses against
+the pagetables in munmap().
 
-profiling lat_fs on ext3:
+c012d54c 153      0.569493    do_mmap_pgoff           
+c012db5c 158      0.588104    find_vma                
+c01301ec 172      0.640214    filemap_nopage          
+c0134e84 172      0.640214    release_pages           
+c0114744 184      0.684881    smp_apic_timer_interrupt 
+c012ce3c 248      0.9231      handle_mm_fault         
+c012f738 282      1.04965     find_get_page           
+c013e2b0 356      1.32509     __set_page_dirty_buffers 
+c0116294 377      1.40326     do_page_fault           
+c013e72c 383      1.42559     page_add_rmap           
+c013e8bc 398      1.48143     page_remove_rmap        
+c012cb10 425      1.58193     do_no_page              
+c0109d70 629      2.34125     page_fault              
+c012b2f4 1036     3.85618     zap_pte_range           
+c0107048 20205    75.2066     poll_idle               
 
-c0170b70 236      0.372293    ext3_get_inode_loc      
-c014354c 278      0.438548    __find_get_block        
-c017cbf0 284      0.448013    journal_cancel_revoke   
-c017ee24 291      0.459056    journal_add_journal_head 
-c0171030 307      0.484296    ext3_do_update_inode    
-c017856c 353      0.556861    journal_get_write_access 
-c0178088 487      0.768248    do_get_write_access     
-c0114744 530      0.836081    smp_apic_timer_interrupt 
-c0178a84 559      0.881829    journal_dirty_metadata  
-c0130644 832      1.31249     generic_file_write_nolock 
-c0172654 2903     4.57951     ext3_add_entry          
-c016ca10 3636     5.73583     ext3_check_dir_entry    
-c0107048 47078    74.2661     poll_idle               
+(Multiply everything by four - it's a quad)
 
-ext3_check_dir_entry is just sanity checking.  hmm.
+Instruction-level profile for -mm5:
 
-on ext2:
+c012b2f4 1036     3.85618     0        0           zap_pte_range           /usr/src/25/mm/memory.c:325 
+ c012b2f5 2        0.19305     0        0           /usr/src/25/mm/memory.c:325 
+ c012b2fd 1        0.0965251   0        0           /usr/src/25/mm/memory.c:325 
+ c012b300 2        0.19305     0        0           /usr/src/25/mm/memory.c:325 
+ c012b306 1        0.0965251   0        0           /usr/src/25/mm/memory.c:329 
+ c012b309 1        0.0965251   0        0           /usr/src/25/mm/memory.c:329 
+ c012b30f 1        0.0965251   0        0           /usr/src/25/mm/memory.c:331 
+ c012b319 1        0.0965251   0        0           /usr/src/25/mm/memory.c:331 
+ c012b340 1        0.0965251   0        0           /usr/src/25/mm/memory.c:336 
+ c012b348 1        0.0965251   0        0           /usr/src/25/include/asm/highmem.h:80 
+ c012b350 1        0.0965251   0        0           /usr/src/25/include/asm/thread_info.h:75 
+ c012b35a 2        0.19305     0        0           /usr/src/25/include/asm/highmem.h:85 
+ c012b365 2        0.19305     0        0           /usr/src/25/include/asm/highmem.h:86 
+ c012b3c3 2        0.19305     0        0           /usr/src/25/mm/memory.c:337 
+ c012b3d6 1        0.0965251   0        0           /usr/src/25/mm/memory.c:338 
+ c012b3e9 3        0.289575    0        0           /usr/src/25/mm/memory.c:341 
+ c012b3f5 106      10.2317     0        0           /usr/src/25/mm/memory.c:342 
+ c012b3f8 2        0.19305     0        0           /usr/src/25/mm/memory.c:342 
+ c012b3fa 26       2.50965     0        0           /usr/src/25/mm/memory.c:343 
+ c012b3fc 124      11.9691     0        0           /usr/src/25/mm/memory.c:343 
+ c012b405 13       1.25483     0        0           /usr/src/25/mm/memory.c:345 
+ c012b40b 1        0.0965251   0        0           /usr/src/25/mm/memory.c:346 
+ c012b410 2        0.19305     0        0           /usr/src/25/mm/memory.c:348 
+ c012b412 1        0.0965251   0        0           /usr/src/25/mm/memory.c:348 
+ c012b414 62       5.98456     0        0           /usr/src/25/mm/memory.c:349 
+ c012b41b 1        0.0965251   0        0           /usr/src/25/mm/memory.c:350 
+ c012b421 21       2.02703     0        0           /usr/src/25/mm/memory.c:350 
+ c012b427 2        0.19305     0        0           /usr/src/25/mm/memory.c:351 
+ c012b432 2        0.19305     0        0           /usr/src/25/include/asm/bitops.h:244 
+ c012b434 10       0.965251    0        0           /usr/src/25/mm/memory.c:352 
+ c012b437 1        0.0965251   0        0           /usr/src/25/mm/memory.c:352 
+ c012b43d 5        0.482625    0        0           /usr/src/25/mm/memory.c:353 
+ c012b446 7        0.675676    0        0           /usr/src/25/include/linux/mm.h:389 
+ c012b44b 1        0.0965251   0        0           /usr/src/25/include/linux/mm.h:392 
+ c012b44e 1        0.0965251   0        0           /usr/src/25/include/linux/mm.h:392 
+ c012b451 7        0.675676    0        0           /usr/src/25/include/linux/mm.h:393 
+ c012b453 2        0.19305     0        0           /usr/src/25/include/linux/mm.h:393 
+ c012b461 6        0.579151    0        0           /usr/src/25/include/linux/mm.h:396 
+ c012b466 8        0.772201    0        0           /usr/src/25/include/linux/mm.h:396 
+ c012b46f 6        0.579151    0        0           /usr/src/25/mm/memory.c:356 
+ c012b476 15       1.44788     0        0           /usr/src/25/include/asm-generic/tlb.h:105 
+ c012b481 3        0.289575    0        0           /usr/src/25/include/asm-generic/tlb.h:106 
+ c012b490 5        0.482625    0        0           /usr/src/25/include/asm-generic/tlb.h:110 
+ c012b493 7        0.675676    0        0           /usr/src/25/include/asm-generic/tlb.h:110 
+ c012b49a 1        0.0965251   0        0           /usr/src/25/include/asm-generic/tlb.h:110 
+ c012b49d 3        0.289575    0        0           /usr/src/25/include/asm-generic/tlb.h:110 
+ c012b4a0 1        0.0965251   0        0           /usr/src/25/include/asm-generic/tlb.h:110 
+ c012b4a3 8        0.772201    0        0           /usr/src/25/include/asm-generic/tlb.h:111 
+ c012b4aa 13       1.25483     0        0           /usr/src/25/include/asm-generic/tlb.h:111 
+ c012b500 128      12.3552     0        0           /usr/src/25/mm/memory.c:341 
+ c012b504 108      10.4247     0        0           /usr/src/25/mm/memory.c:341 
+ c012b50b 111      10.7143     0        0           /usr/src/25/mm/memory.c:341 
+ c012b50e 99       9.55598     0        0           /usr/src/25/mm/memory.c:341 
+ c012b511 86       8.30116     0        0           /usr/src/25/mm/memory.c:341 
+ c012b51c 4        0.3861      0        0           /usr/src/25/include/asm/thread_info.h:75 
+ c012b521 3        0.289575    0        0           /usr/src/25/mm/memory.c:366 
+ c012b525 1        0.0965251   0        0           /usr/src/25/mm/memory.c:366 
+ c012b526 1        0.0965251   0        0           /usr/src/25/mm/memory.c:366 
 
-c017f3ec 138      0.239971    ext2_free_blocks        
-c012f560 147      0.255621    unlock_page             
-c017f954 148      0.25736     ext2_new_block          
-c017f2f0 154      0.267793    ext2_get_group_desc     
-c0181958 162      0.281705    ext2_new_inode          
-c014354c 182      0.316483    __find_get_block        
-c0154f64 184      0.319961    __d_lookup              
-c0109bc0 232      0.403429    apic_timer_interrupt    
-c0143cc4 455      0.791208    __block_prepare_write   
-c0114744 459      0.798164    smp_apic_timer_interrupt 
-c0130644 1634     2.84139     generic_file_write_nolock 
-c0180c64 6084     10.5796     ext2_add_link           
-c0107048 42472    73.8554     poll_idle               
-
-This is mostly in ext2_match() - comparing strings while
-searching the directory.  memcmp().
-
-ext3 with hashed index directories:
-
-c01803dc 292      0.495251    journal_unlock_journal_head 
-c0170b70 313      0.530868    ext3_get_inode_loc      
-c01801a4 412      0.698779    journal_add_journal_head 
-c014354c 455      0.77171     __find_get_block        
-c0171030 489      0.829376    ext3_do_update_inode    
-c017df70 515      0.873474    journal_cancel_revoke   
-c01798ec 555      0.941316    journal_get_write_access 
-c0173208 568      0.963365    ext3_add_entry          
-c0179408 804      1.36364     do_get_write_access     
-c0179e04 838      1.4213      journal_dirty_metadata  
-c0130644 1127     1.91147     generic_file_write_nolock 
-c0107048 44117    74.8253     poll_idle               
-
-And yet the test (which tries to run for a fixed walltime)
-seems to do the same amount of work.  No idea what's up
-with that.
-
-Lessons: use an indexed-directory filesystem, and consistency
-checking costs.
+So it's a bit of rmap in there.  I'd have to compare with a 2.4
+profile and fiddle a few kernel parameters.  But I'm not sure
+that munmap of extremely sparsely populated pagtetables is very
+interesting?

@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267268AbTB0WY5>; Thu, 27 Feb 2003 17:24:57 -0500
+	id <S267176AbTB0WY6>; Thu, 27 Feb 2003 17:24:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267176AbTB0WXt>; Thu, 27 Feb 2003 17:23:49 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:54204 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S267274AbTB0WXi>;
-	Thu, 27 Feb 2003 17:23:38 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Thu, 27 Feb 2003 23:33:56 +0100 (MET)
-Message-Id: <UTC200302272233.h1RMXu324918.aeb@smtp.cwi.nl>
+	id <S267274AbTB0WXw>; Thu, 27 Feb 2003 17:23:52 -0500
+Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:28570 "HELO
+	spf1.us.outblaze.com") by vger.kernel.org with SMTP
+	id <S267268AbTB0WXl>; Thu, 27 Feb 2003 17:23:41 -0500
+Message-ID: <20030227223335.23607.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
 To: linux-kernel@vger.kernel.org
-Subject: [OT] man-pages 1.56 released
+Date: Thu, 27 Feb 2003 23:33:35 +0100
+Subject: Mouse generating two mouse click events instead of one
+X-Originating-Ip: 213.4.13.153
+X-Originating-Server: ws5-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just released man-pages 1.56 with
-===
-    The man pages
+Hello, 
+ 
+First of all, excuse me if this question is out of place, but I don't know for sure if this is a kernel problem. I'm 
+running 2.5.63-mm1 under Red Hat Phoebe Beta3 linux distribution. I have a Intellimouse USB Explorer mouse 
+attached and, when working on KDE3.1 I have noticed that if I single click the mouse very quickly, nearly all the 
+times two click events are generated instead of one. 
+ 
+I started to notice this with KDE3.1 menus: single clicking with the left button over the KDE button very fast (the 
+time elapsed since I press the button and then release it is practically zero) made the menu appear and then 
+disappear.  If I single click the left button, but this time, I do it slower, it works as expected. I don't know of this is 
+a timing, threading or mouse event problem. Not only does this happens with buttons, but with other graphical 
+elements like checkboxes (single clicking very fast, makes the checkbox get checked and immediately, 
+unchecked). Has anyone experienced this before? 
+ 
+Also, I feel sorry I can't be more explicit, but I have never had this problem while running a 2.4 kernel. At least, I 
+have not noticed this in the past. 
+ 
+Best regards, 
+ 
+   Felipe Alfaro Solana 
+ 
+PS: I want to help on finding the culprit to this, so please, don't hesitate to contact me for further information or 
+assistance. 
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-        fgetxattr.2 flistxattr.2 fremovexattr.2 fsetxattr.2
-        getxattr.2 get_thread_area.2 io_cancel.2 io_destroy.2
-        io_getevents.2 io_setup.2 io_submit.2 lgetxattr.2 listxattr.2
-        llistxattr.2 lookup_dcookie.2 lremovexattr.2 lsetxattr.2
-        posix_fadvise.2 readahead.2 removexattr.2 setxattr.2
-	set_thread_area.2
-
-        ftw.3 openpty.3
-
-    are new or have been updated.
-===
-
-In short: lots of new syscall pages.
-
-Now that the call for syscall docs was so successful, let me
-ask something else. We have console_ioctl.4 and tty_ioctl.4
-but lots of other *_ioctl.4 things are wanted.
-Contributions are welcome.
-
-Andries - aeb@cwi.nl
+Powered by Outblaze

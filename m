@@ -1,571 +1,718 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312484AbSDCXJs>; Wed, 3 Apr 2002 18:09:48 -0500
+	id <S312466AbSDCXJ6>; Wed, 3 Apr 2002 18:09:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312476AbSDCXJl>; Wed, 3 Apr 2002 18:09:41 -0500
-Received: from tomts6.bellnexxia.net ([209.226.175.26]:17030 "EHLO
-	tomts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S312466AbSDCXJc>; Wed, 3 Apr 2002 18:09:32 -0500
-Date: Wed, 3 Apr 2002 18:09:30 -0500 (EST)
-From: Craig <penguin@wombat.ca>
-X-X-Sender: carsnau@wombat
-To: marcelo@conectiva.com.br
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4: BOOTPC /proc info.
-In-Reply-To: <1017802992.2940.602.camel@phantasy>
-Message-ID: <Pine.LNX.4.42.0204031759090.711-100000@wombat>
+	id <S312476AbSDCXJx>; Wed, 3 Apr 2002 18:09:53 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:44161 "EHLO
+	e21.esmtp.ibm.com") by vger.kernel.org with ESMTP
+	id <S312466AbSDCXJm>; Wed, 3 Apr 2002 18:09:42 -0500
+Message-ID: <3CAB8BB4.8040400@us.ibm.com>
+Date: Wed, 03 Apr 2002 15:09:40 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: linux-kernel@vger.kernel.org, Craig Christophel <merlin@transgeek.com>
+Subject: [PATCH] shift BKL out of notify_change
+Content-Type: multipart/mixed;
+ boundary="------------080208010003030009020103"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo,
-  This patch is against 2.4.19-pre5, please apply.
+This is a multi-part message in MIME format.
+--------------080208010003030009020103
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-  The following change would primarily interest people using linux on
-embedded boards, but should be usable by any system.
-This patch creates one new entry in the proc filesystem.
-"/proc/net/bootpc" is now created and contains information if the
-kernel received a bootp packet during bootup.  The output format is
-identical to the "bootpc" userspace program.  On an embedded system,
-this can save 10-15 seconds from boot time (if running 'bootpc' as one
-of your init scripts).  Also, this removes a possible point of failure
-during bootup.
-   We think this patch would be useful to put in the 2.4.x stream.
-But there's no reason it can't also go in 2.5.x as well.  We also have
-a 2.2.x version availble if there's any interest in that as well.
-So what do people think?  Should this go in 2.4 or 2.5?
-Is this worthwhile to pursue putting this in (it's very useful to us,
-so we figured others could use it)?
-Should i send this to Linus for 2.5 inclusion as well?
+The following patch moves the BKL out of notify_change() and into the 
+individual filesystems.  There was an attempt to remove the BKL from the 
+function here:
+http://groups.google.com/groups?hl=en&selm=20020118043308.B9A75B581%40smtp.transgeek.com.lucky.linux.kernel
+However, it looks to me like Craig's I_ATTR_LOCK bit in i_state plus the 
+inode_lock just about equals a semaphore.  If so, why not just use a 
+semaphore?  Is space in the inode strucure THAT precious?
 
-Here's some sample output from the code:
+My patch adds a semaphore to the inode structure, removes the BKL from 
+notify_change(), and shifts the BKL into the individual filesystems' 
+setattr() functions.  I doubt that many of them actually need it, but I 
+figure the FS maintainers can remove it.  The BKL use in notify_change() 
+is replaced by the semaphore i_attr_lock.
 
-bash-2.04$ cat /proc/net/bootpc
-SERVER='10.40.4.101'
-IPADDR='10.40.14.83'
-BOOTFILE='/tftpboot/core_24work'
-NETMASK='255.255.255.0'
-GATEWAYS_1='10.40.14.1'
-GATEWAYS='10.40.14.1'
-YPDOMAIN='locoland'
-HOSTNAME='somecard'
-T129='configfile_1a'
-NTPSRVS_1='10.40.4.101'
-NTPSRVS='10.40.4.101'
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-Patch is below. Thanks.
+--------------080208010003030009020103
+Content-Type: text/plain;
+ name="notify_change-bkl_shift-2.5.7.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="notify_change-bkl_shift-2.5.7.patch"
 
---
-Craig Arsenault.
-+------------------------------------------------------+
-http://www.wombat.ca               Why? Why not.
-http://www.washington.edu/pine/    Pine @ the U of Wash.
-+-------------=*sent via Pine4.42*=--------------------+
-
-
-diff -Nur linux-2.4.19-pre5/Documentation/Configure.help linux-2.4.19-pre5_NEW/Documentation/Configure.help
---- linux-2.4.19-pre5/Documentation/Configure.help	Wed Apr  3 17:51:42 2002
-+++ linux-2.4.19-pre5_NEW/Documentation/Configure.help	Wed Apr  3 18:00:14 2002
-@@ -5241,6 +5241,12 @@
-   want to use BOOTP, a BOOTP server must be operating on your network.
-   Read <file:Documentation/nfsroot.txt> for details.
-
-+Provide bootpc style /proc file
-+CONFIG_IP_BOOTP_PROC
-+  If you say Y here, the file /proc/net/bootpc will output the bootp
-+  record retrieved at boot time in a format identical to the bootpc
-+  client program.
-+
- DHCP support
- CONFIG_IP_PNP_DHCP
-   If you want your Linux box to mount its whole root file system (the
-diff -Nur linux-2.4.19-pre5/net/ipv4/Config.in linux-2.4.19-pre5_NEW/net/ipv4/Config.in
---- linux-2.4.19-pre5/net/ipv4/Config.in	Fri Dec 21 12:42:05 2001
-+++ linux-2.4.19-pre5_NEW/net/ipv4/Config.in	Wed Apr  3 18:00:14 2002
-@@ -20,6 +20,9 @@
- if [ "$CONFIG_IP_PNP" = "y" ]; then
-    bool '    IP: DHCP support' CONFIG_IP_PNP_DHCP
-    bool '    IP: BOOTP support' CONFIG_IP_PNP_BOOTP
-+   if [ "$CONFIG_IP_PNP_BOOTP" = "y" ]; then
-+      bool '      Provide bootpc style /proc file' CONFIG_IP_BOOTP_PROC
-+   fi
-    bool '    IP: RARP support' CONFIG_IP_PNP_RARP
- # not yet ready..
- #   bool '    IP: ARP support' CONFIG_IP_PNP_ARP
-diff -Nur linux-2.4.19-pre5/net/ipv4/ipconfig.c linux-2.4.19-pre5_NEW/net/ipv4/ipconfig.c
---- linux-2.4.19-pre5/net/ipv4/ipconfig.c	Mon Feb 25 14:38:14 2002
-+++ linux-2.4.19-pre5_NEW/net/ipv4/ipconfig.c	Wed Apr  3 18:00:14 2002
-@@ -26,6 +26,10 @@
-  *
-  *  Merged changes from 2.2.19 into 2.4.3
-  *              -- Eric Biederman <ebiederman@lnxi.com>, 22 April Aug 2001
-+ *
-+ *  Added support for "/proc/net/bootpc" for bootp requests at boottime.
-+ *              -- Allan Snider <alsnider@nortelnetworks.com>, 10 March 2002
-+ *
-  */
-
- #include <linux/config.h>
-@@ -525,6 +529,12 @@
- 	func:	ic_bootp_recv,
- };
-
-+#ifdef CONFIG_IP_BOOTP_PROC
-+static char Bootp_vars[1024];
-+static int Bootp_size;
-+
-+static void ic_bootp_vars( struct bootp_pkt* );
-+#endif
-
- /*
-  *  Initialize DHCP/BOOTP extension fields in the request.
-@@ -917,6 +927,10 @@
- 		ic_nameserver = ic_servaddr;
- 	ic_got_reply = IC_BOOTP;
-
-+#ifdef CONFIG_IP_BOOTP_PROC
-+	ic_bootp_vars( b );
-+#endif
-+
- drop:
- 	/* Show's over.  Nothing to see here.  */
- 	spin_unlock(&ic_recv_lock);
-@@ -1102,6 +1116,28 @@
- 	return length;
+diff -ur linux-2.5.7-clean/fs/adfs/inode.c linux/fs/adfs/inode.c
+--- linux-2.5.7-clean/fs/adfs/inode.c	Thu Mar  7 18:18:22 2002
++++ linux/fs/adfs/inode.c	Wed Apr  3 13:46:14 2002
+@@ -302,6 +302,8 @@
+ 	struct super_block *sb = inode->i_sb;
+ 	unsigned int ia_valid = attr->ia_valid;
+ 	int error;
++	
++	lock_kernel();
+ 
+ 	error = inode_change_ok(inode, attr);
+ 
+@@ -346,6 +348,7 @@
+ 	if (ia_valid & (ATTR_SIZE | ATTR_MTIME | ATTR_MODE))
+ 		mark_inode_dirty(inode);
+ out:
++	unlock_kernel();
+ 	return error;
  }
-
-+#ifdef CONFIG_IP_BOOTP_PROC
-+static int
-+bootpc_get_info( char *buffer, char **start, off_t offset, int length )
-+	{
-+	char *bv;
+ 
+diff -ur linux-2.5.7-clean/fs/affs/inode.c linux/fs/affs/inode.c
+--- linux-2.5.7-clean/fs/affs/inode.c	Tue Apr  2 10:43:19 2002
++++ linux/fs/affs/inode.c	Wed Apr  3 13:46:31 2002
+@@ -235,6 +235,8 @@
+ 	struct inode *inode = dentry->d_inode;
+ 	int error;
+ 
++	lock_kernel();
 +
-+	if( offset > Bootp_size )
-+		offset = Bootp_size;
+ 	pr_debug("AFFS: notify_change(%lu,0x%x)\n",inode->i_ino,attr->ia_valid);
+ 
+ 	error = inode_change_ok(inode,attr);
+@@ -254,6 +256,7 @@
+ 	if (!error && (attr->ia_valid & ATTR_MODE))
+ 		mode_to_prot(inode);
+ out:
++	unlock_kernel();
+ 	return error;
+ }
+ 
+diff -ur linux-2.5.7-clean/fs/attr.c linux/fs/attr.c
+--- linux-2.5.7-clean/fs/attr.c	Thu Mar  7 18:18:13 2002
++++ linux/fs/attr.c	Wed Apr  3 14:17:56 2002
+@@ -21,6 +21,8 @@
+ 	int retval = -EPERM;
+ 	unsigned int ia_valid = attr->ia_valid;
+ 
++	lock_kernel();
 +
-+	bv = Bootp_vars;
-+	bv += offset;
+ 	/* If force is set do it anyway. */
+ 	if (ia_valid & ATTR_FORCE)
+ 		goto fine;
+@@ -55,6 +57,7 @@
+ fine:
+ 	retval = 0;
+ error:
++	unlock_kernel();
+ 	return retval;
+ }
+ 
+@@ -62,7 +65,8 @@
+ {
+ 	unsigned int ia_valid = attr->ia_valid;
+ 	int error = 0;
+-
++	
++	lock_kernel();
+ 	if (ia_valid & ATTR_SIZE) {
+ 		error = vmtruncate(inode, attr->ia_size);
+ 		if (error)
+@@ -86,6 +90,7 @@
+ 	}
+ 	mark_inode_dirty(inode);
+ out:
++	unlock_kernel();
+ 	return error;
+ }
+ 
+@@ -127,7 +132,7 @@
+ 	if (!(ia_valid & ATTR_MTIME_SET))
+ 		attr->ia_mtime = now;
+ 
+-	lock_kernel();
++	down(&inode->i_attr_lock);
+ 	if (inode->i_op && inode->i_op->setattr) 
+ 		error = inode->i_op->setattr(dentry, attr);
+ 	else {
+@@ -140,7 +145,7 @@
+ 				error = inode_setattr(inode, attr);
+ 		}
+ 	}
+-	unlock_kernel();
++	up(&inode->i_attr_lock);
+ 	if (!error) {
+ 		unsigned long dn_mask = setattr_mask(ia_valid);
+ 		if (dn_mask)
+diff -ur linux-2.5.7-clean/fs/coda/inode.c linux/fs/coda/inode.c
+--- linux-2.5.7-clean/fs/coda/inode.c	Tue Apr  2 10:43:19 2002
++++ linux/fs/coda/inode.c	Wed Apr  3 13:46:50 2002
+@@ -258,6 +258,8 @@
+         struct coda_vattr vattr;
+         int error;
+ 	
++	lock_kernel();
++	
+         memset(&vattr, 0, sizeof(vattr)); 
+ 
+ 	inode->i_ctime = CURRENT_TIME;
+@@ -272,6 +274,8 @@
+ 		coda_cache_clear_inode(inode);
+ 	}
+ 
++	unlock_kernel();
 +
-+	if( offset + length > Bootp_size )
-+		length = Bootp_size - offset;
+ 	return error;
+ }
+ 
+diff -ur linux-2.5.7-clean/fs/devfs/base.c linux/fs/devfs/base.c
+--- linux-2.5.7-clean/fs/devfs/base.c	Tue Apr  2 10:43:19 2002
++++ linux/fs/devfs/base.c	Wed Apr  3 13:49:11 2002
+@@ -2507,17 +2507,22 @@
+ 
+ static int devfs_notify_change (struct dentry *dentry, struct iattr *iattr)
+ {
+-    int retval;
++    int retval=0;
+     struct devfs_entry *de;
+     struct inode *inode = dentry->d_inode;
+-    struct fs_info *fs_info = inode->i_sb->u.generic_sbp;
++    struct fs_info efs_info = inode->i_sb-nu.generic_sbp;
 +
-+	strncpy( buffer, bv, length );
-+	*start = buffer;
++    lock_kernel();
+ 
+     de = get_devfs_entry_from_vfs_inode (inode);
+-    if (de == NULL) return -ENODEV;
++    if (de == NULL) {
++	retval = -ENODEV;
++	goto out;
++    }
+     retval = inode_change_ok (inode, iattr);
+-    if (retval != 0) return retval;
++    if (retval != 0) goto out;
+     retval = inode_setattr (inode, iattr);
+-    if (retval != 0) return retval;
++    if (retval != 0) goto out;
+     DPRINTK (DEBUG_I_CHANGE, "(%d): VFS inode: %p  devfs_entry: %p\n",
+ 	     (int) inode->i_ino, inode, de);
+     DPRINTK (DEBUG_I_CHANGE, "():   mode: 0%o  uid: %d  gid: %d\n",
+@@ -2538,7 +2543,10 @@
+ 	 !is_devfsd_or_child (fs_info) )
+ 	devfsd_notify_de (de, DEVFSD_NOTIFY_CHANGE, inode->i_mode,
+ 			  inode->i_uid, inode->i_gid, fs_info, 0);
+-    return 0;
 +
-+	return( length );
-+	}
-+#endif
++out:
++    unlock_kernel();
++    return retval;
+ }   /*  End Function devfs_notify_change  */
+ 
+ static void devfs_clear_inode (struct inode *inode)
+diff -ur linux-2.5.7-clean/fs/fat/inode.c linux/fs/fat/inode.c
+--- linux-2.5.7-clean/fs/fat/inode.c	Tue Apr  2 10:43:19 2002
++++ linux/fs/fat/inode.c	Wed Apr  3 13:55:04 2002
+@@ -1054,18 +1054,24 @@
+ {
+ 	struct super_block *sb = dentry->d_sb;
+ 	struct inode *inode = dentry->d_inode;
+-	int error;
++	int error = 0;
 +
- #endif /* CONFIG_PROC_FS */
-
- /*
-@@ -1115,6 +1151,10 @@
-
- #ifdef CONFIG_PROC_FS
- 	proc_net_create("pnp", 0, pnp_get_info);
-+
-+#ifdef CONFIG_IP_BOOTP_PROC
-+	proc_net_create( "bootpc", 0, bootpc_get_info );
-+#endif
- #endif /* CONFIG_PROC_FS */
-
- 	if (!ic_enable)
-@@ -1368,3 +1408,392 @@
-
- __setup("ip=", ip_auto_config_setup);
- __setup("nfsaddrs=", nfsaddrs_config_setup);
-+
-+
-+#ifdef CONFIG_IP_BOOTP_PROC
-+
-+/*
-+ *	ic_bootp_vars:
-+ *		Dump the bootp packet received to a static
-+ *	buffer using the same format as bootpc.  Users can
-+ *	then retrieve this packet by reading:
-+ *
-+ *		/proc/net/bootpc
-+ */
-+
-+/* Vendor tags
-+ *
-+ * Please note: These tags came directly from
-+ * the user-space program 'bootpc' code, which just did
-+ * the work of extracting them from the RFC 1048.
-+ * The orig author of that code follows (the only code
-+ * from that file that was taken was the following #define's,
-+ * which were modified from 'unsigned char' to 'u8'):
-+ *
-+ **
-+ **  Last updated : Mon Sep 16 15:20:57 1996
-+ **  Modified by JSP from code by Charles Hawkins <ceh@eng.cam.ac.uk>,
-+ **
-+ **   J.S.Peatfield@damtp.cam.ac.uk
-+ **
-+ ** Copyright (c) University of Cambridge, 1993,1994,1995,1996
-+ **
-+ ** $Revision: 1.2 $
-+ ** $Date: 1997/02/26 20:25:02 $
-+ **
-+ *
-+ * */
-+
-+#define TAG_END			((u8) 255)
-+#define TAG_PAD			((u8)   0)
-+#define TAG_SUBNET_MASK		((u8)   1)
-+#define TAG_TIME_OFFSET		((u8)   2)
-+#define TAG_GATEWAY		((u8)   3)
-+#define TAG_TIME_SERVER		((u8)   4)
-+#define TAG_NAME_SERVER		((u8)   5)
-+#define TAG_DOMAIN_SERVER	((u8)   6)
-+#define TAG_LOG_SERVER		((u8)   7)
-+#define TAG_COOKIE_SERVER	((u8)   8)
-+#define TAG_LPR_SERVER		((u8)   9)
-+#define TAG_IMPRESS_SERVER	((u8)  10)
-+#define TAG_RLP_SERVER		((u8)  11)
-+#define TAG_HOST_NAME		((u8)  12)
-+#define TAG_BOOT_SIZE		((u8)  13)
-+#define TAG_DUMP_FILE		((u8)  14)
-+#define TAG_DOMAIN_NAME		((u8)  15)
-+#define TAG_SWAP_SERVER		((u8)  16)
-+#define TAG_ROOT_PATH		((u8)  17)
-+#define TAG_EXTEN_FILE		((u8)  18)
-+#define TAG_IP_FORWARD          ((u8)  19)
-+#define TAG_IP_NLSR             ((u8)  20)
-+#define TAG_IP_POLICY_FILTER    ((u8)  21)
-+#define TAG_IP_MAX_DRS          ((u8)  22)
-+#define TAG_IP_TTL              ((u8)  23)
-+#define TAG_IP_MTU_AGE          ((u8)  24)
-+#define TAG_IP_MTU_PLAT         ((u8)  25)
-+#define TAG_IP_MTU              ((u8)  26)
-+#define TAG_IP_SNARL            ((u8)  27)
-+#define TAG_IP_BROADCAST        ((u8)  28)
-+#define TAG_IP_SMASKDISC        ((u8)  29)
-+#define TAG_IP_SMASKSUPP        ((u8)  30)
-+#define TAG_IP_ROUTERDISC       ((u8)  31)
-+#define TAG_IP_ROUTER_SOL_ADDR  ((u8)  32)
-+#define TAG_IP_STATIC_ROUTES    ((u8)  33)
-+#define TAG_IP_TRAILER_ENC      ((u8)  34)
-+#define TAG_ARP_TIMEOUT         ((u8)  35)
-+#define TAG_ETHER_IEEE          ((u8)  36)
-+#define TAG_IP_TCP_TTL          ((u8)  37)
-+#define TAG_IP_TCP_KA_INT       ((u8)  38)
-+#define TAG_IP_TCP_KA_GARBAGE   ((u8)  39)
-+#define TAG_NIS_DOMAIN		((u8)  40)
-+#define TAG_NIS_SERVER		((u8)  41)
-+#define TAG_NTP_SERVER		((u8)  42)
-+#define TAG_VEND_SPECIFIC       ((u8)  43)
-+#define TAG_NBNS_SERVER         ((u8)  44)
-+#define TAG_NBDD_SERVER         ((u8)  45)
-+#define TAG_NBOTCP_OTPION       ((u8)  46)
-+#define TAG_NB_SCOPE            ((u8)  47)
-+#define TAG_XFONT_SERVER        ((u8)  48)
-+#define TAG_XDISPLAY_SERVER     ((u8)  49)
-+
-+typedef struct
-+	{
-+	char	*buf;		/* user buffer */
-+	int	len;		/* size of buffer */
-+	int	n;		/* current size */
-+	} bootp_vars;
-+
-+static void ic_bootp_ext( bootp_vars*, struct bootp_pkt* );
-+static void ic_oext( bootp_vars*, u8* );
-+static void ic_oip( bootp_vars*, char*, u32 );
-+static void ic_olist( bootp_vars*, char*, char*, int );
-+static void ic_otag( bootp_vars*, int, char*, int );
-+static void ic_ostr( bootp_vars*, char*, char*, int );
-+
-+
-+/*
-+ *	ic_bootp_vars:
-+ */
-+
-+static void
-+ic_bootp_vars( struct bootp_pkt *b )
-+	{
-+	bootp_vars vars, *v;
-+
-+	v = &vars;
-+	v->buf = Bootp_vars;
-+	v->len = sizeof( Bootp_vars );
-+	v->n = 0;
-+
-+	/* standard fields, SERVER, IPADDR, and BOOTFILE */
-+	ic_oip( v, "SERVER", b->server_ip );
-+	ic_oip( v, "IPADDR", b->your_ip );
-+	ic_ostr( v, "BOOTFILE", b->boot_file, 128 );
-+
-+	/* extended vendor info */
-+	if( !memcmp(b->exten,ic_bootp_cookie,4) )
-+		ic_bootp_ext( v, b );
-+
-+	v->buf[v->n] = 0;
-+	Bootp_size = v->n;
-+	}
-+
-+
-+/*
-+ *	ic_bootp_ext:
-+ */
-+
-+static void
-+ic_bootp_ext( bootp_vars *v, struct bootp_pkt *b )
-+	{
-+	u8 *end, *ext;
-+
-+	end = (u8*) b + ntohs( b->iph.tot_len );
-+	ext = &b->exten[4];
-+
-+	if( ext >= end )
-+		/* no extended data */
-+		return;
-+
-+	while( *ext != TAG_END )
-+		{
-+		u8 *opt = ext++;
-+		if( *opt == TAG_PAD )
-+			continue;
-+
-+		ext += *ext + 1;
-+		if( ext < end )
-+			ic_oext( v, opt );
++	lock_kernel();
+ 
+ 	/* FAT cannot truncate to a longer file */
+ 	if (attr->ia_valid & ATTR_SIZE) {
+-		if (attr->ia_size > inode->i_size)
+-			return -EPERM;
++		if (attr->ia_size > inode->i_size) {
++			error = -EPERM;
++			goto out;
 +		}
+ 	}
+ 
+ 	error = inode_change_ok(inode, attr);
+-	if (error)
+-		return MSDOS_SB(sb)->options.quiet ? 0 : error;
+-
++	if (error) {
++		if( MSDOS_SB(sb)->options.quiet }
++		    error = 0; 
++		goto out;
 +	}
+ 	if (((attr->ia_valid & ATTR_UID) && 
+ 	     (attr->ia_uid != MSDOS_SB(sb)->options.fs_uid)) ||
+ 	    ((attr->ia_valid & ATTR_GID) && 
+@@ -1074,12 +1080,13 @@
+ 	     (attr->ia_mode & ~MSDOS_VALID_MODE)))
+ 		error = -EPERM;
+ 
+-	if (error)
+-		return MSDOS_SB(sb)->options.quiet ? 0 : error;
+-
+-	error = inode_setattr(inode, attr);
+-	if (error)
+-		return error;
++	if (error) {
++		if( MSDOS_SB(sb)->options.quiet )  
++			error = 0;
++		goto out;
++	}
++	if( error = inode_setattr(inode, attr) )
++		goto out;
+ 
+ 	if (S_ISDIR(inode->i_mode))
+ 		inode->i_mode |= S_IXUGO;
+@@ -1087,6 +1094,8 @@
+ 	inode->i_mode = ((inode->i_mode & S_IFMT) | ((((inode->i_mode & S_IRWXU
+ 	    & ~MSDOS_SB(sb)->options.fs_umask) | S_IRUSR) >> 6)*S_IXUGO)) &
+ 	    ~MSDOS_SB(sb)->options.fs_umask;
+-	return 0;
++out:
++	unlock_kernel();
++	return error;
+ }
+ MODULE_LICENSE("GPL");
+diff -ur linux-2.5.7-clean/fs/hfs/inode.c linux/fs/hfs/inode.c
+--- linux-2.5.7-clean/fs/hfs/inode.c	Thu Mar  7 18:18:30 2002
++++ linux/fs/hfs/inode.c	Wed Apr  3 14:33:02 2002
+@@ -117,17 +117,18 @@
+ 	struct hfs_cat_entry *entry = HFS_I(inode)->entry;
+ 	struct dentry **de = entry->sys_entry;
+ 	struct hfs_sb_info *hsb = HFS_SB(inode->i_sb);
+-	int error, i;
++	int error=0, i;
 +
-+
-+/*
-+ *	ic_oext:
-+ *		Output extended vendor info.
-+ */
-+
-+static void
-+ic_oext( bootp_vars *v, u8 *opt )
-+	{
-+	u8 *tv, tn, tl;
-+
-+	/* tag number, tag length, tag value */
-+	tn = *opt++;
-+	tl = *opt++;
-+	tv = opt;
-+
-+	switch( tn )
-+		{
-+		case TAG_SUBNET_MASK:
-+			ic_oip( v, "NETMASK", *((u32*)tv) );
-+			break;
-+
-+		case TAG_GATEWAY:
-+			ic_olist( v, "GATEWAYS", tv, tl );
-+			break;
-+
-+		case TAG_TIME_SERVER:
-+			ic_olist( v, "TIMESRVS", tv, tl );
-+			break;
-+
-+		case TAG_NAME_SERVER:
-+			ic_olist( v, "IEN116SRVS", tv, tl );
-+			break;
-+
-+		case TAG_DOMAIN_SERVER:
-+			ic_olist( v, "DNSSRVS", tv, tl );
-+			break;
-+
-+		case TAG_LOG_SERVER:
-+			ic_olist( v, "LOGSRVS", tv, tl );
-+			break;
-+
-+		case TAG_COOKIE_SERVER:
-+			ic_olist( v, "QODSRVS", tv, tl );
-+			break;
-+
-+		case TAG_LPR_SERVER:
-+			ic_olist( v, "LPRSRVS", tv, tl );
-+			break;
-+
-+		case TAG_IMPRESS_SERVER:
-+			ic_olist( v, "IMPRESSSRVS", tv, tl );
-+			break;
-+
-+		case TAG_RLP_SERVER:
-+			ic_olist( v, "RLPSRVS", tv, tl );
-+			break;
-+
-+		case TAG_HOST_NAME:
-+			ic_ostr( v, "HOSTNAME", tv, tl );
-+			break;
-+
-+		case TAG_DOMAIN_NAME:
-+			ic_ostr( v, "DOMAIN", tv, tl );
-+			break;
-+
-+		case TAG_SWAP_SERVER:
-+			ic_olist( v, "SWAPSRVR", tv, tl );
-+			break;
-+
-+		case TAG_ROOT_PATH:
-+			ic_ostr( v, "ROOT_PATH", tv, tl );
-+			break;
-+
-+		case TAG_EXTEN_FILE:
-+			ic_ostr( v, "EXTEN_FILE", tv, tl );
-+			break;
-+
-+		case TAG_NIS_DOMAIN:
-+			ic_ostr( v, "YPDOMAIN", tv, tl );
-+			break;
-+
-+		case TAG_NIS_SERVER:
-+			ic_olist( v, "YPSRVR", tv, tl );
-+			break;
-+
-+		case TAG_NTP_SERVER:
-+			ic_olist( v, "NTPSRVS", tv, tl );
-+			break;
-+
-+		default:
-+			ic_otag( v, tn, tv, tl );
-+			break;
++	lock_kernel();
+ 
+ 	error = inode_change_ok(inode, attr); /* basic permission checks */
+ 	if (error) {
+ 		/* Let netatalk's afpd think chmod() always succeeds */
+ 		if (hsb->s_afpd &&
+ 		    (attr->ia_valid == (ATTR_MODE | ATTR_CTIME))) {
+-			return 0;
+-		} else {
+-			return error;
++			error = 0;
+ 		}
++		goto out; 
+ 	}
+ 
+ 	/* no uig/gid changes and limit which mode bits can be set */
+@@ -139,7 +140,10 @@
+ 	     (((entry->type == HFS_CDR_DIR) &&
+ 	       (attr->ia_mode != inode->i_mode))||
+ 	      (attr->ia_mode & ~HFS_VALID_MODE_BITS)))) {
+-		return hsb->s_quiet ? 0 : error;
++		if( hsb->s_quiet ) { 
++			error = 0;
++			goto out;
 +		}
+ 	}
+ 	
+ 	if (entry->type == HFS_CDR_DIR) {
+@@ -170,9 +174,9 @@
+ 		}
+ 	}
+ 	error = inode_setattr(inode, attr);
+-	if (error)
+-		return error;
+-
++	if (error) 
++		goto out;
++	
+ 	/* We wouldn't want to mess with the sizes of the other fork */
+ 	attr->ia_valid &= ~ATTR_SIZE;
+ 
+@@ -204,7 +208,9 @@
+ 	}
+ 	/* size changes handled in hfs_extent_adj() */
+ 
+-	return 0;
++out:
++	unlock_kernel();
++	return error;
+ }
+ 
+ int hfs_notify_change(struct dentry *dentry, struct iattr * attr)
+diff -ur linux-2.5.7-clean/fs/hpfs/inode.c linux/fs/hpfs/inode.c
+--- linux-2.5.7-clean/fs/hpfs/inode.c	Thu Mar  7 18:18:22 2002
++++ linux/fs/hpfs/inode.c	Wed Apr  3 14:05:51 2002
+@@ -303,15 +303,18 @@
+ int hpfs_notify_change(struct dentry *dentry, struct iattr *attr)
+ {
+ 	struct inode *inode = dentry->d_inode;
+-	int error;
+-	if ((attr->ia_valid & ATTR_SIZE) && attr->ia_size > inode->i_size) 
+-		return -EINVAL;
+-	if (inode->i_sb->s_hpfs_root == inode->i_ino) return -EINVAL;
+-	if ((error = inode_change_ok(inode, attr))) return error;
+-	error = inode_setattr(inode, attr);
+-	if (error) return error;
+-	hpfs_write_inode(inode);
+-	return 0;
++	int error=0;
++	lock_kernel();
++	if ( ((attr->ia_valid & ATTR_SIZE) && attr->ia_size > inode->i_size) ||
++	     (inode->i_sb->s_hpfs_root == inode->i_ino) ) {
++		error = -EINVAL;
++	} else if ((error = inode_change_ok(inode, attr))) {
++	} else if ((error = inode_setattr(inode, attr))) {
++	} else {
++		hpfs_write_inode(inode);
 +	}
++	unlock_kernel();
++	return error;
+ }
+ 
+ void hpfs_write_if_changed(struct inode *inode)
+diff -ur linux-2.5.7-clean/fs/inode.c linux/fs/inode.c
+--- linux-2.5.7-clean/fs/inode.c	Tue Apr  2 10:43:20 2002
++++ linux/fs/inode.c	Wed Apr  3 15:00:24 2002
+@@ -143,6 +143,7 @@
+ 	INIT_LIST_HEAD(&inode->i_dirty_data_buffers);
+ 	INIT_LIST_HEAD(&inode->i_devices);
+ 	sema_init(&inode->i_sem, 1);
++	sema_init(&inode->i_attr_lock, 1);
+ 	spin_lock_init(&inode->i_data.i_shared_lock);
+ 	INIT_LIST_HEAD(&inode->i_data.i_mmap);
+ 	INIT_LIST_HEAD(&inode->i_data.i_mmap_shared);
+diff -ur linux-2.5.7-clean/fs/intermezzo/dir.c linux/fs/intermezzo/dir.c
+--- linux-2.5.7-clean/fs/intermezzo/dir.c	Thu Mar  7 18:18:19 2002
++++ linux/fs/intermezzo/dir.c	Wed Apr  3 14:35:35 2002
+@@ -282,11 +282,13 @@
+         struct presto_file_set *fset;
+         struct lento_vfs_context info = { 0, 0, 0 };
+ 
++	lock_kernel();	
 +
+         ENTRY;
+         error = presto_prep(de, &cache, &fset);
+         if ( error ) {
+                 EXIT;
+-                return error;
++                goto out;        
+         }
+ 
+         if (!iattr->ia_valid)
+@@ -300,7 +302,8 @@
+         
+         if ( presto_get_permit(de->d_inode) < 0 ) {
+                 EXIT;
+-                return -EROFS;
++                error = -EROFS;
++                goto out;
+         }
+ 
+         if (!ISLENTO(presto_c2m(cache)))
+@@ -308,6 +311,8 @@
+ 	info.flags |= LENTO_FL_IGNORE_TIME;
+         error = presto_do_setattr(fset, de, iattr, &info);
+         presto_put_permit(de->d_inode);
++out:
++        unlock_kernel();
+         return error;
+ }
+ 
+diff -ur linux-2.5.7-clean/fs/jffs/inode-v23.c linux/fs/jffs/inode-v23.c
+--- linux-2.5.7-clean/fs/jffs/inode-v23.c	Tue Apr  2 10:43:20 2002
++++ linux/fs/jffs/inode-v23.c	Wed Apr  3 14:13:37 2002
+@@ -196,11 +196,13 @@
+ 	struct jffs_file *f;
+ 	struct jffs_node *new_node;
+ 	int update_all;
+-	int res;
++	int res = 0;
+ 	int recoverable = 0;
+ 
+-	if ((res = inode_change_ok(inode, iattr)))
+-		return res;
++	lock_kernel();
 +
-+/*
-+ *	ic_oip:
-+ *		Output an IP address.
-+ */
-+
-+static void
-+ic_oip( bootp_vars *v, char *var, u32 val )
-+	{
-+	ic_ostr( v, var, in_ntoa(val), -1 );
-+	}
-+
-+
-+/*
-+ *	ic_olist:
-+ *		Output a list of IP addresses
-+ *	of the form:
-+ *
-+ *		VAR='ip_1 ip_2 ... ip_n'
-+ *		VAR_1='ip_1'
-+ *		VAR_2='ip_2'
-+ *		...
-+ *		VAR_n='ip_n'
-+ *
-+ *	Process at most 10 IPs.
-+ */
-+
-+static void
-+ic_olist( bootp_vars *v, char *var, char *tv, int tl )
-+	{
-+	char buf[200], *b;
-+	char vn[40], *ip;
-+	u32 *t;
-+	int n, i;
-+
-+	n = tl / 4;
-+	if( n > 10 )
-+		n = 10;
-+
-+	b = buf;
-+	t = (u32*) tv;
-+
-+	for( i=0; i<n; i++, t++ )
-+		{
-+		sprintf( vn, "%s_%d", var, i+1 );
-+
-+		ip = in_ntoa( *t );
-+		ic_ostr( v, vn, ip, -1 );
-+
-+		if( i )
-+			*b++ = ' ';
-+
-+		while( *ip )
-+			*b++ = *ip++;
++	if ((res = inode_change_ok(inode, iattr))) 
++		goto out;
+ 
+ 	c = (struct jffs_control *)inode->i_sb->u.generic_sbp;
+ 	fmc = c->fmc;
+@@ -215,7 +217,8 @@
+ 		       inode->i_ino);
+ 		D3(printk (KERN_NOTICE "notify_change(): up biglock\n"));
+ 		up(&fmc->biglock);
+-		return -EINVAL;
++		res = -EINVAL;
++		goto out;
+ 	});
+ 
+ 	D1(printk("***jffs_setattr(): file: \"%s\", ino: %u\n",
+@@ -235,7 +238,8 @@
+ 		D(printk("jffs_setattr(): Allocation failed!\n"));
+ 		D3(printk (KERN_NOTICE "notify_change(): up biglock\n"));
+ 		up(&fmc->biglock);
+-		return -ENOMEM;
++		res = -ENOMEM;
++		goto out;
+ 	}
+ 
+ 	new_node->data_offset = 0;
+@@ -321,7 +325,7 @@
+ 		jffs_free_node(new_node);
+ 		D3(printk (KERN_NOTICE "n_c(): up biglock\n"));
+ 		up(&c->fmc->biglock);
+-		return res;
++		goto out;
+ 	}
+ 
+ 	jffs_insert_node(c, f, &raw_inode, 0, new_node);
+@@ -329,7 +333,9 @@
+ 	mark_inode_dirty(inode);
+ 	D3(printk (KERN_NOTICE "n_c(): up biglock\n"));
+ 	up(&c->fmc->biglock);
+-	return 0;
++out:
++	unlock_kernel();
++	return res;
+ } /* jffs_notify_change()  */
+ 
+ 
+diff -ur linux-2.5.7-clean/fs/jffs2/file.c linux/fs/jffs2/file.c
+--- linux-2.5.7-clean/fs/jffs2/file.c	Tue Apr  2 10:43:21 2002
++++ linux/fs/jffs2/file.c	Wed Apr  3 14:15:08 2002
+@@ -109,11 +109,12 @@
+ 	int mdatalen = 0;
+ 	unsigned int ivalid;
+ 	uint32_t phys_ofs, alloclen;
+-	int ret;
++	int ret = 0;
++	lock_kernel();
+ 	D1(printk(KERN_DEBUG "jffs2_setattr(): ino #%lu\n", inode->i_ino));
+ 	ret = inode_change_ok(inode, iattr);
+ 	if (ret) 
+-		return ret;
++		goto out;
+ 
+ 	/* Special cases - we don't want more than one data node
+ 	   for these types on the medium at any time. So setattr
+@@ -130,12 +131,14 @@
+ 	} else if (S_ISLNK(inode->i_mode)) {
+ 		mdatalen = f->metadata->size;
+ 		mdata = kmalloc(f->metadata->size, GFP_USER);
+-		if (!mdata)
+-			return -ENOMEM;
++		if (!mdata) {
++			ret = -ENOMEM;
++			goto out;
 +		}
+ 		ret = jffs2_read_dnode(c, f->metadata, mdata, 0, mdatalen);
+ 		if (ret) {
+ 			kfree(mdata);
+-			return ret;
++			goto out;
+ 		}
+ 		D1(printk(KERN_DEBUG "jffs2_setattr(): Writing %d bytes of symlink target\n", mdatalen));
+ 	}
+@@ -144,7 +147,8 @@
+ 	if (!ri) {
+ 		if (S_ISLNK(inode->i_mode))
+ 			kfree(mdata);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto out;
+ 	}
+ 		
+ 	ret = jffs2_reserve_space(c, sizeof(*ri) + mdatalen, &phys_ofs, &alloclen, ALLOC_NORMAL);
+@@ -152,7 +156,7 @@
+ 		jffs2_free_raw_inode(ri);
+ 		if (S_ISLNK(inode->i_mode & S_IFMT))
+ 			 kfree(mdata);
+-		return ret;
++		goto out;
+ 	}
+ 	down(&f->sem);
+ 	ivalid = iattr->ia_valid;
+@@ -201,7 +205,8 @@
+ 		jffs2_complete_reservation(c);
+ 		jffs2_free_raw_inode(ri);
+ 		up(&f->sem);
+-		return PTR_ERR(new_metadata);
++		ret = PTR_ERR(new_metadata);
++		goto out;
+ 	}
+ 	/* It worked. Update the inode */
+ 	inode->i_atime = ri->atime;
+@@ -235,7 +240,9 @@
+ 	up(&f->sem);
+ 	jffs2_complete_reservation(c);
+ 
+-	return 0;
++out:
++	unlock_kernel();	
++	return ret;
+ }
+ 
+ int jffs2_do_readpage_nolock (struct inode *inode, struct page *pg)
+diff -ur linux-2.5.7-clean/fs/ncpfs/inode.c linux/fs/ncpfs/inode.c
+--- linux-2.5.7-clean/fs/ncpfs/inode.c	Tue Apr  2 10:43:22 2002
++++ linux/fs/ncpfs/inode.c	Wed Apr  3 14:38:24 2002
+@@ -592,6 +592,8 @@
+ 
+ 	result = -EIO;
+ 
++	lock_kernel();	
 +
-+	*b = 0;
-+	ic_ostr( v, var, buf, -1 );
+ 	server = NCP_SERVER(inode);
+ 	if ((!server) || !ncp_conn_valid(server))
+ 		goto out;
+@@ -636,7 +638,8 @@
+ 				info.attributes |=  (aRONLY|aRENAMEINHIBIT|aDELETEINHIBIT);
+                 } else if (!S_ISREG(inode->i_mode))
+                 {
+-                        return -EPERM;
++			result = -EPERM;
++			goto out;
+                 }
+                 else
+                 {
+@@ -722,7 +725,8 @@
+ 			attr->ia_size);
+ 
+ 		if ((result = ncp_make_open(inode, O_WRONLY)) < 0) {
+-			return -EACCES;
++			result = -EACCES;
++			goto out;
+ 		}
+ 		ncp_write_kernel(NCP_SERVER(inode), NCP_FINFO(inode)->file_handle,
+ 			  attr->ia_size, 0, "", &written);
+@@ -735,6 +739,7 @@
+ 			result = vmtruncate(inode, attr->ia_size);
+ 	}
+ out:
++	unlock_kernel();
+ 	return result;
+ }
+ 
+diff -ur linux-2.5.7-clean/fs/nfs/inode.c linux/fs/nfs/inode.c
+--- linux-2.5.7-clean/fs/nfs/inode.c	Tue Apr  2 10:43:22 2002
++++ linux/fs/nfs/inode.c	Wed Apr  3 14:07:56 2002
+@@ -728,6 +728,8 @@
+ 	struct nfs_fattr fattr;
+ 	int error;
+ 
++	lock_kernel();
++
+ 	/*
+ 	 * Make sure the inode is up-to-date.
+ 	 */
+@@ -776,6 +778,7 @@
+ 	NFS_CACHEINV(inode);
+ 	error = nfs_refresh_inode(inode, &fattr);
+ out:
++	unlock_kernel();
+ 	return error;
+ }
+ 
+diff -ur linux-2.5.7-clean/fs/reiserfs/file.c linux/fs/reiserfs/file.c
+--- linux-2.5.7-clean/fs/reiserfs/file.c	Thu Mar  7 18:18:05 2002
++++ linux/fs/reiserfs/file.c	Wed Apr  3 14:40:27 2002
+@@ -95,14 +95,16 @@
+ static int reiserfs_setattr(struct dentry *dentry, struct iattr *attr) {
+     struct inode *inode = dentry->d_inode ;
+     int error ;
++    lock_kernel();
+     if (attr->ia_valid & ATTR_SIZE) {
+ 	/* version 2 items will be caught by the s_maxbytes check
+ 	** done for us in vmtruncate
+ 	*/
+ 	if (get_inode_item_key_version(inode) == KEY_FORMAT_3_5 &&
+-	    attr->ia_size > MAX_NON_LFS)
+-            return -EFBIG ;
+-
++	    attr->ia_size > MAX_NON_LFS) {
++	    error = -EFBIG ;
++	    goto out;
 +	}
-+
-+
-+/*
-+ *	ic_otag:
-+ *		Output a generic tag value.
-+ */
-+
-+static void
-+ic_otag( bootp_vars *v, int tn, char *tv, int tl )
-+	{
-+	char var[10];
-+
-+	sprintf( var, "T%d", tn );
-+	ic_ostr( v, var, tv, tl );
+ 	/* fill in hole pointers in the expanding truncate case. */
+         if (attr->ia_size > inode->i_size) {
+ 	    error = generic_cont_expand(inode, attr->ia_size) ;
+@@ -114,20 +116,24 @@
+ 		journal_end(&th, inode->i_sb, 4) ;
+ 	    }
+ 	    if (error)
+-	        return error ;
++	        goto out;
+ 	}
+     }
+ 
+     if ((((attr->ia_valid & ATTR_UID) && (attr->ia_uid & ~0xffff)) ||
+ 	 ((attr->ia_valid & ATTR_GID) && (attr->ia_gid & ~0xffff))) &&
+-	(get_inode_sd_version (inode) == STAT_DATA_V1))
++	(get_inode_sd_version (inode) == STAT_DATA_V1)) {
+ 		/* stat data of format v3.5 has 16 bit uid and gid */
+-	    return -EINVAL;
++	    error = -EINVAL;
++	    goto out;	
 +	}
+ 
+     error = inode_change_ok(inode, attr) ;
+     if (!error)
+         inode_setattr(inode, attr) ;
+ 
++out:
++    unlock_kernel();
+     return error ;
+ }
+ 
+diff -ur linux-2.5.7-clean/fs/smbfs/inode.c linux/fs/smbfs/inode.c
+--- linux-2.5.7-clean/fs/smbfs/inode.c	Tue Apr  2 10:43:22 2002
++++ linux/fs/smbfs/inode.c	Wed Apr  3 14:08:17 2002
+@@ -621,6 +621,8 @@
+ 	int error, changed, refresh = 0;
+ 	struct smb_fattr fattr;
+ 
++	lock_kernel();
 +
+ 	error = smb_revalidate_inode(dentry);
+ 	if (error)
+ 		goto out;
+@@ -714,6 +716,7 @@
+ out:
+ 	if (refresh)
+ 		smb_refresh_inode(dentry);
++	unlock_kernel();
+ 	return error;
+ }
+ 
+diff -ur linux-2.5.7-clean/fs/umsdos/inode.c linux/fs/umsdos/inode.c
+--- linux-2.5.7-clean/fs/umsdos/inode.c	Tue Apr  2 10:43:23 2002
++++ linux/fs/umsdos/inode.c	Wed Apr  3 14:08:36 2002
+@@ -165,6 +165,8 @@
+ 	struct dentry *temp, *old_dentry = NULL;
+ 	int ret;
+ 
++	lock_kernel();
 +
-+/*
-+ *	ic_ostr:
-+ *		Output a variable and its value to the buffer
-+ *	of the form:
-+ *
-+ *		var='val'\n
-+ *
-+ *	Ensure that we do not overwrite the supplied buffer.
-+ *	If the given tag length (tl) is < 0, then we use
-+ *	strlen() to determine length.
-+ */
-+
-+static void
-+ic_ostr( bootp_vars *v, char *var, char *tv, int tl )
-+	{
-+	char *p;
-+	int lv, l;
-+	int t, i;
-+
-+	/* determine the lengths of var and val */
-+	lv = strlen( var );
-+	if( tl < 0 )
-+		l = strlen( tv );
-+	else
-+		{
-+		p = tv;
-+		for( l=0; l<tl; l++ )
-+			if( !*p++ )
-+				break;
-+		}
-+
-+	/* total length */
-+	t = lv + l + 4;
-+
-+	/* room to add string? */
-+	if( v->n + t >= v->len )
-+		/* nope */
-+		return;
-+
-+	/* add it */
-+	p = v->buf + v->n;
-+	while( *var )
-+		*p++ = *var++;
-+
-+	*p++ = '=';
-+
-+	*p++ = '\'';
-+	for( i=0; i<l; i++ )
-+		*p++ = *tv++;
-+	*p++ = '\'';
-+
-+	*p = '\n';
-+
-+	/* update buffer length */
-+	v->n += t;
-+	}
-+
-+#endif
+ 	ret = umsdos_parse (dentry->d_name.name, dentry->d_name.len,
+ 				&info);
+ 	if (ret)
+@@ -216,6 +218,7 @@
+ out:
+ 	if (old_dentry)
+ 		dput (dentry);	/* if we had to use fake dentry for hardlinks, dput() it now */
++	unlock_kernel();
+ 	return ret;
+ }
+ 
+diff -ur linux-2.5.7-clean/include/linux/fs.h linux/include/linux/fs.h
+--- linux-2.5.7-clean/include/linux/fs.h	Tue Apr  2 10:43:27 2002
++++ linux/include/linux/fs.h	Wed Apr  3 11:53:41 2002
+@@ -426,6 +426,7 @@
+ 	unsigned long		i_blocks;
+ 	unsigned long		i_version;
+ 	struct semaphore	i_sem;
++	struct semaphore	i_attr_lock;
+ 	struct inode_operations	*i_op;
+ 	struct file_operations	*i_fop;	/* former ->i_op->default_file_ops */
+ 	struct super_block	*i_sb;
 
-
-
-
+--------------080208010003030009020103--
 

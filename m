@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261944AbTGKOSK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 10:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbTGKOQc
+	id S262465AbTGKO0H (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 10:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbTGKOZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 10:16:32 -0400
-Received: from angband.namesys.com ([212.16.7.85]:50059 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S261944AbTGKOOd
+	Fri, 11 Jul 2003 10:25:16 -0400
+Received: from angband.namesys.com ([212.16.7.85]:53643 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S261245AbTGKOXT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 10:14:33 -0400
-Date: Fri, 11 Jul 2003 18:29:15 +0400
+	Fri, 11 Jul 2003 10:23:19 -0400
+Date: Fri, 11 Jul 2003 18:37:56 +0400
 From: Oleg Drokin <green@namesys.com>
-To: Peter Lojkin <ia6432@inbox.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre3 and reiserfs problem (not boot)
-Message-ID: <20030711142914.GB24682@namesys.com>
-References: <E19ayZE-000Ipt-00.ia6432-inbox-ru@f12.mail.ru>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5 'what to expect'
+Message-ID: <20030711143756.GC24682@namesys.com>
+References: <20030711140219.GB16433@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E19ayZE-000Ipt-00.ia6432-inbox-ru@f12.mail.ru>
+In-Reply-To: <20030711140219.GB16433@suse.de>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hello!
 
-On Fri, Jul 11, 2003 at 06:08:08PM +0400, "Peter Lojkin"  wrote:
+On Fri, Jul 11, 2003 at 03:02:19PM +0100, Dave Jones wrote:
 
-> After few hours of work with 2.4.22-pre3 (patched to solve mount problem) we got this (ksyms was unavailable):
+> Reiserfs.
+> ~~~~~~~~~
+> - Reiserfs now supports inode attributes such as immutable.
 
-There was one more reiserfs message in kernel log just before this line, can you please include it?
-
-> Jul 10 06:25:41 host kernel: kernel BUG at prints.c:334!
-> Jul 10 06:25:41 host kernel: invalid operand: 0000
-> Jul 10 06:25:41 host kernel: CPU:    1
-> Jul 10 06:25:41 host kernel: EIP:    0010:[reiserfs_panic+41/96]    Not tainted
+This was included into 2.4.17, I think, so this is not exactly new feature.
+On the real new features list we have:
+ - Relocated/nonstandard size journal support (actually was included in 2.4.22-pre3, too)
+ - Support for writes larger than 4k in size (get speedup on large file writes, esp. in append mode,
+                                              should be more SMP friendly, too)
+ - Variable blocksize support (i.e. you can choose any blocksize in range of 1024 .. PAGE_CACHE_SIZE, must be power of 2)
 
 Bye,
     Oleg

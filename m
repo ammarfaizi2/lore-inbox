@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264954AbUBOP1i (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 10:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265059AbUBOP1I
+	id S265045AbUBOPXq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 10:23:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbUBOPWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 10:27:08 -0500
-Received: from mailout08.sul.t-online.com ([194.25.134.20]:23767 "EHLO
-	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S264974AbUBOPYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 10:24:55 -0500
-Date: Sun, 15 Feb 2004 16:20:57 +0100
-From: kladit@t-online.de (Klaus Dittrich)
-To: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re[2]: e1000 problems in 2.6.x
-Message-ID: <20040215152057.GA582@xeon2.local.here>
+	Sun, 15 Feb 2004 10:22:30 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:46303 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S264981AbUBOPWV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 10:22:21 -0500
+Date: Sat, 14 Feb 2004 01:46:44 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Michael Hayes <mike@aiinc.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Spelling in 2.6.2
+Message-ID: <20040214004643.GA470@openzaurus.ucw.cz>
+References: <200402102009.i1AK91T20554@aiinc.aiinc.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
-X-Seen: false
-X-ID: Eq0mwsZ1oeikuin7dQz5k9F47pP4jQ9LaOXpiJEJB-hfZgvW1tjtE2
+In-Reply-To: <200402102009.i1AK91T20554@aiinc.aiinc.ca>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Tyan-S2665 mobo which has an intergrated
-e1000 and I never saw such errors with 2.6 kernels. 
+Hi!
 
-I use it with 100-MBit Full-Duplex in a switched 
-private network.
+> Relax, this is not a spelling patch.
+> 
+> I was curious how fast spelling errors flow into the kernel, so I
+> looked at the + lines in the 2.6.2 patch.  A few of the errors
+> already existed, but most of them are new.  It turns out that there
+> are around 200 new spelling errors in 2.6.2.
+> 
+> A "wether" (castrated goat) has appeared, along with a "Rusell" that
 
-CONFIG_IP_MULTICAST=y
-CONFIG_E1000=y
-CONFIG_E1000_NAPI=y
+:-)
+
+> Documentation/power/video.txt             carefull         careful            1
+
+My fault, can you submit it through trivial?
+
+> arch/i386/kernel/acpi/boot.c              recogznied       recognized         1
+> arch/x86_64/kernel/acpi/boot.c            recogznied       recognized         1
+> arch/x86_64/kernel/time.c                 everytime        every time         1
+> arch/x86_64/kernel/time.c                 interuppts       interrupts         1
+
+These too, please...
 
 -- 
-Klaus
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+

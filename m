@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277334AbRJEJ1B>; Fri, 5 Oct 2001 05:27:01 -0400
+	id <S277337AbRJEJgY>; Fri, 5 Oct 2001 05:36:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277337AbRJEJ0m>; Fri, 5 Oct 2001 05:26:42 -0400
-Received: from mohawk.n-online.net ([195.30.220.100]:14089 "HELO
-	mohawk.n-online.net") by vger.kernel.org with SMTP
-	id <S277334AbRJEJ0e>; Fri, 5 Oct 2001 05:26:34 -0400
-Date: Fri, 5 Oct 2001 11:17:22 +0200
-From: Thomas Foerster <puckwork@madz.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Odd keyboard related crashes.
-X-Mailer: Thomas Foerster's registered AK-Mail 3.11 [ger]
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <20011005092640Z277334-760+20965@vger.kernel.org>
+	id <S277338AbRJEJgN>; Fri, 5 Oct 2001 05:36:13 -0400
+Received: from my.nada.kth.se ([130.237.226.101]:40868 "EHLO my.nada.kth.se")
+	by vger.kernel.org with ESMTP id <S277337AbRJEJgC>;
+	Fri, 5 Oct 2001 05:36:02 -0400
+Date: Fri, 5 Oct 2001 11:36:28 +0200 (MET DST)
+Message-Id: <200110050936.LAA14156@my.nada.kth.se>
+From: "=?ISO-8859-1?Q?Mattias Engdeg=E5rd?=" <f91-men@nada.kth.se>
+To: pmenage@ensim.com
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <E15pFHM-0002H1-00@pmenage-dt.ensim.com> (message from Paul
+	Menage on Thu, 04 Oct 2001 13:39:36 -0700)
+Subject: Re: [PATCH][RFC] Pollable /proc/<pid>/ - avoid SIGCHLD/poll() races
+Content-Type: text/plain; charset=iso-8859-1
+In-Reply-To: <E15pFHM-0002H1-00@pmenage-dt.ensim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'm running 2.4.10, and the ps/2 keyboard came out of it's socket.
+Paul Menage <pmenage@ensim.com> wrote:
+>Except that this enhancement is not completely safe, as if you get more
+>than 1024 children reaped (assuming you send two bytes of pid and two
+>bytes of status) between checks of the pipe, you'll lose notifications.
 
-> On plugging back in, all worked fine, until 10 seconds later there was a
-> crash. (the keyboard worked after being plugged in)
-> No oops, just a reboot.
-> Thinking this must just have been a wierd coincidence, after the system
-> came back up, I tried it again, and again it crashed a few seconds afterwards.
+Obviously, but the cases where the number of children is bounded below
+1024 are rather frequent
 
-> It doesn't seem to want to do this again though.
+>At least if you're only using the pipe to stop select() from blocking,
+>you don't care about overflowing the pipe as there's no important
+>information in there anyway.
 
-That's not a linux related problem, its a hardware problem.
-
-I have the same thing happen with a Windows 2000 box.
-Whenever i plug out the keyboard while the system is running and plugging it in
-again, the system reboots.
-It's the only system i can reproduce the problem, all other Linux boxes
-(whatever kernel is running) run stable when playing with the keyboard.
-
-Thomas
+sure, but then you have to put the pid/exit status somewhere else and
+do some signal blocking/unblocking. In either case, it's portable,
+which polling on /proc/pid isn't
 

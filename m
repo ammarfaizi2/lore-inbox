@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbTERV0r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 May 2003 17:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbTERV0r
+	id S262219AbTERVxL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 May 2003 17:53:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbTERVxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 May 2003 17:26:47 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33458
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S262211AbTERV0q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 May 2003 17:26:46 -0400
-Subject: Re: [PATCH] Use MTRRs by default for vesafb on x86-64
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andi Kleen <ak@muc.de>, Dave Jones <davej@codemonkey.org.uk>,
-       kraxel@suse.de, jsimmons@infradead.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030518161105.GA7404@mail.jlokier.co.uk>
-References: <20030515145640.GA19152@averell> <20030515151633.GA6128@suse.de>
-	 <1053118296.5599.27.camel@dhcp22.swansea.linux.org.uk>
-	 <20030518053935.GA4112@averell>  <20030518161105.GA7404@mail.jlokier.co.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1053290431.27107.4.camel@dhcp22.swansea.linux.org.uk>
+	Sun, 18 May 2003 17:53:11 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:33472 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S262219AbTERVxK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 May 2003 17:53:10 -0400
+Date: Sun, 18 May 2003 23:49:39 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: jw schultz <jw@pegasys.ws>, linux-kernel@vger.kernel.org
+Subject: Re: What exactly does "supports Linux" mean?
+Message-ID: <20030518214939.GC452@elf.ucw.cz>
+References: <20030514021210.GD30766@pegasys.ws> <BKEGKPICNAKILKJKMHCAMEONCPAA.Riley@Williams.Name> <yw1xhe7xo1f6.fsf@zaphod.guide> <20030517160509.GA283@elf.ucw.cz> <20030518013926.GA16286@pegasys.ws>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 18 May 2003 21:40:32 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030518013926.GA16286@pegasys.ws>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2003-05-18 at 17:11, Jamie Lokier wrote:
-> > Can you provide PCI info for them to add a quirk ? 
+Hi!
+
+> > Maybe better sticker would be
+> > 
+> > "includes driver sources".
+> > 
+> > [Long time ago I got double-speed cdrom, and on its driver disk, there
+> > was C source of the driver. Porting it to linux was matter of two
+> > days, IIRC. And it had korean comments ;-)].
 > 
-> What exactly "doesn't work" with these cards?
+> Perhaps you'd be willing to help Aunt Tillie do this.  Your
+> definition of "includes driver sources" will appeal to such a
+> small market segment it isn't worth the ink on the box.
 
-If you sent an MTRR you get crap on the display. I'm not sure if that is
-registers being covered (seems dubious) or other PCI problems perhaps
-with bursts
+Sure, Aunt Tillie can pay SuSE.cz to have that driver updated to any
+kernel she wants ;-).
 
+[Really, if the card is common enough, and driver sources are
+available, they are going to be in kernel.org kernel within few weeks.]
+
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

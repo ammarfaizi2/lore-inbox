@@ -1,76 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131579AbRDCKDo>; Tue, 3 Apr 2001 06:03:44 -0400
+	id <S131020AbRDCKKN>; Tue, 3 Apr 2001 06:10:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130940AbRDCKDd>; Tue, 3 Apr 2001 06:03:33 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:54283 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S131578AbRDCKDV>;
-	Tue, 3 Apr 2001 06:03:21 -0400
-Date: Tue, 3 Apr 2001 11:01:28 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: [patch] print-64gb-oopses-2.4.2-J2
-Message-ID: <Pine.LNX.4.30.0104031058160.2794-200000@elte.hu>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="655616-1164591972-986288488=:2794"
+	id <S131158AbRDCKKD>; Tue, 3 Apr 2001 06:10:03 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:43947 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S131020AbRDCKJ5>; Tue, 3 Apr 2001 06:09:57 -0400
+Date: Tue, 3 Apr 2001 12:09:11 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andries.Brouwer@cwi.nl
+Cc: torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk, hpa@transmeta.com,
+        linux-kernel@vger.kernel.org, tytso@MIT.EDU
+Subject: Re: Larger dev_t
+Message-ID: <20010403120911.B4561@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <UTC200104022017.WAA89061.aeb@vlet.cwi.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <UTC200104022017.WAA89061.aeb@vlet.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Apr 02, 2001 at 10:17:02PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, Apr 02, 2001 at 10:17:02PM +0200, Andries.Brouwer@cwi.nl wrote:
+> What is dev_t used for? It is a communication channel from
+> filesystem to user space (via the stat() system call)
+> and from user space to filesystem (via the mknod() system call).
+ 
+The question is WHAT do we communicate (and don't answer "major
+minor" here, since this is only numbers) and WHY do we need this
+communication.
 
---655616-1164591972-986288488=:2794
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Devfs aims to associate device names with dynamic, flat device
+numbers. So we have a scalable solution for the kernel -> user
+space communication. What we DON't have, is a similar simple way
+to tell it the other way around.
 
+The reasons, why we need to know where a file is located on are:
+   -  to only include files from one media
+   -  to run certain optimizations like fsck does with disk
+      spindles
+   -  ...
 
-the attached patch (against 2.4.3) makes pagetable-printing
-PAE-compatible, handling the nonexistent pagetable case too.
+So instead of just shifting the problems into the future and
+making the same mistake again, we should better think of
+interfaces, that give us the information we need and let this
+error prone (ever had a typo on mknod?) and never large enough
+static interface die.
 
-	Ingo
+Maybe there should be a way to translate a dynamic associated
+device number into a real device name, like the devfs name of it.
+May be a reverse mapping in devfs (/dev/by_dev_no/[0-9]+) would
+work. If these are symlinks, a readlink() would suffice. Very
+simple solution.
 
---655616-1164591972-986288488=:2794
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="print-64gb-oopses-2.4.2-J2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0104031101280.2794@elte.hu>
-Content-Description: 
-Content-Disposition: attachment; filename="print-64gb-oopses-2.4.2-J2"
+For comparing inode1.media == inode2.media (one of the most
+important uses for device numbers) we don't need to change
+anything.
 
-LS0tIGxpbnV4L2FyY2gvaTM4Ni9tbS9mYXVsdC5jLm9yaWcJVHVlIEFwciAg
-MyAxMzo1ODo1OCAyMDAxDQorKysgbGludXgvYXJjaC9pMzg2L21tL2ZhdWx0
-LmMJVHVlIEFwciAgMyAxMzo1OToyMiAyMDAxDQpAQCAtOTAsNiArOTAsMzMg
-QEANCiAJc3Bpbl9sb2NrX2luaXQoJnRpbWVybGlzdF9sb2NrKTsNCiB9DQog
-DQorc3RhdGljIHZvaWQgcHJpbnRfcGFnZXRhYmxlX2VudHJpZXMgKHBnZF90
-ICpwZ2RpciwgdW5zaWduZWQgbG9uZyBhZGRyZXNzKQ0KK3sNCisJcGdkX3Qg
-KnBnZDsNCisJcG1kX3QgKnBtZDsNCisJcHRlX3QgKnB0ZTsNCisNCisJcGdk
-ID0gcGdkaXIgKyBfX3BnZF9vZmZzZXQoYWRkcmVzcyk7DQorCXByaW50aygi
-cGdkIGVudHJ5ICVwOiAlMDE2THhcbiIsIHBnZCwgKGxvbmcgbG9uZylwZ2Rf
-dmFsKCpwZ2QpKTsNCisNCisJaWYgKCFwZ2RfcHJlc2VudCgqcGdkKSkgew0K
-KwkJcHJpbnRrKCIuLi4gcGdkIG5vdCBwcmVzZW50IVxuIik7DQorCQlyZXR1
-cm47DQorCX0NCisJcG1kID0gcG1kX29mZnNldChwZ2QsIGFkZHJlc3MpOw0K
-KwlwcmludGsoInBtZCBlbnRyeSAlcDogJTAxNkx4XG4iLCBwbWQsIChsb25n
-IGxvbmcpcG1kX3ZhbCgqcG1kKSk7DQorDQorCWlmICghcG1kX3ByZXNlbnQo
-KnBtZCkpIHsNCisJCXByaW50aygiLi4uIHBtZCBub3QgcHJlc2VudCFcbiIp
-Ow0KKwkJcmV0dXJuOw0KKwl9DQorCXB0ZSA9IHB0ZV9vZmZzZXQocG1kLCBh
-ZGRyZXNzKTsNCisJcHJpbnRrKCJwdGUgZW50cnkgJXA6ICUwMTZMeFxuIiwg
-cHRlLCAobG9uZyBsb25nKXB0ZV92YWwoKnB0ZSkpOw0KKw0KKwlpZiAoIXB0
-ZV9wcmVzZW50KCpwdGUpKQ0KKwkJcHJpbnRrKCIuLi4gcHRlIG5vdCBwcmVz
-ZW50IVxuIik7DQorfQ0KKw0KIGFzbWxpbmthZ2Ugdm9pZCBkb19pbnZhbGlk
-X29wKHN0cnVjdCBwdF9yZWdzICosIHVuc2lnbmVkIGxvbmcpOw0KIGV4dGVy
-biB1bnNpZ25lZCBsb25nIGlkdDsNCiANCkBAIC0yNzQsMTQgKzMwMSw3IEBA
-DQogCXByaW50aygiIHByaW50aW5nIGVpcDpcbiIpOw0KIAlwcmludGsoIiUw
-OGx4XG4iLCByZWdzLT5laXApOw0KIAlhc20oIm1vdmwgJSVjcjMsJTAiOiI9
-ciIgKHBhZ2UpKTsNCi0JcGFnZSA9ICgodW5zaWduZWQgbG9uZyAqKSBfX3Zh
-KHBhZ2UpKVthZGRyZXNzID4+IDIyXTsNCi0JcHJpbnRrKEtFUk5fQUxFUlQg
-IipwZGUgPSAlMDhseFxuIiwgcGFnZSk7DQotCWlmIChwYWdlICYgMSkgew0K
-LQkJcGFnZSAmPSBQQUdFX01BU0s7DQotCQlhZGRyZXNzICY9IDB4MDAzZmYw
-MDA7DQotCQlwYWdlID0gKCh1bnNpZ25lZCBsb25nICopIF9fdmEocGFnZSkp
-W2FkZHJlc3MgPj4gUEFHRV9TSElGVF07DQotCQlwcmludGsoS0VSTl9BTEVS
-VCAiKnB0ZSA9ICUwOGx4XG4iLCBwYWdlKTsNCi0JfQ0KKwlwcmludF9wYWdl
-dGFibGVfZW50cmllcygocGdkX3QgKilfX3ZhKHBhZ2UpLCBhZGRyZXNzKTsN
-CiAJZGllKCJPb3BzIiwgcmVncywgZXJyb3JfY29kZSk7DQogCWRvX2V4aXQo
-U0lHS0lMTCk7DQogDQo=
---655616-1164591972-986288488=:2794--
+For getting the device number of the spindle, the block devices
+which support partitions or are remapping a (set of) block
+device(s) could get IOCTLs (where this information belongs into
+and is as reliable as the driver).
+
+For all these things, we can have a flat and dynamic device
+number namespace.
+
+Device numbers have to be uniqe only during one power on -> run ->
+power off cycle. For the rest applications should store device
+names instead anyway. The applications, that don't are buggy by
+defintion.
+
+Note: I certainly overlooked sth., so please flame me ;-)
+
+> The current discussion is almost entirely about mknod.]
+
+Yes: Let "mknod /dev/foo [bc] x y" die!
+
+Regards
+
+Ingo Oeser
+-- 
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

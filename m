@@ -1,122 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUF1ACN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264561AbUF1AKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264550AbUF1ACN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jun 2004 20:02:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264560AbUF1ACN
+	id S264561AbUF1AKx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jun 2004 20:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUF1AKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jun 2004 20:02:13 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:18948 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264550AbUF1ACE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jun 2004 20:02:04 -0400
-Date: Mon, 28 Jun 2004 01:02:01 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: Fwd: 2.6.6: IPv6 initialisation bug
-Message-ID: <20040628010200.A15067@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
-	netdev@oss.sgi.com
+	Sun, 27 Jun 2004 20:10:53 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49054 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264561AbUF1AKv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jun 2004 20:10:51 -0400
+Date: Sun, 27 Jun 2004 17:10:44 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Oliver Neukum <oliver@neukum.org>, Andries Brouwer <aebr@win.tue.nl>,
+       <greg@kroah.com>, <arjanv@redhat.com>, <jgarzik@redhat.com>,
+       <tburke@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <mdharm-usb@one-eyed-alien.net>, <david-b@pacbell.net>,
+       zaitcev@redhat.com
+Subject: Re: drivers/block/ub.c
+Message-Id: <20040627171044.052a67c6@lembas.zaitcev.lan>
+In-Reply-To: <Pine.LNX.4.44L0.0406271108190.10134-100000@netrider.rowland.org>
+References: <200406271624.18984.oliver@neukum.org>
+	<Pine.LNX.4.44L0.0406271108190.10134-100000@netrider.rowland.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 0.9.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I've just tried 2.6.7 out on my root-NFS'd firewall with IPv6 built
-in, and it doesn't work because of the problem I described below.
+On Sun, 27 Jun 2004 11:19:38 -0400 (EDT)
+Alan Stern <stern@rowland.harvard.edu> wrote:
 
-Unfortunately, it's impossible to add the missing "local" routes
-using /sbin/ip:
+> My favorite approach has always been:
+> 
+> 	put_be32(cmd->cdb + 2, block);
+> 
+> Unfortunately there is no such function or macro!  It's easy to define an
+> inline function that would carry out the series of four single-byte
+> assignments that originally started this discussion.  A more sophisticated
+> implementation would expand to Andries' unspeakably ugly code on
+> big-endian platforms that don't impose a large penalty for non-aligned
+> 4-byte accesses.  I leave it up to others to decide which is best on
+> little-endian platforms that can do unaligned accesses.
+> 
+> I think it would be great if some such utility routine were added to a
+> standard header in the kernel, together with its siblings put_le32(),
+> put_be16(), put_le16(), and the corresponding get_xxxx() functions.
 
-ip add route local fe80::a00:2bff:fe95:1d7b via :: dev eth0
+This is very nice and would be a great help for Infiniband developers.
+However, parts of SCSI commands are not defined in terms of C structures
+or even 32 bit words with an endianness. They are streams of bytes, at
+least historically. Please kindly refer to the WRITE(6) command for
+the evidence. You'd need put_be20() to form that block address. :-)
 
-results in an "unreachable" route being added for that address rather
-than a local route.
+I write these byte marshalling sequences since 1985 and I'm a little
+used to them. I do not recall thinking twice about writing that element
+of ub. It probably doesn't deserve all the tempest Oliver raised over it.
 
-What's the solution?
-
-Is there a good reason why IPv6 uses the loopback device for local
-routes?
-
-(I'm copying lkml this time since afaik netdev ignored the previous
-message.)
-
------ Forwarded message from Russell King <rmk@arm.linux.org.uk> -----
-Date: Tue, 18 May 2004 16:46:44 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: netdev@oss.sgi.com
-Subject: 2.6.6: IPv6 initialisation bug
-
-Hi,
-
-I think I've found an IPv6 initialisation bug which occurs when IPv6
-is modular, and you insert this module when eth0 is up and running,
-but lo may be down.
-
-IPv6 appears to create routes for addresses which are defined as
-"local" (eg, link local, addresses assigned to the host etc) using
-the loopback device.
-
-However, if the ipv6 module is loaded when lo is down and some other
-interface is up (eg, in the case of a root-NFS box), then things fall
-apart.
-
-bash-2.04# ip -6 addr
-1: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qlen 1000
-    inet6 fec0::1:a00:2bff:fe00:193/64 scope site dynamic
-       valid_lft 2591630sec preferred_lft 604430sec
-    inet6 2002:xxxx:xxxx:xxxx:a00:2bff:fe00:193/64 scope global dynamic
-       valid_lft 2591630sec preferred_lft 604430sec
-    inet6 fe80::a00:2bff:fe00:193/64 scope link
-       valid_lft forever preferred_lft forever
-2: lo: <LOOPBACK,UP> mtu 16436
-    inet6 ::1/128 scope host
-       valid_lft forever preferred_lft forever
-bash-2.04# ip -6 route show table all
-local ::1 via :: dev lo  proto none  metric 0  mtu 16436 advmss 16376
-unreachable ::/96 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-unreachable ::ffff:0.0.0.0/96 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-unreachable 2002:a00::/24 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-unreachable 2002:7f00::/24 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-unreachable 2002:a9fe::/32 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-unreachable 2002:ac10::/28 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-unreachable 2002:c0a8::/32 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-2002:xxxx:xxxx:xxxx::/64 dev eth0  proto kernel  metric 256  expires 2591712sec mtu 1500 advmss 1440
-unreachable 2002:e000::/19 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-unreachable 3ffe:ffff::/32 dev lo  metric 1024  error -101 mtu 16436 advmss 16376
-fe80::/64 dev eth0  metric 256  mtu 1500 advmss 1440
-fec0:0:0:1::/64 dev eth0  proto kernel  metric 256  expires 2591712sec mtu 1500 advmss 1440
-ff02::1 via ff02::1 dev eth0  metric 0
-    cache  mtu 1500 advmss 1440
-ff00::/8 dev eth0  metric 256  mtu 1500 advmss 1440
-unreachable default dev lo  proto none  metric -1  error -101
-
-As you can see, we're missing the local routes for all our addresses
-against "eth0" - because we tried to add them to the IPv6 routing
-table when "lo" was down.
-
-The result is rather distasteful on the network - we start hammering
-the local segment with neighbour solicitations for our link local and
-global addresses, as well as sending neighbour solicitations for other
-nodes addresses.  We receive neighbour advertisment replies, but because
-we believe we don't own our own address, we forward them back out the
-same interface triggering yet more neighbour solicitations for our own
-addresses.
-
-So... what's the solution for nodes running off root-NFS where "lo"
-will always be brought up _after_ some other interface?
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
-
------ End forwarded message -----
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+-- Pete

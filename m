@@ -1,67 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbULJK4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbULJLGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbULJK4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 05:56:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbULJK4Z
+	id S261168AbULJLGC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 06:06:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbULJLGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 05:56:25 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:3595 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S261174AbULJK4M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 05:56:12 -0500
-Subject: Re: [PATCH 1/1] driver: Tpm hardware enablement
-From: Ian Campbell <icampbell@arcom.com>
-To: Kylene Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, greg@kroah.com, sailer@watson.ibm.com,
-       leendert@watson.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com,
-       tpmdd-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
-References: <Pine.LNX.4.58.0412081546470.24510@jo.austin.ibm.com>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Date: Fri, 10 Dec 2004 10:56:08 +0000
-Message-Id: <1102676169.31305.85.camel@icampbell-debian>
+	Fri, 10 Dec 2004 06:06:02 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:11426 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261168AbULJLF7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 06:05:59 -0500
+Date: Fri, 10 Dec 2004 12:05:37 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Rui Nuno Capela <rncbc@rncbc.org>, LKML <linux-kernel@vger.kernel.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Mark Johnson <Mark_H_Johnson@RAYTHEON.COM>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>, emann@mrv.com,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-12
+Message-ID: <20041210110537.GA6855@elte.hu>
+References: <32950.192.168.1.5.1102529664.squirrel@192.168.1.5> <1102532625.25841.327.camel@localhost.localdomain> <32788.192.168.1.5.1102541960.squirrel@192.168.1.5> <1102543904.25841.356.camel@localhost.localdomain> <20041209093211.GC14516@elte.hu> <20041209131317.GA31573@elte.hu> <1102602829.25841.393.camel@localhost.localdomain> <1102619992.3882.9.camel@localhost.localdomain> <20041209221021.GF14194@elte.hu> <1102659089.3236.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Dec 2004 10:58:23.0203 (UTC) FILETIME=[2ACA6B30:01C4DEA7]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102659089.3236.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
 
-On Thu, 2004-12-09 at 09:25 -0600, Kylene Hall wrote:
-> +	/* Determine chip type */
-> +	if (tpm_nsc_init(chip) == 0) {
-> +		chip->recv = tpm_nsc_recv;
-> +		chip->send = tpm_nsc_send;
-> +		chip->cancel = tpm_nsc_cancel;
-> +		chip->req_complete_mask = NSC_STATUS_OBF;
-> +		chip->req_complete_val = NSC_STATUS_OBF;
-> +	} else if (tpm_atml_init(chip) == 0) {
-> +		chip->recv = tpm_atml_recv;
-> +		chip->send = tpm_atml_send;
-> +		chip->cancel = tpm_atml_cancel;
-> +		chip->req_complete_mask =
-> +		    ATML_STATUS_BUSY | ATML_STATUS_DATA_AVAIL;
-> +		chip->req_complete_val = ATML_STATUS_DATA_AVAIL;
-> +	} else {
-> +		rc = -ENODEV;
-> +		goto out_release;
-> +	}
+* Steven Rostedt <rostedt@goodmis.org> wrote:
 
-The atmel part at least also comes as an I2C variant. 
+> Hi Ingo,
+> 
+> Here's your fix. I haven't seen anything else cause the bug, and since
+> it uses local_irq_save, I guess the bounce_copy_vec can be called with
+> interrupts disabled. Since the kmap_atomic (or just kmap) checks for
+> that, I don't think I need more than what I've done.
 
-We could continue to add to the ifelse here but perhaps it might be
-beneficial to split the individual chip specific stuff into separate
-files now and perhaps register them via some sort of
-register_tpm_hardware(struct tpm_chip_ops *) type interface?
+yeah, it looks good to me too - thx. I've uploaded -32-16 with your fix
+included.
 
-Ian.
-
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
-
+	Ingo

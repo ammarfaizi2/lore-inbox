@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264936AbUELKWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265023AbUELKZD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264936AbUELKWU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 06:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264938AbUELKWU
+	id S265023AbUELKZD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 06:25:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265019AbUELKZD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 06:22:20 -0400
-Received: from adsl-static-1-36.uklinux.net ([62.245.36.36]:34008 "EHLO
-	bristolreccc.co.uk") by vger.kernel.org with ESMTP id S264936AbUELKWS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 06:22:18 -0400
-Subject: Re: problem with sis900 driver 2.6.5 +
-From: mike <mike@bristolreccc.co.uk>
-To: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040512005008.GA18347@cathedrallabs.org>
-References: <1084300104.24569.8.camel@datacontrol>
-	 <20040512005008.GA18347@cathedrallabs.org>
-Content-Type: text/plain
+	Wed, 12 May 2004 06:25:03 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:48565 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S265016AbUELKYu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 06:24:50 -0400
+From: "Sourav Sen" <souravs@india.hp.com>
+To: "'Dave Hansen'" <haveblue@us.ibm.com>
+Cc: "'Greg KH'" <greg@kroah.com>, <Matt_Domsch@dell.com>,
+       "'Matthew E Tolentino'" <matthew.e.tolentino@intel.com>,
+       <linux-ia64@vger.kernel.org>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>,
+       "'Sourav Sen'" <souravs@india.hp.com>
+Subject: RE: [2.6.6 PATCH] Exposing EFI memory map
+Date: Wed, 12 May 2004 15:54:39 +0530
+Message-ID: <00cb01c4380b$55c97bc0$39624c0f@india.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Wed, 12 May 2004 11:18:32 +0100
-Message-Id: <1084357112.24569.12.camel@datacontrol>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.7 
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <1084290121.1091.62.camel@nighthawk>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-05-11 at 21:50 -0300, Aristeu Sergio Rozanski Filho wrote:
-> > In kernels 2.6.5 and above (may affect 2.6.4 as well) there seems to be
-> > a problem with the sis900 eth driver
-> > 
-> > I have a sis chipset with integrated ethernet sis900 driver which has
-> > always worked perfectly up to and including 2.6.3 (fedora)
-> > 
-> > Now with both fedora 2.6.5 kernel and vanilla 2.6.6 eth0 does not come
-> > up
-> > 
-> > relevant messages
-> > 
-> > sis900 device eth0 does not appear to be present delaying initialisation
-> > 
-> > and from dmesg eth0: cannot find ISA bridge
-> > 
-> > 2.6.3 works fine
-> > 
-> > lsmod shows sis and sis900 modules loaded fine
-> I had the same problem, the patch attached is a dirty fix to get it
-> running again. in newer kernels its isa bridge is listed with a different
-> product id (0x0018). no idea why.
-> 
-> -- 
-> Aristeu
-> 
++ I think I missed yout legitimate requirements earlier
++ in the thread.  Could you briefly remind me?
++ 
+
+Here:
+
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0405.0/0991.html
+
+Thanks
+Sourav

@@ -1,52 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131245AbRBESbS>; Mon, 5 Feb 2001 13:31:18 -0500
+	id <S129645AbRBESe6>; Mon, 5 Feb 2001 13:34:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131396AbRBESbI>; Mon, 5 Feb 2001 13:31:08 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:57096 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S131245AbRBESbC>; Mon, 5 Feb 2001 13:31:02 -0500
-Date: Mon, 5 Feb 2001 19:32:16 +0100
-From: Oliver Feiler <kiza@lionking.org>
-To: linux-kernel@vger.kernel.org
-Subject: Very high system load writing data to SCSI DVD-RAM
-Message-ID: <20010205193216.A198@lionking.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.18 i686
+	id <S129047AbRBESes>; Mon, 5 Feb 2001 13:34:48 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:17135 "EHLO
+	webber.adilger.net") by vger.kernel.org with ESMTP
+	id <S129645AbRBESed>; Mon, 5 Feb 2001 13:34:33 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200102051833.f15IXhv21604@webber.adilger.net>
+Subject: Re: [patch] make tmpfs_statfs more user friendly
+In-Reply-To: <m31ytemq7u.fsf@linux.local> from Christoph Rohland at "Feb 4, 2001
+ 04:37:26 pm"
+To: Christoph Rohland <cr@sap.com>
+Date: Mon, 5 Feb 2001 11:33:43 -0700 (MST)
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Mathias.Froehlich@gmx.net
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Christoph Rohland writes:
+> The following patch make shmem_statfs report some sensible size
+> estimates in the case that the user does not give a size limit.
+> 
+> This should make it more error prone when used as /tmp
+                      ^^^^ less?
 
-	I have the following problem with a DVD-RAM drive. The drive is a 
-Panasonic LF-D101 connected to a Tekram DC395U SCSI controller. Kernel is 
-2.2.18 with the patch for the Tekram controller 
-(http://www.garloff.de/kurt/linux/dc395/). 
+> diff -uNr 2.4.1-tmpfs/mm/shmem.c 2.4.1-tmpfs-fstat/mm/shmem.c
+> --- 2.4.1-tmpfs/mm/shmem.c	Sun Feb  4 16:08:57 2001
+> +++ 2.4.1-tmpfs-fstat/mm/shmem.c	Sun Feb  4 16:09:50 2001
+> @@ -696,13 +696,20 @@
+>  	buf->f_type = TMPFS_MAGIC;
+>  	buf->f_bsize = PAGE_CACHE_SIZE;
+>  	spin_lock (&sb->u.shmem_sb.stat_lock);
+> -	if (sb->u.shmem_sb.max_blocks != ULONG_MAX || 
+> -	    sb->u.shmem_sb.max_inodes != ULONG_MAX) {
+> +	if (sb->u.shmem_sb.max_blocks == ULONG_MAX) {
+> +		/*
+> +		 * This is only a guestimate and not honoured.
+> +		 * We need it to make some programs happy which like to
+> +		 * test the free space of a file system.
+> +		 */
+> +		buf->f_bavail = buf->f_bfree = nr_free_pages() + nr_swap_pages + atomic_read(&buffermem_pages);
 
-	When I write huge amounts of data to a DVD-RAM the system load is 
-getting very high, like 10 or even above and the system temporarily freezes 
-for a short time every minute or so while writing data to the drive. The DVD 
-drive writes data with 1.35 MB/sec on the discs so there is not really much 
-data going over the SCSI controller. Reading data from DVD-RAMs is done with 
-2.7 MB/s (2x) by the drive and does not cause any problems at all.
+Should f_bavail be reduced by freepages.min or freepages.low?
 
-	This problem also existed with previous kernels (2.2.16/17) and with 
-another SCSI controller I had before the Tekram. Adaptec 2904CD using the 
-aic7xxx driver.
+> +		buf->f_blocks = buf->f_bfree + ULONG_MAX - sb->u.shmem_sb.free_blocks;
 
-	There is a 4x Teac burner connected to the SCSI controller as well. 
-Burning CDs does not raise the system load or cause any other problems.
+It's not really clear what you are trying to calculate here...  Since f_blocks
+is a long, adding ULONG_MAX == subtracting 1.  Maybe it should just hold
+the total amount of VM in the system, (i.e. totalram_pages)?
 
-Bye,
-Oliver
-
+Cheers, Andreas
 -- 
-Oliver Feiler                                               kiza@gmx.net
-http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
-http://www.lionking.org/~kiza/
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

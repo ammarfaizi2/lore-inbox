@@ -1,37 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131614AbRDSRpT>; Thu, 19 Apr 2001 13:45:19 -0400
+	id <S131626AbRDSRr7>; Thu, 19 Apr 2001 13:47:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131626AbRDSRpB>; Thu, 19 Apr 2001 13:45:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1541 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131614AbRDSRow>;
-	Thu, 19 Apr 2001 13:44:52 -0400
-Date: Thu, 19 Apr 2001 18:44:44 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Eric S. Raymond" <esr@thyrsus.com>, CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Dead symbol elimination, stage 1
-Message-ID: <20010419184444.A3111@flint.arm.linux.org.uk>
-In-Reply-To: <20010419131944.A3049@thyrsus.com>
-Mime-Version: 1.0
+	id <S131630AbRDSRrt>; Thu, 19 Apr 2001 13:47:49 -0400
+Received: from tantale.fifi.org ([216.15.47.52]:29839 "EHLO tantale.fifi.org")
+	by vger.kernel.org with ESMTP id <S131626AbRDSRrg>;
+	Thu, 19 Apr 2001 13:47:36 -0400
+To: Jason Gunthorpe <jgg@debian.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Lost O_NONBLOCK (Bug?)
+In-Reply-To: <Pine.LNX.3.96.1010413141220.7113E-100000@wakko.deltatee.com>
+From: Philippe Troin <phil@fifi.org>
+Date: 19 Apr 2001 10:47:32 -0700
+In-Reply-To: <Pine.LNX.3.96.1010413141220.7113E-100000@wakko.deltatee.com>
+Message-ID: <87n19czsqz.fsf@tantale.fifi.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010419131944.A3049@thyrsus.com>; from esr@thyrsus.com on Thu, Apr 19, 2001 at 01:19:44PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 19, 2001 at 01:19:44PM -0400, Eric S. Raymond wrote:
-> The following patch cleans dead symbols out of the defconfigs in the 2.4.4pre4
-> source tree.  It corrects a typo involving CONFIG_GEN_RTC.  Another typo
-> involving CONFIG_SOUND_YMPCI doesn't need to be corrected, as the symbol
-> is never set in these files.
+Jason Gunthorpe <jgg@debian.org> writes:
 
-As I said previously, please don't eliminate the ones on arch/arm -
-you'll prevent me from sending a patch to Alan without a _lot_ more
-work.
+> On 12 Apr 2001, Philippe Troin wrote:
+> 
+> > Apt I guess ? It has a very strange behavior when backgrounded...
+> 
+> Not really, just want it tries to run dpkg it hangs.
+> 
+> > > The last read was after the process was forgrounded. The read waits
+> > > forever, the non-block flag seems to have gone missing. It is also a
+> > > little odd I think that it repeated to get SIGTTIN which was never
+> > > actually delivered to the program.. Shouldn't SIGTTIN suspend the process?
+>  
+> > Strace can perturbate signal delivery, especially for terminal-related
+> > signals, I wouldn't trust it...
+> 
+> I know, the problem still happens without strace.
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Do you have a snippet that can reproduce the problem ? Does this
+happens only with 2.4, or both 2.2 and 2.4 have the problem ?
 
+> > O_NONBLOCK is not lost... Attempting to read from the controlling tty
+> > even from a O_NONBLOCK descriptor will trigger SIGTTIN.
+> 
+> I don't really care about the SIGTTIN, what bugs me is that the read that
+> happens after the process has been foregrounded blocks - and that should
+> not be.
+
+True.
+
+8< snip >8
+
+Phil.

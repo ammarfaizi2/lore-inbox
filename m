@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbTDOOdj (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 10:33:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbTDOOdj 
+	id S261488AbTDOOjR (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 10:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbTDOOjR 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 10:33:39 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:25024 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S261542AbTDOOdi 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 10:33:38 -0400
-Date: Tue, 15 Apr 2003 07:45:25 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Duncan Sands <baldrick@wanadoo.fr>, Andrew Morton <akpm@digeo.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUGed to death
-Message-ID: <70620000.1050417924@[10.10.2.4]>
-In-Reply-To: <200304151639.25978.baldrick@wanadoo.fr>
-References: <80690000.1050351598@flay>
- <200304151401.00704.baldrick@wanadoo.fr> <69850000.1050417343@[10.10.2.4]>
- <200304151639.25978.baldrick@wanadoo.fr>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 15 Apr 2003 10:39:17 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:14535 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261488AbTDOOjQ (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 10:39:16 -0400
+Message-ID: <3E9C1C4C.2030406@nortelnetworks.com>
+Date: Tue, 15 Apr 2003 10:50:52 -0400
+X-Sybari-Space: 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Stephan von Krawczynski <skraw@ithnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How to configure an ethernet dev as PtP ?
+References: <20030415102109.4802ddd0.skraw@ithnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >> Seems all these bug checks are fairly expensive. I can get 1%
->> >> back on system time for kernel compiles by changing BUG to
->> >> "do {} while (0)" to make them all compile away. Profiles aren't
->> >> very revealing though ... seems to be within experimental error ;-(
->> > 
->> > What happens if you just turn BUG_ON into "do {} while (0)"?
->> 
->> I believe I already did that by turning BUG() into a null expression.
->> 
->> # define BUG_ON(condition)
->> 	do { if (unlikely((condition)!=0)) BUG(); } while(0)
->> 
->> The compiler should be smart enough to optimise that away, methinks.
+Stephan von Krawczynski wrote:
+> Hello all,
 > 
-> No, I meant what happens if BUG() is non-trivial and BUG_ON is a no-op.
-> I thought it might give an indication of whether time was being lost
-> evaluating the condition (occurs with BUG and BUG_ON), or mispredicting
-> the branch (only occurs with BUG).
+> I tried to configure an ethernet device as a pointopoint link recently, just to
+> find out that this does not work as one would expect via:
+> 
+> ifconfig eth0 192.168.1.1 pointopoint 192.168.5.1 up
 
-Mmmm. wouldn't that just optimise away the BUG_ONs, but not the BUGs ?
-Which will tell you something, but I'm not sure anything interesting.
-My impression is that if I do:
+How about:
 
-if (foo)
-	do {} while (0);
+/sbin/ip ad ad 192.168.1.1 peer 192.168.5.1 dev eth0
 
-the compiler will just ditch the whole thing, and not evaluate foo.
-I'll admit to not having checked that, but still ....
+this gives:
 
-M.
+# /sbin/ip ad
+1: lo: <LOOPBACK,UP> mtu 16436 qdisc noqueue
+     link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+     inet 127.0.0.1/8 brd 127.255.255.255 scope host lo
+2: eth0: <BROADCAST,MULTICAST,UP> mtu 1500 qdisc pfifo_fast qlen 100
+     link/ether 00:06:5b:a2:b3:8a brd ff:ff:ff:ff:ff:ff
+     inet 192.168.1.1 peer 192.168.5.1/32 scope global eth0
+
+Does that do what you want?
+
+
+Chris
+
+-- 
+Chris Friesen                    | MailStop: 043/33/F10
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 

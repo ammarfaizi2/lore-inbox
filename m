@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265124AbSJaN13>; Thu, 31 Oct 2002 08:27:29 -0500
+	id <S265226AbSJaNhm>; Thu, 31 Oct 2002 08:37:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265223AbSJaN13>; Thu, 31 Oct 2002 08:27:29 -0500
-Received: from iris.mc.com ([192.233.16.119]:1749 "EHLO mc.com")
-	by vger.kernel.org with ESMTP id <S265124AbSJaN12>;
-	Thu, 31 Oct 2002 08:27:28 -0500
-Message-Id: <200210311333.IAA19333@mc.com>
-Content-Type: text/plain; charset=US-ASCII
-From: mbs <mbs@mc.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: What's left over.
-Date: Thu, 31 Oct 2002 09:36:50 -0400
-X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0210301823120.1396-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S265225AbSJaNhO>; Thu, 31 Oct 2002 08:37:14 -0500
+Received: from hazard.jcu.cz ([160.217.1.6]:17808 "EHLO hazard.jcu.cz")
+	by vger.kernel.org with ESMTP id <S265226AbSJaNg7>;
+	Thu, 31 Oct 2002 08:36:59 -0500
+Date: Thu, 31 Oct 2002 14:43:12 +0100
+From: Jan Marek <linux@hazard.jcu.cz>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: [miniPATCH] 2.5.4[4,5] AFS dir.c compile fix
+Message-ID: <20021031134312.GA15941@hazard.jcu.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > POSIX Timer API
->
-> I think I'll do at least the API, but there were some questions about the
-> config options here, I think.
+Hallo,
 
-I think george just posted a config optionless patch.
+thist patch is needed for compile AFS with compiler gcc version prior
+3.0. Have been accepted by Alan Cox in 2.5.44-ac3...
 
-WOOHOO!  Thanks!
+Please apply...
 
->
-> > Hires Timers
->
-> This one is likely another "vendor push" thing.
->
-
-I work for a vendor who really wants this.  
-
-we have customers who demand it.
-
-I am sure we are not alone (mvista? concurrent? any embedded space people for 
-whom 10msec is not good enough and the extra overhead of a higer frequency 
-fixed interval timer is unacceptable please speak up, if we don't get it in 
-now, we probably won't get it for 2 years.)
-
+Sincerely
+Jan Marek
 -- 
-/**************************************************
-**   Mark Salisbury       ||      mbs@mc.com     **
-**************************************************/
+Ing. Jan Marek
+University of South Bohemia
+Academic Computer Centre
+Phone: +420-38-7772080

@@ -1,67 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268398AbTBNM7p>; Fri, 14 Feb 2003 07:59:45 -0500
+	id <S268461AbTBNNcN>; Fri, 14 Feb 2003 08:32:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268412AbTBNMzo>; Fri, 14 Feb 2003 07:55:44 -0500
-Received: from cs-ats40.donpac.ru ([217.107.128.161]:27406 "EHLO pazke")
-	by vger.kernel.org with ESMTP id <S268422AbTBNMxb>;
-	Fri, 14 Feb 2003 07:53:31 -0500
-Date: Fri, 14 Feb 2003 15:58:43 +0300
+	id <S268462AbTBNNcN>; Fri, 14 Feb 2003 08:32:13 -0500
+Received: from gherkin.frus.com ([192.158.254.49]:30080 "EHLO gherkin.frus.com")
+	by vger.kernel.org with ESMTP id <S268461AbTBNNcJ>;
+	Fri, 14 Feb 2003 08:32:09 -0500
+Subject: [PATCH]: 2.5.60: snd_printd
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH] visws: MAINTAINERS file update (12/13)
-Message-ID: <20030214125843.GL8230@pazke>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qySB1iFW++5nzUxH"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-Uname: Linux 2.4.20aa1 i686 unknown
-From: Andrey Panin <pazke@orbita1.ru>
+Date: Fri, 14 Feb 2003 07:42:02 -0600 (CST)
+X-Mailer: ELM [version 2.4ME+ PL82 (25)]
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary=ELM741263582-1786-0_
+Content-Transfer-Encoding: 7bit
+Message-Id: <20030214134202.2C0684EEF@gherkin.frus.com>
+From: rct@gherkin.frus.com (Bob_Tracy(0000))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qySB1iFW++5nzUxH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--ELM741263582-1786-0_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 
-Hi.
-
-Looks like I'm a maintainer of visws support now :))
-
-Please consider applying.
-
-Best regards.
+It appears that the intent was to do away with snd_printd() and replace
+that function with a simple #define in terms of snd_verbose_printd() or
+printk() as appropriate.  This patch set finishes the job by deleting
+both the snd_printd() function and the corresponding EXPORT_SYMBOL().
+This was needed to fix a compilation error with CONFIG_SND_DEBUG=y and
+CONFIG_SND_VERBOSE_PRINTK not set.
 
 -- 
-Andrey Panin		| Embedded systems software developer
-pazke@orbita1.ru	| PGP key: wwwkeys.pgp.net
+-----------------------------------------------------------------------
+Bob Tracy                   WTO + WIPO = DMCA? http://www.anti-dmca.org
+rct@frus.com
+-----------------------------------------------------------------------
 
---qySB1iFW++5nzUxH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-visws-maintainers
+--ELM741263582-1786-0_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: attachment; filename=patch60_snd_printd
 
-diff -urN -X /usr/share/dontdiff linux-2.5.60.vanilla/MAINTAINERS linux-2.5.60/MAINTAINERS
---- linux-2.5.60.vanilla/MAINTAINERS	Thu Feb 13 20:33:01 2003
-+++ linux-2.5.60/MAINTAINERS	Thu Feb 13 20:42:02 2003
-@@ -1547,11 +1547,11 @@
- S:	Supported
- 
- SGI VISUAL WORKSTATION 320 AND 540
--P:	Bent Hagemark
--M:	bh@sgi.com
--P:	Ingo Molnar
--M:	mingo@redhat.com
--S:	Maintained
-+P:	Andrey Panin
-+M:	pazke@orbita1.ru
-+L:	linux-visws@lists.sf.net
-+W:	http://linux-visws.sf.net
-+S:	Maintained for 2.5.
- 
- SIS 5513 IDE CONTROLLER DRIVER
- P:	Lionel Bouton
+--- linux/sound/core/misc.c.orig	2003-02-13 15:48:42.000000000 -0600
++++ linux/sound/core/misc.c	2003-02-13 15:50:08.000000000 -0600
+@@ -79,25 +79,3 @@
+ 	printk(tmpbuf);
+ }
+ #endif
+-
+-#if defined(CONFIG_SND_DEBUG) && !defined(CONFIG_SND_VERBOSE_PRINTK)
+-void snd_printd(const char *format, ...)
+-{
+-	va_list args;
+-	char tmpbuf[512];
+-	
+-	if (format[0] == '<' && format[1] >= '0' && format[1] <= '9' && format[2] == '>') {
+-		char tmp[] = "<0>";
+-		tmp[1] = format[1];
+-		printk("%sALSA: ", tmp);
+-		format += 3;
+-	} else {
+-		printk(KERN_DEBUG "ALSA: ");
+-	}
+-	va_start(args, format);
+-	vsnprintf(tmpbuf, sizeof(tmpbuf)-1, format, args);
+-	va_end(args);
+-	tmpbuf[sizeof(tmpbuf)-1] = '\0';
+-	printk(tmpbuf);
+-}
+-#endif
+--- linux/sound/core/sound.c.orig	2003-02-13 15:48:42.000000000 -0600
++++ linux/sound/core/sound.c	2003-02-13 15:51:12.000000000 -0600
+@@ -522,9 +522,6 @@
+ #if defined(CONFIG_SND_DEBUG) && defined(CONFIG_SND_VERBOSE_PRINTK)
+ EXPORT_SYMBOL(snd_verbose_printd);
+ #endif
+-#if defined(CONFIG_SND_DEBUG) && !defined(CONFIG_SND_VERBOSE_PRINTK)
+-EXPORT_SYMBOL(snd_printd);
+-#endif
+   /* wrappers */
+ #ifdef CONFIG_SND_DEBUG_MEMORY
+ EXPORT_SYMBOL(snd_wrapper_kmalloc);
 
---qySB1iFW++5nzUxH--
+--ELM741263582-1786-0_--

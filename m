@@ -1,36 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281547AbRLAKCm>; Sat, 1 Dec 2001 05:02:42 -0500
+	id <S281533AbRLAKHW>; Sat, 1 Dec 2001 05:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284041AbRLAKCW>; Sat, 1 Dec 2001 05:02:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59656 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284040AbRLAKCQ>; Sat, 1 Dec 2001 05:02:16 -0500
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-To: lm@bitmover.com (Larry McVoy)
-Date: Sat, 1 Dec 2001 10:09:30 +0000 (GMT)
-Cc: davidel@xmailserver.org (Davide Libenzi), lm@bitmover.com (Larry McVoy),
-        akpm@zip.com.au (Andrew Morton),
-        phillips@bonn-fries.net (Daniel Phillips),
-        hps@intermeta.de (Henning Schmiedehausen),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-In-Reply-To: <20011130171510.B19152@work.bitmover.com> from "Larry McVoy" at Nov 30, 2001 05:15:10 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16A75O-0006hY-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S281527AbRLAKHM>; Sat, 1 Dec 2001 05:07:12 -0500
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:62433 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S281533AbRLAKHH>; Sat, 1 Dec 2001 05:07:07 -0500
+Message-Id: <200112011007.fB1A70429394@eng4.beaverton.ibm.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: viro@math.psu.edu (Alexander Viro), dave@sr71.net (David C. Hansen),
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove BKL from drivers' release functions 
+In-Reply-To: Your message of "Sat, 01 Dec 2001 09:52:57 GMT."
+             <E16A6pN-0006d0-00@the-village.bc.nu> 
+Date: Sat, 01 Dec 2001 02:06:59 -0800
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Wasn't it you that were saying that Linux will never scale with more than
-> > 2 CPUs ?
-> 
-> No, that wasn't me.  I said it shouldn't scale beyond 4 cpus.  I'd be pretty
-> lame if I said it couldn't scale with more than 2.  Should != could.
+    This is why we have a development tree. Its moving things in the
+    right direction which is important. I suspect many drivers will
+    want to use semaphores rather than atomic counts however, to ensure
+    that an open doesn't complete while a previous release is still
+    shutting down hardware
 
-Question: What happens when people stick 8 threads of execution on a die with
-a single L2 cache ?
+Yes, the only successful application for atomic counts that I've seen
+(in this context) is for exclusive open code that looks like
 
+    if (count++) {
+	count--;
+	return -EBUSY;
+    }
 
+in the open routine and
+
+    count--;
+
+in the release.  If you want to do anything else as a result of that
+count, you'll need additional locking because it could have changed a
+nanosecond after it was (safely) incremented or decremented. You can't
+count on it remaining that value after you check it.
+
+release()s that want to shutdown the device, free memory, or take other
+actions will want to employ either a spinlock (plain or r/w as
+appropriate) or a sleeping semaphore to insure things remain stable
+until those actions are complete.
+
+Rick

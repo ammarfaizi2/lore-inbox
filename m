@@ -1,68 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261389AbTCTQvh>; Thu, 20 Mar 2003 11:51:37 -0500
+	id <S261387AbTCTQvF>; Thu, 20 Mar 2003 11:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261460AbTCTQvh>; Thu, 20 Mar 2003 11:51:37 -0500
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:61425 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id <S261389AbTCTQva>; Thu, 20 Mar 2003 11:51:30 -0500
-Message-ID: <3E79F405.9030705@nortelnetworks.com>
-Date: Thu, 20 Mar 2003 12:01:57 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S261389AbTCTQvF>; Thu, 20 Mar 2003 11:51:05 -0500
+Received: from mega.ist.utl.pt ([193.136.128.20]:59584 "EHLO mega.ist.utl.pt")
+	by vger.kernel.org with ESMTP id <S261341AbTCTQvD>;
+	Thu, 20 Mar 2003 11:51:03 -0500
+Date: Thu, 20 Mar 2003 17:01:20 +0000 (WET)
+From: Ricardo <rjpp@mega.ist.utl.pt>
+X-X-Sender: rjpp@mega
+To: linux-kernel@vger.kernel.org
+Subject: socket() datalink bug
+Message-ID: <Pine.GSO.4.44.0303201640410.4714-100000@mega>
 MIME-Version: 1.0
-To: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
-Cc: Stuart MacDonald <stuartm@connecttech.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Non-__init functions calling __init functions
-References: <200303201632.h2KGW8Vu002620@green.mif.pg.gda.pl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrzej Krzysztofowicz wrote:
+This was found while experimenting with a sniffer, so I have IFF_PROMISC
+set when doing the recv(). And my kernel is a 2.4.19-gentoo-r9, but a
+normal 2.4.18 from slackware 8.1 has the same behavior.
 
-> Not always possible.
-> 
-> __init A() {
-> ...
-> }
-> 
-> __exit B() {
-> ...
-> }
-> 
-> C() {
-> ...
-> A();
-> ...
-> #ifdef MODULE
-> B();
-> #endif
-> ...
-> }
-> 
-> C cannot be marked __init for #define MODULE case. Even if it is called only
-> by some __init code. I can imagine other similar situations.
+socket(PF_PACKET,SOCK_RAW,htons(ETH_P_IP));
 
-I thought that in the case of modules, __init is a noop?  At least, that's what 
-this page says
+Does not return a copy of the packets send by the computer you are on. It
+returns the IP traffic that other people send normally. So the sniffer
+can't see packets from the computer it is running on. This shouldn't be so
+as htons(ETH_P_IP) should only be a filter that would return IP only
+packets.
 
-http://www.netfilter.org/unreliable-guides/kernel-hacking/routines-init.html
+socket(PF_PACKET,SOCK_RAW,htons(ETH_P_ALL));
 
-So if MODULE is defined, it doesn't matter if C is labelled as __init or not, 
-and if it is not defined, it *should* be labelled as __init since it is itself 
-calling __init code.
+Works just fine, so I think the filter is excluding too much.
+Or isn't it a bug?
 
-Chris
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+Please Cc it to me as I haven't subscribed the mailing list.
 

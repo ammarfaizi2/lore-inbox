@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290497AbSAQWZ0>; Thu, 17 Jan 2002 17:25:26 -0500
+	id <S290498AbSAQWYh>; Thu, 17 Jan 2002 17:24:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290499AbSAQWYp>; Thu, 17 Jan 2002 17:24:45 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28392 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S290497AbSAQWYk>;
-	Thu, 17 Jan 2002 17:24:40 -0500
-Date: Thu, 17 Jan 2002 17:24:34 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.5.3-pre1] Fix NFS dentry lookup behaviour
-In-Reply-To: <Pine.LNX.4.33.0201171414220.3114-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0201171720390.11155-100000@weyl.math.psu.edu>
+	id <S290497AbSAQWYZ>; Thu, 17 Jan 2002 17:24:25 -0500
+Received: from warden.digitalinsight.com ([208.29.163.2]:14988 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id <S290496AbSAQWYR>; Thu, 17 Jan 2002 17:24:17 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 17 Jan 2002 14:23:52 -0800 (PST)
+Subject: Tulip driver bug in 2.4.17 (fwd)
+Message-ID: <Pine.LNX.4.40.0201171423050.26448-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+as I have not received any response directly I am sending this to the full
+list for help.
 
+David Lang
 
-On Thu, 17 Jan 2002, Linus Torvalds wrote:
+---------- Forwarded message ----------
+Date: Mon, 14 Jan 2002 15:10:42 -0800 (PST)
+From: David Lang <dlang@diginsite.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Subject: Tulip driver bug in 2.4.17
 
-> 
-> On Thu, 17 Jan 2002, Trond Myklebust wrote:
-> >
-> >  - Close 'cto hole' when doing open(".").
-> 
-> What's wrong with using the existing "revalidate" approach? I hate the
-> notion of adding a special VFS layer call for something like this.
+I am running a dlink DFE-570TX quad card that works fine with the 0.9.14
+driver in 2.4.8, but with the 2.4.15-pre9 driver in 2.4.14-2.4.17 I run
+into a bug when trying to use all the interfaces.
 
-Nothing, especially since it will happen automatically when we switch
-to slightly different handling of cwd/root (no user-visible changes,
-will allow union-mounts - basically, cleanup of first and last steps
-of path_walk()).
+if I use eth3 alone it works
+if I use eth0, eth1, eth2 it works
+if I use eth0, eth1, eth3 it locks up immediatly following the ifconfig,
+locking up to the point that the magic sysreq stuff doesn't work!
 
+if I work the other direction and ifconfig eth3, eth2, eth1, eth0 I get a
+shell prompt back after the last ifconfig before it locks up.
+
+I posted this friday on sourceforge, but looking today at the activity
+there it doesn't look like it's in use much now so I'm sending this
+directly to you. If there is any other place I should send it or any
+additional tests I should perform, please let me know (I have 50 of these
+cards either in production or headed there soon :-)
+
+David Lang

@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264887AbTF0W51 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 18:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264900AbTF0W51
+	id S264912AbTF0XBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 19:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbTF0XBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 18:57:27 -0400
-Received: from dialup-168.157.221.203.acc50-nort-cbr.comindico.com.au ([203.221.157.168]:10500
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S264887AbTF0W50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 18:57:26 -0400
-Message-ID: <3EFCCF23.4050009@cyberone.com.au>
-Date: Sat, 28 Jun 2003 09:11:31 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
-X-Accept-Language: en
+	Fri, 27 Jun 2003 19:01:08 -0400
+Received: from mail.casabyte.com ([209.63.254.226]:4615 "EHLO
+	mail.1casabyte.com") by vger.kernel.org with ESMTP id S264912AbTF0XBE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 19:01:04 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "Watson, Craig" <craig.watson@ngc.com>,
+       "'David Schwartz'" <davids@webmaster.com>,
+       "Larry McVoy" <lm@bitmover.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Date: Fri, 27 Jun 2003 16:15:17 -0700
+Message-ID: <PEEPIDHAKMCGHDBJLHKGAEIODBAA.rwhite@casabyte.com>
 MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] O1int patch with contest
-References: <200306280041.47619.kernel@kolivas.org>
-In-Reply-To: <200306280041.47619.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <94D43CABC1C4FA43B0FD9B52F70565A12D1CDB@xcgfl021.northgrum.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4920.2300
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+If Larry's implicit point, that there is no point and nothing to be learned
+in listening to non-business-owners, is valid;  should he not then have
+taken his voice elsewhere, to a forum where the feedback would have come
+from his chosen pool?
 
+That is, shouldn't he have discussed his views on some business operators
+mailing list instead of the kernel mailing list?
 
-Con Kolivas wrote:
+If it simply *had* to be presented here (possibly because his "original
+point" seems to be that we open source losers are all a bunch of
+un-innovative thieving scum set out to undermine his vision of free
+enterprise) could he not, at a minimum, have prefaced his message with the
+declarative disclaimer:  I am saying my peace, and will not be interested in
+the responses of people who don't run businesses.
 
->-----BEGIN PGP SIGNED MESSAGE-----
->Hash: SHA1
->
->I've had some (off list) requests to see if the interactivity patch I posted 
->shows any differences in contest. To be honest I wasn't sure it would, and 
->this is not quite what I expected. Below is a 2.5.73-mm1 patched with 
->patch-O1int-0306271816 (2.5.73-O1i) compared to 2.5.73-mm1 with contest 
->(http://contest.kolivas.org).
->  
->
+That, at least, would have been an honest approach to the community he was
+addressing.
 
-Hi Con,
-It looks like the patch is starving the background loads.
-read_load for example can use up to 7% (maybe more) of the
-CPU. It is brought down to 2.2%, list_load is worse.
+Otherwise it is just an example of Jerry Falwell (sp?) inviting himself to
+the symposium on "AIDS in Africa" in the name of offering "a balanced
+perspective on the heathen misdeeds of the sinful."
 
+(ah... burr... was that _too_ cold?  8-)
+
+Rob.
 

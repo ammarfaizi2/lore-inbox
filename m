@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129598AbQKIOPV>; Thu, 9 Nov 2000 09:15:21 -0500
+	id <S130326AbQKIOSV>; Thu, 9 Nov 2000 09:18:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130286AbQKIOPL>; Thu, 9 Nov 2000 09:15:11 -0500
-Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:25488 "HELO tsx-prime.MIT.EDU")
-	by vger.kernel.org with SMTP id <S129598AbQKIOO6>;
-	Thu, 9 Nov 2000 09:14:58 -0500
-Date: Thu, 9 Nov 2000 09:14:26 -0500
-Message-Id: <200011091414.JAA21924@tsx-prime.MIT.EDU>
-From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-To: Paul Jakma <paulj@itg.ie>
-CC: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        Christoph Rohland <cr@sap.com>, richardj_moore@uk.ibm.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: Paul Jakma's message of Thu, 9 Nov 2000 13:39:04 +0000 (GMT),
-	<Pine.LNX.4.21.0011091332080.7475-100000@rossi.itg.ie>
-Subject: Re: [ANNOUNCE] Generalised Kernel Hooks Interface (GKHI)
-Phone: (781) 391-3464
+	id <S130286AbQKIOSL>; Thu, 9 Nov 2000 09:18:11 -0500
+Received: from ppp0.ocs.com.au ([203.34.97.3]:18183 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S130326AbQKIOSC>;
+	Thu, 9 Nov 2000 09:18:02 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: therapy <therapy@endorphin.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: arch/i386/lib/mmx.c no symbols 
+In-Reply-To: Your message of "Thu, 09 Nov 2000 14:56:05 BST."
+             <20001109145605.A507@ghanima.xxx> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Fri, 10 Nov 2000 01:17:55 +1100
+Message-ID: <8747.973779475@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: 	Thu, 9 Nov 2000 13:39:04 +0000 (GMT)
-   From: Paul Jakma <paulj@itg.ie>
+On Thu, 9 Nov 2000 14:56:05 +0100, 
+therapy <therapy@endorphin.org> wrote:
+>arch/i386/lib/mmx.c does not export modversioned symbols.
+>
+>any module using include/asm-i386/[string.h/string-486.h/page.h]
+>with 3DNOW enabled will fail to load.
 
-   I actually think Linus has been too loose/vague on modules. The
-   official COPYING txt file in the tree contains an exception on linking
-   to the kernel using syscalls from linus and the GPL. nothing about
-   binary modules, and afaik the only statements he's ever made about
-   binary modules were off the cuff on l-k a long time (unless someone
-   knows a binary module whose vendor can show a written exception from
-   Linus et al). 
+arch/i386/kernel/i386_ksyms.c exports _mmx_memcpy, mmx_clear_page and
+mmx_copy_page, with versions.  What is missing?  More likely you have
+been bitten by the broken makefiles.
 
-Actually, he's been quite specific.  It's ok to have binary modules as
-long as they conform to the interface defined in /proc/ksyms.  
+  mv .config ..
+  make mrproper
+  mv ../.config .
+  make oldconfig
+  make dep clean bzImage modules
 
-
-That being said, the real problem with the GKHI is that as Al said, it
-does expose internal kernel interfaces --- and the Linux kernel
-development community as a whole refuses to be bound by such interfaces,
-sometimes even during a stable kernel series.  
-
-So someone who releases only binary modules will likely be in a world of
-hurt.   And that's considered a feature.  Certainly no one is going to
-go out of their way to make life easier for binary module authors.
-
-						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

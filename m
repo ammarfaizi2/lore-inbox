@@ -1,57 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292739AbSBUT55>; Thu, 21 Feb 2002 14:57:57 -0500
+	id <S292747AbSBUUD0>; Thu, 21 Feb 2002 15:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292741AbSBUT5q>; Thu, 21 Feb 2002 14:57:46 -0500
-Received: from smtpsrv1.isis.unc.edu ([152.2.1.138]:28843 "EHLO
-	smtpsrv1.isis.unc.edu") by vger.kernel.org with ESMTP
-	id <S292739AbSBUT5c>; Thu, 21 Feb 2002 14:57:32 -0500
-Date: Thu, 21 Feb 2002 14:57:24 -0500
-To: Shawn Starr <spstarr@sh0n.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PROBLEM]: 2.4.18-rc1 - Unable to mount CD-ROM/RW
-Message-ID: <20020221195724.GA11435@opeth.ath.cx>
-In-Reply-To: <LI5YSPXWYTY04431V32LFIF97042TP.3c7534b4@jss> <1014316330.8812.27.camel@unaropia>
+	id <S292745AbSBUUDQ>; Thu, 21 Feb 2002 15:03:16 -0500
+Received: from [212.159.14.227] ([212.159.14.227]:61070 "HELO
+	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
+	id <S292746AbSBUUDB>; Thu, 21 Feb 2002 15:03:01 -0500
+Date: Thu, 21 Feb 2002 20:04:59 +0000
+From: "J.P. Morris" <jpm@it-he.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rc2 problem..
+Message-Id: <20020221200459.642e3bb3.jpm@it-he.org>
+In-Reply-To: <20020220190509.GA30784@kroah.com>
+In-Reply-To: <20020220185855.2bcecc24.jpm@it-he.org>
+	<20020220190509.GA30784@kroah.com>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
-Content-Disposition: inline
-In-Reply-To: <1014316330.8812.27.camel@unaropia>
-User-Agent: Mutt/1.3.27i
-From: Dan Chen <crimsun@email.unc.edu>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Feb 2002 11:05:09 -0800
+Greg KH <greg@kroah.com> wrote:
 
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Wed, Feb 20, 2002 at 06:58:55PM +0000, J.P. Morris wrote:
+> > 
+> > I'm getting a problem in usb-storage (it's loaded as a module towards the end
+> > of the boot sequence).  The module locks during initialisation, which doesn't
+> > happen in 2.4.17.
+> 
+> Does the lockup happen without the CF reader plugged in?
 
-On Thu, Feb 21, 2002 at 01:31:42PM -0500, Shawn Starr wrote:
-> It's an LFS distribution i built. The problem is 2.4.17 didn't have this
-> problem. Something introduced into 2.4.18-pre/rc.
+No.
 
-Hmm, when I spoke with you this morning on #kn I forgot to mention I'm
-using rc2-ac1, which as someone else mentioned, doesn't exhibit the
-symptoms you describe. Were the sg changes/updates ever applied to 2.4
-mainline? I know they went into Alan's tree in .12 or .13 ...
+> If so, and you later plugin the CF reader (after the module is loaded)
+> does the kernel still lock up?
 
---=20
-Dan Chen                 crimsun@email.unc.edu
-GPG key:   www.unc.edu/~crimsun/pubkey.gpg.asc
+No.  However, the reader then doesn't work either.
+No device entries get created for it (I'm using devfs).
+It's a multiformat reader (CF/SM/MMC) so there will be a cluster of
+entries when it is working correctly.
 
---envbJBWh7q8WU6mo
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Note that the kernel itself doesn't lock, just the module.
+That is, the module never completes initialisation and sits there forever.
+When it was being loaded by script at boot, I had to use Alt-Sys-K to kill
+the process trying to load the module in order to log in.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
+I have tried upgrading just the usb-storage module from 2.4.17 to 2.4.18
+and (unfortunately) it still works.. the cause of the problem is elsewhere.
 
-iD8DBQE8dVEkMwVVFhIHlU4RAuZQAJ9EdjbM8VnIng76DepMJrniOu5XeQCbBaJT
-gM8zdUwi4KdASuQFRyVFGeE=
-=/BZy
------END PGP SIGNATURE-----
+Any ideas?  Thanks.
 
---envbJBWh7q8WU6mo--
+> thanks,
+> 
+> greg k-h
+> 
+
+
+-- 
+JP Morris - aka DOUG the Eagle (Dragon) -=UDIC=-  doug@it-he.org
+Fun things to do with the Ultima games            http://www.it-he.com
+Developing a U6/U7 clone                          http://ire.it-he.org
+d+++ e+ N+ T++ Om U1234!56!7'!S'!8!9!KA u++ uC+++ uF+++ uG---- uLB----
+uA--- nC+ nR---- nH+++ nP++ nI nPT nS nT wM- wC- y a(YEAR - 1976)

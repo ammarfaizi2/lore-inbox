@@ -1,19 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131382AbRCUMzO>; Wed, 21 Mar 2001 07:55:14 -0500
+	id <S131402AbRCUNcb>; Wed, 21 Mar 2001 08:32:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131392AbRCUMzF>; Wed, 21 Mar 2001 07:55:05 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:26351 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S131382AbRCUMyv>;
-	Wed, 21 Mar 2001 07:54:51 -0500
-Date: Wed, 21 Mar 2001 07:54:08 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Anton Blanchard <anton@linuxcare.com.au>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] pagecache SMP-scalability patch [was: spinlock usage]
-In-Reply-To: <Pine.LNX.4.30.0103211301530.5270-100000@elte.hu>
-Message-ID: <Pine.GSO.4.21.0103210751521.739-100000@weyl.math.psu.edu>
+	id <S131407AbRCUNcV>; Wed, 21 Mar 2001 08:32:21 -0500
+Received: from xerxes.thphy.uni-duesseldorf.de ([134.99.64.10]:28871 "EHLO
+	xerxes.thphy.uni-duesseldorf.de") by vger.kernel.org with ESMTP
+	id <S131402AbRCUNcL>; Wed, 21 Mar 2001 08:32:11 -0500
+Date: Wed, 21 Mar 2001 14:31:29 +0100 (CET)
+From: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>
+To: Joern Heissler <joern@heissler.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: strange problem with /dev/isdninfo
+In-Reply-To: <20010321135340.A11899@debian.heissler.de>
+Message-ID: <Pine.LNX.4.10.10103211427110.19895-100000@chaos.thphy.uni-duesseldorf.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -21,27 +20,30 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Wed, 21 Mar 2001, Ingo Molnar wrote:
+On Wed, 21 Mar 2001, Joern Heissler wrote:
 
+> I've got a strange problem with /dev/isdninfo:
 > 
-> Anton,
+> joern:~# cat /dev/isdninfo
+> idmap:  Hisax...
+> chmap: 0 1 ...
+>
+> --> cat /dev/isdninfo works :-)
 > 
-> if you are doing SMP-intensive dbench runs, then check out the SMP
-> pagecache-scalability patch (against 2.4.2-ac20):
+> Here's the problem:
 > 
->   http://people.redhat.com/~mingo/smp-pagecache-patches/pagecache-2.4.2-H1
-> 
-> this patch splits up the main scalability offender in non-RAM-limited
-> dbench runs, which is pagecache_lock. The patch was designed and written
-> by David Miller, and is being forward ported / maintained by me. (The new
-> pagecache lock design is similar to TCP's hashed spinlocks, which proved
-> to scale excellently.)
-> 
-> (about lstat(): IMO lstat() should not call into the lowlevel FS code.)
+> open("/dev/isdninfo", O_RDONLY) = 3
+> read(3, "", 200) = 0
+>
+> Could someone please tell me what's wrong? I (and some other people) do not understand this.
 
-a) revalidation on network filesystems
-b) just about anything layered would win from ability to replace the
-normal stat() behaviour (think of UI/GID replacement, etc.)
-							Cheers,
-								Al
+Well, /dev/isdninfo will only return the info to you if it entirely fits
+into the supplied buffer. So, you should try a read with 2048 bytes or so,
+and it'll work just fine.
+
+Not that I think that the current behavior is particularly smart, but
+that's how things are.
+
+--Kai
+
 

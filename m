@@ -1,123 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280705AbRKBOnq>; Fri, 2 Nov 2001 09:43:46 -0500
+	id <S280713AbRKBO4R>; Fri, 2 Nov 2001 09:56:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280708AbRKBOng>; Fri, 2 Nov 2001 09:43:36 -0500
-Received: from mail.scsiguy.com ([63.229.232.106]:1801 "EHLO aslan.scsiguy.com")
-	by vger.kernel.org with ESMTP id <S280705AbRKBOnc>;
-	Fri, 2 Nov 2001 09:43:32 -0500
-Message-Id: <200111021443.fA2EhRY46335@aslan.scsiguy.com>
-To: Jason Lunz <j@falooley.org>
+	id <S280709AbRKBO4I>; Fri, 2 Nov 2001 09:56:08 -0500
+Received: from mail.scsiguy.com ([63.229.232.106]:8457 "EHLO aslan.scsiguy.com")
+	by vger.kernel.org with ESMTP id <S280712AbRKBOzw>;
+	Fri, 2 Nov 2001 09:55:52 -0500
+Message-Id: <200111021455.fA2EtVY46425@aslan.scsiguy.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: new aic7xxx bug, 2.4.13/6.2.4 
-In-Reply-To: Your message of "Thu, 01 Nov 2001 22:24:55 EST."
-             <20011101222455.A5885@orr.falooley.org> 
-Date: Fri, 02 Nov 2001 07:43:27 -0700
+In-Reply-To: Your message of "02 Nov 2001 15:03:09 +0100."
+             <m3n1259so2.fsf@defiant.pm.waw.pl> 
+Date: Fri, 02 Nov 2001 07:55:30 -0700
 From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>Jason Lunz <j@falooley.org> writes:
 >
->I'm having troubles with the last few revisions of the new Gibbs aic7xxx
->driver that until now has served me well. This is kernel
->2.4.13-preempt-lvmrc4 with the 6.2.4 scsi driver, but I saw it happen on
->2.4.12 with 6.2.1. I haven't tried older versions with this CD.
-
-Its not clear to me that this is the driver's fault.  Let's look at
-the abort log.
-
->And this appears in the kernel output:
+>> I'm having troubles with the last few revisions of the new Gibbs aic7xxx
+>> driver that until now has served me well. This is kernel
+>> 2.4.13-preempt-lvmrc4 with the 6.2.4 scsi driver, but I saw it happen on
+>> 2.4.12 with 6.2.1. I haven't tried older versions with this CD.
 >
->VFS: Disk change detected on device sr(11,1)
->scsi0:0:3:0: Attempting to queue an ABORT message
->scsi0: Dumping Card State while idle, at SEQADDR 0x7
+>Something similar here, but I have disks on this SCSI :-(
 
-Upper layer has timed out a command while the SCSI bus
-is idle.
+Actually not that similar.
 
->ACCUM = 0x16, SINDEX = 0x37, DINDEX = 0x24, ARG_2 = 0x0
->HCNT = 0x0
->SCSISEQ = 0x12, SBLKCTL = 0x0
+>scsi0:A:0: parity error detected in Message-in phase. SEQADDR(0x1b6) SCSIRATE(
+>0x0) 
 
-We have reselection on
+Here's your first clue.  Parity errors occur on "broken" SCSI busses.
+Your cabling or terminator is bad, you have a bent pin, or just too
+much noise in and around your cabling.
 
->Kernel NEXTQSCB = 2
->Card NEXTQSCB = 2
->QINFIFO entries: 
+>scsi0: Unexpected busfree in Message-out phase 
+>SEQADDR == 0x166 
 
-No new commands to run.
+When we tried to tell the target about the parity error during message-in
+phase, the target was unable to see our message without parity errors.
+So, it had to go bus free to terminate the transaction.  It is a bug
+here that we didn't properly identify the active transaction and abort
+it here due to some overly protective code, but that can be readily
+fixed.
 
->Disconnected Queue entries: 0:3 
+>scsi0:0:0:0: Attempting to queue an ABORT message 
 
-At least one command is disconnected on a target.
+Because we failed to abort the command above, the mid-layer
+timesout the command and we start recovery.
 
->QOUTFIFO entries: 
->Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
->Pending list: 3
->Kernel Free SCB list: 1 0 
->Untagged Q(3): 3 
+>scsi0: Dumping Card State while idle, at SEQADDR 0x7 
+>ACCUM = 0x33, SINDEX = 0x7, DINDEX = 0x8c, ARG_2 = 0x0 
+>HCNT = 0x0 
+>SCSISEQ = 0x12, SBLKCTL = 0x2 
+> DFCNTRL = 0x0, DFSTATUS = 0x29 
+>LASTPHASE = 0x1, SCSISIGI = 0x0, SXFRCTL0 = 0x80 
+>SSTAT0 = 0x5, SSTAT1 = 0xa 
+>STACK == 0x3, 0x105, 0x160, 0xe4 
+>SCB count = 20 
+>Kernel NEXTQSCB = 19 
+>Card NEXTQSCB = 19 
+>QINFIFO entries:  
+>Waiting Queue entries:  
+>Disconnected Queue entries: 7:5  
+>QOUTFIFO entries:  
+>Sequencer Free SCB List: 8 11 4 5 10 15 2 3 1 0 9 13 14 6 12  
+>Pending list: 5 
+>Kernel Free SCB list: 7 12 0 4 10 6 9 14 3 1 8 11 15 13 2 18 17 16  
+>DevQ(0:0:0): 0 waiting 
+>DevQ(0:1:0): 0 waiting 
+>(scsi0:A:0:0): Queuing a recovery SCB 
+>scsi0:0:0:0: Device is disconnected, re-queuing SCB 
+>Recovery code sleeping 
+>(scsi0:A:0:0): Abort Tag Message Sent 
+>(scsi0:A:0:0): SCB 5 - Abort Tag Completed. 
+>Recovery SCB completes 
+>Recovery code awake 
+>aic7xxx_abort returns 0x2002 
 
-The disconnected command is for target 3.
+And we abort the transaction successfully.
 
->DevQ(0:2:0): 0 waiting
->DevQ(0:3:0): 0 waiting
+>scsi0:A:0: parity error detected in Message-in phase. SEQADDR(0x1b6) SCSIRATE(
+>0x0) 
+>Kernel panic: HOST_MSG_LOOP with invalid SCB ff 
 
-All of the rest of the state is normal.
+We get another parity error in a state without a proper connection (probably
+on the identify message after a reselection) and some more defensive
+programming prevents us from handling it correctly. 8-(
 
->(scsi0:A:3:0): Queuing a recovery SCB
->scsi0:0:3:0: Device is disconnected, re-queuing SCB
->Recovery code sleeping
->(scsi0:A:3:0): Abort Message Sent
->(scsi0:A:3:0): SCB 3 - Abort Completed.
->Recovery SCB completes
->Recovery code awake
->aic7xxx_abort returns 0x2002
-
-We successfully selected the target and aborted the command.
-
->(scsi0:A:3:0): Unexpected busfree in Command phase
->SEQADDR == 0x15c
-
-This, I can't really explain unless the target is somewhat
-unstable just after an abort occurs.  I'd need to see a
-bus trace.
-
->scsi0:0:3:0: Attempting to queue a TARGET RESET message
->scsi0:0:3:0: Command not found
-
-The upper layer tells us to perform a target reset for
-a command that doesn't exist.  It was likely aborted
-by the unexpected bus free above, but the mid-layer ignores
-completions during error recovery.
-
->aic7xxx_dev_reset returns 0x2002
->scsi0:0:3:0: Attempting to queue an ABORT message
->scsi0: Dumping Card State while idle, at SEQADDR 0x7
->ACCUM = 0xf7, SINDEX = 0x37, DINDEX = 0x24, ARG_2 = 0x0
-
-Target decideds not to return our command again, so we
-are told to perform recovery.
-
->(scsi0:A:3:0): Abort Message Sent
->(scsi0:A:3:0): SCB 3 - Abort Completed.
->Recovery SCB completes
->Recovery code awake
->aic7xxx_abort returns 0x2002
-
-And we were successful.
-
->scsi: device set offline - not ready or command retry failed after bus reset: 
->host 0 channel 0 id 3 lun 0
-
-But the mid-layer has already decided that it can't recover this device,
-so it calls it dead and refuses to allow I/O to it anymore.
-
->I'm happy to help investigate further if there's anything you want to
->try. Let me know if you need any other output or have a patch I can try
->out.
-
-Have you recently changed your version of cdrdao?  Perhaps that program
-is issuing a command that this particular drive simply will not accept?
+The end result is that you need to fix your SCSI bus to be more reliable.
+I will fix the issues you've discovered in parity error and unexpected
+busfree handling in the next driver release.  If your bus is working
+properly, you shouldn't see these errors.
 
 --
 Justin

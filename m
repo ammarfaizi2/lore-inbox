@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbTEJSap (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 14:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264389AbTEJSap
+	id S264406AbTEJSjb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 14:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264428AbTEJSjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 14:30:45 -0400
-Received: from almesberger.net ([63.105.73.239]:54027 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id S262458AbTEJSao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 14:30:44 -0400
-Date: Sat, 10 May 2003 15:43:11 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Ahmed Masud <masud@googgun.com>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jesse Pollard <jesse@cats-chateau.net>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       "viro@parcelfarce.linux.theplanet.co.uk" 
-	<viro@parcelfarce.linux.theplanet.co.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Terje Eggestad <terje.eggestad@scali.com>
-Subject: Re: The disappearing sys_call_table export.
-Message-ID: <20030510154311.F13069@almesberger.net>
-References: <1052585430.1367.6.camel@laptop.fenrus.com> <Pine.LNX.4.33.0305101321040.24661-100000@marauder.googgun.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 10 May 2003 14:39:31 -0400
+Received: from amsfep16-int.chello.nl ([213.46.243.26]:37400 "EHLO
+	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264406AbTEJSja (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 14:39:30 -0400
+From: Jos Hulzink <josh@stack.nl>
+To: Jamie Lokier <jamie@shareable.org>
+Subject: Re: [PATCH] Use correct x86 reboot vector
+Date: Sat, 10 May 2003 22:55:57 +0200
+User-Agent: KMail/1.5
+Cc: Andi Kleen <ak@muc.de>, torvalds@transmeta.com,
+       linux-kernel@vger.kernel.org
+References: <20030510025634.GA31713@averell> <200305102141.57860.josh@stack.nl> <20030510181056.GB29682@mail.jlokier.co.uk>
+In-Reply-To: <20030510181056.GB29682@mail.jlokier.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0305101321040.24661-100000@marauder.googgun.com>; from masud@googgun.com on Sat, May 10, 2003 at 01:51:07PM -0400
+Message-Id: <200305102255.57862.josh@stack.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahmed Masud wrote:
-> 		yield(random(threshold)); /* yeild is a sleep */
-[...]
-> That becomes a bit more difficult to time, because the attacker doesn't
-> know when the system call will actually perform its own copy_from_user vs.
+On Saturday 10 May 2003 20:10, Jamie Lokier wrote:
+> Jos Hulzink wrote:
+> > For the sake of bad behaving BIOSes however, I'd vote for the f000:fff0
+> > vector, unless someone can hand me a paper that says it is wrong.
+>
+> I agree, for the simple reason that it is what the chip does on a
+> hardware reset signal.
 
-So the probability of getting through in one try is about (tR+tH)/tH,
-where tR is the average random delay, and tH is the time between the
-check and the actual access.
+Hmzz... this seems indeed true for the 386, that's the only doc I got at hands 
+here. Willing to believe that this is the hardware behaviour of all 386 and 
+newer 32 bit procs. 
 
-If you keep on trying until you get through, you'll succeed on average
-after tR^2/tH+tR.
+If this really fixes some issues, I'm eager to see that BIOS code....
 
-If you make tR = 1 s (that's pretty long, e.g. if you do this to
-unlink(2), a rm -rf of the kernel source tree would take about four
-hours) and assume that tH is only one microsecond, the race condition
-can still be exploited within typically less than one fortnight.
-
-Since the system would be idle most of the time, such a brute-force
-attack could easily go unnoticed, even if somebody cares to monitor
-the system often enough.
-
-Sounds like voodoo security to me.
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/
+Jos

@@ -1,59 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264622AbSKDChV>; Sun, 3 Nov 2002 21:37:21 -0500
+	id <S264643AbSKDCmw>; Sun, 3 Nov 2002 21:42:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264627AbSKDChV>; Sun, 3 Nov 2002 21:37:21 -0500
-Received: from smtp01.fields.gol.com ([203.216.5.131]:30887 "EHLO
-	smtp01.fields.gol.com") by vger.kernel.org with ESMTP
-	id <S264622AbSKDChU>; Sun, 3 Nov 2002 21:37:20 -0500
-To: linux-kernel@vger.kernel.org
-Cc: Vojtech Pavlik <vojtech@suse.cz>, Jeff Garzik <jgarzik@pobox.com>,
-       Jos Hulzink <josh@stack.nl>
-In-Reply-To: <20021103193734.GC2516@pasky.ji.cz>
-References: <20021103193734.GC2516@pasky.ji.cz> <200211031809.45079.josh@stack.nl> <3DC56270.8040305@pobox.com> <20021103200704.A8377@ucw.cz>
-Subject: Re: Petition against kernel configuration options madness...
-Reply-To: Miles Bader <miles@gnu.org>
-System-Type: i686-pc-linux-gnu
-From: Miles Bader <miles@gnu.org>
-Date: 04 Nov 2002 11:43:18 +0900
-Message-ID: <87y98a6omx.fsf@tc-1-100.kawasaki.gol.ne.jp>
-MIME-Version: 1.0
+	id <S264672AbSKDCmw>; Sun, 3 Nov 2002 21:42:52 -0500
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:20913 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S264643AbSKDCmu>; Sun, 3 Nov 2002 21:42:50 -0500
+Date: Sun, 3 Nov 2002 21:49:10 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+       davej@suse.de
+Subject: Re: Filesystem Capabilities in 2.6?
+Message-ID: <20021104024910.GA14849@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+	Theodore Ts'o <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+	Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
+	davej@suse.de
+References: <87y98bxygd.fsf@goat.bogus.local> <Pine.LNX.4.44.0211021754180.2300-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Abuse-Complaints: abuse@gol.com
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0211021754180.2300-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Baudis <pasky@ucw.cz> writes:
-> > Too bad you don't have any suggestions. I completely agree this should
-> > be simplified, while I wouldn't be happy to lose the possibility of not
-> > compiling AT keyboard support in.
->
-> Well, why can't it be enabled by default? Other options are as well, and it's
-> IMHO sane to enable keyboard and mice support by default. It should clear up
-> the initial confusion as well.
+On Sat, Nov 02, 2002 at 06:03:12PM -0800, Linus Torvalds wrote:
+> The reason I like directory entries as opposed to inodes is that if you
+> work this way, you can actually give different people _different_
+> capabilities for the same program.  You don't need to have two different
+> installs, you can have one install and two different links to it.
 
-Keep in mind that All the World's Not a PC.  No doubt those options are
-enabled on the majority of kernels, by number, but linux supports many,
-many types of systems, and I'll bet on fair number of them, it doesn't
-make much sense to enable psaux mouse support!
+For several years, I have had only one suid root binary on my system.
+All other 'setuid' applications are simply symlinks to this binary.
 
-So ... instead of saying `default y' for these options, how about saying
-`default IM_ON_A_PC' where IM_ON_A_PC is defined somehow.  How, I don't
-know; it could be a separate config question in a very obvious place,
-perhaps itself having `default X86'.
+$ ls -l /bin/ping*
+lrwxrwxrwx    1 root     root           14 Nov 18  2001 /bin/ping -> /usr/bin/super
+-rwxr-xr-x    1 root     root        15244 Nov 18  2001 /bin/ping.suid
 
-Perhaps this should really be two flags, one IM_ON_A_PC meaning `typical
-i386 pc with legacy devices', and the other, more general, being
-something like IM_ON_A_WORKSTATION.  Then wierd things like psaux would
-say `default IM_ON_A_PC', but more general things like keyboards would
-say `default IM_ON_A_WORKSTATION'.
+There is a a nice configuration file that is used to decide whether to
+use suid or setgid, which parts of the environment to drop/keep. And all
+of this based on the user, the time and any other conditions I would
+like to enforce.
 
-[Yeah, those names are sucky, I know...]
+Now super does not (yet) support capabilities. But it shouldn't be too
+hard to modify it so that it forks, drops capabilities, (possibly change
+the euid to the original user?) and exec the actual binary.
 
-Thanks,
+Jan
 
--Miles
--- 
-[|nurgle|]  ddt- demonic? so quake will have an evil kinda setting? one that 
-            will  make every christian in the world foamm at the mouth? 
-[iddt]      nurg, that's the goal 

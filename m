@@ -1,42 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbTEMNZ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 09:25:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbTEMNZ0
+	id S261212AbTEMNbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 09:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbTEMNbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 09:25:26 -0400
-Received: from [194.151.80.102] ([194.151.80.102]:25141 "EHLO devwks01")
-	by vger.kernel.org with ESMTP id S261204AbTEMNZZ (ORCPT
+	Tue, 13 May 2003 09:31:16 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:56827 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261212AbTEMNbN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 09:25:25 -0400
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: What exactly does "supports Linux" mean?
-Date: Tue, 13 May 2003 15:46:32 +0200
-User-Agent: KMail/1.5.1
-Cc: Linus Torvalds <torvalds@transmeta.com>
-References: <20030513151630.75ad4028.skraw@ithnet.com>
-In-Reply-To: <20030513151630.75ad4028.skraw@ithnet.com>
+	Tue, 13 May 2003 09:31:13 -0400
+Message-Id: <0E3FA95632D6D047BA649F95DAB60E570185F196@EXA-ATLANTA.se.lsil.com>
+From: "Mukker, Atul" <atulm@lsil.com>
+To: "'Mike Anderson'" <andmike@us.ibm.com>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: RE: unique entry points for all driver hosts
+Date: Tue, 13 May 2003 09:43:52 -0400
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305131546.32963.duncan.sands@math.u-psud.fr>
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> This leads to my simple question: how can one claim his product supports
-> linux, if it does not work with a kernel.org kernel? Is there any paper or
-> open statement from big L (hello btw ;-) available what you have to do to
-> call yourself "supporting linux"?
+> > Why doesn't mid-layer allow LLDs to specify separate entry 
+> > points to various
+> > hosts attached to the same driver. Like some other entries 
+> > in the Scsi Host
+> > Template, entry points should also  allowed to be overridden.
+> 
+> Is there a issue you are hitting of common host template functions and
+> selecting unique host instance functions using hostdata?
 
-What about the following: a vendor provides linux drivers for one of its
-products (thanks!).  These drivers simply do not work with some of its
-other products (all variants of the same basic product).  There are no
-linux drivers for these other products.  All the products claim to be
-supported under linux.  This "linux support" is explicitly stated on
-each product's web-page whether it is really supported or not.
+No, We simply want to have unique hot-path entry point (queuecommand) and
+error handling hooks for each class of supported hosts. This is required
+because these classes of controllers have disparate queue and error handling
+mechanisms.
 
-Duncan.
+The work around we have today is to have common queue routine for example.
+This queue routine then routes the scsi packet to appropriate host's
+queuecommand hook using hostdata information.
+
+looks like it is limiting to have a 'driver' specific structure(SHT) instead
+of a self sufficient host-centric view (struct Scsi_Host).
+
+IMHO, declaring multiple SHTs as suggested by Christoph Hellwig may not be a
+good idea since it might appear like a hack, would lose the "template"
+ideology and is not object-oriented :-)
+
+Host structure would be best place to have pointers to these hooks as well.
+
+-Atul Mukker
+
+
+> -----Original Message-----
+> From: Mike Anderson [mailto:andmike@us.ibm.com]
+> Sent: Monday, May 12, 2003 7:38 PM
+> To: Mukker, Atul
+> Cc: linux-scsi@vger.kernel.org; linux-kernel@vger.kernel.org
+> Subject: Re: unique entry points for all driver hosts
+> 
+> 
+> Mukker, Atul [atulm@lsil.com] wrote:
+> > Why doesn't mid-layer allow LLDs to specify separate entry 
+> points to various
+> > hosts attached to the same driver. Like some other entries 
+> in the Scsi Host
+> > Template, entry points should also  allowed to be overridden.
+> > 
+> > 
+> > Thanks
+> 
+> Is there a issue you are hitting of common host template functions and
+> selecting unique host instance functions using hostdata?
+> 
+> -andmike
+> --
+> Michael Anderson
+> andmike@us.ibm.com
+> 

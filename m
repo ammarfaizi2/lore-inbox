@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUHQRTT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266525AbUHQReT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268355AbUHQRTT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 13:19:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268352AbUHQRTS
+	id S266525AbUHQReT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 13:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266526AbUHQReT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 13:19:18 -0400
-Received: from mailout01.sul.t-online.com ([194.25.134.80]:8105 "EHLO
-	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S268355AbUHQRSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 13:18:44 -0400
-Date: Tue, 17 Aug 2004 19:18:33 +0200
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] change scsi_ioctl to allow cd-recording 2.6.8.1
-Message-ID: <20040817171833.GA3742@proton-satura-home>
-References: <200408170059.37152.satura@proton>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408170059.37152.satura@proton>
-User-Agent: Mutt/1.5.6+20040722i
-From: Andreas Messer <andreas.messer@gmx.de>
-X-ID: EPZBmqZH8e9N-2G5svItXzAu98AJb7athyfo8bpRkGLTaOpBuoHecS@t-dialin.net
+	Tue, 17 Aug 2004 13:34:19 -0400
+Received: from mail1.fw-sj.sony.com ([160.33.82.68]:26053 "EHLO
+	mail1.fw-sj.sony.com") by vger.kernel.org with ESMTP
+	id S266525AbUHQReR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 13:34:17 -0400
+Message-ID: <41224105.5050706@am.sony.com>
+Date: Tue, 17 Aug 2004 10:31:49 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux kernel <linux-kernel@vger.kernel.org>,
+       Adam Kropelin <akropel1@rochester.rr.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] - trivial comment fixups in init/main.c
+References: <20040817095601.4E7F22BEC3@ozlabs.org>
+In-Reply-To: <20040817095601.4E7F22BEC3@ozlabs.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Rusty Russell wrote:
+> In message <40F42C44.5010603@am.sony.com> you write:
+> 
+>>This patch has some trivial comment fixups for init/main.c, to bring
+>>the comments into consistency with the coding style of the kernel.
+> 
+> 
+> Personally, I prefer my comments quiet and unobtrusive, and I think
+> you'll find Linus' code tends to be the same.
+> 
+> Not to start a flame war, but since I started using a colorizing
+> editor for code, I found there was no need to waste vertical space
+> with large banners.  (This in my mind justifies the X project's entire
+> existence).
+> 
+> Sorry,
 
-please don't answer or refer to the previous message. Please 
-look at the "Mis-detect CRDW as CDROM" thread.
+Fine with me.  These comments were modified at the request of
+Andrew Morton, who wanted the comment style to be consistent.
+I actually agree with your position, but I wanted to follow
+what Andrew wanted here.
 
-Andreas
--- 
-gnuPG keyid: 0xE94F63B7 
-fingerprint: D189 D5E3 FF4B 7E24 E49D 7638 07C5 924C E94F 63B7
+=============================
+Tim Bird
+Architecture Group Co-Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+E-mail: tim.bird@am.sony.com
+=============================

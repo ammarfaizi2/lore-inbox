@@ -1,63 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273176AbRJTMng>; Sat, 20 Oct 2001 08:43:36 -0400
+	id <S273141AbRJTMw6>; Sat, 20 Oct 2001 08:52:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273204AbRJTMnR>; Sat, 20 Oct 2001 08:43:17 -0400
-Received: from mail3.home.nl ([213.51.129.227]:31629 "EHLO mail3.home.nl")
-	by vger.kernel.org with ESMTP id <S273176AbRJTMnO>;
-	Sat, 20 Oct 2001 08:43:14 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: elko <elko@home.nl>
-To: Robert Love <rml@tech9.net>
-Subject: Re: [PATCH] updated preempt-kernel
-Date: Sat, 20 Oct 2001 14:44:14 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <1003562833.862.65.camel@phantasy>
-In-Reply-To: <1003562833.862.65.camel@phantasy>
-Cc: linux-kernel@vger.kernel.org
-X-Owner: ElkOS
-MIME-Version: 1.0
-Message-Id: <01102014441400.00692@ElkOS>
-Content-Transfer-Encoding: 7BIT
+	id <S273204AbRJTMws>; Sat, 20 Oct 2001 08:52:48 -0400
+Received: from hermes.toad.net ([162.33.130.251]:45467 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S273141AbRJTMwh>;
+	Sat, 20 Oct 2001 08:52:37 -0400
+Subject: ISO date format [was: Wireless Extension update]
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 20 Oct 2001 08:52:27 -0400
+Message-Id: <1003582348.2042.260.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 20 October 2001 09:27, Robert Love wrote:
-> Testers Wanted:
->
-> patches to enable a fully preemptible kernel are available at:
-> 	http://tech9.net/rml/linux
-> for kernels 2.4.10, 2.4.12, 2.4.12-ac3, and 2.4.13-pre5.
->
+I don't think it's true that there are alternative ISO standards,
+otherwise the ISO standard (YYYY-MM-DD) wouldn't be a standard.
+The standard applies only to _numerical_ dates, however.
 
-I just switched from 2.4.10-ac12-preempt to the following:
+This web page gives a summary:
+http://www.cl.cam.ac.uk/~mgk25/iso-time.html
 
-2.4.12 patched with 2.4.12-ac3, 2.4.12-ac3-vmpatch, 2.4.12-ac3-freeswap,
-preempt-kernel-rml-2.4.12-ac3-2 (where is the stats-patch for that last
-one?)
+Quotation from the page:
+ISO 8601 is only specifying numeric notations and does not cover
+dates and times where words are used in the representation. It is
+not intended as a replacement for language-dependent worded date
+notations such as "24. Dezember 2001" (German) or "February 4, 1995"
+(US English).
 
-Compiling went without problems!
+When writing dates in English I like "4 February 2001" or
+"4 Feb 2001" since it reads easily and still puts day, month, year
+in a sane order.
 
-On a 850Mhz CPU with 576Mb Memory;
-I did the following, all at the same time, started in this order:
+I tried to look up the standard itself at the ISO website but
+found that I would have to pay 104 Swiss Francs to download the
+pdf file.
 
-X with KDE 2.1, gkrellm, licq, freeamp, 5* konqueror, kmail,
-bonnie++, `du /home|sort -nr|head -100' (11+ Gig of files),
-`slocate *|wc -l', `find /|wc -l', make Python and test it
-(117 tests went OK1 test failed: test_openpty).
+--
+Thomas Hood
 
-During this period, everything kept very responsive, there were
-2 times a little delay would occur when moving a window like crazy,
-or scrolling a konqueror page would delay a bit (it's only a 32Mb
-card and no accel.), but switching desktops went fine and more
-important, freeamp did not skip a single time !!!!
+--- original message ---
 
-You should see the laugh on my face while I'm typing this ;^)
+Hi Randy.
+
+>> - * Version :   11      28.3.01
+>> + * Version :   12      5.10.01
+
+> nitpicking, i'm sure, but:
+
+> 5.10.01 could have several meanings, usually depending on geographic
+> location etc., and there is an ISO standard (8601) which says:
+
+> The international standard date notation is YYYY-MM-DD
+
+There is also another ISO standard (I forget the number) which states
+that the international standard date notation is any of...
+
+	DD.MM.YYYY	(European)
+	MM/DD/YYYY	(American)
+	YYYY-MM-DD	(Japanese)
+
+...with the punctuation character specifying the one in use. I note that
+the dates as originally quoted above are clearly consistant with this
+standard, so see no problem myself.
+
+Personally, I prefer to use the DD-MMM-YYYY format myself, where MMM in
+the three-letter English abbreviation for the month in question, and
+there is thus no room for misreading it as something else.
+
+> I'd prefer not to be confused by the '>' quoted notation above,
+> although I don't mind the dots instead of hyphens.
+
+I'm so used to > quoting in emails that anything else gets me confused.
+
+Best wishes from Riley.
 
 
-Any other testing you can think of ??
 
--- 
-ElkOS: 2:20pm up 2:17, 3 users, load average: 2.66, 3.18, 3.60
-bofhX: We've run out of licenses
-
+
+

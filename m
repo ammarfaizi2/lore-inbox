@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269602AbTHGQy2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 12:54:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270325AbTHGQy2
+	id S270325AbTHGQzH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 12:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270326AbTHGQzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 12:54:28 -0400
-Received: from main.gmane.org ([80.91.224.249]:12483 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S269602AbTHGQy0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 12:54:26 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
-Subject: Re: DMA timeouts on SIS IDE
-Date: Thu, 07 Aug 2003 18:48:16 +0200
-Message-ID: <yw1xptjhs9bj.fsf@users.sourceforge.net>
-References: <3F281C06.70707@inet6.fr> <yw1xbrvbgdx5.fsf@users.sourceforge.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@main.gmane.org
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:U6k7yTe2aGlILs06u4jrrt4z20g=
+	Thu, 7 Aug 2003 12:55:07 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:57349 "EHLO
+	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S270325AbTHGQzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 12:55:01 -0400
+Date: Thu, 7 Aug 2003 12:53:27 -0400 (EDT)
+From: Paul Clements <kernel@steeleye.com>
+Reply-To: Paul.Clements@steeleye.com
+To: Bernd Schubert <bernd.schubert@pci.uni-heidelberg.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.21]: nbd ksymoops-report
+In-Reply-To: <200308071604.06015.bernd.schubert@pci.uni-heidelberg.de>
+Message-ID: <Pine.LNX.4.10.10308071245130.13289-100000@clements.sc.steeleye.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mru@users.sourceforge.net (Måns Rullgård) writes:
+On Thu, 7 Aug 2003, Bernd Schubert wrote:
 
->> the lspci output you previously sent confirmed that the SiS IDE driver
->> does set the UDMA timings correctly. Given this is out of the suspects
->> list, I'd advise to :
->>
->> - test the hardware (uneasy on a notebook, 2.5" IDE drives aren't as
->> common as 3.5" ones)
->
-> As you say, testing could be tricky.  However, the machine is only
-> about one month old, so it shouldn't be dying already.
->
->> - try latest ACPI on sourceforge and enable ACPI in the BIOS if not
->> already done (seems to have helped once :
->> http://marc.theaimsgroup.com/?l=linux-kernel&m=104212864518052&w=4)
->
-> patch tells me those are already applied to 2.6.0-test2.  I tried
-> booting with pci=noacpi, just in case, but the problem remains.  I
-> can't find any BIOS settings relating to ACPI.
+> every time when nbd-client disconnects a nbd-device the decoded oops 
+> from below will happen. 
+> This only happens after we upgraded from 2.4.20 to 2.4.21, 
+> so I guess the backported update from 2.5.50 causes this. 
 
-The issue is still unresolved.
+Yes, it's definitely related to this...
 
-I noticed that sometimes I also get this in the kernel log:
 
-hda: dma_timer_expiry: dma status == 0x21
-hda: DMA timeout error
-hda: dma timeout error: status=0xd0 { Busy }
+> Aug  6 17:24:31 goedel kernel: Process nbd-client (pid: 650, stackpage=d61a5000)
 
-hda: DMA disabled
-ide0: reset: success
-Loosing too many ticks!
-TSC cannot be used as a timesource. (Are you running with SpeedStep?)
-Falling back to a sane timesource.
+Are you using the v2.0 nbd-client from nbd.sf.net?
 
-I am not using SpeedStep, so that message must be triggered by the IDE
-errors.  The errors only happen when writing very large (hundreds of
-megabytes) amounts of data at rate above a few megabytes per second.
-It's never happened when just doing normal things like compiling
-stuff.
 
--- 
-Måns Rullgård
-mru@users.sf.net
+> Code;  d89e2be7 <[nbd]nbd_ioctl+353/480>
+> 00000000 <_EIP>:
+> Code;  d89e2be7 <[nbd]nbd_ioctl+353/480>   <=====
+>    0:   8b 50 08                  mov    0x8(%eax),%edx   <=====
+> Code;  d89e2bea <[nbd]nbd_ioctl+356/480>
+>    3:   6a 03                     push   $0x3
+> Code;  d89e2bec <[nbd]nbd_ioctl+358/480>
+>    5:   50                        push   %eax
+> Code;  d89e2bed <[nbd]nbd_ioctl+359/480>
+>    6:   8b 42 28                  mov    0x28(%edx),%eax
+> Code;  d89e2bf0 <[nbd]nbd_ioctl+35c/480>
+>    9:   ff d0                     call   *%eax
+
+
+This corresponds to the following source:
+
+lo->sock->ops->shutdown(lo->sock, SEND_SHUTDOWN|RCV_SHUTDOWN);
+
+Somehow, lo->sock is NULL here. The only way I see that this could
+happen is if NBD_CLEAR_SOCK got called out of order (or you're 
+using some non-standard nbd-client).
+
+I guess it would be best to protect the NULLing of lo->sock 
+in NBD_CLEAR_SOCK just in case, anyway.
+
+Would you be willing to test a patch against 2.4.21?
+
+--
+Paul
 

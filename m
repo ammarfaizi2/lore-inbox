@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVC3U4G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261610AbVC3U61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVC3U4G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 15:56:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVC3U4G
+	id S261610AbVC3U61 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 15:58:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVC3U4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 15:56:06 -0500
-Received: from rproxy.gmail.com ([64.233.170.197]:32369 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261271AbVC3UzZ convert rfc822-to-8bit
+	Wed, 30 Mar 2005 15:56:41 -0500
+Received: from rproxy.gmail.com ([64.233.170.202]:45401 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261567AbVC3Uzo convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 15:55:25 -0500
+	Wed, 30 Mar 2005 15:55:44 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=jwUmNsqUKtfgo8dYnZW2TQK5sTdAi0hPhu5DMWmlWgik3sPTgDW3keQjg10UlduZFsqSmufjZ+2AKnZViy50qp0f/vPhlQ5SMs5s/vqpgf9QjIyO3ETXPZ6oShC4t2j4DqWcr/4Lg3cY5LdL/yeQzfQxMwExqTPZuZtxwAXskdQ=
-Date: Wed, 30 Mar 2005 22:55:05 +0200
+        b=E4K+0hIJsTo1E9+6YIgInKH/RkT0HDMAG4o8HrWuMebo79/MqdaPzkh/Ci/sxY/xyayhNvRwcQK0LizT3we4fL40wCc7Pt37sJRzPj6FZ2Dhh3cVToy98FfXNHxGjslipUs17virFzm98FEpAmxfySD6G0xg4dt9Vg07xvVbrVo=
+Date: Wed, 30 Mar 2005 22:55:29 +0200
 From: Diego Calleja <diegocg@gmail.com>
 To: Paul Jackson <pj@engr.sgi.com>
 Cc: gh@us.ibm.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
        ckrm-tech@lists.sourceforge.net
 Subject: Re: [patch 0/8] CKRM:   Core patch set
-Message-Id: <20050330225505.7a443227.diegocg@gmail.com>
+Message-Id: <20050330225529.7ac799ae.diegocg@gmail.com>
 In-Reply-To: <20050329220530.4a5639c8.pj@engr.sgi.com>
 References: <E1DGTK2-0007gO-00@w-gerrit.beaverton.ibm.com>
 	<20050329220530.4a5639c8.pj@engr.sgi.com>

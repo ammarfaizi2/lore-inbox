@@ -1,61 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132815AbRDDNJZ>; Wed, 4 Apr 2001 09:09:25 -0400
+	id <S132818AbRDDNjN>; Wed, 4 Apr 2001 09:39:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132816AbRDDNJP>; Wed, 4 Apr 2001 09:09:15 -0400
-Received: from adsl-213-254-163-44.mistral-uk.net ([213.254.163.44]:22544 "EHLO
-	crucigera.fysh.org") by vger.kernel.org with ESMTP
-	id <S132815AbRDDNJA>; Wed, 4 Apr 2001 09:09:00 -0400
-Date: Wed, 4 Apr 2001 14:08:16 +0100
-From: Athanasius <Athanasius@miggy.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.3 freeze under heavy writing + open rxvt
-Message-ID: <20010404140816.I18503@miggy.org>
-Mail-Followup-To: Athanasius <Athanasius@miggy.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010403223222.A669@netnation.com> <Pine.SGI.4.31L.02.0104032300370.2523169-100000@irix2.gl.umbc.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.SGI.4.31L.02.0104032300370.2523169-100000@irix2.gl.umbc.edu>; from jjasen1@umbc.edu on Tue, Apr 03, 2001 at 11:02:51PM -0400
+	id <S132819AbRDDNiy>; Wed, 4 Apr 2001 09:38:54 -0400
+Received: from mx.mips.com ([206.31.31.226]:56223 "EHLO mx.mips.com")
+	by vger.kernel.org with ESMTP id <S132818AbRDDNis>;
+	Wed, 4 Apr 2001 09:38:48 -0400
+Message-ID: <3ACB2323.C1653236@mips.com>
+Date: Wed, 04 Apr 2001 15:35:31 +0200
+From: Carsten Langgaard <carstenl@mips.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; SunOS 5.7 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ralf Baechle <ralf@uni-koblenz.de>
+CC: Szabolcs Szakacsits <szaka@f-secure.com>,
+        "Scott G. Miller" <scgmille@indiana.edu>, linux-kernel@vger.kernel.org,
+        Andy Carlson <naclos@swbell.net>, linux-mips@oss.sgi.com
+Subject: Re: pcnet32 (maybe more) hosed in 2.4.3
+In-Reply-To: <20010330190137.A426@indiana.edu> <Pine.LNX.4.30.0103311541300.406-100000@fs131-224.f-secure.com> <20010403202127.A316@bacchus.dhis.org>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 03, 2001 at 11:02:51PM -0400, John Jasen wrote:
-> On Tue, 3 Apr 2001, Simon Kirby wrote:
-> 
-> > Three times now I've had 2.4.3 freeze on my dual CPU box while doing a
-> > "dd if=/dev/zero of=/dev/hdc bs=1024k" (a drive to be RMA'd :)).  I got
-> > bored and opened an rxvt, and as the machine was swapping in (I assume),
-> > everything froze.  The mouse still moved for about 5 seconds before the
-> > freeze, and the window was visible as it was attempting to start tcsh.
-> 
-> I've noticed the same thing. I was doing a rather sadistic test, checking
-> a memory chip.
-> 
-> one window: make -j in 2.4.2 src; and in another, dd if=/dev/hda
-> of=/dev/null bs=4096k.
+I'm not sure what the problem is, but the whole deal about checking whether the
+controller runs in 16 bit or 32 bit mode, is a little bit tricky.
+There doesn't seem to be a clean way to do the check, so it's done by writing a certain
+pattern to a register and read it back again.
+Doing the check for 32 bit mode first seems to be the right thing to do, but it's
+apparently breaks thing for some people with older chipsets.
+It work fine on my site in both 16 bit and 32 bit mode, though (I'm using an AMD
+Am97C973 chipset).
+I can't remember exactly if that part of the fix really was necessary to get the driver
+work in 32 bit mode, but at least the rest of the patch is necessary (it has been some
+time since I made this fix and I originally did it in the 2.2.12 sources).
+So I guess reverting the suggested part of the patch is appropriate.
+I'm terrible sorry for causing any inconvenience.
 
-   Playing around with the Mesa3D demos last night I had 3 similar
-lockups.  The system is a PII-400 128MB RAM, 256MB swap on vanilla 2.4.3
-(also did this on 2.4.2-ac18 as it happens).  There's:
+/Carsten
 
-	a) A similar lockup to described above, I caught my 'resetv2'
-	(small util to just initialise a voodoo2 then exit cleanly, or
-	so I thought) chewing up VM like it was going out of fashion.
-	Shortly thereafter solid lockup, LEDs not working etc, although
-	I think I forgot to try Alt-SysRq+R that time to see if the
-	keyboard would come back to life.
-	
-	b) Running a Mesa3D demo that uses threads was fine with 3 or 5,
-	try it with 10, instant lockup, no magic sysrq, had to hit the
-	reset button.  So I'd assume some other issue with threads in
-	2.4.3/2.4.2-ac18
+Ralf Baechle wrote:
 
--Ath
--- 
-- Athanasius = Athanasius(at)miggy.org / http://www.miggy.org/
-                  Finger athan(at)fysh.org for PGP key
-	   "And it's me who is my enemy. Me who beats me up.
-Me who makes the monsters. Me who strips my confidence." Paula Cole - ME
+> Carsten,
+>
+> seems your pcnet32 changes which made it into 2.4.3 are causing trouble
+> on i386 machines.  Can you try to solve that problem?
+>
+> On Sat, Mar 31, 2001 at 03:58:11PM +0200, Szabolcs Szakacsits wrote:
+>
+> > On Fri, 30 Mar 2001, Scott G. Miller wrote:
+> >
+> > > Linux 2.4.3, Debian Woody.  2.4.2 works without problems.  However, in
+> > > 2.4.3, pcnet32 loads, gives an error message:
+> >
+> > 2.4.3 (and -ac's) are also broken as guest in VMWware due to the pcnet32
+> > changes [doing 32 bit IO on 16 bit regs on the 79C970A controller].
+> > Reverting this part of patch-2.4.3 below made things work again.
+> >
+> >       Szaka
+> >
+> > @@ -528,11 +535,13 @@
+> >      pcnet32_dwio_reset(ioaddr);
+> >      pcnet32_wio_reset(ioaddr);
+> >
+> > -    if (pcnet32_wio_read_csr (ioaddr, 0) == 4 && pcnet32_wio_check (ioaddr)) {
+> > -       a = &pcnet32_wio;
+> > +    /* Important to do the check for dwio mode first. */
+> > +    if (pcnet32_dwio_read_csr(ioaddr, 0) == 4 && pcnet32_dwio_check(ioaddr)) {
+> > +        a = &pcnet32_dwio;
+> >      } else {
+> > -       if (pcnet32_dwio_read_csr (ioaddr, 0) == 4 && pcnet32_dwio_check(ioaddr)) {
+> > -           a = &pcnet32_dwio;
+> > +        if (pcnet32_wio_read_csr(ioaddr, 0) == 4 &&
+> > +           pcnet32_wio_check(ioaddr)) {
+> > +           a = &pcnet32_wio;
+> >         } else
+> >             return -ENODEV;
+> >      }
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+>   Ralf
+
+--
+_    _ ____  ___   Carsten Langgaard   Mailto:carstenl@mips.com
+|\  /|||___)(___   MIPS Denmark        Direct: +45 4486 5527
+| \/ |||    ____)  Lautrupvang 4B      Switch: +45 4486 5555
+  TECHNOLOGIES     2750 Ballerup       Fax...: +45 4486 5556
+                   Denmark             http://www.mips.com
+
+
+

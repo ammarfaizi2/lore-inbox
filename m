@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130485AbRDKNsv>; Wed, 11 Apr 2001 09:48:51 -0400
+	id <S132577AbRDKNwv>; Wed, 11 Apr 2001 09:52:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132577AbRDKNsb>; Wed, 11 Apr 2001 09:48:31 -0400
-Received: from datafoundation.com ([209.150.125.194]:3337 "EHLO
-	datafoundation.com") by vger.kernel.org with ESMTP
-	id <S130485AbRDKNsa>; Wed, 11 Apr 2001 09:48:30 -0400
-Date: Wed, 11 Apr 2001 09:48:18 -0400 (EDT)
-From: John Jasen <jjasen@datafoundation.com>
-To: info <5740@mail.ru>
-cc: <linux-kernel@vger.kernel.org>, Petr Vandrovec <VANDROVE@vc.cvut.cz>
-Subject: Re: 2.4.3 compile error No 4
-In-Reply-To: <01041111564300.02619@sh.lc>
-Message-ID: <Pine.LNX.4.30.0104110947430.19243-100000@flash.datafoundation.com>
+	id <S132578AbRDKNwl>; Wed, 11 Apr 2001 09:52:41 -0400
+Received: from iplsin1-52-230.biz.dsl.gtei.net ([4.3.52.230]:58073 "HELO
+	avenir.dhs.org") by vger.kernel.org with SMTP id <S132577AbRDKNw3>;
+	Wed, 11 Apr 2001 09:52:29 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: John Madden <weez@freelists.org>
+To: juergen mischker <j_mischker@web.de>, linux-kernel@vger.kernel.org
+Subject: Re: k 2.4.2; usb; handspring-visor
+Date: Wed, 11 Apr 2001 08:52:30 -0500
+X-Mailer: KMail [version 1.2]
+Cc: j_mischker@web.de
+In-Reply-To: <01041109595000.00940@horus.arge>
+In-Reply-To: <01041109595000.00940@horus.arge>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0104110852300F.25330@weez>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Apr 2001, info wrote:
+> Apr  8 23:33:09 horus kernel: hub.c: USB new device connect on bus1/1,
+> assigned device number 5
+> Apr  8 23:33:12 horus kernel: usb_control/bulk_msg: timeout
+> Apr  8 23:33:12 horus kernel: usb.c: USB device not accepting new
+> address=5 (error=-110)
 
-> OS: Mandrake 6.0RE
-> AMD K6-200 144 M
-> gcc 2.95.2-ipl3mdk
->
-> # CONFIG_IPX_INTERN is not set
-> # CONFIG_SYSCTL is not set
-> CONFIG_HPFS_FS=y
->
-> Compiler error message No 4:
+Funny, I've been getting the same messages (on 2.4.0 and now 2.4.3) for a 
+while now, and I thought the problem was with my Visor.  (...I haven't 
+been able to sync for months...)
 
-this may be a stupid question, but are you doing a 'make clean' after
-changing config parameters?
+John
 
 
+
+
+-- 
+# John Madden  weez@freelists.org ICQ: 2EB9EA
+# FreeLists, Free mailing lists for all: http://www.freelists.org
+# UNIX Systems Engineer, Ivy Tech State College: http://www.ivy.tec.in.us
+# Linux, Apache, Perl and C: All the best things in life are free!

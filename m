@@ -1,60 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbTFZRiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 13:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbTFZRiZ
+	id S262179AbTFZRg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 13:36:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262192AbTFZRg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 13:38:25 -0400
-Received: from smtp.terra.es ([213.4.129.129]:60155 "EHLO tsmtp6.mail.isp")
-	by vger.kernel.org with ESMTP id S262227AbTFZRiY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 13:38:24 -0400
-Date: Thu, 26 Jun 2003 19:52:38 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
-To: Flameeyes <dgp85@users.sourceforge.net>
+	Thu, 26 Jun 2003 13:36:27 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33993 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262179AbTFZRgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 13:36:25 -0400
+Date: Thu, 26 Jun 2003 19:50:32 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jan-Hinnerk Reichert <jan-hinnerk_reichert@hamburg.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PPP Modem connection impossible with 2.5.73-bk2
-Message-Id: <20030626195238.673bcffd.diegocg@teleline.es>
-In-Reply-To: <1056567978.931.8.camel@laurelin>
-References: <1056567978.931.8.camel@laurelin>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Subject: Re: [2.4.22-pre1] menuconfig oddity
+Message-ID: <20030626175032.GA24661@fs.tum.de>
+References: <200306231927.57946.jan-hinnerk_reichert@hamburg.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200306231927.57946.jan-hinnerk_reichert@hamburg.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 25 Jun 2003 21:06:18 +0200
-Flameeyes <dgp85@users.sourceforge.net> wrote:
-
+On Mon, Jun 23, 2003 at 07:27:57PM +0200, Jan-Hinnerk Reichert wrote:
 > Hi,
-> After the upgrade from 2.5.73-bk1 to bk2 the pppd daemon is killed, so
-> the ppp connection is impossible.
-> After the reverse of the patch I can connect.
-> I also applied the bk2-bk3 patch (without the bk2), and I have no
-> problems.
-> So the problem is in bk2.
+> 
+> first I want to say that I could compile 2.4.22-pre1 without problems and 
+> everything works fine for 4 hours on a desktop machine with little load.
+> 
+> However, I had a small problem during my installation:
+> 
+> After the first compilation and reboot, I started menuconfig again and all 
+> subentries of "ACPI support" were gone. I took a brief look at the .config, 
+> but there were at least some entries.
+> 
+> So I ignored this, changed my config via menuconfig, recompiled and rebooted 
+> and ACPI was gone ;-(
+> 
+> After copying my old config and "make oldconfig", everything was back to 
+> normal. Unfortunately i wasn't able to reproduce this error.
+> 
+> I just wanted to let you know...
 
+Did you accidentially enable "CPU Enumeration Only" in the
+"ACPI support" menu?
 
-I can confirm it.
-Jun 25 00:11:09 estel chat[13737]:  -- got it 
-Jun 25 00:11:09 estel chat[13737]: send (\d)
-Jun 25 00:11:10 estel pppd[13734]: Serial connection established.
-Jun 25 00:11:10 estel pppd[13734]: using channel 8
-Jun 25 00:11:10 estel pppd[13734]: Using interface ppp0
-Jun 25 00:11:10 estel pppd[13734]: Connect: ppp0 <--> /dev/ttyS1
-Jun 25 00:11:11 estel pppd[13734]: sent [LCP ConfReq id=0x1 <asyncmap 0x0> <magi
-c 0x54b41996> <pcomp> <accomp>]
-Jun 25 00:11:11 estel pppd[13734]: rcvd [LCP ConfReq id=0x1 <mru 1514> <asyncmap
- 0x0> <auth chap MD5> <magic 0xf1833c0e> <mrru 1514> <endpoint [null]>]
-Jun 25 00:11:11 estel pppd[13734]: sent [LCP ConfRej id=0x1 <mrru 1514>]
-Jun 25 00:11:11 estel pppd[13734]: rcvd [LCP ConfRej id=0x1 <pcomp>]
-Jun 25 00:11:11 estel pppd[13734]: sent [LCP ConfReq id=0x2 <asyncmap 0x0> <magi
-c 0x54b41996> <accomp>]
-Jun 25 00:11:11 estel pppd[13734]: Modem hangup
-Jun 25 00:11:11 estel pppd[13734]: Connection terminated.
-Jun 25 00:11:12 estel pppd[13734]: tcsetattr: Invalid argument
-Jun 25 00:11:12 estel pppd[13734]: Exit.
+If this isn't the problem, please send your .config.
 
+>  Jan-Hinnerk
 
-Plain 2.5.73 works.
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

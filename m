@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271071AbTHQVzH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 17:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271073AbTHQVzH
+	id S271089AbTHQV7Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 17:59:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271091AbTHQV7Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 17:55:07 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:12217 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S271071AbTHQVzE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 17:55:04 -0400
-Date: Sun, 17 Aug 2003 23:54:36 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Vojtech Pavlik <vojtech@suse.cz>, Andries Brouwer <aebr@win.tue.nl>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030817215436.GA24933@ucw.cz>
-References: <20030815135331.GC15872@ucw.cz> <Pine.GSO.3.96.1030816150153.15339E-100000@delta.ds2.pg.gda.pl> <20030816140901.GC23646@mail.jlokier.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030816140901.GC23646@mail.jlokier.co.uk>
-User-Agent: Mutt/1.5.4i
+	Sun, 17 Aug 2003 17:59:16 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:56838 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S271089AbTHQV7P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 17:59:15 -0400
+Date: Sun, 17 Aug 2003 17:47:18 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Tom Sightler <ttsig@tuxyturvy.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Can't run Quake 3 on 2.6.0-test3-mm2
+In-Reply-To: <1061154986.1775.2.camel@iso-8590-lx.zeusinc.com>
+Message-ID: <Pine.LNX.4.53.0308171747020.9067@montezuma.mastecende.com>
+References: <1061142481.14239.7.camel@iso-8590-lx.zeusinc.com> 
+ <Pine.LNX.4.53.0308171528110.32300@montezuma.mastecende.com>
+ <1061154986.1775.2.camel@iso-8590-lx.zeusinc.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 16, 2003 at 03:09:01PM +0100, Jamie Lokier wrote:
-> Maciej W. Rozycki wrote:
-> > On Fri, 15 Aug 2003, Vojtech Pavlik wrote:
-> > > > The PS/2 keyboard protocol is utterly absurd.
-> > > Yep. It's a dozen or more years of hack upon a hack.
-> >  Well, mode #3 with no translation in the i8042 looks quite sanely. 
+On Sun, 17 Aug 2003, Tom Sightler wrote:
+
+> On Sun, 2003-08-17 at 15:28, Zwane Mwaikambo wrote:
+> > On Sun, 17 Aug 2003, Tom Sightler wrote:
+> > 
+> > > I've recently upgraded to 2.6.0-test3-mm2 and part of my normal testing
+> > > involves a quick run of q3demo.  Under this kernel the system segfaults
+> > > when attempting to run this program.  Running strace I was able to
+> > > determine that this fails when it attempts to open the pak0.pk3 as
+> > > readonly.  Booting back to 2.6.0-test2-mm1 and the same program
+> > > continues to work perfectly.
+> > > 
+> > > Any ideas what might be going on here?  I haven't found any other
+> > > applications that exhibit such strange behavior but I'm still testing.
+> > 
+> > You may want to send over the entire strace log so that more people can 
+> > have a look.
 > 
-> What are the known problems with mode #3, then?
+> OK, it's not very long so I've just attached it here.  Thanks for any
+> help.
 
-It's broken on many keyboards (on some only slightly, like some keys not
-working properly). Other (special, either unix workstation or point of
-sale) keyboards need it to work properly.
-
-> That is, why doesn't everyone use it and why haven't they always used it?
-
-Because old AT keyboards didn't support it. Because the XT keyboard
-didn't support it. Because history sticks.
-
-> For that matter, what does Windows use?
-
-Translated Set 2. Actually an emulated XT keyboard.
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+And from -test2-mm1? =)

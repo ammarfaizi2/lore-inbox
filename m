@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265641AbSKFES3>; Tue, 5 Nov 2002 23:18:29 -0500
+	id <S265647AbSKFE0f>; Tue, 5 Nov 2002 23:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265643AbSKFES3>; Tue, 5 Nov 2002 23:18:29 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:50414 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S265641AbSKFES2>;
-	Tue, 5 Nov 2002 23:18:28 -0500
-Date: Tue, 5 Nov 2002 23:25:01 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: linux-kernel@vger.kernel.org
-Subject: [2.5.46] sleeping function called from illegal context (set_shrinker)
-Message-ID: <20021106042501.GB9489@www.kroptech.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+	id <S265649AbSKFE0f>; Tue, 5 Nov 2002 23:26:35 -0500
+Received: from seqserv.seqnet.net ([207.174.23.5]:16142 "EHLO seqnet.net")
+	by vger.kernel.org with ESMTP id <S265647AbSKFE0a>;
+	Tue, 5 Nov 2002 23:26:30 -0500
+Message-ID: <3DC89B7D.6000802@ucar.edu>
+Date: Tue, 05 Nov 2002 21:33:01 -0700
+From: vanandel@ucar.edu
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: karim@opersys.com, LTT-Dev <ltt-dev@shafik.org>
+Subject: please include LTT in the Linux kernel
+References: <3DC727CD.96EE29AE@opersys.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the one and only illegal sleep trace remaining for me on 2.5.46.
-Haven't seen it posted yet, apologies if it's a duplicate. Context
-included in case it's helpful.
+Karim Yaghmour wrote:
+> Apparently Linus doesn't see what this patch buys Linux. Since
+> I can't personally convince him otherwise, having written LTT
+> myself, here it is in the hope that others on the list actually
+> find it of some use.
 
---Adam
+I am quite interested in having LTT as a configurable option in the 
+Linux kernel.  My company (the National Center for Atmospheric Research) 
+uses networks of Linux computers to process data from weather radars. 
+Occasionally, we've had unexplained performance problems where the 
+system is slow to respond, even though the process load is low on each 
+computer and no process is "hogging" the CPU.  LTT would be extremely 
+valuable to help us diagnose such problems, since we could see the 
+interaction of our processing and radar display tasks with the kernel 
+and the NFS daemons.
 
-slab: reap timer started for cpu 0
-slab: reap timer started for cpu 1
-Starting kswapd
-aio_setup: sizeof(struct page) = 40
-[c1290040] eventpoll: driver installed.
-Debug: sleeping function called from illegal context at
-+include/asm/semaphore.h:119
-Call Trace:
- [<c013e032>] set_shrinker+0x52/0xa0
- [<c017a728>] mb_cache_create+0x1b8/0x270
- [<c017a420>] mb_cache_shrink_fn+0x0/0x150
- [<c0105094>] init+0x54/0x180
- [<c0105040>] init+0x0/0x180
- [<c01072ad>] kernel_thread_helper+0x5/0x18
+Also, we build Linux based data acquisition systems containing signal 
+processing cards.  LTT would really help us tune the performance of 
+these systems, since we could see how quickly our processes are 
+scheduled in response to interrupts from the signal processing cards.
 
-Journalled Block Device driver loaded
-Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+Please, include LTT in the Linux kernel.  Karim and others have 
+demonstrated that LTT has no impact on kernel performance if it is not 
+configured, and minimal impact even when tracing is enabled.  I've used 
+a commercial product (Stethoscope - sold by Real Time Innovations) when 
+doing real-time programming on VxWorks, and found it quite valuable.  If 
+LTT is included in the Linux kernel, Linux will be much more appealing 
+to the real-time and embedded programming community.
+
+
 

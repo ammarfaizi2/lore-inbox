@@ -1,288 +1,141 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261872AbTLWRDB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 12:03:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbTLWRC5
+	id S261779AbTLWQyx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 11:54:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbTLWQyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 12:02:57 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:55450 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S261872AbTLWRCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 12:02:43 -0500
-Date: Tue, 23 Dec 2003 18:01:18 +0100
-From: Christophe Saout <christophe@saout.de>
-To: Joe Thornber <thornber@sistina.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Fruhwirth Clemens <clemens@endorphin.org>
-Subject: Re: [PATCH 2/2][RFC] Add dm-crypt target
-Message-ID: <20031223170118.GA4384@leto.cs.pocnet.net>
-References: <1072129379.5570.73.camel@leto.cs.pocnet.net> <20031222215236.GB13103@leto.cs.pocnet.net> <20031223131355.A6864@infradead.org> <1072186582.4111.46.camel@leto.cs.pocnet.net> <20031223151545.GE476@reti> <20031223153143.GA28690@gtf.org> <20031223154325.GF476@reti>
+	Tue, 23 Dec 2003 11:54:53 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:29077 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261779AbTLWQyt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 11:54:49 -0500
+Date: Tue, 23 Dec 2003 17:54:28 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Pascal Schmidt <der.eremit@email.de>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-mm1
+Message-ID: <20031223165428.GD1601@suse.de>
+References: <Pine.LNX.4.44.0312231732001.926-100000@neptune.local> <20031223163913.GC23184@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031223154325.GF476@reti>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20031223163913.GC23184@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 23, 2003 at 03:43:25PM +0000, Joe Thornber wrote:
-
-> On Tue, Dec 23, 2003 at 10:31:43AM -0500, Jeff Garzik wrote:
-> > I agree w/ Christoph...  overly defensive programming like this just
-> > creates a new class of programmer errors, doesn't really solve anything.
-> > It's standard Linux kernel style, and making code look like all other
-> > code has benefits in review and debugging.  Finally, the programmer
-> > should be paying attention to what kernel APIs he/she uses, and add
-> > headers accordingly.
+On Tue, Dec 23 2003, Jens Axboe wrote:
+> On Tue, Dec 23 2003, Pascal Schmidt wrote:
+> > 
+> > On Tue, 23 Dec 2003 06:20:14 +0100, you wrote in linux.kernel:
+> > 
+> > >> +atapi-mo-support.patch
+> > >> 
+> > >>  Fix support for ATAPI MO drives (needs updating to reflect the changes 
+> > >>  in mt-ranier-support.patch).
+> > > Since the atapi-mo patch is mine, is there something I need to do?
+> > 
+> > I figured it out. ;) This small additional patch on top of mm1 is
+> > needed to get MO write support to work.
+> > 
+> > 
+> > --- linux-2.6.0-mm1/drivers/cdrom/cdrom.c	Tue Dec 23 17:26:27 2003
+> > +++ linux-2.6.0-mm1-mo/drivers/cdrom/cdrom.c	Tue Dec 23 17:11:50 2003
+> > @@ -708,6 +708,8 @@ static int cdrom_open_write(struct cdrom
+> >  		ret = cdrom_mrw_open_write(cdi);
+> >  	else if (CDROM_CAN(CDC_DVD_RAM))
+> >  		ret = cdrom_dvdram_open_write(cdi);
+> > +	else if (CDROM_CAN(CDC_MO_DRIVE))
+> > +		ret = 0;
 > 
-> ok, I don't feel strongly enough about it to argue, so we'll change it.
+> Still needs cleanups, as mentioned in the other mail. Let me dig out
+> the laptop and fix it up for posting.
 
-Ok, me too. :-)
+A general update patch against 2.6.0-mm1, Andrew can you apply this
+for now? Looks like there was a merge error with cdi->use_count as well
+in mm1.
 
-So how does this look?
+Pascal, if you could take care of the mode sense check for RO media (see
+comment) that would be perfect.
 
---- linux.orig/drivers/md/dm-crypt.c	2003-12-23 16:43:48.409077048 +0100
-+++ linux/drivers/md/dm-crypt.c	2003-12-23 16:52:11.946527720 +0100
-@@ -4,9 +4,6 @@
-  * This file is released under the GPL.
-  */
+diff -urp linux-2.6.0-mm1.virgin/drivers/cdrom/cdrom.c linux-2.6.0-mm1/drivers/cdrom/cdrom.c
+--- linux-2.6.0-mm1.virgin/drivers/cdrom/cdrom.c	2003-12-23 17:44:54.000000000 +0100
++++ linux-2.6.0-mm1/drivers/cdrom/cdrom.c	2003-12-23 17:50:56.320349076 +0100
+@@ -708,6 +708,11 @@ static int cdrom_open_write(struct cdrom
+ 		ret = cdrom_mrw_open_write(cdi);
+ 	else if (CDROM_CAN(CDC_DVD_RAM))
+ 		ret = cdrom_dvdram_open_write(cdi);
++	/*
++	 * needs to really check whether media is writeable
++	 */
++	else if (CDROM_CAN(CDC_MO_DRIVE))
++		ret = 0;
  
--#include "dm.h"
--#include "dm-daemon.h"
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/bio.h>
-@@ -16,6 +13,9 @@
- #include <linux/spinlock.h>
- #include <asm/scatterlist.h>
- 
-+#include "dm.h"
-+#include "dm-daemon.h"
-+
- /*
-  * per bio private data
-  */
-@@ -70,10 +70,10 @@
- #define MIN_POOL_PAGES 16
- #define MIN_BIO_PAGES  8
- 
--static kmem_cache_t *_io_cache;
-+static kmem_cache_t *crypt_io_pool;
- 
- /*
-- * Mempool alloc and free functions for the page and io pool
-+ * Mempool alloc and free functions for the page
-  */
- static void *mempool_alloc_page(int gfp_mask, void *data)
- {
-@@ -85,26 +85,6 @@
- 	__free_page(page);
+ 	return ret;
  }
- 
--static inline struct page *crypt_alloc_page(struct crypt_c *cc, int gfp_mask)
--{
--	return mempool_alloc(cc->page_pool, gfp_mask);
--}
--
--static inline void crypt_free_page(struct crypt_c *cc, struct page *page)
--{
--	 mempool_free(page, cc->page_pool);
--}
--
--static inline struct crypt_io *crypt_alloc_io(struct crypt_c *cc)
--{
--	return mempool_alloc(cc->io_pool, GFP_NOIO);
--}
--
--static inline void crypt_free_io(struct crypt_c *cc, struct crypt_io *io)
--{
--	return mempool_free(io, cc->io_pool);
--}
--
- /*
-  * Encrypt / decrypt a single sector, source and destination buffers
-  * are stored in scatterlists. In CBC mode initialise the "previous
-@@ -232,7 +212,7 @@
- 	for(i = bio->bi_idx; i < nr_iovecs; i++) {
- 		struct bio_vec *bv = bio_iovec_idx(bio, i);
- 
--		bv->bv_page = crypt_alloc_page(cc, gfp_mask);
-+		bv->bv_page = mempool_alloc(cc->page_pool, gfp_mask);
- 		if (!bv->bv_page)
- 			break;
- 
-@@ -276,7 +256,7 @@
- 
- 	while(bytes) {
- 		struct bio_vec *bv = bio_iovec_idx(bio, i++);
--		crypt_free_page(cc, bv->bv_page);
-+		mempool_free(bv->bv_page, cc->page_pool);
- 		bytes -= bv->bv_len;
- 	}
- }
-@@ -301,7 +281,7 @@
- 	if (io->bio)
- 		bio_endio(io->bio, io->bio->bi_size, io->error);
- 
--	crypt_free_io(cc, io);
-+	mempool_free(io, cc->io_pool);
- }
- 
- /*
-@@ -311,11 +291,11 @@
-  * interrupt context, so returning bios from read requests get
-  * queued here.
-  */
--static spinlock_t _kcryptd_lock = SPIN_LOCK_UNLOCKED;
--static struct bio *_bio_head;
--static struct bio *_bio_tail;
-+static spinlock_t kcryptd_lock = SPIN_LOCK_UNLOCKED;
-+static struct bio *kcryptd_bio_head;
-+static struct bio *kcryptd_bio_tail;
- 
--static struct dm_daemon _kcryptd;
-+static struct dm_daemon kcryptd;
- 
- /*
-  * Fetch a list of the complete bios.
-@@ -324,11 +304,11 @@
- {
- 	struct bio *bio;
- 
--	spin_lock_irq(&_kcryptd_lock);
--	bio = _bio_head;
-+	spin_lock_irq(&kcryptd_lock);
-+	bio = kcryptd_bio_head;
- 	if (bio)
--		_bio_head = _bio_tail = NULL;
--	spin_unlock_irq(&_kcryptd_lock);
-+		kcryptd_bio_head = kcryptd_bio_tail = NULL;
-+	spin_unlock_irq(&kcryptd_lock);
- 
- 	return bio;
- }
-@@ -340,16 +320,16 @@
- {
- 	unsigned long flags;
- 
--	spin_lock_irqsave(&_kcryptd_lock, flags);
--	if (_bio_tail)
--		_bio_tail->bi_next = bio;
-+	spin_lock_irqsave(&kcryptd_lock, flags);
-+	if (kcryptd_bio_tail)
-+		kcryptd_bio_tail->bi_next = bio;
+@@ -737,7 +742,7 @@ int cdrom_open(struct cdrom_device_info 
+ 	cdi->use_count++;
+ 	ret = -EROFS;
+ 	if (fp->f_mode & FMODE_WRITE) {
+-		if (!(CDROM_CAN(CDC_RAM) || CDROM_CAN(CDC_MO_DRIVE)))
++		if (!CDROM_CAN(CDC_RAM))
+ 			goto out;
+ 		if (cdrom_open_write(cdi))
+ 			goto out;
+@@ -750,8 +755,6 @@ int cdrom_open(struct cdrom_device_info 
  	else
--		_bio_head = bio;
--	_bio_tail = bio;
--	spin_unlock_irqrestore(&_kcryptd_lock, flags);
-+		kcryptd_bio_head = bio;
-+	kcryptd_bio_tail = bio;
-+	spin_unlock_irqrestore(&kcryptd_lock, flags);
- }
+ 		ret = open_for_data(cdi);
  
--static jiffy_t kcryptd(void)
-+static jiffy_t kcryptd_do_work(void)
- {
- 	int r;
- 	struct bio *bio;
-@@ -493,7 +473,7 @@
+-	if (!ret) cdi->use_count++;
+-
+ 	cdinfo(CD_OPEN, "Use count for \"/dev/%s\" now %d\n", cdi->name, cdi->use_count);
+ 	/* Do this on open.  Don't wait for mount, because they might
+ 	    not be mounting, but opening with O_NONBLOCK */
+diff -urp linux-2.6.0-mm1.virgin/drivers/ide/ide-cd.c linux-2.6.0-mm1/drivers/ide/ide-cd.c
+--- linux-2.6.0-mm1.virgin/drivers/ide/ide-cd.c	2003-12-23 17:44:54.000000000 +0100
++++ linux-2.6.0-mm1/drivers/ide/ide-cd.c	2003-12-23 17:49:12.404670677 +0100
+@@ -790,8 +790,8 @@ static int cdrom_decode_status(ide_drive
+ 				 * devices will return this error while flushing
+ 				 * data from cache */
+ 				if (!rq->errors)
+-					info->write_timeout = jiffies + ATAPI_WAIT_BUSY;
+-				rq->errors = 1;
++					info->write_timeout = jiffies + ATAPI_WAIT_WRITE_BUSY;
++				++rq->errors;
+ 				if (time_after(jiffies, info->write_timeout))
+ 					do_end_request = 1;
+ 				else {
+@@ -2950,6 +2950,7 @@ int ide_cdrom_probe_capabilities (ide_dr
+ 
+ 	if (drive->media == ide_optical) {
+ 		CDROM_CONFIG_FLAGS(drive)->mo_drive = 1;
++		CDROM_CONFIG_FLAGS(drive)->ram = 1;
+ 		printk("%s: ATAPI magneto-optical drive\n", drive->name);
+ 		return nslots;
  	}
+@@ -3281,9 +3282,7 @@ int ide_cdrom_setup (ide_drive_t *drive)
+ 	/*
+ 	 * set correct block size and read-only for non-ram media
+ 	 */
+-	set_disk_ro(drive->disk,
+-		!(CDROM_CONFIG_FLAGS(drive)->ram ||
+-			CDROM_CONFIG_FLAGS(drive)->mo_drive));
++	set_disk_ro(drive->disk, !CDROM_CONFIG_FLAGS(drive)->ram);
+ 	blk_queue_hardsect_size(drive->queue, CD_FRAMESIZE);
  
- 	cc->io_pool = mempool_create(MIN_IOS, mempool_alloc_slab,
--				     mempool_free_slab, _io_cache);
-+				     mempool_free_slab, crypt_io_pool);
- 	if (!cc->io_pool) {
- 		ti->error = "dm-crypt: Cannot allocate crypt io mempool";
- 		goto bad1;
-@@ -584,7 +564,7 @@
- 	if ((bio_rw(bio) == READ || bio_rw(bio) == READA)
- 	    && bio_flagged(bio, BIO_UPTODATE)) {
- 		kcryptd_queue_bio(bio);
--		dm_daemon_wake(&_kcryptd);
-+		dm_daemon_wake(&kcryptd);
- 		return 0;
- 	}
+ #if 0
+diff -urp linux-2.6.0-mm1.virgin/drivers/ide/ide-cd.h linux-2.6.0-mm1/drivers/ide/ide-cd.h
+--- linux-2.6.0-mm1.virgin/drivers/ide/ide-cd.h	2003-12-23 17:44:54.000000000 +0100
++++ linux-2.6.0-mm1/drivers/ide/ide-cd.h	2003-12-23 17:48:19.939386898 +0100
+@@ -39,7 +39,7 @@
+  * typical timeout for packet command
+  */
+ #define ATAPI_WAIT_PC		(60 * HZ)
+-#define ATAPI_WAIT_BUSY		(5 * HZ)
++#define ATAPI_WAIT_WRITE_BUSY	(10 * HZ)
  
-@@ -597,7 +577,7 @@
- static int crypt_map(struct dm_target *ti, struct bio *bio)
- {
- 	struct crypt_c *cc = (struct crypt_c *) ti->private;
--	struct crypt_io *io = crypt_alloc_io(cc);
-+	struct crypt_io *io = mempool_alloc(cc->io_pool, GFP_NOIO);
- 	struct bio *clone = NULL;
- 	struct convert_context ctx;
- 	unsigned int remaining = bio->bi_size;
-@@ -675,7 +655,7 @@
- 	}
+ /************************************************************************/
  
- 	/* if no bio has been dispatched yet, we can directly return the error */
--	crypt_free_io(cc, io);
-+	mempool_free(io, cc->io_pool);
- 	return r;
- }
- 
-@@ -740,48 +720,45 @@
- 	.status = crypt_status,
- };
- 
--int __init dm_crypt_init(void)
-+static int __init dm_crypt_init(void)
- {
- 	int r;
- 
--	_io_cache = kmem_cache_create("dm-crypt_io", sizeof(struct crypt_io),
--	                              0, 0, NULL, NULL);
--	if (!_io_cache)
-+	crypt_io_pool = kmem_cache_create("dm-crypt_io", sizeof(struct crypt_io),
-+	                                  0, 0, NULL, NULL);
-+	if (!crypt_io_pool)
- 		return -ENOMEM;
- 
--	r = dm_daemon_start(&_kcryptd, "kcryptd", kcryptd);
-+	r = dm_daemon_start(&kcryptd, "kcryptd", kcryptd_do_work);
- 	if (r) {
- 		DMERR("couldn't create kcryptd: %d", r);
--		kmem_cache_destroy(_io_cache);
-+		kmem_cache_destroy(crypt_io_pool);
- 		return r;
- 	}
- 
- 	r = dm_register_target(&crypt_target);
- 	if (r < 0) {
- 		DMERR("crypt: register failed %d", r);
--		dm_daemon_stop(&_kcryptd);
--		kmem_cache_destroy(_io_cache);
-+		dm_daemon_stop(&kcryptd);
-+		kmem_cache_destroy(crypt_io_pool);
- 	}
- 
- 	return r;
- }
- 
--void __exit dm_crypt_exit(void)
-+static void __exit dm_crypt_exit(void)
- {
- 	int r = dm_unregister_target(&crypt_target);
- 
- 	if (r < 0)
- 		DMERR("crypt: unregister failed %d", r);
- 
--	dm_daemon_stop(&_kcryptd);
--	kmem_cache_destroy(_io_cache);
-+	dm_daemon_stop(&kcryptd);
-+	kmem_cache_destroy(crypt_io_pool);
- }
- 
--/*
-- * module hooks
-- */
--module_init(dm_crypt_init)
--module_exit(dm_crypt_exit)
-+module_init(dm_crypt_init);
-+module_exit(dm_crypt_exit);
- 
- MODULE_AUTHOR("Christophe Saout <christophe@saout.de>");
- MODULE_DESCRIPTION(DM_NAME " target for transparent encryption / decryption");
+
+-- 
+Jens Axboe
 

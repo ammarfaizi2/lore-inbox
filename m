@@ -1,68 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268488AbUILGhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268497AbUILGz3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268488AbUILGhK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 02:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268496AbUILGhK
+	id S268497AbUILGz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 02:55:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268501AbUILGz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 02:37:10 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:23820 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S268488AbUILGhG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 02:37:06 -0400
-Date: Sun, 12 Sep 2004 08:36:55 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Nigel Kukard <nkukard@lbsd.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: CPU Context corruption
-Message-ID: <20040912063655.GB1444@alpha.home.local>
-References: <4142DF44.7010900@lbsd.net> <1094906455.21088.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094906455.21088.2.camel@localhost.localdomain>
-User-Agent: Mutt/1.4i
+	Sun, 12 Sep 2004 02:55:28 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:30577 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S268497AbUILGzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Sep 2004 02:55:24 -0400
+Message-ID: <4143E6C6.40908@yahoo.com.au>
+Date: Sun, 12 Sep 2004 16:03:50 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [pagevec] resize pagevec to O(lg(NR_CPUS))
+References: <20040909163929.GA4484@logos.cnet> <20040909155226.714dc704.akpm@osdl.org> <20040909230905.GO3106@holomorphy.com> <20040909162245.606403d3.akpm@osdl.org> <20040910000717.GR3106@holomorphy.com> <414133EB.8020802@yahoo.com.au> <20040910174915.GA4750@logos.cnet> <20040912045636.GA2660@holomorphy.com> <4143D07E.3030408@yahoo.com.au> <20040912062703.GF2660@holomorphy.com>
+In-Reply-To: <20040912062703.GF2660@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 11, 2004 at 01:40:55PM +0100, Alan Cox wrote:
-> On Sad, 2004-09-11 at 12:19, Nigel Kukard wrote:
-> > What does this error mean?
-> > 
-> > 
-> > CPU 0: Machine Check Exception: 0000000000000004
-> > Bank 0: 820000001040080F
-> > 
-> > 
-> > I have a Matsonic 9097c motherboard, 2.4Ghz prescott celeron cpu. This 
-> > error seems to be random. We have replaced the motherboard & cpu to no 
-> > avail.
+William Lee Irwin III wrote:
+> William Lee Irwin III wrote:
 > 
-> It normally indicates a hardware problem. The precise meaning of all the
-> bits is in the Intel chip docs (volume 3). If you've swapped the
-> mainboard/cpu it might just be bad RAM.
+>>>No, it DTRT. Batching does not directly compensate for increases in
+>>>arrival rates, rather most directly compensates for increases to lock
+>>>transfer times, which do indeed increase on systems with large numbers
+>>>of cpus.
+> 
+> 
+> On Sun, Sep 12, 2004 at 02:28:46PM +1000, Nick Piggin wrote:
+> 
+>>Generally though I think you could expect the lru lock to be most
+>>often taken by the scanner by node local CPUs. Even on the big
+>>systems. We'll see.
+> 
+> 
+> No, I'd expect zone->lru_lock to be taken most often for lru_cache_add()
+> and lru_cache_del().
+> 
 
-He can also get precise info with Dave Jones' parsemce tool :
+Well "lru_cache_del" will be often coming from the scanner.
+lru_cache_add should be being performed on newly allocated pages,
+which should be node local most of the time.
 
-    http://www.kernel.org/pub/linux/kernel/people/davej/tools/
+> 
+> William Lee Irwin III wrote:
+> 
+>>>A 511 item pagevec is 4KB on 64-bit machines.
+> 
+> 
+> On Sun, Sep 12, 2004 at 02:28:46PM +1000, Nick Piggin wrote:
+> 
+>>Sure. And when you fill it with pages, they'll use up 32KB of dcache
+>>by using a single 64B line per page. Now that you've blown the cache,
+>>when you go to move those pages to another list, you'll have to pull
+>>them out of L2 again one at a time.
+> 
+> 
+> There can be no adequate compile-time metric of L1 cache size. 64B
+> cachelines with 16KB caches sounds a bit small, 256 entries, which is
+> even smaller than TLB's on various systems.
+> 
 
-It currently says :
+Although I'm pretty sure that is what Itanium 2 has. P4s may even
+have 128B lines and 16K L1 IIRC.
 
-	Status: (4) Machine Check in progress.
-	Restart IP invalid.
-	parsebank(0): 820000001040080f @ 0
-		External tag parity error
-		CPU state corrupt. Restart not possible
-		Bus and interconnect error
-		Participation: Local processor originated request
-		Timeout: Request did not timeout
-		Request: Generic error
-		Transaction type : Invalid
-		Memory/IO : Other
+> In general a hard cap at the L1 cache size would be beneficial for
+> operations done in tight loops, but there is no adequate detection
+> method. Also recall that the page structures things will be touched
+> regardless if they are there to be touched in a sufficiently large
+> pagevec.  Various pagevecs are meant to amortize locking done in
+> scenarios where there is no relationship between calls. Again,
+> lru_cache_add() and lru_cache_del() are the poster children. These
+> operations are often done for one page at a time in some long codepath,
+> e.g. fault handlers, and the pagevec is merely deferring the work until
+> enough has accumulated. radix_tree_gang_lookup() and mpage_readpages()
+> OTOH execute the operations to be done under the locks in tight loops,
+> where the lock acquisitions are to be done immediately by the same caller.
+> 
+> This differentiation between the characteristics of pagevec users
+> happily matches the cases where they're used on-stack and per-cpu.
+> In the former case, larger pagevecs are desirable, as the cachelines
+> will not be L1-hot regardless; in the latter, L1 size limits apply.
+> 
 
-Since it says it's neither memory nor I/O, I think it might be related to
-a PCI parity error with some card, either during transfers or config access.
+Possibly, I don't know. Performing a large stream of faults to
+map in a file could easily keep all pages of a small pagevec
+in cache.
 
-Regards,
-Willy
+Anyway, the point I'm making is just that you don't want to be
+expanding this thing just because you can. If all else is equal,
+a smaller size is obviously preferable. So obviously, simple
+testing is required - but I don't think I need to be telling you
+that ;)
 
+> 
+> On Sun, Sep 12, 2004 at 02:28:46PM +1000, Nick Piggin wrote:
+> 
+>>OK, so a 511 item pagevec is pretty unlikely. How about a 64 item one
+>>with 128 byte cachelines, and you're touching two cachelines per
+>>page operation? That's 16K.
+> 
+> 
+> 4*lg(NR_CPUS) is 64 for 16x-31x boxen. No constant number suffices.
+> Adaptation to systems and the usage cases would be an improvement.
+> 
+
+Ignore my comments about disliking compile time sizing: the main
+thing is to just find improvements, and merge-worthy implementation
+can follow.

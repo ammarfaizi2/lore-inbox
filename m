@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316322AbSE3FLZ>; Thu, 30 May 2002 01:11:25 -0400
+	id <S316364AbSE3Fej>; Thu, 30 May 2002 01:34:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316324AbSE3FLY>; Thu, 30 May 2002 01:11:24 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:35590 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316322AbSE3FLX>; Thu, 30 May 2002 01:11:23 -0400
-Date: Wed, 29 May 2002 22:10:36 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Martin Dalecki <dalecki@evision-ventures.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Framebuffer policy [ was Re: Linux 2.5.19]
-In-Reply-To: <20020530003133.H30585@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10205292154360.12660-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316367AbSE3Fei>; Thu, 30 May 2002 01:34:38 -0400
+Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:531 "EHLO
+	server01.nullzone.prv") by vger.kernel.org with ESMTP
+	id <S316364AbSE3Fei>; Thu, 30 May 2002 01:34:38 -0400
+Message-Id: <5.1.0.14.2.20020530073357.00cba7d8@192.168.2.131>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Thu, 30 May 2002 07:35:18 +0200
+To: linux-kernel@vger.kernel.org
+From: system_lists@nullzone.org
+Subject: 2.5.19 - raid1 erros on compile
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> This is about people who think they're god nicking patches from
-> the author and maintainer of drivers and bypassing the maintainer
-> completely.
+I have problems compiling kernel with raid1 support.
 
-Please no fighting. It is clear the problem is the lack of order here.
-I understand how Russell feels. Most of the time people send in new fbdev
-drivers or good size patches without consulting me or Geert first. I have
-to say it has gotten better. So here goes for policy time:
+Any idea?
 
---------------------------------------------------------------------
-             Framebuffer driver policy.
+thanks
 
-1) Basic one or few line fixes for drivers can go straight into the
-   kernel. Please don't abuse this.
-
-2) All new drivers must be posted to the fbdev developement list for
-   peer review. Me and/or geert have final fword about them going in.
-   Please note we do get busy so just harass me about your driver. I
-   will not be offended and it pushs me to go do it. I'm the type of
-   person if I don't do it right away I will forget.
-
-   linux-fbdev-devel@lists.sourceforge.net
-
-3) Large changes should be posted to both the framebuffer list and the
-   kernel mailing list as well to the framebuffer author if they
-   are know. Again it is for peer review and wide scale testing. We 
-   need to make clear what drivers where effect. And yes if you are the 
-   maintainer of a driver you should mail yourself. It makes it easier
-   for users to reply to you directly.  
-
-If no one follows these rules then their changes will be ignored. No
-exceptions including for myself.
-
------------------------------------------------------------------
-How does this sound? Again sorry about the confusion.
+make[2]: Entering directory `/usr/src/linux-2.5.19/drivers/md'
+gcc -D__KERNEL__ -I/usr/src/linux-2.5.19/include -Wall -Wstrict-prototypes 
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common 
+-pipe -mpreferred-stack-boundary=2 
+-march=i686    -DKBUILD_BASENAME=raid1  -c -o raid1.o raid1.c
+raid1.c: In function `device_barrier':
+raid1.c:412: `tq_disk' undeclared (first use in this function)
+raid1.c:412: (Each undeclared identifier is reported only once
+raid1.c:412: for each function it appears in.)
+raid1.c: In function `make_request':
+raid1.c:449: `tq_disk' undeclared (first use in this function)
+raid1.c: In function `close_sync':
+raid1.c:651: `tq_disk' undeclared (first use in this function)
+make[2]: *** [raid1.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.19/drivers/md'
+make[1]: *** [_subdir_md] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.19/drivers'
+make: *** [drivers] Error 2
 
 
 

@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264375AbTDXUkC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 16:40:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTDXUkC
+	id S263458AbTDXUvJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 16:51:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTDXUvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 16:40:02 -0400
-Received: from cerebus.wirex.com ([65.102.14.138]:33269 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id S264375AbTDXUj5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 16:39:57 -0400
-Date: Thu, 24 Apr 2003 13:47:02 -0700
-From: Chris Wright <chris@wirex.com>
-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
-       Stephen Tweedie <sct@redhat.com>, lsm <linux-security-module@wirex.com>,
-       Andreas Gruenbacher <a.gruenbacher@computer.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
-Message-ID: <20030424134702.H15094@figure1.int.wirex.com>
-Mail-Followup-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-	Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@transmeta.com>, Ted Ts'o <tytso@mit.edu>,
-	Stephen Tweedie <sct@redhat.com>,
-	lsm <linux-security-module@wirex.com>,
-	Andreas Gruenbacher <a.gruenbacher@computer.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil> <20030423202614.A5890@infradead.org> <1051127534.14761.166.camel@moss-huskers.epoch.ncsc.mil> <20030423212004.A7383@infradead.org> <1051188945.14761.284.camel@moss-huskers.epoch.ncsc.mil> <20030424140358.A30888@infradead.org> <1051192166.14761.334.camel@moss-huskers.epoch.ncsc.mil> <20030424113615.F15094@figure1.int.wirex.com> <1051210971.20300.89.camel@moss-huskers.epoch.ncsc.mil> <20030424134040.T26054@schatzie.adilger.int>
+	Thu, 24 Apr 2003 16:51:08 -0400
+Received: from ant.hiwaay.net ([216.180.54.10]:53256 "EHLO mail.hiwaay.net")
+	by vger.kernel.org with ESMTP id S263458AbTDXUvH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 16:51:07 -0400
+Date: Thu, 24 Apr 2003 16:03:16 -0500
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Flame Linus to a crisp!
+Message-ID: <20030424210316.GE735921@hiwaay.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030424134040.T26054@schatzie.adilger.int>; from adilger@clusterfs.com on Thu, Apr 24, 2003 at 01:40:40PM -0600
+In-Reply-To: <20030424205035.GE30082@mail.jlokier.co.uk>
+User-Agent: Mutt/1.4i
+Organization: HiWAAY Internet Services
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andreas Dilger (adilger@clusterfs.com) wrote:
-> 
-> Couldn't that be used to do the trusted-namespace- means-CAP_SYS_ADMIN
-> checks, but it can be replaced by other LSM security modules if desired?
+Once upon a time, Jamie Lokier  <jamie@shareable.org> said:
+>I wonder whether the FSF shouldn't fork the GPLv3 into two versions,
+>according to what philosophy GPLv2 users would like to adopt for their
+>own projects :)  (In principle, only the FSF is able to alter the
+>license of a many-authored GPL'd project like Linux.  It would be
+>unfortunate if they used that special status to promote an agenda
+>which a large number existing GPL users disliked).
 
-I think that's what Stephen is saying.  The issue is, the "trusted."
-handler uses CAP_SYS_ADMIN internally, after any other LSM check has
-already occurred.  And the capable() check is too simple to know things
-like which inode's xattr is in question at the moment or which namespace.
-So Stephen was suggesting moving it out of the handler and putting it
-in core code.
+They can't affect the license of Linux because COPYING included with the
+kernel says:
 
-cheers,
--chris
+ Also note that the only valid version of the GPL as far as the kernel
+ is concerned is _this_ particular version of the license (ie v2, not
+ v2.2 or v3.x or whatever), unless explicitly otherwise stated.
+
+Now, IIRC, that paragraph was added after the fact, so someone could go
+back to a version before that paragraph and fork under a new version of
+the GPL, however they could not take any code from the current versions
+of the kernel.
+
+About 20% of the files in the kernel include the "at your option" clause
+(this is from looking at the source to RH's 2.4.20-8).
+
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263824AbTEGO45 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 10:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbTEGO44
+	id S263618AbTEGOxb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 10:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263630AbTEGOxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 10:56:56 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:32502 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S263824AbTEGO4s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 10:56:48 -0400
-Message-ID: <3EB92176.8010803@mvista.com>
-Date: Wed, 07 May 2003 08:08:38 -0700
-From: george anzinger <george@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
+	Wed, 7 May 2003 10:53:31 -0400
+Received: from pat.uio.no ([129.240.130.16]:4229 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263618AbTEGOxa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 10:53:30 -0400
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: "David S. Miller" <davem@redhat.com>, akpm@zip.com.au,
-       kbuild-devel@lists.sourceforge.net, mec@shout.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] asm-generic magic
-References: <3EB75924.1080304@mvista.com> <1052205991.983.13.camel@rth.ninka.net> <3EB817C9.8020603@mvista.com> <20030506.195511.74729679.davem@redhat.com> <3EB8D36E.10206@mvista.com> <20030507143059.GA1057@mars.ravnborg.org>
-In-Reply-To: <20030507143059.GA1057@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16057.8409.117109.345706@charged.uio.no>
+Date: Wed, 7 May 2003 17:06:01 +0200
+To: Vladimir Serov <vserov@infratel.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] nfs client stuck in D state in linux 2.4.17 - 2.4.21-pre5
+In-Reply-To: <3EB91B6F.9020204@infratel.com>
+References: <20030318155731.1f60a55a.skraw@ithnet.com>
+	<3E79EAA8.4000907@infratel.com>
+	<15993.60520.439204.267818@charged.uio.no>
+	<3E7ADBFD.4060202@infratel.com>
+	<shsof45nf58.fsf@charged.uio.no>
+	<3E7B0051.8060603@infratel.com>
+	<15995.578.341176.325238@charged.uio.no>
+	<3E7B10DF.5070005@infratel.com>
+	<15995.5996.446164.746224@charged.uio.no>
+	<3E7B1DF9.2090401@infratel.com>
+	<15995.10797.983569.410234@charged.uio.no>
+	<3EB91B6F.9020204@infratel.com>
+X-Mailer: VM 7.07 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Wed, May 07, 2003 at 02:35:42AM -0700, george anzinger wrote:
-> 
->>If the arch wanted to supply only some of the content, the configure 
->>option as is used with some today, is still available.  CURRENT USAGE 
->>IS NOT AFFECTED.
-> 
-> 
-> The usage of magic symlinks shall be kept minimal. 
-> The asm -> $(ARCH)-asm symlink already has caused me troubles when
-> doing cross compilation. Also the separate obj tree patch treats
-> the symlink with special care.
-> 
-> the gain should be high introducing one more symlink.
-> For what I understood the gain is only to avoid a couple of
-> one line files that include another file. Not enough to justify a 
-> second symlink IMHO.
+>>>>> Vladimir Serov <vserov@infratel.com> writes:
 
-That is a good point.  To the other side, the symlink is arch 
-independent and is just "asm->."  Also, if you are introducing a file 
-with asm code, you either cause all "other" archs to fail (till they 
-catch up) or you must introduce the simple one line file in each arch.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+     > when things are OK. Also the rpc client in this request is
+     > c0d75060 which is mentioned in rpc queue status:
 
+     > -pid- proc flgs status -client- -prog- --rqstp- -timeout
+     > -rpcwait -action- --exit--
+     > 09150 0001 0000 000000 c0d75060 100003 c8f99074 00000000
+     > <NULL> c00f17b8 0
+
+
+Looks like there is a hanging GETATTR call from another process that
+is blocking your process.
+
+Which procedure does c00f17b8 correspond to? You can use gdb on the
+'vmlinux' file (NB!: *not* the compressed vmlinuz), then
+'disassemble 0xc00f17b8').
+
+Cheers,
+  Trond

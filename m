@@ -1,47 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbUL0Fky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbUL0FwY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUL0Fky (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 00:40:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbUL0Fky
+	id S261750AbUL0FwY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 00:52:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUL0FwY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 00:40:54 -0500
-Received: from orcas.net ([66.92.223.130]:36259 "EHLO orcas.net")
-	by vger.kernel.org with ESMTP id S261752AbUL0Fkt (ORCPT
+	Mon, 27 Dec 2004 00:52:24 -0500
+Received: from [202.125.86.130] ([202.125.86.130]:11443 "EHLO
+	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
+	id S261750AbUL0FwT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 00:40:49 -0500
-Date: Sun, 26 Dec 2004 21:32:24 -0800 (PST)
-From: Terry Hardie <terryh@orcas.net>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Asus P4C800-E Deluxe and Intel Pro/1000
-In-Reply-To: <200411112003.43598.Gregor.Jasny@epost.de>
-Message-ID: <Pine.LNX.4.58.0412262127510.3478@orcas.net>
-References: <6.1.1.1.0.20041108074026.01dead50@ptg1.spd.analog.com>
- <200411112003.43598.Gregor.Jasny@epost.de>
+	Mon, 27 Dec 2004 00:52:19 -0500
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: request for member magic in something not a structure or union
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Date: Mon, 27 Dec 2004 11:26:14 +0530
+Message-ID: <4EE0CBA31942E547B99B3D4BFAB348112B85F6@mail.esn.co.in>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: request for member magic in something not a structure or union
+Thread-Index: AcTr1amM1PeavxxIQR237V3ouqmR2wAAAtLQ
+From: "Srinivas G." <srinivasg@esntechnologies.co.in>
+To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well, this has been plauging me for months, and finally figured it out.
+Dear All,
+ 
+I am new to the Fedora Linux. I worked on SuSE and Red Hat Linux. Now I am using Fedora Core 3 with 2.6.9-1.667 kernel version.
+ 
+I got a problem while compiling a module, but the same module is 
+working under SuSE 9.1 with 2.6.5, 2.6.6, 2.6.8 and 2.6.9 kernel versions.
+ 
+I understood that the error messages are related to spin_lock_irqsave and 
+spin_lock_init only. If I comment those two lines the compilation is OK.
 
-Any 2.6 kernel on my board, would boot, then give errors (paraphrased,
-sorry) when I tried to bring up the ethernet:
+The error messages are ---
 
-NETDEV WATCHDOG: eth0: transmit timed out
-IRQ #18: Nobody cared!
-
-And no ethernet conectivity.
-
-The Fix: Update bios from asus' website. I guess their ACPI was screwed
-up. This is the second time I've had to update this MB to fix
-incompatibilities with Linux. So, watch out with Asus boards on Linux.
-
-BTW - Linux 2.4's driver worked fine with the old bios. Only 2.6 didn't
-work.
-
-
----
-Terry Hardie					terry@net.com
-SHOUTip System Architect & Principal Engineer	ICQ#: 977679
-net.com, 6900 Paseo Padre Parkway
-Fremont, CA 94555, USA				V: +1-510-574-2366
+ /home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c: In function `do_tifm_transfer':
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `magic' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `lock' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `babble' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `babble' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `module' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `owner' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `oline' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `lock' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `owner' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `oline' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `magic' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `lock' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `babble' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `babble' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `module' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `lock' in something not a structure or union
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c: In function `gendisk_init':
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
+/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
+make[2]: *** [/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.o] Error 1
+make[1]: *** [_module_/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source] Error 2
+make: *** [default] Error 2
+ 
+Please any help greatly appreciated. 
+Thanks in advance.
+ 
+Regards,
+Srinivas G

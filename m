@@ -1,116 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318760AbSH1IIa>; Wed, 28 Aug 2002 04:08:30 -0400
+	id <S318762AbSH1INR>; Wed, 28 Aug 2002 04:13:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318761AbSH1IIa>; Wed, 28 Aug 2002 04:08:30 -0400
-Received: from elin.scali.no ([62.70.89.10]:14858 "EHLO elin.scali.no")
-	by vger.kernel.org with ESMTP id <S318760AbSH1II2>;
-	Wed, 28 Aug 2002 04:08:28 -0400
-Date: Wed, 28 Aug 2002 10:06:19 +0200 (CEST)
-From: Steffen Persvold <sp@scali.com>
-X-X-Sender: sp@sp-laptop.isdn.scali.no
-To: linux-kernel@vger.kernel.org
-cc: beowulf@beowulf.org
-Subject: Channel bonding GbE (Tigon3)
-In-Reply-To: <Pine.LNX.4.44.0208271934180.18659-100000@sp-laptop.isdn.scali.no>
-Message-ID: <Pine.LNX.4.44.0208280933250.9999-100000@sp-laptop.isdn.scali.no>
+	id <S318765AbSH1INR>; Wed, 28 Aug 2002 04:13:17 -0400
+Received: from c65.h202052108.is.net.tw ([202.52.108.65]:9877 "EHLO
+	webmail.iei.com.tw") by vger.kernel.org with ESMTP
+	id <S318762AbSH1INR>; Wed, 28 Aug 2002 04:13:17 -0400
+Message-ID: <00cf01c24e6b$678127e0$1d0d11ac@ieileb9wqxg5qq>
+From: "Kevin Liao" <kevinliao@iei.com.tw>
+To: "Kernel Mailing List" <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.33.0208271239580.2564-100000@penguin.transmeta.com> <20020828081412.GA1496@spunk>
+Subject: Writing files to remote storage
+Date: Wed, 28 Aug 2002 16:17:50 +0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
+X-MIMETrack: Itemize by SMTP Server on webmail/iei2(Release 5.0.8 |June 18, 2001) at
+ 2002/08/28 04:18:12 PM,
+	Serialize by Router on webmail/iei2(Release 5.0.8 |June 18, 2001) at 2002/08/28
+ 04:18:19 PM,
+	Serialize complete at 2002/08/28 04:18:19 PM
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear all,
 
-Sorry for reposting this one guys, but I noticed that my original email 
-had no subject (which in some cases doesn't get peoples attention :)
+I don't know whether it's proper to post such a problem in this mailing
+list,
+but I guess someone here could help me...
 
-On Tue, 27 Aug 2002, Steffen Persvold wrote:
+If I mount a remote linux partition through smb or nfs and write one file to
+that partition. How could I make sure that that file is really written to
+the remote disk successfully? I know that some cache mechanisms existed in
+linux kernel. So I guess there may be two possibilities as below:
 
-> Dear list people,
-> 
-> Lately I've been testing out a couple of Dell PowerEdge 2650 machines. 
-> These babies have dual onboard BCM95701A10 NICs (Tigon3 chip) mounted 
-> in the same PCI-X 133MHz 64 bit bus.
-> 
-> Since they have dual onboard GbE, I've been trying to channel bond them 
-> using just two crossover cables between two machines. The results I'm 
-> seeing is at the first glance very strange. What I see is that the 
-> performance when bonded (round robin) is about _half_ (and sometimes even 
-> less) compared to just using a single interface. Here are some netpipe-2.4 
-> results :
-> 
-> 64k message size, single interface
->   1:     65536 bytes  190 times -->  760.54 Mbps in 0.000657 sec
-> 
-> 256k message size, single interface
->   1:    262144 bytes   53 times -->  855.04 Mbps in 0.002339 sec
-> 
-> 64 message size, both interfaces (using round robin)
->   1:     65536 bytes   65 times -->  257.06 Mbps in 0.001945 sec
-> 
-> 256k message size, both interfaces (using round robin)
->   1:    262144 bytes   25 times -->  376.01 Mbps in 0.005319 sec
-> 
-> Looking at the output of netstat -s after a testrun with 256k message 
-> size, I see some differences (main items) :
-> 
-> Single interface :
->  Tcp:
->       0 segments retransmited
-> 
->  TcpExt:
->      109616 packets directly queued to recvmsg prequeue.
->      52249581 packets directly received from backlog
->      125694404 packets directly received from prequeue
->      78 packets header predicted
->      124999 packets header predicted and directly queued to user
->      TCPPureAcks: 93
->      TCPHPAcks: 22981
-> 
->       
-> Bonded interfaces :
->   Tcp:
->       234 segments retransmited
-> 
->   TcpExt:
->       1 delayed acks sent
->       Quick ack mode was activated 234 times
->       67087 packets directly queued to recvmsg prequeue.
->       6058227 packets directly received from backlog
->       13276665 packets directly received from prequeue
->       6232 packets header predicted
->       4625 packets header predicted and directly queued to user
->       TCPPureAcks: 25708
->       TCPHPAcks: 4456
-> 
-> 
-> The biggest difference as far as I can see is the 'packtes header 
-> predicted', 'packets header predicted and directly queued to user', 
-> 'TCPPureAcks' and TCPHPAcks.
-> 
-> I have an idea that this happens because the packets are comming out of 
-> order into the receiving node (i.e the bonding device is alternating 
-> between each interface when sending, and when the receiving node gets the 
-> packets it is possible that the first interface get packets number 0, 2, 
-> 4 and 6 in one interrupt and queues it to the network stack before packet 
-> 1, 3, 5 is handled on the other interface).
-> 
-> If this is the case, any ideas how to fix this...
-> 
-> I would really love to get 2Gbit/sec on these machines....
-> 
-> 
-> PS
-> 
-> I've also seen this feature on the Intel GbE cards (e1000), but these 
-> drivers has a parameter named RxIntDelay which can be set to 0 to get 
-> interrupt for each packet. Is this possible with the tg3 driver too ?
-> 
-> DS
-> 
-> Regards,
--- 
-  Steffen Persvold   |       Scali AS      
- mailto:sp@scali.com | http://www.scali.com
-Tel: (+47) 2262 8950 |  Olaf Helsets vei 6
-Fax: (+47) 2262 8951 |  N0621 Oslo, NORWAY
+1. After the call write() returns successfully, the file has been actually
+in the local cache and then submit to remote cache later.
+2. After the call write() returns successfully, the file has been actually
+in the remote cache and then submit to remote disk later.
+
+Then, no matter which one of the above two situations happens, the data is
+not yet written to the physical storage at that time, right? Should I need
+to call fsync() each time after calling write()? Thanks a lot!
+
+Regards,
+Kevin
+
 

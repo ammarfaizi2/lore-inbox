@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269362AbUIIHGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269361AbUIIHha@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269362AbUIIHGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 03:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269364AbUIIHGZ
+	id S269361AbUIIHha (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 03:37:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269364AbUIIHha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 03:06:25 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:3256 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S269362AbUIIHGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 03:06:24 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: swsusp on x86-64 w/ nforce3
-Date: Thu, 9 Sep 2004 09:06:59 +0200
-User-Agent: KMail/1.6.2
-References: <200409061836.21505.rjw@sisk.pl> <200409082252.38350.rjw@sisk.pl> <20040909011802.GN8142@atomide.com>
-In-Reply-To: <20040909011802.GN8142@atomide.com>
-MIME-Version: 1.0
+	Thu, 9 Sep 2004 03:37:30 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:3227 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S269361AbUIIHh2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 03:37:28 -0400
+Date: Thu, 9 Sep 2004 09:35:23 +0200
+From: Jens Axboe <axboe@suse.de>
+To: blaisorblade_spam@yahoo.it
+Cc: akpm@osdl.org, jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [patch 1/1] uml:fix ubd deadlock on SMP
+Message-ID: <20040909073523.GH1737@suse.de>
+References: <20040908172503.384144933@zion.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200409090906.59109.rjw@sisk.pl>
+In-Reply-To: <20040908172503.384144933@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 of September 2004 03:18, Tony Lindgren wrote:
-> * Rafael J. Wysocki <rjw@sisk.pl> [040908 13:52]:
-> > On Wednesday 08 of September 2004 22:42, Tony Lindgren wrote:
-> > > 
-> > > Just FYI, swsusp works nicely here on my m6805 laptop :)
-> > 
-> > Can you, please, send me your .config?
-> 
-> You can get my current m6805 .config at (I just updated it):
-> 
-> http://www.muru.com/linux/amd64/config
+On Wed, Sep 08 2004, blaisorblade_spam@yahoo.it wrote:
+> diff -puN arch/um/drivers/ubd_kern.c~uml-fix-ubd-deadlock arch/um/drivers/ubd_kern.c
+> --- uml-linux-2.6.8.1/arch/um/drivers/ubd_kern.c~uml-fix-ubd-deadlock	2004-09-08 19:04:27.662926344 +0200
+> +++ uml-linux-2.6.8.1-paolo/arch/um/drivers/ubd_kern.c	2004-09-08 19:05:36.700431048 +0200
+> @@ -54,6 +54,7 @@
+>  #include "mem.h"
+>  #include "mem_kern.h"
+>  
+> +/*This is the queue lock. FIXME: make it per-UBD device.*/
+>  static spinlock_t ubd_io_lock = SPIN_LOCK_UNLOCKED;
+>  static spinlock_t ubd_lock = SPIN_LOCK_UNLOCKED;
 
-Thanks a lot,
-RJW
+probably not worth it to make it per-device. doing so should be a simple
+search-replace job, though.
+
+> @@ -396,14 +397,16 @@ int thread_fd = -1;
+>   */
+>  int intr_count = 0;
+>  
+> -static void ubd_finish(struct request *req, int error)
+> +static inline void __ubd_finish(struct request *req, int error, int lock)
+>  {
+>  	int nsect;
+>  
+>  	if(error){
+> - 		spin_lock(&ubd_io_lock);
+> +		if (lock)
+> +			spin_lock(&ubd_io_lock);
+>  		end_request(req, 0);
+> - 		spin_unlock(&ubd_io_lock);
+> +		if (lock)
+> +			spin_unlock(&ubd_io_lock);
+
+In general, doing it this way is throwned upon. Either split the
+function, or just make the callers acquire the lock if they have to.
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Jens Axboe
+

@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273996AbRJVPOh>; Mon, 22 Oct 2001 11:14:37 -0400
+	id <S274920AbRJVPPr>; Mon, 22 Oct 2001 11:15:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274774AbRJVPOZ>; Mon, 22 Oct 2001 11:14:25 -0400
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:8407 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S273996AbRJVPNq>; Mon, 22 Oct 2001 11:13:46 -0400
-Date: Mon, 22 Oct 2001 11:14:16 -0400
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: sten@blinkenlights.nl, linux-kernel@vger.kernel.org
-Subject: Re: INIT_MMAP on sparc64
-Message-ID: <20011022111416.A23213@redhat.com>
-In-Reply-To: <20011021.080432.71105870.davem@redhat.com> <Pine.LNX.4.40-blink.0110211736030.19859-100000@deepthought.blinkenlights.nl> <20011021.181523.112610375.davem@redhat.com>
+	id <S274774AbRJVPPi>; Mon, 22 Oct 2001 11:15:38 -0400
+Received: from smtpnotes.altec.com ([209.149.164.10]:65291 "HELO
+	smtpnotes.altec.com") by vger.kernel.org with SMTP
+	id <S274920AbRJVPPc>; Mon, 22 Oct 2001 11:15:32 -0400
+X-Lotus-FromDomain: ALTEC
+From: Wayne.Brown@altec.com
+To: linux-kernel@vger.kernel.org
+Message-ID: <86256AED.0053D3A6.00@smtpnotes.altec.com>
+Date: Mon, 22 Oct 2001 10:11:58 -0500
+Subject: Re: Linux 2.2.20pre10
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011021.181523.112610375.davem@redhat.com>; from davem@redhat.com on Sun, Oct 21, 2001 at 06:15:23PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 21, 2001 at 06:15:23PM -0700, David S. Miller wrote:
-> 
-> DRI works perfectly fine in my current sources, patches below.
 
-On a side note of coding style, the following:
 
-> +#ifdef __sparc__
-> +		if (io_remap_page_range(vma->vm_start,
-> +					VM_OFFSET(vma) + offset,
-> +					vma->vm_end - vma->vm_start,
-> +					vma->vm_page_prot, 0))
-> +#else
->  		if (remap_page_range(vma->vm_start,
->  				     VM_OFFSET(vma) + offset,
->  				     vma->vm_end - vma->vm_start,
->  				     vma->vm_page_prot))
-> +#endif
+Speaking as a US citizen, I hope that someone outside the US will grab that info
+as soon as it's available and make it accessible to everyone.  (Not that I need
+it myself -- I have no interest in 2.2.20 -- but I like to see crap legislation
+like the DMCA subverted wherever possible.)
 
-should really be turned into io_remap_page_range(...) unconditionally 
-and add a #define for io_remap_page_range in the arch specific code.  
-Having #ifdef's all over generic code is just ugly.
+Wayne
 
-		-ben
+
+
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> on 10/22/2001 06:55:12 AM
+
+To:   ahu@ds9a.nl (bert hubert)
+cc:   linux-kernel@vger.kernel.org (bcc: Wayne Brown/Corporate/Altec)
+
+Subject:  Re: Linux 2.2.20pre10
+
+
+
+> Are you saying that we can't divulge security problems in our own software
+> anymore for fear of being sued by affected parties?
+
+Not even affected parties - the government can do it too without anyone else
+and indeed even if their are contractual agreements between parties
+permitting the data to be released..
+
+I hope to have the security stuff up on a non US citizen accessible site in
+time for 2.2.20 final
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+
+

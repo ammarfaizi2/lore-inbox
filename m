@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbUKVKdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbUKVKdL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262028AbUKVKdL (ORCPT <rfc822;willy@w.ods.org>);
+	id S262020AbUKVKdL (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 22 Nov 2004 05:33:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbUKVKbu
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbUKVKbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:31:50 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:53508 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262026AbUKVKai
+	Mon, 22 Nov 2004 05:31:16 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:50180 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S262020AbUKVK3F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:30:38 -0500
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+	Mon, 22 Nov 2004 05:29:05 -0500
+To: Russell King <rmk+lkml@arm.linux.org.uk>
 Cc: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH] problem of cont_prepare_write()
+Subject: [PATCH] pcmcia: Add disable_clkrun option
 From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 22 Nov 2004 19:30:18 +0900
-Message-ID: <877joexjk5.fsf@devron.myhome.or.jp>
+Date: Mon, 22 Nov 2004 19:28:34 +0900
+Message-ID: <87brdqxjn1.fsf@devron.myhome.or.jp>
 User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,124 +23,64 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-If I do the following operation on fatfs, and my box under heavy load,
+I received report that transmission of Realtek 8139 doesn't work.  The
+cause of this problem was CLKRUN protocols of laptop's TI 12xx CardBus
+bridge.
 
-	open("testfile", O_CREAT | O_TRUNC | O_RDWR, 0664);
-	lseek(fd, 500*1024*1024 - 1, SEEK_SET);
-	write(fd, "\0", 1);
+And I remember that this problem had happened on Thinkpad before. In
+the case, problem seems solved by similar workaround of sound/oss/cs46xx.c.
 
-In cont_prepare_write(), kernel fills the hole by zero cleared page.
+This patch adds "disable_clkrun" option as workaround of problem to
+yenta_socket.
 
-fs/buffer.c:cont_prepare_write:2210,
-	while(page->index > (pgpos = *bytes>>PAGE_CACHE_SHIFT)) {
-
-		[...]	
-
-		status = __block_prepare_write(inode, new_page, zerofrom,
-						PAGE_CACHE_SIZE, get_block);
-		if (status)
-			goto out_unmap;
-		kaddr = kmap_atomic(new_page, KM_USER0);
-		memset(kaddr+zerofrom, 0, PAGE_CACHE_SIZE-zerofrom);
-		flush_dcache_page(new_page);
-		kunmap_atomic(kaddr, KM_USER0);
-		__block_commit_write(inode, new_page,
-				zerofrom, PAGE_CACHE_SIZE);
-		unlock_page(new_page);
-		page_cache_release(new_page);
-	}
-
-But until ->commit_write(), kernel doesn't update the ->i_size. Then,
-if kernel writes out that hole page before updates of ->i_size, dirty
-flag of buffer_head is cleared in __block_write_full_page(). So hole
-page was not writed to disk.
-
-fs/buffer.c:__block_write_full_page:1773,
-		if (block > last_block) {
-			/*
-			 * mapped buffers outside i_size will occur, because
-			 * this page can be outside i_size when there is a
-			 * truncate in progress.
-			 */
-			/*
-			 * The buffer was zeroed by block_write_full_page()
-			 */
-			clear_buffer_dirty(bh);
-			set_buffer_uptodate(bh);
-
-This became cause of data corruption.
-
-I thought that it is not good to update ->i_size before ->commit_write().
-So, I wrote the following patch.  Anyone has good idea for solving this
-problem?
-
-
+Please apply.
 
 Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 ---
 
- fs/buffer.c        |    4 ++--
- include/linux/fs.h |    4 ++++
- mm/memory.c        |    2 ++
- 3 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/pcmcia/ti113x.h       |   11 ++++++++---
+ drivers/pcmcia/yenta_socket.c |    2 ++
+ 2 files changed, 10 insertions(+), 3 deletions(-)
 
-diff -puN mm/memory.c~cont_prepare_write-fix mm/memory.c
---- linux-2.6.10-rc2/mm/memory.c~cont_prepare_write-fix	2004-11-22 18:59:19.000000000 +0900
-+++ linux-2.6.10-rc2-hirofumi/mm/memory.c	2004-11-22 18:59:19.000000000 +0900
-@@ -1246,9 +1246,11 @@ int vmtruncate(struct inode * inode, lof
- 	 */
- 	if (IS_SWAPFILE(inode))
- 		goto out_busy;
-+	inode->i_flags |= S_TRUNCATING;
- 	i_size_write(inode, offset);
- 	unmap_mapping_range(mapping, offset + PAGE_SIZE - 1, 0, 1);
- 	truncate_inode_pages(mapping, offset);
-+	inode->i_flags &= ~S_TRUNCATING;
- 	goto out_truncate;
+diff -puN drivers/pcmcia/ti113x.h~pcmcia-clkrun-disable drivers/pcmcia/ti113x.h
+--- linux-2.6.10-rc2/drivers/pcmcia/ti113x.h~pcmcia-clkrun-disable	2004-11-21 15:49:44.000000000 +0900
++++ linux-2.6.10-rc2-hirofumi/drivers/pcmcia/ti113x.h	2004-11-21 15:49:44.000000000 +0900
+@@ -592,15 +592,20 @@ out:
  
- do_expand:
-diff -puN fs/buffer.c~cont_prepare_write-fix fs/buffer.c
---- linux-2.6.10-rc2/fs/buffer.c~cont_prepare_write-fix	2004-11-22 18:59:19.000000000 +0900
-+++ linux-2.6.10-rc2-hirofumi/fs/buffer.c	2004-11-22 18:59:19.000000000 +0900
-@@ -1763,7 +1763,7 @@ static int __block_write_full_page(struc
- 	 * handle any aliases from the underlying blockdev's mapping.
- 	 */
- 	do {
--		if (block > last_block) {
-+		if (IS_TRUNCATING(inode) && block > last_block) {
- 			/*
- 			 * mapped buffers outside i_size will occur, because
- 			 * this page can be outside i_size when there is a
-@@ -2628,7 +2628,7 @@ int block_write_full_page(struct page *p
+ static int ti12xx_override(struct yenta_socket *socket)
+ {
+-	u32 val;
++	u32 val, val_orig;
  
- 	/* Is the page fully outside i_size? (truncate in progress) */
- 	offset = i_size & (PAGE_CACHE_SIZE-1);
--	if (page->index >= end_index+1 || !offset) {
-+	if (IS_TRUNCATING(inode) && (page->index >= end_index+1 || !offset)) {
- 		/*
- 		 * The page may have dirty, unmapped buffers.  For example,
- 		 * they may have been added in ext3_writepage().  Make them
-diff -puN include/linux/fs.h~cont_prepare_write-fix include/linux/fs.h
---- linux-2.6.10-rc2/include/linux/fs.h~cont_prepare_write-fix	2004-11-22 18:59:19.000000000 +0900
-+++ linux-2.6.10-rc2-hirofumi/include/linux/fs.h	2004-11-22 18:59:19.000000000 +0900
-@@ -151,6 +151,8 @@ extern int dir_notify_enable;
- #define S_NOCMTIME	128	/* Do not update file c/mtime */
- #define S_SWAPFILE	256	/* Do not truncate: swapon got its bmaps */
+ 	/* make sure that memory burst is active */
+-	val = config_readl(socket, TI113X_SYSTEM_CONTROL);
++	val_orig = val = config_readl(socket, TI113X_SYSTEM_CONTROL);
++	if (disable_clkrun && PCI_FUNC(socket->dev->devfn) == 0) {
++		printk(KERN_INFO "Yenta: Disabling CLKRUN feature\n");
++		val |= TI113X_SCR_KEEPCLK;
++	}
+ 	if (!(val & TI122X_SCR_MRBURSTUP)) {
+ 		printk(KERN_INFO "Yenta: Enabling burst memory read transactions\n");
+ 		val |= TI122X_SCR_MRBURSTUP;
+-		config_writel(socket, TI113X_SYSTEM_CONTROL, val);
+ 	}
++	if (val_orig != val)
++		config_writel(socket, TI113X_SYSTEM_CONTROL, val);
  
-+#define S_TRUNCATING	(1<<31)	/* Hack: inode is truncating the data now */
-+
- /*
-  * Note that nosuid etc flags are inode-specific: setting some file-system
-  * flags just means all the inodes inherit those flags by default. It might be
-@@ -185,6 +187,8 @@ extern int dir_notify_enable;
- #define IS_NOCMTIME(inode)	((inode)->i_flags & S_NOCMTIME)
- #define IS_SWAPFILE(inode)	((inode)->i_flags & S_SWAPFILE)
+ 	/*
+ 	 * for EnE bridges only: clear testbit TLTEnable. this makes the
+diff -puN drivers/pcmcia/yenta_socket.c~pcmcia-clkrun-disable drivers/pcmcia/yenta_socket.c
+--- linux-2.6.10-rc2/drivers/pcmcia/yenta_socket.c~pcmcia-clkrun-disable	2004-11-21 15:49:44.000000000 +0900
++++ linux-2.6.10-rc2-hirofumi/drivers/pcmcia/yenta_socket.c	2004-11-22 18:56:20.000000000 +0900
+@@ -28,6 +28,8 @@
+ #include "yenta_socket.h"
+ #include "i82365.h"
  
-+#define IS_TRUNCATING(inode)	((inode)->i_flags & S_TRUNCATING)
-+
- /* the read-only stuff doesn't really belong here, but any other place is
-    probably as bad and I don't want to create yet another include file. */
++static int disable_clkrun;
++module_param(disable_clkrun, bool, 0444);
  
+ #if 0
+ #define debug(x,args...) printk(KERN_DEBUG "%s: " x, __func__ , ##args)
 _
 
 -- 

@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266514AbUHIMQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUHIMSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266514AbUHIMQb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 08:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUHIMIL
+	id S266511AbUHIMSr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUHIMQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 08:08:11 -0400
-Received: from main.gmane.org ([80.91.224.249]:17039 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S266512AbUHIMH2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 08:07:28 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 9 Aug 2004 08:16:45 -0400
+Received: from CPE-65-30-20-102.kc.rr.com ([65.30.20.102]:15237 "EHLO
+	mail.2thebatcave.com") by vger.kernel.org with ESMTP
+	id S266532AbUHIMPp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 08:15:45 -0400
+Message-ID: <37954.192.168.1.12.1092053741.squirrel@192.168.1.12>
+Date: Mon, 9 Aug 2004 07:15:41 -0500 (CDT)
+Subject: uhci-hcd oops with 2.4.27/ intel D845GLVA
+From: "Nick Bartos" <spam99@2thebatcave.com>
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Date: Mon, 09 Aug 2004 14:07:25 +0200
-Message-ID: <yw1xd6204irm.fsf@kth.se>
-References: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de> <41175798.7000406@hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:yYDCi0u+VdfzO1i/nj8YUfz+gFA=
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Hafting <helge.hafting@hist.no> writes:
+I unable to boot due to a kernel oops on my D845GLVA.  This worked fine in
+2.4.26, but with the same (well, except for the new features) config
+2.4.27 does not.
 
-> If you want to provide a multi-platform app with an acceptable user
-> interface, then you have to cope with the different adressing
-> schemes.  If that is too much work, consider taking patches from
-> volunteers similiar to how the linux kernel and many other big
-> projects are managed.  I am sure you can get someone to write
-> "perfect" support for /dev/XYZ on linux for you, if you're willing
-> to apply such a patch.
+If I disable usb 2.0 support in the kernel or disable the usb 2.0
+controller, then the system will boot fine.  However I would like to be
+able to use the 2.0 controller.
 
-How's this for a start?
+I upgraded the bios on the board to the latest, but no change.
 
---- libscg/scsi-linux-sg.c~     2004-01-14 18:54:01 +01:00
-+++ libscg/scsi-linux-sg.c      2004-08-09 14:05:03 +02:00
-@@ -476,10 +476,6 @@
-                        b = device[7] - 'a';
-                        if (b < 0 || b > 25)
-                                b = -1;
--               }
--               if (scgp->overbose) {
--                       js_fprintf((FILE *)scgp->errfile,
--                       "Warning: Open by 'devname' is unintentional and not supported.\n");
-                }
-                                        /* O_NONBLOCK is dangerous */
-                f = open(device, O_RDWR | O_NONBLOCK);
+I am not certain how everyone gets all that info captured when the kernel
+crashed, but here is what I wrote down:
 
--- 
-Måns Rullgård
-mru@kth.se
+ehci_hcd 00:1d.7:  Bios handoff failed (104, 1010001)
+unable to handle kernel NULL pointer dereference at virtual address 00000048
+
+...
+
+kernel panic:  attempted to kill init!
+
 

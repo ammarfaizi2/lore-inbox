@@ -1,20 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265928AbUBBT7N (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 14:59:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265897AbUBBT5q
+	id S266182AbUBBU4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:56:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266174AbUBBUzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 14:57:46 -0500
-Received: from mailr-2.tiscali.it ([212.123.84.82]:33928 "EHLO
-	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S265846AbUBBT4v
+	Mon, 2 Feb 2004 15:55:09 -0500
+Received: from mailr-1.tiscali.it ([212.123.84.81]:56948 "EHLO
+	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S265881AbUBBT5f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 14:56:51 -0500
-Date: Mon, 2 Feb 2004 20:56:50 +0100
+	Mon, 2 Feb 2004 14:57:35 -0500
+X-BrightmailFiltered: true
+Date: Mon, 2 Feb 2004 20:57:32 +0100
 From: Kronos <kronos@kronoz.cjb.net>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 22/42]
-Message-ID: <20040202195650.GV6785@dreamland.darkstar.lan>
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 24/42]
+Message-ID: <20040202195732.GX6785@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
@@ -26,30 +27,55 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-interrupt.c:201: warning: unsigned int format, different type arg (arg 4)
+irlmp.c:1244: warning: concatenation of string literals with __FUNCTION__ is deprecated
+irlmp.c:1258: warning: concatenation of string literals with __FUNCTION__ is deprecated
+irlmp.c:1277: warning: concatenation of string literals with __FUNCTION__ is deprecated
+irlmp.c:1284: warning: concatenation of string literals with __FUNCTION__ is deprecated
 
-dma_addr_t can be 64 bit long even on x86 (when CONFIG_HIGHMEM64G is
-defined). Cast to dma64_addr_t in the printk.
+Fix IRDA_DEBUG: __FUNCTION__ shouldn't be concatenated with other
+literals.
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/net/tulip/interrupt.c linux-2.4/drivers/net/tulip/interrupt.c
---- linux-2.4-vanilla/drivers/net/tulip/interrupt.c	Fri Jun 13 16:51:35 2003
-+++ linux-2.4/drivers/net/tulip/interrupt.c	Sat Jan 31 18:03:47 2004
-@@ -194,10 +194,10 @@
- 				if (tp->rx_buffers[entry].mapping !=
- 				    le32_to_cpu(tp->rx_ring[entry].buffer1)) {
- 					printk(KERN_ERR "%s: Internal fault: The skbuff addresses "
--					       "do not match in tulip_rx: %08x vs. %08x %p / %p.\n",
-+					       "do not match in tulip_rx: %08x vs. %08Lx %p / %p.\n",
- 					       dev->name,
- 					       le32_to_cpu(tp->rx_ring[entry].buffer1),
--					       tp->rx_buffers[entry].mapping,
-+					       (dma64_addr_t)tp->rx_buffers[entry].mapping,
- 					       skb->head, temp);
- 				}
- #endif
+diff -Nru -X dontdiff linux-2.4-vanilla/net/irda/irlmp.c linux-2.4/net/irda/irlmp.c
+--- linux-2.4-vanilla/net/irda/irlmp.c	Fri Jun 13 16:51:39 2003
++++ linux-2.4/net/irda/irlmp.c	Sat Jan 31 18:11:40 2004
+@@ -1241,7 +1241,7 @@
+ 	/* Get the number of lsap. That's the only safe way to know
+ 	 * that we have looped around... - Jean II */
+ 	lsap_todo = HASHBIN_GET_SIZE(self->lsaps);
+-	IRDA_DEBUG(4, __FUNCTION__ "() : %d lsaps to scan\n", lsap_todo);
++	IRDA_DEBUG(4, "%s() : %d lsaps to scan\n", __FUNCTION__, lsap_todo);
+ 
+ 	/* Poll lsap in order until the queue is full or until we
+ 	 * tried them all.
+@@ -1255,7 +1255,7 @@
+ 			/* Note that if there is only one LSAP on the LAP
+ 			 * (most common case), self->flow_next is always NULL,
+ 			 * so we always avoid this loop. - Jean II */
+-			IRDA_DEBUG(4, __FUNCTION__ "() : searching my LSAP\n");
++			IRDA_DEBUG(4, "%s() : searching my LSAP\n", __FUNCTION__);
+ 
+ 			/* We look again in hashbins, because the lsap
+ 			 * might have gone away... - Jean II */
+@@ -1274,14 +1274,14 @@
+ 
+ 		/* Next time, we will get the next one (or the first one) */
+ 		self->flow_next = (struct lsap_cb *) hashbin_get_next(self->lsaps);
+-		IRDA_DEBUG(4, __FUNCTION__ "() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
++		IRDA_DEBUG(4, "() : curr is %p, next was %p and is now %p, still %d to go - queue len = %d\n", __FUNCTION__, curr, next, self->flow_next, lsap_todo, IRLAP_GET_TX_QUEUE_LEN(self->irlap));
+ 
+ 		/* Inform lsap user that it can send one more packet. */
+ 		if (curr->notify.flow_indication != NULL)
+ 			curr->notify.flow_indication(curr->notify.instance, 
+ 						     curr, flow);
+ 		else
+-			IRDA_DEBUG(1, __FUNCTION__ "(), no handler\n");
++			IRDA_DEBUG(1, "%s(), no handler\n", __FUNCTION__);
+ 	}
+ }
+ 
 
 -- 
 Reply-To: kronos@kronoz.cjb.net
 Home: http://kronoz.cjb.net
-Non ho ancora capito se il mio cane e` maschio o femmina:
-quando fa la pipi` si chiude in bagno
+Tentare e` il primo passo verso il fallimento.
+Homer J. Simpson

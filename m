@@ -1,75 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278465AbRJZN0I>; Fri, 26 Oct 2001 09:26:08 -0400
+	id <S278470AbRJZNa6>; Fri, 26 Oct 2001 09:30:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278468AbRJZNZ6>; Fri, 26 Oct 2001 09:25:58 -0400
-Received: from anchor-post-30.mail.demon.net ([194.217.242.88]:11529 "EHLO
-	anchor-post-30.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S278465AbRJZNZq>; Fri, 26 Oct 2001 09:25:46 -0400
-Message-ID: <3BD9647A.B6244D05@firsdown.demon.co.uk>
-Date: Fri, 26 Oct 2001 14:26:18 +0100
-From: Dave Garry <daveg@firsdown.demon.co.uk>
-Organization: Daemon Solutions Ltd
-X-Mailer: Mozilla 4.51C-Caldera [en] (X11; I; Linux 2.2.5 i586)
-X-Accept-Language: en
+	id <S278475AbRJZNas>; Fri, 26 Oct 2001 09:30:48 -0400
+Received: from mx10.port.ru ([194.67.57.20]:23783 "EHLO mx10.port.ru")
+	by vger.kernel.org with ESMTP id <S278470AbRJZNah> convert rfc822-to-8bit;
+	Fri, 26 Oct 2001 09:30:37 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: info <5740@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Micro$of use Novell, not his own products
+Date: Fri, 26 Oct 2001 17:30:03 +0400
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <E15x6LM-000H1x-00@smtp6.port.ru> <20011026150706.544e5554.subscript@free.fr>
+In-Reply-To: <20011026150706.544e5554.subscript@free.fr>
 MIME-Version: 1.0
-To: Tim Waugh <twaugh@redhat.com>
-CC: junio@siamese.dhis.twinsun.com, bill davidsen <davidsen@tmr.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [patch] Re: linux-2.4.12 / linux-2.4.13 parallel port problem
-In-Reply-To: <20011024230917.H7544@redhat.com> <ioWB7.5038$rR5.921319585@newssvr17.news.prodigy.com> <20011025165226.T7544@redhat.com> <7vofmuu9d7.fsf@siamese.dhis.twinsun.com> <20011026104125.Z7544@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E15x74M-00073w-00@mx10.port.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Waugh wrote:
-> 
-> On Fri, Oct 26, 2001 at 12:51:48AM -0700, junio@siamese.dhis.twinsun.com wrote:
-> 
-> > >From the original poster's description, 2.4.10 claimed to have
-> > detected both address and irq for parport0, while 2.4.12,
-> > according to the your response, could not tell that IRQ=7.  Do
-> > you mean that the logic which made 2.4.10 to claime to have
-> > detected IRQ=7 was faulty and the logic in 2.4.12 is being
-> > careful not to misdetect?
-> 
-> Oh, I see.  No, this is a regression.  Please try this patch:
+???????????: wwp <subscript@free.fr>
+ ??????????: info <5740@mail.ru>
 
-Firstly, I was unable to apply this patch on 2.4.13...
+ 
+26 ??????? 2001 17:07, ?? ????????:
+> Hi George,
+>
+> did you know that M$ uses BSD servers for Hotmail?
+> http://www.zdnet.com/zdnn/stories/news/0,4586,2776342,00.html
+>
+>
+> Best regards,
 
-I'm now running 2.4.14-pre2, still had difficulty applying
-the patch, and ended up patching parport_pc.c by hand. (?)
+Thanks for information.
 
-However, loading the parport_pc module, with NO arguments,
-like I was doing up till 2.4.10, and it still does not
-recognise the port as being in ECP mode:
+But there are some moments: 
 
-[root@p450 /root]# modprobe parport_pc
-[root@p450 /root]# dmesg -c
-parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE]
-parport0: irq 7 detected
-parport0: cpp_daisy: aa5500ff(98)
-parport0: assign_addrs: aa5500ff(98)
-parport0: faking semi-colon
-parport0: Printer, Hewlett-Packard HP LaserJet 1100
+1. "When Microsoft moved to buy Hotmail in 1997, it was already 
+running on FreeBSD". And they (M$) can say that they don't want to 
+change soft until it works...
 
-If I load the module WITH arguments, something I've never
-had to do in the past, it works:
+2. FreeBSD in the free system, Novell is commertial. One think - use 
+free soft, another - to buy it from main concurrent*
 
-[root@p450 /root]# modprobe parport_pc io=0x378 irq=7
-[root@p450 /root]# dmesg -c
-parport0: PC-style at 0x378 (0x778), irq 7, using FIFO [PCSPP,TRISTATE,COMPAT,ECP]
-parport0: cpp_daisy: aa5500ff(98)
-parport0: assign_addrs: aa5500ff(98)
-parport0: faking semi-colon
-parport0: Printer, Hewlett-Packard HP LaserJet 1100
+3. Hotmail is only owned by Microsoft, www.microsoft.com is the face 
+of Microsoft - main site.
 
-I'm still unsure why I NEED to supply arguments
-to this module.
+This is situation like .... I don't know - for example: if mr.Ford 
+(man, not company) will use as his personal auto not Lincoln 
+(produced on Ford's plants) but ... Mercedes or Cytroenn, for 
+example...  And say this time that Lincoln is the best car in the 
+world...
 
-Regards.
+Best regards,
+
+George
 
 -- 
-Dave Garry,
-Daemon Solutions Ltd
+_________________________________________
+
+Best regards

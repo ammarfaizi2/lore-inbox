@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266850AbUIEQTw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266867AbUIEQUW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266850AbUIEQTw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 12:19:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUIEQTw
+	id S266867AbUIEQUW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 12:20:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266871AbUIEQUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 12:19:52 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.5.78]:18990 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S266850AbUIEQTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 12:19:50 -0400
-Date: Sun, 05 Sep 2004 12:19:34 -0400
-From: Jeff Sipek <jeffpc@optonline.net>
-Subject: Re: [PATCH 2.6] watch64: generic variable monitoring system
-In-reply-to: <1094303999.1633.116.camel@jzny.localdomain>
-To: hadi@cyberus.ca
-Cc: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Message-id: <200409051219.47590.jeffpc@optonline.net>
-MIME-version: 1.0
-Content-type: Text/Plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.6.2
-References: <200409031307.01240.jeffpc@optonline.net>
- <200409031744.32970.jeffpc@optonline.net>
- <1094303999.1633.116.camel@jzny.localdomain>
+	Sun, 5 Sep 2004 12:20:22 -0400
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:65170 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S266867AbUIEQUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 12:20:15 -0400
+Message-ID: <413B3CBD.1000304@eris-associates.co.uk>
+Date: Sun, 05 Sep 2004 17:20:13 +0100
+From: Mike Jagdis <mjagdis@eris-associates.co.uk>
+Organization: Eris Associates Ltd
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Tim Connors <tconnors+linuxkernel1094371411@astro.swin.edu.au>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       =?ISO-8859-1?Q?Sven_K?= =?ISO-8859-1?Q?=F6hler?= 
+	<skoehler@upb.de>,
+       linux-kernel@vger.kernel.org, nfs@lists.sourceforge.net
+Subject: Re: why do i get "Stale NFS file handle" for hours?
+References: <chdp06$e56$1@sea.gmane.org>  <1094348385.13791.119.camel@lade.trondhjem.org>  <413A7119.2090709@upb.de>  <1094349744.13791.128.camel@lade.trondhjem.org>  <413A789C.9000501@upb.de> <1094353267.13791.156.camel@lade.trondhjem.org> <slrn-0.9.7.4-19971-22570-200409051803-tc@hexane.ssi.swin.edu.au>
+In-Reply-To: <slrn-0.9.7.4-19971-22570-200409051803-tc@hexane.ssi.swin.edu.au>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
-
-On Saturday 04 September 2004 09:19, jamal wrote:
-> I have a feeling this was discussed somewhere(other than netdev) and i
-> missed it. Why isnt this watch64 being done in user space?
-
-There was a discussion about 64-bit network statistics about a year ago on 
-lkml.
-
-watch64 is a generic so that anyone in the kernel can use it.
-
-Jeff.
-
-- -- 
-Mankind invented the atomic bomb, but no mouse would ever construct a 
-mousetrap.
-  - Albert Einstein
 
 
+Tim Connors wrote:
+> I will update one directory with rsync from one host,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+You mean rsync to the server and change files directly on the fs rather 
+than through an NFS client?
 
-iD8DBQFBOzybwFP0+seVj/4RArmhAKC3ddX4ZGoAMQKxGplXqqbER9BBMQCfencW
-wDt06dC8MifG9NU3xWx0ULo=
-=z9kC
------END PGP SIGNATURE-----
+> and then try, a
+> little later on, to operate on that directory from another host. Every
+> now and then, from a single host only, a few files in that tree will
+> get stale filehandles - an ls of that directory will mostly be fine
+> apart from those files. They will also be fine from any other machine.
+
+Yeah, that's what happens... Clients that had the file open are liable 
+to get ESTALE. Stale file handles stick around until unmount. As long as 
+they're around automount will consider the mount busy and not expire it 
+(but you can unmount manually or killall -USR1 automountd).
+
+Mike
+
+-- 
+Mike Jagdis                        Web: http://www.eris-associates.co.uk
+Eris Associates Limited            Tel: +44 7780 608 368
+Reading, England                   Fax: +44 118 926 6974

@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129047AbRBLKre>; Mon, 12 Feb 2001 05:47:34 -0500
+	id <S129053AbRBLKyp>; Mon, 12 Feb 2001 05:54:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129331AbRBLKrY>; Mon, 12 Feb 2001 05:47:24 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:956 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129047AbRBLKrO>;
-	Mon, 12 Feb 2001 05:47:14 -0500
-Date: Mon, 12 Feb 2001 02:47:12 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new version of the starfire driver for 2.2.19pre
-In-Reply-To: <E14SFss-0006Zw-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.30.0102120245310.4687-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129055AbRBLKyf>; Mon, 12 Feb 2001 05:54:35 -0500
+Received: from ns.suse.de ([213.95.15.193]:50703 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S129053AbRBLKyX>;
+	Mon, 12 Feb 2001 05:54:23 -0500
+Date: Mon, 12 Feb 2001 11:54:14 +0100
+From: Mads Martin Joergensen <mmj@suse.de>
+To: Ryan Hairyes <rhairyes@lee.k12.nc.us>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: linux-logo.h
+Message-ID: <20010212115414.B10809@staudinger.suse.de>
+In-Reply-To: <98191889817235-11131417235rhairyes@lee.k12.nc.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <98191889817235-11131417235rhairyes@lee.k12.nc.us>; from rhairyes@lee.k12.nc.us on Sun, Feb 11, 2001 at 07:14:58PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, Alan Cox wrote:
+* Ryan Hairyes <rhairyes@lee.k12.nc.us> [Feb 11. 2001 19:18]:
+> Hello All,
+> 
+> Could anyone tell me about linux_logo.h.  I want to put my
+> own picture in there. What format is the picture written in?
+> Any any idea on how I could change it?  Also, could the
+> picture be any bigger than 80x80,  I would like for it to take
+> up the whole screen.
 
-> No resolution to firmware fiasco, no driver in kernel
+There is a gimp plugin to make boot logos here:
 
-But the driver _does_ work without the firmware, it only loses the
-hardware TCP checksum on Rx capability. That's what we have in 2.4.x right 
-now, why should 2.2.x be pickier and *demand* to have the firmware or no 
-support at all?
-
-Thanks,
-Ion
+http://registry.gimp.org/plugin?id=376
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Mads Martin Joergensen, http://mmj.dk
+"Why make things difficult, when it is possible to make them cryptic and
+totally illogic, with just a little bit more effort."
+                                -- A. P. J.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

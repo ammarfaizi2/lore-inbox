@@ -1,55 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130162AbQJaEUl>; Mon, 30 Oct 2000 23:20:41 -0500
+	id <S130175AbQJaEVb>; Mon, 30 Oct 2000 23:21:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130196AbQJaEUb>; Mon, 30 Oct 2000 23:20:31 -0500
-Received: from dial-09-29-apx-02.btvt.together.net ([209.91.32.29]:18822 "EHLO
-	sparrow.websense.net") by vger.kernel.org with ESMTP
-	id <S130162AbQJaEUS>; Mon, 30 Oct 2000 23:20:18 -0500
-Date: Mon, 30 Oct 2000 23:20:00 -0500 (EST)
-From: William Stearns <wstearns@pobox.com>
-Reply-To: William Stearns <wstearns@pobox.com>
-To: Gerhard Fuellgrabe <gerd@cacofonix.harz.de>
-cc: ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Q: ip_masq module for battlecom?
-In-Reply-To: <20001030214820.A13204@cacofonix.fuenet.harz.de>
-Message-ID: <Pine.LNX.4.21.0010302317410.1267-100000@sparrow.websense.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130211AbQJaEVV>; Mon, 30 Oct 2000 23:21:21 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:37761 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130210AbQJaEVI>;
+	Mon, 30 Oct 2000 23:21:08 -0500
+Date: Mon, 30 Oct 2000 20:06:59 -0800
+Message-Id: <200010310406.UAA05413@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: decklin@red-bean.com
+CC: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <20001030222644.A9869@gyah.this.is.broken> (message from Decklin
+	Foster on Mon, 30 Oct 2000 22:26:44 -0500)
+Subject: Re: test10-pre7 compile error in ip_forward.c
+In-Reply-To: <20001030222644.A9869@gyah.this.is.broken>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good evening, Gerhard,
 
-On Mon, 30 Oct 2000, Gerhard Fuellgrabe wrote:
+Sorry.  Please try this patch below.  Linus, please apply:
 
-> in my LAN there are users working on battle.net (Starcraft,
-> Diablo2 etc.). There is a Linux 2.2.14 box routing the LAN
-> with private IP addresses to the internet (with IP masqerading).
-> 
-> A feature that does not work is the battlecom communication. 
-> Is there an ip_masq module available for this (like e.g. 
-> ipv4/ip_masq_cuseeme.o or ipv4/ip_masq_quake.o) or is anybody
-> working on this?
-
-	See the "Application Support" link at http://ipmasq.cjb.net for
-information about specific applications under masquerading.
-	Future questions about masquerade support should go to the
-ip-masq mailing list; info on that list can also be found at the above
-link.
-	Best of luck.
-	Cheers,
-	- Bill
-
----------------------------------------------------------------------------
-	"Put down those Windows disks, Dave..."
-	-- HAL
---------------------------------------------------------------------------
-William Stearns (wstearns@pobox.com).  Mason, Buildkernel, named2hosts, 
-and ipfwadm2ipchains are at:                http://www.pobox.com/~wstearns
-LinuxMonth; articles for Linux Enthusiasts! http://www.linuxmonth.com
---------------------------------------------------------------------------
-
+--- include/linux/netdevice.h.~1~	Mon Oct 30 17:57:20 2000
++++ include/linux/netdevice.h	Mon Oct 30 20:05:38 2000
+@@ -55,6 +55,7 @@
+ #define NET_RX_CN_MOD		2   /* Storm on its way! */
+ #define NET_RX_CN_HIGH		5   /* The storm is here */
+ #define NET_RX_DROP		-1  /* packet dropped */
++#define NET_RX_BAD		-2  /* packet dropped due to kernel error */
+ 
+ #define net_xmit_errno(e)	((e) != NET_XMIT_CN ? -ENOBUFS : 0)
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

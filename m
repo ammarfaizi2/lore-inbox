@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263032AbSJGMyu>; Mon, 7 Oct 2002 08:54:50 -0400
+	id <S263021AbSJGMtz>; Mon, 7 Oct 2002 08:49:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263033AbSJGMyu>; Mon, 7 Oct 2002 08:54:50 -0400
-Received: from node-d-1ef6.a2000.nl ([62.195.30.246]:28398 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S263032AbSJGMyt>; Mon, 7 Oct 2002 08:54:49 -0400
-Subject: Re: wake_up from interrupt handler
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Amol Lad <dal_loma@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20021007124121.37417.qmail@web12407.mail.yahoo.com>
-References: <20021007124121.37417.qmail@web12407.mail.yahoo.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-Lt3Md7du0AWNfD4+pde3"
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 07 Oct 2002 15:04:17 +0200
-Message-Id: <1033995858.2798.8.camel@localhost.localdomain>
-Mime-Version: 1.0
+	id <S263022AbSJGMtz>; Mon, 7 Oct 2002 08:49:55 -0400
+Received: from modemcable061.219-201-24.mtl.mc.videotron.ca ([24.201.219.61]:41373
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id <S263021AbSJGMtx>; Mon, 7 Oct 2002 08:49:53 -0400
+Date: Mon, 7 Oct 2002 08:41:25 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: jgarzik@pobox.com, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][2.5][RFT] 3c509.c extra ethtool features
+In-Reply-To: <200210071040.MAA18108@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.44.0210070836580.24365-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 7 Oct 2002, Mikael Pettersson wrote:
 
---=-Lt3Md7du0AWNfD4+pde3
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> 3c509-TPO, ca 1994 vintage, ethtool eth0 output:
+> 
+> Settings for eth0:
+> 	Supported ports: [ TP AUI ]
+> 	Supported link modes:   10baseT/Half 10baseT/Full 
+> 	Supports auto-negotiation: No
+> 	Advertised link modes:  Not reported
+> 	Advertised auto-negotiation: No
+> 	Speed: 10Mb/s
+> 	Duplex: Half
+> 	Port: Twisted Pair
+> 	PHYAD: 0
+> 	Transceiver: internal
+> 	Auto-negotiation: off
+> 	Current message level: 0x00000002 (2)
+> 	Link detected: yes
 
-On Mon, 2002-10-07 at 14:41, Amol Lad wrote:
-> Hi,
->  I have a kernel thread which did add_to_wait_queue()
-> to wait for an event.=20
-> The event for which above thread is waiting occurs in
-> an interrupt handler that calls wake_up() to wake the
-> above thread.=20
-> Now I am faced with a 'lost wakeup' problem, in which
-> the   =20
-> kernel thread checks whether event occured, he finds
-> it to be 'not-occured' but before calling
-> add_to_wait_queue(), interrupt handler detects that
-> the event has occured and calls wake_up().
-> My thread sleeps forever.
+Cool.
 
-set_current_state(TASK_INTERRUPTIBLE);
-add_to_wait_queue(...);
-if (even_occured) { ...}=20
-  else
-     schedule();
-=20
-remove_from_wait_queue(..);
-set_current_state(TASK_RUNNABLE);
+> So far so good (except it reports AUI although it has none).
 
+Hmm, that info is from the card registers, perhaps your board just doesn't 
+have the interface wired?
 
->=20
+> Unfortunately, this simple query killed the link, and I had to
+> down/up eth0 to get it back.
 
+Could be a missing EL3WINDOW change somewhere, i don't write to any 
+registers in the query path. I'll check that out.
 
---=-Lt3Md7du0AWNfD4+pde3
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> Next I tried ethtool -s to change some settings (port, speed,
+> full duplex) and all returned errors. I kind of expected that.
+> Next I tried to rlogin to this box from another: complete kernel hang :-(
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
+Could be one of the -EINVALs i think i need more sanity checks in there.
 
-iD8DBQA9oYZRxULwo51rQBIRAqdlAJ9k8yOdTx+fjqQqQosdgdWoGDG5DACffrbP
-Gzwmt6Eh4rEjrdiwQ1sIfP4=
-=Y02o
------END PGP SIGNATURE-----
+> I may be able to test some more later this week, on a slightly newer
+> 3c509(B?) TP/AUI combo NIC.
 
---=-Lt3Md7du0AWNfD4+pde3--
+Thanks,
+	Zwane
+-- 
+function.linuxpower.ca
 

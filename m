@@ -1,100 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbUKAJuj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbUKAJwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbUKAJuj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Nov 2004 04:50:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbUKAJui
+	id S261736AbUKAJwW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Nov 2004 04:52:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261737AbUKAJwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Nov 2004 04:50:38 -0500
-Received: from mailr.eris.qinetiq.com ([128.98.1.9]:61154 "HELO
-	mailr.qinetiq-tim.net") by vger.kernel.org with SMTP
-	id S261717AbUKAJuW convert rfc822-to-8bit (ORCPT
+	Mon, 1 Nov 2004 04:52:21 -0500
+Received: from cantor.suse.de ([195.135.220.2]:60827 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261734AbUKAJwF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Nov 2004 04:50:22 -0500
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org
-Subject: ethernet channel bonding (bonding.o) on 2.6.x
-Date: Mon, 1 Nov 2004 10:54:56 +0100
-User-Agent: KMail/1.6.1
+	Mon, 1 Nov 2004 04:52:05 -0500
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200411010955.00347.m.watts@eris.qinetiq.com>
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.12; VDF: 6.28.0.47; host: mailr.qinetiq-tim.net)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16774.1839.343824.305232@suse.de>
+Date: Mon, 1 Nov 2004 10:51:43 +0100
+From: Egbert Eich <eich@suse.de>
+To: Andi Kleen <ak@suse.de>
+Cc: Thomas Zehetbauer <thomasz@hostmaster.org>, linux-kernel@vger.kernel.org,
+       idr@us.ibm.com, eich@suse.de
+Subject: Re: status of DRM_MGA on x86_64
+In-Reply-To: ak@suse.de wrote on , 30 October 2004 at 03:56:24 +0200 
+References: <1099052450.11282.72.camel@hostmaster.org.suse.lists.linux.kernel>
+	<1099061384.11918.4.camel@hostmaster.org.suse.lists.linux.kernel>
+	<41829E39.1000909@us.ibm.com.suse.lists.linux.kernel>
+	<1099097616.11918.26.camel@hostmaster.org.suse.lists.linux.kernel>
+	<p734qkd0y0n.fsf@verdi.suse.de>
+X-Mailer: VM 7.18 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andi Kleen writes:
+ > Thomas Zehetbauer <thomasz@hostmaster.org> writes:
+ > 
+ > > On Fre, 2004-10-29 at 12:47 -0700, Ian Romanick wrote:
+ > > > The problem, which exists with most (all?) DRM drivers, is that data 
+ > > > types are used in the kernel/user interface that have different sizes on 
+ > > > LP32 and LP64.  If your kernel is 64-bit, you will have problems with 
+ > > > 32-bit applications.
+ > 
+ > That was not the reason I disabled it. I reenabled it now in my tree.
+ >   
+ > > Then either all or no DRM drivers should be enabled on x86_64, the
+ > > DRM_TDFX, DRM_R128, DRM_RADEON and DRM_SIS are not currently disabled. I
+ > > vote for enabling all drivers that work with 64-bit applications.
+ >  
+ > > I wonder if this should be the first and only place where different
+ > > kernel/userland bitness causes problems. How has this been solved
+ > > elsewhere?
+ > 
+ > It was solved long ago for the Radeon driver by Egbert Eich.
+ > But for some unknown reason the DRI people never merged his patches.
+ > 
 
+I solved it for RADEON, MGA and R128.
+It would be interesting to solve this for the i915 driver, too,
+and possibly some others.
 
-I'm trying to migrate a couple of server from a 2.4 kernel to 2.6 (Mandrake 
-9.1 -> 10.0)
-All servers have 4 nics (a mix of e1000 and bcm5700) arranged in two logical 
-interfaces.
+That it hasn't been merged into DRI yet is a shame. Appearantly 
+nobody has ever realized why this stuff is useful. Unfortunately
+I don't have the time for lobbying it.
+It's a very boring undertaking to have to port this from one DRI 
+version to the next. 
 
-Note: Mandrakes ifconfig/ifup scripts have the necessary logic to ifenslave 
-ethX interfaces to a bondX interface automatically (through options in the 
-ifcfg-ethX and ifcfg-bondX config files).
+Egbert.
 
-On 2.4 I used the following in /etc/modules.conf, which worked perfectly:
-
-- --
-alias bond0 bonding
-alias bond1 bonding
-
-options bond0 miimon=100 mode=1
-options bond1 -o bonding1 miimon=100 mode=1
-- --
-
-When I come to use these settings with /etc/modprobe.conf, only bond0 comes 
-up. The system complains that there 'doesnt seem to be a device for bond1' 
-and doesn't bring it up.
-
-Using 'generate-modprobe.conf' It thinks I should be using:
-
-- --
-alias bond0 bonding
-alias bond1 bonding
-options bond0 miimon=100 mode=1
-options bond1 miimon=100
-install bond1 /sbin/modprobe -o bonding1 --ignore-install bonding
-- --
-
-This doesn't work - I get the same error.
-
-If I manually do:
-
-	# modprobe bonding -o bonding1
-	# ifconfig bond1 up
-
-Then I can bring up bond1 by hand. 
-
-I'm guessing the 'install' line is supposed to load a second instance of the 
-bonding driver (which I didn't think I needed with 2.6's module loading 
-needed - I can load e1000 twice without doing anything special) but it isn't.
-
-
-Does anyone have a system with more than one bonded interface that actually 
-works?
-
-Cheers,
-
-Mark.
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBhgf0Bn4EFUVUIO0RAuAHAKCDS5DtJMzRJjJGnGXly6b0GjRL/wCg8h/A
-PXmz2ltABkxPQWXfVY4XVBQ=
-=Wsch
------END PGP SIGNATURE-----

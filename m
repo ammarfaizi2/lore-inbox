@@ -1,96 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266237AbUG0EHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266245AbUG0DoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266237AbUG0EHw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 00:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266242AbUG0EHw
+	id S266245AbUG0DoF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 23:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266246AbUG0DoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 00:07:52 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:20327 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266237AbUG0EHt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 00:07:49 -0400
-Message-ID: <4105D511.9030207@yahoo.com.au>
-Date: Tue, 27 Jul 2004 14:07:45 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: en
+	Mon, 26 Jul 2004 23:44:05 -0400
+Received: from smtp4.cwidc.net ([154.33.63.114]:52388 "EHLO smtp4.cwidc.net")
+	by vger.kernel.org with ESMTP id S266241AbUG0Dnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 23:43:52 -0400
+Message-ID: <4105CF6A.8070504@tequila.co.jp>
+Date: Tue, 27 Jul 2004 12:43:38 +0900
+From: Clemens Schwaighofer <cs@tequila.co.jp>
+Organization: TEQUILA\ Japan
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040724
+X-Accept-Language: en-us, en, ja
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@istop.com>
-CC: Andrew Morton <akpm@osdl.org>, lmb@suse.de, arjanv@redhat.com,
-       sdake@mvista.com, teigland@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
-References: <1089501890.19787.33.camel@persist.az.mvista.com> <200407122219.17582.phillips@istop.com> <40F34978.60709@yahoo.com.au> <200407262331.44176.phillips@istop.com>
-In-Reply-To: <200407262331.44176.phillips@istop.com>
+To: Tim Connors <tconnors+linuxkml@astro.swin.edu.au>
+CC: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@osdl.org>,
+       Joel.Becker@oracle.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Autotune swappiness01
+References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <20040725173652.274dcac6.akpm@osdl.org> <cone.1090802581.972906.20693.502@pc.kolivas.org> <20040726202946.GD26075@ca-server1.us.oracle.com> <20040726134258.37531648.akpm@osdl.org> <cone.1090882721.156452.20693.502@pc.kolivas.org> <4105A761.9090905@tequila.co.jp> <20040726180943.4c871e4f.akpm@osdl.org> <4105AD1C.2050507@tequila.co.jp> <slrn-0.9.7.4-15175-21673-200407271159-tc@hexane.ssi.swin.edu.au> <cone.1090896213.276247.20693.502@pc.kolivas.org> <Pine.LNX.4.53.0407271250210.23847@tellurium.ssi.swin.edu.au>
+In-Reply-To: <Pine.LNX.4.53.0407271250210.23847@tellurium.ssi.swin.edu.au>
+X-Enigmail-Version: 0.84.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
->On Monday 12 July 2004 22:31, Nick Piggin wrote:
->
->>
->>Search for rt_task in mm/page_alloc.c
->>
->
->Ah, interesting idea: realtime tasks get to dip into the PF_MEMALLOC reserve, 
->until it gets down to some threshold, then they have to give up and wait like 
->any other unwashed nobody of a process.  _But_ if there's a user space 
->process sitting in the writeout path and some other realtime process eats the 
->entire realtime reserve, everything can still grind to a halt.
->
->So it's interesting for realtime, but does not solve the userspace PF_MEMALLOC 
->inversion.
->
->
+Tim Connors wrote:
+| On Tue, 27 Jul 2004, Con Kolivas wrote:
 
-Not the rt_task thing, because yes, you can have other RT tasks that aren't
-small and bounded that screw up your reserves.
+| Then there's the relative importance of subjective "feel", vs hard
+| numbers. Maybe some people prefer that their system feels nicer, even if
+| it doesn't compile kernels so fast. And I think this decision is best left
+| to at least one of those knobs (hey, all you know, people might even
+| adjust the knob in a crontab).
 
-But a PF_MEMALLOC userspace task is still useful.
+I think, the more linux users are out there, the less is the percentage
+who compiles kernels often. And often means once or twice a day. Most
+people use stock kernels. I think a "knob" that says "compile a lot" or
+"normal" or "server" or so would be nice.
 
->>>>A privileged syscall which allows a task to mark itself as one which
->>>>cleans memory would make sense.
->>>>
->>>For now we can do it with an ioctl, and we pretty much have to do it for
->>>pvmove.  But that's when user space drives the kernel by syscalls; there
->>>is also the nasty (and common) case where the kernel needs userspace to
->>>do something for it while it's in PF_MEMALLOC.  I'm playing with ideas
->>>there, but nothing I'm proud of yet.  For now I see the in-kernel
->>>approach as the conservative one, for anything that could possibly find
->>>itself on the VM writeout path.
->>>
->>You'd obviously want to make the PF_MEMALLOC task as tight as possible,
->>and running mlocked:
->>
->
->Not just tight, but bounded.  And tight too, of course.
->
->
->>I don't particularly see why such a task would be any safer in-kernel.
->>
->
->The PF_MEMALLOC flag is inherited down a call chain, not across a pipe or 
->similar IPC to user space.
->
->
-This is no different in kernel of course. You would have to think about
-which threads need the flag and which do not. Even better, you might
-aquire and drop the flag only when required. I can't see any obvious
-problems you would run into.
+Especially because a server has very different need of swap, etc than a
+workstation.
 
->>PF_MEMALLOC tasks won't enter page reclaim at all. The only way they
->>will reach the writeout path is if you are write(2)ing stuff (you may
->>hit synch writeout).
->>
->
->That's the problem.
->
->
+- --
+Clemens Schwaighofer - IT Engineer & System Administration
+==========================================================
+TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
+Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
+http://www.tequila.co.jp
+==========================================================
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-Well I don't think it would be a problem to get the write throttling path
-to ignore PF_MEMALLOC tasks if that is what you need. Again, this shouldn't
-be any different to in kernel code.
-
-
+iD8DBQFBBc9qjBz/yQjBxz8RAqrJAKDkBo7ZnYzWOqdXABRUPYUoO1ooSACffSnk
+uTERz/dQaEV1lSUsCEdsRhk=
+=EBxd
+-----END PGP SIGNATURE-----

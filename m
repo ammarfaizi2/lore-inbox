@@ -1,52 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262661AbTHaU27 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 16:28:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262663AbTHaU26
+	id S262639AbTHaUVe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 16:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbTHaUVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 16:28:58 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:13115 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262661AbTHaU25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 16:28:57 -0400
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: Ed Sweetman <ed.sweetman@wmich.edu>, Alex Tomas <bzzz@tmi.comex.ru>,
-       linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [Ext2-devel] Re: [RFC] extents support for EXT3
-References: <m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>
-	<m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu>
-	<m3isogpgna.fsf@bzzz.home.net> <3F4F923F.9070207@wmich.edu>
-	<m3ad9snxo6.fsf@bzzz.home.net> <3F4FAFA2.4080202@wmich.edu>
-	<20030829213940.GC3846@matchmail.com> <3F4FD2BE.1020505@wmich.edu>
-	<20030829231726.GE3846@matchmail.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-In-Reply-To: <20030829231726.GE3846@matchmail.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-Date: 31 Aug 2003 14:25:49 -0600
-Message-ID: <m18yp9r2uq.fsf@ebiederm.dsl.xmission.com>
+	Sun, 31 Aug 2003 16:21:34 -0400
+Received: from obsidian.spiritone.com ([216.99.193.137]:19107 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S262639AbTHaUVd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 16:21:33 -0400
+Date: Sun, 31 Aug 2003 13:20:58 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Nick Piggin <piggin@cyberone.com.au>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Nick's scheduler policy v10
+Message-ID: <1806700000.1062361257@[10.10.2.4]>
+In-Reply-To: <3F5044DC.10305@cyberone.com.au>
+References: <3F5044DC.10305@cyberone.com.au>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Fedyk <mfedyk@matchmail.com> writes:
-
-> On Fri, Aug 29, 2003 at 06:25:02PM -0400, Ed Sweetman wrote:
-> > you get no real slowdown as far as rough benchmarks are concerned, 
-> > perhaps with a microbenchmark you would see one and also, doesn't it 
-> > take up more space to save the extent info and such? Either way, all of 
-> > it's real benefits occur on large files.
+> This is quite a big change from v8. Fixes a few bugs in child priority,
+> and adds a small lower bound on the amount of history that is kept. This
+> should improve "fork something" times hopefully, and stops new children
+> being able to fluctuate priority so wildly.
 > 
-> IIRC, if your blocks are contiguous, you can save as soon as soon as the
-> file size goes above one block (witout extents, the first 12 blocks are
-> pointed to by what?  I forget... :-/ )
+> Eliminates "timeslice backboost" and only uses "priority backboost". This
+> decreases scheduling latency quite nicely - I can only measure 130ms for
+> a very low priority task, with a make -j3 and wildly moving an xterm around
+> in front of a mozilla window.
+> 
+> Makes a fairly fundamental change to how sleeping/running is accounted.
+> It now takes into account time on the runqueue. This hopefully will keep
+> priorities more stable under varying loads.
+> 
+> Includes an upper bound on the amount of priority a task can get in one
+> sleep. Hopefully this catches freak long sleeps like a SIGSTOP or unexpected
+> swaps. This change breaks the priority calculation a little bit. I'm thinking
+> about how to fix it.
+> 
+> Feedback welcome! Its against 0-test4, as usual.
 
-They are pointed to directly from the inode.
+Oooh - much better.
 
-In light of other concerns how reasonable is a switch to e2fsck that
-will remove extents so people can downgrade filesystems?
+Kernbench: (make -j vmlinux, maximal tasks)
+                              Elapsed      System        User         CPU
+              2.6.0-test4       45.87      116.92      571.10     1499.00
+         2.6.0-test4-nick       49.37      131.31      611.15     1500.75
+       2.6.0-test4-nick7a       49.48      125.95      617.71     1502.00
+       2.6.0-test4-nick10       46.91      114.03      584.16     1489.25
 
-Also given the incompatibility on the file format any chance of this
-being developed as ext4?
+SDET 128  (see disclaimer)
+                           Throughput    Std. Dev
+              2.6.0-test4       100.0%         0.3%
+         2.6.0-test4-nick       102.9%         0.3%
+       2.6.0-test4-nick7a       105.1%         0.5%
+       2.6.0-test4-nick10       107.7%         0.2%
 
-Eric
+System time of kernbench is back to what it would be with virgin, or
+actually a little less. Elapsed time is still up a little bit, along
+with user time, but it's getting pretty close.
+
+Have you looked at Rick Lindsley's schedstat patches? I don't have a
+totally up-to-date version, but that might give us a better idea of
+what's going on wrt migrations, balancing, etc.
+
+I'll try to get together a broader set of benchmarks and hammer on this
+some more ...
+
+M.

@@ -1,77 +1,225 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTIONrA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 09:47:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbTIONq7
+	id S261185AbTIONnl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 09:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbTIONnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 09:46:59 -0400
-Received: from mta03bw.bigpond.com ([144.135.24.147]:19451 "EHLO
-	mta03bw.bigpond.com") by vger.kernel.org with ESMTP id S261352AbTIONqz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 09:46:55 -0400
-Date: Mon, 15 Sep 2003 23:45:25 +1000
-From: Dmitri Katchalov <dmitrik@users.sourceforge.net>
-Subject: Re: 2.6.0-test5 atkbd.c: Unknown key (100% reproduceable)
-To: linux-kernel@vger.kernel.org
-Cc: Andries Brouwer <aebr@win.tue.nl>
-Message-id: <003c01c37b8f$9e09fba0$0a01a8c0@internal.dimasoftware.com>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <1063443074.3f62da82a7e24@webmail.netregistry.net>
- <20030913220743.B3295@pclin040.win.tue.nl>
- <1063527169.3f642301c00e7@webmail.netregistry.net>
- <20030914185142.F3371@pclin040.win.tue.nl>
+	Mon, 15 Sep 2003 09:43:41 -0400
+Received: from badne3.ux.his.no ([152.94.1.63]:44937 "EHLO badne3.ux.his.no")
+	by vger.kernel.org with ESMTP id S261185AbTIONng (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 09:43:36 -0400
+Date: Mon, 15 Sep 2003 15:43:34 +0200
+From: Erlend Aasland <erlend-a@ux.his.no>
+To: kartikey bhatt <kartik_me@hotmail.com>
+Cc: jmorris@intercode.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [CRYPTO] Testing Module Cleanup.
+Message-ID: <20030915134334.GA2108@badne3.ux.his.no>
+References: <Law11-F123RpXbD4dSr0004cdfc@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Law11-F123RpXbD4dSr0004cdfc@hotmail.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Sun, Sep 14, 2003 at 06:12:49PM +1000, Dmitri Katchalov wrote:
-> > Quoting Andries Brouwer <aebr@win.tue.nl>:
->
-> > > On Sat, Sep 13, 2003 at 06:51:14PM +1000, Dmitri Katchalov wrote:
-> > >
-> > > > I'm consistently getting this error:
-> > > >
-> > > > atkbd.c: Unknown key (set 2, scancode 0xab, on isa0060/serio0)
-pressed.
-> > > > This happens whenever I type 'f' in "<F7>usbdevfs".
->
-> It seems most likely that this keyboard is broken.
-> Instead of 0xa1 (f release) you get 0xab (\ release).
-> By some coincidence 0xab is f release in untranslated scancode set 2.
-> (But you are in translated scancode set 2, otherwise the other letters
-> would also have produced different codes.)
->
-> Could you try to run "showkey -s" on the console under 2.4.*?
-> Hit and release the f a few times. Type <F7>usbdevfs.
->
-> Just a broken key is something I have seen lots of times.
-> Since for most operating systems make codes are important
-> while break codes (other than those for Shift, Ctrl, Alt)
-> are not, a key with broken release code is usually harmless.
->
-> This case seems interesting because, if I understand you correctly,
-> the f in itself is not always broken, but this error occurs after
-> a particular sequence of keystrokes.
+On 09/15/03 00:30, kartikey bhatt wrote:
+> I have cleaned up the testing module.
+> A complete rewrite.
+> Any suggestions are welcome.
 
-I've just run showkey. This is WEIRD! I've never seen anything
-like it (almost)! It is definitely a bug in my keyboard.
-Whenever 'f' occurs in the stream exactly 12 scancodes
-after <F7> it reports wrong release code. It even has a "queue"
-so that multiple instances of the bug can be pipelined :)
+What about removing some magic numbers to make it a little more
+readable?
 
-Interestingly the bug has no ill effects on 2.4.18 at all. It just works.
-In 2.6.0-test5 I'm getting a message right across the screen followed
-by zillions of 'f's.
 
-Andries, thanks for your time and for the hints you gave me. I'll put a
-workaround in my kernel. I don't think it will be useful to anyone else
-though:)
+Regards
+	Erlend Aasland
 
-Regards,
-Dmitri
-
+--- linux-2.6.0-test5-dirty/crypto/tcrypt.c	2003-09-15 21:36:30.000000000 +0200
++++ linux-2.6.0-test5-dirty/crypto/tcrypt.c~	2003-09-15 21:35:21.000000000 +0200
+@@ -43,6 +43,14 @@
+ #define IDX7		27333
+ #define IDX8		3000
+ 
++/*
++ * Used by test_cipher()
++ */
++#define ENCRYPT 1
++#define DECRYPT 0
++#define MODE_ECB 1
++#define MODE_CBC 0
++
+ static unsigned int IDX[8] = { IDX1, IDX2, IDX3, IDX4, IDX5, IDX6, IDX7, IDX8 };
+ 
+ static int mode;
+@@ -251,10 +259,16 @@
+ 	char *key;
+ 	struct cipher_testvec *cipher_tv;
+ 	struct scatterlist sg[8];
+-	char *e, *m;
++	char e[11], m[4];
+ 	
+-	e = enc ? "encryption" : "decryption";
+-	m = mode ? "ECB" : "CBC";
++	if (enc == ENCRYPT)
++		strncpy(e, "encryption", 11);
++	else
++		strncpy(e, "decryption", 11);
++	if (mode == MODE_ECB)
++		strncpy(m, "ECB", 4);
++	else
++		strncpy(m, "CBC", 4);
+ 
+ 	printk("\ntesting %s %s %s \n", algo, m, e);
+ 
+@@ -497,46 +511,46 @@
+ 		test_hash("sha1", sha1_tv_template, SHA1_TEST_VECTORS);
+ 		
+ 		//DES
+-		test_cipher ("des", 1, 1, des_enc_tv_template, DES_ENC_TEST_VECTORS);
+-		test_cipher ("des", 1, 0, des_dec_tv_template, DES_DEC_TEST_VECTORS);
+-		test_cipher ("des", 0, 1, des_cbc_enc_tv_template, DES_CBC_ENC_TEST_VECTORS);
+-		test_cipher ("des", 0, 0, des_cbc_dec_tv_template, DES_CBC_DEC_TEST_VECTORS);
++		test_cipher ("des", MODE_ECB, ENCRYPT, des_enc_tv_template, DES_ENC_TEST_VECTORS);
++		test_cipher ("des", MODE_ECB, DECRYPT, des_dec_tv_template, DES_DEC_TEST_VECTORS);
++		test_cipher ("des", MODE_CBC, ENCRYPT, des_cbc_enc_tv_template, DES_CBC_ENC_TEST_VECTORS);
++		test_cipher ("des", MODE_CBC, DECRYPT, des_cbc_dec_tv_template, DES_CBC_DEC_TEST_VECTORS);
+ 		
+ 		//DES3_EDE
+-		test_cipher ("des3_ede", 1, 1, des3_ede_enc_tv_template, DES3_EDE_ENC_TEST_VECTORS);
+-		test_cipher ("des3_ede", 1, 0, des3_ede_dec_tv_template, DES3_EDE_DEC_TEST_VECTORS);
++		test_cipher ("des3_ede", MODE_ECB, ENCRYPT, des3_ede_enc_tv_template, DES3_EDE_ENC_TEST_VECTORS);
++		test_cipher ("des3_ede", MODE_ECB, DECRYPT, des3_ede_dec_tv_template, DES3_EDE_DEC_TEST_VECTORS);
+ 
+ 		test_hash("md4", md4_tv_template, MD4_TEST_VECTORS);
+ 		
+ 		test_hash("sha256", sha256_tv_template, SHA256_TEST_VECTORS);
+ 		
+ 		//BLOWFISH
+-		test_cipher ("blowfish", 1, 1, bf_enc_tv_template, BF_ENC_TEST_VECTORS);
+-		test_cipher ("blowfish", 1, 0, bf_dec_tv_template, BF_DEC_TEST_VECTORS);
+-		test_cipher ("blowfish", 0, 1, bf_cbc_enc_tv_template, BF_CBC_ENC_TEST_VECTORS);
+-		test_cipher ("blowfish", 0, 0, bf_cbc_dec_tv_template, BF_CBC_DEC_TEST_VECTORS);
++		test_cipher ("blowfish", MODE_ECB, ENCRYPT, bf_enc_tv_template, BF_ENC_TEST_VECTORS);
++		test_cipher ("blowfish", MODE_ECB, DECRYPT, bf_dec_tv_template, BF_DEC_TEST_VECTORS);
++		test_cipher ("blowfish", MODE_CBC, ENCRYPT, bf_cbc_enc_tv_template, BF_CBC_ENC_TEST_VECTORS);
++		test_cipher ("blowfish", MODE_CBC, DECRYPT, bf_cbc_dec_tv_template, BF_CBC_DEC_TEST_VECTORS);
+ 		
+ 		//TWOFISH
+-		test_cipher ("twofish", 1, 1, tf_enc_tv_template, TF_ENC_TEST_VECTORS);
+-		test_cipher ("twofish", 1, 0, tf_dec_tv_template, TF_DEC_TEST_VECTORS);
+-		test_cipher ("twofish", 0, 1, tf_cbc_enc_tv_template, TF_CBC_ENC_TEST_VECTORS);
+-		test_cipher ("twofish", 0, 0, tf_cbc_dec_tv_template, TF_CBC_DEC_TEST_VECTORS);
++		test_cipher ("twofish", MODE_ECB, ENCRYPT, tf_enc_tv_template, TF_ENC_TEST_VECTORS);
++		test_cipher ("twofish", MODE_ECB, DECRYPT, tf_dec_tv_template, TF_DEC_TEST_VECTORS);
++		test_cipher ("twofish", MODE_CBC, ENCRYPT, tf_cbc_enc_tv_template, TF_CBC_ENC_TEST_VECTORS);
++		test_cipher ("twofish", MODE_CBC, DECRYPT, tf_cbc_dec_tv_template, TF_CBC_DEC_TEST_VECTORS);
+ 		
+ 		//SERPENT
+-		test_cipher ("serpent", 1, 1, serpent_enc_tv_template, SERPENT_ENC_TEST_VECTORS);
+-		test_cipher ("serpent", 1, 0, serpent_dec_tv_template, SERPENT_DEC_TEST_VECTORS);
++		test_cipher ("serpent", MODE_ECB, ENCRYPT, serpent_enc_tv_template, SERPENT_ENC_TEST_VECTORS);
++		test_cipher ("serpent", MODE_ECB, DECRYPT, serpent_dec_tv_template, SERPENT_DEC_TEST_VECTORS);
+ 		
+ 		//AES
+-		test_cipher ("aes", 1, 1, aes_enc_tv_template, AES_ENC_TEST_VECTORS);
+-		test_cipher ("aes", 1, 0, aes_dec_tv_template, AES_DEC_TEST_VECTORS);
++		test_cipher ("aes", MODE_ECB, ENCRYPT, aes_enc_tv_template, AES_ENC_TEST_VECTORS);
++		test_cipher ("aes", MODE_ECB, DECRYPT, aes_dec_tv_template, AES_DEC_TEST_VECTORS);
+ 
+ 		//CAST5
+-		test_cipher ("cast5", 1, 1, cast5_enc_tv_template, CAST5_ENC_TEST_VECTORS);
+-		test_cipher ("cast5", 1, 0, cast5_dec_tv_template, CAST5_DEC_TEST_VECTORS);
++		test_cipher ("cast5", MODE_ECB, ENCRYPT, cast5_enc_tv_template, CAST5_ENC_TEST_VECTORS);
++		test_cipher ("cast5", MODE_ECB, DECRYPT, cast5_dec_tv_template, CAST5_DEC_TEST_VECTORS);
+ 		
+ 		//CAST6
+-		test_cipher ("cast6", 1, 1, cast6_enc_tv_template, CAST6_ENC_TEST_VECTORS);
+-		test_cipher ("cast6", 1, 0, cast6_dec_tv_template, CAST6_DEC_TEST_VECTORS);
++		test_cipher ("cast6", MODE_ECB, ENCRYPT, cast6_enc_tv_template, CAST6_ENC_TEST_VECTORS);
++		test_cipher ("cast6", MODE_ECB, DECRYPT, cast6_dec_tv_template, CAST6_DEC_TEST_VECTORS);
+ 
+ 		test_hash("sha384", sha384_tv_template, SHA384_TEST_VECTORS);
+ 		test_hash("sha512", sha512_tv_template, SHA512_TEST_VECTORS);
+@@ -557,15 +571,15 @@
+ 		break;
+ 
+ 	case 3:
+-		test_cipher ("des", 1, 1, des_enc_tv_template, DES_ENC_TEST_VECTORS);
+-		test_cipher ("des", 1, 0, des_dec_tv_template, DES_DEC_TEST_VECTORS);
+-		test_cipher ("des", 0, 1, des_cbc_enc_tv_template, DES_CBC_ENC_TEST_VECTORS);
+-		test_cipher ("des", 0, 0, des_cbc_dec_tv_template, DES_CBC_DEC_TEST_VECTORS);
++		test_cipher ("des", MODE_ECB, ENCRYPT, des_enc_tv_template, DES_ENC_TEST_VECTORS);
++		test_cipher ("des", MODE_ECB, DECRYPT, des_dec_tv_template, DES_DEC_TEST_VECTORS);
++		test_cipher ("des", MODE_CBC, ENCRYPT, des_cbc_enc_tv_template, DES_CBC_ENC_TEST_VECTORS);
++		test_cipher ("des", MODE_CBC, DECRYPT, des_cbc_dec_tv_template, DES_CBC_DEC_TEST_VECTORS);
+ 		break;
+ 
+ 	case 4:
+-		test_cipher ("des3_ede", 1, 1, des3_ede_enc_tv_template, DES3_EDE_ENC_TEST_VECTORS);
+-		test_cipher ("des3_ede", 1, 0, des3_ede_dec_tv_template, DES3_EDE_DEC_TEST_VECTORS);
++		test_cipher ("des3_ede", MODE_ECB, ENCRYPT, des3_ede_enc_tv_template, DES3_EDE_ENC_TEST_VECTORS);
++		test_cipher ("des3_ede", MODE_ECB, DECRYPT, des3_ede_dec_tv_template, DES3_EDE_DEC_TEST_VECTORS);
+ 		break;
+ 
+ 	case 5:
+@@ -577,28 +591,28 @@
+ 		break;
+ 	
+ 	case 7:
+-		test_cipher ("blowfish", 1, 1, bf_enc_tv_template, BF_ENC_TEST_VECTORS);
+-		test_cipher ("blowfish", 1, 0, bf_dec_tv_template, BF_DEC_TEST_VECTORS);
+-		test_cipher ("blowfish", 0, 1, bf_cbc_enc_tv_template, BF_CBC_ENC_TEST_VECTORS);
+-		test_cipher ("blowfish", 0, 0, bf_cbc_dec_tv_template, BF_CBC_DEC_TEST_VECTORS);
++		test_cipher ("blowfish", MODE_ECB, ENCRYPT, bf_enc_tv_template, BF_ENC_TEST_VECTORS);
++		test_cipher ("blowfish", MODE_ECB, DECRYPT, bf_dec_tv_template, BF_DEC_TEST_VECTORS);
++		test_cipher ("blowfish", MODE_CBC, ENCRYPT, bf_cbc_enc_tv_template, BF_CBC_ENC_TEST_VECTORS);
++		test_cipher ("blowfish", MODE_CBC, DECRYPT, bf_cbc_dec_tv_template, BF_CBC_DEC_TEST_VECTORS);
+ 		break;
+ 
+ 	case 8:
+-		test_cipher ("twofish", 1, 1, tf_enc_tv_template, TF_ENC_TEST_VECTORS);
+-		test_cipher ("twofish", 1, 0, tf_dec_tv_template, TF_DEC_TEST_VECTORS);
+-		test_cipher ("twofish", 0, 1, tf_cbc_enc_tv_template, TF_CBC_ENC_TEST_VECTORS);
+-		test_cipher ("twofish", 0, 0, tf_cbc_dec_tv_template, TF_CBC_DEC_TEST_VECTORS);
++		test_cipher ("twofish", MODE_ECB, ENCRYPT, tf_enc_tv_template, TF_ENC_TEST_VECTORS);
++		test_cipher ("twofish", MODE_ECB, DECRYPT, tf_dec_tv_template, TF_DEC_TEST_VECTORS);
++		test_cipher ("twofish", MODE_CBC, ENCRYPT, tf_cbc_enc_tv_template, TF_CBC_ENC_TEST_VECTORS);
++		test_cipher ("twofish", MODE_CBC, DECRYPT, tf_cbc_dec_tv_template, TF_CBC_DEC_TEST_VECTORS);
+ 		break;
+ 		
+ 	case 9:
+-		test_cipher ("serpent", 1, 1, serpent_enc_tv_template, SERPENT_ENC_TEST_VECTORS);
+-		test_cipher ("serpent", 1, 0, serpent_dec_tv_template, SERPENT_DEC_TEST_VECTORS);
++		test_cipher ("serpent", MODE_ECB, ENCRYPT, serpent_enc_tv_template, SERPENT_ENC_TEST_VECTORS);
++		test_cipher ("serpent", MODE_ECB, DECRYPT, serpent_dec_tv_template, SERPENT_DEC_TEST_VECTORS);
+ 
+ 		break;
+ 
+ 	case 10:
+-		test_cipher ("aes", 1, 1, aes_enc_tv_template, AES_ENC_TEST_VECTORS);
+-		test_cipher ("aes", 1, 0, aes_dec_tv_template, AES_DEC_TEST_VECTORS);	
++		test_cipher ("aes", MODE_ECB, ENCRYPT, aes_enc_tv_template, AES_ENC_TEST_VECTORS);
++		test_cipher ("aes", MODE_ECB, DECRYPT, aes_dec_tv_template, AES_DEC_TEST_VECTORS);	
+ 		break;
+ 
+ 	case 11:
+@@ -614,13 +628,13 @@
+ 		break;
+ 
+ 	case 14:
+-		test_cipher ("cast5", 1, 1, cast5_enc_tv_template, CAST5_ENC_TEST_VECTORS);
+-		test_cipher ("cast5", 1, 0, cast5_dec_tv_template, CAST5_DEC_TEST_VECTORS);
++		test_cipher ("cast5", MODE_ECB, ENCRYPT, cast5_enc_tv_template, CAST5_ENC_TEST_VECTORS);
++		test_cipher ("cast5", MODE_ECB, DECRYPT, cast5_dec_tv_template, CAST5_DEC_TEST_VECTORS);
+ 		break;
+ 
+ 	case 15:
+-		test_cipher ("cast6", 1, 1, cast6_enc_tv_template, CAST6_ENC_TEST_VECTORS);
+-		test_cipher ("cast6", 1, 0, cast6_dec_tv_template, CAST6_DEC_TEST_VECTORS);
++		test_cipher ("cast6", MODE_ECB, ENCRYPT, cast6_enc_tv_template, CAST6_ENC_TEST_VECTORS);
++		test_cipher ("cast6", MODE_ECB, DECRYPT, cast6_dec_tv_template, CAST6_DEC_TEST_VECTORS);
+ 		break;
+ 
+ #ifdef CONFIG_CRYPTO_HMAC

@@ -1,32 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbTI0DdD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 23:33:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbTI0DdD
+	id S262041AbTI0D0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 23:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbTI0D0P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 23:33:03 -0400
-Received: from [24.76.142.122] ([24.76.142.122]:43781 "HELO
-	signalmarketing.com") by vger.kernel.org with SMTP id S262074AbTI0DdB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 23:33:01 -0400
-Date: Fri, 26 Sep 2003 22:33:00 -0500 (CDT)
-From: Derek Foreman <manmower@signalmarketing.com>
-To: linux-kernel@vger.kernel.org
-Subject: CDROM_SEND_PACKET oddity
-Message-ID: <Pine.LNX.4.58.0309262131110.15317@uberdeity.signalmarketing.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 26 Sep 2003 23:26:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:1938 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262041AbTI0D0P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 23:26:15 -0400
+Date: Fri, 26 Sep 2003 20:12:39 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: manfred@colorfullife.com, linux-kernel@vger.kernel.org
+Subject: Re: NS83820 2.6.0-test5 driver seems unstable on IA64
+Message-Id: <20030926201239.2a2f0ef0.davem@redhat.com>
+In-Reply-To: <20030926183827.A821@jurassic.park.msu.ru>
+References: <3F73D9C4.1050201@colorfullife.com>
+	<20030925230702.4ef87780.davem@redhat.com>
+	<20030926183827.A821@jurassic.park.msu.ru>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The example code from
-http://www.ussg.iu.edu/hypermail/linux/kernel/0202.0/att-0603/01-cd_poll.c
+On Fri, 26 Sep 2003 18:38:27 +0400
+Ivan Kokshaysky <ink@jurassic.park.msu.ru> wrote:
 
-Does not behave as expected on my 2.6.0-test5 system.  While the command 
-seems to be successfully sent - 2 of my drives report it as an invalid 
-opcode - for the other 2 drives, the buffer comes back all zeros.
-(actually, the buffer's contents will remain in whatever state they're in 
-before the ioctl is called)
+> What about aligning the packet directly in the rx buffer (by memmoving
+> the entire packet to buf+2) instead of copying to another skb?
+> This appears to be a) more than 2 times faster b) easy to implement.
 
-Sending the same command to those 2 drives with SG_IO results in the 
-expected behaviour.
+That's another possibility.

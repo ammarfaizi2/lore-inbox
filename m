@@ -1,56 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271731AbTGRHQu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 03:16:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271732AbTGRHQt
+	id S271732AbTGRHXy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 03:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271733AbTGRHXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 03:16:49 -0400
-Received: from smtp4.wanadoo.fr ([193.252.22.26]:1544 "EHLO
-	mwinf0502.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S271731AbTGRHQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 03:16:43 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@redhat.com>
-Subject: Re: SET_MODULE_OWNER
-Date: Fri, 18 Jul 2003 09:31:39 +0200
-User-Agent: KMail/1.5.2
-Cc: schlicht@uni-mannheim.de, ricardo.b@zmail.pt, linux-kernel@vger.kernel.org
-References: <1058446580.18647.11.camel@ezquiel.nara.homeip.net> <20030717125942.7fab1141.davem@redhat.com> <3F170589.50005@pobox.com>
-In-Reply-To: <3F170589.50005@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jul 2003 03:23:54 -0400
+Received: from us01smtp2.synopsys.com ([198.182.44.80]:59636 "EHLO
+	kiruna.synopsys.com") by vger.kernel.org with ESMTP id S271732AbTGRHXx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 03:23:53 -0400
+Date: Fri, 18 Jul 2003 09:38:42 +0200
+From: Alex Riesen <alexander.riesen@synopsys.COM>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O6int for interactivity
+Message-ID: <20030718073842.GA5598@Synopsys.COM>
+Reply-To: alexander.riesen@synopsys.COM
+Mail-Followup-To: Con Kolivas <kernel@kolivas.org>,
+	linux-kernel@vger.kernel.org
+References: <200307170030.25934.kernel@kolivas.org> <20030717090508.GE13611@Synopsys.COM> <1058433295.3f16690fa2f2e@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307180931.39177.baldrick@wanadoo.fr>
+In-Reply-To: <1058433295.3f16690fa2f2e@kolivas.org>
+Organization: Synopsys, Inc.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 17 July 2003 22:22, Jeff Garzik wrote:
-> David S. Miller wrote:
-> > On Thu, 17 Jul 2003 12:00:58 -0400
-> >
-> > Jeff Garzik <jgarzik@pobox.com> wrote:
-> >>David?  Does Rusty have a plan here or something?
-> >
-> > It just works how it works and that's it.
-> >
-> > Net devices are reference counted, anything more is superfluous.
-> > They may be yanked out of the kernel whenever you want.
->
-> (I'm obviously just realizing the implications of this... missed it
-> completely during the earlier discussions)
->
-> Object lifetime is just part of the story.
->
-> This change is a major behavior change.  The whole point of removing a
-> module is knowing its gone ;-)  And that is completely changed now.
-> Modules are very often used by developers in a "modprobe ; test ; rmmod"
-> cycle, and that's now impossible (you don't know when the net device,
-> and thus your code, is really gone).  It's already breaking userland,
-> which does sweeps for zero-refcount modules among other things.
+Con Kolivas, Thu, Jul 17, 2003 11:14:55 +0200:
+> > > O*int patches trying to improve the interactivity of the 2.5/6
+> > > scheduler for desktops. It appears possible to do this without
+> > > moving to nanosecond resolution.
+> > 
+> > tar ztf file.tar.gz and make something somehow do not like each other.
+> > Usually it is tar, which became very slow. And listings of directories
+> > are slow if system is under load (about 3), too (most annoying).
+> > 
+> > UP P3-700, preempt. 2.6.0-test1-mm1 + O6-int.
+> 
+> Thanks for testing. It is distinctly possible that O6.1 addresses this
+> problem.  Can you please test that? It applies on top of O6 and only
+> requires a recompile of sched.o.
 
-Most USB drivers can be unloaded at any time, so this problem already
-existed elsewhere.
+Still no good. xine drops frames by kernel's make -j2, xmms skips while
+bk pull (locally). Updates (after switching desktops in metacity) get
+delayed for seconds (mozilla window redraws with www.kernel.org on it,
+for example).
 
-Duncan.
+Priorities of xine threads were around 15-16, with one of them
+constantly at 16 (the one with most cpu). gcc/as processes were 20-21.
+
+That said, it feels better than before, though. And the last changes in
+the scheduler seem to reveal more races in applications (a found rxvt
+not checking for errors reading from pty).
+
+-alex

@@ -1,46 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290787AbSBFUYn>; Wed, 6 Feb 2002 15:24:43 -0500
+	id <S290790AbSBFUYx>; Wed, 6 Feb 2002 15:24:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290791AbSBFUYe>; Wed, 6 Feb 2002 15:24:34 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:58267 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S290787AbSBFUYW>; Wed, 6 Feb 2002 15:24:22 -0500
-Message-ID: <3C6192A5.911D5B4F@nortelnetworks.com>
-Date: Wed, 06 Feb 2002 15:31:33 -0500
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: want opinions on possible glitch in 2.4 network error reporting
+	id <S290791AbSBFUYo>; Wed, 6 Feb 2002 15:24:44 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:4857 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S290790AbSBFUYc>;
+	Wed, 6 Feb 2002 15:24:32 -0500
+Date: Wed, 6 Feb 2002 21:24:15 +0100
+From: Petr Baudis <pasky@pasky.ji.cz>
+To: linuxconsole-dev@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, gpm@lists.linux.it, salvador@inti.gov.ar,
+        jsimmons@transvirtual.com
+Subject: Reworking the selection API and moving it to userspace (gpm)?
+Message-ID: <20020206202415.GV8510@pasky.ji.cz>
+Mail-Followup-To: linuxconsole-dev@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org, gpm@lists.linux.it,
+	salvador@inti.gov.ar, jsimmons@transvirtual.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.5.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-I've been looking around in the 2.4 networking stack, and I noticed that when
-the tulip (and no doubt many other) driver cannot put any more outgoing packets
-on the queue, it calls netif_stop_queue().  Then, in dev_queue_xmit() we check
-this flag by calling netif_queue_stopped().  My concern is that if this flag is
-true, we return -ENETDOWN.  Is this really the proper return code for this? If
-anything, the network is too active.  It seems to me that it would make more
-sense to have some kind of congestion return code rather than claiming that the
-network is down.
+  About June 2001, in the era of 2.4.7 kernel, there occured a patch on LKML
+(by Salvador Eduardo Tropea <salvador@inti.gov.ar>), which improved the actual
+selection API of kernel to allow applications to get the content of the
+selection buffer etc. However, James Simmons said that he will be working on
+this for 2.5 and move it to userspace completely, reworking gpm.
 
-I think it would make sense to return -ENOBUFS in this case, as its already
-listed in the sendto() man page, and the description matches the error because
-the command could succeed if retried.
+  Nevertheless, I didn't saw a notice about this at all since then - there's no
+metion about this on linuxconsole's project homepage, in the 2.5 todo list nor
+anywhere else - and as I'm looking forward for this change a lot, I would like
+to ask if there's any movement in this issue. I would be even willing to help,
+if possible :).
 
-I ran into a somewhat related issue on a 2.2.16 system, where I had an app that
-was calling sendto() on 217000 packets/sec, even though the wire could only
-handle about 127000 packets/sec.  I got no errors at all in sendto, even though
-over a third of the packets were not actually being sent.
-
+  Kind regards,
 
 -- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+
+				Petr "Pasky" Baudis
+
+* UN*X programmer && admin         * IPv6 guy (XS26 co-coordinator)
+* elinks maintainer                * FreeCiv AI hacker
+* IRCnet local operator
+.
+"Something has fallen on us that falls very seldom on men; perhaps the worst
+thing that can fall on them.
+We have found the truth; and the truth makes no sense."
+		-- Father Brown
+.
+Public PGP key && geekcode && homepage: http://pasky.ji.cz/~pasky/

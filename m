@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290463AbSAQVLK>; Thu, 17 Jan 2002 16:11:10 -0500
+	id <S290464AbSAQVMb>; Thu, 17 Jan 2002 16:12:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290464AbSAQVLA>; Thu, 17 Jan 2002 16:11:00 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:10002 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S290463AbSAQVKs>; Thu, 17 Jan 2002 16:10:48 -0500
-Date: Thu, 17 Jan 2002 17:58:03 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Jeff Chua <jchua@fedex.com>
-Subject: Re: 2.4.18-pre4 can't compile cs4281m.c
-In-Reply-To: <Pine.LNX.4.43.0201190409370.1165-100000@boston.corp.fedex.com>
-Message-ID: <Pine.LNX.4.21.0201171757180.29396-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S290465AbSAQVMU>; Thu, 17 Jan 2002 16:12:20 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:55691 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S290464AbSAQVMK>;
+	Thu, 17 Jan 2002 16:12:10 -0500
+Date: Thu, 17 Jan 2002 13:11:01 -0800 (PST)
+Message-Id: <20020117.131101.118630373.davem@redhat.com>
+To: balbir_soni@hotmail.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Suspected bug in getpeername and getsockname
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <F96rPJjUsZ6G7KCk5sm0001ad67@hotmail.com>
+In-Reply-To: <F96rPJjUsZ6G7KCk5sm0001ad67@hotmail.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: "Balbir Singh" <balbir_soni@hotmail.com>
+   Date: Thu, 17 Jan 2002 08:27:17 -0800
 
-I forgot to "cvs add" cs4281_wrapper.h when I merged ac3 patches.
+   What I was trying to state is that the protocol specific
+   code does not get to see the length passed from the user.
+   The protocol specific code would like to look at what
+   the user passed.
+   
+If move_addr_to_user() takes care of all of the issues, there is no
+reason for the protocol specific code to know anything about the
+user's len at all.
 
-This is already fixed in my tree: Wait for pre5.
-
-On Sat, 19 Jan 2002, Jeff Chua wrote:
-
-> 
-> Any patch for this? Sorry if there's already one posted, but I couldn't
-> find it.
-
-
+You have to show me a purpose for it to get passed down.  What would
+it get used for?  All the protocol specific could should (and does)
+do is provide the data back to the top level routine and
+move_addr_to_user() takes care of the remaining details.

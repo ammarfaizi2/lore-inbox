@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263267AbSJaQcx>; Thu, 31 Oct 2002 11:32:53 -0500
+	id <S262886AbSJaQ3x>; Thu, 31 Oct 2002 11:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263218AbSJaQb7>; Thu, 31 Oct 2002 11:31:59 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:10741 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S263215AbSJaQbc>; Thu, 31 Oct 2002 11:31:32 -0500
-Message-ID: <F2DBA543B89AD51184B600508B68D4000EFF43C9@fmsmsx103.fm.intel.com>
-From: "Nakajima, Jun" <jun.nakajima@intel.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Mallick, Asit K" <asit.k.mallick@intel.com>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>
-Subject: RE: [PATCH] fixes for building kernel 2.5.45 using Intel compiler
-Date: Thu, 31 Oct 2002 08:37:48 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S263193AbSJaQ3w>; Thu, 31 Oct 2002 11:29:52 -0500
+Received: from main.gmane.org ([80.91.224.249]:16063 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S262886AbSJaQ3K>;
+	Thu, 31 Oct 2002 11:29:10 -0500
+To: linux-kernel@vger.kernel.org
+X-Injected-Via-Gmane: http://gmane.org/
+Path: not-for-mail
+From: Nicholas Wourms <nwourms@netscape.net>
+Subject: Re: The Ext3sj Filesystem
+Date: Thu, 31 Oct 2002 11:36:36 -0500
+Message-ID: <aprm29$flg$2@main.gmane.org>
+References: <200210301434.17901.mattf@mattjf.com> <Pine.LNX.4.44L.0210301826410.1697-100000@imladris.surriel.com>
+Reply-To: nwourms@netscape.net
+NNTP-Posting-Host: 130-127-121-177.generic.clemson.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+X-Trace: main.gmane.org 1036082057 16048 130.127.121.177 (31 Oct 2002 16:34:17 GMT)
+X-Complaints-To: usenet@main.gmane.org
+NNTP-Posting-Date: Thu, 31 Oct 2002 16:34:17 +0000 (UTC)
+User-Agent: KNode/0.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
-> 
-> On Thu, 2002-10-31 at 03:17, Nakajima, Jun wrote:
-> >  asmlinkage int sys_iopl(unsigned long unused)
-> >  {
-> > -	struct pt_regs * regs = (struct pt_regs *) &unused;
-> > +	volatile struct pt_regs * regs = (struct pt_regs *) &unused;
-> 
-> Why is this needed ?
+Rik van Riel wrote:
 
-Becaues the compiler optimization removes the following code without it.
-	regs->eflags = (regs->eflags & 0xffffcfff) | (level << 12);
-
-The compiler provides access to the argument 'unused' in the stack
-(asmlinkage, 
-i.e. __attribute__ ((regparm(0))), but it thinks modifying the stack 
-more than that is not effective anyway. So it elimites the code under
-optimizations. 
-
+> On Wed, 30 Oct 2002, Matthew J. Fanto wrote:
 > 
+>> I am annoucing the development of the ext3sj filesystem. Ext3sj is a new
+>> encrypted filesystem based off ext3. Ext3sj is an improvement over the
+>> current loopback solution because we do not in fact require a loopback
+>> device.  [snip]  Instead, every file is encrypted seperately
 > 
-> > -	IGNLABEL "HmacRxUc",
-> > -	IGNLABEL "HmacRxDiscard",
-> > -	IGNLABEL "HmacRxAccepted",
-> > +	IGNLABEL /* "HmacTxMc", */
-> > +	IGNLABEL /* "HmacTxBc", */
+> Very nice, for exactly the reasons you outlined ;)
 > 
-> You seem to be removing fields from the struct - have you 
-> tested this ?
+>> Currently, ext3sj supports the following algorithms: AES, 3DES, Twofish,
+>> Serpent, RC6, RC5, RC2, Blowfish, CAST-256, XTea, Safer+, SHA1, SHA256,
+>> SHA384, SHA512, MD5, with more to come.  If anyone has any comments,
 > 
-No, it's not removing fields from there. The original definition of IGNLABLE
-is 
-	#define IGNLABEL 0&(int)
-And
-	IGNLABEL "HmacRxUc",
-simpile ends up 0, (in gcc). But this is just causing (a lot of) warnings,
-so I take this out.
+> How about using the algorithms that are already in the kernel
+> via the crypto API so all of the kernel can share the same
+> crypto algorithms ?
 
-Jun
+I agree, as this seems like the logical approach.  However, why not just add 
+the missing algorithms in the list above to the CryptoAPI while your at it?  
+That way, we really give users a choice over which algorithm they prefer to 
+use, but also maintaining a centralized API for them.
 
+Cheers,
+Nicholas
 
 

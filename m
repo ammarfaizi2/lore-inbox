@@ -1,53 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263249AbSJ1Kff>; Mon, 28 Oct 2002 05:35:35 -0500
+	id <S263256AbSJ1KkS>; Mon, 28 Oct 2002 05:40:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263256AbSJ1Kff>; Mon, 28 Oct 2002 05:35:35 -0500
-Received: from smtpout.mac.com ([204.179.120.89]:51660 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S263249AbSJ1Kfd>;
-	Mon, 28 Oct 2002 05:35:33 -0500
-Message-ID: <3DBD1527.17B4B502@mac.com>
-Date: Mon, 28 Oct 2002 11:44:55 +0100
+	id <S263267AbSJ1KkS>; Mon, 28 Oct 2002 05:40:18 -0500
+Received: from smtpout.mac.com ([204.179.120.88]:31426 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S263256AbSJ1KkR>;
+	Mon, 28 Oct 2002 05:40:17 -0500
+Message-ID: <3DBD1645.518EFF07@mac.com>
+Date: Mon, 28 Oct 2002 11:49:41 +0100
 From: Peter Waechtler <pwaechtler@mac.com>
 X-Mailer: Mozilla 4.8 [de] (X11; U; Linux 2.4.18-4GB-SMP i686)
 X-Accept-Language: de, en
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-CC: linux-kernel@vger.kernel.org, jakub@redhat.com, torvalds@transmeta.com
+To: Manfred Spraul <manfred@colorfullife.com>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] unified SysV and Posix mqueues as FS
-References: <Pine.GSO.4.21.0210272053240.3884-100000@steklov.math.psu.edu>
+References: <3DBC1A6B.7020108@colorfullife.com> <3DBC6314.6B8AC5EA@mac.com> <3DBCDF4A.3080709@colorfullife.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro schrieb:
+Manfred Spraul schrieb:
 > 
-> On Sun, 27 Oct 2002, Peter Waechtler wrote:
+> Peter Waechtler wrote:
 > 
-> > Alexander Viro schrieb:
-> > >
-> > > On Sun, 27 Oct 2002, Peter Waechtler wrote:
-> > >
-> > > > I applied the patch from Jakub against 2.5.44
-> > > > There are still open issues but it's important to get this in before
-> > > > feature freeze.
-> > > >
-> > > > While you can implement Posix mqueues in userland (Irix is doing this
-> > > > with fcntl(fd,F_SETLKW,) and shmem) a kernel implementation has some advantages:
-> > >
-> > > *thud*
-> > >
-> > > ioctls on _directories_, of all things?
+> >I plan to separate the interfaces and just share the message stuff.
+> >But time was getting short. :)
 > >
-> > Parden? Where are directories used?
-> > create a file, give it a size, mmap it and serialize access to it with locks.
-> > That's all.
 > 
-> Check your file_operations for root directory.
+> Ok, you plan to rewrite the patch entirely, and what you have posted is
+> a placeholder.
+> 
+> How would the result look like?
+> I'm thinking about
+> - real syscalls
+> - pipefs like filesystem stub, kern-only mounted, not visible for normal
+> fs operations.
+> - not using the sysv array
+> 
+> Could you check the sus standard if that is permitted? A child would
+> inherit the mqueue on fork().
+> 
 
-Umh, misunderstanding: I thought you commented on the Irix part.
-And it's not my patch, it's Jakub Jelineks patch I applied against current 2.5
+Yes, I will check that - but I'm afraid of submitting too late.. :(
 
-I don't even see an advantage on having them as filesystem - I just think
-that the SysV and Posix mqueues should share most of the code.
+> For the locking stuff, the patch should probably depend on the sysv rcu
+> patch, it cleans up locking a bit.
+> 
+
+BTW, please have a look at ipc/util.c - the spinlock is held once
+ipc_addid() is called and will deadlock when the array has to grow...

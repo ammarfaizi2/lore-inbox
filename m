@@ -1,59 +1,198 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291019AbSBGBTv>; Wed, 6 Feb 2002 20:19:51 -0500
+	id <S288736AbSBFKKK>; Wed, 6 Feb 2002 05:10:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291027AbSBGBTl>; Wed, 6 Feb 2002 20:19:41 -0500
-Received: from [208.147.64.186] ([208.147.64.186]:64725 "HELO
-	warden3.diginsite.com") by vger.kernel.org with SMTP
-	id <S291019AbSBGBT1>; Wed, 6 Feb 2002 20:19:27 -0500
-Date: Thu, 31 Jan 2002 15:43:28 -0800 (PST)
-From: David Lang <dlang@diginsite.com>
-To: Jeff Garzik <garzik@havoc.gtf.org>
-cc: "David S. Miller" <davem@redhat.com>, <vandrove@vc.cvut.cz>,
-        <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-        <paulus@samba.org>, <davidm@hpl.hp.com>, <ralf@gnu.org>
-Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3 does
- not
-In-Reply-To: <20020131180842.A13730@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.44.0201311543020.12657-100000@dlang.diginsite.com>
+	id <S288958AbSBFKKA>; Wed, 6 Feb 2002 05:10:00 -0500
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:51979 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S288736AbSBFKJy>; Wed, 6 Feb 2002 05:09:54 -0500
+Message-Id: <200202061008.g16A8Ct29437@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain;
+  charset="koi8-r"
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] List of maintainers (draft #2)
+Date: Wed, 6 Feb 2002 12:08:14 -0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-remember that CML2 claims to be able to detect that it needs to be on and
-turn it on when needed
+After recent discussion on Linux development practices I think it may be
+worthy to have list of lk maintainers. Unlike one included into kernel
+source, this document is meant to be monthly (weekly?) mailed to lkml
+and to be modified whenever new victim wishes to be listed in it
+or someone can no longer devote his time to maintainer work.
 
-David Lang
+This is a draft. I picked some names and addresses and made entried for them.
+If you want to be in this list, mail me your corrected entry. Please indicate
+what kind of reports you wish to receive and what kind of reports you DON'T
+want to see.
 
-On Thu, 31 Jan 2002, Jeff Garzik wrote:
+I want these entries to sound like "Hey, I am working on these parts of the
+kernel, if you have something, send it to me not to Linus". With precise
+indication of those parts and your level of involvement:
 
-> Date: Thu, 31 Jan 2002 18:08:42 -0500
-> From: Jeff Garzik <garzik@havoc.gtf.org>
-> To: David S. Miller <davem@redhat.com>
-> Cc: vandrove@vc.cvut.cz, torvalds@transmeta.com, linux-kernel@vger.kernel.org,
->      paulus@samba.org, davidm@hpl.hp.com, ralf@gnu.org
-> Subject: Re: [PATCH] Re: crc32 and lib.a (was Re: [PATCH] nbd in 2.5.3
->     does not
->
-> On Thu, Jan 31, 2002 at 02:59:04PM -0800, David S. Miller wrote:
-> > As a side note, this thing is so tiny (less than 4K on sparc64!) so
-> > why don't we just include it unconditionally instead of having all
-> > of this "turn it on for these drivers" stuff?
->
-> Does that 4K include the BE and LE crc tables?
->
-> <shrug>  I don't mind much either way, except that I am general
-> resistant to "turn this on unconditionally" for bloat reasons.
-> [ie. its a reflex :)]
->
-> 	Jeff
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+If you don't want to be in this list, mail me too - I'll remove your entry.
+
+Note that English isn't my native language, feel free to correct any mistakes.
+--
+vda
+
+* * * * DRAFT * * * *
+
+So, you are new to Linux kernel hacking and want to submit a kernel bug
+report but don't know how to do it and _where_ to report it?
+
+Preparing bug report:
+=====================
+Oops: decode it with ksymoops
+Unkillable process: Alt-SysRq-T and ksymoops relevant part
+(yes it means you should have ksymoops installed and tested!)
+
+Sending bug report/patch:
+=========================
+* It never hurts to send to Linux kernel mailing list.
+* Some device drivers have active developers, try to contact them first
+* Otherwise find a subsystem maintainer to which your report pertains
+  and send report to his address.
+* Small fixes and device driver updates are best directed to subsystem
+  maintainers and "small bits" integrators.
+* Do not send it to all addresses at once! This will annoy lots of people
+  and isn't useful at all.
+* Do NOT send it to Linus.
+* If your patch is something big and new, announce it on lkml and try
+  to attract testers. After it has been tested and discussed, you can
+  expect Linus to consider inclusion in mainline.
+
+Note that this list is sorted in reversed date order, most recent entries 
+first. This means than entries at bottom can be outdated :-(
+
+
+		Current Linux kernel people
+
+Linux kernel mailing list <linux-kernel@vger.kernel.org> [05 feb 2002]
+	Post anything related to Linux kernel here, but nothing else :-)
+
+Richard Gooch <rgooch@ras.ucalgary.ca> [5 feb 2002]
+	I maintain devfs. I want people to Cc: me when reporting devfs
+	problems, since I don't read all messages on linux-kernel.
+	Send devfs related patches to me directly, rather than
+	bypassing me and sending to Linus/Marcelo/Alan/Dave etc.
+
+Andrew Morton <akpm@zip.com.au> [05 feb 2002]
+	I'm receptive to any reproducible bug anywhere in the 2.4 kernel.
+	Specialising in ext2, ext3 and network drivers.
+	Not thinking about 2.5.x at this time.
+
+Petr Vandrovec <vandrove@vc.cvut.cz> [05 feb 2002]
+	ncpfs filesystem, matrox framebuffer driver, problems related
+	to VMware - in all of 2.2.x, 2.4.x and 2.5.x.
+
+Reiserfs developers list <reiserfs-dev@namesys.com> [05 feb 2002]
+	Send all reiserfs-related stuff here including but not limited to bug
+	reports, fixes, suggestions
+
+Oleg Drokin <green@linuxhacker.ru> [05 feb 2002]
+	SA11x0 USB-ethernet and SA11x0 watchdog are mine
+
+Vojtech Pavlik <vojtech@ucw.cz> [05 feb 2002]
+	Feel free to send me bug reports and patches to input device drivers
+	(drivers/input/*, drivers/char/joystick/*)
+	I also want to receive bug reports and patches for following
+	USB drivers: printer, acm, catc, hid*, usbmouse, usbkbd, wacom.
+	All other (not in the list) USB driver changes should go to USB
+	maintainer (hopefully there is one listed here :-).
+	Also CC me if you are posting VIA IDE driver related message
+	(although I am not IDE subsystem maintainer).
+
+======= I am waiting confirmation from these people ========
+
+Alan Cox <alan@lxorguk.ukuu.org.uk> [5 feb 2002]
+	I am 2.2 maintainer.
+	I collect various bits and pieces for inclusion in 2.4
+
+Alexander Viro <viro@math.psu.edu> [5 feb 2002]
+	I am NOT a fs subsystem maintainer. But I won't kill
+	you if you send me some generic fs bug reports and (hopefully) patches
+
+Andre Hedrick <andre@linux-ide.org> [5 feb 2002]
+	I am IDE guy.
+
+Andrea Arcangeli <andrea@suse.de> [5 feb 2002]
+	Send VM related bug reports and patches to me
+
+Arnaldo Carvalho de Melo <acme@conectiva.com.br> [5 feb 2002]
+	?
+
+Dave Jones <davej@suse.de> [5 feb 2002]
+	I collect various bits and pieces for inclusion in 2.5,
+	espesially small and trivial ones and driver updates. Do not bother
+	Linus with them. I'll feed them to Linus when (and if) they
+	are proved to be worthy.
+
+David S. Miller <davem@redhat.com> [5 feb 2002]
+	?
+
+Eric S. Raymond <esr@thyrsus.com> [5 feb 2002]
+	Send kernel configuration bug reports and suggestions to me.
+	Also I'll be more than happy to accept help enties for kernel config
+	options for Configure.help
+
+Greg KH <greg@kroah.com> [5 feb 2002]
+	?
+
+Gérard Roudier <groudier@free.fr> [5 feb 2002]
+	I am SCSI guy
+
+H. Peter Anvin <hpa@zytor.com> [5 feb 2002]
+	?
+
+Hans Reiser <reiser@namesys.com> [5 feb 2002]
+	ReiserFS is my favorite toy
+
+Ingo Molnar <mingo@elte.hu> [5 feb 2002]
+	New scheduler in 2.5 and Tux are mine
+
+James Simmons <jsimmons@transvirtual.com> [5 feb 2002]
+	Console and framebuffer sybsustems
+
+Jeff Garzik <jgarzik@mandrakesoft.com> [5 feb 2002]
+	?
+
+Jens Axboe <axboe@suse.de> [5 feb 2002]
+	I am block device subsystem maintainer
+
+Keith Owens <kaos@ocs.com.au> [5 feb 2002]
+	ksymoops, kbuild, .. .. .. .. .  are mine
+
+Linus Torvalds <torvalds@transmeta.com> [5 feb 2002]
+	Do not send anything to me unless it is for 2.5, well tested,
+	discussed on lkml and is used by significant number of people.
+	In general it is a bad idea to send me small fixes and driver
+	updates, send them to subsystem maintainers and/or
+	"small stuff" integrator (currently Dave Jones, see his entry)
+	Sorry, I can't do everything.
+
+Marcelo Tosatti <marcelo@conectiva.com.br> [5 feb 2002]
+	Do not send anything to me unless it is for 2.4 and well tested.
+	If you are sending me small fixes and driver updates, send
+	a copy to subsystem maintainers and/or "small stuff" integrator
+	(currently Alan Cox, see his entry).
+
+Rik van Riel <riel@conectiva.com.br> [5 feb 2002]
+	Send me VM related stuff
+
+Robert Love <rml@tech9.net> [5 feb 2002]
+	Preemptible kernel is mine
+
+Russell King <rmk@arm.linux.org.uk> [5 feb 2002]
+	?
+
+Rusty Russell <rusty@rustcorp.com.au> [5 feb 2002]
+	?
+
+Trond Myklebust <trond.myklebust@fys.uio.no> [5 feb 2002]
+	I am NFS maintainer

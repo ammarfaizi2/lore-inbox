@@ -1,49 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268168AbUJDPQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268184AbUJDP0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268168AbUJDPQp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 11:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268184AbUJDPQp
+	id S268184AbUJDP0K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 11:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268189AbUJDP0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 11:16:45 -0400
-Received: from mail.tmr.com ([216.238.38.203]:27664 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268168AbUJDPQm (ORCPT
+	Mon, 4 Oct 2004 11:26:10 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:34533 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268184AbUJDP0E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 11:16:42 -0400
-Date: Mon, 4 Oct 2004 11:09:04 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mmap() on cdrom files fails since 2.6.9-rc2-bk2
-In-Reply-To: <20041003121645.GA19580@elte.hu>
-Message-ID: <Pine.LNX.3.96.1041004105918.29298B-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 4 Oct 2004 11:26:04 -0400
+Date: Mon, 4 Oct 2004 08:23:51 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Erich Focht <efocht@hpce.nec.com>
+Cc: frankeh@watson.ibm.com, akpm@osdl.org, nagar@watson.ibm.com,
+       ckrm-tech@lists.sourceforge.net, mbligh@aracnet.com,
+       lse-tech@lists.sourceforge.net, hch@infradead.org, steiner@sgi.com,
+       jbarnes@sgi.com, sylvain.jeaugey@bull.net, djh@sgi.com,
+       linux-kernel@vger.kernel.org, colpatch@us.ibm.com, Simon.Derr@bull.net,
+       ak@suse.de, sivanich@sgi.com
+Subject: Re: [Lse-tech] [PATCH] cpusets - big numa cpu and memory placement
+Message-Id: <20041004082351.5c111aa2.pj@sgi.com>
+In-Reply-To: <200410041615.24384.efocht@hpce.nec.com>
+References: <20040805100901.3740.99823.84118@sam.engr.sgi.com>
+	<200410032221.26683.efocht@hpce.nec.com>
+	<416156E8.7060708@watson.ibm.com>
+	<200410041615.24384.efocht@hpce.nec.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 3 Oct 2004, Ingo Molnar wrote:
+Erich, responding to Hubertus:
+> > (a) is it a guarantee/property that cpusets at with the same
+> >      parent cpuset do not overlap ?
+> 
+> Right now it isn't AFAIK. Paul, if all cpusets on the same level are
+> disjunct this certainly simplifies life. Would this be a too strong
+> limitation for you? We could live with it.
 
+Correct, Erich, it is not a guarantee that sibling cpusets don't
+overlap, unless, as Simon noted, they are all marked exclusive.
 
-> it means you are running an older distro which was built with a gcc that
-> doesnt generate PT_GNU_STACK signatures in binaries yet. On the biggest
-> distros the transition to PT_GNU_STACK binaries coincided with the
-> transition to a 2.6 kernel, so only people who run newer kernels on
-> older distros are affected, which is relatively rare since most 'older
-> distros' are not 2.6-ready in a number of system-support areas.
-> (although the kernel itself of course must be able to run old code too.)
+Yes, it would be a stronger limitation than I would agree to, but that's
+ok, because in my humble opinion, CKRM doesn't need it to operate within
+cpusets.
 
-Perhaps the majority of people with "old distro" configurations are people
-who followed the development kernels from machines which were nearly
-current then. My primary test machine is (loosely) based on RH7.3, with
-only the updates needed for 2.6 as it developed and of course any security
-issuesI saw.
+I think what's needed for CKRM to operate within cpusets is clear
+ownership.
 
-The lack of reported issues may be caused by people who survived the
-development process being able to identify the majority of problems like
-this as well as there not being a lot of old systems.
+Each instance of CKRM needs (tell me if I'm wrong here):
+ 1) to have a clear and unambiguous answer to the question of
+    which CPUs, which Memory Nodes, and which Tasks it is
+    controlling,
+ 2) no overlap of these sets with another instance of CKRM,
+ 3) the CPUs and Memory Nodes on which any of these Tasks are
+    allowed to run must be a subset of those controlled by
+    this instance of CKRM, and
+ 4) all Tasks allowed to run on any of the CPUs and Memory
+    Nodes controlled by this CKRM instance are in the list
+    of Tasks this CKRM knows it controls.
+
+In short - each CKRM instance needs clear, unambiguous, non-overlapping
+ownership of all it surveys.
+
+Requesting that all cpusets be marked exclusive for both CPU and Memory
+is an overzealous precondition for the above.
+
+Another way to obtain the above requirements would be to assign each
+CKRM instance to a separate cpuset subtree, where the root of the
+subtree is marked exclusive for cpu and memory, where that CKRM instance
+controls all CPUs and Memory owned by that subtree and all Tasks
+attached to any cpuset in that subtree, and where any tasks attached to
+ancestors of the root are either (1) not allowed to use any of the CPUs
+and Memory assigned to the subtree, or (2) are both [2a] allowed to use
+only some subset of the CPUs and Memory assigned to the subtree and [2b]
+are included in the list of tasks to be managed by that CKRM instance.
+
+(The last 4.5 lines above are the special case required to handle the
+indigenous per-cpu tasks, such as the migration threads - sorry.)
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

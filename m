@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266573AbUBDWCc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 17:02:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266583AbUBDWCb
+	id S266577AbUBDWBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 17:01:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266583AbUBDWBI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 17:02:31 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:19172 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266573AbUBDWC0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 17:02:26 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Andreas Steinmetz <ast@domdv.de>, piotr@member.fsf.org
-Subject: Re: Promise PDC20269 (Ultra133 TX2) + Software RAID
-Date: Wed, 4 Feb 2004 23:06:54 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <6FF5C83C-55FA-11D8-AC00-000A95CEEE4E@computeraddictions.com.au> <20040204204622.GA14326@larroy.com> <4021628D.5030805@domdv.de>
-In-Reply-To: <4021628D.5030805@domdv.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Feb 2004 17:01:08 -0500
+Received: from mail.kroah.org ([65.200.24.183]:19344 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266577AbUBDWBE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 17:01:04 -0500
+Date: Wed, 4 Feb 2004 14:00:16 -0800
+From: Greg KH <greg@kroah.com>
+To: John Rose <johnrose@austin.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [Bug 2013] New: Oops from create_dir (sysfs)
+Message-ID: <20040204220016.GD3897@kroah.com>
+References: <1075926442.3026.37.camel@verve> <20040204204811.GA3992@us.ibm.com> <1075928072.3026.47.camel@verve> <20040204212253.GA3897@kroah.com> <1075931022.3026.63.camel@verve>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200402042306.54046.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <1075931022.3026.63.camel@verve>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 04 of February 2004 22:22, Andreas Steinmetz wrote:
-> Pedro Larroy wrote:
-> > On Tue, Feb 03, 2004 at 02:08:31PM +1030, Ryan Verner wrote:
-> >>And the machine is randomly locking up, and of course, on reboot, the
-> >>raid array is rebuilt.  Ouch.  Any clues as to why?  I'm sure the hard
-> >>drive hasn't failed as it's brand new; I suspect a chipset
-> >>compatibility problem or something.
-> >>
-> >>R
-> >
-> > I have similar issues with 20269. I have two cards on one box doing sw
-> > raid5 on 6 ide drives. It only runs stably with 2.4.19
-> > It has been many months since I assembled that box, and I've tried
-> > kernels from 2.4.20-ac, 2.5.x, 2.6.2  and all hang after some time
-> > running.
-> >
-> > I remember that pdcs also hanged a dual processor box.
->
-> In my case (see my mail to lkml today) I do suspect concurrent disk
-> access and IO-APIC to be the culprit. If you're using an IO-APIC try
-> booting with either "noapic" or "hdx=serialize" where hdx is one of the
-> disks of your controller card.
+On Wed, Feb 04, 2004 at 03:43:42PM -0600, John Rose wrote:
+> <crickets chirp>.  That's one way to shut me up :)
 
-Try "noapic" first, "hdx=serialize" will kill you RAID performance.
+Honestly, I like the way this currently works.  You tried to do
+something not allowed, and the kernel dies.  Now it would be nice to be
+able to provide a better type of error message to help the unsuspecting
+developer out, but that's just fluff :)
 
----bart
+> In all seriousness, how much of a performance problem would be posed by
+> throwing a kset_find_obj() check somewhere in the beginning of
+> kobject_add()? 
 
+Why not just fix the sysfs create_dir() function to not oops and report
+back the proper error message in this case?
+
+thanks,
+
+greg k-h

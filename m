@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264035AbRFFSqO>; Wed, 6 Jun 2001 14:46:14 -0400
+	id <S264083AbRFFSxE>; Wed, 6 Jun 2001 14:53:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264038AbRFFSqE>; Wed, 6 Jun 2001 14:46:04 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5676 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S264027AbRFFSpq>; Wed, 6 Jun 2001 14:45:46 -0400
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Christian Borntrdger <linux-kernel@borntraeger.net>,
-        Derek Glidden <dglidden@illusionary.com>
-Subject: Re: Requirement: swap = RAM x 2.5 ??
-In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com>
-	<991815578.30689.1.camel@nomade>
-	<20010606095431.C15199@dev.sportingbet.com>
-	<0106061316300A.00553@starship>
-	<200106061528.f56FSKa14465@vindaloo.ras.ucalgary.ca>
-	<000701c0ee9f$515fd6a0$3303a8c0@einstein>
-	<3B1E52FC.C17C921F@mandrakesoft.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Jun 2001 12:42:03 -0600
-In-Reply-To: <3B1E52FC.C17C921F@mandrakesoft.com>
-Message-ID: <m1snhd5u2s.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S264062AbRFFSwz>; Wed, 6 Jun 2001 14:52:55 -0400
+Received: from iris.mc.com ([192.233.16.119]:64438 "EHLO mc.com")
+	by vger.kernel.org with ESMTP id <S264020AbRFFSwh>;
+	Wed, 6 Jun 2001 14:52:37 -0400
+From: Mark Salisbury <mbs@mc.com>
+To: "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>,
+        "Dr S.M. Huen" <smh1008@cus.cam.ac.uk>, Kurt Roeckx <Q@ping.be>
+Subject: Re: Break 2.4 VM in five easy steps
+Date: Wed, 6 Jun 2001 14:40:41 -0400
+X-Mailer: KMail [version 1.0.29]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Sean Hunter <sean@dev.sportingbet.com>,
+        Xavier Bestel <xavier.bestel@free.fr>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.3.96.1010606184337.19288A-100000@virgo.cus.cam.ac.uk>
+In-Reply-To: <Pine.SOL.3.96.1010606184337.19288A-100000@virgo.cus.cam.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <0106061450480H.00684@pc-eng24.mc.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+On Wed, 06 Jun 2001, Dr S.M. Huen wrote:
+> The whole screaming match is about whether a drastic degradation on using
+> swap with less than the 2*RAM swap specified by the developers should lead
+> one to conclude that a kernel is "broken".
 
-> I'm sorry but this is a regression, plain and simple.
-> 
-> Previous versons of Linux have worked great on diskless workstations
-> with NO swap.
-> 
-> Swap is "extra space to be used if we have it" and nothing else.
+I would argue that any system that performs substantially worse with swap==1xRAM
+than a system with swap==0xRAM is fundamentally broken.  it seems that w/
+todays 2.4.x kernel, people running programs totalling LESS THAN their physical
+dram are having swap problems.  they should not even be using 1 byte of swap.
 
-Given the slow speed of disks to use them efficiently when you are using
-swap some additional rules apply.
+the whole point of swapping pages is to give you more memory to execute
+programs.
 
-In the worse case when swapping is being used you get:
-Virtual Memory = RAM + (swap - RAM).
+if I want to execute 140MB of programs+kernel on a system with 128 MB of ram,
+I should be able to do the job effectively with ANY amount of "total memory"
+exceeding 140MB. not some hokey 128MB RAM + 256MB swap just because the kernel
+it too fscked up to deal with a small swap file.
 
-That cannot be improved.  You can increase your likely hood that that case won't
-come up, but that is a different matter entirely.  
-
-I suspect in practice that we are suffering more from lazy reclamation
-of swap pages than from a more aggressive swap cache. 
-
-Eric
+-- 
+/*------------------------------------------------**
+**   Mark Salisbury | Mercury Computer Systems    **
+**------------------------------------------------*/
 

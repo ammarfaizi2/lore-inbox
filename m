@@ -1,49 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265894AbTADD3s>; Fri, 3 Jan 2003 22:29:48 -0500
+	id <S266186AbTADDfW>; Fri, 3 Jan 2003 22:35:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266186AbTADD3s>; Fri, 3 Jan 2003 22:29:48 -0500
-Received: from dp.samba.org ([66.70.73.150]:17090 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265894AbTADD3r>;
-	Fri, 3 Jan 2003 22:29:47 -0500
-Date: Sat, 4 Jan 2003 14:33:45 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Avery Fay <avery_fay@symantec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Gigabit/SMP performance problem
-Message-ID: <20030104033345.GC19888@krispykreme>
-References: <OFC4D9AF0E.DA93F4D7-ON85256CA3.0058C567-85256CA3.00592873@symantec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFC4D9AF0E.DA93F4D7-ON85256CA3.0058C567-85256CA3.00592873@symantec.com>
-User-Agent: Mutt/1.4i
+	id <S266643AbTADDfW>; Fri, 3 Jan 2003 22:35:22 -0500
+Received: from smtp-outbound.cwctv.net ([213.104.18.10]:18723 "EHLO
+	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S266186AbTADDfV>;
+	Fri, 3 Jan 2003 22:35:21 -0500
+From: <Hell.Surfers@cwctv.net>
+To: andre@linux-ide.org, rms@gnu.org, linux-kernel@vger.kernel.org
+Date: Sat, 4 Jan 2003 03:43:01 +0000
+Subject: RE:Gauntlet Set NOW!
+MIME-Version: 1.0
+X-Mailer: Liberate TVMail 2.6
+Content-Type: multipart/mixed;
+ boundary="1041651781805"
+Message-ID: <0892d5742030413DTVMAIL2@smtp.cwctv.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> I'm working with a dual xeon platform with 4 dual e1000 cards on different 
-> pci-x buses. I'm having trouble getting better performance with the second 
-> cpu enabled (ht disabled). With a UP kernel (redhat's 2.4.18), I can route 
-> about 2.9 gigabits/s at around 90% cpu utilization. With a SMP kernel 
-> (redhat's 2.4.18), I can route about 2.8 gigabits/s with both cpus at 
-> around 90% utilization. This suggests to me that the network code is 
-> serialized. I would expect one of two things from my understanding of the 
-> 2.4.x networking improvements (softirqs allowing execution on more than 
-> one cpu):
 
-The Fujitsu guys have a nice summary of this:
+--1041651781805
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-http://www.labs.fujitsu.com/en/techinfo/linux/lse-0211/index.html
+If you plan to create a module to allow functions you have created to be used outside the kernel, do. But use only lgpl headers, help legalise the use of proprietary modules, tell you what il help you bugfix the lgpl code, but _remember_ only your f unctions.
 
-Skip forward to page 8.
+Dean McEwan, If the drugs don't work, [sarcasm] take more...[/sarcasm].
 
-Dont blame the networking code just yet :) Notice how worse UP vs SMP
-performance is on the P4 compared to the P3?
+On 	Fri, 3 Jan 2003 15:01:51 -0800 (PST) 	Andre Hedrick <andre@linux-ide.org> wrote:
 
-This brings up another point, is a single CPU with hyperthreading worth
-it? As Rusty will tell you, you need to compare it with a UP kernel
-since it avoids all the locking overhead. I suspect for a lot of cases
-HT will be a loss (imagine your case, comparing UP and one CPU HT)
+--1041651781805
+Content-Type: message/rfc822
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Anton
+Received: from vger.kernel.org ([209.116.70.75]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
+	 Fri, 3 Jan 2003 23:05:18 +0000
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+	id <S267712AbTACWyC>; Fri, 3 Jan 2003 17:54:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org
+	id <S267713AbTACWyC>; Fri, 3 Jan 2003 17:54:02 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39943
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S267712AbTACWyB>; Fri, 3 Jan 2003 17:54:01 -0500
+Received: from localhost (andre@localhost)
+	by master.linux-ide.org (8.9.3/8.9.3) with ESMTP id PAA12935;
+	Fri, 3 Jan 2003 15:01:51 -0800
+Date: Fri, 3 Jan 2003 15:01:51 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Richard Stallman <rms@gnu.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Gauntlet Set NOW!
+In-Reply-To: <E18UYTG-0004yu-00@fencepost.gnu.org>
+Message-ID: <Pine.LNX.4.10.10301031425590.421-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+X-Mailing-List: linux-kernel@vger.kernel.org
+Return-Path: linux-kernel-owner+Hell.Surfers=40cwctv.net@vger.kernel.org
+
+
+Richard,
+
+I am going to sell and ship binary only models which is solely a protocol.
+One which is in a working group and is not an offical document but will be
+ratified soon.
+
+I will not release the source code period.  It is not a derived work.
+It can and will be capable of running it on other unixs as well has have a
+version for microsoft and maybe apple.
+
+The API and boundary will execute all kernel operations and calls outside
+of the core protocol.  There is no hardware period.  It is pure software.
+I am prepared to show the the source of the API callers; however, given
+the anal nature of the review I expect.  I need a few more days to extract
+every damn possible kernel function or caller that is even close to my
+property.  The object generated from that file will then be linked with a
+private closed source library, which may or may not be setup under LGPL.
+
+This would be the Library GPL and not the updated Lesser GPL.
+But I am not prepared to set this position yet.
+
+Are you prepared to SUE me ?
+Are you prepared to SUE others like me ?
+Are you prepared to SUE every company in Silicon Valley for embedded ?
+Are you prepared to SUE every settop box vendor ?
+
+Either, put up or walk on this issue.
+
+Fear, Threats, and Intimidation resulting from a willful grey zone so
+clearly and cleverly designed by yourself is not acceptable.
+
+Since I am in a position of loosing revenue today because of this silly
+issue of usage of headers and not any inline code inside them, I will seek
+counter damages if I am forced into litigation.
+
+Regards,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+--1041651781805--
+
+

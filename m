@@ -1,91 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270271AbUJTBUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268051AbUJTA6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270271AbUJTBUk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 21:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269536AbUJTBPL
+	id S268051AbUJTA6t (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 20:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUJTA44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 21:15:11 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:8366 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S270259AbUJTBIY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 21:08:24 -0400
-Date: Tue, 19 Oct 2004 18:08:19 -0700
-To: "David S. Miller" <davem@davemloft.net>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] Stir driver suspend fix
-Message-ID: <20041020010819.GK12932@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Tue, 19 Oct 2004 20:56:56 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:21642 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S268051AbUJTAYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Oct 2004 20:24:09 -0400
+Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
+From: Lee Revell <rlrevell@joe-job.com>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       "David S. Miller" <davem@davemloft.net>,
+       vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@gondor.apana.org.au,
+       maxk@qualcomm.com, irda-users@lists.sourceforge.net,
+       Linux Network Development <netdev@oss.sgi.com>,
+       Alain Schroeder <alain@parkautomat.net>
+In-Reply-To: <20041020000009.GA17246@gondor.apana.org.au>
+References: <1098230132.23628.28.camel@krustophenia.net>
+	 <20041020000009.GA17246@gondor.apana.org.au>
+Content-Type: text/plain
+Message-Id: <1098231737.23628.42.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 19 Oct 2004 20:22:18 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-irXXX_stir_suspend.diff :
-~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Stephen Hemminger>
-	o [FEATURE] stir4200: don't need suspend/resume if !CONFIG_PM
-The suspend/resume code only needs to be compiled in if power management
-is enabled.
+On Tue, 2004-10-19 at 20:00, Herbert Xu wrote:
+> On Tue, Oct 19, 2004 at 07:55:33PM -0400, Lee Revell wrote:
+> > 
+> > --- include/linux/netdevice.h~	2004-10-19 18:50:18.000000000 -0400
+> > +++ include/linux/netdevice.h	2004-10-19 18:51:01.000000000 -0400
+> > @@ -696,9 +696,11 @@
+> >   */
+> >  static inline int netif_rx_ni(struct sk_buff *skb)
+> >  {
+> > +       preempt_disable();
+> >         int err = netif_rx(skb);
+> 
+> This is broken on older compilers.
 
-Signed-off-by: Stephen Hemminger <shemminger@osdl.org>
-Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
+How about this:
 
+Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
 
-diff -Nru a/drivers/net/irda/stir4200.c b/drivers/net/irda/stir4200.c
---- a/drivers/net/irda/stir4200.c	2004-10-08 14:01:57 -07:00
-+++ b/drivers/net/irda/stir4200.c	2004-10-08 14:01:57 -07:00
-@@ -761,8 +761,9 @@
- 	       && netif_device_present(dev)
- 	       && !signal_pending(current))
- 	{
-+#ifdef CONFIG_PM
- 		/* if suspending, then power off and wait */
--		if (current->flags & PF_FREEZE) {
-+		if (unlikely(current->flags & PF_FREEZE)) {
- 			if (stir->receiving)
- 				receive_stop(stir);
- 			else
-@@ -775,6 +776,7 @@
- 			if (change_speed(stir, stir->speed))
- 				break;
- 		}
-+#endif
- 
- 		/* if something to send? */
- 		skb = xchg(&stir->tx_pending, NULL);
-@@ -1125,7 +1127,7 @@
- 	usb_set_intfdata(intf, NULL);
- }
- 
--
-+#ifdef CONFIG_PM
- /* Power management suspend, so power off the transmitter/receiver */
- static int stir_suspend(struct usb_interface *intf, u32 state)
+--- include/linux/netdevice.h~	2004-10-19 20:16:48.000000000 -0400
++++ include/linux/netdevice.h	2004-10-19 20:21:01.000000000 -0400
+@@ -696,9 +696,12 @@
+  */
+ static inline int netif_rx_ni(struct sk_buff *skb)
  {
-@@ -1145,6 +1147,7 @@
- 	/* receiver restarted when send thread wakes up */
- 	return 0;
+-       int err = netif_rx(skb);
++       int err;
++       preempt_disable();
++       err = netif_rx(skb);
+        if (softirq_pending(smp_processor_id()))
+                do_softirq();
++       preempt_enable();
+        return err;
  }
-+#endif
  
- /*
-  * USB device callbacks
-@@ -1155,8 +1158,10 @@
- 	.probe		= stir_probe,
- 	.disconnect	= stir_disconnect,
- 	.id_table	= dongles,
-+#ifdef CONFIG_PM
- 	.suspend	= stir_suspend,
- 	.resume		= stir_resume,
-+#endif
- };
- 
- /*
-
 

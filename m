@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbUKBVcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbUKBVcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbUKBVcs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 16:32:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbUKBVcr
+	id S261937AbUKBVcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 16:32:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbUKBVb5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 16:32:47 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:35495 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261900AbUKBVam (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 16:30:42 -0500
-Date: Tue, 2 Nov 2004 22:25:39 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Jan Kasprzak <kas@fi.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SWsuspend in 2.6.9 - sound card does not work
-Message-ID: <20041102212539.GC996@openzaurus.ucw.cz>
-References: <20041027111830.GD4724@fi.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041027111830.GD4724@fi.muni.cz>
-User-Agent: Mutt/1.3.27i
+	Tue, 2 Nov 2004 16:31:57 -0500
+Received: from fmr04.intel.com ([143.183.121.6]:38295 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261976AbUKBVbH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 16:31:07 -0500
+Message-Id: <200411022126.iA2LQIq17357@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Theurer'" <habanero@us.ibm.com>, <kernel@kolivas.org>,
+       <ricklind@us.ibm.com>, "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: [RFC][PATCH] sched: aggressive idle balance
+Date: Tue, 2 Nov 2004 13:29:52 -0800
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcTBGQamiIpc72EvSHmRPO0laO+SkAACaPqQ
+In-Reply-To: <200411021416.38119.habanero@us.ibm.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Andrew Theurer wrote on Tuesday, November 02, 2004 12:17 PM
+>
+> So far we have seen 3-5% with these patches on online transaction workolads
+> and no regressions on SDET.  Kenneth, I am particularly interested in using
+> this with your increased cache_hot_time value, where you got your best
+> throughput:
+>
+> ...but still had idle time.  Do you think you could try these patches with
+> your 25ms cache_hot_time?  I think your workload could benefit from both the
+> longer cache_hot_time for busy cpus, but more aggressive idle balances,
+> hopefully driving your workload to 100% cpu utilization.
 
-> I have an Asus M6R laptop (http://www.fi.muni.cz/~kas/m6r/) with ATI IXP
-> integrated sound card. Under 2.6.8.1 I was able to use the sound card
-> after software suspend (just had to restore mixer settings using alsactl).
-> With 2.6.9 the sound card does not work after suspend/restore: No output no
-> matter how I change mixer settings, and the playback is not timed properly
-> (e.g. when mplayer tries to synchronize audio and video stream, the video
-> goes too fast using all CPU time and no output to speakers/phones.
-> 
-> 	I will do a binary search over 2.6.9-pre patches, but I want to ask
-> whether this problem looks familiar to anybody.
-> 
+Looks interesting, I will queue this up on our benchmark setup.
 
-Are there any changes in the sound module?
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+- Ken
+
 

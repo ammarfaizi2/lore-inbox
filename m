@@ -1,54 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263444AbUCYRnR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 12:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263503AbUCYRnR
+	id S263436AbUCYRpP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 12:45:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbUCYRpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 12:43:17 -0500
-Received: from mail.shareable.org ([81.29.64.88]:23953 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S263444AbUCYRnP
+	Thu, 25 Mar 2004 12:45:15 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:30080 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263436AbUCYRpF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 12:43:15 -0500
-Date: Thu, 25 Mar 2004 17:40:53 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Peter Williams <peterw@aurema.com>
-Cc: Micha Feigin <michf@post.tau.ac.il>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: finding out the value of HZ from userspace
-Message-ID: <20040325174053.GB11236@mail.shareable.org>
-References: <1079198671.4446.3.camel@laptop.fenrus.com> <4053624D.6080806@BitWagon.com> <20040313193852.GC12292@devserv.devel.redhat.com> <40564A22.5000504@aurema.com> <20040316063331.GB23988@devserv.devel.redhat.com> <40578FDB.9060000@aurema.com> <20040320102241.GK2803@devserv.devel.redhat.com> <405C2AC0.70605@stesmi.com> <20040322223456.GB2549@luna.mooo.com> <405F70F6.5050605@aurema.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <405F70F6.5050605@aurema.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 25 Mar 2004 12:45:05 -0500
+Date: Thu, 25 Mar 2004 12:45:20 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Marco Berizzi <pupilla@hotmail.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: proxy arp behaviour
+In-Reply-To: <DAV6695HfqR77bieLYC00007982@hotmail.com>
+Message-ID: <Pine.LNX.4.53.0403251238570.2717@chaos>
+References: <DAV6695HfqR77bieLYC00007982@hotmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Williams wrote:
-> >Will this be USER_HZ or kernel HZ?
-> >Someone earlier suggested it would be USER_HZ which would make it
-> >pointless.
-> 
-> It has to be whatever enables user space to correctly interpret values 
-> sent to user space as "ticks".  That means USER_HZ and it's not useless 
-> as it enables USER_HZ to be different and/or change without breaking 
-> programs that use values expressed in "ticks".
+On Thu, 25 Mar 2004, Marco Berizzi wrote:
 
-It is, however, useless for the _other_ reasons userspace needs to
-know kernel HZ, including as I mentioned userspace timer granularity.
+> Hello everybody,
+>
+> I would like some info about proxy arp behaviour.
+> I have a firewall linux running kernel 2.4.25
+> with 3 NIC. Proxy arp is enabled on two of them
+> (eth0 and eth1).
+>
+> eth1 configuration is here:
+>
+> ifconfig eth1 10.77.77.1 broadcast 10.77.77.3 netmask 255.255.255.252
+> ip route del 10.77.77.0/30 dev eth1
+> ip route add 172.17.1.0/24 dev eth1
+>
+> echo 1 > /proc/sys/net/ipv4/conf/eth1/proxy_arp
+>
+> Hosts connected to eth1 are all 172.17.1.0/24.
+> The linux box is now replying to arp requests
+> that are sent by 172.17.1.0/24 hosts on the eth1
+> network segment. Is this because ip on eth1 is
+> 10.77.77.1?
+>
+> I think that linux should not reply to arp request
+> for 172.17.1.0/24 because of:
+>
+> ip route add 172.17.1.0/24 dev eth1
+>
+> Is this a bug?
 
-(Btw, that usage would be better as a period rather than a frequency,
-so that a "tickless" kernel can report zero).
+This problem comes up periodically and when it does there
+results in a bunch of noise to show that "Linux works perfectly...",
+but never with any resolution.
 
-The fundamental problem is that there are two values, and both values
-have programs which can usefully use them.
+What needs to be answered by persons who know the network
+code is how one "connects" a particular response to a
+particular device.
 
-How hard can it be to export both?
+This has become a FAQ and needs to have some written documentation
+somewhere.
 
--- Jamie
-
-
-
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310139AbSCUKO0>; Thu, 21 Mar 2002 05:14:26 -0500
+	id <S310154AbSCUKPU>; Thu, 21 Mar 2002 05:15:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310154AbSCUKOS>; Thu, 21 Mar 2002 05:14:18 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:14729 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S310139AbSCUKOF>; Thu, 21 Mar 2002 05:14:05 -0500
-Date: Thu, 21 Mar 2002 15:46:50 +0530
-From: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-To: dan@debian.org
-Cc: Mark Gross <mgross@unix-os.sc.intel.com>, Pavel Machek <pavel@suse.cz>,
-        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        marcelo@conectiva.com.br, tachino@jp.fujitsu.com, jefreyr@pacbell.net,
-        vamsi_krishna@in.ibm.com, richardj_moore@uk.ibm.com,
-        hanharat@us.ibm.com, bsuparna@in.ibm.com, bharata@in.ibm.com,
-        asit.k.mallick@intel.com, david.p.howell@intel.com,
-        tony.luck@intel.com, sunil.saxena@intel.com
-Subject: Re: [PATCH] multithreaded coredumps for elf exeecutables
-Message-ID: <20020321154650.A1435@in.ibm.com>
-Reply-To: vamsi@in.ibm.com
-In-Reply-To: <20020315170726.A3405@in.ibm.com> <20020319152959.C55@toy.ucw.cz> <200203192147.g2JLl3W01070@unix-os.sc.intel.com> <20020320113630.A6882@in.ibm.com> <20020320133709.A10958@nevyn.them.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S310168AbSCUKPH>; Thu, 21 Mar 2002 05:15:07 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:5261 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S310154AbSCUKO4>; Thu, 21 Mar 2002 05:14:56 -0500
+Date: Thu, 21 Mar 2002 11:14:49 +0100 (MET)
+From: Oliver.Neukum@lrz.uni-muenchen.de
+X-X-Sender: ui222bq@sun4.lrz-muenchen.de
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>,
+        Axel Kittenberger <Axel.Kittenberger@maxxio.at>,
+        <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Patch, forward release() return values to the close() call
+In-Reply-To: <3C99A54D.1050206@mandrakesoft.com>
+Message-Id: <Pine.SOL.4.44.0203211113500.6558-100000@sun4.lrz-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan,
+On Thu, 21 Mar 2002, Jeff Garzik wrote:
 
-Thanks for pointing this out. I see that this change has now gone into
-2.4.18 as well as 2.5.4. We would ensure that the down_write happens
-only after the registers of all threads are collected.
+> Oliver Neukum wrote:
+>
+> >On Thursday 21 March 2002 09:27, Jeff Garzik wrote:
+> >
+> >>Whoops, my apologies.  The patch looks ok to me.
+> >>
+> >>I read your text closely and the patch not close enough.  As I said, it
+> >>is indeed wrong for a device driver to fail f_op->release(), "fail"
+> >>being defined as leaving fd state lying around, assuming that the system
+> >>will fail the fput().
+> >>
+> >>But your patch merely propagates a return value, not change behavior,
+> >>which seems sane to me.
+> >>
+> >
+> >Hi,
+> >
+> >close() does not directly map to release().
+> >If you want your device to return error
+> >information reliably, you need to implement flush().
+> >
+>
+> Agreed.
+>
+> I still think propagating f_op->release's return value is a good idea,
+> though.
+>
+>     Jeff
 
-Coming back to the original point raised by Pavel, indeed there is 
-nothing preventing external code (any other kernel modules) modifying
-the cpus_allowed field from under us. This could get worse in 2.5.x
-where a user could change cpu affinity (through proc or a syscall, 
-though I don't think the patches providing this are accepted as yet).
+Probably. Throwing away information without need is bad.
 
-Vamsi.
+	Regards
+		Oliver
 
-On Wed, Mar 20, 2002 at 01:37:09PM -0500, Daniel Jacobowitz wrote:
-> On Wed, Mar 20, 2002 at 11:36:30AM +0530, Vamsi Krishna S . wrote:
-> > There is serialization at higher level. We take a write lock
-> > on current->mm->mmap_sem at the beginning of elf_core_dump
-> > function which is released just before leaving the function.
-> > So, if one thread enters elf_core_dump and starts dumping core,
-> > no other thread (same mm) of the same process can start
-> > dumping.
-> > <snip>
-> 
-> That's not a feature, it's a bug.  You can't take the mmap_sem before
-> collecting thread status; it will cause a deadlock on at least ia64,
-> where some registers are collected from user memory.
-> 
-> (Thanks to Manfred Spraul for explaining that to me.)
-> 
-> -- 
-> Daniel Jacobowitz                           Carnegie Mellon University
-> MontaVista Software                         Debian GNU/Linux Developer
 
--- 
-Vamsi Krishna S.
-Linux Technology Center,
-IBM Software Lab, Bangalore.
-Ph: +91 80 5262355 Extn: 3959
-Internet: vamsi@in.ibm.com

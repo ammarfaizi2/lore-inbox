@@ -1,35 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263450AbRFAL3H>; Fri, 1 Jun 2001 07:29:07 -0400
+	id <S263456AbRFALpj>; Fri, 1 Jun 2001 07:45:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263449AbRFAL25>; Fri, 1 Jun 2001 07:28:57 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:15246 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S263450AbRFAL2t>;
-	Fri, 1 Jun 2001 07:28:49 -0400
-Date: Fri, 1 Jun 2001 07:28:42 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <laughing@shared-source.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.5-ac6
-In-Reply-To: <20010601120105.A1356@lightning.swansea.linux.org.uk>
-Message-ID: <Pine.GSO.4.21.0106010725530.20420-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263457AbRFALp3>; Fri, 1 Jun 2001 07:45:29 -0400
+Received: from mgw-x2.nokia.com ([131.228.20.22]:32246 "EHLO mgw-x2.nokia.com")
+	by vger.kernel.org with ESMTP id <S263456AbRFALpS>;
+	Fri, 1 Jun 2001 07:45:18 -0400
+Date: Fri, 1 Jun 2001 14:44:32 +0300
+To: linux-kernel@vger.kernel.org
+Subject: Q: ip_build_and_send_pkt
+Message-ID: <20010601144432.A7887@Hews1193nrc>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.18i
+From: alexey.vyskubov@nokia.com (Alexey Vyskubov)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
+
+I have a couple of questions about 2.4.5 IP layer and will be very grateful if
+someone will answer :)
+
+In net/ipv4/ip_output.c there is the function ip_build_and_send_pkt().
+This function adds an IP header to given skbuff and sends it out. 
+But it seems that the only place where this function is called is 
+tcp_v4_send_synack() in tcp_ipv4.c.
+
+Questions:
+
+1. What is the difference between tcp synack and other types of packets? Why
+tcp synack needs separate entry point in IP layer?
+2. Is it really good to have such common name (ip_build_and_send_pkt) for this
+function? I'd say that function with this name pretends to be IP layer entry
+point for upper layer protocols. But it isn't?
 
 
-On Fri, 1 Jun 2001, Alan Cox wrote:
-
-> o	Fix the cs46xx right this time			(me)
-> o	Further FATfs cleanup				(OGAWA Hirofumi)
-> o	ISDN PPP code cleanup, cvs tag update		(Kai Germaschewski)
-> o	Large amount of UFS file system cleanup		(Al Viro)
-
-Tt's still broken on r/w. R/o should be OK now.
-
-> o	Move UFS file system to use dcache for metadata	(Al Viro)
-
-What???
-
+-- 
+Alexey

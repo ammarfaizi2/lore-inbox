@@ -1,46 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264278AbUGSW3H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUGSWpJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264278AbUGSW3H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 18:29:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUGSW3H
+	id S263943AbUGSWpJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 18:45:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264579AbUGSWpJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 18:29:07 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:35038 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S264278AbUGSW3D convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 18:29:03 -0400
-Date: Mon, 19 Jul 2004 22:29:18 +0000
-From: Willem Riede <osst@riede.org>
-Subject: Update mailing list for osst
+	Mon, 19 Jul 2004 18:45:09 -0400
+Received: from smtp2.eldosales.com ([63.78.12.18]:26117 "EHLO
+	tweeter.eldosales.com") by vger.kernel.org with ESMTP
+	id S263943AbUGSWpH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 18:45:07 -0400
+Posted-Date: Mon, 19 Jul 2004 15:45:07 -0700
+Subject: kernel cache question
+From: Ben <ben@easynews.com>
+Reply-To: ben@easynews.com
 To: linux-kernel@vger.kernel.org
-X-Mailer: Balsa 2.2.0
-Message-Id: <1090276158l.20900l.4l@serve.riede.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain
+Organization: Easynews, Inc.
+Message-Id: <1090248720.8296.2.camel@solaris.skunkware.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 19 Jul 2004 07:52:00 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This list has been on sourceforge for a while now,
-please apply this patch to make MAINTAINERS reflect that.
+Really lame question, but is there a way to control the maximum amount
+of memory the kernel can use for caching?
 
-Signed-off-by: Willem Riede <osst@riede.org>
-
---- linux-2.6.8-rc1/MAINTAINERS.orig	2004-07-13 18:59:12.000000000 -0400
-+++ linux-2.6.8-rc1/MAINTAINERS	2004-07-19 18:22:45.640192600 -0400
-@@ -1557,7 +1557,7 @@
- ONSTREAM SCSI TAPE DRIVER
- P:	Willem Riede
- M:	osst@riede.org
--L:	osst@linux1.onstream.nl
-+L:	osst-users@lists.sourceforge.net
- L:	linux-scsi@vger.kernel.org
- S:	Maintained
- 
-
-
-
+Thanks,
+Ben
 

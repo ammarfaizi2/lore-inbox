@@ -1,70 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbUAOQBp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 11:01:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbUAOQBp
+	id S264547AbUAOQDt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 11:03:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUAOQDt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 11:01:45 -0500
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:63897 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S264450AbUAOQBn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 11:01:43 -0500
-Date: Thu, 15 Jan 2004 17:01:42 +0100
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: True story: "gconfig" removed root folder...
-Message-ID: <20040115160142.GH14285@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <1074177405.3131.10.camel@oebilgen> <20040115154039.GG21151@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kQIx8kf7Cp+1HuWb"
-Content-Disposition: inline
-In-Reply-To: <20040115154039.GG21151@parcelfarce.linux.theplanet.co.uk>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+	Thu, 15 Jan 2004 11:03:49 -0500
+Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:20638
+	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
+	id S264547AbUAOQDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 11:03:45 -0500
+Message-ID: <4006B998.5040403@tmr.com>
+Date: Thu, 15 Jan 2004 11:02:32 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Randy Appleton <rappleto@nmu.edu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Unneeded Code Found??
+References: <3FFF3931.4030202@nmu.edu>
+In-Reply-To: <3FFF3931.4030202@nmu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Randy Appleton wrote:
+> I think I have found some useless code in the Linux kernel
+> in the block request functions.
+>                                                                                         
+> 
+> I have modified the __make_request function in ll_rw_blk.c.
+> Now every request for a block off the hard drive is logged.
+>                                                                                         
+> 
+> The function __make_request has code to attempt to merge the current
+> block request with some contigious existing request for better
+> performance. This merge function keeps a one-entry cache pointing to the
+> last block request made.  An attempt is made to merge the current
+> request with the last request, and if that is not possible then
+> a search of the whole queue is done, looking at merger possibililites.
+>                                                                                         
+> 
+> Looking at the data from my logs, I notice that over 50% of all requests
+> can be merged.  However, a merge only ever happens between the
+> current request and the previous one.  It never happens between the
+> current request and any other request that might be in the queue (for
+> more than 50,000 requests examined).
+>                                                                                         
+> 
+> This is true for several test runs, including "daily usage" and doing
+> two kernel compiles at the same time.  I have only tested on a
+> single-CPU machine.
+>                                                                                         
+> 
+> I wonder if the code (and CPU time) used to search the entire request
+> queue is actually useful.  Would this be a reasonable candidate for code
+> elimination?
 
---kQIx8kf7Cp+1HuWb
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If you never get a hit, it means either (a) your test load actually 
+doesn't have one, or (b) the code isn't correctly finding them.
 
-On Thu, 2004-01-15 15:40:39 +0000, viro@parcelfarce.linux.theplanet.co.uk <=
-viro@parcelfarce.linux.theplanet.co.uk>
-wrote in message <20040115154039.GG21151@parcelfarce.linux.theplanet.co.uk>:
-> On Thu, Jan 15, 2004 at 04:36:45PM +0200, Ozan Eren Bilgen wrote:
+Of course if your disk is keeping up and the queue is short, then you 
+may simply not have anything in the queue to match.
 
-> gconfig behaviour aside, why on the earth are you running GUI code (_any_
-> GUI code) as root?
+Any of this kick a train of thought?
 
-I think he already learned that lesson. This time, it was the hard way...
 
-MfG, JBG
-
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
-PA));
-
---kQIx8kf7Cp+1HuWb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFABrlmHb1edYOZ4bsRAmT7AKCJzQt7u4BRM49+F7xz0ybdLlTfOQCgjwjn
-8OTEYkfkmo+cupADEVFWxgQ=
-=FPIn
------END PGP SIGNATURE-----
-
---kQIx8kf7Cp+1HuWb--
+-- 
+bill davidsen <davidsen@tmr.com>
+   CTO TMR Associates, Inc
+   Doing interesting things with small computers since 1979

@@ -1,46 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129170AbQKNTyd>; Tue, 14 Nov 2000 14:54:33 -0500
+	id <S129091AbQKNTzx>; Tue, 14 Nov 2000 14:55:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129551AbQKNTyY>; Tue, 14 Nov 2000 14:54:24 -0500
-Received: from cr226477-a.surrey1.bc.wave.home.com ([24.115.213.208]:17674
-	"EHLO vancouver.yi.org") by vger.kernel.org with ESMTP
-	id <S129170AbQKNTyI>; Tue, 14 Nov 2000 14:54:08 -0500
-Date: Tue, 14 Nov 2000 11:23:48 -0800 (PST)
-From: <spam@vancouver.yi.org>
-To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-cc: Michael Rothwell <rothwell@holly-springs.nc.us>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
-In-Reply-To: <Pine.LNX.4.10.10011141132000.11552-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.21.0011141117580.8463-100000@vancouver.yi.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129908AbQKNTzn>; Tue, 14 Nov 2000 14:55:43 -0500
+Received: from alcove.wittsend.com ([130.205.0.20]:58379 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S129091AbQKNTza>; Tue, 14 Nov 2000 14:55:30 -0500
+Date: Tue, 14 Nov 2000 15:24:30 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Ben Ford <bford@talontech.com>
+Cc: Olaf Kirch <okir@caldera.de>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: More modutils: It's probably worse.
+Message-ID: <20001114152430.C2645@alcove.wittsend.com>
+Mail-Followup-To: Ben Ford <bford@talontech.com>,
+	Olaf Kirch <okir@caldera.de>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0011132040160.1699-100000@ferret.lmh.ox.ac.uk> <Pine.LNX.4.21.0011132352550.31869-100000@dione.ids.pl> <20001114095921.E30730@monad.caldera.de> <3A119082.BBFD700@talontech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.2i
+In-Reply-To: <3A119082.BBFD700@talontech.com>; from bford@talontech.com on Tue, Nov 14, 2000 at 11:20:35AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Nov 2000, Mark Hahn wrote:
+	Oh, I hate to add to a remark like that (OK, I lied, I love
+trollbait...)
 
-> Linux is a good Unix.  if adding "enterpriseness" means violating its 
-> Unixness, then yes, the goals are bullshit.  in particular, the kind
-> of extensive, kernel-based auditing and accounting some people talk about, 
-> as well as the complete evisceration of the Unix design for security, 
-> would make Linux no Unix at all.  that would be very bad, and indeed Multics
-> is a fine example of the kind of history we should not repeat.
+On Tue, Nov 14, 2000 at 11:20:35AM -0800, Ben Ford wrote:
+> Olaf Kirch wrote:
 
-Are you one of those people who say X11 sucks? And whole idea of a
-neworked gui sucks? Like ones who threaten to rewrite entire gui without
-planning, in OpenGL and use the rest of the energy tarishing X?
-Well, if it is done, probably you won't have to compile those extensions
-in anyway, so what's the whining about? Enterprise level features will
-let linux run on Mainframes not in pitiful x86 emulation mode, with hot
-swappable hardware. Just like raid. Would you say RAID sucks a** and
-weighs down linux, because it is an enterprise feature? By the tone of
-your voice it seems so.
-I am for a concious featurism, add features as long as others are stable
-and fixed(not in MS way)
+> > sure request_module _does_not_ accept funky module names. Why allow
+> > people to shoot themselves (and, by extension, all other Linux users
+> > out there) in the foot?
 
-pavel
+> I thought that was the whole purpose of Unix/Linux?
+
+	True!  Very true!  Unix/Linux requires that the user shoot
+themselves in the foot.  Windows automates that process and does it
+for the user, thus making foot shooting user friendly.  :-)
+
+> -b
+
+	Mike
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  (The Mad Wizard)      |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

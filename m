@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269913AbRHED5I>; Sat, 4 Aug 2001 23:57:08 -0400
+	id <S269914AbRHEEWQ>; Sun, 5 Aug 2001 00:22:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269912AbRHED46>; Sat, 4 Aug 2001 23:56:58 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:15488 "EHLO
-	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S269913AbRHED4q>; Sat, 4 Aug 2001 23:56:46 -0400
-Message-ID: <3B6CC309.541FA10@randomlogic.com>
-Date: Sat, 04 Aug 2001 20:52:41 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>
-CC: modegard@akamai.com
-Subject: Re: Dual Athlon, AGP, and PCI
-Content-Type: text/plain; charset=us-ascii
+	id <S269912AbRHEEWH>; Sun, 5 Aug 2001 00:22:07 -0400
+Received: from 513.holly-springs.nc.us ([216.27.31.173]:40778 "EHLO
+	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
+	id <S269914AbRHEEV4>; Sun, 5 Aug 2001 00:21:56 -0400
+Subject: Re: [RFC][DATA] re "ongoing vm suckage"
+From: Michael Rothwell <rothwell@holly-springs.nc.us>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Mike Black <mblack@csihq.com>, Ben LaHaise <bcrl@redhat.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, Andrew Morton <andrewm@uow.edu.au>
+In-Reply-To: <Pine.LNX.4.33.0108040952460.1203-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0108040952460.1203-100000@penguin.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 05 Aug 2001 00:19:43 -0400
+Message-Id: <996985193.982.7.camel@gromit>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just an update as to progress with this dual Athlon.
+On 04 Aug 2001 10:08:56 -0700, Linus Torvalds wrote:
+> 
+> On Sat, 4 Aug 2001, Mike Black wrote:
+> >
+> > I'm testing 2.4.8-pre4 -- MUCH better interactivity behavior now.
+> 
+> Good.. However.. [...]  before we get too happy about the interactive thing, let's
+> remember that sometimes interactivity comes at the expense of throughput,
+> and maybe if we fix the throughput we'll be back where we started.
 
-I've managed to find time around a hectic work schedule to get IDE
-and
-AGP support working. hadparm -v  right after boot shows DMA enabled.
-hdparm -t now produces 35.89MB/sec (consistently) as compared to 2.5
-previously. This is also a full 10MB/sec. better than I had
-previously
-after tweaking the IDE settings with hdparm after booting.
+Could there be both interactive and throughput optimizations, and a way
+to choose one or the other at run-time? Or even just at compile time? 
 
-AGP is working with both the agpgart driver and the NVidia driver,
-but
-FW still does not. I have not spent much time on this though.
-
-I need to do some more testing, etc. before I submit any code
-changes
-(and it might be a good ide if I upgraded to one of the latest
-releases/patches as well).
-
-PGA
--- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com

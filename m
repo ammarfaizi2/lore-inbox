@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136049AbREHDZY>; Mon, 7 May 2001 23:25:24 -0400
+	id <S136069AbREHD0p>; Mon, 7 May 2001 23:26:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136069AbREHDZO>; Mon, 7 May 2001 23:25:14 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:33293 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S136049AbREHDY5>; Mon, 7 May 2001 23:24:57 -0400
-Date: Mon, 7 May 2001 20:24:40 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
+	id <S136073AbREHD0m>; Mon, 7 May 2001 23:26:42 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:34575 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S136069AbREHD0M>; Mon, 7 May 2001 23:26:12 -0400
+Date: Mon, 7 May 2001 22:47:40 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
 To: "David S. Miller" <davem@redhat.com>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: page_launder() bug
 In-Reply-To: <15095.25990.868966.309506@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.21.0105072023180.8237-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.21.0105072240581.7685-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,6 +20,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 On Mon, 7 May 2001, David S. Miller wrote:
+
 > 
 > Marcelo Tosatti writes:
 >  > I just thought about this case:
@@ -31,14 +32,15 @@ On Mon, 7 May 2001, David S. Miller wrote:
 >  > 
 >  > We write the page out because "(swap_count(page) > 1)", and we may
 >  > not have __GFP_IO set in the gfp_mask. Boom.
-
-Yes. That looks a lot easier to trigger than my "slow memory
-leak" schenario.
-
+> 
 > Hmmm, can't this happen without my patch?
 
-No. The old code would never try to write anything if __GFP_IO wasn't set,
-because "launder_loop" would never become non-zero.
+No. We will never call writepage() without __GFP_IO without your patch.
 
-			Linus
+> Nothing stops people from getting references to the page
+> between the "Page is or was in use?" test and the line
+> which does "TryLockPage(page)".
+
+I don't see any problem with people getting a reference to the page there.
+
 

@@ -1,43 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268595AbUHLPz1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268598AbUHLQEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268595AbUHLPz1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 11:55:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268598AbUHLPz0
+	id S268598AbUHLQEK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 12:04:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268599AbUHLQEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 11:55:26 -0400
-Received: from [12.177.129.25] ([12.177.129.25]:30147 "EHLO
-	ccure.user-mode-linux.org") by vger.kernel.org with ESMTP
-	id S268595AbUHLPzW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 11:55:22 -0400
-Message-Id: <200408121656.i7CGu8JA002731@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/3] 2.6.8-rc4-mm1 - UML fixes 
-In-Reply-To: Your message of "Wed, 11 Aug 2004 23:50:47 PDT."
-             <20040812065047.GG11200@holomorphy.com> 
-References: <200408120415.i7C4FWJd010494@ccure.user-mode-linux.org> <20040812033012.GE11200@holomorphy.com> <200408120541.i7C5fIJd010913@ccure.user-mode-linux.org>  <20040812065047.GG11200@holomorphy.com> 
+	Thu, 12 Aug 2004 12:04:10 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:12548 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S268598AbUHLQEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 12:04:07 -0400
+Date: Thu, 12 Aug 2004 17:04:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove whitespace from ALI15x3 IDE driver name
+Message-ID: <20040812170400.A2448@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pekka Enberg <penberg@cs.helsinki.fi>,
+	B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+References: <1092336877.7433.1.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 12 Aug 2004 12:56:08 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1092336877.7433.1.camel@localhost>; from penberg@cs.helsinki.fi on Thu, Aug 12, 2004 at 06:54:38PM +0000
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-wli@holomorphy.com said:
-> This might confuse CONFIG_DEBUG_PAGEALLOC, which uses THREAD_SIZE to
-> detect the end of the kernel stack in store_stackinfo() in mm/slab.c
-> and kstack_end() in include/linux/sched.h, and the sizing heuristic
-> for max_threads in fork_init().
+On Thu, Aug 12, 2004 at 06:54:38PM +0000, Pekka Enberg wrote:
+> This patch removes whitespace from ALI15x3 IDE driver name that appears in the
+> sysfs directory. It is against 2.6.7.
 
-I think it's OK.  UML isn't lying about its stack size, just that snippet of
-code is misleading.
-
-> Also, how is this meant to interoperate with CONFIG_KERNEL_STACK_ORDER?
->  It seems to ignore the setting from the config option. 
-
-I'm going to fix that.  For this patch I just did the quickest thing and 
-reverted back to what was there before.
-
-				Jeff
+You jnow that this breaks every tool that knew of the names so far?  E.g.
+Debian mkinitrd (now has a patch to deal with both the whitespace and
+non-whitespace variants) and probably quite a few installers out there.
 

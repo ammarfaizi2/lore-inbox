@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262065AbREYX7u>; Fri, 25 May 2001 19:59:50 -0400
+	id <S262094AbREZADB>; Fri, 25 May 2001 20:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262068AbREYX7k>; Fri, 25 May 2001 19:59:40 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:28869 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262065AbREYX71>;
-	Fri, 25 May 2001 19:59:27 -0400
-Message-ID: <3B0EF1DC.CD0DF4D7@mandrakesoft.com>
-Date: Fri, 25 May 2001 19:59:24 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
-X-Accept-Language: en
+	id <S262088AbREZACl>; Fri, 25 May 2001 20:02:41 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:20999 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262087AbREZACb>; Fri, 25 May 2001 20:02:31 -0400
+Date: Fri, 25 May 2001 17:02:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: [with-PATCH-really] highmem deadlock removal, balancing & cleanup
+In-Reply-To: <E153Qld-0007Df-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.31.0105251700350.15549-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-kernel@vger.kernel.org, Linux-ntfs@tiger.informatik.hu-berlin.de,
-        linux-ntfs-dev@lists.sourceforge.net,
-        linux-ntfs-announce@lists.sourceforge.net
-Subject: Re: ANN: NTFS new release available (1.1.15)
-In-Reply-To: <5.1.0.14.2.20010526000503.04716ec0@pop.cus.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
-> NTFS 1.1.15 - ChangeLog
-> =======================
-> - Support for more than 128kiB sized runlists (using vmalloc_32() instead
-> of kmalloc()).
 
-If you are running into kmalloc size limit, please consider some
-alternative method of allocation.
-Can you map it into the page cache, as Al Viro has done in recent
-patches?
-Can you break your allocation into an array of pages, obtained via
-get_free_page?
-If runlists are on-disk structures, can you look at bh->b_data instead
-of keeping them in memory?
 
--- 
-Jeff Garzik      | Disbelief, that's why you fail.
-Building 1024    |
-MandrakeSoft     |
+On Sat, 26 May 2001, Alan Cox wrote:
+>
+> But Linus is right I think - VM changes often prove 'interesting'. Test it in
+> -ac , gets some figures for real world use then plan further
+
+.. on the other hand, thinking more about this, I'd rather be called
+"stupid" than "stodgy".
+
+So I think I'll buy some experimentation. That HIGHMEM change is too ugly
+to live, though, I'd really like to hear more about why something that
+ugly is necessary.
+
+		Linus
+

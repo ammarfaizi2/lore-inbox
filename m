@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129129AbRBCX6l>; Sat, 3 Feb 2001 18:58:41 -0500
+	id <S130435AbRBDAEl>; Sat, 3 Feb 2001 19:04:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130435AbRBCX6a>; Sat, 3 Feb 2001 18:58:30 -0500
-Received: from snowbird.megapath.net ([216.200.176.7]:10756 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S129129AbRBCX6U>;
-	Sat, 3 Feb 2001 18:58:20 -0500
-Message-ID: <3A7C9BAE.45DB2F09@megapathdsl.net>
-Date: Sat, 03 Feb 2001 16:00:46 -0800
-From: Miles Lane <miles@megapathdsl.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-ac1 i686)
-X-Accept-Language: en
+	id <S131036AbRBDAEW>; Sat, 3 Feb 2001 19:04:22 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23311 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S130435AbRBDAES>;
+	Sat, 3 Feb 2001 19:04:18 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200102032331.f13NVQ726716@flint.arm.linux.org.uk>
+Subject: Re: Better battery info/status files
+To: acahalan@cs.uml.edu (Albert D. Cahalan)
+Date: Sat, 3 Feb 2001 23:31:26 +0000 (GMT)
+Cc: pavel@suse.cz (Pavel Machek), andrew.grover@intel.com,
+        linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <200102032322.f13NMZp438329@saturn.cs.uml.edu> from "Albert D. Cahalan" at Feb 03, 2001 06:22:34 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-CC: linux-kernel@vger.kernel.org, linux-hotplug-devel@lists.sourceforge.net
-Subject: Re: Adding PCMCIA support to the kernel tree -- developers needed.
-In-Reply-To: <Pine.LNX.3.96.1010203040618.29269C-100000@mandrakesoft.mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> On Fri, 2 Feb 2001, Miles Lane wrote:
-> > I asked David Hinds to write up an outline of the things that
-> > will be needed to get PCMCIA support cleanly and completely
-> > integrated into the kernel tree.
-> >
-> > David has expressed that he'll not be able to participate in
-> > this work.  He has his hands full with his day job and his
-> > role as maintainer/developer of the pcmcia-cs package.
-> [...]
-> > Anyone willing to sign up for some of this effort?
-> 
-> I'll convert all the network drivers once a design is agreed upon.
+Albert D. Cahalan writes:
+> The units seem to vary. I suggest using fundamental SI units.
+> That would be meters, kilograms, seconds, and maybe a very
+> few others -- my memory fails me on this.
 
-Would you write up a proposal for this design that we could work
-from to come to a agreed design?  You are probably the best person
-to start this process.
+iirc, SI comes from France, and therefore it should be "metres"
 
-Thanks!
-	Miles
+[flames to /dev/null please] ;)
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

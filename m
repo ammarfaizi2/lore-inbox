@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130475AbRCDSMt>; Sun, 4 Mar 2001 13:12:49 -0500
+	id <S130487AbRCDSS7>; Sun, 4 Mar 2001 13:18:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130480AbRCDSMk>; Sun, 4 Mar 2001 13:12:40 -0500
-Received: from hermes.cs.kuleuven.ac.be ([134.58.40.3]:37550 "EHLO
-	hermes.cs.kuleuven.ac.be") by vger.kernel.org with ESMTP
-	id <S130475AbRCDSMV>; Sun, 4 Mar 2001 13:12:21 -0500
-Date: Sat, 3 Mar 2001 16:07:13 +0100 (CET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Grant Grundler <grundler@cup.hp.com>, linux-kernel@vger.kernel.org,
-        linuxppc-dev@lists.linuxppc.org, "David S. Miller" <davem@redhat.com>
-Subject: Re: IO issues vs. multiple busses 
-In-Reply-To: <19350125201706.1788@mailhost.mipsys.com>
-Message-ID: <Pine.LNX.4.10.10103031601260.455-100000@cassiopeia.home>
+	id <S130488AbRCDSSt>; Sun, 4 Mar 2001 13:18:49 -0500
+Received: from alto.i-cable.com ([210.80.60.4]:6606 "EHLO alto.i-cable.com")
+	by vger.kernel.org with ESMTP id <S130487AbRCDSSl>;
+	Sun, 4 Mar 2001 13:18:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Thomas Lau <lkthomas@hkicable.com>
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
+Subject: Re: How can I get promise FastTrak 66 work in kernel?
+Date: Mon, 5 Mar 2001 02:34:45 +0000
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <Pine.LNX.4.10.10103041307450.14959-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10103041307450.14959-100000@coffee.psychology.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01030502344501.97230@cm61-18-16-156.hkcable.com.hk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Mar 2001, Benjamin Herrenschmidt wrote:
-> With those two simple functions, we could at least
-> 
->  - Have vgacon disable itself when there's no ISA memory (that can be
-                                                ^^^^^^^^^^
-> handled by
->    reserving the region and thus preventing request_region from working
-                                              ^^^^^^^^^^^^^^
-Do you mean request_mem_region()?
+On Sunday 04 March 2001 18:08, you wrote:
+> > anyone have idea?
+>
+> it does work.
+>
+> > I mean kernel 2.4.1
+>
+> why?  use a more recent one, like 2.4.2-ac11.
+Hi, well
+he is using RAID card !
+his 2.2.x promise hacked modules work fine, but I didn't install that old 
+modules, it's not support SCSI emulator
 
-> too, well,
->    but that scheme would also simplify the various more/less hacked
-> macros used
->    on all non-x86 archs to access the VGA memory).
-
-request_mem_region() for ISA memory is another problem point. The few drivers
-that use it seem to assume that the ISA memory base is 0. This won't work on
-non-PC machines, since ISA memory may be somewhere else in the address space,
-and more important, there already may be something different at address 0,
-which breaks request_mem_region(). On a PC the first 16 MB of RAM (with some
-holes at e.g. 0xa0000) overlap with ISA memory space, but not on other
-architectures.
-
-For ioremap() we have a hack on PPC (PReP/CHRP) that adds isa_mem_base if the
-bus address to map falls in the first 16 MB area, but this cannot work for
-request_mem_region(). I do have my full memory map (RAM) marked in /proc/iomem.
-
-So once again I vote for the introduction of
-isa_{request,release}_mem_region(), just like we already have isa_readb() and
-friends.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+well, if using 2.2.x hacked kernel, it can tell out that HD are SCSI HD ( 
+sda0 ), but in 2.4.x, it's display ( hde ) and can not boot up to linux!
+what's problem is it??

@@ -1,64 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313925AbSDUWzG>; Sun, 21 Apr 2002 18:55:06 -0400
+	id <S313930AbSDUXC4>; Sun, 21 Apr 2002 19:02:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313933AbSDUWzF>; Sun, 21 Apr 2002 18:55:05 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:19556 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S313925AbSDUWzE>; Sun, 21 Apr 2002 18:55:04 -0400
-Date: Mon, 22 Apr 2002 00:54:39 +0200
-From: Hans-Peter Jansen <hpj@urpla.net>
-To: andersen@codepoet.org
-Cc: drd@homeworld.ath.cx, linux-kernel@vger.kernel.org
-Subject: Re: A CD with errors (scratches etc.) blocks the whole system while reading damadged files
-Message-Id: <20020422005439.0799e874.hpj@urpla.net>
-In-Reply-To: <20020419200112.GA16209@codepoet.org>
-Organization: Treewater
-X-Mailer: Sylpheed version 0.7.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S313933AbSDUXC4>; Sun, 21 Apr 2002 19:02:56 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:1970 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S313930AbSDUXCz>;
+	Sun, 21 Apr 2002 19:02:55 -0400
+Date: Sun, 21 Apr 2002 19:02:55 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: "Ivan G." <ivangurdiev@yahoo.com>
+Cc: Urban Widmark <urban@teststation.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: your mail
+Message-ID: <20020421190255.B22314@havoc.gtf.org>
+In-Reply-To: <02042115164004.00745@cobra.linux>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 19 Apr 2002 14:01:13 -0600
-"Erik Andersen" <andersen@codepoet.org> wrote:
-
-> This should help somewhat.  Currently, ide-cd.c retries ERROR_MAX
-> (8) times when it sees an error.  But ide.c is also retrying
-> ERROR_MAX times when _it_ sees an error, and does a bus reset
-> after evey 4 failures.  So for each bad sector, you get 64
-> retries (with typical timouts of 7 seconds each) plus 16 bus
-> resets per bad sector.
-
-Thanks for investigation. BTW: Does this cover the ide-scsi case, too?
- 
-> The funny thing is though, we knew after the first read that we
-> had an uncorrectable medium error.  Try this patch vs 2.4.19-pre7
+On Sun, Apr 21, 2002 at 03:16:40PM -0600, Ivan G. wrote:
+> Urban,
 > 
-> --- linux/drivers/ide/ide-cd.c.orig	Tue Apr  9 06:59:56 2002
-> +++ linux/drivers/ide/ide-cd.c	Tue Apr  9 07:04:59 2002
-> @@ -657,6 +657,11 @@
->  			   request or data protect error.*/
->  			ide_dump_status (drive, "command error", stat);
->  			cdrom_end_request (0, drive);
-> +		} else if (sense_key == MEDIUM_ERROR) {
-> +			/* No point in re-trying a zillion times on a bad 
-> +			 * sector...  If we got here the error is not correctable */
-> +			ide_dump_status (drive, "media error (bad sector)", stat);
-
-.. and some curious will want to know which sector has thrown the error 
-[which would save me to patch this some day myself...]
-
-> +			cdrom_end_request (0, drive);
->  		} else if ((err & ~ABRT_ERR) != 0) {
->  			/* Go to the default handler
->  			   for other errors. */
->  -Erik
+> About the suggestion to make via_rhine_error handle more interrupts,
 > 
-> --
-> Erik B. Andersen             http://codepoet-consulting.com/
-> --This message was written using 73% post-consumer electrons--
+> enum intr_status_bits {
+>         IntrRxDone=0x0001, IntrRxErr=0x0004, IntrRxEmpty=0x0020,
+>         IntrTxDone=0x0002, IntrTxAbort=0x0008, IntrTxUnderrun=0x0010,
+>         IntrPCIErr=0x0040,
+>         IntrStatsMax=0x0080, IntrRxEarly=0x0100, IntrMIIChange=0x0200,
+>         IntrRxOverflow=0x0400, IntrRxDropped=0x0800, IntrRxNoBuf=0x1000,
+>         IntrTxAborted=0x2000, IntrLinkChange=0x4000,
+>         IntrRxWakeUp=0x8000,
+>         IntrNormalSummary=0x0003, IntrAbnormalSummary=0xC260,
+> };
+> 
+> RxEarly, RxOverflow, RxNoBuf are not handled
+> (which brings up another question - how should they be handled 
+> and where?? It doesn't seem to me that those should end up in error,
+> sending CmdTxDemand. )
 
-Cheers,
-  Hans-Peter
+*blink*  I had not noticed that.
+
+All drivers actually need to handle RxNoBufs and RxOverflow, assuming
+they have similar meaning to what I'm familiar with on other chips.
+The chip may recover transparently, but one should be at least aware of
+them.
+
+RxEarly you very likely do -not- want to handle...
+
+	Jeff
+
+
+
+

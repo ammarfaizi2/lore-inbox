@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264503AbUJHUN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUJHUO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264503AbUJHUN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 16:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264500AbUJHUN7
+	id S264377AbUJHUO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 16:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbUJHUOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 16:13:59 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:47116 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S264386AbUJHUNe (ORCPT
+	Fri, 8 Oct 2004 16:14:10 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:17571 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264377AbUJHUNH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 16:13:34 -0400
-Date: Fri, 8 Oct 2004 15:11:09 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org
-Subject: [patch 2.6.9-rc3] 3c59x: style change in vortex_ethtool_ops declaration
-Message-ID: <20041008151109.J14378@tuxdriver.com>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com, akpm@osdl.org
-References: <20041008121307.C14378@tuxdriver.com> <4166E501.4000708@pobox.com>
-Mime-Version: 1.0
+	Fri, 8 Oct 2004 16:13:07 -0400
+Date: Fri, 08 Oct 2004 13:13:34 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: Hanna Linder <hannal@us.ibm.com>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
+       paulus@samba.org, anton@samba.org
+Subject: [PATCH 2.6] pmac_pci.c replace pci_find_device with pci_get_device
+Message-ID: <77970000.1097266414@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <73910000.1097257899@w-hlinder.beaverton.ibm.com>
+References: <70860000.1097257256@w-hlinder.beaverton.ibm.com> <73910000.1097257899@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4166E501.4000708@pobox.com>; from jgarzik@pobox.com on Fri, Oct 08, 2004 at 03:05:37PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Style change suggested during patch review.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
+
+As pci_find_device is going away I've replaced it with pci_get_device and pci_dev_put.
+If someone with a PPC64 system could test it I would appreciate it.
+
+Thanks.
+
+Hanna Linder
+IBM Linux Technology Center
+
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
+
 ---
-Jeff Garzik suggested this style change while reviewing my patch to
-backport the 3c59x driver from 2.6 to 2.4.
-
- drivers/net/3c59x.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
---- linux-2.6/drivers/net/3c59x.c.orig
-+++ linux-2.6/drivers/net/3c59x.c
-@@ -2888,7 +2888,7 @@ static void vortex_get_drvinfo(struct ne
- }
+diff -Nrup linux-2.6.9-rc3-mm3cln/arch/ppc64/kernel/pmac_pci.c linux-2.6.9-rc3-mm3patch/arch/ppc64/kernel/pmac_pci.c
+--- linux-2.6.9-rc3-mm3cln/arch/ppc64/kernel/pmac_pci.c	2004-10-07 15:54:29.000000000 -0700
++++ linux-2.6.9-rc3-mm3patch/arch/ppc64/kernel/pmac_pci.c	2004-10-08 10:42:47.000000000 -0700
+@@ -669,7 +669,7 @@ void __init pmac_pcibios_fixup(void)
+ {
+ 	struct pci_dev *dev = NULL;
  
- static struct ethtool_ops vortex_ethtool_ops = {
--	.get_drvinfo =		vortex_get_drvinfo,
-+	.get_drvinfo		= vortex_get_drvinfo,
- };
+-	while ((dev = pci_find_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL)
++	for_each_pci_dev(dev)
+ 		pci_read_irq_line(dev);
  
- #ifdef CONFIG_PCI
+ 	pci_fix_bus_sysdata();
+

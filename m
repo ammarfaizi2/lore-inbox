@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272493AbRIOSVc>; Sat, 15 Sep 2001 14:21:32 -0400
+	id <S272516AbRIOTEK>; Sat, 15 Sep 2001 15:04:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272498AbRIOSVX>; Sat, 15 Sep 2001 14:21:23 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:3860 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S272493AbRIOSVN>; Sat, 15 Sep 2001 14:21:13 -0400
-Subject: Re: [PATCH] AGP GART for AMD 761
-From: Robert Love <rml@tech9.net>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: linux-kernel@vger.kernel.org, DevilKin@gmx.net
-In-Reply-To: <Pine.LNX.4.33.0109151114200.26946-100000@windmill.gghcwest.com>
-In-Reply-To: <Pine.LNX.4.33.0109151114200.26946-100000@windmill.gghcwest.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
-Date: 15 Sep 2001 14:21:21 -0400
-Message-Id: <1000578083.32708.35.camel@phantasy>
+	id <S272517AbRIOTEA>; Sat, 15 Sep 2001 15:04:00 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:57861 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S272516AbRIOTDt>; Sat, 15 Sep 2001 15:03:49 -0400
+Date: Sat, 15 Sep 2001 21:04:07 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: volodya@mindspring.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: repeated nfs mounts..
+Message-ID: <20010915210407.J7988@arthur.ubicom.tudelft.nl>
+In-Reply-To: <20010915123246.F7988@arthur.ubicom.tudelft.nl> <Pine.LNX.4.20.0109151220290.11838-100000@node2.localnet.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.20.0109151220290.11838-100000@node2.localnet.net>; from volodya@mindspring.com on Sat, Sep 15, 2001 at 12:21:19PM -0400
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-09-15 at 14:15, Jeffrey W. Baker wrote:
-> > @@ -2922,7 +2928,6 @@
-> >  		"Intel",
-> >  		"440GX",
-> >  		intel_generic_setup },
-> > -	/* could we add support for PCI_DEVICE_ID_INTEL_815_1 too ? */
-> >  	{ PCI_DEVICE_ID_INTEL_815_0,
-> >  		PCI_VENDOR_ID_INTEL,
-> >  		INTEL_I815,
+On Sat, Sep 15, 2001 at 12:21:19PM -0400, volodya@mindspring.com wrote:
+> On Sat, 15 Sep 2001, Erik Mouw wrote:
+> > I think http://www.tux.org/lkml/#s14-6 answers your question.
 > 
-> What's the story with that chunk?  It looks like you removed a comment
-> without changing the code, and it is totally unrelated to the AMD 761
-> problems that you are trying to fix.
+> But for a mount to succeed aren't we supposed to do this over an empty
+> directory ?
 
-It's my comment :)
+No, that has never been the case.
 
-I wrote the i815 AGP code, too, and I don't know what I was thinking but
-there is no need to add support for PCI_DEVICE_ID_INTEL_815_1.
 
-If I send the patch off to Linus, now is a good time to remove it.
+Erik
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

@@ -1,65 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132356AbQLHSKU>; Fri, 8 Dec 2000 13:10:20 -0500
+	id <S129773AbQLHSNU>; Fri, 8 Dec 2000 13:13:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132334AbQLHSKA>; Fri, 8 Dec 2000 13:10:00 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:34311 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S132319AbQLHSJ7>; Fri, 8 Dec 2000 13:09:59 -0500
-Date: Fri, 8 Dec 2000 11:35:21 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-Message-ID: <20001208113521.C4730@vger.timpanogas.org>
-In-Reply-To: <3A30552D.A6BE248C@timpanogas.org> <20001207221347.R6567@cadcamlab.org> <3A3066EC.3B657570@timpanogas.org> <20001208005337.A26577@alcove.wittsend.com> <3A306994.63DB8208@timpanogas.org> <4.3.2.7.2.20001208081657.00b15220@mail.osagesoftware.com> <20001208144342.B25391@khan.acc.umu.se> <20001208153408.A19802@lug-owl.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001208153408.A19802@lug-owl.de>; from jbglaw@lug-owl.de on Fri, Dec 08, 2000 at 03:34:09PM +0100
+	id <S129842AbQLHSNK>; Fri, 8 Dec 2000 13:13:10 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:40460 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129773AbQLHSNE>; Fri, 8 Dec 2000 13:13:04 -0500
+From: Peter Samuelson <peter@cadcamlab.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <14897.7451.710204.633241@wire.cadcamlab.org>
+Date: Fri, 8 Dec 2000 11:40:43 -0600 (CST)
+To: root@chaos.analogic.com
+Cc: Matthew Vanecek <linux4us@home.com>, Rainer Mager <rmager@vgkk.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+In-Reply-To: <3A310E18.DD23D416@home.com>
+	<Pine.LNX.3.95.1001208113945.1500A-100000@chaos.analogic.com>
+X-Mailer: VM 6.75 under 21.1 (patch 12) "Channel Islands" XEmacs Lucid
+X-Face: ?*2Jm8R'OlE|+C~V>u$CARJyKMOpJ"^kNhLusXnPTFBF!#8,jH/#=Iy(?ehN$jH
+        }x;J6B@[z.Ad\Be5RfNB*1>Eh.'R%u2gRj)M4blT]vu%^Qq<t}^(BOmgzRrz$[5
+        -%a(sjX_"!'1WmD:^$(;$Q8~qz\;5NYji]}f.H*tZ-u1}4kJzsa@id?4rIa3^4A$
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 08, 2000 at 03:34:09PM +0100, Jan-Benedict Glaw wrote:
-> On Fri, Dec 08, 2000 at 02:43:42PM +0100, David Weinehall wrote:
-> > On Fri, Dec 08, 2000 at 08:19:46AM -0500, David Relson wrote:
-> > > At 11:54 PM 12/7/00, Jeff V. Merkey wrote:
-> 
-> > No amount of warnings can prevent morons from f**king up. Unix gives
-> > you enough rope et al. I'm not arguing for removal of any warning, but
-> > seriously, if we have a loud (DANGEROUS) warning in the config-system
-> > aaaaaand a warning in the help-text that the write-support probably will
-> > mess up your fs, how much more can you do? I bet that if we remove the
-> 
-> Well, simply insert sth. like this into ./fs/ntfs/fs.c:parse_options()
-> 
-> printk(KERN_EMERG "You're likely to crash your NTFS if you do any "
-> 	"write attempts to it. NTFS write support is broken and for "
-> 	"developers *only*. Do only use this if you're debugging it, "
-> 	"never ever use this on data you'd like to see tomorrow "
-> 	"again!!! Please remount in read-only mode *now* or don't "
-> 	"complain afterwards!  
 
-And add:
-
-        If you persist in using this, www.timpanogas.org will provide
-        tools to help you recover your data.);
-Jeff
-
-");
+[Dick Johnson]
+> > >   char main[]={0xf0,0x0f,0xc0,0xc8};    /* try also on NT (: */
+> > me2v@reliant DRFDecoder $ ./op
+> > Illegal instruction (core dumped)
 > 
-> Maybe that can prevent pupils^H^H^H^H^Heople from shooting their
-> foots...
-> 
-> MfG, JBG
-> 
-> -- 
-> Fehler eingestehen, Größe zeigen: Nehmt die Rechtschreibreform zurück!!!
-> /* Jan-Benedict Glaw <jbglaw@lug-owl.de> -- +49-177-5601720 */
-> keyID=0x8399E1BB fingerprint=250D 3BCF 7127 0D8C A444 A961 1DBD 5E75 8399 E1BB
->      "insmod vi.o and there we go..." (Alexander Viro on linux-kernel)
+> Yep. And on early Pentinums, the ones with the "f00f" bug, it would
+> lock the machine tighter than a witches crotch. Ooops, not
+> politically correct.... It would allow user-mode code to halt the
+> machine.
 
+...Until Linux 2.0.34 or so (can't remember the exact version number)
+which had the workaround for this bug, about a week after the bug was
+discovered.
 
+And I was reminded in private mail that the correct lockup sequence is
+actually
+
+  char main[]={0xf0,0x0f,0xc7,0xc8};
+
+where the 0xc8 can be anything from 0xc8 to 0xcf.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270073AbRHMKip>; Mon, 13 Aug 2001 06:38:45 -0400
+	id <S269909AbRHMKtG>; Mon, 13 Aug 2001 06:49:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270075AbRHMKif>; Mon, 13 Aug 2001 06:38:35 -0400
-Received: from cp26357-a.gelen1.lb.nl.home.com ([213.51.0.86]:41785 "HELO
-	lunchbox.oisec.net") by vger.kernel.org with SMTP
-	id <S270073AbRHMKiZ>; Mon, 13 Aug 2001 06:38:25 -0400
-Date: Mon, 13 Aug 2001 12:38:28 +0200
-From: Cliff Albert <cliff@oisec.net>
-To: Jarno Paananen <jpaana@s2.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "scsi0:0:6:0: Attempting to queue an ABORT message" and friends hang
-Message-ID: <20010813123828.A6676@oisec.net>
-In-Reply-To: <m3d762c4sw.fsf@kalahari.s2.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3d762c4sw.fsf@kalahari.s2.org>
-User-Agent: Mutt/1.3.20i
+	id <S270075AbRHMKs5>; Mon, 13 Aug 2001 06:48:57 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:18963 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S269909AbRHMKsv>; Mon, 13 Aug 2001 06:48:51 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Helge Hafting <helgehaf@idb.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: VM working much better in 2.4.8 than before
+Date: Mon, 13 Aug 2001 12:55:12 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <20010811234822.A422@debian> <3B7792B9.61721B85@idb.hist.no>
+In-Reply-To: <3B7792B9.61721B85@idb.hist.no>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20010813104900Z16329-1231+665@humbolt.nl.linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 12, 2001 at 06:53:19AM +0300, Jarno Paananen wrote:
-
-> I've lately come across these messages a bit too many times:
+On Monday 13 August 2001 10:41, Helge Hafting wrote:
+> misty-@charter.net wrote:
+> > 
+> >         I've said it before, I'll say it again - you guys deserve a
+> > 'this is a great thing' report once in a while. This is such a report :)
 > 
-> scsi0:0:6:0: Attempting to queue an ABORT message
-> scsi0:0:6:0: Cmd aborted from QINFIFO
-> aic7xxx_abort returns 8194
-> scsi0:0:6:0: Attempting to queue an ABORT message
-> scsi0:0:6:0: Cmd aborted from QINFIFO
-> aic7xxx_abort returns 8194
+> 2.4.8 is good indeed.  My vmstat window tells me it ties up
+> about 40M less in page cache than earlier kernels, possibly an
+> effect of use-once.  (This is a 128M desktop machine.)
 > 
-> [repeat ad infinitum]
-> 
-> and then all disk activity hangs. Is this a bug in the driver or a
-> symptom from failing disks/cable or something? It happens on both
-> my disks (sometimes the 0:6:0 is 0:5:0) so I hope it isn't the
-> disks. I'm running 2.4.8-ac1 now, but it has come up every now and
-> then since 2.4.6 kernels at least.
+> updatedb run still manages to use some swap, but the machine
+> is no longer sluggish in the morning. :-)
 
-My Adaptec 7890 onboard of my P2B-S experienced the same problems.
-However since i'm running 2.4.7-ac9 and up i have not experienced
-any problem.
+Yes, those would be the expected effects of use-once, in fact it was
+"morning after updatedb" question that got me started on it.
 
--- 
-Cliff Albert		| RIPE:	     CA3348-RIPE | www.oisec.net
-cliff@oisec.net		| 6BONE:     CA2-6BONE	 | icq 18461740
+BTW, keep that 486, it's a great reality check!
+
+--
+Daniel

@@ -1,43 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263588AbTHXCHN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Aug 2003 22:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263494AbTHXCHN
+	id S263611AbTHXCJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Aug 2003 22:09:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263623AbTHXCJ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Aug 2003 22:07:13 -0400
-Received: from law14-f69.law14.hotmail.com ([64.4.21.69]:59655 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263627AbTHXCHK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Aug 2003 22:07:10 -0400
-X-Originating-IP: [194.85.81.178]
-X-Originating-Email: [john_r_newbie@hotmail.com]
-From: "John Newbie" <john_r_newbie@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: rmmod ide-scsi bug?
-Date: Sun, 24 Aug 2003 06:07:09 +0400
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <LAW14-F69RVFvfr3qTN00005076@hotmail.com>
-X-OriginalArrivalTime: 24 Aug 2003 02:07:10.0263 (UTC) FILETIME=[6D3C3C70:01C369E4]
+	Sat, 23 Aug 2003 22:09:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35333 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263611AbTHXCJz (ORCPT
+	<rfc822;linux-kernel@vger.redhat.com>);
+	Sat, 23 Aug 2003 22:09:55 -0400
+Message-ID: <20030824020749.1349.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Felipe Alfaro Solana" <felipe_alfaro@linuxmail.org>
+To: "Tomasz Torcz" <zdzichu@irc.pl>, "LKML" <linux-kernel@vger.redhat.com>
+Date: Sun, 24 Aug 2003 03:07:49 +0100
+Subject: Re: 2.6.0-test4 - lost ACPI
+X-Originating-Ip: 213.4.13.153
+X-Originating-Server: ws5-4.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've get this message on 2.6-test4.
+----- Original Message ----- 
+From: Tomasz Torcz <zdzichu@irc.pl> 
+Date: 	Sun, 24 Aug 2003 00:04:38 +0200 
+To: LKML <linux-kernel@vger.redhat.com> 
+Subject: Re: 2.6.0-test4 - lost ACPI 
+ 
+> On Sat, Aug 23, 2003 at 02:55:45PM -0700, Andrew Morton wrote: 
+> > Tomasz Torcz <zdzichu@irc.pl> wrote: 
+> >  
+> > >  ACPI disabled because your bios is from 00 and too old 
+> > >  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 
+> >  
+> > Add "acpi=force" to your kernel boot command line and everything should work 
+> > as before. 
+>  
+> It does not work. It halts in beetween ps/2 mouse init and serio init. 
+> Adding "acpi=force pci=noacpi" solves that. 
+ 
+Yeah! I have the same problem on my P4 box. Please, take a look at: 
+ 
+http://bugzilla.kernel.org/show_bug.cgi?id=1123ml/ 
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
 
-PM: Removing info for No Bus:ide-scsi
-Device 'ide-scsi' does not have a release() function, it is broken and must 
-be fixed.
-Badness in device_release at drivers/base/core.c:85
-Call Trace:
-[<c026acfa>] kobject_cleanup+0x4a/0x50
-[<d10a4bef>] exit_idescsi_module+0xf/0x2b [ide_scsi]
-[<c0137276>] sys_delete_module+0x136/0x190
-[<c014b800>] do_munmap+0x120/0x190
-[<c010b35b>] syscall_call+0x7/0xb
-
-but module unloaded, and inserted back ok.
-
-_________________________________________________________________
-Help STOP SPAM with the new MSN 8 and get 2 months FREE*  
-http://join.msn.com/?page=features/junkmail
-
+Powered by Outblaze

@@ -1,68 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264010AbSKTXgB>; Wed, 20 Nov 2002 18:36:01 -0500
+	id <S263333AbSKTXhm>; Wed, 20 Nov 2002 18:37:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264628AbSKTXgB>; Wed, 20 Nov 2002 18:36:01 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:12563 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S264010AbSKTXf4>; Wed, 20 Nov 2002 18:35:56 -0500
-Date: Thu, 21 Nov 2002 10:41:37 +1100
-From: john slee <indigoid@higherplane.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Doug Ledford <dledford@redhat.com>,
+	id <S263105AbSKTXhm>; Wed, 20 Nov 2002 18:37:42 -0500
+Received: from findaloan-online.cc ([216.209.85.42]:16906 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S264628AbSKTXgu>;
+	Wed, 20 Nov 2002 18:36:50 -0500
+Date: Wed, 20 Nov 2002 18:51:35 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Why /dev/sdc1 doesn't show up...
-Message-ID: <20021120234137.GA7915@higherplane.net>
-References: <20021119055636.94C182C088@lists.samba.org> <20021119160622.GA8738@redhat.com> <3DDA7B08.7010101@pobox.com>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+Message-ID: <20021120235135.GA32715@mark.mielke.cc>
+References: <20021120080153.GB26018@mark.mielke.cc> <Pine.LNX.4.44.0211201518490.974-100000@blue1.dev.mcafeelabs.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3DDA7B08.7010101@pobox.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0211201518490.974-100000@blue1.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ cc trimmed a-plenty ]
+On Wed, Nov 20, 2002 at 03:19:30PM -0800, Davide Libenzi wrote:
+> On Wed, 20 Nov 2002, Mark Mielke wrote:
+> > >     struct epoll_event {
+> > >         unsigned short events;
+> > >         unsigned short revents;
+> > >         __uint64_t obj;
+> > >     };
+> > Forget any argument I had against removing 'fd'. This sounds good.
+> > Perhaps 'obj' should be named 'userdata'?
+> >      struct epoll_event {
+> >          unsigned short   events;
+> >          unsigned short   revents;
+> >          __uint64_t       userdata;
+> >      };
+> Do we want to have a union instead of a direct 64bit int ?
 
-On Tue, Nov 19, 2002 at 12:55:20PM -0500, Jeff Garzik wrote:
-> >There is *NO* module that does this right now and can be considered even
-> >close to working.  The rule always has been "register yourself when you
-> >are ready for use".  You're trying to add this new "You can fail after
-> >registering yourself" semantic for brain dead coders that can't write an
-> >init function to save thier ass.  My position is that in doing so, you
-> >fuck all of us that do write a reasonable init sequence and handle our
-> >error conditions.  Plus, since this is a changes in semantics, you have
-> >possibly 50 or 100 modules that rely on the old behaviour, and maybe a 
-> >few
-> >that are broken in regards to registration ordering.  I think you are
-> >trying to fix the wrong group of modules here.
-> >
-> >So, to me, the answer is clear.  The rule is hard and fast, you don't 
-> >hand
-> >out your function pointers to other modules or the core kernel until you
-> >are ready for them to be used.  Don't muck with the module loader to 
-> >solve
-> >the problem, fix the maybe 4 or 5 modules that might violate this rule.
-> 
-> 
-> 
-> violently agreed.  This has the potential for requiring an update of 
-> almost every driver in the kernel, does it not?
+I was going to suggest this, except I couldn't figure out what to
+suggest that it look like... I finally figured that the value could be
+cast, or wrapped in a union by userspace (although theoretically, this
+might mean more words than absolutely necessary to initialize on a
+32-bit CPU...)
 
-jeff, why not put some sample code in prominent public places
-(kernel.org, or perhaps more appropriately kernelnewbies.org) that
-provides examples of sane module code, since that appears to be
-the problem here.
+What were you thinking? 1X64 bit or 2X32 bit?
 
-i ask you since i have a vague recollection of you mentioning
-macro-fying all the nic drivers with m4 a while back, and to do this you
-must have had some sort of basic skeleton to flesh out.
-
-it won't help the idiots, but it may help people who are less than
-intimate with the rules and regulations of lunix module authoring
-(perhaps having come from a different OS).
-
-j.
+mark
 
 -- 
-toyota power: http://indigoid.net/
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

@@ -1,136 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267278AbUITTzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUITT5w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267278AbUITTzi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 15:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUITTzi
+	id S264991AbUITT5w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 15:57:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUITT5w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 15:55:38 -0400
-Received: from c7ns3.center7.com ([216.250.142.14]:45483 "EHLO
-	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
-	id S267278AbUITTyS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 15:54:18 -0400
-Message-ID: <414F2D80.9090909@drdos.com>
-Date: Mon, 20 Sep 2004 13:20:32 -0600
-From: "Jeff V. Merkey" <jmerkey@drdos.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: en-us, en
+	Mon, 20 Sep 2004 15:57:52 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:12516 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S264991AbUITT4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Sep 2004 15:56:01 -0400
+To: hari@in.ibm.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, fastboot@osdl.org,
+       Suparna Bhattacharya <suparna@in.ibm.com>, mbligh@aracnet.com,
+       agl@us.ibm.com
+Subject: Re: [Fastboot] Re: [PATCH][2/6]Memory preserving reboot using kexec
+References: <20040915125041.GA15450@in.ibm.com>
+	<20040915125145.GB15450@in.ibm.com>
+	<20040915125322.GC15450@in.ibm.com>
+	<m1d60i8075.fsf@ebiederm.dsl.xmission.com>
+	<20040920134911.GA4592@in.ibm.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Sep 2004 13:53:35 -0600
+In-Reply-To: <20040920134911.GA4592@in.ibm.com>
+Message-ID: <m16568btts.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: jmerkey@galt.devicelogics.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc2 bio sickness with large writes
-References: <4148D2C7.3050007@drdos.com> <20040916063416.GI2300@suse.de> <4149C176.2020506@drdos.com> <20040917073653.GA2573@suse.de> <20040917201604.GA12974@galt.devicelogics.com> <414F0F87.9040903@drdos.com> <20040920180957.GB7616@suse.de>
-In-Reply-To: <20040920180957.GB7616@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
+Hariprasad Nellitheertha <hari@in.ibm.com> writes:
 
->>page and offset sematics in the interface are also somewhat burdensome. 
->>Wouldn't a more reasonable
->>interface for async IO be:
->>
->>address
->>length
->>address
->>length
->>
->>rather than
->>
->>page structure
->>offset in page structure
->>page structure
->>offset in page structure
->>    
->>
->
->No, because { address, length } cannot fully describe all memory in any
->given machine.
->
->  
->
-This response I don't understand. How memory is described in a machine 
-for DMA addressibility
-is pretty standard (with the exception of memory on intel machine in 32 
-bit systems above 4GBthat need page tables) --
-a physical numerical address. But who is going to DMA into memory not in 
-the address space.
+> Hi Eric,
+> 
+> On Sun, Sep 19, 2004 at 02:37:18PM -0600, Eric W. Biederman wrote:
+> > Hariprasad Nellitheertha <hari@in.ibm.com> writes:
+> > 
+> > > This patch contains the code that does the memory preserving reboot. It 
+> > > copies over the first 640k into a backup region before handing over to 
+> > > kexec. The second kernel will boot using only the backup region.
+> > 
+> > Do you know what the kernel does with the low 1M?
+> > 
+> > Nothing in the hardware architecture requires us to use the
+> > low 1M.  So I think we would be safer if we could track down
+> > and remove this dependency.
+> > 
+> > In general I agree that we need to be prepared to save some of the
+> > original machine state, because some architectures give special
+> > meaning to addresses in memory.  But x86 is not one of those.
+> > 
+> > Perhaps the proper abstraction is to add a use_mem= variable
+> > that simply tells us which memory addresses we can use.
+> > 
+> > By still doing some copying we run into the problem, of
+> > potentially running out of memory areas where ongoing DMA
+> > transfers may be happening.  So this is worth
+> > tracking down.
+> 
+> I am trying to track this down. I tried moving the first segment of vmlinux
+> into the reserved section by modifying kexec-tools. This is the command line
+> argument segment. It still seems to need the first few kilobytes, though. 
 
+Right that is being automatically placed there.
+For testing it should not be too hard to hard code it at someplace
+appropriate.
 
->Any chunk of memory has a page associated with it, but it may not have a
->kernel address mapping associated with it. So some identifier was needed
->other than a virtual address, a page is as good as any so making one up
->would be silly.
->
->Once you understand this, it doesn't seem so odd. You need to pass in a
->single page or sg table to map for dma anyways, the sg table holds page
->pointers as well.
->
->  
->
->>I can assume from the interface as designed that if you pass an offset 
->>for a page that is not page aligned,
->>and ask for a 4K write, then you will end up dropping the data on the 
->>floor than spans beyond the end of the page.
->>    
->>
->
->What kind of bogus example is that? Asking for a 4K write from a 4K page
->but asking to start 1K in that page is just stupid and not even remotely
->valid.
->
->  
->
-Hardware doesn't care about page boundries. It sees hardware addresses 
-and lengths, at
-least most SG hardware I've worked with does. For ease of submission, an 
-interface that
-takes <address,length> would suffice. Why on earth would someone need a 
-context
-pointer into the kernel's page tables to submit an SG into a device, 
-apart from performing
-virtual-to-physical translation?
+> Eliminating this is definitely needed so we can avoid using the first 
+> kernel's region completely.
+> 
+> Also, I will make the changes in the rest of the patch as per your review
+> comments.
 
->It's not difficult at all. Apparently you don't understand it so you
->think it's difficult, that's only natural. But you have access to the
->page mapping of any given piece of data always, or if you have the
->virtual address only it's trivial to go to the { page, offset } mapping.
->  
->
-No, I do understand, and using page/offset at a low level SG interface 
-IS burdensome.
-I mean, if this is what I have to support I guess I have to use it, but 
-it will be just another
-section of code where I have another **FAT** layer to waste more CPU 
-cycles calculating
-offset/page (oh yeah I have to lookup the struct page * structure also) 
-when it would be much
-simpler to just submit address/len in i386 systems. With this type of 
-interface, If I have for instance
-an on-disk structure that starts in the middle of a 4K page due to other 
-headers, etc. than spans
-a page, I cannot just submit the address and length, I have to break it 
-into two bio requests instead
-of one with a for () loop from hell and calculate the offsets and rumage 
-around in memory looking
-up struct page * addresses.
-
->I can only imagine that you are used to a very different interface on
->some other OS so you think it's difficult to use. Most of your
->complaints seem to be based on false assumptions or because you don't
->understand why certain design decisions were made.
->
->  
->
-
-No. I am used to programming to hardware with SG devices that all OS 
-use. Is there somewhere a page based
-SG device (other than SCI) for disk drive?. I don't think so, I think 
-they operate address/len, address/len, etc.
-
-:-)
-
-Jeff
-
-
+Thanks.

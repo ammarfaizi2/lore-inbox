@@ -1,79 +1,178 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317398AbSHBXyY>; Fri, 2 Aug 2002 19:54:24 -0400
+	id <S317363AbSHBXzK>; Fri, 2 Aug 2002 19:55:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317396AbSHBXyV>; Fri, 2 Aug 2002 19:54:21 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:54284 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317393AbSHBXxi>;
-	Fri, 2 Aug 2002 19:53:38 -0400
-Date: Fri, 2 Aug 2002 16:55:12 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
-Subject: Re: [BK PATCH] PCI changes for 2.5.30
-Message-ID: <20020802235512.GC1999@kroah.com>
-References: <20020802235321.GA1999@kroah.com> <20020802235454.GB1999@kroah.com>
+	id <S317404AbSHBXym>; Fri, 2 Aug 2002 19:54:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46347 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317363AbSHBXxB>; Fri, 2 Aug 2002 19:53:01 -0400
+Date: Sat, 3 Aug 2002 00:56:26 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: tytso@mit.edu, linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+       axel@hh59.org
+Subject: Re: Linux 2.5.30: [SERIAL] build fails at 8250.c
+Message-ID: <20020803005626.D16963@flint.arm.linux.org.uk>
+References: <20020802154924.A5505@baldur.yggdrasil.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020802235454.GB1999@kroah.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Fri, 05 Jul 2002 22:51:37 -0700
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020802154924.A5505@baldur.yggdrasil.com>; from adam@yggdrasil.com on Fri, Aug 02, 2002 at 03:49:24PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.514   -> 1.515  
-#	 drivers/pci/names.c	1.3     -> 1.4    
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/08/02	t-kouchi@mvf.biglobe.ne.jp	1.515
-# [PATCH] [PATCH] PCI Hotplug patch to drivers/pci/names.c
-# 
-# I found that both compaq and ibm PCI hotplug driver call pci_scan_slot(),
-# which eventually call pci_name_device() in drivers/pci/names.c.
-# 
-# pci_name_device() is declared as __devinit while other data are
-# declared as __initdata.
-# This may result in undefined behavior for example, /proc/pci.
-# --------------------------------------------
-#
-diff -Nru a/drivers/pci/names.c b/drivers/pci/names.c
---- a/drivers/pci/names.c	Fri Aug  2 16:49:27 2002
-+++ b/drivers/pci/names.c	Fri Aug  2 16:49:27 2002
-@@ -32,18 +32,18 @@
-  * real memory.. Parse the same file multiple times
-  * to get all the info.
-  */
--#define VENDOR( vendor, name )		static char __vendorstr_##vendor[] __initdata = name;
-+#define VENDOR( vendor, name )		static char __vendorstr_##vendor[] __devinitdata = name;
- #define ENDVENDOR()
--#define DEVICE( vendor, device, name ) 	static char __devicestr_##vendor##device[] __initdata = name;
-+#define DEVICE( vendor, device, name ) 	static char __devicestr_##vendor##device[] __devinitdata = name;
- #include "devlist.h"
+On Fri, Aug 02, 2002 at 03:49:24PM -0700, Adam J. Richter wrote:
+> 	linux-2.5.30/include/linux/serialP.h needs struct async_icount,
+> which is defined in <linux/serial.h>, causing
+> linux-2.5.30/drivers/serial/8250.c not to compile, among other problems.
+> In linux-2.5.30, you cannot compile a file that includes <linux/serialP.h>
+> without including <linux/serial.h>.  So, I think the solution is for
+> serialP.h to #include serial.h.  I have attached a patch that does this.
+
+Ack.  I've just found why I and many other people can build it, and
+other people can't.  I can tell you that you're building 8250.c as a
+module.
+
+Why?
+
+When I build 8250.c into the kernel, linux/module.h doesn't include
+linux/version.h, so when we include linux/serialP.h, the compiler
+assumes that LINUX_VERSION_CODE is zero.  So we end up including
+linux/serial.h.
+
+However, when building as a module, linux/module.h does include
+linux/version.h, so when we don't include linux/serial.h.
+
+Oh, the problems of trying to reduce the includes...  I think we should
+re-include linux/serial.h and eliminate linux/serialP.h.
+
+Hmm, I wonder how many other oddities like this are in the tree today.
+It sounds like we want to create a rule similar to the one for using
+CONFIG_* symbols.  Does this sound reasonable: if you use
+LINUX_VERSION_CODE, you must include linux/version.h into that very
+same file to guarantee that it is defined.
+
+Well, I took checkconfig.pl and created checkversion.pl (attached).
+Oh god, can I please put the worms back in the can?  Now?  I think
+there's lots of work to do here; lots of stuff including linux/version.h
+for the hell of it, and a comparitively small number not including it
+when they use LINUX_VERSION_CODE.
+
+(No, I'm just off to zzz, so this must be a nightmare, maybe it'll go
+away by the time I wake up later today.) 8/
+
+> 	Ted (or whowever gathers drivers/serial patches for Linus), do
+> you want to shepherd this change to Linus, do you want me to submit it
+> directly, or do you want to do something else?
+
+It's more a thing for me than Ted.  One of the things I'd like to
+do is to eventually kill off serialP.h
+
+Ok, here's a fix for the 8250.c build problem (please don't send it
+to Linus; I've other changes that'll be going via BK and patch to
+lkml pending):
+
+--- orig/drivers/serial/8250.c	Fri Aug  2 21:13:31 2002
++++ linux/drivers/serial/8250.c	Sat Aug  3 00:28:47 2002
+@@ -31,7 +31,8 @@
+ #include <linux/console.h>
+ #include <linux/sysrq.h>
+ #include <linux/serial_reg.h>
+-#include <linux/serialP.h>
++#include <linux/circ_buf.h>
++#include <linux/serial.h>
+ #include <linux/delay.h>
  
- 
--#define VENDOR( vendor, name )		static struct pci_device_info __devices_##vendor[] __initdata = {
-+#define VENDOR( vendor, name )		static struct pci_device_info __devices_##vendor[] __devinitdata = {
- #define ENDVENDOR()			};
- #define DEVICE( vendor, device, name )	{ 0x##device, 0, __devicestr_##vendor##device },
- #include "devlist.h"
- 
--static struct pci_vendor_info __initdata pci_vendor_list[] = {
-+static struct pci_vendor_info __devinitdata pci_vendor_list[] = {
- #define VENDOR( vendor, name )		{ 0x##vendor, sizeof(__devices_##vendor) / sizeof(struct pci_device_info), __vendorstr_##vendor, __devices_##vendor },
- #define ENDVENDOR()
- #define DEVICE( vendor, device, name )
-@@ -121,7 +121,7 @@
- 
+ #include <asm/io.h>
+--- orig/drivers/serial/8250.h	Sat Jul 27 13:55:21 2002
++++ linux/drivers/serial/8250.h	Sat Aug  3 00:28:21 2002
+@@ -59,3 +59,15 @@
  #else
- 
--void __init pci_name_device(struct pci_dev *dev)
-+void __devinit pci_name_device(struct pci_dev *dev)
- {
- }
- 
+ #define SERIAL8250_SHARE_IRQS 0
+ #endif
++
++#if defined(__alpha__) && !defined(CONFIG_PCI)
++/*
++ * Digital did something really horribly wrong with the OUT1 and OUT2
++ * lines on at least some ALPHA's.  The failure mode is that if either
++ * is cleared, the machine locks up with endless interrupts.
++ */
++#define ALPHA_KLUDGE_MCR  (UART_MCR_OUT2 | UART_MCR_OUT1)
++#else
++#define ALPHA_KLUDGE_MCR 0
++#endif
++
+
+
+And here's the (hacked up) checkversion.pl script - its used in the same
+way as checkconfig.pl in the makefile, so use like this:
+
+$ cd linux
+$ find * -name SCCS -prune -o -name BitKeeper -prune -o -name '*.[chS]' \
+ -type f -print | sort | xargs perl -w ../checkversion.pl
+
+I'll clean it up _after_ sleep, unless someone doesn't get there first.
+
+#! /usr/bin/perl
+#
+# checkconfig: find uses of CONFIG_* names without matching definitions.
+# Copyright abandoned, 1998, Michael Elizabeth Chastain <mailto:mec@shout.net>.
+
+use integer;
+
+$| = 1;
+
+foreach $file (@ARGV)
+{
+    # Open this file.
+    open(FILE, $file) || die "Can't open $file: $!\n";
+
+    # Initialize variables.
+    my $fInComment    = 0;
+    my $fInString     = 0;
+    my $fUseKernCode  = 0;
+    my $iLinuxVersion = 0;
+
+    LINE: while ( <FILE> )
+    {
+	# Strip comments.
+	$fInComment && (s+^.*?\*/+ +o ? ($fInComment = 0) : next);
+	m+/\*+o && (s+/\*.*?\*/+ +go, (s+/\*.*$+ +o && ($fInComment = 1)));
+
+	# Pick up definitions.
+	if ( m/^\s*#/o )
+	{
+	    $iLinuxVersion     = $. if m/^\s*#\s*include\s*"linux\/version\.h"/o;
+	}
+
+	# Strip strings.
+	$fInString && (s+^.*?"+ +o ? ($fInString = 0) : next);
+	m+"+o && (s+".*?"+ +go, (s+".*$+ +o && ($fInString = 1)));
+
+	# Pick up definitions.
+	if ( m/^\s*#/o )
+	{
+	    $iLinuxVersion     = $. if m/^\s*#\s*include\s*<linux\/version\.h>/o;
+	}
+
+	# Look for usages.
+	next unless m/LINUX_VERSION_CODE/o;
+	$fUseKernCode = 1;
+	last LINE if $iLinuxVersion;
+	print "$file: $.: need linux/version.h\n";
+	last LINE
+    }
+
+    # Report superfluous includes.
+    if ( $iLinuxVersion && ! $fUseKernCode )
+	{ print "$file: $iLinuxVersion: linux/version.h not needed.\n"; }
+
+    close(FILE);
+}
+
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbUKWOBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbUKWODe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbUKWOBy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 09:01:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbUKWOBx
+	id S261254AbUKWODe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 09:03:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUKWOCE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 09:01:53 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:14830 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261253AbUKWOAm (ORCPT
+	Tue, 23 Nov 2004 09:02:04 -0500
+Received: from cimice4.lam.cz ([212.71.168.94]:16256 "EHLO beton.cybernet.src")
+	by vger.kernel.org with ESMTP id S261201AbUKWOA0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 09:00:42 -0500
-Date: Tue, 23 Nov 2004 15:00:37 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Amit Gud <amitgud1@gmail.com>
-cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: file as a directory
-In-Reply-To: <2c59f00304112301467b411a46@mail.gmail.com>
-Message-ID: <Pine.LNX.4.53.0411231458450.28979@yvahk01.tjqt.qr>
-References: <2c59f00304112205546349e88e@mail.gmail.com> 
- <200411221759.iAMHx7QJ005491@turing-police.cc.vt.edu>  <41A23566.6080903@namesys.com>
-  <Pine.LNX.4.53.0411222002380.21595@yvahk01.tjqt.qr>
- <2c59f00304112301467b411a46@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+	Tue, 23 Nov 2004 09:00:26 -0500
+Date: Tue, 23 Nov 2004 14:00:25 +0000
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: Running Ethernet without ARP
+Message-ID: <20041123140025.GA32447@beton.cybernet.src>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Orientation: Gay
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Correct me if I'm wrong, but the best way I know whether a file should
->be treated as directory or as a file (atleast how I've implemented it)
->depends upon the context (how the file is accessed) in the user-space
->and this context is reflected in the kernel space in the flags of the
->struct nameidata. So ...
+Hello
 
-And there I see a problem! The open() call (kernel: sys_open) allows to open
-both files and directories in the standard operation.
-There is the O_DIRECTORY user-space flag, but which only says "it must be a
-directory". So there's something missing to say "must be a file".
+man netdevice says:
+"IFF_NOARP	No arp protocol, L2 deswtination address not set".
+Is it possible to run ptp Ethernet link between two Linux routers this
+way? I would like to run the link with two constraints:
+1) no ARP protocol used
+2) The link should continue to work even if root access to one computer is
+inaccessible and the NIC in the other one is replaced without changing it's MAC
+(for example because it doesn't support MAC change)
 
-Hell will freeze over if a reiser4 "object" can be ANY type, blockdev,
-chardev, symlink, <think something up>.
-
-
-Jan Engelhardt
+Cl<
 -- 
-Gesellschaft für Wissenschaftliche Datenverarbeitung
-Am Fassberg, 37077 Göttingen, www.gwdg.de
+Thanks to all free technology developers for the things they are making
+available to general public. Free technology includes free software.

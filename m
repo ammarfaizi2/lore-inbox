@@ -1,44 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261585AbVACTqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVACTrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261585AbVACTqb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 14:46:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbVACTqb
+	id S261618AbVACTrW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 14:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVACTrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 14:46:31 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:31918 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261585AbVACTq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 14:46:29 -0500
-To: Adrian Bunk <bunk@stusta.de>
-Cc: mshefty@ichips.intel.com, halr@voltaire.com, openib-general@openib.org,
-       linux-kernel@vger.kernel.org
-X-Message-Flag: Warning: May contain useful information
-References: <20050103172202.GH2980@stusta.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 03 Jan 2005 11:46:28 -0800
-In-Reply-To: <20050103172202.GH2980@stusta.de> (Adrian Bunk's message of
- "Mon, 3 Jan 2005 18:22:02 +0100")
-Message-ID: <52oeg670tn.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: roland@topspin.com
-Subject: Re: infiniband: rename two source files?
-Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on eddore)
-X-OriginalArrivalTime: 03 Jan 2005 19:46:28.0631 (UTC) FILETIME=[EAB10A70:01C4F1CC]
+	Mon, 3 Jan 2005 14:47:21 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:47281 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261618AbVACTqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 14:46:42 -0500
+Subject: Re: [ide] clean up error path in do_ide_setup_pci_device()
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+In-Reply-To: <200412310343.iBV3hqvd015595@hera.kernel.org>
+References: <200412310343.iBV3hqvd015595@hera.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1104773262.13302.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 03 Jan 2005 18:42:26 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Adrian> Is it planned to add other objects to ib_sa and/or
-    Adrian> ib_umad, or would you accept a patch to rename the source
-    Adrian> files?
+This changeset will break support for several systems because the PCI
+IDE controller uses some BARs on a multifunction PCI northbridge. The
+old IDE code was extremely careful *NOT* to play pci_disable_device
+games because of this.
 
-I think both modules are very close to the point where it would make
-sense to split into multiple files, so I would prefer to leave things
-as they are for now.
+Nothing in the IDE specification requires the PCI IDE controller be the
+only use of that PCI function. The damage is probably minimal as it
+deals with error paths but this change should be reverted (and will be
+for -ac).
 
-Thanks,
-  Roland
+
+On Iau, 2004-12-30 at 19:08, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2034.118.8, 2004/12/30 20:08:53+01:00, bzolnier@trik.(none)
+> 
+> 	[ide] clean up error path in do_ide_setup_pci_device()
+> 	
+> 	ide_setup_pci_controller() puts the device in a PCI enabled state.
+> 	The patch adds a small helper to balance it when things go wrong.
+> 	
+> 	Actually the helper does not *exactly* balance the setup: if it can
+> 	not do a better job, ide_setup_pci_controller() may only enable some
+> 	BARS whereas the new counterpart will try to disable everything.
+> 	
+> 	Signed-off-by: Francois Romieu <romieu@fr.zoreil.com>
+> 	Signed-off-by: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+> 
+> 
+> 
+>  setup-pci.c |   15 +++++++++++++--
+>  1 files changed, 13 insertions(+), 2 deletions(-)
+> 
+> 
+> diff -Nru a/drivers/ide/setup-pci.c b/drivers/ide/setup-pci.c
+> --- a/drivers/ide/setup-pci.c	2004-12-30 19:44:05 -08:00
+> +++ b/drivers/ide/setup-pci.c	2004-12-30 19:44:05 -08:00
+> @@ -542,6 +542,13 @@
+>  	return 0;
+>  }
+>  
+> +static void ide_release_pci_controller(struct pci_dev *dev, ide_pci_device_t *d,
+> +				       int noisy)
+> +{
+> +	/* Balance ide_pci_enable() */
+> +	pci_disable_device(dev);
+> +}
+> +
+>  /**
+>   *	ide_pci_setup_ports	-	configure ports/devices on PCI IDE
+>   *	@dev: PCI device
+> @@ -672,7 +679,7 @@
+>  		 */
+>  		ret = d->init_chipset ? d->init_chipset(dev, d->name) : 0;
+>  		if (ret < 0)
+> -			goto out;
+> +			goto err_release_pci_controller;
+>  		pciirq = ret;
+>  	} else if (tried_config) {
+>  		if (noisy)
+> @@ -687,7 +694,7 @@
+>  		if (d->init_chipset) {
+>  			ret = d->init_chipset(dev, d->name);
+>  			if (ret < 0)
+> -				goto out;
+> +				goto err_release_pci_controller;
+>  		}
+>  		if (noisy)
+>  #ifdef __sparc__
+> @@ -705,6 +712,10 @@
+>  	ide_pci_setup_ports(dev, d, pciirq, index);
+>  out:
+>  	return ret;
+> +
+> +err_release_pci_controller:
+> +	ide_release_pci_controller(dev, d, noisy);
+> +	goto out;
+>  }
+>  
+>  int ide_setup_pci_device(struct pci_dev *dev, ide_pci_device_t *d)
+> -
+> To unsubscribe from this list: send the line "unsubscribe bk-commits-head" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html

@@ -1,70 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310917AbSDMXQj>; Sat, 13 Apr 2002 19:16:39 -0400
+	id <S310979AbSDMXT4>; Sat, 13 Apr 2002 19:19:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310953AbSDMXQi>; Sat, 13 Apr 2002 19:16:38 -0400
-Received: from vasquez.zip.com.au ([203.12.97.41]:40971 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S310917AbSDMXQh>; Sat, 13 Apr 2002 19:16:37 -0400
-Message-ID: <3CB8BC32.51231352@zip.com.au>
-Date: Sat, 13 Apr 2002 16:16:02 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Alexander Viro <viro@math.psu.edu>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch: aliasing bug in blockdev-in-pagecache?
-In-Reply-To: <20020413235948.E4937@redhat.com>
+	id <S311121AbSDMXTz>; Sat, 13 Apr 2002 19:19:55 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:56823
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S310979AbSDMXTz>; Sat, 13 Apr 2002 19:19:55 -0400
+Date: Sat, 13 Apr 2002 16:22:16 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Michal =?unknown-8bit?Q?Maru=B9ka?= <mmc@maruska.dyndns.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: copy-on-write directories (is possible?)
+Message-ID: <20020413232216.GS23513@matchmail.com>
+Mail-Followup-To: Michal =?unknown-8bit?Q?Maru=B9ka?= <mmc@maruska.dyndns.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <m28z7t6mni.fsf@linux11.maruska.tin.it>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
+On Fri, Apr 12, 2002 at 04:01:53PM +0200, Michal Maru?ka wrote:
 > 
-> ...
-> --- fs/buffer.c.~1~     Fri Apr 12 17:59:09 2002
-> +++ fs/buffer.c Sat Apr 13 21:09:36 2002
-> @@ -1902,9 +1902,14 @@
->         }
-> 
->         /* Stage 3: start the IO */
-> -       for (i = 0; i < nr; i++)
-> -               submit_bh(READ, arr[i]);
-> -
-> +       for (i = 0; i < nr; i++) {
-> +               struct buffer_head * bh = arr[i];
-> +               if (buffer_uptodate(bh))
-> +                       end_buffer_io_async(bh, 1);
-> +               else
-> +                       submit_bh(READ, bh);
-> +       }
-> +
->         return 0;
->  }
-> 
+> is there some FS, which permits a backup snapshot share unchanged files w/
+> working directory ?
 
-Agree.  I have debug checks for this in the 2.5 code and
-they do not come out in normal use, so no probs there.
-
-I'm starting to tighten all of this up in the patches
-which I'm working on.  Move the debug checks out of
-ll_rw_block and into submit_bh.  submit_bh will complain about
-
-- writing non-uptodate buffer
-- reading uptodate buffer
-- reading dirty buffer
-- reading or writing unmapped buffer
-- anything else I can think of.
-
-This means that a number of callers need to be changed
-to set the bits correctly, which is pointless work.
-
-But really, I think we need that formality - we keep on
-making obscure mistakes in this area and the costs are
-high.
-
--
+Yes, with lvm and ext3 or reiserfs you can do this.

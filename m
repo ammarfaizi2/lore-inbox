@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291460AbSBSQJ6>; Tue, 19 Feb 2002 11:09:58 -0500
+	id <S290739AbSBSQUC>; Tue, 19 Feb 2002 11:20:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291455AbSBSQJs>; Tue, 19 Feb 2002 11:09:48 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27665 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291449AbSBSQJa>;
-	Tue, 19 Feb 2002 11:09:30 -0500
-Message-ID: <3C7278B7.C0E4D126@mandrakesoft.com>
-Date: Tue, 19 Feb 2002 11:09:27 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rik van Riel <riel@conectiva.com.br>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH *] new struct page shrinkage
-In-Reply-To: <Pine.LNX.4.33L.0202191131050.1930-100000@imladris.surriel.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S286343AbSBSQTx>; Tue, 19 Feb 2002 11:19:53 -0500
+Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:56793 "EHLO
+	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S291463AbSBSQTf>; Tue, 19 Feb 2002 11:19:35 -0500
+Date: Tue, 19 Feb 2002 10:19:23 -0600 (CST)
+From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Message-Id: <200202191619.KAA72194@tomcat.admin.navo.hpc.mil>
+To: roy@karlsbakk.net, "Jens Schmidt" <j.schmidt@paradise.net.nz>,
+        linux-kernel@vger.kernel.org, j.schmidt@paradise.net.nz
+Subject: Re: secure erasure of files?
+X-Mailer: [XMailTool v3.1.2b]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel wrote:
-> I've also pulled the thing up to
-> your latest changes from linux.bkbits.net so you should be
-> able to just pull it into your tree from:
+---------  Received message begins Here  ---------
 
-Note that with BK, unlike CVS, it is not required that you update to the
-latest Linus tree before he can pull.
+> 
+> >I would strongly encourage somebody with fluent Norsk/English skills
+> >to do a translation and post it to the list.
+> 
+> I'll do my very best ...
+> 
+> (translated by Roy Sigurd Karlsbakk - please don't spam me in case of bad
+> speling :)
+> 
+> With permission from the leader of Research and Deveopment department, I
+> quote his complete answer:
+> 
+> I'll try to answer your questions:
+> 
+> The short answer is: No. It is not possible to read data that are (really)
+> physically overwritten.
 
-It is only desired that you do so if there is an actual conflict you
-need to resolve...
+[snip]
 
-	Jeff
+In the non-destructive read case - true.
 
+HOWEVER: forensic specialists can:
 
+	http://www.cs.auckland.ac.nz/~pgut001/secure_del.html
+or (same paper)
+	http://www.usenix.org/publications/library/proceedings/sec96/full_papers/gutmann/
 
--- 
-Jeff Garzik      | "Why is it that attractive girls like you
-Building 1024    |  always seem to have a boyfriend?"
-MandrakeSoft     | "Because I'm a nympho that owns a brewery?"
-                 |             - BBC TV show "Coupling"
+> 
+> Addition:
+> 
+> Still, it should be said that this is being argued upon between the
+> 'wise' ones. This is - there are people that mean it is possible
+> to read/recover overwritten data. But we have, as mentioned above,
+> not found any scientific documentation or decriptions of how this
+> can be done.
+
+See the paper referenced above. There may be more recent documents, but
+this one is quite clear on the limitations of erasure using the standard
+drive electronics.
+
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
+
+Any opinions expressed are solely my own.

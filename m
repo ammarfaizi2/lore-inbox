@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281037AbRKCUrX>; Sat, 3 Nov 2001 15:47:23 -0500
+	id <S281038AbRKCU40>; Sat, 3 Nov 2001 15:56:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281042AbRKCUrM>; Sat, 3 Nov 2001 15:47:12 -0500
-Received: from are.twiddle.net ([64.81.246.98]:7866 "EHLO are.twiddle.net")
-	by vger.kernel.org with ESMTP id <S281039AbRKCUq7>;
-	Sat, 3 Nov 2001 15:46:59 -0500
-Date: Sat, 3 Nov 2001 12:46:57 -0800
-From: Richard Henderson <rth@twiddle.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pre6 BUG oops
-Message-ID: <20011103124657.C5984@twiddle.net>
-Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3BE03401.406B8585@mandrakesoft.com> <20011031.094112.125896630.davem@redhat.com> <9rpfbj$vrn$1@penguin.transmeta.com> <3BE04338.8F0AF9D4@mandrakesoft.com> <9rpks1$bk$1@penguin.transmeta.com>
+	id <S281040AbRKCU4R>; Sat, 3 Nov 2001 15:56:17 -0500
+Received: from thales.mathematik.uni-ulm.de ([134.60.66.5]:46729 "HELO
+	thales.mathematik.uni-ulm.de") by vger.kernel.org with SMTP
+	id <S281038AbRKCU4D>; Sat, 3 Nov 2001 15:56:03 -0500
+Message-ID: <20011103205601.2170.qmail@thales.mathematik.uni-ulm.de>
+From: "Christian Ehrhardt" <ehrhardt@mathematik.uni-ulm.de>
+Date: Sat, 3 Nov 2001 21:56:01 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: Google's mm problems
+In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <9rpks1$bk$1@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, Oct 31, 2001 at 07:53:37PM +0000
+In-Reply-To: <E15yhyY-0000Yb-00@starship.berlin>; from phillips@bonn-fries.net on Wed, Oct 31, 2001 at 12:07:17AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 07:53:37PM +0000, Linus Torvalds wrote:
-> I wonder if the "VALID_PAGE(page)" macro is reliable on alpha? You seem
-> to be able to trigger this too easily for it to not being something
-> specific to the setup..
+On Wed, Oct 31, 2001 at 12:07:17AM +0100, Daniel Phillips wrote:
+> Hi, I've been taking a look on a mm problem that Ben Smith of Google posted 
+> a couple of weeks ago.  As it stands, Google can't use 2.4 yet because all
+> known flavors of 2.4 mm fall down in one way or another.  This is not good.
 
-Should be.  I've never seen an alpha with discontiguous memory.
-(Well, I've not looked at a numa box, but that's not at issue here.)
+Andrea suggested that this might be a mlock bug and someone else
+pointed out that madvise instead of mlock exhibits similar behaviour.
+So I looked at this code and this patch looks obviously correct:
 
-FWIW, we dump the HWRPB memory table early in the boot process, e.g.
+--- mlock.c.old Sat Nov  3 19:53:43 2001
++++ mlock.c     Sat Nov  3 19:55:18 2001
+@@ -90,7 +90,6 @@
+        left->vm_end = start;
+        right->vm_start = end;
+        right->vm_pgoff += (right->vm_start - left->vm_start) >> PAGE_SHIFT;
+-       vma->vm_flags = newflags;
+        left->vm_raend = 0;
+        right->vm_raend = 0;
+        if (vma->vm_file)
 
-memcluster 0, usage 1, start        0, end      192
-memcluster 1, usage 0, start      192, end    16267
-memcluster 2, usage 1, start    16267, end    16384
+This assignment is redundant and it is not protected by any locks.
+As far as I can see vma->vm_mm->page_table_lock is supposed to protect
+modifications of vma->vm_flags. If this is true we probably need this
+as well:
 
-where "usage 1" is reserved by the console.
+--- filemap.c.old       Sat Nov  3 21:44:12 2001
++++ filemap.c   Sat Nov  3 21:46:36 2001
+@@ -2178,7 +2178,9 @@
 
+        if (start == vma->vm_start) {
+                if (end == vma->vm_end) {
++                       spin_lock(&vma->vm_mm->page_table_lock);
+                        setup_read_behavior(vma, behavior);
++                       spin_unlock(&vma->vm_mm->page_table_lock);
+                        vma->vm_raend = 0;
+                } else
+                        error = madvise_fixup_start(vma, end, behavior);
 
-r~
+I doubt that this is the reason for the google memory problems, but
+who knows?
+
+    regards  Christian
+
+-- 
+THAT'S ALL FOLKS!

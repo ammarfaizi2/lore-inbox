@@ -1,41 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268919AbUH3UEO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268964AbUH3UCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268919AbUH3UEO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 16:04:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUH3UCS
+	id S268964AbUH3UCG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 16:02:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUH3Txx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 16:02:18 -0400
-Received: from fw.osdl.org ([65.172.181.6]:34776 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268954AbUH3T7m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:59:42 -0400
-Date: Mon, 30 Aug 2004 12:57:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9-rc1-mm1 kjournald: page allocation failure. order:1,
- mode:0x20
-Message-Id: <20040830125742.18c38277.akpm@osdl.org>
-In-Reply-To: <1093873432.1786.16.camel@rakieeta>
-References: <1093794970.1751.10.camel@rakieeta>
-	<20040829160257.3b881fef.akpm@osdl.org>
-	<1093873432.1786.16.camel@rakieeta>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 30 Aug 2004 15:53:53 -0400
+Received: from ppp-62-11-78-150.dialup.tiscali.it ([62.11.78.150]:7298 "EHLO
+	zion.localdomain") by vger.kernel.org with ESMTP id S268922AbUH3Twm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 15:52:42 -0400
+Subject: [patch 1/3] kbuild - remove old LDFLAGS_BLOB from Makefiles.
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, blaisorblade_spam@yahoo.it
+From: blaisorblade_spam@yahoo.it
+Date: Mon, 30 Aug 2004 21:44:30 +0200
+Message-Id: <20040830194430.30C042C6E@zion.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof "Sierota (o2.pl/tlen.pl)" <Krzysztof.Sierota@firma.o2.pl> wrote:
->
-> > There should have been a stack trace as well.  Please send it.
->  > 
-> 
->  this time there is an attachement.
 
-OK.  It's netfilter.  Trying to allocate two physically contiguous
-pages with GFP_ATOMIC.  This is expected to fail, and networking will
-recover OK.
+The LDFLAGS_BLOB var (which used to be defined in arch Makefiles) is now unused,
+as specified inside usr/initramfs_data.S. So this patch removes the remaining
+references.
 
-The networking guys are cooking up a fix for this, I believe.
+A separate patch is provided to remove it from UML, and another to update docs.
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade_spam@yahoo.it>
+---
+
+ vanilla-linux-2.6.8.1-paolo/Makefile            |    2 +-
+ vanilla-linux-2.6.8.1-paolo/arch/arm/Makefile   |    1 -
+ vanilla-linux-2.6.8.1-paolo/arch/arm26/Makefile |    2 --
+ vanilla-linux-2.6.8.1-paolo/arch/cris/Makefile  |    2 --
+ 4 files changed, 1 insertion(+), 6 deletions(-)
+
+diff -puN Makefile~kbuild-LDFLAGS_BLOB-remove Makefile
+--- vanilla-linux-2.6.8.1/Makefile~kbuild-LDFLAGS_BLOB-remove	2004-08-30 16:02:30.587626232 +0200
++++ vanilla-linux-2.6.8.1-paolo/Makefile	2004-08-30 16:02:30.942572272 +0200
+@@ -304,7 +304,7 @@ AFLAGS		:= -D__ASSEMBLY__
+ export	VERSION PATCHLEVEL SUBLEVEL EXTRAVERSION KERNELRELEASE ARCH \
+ 	CONFIG_SHELL HOSTCC HOSTCFLAGS CROSS_COMPILE AS LD CC \
+ 	CPP AR NM STRIP OBJCOPY OBJDUMP MAKE AWK GENKSYMS PERL UTS_MACHINE \
+-	HOSTCXX HOSTCXXFLAGS LDFLAGS_BLOB LDFLAGS_MODULE CHECK
++	HOSTCXX HOSTCXXFLAGS LDFLAGS_MODULE CHECK
+ 
+ export CPPFLAGS NOSTDINC_FLAGS OBJCOPYFLAGS LDFLAGS
+ export CFLAGS CFLAGS_KERNEL CFLAGS_MODULE 
+diff -puN arch/arm26/Makefile~kbuild-LDFLAGS_BLOB-remove arch/arm26/Makefile
+--- vanilla-linux-2.6.8.1/arch/arm26/Makefile~kbuild-LDFLAGS_BLOB-remove	2004-08-30 16:02:30.937573032 +0200
++++ vanilla-linux-2.6.8.1-paolo/arch/arm26/Makefile	2004-08-30 16:02:30.942572272 +0200
+@@ -8,7 +8,6 @@
+ # Copyright (C) 1995-2001 by Russell King
+ 
+ LDFLAGS_vmlinux	:=-p -X
+-LDFLAGS_BLOB	:=--format binary
+ AFLAGS_vmlinux.lds.o = -DTEXTADDR=$(TEXTADDR) -DDATAADDR=$(DATAADDR)
+ OBJCOPYFLAGS	:=-O binary -R .note -R .comment -S
+ GZFLAGS		:=-9
+@@ -28,7 +27,6 @@ CFLAGS		+=-mapcs-26 -mcpu=arm3 -mshort-l
+ AFLAGS		+=-mapcs-26 -mcpu=arm3 -mno-fpu -msoft-float -Wa,-mno-fpu
+ 
+ head-y		:= arch/arm26/machine/head.o arch/arm26/kernel/init_task.o
+-LDFLAGS_BLOB	+= --oformat elf32-littlearm
+ 
+ ifeq ($(CONFIG_XIP_KERNEL),y)
+   TEXTADDR	 := 0x03880000
+diff -puN arch/cris/Makefile~kbuild-LDFLAGS_BLOB-remove arch/cris/Makefile
+--- vanilla-linux-2.6.8.1/arch/cris/Makefile~kbuild-LDFLAGS_BLOB-remove	2004-08-30 16:02:30.938572880 +0200
++++ vanilla-linux-2.6.8.1-paolo/arch/cris/Makefile	2004-08-30 16:02:30.942572272 +0200
+@@ -24,8 +24,6 @@ SARCH :=
+ endif
+ 
+ LD = $(CROSS_COMPILE)ld -mcrislinux
+-LDFLAGS_BLOB	:= --format binary --oformat elf32-cris \
+-		   -T arch/cris/$(SARCH)/output_arch.ld
+ 
+ OBJCOPYFLAGS := -O binary -R .note -R .comment -S
+ 
+diff -puN arch/arm/Makefile~kbuild-LDFLAGS_BLOB-remove arch/arm/Makefile
+--- vanilla-linux-2.6.8.1/arch/arm/Makefile~kbuild-LDFLAGS_BLOB-remove	2004-08-30 16:02:30.939572728 +0200
++++ vanilla-linux-2.6.8.1-paolo/arch/arm/Makefile	2004-08-30 16:02:30.942572272 +0200
+@@ -8,7 +8,6 @@
+ # Copyright (C) 1995-2001 by Russell King
+ 
+ LDFLAGS_vmlinux	:=-p --no-undefined -X
+-LDFLAGS_BLOB	:=--format binary
+ AFLAGS_vmlinux.lds.o = -DTEXTADDR=$(TEXTADDR) -DDATAADDR=$(DATAADDR)
+ OBJCOPYFLAGS	:=-O binary -R .note -R .comment -S
+ GZFLAGS		:=-9
+_

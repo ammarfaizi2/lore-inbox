@@ -1,33 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275632AbRIZVjh>; Wed, 26 Sep 2001 17:39:37 -0400
+	id <S275637AbRIZVpi>; Wed, 26 Sep 2001 17:45:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275634AbRIZVj1>; Wed, 26 Sep 2001 17:39:27 -0400
-Received: from adsl-64-166-241-227.dsl.snfc21.pacbell.net ([64.166.241.227]:64530
-	"EHLO www.hockin.org") by vger.kernel.org with ESMTP
-	id <S275632AbRIZVjL>; Wed, 26 Sep 2001 17:39:11 -0400
-From: Tim Hockin <thockin@hockin.org>
-Message-Id: <200109262120.f8QLKup06335@www.hockin.org>
-Subject: Re: Specifying PCI bus speed?
-To: swsnyder@home.com
-Date: Wed, 26 Sep 2001 14:20:55 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <01092616253900.03354@mercury.snydernet.lan> from "Steve Snyder" at Sep 26, 2001 04:25:39 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S275638AbRIZVp3>; Wed, 26 Sep 2001 17:45:29 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:54533 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S275637AbRIZVpU>; Wed, 26 Sep 2001 17:45:20 -0400
+Date: Wed, 26 Sep 2001 17:45:31 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Binary only module overview
+In-Reply-To: <20010926233712.H968@khan.acc.umu.se>
+Message-ID: <Pine.LNX.4.33.0109261743400.27586-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is it possible to specify the speed of a PCI bus?  I've got a Dell notebook
-> machine that drives the bus at 60MHz (rather than the typical 66MHz). 
-> 
-> I know one can specify the speed of the IDE bus and I'm wondering of there 
-> is something analogous for PCI.  Is there?
+On Wed, 26 Sep 2001, David Weinehall wrote:
 
-I have posted a patch for that - I hope it gets accepted some time soon.
-If you dig through lkml archives you'll find it.  I'll be making new 2.4.10
-patches Real Soon Now, and this will be included.
+> On Wed, Sep 26, 2001 at 12:17:37PM -0700, Crispin Cowan wrote:
+>
+> > That is not clear to me. I have been unable to find a definitive
+> > reference that states that is the case.  If so, it is problematic,
+> > because then every user-land program that ever #include'd errno.h from
+> > glibc is GPL'd, because glibc #include's errno.h, among other GPL'd
+> > kernel header files. Are you sure you want to declare nearly all
+> > proprietary Linux applications to be in violation of the GPL?
+>
+> AFAIK, the glibc (and most other libraries) are LGPL rather than GPL.
 
-Tim
+What about programs that include header files from /usr/include/linux,
+/usr/include/asm, and/or /usr/include/scsi?
+
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
+
+

@@ -1,82 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267762AbSLTJg2>; Fri, 20 Dec 2002 04:36:28 -0500
+	id <S267759AbSLTJec>; Fri, 20 Dec 2002 04:34:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267764AbSLTJg2>; Fri, 20 Dec 2002 04:36:28 -0500
-Received: from cmailg1.svr.pol.co.uk ([195.92.195.171]:2314 "EHLO
-	cmailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S267762AbSLTJg0>; Fri, 20 Dec 2002 04:36:26 -0500
-Date: Fri, 20 Dec 2002 09:44:47 +0000
-To: lvm-devel@sistina.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] [PATCH] add kobject to struct mapped_device
-Message-ID: <20021220094447.GA1169@reti>
-References: <20021218184307.GA32190@kroah.com> <20021219105530.GA2003@reti> <20021220083149.GA10484@kroah.com>
-Mime-Version: 1.0
+	id <S267760AbSLTJec>; Fri, 20 Dec 2002 04:34:32 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:22509 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S267759AbSLTJeb>;
+	Fri, 20 Dec 2002 04:34:31 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021220083149.GA10484@kroah.com>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Transfer-Encoding: 7bit
+Message-ID: <15874.58889.846488.868570@napali.hpl.hp.com>
+Date: Fri, 20 Dec 2002 01:42:33 -0800
+To: torvalds@transmeta.com (Linus Torvalds)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.x disable BAR when sizing
+In-Reply-To: <atubg3$699$1@penguin.transmeta.com>
+References: <20021219213712.0518B12CB2@debian.cup.hp.com>
+	<atubg3$699$1@penguin.transmeta.com>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 20, 2002 at 12:31:50AM -0800, Greg KH wrote:
-> Here's an ascii picture which probably makes more sense:
-> /sys/block/
-> |-- fd0
-> |   |-- dev
-> |   |-- range
-> |   |-- size
-> |   `-- stat
-> |-- dm-1
-> |   |-- dev
-> |   |-- dm
-> |   |   |-- device0 -> ../../devices/pci0/00:02.5/ide0/0.0
-> |   |   |-- device1 -> ../../devices/pci0/00:02.5/ide1/1.0
-> |   |   |-- status
-> |   |   |-- suspend
-> |   |   `-- table
-> |   |-- range
-> |   |-- size
-> |   `-- stat
-> 
-> Look reasonable?
+>>>>> On Fri, 20 Dec 2002 05:57:23 +0000 (UTC), torvalds@transmeta.com (Linus Torvalds) said:
 
-Yes, it looks promising.  Some worries:
+  Linus> DO NOT DO THIS. It locks up some machines at
+  Linus> bootup. Hard. Total bus lockup if you have legacy USB enabled
+  Linus> (or anything else that does DMA, for that matter) at the same
+  Linus> time as probing the northbridge with this.
 
-i) The 'status' and 'table' files do not contain a single value.
-Splitting it up into single values would be ungainly to say the least,
-eg.
+  Linus> Trust me.  If you have some new silly ia64-specific bug, the
+  Linus> fix is _not_ to break real and existing hardware out there.
 
-  dm
-  |-- table
-      |-- target1
-      |   |-- sector_start
-      |   |-- sector_len
-      |   |-- target_type
-      |   `-- target args
-      |
-      |-- target2
-          |-- sector_start
+Could you please stop this ia64 paranoia and instead explain to me why
+it's OK to relocate a PCI device to (0x100000000-PCI_dev_size)
+temporarily?  That just seems horribly unsafe to me.  The PCI spec
+seems to say the same as it says pretty clearly that memory decoding
+should be disabled during BAR-sizing.  If certain bridges cause
+problems, perhaps those need to be special-cased?
 
-  hmm ... maybe that's not too bad.
-
-ii) If the table files are not split up then we have the problem that
-    they can be larger than a single page, which sysfs can't handle
-    (is this still true ?).
-
-iii) We need to be able to poll on the status file so that people can
-     block until there is a change of status.  eg, a snapshot uses up
-     another 5% of its COW storage, a mirror completes its initial
-     build, a path fails in the multipath target.
-
-> Ok.  I can place all of the sysfs specific functions in dm.c, just like
-> drivers/block/genhd.c has, or if we place struct mapped_device into
-> dm.h, they can live in their own file.  Doesn't bother me either way.
-
-Either put it in dm.c, or define some extra access functions (like
-dm_suspended() and dm_kdev()) to get the information you need.  I
-would prefer the latter, but we can always move things later.
-
-- Joe
+	--david

@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129858AbQKIAR7>; Wed, 8 Nov 2000 19:17:59 -0500
+	id <S129112AbQKIA3x>; Wed, 8 Nov 2000 19:29:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129745AbQKIARt>; Wed, 8 Nov 2000 19:17:49 -0500
-Received: from proxy2.ba.best.com ([206.184.139.14]:41736 "EHLO
-	proxy2.ba.best.com") by vger.kernel.org with ESMTP
-	id <S129324AbQKIARd>; Wed, 8 Nov 2000 19:17:33 -0500
-Message-ID: <3A09EC6F.C87A7729@best.com>
-Date: Wed, 08 Nov 2000 16:14:39 -0800
-From: Robert Lynch <rmlynch@best.com>
-Reply-To: rmlynch@best.com
-Organization: Carpe per diem
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
+	id <S129097AbQKIA3n>; Wed, 8 Nov 2000 19:29:43 -0500
+Received: from ocmax10-248.dialup.optusnet.com.au ([198.142.43.248]:27912 "HELO
+	tae-bo.generica.dyndns.org") by vger.kernel.org with SMTP
+	id <S129112AbQKIA31>; Wed, 8 Nov 2000 19:29:27 -0500
+Date: Thu, 9 Nov 2000 11:35:03 +1100 (EST)
+From: Brett <bpemberton@dingoblue.net.au>
+To: David Ford <david@linux.com>
+cc: David Feuer <David_Feuer@brown.edu>, linux-kernel@vger.kernel.org
+Subject: Re: pcmcia
+In-Reply-To: <3A09E8E6.2118280D@linux.com>
+Message-ID: <Pine.LNX.4.21.0011091131240.9217-100000@tae-bo.generica.dyndns.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Spew from test11-pre1
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-No oops, but right after I installed test11-pre1, then tried to
-access a Windows box as a VNC client, this message started
-getting continuously dumped by syslog:
-===
-...
-Nov  8 15:32:01 ives kernel: eth0: card reports no RX buffers.
-Nov  8 15:32:04 ives kernel: eth0: card reports no resources.
-Nov  8 15:32:04 ives kernel: eth0: card reports no RX buffers.
-Nov  8 15:32:04 ives kernel: eth0: card reports no resources.
-Nov  8 15:32:05 ives kernel: eth0: card reports no RX
-buffers.                  
-...
-Nov  8 15:36:18 ives kernel: eth0: card reports no resources.
-Nov  8 15:36:35 ives kernel: eth0: card reports no RX buffers.
-Nov  8 15:36:49 ives kernel: SysRq: Emergency Sync
-Nov  8 15:36:49 ives kernel: Syncing device 03:03 ... OK 
-..
-===
-eth0 seems OK, I regularly check ifconfig after installing a new
-kernel:
-===
-$ /sbin/ifconfig -a
-eth0      Link encap:Ethernet  HWaddr 00:D0:B7:7A:00:B0
-          inet addr:172.16.1.3  Bcast:172.16.1.255 
-Mask:255.255.255.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:4 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:100
-          Interrupt:9
-...
-===                  
-Doing a Yahoo search it seems this was previously reported
-eepro100 bug, which appears to have resurfaced.
 
-FWIW, Bob L.
+Hey,
+
+I don't know if this counts as a _problem_, 
+but I need to enable pci support to get pcmcia/cardbus activated.
+Is this really necessary ?? My current kernels work fine without pci
+support, and sure, enabling it won't hurt, just make the kernel bigger,
+but why is the restriction there ?
+
+Also, what has happened to the i82365 support that I need ? 
+Its nicely commented out in drivers/net/pcmcia/Config.in
+
+I remember everything working fine up until about test3/4, since then I've
+had to revert to the pcmcia-cs package.
+
+Just wondering whats going on ?
+
+	/ Brett
+
+On Wed, 8 Nov 2000, David Ford wrote:
+>
+> With a few exceptions, it should work.  The problematic systems are few.
+> 
+> -d
+> 
+> David Feuer wrote:
+> 
+> > What is the current status of PC-card support?  I've seen ominous signs on
+> > this list about the state of support....  I have a laptop with a PCMCIA
+> > network card (a 3com thing). Will it work?
+> 
+> --
+> "The difference between 'involvement' and 'commitment' is like an
+> eggs-and-ham breakfast: the chicken was 'involved' - the pig was
+> 'committed'."
+> 
+> 
+> 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

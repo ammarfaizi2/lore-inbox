@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312973AbSEVLZ7>; Wed, 22 May 2002 07:25:59 -0400
+	id <S313060AbSEVL00>; Wed, 22 May 2002 07:26:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313070AbSEVLZ6>; Wed, 22 May 2002 07:25:58 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18702 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S312973AbSEVLZ6>; Wed, 22 May 2002 07:25:58 -0400
-Message-Id: <200205221121.g4MBLUY02306@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-Date: Wed, 22 May 2002 14:23:46 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
-        acme@conectiva.com.br
-In-Reply-To: <5E5257A4137@vcnet.vc.cvut.cz>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S313070AbSEVL0Z>; Wed, 22 May 2002 07:26:25 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:40977 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S313060AbSEVL0Y>; Wed, 22 May 2002 07:26:24 -0400
+Date: Wed, 22 May 2002 12:26:17 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: "David S. Miller" <davem@redhat.com>, paulus@samba.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+Message-ID: <20020522122617.B16934@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.44.0205202211040.949-100000@home.transmeta.com> <3CEB5F75.4000009@evision-ventures.com> <15595.30247.263661.42035@argo.ozlabs.ibm.com> <20020522.035435.68675894.davem@redhat.com> <3CEB6F31.2000301@evision-ventures.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On 22 May 02 at 12:27, Denis Vlasenko wrote:
-> > > As Linus and others pointed out, copy_{to_from}_user has its uses and
-> > > will stay, but something like:
-> >
-> > I don't say 'kill it', I say 'rename it so that its name tells users what
-> > return value to expect'. However, one have to weigh
->
-> Why?
+On Wed, May 22, 2002 at 12:13:05PM +0200, Martin Dalecki wrote:
+> And now I'm just eagerly awaiting the first clueless
+> l^Huser lurking on this list, who will flame me as usuall...
+> But that's no problem - I got already used to it :-).
 
-Why what? Why rename copy_to_user? Because in its current form people
-misunderstand its return value and misuse it.
-We can keep unmodified version of copy_to_user for some time for
-compatibility.
+I'm waiting on Phil Blundell to notice - I think /dev/port may get used
+on ARM to emulate inb() and outb() from userspace; I don't look after
+glibc so shrug.
 
-Or maybe your "why?" is related to something else, I fail
-to understand you in that case.
+I agree however that /dev/port is a rotten interface that needs to go.
 
-> From copyin/out descriptions sent yesterday if you want same source code
-> running on all (BSD,SVR4,OSF/1) platforms, you must do
->
-> if (copyin()) return [-]EFAULT;
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-But if I am new to Linux and just want to write my first piece of kernel
-code, copyout() is even worse than copy_to_user(): 
-it too lacks info of what it can return (0/1, 0/-EFAULT, # of copied bytes,
-# of bytes remaining?) *and* copy direction become unclear:
-copy out of *what*? out of kernel memery? out of user memory?
---
-vda

@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S137050AbREKFbM>; Fri, 11 May 2001 01:31:12 -0400
+	id <S137051AbREKFgw>; Fri, 11 May 2001 01:36:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S137048AbREKFbC>; Fri, 11 May 2001 01:31:02 -0400
-Received: from [203.143.19.4] ([203.143.19.4]:8721 "EHLO kitul.learn.ac.lk")
-	by vger.kernel.org with ESMTP id <S137049AbREKFat>;
-	Fri, 11 May 2001 01:30:49 -0400
-Date: Thu, 10 May 2001 16:51:17 +0600 (LKT)
-From: Anuradha Ratnaweera <anuradha@gnu.org>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: Helge Hafting <helgehaf@idb.hist.no>,
-        Tobias Ringstrom <tori@tellus.mine.nu>, linux-kernel@vger.kernel.org
-Subject: Re: page_launder() bug
-In-Reply-To: <20010507210229.A7724@werewolf.able.es>
-Message-ID: <Pine.LNX.4.21.0105101649220.283-100000@presario>
+	id <S137053AbREKFgn>; Fri, 11 May 2001 01:36:43 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:10133 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S137051AbREKFge>;
+	Fri, 11 May 2001 01:36:34 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15099.31325.228963.52019@pizda.ninka.net>
+Date: Thu, 10 May 2001 22:36:29 -0700 (PDT)
+To: Anuradha Ratnaweera <anuradha@gnu.org>
+Cc: Russell King <rmk@arm.linux.org.uk>,
+        Duncan Gauld <duncan@gauldd.freeserve.co.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Possible README patch
+In-Reply-To: <Pine.LNX.4.21.0105101754080.283-100000@presario>
+In-Reply-To: <20010505102133.A16788@flint.arm.linux.org.uk>
+	<Pine.LNX.4.21.0105101754080.283-100000@presario>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Mon, 7 May 2001, J . A . Magallon wrote:
+Anuradha Ratnaweera writes:
+ > 
+ > On Sat, 5 May 2001, Russell King wrote:
+ > 
+ > > gzip -dc linux-2.4.XX.tar.gz | tar zvf -
+ > > gzip -dc patchXX.gz | patch -p0
+ > 
+ > This does _not_ work for international kernel patch. They assume the
+ > directories lin.2.x.x/ (old) and int.2.x.x/ (new) and not linux/.
+ > Therefore it _is_ necessary to `cd linux' and do a `patch -p1'.
 
-> 
-> On 05.07 Helge Hafting wrote:
-> >
-> > !0 is 1.  !(anything else) is 0.  It is zero and one, not
-> > zero and "non-zero".  So a !! construction gives zero if you have
-> > zero, and one if you had anything else.  There's no doubt about it.
-> > >
-> 
-> Isn't this asking for trouble with the optimizer ? It could kill both
-> !!. Using that is like trusting on a certain struct padding-alignment.
-> 
+Yes, but this document is about the official final patches Linus and
+Alan release for 2.2.x and 2.4.x, not about arbitrary kernel patches
+that are available.
 
-It isn't, or rather it can't. Because !!x is not x unless x is one or
-zero.
-
-Anuradha
+Later,
+David S. Miller
+davem@redhat.com
 

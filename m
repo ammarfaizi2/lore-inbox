@@ -1,39 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317142AbSFQXXz>; Mon, 17 Jun 2002 19:23:55 -0400
+	id <S317148AbSFQX21>; Mon, 17 Jun 2002 19:28:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317148AbSFQXXy>; Mon, 17 Jun 2002 19:23:54 -0400
-Received: from ns.suse.de ([213.95.15.193]:11531 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317142AbSFQXXy>;
-	Mon, 17 Jun 2002 19:23:54 -0400
-Date: Tue, 18 Jun 2002 01:23:55 +0200
-From: Dave Jones <davej@suse.de>
-To: Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-Subject: Re: Eisa option problem in 2.5.22
-Message-ID: <20020618012355.K758@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Dale Amon <amon@vnl.com>, linux-kernel@vger.kernel.org
-References: <20020617230002.GC24436@vnl.com>
-Mime-Version: 1.0
+	id <S317170AbSFQX20>; Mon, 17 Jun 2002 19:28:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33042 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317148AbSFQX20>;
+	Mon, 17 Jun 2002 19:28:26 -0400
+Message-ID: <3D0E7041.860710CA@zip.com.au>
+Date: Mon, 17 Jun 2002 16:26:57 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 3x slower file reading oddity
+References: <Pine.LNX.4.44.0206171246270.31265-100000@twinlark.arctic.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020617230002.GC24436@vnl.com>; from amon@vnl.com on Tue, Jun 18, 2002 at 12:00:02AM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 18, 2002 at 12:00:02AM +0100, Dale Amon wrote:
- > A minor build problem. I turned the EISA bus option off and then it
- > successfully compiled.
- > 
- > make[1]: *** No rule to make target `eisa.o', needed by `kernel.o'.  Stop.
- > make: *** [arch/i386/kernel] Error 2
+dean gaudet wrote:
+> 
+> i was trying to study various cpu & i/o bottlenecks for a backup
+> tool (rdiff-backup) and i stumbled into this oddity:
+> 
+> # time xargs -0 -n100 cat -- > /dev/null < /tmp/filelist
+> 0.520u 5.310s 0:36.92 15.7%     0+0k 0+0io 11275pf+0w
+> # time xargs -0 -n100 cat -- > /dev/null < /tmp/filelist
+> 0.510u 5.090s 0:35.05 15.9%     0+0k 0+0io 11275pf+0w
+> 
+> # time xargs -0 -P2 -n100 cat -- > /dev/null < /tmp/filelist
+> 0.500u 5.380s 1:30.51 6.4%      0+0k 0+0io 11275pf+0w
+> # time xargs -0 -P2 -n100 cat -- > /dev/null < /tmp/filelist
+> 0.420u 4.810s 1:36.73 5.4%      0+0k 0+0io 11275pf+0w
+> 
+> 3x slower with the two cats in parallel.
 
-Just delete eisa.o from arch/i386/kernel/Makefile
-It's a bogon that slipped in from my tree.
+Note that the CPU time remained constant.  The wall time went up.
+You did more seeking with the dual-thread approach.
 
-        Dave
+I rather depends on what is in /tmp/filelist.  I assume it's
+something like the output of `find'.  And I assume you're
+using ext2 or ext3?
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+- ext2/3 will chop the filesystem up into 128-megabyte block groups.
+
+- It attemts to place all the files in a directory into the same
+  block group.
+
+- It will explicitly place new directories into a different blockgroup
+  from their parent.
+
+And I suspect it's the latter point which has caught you out.  You have
+two threads, and probably each thread's list of 100 files is from a
+different directory.  And hence it lives in a different block group.
+And hence your two threads are competing for the disk head.
+
+Even increasing the elevator read latency won't help you here - we don't
+perform inter-file readahead, so as soon as thread 1 blocks on a read,
+it has *no* reads queued up and the other thread's requests are then 
+serviced.
+
+You'll get best throughput with a single read thread.  There are some
+smarter readahead things we could do in there, but it tends to be
+that device-level readahead fixes everything up anyway.
+
+-

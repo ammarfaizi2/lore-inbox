@@ -1,54 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129854AbRBQBGa>; Fri, 16 Feb 2001 20:06:30 -0500
+	id <S129162AbRBQBTU>; Fri, 16 Feb 2001 20:19:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131409AbRBQBGV>; Fri, 16 Feb 2001 20:06:21 -0500
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:44039 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S129854AbRBQBGS>; Fri, 16 Feb 2001 20:06:18 -0500
-Message-ID: <3A8DCE7D.3747DB41@t-online.de>
-Date: Sat, 17 Feb 2001 02:06:05 +0100
-From: wal_teichmann@t-online.de (Wolfgang Teichmann)
-X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.1-ac15 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S129617AbRBQBS7>; Fri, 16 Feb 2001 20:18:59 -0500
+Received: from daikokuya.demon.co.uk ([158.152.184.26]:2820 "EHLO
+	monkey.daikokuya.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S129162AbRBQBS6>; Fri, 16 Feb 2001 20:18:58 -0500
+Date: Sat, 17 Feb 2001 01:18:54 +0000
 To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.0/1/1-ac15 and ncr53c810a
+Subject: IBM-DTLA-307045 very slow under 2.2.x
+Message-ID: <20010217011854.B719@daikokuya.demon.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+From: Neil Booth <neil@daikokuya.demon.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I have a SOYO "SY-5EMA+ Super 7" motherboard, with a K6-2 processor.
+The 45 Gig IBM drive hangs the BIOS if I let it autodetect it, so I
+turn off autodetection for IDE2 primary where it sits.  This is probably
+not relevant.
 
-I have problems using my scanner (HP C6270A connected to ncr53c810a)
-with xsane.
+My problem is that "hdparm -tT dev/hdc" gives atrocious
+performance:-
 
-I always get the error message:
+/dev/hdc:
+ Timing buffered disk reads:  64 MB in 22.81 seconds =  2.81 MB/sec
 
-error during read: Error during device I/O
+with approximately 25% CPU usage.  By contrast, for /dev/hda it
+gives:-
 
+/dev/hda:
+ Timing buffered disk reads:  64 MB in 11.49 seconds =  5.57 MB/sec
 
-Feb 15 23:57:27 localhost kernel: Attached scsi generic sg2 at scsi0,
-channel 0, id 4, lun 0, type 3
-Feb 15 23:57:27 localhost kernel: ncr53c810a-0-<4,*>: target did not
-report SYNC.
-Feb 15 23:58:01 localhost kernel: scsi : aborting command due to timeout
-: pid 0, scsi0, channel 0, id 4, lun 0 Read (6) 00 00 7b 66 00
-Feb 15 23:58:01 localhost kernel: ncr53c8xx_abort: pid=0
-serial_number=1099 serial_number_at_timeout=1099
-Feb 15 23:58:04 localhost kernel: SCSI host 0 abort (pid 0) timed out -
-resetting
-Feb 15 23:58:04 localhost kernel: SCSI bus is being reset for host 0
-channel 0.
-Feb 15 23:58:04 localhost kernel: ncr53c8xx_reset: pid=0 reset_flags=2
-serial_number=1099 serial_number_at_timeout=1099
-Feb 15 23:58:04 localhost kernel: ncr53c810a-0: restart (scsi reset).
+with 100% CPU, which is still poor, but somewhat better.  The relevant
+part of my dmesg is
 
-With kernel 2.2.x I have no problems accessing the scanner with xsane.
+VP_IDE: IDE controller on PCI bus 00 dev 39
+VP_IDE: not 100% native mode: will probe irqs later
+ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:DMA
+ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
+hda: QUANTUM FIREBALL CR13.0A, ATA DISK drive
+hdb: CD-ROM 40X/AKU, ATAPI CDROM drive
+hdc: IBM-DTLA-307045, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: QUANTUM FIREBALL CR13.0A, 12416MB w/418kB Cache, CHS=1582/255/63
+hdc: IBM-DTLA-307045, 43979MB w/1916kB Cache, CHS=5606/255/63
+hdb: ATAPI 40X CD-ROM drive, 128kB Cache
 
-Any idea?
+hdparm -i /dev/hdc gives:-
 
+Model=IBM-DTLA-307045, FwRev=TX6OA50C, SerialNo=YM0YML23878
+Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
+RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
+BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=off
+CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=90069840
+IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+PIO modes: pio0 pio1 pio2 pio3 pio4 
+DMA modes: mdma0 mdma1 *mdma2 udma0 udma1 udma2 udma3 udma4 udma5 
 
+Trying to set the DMA mode with -X34 and -d1 seems to have no effect.
 
+Is this normal, or am I doing something wrong?
 
+Thanks,
+
+Neil.

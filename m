@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264026AbSIQKZs>; Tue, 17 Sep 2002 06:25:48 -0400
+	id <S264036AbSIQKet>; Tue, 17 Sep 2002 06:34:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264034AbSIQKZs>; Tue, 17 Sep 2002 06:25:48 -0400
-Received: from 62-190-217-132.pdu.pipex.net ([62.190.217.132]:18182 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S264026AbSIQKZs>; Tue, 17 Sep 2002 06:25:48 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209171037.g8HAbuIf001453@darkstar.example.net>
-Subject: Re: Heuristic readahead for filesystems
-To: jdow@earthlink.net (jdow)
-Date: Tue, 17 Sep 2002 11:37:56 +0100 (BST)
-Cc: jw@pegasys.ws, linux-kernel@vger.kernel.org
-In-Reply-To: <02f401c25deb$e5f87bc0$1125a8c0@wednesday> from "jdow" at Sep 16, 2002 06:45:27 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S264037AbSIQKet>; Tue, 17 Sep 2002 06:34:49 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:7413 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264036AbSIQKes>; Tue, 17 Sep 2002 06:34:48 -0400
+Subject: Re: Hi is this critical??
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andre Hedrick <andre@linux-ide.org>
+Cc: jbradford@dial.pipex.com, Nuitari <nuitari@balthasar.nuitari.net>,
+       venom@sns.it, linux-kernel@vger.kernel.org, xavier.bestel@free.fr,
+       mark@veltzer.org
+In-Reply-To: <Pine.LNX.4.10.10209170116280.11597-100000@master.linux-ide.org>
+References: <Pine.LNX.4.10.10209170116280.11597-100000@master.linux-ide.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 17 Sep 2002 11:41:44 +0100
+Message-Id: <1032259304.13990.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Well they could read contiguous sectors if the sector interleave
-> > was correctly determined and the correct interleave was set
-> > while low-level formatting. Now-days, interleave is either ignored
-> > or unavailable because there is a sector buffer that can contain
-> > an entire track of data. Some SCSI drives have sector buffers
-> > that can contain a whole cylinder of data.
-> 
-> When I say contiguous I mean contiguous not interleaved, sonny. I had
-> CP/M (and UCSD Pascal) reading physically contiguous sectors on the
-> disk with no lost speed. That means I read, with my DSSD format of
-> 9 sectors each 512 bytes in size per side 18 full tracks 19 revolutions
-> of the disk. I did skew the sector numbers to allow for seeks. But I
-> did not interleave the tracks. It was not necessary with clean and
-> correct code. I rather resent the presumption that I am a dumb bitch
-> here.
+On Tue, 2002-09-17 at 09:20, Andre Hedrick wrote:
+> MORONS that think the drive vendors are not clued into the issue.
+> I have to read and vote on NASTY proposals, whose intent is to check for
+> G-Force damage.  If you think that record is not findable, even if you
 
-Ah, but the *really* clever thing to do at the time, on systems where you couldn't optimally achieve 1:1 interleave on a floppy, was to allocate sectors on alternating sides of the disk.  So, you could, for example, read two tracks in 3 revolutions, instead of 6, in the case of 3:1 interleave :-).
+Sounds good news for honest users. What it does want though is the
+ability of users to check that data when the disk arrives, because we
+have delivery people, and they think that if looks like a box its
+probably a football.
 
-John.
+I've noticed putting one way temperature strips into things is becoming
+popular to which is nice, but again its done in a way the user can't get
+the data, while for high end enterprise/business use knowing you
+accidentally cooked a disk is really important for making decisions both
+about new fans/aircon and also about whether to replace
+

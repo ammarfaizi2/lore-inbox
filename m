@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268224AbUHNL3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268601AbUHNLdN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268224AbUHNL3G (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 07:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268601AbUHNL3G
+	id S268601AbUHNLdN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 07:33:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268305AbUHNLdM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 07:29:06 -0400
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:53511 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id S268224AbUHNL24 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 07:28:56 -0400
-Message-ID: <411DF776.6090102@superbug.demon.co.uk>
-Date: Sat, 14 Aug 2004 12:28:54 +0100
-From: James Courtier-Dutton <James@superbug.demon.co.uk>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040812)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-References: <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu> <20040812235116.GA27838@elte.hu>
-In-Reply-To: <20040812235116.GA27838@elte.hu>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 14 Aug 2004 07:33:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:38553 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268639AbUHNLbj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 07:31:39 -0400
+Date: Sat, 14 Aug 2004 12:31:38 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Willy Tarreau <willy@w.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matthew Wilcox <willy@debian.org>
+Subject: Re: Linux v2.6.8 - Oops on NFSv3
+Message-ID: <20040814113138.GZ12308@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org> <20040814101039.GA27163@alpha.home.local> <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org> <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org> <20040814115548.A19527@infradead.org> <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org> <1092482311.9028.4.camel@laptop.fenrus.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092482311.9028.4.camel@laptop.fenrus.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> i've uploaded the latest version of the voluntary-preempt patch:
->      
->   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.8-rc4-O6
+On Sat, Aug 14, 2004 at 01:18:32PM +0200, Arjan van de Ven wrote:
+> On Sat, 2004-08-14 at 13:05, Linus Torvalds wrote:
+> > On Sat, 14 Aug 2004, Christoph Hellwig wrote:
+> > > 
+> > > Cane we make this 2.6.9 to avoid breaking all kinds of scripts expecting
+> > > three-digit kernel versions?
+> > 
+> > Well, we've been discussing the 2.6.x.y format for a while, so I see this 
+> > as an opportunity to actually do it... Will it break automated scripts? 
+> > Maybe. But on the other hand, we'll never even find out unless we try it 
+> > some time.
 > 
-<snip>
-> reports, suggestions welcome,
+> well... I'll volunteer to keep a 2.6.X-postY series.. this fix could be
+> part of that.
 > 
-> 	Ingo
+> For me the -post series should be
+> * Only patches that are in later head kernels (maybe lightly touched to
+> resolve patch conflicts)
+> * Only patches that fix something critical/important
+>   (where critical is of course a gray area but I'm sure a decent balance
+> will be found)
 
-I used O7.
+2.6.X-paperbagY?
 
-I have tested this for a day now, and I have noticed problems:
-1)
-kernel syslog gets a record like this:
- >  (default.hotplug/1470): 121 us critical section violates 100 us 
-threshold.
- >   => started at: <kmap_high+0x2b/0x2d0>
- >   => ended at:   <kmap_high+0x1a9/0x2d0>
- >   [<c0105a23>] dump_stack+0x23/0x30
- >   [<c0140d14>] check_preempt_timing+0x184/0x1e0
- >   [<c0140e84>] sub_preempt_count+0x54/0x5d
- >   [<c0152959>] kmap_high+0x1a9/0x2d0
- >   [<c017655a>] copy_strings+0xea/0x230
- >   [<c01766db>] copy_strings_kernel+0x3b/0x50
- >   [<c017840d>] do_execve+0x12d/0x1f0
- >   [<c0103284>] sys_execve+0x44/0x80
- >   [<c0104b95>] sysenter_past_esp+0x52/0x71
-and the /proc/latency_trace gets:
- >   preemption latency trace v1.0
- >   -----------------------------
- >    latency: 121 us, entries: 1032 (1032)
- >    process: default.hotplug/1470, uid: 0
- >    nice: -10, policy: 0, rt_priority: 0
- >   =======>
- >    0.000ms (+0.000ms): page_address (kmap_high)
- >    0.000ms (+0.000ms): page_slot (page_address)
- >    0.000ms (+0.000ms): flush_all_zero_pkmaps (kmap_high)
- >    0.000ms (+0.000ms): set_page_address (flush_all_zero_pkmaps)
- >   [...]
- >    0.118ms (+0.000ms): page_slot (set_page_address)
- >    0.118ms (+0.000ms): check_preempt_timing (sub_preempt_count)
-
-Could the patch be adjusted to make the syslog and the 
-/proc/latency_trace produce the same output?
-
-2)
-I suspect that there is a problem with reiserfs, but when I detect a 
-momentary hang in the system(mouse stops moving), no latency_trace appears.
-
+Said that, if you start doing that - count on my help.

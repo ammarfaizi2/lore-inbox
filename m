@@ -1,30 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271878AbRIIEZW>; Sun, 9 Sep 2001 00:25:22 -0400
+	id <S271882AbRIIEaM>; Sun, 9 Sep 2001 00:30:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271880AbRIIEZM>; Sun, 9 Sep 2001 00:25:12 -0400
-Received: from mnh-1-05.mv.com ([207.22.10.37]:28679 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S271878AbRIIEZD>;
-	Sun, 9 Sep 2001 00:25:03 -0400
-Message-Id: <200109090542.AAA03940@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: expand_stack fix [was Re: 2.4.9aa3] 
-In-Reply-To: Your message of "Sun, 09 Sep 2001 05:50:38 +0200."
-             <20010909055038.M11329@athlon.random> 
+	id <S271881AbRIIEaD>; Sun, 9 Sep 2001 00:30:03 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:4087 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271884AbRIIE3u>; Sun, 9 Sep 2001 00:29:50 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Sat, 8 Sep 2001 22:29:24 -0600
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.10-pre5
+Message-ID: <20010908222923.H32553@turbolinux.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010909053015.L11329@athlon.random> <Pine.LNX.4.33.0109082051040.1161-100000@penguin.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 09 Sep 2001 00:42:03 -0500
-From: Jeff Dike <jdike@karaya.com>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109082051040.1161-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-andrea@suse.de said:
-> ok, so I guess you're doing the growsdown by hand in the uml sigsegv
-> handler. 
+On Sep 08, 2001  20:58 -0700, Linus Torvalds wrote:
+> On Sun, 9 Sep 2001, Andrea Arcangeli wrote:
+> > I wish the cache coherency logic would be simpler but just doing
+> > something unconditionally it's going to break things in one way or
+> > another as far I can tell.
+> 
+> I'd rather fix that, then.
+> 
+> Otherwise we'll just end up carrying broken baggage around forever. Which
+> is not the way to do things.
+> 
+> Anyway, at this point this definitely sounds like a 2.5.x patch. Which I
+> always pretty much assumed it would be anyway.
 
-Right, exactly the same way that every other port does it.
+So basically - when we move block devices to the page cache, get rid of
+buffer cache usage in the filesystems as well?  Ext2 is nearly there at
+least.  One alternative is as Daniel Phillips did in the indexed-ext2-
+directory patch, where he kept the "bread" interface, but backed it
+with the page cache, so it required relatively little change to the
+filesystem.
 
-				Jeff
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 

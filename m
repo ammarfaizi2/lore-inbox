@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287045AbSBMJNc>; Wed, 13 Feb 2002 04:13:32 -0500
+	id <S291414AbSBMJTx>; Wed, 13 Feb 2002 04:19:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291414AbSBMJNW>; Wed, 13 Feb 2002 04:13:22 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38662 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287045AbSBMJNM>; Wed, 13 Feb 2002 04:13:12 -0500
-Subject: Re: 2.5.4 sound module problem
-To: davem@redhat.com (David S. Miller)
-Date: Wed, 13 Feb 2002 09:26:32 +0000 (GMT)
-Cc: ac9410@bellsouth.net, alan@clueserver.org, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020212.202233.102575669.davem@redhat.com> from "David S. Miller" at Feb 12, 2002 08:22:33 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16avgO-0004j7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S291441AbSBMJTm>; Wed, 13 Feb 2002 04:19:42 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:36533 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S291414AbSBMJT3>;
+	Wed, 13 Feb 2002 04:19:29 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Wed, 13 Feb 2002 09:18:39 GMT
+Message-Id: <UTC200202130918.JAA3212400.aeb@cwi.nl>
+To: davidsen@tmr.com, jgarzik@mandrakesoft.com
+Subject: Re: [patch] sys_sync livelock fix
+Cc: akpm@zip.com.au, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        viro@math.psu.edu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Umm, I don't it is safe to assume that only ISA sound drivers end up
-> making use of this code.  I would like you to prove that before
-> submitting this change.
+> Yow, your message inspired me to re-read SuSv2 and indeed confirm,
 
-There are PCI drivers using the old sound code. Whether it matters is a 
-more complicated question as these devices use ISA DMA emulation or their
-own pseudo DMA functionality.
+As a side note, these days you should be reading SuSv3,
+it is an official standard now. See, for example,
 
-Alan
+http://www.UNIX-systems.org/version3/
+http://www.opengroup.org/onlinepubs/007904975/toc.htm
+
+> sync(2) schedules I/O but can return before completion
+
+Don't forget that this standard does not describe what is
+desirable, but describes the minimum guaranteed by all
+Unices considered.
+
+Having a sync that returns without having written the data
+is not especially useful. Also without the sync this data
+would have been written sooner or later.
+We changed sync to wait, long ago, because otherwise shutdown
+would cause filesystem corruption.
+
+Andries

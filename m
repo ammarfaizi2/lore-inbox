@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbUKDEsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbUKDEwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUKDEsP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 23:48:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262064AbUKDEsL
+	id S262064AbUKDEwM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 23:52:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbUKDEwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 23:48:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:31386 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262062AbUKDEsA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 23:48:00 -0500
-Date: Wed, 3 Nov 2004 20:47:06 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: bjorn.helgaas@hp.com, Robert.Picco@hp.com, venkatesh.pallipadi@intel.com,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [PATCH] fix HPET time_interpolator registration
-Message-Id: <20041103204706.1c85d30a.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0411031951110.3414@schroedinger.engr.sgi.com>
-References: <200411031024.43782.bjorn.helgaas@hp.com>
-	<20041103185721.743d9317.akpm@osdl.org>
-	<Pine.LNX.4.58.0411031951110.3414@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 3 Nov 2004 23:52:11 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:39678 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262064AbUKDEwD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 23:52:03 -0500
+Date: Thu, 4 Nov 2004 10:30:39 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 0/6] AIO wait bit support
+Message-ID: <20041104050039.GA4087@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <20041103091036.GA4041@in.ibm.com> <20041103092311.GB2583@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041103092311.GB2583@holomorphy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter <clameter@sgi.com> wrote:
->
-> On Wed, 3 Nov 2004, Andrew Morton wrote:
+On Wed, Nov 03, 2004 at 01:23:11AM -0800, William Lee Irwin III wrote:
+> On Wed, Nov 03, 2004 at 02:40:36PM +0530, Suparna Bhattacharya wrote:
+> > The series of patches that follow integrate AIO with 
+> > William Lee Irwin's wait bit changes, to support asynchronous
+> > page waits.
 > 
-> > Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> > >
-> > >  Fixup after mid-air collision between Christoph adding time_interpolator.mask,
-> > >  and me removing a static time_interpolator struct from hpet.
-> > >
-> > >  Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
-> > >
-> > >  ===== drivers/char/hpet.c 1.14 vs edited =====
-> > >  --- 1.14/drivers/char/hpet.c	2004-11-02 07:40:42 -07:00
-> > >  +++ edited/drivers/char/hpet.c	2004-11-03 10:05:26 -07:00
-> > >  @@ -712,6 +712,7 @@
-> > >   	ti->addr = &hpetp->hp_hpet->hpet_mc;
-> > >   	ti->frequency = hpet_time_div(hpets->hp_period);
-> > >   	ti->drift = ti->frequency * HPET_DRIFT / 1000000;
-> > >  +	ti->mask = 0xffffffffffffffffLL;
-> > >
-> > >   	hpetp->hp_interpolator = ti;
-> > >   	register_time_interpolator(ti);
-> > >
-> >
-> > ti->mask is u64, and on some architectures u64 is `long'.  Compilers might
-> > whine about this.   I'll make it
-> >
-> > 	ti->mask = -1;
-> >
-> > which just works.
+> Thank you for pursuing this. I apologize for not participating more
+> directly in the follow-up.
 > 
-> Hmmm... How do you then specify a 64 bit mask without running into issues
-> with the compilers?
+> I also apologize for mentioning this, but I'm disturbed by current
+> events right now, so I won't be evaluating these in any technical
+> sense for at least a few days.
 
-Well with 0xffffffff[ffffffff] it's easy: use -1 and sign extension.
+The main change to the wait bit code is the addition of a wait queue
+argument to the action routine, and abstracting the wait bit key
+check into a separate function. Rest of the stuff is mostly in aioland.
 
-The only problem I can see is if you want to propagate a bit pattern across
-the scalar but you don't know its size.  Say 0x5a5a5a5a versus
-0x5a5a5a5a5a5a5a5a.  But nobody ever wants to do that.
+Regards
+Suparna
 
+> 
+> 
+> -- wli
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-aio' in
+> the body to majordomo@kvack.org.  For more info on Linux AIO,
+> see: http://www.kvack.org/aio/
+> Don't email: <a href=mailto:"aart@kvack.org">aart@kvack.org</a>
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 

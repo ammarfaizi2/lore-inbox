@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292984AbSBVUPe>; Fri, 22 Feb 2002 15:15:34 -0500
+	id <S292985AbSBVUZe>; Fri, 22 Feb 2002 15:25:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292985AbSBVUPZ>; Fri, 22 Feb 2002 15:15:25 -0500
-Received: from mail.libertysurf.net ([213.36.80.91]:44322 "EHLO
+	id <S292987AbSBVUZY>; Fri, 22 Feb 2002 15:25:24 -0500
+Received: from mail.libertysurf.net ([213.36.80.91]:64295 "EHLO
 	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S292984AbSBVUPO> convert rfc822-to-8bit; Fri, 22 Feb 2002 15:15:14 -0500
-Date: Thu, 21 Feb 2002 22:14:47 +0100 (CET)
+	id <S292985AbSBVUZN> convert rfc822-to-8bit; Fri, 22 Feb 2002 15:25:13 -0500
+Date: Thu, 21 Feb 2002 22:24:22 +0100 (CET)
 From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
 X-X-Sender: <groudier@gerard>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Vojtech Pavlik <vojtech@suse.cz>, Arjan van de Ven <arjanv@redhat.com>,
-        <linux-kernel@vger.kernel.org>
+To: Greg KH <greg@kroah.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
-In-Reply-To: <3C76A262.558BA821@mandrakesoft.com>
-Message-ID: <20020221221145.I1742-100000@gerard>
+In-Reply-To: <20020222200750.GE9558@kroah.com>
+Message-ID: <20020221221842.V1779-100000@gerard>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
@@ -23,46 +22,36 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 22 Feb 2002, Jeff Garzik wrote:
+On Fri, 22 Feb 2002, Greg KH wrote:
 
-> Gérard Roudier wrote:
-> > Basically at the moment, if the driver allows upper 'seeming cleaner and
-> > smarter' PCI probing things to deal with the HBA attachment order, at
-> > least all my machines running Linux will not even reboot.
+> On Thu, Feb 21, 2002 at 10:01:14PM +0100, Gérard Roudier wrote:
 > >
-> > Being smart is doing what user expects, here.
+> > I have investigated it, but it didn't seem to allow the boot order set by
+> > user in sym53c8xx HBA NVRAMs to be applied, breaking as a result all
+> > systems depending on it. Since it is transparently handled by the
+> > sym53c8xx driver and just behaves _as_ user expects, my guess is that
+> > numerous users may just have their system relying on it.
 >
-> Oh come on, how hard is the following?
+> But as Jeff noted, it is _required_ for PCI hotplug functionality.
+> Because allmost all of the SCSI drivers are not using this over 2 year
+> old interface, they will not work properly on large machines that now
+> support PCI hotplug.  Much to my dismay.
 >
-> > static int __init foo_init(void)
-> > {
-> >	int rc = pci_module_init(&sym2_pci_driver);
-> >	if (rc) return rc;
-> >	do_deferred_work();
-> > }
-> > module_init(foo_init);
+> Init order works off of PCI probing order.  If the network people can
+> handle this, the SCSI people can :)
 >
-> You have tons of flexibility you are ignoring here...  For the
-> non-hotplug hosts (ie. present at boot), just use pci_driver::probe to
-> register hosts on a list, and little other work.  do_deferred_work()
-> handles the list in a manner that ensures proper boot and/or host
-> ordering.
+> > Propose a kernel API that does not break more features that it adds and I
+> > will be glad to use it.
 >
-> So for non-hotplug hosts you do a init_module time:
-> 	register N hosts with PCI API
-> 	register N hosts with SCSI API
->
-> And hotplugged hosts would do the same, with N==1.
->
-> What you describe -is- supported with the PCI API.
+> Huh?  This is not a new API.  What does it break for you?
 
-At the time I investigated the API it just mixed the probing and the
-registering by performing some auto-registration based on return value.
-May-be the API did evolve since that time or I missed something important.
+Thanks for the reply. But my concern is user convenience in _average_
+here. Basically, I want the 99% of users that cannot afford neither need
+nor want PCI hotplug to have their system just dead in order to make happy
+the 1%.
 
-For now I will be in vacation for 1 week. I will re-investigate this when
-I will be back.
+In other word, I donnot care about this 1% if it makes run a tiny risk to
+the 99% to get inconvenience a single second. Btw, I am among the 99%.
 
-Thanks,
   Gérard.
 

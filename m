@@ -1,70 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbTEER1v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 13:27:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbTEER1u
+	id S261151AbTEERZE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 13:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbTEERZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 13:27:50 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:34312 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S261168AbTEER1s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 13:27:48 -0400
-Date: Mon, 5 May 2003 19:26:52 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Karsten Keil <kkeil@suse.de>
-Cc: alan@lxorguk.ukuu.org.uk, kai@tp1.ruhr-uni-bochum.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: ISDN massive packet drops while DVD burn/verify
-Message-Id: <20030505192652.7f17ea9e.skraw@ithnet.com>
-In-Reply-To: <20030505164653.GA30015@pingi3.kke.suse.de>
-References: <20030416151221.71d099ba.skraw@ithnet.com>
-	<Pine.LNX.4.44.0304161056430.5477-100000@chaos.physics.uiowa.edu>
-	<20030419193848.0811bd90.skraw@ithnet.com>
-	<1050789691.3955.17.camel@dhcp22.swansea.linux.org.uk>
-	<20030505164653.GA30015@pingi3.kke.suse.de>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 5 May 2003 13:25:04 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:6467 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S261151AbTEERZD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 13:25:03 -0400
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Kernel hot-swap using Kexec, BProc and CC/SMP Clusters.
+References: <1052140733.2163.93.camel@spc9.esa.lanl.gov>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 05 May 2003 11:34:24 -0600
+In-Reply-To: <1052140733.2163.93.camel@spc9.esa.lanl.gov>
+Message-ID: <m1d6ixb8m7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 May 2003 18:46:53 +0200
-Karsten Keil <kkeil@suse.de> wrote:
+So summarize:
+1) Run multiple kernels (minimally kernels A and B)
+2) Migrate processes from kernel A to kernel B
+3) Use kexec to replace kernel A once all processes have left.
+4) Repeat for all other kernels.
 
-> > How did we manage to become that bad?
-> 
-> Its not so bad, the problem is how do you tune the system. If you prefer to
-> not interrupt the IDE transfers, which seems to be the default case, you
-> loose IRQ latency, which doesn't matter in much cases, but not on
-> this. You can tune it (hdparm work also with cdwriters, since
-> even if it use ide-scsi, the underlying driver is the ide driver.
+On two simple machines working in tandem (The most common variation
+used for high availability this should be easy to do).  And it is
+preferable to a reboot because of the additional control and speed.
 
-You mean UDMA 2 does not make it (which I had in the test case)?
+Thank you for the perspective.  This looks like I line I can
+sell to get some official time to work on kexec and it's friends
+more actively.
 
-# hdparm -i /dev/hdc
+>From what I have seen process migration/process check-pointing is
+currently the very rough area.
 
-/dev/hdc:
+The interesting thing becomes how do you measure system uptime.
 
- Model=SONY DVD RW DRU-500A, FwRev=2.0c, SerialNo=DA5B9D3D
- Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:180,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4 
- DMA modes:  mdma0 mdma1 mdma2 
- UDMA modes: udma0 udma1 *udma2 
- AdvancedPM=no
- Drive conforms to: device does not report version:  4 5 6
-
-> This all don't say that here maybe also other problems around, but I have no
-> better explanation.
-
-Hm, this looks like the unresolved sleeping AVM Fritz2 syndrome to me: no idea
-of what's really going on ...
-
--- 
-Regards,
-Stephan
+Eric

@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUEQUHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbUEQUQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUEQUHx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 16:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUEQUHx
+	id S261416AbUEQUQo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 16:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbUEQUQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 16:07:53 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:52610 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S261205AbUEQUHw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 16:07:52 -0400
-Date: Mon, 17 May 2004 14:07:48 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: felix-kernel@fefe.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.5, ext3] getdents reports files that stat says aren't there
-Message-ID: <20040517200748.GJ18086@schnapps.adilger.int>
-Mail-Followup-To: felix-kernel@fefe.de, linux-kernel@vger.kernel.org
-References: <20040517193954.GA14835@codeblau.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040517193954.GA14835@codeblau.de>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Mon, 17 May 2004 16:16:44 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:45072 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261416AbUEQUQm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 16:16:42 -0400
+Date: Mon, 17 May 2004 21:16:30 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Rob Landley <rob@landley.net>
+cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Paul Jackson <pj@sgi.com>, <vonbrand@inf.utfsm.cl>,
+       <nickpiggin@yahoo.com.au>, <jgarzik@pobox.com>,
+       <brettspamacct@fastclick.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: ~500 megs cached yet 2.6.5 goes into swap hell
+In-Reply-To: <200405121252.14006.rob@landley.net>
+Message-ID: <Pine.LNX.4.44.0405172114470.2804-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 17, 2004  21:39 +0200, felix-kernel@fefe.de wrote:
-> I keep getting this effect on my ext3 file system.
-> Applications like ls call readdir, get long deleted files, then stat
-> them, and get ENOENT.
+On Wed, 12 May 2004, Rob Landley wrote:
+> On Friday 07 May 2004 11:57, Pavel Machek wrote:
+> > Hi!
+> >
+> > > > Perhaps what we really want is "swap_back_in" script? That way you
+> > > > could do "updatedb; swap_back_in" in cron and be happy.
+> > >
+> > > swapoff -a; swapon -a
+> >
+> > Good point... it will not bring back executable pages, through.
+> >
+> > 								Pavel
 > 
-> Most applications can handle this, but some report ugly errors or
-> warnings.  I wonder: why does getdents report entries of deleted files?
-> I ran e2fsck on the partition, but it found nothing.  So I guess it's
-> not a file system error.  I have been seeing this for months now.  It
-> does not actually hurt a lot, but I think it should be fixed
-> nonetheless.
+> What would the above do if there wasn't enough memory to swap everything back 
+> in?  (Presumably, the swapoff would fail?)
 
-Are you using htree/indexed directories?
+Repeating my earlier reply to a similar question...
 
-dumpe2fs -h /dev/XXX | grep dir_index
+On 2.4 it certainly would be a problem (hang with others OOM-killed).
 
-will tell you.
+On 2.6 it shouldn't be a problem: the swapoff may fail upfront if
+there's way too little memory, or it may get itself OOM-killed if
+it runs out on the way, but it ought not to upset other tasks.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+But of course, Pavel is right that it does nothing for file backed.
+
+Hugh
 

@@ -1,68 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265109AbTFUJNk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 05:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbTFUJNj
+	id S265110AbTFUJUO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 05:20:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265112AbTFUJUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 05:13:39 -0400
-Received: from remt23.cluster1.charter.net ([209.225.8.33]:2270 "EHLO
-	remt23.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S265109AbTFUJNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 05:13:38 -0400
-Date: Sat, 21 Jun 2003 05:25:52 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: misty-@charter.net, Bernd Schubert <bernd-schubert@web.de>,
-       andre@linux-ide.org, linux-kernel@vger.kernel.org, despair@adelphia.net
-Subject: Re: Problems with IDE on GA-7VAXP motherboard
-Message-ID: <20030621092551.GA28276@charter.net>
-References: <200306191429.40523.bernd-schubert@web.de> <20030619193118.GA32406@charter.net> <20030620075249.GA7833@charter.net> <20030620105853.A16743@ucw.cz> <20030620114030.GA11827@charter.net>
+	Sat, 21 Jun 2003 05:20:14 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:30934 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S265110AbTFUJUJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 05:20:09 -0400
+Date: Sat, 21 Jun 2003 12:34:02 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH TRIDENT] configuration dependency with PCIGAME fix 2.4.22-pre1
+Message-ID: <20030621093401.GA6550@actcom.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
 Content-Disposition: inline
-In-Reply-To: <20030620114030.GA11827@charter.net>
-User-Agent: Mutt/1.3.28i
-From: misty-@charter.net
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alright, minor update. I was messing around tonight not really expecting
-to get anywhere, and to my horror, saw a 'hda: lost interrupt' message.
-Again. So. Off I go, trying to figure out what is going on and what do I
-find out? You sir were totally right. even with the -k1 setting, the wd
-drive changes it's settings back to whatever it wants when it throws the
-crc errors. Which incidentally appears to be settings it shouldn't be
-capable of supporting, but... whatever. Anyway. A friend of mine (who
-I'm very grateful for putting up with me) helped me screw around with
-PIO modes, and we managed to get the disk working with dma off and PIO
-mode 4 enabled.
 
-What was likely fooling me into thinking the drive was working properly
-is the enormous amount of ram my computer has now - I tend to forget
-that with almost 512MB free of ram, my disk cache can be absolutely
-enormous. Which of course means I can easily  get fooled into thinking a
-disk operation is working perfectly fine when in fact the disk isn't
-even being touched at all.
+--gKMricLos+KVdGMg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-it looks like I was very lucky with my original motherboard and that the
-wd drive was able to communicate at it's stock settings without having
-any special setup - otherwise, this entire assumption would never have
-happened - the disk worked perfectly fine with dma on my previous
-motherboard, which is why I was so surprised things broke so damn fast
-now.
+Hi Marcelo,=20
 
-So, the Gigabyte motherboard I'm using is still missetting the values
-for the hard disks - but on the other hand, my hard disk was also
-playing foul games.
+Please consider this patch for 2.4.22-pre2. When pcigame is chosen as
+modular (CONFIG_INPUT_PCIGAME=3Dm), and trident as builtin
+(CONFIG_SOUND_TRIDENT=3Dy), trident will not link because it won't find
+pcigame_attach(). This patch adds a dependency for trident on pcigame,
+but only if pcigame !=3D n. Patch is against 2.4.22-pre1(cvs).=20
 
-I tested right after doing a reboot with the PIO4 settings, and it
-appears to be working just fine. My test consisted of a hdparm -t -T
-/dev/hda and also a tar c / > /dev/null for completeness. No problems.
+Patch works, confirmed by the original bug reporter.
 
-I'll have more detailed information on my setup for you to look at
-fairly soon.
+Thanks!=20
 
-After I get the data moved off of it, I plan on sticking this WD drive
-into my 486, where it will happily work without any dma support at all.
-And it can stay there, for all I care. :)
+diff -Naur --exclude-from /home/mulix/dontdiff linux-2.4/drivers/sound/Conf=
+ig.in linux-2.4.22-pre1-mx/drivers/sound/Config.in
+--- linux-2.4/drivers/sound/Config.in	2003-06-21 10:27:44.000000000 +0300
++++ linux-2.4.22-pre1-mx/drivers/sound/Config.in	2003-06-21 10:34:21.000000=
+000 +0300
+@@ -70,7 +70,13 @@
+     dep_tristate '  Au1000 Sound' CONFIG_SOUND_AU1000 $CONFIG_SOUND
+ fi
+=20
+-dep_tristate '  Trident 4DWave DX/NX, SiS 7018 or ALi 5451 PCI Audio Core'=
+ CONFIG_SOUND_TRIDENT $CONFIG_SOUND $CONFIG_PCI
++# This is fairly ugly. If pcigame is off, we have no dependency on it.=20
++# However, if it's on and modular, we need to be modular too=20
++if [ "$CONFIG_INPUT_PCIGAME" =3D "n" ]; then=20
+a+    dep_tristate '  Trident 4DWave DX/NX, SiS 7018 or ALi 5451 PCI Audio =
+Core' CONFIG_SOUND_TRIDENT $CONFIG_SOUND $CONFIG_PCI
++else=20
++    dep_tristate '  Trident 4DWave DX/NX, SiS 7018 or ALi 5451 PCI Audio C=
+ore' CONFIG_SOUND_TRIDENT $CONFIG_SOUND $CONFIG_PCI $CONFIG_INPUT_PCIGAME
++fi=20
+=20
+ dep_tristate '  Support for Turtle Beach MultiSound Classic, Tahiti, Monte=
+rey' CONFIG_SOUND_MSNDCLAS $CONFIG_SOUND
+ if [ "$CONFIG_SOUND_MSNDCLAS" =3D "y" -o "$CONFIG_SOUND_MSNDCLAS" =3D "m" =
+]; then
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
+http://www.livejournal.com/~mulix/
 
-Timothy C. McGrath
+
+--gKMricLos+KVdGMg
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+9CaJKRs727/VN8sRAp7bAJ9Ux6+w6goD8Vux39JVTNqEJM66QwCfVzSS
+H4yZb5kS7ix6i/HUCVNm7mc=
+=s7Ey
+-----END PGP SIGNATURE-----
+
+--gKMricLos+KVdGMg--

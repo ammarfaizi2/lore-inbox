@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbTCBXDC>; Sun, 2 Mar 2003 18:03:02 -0500
+	id <S265285AbTCBXNJ>; Sun, 2 Mar 2003 18:13:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262201AbTCBXDC>; Sun, 2 Mar 2003 18:03:02 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:3745 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S262038AbTCBXDB>; Sun, 2 Mar 2003 18:03:01 -0500
-Date: Sun, 02 Mar 2003 15:13:22 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: percpu-2.5.63-bk5-1 (properly generated)
-Message-ID: <87420000.1046646801@[10.10.2.4]>
-In-Reply-To: <20030302221037.GK1195@holomorphy.com>
-References: <47970000.1046629477@[10.10.2.4]> <20030302202451.GJ1195@holomorphy.com> <50380000.1046637959@[10.10.2.4]> <20030302210606.GS24172@holomorphy.com> <85980000.1046642338@[10.10.2.4]> <20030302221037.GK1195@holomorphy.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S262449AbTCBXNI>; Sun, 2 Mar 2003 18:13:08 -0500
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:39392 "HELO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id <S262418AbTCBXNG>; Sun, 2 Mar 2003 18:13:06 -0500
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Date: Mon, 3 Mar 2003 10:23:05 +1100
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <15970.37465.869711.682093@notabene.cse.unsw.edu.au>
+Subject: ANNOUNCE: mdadm 1.1.0 - A tool for managing Soft RAID under Linux
+X-Mailer: VM 7.08 under Emacs 20.7.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Did you actually read the previous email? 
->> Same config file? Same tree? same compiler (gcc 2.95.4?)
-> 
-> gcc2.95.4; 2.5.63-bk5 w/& w/o, no patchkits prior, .config below
 
-Wildly different config being compile tested => difference in speed.ls
- 
->> I think we're talking about different things:
->> 1. Need to isolate what's causing the 6s improvement you're seeing.
->> Can you generate profiles & time output for before and after the patch,
->> and describe the test you're running (presumably make -j).
->> 2. SDET degredation. I'll try the additional patch you sent out on that.
-> 
-> It's not hard to figure out.
 
-Part 2 may not be ... part 1 is ;-)
+I am pleased to announce the availability of 
+   mdadm version 1.1.0
+It is available at
+   http://www.cse.unsw.edu.au/~neilb/source/mdadm/
+and
+   http://www.{countrycode}.kernel.org/pub/utils/raid/mdadm/
 
->>         60   125.0% page_address
->>         12    63.2% __pagevec_lru_add_active
->>         11    47.8% bad_range
->>         10    15.9% kmap_atomic
-> 
-> All users of page_zone(). The question you're (hopefully) about to
-> answer is whether it was the division or something else like codesize
-> or the newly introduced indirection.
-> 
-> If that is still seeing page_zone() suckage, I'll rip zone_table[] out
-> of it entirely.
+as a source tar-ball and (at the first site) as an SRPM, and as an RPM for i386.
 
-Still degraded: diffprofile:
+mdadm is a tool for creating, managing and monitoring
+device arrays using the "md" driver in Linux, also
+known as Software RAID arrays.
 
-       781     1.6% total
-       346     1.0% default_idle
-       217    10.1% __down
-        79    12.0% __wake_up
-        51    70.8% page_address
-        32    66.7% kmap_atomic
-        24     5.3% page_remove_rmap
-        16    19.3% clear_page_tables
-        14     4.6% release_pages
-        13    33.3% path_release
-        13     6.7% __copy_to_user_ll
-        13   260.0% bad_range
-        11     1.3% do_schedule
-        10    15.6% pte_alloc_one
+Release 1.1.0 contains a number of spell corrections, and bug fixes.
+It has improved support for MULTIPATH arrays.
+It has some new features including:
+  --daemonise   	for use with --monitor
+  --config=partitions   to find devices by examining /proc/partitions
+  --update=super-minor  to change the recorded minor-number for an array
 
-M.
+Much of the improvements are due to user feed-back.  Thanks are due to all who 
+gave suggestions and reported problems.
+
+I expect the next major release to be 2.0.0 which will include support for 
+a new super-block format soon to be supported by 2.5 series kernels.
+
+
+Development of mdadm is sponsored by CSE@UNSW: 
+  The School of Computer Science and Engineering
+at
+  The University of New South Wales
+
+NeilBrown  03/03/03
+   The third day 
+of the third month
+of the third year
+of the third millenium
 

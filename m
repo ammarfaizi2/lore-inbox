@@ -1,77 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263468AbTJQNL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Oct 2003 09:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263470AbTJQNL4
+	id S263453AbTJQNEf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Oct 2003 09:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263456AbTJQNEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Oct 2003 09:11:56 -0400
-Received: from alpha.zarz.agh.edu.pl ([149.156.122.231]:11525 "EHLO
-	alpha.zarz.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S263468AbTJQNLy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Oct 2003 09:11:54 -0400
-Date: Fri, 17 Oct 2003 15:13:21 +0200 (CEST)
-From: "Wojciech 'Sas' Cieciwa" <cieciwa@alpha.zarz.agh.edu.pl>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test7 broken
-Message-ID: <Pine.LNX.4.58L.0310171508480.20432@alpha.zarz.agh.edu.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 17 Oct 2003 09:04:35 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11027 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263453AbTJQNEd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Oct 2003 09:04:33 -0400
+Date: Fri, 17 Oct 2003 14:04:28 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Norman Diamond <ndiamond@wta.att.ne.jp>
+Cc: Hans Reiser <reiser@namesys.com>, Wes Janzen <superchkn@sbcglobal.net>,
+       Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+       John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+       nikita@namesys.com, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Blockbusting news, this is important (Re: Why are bad disk sectors numbered strangely, and what happens to them?)
+Message-ID: <20031017140428.B2415@flint.arm.linux.org.uk>
+Mail-Followup-To: Norman Diamond <ndiamond@wta.att.ne.jp>,
+	Hans Reiser <reiser@namesys.com>,
+	Wes Janzen <superchkn@sbcglobal.net>,
+	Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+	John Bradford <john@grabjohn.com>, linux-kernel@vger.kernel.org,
+	nikita@namesys.com, Pavel Machek <pavel@ucw.cz>
+References: <32a101c3916c$e282e330$5cee4ca5@DIAMONDLX60> <200310131014.h9DAEwY3000241@81-2-122-30.bradfords.org.uk> <33a201c39174$2b936660$5cee4ca5@DIAMONDLX60> <20031014064925.GA12342@bitwizard.nl> <3F8BA037.9000705@sbcglobal.net> <3F8BBC08.6030901@namesys.com> <11bf01c39492$bc5307c0$3eee4ca5@DIAMONDLX60> <3F8FBADE.7020107@namesys.com> <126d01c3949f$91bdecc0$3eee4ca5@DIAMONDLX60>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <126d01c3949f$91bdecc0$3eee4ca5@DIAMONDLX60>; from ndiamond@wta.att.ne.jp on Fri, Oct 17, 2003 at 08:11:42PM +0900
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I try to compile linux-2.6.0-test7 from ftp.kernel.org on SMP machine
-and I god something like this:
+On Fri, Oct 17, 2003 at 08:11:42PM +0900, Norman Diamond wrote:
+> Russell King replied to me:
+> > > When a drive tries to read a block, if it detects errors, it retries up
+> > > to 255 times.  If a retry succeeds then the block gets reallocated.  IF
+> > > 255 RETRIES FAIL THEN THE BLOCK DOES NOT GET REALLOCATED.
+> >
+> > This is perfectly reasonable.  If the drive can't recover your old data
+> > to reallocate it to a new block, then leaving the error present until you
+> > write new data to that bad block is the correct thing to do.
 
-[...]
-make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
-  CHK     include/linux/compile.h
-  LD      kernel/built-in.o
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-  KSYM    .tmp_kallsyms1.S
-  AS      .tmp_kallsyms1.o
-  LD      .tmp_vmlinux2
-  KSYM    .tmp_kallsyms2.S
-  AS      .tmp_kallsyms2.o
-  LD      vmlinux
-  AS      arch/i386/boot/setup.o
-  LD      arch/i386/boot/setup
-  OBJCOPY arch/i386/boot/compressed/vmlinux.bin
-  GZIP    arch/i386/boot/compressed/vmlinux.bin.gz
-  LD      arch/i386/boot/compressed/piggy.o
-  LD      arch/i386/boot/compressed/vmlinux
-  OBJCOPY arch/i386/boot/vmlinux.bin
-  BUILD   arch/i386/boot/bzImage
-Root device is (8, 1)
-Boot sector 512 bytes.
-Setup is 4943 bytes.
-System is 1298 kB
-Kernel: arch/i386/boot/bzImage is ready
-  Building modules, stage 2.
-  MODPOST
-[...]
-*** Warning: "set_special_pids" [fs/jffs/jffs.ko] undefined!
-*** Warning: "percpu_counter_mod" [fs/ext3/ext3.ko] undefined!
-*** Warning: "percpu_counter_mod" [fs/ext2/ext2.ko] undefined!
+Why the F**K are you replying to me publically when I sent my reply in
+private?
 
-and ext2 dosn't work.
-Fast workaround is make file kernel/ksyms.c and add to this file two lines
-#include <linux/percpu_counter.h>
-EXPORT_SYMBOL(percpu_counter_mod);
-and fix kernel/Makefile.
-
-Please don't tell me that this is wrong, I try to understand WHY 
-EXPORT_SYMBOL(percpu_counter_mod) from lib/percpu_counter.c didn't work
-but I faild.
-
-This work for me.
-
-Thanx 
-					Sas.
 -- 
-{Wojciech 'Sas' Cieciwa}  {Member of PLD Team                               }
-{e-mail: cieciwa@alpha.zarz.agh.edu.pl, http://www2.zarz.agh.edu.pl/~cieciwa}
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,36 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVCPEIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVCPEMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbVCPEIo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 23:08:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVCPEIo
+	id S261723AbVCPEMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 23:12:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVCPEMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 23:08:44 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:63465
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S262494AbVCPEIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 23:08:43 -0500
-Date: Tue, 15 Mar 2005 20:06:51 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: Peter Chubb <peterc@gelato.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, herbert@gondor.apana.org.au
-Subject: Re: Can no longer build ipv6 built-in (2.6.11, today's BK head)
-Message-Id: <20050315200651.6c0eb372.davem@davemloft.net>
-In-Reply-To: <200503160353.j2G3rTKr015647@mail02.syd.optusnet.com.au>
-References: <200503160353.j2G3rTKr015647@mail02.syd.optusnet.com.au>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 23:12:25 -0500
+Received: from 209-204-138-32.dsl.static.sonic.net ([209.204.138.32]:35082
+	"EHLO graphe.net") by vger.kernel.org with ESMTP id S261723AbVCPEMO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 23:12:14 -0500
+Date: Tue, 15 Mar 2005 20:12:11 -0800 (PST)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@server.graphe.net
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Replace zone padding with a definition in cache.h
+Message-ID: <Pine.LNX.4.58.0503152010190.5134@server.graphe.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.8
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Mar 2005 14:53:29 +1100
-Peter Chubb <peterc@gelato.unsw.edu.au> wrote:
+This patch removes the zone padding hack and establishes definitions
+in include/linux/cache.h to define the padding within struct zone.
 
-> A simple fix is to delete the __exit from the various functions now that
-> they're called other than at module_exit.
-> 
-> Signed-off-by: Peter Chubb <peterc@gelato.unsw.edu.au>
+Signed-off-by: Christoph Lameter <christoph@lameter.com>
+Signed-off-by: Shai Fultheim <Shai@Scalex86.org>
 
-Applied, thanks Peter.
+Index: linux-2.6.11/include/linux/cache.h
+===================================================================
+--- linux-2.6.11.orig/include/linux/cache.h	2005-03-08 18:40:15.000000000 -0800
++++ linux-2.6.11/include/linux/cache.h	2005-03-14 10:33:45.247701040 -0800
+@@ -48,4 +48,12 @@
+ #endif
+ #endif
+
++#ifndef ____cacheline_pad_in_smp
++#if defined(CONFIG_SMP)
++#define ____cacheline_pad_in_smp struct { char  x; } ____cacheline_maxaligned_in_smp
++#else
++#define ____cacheline_pad_in_smp
++#endif
++#endif
++
+ #endif /* __LINUX_CACHE_H */
+Index: linux-2.6.11/include/linux/mmzone.h
+===================================================================
+--- linux-2.6.11.orig/include/linux/mmzone.h	2005-03-14 10:33:01.037422024 -0800
++++ linux-2.6.11/include/linux/mmzone.h	2005-03-14 10:33:45.248700888 -0800
+@@ -28,21 +28,6 @@ struct free_area {
+
+ struct pglist_data;
+
+-/*
+- * zone->lock and zone->lru_lock are two of the hottest locks in the kernel.
+- * So add a wild amount of padding here to ensure that they fall into separate
+- * cachelines.  There are very few zone structures in the machine, so space
+- * consumption is not a concern here.
+- */
+-#if defined(CONFIG_SMP)
+-struct zone_padding {
+-	char x[0];
+-} ____cacheline_maxaligned_in_smp;
+-#define ZONE_PADDING(name)	struct zone_padding name;
+-#else
+-#define ZONE_PADDING(name)
+-#endif
+-
+ struct per_cpu_pages {
+ 	int count;		/* number of pages in the list */
+ 	int low;		/* low watermark, refill needed */
+@@ -131,7 +116,14 @@ struct zone {
+ 	struct free_area	free_area[MAX_ORDER];
+
+
+-	ZONE_PADDING(_pad1_)
++	/*
++	 * zone->lock and zone->lru_lock are two of the hottest locks in the kernel.
++	 * So add a wild amount of padding here to ensure that they fall into separate
++	 * cachelines.  There are very few zone structures in the machine, so space
++	 * consumption is not a concern here.
++	 */
++
++	____cacheline_pad_in_smp;
+
+ 	/* Fields commonly accessed by the page reclaim scanner */
+ 	spinlock_t		lru_lock;
+@@ -164,7 +156,7 @@ struct zone {
+ 	int prev_priority;
+
+
+-	ZONE_PADDING(_pad2_)
++	____cacheline_pad_in_smp;
+ 	/* Rarely used or read-mostly fields */
+
+ 	/*

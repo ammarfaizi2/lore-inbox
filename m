@@ -1,96 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263883AbTLJSjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 13:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263596AbTLJSjZ
+	id S263873AbTLJSip (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 13:38:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263880AbTLJSip
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 13:39:25 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:35339
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263883AbTLJSjQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 13:39:16 -0500
-Date: Wed, 10 Dec 2003 10:33:16 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
+	Wed, 10 Dec 2003 13:38:45 -0500
+Received: from ipcop.bitmover.com ([192.132.92.15]:53173 "EHLO
+	work.bitmover.com") by vger.kernel.org with ESMTP id S263873AbTLJSin
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 13:38:43 -0500
+Date: Wed, 10 Dec 2003 10:38:33 -0800
+From: Larry McVoy <lm@bitmover.com>
 To: Linus Torvalds <torvalds@osdl.org>
-cc: Maciej Zenczykowski <maze@cela.pl>, David Schwartz <davids@webmaster.com>,
-       Jason Kingsland <Jason_Kingsland@hotmail.com>,
+Cc: Larry McVoy <lm@bitmover.com>, Andre Hedrick <andre@linux-ide.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       Kendall Bennett <KendallB@scitechsoft.com>,
        linux-kernel@vger.kernel.org
-Subject: RE: Linux GPL and binary module exception clause?
-In-Reply-To: <Pine.LNX.4.58.0312100745200.29676@home.osdl.org>
-Message-ID: <Pine.LNX.4.10.10312101027030.3805-100000@master.linux-ide.org>
-MIME-Version: 1.0
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031210183833.GJ6896@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+	Andre Hedrick <andre@linux-ide.org>,
+	Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+	Kendall Bennett <KendallB@scitechsoft.com>,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10312100550500.3805-100000@master.linux-ide.org> <Pine.LNX.4.58.0312100714390.29676@home.osdl.org> <20031210153254.GC6896@work.bitmover.com> <Pine.LNX.4.58.0312100809150.29676@home.osdl.org> <20031210163425.GF6896@work.bitmover.com> <Pine.LNX.4.58.0312100852210.29676@home.osdl.org> <20031210175614.GH6896@work.bitmover.com> <Pine.LNX.4.58.0312100959180.29676@home.osdl.org> <20031210180822.GI6896@work.bitmover.com> <Pine.LNX.4.58.0312101016010.29676@home.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0312101016010.29676@home.osdl.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Dec 10, 2003 at 10:17:34AM -0800, Linus Torvalds wrote:
+> > And in the 4 minutes since I've posted that legal doc you have consulted
+> > a lawyer and the lawyer told you this, right?
+> 
+> Hey, you know I'm not a lawyer.
+> 
+> I told you my opinion. And I'm not considering even _trying_ to circumvent
+> somebody elses copyright.
+> 
+> You are the one who needs a lawyer, since _you_ are the one arguing for
+> potentially infringing on other peoples copyright.
 
-Okay,
+I can understand your touchiness, it's not much fun living through tons of
+messages where people try and figure out how to circumvent your license.
+You have my sympathy.
 
-If I am wrong I can step up and freely admit it. :-)
+On the other hand, let's be perfectly clear: I'm not in the business of
+making binary kernel extensions/modules/drivers/anything, I never have
+been in that business, and neither I nor anyone at BitMover nor any of
+our investors are contemplating that.  In other words, _I_ am not about
+to violate anyone's copyright and I'll thank you not to accuse me of
+that again without some data to back it up.
 
-If nothing else I got one point for getting you to point out you like OSL
-which I do also.
-
-So given RMS and company state OSL and GPL are not compatable, how does
-the two exist in the current kernel?  Earlier, iirc, there were comments
-about dual license conflicts.
-
-I was actually trying to show how silly David's arguement was about
-imposing bogus rules and taking it to the logical ends of insanity. It is
-lonely out here, I need more people to go over the edge on the
-bobsled too.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-PS: I am not attached to the the flame war any more, I just enjoy the
-warmth of the heat :-0
-
-On Wed, 10 Dec 2003, Linus Torvalds wrote:
-
-> 
-> 
-> On Wed, 10 Dec 2003, Andre Hedrick wrote:
-> >
-> > Lets have some fun now and play this game.
-> 
-> Sorry, you need to learn the rules before you can play.
-> 
-> > As principle author of the "taskfile transport", any an all operations
-> > using, storing, execution, transfering, copying, opening ... anything
-> > may not operate with non-source-published binary modules.
-> 
-> That's against the GPL, and you can't modify the terms of the license. At
-> most, you personally can say that you will not sue even when the license
-> isn't followed - you can tell people that as far as _you_ are concerned,
-> you can losen the license further, and that actually puts a legal onus on
-> _you_ but nobody else.
-> 
-> But while you have the right to say "I will not sue over this" and the GPL
-> doesn't care one whit, you can _not_ say "I have my own list of additional
-> requirements that would trigger copyright infringement".
-> 
-> > So everyone one with/sells a PVR, NAS, SAN, Laptop, Workstation, Server
-> > which uses IDE/ATA/SATA is forbidden to operate unless written terms of
-> > use are set forward.
-> 
-> "The act of running the Program is not restricted" according to the GPL,
-> and "You may not impose any further restrictions on the recipients'
-> exercise of the rights granted herein."
-> 
-> So basically you _cannot_ take rights away outside the ones the GPL
-> requires (which boil down to the requirement of having source available).
-> 
-> > We can kill Linux in minutes, shall we?
-> 
-> Trust me, when you said that the GPL is badly written, you have no clue
-> what you're talking about. It's a very solid license, and your rants about
-> it have no basis in fact. I personally actually like the OSL slightly
-> better in the way it was written (see opensource.org), but your arguments
-> against the GPL are just fundamentally wrong.
-> 
-> 			Linus
-> 
-
+What I am doing is saying that you are way over the line in a way that
+other people, who do not have your best interests at heart (nor the
+kernel's, nor the FSF's, nor the GPL's), are going to jump all over what
+you are saying and use it against you.  In multiple ways.  They will use
+it to say that you are just as bad as they are, you are trying to twist
+the system to your advantage to further your agenda.  Which is exactly,
+I might add, what any corporation does.  You've become quite corporate
+(aka one-sided) in your outlook recently.  If case law is established
+that backs up your point of view, it is going to effect all of us in all
+sorts of ways that are almost universally negative for everyone except
+the corporation inflicting the pain.  You may not create case law which
+helps your agenda and expect all the nasty folks to not grab at it and
+use it to help their agenda.  The potential damage that this case law
+would inflict dramatically outweighs the benefit of spanking some 
+company that is shipping a binary driver.  Why can't you see it?
+Reread Ted's message, he stated it nicely.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

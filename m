@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129910AbRBYXfx>; Sun, 25 Feb 2001 18:35:53 -0500
+	id <S130004AbRBYXrO>; Sun, 25 Feb 2001 18:47:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129998AbRBYXfo>; Sun, 25 Feb 2001 18:35:44 -0500
-Received: from sgi.SGI.COM ([192.48.153.1]:59191 "EHLO sgi.com")
-	by vger.kernel.org with ESMTP id <S129910AbRBYXfd>;
-	Sun, 25 Feb 2001 18:35:33 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Pete Toscano <pete.lkml@toscano.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Mysterious lockups with 2.4.X (Help w/KDB) 
-In-Reply-To: Your message of "Sun, 25 Feb 2001 13:39:16 CDT."
-             <20010225133916.A1329@bubba.toscano.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 26 Feb 2001 10:33:04 +1100
-Message-ID: <10610.983143984@kao2.melbourne.sgi.com>
+	id <S130017AbRBYXrF>; Sun, 25 Feb 2001 18:47:05 -0500
+Received: from asbestos.linuxcare.com.au ([203.17.0.30]:60155 "EHLO halfway")
+	by vger.kernel.org with ESMTP id <S130004AbRBYXqt>;
+	Sun, 25 Feb 2001 18:46:49 -0500
+From: Rusty Russell <rusty@linuxcare.com.au>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: New net features for added performance 
+In-Reply-To: Your message of "25 Feb 2001 00:48:35 BST."
+             <oupsnl3k5gs.fsf@pigdrop.muc.suse.de> 
+Date: Sun, 25 Feb 2001 22:49:39 +1100
+Message-Id: <E14WzgK-00023V-00@halfway>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Feb 2001 13:39:16 -0500, 
-Pete Toscano <pete.lkml@toscano.org> wrote:
->Unable to handle kernel NULL pointer dereference at virtual address 0000017c
-> printing eip:
->and then the KDB prompt appears.  Back when I had my emu10k problems,
->Keith Owen told me to (in a nutshell), go through the running processes
->and "btp" their PID and look for "text.lock".
+In message <oupsnl3k5gs.fsf@pigdrop.muc.suse.de> you write:
+> Jeff Garzik <jgarzik@mandrakesoft.com> writes:
+> 
+> > Advantages:  A de-allocation immediately followed by a reallocation is
+> > eliminated, less L1 cache pollution during interrupt handling. 
+> > Potentially less DMA traffic between card and host.
+> > 
+> > Disadvantages?
+> 
+> You need a new mechanism to cope with low memory situations because the 
+> drivers can tie up quite a bit of memory (in fact you gave up unified
+> memory management). 
 
-Those instructions were for a lockup.  This problem is not a lockup, it
-is a bad pointer.  In this case you only care about the current
-process.  Backtrace (bt) will show what the process was doing.  'id
-%eip' will disassemble the failing code.
+Also, you still need to "clean" the skb (it can hold device and nfct
+references).
 
+Rusty.
+--
+Premature optmztion is rt of all evl. --DK

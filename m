@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264126AbTDOWAl (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 18:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTDOWAl 
+	id S264128AbTDOWB4 (for <rfc822;willy@w.ods.org>); Tue, 15 Apr 2003 18:01:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264127AbTDOWB4 
 	(for <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Apr 2003 18:00:41 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:18898 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264126AbTDOWAj 
-	(for <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Apr 2003 18:00:39 -0400
-Date: Tue, 15 Apr 2003 15:07:46 -0700
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: Robert Love <rml@tech9.net>, gert.vervoort@hccnet.nl,
-       tconnors@astro.swin.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: 2.5.67: ppa driver & preempt == oops
-Message-ID: <20030415150746.A32019@beaverton.ibm.com>
-References: <3E982AAC.3060606@hccnet.nl> <1050172083.2291.459.camel@localhost> <3E993C54.40805@hccnet.nl> <1050255133.733.6.camel@localhost> <3E99A1E4.30904@hccnet.nl> <20030415120000.A30422@beaverton.ibm.com> <1050442676.3664.162.camel@localhost> <20030415145155.49df44c7.rddunlap@osdl.org>
+	Tue, 15 Apr 2003 18:01:56 -0400
+Received: from snipe.mail.pas.earthlink.net ([207.217.120.62]:32211 "EHLO
+	snipe.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id S264128AbTDOWBz (for <rfc822;linux-kernel@vger.kernel.org>); Tue, 15 Apr 2003 18:01:55 -0400
+Subject: Make RPM fails on Redhat-9
+From: Steve Bangert <sbangert@mindspring.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1050444692.16505.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030415145155.49df44c7.rddunlap@osdl.org>; from rddunlap@osdl.org on Tue, Apr 15, 2003 at 02:51:55PM -0700
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 15 Apr 2003 15:11:34 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 15, 2003 at 02:51:55PM -0700, Randy.Dunlap wrote:
 
-> I have such a device at home.  I can try to test it (if the device
-> still works).  What needs to be tested?
 
-That would be nice.
 
-AFAIK just attach and mount it, and probably dd to/from it, and then post
-your fix :)
+Processing files: kernel-2.4.21pre7-2
+Provides: kernel-2.4.21-pre7 kernel-drm
+Requires(rpmlib): rpmlib(CompressedFileNames) <= 3.0.4-1
+rpmlib(PayloadFilesHavePrefix) <= 4.0-1
+Processing files: kernel-debuginfo-2.4.21pre7-2
+error: Could not open %files file
+/usr/src/redhat/BUILD/kernel-2.4.21pre7/debugfiles.list: No such file or
+directory
 
-I think any removable scsi (direct access, not cdrom) media might show a
-problem (see recent "USB Mass Storage Device" thread from Jim Beam).
 
-> or maybe I can loan it to patmans for 1 day...
+RPM build errors:
+    Could not open %files file
+/usr/src/redhat/BUILD/kernel-2.4.21pre7/debugfiles.list: No such file or
+directory
+make: *** [rpm] Error 1
+[root@localhost linux]#
 
-I don't have a machine (that I know will boot current 2.5) with a parallel
-port.
 
-I/we should get some removable media attached to one of our scsi systems
-we have here (maybe usb storage).
+Steve Bangert
 
--- Patrick Mansfield

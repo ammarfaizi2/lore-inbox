@@ -1,55 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVBORuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVBORzg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVBORuq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Feb 2005 12:50:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVBORup
+	id S261682AbVBORzg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Feb 2005 12:55:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVBORzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Feb 2005 12:50:45 -0500
-Received: from pat.uio.no ([129.240.130.16]:25811 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261665AbVBORt1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Feb 2005 12:49:27 -0500
-Subject: Re: [patch 11/13] Client side of nfsacl
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andreas Gruenbacher <agruen@suse.de>
-Cc: linux-kernel@vger.kernel.org, Neil Brown <neilb@cse.unsw.edu.au>,
-       Olaf Kirch <okir@suse.de>,
-       "Andries E. Brouwer" <Andries.Brouwer@cwi.nl>,
-       Buck Huppmann <buchk@pobox.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050122203620.005569000@blunzn.suse.de>
-References: <20050122203326.402087000@blunzn.suse.de>
-	 <20050122203620.005569000@blunzn.suse.de>
-Content-Type: text/plain
-Date: Tue, 15 Feb 2005 12:49:17 -0500
-Message-Id: <1108489757.10073.46.camel@lade.trondhjem.org>
+	Tue, 15 Feb 2005 12:55:35 -0500
+Received: from pentafluge.infradead.org ([213.146.154.40]:15072 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261799AbVBORyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Feb 2005 12:54:38 -0500
+Date: Tue, 15 Feb 2005 17:54:31 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Gerd Knorr <kraxel@bytesex.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [patch] add scsi changer driver
+Message-ID: <20050215175431.GA2896@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Gerd Knorr <kraxel@bytesex.org>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-scsi@vger.kernel.org
+References: <20050215164245.GA13352@bytesex>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-2.889, required 12,
-	autolearn=disabled, AWL 2.11, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050215164245.GA13352@bytesex>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lau den 22.01.2005 Klokka 21:34 (+0100) skreiv Andreas Gruenbacher:
-> vanlig tekstdokument vedlegg (patches.suse)
-> This adds acl support fo nfs clients via the NFSACL protocol extension,
-> by implementing the getxattr, listxattr, setxattr, and removexattr iops
-> for the system.posix_acl_access and system.posix_acl_default attributes.
-> This patch implements a dumb version that uses no caching (and thus adds
-> some overhead). (Another patch in this patchset adds caching as well.)
+[this should go to linux-scsi]
 
-Why are you adding a POSIX-ACL specific function to the nfs_xdr
-functions? It is never going to be used for either NFSv2 or NFSv4.
+> +#include <linux/version.h>
 
-I suggest you rather do the same thing we're doing for the NFSv4 acls,
-and provide an nfsv3-specific struct inode_operations that points to
-nfsv3-specific {get,set,list}xattr functions.
+not needed.
 
-Cheers,
-  Trond
+> +#include <asm/system.h>
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+I doubt you'll need this one.
+
+> +#include <asm/uaccess.h>
+> +
+> +#include <linux/chio.h>			/* here are all the ioctls */
+
+<linux/*.h> should always go before <asm/*.h>
+
+> +#define MAJOR_NR	SCSI_CHANGER_MAJOR
+
+please kill this one
+
+> +#include "scsi.h"
+
+never use this header but always the <scsi/*.h>
+
+> +MODULE_SUPPORTED_DEVICE("sch");
+
+no needed thsese days
+
+> +static int dt_id[CH_DT_MAX] = { [ 0 ... (CH_DT_MAX-1) ] = -1 };
+> +static int dt_lun[CH_DT_MAX];
+> +module_param_array(dt_id,  int, NULL, 0444);
+> +module_param_array(dt_lun, int, NULL, 0444);
+> +
+> +/* tell the driver about vendor-specific slots */
+> +static int vendor_firsts[CH_TYPES-4];
+> +static int vendor_counts[CH_TYPES-4];
+> +module_param_array(vendor_firsts, int, NULL, 0444);
+> +module_param_array(vendor_counts, int, NULL, 0444);
+> +
+> +static char *vendor_labels[CH_TYPES-4] = {
+> +	"v0", "v1", "v2", "v3"
+> +};
+> +// module_param_string_array(vendor_labels, NULL, 0444);
+> +
+> +#define dprintk(fmt, arg...)    if (debug) \
+> +        printk(KERN_DEBUG "%s: " fmt, ch->name, ##arg)
+> +#define vprintk(fmt, arg...)    if (verbose) \
+> +        printk(KERN_INFO "%s: " fmt, ch->name, ##arg)
+> +
+> +/* ------------------------------------------------------------------- */
+
+> +static int ioctl32_register(void)
+> +{
+> +	unsigned int i;
+> +	int err;
+> +
+> +	for (i = 0; i < ARRAY_SIZE(ioctl32_cmds); i++) {
+> +		err = register_ioctl32_conversion(ioctl32_cmds[i].cmd,NULL);
+> +		if (err >= 0)
+> +			ioctl32_cmds[i].reg++;
+> +	}
+> +	return 0;
+> +}
+
+please implement ->compat_ioctl instead.
+
+> +	int errno, retries = 0, timeout;
+> +	DECLARE_COMPLETION(wait);
+> +	Scsi_Request *sr;
+> +	
+> +	sr = scsi_allocate_request(ch->device, GFP_ATOMIC);
+
+wouldn't a GFP_KERNEL do just fine?
+
+> +	if (NULL == sr)
+> +		return -ENOMEM;
+
+normal kernel style would be
+
+	if (!s)
+		return -ENOMEM;
+
+> +	list_for_each(item,&ch_devlist) {
+> +		tmp = list_entry(item, scsi_changer, list);
+
+list_for_each_entry
+
+> +	list_for_each(item,&ch_devlist) {
+> +		tmp = list_entry(item, scsi_changer, list);
+
+dito
 

@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbTEIGCa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 02:02:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbTEIGCa
+	id S262034AbTEIGG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 02:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbTEIGG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 02:02:30 -0400
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:51375 "EHLO
-	zcars0m9.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261618AbTEIGC3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 02:02:29 -0400
-Message-ID: <3EBB4735.30701@nortelnetworks.com>
-Date: Fri, 09 May 2003 02:14:13 -0400
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	Fri, 9 May 2003 02:06:59 -0400
+Received: from wiprom2mx1.wipro.com ([203.197.164.41]:15015 "EHLO
+	wiprom2mx1.wipro.com") by vger.kernel.org with ESMTP
+	id S262034AbTEIGG6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 02:06:58 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: how to measure scheduler latency on powerpc?  realfeel doesn't work due to /dev/rtc issues
-References: <3EBAD63C.4070808@nortelnetworks.com> <20030509001339.GQ8978@holomorphy.com> <Pine.LNX.4.50.0305081735040.2094-100000@blue1.dev.mcafeelabs.com> <20030509003825.GR8978@holomorphy.com> <Pine.LNX.4.53.0305082052160.21290@chaos> <3EBB25FD.7060809@nortelnetworks.com> <20030509042659.GS8978@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: [patch] comments patch
+Date: Fri, 9 May 2003 11:49:16 +0530
+Message-ID: <E935C89216CC5D4AB77D89B253ADED2A922AF0@blr-m2-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] comments patch
+Thread-Index: AcMV8uqbrLnInqlPSBeZO2uCifgC6A==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@digeo.com>,
+       "Kiran Vijayakumar" <kiran.vijayakumar@wipro.com>
+X-OriginalArrivalTime: 09 May 2003 06:19:16.0563 (UTC) FILETIME=[EB033230:01C315F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-
-> Try the timebase instead.
-
-The timestamp is not hard to get.  The problem is getting a medium-frequency 
-(2KHz or so) hardware interrupt to drive the test.
-
-On intel, you can do this by programming /dev/rtc.  This does not work in powerpc.
-
-Chris
-
-
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
-
+--- linux/mm/truncate.c	2003-04-21 10:28:19.000000000 -0700
++++ tmp/linux/mm/truncate.c	2003-05-08 12:25:52.000000000 -0700
+@@ -172,23 +172,23 @@
+ 			unlock_page(page);
+ 		}
+ 		pagevec_release(&pvec);
+ 	}
+ 	if (lstart == 0 && mapping->nrpages)
+ 		printk("%s: I goofed!\n", __FUNCTION__);
+ }
+ 
+ /**
+  * invalidate_mapping_pages - Invalidate all the unlocked pages of one
+inode
+- * @inode: the address_space which holds the pages to invalidate
+- * @end: the index of the last page to invalidate (inclusive)
+- * @nr_pages: defines the pagecache span.  Invalidate up to @start +
+@nr_pages
++ * @mapping: the address_space which holds the pages to invalidate
++ * @start: the offset 'from' which to invalidate
++ * @end: the offset 'to' which to invalidate (inclusive)
+  *
+  * This function only removes the unlocked pages, if you want to
+  * remove all the pages of one inode, you must call
+truncate_inode_pages.
+  *
+  * invalidate_mapping_pages() will not block on IO activity. It will
+not
+  * invalidate pages which are dirty, locked, under writeback or mapped
+into
+  * pagetables.
+  */
+ unsigned long invalidate_mapping_pages(struct address_space *mapping,
+ 				pgoff_t start, pgoff_t end)

@@ -1,67 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271249AbTGPXKj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 19:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271250AbTGPXKi
+	id S271254AbTGPXOn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 19:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271255AbTGPXOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 19:10:38 -0400
-Received: from smtp100.mail.sc5.yahoo.com ([216.136.174.138]:18316 "HELO
-	smtp100.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S271249AbTGPXKh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 19:10:37 -0400
-Subject: Re: 2.6.0-test1-mm1
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey =?UTF-8?Q?Vicente?=
-	 =?UTF-8?Q?=F3=AE=A0=92?= <retes_simbad@yahoo.es>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.53.0307161501280.32541@montezuma.mastecende.com>
-References: <20030715225608.0d3bff77.akpm@osdl.org>
-	 <1058376099.936.6.camel@debian>
-	 <Pine.LNX.4.53.0307161501280.32541@montezuma.mastecende.com>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1058397925.1794.4.camel@debian>
+	Wed, 16 Jul 2003 19:14:43 -0400
+Received: from 24-216-225-11.charter.com ([24.216.225.11]:53903 "EHLO
+	wally.rdlg.net") by vger.kernel.org with ESMTP id S271254AbTGPXOk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 19:14:40 -0400
+Date: Wed, 16 Jul 2003 19:29:33 -0400
+From: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 sound drivers?
+Message-ID: <20030716232933.GQ2412@rdlg.net>
+Mail-Followup-To: Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20030716225826.GP2412@rdlg.net> <20030717011008.A32081@ss1000.ms.mff.cuni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 17 Jul 2003 01:25:26 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1LW0Rr0Uq98qh6Rv"
+Content-Disposition: inline
+In-Reply-To: <20030717011008.A32081@ss1000.ms.mff.cuni.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El mi? 16-07-2003 a las 21:01, Zwane Mwaikambo escribió:
-> On Wed, 16 Jul 2003, Ramón Rey [UTF-8] Vicente[UTF-8] ó® ^R wrote:
-> 
-> > El mi? 16-07-2003 a las 07:56, Andrew Morton escribió:
-> > 
-> > > . Another interactivity patch from Con.  Feedback is needed on this
-> > >   please - we cannot make much progress on this fairly subjective work
-> > >   without lots of people telling us how it is working for them.
-> > 
-> > Well, my desktop experience with this is good. But the music playing
-> > problems (aka mp3/ogg playing problems) still there. Its better, and I
-> > feel the problems are near to be solved, but the player still jumps..
-> 
-> How fast is your processor?
 
-My system:
+--1LW0Rr0Uq98qh6Rv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-k6-2 450MHz
-256 MB SDRAM pc100
-ide udma33
-aty rage fury pro 64 MB 
-running Xfree86 4.3 +  gnome2.2 all the time :)
 
-This problems with mp3/ogg playing is not reproducible with 2.4.x and
-2.2 series, only have it with 2.5.x and 2.6.0-test1
--- 
-/================================================\
-| Ramón Rey Vicente <ramon.rey at hispalinux.es> |
-|                                                |
-| Jabber ID <rreylinux at jabber.org>            |
-|                                                |
-| Public GPG Key http://pgp.escomposlinux.org    |
-|                                                |
-| GLiSa http://glisa.hispalinux.es               |
-\================================================/
 
+/dev/sound/dsp doesn't exist.  I have devfsd installed and running
+already.
+
+Thus spake Rudo Thomas (thomr9am@ss1000.ms.mff.cuni.cz):
+
+> > [snip] I just tried to load the emu10k1 which loads without error, but =
+mpg123
+> > says it can't open the default sound device.
+>=20
+> If the module loaded up properly, problem may be in mpg123. If you are us=
+ing
+> devfs, try mpg123 -a /dev/sound/dsp . If that works, set up devfsd.
+>=20
+> Rudo.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+:wq!
+---------------------------------------------------------------------------
+Robert L. Harris                     | GPG Key ID: E344DA3B
+                                         @ x-hkp://pgp.mit.edu=20
+DISCLAIMER:
+      These are MY OPINIONS ALONE.  I speak for no-one else.
+
+Diagnosis: witzelsucht  =09
+
+IPv6 =3D robert@ipv6.rdlg.net	http://ipv6.rdlg.net
+IPv4 =3D robert@mail.rdlg.net	http://www.rdlg.net
+
+--1LW0Rr0Uq98qh6Rv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/Fd/d8+1vMONE2jsRAmbMAKCB7nPr06sbYPf0At3b357z2FdxMACgnPSi
+gm6hAwwb3LzFKH/UQo4QK9A=
+=dgro
+-----END PGP SIGNATURE-----
+
+--1LW0Rr0Uq98qh6Rv--

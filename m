@@ -1,290 +1,137 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbTE2IiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 04:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTE2IiJ
+	id S262019AbTE2JEW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 05:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262023AbTE2JEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 04:38:09 -0400
-Received: from imsantv30.netvigator.com ([210.87.253.77]:33430 "EHLO
-	imsantv30.netvigator.com") by vger.kernel.org with ESMTP
-	id S262016AbTE2Ih6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 04:37:58 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.18, 2.4.21-rc3/6, 2.5.70-mm1 Interactivity test + script
-Date: Thu, 29 May 2003 16:50:58 +0800
-User-Agent: KMail/1.5.2
-X-OS: GNU/Linux 2.4.21-pre5
+	Thu, 29 May 2003 05:04:22 -0400
+Received: from ns.suse.de ([213.95.15.193]:48393 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262019AbTE2JEU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 05:04:20 -0400
+To: Pavel Machek <pavel@suse.cz>
+Cc: akpm@digeo.com, davem@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: must-fix list, v5
+References: <20030521152255.4aa32fba.akpm@digeo.com.suse.lists.linux.kernel>
+	<20030521152334.4b04c5c9.akpm@digeo.com.suse.lists.linux.kernel>
+	<20030526093717.GC642@zaurus.ucw.cz.suse.lists.linux.kernel>
+	<20030528144839.47efdc4f.akpm@digeo.com.suse.lists.linux.kernel>
+	<20030528215551.GB255@elf.ucw.cz.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 29 May 2003 11:17:36 +0200
+In-Reply-To: <20030528215551.GB255@elf.ucw.cz.suse.lists.linux.kernel>
+Message-ID: <p73wuga6rin.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305291650.58620.mflt1@micrologica.com.hk>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is a script which demonstrates interactivity and locking issues.
+Pavel Machek <pavel@suse.cz> writes:
 
-Initial test results on a P4/2.4G/533 512MB with IDE (EXT3). Using IDE udma5 ~50MB/s except on 2.4.18.
-
-2.5.70-mm1 works best. Running opera 7 browsing LKML (big page) and hardly notice it is running the script. 
-
-2.4.21-rc6 is better than 2.4.21-rc3, but behaves similar with fewer and seemingly shorter hangs
-
-2.4.21-rc3 has many interactivity problems, mouse hangs, slow response to keyboard
-
-2.4.18 vanilla all but dies. It is totally unusable.  IDE throughput only 6.2MB, but that may be my hardware. I am baffled as I expected it to be better than next releases by what I read .....
-
-
-Quick instructions:
-
-Save in current dir, make executable
-
-On X terminal:
-  ./tstinter start # Two 400MB dd write loops
-
-To stop:
-
-  ./tstinter stop  # stop the test
-	
-To clean files:
-
-  ./tstinter clean # get rid of the files 
-
-Also try this
-  ./tstinter startr # Two dd 400MB write loops + One dd 200MB read loop
-
-Details are in script.
-
-Regards
-Michael
-
-#!/bin/bash
-
-#*****************************************************************
-#
-# tstinter - a linux kernel interactivity test script 
-#
-# This script invokes:
-# - User selectable  number of instances of dd each writing 
-#     a large file.  Time taken by dd is displayed in a xterm
-#
-# - Xterm lists temporary files used by dd every second 
-# - Xterm runs uname -a every 30ms 
-# - Optionl dd read loop of a 200MB file in a xterm
-#
-# What to look for
-#
-# Slowdown or stoppping of ls and uname xterms
-# Mouse hangs
-# Poor response on invoking terminal
-# Time fluctuations of dd loops - especially of Real time
-#
-#*****************************************************************
-#
-# Copyright:  2003 Michael Frank
-# License:    GPL Version 2
-#
-# Version:    0.1 29 May 2003 
-#
-# Usage:      ./tstinter FUNCTION [parameters]                                       
-# Usage when script is in $PATH: tstinter FUNCTION parameters                
-#                                                                 
-# FUNCTION:                                                       
-#
-# start [i] [n]   Start test with [i] invocations of dd writes 
-#                  of [n] 4K blocks
-#                  when [i] is omitted, 2 instances are invoked
-#                    [i] is limited to 10
-#                  when [n] is omitted, 100K blocks (400MB) are used
-#
-# startr [i] [n]  As above, but also invokes one dd read 
-#                   loop of a 200MB file
-#   
-# end            End test
-# clean          Cleanup test files $FILE*
-#
-#*****************************************************************
-#
-# Examples:
-#
-# ./tstinter start          Start the test with 2 instances of dd 
-#                            each writing 100K 4K blocks
-# ./tstinter start 3 20000  Start the test with 3 instances of dd 
-#                            each writing 20000 blocks
-#
-# ./tstinter startr         Start the test with 2 instances of dd 
-#                            each writing 100K 4K blocks and with
-#                            and with one instance of dd reading a
-#                            200MB file
-#
-# ./tstinter stop            Stop the test
-#
-# ./tstinter clean [-f/-i]   Cleanup files written by dd 
-#              
-#*****************************************************************
-#
-# Requirements: 
-#
-# dd,killall,sleep,usleep,touch,X,xterm
-# Sufficient free disk space (1G for default invocation)
-#  
-#*****************************************************************
-#
-# Known Bugs and Limitations
-#
-# [n] can't be specified on its own
-# tstinter may fill up the disk leading to unusability of system
-#
-#*****************************************************************
-#
-# Security:
-#
-# Should not be run as root 
-# Be sure that $TEMP/$FILE* does not match any valuable files 
-# All care and no responsibilities taken
-#
-#*****************************************************************
-#
-# Optional configuration: 
-#
-# Edit TEMP to a user writeable temporary directory if not set
-#
-if [ "$TEMP" = "" ]; then
-  TEMP=/tmp
-fi
-#
-# Edit FILE to another test file prefix as required
-#
-FILE=_x_y_z_
-#
-#*****************************************************************
-#
-# Internal use
-#
-TEMPFILE=$TEMP/$FILE
-#
-# For further invocation
-#
-TSTINTER=$0
-#
-#*****************************************************************
-#
-# Execute function
-#
-case $1 in
-#
-# start test
-#
-start | startr)
-# start uname loop
-  $TSTINTER _xtu  
-# start ls loop
-  $TSTINTER _xtl  
-  sleep 5
-  if [ "$2" = "" ]; then
-    i=2
-  else
-    i=$2
-  fi;
-  if ((i > 10)); then
-    echo Too many instances $i
-    exit 1
-  fi
-#invoke dd read loop
-  if [ "$1" = "startr" ]; then
-    $TSTINTER _xread 50K r
-   sleep 1
-  fi
-#invoke dd write loops
-  while (( i--)); do
-    $TSTINTER _xwrite "$2" $i
-    sleep 1
-  done
-  ;;
-#
-# stop test
-#
-stop) killall ${0#${0%/*}/};; 
-#
-# Cleanup files
-#
-#
-clean) rm  $2 $TEMPFILE*;;
-#
-#*****************************************************************
-#
-# Functions below are for internal use and spawned by the above 
-# This method is used for ease of debug and test termination
-#
-# Loop timed dd read of $2 4K blocks from $TEMPFILE$3
-# $TEMPFILE$3 is created first
-#
-_read) 
-  if [ "$2" = "" ]; then
-    count=100K
-  else
-    count=$2
-  fi
-  dd if=/dev/zero of=$TEMPFILE$3 bs=4K count=$count
-  while (( 1 )); do
-    time dd if=$TEMPFILE$3 of=/dev/null bs=4K count=$count &> /dev/null
-  done
-  ;;
-#
-# Read as above in a xterm
-#
-_xread) xterm -e $TSTINTER _read "$2" $3 &;;
-#
-# Loop timed dd write of $2 4K blocks to file $3
-#
-_write) 
-  if [ "$2" = "" ]; then
-    count=100K
-  else
-    count=$2
-  fi
-  while (( 1 )); do
-    time dd if=/dev/zero of=$TEMPFILE$3 bs=4K count=$count
-  done
-  ;;
-#
-# Write as above in a xterm
-#
-_xwrite) xterm -e $TSTINTER _write "$2" $3 &;;
-#
-# Start a xterm printing uname -a 
-#
-_xtu) xterm -e $TSTINTER _xtu1&;;
-#             
-# Loop uname -a with a short delay
-#
-_xtu1)
-  i=0
-  while (( 1 )); do
-    ((i += 1)); echo -n "$i "
-    uname -a
-    usleep 30000
-  done
-  ;;
-_xtl) xterm -e $TSTINTER _xtl1&;;
-#             
-# Loop ls -l $TEMPFILE with a delay
-#
-_xtl1)
-  i=0
-  while (( 1 )); do
-    ((i += 1)); echo "$i "
-    ls -l $TEMPFILE*
-    sleep 1
-  done
-  ;;
-#
-# Default
-#
-*) echo $TSTINTER bad function $*;;
-esac
-# End of script
+> +	kiov = (sg_iovec_t *) sgp->dxferp;
+> +	for (i = 0; i < sgp->iovec_count; i++) {
+> +		u32 iov_base32;
+> +		if (__get_user(iov_base32, &uiov->iov_base) ||
+> +		    __get_user(kiov->iov_len, &uiov->iov_len))
+> +			return -EFAULT;
+> +		if (verify_area(VERIFY_WRITE, compat_ptr(iov_base32), kiov->iov_len))
+> +			return -EFAULT;
+> +		kiov->iov_base = compat_ptr(iov_base32);
 
 
+This part won't work on sparc64 because it has separate address spaces
+for user/kernel. I did it this way for x86-64 because I didn't realize
+the sparc64 problem yet and it works fine there. For sparc64 it needs to be 
+converted to compat_alloc_user_space() (see net/compat.c for an example) 
+or to alloc/copy the payload again.  The first is prefered.
+
+Pavel you would need to fix this first, otherwise Ben Collins and DaveM
+will be unhappy as soon as they want to burn a CD.
+
+> +	} else {
+> +		err = verify_area(VERIFY_WRITE, compat_ptr(dxferp32), sg_io64.dxfer_len);
+> +		if (err) 
+> +			goto out;
+> +
+> +		sg_io64.dxferp = compat_ptr(dxferp32); 
+> +	}
+
+Same here.
+
+t_user(cdread.cdread_lba, &((struct cdrom_read32 *)arg)->cdread_lba);
+> +		err |= __get_user(addr, &((struct cdrom_read32 *)arg)->cdread_bufaddr);
+> +		err |= __get_user(cdread.cdread_buflen, &((struct cdrom_read32 *)arg)->cdread_buflen);
+> +		if (err)
+> +			return -EFAULT;
+> +		if (verify_area(VERIFY_WRITE, compat_ptr(addr), cdread.cdread_buflen))
+> +			return -EFAULT;
+> +		cdread.cdread_bufaddr = compat_ptr(addr);
+
+Same here.
+
+> +		err |= __get_user(addr, &((struct cdrom_read_audio32 *)arg)->buf);
+> +		if (err)
+> +			return -EFAULT;
+> +		
+> +
+> +		if (verify_area(VERIFY_WRITE, compat_ptr(addr), cdreadaudio.nframes*2352))
+> +			return -EFAULT;
+
+And here.
+
+	err |= __get_user(addr, &((struct cdrom_generic_command32 *)arg)->buffer);
+> +		err |= __get_user(cgc.buflen, &((struct cdrom_generic_command32 *)arg)->buflen);
+> +		if (err)
+> +			return -EFAULT;
+> +		if (verify_area(VERIFY_WRITE, compat_ptr(addr), cgc.buflen))
+> +			return -EFAULT;
+> +		cgc.buffer = compat_ptr(addr);
+
+And here
+
+> +	if (iobuf32.buffer == (compat_caddr_t) NULL || iobuf32.length == 0) {
+> +		iobuf.buffer = (void*)(unsigned long)iobuf32.buffer;
+> +	} else {
+> +		iobuf.buffer = compat_ptr(iobuf32.buffer);
+> +		if (verify_area(VERIFY_WRITE, iobuf.buffer, iobuf.length))
+> +			return -EINVAL;
+> +	}
+
+And here.
+
+> +	if (sioc32.arg == (compat_caddr_t) NULL || sioc32.length == 0) {
+> +		sioc.arg = (void*)(unsigned long)sioc32.arg;
+> +        } else {
+> +		sioc.arg = compat_ptr(sioc32.arg);
+> +		if (verify_area(VERIFY_WRITE, sioc.arg, sioc32.length))
+> +			return -EFAULT;
+> +        }
+> +        
+> +        old_fs = get_fs(); set_fs (KERNEL_DS);
+> +        err = sys_ioctl (fd, cmd, (unsigned long)&sioc);	
+
+And here
+
+> +
+> +	if (get_user(karg.start, &uarg->start) 		||
+> +	    get_user(karg.length, &uarg->length)	||
+> +	    get_user(tmp, &uarg->ptr))
+> +		return -EFAULT;
+> +
+> +	karg.ptr = compat_ptr(tmp); 
+> +	if (verify_area(VERIFY_WRITE, karg.ptr, karg.length))
+> +		return -EFAULT;
+
+And here.
+> +
+> +	set_fs(KERNEL_DS);
+> +	if (MEMREADOOB32 == cmd) 
+> +		ret = sys_ioctl(fd, MEMREADOOB, (unsigned long)&karg);
+> +	else if (MEMWRITEOOB32 == cmd)
+> +		ret = sys_ioctl(fd, MEMWRITEOOB, (unsigned long)&karg);
+> +	else
+> +		ret = -EINVAL;
+> +	set_fs(old_fs);
+
+-Andi

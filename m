@@ -1,58 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266558AbUG2HzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266580AbUG2H7e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266558AbUG2HzW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 03:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267191AbUG2HzW
+	id S266580AbUG2H7e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 03:59:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266914AbUG2H7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 03:55:22 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:9695 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266558AbUG2HzQ (ORCPT
+	Thu, 29 Jul 2004 03:59:34 -0400
+Received: from mail.tpgi.com.au ([203.12.160.103]:16298 "EHLO mail.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S266580AbUG2H7a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 03:55:16 -0400
-Date: Thu, 29 Jul 2004 09:54:29 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Chris Caputo <ccaputo@alt.net>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: inode_unused list corruption in 2.4.26 - spin_lock problem?
-Message-ID: <20040729075429.GA15700@devserv.devel.redhat.com>
-References: <20040729002535.GA5145@logos.cnet> <Pine.LNX.4.44.0407282325460.30510-100000@nacho.alt.net>
+	Thu, 29 Jul 2004 03:59:30 -0400
+Subject: Re: -mm swsusp: do not default to platform/firmware
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Patrick Mochel <mochel@digitalimplant.org>, akpm@zip.com.au,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040729073929.GB828@elf.ucw.cz>
+References: <20040728222445.GA18210@elf.ucw.cz>
+	 <20040728161448.336183e2.akpm@osdl.org> <20040728233929.GD16494@elf.ucw.cz>
+	 <20040728234352.GA14319@elf.ucw.cz>
+	 <1091061026.8873.78.camel@laptop.cunninghams>
+	 <20040729073929.GB828@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1091087563.8873.132.camel@laptop.cunninghams>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0407282325460.30510-100000@nacho.alt.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 29 Jul 2004 17:52:44 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sorry to do this to you - there are still a couple of errors.
 
-On Wed, Jul 28, 2004 at 11:27:41PM -0700, Chris Caputo wrote:
-> On Wed, 28 Jul 2004, Marcelo Tosatti wrote:
-> > Changing the affinity writes new values to the IOAPIC registers, I can't see
-> > how that could interfere with the atomicity of a spinlock operation. I dont
-> > understand why you think irqbalance could affect anything.
+On Thu, 2004-07-29 at 17:39, Pavel Machek wrote:
+> Thanks, text is now:
 > 
-> Because when I stop running irqbalance the crashes no longer happen.
+> Q: Kernel thread must voluntarily freeze itself (call 'refrigerator'). But
 
-what is the irq distribution when you do that?
-Can you run irqbalance for a bit to make sure there's a static distribution
-of irq's and then disable it and see if it survives ?
+Q: A kernel thread ... 'refrigerator') but ...
 
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+(Sentences shouldn't begin with 'But').
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+> I found some kernel threads that don't do it, and they don't freeze, and
 
-iD8DBQFBCK01xULwo51rQBIRAiATAKCYFz29MmIgcc4JbL6WuegQ5JrCzgCgqeP+
-vguwGF1sYuQw9lbMNL9xrKE=
-=Rcqz
------END PGP SIGNATURE-----
+the last ', and' should probably go.
 
---PNTmBPCT7hxwcZjr--
+> so the system can't sleep. Is this a known behavior?
+
+American spelling. I'll resist the temptation!
+
+> A: All such kernel threads need to be fixed, one by one. Select place
+
+Select the place
+
+> where it is safe to be frozen (no kernel semaphores should be held at
+
+it -> the thread (the previous subject was plural).
+
+> that point and it must be safe to sleep there), and add:
+> 
+>             if (current->flags & PF_FREEZE)
+>                     refrigerator(PF_FREEZE);
+> 
+> If the thread is needed for writing the image to storage, you should
+> instead set the PF_NOFREEZE process flag when creating the thread.
+> 
+> I'll eventually push it, too.
+
+Thanks!
+
+Nigel
+

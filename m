@@ -1,67 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262973AbTHVBGX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 21:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262978AbTHVBGX
+	id S262925AbTHVBLn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 21:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262936AbTHVBLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 21:06:23 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:10258 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S262973AbTHVBGT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 21:06:19 -0400
-Date: Thu, 21 Aug 2003 18:06:15 -0700
-From: jw schultz <jw@pegasys.ws>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: usb-storage: how to ruin your hardware(?)
-Message-ID: <20030822010615.GI21451@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <mMAP.NQ.15@gated-at.bofh.it> <mMUh.12N.19@gated-at.bofh.it> <mUI5.7Hp.27@gated-at.bofh.it> <3F44BC9F.7030606@softhome.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F44BC9F.7030606@softhome.net>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: Boo!
+	Thu, 21 Aug 2003 21:11:43 -0400
+Received: from phobos.aros.net ([66.219.192.20]:59919 "EHLO phobos.aros.net")
+	by vger.kernel.org with ESMTP id S262925AbTHVBLm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 21:11:42 -0400
+Message-ID: <3F456DBA.5040202@aros.net>
+Date: Thu, 21 Aug 2003 19:11:22 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-15?Q?Diego_Calleja_Garc=EDa?= <aradorlinux@yahoo.es>
+Cc: jgarzik@pobox.com, willy@debian.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Re: [PATCH] bio.c: reduce verbosity at boot
+References: <20030821150211.GU19630@parcelfarce.linux.theplanet.co.uk>	<3F44E2EB.6020508@pobox.com>	<3F44F88F.9010106@aros.net> <20030821223141.74ccb89e.aradorlinux@yahoo.es>
+In-Reply-To: <20030821223141.74ccb89e.aradorlinux@yahoo.es>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 21, 2003 at 02:35:43PM +0200, Ihar 'Philips' Filipau wrote:
-> Maciej Soltysiak wrote:
-> >
-> >Maybe a message of caution should be displayed in usb-storage
-> >configure help about attemtping to change partitions and/or filesystems on
-> >USB storage devices.
-> >
-> 
->   The stuff I have met with CompactFlash cards (*without* USB) - they 
-> by default were coming formated with single FAT12 partition - no 
-> partition table whatsoever.
->   I had no problems with partitioning and formating (in IDE emulation 
-> mode).
-> 
->   But Windoz2kOfBugs was refusing to work with flashes which had 
-> partition table, and was working Okay with /original/ FAT12 formated 
-> flashes. Windoz wasn't even trying to read partition table, always 
-> showing flash as one drive - and sure it was reporting stupid errors 
-> when you were trying to do something with partitioned flash.
-> 
->   It looks like /agreement/ (with The Beast) that flashe/memory card 
-> has to have FAT12.
+Diego Calleja García wrote:
 
-To flesh this out.
+>El Thu, 21 Aug 2003 10:51:27 -0600 Lou Langholtz <ldl@aros.net> escribió:
+>  
+>
+>>How about using KERN_DEBUG and augmenting the dmesg store so that the 
+>>level that is saved is configurable? Even compile time configurable 
+>>seems reasonable to start. But axeing out even the possibility of boot 
+>>time info seems bad to me.
+>>    
+>>
+>Like this?
+>(14) Kernel log buffer size (16 => 64KB, 17 => 128KB)  
+>Available at least in 2.6.0-test3 under "General setup"
+>  
+>
+Yes, except I was thinking for loglevel rather than size. Is a loglevel 
+option - as in only save printk's above level X in dmesg - already 
+available? I've seen other emails fly by on the printk system before so 
+this could well already be available. I haven't checked but was assuming 
+from the emails I'd seen so far that this didn't exist and was merely 
+suggesting this thinking it'd be an easy addition to the dmesg store.
 
-Both using PC card adapter and USB the SmartMedia cards i've
-used do have partition tables with only partition 1 being
-defined. The filesystem type and ID has been either a FAT12
-or FAT16 depending on size.
-
-I have not tried changing the table or filesystem type since
-i use them almost exclusively for the digicams.
-
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
-
-		Remember Cernan and Schmitt

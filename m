@@ -1,51 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263168AbUDMIgL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 04:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263162AbUDMIgL
+	id S263200AbUDMIiT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 04:38:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUDMIiT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 04:36:11 -0400
-Received: from zork.zork.net ([64.81.246.102]:28842 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S263168AbUDMIgH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 04:36:07 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-mm5 devpts filesystem doesn't work
-References: <20040412221717.782a4b97.akpm@osdl.org>
-	<407B9FB1.8070107@aitel.hist.no>
-	<20040413011133.2d15a4d6.akpm@osdl.org>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>, Helge Hafting
- <helgehaf@aitel.hist.no>,  linux-kernel@vger.kernel.org
-Date: Tue, 13 Apr 2004 09:36:01 +0100
-In-Reply-To: <20040413011133.2d15a4d6.akpm@osdl.org> (Andrew Morton's
- message of "Tue, 13 Apr 2004 01:11:33 -0700")
-Message-ID: <6uad1gs2a6.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 13 Apr 2004 04:38:19 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:29971 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S263200AbUDMIiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 04:38:06 -0400
+Date: Tue, 13 Apr 2004 10:38:03 +0200
+Message-Id: <200404130838.i3D8c3rm018430@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       James Simmons <jsimmons@infradead.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 425] Pm2fb is broken on Amiga
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+Permedia2: Mark pm2fb broken on Amiga, until somebody fixes it (pm2fb.c
+explicitly tests for CONFIG_PCI right now)
 
-> Helge Hafting <helgehaf@aitel.hist.no> wrote:
->>
->> I tried stepping up from 2.6.5-rc3-mm4 to 2.6.5-mm4.
->> This Quokka seems too zonked to work though.
->> 
->> It came up, but I couldn't run "xterm".  Trying from
->> the xemacs shell I saw an error message about not enough ptys.
->> I use the devpts fs mounted on /dev/pts
->> 
->> It mounts just fine, but doesn't work apparently.  There are no
->> such problems with 2.6.5-rc3-mm4
->
-> Is this 2.6.5-mm4 or 2.6.5-mm5?
->
-> If the latter, try reverting pty-allocation-first-fit.patch
+--- linux-2.6.5-rc2/drivers/video/Kconfig	2004-03-04 11:31:17.000000000 +0100
++++ linux-m68k-2.6.5-rc2/drivers/video/Kconfig	2004-03-04 16:35:00.000000000 +0100
+@@ -55,7 +55,7 @@
+ 
+ config FB_PM2
+ 	tristate "Permedia2 support"
+-	depends on FB && (AMIGA || PCI)
++	depends on FB && ((AMIGA && BROKEN) || PCI)
+ 	help
+ 	  This is the frame buffer device driver for the Permedia2 AGP frame
+ 	  buffer card from ASK, aka `Graphic Blaster Exxtreme'.  There is a
 
-Also seeing this with 2.6.5-mm5, reverting pty-allocation-first-fit.patch
-fixes it.
+Gr{oetje,eeting}s,
 
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

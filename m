@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131339AbRAVWmw>; Mon, 22 Jan 2001 17:42:52 -0500
+	id <S131205AbRAVWpc>; Mon, 22 Jan 2001 17:45:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131022AbRAVWmm>; Mon, 22 Jan 2001 17:42:42 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:34966 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S130760AbRAVWm3>;
-	Mon, 22 Jan 2001 17:42:29 -0500
-Date: Mon, 22 Jan 2001 23:42:25 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101222242.XAA202146.aeb@vlet.cwi.nl>
-To: bug-parted@gnu.org, clausen@conectiva.com.br,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Partition IDs in the New World TM
+	id <S131355AbRAVWpW>; Mon, 22 Jan 2001 17:45:22 -0500
+Received: from msgbas1tx.cos.agilent.com ([192.6.9.34]:9209 "HELO
+	msgbas1t.cos.agilent.com") by vger.kernel.org with SMTP
+	id <S131205AbRAVWpM>; Mon, 22 Jan 2001 17:45:12 -0500
+Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880958@xsj02.sjs.agilent.com>
+From: "MEHTA,HIREN (A-SanJose,ex1)" <hiren_mehta@agilent.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: parallel mkfs on ia64 with 2.4.0
+Date: Mon, 22 Jan 2001 17:45:07 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Clausen writes:
+Hi All,
 
-> can anyone remember why we have partition IDs?
+I ran mkfs on more than 1 scsi disk partitions
+in parallel in background on ia64 Lion machine with linux kernel 
+2.4.0. And after a few seconds, the system became damn slow. 
+I can swith between the virtual terminals. But I cannot login
+from other virtual terminals. Also, I cannot do anything
+on the terminal on which I started the mkfs processes. 
+If I run the mkfs sequentially, and then mount those
+partitions, then I can run the I/Os to file systems
+in parallel without any problem. Well, definitely, in this
+case, the I/Os are going through the file system layer of
+the kernel whereas in the former case, the I/Os to create
+the file system are not going through the file system layer
+of the kernel (except through the file system layer which
+handles devices). Also, running mkfs in parallel works perfectly
+without any problem on ia32 system with RedHat Linux 7.0 (kernel 2.2.16-22).
+Is there any thing broken in 2.4.0 file system layer which makes system
+damn slow ?
 
-Partition IDs are not necessary. Linux works fine
-when you have no partition table at all, and have a
-parttab file in an initrd disk telling the kernel where
-the partitions are supposed to be.
+If you need any more information, please let me know.
 
-No kernel changes required. Today you do not need partition IDs.
-Today you can dynamically add and delete partitions,
-without involving anything like a partition table.
-
-But people use various schemes to partition their disks,
-mainly because also other operating systems like DOS or MacOS
-use the same disks. In such a situation it is useful to
-agree with the other OS on where the partitions are.
-
-Andries
+Thanks and regards,
+-hiren
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

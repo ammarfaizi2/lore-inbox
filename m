@@ -1,83 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261620AbVCGFBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261623AbVCGFIi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261620AbVCGFBP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 00:01:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVCGFBP
+	id S261623AbVCGFIi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 00:08:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVCGFIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 00:01:15 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:19499 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261620AbVCGFBM (ORCPT
+	Mon, 7 Mar 2005 00:08:36 -0500
+Received: from orb.pobox.com ([207.8.226.5]:41604 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261622AbVCGFIc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 00:01:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ZdrdK5cpdzzTsrsVRp/xGGY3IEk+MIhT67e0j6EX0fw0IUy8/U0gXpTQcjkvT9ikrXGOqJ51EDg4yBmMxBysaxXN8JRjhL74sdlwZa3XyKUV/jvV8isDf0roVvyRGNBv74c4u9B3ha9nB6Z2cYgdPb1xvFglt86OFNsB8gUAfdI=
-Message-ID: <29495f1d0503062101549b14e8@mail.gmail.com>
-Date: Sun, 6 Mar 2005 21:01:11 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 12/14] drivers/dmapool: use TASK_UNINTERRUPTIBLE instead of TASK_INTERRUPTIBLE
-Cc: domen@coderock.org, linux-kernel@vger.kernel.org, nacc@us.ibm.com,
-       Patrick Mochel <mochel@digitalimplant.org>, Greg KH <greg@kroah.com>
-In-Reply-To: <20050306194414.68239e90.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 7 Mar 2005 00:08:32 -0500
+In-Reply-To: <422B4E97.4090303@inode.info>
+References: <42283093.7040405@inode.info> <20050304035309.1da7774e.akpm@osdl.org> <42285354.5090900@inode.info> <93832c6db45c33f7b2f195aae0d469dc@pobox.com> <422A041E.40105@inode.info> <0a8f9833de8ba3f767f3b3211bbb693a@pobox.com> <422B4E97.4090303@inode.info>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <bda000da0eb3b797500d90992d30a99d@pobox.com>
 Content-Transfer-Encoding: 7bit
-References: <20050306223654.3EE871EC90@trashy.coderock.org>
-	 <20050306194414.68239e90.akpm@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Scott Feldman <sfeldma@pobox.com>
+Subject: Re: slab corruption in skb allocs
+Date: Sun, 6 Mar 2005 21:07:26 -0800
+To: Richard Fuchs <richard.fuchs@inode.info>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Mar 2005 19:44:14 -0800, Andrew Morton <akpm@osdl.org> wrote:
-> domen@coderock.org wrote:
-> >
-> >  use TASK_UNINTERRUPTIBLE  instead of TASK_INTERRUPTIBLE
-> >
-> >  Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-> >  Signed-off-by: Domen Puncer <domen@coderock.org>
-> >  ---
-> >
-> >
-> >   kj-domen/drivers/base/dmapool.c |    2 +-
-> >   1 files changed, 1 insertion(+), 1 deletion(-)
-> >
-> >  diff -puN drivers/base/dmapool.c~task_unint-drivers_base_dmapool drivers/base/dmapool.c
-> >  --- kj/drivers/base/dmapool.c~task_unint-drivers_base_dmapool        2005-03-05 16:11:21.000000000 +0100
-> >  +++ kj-domen/drivers/base/dmapool.c  2005-03-05 16:11:21.000000000 +0100
-> >  @@ -293,7 +293,7 @@ restart:
-> >               if (mem_flags & __GFP_WAIT) {
-> >                       DECLARE_WAITQUEUE (wait, current);
-> >
-> >  -                    current->state = TASK_INTERRUPTIBLE;
-> >  +                    set_current_state(TASK_UNINTERRUPTIBLE);
-> >                       add_wait_queue (&pool->waitq, &wait);
-> >                       spin_unlock_irqrestore (&pool->lock, flags);
-> 
-> This code is alread a bit odd.  If we're prepared to sleep in there, then
-> why use GFP_ATOMIC?
-> 
-> If it is so that we can dig a bit deeper into the free page pools then
-> something like __GFP_WAIT|__GFP_HIGH would be preferable.
-> 
-> And why isn't mem_flags passed into pool_alloc_page() verbatim?
 
-Sorry, far beyond my abilities :(
- 
-> I agree on the TASK_UNINTERRUPTIBLE change: if the calling task happens to
-> have signal_pending() then the schedule_timeout() will fall right through.
-> Why should we change kernel memory allocation strategy if the user hit ^C?
+On Mar 6, 2005, at 10:40 AM, Richard Fuchs wrote:
 
-Yup, didn't make much sense to me.
- 
-> Also, __set_current_state() can be user here: the add_wait_queue() contains
-> the necessary barriers.  (Grubby, but we do that in quite a few places with
-> this particular code sequence (we should have an add_wait_queue() variant
-> which does the add_wait_queue+__set_current_state all in one hit (but let's
-> not, else I'll be buried in another 1000 cleanuplets))).
+> Scott Feldman wrote:
+>> A bug in the driver.  I have a hunch: please try this patch with 
+>> 2.6.9 or higher:
+>> http://marc.theaimsgroup.com/?l=linux-netdev&m=110726809431611&w=2
+>
+> bingo, that fixes it. too bad neither this patch nor the removal of 
+> the NAPI config option made it into 2.6.11...
 
-Ok, I will re-spin this patch. Or would you prefer an incremental one?
+Jesse Brandeburg @ Intel found the fix for the bug but I don't think 
+it's been pushed out to Jeff's tree yet, AFAIK.  Soon, I would guess.
 
-Thanks,
-Nish
+Would you mind giving this patch a try against 2.6.11?  I think it's 
+equivalent to Jesse's patch, but less intrusive to the driver.
+
+--- linux-2.6.11/drivers/net/e100.c.orig        Sun Mar  6 20:58:15 2005
++++ linux-2.6.11/drivers/net/e100.c     Sun Mar  6 21:01:34 2005
+@@ -1471,8 +1471,12 @@ static inline int e100_rx_indicate(struc
+
+         /* If data isn't ready, nothing to indicate */
+         if(unlikely(!(rfd_status & cb_complete)))
+-               return -EAGAIN;
++               return -ENODATA;
+
++       /* This allows for a fast restart without re-enabling 
+interrupts */
++       if(le16_to_cpu(rfd->command) & cb_el)
++               nic->ru_running = 0;
++
+         /* Get actual data size */
+         actual_size = le16_to_cpu(rfd->actual_size) & 0x3FFF;
+         if(unlikely(actual_size > RFD_BUF_LEN - sizeof(struct rfd)))
+@@ -1527,7 +1531,11 @@ static inline void e100_rx_clean(struct
+                         break; /* Better luck next time (see watchdog) 
+*/
+         }
+
+-       e100_start_receiver(nic);
++       /* NAPI: attempt to restart the receiver iff the list is
++        * totally clean otherwise we'll race between hardware and
++        * nic->rx_to_clean. */
++       if(!work_done || *work_done == 0)
++               e100_start_receiver(nic);
+  }
+
+  static void e100_rx_clean_list(struct nic *nic)
+
+
+>> No.  e1000 is a totally different driver/device with very similar 
+>> name.
+>
+> too bad, i was hoping for an explanation for some unexplainable 
+> crashes i've been experiencing... ;)
+
+Take the e1000 issue to linux-netdev.
+
+-scott
+

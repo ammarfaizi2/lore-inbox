@@ -1,155 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132684AbRDKRlP>; Wed, 11 Apr 2001 13:41:15 -0400
+	id <S132688AbRDKRsR>; Wed, 11 Apr 2001 13:48:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132688AbRDKRlH>; Wed, 11 Apr 2001 13:41:07 -0400
-Received: from fencepost.gnu.org ([199.232.76.164]:37387 "EHLO
-	fencepost.gnu.org") by vger.kernel.org with ESMTP
-	id <S132683AbRDKRkt>; Wed, 11 Apr 2001 13:40:49 -0400
-Date: Wed, 11 Apr 2001 13:41:44 -0400 (EDT)
-From: Pavel Roskin <proski@gnu.org>
-X-X-Sender: <proski@fonzie.nine.com>
-To: <linux-kernel@vger.kernel.org>, <linux-fsdevel@vger.kernel.org>
-Subject: [PATCH] Initial permissions on ramfs
-Message-ID: <Pine.LNX.4.33.0104111322440.22147-100000@fonzie.nine.com>
+	id <S132689AbRDKRsG>; Wed, 11 Apr 2001 13:48:06 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:48389 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S132688AbRDKRr6>;
+	Wed, 11 Apr 2001 13:47:58 -0400
+Date: Wed, 11 Apr 2001 13:47:18 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
+To: <Imran.Patel@nokia.com>
+cc: <ak@suse.de>, <netfilter-devel@us5.samba.org>, <netdev@oss.sgi.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: RE: skb allocation problems (More Brain damage!)
+In-Reply-To: <2D6CADE9B0C6D411A27500508BB3CBD063CF2D@eseis15nok>
+Message-ID: <Pine.LNX.4.30.0104111343380.31460-100000@localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-This patch is against 2.4.3-ac4. It won't apply to the Linus' tree!
+Coudl the problem be in the NIC driver not in the alloc_skb?  I have used
+both 2.4.{1,3} for some time and never seen this corruption.  I use ping
+-f with various packet sizes for stress testing my IPSec boxes... these do
+quite a bit of extra skb creation as an IPSec header sometimes does not
+fit in the original skb.  No problems yet.
 
-This patch makes it possible to manage all RAM filesystems in one place -
-in /etc/fstab. No need to write scripts to change permissions after mount.
+My gut tells me to blame the NIC driver of the NIC itself.
 
-The patch adds "mode", "uid" and "gid" options to ramfs. They only affect
-the top-level directory. The permissions can be changed later. For
-example:
+B.
 
-mount -t ramfs -o mode=1777,uid=0,gid=100 none /tmp
+On Wed, 11 Apr 2001, Imran.Patel@nokia.com wrote:
 
-This patch superseeds my older patch that only allowed to specify "mode"
-but not "gid" and "uid" of the top-level directory. It also includes
-corresponding changes in the documentation.
-
-I'm using this patch all the time on the system where I'm writing these
-lines for /tmp. No problems so far.
-
-This patch is orthogonal to the "umount" problem I reported yesterday
-(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0104.1/0414.html) - it
-neither fixes nor introduces the "umount" problem.
-
-The patch is also available online:
-http://www.red-bean.com/~proski/linux/ramfs_access.diff
+> > Well, I don't know then. You have to debug it. It's probably
+> > something stupid
+> > (if fundamental services like alloc_skb/kfree_skb were
+> > completely buggy
+> > someone surely would have noticed earlier)
+>
+> yep, at first i thought it was because of sume stupidity in my module...but
+> now it seems that actually it is not my code which is doing something
+> stupid....just now i have found out that even simple ping faces similar
+> problems ....here is the output that i get when i ping from the host
+> 192.168.102.29 (runs 2.4.1) to 192.168.102.22 (runs 2.4.3) (Note:I don't
+> insert any kernel modules of my own on these machines):
+>
+>
+> PING 192.168.102.22 (192.168.102.22) from 192.168.102.29 : 100(128) bytes of
+> data.
+> 108 bytes from hobbes.sr.ntc.nokia.com (192.168.102.22): icmp_seq=0 ttl=255
+> time=36.5 ms
+> wrong data byte #36 should be 0x24 but was 0x45
+> 	19 45 d4 3a e 7a a 0 8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19
+> 1a 1b 1c 1d 1e 1f
+> 	20 21 22 23 45 0 0 80 0 0 40 0 ff 1 2d f8 c0 a8 66 16 c0 a8 66 1d 0
+> 0 0 0 4 c 0 0
+> 	19 45 d4 3a e 7a a 0 8 9 a b c d e f 10 11 12 13 14 15 16 17 18 19
+> 1a 1b
+>
+> --- 192.168.102.22 ping statistics ---
+> 1 packets transmitted, 1 packets received, 0% packet loss
+> round-trip min/avg/max = 36.5/36.5/36.5 ms
+>
+>
+> Note that the problem starts with byte #36 which goes on like " 45 0 0 80 0
+> ......." which is in fact the outer IP header!! So certainly there are
+> buffer overruns on the other end (host 192.168.102.22)....
+>
+> And as a I said earlier, only ping packets with size within certain range
+> create this problem......Something is terribly wrong here!! But as I am not
+> a Linux mm guru, i can't tell what is wrong here!
+>
+>
+> regards,
+> imran
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 -- 
-Regards,
-Pavel Roskin
-
-_______________________________
---- linux.orig/Documentation/filesystems/ramfs.txt
-+++ linux/Documentation/filesystems/ramfs.txt
-@@ -45,3 +45,18 @@
- 		Sets the maximum number of inodes (i.e. distinct
- files) on the filesystem to NNN. If NNN=0 there is no limit. The
- default is no limit (but there can never be more inodes than dentries).
-+
-+	mode=NNN
-+		Sets the initial permissions of the root inode. By
-+default this is 755. You can specify the sticky bit if you want to
-+mount /tmp as ramfs, but make sure to set maxsize (see above) to a safe
-+value to avoid running out of memory.
-+
-+	uid=NNN
-+		Sets the initial owner of the root inode. You can later
-+change the owner. Other inodes are not affected.
-+
-+	gid=NNN
-+		Sets the initial group of the root inode. You can later
-+change the group. Other inodes are not affected.
-+
---- linux.orig/fs/ramfs/inode.c
-+++ linux/fs/ramfs/inode.c
-@@ -297,7 +297,7 @@ static void ramfs_truncatepage(struct pa
- 	ramfs_dealloc_page(inode, page);
- }
-
--struct inode *ramfs_get_inode(struct super_block *sb, int mode, int dev)
-+struct inode *ramfs_get_inode(struct super_block *sb, int mode, int dev, uid_t uid, gid_t gid)
- {
- 	struct inode * inode;
-
-@@ -308,8 +308,8 @@ struct inode *ramfs_get_inode(struct sup
-
- 	if (inode) {
- 		inode->i_mode = mode;
--		inode->i_uid = current->fsuid;
--		inode->i_gid = current->fsgid;
-+		inode->i_uid = uid;
-+		inode->i_gid = gid;
- 		inode->i_blksize = PAGE_CACHE_SIZE;
- 		inode->i_blocks = 0;
- 		inode->i_rdev = to_kdev_t(dev);
-@@ -349,7 +349,7 @@ static int ramfs_mknod(struct inode *dir
- 	if (! ramfs_alloc_dentry(sb))
- 		return error;
-
--	inode = ramfs_get_inode(dir->i_sb, mode, dev);
-+	inode = ramfs_get_inode(dir->i_sb, mode, dev, current->fsuid, current->fsgid);
-
- 	if (inode) {
- 		d_instantiate(dentry, inode);
-@@ -504,6 +504,9 @@ struct ramfs_params {
- 	long filepages;
- 	long inodes;
- 	long dentries;
-+	mode_t root_mode;
-+	mode_t root_uid;
-+	mode_t root_gid;
- };
-
- static int parse_options(char * options, struct ramfs_params *p)
-@@ -514,6 +517,9 @@ static int parse_options(char * options,
- 	p->filepages = -1;
- 	p->inodes = -1;
- 	p->dentries = -1;
-+	p->root_mode = 755;
-+	p->root_uid = current->uid;
-+	p->root_gid = current->gid;
-
- 	for (optname = strtok(options,","); optname;
- 	     optname = strtok(NULL,",")) {
-@@ -541,6 +547,18 @@ static int parse_options(char * options,
- 			p->dentries = simple_strtoul(value, &value, 0);
- 			if (*value)
- 				return -EINVAL;
-+		} else if (!strcmp(optname, "mode") && value) {
-+			p->root_mode = simple_strtoul(value, &value, 8) & 07777;
-+			if (*value)
-+				return -EINVAL;
-+		} else if (!strcmp(optname, "uid") && value) {
-+			p->root_uid = simple_strtoul(value, &value, 0);
-+			if (*value)
-+				return -EINVAL;
-+		} else if (!strcmp(optname, "gid") && value) {
-+			p->root_gid = simple_strtoul(value, &value, 0);
-+			if (*value)
-+				return -EINVAL;
- 		}
-
- 		if (optname != options)
-@@ -725,7 +743,8 @@ static struct super_block *ramfs_read_su
-
- 	init_limits(rsb, &params);
-
--	inode = ramfs_get_inode(sb, S_IFDIR | 0755, 0);
-+	inode = ramfs_get_inode(sb, S_IFDIR | params.root_mode, 0,
-+				params.root_uid,  params.root_gid);
- 	if (!inode)
- 		return NULL;
-
-_______________________________
+	WebSig: http://www.jukie.net/~bart/sig/
 
 

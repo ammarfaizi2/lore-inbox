@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270562AbRHNLGJ>; Tue, 14 Aug 2001 07:06:09 -0400
+	id <S270566AbRHNLMt>; Tue, 14 Aug 2001 07:12:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270563AbRHNLGA>; Tue, 14 Aug 2001 07:06:00 -0400
-Received: from [193.120.224.170] ([193.120.224.170]:34432 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S270562AbRHNLF4>;
-	Tue, 14 Aug 2001 07:05:56 -0400
-Date: Tue, 14 Aug 2001 12:06:06 +0100 (IST)
-From: Paul Jakma <paulj@alphyra.ie>
-To: Nicholas Knight <tegeran@home.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: via82cxxx_audio driver bug?
-In-Reply-To: <01081321124401.00204@c779218-a>
-Message-ID: <Pine.LNX.4.33.0108141203040.15241-100000@dunlop.itg.ie>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S270567AbRHNLMk>; Tue, 14 Aug 2001 07:12:40 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:31116 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S270566AbRHNLMY>;
+	Tue, 14 Aug 2001 07:12:24 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Tue, 14 Aug 2001 11:12:29 GMT
+Message-Id: <200108141112.LAA99888@vlet.cwi.nl>
+To: Andries.Brouwer@cwi.nl, garloff@suse.de
+Subject: Re: [PATCH] make psaux reconnect adjustable
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org, mantel@suse.de,
+        rubini@vision.unipv.it, torvalds@transmeta.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 13 Aug 2001, Nicholas Knight wrote:
+    From garloff@garloff.de Tue Aug 14 11:57:23 2001
 
-> The UI in other apps is a little iffy on my end, sometimes they lock,
-> sometimes not.
+    I can confirm what you suggest:
+	My mouse (Logitech wheel USB/PS2) sends indeed AA 00.
+    So, I extended my patch:
+    psmouse_reconnect = 0: Do nothing (just pass all to userspace)
+    psmouse_reconnect = 1: Flush Q & ping mouse on AA 00 (default)
+    psmouse_reconnect = 2: Flush Q & ping mouse on AA (old behaviour)
 
-well.. even mpg123 seems to suffer. it doesn't have a UI :) but it
-doesn't respond to ^C straight away.
+    With reconnect 1 or 2: After reconnecting, mouse behaves strange
+	(jumping around the screen)
+    With reconnect 0:      Mouse is dead
 
-> what version was in kernel 2.4.3? I first started reporting this when I
-> installed Mandrake 8.0 and noticed it a couple months ago.
+    In both cases restarting gpm gets the mouse back to work again.
+    It seems the imps2 driver does some initialization to the mouse.
 
-i honestly don't remember.
+    If I use the plain ps2 driver, then finally, I see the benefit of the
+    reconnect code in the kernel:
+    With reconnect = 1 or 2: It works after replugging
+    With reconnect = 0:      Mouse is dead after replugging
 
-Jeff has a newer driver out, 1.1.15, i didn't get a chance to try it
-out last night. wondering whether it fixes the problem. (it has a lot
-of fixups).
+    In the latter case restarting gpm helps.
 
-regards,
+Before having an opinion about what would be appropriate,
+let me make sure that I understand the facts that you report.
 
---paulj
+You talk about reconnect, but what is your definition of reconnect?
+Is it that the mouse sends AA or AA 00, or is it that you unplug
+and replug the mouse?
 
+Andries

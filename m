@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVA0UeO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVA0Ufl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVA0UeO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 15:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVA0UeO
+	id S261172AbVA0Ufl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 15:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVA0Ufl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 15:34:14 -0500
-Received: from soundwarez.org ([217.160.171.123]:10718 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261167AbVA0UeK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 15:34:10 -0500
-Date: Thu, 27 Jan 2005 21:34:10 +0100
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] sysfs: export the vfs release call of binary attribute
-Message-ID: <20050127203410.GA5022@vrfy.org>
-References: <20050127201923.GA4968@vrfy.org>
+	Thu, 27 Jan 2005 15:35:41 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:44048 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261172AbVA0Ufc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 15:35:32 -0500
+Subject: Re: Patch 4/6  randomize the stack pointer
+From: Arjan van de Ven <arjan@infradead.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org
+In-Reply-To: <20050127203206.GA2180@infradead.org>
+References: <20050127101117.GA9760@infradead.org>
+	 <20050127101322.GE9760@infradead.org> <20050127202335.GA2033@infradead.org>
+	 <20050127202720.GA12390@infradead.org>
+	 <20050127203206.GA2180@infradead.org>
+Content-Type: text/plain
+Date: Thu, 27 Jan 2005 21:35:26 +0100
+Message-Id: <1106858127.5624.136.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050127201923.GA4968@vrfy.org>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 09:19:23PM +0100, Kay Sievers wrote:
-> Initialize the allocated bin_attribute structure, otherwise unused fields
-> are pointing to random places.
+On Thu, 2005-01-27 at 20:32 +0000, Christoph Hellwig wrote:
+> > The patch below replaces the existing 8Kb randomisation of the userspace
+> > stack pointer (which is currently only done for Hyperthreaded P-IVs) with a
+> > more general randomisation over a 64Kb range. 64Kb is not a lot, but it's a
+> > start and once the dust settles we can increase this value to a more
+> > agressive value.
+> 
+> Why are we doing this for x86 only, btw? 
+> 
+> > +unsigned long arch_align_stack(unsigned long sp)
+> > +{
+> > +	if (randomize_va_space)
+> > +		sp -= ((get_random_int() % 4096) << 4);
+> > +	return sp & ~0xf;
+> > +}
+> 
+> this looks like it'd work nicely on all architectures.
 
-Sorry, wrong place for the inititalization.
+the problem is that the <<4 is the minimum x86 stack pointer alignment.
+That value differs per architecture afaics.....
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-
-===== drivers/pci/pci-sysfs.c 1.16 vs edited =====
---- 1.16/drivers/pci/pci-sysfs.c	2005-01-06 21:30:29 +01:00
-+++ edited/drivers/pci/pci-sysfs.c	2005-01-27 21:31:09 +01:00
-@@ -436,6 +436,7 @@ int pci_create_sysfs_dev_files (struct p
- 		
- 		rom_attr = kmalloc(sizeof(*rom_attr), GFP_ATOMIC);
- 		if (rom_attr) {
-+			memset(rom_attr, 0x00, sizeof(*rom_attr));
- 			pdev->rom_attr = rom_attr;
- 			rom_attr->size = pci_resource_len(pdev, PCI_ROM_RESOURCE);
- 			rom_attr->attr.name = "rom";
 

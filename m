@@ -1,45 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316933AbSFFNsM>; Thu, 6 Jun 2002 09:48:12 -0400
+	id <S316968AbSFFOCO>; Thu, 6 Jun 2002 10:02:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316968AbSFFNsL>; Thu, 6 Jun 2002 09:48:11 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:63751 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S316933AbSFFNsK>; Thu, 6 Jun 2002 09:48:10 -0400
-Date: Thu, 6 Jun 2002 06:48:00 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: More fbdev to pull
-Message-ID: <Pine.LNX.4.44.0206051410040.7204-100000@www.transvirtual.com>
+	id <S316977AbSFFOCN>; Thu, 6 Jun 2002 10:02:13 -0400
+Received: from mail.loewe-komp.de ([62.156.155.230]:29704 "EHLO
+	mail.loewe-komp.de") by vger.kernel.org with ESMTP
+	id <S316968AbSFFOCM>; Thu, 6 Jun 2002 10:02:12 -0400
+Message-ID: <3CFF6BAE.8080406@loewe-komp.de>
+Date: Thu, 06 Jun 2002 16:03:26 +0200
+From: Peter =?ISO-8859-1?Q?W=E4chtler?= <pwaechtler@loewe-komp.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Daniel Phillips <phillips@bonn-fries.net>
+CC: Oliver Xymoron <oxymoron@waste.org>, Mark Mielke <mark@mark.mielke.cc>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+In-Reply-To: <Pine.LNX.4.44.0206051612170.2614-100000@waste.org> <E17FikY-0001fL-00@starship> <3CFF22B2.5050004@loewe-komp.de> <E17Fuy2-0002Fa-00@starship>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips wrote:
+> On Thursday 06 June 2002 10:52, Peter Wächtler wrote:
+> 
+>>Daniel Phillips wrote:
+>>
+>>>Our current block queue design would benefit a lot from the kind of
+>>>thinking that would be required to make it realtime.
+>>>
+>>You know that spinning disks do some recalibrations?
+>>
+>>Whatever marketing tries to imply with "realtime volumes" - the
+>>technology only tries to make better promises (think of AV disks
+>>for better sustained rate).
+>>
+> 
+> It's my impression that some do thermal recalibration and some don't:
+> 
+>    http://www.pctechguide.com/04disks.htm
+>    "recalibration"
+> 
 
+> 
+> The need to turn in reliable performance for multimedia apps seems
+> to have made thermal calibration a thing of the past, but thanks for
+> raising the issue.
+> 
 
-Hi!
+Ok, seems that I am a bit outdated (here) :-)
 
-   Now for the new rounds of updates. Please pull the fbdev BK updates and
-bug fixes.
+> 
+>>LynxOS (now LynuxWorks) has some patents for priority based IO.
+>>
+> 
+> Oh, more of those one-click realtime patents ;-)  Do you have any
+> pointers?
+> 
 
-http://fbdev.bkbits.net:8080/fbdev-2.5
+http://www.lynuxworks.com/products/whitepapers/patentedio.php3
 
-Standard diff:
-
-http://www.transvirtual.com/~jsimmons/fbdev.diff.gz
-
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'\_   _/`\
- \___)=(___/
-
-
-
+In the upper right corner you can see the patent number. Try
+a search for patent on this side.
 

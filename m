@@ -1,132 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbUJXWgW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUJXWgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbUJXWgW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 18:36:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbUJXWgW
+	id S261602AbUJXWgm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 18:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUJXWgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 18:36:22 -0400
-Received: from mail.dif.dk ([193.138.115.101]:18104 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261600AbUJXWf7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 18:35:59 -0400
-Date: Mon, 25 Oct 2004 00:44:13 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: [PATCH] binfmt_elf; do proper error handling if clear_user fails in
- padzero
-Message-ID: <Pine.LNX.4.61.0410250015350.3252@dragon.hygekrogen.localhost>
+	Sun, 24 Oct 2004 18:36:41 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:34479 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261602AbUJXWg3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 18:36:29 -0400
+Message-ID: <417C2E5F.3020906@kolivas.org>
+Date: Mon, 25 Oct 2004 08:36:15 +1000
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rafal Bujnowski <fergot@aster.net.pl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       CK Kernel <ck@vds.kolivas.org>
+Subject: Re: 2.6.9-ck2
+References: <417BB099.1050501@kolivas.org> <1098641857.2416.9.camel@moon.localnet>
+In-Reply-To: <1098641857.2416.9.camel@moon.localnet>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig36C9BEA261314E0269768386"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig36C9BEA261314E0269768386
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Andrew,
+Rafal Bujnowski wrote:
+> On Sun, 2004-10-24 at 23:39 +1000, Con Kolivas wrote:
+> 
+> 
+>>These are patches designed to improve system responsiveness with
+>>specific emphasis on the desktop, but configurable to any workload.
+> 
+> 
+> Hello Con,
+> 
+> I have a question regarding supermount patch. Is it applied into your
+> patch set? I tried to find it in 2.6.9-ck1/ck2, and... I think it isn't.
 
-Here's another patch for fs/binfmt_elf.c, this one fixes a real issue in 
-addition to killing a warning.
+As I explained previously: I will continue to maintain the supermount 
+patch due to popular request. However since it adds no performance 
+feature to -ck and makes the patchset more complicated making debugging 
+more difficult I will not include it by default. Having said that, I 
+haven't had any bug reports about it in a long time. It's a simple 
+matter to add it to -ck if you want it.
 
-This is the warning we get rid of :
+Cheers,
+Con
 
- fs/binfmt_elf.c: In function `padzero':
- fs/binfmt_elf.c:113: warning: ignoring return value of `clear_user', declared with attribute warn_unused_result
+--------------enig36C9BEA261314E0269768386
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-The problem is that the padzero function calls clear_user but neglects to 
-check if it fails. That means that any caller of padzero() will be working 
-on data that is assumed to be cleared, but the caller won't actually know. 
-This matters, if it didn't there would be no point in calling padzero in 
-the first place. In addition to possibly working on memory that's assumed 
-to be zeroed but in fact may not be, something is obviously wrong if 
-clear_user() fails to clear the __user * it is told to clear - so we need 
-some error handling.
+iD8DBQFBfC5fZUg7+tp6mRURAoFUAJ9MgatkmtCmB8z5EmsLp+4KhN3ZQgCfQ1ia
+nbxHrh5T/55msWcyoaaLid8=
+=pBjH
+-----END PGP SIGNATURE-----
 
-
-The patch below does the following:
-
-- Changes padzero() to return int instead of void. The return value is now 
-the number of bytes that could not be cleared/padded (as returned by 
-clear_user()) on error, or 0 on success.
-
-- Changes all callers of padzero() to check for non-zero return and take 
-appropriate action.
-
-
-The patch has seen the following testing:
-
-- Compile tested. My changes compile cleanly and silence the warning.
-
-- Boot tested (and been running for ~15min), but I have no way atm to 
-actually hit the relevant code path, so this means little besides proving 
-I made no obvious mistake that blows up the kernel instantly.
-
-- And of course I've been reading the code to try and ensure I got 
-everything right, but I'd appreciate a few more eyeballs.
-
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.10-rc1-bk2/fs/binfmt_elf.c.orig linux-2.6.10-rc1-bk2/fs/binfmt_elf.c
---- linux-2.6.10-rc1-bk2/fs/binfmt_elf.c.orig	2004-10-24 23:46:49.000000000 +0200
-+++ linux-2.6.10-rc1-bk2/fs/binfmt_elf.c	2004-10-25 00:13:04.000000000 +0200
-@@ -103,15 +103,18 @@ static int set_brk(unsigned long start, 
-    be in memory */
- 
- 
--static void padzero(unsigned long elf_bss)
-+static int padzero(unsigned long elf_bss)
- {
- 	unsigned long nbyte;
-+	int ret = 0;
- 
- 	nbyte = ELF_PAGEOFFSET(elf_bss);
- 	if (nbyte) {
- 		nbyte = ELF_MIN_ALIGN - nbyte;
--		clear_user((void __user *) elf_bss, nbyte);
-+		ret = clear_user((void __user *) elf_bss, nbyte);
- 	}
-+	
-+	return ret;
- }
- 
- /* Let's use some macros to make this stack manipulation a litle clearer */
-@@ -400,7 +403,10 @@ static unsigned long load_elf_interp(str
- 	 * that there are zero-mapped pages up to and including the 
- 	 * last bss page.
- 	 */
--	padzero(elf_bss);
-+	if (padzero(elf_bss) != 0) {
-+		error = -EFAULT;
-+		goto out_close;
-+	}
- 	elf_bss = ELF_PAGESTART(elf_bss + ELF_MIN_ALIGN - 1);	/* What we have mapped so far */
- 
- 	/* Map the last of the bss segment */
-@@ -837,7 +843,11 @@ static int load_elf_binary(struct linux_
- 		send_sig(SIGKILL, current, 0);
- 		goto out_free_dentry;
- 	}
--	padzero(elf_bss);
-+	if (padzero(elf_bss) != 0) {
-+		send_sig(SIGKILL, current, 0);
-+		retval = -EFAULT;
-+		goto out_free_dentry;
-+	}
- 
- 	if (elf_interpreter) {
- 		if (interpreter_type == INTERPRETER_AOUT)
-@@ -1000,7 +1010,10 @@ static int load_elf_library(struct file 
- 		goto out_free_ph;
- 
- 	elf_bss = elf_phdata->p_vaddr + elf_phdata->p_filesz;
--	padzero(elf_bss);
-+	if (padzero(elf_bss) != 0) {
-+		error = -EFAULT;
-+		goto out_free_ph;
-+	}
- 
- 	len = ELF_PAGESTART(elf_phdata->p_filesz + elf_phdata->p_vaddr + ELF_MIN_ALIGN - 1);
- 	bss = elf_phdata->p_memsz + elf_phdata->p_vaddr;
-
-
+--------------enig36C9BEA261314E0269768386--

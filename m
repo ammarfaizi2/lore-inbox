@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263973AbRFRNzU>; Mon, 18 Jun 2001 09:55:20 -0400
+	id <S263970AbRFRN4k>; Mon, 18 Jun 2001 09:56:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263970AbRFRNzL>; Mon, 18 Jun 2001 09:55:11 -0400
-Received: from ns.suse.de ([213.95.15.193]:48139 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S263980AbRFRNyx>;
-	Mon, 18 Jun 2001 09:54:53 -0400
-To: Ralph Jones <ralph.jones@altavista.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: pivot_root from non-interactive script
-In-Reply-To: <20010618130302.15892.cpmta@c012.sfo.cp.net>
-X-Yow: I just put lots of the EGG SALAD in the SILK SOCKS --
-From: Andreas Schwab <schwab@suse.de>
-Date: 18 Jun 2001 15:54:51 +0200
-In-Reply-To: <20010618130302.15892.cpmta@c012.sfo.cp.net> (Ralph Jones's message of "18 Jun 2001 06:03:02 -0700")
-Message-ID: <jepuc199lg.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.103
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+	id <S263987AbRFRN4a>; Mon, 18 Jun 2001 09:56:30 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:10043 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263970AbRFRN4K>; Mon, 18 Jun 2001 09:56:10 -0400
+Date: Mon, 18 Jun 2001 15:56:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: German Gomez Garcia <german@piraos.com>,
+        Mailing List Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Strange behaviour of swap under 2.4.5-ac15
+Message-ID: <20010618155605.D13836@athlon.random>
+In-Reply-To: <20010618143559.A23006@athlon.random> <Pine.LNX.4.21.0106181041470.2056-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.21.0106181041470.2056-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Mon, Jun 18, 2001 at 10:43:14AM -0300
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ralph Jones <ralph.jones@altavista.com> writes:
+On Mon, Jun 18, 2001 at 10:43:14AM -0300, Rik van Riel wrote:
+> On Mon, 18 Jun 2001, Andrea Arcangeli wrote:
+> 
+> > either apply this patch to 2.4.5ac15:
+> > 
+> > 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.5aa3/00_fix-unusable-vm-on-alpha-1
+> 
+> That one has already been fixed in -pre3 and I think also
 
-|> I have followed the instructions given in Documentation/initrd.txt with regard to pivot_root, but am unable to unmount the filesystem, when everything is called from a non-interactive script. 
-|> 
-|> ie. When I set a link from linuxrc to /bin/ash and then manually go through the commands in the shell script, I am able to unmount the old initrd filesystem.  However, when linuxrc is a shell script containing the same commands, I am unable to umount the old initrd fs.  I get instead: "Device or resource busy".
+wrong, I merged it with Linus in pre2 not pre3.
 
-Perhaps the shell didn't close the filedescriptor on the script.
+> in -ac14+ kernels (haven't verified the -ac kernels, though).
 
-Andreas.
+wrong -ac15 is still missing it.
 
--- 
-Andreas Schwab                                  "And now for something
-SuSE Labs                                        completely different."
-Andreas.Schwab@suse.de
-SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+> which is now a lot closer to being balanced. It's not a bug,
+
+wrong, that was a core showstopper bug and it renders any machine with a
+zone empty unusable. (it has nothing to do with beauty or stats)
+
+Andrea

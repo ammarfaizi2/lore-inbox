@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314275AbSEHNyM>; Wed, 8 May 2002 09:54:12 -0400
+	id <S314281AbSEHN5W>; Wed, 8 May 2002 09:57:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314292AbSEHNyL>; Wed, 8 May 2002 09:54:11 -0400
-Received: from [198.144.45.122] ([198.144.45.122]:1920 "EHLO
-	xyzzy.stargate.net") by vger.kernel.org with ESMTP
-	id <S314275AbSEHNyK>; Wed, 8 May 2002 09:54:10 -0400
-Subject: Re: Memory Barrier Definitions
-From: Justin Carlson <justinca@ri.cmu.edu>
-To: Dave Engebretsen <engebret@vnet.ibm.com>
-Cc: justincarlson@cmu.edu, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3CD89247.8ECB01A4@vnet.ibm.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.4 
-Date: 08 May 2002 09:54:24 -0400
-Message-Id: <1020866064.1667.3.camel@xyzzy.stargate.net>
+	id <S314292AbSEHN5V>; Wed, 8 May 2002 09:57:21 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:8361 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S314281AbSEHN5U>;
+	Wed, 8 May 2002 09:57:20 -0400
+Date: Wed, 08 May 2002 06:45:28 -0700 (PDT)
+Message-Id: <20020508.064528.27619995.davem@redhat.com>
+To: dipankar@in.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] lockfree rtcache lookup using RCU
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020508185457.I10505@in.ibm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-07 at 22:49, Dave Engebretsen wrote:
+   From: Dipankar Sarma <dipankar@in.ibm.com>
+   Date: Wed, 8 May 2002 18:54:57 +0530
+   
+   A large number of processes of which small sets may look up the same
+   ip address. dst ip addresses change after every 50 packets or
+   so.
+   
+   Is this more realistic ?
 
-> PPC also guarantees every ordering when using the 'sync' instruction, so
-> that will give correctness at the price of a 1000 cycles or so.  You
-> refer to different rules for cached vs uncached on other implementations
-> -- that is the essence of our problem.  Are there different barrier
-> instructions in MIPS which provide different levels of performance for
-> different ordering enforcements?
-> 
-> Dave.
-
-No, there aren't.  The implementation details can affect which
-primitives need to explicitly sync, though.  
-
-For instance, the BRCM1250 makes some guarantees about visibility of
-uncached writes that aren't strictly required by the architecture spec. 
-
--Justin
-
+More like every 4 or 5 packets.

@@ -1,99 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284451AbRLSJWD>; Wed, 19 Dec 2001 04:22:03 -0500
+	id <S283771AbRLSJ1d>; Wed, 19 Dec 2001 04:27:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284608AbRLSJVx>; Wed, 19 Dec 2001 04:21:53 -0500
-Received: from [212.16.7.124] ([212.16.7.124]:14464 "HELO laputa.namesys.com")
-	by vger.kernel.org with SMTP id <S284451AbRLSJVq>;
-	Wed, 19 Dec 2001 04:21:46 -0500
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S284608AbRLSJ1Y>; Wed, 19 Dec 2001 04:27:24 -0500
+Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:65041 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S283771AbRLSJ1K>;
+	Wed, 19 Dec 2001 04:27:10 -0500
+Message-ID: <T57ead5b988ac1785ed28e@pcow035o.blueyonder.co.uk>
+Content-Type: text/plain; charset=US-ASCII
+From: James A Sutherland <james@sutherland.net>
+To: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: Booting a modular kernel through a multiple streams file
+Date: Wed, 19 Dec 2001 09:27:29 +0000
+X-Mailer: KMail [version 1.3.1]
+In-Reply-To: <Pine.GSO.4.21.0112180350550.6100-100000@weyl.math.psu.edu> <T57e612d0dbac1785e6169@pcow028o.blueyonder.co.uk> <9vo4b3$iet$1@cesium.transmeta.com>
+In-Reply-To: <9vo4b3$iet$1@cesium.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15392.23378.580068.10294@laputa.namesys.com>
-Date: Wed, 19 Dec 2001 12:18:10 +0300
-To: Diego Calleja <grundig@teleline.es>
-Cc: linux-kernel@vger.kernel.org,
-        Reiserfs mail-list <Reiserfs-List@Namesys.COM>
-Subject: Re: [grundig@teleline.es: Re: Reiserfs corruption on 2.4.17-rc1!]
-In-Reply-To: <20011218221122.B381@diego>
-In-Reply-To: <20011217025856.A1649@diego>
-	<13425.1008580831@nova.botz.org>
-	<20011218003359.A555@diego>
-	<15391.12150.650359.33792@laputa.namesys.com>
-	<20011218220828.A381@diego>
-	<20011218221122.B381@diego>
-X-Mailer: VM 6.96 under 21.4 (patch 3) "Academic Rigor" XEmacs Lucid
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja writes:
- > 
- > On Tue, 18 Dec 2001 22:08:28 Diego Calleja wrote:
- > 
+On Tuesday 18 December 2001 7:10 pm, H. Peter Anvin wrote:
+> Followup to:  <T57e612d0dbac1785e6169@pcow028o.blueyonder.co.uk>
+> By author:    James A Sutherland <james@sutherland.net>
+> In newsgroup: linux.dev.kernel
+>
+> > On Tuesday 18 December 2001 8:55 am, Alexander Viro wrote:
+> > > On Tue, 18 Dec 2001, James A Sutherland wrote:
+> > > > Not necessarily. You could, say, put the modules in a small
+> > > > filesystem image - say, Minix, or maybe ext2. Then just have the
+> > > > loader put that disk image into RAM, and have the kernel able to read
+> > > > disk images from RAM initially.
+> > > >
+> > > > Of course, this revolutionary new features needs a name. Something
+> > > > like initrd, perhaps?
+> > >
+> > > Had you actually looked at initrd-related code?  I had and "bloody
+> > > mess" is the kindest description I've been able to come up with.  Even
+> > > after cleanups and boy, were they painful...
+> >
+> > With a choice between that, or teaching lilo, grub etc how to link
+> > modules - and how to read NTFS and XFS, and losing the ability to boot
+> > from fat, minix etc floppies, tftp or nfs servers - almost any level of
+> > existing nastiness would be preferable to that sort of insane codebloat!
+>
+> Note that Al is working on a replacement; he's not just bitching. The
+> replacement is called "initramfs" which means populating a ramfs from
+> an archive or collection of archives passwd by the bootloader.  With
+> that in there, lots of things can be done in userspace.
 
-[...]
+What I was suggesting is that using an initfs (whether initrd, initramfs or 
+something else) is a better approach than trying to get the bootloader 
+grovelling around in the kernel innards - initramfs strengthens this 
+argument, I think. Just put the modules into archives, and use initramfs to 
+access them and a copy of insmod...
 
- > > 
- > > ftp://ftp.namesys.com/pub/reiserfsprogs/pre/reiserfsprogs-3.x.0k_pre11.tar.gz,
- > > 
- > > build it and run reiserfsck from there. If your root file system is
- > > dead, you will have to do this from some other media (like floppy).
- > Well, I've a copy of all data in another partition...I'm running from it.
- > I've downloaded that version....well, it don't crash, here's output:
- > root@diego:~/reiserfsprogs-3.x.0k_pre11/fsck# ./reiserfsck -i /dev/hdc5
- > 
- > <-------------reiserfsck, 2001------------->
- > reiserfsprogs 3.x.0k_pre11
- > 
- > Will read-only check consistency of the filesystem on /dev/hdc5
- > Will put log info to 'stdout'
- > 
- > Do you want to run this program?[N/Yes] (note need to type Yes):Yes
- > ###########
- > reiserfsck --check started at Tue Dec 18 21:59:12 2001
- > ###########
- > Replaying journal..
- > 0 transactions replayed
- > reserved=8193
- > Checking S+tree../  1 (of   2)/  3 (of 110)/ 15 (of 149)node (10667) with
- > wrong level (18771) found in the tree (should be 1)
- > whole subtree skipped
- > ok
- > Comparing bitmaps..free block count 1970606 mismatches with a correct one
- > 1971004.
- > on-disk bitmap does not match to the correct one. 91 bytes differ
- > Bad nodes were found, Semantic pass skipped
- > There were found 3 corruptions which can be fixed only during
- > --rebuild-tree
- > ###########
- > reiserfsck finished at Tue Dec 18 22:06:23 2001
- > ###########
- > 
- > If I do --rebuild tree, will I lose my data?
 
-You shouldn't. But backup is always your best friend.
-And, I am sorry, for misguiding you, last reiserfsprogs are 
-
-ftp://ftp.namesys.com/pub/reiserfsprogs/pre/reiserfsprogs-3.x.0k-pre13.tar.gz
-
-use them in stead.
-
- > 
- > 
- > > 
- > >  > 	-I'm not a kernel hacker, so I can't try anything...what I
- > > know is
- > >  > that
- > >  > 		/etc in hc5 doesn't work. /usr, /var....works
- > > correctly.
- > >  > 
- > >  > Well, I'd like to know what's happened in my drive. Can somebody try
- > > to
- > >  > give an explanation?
- > >  > 
- > >  > Diego Calleja
- > > 
-
-Nikita.
-
+James.

@@ -1,178 +1,490 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271289AbTG2HYb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 03:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271302AbTG2HYb
+	id S271310AbTG2Hkp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 03:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271302AbTG2Hko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 03:24:31 -0400
-Received: from mgr6.xmission.com ([198.60.22.206]:9181 "EHLO mgr6.xmission.com")
-	by vger.kernel.org with ESMTP id S271289AbTG2HY0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 03:24:26 -0400
-Date: Tue, 29 Jul 2003 01:24:17 -0600
-From: "S. Anderson" <sa@xmission.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "S. Anderson" <sa@xmission.com>, pavel@xal.co.uk,
-       linux-kernel@vger.kernel.org, adaplas@pol.net
-Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
-Message-ID: <20030729012417.A18449@xmission.xmission.com>
-References: <20030728171806.GA1860@xal.co.uk> <20030728201954.A16103@xmission.xmission.com> <20030728202600.18338fa9.akpm@osdl.org> <20030728231812.A20738@xmission.xmission.com> <20030728225914.4f299586.akpm@osdl.org>
+	Tue, 29 Jul 2003 03:40:44 -0400
+Received: from twilight.cs.hut.fi ([130.233.40.5]:4723 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP id S271310AbTG2HkN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 03:40:13 -0400
+Date: Tue, 29 Jul 2003 10:39:48 +0300
+From: Ville Herva <vherva@niksula.hut.fi>
+To: linux-kernel@vger.kernel.org
+Cc: gibbs@scsiguy.com, Jani Forssell <jani.forssell@viasys.com>
+Subject: 2.4.21-jam1, aic7xxx-6.2.36: solid hangs, crashes on boot
+Message-ID: <20030729073948.GD204266@niksula.cs.hut.fi>
+Mail-Followup-To: Ville Herva <vherva@niksula.cs.hut.fi>,
+	linux-kernel@vger.kernel.org, gibbs@scsiguy.com,
+	Jani Forssell <jani.forssell@viasys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030728225914.4f299586.akpm@osdl.org>; from akpm@osdl.org on Mon, Jul 28, 2003 at 10:59:14PM -0700
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 28, 2003 at 10:59:14PM -0700, Andrew Morton wrote:
-> "S. Anderson" <sa@xmission.com> wrote:
-> >
-> > Thanks, that fixes the oops Pavel reported!
-> > 
-> > But I now realize the oops I am getting is different...
-> > 
-> > It happens only if any of these "i810fb, i810_audio or intel-agp"
-> > are compiled in the kernel or insterted as modules.
-> > 
-> > i810fb, i810_audio or intel-agp load up fine and seem to all work
-> > properly. I only get the oops when I put a card into my cardbus slot.
-> > 
-> > this is what i think happens, when I put the card in, it sets off some
-> > functions that will try to get a driver for the card I just inserted.
-> > when it gets to the pci_bus_match function, my cards vendor and device 
-> > numbers are tested against a drivers id_table. when that driver is 
-> > "i810fb, i810_audio or intel-agp" (and i810fb, i810_audio or intel-agp
-> > is allready loaded) the id_table is at an address that cant be handled, 
-> > thus cauing the oops. I am having trouble figuring out why 
-> > pci_drv->id_table isnt valid in this case.
-> 
-> Everything seems happy here:
-> 
-> vmm:/home/akpm> lsmod
-> Module                  Size  Used by
-> i810fb                 31572  0 
-> cfbcopyarea             4700  1 i810fb
-> vgastate               10660  1 i810fb
-> cfbimgblt               4068  1 i810fb
-> cfbfillrect             4820  1 i810fb
-> intel_agp              16940  1 
-> agpgart                32496  1 intel_agp
-> i810_audio             34208  0 
-> ac97_codec             18932  1 i810_audio
-> rtc                    15744  0 
-> 
-> Can you do modprobe-by-hand, see which one causes the oops?
+After about a year of stable operation, a server begun acting up. First it
+begun hanging up solid during the nightly oracle backup (that had run
+successfully for a year), the I got some aic7xxx-related crashes on boot.
 
-I will try to explain the problem better.
+Initially, the box ran 2.4.20pre7 kernel with aic7xxx version 6.4.8. When
+the hangs started happening, I upgraded to 2.4.21-jam1 (basically 2.4.21
+vanilla + -aa patch + some minor stuff) that includes aic7xxx version 6.2.36.
+It did not help.
 
-First of all, I can modprobe all three of these modules with no problems.
+I enabled kmsgdump and nmi watchdog, but when the box hangs, it hangs solid:
+no ctrl-alt-del, no caps lock led, no alt-sysrq-b, no kmsgdump, nmi watchdog
+doesn't trigger. Only the cursor on the console blinks, but no messages from
+the kernel appear. (Apart from "spurious 8259A interrupt: IRQ7." that
+always happens sometime after boot on this box, but way before the hang.)
 
-the oops only occurs when one of these modules are modprobed
-_before_ I insert a card into my cardbus.
+After upgrading to 2.4.21-jam1, the box usually boots up fine, but twice
+I've gotten the crash below. 
 
-With no modules inserted, I can insert my card into the cardbus slot 
-with no problems. This is what my log looks like. (with my debugging printk)
+After a reset, the box boots up fine (fsck goes through, no corruption), but
+it seems little more prone to lock up soon after a hang-and-reset. I made it
+hang three times on a row by just compiling kernel, but then on fourth boot,
+no amount of IO abuse got it on its knees -- until after a week it hung
+during the nightly backup.
 
-Jul 29 00:28:48 localhost kernel:  (pci_bus_add_devices) bus 3 devfn 0  1260 3890
-Jul 29 00:28:48 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:28:48 localhost kernel:  ^ matching? ^ (serial)  ((( &ids->vendor = c0397314 )))
-Jul 29 00:28:48 localhost kernel: pci_match_device: &ids->vendor = c0397314
-Jul 29 00:28:48 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:28:48 localhost kernel:  ^ matching? ^ (eepro100)  ((( &ids->vendor = c0398a60 )))
-Jul 29 00:28:48 localhost kernel: pci_match_device: &ids->vendor = c0398a60
-Jul 29 00:28:48 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:28:48 localhost kernel:  ^ matching? ^ (PCI IDE)  ((( &ids->vendor = c039a630 )))
-Jul 29 00:28:48 localhost kernel: pci_match_device: &ids->vendor = c039a630
-Jul 29 00:28:48 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:28:48 localhost kernel:  ^ matching? ^ (yenta_cardbus)  ((( &ids->vendor = c039df98 )))
-Jul 29 00:28:48 localhost kernel: pci_match_device: &ids->vendor = c039df98
-Jul 29 00:28:48 localhost pci.agent: ... no modules for PCI slot 0000:03:00.0
+Any ideas on how to to debug this kind of hang? Does it sound kernel/driver
+or hw related? Are the two crashes related to the hang? Is the hang related
+to aic7xxx?
 
-then I take my card out of its slot and 
-then modprobe i810fb (I could modprobe i810_audio or intel-agp or 
-all three at the same time)
+One more detail: with the 2.4.20pre7/aic7xxx-6.2.8 kernel, I got "Panic:
+ HOST_MSG_LOOP with invalid SCB 0" crashes every now and then. Justin Gibbs
+said: "it looks like memory mapped I/O simply does not work reliably on this
+board", and recommended forcing programmed I/O (by undefining MMAPIO from
+aic7xxx_osm_pci.c). That seemed to cure the problems -- until now. 
 
-Jul 29 00:33:48 localhost kernel: pci_bus_match: bus=0, devfn=0 8086 3575
-Jul 29 00:33:48 localhost kernel:  ^ matching? ^ (i810fb)  ((( &ids->vendor = d094ee7c )))
-Jul 29 00:33:48 localhost kernel: pci_match_device: &ids->vendor = d094ee7c
-Jul 29 00:33:48 localhost kernel: pci_bus_match: bus=0, devfn=16 8086 3577
-Jul 29 00:33:48 localhost kernel:  ^ matching? ^ (i810fb)  ((( &ids->vendor = d094ee7c )))
-Jul 29 00:33:48 localhost kernel: pci_match_device: &ids->vendor = d094ee7c
-Jul 29 00:33:48 localhost kernel: pci_bus_match: bus=0, devfn=17 8086 3577
-Jul 29 00:33:48 localhost kernel:  ^ matching? ^ (i810fb)  ((( &ids->vendor = d094ee7c )))
-Jul 29 00:33:48 localhost kernel: pci_match_device: &ids->vendor = d094ee7c
-Jul 29 00:33:48 localhost kernel: pci_bus_match: bus=0, devfn=232 8086 2482
-Jul 29 00:33:48 localhost kernel:  ^ matching? ^ (i810fb)  ((( &ids->vendor = d094ee7c )))
-Jul 29 00:33:48 localhost kernel: pci_match_device: &ids->vendor = d094ee7c
-[..snip..]
+linux-2.2.18pre18 + aic7xxx-5.1.31 was rock stable on this box.
 
-then when i insert my card again this is when the oops occurs:
 
-Jul 29 00:40:12 localhost kernel:  (pci_bus_add_devices) bus 3 devfn 0  1260 3890
-Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (serial)  ((( &ids->vendor = c0397314 )))
-Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = c0397314
-Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (eepro100)  ((( &ids->vendor = c0398a60 )))
-Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = c0398a60
-Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (PCI IDE)  ((( &ids->vendor = c039a630 )))
-Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = c039a630
-Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (yenta_cardbus)  ((( &ids->vendor = c039df98 )))
-Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = c039df98
-Jul 29 00:40:12 localhost pci.agent: ... no modules for PCI slot 0000:03:00.0
-Jul 29 00:40:12 localhost kernel: pci_bus_match: bus=3, devfn=0 1260 3890
-Jul 29 00:40:12 localhost kernel:  ^ matching? ^ (i810fb)  ((( &ids->vendor = d094ee7c )))
-Jul 29 00:40:12 localhost kernel: pci_match_device: &ids->vendor = d094ee7c
-Jul 29 00:40:12 localhost kernel: Unable to handle kernel paging request at virtual address d094ee7c
-Jul 29 00:40:12 localhost kernel:  printing eip:
-Jul 29 00:40:12 localhost kernel: c01f7da3
-Jul 29 00:40:12 localhost kernel: *pde = 0f913067
-Jul 29 00:40:12 localhost kernel: *pte = 00000000
-Jul 29 00:40:12 localhost kernel: Oops: 0000 [#1]
-Jul 29 00:40:12 localhost kernel: CPU:    0
-Jul 29 00:40:12 localhost kernel: EIP:    0060:[quirk_transparent_bridge+15/20]    Not tainted
-Jul 29 00:40:12 localhost kernel: EIP:    0060:[<c01f7da3>]    Not tainted
-Jul 29 00:40:12 localhost kernel: EFLAGS: 00010286
-Jul 29 00:40:12 localhost kernel: EIP is at pci_match_device+0x73/0x90
-Jul 29 00:40:12 localhost kernel: eax: 0000002a   ebx: d094ee7c   ecx: 00000001   edx: c035fa38
-Jul 29 00:40:12 localhost kernel: esi: c67c4004   edi: c67c4004   ebp: cf619e94   esp: cf619e84
-Jul 29 00:40:12 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Jul 29 00:40:12 localhost kernel: Process pccardd (pid: 9, threadinfo=cf618000 task=cf636000)
-Jul 29 00:40:12 localhost kernel: Stack: c031aa20 d094ee7c d096e800 d094ee7c cf619eb4 c01f84fb d094ee7c c67c4004 
-Jul 29 00:40:12 localhost kernel:        ffffffed d096e828 c67c4058 c039e09c cf619ed0 c021f0f9 c67c4058 d096e828 
-Jul 29 00:40:12 localhost kernel:        d096e870 c03918f4 c67c4058 cf619eec c021f18a c67c4058 d096e828 c0391880 
-Jul 29 00:40:12 localhost kernel: Call Trace:
-Jul 29 00:40:12 localhost kernel:  [pci_free_dynids+3/360] pci_bus_match+0x5f/0x2b0
-Jul 29 00:40:12 localhost kernel:  [<c01f84fb>] pci_bus_match+0x5f/0x2b0
-Jul 29 00:40:12 localhost kernel:  [acpi_tb_verify_table_checksum+113/148] bus_match+0x21/0x64
-Jul 29 00:40:12 localhost kernel:  [<c021f0f9>] bus_match+0x21/0x64
-Jul 29 00:40:12 localhost kernel:  [acpi_tb_find_table+58/308] device_attach+0x4e/0x70
-Jul 29 00:40:12 localhost kernel:  [<c021f18a>] device_attach+0x4e/0x70
-Jul 29 00:40:12 localhost kernel:  [acpi_get_firmware_table+126/848] bus_add_device+0x72/0xb4
-Jul 29 00:40:12 localhost kernel:  [<c021f302>] bus_add_device+0x72/0xb4
-Jul 29 00:40:12 localhost kernel:  [acpi_tb_verify_rsdp+320/344] device_add+0xd0/0x108
-Jul 29 00:40:12 localhost kernel:  [<c021dc40>] device_add+0xd0/0x108
-Jul 29 00:40:12 localhost kernel:  [pci_bus_write_config_word+100/324] pci_bus_add_devices+0x50/0x300
-Jul 29 00:40:12 localhost kernel:  [<c01f4864>] pci_bus_add_devices+0x50/0x300
-Jul 29 00:40:12 localhost kernel:  [i830_cleanup_buf_error+121/184] cb_alloc+0xad/0xc8
-Jul 29 00:40:12 localhost kernel:  [<c02553cd>] cb_alloc+0xad/0xc8
-Jul 29 00:40:12 localhost kernel:  [agp_3_5_isochronous_node_enable+342/1020] socket_insert+0x56/0xa4
-Jul 29 00:40:12 localhost kernel:  [<c0252362>] socket_insert+0x56/0xa4
-Jul 29 00:40:12 localhost kernel:  [agp_3_5_isochronous_node_enable+869/1020] socket_detect_change+0x69/0x70
-Jul 29 00:40:13 localhost kernel:  [<c0252571>] socket_detect_change+0x69/0x70
-Jul 29 00:40:13 localhost kernel:  [agp_3_5_enable+167/704] pccardd+0x1ef/0x2a0
-Jul 29 00:40:13 localhost kernel:  [<c0252767>] pccardd+0x1ef/0x2a0
-Jul 29 00:40:13 localhost kernel:  [agp_3_5_isochronous_node_enable+876/1020] pccardd+0x0/0x2a0
-Jul 29 00:40:13 localhost kernel:  [<c0252578>] pccardd+0x0/0x2a0
-Jul 29 00:40:13 localhost kernel:  [schedule+404/1156] default_wake_function+0x0/0x20
-Jul 29 00:40:13 localhost kernel:  [<c011ae7c>] default_wake_function+0x0/0x20
-Jul 29 00:40:13 localhost kernel:  [schedule+404/1156] default_wake_function+0x0/0x20
-Jul 29 00:40:13 localhost kernel:  [<c011ae7c>] default_wake_function+0x0/0x20
-Jul 29 00:40:13 localhost kernel:  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
-Jul 29 00:40:13 localhost kernel:  [<c01070c5>] kernel_thread_helper+0x5/0xc
-Jul 29 00:40:13 localhost kernel: 
-Jul 29 00:40:13 localhost kernel: Code: 83 3b 00 75 a0 83 7b 08 00 75 9a 83 7b 14 00 75 94 31 c0 8d 
+-- v --
 
-I hope this makes sense.
+v@iki.fi
+
+
+Hardware:
+---------------------------------------------------------------------------
+Intel 815EEA2LU (i815 Chipset)
+Celeron 1.3GHz (Tualatin)
+Adaptec AHA-2940 / AIC-7871
+  - Disk (rootfs) SEAGATE  Model: ST19171W Rev: 0024
+  - Tape Drive    HP       Model: C1537A Rev: L708
+30GB IDE disk (scratch)
+---------------------------------------------------------------------------
+
+
+
+Dump of crash on boot:
+---------------------------------------------------------------------------
+<4> 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>Pending list: 
+<4>  4 SCB_CONTROL[0x74] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  0 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>Kernel Free SCB list: 8 7 6 9 1 2 5 
+<4>DevQ(0:0:0): 0 waiting
+<4>DevQ(0:2:0): 0 waiting
+<4>
+<4><<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+<4>scsi0:0:0:0: Device is active, asserting ATN
+<4>Recovery code sleeping
+<4>Recovery code awake
+<4>Timer Expired
+<4>aic7xxx_abort returns 0x2003
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x28 0x0 0x0 0xbe 0x12 0x96 0x0 0x0 0x18 0x0
+<4>scsi0:0:0:0: Command not found
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+<4>scsi0: At time of recovery, card was not paused
+<4>>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+<4>scsi0: Dumping Card State in Command phase, at SEQADDR 0x36
+<4>Card was paused
+<4>ACCUM = 0x80, SINDEX = 0xac, DINDEX = 0xc0, ARG_2 = 0x0
+<4>HCNT = 0x0 SCBPTR = 0x0
+<4>SCSISIGI[0x96] ERROR[0x0] SCSIBUSL[0x80] LASTPHASE[0x80] 
+<4>SCSISEQ[0x12] SBLKCTL[0x2] SCSIRATE[0x0] SEQCTL[0x10] 
+<4>SEQ_FLAGS[0x0] SSTAT0[0x5] SSTAT1[0x3] SSTAT2[0x0] 
+<4>SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0x88] 
+<4>DFCNTRL[0x6] DFSTATUS[0x48] 
+<4>STACK: 0x0 0x166 0x196 0x35
+<4>SCB count = 10
+<4>Kernel NEXTQSCB = 8
+<4>Card NEXTQSCB = 4
+<4>QINFIFO entries: 4 3 
+<4>Waiting Queue entries: 
+<4>Disconnected Queue entries: 1:0 
+<4>QOUTFIFO entries: 
+<4>Sequencer Free SCB List: 3 2 6 4 7 5 8 9 10 11 12 13 14 15 
+<4>Sequencer SCB Info: 
+<4>  0 SCB_CONTROL[0x0] SCB_SCSIID[0x0] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  1 SCB_CONTROL[0x64] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  2 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  3 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  4 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  5 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  6 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  7 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>Pending list: 
+<4>  3 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  4 SCB_CONTROL[0x74] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  0 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>Kernel Free SCB list: 7 6 9 1 2 5 
+<4>DevQ(0:0:0): 0 waiting
+<4>DevQ(0:2:0): 0 waiting
+<4>
+<4><<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+<4>scsi0:0:0:0: Cmd aborted from QINFIFO
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x2a 0x0 0x0 0x0 0x0 0x3f 0x0 0x0 0x10 0x0
+<4>scsi0:0:0:0: Command not found
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+<4>scsi0: At time of recovery, card was not paused
+<4>>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+<4>scsi0: Dumping Card State in Command phase, at SEQADDR 0x1a3
+<4>Card was paused
+<4>ACCUM = 0x80, SINDEX = 0xa2, DINDEX = 0xc0, ARG_2 = 0x0
+<4>HCNT = 0x0 SCBPTR = 0x0
+<4>SCSISIGI[0x96] ERROR[0x0] SCSIBUSL[0x0] LASTPHASE[0x80] 
+<4>SCSISEQ[0x12] SBLKCTL[0x2] SCSIRATE[0x0] SEQCTL[0x10] 
+<4>SEQ_FLAGS[0x0] SSTAT0[0x5] SSTAT1[0x3] SSTAT2[0x0] 
+<4>SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0x80] 
+<4>DFCNTRL[0x34] DFSTATUS[0x68] 
+<4>STACK: 0xaf 0x0 0x166 0x196
+<4>SCB count = 10
+<4>Kernel NEXTQSCB = 3
+<4>Card NEXTQSCB = 8
+<4>QINFIFO entries: 8 4 
+<4>Waiting Queue entries: 
+<4>Disconnected Queue entries: 1:0 
+<4>QOUTFIFO entries: 
+<4>Sequencer Free SCB List: 3 2 6 4 7 5 8 9 10 11 12 13 14 15 
+<4>Sequencer SCB Info: 
+<4>  0 SCB_CONTROL[0x0] SCB_SCSIID[0x0] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  1 SCB_CONTROL[0x64] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  2 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  3 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  4 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  5 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  6 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  7 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>Pending list: 
+<4>  4 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  8 SCB_CONTROL[0x74] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  0 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>Kernel Free SCB list: 7 6 9 1 2 5 
+<4>DevQ(0:0:0): 0 waiting
+<4>DevQ(0:2:0): 0 waiting
+<4>
+<4><<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+<4>scsi0:0:0:0: Cmd aborted from QINFIFO
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x2a 0x0 0x0 0x0 0x4 0x2f 0x0 0x0 0x10 0x0
+<4>scsi0:0:0:0: Command not found
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+<4>scsi0: At time of recovery, card was not paused
+<4>>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+<4>scsi0: Dumping Card State in Command phase, at SEQADDR 0x1a4
+<4>Card was paused
+<4>ACCUM = 0x80, SINDEX = 0xa9, DINDEX = 0xc0, ARG_2 = 0x0
+<4>HCNT = 0x0 SCBPTR = 0x0
+<4>SCSISIGI[0x96] ERROR[0x0] SCSIBUSL[0x0] LASTPHASE[0x80] 
+<4>SCSISEQ[0x12] SBLKCTL[0x2] SCSIRATE[0x0] SEQCTL[0x10] 
+<4>SEQ_FLAGS[0x0] SSTAT0[0x5] SSTAT1[0x3] SSTAT2[0x0] 
+<4>SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0x80] 
+<4>DFCNTRL[0x34] DFSTATUS[0x48] 
+<4>STACK: 0xb0 0x0 0x166 0x196
+<4>SCB count = 10
+<4>Kernel NEXTQSCB = 4
+<4>Card NEXTQSCB = 3
+<4>QINFIFO entries: 3 8 
+<4>Waiting Queue entries: 
+<4>Disconnected Queue entries: 1:0 
+<4>QOUTFIFO entries: 
+<4>Sequencer Free SCB List: 3 2 6 4 7 5 8 9 10 11 12 13 14 15 
+<4>Sequencer SCB Info: 
+<4>  0 SCB_CONTROL[0x0] SCB_SCSIID[0x0] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  1 SCB_CONTROL[0x64] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  2 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  3 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  4 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  5 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  6 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  7 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>Pending list: 
+<4>  8 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  3 SCB_CONTROL[0x74] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  0 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>Kernel Free SCB list: 7 6 9 1 2 5 
+<4>DevQ(0:0:0): 0 waiting
+<4>DevQ(0:2:0): 0 waiting
+<4>
+<4><<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+<4>scsi0:0:0:0: Cmd aborted from QINFIFO
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x2a 0x0 0x0 0x4 0x0 0x5f 0x0 0x0 0x10 0x0
+<4>scsi0:0:0:0: Command not found
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+<4>scsi0: At time of recovery, card was not paused
+<4>>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+<4>scsi0: Dumping Card State in Command phase, at SEQADDR 0x16f
+<4>Card was paused
+<4>ACCUM = 0x80, SINDEX = 0xac, DINDEX = 0xc0, ARG_2 = 0x0
+<4>HCNT = 0x0 SCBPTR = 0x0
+<4>SCSISIGI[0x96] ERROR[0x0] SCSIBUSL[0x80] LASTPHASE[0x80] 
+<4>SCSISEQ[0x12] SBLKCTL[0x2] SCSIRATE[0x0] SEQCTL[0x10] 
+<4>SEQ_FLAGS[0x0] SSTAT0[0x5] SSTAT1[0x3] SSTAT2[0x0] 
+<4>SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0x88] 
+<4>DFCNTRL[0x6] DFSTATUS[0x48] 
+<4>STACK: 0x35 0x0 0x166 0x196
+<4>SCB count = 10
+<4>Kernel NEXTQSCB = 8
+<4>Card NEXTQSCB = 4
+<4>QINFIFO entries: 4 3 
+<4>Waiting Queue entries: 
+<4>Disconnected Queue entries: 1:0 
+<4>QOUTFIFO entries: 
+<4>Sequencer Free SCB List: 3 2 6 4 7 5 8 9 10 11 12 13 14 15 
+<4>Sequencer SCB Info: 
+<4>  0 SCB_CONTROL[0x0] SCB_SCSIID[0x0] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  1 SCB_CONTROL[0x64] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  2 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  3 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  4 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  5 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  6 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  7 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>Pending list: 
+<4>  3 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  4 SCB_CONTROL[0x74] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  0 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>Kernel Free SCB list: 7 6 9 1 2 5 
+<4>DevQ(0:0:0): 0 waiting
+<4>DevQ(0:2:0): 0 waiting
+<4>
+<4><<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+<4>scsi0:0:0:0: Cmd aborted from QINFIFO
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x2a 0x0 0x0 0x4 0x3 0xcf 0x0 0x0 0x8 0x0
+<4>scsi0:0:0:0: Command not found
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue an ABORT message
+<4>CDB: 0x0 0x0 0x0 0x0 0x0 0x0
+<4>scsi0: At time of recovery, card was not paused
+<4>>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+<4>scsi0: Dumping Card State in Command phase, at SEQADDR 0xa5
+<4>Card was paused
+<4>ACCUM = 0x80, SINDEX = 0xac, DINDEX = 0xc0, ARG_2 = 0x0
+<4>HCNT = 0x0 SCBPTR = 0x0
+<4>SCSISIGI[0x96] ERROR[0x0] SCSIBUSL[0x80] LASTPHASE[0x80] 
+<4>SCSISEQ[0x12] SBLKCTL[0x2] SCSIRATE[0x0] SEQCTL[0x10] 
+<4>SEQ_FLAGS[0x0] SSTAT0[0x5] SSTAT1[0x3] SSTAT2[0x0] 
+<4>SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0x88] 
+<4>DFCNTRL[0x6] DFSTATUS[0x48] 
+<4>STACK: 0x0 0x166 0x196 0x35
+<4>SCB count = 10
+<4>Kernel NEXTQSCB = 3
+<4>Card NEXTQSCB = 8
+<4>QINFIFO entries: 8 4 
+<4>Waiting Queue entries: 
+<4>Disconnected Queue entries: 1:0 
+<4>QOUTFIFO entries: 
+<4>Sequencer Free SCB List: 3 2 6 4 7 5 8 9 10 11 12 13 14 15 
+<4>Sequencer SCB Info: 
+<4>  0 SCB_CONTROL[0x0] SCB_SCSIID[0x0] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  1 SCB_CONTROL[0x64] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  2 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  3 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  4 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  5 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  6 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  7 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>Pending list: 
+<4>  4 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  8 SCB_CONTROL[0x74] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>  0 SCB_CONTROL[0x60] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>Kernel Free SCB list: 7 6 9 1 2 5 
+<4>DevQ(0:0:0): 0 waiting
+<4>DevQ(0:2:0): 0 waiting
+<4>
+<4><<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+<4>scsi0:0:0:0: Cmd aborted from QINFIFO
+<4>aic7xxx_abort returns 0x2002
+<4>scsi0:0:0:0: Attempting to queue a TARGET RESET message
+<4>CDB: 0x28 0x0 0x0 0xbe 0x12 0x5e 0x0 0x0 0x20 0x0
+<4>aic7xxx_dev_reset returns 0x2003
+<4>Recovery SCB completes
+<4>Recovery SCB completes
+<4>scsi0:A:0:0: ahc_intr - referenced scb not valid during seqint 0x71 scb(0)
+<4>>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+<4>scsi0: Dumping Card State in Message-in phase, at SEQADDR 0x1bc
+<4>Card was paused
+<4>ACCUM = 0xc0, SINDEX = 0x71, DINDEX = 0x8c, ARG_2 = 0x0
+<4>HCNT = 0x0 SCBPTR = 0x0
+<4>SCSISIGI[0xe6] ERROR[0x0] SCSIBUSL[0x0] LASTPHASE[0xe0] 
+<4>SCSISEQ[0x12] SBLKCTL[0x2] SCSIRATE[0x42] SEQCTL[0x10] 
+<4>SEQ_FLAGS[0x40] SSTAT0[0x2] SSTAT1[0x3] SSTAT2[0x10] 
+<4>SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0x88] 
+<4>DFCNTRL[0x0] DFSTATUS[0x29] 
+<4>STACK: 0xff 0x0 0x166 0x18e
+<4>SCB count = 10
+<4>Kernel NEXTQSCB = 0
+<4>Card NEXTQSCB = 193
+<4>QINFIFO entries: 
+<4>Waiting Queue entries: 
+<4>Disconnected Queue entries: 
+<4>QOUTFIFO entries: 
+<4>Sequencer Free SCB List: 1 3 2 6 4 7 5 8 9 10 11 12 13 14 15 
+<4>Sequencer SCB Info: 
+<4>  0 SCB_CONTROL[0x80] SCB_SCSIID[0x0] SCB_LUN[0x0] SCB_TAG[0x0] 
+<4>  1 SCB_CONTROL[0x0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  2 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  3 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  4 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  5 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  6 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  7 SCB_CONTROL[0xe0] SCB_SCSIID[0x7] SCB_LUN[0x0] SCB_TAG[0xff] 
+<4>  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4> 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
+<4>Pending list: 
+<4>  8 SCB_CONTROL[0x70] SCB_SCSIID[0x7] SCB_LUN[0x0] 
+<4>Kernel Free SCB list: 3 4 7 6 9 1 2 5 
+<4>DevQ(0:0:0): 0 waiting
+<4>DevQ(0:2:0): 0 waiting
+<4>
+<4><<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+<0>Kernel panic: for safety
+<0>In interrupt handler - not syncing
+<4> <0>Dumping messages in 0 seconds : last chance for Alt-SysRq...
+---------------------------------------------------------------------------
+
+
+
+
+/proc/scsi/aic7xxx>cat 0
+---------------------------------------------------------------------------
+Adaptec AIC7xxx driver version: 6.2.36
+Adaptec 2940 SCSI adapter
+aic7870: Wide Channel A, SCSI Id=7, 16/253 SCBs
+Allocated SCBs: 10, SG List Length: 102
+
+Serial EEPROM:
+0x0238 0x0218 0x0238 0x0238 0x0238 0x0238 0x0238 0x0238 
+0x0238 0x0238 0x0238 0x0238 0x0238 0x0238 0x0238 0x0238 
+0x0096 0x005c 0x2807 0xff10 0xffff 0xffff 0xffff 0xffff 
+0xffff 0xffff 0xffff 0xffff 0xffff 0xffff 0x00ff 0x4c5e 
+
+Target 0 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+        Goal: 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
+        Curr: 20.000MB/s transfers (10.000MHz, offset 8, 16bit)
+        Channel A Target 0 Lun 0 Settings
+                Commands Queued 14441
+                Commands Active 0
+                Command Openings 8
+                Max Tagged Openings 8
+                Device Queue Frozen Count 0
+Target 1 Negotiation Settings
+        User: 10.000MB/s transfers (10.000MHz, offset 127)
+Target 2 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+        Goal: 10.000MB/s transfers (10.000MHz, offset 15)
+        Curr: 10.000MB/s transfers (10.000MHz, offset 15)
+        Channel A Target 2 Lun 0 Settings
+                Commands Queued 1
+                Commands Active 0
+                Command Openings 1
+                Max Tagged Openings 0
+                Device Queue Frozen Count 0
+Target 3 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 4 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 5 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 6 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 7 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 8 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 9 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 10 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 11 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 12 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 13 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 14 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+Target 15 Negotiation Settings
+        User: 20.000MB/s transfers (10.000MHz, offset 127, 16bit)
+---------------------------------------------------------------------------

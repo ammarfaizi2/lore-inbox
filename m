@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVAKBcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262590AbVAKBgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbVAKBcb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 20:32:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262644AbVAKB1n
+	id S262590AbVAKBgd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 20:36:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262727AbVAKBgA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 20:27:43 -0500
-Received: from mail.gmx.net ([213.165.64.20]:11904 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262568AbVAKB1G (ORCPT
+	Mon, 10 Jan 2005 20:36:00 -0500
+Received: from ozlabs.org ([203.10.76.45]:33999 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262689AbVAKBdQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 20:27:06 -0500
-X-Authenticated: #24390674
-From: Hans-Frieder Vogt <hfvogt@gmx.net>
-Reply-To: hfvogt@gmx.net
-To: andrewm@uow.edu.au, linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.10-mm2] reenable cpufreq for PowerNow-K8 using BIOS tables
-Date: Tue, 11 Jan 2005 02:26:49 +0100
-User-Agent: KMail/1.7.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Mon, 10 Jan 2005 20:33:16 -0500
+Subject: Re: issue in the kernel parsing with multiple arguments
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Godse, Radheka" <radheka.godse@intel.com>
+Cc: "Tantilov, Emil S" <emil.s.tantilov@intel.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <F760B14C9561B941B89469F59BA3A84708A8E225@orsmsx401.amr.corp.intel.com>
+References: <F760B14C9561B941B89469F59BA3A84708A8E225@orsmsx401.amr.corp.intel.com>
+Content-Type: text/plain
+Date: Mon, 10 Jan 2005 14:10:22 +1100
+Message-Id: <1105326622.22093.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501110226.49542.hfvogt@gmx.net>
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With 2.6.10-mm2 (or even with -mm1) some structures in struct psb_s have been 
-renamed in powernow-k8.h, but the renaming has not been done properly for all 
-occurences in powernow-k8.c.
-This prevents cpufreq from accepting the BIOS PST-tables.
+On Fri, 2005-01-07 at 16:31 -0800, Godse, Radheka wrote:
+> Rusty,
+> 
+> We observed a problem when loading a kernel module that accepts
+> multiple arguments for single parameter. The issue happens when the
+> number of the arguments exceeds the limit of the parameter.
 
-The following patch corrects this by renaming the incorrectly named variable 
-in powernow-k8.c, following the definition in the powernow-k8.h header file.
+Thanks, I've enclosed a fix for the direct problem.
 
-Andrew, please include it in your next -mm patch.
+Name: Catch module parameter parsing failures
+Status: Tested on 2.6.10-bk12
+Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Signed-off-by: Hans-Frieder Vogt <hfvogt@arcor.de>
+Radheka Godse <radheka.godse@intel.com> pointed out that parameter
+parsing failures allow a module still to be loaded.  Trivial fix.
 
---- linux-2.6.10-mm2/arch/i386/kernel/cpu/cpufreq/powernow-k8.c 2005-01-05 
-23:23:07.697728328 -0800
-+++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c 2005-01-11 01:40:59.633643410 
-+0100
-@@ -637,8 +637,8 @@ static int find_psb_table(struct powerno
-   dprintk("isochronous relief time: %d\n", data->irt);
-   dprintk("maximum voltage step: %d - 0x%x\n", mvs, data->vidmvs);
- 
--  dprintk("numpst: 0x%x\n", psb->numps);
--  cpst = psb->numps;
-+  dprintk("numpst: 0x%x\n", psb->num_tables);
-+  cpst = psb->num_tables;
-   if ((psb->cpuid == 0x00000fc0) || (psb->cpuid == 0x00000fe0) ){
-    thiscpuid = cpuid_eax(CPUID_PROCESSOR_SIGNATURE);
-    if ((thiscpuid == 0x00000fc0) || (thiscpuid == 0x00000fe0) ) {
+Index: linux-2.6.10-bk12-Misc/kernel/module.c
+===================================================================
+--- linux-2.6.10-bk12-Misc.orig/kernel/module.c	2005-01-10 13:11:54.000000000 +1100
++++ linux-2.6.10-bk12-Misc/kernel/module.c	2005-01-10 13:55:15.839488248 +1100
+@@ -1706,6 +1706,9 @@
+ 				 / sizeof(struct kernel_param),
+ 				 NULL);
+ 	}
++	if (err < 0)
++		goto arch_cleanup;
++
+ 	err = mod_sysfs_setup(mod, 
+ 			      (struct kernel_param *)
+ 			      sechdrs[setupindex].sh_addr,
 
 -- 
---
-Hans-Frieder Vogt              e-mail: hfvogt <at> arcor .dot. de
-                                          hfvogt <at> gmx .dot. net
+A bad analogy is like a leaky screwdriver -- Richard Braakman
+

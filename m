@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292121AbSBOVGK>; Fri, 15 Feb 2002 16:06:10 -0500
+	id <S292122AbSBOVGk>; Fri, 15 Feb 2002 16:06:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292122AbSBOVGB>; Fri, 15 Feb 2002 16:06:01 -0500
-Received: from postfix2-1.free.fr ([213.228.0.9]:32914 "EHLO
-	postfix2-1.free.fr") by vger.kernel.org with ESMTP
-	id <S292121AbSBOVFq>; Fri, 15 Feb 2002 16:05:46 -0500
-From: Willy Tarreau <wtarreau@free.fr>
-Message-Id: <200202152105.g1FL5a200782@ns.home.local>
-Subject: Re: [SUCCESS] Linux 2.4.18-rc1
-To: romieu@cogenit.fr
-Date: Fri, 15 Feb 2002 22:05:36 +0100 (CET)
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S292123AbSBOVGb>; Fri, 15 Feb 2002 16:06:31 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:64017
+	"EHLO golux.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S292122AbSBOVGU>; Fri, 15 Feb 2002 16:06:20 -0500
+Date: Fri, 15 Feb 2002 15:39:53 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Larry McVoy <lm@work.bitmover.com>,
+        Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Disgusted with kbuild developers
+Message-ID: <20020215153953.D12540@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Larry McVoy <lm@work.bitmover.com>,
+	Arjan van de Ven <arjan@pc1-camc5-0-cust78.cam.cable.ntl.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020215135557.B10961@thyrsus.com> <200202151929.g1FJTaU03362@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215141433.B11369@thyrsus.com> <20020215195818.A3534@pc1-camc5-0-cust78.cam.cable.ntl.com> <20020215145421.A12540@thyrsus.com> <20020215124255.F28735@work.bitmover.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020215124255.F28735@work.bitmover.com>; from lm@bitmover.com on Fri, Feb 15, 2002 at 12:42:55PM -0800
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Willy TARREAU <tarreau@aemiaif.lip6.fr> :
-> [...]
-> > I also slightly patched procfs to allow comx to link. It requires
-> > proc_get_inode() which was not exported (that's what my patch does),
->
-> Please don't do that. comx should to be fixed. Question was raised on l-k 
-> some months ago.
-> 
-> -- 
-> Ueimor
+Larry McVoy <lm@bitmover.com>:
+> Gimme a break.  I read those posts, I repeatedly saw that people said to do 
+> that, I don't remember if it was Linus or not, but it's not like he has the
+> only brain.  The clearly expressed sentiment was to put the help next to the
+> source.  You repeatedly came up with corner cases where that wouldn't work
+> and used that as an excuse to do nothing.
 
-Anyway, that's what I was feeling because when only one driver uses
-a procfs feature, it smells really bad. I just wanted to try to compile
-everything to check what needed fixing and what could be done quickly.
+And one of those corner cases in fact came around and bit us on the ass.
 
-Regards,
-Willy
+If we had handled the transition the smooth way I wanted to, and was
+prepared to, we'd still have a maintainable help database spanning 2.4
+as well as 2.5.  As it is, Linus blew my system into flinders and 
+obsoleted all my tools (I'm not talking CML2 itself now but the machinery I
+wrote for tracking help changes).
+
+As a result, I had to tell Marcelo I had no choice but to drop maintaining
+the 2.4 help file.  The divergence, and the damage, is probably not
+recoverable.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>

@@ -1,23 +1,25 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129097AbQKXC5C>; Thu, 23 Nov 2000 21:57:02 -0500
+        id <S129153AbQKXC7v>; Thu, 23 Nov 2000 21:59:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129153AbQKXC4m>; Thu, 23 Nov 2000 21:56:42 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:59920 "HELO
+        id <S130854AbQKXC7m>; Thu, 23 Nov 2000 21:59:42 -0500
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.29]:1297 "HELO
         note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-        id <S129097AbQKXC4f>; Thu, 23 Nov 2000 21:56:35 -0500
+        id <S129153AbQKXC7a>; Thu, 23 Nov 2000 21:59:30 -0500
 From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Chip Salzenberg <chip@valinux.com>
-Date: Fri, 24 Nov 2000 12:34:53 +1100 (EST)
+To: Alexander Viro <viro@math.psu.edu>
+Date: Fri, 24 Nov 2000 13:29:13 +1100 (EST)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <14877.50621.10445.237897@notabene.cse.unsw.edu.au>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, nfs@lists.sourceforge.net
-Subject: Re: [PATCH] 2.2.18: d_move() with self-root dentries (Dentry Corruption!)
-In-Reply-To: message from Chip Salzenberg on Tuesday November 21
-In-Reply-To: <20001121011744.A2147@valinux.com>
-        <20001121101836.C7075@valinux.com>
+Message-ID: <14877.53881.182935.597766@notabene.cse.unsw.edu.au>
+Cc: "Mohammad A. Haque" <mhaque@haque.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Tigran Aivazian <tigran@veritas.com>
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: message from Alexander Viro on Thursday November 23
+In-Reply-To: <Pine.GSO.4.21.0011231134250.10872-100000@weyl.math.psu.edu>
+        <Pine.GSO.4.21.0011231205550.11219-100000@weyl.math.psu.edu>
 X-Mailer: VM 6.72 under Emacs 20.7.2
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
         LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
@@ -25,52 +27,36 @@ X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday November 21, chip@valinux.com wrote:
-> This may be 2.2.18 material after all....  I wrote last night:
-> > Making nfsd's d_splice() compensate for d_move's limitations is not
-> > only a kludge, but also it harder to keep nfsd correct.
-> > someday, nfsd may not be the only creator of this kind of dentry.
+On Thursday November 23, viro@math.psu.edu wrote:
 > 
-> Sure enough, there is just such a bug *already* in nfsd.  Nfsd's
-> cleanup after d_move is incomplete: It handles one of the dentries
-> being parentless, but not the other one.  This bug *will* cause dentry
-> corruption.[1]  It may well be what's been causing the hangs that my
-> recent patches seem to have fixed.
 > 
-> Therefore, in the mainline kernel, we need either the below patch to
-> d_move (along with a trivial simplifcation of nfsd's use of it), or an
-> expansion of the kludge in nfsd.  You can guess which one I favor....
+> On Thu, 23 Nov 2000, Alexander Viro wrote:
 > 
-> [1] The bug can only show up when reconstructing pruned dentries, and
->     only under a specific pattern of client requests, so it's not
->     surprising that it is rarely observed in the wild.
+> > On Thu, 23 Nov 2000, Neil Brown wrote:
+> > 
+> > > which enabled ext2_notify_change, however ext2_notify_change has a
+> > > bug.
+> > > It sets attributes from iattr->ia_attr_flags even
+> > > if ATTR_ATTR_FLAG is NOT SET in iattr->ia_valid.
+> > 
+> > Arrrgh. Could you try that:
+> 
+> OK, I really need more coffee - wrong patch. My apologies. Correct (OK,
+> intended) one follows:
 
-Hi Chip,
- I am trying to understand what might be going on and why this fix
- might be needed, and I'm not making much progress.
+Hmmm. either you need more coffee, or I need a new compiler.
+I'm using 2.95.2, and there seems to be some question marks over that.
 
- You suggest that d_move (or it's caller) must be able to deal with
- the target being an "root" dentry (x->d_parent == x). However I
- cannot see that this could possibly happen.
+Unfortunately debian/potato doesn't seem to offer anything else
+(Except 2.7.2), so I'll try to download and compile egcs-1.1.2 and see
+how that works.
 
- (looking at 2.2.18pre21 which should be much the same as any othe
- 2.2 knfsd..)
+I ran my test script, which builds a variety of raid5 arrays with
+varying numbers of drives and chunk sizes, and runs mkfs/bonnie/dbench
+on each array, and it got through about 8 file systems but choked on
+the 9th by trying to allocate lots of blocks in the system zone (after
+running for about an hour). 
 
- The only place that knfsd calls d_move is in d_splice.
- Here the "dentry" argument is "target" (just to confuse the innocent)
- and this is almost certainly an "root" entry passed in from "splice".
- However the "target" argument is "tdentry" which was just created
- with d_alloc which has given a parent which is certainly non-NULL,
- otherwise we would have an oops much earlier.
- So the parent of the "target" is "parent", which is certainly
- different from "tdentry", so d_move is *not* being asked to
- move something onto a "root" dentry, so the change is not needed.
- 
-
- Did I miss something in the above, or can you in some other way
- convince me that d_move needs to handle is_root targets.
-
-Thanks,
 NeilBrown
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

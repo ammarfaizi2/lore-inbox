@@ -1,66 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265402AbUFCAMJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265399AbUFCAME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265402AbUFCAMJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 20:12:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265398AbUFCAMJ
+	id S265399AbUFCAME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 20:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUFCAME
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 20:12:09 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:20465 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S265402AbUFCAMA
+	Wed, 2 Jun 2004 20:12:04 -0400
+Received: from 209-128-98-078.bayarea.net ([209.128.98.78]:4992 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S265399AbUFCALp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 20:12:00 -0400
-Subject: Re: [announce] [patch] NX (No eXecute) support for x86,
-	2.6.7-rc2-bk2
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>,
-       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>
-In-Reply-To: <20040602205025.GA21555@elte.hu>
-References: <20040602205025.GA21555@elte.hu>
-Content-Type: text/plain
-Message-Id: <1086221461.29390.327.camel@bach>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 03 Jun 2004 10:11:01 +1000
+	Wed, 2 Jun 2004 20:11:45 -0400
+Message-ID: <40BE6CA9.9030403@zytor.com>
+Date: Wed, 02 Jun 2004 17:11:21 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Hanna Linder <hannal@us.ibm.com>
+CC: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: [PATCH 2.6.6-rc2 RFT] Add's class support to cpuid.c
+References: <98460000.1086215543@dyn318071bld.beaverton.ibm.com>
+In-Reply-To: <98460000.1086215543@dyn318071bld.beaverton.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-06-03 at 06:50, Ingo Molnar wrote:
-> furthermore, the patch also implements 'NX protection' for kernelspace
-> code: only the kernel code and modules are executable - so even
+Hanna Linder wrote:
+> This patch adds class support to arch/i386/kernel/cpuid.c. This enables udev
+> support. I have tested on a 2-way SMP system and on a 2-way built as UP.
+> Here are the results for the SMP:
 
-No, actually, it doesn't quite do that:
+I think it would be better if udev could handle /dev/cpu as an iterator 
+instead of needing O(N) kernel memory for all per-CPU devices; I made the same 
+comments about devfs.
 
---- linux/kernel/module.c.orig	
-+++ linux/kernel/module.c	
-@@ -1431,7 +1431,7 @@ static struct module *load_module(void _
- 
- 	/* Suck in entire file: we'll want most of it. */
- 	/* vmalloc barfs on "unusual" numbers.  Check here */
--	if (len > 64 * 1024 * 1024 || (hdr = vmalloc(len)) == NULL)
-+	if (len > 64 * 1024 * 1024 || (hdr = vmalloc_exec(len)) == NULL)
- 		return ERR_PTR(-ENOMEM);
- 	if (copy_from_user(hdr, umod, len) != 0) {
- 		err = -EFAULT;
+As it is, it also mishandles the hotswap CPU scenario.
 
-This is where we such the module file into kernel memory to parse it,
-not where we actually copy the memory.
+> [hlinder@w-hlinder2 hlinder]$ tree /sys/class/cpuid
+> /sys/class/cpuid
+> |-- cpu0
+> |   `-- dev
+> `-- cpu1
+>     `-- dev
+> 
+> 2 directories, 2 files
+> [hlinder@w-hlinder2 hlinder]$ more /sys/class/cpuid/cpu0/dev
+> 203:0
+> [hlinder@w-hlinder2 hlinder]$ more /sys/class/cpuid/cpu1/dev
+> 203:1
+> [hlinder@w-hlinder2 hlinder]$
 
-You want to replace the arch-specific module_alloc() function for this.
-Or even better, reset the NX bit only on executable sections (in the
-arch-specific module_finalize(), using mod->core_text_size and
-mod->init_text_size).  No generic changes necessary.
-
-What surprises me is that this error didn't cause your kernel to explode
-the moment you inserted a module containing a function...
-
-Hope that helps!
-Rusty.
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+	-hpa

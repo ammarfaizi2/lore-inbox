@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264159AbUDHIHT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 04:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263973AbUDHIHT
+	id S263973AbUDHIKb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 04:10:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264062AbUDHIKb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 04:07:19 -0400
-Received: from [69.133.187.210] ([69.133.187.210]:55713 "EHLO
-	d10systems.homelinux.com") by vger.kernel.org with ESMTP
-	id S264211AbUDHIHE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 04:07:04 -0400
-Date: Wed, 7 Apr 2004 23:06:40 -0400 (EDT)
-From: Dhruv Gami <gami@d10systems.com>
-X-X-Sender: gami@d10systems.homelinux.com
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: setgid - its current use
-In-Reply-To: <200404081041.25006.vda@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.58.0404072304500.14350@d10systems.homelinux.com>
-References: <Pine.LNX.4.58.0404072140070.14350@d10systems.homelinux.com>
- <200404081041.25006.vda@port.imtp.ilyichevsk.odessa.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-yoursite-MailScanner-Information: Please contact the ISP for more information
-X-yoursite-MailScanner: Found to be clean
-X-MailScanner-From: gami@d10systems.com
+	Thu, 8 Apr 2004 04:10:31 -0400
+Received: from mail.bytecamp.net ([212.204.60.9]:21764 "EHLO mail.bytecamp.net")
+	by vger.kernel.org with ESMTP id S263973AbUDHIK1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 04:10:27 -0400
+Message-Id: <200404080810.i388AQqf081142@mail.bytecamp.net>
+From: "Jan Kesten" <rwe.piller@the-hidden-realm.de>
+To: linux-kernel@vger.kernel.org
+Subject: Dynamic file 'swapping'
+Date: Thu, 08 Apr 2004 10:10:26 +0200
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Apr 2004, Denis Vlasenko wrote:
 
-> On Thursday 08 April 2004 04:46, Dhruv Gami wrote:
-> > I'd like to know the possibility of using setgid for users to switch their
-> > groups and work as a member of a particular group. Essentially, if i want
-> > one user, who belongs to groups X, Y and Z to create a file as a member of
-> > group Y while he's logged on as a member of group X, would it be possible
-> > through setgid() ?
-> 
-> it is possible through chmod
+Hi all! 
 
-but that would be an explicit way of doing it, right ? I'm looking for 
-doing this via some system calls or something transparent to the user. At 
-most I'd like to query the user for the group as which he wants to work. 
-Which would essentially be a question I ask at login or beginning of a 
-session.
+ 
 
-regards,
-Gami 
+Don't know if it's a topic for the lkml, but I try ;-) 
 
--- 
-Dhruv Gami
-D10 Systems
-http://d10systems.com
-http://d10systems.com/gami
+ 
+
+I was wondering if for linux or better for a linux filesystem there is
+something like dynamic swapping of files possible. For explanation: I habe
+access to an Infinstor via NFS and linux is runnig there. This server has a
+nice funtion I'd like to have: if there are files that are not used for a
+specified time (i.e. 30 days) they are moved to another storage (disk and
+after that to an streamer tape) and are replaced by some kind of 'link'. So
+if you look at your directory you can see everything that was there, but if
+you try to open it, you have to wait a moment (some seconds if the file was
+swapped to another disk) oder just another moment (some minutes if the file
+is on a tape) and then it restored at it's old place. 
+
+ 
+
+So is there anything which provides such a feature? By now I have a little
+script that moves such files out of the way and replaces them by links. But
+restoring is somewhat harder and it's not automatic. 
+
+ 
+
+Any ideas? 
+
+Jan 
+
 

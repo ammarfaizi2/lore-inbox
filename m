@@ -1,31 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135272AbRDLT3c>; Thu, 12 Apr 2001 15:29:32 -0400
+	id <S135274AbRDLTaN>; Thu, 12 Apr 2001 15:30:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135271AbRDLT3W>; Thu, 12 Apr 2001 15:29:22 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:16647 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S135270AbRDLT3Q>; Thu, 12 Apr 2001 15:29:16 -0400
-Subject: Re: i2o & Promise SuperTrak100
-To: achan@achan.com (Andrew Chan)
-Date: Thu, 12 Apr 2001 20:30:47 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <005c01c0c37f$0431a840$5a158640@nien.sjc.wayport.net> from "Andrew Chan" at Apr 13, 2001 02:33:04 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14nmnq-0001K7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S135273AbRDLT3m>; Thu, 12 Apr 2001 15:29:42 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:10127 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S135271AbRDLT3f>; Thu, 12 Apr 2001 15:29:35 -0400
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Thu, 12 Apr 2001 12:29:33 -0700
+Message-Id: <200104121929.MAA04049@adam.yggdrasil.com>
+To: drepper@cygnus.com
+Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> While you are at it, can you bug them for FastTrak (the software RAID thing)
-> support?
+>> = Adam Richter
+>  = Ulrich Drepper
 
-At some point. They seem very keen not to co-operate on the fasttrak so its
-probably best to avoid motherboards that have the fasttrak chipset and tell
-the board vendor why.
+>> >Shouldn't a compiler be able to deal with this instead?
+>> 
+>> 	Yes.
 
-Alan
+>No.  gcc must not do this.  There are situations where you must place
+>a zero-initialized variable in .data.  It is a programmer problem.
 
+	I am aware of a couple of cases where code relied on static
+variables being allocated contiguously, but, in both cases, those
+variables were either all zeros or all non-zeros, so my proposed
+change would not break such code.  Also, variables being allocated
+contiguously is not an assumption supported by any standard that
+I am aware of, and the very rare cases where code relies on this
+should instead use an array (they've been of the same type in the
+examples that I have come across).  At the very least, it seems
+to me that this should be a compiler optimization flag, preferably
+defaulted to "on".
+
+	If you have some other scenario in mind, I'd appreciate an
+example or a clear reference to some explanation, and I think others
+on linux-kernel would probably appreciate that too.  It is a topic
+that comes up repeatedly on linux-kernel.
+
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."

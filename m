@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268914AbUIXR0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268963AbUIXRcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268914AbUIXR0E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 13:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268881AbUIXRZm
+	id S268963AbUIXRcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 13:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268959AbUIXR3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 13:25:42 -0400
-Received: from mta2.srv.hcvlny.cv.net ([167.206.5.68]:61108 "EHLO
-	mta2.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S268914AbUIXRYi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 13:24:38 -0400
-Date: Fri, 24 Sep 2004 13:24:36 -0400
-From: "Josef 'Jeff' Sipek" <jeffpc@optonline.net>
-Subject: [PATCH 2.6] Add DEVPATH env variable to hotplug helper call
-To: linux-kernel@vger.kernel.org
-Cc: rusty@rustcorp.com.au, akpm@osdl.org, torvalds@osdl.org
-Message-id: <20040924172436.GA17723@optonline.net>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.5.6+20040803i
+	Fri, 24 Sep 2004 13:29:09 -0400
+Received: from fire.osdl.org ([65.172.181.4]:38544 "EHLO fire-1.osdl.org")
+	by vger.kernel.org with ESMTP id S268944AbUIXR03 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 13:26:29 -0400
+Subject: 8 New compile/sparse warnings (overnight build)
+From: John Cherry <cherry@osdl.org>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1096046780.2721.24.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 24 Sep 2004 10:26:20 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add $DEVPATH to the environmental variables during /sbin/hotplug call.
+Resuming the reports for sparse warning changes...
 
-Josef 'Jeff' Sipek.
+Summary:
+   New warnings = 8
+   Fixed warnings = 134
 
-Signed-off-by: Josef 'Jeff' Sipek <jeffpc@optonline.net>
- 
-diff -Nru a/kernel/cpu.c b/kernel/cpu.c
---- a/kernel/cpu.c	2004-09-24 13:08:57 -04:00
-+++ b/kernel/cpu.c	2004-09-24 13:08:57 -04:00
-@@ -61,13 +61,13 @@
-  * cpu' with certain environment variables set.  */
- static int cpu_run_sbin_hotplug(unsigned int cpu, const char *action)
- {
--	char *argv[3], *envp[5], cpu_str[12], action_str[32];
-+	char *argv[3], *envp[6], cpu_str[12], action_str[32], devpath_str[38];
- 	int i;
- 
- 	sprintf(cpu_str, "CPU=%d", cpu);
- 	sprintf(action_str, "ACTION=%s", action);
--	/* FIXME: Add DEVPATH. --RR */
--
-+	sprintf(devpath_str, "DEVPATH=devices/system/cpu/cpu%d", cpu);
-+	
- 	i = 0;
- 	argv[i++] = hotplug_path;
- 	argv[i++] = "cpu";
-@@ -79,6 +79,7 @@
- 	envp[i++] = "PATH=/sbin:/bin:/usr/sbin:/usr/bin";
- 	envp[i++] = cpu_str;
- 	envp[i++] = action_str;
-+	envp[i++] = devpath_str;
- 	envp[i] = NULL;
- 
- 	return call_usermodehelper(argv[0], argv, envp, 0);
+New warnings:
+-------------
+drivers/atm/ambassador.c:2297: warning: unsigned int format, long
+unsigned int arg (arg 2)
+
+drivers/atm/eni.c:1318:8: warning: Using plain integer as NULL pointer
+
+drivers/atm/eni.c:1352:15: warning: Using plain integer as NULL pointer
+
+drivers/atm/eni.c:1426:23: warning: Using plain integer as NULL pointer
+
+drivers/atm/eni.c:1447:25: warning: Using plain integer as NULL pointer
+
+drivers/atm/eni.c:1745:12: warning: cast removes address space of
+expression
+
+drivers/atm/eni.c:248:39: warning: Using plain integer as NULL pointer
+
+drivers/atm/eni.c:263:31: warning: Using plain integer as NULL pointer
+
+
+Fixed warnings:
+---------------
+(too many to list)
+
+

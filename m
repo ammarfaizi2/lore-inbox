@@ -1,85 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262161AbSJZKhd>; Sat, 26 Oct 2002 06:37:33 -0400
+	id <S262089AbSJZKdS>; Sat, 26 Oct 2002 06:33:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262178AbSJZKhd>; Sat, 26 Oct 2002 06:37:33 -0400
-Received: from mail.hometree.net ([212.34.181.120]:64931 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S262161AbSJZKhN>; Sat, 26 Oct 2002 06:37:13 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: One for the Security Guru's
-Date: Sat, 26 Oct 2002 10:43:29 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <apdrkh$h8n$1@forge.intermeta.de>
-References: <1035453664.1035.11.camel@syntax.dstl.gov.uk> <ap97nr$h6e$1@forge.intermeta.de> <1035479086.9935.6.camel@gby.benyossef.com> <1035539042.23977.24.camel@forge> <apcaub$ov5$1@cesium.transmeta.com>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1035629009 29587 212.34.181.4 (26 Oct 2002 10:43:29 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 26 Oct 2002 10:43:29 +0000 (UTC)
-X-Copyright: (C) 1996-2002 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S262046AbSJZKc6>; Sat, 26 Oct 2002 06:32:58 -0400
+Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:41228 "EHLO
+	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S262100AbSJZKb5>; Sat, 26 Oct 2002 06:31:57 -0400
+X-Envelope-From: pavel@bug.ucw.cz
+Date: Mon, 21 Oct 2002 17:17:47 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Mark Gross <markgross@thegnar.org>
+Cc: Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>,
+       Alexander Viro <viro@math.psu.edu>,
+       S Vamsikrishna <vamsi_krishna@in.ibm.com>,
+       Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org,
+       NPT library mailing list <phil-list@redhat.com>
+Subject: Re: [patch] thread-aware coredumps, 2.5.43-C3
+Message-ID: <20021021151747.GA227@elf.ucw.cz>
+References: <200210081627.g98GRZP18285@unix-os.sc.intel.com> <200210171835.21647.markgross@thegnar.org> <20021018021242.GA15853@averell> <200210171958.23198.markgross@thegnar.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200210171958.23198.markgross@thegnar.org>
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+Hi!
 
->Followup to:  <1035539042.23977.24.camel@forge>
->By author:    Henning Schmiedehausen <hps@intermeta.de>
->In newsgroup: linux.dev.kernel
->> > 
->> > A. If there's a buffer overflow in the SSL Accelerator box the firewall
->> > wont do you much good (it helps, but only a little). 
->> 
->> This is a hardware device. Hardware as in "silicon". I very much doubt
->> that you can run "general purpose programs" on a device specifically
->> designed to do crypto. And this is _not_ just an "embedded Linux on ix86
->> with a crypto chip". 
->> 
+> > I want the x86 CPU error code, which often has interesting clues on the
+> > problem. trapno would be useful too. I suspect other CPUs have similar
+> > extended state for exceptions.
+> >
+> > I usually hack my kernel to printk() it, but having it in the coredump
+> > would be more general and you can look at it later.
+> >
+> > Eventually (in a future kernel) I would love to have the exception
+> > handler save the last branch debugging registers of the CPU and the let the
+> > core dumper put that into the dump too.  Then you could easily
+> > figure out what the program did shortly before the crash.
+> >
+> > -Andi
+> 
+> Having the last branch before a crash would be cool.  Its easy to
+> add note 
 
->Hardware devices have bugs, too.  Furthermore, most devices marketed
->as "hardware" still have programmable stuff underneath.  Trust me.
-
-Of course they have. I'm not that dumb. :-) I won't expect any piece
-of silicon speak http, snmp and have configureable ip adresses without
-any programming. I do had my share of Cisco router fun.... :-)
-
-But my point is, that these beasts normally don't run a general
-purpose operating system and that they're much less prone to buffer
-overflow or similar attacks, simply because they don't use popular
-software with known bugs (e.g.  OpenSSL) or these functions (like
-doing crypto) are in hardware.
-
-If you have a processor that sets up an ASIC to do "insert https here,
-use this key, remove http there", you might be able to attack the IP
-stack running on the processor which gets the packets from the wire
-and puts them back onto the wire. But you won't be able to trick any
-bug or overflow in the crypto routines into opening a root shell on
-the ASIC. :-)
-
-Especially if there is no such thing as a /bin/sh binary on the
-bugger.  And even if you _do_; you still only have a shell on the
-accelerator. Not on the application server.
-
-If you ask me "how can you trust such a device if you can't look at
-the source; well, I don't have to. I can tell the customer "this
-device has been approved by <insert your certification authority here>
-and you pay gobs of cash for simply having this certified device".
-
-Replace "device" with "certificate" and you have the same thing as
-getting your web server key certification from Verisign or Thawte.
-You pay money and get a "trusted device". 
-
-	Regards
-		Henning
-
+How do you get that info in the first place? I do not think CPU stores
+info about last branch it did...
+									Pavel
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

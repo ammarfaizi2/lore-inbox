@@ -1,41 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310127AbSCFTNq>; Wed, 6 Mar 2002 14:13:46 -0500
+	id <S310123AbSCFTRQ>; Wed, 6 Mar 2002 14:17:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310130AbSCFTNh>; Wed, 6 Mar 2002 14:13:37 -0500
-Received: from est196.fciencias.unam.mx ([132.248.109.196]:13828 "EHLO
-	est196.fciencias.unam.mx") by vger.kernel.org with ESMTP
-	id <S293749AbSCFTNW>; Wed, 6 Mar 2002 14:13:22 -0500
-Date: Wed, 6 Mar 2002 13:11:05 -0600
-Message-Id: <200203061911.g26JB5e01303@est196.fciencias.unam.mx>
-From: Dario Bahena Tapia <dario.bahena@correo.unam.mx>
-To: linux-c-programming@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: dario.bahena@correo.unam.mx
-Subject: getting process i/o wasted time ...
+	id <S310131AbSCFTRG>; Wed, 6 Mar 2002 14:17:06 -0500
+Received: from ns.suse.de ([213.95.15.193]:47634 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310123AbSCFTQt>;
+	Wed, 6 Mar 2002 14:16:49 -0500
+Date: Wed, 6 Mar 2002 20:16:47 +0100
+From: Dave Jones <davej@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: jsimmons@transvirtual.com
+Subject: Re: [STATUS 2.5]  March 6, 2002
+Message-ID: <20020306201646.J14098@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	linux-kernel@vger.kernel.org, jsimmons@transvirtual.com
+In-Reply-To: <3C861CE4.6284.237C28E4@localhost> <20020306190249.GB342@matchmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020306190249.GB342@matchmail.com>; from mfedyk@matchmail.com on Wed, Mar 06, 2002 at 11:02:49AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi linux hackers ...
+On Wed, Mar 06, 2002 at 11:02:49AM -0800, Mike Fedyk wrote:
 
-I'd like to know, if there's a way to get the ammount of time wasted by a
-process, while it was making i/o. I've seen that the rusage
-makes available the ammount of i/o blocks, but I'm thinking in something
-like:
+ > > o Alpha       Rewrite of the framebuffer layer                (James Simmons)
+ > > o Started     Rewrite of the console layer                    (James Simmons)
+ > Since this is in -dj and people are using it, maybe it should be beta?
 
-          process warawara ...
-          time wasted in disks i/o .... XXX
-          time wasted in net i/o   .... XXX
-          etc. ???
+ It's stable enough that at least bits of it should probably start
+ being pushed to Linus soon. This and the input layer changes probably
+ make up for quite a high percentage of my current diff.
 
-Doest it makes sense? it could be done in linux?
-
-I supposed ,that I can insert some system calls in the right places
-in the program to make this... but I'm interested in a non-intrusive
-method ...
-
-Thanks in advance
-
-saludos
-dario estepario ...
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

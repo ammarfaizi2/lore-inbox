@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262815AbRE0Qgl>; Sun, 27 May 2001 12:36:41 -0400
+	id <S262814AbRE0Qlv>; Sun, 27 May 2001 12:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262814AbRE0Qgb>; Sun, 27 May 2001 12:36:31 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:20996 "EHLO
-	bug.ucw.cz") by vger.kernel.org with ESMTP id <S262817AbRE0QgX>;
-	Sun, 27 May 2001 12:36:23 -0400
-Message-ID: <20010527182730.A19341@bug.ucw.cz>
-Date: Sun, 27 May 2001 18:27:30 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Greg Banks <gnb@alphalink.com.au>,
-        Jaswinder Singh <jaswinder.singh@3disystems.com>
-Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Configure.help entries wanted
-In-Reply-To: <E153pEG-0008RL-00@the-village.bc.nu> <01ce01c0e64c$b6cc01e0$52a6b3d0@Toshiba> <3B1061FC.EB18967A@alphalink.com.au> <029901c0e652$a108f740$52a6b3d0@Toshiba> <3B106BE6.78F9DCC4@alphalink.com.au>
+	id <S262816AbRE0Qlm>; Sun, 27 May 2001 12:41:42 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:36892 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S262814AbRE0Qlf>; Sun, 27 May 2001 12:41:35 -0400
+Date: Sun, 27 May 2001 18:41:23 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: "Ingo T. Storm" <it@lapavoni.de>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.5 does not link on Ruffian (alpha)
+Message-ID: <20010527184123.E676@athlon.random>
+In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de> <20010526193649.B1834@athlon.random> <20010526201442.D1834@athlon.random> <3B10521D.346E5886@mandrakesoft.com> <20010527044924.H1834@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <3B106BE6.78F9DCC4@alphalink.com.au>; from Greg Banks on Sun, May 27, 2001 at 12:52:22PM +1000
+Content-Disposition: inline
+In-Reply-To: <20010527044924.H1834@athlon.random>; from andrea@suse.de on Sun, May 27, 2001 at 04:49:24AM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, May 27, 2001 at 04:49:24AM +0200, Andrea Arcangeli wrote:
+> caused me to write the posted patch to get all compilations right.
 
-> > >   I have some code which could become the basis for such a thing.
-> > > It's a touch panel driver for the DMIDA but it also has a device-
-> > > independent layer which does supersampling, scaling, provides
-> > > raw and cooked Linux Input interfaces, and a /proc interface to
-> > > allow the calibration app to control the scaling.
-> > >
-> > >   Unfortunately I can't release it yet for (ahem) legal reasons.
-> > >
-> > 
-> > nice job , from where you get the related specs ?
-> 
->   From the manufacturer.  We had the fullest possible co-operation
-> including all technical specs, several sample machines, source to
-> the WinCE drivers for the hardware, and engineers (including the lead
-> hardware designer, a *very* cluey gentleman) on standby to answer
-> questions.
+The reason I needed that patch is that I was not using 2.4.5aa1 but a
+corrupted tree (I'm been fooled by an hardlink during developement), it
+was just two lines away from the real one.
 
-Nice, *very* nice. What manufacturer / machine is that?
-								Pavel
-PS: If someone wants to develop, pr31700-based machines are pretty
-well documented, because 99% of functionality comes from two core
-chips, and they are documented.
+So this is the fix for all 2.4.5 based trees (ac1 and aa1 included) to
+get generic and dp264 compililations right:
 
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+diff -urN 2.4.5/arch/alpha/kernel/sys_dp264.c fix/arch/alpha/kernel/sys_dp264.c
+--- 2.4.5/arch/alpha/kernel/sys_dp264.c	Sat May 26 04:03:35 2001
++++ fix/arch/alpha/kernel/sys_dp264.c	Sun May 27 18:12:53 2001
+@@ -16,18 +16,15 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ 
+-#define __EXTERN_INLINE inline
+-#include <asm/io.h>
+-#include <asm/core_tsunami.h>
+-#undef  __EXTERN_INLINE
+-
+ #include <asm/ptrace.h>
+ #include <asm/system.h>
+ #include <asm/dma.h>
+ #include <asm/irq.h>
+ #include <asm/bitops.h>
+ #include <asm/mmu_context.h>
++#include <asm/io.h>
+ #include <asm/pgtable.h>
++#include <asm/core_tsunami.h>
+ #include <asm/hwrpb.h>
+ 
+ #include "proto.h"
+
+
+Sorry about that.
+
+Andrea

@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315358AbSDWWYs>; Tue, 23 Apr 2002 18:24:48 -0400
+	id <S315351AbSDWW27>; Tue, 23 Apr 2002 18:28:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315359AbSDWWYr>; Tue, 23 Apr 2002 18:24:47 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36107 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S315358AbSDWWYq>; Tue, 23 Apr 2002 18:24:46 -0400
-Date: Tue, 23 Apr 2002 18:21:55 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Peter Niemayer <niemayer@isg.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: mounting loop-device on a 2048 byte/sector medium fails
-In-Reply-To: <3CC45E8D.68566324@isg.de>
-Message-ID: <Pine.LNX.3.96.1020423181848.31248B-100000@gatekeeper.tmr.com>
+	id <S315356AbSDWW26>; Tue, 23 Apr 2002 18:28:58 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:40144 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S315351AbSDWW25> convert rfc822-to-8bit; Tue, 23 Apr 2002 18:28:57 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: hdcool <hdcool@gmx.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: compile error in 2.5.9 - stable - easy fix:
+Date: Wed, 24 Apr 2002 00:32:17 +0200
+X-Mailer: KMail [version 1.4]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200204240032.20043.hdcool@gmx.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Apr 2002, Peter Niemayer wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> first I thought this was some loop-AES specific issue, but now I know
-> it isn't: When I try to mount a filesystem on a loop device which
-> is in turn using a 2048 byte/sector medium (a magneto-optical drive
-> in my case), the mount fails though mkfs & fsck are happy.
 
-I reported this some time ago as a problem with using offset mounting CDs
-with a binary prefix before the ISO image. And since it seems that the
-problem is not the offset but the sector size, the problems may be
-related.
+at line 277 in init/main.cpp there is twice set the same function(which 
+actually does nothing by the moment) but gcc bailed out on it...after 
+removing one of those two the compilation finnished succesfull.
 
-I'll look at this over the weekend if not before. It works with 2.0 and
-2.2, I use it regularly, and it's the main thing keeping a few of my
-machines on 2.2.
+Kind regards,
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+hdcool
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8xeDzFyIyOWm+UdIRAvQCAKDemqn3MkmklaU4WxJ8U12X/aHd1wCg3qtZ
+iNJhX4+2AN9LTBDJzhapWso=
+=3Wb+
+-----END PGP SIGNATURE-----
 

@@ -1,53 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSLRDFs>; Tue, 17 Dec 2002 22:05:48 -0500
+	id <S265197AbSLRDVO>; Tue, 17 Dec 2002 22:21:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265012AbSLRDFs>; Tue, 17 Dec 2002 22:05:48 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:56026 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S262780AbSLRDFr>;
-	Tue, 17 Dec 2002 22:05:47 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	id <S265589AbSLRDVO>; Tue, 17 Dec 2002 22:21:14 -0500
+Received: from dp.samba.org ([66.70.73.150]:59802 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S265197AbSLRDVO>;
+	Tue, 17 Dec 2002 22:21:14 -0500
+Date: Wed, 18 Dec 2002 14:27:32 +1100
+From: Anton Blanchard <anton@samba.org>
+To: "Feldman, Scott" <scott.feldman@intel.com>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       LOSTeam <losteam@intel.com>
+Subject: Re: [ANNOUNCE] Intel PRO/100 software developer manual released
+Message-ID: <20021218032732.GC22434@krispykreme>
+References: <288F9BF66CD9D5118DF400508B68C44604758F6C@orsmsx113.jf.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15871.59369.54363.167770@napali.hpl.hp.com>
-Date: Tue, 17 Dec 2002 19:13:45 -0800
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFT][PATCH] generic device DMA implementation
-In-Reply-To: <200212180301.gBI31wE06794@localhost.localdomain>
-References: <200212180301.gBI31wE06794@localhost.localdomain>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <288F9BF66CD9D5118DF400508B68C44604758F6C@orsmsx113.jf.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-  James> The attached should represent close to final form for the
-  James> generic DMA API.  It includes documentation (surprise!) and
-  James> and implementation in terms of the pci_ API for every arch
-  James> (apart from parisc, which will be submitted later).
+> Available at https://sourceforge.net/projects/e1000.
+> 
+> The full title is: 
+> 
+>   Intel 8255x 10/100 Mbps Ethernet Controller Family
+>   Open Source Software Developer Manual
+>   Revision 1.0
+> 
+> The manual is intended to support the maintenance of the e100 driver (or the
+> best driver for the PRO/100 networking hardware ;-).  The manual covers the
+> 82557, 82558, 82559, 82550, and 82551 Ethernet controllers.
 
-  James> I've folded in the feedback from the previous thread.
-  James> Hopefully, this should be ready for inclusion.  If people
-  James> could test it on x86 and other architectures, I'd be
-  James> grateful.
+Nice work guys! This has already answered a few questions I had when
+tuning the e100 on ppc64.
 
-  James> comments and feedback from testing welcome.
+Any plans to release similar docs for the e1000?
 
-Would you mind doing a s/consistent/coherent/g?  This has been
-misnamed in the PCI DMA interface all along, but I didn't think it's
-worth breaking drivers because of it.  But since this is a new
-interface, there is no such issue.
-
-(Consistency says something about memory access ordering, coherency
-only talks about there not being multiple values for a given memory
-location.  On DMA-coherent platforms with weakly-ordered memory
-systems, the returned memory really is only coherent, not consistent,
-i.e., you have to use memory barriers if you want to enforce
-ordering.)
-
-Thanks,
-
-	--david
+Anton

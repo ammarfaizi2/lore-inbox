@@ -1,65 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbSKGQOI>; Thu, 7 Nov 2002 11:14:08 -0500
+	id <S261409AbSKGQOl>; Thu, 7 Nov 2002 11:14:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261409AbSKGQOI>; Thu, 7 Nov 2002 11:14:08 -0500
-Received: from cerberus.bluetree.ie ([62.17.24.129]:36618 "EHLO
-	cerberus.bluetree.ie") by vger.kernel.org with ESMTP
-	id <S261407AbSKGQOH>; Thu, 7 Nov 2002 11:14:07 -0500
-X-Virus-Checked: Checked on cerberus.bluetree.ie at Thu Nov 7 16:20:38 GMT 2002
-From: "Kenn Humborg" <kenn@bluetree.ie>
-To: "Petr Baudis" <pasky@ucw.cz>, "Peter Samuelson" <peter@cadcamlab.org>
-Cc: "Roman Zippel" <zippel@linux-m68k.org>,
-       "kbuild-devel" <kbuild-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: RE: [kbuild-devel] Re: [PATCH] [kbuild] Possibility to sanely link against off-directory .so
-Date: Thu, 7 Nov 2002 16:20:34 -0000
-Message-ID: <NBBBIGEGHIGMPCNKHCECMENDEAAA.kenn@bluetree.ie>
+	id <S261413AbSKGQOl>; Thu, 7 Nov 2002 11:14:41 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:17676 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S261409AbSKGQOk>; Thu, 7 Nov 2002 11:14:40 -0500
+Date: Thu, 7 Nov 2002 11:20:05 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: John Levon <levon@movementarian.org>
+cc: Ingo Molnar <mingo@elte.hu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: NMI watchdog question.
+In-Reply-To: <20021106200726.GA2388@compsoc.man.ac.uk>
+Message-ID: <Pine.LNX.3.96.1021107111731.30525A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20021107152454.GH5219@pasky.ji.cz>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Dear diary, on Thu, Nov 07, 2002 at 02:22:45PM CET, I got a letter,
-> where Peter Samuelson <peter@cadcamlab.org> told me, that...
-> > Remember, the whole point of HOSTCC is to support a build environment
-> > different from the compile target - arbitrarily different, even.
+On Wed, 6 Nov 2002, John Levon wrote:
+
+> On Wed, Nov 06, 2002 at 11:49:07AM -0800, george anzinger wrote:
 > 
-> I'm a bit lost here - the kernel uses tons of gcc extensions - 
-> how is another
-> compiler supposed to understand them? And if it is specifically 
-> extended to
-> understand them, isn't it likely that it'll understand the 
-> -shared switch in
-> gcc-like way as well?
+> > So the performance counters are only used on UP machines?
 > 
-> Or better, what other compiler is known to build a kernel than 
-> gcc? At least
-> anything that doesn't define __GNUC__ should IMHO fail inside of 
-> init/main.c.
-> And how likely is situation when someone want to configure a kernel with
-> non-gcc compiler and actually build it with gcc?
+> no. nmi_watchdog=1 -> I/O APIC is used iff available and it works
+> nmi_watchdog=2 -> local APIC LVTPC set to interrupt in NMI mode when
+> perfctr overflows.
+> 
+> =2 can be used on both UP and SMP, =1 is only available on UP for the
+> rare machines that have an I/O APIC on a UP motherboard (I believe there
+> are some, but I don't know if the code is set up to do so properly).
 
-When you're cross-compiling a kernel.
+By any chance, does this implementation imply that if I boot SMP with
+'noapic' the NMI watchdog won't work? It doesn't, but I am not sure I had
+it on before I turned off the APIC.
 
-> I thought that the point of HOSTCC is to allow to use a 
-> non-standart version
-> of gcc for kernel build.
+Clearly this would be desirable to work, as noapic is needed on a fairly
+large minority of machines.
 
-Nope.  It's mainly for cross-compilation.  You want to compile the
-kernel itself for your targer architecture, but the compilation tools
-need to run on the build machine so need a different compiler.
-
-The gcc/kgcc thing is only a convenient side effect.
-
-Later,
-Kenn
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

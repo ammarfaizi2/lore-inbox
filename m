@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262190AbSKCQ47>; Sun, 3 Nov 2002 11:56:59 -0500
+	id <S262184AbSKCQ4C>; Sun, 3 Nov 2002 11:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262196AbSKCQ47>; Sun, 3 Nov 2002 11:56:59 -0500
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:10567 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S262190AbSKCQ46>; Sun, 3 Nov 2002 11:56:58 -0500
-Date: Sun, 3 Nov 2002 09:08:16 -0800 (PST)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Bill Davidsen <davidsen@tmr.com>, Steven King <sxking@qwest.net>,
+	id <S262190AbSKCQ4C>; Sun, 3 Nov 2002 11:56:02 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:40857 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S262184AbSKCQ4B>;
+	Sun, 3 Nov 2002 11:56:01 -0500
+Date: Sun, 3 Nov 2002 09:56:12 -0700
+From: yodaiken@fsmlabs.com
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linus Torvalds <torvalds@transmeta.com>,
-       Joel Becker <Joel.Becker@oracle.com>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
        Rusty Russell <rusty@rustcorp.com.au>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lkcd-general@lists.sourceforge.net>,
-       <lkcd-devel@lists.sourceforge.net>
-Subject: Re: [lkcd-devel] Re: [lkcd-general] Re: What's left over.
-In-Reply-To: <1036341175.29646.49.camel@irongate.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0211030906210.30732-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, davej@suse.de
+Subject: Re: Filesystem Capabilities in 2.6?
+Message-ID: <20021103095612.A436@hq.fsmlabs.com>
+References: <1036342259.29642.51.camel@irongate.swansea.linux.org.uk> <Pine.GSO.4.21.0211031151590.28485-100000@steklov.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0211031151590.28485-100000@steklov.math.psu.edu>; from viro@math.psu.edu on Sun, Nov 03, 2002 at 11:56:22AM -0500
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 3 Nov 2002, Alan Cox wrote:
-|>Encrypting the dump with the new crypto lib in the kernel would be easy,
-|>right now it doesnt. 
+On Sun, Nov 03, 2002 at 11:56:22AM -0500, Alexander Viro wrote:
+> 
+> 
+> On 3 Nov 2002, Alan Cox wrote:
+> 
+> > On Sun, 2002-11-03 at 14:51, Alexander Viro wrote:
+> > > No messing with chroot needed - just a way to irrevertibly turn off the
+> > > ability (for anybody) to do mounts/umounts in a given namespace and ability
+> > > to clone that namespace.  Then give them ramfs for root and bind whatever
+> > > you need in there.  No breaking out of that, since there is nothing below
+> > > their root where they could break out to...
+> > 
+> > mkdir foo
+> > chroot foo
+> > cd ../../../..
+> > chroot .
+> 
+> ... will give him nothing, since he is not in chroot jail to start with.
+> He has a namespace of his own with his own root filesystem.  Which has
+> several empty directories and nothing else - everything else is bound on
+> these.  He is at his absolute root and can't break out of it - there is
+> nowhere to break out.  So his /foo will be a subdirectory of root of his
+> root filesystem.  OK, he chroots there.  His cwd is still at absolute root
+> and he can follow .. until he's blue in the face - he will stay where he
+> started.
 
-Piece of cake.  It's like adding a dump compression module.  You
-can load dump_gzip.o or dump_rle.o to specify the kind of compression
-you want to use.  dump_crypto.o would be the same kind of thing.  Just
-add another flag and away you go.
+Plan 9 !
 
-|>My disk dump concerns are purely those of correctness. That means
-|>
-|> [ ... ]
-|>
-|>Most of the pieces already exist.
 
-It's just a matter of time, then.
-
---Matt
+-- 
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+www.fsmlabs.com  www.rtlinux.com
+1+ 505 838 9109
 

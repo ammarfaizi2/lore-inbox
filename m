@@ -1,47 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbUJ2Hjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263128AbUJ2Hsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbUJ2Hjb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 03:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbUJ2Hjb
+	id S263128AbUJ2Hsc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 03:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUJ2Hsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 03:39:31 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:56246 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261380AbUJ2Hj2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 03:39:28 -0400
-Date: Fri, 29 Oct 2004 17:37:23 +1000
-From: Nathan Scott <nathans@sgi.com>
-To: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, linux-xfs@oss.sgi.com
-Subject: Re: XFS strangeness, xfs_db out of memory
-Message-ID: <20041029073723.GH1246@frodo>
-References: <200410240857.31893.robin.rosenberg.lists@dewire.com>
+	Fri, 29 Oct 2004 03:48:32 -0400
+Received: from pimout1-ext.prodigy.net ([207.115.63.77]:17306 "EHLO
+	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S263128AbUJ2Hsa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 03:48:30 -0400
+Date: Fri, 29 Oct 2004 00:45:18 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] 2.6.9.1-pre1.tar.bz2 (uuencoded)
+Message-ID: <20041029074518.GA14620@taniwha.stupidest.org>
+References: <200410282207_MC3-1-8D68-3290@compuserve.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200410240857.31893.robin.rosenberg.lists@dewire.com>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <200410282207_MC3-1-8D68-3290@compuserve.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 24, 2004 at 08:57:26AM +0200, Robin Rosenberg wrote:
-> Hi,
-> 
-> I was testing a tiny script on top of xfs_fsr to show fragmentation and the 
-> resultss of defragmentation.  As a result of fine tuning the output I ran the 
-> script repeatedly and suddenly got error from find (unknown error 999 if my 
-> memory serves me. It scrolled off the screen).
-> ...
-> xfs_info $dev
-> xfs_db -r $dev -c "frag -v"
+On Thu, Oct 28, 2004 at 10:03:19PM -0400, Chuck Ebbert wrote:
 
-This is accessing the device while the filesystem is mounted,
-in older kernels (like the one you have) that would cause the
-above corruption error in XFS - thats resolved now.
+> Sorry about the uuencoding, but I didn't want to send 63
+> separate patches...
 
-As to the IDE error you saw, I'm not sure how fatal that is.
-
-cheers.
-
--- 
-Nathan
+sending a uuencoded tar.bz2 is pointless, please don't

@@ -1,270 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263157AbUCPC0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 21:26:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUCPBXs
+	id S262886AbUCPBWt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 20:22:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262997AbUCPBSn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 20:23:48 -0500
-Received: from mail.kroah.org ([65.200.24.183]:47791 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262930AbUCPADF convert rfc822-to-8bit
+	Mon, 15 Mar 2004 20:18:43 -0500
+Received: from mail.kroah.org ([65.200.24.183]:55983 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262944AbUCPADU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:03:05 -0500
-Subject: Re: [PATCH] i2c driver fixes for 2.6.4
-In-Reply-To: <107939139468@kroah.com>
+	Mon, 15 Mar 2004 19:03:20 -0500
+Subject: Re: [PATCH] Driver Core update for 2.6.4
+In-Reply-To: <10793951483511@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Mon, 15 Mar 2004 14:56:34 -0800
-Message-Id: <1079391394165@kroah.com>
+Date: Mon, 15 Mar 2004 15:59:08 -0800
+Message-Id: <1079395148429@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7BIT
 From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1608.74.13, 2004/03/15 10:45:02-08:00, greg@kroah.com
+ChangeSet 1.1608.84.11, 2004/03/11 16:35:34-08:00, ogasawara@osdl.org
 
-[PATCH] I2C: fix up CONFIG_I2C_DEBUG_CHIP logic to be simpler on the .c files.
+[PATCH] add sysfs simple class support for DRI char device
 
-
- drivers/i2c/chips/Makefile    |    4 ++++
- drivers/i2c/chips/adm1021.c   |    4 ----
- drivers/i2c/chips/asb100.c    |    4 ----
- drivers/i2c/chips/eeprom.c    |    4 ----
- drivers/i2c/chips/fscher.c    |    4 ----
- drivers/i2c/chips/gl518sm.c   |    4 ----
- drivers/i2c/chips/it87.c      |    4 ----
- drivers/i2c/chips/lm75.c      |    4 ----
- drivers/i2c/chips/lm78.c      |    4 ----
- drivers/i2c/chips/lm80.c      |    4 ----
- drivers/i2c/chips/lm83.c      |    4 ----
- drivers/i2c/chips/lm85.c      |    4 ----
- drivers/i2c/chips/lm90.c      |    4 ----
- drivers/i2c/chips/via686a.c   |    4 ----
- drivers/i2c/chips/w83781d.c   |    4 ----
- drivers/i2c/chips/w83l785ts.c |    4 ----
- 16 files changed, 4 insertions(+), 60 deletions(-)
+Patch adds sysfs simple class support for DRI character device (Major
+226).  Also, adds some error checking.
 
 
-diff -Nru a/drivers/i2c/chips/Makefile b/drivers/i2c/chips/Makefile
---- a/drivers/i2c/chips/Makefile	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/Makefile	Mon Mar 15 14:34:13 2004
-@@ -20,3 +20,7 @@
- obj-$(CONFIG_SENSORS_LM90)	+= lm90.o
- obj-$(CONFIG_SENSORS_VIA686A)	+= via686a.o
- obj-$(CONFIG_SENSORS_W83L785TS)	+= w83l785ts.o
+ drivers/char/drm/drm_stub.h |   35 ++++++++++++++++++++++++++++++++---
+ 1 files changed, 32 insertions(+), 3 deletions(-)
+
+
+diff -Nru a/drivers/char/drm/drm_stub.h b/drivers/char/drm/drm_stub.h
+--- a/drivers/char/drm/drm_stub.h	Mon Mar 15 15:28:51 2004
++++ b/drivers/char/drm/drm_stub.h	Mon Mar 15 15:28:51 2004
+@@ -35,6 +35,8 @@
+ 
+ #define DRM_STUB_MAXCARDS 16	/* Enough for one machine */
+ 
++static struct class_simple *drm_class;
 +
-+ifeq ($(CONFIG_I2C_DEBUG_CHIP),y)
-+EXTRA_CFLAGS += -DDEBUG
-+endif
-diff -Nru a/drivers/i2c/chips/adm1021.c b/drivers/i2c/chips/adm1021.c
---- a/drivers/i2c/chips/adm1021.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/adm1021.c	Mon Mar 15 14:34:13 2004
-@@ -20,10 +20,6 @@
- */
+ /** Stub list. One for each minor. */
+ static struct drm_stub_list {
+ 	const char             *name;
+@@ -117,6 +119,7 @@
+ 			DRM(stub_root) = DRM(proc_init)(dev, i, DRM(stub_root),
+ 							&DRM(stub_list)[i]
+ 							.dev_root);
++			class_simple_device_add(drm_class, MKDEV(DRM_MAJOR, i), NULL, name);
+ 			return i;
+ 		}
+ 	}
+@@ -141,6 +144,7 @@
+ 	DRM(proc_cleanup)(minor, DRM(stub_root),
+ 			  DRM(stub_list)[minor].dev_root);
+ 	if (minor) {
++		class_simple_device_remove(MKDEV(DRM_MAJOR, minor));
+ 		inter_module_put("drm");
+ 	} else {
+ 		inter_module_unregister("drm");
+@@ -148,6 +152,8 @@
+ 			  sizeof(*DRM(stub_list)) * DRM_STUB_MAXCARDS,
+ 			  DRM_MEM_STUB);
+ 		unregister_chrdev(DRM_MAJOR, "drm");
++		class_simple_device_remove(MKDEV(DRM_MAJOR, minor));
++		class_simple_destroy(drm_class);
+ 	}
+ 	return 0;
+ }
+@@ -170,10 +176,23 @@
+ 		       drm_device_t *dev)
+ {
+ 	struct drm_stub_info *i = NULL;
++	int ret1;
++	int ret2;
  
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/asb100.c b/drivers/i2c/chips/asb100.c
---- a/drivers/i2c/chips/asb100.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/asb100.c	Mon Mar 15 14:34:13 2004
-@@ -37,10 +37,6 @@
- */
+ 	DRM_DEBUG("\n");
+-	if (register_chrdev(DRM_MAJOR, "drm", &DRM(stub_fops)))
++	ret1 = register_chrdev(DRM_MAJOR, "drm", &DRM(stub_fops));
++	if (!ret1) {
++		drm_class = class_simple_create(THIS_MODULE, "drm");
++		if (IS_ERR(drm_class)) {
++			printk (KERN_ERR "Error creating drm class.\n");
++			unregister_chrdev(DRM_MAJOR, "drm");
++			return PTR_ERR(drm_class);
++		}
++	}
++	else if (ret1 == -EBUSY)
+ 		i = (struct drm_stub_info *)inter_module_get("drm");
++	else
++		return -1;
  
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/ioport.h>
-diff -Nru a/drivers/i2c/chips/eeprom.c b/drivers/i2c/chips/eeprom.c
---- a/drivers/i2c/chips/eeprom.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/eeprom.c	Mon Mar 15 14:34:13 2004
-@@ -27,10 +27,6 @@
- */
+ 	if (i) {
+ 				/* Already registered */
+@@ -186,8 +205,18 @@
+ 		DRM_DEBUG("calling inter_module_register\n");
+ 		inter_module_register("drm", THIS_MODULE, &DRM(stub_info));
+ 	}
+-	if (DRM(stub_info).info_register)
+-		return DRM(stub_info).info_register(name, fops, dev);
++	if (DRM(stub_info).info_register) {
++		ret2 = DRM(stub_info).info_register(name, fops, dev);
++		if (ret2) {
++			if (!ret1) {
++			unregister_chrdev(DRM_MAJOR, "drm");
++			class_simple_destroy(drm_class);
++			}
++			if (!i)
++				inter_module_unregister("drm");
++		}
++		return ret2;
++	}
+ 	return -1;
+ }
  
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/module.h>
-diff -Nru a/drivers/i2c/chips/fscher.c b/drivers/i2c/chips/fscher.c
---- a/drivers/i2c/chips/fscher.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/fscher.c	Mon Mar 15 14:34:13 2004
-@@ -27,10 +27,6 @@
-  */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/gl518sm.c b/drivers/i2c/chips/gl518sm.c
---- a/drivers/i2c/chips/gl518sm.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/gl518sm.c	Mon Mar 15 14:34:13 2004
-@@ -37,10 +37,6 @@
-  */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/it87.c b/drivers/i2c/chips/it87.c
---- a/drivers/i2c/chips/it87.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/it87.c	Mon Mar 15 14:34:13 2004
-@@ -32,10 +32,6 @@
- */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/lm75.c b/drivers/i2c/chips/lm75.c
---- a/drivers/i2c/chips/lm75.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/lm75.c	Mon Mar 15 14:34:13 2004
-@@ -19,10 +19,6 @@
- */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/lm78.c b/drivers/i2c/chips/lm78.c
---- a/drivers/i2c/chips/lm78.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/lm78.c	Mon Mar 15 14:34:13 2004
-@@ -19,10 +19,6 @@
- */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/lm80.c b/drivers/i2c/chips/lm80.c
---- a/drivers/i2c/chips/lm80.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/lm80.c	Mon Mar 15 14:34:13 2004
-@@ -22,10 +22,6 @@
-  */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/lm83.c b/drivers/i2c/chips/lm83.c
---- a/drivers/i2c/chips/lm83.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/lm83.c	Mon Mar 15 14:34:13 2004
-@@ -28,10 +28,6 @@
-  */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/lm85.c b/drivers/i2c/chips/lm85.c
---- a/drivers/i2c/chips/lm85.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/lm85.c	Mon Mar 15 14:34:13 2004
-@@ -23,10 +23,6 @@
- */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/lm90.c b/drivers/i2c/chips/lm90.c
---- a/drivers/i2c/chips/lm90.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/lm90.c	Mon Mar 15 14:34:13 2004
-@@ -36,10 +36,6 @@
-  */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/via686a.c b/drivers/i2c/chips/via686a.c
---- a/drivers/i2c/chips/via686a.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/via686a.c	Mon Mar 15 14:34:13 2004
-@@ -32,10 +32,6 @@
- */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/pci.h>
-diff -Nru a/drivers/i2c/chips/w83781d.c b/drivers/i2c/chips/w83781d.c
---- a/drivers/i2c/chips/w83781d.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/w83781d.c	Mon Mar 15 14:34:13 2004
-@@ -36,10 +36,6 @@
- */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
-diff -Nru a/drivers/i2c/chips/w83l785ts.c b/drivers/i2c/chips/w83l785ts.c
---- a/drivers/i2c/chips/w83l785ts.c	Mon Mar 15 14:34:13 2004
-+++ b/drivers/i2c/chips/w83l785ts.c	Mon Mar 15 14:34:13 2004
-@@ -31,10 +31,6 @@
-  */
- 
- #include <linux/config.h>
--#ifdef CONFIG_I2C_DEBUG_CHIP
--#define DEBUG	1
--#endif
--
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/slab.h>
 

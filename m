@@ -1,48 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265419AbTFSMGq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 08:06:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265342AbTFSMGq
+	id S264975AbTFSMJs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 08:09:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265223AbTFSMJs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 08:06:46 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:22416 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S265419AbTFSMGl (ORCPT
+	Thu, 19 Jun 2003 08:09:48 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:37521 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264975AbTFSMJp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 08:06:41 -0400
-Date: Thu, 19 Jun 2003 14:16:58 +0200
+	Thu, 19 Jun 2003 08:09:45 -0400
+Date: Thu, 19 Jun 2003 14:20:10 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Robert Love <rml@tech9.net>
-Cc: Joe Korty <joe.korty@ccur.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4 preemption bug in bh_kmap_irq
-Message-ID: <20030619121658.GK6445@suse.de>
-References: <20030414172730.GA17451@rudolph.ccur.com> <1055895865.7069.1808.camel@localhost>
+To: Andy Polyakov <appro@fy.chalmers.se>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Regarding drivers/ide/ide-cd.c in 2.5.72
+Message-ID: <20030619122010.GL6445@suse.de>
+References: <3EEF8E2E.5E14946E@fy.chalmers.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1055895865.7069.1808.camel@localhost>
+In-Reply-To: <3EEF8E2E.5E14946E@fy.chalmers.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17 2003, Robert Love wrote:
-> On Mon, 2003-04-14 at 10:27, Joe Korty wrote:
+On Tue, Jun 17 2003, Andy Polyakov wrote:
+> Hi,
 > 
-> > The bug is that bh_map_irq *conditionally* calls kmap_atomic (which
-> > disables preemption as one of its functions), while bh_unmap_irq
-> > *unconditionally* calls kunmap_atomic (which enables it).  This
-> > imbalance results in a occasional off-by-one preempt_count, which in
-> > turn causes IDE PIO mode interrupt code (specifically, read_intr) to
-> > erronously invoke preempt_schedule while at interrupt level.
-> 
-> Thanks for this (and sorry for the very delayed reply).
-> 
-> I am going to put this in the 2.4.21 preempt-kernel patch, because
-> actually someone else here at MontaVista fixed the problem in the same
-> exact way a loooong time ago and it seems to work.
-> 
-> I agree it is suboptimal and I will be happy to take patches from
-> someone else with a better idea. Until then, simplicity rules.  Thanks.
+> I have brought this issue once already in 2.5.70 context (see uppermost
+> post in http://marc.theaimsgroup.com/?t=105410790500005&r=1&w=2), but it
+> apparently slipped through. So I've decided to bring it up again, this
+> time describing [hopefully] better how does this *generic* problem with
+> ide-cd.c manifests itself. In the nutshell the problem is that [as it is
+> now] every failed SG_IO request is replayed second time without data
+> transfer. E.g. if WRITE(10) SCSI command fails with sense code X, ide-cd
+> immediately resends the command block descriptor one more time, this time
+> without programming for any associated I/O payload, which [normally]
+> results in *different* sense code. And the catch is that user-land gets
+> this second sense code instead of the real/original one. Suggested patch
+> overcomes this problem by immediately purging the failed SG_IO request
+> from the request queue.
 
-See 2.5 for the right fix.
+Patch looks fine, care to resend actually trying to follow the style in
+the file in question?
 
 -- 
 Jens Axboe

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271196AbRH0HiL>; Mon, 27 Aug 2001 03:38:11 -0400
+	id <S268342AbRH0HeU>; Mon, 27 Aug 2001 03:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269897AbRH0HiB>; Mon, 27 Aug 2001 03:38:01 -0400
-Received: from krusty.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:45582 "HELO
-	krusty.e-technik.uni-dortmund.de") by vger.kernel.org with SMTP
-	id <S268129AbRH0Hhl>; Mon, 27 Aug 2001 03:37:41 -0400
-Date: Mon, 27 Aug 2001 09:35:29 +0200
-From: Matthias Andree <matthias.andree@stud.uni-dortmund.de>
-To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.8-ac12
-Message-ID: <20010827093529.A31359@emma1.>
-Mail-Followup-To: Alan Cox <laughing@shared-source.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010826171335.A9362@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S268129AbRH0HeA>; Mon, 27 Aug 2001 03:34:00 -0400
+Received: from urc1.cc.kuleuven.ac.be ([134.58.10.3]:21196 "EHLO
+	urc1.cc.kuleuven.ac.be") by vger.kernel.org with ESMTP
+	id <S271658AbRH0Hdu>; Mon, 27 Aug 2001 03:33:50 -0400
+Message-ID: <3B89F7EE.147DBF5B@pandora.be>
+Date: Mon, 27 Aug 2001 09:34:06 +0200
+From: Bart Vandewoestyne <Bart.Vandewoestyne@pandora.be>
+Organization: MyHome
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i686)
+X-Accept-Language: nl-BE, nl, en, de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: time question
+In-Reply-To: <3B89F5D6.5813BF4D@pandora.be>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010826171335.A9362@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Sun, Aug 26, 2001 at 05:13:35PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 26 Aug 2001, Alan Cox wrote:
-
+Bart Vandewoestyne wrote:
 > 
+> I'm trying to port the DOS driver for a data aquisition card to linux
+> (http::/mc303.ulyssis.org).  It is my first linux driver writing
+> attempt. Somewhere in the code i have the following lines of DOS-code
+> that do some busy waiting:
 > 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
+> _bios_timeofday(_TIME_GETCLOCK,&tb); l = tb;
+>   while(l-tb < 2) _bios_timeofday(_TIME_GETCLOCK,&l);
 > 
-> 		 Intermediate diffs are available from
-> 			http://www.bzimage.org
-> 
-> 2.4.8-ac12
-> o	Merge the majority of 2.4.9 except
-> 	- min/max mess
-> 	- fat/isofs changes
-> 	- drm changes (some collisions with other
-> 			fixes)
-> 	- vm/buffer handling changes
-> 	- emu10k1
-> 	- vfs directory type changes
-> 	- nfs/nfsd/sunrpc
-> 	I'm trying to make sure I can keep this testable
-> 	as 2.4.9 vanilla isnt being stable on my test sets 
-> 	This is basically a merge of all the "boring" bits.
+> What is the best linux equivalent for this?
 
-2.4.9 is somewhat stable for me, here's where it bit me:
+Sorry, the URL should be: http://mc303.ulyssis.org/heim/
 
-- init occasionally hangs on boot
+Greetings,
+Bart
 
-- bridge (with netfilter patches from bridge.sf.net) kills NFS (I have
-  been told bridge and fragmented traffic don't go together well and I'd
-  have to change rsize/wsize to prevent fragmentation)
-
-Is 2.4.8-ac12 "testable" or rather "stable"?
+-- 
+Ing. Bart Vandewoestyne			 Bart.Vandewoestyne@pandora.be
+Hugo Verrieststraat 48			       GSM: +32 (0)478 397 697
+B-8550 Zwevegem			 http://users.pandora.be/vandewoestyne
+----------------------------------------------------------------------
+"Any fool can know, the point is to understand." - Albert Einstein

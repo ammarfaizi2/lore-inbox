@@ -1,53 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267365AbSLESzv>; Thu, 5 Dec 2002 13:55:51 -0500
+	id <S267368AbSLETMV>; Thu, 5 Dec 2002 14:12:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267371AbSLESzv>; Thu, 5 Dec 2002 13:55:51 -0500
-Received: from ahriman.bucharest.roedu.net ([141.85.128.71]:21411 "HELO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
-	id <S267365AbSLESzu>; Thu, 5 Dec 2002 13:55:50 -0500
-Date: Thu, 5 Dec 2002 21:21:11 +0200 (EET)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
-To: Dave Olien <dmo@osdl.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Monitor utility (was Re: DAC960 at 2.5.50)
-In-Reply-To: <20021205094500.A6769@acpi.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.33.0212052105300.22842-100000@ahriman.bucharest.roedu.net>
+	id <S267369AbSLETMV>; Thu, 5 Dec 2002 14:12:21 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:46586 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S267368AbSLETMU>;
+	Thu, 5 Dec 2002 14:12:20 -0500
+Message-ID: <3DEFA6B8.98386781@mvista.com>
+Date: Thu, 05 Dec 2002 11:19:20 -0800
+From: george anzinger <george@mvista.com>
+Organization: Monta Vista Software
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: how is the asm-generic to be used?
+References: <3DEF1DB1.98CD4BB3@mvista.com> <3DEF86A2.2010704@pobox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 5 Dec 2002, Dave Olien wrote:
+Jeff Garzik wrote:
+> 
+> george anzinger wrote:
+> > Lets say there is a bit of code in the kernel ( i.e.
+> > .../kernel/ ) that needs a function that is in an
+> > asm-gneric/*.h file.  Now someone comes along and does an
+> > asm-x386/*.h with the same functionality but much faster asm
+> > functions.  How should the using code be set up to get the
+> > faster asm version if it exists and the generic version if
+> > it does not?
+> 
+> Can you be more specific?  :)
+> 
+> asm-generic is for things that belong in include/asm-$ARCH but are also
+> shared across multiple architectures.
+> 
+What I have is a generic version of sc_math.h, a set of
+inlines and defines that make it easy to access the mpy and
+div instructions with 64-bit/32-bit arguments (for example
+mpy takes 2 32-bit arguments and produces a 64-bit result). 
+Individual archs would do these things with an sc_math.h
+that uses asm (which I also have for the i386 arch).  So the
+question is how things are set up so that the arch version
+is used if available and the generic if not.
 
-....
-> I've heard of something Mylex provides called
-> "global array manager" that runs on Linux.  But, I
-> think it requires a graphical front end on a windows
-> box.  I don't think it's open source either.
-> I'll look it over as a second priority after
-> this one.
->
-> Dave
->
-
-Hi Dave
-
-Yes, their software its pretty cool and its the only choice for using some
-of the features of the DAC960 (ex. MORE, setting queue tag len for single
-hdd, write-back cache for logical and physical drives, very nice event
-viewer, full SNMP variables exporting). They provide native linux
-drivers/server and win32 client (inside a rpm and using wine to start
-itself). Except for some minor visual problems the GAM client works pretty
-well with wine.
-
-I sugest you to try it out.
-
-----------------------------
-Mihai RUSU
-
-Disclaimer: Any views or opinions presented within this e-mail are solely
-those of the author and do not necessarily represent those of any company,
-unless otherwise specifically stated.
-
+I think the answer (one of those, "it came to me in the
+shower answers") is that it is handled by the make file
+setting up the include file search paths so that first
+asm-<arch> is search and then asm-generic.
+-- 
+George Anzinger   george@mvista.com
+High-res-timers: 
+http://sourceforge.net/projects/high-res-timers/
+Preemption patch:
+http://www.kernel.org/pub/linux/kernel/people/rml

@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266048AbUBQGMI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 01:12:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266037AbUBQGMI
+	id S266043AbUBQGIn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 01:08:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266040AbUBQGIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 01:12:08 -0500
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:6809 "EHLO
-	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S266048AbUBQGJn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 01:09:43 -0500
-Message-ID: <4031B01B.80006@t-online.de>
-Date: Tue, 17 Feb 2004 07:09:31 +0100
-From: Harald Dunkel <harald.dunkel@t-online.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040214
-X-Accept-Language: en-us, en
+	Tue, 17 Feb 2004 01:08:42 -0500
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:34232 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266043AbUBQGIN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 01:08:13 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PSX support in input/joystick/gamecon.c
+Date: Tue, 17 Feb 2004 01:08:06 -0500
+User-Agent: KMail/1.6
+Cc: Peter Nelson <pnelson@andrew.cmu.edu>,
+       Rusty Russell <rusty@rustcorp.com.au>
+References: <20040215222107.720832C2CC@lists.samba.org> <4031AB8D.1040209@andrew.cmu.edu>
+In-Reply-To: <4031AB8D.1040209@andrew.cmu.edu>
 MIME-Version: 1.0
-To: Ryan Reich <ryanr@uchicago.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.2: "-" or "_", thats the question
-References: <1pw4i-hM-27@gated-at.bofh.it> <1pw4i-hM-29@gated-at.bofh.it> <1pw4i-hM-31@gated-at.bofh.it> <1pw4i-hM-25@gated-at.bofh.it> <1pLmG-4E7-5@gated-at.bofh.it> <1pRLz-21o-33@gated-at.bofh.it> <1pRVi-2am-27@gated-at.bofh.it> <1pWi8-65a-11@gated-at.bofh.it> <40315225.3010104@uchicago.edu>
-In-Reply-To: <40315225.3010104@uchicago.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Seen: false
-X-ID: bVgYhiZageSuXQvR+bfypANeroHgm9DlWE5skPgqBayuE9uCnNUhYE
+Message-Id: <200402170108.07271.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Reich wrote:
+On Tuesday 17 February 2004 12:50 am, Peter Nelson wrote:
+> +module_param_array(gc, int, gc_count, 0);
+> +module_param_array(gc_2, int, gc_2_count, 0);
+> +module_param_array(gc_3, int, gc_3_count, 0);
+> +module_param(gc_psx_delay, int, 0);
+> +module_param(gc_psx_ddr, int, 0);
 
- > Anyway, if you really want to correct the inconsistencies you need only
- > edit the sources for the modules in question; the names which appear in
- > /proc/modules appear to be defined in, for example,
- > drivers/usb/host/uhci-hcd.c, where the .description section of the module
- > is set. Or change the filenames, though I don't know how that will fly with
- > the make process.
- >
+Nitpick: module_param, if module is compiled in, adds a prefix to parameter
+names, so the parameters will be:
+gamecon.gc
+gamecon.gc_2
+gamecon.gc_3
+gamecon.gc_psx_delay
+gamecon.gc_psx_ddr
 
-Of course I could patch the kernel sources to remove the
-inconsistencies in the module names. But IMHO it is much
-more important to convince the kernel developers that this
-inconsistency is bad.
-
-
-Regards
-
-Harri
+At least with PSX stuff it would be nice to drop gc_ prefix.
+ 
+-- 
+Dmitry

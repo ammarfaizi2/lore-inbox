@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287293AbSAPTMq>; Wed, 16 Jan 2002 14:12:46 -0500
+	id <S287254AbSAPTQ4>; Wed, 16 Jan 2002 14:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287279AbSAPTMd>; Wed, 16 Jan 2002 14:12:33 -0500
-Received: from duteinh.et.tudelft.nl ([130.161.42.1]:25354 "EHLO
-	duteinh.et.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S287297AbSAPTLu>; Wed, 16 Jan 2002 14:11:50 -0500
-Date: Wed, 16 Jan 2002 20:11:38 +0100
-From: Erik Mouw <J.A.K.Mouw@its.tudelft.nl>
-To: prodyut hazarika <prodyut_hazarika@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Interpreting ELF file on a ramdisk (block device)
-Message-ID: <20020116191138.GI10175@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20020116124008.50778.qmail@web13001.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020116124008.50778.qmail@web13001.mail.yahoo.com>
-User-Agent: Mutt/1.3.25i
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S287193AbSAPTQt>; Wed, 16 Jan 2002 14:16:49 -0500
+Received: from [66.89.142.2] ([66.89.142.2]:2617 "EHLO starship.berlin")
+	by vger.kernel.org with ESMTP id <S287163AbSAPTQg>;
+	Wed, 16 Jan 2002 14:16:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Alexander Viro <viro@math.psu.edu>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: [offtopic] duplicate mails (was: initramfs buffer spec -- second draft)
+Date: Wed, 16 Jan 2002 20:19:17 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.21.0201131536480.27390-100000@weyl.math.psu.edu> <E16QNVM-0000GQ-00@starship.berlin>
+In-Reply-To: <E16QNVM-0000GQ-00@starship.berlin>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16Qvag-00022N-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 16, 2002 at 04:40:08AM -0800, prodyut hazarika wrote:
-> I get an ELF file on a ramdisk using TFTP. I want to
-> interpret the ELF file in the ramdisk, and load it
-> into memory (SDRAM) using the ramdisk as a block
-> device, but without using any file system.
+On January 15, 2002 07:34 am, Daniel Phillips wrote:
+> [duplicate stuff]
 
-If you have the ELF file in a ramdisk, it's already in memory.
+Sorry about the duplicates, this is some initiative that exim - running on my 
+laptop - has decided, on its own, to undertake, I am research int.  It has 
+something to do with mails, apparently with some CC's undelivered, hanging 
+around in the queue and runq sending duplicates of already-delievered copies.
 
-> Is this possible? Any pointers will be greatly
-> appreciated.
+For example, right now I have this hanging around in the queue, and I will 
+eventually do a runq:
 
-No, a linux kernel can't work without a filesystem.
+58h  1.4K 16Q3MS-0000lx-00 <phillips@bonn-fries.net>
+          davidsen@tmr.com
+        D andrea@suse.de
+        D linux-kernel@vger.kernel.org
 
-> PS: Currently I use CRAMFS to get the ELF file into
-> ramdisk. Then I load the ELF file into memory using
-> CRAMFS. I want to get rid of the CRAMFS on top of ELF.
+But now I'm worried exim will send to andrea and lkml again.  Hmm.
 
-Why not use the cramfs as your rootfs?
+Is this a bug?
 
-
-Erik
-
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Faculty
-of Information Technology and Systems, Delft University of Technology,
-PO BOX 5031, 2600 GA Delft, The Netherlands  Phone: +31-15-2783635
-Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+--
+Daniel

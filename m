@@ -1,53 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVBUVsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVBUVw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbVBUVsf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Feb 2005 16:48:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVBUVse
+	id S262141AbVBUVw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Feb 2005 16:52:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262142AbVBUVw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 16:48:34 -0500
-Received: from levante.wiggy.net ([195.85.225.139]:34770 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id S262136AbVBUVsb (ORCPT
+	Mon, 21 Feb 2005 16:52:59 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:17390 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262141AbVBUVw5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 16:48:31 -0500
-Date: Mon, 21 Feb 2005 22:48:29 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-       Matthias-Christian Ott <matthias.christian@tiscali.de>,
-       =?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Re: 2.6.11rc4: irq 5, nobody cared
-Message-ID: <20050221214829.GI6722@wiggy.net>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-	Matthias-Christian Ott <matthias.christian@tiscali.de>,
-	=?iso-8859-1?Q?Rog=E9rio?= Brito <rbrito@ime.usp.br>,
-	linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-References: <20050220155600.GD5049@vanheusden.com> <4218C692.9040106@tiscali.de> <20050220180550.GA18606@ime.usp.br> <200502211943.59887.bzolnier@elka.pw.edu.pl> <421A2D8F.3050704@pobox.com> <20050221194227.GH6722@wiggy.net> <421A4574.1000604@pobox.com>
+	Mon, 21 Feb 2005 16:52:57 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=IH9KpO8LNxGKdxwVNWRR77M+rFOPNLUow68rJtuyCdRvwWvSvVHxGGcmQtGefxIu72b4gVQnuwT+J78dRKIZCPhdnfIGr1LPnkpvcF2t2Fo0aSXviaMk1EoywlA0EENOgTzu63vbHdJCYV/h+GANYpy8uG6Fyn82Ccue/XVNOyU=
+Message-ID: <29495f1d0502211352776cfb36@mail.gmail.com>
+Date: Mon, 21 Feb 2005 13:52:56 -0800
+From: Nish Aravamudan <nish.aravamudan@gmail.com>
+Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
+To: Martin Hicks <mort@wildopensource.com>
+Subject: Re: [PATCH/RFC] A method for clearing out page cache
+Cc: Paul Jackson <pj@sgi.com>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       raybry@sgi.com
+In-Reply-To: <20050221192721.GB26705@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <421A4574.1000604@pobox.com>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050214154431.GS26705@localhost>
+	 <20050214193704.00d47c9f.pj@sgi.com>
+	 <20050221192721.GB26705@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously Jeff Garzik wrote:
-> These are _duplicate_ messages.  The To/CC doesn't vary in my 
-> experience.  Therefore, sorting on To/CC always guarantees my messages 
-> go into the correct folder.
+On Mon, 21 Feb 2005 14:27:21 -0500, Martin Hicks
+<mort@wildopensource.com> wrote:
+> 
+> Hi,
+> 
+> I've made a bunch of changes that Paul suggested.  I've also responded
+> to his concerns further down.  Paul correctly pointed out that this
+> patch uses some helper functions that are part of the cpusets patch.  I
+> should have mentioned this before.
 
-It depends highly on how you filter. It do not use To/Cc headers
-to choose the mailbox to deliver a message in since that will not work
-with things like bounces and aliases. Using headers like List-Id or
-X-Mailing-List is reliable, but does not work with the duplicate
-filtering you suggested.
+<snip>
 
-It is a matter of choosing your own preference. And ours seem to differ.
+> This patch introduces a new sysctl for NUMA systems that tries to drop
+> as much of the page cache as possible from a set of nodes.  The
+> motivation for this patch is for setting up High Performance Computing
+> jobs, where initial memory placement is very important to overall
+> performance.
 
-Wichert.
+<snip>
 
--- 
-Wichert Akkerman <wichert@wiggy.net>    It is simple to make things.
-http://www.wiggy.net/                   It is hard to make things simple.
+> +       /* wait for the kernel threads to complete */
+> +       while (atomic_read(&num_toss_threads_active) > 0) {
+> +               __set_current_state(TASK_INTERRUPTIBLE);
+> +               schedule_timeout(10);
+> +       }
+
+<snip>
+
+Would it be possible to use msleep_interruptible() here? Or is it a
+strict check every 10 ticks, regardless of HZ? Could a comment be
+inserted indicating
+which is the case?
+
+Thanks,
+Nish

@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271824AbRHUTEa>; Tue, 21 Aug 2001 15:04:30 -0400
+	id <S271838AbRHUTHU>; Tue, 21 Aug 2001 15:07:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271828AbRHUTEU>; Tue, 21 Aug 2001 15:04:20 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:519 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S271824AbRHUTEG>; Tue, 21 Aug 2001 15:04:06 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Stephan von Krawczynski <skraw@ithnet.com>
-Subject: Re: Memory Problem in 2.4.9 ?
-Date: Tue, 21 Aug 2001 21:10:44 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20010821154617.4671f85d.skraw@ithnet.com> <20010821174918Z16114-32383+718@humbolt.nl.linux.org> <20010821201733.40fae5cf.skraw@ithnet.com>
-In-Reply-To: <20010821201733.40fae5cf.skraw@ithnet.com>
+	id <S271836AbRHUTHM>; Tue, 21 Aug 2001 15:07:12 -0400
+Received: from natpost.webmailer.de ([192.67.198.65]:1257 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S271826AbRHUTG4>; Tue, 21 Aug 2001 15:06:56 -0400
+Message-ID: <3B82B136.1010904@korseby.net>
+Date: Tue, 21 Aug 2001 21:06:30 +0200
+From: Kristian <kristian@korseby.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: de, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010821190414Z16086-32384+294@humbolt.nl.linux.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: cwidmer@iiic.ethz.ch, linux-kernel@vger.kernel.org
+Subject: Re: massive filesystem corruption with 2.4.9
+In-Reply-To: <E15ZEJM-0008Di-00@the-village.bc.nu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 21, 2001 08:17 pm, Stephan von Krawczynski wrote:
-> On Tue, 21 Aug 2001 19:55:49 +0200
-> Daniel Phillips <phillips@bonn-fries.net> wrote:
-> 
-> > Do you have highmem configged?  Try it with highmem off.
-> 
-> I did. Problem stays:
-> 
-> Aug 21 20:14:51 admin kernel: __alloc_pages: 3-order allocation failed 
-(gfp=0x20/0).
-> Aug 21 20:14:51 admin last message repeated 146 times
-> 
-> Next idea?
+Alan Cox wrote:
+> Does memtest86 show up anything on this box ?
 
-It's an atomic allocation, the driver is supposed to be able to handle this, 
-and it does since you report that the burn just runs slowly, it does not 
-stop.  There is way too much in cache:
+No errors...
 
->         total:    used:    free:  shared: buffers:  cached:
-> Mem:  1053675520 1047502848  6172672        0 20930560 939307008
-> Swap: 271392768 15880192 255512576
+Btw: As far as I know did the problem occur since I patched 2.4.5 with ac13 or 
+ac15. Maybe a clean 2.4.5 works fine. I'm not sure about this. It's some time 
+ago... Did you have made some important ext2-related changes with 2.4.5-ac?. I 
+could revert to the old kernel and test him if it is relevant.
 
-This is causing the high order allocation failures - with only a small 
-fraction of memory free the chances of none of it being in contiguous, 
-aligned 8 page units rises dramatically.  It's likely the kprint that is 
-slowing you down, you could check this by commenting it out (page_alloc.c, 
-near the end of __alloc_pages).
+Kristian
 
-Do you have the same problem on 2.4.8, but not in 2.4.7?
+·· · · reach me :: · ·· ·· ·  · ·· · ··  · ··· · ·
+                          :: http://www.korseby.net
+                          :: http://www.tomlab.de
+kristian@korseby.net ....::
 
---
-Daniel

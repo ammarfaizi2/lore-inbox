@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVBSOdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVBSOso@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVBSOdG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 09:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVBSOdG
+	id S261723AbVBSOso (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 09:48:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVBSOsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 09:33:06 -0500
-Received: from smtpq2.home.nl ([213.51.128.197]:32930 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S261720AbVBSOcx (ORCPT
+	Sat, 19 Feb 2005 09:48:43 -0500
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:60591 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261723AbVBSOsm convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 09:32:53 -0500
-Message-ID: <42174DD4.9010506@keyaccess.nl>
-Date: Sat, 19 Feb 2005 15:31:48 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: en-us, en
+	Sat, 19 Feb 2005 09:48:42 -0500
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: Pedro Venda <pjvenda@arrakis.dhis.org>
+Subject: Re: possible leak in kernel 2.6.10-ac12
+Date: Sat, 19 Feb 2005 09:48:11 -0500
+User-Agent: KMail/1.7.92
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <4213D70F.20104@arrakis.dhis.org> <200502161835.26047.kernel-stuff@comcast.net> <42173323.5060807@arrakis.dhis.org>
+In-Reply-To: <42173323.5060807@arrakis.dhis.org>
 MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Vicente Feito <vicente.feito@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: workqueue - process context
-References: <200502190148.11334.vicente.feito@gmail.com> <52is4ptae0.fsf@topspin.com>
-In-Reply-To: <52is4ptae0.fsf@topspin.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200502190948.11948.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
+On Saturday 19 February 2005 07:37 am, Pedro Venda wrote:
+> biovec-1          1989252 1989478     16  226    1 : tunables  120   60  
+>  0 : slabdata   8803   8803      0 bio               1989270 1989271     64
+>   61    1 : tunables  120   60    0 : slabdata  32611  32611      0
 
-> Not destroying its workqueue is a bug in the module just like any
-> other resource leak.  It's analogous to a module allocating some
-> memory with kmalloc() and not calling kfree() when it's unloaded.
+You have bio leak. Similar one was fixed in -rc4. 
+Did you already try using the md fix 
+http://linux.bkbits.net:8080/linux-2.6/diffs/drivers/md/md.c@1.234
+And
+http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Fpatch-2.6.10.bz2;z=4918
+?
 
-Except though that with kmalloc() it's indeed just a leak while in this 
-case things might blow up violently if run_workqueue() later accesses a 
-workqueue_struct (or work_struct) which is already gone as part of the 
-modules' datasection, for example. That's to say, if I'm reading this 
-right...
+If not, is it possible for you to either port these fixes to -ac12 or use -rc4 
+and then report slabinfo after couple of days?
 
-I have no idea about the module refcounting stuff. Is there a chance 
-that create_workqueue() could increase a reference somewhere so that the 
-module wouldn't be allowed to unload untill after a destroy_workqueue()?
-
-Rene.
+Parag

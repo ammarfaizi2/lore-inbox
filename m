@@ -1,46 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267446AbTAGRoy>; Tue, 7 Jan 2003 12:44:54 -0500
+	id <S267473AbTAGRsv>; Tue, 7 Jan 2003 12:48:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267448AbTAGRoy>; Tue, 7 Jan 2003 12:44:54 -0500
-Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:35572 "EHLO
-	schatzie.adilger.int") by vger.kernel.org with ESMTP
-	id <S267446AbTAGRox>; Tue, 7 Jan 2003 12:44:53 -0500
-Date: Tue, 7 Jan 2003 10:53:15 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Max Valdez <maxvaldez@yahoo.com>
-Cc: Jan Hudec <bulb@ucw.cz>, kernel <linux-kernel@vger.kernel.org>
+	id <S267474AbTAGRsv>; Tue, 7 Jan 2003 12:48:51 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:7686 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S267473AbTAGRsu>;
+	Tue, 7 Jan 2003 12:48:50 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301071757.h07HvU1l002172@darkstar.example.net>
 Subject: Re: Undelete files on ext3 ??
-Message-ID: <20030107105315.T31555@schatzie.adilger.int>
-Mail-Followup-To: Max Valdez <maxvaldez@yahoo.com>, Jan Hudec <bulb@ucw.cz>,
-	kernel <linux-kernel@vger.kernel.org>
-References: <200301070859.h078xEnI000337@darkstar.example.net> <Pine.LNX.4.44.0301071004550.30728-100000@dns.toxicfilms.tv> <20030107094547.GG2141@vagabond> <1041961118.13635.10.camel@garaged.fis.unam.mx>
-Mime-Version: 1.0
+To: maxvaldez@yahoo.com (Max Valdez)
+Date: Tue, 7 Jan 2003 17:57:29 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1041961118.13635.10.camel@garaged.fis.unam.mx> from "Max Valdez" at Jan 07, 2003 11:38:38 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1041961118.13635.10.camel@garaged.fis.unam.mx>; from maxvaldez@yahoo.com on Tue, Jan 07, 2003 at 11:38:38AM -0600
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jan 07, 2003  11:38 -0600, Max Valdez wrote:
+> > By the way, there used to be undelete tool for ext2. It created a list
+> > of deleted inodes with correct stat, but no names, only their inode
+> > numbers. You could then pick the corect inode and give it a name, thus
+> > bringing it back to life. Since ext3 is just ext2 with journal, I guess
+> > it might work. It existed as a standalone tool and integrated to
+> > midnight commander.
+
 > I think there must be some other differences between ext2 and ext3, I've
 > tryed e2undel and unrm, both made for ext2, and none of them found any
 > deleted inode.
+> 
+> I umonted immediately the drive, and nothing has been writen on it after
+> the rm *
 
-Yes, in order to ensure that ext3 can safely resume an unlink after a
-crash, it actually zeros out the block pointers in the inode, whereas
-ext2 just marks these blocks as unused in the block bitmaps and marks
-the inode as "deleted" and leaves the block pointers alone.
+Maybe it's not working because you need to flush the journal before
+the ext2 tool will see the inode as deleted.  Alternatively, if that
+is the case, perhaps by ignoring the data in the journal, the file
+would not appear to be deleted.
 
-Your only hope is to "grep" for parts of your files that have been deleted
-and hope for the best.
+Why not make a copy of the partition in to a file, and mount that file
+using the loopback device - then you can try flushing the journal,
+discarding the journal, etc.
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-
+John.

@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264939AbTARRBU>; Sat, 18 Jan 2003 12:01:20 -0500
+	id <S264716AbTARRY2>; Sat, 18 Jan 2003 12:24:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264950AbTARRBT>; Sat, 18 Jan 2003 12:01:19 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60904 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S264939AbTARRBP>; Sat, 18 Jan 2003 12:01:15 -0500
-Date: Sat, 18 Jan 2003 18:10:10 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-scsi@vger.kernel.org
+	id <S264878AbTARRY2>; Sat, 18 Jan 2003 12:24:28 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:45574 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S264716AbTARRY1>;
+	Sat, 18 Jan 2003 12:24:27 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301181733.h0IHXbkZ001932@darkstar.example.net>
+Subject: Re: reading from devices in RAW mode
+To: folkert@vanheusden.com (Folkert van Heusden)
+Date: Sat, 18 Jan 2003 17:33:37 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: [2.5 patch] small cleanup for drivers/scsi/inia100.*
-Message-ID: <20030118171010.GI10647@fs.tum.de>
-Mime-Version: 1.0
+In-Reply-To: <004d01c2bf14$54099340$3640a8c0@boemboem> from "Folkert van Heusden" at Jan 18, 2003 06:09:13 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below contains the following small cleanup for 
-drivers/scsi/inia100.{h,c}:
-- removed unused TRUE/FALSE
-- removed unused CVT_LINUX_VERSION and #include <linux/version.h>
+> > The closest you could probably get with any modern device would be
+> > "read sector foo, and return data even if ECC appears to have
+> > failed".
+> 
+> And that's exactly what I want!
+> (for the situations where the bad data starts, say, halfway the sector)
 
-I've tested the compilation with 2.5.59.
+You'd have to ask the IDE and SCSI subsystem people for programming
+information about how to do that for disks.
 
-cu
-Adrian
+The problem is that as far as I know, if the ECC doesn't work, you
+won't end up getting back back more or less intact data, with just a
+flipped bit here and there.
 
---- linux-2.5.59-full/drivers/scsi/inia100.h.old	2003-01-18 17:59:24.000000000 +0100
-+++ linux-2.5.59-full/drivers/scsi/inia100.h	2003-01-18 18:01:50.000000000 +0100
-@@ -63,14 +63,6 @@
-  *		   merged them into a single header used by both .c files.
-  ****************************************************************************/
- 
--#ifndef	CVT_LINUX_VERSION
--#define	CVT_LINUX_VERSION(V,P,S)	(((V) * 65536) + ((P) * 256) + (S))
--#endif
--
--#ifndef	LINUX_VERSION_CODE
--#include <linux/version.h>
--#endif
--
- #include <linux/config.h>
- #include <linux/types.h>
- #include <linux/pci.h>
-@@ -117,12 +109,6 @@
- #ifndef NULL
- #define NULL     0		/* zero          */
- #endif
--#ifndef TRUE
--#define TRUE     (1)		/* boolean true  */
--#endif
--#ifndef FALSE
--#define FALSE    (0)		/* boolean false */
--#endif
- #ifndef FAILURE
- #define FAILURE  (-1)
- #endif
---- linux-2.5.59-full/drivers/scsi/inia100.c.old	2003-01-18 18:03:23.000000000 +0100
-+++ linux-2.5.59-full/drivers/scsi/inia100.c	2003-01-18 18:03:46.000000000 +0100
-@@ -67,12 +67,6 @@
-  *          - Fix allocation of scsi host structs and private data
-  **************************************************************************/
- 
--#define CVT_LINUX_VERSION(V,P,S)        (V * 65536 + P * 256 + S)
--
--#ifndef LINUX_VERSION_CODE
--#include <linux/version.h>
--#endif
--
- #include <linux/module.h>
- 
- #include <linux/errno.h>
+I'm not sure exactly how it works, but the basic theory is something
+along these lines:
+
+Suppose you are storing 5 data bits using 10 actual bits on disk.
+
+Typically, you might expect a read to read to return 8 bits accurately
+and 2 bits inaccurately.  That's enough to re-construct the data.
+When 6 bits are read inaccurately, an un-correctable error occurs.
+Retrying the read might succeed, because only 4 bits might be read
+inaccurately the second time.
+
+Although reading without using error correction will allow you to
+access the unreadable data, is quite likely to return some of the 5
+data bits incorrectly, which could have been corrected, incorrectly.
+
+I hope that explaination is of some use - maybe somebody else can
+improve it.
+
+John.

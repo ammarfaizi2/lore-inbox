@@ -1,33 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289102AbSAUJV4>; Mon, 21 Jan 2002 04:21:56 -0500
+	id <S289101AbSAUJV4>; Mon, 21 Jan 2002 04:21:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289103AbSAUJVr>; Mon, 21 Jan 2002 04:21:47 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:19907 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S289102AbSAUJVk>; Mon, 21 Jan 2002 04:21:40 -0500
-Message-Id: <200201210921.g0L9LOeV001797@tigger.cs.uni-dortmund.de>
-To: Matt <matt@progsoc.uts.edu.au>
-cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org,
-        Josh MacDonald <jmacd@CS.Berkeley.EDU>
-Subject: Re: Possible Idea with filesystem buffering. 
-In-Reply-To: Message from Matt <matt@progsoc.uts.edu.au> 
-   of "Mon, 21 Jan 2002 11:10:05 +1100." <20020121111005.F12258@ftoomsh.progsoc.uts.edu.au> 
-Date: Mon, 21 Jan 2002 10:21:23 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S289105AbSAUJVr>; Mon, 21 Jan 2002 04:21:47 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:32519 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S289101AbSAUJVe>; Mon, 21 Jan 2002 04:21:34 -0500
+Date: Mon, 21 Jan 2002 11:21:30 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: rm-ing files with open file descriptors
+Message-ID: <20020121092130.GA51774@niksula.cs.hut.fi>
+In-Reply-To: <20020120210841.GU51774@niksula.cs.hut.fi> <200201210906.g0L96vT2001762@tigger.cs.uni-dortmund.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200201210906.g0L96vT2001762@tigger.cs.uni-dortmund.de>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt <matt@progsoc.uts.edu.au> said:
+On Mon, Jan 21, 2002 at 10:06:57AM +0100, you [Horst von Brand] claimed:
+> 
+> There are filesystems around (MSDOS, VFAT) that haven't got fixed inode
+> numbers for files. There are networked filesystems where this would need
+> radical changes to the server side. Some even make up inode numbers on the
+> fly IIRC.
 
-[...]
+True.
+ 
+> If in dire need, you could hack something together for <favorite
+> filesystem> by groveling over the disk image. e2fsprogs' libraries should
+> come handy...
 
-> i know this sounds semi-evil, but can't you just drop another non
-> dirty page and do a copy if you need the page you have been asked to
-> write out? because if you have no non dirty pages around you'd
-> probably have to drop the page anyway at some stage..
+Well, I'll have to come up with the dire need first - or any need indeed :).
+Just playing around with the idea.
 
-Better not. "Get rid of A", OK, copied to B. "Get rid of B", OK, copied to
-C. Lather. Rinse. Repeat.
--- 
-Horst von Brand			     http://counter.li.org # 22616
+IIRC, Stephen Tweedie had made such a patch for ext2.
+
+
+-- v --
+
+v@iki.fi

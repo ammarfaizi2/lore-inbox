@@ -1,181 +1,563 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312392AbSDCUbA>; Wed, 3 Apr 2002 15:31:00 -0500
+	id <S311641AbSDCUZt>; Wed, 3 Apr 2002 15:25:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312393AbSDCUav>; Wed, 3 Apr 2002 15:30:51 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:51472 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S312392AbSDCUam>; Wed, 3 Apr 2002 15:30:42 -0500
-Date: Wed, 3 Apr 2002 12:30:24 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linus Torvalds <torvalds@transmeta.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] new fbdev api.
-Message-ID: <Pine.LNX.4.10.10204031224280.14670-100000@www.transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312392AbSDCUZm>; Wed, 3 Apr 2002 15:25:42 -0500
+Received: from host216040.arnet.net.ar ([200.45.216.40]:8320 "EHLO
+	inferno.inferno.linux-site.net") by vger.kernel.org with ESMTP
+	id <S311641AbSDCUZe>; Wed, 3 Apr 2002 15:25:34 -0500
+Subject: Re: [patch] Re: IRQ routing conflicts / Assigning IRQ 0 to ethernet
+From: Luis Falcon <lfalcon@thymbra.com>
+To: Dominik Brodowski <devel@brodo.de>
+Cc: linux-kernel@vger.kernel.org, becker@scyld.com
+In-Reply-To: <02040300075302.00816@sonnenschein>
+Content-Type: multipart/mixed; boundary="=-w1ZaW7kYKjmNvhIPYaJ5"
+X-Mailer: Ximian Evolution 1.0.3 
+Date: 03 Apr 2002 17:24:08 -0300
+Message-Id: <1017865448.1457.32.camel@inferno>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch is the first in a series to move over to the new fbdev api. It
-is against 2.5.7. The basic goal is remove the tones of redundent code in
-the fbdev layer and make a much simpler api. The main way to accomplish
-this is to reverse the flow of logic for the console system. The fbdev
-system was later developed and we see alot of needless functionality added
-to the fbdev layer. Instead the flow should be functionality in the
-console system to the fbdev layer instead of the reverse. Also
-accomplished is the seperation of the fbdev layer from the console layer.
-This will have a very important impact on linux embedded devices. It has
-been tested and has been in Dave Jones tree for some time. Geert with
-your blessing I like to have it added to Linus tree.
+--=-w1ZaW7kYKjmNvhIPYaJ5
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-   . ---
-   |o_o |
-   |:_/ |   Give Micro$oft the Bird!!!!
-  //   \ \  Use Linux!!!!
- (|     | )
- /'_   _/`\
- ___)=(___/
+Hi Dominik.
 
---- linux-2.5.7/include/linux/fb.h	Thu Mar 14 13:24:26 2002
-+++ linux/include/linux/fb.h	Wed Apr  3 12:53:56 2002
-@@ -253,19 +253,52 @@
- 	__u32 reserved[4];		/* reserved for future compatibility */
- };
- 
-+/* Internal HW accel */
-+#define ROP_COPY 0
-+#define ROP_XOR  1
-+
-+struct fb_copyarea {
-+	__u32 sx;	/* screen-relative */
-+	__u32 sy;
-+	__u32 width;
-+	__u32 height;
-+	__u32 dx;
-+	__u32 dy;
-+};
-+
-+struct fb_fillrect {
-+	__u32 dx;	/* screen-relative */
-+	__u32 dy;
-+	__u32 width;
-+	__u32 height;
-+	__u32 color;
-+	__u32 rop;
-+};
-+
-+struct fb_image {
-+	__u32 width;	/* Size of image */
-+	__u32 height;
-+	__u16 dx;	/* Where to place image */
-+	__u16 dy;
-+	__u32 fg_color;	/* Only used when a mono bitmap */
-+	__u32 bg_color;
-+	__u8  depth;	/* Dpeth of the image */
-+	char  *data;	/* Pointer to image data */
-+};
-+
- #ifdef __KERNEL__
- 
- #if 1 /* to go away in 2.5.0 */
- extern int GET_FB_IDX(kdev_t rdev);
- #else
--#define GET_FB_IDX(node)	(MINOR(node))
-+#define GET_FB_IDX(node)	(minor(node))
- #endif
- 
- #include <linux/fs.h>
-+#include <linux/poll.h>
- #include <linux/init.h>
- #include <linux/devfs_fs_kernel.h>
- 
--
- struct fb_info;
- struct fb_info_gen;
- struct vm_area_struct;
-@@ -295,9 +328,25 @@
-     /* set colormap */
-     int (*fb_set_cmap)(struct fb_cmap *cmap, int kspc, int con,
- 		       struct fb_info *info);
--    /* pan display (optional) */
--    int (*fb_pan_display)(struct fb_var_screeninfo *var, int con,
--			  struct fb_info *info);
-+    /* checks var and creates a par based on it */
-+    int (*fb_check_var)(struct fb_var_screeninfo *var, struct fb_info *info);
-+    /* set the video mode according to par */
-+    int (*fb_set_par)(struct fb_info *info);
-+    /* set color register */
-+    int (*fb_setcolreg)(unsigned regno, unsigned red, unsigned green,
-+                        unsigned blue, unsigned transp, struct fb_info *info);
-+    /* blank display */
-+    int (*fb_blank)(int blank, struct fb_info *info);
-+    /* pan display */
-+    int (*fb_pan_display)(struct fb_var_screeninfo *var, int con, struct fb_info *info);
-+    /* draws a rectangle */
-+    void (*fb_fillrect)(struct fb_info *info, struct fb_fillrect *rect); 
-+    /* Copy data from area to another */
-+    void (*fb_copyarea)(struct fb_info *info, struct fb_copyarea *region); 
-+    /* Draws a image to the display */
-+    void (*fb_imageblit)(struct fb_info *info, struct fb_image *image);
-+    /* perform polling on fb device */
-+    int (*fb_poll)(struct fb_info *info, poll_table *wait);
-     /* perform fb specific ioctl (optional) */
-     int (*fb_ioctl)(struct inode *inode, struct file *file, unsigned int cmd,
- 		    unsigned long arg, int con, struct fb_info *info);
-@@ -321,6 +370,7 @@
-    char *screen_base;                   /* Virtual address */
-    struct display *disp;		/* initial display variable */
-    struct vc_data *display_fg;		/* Console visible on this display */
-+   int currcon;				/* Current VC. */	
-    char fontname[40];			/* default font name */
-    devfs_handle_t devfs_handle;         /* Devfs handle for new name         */
-    devfs_handle_t devfs_lhandle;        /* Devfs handle for compat. symlink  */
-@@ -389,16 +439,29 @@
- 
- extern int fbgen_get_fix(struct fb_fix_screeninfo *fix, int con,
- 			 struct fb_info *info);
-+extern int gen_get_fix(struct fb_fix_screeninfo *fix, int con,
-+		       struct fb_info *info);
- extern int fbgen_get_var(struct fb_var_screeninfo *var, int con,
- 			 struct fb_info *info);
-+extern int gen_get_var(struct fb_var_screeninfo *var, int con,
-+		       struct fb_info *info);
- extern int fbgen_set_var(struct fb_var_screeninfo *var, int con,
- 			 struct fb_info *info);
-+extern int gen_set_var(struct fb_var_screeninfo *var, int con,
-+		       struct fb_info *info);
- extern int fbgen_get_cmap(struct fb_cmap *cmap, int kspc, int con,
- 			  struct fb_info *info);
-+extern int gen_get_cmap(struct fb_cmap *cmap, int kspc, int con,
-+			struct fb_info *info);
- extern int fbgen_set_cmap(struct fb_cmap *cmap, int kspc, int con,
- 			  struct fb_info *info);
-+extern int gen_set_cmap(struct fb_cmap *cmap, int kspc, int con,
-+			struct fb_info *info);
- extern int fbgen_pan_display(struct fb_var_screeninfo *var, int con,
- 			     struct fb_info *info);
-+extern void cfb_fillrect(struct fb_info *info, struct fb_fillrect *rect); 
-+extern void cfb_copyarea(struct fb_info *info, struct fb_copyarea *region); 
-+extern void cfb_imageblit(struct fb_info *info, struct fb_image *image);
- 
-     /*
-      *  Helper functions
-@@ -409,9 +472,12 @@
- extern void fbgen_set_disp(int con, struct fb_info_gen *info);
- extern void fbgen_install_cmap(int con, struct fb_info_gen *info);
- extern int fbgen_update_var(int con, struct fb_info *info);
-+extern int gen_update_var(int con, struct fb_info *info);
- extern int fbgen_switch(int con, struct fb_info *info);
- extern void fbgen_blank(int blank, struct fb_info *info);
-+extern int gen_switch(int con, struct fb_info *info);
- 
-+extern void gen_set_disp(int con, struct fb_info *info);
- 
- /* drivers/video/fbmem.c */
- extern int register_framebuffer(struct fb_info *fb_info);
+Thanks for the patch !
 
+The devices have been assigned the missing IRQs. The network card keeps
+having some problems, but I believe is now a driver related issue.
+
+This is what I get when activating the network card.I'm copying this
+message to Donald Becker, the developer for the tulip driver.
+
+Apr  3 12:28:47 inferno kernel: NETDEV WATCHDOG: eth0: transmit timed
+out
+Apr  3 12:28:47 inferno kernel: eth0: Transmit timed out, status
+fc674055, CSR12 00000000, resetting...
+
+I'm attaching the latest dmesg and lspci so you can take a look at it
+and check for possible hot-spots.
+
+Thanks again for your help. 
+
+Regards,
+Luis
+ 
+
+
+sues. Patch is against 
+> acpi-20020329 + 2.5.7/2.4.18. Please test + tell me if it works.
+> 
+> Dominik
+> 
+> --- linux/arch/i386/kernel/pci-irq.c.original	Tue Apr  2 13:35:24 2002
+> +++ linux/arch/i386/kernel/pci-irq.c	Tue Apr  2 13:47:23 2002
+> @@ -576,10 +576,8 @@
+>  	struct pci_dev *dev2;
+>  	char *msg = NULL;
+>  
+> -	if (!pirq_table)
+> -		return 0;
+>  
+> -	/* Find IRQ routing entry */
+> +	/* Find IRQ pin */
+>  	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+>  	if (!pin) {
+>  		DBG(" -> no interrupt pin\n");
+> @@ -588,10 +586,17 @@
+>  	pin = pin - 1;
+>  
+>  #ifdef CONFIG_ACPI_PCI
+> +	/* Use ACPI to lookup IRQ */
+> +
+>  	if (pci_use_acpi_routing)
+>  		return acpi_lookup_irq(dev, pin, assign);
+>  #endif
+>  	
+> +	/* Find IRQ routing entry */
+> +
+> +	if (!pirq_table)
+> +		return 0;
+> +
+>  	DBG("IRQ for %s:%d", dev->slot_name, pin);
+>  	info = pirq_get_info(dev);
+>  	if (!info) {
+> 
+> 
+> On Tuesday,  2. April 2002 23:54, Luis Falcon wrote:
+> > Bryan,
+> >
+> > Thanks a lot for your response.
+> > In fact the IRQ routing conflict has been solved !
+> >
+> > What is still pending is the assignment of a valid IRQ to the Ethernet card
+> > ( device 00:05.0 ) and Sound Card ( 00:07.5 ). So, at this point, the
+> > ethernet card doesn't work.
+> >  does not work.
+> >
+> > Here's the latest dmesg.
+> >
+> > Regards,
+> > Luis
+> ----
+> 
+
+> --- linux/arch/i386/kernel/pci-irq.c.original	Tue Apr  2 13:35:24 2002
+> +++ linux/arch/i386/kernel/pci-irq.c	Tue Apr  2 13:47:23 2002
+> @@ -576,10 +576,8 @@
+>  	struct pci_dev *dev2;
+>  	char *msg = NULL;
+>  
+> -	if (!pirq_table)
+> -		return 0;
+>  
+> -	/* Find IRQ routing entry */
+> +	/* Find IRQ pin */
+>  	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+>  	if (!pin) {
+>  		DBG(" -> no interrupt pin\n");
+> @@ -588,10 +586,17 @@
+>  	pin = pin - 1;
+>  
+>  #ifdef CONFIG_ACPI_PCI
+> +	/* Use ACPI to lookup IRQ */
+> +
+>  	if (pci_use_acpi_routing)
+>  		return acpi_lookup_irq(dev, pin, assign);
+>  #endif
+>  	
+> +	/* Find IRQ routing entry */
+> +
+> +	if (!pirq_table)
+> +		return 0;
+> +
+>  	DBG("IRQ for %s:%d", dev->slot_name, pin);
+>  	info = pirq_get_info(dev);
+>  	if (!info) {
+
+
+--=-w1ZaW7kYKjmNvhIPYaJ5
+Content-Disposition: attachment; filename=lspci.patchirq
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=lspci.patchirq; charset=ISO-8859-1
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT8605 [ProSavage PM133]
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort+ >SERR- <PERR+
+	Latency: 0
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=3D128M]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=3D31 SBA+ 64bit- FW- Rate=3Dx1,x2
+		Command: RQ=3D0 SBA- AGP- 64bit- FW- Rate=3D<none>
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8605 [PM133 AGP] (prog-if 00 [=
+Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D0
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: e0100000-e01fffff
+	Prefetchable memory behind bridge: f0000000-f7ffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:05.0 Ethernet controller: Accton Technology Corporation: Unknown device =
+1216 (rev 11)
+	Subsystem: Accton Technology Corporation: Unknown device 2242
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64 (63750ns min, 63750ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at 1c00 [size=3D256]
+	Region 1: Memory at 1f000000 (32-bit, non-prefetchable) [size=3D1K]
+	Expansion ROM at <unassigned> [disabled] [size=3D128K]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D100mA PME(D0+,D1+,D2+,D3hot+,D3c=
+old+)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:06.0 Communication controller: Lucent Microelectronics LT WinModem
+	Subsystem: Askey Computer Corp.: Unknown device 4005
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at e0000000 (32-bit, non-prefetchable) [disabled] [size=
+=3D256]
+	Region 1: I/O ports at 1030 [disabled] [size=3D8]
+	Region 2: I/O ports at 1400 [disabled] [size=3D256]
+	Capabilities: [f8] Power Management version 2
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=3D160mA PME(D0-,D1-,D2-,D3hot+,D3c=
+old+)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (r=
+ev 40)
+	Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog=
+-if 8a [Master SecP PriP])
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1890
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Region 4: I/O ports at 1020 [size=3D16]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 1a) (prog-if 0=
+0 [UHCI])
+	Subsystem: Unknown device 0925:1234
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Interrupt: pin D routed to IRQ 5
+	Region 4: I/O ports at 1000 [size=3D32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.4 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (re=
+v 40)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+	Capabilities: [68] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio Cont=
+roller (rev 50)
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1840
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin C routed to IRQ 5
+	Region 0: I/O ports at 1800 [size=3D256]
+	Region 1: I/O ports at 103c [size=3D4]
+	Region 2: I/O ports at 1038 [size=3D4]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:0c.0 CardBus bridge: O2 Micro, Inc. OZ6933 Cardbus Controller (rev 01)
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1860
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at 1f001000 (32-bit, non-prefetchable) [size=3D4K]
+	Bus: primary=3D00, secondary=3D02, subordinate=3D05, sec-latency=3D176
+	Memory window 0: 1f400000-1f7ff000 (prefetchable)
+	Memory window 1: 1f800000-1fbff000
+	I/O window 0: 00004000-000040ff
+	I/O window 1: 00004400-000044ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:0c.1 CardBus bridge: O2 Micro, Inc. OZ6933 Cardbus Controller (rev 01)
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1860
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin B routed to IRQ 10
+	Region 0: Memory at 1f002000 (32-bit, non-prefetchable) [size=3D4K]
+	Bus: primary=3D00, secondary=3D06, subordinate=3D09, sec-latency=3D176
+	Memory window 0: 1fc00000-1ffff000 (prefetchable)
+	Memory window 1: 20000000-203ff000
+	I/O window 0: 00004800-000048ff
+	I/O window 1: 00004c00-00004cff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:0d.0 FireWire (IEEE 1394): Lucent Microelectronics: Unknown device 5811 =
+(rev 04) (prog-if 10 [OHCI])
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1881
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 96 (3000ns min, 6000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at e0001000 (32-bit, non-prefetchable) [size=3D4K]
+	Capabilities: [44] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D0mA PME(D0+,D1+,D2+,D3hot+,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+01:00.0 VGA compatible controller: S3 Inc.: Unknown device 8d01 (rev 02) (p=
+rog-if 00 [VGA])
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1830
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64 (1000ns min, 63750ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at e0100000 (32-bit, non-prefetchable) [size=3D512K]
+	Region 1: Memory at f0000000 (32-bit, prefetchable) [size=3D128M]
+	Expansion ROM at <unassigned> [disabled] [size=3D64K]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+	Capabilities: [80] AGP version 2.0
+		Status: RQ=3D31 SBA- 64bit- FW- Rate=3D<none>
+		Command: RQ=3D0 SBA- AGP- 64bit- FW- Rate=3D<none>
+
+
+--=-w1ZaW7kYKjmNvhIPYaJ5
+Content-Disposition: attachment; filename=dmseg.patchirq
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; name=dmseg.patchirq; charset=ISO-8859-1
+
+00:00.0 Host bridge: VIA Technologies, Inc. VT8605 [ProSavage PM133]
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort+ >SERR- <PERR+
+	Latency: 0
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=3D128M]
+	Capabilities: [a0] AGP version 2.0
+		Status: RQ=3D31 SBA+ 64bit- FW- Rate=3Dx1,x2
+		Command: RQ=3D0 SBA- AGP- 64bit- FW- Rate=3D<none>
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8605 [PM133 AGP] (prog-if 00 [=
+Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort+ >SERR- <PERR-
+	Latency: 0
+	Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D0
+	I/O behind bridge: 0000f000-00000fff
+	Memory behind bridge: e0100000-e01fffff
+	Prefetchable memory behind bridge: f0000000-f7ffffff
+	BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:05.0 Ethernet controller: Accton Technology Corporation: Unknown device =
+1216 (rev 11)
+	Subsystem: Accton Technology Corporation: Unknown device 2242
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64 (63750ns min, 63750ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at 1c00 [size=3D256]
+	Region 1: Memory at 1f000000 (32-bit, non-prefetchable) [size=3D1K]
+	Expansion ROM at <unassigned> [disabled] [size=3D128K]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D100mA PME(D0+,D1+,D2+,D3hot+,D3c=
+old+)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:06.0 Communication controller: Lucent Microelectronics LT WinModem
+	Subsystem: Askey Computer Corp.: Unknown device 4005
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at e0000000 (32-bit, non-prefetchable) [disabled] [size=
+=3D256]
+	Region 1: I/O ports at 1030 [disabled] [size=3D8]
+	Region 2: I/O ports at 1400 [disabled] [size=3D256]
+	Capabilities: [f8] Power Management version 2
+		Flags: PMEClk- DSI+ D1- D2- AuxCurrent=3D160mA PME(D0-,D1-,D2-,D3hot+,D3c=
+old+)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.0 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (r=
+ev 40)
+	Subsystem: VIA Technologies, Inc. VT82C686/A PCI to ISA Bridge
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 0
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) (prog=
+-if 8a [Master SecP PriP])
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1890
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64
+	Region 4: I/O ports at 1020 [size=3D16]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 1a) (prog-if 0=
+0 [UHCI])
+	Subsystem: Unknown device 0925:1234
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Interrupt: pin D routed to IRQ 5
+	Region 4: I/O ports at 1000 [size=3D32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.4 ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (re=
+v 40)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin ? routed to IRQ 9
+	Capabilities: [68] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:07.5 Multimedia audio controller: VIA Technologies, Inc. AC97 Audio Cont=
+roller (rev 50)
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1840
+	Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Interrupt: pin C routed to IRQ 5
+	Region 0: I/O ports at 1800 [size=3D256]
+	Region 1: I/O ports at 103c [size=3D4]
+	Region 2: I/O ports at 1038 [size=3D4]
+	Capabilities: [c0] Power Management version 2
+		Flags: PMEClk- DSI- D1- D2- AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+00:0c.0 CardBus bridge: O2 Micro, Inc. OZ6933 Cardbus Controller (rev 01)
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1860
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at 1f001000 (32-bit, non-prefetchable) [size=3D4K]
+	Bus: primary=3D00, secondary=3D02, subordinate=3D05, sec-latency=3D176
+	Memory window 0: 1f400000-1f7ff000 (prefetchable)
+	Memory window 1: 1f800000-1fbff000
+	I/O window 0: 00004000-000040ff
+	I/O window 1: 00004400-000044ff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:0c.1 CardBus bridge: O2 Micro, Inc. OZ6933 Cardbus Controller (rev 01)
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1860
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng+ SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=3Dslow >TAbort- <TAbort- =
+<MAbort- >SERR- <PERR-
+	Latency: 168
+	Interrupt: pin B routed to IRQ 10
+	Region 0: Memory at 1f002000 (32-bit, non-prefetchable) [size=3D4K]
+	Bus: primary=3D00, secondary=3D06, subordinate=3D09, sec-latency=3D176
+	Memory window 0: 1fc00000-1ffff000 (prefetchable)
+	Memory window 1: 20000000-203ff000
+	I/O window 0: 00004800-000048ff
+	I/O window 1: 00004c00-00004cff
+	BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
+	16-bit legacy interface ports at 0001
+
+00:0d.0 FireWire (IEEE 1394): Lucent Microelectronics: Unknown device 5811 =
+(rev 04) (prog-if 10 [OHCI])
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1881
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 96 (3000ns min, 6000ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at e0001000 (32-bit, non-prefetchable) [size=3D4K]
+	Capabilities: [44] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=3D0mA PME(D0+,D1+,D2+,D3hot+,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+
+01:00.0 VGA compatible controller: S3 Inc.: Unknown device 8d01 (rev 02) (p=
+rog-if 00 [VGA])
+	Subsystem: FIRST INTERNATIONAL Computer Inc: Unknown device 1830
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Steppi=
+ng- SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=3Dmedium >TAbort- <TAbort=
+- <MAbort- >SERR- <PERR-
+	Latency: 64 (1000ns min, 63750ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 5
+	Region 0: Memory at e0100000 (32-bit, non-prefetchable) [size=3D512K]
+	Region 1: Memory at f0000000 (32-bit, prefetchable) [size=3D128M]
+	Expansion ROM at <unassigned> [disabled] [size=3D64K]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=3D0mA PME(D0-,D1-,D2-,D3hot-,D3col=
+d-)
+		Status: D0 PME-Enable- DSel=3D0 DScale=3D0 PME-
+	Capabilities: [80] AGP version 2.0
+		Status: RQ=3D31 SBA- 64bit- FW- Rate=3D<none>
+		Command: RQ=3D0 SBA- AGP- 64bit- FW- Rate=3D<none>
+
+
+--=-w1ZaW7kYKjmNvhIPYaJ5--

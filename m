@@ -1,73 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUDIBtT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 21:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbUDIBtT
+	id S261792AbUDICZO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 22:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbUDICZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 21:49:19 -0400
-Received: from [159.226.248.195] ([159.226.248.195]:52195 "EHLO
-	dns.sinosoft.com.cn") by vger.kernel.org with ESMTP id S261648AbUDIBtP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 21:49:15 -0400
-Message-ID: <40760145.5030109@sinosoft.com.cn>
-Date: Fri, 09 Apr 2004 09:49:57 +0800
-From: Gewj <geweijin@sinosoft.com.cn>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; zh-CN; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: zh-cn
-MIME-Version: 1.0
-To: Neil Brown <neilb@cse.unsw.edu.au>
-CC: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: A puzzling thing about RAID5: syslogd write the log success but
- another process can not read the /var/log/messages
-References: <407400F1.8090809@sinosoft.com.cn>	<20040407145126.GA23517@marowsky-bree.de> <16500.35602.13336.290506@cse.unsw.edu.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Apr 2004 22:25:14 -0400
+Received: from armagnac.ifi.unizh.ch ([130.60.75.72]:29354 "EHLO
+	albatross.madduck.net") by vger.kernel.org with ESMTP
+	id S261792AbUDICZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 22:25:09 -0400
+Date: Fri, 9 Apr 2004 04:24:58 +0200
+From: martin f krafft <madduck@madduck.net>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Promise PDC 20375
+Message-ID: <20040409022458.GA7081@diamond.madduck.net>
+Mail-Followup-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
+Content-Disposition: inline
+X-OS: Debian GNU/Linux testing/unstable kernel 2.6.2-fishbowl i686
+X-Mailer: Mutt 1.5.5.1+cvs20040105i (2003-11-05)
+X-Motto: Keep the good times rollin'
+X-Subliminal-Message: debian/rules!
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thank for your comments
 
-I should say that this question maybe end up without any reasonable result,
-the system is now work well , I have give up investigating this problem 
-any more.
-maybe the question is just cause by the RAID card crash.
+--0OAP2g/MAC+5xKAE
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Neil Brown wrote:
+I was sold a Promise PDC 20375 IDE Controller for use with
+a parallel ATA drive today. The guy said that Linux just started to
+support it. However, I can only find 202xx related drivers in the
+kernel, and they do not detect the 20375 controller.
 
->On Wednesday April 7, lmb@suse.de wrote:
->  
->
->>On 2004-04-07T21:24:01,
->>   Gewj <geweijin@sinosoft.com.cn> said:
->>
->>    
->>
->>>hammm,tonight is funny because I got a puzzling thing just as....
->>>
->>>my setup is a two-scsi-disk raid5 configuration...
->>>      
->>>
->>Impossible. RAID5 requires at least three disks.
->>    
->>
->
->Wrong.  RAID5 works fine with just two drives.  Try it.
->
->NeilBrown
->
->(I admit that there isn't a lot of point doing raid5 with two drives
->as raid1 should provide identical functionality with better
->performance, but it makes an interesting base-line for performances
->tests on N-drive arrays).
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+Can I use this controller with Linux, or should I return it?
 
+Thanks,
 
+--=20
+martin;              (greetings from the heart of the sun.)
+  \____ echo mailto: !#^."<*>"|tr "<*> mailto:" net@madduck
+=20
+invalid/expired pgp subkeys? use subkeys.pgp.net as keyserver!
+=20
+"the unexamined life is not worth living"=20
+                                                             -- platon
 
+--0OAP2g/MAC+5xKAE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFAdgl6IgvIgzMMSnURAr4DAKCEnKmno1mQsSp/YzkS7kod1M2x7ACfc3+o
+ZJDOOhdyu3z+OWjsbu/ELgM=
+=H7Op
+-----END PGP SIGNATURE-----
+
+--0OAP2g/MAC+5xKAE--

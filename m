@@ -1,106 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129066AbRBPBWO>; Thu, 15 Feb 2001 20:22:14 -0500
+	id <S129104AbRBPBnu>; Thu, 15 Feb 2001 20:43:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129339AbRBPBWE>; Thu, 15 Feb 2001 20:22:04 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:9479 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129066AbRBPBVx>; Thu, 15 Feb 2001 20:21:53 -0500
-Date: Thu, 15 Feb 2001 17:21:28 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: x86 ptep_get_and_clear question
-In-Reply-To: <3A8C499A.E0370F63@colorfullife.com>
-Message-ID: <Pine.LNX.4.10.10102151702320.12656-100000@penguin.transmeta.com>
+	id <S129321AbRBPBnl>; Thu, 15 Feb 2001 20:43:41 -0500
+Received: from mail.valinux.com ([198.186.202.175]:54289 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S129104AbRBPBnW>;
+	Thu, 15 Feb 2001 20:43:22 -0500
+Message-ID: <3A8C85B9.610D0C06@valinux.com>
+Date: Thu, 15 Feb 2001 17:43:21 -0800
+From: Samuel Flory <sflory@valinux.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre11-va1.7smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+CC: "tytso@valinux.com" <tytso@valinux.com>
+Subject: mke2fs and kernel VM issues
+In-Reply-To: <Pine.LNX.4.30.0102151634380.16783-100000@ns-01.hislinuxbox.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  What is believed to be the current status of the typical mke2fs
+crashes/hangs due to vm issues?  I can reliably reproduce the issue on a
+heavily modifed VA kernel based on 2.2.18.  Is there a kernel which is
+believed to be a known good kernel?  (both 2.2.x and 2.4.x)
+
+Failure pattern:
+
+System:
+mylex raid 5 array 8 x 9G drives  (not really all that big)
+>=512M of RAM (1G of RAM works)
+no swap  (Not sure if this makes a difference.)
+
+The system is attempting to create a single partition containing the
+most of the entire RAID array.
+
+errors:
+buffy: Installing with LIVE AMMO
+Creating partitions...
+Initializing filesystems...
+Out of Memory: Killed process 106 (portmap), saved process 2165
+(mke2fs).<3>Out
+of Memory: Killed process 2123 (buffy), saved process 2165
+(mke2fs).willow: LOAD
+ FAILED
+<3>Out of Memory: Killed process 195 (sisyphus_upload), saved process
+2165 (mke2
+fs).<3>Out of Memory: Killed process 2165 (mke2fs).
+
+(Note that most of the above proccesses were dialog interfaces waiting
+for user input or perl scripts waiting for mke2fs or buffy to exit.)
 
 
-On Thu, 15 Feb 2001, Manfred Spraul wrote:
-> 
-> > Now, I will agree that I suspect most x86 _implementations_ will not do
-> > this. TLB's are too timing-critical, and nobody tends to want to make
-> > them bigger than necessary - so saving off the source address is
-> > unlikely. Also, setting the D bit is not a very common operation, so
-> > it's easy enough to say that an internal D-bit-fault will just cause a
-> > TLB re-load, where the TLB re-load just sets the A and D bits as it
-> > fetches the entry (and then page fault handling is an automatic result
-> > of the reload).
-> 
-> But then the cpu would support setting the D bit in the page directory,
-> but it doesn't.
+PS- Conversations with various VA empolyees indicates that others within
+VA, and at least one vendor are seeing hangs while creating really large
+filesystems on RAID arrays. (mostly 1/4 TB or larger)  These issues
+appear to come and go, and are endemic to the 2.2.x kernel line.  Both
+lnz and tytso seem to believe the issues to be vm entirely related.
 
-Not necessarily. The TLB walker is a nasty piece of business, and
-simplifying it as much as possible is important for hardware. Not setting
-the D bit in the page directory is likely to be because it is unnecessary,
-and not because it couldn't be done.
-
-> But if we change the interface, could we think about the poor s390
-> developers?
-> 
-> s390 only has a "clear the present bit in the pte and flush the tlb"
-> instruction.
-
-Now, that ends up being fairly close to what it seems mm/vmscan.c needs to
-do, so yes, it would not necessarily be a bad idea to join the
-"ptep_get_and_clear()" and "flush_tlb_page()" operations into one.
-
-However, the mm/memory.c use (ie region unmapping with zap_page_range())
-really needs to do something different, because it inherently works with a
-range of entries, and abstacting it to be a per-entry thing would be
-really bad for performance anywhere else (S/390 might be ok with it,
-assuming that their special instruction is really fast - I don't know. But
-I do know that everybody else wants to do it with one single flush for the
-whole region, especially for SMP).
-
-> Perhaps try to schedule away, just to improve the probability that
-> mm->cpu_vm_mask is clear.
-> 
-> I just benchmarked a single flush_tlb_page().
-> 
-> Pentium II 350: ~ 2000 cpu ticks.
-> Pentium III 850: ~ 3000 cpu ticks.
-
-Note that there is some room for concurrency here - we can fire off the
-IPI, and continue to do "local" work until we actually need the "results"
-in the form of stable D bits etc. So we _might_ want to take this into
-account in the interfaces: allow for a "prepare_to_gather()" which just
-sends the IPI but doesn't wait for it to necessarily get accepted, and
-then only by the time we actually start checking the dirty bits (ie the
-second phase, after we've invalidated the page tables) do we need to wait
-and make sure that nobody else is using the TLB any more.
-
-Done right, this _might_ be of the type
-
- - prepare_to_gather(): sends IPI to all CPU's indicated in
-   mm->cpu_vm_mask
- - go on, invalidating all VM entries
- - busy-wait until "mm->cpu_vm_mask" only contains the local CPU (where
-   the busy-wait is hopefully not a wait at all - the other CPU's would
-   have exited the mm while we were cleaning up the page tables)
- - go back, gather up any potential dirty bits and free the pages
- - release the mm
-
-Note that there are tons of optimizations for the common case: for
-example, if we're talking about private read-only mappings, we can
-possibly skip some or all of this, because we know that we simply won't
-care about whether the pages were dirty or not as they're going to be
-thrown away in any case.
-
-So we can have several layers of optimizations: for UP or the SMP case
-where we have "mm->cpu_vm_mask & ~(1 << current_cpu) == 0" we don't need
-the IPI or the careful multi-CPU case at all. And for private stuff, we
-need the careful invalidation, but we don't need to go back and gather the
-dirty bits. So the only case that ends up being fairly heavy may be a case
-that is very uncommon in practice (only for unmapping shared mappings in
-threaded programs or the lazy TLB case).
-
-I suspect getting a good interface for this, so that zap_page_range()
-doesn't end up being the function for hell, is the most important thing.
-
-			Linus
-
+-- 
+Solving people's computer problems always
+requires more hardware be given to you.
+(The Second Rule of Hardware Acquisition)
+Samuel J. Flory  <sam@valinux.com>

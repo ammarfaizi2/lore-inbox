@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263837AbTAJHZt>; Fri, 10 Jan 2003 02:25:49 -0500
+	id <S263342AbTAJHZu>; Fri, 10 Jan 2003 02:25:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263342AbTAJHYv>; Fri, 10 Jan 2003 02:24:51 -0500
-Received: from dp.samba.org ([66.70.73.150]:5100 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S263366AbTAJHYo>;
+	id <S263366AbTAJHYw>; Fri, 10 Jan 2003 02:24:52 -0500
+Received: from dp.samba.org ([66.70.73.150]:5868 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S263544AbTAJHYo>;
 	Fri, 10 Jan 2003 02:24:44 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Miles Bader <miles@gnu.org>
-Cc: linux-kernel@vger.kernel.org, rth@twiddle.net
-Subject: Re: [PATCH] Embed __this_module in module itself. 
-In-reply-to: Your message of "07 Jan 2003 14:36:54 +0900."
-             <buoadid1pxl.fsf@mcspd15.ucom.lsi.nec.co.jp> 
-Date: Wed, 08 Jan 2003 22:51:24 +1100
-Message-Id: <20030110073328.A53D02C0DF@lists.samba.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Craig Wilkie <craig@homerjay.homelinux.org>
+Subject: Re: [TRIVIAL] [PATCH 1 of 3] Fix errors making Docbook documentation 
+In-reply-to: Your message of "06 Jan 2003 15:20:10 -0000."
+             <1041866409.17472.25.camel@irongate.swansea.linux.org.uk> 
+Date: Fri, 10 Jan 2003 11:50:00 +1100
+Message-Id: <20030110073328.A11712C0DD@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <buoadid1pxl.fsf@mcspd15.ucom.lsi.nec.co.jp> you write:
-> Miles Bader <miles@lsi.nec.co.jp> writes:
-> > When I try to build modules using 2.5.54, the resulting .ko files lack
-> > the .gnu.linkonce.* sections, which causes the kernel module loader to
-> > fail on them -- those sections _are_ present in the .o files, but the
-> > linker apparently removes them!
+In message <1041866409.17472.25.camel@irongate.swansea.linux.org.uk> you write:
+> On Mon, 2003-01-06 at 03:47, Rusty Trivial Russell wrote:
+> > From:  Craig Wilkie <craig@homerjay.homelinux.org>
+> >   Documentation/Docbook/kernel-api.tmpl - Remove references to source 
+> >   files which do not contain kernel-doc comments, which caused "errors" in 
+> >   the generated documentation.
 > 
-> Ok, I found out why this is happening -- the v850 default linker
-> scripts, for whatever reason, merge any section called `.gnu.linker.t*'
-> with .text.
-
-That's about as wierdass as it comes.
-
-> I can prevent this by adding the option `--unique=.gnu.linkonce.this_module'
-> to the linker flags (specifically, to LDFLAGS_MODULE in the top-level
-> Makefile).  I suppose another way to do it would be to rename the
-> section something that doesn't match `.gnu.linker.t*'.
-
-Or you could add this flag in arch/v850/Makefile.
-
-> What's the right way to handle this?
+> Please don't do this. The proper fixes already exist just never got
+> merged. Also documentation exists for those files and isnt merged. The
+> docbook is not the problem, the pile of other missing bits is
 > 
-> [from perusing the ld srcs, a few other archs seem to have the same
-> `feature,' though the only that I think has linux support is `cris']
+> Grab the docbook for those files from 2.4 and also the changes to the
+> docbook generator
 
-I think:
-	LDFLAGS_MODULE += -T arch/v850/module.lds
+Too late, Linus took it.  Craig, since you're doing Documentation
+patches, a forward port would be nice.
 
-And include a linker script there which works.
-
-Thanks for finding this...
+Thanks,
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

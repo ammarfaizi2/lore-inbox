@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbTIKQhv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbTIKQhv
+	id S261393AbTIKQmN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 12:42:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbTIKQmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:37:51 -0400
-Received: from adsl-206-170-148-147.dsl.snfc21.pacbell.net ([206.170.148.147]:58632
-	"EHLO gw.goop.org") by vger.kernel.org with ESMTP id S261317AbTIKQht
+	Thu, 11 Sep 2003 12:42:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:26038 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261393AbTIKQmK
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:37:49 -0400
-Subject: Re: Lock EVERYTHING (for testing) [was: Re: Scaling noise]
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-To: John Bradford <john@grabjohn.com>
-Cc: davem@redhat.com, miller@techsource.com, anton@samba.org,
-       Linux Kernel List <linux-kernel@vger.kernel.org>, lm@bitmover.com,
-       mbligh@aracnet.com, phillips@arcor.de, piggin@cyberone.com.au
-In-Reply-To: <200309101547.h8AFl4Sl002463@81-2-122-30.bradfords.org.uk>
-References: <200309101547.h8AFl4Sl002463@81-2-122-30.bradfords.org.uk>
-Content-Type: text/plain
-Message-Id: <1063298266.4412.41.camel@ixodes.goop.org>
+	Thu, 11 Sep 2003 12:42:10 -0400
+Date: Thu, 11 Sep 2003 17:42:10 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
+Subject: Re: Memory mapped IO vs Port IO
+Message-ID: <20030911164210.GM21596@parcelfarce.linux.theplanet.co.uk>
+References: <20030911160116.GI21596@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73oexri9kx.fsf@oldwotan.suse.de> <20030911162504.GL21596@parcelfarce.linux.theplanet.co.uk> <20030911183136.01dfeb53.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 11 Sep 2003 09:37:46 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030911183136.01dfeb53.ak@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-10 at 08:47, John Bradford wrote:
-> > The analogy for Linux is this:  At a machine level, we add a check to 
-> > EVERY access.  The check is there to ensure that every memory access is 
-> > properly locked.  So, if some access is made where there isn't a proper 
-> > lock applied, then we can print a warning with the line number or drop 
-> > out into kdb or something of that sort.
-> >
-> > I'm betting there's another solution to this, otherwise, I wouldn't 
-> > suggest such an idea, because of the relative amount of work versus 
-> > benefit.  But it may require massive modifications to GCC to add this 
-> > code in at the machine level.
+On Thu, Sep 11, 2003 at 06:31:36PM +0200, Andi Kleen wrote:
+> On Thu, 11 Sep 2003 17:25:04 +0100
+> Matthew Wilcox <willy@debian.org> wrote:
+> > That's not true for MMIO writes which are posted.  They should take
+> > no longer than a memory write.  For MMIO reads and PIO reads & writes,
+> > you are, of course, correct.
 > 
-> Couldn't Valgrind be modified to do this for the kernel?
-> 
-> http://developer.kde.org/~sewardj/
+> Even a memory write is tens to hundres of cycles.
 
-I have a UML-under-Valgrind project on the backburner.  Valgrind has an
-instrumentation mode which checks to see every memory access is covered
-by appropriate locks in an MT program.  I'm afraid it will generate a
-lot of noise in the kernel though, since there's a lot of code which
-does unlocked memory access (probably correctly).
+So are mispredicted branches.
 
-	J
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

@@ -1,43 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132808AbRDQS2H>; Tue, 17 Apr 2001 14:28:07 -0400
+	id <S132804AbRDQS3g>; Tue, 17 Apr 2001 14:29:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132807AbRDQS1r>; Tue, 17 Apr 2001 14:27:47 -0400
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:59652
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S132804AbRDQS1m>; Tue, 17 Apr 2001 14:27:42 -0400
-Date: Tue, 17 Apr 2001 11:25:24 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: CML2 1.1.4 is available
-Message-ID: <20010417112524.G28200@opus.bloom.county>
-In-Reply-To: <20010417141335.A32711@thyrsus.com>
-Mime-Version: 1.0
+	id <S132809AbRDQS30>; Tue, 17 Apr 2001 14:29:26 -0400
+Received: from snowbird.megapath.net ([216.200.176.7]:35594 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S132804AbRDQS3O>;
+	Tue, 17 Apr 2001 14:29:14 -0400
+Message-ID: <3ADC8B96.98C7D543@megapathdsl.net>
+Date: Tue, 17 Apr 2001 11:29:42 -0700
+From: Miles Lane <miles@megapathdsl.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3-ac7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Mike A. Harris" <mharris@opensourceadvocate.org>
+CC: Larry McVoy <lm@bitmover.com>,
+        Randolph Bentson <bentson@grieg.holmsjoen.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please getbetter 
+ audio.
+In-Reply-To: <Pine.LNX.4.33.0104170902590.17111-100000@asdf.capslock.lan>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010417141335.A32711@thyrsus.com>; from esr@thyrsus.com on Tue, Apr 17, 2001 at 02:13:35PM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 17, 2001 at 02:13:35PM -0400, Eric S. Raymond wrote:
-> The latest version is always available at http://www.tuxedo.org/~esr/cml2/
+"Mike A. Harris" wrote:
 > 
-> Release 1.1.4: Tue Apr 17 14:02:17 EDT 2001
-> 	* Tom Rini's patches for the ARM port tree.
+> On Mon, 16 Apr 2001, Miles Lane wrote:
+> 
+> >> hand someone a mike.
+> >
+> >I like this idea quite a bit.  It would probably not
+> >be terribly expensive to rent/buy the required equipment,
+> >it would be easy to use and would not be terribly disruptive
+> >to the preceedings.
+> >
+> >I'm curious, didn't you find that those mikes are too
+> >directionally sensitive?  I've noticed that the movement
+> >of the speaker by just an inch or two can cause major
+> >variations in signal reception (I've only tried that
+> >little plastic parabolic eavesdropping "toy" that was
+> >all the rage about two Christmasses ago -- there was one
+> >floating around my office).
+> 
+> Just to keep this on topic... the real question is what would be
+> the best way to interface this sound system into the Linux
+> kernel?
 
-Er, that should read PPC. :)
+This is not the topic (I don't really care how the audio
+recordings get merged or how the final recording is delivered
+as RealVideo/RealAudio streams).  The topic is "how do we
+get recordings of Linux-related discussions in the future 
+that capture all the comments of the participants."  
 
-> 	* Correct handling of booleans when trits are disabled.
-> 	* `nohelp' tie symbol introduced.
-> 	* Code audited with PyChecker.
-[snip] 
-> So let's try to shift our attention to auditing and fixing the rules files,
-> shall we?
+It would be great if we could get a good approach nailed
+down so that it could be used at Linux BOF discusssions
+and development team presentations in the future.
 
-Well, I've got more to come anyways. :)
+OT: It would be great to have a central repository for Linux-
+related audio/video streams.  For example, it'd be great to 
+get some of the LinuxTag, LinuxWorld, Comdex, CBIT and other
+presentations made available on the web.  Perhaps even more
+valuable, from a development information dissemination 
+standpoint, would be recordings of "birds of a feather" 
+discussions.
 
--- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+	Miles

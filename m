@@ -1,40 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131394AbRAUAcu>; Sat, 20 Jan 2001 19:32:50 -0500
+	id <S132685AbRAUAd7>; Sat, 20 Jan 2001 19:33:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132685AbRAUAcj>; Sat, 20 Jan 2001 19:32:39 -0500
-Received: from mailout3-0.nyroc.rr.com ([24.92.226.118]:8959 "EHLO
-	mailout3-0.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S132637AbRAUAcY>; Sat, 20 Jan 2001 19:32:24 -0500
-Message-ID: <022f01c08342$088f67b0$0701a8c0@morph>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "Edgar Toernig" <froese@gmx.de>, "Michael Lindner" <mikel@att.net>
-Cc: "Chris Wedgwood" <cw@f00f.org>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <fa.nc2eokv.1dj8r80@ifi.uio.no> <fa.dcei62v.1s5scos@ifi.uio.no> <015e01c082ac$4bf9c5e0$0701a8c0@morph> <3A69361F.EBBE76AA@att.net> <20010120200727.A1069@metastasis.f00f.org> <3A694254.B52AE20B@att.net> <3A6A09F2.8E5150E@gmx.de>
-Subject: Re: PROBLEM: select() on TCP socket sleeps for 1 tick even if data  available
-Date: Sat, 20 Jan 2001 19:35:12 -0500
+	id <S132955AbRAUAdt>; Sat, 20 Jan 2001 19:33:49 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:11020 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S132685AbRAUAdp>; Sat, 20 Jan 2001 19:33:45 -0500
+Date: Sat, 20 Jan 2001 16:33:20 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Roman Zippel <zippel@fh-brandenburg.de>
+cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
+Subject: Re: Is sendfile all that sexy?
+In-Reply-To: <Pine.GSO.4.10.10101202252380.13864-100000@zeus.fh-brandenburg.de>
+Message-ID: <Pine.LNX.4.10.10101201629110.10849-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's not the select that waits. It's a delay in the tcp send
-> path waiting for more data.  Try disabling it:
->
-> int f=1;
-> setsockopt(s, SOL_TCP, TCP_NODELAY, &f, sizeof(f));
 
-Bingo! With this fix, 2.2.18 performance becomes almost identical to 2.4.0
-performance. I assume 2.4.0 disables Nagle by default on local
-connections...
 
-Dan
+On Sat, 20 Jan 2001, Roman Zippel wrote:
+> 
+> On Sat, 20 Jan 2001, Linus Torvalds wrote:
+> 
+> > But point-to-point also means that you don't get any real advantage from
+> > doing things like device-to-device DMA. Because the links are
+> > asynchronous, you need buffers in between them anyway, and there is no
+> > bandwidth advantage of not going through the hub if the topology is a
+> > pretty normal "star" kind of thing. And you _do_ want the star topology,
+> > because in the end most of the bandwidth you want concentrated at the
+> > point that uses it.
+> 
+> I agree, but who says, that the buffer always has to be the main memory?
+
+It doesn't _have_ to be.
+
+But think like a good hardware designer.
+
+In 99% of all cases, where do you want the results of a read to end up?
+Where do you want the contents of a write to come from?
+
+Right. Memory.
+
+Now, optimize for the common case. Make the common case go as fast as you
+can, with as little latency and as high bandwidth as you can.
+
+What kind of hardware would _you_ design for the point-to-point link?
+
+I'm claiming that you'd do a nice DMA engine for each link point. There
+wouldn't be any reason to have any other buffers (except, of course,
+minimal buffers inside the IO chip itself - not for the whole packet, but
+for just being able to handle cases where you don't have 100% access to
+the memory bus all the time - and for doing things like burst reads and
+writes to memory etc).
+
+I'm _not_ seeing the point for a high-performance link to have a generic
+packet buffer. 
+
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

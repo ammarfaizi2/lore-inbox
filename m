@@ -1,63 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267528AbUHaIr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267502AbUHaIrU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267528AbUHaIr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 04:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267527AbUHaIr4
+	id S267502AbUHaIrU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 04:47:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267487AbUHaIrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 04:47:56 -0400
-Received: from mail.gmx.de ([213.165.64.20]:11928 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S267518AbUHaIrk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 04:47:40 -0400
-X-Authenticated: #4512188
-Message-ID: <41343B2A.80909@gmx.de>
-Date: Tue, 31 Aug 2004 10:47:38 +0200
-From: "Prakash K. Cheemplavam" <prakashkc@gmx.de>
-User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040815)
+	Tue, 31 Aug 2004 04:47:19 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:20234 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S267502AbUHaIrL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 04:47:11 -0400
+Message-ID: <41343C0F.5020508@hist.no>
+Date: Tue, 31 Aug 2004 10:51:27 +0200
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040830)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-CC: "John W. Linville" <linville@tuxdriver.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [patch] libata: add ioctls to support SMART
-References: <200408301531.i7UFVBg29089@ra.tuxdriver.com> <41336824.1040206@gmx.de>
-In-Reply-To: <41336824.1040206@gmx.de>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm2 Inconsistent kallsyms
+References: <20040830235426.441f5b51.akpm@osdl.org>
+In-Reply-To: <20040830235426.441f5b51.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This compiled, but failed anyway (after make mrproper):
 
-Prakash K. Cheemplavam wrote:
-| John W. Linville wrote:
-| | Support for HDIO_DRIVE_CMD and HDIO_DRIVE_TASK in libata.  Useful for
-| | supporting SMART w/ unmodified smartctl and smartd userland binaries.
-~ > I just tried to give it a go with libata from 2.6.9-rc1. I had to fix
-| one rejects but the patching seemed to go fine beside that. Nevertheless
-| after a boot with patched libata I get:
-|
-| smartctl -a /dev/sda
-[snip]
+  LD      vmlinux
+  SYSMAP  System.map
+  SYSMAP  .tmp_System.map
+Inconsistent kallsyms data, try setting CONFIG_KALLSYMS_EXTRA_PASS
+make: *** [vmlinux] Error 1
 
-| Device does not support SMART
 
-Just wanted
-
-Just wanted to say that smartctl -a -d ata /dev/sda works, as John
-Linville and now Bruce aLlen suggested to try.
-
-Cheers,
-
-Prakash
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBNDsqxU2n/+9+t5gRAinMAJ0W6sfKD4LV7uv6X9XUxWeng2dWjQCfVolo
-CXg7ylDp8eb6SI+C4GZz/Bk=
-=N/WZ
------END PGP SIGNATURE-----
+Helge Hafting

@@ -1,84 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbULMKNg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbULMKbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbULMKNg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 05:13:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262214AbULMKNg
+	id S262214AbULMKbx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 05:31:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262215AbULMKbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 05:13:36 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1805 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262213AbULMKNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 05:13:32 -0500
-Date: Mon, 13 Dec 2004 10:13:17 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: John Mock <kd6pag@qsl.net>, Andrew Morton <akpm@osdl.org>,
-       zadiglist@zadig.ca, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-rc2 on VAIO laptop and PowerMac 8500/G3
-Message-ID: <20041213101316.A19461@flint.arm.linux.org.uk>
-Mail-Followup-To: John Mock <kd6pag@qsl.net>, Andrew Morton <akpm@osdl.org>,
-	zadiglist@zadig.ca,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Pavel Machek <pavel@suse.cz>, linux-kernel@vger.kernel.org
-References: <E1CZmgM-0000Lb-00@penngrove.fdns.net> <20041202144836.A7760@flint.arm.linux.org.uk>
+	Mon, 13 Dec 2004 05:31:53 -0500
+Received: from pfepb.post.tele.dk ([195.41.46.236]:39558 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262214AbULMKbt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Dec 2004 05:31:49 -0500
+Subject: Re: 2.6.10-rc3-mm1
+From: Kasper Sandberg <lkml@metanurb.dk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML Mailinglist <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041213020319.661b1ad9.akpm@osdl.org>
+References: <20041213020319.661b1ad9.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 13 Dec 2004 11:31:47 +0100
+Message-Id: <1102933907.12721.11.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041202144836.A7760@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Thu, Dec 02, 2004 at 02:48:36PM +0000
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02, 2004 at 02:48:36PM +0000, Russell King wrote:
-> On Thu, Dec 02, 2004 at 12:51:22AM -0800, John Mock wrote:
-> > A second crash involving software suspend looks
-> > like it might be 'UART' related, but i'm not sure if i can reproduce that
-> > one easily (as i'm not running that kernel).
+On Mon, 2004-12-13 at 02:03 -0800, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc3/2.6.10-rc3-mm1/
 > 
-> Please try this patch.
+> - Lots of new patches, lots of little fixes all over the place.
+> 
+> - Probably the major change is the readahead rework, which may have
+>   significant performance impacts on some workloads.  Not necessarily good,
+>   either...
+> 
+> - See below for the list of 31 patches which I have pending for 2.6.10.  If
+>   there are other patches here which should go in, please let me know.
+i wonder, i see there are alot swsusp fixes. and more comes all time,
+why isnt swsusp2 merged instead? im sure it would overall be quite
+better, if effort was focused on swsusp2
 
-John - Is there any progress on this?
-
-> --- linux-2.6-serial/drivers/serial/serial_core.c	Wed Dec  1 10:41:10 2004
-> +++ linux/drivers/serial/serial_core.c	Thu Dec  2 13:34:47 2004
-> @@ -1877,7 +1877,21 @@
->  	 * Re-enable the console device after suspending.
->  	 */
->  	if (uart_console(port)) {
-> -		uart_change_speed(state, NULL);
-> +		struct termios termios;
-> +
-> +		/*
-> +		 * First try to use the console cflag setting.
-> +		 */
-> +		memset(&termios, 0, sizeof(struct termios));
-> +		termios.c_cflag = port->cons->cflag;
-> +
-> +		/*
-> +		 * If that's unset, use the tty termios setting.
-> +		 */
-> +		if (state->info && state->info->tty && termios.c_cflag == 0)
-> +			termios = *state->info->tty->termios;
-> +
-> +		port->ops->set_termios(port, &termios, NULL);
->  		console_start(port->cons);
->  	}
->  
+<snip>
 > 
 > 
-> -- 
-> Russell King
->  Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
->  maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
->                  2.6 Serial core
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

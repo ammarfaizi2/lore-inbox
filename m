@@ -1,36 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261356AbSJCUQe>; Thu, 3 Oct 2002 16:16:34 -0400
+	id <S261376AbSJCUXn>; Thu, 3 Oct 2002 16:23:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261364AbSJCUQe>; Thu, 3 Oct 2002 16:16:34 -0400
-Received: from surf.cadcamlab.org ([156.26.20.182]:59864 "EHLO
-	surf.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S261356AbSJCUQd>; Thu, 3 Oct 2002 16:16:33 -0400
-Date: Thu, 3 Oct 2002 15:20:55 -0500
-To: Kai Germaschewski <kai-germaschewski@uiowa.edu>,
-       kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RfC: Don't cd into subdirs during kbuild
-Message-ID: <20021003202055.GP1536@cadcamlab.org>
-References: <Pine.LNX.4.44.0210022153090.10307-100000@chaos.physics.uiowa.edu> <20021003220120.B17403@mars.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021003220120.B17403@mars.ravnborg.org>
-User-Agent: Mutt/1.4i
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S261377AbSJCUXm>; Thu, 3 Oct 2002 16:23:42 -0400
+Received: from christpuncher.kingsmeadefarm.com ([209.216.78.83]:24472 "HELO
+	the-grudge.myip.org") by vger.kernel.org with SMTP
+	id <S261376AbSJCUXl>; Thu, 3 Oct 2002 16:23:41 -0400
+Message-ID: <1033676953.3d9ca89935155@webmail>
+Date: Thu,  3 Oct 2002 16:29:13 -0400
+From: Joe Kellner <jdk@kingsmeadefarm.com>
+To: Lee Leahu <lee@ricis.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS and 2.4.19
+References: <20021003090812.2fa82f74.lee@ricis.com>
+In-Reply-To: <20021003090812.2fa82f74.lee@ricis.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.1
+X-Originating-IP: 192.168.1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sgi's cvs tree, or apply one of Andrea's patches (the -aa branch) are the two
+ways I know of to get XFS support. As to which one is *recommended*, I don't know.
 
-[Sam Ravnborg]
-> > +ifdef list-multi
-> > +$(warning kbuild: list-multi ($(list-multi)) is obsolete in 2.5. Please fix!)
-> > +endif
-> Since kbuild no longer support list-multi this should be $(error ....)
 
-Except that it is harmless.  list-multi is a hint which the kbuild
-system no longer needs.  Code with list-multi is (I believe) still
-compatible with today's kbuild, so there's no need to *force* a
-cleanup.
 
-Peter
+
+
+
+
+
+
+
+Quoting Lee Leahu <lee@ricis.com>:
+
+> What is the recommended way of add XFS filesystem support to the 2.4.19
+> kernel?
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+
+
+
+-------------------------------------------------
+sent via KingsMeade secure webmail http://www.kingsmeadefarm.com

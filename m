@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263263AbTIGNSA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 09:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263267AbTIGNSA
+	id S263259AbTIGNPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 09:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263262AbTIGNPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 09:18:00 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:57542 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263263AbTIGNR4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 09:17:56 -0400
-Date: Sun, 7 Sep 2003 15:17:32 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: linux-kernel@vger.kernel.org
+	Sun, 7 Sep 2003 09:15:09 -0400
+Received: from amalthea.dnx.de ([193.108.181.146]:40850 "EHLO amalthea.dnx.de")
+	by vger.kernel.org with ESMTP id S263259AbTIGNPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 09:15:05 -0400
+Date: Sun, 7 Sep 2003 15:14:43 +0200
+From: Robert Schwebel <robert@schwebel.de>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Robert Schwebel <robert@schwebel.de>, linux-kernel@vger.kernel.org,
+       Rusty Russell <rusty@rustcorp.com.au>,
+       Russell King <rmk@arm.linux.org.uk>
 Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030907131732.GU14436@fs.tum.de>
-References: <20030907112813.GQ14436@fs.tum.de> <20030907114647.GR14376@lug-owl.de>
+Message-ID: <20030907131443.GD5460@pengutronix.de>
+References: <20030907112813.GQ14436@fs.tum.de> <20030907124251.GC5460@pengutronix.de> <20030907130034.GT14436@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-In-Reply-To: <20030907114647.GR14376@lug-owl.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030907130034.GT14436@fs.tum.de>
+User-Agent: Mutt/1.4i
+X-Spam-Score: -5.0 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19vzN9-0000eI-00*MopXrBUxyG6*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 07, 2003 at 01:46:47PM +0200, Jan-Benedict Glaw wrote:
-> On Sun, 2003-09-07 13:28:13 +0200, Adrian Bunk <bunk@fs.tum.de>
-> wrote in message <20030907112813.GQ14436@fs.tum.de>:
-> > There are two different needs:
-> > 1. the installation kernel of a distribution should support all CPUs 
-> >    this distribution supports (perhaps starting with the 386)
+On Sun, Sep 07, 2003 at 03:00:34PM +0200, Adrian Bunk wrote:
+> I didn't look at the ARM Makefile. Thanks for the note, I'll have a
+> look at it before I'll do the revision of this patch.
+
+You should definitely discuss this with rmk. How do the PPC folks handle
+CPU selection? 
+
+> > Ack. Same with for example Geode. And the subarchs might have different
 > 
-> So far, no major distribution does support an i386. Basically, this has
-> leaked in by some broken patch to libstdc++ which was not observed for a
-> long time. To support i386, an additional emulator for additional i486
-> needs to be compiled-in, too. I had a short try to port Debian's patch
-> into 2.6.x, but it oopsed :-> If I get some time, I'll finish that.
-> Before we have thie i486-emu-for-i386 in, i386 support in the kernel
-> doesn't make *any* sense on it's own...
->...
+> It seems the Geode support isn't fully merged in 2.6?
 
-This is not related to the issues my patch addresses.
+That's also my impression, although I didn't have much time to look at
+the state. As far as I remember Christer Weinigel has recently done some
+work in this direction. 
 
-If you want to read my mail with a s/386/486/g and the contents should 
-still be valid.
+> It should be no problem to add a "Processor support" menu for the Elan
+> that allows you to specify which Elan CPUs you plan to support.
 
-> MfG, JBG
+Great. 
 
-cu
-Adrian
-
+Robert 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+ Dipl.-Ing. Robert Schwebel | http://www.pengutronix.de
+ Pengutronix - Linux Solutions for Science and Industry
+   Handelsregister:  Amtsgericht Hildesheim, HRA 2686
+     Hornemannstraﬂe 12,  31137 Hildesheim, Germany
+    Phone: +49-5121-28619-0 |  Fax: +49-5121-28619-4

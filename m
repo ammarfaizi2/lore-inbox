@@ -1,51 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317217AbSGHXVX>; Mon, 8 Jul 2002 19:21:23 -0400
+	id <S317258AbSGHX2R>; Mon, 8 Jul 2002 19:28:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317251AbSGHXVW>; Mon, 8 Jul 2002 19:21:22 -0400
-Received: from mtiwmhc21.worldnet.att.net ([204.127.131.46]:44439 "EHLO
-	mtiwmhc21.worldnet.att.net") by vger.kernel.org with ESMTP
-	id <S317217AbSGHXVW>; Mon, 8 Jul 2002 19:21:22 -0400
-Date: Mon, 8 Jul 2002 19:27:10 -0400
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Terrible VM in 2.4.11+?
-Message-ID: <20020708232710.GA6798@lnuxlab.ath.cx>
-References: <20020709001137.A1745@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020709001137.A1745@mail.muni.cz>
-User-Agent: Mutt/1.3.28i
-From: khromy@lnuxlab.ath.cx (khromy)
+	id <S317260AbSGHX2Q>; Mon, 8 Jul 2002 19:28:16 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:61120 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S317258AbSGHX2Q>; Mon, 8 Jul 2002 19:28:16 -0400
+Date: Mon, 8 Jul 2002 17:30:55 -0600
+Message-Id: <200207082330.g68NUtH01899@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: linux-kernel@vger.kernel.org
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: 2.4.19-rc1 doesn't link
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 09, 2002 at 12:11:37AM +0200, Lukas Hejtmanek wrote:
-> 
-> Hello,
-> 
-> as of the last stable version 2.4.18 VM management does not work for me
-> properly. I have Athlon system with 512MB ram, 2.4.18 kernel without any
-> additional patches.
-> 
-> I run following sequence of commands:
-> 
-> dd if=/dev/zero of=/tmp bs=1M count=512 &
-> find / -print &
->  { wait a few seconds }
-> sync
-> 
-> at this point find stops completely or at least almost stops.
-> 
-> The same if I copy from /dev/hdf to /dev/hda. XOSVIEW shows only reading or only
+  Hi, all. Looks like initrd handling has been broken again:
+init/do_mounts.o: In function `rd_load_image':
+init/do_mounts.o(.text.init+0x941): undefined reference to `change_floppy'
+init/do_mounts.o: In function `rd_load_disk':
+init/do_mounts.o(.text.init+0xa9b): undefined reference to `change_floppy'
+make: *** [vmlinux] Error 1
 
-Wow, this is the same problem I was having!  Checkout the thread 'sync
-slowness. ext3 on VIA vt82c686b'.  Some said it was my harddrive, but
-this morning I noticed the problem is gone!
+This is the config option combination that exposed the bug:
+CONFIG_BLK_DEV_RAM=y
+# CONFIG_BLK_DEV_INITRD is not set
 
-After I copy the file, sync returns right away.  I'm running
-2.4.19-rc1aa1 now.
+				Regards,
 
--- 
-L1:	khromy		;khromy(at)lnuxlab.ath.cx
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

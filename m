@@ -1,56 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVCaXck@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262545AbVDAAcd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVCaXck (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 18:32:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVCaXcB
+	id S262545AbVDAAcd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 19:32:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVDAAcA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:32:01 -0500
-Received: from mail.kroah.org ([69.55.234.183]:27872 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262071AbVCaXYG convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 18:24:06 -0500
-Cc: mgreer@mvista.com
-Subject: [PATCH] I2C: Fix breakage in m41t00 i2c rtc driver
-In-Reply-To: <11123113922923@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:12 -0800
-Message-Id: <11123113924150@kroah.com>
+	Thu, 31 Mar 2005 19:32:00 -0500
+Received: from fire.osdl.org ([65.172.181.4]:12454 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262545AbVDAA3D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 19:29:03 -0500
+Date: Thu, 31 Mar 2005 16:27:58 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: johnpol@2ka.mipt.ru
+Cc: linux-kernel@vger.kernel.org, guillaume.thouvenin@bull.net,
+       jlan@engr.sgi.com, efocht@hpce.nec.com, linuxram@us.ibm.com,
+       gh@us.ibm.com, elsa-devel@lists.sourceforge.net, greg@kroah.com
+Subject: Re: [1/1] CBUS: new very fast (for insert operations) message bus
+ based on kenel connector.
+Message-Id: <20050331162758.44aeaf44.akpm@osdl.org>
+In-Reply-To: <20050320112336.2b082e27@zanzibar.2ka.mipt.ru>
+References: <20050320112336.2b082e27@zanzibar.2ka.mipt.ru>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2334, 2005/03/31 14:09:00-08:00, mgreer@mvista.com
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+>
+> I'm pleased to annouce CBUS - ultra fast (for insert operations)
+> message bus.
 
-[PATCH] I2C: Fix breakage in m41t00 i2c rtc driver
+> +static int cbus_enqueue(struct cbus_event_container *c, struct cn_msg *msg)
+> +{
+> +	int err;
+> +	struct cbus_event *event;
+> +	unsigned long flags;
+> +
+> +	event = kmalloc(sizeof(*event) + msg->len, GFP_ATOMIC);
 
-Remove setting of deleted i2c_client structure member.
+Using GFP_ATOMIC is a bit lame.  It would be better to require the caller
+to pass in the gfp_flags.  Or simply require that all callers not hold
+locks and use GFP_KERNEL.
 
-The latest include/linux/i2c.h:i2c_client structure no longer has an
-'id' member.  This patch removes the setting of that no longer existing
-member.
+> +static int cbus_process(struct cbus_event_container *c, int all)
+> +{
+> +	struct cbus_event *event;
+> +	int len, i, num;
+> +	
+> +	if (list_empty(&c->event_list))
+> +		return 0;
+> +
+> +	if (all)
+> +		len = c->qlen;
+> +	else
+> +		len = 1;
+> +
+> +	num = 0;
+> +	for (i=0; i<len; ++i) {
+> +		event = cbus_dequeue(c);
+> +		if (!event)
+> +			continue;
+> +
+> +		cn_netlink_send(&event->msg, 0);
+> +		num++;
+> +
+> +		kfree(event);
+> +	}
+> +	
+> +	return num;
+> +}
 
-Signed-off-by: Mark A. Greer <mgreer@mvista.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+It might be cleaner to pass in an item count rather than a boolean `all'
+here.  Then again, it seems racy.
 
+The initial list_empty() call could fail to detect new events due to lack
+of locking and memory barriers.
 
- drivers/i2c/chips/m41t00.c |    1 -
- 1 files changed, 1 deletion(-)
+We conventionally code for loops as
 
+	for (i = 0; i < len; i++)
 
-diff -Nru a/drivers/i2c/chips/m41t00.c b/drivers/i2c/chips/m41t00.c
---- a/drivers/i2c/chips/m41t00.c	2005-03-31 15:17:53 -08:00
-+++ b/drivers/i2c/chips/m41t00.c	2005-03-31 15:17:53 -08:00
-@@ -184,7 +184,6 @@
- 
- 	memset(client, 0, sizeof(struct i2c_client));
- 	strncpy(client->name, M41T00_DRV_NAME, I2C_NAME_SIZE);
--	client->id = m41t00_driver.id;
- 	client->flags = I2C_DF_NOTIFY;
- 	client->addr = addr;
- 	client->adapter = adap;
+> +static int cbus_event_thread(void *data)
+> +{
+> +	int i, non_empty = 0, empty = 0;
+> +	struct cbus_event_container *c;
+> +
+> +	daemonize(cbus_name);
+> +	allow_signal(SIGTERM);
+> +	set_user_nice(current, 19);
+
+Please use the kthread api for managing this thread.
+
+Is a new kernel thread needed?
+
+> +	while (!cbus_need_exit) {
+> +		if (empty || non_empty == 0 || non_empty > 10) {
+> +			interruptible_sleep_on_timeout(&cbus_wait_queue, 10);
+
+interruptible_sleep_on_timeout() is heavily deprecated and is racy without
+external locking (it pretty much has to be the BKL).  Use wait_event_timeout().
+
+> +int __devinit cbus_init(void)
+> +{
+> +	int i, err = 0;
+> +	struct cbus_event_container *c;
+> +	
+> +	for_each_cpu(i) {
+> +		c = &per_cpu(cbus_event_list, i);
+> +		cbus_init_event_container(c);
+> +	}
+> +
+> +	init_completion(&cbus_thread_exited);
+> +
+> +	cbus_pid = kernel_thread(cbus_event_thread, NULL, CLONE_FS | CLONE_FILES);
+
+Using the kthread API would clean this up.
+
+> +	if (IS_ERR((void *)cbus_pid)) {
+
+The weird cast here might not even work at all on 64-bit architectures.  It
+depends if they sign extend ints when casting them to pointers.  I guess
+they do.  If cbus_pid is indeed an s32.
+
+Much better to do
+
+	if (cbus_pid < 0)
+
+> +void __devexit cbus_fini(void)
+> +{
+> +	int i;
+> +	struct cbus_event_container *c;
+> +
+> +	cbus_need_exit = 1;
+> +	kill_proc(cbus_pid, SIGTERM, 0);
+> +	wait_for_completion(&cbus_thread_exited);
+> +	
+> +	for_each_cpu(i) {
+> +		c = &per_cpu(cbus_event_list, i);
+> +		cbus_fini_event_container(c);
+> +	}
+> +}
+
+I think this is racy.  What stops new events from being queued while this
+function is in progress?
 

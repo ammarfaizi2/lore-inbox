@@ -1,26 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264764AbRGCO5x>; Tue, 3 Jul 2001 10:57:53 -0400
+	id <S264673AbRGCO5K>; Tue, 3 Jul 2001 10:57:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264692AbRGCO5k>; Tue, 3 Jul 2001 10:57:40 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1664 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S264564AbRGCO5b>; Tue, 3 Jul 2001 10:57:31 -0400
-Date: Tue, 3 Jul 2001 10:57:28 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: =?iso-8859-1?q?Guillaume=20Lancelin?= <guillaumelancelin@yahoo.es>
-cc: linux-kernel@vger.kernel.org
+	id <S264564AbRGCO4u>; Tue, 3 Jul 2001 10:56:50 -0400
+Received: from zeke.inet.com ([199.171.211.198]:45043 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S264769AbRGCO4j>;
+	Tue, 3 Jul 2001 10:56:39 -0400
+Message-ID: <3B41DD18.A7E5860F@inet.com>
+Date: Tue, 03 Jul 2001 09:56:24 -0500
+From: Eli Carter <eli.carter@inet.com>
+Organization: Inet Technologies, Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.5-15 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Guillaume Lancelin <guillaumelancelin@yahoo.es>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Memory access
 In-Reply-To: <20010703144532.11007.qmail@web4201.mail.yahoo.com>
-Message-ID: <Pine.LNX.3.95.1010703105434.511A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Jul 2001, [iso-8859-1] Guillaume Lancelin wrote:
-
+Guillaume Lancelin wrote:
+> 
 > Writing a device driver for a IO card, I have the following message from
 > the kernel:
 > Unable to handle kernel paging request at virtual address 000d0804.
@@ -32,19 +35,13 @@ On Tue, 3 Jul 2001, [iso-8859-1] Guillaume Lancelin wrote:
 > 
 > My question: is the kernel using or protecting this area of the memory,
 > and is there a way to deprotect it??? (how dangerous!)
-> 
 
-This is not the correct address!! The addresses in the kernel are
-virtual addresses, you need to execute ioremap(0xd0804, LENGTH) to
-get the correct virtual address for access.
+Sounds like you may want to look into ioremap() and maybe buy Linux
+Device Drivers by Rubini (O'Reilly).
 
-Cheers,
-Dick Johnson
+Have fun!
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Eli 
+-----------------------.   No wonder we didn't get this right first time
+Eli Carter             |      through. It's not really all that horribly 
+eli.carter(at)inet.com `- complicated, but the _details_ kill you. Linus

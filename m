@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266578AbRGGVbi>; Sat, 7 Jul 2001 17:31:38 -0400
+	id <S266580AbRGGVd2>; Sat, 7 Jul 2001 17:33:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266580AbRGGVb2>; Sat, 7 Jul 2001 17:31:28 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:59655 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S266578AbRGGVbN>;
-	Sat, 7 Jul 2001 17:31:13 -0400
-Date: Sat, 7 Jul 2001 23:31:08 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Eugene Crosser <crosser@average.org>, linux-kernel@vger.kernel.org
-Subject: Re: [Acpi] Re: ACPI fundamental locking problems
-Message-ID: <20010707233108.B10109@pcep-jamie.cern.ch>
-In-Reply-To: <Pine.GSO.4.21.0107070727030.24836-100000@weyl.math.psu.edu> <9i73bg$psv$1@pccross.average.org> <3B471399.1D6BBED6@mandrakesoft.com> <01070719241107.22952@starship>
-Mime-Version: 1.0
+	id <S266582AbRGGVdS>; Sat, 7 Jul 2001 17:33:18 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:36876 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S266580AbRGGVdD>; Sat, 7 Jul 2001 17:33:03 -0400
+Subject: Re: VM in 2.4.7-pre hurts...
+To: torvalds@transmeta.com (Linus Torvalds)
+Date: Sat, 7 Jul 2001 22:33:00 +0100 (BST)
+Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        riel@conectiva.com.br (Rik van Riel),
+        phillips@bonn-fries.net (Daniel Phillips)
+In-Reply-To: <Pine.LNX.4.33.0107071046570.31249-100000@penguin.transmeta.com> from "Linus Torvalds" at Jul 07, 2001 10:53:40 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <01070719241107.22952@starship>; from phillips@bonn-fries.net on Sat, Jul 07, 2001 at 07:24:11PM +0200
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15IzhE-0006Gz-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> > Reading a tarball is the distillation of what you describe into
-> > efficient form :)
-> 
-> /me downloads tar file definition
-> 
-> Um, gnu tar or posix tar? or some new, improved tar?
+> But neutering the OOM killer like Alan suggested may be a rather valid
+> approach anyway. Delaying the killing sounds valid: if we're truly
+> livelocked on the VM, we'll be calling down to the OOM killer so much that
+> it's probably quite valid to say "only return 1 after X iterations".
 
-I suggest cpio, which is more compact and in some ways more standard.
-(tar has a silly pad-to-multiple-of-512-byte per file rule, which is
-inappropriate for this).  GNU cpio creates cpio format just fine.
+Its hiding the real accounting screw up with a 'goes bang at random less 
+often' - nice hack, but IMHO bad long term approach. We need to get the maths
+right. We had similar 2.2 problems the other way (with nasty deadlocks)
+until Andrea fixed that
 
--- Jamie
+

@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263893AbUHSIwq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUHSI5T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263893AbUHSIwq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 04:52:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264298AbUHSIwn
+	id S263971AbUHSI5T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 04:57:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbUHSI5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 04:52:43 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:20475 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S264154AbUHSItL (ORCPT
+	Thu, 19 Aug 2004 04:57:19 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:7071 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S263971AbUHSI4z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 04:49:11 -0400
-Date: Thu, 19 Aug 2004 09:49:03 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: linux-kernel@vger.kernel.org
-Subject: gamma drm driver..
-Message-ID: <Pine.LNX.4.58.0408190947020.31841@skynet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 Aug 2004 04:56:55 -0400
+Date: Thu, 19 Aug 2004 10:56:43 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Thomas Charbonnel <thomas@undata.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P4
+Message-ID: <20040819085643.GA4751@elte.hu>
+References: <20040816040515.GA13665@elte.hu> <1092654819.5057.18.camel@localhost> <20040816113131.GA30527@elte.hu> <20040816120933.GA4211@elte.hu> <1092716644.876.1.camel@krustophenia.net> <20040817080512.GA1649@elte.hu> <20040819073247.GA1798@elte.hu> <1092902417.8432.108.camel@krustophenia.net> <20040819084001.GA4098@elte.hu> <1092905104.8432.116.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092905104.8432.116.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-After a bit of discussion on the dri lists, we have come to the decision
-that it is probably necessary to retire the above driver, no dri developer
-is currently using the above hardware and the driver is so different from
-the others it makes a lot of hacks in the drm needed...
+> > > Any comments on the unmap_vmas issue?
+> > 
+> > wli indicated he's working on the pagetable zapping critical section
+> > issue - wli?
 
-If anyone does actually use this driver and hardware let us know or it'll
-be marked as BROKEN soon and then it will actually break :-)
+actually - the unmap_vmas() issue might be different. Could you change
+the '32' in this part of mm/memory.c:
 
-Dave.
+# define ZAP_BLOCK_SIZE \
+                (voluntary_preemption ? (32 * PAGE_SIZE) : __ZAP_BLOCK_SIZE)
 
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-pam_smb / Linux DECstation / Linux VAX / ILUG person
+to 16? Does that roughly halve the ~180 usec latency?
 
+	Ingo

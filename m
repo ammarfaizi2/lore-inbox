@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbTLZVvd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Dec 2003 16:51:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265235AbTLZVvd
+	id S265245AbTLZVzM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Dec 2003 16:55:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265246AbTLZVzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Dec 2003 16:51:33 -0500
-Received: from mail3.bluewin.ch ([195.186.1.75]:720 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id S265233AbTLZVvc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Dec 2003 16:51:32 -0500
-Message-ID: <3FECAD63.4090605@bluewin.ch>
-Date: Fri, 26 Dec 2003 22:51:31 +0100
-From: Mario Vanoni <vanonim@bluewin.ch>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Fri, 26 Dec 2003 16:55:12 -0500
+Received: from obsidian.spiritone.com ([216.99.193.137]:27784 "EHLO
+	obsidian.spiritone.com") by vger.kernel.org with ESMTP
+	id S265245AbTLZVzI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Dec 2003 16:55:08 -0500
+Date: Fri, 26 Dec 2003 13:55:04 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: 2.6.0 sound output - wierd effects
+Message-ID: <1080000.1072475704@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-mm1: 100% OK, feedback only
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Switched from
-2.4.23 vanilla
-2.4.23aa1
-5 machines 100% working.
+Upgraded my home desktop to 2.6.0. 
+Somewhere between 2.5.63 and 2.6.0, sound got screwed up - I've confirmed
+this happens on mainline, as well as -mjb.
 
-Sincerely congrats!
+If I leave xmms playing (in random shuffle mode) every 2 minutes or so,
+I'll get some wierd effect for a few seconds, either static, or the track 
+will mysteriously speed up or slow down. Then all is back to normal for 
+another couple of minutes.
 
-Mario, _not_ in lkml, sorry.
+Anyone else seen this, or got any clues? Else I guess I'm stuck playing
+bisection search.
+
+Advanced Linux Sound Architecture Driver Version 0.9.7 (Thu Sep 25 19:16:36 2003 UTC).
+PCI: Found IRQ 11 for device 0000:00:02.7
+intel8x0: clocking to 48000
+ALSA device list:
+#0: SiS SI7012 at 0xdc00, irq 11
+
+AMD Athlon(tm) XP 2100+, no power management or ACPI compiled in.
+
+M.
 

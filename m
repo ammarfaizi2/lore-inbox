@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265248AbUHANCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265930AbUHANGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265248AbUHANCe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Aug 2004 09:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265928AbUHANCd
+	id S265930AbUHANGf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Aug 2004 09:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265931AbUHANGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Aug 2004 09:02:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65160 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265248AbUHANCc (ORCPT
+	Sun, 1 Aug 2004 09:06:35 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:25282 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S265930AbUHANGd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Aug 2004 09:02:32 -0400
-Date: Sun, 1 Aug 2004 09:02:28 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp030.home.surriel.com
-To: linux-mm@kvack.org
-cc: sjiang@cs.wm.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] token based thrashing control
-In-Reply-To: <Pine.LNX.4.58.0407301730440.9228@dhcp030.home.surriel.com>
-Message-ID: <Pine.LNX.4.58.0408010856240.13053@dhcp030.home.surriel.com>
-References: <Pine.LNX.4.58.0407301730440.9228@dhcp030.home.surriel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Aug 2004 09:06:33 -0400
+Date: Sun, 1 Aug 2004 06:05:29 -0700
+From: Paul Jackson <pj@sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matthew Dobson <colpatch@us.ibm.com>
+Subject: Re: [PATCH][2.6] first/next_cpu returns values > NR_CPUS
+Message-Id: <20040801060529.4bc51b98.pj@sgi.com>
+In-Reply-To: <20040801124053.GS2334@holomorphy.com>
+References: <Pine.LNX.4.58.0407311347270.4094@montezuma.fsmlabs.com>
+	<20040731232126.1901760b.pj@sgi.com>
+	<Pine.LNX.4.58.0408010316590.4095@montezuma.fsmlabs.com>
+	<20040801124053.GS2334@holomorphy.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 30 Jul 2004, Rik van Riel wrote:
+William wrote:
+> Maybe the few callers that are sensitive to the precise return value
+> should use min_t(int, NR_CPUS, ...) instead of all callers taking the
+> branch on behalf of those few.
 
-> I have run a very unscientific benchmark on my system to test
-> the effectiveness of the patch, timing how a 230MB two-process
-> qsbench run takes, with and without the token thrashing
-> protection present.
-> 
-> normal 2.6.8-rc2:	6m45s
-> 2.6.8-rc2 + token:	4m24s
+Either way - we need consistency.  Either find_next_bit(.., size, ...)
+returns exactly size if no more bits, or all its callers tolerate any
+return >= size.
 
-OK, I've now also ran day-long kernel compilate tests,
-3 times each with make -j 10, 20, 30, 40, 50 and 60 on
-my dual pIII w/ 384 MB and a 180 MB named in the background.
+I probably prefer the former, because I expect slightly tighter kernel
+code now (see my previous post on text size), and fewer bugs in the
+future (more clients of find_next_bit will be coded than new
+implementations of it), if we go this way.  William's comments suggest
+to me he prefers the later.
 
-For make -j 10 through make -j 50 the differences are in
-the noise, basically giving the same result for each kernel.
+Either (or both) seems better than what we have.
 
-However, for make -j 60 there's a dramatic difference between
-a kernel with the token based swapout and a kernel without.
+William - can you read the find_next_bit() implementations in some other
+arch's well enough to understand if they are anal about returning
+exactly 'size', or content to return something >= size, when they run
+out of bits?  That code was a bit denser than I could deal with easily.
 
-normal 2.6.8-rc2:	1h20m runtime / ~26% CPU use average
-2.6.8-rc2 + token:	  42m runtime / ~52% CPU use average
-
-Time to dig out a dedicated test machine at the office and
-do some testing with (RE-)AIM7, I wonder if the max number
-of users supported will grow...
+If a strong majority of the arch's find_next_bit() are anal, or on the
+other hand, are not, then I'd suggest we follow their lead.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

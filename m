@@ -1,75 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263862AbTDHCBE (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 22:01:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTDHCBD (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 22:01:03 -0400
-Received: from dp.samba.org ([66.70.73.150]:34280 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S263862AbTDHCBB (for <rfc822;linux-kernel@vger.kernel.org>);
+	id S263865AbTDHCBF (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 22:01:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263869AbTDHCBF (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 22:01:05 -0400
+Received: from dp.samba.org ([66.70.73.150]:34536 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263865AbTDHCBB (for <rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 7 Apr 2003 22:01:01 -0400
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Paul Mackerras <paulus@au1.ibm.com>,
-       Fabrice Bellard <fabrice.bellard@free.fr>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH] Qemu support for PPC 
-In-reply-to: Your message of "Mon, 07 Apr 2003 13:49:55 +0100."
-             <20030407134954.A31558@infradead.org> 
-Date: Tue, 08 Apr 2003 11:52:57 +1000
-Message-Id: <20030408021238.F19C42C66E@lists.samba.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: zwane@linuxpower.ca, linux-kernel@vger.kernel.org, hch@infradead.org
+Subject: Re: SET_MODULE_OWNER? 
+In-reply-to: Your message of "Mon, 07 Apr 2003 14:29:44 -0400."
+             <3E91C398.9070400@pobox.com> 
+Date: Tue, 08 Apr 2003 12:01:37 +1000
+Message-Id: <20030408021239.1155C2C4EE@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030407134954.A31558@infradead.org> you write:
-> On Mon, Apr 07, 2003 at 06:34:17PM +1000, Rusty Russell wrote:
-> > Oh good: a serious question.  Why don't we drop the personality field
-> > in struct task_struct and just use exec_domain?  Then the flags could
-> > be unfolded from the personality number, and placed in a "flags"
-> > element in struct exec_domain, the personality() macro would vanish,
-> > the set_personality() macro would vanish, and things would be
-> > generally clearer?
+In message <3E91C398.9070400@pobox.com> you write:
+> Rusty Russell wrote:
+> > I thought it was completely useless, hence deprecated.
+> > 
+> > Anyone have any reason to defend it?
 > 
-> The personality number is exposed through sys_personality, so unfortunately
-> we can't get rid of it.  I still wonder what crack the person inviting this
-> scheme was smoking, though..
-
-Yes.  It's a PITA that the bottom 8 bits map to exec_domain, and the
-rest are random flags.  If each different personality mapped to a
-separate exec_domain, the flags could be moved to the exec_domain
-struct and it'd be far more logical.  But as you say, this would break
-userspace which expects to be able to set the exec_domain and the
-flags separately 8(.
-
-BTW, there's a module refcount leak here:
-
-int
-__set_personality(u_long personality)
-{
-	struct exec_domain	*ep, *oep;
-
-	ep = lookup_exec_domain(personality);
-	if (ep == current_thread_info()->exec_domain) {
-		current->personality = personality;
-		return 0;
-	}
-
-You need "module_put(ep->owner)", since lookup_exec_domain bumps the
-refcount.
-
-
-> > That applies to any kernel mod, of course.  qemu is much more usable
-> > (ie. it's sanely packagable) with this functionality, ie. it's pretty
-> > much a requirement for increasing adoption.
 > 
-> You can just easily let it run in a chroot or separate namespace,
-> you just won't get second look semantics. (Personally I think that's
-> a benefit, but some people disagree with this).
+> It's used to allow source compatibility with all kernels, old or new.
+> 
+> Thus it is in active use, and should not be removed.
 
-No, then you can't access your files, which is unacceptable for many
-users.
+Inside individual drivers, or a set of compat macros, it makes sense.
+But as a general module.h primitive it doesn't.
 
-I've done the userspace implementation: I'll see if Fabrice chokes on
-the speed hit.
+Imagine a structure adds an owner field in 2.5.  This macro doesn't
+help you, you need a specific compat macro for that struct.
 
-Cheers,
+ie. AFAICT it only buys you 2.2 compatibility, and even then only if
+you #define it at the top of your driver.
+
+I still don't understand: please demonstrate a use in existing source.
 Rusty.
 --
   Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

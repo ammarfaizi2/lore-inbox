@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272400AbSISTKx>; Thu, 19 Sep 2002 15:10:53 -0400
+	id <S272429AbSISTNT>; Thu, 19 Sep 2002 15:13:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272427AbSISTKx>; Thu, 19 Sep 2002 15:10:53 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:42252 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S272400AbSISTKr> convert rfc822-to-8bit; Thu, 19 Sep 2002 15:10:47 -0400
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: TPC-C benchmark used standard RH kernel
-Date: Thu, 19 Sep 2002 14:15:34 -0500
-Message-ID: <45B36A38D959B44CB032DA427A6E1064038A4698@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: TPC-C benchmark used standard RH kernel
-Thread-Index: AcJgD9XDm2XVzqJ4TAK0thG3qKJOLAAAHTVg
-From: "Bond, Andrew" <Andrew.Bond@hp.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Sep 2002 19:15:38.0164 (UTC) FILETIME=[EFF96F40:01C26010]
+	id <S272449AbSISTNT>; Thu, 19 Sep 2002 15:13:19 -0400
+Received: from mail.cogenit.fr ([195.68.53.173]:21444 "EHLO cogenit.fr")
+	by vger.kernel.org with ESMTP id <S272429AbSISTNS>;
+	Thu, 19 Sep 2002 15:13:18 -0400
+Date: Thu, 19 Sep 2002 21:17:38 +0200
+From: Francois Romieu <romieu@cogenit.fr>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jgarzik@mandrakesoft.com>, henrique@cyclades.com
+Subject: Re: 2.4 + generic HDLC update? Any ideas?
+Message-ID: <20020919211738.A12722@fafner.intra.cogenit.fr>
+References: <m3r8fqm7ez.fsf@defiant.pm.waw.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m3r8fqm7ez.fsf@defiant.pm.waw.pl>; from khc@pm.waw.pl on Thu, Sep 19, 2002 at 03:32:36PM +0200
+X-Organisation: Marie's fan club - II
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am actually moving in that direction.  I don't know if I will be able to use the same setup or not, but I will post once I get some data.  I can post that I saw X% delta going from 2.4 to 2.5.  I can't help it if anyone extrapolates data from there ;-)
+Krzysztof Halasa <khc@pm.waw.pl> :
+[...]
+> - the other driver affected is DSCC4, but I know exactly nothing about
+>   it (a 2.5 version of it is, of course, available). What do you think,
+>   Francois?
 
-Andy
+dscc4 maintainer:
+I use a code marrying the core 2.4.x dscc4 with a 2.5.x hdlc to test 2.5.x
+dscc4. Thus no real extra load. Hdlc glue in current 2.4.x dscc4 does its 
+job but I wouldn't recommend it as a model for the newer generation.
 
-> -----Original Message-----
-> From: Martin J. Bligh [mailto:mbligh@aracnet.com]
-> Sent: Thursday, September 19, 2002 3:06 PM
-> To: Bond, Andrew; linux-kernel@vger.kernel.org
-> Subject: Re: TPC-C benchmark used standard RH kernel
-> 
-> 
-> > Could we have gotten better performance by patching the 
-> kernel?  Sure.  There are many new features in 2.5 that would 
-> enhance database performance.  However, the fairly strict 
-> support requirements of TPC benchmarking mean that we need to 
-> benchmark a kernel that a Linux distributor ships and can support.  
-> > Modifications could also be taken to the extreme, and we 
-> could have built a screamer kernel that runs Oracle TPC-C's 
-> and nothing else.  However, that doesn't really tell us 
-> anything useful and doesn't help those customers thinking 
-> about running Linux.  The question also becomes "Who would 
-> provide customer support for that kernel?" 
-> 
-> Unofficial results for 2.5 vs 2.4 (or 2.4-redhatAS) would be most
-> interesting if you're able to gather them, and still have the
-> machine. Most times you can avoid their draconian rules by saying
-> "on a large benchmark test that I can't name but you all know what
-> it is ..." instead of naming it ... ;-)
-> 
-> M.
-> 
-> 
+dscc4 users:
+Migration from specific scctool.c + sethdlc to single sethdlc. Definitely
+a simpler life.
+
+If users damn me, I'll surely meet someone from Infineon in hell to discuss
+dscc4 :o)
+
+vendors:
+- dscc4 not included in rh 2.4 last time I looked at it (I labelled it
+  'EXPERIMENTAL');
+- 2.4.18 mdk kills it using Krzysztof's post-2.4-didn't-make-2.5 (!) hdlc;
+- don't know what the others do.
+
+Imho dscc4 doesn't need to be taken too much in consideration regarding
+2.4.x hdlc stack change.
+
+-- 
+Ueimor

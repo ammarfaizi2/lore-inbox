@@ -1,271 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S277409AbVBDEtu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S277261AbVBDEsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S277409AbVBDEtu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 23:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S277411AbVBDEtu
+	id S277261AbVBDEsh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 23:48:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S277255AbVBDEsf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 23:49:50 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:53980 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S277145AbVBDErt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 23:47:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Ahf9ias9I7ofP9TYDEKuIkCsi+g1NMegu/kgqnEnmglGcgoUdatc5KsWvNOb8+BGlgdv+U0OfUN78znjSCqT6YL3KKPe+EsI1i3D2H0lBzQZdNaN0P+APkIbfmz1O7bLtfMEvMCfw9HFTc5GJZ71YJTeKS4Aq+5EvL1vsJTsvEs=
-Message-ID: <58cb370e050203095417fed306@mail.gmail.com>
-Date: Thu, 3 Feb 2005 18:54:05 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <tj@home-tj.org>
-Subject: Re: [PATCH 2.6.11-rc2 26/29] ide: map ide_cmd_ioctl() to ide_taskfile_ioctl()
-Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <20050202031037.GK1187@htj.dyndns.org>
+	Thu, 3 Feb 2005 23:48:35 -0500
+Received: from mailhub2.une.edu.au ([129.180.1.142]:49595 "EHLO
+	mailhub2.une.edu.au") by vger.kernel.org with ESMTP id S277110AbVBDEri
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 23:47:38 -0500
+Date: Fri, 4 Feb 2005 15:47:36 +1100
+From: Norman Gaywood <norm@turing.une.edu.au>
+To: linux-kernel@vger.kernel.org
+Subject: slowdown with 2.6.10 when using NFS client
+Message-ID: <20050204044736.GA8406@turing.une.edu.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <20050202024017.GA621@htj.dyndns.org>
-	 <20050202031037.GK1187@htj.dyndns.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Feb 2005 12:10:37 +0900, Tejun Heo <tj@home-tj.org> wrote:
-> > 26_ide_taskfile_cmd_ioctl.patch
-> >
-> >       ide_cmd_ioctl() converted to use ide_taskfile_ioctl().  This
-> >       is the last user of REQ_DRIVE_CMD.
+This is with the fedora kernel 2.6.10-1.760_FC3smp
 
-ide_cmd_ioctl() needs to map to taskfile transport not ide_taskfile_ioctl()
+I've reproduced this on 2 SMP systems with different NFS servers and
+several Fedora 2.6.10 kernels. I could not reproduce the problem with a
+non-SMP kernel or a 2.4 kernel. I have not tried with a pre 2.6.10 kernel.
 
-> Index: linux-ide-export/drivers/ide/ide-iops.c
-> ===================================================================
-> --- linux-ide-export.orig/drivers/ide/ide-iops.c        2005-02-02 10:28:04.466320918 +0900
-> +++ linux-ide-export/drivers/ide/ide-iops.c     2005-02-02 10:28:07.406843817 +0900
-> @@ -648,11 +648,11 @@ u8 eighty_ninty_three (ide_drive_t *driv
-> 
->  EXPORT_SYMBOL(eighty_ninty_three);
-> 
-> -int ide_ata66_check (ide_drive_t *drive, ide_task_t *args)
-> +int ide_ata66_check (ide_drive_t *drive, task_ioreg_t *regs)
+I think some others have seen similar things in this old thread:
 
-nitpick: int ide_ata66_check()
+http://lkml.org/lkml/2005/1/17/201
 
->  {
-> -       if ((args->tfRegister[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
-> -           (args->tfRegister[IDE_SECTOR_OFFSET] > XFER_UDMA_2) &&
-> -           (args->tfRegister[IDE_FEATURE_OFFSET] == SETFEATURES_XFER)) {
-> +       if ((regs[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
-> +           (regs[IDE_SECTOR_OFFSET] > XFER_UDMA_2) &&
-> +           (regs[IDE_FEATURE_OFFSET] == SETFEATURES_XFER)) {
+Running john the ripper (dictionary password cracker) from an NFS mounted
+directory causes the system to become very sluggish. Copying the same
+directory to local disk and running john from there, the system runs
+smoothly.
 
-nitpick: please drop brackets
+In an NFS mounted dir I start "vmstat 1", then start "./john -restore",
+and then kill john after a few seconds. vmstat output follows. sy cpu
+time looks interesting to me.
 
->  #ifndef CONFIG_IDEDMA_IVB
->                 if ((drive->id->hw_config & 0x6000) == 0) {
->  #else /* !CONFIG_IDEDMA_IVB */
-> @@ -678,11 +678,11 @@ int ide_ata66_check (ide_drive_t *drive,
->   * 1 : Safe to update drive->id DMA registers.
->   * 0 : OOPs not allowed.
->   */
-> -int set_transfer (ide_drive_t *drive, ide_task_t *args)
-> +int set_transfer (ide_drive_t *drive, task_ioreg_t *regs)
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  0      0 1828124  28636 142444    0    0    80    17  279    72  2  2 93  3
+ 0  0      0 1828124  28636 142444    0    0     0     0 1115    54  0  0 100  0
+ 0  0      0 1828124  28636 142444    0    0     0     0 1005    16  0  0 100  0
+ 0  0      0 1828124  28636 142444    0    0     0     0 1119    46  0  0 100  0
+ 0  0      0 1828124  28636 142444    0    0     0     0 1027    32  0  0 100  0
+ 0  0      0 1827996  28644 142436    0    0     0    36 1107    40  0  0 100  0
+ 0  1      0 1827996  28644 142436    0    0     0     4 1013    26  0  0 100  0
+ 0  0      0 1828060  28644 142436    0    0     0     0 1119    57  0  0 100  0
+ 0  0      0 1828060  28644 142436    0    0     0     0 1042    42  0  0 100  0
+ 0  0      0 1827932  28644 142436    0    0     0     0 1109    47  0  0 100  0
+ 0  0      0 1827932  28644 142436    0    0     0     0 1029    48  0  0 100  0
+ 0  1      0 1827932  28652 142428    0    0     0    16 1106    40  0  0 100  0
+ 0  0      0 1827932  28652 142428    0    0     0     0 1006    20  0  0 100  0
+ 2  0      0 1822804  28652 142948    0    0     0     0 2080   296  9  9 82  0
+ 2  0      0 1822804  28652 142948    0    0     0     0 1006    10 25  0 75  0
+ 1  0      0 1822804  28652 142948    0    0     0     0 1075    30 25 23 51  0
+ 1  0      0 1822804  28652 142948    0    0     0     0 1037    28 25 23 52  0
+ 2  0      0 1822804  28652 142948    0    0     0     0 1061    25 25 14 61  0
+ 1  0      0 1822812  28660 142940    0    0     0    24 1050    25 25 32 43  0
+ 2  0      0 1822812  28660 142940    0    0     0     0 1033    17 25 18 57  0
+ 2  0      0 1822812  28660 142940    0    0     0     0 1078    32 25 17 59  0
+ 1  0      0 1822748  28660 142940    0    0     0     0 1105    40 25 16 59  0
+ 3  0      0 1822748  28660 142940    0    0     0     0 1263    17 25 52 23  0
+ 1  0      0 1822684  28660 142940    0    0     0     0 1303    41 25 21 54  0
+ 2  0      0 1822684  28660 142940    0    0     0     0 1165    15 25 25 50  0
+ 2  0      0 1822684  28660 142940    0    0     0     0 1240    26 25  6 69  0
+ 0  0      0 1826964  28668 142932    0    0     0    20 1242    79  7 12 80  0
+ 0  0      0 1826964  28668 142932    0    0     0     0 1014    22  0  0 100  0
+ 0  0      0 1826964  28668 142932    0    0     0     0 1108    42  0  0 100  0
 
-nitpick: int set_transfer()
+If I then copy the same directory to local disk (/tmp) and do the same
+thing, system has no slowdown, vmstat looks like:
 
->  {
-> -       if ((args->tfRegister[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
-> -           (args->tfRegister[IDE_SECTOR_OFFSET] >= XFER_SW_DMA_0) &&
-> -           (args->tfRegister[IDE_FEATURE_OFFSET] == SETFEATURES_XFER) &&
-> +       if ((regs[IDE_COMMAND_OFFSET] == WIN_SETFEATURES) &&
-> +           (regs[IDE_SECTOR_OFFSET] >= XFER_SW_DMA_0) &&
-> +           (regs[IDE_FEATURE_OFFSET] == SETFEATURES_XFER) &&
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  0      0 1809692  28812 159688    0    0    65    17  281    62  2  2 93  3
+ 0  0      0 1809692  28812 159688    0    0     0     0 1107    36  0  0 100  0
+ 0  0      0 1809692  28820 159680    0    0     0    76 1011    20  0  0 99  1
+ 0  0      0 1809692  28820 159680    0    0     0     0 1113    60  0  0 100  0
+ 0  0      0 1809756  28820 159680    0    0     0     0 1018    32  0  0 100  0
+ 0  0      0 1809756  28820 159680    0    0     0     0 1111    40  0  0 100  0
+ 0  0      0 1809756  28820 159680    0    0     0     0 1006    18  0  0 100  0
+ 0  1      0 1809756  28824 159676    0    0     0    16 1105    40  0  0 100  0
+ 0  0      0 1809756  28828 159672    0    0     0     8 1017    22  0  0 100  0
+ 0  0      0 1809756  28828 159672    0    0     0     0 1104    30  0  0 100  0
+ 0  0      0 1809756  28828 159672    0    0     0     0 1007    14  0  0 100  0
+ 0  0      0 1809756  28828 159672    0    0     0     0 1104    30  0  0 100  0
+ 0  1      0 1809628  28832 159668    0    0     0    20 1010    27  0  0 100  0
+ 0  0      0 1809628  28836 159664    0    0     0   100 1143    61  0  0 100  0
+ 0  0      0 1809628  28836 159664    0    0     0     0 1018    35  0  0 100  0
+ 0  0      0 1809628  28836 159664    0    0     0     0 1125    68  0  0 99  0
+ 0  1      0 1808860  28836 159664    0    0     0     8 1015    36  2  0 98  0
+ 1  0      0 1805404  28852 159648    0    0     0    56 1114    56 23  0 75  2
+ 1  0      0 1805404  28852 159648    0    0     0     0 1006    16 25  0 75  0
+ 1  0      0 1805404  28852 159648    0    0     0     0 1102    30 25  0 75  0
+ 1  0      0 1805404  28852 159648    0    0     0     0 1005    12 25  0 75  0
+ 1  0      0 1805404  28852 159648    0    0     0     0 1103    30 25  0 75  0
+ 1  1      0 1805404  28852 159648    0    0     0     4 1007    22 25  0 75  0
+ 1  0      0 1805404  28860 159640    0    0     0    12 1106    39 25  0 75  0
+ 1  0      0 1805404  28860 159640    0    0     0     0 1005    10 25  0 75  0
+ 1  0      0 1805404  28860 159640    0    0     0     0 1105    38 25  0 75  0
+ 1  0      0 1805404  28860 159640    0    0     0     0 1007    16 25  0 75  0
+ 1  1      0 1805340  28860 159640    0    0     0     8 1107    41 25  0 75  0
+ 1  0      0 1805340  28868 159632    0    0     0    16 1010    18 25  0 74  0
+ 1  0      0 1805340  28868 159632    0    0     0     0 1106    37 25  0 75  0
+ 1  0      0 1805340  28868 159632    0    0     0     0 1008    14 25  0 75  0
+ 1  0      0 1805340  28868 159632    0    0     0     0 1104    30 25  0 75  0
+ 1  1      0 1805404  28868 159632    0    0     0     8 1007    20 25  0 75  0
+ 1  0      0 1805404  28876 159624    0    0     0    16 1107    38 25  0 74  1
+ 1  0      0 1805404  28876 159624    0    0     0     0 1005    10 25  0 75  0
+ 1  0      0 1805404  28876 159624    0    0     0     0 1103    30 25  0 75  0
+ 0  0      0 1809820  28884 159616    0    0     0    20 1019    40  8  0 92  1
+ 0  0      0 1809812  28884 159616    0    0     0     0 1110    50  0  0 100  0
+ 0  0      0 1809812  28884 159616    0    0     0     0 1011    22  0  0 100  0
 
-nitpick: brackets
+-- 
+Norman Gaywood, Systems Administrator
+School of Mathematics, Statistics and Computer Science
+University of New England, Armidale, NSW 2351, Australia
 
->             (drive->id->dma_ultra ||
->              drive->id->dma_mword ||
->              drive->id->dma_1word))
-> Index: linux-ide-export/drivers/ide/ide-taskfile.c
-> ===================================================================
-> --- linux-ide-export.orig/drivers/ide/ide-taskfile.c    2005-02-02 10:28:06.751950074 +0900
-> +++ linux-ide-export/drivers/ide/ide-taskfile.c 2005-02-02 10:28:07.407843655 +0900
-> @@ -704,78 +704,90 @@ abort:
->         return err;
->  }
-> 
-> -int ide_wait_cmd (ide_drive_t *drive, u8 cmd, u8 nsect, u8 feature, u8 sectors, u8 *buf)
-> -{
-> -       struct request rq;
-> -       u8 buffer[4];
-> -
-> -       if (!buf)
-> -               buf = buffer;
-> -       memset(buf, 0, 4 + SECTOR_WORDS * 4 * sectors);
-> -       ide_init_drive_cmd(&rq);
-> -       rq.buffer = buf;
-> -       *buf++ = cmd;
-> -       *buf++ = nsect;
-> -       *buf++ = feature;
-> -       *buf++ = sectors;
-> -       return ide_do_drive_cmd(drive, &rq, ide_wait);
-> -}
-> -
-> -/*
-> - * FIXME : this needs to map into at taskfile. <andre@linux-ide.org>
-> - */
->  int ide_cmd_ioctl (ide_drive_t *drive, unsigned int cmd, unsigned long arg)
->  {
-> -       int err = 0;
-> -       u8 args[4], *argbuf = args;
-> +       u8 args[4];
-> +       ide_task_request_t *task_req;
-> +       task_ioreg_t *io_ports;
->         u8 xfer_rate = 0;
-> -       int argsize = 4;
-> -       ide_task_t tfargs;
-> +       mm_segment_t orig_fs;
-> +       int in_size, ret;
-> 
-> -       if (NULL == (void *) arg) {
-> +       if ((void *)arg == NULL) {
->                 struct request rq;
->                 ide_init_drive_cmd(&rq);
-> +               rq.flags = REQ_DRIVE_TASKFILE;
->                 return ide_do_drive_cmd(drive, &rq, ide_wait);
->         }
-> 
->         if (copy_from_user(args, (void __user *)arg, 4))
->                 return -EFAULT;
-> 
-> -       memset(&tfargs, 0, sizeof(ide_task_t));
-> -       tfargs.tfRegister[IDE_FEATURE_OFFSET] = args[2];
-> -       tfargs.tfRegister[IDE_NSECTOR_OFFSET] = args[3];
-> -       tfargs.tfRegister[IDE_SECTOR_OFFSET]  = args[1];
-> -       tfargs.tfRegister[IDE_LCYL_OFFSET]    = 0x00;
-> -       tfargs.tfRegister[IDE_HCYL_OFFSET]    = 0x00;
-> -       tfargs.tfRegister[IDE_SELECT_OFFSET]  = 0x00;
-> -       tfargs.tfRegister[IDE_COMMAND_OFFSET] = args[0];
-> -
-> -       if (args[3]) {
-> -               argsize = 4 + (SECTOR_WORDS * 4 * args[3]);
-> -               argbuf = kmalloc(argsize, GFP_KERNEL);
-> -               if (argbuf == NULL)
-> -                       return -ENOMEM;
-> -               memcpy(argbuf, args, 4);
-> +       in_size = 4 * SECTOR_WORDS * args[3];
-> +
-> +       task_req = kmalloc(sizeof(*task_req) + in_size, GFP_KERNEL);
-> +       if (task_req == NULL)
-> +               return -ENOMEM;
-> +
-> +       memset(task_req, 0, sizeof(*task_req) + in_size);
-> +
-> +       task_req->out_flags.b.status_command    = 1;
-> +       task_req->out_flags.b.sector            = 1;
-> +       task_req->out_flags.b.error_feature     = 1;
-> +       task_req->out_flags.b.nsector           = 1;
-> +
-> +       task_req->in_flags.b.status_command     = 1;
-> +       task_req->in_flags.b.error_feature      = 1;
-> +       task_req->in_flags.b.nsector            = 1;
-> +
-> +       io_ports = task_req->io_ports;
-> +       io_ports[IDE_COMMAND_OFFSET]            = args[0];
-> +       io_ports[IDE_SECTOR_OFFSET]             = args[1];
-> +       io_ports[IDE_FEATURE_OFFSET]            = args[2];
-> +       io_ports[IDE_NSECTOR_OFFSET]            = args[3];
+norm@turing.une.edu.au            Phone: +61 (0)2 6773 2412
+http://turing.une.edu.au/~norm    Fax:   +61 (0)2 6773 3312
 
-Please handle WIN_SMART hack here (see execute_drive_cmd()),
-your next patch just kills it - it can break legacy applications.
-
-> +       if (in_size) {
-> +               task_req->req_cmd               = IDE_DRIVE_TASK_IN;
-> +               task_req->data_phase            = TASKFILE_IN;
-> +               task_req->in_size               = in_size;
-> +       } else {
-> +               task_req->req_cmd               = IDE_DRIVE_TASK_NO_DATA;
-> +               task_req->data_phase            = TASKFILE_NO_DATA;
->         }
-> -       if (set_transfer(drive, &tfargs)) {
-> +
-> +       if (set_transfer(drive, io_ports)) {
->                 xfer_rate = args[1];
-> -               if (ide_ata66_check(drive, &tfargs))
-> +               if (ide_ata66_check(drive, io_ports)) {
-> +                       ret = -EIO;
->                         goto abort;
-> +               }
->         }
-> 
-> -       err = ide_wait_cmd(drive, args[0], args[1], args[2], args[3], argbuf);
-> +       orig_fs = get_fs();
-> +       set_fs(KERNEL_DS);
-> 
-> -       if (!err && xfer_rate) {
-> +       ret = ide_taskfile_ioctl(drive, cmd, (unsigned long)task_req);
-> +
-> +       set_fs(orig_fs);
-
-as ide_cmd_ioctl() only handles no-data and PIO-in protocols it should
-be easy to add missing bits here and get rid of calling ide_taskfile_ioctl()
-
-> +       if (!ret && xfer_rate) {
->                 /* active-retuning-calls future */
->                 ide_set_xfer_rate(drive, xfer_rate);
->                 ide_driveid_update(drive);
->         }
-> +
-> +       args[0] = io_ports[IDE_STATUS_OFFSET];
-> +       args[1] = io_ports[IDE_ERROR_OFFSET];
-> +       args[2] = io_ports[IDE_NSECTOR_OFFSET];
-> +       args[3] = 0;
-> +
-> +       if (copy_to_user((void __user *)arg, args, 4) ||
-> +           copy_to_user((void __user *)arg + 4,
-> +                        (void *)task_req + sizeof(*task_req), in_size))
-> +               ret = -EFAULT;
->  abort:
-> -       if (copy_to_user((void __user *)arg, argbuf, argsize))
-> -               err = -EFAULT;
-> -       if (argsize > 4)
-> -               kfree(argbuf);
-> -       return err;
-> +       kfree(task_req);
-> +       return ret;
->  }
-> 
->  int ide_task_ioctl (ide_drive_t *drive, unsigned int cmd, unsigned long arg)
-> Index: linux-ide-export/include/linux/ide.h
-> ===================================================================
-> --- linux-ide-export.orig/include/linux/ide.h   2005-02-02 10:28:06.529986088 +0900
-> +++ linux-ide-export/include/linux/ide.h        2005-02-02 10:28:07.408843493 +0900
-> @@ -1289,14 +1289,6 @@ extern int ide_do_drive_cmd(ide_drive_t
->   */
->  extern void ide_end_drive_cmd(ide_drive_t *, u8, u8);
-> 
-> -/*
-> - * Issue ATA command and wait for completion.
-> - * Use for implementing commands in kernel
-> - *
-> - *  (ide_drive_t *drive, u8 cmd, u8 nsect, u8 feature, u8 sectors, u8 *buf)
-> - */
-> -extern int ide_wait_cmd(ide_drive_t *, u8, u8, u8, u8, u8 *);
-> -
->  extern u32 ide_read_24(ide_drive_t *);
-> 
->  extern void SELECT_DRIVE(ide_drive_t *);
-> @@ -1334,10 +1326,10 @@ int ide_task_ioctl(ide_drive_t *, unsign
->  extern int system_bus_clock(void);
-> 
->  extern int ide_driveid_update(ide_drive_t *);
-> -extern int ide_ata66_check(ide_drive_t *, ide_task_t *);
-> +extern int ide_ata66_check(ide_drive_t *, task_ioreg_t *);
->  extern int ide_config_drive_speed(ide_drive_t *, u8);
->  extern u8 eighty_ninty_three (ide_drive_t *);
-> -extern int set_transfer(ide_drive_t *, ide_task_t *);
-> +extern int set_transfer(ide_drive_t *, task_ioreg_t *);
->  extern int taskfile_lib_get_identify(ide_drive_t *drive, u8 *);
-
-extern-s are not needed
-
->  extern int ide_wait_not_busy(ide_hwif_t *hwif, unsigned long timeout);
+Please avoid sending me Word or PowerPoint attachments.
+See http://www.fsf.org/philosophy/no-word-attachments.html

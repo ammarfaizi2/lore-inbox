@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265371AbUFHWfx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264461AbUFHWoQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265371AbUFHWfx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 18:35:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265370AbUFHWfw
+	id S264461AbUFHWoQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 18:44:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265370AbUFHWoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 18:35:52 -0400
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:29569 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S265373AbUFHWff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 18:35:35 -0400
-Date: Wed, 9 Jun 2004 00:35:28 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.26 JFS: cannot mount
-Message-ID: <20040608223528.GA13241@merlin.emma.line.org>
-Mail-Followup-To: Dave Kleikamp <shaggy@austin.ibm.com>,
-	Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
-References: <20040608195610.GA4757@merlin.emma.line.org> <20040608201446.GA13764@merlin.emma.line.org> <1086727014.26567.20.camel@shaggy.austin.ibm.com>
-Mime-Version: 1.0
+	Tue, 8 Jun 2004 18:44:16 -0400
+Received: from web21004.mail.yahoo.com ([216.136.227.58]:4265 "HELO
+	web21004.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264461AbUFHWoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 18:44:14 -0400
+Message-ID: <20040608224413.93994.qmail@web21004.mail.yahoo.com>
+Date: Tue, 8 Jun 2004 15:44:13 -0700 (PDT)
+From: athul acharya <nyte2k@yahoo.com>
+Subject: Dothan/Centrino cpufreq
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1086727014.26567.20.camel@shaggy.austin.ibm.com>
-User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 08 Jun 2004, Dave Kleikamp wrote:
+Hey folks,
 
-> No, all of the code to replay the journal is in user space.  JFS does
-> allow a read-only mount when the superblock is dirty.  This allows
-> fsck.jfs to replay the journal while the root is mounted read-only.  /
-> can then be remounted rw after fsck runs.
+I noticed that 2.6.7-rc1 was supposed to have Dothan
+support for cpufreq, but since neither it nor -rc2
+worked  on my machine, I decided to take a look at the
+code and see if I couldn't figure something out.  I
+saw this:
 
-So was the mount was refused because a) the read-only
-option was missing while b) the file system needed a journal replay?
+static const struct cpu_id cpu_id_dothan_a1 = {
+        .x86_vendor = X86_VENDOR_INTEL,
+        .x86 = 6,
+        .x86_model = 13,
+        .x86_mask = 1,
+};
 
-Interesting difference. XFS insists on replaying the log in kernel space
-(user space can only zero the log), ext3 and reiserfs can replay the log
-in kernel or user space whichever touches first...
+Attempting to match this against /proc/cpuinfo, I
+changed it to
 
--- 
-Matthias Andree
+static const struct cpu_id cpu_id_dothan_a1 = {
+        .x86_vendor = X86_VENDOR_INTEL,
+        .x86 = 6,
+        .x86_model = 13,
+        .x86_mask = 6,
+};
 
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95
+This worked, creating
+/sys/devices/system/cpu/cpu0/cpufreq/ and the whole
+shebang.  So, for whomever is in charge of cpufreq,
+the above change needs to be integrated in order for
+(some?) Dothans to work.
+
+Since I don't currently subscribe to linux-kernel, I
+would appreciate it if any replies/etc could be CC'd
+to me, nyte2k@yahoo.com
+
+Thanks,
+
+Athul Acharya
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+Friends.  Fun.  Try the all-new Yahoo! Messenger.
+http://messenger.yahoo.com/ 

@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbTLSHA7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 02:00:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbTLSHA6
+	id S261877AbTLSHPl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 02:15:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbTLSHPl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 02:00:58 -0500
-Received: from obsidian.spiritone.com ([216.99.193.137]:29652 "EHLO
-	obsidian.spiritone.com") by vger.kernel.org with ESMTP
-	id S261411AbTLSHAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 02:00:54 -0500
-Date: Thu, 18 Dec 2003 23:00:50 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: szonyi calin <caszonyi@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Lockup with 2.6.0
-Message-ID: <27340000.1071817249@[10.10.2.4]>
-In-Reply-To: <20031219013810.20470.qmail@web40610.mail.yahoo.com>
-References: <20031219013810.20470.qmail@web40610.mail.yahoo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 19 Dec 2003 02:15:41 -0500
+Received: from web25110.mail.ukl.yahoo.com ([217.12.10.58]:48286 "HELO
+	web25110.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261877AbTLSHPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 02:15:40 -0500
+Message-ID: <20031219071539.18693.qmail@web25110.mail.ukl.yahoo.com>
+Date: Fri, 19 Dec 2003 07:15:39 +0000 (GMT)
+From: =?iso-8859-1?q?ewan=20paton?= <ewan_paton@yahoo.co.uk>
+Subject: PROBLEM with intel gigabit ethernet driver bug
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was writing a cd (with ide-atapi) and downloading something 
-> on dial-up and when i switched desks (screens) in fvwm a 
-> hard lockup occured (X froze, dial up link froze (the leds on
->  the modem didn't blinked anymore) and i could't use alt + SysRQ
-> also). I had to press the reset button :-(
+i hate to bother you but i feel certain there is a
+problem with the intel gigabit ehernet driver in the
+2.6 kernel, i have an Intel Corp. 82544GC Gigabit
+Ethernet Controller and run gentoo this driver works
+fine with in 2.4 sources but i have tried multiple 2.6
+sources and it just fails to bring the ethernet up. it
+did used to work in older development releases but
+when they went into the 2.6test phase.
+i am sure it is present in kernels 2.6test6 to 2.6 but
+cant remember the last one it worked with sorry
+ if i can provide any config files etc i will gladly
+send them and if this is a problem on my end i am very
+sorry for wasting your time but i have spent over a
+month trying to find a fix
 
-if Alt+Sysrq doesn't work, you might want to setup NMI watchdog,
-and see if that gives you anything ...
+thanks for all your fine work
+Ewan Paton
 
-M.
-
+________________________________________________________________________
+Yahoo! Messenger - Communicate instantly..."Ping" 
+your friends today! Download Messenger Now 
+http://uk.messenger.yahoo.com/download/index.html

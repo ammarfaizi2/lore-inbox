@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261339AbRESVBA>; Sat, 19 May 2001 17:01:00 -0400
+	id <S261324AbRESUya>; Sat, 19 May 2001 16:54:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261345AbRESVAu>; Sat, 19 May 2001 17:00:50 -0400
-Received: from pop.gmx.net ([194.221.183.20]:39415 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261339AbRESVAj>;
-	Sat, 19 May 2001 17:00:39 -0400
-Message-ID: <01df01c0e0a6$bfb9ed40$0100005a@host1>
-From: "spam goes to /dev/null" <spam-goes-to-dev-null@gmx.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: serpent loopback crypto "EXT2-fs: group descriptors corrupted"
-Date: Sat, 19 May 2001 23:00:26 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S261337AbRESUyV>; Sat, 19 May 2001 16:54:21 -0400
+Received: from ohiper0-142.apex.net ([209.250.50.142]:14854 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S261324AbRESUyL>; Sat, 19 May 2001 16:54:11 -0400
+Date: Sat, 19 May 2001 15:53:21 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+Message-ID: <20010519155321.A19764@hapablap.dyn.dhs.org>
+In-Reply-To: <Pine.GSO.4.21.0105190416190.3724-100000@weyl.math.psu.edu> <E1517Jf-0008PV-00@the-village.bc.nu> <20010519184819.M18853@arthur.ubicom.tudelft.nl> <20010519104511.A2648@vitelus.com> <20010519213803.N18853@arthur.ubicom.tudelft.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010519213803.N18853@arthur.ubicom.tudelft.nl>; from J.A.K.Mouw@ITS.TUDelft.NL on Sat, May 19, 2001 at 09:38:03PM +0200
+X-Uptime: 3:36pm  up 16:31,  2 users,  load average: 1.17, 1.24, 1.32
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Sat, May 19, 2001 at 09:38:03PM +0200, Erik Mouw wrote:
+> > But /dev/sda/offset=234234,limit=626737537 isn't a file! ls it and see
+> > if it's there. writing to files that aren't shown in directory listings
+> > is plain evil. I really don't want to explain why. It's extremely
+> > messy and unintuitive.
+> > 
+> > It would be better to do this with a file that does exist, for example
+> > writing something to /proc/disks/sda/arguments. Then again, I don't
+> > even think much of dynamic file systems in the first place.
+> 
+> A network socket also isn't a file in a filesystem, you can't do ls on
+> it, it doesn't even exist until you create one, but still you use it as
+> a file by reading and writing it. I don't see any difference in the way
+> you create /dev/sda/offset=234234,limit=626737537 by just using it.
 
-i created a 10mb file called .enc2 with random data and ran "# losetup -e
-serpent -k 128 /dev/loop0 /mnt/hda7/.enc2"
-then i ran "# mke2fs /dev/loop0" and tried to "# mount /dev/loop0 /enc". but
-i get the following error messages when trying to mount:
+I think you're kind of missing the point.  Erik is saying that, by the
+path, it appears to be a file, even though it isn't listed as a file in
+the directory /dev/sda.  Network sockets don't have a path, unless its a
+Unix domain socket, and then you /can/ 'ls' it.
 
-May 19 21:32:10 HOST2 kernel: EXT2-fs error (device loop(7,0)):
-ext2_check_descriptors: Block bitmap for group 16 not in group (block 0)!
-May 19 21:32:10 HOST2 kernel: EXT2-fs: group descriptors corrupted !
+My opinion is that putting options directly in the open is no nicer than
+an ioctl.  I think that where this scheme really shines, though, is
+where there are multiple logical channels to a device, as in the
+/dev/fb0/control example.  I like that.  What could be done, therefore,
+is have a /dev/ttyS0/control file, where you could "echo
+'baud=19200,parity=odd' > /dev/ttyS0/control" or even "echo '19200' >
+/dev/ttyS0/baud" and "echo 'odd' > /dev/ttyS0/parity".  That seems to me
+to be the cleanest and most logical solution.
 
-im using kernel 2.4.4 patched with crypto patch 2.4.3.1 [and util linux
-2.11a patched with the patch from that crypto patch]
-i also got the same errors with a 2gb file and by creating the loop device
-directly on my 19.5gb /dev/hda7
-i tried a few times again and sometimes the encrypted loopback fs works
-perfectly, sometimes the error occurs!?
-anyone got an idea what this is!? i will supply more information on request
-
-
-thx for your help
-- peter k.
-
-ps: dont kill me if im doing something wrong, this is the first time im
-mailing to this list ;)
-
+As for this partition stuff, it seems a bad example to me.  Maybe I'm
+just spoiled, but I think partitions is something that the kernel can
+and should abstract.  None of this /dev/sda/offset=12345,limit=45678
+madness.
+-- 
+-Steven
+In a time of universal deceit, telling the truth is a revolutionary act.
+			-- George Orwell

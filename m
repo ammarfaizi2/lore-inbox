@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268059AbTBWLM6>; Sun, 23 Feb 2003 06:12:58 -0500
+	id <S267070AbTBWLZL>; Sun, 23 Feb 2003 06:25:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268061AbTBWLM6>; Sun, 23 Feb 2003 06:12:58 -0500
-Received: from mailc.telia.com ([194.22.190.4]:39674 "EHLO mailc.telia.com")
-	by vger.kernel.org with ESMTP id <S268059AbTBWLM5>;
-	Sun, 23 Feb 2003 06:12:57 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-Date: Sun, 23 Feb 2003 12:22:59 +0100 (CET)
-Message-Id: <20030223.122259.03158704.cfmd@swipnet.se>
-To: mbligh@aracnet.com
-Cc: wli@holomorphy.com, jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-From: Magnus Danielson <cfmd@swipnet.se>
-In-Reply-To: <316510000.1045961436@flay>
-References: <20030222083810.GA4170@gtf.org>
-	<20030222221820.GI10401@holomorphy.com>
-	<316510000.1045961436@flay>
-X-Mailer: Mew version 3.1 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+	id <S268061AbTBWLZL>; Sun, 23 Feb 2003 06:25:11 -0500
+Received: from holomorphy.com ([66.224.33.161]:16812 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S267070AbTBWLZL>;
+	Sun, 23 Feb 2003 06:25:11 -0500
+Date: Sun, 23 Feb 2003 03:34:24 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: greg@kroah.com
+Cc: linux-kernel@vger.kernel.org
+Subject: make pci_scan_device() static
+Message-ID: <20030223113424.GG27135@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	greg@kroah.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Minutes from Feb 21 LSE Call
-Date: Sat, 22 Feb 2003 16:50:36 -0800
+Make pci_scan_device() static, as it's not called outside probe.c
 
-> > On Sat, Feb 22, 2003 at 03:38:10AM -0500, Jeff Garzik wrote:
-> >> ia32 big iron.  sigh.  I think that's so unfortunately in a number
-> >> of ways, but the main reason, of course, is that highmem is evil :)
-> 
-> One phrase ... "price:performance ratio". That's all it's about.
-> The only thing that will kill 32-bit big iron is the availability of 
-> cheap 64 bit chips. It's a free-market economy.
-> 
-> It's ugly to program, but it's cheap, and it works.
+$ grep -nr pci_scan_device .
+./drivers/pci/probe.c:430:struct pci_dev * __devinit pci_scan_device(struct pci_dev *temp)
+./drivers/pci/probe.c:484:              dev = pci_scan_device(temp);
 
-Not all heavy-duty problems die for 64 bit, but fit nicely into 32 bit.
-There is however different 32-bit architectures for which it fit more or less
-nicely into. SIMD may or may not give the boost just as 64 bit in itself.
-This is just like clustering vs. SMP, it depends on the application.
-
-Cheers,
-Magnus
+===== drivers/pci/probe.c 1.29 vs edited =====
+--- 1.29/drivers/pci/probe.c	Tue Feb 18 03:14:13 2003
++++ edited/drivers/pci/probe.c	Sun Feb 23 03:30:48 2003
+@@ -427,7 +427,7 @@
+  * Read the config data for a PCI device, sanity-check it
+  * and fill in the dev structure...
+  */
+-struct pci_dev * __devinit pci_scan_device(struct pci_dev *temp)
++static struct pci_dev * __devinit pci_scan_device(struct pci_dev *temp)
+ {
+ 	struct pci_dev *dev;
+ 	u32 l;

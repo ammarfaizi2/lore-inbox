@@ -1,44 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbTIRJQF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 05:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTIRJQF
+	id S263026AbTIRJZm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 05:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbTIRJZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 05:16:05 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:52218 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262086AbTIRJQD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 05:16:03 -0400
-Message-ID: <3F697311.9080000@tiscali.it>
-Date: Thu, 18 Sep 2003 10:55:45 +0200
-From: Koala GNU <koala.gnu@tiscali.it>
-Reply-To: koala.gnu@tiscali.it
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20021120 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: cpu speed
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 18 Sep 2003 05:25:42 -0400
+Received: from ping.to.com ([194.221.251.37]:42254 "EHLO ping.to.com")
+	by vger.kernel.org with ESMTP id S263036AbTIRJZk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 05:25:40 -0400
+Subject: Re: Kernel/user process communication
+From: Stefan Voelkel <Stefan.Voelkel@millenux.com>
+To: John R Moser <jmoser5@student.ccbc.cc.md.us>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.A32.3.91.1030917233515.8136A-100000@student.ccbc.cc.md.us>
+References: <Pine.A32.3.91.1030917233515.8136A-100000@student.ccbc.cc.md.us>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-wet2BZ6wCbHPXZX7nvHd"
+Organization: Millenux GmbH
+Message-Id: <1063877101.22303.162.camel@lt-sv>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 18 Sep 2003 11:25:01 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-I have a T21 thinkpad Pentium III 800 MHz.
+--=-wet2BZ6wCbHPXZX7nvHd
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I have red hat 8.0 installed with kernel 2.4.18.
+On Thu, 2003-09-18 at 05:52, John R Moser wrote:
+> This may be a dumb question, but is it possible to pass data between the
+> kernel and a userspace process?  I know this is probably brain-damaged in
+> design, but just tell me if it's possible here.=20
 
-Executing cat /proc/cpuinfo I noticed that cpu speed is 212.51 MHz.
+There are postings on similar topics in the archive.
 
-Looking at BIOS the speed is correct.
+What comes to my mind is netlink or a device file.
 
-Any idea?
+	Stefan
 
-PS
+--=-wet2BZ6wCbHPXZX7nvHd
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Why am I continuosly unsubscribed from the kernel list?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-Please cc me in the answer, currently I am not subscibed to the list (I 
-posted few minutes ago a new mail to majordomo).
+iD8DBQA/aXnttWF28C4HGsQRAmJ+AJ4vIg4Llc/X3V90YUz1h7ciq9Ah3ACfVvwq
+//OCPLdFQkEl4P/snriXiIU=
+=6zTj
+-----END PGP SIGNATURE-----
+
+--=-wet2BZ6wCbHPXZX7nvHd--
 

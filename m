@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbUKFOx6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbUKFOyG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbUKFOx6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 09:53:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbUKFOx6
+	id S261397AbUKFOyG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 09:54:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbUKFOyG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 09:53:58 -0500
-Received: from math.ut.ee ([193.40.5.125]:4334 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261396AbUKFOx4 (ORCPT
+	Sat, 6 Nov 2004 09:54:06 -0500
+Received: from rproxy.gmail.com ([64.233.170.205]:31220 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261397AbUKFOx7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 09:53:56 -0500
-Date: Sat, 6 Nov 2004 16:53:54 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ata.h undefined types in USB
-Message-ID: <Pine.GSO.4.44.0411061639270.14682-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 6 Nov 2004 09:53:59 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=k8sGrBk3V5UB/3U2nX8DakHOCbk4T6qZ8jxkm76nalmaQGutlLHtQ9EdSYDosrQaTtgPqNJi7Nly3LhQbEHBCUQl13Qf00YJrQvvv+CO8WJKP4U+qy89gK8IE+Vu8jbJebf+B0fuq8rSdSXApPH13cds+xI1ZOHkze0xy8MKJUY=
+Message-ID: <8783be660411060653735238de@mail.gmail.com>
+Date: Sat, 6 Nov 2004 09:53:56 -0500
+From: Ross Biro <ross.biro@gmail.com>
+Reply-To: Ross Biro <ross.biro@gmail.com>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Re: [PATCH 2/3] WIN_* -> ATA_CMD_* conversion: update WIN_* users to use ATA_CMD_*
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@pyxtechnologies.com>
+In-Reply-To: <20041106035522.GA13091@taniwha.stupidest.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041103091101.GC22469@taniwha.stupidest.org>
+	 <418AE8C0.3040205@pobox.com>
+	 <58cb370e041105051635c15281@mail.gmail.com>
+	 <20041106032314.GC6060@taniwha.stupidest.org>
+	 <8783be660411051945252097c3@mail.gmail.com>
+	 <20041106035522.GA13091@taniwha.stupidest.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is todays BK on a x86:
+On Fri, 5 Nov 2004 19:55:22 -0800, Chris Wedgwood <cw@f00f.org> wrote:
+> I assume for Windows they do that for all drives?  Even older ones?
 
-  CC [M]  drivers/usb/storage/freecom.o
-In file included from include/linux/hdreg.h:4,
-                 from drivers/usb/storage/freecom.c:32:
-include/linux/ata.h:197: error: parse error before "u32"
-...
-and so on for tens of lines.
+Most likely, but that doesn't imply that Windows XP works with ancient
+ata drives.
 
-The following patch helps here because ata.h uses these types:
+> 
+> I also wonder what happens with TCQ when you get an error?  Do you
+> just retry everything outstanding?
 
-===== include/linux/ata.h 1.19 vs edited =====
---- 1.19/include/linux/ata.h	2004-11-02 21:32:44 +02:00
-+++ edited/include/linux/ata.h	2004-11-06 16:47:08 +02:00
-@@ -24,6 +24,8 @@
- #ifndef __LINUX_ATA_H__
- #define __LINUX_ATA_H__
+My guess is yes, but I'll also bet the drive vendors have not tested
+this path well.
 
-+#include <linux/types.h>
-+
- /* defines only for the constants which don't work well as enums */
- #define ATA_DMA_BOUNDARY	0xffffUL
- #define ATA_DMA_MASK		0xffffffffULL
+> It probably should get fixed, there just doesn't seem to be much
+> incentive to beat on the old IDE code though :( Minor cleanups seem
+> worthwhile but anything intrusive I worry will break some hard-to-test
+> platform for someone.
 
+The best solution is probably to make it user selectable for now.  I
+know we need the reset/set features, or any sort of error causes a
+major melt down. We can default to the current behaviour, so it
+shouldn't break anything.
 
--- 
-Meelis Roos (mroos@linux.ee)
+I'll make sure some patches for this are created sometime in the next
+couple of months.  I'll even try to make sure TCQ gets tested with
+them if TCQ works well enough with the current code.
 
+    Ross
 
+    Ross

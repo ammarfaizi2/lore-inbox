@@ -1,83 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263147AbTIVNdR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 09:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263148AbTIVNdN
+	id S263148AbTIVNkY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 09:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263149AbTIVNkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 09:33:13 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:56590 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id S263147AbTIVNdH (ORCPT
+	Mon, 22 Sep 2003 09:40:24 -0400
+Received: from barclay.balt.net ([195.14.162.78]:38843 "EHLO barclay.balt.net")
+	by vger.kernel.org with ESMTP id S263148AbTIVNkT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 09:33:07 -0400
-Date: Mon, 22 Sep 2003 15:32:23 +0200 (CEST)
-From: venom@sns.it
-To: Kronos <kronos@kronoz.cjb.net>
-cc: davej@codemonkey.org.uk, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix Athlon MCA
-In-Reply-To: <20030921143934.GA1867@dreamland.darkstar.lan>
-Message-ID: <Pine.LNX.4.43.0309221531220.20921-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 22 Sep 2003 09:40:19 -0400
+Date: Mon, 22 Sep 2003 17:36:05 +0300
+From: Zilvinas Valinskas <zilvinas@gemtek.lt>
+To: Alistair J Strachan <alistair@devzero.co.uk>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.6.0-test5-mm4
+Message-ID: <20030922143605.GA9961@gemtek.lt>
+Reply-To: Zilvinas Valinskas <zilvinas@gemtek.lt>
+References: <20030922013548.6e5a5dcf.akpm@osdl.org> <200309221317.42273.alistair@devzero.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200309221317.42273.alistair@devzero.co.uk>
+X-Attribution: Zilvinas
+X-Url: http://www.gemtek.lt/
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 22, 2003 at 01:17:42PM +0100, Alistair J Strachan wrote:
+> On Monday 22 September 2003 09:35, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.0-test5/2
+> >.6.0-test5-mm4/
+> >
+> >
+> > . A series of patches from Al Viro which introduce 32-bit dev_t support
+> >
+> > . Various new fixes
+> >
+> >
+> 
+> Hi Andrew,
+> 
+> -mm4 won't mount my ext3 root device whereas -mm3 will. Presumably this is 
+> some byproduct of the dev_t patches.
+> 
+> VFS: Cannot open root device "302" or hda2.
+> Please append correct "root=" boot option.
+> Kernel Panic: VFS: Unable to mount root fs on hda2.
 
-I'm seeing this message too on all my athlons, also if it seems harmless.
-Will try this patch tomorrow.
+Do you use devfsd ? 
 
-bests
+I had to specify root like this :
+root=/dev/ide/host0/bus0/target0/lun0/part5  then it worked just fine.
 
-Luigi
+Btw Andrew ,
 
-On Sun, 21 Sep 2003, Kronos wrote:
+this change  "Synaptics" -> "SynPS/2" - breaks driver synaptic driver
+from http://w1.894.telia.com/~u89404340/touchpad/index.html. 
 
-> Date: Sun, 21 Sep 2003 16:39:34 +0200
-> From: Kronos <kronos@kronoz.cjb.net>
-> To: davej@codemonkey.org.uk
-> Cc: linux-kernel@vger.kernel.org
-> Subject: [PATCH] Fix Athlon MCA
->
-> Hi,
-> on boot I'm seeing a lot of messages like this:
->
-> MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-> Bank 0: d47fa0000000bfee
->
-> This messages go away if I revert cset 1.1119.9.1. AFAIK you were trying
-> to decrease the logging level. After reading IA32 Architecture Software
-> Developers Manual, vol3 - chapter 14.5 "Machine-Check Initialization" I
-> think that the right way to do it is this:
->
-> --- linux-2.6/arch/i386/kernel/cpu/mcheck/k7.c~	Sat Aug  9 06:37:27 2003
-> +++ linux-2.6/arch/i386/kernel/cpu/mcheck/k7.c	Sun Sep 21 00:36:39 2003
-> @@ -81,8 +81,9 @@
->  		wrmsr (MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
->  	nr_mce_banks = l & 0xff;
->
-> -	for (i=1; i<nr_mce_banks; i++) {
-> -		wrmsr (MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
-> +	for (i=0; i<nr_mce_banks; i++) {
-> +		if (i)
-> +			wrmsr (MSR_IA32_MC0_CTL+4*i, 0xffffffff, 0xffffffff);
->  		wrmsr (MSR_IA32_MC0_STATUS+4*i, 0x0, 0x0);
->  	}
->
->
-> We really want to clean all MC*_STATUS. I'm currently running linux 2.6.0-t5
-> + this patch and I don't see the MCE messages on boot anymore.
->
-> Luca
-> --
-> Reply-To: kronos@kronoz.cjb.net
-> Home: http://kronoz.cjb.net
-> "L'abilita` politica e` l'abilita` di prevedere quello che
->  accadra` domani, la prossima settimana, il prossimo mese e
->  l'anno prossimo. E di essere cosi` abili, piu` tardi,
->  da spiegare  perche' non e` accaduto."
+
+-static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/
+2", "ImPS/2", "ImExPS/2", "Synaptics"}; 
++static char *psmouse_protocols[] = { "None", "PS/2", "PS2++", "PS2T++", "GenPS/2", "ImPS/2", "ImExPS/2", "SynPS/2"};
+
+
+> 
+> One possible explanation is that I have devfs compiled into my kernel. I do 
+> not, however, have it automatically mounting on boot. It overlays /dev (which 
+> is populated with original style device nodes) after INIT has loaded.
+> 
+> Perhaps there is some other procedure I must complete before I can use 32bit 
+> dev_t?
+> 
+> [alistair] 01:15 PM [/usr/src/linux-2.6] egrep -e "DEVFS" -e "EXT3_FS" .config
+> CONFIG_EXT3_FS=y
+> CONFIG_EXT3_FS_XATTR=y
+> CONFIG_EXT3_FS_POSIX_ACL=y
+> CONFIG_EXT3_FS_SECURITY=y
+> CONFIG_DEVFS_FS=y
+> # CONFIG_DEVFS_MOUNT is not set
+> # CONFIG_DEVFS_DEBUG is not set
+> 
+> [alistair] 01:16 PM [/usr/src/linux-2.6] dmesg | grep p2
+>  /dev/ide/host0/bus0/target0/lun0: p1 p2 p4
+> 
+> Cheers,
+> Alistair.
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
 > More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > Please read the FAQ at  http://www.tux.org/lkml/
->
-

@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265785AbUFORfi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265786AbUFORft@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUFORfi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 13:35:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265784AbUFORfi
+	id S265786AbUFORft (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 13:35:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbUFORft
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 13:35:38 -0400
-Received: from castle.comp.uvic.ca ([142.104.5.97]:2993 "EHLO
-	castle.comp.uvic.ca") by vger.kernel.org with ESMTP id S265785AbUFORfd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 13:35:33 -0400
-Subject: ppc64 2.6.6 crash
-From: Owen Stampflee <ostampflee@terrasoftsolutions.com>
-To: linuxppc-dev@lists.linuxppc.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1087320805.14795.216.camel@koobi.lan.stampflee.com>
+	Tue, 15 Jun 2004 13:35:49 -0400
+Received: from mail.kroah.org ([65.200.24.183]:23723 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265786AbUFORfn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 13:35:43 -0400
+Date: Tue, 15 Jun 2004 10:34:13 -0700
+From: Greg KH <greg@kroah.com>
+To: marcelo.tosatti@cyclades.com, zaitcev@redhat.com
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB serial fixes for 2.4.27-pre6
+Message-ID: <20040615173413.GA17264@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2a) 
-Date: 15 Jun 2004 10:33:25 -0700
-Content-Transfer-Encoding: 7bit
-X-UVic-Virus-Scanned: OK - Passed virus scan by Sophos (sophie) on castle
-X-UVic-Spam-Scan: castle.comp.uvic.ca Not_scanned_LOCAL
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Hi,
 
-I'm having the following issue using linux 2.6.6 compiled for ppc64 on a
-single 1.8GHz G5 that is triggered by kudzu.A photo of the backtrace is
-available at http://cvs.terraplex.com/~owen/s3000018.jpg The strace
-output is available at http://cvs.terraplex.com/~owen/kudzu.strace. It
-appears to be doing something with tg3 which the machine has but I could
-be totally wrong. I should also note that 2.6.6-rc3 works fine.
+Here are 4 small fixes for some USB serial driver issues.  They have
+all been in the 2.6 tree for some while now.  Pete suggested I send
+these directly to you, instead of having to go through him.
 
-Sincerly,
-Owen
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/usb-2.4
 
--- 
-Owen Stampflee                  ostampflee@terrasoftsolutions.com
-Lead Developer, Yellow Dog Linux.    http://cvs.terraplex.com/~owen
+The individual patches will be sent in follow up messages to this email
+to you and the linux-usb-devel mailing list.
+
+thanks,
+
+greg k-h
+
+
+ drivers/usb/serial/ftdi_sio.c |    7 +++
+ drivers/usb/serial/ftdi_sio.h |    5 ++
+ drivers/usb/serial/pl2303.c   |   11 ++++
+ drivers/usb/serial/visor.c    |   98 +++++++++++++++++++++++++++++++++++++++++-
+ 4 files changed, 119 insertions(+), 2 deletions(-)
+-----
+
+<andrej.filipcic:ijs.si>:
+  o USB: pl2303 & input overruns
+
+Greg Kroah-Hartman:
+  o USB: fix empty write issue in pl2303 driver
+
+Jan Capek:
+  o USB ftdi device ids for 2.4
+
+Martin Lubich:
+  o USB: add Clie TH55 Support in visor kernel module
 

@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284051AbRLAKiN>; Sat, 1 Dec 2001 05:38:13 -0500
+	id <S284054AbRLAKkE>; Sat, 1 Dec 2001 05:40:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284050AbRLAKiE>; Sat, 1 Dec 2001 05:38:04 -0500
-Received: from cpe.atm0-0-0-122182.0x3ef30264.bynxx2.customer.tele.dk ([62.243.2.100]:55682
-	"HELO fugmann.dhs.org") by vger.kernel.org with SMTP
-	id <S284053AbRLAKhs>; Sat, 1 Dec 2001 05:37:48 -0500
-Message-ID: <3C08B2FA.10709@fugmann.dhs.org>
-Date: Sat, 01 Dec 2001 11:37:46 +0100
-From: Anders Peter Fugmann <afu@fugmann.dhs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
+	id <S284053AbRLAKjx>; Sat, 1 Dec 2001 05:39:53 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:2323 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S284050AbRLAKjp>; Sat, 1 Dec 2001 05:39:45 -0500
+Date: Sat, 1 Dec 2001 12:39:33 +0200
+From: Ville Herva <vherva@niksula.hut.fi>
+To: Sven.Riedel@tu-clausthal.de
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Incremental prepatches
-In-Reply-To: <3C089BDB.4020801@zytor.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: HPT370 (KT7A-RAID) *corrupts* data - SAMSUNG SV8004H does it as well
+Message-ID: <20011201123933.A46995@niksula.cs.hut.fi>
+In-Reply-To: <20011201115803.B10839@viasys.com> <20011201113400.A629@moog.heim1.tu-clausthal.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011201113400.A629@moog.heim1.tu-clausthal.de>; from Sven.Riedel@tu-clausthal.de on Sat, Dec 01, 2001 at 11:34:00AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12/01/2001 09:59 AM, H. Peter Anvin wrote:
-
-> Hi everyone,
+On Sat, Dec 01, 2001 at 11:34:00AM +0100, you [Sven.Riedel@tu-clausthal.de] claimed:
+> On Sat, Dec 01, 2001 at 11:58:03AM +0200, Ville Herva wrote:
+> > - how come anyone else is not seeing this corruption (Abit KT7A, nevermind 
+> >   HPT370 is fairly popular)?
 > 
-> I have created a robot on kernel.org which makes incremental prepatches 
-> available.  It looks for standard-named prepatches in the 
-> /pub/linux/kernel/v*.*/testing directories, and creates incrementals in 
-> the corresponding /pub/linux/kernel/v*.*/testing/incr directory.
-> 
+> A friend of mine had an IBM DLTA drive attached to his HPT370
+> controller, and this combination proved to produce a whole lot of drive
+> errors (I can confirm this first hand), which went away after attaching
+> the drive to the main motherboard controller.
+> I can't say anything about data corruption though - I just asked him and
+> he said he didn't know of any, but that doesn't mean it didn't happen.
 
-Great.
-While you are at it. Could you (when you have the time) extend the 
-system to include a patch between the last pre version and a final 
-version. Something like:
+Of course the drive is longer attached to HPT370 and your friend is propably
+reluctant to reattach it, but it would still be nice to know if he gets
+consistent results which for example this simple test:
 
-patch-2.5.1-pre8-2.5.2.gz
-(when the time comes :-)
+  cat /dev/hde | mdsum
 
-Regards
-Anders Fugmann
+run for several (5-10, perhaps) times.
+
+OTOH, I haven't had corruption with reading only 
+one disk at a time, but then again I haven't tried too hard as they 
+should really work in parallel.
 
 
+-- v --
 
-
+v@iki.fi

@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVAGWje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVAGWiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVAGWje (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 17:39:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261665AbVAGWin
+	id S261668AbVAGWiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 17:38:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261641AbVAGWce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 17:38:43 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55229 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261677AbVAGWgj (ORCPT
+	Fri, 7 Jan 2005 17:32:34 -0500
+Received: from marla.ludost.net ([194.12.255.250]:33246 "EHLO marla.ludost.net")
+	by vger.kernel.org with ESMTP id S261679AbVAGW0r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 17:36:39 -0500
-Date: Fri, 7 Jan 2005 14:36:38 -0800
-From: Chris Wright <chrisw@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       paul@linuxaudiosystems.com, arjanv@redhat.com, hch@infradead.org,
-       mingo@elte.hu, chrisw@osdl.org, alan@lxorguk.ukuu.org.uk, joq@io.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-ID: <20050107143638.L2357@build.pdx.osdl.net>
-References: <200501071620.j07GKrIa018718@localhost.localdomain> <1105132348.20278.88.camel@krustophenia.net> <20050107134941.11cecbfc.akpm@osdl.org> <200501072207.j07M7Lda004987@turing-police.cc.vt.edu>
+	Fri, 7 Jan 2005 17:26:47 -0500
+Subject: Re: Fix for new elf_loader bug?
+From: Vasil Kolev <vasil@ludost.net>
+Reply-To: vasil@ludost.net
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050107170514.GJ29176@logos.cnet>
+References: <41DEAF8F.3030107@bio.ifi.lmu.de>
+	 <20050107170514.GJ29176@logos.cnet>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-6j9MLNBLXe9Akzoa+6eb"
+Organization: Ludost Networks
+Date: Sat, 08 Jan 2005 00:26:39 +0200
+Message-Id: <1105136799.1644.1.camel@doom.home.ludost.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200501072207.j07M7Lda004987@turing-police.cc.vt.edu>; from Valdis.Kletnieks@vt.edu on Fri, Jan 07, 2005 at 05:07:20PM -0500
+X-Mailer: Evolution 2.0.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu) wrote:
-> On Fri, 07 Jan 2005 13:49:41 PST, Andrew Morton said:
-> 
-> > Chris Wright <chrisw@osdl.org> wrote:
-> 
-> > > Last I checked they could be controlled separately in that module.  It
-> > > has been suggested (by me and others) that one possible solution would
-> > > be to expand it to be generic for all caps.
-> > 
-> > Maybe this is the way?
-> 
-> We already *know* how to (in principle) fix the capabilities system to make
-> it useful.  We should probably investigate doing that and at the same time
-> fixing the current CAP_SYS_ADMIN mess (which we also have at least some ideas
-> on fixing). The remaining problem is possible breakage of software that's doing
-> capability things The Old Way (as the inheritance rules are incompatible).
 
-Fixing CAP_SYS_ADMIN whole other can o' worms.  No point in tangling the
-two.
+--=-6j9MLNBLXe9Akzoa+6eb
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> Linus at one time said that a 2.7 might open if there was some issue that
-> caused enough disruption to require a fork - could this be it, or does somebody
-> have a better way to address the backward-combatability problem?
+On =D0=BF=D1=82, 2005-01-07 at 15:05 -0200, Marcelo Tosatti wrote:
+> On Fri, Jan 07, 2005 at 04:49:35PM +0100, Frank Steiner wrote:
+> > Hi,
+> >=20
+> > is there already a patch for the new problem with the elf loader, maybe
+> > in the bitkeeper tree?
+> >=20
+> > http://www.isec.pl/vulnerabilities/isec-0021-uselib.txt
+>=20
+> 2.6.10-ac6 contains a fix for the problem - a similar version should hit =
+the BK tree=20
+> RSN.
 
-There's at least two ways.  Introduce a new capability module or introduce
-a PF flag to opt in.  Neither are great
+Looking at the advisory, it affects 2.4, too, where can a patch for it
+be found?=20
 
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+--=-6j9MLNBLXe9Akzoa+6eb
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBB3wyfXGxMwFp5iTARAsqsAJ4sUctAor7COX8g1UJ9PoZLeWOmLwCgiEnB
+u0wXwynuPtUAXYftVThdzZw=
+=XoH6
+-----END PGP SIGNATURE-----
+
+--=-6j9MLNBLXe9Akzoa+6eb--
+

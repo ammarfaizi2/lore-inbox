@@ -1,47 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277818AbRJVGLc>; Mon, 22 Oct 2001 02:11:32 -0400
+	id <S277866AbRJVGYo>; Mon, 22 Oct 2001 02:24:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277866AbRJVGLW>; Mon, 22 Oct 2001 02:11:22 -0400
-Received: from [213.33.71.165] ([213.33.71.165]:37383 "EHLO hofr.at")
-	by vger.kernel.org with ESMTP id <S277818AbRJVGLL>;
-	Mon, 22 Oct 2001 02:11:11 -0400
-From: Der Herr Hofrat <der.herr@hofr.at>
-Message-Id: <200110220556.f9M5ubG25129@hofr.at>
-Subject: ANNOUNCMENT 3ed Real Time Linux Workshop
-To: linux-kernel@vger.kernel.org
-Date: Mon, 22 Oct 2001 07:56:36 +0200 (CEST)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S277885AbRJVGYf>; Mon, 22 Oct 2001 02:24:35 -0400
+Received: from c1473286-a.stcla1.sfba.home.com ([24.176.137.160]:25870 "HELO
+	ocean.lucon.org") by vger.kernel.org with SMTP id <S277866AbRJVGYW>;
+	Mon, 22 Oct 2001 02:24:22 -0400
+Date: Sun, 21 Oct 2001 23:24:52 -0700
+From: "H . J . Lu" <hjl@lucon.org>
+To: nfs@lists.sourceforge.net
+Cc: linux kernel <linux-kernel@vger.kernel.org>, alan@redhat.com
+Subject: Has anyone run the Connectathon Testsuite recently?
+Message-ID: <20011021232452.A2473@lucon.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I checked out kernel 2.4.9-6 from RedHat 7.1 updates. It failed the
+Connectathon Testsuite against the Linux and none-Linux server. I
+believe both NFS server and client are broken in 2.4.9-6. See
 
-                   Third Real-Time Linux Workshop
- 
-                           26-29.11.2001
-                  Crowne Plaza in Milan San Donato
-                           Milano, Italy
+http://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=54868
 
-As followup to the meetings of developers and users of real-time linux 
-in Vienna and Orlando, the Third Real Time Linux Workshop is held in 
-the framework of the Embedded Linux Expo & Conference and the Real-Time
-& Embedded Computing Conference, Summit Milan, organized by ACTIVE 
-Exhibitions Europe. This Summit will offer two days of tutorials, four 
-tracks of conferences over two days, interesting keynotes, exhibitions 
-and more. The contribution of the Real Time Linux Foundation to this 
-outstanding event will be:
+Now the question is how bad the current Linus/AC kernels are?
 
-   - technical keynotes,
-   - kick start sessions,
-   - paper presentations,
-   - work in progress reports,
-   - real time linux tutorials,
 
-For any further information take a look at the Real-Time Linux Foundation, 
-http://www.realtimelinuxfoundation.org/, by following Contents->Events->
-Real Time Linux Workshop 2001. For all events of the summit, organisational 
-details and registration, please go to ACTIVE Exhibitions Europe's Summit 
-Milan page, http://www.rtcgroup.com/summitmilan/invitation.html.
+H.J.

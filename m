@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271580AbRIFTw1>; Thu, 6 Sep 2001 15:52:27 -0400
+	id <S272540AbRIFTx1>; Thu, 6 Sep 2001 15:53:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272534AbRIFTwR>; Thu, 6 Sep 2001 15:52:17 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:20484 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S271580AbRIFTwL>; Thu, 6 Sep 2001 15:52:11 -0400
-Date: Thu, 6 Sep 2001 16:52:05 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Kurt Garloff <garloff@suse.de>, Jan Harkes <jaharkes@cs.cmu.edu>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        <linux-kernel@vger.kernel.org>
+	id <S272536AbRIFTxM>; Thu, 6 Sep 2001 15:53:12 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:30963
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S272535AbRIFTw4>; Thu, 6 Sep 2001 15:52:56 -0400
+Date: Thu, 6 Sep 2001 12:53:09 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: page_launder() on 2.4.9/10 issue
+Message-ID: <20010906125309.K29607@mikef-linux.matchmail.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0109061623150.8103-100000@duckman.distro.conectiva> <20010906193836Z16130-26183+40@humbolt.nl.linux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20010906193836Z16130-26183+40@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33L.0109061650250.8103-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 Sep 2001, Daniel Phillips wrote:
+On Thu, Sep 06, 2001 at 09:45:35PM +0200, Daniel Phillips wrote:
+> What we should be worrying about is how to balance reads against writes under 
+> heavy load.
+> 
 
-> Again, I have to ask, which reads are you interfering with?  Ones that
-> haven't happened yet?  Remember, the disk is idle.  So *at worst* you are
-> going to get one extra seek before getting hit with the tidal wave of reads
-> you seem to be worried about.  This simply isn't significant.
->
-> I've tested this, I know early writeout under light load is a win.
+Yes, I agree.  You can have a process that is at a 19 niceness level that
+doesn't do much processing, but a lot of disk access bring your system down
+to a crawl.
 
-Other people have tested this too, and light writeout of
-small blocks destroys the performance of a heavy read
-load.
-
-> What we should be worrying about is how to balance reads against
-> writes under heavy load.
-
-Exactly. We need to make sure we're efficient when the
-system is under heavy read load and light write load.
-This kind of load is very common in servers, especially
-web, ftp or news servers.
-
-regards,
-
-Rik
---
-IA64: a worthy successor to the i860.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
-
+Improvement in this area would be nice.

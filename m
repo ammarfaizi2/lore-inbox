@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264917AbUHTIfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267829AbUHTIjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264917AbUHTIfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 04:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUHTIdR
+	id S267829AbUHTIjx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 04:39:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267786AbUHTIjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 04:33:17 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:34020 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267777AbUHTIbs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 04:31:48 -0400
-Date: Fri, 20 Aug 2004 10:33:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Nathan Lynch <nathanl@austin.ibm.com>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: 2.6.8.1-mm2
-Message-ID: <20040820083322.GA8392@elte.hu>
-References: <20040819014204.2d412e9b.akpm@osdl.org> <1092964083.4946.7.camel@biclops.private.network> <20040819181603.700a9a0e.akpm@osdl.org> <1092987650.28849.349.camel@bach>
-Mime-Version: 1.0
+	Fri, 20 Aug 2004 04:39:20 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:44192 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S267827AbUHTIiT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 04:38:19 -0400
+To: Andi Kleen <ak@muc.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] reserve 64bit resources on x86_64
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Aug 2004 02:36:38 -0600
+Message-ID: <m18yca8auh.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092987650.28849.349.camel@bach>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Rusty Russell <rusty@rustcorp.com.au> wrote:
+Andi,
 
-> Nathan, can you revert that, and apply this?  This actually fixes the
-> might_sleep problem, and should fix at least the problem Vatsa saw. 
-> If it doesn't solve your problem, we need to look again.
+The hack from the i386 kernel to not reserve 64bit resource regions
+appears to have made it into x86_64.  Since struct resource is 64bit
+on 64bit architectures this is completely unnecessary, and dangerous
+if the kernel ever assigns a 64bit BAR.
 
-i've attached a much simpler replacement: dont allow CPU hotplug during
-self-reap.
+Eric
 
-	Ingo
 
-DESC
-
-disable preemption in the self-reap codepath, as such tasks may not be
-on the tasklist anymore and CPU-hotplug relies on the tasklist to
-migrate tasks.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/kernel/exit.c.orig	
-+++ linux/kernel/exit.c	
-@@ -25,6 +25,7 @@
- #include <linux/proc_fs.h>
- #include <linux/mempolicy.h>
- #include <linux/perfctr.h>
-+#include <linux/cpu.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -780,8 +781,14 @@ static void exit_notify(struct task_stru
- 
- 	/* If the process is dead, release it - nobody will wait for it */
- 	if (state == TASK_DEAD) {
-+		lock_cpu_hotplug();
- 		release_task(tsk);
- 		write_lock_irq(&tasklist_lock);
-+		/*
-+		 * No preemption may happen from this point on,
-+		 * or CPU hotplug (and task exit) breaks:
-+		 */
-+		unlock_cpu_hotplug();
- 		tsk->state = state;
- 		_raw_write_unlock(&tasklist_lock);
- 		local_irq_enable();
+diff -uNr linux-2.6.8.1-ioapic-virtwire-on-shutdown.x86_64/arch/x86_64/kernel/e820.c linux-2.6.8.1-e820-64bit.x86_64/arch/x86_64/kernel/e820.c
+--- linux-2.6.8.1-ioapic-virtwire-on-shutdown.x86_64/arch/x86_64/kernel/e820.c	Wed Aug 18 14:54:30 2004
++++ linux-2.6.8.1-e820-64bit.x86_64/arch/x86_64/kernel/e820.c	Wed Aug 18 14:59:34 2004
+@@ -185,8 +185,6 @@
+ 	int i;
+ 	for (i = 0; i < e820.nr_map; i++) {
+ 		struct resource *res;
+-		if (e820.map[i].addr + e820.map[i].size > 0x100000000ULL)
+-			continue;
+ 		res = alloc_bootmem_low(sizeof(struct resource));
+ 		switch (e820.map[i].type) {
+ 		case E820_RAM:	res->name = "System RAM"; break;

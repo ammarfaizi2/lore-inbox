@@ -1,132 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVDFDLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262086AbVDFDOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbVDFDLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 23:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVDFDLQ
+	id S262086AbVDFDOz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 23:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVDFDOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 23:11:16 -0400
-Received: from fire.osdl.org ([65.172.181.4]:748 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262093AbVDFDKl (ORCPT
-	<rfc822;Linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 23:10:41 -0400
-Message-ID: <42535323.8040403@osdl.org>
-Date: Tue, 05 Apr 2005 20:10:27 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Derek Cheung <derek.cheung@sympatico.ca>
-CC: "'Andrew Morton'" <akpm@osdl.org>, greg@kroah.com,
-       Linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] kernel 2.6.11.6 -  I2C adaptor for ColdFire 5282 CPU
-References: <003901c53a51$0093b7d0$1501a8c0@Mainframe>
-In-Reply-To: <003901c53a51$0093b7d0$1501a8c0@Mainframe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Apr 2005 23:14:55 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:54519 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262086AbVDFDOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 23:14:52 -0400
+Date: Tue, 5 Apr 2005 23:21:25 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: Prakash Punnoor <prakashp@arcor.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Robert Love <rml@novell.com>
+Subject: Re: [patch] inotify for 2.6.11
+Message-ID: <20050405232125.A18969@mail.kroptech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <4252C8D8.9040109@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Derek Cheung wrote:
-> 
->> Below please find the patch file I "diff" against Linux 2.6.11.6. It
->> contains the I2C adaptor for ColdFire 5282 CPU. Since most ColdFire
-> 
-> CPU
-> 
->> shares the same I2C register set, the code can be easily adopted for
->> other ColdFire CPUs for I2C operations.
->>
->> I have tested the code on a ColdFire 5282Lite CPU board
->> (http://www.axman.com/Pages/cml-5282LITE.html) running uClinux 2.6.9
->> with LM75 and DS1621 temperature sensor chips. As advised by David
->> McCullough, the code will be incorporated in the next uClinux
-> release.
-> 
->> The patch contains:
->>
->> linux/drivers/i2c/busses
->>  		i2c-mcf5282.c (new file)
->>  		i2c-mcf5282.h (new file)
->>  		Kconfig (modified)
->>  		Makefile (modified)
+I've been meaning to play with inotify for a while now and finally made
+time for it tonight. I'm not much of a GUI guy, so I'm mostly interested
+in exploring the command line applications of inotify --i.e., what sort of
+havoc can I wreak with it in a script.
 
-It also includes Kconfig.orig & Makefile.orig &
-m528xsim.h.orig .
-You should use
-   diff -X dontdiff
-where dontdiff is a filename to exclude the listed files,
-where dontdiff includes *.orig .
-There is a fairly up-to-date dontdiff file available at
-http://developer.osdl.org/rddunlap/doc/dontdiff-osdl
+To that end I sat down tonight a threw together a simple command line
+interface. Before I tell you where the code is, please note that I wrote
+it while half asleep and more than a little high on cough syrup, so it's
+undoubtedly chock full of buffer overflows, infinite loops, segfaults,
+and other gremlins just waiting to eat your data, so PLEASE FOR THE LOVE
+OF MIKE don't use it on, around, under, or in the general vicinity of,
+anything important.
 
-A diffstat summary would (hereby requested in the future)
-would let us see which files are modified and how much
-they are modified:
+    http://www.kroptech.com/~adk0212/watchf.c
 
-  drivers/i2c/busses/Kconfig            |   10
-  drivers/i2c/busses/Kconfig.orig       |  489 
-++++++++++++++++++++++++++++++++++
-  drivers/i2c/busses/Makefile           |    2
-  drivers/i2c/busses/Makefile.orig      |   46 +++
-  drivers/i2c/busses/i2c-mcf5282.c      |  407 
-++++++++++++++++++++++++++++
-  drivers/i2c/busses/i2c-mcf5282.h      |   45 +++
-  include/asm-m68knommu/m528xsim.h      |  112 +++++++
-  include/asm-m68knommu/m528xsim.h.orig |   45 +++
-  8 files changed, 1156 insertions(+)
+The basic usage is...
 
+    watchf [-i] [-e<events>] <file-to-watch> [-- <command-to-run>...>]	
 
->>  
->> linux/include/asm-m68knommu
->>  		m528xsim.h (modified)
->>
->> Please let me know if you have any questions.
-> 
-> 
-> The patch was very wordwrapped by your email client.  Please fix that up
-> (first email the patch to yourself and test that the result still
-> applies OK) or
-> resend as an email attachment.
+        -i says stay in an infinite loop, don't exit after one event
+	-e gives the list of events to wait for (see the code)
+	<file-to-watch> is the file or directory to be watched
+	Everything after -- is taken as a command to run each time an
+	event ocurrs with any ocurrences of {} being replaced with the
+	name of the affected file, as returned in the inotify_event
+	structure.
 
-linux_dev/include/asm-m68knommu/m528xsim.h:
+So what's it good for? Well, besides making fun of my coding skills,
+it can be used to watch a directory and run a command when something
+changes. For example, a one-line auto-gzip daemon that will haul off and
+gzip anything you drop into ./gzipme:
 
-some spaces in this expression (& elsewhere) would make it
-easier to read:
-+#define MCF5282_I2C_I2ADR_ADDR(x) 
-(((x)&0x7F)<<0x01)
+    watchf -i -eWT gzipme -- gzip gzipme/{}
 
-Oh, it's not even used.... don't need it then.
-And this one is not used:
-+#define MCF5282_I2C_I2FDR_IC(x)                         (((x)&0x3F))
+Where to go from here? The code is relatively half-baked at the moment,
+but I imgaine this could be turned into a relatively useful generic
+tool. For example, it should send the filename to stdout and return the
+event mask when in single-shot mode. That would make it useful as part
+of a longer pipeline.  You should be able to use it to wait for a specific
+file to be created --although that will be interesting if one or more 
+segments of the path don't exist yet.  Ultimately I'd like to get rid of
+the <command-to-run> argument(s), but I can't think of any way to do it
+that isn't going to end up missing events.
 
-Lots of the bit-level definitions aren't used and usually aren't
-added unless used.
+--Adam
 
-Comment (7) doesn't match name (hm, and it's not used):
-+/* Interrupt Control Register 7 */
-+#define MCF5282_INTC0_ICR17     (volatile u8 *) (MCF_IPSBAR + 0x0C51)
-
-These are not used -- but if they were, we generally like to
-have macro expressions wrapped in parentheses:
-+#define MCF5282_QSPI_QMR        MCF_IPSBAR + 0x0340
-+#define MCF5282_QSPI_QDLYR      MCF_IPSBAR + 0x0344
-+#define MCF5282_QSPI_QWR        MCF_IPSBAR + 0x0348
-+#define MCF5282_QSPI_QIR        MCF_IPSBAR + 0x034C
-+#define MCF5282_QSPI_QAR        MCF_IPSBAR + 0x0350
-+#define MCF5282_QSPI_QDR        MCF_IPSBAR + 0x0354
-+#define MCF5282_QSPI_QCR        MCF_IPSBAR + 0x0354
-
-i2c-mcf5282.h:
-
-Please limit line lengths to 80 characters in source files:  e.g.:
-+static int mcf5282_i2c_start(const char read_write, const u16 
-target_address, const enum I2C_START_TYPE i2c_start);
-
-What is this one for?
-+void dumpReg(char *, u16 addr, u8 data);
-
-
-I'm looking over the primary .c file separately now.
-
--- 
-~Randy

@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267053AbRGIMbq>; Mon, 9 Jul 2001 08:31:46 -0400
+	id <S267050AbRGIMjh>; Mon, 9 Jul 2001 08:39:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267052AbRGIMbg>; Mon, 9 Jul 2001 08:31:36 -0400
-Received: from horus.its.uow.edu.au ([130.130.68.25]:25086 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S267050AbRGIMb1>; Mon, 9 Jul 2001 08:31:27 -0400
-Message-ID: <3B49A44B.F5E3C6A7@uow.edu.au>
-Date: Mon, 09 Jul 2001 22:32:11 +1000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Abraham vd Merwe <abraham@2d3d.co.za>
-CC: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: msync() bug
-In-Reply-To: <20010709105044.A29658@crystal.2d3d.co.za>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267054AbRGIMj1>; Mon, 9 Jul 2001 08:39:27 -0400
+Received: from mail9.bigmailbox.com ([209.132.220.40]:16144 "EHLO
+	mail9.bigmailbox.com") by vger.kernel.org with ESMTP
+	id <S267050AbRGIMjK>; Mon, 9 Jul 2001 08:39:10 -0400
+Date: Mon, 9 Jul 2001 05:38:55 -0700
+Message-Id: <200107091238.FAA11225@mail9.bigmailbox.com>
+Content-Type: text/plain
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
+X-Mailer: MIME-tools 4.104 (Entity 4.116)
+Mime-Version: 1.0
+X-Originating-Ip: [64.40.40.237]
+From: "Colin Bayer" <colin_bayer@compnerd.net>
+To: linux-kernel@vger.kernel.org
+Cc: rddunlap@osdlab.org
+Subject: RE: Sticky IO-APIC problem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Abraham vd Merwe wrote:
-> 
-> Hi!
-> 
-> I was preparing some lecture last night and stumbled onto this bug. Maybe
-> some of you can shed some light on it.
-> 
-> Basically, I just memory map /dev/mem at 0xb8000 (text mode - yes I know you
-> shouldn't do this, but it was to illustrate something), reads 4k, changes it
-> writes it back.
-> 
+'K, after hours (which seemed like years) of surfing the datasheets of the 82810AA ICH (I/O Controller Hub) from Intel, I've come up with step-by-step hardware-level instructions for enabling the IO-APIC with pre-defined PIRQs (I'm not an assembly guru, so I can't help with the coding of this):
 
-The actual call trace is:
+1) Set bit 7 of register PIRQ[n]_ROUT (offset 60h) to 0.
+2) Set bits 3:0 of the same register to the (8259) interrupt to be mapped on this PIRQ (big-endian).
+3) Set the corresponding bit on the correct 8259s (master is at 21h, slave at A1h) OCW1 register to mask the interrupt; the way I read it, bit 7 of the A1h register is IRQ 15, bit 0 of 21h is IRQ 0.
+4) Set bit 8 of GEN_CNTL (starting offset D0h, hehe...) to 1 to enable the I/O APIC.
 
-__set_page_dirty
-filemap_sync_pte
-filemap_sync_pte_range 
-filemap_sync_pmd_range 
-filemap_sync
-msync_interval
-sys_msync
+Anyway, that's as far as I could read into the process.  Hope somebody out there in maintainer-land can create a cogent snippet of code out of it.  If such code exists, plz don't flame me...
 
-We're crashing because __set_page_dirty dereferences page->mapping,
-but pages from a mmap() of /dev/mem seem to have a NULL ->mapping.
+     -- Colin
 
-One of the very frustrating things about Linux kernel development
-is that the main source of tuition is merely the source code. You
-can stare at that for months (as I have) and still not have a firm
-grasp on the big-picture semantic *meaning* behind something as
-simple as a page having a null ->mapping.  Sigh.
 
-So one is reduced to mimicry:
+On the first day, man created the computer.  On the second day, God proclaimed from the heavens, "F0 0F C7 C8".
 
---- linux-2.4.7-pre3/mm/filemap.c	Wed Jul  4 18:21:32 2001
-+++ linux-akpm/mm/filemap.c	Mon Jul  9 22:22:46 2001
-@@ -1652,7 +1652,8 @@ static inline int filemap_sync_pte(pte_t
- 	if (pte_present(pte) && ptep_test_and_clear_dirty(ptep)) {
- 		struct page *page = pte_page(pte);
- 		flush_tlb_page(vma, address);
--		set_page_dirty(page);
-+		if (page->mapping)
-+			set_page_dirty(page);
- 	}
- 	return 0;
- }
-
--
+------------------------------------------------------------
+The CompNerd Network: http://www.compnerd.com/
+Where a nerd can be a nerd.  Get your free webmail@compnerd.net!

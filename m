@@ -1,60 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTENQkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 May 2003 12:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbTENQkQ
+	id S262593AbTENQlk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 May 2003 12:41:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbTENQlk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 May 2003 12:40:16 -0400
-Received: from smtp017.mail.yahoo.com ([216.136.174.114]:48649 "HELO
-	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262598AbTENQkO convert rfc822-to-8bit (ORCPT
+	Wed, 14 May 2003 12:41:40 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:51901 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262593AbTENQlg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 May 2003 12:40:14 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: "dirf" <dirf@ciget.granma.inf.cu>
-Subject: Re: --No Subject--
-Date: Wed, 14 May 2003 18:53:00 +0200
-User-Agent: KMail/1.5.1
-References: <022301c31a48$7b8272e0$848e9ea9@vh>
-In-Reply-To: <022301c31a48$7b8272e0$848e9ea9@vh>
+	Wed, 14 May 2003 12:41:36 -0400
+Date: Wed, 14 May 2003 09:55:32 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+Reply-To: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       kernel-janitor-discuss@lists.sourceforge.net
+Subject: 2.6 must-fix IRC conference today
+Message-ID: <36500000.1052931332@w-hlinder>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Description: clearsigned data
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200305141852.24683.fsdeveloper@yahoo.de>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-On Wednesday 14 May 2003 20:41, dirf wrote:
-> Hi,
-> My questions, for a moment, are very simple. I hope that you can help me.
->
-> - Where I can find a list of RFCs?
+Here is a link to Andrew's most recent (v3) must-fix list:
 
-On http://www.ietf.org is a list of the RFCs and you can download them.
-(I guess you mean these RFCs?!)
+http://www.kernel.org/pub/linux/kernel/people/akpm/must-fix/must-fix-3.txt
 
-> - Where I can find a cdfs format ( cd file system format)?
+> - We'll work through it item by item, with a view to understanding what
+>   is involved in each item.
+> 
+> - Attendance by owners of major must-fix items would be appreciated.
+> 
 
-ehhm, you may have a look at the source-code?
-I haven't any other source of information for it, yet.
+We will go over it on #lse at irc.oftc.net at 2pm PDT 
+2:00pm PDT (GMT-0700), 4:00pm CDT, 5:00pm EDT Wednesday May 14, 2003.
 
-- --
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 18:49:33 up  5:16,  2 users,  load average: 1.00, 1.00, 1.00
+http://www.timeanddate.com is a good site for timezone issues.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+If you need help getting started with irc see this helpful 
+site at: http://irchelp.org or feel free to send me email for help.
 
-iD8DBQE+wnRsoxoigfggmSgRAp2hAJ9+gk2acDK5irEffXriXyGXbwEjBwCfV0BL
-GWoxHpnb/0uTM9zZGrWHxZM=
-=ai+4
------END PGP SIGNATURE-----
+Hanna
+
+(hannal@us.ibm.com)
+
+
 

@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269884AbUIDLMM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269895AbUIDLPy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269884AbUIDLMM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 07:12:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269883AbUIDLKS
+	id S269895AbUIDLPy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 07:15:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269882AbUIDLNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 07:10:18 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:6662 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269882AbUIDLKD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 07:10:03 -0400
-Date: Sat, 4 Sep 2004 12:09:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: =?iso-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>
-Cc: umbrella-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Umbrella-devel] Re: Getting full path from dentry in LSM hooks
-Message-ID: <20040904120958.B14123@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	=?iso-8859-1?Q?Kristian_S=F8rensen?= <ks@cs.aau.dk>,
-	umbrella-devel@lists.sourceforge.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <41385FA5.806@cs.aau.dk> <20040903133238.A4145@infradead.org> <413865B4.7080208@cs.aau.dk> <20040903140449.A4253@infradead.org> <41386FB7.2060804@cs.aau.dk> <20040903150111.A4884@infradead.org> <4138CBEF.9000909@cs.aau.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4138CBEF.9000909@cs.aau.dk>; from ks@cs.aau.dk on Fri, Sep 03, 2004 at 09:54:23PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+	Sat, 4 Sep 2004 07:13:05 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:25794 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S269886AbUIDLMg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Sep 2004 07:12:36 -0400
+Date: Sat, 4 Sep 2004 12:12:31 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Keith Whitwell <keith@tungstengraphics.com>,
+       Jon Smirl <jonsmirl@yahoo.com>, dri-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: New proposed DRM interface design
+In-Reply-To: <20040904120352.B14037@infradead.org>
+Message-ID: <Pine.LNX.4.58.0409041207060.25475@skynet>
+References: <20040904004424.93643.qmail@web14921.mail.yahoo.com>
+ <Pine.LNX.4.58.0409040145240.25475@skynet> <20040904102914.B13149@infradead.org>
+ <41398EBD.2040900@tungstengraphics.com> <20040904104834.B13362@infradead.org>
+ <413997A7.9060406@tungstengraphics.com> <20040904112535.A13750@infradead.org>
+ <4139995E.5030505@tungstengraphics.com> <20040904120352.B14037@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 03, 2004 at 09:54:23PM +0200, Kristian Sørensen wrote:
-> >>We are working on a project called Umbrella, (umbrella.sf.net) which 
-> >>implements processbased mandatory accesscontrol in the Linux kernel. 
-> >>This access control is controlled by "restriction", e.g. by restricting 
-> >>  some process from accessing any given file or directory.
-> >>
-> >>E.g. if a root owned process is restricted from accessing /var/www, and 
-> >>the process is compromised by an attacker, no mater what he does, he 
-> >>would not be able to access this directory.
-> > 
-> > 
-> > mount --bind /var/www /home/joe/p0rn/, and then?
-> Actually this "attack" is avoided, because restrictions are enherited, 
-> from parent proces to its children.
+> > OK, I've found www.kernel.org, and clicked on the 'latest stable kernel' link.
+> >   I got a file called "patch-2.6.8.1.bz2".  I tried to install this but
+> > nothing happened.  My i915 still doesn't work.  What do I do now?
+>
+> You could start getting a clue.
+>
 
-If you restrict your process on the path /var/ww/ but the same objects
-are also available below a different path, what does that have to do with
-child processes?
+Which is the problem, Keith was acting as a user with no clue, and why
+should a user who can't get his graphics card working worry about kernel
+upgrades, along with X upgrades, the DRI has a workable snapshot process
+now that allows users to use their DRI supported graphics card now, not in
+6 months time when the X release happens, and the distro picks up the X
+release, they run a script it builds a module against their kernel,
+breaking this for a small decrease in memory usage in an uncommon use
+case and as far as I can see no better maintainability (or worse) is a bit
+of an ask... we aren't coming up with these problems just to annoy kernel
+developers they are real world issues.. that the DRI team deal with not
+the kernel team....
+
+Dave.
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+pam_smb / Linux DECstation / Linux VAX / ILUG person
 

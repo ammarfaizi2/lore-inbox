@@ -1,62 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263826AbUFFRGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263828AbUFFRM4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263826AbUFFRGN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 13:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbUFFRGN
+	id S263828AbUFFRM4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 13:12:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263834AbUFFRM4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 13:06:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:36786 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263826AbUFFRFG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 13:05:06 -0400
-Date: Sun, 6 Jun 2004 10:04:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Manfred Spraul <manfred@colorfullife.com>
-cc: ktech@wanadoo.es, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.7-rc1 breaks forcedeth
-In-Reply-To: <40C2D780.4010009@colorfullife.com>
-Message-ID: <Pine.LNX.4.58.0406060957410.7010@ppc970.osdl.org>
-References: <E1BWmws-0005aN-Nw@mb04.in.mad.eresmas.com>
- <Pine.LNX.4.58.0406051958150.7010@ppc970.osdl.org> <40C2D780.4010009@colorfullife.com>
+	Sun, 6 Jun 2004 13:12:56 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:41900 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263828AbUFFRMz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 13:12:55 -0400
+Message-ID: <40C35091.8000902@dlfp.org>
+Date: Sun, 06 Jun 2004 19:12:49 +0200
+From: Benoit Dejean <TazForEver@dlfp.org>
+Reply-To: TazForEver@free.fr
+User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: linux-kernel@vger.kernel.org, cyplp@free.fr
+Subject: Re: [2.6.6 panic] via-rhine and acpi sleep 3
+References: <40C314C4.4080006@dlfp.org> <200406061943.41009.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <200406061943.41009.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 6 Jun 2004, Manfred Spraul wrote:
->
-> I'll add that, but it's only a partial fix: what if ehci_hcd is loaded 
-> before the forcedeth driver?
-
-Yes. We've had those kinds of problems before, and sometimes you need a 
-PCI quirk to disable a screaming device. See the PIIX3 USB quirk in 
-drivers/pci/quirks.c for example.
-
-The good news is that it's fairly rare. Devices don't generally have
-pending interrupts, since they haven't been turned on, or at least the
-BIOS has finished doing whatever it was doing to them. The USB thing
-happens because the BIOS leaves the USB controller active (probably for
-keyboard usage) and USB normally generates interrupts whether anything
-happens or not.
-
-> Luis, could you apply the patch and boot with it? It should print 
-> something like
+Denis Vlasenko a écrit :
 > 
-> forcedeth: irq line 11, Status 0x00000020, Mask 0x00000020
-> 
-> If mask and status are really not zero, then it explains your problems. 
+> Retrieve it from your syslog
 
-It could be something else on the NForce thing too, of course. Including
-just having ACPI get confused about the polarity of the interrupt (if the
-interrupt is _off_, but we've told the irq controller the wrong polarity,
-the controller will obviously think that it is _on_).
+i'm afraid it's empty, nothin about the panic is saved there. i've tried 
+to run a while:; do sync; done and to ajust  kernel log buffer size from 
+  14 to 10 but i've not been able to retrieve anything
 
-But it's usually a good thing to try to reset a device as much as possible 
-when you probe for it. If for no other reason than the fact that then 
-you'll have it in a "known state", and hopefully there won't be as many 
-surprises..
-
-		Linus

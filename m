@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276736AbRJPVem>; Tue, 16 Oct 2001 17:34:42 -0400
+	id <S276750AbRJPVic>; Tue, 16 Oct 2001 17:38:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276737AbRJPVec>; Tue, 16 Oct 2001 17:34:32 -0400
-Received: from smtp6.mindspring.com ([207.69.200.110]:4617 "EHLO
-	smtp6.mindspring.com") by vger.kernel.org with ESMTP
-	id <S276736AbRJPVeX>; Tue, 16 Oct 2001 17:34:23 -0400
-Subject: Re: [PATCH] various minor cleanups against 2.4.13-pre3 - comments
-	requested
-From: Robert Love <rml@tech9.net>
-To: Jesper Juhl <juhl@eisenstein.dk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BCC8C88.58BBCC39@eisenstein.dk>
-In-Reply-To: <3BCC8C88.58BBCC39@eisenstein.dk>
-Content-Type: text/plain
+	id <S276751AbRJPViW>; Tue, 16 Oct 2001 17:38:22 -0400
+Received: from cmr0.ash.ops.us.uu.net ([198.5.241.38]:33445 "EHLO
+	cmr0.ash.ops.us.uu.net") by vger.kernel.org with ESMTP
+	id <S276750AbRJPViN>; Tue, 16 Oct 2001 17:38:13 -0400
+Message-ID: <3BCCA955.796132A3@uu.net>
+Date: Tue, 16 Oct 2001 17:40:37 -0400
+From: Alex Deucher <adeucher@UU.NET>
+Organization: UUNET
+X-Mailer: Mozilla 4.78 [en] (WinNT; U)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: pzycrow@hotmail.com
+Subject: Re: IDE Controller for toshiba laptops?
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.12.08.08 (Preview Release)
-Date: 16 Oct 2001 17:34:34 -0400
-Message-Id: <1003268078.868.26.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2001-10-16 at 15:37, Jesper Juhl wrote:
-> init/main.c : parse_options()
->         The check that adds "line" to either "envp_init" or "argv_init"
-> checks to see if the buffers are full and break;s the while() loop
-> if _either_ buffer is full - it should use continue; so both buffers can
-> get a chance to fill up. Robert M. Love should get credit for finding
-> this one, I found it by looking at an old patch of his, and I just checked
-> to see if it was still there and read the code to see if it was correct.
+Many older toshiba's had an IDE controller on board capable of DMA
+transfers.  However it did not show up as a PCI device and was part of
+toshiba's custom north or southbridge.  I believe it was called
+piccolo.  The portege 30x0ct and other satellites, etc. of that time
+period come to mind.  I requested and recieved the documentation for
+this IDE controller from toshiba.  I'm not much of a driver writer, but
+I passed it on to several people that were interested.  I'm not sure
+what the status is as I'm not working on them personally.
 
-Thanks for running with this.
 
-Now, for the love of all things holy, can _someone_ either tell me what
-is wrong with this patch or merge it already?  I originally wrote this
-for 2.2!
+Alex
 
-It seems clear to me that we lose either the environment vars or
-command-line args when the other one fills up...
 
-	Robert Love
+------------------------------
+pzycrow@hotmail.com said: 
+> Is anyone working on a driver for the ide-conttoller on the toshiba 
+> laptops? 
 
+This does not make any sense. There is no concept of a Toshiba 
+specific IDE controller. For example my laptop a Tecra 780DVD 
+from lspci I get 
+
+00:05.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) 
+
+Typically all the laptops supported by the Toshiba SMM mode driver 
+are all Intel based controllers, or if the laptop is really old are 
+generic basic IDE controllers. 
+
+The laptops not supported by the Toshiba SMM mode driver are all 
+Texas Instruments chipset IDE controllers as far as I am aware. 
+
+What makes you suspect that there is such a thing as a Toshiba 
+IDE controller? 
+
+JAB.

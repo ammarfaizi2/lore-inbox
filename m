@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262364AbTCIC1k>; Sat, 8 Mar 2003 21:27:40 -0500
+	id <S262369AbTCICdz>; Sat, 8 Mar 2003 21:33:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262368AbTCIC1k>; Sat, 8 Mar 2003 21:27:40 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:54823 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262364AbTCIC1k>; Sat, 8 Mar 2003 21:27:40 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Russell King <rmk@arm.linux.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Roman Zippel <zippel@linux-m68k.org>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
-References: <Pine.LNX.4.44.0303072121180.5042-100000@serv>
-	<Pine.LNX.4.44.0303071459260.1309-100000@home.transmeta.com>
-	<20030307233916.Q17492@flint.arm.linux.org.uk>
-	<m1d6l2lih9.fsf@frodo.biederman.org>
-	<20030308100359.A27153@flint.arm.linux.org.uk>
-	<m18yvpluw7.fsf@frodo.biederman.org> <3E6A5C44.9060002@zytor.com>
-	<m1n0k5jpit.fsf@frodo.biederman.org> <3E6A9CE4.9090801@zytor.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 08 Mar 2003 19:37:46 -0700
-In-Reply-To: <3E6A9CE4.9090801@zytor.com>
-Message-ID: <m1el5hjmdh.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S262370AbTCICdu>; Sat, 8 Mar 2003 21:33:50 -0500
+Received: from turkey.mail.pas.earthlink.net ([207.217.120.126]:29659 "EHLO
+	turkey.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S262369AbTCICds>; Sat, 8 Mar 2003 21:33:48 -0500
+Date: Sat, 8 Mar 2003 21:50:15 -0500
+To: linux-kernel@vger.kernel.org
+Subject: scheduler starvation running irman with 2.5.64bk2
+Message-ID: <20030309025015.GA2843@rushmore>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
+irman triggers some odd behavior with 2.5.64bk2 on uniprocessor 
+K6/2 475.  "ps aux" hasn't returned for a couple hours, though
+irman appears to be doing it's thing.  I haven't tried irman on smp.
 
-> Eric W. Biederman wrote:
-> > Of course it is worth noting that PXE runtime support on the itanium
-> > does not even resemble PXE runtime support on x86.  Unlike unix it
-> > does not have a stable API.
-> >
-> 
-> That doesn't surprise me.  Of course, that doesn't change my opinion about
-> Itanic in any way :)
+Time to run irman 3x.
 
-And I thought I was talking about PXE....
+2.5.63			4066 seconds
+2.5.63-mjb1		2993 seconds
+2.5.63-mm2-dline	2856 seconds
+2.5.64			3473 seconds
+2.5.64bk2		??
 
-Eric
+Time to complete irman is variable because the amount of work
+done in 3 runs is also variable.
+
+vmstat looks fairly typical, and it prints every 60 seconds.
+
+vmstat 60
+   procs                      memory      swap          io     system      cpu
+ r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+ 4  0  0   2564 376368    108   1916    0    0     0     0 1092 25978  2 98  0
+ 4  0  0   2564 376368    108   1920    0    0     0     0 1092 26102  2 98  0
+
+This is vmstat 60 from 2.5.64
+
+   procs                      memory      swap          io     system      cpu
+ r  b  w   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id
+ 4  0  0   2552 377024    116   1520    0    0     0     0 1092 32649  4 96  0
+ 3  0  0   2552 377024    116   1520    0    0     0     0 1092 32865  5 95  0
+
+
+There are probably less than 50 processes running.  
+"ps aux" doesn't hear <ctrl z> or <ctrl c>.
+
+Machine doesn't accept new ssh connections.
+
+It's as if after starting irman, new processes don't get any CPU time.
+
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

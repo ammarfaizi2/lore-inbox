@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130380AbRCIA0z>; Thu, 8 Mar 2001 19:26:55 -0500
+	id <S130403AbRCIAkp>; Thu, 8 Mar 2001 19:40:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130381AbRCIA0q>; Thu, 8 Mar 2001 19:26:46 -0500
-Received: from barrichello.cs.ucr.edu ([138.23.169.5]:29446 "HELO
-	barrichello.cs.ucr.edu") by vger.kernel.org with SMTP
-	id <S130380AbRCIA0k>; Thu, 8 Mar 2001 19:26:40 -0500
-Date: Thu, 8 Mar 2001 16:26:11 -0800 (PST)
-From: David Watson <dwatson@cs.ucr.edu>
-To: <camm@enhanced.com>
-Cc: <linux-kernel@vger.kernel.org>, <brett@cs.ucr.edu>, <dwatson@cs.ucr.edu>
-Subject: Re: 2.2.x kernels not filling in siginfo_t.si_addr on SEGV?
-Message-ID: <Pine.LNX.4.30.0103081610400.31071-100000@hill.cs.ucr.edu>
+	id <S130428AbRCIAkf>; Thu, 8 Mar 2001 19:40:35 -0500
+Received: from Mail.ubishops.ca ([192.197.190.5]:28681 "EHLO Mail.ubishops.ca")
+	by vger.kernel.org with ESMTP id <S130403AbRCIAkU>;
+	Thu, 8 Mar 2001 19:40:20 -0500
+Message-ID: <3AA82616.F467A9B9@yahoo.co.uk>
+Date: Thu, 08 Mar 2001 19:38:46 -0500
+From: Thomas Hood <jdthoodREMOVETHIS@yahoo.co.uk>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-AntiVirus: scanned for viruses by AMaViS perl-6
+To: linux-kernel@vger.kernel.org, linux-thinkpad@www.bm-soft.com
+Subject: Re: 2.2.18 corruption: IDE + PCMCIA ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have seen the same sort of problem in the past.
 
-> Greetings!  Shouldn't a SIGSEGV fill in th si_addr member of the
-> siginfo_t structure passed to a signal handler?  Here is what I see
+My conclusion was that there was a problem with dynamic 
+registering and unregistering of ide interfaces.
 
-Our group ran into this problem last summer while we were developing the
-Oasis+ DSM system.  We worked around it by utilizing the following code
-fragment:
+Thomas Hood
+jdthood_AT_yahoo.co.uk
 
-void fault_handler(int sig, siginfo_t *sip, ucontext_t *ucp)
-{
-	void *addr;
-
-	addr = (void *) ucp->uc_mcontext.cr2;
-
-	...
-}
-
-Hope that helps.
-
-Regards,
-David
-
--- 
-The theory of groups is a branch of Mathematics in which one does
-something to something and then compares the result with the result
-obtained from doing the same thing to something else, or something else to
-the same thing.
-J. R. Newman
-
+> I've experienced some disk corruption on my laptop.
+> 
+> Scenario:
+> I'm cross-compiling tons of sources and I felt the need
+> to insert a CompactFlash card (via PCMCIA) in my laptop.
+> So I did, no problem: 
+> mounted, touched a file, umounted, cardctl-ejected.
+> 
+> Pretty soon my compilation stops:
+> bash: /usr/bin/sort: cannot execute binary file
+> 
+> Okey. The date on /usr/bin/sort is unchanged. Must be root to write.
+> [...]

@@ -1,60 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287946AbSCDKp0>; Mon, 4 Mar 2002 05:45:26 -0500
+	id <S289272AbSCDK4h>; Mon, 4 Mar 2002 05:56:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289272AbSCDKpR>; Mon, 4 Mar 2002 05:45:17 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:53257 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S287946AbSCDKpC>; Mon, 4 Mar 2002 05:45:02 -0500
-Message-ID: <3C834FF8.4040405@evision-ventures.com>
-Date: Mon, 04 Mar 2002 11:44:08 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S290843AbSCDK41>; Mon, 4 Mar 2002 05:56:27 -0500
+Received: from juguete.quim.ucm.es ([147.96.5.11]:59663 "EHLO
+	juguete.quim.ucm.es") by vger.kernel.org with ESMTP
+	id <S289272AbSCDK4R>; Mon, 4 Mar 2002 05:56:17 -0500
+Date: Mon, 4 Mar 2002 11:56:11 +0100 (CET)
+From: Ramon Garcia Fernandez <ramon@juguete.quim.ucm.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: I/O scheduling suggestion
+In-Reply-To: <Pine.LNX.4.33.0203031941040.842-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.4.21.0203041144000.21966-100000@juguete.quim.ucm.es>
 MIME-Version: 1.0
-To: Andries.Brouwer@cwi.nl
-CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: IDE cleanup eats disks
-In-Reply-To: <UTC200203032202.WAA145534.aeb@cwi.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
-> On one of my machines I lose two disk drives with
-> 2.5.6-pre2 that still were present with 2.5.6-pre1.
-> Looking why, I see that the cleanup of ide-pci.c
-> cleaned them away.
-> 
-> This is not necessarily bad, leaving things as they are is
-> certainly an option, although maybe I prefer the old situation,
-> but I just report the fact that the cleanup changes behaviour.
-> 
-> In this case I had two disks hanging off a HPT366 card
-> but no CONFIG_BLK_DEV_HPT366 selected. Until now this
-> worked: the values {PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT366}
-> were always compiled in. On the other hand, 2.5.6-pre2 only
-> knows about them when CONFIG_BLK_DEV_HPT366 is selected,
-> so does not recognize the card and does not see the disks.
-> 
-> As a check I changed 2.5.6-pre2 by
-> 
->  #ifdef CONFIG_BLK_DEV_HPT366
->         {PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT366, pci_init_hpt366, ...
-> +#else
-> +       {PCI_VENDOR_ID_TTI, PCI_DEVICE_ID_TTI_HPT366, NULL, NULL,
-> +        IDE_NO_DRIVER, NULL, {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
-> +	 OFF_BOARD, 240, ATA_F_IRQ | ATA_F_HPTHACK },
->  #endif
-> 
-> and indeed, this brings the drives back to life.
+[I hope there is no problem is replaying to linux-kernel; I feel that
+this discussion should be public]
 
-Well unfortunately there where ton's of changes there, so I would
-rather wonder myself if anything didn't break.
+On Sun, 3 Mar 2002, Mark Hahn wrote:
 
-Thank you for fixing this! But instead of making the above addtional
-entries an preprocessor else, it would be better to just add them at the
-end of the list as duplicated fall-back cases.
+> > Yes, but that I/O activity was originated by some task. So it must
+> > be possible to modify the page cache to keep track of that task.
+> 
+> you missed the point: the pagecache permits (encourages!) the
+> "responsibility" for IO to be shared among many procs.  for instance,
+> who is responsible for reading a particular page of glibc?
 
+Although a IO action can benefit several processes, there is one that
+creates the request. If another process needs the same page while the
+first request has not been completed, its priority can be raised.
+
+> > That a process that is using the disk a lot would have less priority for
+> > i/o. Therefore the rest of the users would be better served. Futhermore,
+> 
+> that does not follow.  the issue is fairness, and linux already has
+> reasonably good IO fairness.  if you're worried about DOS, this wouldn't
+> solve it, since the DOSer just forks a bunch before submitting IO.
+
+It would be more fair to make the priority of a process that makes less IO
+higher. In this way, an interactive user that opens an editor is less
+bothered by an application that makes intensive access.
+
+It gives more stability against a bogus application that takes too much
+memory.
+
+In order to avoid a denial of service, Linux could implement per session
+or per uid limits.
+
+> 
+> > the acrobat reader or Mozilla that takes a lot of memory would not bring
+> > the machine down because of swapping, because that swapping would have
+> > less priority that the rest of i/o requests.
+> 
+> this is an excellent example of why better design is not obvious:
+> swapping often needs  the *highest* priority, since one small IO could
+> be preventing the whole system from making progress.
+
+But this case is the exception, not the rule. The normal behaviour of the
+system should be optimized for the most frequent case. To handle the
+exception, the process can tell the kernel by raising its priority.
+For instance, an unpriviledged application could be allowed to raise
+its priority for a limited time, so that it can, for instance, save the
+document and exit faster.
+
+Ramon
 

@@ -1,59 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278701AbRLKPZ7>; Tue, 11 Dec 2001 10:25:59 -0500
+	id <S281478AbRLKP3J>; Tue, 11 Dec 2001 10:29:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280426AbRLKPZi>; Tue, 11 Dec 2001 10:25:38 -0500
-Received: from dsl-213-023-043-244.arcor-ip.net ([213.23.43.244]:1803 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S280191AbRLKPZ1>;
-	Tue, 11 Dec 2001 10:25:27 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: 2.4.16 & OOM killer screw up (fwd)
-Date: Tue, 11 Dec 2001 16:27:23 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011211144223.E4801@athlon.random> <Pine.LNX.4.33L.0112111157410.4079-100000@imladris.surriel.com> <20011211152356.I4801@athlon.random>
-In-Reply-To: <20011211152356.I4801@athlon.random>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16DooZ-0001J4-00@starship.berlin>
+	id <S281217AbRLKP27>; Tue, 11 Dec 2001 10:28:59 -0500
+Received: from mtiwmhc21.worldnet.att.net ([204.127.131.46]:14816 "EHLO
+	mtiwmhc21.worldnet.att.net") by vger.kernel.org with ESMTP
+	id <S280426AbRLKP2z>; Tue, 11 Dec 2001 10:28:55 -0500
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+From: Cory Bell <cory.bell@usa.net>
+To: Pavel Machek <pavel@suse.cz>
+Cc: John Clemens <john@deater.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011211111458.A15007@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.33.0112060938340.32381-100000@pianoman.cluster.toy>
+	<1007685691.6675.1.camel@localhost.localdomain>
+	<20011207213313.A176@elf.ucw.cz>
+	<1007876254.17062.0.camel@localhost.localdomain> 
+	<20011211111458.A15007@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 11 Dec 2001 07:19:21 -0800
+Message-Id: <1008083964.17062.30.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On December 11, 2001 03:23 pm, Andrea Arcangeli wrote:
-> As said I wrote some documentation on the VM for my last speech at the
-> one of the most important italian linux events, it explains the basic
-> design. It should be published on their webside as soon as I find the
-> time to send them the slides. I can post a link once it will be online.
+On Tue, 2001-12-11 at 02:14, Pavel Machek wrote:
+> The patch should contain:
+> 
+> 
+> > The "honor the irq mask" approach (works on my machine):
+> > --- /home/cbell/linux-2.4/arch/i386/kernel/pci-irq.c	Fri Dec  7 01:51:41 2001
+> > +++ /home/cbell/linux-2.4-test/arch/i386/kernel/pci-irq.c	Sat Dec  8 21:04:37 2001
+> > @@ -581,6 +581,7 @@
+> >  	 * reported by the device if possible.
+> >  	 */
+> >  	newirq = dev->irq;
+> > +	if (!((1 << newirq) & mask)) newirq = 0;
+> 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+> printk(KERN_ERR "$PIR table inconsistent; chipset dependend code told
+> us interrupt is at %d, but irq mask is %lx\n", dev->irq, newirq);
+>   
+> We should never ever workaround BIOS problem without complaining.
 
-Why not also post the whole thing as an email, right here?
+It may not be a bios problem. mask = (info->irq[pin].bitmap &
+pcibios_irq_mask). So an IRQ might not match the mask because the user
+specified a more restrictive mask than the $PIR table.
 
-> It shoud allow non VM-developers to understand the logic behind the VM
-> algorithm, but understanding those slides it's far from allowing anyone
-> to hack the VM.
+I suppose we could use a second variable (pir_mask?) that didn't get &'d
+with pcibios_irq_mask to do the checks.
 
-It's a start.
+Ideas, anyone?
 
-> I _totally_ agree with Linus when he said "real world is totally
-> dominated by the implementation details".
+> Otherwise patch looks sane. Did you try submitting it to
+> linus/marcelo?
 
-Linus didn't say anything about not documenting the implementation details, 
-nor did he say anything about not documenting in general.
+Not yet. Wanted to do a bit more testing, especially considering the
+pcmcia problems people have had. Do your pcmcia difficulties occur
+without the patch, as well?
 
-> For developers the real freedom is the code, not the documentation and
-> the code is there. And I think it's much easier to understand the
-> current code (ok I'm biased, but still I believe for outsiders it's
-> simpler).
+I'll test my 16-bit pcmcia modem/nic with my pcmcia scsi adapter, and
+see if I get the same breakage.
 
-Judging by the number of complaints, it's not easy enough.  I know that, 
-personally, decoding your vm is something that's always on my 'things I could 
-do if I didn't have a lot of other things to do' list.  So far, only Linus, 
-Marcelo, Andrew and maybe Rik seem to have made the investment.  You'd have a 
-lot more helpers by now if you gave just a little higher priority to 
-documentation
+Has anyone tried dual cardbus cards?
 
---
-Daniel
+-Cory
+

@@ -1,64 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268961AbUHMDx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268962AbUHMETq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268961AbUHMDx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 23:53:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268963AbUHMDx3
+	id S268962AbUHMETq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 00:19:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268963AbUHMETq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 23:53:29 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:17037 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268961AbUHMDx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 23:53:27 -0400
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>
-In-Reply-To: <1092364786.877.1.camel@mindpipe>
-References: <20040726082330.GA22764@elte.hu>
-	 <1090830574.6936.96.camel@mindpipe> <20040726083537.GA24948@elte.hu>
-	 <1090832436.6936.105.camel@mindpipe> <20040726124059.GA14005@elte.hu>
-	 <20040726204720.GA26561@elte.hu> <20040729222657.GA10449@elte.hu>
-	 <20040801193043.GA20277@elte.hu> <20040809104649.GA13299@elte.hu>
-	 <20040810132654.GA28915@elte.hu>  <20040812235116.GA27838@elte.hu>
-	 <1092360317.1304.72.camel@mindpipe>  <1092360704.1304.76.camel@mindpipe>
-	 <1092364786.877.1.camel@mindpipe>
-Content-Type: text/plain
-Message-Id: <1092369242.2769.1.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 12 Aug 2004 23:54:02 -0400
+	Fri, 13 Aug 2004 00:19:46 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:6655 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S268962AbUHMETp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Aug 2004 00:19:45 -0400
+Message-ID: <411C4130.4000303@comcast.net>
+Date: Fri, 13 Aug 2004 00:18:56 -0400
+From: Clem Taylor <clemtaylor@comcast.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@pobox.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Any news on a higher performance sata_sil SIL_QUIRK_MOD15WRITE
+ workaround?
+References: <411AFD2C.5060701@comcast.net> <411B118B.4040802@pobox.com>
+In-Reply-To: <411B118B.4040802@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-08-12 at 22:39, Lee Revell wrote:
-> On Thu, 2004-08-12 at 21:31, Lee Revell wrote:
-> > On Thu, 2004-08-12 at 21:25, Lee Revell wrote:
-> > > Does not compile.  For each module I get:
-> > > 
-> > 
-> > Never mind, stupid mistake on my part.
-> > 
+Jeff Garzik wrote:
+> Get a different controller + disk combination.
+
+I don't want to dump the disks, but I may be ordering a 3ware controller 
+in the near future. The only reason I didn't get a 3ware controller in 
+the first place was that the Sil 3114 was on the motherboard.
+
+> The problem is that the Silicon Image controller sends unusual -- but 
+> legal -- block sizes to the SATA device.
 > 
-> Argh, this is actually a fatal bug, and not a mistake on my part. 
-> mcount is an unknown symbol, and make modules_install does not like
-> that.
+> Older Seagates cannot cope with this unique, but spec-correct behavior.
+
+I thought that the Seagate ST3160023AS was a fairly new drive. I noticed 
+a comment that version 3.18 of the firmware may not suffer from this 
+problem, can anyone confirm this? I'm going to try removing my drive 
+from the blacklist and see what happens.
+
+>> It would seem that the root of the problem is a Seagate issue. Does 
+>> anyone know if Seagate fixed the problem with a firmware update? 
 > 
-> I checked Module.symvers and it is not in there, but this seems to be a
-> generated file, and I have no idea why mcount does not appear.
-> 
+> You could find out for us, and let us know :)
 
-I think appending this to i386_ksyms.c fixes the problem:
+I tried, my contact at Seagate doesn't seem to be with them anymore (I 
+haven't worked in the storage space in quite some time).
 
-#ifdef CONFIG_PREEMPT_TIMING
-EXPORT_SYMBOL(mcount);
-#endif
-
-Possibly that should be CONFIG_LATENCY_TRACE.
-
-Lee
-
-
-
+                 Thanks for the help,
+                 Clem

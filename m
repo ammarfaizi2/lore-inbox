@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264641AbTFLAcu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 20:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbTFLAcu
+	id S264650AbTFLAe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 20:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264651AbTFLAe7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 20:32:50 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:34442 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264641AbTFLAct
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 20:32:49 -0400
-Date: Wed, 11 Jun 2003 17:19:31 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: boris@macbeth.rhoen.de, linux-kernel@vger.kernel.org
-Subject: Re: oops while booting : 2.5.70-bk1[4,5] - Process swapper
-Message-ID: <20030612001931.GB27815@kroah.com>
-References: <20030610202947.GA752@macbeth.rhoen.de> <20030610143018.025d318c.akpm@digeo.com> <20030610165111.7911b7cb.akpm@digeo.com>
+	Wed, 11 Jun 2003 20:34:59 -0400
+Received: from dp.samba.org ([66.70.73.150]:37523 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264650AbTFLAe6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 20:34:58 -0400
+Date: Thu, 12 Jun 2003 10:37:16 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Matthew Wilcox <willy@debian.org>
+Subject: Re: pci_domain_nr vs. /sys/devices
+Message-ID: <20030612003715.GA1942@krispykreme>
+References: <1055341842.754.3.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030610165111.7911b7cb.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1055341842.754.3.camel@gaston>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10, 2003 at 04:51:11PM -0700, Andrew Morton wrote:
-> 
-> Greg, do you have time/inclination to untangle (and preferably document)
-> this mess?
+ 
+> So we can pave the way for when we'll stop play bus number tricks and
+> actually have overlapping PCI bus numbers between domains. (I don't plan
+> to do that immediately because that would break userland & /proc/bus/pci
+> backward compatiblity)
 
-Ugh, what a mess.  Hm, no I don't really have the time right now to do
-this, but possibly will after the rest of the pci changes are done...
+As davem suggested, /proc/bus/pci should present domain 0 in the old
+format even with pci domains enabled. If your graphics card is on domain
+0 then X continues to work :)
 
-As for documenting, why?  It's an arch specific thing that really does
-not get touched very often, if at all.
-
-thanks,
-
-greg k-h
+Anton

@@ -1,47 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265024AbRGEMhG>; Thu, 5 Jul 2001 08:37:06 -0400
+	id <S265042AbRGEMk4>; Thu, 5 Jul 2001 08:40:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265042AbRGEMg4>; Thu, 5 Jul 2001 08:36:56 -0400
-Received: from [202.140.153.5] ([202.140.153.5]:20997 "EHLO
-	techctd.techmas.hcltech.com") by vger.kernel.org with ESMTP
-	id <S265024AbRGEMgo>; Thu, 5 Jul 2001 08:36:44 -0400
-Message-ID: <3B445FA5.8CB55F45@techmas.hcltech.com>
-Date: Thu, 05 Jul 2001 18:07:57 +0530
-From: Vasu Varma P V <pvvvarma@techmas.hcltech.com>
-Organization: HCL Technologies
-X-Mailer: Mozilla 4.7 [en] (WinNT; I)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: arjanv@redhat.com
-CC: linux-kernel@vger.kernel.org
+	id <S265054AbRGEMkq>; Thu, 5 Jul 2001 08:40:46 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:6273 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265043AbRGEMkl>; Thu, 5 Jul 2001 08:40:41 -0400
+Date: Thu, 5 Jul 2001 08:37:12 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Vasu Varma P V <pvvvarma@techmas.hcltech.com>
+cc: kernel Linux <linux-kernel@vger.kernel.org>
 Subject: Re: DMA memory limitation?
-In-Reply-To: <3B4453E6.F4342781@techmas.hcltech.com> <3B44558A.B52B5C60@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3B4453E6.F4342781@techmas.hcltech.com>
+Message-ID: <Pine.LNX.3.95.1010705082119.19376B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-but we have a macro in include/asm-i386/dma.h,
-MAX_DMA_ADDRESS  (PAGE_OFFSET+0x1000000).
+On Thu, 5 Jul 2001, Vasu Varma P V wrote:
 
-if i change it to a higher value, i am able to get more dma
-memory. Is there any way i can change this without compiling
-the kernel?
+> Hi,
+> 
+> Is there any limitation on DMA memory we can allocate using
+> kmalloc(size, GFP_DMA)? I am not able to acquire more than
+> 14MB of the mem using this on my PCI SMP box with 256MB ram.
+> I think there is restriction on ISA boards of 16MB.
+> Can we increase it ?
+> 
+> thx,
+> Vasu
 
-Arjan van de Ven wrote:
+14MB of DMA(able) memory?  Err. I think you are trying to
+do something you would never need to do.
 
-> Vasu Varma P V wrote:
-> >
-> > Hi,
-> >
-> > Is there any limitation on DMA memory we can allocate using
-> > kmalloc(size, GFP_DMA)? I am not able to acquire more than
-> > 14MB of the mem using this on my PCI SMP box with 256MB ram.
-> > I think there is restriction on ISA boards of 16MB.
-> > Can we increase it ?
->
-> Why?
-> YOu don't have to allocate GFP_DMA memory for PCI cards!
-> GFP_DMA is for ISA cards only
+If your board has a PCI interface, it's got address-space
+allocated where memory does not exist. That's for communicating
+with the board. If this address-space contains memory on that
+board, you treat it just like RAM. That's what the PCI bus
+does for you.
+
+Given this, your board may also be a "bus mastering" board.
+This means that, given the correct programming sequence, it
+can transfer data to or from any location accessible to the
+PCI bus. This is the so-called DMA that PCI bus masters can
+perform.
+
+When you program such a board, you simply translate the
+virtual address of the transfer area to the address that
+the board understands. Look at /linux/Documentation/IO-mapping.txt
+
+The GFP_DMA memory type to which you refer, is for boards that
+must use the lower 16 MB of address space. Such boards are
+usually on the ISA bus. Since the first 1 MB is pretty much
+taken by ROM BIOS, screen-card BIOS, other controllers (like SCSI)
+BIOS, etc., you are not going to increase it.
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
+
 

@@ -1,37 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262611AbVAKWPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262779AbVAKWT0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262611AbVAKWPo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 17:15:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVAKWPk
+	id S262779AbVAKWT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 17:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262728AbVAKWSb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 17:15:40 -0500
-Received: from orb.pobox.com ([207.8.226.5]:14236 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262611AbVAKWOS (ORCPT
+	Tue, 11 Jan 2005 17:18:31 -0500
+Received: from waste.org ([216.27.176.166]:46260 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262549AbVAKWQq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 17:14:18 -0500
-Date: Tue, 11 Jan 2005 14:14:12 -0800
-From: "Barry K. Nathan" <barryn@pobox.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.10-mm2: swsusp problem with resuming on batteries (AMD64)
-Message-ID: <20050111221412.GC4378@ip68-4-98-123.oc.oc.cox.net>
-References: <200501112220.53011.rjw@sisk.pl> <20050111212647.GB1802@elf.ucw.cz>
+	Tue, 11 Jan 2005 17:16:46 -0500
+Date: Tue, 11 Jan 2005 14:16:18 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>, "Jack O'Quin" <joq@io.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       paul@linuxaudiosystems.com, arjanv@redhat.com, mingo@elte.hu,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050111221618.GA2940@waste.org>
+References: <87mzvkxxck.fsf@sulphur.joq.us> <20050110212019.GG2995@waste.org> <87d5wc9gx1.fsf@sulphur.joq.us> <20050111195010.GU2940@waste.org> <871xcr3fjc.fsf@sulphur.joq.us> <20050111200549.GW2940@waste.org> <1105475349.4295.21.camel@krustophenia.net> <20050111124707.J10567@build.pdx.osdl.net> <20050111212823.GX2940@waste.org> <20050111134251.O10567@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050111212647.GB1802@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050111134251.O10567@build.pdx.osdl.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > The box is an Athlon 64 laptop on NForce 3.
+On Tue, Jan 11, 2005 at 01:42:51PM -0800, Chris Wright wrote:
+> > But I'm also still not convinced this policy can't be most flexibly
+> > handled by a setuid helper together with the mlock rlimit.
 > 
-> Can you try without cpufreq support? If we attempt to do 2GHz on AC
-> power, machine may die ugly death.
+> Wait, why can't it be done with (to date fictitious) pam_prio, which
+> simply calls sched_setscheduler?  It's already privileged while it's
+> doing these things...
 
-Athlon 64 probably means it's running an x86_64 kernel. Wasn't there
-another thread on lkml about -mm2 swsusp and x86_64? I wonder if it's
-the same problem (or a related one).
+You certainly do not want to run everything at RT from login on.
+That'd be bad.
 
--Barry K. Nathan <barryn@pobox.com>
+Also, tying to UIDs rather than (UID, executable) is worrisome as
+random_game_with_audio in Gnome might decide it needs RT, much to the
+admin's surprise.
 
+-- 
+Mathematics is the supreme nostalgia of our time.

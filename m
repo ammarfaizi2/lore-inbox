@@ -1,75 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129998AbQLMSZM>; Wed, 13 Dec 2000 13:25:12 -0500
+	id <S130667AbQLMSdC>; Wed, 13 Dec 2000 13:33:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130154AbQLMSZD>; Wed, 13 Dec 2000 13:25:03 -0500
-Received: from rmx194-mta.mail.com ([165.251.48.41]:29139 "EHLO
-	rmx194-mta.mail.com") by vger.kernel.org with ESMTP
-	id <S129998AbQLMSYt>; Wed, 13 Dec 2000 13:24:49 -0500
-Message-ID: <385246622.976730040933.JavaMail.root@web628-mc>
-Date: Wed, 13 Dec 2000 12:54:00 -0500 (EST)
-From: Damien BENOIST <damien.benoist@mail.com>
-To: linux-kernel@vger.kernel.org, mj@atrey.karlin.mff.cuni.cz,
-        linux-video@atrey.karlin.mff.cuni.cz
-Subject: kernel 2.2.17 vgaconsole patch
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Mailer: mail.com
-X-Originating-IP: 193.56.46.14
+	id <S130849AbQLMScx>; Wed, 13 Dec 2000 13:32:53 -0500
+Received: from www.wen-online.de ([212.223.88.39]:57362 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130667AbQLMScn>;
+	Wed, 13 Dec 2000 13:32:43 -0500
+Date: Wed, 13 Dec 2000 19:02:03 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Signal 11 - the continuing saga
+In-Reply-To: <Pine.LNX.4.10.10012130914470.19475-100000@penguin.transmeta.com>
+Message-ID: <Pine.Linu.4.10.10012131856130.448-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had already mailed to mj@atrey.karlin.mff.cuni.cz but got
-no answer, so i remail as described in the
-"How to Get Your Change Into the Linux Kernel or The Unofficial
-Linus HOWTO"
-Please give me some feed back (damien.benoist@epita.fr) thanks.
+On Wed, 13 Dec 2000, Linus Torvalds wrote:
 
-kernel: 2.2.17
+> On Wed, 13 Dec 2000, Linus Torvalds wrote:
+> > 
+> > Lookin gat "swapoff()", it could easily be something like
+> > 
+> >  - swapoff walks theough the processes, marking the pages dirty
+> >    (correctly)
+> >  - swapoff goes on to the next swap entry, and because it needs memory for
+> >    this, the VM layer will swap out old entries by marking them dirty in
+> >    the "struct page".
+> >  - final stages of swapoff() removes the swap cache entry, never minding
+> >    the fact that it is marked dirty again in "struct page", and clean in
+> >    various VM page tables.
+> > 
+> > Ho humm.. I don't think that is it exactly, but something along those
+> > lines.
+> 
+> Actually, having thought about it for five more minutes, I actually think
+> that that _is_ it.
+> 
+> If so, the fix looks like it could be really simple. The whole problem
+> arises from the fact that we remove the page from the swap cache only
+> _after_ we've walked the page-tables to look at it. It looks like the
+> fairly trivial fix is simply to remove it from the swap cache before,
+> getting rid of all such races in swapoff().
+> 
+> Mind trying out this patch?
+> 
+> NOTE! It's untested. It might not work. It might trigger some sanity-test
+> somewhere else. But it looks like it should do the right thing (the page
+> might be moved to _another_ swap device early, if there are multiple swap
+> areas, but even that should be fine - the unuse_process() stuff doesn't
+> care about what swapcache this actually is any more.
+> 
+> Does this patch make a difference (I moved the delete seven lines upwards,
+> and removed the test - the test looks extraneous).
 
-pb: // 0 does not work with ega/vga adapter and mono display
+Not in my test tree.  Same fault, and same trace leading up to it.
+I'll run virgin source hard tomorrow to be sure. (No message means
+no change)
 
-how to duplicate the pb:
-compile the kernel with the following options (module or not):
-- vga console
-- parallel port
-use the following hardware:
-- monochrome display
-- ega/vga adapter
-- a // port at 0x3bc
+	-Mike
 
-changes:
-- region size for ega/vga adapter with mono display (12bytes
-instead of 16).
-
---- drivers/video/vgacon.c	Fri Oct 13 21:05:36 2000
-+++ drivers/video/vgacon.c.old	Thu Oct 12 16:12:17 2000
-@@ -27,9 +27,6 @@
-*	flashing on RHS of screen during heavy console scrolling .
-*	Oct 1996, Paul Gortmaker.
-*
-- *	For monochrome display with ega adapter the requested port region was
-- *	too large, going over the // port 0 region. //0 was then inaccessible.
-- *	Oct 2000, <damien.benoist@epita.fr>
-*
-*  This file is subject to the terms and conditions of the GNU General
-Public
-*  License.  See the file COPYING in the main directory of this archive for
-@@ -183,7 +180,7 @@
-vga_video_type = VIDEO_TYPE_EGAM;
-vga_vram_end = 0xb8000;
-display_desc = "EGA+";
--			request_region(0x3b0,12,"ega");
-+			request_region(0x3b0,16,"ega");
-}
-else
-{
-
-
-______________________________________________
-FREE Personalized Email at Mail.com
-Sign up at http://www.mail.com/?sr=signup
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

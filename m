@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264140AbTJOTOH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 15:14:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264141AbTJOTOH
+	id S264089AbTJOTNE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 15:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264139AbTJOTNE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 15:14:07 -0400
-Received: from fw.osdl.org ([65.172.181.6]:396 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264140AbTJOTOE (ORCPT
+	Wed, 15 Oct 2003 15:13:04 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:30475 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S264089AbTJOTND (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 15:14:04 -0400
-Date: Wed, 15 Oct 2003 12:13:37 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
+	Wed, 15 Oct 2003 15:13:03 -0400
+Date: Wed, 15 Oct 2003 21:13:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
 To: Greg KH <greg@kroah.com>
-cc: Matthew Wilcox <willy@debian.org>, "David S. Miller" <davem@redhat.com>,
-       Jeff Garzik <jgarzik@pobox.com>, <linux-pci@atrey.karlin.mff.cuni.cz>,
-       <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] pci_get_slot()
-In-Reply-To: <20031015184104.GA22373@kroah.com>
-Message-ID: <Pine.LNX.4.44.0310151213050.1661-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+Subject: Re: [PATCH] More i2c driver fixes for 2.6.0-test7
+Message-ID: <20031015191300.GA11752@mars.ravnborg.org>
+Mail-Followup-To: Greg KH <greg@kroah.com>,
+	linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+References: <10662411473410@kroah.com> <10662411472283@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <10662411472283@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Oct 15, 2003 at 11:05:47AM -0700, Greg KH wrote:
+> -device_create_file(&client->dev, &dev_attr_in_max##offset);
+> +device_create_file(&client->dev, &dev_attr_in_max##offset); \
+> +} while (0);
+              ^
+Did you really want to have that ';' there?
+It is harmless in current usage, but it may be confusing.
 
-On Wed, 15 Oct 2003, Greg KH wrote:
-> 
-> The check of:
-> 	if (dev->bus->number == bus && dev->devfn == devfn)
-> in pci_find_slot() doesn't check for the domain?
-
-No, and it doesn't even have anything to check _against_. We don't pass 
-the domain down to it.
-
-		Linus
-
+	Sam

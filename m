@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130344AbQLITuD>; Sat, 9 Dec 2000 14:50:03 -0500
+	id <S131544AbQLITvD>; Sat, 9 Dec 2000 14:51:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131331AbQLITto>; Sat, 9 Dec 2000 14:49:44 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:20486 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S130344AbQLITth>; Sat, 9 Dec 2000 14:49:37 -0500
-Date: Sat, 9 Dec 2000 13:14:41 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Willy Tarreau <wtarreau@free.fr>
-Cc: Mark Sutton <mes@capelazo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Fwd: NTFS repair tools]
-Message-ID: <20001209131441.B13853@vger.timpanogas.org>
-In-Reply-To: <Pine.GSO.4.10.10012082329290.27791-100000@lazo.capelazo.com> <976380540.3a32627c184c3@imp.free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <976380540.3a32627c184c3@imp.free.fr>; from wtarreau@free.fr on Sat, Dec 09, 2000 at 05:49:00PM +0100
+	id <S131584AbQLITux>; Sat, 9 Dec 2000 14:50:53 -0500
+Received: from [194.73.73.138] ([194.73.73.138]:2754 "EHLO ruthenium")
+	by vger.kernel.org with ESMTP id <S131544AbQLITur>;
+	Sat, 9 Dec 2000 14:50:47 -0500
+Date: Sat, 9 Dec 2000 19:20:14 +0000 (GMT)
+From: davej@suse.de
+To: Matthew Vanecek <linux4us@home.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Signal 11
+In-Reply-To: <3A328196.528D3BB4@home.com>
+Message-ID: <Pine.LNX.4.21.0012091919170.560-100000@neo.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 09, 2000 at 05:49:00PM +0100, Willy Tarreau wrote:
-> One problem with warnings at compile time is that in many cases, administrators
-> use kernels provided by friends or collegues that "know linux better than them".
-> If an admin uses a kernel in which write support has been activated to mount
-> an NTFS file system without providing any option, he will get it mount R/W
-> without any warning, then may destroy it at the first mistake or so.
-> 
-> perhaps we should add an option such as "force" to mount an NTFS r/w, and as
-> suggested by JBG, print a KERN_EMERG message when attempting to mount it r/w
-> without the "force" option.
-> 
-> we could also add a static counter which will make the first r/w mount always
-> fail, to ensure people will read the message, and which would prevent people
-> from mounting r/w from fstab.
-> 
-> just my $0.02.
-> 
-> BTW, I like the message about microsoft preventing from fixing the driver ;-)
+On Sat, 9 Dec 2000, Matthew Vanecek wrote:
 
-:-)  I can fix it in 14 months.
-
-Jeff
-
+> > Have any of the folks seeing it checked if Ben LaHaise's fixes for the page
+> > table updating race help ?
+> > Alan
 > 
-> Cheers,
-> Willy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+> Where are his fixes at?  I don't seem to see any of his posts in the
+> archives.
+
+dwmw2 posted one such patch earlier this week :-
+
+http://www.lib.uaa.alaska.edu/linux-kernel/archive/2000-Week-49/0856.html
+
+regards,
+
+Davej.
+
+-- 
+| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
+| SuSE Labs
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVAGEN5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVAGEVX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbVAGEN5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 23:13:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVAGEN5
+	id S261225AbVAGEVX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 23:21:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVAGEVX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 23:13:57 -0500
-Received: from web60603.mail.yahoo.com ([216.109.118.223]:62394 "HELO
-	web60603.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261224AbVAGENz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 23:13:55 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=cP3SaSvQZW7xrqmmdHWPHuMmEIROxPU1yVMS1lr/ZZJo4tg864mkv6wjKZ1NKOPgjH5kILHZsfNPcq+rd7OblcemzTOr4zBRw6r4vN/zxehtTz2mhb9MKBt5l1aONEJv8PtO8ZtZC+Rx98FiO70UcO7lXu8gcSIbz0EpeF2UQ90=  ;
-Message-ID: <20050107041354.45351.qmail@web60603.mail.yahoo.com>
-Date: Thu, 6 Jan 2005 20:13:54 -0800 (PST)
-From: selvakumar nagendran <kernelselva@yahoo.com>
-Subject: Re: finding process blocking on a system call 
-To: lkml.ThinkingInBinary@spamgourmet.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <e4cb1987050106133642b931ce@mail.gmail.com>
-MIME-Version: 1.0
+	Thu, 6 Jan 2005 23:21:23 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6037 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261225AbVAGEVU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 23:21:20 -0500
+Date: Fri, 7 Jan 2005 04:21:17 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andy Adamson <andros@citi.umich.edu>, Neil Brown <neilb@cse.unsw.edu.au>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] knfsd: check for existence of file_lock parameter inside of the kernel lock.
+Message-ID: <20050107042117.GQ27371@parcelfarce.linux.theplanet.co.uk>
+References: <200501050742.j057gGvV013421@hera.kernel.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200501050742.j057gGvV013421@hera.kernel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> You can't both block but have it added to the
-> runqueue--blocking means
-> it does not run... you either need to use
-> non-blocking calls or two
-> threads.  If you want to find the process, top can
-> do this
-> (interactively) or you can use the /proc filesystem.
+On Wed, Jan 05, 2005 at 05:48:59AM +0000, Linux Kernel Mailing List wrote:
+> ChangeSet 1.2177, 2005/01/04 21:48:59-08:00, neilb@cse.unsw.edu.au
 > 
+> 	[PATCH] knfsd: check for existence of file_lock parameter inside of the kernel lock.
 
-Hello,
-   I accept that we can't have a process both blocked
-and in the runqueue. See, I want to give a special
-state to the process blocked on a particular resource
-like semaphore as TASK_BLOCKED and I will not add it
-into the wait queue. 
-   If the scheduler picks up this blocked process
-again, I will identify the process that is having the
-semaphore and I will run that.  with this, I am giving
-some timeslice of the blocked process to the process
-having that resource so that it can release it soon.
-  So, if a process blocks on the syscall, I will
-change the state as TASK_MYSTATE. Since, a process may
-block on a system call for many reasons, I am not able
-to clearly figure out how can I do that? Can u help me
-regarding this?
+Why?  What is lock_kernel() protecting here?
 
-Thanks,
-selva
+> 	Signed-off-by: Andy Adamson <andros@citi.umich.edu>
+> 	Signed-off-by: Neil Brown <neilb@cse.unsw.edu.au>
+> 	Signed-off-by: Andrew Morton <akpm@osdl.org>
+> 	Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+> 
+> 
+>  locks.c |    8 +++-----
+>  1 files changed, 3 insertions(+), 5 deletions(-)
+> 
+> 
+> diff -Nru a/fs/locks.c b/fs/locks.c
+> --- a/fs/locks.c	2005-01-04 23:42:28 -08:00
+> +++ b/fs/locks.c	2005-01-04 23:42:28 -08:00
+> @@ -1096,15 +1096,13 @@
+>  */
+>  void remove_lease(struct file_lock *fl)
+>  {
+> -	if (!IS_LEASE(fl))
+> -		return;
+> -
+>  	lock_kernel();
+> -
+> +	if (!fl || !IS_LEASE(fl))
+> +		goto out;
+>  	fl->fl_type = F_UNLCK | F_INPROGRESS;
+>  	fl->fl_break_time = jiffies - 10;
+>  	time_out_leases(fl->fl_file->f_dentry->d_inode);
+> -
+> +out:
+>  	unlock_kernel();
+>  }
+>  
+> -
+> To unsubscribe from this list: send the line "unsubscribe bk-commits-head" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - 250MB free storage. Do more. Manage less. 
-http://info.mail.yahoo.com/mail_250
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

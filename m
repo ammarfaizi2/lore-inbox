@@ -1,43 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271712AbRIHWCf>; Sat, 8 Sep 2001 18:02:35 -0400
+	id <S271714AbRIHWT5>; Sat, 8 Sep 2001 18:19:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271708AbRIHWCQ>; Sat, 8 Sep 2001 18:02:16 -0400
-Received: from inet-mail3.oracle.com ([148.87.2.203]:9676 "EHLO
-	inet-mail3.oraclecorp.com") by vger.kernel.org with ESMTP
-	id <S271678AbRIHWCI>; Sat, 8 Sep 2001 18:02:08 -0400
-Message-ID: <3B9A95C7.DDF81890@oracle.com>
-Date: Sun, 09 Sep 2001 00:03:51 +0200
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre4 i686)
-X-Accept-Language: en
+	id <S271760AbRIHWTr>; Sat, 8 Sep 2001 18:19:47 -0400
+Received: from s340-modem1416.dial.xs4all.nl ([194.109.165.136]:45200 "EHLO
+	sjoerd.sjoerdnet") by vger.kernel.org with ESMTP id <S271714AbRIHWTe>;
+	Sat, 8 Sep 2001 18:19:34 -0400
+Date: Sun, 9 Sep 2001 00:18:46 +0200 (CEST)
+From: Arjan Filius <iafilius@xs4all.nl>
+X-X-Sender: <arjan@sjoerd.sjoerdnet>
+Reply-To: Arjan Filius <iafilius@xs4all.nl>
+To: Roger Larsson <roger.larsson@norran.net>
+cc: Robert Love <rml@tech9.net>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: [SMP lock BUG?] Re: Feedback on preemptible kernel patch
+In-Reply-To: <200109082102.f88L2vo18714@mailb.telia.com>
+Message-ID: <Pine.LNX.4.33.0109082353540.5914-100000@sjoerd.sjoerdnet>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Kingsley Foreman <kingsley@wintronics.com.au>
-Subject: Re: 2.4.10-pre5
-In-Reply-To: <E15fhnT-0003np-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > ferred-stack-boundary=2 -march=i586 -DMODULE   -c -o rd.o rd.c
-> > > rd.c: In function `rd_ioctl':
-> > > rd.c:262: invalid type argument of `->'
-> > > rd.c: In function `rd_cleanup':
-> > > rd.c:375: too few arguments to function `blkdev_put'
-> 
-> 2.4.10pre5 doesnt compile for rd. It looks like the same error I got when
-> I applied Al's patch to -ac (and thus took it back out)
+Hello Roger,
 
-Just in case anybody wondered it doesn't compile with gcc-3.0.1 either.
+On Sat, 8 Sep 2001, Roger Larsson wrote:
 
---alessandro
+> Hi,
+>
+> This is interesting. [Assumes UP Athlon - correct]
 
- "this is no time to get cute, it's a mad dog's promenade
-  so walk tall, or baby don't walk at all"
-                (Bruce Springsteen, 'New York City Serenade')
+UP Athlon, and compiled as UP (as always).
+I haven't tested my system with an SMP kernel for a long while.
+
+
+
+> Note that all BUGs out in highmem.h:95 (kmap_atomic)
+> and that test is only on if you have enabled HIGHMEM_DEBUG
+It seems to be on indeed.
+
+> [my analyze is done with a 2.4.10-pre2 kernel, but I checked with
+> later patches and I do not think they fix it either...]
+>
+> The preemptive kernel puts more SMP stress on the kernel than
+> running with multiple CPUs.
+>
+> So this might be a potential bug in the kernel proper, running with
+> a SMP computer.
+
+>
+> If I understand the bug correctly, a process gets a page fault.
+> Starts to map in the page. But before the final part it checks -
+> and the page is already there!!! Correct?
+
+ehh.. Should compiling SMP on UP (just for test) trigger this?
+
+
+Greatings,
+
+
+>
+> On Saturday den 8 September 2001 19:33, Arjan Filius wrote:
+> > Hello Robert,
+> >
+> >
+> > I tried 2.4.10-pre4 with patch-rml-2.4.10-pre4-preempt-kernel-1.
+> > But it seems to hit highmem (see below) (i do have 1.5GB ram)
+> > 2.4.10-pre4 plain runs just fine.
+> >
+> > With the kernel option mem=850M the patched kernel boots an seems to run
+> > fine. However i didn't do any stress testing yet, but i still notice
+> > hickups while playing mp3 files at -10 nice level with mpg123 on a 1.1GHz
+> > Athlon, and removing for example a _large_ file (reiser-on-lvm).
+> >
+> > My syslog output with highmem:
+> >
+> > Sep  8 18:10:16 sjoerd kernel: kernel BUG at
+> > /usr/src/linux-2.4.10-pre4/include/asm/highmem.h:95! Sep  8 18:10:16 sjoerd
+> > kernel: invalid operand: 0000
+> > Sep  8 18:10:16 sjoerd kernel: CPU:    0
+> > Sep  8 18:10:16 sjoerd kernel: EIP:    0010:[do_wp_page+636/1088]
+> > [- - -]
+> > sjoerd kernel: Call Trace: [handle_mm_fault+141/224]
+> > [do_page_fault+375/1136] [do_page_fault+0/1136] [__mmdrop+58/64]
+> > [do_exit+595/640] Sep  8 18:10:16 sjoerd kernel:    [error_code+52/64]
+>
+> Lets look at this example. You need to add some inline functions...
+>
+> handle_mm_fault
+> 	takes the mm->page_table_lock [this should prevent reschedules]
+> 	allocs pmd
+> 	allocs pte
+> 	handle_pte_fault(...)
+> handle_pte_fault [inline, most likely path]
+> 	pte is present
+> 	it is a write access
+> 	but the pte is not writeable  - call do_wp_page
+> do_wp_page
+> 	plays some games with the lock...
+> 	finally calls copy_cow_page [inline] with the page_table_lock
+> 	UNLOCKED!
+> copy_cow_page
+> 	calls clear_user_highpage or copy_user_highpage
+> both clear_user_highpage and copy_user_highpage
+> 	calls kmap_atomic
+> kmap_atomic
+> 	page is a highmem page
+> 	but during the time this process was unlocked some other
+> 	thread has allocated the page in question... BUG out.
+>
+> So somewere between the UNLOCK (might be a lot later) and the
+> BUG test in kmap_atomic the process running in kernel got preempted.
+> (most likely during the page copy since it will take some time)
+>
+> Another process (thread) started to run - hit the same page fault
+> but succeeded in its alloc.
+>
+> Back to the first process it continues, finally checks - the page
+> is there... and BUGS.
+>
+> Note that this can happen in a pure SMP kernel.
+>
+> But let the processes (threads) run on two CPUs. And let the
+> first get an interrupt/bh after unlock - the other can pass
+> and add the page before the first one can continue - same
+> result!
+>
+> /RogerL
+>
+>
+
+-- 
+Arjan Filius
+mailto:iafilius@xs4all.nl
+

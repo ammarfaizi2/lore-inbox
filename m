@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262933AbUJ0W2N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262917AbUJ0WgT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262933AbUJ0W2N (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 18:28:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbUJ0WYy
+	id S262917AbUJ0WgT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 18:36:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262935AbUJ0Wc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 18:24:54 -0400
-Received: from basmati.dododge.net ([204.245.156.209]:1752 "HELO
-	basmati.dododge.net") by vger.kernel.org with SMTP id S262932AbUJ0WY0
+	Wed, 27 Oct 2004 18:32:59 -0400
+Received: from 208.177.141.226.ptr.us.xo.net ([208.177.141.226]:55942 "EHLO
+	ash.lnxi.com") by vger.kernel.org with ESMTP id S262934AbUJ0Wbl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 18:24:26 -0400
-Date: Wed, 27 Oct 2004 18:35:46 -0400
-From: Dave Dodge <dododge@dododge.net>
-To: =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@mru.ath.cx>
-Cc: uclibc@uclibc.org, linux-kernel@vger.kernel.org
-Subject: Re: [uClibc] Re: [OT] Re: The naming wars continue...
-Message-ID: <20041027223546.GI24083@basmati>
-References: <20041026203137.GB10119@thundrix.ch> <417F2251.7010404@zytor.com> <200410271133.25701.vda@port.imtp.ilyichevsk.odessa.ua> <20041027154828.GA21160@thundrix.ch> <Pine.LNX.4.60.0410271803470.614@alpha.polcom.net> <20041027161402.GC21160@thundrix.ch> <Pine.LNX.4.60.0410271830430.614@alpha.polcom.net> <yw1xu0sgnkbb.fsf@mru.ath.cx> <20041027211138.GE24083@basmati> <yw1xhdofoobg.fsf@mru.ath.cx>
+	Wed, 27 Oct 2004 18:31:41 -0400
+Subject: Re: [PATCH] Remove some divide instructions
+From: Thayne Harbaugh <tharbaugh@lnxi.com>
+Reply-To: tharbaugh@lnxi.com
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Zachary Amsden <zach@vmware.com>, linux-kernel@vger.kernel.org,
+       george@mvista.com
+In-Reply-To: <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
+References: <417FC982.7070602@vmware.com>
+	 <Pine.LNX.4.58.0410270926240.28839@ppc970.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1UesQYTiCs2WS/M8ydsw"
+Organization: Linux Networx
+Date: Wed, 27 Oct 2004 16:08:49 -0600
+Message-Id: <1098914929.1432.29.camel@tubarao>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <yw1xhdofoobg.fsf@mru.ath.cx>
-User-Agent: Mutt/1.4.2i
+X-Mailer: Evolution 2.0.2 (2.0.2-1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 11:15:15PM +0200, Måns Rullgård wrote:
-> Dave Dodge <dododge@dododge.net> writes:
-> > If I recall correctly, in the GoboLinux case
-[...]
-> > I believe "/bin" is a symlink to the bin directory in the main
-> > install prefix, but there are patches so that while "/bin" can be
-> > used for lookups it does not appear when you list "/".
-> 
-> If there's one thing I detest, it is such hiding of files.  The GUI in
-> MacOSX does such things too, even /tmp is hidden there.
 
-I believe Gobo only has paths such as "/bin" for legacy compatibility
-(for example scripts starting with #!/bin/...).  "/dev" is another
-case, since that isn't where Gobo puts its devices, but lots of things
-are going to assume they can use "/dev/zero" and "/dev/null".
+--=-1UesQYTiCs2WS/M8ydsw
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> It's visible from a shell though.
+On Wed, 2004-10-27 at 09:28 -0700, Linus Torvalds wrote:
 
-Gobo actually does it in the kernel; whether that's better or worse
-depends on your point of view.  There's a command-line tool "GoboHide"
-that provides a list of hidden things:
+> It's very easy to test for powers of two: !((x) & ((x)-1)) does it for=20
+> everything but zero, and zero in this case is an error anyway.
 
-  http://gobolinux.org/index.php?page=doc/articles/gobohide
+Of course 0 is not a power of two - nor a power of any other number
+(although n**(-oo) where |n|>1 and n**(oo) where |n|<1 are close).
 
-I think all of the things hidden in a normal GoboLinux desktop are
-just legacy symlinks, and the real locations they point to are fully
-visible.  Unlike MacOS, where the Finder ignores a lot of real
-directories and applications (I've been bitten there by "/tmp"
-myself).
-                                                  -Dave Dodge
+8)
+
+--=20
+Thayne Harbaugh
+Linux Networx
+
+--=-1UesQYTiCs2WS/M8ydsw
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQBBgBxxsYFQl3A+qS0RAmmDAKC16NdsJ3rUXxQLYrG8gUrt+LNmQACguLU4
+6eswKSqMfDYKAP4GLJPxNrI=
+=dSqx
+-----END PGP SIGNATURE-----
+
+--=-1UesQYTiCs2WS/M8ydsw--
+

@@ -1,80 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263244AbTLJPcT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 10:32:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263568AbTLJPcT
+	id S263647AbTLJPby (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 10:31:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263650AbTLJPby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 10:32:19 -0500
-Received: from mail.kroah.org ([65.200.24.183]:55785 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263244AbTLJPcN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 10:32:13 -0500
-Date: Wed, 10 Dec 2003 07:30:56 -0800
-From: Greg KH <greg@kroah.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: David Brownell <david-b@pacbell.net>, Duncan Sands <baldrick@free.fr>,
-       Vince <fuzzy77@free.fr>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       mfedyk@matchmail.com, zwane@holomorphy.com,
-       linux-kernel@vger.kernel.org,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] Re: [OOPS,  usbcore, releaseintf] 2.6.0-test10-mm1
-Message-ID: <20031210153056.GA7087@kroah.com>
-References: <3FD64BD9.1010803@pacbell.net> <Pine.LNX.4.44L0.0312092233340.6615-100000@netrider.rowland.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0312092233340.6615-100000@netrider.rowland.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 10 Dec 2003 10:31:54 -0500
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:30594 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S263647AbTLJPbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 10:31:53 -0500
+Message-ID: <3FD73C61.80708@earthlink.net>
+Date: Wed, 10 Dec 2003 08:31:45 -0700
+From: "Ian S. Nelson" <nelsonis@earthlink.net>
+Reply-To: nelsonis@earthlink.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031015
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Any known issues with MPT SCSI?
+X-Enigmail-Version: 0.76.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig414F627D1298A5C3EEAFDA83"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 09, 2003 at 10:43:23PM -0500, Alan Stern wrote:
-> On Tue, 9 Dec 2003, David Brownell wrote:
-> 
-> > Various folk have reported similar problems on system shutdown
-> > before, and the simple fix has been not to clean up so aggressively.
-> > 
-> > What puzzled me was that a normal "rmmod" wouldn't give the
-> > same symptoms -- but the same codepaths could oops in certain
-> > system shutdown scenarios.
-> 
-> In an earlier message I wrote that the HC driver couldn't unload so long
-> as the device usbfs was using held a reference to its bus.  I just did
-> some checking, and guess what: It can!
-> 
-> I looked at both the UHCI and OHCI drivers.  In their module_exit routines
-> they call pci_unregister_driver().  Without knowing how the PCI subsystem
-> works, I would assume this behaves like any other "deregister" routine in
-> the driver model and returns without waiting for any reference count to go
-> to 0 -- that's what release callbacks are for.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig414F627D1298A5C3EEAFDA83
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-No, the pci core calls the release() function in the pci driver that is
-bound to that device.  It waits for that release() call to return before
-continuing on.  You can sleep for however long you want in that
-function, but once you return from there, the pci structures for that
-device will be cleaned up.
+I'm running some Dell 1750s with a moderately customized 2.4.20 kernel,  
+it has a couple of newer drivers but it's fairly standard.   I have 3 
+identical systems that are turning up ext3 corruption fairly regularly.  
+They are using the MPT/53c1030 SCSI.  2 of the 3 reported log corruption 
+on a boot and mounted the root filesystem in read only.  The other is 
+spitting
 
-> However, the module_exit routines _don't_ wait for the release callbacks.  
+Dec  9 19:59:58 localhost Unexpected dirty buffer encountered at 
+do_get_write_access:616 (08:02 blocknr 0)
 
-Not true.
-
-> They just go right on ahead and exit.  Result: when the reference count 
-> eventually does go to 0 (when usbfs drops its last reference), the 
-> hcd_free routine is no longer present and you get an oops.
-
-Hm, this could be easily tested by sleeping until usb_host_release() is
-called when you unregister a device.  The i2c, pcmcia, and network
-subsytems do this.  I think we now have a helper function in the driver
-core to do this for us, so we don't have to declare our own completion
-variable...
-
-> The proper fix would be to have each HC driver keep track of how many 
-> instances are allocated.  The module_exit routine must wait for that 
-> number to drop to 0 before returning.
-
-That's what my proposal 1 paragraph up would do.  If I get the chance
-this afternoon, I'll try to implement it if no one beats me to it...
+ From time to time, I haven't rebooted it yet.
 
 thanks,
+Ian
 
-greg k-h
+
+
+--------------enig414F627D1298A5C3EEAFDA83
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE/1zxiV28blwDT2YMRApXxAKC8GBCMa/n1Io8J0KM2QM371NOxmgCgkEXC
+5pSkdfDjUyNjWPwPYO7gWs8=
+=8uNY
+-----END PGP SIGNATURE-----
+
+--------------enig414F627D1298A5C3EEAFDA83--
+

@@ -1,71 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268057AbTBMPWB>; Thu, 13 Feb 2003 10:22:01 -0500
+	id <S268060AbTBMPY6>; Thu, 13 Feb 2003 10:24:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268058AbTBMPWB>; Thu, 13 Feb 2003 10:22:01 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:19099 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S268057AbTBMPWA>;
-	Thu, 13 Feb 2003 10:22:00 -0500
-Date: Thu, 13 Feb 2003 15:27:42 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: 2.5.60 NFS FSX
-Message-ID: <20030213152742.GA1560@codemonkey.org.uk>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S268061AbTBMPY6>; Thu, 13 Feb 2003 10:24:58 -0500
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:63211 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S268060AbTBMPY4>;
+	Thu, 13 Feb 2003 10:24:56 -0500
+Subject: Re: 2.5.60 cheerleading...
+From: Paul Larson <plars@linuxtestproject.org>
+To: Edesio Costa e Silva <edesio@ieee.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Edesio Costa e Silva <edesio@task.com.br>
+In-Reply-To: <20030212173300.A31055@master.softaplic.com.br>
+References: <3E4A6DBD.8050004@pobox.com> <1045075415.22295.46.camel@plars> 
+	<20030212173300.A31055@master.softaplic.com.br>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-KHf0+9dM8HiUBoW2YlGr"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 13 Feb 2003 09:29:12 -0600
+Message-Id: <1045150153.28493.10.camel@plars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.5.60's NFS seems to have various issues.
-(2.5.60 client, 2.4.21pre3 server)
 
-- I ran an fsx and an fsstress in parallel.
-  Client rebooted after 2-3 minutes.
-- fsx on its own, after quite a while, this happens..
+--=-KHf0+9dM8HiUBoW2YlGr
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-truncating to largest ever: 0x3ffff
-skipping zero size read
-skipping zero size write
-skipping zero size write
-skipping zero size write
-READ BAD DATA: offset = 0x358ba, size = 0x4867
-OFFSET	GOOD	BAD	RANGE
-0x36000	0x0000	0x8c1a	0x 1ff3
-operation# (mod 256) for the bad data may be 140
-LOG DUMP (176283 total operations):
-176284(156 mod 256): READ	0x35b07 thru 0x38c67	(0x3161 bytes)	***RRRR***
-176285(157 mod 256): READ	0x12552 thru 0x1af77	(0x8a26 bytes)
-176286(158 mod 256): WRITE	0x3560f thru 0x3ffff	(0xa9f1 bytes)	***WWWW
-176287(159 mod 256): MAPWRITE 0x1aaae thru 0x233bf	(0x8912 bytes)
-176288(160 mod 256): MAPREAD	0x3635d thru 0x3661b	(0x2bf bytes)
-176289(161 mod 256): MAPREAD	0x374c0 thru 0x3ba42	(0x4583 bytes)	***RRRR***
-176290(162 mod 256): WRITE	0x16794 thru 0x192eb	(0x2b58 bytes)
-176291(163 mod 256): READ	0x128bf thru 0x1d5b0	(0xacf2 bytes)
-176292(164 mod 256): READ	0x330d5 thru 0x35b26	(0x2a52 bytes)
-176293(165 mod 256): MAPREAD	0xff6b thru 0x13c4e	(0x3ce4 bytes)
-176294(166 mod 256): MAPWRITE 0x1c5e0 thru 0x2a720	(0xe141 bytes)
-176295(167 mod 256): MAPWRITE 0x2a8df thru 0x2e628	(0x3d4a bytes)
-176296(168 mod 256): MAPWRITE 0x370cc thru 0x3be24	(0x4d59 bytes)	******WWWW
-176297(169 mod 256): MAPWRITE 0x21637 thru 0x30999	(0xf363 bytes)
-... <much more spew .. 
-(full log is at http://www.codemonkey.org.uk/cruft/nfs-fsx-2.5.60.txt )
+On Wed, 2003-02-12 at 13:33, Edesio Costa e Silva wrote:
+> On Wed, Feb 12, 2003 at 12:43:34PM -0600, Paul Larson wrote:
+> > This brings up an interesting point.  It seems like it's very common to
+> > have a release that doesn't boot, or produces immediately obvious
+> > problems.  I'm curious if you do any testing (LTP or otherwise) on the
+> > kernels you intend to release.
+>=20
+> In the words of our fearless leader:
+>=20
+>     "regression testing"? What's that? If it compiles, it is good,
+>     if it boots up it is perfect.
+It would be nice if that were true, but back here in reality things are
+rarely if ever even stable enough for testing if they merely build and
+boot.
 
-Finally, I see a lot of these in the client logs..
+If Linus really is building and booting every kernel prior to release,
+it would be quick and simple to add a fast subset of LTP to the mix and
+do a quick regression run.  It's convenient, fast and could save a lot
+of headaches for a lot of people later on.
 
-NFS: server cheating in read reply: count 8192 > recvd 1000
-NFS: server cheating in read reply: count 8192 > recvd 1000
-NFS: server cheating in read reply: count 8192 > recvd 1000
-NFS: server cheating in read reply: count 3888 > recvd 1000
-NFS: server cheating in read reply: count 8192 > recvd 1000
-NFS: server cheating in read reply: count 8192 > recvd 1000
-...
+-Paul Larson
 
-		Dave
+--=-KHf0+9dM8HiUBoW2YlGr
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj5LucgACgkQbkpggQiFDqdEGQCcCkJZ81+IG6Vc8LeugXSphKsY
+eTsAnjfGOT8O+NYqIkJO8oYC1KkEHGOA
+=e/iq
+-----END PGP SIGNATURE-----
+
+--=-KHf0+9dM8HiUBoW2YlGr--
+

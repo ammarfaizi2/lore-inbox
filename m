@@ -1,60 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264232AbTDWTzq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 15:55:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264233AbTDWTzm
+	id S263579AbTDWTuo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 15:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263620AbTDWTuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 15:55:42 -0400
-Received: from zok.sgi.com ([204.94.215.101]:7357 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S264231AbTDWTzi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 15:55:38 -0400
-Date: Wed, 23 Apr 2003 13:07:22 -0700
-From: richard offer <offer@sgi.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>
-cc: Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
-       Stephen Tweedie <sct@redhat.com>, lsm <linux-security-module@wirex.com>,
-       Andreas Gruenbacher <a.gruenbacher@computer.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
-Message-ID: <1438650000.1051128442@changeling.engr.sgi.com>
-In-Reply-To: <20030423202614.A5890@infradead.org>
-References: <1051120322.14761.95.camel@moss-huskers.epoch.ncsc.mil>
- <20030423191749.A4244@infradead.org>
- <20030423112548.B15094@figure1.int.wirex.com>
- <20030423194501.B5295@infradead.org>
- <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil>
- <20030423202614.A5890@infradead.org>
-X-Mailer: Mulberry/2.2.0 (Linux/x86)
-X-HomePage: http://www.whitequeen.com/users/richard/
+	Wed, 23 Apr 2003 15:50:44 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:30856 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263579AbTDWTul
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 15:50:41 -0400
+Date: Wed, 23 Apr 2003 16:05:45 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Andrew Kirilenko <icedank@gmx.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Searching for string problems
+In-Reply-To: <200304232248.35985.icedank@gmx.net>
+Message-ID: <Pine.LNX.4.53.0304231602270.26351@chaos>
+References: <200304231958.43235.icedank@gmx.net> <200304232200.20028.icedank@gmx.net>
+ <Pine.LNX.4.53.0304231529320.25963@chaos> <200304232248.35985.icedank@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 23 Apr 2003, Andrew Kirilenko wrote:
 
+> Hello!
+>
+> Big thanks to all of you. Now I'm starting to understand how it's working.
+> Here is current version of my code:
+>
+> -->
+>        jmp         cl_start
+> cl_id_str:      .string "STRING"
+> cl_start:
+>         cld
+>         movw    %cs, %ax
+>         movw    %ax, %ds
+>         movw    $0xe000, %ax
+>         movw    %ax, %es
+>         movb    $0, %al
+>         xor         %bx, %bx  # start of segment
+> cl_compare:
+>         movw    $cl_id_str, %si
+>         movw    $cl_start, %cx
+>         subw    %si, %cx
+>         decw    %cx
+>         movw    %bx, %di
+>         repz    cmpsb
+>         je      cl_compare_done_good
+>         incw    %bx
+>         cmpw    $0xffff, %bx  # are we at the end of segment
+>         je      cl_compare_done
+>         jmp     cl_compare
+> cl_compare_done_good:
+>        movb $1, %al
+> cl_compare_done:
+> <--
+>
+> And this code won't work as well :(
+>
+> Unfortunately, I can't start DOS and check, cause there is no video and
+> keyboard controller on that PC.
+>
+> Best reagrds,
+> Andrew.
 
-* frm hch@infradead.org "04/23/03 20:26:15 +0100" | sed '1,$s/^/* /'
-*
-* 
-* And all these should _not_ happen in the actual tools but in a
-* pluggable security module (something like pam).  
+Change this:
 
-I proposed something along those lines back in 2001 at the USENIX security
-conference LSM BOF---I called it PACM. 
+         movw    $0xe000, %ax
 
-But it seemed that no-one else was interested in policy independent
-userland interfaces or applications (X, sendmail) making policy decisions.
+To:
+         movw    $0xf000, %ax
 
+... like I told you. The BIOS ROM contents, the stuff that has the
+serial number _must_ start where I told you.
 
-richard.
-
--- 
------------------------------------------------------------------------
-Richard Offer                     Technical Lead, Trust Technology, SGI
-"Specialization is for insects"
-_______________________________________________________________________
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+Why is the government concerned about the lunatic fringe? Think about it.
 

@@ -1,25 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281469AbRKTXD3>; Tue, 20 Nov 2001 18:03:29 -0500
+	id <S281478AbRKTXLj>; Tue, 20 Nov 2001 18:11:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281467AbRKTXDQ>; Tue, 20 Nov 2001 18:03:16 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:35468 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S281468AbRKTXC7>;
-	Tue, 20 Nov 2001 18:02:59 -0500
-Date: Tue, 20 Nov 2001 15:02:55 -0800 (PST)
-Message-Id: <20011120.150255.35516071.davem@redhat.com>
-To: owl@volny.cz
+	id <S281483AbRKTXLa>; Tue, 20 Nov 2001 18:11:30 -0500
+Received: from a212-113-174-249.netcabo.pt ([212.113.174.249]:36899 "EHLO
+	smtp.netcabo.pt") by vger.kernel.org with ESMTP id <S281478AbRKTXLU>;
+	Tue, 20 Nov 2001 18:11:20 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
+To: linux-kernel@vger.kernel.org
+Subject: Loop.c File !!!!
+Date: Tue, 20 Nov 2001 23:12:02 +0000
+X-Mailer: KMail [version 1.3.1]
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG Kernel NETLINK doesn't work
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <001301c17212$f44ab8c0$2da76cc0@desktop>
-In-Reply-To: <001301c17212$f44ab8c0$2da76cc0@desktop>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-ID: <EXCH01SMTP011vDfrwV0000fda4@smtp.netcabo.pt>
+X-OriginalArrivalTime: 20 Nov 2001 23:10:55.0299 (UTC) FILETIME=[9B470930:01C17218]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The problem is the following:
 
-You have to enable RTNETLINK too.
+I AM A NEWBIE!!! 
+
+Well i had some questions about the linux kernel compilation and some of you 
+gave me some real goos answeres, however, there is an issue which keeps 
+buzzing my head and that i can't understand!
+
+Some one told me i should edit the loop.c file and even tried to explained me 
+why but i couldn't understand.
+
+He said something about my new kernel wouldn't be able to compile if two or 
+three lines weren't comented!
+
+I didn't understand this fact so i would like to know why should i edit the 
+/usr/src/linux/drivers/block/loop.c file!!!!
+
+Plz some one explain me this fact.
+
+
+tks for your attention, Astinus
+
+
+If i wasn't explicit enough plz tell me! So i can reformulate my e-mail post!
+
+once again tks for your attention.

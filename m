@@ -1,73 +1,274 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267372AbTACBTD>; Thu, 2 Jan 2003 20:19:03 -0500
+	id <S267362AbTACBU3>; Thu, 2 Jan 2003 20:20:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267373AbTACBTD>; Thu, 2 Jan 2003 20:19:03 -0500
-Received: from bitmover.com ([192.132.92.2]:64935 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S267372AbTACBTB>;
-	Thu, 2 Jan 2003 20:19:01 -0500
-Date: Thu, 2 Jan 2003 17:27:26 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Thomas Ogrisegg <tom@rhadamanthys.org>,
-       "David S. Miller" <davem@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       lm@bitmover.com
-Subject: Re: [PATCH] TCP Zero Copy for mmapped files
-Message-ID: <20030103012726.GD6195@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Thomas Ogrisegg <tom@rhadamanthys.org>,
-	"David S. Miller" <davem@redhat.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	lm@bitmover.com
-References: <20021230012937.GC5156@work.bitmover.com> <1041489421.3703.6.camel@rth.ninka.net> <20030102221210.GA7704@window.dhis.org> <20030102.151346.113640740.davem@redhat.com> <20030103004543.GA12399@window.dhis.org> <1041558987.24809.114.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1041558987.24809.114.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S267381AbTACBU3>; Thu, 2 Jan 2003 20:20:29 -0500
+Received: from qualcomm.com ([199.106.114.68]:36855 "EHLO moria.qualcomm.com")
+	by vger.kernel.org with ESMTP id <S267362AbTACBUW>;
+	Thu, 2 Jan 2003 20:20:22 -0500
+Date: Thu, 2 Jan 2003 03:43:15 -0800 (PST)
+From: Max Krasnyansky <maxk@qualcomm.com>
+To: <davem@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
+In-Reply-To: <Pine.LNX.4.33.0212252340090.1270-100000@champ.qualcomm.com>
+Message-ID: <Pine.LNX.4.33.0301020341140.2038-100000@champ.qualcomm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 03, 2003 at 01:56:27AM +0000, Alan Cox wrote:
-> On Fri, 2003-01-03 at 00:45, Thomas Ogrisegg wrote:
-> > Unfortunately the linux-sendfile is not as good as the HP-UX
-> > one. Under HP-UX you can define a "struct iovec" header to
-> > be sent before the file is sent.
+On Thu, 26 Dec 2002, Max Krasnyansky wrote:
+
+Dave, 
+
+Did you have a chance to look at the new patch ?
+
+Max
+
+> > Bunch of problems with this patch:
+> >
+> > 1) Module leak.  If try_module_get(npf->owner) works but sock_alloc()
+> >    fails, we never put the module.  It just branches to the "out"
+> >    label in that case, which unlocks the net_family table and returns
+> >    err.
+> Yeah, I missed that one. Fixed in the new patch.
 > 
-> Thats a design decision. With TCP_CORK and sensible syscall performance
-> those kind of web specific hacks are not appropriate
+> > 2) Bigger issue, why not attach the owner to struct sock
+> >    instead of socket?  The sock can exist, and thus reference
+> >    the protocol family code, long after the socket (ie. the
+> >    user end) is killed off and closed.
+> >
+> >    For example, this could happen for just about any protocol family
+> >    due to stray device sk_buff references to the sock and thus the
+> >    protocol family.
+> Good point. Alghough generic socket code does not necessarily reference 
+> proto family module via struct sock. Only in case when family installed 
+> non default callbacks (sk->dataready, sk->destruct, etc). Some families
+> (af_ipx for example) don't. But I think it's a good idea to refcount 
+> struct sock anyway. 
+> 
+> Ok. Here is the new patch. 
+> We still need owner field in struct socket.
+> 
+> # This is a BitKeeper generated patch for the following project:
+> # Project Name: Linux kernel tree
+> # This patch format is intended for GNU patch command version 2.5 or higher.
+> # This patch includes the following deltas:
+> #	           ChangeSet	1.889   -> 1.890  
+> #	        net/socket.c	1.39    -> 1.40   
+> #	 include/linux/net.h	1.7     -> 1.8    
+> #	  include/net/sock.h	1.29    -> 1.30   
+> #	     net/core/sock.c	1.14    -> 1.15   
+> #
+> # The following is the BitKeeper ChangeSet Log
+> # --------------------------------------------
+> # 02/12/25	maxk@qualcomm.com	1.890
+> # Convert generic socket code to the new module refcounting API.
+> # --------------------------------------------
+> #
+> diff -Nru a/include/linux/net.h b/include/linux/net.h
+> --- a/include/linux/net.h	Wed Dec 25 23:29:28 2002
+> +++ b/include/linux/net.h	Wed Dec 25 23:29:28 2002
+> @@ -76,6 +76,8 @@
+>  
+>  	short			type;
+>  	unsigned char		passcred;
+> +
+> +	struct module           *owner;
+>  };
+>  
+>  struct scm_cookie;
+> @@ -124,6 +126,8 @@
+>  	short	authentication;
+>  	short	encryption;
+>  	short	encrypt_net;
+> +
+> +	struct  module *owner;
+>  };
+>  
+>  struct net_proto 
+> diff -Nru a/include/net/sock.h b/include/net/sock.h
+> --- a/include/net/sock.h	Wed Dec 25 23:29:28 2002
+> +++ b/include/net/sock.h	Wed Dec 25 23:29:28 2002
+> @@ -41,6 +41,7 @@
+>  #include <linux/config.h>
+>  #include <linux/timer.h>
+>  #include <linux/cache.h>
+> +#include <linux/module.h>
+>  
+>  #include <linux/netdevice.h>
+>  #include <linux/skbuff.h>	/* struct sk_buff */
+> @@ -196,7 +197,9 @@
+>  
+>  	/* RPC layer private data */
+>  	void			*user_data;
+> -  
+> +
+> +	struct module		*owner;
+> +	
+>  	/* Callbacks */
+>  	void			(*state_change)(struct sock *sk);
+>  	void			(*data_ready)(struct sock *sk,int bytes);
+> @@ -577,6 +580,9 @@
+>  
+>  static inline void sock_graft(struct sock *sk, struct socket *parent)
+>  {
+> +	try_module_get(parent->owner);
+> +	sk->owner = parent->owner;
+> +
+>  	write_lock_bh(&sk->callback_lock);
+>  	sk->sleep = &parent->wait;
+>  	parent->sk = sk;
+> diff -Nru a/net/core/sock.c b/net/core/sock.c
+> --- a/net/core/sock.c	Wed Dec 25 23:29:28 2002
+> +++ b/net/core/sock.c	Wed Dec 25 23:29:28 2002
+> @@ -601,6 +601,7 @@
+>  			sock_lock_init(sk);
+>  		}
+>  		sk->slab = slab;
+> +		sk->owner = NULL;
+>  	}
+>  
+>  	return sk;
+> @@ -626,6 +627,8 @@
+>  	if (atomic_read(&sk->omem_alloc))
+>  		printk(KERN_DEBUG "sk_free: optmem leakage (%d bytes) detected.\n", atomic_read(&sk->omem_alloc));
+>  
+> +	module_put(sk->owner);
+> +	
+>  	kmem_cache_free(sk->slab, sk);
+>  }
+>  
+> @@ -1084,10 +1087,10 @@
+>  	sk->zapped	=	1;
+>  	sk->socket	=	sock;
+>  
+> -	if(sock)
+> -	{
+> +	if (sock) {
+>  		sk->type	=	sock->type;
+>  		sk->sleep	=	&sock->wait;
+> +		sk->owner       =       sock->owner;
+>  		sock->sk	=	sk;
+>  	} else
+>  		sk->sleep	=	NULL;
+> diff -Nru a/net/socket.c b/net/socket.c
+> --- a/net/socket.c	Wed Dec 25 23:29:28 2002
+> +++ b/net/socket.c	Wed Dec 25 23:29:28 2002
+> @@ -470,6 +470,8 @@
+>  
+>  	sock = SOCKET_I(inode);
+>  
+> +	sock->owner = NULL;
+> +	
+>  	inode->i_mode = S_IFSOCK|S_IRWXUGO;
+>  	inode->i_sock = 1;
+>  	inode->i_uid = current->fsuid;
+> @@ -964,8 +966,9 @@
+>  
+>  int sock_create(int family, int type, int protocol, struct socket **res)
+>  {
+> -	int i;
+> +	struct net_proto_family *npf;
+>  	struct socket *sock;
+> +	int err;
+>  
+>  	/*
+>  	 *	Check protocol is in range
+> @@ -990,14 +993,8 @@
+>  	}
+>  		
+>  #if defined(CONFIG_KMOD) && defined(CONFIG_NET)
+> -	/* Attempt to load a protocol module if the find failed. 
+> -	 * 
+> -	 * 12/09/1996 Marcin: But! this makes REALLY only sense, if the user 
+> -	 * requested real, full-featured networking support upon configuration.
+> -	 * Otherwise module support will break!
+> -	 */
+> -	if (net_families[family]==NULL)
+> -	{
+> +	/* Attempt to load a protocol module if the find failed. */
+> +	if (net_families[family]==NULL) {
+>  		char module_name[30];
+>  		sprintf(module_name,"net-pf-%d",family);
+>  		request_module(module_name);
+> @@ -1005,29 +1002,31 @@
+>  #endif
+>  
+>  	net_family_read_lock();
+> -	if (net_families[family] == NULL) {
+> -		i = -EAFNOSUPPORT;
+> -		goto out;
+> -	}
+>  
+> -/*
+> - *	Allocate the socket and allow the family to set things up. if
+> - *	the protocol is 0, the family is instructed to select an appropriate
+> - *	default.
+> - */
+> +	npf = net_families[family];
+> +	if (!npf || !try_module_get(npf->owner)) {
+> +		net_family_read_unlock();
+> +		return -EAFNOSUPPORT;
+> +	}
+> +	
+> +	/*
+> +	 * Allocate the socket and allow the family to set things up. if
+> +	 * the protocol is 0, the family is instructed to select an appropriate
+> +	 * default.
+> + 	 */
+>  
+> -	if (!(sock = sock_alloc())) 
+> -	{
+> +	sock = sock_alloc();
+> +	if (!sock) {
+>  		printk(KERN_WARNING "socket: no more sockets\n");
+> -		i = -ENFILE;		/* Not exactly a match, but its the
+> +		err = -ENFILE;		/* Not exactly a match, but its the
+>  					   closest posix thing */
+>  		goto out;
+>  	}
+>  
+>  	sock->type  = type;
+> +	sock->owner = npf->owner;
+>  
+> -	if ((i = net_families[family]->create(sock, protocol)) < 0) 
+> -	{
+> +	if ((err = npf->create(sock, protocol)) < 0) {
+>  		sock_release(sock);
+>  		goto out;
+>  	}
+> @@ -1036,7 +1035,9 @@
+>  
+>  out:
+>  	net_family_read_unlock();
+> -	return i;
+> +	if (err)
+> +		module_put(npf->owner);
+> +	return err;
+>  }
+>  
+>  asmlinkage long sys_socket(int family, int type, int protocol)
+> @@ -1198,9 +1199,10 @@
+>  	if (!(newsock = sock_alloc())) 
+>  		goto out_put;
+>  
+> -	newsock->type = sock->type;
+> -	newsock->ops = sock->ops;
+> -
+> +	newsock->type  = sock->type;
+> +	newsock->ops   = sock->ops;
+> +	newsock->owner = sock->owner;
+> +	
+>  	err = sock->ops->accept(sock, newsock, sock->file->f_flags);
+>  	if (err < 0)
+>  		goto out_release;
+> 
+> --
+> 
+> Max
+> 
+> 
+> 
 
-Indeed.  In case Alan's message wasn't clear: if your syscall overhead
-is zero then many "optimizations" become superfluous.  In fact, those
-optimizations, one cache miss at a time, tend to be a big part of what
-makes the syscall layer so heavyweight.
-
-Linux is amazing in that it is basically the only real operating system
-I know of that has stayed so focussed on making the syscall layer be
-almost invisible.  it's worth a "rah rah" because you can use the 
-operating system like it was libc, there is basically very little 
-cost in crossing in/out.
-
-Here's the LMbench context switch benchmark running on a 1.6Ghz Athlon:
-
-load free cach swap pgin  pgou dk0 dk1 dk2 dk3 ipkt opkt  int  ctx  usr sys idl
-0.67  73M 577M  25M   0     0    0   0   0   0  4.0  2.0  107  548K  23  77   0
-0.67  73M 577M  25M   0     0    0   0   0   0  2.0  2.0  105  549K  19  81   0
-0.67  73M 577M  25M   0     0    0   0   0   0  4.0  2.0  107  549K  27  73   0
-0.70  73M 577M  25M   0     0    0   0   0   0  2.0  2.0  105  548K  23  77   0
-
-Yeah, that's more than a half a million context switchs/second and each
-of those include 2 system calls.  So Linux is doing 2 system calls and
-a context switch in 1.8 microseconds.
-
-When you can get in and out of the kernel that fast, your thinking should 
-change.  You get to use the kernel more freely.  And you certainly don't
-want to do anything to screw that up.  My hat is off to Linus and team 
-for working so hard to make these numbers be so good (and keep on working,
-see the recent syscall discussion).
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,57 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbTLTCRE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 21:17:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263786AbTLTCRD
+	id S263793AbTLTCc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 21:32:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbTLTCc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 21:17:03 -0500
-Received: from thunk.org ([140.239.227.29]:49323 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S263777AbTLTCRB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 21:17:01 -0500
-Date: Fri, 19 Dec 2003 21:16:59 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: OLS and Kernel Summit 2004 (Was: OLS 2004?)
-Message-ID: <20031220021659.GA10199@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Karim Yaghmour <karim@opersys.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <3FE352ED.60101@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 19 Dec 2003 21:32:59 -0500
+Received: from smtp813.mail.sc5.yahoo.com ([66.163.170.83]:61575 "HELO
+	smtp813.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263793AbTLTCc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 21:32:56 -0500
+From: Roger Chrisman <rogerhc@pacbell.net>
+To: linux-kernel@vger.kernel.org
+Subject: install_modules (or) modules_install? (main README in 2.6.0 stable source)
+Date: Fri, 19 Dec 2003 18:38:55 -0800
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3FE352ED.60101@opersys.com>
-User-Agent: Mutt/1.5.4i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+Message-Id: <200312191838.55569.rogerhc@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 19, 2003 at 02:35:09PM -0500, Karim Yaghmour wrote:
-> 
-> Usually around this time of the year there's some information
-> available regarding next summer's OLS. Yet, there's no info
-> on such an event and the site seems to be abandoned (and
-> Andrew's email on Achilles bounces):
-> http://www.linuxsymposium.org
-> 
-> Does anyone know if there will there be an OLS this year?
+Hi,
 
-I can't speak for Andrew or the rest of the OLS organizing team, but
-as far as I know, there should be an OLS in 2004.  The 2004 kernel
-summit will be July 18 and 19th (we've put down a deposit on the
-Conference Center already), and OLS will be running the rest of the
-week (from the 20th to the 23rd or 24th).
+Regarding:
 
-So mark your calendars, everyone!
+Top level README in kernel 2.6.0 stable source
 
-						- Ted
+(downloaded from kernel.org on 10-18-2003)
+
+
+In the last of the following five lines, 'install_modules' seem to me to be 
+incorrect:
+
+   To configure and build the kernel use:
+   cd /usr/src/linux-2.6.N
+   make O=/home/name/build/kernel menuconfig
+   make O=/home/name/build/kernel
+   sudo make O=/home/name/build/kernel install_modules install
+____________________________________^
+
+Am I correct that
+                                install_modules
+should be
+                                module_install
+?
+
+I tried both and the latter seems to work but the former not.
+
+Furthermore, I find the latter in two other parts of the README:
+
+   make a backup of your modules directory before you
+   do a "make modules_install".
+____________________^
+
+and:
+
+ - If you configured any of the parts of the kernel as `modules', you
+   will have to do "make modules" followed by "make modules_install".
+______________________________________________^
+
+Others like me will stumble on this. Who could update the README to correct 
+this?
+
+No person is mentioned as author or maintainer of the README.
+
+Who should I send this feedback to?
+
+Thanks,
+
+Roger :-)
+
+
+

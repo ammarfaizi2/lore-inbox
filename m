@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVCBTLn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVCBTMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262415AbVCBTLn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 14:11:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbVCBTLn
+	id S262418AbVCBTMd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 14:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVCBTMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 14:11:43 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:39690 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S262415AbVCBTLb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 14:11:31 -0500
-Date: Wed, 2 Mar 2005 20:14:27 +0100
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11-rc5-mm1 nfs oddity, file creation => "no such file"
-Message-ID: <20050302191427.GA9383@hh.idb.hist.no>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+	Wed, 2 Mar 2005 14:12:33 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42393 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262418AbVCBTMU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 14:12:20 -0500
+Message-ID: <42261004.4000501@pobox.com>
+Date: Wed, 02 Mar 2005 14:12:04 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+CC: Andrew Morton <akpm@osdl.org>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.11-rc4-mm1 patch] fix buggy IEEE80211_CRYPT_* selects
+References: <20050223014233.6710fd73.akpm@osdl.org> <20050226113123.GJ3311@stusta.de> <42256078.1040002@pobox.com> <20050302140833.GD4608@stusta.de>
+In-Reply-To: <20050302140833.GD4608@stusta.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I observed an oddity on a nfs-mounted fs while using 2.6.11-rc5-mm1.
+Adrian Bunk wrote:
+> On Wed, Mar 02, 2005 at 01:43:04AM -0500, Jeff Garzik wrote:
+> 
+>>Adrian Bunk wrote:
+>>
+>>>+	select CRYPTO
+>>>	select CRYPTO_AES
+>>>	---help---
+>>>	Include software based cipher suites in support of IEEE 802.11i 
+>>>	(aka TGi, WPA, WPA2, WPA-PSK, etc.) for use with CCMP enabled 
+>>>	networks.
+>>>@@ -54,10 +55,11 @@
+>>>	"ieee80211_crypt_ccmp".
+>>>
+>>>config IEEE80211_CRYPT_TKIP
+>>>	tristate "IEEE 802.11i TKIP encryption"
+>>>	depends on IEEE80211
+>>>+	select CRYPTO
+>>>	select CRYPTO_MICHAEL_MIC
+>>
+>>
+>>'select CRYPTO_AES' should 'select CRYPTO' automatically, I would hope.
+> 
+> 
+> This would result in a recursive dependency.
 
-I tried to save a file from xfig, and got an error message about a
-nonexisting file.  Now apps may have their own bugs, so I
-retried in the shell:
+No, it wouldn't.  CRYPTO_AES depends on CRYPTO, which depends on nothing.
 
-$ cat > newfile
-newfile: No such file or directory
-$
+	Jeff
 
-Eh - of course it didn't exist - I was trying to create it!
-
-This also resulted in "newfile" being created with size 0.
-Repeating the "cat > newfile" worked fine once the zero-length
-file existed.  Unfortunately, xfig always removes files before overwriting
-so it couldn't save on the nfs volume at all.
-
-File creation by "touch filename" worked flawlessly.
-
-After this I rebooted into 2.6.11-rc3-mm1 which haven't shown this problem
-so far.  There were nothing in "dmesg" when this happened, other
-than a message about "mount" being older than the kernel.
-
-I can try to recreate the problem if necessary.
-
-Helge Hafting
 
 

@@ -1,64 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136568AbREAEqM>; Tue, 1 May 2001 00:46:12 -0400
+	id <S136567AbREAErw>; Tue, 1 May 2001 00:47:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136569AbREAEqD>; Tue, 1 May 2001 00:46:03 -0400
-Received: from pc-62-30-76-3-az.blueyonder.co.uk ([62.30.76.3]:3844 "EHLO
-	mnemosyne.j-harris.dircon.co.uk") by vger.kernel.org with ESMTP
-	id <S136568AbREAEpw>; Tue, 1 May 2001 00:45:52 -0400
-Date: Tue, 1 May 2001 05:46:02 +0100 (GMT Daylight Time)
-From: Jamie Harris <jamie.harris@uwe.ac.uk>
-To: <linux-kernel@vger.kernel.org>, Bristol LUG <bristol@lists.lug.org.uk>,
-        <linux-admin@vger.kernel.org>
-Subject: Kernel NULL pointer, over my head...
-Message-ID: <Pine.WNT.4.33.0105010538140.-1864577-100000@proteus.j-harris.dircon.co.uk>
-X-X-Sender: j-harris@mercury.uwe.ac.uk
+	id <S136570AbREAEre>; Tue, 1 May 2001 00:47:34 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:25822 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S136567AbREAEra>;
+	Tue, 1 May 2001 00:47:30 -0400
+Date: Mon, 30 Apr 2001 21:47:26 -0700 (PDT)
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.19 locks up on SMP
+In-Reply-To: <Pine.LNX.4.33.0104301255020.12259-100000@age.cs.columbia.edu>
+Message-ID: <Pine.LNX.4.33.0104302141510.12259-100000@age.cs.columbia.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Morning all,
+On Mon, 30 Apr 2001, Ion Badulescu wrote:
 
-Sorry for the big cross post but I don't have the first clue about where
-to send this one.  I get this from my stock 2.2.18 kernel in
-/var/log/syslog:
+> Ok, so onto the binary search through the 2.2.19pre series...
 
-May  1 05:27:36 mnemosyne kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-May  1 05:27:36 mnemosyne kernel: current->tss.cr3 = 00362000, %cr3 =
-00362000
-May  1 05:27:36 mnemosyne kernel: *pde = 00000000
-May  1 05:29:36 mnemosyne kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-May  1 05:29:36 mnemosyne kernel: current->tss.cr3 = 036dc000, %cr3 =
-036dc000
-May  1 05:29:36 mnemosyne kernel: *pde = 00000000
-May  1 05:30:28 mnemosyne kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-May  1 05:30:28 mnemosyne kernel: current->tss.cr3 = 00ca7000, %cr3 =
-00ca7000
-May  1 05:30:28 mnemosyne kernel: *pde = 00000000
+I think it started in 2.2.19pre10. I can reproduce the hang on pre10, 
+quite easily, but I couldn't reproduce it on pre5, pre7 and pre9. I'll try 
+a few other pre versions, just to make sure.
 
+One of the things that are different between pre10 and the others is NFS:
+the client is broken in all versions except pre10. I'm not sure how much 
+it matters, since I wasn't pounding on NFS. Anyway, that's why I want to 
+try a few other kernels -- maybe it does matter after all.
 
-This time it seemed to be caused by running tar on a file, but I've
-noticed a similar error in the past but they've never made anything fall
-over.  The tar process appeared to die but then again so did the telnet
-session so I don't know in what order they went down.  I tried 3 times
-just to check it wasn't a fluke...  What other details would be useful??
+Thanks,
+Ion
 
-Cheers Jamie...
-
-PS I'm not on the linux-kernel list so please post to me directly...
-
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
- ***    Slowly and surely the UNIX crept up on the Nintendo user...    ***
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
------BEGIN GEEK CODE BLOCK-----
-Version: 3.1
-GCS/ED d-(++) s:+ a- C+++>++++$ U+++>$ P++++ L+++>+++++ E+(---) W++ N o?
-K? w(++++) O- M V? PS PE? Y PGP- t+ 5 X- R- tv- b++ DI++ D+++ G e++ h*
-r++>+++ y+++
-------END GEEK CODE BLOCK------
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 

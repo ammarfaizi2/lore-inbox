@@ -1,71 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbUC0E3C (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Mar 2004 23:29:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbUC0E3C
+	id S261668AbUC0EkA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Mar 2004 23:40:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbUC0EkA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Mar 2004 23:29:02 -0500
-Received: from marco.bezeqint.net ([192.115.104.4]:44691 "EHLO
-	marco.bezeqint.net") by vger.kernel.org with ESMTP id S262064AbUC0E27
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Mar 2004 23:28:59 -0500
-Date: Sat, 27 Mar 2004 06:28:49 +0200
-From: Micha Feigin <michf@post.tau.ac.il>
-To: swsusp-devel@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: -nice tree [was Re: [Swsusp-devel] Re: swsusp problems [was	Re: Your opinion on the merge?]]
-Message-ID: <20040327042849.GB2606@luna.mooo.com>
-Mail-Followup-To: swsusp-devel@lists.sourceforge.net,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040323233228.GK364@elf.ucw.cz> <20040326222234.GE9491@elf.ucw.cz> <1080353285.9264.3.camel@calvin.wpcb.org.au>
-	 <200403270337.48704.luke-jr@artcena.com>
-Mime-Version: 1.0
+	Fri, 26 Mar 2004 23:40:00 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:48543 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261672AbUC0Ejz convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Mar 2004 23:39:55 -0500
+From: BlaisorBlade <blaisorblade_spam@yahoo.it>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Subject: Re: [PATCH/2.4]: do_write_mem() return value check
+Date: Fri, 26 Mar 2004 19:16:39 +0100
+User-Agent: KMail/1.5
+References: <20040326033339.GD1997@logos.cnet>
+In-Reply-To: <20040326033339.GD1997@logos.cnet>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain;
-	charset=us-ascii
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <200403270337.48704.luke-jr@artcena.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200403261916.39399.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 27, 2004 at 03:37:48AM +0000, Luke-Jr wrote:
-> On Saturday 27 March 2004 02:08 am, Nigel Cunningham wrote:
-> > On Sat, 2004-03-27 at 10:22, Pavel Machek wrote:
-> > > You are right, that would be ugly. How is encryption supposed to work,
-> > > kernel asks you to type in a key?
-> >
-> > I haven't thought about the specifics there. Perhaps the plugin prompts
-> > for one, or perhaps it takes a lilo parameter? 
-> The only purpose I can think of for encryption would be so someone can't grab 
-> the HD and boot it on another PC or read the image directly.
-> Unless I'm missing something, that would imply that the key would need to be 
-> generated from a hardware profile (only creatable by root) somehow to 
-> restrict its readability to that one system.
-> 
+Alle 04:33, venerdì 26 marzo 2004, Marcelo Tosatti ha scritto:
+> On Wed, Mar 24, 2004 at 07:59:01PM +0100, BlaisorBlade wrote:
+> > From: Andrew Morton, and me (I did a first fix for 2.6 and sent to him,
+> > he checked everything and committed it and I changed the trivial bits for
+> > 2.4).
 
-Actually it would be very unlikely that grabbing the hard disk would
-enable to boot on another machine since you are restoring all the
-context/modules etc. The grabber would need an identical system, and
-even then I doubt it would work (I don't know how flexible linux and
-the hardware are in this respect.
+> Do you actually have any practical problem caused by the current broken
+> "always return -EFAULT" ?
 
-Its more a question of grabbing you entire computer and getting access
-to you hard disk, including encrypted partitions. In this case you
-would want to request a key from the user and not use a hardware
-related key.
+It is not only that, there can be also data corruption:
 
-> 
-> -------------------------------------------------------
-> This SF.Net email is sponsored by: IBM Linux Tutorials
-> Free Linux tutorial presented by Daniel Robbins, President and CEO of
-> GenToo technologies. Learn everything from fundamentals to system
-> administration.http://ads.osdn.com/?ad_id=1470&alloc_id=3638&op=click
-> _______________________________________________
-> swsusp-devel mailing list
-> swsusp-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/swsusp-devel
->  
->  +++++++++++++++++++++++++++++++++++++++++++
->  This Mail Was Scanned By Mail-seCure System
->  at the Tel-Aviv University CC.
-> 
+- The  "always return -EFAULT" one is a little bug, so you can discard the 
+first and third hunk which fix that; anyway, it was Andrew Morton who noticed 
+that, so I've no idea (I agree with you but I'm a kernel newbie). Note I 
+posted a 2nd version of the patch which fixes a bug in the third hunk (see at 
+the end).
+
+- BUT in the hunk below (the 2nd in the patch), without the patch, the var 
+"wrote" can be == -EFAULT and WE CAN DO
+		p += -EFAULT, 
+                buf += -EFAULT;
+
+so that we can read, afterwards, some bytes of junk from buf - EFAULT and put 
+them into p - EFAULT, *corrupting memory* !!!!
+
+> > - Add checking for copy_from_user() failures in do_write_mem()
+
+        if (p < (unsigned long) high_memory) {
++               ssize_t written;
++
+                wrote = count;
+                if (count > (unsigned long) high_memory - p)
+                        wrote = (unsigned long) high_memory - p;
+
+-               wrote = do_write_mem(file, (void*)p, p, buf, wrote, ppos);
++               written = do_write_mem((void*)p, p, buf, wrote, ppos);
++               if (written != wrote)
++                       return written;
++               wrote = written;
+
+                p += wrote;
+                buf += -EFAULT;
+
+
+Fix in the second version of the patch, for the 3rd hunk:
+- Fix this line:
++                              unwritten = copy_from_user(kbuf, buf, len);
++                              if (unwritten != len) {
+					[... error handling]
+to this:
++                              unwritten = copy_from_user(kbuf, buf, len);
++                              if (unwritten != 0) {
+					[...error handling]
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
+

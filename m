@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261756AbUCGF4d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Mar 2004 00:56:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbUCGF4d
+	id S261763AbUCGGGW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Mar 2004 01:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbUCGGGW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Mar 2004 00:56:33 -0500
-Received: from umhlanga.stratnet.net ([12.162.17.40]:55492 "EHLO
-	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
-	id S261756AbUCGF4c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Mar 2004 00:56:32 -0500
+	Sun, 7 Mar 2004 01:06:22 -0500
+Received: from agminet01.oracle.com ([141.146.126.228]:64473 "EHLO
+	agminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S261763AbUCGGGT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Mar 2004 01:06:19 -0500
+Date: Sat, 6 Mar 2004 22:06:04 -0800
+From: Wim Coekaerts <wim.coekaerts@oracle.com>
 To: Peter Zaitsev <peter@mysql.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: Any way to access huge pages ?
+Message-ID: <20040307060604.GB27076@ca-server1.us.oracle.com>
 References: <1078636886.2313.718.camel@abyss.local>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 06 Mar 2004 21:56:31 -0800
-In-Reply-To: <1078636886.2313.718.camel@abyss.local>
-Message-ID: <523c8lw67k.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 07 Mar 2004 05:56:32.0021 (UTC) FILETIME=[F0D8DC50:01C40408]
+Content-Disposition: inline
+In-Reply-To: <1078636886.2313.718.camel@abyss.local>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Peter> Hello, I'm wondering is there any way to access "large
-    Peter> pages" (4MB) memory other than using shared memory ?  For
-    Peter> example can you do anonymous mmap to get access to large
-    Peter> pages.
+well thats where you have hugetlbfs
+and you mmap a file in /dev/hugetlbfs or whever it goes
+works fine
 
-    Peter> I would like to utilize large pages for MySQL buffer pool
-    Peter> and other large caches, but would not like to use Shared
-    Peter> memory for this purpose as it will complicate things for
-    Peter> users.
+or shmfs but the its not large pages I guess, unless you have the
+bigpages feature in the vendor versions. like bigpages in rhas21 can be
+for shmfs. 
 
-Does mmap() on hugetlbfs do what you want?  See
-Documentation/vm/hugetlbpage.txt for details.
-
- - Roland
+On Sat, Mar 06, 2004 at 09:21:28PM -0800, Peter Zaitsev wrote:
+> Hello,
+> 
+> I'm wondering is there any way to access "large pages" (4MB) memory
+> other than using shared memory ?  For example can you do anonymous mmap
+> to get access to large pages. 
+> 
+> I would like to utilize large pages for MySQL buffer pool and other
+> large caches, but would not like to use Shared memory for this purpose 
+> as it will complicate things for users. 
+> 
+> 
+> -- 
+> Peter Zaitsev, Senior Support Engineer
+> MySQL AB, www.mysql.com
+> 
+> Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
+>   http://www.mysql.com/uc2004/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

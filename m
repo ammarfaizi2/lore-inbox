@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264549AbUASLXn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jan 2004 06:23:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUASLXn
+	id S264546AbUASLbm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jan 2004 06:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264568AbUASLbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jan 2004 06:23:43 -0500
-Received: from ns.sysgo.de ([213.68.67.98]:17036 "EHLO balu.sysgo.de")
-	by vger.kernel.org with ESMTP id S264549AbUASLXl convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jan 2004 06:23:41 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: =?iso-8859-15?q?J=FCrgen=20Urban?= <jur@sysgo.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Lost memory, total memory size is not correct
-Date: Mon, 19 Jan 2004 12:22:23 +0100
-X-Mailer: KMail [version 1.4]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401191222.23449.jur@sysgo.com>
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.21.0.1; VDF: 6.21.0.30; host: balu)
+	Mon, 19 Jan 2004 06:31:41 -0500
+Received: from dp.samba.org ([66.70.73.150]:36314 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264546AbUASLbj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jan 2004 06:31:39 -0500
+Date: Mon, 19 Jan 2004 22:26:07 +1100
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Andi Kleen <ak@colin2.muc.de>
+Cc: torvalds@osdl.org, rth@twiddle.net, akpm@osdl.org, jh@suse.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add noinline attribute - new extable sort patch
+Message-Id: <20040119222607.436be39a.rusty@rustcorp.com.au>
+In-Reply-To: <20040119010133.GA63615@colin2.muc.de>
+References: <20040114083114.GA1784@averell>
+	<Pine.LNX.4.58.0401141519260.4500@evo.osdl.org>
+	<20040115074834.GA38796@colin2.muc.de>
+	<Pine.LNX.4.58.0401151448200.2597@evo.osdl.org>
+	<20040116101345.GA96037@colin2.muc.de>
+	<20040118204700.GA31601@twiddle.net>
+	<20040118230743.GA12989@colin2.muc.de>
+	<20040119005244.GB32149@twiddle.net>
+	<20040119010133.GA63615@colin2.muc.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 19 Jan 2004 02:01:33 +0100
+Andi Kleen <ak@colin2.muc.de> wrote:
 
-I tried to get the amount of total physical memory. I looked at /proc/meminfo 
-and found this line (2.4.18):
+> On Sun, Jan 18, 2004 at 04:52:44PM -0800, Richard Henderson wrote:
+> > I don't think that's true.  Yes, sparc and sparc64 have paired
+> > entries, but they should still sort consecutive.  If there were
+> > an entry that, after sorting, came between them, something would
+> > be Very Wrong.
+> 
+> Hmm, are they really just paired? The description in
+> arch/sparc64/mm/extable.c looked differently to me. Anyways - given all
+> these complexities doing the sort in arch code is probably better. It
+> wasn't my idea anyways to move it into generic code ;-) 
 
-MemTotal:        30844 kB
+When I started the 2.5 extable consolidation, I stopped where you see today,
+becuase I realized that we'd need to move "range" extable entries to a
+separate section (empty on most archs) and every arch would need to supply a
+cmp function for sorting each one.  Add in rth's point about needing a swap
+fn, I think that it's simpler to leave it as is, maybe with a module.c call
+to extable_sort() for archs which care to implement.
 
-But this is not correct the system have 32768 kB Memory. I looked at kernel 
-sources and I found the variable max_mapnr. Can I use it to detect the 
-correct memory size? It seems that it stores the maximum number of pages 
-usable. So I can convert it with macro K() in linux/fs/proc/proc_misc.c to a 
-value in kB.
-
-But there are 1924 kB not available (32768 kB - 30844 kB). On system boot I 
-get the following message:
-Memory: 30780k available (960k kernel code, 392k data, 64k init, 0k highmem)
-So I calculated:
-
-1924 kB
--960 kB Kernel
-- 392 kB Data
-- 64 kB Init
---------------------
-508 kB
-
-There are 508 kB lost (?) memory. It seems the boot allocator is reserving 
-this memory, but linux doesn't tell for what. I want to know for what the 508 
-kB are. Is the kernel stack included in the 508 kB or in the 30844 kB. I 
-don't think so, because the value 30844 kB isn't changing after boot. And 
-every process should allocate 8 kB kernel stack.
-
-Best Regards
-Jürgen Urban
-
+Cheers,
+Rusty.
 -- 
-Jürgen Urban <jur@sysgo.com>
-Software Engineer
-
-SYSGO Real-Time Solutions AG
-Am Pfaffenstein 14
-55270 Klein-Winternheim, Germany
-
-Telefon: +49-6136-9948-0
-FAX: +49-6136-9948-10
-www.sysgo.com
-
+   there are those who do and those who hang on and you don't see too
+   many doers quoting their contemporaries.  -- Larry McVoy

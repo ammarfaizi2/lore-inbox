@@ -1,54 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281124AbRK3Wai>; Fri, 30 Nov 2001 17:30:38 -0500
+	id <S281067AbRK3W26>; Fri, 30 Nov 2001 17:28:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281072AbRK3Wab>; Fri, 30 Nov 2001 17:30:31 -0500
-Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:64153 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S281083AbRK3WaN>;
-	Fri, 30 Nov 2001 17:30:13 -0500
-Date: Fri, 30 Nov 2001 14:30:11 -0800
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [patch] smarter atime updates
-Message-ID: <20011130143011.A20179@netnation.com>
-In-Reply-To: <20011130145223.Q15936@lynx.no> <Pine.LNX.4.33.0111301349230.1185-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0111301349230.1185-100000@penguin.transmeta.com>
-User-Agent: Mutt/1.3.23i
+	id <S281077AbRK3W2s>; Fri, 30 Nov 2001 17:28:48 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:27411 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S281067AbRK3W2l>; Fri, 30 Nov 2001 17:28:41 -0500
+Date: Fri, 30 Nov 2001 19:11:37 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Linux 2.4.17-pre2
+Message-ID: <Pine.LNX.4.21.0111301901320.17660-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 30, 2001 at 01:50:21PM -0800, Linus Torvalds wrote:
 
-> On Fri, 30 Nov 2001, Andreas Dilger wrote:
-> >
-> > Well, just doing a code check of the update_atime() and UPDATE_ATIME()
-> > users, and they are all in readlink(), follow_link(), open_namei(),
-> > and various fs _readdir() codes.  None of them (AFAICS) depend on the
-> > mark_inode_dirty() as a side-effect.  This means it should be safe.
-> 
-> More importantly, _if_ somebody depended on the side effects, they'd have
-> been thwarted by the "noatime" mount option anyway, so any such bug would
-> not be a new bug.
 
-I've always thought filesystems should mount with noatime,nodiratime by
-default and only actually update atime if specifically mounted with
-"atime", as it's so rarely used.  Out of all of the servers here, none
-actually use atime (every file system on _every_ server is mounted
-noatime,nodiratime).  It's such a waste and just sounds fundamentally
-broken to issue a write because somebody read from a file.
+Ok, here it goes.
 
-...But there's probably some POSIX standard which would make such a
-change illegal.  Blah blah...
+Lots of driver changes this time... 
 
-(Not to say that atime isn't useful, but in most cases where it might be
-useful, it is so easily broken by backup processes, etc., that it really
-wants to be a different sort of mechanism.)
+Also, I want to know if people feel any difference on interactivity under
+heavy IO workloads.
 
-Simon-
+pre2:
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+- Remove userland header from bonding driver	(David S. Miller)
+- Create a SLAB for page tables on i386		(Christoph Hellwig)
+- Unregister devices at shaper unload time	(David S. Miller)
+- Remove several unused variables from various
+  places in the kernel				(David S. Miller)
+- Fix slab code to not blindly trust cc_data():
+  it may be not valid on some platforms		(David S. Miller)
+- Fix RTC driver bug				(David S. Miller)
+- SPARC 32/64 update				(David S. Miller)
+- W9966 V4L driver update			(Jakob Jemi)
+- ad1848 driver fixes				(Alan Cox/Daniel T. Cobra)
+- PCMCIA update					(David Hinds)
+- Fix PCMCIA problem with multiple PCI busses 	(Paul Mackerras)
+- Correctly free per-process signal struct	(Dave McCracken)
+- IA64 PAL/signal headers cleanup		(Nathan Myers)
+- ymfpci driver cleanup 			(Pete Zaitcev)
+- Change NLS "licenses" to be "GPL/BSD" instead 
+  only BSD.					(Robert Love)
+- Fix serial module use count			(Russell King)
+- Update sg to 3.1.22				(Douglas Gilbert)
+- ieee1394 update				(Ben Collins)
+- ReiserFS fixes				(Nikita Danilov)
+- Update ACPI documentantion			(Patrick Mochel)
+- Smarter atime update				(Andrew Morton)
+- Correctly mark ext2 sb as dirty and sync it	(Andrew Morton) 
+- IrDA update					(Jean Tourrilhes)
+- Count locked buffers at
+  balance_dirty_state(): Helps interactivity under
+  heavy IO workloads				(Andrew Morton)
+- USB update					(Greg KH)
+- ide-scsi locking fix				(Christoph Hellwig)
+
+pre1:
+
+- Change USB maintainer 			(Greg Kroah-Hartman)
+- Speeling fix for rd.c				(From Ralf Baechle's tree)
+- Updated URL for bigphysmem patch in v4l docs  (Adrian Bunk)
+- Add buggy 440GX to broken pirq blacklist 	(Arjan Van de Ven)
+- Add new entry to Sound blaster ISAPNP list	(Arjan Van de Ven)
+- Remove crap character from Configure.help	(Niels Kristian Bech Jensen)
+- Backout erroneous change to lookup_exec_domain (Christoph Hellwig)
+- Update osst sound driver to 1.65		(Willem Riede)
+- Fix i810 sound driver problems		(Andris Pavenis)
+- Add AF_LLC define in network headers		(Arnaldo Carvalho de Melo)
+- block_size cleanup on some SCSI drivers	(Erik Andersen)
+- Added missing MODULE_LICENSE("GPL") in some   (Andreas Krennmair)
+  modules
+- Add ->show_options() to super_ops and 
+  implement NFS method				(Alexander Viro)
+- Updated i8k driver				(Massimo Dal Zoto)
+- devfs update  				(Richard Gooch)
+
+

@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263330AbTKKDsi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 22:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbTKKDsi
+	id S263303AbTKKDmm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 22:42:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263312AbTKKDml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 22:48:38 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:39070 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263330AbTKKDsf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 22:48:35 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 10 Nov 2003 19:48:36 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Alexander ZVYAGIN <Alexander.Zviagine@cern.ch>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PCI with SiS: Cannot allocate resource.
-In-Reply-To: <200311101847.07792.Alexander.Zviagine@cern.ch>
-Message-ID: <Pine.LNX.4.44.0311101557020.2097-100000@bigblue.dev.mdolabs.com>
+	Mon, 10 Nov 2003 22:42:41 -0500
+Received: from mail022.syd.optusnet.com.au ([211.29.132.100]:29080 "EHLO
+	mail022.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263303AbTKKDmk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 22:42:40 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16304.23206.924374.529136@wombat.chubb.wattle.id.au>
+Date: Tue, 11 Nov 2003 14:42:30 +1100
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Joseph Shamash <info@avistor.com>, Peter Chubb <peter@chubb.wattle.id.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2 TB partition support
+In-Reply-To: <20031111022140.GE2014@mis-mike-wstn.matchmail.com>
+References: <16304.9647.994684.804486@wombat.chubb.wattle.id.au>
+	<HBEHKOEIIJKNLNAMLGAOIECPDKAA.info@avistor.com>
+	<20031111022140.GE2014@mis-mike-wstn.matchmail.com>
+X-Mailer: VM 7.14 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 10 Nov 2003, Alexander ZVYAGIN wrote:
+>>>>> "Mike" == Mike Fedyk <mfedyk@matchmail.com> writes:
 
-> Hello Davide,
-> 
-> On Sunday 09 November 2003 16:45, Davide Libenzi wrote:
-> > On Sun, 9 Nov 2003, Alexander ZVYAGIN wrote:
-> > > > Can you try to apply this over test9:
-> > > >
-> > > > http://www.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.0-test9
-> > > >-bk1 3.bz2
-> > >
-> > > I see the same messages...
-> >
-> > $ cat /proc/interrupts
-> >
-> > Also you can try to disable:
-> >
-> > CONFIG_X86_UP_APIC
-> > CONFIG_X86_UP_IOAPIC
-> > CONFIG_X86_LOCAL_APIC
-> > CONFIG_X86_IO_APIC
-> 
-> Still the same.... See the attachments.
+> On Mon, Nov 10, 2003 at 06:12:06PM -0800, Joseph Shamash wrote:
+>> 
+>> What is the maximum partition size for a patched 2.4.x kernel, and
+>> where are those patches?
 
-Running really out of options here. The dmesg shows that you're sharing 
-the IRQ5 but it does not even show up in your int list. Your card seems to 
-be sharing IRQ 5 with:
+Mike> I believe it is now 16TB per block device in 2.6, and patched
+Mike> 2.4.
 
-PCI: Sharing IRQ 5 with 0000:00:01.6
-PCI: Sharing IRQ 5 with 0000:00:0c.1
+That's right for 32-bit systems with 4k pages.  For 64 bit systems the
+limit is over 8 Exabytes.
 
-IIRC one is the modem, and I do not remember the other one. If your BIOS 
-has the option to shut those device off, you can try that. Also you can 
-try (if you can) to change the interrupt pin.
+You should note that software raid has smaller limits, as does the
+LVM.  Also the 2.4 patches have seen *much* less testing than the 2.6
+mainline (except possibly on the SGI Altix).
 
+What exactly are you trying to do?
 
-
-- Davide
-
-
-
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

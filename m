@@ -1,68 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTGAKd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 06:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTGAKd5
+	id S262008AbTGAKhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 06:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTGAKhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 06:33:57 -0400
-Received: from mx02.qsc.de ([213.148.130.14]:46823 "EHLO mx02.qsc.de")
-	by vger.kernel.org with ESMTP id S262033AbTGAKd4 (ORCPT
+	Tue, 1 Jul 2003 06:37:25 -0400
+Received: from holomorphy.com ([66.224.33.161]:9902 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262008AbTGAKhV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 06:33:56 -0400
-Date: Tue, 1 Jul 2003 12:51:57 +0200
-From: Wiktor Wodecki <wodecki@gmx.de>
-To: Luis Miguel Garcia <ktech@wanadoo.es>
-Cc: linux-kernel@vger.kernel.org, kernel@kolivas.org
-Subject: Re: [PATCH] O1int 0307010922 for 2.5.73 interactivity
-Message-ID: <20030701105157.GB689@gmx.de>
-Reply-To: Johoho <johoho@hojo-net.de>
-References: <20030701133241.58d17db0.ktech@wanadoo.es>
+	Tue, 1 Jul 2003 06:37:21 -0400
+Date: Tue, 1 Jul 2003 03:51:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: 2.5.73-mm2
+Message-ID: <20030701105134.GE26348@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@digeo.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+References: <20030701003958.GB20413@holomorphy.com> <Pine.LNX.4.44.0307011137001.1161-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PuGuTyElPB9bOcsM"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030701133241.58d17db0.ktech@wanadoo.es>
-X-message-flag: Linux - choice of the GNU generation
-X-Operating-System: Linux 2.5.73-bk7-O1int0307010949 i686
-X-PGP-KeyID: 182C9783
-X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
+In-Reply-To: <Pine.LNX.4.44.0307011137001.1161-100000@localhost.localdomain>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 30 Jun 2003, William Lee Irwin III wrote:
+>> It was suggested during my last round of OOM killer fixes that one of
+>> my patches, which just checked nr_free_buffer_pages() > 0, should also
+>> consider userspace (i.e. reclaimable at will) memory free.
 
---PuGuTyElPB9bOcsM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Jul 01, 2003 at 11:46:34AM +0100, Hugh Dickins wrote:
+> If you pursued it, wouldn't your patch also need to change
+> nr_free_buffer_pages() to do what you think it does, count
+> the free lowmem pages?  It, and nr_free_pagecache_pages(),
+> and nr_free_zone_pages(), are horribly badly named.  They
+> count present_pages-pages_high, they don't count free pages:
+> okay for initialization estimates, useless for anything dynamic.
+> Hugh
+> p.s. any chance of some more imaginative Subject lines :-?
 
-On Tue, Jul 01, 2003 at 01:32:41PM +0200, Luis Miguel Garcia wrote:
-> With the first one, only throughput is important and in the second one, w=
-e can take in all the stuff to improve the interactivity (preempt, 01int, g=
-ranularity) so we can give more agresive interactivity to the Desktop Kerne=
-l.
->=20
-> Is this a sillyness?
+Well, I was mostly looking for getting handed back 0 when lowmem is
+empty; I actually did realize they didn't give entirely accurate counts
+of free lowmem pages.
 
-placing this in /proc would be a better idea. The more I watch the whole
-interactivity debate I think that there is no golden way for server and
-desktop machines.
 
---=20
-Regards,
-
-Wiktor Wodecki
-
---PuGuTyElPB9bOcsM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/AWfN6SNaNRgsl4MRAkaYAJ4i9+XeTrtk6YzNWdmNxedYTO313QCdFgNt
-a1l0rveCAwDxp/biwvUfVg8=
-=gmLf
------END PGP SIGNATURE-----
-
---PuGuTyElPB9bOcsM--
+-- wli

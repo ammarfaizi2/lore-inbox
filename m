@@ -1,90 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271407AbTHDHY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 03:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271411AbTHDHY5
+	id S271408AbTHDHTb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 03:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271410AbTHDHTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 03:24:57 -0400
-Received: from mail.gmx.net ([213.165.64.20]:17311 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S271407AbTHDHYy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 03:24:54 -0400
+	Mon, 4 Aug 2003 03:19:31 -0400
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:61851 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S271408AbTHDHT3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 03:19:29 -0400
+Date: Mon, 4 Aug 2003 09:19:28 +0200
+From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Security Patches
+Message-Id: <20030804091928.2127a33e.Christoph.Pleger@uni-dortmund.de>
+In-Reply-To: <200308011636.45470.m.c.p@wolk-project.de>
+References: <20030801162819.5b0377a1.Christoph.Pleger@uni-dortmund.de>
+	<200308011636.45470.m.c.p@wolk-project.de>
+Organization: Universitaet Dortmund
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-From: Torsten Foertsch <torsten.foertsch@gmx.net>
-To: Steven Micallef <steven.micallef@world.net>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: chroot() breaks syslog() ?
-Date: Mon, 4 Aug 2003 09:23:47 +0200
-User-Agent: KMail/1.4.3
-References: <6416776FCC55D511BC4E0090274EFEF5080024A9@exchange.world.net>
-In-Reply-To: <6416776FCC55D511BC4E0090274EFEF5080024A9@exchange.world.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200308040923.51241.torsten.foertsch@gmx.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Fri, 1 Aug 2003 16:36:45 +0200
+Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
 
-On Monday 04 August 2003 07:27, Steven Micallef wrote:
-> Hi all,
->
-> I've stumbled onto what seems to have broken somewhere between 2.4.8 and
-> 2.4.18 (sorry, I've been unable to test it on a later version just yet).
-> Basically, when using chroot(), syslog() calls don't work.
->
-> The following simple example is broken on 2.4.18:
->
-> #include    <stdio.h>
-> #include    <sys/syslog.h>
->
-> int main(void) {
->     chroot("/home/steve");
->     syslog(LOG_ALERT, "TEST");
-> }
+> On Friday 01 August 2003 16:28, Christoph Pleger wrote:
+> 
+> Hi Christoph,
+> 
+> > In the last few days I read some security advisories about security
+> > patches for Linux Kernels of the 2.4-series which have been
+> > published by various distributors.
+> > Does anybody know of a URL where such fixes for the stable Kernel
+> > 2.4.21 can be found? The best place would be a place where always
+> > actual kernel security fixes can be found and where, if the patches
+> > are already integrated into the kernel, it contains no other
+> > differences from the stable release.
+> please go to: http://linux.bkbits.net:8080/linux-2.4
 
-consider syslogd's -a option. Or simply call openlog(3) with LOG_NDELAY before 
-chroot(). Or place the first call to syslog() before chroot(). Syscall() does 
-not close the socket between calls.
+I tried to load that page several times and always got error 131:
+Connection reset by peer.
 
-int main(void) {
-  openlog( "klaus", LOG_NDELAY, LOG_NEWS);
-  chroot("/tmp");
-  printf( "before\n" ); fflush( stdout );
-  syslog(LOG_ALERT, "TEST1");
-  printf( "between\n" ); fflush( stdout );
-  syslog(LOG_ALERT, "TEST2");
-}
-
-strace give the following output:
-
-...
-
-socket(PF_UNIX, SOCK_DGRAM, 0)          = 3
-fcntl64(3, F_SETFD, FD_CLOEXEC)         = 0
-connect(3, {sin_family=AF_UNIX, path="/dev/log"}, 16) = 0
-chroot("/tmp")                          = 0
-
-...
-
-write(1, "before\n", 7before
-)                 = 7
-
-...
-
-send(3, "<57>Aug  4 07:17:09 klaus: TEST1", 32, 0) = 32
-rt_sigaction(SIGPIPE, {SIG_DFL}, NULL, 8) = 0
-write(1, "between\n", 8between
-)                = 8
-
-...
-
-send(3, "<57>Aug  4 07:17:09 klaus: TEST2", 32, 0) = 32
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE/LgoGwicyCTir8T4RAqbzAJ9SPwFSnLyinG0C+ya/uTJRR4vwGQCeLxiV
-ilmX6A7oJjou6ympLhFsDC4=
-=mfSg
------END PGP SIGNATURE-----
+Christoph

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317444AbSFMEJs>; Thu, 13 Jun 2002 00:09:48 -0400
+	id <S317445AbSFMEV6>; Thu, 13 Jun 2002 00:21:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317445AbSFMEJr>; Thu, 13 Jun 2002 00:09:47 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:38563 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317444AbSFMEJr>;
-	Thu, 13 Jun 2002 00:09:47 -0400
-Date: Thu, 13 Jun 2002 00:09:47 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Francois Gouget <fgouget@free.fr>
-cc: Stevie O <stevie@qrpff.net>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: vfat patch for shortcut display as symlinks for 2.4.18
-In-Reply-To: <Pine.LNX.4.43.0206122004420.18826-100000@amboise.dolphin>
-Message-ID: <Pine.GSO.4.21.0206130008390.18281-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317446AbSFMEV5>; Thu, 13 Jun 2002 00:21:57 -0400
+Received: from newman.edw2.uc.edu ([129.137.2.198]:57362 "EHLO smtp.uc.edu")
+	by vger.kernel.org with ESMTP id <S317445AbSFMEV5>;
+	Thu, 13 Jun 2002 00:21:57 -0400
+From: kuebelr@email.uc.edu
+Date: Thu, 13 Jun 2002 00:21:51 -0400
+To: trivial@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [TRIVIAL] 3c509.c - 1/2
+Message-Id: <20020613042151.GA12340@cartman>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch clears up another defined but not used compiler warning.
+nopnp is not used when niether CONFIG_ISAPNP or CONFIG_ISAPNP_MODULE are
+defined.
 
+Patch is agains 2.4.19-pre10.
 
-On Wed, 12 Jun 2002, Francois Gouget wrote:
+Rob.
 
-> On Wed, 12 Jun 2002, Stevie O wrote:
-> [...]
-> > With it came a brand new type of symlink.  Instead of relying on some
-> > special bitflag in the inode (as it appears on disk, anyway) to mark
-> > these symlinks as such, they are instead regular files that are marked
-> > as symlinks by the last four characters in the filename being ".lnk".
-> >
-> > This new method of storing symlinks is extremely useful -- it allows
-> > one to create symlinks on a number of filesystems that you couldn't
-> > before, because those filesystems have nowhere to store a 'S_IFLNK'
-> > flag.
-> [...]
-> > Now comes my argument for putting it into the VFS.
-> 
-> Yes, this would be much more useful. Mainly because it would make it
-> usable on more filesystems: VFAT, NTFS, ISO9660, etc.
-
-Vetoed.  Consider what happens if you rename such file, for one thing.
-
+--- linux-clean/drivers/net/3c509.c     Fri Jun  7 23:41:59 2002
++++ linux-dirty/drivers/net/3c509.c     Thu Jun 13 00:16:46 2002
+@@ -234,8 +234,8 @@
+ 
+ 
+ static u16 el3_isapnp_phys_addr[8][3];
+-#endif /* CONFIG_ISAPNP || CONFIG_ISAPNP_MODULE */
+ static int nopnp;
++#endif /* CONFIG_ISAPNP || CONFIG_ISAPNP_MODULE */
+ 
+ int __init el3_probe(struct net_device *dev, int card_idx)
+ {

@@ -1,43 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbTLLTom (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 14:44:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbTLLTom
+	id S261872AbTLLTq7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 14:46:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbTLLTq7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 14:44:42 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:49669 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S261892AbTLLTol (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 14:44:41 -0500
-Date: Fri, 12 Dec 2003 20:44:39 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6 and IDE "geometry"
-Message-ID: <20031212194439.GB11215@win.tue.nl>
-References: <20031212131704.A26577@animx.eu.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031212131704.A26577@animx.eu.org>
-User-Agent: Mutt/1.3.25i
+	Fri, 12 Dec 2003 14:46:59 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:15744 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261872AbTLLTq4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Dec 2003 14:46:56 -0500
+Date: Fri, 12 Dec 2003 14:47:34 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: John Bradford <john@grabjohn.com>
+cc: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: floppy motor spins when floppy module not installed
+In-Reply-To: <200312121928.hBCJSLBs000384@81-2-122-30.bradfords.org.uk>
+Message-ID: <Pine.LNX.4.53.0312121435570.1356@chaos>
+References: <16345.51504.583427.499297@l.a> <yw1xd6auyvac.fsf@kth.se>
+ <Pine.LNX.4.53.0312121000150.10423@chaos> <200312121928.hBCJSLBs000384@81-2-122-30.bradfords.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 01:17:04PM -0500, Wakko Warner wrote:
+On Fri, 12 Dec 2003, John Bradford wrote:
 
-> Is there anyway to get kernel 2.6 to use the geometry
-> the bios has for an IDE drive?
+> Quote from "Richard B. Johnson" <root@chaos.analogic.com>:
+> > On Fri, 12 Dec 2003, [iso-8859-1] M=E5ns Rullg=E5rd wrote:
+> >
+> > > Dale Mellor <dale@dmellor.dabsol.co.uk> writes:
+> > >
+> > > > 1. Floppy motor spins when floppy module not installed.
+> > >
+> > > It's a known problem.  Some broken BIOSes don't turn off the motor
+> > > after probing for a disk.  One solution is to change the boot priorit=
+> > y
+> > > in the BIOS settings so the hard disk is tried before floppy.  If you
+> > > ever need to boot from a floppy, you can change it back.
+> > >
+> > > --
+> > > M=E5ns Rullg=E5rd
+> > > mru@kth.se
+> >
+> > It is not a broken BIOS! The BIOS timer that ticks 18.206 times
+> > per second has an ISR that, in addition to keeping time, turns
+> > OFF the FDC motor after two seconds of inactivity. This ISR is taken
+> > away by Linux. Therefore Linux must turn off that motor! It is a
+> > Linux bug, not a BIOS bug. Linux took control away from the BIOS
+> > during boot.
+>
+> We discussed almost exactly the same problem at length on LKML just
+> two months ago:
+>
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=106545766213063&w=2
+>
+> John.
 
-The kernel does not use any geometry.
+Yes, and I recall we agreed to disagree where the FDC stop must
+be put, but we both agreed that it must be stopped. I still contend
+that since the Linux startup code takes control away from the BIOS,
+it's that codes responsibility to turn OFF things that the BIOS
+might have left ON.
 
-> I have a installation setup that installs a non-linux os and I partition the
-> drive under linux.  In 2.4 this has worked flawlessly, however, 2.6 reports
-> as # cylinders/16 heads/63 sectors.
+Funny thing. It's so trivial, anybody/everybody could turn the
+floppy motor off, but all the fingers point to somebody else's
+code.
 
-Aha. So your real question is:
-"Is there any way to get *fdisk to use my favorite geometry?"
-The answer is: all common fdisk versions allow you to set the geometry.
+It's a bug in Linux, not in a boot-loader. That bug was covered up
+until the FDC code got modularized. Once we were able to compile
+a kernel without the FDC, the bug was exposed. So, I suggest that
+we just fix the bug and be done with it. It's not a performance
+problem, the write to the port occurs exactly once during the nest
+999 days of up-time. It's just an attempt to make a mountain out
+of a mole-hill.
 
-Andries
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

@@ -1,59 +1,320 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313907AbSDJWMQ>; Wed, 10 Apr 2002 18:12:16 -0400
+	id <S313908AbSDJWOq>; Wed, 10 Apr 2002 18:14:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313911AbSDJWMP>; Wed, 10 Apr 2002 18:12:15 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:62850 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S313907AbSDJWMO>; Wed, 10 Apr 2002 18:12:14 -0400
-Date: Wed, 10 Apr 2002 18:12:11 -0400
-To: Andrew Morton <akpm@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [prepatch] address_space-based writeback
-Message-ID: <20020410221211.GA6076@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3CB4203D.C3BE7298@zip.com.au> <Pine.GSO.4.21.0204100725410.15110-100000@weyl.math.psu.edu> <3CB48F8A.DF534834@zip.com.au>
+	id <S313910AbSDJWOp>; Wed, 10 Apr 2002 18:14:45 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:16354 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S313908AbSDJWOm>;
+	Wed, 10 Apr 2002 18:14:42 -0400
+Date: Wed, 10 Apr 2002 15:11:03 -0700
+From: Russ Weight <rweight@us.ibm.com>
+To: mingo@elte.hu
+Cc: torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.5.8-pre3] Scalable CPU bitmasks
+Message-ID: <20020410151103.A7688@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 10, 2002 at 12:16:26PM -0700, Andrew Morton wrote:
-> I believe that the object relationship you're describing is
-> that the inode->i_mapping points to the main address_space,
-> and the `host' field of both the main and private address_spaces
-> both point at the same inode?  That the inode owns two
-> address_spaces?
+	This patch applies to the 2.5.8-pre3 kernel. It is
+essentially the same as the previous version, except that the 
+definition of CPUMAP_SIZE is unified as suggested by
+pmenage@ensim.com.
 
-Actually with Coda we've got 2 inodes that have an identical i_mapping.
-The Coda inode's i_mapping is set to point to the hosting inode's
-i_data. Hmm, I should probably set it to the i_mapping of the host
-inode that way I can run Coda over a Coda(-like) filesystem.
+          This patch implements a scalable bitmask specifically
+  for tracking CPUs. It consists of two architecture-independent
+  files, cpumap.h and cpumap.c. These files add a new datatype and
+  supporting functions which allow for future expansion to a CPU count 
+  which is not confined to the bit-size of (unsigned long).  The new
+  datatype (cpumap_t) and supporting interfaces are optimized at
+  compile-time according to the definition of NR_CPUS.
+  
+          While systems with more than 32 processors are still
+  out in the future, these interfaces provide a path for gradual
+  code migration. One of the primary goals is to provide current
+  functionality without affecting performance. The following 
+  is a list of bitmasks that could be converted to the new datatype.
+  
+          phys_cpu_present_map
+          cpu_initialized
+          wait_init_idle
+          cpu_online_map/cpu_present_mask
+          cpu_callin_map
+          cpu_callout_map
+  
+  NOTE:   The cpumap_to_ulong() and cpumap_ulong_to_cpumap() interfaces
+          are provided specifically for migration. If these interfaces are
+          used when NR_CPUS is greater than the bitsize of (unsigned long),
+          they will cause a link-time failure.
 
-> That's OK.  When a page is dirtied, the kernel will attach
-> that page to the private address_space's dirty pages list and
-> will attach the common inode to its superblock's dirty inodes list.
-
-But Coda has 2 inodes, which one are you connecting to whose superblock.
-My guess is that it would be correct to add inode->i_mapping->host to
-inode->i_mapping->host->i_sb, which will be the underlying inode in
-Coda's case, but host isn't guaranteed to be an inode, it just happens
-to be an inode in all existing situations.
-
-> > What's more, I wonder how well does your scheme work with ->i_mapping
-> > to a different inode's ->i_data (CODA et.al., file access to block devices).
-> 
-> Presumably, those different inodes have a superblock?  In that
-> case set_page_dirty will mark that inode dirty wrt its own
-> superblock.  set_page_dirty() is currently an optional a_op,
-> but it's not obvious that there will be a need for that.
-
-Coda's inodes don't have to get dirtied because we never write them out,
-although the associated dirty pages do need to hit the disk eventually :)
-
-Jan
-
+diff -Nru a/include/linux/cpumap.h b/include/linux/cpumap.h
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/include/linux/cpumap.h	Wed Apr 10 12:43:08 2002
+@@ -0,0 +1,110 @@
++/*
++ * cpumap_t data type and supporting functions
++ *
++ * Copyright (c) 2002 IBM Corp.
++ *
++ *	01/25/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
++ *	03/20/02 Move larger functions to cpumap.c	Russ Weight
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++#ifndef __LINUX_CPUMAP_H
++#define __LINUX_CPUMAP_H
++
++#include <linux/config.h>
++#include <linux/threads.h>
++#include <asm/types.h>
++
++#define CPUMAP_SIZE       ((NR_CPUS + BITS_PER_LONG - 1) / BITS_PER_LONG)
++
++#ifndef __ASSEMBLY__
++#include <linux/bitops.h>
++typedef unsigned long cpumap_t[CPUMAP_SIZE];
++
++/*
++ * The following interfaces are the same regardless of CPUMAP_SIZE
++ */
++#define cpumap_clear_bit	clear_bit
++#define cpumap_set_bit		set_bit
++#define cpumap_test_and_set_bit	test_and_set_bit
++#define cpumap_test_bit		test_bit
++
++#if (NR_CPUS % BITS_PER_LONG)
++#define CPUMAP_FILLMASK	((1 << (NR_CPUS % BITS_PER_LONG)) -1)
++#else
++#define CPUMAP_FILLMASK	(~0UL)
++#endif
++
++/*
++ * The following macros and prototype are used to format
++ * a cpumap_t object for display. This function knows the 
++ * minimum size required, which is provided as CPUMAP_BUFSIZE.
++ *
++ * The CPUMAP_BUFSIZE is an exact calcuation of the byte count
++ * required to display a cpumap_t object.
++ */
++
++#define CPUMAP_BUFSIZE (((sizeof(long) * 2) + 1) * CPUMAP_SIZE + 2)
++
++#if BITS_PER_LONG > 32
++#define CPUMAP_FORMAT_STR	"%016lx"
++#else
++#define CPUMAP_FORMAT_STR	"%08lx"
++#endif
++extern char *cpumap_format(cpumap_t map, char *buf, int size);
++
++#if CPUMAP_SIZE == 1
++/*
++ * The following interfaces are optimized for the case where
++ * CPUMAP_SIZE==1 (i.e. a single unsigned long). The single
++ * CPU case falls into the CPUMAP_SIZE==1 case.
++ */
++#define cpumap_to_ulong(cpumap)			(cpumap[0])
++#define cpumap_ulong_to_cpumap(bitmap, cpumap)	(cpumap[0] = bitmap)
++#define cpumap_is_empty(cpumap) 		(cpumap[0] == 0)
++#define cpumap_cmp_mask(map1, map2)		(map1[0] ==  map2[0])
++#define cpumap_clear_mask(cpumap)		(cpumap[0] = 0)
++#define cpumap_fill(cpumap)			(cpumap[0] = CPUMAP_FILLMASK)
++#define cpumap_copy_mask(srcmap, destmap) 	(destmap[0] = srcmap[0])
++#define cpumap_and_mask(map1, map2, result)	(result[0] = map1[0] & map2[0])
++
++#else
++
++/*
++ * The cpumap_to_ulong() and cpumap_ulong_to_cpumap() functions
++ * are provided to facilitate migration to the cpumap_t datatype.
++ * As currently defined, they are only valid for CPUMAP_SIZE==1.
++ * If they are referenced when CPUMAP_SIZE > 1, then we call a
++ * bogus function name in order to trigger a link-time error.
++ */
++extern unsigned long __bad_cpumap_to_ulong(void);
++extern void __bad_cpumap_ulong_to_cpumap(void);
++#define cpumap_to_ulong(cpumap)			__bad_cpumap_to_ulong()
++#define cpumap_ulong_to_cpumap(bitmap, cpumap)	__bad_cpumap_ulong_to_cpumap()
++
++extern int cpumap_is_empty(cpumap_t map);
++extern int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2);
++extern void cpumap_clear_mask(cpumap_t cpumap);
++extern void cpumap_fill(cpumap_t cpumap);
++extern void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap);
++extern void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result);
++
++#endif
++#endif
++#endif
+diff -Nru a/lib/Makefile b/lib/Makefile
+--- a/lib/Makefile	Wed Apr 10 12:43:08 2002
++++ b/lib/Makefile	Wed Apr 10 12:43:08 2002
+@@ -8,9 +8,9 @@
+ 
+ L_TARGET := lib.a
+ 
+-export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o crc32.o rbtree.o
++export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o crc32.o rbtree.o cpumap.o
+ 
+-obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o bust_spinlocks.o rbtree.o
++obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o bust_spinlocks.o rbtree.o cpumap.o
+ 
+ obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
+ obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
+diff -Nru a/lib/cpumap.c b/lib/cpumap.c
+--- /dev/null	Wed Dec 31 16:00:00 1969
++++ b/lib/cpumap.c	Wed Apr 10 12:43:08 2002
+@@ -0,0 +1,132 @@
++/*
++ * Supporting functions for cpumap_t data type
++ *
++ * Copyright (c) 2002 IBM Corp.
++ *
++ *	03/20/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
++ *
++ * All rights reserved.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
++ * NON INFRINGEMENT.  See the GNU General Public License for more
++ * details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++#include <linux/kernel.h>
++#include <linux/cpumap.h>
++#include <asm/string.h>
++
++/* Not all architectures define BUG() */
++#ifndef BUG
++  #define BUG() do { \
++	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
++	* ((char *) 0) = 0; \
++  } while (0)
++#endif /* BUG */
++
++/*
++ * The cpumap_format() function is used to format a cpumap_t
++ * object for display. This function knows the minimum size
++ * required, which is provided as CPUMAP_BUFSIZE.
++ */
++char *cpumap_format(cpumap_t map, char *buf, int size)
++{
++	if (size < CPUMAP_BUFSIZE) {
++		BUG();
++	}
++
++#if CPUMAP_SIZE > 1
++	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[CPUMAP_SIZE-1]);
++	{
++		int i;
++		char *p = buf + strlen(buf);
++		for (i = CPUMAP_SIZE-2; i >= 0; i--, p += (sizeof(long) + 1)) {
++			sprintf(p, " " CPUMAP_FORMAT_STR, map[i]);
++		}
++	}
++#else
++	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[0]);
++#endif
++	return(buf);
++}
++
++#if CPUMAP_SIZE > 1
++/*
++ * The following interfaces are provided for (CPUMAP_SIZE > 1).
++ * For the case of (CPUMAP_SIZE==1) (i.e. a single unsigned long),
++ * the same interfaces are provided as inline functions in cpumap.h.
++ */
++int cpumap_is_empty(cpumap_t cpumap)
++{
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		if (cpumap[i] !=  0) {
++			return 0;
++		}
++	}
++	return 1;
++}
++
++/*
++ * Return 1 (non-zero) if they are equal, 0 if not equal
++ */
++int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2)
++{
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		if (map1[i] !=  map2[i]) {
++			return 0;
++		}
++	}
++	return 1;
++}
++
++void cpumap_clear_mask(cpumap_t cpumap)
++{
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		cpumap[i] = 0UL;
++	}
++}
++
++void cpumap_fill(cpumap_t cpumap)
++{
++	int i;
++	for (i = 0; i < (CPUMAP_SIZE - 1); i++) {
++		cpumap[i] = ~0UL;
++	}
++	cpumap[CPUMAP_SIZE - 1] = CPUMAP_FILLMASK;
++}
++
++/*
++ * The following interfaces are optimized for the case where
++ * CPUMAP_SIZE==1 (i.e. a single unsigned long).
++ */
++void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap)
++{
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		destmap[i] = srcmap[i];
++	}
++}
++
++void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result)
++{
++	int i;
++	for (i = 0; i < CPUMAP_SIZE; i++) {
++		result[i] = map1[i] & map2[i];
++	}
++}
++
++#endif
+-- 
+Russ Weight (rweight@us.ibm.com)
+Linux Technology Center

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268313AbUHKXw7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268391AbUHLADQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268313AbUHKXw7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 19:52:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268324AbUHKXvn
+	id S268391AbUHLADQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 20:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268436AbUHLADP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 19:51:43 -0400
-Received: from omx1-ext.SGI.COM ([192.48.179.11]:30444 "EHLO
+	Wed, 11 Aug 2004 20:03:15 -0400
+Received: from omx1-ext.SGI.COM ([192.48.179.11]:63980 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S268390AbUHKXhJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 19:37:09 -0400
+	id S268391AbUHKXhj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 19:37:39 -0400
 From: Pat Gefre <pfg@sgi.com>
-Message-Id: <200408112335.i7BNZvrp140066@fsgi900.americas.sgi.com>
-Subject: Re: Altix I/O code reorganization - 20 of 21
+Message-Id: <200408112336.i7BNaPxI163752@fsgi900.americas.sgi.com>
+Subject: Re: Altix I/O code reorganization - 21 of 21
 To: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
        hch@infradead.org
-Date: Wed, 11 Aug 2004 18:35:56 -0500 (CDT)
+Date: Wed, 11 Aug 2004 18:36:24 -0500 (CDT)
 X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -26,546 +26,830 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # This is a BitKeeper generated diff -Nru style patch.
 #
 # ChangeSet
-#   2004/08/11 17:54:44-05:00 pfg@sgi.com 
-#   code clean up
+#   2004/08/11 17:56:43-05:00 pfg@sgi.com 
+#   clean up
+#   new defs for the new I/O code
 # 
-# include/asm-ia64/sn/xtalk/xbow_info.h
-#   2004/08/11 17:54:30-05:00 pfg@sgi.com +0 -2
+# include/asm-ia64/sn/pci/pic.h
+#   2004/08/11 17:56:29-05:00 pfg@sgi.com +462 -263
 #    
 # 
-# include/asm-ia64/sn/xtalk/xbow.h
-#   2004/08/11 17:54:30-05:00 pfg@sgi.com +48 -408
-#    c
-# 
-diff -Nru a/include/asm-ia64/sn/xtalk/xbow.h b/include/asm-ia64/sn/xtalk/xbow.h
---- a/include/asm-ia64/sn/xtalk/xbow.h	2004-08-11 17:55:11 -05:00
-+++ b/include/asm-ia64/sn/xtalk/xbow.h	2004-08-11 17:55:11 -05:00
-@@ -12,15 +12,6 @@
-  * xbow.h - header file for crossbow chip and xbow section of xbridge
+diff -Nru a/include/asm-ia64/sn/pci/pic.h b/include/asm-ia64/sn/pci/pic.h
+--- a/include/asm-ia64/sn/pci/pic.h	2004-08-11 17:57:11 -05:00
++++ b/include/asm-ia64/sn/pci/pic.h	2004-08-11 17:57:11 -05:00
+@@ -55,36 +55,9 @@
+  * ----------|---------------------------------------
   */
  
--#include <asm/types.h>
--#include <asm/sn/xtalk/xtalk.h>
--#include <asm/sn/xtalk/xwidget.h>
--#include <asm/sn/xtalk/xswitch.h>
--#ifndef __ASSEMBLY__
--#include <asm/sn/xtalk/xbow_info.h>
--#endif
 -
--
- #define	XBOW_DRV_PREFIX	"xbow_"
- 
- /* The crossbow chip supports 8 8/16 bits I/O ports, numbered 0x8 through 0xf.
-@@ -52,9 +43,6 @@
- 
- #define MAX_XBOW_NAME 	16
- 
--#ifndef __ASSEMBLY__
--typedef uint32_t      xbowreg_t;
--
- /* Register set for each xbow link */
- typedef volatile struct xb_linkregs_s {
- /* 
-@@ -62,27 +50,27 @@
-  * gets twiddled (i.e. references to 0x4 actually go to 0x0 and vv.)
-  * That's why we put the register first and filler second.
-  */
--    xbowreg_t               link_ibf;
--    xbowreg_t               filler0;	/* filler for proper alignment */
--    xbowreg_t               link_control;
--    xbowreg_t               filler1;
--    xbowreg_t               link_status;
--    xbowreg_t               filler2;
--    xbowreg_t               link_arb_upper;
--    xbowreg_t               filler3;
--    xbowreg_t               link_arb_lower;
--    xbowreg_t               filler4;
--    xbowreg_t               link_status_clr;
--    xbowreg_t               filler5;
--    xbowreg_t               link_reset;
--    xbowreg_t               filler6;
--    xbowreg_t               link_aux_status;
--    xbowreg_t               filler7;
-+    uint32_t               link_ibf;
-+    uint32_t               filler0;	/* filler for proper alignment */
-+    uint32_t               link_control;
-+    uint32_t               filler1;
-+    uint32_t               link_status;
-+    uint32_t               filler2;
-+    uint32_t               link_arb_upper;
-+    uint32_t               filler3;
-+    uint32_t               link_arb_lower;
-+    uint32_t               filler4;
-+    uint32_t               link_status_clr;
-+    uint32_t               filler5;
-+    uint32_t               link_reset;
-+    uint32_t               filler6;
-+    uint32_t               link_aux_status;
-+    uint32_t               filler7;
- } xb_linkregs_t;
- 
- typedef volatile struct xbow_s {
-     /* standard widget configuration                       0x000000-0x000057 */
--    widget_cfg_t            xb_widget;  /* 0x000000 */
-+    struct widget_cfg            xb_widget;  /* 0x000000 */
- 
-     /* helper fieldnames for accessing bridge widget */
- 
-@@ -104,40 +92,40 @@
-  * That's why we put the register first and filler second.
-  */
-     /* xbow-specific widget configuration                  0x000058-0x0000FF */
--    xbowreg_t               xb_wid_arb_reload;  /* 0x00005C */
--    xbowreg_t               _pad_000058;
--    xbowreg_t               xb_perf_ctr_a;      /* 0x000064 */
--    xbowreg_t               _pad_000060;
--    xbowreg_t               xb_perf_ctr_b;      /* 0x00006c */
--    xbowreg_t               _pad_000068;
--    xbowreg_t               xb_nic;     /* 0x000074 */
--    xbowreg_t               _pad_000070;
-+    uint32_t               xb_wid_arb_reload;  /* 0x00005C */
-+    uint32_t               _pad_000058;
-+    uint32_t               xb_perf_ctr_a;      /* 0x000064 */
-+    uint32_t               _pad_000060;
-+    uint32_t               xb_perf_ctr_b;      /* 0x00006c */
-+    uint32_t               _pad_000068;
-+    uint32_t               xb_nic;     /* 0x000074 */
-+    uint32_t               _pad_000070;
- 
-     /* Xbridge only */
--    xbowreg_t               xb_w0_rst_fnc;      /* 0x00007C */
--    xbowreg_t               _pad_000078;
--    xbowreg_t               xb_l8_rst_fnc;      /* 0x000084 */
--    xbowreg_t               _pad_000080;
--    xbowreg_t               xb_l9_rst_fnc;      /* 0x00008c */
--    xbowreg_t               _pad_000088;
--    xbowreg_t               xb_la_rst_fnc;      /* 0x000094 */
--    xbowreg_t               _pad_000090;
--    xbowreg_t               xb_lb_rst_fnc;      /* 0x00009c */
--    xbowreg_t               _pad_000098;
--    xbowreg_t               xb_lc_rst_fnc;      /* 0x0000a4 */
--    xbowreg_t               _pad_0000a0;
--    xbowreg_t               xb_ld_rst_fnc;      /* 0x0000ac */
--    xbowreg_t               _pad_0000a8;
--    xbowreg_t               xb_le_rst_fnc;      /* 0x0000b4 */
--    xbowreg_t               _pad_0000b0;
--    xbowreg_t               xb_lf_rst_fnc;      /* 0x0000bc */
--    xbowreg_t               _pad_0000b8;
--    xbowreg_t               xb_lock;            /* 0x0000c4 */
--    xbowreg_t               _pad_0000c0;
--    xbowreg_t               xb_lock_clr;        /* 0x0000cc */
--    xbowreg_t               _pad_0000c8;
-+    uint32_t               xb_w0_rst_fnc;      /* 0x00007C */
-+    uint32_t               _pad_000078;
-+    uint32_t               xb_l8_rst_fnc;      /* 0x000084 */
-+    uint32_t               _pad_000080;
-+    uint32_t               xb_l9_rst_fnc;      /* 0x00008c */
-+    uint32_t               _pad_000088;
-+    uint32_t               xb_la_rst_fnc;      /* 0x000094 */
-+    uint32_t               _pad_000090;
-+    uint32_t               xb_lb_rst_fnc;      /* 0x00009c */
-+    uint32_t               _pad_000098;
-+    uint32_t               xb_lc_rst_fnc;      /* 0x0000a4 */
-+    uint32_t               _pad_0000a0;
-+    uint32_t               xb_ld_rst_fnc;      /* 0x0000ac */
-+    uint32_t               _pad_0000a8;
-+    uint32_t               xb_le_rst_fnc;      /* 0x0000b4 */
-+    uint32_t               _pad_0000b0;
-+    uint32_t               xb_lf_rst_fnc;      /* 0x0000bc */
-+    uint32_t               _pad_0000b8;
-+    uint32_t               xb_lock;            /* 0x0000c4 */
-+    uint32_t               _pad_0000c0;
-+    uint32_t               xb_lock_clr;        /* 0x0000cc */
-+    uint32_t               _pad_0000c8;
-     /* end of Xbridge only */
--    xbowreg_t               _pad_0000d0[12];
-+    uint32_t               _pad_0000d0[12];
- 
-     /* Link Specific Registers, port 8..15                 0x000100-0x000300 */
-     xb_linkregs_t           xb_link_raw[MAX_XBOW_PORTS];
-@@ -145,20 +133,6 @@
- 
- } xbow_t;
- 
--/* Configuration structure which describes each xbow link */
--typedef struct xbow_cfg_s {
--    int			    xb_port;	/* port number (0-15) */
--    int			    xb_flags;	/* port software flags */
--    short		    xb_shift;	/* shift for arb reg (mask is 0xff) */
--    short		    xb_ul;	/* upper or lower arb reg */
--    int			    xb_pad;	/* use this later (pad to ptr align) */
--    xb_linkregs_t	   *xb_linkregs;	/* pointer to link registers */
--    widget_cfg_t	   *xb_widget;	/* pointer to widget registers */
--    char		    xb_name[MAX_XBOW_NAME];	/* port name */
--    xbowreg_t		    xb_sh_arb_upper;	/* shadow upper arb register */
--    xbowreg_t		    xb_sh_arb_lower;	/* shadow lower arb register */
--} xbow_cfg_t;
--
- #define XB_FLAGS_EXISTS		0x1	/* device exists */
- #define XB_FLAGS_MASTER		0x2
- #define XB_FLAGS_SLAVE		0x0
-@@ -166,9 +140,6 @@
- #define XB_FLAGS_16BIT		0x8
- #define XB_FLAGS_8BIT		0x0
- 
--/* get xbow config information for port p */
--#define XB_CONFIG(p)	xbow_cfg[xb_ports[p]]
--
- /* is widget port number valid?  (based on version 7.0 of xbow spec) */
- #define XBOW_WIDGET_IS_VALID(wid) ((wid) >= XBOW_PORT_8 && (wid) <= XBOW_PORT_F)
- 
-@@ -179,8 +150,6 @@
- /* offset of arbitration register, given source widget id */
- #define XBOW_ARB_OFF(wid) 	(XBOW_ARB_IS_UPPER(wid) ? 0x1c : 0x24)
- 
--#endif				/* __ASSEMBLY__ */
--
- #define	XBOW_WID_ID		WIDGET_ID
- #define	XBOW_WID_STAT		WIDGET_STATUS
- #define	XBOW_WID_ERR_UPPER	WIDGET_ERR_UPPER_ADDR
-@@ -343,333 +312,4 @@
- 
- #define XBOW_WAR_ENABLED(pv, widid) ((1 << XWIDGET_REV_NUM(widid)) & pv)
- 
--#ifndef __ASSEMBLY__
--/*
-- * XBOW Widget 0 Register formats.
-- * Format for many of these registers are similar to the standard
-- * widget register format described as part of xtalk specification
-- * Standard widget register field format description is available in
-- * xwidget.h
-- * Following structures define the format for xbow widget 0 registers
-- */
--/*
-- * Xbow Widget 0 Command error word
-- */
--typedef union xbw0_cmdword_u {
--    xbowreg_t               cmdword;
--    struct {
--	uint32_t              rsvd:8,		/* Reserved */
--                                barr:1,         /* Barrier operation */
--                                error:1,        /* Error Occured */
--                                vbpm:1,         /* Virtual Backplane message */
--                                gbr:1,  /* GBR enable ?                 */
--                                ds:2,   /* Data size                    */
--                                ct:1,   /* Is it a coherent transaction */
--                                tnum:5,         /* Transaction Number */
--                                pactyp:4,       /* Packet type: */
--                                srcid:4,        /* Source ID number */
--                                destid:4;       /* Desination ID number */
--
--    } xbw0_cmdfield;
--} xbw0_cmdword_t;
--
--#define	xbcmd_destid	xbw0_cmdfield.destid
--#define	xbcmd_srcid	xbw0_cmdfield.srcid
--#define	xbcmd_pactyp	xbw0_cmdfield.pactyp
--#define	xbcmd_tnum	xbw0_cmdfield.tnum
--#define	xbcmd_ct	xbw0_cmdfield.ct
--#define	xbcmd_ds	xbw0_cmdfield.ds
--#define	xbcmd_gbr	xbw0_cmdfield.gbr
--#define	xbcmd_vbpm	xbw0_cmdfield.vbpm
--#define	xbcmd_error	xbw0_cmdfield.error
--#define	xbcmd_barr	xbw0_cmdfield.barr
--
--/*
-- * Values for field PACTYP in xbow error command word
-- */
--#define	XBCMDTYP_READREQ	0	/* Read Request   packet  */
--#define	XBCMDTYP_READRESP	1	/* Read Response packet   */
--#define	XBCMDTYP_WRREQ_RESP	2	/* Write Request with response    */
--#define	XBCMDTYP_WRRESP		3	/* Write Response */
--#define	XBCMDTYP_WRREQ_NORESP	4	/* Write request with  No Response */
--#define	XBCMDTYP_FETCHOP	6	/* Fetch & Op packet      */
--#define	XBCMDTYP_STOREOP	8	/* Store & Op packet      */
--#define	XBCMDTYP_SPLPKT_REQ	0xE	/* Special packet request */
--#define	XBCMDTYP_SPLPKT_RESP	0xF	/* Special packet response        */
--
--/*
-- * Values for field ds (datasize) in xbow error command word
-- */
--#define	XBCMDSZ_DOUBLEWORD	0
--#define	XBCMDSZ_QUARTRCACHE	1
--#define	XBCMDSZ_FULLCACHE	2
--
--/*
-- * Xbow widget 0 Status register format.
-- */
--
--typedef union xbw0_status_u {
--    xbowreg_t               statusword;
--    struct {
--       uint32_t		mult_err:1,	/* Multiple error occurred */
--                                connect_tout:1, /* Connection timeout   */
--                                xtalk_err:1,    /* Xtalk pkt with error bit */
--                                /* End of Xbridge only */
--                                w0_arb_tout,    /* arbiter timeout err */
--                                w0_recv_tout,   /* receive timeout err */
--                                /* Xbridge only */
--                                regacc_err:1,   /* Reg Access error     */
--                                src_id:4,       /* source id. Xbridge only */
--                                resvd1:13,
--                                wid0intr:1;     /* Widget 0 err intr */
--    } xbw0_stfield;
--} xbw0_status_t;
--
--#define	xbst_linkXintr		xbw0_stfield.linkXintr
--#define	xbst_w0intr		xbw0_stfield.wid0intr
--#define	xbst_regacc_err		xbw0_stfield.regacc_err
--#define	xbst_xtalk_err		xbw0_stfield.xtalk_err
--#define	xbst_connect_tout	xbw0_stfield.connect_tout
--#define	xbst_mult_err		xbw0_stfield.mult_err
--#define xbst_src_id		xbw0_stfield.src_id	    /* Xbridge only */
--#define xbst_w0_recv_tout	xbw0_stfield.w0_recv_tout   /* Xbridge only */
--#define xbst_w0_arb_tout	xbw0_stfield.w0_arb_tout    /* Xbridge only */
--
--/*
-- * Xbow widget 0 Control register format
-- */
--
--typedef union xbw0_ctrl_u {
--    xbowreg_t               ctrlword;
--    struct {
--	uint32_t              
--				resvd3:1,
--                                conntout_intr:1,
--                                xtalkerr_intr:1,
--                                w0_arg_tout_intr:1,     /* Xbridge only */
--                                w0_recv_tout_intr:1,    /* Xbridge only */
--                                accerr_intr:1,
--                                enable_w0_tout_cntr:1,  /* Xbridge only */
--                                enable_watchdog:1,      /* Xbridge only */
--                                resvd1:24;
--    } xbw0_ctrlfield;
--} xbw0_ctrl_t;
--
--typedef union xbow_linkctrl_u {
--    xbowreg_t               xbl_ctrlword;
--    struct {
--	uint32_t 		srcto_intr:1,
--                                maxto_intr:1, 
--                                rsvd3:1,
--                                trx_retry_intr:1, 
--                                rcv_err_intr:1, 
--                                trx_max_retry_intr:1,
--                                trxov_intr:1, 
--                                rcvov_intr:1,
--                                bwalloc_intr:1, 
--                                rsvd2:7, 
--                                obuf_intr:1,
--                                idest_intr:1, 
--                                llp_credit:5, 
--                                force_badllp:1,
--                                send_bm8:1, 
--                                inbuf_level:3, 
--                                perf_mode:2,
--                                rsvd1:1, 
--       		                alive_intr:1;
--
--    } xb_linkcontrol;
--} xbow_linkctrl_t;
--
--#define	xbctl_accerr_intr	(xbw0_ctrlfield.accerr_intr)
--#define	xbctl_xtalkerr_intr	(xbw0_ctrlfield.xtalkerr_intr)
--#define	xbctl_cnntout_intr	(xbw0_ctrlfield.conntout_intr)
--
--#define	XBW0_CTRL_ACCERR_INTR	(1 << 5)
--#define	XBW0_CTRL_XTERR_INTR	(1 << 2)
--#define	XBW0_CTRL_CONNTOUT_INTR	(1 << 1)
--
--/*
-- * Xbow Link specific Registers structure definitions.
-- */
--
--typedef union xbow_linkX_status_u {
--    xbowreg_t               linkstatus;
--    struct {
--	uint32_t               pkt_toutsrc:1,
--                                pkt_toutconn:1, /* max_req_tout in Xbridge */
--                                pkt_toutdest:1, /* reserved in Xbridge */
--                                llp_xmitretry:1,
--                                llp_rcverror:1,
--                                llp_maxtxretry:1,
--                                llp_txovflow:1,
--                                llp_rxovflow:1,
--                                bw_errport:8,   /* BW allocation error port   */
--                                ioe:1,          /* Input overallocation error */
--                                illdest:1,
--                                merror:1,
--                                resvd1:12,
--				alive:1;
--    } xb_linkstatus;
--} xbwX_stat_t;
--
--#define	link_alive		xb_linkstatus.alive
--#define	link_multierror		xb_linkstatus.merror
--#define	link_illegal_dest	xb_linkstatus.illdest
--#define	link_ioe		xb_linkstatus.ioe
--#define link_max_req_tout	xb_linkstatus.pkt_toutconn  /* Xbridge */
--#define link_pkt_toutconn	xb_linkstatus.pkt_toutconn  /* Xbow */
--#define link_pkt_toutdest	xb_linkstatus.pkt_toutdest
--#define	link_pkt_toutsrc	xb_linkstatus.pkt_toutsrc
--
--typedef union xbow_aux_linkX_status_u {
--    xbowreg_t               aux_linkstatus;
--    struct {
--	uint32_t 		rsvd2:4,
--                                bit_mode_8:1,
--                                wid_present:1,
--                                fail_mode:1,
--                                rsvd1:1,
--                                to_src_loc:8,
--                                tx_retry_cnt:8,
--				rx_err_cnt:8;
--    } xb_aux_linkstatus;
--} xbow_aux_link_status_t;
--
--typedef union xbow_perf_count_u {
--    xbowreg_t               xb_counter_val;
--    struct {
--        uint32_t 		count:20,
--                                link_select:3,
--				rsvd:9;
--    } xb_perf;
--} xbow_perfcount_t;
--
--#define XBOW_COUNTER_MASK	0xFFFFF
--
--extern int              xbow_widget_present(xbow_t * xbow, int port);
--
--extern xwidget_intr_preset_f xbow_intr_preset;
--extern xswitch_reset_link_f xbow_reset_link;
--void                    xbow_mlreset(xbow_t *);
--
--/* ========================================================================
-- */
--
--#ifdef	MACROFIELD_LINE
--/*
-- * This table forms a relation between the byte offset macros normally
-- * used for ASM coding and the calculated byte offsets of the fields
-- * in the C structure.
-- *
-- * See xbow_check.c xbow_html.c for further details.
-- */
--#ifndef MACROFIELD_LINE_BITFIELD
--#define MACROFIELD_LINE_BITFIELD(m)	/* ignored */
--#endif
--
--struct macrofield_s     xbow_macrofield[] =
--{
--
--    MACROFIELD_LINE(XBOW_WID_ID, xb_wid_id)
--    MACROFIELD_LINE(XBOW_WID_STAT, xb_wid_stat)
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_LINK_INTR(0xF))
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_LINK_INTR(0xE))
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_LINK_INTR(0xD))
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_LINK_INTR(0xC))
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_LINK_INTR(0xB))
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_LINK_INTR(0xA))
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_LINK_INTR(0x9))
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_LINK_INTR(0x8))
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_WIDGET0_INTR)
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_REG_ACC_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_XTALK_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_WID_STAT_MULTI_ERR)
--    MACROFIELD_LINE(XBOW_WID_ERR_UPPER, xb_wid_err_upper)
--    MACROFIELD_LINE(XBOW_WID_ERR_LOWER, xb_wid_err_lower)
--    MACROFIELD_LINE(XBOW_WID_CONTROL, xb_wid_control)
--    MACROFIELD_LINE_BITFIELD(XB_WID_CTRL_REG_ACC_IE)
--    MACROFIELD_LINE_BITFIELD(XB_WID_CTRL_XTALK_IE)
--    MACROFIELD_LINE(XBOW_WID_REQ_TO, xb_wid_req_timeout)
--    MACROFIELD_LINE(XBOW_WID_INT_UPPER, xb_wid_int_upper)
--    MACROFIELD_LINE(XBOW_WID_INT_LOWER, xb_wid_int_lower)
--    MACROFIELD_LINE(XBOW_WID_ERR_CMDWORD, xb_wid_err_cmdword)
--    MACROFIELD_LINE(XBOW_WID_LLP, xb_wid_llp)
--    MACROFIELD_LINE(XBOW_WID_STAT_CLR, xb_wid_stat_clr)
--    MACROFIELD_LINE(XBOW_WID_ARB_RELOAD, xb_wid_arb_reload)
--    MACROFIELD_LINE(XBOW_WID_PERF_CTR_A, xb_perf_ctr_a)
--    MACROFIELD_LINE(XBOW_WID_PERF_CTR_B, xb_perf_ctr_b)
--    MACROFIELD_LINE(XBOW_WID_NIC, xb_nic)
--    MACROFIELD_LINE(XB_LINK_REG_BASE(8), xb_link(8))
--    MACROFIELD_LINE(XB_LINK_IBUF_FLUSH(8), xb_link(8).link_ibf)
--    MACROFIELD_LINE(XB_LINK_CTRL(8), xb_link(8).link_control)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_LINKALIVE_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_PERF_CTR_MODE_MSK)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_IBUF_LEVEL_MSK)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_8BIT_MODE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_BAD_LLP_PKT)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_WIDGET_CR_MSK)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_ILLEGAL_DST_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_OALLOC_IBUF_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_BNDWDTH_ALLOC_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_RCV_CNT_OFLOW_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_XMT_CNT_OFLOW_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_XMT_MAX_RTRY_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_RCV_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_XMT_RTRY_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_MAXREQ_TOUT_IE)
--    MACROFIELD_LINE_BITFIELD(XB_CTRL_SRC_TOUT_IE)
--    MACROFIELD_LINE(XB_LINK_STATUS(8), xb_link(8).link_status)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_LINKALIVE)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_MULTI_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_ILLEGAL_DST_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_OALLOC_IBUF_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_BNDWDTH_ALLOC_ID_MSK)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_RCV_CNT_OFLOW_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_XMT_CNT_OFLOW_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_XMT_MAX_RTRY_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_RCV_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_XMT_RTRY_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_MAXREQ_TOUT_ERR)
--    MACROFIELD_LINE_BITFIELD(XB_STAT_SRC_TOUT_ERR)
--    MACROFIELD_LINE(XB_LINK_ARB_UPPER(8), xb_link(8).link_arb_upper)
--    MACROFIELD_LINE_BITFIELD(XB_ARB_RR_MSK << XB_ARB_RR_SHFT(0xb))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_GBR_MSK << XB_ARB_GBR_SHFT(0xb))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_RR_MSK << XB_ARB_RR_SHFT(0xa))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_GBR_MSK << XB_ARB_GBR_SHFT(0xa))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_RR_MSK << XB_ARB_RR_SHFT(0x9))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_GBR_MSK << XB_ARB_GBR_SHFT(0x9))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_RR_MSK << XB_ARB_RR_SHFT(0x8))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_GBR_MSK << XB_ARB_GBR_SHFT(0x8))
--    MACROFIELD_LINE(XB_LINK_ARB_LOWER(8), xb_link(8).link_arb_lower)
--    MACROFIELD_LINE_BITFIELD(XB_ARB_RR_MSK << XB_ARB_RR_SHFT(0xf))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_GBR_MSK << XB_ARB_GBR_SHFT(0xf))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_RR_MSK << XB_ARB_RR_SHFT(0xe))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_GBR_MSK << XB_ARB_GBR_SHFT(0xe))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_RR_MSK << XB_ARB_RR_SHFT(0xd))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_GBR_MSK << XB_ARB_GBR_SHFT(0xd))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_RR_MSK << XB_ARB_RR_SHFT(0xc))
--    MACROFIELD_LINE_BITFIELD(XB_ARB_GBR_MSK << XB_ARB_GBR_SHFT(0xc))
--    MACROFIELD_LINE(XB_LINK_STATUS_CLR(8), xb_link(8).link_status_clr)
--    MACROFIELD_LINE(XB_LINK_RESET(8), xb_link(8).link_reset)
--    MACROFIELD_LINE(XB_LINK_AUX_STATUS(8), xb_link(8).link_aux_status)
--    MACROFIELD_LINE_BITFIELD(XB_AUX_STAT_RCV_CNT)
--    MACROFIELD_LINE_BITFIELD(XB_AUX_STAT_XMT_CNT)
--    MACROFIELD_LINE_BITFIELD(XB_AUX_LINKFAIL_RST_BAD)
--    MACROFIELD_LINE_BITFIELD(XB_AUX_STAT_PRESENT)
--    MACROFIELD_LINE_BITFIELD(XB_AUX_STAT_PORT_WIDTH)
--    MACROFIELD_LINE_BITFIELD(XB_AUX_STAT_TOUT_DST)
--    MACROFIELD_LINE(XB_LINK_REG_BASE(0x8), xb_link(0x8))
--    MACROFIELD_LINE(XB_LINK_REG_BASE(0x9), xb_link(0x9))
--    MACROFIELD_LINE(XB_LINK_REG_BASE(0xA), xb_link(0xA))
--    MACROFIELD_LINE(XB_LINK_REG_BASE(0xB), xb_link(0xB))
--    MACROFIELD_LINE(XB_LINK_REG_BASE(0xC), xb_link(0xC))
--    MACROFIELD_LINE(XB_LINK_REG_BASE(0xD), xb_link(0xD))
--    MACROFIELD_LINE(XB_LINK_REG_BASE(0xE), xb_link(0xE))
--    MACROFIELD_LINE(XB_LINK_REG_BASE(0xF), xb_link(0xF))
--};				/* xbow_macrofield[] */
--
--#endif				/* MACROFIELD_LINE */
--
--#endif				/* __ASSEMBLY__ */
- #endif                          /* _ASM_IA64_SN_XTALK_XBOW_H */
-diff -Nru a/include/asm-ia64/sn/xtalk/xbow_info.h b/include/asm-ia64/sn/xtalk/xbow_info.h
---- a/include/asm-ia64/sn/xtalk/xbow_info.h	2004-08-11 17:55:11 -05:00
-+++ b/include/asm-ia64/sn/xtalk/xbow_info.h	2004-08-11 17:55:11 -05:00
-@@ -8,8 +8,6 @@
- #ifndef _ASM_IA64_SN_XTALK_XBOW_INFO_H
- #define _ASM_IA64_SN_XTALK_XBOW_INFO_H
- 
+-#ifdef __KERNEL__
 -#include <linux/types.h>
+-#include <asm/sn/xtalk/xwidget.h>	/* generic widget header */
+-#else
+-#include <xtalk/xwidget.h>
+-#endif
 -
- #define XBOW_PERF_MODES	       0x03
+-#include <asm/sn/pci/pciio.h>
+-
+-
+-/*
+- *    bus provider function table
+- *
+- *	Normally, this table is only handed off explicitly
+- *	during provider initialization, and the PCI generic
+- *	layer will stash a pointer to it in the vertex; however,
+- *	exporting it explicitly enables a performance hack in
+- *	the generic PCI provider where if we know at compile
+- *	time that the only possible PCI provider is a
+- *	pcibr, we can go directly to this ops table.
+- */
+-
+-extern pciio_provider_t pci_pic_provider;
+-
+-
+-/*
+- * misc defines
+- *
+- */
++/*****************************************************************************
++ *************************** PIC PART & REV DEFINES **************************
++ *****************************************************************************/
  
- typedef struct xbow_link_status {
+ #define PIC_WIDGET_PART_NUM_BUS0 0xd102
+ #define PIC_WIDGET_PART_NUM_BUS1 0xd112
+@@ -93,291 +66,145 @@
+ #define PIC_WIDGET_REV_B  0x2
+ #define PIC_WIDGET_REV_C  0x3
+ 
+-#define PIC_XTALK_ADDR_MASK                     0x0000FFFFFFFFFFFF
+-#define PIC_INTERNAL_ATES                       1024
+-
+-
+ #define IS_PIC_PART_REV_A(rev) \
+ 	((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_A)) || \
+ 	(rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_A)))
+ #define IS_PIC_PART_REV_B(rev) \
+-        ((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_B)) || \
+-        (rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_B)))
++	((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_B)) || \
++	(rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_B)))
+ #define IS_PIC_PART_REV_C(rev) \
+-        ((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_C)) || \
+-        (rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_C)))
+-
+-
+-/*
+- * misc typedefs
+- *
+- */
+-typedef uint64_t picreg_t;
+-typedef uint64_t picate_t;
+-
+-/*
+- * PIC Bridge MMR defines
+- */
+-
+-/*
+- * PIC STATUS register          offset 0x00000008
+- */
+-
+-#define PIC_STAT_PCIX_ACTIVE_SHFT       33
+-
+-/*
+- * PIC CONTROL register         offset 0x00000020
+- */
+-
+-#define PIC_CTRL_PCI_SPEED_SHFT         4
+-#define PIC_CTRL_PCI_SPEED              (0x3 << PIC_CTRL_PCI_SPEED_SHFT)
+-#define PIC_CTRL_PAGE_SIZE_SHFT         21
+-#define PIC_CTRL_PAGE_SIZE              (0x1 << PIC_CTRL_PAGE_SIZE_SHFT)
+-
+-
+-/*
+- * PIC Intr Destination Addr    offset 0x00000038
+- */
+-
+-#define PIC_INTR_DEST_ADDR              0x0000FFFFFFFFFFFF
+-#define PIC_INTR_DEST_TID_SHFT          48
+-#define PIC_INTR_DEST_TID               (0xFull << PIC_INTR_DEST_TID_SHFT)
+-
+-/*
+- * PIC PCI Responce Buffer      offset 0x00000068
+- */
+-#define PIC_RSP_BUF_ADDR                0x0000FFFFFFFFFFFF
+-#define PIC_RSP_BUF_NUM_SHFT            48
+-#define PIC_RSP_BUF_NUM                 (0xFull << PIC_RSP_BUF_NUM_SHFT)
+-#define PIC_RSP_BUF_DEV_NUM_SHFT        52
+-#define PIC_RSP_BUF_DEV_NUM             (0x3ull << PIC_RSP_BUF_DEV_NUM_SHFT)
+-
+-/*
+- * PIC PCI DIRECT MAP register  offset 0x00000080
+- */
+-#define PIC_DIRMAP_DIROFF_SHFT          0
+-#define PIC_DIRMAP_DIROFF               (0x1FFFF << PIC_DIRMAP_DIROFF_SHFT)
+-#define PIC_DIRMAP_ADD512_SHFT          17
+-#define PIC_DIRMAP_ADD512               (0x1 << PIC_DIRMAP_ADD512_SHFT)
+-#define PIC_DIRMAP_WID_SHFT             20
+-#define PIC_DIRMAP_WID                  (0xF << PIC_DIRMAP_WID_SHFT)
++	((rev == (PIC_WIDGET_PART_NUM_BUS0 << 4 | PIC_WIDGET_REV_C)) || \
++	(rev == (PIC_WIDGET_PART_NUM_BUS1 << 4 | PIC_WIDGET_REV_C)))
+ 
+-#define PIC_DIRMAP_OFF_ADDRSHFT         31
+ 
+-/*
+- * Interrupt Status register            offset 0x00000100
+- */
+-#define PIC_ISR_PCIX_SPLIT_MSG_PE     (0x1ull << 45)
+-#define PIC_ISR_PCIX_SPLIT_EMSG       (0x1ull << 44)
+-#define PIC_ISR_PCIX_SPLIT_TO         (0x1ull << 43)
+-#define PIC_ISR_PCIX_UNEX_COMP        (0x1ull << 42)
+-#define PIC_ISR_INT_RAM_PERR          (0x1ull << 41)
+-#define PIC_ISR_PCIX_ARB_ERR          (0x1ull << 40)
+-#define PIC_ISR_PCIX_REQ_TOUT         (0x1ull << 39)
+-#define PIC_ISR_PCIX_TABORT           (0x1ull << 38)
+-#define PIC_ISR_PCIX_PERR             (0x1ull << 37)
+-#define PIC_ISR_PCIX_SERR             (0x1ull << 36)
+-#define PIC_ISR_PCIX_MRETRY           (0x1ull << 35)
+-#define PIC_ISR_PCIX_MTOUT            (0x1ull << 34)
+-#define PIC_ISR_PCIX_DA_PARITY        (0x1ull << 33)
+-#define PIC_ISR_PCIX_AD_PARITY        (0x1ull << 32)
+-#define PIC_ISR_PMU_PAGE_FAULT        (0x1ull << 30)
+-#define PIC_ISR_UNEXP_RESP            (0x1ull << 29)
+-#define PIC_ISR_BAD_XRESP_PKT         (0x1ull << 28)
+-#define PIC_ISR_BAD_XREQ_PKT          (0x1ull << 27)
+-#define PIC_ISR_RESP_XTLK_ERR         (0x1ull << 26)
+-#define PIC_ISR_REQ_XTLK_ERR          (0x1ull << 25)
+-#define PIC_ISR_INVLD_ADDR            (0x1ull << 24)
+-#define PIC_ISR_UNSUPPORTED_XOP       (0x1ull << 23)
+-#define PIC_ISR_XREQ_FIFO_OFLOW       (0x1ull << 22)
+-#define PIC_ISR_LLP_REC_SNERR         (0x1ull << 21)
+-#define PIC_ISR_LLP_REC_CBERR         (0x1ull << 20)
+-#define PIC_ISR_LLP_RCTY              (0x1ull << 19)
+-#define PIC_ISR_LLP_TX_RETRY          (0x1ull << 18)
+-#define PIC_ISR_LLP_TCTY              (0x1ull << 17)
+-#define PIC_ISR_PCI_ABORT             (0x1ull << 15)
+-#define PIC_ISR_PCI_PARITY            (0x1ull << 14)
+-#define PIC_ISR_PCI_SERR              (0x1ull << 13)
+-#define PIC_ISR_PCI_PERR              (0x1ull << 12)
+-#define PIC_ISR_PCI_MST_TIMEOUT       (0x1ull << 11)
+-#define PIC_ISR_PCI_RETRY_CNT         (0x1ull << 10)
+-#define PIC_ISR_XREAD_REQ_TIMEOUT     (0x1ull << 9)
+-#define PIC_ISR_INT_MSK               (0xffull << 0)
+-#define PIC_ISR_INT(x)                (0x1ull << (x))
+-
+-#define PIC_ISR_LINK_ERROR            \
+-                (PIC_ISR_LLP_REC_SNERR|PIC_ISR_LLP_REC_CBERR|       \
+-                 PIC_ISR_LLP_RCTY|PIC_ISR_LLP_TX_RETRY|             \
+-                 PIC_ISR_LLP_TCTY)
+-
+-#define PIC_ISR_PCIBUS_PIOERR         \
+-                (PIC_ISR_PCI_MST_TIMEOUT|PIC_ISR_PCI_ABORT|         \
+-                 PIC_ISR_PCIX_MTOUT|PIC_ISR_PCIX_TABORT)
+-
+-#define PIC_ISR_PCIBUS_ERROR          \
+-                (PIC_ISR_PCIBUS_PIOERR|PIC_ISR_PCI_PERR|            \
+-                 PIC_ISR_PCI_SERR|PIC_ISR_PCI_RETRY_CNT|            \
+-                 PIC_ISR_PCI_PARITY|PIC_ISR_PCIX_PERR|              \
+-                 PIC_ISR_PCIX_SERR|PIC_ISR_PCIX_MRETRY|             \
+-                 PIC_ISR_PCIX_AD_PARITY|PIC_ISR_PCIX_DA_PARITY|     \
+-                 PIC_ISR_PCIX_REQ_TOUT|PIC_ISR_PCIX_UNEX_COMP|      \
+-                 PIC_ISR_PCIX_SPLIT_TO|PIC_ISR_PCIX_SPLIT_EMSG|     \
+-                 PIC_ISR_PCIX_SPLIT_MSG_PE)
+-
+-#define PIC_ISR_XTALK_ERROR           \
+-                (PIC_ISR_XREAD_REQ_TIMEOUT|PIC_ISR_XREQ_FIFO_OFLOW| \
+-                 PIC_ISR_UNSUPPORTED_XOP|PIC_ISR_INVLD_ADDR|        \
+-                 PIC_ISR_REQ_XTLK_ERR|PIC_ISR_RESP_XTLK_ERR|        \
+-                 PIC_ISR_BAD_XREQ_PKT|PIC_ISR_BAD_XRESP_PKT|        \
+-                 PIC_ISR_UNEXP_RESP)
+-
+-#define PIC_ISR_ERRORS                \
+-                (PIC_ISR_LINK_ERROR|PIC_ISR_PCIBUS_ERROR|           \
+-                 PIC_ISR_XTALK_ERROR|                                 \
+-                 PIC_ISR_PMU_PAGE_FAULT|PIC_ISR_INT_RAM_PERR)
+-
+-/*
+- * PIC RESET INTR register      offset 0x00000110
+- */
+-
+-#define PIC_IRR_ALL_CLR                 0xffffffffffffffff
+-
+-/*
+- * PIC PCI Host Intr Addr       offset 0x00000130 - 0x00000168
+- */
+-#define PIC_HOST_INTR_ADDR              0x0000FFFFFFFFFFFF
+-#define PIC_HOST_INTR_FLD_SHFT          48
+-#define PIC_HOST_INTR_FLD               (0xFFull << PIC_HOST_INTR_FLD_SHFT)
+-
+-
+-/*
+- * PIC MMR structure mapping
+- */
++/*****************************************************************************
++ *********************** PIC MMR structure mapping ***************************
++ *****************************************************************************/
+ 
+ /* NOTE: PIC WAR. PV#854697.  PIC does not allow writes just to [31:0]
+  * of a 64-bit register.  When writing PIC registers, always write the 
+  * entire 64 bits.
+  */
+ 
+-typedef volatile struct pic_s {
++struct pic_s {
+ 
+     /* 0x000000-0x00FFFF -- Local Registers */
+ 
+     /* 0x000000-0x000057 -- Standard Widget Configuration */
+-    picreg_t		p_wid_id;			/* 0x000000 */
+-    picreg_t		p_wid_stat;			/* 0x000008 */
+-    picreg_t		p_wid_err_upper;		/* 0x000010 */
+-    picreg_t		p_wid_err_lower;		/* 0x000018 */
++    uint64_t		p_wid_id;			/* 0x000000 */
++    uint64_t		p_wid_stat;			/* 0x000008 */
++    uint64_t		p_wid_err_upper;		/* 0x000010 */
++    uint64_t		p_wid_err_lower;		/* 0x000018 */
+     #define p_wid_err p_wid_err_lower
+-    picreg_t		p_wid_control;			/* 0x000020 */
+-    picreg_t		p_wid_req_timeout;		/* 0x000028 */
+-    picreg_t		p_wid_int_upper;		/* 0x000030 */
+-    picreg_t		p_wid_int_lower;		/* 0x000038 */
++    uint64_t		p_wid_control;			/* 0x000020 */
++    uint64_t		p_wid_req_timeout;		/* 0x000028 */
++    uint64_t		p_wid_int_upper;		/* 0x000030 */
++    uint64_t		p_wid_int_lower;		/* 0x000038 */
+     #define p_wid_int p_wid_int_lower
+-    picreg_t		p_wid_err_cmdword;		/* 0x000040 */
+-    picreg_t		p_wid_llp;			/* 0x000048 */
+-    picreg_t		p_wid_tflush;			/* 0x000050 */
++    uint64_t		p_wid_err_cmdword;		/* 0x000040 */
++    uint64_t		p_wid_llp;			/* 0x000048 */
++    uint64_t		p_wid_tflush;			/* 0x000050 */
+ 
+     /* 0x000058-0x00007F -- Bridge-specific Widget Configuration */
+-    picreg_t		p_wid_aux_err;			/* 0x000058 */
+-    picreg_t		p_wid_resp_upper;		/* 0x000060 */
+-    picreg_t		p_wid_resp_lower;		/* 0x000068 */
++    uint64_t		p_wid_aux_err;			/* 0x000058 */
++    uint64_t		p_wid_resp_upper;		/* 0x000060 */
++    uint64_t		p_wid_resp_lower;		/* 0x000068 */
+     #define p_wid_resp p_wid_resp_lower
+-    picreg_t		p_wid_tst_pin_ctrl;		/* 0x000070 */
+-    picreg_t		p_wid_addr_lkerr;		/* 0x000078 */
++    uint64_t		p_wid_tst_pin_ctrl;		/* 0x000070 */
++    uint64_t		p_wid_addr_lkerr;		/* 0x000078 */
+ 
+     /* 0x000080-0x00008F -- PMU & MAP */
+-    picreg_t		p_dir_map;			/* 0x000080 */
+-    picreg_t		_pad_000088;			/* 0x000088 */
++    uint64_t		p_dir_map;			/* 0x000080 */
++    uint64_t		_pad_000088;			/* 0x000088 */
+ 
+     /* 0x000090-0x00009F -- SSRAM */
+-    picreg_t		p_map_fault;			/* 0x000090 */
+-    picreg_t		_pad_000098;			/* 0x000098 */
++    uint64_t		p_map_fault;			/* 0x000090 */
++    uint64_t		_pad_000098;			/* 0x000098 */
+ 
+     /* 0x0000A0-0x0000AF -- Arbitration */
+-    picreg_t		p_arb;				/* 0x0000A0 */
+-    picreg_t		_pad_0000A8;			/* 0x0000A8 */
++    uint64_t		p_arb;				/* 0x0000A0 */
++    uint64_t		_pad_0000A8;			/* 0x0000A8 */
+ 
+     /* 0x0000B0-0x0000BF -- Number In A Can or ATE Parity Error */
+-    picreg_t		p_ate_parity_err;		/* 0x0000B0 */
+-    picreg_t		_pad_0000B8;			/* 0x0000B8 */
++    uint64_t		p_ate_parity_err;		/* 0x0000B0 */
++    uint64_t		_pad_0000B8;			/* 0x0000B8 */
+ 
+     /* 0x0000C0-0x0000FF -- PCI/GIO */
+-    picreg_t		p_bus_timeout;			/* 0x0000C0 */
+-    picreg_t		p_pci_cfg;			/* 0x0000C8 */
+-    picreg_t		p_pci_err_upper;		/* 0x0000D0 */
+-    picreg_t		p_pci_err_lower;		/* 0x0000D8 */
++    uint64_t		p_bus_timeout;			/* 0x0000C0 */
++    uint64_t		p_pci_cfg;			/* 0x0000C8 */
++    uint64_t		p_pci_err_upper;		/* 0x0000D0 */
++    uint64_t		p_pci_err_lower;		/* 0x0000D8 */
+     #define p_pci_err p_pci_err_lower
+-    picreg_t		_pad_0000E0[4];			/* 0x0000{E0..F8} */
++    uint64_t		_pad_0000E0[4];			/* 0x0000{E0..F8} */
+ 
+     /* 0x000100-0x0001FF -- Interrupt */
+-    picreg_t		p_int_status;			/* 0x000100 */
+-    picreg_t		p_int_enable;			/* 0x000108 */
+-    picreg_t		p_int_rst_stat;			/* 0x000110 */
+-    picreg_t		p_int_mode;			/* 0x000118 */
+-    picreg_t		p_int_device;			/* 0x000120 */
+-    picreg_t		p_int_host_err;			/* 0x000128 */
+-    picreg_t		p_int_addr[8];			/* 0x0001{30,,,68} */
+-    picreg_t		p_err_int_view;			/* 0x000170 */
+-    picreg_t		p_mult_int;			/* 0x000178 */
+-    picreg_t		p_force_always[8];		/* 0x0001{80,,,B8} */
+-    picreg_t		p_force_pin[8];			/* 0x0001{C0,,,F8} */
++    uint64_t		p_int_status;			/* 0x000100 */
++    uint64_t		p_int_enable;			/* 0x000108 */
++    uint64_t		p_int_rst_stat;			/* 0x000110 */
++    uint64_t		p_int_mode;			/* 0x000118 */
++    uint64_t		p_int_device;			/* 0x000120 */
++    uint64_t		p_int_host_err;			/* 0x000128 */
++    uint64_t		p_int_addr[8];			/* 0x0001{30,,,68} */
++    uint64_t		p_err_int_view;			/* 0x000170 */
++    uint64_t		p_mult_int;			/* 0x000178 */
++    uint64_t		p_force_always[8];		/* 0x0001{80,,,B8} */
++    uint64_t		p_force_pin[8];			/* 0x0001{C0,,,F8} */
+ 
+     /* 0x000200-0x000298 -- Device */
+-    picreg_t		p_device[4];			/* 0x0002{00,,,18} */
+-    picreg_t		_pad_000220[4];			/* 0x0002{20,,,38} */
+-    picreg_t		p_wr_req_buf[4];		/* 0x0002{40,,,58} */
+-    picreg_t		_pad_000260[4];			/* 0x0002{60,,,78} */
+-    picreg_t		p_rrb_map[2];			/* 0x0002{80,,,88} */
++    uint64_t		p_device[4];			/* 0x0002{00,,,18} */
++    uint64_t		_pad_000220[4];			/* 0x0002{20,,,38} */
++    uint64_t		p_wr_req_buf[4];		/* 0x0002{40,,,58} */
++    uint64_t		_pad_000260[4];			/* 0x0002{60,,,78} */
++    uint64_t		p_rrb_map[2];			/* 0x0002{80,,,88} */
+     #define p_even_resp p_rrb_map[0]			/* 0x000280 */
+     #define p_odd_resp  p_rrb_map[1]			/* 0x000288 */
+-    picreg_t		p_resp_status;			/* 0x000290 */
+-    picreg_t		p_resp_clear;			/* 0x000298 */
++    uint64_t		p_resp_status;			/* 0x000290 */
++    uint64_t		p_resp_clear;			/* 0x000298 */
+ 
+-    picreg_t		_pad_0002A0[12];		/* 0x0002{A0..F8} */
++    uint64_t		_pad_0002A0[12];		/* 0x0002{A0..F8} */
+ 
+     /* 0x000300-0x0003F8 -- Buffer Address Match Registers */
+     struct {
+-	picreg_t	upper;				/* 0x0003{00,,,F0} */
+-	picreg_t	lower;				/* 0x0003{08,,,F8} */
++	uint64_t	upper;				/* 0x0003{00,,,F0} */
++	uint64_t	lower;				/* 0x0003{08,,,F8} */
+     } p_buf_addr_match[16];
+ 
+     /* 0x000400-0x0005FF -- Performance Monitor Registers (even only) */
+     struct {
+-	picreg_t	flush_w_touch;			/* 0x000{400,,,5C0} */
+-	picreg_t	flush_wo_touch;			/* 0x000{408,,,5C8} */
+-	picreg_t	inflight;			/* 0x000{410,,,5D0} */
+-	picreg_t	prefetch;			/* 0x000{418,,,5D8} */
+-	picreg_t	total_pci_retry;		/* 0x000{420,,,5E0} */
+-	picreg_t	max_pci_retry;			/* 0x000{428,,,5E8} */
+-	picreg_t	max_latency;			/* 0x000{430,,,5F0} */
+-	picreg_t	clear_all;			/* 0x000{438,,,5F8} */
++	uint64_t	flush_w_touch;			/* 0x000{400,,,5C0} */
++	uint64_t	flush_wo_touch;			/* 0x000{408,,,5C8} */
++	uint64_t	inflight;			/* 0x000{410,,,5D0} */
++	uint64_t	prefetch;			/* 0x000{418,,,5D8} */
++	uint64_t	total_pci_retry;		/* 0x000{420,,,5E0} */
++	uint64_t	max_pci_retry;			/* 0x000{428,,,5E8} */
++	uint64_t	max_latency;			/* 0x000{430,,,5F0} */
++	uint64_t	clear_all;			/* 0x000{438,,,5F8} */
+     } p_buf_count[8];
+ 
+     
+     /* 0x000600-0x0009FF -- PCI/X registers */
+-    picreg_t		p_pcix_bus_err_addr;		/* 0x000600 */
+-    picreg_t		p_pcix_bus_err_attr;		/* 0x000608 */
+-    picreg_t		p_pcix_bus_err_data;		/* 0x000610 */
+-    picreg_t		p_pcix_pio_split_addr;		/* 0x000618 */
+-    picreg_t		p_pcix_pio_split_attr;		/* 0x000620 */
+-    picreg_t		p_pcix_dma_req_err_attr;	/* 0x000628 */
+-    picreg_t		p_pcix_dma_req_err_addr;	/* 0x000630 */
+-    picreg_t		p_pcix_timeout;			/* 0x000638 */
++    uint64_t		p_pcix_bus_err_addr;		/* 0x000600 */
++    uint64_t		p_pcix_bus_err_attr;		/* 0x000608 */
++    uint64_t		p_pcix_bus_err_data;		/* 0x000610 */
++    uint64_t		p_pcix_pio_split_addr;		/* 0x000618 */
++    uint64_t		p_pcix_pio_split_attr;		/* 0x000620 */
++    uint64_t		p_pcix_dma_req_err_attr;	/* 0x000628 */
++    uint64_t		p_pcix_dma_req_err_addr;	/* 0x000630 */
++    uint64_t		p_pcix_timeout;			/* 0x000638 */
+ 
+-    picreg_t		_pad_000640[120];		/* 0x000{640,,,9F8} */
++    uint64_t		_pad_000640[120];		/* 0x000{640,,,9F8} */
+ 
+     /* 0x000A00-0x000BFF -- PCI/X Read&Write Buffer */
+     struct {
+-	picreg_t	p_buf_addr;			/* 0x000{A00,,,AF0} */
+-	picreg_t	p_buf_attr;			/* 0X000{A08,,,AF8} */
++	uint64_t	p_buf_addr;			/* 0x000{A00,,,AF0} */
++	uint64_t	p_buf_attr;			/* 0X000{A08,,,AF8} */
+     } p_pcix_read_buf_64[16];
+ 
+     struct {
+-	picreg_t	p_buf_addr;			/* 0x000{B00,,,BE0} */
+-	picreg_t	p_buf_attr;			/* 0x000{B08,,,BE8} */
+-	picreg_t	p_buf_valid;			/* 0x000{B10,,,BF0} */
+-	picreg_t	__pad1;				/* 0x000{B18,,,BF8} */
++	uint64_t	p_buf_addr;			/* 0x000{B00,,,BE0} */
++	uint64_t	p_buf_attr;			/* 0x000{B08,,,BE8} */
++	uint64_t	p_buf_valid;			/* 0x000{B10,,,BF0} */
++	uint64_t	__pad1;				/* 0x000{B18,,,BF8} */
+     } p_pcix_write_buf_64[8];
+ 
+     /* End of Local Registers -- Start of Address Map space */
+@@ -385,17 +212,17 @@
+     char		_pad_000c00[0x010000 - 0x000c00];
+ 
+     /* 0x010000-0x011fff -- Internal ATE RAM (Auto Parity Generation) */
+-    picate_t		p_int_ate_ram[1024];		/* 0x010000-0x011fff */
++    uint64_t		p_int_ate_ram[1024];		/* 0x010000-0x011fff */
+ 
+     /* 0x012000-0x013fff -- Internal ATE RAM (Manual Parity Generation) */
+-    picate_t		p_int_ate_ram_mp[1024];		/* 0x012000-0x013fff */
++    uint64_t		p_int_ate_ram_mp[1024];		/* 0x012000-0x013fff */
+ 
+     char		_pad_014000[0x18000 - 0x014000];
+ 
+     /* 0x18000-0x197F8 -- PIC Write Request Ram */
+-    picreg_t		p_wr_req_lower[256];		/* 0x18000 - 0x187F8 */
+-    picreg_t		p_wr_req_upper[256];		/* 0x18800 - 0x18FF8 */
+-    picreg_t		p_wr_req_parity[256];		/* 0x19000 - 0x197F8 */
++    uint64_t		p_wr_req_lower[256];		/* 0x18000 - 0x187F8 */
++    uint64_t		p_wr_req_upper[256];		/* 0x18800 - 0x18FF8 */
++    uint64_t		p_wr_req_parity[256];		/* 0x19000 - 0x197F8 */
+ 
+     char		_pad_019800[0x20000 - 0x019800];
+ 
+@@ -446,6 +273,378 @@
+ 	uint32_t	l[8 / 4];
+ 	uint64_t	d[8 / 8];
+     } p_pcix_cycle;					/* 0x040000-0x040007 */
+-} pic_t;
++};
++
++
++/*****************************************************************************
++ *************************** PIC BRIDGE MMR DEFINES **************************
++ *****************************************************************************/
++
++/*
++ * PIC STATUS register		offset 0x00000008
++ */
++#define PIC_STAT_TX_CREDIT_SHFT		PCIBR_STAT_TX_CREDIT_SHFT
++#define PIC_STAT_TX_CREDIT		PCIBR_STAT_TX_CREDIT
++#define PIC_STAT_RX_REQ_CNT_SHFT	PCIBR_STAT_RX_CREDIT_SHFT
++#define PIC_STAT_RX_REQ_CNT		PCIBR_STAT_RX_CREDIT
++#define PIC_STAT_LLP_TX_CNT_SHFT	PCIBR_STAT_LLP_TX_CNT_SHFT
++#define PIC_STAT_LLP_TX_CNT		PCIBR_STAT_LLP_TX_CNT
++#define PIC_STAT_LLP_RX_CNT_SHFT	PCIBR_STAT_LLP_RX_CNT_SHFT
++#define PIC_STAT_LLP_RX_CNT		PCIBR_STAT_LLP_RX_CNT
++#define PIC_STAT_PCIX_ACTIVE_SHFT	PCIBR_STAT_PCIX_ACTIVE_SHFT
++#define PIC_STAT_PCIX_ACTIVE		PCIBR_STAT_PCIX_ACTIVE
++#define PIC_STAT_PCIX_SPEED_SHFT	PCIBR_STAT_PCIX_SPEED_SHFT
++#define PIC_STAT_PCIX_SPEED		PCIBR_STAT_PCIX_SPEED
++
++/*
++ * PIC CONTROL register		offset 0x00000020
++ */
++#define PIC_CTRL_WIDGET_ID_SHFT		0
++#define PIC_CTRL_WIDGET_ID		(0xF << PIC_CTRL_WIDGET_ID_SHFT)
++#define PIC_CTRL_PCI_SPEED_SHFT		PCIBR_CTRL_PCI_SPEED_SHFT
++#define PIC_CTRL_PCI_SPEED		PCIBR_CTRL_PCI_SPEED
++#define PIC_CTRL_SYS_END_SHFT		PCIBR_CTRL_SYS_END_SHFT
++#define PIC_CTRL_SYS_END		PCIBR_CTRL_SYS_END
++#define PIC_CTRL_CLR_TLLP_SHFT		PCIBR_CTRL_CLR_TLLP_SHFT
++#define PIC_CTRL_CLR_TLLP		PCIBR_CTRL_CLR_TLLP
++#define PIC_CTRL_CLR_RLLP_SHFT		PCIBR_CTRL_CLR_RLLP_SHFT
++#define PIC_CTRL_CLR_RLLP		PCIBR_CTRL_CLR_RLLP
++#define PIC_CTRL_LLP_XBOW_CRD_SHFT	PCIBR_CTRL_LLP_XBOW_CRD_SHFT
++#define PIC_CTRL_CRED_LIM		PCIBR_CTRL_CRED_LIM
++#define PIC_CTRL_F_BAD_PKT_SHFT		PCIBR_CTRL_F_BAD_PKT_SHFT
++#define PIC_CTRL_F_BAD_PKT		PCIBR_CTRL_F_BAD_PKT
++#define PIC_CTRL_PAGE_SIZE_SHFT		PCIBR_CTRL_PAGE_SIZE_SHFT
++#define PIC_CTRL_PAGE_SIZE		PCIBR_CTRL_PAGE_SIZE
++#define PIC_CTRL_MEM_SWAP_SHFT		PCIBR_CTRL_MEM_SWAP_SHFT
++#define PIC_CTRL_MEM_SWAP		PCIBR_CTRL_MEM_SWAP
++#define PIC_CTRL_RST_SHFT		PCIBR_CTRL_RST_SHFT
++#define PIC_CTRL_RST_PIN(x)		PCIBR_CTRL_RST_PIN(x)
++#define PIC_CTRL_RST(n)			PCIBR_CTRL_RST(n)
++#define PIC_CTRL_RST_MASK		PCIBR_CTRL_RST_MASK
++#define PIC_CTRL_PAR_EN_REQ_SHFT	PCIBR_CTRL_PAR_EN_REQ_SHFT
++#define PIC_CTRL_PAR_EN_REQ		PCIBR_CTRL_PAR_EN_REQ
++#define PIC_CTRL_PAR_EN_RESP_SHFT	PCIBR_CTRL_PAR_EN_RESP_SHFT
++#define PIC_CTRL_PAR_EN_RESP		PCIBR_CTRL_PAR_EN_RESP
++#define PIC_CTRL_PAR_EN_ATE_SHFT	PCIBR_CTRL_PAR_EN_ATE_SHFT
++#define PIC_CTRL_PAR_EN_ATE		PCIBR_CTRL_PAR_EN_ATE
++#define PIC_CTRL_FUN_NUM_MASK		PCIBR_CTRL_FUN_NUM_MASK
++#define PIC_CTRL_FUN_NUM(x)		PCIBR_CTRL_FUN_NUM(x)
++#define PIC_CTRL_DEV_NUM_MASK		PCIBR_CTRL_BUS_NUM_MASK
++#define PIC_CTRL_DEV_NUM(x)		PCIBR_CTRL_DEV_NUM(x)
++#define PIC_CTRL_BUS_NUM_MASK		PCIBR_CTRL_BUS_NUM_MASK
++#define PIC_CTRL_BUS_NUM(x)		PCIBR_CTRL_BUS_NUM(x)
++#define PIC_CTRL_RELAX_ORDER_SHFT	PCIBR_CTRL_RELAX_ORDER_SHFT
++#define PIC_CTRL_RELAX_ORDER		PCIBR_CTRL_RELAX_ORDER
++#define PIC_CTRL_NO_SNOOP_SHFT		PCIBR_CTRL_NO_SNOOP_SHFT
++#define PIC_CTRL_NO_SNOOP		PCIBR_CTRL_NO_SNOOP
++
++/*
++ * PIC Intr Destination Addr	offset 0x00000038 
++ */
++#define PIC_INTR_DEST_ADDR		PIC_XTALK_ADDR_MASK
++#define PIC_INTR_DEST_TID_SHFT		48
++#define PIC_INTR_DEST_TID		(0xFull << PIC_INTR_DEST_TID_SHFT)
++
++/*
++ * PIC PCI Responce Buffer	offset 0x00000068
++ */
++#define PIC_RSP_BUF_ADDR		PIC_XTALK_ADDR_MASK
++#define PIC_RSP_BUF_NUM_SHFT		48
++#define PIC_RSP_BUF_NUM			(0xFull << PIC_RSP_BUF_NUM_SHFT)
++#define PIC_RSP_BUF_DEV_NUM_SHFT	52
++#define PIC_RSP_BUF_DEV_NUM		(0x3ull << PIC_RSP_BUF_DEV_NUM_SHFT)
++
++/*
++ * PIC PCI DIRECT MAP register	offset 0x00000080
++ */
++#define PIC_DIRMAP_DIROFF_SHFT		PCIBR_DIRMAP_DIROFF_SHFT
++#define PIC_DIRMAP_DIROFF		PCIBR_DIRMAP_DIROFF
++#define PIC_DIRMAP_ADD512_SHFT		PCIBR_DIRMAP_ADD512_SHFT
++#define PIC_DIRMAP_ADD512		PCIBR_DIRMAP_ADD512
++#define PIC_DIRMAP_WID_SHFT		20
++#define PIC_DIRMAP_WID			(0xF << PIC_DIRMAP_WID_SHFT)
++
++#define PIC_DIRMAP_OFF_ADDRSHFT		PCIBR_DIRMAP_OFF_ADDRSHFT
++
++/*
++ * PCI TIMEOUT			offset 0x000000C0
++ */
++#define PIC_TMO_RETRY_CNT_SHFT		PCIBR_TMO_RETRY_CNT_SHFT
++#define PIC_TMO_RETRY_CNT		PCIBR_TMO_RETRY_CNT
++#define PIC_TMO_RETRY_CNT_MAX		PCIBR_TMO_RETRY_CNT_MAX
++#define PIC_TMO_RETRY_HLD_SHFT		PCIBR_TMO_RETRY_HLD_SHFT
++#define PIC_TMO_RETRY_HLD		PCIBR_TMO_RETRY_HLD
++
++/* 
++ * PIC INTR STATUS register	offset 0x00000100
++ */
++#define PIC_ISR_PCIX_SPLIT_MSG_PE	PCIBR_ISR_PCIX_SPLIT_MSG_PE
++#define PIC_ISR_PCIX_SPLIT_EMSG		PCIBR_ISR_PCIX_SPLIT_EMSG
++#define PIC_ISR_PCIX_SPLIT_TO		PCIBR_ISR_PCIX_SPLIT_TO
++#define PIC_ISR_PCIX_UNEX_COMP		PCIBR_ISR_PCIX_UNEX_COMP
++#define PIC_ISR_INT_RAM_PERR		PCIBR_ISR_INT_RAM_PERR
++#define PIC_ISR_PCIX_ARB_ERR		PCIBR_ISR_PCIX_ARB_ERR
++#define PIC_ISR_PCIX_REQ_TOUT		PCIBR_ISR_PCIX_REQ_TOUT
++#define PIC_ISR_PCIX_TABORT		PCIBR_ISR_PCIX_TABORT
++#define PIC_ISR_PCIX_PERR		PCIBR_ISR_PCIX_PERR
++#define PIC_ISR_PCIX_SERR		PCIBR_ISR_PCIX_SERR
++#define PIC_ISR_PCIX_MRETRY		PCIBR_ISR_PCIX_MRETRY
++#define PIC_ISR_PCIX_MTOUT		PCIBR_ISR_PCIX_MTOUT
++#define PIC_ISR_PCIX_DA_PARITY		PCIBR_ISR_PCIX_DA_PARITY
++#define PIC_ISR_PCIX_AD_PARITY		PCIBR_ISR_PCIX_AD_PARITY
++#define PIC_ISR_PMU_PAGE_FAULT		PCIBR_ISR_PMU_PAGE_FAULT
++#define PIC_ISR_UNEXP_RESP		PCIBR_ISR_UNEXP_RESP
++#define PIC_ISR_BAD_XRESP_PKT		PCIBR_ISR_BAD_XRESP_PKT
++#define PIC_ISR_BAD_XREQ_PKT		PCIBR_ISR_BAD_XREQ_PKT
++#define PIC_ISR_RESP_XTLK_ERR		PCIBR_ISR_RESP_XTLK_ERR
++#define PIC_ISR_REQ_XTLK_ERR		PCIBR_ISR_REQ_XTLK_ERR
++#define PIC_ISR_INVLD_ADDR		PCIBR_ISR_INVLD_ADDR
++#define PIC_ISR_UNSUPPORTED_XOP		PCIBR_ISR_UNSUPPORTED_XOP
++#define PIC_ISR_XREQ_FIFO_OFLOW		PCIBR_ISR_XREQ_FIFO_OFLOW
++#define PIC_ISR_LLP_REC_SNERR		PCIBR_ISR_LLP_REC_SNERR
++#define PIC_ISR_LLP_REC_CBERR		PCIBR_ISR_LLP_REC_CBERR
++#define PIC_ISR_LLP_RCTY		PCIBR_ISR_LLP_RCTY
++#define PIC_ISR_LLP_TX_RETRY		PCIBR_ISR_LLP_TX_RETRY
++#define PIC_ISR_LLP_TCTY		PCIBR_ISR_LLP_TCTY
++#define PIC_ISR_PCI_ABORT		PCIBR_ISR_PCI_ABORT
++#define PIC_ISR_PCI_PARITY		PCIBR_ISR_PCI_PARITY
++#define PIC_ISR_PCI_SERR		PCIBR_ISR_PCI_SERR
++#define PIC_ISR_PCI_PERR		PCIBR_ISR_PCI_PERR
++#define PIC_ISR_PCI_MST_TIMEOUT		PCIBR_ISR_PCI_MST_TIMEOUT
++#define PIC_ISR_PCI_RETRY_CNT		PCIBR_ISR_PCI_RETRY_CNT
++#define PIC_ISR_XREAD_REQ_TIMEOUT	PCIBR_ISR_XREAD_REQ_TIMEOUT
++#define PIC_ISR_INT_MSK			PCIBR_ISR_INT_MSK
++#define PIC_ISR_INT(x)			PCIBR_ISR_INT(x)
++
++/*
++ * PIC ENABLE INTR register	offset 0x00000108
++ */
++#define PIC_IER_PCIX_SPLIT_MSG_PE	PCIBR_IER_PCIX_SPLIT_MSG_PE
++#define PIC_IER_PCIX_SPLIT_EMSG		PCIBR_IER_PCIX_SPLIT_EMSG
++#define PIC_IER_PCIX_SPLIT_TO		PCIBR_IER_PCIX_SPLIT_TO
++#define PIC_IER_PCIX_UNEX_COMP		PCIBR_IER_PCIX_UNEX_COMP
++#define PIC_IER_INT_RAM_PERR		PCIBR_IER_INT_RAM_PERR
++#define PIC_IER_PCIX_ARB_ERR		PCIBR_IER_PCIX_ARB_ERR
++#define PIC_IER_PCIX_REQ_TOUT		PCIBR_IER_PCIX_REQ_TOUT
++#define PIC_IER_PCIX_TABORT		PCIBR_IER_PCIX_TABORT
++#define PIC_IER_PCIX_PERR		PCIBR_IER_PCIX_PERR
++#define PIC_IER_PCIX_SERR		PCIBR_IER_PCIX_SERR
++#define PIC_IER_PCIX_MRETRY		PCIBR_IER_PCIX_MRETRY
++#define PIC_IER_PCIX_MTOUT		PCIBR_IER_PCIX_MTOUT
++#define PIC_IER_PCIX_DA_PARITY		PCIBR_IER_PCIX_DA_PARITY
++#define PIC_IER_PCIX_AD_PARITY		PCIBR_IER_PCIX_AD_PARITY
++#define PIC_IER_PMU_PAGE_FAULT		PCIBR_IER_PMU_PAGE_FAULT
++#define PIC_IER_UNEXP_RESP		PCIBR_IER_UNEXP_RESP
++#define PIC_IER_BAD_XRESP_PKT		PCIBR_IER_BAD_XRESP_PKT
++#define PIC_IER_BAD_XREQ_PKT		PCIBR_IER_BAD_XREQ_PKT
++#define PIC_IER_RESP_XTLK_ERR		PCIBR_IER_RESP_XTLK_ERR
++#define PIC_IER_REQ_XTLK_ERR		PCIBR_IER_REQ_XTLK_ERR
++#define PIC_IER_INVLD_ADDR		PCIBR_IER_INVLD_ADDR
++#define PIC_IER_UNSUPPORTED_XOP		PCIBR_IER_UNSUPPORTED_XOP
++#define PIC_IER_XREQ_FIFO_OFLOW		PCIBR_IER_XREQ_FIFO_OFLOW
++#define PIC_IER_LLP_REC_SNERR		PCIBR_IER_LLP_REC_SNERR
++#define PIC_IER_LLP_REC_CBERR		PCIBR_IER_LLP_REC_CBERR
++#define PIC_IER_LLP_RCTY		PCIBR_IER_LLP_RCTY
++#define PIC_IER_LLP_TX_RETRY		PCIBR_IER_LLP_TX_RETRY
++#define PIC_IER_LLP_TCTY		PCIBR_IER_LLP_TCTY
++#define PIC_IER_PCI_ABORT		PCIBR_IER_PCI_ABORT
++#define PIC_IER_PCI_PARITY		PCIBR_IER_PCI_PARITY
++#define PIC_IER_PCI_SERR		PCIBR_IER_PCI_SERR
++#define PIC_IER_PCI_PERR		PCIBR_IER_PCI_PERR
++#define PIC_IER_PCI_MST_TIMEOUT		PCIBR_IER_PCI_MST_TIMEOUT
++#define PIC_IER_PCI_RETRY_CNT		PCIBR_IER_PCI_RETRY_CNT
++#define PIC_IER_XREAD_REQ_TIMEOUT	PCIBR_IER_XREAD_REQ_TIMEOUT
++#define PIC_IER_INT_MSK			PCIBR_IER_INT_MSK
++#define PIC_IER_INT(x)			PCIBR_IER_INT(x)
++
++/*
++ * PIC RESET INTR register	offset 0x00000110
++ */
++#define PIC_IRR_PCIX_SPLIT_MSG_PE	PCIBR_IRR_PCIX_SPLIT_MSG_PE
++#define PIC_IRR_PCIX_SPLIT_EMSG		PCIBR_IRR_PCIX_SPLIT_EMSG
++#define PIC_IRR_PCIX_SPLIT_TO		PCIBR_IRR_PCIX_SPLIT_TO
++#define PIC_IRR_PCIX_UNEX_COMP		PCIBR_IRR_PCIX_UNEX_COMP
++#define PIC_IRR_INT_RAM_PERR		PCIBR_IRR_INT_RAM_PERR
++#define PIC_IRR_PCIX_ARB_ERR		PCIBR_IRR_PCIX_ARB_ERR
++#define PIC_IRR_PCIX_REQ_TOUT		PCIBR_IRR_PCIX_REQ_TOUT
++#define PIC_IRR_PCIX_TABORT		PCIBR_IRR_PCIX_TABORT
++#define PIC_IRR_PCIX_PERR		PCIBR_IRR_PCIX_PERR
++#define PIC_IRR_PCIX_SERR		PCIBR_IRR_PCIX_SERR
++#define PIC_IRR_PCIX_MRETRY		PCIBR_IRR_PCIX_MRETRY
++#define PIC_IRR_PCIX_MTOUT		PCIBR_IRR_PCIX_MTOUT
++#define PIC_IRR_PCIX_DA_PARITY		PCIBR_IRR_PCIX_DA_PARITY
++#define PIC_IRR_PCIX_AD_PARITY		PCIBR_IRR_PCIX_AD_PARITY
++#define PIC_IRR_PMU_PAGE_FAULT		PCIBR_IRR_PMU_PAGE_FAULT
++#define PIC_IRR_UNEXP_RESP		PCIBR_IRR_UNEXP_RESP
++#define PIC_IRR_BAD_XRESP_PKT		PCIBR_IRR_BAD_XRESP_PKT
++#define PIC_IRR_BAD_XREQ_PKT		PCIBR_IRR_BAD_XREQ_PKT
++#define PIC_IRR_RESP_XTLK_ERR		PCIBR_IRR_RESP_XTLK_ERR
++#define PIC_IRR_REQ_XTLK_ERR		PCIBR_IRR_REQ_XTLK_ERR
++#define PIC_IRR_INVLD_ADDR		PCIBR_IRR_INVLD_ADDR
++#define PIC_IRR_UNSUPPORTED_XOP		PCIBR_IRR_UNSUPPORTED_XOP
++#define PIC_IRR_XREQ_FIFO_OFLOW		PCIBR_IRR_XREQ_FIFO_OFLOW
++#define PIC_IRR_LLP_REC_SNERR		PCIBR_IRR_LLP_REC_SNERR
++#define PIC_IRR_LLP_REC_CBERR		PCIBR_IRR_LLP_REC_CBERR
++#define PIC_IRR_LLP_RCTY		PCIBR_IRR_LLP_RCTY
++#define PIC_IRR_LLP_TX_RETRY		PCIBR_IRR_LLP_TX_RETRY
++#define PIC_IRR_LLP_TCTY		PCIBR_IRR_LLP_TCTY
++#define PIC_IRR_PCI_ABORT		PCIBR_IRR_PCI_ABORT
++#define PIC_IRR_PCI_PARITY		PCIBR_IRR_PCI_PARITY
++#define PIC_IRR_PCI_SERR		PCIBR_IRR_PCI_SERR
++#define PIC_IRR_PCI_PERR		PCIBR_IRR_PCI_PERR
++#define PIC_IRR_PCI_MST_TIMEOUT		PCIBR_IRR_PCI_MST_TIMEOUT
++#define PIC_IRR_PCI_RETRY_CNT		PCIBR_IRR_PCI_RETRY_CNT
++#define PIC_IRR_XREAD_REQ_TIMEOUT	PCIBR_IRR_XREAD_REQ_TIMEOUT
++#define PIC_IRR_MULTI_CLR		PCIBR_IRR_MULTI_CLR
++#define PIC_IRR_CRP_GRP_CLR		PCIBR_IRR_CRP_GRP_CLR
++#define PIC_IRR_RESP_BUF_GRP_CLR	PCIBR_IRR_RESP_BUF_GRP_CLR
++#define PIC_IRR_REQ_DSP_GRP_CLR		PCIBR_IRR_REQ_DSP_GRP_CLR
++#define PIC_IRR_LLP_GRP_CLR		PCIBR_IRR_LLP_GRP_CLR
++#define PIC_IRR_SSRAM_GRP_CLR		PCIBR_IRR_SSRAM_GRP_CLR
++#define PIC_IRR_PCI_GRP_CLR		PCIBR_IRR_PCI_GRP_CLR
++#define PIC_IRR_GIO_GRP_CLR		PCIBR_IRR_GIO_GRP_CLR
++#define PIC_IRR_ALL_CLR			PCIBR_IRR_ALL_CLR
++
++/*
++ * PIC Intr Dev Select register	offset 0x00000120
++ */
++#define PIC_INT_DEV_SHFT(n)		PCIBR_INT_DEV_SHFT(n)
++#define PIC_INT_DEV_MASK(n)		PCIBR_INT_DEV_MASK(n)
++
++/*
++ * PIC PCI Host Intr Addr	offset 0x00000130 - 0x00000168
++ */
++#define PIC_HOST_INTR_ADDR		PIC_XTALK_ADDR_MASK
++#define PIC_HOST_INTR_FLD_SHFT		48	
++#define PIC_HOST_INTR_FLD		(0xFFull << PIC_HOST_INTR_FLD_SHFT)
++
++/*
++ * PIC DEVICE(x) register	offset 0x00000200
++ */
++#define PIC_DEV_OFF_ADDR_SHFT		PCIBR_DEV_OFF_ADDR_SHFT
++#define PIC_DEV_OFF_MASK		PCIBR_DEV_OFF_MASK
++#define PIC_DEV_DEV_IO_MEM		PCIBR_DEV_DEV_IO_MEM
++#define PIC_DEV_DEV_SWAP		PCIBR_DEV_DEV_SWAP
++#define PIC_DEV_GBR			PCIBR_DEV_GBR
++#define PIC_DEV_BARRIER			PCIBR_DEV_BARRIER
++#define PIC_DEV_COH			PCIBR_DEV_COH
++#define PIC_DEV_PRECISE			PCIBR_DEV_PRECISE
++#define PIC_DEV_PREF			PCIBR_DEV_PREF
++#define PIC_DEV_SWAP_DIR		PCIBR_DEV_SWAP_DIR
++#define PIC_DEV_RT			PCIBR_DEV_RT
++#define PIC_DEV_DEV_SIZE		PCIBR_DEV_DEV_SIZE
++#define PIC_DEV_DIR_WRGA_EN		PCIBR_DEV_DIR_WRGA_EN
++#define PIC_DEV_VIRTUAL_EN		PCIBR_DEV_VIRTUAL_EN
++#define PIC_DEV_FORCE_PCI_PAR		PCIBR_DEV_FORCE_PCI_PAR
++#define PIC_DEV_PAGE_CHK_DIS		PCIBR_DEV_PAGE_CHK_DIS
++#define PIC_DEV_ERR_LOCK_EN		PCIBR_DEV_ERR_LOCK_EN
++
++/*
++ * PIC Even & Odd RRB registers	offset 0x000000280 & 0x000000288
++ */
++/* Individual RRB masks after shifting down */
++#define PIC_RRB_EN			PCIBR_RRB_EN
++#define PIC_RRB_DEV			PCIBR_RRB_DEV
++#define PIC_RRB_VDEV			PCIBR_RRB_VDEV
++#define PIC_RRB_PDEV			PCIBR_RRB_PDEV
++
++/*
++ * PIC RRB status register 	offset 0x00000290
++ */
++#define PIC_RRB_VALID(r)		PCIBR_RRB_VALID(r)
++#define PIC_RRB_INUSE(r)		PCIBR_RRB_INUSE(r)
++
++/*
++ * PIC RRB clear register 	offset 0x00000298
++ */
++#define PIC_RRB_CLEAR(r)		PCIBR_RRB_CLEAR(r)
++
++
++/*****************************************************************************
++ ****************************** PIC DMA DEFINES ******************************
++ *****************************************************************************/
++
++/*
++ * PIC - PMU Address Transaltion Entry defines 
++ */
++#define PIC_ATE_V			PCIBR_ATE_V
++#define PIC_ATE_CO			PCIBR_ATE_CO
++#define PIC_ATE_PREC			PCIBR_ATE_PREC
++#define PIC_ATE_PREF			PCIBR_ATE_PREF
++#define PIC_ATE_BAR			PCIBR_ATE_BAR
++#define PIC_ATE_TARGETID_SHFT		8
++#define PIC_ATE_TARGETID		(0xF << PIC_ATE_TARGETID_SHFT)
++#define PIC_ATE_ADDR_SHFT		PCIBR_ATE_ADDR_SHFT
++#define PIC_ATE_ADDR_MASK		(0xFFFFFFFFF000)
++
++/* bit 29 of the pci address is the SWAP bit */
++#define PIC_ATE_SWAPSHIFT		ATE_SWAPSHIFT
++#define PIC_SWAP_ON(x)			ATE_SWAP_ON(x)
++#define PIC_SWAP_OFF(x)			ATE_SWAP_OFF(x)
++
++/*  
++ * Bridge 32bit Bus DMA addresses  
++ */
++#define PIC_LOCAL_BASE			PCIBR_LOCAL_BASE
++#define PIC_DMA_MAPPED_BASE		PCIBR_DMA_MAPPED_BASE
++#define PIC_DMA_MAPPED_SIZE		PCIBR_DMA_MAPPED_SIZE
++#define PIC_DMA_DIRECT_BASE		PCIBR_DMA_DIRECT_BASE
++#define PIC_DMA_DIRECT_SIZE		PCIBR_DMA_DIRECT_SIZE
++
++/*
++ * Bridge 64bit Direct Map Attributes
++ */
++#define PIC_PCI64_ATTR_TARG_MASK	0xf000000000000000
++#define PIC_PCI64_ATTR_TARG_SHFT	60
++#define PIC_PCI64_ATTR_PREF		PCI64_ATTR_PREF
++#define PIC_PCI64_ATTR_PREC		PCI64_ATTR_PREC
++#define PIC_PCI64_ATTR_VIRTUAL		PCI64_ATTR_VIRTUAL
++#define PIC_PCI64_ATTR_BAR		PCI64_ATTR_BAR
++#define PIC_PCI64_ATTR_SWAP		PCI64_ATTR_SWAP
++#define PIC_PCI64_ATTR_VIRTUAL1		PCI64_ATTR_VIRTUAL1
++
++
++/*****************************************************************************
++ ****************************** PIC PIO DEFINES ******************************
++ *****************************************************************************/
++
++/* NOTE: Bus one offset to PCI Widget Device Space. */
++#define PIC_BUS1_OFFSET				0x800000 
++
++/*
++ * Macros for Xtalk to Bridge bus (PCI) PIO.  Refer to section 5.2.1 figure
++ * 4 of the "PCI Interface Chip (PIC) Volume II Programmer's Reference" 
++ */
++/* XTALK addresses that map into PIC Bridge Bus addr space */
++#define PICBRIDGE0_PIO32_XTALK_ALIAS_BASE	0x000040000000L
++#define PICBRIDGE0_PIO32_XTALK_ALIAS_LIMIT	0x00007FFFFFFFL
++#define PICBRIDGE0_PIO64_XTALK_ALIAS_BASE	0x000080000000L
++#define PICBRIDGE0_PIO64_XTALK_ALIAS_LIMIT	0x0000BFFFFFFFL
++#define PICBRIDGE1_PIO32_XTALK_ALIAS_BASE	0x0000C0000000L
++#define PICBRIDGE1_PIO32_XTALK_ALIAS_LIMIT	0x0000FFFFFFFFL
++#define PICBRIDGE1_PIO64_XTALK_ALIAS_BASE	0x000100000000L
++#define PICBRIDGE1_PIO64_XTALK_ALIAS_LIMIT	0x00013FFFFFFFL
++
++/* XTALK addresses that map into PCI addresses */
++#define PICBRIDGE0_PCI_MEM32_BASE	PICBRIDGE0_PIO32_XTALK_ALIAS_BASE
++#define PICBRIDGE0_PCI_MEM32_LIMIT	PICBRIDGE0_PIO32_XTALK_ALIAS_LIMIT
++#define PICBRIDGE0_PCI_MEM64_BASE	PICBRIDGE0_PIO64_XTALK_ALIAS_BASE
++#define PICBRIDGE0_PCI_MEM64_LIMIT	PICBRIDGE0_PIO64_XTALK_ALIAS_LIMIT
++#define PICBRIDGE1_PCI_MEM32_BASE	PICBRIDGE1_PIO32_XTALK_ALIAS_BASE
++#define PICBRIDGE1_PCI_MEM32_LIMIT	PICBRIDGE1_PIO32_XTALK_ALIAS_LIMIT
++#define PICBRIDGE1_PCI_MEM64_BASE	PICBRIDGE1_PIO64_XTALK_ALIAS_BASE
++#define PICBRIDGE1_PCI_MEM64_LIMIT	PICBRIDGE1_PIO64_XTALK_ALIAS_LIMIT
++
++/*****************************************************************************
++ ****************************** PIC MISC DEFINES *****************************
++ *****************************************************************************/
++
++#define PIC_XTALK_ADDR_MASK			0x0000FFFFFFFFFFFF
++
++#define PIC_INTERNAL_ATES			1024 
++#define PIC_WR_REQ_BUFSIZE			256
++
++/* This should be written to the Xbow's Link(x) Control register */
++#define PIC_LLP_CREDITS				3
+ 
+ #endif                          /* _ASM_IA64_SN_PCI_PIC_H */

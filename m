@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267436AbUHJFst@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267439AbUHJFwL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267436AbUHJFst (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 01:48:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267439AbUHJFss
+	id S267439AbUHJFwL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 01:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267442AbUHJFwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 01:48:48 -0400
-Received: from mail2.uklinux.net ([80.84.72.32]:17054 "EHLO mail2.uklinux.net")
-	by vger.kernel.org with ESMTP id S267436AbUHJFsm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 01:48:42 -0400
-Date: Tue, 10 Aug 2004 06:48:37 +0100
-To: linux-kernel@vger.kernel.org
-Subject: Re: Oops while idle: 2.6.7
-Message-ID: <20040810054837.GA1458@titan.home.hindley.uklinux.net>
-References: <20040809121454.GA1024@titan.home.hindley.uklinux.net>
+	Tue, 10 Aug 2004 01:52:11 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:20875 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267439AbUHJFwG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 01:52:06 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.8-rc3-O4
+From: Lee Revell <rlrevell@joe-job.com>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+In-Reply-To: <1092103522.761.2.camel@mindpipe>
+References: <1090795742.719.4.camel@mindpipe>
+	 <20040726082330.GA22764@elte.hu> <1090830574.6936.96.camel@mindpipe>
+	 <20040726083537.GA24948@elte.hu> <1090832436.6936.105.camel@mindpipe>
+	 <20040726124059.GA14005@elte.hu> <20040726204720.GA26561@elte.hu>
+	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
+	 <20040809104649.GA13299@elte.hu> <20040809130558.GA17725@elte.hu>
+	 <20040809190201.64dab6ea@mango.fruits.de> <1092103522.761.2.camel@mindpipe>
+Content-Type: text/plain
+Message-Id: <1092117141.761.15.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040809121454.GA1024@titan.home.hindley.uklinux.net>
-User-Agent: Mutt/1.3.28i
-From: Mark Hindley <mark@hindley.uklinux.net>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 01:52:22 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And another overnight:
+On Mon, 2004-08-09 at 22:06, Lee Revell wrote:
 
-Aug 10 02:43:22 titan kernel: PREEMPT 
-Aug 10 02:43:22 titan kernel: Modules linked in: ipv6 nfsd exportfs lockd sunrpc snd_als100 snd_opl3_lib snd_hwdep snd_sb16_dsp snd_sb_common snd_pcm snd_page_alloc snd_
-timer snd_mpu401_uart snd_rawmidi snd_seq_device snd soundcore 3c59x dummy 8250_pnp 8250 serial_core
-Aug 10 02:43:22 titan kernel: CPU:    0
-Aug 10 02:43:22 titan kernel: EIP:    0060:[copy_process+1349/2756]    Not tainted
-Aug 10 02:43:22 titan kernel: EFLAGS: 00010246   (2.6.7-b) 
-Aug 10 02:43:22 titan kernel: EIP is at copy_process+0x545/0xac4
-Aug 10 02:43:22 titan kernel: eax: c0b22190   ebx: c3fa74e0   ecx: 00000000   edx: c2a9aa60
-Aug 10 02:43:22 titan kernel: esi: c087e524   edi: c2a9af64   ebp: c0320d10   esp: c0871f40
-Aug 10 02:43:22 titan kernel: ds: 007b   es: 007b   ss: 0068
-Aug 10 02:43:22 titan kernel: Process apache (pid: 857, threadinfo=c0870000 task=c0b22190)
-Aug 10 02:43:22 titan kernel: Stack: 00000000 01200011 00000000 c0871fbc 00000000 c0320db0 00000000 c01185ac 
-Aug 10 02:43:22 titan kernel:        01200011 bfffe85c c0871fc4 00000000 00000000 402202e8 00000000 00000000 
-Aug 10 02:43:22 titan kernel:        402202e8 c0871fbc c019ab97 bfffe8e8 c0871fb8 00000008 00000000 c01039bd 
-Aug 10 02:43:22 titan kernel: Call Trace:
-Aug 10 02:43:22 titan kernel:  [isapnp_init+472/644] isapnp_init+0x1d8/0x284
-Aug 10 02:43:22 titan kernel:  [do_fork+140/435] do_fork+0x8c/0x1b3
-Aug 10 02:43:22 titan kernel:  [copy_to_user+47/64] copy_to_user+0x2f/0x40
-Aug 10 02:43:22 titan kernel:  [sys_clone+41/52] sys_clone+0x29/0x34
-Aug 10 02:43:22 titan kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-Aug 10 02:43:22 titan kernel: 
-Aug 10 02:43:22 titan kernel: Code: 24 20 81 e6 00 00 01 00 74 16 b8 00 e0 ff ff 21 e0 8b 00 8b 
+> Same results here, the mlockall problem is not fixed by -O4:
 
-Mark
+Correction, those traces did not involve mlockall at all, but
+kmap_atomic and get_user_pages.
+
+Here is another one I got starting jackd.  Never seen it before today.
+
+(jackd/778): 14583us non-preemptible critical section violated 1100 us preempt threshold starting at schedule+0x55/0x5a0 and ending at schedule+0x2ed/0x5a0
+ [<c0106717>] dump_stack+0x17/0x20
+ [<c0113eec>] dec_preempt_count+0x3c/0x50
+ [<c0264d4d>] schedule+0x2ed/0x5a0
+ [<c026554e>] schedule_timeout+0x9e/0xa0
+ [<c0121dcf>] sys_rt_sigtimedwait+0x1df/0x2e0
+ [<c01060b7>] syscall_call+0x7/0xb
+ALSA /home/rlrevell/cvs/alsa/alsa-driver/alsa-kernel/core/pcm_lib.c:139: XRUN: pcmC0D2c
+ [<c0106717>] dump_stack+0x17/0x20
+ [<de93664b>] snd_pcm_period_elapsed+0x27b/0x3e0 [snd_pcm]
+ [<de9571d1>] snd_emu10k1_interrupt+0xd1/0x3c0 [snd_emu10k1]
+ [<c011a7d3>] generic_handle_IRQ_event+0x33/0x60
+ [<c01079c2>] do_IRQ+0xb2/0x180
+ [<c01062d8>] common_interrupt+0x18/0x20
+
+Lee
+

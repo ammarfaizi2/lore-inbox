@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272366AbTHIOeV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 10:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272367AbTHIOeV
+	id S272367AbTHIOfi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 10:35:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272375AbTHIOfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 10:34:21 -0400
-Received: from waste.org ([209.173.204.2]:16066 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S272366AbTHIOeU (ORCPT
+	Sat, 9 Aug 2003 10:35:37 -0400
+Received: from fep02-mail.bloor.is.net.cable.rogers.com ([66.185.86.72]:33396
+	"EHLO fep02-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
+	with ESMTP id S272367AbTHIOfd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 10:34:20 -0400
-Date: Sat, 9 Aug 2003 09:33:14 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, jmorris@intercode.com.au, davem@redhat.com
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030809143314.GT31810@waste.org>
-References: <20030809074459.GQ31810@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030809074459.GQ31810@waste.org>
-User-Agent: Mutt/1.3.28i
+	Sat, 9 Aug 2003 10:35:33 -0400
+Message-ID: <3F3509C0.9050403@rogers.com>
+Date: Sat, 09 Aug 2003 10:48:32 -0400
+From: gaxt <gaxt@rogers.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+CC: preining@logic.at, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test3 cannot mount root fs
+References: <3F34D0EA.8040006@rogers.com> <Pine.LNX.4.56.0308091030590.16795@filesrv1.baby-dragons.com>
+In-Reply-To: <Pine.LNX.4.56.0308091030590.16795@filesrv1.baby-dragons.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at fep02-mail.bloor.is.net.cable.rogers.com from [24.102.238.105] using ID <dw2price@rogers.com> at Sat, 9 Aug 2003 10:34:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 09, 2003 at 02:44:59AM -0500, Matt Mackall wrote:
-> The attached (lightly tested) patch gets rid of the SHA in the
-> /dev/random code and replaces it with cryptoapi, leaving us with just
-> one SHA implementation. It also updates syncookies. This code is
-> already at about 125% of baseline throughput, and can probably reach
-> 250% with some tweaking of cryptoapi's redundant padding (in case
-> anyone else cares about being able to get 120Mb/s of cryptographically
-> strong random data).
+It's not a lilo issue (ie. I use grub) I ran into the issue when I first 
+started with the 2.6.0 series test kernels.
+
+
+Mr. James W. Laferriere wrote:
+> 	He3llo Gaxt ,  Is this change to the lilo.conf funtionality
+> 	documented someplace ?  It is not in the halloween-2.5 document .
+> 		Tia ,  JimL
 > 
-> The potentially controversial part is that the random driver is
-> currently non-optional and this patch would make cryptoapi
-> non-optional as well. I plan to cryptoapi-ify the outstanding
-> MD5 instance as well.
+> On Sat, 9 Aug 2003, gaxt wrote:
+> 
+>> > I am trying 2.6.0-test3 but cannot get the kernel to mount /dev/hdb1
+>> > which is the root fs.
+>>Try changing in your bootloader root=/dev/hdb1 to root=341
 
-Some details I left out at 3am:
 
-- this code is just a proof of concept
-- the random number generator is non-optional because it's used
-  various things from filesystems to networking
-- the cryptoapi layer is itself quite thin (the .o is about 2.8k
-  stripped on my box)
-
-An alternative approach is to subvert cryptoapi by pulling the core
-transform out of the SHA1 module and putting it in the core with hooks
-so /dev/random can get at it directly. Downsides are subverting the
-api and losing pluggability. Upsides are avoiding api overhead and
-potential sleeping.
-
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon

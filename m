@@ -1,42 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130990AbQKZUVw>; Sun, 26 Nov 2000 15:21:52 -0500
+        id <S131680AbQKZU0N>; Sun, 26 Nov 2000 15:26:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131680AbQKZUVm>; Sun, 26 Nov 2000 15:21:42 -0500
-Received: from oracle.clara.net ([195.8.69.94]:30213 "EHLO oracle.clara.net")
-        by vger.kernel.org with ESMTP id <S130990AbQKZUV2>;
-        Sun, 26 Nov 2000 15:21:28 -0500
-From: "Phil Randal" <phil@rebee.clara.co.uk>
-To: Paul Jakma <paulj@itg.ie>
-Date: Sun, 26 Nov 2000 19:51:39 -0000
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: problem with hp C1537A tape drives
-CC: <linux-kernel@vger.kernel.org>
-Message-ID: <3A2169CB.29236.5E5E7D@localhost>
-In-Reply-To: <3A2155FE.14692.110282@localhost>
-In-Reply-To: <Pine.LNX.4.30.0011261900130.892-100000@rossi.itg.ie>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+        id <S132787AbQKZU0C>; Sun, 26 Nov 2000 15:26:02 -0500
+Received: from jalon.able.es ([212.97.163.2]:15325 "EHLO jalon.able.es")
+        by vger.kernel.org with ESMTP id <S131680AbQKZUZv>;
+        Sun, 26 Nov 2000 15:25:51 -0500
+Date: Sun, 26 Nov 2000 20:55:40 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Olaf Dietsche <olaf.dietsche@gmx.net>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: gcc-2.95.2-51 is buggy
+Message-ID: <20001126205540.A8066@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <Pine.LNX.4.21.0011251805340.8818-100000@duckman.distro.conectiva> <87ofz2lpdm.fsf@tigram.bogus.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <87ofz2lpdm.fsf@tigram.bogus.local>; from olaf.dietsche@gmx.net on Sun, Nov 26, 2000 at 16:33:25 +0100
+X-Mailer: Balsa 1.0.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> uhmmm.... ok. I've now done multiple cleanning runs with multiple
-> cleaning tapes. let's see what happens when i try the amflush.
+
+On Sun, 26 Nov 2000 16:33:25 Olaf Dietsche wrote:
 > 
-> and guess what... it's worked for me too. doh! guess once a week is
-> not enough then.
+> A simple `gcc -march=i686' or `gcc -mpentiumpro' does fix it as
+> well. So, if you configure your kernel with `CONFIG_M686=y' the problem
+> should be gone.
 > 
-> apologies to the list my tape cluelessness.
 
-No problem - it's a relief to confirm that it's not Backup Exec's fault
-on Netware.
+That does not work for 2.2 kernels. Always compile for -m486. To use
+the -march flag you need to modify arch/i386/kernel/Makefile. Patch
+follows:
 
-Phil
+================= PATCH patch-gcc-arch:
+--- linux-2.2.17/arch/i386/Makefile.orig        Wed Nov 22 20:42:49 2000
++++ linux-2.2.17/arch/i386/Makefile     Wed Nov 22 20:44:40 2000
+@@ -24,23 +24,23 @@
+ CFLAGS := $(CFLAGS) $(CFLAGS_PIPE) $(CFLAGS_NSR)
+ 
+ ifdef CONFIG_M386
+-CFLAGS := $(CFLAGS) -m386 -DCPU=386
++CFLAGS := $(CFLAGS) -march=i386 -DCPU=386
+ endif
+ 
+ ifdef CONFIG_M486
+-CFLAGS := $(CFLAGS) -m486 -DCPU=486
++CFLAGS := $(CFLAGS) -march=i486 -DCPU=486
+ endif
+ 
+ ifdef CONFIG_M586
+-CFLAGS := $(CFLAGS) -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2
+-DCPU=586
++CFLAGS := $(CFLAGS) -march=i586 -malign-loops=2 -malign-jumps=2
+-malign-functions=2 -DCPU=586
+ endif
+ 
+ ifdef CONFIG_M586TSC
+-CFLAGS := $(CFLAGS) -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2
+-DCPU=586
++CFLAGS := $(CFLAGS) -march=i586 -malign-loops=2 -malign-jumps=2
+-malign-functions=2 -DCPU=586
+ endif
+ 
+ ifdef CONFIG_M686
+-CFLAGS := $(CFLAGS) -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2
+-DCPU=686
++CFLAGS := $(CFLAGS) -march=i686 -malign-loops=2 -malign-jumps=2
+-malign-functions=2 -DCPU=686
+ endif
+ 
+ HEAD := arch/i386/kernel/head.o arch/i386/kernel/init_task.o
 
---------------------------------------------------------------------
-Phil Randal                           Home: phil@rebee.clara.co.uk
-Worcester, UK                               http://www.rebee.clara.net
+
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
+
+Linux 2.2.18-pre23-vm #3 SMP Wed Nov 22 22:33:53 CET 2000 i686 unknown
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

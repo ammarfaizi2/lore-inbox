@@ -1,72 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261726AbSI0WVq>; Fri, 27 Sep 2002 18:21:46 -0400
+	id <S262627AbSI0WX4>; Fri, 27 Sep 2002 18:23:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262597AbSI0WVq>; Fri, 27 Sep 2002 18:21:46 -0400
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:48522 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S261726AbSI0WVp>; Fri, 27 Sep 2002 18:21:45 -0400
-Date: Sat, 28 Sep 2002 00:27:03 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.5.39
-Message-Id: <20020928002703.1ab4583b.us15@os.inf.tu-dresden.de>
-In-Reply-To: <Pine.LNX.4.33.0209271459210.1807-100000@penguin.transmeta.com>
-References: <Pine.LNX.4.33.0209271459210.1807-100000@penguin.transmeta.com>
-Organization: Disorganized
-X-Mailer: Sylpheed version 0.8.3claws (GTK+ 1.2.10; Linux 2.4.20-pre7 i686)
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+	id <S262633AbSI0WX4>; Fri, 27 Sep 2002 18:23:56 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:20977 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262627AbSI0WXu>;
+	Fri, 27 Sep 2002 18:23:50 -0400
+Date: Fri, 27 Sep 2002 15:28:42 -0700
+From: Patrick Mansfield <patmans@us.ibm.com>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>, Jens Axboe <axboe@suse.de>,
+       Matthew Jacob <mjacob@feral.com>,
+       "Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+       Mathieu Chouquet-Stringer <mathieu@newview.com>,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Warning - running *really* short on DMA buffers while doing file  transfers
+Message-ID: <20020927152842.A18038@eng2.beaverton.ibm.com>
+Mail-Followup-To: "Justin T. Gibbs" <gibbs@scsiguy.com>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	Jens Axboe <axboe@suse.de>, Matthew Jacob <mjacob@feral.com>,
+	"Pedro M. Rodrigues" <pmanuel@myrealbox.com>,
+	Mathieu Chouquet-Stringer <mathieu@newview.com>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <200209271721.g8RHLTn05231@localhost.localdomain> <2628736224.1033160295@aslan.btc.adaptec.com> <20020927143841.A17108@eng2.beaverton.ibm.com> <2668366224.1033164502@aslan.btc.adaptec.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.O/np8FJ6aBzEq'"
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <2668366224.1033164502@aslan.btc.adaptec.com>; from gibbs@scsiguy.com on Fri, Sep 27, 2002 at 04:08:22PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.O/np8FJ6aBzEq'
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+On Fri, Sep 27, 2002 at 04:08:22PM -0600, Justin T. Gibbs wrote:
+> >> http://people.FreeBSD.org/~gibbs/linux/linux-2.5-aic79xxx.tar.gz
+> >> 
+> >> --
+> >> Justin
+> > 
+> > Any 2.5 patch for the above? Or aic7xxx/Config.in and
+> > aic7xxx/Makefile for 2.5?
+> 
+> Try it now.
+> 
 
-On Fri, 27 Sep 2002 15:02:48 -0700 (PDT) Linus Torvalds (LT) wrote:
+Great! It boots up fine on my IBM netfinity system with 2.5.37.
 
-LT> Summary of changes from v2.5.38 to v2.5.39
-LT> ============================================
+I see:
 
-Following compile error with 2.5.39 has been in 2.5.38, too.
+[ boot up stuff deleted ] 
 
-gcc -Wp,-MD,./.sleep.o.d -D__KERNEL__ -I/usr/src/linux-2.5.39/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing
--fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon 
--I/usr/src/linux-2.5.39/arch/i386/mach-generic -nostdinc -iwithprefix include 
--D_LINUX -I/usr/src/linux-2.5.39/drivers/acpi/include  -DKBUILD_BASENAME=sleep
--c -o sleep.o sleep.c
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.10
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel A, SCSI Id=7, 32/253 SCBs
 
-sleep.c: In function `acpi_system_restore_state':
-sleep.c:63: warning: implicit declaration of function `acpi_restore_state_mem'
-sleep.c: In function `acpi_system_save_state':
-sleep.c:132: warning: implicit declaration of function `acpi_save_state_mem'
-sleep.c:135: warning: implicit declaration of function `acpi_save_state_disk'
-sleep.c: In function `acpi_system_suspend':
-sleep.c:209: warning: implicit declaration of function `do_suspend_lowlevel'
-sleep.c: In function `acpi_suspend':
-sleep.c:237: `acpi_wakeup_address' undeclared (first use in this function)
-sleep.c:237: (Each undeclared identifier is reported only once
-sleep.c:237: for each function it appears in.)
-sleep.c: In function `acpi_sleep_init':
-sleep.c:707: `sysrq_acpi_poweroff_op' undeclared (first use in this function)
-make[3]: *** [sleep.o] Error 1
+scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.10
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/253 SCBs
 
--Udo.
+I turned on the debug flags, there were a bunch of odd messages
+in there, but otherwise it seems to be working fine. My .config
+has the following AIC config options:
 
---=.O/np8FJ6aBzEq'
-Content-Type: application/pgp-signature
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+CONFIG_AIC7XXX_ALLOW_MEMIO=y
+# CONFIG_AIC7XXX_PROBE_EISA_VL is not set
+# CONFIG_AIC7XXX_BUILD_FIRMWARE is not set
+CONFIG_AIC7XXX_DEBUG_ENABLE=y
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+# CONFIG_SCSI_AIC79XX is not set
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+Weird boot time messages:
 
-iD8DBQE9lNs5nhRzXSM7nSkRAh/rAJkBS414AlsP3XZN/2rtbSucUE9+cwCeKWHR
-F1EKQEit+t+X082AxP4Co6I=
-=Dly2
------END PGP SIGNATURE-----
+INITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUT<5>  Vendor: IBM-PSG   Model: ST318203LC    !#  Rev: B222
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+INITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUT(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 15, 16bit)
+INITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUT<5>  Vendor: IBM-PSG   Model: ST318203LC    !#  Rev: B222
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+INITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUT(scsi0:A:1): 80.000MB/s transfers (40.000MHz, offset 15, 16bit)
+  Vendor: IBM       Model: LN V1.2Rack       Rev: B004
+  Type:   Processor                          ANSI SCSI revision: 02
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
+scsi0:A:1:0: Tagged Queuing enabled.  Depth 253
+st: Version 20020822, fixed bufsize 32768, wrt 30720, s/g segs 256
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+Attached scsi disk sdb at scsi0, channel 0, id 1, lun 0
+INITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUT<5>SCSI device sda: 35548320 512-byte hdwr sectors (18201 MB)
+ sda: sda1 sda2
+INITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUTINITIATOR_MSG_OUT<5>SCSI device sdb: 35548320 512-byte hdwr sectors (18201 MB)
+ sdb: sdb1 sdb2
+Attached scsi generic sg2 at scsi0, channel 0, id 15, lun 0,  type 3
+mice: PS/2 mouse device common for all mice
+input: PS/2 Generic Mouse on isa0060/serio1
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: AT Set 2 keyboard on isa0060/serio0
+serio: i8042 KBD port at 0x60,0x64 irq 1
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP, IGMP
+IP: routing cache hash table of 2048 buckets, 32Kbytes
+TCP: Hash tables configured (established 16384 bind 21845)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 96k freed
+INIT: version 2.78 booting
 
---=.O/np8FJ6aBzEq'--
+[ more boot up stuff ]
+
+-- Patrick Mansfield

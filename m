@@ -1,73 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267705AbUBTCbw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 21:31:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUBTCbw
+	id S267702AbUBTCdC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 21:33:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267710AbUBTCdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 21:31:52 -0500
-Received: from thunk.org ([140.239.227.29]:18567 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S267705AbUBTCbu (ORCPT
+	Thu, 19 Feb 2004 21:33:01 -0500
+Received: from fw.osdl.org ([65.172.181.6]:6088 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267702AbUBTCcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 21:31:50 -0500
-Date: Thu, 19 Feb 2004 21:30:57 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Tridge <tridge@samba.org>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-Message-ID: <20040220023057.GB22545@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Linus Torvalds <torvalds@osdl.org>, Tridge <tridge@samba.org>,
-	Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-	Jamie Lokier <jamie@shareable.org>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org> <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
+	Thu, 19 Feb 2004 21:32:53 -0500
+Date: Thu, 19 Feb 2004 18:32:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: miquels@cistron.nl, axboe@suse.de, linux-lvm@sistina.com,
+       linux-kernel@vger.kernel.org, thornber@redhat.com
+Subject: Re: [PATCH] per process request limits (was Re: IO scheduler, queue
+ depth, nr_requests)
+Message-Id: <20040219183218.2b3c4706.akpm@osdl.org>
+In-Reply-To: <40356599.3080001@cyberone.com.au>
+References: <20040216133047.GA9330@suse.de>
+	<20040217145716.GE30438@traveler.cistron.net>
+	<20040218235243.GA30621@drinkel.cistron.nl>
+	<20040218172622.52914567.akpm@osdl.org>
+	<20040219021159.GE30621@drinkel.cistron.nl>
+	<20040218182628.7eb63d57.akpm@osdl.org>
+	<20040219101519.GG30621@drinkel.cistron.nl>
+	<20040219101915.GJ27190@suse.de>
+	<20040219205907.GE32263@drinkel.cistron.nl>
+	<40353E30.6000105@cyberone.com.au>
+	<20040219235303.GI32263@drinkel.cistron.nl>
+	<40355F03.9030207@cyberone.com.au>
+	<20040219172656.77c887cf.akpm@osdl.org>
+	<40356599.3080001@cyberone.com.au>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 19, 2004 at 11:48:50AM -0800, Linus Torvalds wrote:
-> Let's leave the "check_or_create_name()" thing for now, and see how we can
-> use this in user space (and realize that we only do this on cache failure,
-> so this is the "slow case"):
+Nick Piggin <piggin@cyberone.com.au> wrote:
+>
 > 
-> 	set_bit_one(dir);
-> 	lseek(dir, 0, SEEK_SET);
-> 	while (readdir(dir, de)) {
-> 		stat(de->d_name);
-> 		.. might also compare the name here with whatever it is 
-> 		   working on right now..
-> 	}
-> 	set_bit_two_if_one_is_set(dirfd);
 > 
-> Notice what the above does? After the above loop, bit two will be set IFF 
-> the dentry cache now contains every single name in the directory. 
-> Otherwise it will be clear. Bit two will basically be a "dcache complete" 
-> bit.
+> Andrew Morton wrote:
+> 
+> >Nick Piggin <piggin@cyberone.com.au> wrote:
+> >
+> >>Even with this patch, it might still be a good idea to allow
+> >>pdflush to disregard the limits...
+> >>
+> >
+> >Has it been confirmed that pdflush is blocking in get_request_wait()?  I
+> >guess that can happen very occasionally because we don't bother with any
+> >locking around there but if it's happening a lot then something is bust.
+> >
+> >
+> 
+> Miquel's analysis is pretty plausible, but I'm not sure if
+> he's confirmed it or not, Miquel? Even if it isn't happening
+> a lot, and something isn't bust it might be a good idea to
+> do this.
 
-Why do this in user space?  The set_bit_one() and
-set_bit_two_if_one_is_set() can't really be used for anything else,
-really, so why not let check_or_create_name() do the above loop if
-necessary to populate all of the dcache entries in the dentry cache?
+Seems OK from a quick check.  pdflush will block in get_request_wait()
+occasionally, but not at all often.  Perhaps we could move the
+write_congested test into the mpage_writepages() inner loop but it hardly
+seems worth the risk.
 
-That way we only expose one system call (check_or_create_name()), and
-we let the internal dcache flags be an internal implementation detail.
-It will also make it much easier to avoid races.
+Maybe things are different on Miquel's clockwork controller.
 
-						- Ted
+
+
+ drivers/block/ll_rw_blk.c |    2 ++
+ fs/fs-writeback.c         |    2 ++
+ 2 files changed, 4 insertions(+)
+
+diff -puN drivers/block/ll_rw_blk.c~pdflush-blockage-check drivers/block/ll_rw_blk.c
+--- 25/drivers/block/ll_rw_blk.c~pdflush-blockage-check	2004-02-19 18:16:33.000000000 -0800
++++ 25-akpm/drivers/block/ll_rw_blk.c	2004-02-19 18:16:33.000000000 -0800
+@@ -1651,6 +1651,8 @@ static struct request *get_request_wait(
+ 		if (!rq) {
+ 			struct io_context *ioc;
+ 
++			WARN_ON(current_is_pdflush());
++
+ 			io_schedule();
+ 
+ 			/*
+diff -puN fs/fs-writeback.c~pdflush-blockage-check fs/fs-writeback.c
+--- 25/fs/fs-writeback.c~pdflush-blockage-check	2004-02-19 18:22:25.000000000 -0800
++++ 25-akpm/fs/fs-writeback.c	2004-02-19 18:22:43.000000000 -0800
+@@ -279,6 +279,8 @@ sync_sb_inodes(struct super_block *sb, s
+ 		}
+ 
+ 		if (wbc->nonblocking && bdi_write_congested(bdi)) {
++			if (current_is_pdflush())
++				printk("saved pdflush\n");
+ 			wbc->encountered_congestion = 1;
+ 			if (sb != blockdev_superblock)
+ 				break;		/* Skip a congested fs */
+
+_
+

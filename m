@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131769AbQKCU6d>; Fri, 3 Nov 2000 15:58:33 -0500
+	id <S131872AbQKCU6t>; Fri, 3 Nov 2000 15:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131702AbQKCU6N>; Fri, 3 Nov 2000 15:58:13 -0500
+	id <S131856AbQKCU6d>; Fri, 3 Nov 2000 15:58:33 -0500
 Received: from [194.213.32.137] ([194.213.32.137]:1284 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131651AbQKCU6L>;
-	Fri, 3 Nov 2000 15:58:11 -0500
-Message-ID: <20001103192519.A134@bug.ucw.cz>
-Date: Fri, 3 Nov 2000 19:25:19 +0100
+	by vger.kernel.org with ESMTP id <S131651AbQKCU6S>;
+	Fri, 3 Nov 2000 15:58:18 -0500
+Message-ID: <20001103195546.A119@bug.ucw.cz>
+Date: Fri, 3 Nov 2000 19:55:46 +0100
 From: Pavel Machek <pavel@suse.cz>
 To: kernel list <linux-kernel@vger.kernel.org>
-Subject: ne2k pcmcia problem
+Subject: celeron-class misdetected as 486 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 0.93i
@@ -19,24 +19,32 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-When I unplug pcmcia ne2k (without  stopping card, just uplug), it
-oopses. In earlier kernels, it gave few error messages but more or
-less worked.
+In 2.4.0-test10, I get
 
-I get 
+pavel@bug:~$ cat /proc/cpuinfo
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 4
+model           : 0
+model name      : 486 DX-25/33
+stepping        : 0
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : no
+cpuid level     : 3
+wp              : yes
+use_tsc         : no
 
-invalid operand 0000
 
-fault is in __wake_up
+.... that's wrong. Older kernels detect it correctly as:
 
-stack trace contains
-c027... (bogus)
-c0279978 (bogus)
-c01a5e08 ei_receive
-c0115994 process_timeout
-c01ef18a cs_sleep
-c01ef4fa do_shutdown
-...
+May 10 21:39:04 bug kernel: Pentium-III serial number disabled.
+May 10 21:39:04 bug kernel: CPU: Intel Celeron (Mendocino) stepping 0a
 
 								Pavel
 -- 

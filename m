@@ -1,126 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbUAZSI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 13:08:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbUAZSI4
+	id S262050AbUAZSRI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 13:17:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbUAZSRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 13:08:56 -0500
-Received: from mail4-141.ewetel.de ([212.6.122.141]:15542 "EHLO
-	mail4.ewetel.de") by vger.kernel.org with ESMTP id S262078AbUAZSIx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 13:08:53 -0500
-Date: Mon, 26 Jan 2004 19:08:49 +0100 (CET)
-From: Pascal Schmidt <der.eremit@email.de>
-To: Jens Axboe <axboe@suse.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: MO: opening for write in cdrom.c
-In-Reply-To: <Pine.LNX.4.44.0401261826340.1102-100000@neptune.local>
-Message-ID: <Pine.LNX.4.44.0401261900460.855-100000@neptune.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-CheckCompat: OK
+	Mon, 26 Jan 2004 13:17:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37512 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262050AbUAZSRC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jan 2004 13:17:02 -0500
+Date: Mon, 26 Jan 2004 10:12:09 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Bryan Whitehead <driver@jpl.nasa.gov>
+Cc: mdharm-kernel@one-eyed-alien.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.2-rc1-mm3] drivers/usb/storage/dpcm.c
+Message-Id: <20040126101209.67c9edc6.rddunlap@osdl.org>
+In-Reply-To: <40138599.1030406@jpl.nasa.gov>
+References: <20040125050342.45C3E13A354@mrhankey.megahappy.net>
+	<20040125084141.GA14215@one-eyed-alien.net>
+	<40138599.1030406@jpl.nasa.gov>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Jan 2004, Pascal Schmidt wrote:
+On Sun, 25 Jan 2004 01:00:09 -0800 Bryan Whitehead <driver@jpl.nasa.gov> wrote:
 
-[short summary for l-k: this is about finding out whether an MO is 
-write-protected or not, code that is yet missing from cdrom.c]
+| Matthew Dharm wrote:
+| > One message a day to report a particular bug is really enough.... :)
+| > 
+| > That said, I think it would be better to add the ifdef's instead of more
+| > substantial code changes.
+| 
+| No problemo, I was just getting my feet wet on small compiler warning 
+| fixes and the SubmitingPatches doc said ifdefs were from the devil. ;)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+FWIW, I prefer Bryan's patch instead of the #ifdefs.
 
-> I'll try to implement the fallback that sd.c uses next. That code
-> tries several mode senses with different page and length.
-
-Okay, I got it working with the exact method that sd.c uses. I've put
-a few printk's in to see where it fails a mode sense. It's actually
-inconsistent:
-
-	a) insert a writable disc first after boot, method 1 works
-	b) then insert a non-writable disc once - suddenly method 1
-	   stops working, even on writable discs, instead method 2
-	   works
-	c) insert a non-writable disc first after boot, method 1
-	   never works, but method 2 does
-
-There's a third method in sd.c. I've also left that in since I suspect
-it might be necessary under some circumstances, too.
-
->From my testing, I get the impression that this Fujitsu drive only
-has mode page 0, meaning that only 0x00 and 0x3F make sense, and that
-mode page 0x00 also only contains very few bytes of information -
-because asking for 16 bytes from 0x3F didn't work, but 4 bytes does.
-What's weird is that asking for all pages can also stop suddenly, after
-which only page 0x00 is accessible. And when that happens, we only get
-a meaningless request sense of 00/00/00 back.
-
-Oh well, strange hardware indeed.
-
-Here's the patch that works for me, please consider applying and
-pushing to Linus/Andrew:
+--
+~Randy
 
 
---- linux-2.6.2-rc1/include/linux/cdrom.h.orig	Sun Jan 25 23:21:19 2004
-+++ linux-2.6.2-rc1/include/linux/cdrom.h	Mon Jan 26 18:46:54 2004
-@@ -496,6 +496,7 @@ struct cdrom_generic_command
- #define GPCMD_GET_MEDIA_STATUS		    0xda
- 
- /* Mode page codes for mode sense/set */
-+#define GPMODE_VENDOR_PAGE		0x00
- #define GPMODE_R_W_ERROR_PAGE		0x01
- #define GPMODE_WRITE_PARMS_PAGE		0x05
- #define GPMODE_AUDIO_CTL_PAGE		0x0e
---- linux-2.6.2-rc1/drivers/cdrom/cdrom.c.orig	Sat Jan 24 01:23:30 2004
-+++ linux-2.6.2-rc1/drivers/cdrom/cdrom.c	Mon Jan 26 18:52:00 2004
-@@ -696,6 +696,34 @@ static int cdrom_mrw_open_write(struct c
- 	return ret;
- }
- 
-+static int mo_open_write(struct cdrom_device_info *cdi)
-+{
-+	struct cdrom_generic_command cgc;
-+	char buffer[255];
-+	int ret;
-+	
-+	init_cdrom_command(&cgc, &buffer, 4, CGC_DATA_READ);
-+	cgc.quiet = 1;
-+
-+	/*
-+	 * obtain write protect information as per
-+	 * drivers/scsi/sd.c:sd_read_write_protect_flag
-+	 */
-+
-+	ret = cdrom_mode_sense(cdi, &cgc, GPMODE_ALL_PAGES, 0);
-+	if (ret)
-+		ret = cdrom_mode_sense(cdi, &cgc, GPMODE_VENDOR_PAGE, 0);
-+	if (ret) {
-+		cgc.buflen = 255;
-+		ret = cdrom_mode_sense(cdi, &cgc, GPMODE_ALL_PAGES, 0);
-+	}
-+
-+	if (ret)
-+		return 1;
-+	
-+	return (buffer[3] & 0x80) != 0;
-+}
-+
- /*
-  * returns 0 for ok to open write, non-0 to disallow
-  */
-@@ -707,11 +735,8 @@ static int cdrom_open_write(struct cdrom
- 		ret = cdrom_mrw_open_write(cdi);
- 	else if (CDROM_CAN(CDC_DVD_RAM))
- 		ret = cdrom_dvdram_open_write(cdi);
--	/*
--	 * needs to really check whether media is writeable
--	 */
- 	else if (CDROM_CAN(CDC_MO_DRIVE))
--		ret = 0;
-+		ret = mo_open_write(cdi);
- 
- 	return ret;
- }
-
-
--- 
-Ciao,
-Pascal
-
+| I'll sent a patch later sunday...
+| 
+| > 
+| > Matt
+| > 
+| > On Sat, Jan 24, 2004 at 09:03:42PM -0800, Bryan Whitehead wrote:
+| > 
+| >>In function dpcm_transport the compiler complains about ret not being used:
+| >>drivers/usb/storage/dpcm.c: In function `dpcm_transport':
+| >>drivers/usb/storage/dpcm.c:46: warning: unused variable `ret'
+| >>
+| >>ret is not used if CONFIG_USB_STORAGE_SDDR09 is not set. Instead of adding
+| >>more ifdef's to the code this patch puts ret to use for the other 2 cases in
+| >>the switch statement (case 0 and default).
+| >>
+| >>--- drivers/usb/storage/dpcm.c.orig     2004-01-24 20:51:40.631038904 -0800
+| >>+++ drivers/usb/storage/dpcm.c  2004-01-24 20:50:05.155553384 -0800
+| >>@@ -56,7 +56,8 @@ int dpcm_transport(Scsi_Cmnd *srb, struc
+| >>     /*
+| >>      * LUN 0 corresponds to the CompactFlash card reader.
+| >>      */
+| >>-    return usb_stor_CB_transport(srb, us);
+| >>+    ret = usb_stor_CB_transport(srb, us);
+| >>+    break;
+| >>  
+| >> #ifdef CONFIG_USB_STORAGE_SDDR09
+| >>   case 1:
+| >>@@ -72,11 +73,12 @@ int dpcm_transport(Scsi_Cmnd *srb, struc
+| >>     ret = sddr09_transport(srb, us);
+| >>     srb->device->lun = 1; us->srb->device->lun = 1;
+| >>  
+| >>-    return ret;
+| >>+    break;
+| >> #endif
+| >>  
+| >>   default:
+| >>     US_DEBUGP("dpcm_transport: Invalid LUN %d\n", srb->device->lun);
+| >>-    return USB_STOR_TRANSPORT_ERROR;
+| >>+    ret = USB_STOR_TRANSPORT_ERROR;
+| >>   }
+| >>+  return ret;
+| >> }
+| >>
+| >>--

@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262493AbUKQSZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbUKQSPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262493AbUKQSZN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 13:25:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262486AbUKQSXc
+	id S262443AbUKQSPS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 13:15:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbUKQSLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 13:23:32 -0500
-Received: from [213.85.13.118] ([213.85.13.118]:13187 "EHLO tau.rusteko.ru")
-	by vger.kernel.org with ESMTP id S262480AbUKQSVC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 13:21:02 -0500
-From: Nikita Danilov <nikita@clusterfs.com>
-MIME-Version: 1.0
+	Wed, 17 Nov 2004 13:11:18 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:45696 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262480AbUKQSJK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 13:09:10 -0500
+Date: Wed, 17 Nov 2004 09:55:05 -0800
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Tejun Heo <tj@home-tj.org>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [RFC] [PATCH] driver core: allow userspace to unbind drivers from devices.
+Message-ID: <20041117175504.GE28285@kroah.com>
+References: <20041109223729.GB7416@kroah.com> <d120d50004111612437ebe76d9@mail.gmail.com> <20041116230828.GB16690@kroah.com> <200411170200.32860.dtor_core@ameritech.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16795.38517.516369.268494@gargle.gargle.HOWL>
-Date: Wed, 17 Nov 2004 21:20:37 +0300
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-In-Reply-To: <E1CUU2P-0005g4-00@dorka.pomaz.szeredi.hu>
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
-	<Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
-	<E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
-	<84144f0204111602136a9bbded@mail.gmail.com>
-	<E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
-	<20041116120226.A27354@pauline.vellum.cz>
-	<E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
-	<20041116163314.GA6264@kroah.com>
-	<E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu>
-	<16795.33515.187015.492860@thebsh.namesys.com>
-	<E1CUU2P-0005g4-00@dorka.pomaz.szeredi.hu>
-X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
+Content-Disposition: inline
+In-Reply-To: <200411170200.32860.dtor_core@ameritech.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi writes:
- > 
- > > /sys/fs used to exist for for some. Moreover, /sys/fs/foofs/ was added
- > > automagically when foofs file system type was registered. But it was
- > > ultimately removed, because nobody took the time to fix all races
- > > between accessing /sys/fs/foofs/gadget and
- > > umount/filesystem-module-unloading. 
- > 
- > I don't see why this would be any harder for filesystem code than for
- > other types of drivers.  Maybe someone can enlighten me.
- > 
- > Anyway, I can try to clean it up: remove all the racy bits and keep
- > what I need (which is mainly just the /sys/fs directory).  Where can I
- > find the most recent version of this?
+On Wed, Nov 17, 2004 at 02:00:32AM -0500, Dmitry Torokhov wrote:
+> On Tuesday 16 November 2004 06:08 pm, Greg KH wrote:
+> > On Tue, Nov 16, 2004 at 03:43:21PM -0500, Dmitry Torokhov wrote:
+> > > On Mon, 15 Nov 2004 21:54:40 -0800, Greg KH <greg@kroah.com> wrote:
+> > > > On Tue, Nov 09, 2004 at 10:49:43PM -0500, Dmitry Torokhov wrote:
+> > > > > In the meantime, can I please have bind_mode patch applied? I believe
+> > > > > it is useful regardless of which bind/unbind solution will be adopted
+> > > > > and having them will allow me clean up serio bus implementaion quite a
+> > > > > bit.
+> > > > >
+> > > > > Pretty please...
+> > > > 
+> > > > Care to resend it?  I can't find it in my archives.
+> > > > 
+> > > 
+> > > Here it is, against 2.6.10-rc2. Apologies for sending it as an attachment
+> > > but this interface will not let me put it inline without mangling.
+> > 
+> > No, for now, if you want to do this, do it in the serio code only, let's
+> > clean up the locking first before we do this in the core.
+> > 
+> 
+> *confused* This patch is completely independent from any locking issues in
+> driver core...
 
-It was removed at 2003.06.05, by "[fs] Remove kobject support for
-filesystems" change-set (mochel@osdl.org), you can extract patch from
-bitkeeper.
+I agree, it's a convient excuse to use to keep any other driver core
+changes from happening right now :)
 
-Reiser4 adds /sys/fs and /sys/fs/reiser4 manually (see kattr.[ch] in its
-sources), and uses
+> It is just 2 flags in device and driver structures that are checked in
+> device_attach and driver_attach.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/reiser4-kobject-umount-race.patch
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/reiser4-kobject-umount-race-cleanup.patch
+But I'm not so sure we want to add this to the driver core yet.  We can
+discuss this after the locking stuff is finished, ok?
 
-to avoid _some_ races (with umount), but these patches provide no
-protection against races with module unloading.
+thanks,
 
- > 
- > Thanks,
- > Miklos
-
-Nikita.
+greg k-h

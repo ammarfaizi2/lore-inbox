@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264557AbUAaLtu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jan 2004 06:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264566AbUAaLtu
+	id S264553AbUAaM21 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jan 2004 07:28:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264558AbUAaM21
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jan 2004 06:49:50 -0500
-Received: from vsmtp1alice.tin.it ([212.216.176.141]:40396 "EHLO vsmtp1.tin.it")
-	by vger.kernel.org with ESMTP id S264557AbUAaLtp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jan 2004 06:49:45 -0500
-Date: Sat, 31 Jan 2004 19:54:27 +0100
-From: Vincenzo Ciaglia <ciaglia@netwosix.org>
-To: linux-kernel@vger.kernel.org
-Subject: ANNOUNCEMENT: Linux Netwosix 1.0 with Kernel 2.6.1 is released
-Message-Id: <20040131195427.6ed8e3c9.ciaglia@netwosix.org>
-Organization: netwosix.org
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 31 Jan 2004 07:28:27 -0500
+Received: from natsmtp00.rzone.de ([81.169.145.165]:50382 "EHLO
+	natsmtp00.webmailer.de") by vger.kernel.org with ESMTP
+	id S264553AbUAaM20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jan 2004 07:28:26 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: "H. Peter Anvin" <hpa@zytor.com>, Paul Mackerras <paulus@samba.org>
+Subject: Re: [klibc] Re: long long on 32-bit machines
+Date: Sat, 31 Jan 2004 13:23:40 +0100
+User-Agent: KMail/1.5.4
+Cc: klibc list <klibc@zytor.com>, linux-kernel <linux-kernel@vger.kernel.org>
+References: <4017F991.2090604@zytor.com> <16408.59474.427408.682002@cargo.ozlabs.ibm.com> <401B464C.50004@zytor.com>
+In-Reply-To: <401B464C.50004@zytor.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401311323.40399.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
-It's my pleasure to announce that Linux Netwosix 1.0 is released and runs the kernel 2.6.1 by default.
-It seems to be the first linux distro with this kernel. I'm hopeful on this kernel.
-Linux Netwosix is a powerful and optimized Linux distribution for servers and Network Security related jobs.
-It can be also used for special operations as penetration test with its big collection of softwares
-and sources security oriented. It's a ligh distribution created for the requirements of every SysAdmin
-and it's very portable and highly configurable. Our philosophy is to give a big liberty of configuration
-to the SysAdmin. Only in this way he/she can configure a powerful and stable server machine. Linux Netwosix have also a powerful ports system (Nepote) similar to the xBSD systems but more flexible and usable. 
+On Saturday 31 January 2004 07:08, H. Peter Anvin wrote:
+> Does system calls follow the same convention?
 
-Here the announcement release:
-http://www.netwosix.org/announce.html
+I have just looked up in glibc what architectures need this kind
+of handling and found that there is no easy rule. The good news
+is that none of (hppa m68k s390 sparc x86_64 alpha cris i386 sparc64 
+arm ia64) are doing this. 
 
-Thanks for your attentions!
-Vincenzo Ciaglia
-Linux Netwosix.
+AFAICS, the padding is done for exactly these system calls:
+
+ppc: truncate64, ftruncate64, pread64, pwrite64
+mips: truncate64, ftruncate64, pread64, pwrite64
+sh: pread64, pwrite64
+
+fadvise64_64 is another story: 
+mips does no padding, ppc32 reorders the arguments (int fd, int advise,
+off64_t offset, off64_t len) and s390 passes a struct, for the
+reason Uli already explained.
+
+	Arnd <><
+

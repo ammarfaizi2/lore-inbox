@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVAGOtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVAGOvC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVAGOtD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 09:49:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVAGOs4
+	id S261444AbVAGOvC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 09:51:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVAGOvC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 09:48:56 -0500
-Received: from rproxy.gmail.com ([64.233.170.195]:35508 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261443AbVAGOsj (ORCPT
+	Fri, 7 Jan 2005 09:51:02 -0500
+Received: from wproxy.gmail.com ([64.233.184.199]:7742 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261444AbVAGOux (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 09:48:39 -0500
+	Fri, 7 Jan 2005 09:50:53 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=n6WEzbQ8+S5+BR4Bkgcm/+Q+NJOBzujPy82cKY57jMA0IC+9y7poZaRWCPtHCLfRU9vRc7RX30TRcMdwAS6ckRdPoq4bus60drt/cpkjx7cQZ2c84RE5EvQy/iOxO9dmUK0Zx/wGfZ6ZfoG+NLOekSKc8t4zNOKl2GzyR6RaXTI=
-Message-ID: <d120d50005010706487bdff6e7@mail.gmail.com>
-Date: Fri, 7 Jan 2005 09:48:37 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [PATCH] swsusp: properly suspend and resume *all* devices
-Cc: Takashi Iwai <tiwai@suse.de>, vojtech@suse.cz,
-       Lion Vollnhals <webmaster@schiggl.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050107135418.GB1405@elf.ucw.cz>
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=MAUQhBqLAqeMLVffHT973jH8T4+9ETVvxzhiX5Yhkfn0yUhTQz6nIYN0CXZh+yLGSRldsiGpCst58DBeL+lV8NjyZ8RRCy2b9WgLindz44plaPQJY0yxoFDYR0412UijtkhNaxiFHEnK8pRFzSTNJEHUgxw0J2VN1EG5modvRZA=
+Message-ID: <297f4e01050107065060e0b2ad@mail.gmail.com>
+Date: Fri, 7 Jan 2005 15:50:52 +0100
+From: Ikke <ikke.lkml@gmail.com>
+Reply-To: Ikke <ikke.lkml@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kobject_uevent
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <1104696556.2478.12.camel@pefyra>
-	 <20050103084713.GB2099@elf.ucw.cz>
-	 <20050103101423.GA4441@ip68-4-98-123.oc.oc.cox.net>
-	 <20050103150505.GA4120@ip68-4-98-123.oc.oc.cox.net>
-	 <loom.20050104T093741-631@post.gmane.org>
-	 <20050104214315.GB1520@elf.ucw.cz> <41DC0E70.4000005@schiggl.de>
-	 <20050106222927.GC25913@elf.ucw.cz> <s5hoeg1wduz.wl@alsa2.suse.de>
-	 <20050107135418.GB1405@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 7 Jan 2005 14:54:18 +0100, Pavel Machek <pavel@suse.cz> wrote:
-> Hi!
-> 
-> > > > I have a problem with net-devices, ne2000 in particular, in 2.6.9 and
-> > > > 2.6.10, too. After a resume the ne2000-device doesn't work anymore. I
-> > > > have to restart it using the initscripts.
-> > > >
-> > > > How do I add suspend/resume support (to ISA devices, like my ne2000)?
-> > > > Can you point me to some information/tutorial?
-> > >
-> > > Look how i8042 suspend/resume support is done and do it in similar
-> > > way...
-> >
-> > Yep it's fairly easy to implement in that way (I did for ALSA).
-> >
-> > But i8042 has also pm_register(), mentioning about APM.  Isn't it
-> > redundant?
-> 
-> Yes, it looks redundant. Vojtech, could you check why this is still
-> needed? It should not be.
+One of the new features of 2.6.10 (well, AFAIK its new) is the
+kobject_uevent function set.
+Currently only some places send out events like this, so I was
+thinking to add some more.
 
-It is removed in -bk.
+Question is: how can I test this? Is there any userland program that
+catches these events and prints some information on them to the
+screen?
 
--- 
-Dmitry
+I found out Kay Siever and RML's (maybe some others too?) work on
+kernel->userspace events, but the syntax used there seems to be
+somewhat different. Kay's got a listener
+(http://vrfy.org/projects/kdbusd/kdbusd.c), but is this one
+compatible?
+
+Regards, Ikke

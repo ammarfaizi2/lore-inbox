@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265236AbUFMSFe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265244AbUFMSlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265236AbUFMSFe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 14:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265237AbUFMSFe
+	id S265244AbUFMSlS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 14:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUFMSlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 14:05:34 -0400
-Received: from mail.dif.dk ([193.138.115.101]:61347 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265236AbUFMSFc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 14:05:32 -0400
-Date: Sun, 13 Jun 2004 20:04:38 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH - Trivial] Documentation - NFSv3 & v4 can't both be "the
- newer version"
-Message-ID: <Pine.LNX.4.56.0406131928370.5930@jjulnx.backbone.dif.dk>
+	Sun, 13 Jun 2004 14:41:18 -0400
+Received: from web25105.mail.ukl.yahoo.com ([217.12.10.53]:43700 "HELO
+	web25105.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S265244AbUFMSlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 14:41:17 -0400
+Message-ID: <20040613184116.76173.qmail@web25105.mail.ukl.yahoo.com>
+Date: Sun, 13 Jun 2004 19:41:16 +0100 (BST)
+From: =?iso-8859-1?q?Shaun=20Colley?= <shaunige@yahoo.co.uk>
+Subject: RE: i2c device driver bugs
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hehe, forgot to specify which kernel source I read
+this from.  Well, the first issue seems to be present
+in all of the 2.4 kernels, and 2.5 -- I haven't
+checked 2.6 yet.
 
-In the kernel help for NFSv3 & NFSv4 client support both are listed as
-"the newer version ... of the NFS protocol". Obviously both can't be the
-newer version at the same time, so here's a patch to correct the text in
-such a way that only v4 is listed as the newer version.
-Patch is against 2.6.7-rc3 - please consider including it.
-
-
---- linux-2.6.7-rc3/fs/Kconfig-orig	2004-06-13 19:26:13.000000000 +0200
-+++ linux-2.6.7-rc3/fs/Kconfig	2004-06-13 19:28:32.000000000 +0200
-@@ -1363,8 +1363,8 @@ config NFS_V3
- 	bool "Provide NFSv3 client support"
- 	depends on NFS_FS
- 	help
--	  Say Y here if you want your NFS client to be able to speak the newer
--	  version 3 of the NFS protocol.
-+	  Say Y here if you want your NFS client to be able to speak version
-+	  3 of the NFS protocol.
-
- 	  If unsure, say Y.
+The second bug seems to be fixed in 2.4.9 (and maybe
+lower) and 2.5, and probably 2.6, therefore.
 
 
---
-Jesper Juhl <juhl-lkml@dif.dk>
+If anymore info is needed, let me know.
 
+
+
+Thank you for your time.
+Shaun.
+
+
+	
+	
+		
+___________________________________________________________ALL-NEW Yahoo! Messenger - sooooo many all-new ways to express yourself http://uk.messenger.yahoo.com

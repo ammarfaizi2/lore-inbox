@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264280AbTDKA7h (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 20:59:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264281AbTDKA7h (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 20:59:37 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:64266 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S264280AbTDKA7g (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 20:59:36 -0400
-Date: Fri, 11 Apr 2003 03:11:13 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Joel Becker <Joel.Becker@oracle.com>
-cc: James Bottomley <James.Bottomley@steeleye.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 64-bit kdev_t - just for playing
-In-Reply-To: <20030411004703.GQ31739@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.44.0304110256420.5042-100000@serv>
-References: <1049913637.1993.73.camel@mulgrave> <Pine.LNX.4.44.0304092202570.5042-100000@serv>
- <1049941189.4467.186.camel@mulgrave> <Pine.LNX.4.44.0304101033500.5042-100000@serv>
- <1049988660.1998.100.camel@mulgrave> <Pine.LNX.4.44.0304102029430.5042-100000@serv>
- <20030411004703.GQ31739@ca-server1.us.oracle.com>
+	id S264282AbTDKBAn (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 21:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264284AbTDKBAm (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 21:00:42 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:10154 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264282AbTDKBAi convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 21:00:38 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [patch for playing] Patch to support 4000 disks and maintain backward compatibility
+Date: Thu, 10 Apr 2003 18:09:55 -0700
+User-Agent: KMail/1.4.1
+References: <UTC200304102353.h3ANrXv10792.aeb@smtp.cwi.nl>
+In-Reply-To: <UTC200304102353.h3ANrXv10792.aeb@smtp.cwi.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200304101809.55311.pbadari@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thursday 10 April 2003 04:53 pm, Andries.Brouwer@cwi.nl wrote:
+>     From: Badari Pulavarty <pbadari@us.ibm.com>
+>
+>     >     I am more worried about names slipping. I atleast hope
+>     >     to see device names not changing by just doing
+>     >     rmmod/insmod.
+>     >
+>     > But you see, the present sd_index_bits[] gives no such
+>     > guarantee. In sd_detach a bit is cleared, in sd_attach
+>     > the first free bit is given out. There is no memory.
+>
+>     But the disks are probed in the same manner as last time
+>     (if the disks/controllers are not moved, crashed etc..).
+>     So we will end up getting same names.
+>
+> Oh, but if next_index is 0 in the module (or reset by the
+> init_module code), then also with index = next_index++
+> things will be the same after rmmod/insmod.
 
-On Thu, 10 Apr 2003, Joel Becker wrote:
+Here is my problem..
 
-> 	No, the current patch DOES NOT BREAK compatibility.  Device
-> numbers from 00:00 to FF:FF are not munged in any way.  As long as
-> regular drivers don't expect anything else (eg, a new scsi driver that
-> uses a new larger major), nothing is broken or changed.
+#insmod ips.o
+  < found 10 disks>
+#insmod qla2300.o
+  < found 10 disks>
+#rmmod ips.o
+   <removed 10 disks>
+#insmod ips.o
+  <found 10 disks - but new names>
 
-Device number mapping _is_ changed, unless the driver is very careful. 
-Look at the latest patch from Badari, now try to add more partition while 
-maintaining compatibility and this has to be done for every driver!
-
-> If you had read the patch, you would have seen this.
-
-I did, but it's only half the story, how it will be used matters.
-
-> > Producing a patch isn't that difficult, but I'd rather be interested, if 
-> > there is even interest in such a patch? I already got not a single comment 
-> > about the last patch.
-> 
-> 	Propose a dynamic system.  Show us your code.
-
-Again, scsi _is_ already dynamic, there is not much to propose, it just 
-needs to be generalized and I did already show some code.
-
-bye, Roman
-
+- Badari

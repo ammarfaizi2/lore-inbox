@@ -1,37 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135267AbRDRXqE>; Wed, 18 Apr 2001 19:46:04 -0400
+	id <S135484AbRDRXuo>; Wed, 18 Apr 2001 19:50:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135479AbRDRXpx>; Wed, 18 Apr 2001 19:45:53 -0400
-Received: from suntan.tandem.com ([192.216.221.8]:59389 "EHLO
-	suntan.tandem.com") by vger.kernel.org with ESMTP
-	id <S135267AbRDRXpr>; Wed, 18 Apr 2001 19:45:47 -0400
-Message-ID: <3ADE27C3.F5962329@compaq.com>
-Date: Wed, 18 Apr 2001 16:48:19 -0700
-From: "Brian J. Watson" <Brian.J.Watson@compaq.com>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.2.12-20 i686)
-X-Accept-Language: en
+	id <S135483AbRDRXue>; Wed, 18 Apr 2001 19:50:34 -0400
+Received: from [202.77.223.60] ([202.77.223.60]:50189 "HELO server.achan.com")
+	by vger.kernel.org with SMTP id <S135481AbRDRXuX>;
+	Wed, 18 Apr 2001 19:50:23 -0400
+Message-ID: <007d01c0c862$3fa67e40$093d9ecd@outblaze.com>
+From: "Andrew Chan" <achan@achan.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0104160037230.19394-100000@maelstrom.localhost> <3ADA5C4C.748D0916@home.com>
+Subject: How to tune TCP for heavily loaded sendmail box
+Date: Thu, 19 Apr 2001 07:49:45 +0800
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Why does do_signal() repost deadly signals?
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If a signal's default behavior is to kill a process, do_signal() reposts that
-signal before calling do_exit(). Why does it do that?
+Greetings,
 
-Our guess is that it prevents the exiting process from blocking for an extremely
-long period of time. One example might be a process with an open NFS file. The
-process has to flush its writes out to the server during the close, but the
-server might be unavailable. Examining the code, it looks like the reposted
-signal prevents the NFS flush from waiting on any RPC response.
+I am running a relaying sendmail box and I would like it to be able to
+handle up to 600 or so concurrent (incoming or outgoing) connections.
 
-Is this the reason for reposting the signal? Are there any others?
+I tried that and discovered that TONS of incoming connections are stuck at
+SYNC_RECV state. It is like the sendmail box received these port 25
+connection attempts and then didn't know what to do with them.
 
---
-Brian Watson
-Compaq Computer
+I suspect I need to tune some of the TCP parameters so that the system can
+handle many short lived TCP connections in an efficent manner. Any pointer
+to this specific issue or general TCP tunning under Linux (2.4.2-ac28
+kernel) will be most appreciated.
 
-Not subscribed to LKML. Please CC me in response.
+Thanks.
+
+Andrew
+

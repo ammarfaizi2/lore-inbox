@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261694AbTCZNrJ>; Wed, 26 Mar 2003 08:47:09 -0500
+	id <S261693AbTCZNm2>; Wed, 26 Mar 2003 08:42:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261695AbTCZNrJ>; Wed, 26 Mar 2003 08:47:09 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60571 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261694AbTCZNrJ>;
-	Wed, 26 Mar 2003 08:47:09 -0500
-Message-ID: <3E81B212.40101@pobox.com>
-Date: Wed, 26 Mar 2003 08:58:42 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@pyxtechnologies.com>
-CC: Matt Mackall <mpm@selenic.com>, ptb@it.uc3m.es,
-       Justin Cormack <justin@street-vision.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ENBD for 2.5.64
-References: <Pine.LNX.4.10.10303252222060.25072-100000@master.linux-ide.org>
-In-Reply-To: <Pine.LNX.4.10.10303252222060.25072-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261695AbTCZNm2>; Wed, 26 Mar 2003 08:42:28 -0500
+Received: from CPE0080c8c9b431-CM014280010574.cpe.net.cable.rogers.com ([24.114.72.97]:53769
+	"EHLO stargate.coplanar.net") by vger.kernel.org with ESMTP
+	id <S261693AbTCZNm1>; Wed, 26 Mar 2003 08:42:27 -0500
+Subject: Re: Preferred way to load non-free firmware
+From: Jeremy Jackson <jerj@coplanar.net>
+To: oliver@neukum.name
+Cc: Nick Craig-Wood <ncw1@axis.demon.co.uk>, Greg KH <greg@kroah.com>,
+       Pavel Roskin <proski@gnu.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200303261347.27137.oliver@neukum.org>
+References: <Pine.LNX.4.50.0303252007420.6656-100000@marabou.research.att.com>
+	 <20030326041146.GD20858@kroah.com>
+	 <20030326104856.GA31375@axis.demon.co.uk>
+	 <200303261347.27137.oliver@neukum.org>
+Content-Type: text/plain; charset=UTF-8
+Organization: 
+Message-Id: <1048686722.1248.6.camel@contact.skynet.coplanar.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 
+Date: 26 Mar 2003 08:52:03 -0500
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> We have almost finalized our initiator to be submitted under OSL/GPL.
-> This will be a full RFC ERL=2 w/ Sync-n-Steering.
+Check the list archive, there was someone telling about support they
+added for binary blobs in /proc (or was it sysfs?) for this (among
+others) very purpose.
 
+Please don't make the situation any worse.  I'd like to have some hope
+that Debian my publish their kernel-source package with a
+linux-x.x.x.tar.bz2 that matches the md5sum of the one on kernel.org
+some day.
 
-That's pretty good news.
+Regards,
 
-Also, I tangent and mention that I have been won over WRT OSL:  with its 
-more tight "lawyerspeak" and mutual patent defense clauses, I consider 
-OSL to be a "better GPL" license.
+Jeremy
 
-I would in fact love to see the Linux kernel relicensed under OSL.  I 
-think that would close some "holes" that exist with the GPL, and give us 
-a better legal standing.  But relicensing the kernel would be huge 
-political undertaking, and I sure as hell don't have the energy, even if 
-it possible.  No idea if Linus, Alan, Andrew, or any of the other major 
-contributors would go for it, either.
-
-	Jeff, the radical
-
+On Wed, 2003-03-26 at 07:47, Oliver Neukum wrote:
+> Am Mittwoch, 26. März 2003 11:48 schrieb Nick Craig-Wood:
+> > On Tue, Mar 25, 2003 at 08:11:46PM -0800, Greg KH wrote:
+> > > > 7) Encode the firmware into a header file, add it to the driver and
+> > > > pretend that the copyright issue doesn't exist (like it's done in the
+> > > > Keyspan USB driver).
+> > >
+> > > Hey, that's the way I like doing this stuff :)
+> >
+> > If you do this the Debian kernel mainainers will mercilessly rip your
+> > non-free driver firmware from the standard Debian kernel.  At least
+> > that is what happened with the Keyspan :-(
+> 
+> That's their problem then. Or rather their users.
+> IMHO a maintainer's responsibility ends at kernel.org.
+> >From a technical point of view the firmware needs to be
+> in ram when you resume from sleep. If you don't care about
+> updating it, having it in the kernel image uses somewhat less
+> resources. So I'd say go for it.
+> 
+> 	Regards
+> 		Oliver
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274640AbRITUg1>; Thu, 20 Sep 2001 16:36:27 -0400
+	id <S274638AbRITUk5>; Thu, 20 Sep 2001 16:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274635AbRITUgT>; Thu, 20 Sep 2001 16:36:19 -0400
-Received: from maile.telia.com ([194.22.190.16]:2528 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S274640AbRITUgN>;
-	Thu, 20 Sep 2001 16:36:13 -0400
-Message-Id: <200109202036.f8KKaUv18307@maile.telia.com>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roger Larsson <roger.larsson@norran.net>
-To: george anzinger <george@mvista.com>,
-        Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-Subject: Re: [PATCH] latency-profiling
-Date: Thu, 20 Sep 2001 22:31:40 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
-In-Reply-To: <200109200609.f8K69uQ26778@mailc.telia.com> <3BAA49B5.E02FA5E7@mvista.com>
-In-Reply-To: <3BAA49B5.E02FA5E7@mvista.com>
+	id <S274641AbRITUks>; Thu, 20 Sep 2001 16:40:48 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:49896 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S274638AbRITUkc>;
+	Thu, 20 Sep 2001 16:40:32 -0400
+Date: Thu, 20 Sep 2001 16:40:51 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Steve Lord <lord@sgi.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Gonyou, Austin" <austin@coremetrics.com>,
+        narancs@narancs.tii.matav.hu, linux-xfs@oss.sgi.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: XFS to main kernel source 
+In-Reply-To: <200109202016.f8KKGrL19642@jen.americas.sgi.com>
+Message-ID: <Pine.GSO.4.21.0109201633530.5631-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursdayen den 20 September 2001 21.55, george anzinger wrote:
-> Roger Larsson wrote:
-> > Hi,
-> >
-> > I ported my old latency-profiling patch to 2.4.10-pre10 with
-> > the reschedulable kernel patch. (I have not checked that it is
-> > preemption safe itself...)
-> >
-> > This patch works a little different from Robert Loves.
-> > Since it samples the execution location at ticks.
-> > It is possible to instrument an ordinary kernel too...
->
-> It gives experienced latencies rather than potential latencies, but more
-> important from the developer/maintainers point of view, "Robert Loves"
-> patch provides information on the bad guys, i.e. the reason for the long
-> latency, which, hopefully, will allow them to be addressed by competent
-> maintainers.
->
 
-Yes, but my technique can be applied to any kernel. It does not require
-an preemptible kernel...
 
-I.e. measures time from the moment a reschedulation was reqired to it
-is actually done - independent of how it is done...
+On Thu, 20 Sep 2001, Steve Lord wrote:
 
-And if you run something that needs periodic reshedules you will detect
-actual problems.
+> > > Won't there be a lot of changes which need to be made for it to go into 2.5
+> > > anyway though beyond just current development? Isn't 2.5 supposed to be
+> > > "radically" different?
+> > 
+> > Not really. 2.5 will change over time for certain but if anything the 2.5
+> > changes will make it easier. One problem area with XFS is that it duplicates
+> > chunks of what should be generic functionality - and 2.5 needs to provide
+> > the generic paths it wants
+> 
+> Since we have your attention - which chunks? One of the frustrations we have
+> had is the lack of feedback from anyone who has looked at XFS.
 
-And thus it can be used as a bench, it is hard to describe skips in music,
-textual data is easier to send by mail...
+Locking.  There is a _lot_ of duplication between fs/namei.c and fs/xfs/* -
+you definitely don't need most of the stuff you do with locks there.
 
-But I agree that Roberts is better to find the critical ones!
+I understand that some of that stuff may be needed for CXFS, and I would
+really like to see the description of locking requirements of that animal.
 
-/RogerL
+Parts that are needed only on IRIX since IRIX VFS is braindead should go.
+Parts that can be moved to generic code should be moved (with sane set of
+methods provided by filesystems a-la CXFS). The rest will become much simpler.
 
--- 
-Roger Larsson
-Skellefteå
-Sweden

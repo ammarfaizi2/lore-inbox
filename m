@@ -1,17 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281942AbRKUSaS>; Wed, 21 Nov 2001 13:30:18 -0500
+	id <S281476AbRKUS3s>; Wed, 21 Nov 2001 13:29:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281451AbRKUSaJ>; Wed, 21 Nov 2001 13:30:09 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:36995 "EHLO
+	id <S281942AbRKUS3i>; Wed, 21 Nov 2001 13:29:38 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:36227 "EHLO
 	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S281941AbRKUS36>; Wed, 21 Nov 2001 13:29:58 -0500
-Message-ID: <001d01c172ba$5b4497b0$f5976dcf@nwfs>
+	id <S281451AbRKUS3d>; Wed, 21 Nov 2001 13:29:33 -0500
+Message-ID: <001a01c172ba$4f35e460$f5976dcf@nwfs>
 From: "Jeff Merkey" <jmerkey@timpanogas.org>
-To: "Kai Henningsen" <kaih@khms.westfalen.de>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <20011120.222203.58448986.davem@redhat.com> <davem@redhat.com> <20011121001639.A813@vger.timpanogas.org> <20011120.222203.58448986.davem@redhat.com> <20011121003304.A683@vger.timpanogas.org> <8DGB4I5Hw-B@khms.westfalen.de>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <E166T4K-0004Lr-00@the-village.bc.nu>
 Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid opcode
-Date: Wed, 21 Nov 2001 11:28:46 -0700
+Date: Wed, 21 Nov 2001 11:28:22 -0700
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -25,35 +27,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 ----- Original Message -----
-From: "Kai Henningsen" <kaih@khms.westfalen.de>
-To: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, November 20, 2001 11:47 PM
+From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+To: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+Cc: <linux-kernel@vger.kernel.org>; <jmerkey@timpanogas.org>
+Sent: Wednesday, November 21, 2001 1:49 AM
 Subject: Re: [VM/MEMORY-SICKNESS] 2.4.15-pre7 kmem_cache_create invalid
 opcode
 
 
-> jmerkey@vger.timpanogas.org (Jeff V. Merkey)  wrote on 21.11.01 in
-<20011121003304.A683@vger.timpanogas.org>:
+> > Here's really strange one.  Building a module against 2.4.15-pre7
+> > seems to generate invalid opcodes (???) from the kernel includes.
 >
-> > download pre7, apply my patch, and do the build.  I went back
-> > over how I did the build, and this is the result of the build
-> > if you have unpacked, patched, then run "make oldconfig."  If I
-> > do a "make dep" then this problem does not occur, and the build
->
-> Isn't that exactly the FAQ Keith points out every other day or so (usually
-> because of a modprobe "symbol not found"), one of the design bugs that
-> kbuild 2.5 fixes (i.e., the kernel does not notice when it needs to make
-> dep, so kbuild 2.5 handles dependencies differently)?
->
-> MfG Kai
+> You hit a BUG(). If you rebuild the kernel with verbose BUG reporting
+> included you'll get a line and file to work back from
 
-This is good news on the dependency methods.
+This may help me determine which include file is breaking the tree.  I know
+I hit a
+BUG() but I should not have.  Looks like a hole somewhere.  I will attempt
+to track
+this down today.
 
 Jeff
-
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
 

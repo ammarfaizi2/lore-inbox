@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266686AbTBQEAA>; Sun, 16 Feb 2003 23:00:00 -0500
+	id <S266771AbTBQENc>; Sun, 16 Feb 2003 23:13:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266716AbTBQEAA>; Sun, 16 Feb 2003 23:00:00 -0500
-Received: from crack.them.org ([65.125.64.184]:41149 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S266686AbTBQD77>;
-	Sun, 16 Feb 2003 22:59:59 -0500
-Date: Sun, 16 Feb 2003 23:09:49 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux 2.5.53 not compiling
-Message-ID: <20030217040949.GA10986@nevyn.them.org>
-Mail-Followup-To: Rahul Vaidya <rahulv@csa.iisc.ernet.in>,
-	linux-kernel@vger.kernel.org
-References: <20030217035821.GA10759@nevyn.them.org> <Pine.SOL.3.96.1030217093109.27688D-100000@osiris.csa.iisc.ernet.in>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.3.96.1030217093109.27688D-100000@osiris.csa.iisc.ernet.in>
-User-Agent: Mutt/1.5.1i
+	id <S266772AbTBQENc>; Sun, 16 Feb 2003 23:13:32 -0500
+Received: from dp.samba.org ([66.70.73.150]:17385 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266771AbTBQENc>;
+	Sun, 16 Feb 2003 23:13:32 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Brian Gerst <bgerst@didntduck.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move __this_module to xxx.mod.c 
+In-reply-to: Your message of "Sun, 16 Feb 2003 19:57:04 MDT."
+             <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu> 
+Date: Mon, 17 Feb 2003 14:42:40 +1100
+Message-Id: <20030217042330.D50DE2C04D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 17, 2003 at 09:33:32AM +0530, Rahul Vaidya wrote:
-> >From my kernel source directory: I have aliased gcc to my actual gcc
-> file..not the softlinked one..
+In message <Pine.LNX.4.44.0302161946220.5217-100000@chaos.physics.uiowa.edu> yo
+u write:
+> On Sun, 16 Feb 2003, Brian Gerst wrote:
+> 
+> > This patch moves the module structure to the generated .mod.c file, 
+> > instead of compiling it into each object and relying on the linker to 
+> > include it only once.
+> 
+> Yeah, it's something I though about doing, but I was not sure. I think 
+> it's up to Rusty to comment ;)
+> 
+> It will need an associated change to module_init_tools.
 
-Shell aliases won't affect the GCC that Make uses.  Try using make
-CC=/path/to/real/gcc.
+I don't think so: the symbol will be in the module by the time
+module-init-tools gets to it, or am I missing something?
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

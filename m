@@ -1,39 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261507AbRENHf0>; Mon, 14 May 2001 03:35:26 -0400
+	id <S262030AbRENHq2>; Mon, 14 May 2001 03:46:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261925AbRENHfR>; Mon, 14 May 2001 03:35:17 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:47624 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S261840AbRENHfB>; Mon, 14 May 2001 03:35:01 -0400
-Date: 14 May 2001 09:05:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org
-Message-ID: <80qQpWhmw-B@khms.westfalen.de>
-In-Reply-To: <Pine.LNX.4.21.0105131330350.20613-100000@penguin.transmeta.com>
-Subject: Re: page_launder() bug
-X-Mailer: CrossPoint v3.12d.kh6 R/C435
+	id <S262063AbRENHqS>; Mon, 14 May 2001 03:46:18 -0400
+Received: from mx.demos.su ([194.87.0.32]:29351 "EHLO demos.su")
+	by vger.kernel.org with ESMTP id <S262030AbRENHqI>;
+	Mon, 14 May 2001 03:46:08 -0400
+Message-ID: <3AFFC427.7FC1F5E@cyberplat.ru>
+Date: Mon, 14 May 2001 15:40:23 +0400
+From: Oleg Makarenko <omakarenko@cyberplat.ru>
+Organization: Cyberplat.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19-0.17.4 i686)
+X-Accept-Language: ru, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <Pine.LNX.4.21.0105131330350.20613-100000@penguin.transmeta.com>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+To: linux-kernel@vger.kernel.org
+CC: Andi Kleen <ak@suse.de>, jgarzik@mandrakesoft.com
+Subject: Re: netif_wake_queue wrong was: [PATCH] NFS Server performance and 
+ 8139too
+In-Reply-To: <3AFE3870.3BB1B69@cyberplat.ru> <20010513125329.B10250@gruyere.muc.suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------54C154790606E9505D44F52A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds)  wrote on 13.05.01 in <Pine.LNX.4.21.0105131330350.20613-100000@penguin.transmeta.com>:
+This is a multi-part message in MIME format.
+--------------54C154790606E9505D44F52A
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 
-> And that's why I'd rather have generic support for _any_ page mapping that
-> wants to drop pages early than have specific logic for swapping.
-> Historically, we've always had very good results from trying to avoid
-> having special cases and instead trying to find what the common rules
-> might be.
+Andi Kleen wrote:
+> 
+> On Sun, May 13, 2001 at 11:32:00AM +0400, Oleg Makarenko wrote:
+> > Beware that I am not a kernel hacker so the patch can be completely
+> > wrong. But I hope it still can provide some useful information to
+> > somebody  who really knows what is going on here :)
+> 
+> The problem is that the netif_wake_queue() 2.4 compatibility macro that
+> was recently added to 2.2 was wrong. It should do a mark_bh(). 8139too
+> uses the 2.4 macros, and therefore the netbh was always scheduled for too
+> late and performance was bad.
+> 
+> This patch should fix all drivers that use the new framework.
+> 
 
-Just a thought: isn't a dead swap page a rather similar condition to a  
-page in a file without any links, open file descriptors, or open mmaps? In  
-both cases, writeback really makes no sense.
+Unfortunately it doesn't. 8139too (and every other driver in 2.2.19 
+source tree) uses its own version of netif_wake_queue(). So your patch
+doesn't solve the problem with 8139too.
 
-MfG Kai
+Here is another patch for 8139too that places mark_bh() into the 
+netif_wake_queue() macro definition in 8139too.c. 
+
+Or with you patch for kcomp.h is it now better to completely remove 
+the macro redefinition from 8139too.c?
+
+My first patch is more of reverse type as it places mark_bh() 
+(that was lost) right after the netif_wake_queue() and 
+calls mark_bh() more often than it wakes the queue in a manner 
+of the older (working) 8139too version.
+
+oleg
+--------------54C154790606E9505D44F52A
+Content-Type: application/octet-stream;
+ name="linux-2.2.19-8139too.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="linux-2.2.19-8139too.patch"
+
+LS0tIGxpbnV4LTIuMi4yMHByZTIvZHJpdmVycy9uZXQvODEzOXRvby5jCU1vbiBNYXkgMTQg
+MTE6MTY6MzAgMjAwMQorKysgbGludXgtbW9sZS9kcml2ZXJzL25ldC84MTM5dG9vLmMJTW9u
+IE1heSAxNCAxMToxNzoyMiAyMDAxCkBAIC0xODcsNyArMTg3LDcgQEAKICNlbmRpZgogCiAj
+ZGVmaW5lIGRldl9rZnJlZV9za2JfaXJxKGEpCWRldl9rZnJlZV9za2IoYSkKLSNkZWZpbmUg
+bmV0aWZfd2FrZV9xdWV1ZShkZXYpCWNsZWFyX2JpdCgwLCAmZGV2LT50YnVzeSkKKyNkZWZp
+bmUgbmV0aWZfd2FrZV9xdWV1ZShkZXYpCWRvIHsgY2xlYXJfYml0KDAsICZkZXYtPnRidXN5
+KSA7IG1hcmtfYmgoTkVUX0JIKTsgfSB3aGlsZSgwKQogI2RlZmluZSBuZXRpZl9zdG9wX3F1
+ZXVlKGRldikJc2V0X2JpdCgwLCAmZGV2LT50YnVzeSkKIAogc3RhdGljIGlubGluZSB2b2lk
+IG5ldGlmX3N0YXJ0X3F1ZXVlKHN0cnVjdCBkZXZpY2UgKmRldikK
+--------------54C154790606E9505D44F52A--
+
+

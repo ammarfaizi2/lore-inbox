@@ -1,59 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbTDEI3m (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 03:29:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbTDEI3m (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 03:29:42 -0500
-Received: from mail.hometree.net ([212.34.181.120]:15849 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S261962AbTDEI3l (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Apr 2003 03:29:41 -0500
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: Strange e1000
-Date: Sat, 5 Apr 2003 08:41:11 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <b6m4r7$rp1$2@tangens.hometree.net>
-References: <043501c2faaf$da061e10$3f00a8c0@witbe> <1049465969.3324.40.camel@abhilinux.cygnet.co.in> <20030404181400.GA26545@gtf.org>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1049532071 28449 212.34.181.4 (5 Apr 2003 08:41:11 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sat, 5 Apr 2003 08:41:11 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	id S261482AbTDEJOd (for <rfc822;willy@w.ods.org>); Sat, 5 Apr 2003 04:14:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbTDEJOd (for <rfc822;linux-kernel-outgoing>); Sat, 5 Apr 2003 04:14:33 -0500
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:2432 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S261482AbTDEJOd (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 5 Apr 2003 04:14:33 -0500
+From: John Bradford <root@81-2-122-30.bradfords.org.uk>
+Message-Id: <200304050927.h359RtL2000320@81-2-122-30.bradfords.org.uk>
+Subject: Re: PATCH: Fixes for ide-disk.c
+To: ncunningham@clear.net.nz (Nigel Cunningham)
+Date: Sat, 5 Apr 2003 10:27:55 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <1049527877.1865.17.camel@laptop-linux.cunninghams> from "Nigel Cunningham" at Apr 05, 2003 07:31:17 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+> People using swsusp under 2.4 found that everything worked
+> fine if they rebooted after writing the image, but powering down at the
+> end of writing the image caused corruption. I got the additional check
+> from the source for hdparm, which only does the new check to determine
+> if a drive has a writeback cache.
 
->On Fri, Apr 04, 2003 at 07:49:28PM +0530, Abhishek Agrawal wrote:
->> On Fri, 2003-04-04 at 19:11, Paul Rolland wrote:
->> 
->> > Could it be possible that the 1000MBps FD on the e1000 side is
->> > a local configuration, and that it needs some time to discuss with
->> > the Netgear switch to negotiate correctly speed and duplex before
->> > working correctly ? (i.e. 20 sec = negotiation time)
->> Autoneg must be completed within 2 sec, or else it is considered as
->> failed.
+Did we ever establish what the best way to ensure that the write cache is
+flushed, is?  An explicit cache flush and spin down are both necessary, but
+I had problems with drives spinning back up when we did the spindown first.
 
->If we follow this rule, we have lots of Cisco and other network gear
->that will not be able to communicate with Linux.
-
-2 seconds sound like "spanning-tree portfast" in Cisco-speak. 20
-seconds sounds like normal configuration. Both are legal and work with
-normal FE gear. It might be possible that you must deactivate
-spanning-tree if you don't connect a switch.
-
-I personally found the 20 second break always annoying so I routinely
-disable it on my catalysts. :-)
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
+John.

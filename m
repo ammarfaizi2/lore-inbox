@@ -1,39 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262283AbSJJVtq>; Thu, 10 Oct 2002 17:49:46 -0400
+	id <S262460AbSJJVsC>; Thu, 10 Oct 2002 17:48:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262392AbSJJVtp>; Thu, 10 Oct 2002 17:49:45 -0400
-Received: from packet.digeo.com ([12.110.80.53]:34492 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262283AbSJJVte>;
-	Thu, 10 Oct 2002 17:49:34 -0400
-Message-ID: <3DA5F740.3564A111@digeo.com>
-Date: Thu, 10 Oct 2002 14:55:12 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S262450AbSJJVrl>; Thu, 10 Oct 2002 17:47:41 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.103]:16829 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262441AbSJJVqb>;
+	Thu, 10 Oct 2002 17:46:31 -0400
+Importance: Normal
+Sensitivity: 
+Subject: Re: [PATCH] EVMS core (3/9) discover.c
+To: ak@suse.de
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OFDCDB46A2.2BDBA992-ON85256C4E.00748716@pok.ibm.com>
+From: "Mark Peloquin" <peloquin@us.ibm.com>
+Date: Thu, 10 Oct 2002 17:05:00 -0500
+X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 5.0.11  |July 29, 2002) at
+ 10/10/2002 05:52:08 PM
 MIME-Version: 1.0
-To: Sylvain Pasche <sylvain_pasche@yahoo.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.41 isofs patch to avoid "bad: scheduling while atomic!"
-References: <15781.47072.335973.295982@yahoo.fr>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 10 Oct 2002 21:55:12.0549 (UTC) FILETIME=[B56D6550:01C270A7]
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sylvain Pasche wrote:
-> 
-> --- linux-2.5.41/fs/isofs/dir.c_old     2002-10-10 19:12:19.000000000 +0200
-> +++ linux-2.5.41/fs/isofs/dir.c 2002-10-10 19:13:26.000000000 +0200
-> @@ -256,7 +256,7 @@
-> 
->         lock_kernel();
-> 
-> -       tmpname = (char *) __get_free_page(GFP_KERNEL);
-> +       tmpname = (char *) __get_free_page(GFP_KERNEL | GFP_ATOMIC);
->         if (!tmpname)
->                 return -ENOMEM;
 
-Not sure about the scheduling while atomic thing, but it is returning
-with the lock held.  I'll fix that up.
+On 10/10/2002 at 03:48 PM, Andi Kleen wrote:
+
+> > + list_for_each_entry(plugin, &plugin_head, headers) {
+> > +       if (GetPluginType(plugin->id) == EVMS_DEVICE_MANAGER) {
+> > +             spin_unlock(&plugin_lock);
+> > +             DISCOVER(plugin, disk_list);
+> > +             spin_lock(&plugin_lock);
+> > +       }
+
+> How do you know "plugin" and its successors are still valid when retaking
+> the spinlock? Looks like you need a reference count on the object here.
+
+The spinlock itself should protect the integrity of the
+list. If a prev or next element in the list should be
+removed, while in a discover function, then the prev
+or next field in the current plugin will get updated,
+but I don't believe that should cause the list_for_each_entry
+macro problems traversing the remainding elements in the list.
+
+The first instruction in every plugin's discover function
+is a MOD_INC_USE_COUNT and the last before the return is
+MOD_DEC_USE_COUNT. So there exists a small window by
+which the current plugin might be unloaded between the
+spinlock release and MOD_INC_USE_COUNT, and the
+MOD_DEC_USE_COUNT and the spinlock reacquire.
+
+We plan to register a "__this_module.can_unload()" that
+should prevent plugin modules from unloading during
+discovery.
+
+Mark
+
+

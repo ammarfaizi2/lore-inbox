@@ -1,74 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262357AbSJJABB>; Wed, 9 Oct 2002 20:01:01 -0400
+	id <S262667AbSJJAB5>; Wed, 9 Oct 2002 20:01:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262312AbSJJABB>; Wed, 9 Oct 2002 20:01:01 -0400
-Received: from pacific.moreton.com.au ([203.143.238.4]:24288 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S262105AbSJJAAw>; Wed, 9 Oct 2002 20:00:52 -0400
-Message-ID: <3DA4C511.5070905@snapgear.com>
-Date: Thu, 10 Oct 2002 10:08:49 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
-X-Accept-Language: en-us, en
+	id <S262414AbSJJAB5>; Wed, 9 Oct 2002 20:01:57 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:25486 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S262382AbSJJABx>;
+	Wed, 9 Oct 2002 20:01:53 -0400
+Subject: Re: Why NFS server does not pass lock requests via VFS lock() op?
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, linux-kernel-owner@vger.kernel.org,
+       nfs@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.2a (Intl) 23 November 1999
+Message-ID: <OFAB5FE3E3.3D571A56-ON87256C4D.008352AE@us.ibm.com>
+From: Juan Gomez <juang@us.ibm.com>
+Date: Wed, 9 Oct 2002 17:07:19 -0700
+X-MIMETrack: Serialize by Router on D03NM694/03/M/IBM(Release 6.0|September 26, 2002) at
+ 10/09/2002 18:07:18
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.41uc0 (MMU-less support)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi All,
-
-The latest set of MMU-less support patches are up. You can
-get the all-in-one patch at:
-
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0.patch.gz
-
-Change log:
-
-1. patched against 2.5.41
-2. reworked build system (support new kbuild changes)
-3. switch to workqueue's in serial and ethernet drivers
-4. started import Christop Hellwigs MM changes
-     - now CONFIG_MMU and CONFIG_SWAP defines
-     - more patches still to merge
 
 
-You can get smaller patches here:
 
-. FEC (5272) ethernet driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-fec.patch.gz
+Oh ok. Well can we resuscitate this patch? The AFS NAS head example is a
+good reason to do this.
+If you need any help please let me know and I will be happy to test/adapt
+the patch in/to the version that you may want to apply it.
+We have one version for 2.4.18 that someone created recently if the one you
+have is too old...
 
-. 68k/ColdFire/v850 serial drivers
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-serial.patch.gz
-
-. 68328 frame buffer driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-fb.patch.gz
-
-. FLAT file loader
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-binflat.patch.gz
-
-. m68knommu architecture support
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-m68knommu.patch.gz
-
-. v850 architecture support
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-v850.patch.gz
-
-. no VM memory support
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.41uc0-mmnommu.patch.gz
-
-Regards
-Greg
+Thanks, Juan
 
 
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-SnapGear Pty Ltd                               PHONE:    +61 7 3435 2888
-825 Stanley St,                                  FAX:    +61 7 3891 3630
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
+
+
+|---------+---------------------------------->
+|         |           Alan Cox               |
+|         |           <alan@lxorguk.ukuu.org.|
+|         |           uk>                    |
+|         |           Sent by:               |
+|         |           linux-kernel-owner@vger|
+|         |           .kernel.org            |
+|         |                                  |
+|         |                                  |
+|         |           10/09/02 04:32 PM      |
+|         |                                  |
+|---------+---------------------------------->
+  >-----------------------------------------------------------------------------------------------------------------------------|
+  |                                                                                                                             |
+  |       To:       Juan Gomez/Almaden/IBM@IBMUS                                                                                |
+  |       cc:       nfs@lists.sourceforge.net, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>                         |
+  |       Subject:  Re: Why NFS server does not pass lock requests via VFS lock() op?                                           |
+  |                                                                                                                             |
+  |                                                                                                                             |
+  >-----------------------------------------------------------------------------------------------------------------------------|
+
+
+
+On Thu, 2002-10-10 at 00:11, Juan Gomez wrote:
+>
+>
+>
+>
+> Could anyone remind me of why NFS kernel would not pass byte range lock
+> requests to the underlying filsystem at the server side?
+> I think another person at IBM (Brian?) submitted a patch for this but
+such
+> patch never got included in the distribution.
+
+I know Matthew had the patches, and I know I looked at them and they
+seemed sane enough. But I don't know where they eventually went. Things
+like NFS over AFS are going to need it
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
 
 

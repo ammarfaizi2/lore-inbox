@@ -1,104 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261940AbSIYIVe>; Wed, 25 Sep 2002 04:21:34 -0400
+	id <S261946AbSIYIg2>; Wed, 25 Sep 2002 04:36:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261941AbSIYIVe>; Wed, 25 Sep 2002 04:21:34 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:30126 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261940AbSIYIVd>;
-	Wed, 25 Sep 2002 04:21:33 -0400
-Date: Wed, 25 Sep 2002 10:35:15 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] thread-flock-2.5.38-A3
-Message-ID: <Pine.LNX.4.44.0209251030170.5122-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261947AbSIYIg2>; Wed, 25 Sep 2002 04:36:28 -0400
+Received: from closet.leakybucket.com ([208.177.155.94]:26240 "HELO
+	closet.leakybucket.org") by vger.kernel.org with SMTP
+	id <S261946AbSIYIg0>; Wed, 25 Sep 2002 04:36:26 -0400
+Date: Tue, 24 Sep 2002 18:14:01 -0700
+From: alfred@leakybucket.org
+To: linux-kernel@vger.kernel.org
+Subject: [patch] Re: 2 futex questions
+Message-ID: <20020925011401.GA15543@closet.leakybucket.org>
+Reply-To: alfred@leakybucket.org
+References: <20020925003353.GA15418@closet.leakybucket.org> <Pine.LNX.4.44.0209251015320.4690-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0209251015320.4690-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 25, 2002 at 10:23:16AM +0200, Ingo Molnar wrote:
+> 
+> what it says: 'uaddr must be naturally aligned, and the word must be on a
+> single page'. In theory it's possible that __alignof__(int) !=
+> sizeof(int).
+> 
 
-Ulrich found another small detail wrt. POSIX requirements for threads -
-this time it's the recursion features (read-held lock being write-locked
-means an upgrade if the same 'process' is the owner, means a deadlock if a
-different 'process').
+Ok, would the following actually save some cycles then?
 
-this requirement even makes some sense - the group of threads who own a
-lock really own all rights to the lock as well.
-
-the attached patch against BK-curr fixes this, all testcases pass now.  
-(inter-process testcases as well, which are not affected by this patch.)
-
-(SIGURG and SIGIO semantics should also continue to work - there's some
-more stuff we can optimize with the new pidhash in this area, but that's
-for later.)
-
-	Ingo
-
---- linux/fs/locks.c.orig	Wed Sep 25 10:28:26 2002
-+++ linux/fs/locks.c	Wed Sep 25 10:28:41 2002
-@@ -252,7 +252,7 @@
- 		return -ENOMEM;
+diff -u a/kernel/futex.c b/kernel/futex.c 
+--- a/kernel/futex.c    Tue Sep 24 15:25:01 2002
++++ b/kernel/futex.c    Tue Sep 24 18:09:09 2002
+@@ -321,9 +321,10 @@
  
- 	fl->fl_file = filp;
--	fl->fl_pid = current->pid;
-+	fl->fl_pid = current->tgid;
- 	fl->fl_flags = (cmd & LOCK_NB) ? FL_FLOCK : FL_FLOCK | FL_SLEEP;
- 	fl->fl_type = type;
- 	fl->fl_end = OFFSET_MAX;
-@@ -308,7 +308,7 @@
- 		fl->fl_end = OFFSET_MAX;
- 	
- 	fl->fl_owner = current->files;
--	fl->fl_pid = current->pid;
-+	fl->fl_pid = current->tgid;
- 	fl->fl_file = filp;
- 	fl->fl_flags = FL_POSIX;
- 	fl->fl_notify = NULL;
-@@ -348,7 +348,7 @@
- 		fl->fl_end = OFFSET_MAX;
- 	
- 	fl->fl_owner = current->files;
--	fl->fl_pid = current->pid;
-+	fl->fl_pid = current->tgid;
- 	fl->fl_file = filp;
- 	fl->fl_flags = FL_POSIX;
- 	fl->fl_notify = NULL;
-@@ -377,7 +377,7 @@
- 		return -ENOMEM;
+        pos_in_page = ((unsigned long)uaddr) % PAGE_SIZE;
  
- 	fl->fl_owner = current->files;
--	fl->fl_pid = current->pid;
-+	fl->fl_pid = current->tgid;
+-       /* Must be "naturally" aligned, and not on page boundary. */
++       /* Must be "naturally" aligned, and must not cross a page boundary. */
+        if ((pos_in_page % __alignof__(int)) != 0
+-           || pos_in_page + sizeof(int) > PAGE_SIZE)
++           || ((sizeof(int) != __alignof__(int))
++                && (pos_in_page + sizeof(int) > PAGE_SIZE)))
+                return -EINVAL;
  
- 	fl->fl_file = filp;
- 	fl->fl_flags = FL_LEASE;
-@@ -669,7 +669,7 @@
- 	int error;
- 
- 	fl.fl_owner = current->files;
--	fl.fl_pid = current->pid;
-+	fl.fl_pid = current->tgid;
- 	fl.fl_file = filp;
- 	fl.fl_flags = FL_POSIX | FL_ACCESS | FL_SLEEP;
- 	fl.fl_type = (read_write == FLOCK_VERIFY_WRITE) ? F_WRLCK : F_RDLCK;
-@@ -1241,7 +1241,7 @@
- 	*before = fl;
- 	list_add(&fl->fl_link, &file_lock_list);
- 
--	error = f_setown(filp, current->pid, 1);
-+	error = f_setown(filp, current->tgid, 1);
- out_unlock:
- 	unlock_kernel();
- 	return error;
-@@ -1632,7 +1632,7 @@
- 	lock.fl_start = 0;
- 	lock.fl_end = OFFSET_MAX;
- 	lock.fl_owner = owner;
--	lock.fl_pid = current->pid;
-+	lock.fl_pid = current->tgid;
- 	lock.fl_file = filp;
- 
- 	if (filp->f_op && filp->f_op->lock != NULL) {
+        /* Simpler if it doesn't vanish underneath us. */
 
+
+Alfred Landrum

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317235AbSFCADa>; Sun, 2 Jun 2002 20:03:30 -0400
+	id <S317236AbSFCAI5>; Sun, 2 Jun 2002 20:08:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317236AbSFCAD3>; Sun, 2 Jun 2002 20:03:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:50429 "EHLO
+	id <S317238AbSFCAI5>; Sun, 2 Jun 2002 20:08:57 -0400
+Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:52733 "EHLO
 	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317235AbSFCAD2>; Sun, 2 Jun 2002 20:03:28 -0400
-Subject: Re: Orinoco Wireless driver bugs in 2.5.17
+	id <S317236AbSFCAI4>; Sun, 2 Jun 2002 20:08:56 -0400
+Subject: Re: INTEL 845G Chipset IDE Quandry
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Gibson <hermes@gibson.dropbear.id.au>
-Cc: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020602233849.GA9381@zax>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Martin Dalecki <dalecki@evision-ventures.com>,
+        Anthony Spinillo <tspinillo@linuxmail.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020602233043.A11698@ucw.cz>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 03 Jun 2002 02:08:37 +0100
-Message-Id: <1023066517.3439.52.camel@irongate.swansea.linux.org.uk>
+Date: 03 Jun 2002 02:13:45 +0100
+Message-Id: <1023066825.3439.58.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-06-03 at 00:38, David Gibson wrote:
-> 
-> On Wed, May 29, 2002 at 07:40:27PM +0100, Alan Cox wrote:
-> > On Thu, 2002-05-23 at 02:25, David Gibson wrote:
-> > > The signal/noise bit is probably a red herring.  We have problems with
-> > > the reporting of this, but it's mostly cosmetic.  I seem to have
-> > > confusing and contradictory information about how to interpret the
-> > > values the firmware reports.
+On Sun, 2002-06-02 at 22:30, Vojtech Pavlik wrote:
+> On Sun, Jun 02, 2002 at 09:36:35PM +0200, Martin Dalecki wrote:
+> > Anthony Spinillo wrote:
+> > > Back to my original problem, will there be a fix before 2010? ;)
 > > 
-> > Ok the old driver gets the noise level right, the newer one got it
-> > wrong, the current one gets it wrong. The good news is the old one
-> > works, the new one didnt, the current 2.4.19pre one does...
+> > Well since you have already tyred yourself to poke at it.
+> > Well please just go ahead and atd an entry to the table
+> > at the end of piix.c which encompasses the device.
+> > Do it by copying over the next familiar one and I would
+> > be really geald if you could just test whatever this
+> > worked. If yes well please send me just the patch and
+> > I will include it.
 > 
-> Um, ok, now I'm a bit lost.  I'm guessing by "old driver" you mean the
-> pre 2.4.18 one (0.06f?) by "new driver" you mean the one in 2.4.18 and
-> "current driver" means the one in 2.4.19pre (0.11b) - i.e. newer than
-> the "new" one.  Is that right?
+> Note it works with 2.5 already. We have the device there.
 
-It is right.
+If you look at why it fails it fails not because it isnt in the table
+but because the PCI device has not been allocated resources properly by
+the BIOS
 

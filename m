@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVAGVqC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVAGVoM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVAGVqC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 16:46:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVAGVqA
+	id S261634AbVAGVoM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 16:44:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVAGVnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 16:46:00 -0500
-Received: from fw.osdl.org ([65.172.181.6]:6554 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261622AbVAGVpp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 16:45:45 -0500
-Date: Fri, 7 Jan 2005 13:49:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: paul@linuxaudiosystems.com, arjanv@redhat.com, hch@infradead.org,
-       mingo@elte.hu, chrisw@osdl.org, alan@lxorguk.ukuu.org.uk, joq@io.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [request for inclusion] Realtime LSM
-Message-Id: <20050107134941.11cecbfc.akpm@osdl.org>
-In-Reply-To: <1105132348.20278.88.camel@krustophenia.net>
-References: <200501071620.j07GKrIa018718@localhost.localdomain>
-	<1105132348.20278.88.camel@krustophenia.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 16:43:39 -0500
+Received: from mail.parknet.co.jp ([210.171.160.6]:19213 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261634AbVAGVmP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 16:42:15 -0500
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] fs/fat/cache.c: make __fat_access static
+References: <20050106225351.GG28628@stusta.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Sat, 08 Jan 2005 06:41:06 +0900
+In-Reply-To: <20050106225351.GG28628@stusta.de> (Adrian Bunk's message of
+ "Thu, 6 Jan 2005 23:53:51 +0100")
+Message-ID: <87oeg0c3yl.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell <rlrevell@joe-job.com> wrote:
+Adrian Bunk <bunk@stusta.de> writes:
+
+> The patch below makes a needlessly global function static.
 >
-> Really, I think Linux has owned the server space for so long that some
-> folks on this list are getting hubristic.  Just because you have the
-> best server OS does not mean it's the best at everything.
-
-nah, the requirement is clearly valid, and longstanding.  We need to
-satisfy it.  It's just a matter of working out the best way.
-
-Chris Wright <chrisw@osdl.org> wrote:
 >
-> ...
-> Last I checked they could be controlled separately in that module.  It
-> has been suggested (by me and others) that one possible solution would
-> be to expand it to be generic for all caps.
+> diffstat output:
+>  fs/fat/cache.c           |    2 +-
+>  include/linux/msdos_fs.h |    1 -
+>  2 files changed, 1 insertion(+), 2 deletions(-)
+>
+>
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Maybe this is the way?
+Thanks. applied.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

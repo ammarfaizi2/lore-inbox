@@ -1,89 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275233AbTHGI0M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 04:26:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275234AbTHGI0M
+	id S275229AbTHGIji (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 04:39:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275230AbTHGIji
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 04:26:12 -0400
-Received: from dyn-ctb-203-221-72-79.webone.com.au ([203.221.72.79]:11539 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S275233AbTHGI0I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 04:26:08 -0400
-Message-ID: <3F320D15.7020403@cyberone.com.au>
-Date: Thu, 07 Aug 2003 18:25:57 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-mm3 osdl-aim-7 regression
-References: <200308061910.h76JAYw16323@mail.osdl.org> <200308071240.54863.kernel@kolivas.org> <3F31DF98.6020908@cyberone.com.au> <200308071541.06091.kernel@kolivas.org>
-In-Reply-To: <200308071541.06091.kernel@kolivas.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 7 Aug 2003 04:39:38 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:11978 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S275229AbTHGIjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Aug 2003 04:39:37 -0400
+Date: Thu, 7 Aug 2003 01:39:30 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: lkml <linux-kernel@vger.kernel.org>, phil-list@redhat.com
+Subject: NPTL v userland v LT (RH9+custom kernel problem)
+Message-ID: <20030807013930.A26426@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+The RH9 kernels have NPTL patches.  Standard 2.4.21 does not.
+I am running a custom kernel without the NPTL stuff.
 
-Con Kolivas wrote:
+At least one RH9 userland piece is not working correctly with my
+custom kernel.  If I use pam_ldap, the root user cannot login on
+the console.
 
->On Thu, 7 Aug 2003 15:11, Nick Piggin wrote:
->
->>What is the need for this round robining? Don't processes get a calculated
->>timeslice anyway?
->>
->
->Nice to see you taking an unhealthy interest in the scheduler tweaks Nick. 
->This issue has been discussed before but it never hurts to review things. 
->I've uncc'ed the rest of the people in case we get carried away again. First 
->let me show you Ingo's comment in the relevant code section:
->
->		 * Prevent a too long timeslice allowing a task to monopolize
->		 * the CPU. We do this by splitting up the timeslice into
->		 * smaller pieces.
->		 *
->		 * Note: this does not mean the task's timeslices expire or
->		 * get lost in any way, they just might be preempted by
->		 * another task of equal priority. (one with higher
->		 * priority would have preempted this task already.) We
->		 * requeue this task to the end of the list on this priority
->		 * level, which is in essence a round-robin of tasks with
->		 * equal priority.
->
->I was gonna say second blah blah but I think the first paragraph explains the 
->issue. 
->
->Must we do this? No. 
->
->Should we? Probably. 
->
->How frequently should we do it? Once again I'll quote Ingo who said it's a 
->difficult question to answer. 
->
+PAM prompts for the username and password, then pam_ldap appears to
+get stuck in a syslog call.  It doesn't actually call syslog(), but if
+I compare to a functional system, the working one opens /dev/log etc
+whereas the broken one does an rt_sigsuspend() and hangs until a SIGALRM
+is delivered (login having set this up before prompting for the password).
+That's from looking at strace; I haven't looked at ltrace or tried to
+run under the debugger yet.
 
-OK, I was just thinking it should get done automatically by virtue
-of the regular timeslice allocation, dynamic priorities, etc.
+Logging in as a normal user, then sudo'ing to root does work though.
 
-It just sounds like another workaround due to the scheduler's inability
-to properly manage priorities and (the large range of length of) timeslices.
+A notable difference between these two cases is that in the former the
+real uid of the 'login' process is root, and in the latter the real uid
+of the 'sudo' process is that of the user.  (PAM config for login and sudo
+are identical.)
 
->
->
->The more frequently you round robin the lower the scheduler latency between 
->SCHED_OTHER tasks of the same priority. However, the longer the timeslice the 
->more benefit you get from cpu cache. Where is the sweet spot? Depends on the 
->hardware and your usage requirements of course, but Ingo has empirically 
->chosen 25ms after 50ms seemed too long. Basically cache trashing becomes a 
->real problem with timeslices below ~7ms on modern hardware in my limited 
->testing. A minor quirk in Ingo's original code means _occasionally_ a task 
->will be requeued with <3ms to go. It will be interesting to see if fixing 
->this (which O12.2+ does) makes a big difference or whether we need to 
->reconsider how frequently (if at all) we round robin tasks.  
->
+I think I've seen a case where normal users couldn't login but I
+may be misremembering.
 
-Why not have it dynamic? CPU hogs get longer timeslices (but of course
-can be preempted by higher priorities).
+So, finally getting to my question, should I even *expect* a non-NPTL
+kernel to work with the RH9 userland?  If not, is there a simple fix
+without going to NPTL, say just rebuilding glibc?  hmm... now that I
+ask it I feel dumb, I do think I would need to rebuild glibc so it
+knows the kernel has LinuxThreads, not NPTL.  OK, if that's true
+are there any other libs I should need to rebuild?
 
-
+thanks
+/fc

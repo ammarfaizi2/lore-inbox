@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271686AbTHDJ0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 05:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271688AbTHDJ0Y
+	id S271687AbTHDJUR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 05:20:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271692AbTHDJUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 05:26:24 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:3849 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S271686AbTHDJ0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 05:26:23 -0400
-Date: Mon, 4 Aug 2003 10:26:19 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Pat Rondon <pat@thepatsite.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Yenta init freezes Pavilion
-Message-ID: <20030804102619.A495@flint.arm.linux.org.uk>
-Mail-Followup-To: Pat Rondon <pat@thepatsite.com>,
-	linux-kernel@vger.kernel.org
-References: <1059962307.3774.18.camel@okcomputer>
+	Mon, 4 Aug 2003 05:20:16 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:31688 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S271687AbTHDJUO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 05:20:14 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 4 Aug 2003 11:13:02 +0200
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test2-mm2: BTTV build error
+Message-ID: <20030804091302.GH24453@bytesex.org>
+References: <20030730223810.613755b4.akpm@osdl.org> <20030731150648.GG22991@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1059962307.3774.18.camel@okcomputer>; from pat@thepatsite.com on Sun, Aug 03, 2003 at 09:58:27PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030731150648.GG22991@fs.tum.de>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 09:58:27PM -0400, Pat Rondon wrote:
->   When booting my HP Pavilion zt1145 (see below), the system freezes
-> once it gets to checking the cardbus status:
-> 
-> Yenta IRQ list 0000, PCI irq11
-> Socket status: 30000006
+> > +bttv-driver-update.patch
 
-Which kernel exhibited this behaviour, and which was the last kernel
-which didn't?
+>   CC      drivers/media/video/bttv-cards.o
+> drivers/media/video/bttv-cards.c: In function `pvr_boot':
+> drivers/media/video/bttv-cards.c:2549: error: incompatible types in 
+> initialization
+> drivers/media/video/bttv-cards.c:2552: warning: implicit declaration of 
+> function `request_firmware'
 
-Also, there should be other messages about pcmcia around that area -
-it would be helpful to include those in your report.
+Hmm, must investigate.  Any change if you toggle CONFIG_FW_LOADER?
 
-Thanks.
+catching up one week email backlog,
+
+  Gerd
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+sigfault

@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267292AbSKPPak>; Sat, 16 Nov 2002 10:30:40 -0500
+	id <S267291AbSKPP0x>; Sat, 16 Nov 2002 10:26:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267295AbSKPPaj>; Sat, 16 Nov 2002 10:30:39 -0500
-Received: from lopsy-lu.misterjones.org ([62.4.18.26]:3263 "EHLO
-	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S267292AbSKPPai>; Sat, 16 Nov 2002 10:30:38 -0500
-To: Andries.Brouwer@cwi.nl
-Cc: aebr@win.tue.nl, alan@lxorguk.ukuu.org.uk, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] sysfs stuff for eisa bus [1/3]
-References: <UTC200211161343.gAGDhQI15309.aeb@smtp.cwi.nl>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-X-Baby-1: =?iso-8859-1?q?Lo=EBn?= 12 juin 1996 13:10
-X-Baby-2: None
-X-Love-1: Gone
-X-Love-2: Crazy-Cat
-Reply-to: mzyngier@freesurf.fr
-From: Marc Zyngier <mzyngier@freesurf.fr>
-Date: 16 Nov 2002 16:37:07 +0100
-Message-ID: <wrp8yztedb0.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <UTC200211161343.gAGDhQI15309.aeb@smtp.cwi.nl>
-MIME-Version: 1.0
+	id <S267292AbSKPP0x>; Sat, 16 Nov 2002 10:26:53 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:34066 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S267291AbSKPP0w>; Sat, 16 Nov 2002 10:26:52 -0500
+Message-Id: <200211161533.gAGFXiF02733@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Arnd Bergmann <ibm.com@arndb.de>
+cc: "J.E.J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Scsi <linux-scsi@vger.kernel.org>,
+       Mike Anderson <andmike@us.ibm.com>
+Subject: Re: [RFC][PATCH] move dma_mask into struct device 
+In-Reply-To: Message from Arnd Bergmann <arndb@de.ibm.com> 
+   of "Sat, 16 Nov 2002 18:23:48 +0100." <200211161823.48018.arndb@de.ibm.com> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Sat, 16 Nov 2002 10:33:44 -0500
+From: "J.E.J. Bottomley" <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "AB" == Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
+arndb@de.ibm.com said:
+> That does not sound like the right way to me. If you need to have the
+> dma_mask for the Scsi_Host, you should store it in Scsi_Host itself. A
+> struct device must never know about obscure architecture specific
+> stuff like dma.
 
-AB> This morning, just for fun, I retrieved an old *.CFG directory
-AB> from the attic. Of the about 300 files, about half were not in
-AB> your list. A patch is given below.
+The SCSI host itself has no need of a DMA mask.  What we need the mask for is 
+to set up the bounce limits for the block queue, we don't actually ever use it 
+again.  Unfortunately, dma_mask isn't architecture specific, its a universal 
+property of the block queues used to determine when to bounce memory regions.
 
-Thanks a lot.
+The dma_mask is a property of the connection of the Scsi_Host to the machine 
+bus, not of the Scsi_Host itself, so it does properly belong in the generic 
+device which is used to reflect machine bus attachments.
 
-AB> Of the ones that had an ID in your list, many mentioned different
-AB> revisions or firmware etc. The NAME= given in a .CFG file belongs
-AB> to that file, but not at all to the ID. This is a different
-AB> argument against having such a list in the kernel source: it leads
-AB> to confusion when the kernel prints an incorrect type or model
-AB> number, and people will blame driver errors on the kernel
-AB> "misunderstanding".
+Think of it this way: we have two struct device's per SCSI host: one for the 
+actual HBA card or bus attachment, which contains all of the bus specific 
+pieces, and one for the host itself reflecting the fact that it is a bridge 
+from the machine bus to the scsi bus.
 
-Indeed. I already cleaned up several entries myself (the AXP
-ones...).
+James
 
-AB>     From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-AB>     I think a ".ids" file list is valuable. It can be used for things like
-AB>     EISA card identification obviously but it also has a big value for
-AB>     "lseisa" "lspnp" and friends (and hopefully when someone fixes the
-AB>     device model "lsdev").
 
-AB> Yes, lists are fine, but not in the kernel source.
 
-Ok, I'll remove it, and will put it somewhere else.
-
-Does someone have something to say about the code itself, specially
-about the hacked drivers ? I haven't heard anything about it yet...
-
-Thanks,
-
-        M.
--- 
-Places change, faces change. Life is so very strange.

@@ -1,163 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVC2Cij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVC2CjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVC2Cij (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 21:38:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVC2Cij
+	id S262157AbVC2CjH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 21:39:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVC2CjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 21:38:39 -0500
-Received: from fmr21.intel.com ([143.183.121.13]:63645 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262156AbVC2Cia (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 21:38:30 -0500
-Message-Id: <200503290238.j2T2cQg25626@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: <axboe@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] optimization: defer bio_vec deallocation
-Date: Mon, 28 Mar 2005 18:38:23 -0800
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcU0CGCIZh/1UJxvQIK/Y2I7eHP29w==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Mon, 28 Mar 2005 21:39:07 -0500
+Received: from everest.2mbit.com ([24.123.221.2]:42424 "EHLO mail.sosdg.org")
+	by vger.kernel.org with ESMTP id S262157AbVC2CjA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 21:39:00 -0500
+Message-ID: <4248BF80.7090805@lovecn.org>
+Date: Tue, 29 Mar 2005 10:37:52 +0800
+From: Coywolf Qi Hunt <coywolf@lovecn.org>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Greg KH <greg@kroah.com>, Mark Fortescue <mark@mtfhpc.demon.co.uk>,
+       linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.10.10503261710320.13484-100000@mtfhpc.demon.co.uk>	 <20050326182828.GA8540@kroah.com> <1111869274.32641.0.camel@mindpipe>
+In-Reply-To: <1111869274.32641.0.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Broken-Reverse-DNS: no host name for for IP address 218.24.178.157
+X-Scan-Signature: 2ecaae6c9cc520cc6f18c499896ec795
+X-SA-Exim-Connect-IP: 218.24.178.157
+X-SA-Exim-Mail-From: coywolf@lovecn.org
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
+	*      [score: 0.0000]
+	*  4.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
+	*      [218.24.178.157 listed in cnkrbl.ahbl.org]
+	*  0.7 PLING_PLING Subject has lots of exclamation marks
+X-SA-Exim-Version: 4.2 (built Sun, 13 Feb 2005 18:23:43 -0500)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel needs at least one bio and one bio_vec structure to process one I/O.
-For every I/O, kernel also does two pairs of mempool_alloc/free, one for
-bio and one for bio_vec.  It is not exactly cheap in setup/tear down bio_vec
-structure.  bio_alloc_bs() does more things in that function other than the
-minimally required mempool_alloc().
+Lee Revell wrote:
+> On Sat, 2005-03-26 at 10:28 -0800, Greg KH wrote:
+> 
+>>On Sat, Mar 26, 2005 at 05:52:20PM +0000, Mark Fortescue wrote:
+>>
+>>>I am writing a "Proprietry" driver module for a "Proprietry" PCI card and
+>>>I have found that I can't use SYSFS on Linux-2.6.10.
+>>>
+>>>Why ?. 
+>>
+>>What ever gave you the impression that it was legal to create a
+>>"Proprietry" kernel driver for Linux in the first place.
+> 
+> 
+> The fact that Nvidia and ATI get away with it?
 
-One optimization we are proposing is to defer the deallocation of bio_vec
-at the next bio allocation.  Let bio hang on to the bio_vec for the last
-bio_put.  And at next bio alloc time, check whether it has the same iovec
-requirement.  If it is, bingo! bio already has it.  If not, then we free
-previous iovec and allocate a new one.  So in steady state, When I/O size
-does not change much, we benefit from the deferred free, saving one pair
-of alloc/free.  If I/O request has random size or in dynamic state, then
-we fall back and do the normal two pairs of alloc/free.  We have measured
-that the following patch give measurable performance gain for industry
-standard db benchmark.  Comments?
+I have the nvidia GeForce4 driver: NVIDIA-Linux-x86-1.0-6629-pkg1.
 
-
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
-
---- linux-2.6.12-rc1/fs/bio.c.orig	2005-03-28 13:49:37.000000000 -0800
-+++ linux-2.6.12-rc1/fs/bio.c	2005-03-28 15:59:57.000000000 -0800
-@@ -109,19 +109,15 @@ static inline struct bio_vec *bvec_alloc
-  */
- static void bio_destructor(struct bio *bio)
- {
--	const int pool_idx = BIO_POOL_IDX(bio);
- 	struct bio_set *bs = bio->bi_set;
--
--	BIO_BUG_ON(pool_idx >= BIOVEC_NR_POOLS);
--
--	mempool_free(bio->bi_io_vec, bs->bvec_pools[pool_idx]);
- 	mempool_free(bio, bs->bio_pool);
- }
-
- inline void bio_init(struct bio *bio)
- {
- 	bio->bi_next = NULL;
--	bio->bi_flags = 1 << BIO_UPTODATE;
-+	bio->bi_flags &= ~(BIO_POOL_MASK - 1);
-+	bio->bi_flags |= 1 << BIO_UPTODATE;
- 	bio->bi_rw = 0;
- 	bio->bi_vcnt = 0;
- 	bio->bi_idx = 0;
-@@ -130,7 +126,6 @@ inline void bio_init(struct bio *bio)
- 	bio->bi_hw_front_size = 0;
- 	bio->bi_hw_back_size = 0;
- 	bio->bi_size = 0;
--	bio->bi_max_vecs = 0;
- 	bio->bi_end_io = NULL;
- 	atomic_set(&bio->bi_cnt, 1);
- 	bio->bi_private = NULL;
-@@ -158,20 +153,37 @@ struct bio *bio_alloc_bioset(int gfp_mas
-
- 		bio_init(bio);
- 		if (likely(nr_iovecs)) {
--			unsigned long idx;
--
--			bvl = bvec_alloc_bs(gfp_mask, nr_iovecs, &idx, bs);
--			if (unlikely(!bvl)) {
--				mempool_free(bio, bs->bio_pool);
--				bio = NULL;
--				goto out;
-+			if (unlikely(nr_iovecs != bio->bi_max_vecs)) {
-+				unsigned long idx;
-+				if (bio->bi_max_vecs) {
-+					struct bio_set *_bs = bio->bi_set;
-+					idx = BIO_POOL_IDX(bio);
-+					mempool_free(bio->bi_io_vec, _bs->bvec_pools[idx]);
-+					bio->bi_max_vecs = 0;
-+					bio->bi_flags &= BIO_POOL_MASK - 1;
-+				}
-+				bvl = bvec_alloc_bs(gfp_mask, nr_iovecs, &idx, bs);
-+				if (unlikely(!bvl)) {
-+					mempool_free(bio, bs->bio_pool);
-+					bio = NULL;
-+					goto out;
-+				}
-+				bio->bi_flags |= idx << BIO_POOL_OFFSET;
-+				bio->bi_max_vecs = bvec_slabs[idx].nr_vecs;
-+				bio->bi_io_vec = bvl;
-+				bio->bi_set = bs;
-+			}
-+		} else {
-+			/* a zero io_vec allocation, need to free io_vec */
-+			if (bio->bi_max_vecs) {
-+				unsigned long idx = BIO_POOL_IDX(bio);
-+				struct bio_set *_bs = bio->bi_set;
-+				mempool_free(bio->bi_io_vec, _bs->bvec_pools[idx]);
-+				bio->bi_io_vec = NULL;
-+				bio->bi_max_vecs = 0;
-+				bio->bi_set = bs;
- 			}
--			bio->bi_flags |= idx << BIO_POOL_OFFSET;
--			bio->bi_max_vecs = bvec_slabs[idx].nr_vecs;
- 		}
--		bio->bi_io_vec = bvl;
--		bio->bi_destructor = bio_destructor;
--		bio->bi_set = bs;
- 	}
- out:
- 	return bio;
-@@ -1013,6 +1025,24 @@ bad:
- 	return NULL;
- }
-
-+static void bio_ctor(void *p, kmem_cache_t *cachep, unsigned long flags)
-+{
-+	struct bio * bio = (struct bio*) p;
-+	memset(bio, 0, sizeof(*bio));
-+	bio->bi_destructor = bio_destructor;
-+}
-+
-+static void bio_dtor(void *p, kmem_cache_t *cachep, unsigned long flags)
-+{
-+	struct bio * bio = (struct bio*) p;
-+
-+	if (bio->bi_max_vecs) {
-+		unsigned long idx = BIO_POOL_IDX(bio);
-+		struct bio_set *bs = bio->bi_set;
-+		mempool_free(bio->bi_io_vec, bs->bvec_pools[idx]);
-+	}
-+}
-+
- static void __init biovec_init_slabs(void)
- {
- 	int i;
-@@ -1033,7 +1063,8 @@ static int __init init_bio(void)
- 	int scale = BIOVEC_NR_POOLS;
-
- 	bio_slab = kmem_cache_create("bio", sizeof(struct bio), 0,
--				SLAB_HWCACHE_ALIGN|SLAB_PANIC, NULL, NULL);
-+				SLAB_HWCACHE_ALIGN|SLAB_PANIC,
-+				bio_ctor, bio_dtor);
-
- 	biovec_init_slabs();
+$ ls NVIDIA-Linux-x86-1.0-6629-pkg1/usr/src/nv/
+Makefile@            makedevices.sh*  nv-vm.c  nv_compiler.h  os-agp.c        os-registry.c
+Makefile.kbuild      makefile         nv-vm.h  nvidia.ko      os-agp.h        os-registry.o
+Makefile.nvidia      nv-kernel.o      nv-vm.o  nvidia.mod.c   os-agp.o        pat.h
+README               nv-linux.h       nv.c     nvidia.mod.o   os-interface.c  precompiled/
+conftest.sh          nv-memdbg.h      nv.h     nvidia.o       os-interface.h  rmretval.h
+gcc-version-check.c  nv-misc.h        nv.o     nvtypes.h      os-interface.o
 
 
+So it seems nvidia has their kernel module `open'. Is it?
 
 
+	Coywolf

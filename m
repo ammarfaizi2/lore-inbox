@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263017AbREaFXh>; Thu, 31 May 2001 01:23:37 -0400
+	id <S263018AbREaFZ1>; Thu, 31 May 2001 01:25:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263018AbREaFX1>; Thu, 31 May 2001 01:23:27 -0400
-Received: from www.wen-online.de ([212.223.88.39]:29959 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S263017AbREaFXO>;
-	Thu, 31 May 2001 01:23:14 -0400
-Date: Thu, 31 May 2001 07:20:21 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Jonathan Morton <chromi@cyberspace.org>,
-        Craig Kulesa <ckulesa@as.arizona.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: Plain 2.4.5 VM
-In-Reply-To: <Pine.LNX.4.21.0105301612570.5231-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0105310715560.516-100000@mikeg.weiden.de>
+	id <S263020AbREaFZR>; Thu, 31 May 2001 01:25:17 -0400
+Received: from iproxy2.ericsson.dk ([130.228.248.99]:4303 "EHLO
+	iproxy2.ericsson.dk") by vger.kernel.org with ESMTP
+	id <S263018AbREaFZK>; Thu, 31 May 2001 01:25:10 -0400
+Message-ID: <3B15D4DA.56D783F7@fabbione.net>
+Date: Thu, 31 May 2001 07:21:30 +0200
+From: Fabbione <fabbione@fabbione.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OFF-TOPIC] 4 ports ETH cards
+In-Reply-To: <3B135549.19CF8965@fabbione.net> <20010530183416.P14293@corellia.laforge.distro.conectiva> <20010530180344.A5304@alcove.wittsend.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 May 2001, Marcelo Tosatti wrote:
+First of all I would like to say thanks to everyone.
+I didn't expect so many answer in so few time ( I got
+most of them directly in my mailbox)
 
-> On Wed, 30 May 2001, Mike Galbraith wrote:
->
-> > On Wed, 30 May 2001, Rik van Riel wrote:
-> >
-> > > On Wed, 30 May 2001, Marcelo Tosatti wrote:
-> > >
-> > > > The problem is that we allow _every_ task to age pages on the system
-> > > > at the same time --- this is one of the things which is fucking up.
-> > >
-> > > This should not have any effect on the ratio of cache
-> > > reclaiming vs. swapout use, though...
-> >
-> > It shouldn't.. but when many tasks are aging, it does.
->
-> What Rik means is that they are independant problems.
+Anyway I've ordered right now the D-Link DFE-570 that
+seems the one with the best price/quality ratio so I
+can test it on the "battle field".
 
-Ok.
+Best Regards
+Fabio
 
->
-> > Excluding these guys certainly seems to make a difference.
->
-> Sure, those guys are going to "help" kswapd to unmap pte's and allocate
-> swap space.
->
-> Now even if only kswapd does this job (meaning a sane amount of cache
-> reclaims/swapouts), you still have to deal with the reclaim/swapout
-> tradeoff.
->
-> See?
-
-Yes.
-
-	-Mike
-
+-- 
+ Fabio Massimo Di Nitto
+ Debian GNU/Linux Testing/Unstable Kernel 2.4.5
+ Office for the Complication of Otherwise Simple Affairs
+ PROUD TO BE MICROSOFT FREE!

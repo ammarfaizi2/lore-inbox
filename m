@@ -1,61 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266693AbSKQWxj>; Sun, 17 Nov 2002 17:53:39 -0500
+	id <S266957AbSKQWza>; Sun, 17 Nov 2002 17:55:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266797AbSKQWxi>; Sun, 17 Nov 2002 17:53:38 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63248 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266693AbSKQWxh>; Sun, 17 Nov 2002 17:53:37 -0500
-Date: Sun, 17 Nov 2002 15:00:24 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Ulrich Drepper <drepper@redhat.com>, Luca Barbieri <ldb@ldb.ods.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] threading fix, tid-2.5.47-A3
-In-Reply-To: <Pine.LNX.4.44.0211172132070.13235-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0211171452480.13106-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S266978AbSKQWza>; Sun, 17 Nov 2002 17:55:30 -0500
+Received: from dhcp024-209-039-058.neo.rr.com ([24.209.39.58]:7299 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id <S266957AbSKQWz3>;
+	Sun, 17 Nov 2002 17:55:29 -0500
+Date: Sun, 17 Nov 2002 18:05:38 +0000
+From: Adam Belay <ambx1@neo.rr.com>
+To: Justin A <ja6447@albany.edu>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com
+Subject: Re: pnpbios oops on boot w/ 2.5.47
+Message-ID: <20021117180538.GC1273@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Justin A <ja6447@albany.edu>, linux-kernel@vger.kernel.org,
+	greg@kroah.com
+References: <200211161700.29653.ja6447@albany.edu> <3DD6F655.4214A594@digeo.com> <20021116232528.GA1273@neo.rr.com> <200211170100.53986.ja6447@albany.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211170100.53986.ja6447@albany.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 17 Nov 2002, Ingo Molnar wrote:
+On Sun, Nov 17, 2002 at 01:00:53AM -0500, Justin A wrote:
+> On Saturday 16 November 2002 06:25 pm, Adam Belay wrote:
 > 
-> here are the my current TID-setting changes. It's now 3 clone flags:
+> > Oops.  I put the pnpbios_kmalloc in the wrong place.  It's amazing it still
+> > worked on my test box.  Here's a patch that should fix it.  Justin: could
+> > you please try it.
+> >
+> > Thanks,
+> > Adam
+> I had a fealing that call_pnp_bios was doing something with data so I tried it 
 
-Hmm.. I really ahve to say that I just prefer the current two flags, and I 
-don't see any advantage to the three flag thing, and I do see 
-disadvantages:
+> anyway with:
+> 
+> CONFIG_PNP=y
+> CONFIG_PNP_NAMES=y
+> CONFIG_PNP_DEBUG=y
+> CONFIG_ISAPNP=y
+> CONFIG_PNPBIOS=y
+> 
+> and it booted ok.  You were right, it was a serial port(even though that port 
+> always worked without pnp:))
+> 
+> I didn't have NAMES and DEBUG on before, so hopefully neither of those is what 
 
- - no real new semantic behaviour.
- - the async nature of CLONE_CHILD_SETTID is just bound to cause 
-   interesting-to-debug behaviour
+> fixed it in this case.
+> 
+> Here is the new dmseg, you can ignore the crap at the end, thats just pcmcia
+> being broken, it goes away if I move /l/m/2/k/d/pcmcia out of the way.
+>
+> --
+> -Justin
 
-Basically, the current two-flag approach gives all the behaviour the 
-three-flag thing does, with no downsides:
 
- - if the fork() is a CLONE_VM, the parent/child VM is the same, and the 
-   two flags are really all you need, agreed?
+> pnp: the driver 'serial' has been registered
+> pnp: pnp: match found with the PnP device '00:13' and the driver 'serial'
+> pnp: the device '00:13' has been activated
+> PnPBIOS: set_dev_node: Unexpected status 0x85
 
- - the the for is _not_ a CLONE_VM, the child is really an independent 
-   VM thing, and we should not even _allow_ the parent to change the VM of 
-   the child: the SETTID behaviour (where it changes the parent VM) makes 
-   sense and is good, but we should probably disallow CLEARTID altogether 
-   for that case (and if the independent child wants to clear its own 
-   memory space on exit, it should just do a set_tid_address() itself)
+Hmm, this isn't right.  0x85 means unable to set resources.  If you have it 
+could you please send me a copy of the output of lspnp for node 13.  I'm not
+sure what this device is, do you have a second serial port?
 
-In fact, from what I can tell, your new CLONE_CHILD_SETTID really is 100% 
-semantically equivalent to the child just doing a "set_tid_address()" on 
-its own.
-
-In short, I really don't see the advantage of this patch. I don't think
-it's "evil and wrong" in any way, I just think that the lack of reason for
-it would argue _against_ making clone() a bit more complicated and 
-breaking existing behaviour..
-
-Hmm? I _think_ NPTL is fine with the current semantics, right? It just
-sets both of the current flags, and that's all it really wants? Uli?
-
-		Linus
-
+Thanks,
+Adam

@@ -1,40 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278538AbRJXOsd>; Wed, 24 Oct 2001 10:48:33 -0400
+	id <S278537AbRJXO4Y>; Wed, 24 Oct 2001 10:56:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278403AbRJXOsY>; Wed, 24 Oct 2001 10:48:24 -0400
-Received: from news.cistron.nl ([195.64.68.38]:2832 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S275449AbRJXOsQ>;
-	Wed, 24 Oct 2001 10:48:16 -0400
-From: miquels@cistron-office.nl (Miquel van Smoorenburg)
-Subject: Re: Two suggestions (loop and owner's of linux tree)
-Date: Wed, 24 Oct 2001 14:48:51 +0000 (UTC)
-Organization: Cistron Internet Services B.V.
-Message-ID: <9r6kcj$trt$3@ncc1701.cistron.net>
-In-Reply-To: <1003933278.1496.6.camel@LNX.iNES.RO> <20011024143850.EAC2598410@oceanic.wsisiz.edu.pl>
-X-Trace: ncc1701.cistron.net 1003934931 30589 195.64.65.67 (24 Oct 2001 14:48:51 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test75 (Feb 13, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S278543AbRJXO4D>; Wed, 24 Oct 2001 10:56:03 -0400
+Received: from mail026.mail.bellsouth.net ([205.152.58.66]:34475 "EHLO
+	imf26bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S278541AbRJXOz5>; Wed, 24 Oct 2001 10:55:57 -0400
+Message-ID: <3BD6D6AC.B9CF58EB@mandrakesoft.com>
+Date: Wed, 24 Oct 2001 10:56:44 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, jes@trained-monkey.org
+Subject: Re: acenic breakage in 2.4.13-pre
+In-Reply-To: <20011024164533.C15474@sith.mimuw.edu.pl>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20011024143850.EAC2598410@oceanic.wsisiz.edu.pl>,
-Lukasz Trabinski  <lukasz@wsisiz.edu.pl> wrote:
->In article <1003933278.1496.6.camel@LNX.iNES.RO> you wrote:
->> chmod -R root.root linux/ 
->> after you have unpacked the tarball.
->
->Unnecessarily extra command :) Sometimes I can forget about this and then
->user with uid 1046 can modify my kernel source.
+Jan Rekorajski wrote:
+> 
+> On Tue, 23 Oct 2001, Jeff Garzik wrote:
+> 
+> > If there are no complaints nor better suggestions, I would prefer to use
+> > the code in acenic.c / 8139cp.c as a base, since that code has been
+> > stable for a little while.
+> 
+> Speaking of acenic - it's broken in 2.4.13-pre. I have 3c985 and all I
+> get with 2.4.13-pre is "Firmware NOT running!". After I backed the
+> changes from -pre patch it started and works fine. Maybe the problem is
+> I have it in 32bit PCI slot?
 
-Simply unpack and compile the kernel as a normal user, not as root.
-Only install the new kernel as root. Get into the habit of logging
-in as a normal user and doing root stuff with 'su' or 'sudo'
+Several people have reported this bug.
 
-Mike.
+Alexey, are the 2.4.13 acenic changes yours?  You had mentioned hacking
+on it...  Jes, the maintainer, is CC'd too.
+
+	Jeff
+
+
 -- 
-"Only two things are infinite, the universe and human stupidity,
- and I'm not sure about the former" -- Albert Einstein.
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
 

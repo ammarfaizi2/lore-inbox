@@ -1,96 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272162AbTHIAjH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Aug 2003 20:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272158AbTHIAht
+	id S272220AbTHIAjm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Aug 2003 20:39:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272158AbTHIAjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Aug 2003 20:37:49 -0400
-Received: from mail.kroah.org ([65.200.24.183]:56767 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S272160AbTHIAcR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Aug 2003 20:32:17 -0400
-Date: Fri, 8 Aug 2003 17:14:40 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] More USB fixes for 2.6.0-test2
-Message-ID: <20030809001440.GA2948@kroah.com>
+	Fri, 8 Aug 2003 20:39:24 -0400
+Received: from imladris.demon.co.uk ([193.237.130.41]:20114 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id S272168AbTHIAiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Aug 2003 20:38:25 -0400
+Subject: Re: Reiser4 status: benchmarked vs. V3 (and ext3)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E19lHbb-0005mY-00@calista.inka.de>
+References: <E19lHbb-0005mY-00@calista.inka.de>
+Content-Type: text/plain
+Message-Id: <1060389503.11983.39.camel@imladris.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.1 (dwmw2) 
+Date: Sat, 09 Aug 2003 01:38:23 +0100
+Content-Transfer-Encoding: 7bit
+X-SA-Exim-Rcpt-To: ecki@calista.eckenfels.6bone.ka-ip.net, linux-kernel@vger.kernel.org
+X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This box is IPv4 only -- your email address with only an AAAA record is
+probably going to bounce again... :)
 
-Here are some more USB fixes for 2.6.0-test2.  Again, more audit patches
-from Oliver Neukum, and some other good fixes from David Brownell that
-solve some bugzilla.kernel.org bug reports.
+On Sat, 2003-08-09 at 01:29, Bernd Eckenfels wrote:
+> Is this needing some special hardware support, or is it kind of forcing
+> apm/apci power downs? Can you publish that script? I would need that for
+> some stress testing of applications and the kernel.
 
-I've also fixed a stupid issue with the pl2303 driver that some people
-were seeing, and got rid of all of the usages of the struct device .name
-variable as it is going to go away soon.
+I didn't do it myself -- I just got to fix the bugs which turned up ;)
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.6
+I think it was done with X10 automated power switching stuff.
 
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
+> I also wonder, what the best method is to test those hard crashes,
+> especially interesting is the case, where disks get power interruption at
+> write, to see if the filesystem and block layer recovers from things like
+> half written (format needing) blocks.
 
-thanks,
+Journal at application layer to external network-attached storage. Check
+on-device fs integrity against your network journal at boot, continue
+stress testing from where you left off.
 
-greg k-h
+-- 
+dwmw2
 
- drivers/isdn/hisax/st5481_b.c                     |    4 
- drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |    2 
- drivers/usb/core/hcd-pci.c                        |    3 
- drivers/usb/core/hcd.c                            |    3 
- drivers/usb/core/hub.c                            |    4 
- drivers/usb/core/usb.c                            |  137 ++++------------------
- drivers/usb/gadget/net2280.c                      |    1 
- drivers/usb/host/ehci-dbg.c                       |    4 
- drivers/usb/host/ehci-mem.c                       |    1 
- drivers/usb/host/ohci-hcd.c                       |    4 
- drivers/usb/host/ohci-mem.c                       |    1 
- drivers/usb/host/ohci-pci.c                       |   11 -
- drivers/usb/host/ohci-sa1111.c                    |    1 
- drivers/usb/host/uhci-hcd.c                       |    1 
- drivers/usb/net/pegasus.c                         |    6 
- drivers/usb/net/rtl8150.c                         |   14 +-
- drivers/usb/net/usbnet.c                          |   10 +
- drivers/usb/serial/ftdi_sio.c                     |    7 +
- drivers/usb/serial/ftdi_sio.h                     |    6 
- drivers/usb/serial/pl2303.c                       |    9 -
- drivers/usb/serial/usb-serial.c                   |    1 
- drivers/usb/storage/initializers.c                |    6 
- drivers/usb/storage/initializers.h                |    2 
- drivers/usb/usb-skeleton.c                        |    5 
- 24 files changed, 89 insertions(+), 154 deletions(-)
------
-
-<sojka:planetarium.cz>:
-  o USB: fixes for usb-skeleton.c
-
-Alan Stern:
-  o USB: usb-storage: Move static string out of initializers.h
-
-David Brownell:
-  o USB: usbnet, prevent exotic rtnl deadlock
-  o USB: disable both sides of usb device ep0 at once
-  o USB: usb_new_device() updates
-  o USB: ohci-hcd, minor d3cold resume fix
-
-Greg Kroah-Hartman:
-  o USB: remove dev.name usage from gadget code
-  o USB: remove all struct device.name usage from the USB code
-  o USB: remove some vendor specific stuff from the pl2303 driver to get other devices to work
-
-Ian Abbott:
-  o USB: ftdi_sio - VID/PID for ID TECH IDT1221U USB to RS-232 adapter
-
-Oliver Neukum:
-  o USB: dvb usb driver sleeping in interrupt
-  o USB: use of __devinit in st5481
-  o USB: DMA coherency issue with rtl8150
-  o USB: remove GFP_DMA from pegasus
 

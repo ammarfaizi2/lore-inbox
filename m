@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269602AbTHSJmN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 05:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269619AbTHSJmN
+	id S269583AbTHSJuG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 05:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269639AbTHSJuG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 05:42:13 -0400
-Received: from fw.osdl.org ([65.172.181.6]:51123 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269602AbTHSJmL (ORCPT
+	Tue, 19 Aug 2003 05:50:06 -0400
+Received: from hq.pm.waw.pl ([195.116.170.10]:2271 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id S269583AbTHSJuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 05:42:11 -0400
-Date: Tue, 19 Aug 2003 02:43:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: jamagallon@able.es, vda@port.imtp.ilyichevsk.odessa.ua,
-       russo.lutions@verizon.net, linux-kernel@vger.kernel.org
-Subject: Re: cache limit
-Message-Id: <20030819024302.1899cde3.akpm@osdl.org>
-In-Reply-To: <20030819092831.GA9424@werewolf.able.es>
-References: <3F41AA15.1020802@verizon.net>
-	<200308190533.h7J5XoL06419@Port.imtp.ilyichevsk.odessa.ua>
-	<20030818232024.20c16d1f.akpm@osdl.org>
-	<20030819090541.GA9038@werewolf.able.es>
-	<20030819021617.392f24f4.akpm@osdl.org>
-	<20030819092831.GA9424@werewolf.able.es>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Aug 2003 05:50:02 -0400
+To: Jes Sorensen <jes@wildopensource.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: kills consistent_dma_mask
+References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
+	<20030818111522.A12835@devserv.devel.redhat.com>
+	<m33cfzuen2.fsf@defiant.pm.waw.pl> <m3y8xqroqo.fsf@trained-monkey.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 19 Aug 2003 11:49:28 +0200
+In-Reply-To: <m3y8xqroqo.fsf@trained-monkey.org>
+Message-ID: <m3vfsuj7tj.fsf@defiant.pm.waw.pl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
-> 
-> So could O_STREAMING be included in 2.4, and let people do things like
+Jes Sorensen <jes@wildopensource.com> writes:
 
-Sounds fairly ugh, actually.  It might be better to just implement
-fadvise().
+> Bzzzt, *wrong*! Take a look at drivers/scsi/aic7xxx/aic7xxx_osm_pci.c,
+> if you look at the code you will notice that the hardware does support
+> different masks for consistent vs dynamic allocations (32 bit for
+> consistent vs 39 or 64 bit for dynamic).
 
-O_STREAMING is really designed for large streaming writes; the current
-implementation only performs invalidation after each megabyte of I/O, so it
-would fail to do anything at all in the lots-of-medium-size-files case
-such as rsync.
+The hardware, maybe.
 
-Or use 2.6.  It will take a while for the feature to usefully propagate into
-applications anyway...
+> However make a note that the
+> driver uses the current interface incorrectly and thinks that
+> pci_set_dma_mask() actually applies to pci_alloc_consistent, which is
+> something it never did.
 
+No, it nearly always does. Looks at the actual pci_alloc_consistent on,
+say, i386.
+
+Will it be ok if I fix the consistent allocs to use consistent_dma_mask
+(some drivers will need a fix on i386 etc.)?
+-- 
+Krzysztof Halasa
+Network Administrator

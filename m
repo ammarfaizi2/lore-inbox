@@ -1,59 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317537AbSGZKbp>; Fri, 26 Jul 2002 06:31:45 -0400
+	id <S317498AbSGZKcy>; Fri, 26 Jul 2002 06:32:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317577AbSGZKbp>; Fri, 26 Jul 2002 06:31:45 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:48268 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S317537AbSGZKbo>; Fri, 26 Jul 2002 06:31:44 -0400
-Date: Fri, 26 Jul 2002 03:31:53 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: Pavel Machek <pavel@ucw.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix compile warnings in suspend.c, 2.5.28
-In-Reply-To: <20020726095721.GA220@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0207260317190.18875-100000@loke.as.arizona.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317600AbSGZKcx>; Fri, 26 Jul 2002 06:32:53 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:27373 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id <S317498AbSGZKcH>;
+	Fri, 26 Jul 2002 06:32:07 -0400
+Date: Fri, 26 Jul 2002 12:35:23 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: jbradford@dial.pipex.com, linux-kernel@vger.kernel.org
+Subject: Re: Linux Weekly News dying - any help?
+Message-ID: <20020726103522.GB4048@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
+	Russell King <rmk@arm.linux.org.uk>, jbradford@dial.pipex.com,
+	linux-kernel@vger.kernel.org
+References: <20020726092846.GA3542@outpost.ds9a.nl> <200207261007.g6QA7U8A001655@darkstar.example.net> <20020726112209.C19802@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020726112209.C19802@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 26, 2002 at 11:22:09AM +0100, Russell King wrote:
+> On Fri, Jul 26, 2002 at 11:07:30AM +0100, jbradford@dial.pipex.com wrote:
+> > If somebody buys up the domain, I'll hapily spare some time to contribute
+> > to it. Just drop me an E-Mail.
+> 
+> I'm sure someone has a server with some space available to host the site.
 
-On Fri, 26 Jul 2002, Pavel Machek wrote:
+It is not the server. I have a server for them. I think many do not realise
+how much time Jon & friends spend on making LWN, and it is precisely this
+*time* that sets them apart from everything else.
 
-> Actually, I get two reboots. One expected after suspend and one
-> unexpected after resume.
+Compare them to a Linux dedicated Theregister.co.uk - real journalism with
+analyses that go beyond what is provided by CmdrTaco (entertaining though he
+may be) and their like.
 
-I see.  I'm only getting the single, expected, reboot.  I have found that 
-if I mess with the contents of /proc/acpi after resuming, the system 
-freezes solid within a few seconds.  I see a patch in Linus' BK tree that 
-looks like a possible fix for ACPI.  I'll test that in 2.5.29.  In the 
-meantime, I can suspend to disk just fine however.
-
-> TEST_SWSUSP is one so I can test it properly. I want to be Linus's
-> swsusp same as mine for 2.5. TEST_SWSUSP is going to be 0 at 2.6.
-
-Sounds fair.  At least I can change it for my own use. :)
-
-> Can you do multiple S4 enters/leaves? Good test is to make bzImage
-> while doing while true; do echo 4 > /proc/acpi/sleep; sleep 30; done.
-
-Yes.  Once memory fills up, I can't get enough free pages, but running a
-userspace "eatmem" program in the script before suspending fixes that just
-fine.  That also speeds up the suspnd/resume time.  The calls to
-try_to_free_pages() don't go nearly far enough since the rmap VM stops
-freeing memory once *it thinks* there are enough free pages. Being able to
-tell it to ignore it's internal watermarks would fix this.
-
-> Throttling the CPU should be pretty easy [see
-> /proc/acpi/processor/0/*], and it should already enter sleep modes for
-> you.
-
-Neat, thanks! 
+In order to make LWN, they need to find a way to give them the time to work
+on it. They can't do it next to a day job.
 
 Regards,
 
-Craig Kulesa
-Steward Obs.
-Univ. of Arizona
+bert
 
+-- 
+http://www.PowerDNS.com          Versatile DNS Software & Services
+http://www.tk                              the dot in .tk
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

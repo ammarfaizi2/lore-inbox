@@ -1,55 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261987AbREVQAe>; Tue, 22 May 2001 12:00:34 -0400
+	id <S261996AbREVQCo>; Tue, 22 May 2001 12:02:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbREVQAQ>; Tue, 22 May 2001 12:00:16 -0400
-Received: from betty.magenta-netlogic.com ([193.37.229.181]:55305 "HELO
-	betty.magenta-netlogic.com") by vger.kernel.org with SMTP
-	id <S261979AbREVQAI>; Tue, 22 May 2001 12:00:08 -0400
-Message-ID: <3B0A8D16.2050400@magenta-netlogic.com>
-Date: Tue, 22 May 2001 17:00:22 +0100
-From: Tony Hoyle <tmh@magenta-netlogic.com>
-Organization: Magenta Logic
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-Cc: "Brent D. Norris" <brent@biglinux.tccw.wku.edu>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        linux-net@vger.kernel.org, linux-scsi@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-hams@vger.kernel.org,
-        linux-ppp@vger.kernel.org
-Subject: Re: ECN is on!
-In-Reply-To: <15114.18990.597124.656559@pizda.ninka.net>	<Pine.LNX.4.30.0105220649530.17291-100000@biglinux.tccw.wku.edu> <200105221306.f4MD6Pi00360@mobilix.ras.ucalgary.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261990AbREVQCe>; Tue, 22 May 2001 12:02:34 -0400
+Received: from irmgard.exp-math.uni-essen.de ([132.252.150.18]:24839 "EHLO
+	irmgard.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
+	id <S261999AbREVQCP>; Tue, 22 May 2001 12:02:15 -0400
+Date: Tue, 22 May 2001 18:02:12 +0200 (MESZ)
+From: "Dr. Michael Weller" <eowmob@exp-math.uni-essen.de>
+To: Michael Peddemors <michael@linuxmagic.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Just FYI...
+In-Reply-To: <990544782.24176.20.camel@mistress>
+Message-Id: <Pine.A32.3.95.1010522175644.48878J-100000@werner.exp-math.uni-essen.de>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard Gooch wrote:
+On 22 May 2001, Michael Peddemors wrote:
 
-> In fact, hopefully he's still in a dark mood, and he may take up the
-> suggestion to bounce mails of the following type:
-> - MIME encoded
-> - HTML encoded
-> - quoted printables (those stupid "=20" things are particuarly hard to
->   read).
+> Hmmmm.. In principle this sounds good, but...
+> 
+> This doesn't seem to be in best interest.. Taking it to the extreme,
+> noone should code the linux kernel for buggy bios's, cards etc anymore
+> either..  We should all tell em to upgrade their hardware?
+> 
+> Almost every software application has made allowances for buggy or
+> non-compliance systems.  We should encourage their disuse, but should we
+> play god?
 
-Surely it'd be better to get the list to filter them through stripmime?
+[...]
 
+Afaik, ECN can still be disabled to support buggy system. Enableing it by
+default is a 'political' statement in the sense that we expect use
+of the standard. Unfortunately the linux kernel can't detect miscompliance
+on its own (if a site explicitly says: I don't support ECN this would be
+already standard compliant).
 
-I'd be tempted to put a message at the top at the same time:
-"*WARNING* The message below was sent by someone too clueless to 
-configure their email client properly"
+I don't know about the benefits of the use of ECN, so I can't comment
+if it makes sense to enable it by default on several distribs and here on
+vger compared with the problems several people may experience.
 
-:-)
+It's an interesting experiment actually: Is the linux community powerful
+enough to force vendors/people to fix their products and deploy updates to
+comply to standards or can they just ignore it.
+ 
+Michael.
 
-Tony
+--
 
--- 
-"Two weeks before due date, the programmers work 22 hour days
-  cobbling an application from... (apparently) one programmer
-  bashing his face into the keyboard." -- Dilbert
-
-tmh@magenta-netlogic.com     http://www.nothing-on.tv
+Michael Weller: eowmob@exp-math.uni-essen.de, eowmob@ms.exp-math.uni-essen.de,
+or even mat42b@spi.power.uni-essen.de. If you encounter an eowmob account on
+any machine in the net, it's very likely it's me.
 

@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266997AbTGTMOd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 08:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267004AbTGTMOd
+	id S267004AbTGTMUv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 08:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267020AbTGTMUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 08:14:33 -0400
-Received: from zork.zork.net ([64.81.246.102]:52432 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S266997AbTGTMOc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 08:14:32 -0400
-To: James Morris <jmorris@intercode.com.au>
-Cc: netdev@oss.sgi.com, <linux-kernel@vger.kernel.org>
-Subject: Re: [2.6.0-test1-mm1] TCP connections over ipsec hang after a few
- seconds
-References: <Mutt.LNX.4.44.0307201552580.22965-100000@excalibur.intercode.com.au>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: James Morris <jmorris@intercode.com.au>,
- netdev@oss.sgi.com,  <linux-kernel@vger.kernel.org>
-In-Reply-To: <Mutt.LNX.4.44.0307201552580.22965-100000@excalibur.intercode.com.au> (James
- Morris's message of "Sun, 20 Jul 2003 15:58:13 +1000 (EST)")
-Date: Sun, 20 Jul 2003 13:29:24 +0100
-Message-ID: <6u8yqt8jq3.fsf@zork.zork.net>
-MIME-Version: 1.0
+	Sun, 20 Jul 2003 08:20:51 -0400
+Received: from astra.telenet-ops.be ([195.130.132.58]:41709 "EHLO
+	astra.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S267004AbTGTMUu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 08:20:50 -0400
+Date: Sun, 20 Jul 2003 14:35:49 +0200
+From: Kurt Roeckx <Q@ping.be>
+To: Wes Janzen <superchkn@sbcglobal.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Sb16 kernel parameters.
+Message-ID: <20030720123549.GA167@ping.be>
+References: <20030717220915.GA5046@ping.be> <3F1730C9.4020300@sbcglobal.net> <20030718190054.GA152@ping.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030718190054.GA152@ping.be>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris <jmorris@intercode.com.au> writes:
+On Fri, Jul 18, 2003 at 09:00:55PM +0200, Kurt Roeckx wrote:
+> 
+> I tried using things like:
+> snd-sb16=1,0,card1,0,0x220,-1,-1,7,1,5,0
+> 
+> But when booting the kernel with that parameter, just after
+> "booting the kernel", it reboots.  Without that parameter it
+> boots normally.
 
-> On Sat, 19 Jul 2003, Sean Neakums wrote:
->
->> twenty.  The problem seems unrelated to the amount of data
->> transferred; I've tried both bulk rsync transfers and ssh sessions.
->> I've also tested the same boxes over 100baseT; still happens.
->
-> It sounds a bit like a pmtu problem related to the wireless bridge, but 
-> that would be dependent on amount of data transferred and should not 
-> happen on 100baseT.
+I just tried the OSS version instead.
 
-I am seeing a lot of "pmtu discvovery on SA AH/03537192/c0a80003" type
-messages (I forgot to check for them when on 100baseT; will recheck
-that).  Are these indicative of such a problem?  I seem to recall that
-reducing the max MTU is not as straightforward as just adjusting the
-interfaces' mtu setting.  What should I do to eliminate pmtu as the
-source of the problem?
+During boot I now always get:
+sb: Init: Starting Probe...
+sb: Error: At least io, irq, and dma must be set for legacy cards.
+sb: Init: Done
 
-> Transport mode (just blowfish encryption) looks to be working ok for me,
-> I'm able to ftp uncompressed kernel tarballs between two boxes over 
-> gigabit ethernet with no apparent problems.
+I tried using the parameters sb=0x220,7,1,5 and
+snd-sb16=1,0,card1,0,0x220,-1,-1,7,1,5,0
+but neither seems to work.
 
-I had been using 3des with AH; just retried with blowfish 448 and no
-AH with much the same result.
+
+Kurt
 

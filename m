@@ -1,47 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265661AbSLJSoV>; Tue, 10 Dec 2002 13:44:21 -0500
+	id <S264723AbSLJSwM>; Tue, 10 Dec 2002 13:52:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265667AbSLJSoV>; Tue, 10 Dec 2002 13:44:21 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:58577 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP
-	id <S265661AbSLJSoU>; Tue, 10 Dec 2002 13:44:20 -0500
-Message-ID: <957BD1C2BF3CD411B6C500A0C944CA260216C261@pdsmsx32.pd.intel.com>
-From: "Hu, Boris" <boris.hu@intel.com>
-To: "Linux Kernel ML (E-mail)" <linux-kernel@vger.kernel.org>,
-       "NPTL list (E-mail)" <phil-list@redhat.com>
-Subject: problem about CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID ?
-Date: Wed, 11 Dec 2002 02:49:56 +0800
+	id <S265321AbSLJSwM>; Tue, 10 Dec 2002 13:52:12 -0500
+Received: from unknown.Level3.net ([63.210.233.154]:28065 "EHLO
+	cinshrexc03.shermfin.com") by vger.kernel.org with ESMTP
+	id <S264723AbSLJSwL> convert rfc822-to-8bit; Tue, 10 Dec 2002 13:52:11 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="gb2312"
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Units and meaning of stats in /proc/partitions
+Date: Tue, 10 Dec 2002 13:59:54 -0500
+Message-ID: <8075D5C3061B9441944E137377645118012DD6@cinshrexc03.shermfin.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Units and meaning of stats in /proc/partitions
+Thread-Index: AcKgflN6+7shmNRjQXm4vtcgN48peQ==
+From: "Rechenberg, Andrew" <arechenberg@shermfin.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-When I read create_thread() in NPTL source code, it passes
-CLONE_PARENT_SETTID 
-| CLONE_CHILD_CLEARTID to sys_clone(). However, in arch/arm/kernel/sys_arm.c
+I posted earlier about a problem with poor disk I/O and I've been
+checking out /proc/partitions and was wondering what the units are for
+the columns listed.  I've checked the Documentation directory and done
+some Googling and haven't been able to find out what everything means.
 
-(sys_clone) [kernel 2.5.49]
-256         if (clone_flags & (CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID))
-257                 return -EINVAL;
+Could someone give me a basic understanding of the data in
+/proc/partitions, or point me to some docs that do?  Here is an example
+from my system and it seems there is a lot of wio:
 
- I have searched CLONE_PARENT_SETTID in kernel, it seems only to appear in 
-some non-architecture files, such as /include/linux/sched.h and several arch
-files,
- but they do little about wrapping.  Why ARM can't support 
-(CLONE_PARENT_SETTID | CLONE_CHILD_CLEARTID)? 
+awk -F\  '{print $4 " " $9}' /proc/partitions
+name wio
 
-any comments? thanks a lot. 
+sda 10597274
+sda1 762
+sda2 0
+sda5 2429291
+sda6 1377213
+sda7 3297029
+sda8 12477
+sda9 3480502
+sdb 13573568
+sdb1 13573568
+sdc 52542158
+sdc1 52542158
+sdd 48622592
+sdd1 48622592
+sde 44479500
+sde1 44479500
+sdf 44782168
+sdf1 44782168
+sdg 45638551
+sdg1 45638551
+sdh 47683013
+sdh1 47683013
+sdi 44409791
+sdi1 44409791
+sdj 48352475
+sdj1 48352475
+sdk 48715677
+sdk1 48715677
+sdl 42676122
+sdl1 42676122
+sdm 50988354
+sdm1 50988354
+sdn 57422238
+sdn1 57422238
+sdo 0
+md0 0
 
-  Boris
-=========================
-To know what I don't know
-To learn what I don't know
-To contribute what I know
-=========================
-
-
-
+Andrew Rechenberg
+Infrastructure Team, Sherman Financial Group
+arechenberg@shermanfinancialgroup.com
+Phone: 513.707.3809
+Fax:   513.707.3838

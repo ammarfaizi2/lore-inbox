@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268725AbUHLUOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268718AbUHLUNt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268725AbUHLUOq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 16:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268740AbUHLUOq
+	id S268718AbUHLUNt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 16:13:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268725AbUHLUNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 16:14:46 -0400
-Received: from mail.tmr.com ([216.238.38.203]:11538 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268725AbUHLUOb (ORCPT
+	Thu, 12 Aug 2004 16:13:37 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:5883 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S268718AbUHLUNc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 16:14:31 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: AES assembler optimizations
-Date: Thu, 12 Aug 2004 16:18:11 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cfgint$g8n$1@gatekeeper.tmr.com>
-References: <cfb901$ctg$1@terminus.zytor.com><2riR3-7U5-3@gated-at.bofh.it> <20040810133609.4f1ca352.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1092341309 16663 192.168.12.100 (12 Aug 2004 20:08:29 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <20040810133609.4f1ca352.davem@redhat.com>
+	Thu, 12 Aug 2004 16:13:32 -0400
+Date: Thu, 12 Aug 2004 22:05:48 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+cc: Jeff Garzik <jgarzik@pobox.com>, linux-net@vger.kernel.org,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [2.6 patch] small Kconfig corrections for two ATARI net drivers
+In-Reply-To: <20040812110615.GB13377@fs.tum.de>
+Message-ID: <Pine.GSO.4.58.0408122205300.18214@waterleaf.sonytel.be>
+References: <20040812110615.GB13377@fs.tum.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller wrote:
+On Thu, 12 Aug 2004, Adrian Bunk wrote:
+> The patch below corrects a small problem in the dependencies of
+> ATARI_BIONET and ATARI_PAMSNET (e.g. ATARI_ACSI=m shouldn't allow
+> ATARI_BIONET=y).
 
-> On sparc64, we:
-> 
-> 1) Always save the full FPU state at context switch time if it
->    is active.
-> 
-> 2) On entry to a FPU-using kernel routine, we save the FPU if
->    it is active.
-> 
-> 3) On exit from a FPU-using kernel routine, we do nothing
->    except mark the FPU as inactive.
-> 
-> 4) FPU-disabled traps by the user restore the state saved
->    by #1 or #2
+Thanks! Applied to Linux/m68k CVS.
 
-Depending on the cost saving of not saving the registers if they haven't 
-changed, vs. the time to take the trap and set the FPU active again, it 
-might be a win overall, even if you never used FPU in the kernel. Wasn't 
-there a change between saving everything and saving FPU only when used 
-"back when?" I seem to remember something about that, and the cost of 
-the test vs. the cost of just doing the save.
+Gr{oetje,eeting}s,
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

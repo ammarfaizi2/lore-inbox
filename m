@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132042AbRDOXxN>; Sun, 15 Apr 2001 19:53:13 -0400
+	id <S131742AbRDOXwm>; Sun, 15 Apr 2001 19:52:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132142AbRDOXxD>; Sun, 15 Apr 2001 19:53:03 -0400
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:61929 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S132042AbRDOXwv>; Sun, 15 Apr 2001 19:52:51 -0400
-Message-Id: <5.0.2.1.2.20010416004856.00a572a0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Mon, 16 Apr 2001 00:52:50 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: [PATCH] NTFS comment expanded, small fix.
-Cc: aia21@cus.cam.ac.uk, R.E.Wolff@BitWizard.nl (Rogier Wolff),
-        alan@lxorguk.ukuu.org.uk (Alan Cox),
-        Linus.Torvalds@Helsinki.FI (Linus Torvalds),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E14oujm-0007TW-00@the-village.bc.nu>
-In-Reply-To: <Pine.SOL.3.96.1010415173424.19123A-100000@libra.cus.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S132042AbRDOXwc>; Sun, 15 Apr 2001 19:52:32 -0400
+Received: from juicer35.bigpond.com ([139.134.6.87]:37604 "EHLO
+	mailin10.bigpond.com") by vger.kernel.org with ESMTP
+	id <S131742AbRDOXwY>; Sun, 15 Apr 2001 19:52:24 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: David Findlay <david_j_findlay@yahoo.com.au>
+Reply-To: david_j_findlay@yahoo.com.au
+Organization: Davsoft
+To: linux-kernel@vger.kernel.org
+Subject: IP Acounting Idea for 2.5
+Date: Tue, 17 Apr 2001 07:53:28 +1000
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01041707532801.00352@workshop>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 23:11 15/04/2001, Alan Cox wrote:
-> > Can the numerous ntfs fixes in the -ac series be applied to the mainstream
-> > kernel instead? Thanks.
->
->Want me to feed them to Linus or will you do it ?
+I am using the kernel IP Accounting in Linux to record the amount of data 
+transfered via my Linux internet gateway from individual IP addresses. This 
+currently requires me to set up an accounting rule for each IP address that I 
+want to record accounting info for. If I had 200 machines to individually log 
+this would require me to set 200 rules.
 
-If you have the diffs ready then it would be great if you could do that. 
-(Did the maxbytes stuff enter the mainstream kernel yet? Are you going to 
-feed them together? Or will that be dropped for now?)
+In the 2.5 series of kernels, working towards 2.6, could you please make the 
+IP Accounting so that I can set a single rule that will make it watch all IP 
+traffic going from the local network, through the masquerading service to the 
+internet, and log local IP Addresses using it? This would allow me to set 1 
+rule, but have the information I want on a per IP address system.
 
-Cheers,
+One other person I have talked to would like to see this too, and he 
+basically says we need a software version of the Cisco IP Accounting 
+server/router.
 
-         Anton
+Could you please add this to the next kernel? Please CC me your responses as 
+I am not a member of the kernel mailing list. Thanks,
 
-PS. If you are too busy let me know and I will do it as soon as I have my 
-normal net connection back...
-
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+David

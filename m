@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVA3Q7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVA3RAO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbVA3Q7p (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Jan 2005 11:59:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVA3Q7o
+	id S261732AbVA3RAO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Jan 2005 12:00:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVA3RAO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Jan 2005 11:59:44 -0500
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:47876
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S261733AbVA3Q5D
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Jan 2005 11:57:03 -0500
-Date: Sun, 30 Jan 2005 08:57:02 -0800
-From: Phil Oester <kernel@linuxace.com>
-To: "David S. Miller" <davem@davemloft.net>, Robert.Olsson@data.slu.se,
-       akpm@osdl.org, torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050130165702.GA14642@linuxace.com>
-References: <20050127082809.A20510@flint.arm.linux.org.uk> <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127123326.2eafab35.davem@davemloft.net> <20050128001701.D22695@flint.arm.linux.org.uk> <20050127163444.1bfb673b.davem@davemloft.net> <20050128085858.B9486@flint.arm.linux.org.uk> <20050130132343.A25000@flint.arm.linux.org.uk> <20050130153449.B25000@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050130153449.B25000@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+	Sun, 30 Jan 2005 12:00:14 -0500
+Received: from fire.osdl.org ([65.172.181.4]:24005 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261734AbVA3Q5Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Jan 2005 11:57:25 -0500
+Message-ID: <41FD0FED.9000806@osdl.org>
+Date: Sun, 30 Jan 2005 08:48:45 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jesper Juhl <juhl-lkml@dif.dk>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Achim Leubner <achim_leubner@adaptec.com>,
+       Boji Tony Kannanthanam <boji.t.kannanthanam@intel.com>,
+       Johannes Dinner <johannes_dinner@adaptec.com>,
+       linux-scsi@vger.kernel.org
+Subject: Re: shouldn't "irq" be module_param_array instead of module_param
+ in scsi/gdth.c ?
+References: <Pine.LNX.4.62.0501301653480.2731@dragon.hygekrogen.localhost>
+In-Reply-To: <Pine.LNX.4.62.0501301653480.2731@dragon.hygekrogen.localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 30, 2005 at 03:34:49PM +0000, Russell King wrote:
-> I think the case against the IPv4 fragmentation code is mounting.
-> However, without knowing what the expected conditions for this code,
-> (eg, are skbs on the fraglist supposed to have NULL skb->dst?) I'm
-> unable to progress this any further.  However, I think it's quite
-> clear that there is something bad going on here.
+Jesper Juhl wrote:
+> This little warning made me take a closer look : 
+> drivers/scsi/gdth.c:645: warning: return from incompatible pointer type
+> 
+> And line 645 looks like this :
+> 
+> module_param(irq, int, 0);
+> 
+> looking a bit up in the file I find :
+> 
+> /* IRQ list for GDT3000/3020 EISA controllers */
+> static int irq[MAXHA] __initdata =
+> {0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,
+>  0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff};
+> 
+> That certainly looks like an array to me, so I'm wondering if something 
+> like this patch would be correct?  I'm not familliar enough with 
+> module_param* to be completely confident, but this silences the warning.
+> 
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+> --- linux-2.6.11-rc2-bk7-orig/drivers/scsi/gdth.c	2005-01-22 21:59:46.000000000 +0100
+> +++ linux-2.6.11-rc2-bk7/drivers/scsi/gdth.c	2005-01-30 16:52:45.000000000 +0100
+> @@ -642,7 +642,7 @@ static int probe_eisa_isa = 0;
+>  static int force_dma32 = 0;
+>  
+>  /* parameters for modprobe/insmod */
+> -module_param(irq, int, 0);
+> +module_param_array(irq, int, NULL, 0);
+>  module_param(disable, int, 0);
+>  module_param(reserve_mode, int, 0);
+>  module_param_array(reserve_list, int, NULL, 0);
 
-Interesting...the gateway which exhibits the problem fastest in my
-area does have a large number of fragmented UDP packets running through it,
-as shown by tcpdump 'ip[6:2] & 0x1fff != 0'.
+Yep, same as:
+http://marc.theaimsgroup.com/?l=linux-scsi&m=110540330511653&w=2
 
-> Why many more people aren't seeing this I've no idea.
-
-Perhaps you (and I) experience more fragments than the average user???
-
-Nice detective work!
-
-Phil
+-- 
+~Randy

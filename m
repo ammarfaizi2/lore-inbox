@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbUDSTsh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 15:48:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbUDSTsh
+	id S261790AbUDSTtH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 15:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbUDSTtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 15:48:37 -0400
-Received: from msgdirector3.onetel.net.uk ([212.67.96.159]:32570 "EHLO
-	msgdirector3.onetel.net.uk") by vger.kernel.org with ESMTP
-	id S261787AbUDSTse (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 15:48:34 -0400
-From: Chris Lingard <chris@ukpost.com>
-To: "Bryan O'Sullivan" <bos@serpentine.com>
-Subject: Re: initramfs howto?
-Date: Mon, 19 Apr 2004 20:48:29 +0100
-User-Agent: KMail/1.5.2
-References: <1081451826.238.23.camel@clubneon.priv.hereintown.net> <buo4qrt4pga.fsf@mcspd15.ucom.lsi.nec.co.jp> <1081531299.19918.13.camel@serpentine.pathscale.com>
-In-Reply-To: <1081531299.19918.13.camel@serpentine.pathscale.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+	Mon, 19 Apr 2004 15:49:07 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:50666 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261790AbUDSTtC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 15:49:02 -0400
+Date: Mon, 19 Apr 2004 21:49:38 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Fabiano Ramos <fabramos@bol.com.br>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: task switching at Page Faults
+In-Reply-To: <1082399579.1146.15.camel@slack.domain.invalid>
+Message-ID: <Pine.LNX.4.58.0404192146330.31901@artax.karlin.mff.cuni.cz>
+References: <1082399579.1146.15.camel@slack.domain.invalid>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404192048.29666.chris@ukpost.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 April 2004 6:21 pm, Bryan O'Sullivan wrote:
-> On Thu, 2004-04-08 at 23:48, Miles Bader wrote:
+> Hi all.
+>
+> 	I am in doubt about the linux kernel behaviour is this situation:
+> supose a have the process A, with the highest realtime
+> priority and SCHED_FIFO policy. The process then issues a syscall,
+> say read():
+>
+> 	1) Can I be sure that there will be no process switch during the
+> syscall processing, even if the system call causes a page fault?
 
-> I'm agnostic.  It's a two-line patch.  I don't care if it's called
-> /spam/fandango/wubble, so long as the brave souls who are trying out
-> initramfs don't keep stumbling over the same problem again and again :-)
+No. If the data read is not in cache and if read operations causes page
+fault there will be process switch.
 
-May I suggest
+Additionally, if you don't mlock memory, there can be process switch at
+any place, because of page faults on code pages or swapping of data pages.
 
-diff -Naur linux-2.6.5.old/init/main.c linux-2.6.5/init/main.c
---- linux-2.6.5.old/init/main.c 2004-04-05 18:19:04.000000000 +0100
-+++ linux-2.6.5/init/main.c     2004-04-18 15:37:56.000000000 +0100
-@@ -604,7 +604,12 @@
-        smp_init();
-        do_basic_setup();
+> 	2) What if the process was a non-realtime processes (ordinary
+> one, SCHED_OTHER)?
 
--       prepare_namespace();
-+       /*
-+       * check if there is an early userspace init, if yes
-+       * let it do all the work
-+       */
-+       if ( ! sys_access("/linuxrc", 0) == 0)
-+               prepare_namespace();
+There can be process switches too.
 
-        /*
-         * Ok, we have completed the initial bootup, and
-
-linuxrc already exists for initrd systems, and is coded in anyway.
-
-I have tested this with both with both linuxrc -> bin/ash
-and with a script that brings up a full system.  (I have made
-a boot CD that installs Linux-2.6.5 with udev)
-
-Chris Lingard
+Mikulas

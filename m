@@ -1,62 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271933AbTGYGpK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 02:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271934AbTGYGpK
+	id S271932AbTGYGsh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 02:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271934AbTGYGsh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 02:45:10 -0400
-Received: from mxzilla4.xs4all.nl ([194.109.6.48]:10255 "EHLO
-	mxzilla4.xs4all.nl") by vger.kernel.org with ESMTP id S271933AbTGYGpG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 02:45:06 -0400
-Message-ID: <7075.212.153.94.193.1059116415.squirrel@webmail.xs4all.nl>
-In-Reply-To: <20030725065507.26549.qmail@web14208.mail.yahoo.com>
-References: <20030725065507.26549.qmail@web14208.mail.yahoo.com>
-Date: Fri, 25 Jul 2003 09:00:15 +0200 (CEST)
-Subject: Re: kernel 2.6.0-test1 refuses to boot on a PC with AMD Athlon XP 
-     1800+
-From: "Jurriaan Kalkman" <thunder7@xs4all.nl>
-To: "Manjunathan Padua Yellappan" <manjunathan_py@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, manjunathan_py@yahoo.com
-Reply-To: thunder7@xs4all.nl
-User-Agent: SquirrelMail/1.4.2 [CVS]
-MIME-Version: 1.0
+	Fri, 25 Jul 2003 02:48:37 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:43788 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S271932AbTGYGsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 02:48:36 -0400
+Message-Id: <200307250654.h6P6s9j05200@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: Bernd Eckenfels <ecki-lkm@lina.inka.de>, linux-kernel@vger.kernel.org
+Subject: Re: Net device byte statistics
+Date: Fri, 25 Jul 2003 10:03:32 +0300
+X-Mailer: KMail [version 1.3.2]
+References: <E19fqMF-0007me-00@calista.inka.de>
+In-Reply-To: <E19fqMF-0007me-00@calista.inka.de>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hi Folks,
->
-> I compiled the latest version of the kernel
-> 2.6.0-test1.
->
-> I was able to successfully build the bzImage , but I
-> am not able to boot using this new kernel.
-> My Machine just stops after displaying the following
->
->     "Uncompressing Linux... Ok, booting the kernel "
->
-> Nothing happens after this message, it just hangs
->
-> Please assist me in solving this, I am very keen on to
-> testing this kernel.
->
-> Configuration of my machine :
-> CPU  AMD Athlon 1800+ XP
-> Motherboard ASUS KT266
-> RAM  256MB
-> HDD  20GB
-> with ATI Rage128 AGP card
->
-> Thanks in advance.
-> Manjunathan Padua Y
->
-> Note: Please cc your responses to this email id.
->
-There have been several reports like this. Please double check your
-.config, and search in the archives to find out how to enable your console
-and your keyboard etc. It is somewhat non-obvious at the moment.
+On 25 July 2003 03:22, Bernd Eckenfels wrote:
+> In article <200307250156.47108.fredrik@dolda2000.cjb.net> you wrote:
+> > On the other hand, I cannot imagine that noone would have thought of it. What 
+> > is the reason for this? Is there another interface that I should use instead 
+> > of /proc/net/dev to gather byte statistics for interfaces?
+> 
+> it is for performance reasons. You can
+> 
+> a) collect your numbers more often and asume wrap/reboot  if numbers
+> decrease
+> b) use iptables counters instead
+> 
+> BTW: it is a very often discussed topic, personally (as net tools
+> maintainer) I would love to see 64bit counters here, but this still means
+> you have to sample often enough, so you do not lose numbers on crash.
 
-HTH,
-Jurriaan
+I sample the data every minute. Will need to do it much more often
+on 10ge ifaces, when those will appear at my home ;)
+
+Or we will need 64bit counters then.
+--
+vda

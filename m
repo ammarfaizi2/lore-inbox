@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVCIX6w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbVCJAZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbVCIX6w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 18:58:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVCIX5w
+	id S262589AbVCJAZX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 19:25:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVCJAUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:57:52 -0500
-Received: from nfw.msbit.com ([64.170.147.162]:48594 "EHLO collie.msbit.com")
-	by vger.kernel.org with ESMTP id S262431AbVCIXOl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 18:14:41 -0500
-Subject: link(2) and symlinks
-From: Nick Stoughton <nick@usenix.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1110410075.18359.384.camel@collie>
+	Wed, 9 Mar 2005 19:20:30 -0500
+Received: from lakshmi.addtoit.com ([198.99.130.6]:51470 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262558AbVCJARF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:17:05 -0500
+Message-Id: <200503100215.j2A2FkDN015217@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.1-RC1
+To: torvalds@osdl.org
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 1/9] UML - Fix hostfs typo
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 09 Mar 2005 15:14:36 -0800
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 09 Mar 2005 21:15:46 -0500
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Linux, the link() system call does not dereference symbolic links: if
-oldpath is a symbolic link, then newpath is created as a new hard link
-to the same symbolic link file.  (In other words, newpath is also a
-symbolic link to the same file that oldpath refers to.)  E.g. (using
-shell commands to demonstrate):
-$ > a
-$ ln -s a b
-$ ln b c
-ln: `b': warning: making a hard link to a symbolic link is not portable
-$ ls -li [abc]
- 230342 -rw-rw-r--    1 nick     nick            0 Mar  9 15:00 a
- 230504 lrwxrwxrwx    2 nick     nick            1 Mar  9 15:01 b -> a
- 230504 lrwxrwxrwx    2 nick     nick            1 Mar  9 15:01 c -> a
+Fix a typo in the hostfs setgid code.
 
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-This behavior does not conform to POSIX, which says that all functions
-that perform pathname resolution should dereference symbolic links
-unless otherwise specified (and there is no exception specified for
-link()).  (POSIX says that resolution of the final component of a
-pathname shall be considered complete if "the function is required to
-act on the symbolic link itself, or certain arguments direct that the
-function act on the symbolic link itself."  In other words (in my
-reading), unless the function specification says explicitly that the
-function should act on a symbolic link, then the function should
-dereference symbolic links.  The specification of link() makes no
-statement that it should act on symbolic links rather than the pathnames
-to which they refer.)
-
-Most Unix implementations behave in the manner specified by POSIX.  One
-notable exception is Solaris 8 (I don't know about later Solarises). 
-That implementation shows the same behavior as Linux by default, but the
-SUSv3-conformant behavior is obtainable using c89 on that
-implementation.
-
-The Linux behavior is clearly deliberate:
-(from fs/namei.c)
-/*
- * Hardlinks are often used in delicate situations.  We avoid
- * security-related surprises by not following symlinks on the
- * newname.  --KAB
- *
- * We don't follow them on the oldname either to be compatible
- * with linux 2.0, and to avoid hard-linking to directories
- * and other special files.  --ADM
- */
-asmlinkage long sys_link(const char __user * oldname, const char __user
-* newname)
-{
-...
-
-Would a patch to provide POSIX conforming behavior under some
-conditional case (e.g. if /proc/sys/posix has value 1) ever be accepted?
-
-I'm not a list subscriber, so please cc me in any discussion, thanks!
--- 
-Nick Stoughton      USENIX/FSG Standards Liaison
-nick@usenix.org     (510) 388 1413
+Index: linux-2.6.11/arch/um/include/kern.h
+===================================================================
+--- linux-2.6.11.orig/arch/um/include/kern.h	2005-03-08 20:13:55.000000000 -0500
++++ linux-2.6.11/arch/um/include/kern.h	2005-03-08 21:56:19.000000000 -0500
+@@ -26,6 +26,7 @@
+ extern void perror(char *err);
+ extern int kill(int pid, int sig);
+ extern int getuid(void);
++extern int getgid(void);
+ extern int pause(void);
+ extern int write(int, const void *, int);
+ extern int exit(int);
+Index: linux-2.6.11/fs/hostfs/hostfs_kern.c
+===================================================================
+--- linux-2.6.11.orig/fs/hostfs/hostfs_kern.c	2005-03-08 20:17:34.000000000 -0500
++++ linux-2.6.11/fs/hostfs/hostfs_kern.c	2005-03-08 20:18:15.000000000 -0500
+@@ -845,7 +845,7 @@
+ 	if(attr->ia_valid & ATTR_GID){
+ 		if((dentry->d_inode->i_sb->s_dev == ROOT_DEV) &&
+ 		   (attr->ia_gid == 0))
+-			attr->ia_gid = getuid();
++			attr->ia_gid = getgid();
+ 		attrs.ia_valid |= HOSTFS_ATTR_GID;
+ 		attrs.ia_gid = attr->ia_gid;
+ 	}
 

@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266837AbSLPRMl>; Mon, 16 Dec 2002 12:12:41 -0500
+	id <S266886AbSLPRQB>; Mon, 16 Dec 2002 12:16:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266840AbSLPRMl>; Mon, 16 Dec 2002 12:12:41 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:31635 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S266837AbSLPRMl>;
-	Mon, 16 Dec 2002 12:12:41 -0500
-Date: Mon, 16 Dec 2002 17:19:25 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Ben Collins <bcollins@debian.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
-       Larry McVoy <lm@bitmover.com>
-Subject: Re: Notification hooks
-Message-ID: <20021216171925.GC15256@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Ben Collins <bcollins@debian.org>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	linux-kernel@vger.kernel.org, Larry McVoy <lm@bitmover.com>
-References: <20021216171218.GV504@hopper.phunnypharm.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021216171218.GV504@hopper.phunnypharm.org>
-User-Agent: Mutt/1.4i
+	id <S266888AbSLPRQB>; Mon, 16 Dec 2002 12:16:01 -0500
+Received: from rivmkt61.wintek.com ([206.230.0.61]:128 "EHLO comcast.net")
+	by vger.kernel.org with ESMTP id <S266886AbSLPRP7>;
+	Mon, 16 Dec 2002 12:15:59 -0500
+Date: Mon, 16 Dec 2002 12:11:58 +0000 (UTC)
+From: Alex Goddard <agoddard@purdue.edu>
+To: Gregoire Favre <greg@ulima.unil.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.52 and modules (lots of unresolved symbols)?
+In-Reply-To: <20021216171703.GD13198@ulima.unil.ch>
+Message-ID: <Pine.LNX.4.50L0.0212161207430.1154-100000@dust.ebiz-gw.wintek.com>
+References: <20021216094514.GA735@ulima.unil.ch>
+ <Pine.LNX.4.50L0.0212161114360.1154-100000@dust.ebiz-gw.wintek.com>
+ <20021216171703.GD13198@ulima.unil.ch>
+X-GPG-PUBLIC_KEY: N/a
+X-GPG-FINGERPRINT: BCBC 0868 DB78 22F3 A657 785D 6E3B 7ACB 584E B835
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 16, 2002 at 12:12:18PM -0500, Ben Collins wrote:
- > Linus, is there anyway I can request a hook so that anything that
- > changes drivers/ieee1394/ in your repo sends me an email with the diff
- > for just the files in that directory, and the changeset log? Is this
- > something that bkbits can do?
- > 
- > I'd bet lots of ppl would like similar hooks for their portions of the
- > source.
+On Mon, 16 Dec 2002, Gregoire Favre wrote:
 
-It'd be nice if the bkbits webpage had a "notify me" interface for files
-in Linus' repository. This way not just the maintainers, but folks
-interested in changes in that area can also see the changes.
+> On Mon, Dec 16, 2002 at 11:19:00AM +0000, Alex Goddard wrote:
+> 
+> > > I have just patched 2.5.51, and not done the make clean && make mrproper
+> > > before doing a make menuconfig && make dep && make bzImage && make
+> > > modules...
+> > > 
+> > > Will that change anything to make clean/mrproper here?
+> > 
+> > I would give 'make clean' a try.
+> 
+> I am just doing that right now... I'll wait till completion to report
+> the issue:
+> 
+> No change, still the same messages :-(
 
-As well as opening this up for more people, it'd also take the load
-of Linus having to do it.
+Huh.  Like I said, reinstalling the mod tools and doing a rebuild after a 
+make clean cleared it up for me.
 
-		Dave
+Weird.
+
+> Thank you very much and have a great day,
+
+You too.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Alex Goddard
+agoddard@purdue.edu

@@ -1,71 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbTEZUjn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 16:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbTEZUjm
+	id S262226AbTEZUig (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 16:38:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262232AbTEZUif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 16:39:42 -0400
-Received: from pl484.nas911.n-yokohama.nttpc.ne.jp ([210.139.38.228]:33988
-	"EHLO standard.erephon") by vger.kernel.org with ESMTP
-	id S262228AbTEZUjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 16:39:39 -0400
-Message-ID: <3ED27E9A.E9869E6@yk.rim.or.jp>
-Date: Tue, 27 May 2003 05:52:42 +0900
-From: Ishikawa <ishikawa@yk.rim.or.jp>
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: ja, en
-MIME-Version: 1.0
-To: dougg@torque.net
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFR] a new SCSI driver
-References: <20030524195123.GA8394@gtf.org> <3ED1831F.30203@torque.net>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+	Mon, 26 May 2003 16:38:35 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:37353 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262226AbTEZUic (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 16:38:32 -0400
+Date: Mon, 26 May 2003 22:51:46 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCHES] add ata scsi driver
+Message-ID: <20030526205146.GS845@suse.de>
+References: <1053981380.1768.203.camel@mulgrave> <Pine.LNX.4.44.0305261339340.13489-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305261339340.13489-100000@home.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, May 26 2003, Linus Torvalds wrote:
+> 
+> On 26 May 2003, James Bottomley wrote:
+> > 
+> > > I'd hate for SATA to pick up these kinds of mistakes from the SCSI layer.
+> > 
+> > The elevator is based on linear head movements.
+> 
+> Historically, yes.
+> 
+> But we've been moving more and more towards a latency-based elevator, or
+> at least one that takes latency into account. Which is exactly why you'd
+> like to leave unfinished requests on the queue, because otherwise your
+> queue doesn't really show what is really going on.
 
-> Thinking about how existing applications such as
-> hdparm and smartmontools will cope with an ATA device
-> (e.g. a disk) with a device node like "/dev/sdb".
-> Those apps would make the assumption from the device
-> name that such a device should be sent a SCSI command
-> set. So perhaps we need a "transport" indicator in
-> the sysfs directory for that device (dare I mention
-> another ioctl).
+The newer io schedulers divide the queue into a front and backend, so
+it's not exactly trivial to just 'leave it on the queue'. Which queue?
 
-As of now, smartmontools uses /etc/smartd.conf in which
-we can specify a device type is ata or scsi
-if the device name is not clear enough. (-d scsi or
--d ata). I am not sure why this feature is there. Maybe
-devfs name thing.
+You know which ones are pending, they are on the busy queue. You can
+look there.
 
-Upon cursor examination, 
-I am not entirely sure whether we can
-*always* put a meaningful "transport indicator" in the sysfs
-directory when there will be multiple
-combination of transport layer(s) over the long term/haul.
-For this particular situation of SATA and SCSI, yes, though.
-(As the technology trend goes, I won't be surprised to
-find a home PC that hooks SCSI device via a few different
-transport layers such as serial, another different serial,
-say, USB, and other transport layer, say, firewire
-with some glue gadgets in between. 
-Whether such beast will be supported
-under linux, I am not sure. But we do support USB 
-storage device as a SCSI device, so there may be some demand.
-I am sure there will be some cheap interface boxes that probably
-work under some other OSs when everything works perfectly.
-I am not recommending it,  but some people will be hooked to
-such setup.)
+> In particular, while the higher layers don't actually _do_ this yet, from 
+> a latency standpoint the right thing to do when some request seems to get 
+> starved is to refuse to feed more tagged requeusts to the device until the 
+> starved request has finished. 
 
+Agree
 
+> As I mentioned, Andrew actually had some really bad latency numbers to
+> prove that this is a real issue. SCSI with more than 4 tags or so results 
+> in potentially _major_ starvation, because the disks themselves are not 
+> even trying to avoid it.
 
+Basically everyone agrees that this shouldn't happen in newer disks, I'm
+inclined to think we are seeing internal queueing bugs in the SCSI
+drivers or SCSI layer itself.
+
+> Also, even aside from the starvation issue with unfair disks, just from a
+> "linear head movement" standpoint, you really want to sort the queue
+> according to what is going on _now_ in the disk. If the disk eats the
+> requests immediately (but doesn't execute them immediately), the sorting
+> has nothing to go on, and you get tons of back-and-forth movements.
+> 
+> Basically, if you're trying to do an elevator, you need to know what the 
+> outstanding commands are. Think it through on paper, and you'll see what I 
+> mean.
+
+Who said we are using an elevator? News flash, we haven't used an
+elevator design for a long time.
 
 -- 
-int main(void){int j=2003;/*(c)2003 cishikawa. */
-char t[] ="<CI> @abcdefghijklmnopqrstuvwxyz.,\n\"";
-char *i ="g>qtCIuqivb,gCwe\np@.ietCIuqi\"tqkvv is>dnamz";
-while(*i)((j+=strchr(t,*i++)-(int)t),(j%=sizeof t-1),
-(putchar(t[j])));return 0;}/* under GPL */
+Jens Axboe
+

@@ -1,80 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263463AbTKZTbV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 14:31:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264283AbTKZTbV
+	id S264288AbTKZTeR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 14:34:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264297AbTKZTeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 14:31:21 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:33430 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263463AbTKZTbS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 14:31:18 -0500
-Date: Wed, 26 Nov 2003 11:30:40 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fire Engine??
-Message-Id: <20031126113040.3b774360.davem@redhat.com>
-In-Reply-To: <p73fzgbzca6.fsf@verdi.suse.de>
-References: <BAY1-DAV15JU71pROHD000040e2@hotmail.com.suse.lists.linux.kernel>
-	<20031125183035.1c17185a.davem@redhat.com.suse.lists.linux.kernel>
-	<p73fzgbzca6.fsf@verdi.suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 26 Nov 2003 14:34:17 -0500
+Received: from dsl-sj-66-219-74-27.broadviewnet.net ([66.219.74.27]:3715 "EHLO
+	server.perens.com") by vger.kernel.org with ESMTP id S264288AbTKZTeN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 14:34:13 -0500
+Message-ID: <3FC50029.7030706@perens.com>
+Date: Wed, 26 Nov 2003 11:34:01 -0800
+From: Bruce Perens <bruce@perens.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Posix says "undefined". Re: Signal left blocked after signal handler.
+References: <20031126173953.GA3534@perens.com> <Pine.LNX.4.58.0311260945030.1524@home.osdl.org> <3FC4ED5F.4090901@perens.com> <3FC4EF24.9040307@perens.com> <3FC4F248.8060307@perens.com> <Pine.LNX.4.58.0311261037370.1524@home.osdl.org> <3FC4F94F.6030801@perens.com> <Pine.LNX.4.58.0311261108350.1524@home.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0311261108350.1524@home.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Nov 2003 10:53:21 +0100
-Andi Kleen <ak@suse.de> wrote:
+Linus,
 
-> Some issues just from the top of my head. I have not done detailed profiling
-> recently and don't know if any of this would help significantly. It is 
-> just what I remember right now.
+Posix says the behavior is undefined. See 
+http://www.opengroup.org/onlinepubs/007904975/functions/sigprocmask.html .
+I think it makes sense to leave the 2.6 behavior as it is.
 
-Thanks for the list Andi, I'll keep it around.  I'd like
-to comment on one entry though.
+    Thanks
 
-> - On TX we are inefficient for the same reason. TCP builds one packet
-> at a time and then goes down through all layers taking all locks (queue,
-> device driver etc.) and submits the single packet. Then repeats that for 
-> lots of packets because many TCP writes are > MTU. Batching that would 
-> likely help a lot, like it was done in the 2.6 VFS. I think it could 
-> also make hard_start_xmit in many drivers significantly faster.
+    Bruce
 
-This is tricky, because of getting all of the queueing stuff right.
-All of the packet scheduler APIs would need to change, as would
-the classification stuff, not to mention netfilter et al.
+Linus Torvalds wrote:
 
-You're talking about basically redoing the whole TX path if you
-want to really support this.
+> I personally think it is "good taste" to actually set the SA_NODEFER flag
 
-I'm not saying "don't do this", just that we should be sure we know
-what we're getting if we invest the time into this.
+> if you know you depend on the behaviour, but if there are lots of existing
+>
+>applications that actually depend on the "forced punch-through" behaviour,
+>then I'll obviously have to change the 2.6.x behaviour (a stable
+>user-level ABI is a lot more important than my personal preferences).
+>
+>But if ElectricFence is the only thing that cares, I'd rather just EF
+>added a SA_NODEFER..
+>  
+>
 
-> - The hash tables are too big. This causes unnecessary cache misses all the 
-> time.
 
-I agree.  See my comments on this topic in another recent linux-kernel
-thread wrt. huge hash tables on numa systems.
-
-> - Doing gettimeofday on each incoming packet is just dumb, especially
-> when you have gettimeofday backed with a slow southbridge timer.
-> This shows quite badly on many profile logs.
-> I still think right solution for that would be to only take time stamps
-> when there is any user for it (= no timestamps in 99% of all systems) 
-
-Andi, I know this is a problem, but for the millionth time your idea
-does not work because we don't know if the user asked for the timestamp
-until we are deep within the recvmsg() processing, which is long after
-the packet has arrived.
-
-> - user copy and checksum could probably also done faster if they were
-> batched for multiple packets. It is hard to optimize properly for 
-> <= 1.5K copies.
-> This is especially true for 4/4 split kernels which will eat an 
-> page table look up + lock for each individual copy, but also for others.
-
-I disagree partially, especially in the presence of a chip that provides
-proper implementations of software initiated prefetching.

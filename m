@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265117AbUADEal (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Jan 2004 23:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265119AbUADEal
+	id S265126AbUADEcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Jan 2004 23:32:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265125AbUADEcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Jan 2004 23:30:41 -0500
-Received: from dp.samba.org ([66.70.73.150]:51588 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265117AbUADEak (ORCPT
+	Sat, 3 Jan 2004 23:32:16 -0500
+Received: from mail.kroah.org ([65.200.24.183]:41359 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265119AbUADEcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Jan 2004 23:30:40 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Juergen Quade <quade@hs-niederrhein.de>
+	Sat, 3 Jan 2004 23:32:05 -0500
+Date: Sat, 3 Jan 2004 20:30:37 -0800
+From: Greg KH <greg@kroah.com>
+To: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: module_param( byte ... ) missing? 
-In-reply-to: Your message of "Sat, 03 Jan 2004 17:40:26 BST."
-             <20040103164026.GA29962@hsnr.de> 
-Date: Sun, 04 Jan 2004 13:06:07 +1100
-Message-Id: <20040104043037.EC4042C0DC@lists.samba.org>
+Subject: Re: 2.6.1-rc1, scanner.ko, oops
+Message-ID: <20040104043037.GA24110@kroah.com>
+References: <20040103183501.GA2906@butterfly.hjsoft.com> <20040103225154.GK11061@kroah.com> <20040104035748.GA30429@butterfly.hjsoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040104035748.GA30429@butterfly.hjsoft.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040103164026.GA29962@hsnr.de> you write:
-> Rusty,
+On Sat, Jan 03, 2004 at 10:57:49PM -0500, John M Flinchbaugh wrote:
+> On Sat, Jan 03, 2004 at 02:51:54PM -0800, Greg KH wrote:
+> > On Sat, Jan 03, 2004 at 01:35:01PM -0500, John M Flinchbaugh wrote:
+> > > i tried my canoscan 670u scanner with 2.6.1-rc1's scanner module,
+> > > xsane 0.91, sane 1.0.13.  (also, i'm using ohci-hcd on a tyan
+> > > thunder s2462ung.)
+> > Can you try not using the scanner module?  xsane should work just fine
+> > using libusb, talking to the device from userspace with no kernel
+> > module.
 > 
-> using the "byte"-datatype as module parameter throws a compile error.
-> Other than stated in the comment of the headerfile <linux/moduleparam.h>
-> 
-> 	/* Helper functions: type is byte, short, ushort, int, uint, long,
-> 	   ulong, charp, bool or invbool, or XXX if you define param_get_XXX,
-> 	   param_set_XXX and param_check_XXX. */
-> 	#define module_param_named(name, value, type, perm)
-> 	...
-> 	
-> the datatype _byte_ seems not be implemented.
-> Have you dropped it intentionally?
+> it does indeed work using libusb.  i had gotten the impression
+> that the scanner module may not be the preferred path these
+> days.  is this correct?
 
-No, just not implemented; the comment is overzealous.  
+See the help text for CONFIG_USB_SCANNER :)
 
-Of course, you can implement byte in two ways: you can do it in your
-own module (effectively a private type), or in kernel/params.c.  I'd
-prefer the former, and if lots of modules use it, we move it to
-kernel/params.c.
+thanks,
 
-Hope that clarifies,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+greg k-h

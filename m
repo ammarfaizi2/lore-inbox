@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129435AbQKBC6d>; Wed, 1 Nov 2000 21:58:33 -0500
+	id <S130614AbQKBDDD>; Wed, 1 Nov 2000 22:03:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130614AbQKBC6X>; Wed, 1 Nov 2000 21:58:23 -0500
-Received: from nifty.blue-labs.org ([208.179.0.193]:62372 "EHLO
-	nifty.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S129435AbQKBC6H>; Wed, 1 Nov 2000 21:58:07 -0500
-Message-ID: <3A00D82F.618D3534@linux.com>
-Date: Wed, 01 Nov 2000 18:57:52 -0800
-From: David Ford <david@linux.com>
-Organization: Blue Labs
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "M.H.VanLeeuwen" <vanl@megsinet.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux-2.4.0-test10
-In-Reply-To: <39FFB221.D6A1B5FF@megsinet.net> <3A006EFB.CD2EAF98@linux.com> <3A00B08A.13A971C0@megsinet.net>
-Content-Type: multipart/mixed;
- boundary="------------DF3475752AFE55904C101B38"
+	id <S132038AbQKBDCx>; Wed, 1 Nov 2000 22:02:53 -0500
+Received: from TSX-PRIME.MIT.EDU ([18.86.0.76]:15503 "HELO tsx-prime.MIT.EDU")
+	by vger.kernel.org with SMTP id <S130614AbQKBDCm>;
+	Wed, 1 Nov 2000 22:02:42 -0500
+Date: Wed, 1 Nov 2000 22:02:26 -0500
+Message-Id: <200011020302.WAA21358@tsx-prime.MIT.EDU>
+From: "Theodore Y. Ts'o" <tytso@MIT.EDU>
+To: tytso@MIT.EDU
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+        Jakub Jelinek <jakub@redhat.com>,
+        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: tytso@MIT.EDU's message of Wed, 1 Nov 2000 09:46:19 -0500,
+	<20001101094619.A15283@trampoline.thunk.org>
+Subject: Re: 2.4.0-test10-pre6: Use of abs()
+Phone: (781) 391-3464
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------DF3475752AFE55904C101B38
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+   Date: Wed, 1 Nov 2000 09:46:19 -0500
+   From: tytso@MIT.EDU
 
-Yes..long standing bug, and I don't have sufficient time to get my feet wet in the IDE dept
-and fix it.
-
--d
-
-"M.H.VanLeeuwen" wrote:
-
-> > Disable PIIXn tuning and recompile your kernel.  How does it fare now?
->
-> Yep, disabling (opposite of "enabling") does allow the kernel to boot just fine.
-> PIIXn tuning must be tickling something on the system so that the first time we
-> read from the disk, partition check block 0, the system freezes hard.
-
---
-"The difference between 'involvement' and 'commitment' is like an
-eggs-and-ham breakfast: the chicken was 'involved' - the pig was
-'committed'."
+   On Mon, Oct 30, 2000 at 05:14:34PM +0100, Martin Dalecki wrote:
+   > Of corse right! BTW. There are tons of places where log2 is calculated
+   > explicitly in kernel which should be replaced with the corresponding
+   > built 
+   > in functions as well (/dev/random code does it). And then If I remember
+   > correctly
+   > there is an attribute which is telling about internal functions
+   > in declarations explicitly as well?
 
 
+And in the case of /dev/random, since we know something about what the
+possible inputs can be, I'm fairly certain that the "int_ln_12bits" used
+by /dev/random is probably far better than the general purpose code
+which GCC no doubt has to emit....
 
---------------DF3475752AFE55904C101B38
-Content-Type: text/x-vcard; charset=us-ascii;
- name="david.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Description: Card for David Ford
-Content-Disposition: attachment;
- filename="david.vcf"
-
-begin:vcard 
-n:Ford;David
-x-mozilla-html:TRUE
-org:<img src="http://www.kalifornia.com/images/paradise.jpg">
-adr:;;;;;;
-version:2.1
-email;internet:david@kalifornia.com
-title:Blue Labs Developer
-x-mozilla-cpt:;-12480
-fn:David Ford
-end:vcard
-
---------------DF3475752AFE55904C101B38--
-
+						- Ted
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

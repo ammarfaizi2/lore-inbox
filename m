@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273385AbRJPHgc>; Tue, 16 Oct 2001 03:36:32 -0400
+	id <S273691AbRJPIC4>; Tue, 16 Oct 2001 04:02:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273463AbRJPHgW>; Tue, 16 Oct 2001 03:36:22 -0400
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:2632 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S273385AbRJPHgM>; Tue, 16 Oct 2001 03:36:12 -0400
-Message-ID: <3BCBE29D.CFEC1F05@alacritech.com>
-Date: Tue, 16 Oct 2001 00:32:45 -0700
-From: "Matt D. Robinson" <yakker@alacritech.com>
-Organization: Alacritech, Inc.
-X-Mailer: Mozilla 4.78 [en] (Windows NT 5.0; U)
-X-Accept-Language: en
+	id <S273836AbRJPICq>; Tue, 16 Oct 2001 04:02:46 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4106 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S273729AbRJPICh>; Tue, 16 Oct 2001 04:02:37 -0400
+Subject: Re: VM
+To: unknown@panax.com (Patrick McFarland)
+Date: Tue, 16 Oct 2001 09:08:40 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011015211216.A1314@localhost> from "Patrick McFarland" at Oct 15, 2001 09:12:18 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Cristiano Paris <c.paris@libero.it>, linux-kernel@vger.kernel.org
-Subject: Re: libz, libbz2, ramfs and cramfs
-In-Reply-To: <19978.1003206943@kao2.melbourne.sgi.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15tPHE-0004zS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> On Mon, 15 Oct 2001 15:06:42 +0200 (CEST),
-> Cristiano Paris <c.paris@libero.it> wrote:
-> >I'm interested in developing a file system which could take features from
-> >ramfs and cramfs so I have a couple of questions which possibly Linus
-> >would answer to.
-> >Second, quoting from the jffs2's TODO list :
-> >
-> >- fix zlib. It's ugly as hell and there are at least three copies in the
-> >kernel tree
-> 
-> The -ac tree is moving to a single copy of zlib, in fs/inflate_fs.  It
-> is currently used by cramfs and zisofs.  jffs2 in the -ac tree still
-> uses its own copy of zlib and should be converted.
+> Why is the simple vm system still in place on the linus tree? I would think 
+> the smart vm system in the ac tree would be better suited to .. oh.. say ..
+>  everything. (The potential for less swapping is _always better_)
 
-Any plans to fix this for the Linus tree?  Also, why place this in fs?
-Shouldn't this be around for PPP along with other things that
-can use it (like LKCD)?
+I've not reached any final conclusions on the VM - there are things that
+Rik's VM shows up that look like the VM algorithm is right but it triggers
+other stuff, and there are a couple of hackish bits left in still.
 
---Matt
+Smart is often good - especially given how slow disk seeks are. But smart is
+not always best for any algorithm.
+
+Alan

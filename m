@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264186AbTGMVz3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 17:55:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267686AbTGMVz3
+	id S270414AbTGMVuX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 17:50:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270415AbTGMVuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 17:55:29 -0400
-Received: from nmh.informatik.uni-bremen.de ([134.102.224.3]:62351 "EHLO
-	nmh.informatik.uni-bremen.de") by vger.kernel.org with ESMTP
-	id S264186AbTGMVz2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 17:55:28 -0400
-To: linux-kernel@vger.kernel.org
-Cc: "Barry K. Nathan" <barryn@pobox.com>
-From: Moritz Muehlenhoff <jmm@informatik.uni-bremen.de>
-Subject: Re: [BUG] 100% reproducible oops on ATAPI CD-ROM I/O error, 2.5.75
-In-Reply-To: <20030711093335.GC2860@ip68-4-255-84.oc.oc.cox.net>
-References: <20030711093335.GC2860@ip68-4-255-84.oc.oc.cox.net>
-Date: Mon, 14 Jul 2003 00:10:08 +0200
-Message-Id: <E19bp2m-0006gf-00@regenbogen.informatik.uni-bremen.de>
+	Sun, 13 Jul 2003 17:50:23 -0400
+Received: from vana.vc.cvut.cz ([147.32.240.58]:8586 "EHLO vana.vc.cvut.cz")
+	by vger.kernel.org with ESMTP id S270414AbTGMVuU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 17:50:20 -0400
+Date: Mon, 14 Jul 2003 00:05:00 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [announce, patch] 4G/4G split on x86, 64 GB RAM (and more) support
+Message-ID: <20030713220500.GB7494@vana.vc.cvut.cz>
+References: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0307082332450.17252-100000@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In stuga.ml.linux.kernel, you wrote:
-> I added this as a comment to bugme.osdl.org bug 878, but here's a
-> cleaned-up version of the reproduction instructions:
+On Wed, Jul 09, 2003 at 12:45:52AM +0200, Ingo Molnar wrote:
 > 
-> 5. readcd dev=/dev/hdc f=/dev/null
-> (readcd chokes near the end of the CD, tries reading again, and oopses
-> the kernel)
+> i'm pleased to announce the first public release of the "4GB/4GB VM split"
+> patch, for the 2.5.74 Linux kernel:
+> 
+>    http://redhat.com/~mingo/4g-patches/4g-2.5.74-F8
 
-With kernel 2.5.75-bk3 it doesn't oops neither on my CD-RW, nor on
-my CD-ROM. I guess that's related to ChangeSet@1.486 from Jens Axboe
-   [PATCH] Fix IDE-CD command failure re-play
-   
-Does anyone have an explanation why cdrecord fails to write the last
-sector properly? Is this a kernel issue or a bug in cdrecord?
-I'm using cdrtools 2.01a15.
+FYI, VMware's vmmon/vmnet I maintain for 2.5.x kernels at 
+http://platan.vc.cvut.cz/ftp/pub/vmware (currently 
+.../vmware-any-any-update37.tar.gz) were updated to work correctly
+with 4G/4G kernel configuration.
+						Best regards,
+							Petr Vandrovec
+							vandrove@vc.cvut.cz

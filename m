@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUG0O2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266244AbUG0O32@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266263AbUG0O2A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 10:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266244AbUG0O2A
+	id S266244AbUG0O32 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 10:29:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266293AbUG0O31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 10:28:00 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:28134 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S266263AbUG0O15 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 10:27:57 -0400
-Date: Tue, 27 Jul 2004 10:31:27 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH][2.6] Allow x86_64 to reenable interrupts on contention
-In-Reply-To: <20040727132638.7d26e825.ak@suse.de>
-Message-ID: <Pine.LNX.4.58.0407271006290.23985@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0407270432470.23989@montezuma.fsmlabs.com>
- <20040727132638.7d26e825.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 27 Jul 2004 10:29:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13285 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266244AbUG0O3U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 10:29:20 -0400
+Date: Tue, 27 Jul 2004 15:29:18 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.8-rc2 crashes
+Message-ID: <20040727142918.GE12308@parcelfarce.linux.theplanet.co.uk>
+References: <200407271233.04205.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407271233.04205.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Jul 2004, Andi Kleen wrote:
+On Tue, Jul 27, 2004 at 12:33:04PM -0400, Gene Heskett wrote:
+> Greetings everybody;
+> 
+> I have now had 4 crashes while running 2.6.8-rc2, the last one
+> requiring a full powerdown before the intel-8x0 could
+> re-establish control over the sound.
+> 
+> All have had an initial Opps located in prune_dcache, and were
+> logged as follows:
+> Jul 27 07:58:58 coyote kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000000
 
-> On Tue, 27 Jul 2004 05:29:10 -0400 (EDT)
-> Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
->
-> > This is a follow up to the previous patches for ia64 and i386, it will
-> > allow x86_64 to reenable interrupts during contested locks depending on
-> > previous interrupt enable status. It has been runtime and compile tested
-> > on UP and 2x SMP Linux-tiny/x86_64.
->
-> This will likely increase code size. Do you have numbers by how much? And is it
-> really worth it?
-
-Yes there is a growth;
-
-   text    data     bss     dec     hex filename
-3655358 1340511  486128 5481997  53a60d vmlinux-after
-3648445 1340511  486128 5475084  538b0c vmlinux-before
-
-And this was on i386;
-
-   text    data     bss     dec     hex filename
-2628024  921731       0 3549755  362a3b vmlinux-after
-2621369  921731       0 3543100  36103c vmlinux-before
-
-Keith Owens managed to get increased throughput as the original patch was
-driven by poor performance from a workload. I think it's worth it just for
-the reduced interrupt latency, the code size issue can also be taken care
-of, but that requires benchmarking as the change is a bit more drastic.
+... which means that dentry_unused list got corrupted, which doesn't really
+help.  Could you try to narrow it down to 2.6.8-rc1-bk<day>?

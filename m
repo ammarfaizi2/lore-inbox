@@ -1,99 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVA1N6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVA1N7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVA1N6f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 28 Jan 2005 08:58:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVA1N6f
+	id S261373AbVA1N7u (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 28 Jan 2005 08:59:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVA1N6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 28 Jan 2005 08:58:35 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:34528 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261367AbVA1N6Z (ORCPT
+	Fri, 28 Jan 2005 08:58:40 -0500
+Received: from ns.suse.de ([195.135.220.2]:45189 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261373AbVA1N62 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 28 Jan 2005 08:58:25 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=DBHHIKzXKON59OGagDIYDi4PQ++nCSYCtQn80Tb0kuELBYheBJW2e/bI4n+AclQw1sSmEn235FOLOXtLCKlSF7XGEg6Xi3xLDcpSb6TcjQn2GRYAn0qeNx2CKE/788jbsOpbdlmD8E7BmK3xRYOkyGIeQg+tAOwVvQcNDjs5YmA=
-Message-ID: <3f250c7105012805585c01a26@mail.gmail.com>
-Date: Fri, 28 Jan 2005 09:58:24 -0400
-From: Mauricio Lin <mauriciolin@gmail.com>
-Reply-To: Mauricio Lin <mauriciolin@gmail.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: User space out of memory approach
-Cc: tglx@linutronix.de, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Edjard Souza Mota <edjard@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       ville.medeiros@gmail.com
-In-Reply-To: <20050127221129.GX8518@opteron.random>
+	Fri, 28 Jan 2005 08:58:28 -0500
+Date: Fri, 28 Jan 2005 14:58:27 +0100
+From: Olaf Hering <olh@suse.de>
+To: Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+Subject: Re: atkbd_init lockup with 2.6.11-rc1
+Message-ID: <20050128135827.GA28784@suse.de>
+References: <20050128132202.GA27323@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1105403747.17853.48.camel@tglx.tec.linutronix.de>
-	 <3f250c71050121132713a145e3@mail.gmail.com>
-	 <3f250c7105012113455e986ca8@mail.gmail.com>
-	 <20050122033219.GG11112@dualathlon.random>
-	 <3f250c7105012513136ae2587e@mail.gmail.com>
-	 <1106689179.4538.22.camel@tglx.tec.linutronix.de>
-	 <3f250c71050125161175234ef9@mail.gmail.com>
-	 <20050126004901.GD7587@dualathlon.random>
-	 <3f250c7105012710541d3e7ad1@mail.gmail.com>
-	 <20050127221129.GX8518@opteron.random>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20050128132202.GA27323@suse.de>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrea,
+ On Fri, Jan 28, Olaf Hering wrote:
 
-On Thu, 27 Jan 2005 23:11:29 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
-> On Thu, Jan 27, 2005 at 02:54:13PM -0400, Mauricio Lin wrote:
-> > Hi Andrea,
-> >
-> > On Wed, 26 Jan 2005 01:49:01 +0100, Andrea Arcangeli <andrea@suse.de> wrote:
-> > > On Tue, Jan 25, 2005 at 08:11:19PM -0400, Mauricio Lin wrote:
-> > > > Sometimes the first application to be killed is XFree. AFAIK the
-> > >
-> > > This makes more sense now. You need somebody trapping sigterm in order
-> > > to lockup and X sure traps it to recover the text console.
-> > >
-> > > Can you replace this:
-> > >
-> > >         if (cap_t(p->cap_effective) & CAP_TO_MASK(CAP_SYS_RAWIO)) {
-> > >                 force_sig(SIGTERM, p);
-> > >         } else {
-> > >                 force_sig(SIGKILL, p);
-> > >         }
-> > >
-> > > with this?
-> > >
-> > >         force_sig(SIGKILL, p);
-> > >
-> > > in mm/oom_kill.c.
-> >
-> > Nice. Your suggestion made the error goes away.
-> >
-> > We are still testing in order to compare between your OOM Killer and
-> > Original OOM Killer.
 > 
-> Ok, thanks for the confirmation. So my theory was right.
-> 
-> Basically we've to make this patch, now that you already edited the
-> code, can you diff and send a patch that will be the 6/5 in the serie?
+> My IBM RS/6000 B50 locks up with 2.6.11rc1, it dies in atkbd_init():
 
-OK. I will send the patch.
+It fails also on PReP, not only on CHRP. 2.6.10 looks like this:
 
-> (then after fixing this last very longstanding [now deadlock prone too]
-> bug, we can think how to make at a 7/5 that will wait a few seconds
-> after sending a sigterm, to fallback into a sigkill, that shouldn't be
-> difficult, but the above 6/5 will already make the code correct)
-> 
-> Note, if you add swap it'll workaround it too since then the memhog will
-> be allowed to grow to a larger rss than X. With 128m of ram and no swap,
-> X is one of the biggest with xshm involved from some client app
-> allocating lots of pictures. I could never notice since I always tested
-> it either with swap or on higher mem systems and my test box runs
-> with an idle X too which isn't that big ;).
+Calling initcall 0xc03bc430: atkbd_init+0x0/0x2c()
+atkbd.c: keyboard reset failed on isa0060/serio1
+atkbd.c: keyboard reset failed on isa0060/serio0
 
-Well, we like to reduce the memory resources, because we also think
-about OOM Killer in small devices with few resources.
-
-BR,
-
-Mauricio Lin.
+I'm able to break into xmon, cpu is in cpu_idle, maybe its spinning
+somewhere.

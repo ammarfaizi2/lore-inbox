@@ -1,34 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135732AbRAWCvu>; Mon, 22 Jan 2001 21:51:50 -0500
+	id <S136023AbRAWDDZ>; Mon, 22 Jan 2001 22:03:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135993AbRAWCvk>; Mon, 22 Jan 2001 21:51:40 -0500
-Received: from mail.netledger.com ([63.209.11.130]:22802 "EHLO
-	mx0.netledger.com") by vger.kernel.org with ESMTP
-	id <S135732AbRAWCva>; Mon, 22 Jan 2001 21:51:30 -0500
-Message-ID: <E2691F344F7FDF439D5B96474F5FBC3021C659@corpmail.corp.netledger.com>
-From: "Daniels, Andrew" <Andrew@netledger.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: 2.2.18 / Oracle 8.1.6 or 8.1.7 any known problems?
-Date: Mon, 22 Jan 2001 18:50:09 -0800
+	id <S135997AbRAWDDR>; Mon, 22 Jan 2001 22:03:17 -0500
+Received: from Huntington-Beach.Blue-Labs.org ([208.179.0.198]:48439 "EHLO
+	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
+	id <S135939AbRAWDDB>; Mon, 22 Jan 2001 22:03:01 -0500
+Message-ID: <3A6CF442.86DE8496@linux.com>
+Date: Tue, 23 Jan 2001 03:02:27 +0000
+From: David Ford <david@linux.com>
+Organization: Blue Labs Software
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Shawn Starr <Shawn.Starr@Home.net>
+CC: Jorge Nerin <comandante@zaralinux.com>, linux-kernel@vger.kernel.org,
+        linux-smp@vger.kernel.org
+Subject: Re: kernel BUG at slab.c:1542!(2.4.1-pre9)
+In-Reply-To: <3A6C5058.C5AA7681@zaralinux.com> <3A6CB620.469A15A9@Home.net>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guys,
-Quick question.. I've been following the list and I haven't seen anything
-with regards to problems with 2.2.18 running Oracle 8.1.6 or more
-importantly 8.1.7 anyone care to comment to me or to the list?
+If it makes the kernel do Bad Things, the kernel needs to be fixed.
 
-Thanks Much,
+-d
 
-Andrew
+Shawn Starr wrote:
 
----
-Dir of Security, Chief Architect                   NetLedger, Inc.
+> This is not a kernel bug, This is a bug in the XFree86 TrueType rendering
+> extention. This has been discussed on the Xpert XFree86 mailing list. There
+> is a fix in the works (depends on the TrueType fonts your using).
+>
+> Unless otherwise, Im using 2.4.1-pre9 with no such faults (XFree86 CVS
+> X11R6.5.1 merge sources) not 4.0.2 stable.
+
+--
+  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
+  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

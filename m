@@ -1,83 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261578AbSJ2EuP>; Mon, 28 Oct 2002 23:50:15 -0500
+	id <S261557AbSJ2FDo>; Tue, 29 Oct 2002 00:03:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261583AbSJ2EuP>; Mon, 28 Oct 2002 23:50:15 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:49310 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S261578AbSJ2EuO>; Mon, 28 Oct 2002 23:50:14 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 28 Oct 2002 21:06:00 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       <lse-tech@lists.sourceforge.net>
-Subject: Re: [PATCH] epoll more scalable than poll
-In-Reply-To: <20021029015139.GB18727@bjl1.asuk.net>
-Message-ID: <Pine.LNX.4.44.0210282042170.1002-100000@blue1.dev.mcafeelabs.com>
+	id <S261567AbSJ2FDo>; Tue, 29 Oct 2002 00:03:44 -0500
+Received: from packet.digeo.com ([12.110.80.53]:50575 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261557AbSJ2FDn>;
+	Tue, 29 Oct 2002 00:03:43 -0500
+Message-ID: <3DBE1824.B3D84E9F@digeo.com>
+Date: Mon, 28 Oct 2002 21:09:56 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hanna Linder <hannal@us.ibm.com>
+CC: torvalds@transmeta.com, Davide Libenzi <davidel@xmailserver.org>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       lse-tech@lists.sourceforge.net, ahu@ds9a.nl
+Subject: Re: [PATCH] Updated sys_epoll now with man pages
+References: <Pine.LNX.4.44.0210281844040.966-100000@blue1.dev.mcafeelabs.com> <144220000.1035864069@w-hlinder>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 29 Oct 2002 05:09:57.0385 (UTC) FILETIME=[6CA2FF90:01C27F09]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Oct 2002, Jamie Lokier wrote:
+Hanna Linder wrote:
+> 
+>    sys_epoll-2.5.44-last.diff
 
-> Davide Libenzi wrote:
-> Oh I agree this is an acceptable limitation.  Just wondering whether I
-> can safely depend on an fd being a socket/pipe being sufficient?
-> I.e. does it work on a non-IP socket, a packet socket, an IPX socket
-> etc?
+Folks,
 
-Yes, by plugging the sk_wake_async() that is called from std ->data_ready
-and ->write_space of generic socket support, all sockets types are
-supported. Well, I should say "should" instead of "are" because I never
-tested it with sockets different from TCP/IP :)
+when I took a 15-minute look at this code last week I found several
+bugs, some of which were grave.  It's a terrible thing to say, but
+a sensible person would expect that a closer inspection would turn
+up more problems.
 
+Now, adding bugs to existing code is fine and traditional - people
+find them quickly and they get fixed up.
 
-> It would be good if epoll would at least refuse to register fds that
-> it can't handle, returning EINVAL for them.  If it's as simple as
-> socket+pipe, that's a trivial test in ep_insert.
+But for *new* code, problems will take months to discover.  The only
+practical way to get this code vetted for inclusion is a close review.
 
-This can be certainly implemented if many of you feel that it could be
-usefull. The clean way to understand if a file* is of a given type would
-be to make the "struct file_operations" of the compatible files ( sockets
-and pipes ) to be non-static and to use something like :
+And that is a sizeable task.  The core implementation file is
+1,600 lines.  And I wonder how many people have counted the
+number of comments in there?
 
-if (f->f_op == ...)
+Well, I'll make it easy: zero.  Nil.  Nada.
 
-to test the target file type. I'm already doing this to verify the epoll
-file descriptor coherence.
+(Well, OK, a copyright header, and something which got cut-n-pasted
+from inode.c)
 
-
-
-> I've just read the /dev/epoll patch.  I think it makes sense, in the
-> long run, to share infrastructure with that other event notification
-> subsystem - sigio.  The two should really be interchangable interfaces
-> to the same underlying event notification system - not one interface
-> handling some fds and the other handling different fds.
-
-IMHO sys_epoll is going to be a replacement for rt-signals, because it
-scales better, it collapses events and does not have the overflowing queue
-problem.
+In my wildly unconventional opinion this alone makes epoll just a hack,
+of insufficient quality for inclusion in Linux.  We *have* to stop doing
+this to ourselves!
 
 
+epoll seems to be a good and desirable thing.  To move forward I
+believe we need to get this code reviewed, and documented.
 
-> (Ideally, though, with the new waitqueue wakeup callback functions
-> that were needed for aio the old fd poll mechanism can be made to
-> generate events - which epoll and sigio and aio and poll() could all
-> use - full circle back to a beautiful and harmonious unix world once
-> more.)
-
-The sys_epoll interface was coded to use the existing infrastructure w/out
-adding any legacy code added to suite the implementation. Basically,
-besides the few lines added to fs/pipe.c to support pipes ( rt-signal did
-not support them ), the hook lays inside sk_wake_async().
-
-
-
-- Davide
-
-
-
-
+I can do that if you like; it will take me several weeks to get onto
+it.  But until that is completed I would oppose inclusion of this
+code.

@@ -1,118 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbUKDV4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbUKDWBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbUKDV4s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 16:56:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbUKDV4J
+	id S262469AbUKDWBN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 17:01:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbUKDWAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 16:56:09 -0500
-Received: from [62.206.217.67] ([62.206.217.67]:55681 "EHLO kaber.coreworks.de")
-	by vger.kernel.org with ESMTP id S262448AbUKDVx5 (ORCPT
+	Thu, 4 Nov 2004 17:00:18 -0500
+Received: from fw.osdl.org ([65.172.181.6]:1983 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262451AbUKDV4E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 16:53:57 -0500
-Message-ID: <418AA4C7.2030909@trash.net>
-Date: Thu, 04 Nov 2004 22:53:11 +0100
-From: Patrick McHardy <kaber@trash.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041008 Debian/1.7.3-5
-X-Accept-Language: en
+	Thu, 4 Nov 2004 16:56:04 -0500
+Date: Thu, 4 Nov 2004 13:55:43 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adam Heath <doogie@debian.org>
+cc: Chris Wedgwood <cw@f00f.org>, Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+In-Reply-To: <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+Message-ID: <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+References: <41894779.10706@techsource.com> <20041103211353.GA24084@infradead.org>
+ <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
 MIME-Version: 1.0
-To: "David S. Miller" <davem@davemloft.net>
-CC: Herbert Xu <herbert@gondor.apana.org.au>, linux-net@vger.kernel.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: [BK PATCH] Fix ip_conntrack_amanda data corruption bug that breaks
- amanda dumps
-References: <418A7B0B.7040803@trash.net>	<E1CPoUT-0000sk-00@gondolin.me.apana.org.au> <20041104130028.099fc130.davem@davemloft.net>
-In-Reply-To: <20041104130028.099fc130.davem@davemloft.net>
-Content-Type: multipart/mixed;
- boundary="------------040605020504000201090706"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040605020504000201090706
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-David S. Miller wrote:
-
->You're right... the bug was introduced by my skb_header_pointer() changes.
->Look at this:
->
->	amp = skb_header_pointer(skb, dataoff,
->				 skb->len - dataoff, amanda_buffer);
->	BUG_ON(amp == NULL);
->	data = amp;
->	data_limit = amp + skb->len - dataoff;
->	*data_limit = '\0';
->
->It should just use the amanda_buffer always.
->
-Thanks Dave and Herbert, here is the patch in case you haven't fixed it
-already.
-
-Regards
-Patrick
 
 
---------------040605020504000201090706
-Content-Type: text/plain;
- name="x"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="x"
+On Thu, 4 Nov 2004, Adam Heath wrote:
+> >
+> > First off, for some people that is literally where _most_ of the CPU
+> > cycles go.
+> 
+> So find a fast machine.  As I have already said, you don't need to compile a
+> kernel for a slow machine/arch *on* a slow machine/arch.
 
-# This is a BitKeeper generated diff -Nru style patch.
-#
-# ChangeSet
-#   2004/11/04 22:50:11+01:00 kaber@coreworks.de 
-#   [NETFILTER]: Don't use skb_header_pointer in amanda conntrack helper
-#   
-#   Fixes broken packets, noticed by Matthias Andree <matthias.andree@gmx.de>
-#   
-#   Signed-off-by: Patrick McHardy <kaber@trash.net>
-# 
-# net/ipv4/netfilter/ip_conntrack_amanda.c
-#   2004/11/04 22:50:04+01:00 kaber@coreworks.de +5 -7
-#   [NETFILTER]: Don't use skb_header_pointer in amanda conntrack helper
-#   
-#   Fixes broken packets, noticed by Matthias Andree <matthias.andree@gmx.de>
-#   
-#   Signed-off-by: Patrick McHardy <kaber@trash.net>
-# 
-diff -Nru a/net/ipv4/netfilter/ip_conntrack_amanda.c b/net/ipv4/netfilter/ip_conntrack_amanda.c
---- a/net/ipv4/netfilter/ip_conntrack_amanda.c	2004-11-04 22:50:37 +01:00
-+++ b/net/ipv4/netfilter/ip_conntrack_amanda.c	2004-11-04 22:50:37 +01:00
-@@ -49,7 +49,7 @@
- {
- 	struct ip_conntrack_expect *exp;
- 	struct ip_ct_amanda_expect *exp_amanda_info;
--	char *amp, *data, *data_limit, *tmp;
-+	char *data, *data_limit, *tmp;
- 	unsigned int dataoff, i;
- 	u_int16_t port, len;
- 
-@@ -70,11 +70,9 @@
- 	}
- 
- 	LOCK_BH(&amanda_buffer_lock);
--	amp = skb_header_pointer(skb, dataoff,
--				 skb->len - dataoff, amanda_buffer);
--	BUG_ON(amp == NULL);
--	data = amp;
--	data_limit = amp + skb->len - dataoff;
-+	skb_copy_bits(skb, dataoff, amanda_buffer, skb->len - dataoff);
-+	data = amanda_buffer;
-+	data_limit = amanda_buffer + skb->len - dataoff;
- 	*data_limit = '\0';
- 
- 	/* Search for the CONNECT string */
-@@ -110,7 +108,7 @@
- 		exp->mask.dst.u.tcp.port = 0xFFFF;
- 
- 		exp_amanda_info = &exp->help.exp_amanda_info;
--		exp_amanda_info->offset = tmp - amp;
-+		exp_amanda_info->offset = tmp - amanda_buffer;
- 		exp_amanda_info->port   = port;
- 		exp_amanda_info->len    = len;
- 
+I _have_ a fast machine. Others don't. And quite frankly, even I tend to 
+prioritize things like "nice and quiet" over absolute speed.
 
---------------040605020504000201090706--
+> I don't doubt these are issues.  That's not what I am discussing.
+
+Sure it is. You're complaining that developers use old versions of gcc. 
+They do so for a reason. Old versions of gcc are sometimes better. They 
+are better in many ways.
+
+Your "use new versions of gcc even if it is slower" argument doesn't make 
+any _sense_. If the new versions aren't any better, why would you want to 
+use them?
+
+		Linus

@@ -1,89 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbTEKOfc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 May 2003 10:35:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbTEKOfc
+	id S261566AbTEKOe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 May 2003 10:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbTEKOe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 May 2003 10:35:32 -0400
-Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:46295 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id S261577AbTEKOf2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 May 2003 10:35:28 -0400
-Date: Sun, 11 May 2003 16:48:09 +0200
-From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PROBLEM: isapnp and 2.5.69
-Message-Id: <20030511164809.525df433.us15@os.inf.tu-dresden.de>
-Organization: Fiasco Core Team
-X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
-X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
-X-Fiasco-Rulez: Yes
-X-Mailer: X-Mailer 5.0 Gold
-X-Outlook: <html><form><input type crash></form></html>
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.mQtC6P1_yMdmDp"
+	Sun, 11 May 2003 10:34:58 -0400
+Received: from dclient217-162-108-200.hispeed.ch ([217.162.108.200]:50184 "HELO
+	ritz.dnsalias.org") by vger.kernel.org with SMTP id S261566AbTEKOe5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 May 2003 10:34:57 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@diego.com>, Jeff Garzik <jgarzik@pobox.com>
+Subject: [bug 2.5.69] xirc2ps_cs, irq 3: nobody cared, shutdown hangs
+Date: Sun, 11 May 2003 16:47:31 +0200
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200305111647.32113.daniel.ritz@gmx.ch>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.mQtC6P1_yMdmDp
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+hi
 
+i see that one on shutdown with a xircom ce3 10/100 16bit pcmcia network card,
+driver xirc2ps_cs. the netdevice also never gets free, so the shutdown never
+finishs. 2.5.68 also doesn't work, 2.5.67 does work.
 
-Hello,
+rgds
+-daniel
 
-Trying to run 2.5.69 on an old P133 with ISA Soundblaster 32 AWE PnP I hit
-the following kernel bug.
-
-Regards,
--Udo.
-
-Linux version 2.5.69 (root@Sorisor) (gcc version 3.2.2) #1 Sat May 10 16:45:35 CEST 2003
-[...]
-Limiting direct PCI/PCI transfers.
-Activating ISA DMA hang workarounds.
-isapnp: Scanning for PnP cards...
-pnp: SB audio device quirk - increasing port range
-irq 5: nobody cared!
+irq 3: nobody cared!
 Call Trace:
- [<c010a618>] handle_IRQ_event+0x78/0xe0
- [<c010a833>] do_IRQ+0xa3/0x140
- [<c0109158>] common_interrupt+0x18/0x20
- [<c010ae2d>] setup_irq+0x9d/0x100
- [<c02074b0>] pnp_test_handler+0x0/0x10
- [<c010a947>] request_irq+0x77/0xb0
- [<c020758b>] pnp_check_irq+0xcb/0x120
- [<c02074b0>] pnp_test_handler+0x0/0x10
- [<c0207d12>] pnp_next_irq+0xa2/0xf0
- [<c02081f9>] pnp_next_request+0x179/0x2a0
- [<c020838f>] pnp_next_config+0x6f/0xc0
- [<c0208460>] pnp_advanced_config+0x80/0x130
- [<c02087c6>] pnp_auto_config_dev+0x36/0x40
- [<c0206037>] __pnp_add_device+0x97/0xc0
- [<c0206404>] pnp_add_card+0xf4/0x150
- [<c03e72a1>] isapnp_build_device_list+0x161/0x190
- [<c03e73e9>] isapnp_init+0x119/0x280
- [<c03da6ab>] do_initcalls+0x2b/0xa0
- [<c010509f>] init+0x2f/0x190
- [<c0105070>] init+0x0/0x190
- [<c0107009>] kernel_thread_helper+0x5/0xc
+ [<c010d5ff>] handle_IRQ_event+0x93/0x104
+ [<c010d607>] handle_IRQ_event+0x9b/0x104
+ [<c010dac1>] do_IRQ+0x181/0x2cc
+ [<d0839b80>] +0x0/0xa80 [yenta_socket]
+ [<c010bfe0>] common_interrupt+0x18/0x20
+ [<d0839b80>] +0x0/0xa80 [yenta_socket]
+ [<d0836938>] yenta_set_socket+0x144/0x250 [yenta_socket]
+ [<d083847e>] +0x55e/0x87e [yenta_socket]
+ [<d0836144>] pci_set_socket+0x28/0x34 [yenta_socket]
+ [<d0839b80>] +0x0/0xa80 [yenta_socket]
+ [<d0888192>] set_socket+0x16/0x1c [pcmcia_core]
+ [<d0889d0b>] pcmcia_release_configuration+0xa7/0x110 [pcmcia_core]
+ [<d088b018>] CardServices+0x1b8/0x340 [pcmcia_core]
+ [<d084bec0>] xirc2ps_cs_driver+0x0/0xa0 [xirc2ps_cs]
+ [<d0849268>] xirc2ps_release+0x68/0x94 [xirc2ps_cs]
+ [<d084bf60>] +0x0/0xe0 [xirc2ps_cs]
+ [<d084a621>] +0x21/0x60 [xirc2ps_cs]
+ [<c013cdd5>] sys_delete_module+0x1b5/0x1d8
+ [<c0154e5c>] sys_munmap+0x44/0x64
+ [<c010b673>] syscall_call+0x7/0xb
 
 handlers:
-[<c02074b0>] (pnp_test_handler+0x0/0x10)
-pnp: AWE32 quirk - adding two ports
-isapnp: Card 'Creative SB32 PnP'
-isapnp: 1 Plug & Play card detected total
+[<d0849438>] (xirc2ps_interrupt+0x0/0x59c [xirc2ps_cs])
+unregister_netdevice: waiting for eth0 to become free. Usage count = 2
+unregister_netdevice: waiting for eth0 to become free. Usage count = 2
+unregister_netdevice: waiting for eth0 to become free. Usage count = 2
+unregister_netdevice: waiting for eth0 to become free. Usage count = 2
 
---=.mQtC6P1_yMdmDp
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.3.1 (GNU/Linux)
-
-iD8DBQE+vmKpnhRzXSM7nSkRAswoAJwNsE5blKv5Dd5WNEQcruNB4dab/ACfZq/y
-JFBN9ZIMueMpddclOMOLfF8=
-=E3th
------END PGP SIGNATURE-----
-
---=.mQtC6P1_yMdmDp--

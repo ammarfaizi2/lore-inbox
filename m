@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269674AbRHCXHe>; Fri, 3 Aug 2001 19:07:34 -0400
+	id <S269676AbRHCXIp>; Fri, 3 Aug 2001 19:08:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269669AbRHCXHY>; Fri, 3 Aug 2001 19:07:24 -0400
-Received: from mta6.srv.hcvlny.cv.net ([167.206.5.17]:6793 "EHLO
-	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S269676AbRHCXHJ>; Fri, 3 Aug 2001 19:07:09 -0400
-Date: Fri, 03 Aug 2001 18:46:28 -0400
-From: Alan Shutko <ats@acm.org>
-Subject: Re: [OT] DMCA loop hole
-In-Reply-To: <Pine.LNX.4.21.0108031830170.2386-100000@ns>
-To: nick@snowman.net
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, jap3003+response@ksu.edu,
-        "Paul G. Allen" <pgallen@randomlogic.com>,
-        linux-kernel@vger.kernel.org
-Message-id: <87zo9glq2j.fsf@wesley.springies.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) Emacs/21.0.104
-In-Reply-To: <Pine.LNX.4.21.0108031830170.2386-100000@ns>
+	id <S269675AbRHCXIe>; Fri, 3 Aug 2001 19:08:34 -0400
+Received: from weta.f00f.org ([203.167.249.89]:4496 "HELO weta.f00f.org")
+	by vger.kernel.org with SMTP id <S269669AbRHCXIQ>;
+	Fri, 3 Aug 2001 19:08:16 -0400
+Date: Sat, 4 Aug 2001 11:09:05 +1200
+From: Chris Wedgwood <cw@f00f.org>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] 2.4.8-pre3 fsync entire path (+reiserfs fsync semantic change patch)
+Message-ID: <20010804110905.B17925@weta.f00f.org>
+In-Reply-To: <20010804100143.A17774@weta.f00f.org> <Pine.GSO.4.21.0108031840090.5264-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0108031840090.5264-100000@weyl.math.psu.edu>
+User-Agent: Mutt/1.3.20i
+X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<nick@snowman.net> writes:
+On Fri, Aug 03, 2001 at 06:45:47PM -0400, Alexander Viro wrote:
 
-> Yeah it is.  EULA has become totally valid and should be upheld by any
-> courts who come across one.  (In the US at least.  I don't know the
-> situation outside the US).  One of the recent bills/acts/whatever made
-> this change.
+    nfs_fsync().
 
-You're thinking of UCITA, which is adopted on a state-by-state basis,
-and has not been adopted by all states.  AIUI, at least.
+Ah, well... then I'm not sure how the loop should look.  I use
+f->fsync(file, dentry, ...) where file references the original file
+not any of the parent path components.
 
--- 
-Alan Shutko <ats@acm.org> - In a variety of flavors!
-Microwaves frizz your heir.
+Obviously, for ext2 and reiserfs (which is what I have here) this
+won't matter --- will it for NFS?  If so, so I need to open/etc. for
+each parent component to get a valid struct file*?
+
+Please bear with me, I'm still learning :)
+
+
+
+  --cw

@@ -1,60 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317735AbSGPClp>; Mon, 15 Jul 2002 22:41:45 -0400
+	id <S317746AbSGPDNs>; Mon, 15 Jul 2002 23:13:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317743AbSGPClo>; Mon, 15 Jul 2002 22:41:44 -0400
-Received: from smtp-outbound.cwctv.net ([213.104.18.10]:21574 "EHLO
-	smtp.cwctv.net") by vger.kernel.org with ESMTP id <S317735AbSGPClo>;
-	Mon, 15 Jul 2002 22:41:44 -0400
-From: <Hell.Surfers@cwctv.net>
-To: hahn@physics.mcmaster.ca, linux-kernel@vger.kernel.org
-Date: Tue, 16 Jul 2002 03:44:16 +0100
-Subject: RE:Re: Re: how to improve the throughput of linux network
+	id <S317747AbSGPDNq>; Mon, 15 Jul 2002 23:13:46 -0400
+Received: from msb.ruf.uni-freiburg.de ([132.230.2.2]:63207 "EHLO
+	uni-freiburg.de") by vger.kernel.org with ESMTP id <S317746AbSGPDNm>;
+	Mon, 15 Jul 2002 23:13:42 -0400
+From: Richard@vger.kernel.org, Sembera@vger.kernel.org
+Subject: 2.4.x kernels cause random launch of xscreensaver?
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro Web Mailer v.3.5.9
+Date: Tue, 16 Jul 2002 05:16:37 +0200
+Message-ID: <web-8496430@uni-freiburg.de>
 MIME-Version: 1.0
-X-Mailer: Liberate TVMail 2.6
-Content-Type: multipart/mixed;
- boundary="1026787456423"
-Message-ID: <0fa130844021072DTVMAIL3@smtp.cwctv.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
---1026787456423
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+I asked around in the Slackware NG about this problem last
+week and got 
+redirected here. I hope someone can help. I'm not
+subscribed to the mailing 
+list so please cc me copies of your replies.
 
-well only if it was used little amounts, like once every hour, it would dynamically unload in between, and dont modules, recompile on each use? I was told they were, although im more of a sound driver person.
+On Slackware 8.0, when I try to install the 2.4.5 kernel, I
+get a problem 
+with X, namely, xscreensaver starts up at random intervals.
+Sometimes the 
+problem shows up immedately, sometimes it takes longer (the
+longest period so 
+far has been 2 days). While I'm working, xscreensaver will
+suddenly go off, 
+complain about not being able to grab the mose pointer, and
+launch a random 
+screen saver. After typing in my password to unlock the
+screen, xscreensaver 
+launches again after an interval of about 2-10 seconds.
 
-- "Yes. Yes. OKAY.", Installing Microsoft software has always felt like an argument with your Mum (alledgedly).
+If I disable xscreensaver in my .xinitrc file (or try fvwm2
+instead of my 
+standard xfce), then instead of xscreensaver I just get a
+blank screen, as if 
+there were no video signal. Moving the mouse gets me a
+normal display, but at 
+2-5 second intervals the screen will simply black out as
+described.
 
-On Mon, 15 Jul 2002 22:36:52 -0400 (EDT) Mark Hahn <hahn@physics.mcmaster.ca> wrote:
+I've tried installing the 2.4.18 kernel but got the same
+problem. The 2.2.19 
+kernel works just fine, however. I've also experienced the
+same problem with 
+SuSE 7.1 and a 2.4.0 kernel.
 
---1026787456423
-Content-Type: message/rfc822
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+It was suggested in the Slackware NG that it might be a
+clock problem. I do 
+have the "clock timer configuration lost--probably a
+VIA686" message coming 
+up intermittently at boot time and during shutdown,
+although I don't have a 
+VIA chipset (in fact, this is why I switched to Slack,
+which by default 
+doesn't log or display kernel messages).
 
-Received: from coffee.psychology.mcmaster.ca ([130.113.218.59]) by smtp.cwctv.net  with Microsoft SMTPSVC(5.5.1877.447.44);
-	 Tue, 16 Jul 2002 03:30:22 +0100
-Received: from localhost (hahn@localhost)
-	by coffee.psychology.mcmaster.ca (8.11.6/8.11.6) with ESMTP id g6G2aqS25896
-	for <Hell.Surfers@cwctv.net>; Mon, 15 Jul 2002 22:36:52 -0400
-X-Authentication-Warning: coffee.psychology.mcmaster.ca: hahn owned process doing -bs
-Date: Mon, 15 Jul 2002 22:36:52 -0400 (EDT)
-From: Mark Hahn <hahn@physics.mcmaster.ca>
-X-X-Sender: <hahn@coffee.psychology.mcmaster.ca>
-To: <Hell.Surfers@cwctv.net>
-Subject: RE:Re: Re: how to improve the throughput of linux network
-In-Reply-To: <0f9412748011072DTVMAIL3@smtp.cwctv.net>
-Message-ID: <Pine.LNX.4.33.0207152236400.25831-100000@coffee.psychology.mcmaster.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-Path: hahn@physics.mcmaster.ca
+I hope someone can offer suggestions or advice. I'm
+including as much 
+trechnical information as seems relevant, though I'm just a
+hobbyist, so 
+please ask if something's not quite clear.
 
-> Using it as a module would only slow you down if netfilter is required, because itwould load and unload, contstantly, causing you to remember what the 486 was like.
+Thanks in advance,
 
-why would it get unloaded repeatedly?
+Richard Sembera.
 
---1026787456423--
+Technical Info:
 
+Monitor: old 14" el cheapo non-PnP
+
+Graphics Card: (SuperProbe output):
+        First video: Super-VGA
+        Chipset: S3 ViRGE/DX (PCI Probed)
+        Memory:  4096 Kbytes
+        RAMDAC:  Generic 8-bit pseudo-color DAC
+                 (with 6-bit wide lookup tables (or in
+6-bit mode))
+
+Mouse: standard serial mouse on ttyS0
+
+CPU: Intel Pentium MMX 166 MHz
+
+Motherboard: AOpenAP57
+Chipset: SiS 5571 PCIset
+(I recall that there is an issue with these boards, they
+were supposed to be 
+USB-enabled, but the company goofed something up and they
+were sold as 
+non-USB boards. See below:)
+
+lspci -v output:
+
+00:00.0 Host bridge: Silicon Integrated Systems [SiS] 5571
+        Flags: bus master, medium devsel, latency 255
+
+00:01.0 ISA bridge: Silicon Integrated Systems [SiS]
+85C503/5513 (rev 01)
+        Flags: bus master, medium devsel, latency 0
+
+00:01.1 IDE interface: Silicon Integrated Systems [SiS]
+5513 [IDE] (rev c0) 
+(prog-if 8a [Master SecP PriP])
+        Subsystem: Unknown device 0058:0000
+        Flags: bus master, fast devsel, latency 64, IRQ 14
+        I/O ports at 01f0
+        I/O ports at 03f4
+        I/O ports at 0170
+        I/O ports at 0374
+        I/O ports at 4000
+
+00:01.2 USB Controller: Silicon Integrated Systems [SiS]
+7001 (rev b0) 
+(prog-if 10 [OHCI])
+        Flags: bus master, medium devsel, latency 64, IRQ
+10
+        Memory at e4000000 (32-bit, non-prefetchable)
+        I/O ports at 6000
+
+00:0c.0 VGA compatible controller: S3 Inc. ViRGE/DX or /GX
+(rev 01) (prog-if 
+00 [VGA])
+        Subsystem: S3 Inc. ViRGE/DX
+        Flags: bus master, medium devsel, latency 64, IRQ
+11
+        Memory at e0000000 (32-bit, non-prefetchable)
+
+-- 
+Richard Sembera
+es034@ncf.carleton.ca
+http://ncf.carleton.ca/~es034
 

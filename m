@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbUD1UxR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUD1T5Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbUD1UxR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Apr 2004 16:53:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261530AbUD1UCs
+	id S261932AbUD1T5Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Apr 2004 15:57:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbUD1T47
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Apr 2004 16:02:48 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:54959 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261443AbUD1TRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Apr 2004 15:17:12 -0400
-Date: Tue, 27 Apr 2004 22:34:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Theodore Ts'o" <tytso@mit.edu>,
-       Miquel van Smoorenburg <miquels@cistron.nl>,
+	Wed, 28 Apr 2004 15:56:59 -0400
+Received: from [66.62.77.7] ([66.62.77.7]:63196 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S265019AbUD1Rom (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Apr 2004 13:44:42 -0400
+Subject: Re: 2.6.5, IPSec, NAT funnies
+From: Dax Kelson <dax@gurulabs.com>
+To: Aidas Kasparas <a.kasparas@gmc.lt>
+Cc: linux-net@vger.kernel.org, netdev@oss.sgi.com,
        linux-kernel@vger.kernel.org
-Subject: Re: File system compression, not at the block layer
-Message-ID: <20040427203426.GB6116@openzaurus.ucw.cz>
-References: <408951CE.3080908@techsource.com> <c6bjrd_pms_1@news.cistron.nl> <20040423174146.GB5977@thunk.org>
+In-Reply-To: <408F5555.3080303@gmc.lt>
+References: <1083133394.2817.40.camel@mentor.gurulabs.com>
+	 <408F5555.3080303@gmc.lt>
+Content-Type: text/plain
+Message-Id: <1083174347.2803.9.camel@mentor.gurulabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040423174146.GB5977@thunk.org>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-1) 
+Date: Wed, 28 Apr 2004 11:45:47 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Wed, 2004-04-28 at 00:55, Aidas Kasparas wrote:
+> Kernel bug. IPSec changes ip headers, but fails to say about this to 
+> conntrack. More information 
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=215980
+> Patch at 
+> http://bugs.debian.org/cgi-bin/bugreport.cgi/ipsec_conntrack.diff?bug=215980&msg=3&att=1
 
-> > >Well, why not do the compression at the highest layer?
-> > >[...] doing it transparently and for all files.
-> > 
-> > http://e2compr.sourceforge.net/
-> 
-> It's been done (see the above URL), but given how cheap disk space has
-> gotten, and how the speed of CPU has gotten faster much more quickly
-> than disk access has, many/most people have not be interested in
-> trading off performance for space.  As a result, there are race
+A 7 month old kernel bug with a patch. Is there any reason why this
+hasn't been rolled into the Linus tree yet? Is the something
+objectionable with the patch?
 
-Is CPU_speed / disk_throughput increasing? If so, compression
-might help once again. CPU_speed / net_throughput probably is
-increasing, so compressedNFS would probably make sense.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Dax Kelson
+Guru Labs
 

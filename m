@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130267AbQLKXE0>; Mon, 11 Dec 2000 18:04:26 -0500
+	id <S130067AbQLKXHq>; Mon, 11 Dec 2000 18:07:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130686AbQLKXEQ>; Mon, 11 Dec 2000 18:04:16 -0500
-Received: from catbert.rellim.com ([204.17.205.1]:17425 "EHLO
-	catbert.rellim.com") by vger.kernel.org with ESMTP
-	id <S130267AbQLKXEJ>; Mon, 11 Dec 2000 18:04:09 -0500
-Date: Mon, 11 Dec 2000 14:33:42 -0800 (PST)
-From: "Gary E. Miller" <gem@rellim.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: SMBFS does not compile on test12-pre8
-Message-ID: <Pine.LNX.4.30.0012111352360.28287-100000@catbert.rellim.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130436AbQLKXHg>; Mon, 11 Dec 2000 18:07:36 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:19584 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S130067AbQLKXHa>;
+	Mon, 11 Dec 2000 18:07:30 -0500
+Date: Mon, 11 Dec 2000 14:21:13 -0800
+Message-Id: <200012112221.OAA01081@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: groudier@club-internet.fr
+CC: mj@suse.cz, lk@tantalophile.demon.co.uk, davej@suse.de,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10012112207400.2144-100000@linux.local> (message
+	from Gérard Roudier on Mon, 11 Dec 2000 22:30:59 +0100 (CET))
+Subject: Re: pdev_enable_device no longer used ?
+In-Reply-To: <Pine.LNX.4.10.10012112207400.2144-100000@linux.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yo All!
+   Date: Mon, 11 Dec 2000 22:30:59 +0100 (CET)
+   From: Gérard Roudier <groudier@club-internet.fr>
 
-I just tried to compile SMBFS in test12-pre8.  Here is the error
-message I get:
+   On Mon, 11 Dec 2000, David S. Miller wrote:
 
-make[3]: Entering directory `/u3/local/src/linux-2.4.0-test12-pre8/fs/smbfs'
-gcc -D__KERNEL__ -I/usr/local/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2 -march=i686  -DSMBFS_PARANOIA  -c -o sock.o sock.c
-sock.c: In function `smb_data_ready':
-sock.c:166: structure has no member named `next'
-make[3]: *** [sock.o] Error 1
+   > Really, in 2.4.x sparc64 requires PCI config space hackery no longer.
 
-This has worked in the recent past.
+   Really?
 
-This is the failing line 166 in fs/smbfs/sock.c:
-	job->cb.next = NULL;
+   I was thinking about the pcivtophys() alias bus_dvma_to_mem() hackery used
+   to retrieve the actual BAR address from the so-called pcidev bar cookies.
 
-It looks like tq_struct has been changed so that the tq_struct->next
-member is now tq_struct->list.next.
+Really :-)  This conversation was about drivers making modifications
+to PCI config space areas which are being argued to be only modified
+by arch-specific PCI support layers.  That is the context in which
+I made my statements.
 
-So can we just delete line 166 in fs/smbfs/sock.c?
+Interpreting physical BAR values is another issue altogether.  Kernel
+wide interfaces for this may be easily added to include/asm/pci.h
+infrastructure, please just choose some sane name for it and I will
+compose a patch ok? :-)
 
-Or do we still need to initialize next by changing line 166 to:
-	 job->cb.list.next = NULL.
-
-Ideas?
-
-RGDS
-GARY
----------------------------------------------------------------------------
-Gary E. Miller Rellim 20340 Empire Ave, Suite E-3, Bend, OR 97701
-	gem@rellim.com  Tel:+1(541)382-8588 Fax: +1(541)382-8676
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

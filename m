@@ -1,85 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVAWNPr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVAWNZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVAWNPr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Jan 2005 08:15:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVAWNPr
+	id S261302AbVAWNZb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Jan 2005 08:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVAWNZb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Jan 2005 08:15:47 -0500
-Received: from [213.177.124.23] ([213.177.124.23]:33153 "EHLO sirius.home")
-	by vger.kernel.org with ESMTP id S261261AbVAWNPh (ORCPT
+	Sun, 23 Jan 2005 08:25:31 -0500
+Received: from fw.osdl.org ([65.172.181.6]:45287 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261302AbVAWNZ2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Jan 2005 08:15:37 -0500
-Date: Sun, 23 Jan 2005 16:15:12 +0300
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: ierdnah <ierdnah@go.ro>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: kernel oops!
-Message-Id: <20050123161512.149cc9de.vsu@altlinux.ru>
-In-Reply-To: <Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
-References: <1106437010.32072.0.camel@ierdnac>
-	<Pine.LNX.4.58.0501222223090.4191@ppc970.osdl.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i586-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Sun__23_Jan_2005_16_15_12_+0300_z+2ooFhywIi7OnNY"
+	Sun, 23 Jan 2005 08:25:28 -0500
+From: Andrew Tridgell <tridge@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16883.42253.759315.122821@samba.org>
+Date: Mon, 24 Jan 2005 00:22:21 +1100
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       Andreas Dilger <adilger@clusterfs.com>, Alex Tomas <alex@clusterfs.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ea-in-inode 0/5] Further fixes
+In-Reply-To: <1106351172.19651.102.camel@winden.suse.de>
+References: <20050120020124.110155000@suse.de>
+	<1106348336.1989.484.camel@sisko.sctweedie.blueyonder.co.uk>
+	<1106351172.19651.102.camel@winden.suse.de>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+Reply-To: tridge@osdl.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Sun__23_Jan_2005_16_15_12_+0300_z+2ooFhywIi7OnNY
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Andreas,
 
-On Sat, 22 Jan 2005 22:43:50 -0800 (PST) Linus Torvalds wrote:
+ > Tridge, can you beat the code some more?
+ > Andrew has the five fixes in 2.6.11-rc1-mm2.
 
-> Interesting. That last call trace entry is the call in 
-> pty_chars_in_buffer() to
-> 
->         /* The ldisc must report 0 if no characters available to be read */
->         count = to->ldisc.chars_in_buffer(to);
-> 
-> and it looks like it has jumped to address zero.
-> 
-> However, we _just_ compared the fn pointer to zero immediately before, and 
-> while there could certainly have been a race that cleared it in between 
-> the test and the call, normally we wouldn't even have re-loaded the value 
-> at all, but kept it in a register instead.
-> 
-> That said, it does act like a race. Somebody clearing the ldisc and racing 
-> with somebody using it?
-> 
-> Can you do a 
-> 
-> 	gdb vmlinux
-> 
-> 	disassemble pty_chars_in_buffer
-> 
-> to show what it looks like (whether it reloads the value, and what the 
-> registers are - it looks like either %eax or %edi is all zeroes, but I'd 
-> like to verify that it matches your code generation).
-> 
-> Alan? Any ideas? The tty_select() path seems to take a ldisc reference, 
-> but does that guarantee that the ldisc won't _change_?
+sorry for the delay. I've started to test 2.6.11-rc1-mm2 tonight. No
+problems so far.
 
-tty_poll() grabs ldisc reference for the tty it was called with;
-however, in this case pty_chars_in_buffer() accesses another ldisc
-(tty->link->ldisc) without grabbing a reference to it.  BTW, many other
-pty_* functions do the same thing.
-
-Is calling tty_ldisc_ref(tty->link) safe here?  There is a comment
-warning about possible deadlocks before pty_write().
-
---Signature=_Sun__23_Jan_2005_16_15_12_+0300_z+2ooFhywIi7OnNY
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFB86NjW82GfkQfsqIRAvFOAJ9n8rJcQqO4mT00smlY1YVBqZwKLACbBFgp
-azdI2PcoINxCJuRNjrQFTzM=
-=9YTN
------END PGP SIGNATURE-----
-
---Signature=_Sun__23_Jan_2005_16_15_12_+0300_z+2ooFhywIi7OnNY--
+Cheers, Tridge

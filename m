@@ -1,72 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbTLOUk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Dec 2003 15:40:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbTLOUjg
+	id S261563AbTLOUhL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Dec 2003 15:37:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbTLOUhK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Dec 2003 15:39:36 -0500
-Received: from kiuru.kpnet.fi ([193.184.122.21]:58753 "EHLO kiuru.kpnet.fi")
-	by vger.kernel.org with ESMTP id S262198AbTLOUjZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Dec 2003 15:39:25 -0500
-Subject: Re: Nvidia kernel module and kernel 2.6
-From: Markus =?ISO-8859-1?Q?H=E4stbacka?= <midian@ihme.org>
-To: Lukas Postupa <postupa@gmx.de>
-Cc: Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <1071519127.770.12.camel@linux>
-References: <1071519127.770.12.camel@linux>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-NReb+jx+1j4qQzKummHH"
-Message-Id: <1071520756.20738.5.camel@midux>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 15 Dec 2003 22:39:17 +0200
+	Mon, 15 Dec 2003 15:37:10 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6084 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262109AbTLOUhG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Dec 2003 15:37:06 -0500
+Message-ID: <3FDE1B65.3020900@pobox.com>
+Date: Mon, 15 Dec 2003 15:36:53 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+CC: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: PCI Express support for 2.4 kernel
+References: <3FDC9DC5.2070302@intel.com> <Pine.LNX.4.58.0312151023570.1488@home.osdl.org> <3FDE17B3.40009@intel.com>
+In-Reply-To: <3FDE17B3.40009@intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vladimir Kondratiev wrote:
+> Linus, FIXMAP helps, it is lighter then ioremap, but it still requires 
+> page table walk. In addition, since several operations should be done 
+> atomically, lock/unlock required as well. Can it be faster method, 
+> without page table walk for each transaction? To what extent should one 
+> concern about performance here?
+> 
+> As alternative between 1 page and 256M, I see also lazy allocation on 
+> per-bus basis: when bus is first accessed, ioremap 1Mb for it. On real 
+> system, it is no more then 3-4 buses. This way, we will end with several 
+> 1MB mappings. Finer granularity do not looks feasible, since bus 
+> scanning procedure tries to access all devices.
 
---=-NReb+jx+1j4qQzKummHH
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, 2003-12-15 at 22:12, Lukas Postupa wrote:
-> Hello,
->=20
-Hi!
-> i'm using linux 2.6.0-test11-bk11 on Intel architecture (Celeron
-> Coppermine) and nvidia kernel module 1.0-4620 for Nvidia GF FX 5200.
-> Mttr registers are enabled.
-> I applied appropriate patches from www.minion.de.
-> After loading and using nvidia kernel module, dmesg shows this output:
-> [...snip...]
-I get these messages all the time with nvidia module, you can disable
-these messages from the kernel configuration: "make menuconfig -> kernel
-hacking -> sleep-inside-spinlock checking"
->=20
-> This always is happening on loading this module.
-> I get same trouble with nvidia kernel module 1.0-4496.
-> I never had such problems with kernel 2.4 before.
->=20
-You pribably didn't have that option enabled in the 2.4 kernel.
-I don't know about the danger of this message, but it haven't caused me
-any problems
+Well, two things to consider:
+* probing is not a performance-intensive operation
+* even with a system loaded down with many PCI Express devices, I doubt 
+you will need more than 1-2MB mapped total, during runtime
 
-Regards,
-Markus
---=20
-"Software is like sex, it's better when it's free."
-Markus H=E4stbacka <midian at ihme dot org>
+So, one alternative could be to keep a cache of ioremap() regions -- 
+smaller than 1MB in my opinion -- and update that as needed.
 
---=-NReb+jx+1j4qQzKummHH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Anybody doing large numbers of PCI config register reads/writes in a hot 
+path should be shot (or the h/w designers, depending on situation), and 
+PCI Express doesn't change that ;-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+	Jeff
 
-iD8DBQA/3hv03+NhIWS1JHARAgfaAJ9BBGmx503ICxtyDZ2vVaSERP8+TgCgxyxL
-98TOulpjvaayaevhiMQUHyY=
-=peOd
------END PGP SIGNATURE-----
 
---=-NReb+jx+1j4qQzKummHH--
 

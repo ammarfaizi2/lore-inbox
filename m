@@ -1,63 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbUDNUXB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 14 Apr 2004 16:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUDNUWz
+	id S261678AbUDNUZd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 14 Apr 2004 16:25:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbUDNUXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 14 Apr 2004 16:22:55 -0400
-Received: from [63.107.13.101] ([63.107.13.101]:31152 "EHLO mail.metavize.com")
-	by vger.kernel.org with ESMTP id S261611AbUDNUVX (ORCPT
+	Wed, 14 Apr 2004 16:23:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28556 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261678AbUDNUWj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 14 Apr 2004 16:21:23 -0400
-Message-ID: <407D9D2F.3010901@metavize.com>
-Date: Wed, 14 Apr 2004 13:21:03 -0700
-From: Dirk Morris <dmorris@metavize.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Davide Libenzi <davidel@xmailserver.org>, Ben Mansell <ben@zeus.com>,
-       Steven Dake <sdake@mvista.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll reporting events when it hasn't been asked to
-References: <Pine.LNX.4.44.0404020717350.1828-100000@bigblue.dev.mdolabs.com> <407D7BFF.4010700@metavize.com> <20040414193947.GE12105@mail.shareable.org>
-In-Reply-To: <20040414193947.GE12105@mail.shareable.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 14 Apr 2004 16:22:39 -0400
+Date: Wed, 14 Apr 2004 13:22:18 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: linux-kernel@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Re: Compile problem with sparc64
+Message-Id: <20040414132218.56106471.davem@redhat.com>
+In-Reply-To: <1081973754.3372.5.camel@pegasus>
+References: <1081973754.3372.5.camel@pegasus>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier wrote:
 
->Dirk Morris wrote:
->  
->
->>I need them to be handled like normal events. (I can explain more off 
->>list if you'd like)
->>    
->>
->
->Did you read my explanation of how to do this using the present epoll
->behaviour using _fewer_ syscalls than you are asking for?
->  
->
-Ah yes, I just went back and read it.
- From what I understand you're proposing to remove the fd from the set 
-lazily instead of immediately.
-Which will save system calls in the cases were the HUP/ERR condition 
-does not occur during the 'disabled' time.
+We know, see other postings from today.
 
-In my case, which you may choose to disregard, this condition is not 
-irregular or in any way a special case.
-So the revision you have proposed is just an optimization.
-You could even use this same optimization with the disable feature 
-(disable it lazily) and get even better performance with the same number 
-of syscalls you proposed.
-
-I see no downside, except that it no longer conforms to the semantics of 
-poll and select.
-Whether or not its worth it to deviate from this behavior over such a 
-detail, I don't know. :)
-
-
-
+Just comment out the "-Werror" line in arch/sparc64/kernel/Makefile
+for a quick fix.

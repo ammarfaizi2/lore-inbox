@@ -1,44 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261987AbTCLWHw>; Wed, 12 Mar 2003 17:07:52 -0500
+	id <S261999AbTCLWDX>; Wed, 12 Mar 2003 17:03:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262000AbTCLWHw>; Wed, 12 Mar 2003 17:07:52 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:40197 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S261987AbTCLWHu>; Wed, 12 Mar 2003 17:07:50 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303122220.h2CMKShH001833@81-2-122-30.bradfords.org.uk>
-Subject: Re: bio too big device
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Wed, 12 Mar 2003 22:20:28 +0000 (GMT)
+	id <S262000AbTCLWDX>; Wed, 12 Mar 2003 17:03:23 -0500
+Received: from users.ccur.com ([208.248.32.211]:55303 "HELO rudolph.ccur.com")
+	by vger.kernel.org with SMTP id <S261999AbTCLWDV>;
+	Wed, 12 Mar 2003 17:03:21 -0500
+From: jak@rudolph.ccur.com (Joe Korty)
+Message-Id: <200303122213.WAA17415@rudolph.ccur.com>
+Subject: [PATCH] bug in 2.4 bh_kmap_irq() breaks IDE under preempt patch
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Wed, 12 Mar 2003 17:13:47 -0500 (EST)
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0303121111440.15738-100000@home.transmeta.com> from "Linus Torvalds" at Mar 12, 2003 11:14:52 AM
-X-Mailer: ELM [version 2.5 PL6]
+Reply-To: joe.korty@ccur.com (Joe Korty)
+X-Mailer: ELM [version 2.5 PL0b1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Couldn't we have a list of known good drives, though, and enable 256
-> > sectors as a special case?
-> 
-> My problem is that I just don't see the point. What's the difference 
-> between 256 and 254 sectors? 128kB vs 127kB? 
+Hi Alan, Everyone,
+The bh_map_irq/bh_unmap_irq functions are broken in 2.4.21-pre5.
+However no symptoms occur unless the preemption patch is applied.
 
-Ah, I thought there was a reason that it was a Good Thing to keep it
-as a power of 2, which would mean 64kB vs 128kB, but if not then I
-totally agree.
+The bug is that bh_map_irq *conditionally* calls kmap_atomic (which
+disables preemption as one of its functions), while bh_unmap_irq
+*unconditionally* calls kunmap_atomic (which enables it).  This
+imbalance results in a occasional off-by-one preempt_count, which in
+turn causes IDE PIO mode interrupt code (specifically, read_intr) to
+erronously invoke preempt_schedule while at interrupt level.
 
-> Also, looking closer, the current limit actually seems to be _controller_
-> dependent, not disk-dependent. I don't know how valid that is, but it
-> looks reasonable at least in theory - while the IDE controller is mostly a
-> passthrough thing, it does end up doing part of the work. So the picture
-> look smore complex than just another drive blacklist.
-> 
-> In short, the headaches just aren't worth the 127->128kB gain.
+The below patch compiles and boots ide=nodma on my preempt 2.4 kernel
+on the one motherboard that had the problem.  Before this patch, the
+kernel would not even boot for that motherboard.  I also applied and
+test booted a pure 2.4.21-pre5 kernel with this patch.
 
-I wasn't aware of the controller issue - with that thrown in to the
-mix, I see your point.
+The patch implements my preference for simplicity, so you may want to
+take some other approach if maximal performance is what you want.
 
-John.
+Joe
+
+
+
+
+--- include/linux/highmem.h.orig	2003-03-12 05:01:56.000000000 -0500
++++ include/linux/highmem.h	2003-03-12 16:07:04.000000000 -0500
+@@ -33,22 +33,10 @@
+ {
+ 	unsigned long addr;
+ 
+-	__save_flags(*flags);
+-
+-	/*
+-	 * could be low
+-	 */
+-	if (!PageHighMem(bh->b_page))
+-		return bh->b_data;
+-
+-	/*
+-	 * it's a highmem page
+-	 */
+-	__cli();
++	local_irq_save(*flags);
+ 	addr = (unsigned long) kmap_atomic(bh->b_page, KM_BH_IRQ);
+ 
+-	if (addr & ~PAGE_MASK)
+-		BUG();
++	BUG_ON (addr & ~PAGE_MASK);
+ 
+ 	return (char *) addr + bh_offset(bh);
+ }
+@@ -58,7 +46,7 @@
+ 	unsigned long ptr = (unsigned long) buffer & PAGE_MASK;
+ 
+ 	kunmap_atomic((void *) ptr, KM_BH_IRQ);
+-	__restore_flags(*flags);
++	local_irq_restore(*flags);
+ }
+ 
+ #else /* CONFIG_HIGHMEM */

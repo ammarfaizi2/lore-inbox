@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269100AbRHYULa>; Sat, 25 Aug 2001 16:11:30 -0400
+	id <S269437AbRHYUZO>; Sat, 25 Aug 2001 16:25:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269437AbRHYULV>; Sat, 25 Aug 2001 16:11:21 -0400
-Received: from mx3.port.ru ([194.67.57.13]:42758 "EHLO mx3.port.ru")
-	by vger.kernel.org with ESMTP id <S269100AbRHYULH>;
-	Sat, 25 Aug 2001 16:11:07 -0400
-From: "Samium Gromoff" <_deepfire@mail.ru>
-To: hahn@coffee.psychology.mcmaster.ca
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Howl of soul...
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: [195.34.27.212]
-Date: Sat, 25 Aug 2001 20:11:23 +0000 (GMT)
-Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E15ajm7-00033e-00@f9.mail.ru>
+	id <S269641AbRHYUZE>; Sat, 25 Aug 2001 16:25:04 -0400
+Received: from adsl-63-206-69-238.dsl.snfc21.pacbell.net ([63.206.69.238]:62220
+	"EHLO www.baywinds.org") by vger.kernel.org with ESMTP
+	id <S269437AbRHYUY5>; Sat, 25 Aug 2001 16:24:57 -0400
+Message-ID: <3B8809A5.DB7B6764@baywinds.org>
+Date: Sat, 25 Aug 2001 13:25:09 -0700
+From: Bruce Ferrell <bferrell@baywinds.org>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.19 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jmerkey@timpanogas.org
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Novell Attacks Linux
+In-Reply-To: <20010825020114.A12724@vger.timpanogas.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > Does anyone know what this bug actually is, and > > whether there's a possible
-> > > workaround without disabling udma entirely?
-> >    so if i will disable udma and switch to
-> >   -X34 == multiword dma2, then corruptions will go away????
-> >
-> >    i have a VX chipset/Zida 5DVX with PIIX3...
->
-> there's nothing wrong with the chipset/controller; isn't this thread
-> about the well-known DTLA problem?  if so, then what mode you use
-> is completely irrelevant, since the physical media is degrading.
+Jeff,
 
-     i feel like the media isn`t downgrading because
- the badblocks _arent_ physical: low-level drive
- reformat doesnt show anything.
-     how i think it may be related to chipset/controller?
- when data is transferred in udma mode, there may be
- checksumming errors, and the wrong crc is being wrote
- to the disk.
-     so when data is being accessed, bah - you are in
- shit...
+In the letter you referenced in your posting to the LKML you've made the
+claim that Novell is "declaring war on Linux".
 
- although, this is only a theory...
+It seems, after reading the letter that was scanned and posted on the
+timpanogas web site, that they've simply said no to some request that
+made of them. And further told you they think they can win should you
+pursue legal action.
 
----
+I admit, I do have a soft spot for Netware as it was my "baby" network
+but I'm not an employee of Novell or major fan today.  It's just too
+expensive.  Novell just doesn't seem to be able to adapt to current
+conditions today.  Too bad as their server is much better than anything
+coming out of Redmond.
 
+All of that not withstanding, I don't think you're doing yourself or us
+any good by making what seem to be exagerated claims.
 
-cheers,
+Just my 2 cents worth.
 
+
 
-   Samium Gromoff
+"Jeff V. Merkey" wrote:
+> 
+> LKML,
+> 
+> TRG got a response from Novell related to the NetWare File System
+> on Linux.  From the tone of the letter, Novell is declaring war
+> on Linux or anyone who is using NWFS.  This letter is posted
+> to our website and can be accessed at www.timpanogas.org if
+> any NWFS users want to know what Novell's views are and public
+> statements.  They claim it's "stolen property".
+> 
+> Jeff Merkey
+> TRG
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

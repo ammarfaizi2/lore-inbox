@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316089AbSILPLc>; Thu, 12 Sep 2002 11:11:32 -0400
+	id <S316437AbSILPYw>; Thu, 12 Sep 2002 11:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316182AbSILPLc>; Thu, 12 Sep 2002 11:11:32 -0400
-Received: from petasus.ch.intel.com ([143.182.124.5]:10415 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S316089AbSILPLb>; Thu, 12 Sep 2002 11:11:31 -0400
-Message-ID: <EDC461A30AC4D511ADE10002A5072CAD0236DE4E@orsmsx119.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'Soos Peter'" <sp@osb.hu>, linux-kernel@vger.kernel.org
-Subject: RE: APM & ACPI detect
-Date: Thu, 12 Sep 2002 08:16:05 -0700
+	id <S316491AbSILPYw>; Thu, 12 Sep 2002 11:24:52 -0400
+Received: from ns1.mscsoftware.com ([192.207.69.10]:55291 "EHLO
+	draco.macsch.com") by vger.kernel.org with ESMTP id <S316437AbSILPYv> convert rfc822-to-8bit;
+	Thu, 12 Sep 2002 11:24:51 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Martin Knoblauch <martin.knoblauch@mscsoftware.com>
+Reply-To: martin.knoblauch@mscsoftware.com
+Organization: MSC.Software GmbH
+To: jbradford@dial.pipex.com
+Subject: Re: XFS?
+Date: Thu, 12 Sep 2002 17:27:50 +0200
+User-Agent: KMail/1.4.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200209121727.50745.martin.knoblauch@mscsoftware.com>
+X-AntiVirus: OK! AntiVir MailGate Version 2.0.1.2; AVE: 6.15.0.1; VDF: 6.15.0.7
+	 at mailmuc has not found any known virus in this email.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Soos Peter [mailto:sp@osb.hu] 
-> Are there any "official way" to detect that APM or ACPI is active?
-> 
-> With APM I try it and it works:
-> 
-> #ifdef CONFIG_APM
-> #include <linux/apm_bios.h>
-> #endif
-> 
-> ...
-> 
-> #ifdef CONFIG_APM
-> if (apm_info.disabled >= 0) {
->                 printk(KERN_NOTICE "Real APM support is present.\n");
-> }
-> #endif
-> 
-> Are there any similar for ACPI?
+>> In my opinion the non-inclosure in the mainline kernel is the most 
+>> important reason not to use XFS (or any other FS). Which in turn 
+>> massively reduces the tester base. It is a shame, because for some 
+type 
+>> of applications it performs great, or better than anything else. 
+>
+>
+>On the other hand, filesystem corruption bugs are one of the worst type 
+>to suffer from. We absolutely don't want to include filesystems 
+>without at least a reasonable proven track record in the mainline 
+>kernel, and therefore encourage the various distributions to use them, 
+>incase any bugs do show up. Look how long a buffer overflow existed in 
+>Zlib unnoticed. 
+>
 
-Well there's pm_active, which is 1 if either is on. Is this really what you
-want?
+ If enclosure in "major" distribuitons defines mainline for you, I have 
+to agree. Otherwise, how do you get "a  proven track record in 
+mainline" without having it in the mainline kernel ? :-)
 
-Regards -- Andy
+ In any case, one could always mark XFS as "experimental" for some time.
+
+>
+>EXT2 is a very capable filesystem, and has *years* of proven 
+>reliability. That's why I'm not going to switch away from it for 
+>critical work any time soon. 
+
+ sure, if you can live with the fsck time on your 200 GB (or bigger) 
+filesystem after the occasional crash.
+
+Martin
+-- 
+Martin Knoblauch
+Senior System Architect
+MSC.software GmbH
+Am Moosfeld 13
+D-81829 Muenchen, Germany
+
+e-mail: martin.knoblauch@mscsoftware.com
+http://www.mscsoftware.com
+Phone/Fax: +49-89-431987-189 / -7189
+Mobile: +49-174-3069245
+

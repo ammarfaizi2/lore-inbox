@@ -1,72 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbTHVCXs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 22:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTHVCXs
+	id S262993AbTHVCrR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 22:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbTHVCrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 22:23:48 -0400
-Received: from sccrmhc11.comcast.net ([204.127.202.55]:41952 "EHLO
-	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S262987AbTHVCXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 22:23:47 -0400
-Subject: [PATCH2] Pentium Pro - sysenter - doublefault
-From: Jim Houston <jim.houston@comcast.net>
-Reply-To: jim.houston@comcast.net
-To: Mikael Pettersson <mikpe@csd.uu.se>, davej@codemonkey.org.uk
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <16197.14968.235907.128727@gargle.gargle.HOWL>
-References: <1061498486.3072.308.camel@new.localdomain>
-	 <16197.14968.235907.128727@gargle.gargle.HOWL>
-Content-Type: text/plain; charset=UTF-8
-Organization: 
-Message-Id: <1061518685.1054.41.camel@new.localdomain>
+	Thu, 21 Aug 2003 22:47:17 -0400
+Received: from www.13thfloor.at ([212.16.59.250]:29420 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262993AbTHVCrP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Aug 2003 22:47:15 -0400
+Date: Fri, 22 Aug 2003 04:47:26 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Linus Torvalds <torvalds@osdl.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Bind Mount Extensions (ro for --bind)
+Message-ID: <20030822024726.GA10598@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	viro@parcelfarce.linux.theplanet.co.uk
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 21 Aug 2003 22:18:05 -0400
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-08-21 at 17:32, Mikael Pettersson wrote:
->  > The logic above is exactly what Intel says to do in "IA-32 IntelÂ®
->  > Architecture Software Developer's Manual, Volume 2: Instruction Set
->  > Reference" on page 3-767.  It also says that sysenter was added to the
->  > Pentium II.
-> 
-> I double-checked AP-485 (24161823.pdf, the "real" reference to CPUID),
-> and it says (section 3.4) that SEP is unsupported when the signature
-> as a whole is less that 0x633. This means all PPros, and PII Model 3s
-> with steppings less than 3.
-> 
 
-Hi Dave, Everyone,
+Hi Linus!
+Hi Andrew!
+Hi Marcelo!
 
-This make sense. Here is Mikael's suggested code as a patch.
+a few weeks ago, I posted a patch on lkml, which allows 
+ro --bind mounts, at least regarding ...
 
-Dave, I picked your name from the maintainers list.  Please 
-feed this patch up the chain.
+ - open (read/write/trunc), create
+ - link, symlink, unlink
+ - mknod (reg/block/char/fifo), mkfifo
+ - mkdir, rmdir
+ - (f)chown, (f)chmod, utimes
+ - ioctl (gen/ext2/ext3/reiser)
+ - access, truncate
 
+it doesn't handle update_atime() yet, because Al Viro
+hasn't had the time to answer my email, and it doesn't
+change current intermezzo code (but this would be easy
+to add, because it's almost the same as the vfs_*()s at
+least regarding ro --bind mounts)
 
-Jim Houston - Concurrent Computer Corp. 
+actually patches are available and tested for 2.4.22-rc2 
+and 2.6.0-test3 up to 2.6.0-test3-bk9 ...
 
+I would like to see this or similar code in 2.6 and 2.4 ...
+please let me know, what would be required to get them
+in, or why you dislike those patches, in case you do ...
 
-diff -urN linux-2.6.0-test3.orig/arch/i386/kernel/cpu/intel.c
-linux-2.6.0-test3.new/arch/i386/kernel/cpu/intel.c
---- linux-2.6.0-test3.orig/arch/i386/kernel/cpu/intel.c	2003-08-20
-10:30:14.000000000 -0400
-+++ linux-2.6.0-test3.new/arch/i386/kernel/cpu/intel.c	2003-08-21
-21:34:40.000000000 -0400
-@@ -246,7 +246,8 @@
- 	}
- 
- 	/* SEP CPUID bug: Pentium Pro reports SEP but doesn't have it */
--	if ( c->x86 == 6 && c->x86_model < 3 && c->x86_mask < 3 )
-+	if ( c->x86 == 6 && ((c->x86_model < 3) ||
-+				(c->x86_model == 3 && c->x86_mask < 3)))
- 		clear_bit(X86_FEATURE_SEP, c->x86_capability);
- 	
- 	/* Names for the Pentium II/Celeron processors 
+TIA,
+Herbert
 
-
-
+-----
+http://www.13thfloor.at/Patches/patch-2.4.22-rc2-bme0.03.diff
+http://www.13thfloor.at/Patches/patch-2.4.22-rc2-bme0.03.diff.bz2
+http://www.13thfloor.at/Patches/patch-2.6.0-test3-bme0.03.diff
+http://www.13thfloor.at/Patches/patch-2.6.0-test3-bme0.03.diff.bz2
 

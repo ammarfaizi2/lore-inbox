@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270452AbTHDAmf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Aug 2003 20:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270863AbTHDAmf
+	id S271351AbTHDA4A (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Aug 2003 20:56:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271352AbTHDA4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 20:42:35 -0400
-Received: from waste.org ([209.173.204.2]:5270 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S270452AbTHDAme (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Aug 2003 20:42:34 -0400
-Date: Sun, 3 Aug 2003 19:42:27 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Sander van Malssen <svm@kozmix.org>, Andrew Morton <akpm@osdl.org>,
-       yoh@onerussian.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test2-bk3 phantom I/O errors
-Message-ID: <20030804004227.GZ22824@waste.org>
-References: <20030729153114.GA30071@washoe.rutgers.edu> <20030729135025.335de3a0.akpm@osdl.org> <20030730170432.GA692@kozmix.org> <20030730120002.29c13b0c.akpm@osdl.org> <20030730191115.GA733@kozmix.org> <20030803091007.GA885@kozmix.org> <20030803021727.3b54cd17.akpm@osdl.org> <20030803094634.GA430@kozmix.org>
-Mime-Version: 1.0
+	Sun, 3 Aug 2003 20:56:00 -0400
+Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:55992 "HELO
+	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
+	id S271351AbTHDAz7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 20:55:59 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
+To: Chip Salzenberg <chip@pobox.com>
+Date: Mon, 4 Aug 2003 10:55:44 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030803094634.GA430@kozmix.org>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
+Message-ID: <16173.44816.973033.11872@gargle.gargle.HOWL>
+Cc: Steve Dickson <SteveD@redhat.com>, nfs@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: nfs-utils-1.0.5 is not backwards compatible with 2.4
+In-Reply-To: message from Chip Salzenberg on Friday August 1
+References: <3F294DE3.9020304@RedHat.com>
+	<16169.54918.472349.928145@gargle.gargle.HOWL>
+	<20030801143807.GB24358@perlsupport.com>
+X-Mailer: VM 7.17 under Emacs 21.3.2
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 03, 2003 at 11:46:34AM +0200, Sander van Malssen wrote:
-> On Sunday, 03 August 2003 at 02:17:27 -0700, Andrew Morton wrote:
+On Friday August 1, chip@pobox.com wrote:
+> According to Neil Brown:
+> > I don't know if there is any such code, but if there is I apoligize for
+> > breaking it and suggest that the best fix is to not use the header
+> > file it was using but it explicitly include the values for NFSEXP_* in
+> > that code.
 > 
-> > Sander van Malssen <svm@kozmix.org> wrote:
-> > >
-> > > Well, that's funny. If I run a pristine test2-mm3-1 kernel I don't get
-> > >  those "Buffer I/O error on device ..." kernel messages anymore, but I do
-> > >  get the actual I/O error itself.
-> > 
-> > The readahead problem got itself fixed.  You are seeing something
-> > unrelated.
-> > 
-> > Please send a lot more details.
-> 
-> Alas no interesting kernel messages to show. FS is an ext3 on an IDE
-> disk, no initrd.
-> 
-> The problem is easily reproduced thusly:
-> 
-> root@ava:~ # cat /var/log/kozmix/brooksie.log > /dev/null
-> cat: /var/log/kozmix/brooksie.log: Input/output error
- 
-> Linux version 2.6.0-test2-mm3 (svm@ava.kozmix.org) (gcc version 3.2.2) #4 Sun Aug 3 11:29:19 CEST 2003
+> The only really bad thing about the current situation is that the name
+> "NFSEXP_CROSSMNT" is poisoned by having had two historical
+> definitions.  So it that name should be dropped, IMO, and replaced by
+> something textually different.  "NFSEXP_XMOUNT", perhaps.  Even
+> "NFSEXP_CROSSMNT2" would work.  Just as long as code that said
+> "CROSSMNT" to mean "NOHIDE" wouldn't accidentally get CROSSMNT instead.
 
-Sure you've got mm3-1? Andrew didn't bump the EXTRAVERSION.
+If we were to change it,  I would prefer  NFSEXP_CROSSMOUNT.
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+I might send such a patch to Linus and update nfs-utils if/when it
+gets included (or should 2.6 patches start going to Andrew now??)
+
+NeilBrown

@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269226AbRGaJ3c>; Tue, 31 Jul 2001 05:29:32 -0400
+	id <S269229AbRGaJlD>; Tue, 31 Jul 2001 05:41:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269230AbRGaJ3W>; Tue, 31 Jul 2001 05:29:22 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:62726 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S269227AbRGaJ3I>;
-	Tue, 31 Jul 2001 05:29:08 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: software_iq@TheOffice.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel 2.4.8-pre2 Compile Attempts 
-In-Reply-To: Your message of "Tue, 31 Jul 2001 02:31:25 EST."
-             <3B66187D.17040.4C80F5@localhost> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Jul 2001 19:29:09 +1000
-Message-ID: <3760.996571749@ocs3.ocs-net>
+	id <S269230AbRGaJky>; Tue, 31 Jul 2001 05:40:54 -0400
+Received: from mu21.vnn.vn ([203.162.4.8]:36999 "EHLO mu21.vnn.vn")
+	by vger.kernel.org with ESMTP id <S269229AbRGaJkg>;
+	Tue, 31 Jul 2001 05:40:36 -0400
+Message-ID: <006801c119a5$00d371c0$0f01a8c0@pcdhoa>
+From: "DH" <jres@mail.portland.co.uk>
+To: <linux-kernel@vger.kernel.org>
+Date: Tue, 31 Jul 2001 16:40:54 +0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 31 Jul 2001 02:31:25 -0500, 
-"John L. Males" <software_iq@TheOffice.net> wrote:
->Without giving the gory details, I am curious to know if there are
->still problems compiling the 2.4.8-pre2 kernel (2.4.7 + 2.4.8-pre2
->patch)....  Also what is installed in /lib/modules
->tree is not just modules, but some extensive set of the kernel source
->tree with object code mixed in for adventure of finding.
->
->Am I completely out to lunch
->here, or should I just hang in.  I am doing ok with the 2.2.19 
+Hi!
+I'm new in Linux. 
+1)Could you please instruct me the way 
+to install a Linux system on a PC but 
+only kernel (without X & extended components).
+2)In that system, Can I install Java environment?
+How if I can? 
 
-You are out to lunch, or rather your programs are.  Upgrade all your
-utilities to the values listed in Documentation/Changes.
+Thanks so much!
 

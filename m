@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269312AbRGaPTY>; Tue, 31 Jul 2001 11:19:24 -0400
+	id <S269313AbRGaPVE>; Tue, 31 Jul 2001 11:21:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269314AbRGaPTP>; Tue, 31 Jul 2001 11:19:15 -0400
-Received: from mercury.rus.uni-stuttgart.de ([129.69.1.226]:29715 "EHLO
-	mercury.rus.uni-stuttgart.de") by vger.kernel.org with ESMTP
-	id <S269313AbRGaPTF>; Tue, 31 Jul 2001 11:19:05 -0400
+	id <S269316AbRGaPUy>; Tue, 31 Jul 2001 11:20:54 -0400
+Received: from ausmtp02.au.ibm.COM ([202.135.136.105]:24279 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP
+	id <S269313AbRGaPUo>; Tue, 31 Jul 2001 11:20:44 -0400
+From: mdaljeet@in.ibm.com
+X-Lotus-FromDomain: IBMIN@IBMAU
 To: linux-kernel@vger.kernel.org
-Subject: Re: binary modules (was Re: ReiserFS / 2.4.6 / Data Corruption)
-In-Reply-To: <E15QZSA-00083U-00@the-village.bc.nu>
-	<01072922241102.03891@kiwiunixman.nodomain.nowhere>
-From: Florian Weimer <Florian.Weimer@RUS.Uni-Stuttgart.DE>
-Date: 31 Jul 2001 17:19:00 +0200
-In-Reply-To: <01072922241102.03891@kiwiunixman.nodomain.nowhere> (Matthew Gardiner's message of "Sun, 29 Jul 2001 22:24:11 +1200")
-Message-ID: <tg66c9m8ij.fsf@mercury.rus.uni-stuttgart.de>
-User-Agent: Gnus/5.090001 (Oort Gnus v0.01) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <CA256A9A.0054342C.00@d73mta01.au.ibm.com>
+Date: Tue, 31 Jul 2001 20:48:18 +0530
+Subject: scheduling problem
+Mime-Version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Matthew Gardiner <kiwiunixman@yahoo.co.nz> writes:
+Hi,
 
-> 2. Regards to hardware manufacturers, what have the got to lose from 
-> publishing the specs? nothing.
+I have a apple G4 machine that is dual processor and running SMP kernel. On
+the lines of a patch I ceated a module that I use to bind a process to a
+processor.
 
-Some vendors do not have proper specs or have received them under NDA
-themselves.
+My program creates multiple threads and there are multiple instances of
+program running at same time. All the threads/processes are binded to a
+single processor. If I boot my machine in non-SMP kernel and run all the
+instances of my program, everything works fine. But if I boot my machine in
+SMP kernel and run all the instances of my program, I get a timeout
+condition from one of the threads regularly but at random intervals of
+time. After adding a lot of debugging statements, most probably it scales
+down to scheduling problem. I added 'sleep(1)' in all the threads that are
+created and everything worked fine. Are there any other methods to debug?
+How can I find out the time intervals during which a process was scheduled
+out and on which processor it ran on during its lifetime?
 
--- 
-Florian Weimer 	                  Florian.Weimer@RUS.Uni-Stuttgart.DE
-University of Stuttgart           http://cert.uni-stuttgart.de/
-RUS-CERT                          +49-711-685-5973/fax +49-711-685-5898
+Regards,
+Daljeet.
+
+

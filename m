@@ -1,45 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267059AbTA0K13>; Mon, 27 Jan 2003 05:27:29 -0500
+	id <S267083AbTA0KbZ>; Mon, 27 Jan 2003 05:31:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbTA0K13>; Mon, 27 Jan 2003 05:27:29 -0500
-Received: from twilight.ucw.cz ([195.39.74.230]:30628 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S267059AbTA0K12>;
-	Mon, 27 Jan 2003 05:27:28 -0500
-Date: Mon, 27 Jan 2003 11:36:36 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: yokotak@rmail.plala.or.jp
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] gamecon (added support for Sega Saturn controller), kernel 2.4.20
-Message-ID: <20030127113636.A9329@ucw.cz>
-References: <20030126113957.A21550@ucw.cz> <20030127103408.GALG26766.mps4.plala.or.jp@rmail.mail.plala.or.jp>
+	id <S267089AbTA0KbZ>; Mon, 27 Jan 2003 05:31:25 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:35596 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S267083AbTA0KbY>; Mon, 27 Jan 2003 05:31:24 -0500
+Date: Mon, 27 Jan 2003 13:40:10 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Martin Mares <mj@ucw.cz>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, geert@linux-m68k.org,
+       Richard Henderson <rth@twiddle.net>,
+       "Wiedemeier, Jeff" <Jeff.Wiedemeier@hp.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 2.5] VGA IO on systems with multiple PCI IO domains
+Message-ID: <20030127134010.C2569@jurassic.park.msu.ru>
+References: <20030126181326.A799@localhost.park.msu.ru> <20030126214550.GB6873@ucw.cz> <1043624458.2755.37.camel@zion.wanadoo.fr> <20030127094645.GD604@ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20030127103408.GALG26766.mps4.plala.or.jp@rmail.mail.plala.or.jp>; from yokotak@rmail.plala.or.jp on Mon, Jan 27, 2003 at 07:34:10PM +0900
+In-Reply-To: <20030127094645.GD604@ucw.cz>; from mj@ucw.cz on Mon, Jan 27, 2003 at 10:46:45AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 27, 2003 at 07:34:10PM +0900, yokotak@rmail.plala.or.jp wrote:
-
-> Thank you very much for your reply.
+On Mon, Jan 27, 2003 at 10:46:45AM +0100, Martin Mares wrote:
+> > What about some kind of ioport_remap() that would take a pci_bus and an
+> > port range as arguments ? If pci_bus is NULL, that would match a
+> > "legacy" ISA bus (non-PCI machine or default ISA bus for machines where
+> > that makes sense).
+> > 
+> > What do you think ?
 > 
-> Vojtech Pavlik <vojtech@suse.cz> wrote:
-> > Why are you adding it into gamecon.c and not fixing it in db9.c instead?
-> 
-> Db9.c supports ONE gamepad per port. Gamecon.c supports FIVE gamepads
-> per port.
+> Looks good, but maybe we should use some other functions than iob() et al.
+> to do I/O on the remapped addresses.
 
-Two in some cases. And that's the number of Saturn pads supported by
-your patch as well, right?
+What about this (what we'd have on alpha):
 
-> Gamecon.c seems appropriate to support more than one sega saturn pad
-> on DPP compatible interface and multitap.
+int
+legacy_ioport_remap(struct resource *res)
+{
+	switch (res->start) {
+	case 0x3c0:	/* VGA */
+		res->start += pci_vga_hose->io_space->start;
+		res->end += pci_vga_hose->io_space->start;
+	case ???
+		...
+	default:
+		return -ENODEV;
+	}
+	return request_resource(pci_vga_hose->io_space, res);
+}
 
-Gamecon is based on that it uses one input line per device. The Saturn
-needs more than one (four?).
+void
+legacy_ioport_unmap(struct resource *res)
+{
+	release_resource(res);
+}
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Then vgacon.c would be changed like this:
+
+...
+-	request_resource(&ioport_resource, &vga_console_resource);
++	if (legacy_ioport_remap(&vga_console_resource) < 0)
++		goto failure;
+...
+
+And all in/out port calls would use respective resource.start+offset:
+...
+-	outb_p(6, 0x3ce)
++	outb_p(6, vga_console_resource.start + 0xe);
+
+No need for other special IO functions then.
+
+Ivan.

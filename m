@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVAXXT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVAYAas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbVAXXT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 18:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVAXXTU
+	id S261733AbVAYAas (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 19:30:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVAYA3n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 18:19:20 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:46471 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261723AbVAXW6h (ORCPT
+	Mon, 24 Jan 2005 19:29:43 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18636 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261725AbVAYA1i (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 17:58:37 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 24 Jan 2005 19:27:38 -0500
+Date: Mon, 24 Jan 2005 16:27:41 -0800
+From: Stephen Hemminger <shemminger@osdl.org>
+To: linux-net@vger.kernel.org, lartc@mailman.ds9a.nl
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [ANNOUNCE] iproute2 (050124) release
+Message-ID: <20050124162741.41606e3f@dxpl.pdx.osdl.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 0.9.13 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <16885.32149.788747.550216@napali.hpl.hp.com>
-Date: Mon, 24 Jan 2005 14:58:29 -0800
-To: Keith Owens <kaos@ocs.com.au>
-Cc: davidm@hpl.hp.com, bgerst@didntduck.org,
-       Terence Ripperda <tripperda@nvidia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: inter_module_get and __symbol_get 
-In-Reply-To: <31189.1106607276@ocs3.ocs.com.au>
-References: <16885.31766.730042.408639@napali.hpl.hp.com>
-	<31189.1106607276@ocs3.ocs.com.au>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Tue, 25 Jan 2005 09:54:36 +1100, Keith Owens <kaos@ocs.com.au> said:
+Thanks to the work of Jamal and Thomas; here is an update to iproute2.
 
-  Keith> Does DRM support this model?
+http://developer.osdl.org/dev/iproute2/download/iproute2-2.6.10-ss050124.tar.gz
 
-  Keith> * Start DRM without AGP.
-  Keith> * AGP is loaded.
-  Keith> * DRM continues but now using AGP.
+Changes since last version:
+[Yun Mao]
+	 fix typo in ss
 
-  Keith> If yes then it needs dynamic symbol resolution.
+[Thomas Graf]
+	tc pedit/action cleanups
+	add addraw_l
+	rtattr_parse cleanups
 
-I think it does, but I don't see any advantages to it (not on the
-machines I'm using, at least).  In fact, I'd rather have an explicit
-dependency on AGP.
+[Jamal Hadi Salim]
+	typo in m_mirred
+	add support for pedit
 
-	--david
+[Jim Gifford]
+	 Fix allocation size error in nomal and paretonormal generation
+	 programs.
+
+-- 
+Stephen Hemminger	<shemminger@osdl.org>

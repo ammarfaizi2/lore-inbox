@@ -1,38 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280073AbRKEAkB>; Sun, 4 Nov 2001 19:40:01 -0500
+	id <S280082AbRKEAmN>; Sun, 4 Nov 2001 19:42:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280074AbRKEAjl>; Sun, 4 Nov 2001 19:39:41 -0500
-Received: from mnh-1-01.mv.com ([207.22.10.33]:37388 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S280081AbRKEAjg>;
-	Sun, 4 Nov 2001 19:39:36 -0500
-Message-Id: <200111050158.UAA05147@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Lonnie Cumberland <lonnie@outstep.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Special Kernel Modification 
-In-Reply-To: Your message of "Sun, 04 Nov 2001 19:01:48 EST."
-             <3BE5D6EC.8040204@outstep.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 04 Nov 2001 20:58:28 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S280081AbRKEAl6>; Sun, 4 Nov 2001 19:41:58 -0500
+Received: from a904j637.tower.wayne.edu ([141.217.140.65]:26357 "HELO
+	mail.outstep.com") by vger.kernel.org with SMTP id <S280082AbRKEAlA>;
+	Sun, 4 Nov 2001 19:41:00 -0500
+To: Ryan Cumming <bodnar42@phalynx.dhs.org>
+Subject: Re: Special Kernel Modification
+Message-ID: <1004920141.3be5dd4db68a0@mail.outstep.com>
+Date: Sun, 04 Nov 2001 19:29:01 -0500 (EST)
+From: lonnie@outstep.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BE5D6EC.8040204@outstep.com> <E160XU3-00012T-00@localhost>
+In-Reply-To: <E160XU3-00012T-00@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.5
+X-Originating-IP: 192.168.1.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lonnie@outstep.com said:
-> My problem is that I need to find a way to prevent the user from
-> navigating out of their home directories. 
+Hello Ryan,
 
-A virtual machine would be an administratively easy way of doing this.
+>From what I can see. With chrooting, I have to make a complete "fake" system an
+then place the users below that into a home directory, or make a complete "fake"
+system for each user.
 
-Let the 'app' be a VM with the real apps installed inside.  The users would
-effectively be confined to a *file* on the host, not merely their home
-directories.
+I was trying to find a simple solution that would allow for:
 
-My (biased :-) recommendation would be User-mode Linux 
-(http://user-mode-linux.sourceforge.net), but VMWare would work as
-well.
+I was initially thinking about something like this for each user:
 
-				Jeff
+/system (real) /dev/hda4 (chrooted also)
+      |
+      /bin
+      /etc
+      /lib
 
+
+
+/home (each user chrooted)
+     |
+     /user1
+     |     |
+     |     /system (mounted /dev/hda4)
+     |            |
+     |            /bin
+     |            /etc
+     |            /lib
+     |
+     /user2
+     |     |
+     |     /system (mounted /dev/hda4)
+     |            |
+     |            /bin
+     |            /etc
+     |            /lib
+     |
+     /user n
+          |
+          /system (mounted /dev/hda4)
+                 |
+                 /bin
+                 /etc
+                 /lib
+
+The basic problem is that I did not want, for example "user2" to be able to "cd
+.." or some thing to go out of user2
+
+I was hoping to be able to accomplish this at the filesystem level somehow, and
+possibly without the need to mount the /dev/hda4 onto each /home/user/system, or
+without having to make entire copies of the chrooted environment for each user.
+
+Cheers,
+Lonnie
+
+Quoting Ryan Cumming <bodnar42@phalynx.dhs.org>:
+
+> On November 4, 2001 16:01, Lonnie Cumberland wrote:
+> > I have look into using things like "chroot" to restrict the users
+> for
+> > this very special server, but that solution is not what we need.
+> ....
+> > Is there someone who might be able to give me some information on how
+> I
+> > could add a few lines to the VFS filesystem so that I might set some
+> > type of extended attribute to prevent users from navigating out of
+> the
+> > locations.
+>
+> I fail to see the difference between "chroot" and "preventing users from
+>
+> navigating out of locations". Would you care to clarify what was wrong
+> was
+> chroot that you believe you can solve with a different approach?
+> -Ryan
+>

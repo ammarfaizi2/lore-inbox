@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265208AbRF0CME>; Tue, 26 Jun 2001 22:12:04 -0400
+	id <S265227AbRF0CEO>; Tue, 26 Jun 2001 22:04:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265212AbRF0CLy>; Tue, 26 Jun 2001 22:11:54 -0400
-Received: from gateway2.ensim.com ([65.164.64.250]:12306 "EHLO
-	nasdaq.ms.ensim.com") by vger.kernel.org with ESMTP
-	id <S265208AbRF0CLh>; Tue, 26 Jun 2001 22:11:37 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] User chroot 
-cc: pmenage@ensim.com
-In-Reply-To: Your message of "Tue, 26 Jun 2001 21:40:36 EDT."
-             <Pine.GSO.4.21.0106262138370.18037-100000@weyl.math.psu.edu> 
-Mime-Version: 1.0
+	id <S265212AbRF0CDz>; Tue, 26 Jun 2001 22:03:55 -0400
+Received: from vp226158.uac62.hknet.com ([202.71.226.158]:40711 "EHLO
+	main.coppice.org") by vger.kernel.org with ESMTP id <S265208AbRF0CDt>;
+	Tue, 26 Jun 2001 22:03:49 -0400
+Message-ID: <3B3940B0.AD057C60@coppice.org>
+Date: Wed, 27 Jun 2001 10:10:56 +0800
+From: Steve Underwood <steveu@coppice.org>
+Organization: Me? Organised?
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19-6.2.1 i686)
+X-Accept-Language: en, zh-TW
+MIME-Version: 1.0
+To: landley@webofficenow.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Microsoft and Xenix.
+In-Reply-To: <Pine.LNX.4.33.0106250806150.21085-100000@twin.uoregon.edu> <01062510170903.04704@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 26 Jun 2001 19:17:57 -0700
-Message-Id: <E15F4tx-0003sA-00@pmenage-dt.ensim.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rob Landley wrote:
+> 
+> On Monday 25 June 2001 11:13, you wrote:
+> 
+> > 1937 claude shannon A Symbolic Analysis of Relay and Switching Circuits,"
+> >
+> > 1948 claude shannon A mathematical theory of information.
+> >
+> > without those you're kind in trouble on the computing front...
+> 
+> Yeah, I know I've bumped into that name (and probably taken notes) somewhere.
+>  Hmmm...  Might be from "Where wizards stay up late", or might have been an
+> article linked from slashdot...  (I don't THINK it was mentioned in
+> "Hackers"...  Rodents, where was the reference...  Crystal fire?  That's
+> mostly hardware.  Accidental Empries?  Doesn't sound right...  Can't have
+> been "Fire in the valley" because I haven't read that yet, it's still sitting
+> on the bookshelf.  Not soul of a new machine, that's post-digital Equipment
+> Corporation...)
+> 
+> I THINK that's in the set of notes that's on the box that's not hooked up
+> right now...  (Shortage of monitors at home.)
+> 
+> This was the dude who decided to apply a binary and boolean approach to
+> electronic computation, right?  I KNOW I've read some stuff about him... late
+> last year?
+> 
+> Now I remember.  Slashdot linked to his obituary:
 
->
->You need to be root to do mknod. You need to do mknod to create /dev/zero.
->You need /dev/zero to get anywhere near the normal behaviour of the system.
->
+Shannon was one of the clearest thinkers of the 20th century, and yet
+his name is hardly known outside his own field. Within his field he is
+respected at the level of, say, Newton. It was a real loss to mankind
+when he died a few months back.
 
-Sure, but we're not necessarily looking for a system that behaves
-normally in all aspects. The example given was that of a paranoid
-network server that does all its initialisation in a normal environment,
-and then does a chroot to its data directory. Or alternatively, forks
-after accepting a connection, and the child does a chroot. No need to be
-able to exec other programs, etc. Such a daemon is certainly possible,
-as I've written one myself. But it had to be started by root, rather
-than by a normal user.
-
-I'm not claiming that the user chroot patch is necessarily useful enough
-to be included in the standard kernel - merely that it does have some
-real-world uses.
-
-Paul
-
-
+Regards,
+Steve

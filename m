@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbTKGXCP (ORCPT <rfc822;willy@w.ods.org>);
+	id S262110AbTKGXCP (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 7 Nov 2003 18:02:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbTKGWYV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTKGWYZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Nov 2003 17:24:21 -0500
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:48657 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263985AbTKGJhi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Nov 2003 04:37:38 -0500
-Date: Fri, 7 Nov 2003 09:37:37 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linux-SCSI <linux-scsi@vger.kernel.org>
-Subject: Re: [ANNOUNCE] QLogic qla2xxx driver update available (v8.00.00b6).
-Message-ID: <20031107093737.B1992@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Vasquez <andrew.vasquez@qlogic.com>,
-	Linux-Kernel <linux-kernel@vger.kernel.org>,
-	Linux-SCSI <linux-scsi@vger.kernel.org>
-References: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>
+	Fri, 7 Nov 2003 17:24:25 -0500
+Received: from arnor.apana.org.au ([203.14.152.115]:21508 "EHLO
+	arnor.me.apana.org.au") by vger.kernel.org with ESMTP
+	id S264087AbTKGL2j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Nov 2003 06:28:39 -0500
+Date: Fri, 7 Nov 2003 22:28:33 +1100
+To: Jens Axboe <axboe@suse.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [BIO] Bounce queue in bio_add_page
+Message-ID: <20031107112833.GA5239@gondor.apana.org.au>
+References: <20031101100543.GA16682@gondor.apana.org.au> <20031103122500.GA6963@suse.de> <20031103205234.GA17570@gondor.apana.org.au> <20031104084929.GH1477@suse.de> <20031104090325.GA21301@gondor.apana.org.au> <20031104090353.GM1477@suse.de> <20031105094855.GD1477@suse.de> <20031106210900.GA29000@gondor.apana.org.au> <20031107112346.GA5153@gondor.apana.org.au> <20031107112555.GC591@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <B179AE41C1147041AA1121F44614F0B0598CE6@AVEXCH02.qlogic.org>; from andrew.vasquez@qlogic.com on Thu, Nov 06, 2003 at 09:45:50AM -0800
+In-Reply-To: <20031107112555.GC591@suse.de>
+User-Agent: Mutt/1.5.4i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 06, 2003 at 09:45:50AM -0800, Andrew Vasquez wrote:
-> No.  We've had this IOWR problem since the inception of 5.x series
-> driver.  Software (SMS 3.0) has been built on top of the this IOCTL
-> interface.  We painfully discovered this problem when we began to look
-> at other non-x86 platforms (ppc64).
-
-I don't know what SMS is, but Linux provides a stable ABI for stable
-kernel series and only those.  We already have anough garbage from mistakes
-in older kernel releases that we won't accept more with new driver
-submission.  If SMS didn't use a abstraction library it would have a problem,
-yes.
-
-> >  Also having different ioctl values for different plattforms is not
-> >  an option for Linux.
-> > 
+On Fri, Nov 07, 2003 at 12:25:55PM +0100, Jens Axboe wrote:
 > 
-> The better (right) fix would be to push this interface change onto the
-> caller of the IOCTLs where they can manage the differences there, and
-> the driver could once and for all shed itself of this nagging problem.
-> That is the consensus here.  The _BAD conversion was only done so the
-> driver would compile.
+> Could be related, someone is doing an unlock on an already unlocked
+> page. Is this the same system that saw the bounce problem initially?
 
-Sorry, I don't parse that.  There's no reason different architectures
-should have differences in the ioctl calling convention, so there shouldn't
-be anything to deal with in the caller either.
-
+Yes, see http://bugs.debian.org/218566 for details.
+-- 
+Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
+Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

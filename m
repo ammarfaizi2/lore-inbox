@@ -1,65 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262545AbUCaVca (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 16:32:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262585AbUCaVca
+	id S262592AbUCaVdi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 16:33:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbUCaVc5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 16:32:30 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40908 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262545AbUCaV1E
+	Wed, 31 Mar 2004 16:32:57 -0500
+Received: from mail.shareable.org ([81.29.64.88]:49044 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262592AbUCaVbw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 16:27:04 -0500
-Message-ID: <406B3799.5060203@pobox.com>
-Date: Wed, 31 Mar 2004 16:26:49 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: "Stephen C. Tweedie" <sct@redhat.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] barrier patch set
-References: <20040319153554.GC2933@suse.de>	 <200403201723.11906.bzolnier@elka.pw.edu.pl>	 <1079800362.11062.280.camel@watt.suse.com>	 <200403201805.26211.bzolnier@elka.pw.edu.pl>	 <1080662685.1978.25.camel@sisko.scot.redhat.com>	 <1080674384.3548.36.camel@watt.suse.com>	 <1080683417.1978.53.camel@sisko.scot.redhat.com> <4069F2FC.90003@pobox.com>	 <1080742105.1991.40.camel@sisko.scot.redhat.com> <1080742895.3547.139.camel@watt.suse.com>
-In-Reply-To: <1080742895.3547.139.camel@watt.suse.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 31 Mar 2004 16:31:52 -0500
+Date: Wed, 31 Mar 2004 22:31:43 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: bert hubert <ahu@ds9a.nl>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: who is merlin.fit.vutbr.cz?
+Message-ID: <20040331213143.GC20693@mail.shareable.org>
+References: <200403290108.i2T18T8d024595@work.bitmover.com> <20040331182039.GA29397@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040331182039.GA29397@outpost.ds9a.nl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
-> On Wed, 2004-03-31 at 09:08, Stephen C. Tweedie wrote:
+bert hubert wrote:
+> > connection.  Whoever this is has been cloning the linux 2.6 (aka 2.5)
+> > tree on bkbits so slowly that the tree is locked for days and can't
+> > be updated.  About once a day I go kill the clone because stracing it
 > 
->>Hi,
->>
->>On Tue, 2004-03-30 at 23:21, Jeff Garzik wrote:
->>
->>
->>>For IDE, O_DIRECT and O_SYNC can use special "FUA" commands, which don't 
->>>return until the data is on the platter.
->>
->>fsync() is still really nasty, because that can require that we wait on
->>IO that was submitted by the VM before we knew that there was a
->>synchronous IO wait coming.  
-> 
-> 
-> Yes, it gets ugly in a hurry.  Jeff, look at the whole thread about the
-> O_DIRECT read vs buffered write races.  I don't think we can use FUA for
+> RCU for BitKeeper trees? :-)
 
-Yes, I'm aware of the thread...
+Last I heard, RCU is patented by IBM, with permission to use it in GPL
+programs (maybe limited to version 2 of the GPL?), so that Linux can use it.
 
+So BitKeeper might not be able to use the technique, if the claims of the
+patent are sufficiently broad (I haven't read it and don't intend to).
 
-> fsync or O_SYNC without using it for every write.
-
-Why not for O_SYNC?  Is some crazy userspace application flipping this 
-bit on and off rapidly?
-
-
-> We might be able to get away with using it on O_DIRECT.
-
-Nod.
-
-	Jeff
-
-
-
+-- Jamie

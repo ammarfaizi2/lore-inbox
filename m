@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316874AbSE1SIk>; Tue, 28 May 2002 14:08:40 -0400
+	id <S316866AbSE1SKF>; Tue, 28 May 2002 14:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316875AbSE1SIj>; Tue, 28 May 2002 14:08:39 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21757 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP
-	id <S316874AbSE1SIi>; Tue, 28 May 2002 14:08:38 -0400
-Subject: Re: O(1) count_active_tasks()
-From: Robert Love <rml@tech9.net>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@transmeta.com
-In-Reply-To: <1022599985.20316.32.camel@sinai>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 28 May 2002 11:08:35 -0700
-Message-Id: <1022609318.20317.65.camel@sinai>
-Mime-Version: 1.0
+	id <S316877AbSE1SKE>; Tue, 28 May 2002 14:10:04 -0400
+Received: from www.transvirtual.com ([206.14.214.140]:50962 "EHLO
+	www.transvirtual.com") by vger.kernel.org with ESMTP
+	id <S316866AbSE1SKD>; Tue, 28 May 2002 14:10:03 -0400
+Date: Tue, 28 May 2002 11:09:58 -0700 (PDT)
+From: James Simmons <jsimmons@transvirtual.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fbdev updates. 
+Message-ID: <Pine.LNX.4.10.10205281054020.16297-100000@www.transvirtual.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-05-28 at 08:33, Robert Love wrote:
 
-> If I get a chance, I'll run some tests on my dual 2.5 machine and see if
-> they match.  But I would not let that stop anything ... this is mergable
-> in 2.5 imo.
+Hi!
 
-Well, I did some tests.  I changed count_active_tasks to calculate using
-both methods and whine if they did not match.  I then put the machine
-under extreme load with a lot of I/O.  Finally, I ran `uptime(1)' in a
-tight loop and watched the console.
+   Could you merge the latest stuff in the fbdev BK tree. It has various
+fixes and ports over ot the new api. Also a few new drivers. 
 
-Over a long period of constant count_active_tasks calls via `uptime(1)',
-I had only a couple messages.  This is most likely <=1% of the calls and
-in each case we were one to high with the new method (140 vs 141, for
-example).
+http://fbdev.bkbits.net:8080/fbdev-2.5
 
-Not sure why, or if it is even us or nr_running() or even the old method
-that is off ... but who cares.  It is a statistic.
+or a traditional diff at 
 
-	Robert Love
+http://www.transvirtual.com/~jsimmons/fbdev.diff
+
+
+P.S
+  To the general list. The company I work for appears to be going under.
+So if anyone is looking for a kernel developer drop me a email. 
+
+
+   . ---
+   |o_o |
+   |:_/ |   Give Micro$oft the Bird!!!!
+  //   \ \  Use Linux!!!!
+ (|     | )
+ /'_   _/`\
+ ___)=(___/
 

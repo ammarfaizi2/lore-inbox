@@ -1,72 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318257AbSHKJU2>; Sun, 11 Aug 2002 05:20:28 -0400
+	id <S318244AbSHKJXP>; Sun, 11 Aug 2002 05:23:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318258AbSHKJU2>; Sun, 11 Aug 2002 05:20:28 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6152 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318257AbSHKJU0>;
-	Sun, 11 Aug 2002 05:20:26 -0400
-Message-ID: <3D562F8D.30F386AB@zip.com.au>
-Date: Sun, 11 Aug 2002 02:34:05 -0700
+	id <S318263AbSHKJXP>; Sun, 11 Aug 2002 05:23:15 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17161 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318244AbSHKJXN>;
+	Sun, 11 Aug 2002 05:23:13 -0400
+Message-ID: <3D563035.C6BA9F51@zip.com.au>
+Date: Sun, 11 Aug 2002 02:36:53 -0700
 From: Andrew Morton <akpm@zip.com.au>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 19/21] introduce L1_CACHE_SHIFT_MAX
-References: <3D5614DC.635ED602@zip.com.au> <E17dokf-0001f5-00@starship>
+To: Simon Kirby <sim@netnation.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+References: <20020810201027.E306@kushida.apsleyroad.org> <Pine.LNX.4.44.0208101529490.2401-100000@home.transmeta.com> <20020811031705.GA13878@netnation.com> <3D55FF30.6164040D@zip.com.au> <20020811084652.GB22497@netnation.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+Simon Kirby wrote:
 > 
-> On Sunday 11 August 2002 09:40, Andrew Morton wrote:
-> > zone->lock and zone->lru_lock are two of the hottest locks in the
-> > kernel.  Their usage patterns are quite independent.  And they have
-> > just been put into the same structure.  It is essential that they not
-> > fall into the same cacheline.
-> >
-> > That could be fixed by padding with L1_CACHE_BYTES.  But the problem
-> > with this is that a kernel which was configured for (say) a PIII will
-> > perform poorly on SMP PIV.  This will cause problems for kernel
-> > vendors.  For example, RH currently ship PII and Athlon binaries.  To
-> > get best SMP performance they will end up needing to ship a lot of
-> > differently configured kernels.
-> >
-> > To solve this we need to know, at compile time, the maximum L1 size
-> > which this kernel will ever run on.
-> >
-> > This patch adds L1_CACHE_SHIFT_MAX to every architecture's cache.h.
-> >
-> > Of course it'll break when newer chips come out with increased
-> > cacheline sizes.   Better suggestions are welcome.
+> With tcpdump in another window, I can see that the readahead doesn'
+> start prefetching until it's right near the end of the data it
+> fetched last, rather than doing it in advance.
+
+That's a big fat bug.   And it wouldn't be astonishing if my
+shiny new readahead does the same thing - I haven't analysed/tested
+this scenario.  Shall though.
+
+Knowing zero about NFS, this:
+
+        if (!PageError(page) && NFS_SERVER(inode)->rsize >= PAGE_CACHE_SIZE) {
+                error = nfs_readpage_async(file, inode, page);
+                goto out;
+        }
+
+        error = nfs_readpage_sync(file, inode, page);
+
+would seem to indicate that it's important to have 4k or 8k rsize and
+wsize.
+
+> ...
 > 
-> I think you're being too paranoid.
-
-Staring at too many horrific profile outputs does that to one.
-
-These are *the* two big locks.
-
->  You pushed the performance degradation
-> from the PIV to the PIII (because it will tend to hit more cachelines than it
-> should)
-
-The buddy info is all in one cacheline and the LRU info is in another.
-So there's no loss to PIII here.  But those two things are soooo hot
-that paranoia is warranted.
-
-> and you won't be able to build a kernel that is optimal for the PIII
-> any more.  I'd say that is PIII kernel is *supposed* to suck to some degree
-> when run on a PIV, otherwise why bother having the PIV option?
+> > OK, it's doing 128k of readahead there, which is a bit gross for a floppy.
+> > You can tune that down with `blockdev --setra N /dev/floppy'.  The
 > 
-> I expect the performance difference you're talking about is marginal anyway.
-> Maybe you've measured it?
+> Ooh, is there something like this for NFS?
 
-No, I haven't.  NUMA boxes don't need it if the node-local allocation is
-working right. But if they go cross-node much, it'll help.  On high-performance
-UMA SMP, allowing those two particular locks to fall into the same cacheline
-is a big goofup.
+In 2.4, /proc/sys/vm/[min|max]_readahead should affect NFS, I think.
+
+In 2.5, no knobs yet.  NFS is using the default_backing_dev_info's
+readahead setting, which isn't tunable.  It needs to create its
+own backing_dev_info (probably per mount?), make each inode's
+inode.i_data.backing_dev_info point at that backing_dev_info
+structure and export it to userspace in some manner.  Guess I
+should have told Trond that ;)
+
+> > but `mke2fs /dev/fd0' oopses in 2.5.30.  ho hum)
+> 
+> Yes, floppy in 2.5 has been broken for a while...
+> 
+
+Well it's oopsing in the code which tries to work out the
+device geometry:
+
+generic_unplug_device (data=0x0) at /usr/src/25/include/asm/spinlock.h:117
+117     {
+(gdb) bt
+#0  generic_unplug_device (data=0x0) at /usr/src/25/include/asm/spinlock.h:117
+#1  0xc020b57c in __floppy_read_block_0 (bdev=0xf62c4e00) at floppy.c:3896
+#2  0xc020b5f6 in floppy_read_block_0 (dev={value = 512}) at floppy.c:3915
+#3  0xc020b745 in floppy_revalidate (dev={value = 512}) at floppy.c:3954
+#4  0xc01448b7 in check_disk_change (bdev=0xf62c4e00) at block_dev.c:522
+#5  0xc020b377 in floppy_open (inode=0xf54e5ec0, filp=0xf4baa1a0) at floppy.c:3808
+#6  0xc0144bc6 in do_open (bdev=0xf62c4e00, inode=0xf54e5ec0, file=0xf4baa1a0) at block_dev.c:623
+#7  0xc0144f63 in blkdev_open (inode=0xf54e5ec0, filp=0xf4baa1a0) at block_dev.c:740
+#8  0xc013d83e in dentry_open (dentry=0xf62dc5e0, mnt=0xc3ff5ee0, flags=32768) at open.c:655
+#9  0xc013d770 in filp_open (filename=0xf6362000 "/dev/fd0", flags=32768, mode=0) at open.c:624
+#10 0xc013db4f in sys_open (filename=0xbffffb9c "/dev/fd0", flags=32768, mode=0) at open.c:800
+#11 0xc0107123 in syscall_call () at stats.c:204
+
+So if you use something with known geometry, like /dev/fd0h1440, it works!

@@ -1,36 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286192AbRLJIYq>; Mon, 10 Dec 2001 03:24:46 -0500
+	id <S286197AbRLJI04>; Mon, 10 Dec 2001 03:26:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286193AbRLJIYh>; Mon, 10 Dec 2001 03:24:37 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10758 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286192AbRLJIY1>; Mon, 10 Dec 2001 03:24:27 -0500
-Subject: Re: [reiserfs-dev] Re: Ext2 directory index: ALS paper and benchmarks
-To: torvalds@transmeta.com (Linus Torvalds)
-Date: Mon, 10 Dec 2001 08:32:57 +0000 (GMT)
-Cc: phillips@bonn-fries.net (Daniel Phillips),
-        jgarzik@mandrakesoft.com (Jeff Garzik), linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0112092220400.13692-100000@penguin.transmeta.com> from "Linus Torvalds" at Dec 09, 2001 10:27:36 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286196AbRLJI0q>; Mon, 10 Dec 2001 03:26:46 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:36617 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S286193AbRLJI0h>; Mon, 10 Dec 2001 03:26:37 -0500
+Message-ID: <3C13C8B8.9050805@namesys.com>
+Date: Sun, 09 Dec 2001 23:25:28 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: Daniel Phillips <phillips@bonn-fries.net>, Quinn Harris <quinn@nmt.edu>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: File copy system call proposal
+In-Reply-To: <200112100544.fBA5isV223458@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16DLrt-0001Ct-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Continuing the little warts list, there's Alan's comment re needing endian
-> > reversal on big endian machines.
-> 
-> Now that's a load of bollocks.
+We'll have functionality resembling this in reiser4().  It is a little 
+too early to get into the details on it though.  Quinn/Albert are right.
 
-Inodes are in native format with lots of unpacked additional info so we
-can't just point into the inode.  We can certainly do things like writeback
-all the inodes in a block when the block has to go for queueing to disk.
+Hans
 
-Indirect blocks are a totally unrelated item to the discussion I was having
-at least.
-
-Alan

@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262917AbVAFRSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262918AbVAFRSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262917AbVAFRSR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 12:18:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVAFRSR
+	id S262918AbVAFRSM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 12:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262919AbVAFRSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 12:18:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47019 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262917AbVAFRSI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 12:18:08 -0500
-Date: Thu, 6 Jan 2005 12:38:00 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>, Adrian Bunk <bunk@stusta.de>,
-       Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
-       davidsen@tmr.com, aebr@win.tue.nl, solt2@dns.toxicfilms.tv,
-       linux-kernel@vger.kernel.org
-Subject: Re: starting with 2.7
-Message-ID: <20050106143800.GL20203@logos.cnet>
-References: <20050103053304.GA7048@alpha.home.local> <20050103142412.490239b8.diegocg@teleline.es> <20050103134727.GA2980@stusta.de> <20050104125738.GC2708@holomorphy.com> <20050104150810.GD3097@stusta.de> <20050104153445.GH2708@holomorphy.com> <20050104165301.GF3097@stusta.de> <20050104210117.GA7280@thunk.org> <20050106094519.GD20203@logos.cnet> <20050106165908.GA9636@holomorphy.com>
+	Thu, 6 Jan 2005 12:18:11 -0500
+Received: from rproxy.gmail.com ([64.233.170.203]:29734 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262918AbVAFRRe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 12:17:34 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=FQxG57QGBfNKvgeqfTMbKO5steS+TDybDVliej8cEeOdBj7inx9/ldWMmoaM1wl1ctbgLVEp4v3HKt+BJhdG6MNbkh3XUS9WpaXxoMbhmCaYBdP5PalzoO00g87i+gxmeGLTCFBZYz0Svlw7o9wX0qOYDW0n9AOsMvkgGRNST1A=
+Message-ID: <9e47339105010609175dabc381@mail.gmail.com>
+Date: Thu, 6 Jan 2005 12:17:33 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: chasing the four level page table
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050106165908.GA9636@holomorphy.com>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06, 2005 at 08:59:08AM -0800, William Lee Irwin III wrote:
-> On Thu, Jan 06, 2005 at 07:45:19AM -0200, Marcelo Tosatti wrote:
-> > You got to be kidding now?
-> > 99% of the features distributions have applied to their 2.4 based kernels 
-> > are "enterprise" features such as direct IO, AIO, etc.
-> > Really I can't recall any "attempt to make 2.4 stable" from the distros,
-> > its mostly "attempt to backport nice v2.6 feature".
-> > Do you have any example?
-> [tytso's comments elided]
-> > It took sometime to happen, but instability related to "high memory
-> > pressure" has been fixed in almost all cases long ago (the only
-> > remaining issue to my knowledged is loopback device with highmemory).
-> > I hardly see complaints of "crashes under load" problems since
-> > v2.4.19/20 or so.
-> 
-> I am unfortunately holding 2.4.x' earlier history against it. While you
-> were maintaining it, much of what we're discussing was resolved.
-> Unfortunately, the stabilization you're talking about was essentially
-> too late; distros had long-since wildly diverged, they had frozen on
-> older releases, and the damage to Linux' reputation was already done.
-> I'm also unaware of major commercial distros (e.g. Red Hat, SuSE) using
-> 2.4.x more recent than 2.4.21 as a baseline, and it's also notable that
-> one of the largest segments of the commercial userbase I see is using a
-> distro kernel based on 2.4.9.
+The DRM driver contains this routine:
 
-I agree.
+drivers/char/drm/drm_memory.h
 
+static inline unsigned long
+drm_follow_page (void *vaddr)
+{
+	pgd_t *pgd = pgd_offset_k((unsigned long) vaddr);
+	pud_t *pud = pud_offset(pgd, (unsigned long) vaddr);
+	pmd_t *pmd = pmd_offset(pud, (unsigned long) vaddr);
+	pte_t *ptep = pte_offset_kernel(pmd, (unsigned long) vaddr);
+	return pte_pfn(*ptep) << PAGE_SHIFT;
+}
+
+No other driver needs to chase the page table like this so there is
+probably some other way to achieve this. Can someone who knows more
+about the VM system tell me if there is a way to eliminate this code?
+
+If there are any VM/AGP experts with some free time, drm_memory.h
+could use some rewriting to make it pass sparse checks.
+
+-- 
+Jon Smirl
+jonsmirl@gmail.com

@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVCKU4V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVCKU4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVCKU4V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 15:56:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVCKUy4
+	id S261446AbVCKU4U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 15:56:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVCKUzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 15:54:56 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:30224
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261519AbVCKUxL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 15:53:11 -0500
-Date: Fri, 11 Mar 2005 21:53:09 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 fix for write throttling on x86 >1G
-Message-ID: <20050311205309.GD9270@opteron.random>
-References: <20050311061035.GZ26348@opteron.random> <20050311160413.GK4816@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050311160413.GK4816@logos.cnet>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.6i
+	Fri, 11 Mar 2005 15:55:20 -0500
+Received: from mail.tmr.com ([216.238.38.203]:58372 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261529AbVCKUxy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 15:53:54 -0500
+Date: Fri, 11 Mar 2005 15:42:04 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Chris Friesen <cfriesen@nortel.com>
+cc: "Justin M. Forbes" <jmforbes@linuxtx.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.Stable and EXTRAVERSION
+In-Reply-To: <423202D2.8000207@nortel.com>
+Message-ID: <Pine.LNX.3.96.1050311154019.20262B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Marcelo,
+On Fri, 11 Mar 2005, Chris Friesen wrote:
 
-On Fri, Mar 11, 2005 at 01:04:13PM -0300, Marcelo Tosatti wrote:
-> Out of curiosity, that was SuSE not mainline ? 
+> Bill Davidsen wrote:
 
-yep.
+	[...snip...]
 
-> Do we really want to limit dirty cache to low mem on HIGHIO capable 
-> machines? I'm afraid doing so might hurt performance on such systems.
+> > I think it will confuse scripts which expect something local in the 4th 
+> > field. I confess that I have such, and that field is turned into a 
+> > directory name during builds, so test results are saved in a proper 
+> > place. I think vendors and people who care will just keep three digits, 
+> > and those who want the last can make their EXTRAVERSION
+> >    2.Joes_Bar_&_Grill_486
+> > or whatever is needed.
 > 
-> I think it might be wise to have nr_free_buffer_pages() take highmem
-> into account if CONFIG_HIGHIO is set ?
+> There's also the LOCALVERSION that can be set in the config file.  I've 
+> switched to using that, since it means one less kernel patch to port.
 
-The problem is the buffercache/blkdev-pagecache: it simply can't go in
-highmem. A similar fix happened recently in 2.6 for the same reasons,
-but in 2.6 we allowed it with some logic specific for the
-blkdev-pagecache.
+I have to see what that generates. The problem is LOCALVERSION and current
+use of both 3 and 4 field kernel versions. You need a smarter script to
+handle that.
 
-nr_free_buffer_pages() was never intended to take highmem into account,
-that's why there's the GFP_USER thing already, except we didn't loop
-into the zonelist, so I didn't try to make a fix similar to 2.6.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

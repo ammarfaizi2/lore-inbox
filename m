@@ -1,82 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261657AbSJ1WwE>; Mon, 28 Oct 2002 17:52:04 -0500
+	id <S261642AbSJ1Wsn>; Mon, 28 Oct 2002 17:48:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261659AbSJ1WwE>; Mon, 28 Oct 2002 17:52:04 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:16548 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S261657AbSJ1WwB>;
-	Mon, 28 Oct 2002 17:52:01 -0500
-Date: Mon, 28 Oct 2002 23:58:21 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Hanna Linder <hannal@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
-       torvalds@transmeta.com
-Subject: and nicer too - Re: [PATCH] epoll more scalable than poll
-Message-ID: <20021028225821.GA29868@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Davide Libenzi <davidel@xmailserver.org>,
-	Hanna Linder <hannal@us.ibm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	linux-aio@kvack.org, lse-tech@lists.sourceforge.net,
-	torvalds@transmeta.com
-References: <20021028220809.GB27798@outpost.ds9a.nl> <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
+	id <S261643AbSJ1Wsn>; Mon, 28 Oct 2002 17:48:43 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:26827 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261642AbSJ1Wsm>; Mon, 28 Oct 2002 17:48:42 -0500
+To: landley@trommello.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.44: what's .tmp_export-objs for?
+References: <200210281054.16008.landley@trommello.org>
+From: Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>
+Date: Mon, 28 Oct 2002 23:54:50 +0100
+In-Reply-To: <200210281054.16008.landley@trommello.org> (Rob Landley's
+ message of "Mon, 28 Oct 2002 11:54:16 -0500")
+Message-ID: <87y98inphh.fsf@goat.bogus.local>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Honest Recruiter,
+ i386-debian-linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0210281420540.966-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 28, 2002 at 02:29:37PM -0800, Davide Libenzi wrote:
+Rob Landley <landley@trommello.org> writes:
 
-> sys_epoll, by plugging directly in the existing kernel architecture,
-> supports sockets and pipes. It does not support and there're not even
-> plans to support other devices like tty, where poll() and select() works
-> flawlessy. Since the sys_epoll ( and /dev/epoll ) fd support standard polling, you
+> I accidentally did a 2.5.44 kernel build as root rather than my normal user, 
+> so I'm trying to see what clean steps I need to so (as root) to be able to 
+> build the tree again.  A normal make clean failed (permission denied deleting 
+> files), so I did an su and a make clean.  Exit back to normal user, make 
+> clean, life is good, do a make dep, and it complains about the directory 
+> .tmp_export-objs.
+>
+> 1) Why does the build process use a hidden directory?
+>
+> 2) Why isn't make clean removing something with "tmp" in the name?
 
-Ok. I suggest the manpage mention this prominently. 
+"make help" lists a bunch of options. I guess, what you're searching
+for is "make mrproper" or even "make distclean".
 
-I tried a somewhat more involved example and it indeed works expected. As an
-application developer, this suits my needs just fine. I really like the
-'edge' nature of it all.
-
-The interface is also lovely:
-
-for(;;) {
-  nfds = sys_epoll_wait(kdpfd, &pfds, -1);	
-  fprintf(stderr,"sys_epoll_wait returned: %d\n",nfds);
-  
-  for(n=0;n<nfds;++n) {
-    if(pfds[n].fd==s) {
-      client=accept(s, (struct sockaddr*)&local, &addrlen);
-
-      if(client<0){
-	perror("accept");
-	continue;
-      }
-      if (sys_epoll_ctl(kdpfd, EP_CTL_ADD, client, POLLIN ) < 0) {
-	fprintf(stderr, "sys_epoll set insertion error: fd=%d\n", client);
-	return -1;
-      }                                        
-    }
-    else
-      printf("something happened on fd %d\n", pfds[n].fd);
-  }
-}
-
-Each time a packet comes in, sys_wait returns just once so I can immediately
-call it again without having to wait for another thread to have actually
-*done* something with that socket.
-
-Righteous stuff, I'll be using this, thanks.
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Regards, Olaf.

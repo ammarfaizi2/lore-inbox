@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270466AbTGNQSJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 12:18:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270467AbTGNQSI
+	id S270476AbTGNQT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 12:19:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270477AbTGNQT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 12:18:08 -0400
-Received: from AMarseille-201-1-2-223.w193-253.abo.wanadoo.fr ([193.253.217.223]:22311
-	"EHLO gaston") by vger.kernel.org with ESMTP id S270466AbTGNQSF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 12:18:05 -0400
-Subject: Re: Linux 2.4.22-pre5
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: Richard A Nelson <cowboy@vnet.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55L.0307111935180.6016@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307111705090.5422@freak.distro.conectiva>
-	 <Pine.LNX.4.56.0307111821080.7464@onqynaqf.yrkvatgba.voz.pbz>
-	 <Pine.LNX.4.55L.0307111935180.6016@freak.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1058200354.515.20.camel@gaston>
+	Mon, 14 Jul 2003 12:19:29 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:37582 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S270476AbTGNQTU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 12:19:20 -0400
+Date: Mon, 14 Jul 2003 18:34:01 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Mark Watts <m.watts@eris.qinetiq.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: requirements for installing a 2.6.0-test kernel....
+Message-ID: <20030714163401.GO12104@fs.tum.de>
+References: <200307141659.05451.m.watts@eris.qinetiq.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 14 Jul 2003 18:32:34 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200307141659.05451.m.watts@eris.qinetiq.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-07-12 at 00:38, Marcelo Tosatti wrote:
-> Ben?
+On Mon, Jul 14, 2003 at 04:59:05PM +0100, Mark Watts wrote:
 
-bk fuckage on my side, here it is
+> Now that 2.6.0-test is out, can someone point me at the definative 
+> instrictions for compiling and booting a 2.6.x kernel?
+> 
+> I understand that the compile process has changed since 2.4.x, and I may also 
+> need some updated module related things.
+> 
+> This doesnt have to be a handholding guide, just a quick rundown/qhecklist 
+> will do.
 
-#ifndef __LINUX_RADEONFB_H__
-#define __LINUX_RADEONFB_H__
+http://www.codemonkey.org.uk/post-halloween-2.5.txt 
 
-#include <asm/ioctl.h>
-#include <asm/types.h>
+The minimum required versions of programs is as usual in 
+Documentation/Changes.
 
-#define ATY_RADEON_LCD_ON	0x00000001
-#define ATY_RADEON_CRT_ON	0x00000002
+> Cheers,
+> 
+> Mark.
 
+cu
+Adrian
 
-#define FBIO_RADEON_GET_MIRROR	_IOR('@', 3, __u32)
-#define FBIO_RADEON_SET_MIRROR	_IOW('@', 4, __u32)
+-- 
 
-#endif
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

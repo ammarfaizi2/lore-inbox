@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264358AbTCXS7x>; Mon, 24 Mar 2003 13:59:53 -0500
+	id <S264401AbTCXTCd>; Mon, 24 Mar 2003 14:02:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264365AbTCXS7x>; Mon, 24 Mar 2003 13:59:53 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:14342 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S264358AbTCXS7w>; Mon, 24 Mar 2003 13:59:52 -0500
-Date: Mon, 24 Mar 2003 19:10:57 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andries.Brouwer@cwi.nl
-Cc: akpm@digeo.com, linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH 1/3] revert register_chrdev_region change
-Message-ID: <20030324191057.B23239@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andries.Brouwer@cwi.nl, akpm@digeo.com,
-	linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-References: <UTC200303241907.h2OJ75619479.aeb@smtp.cwi.nl>
+	id <S264402AbTCXTCd>; Mon, 24 Mar 2003 14:02:33 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:47748 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S264401AbTCXTCc>; Mon, 24 Mar 2003 14:02:32 -0500
+Date: Mon, 24 Mar 2003 19:13:29 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Henrique Gobbi <henrique.gobbi@cyclades.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cyclades region handling updates from 2.4
+Message-ID: <20030324191329.GE8300@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Henrique Gobbi <henrique.gobbi@cyclades.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200303241641.h2OGft35008188@deviant.impure.org.uk> <3E7ED5F6.9090301@cyclades.com> <20030324180211.GA8300@suse.de> <3E7ED9DF.5020909@cyclades.com> <20030324182802.GC8300@suse.de> <1048531778.1220.34.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <UTC200303241907.h2OJ75619479.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Mon, Mar 24, 2003 at 08:07:05PM +0100
+In-Reply-To: <1048531778.1220.34.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 24, 2003 at 08:07:05PM +0100, Andries.Brouwer@cwi.nl wrote:
-> Yes, it is more elegant to register one or more ranges.
-> (But ranges of what? Ranges in dev_t space? Or in kdev_t space?
+On Mon, Mar 24, 2003 at 10:49:37AM -0800, Henrique Gobbi wrote:
 
-In dev_t space.
+ > > This patch _already_ went into 2.4
+ > So what 2.4 kernel version has this patch ?
 
-> Here you see one reason to wait a little until dev_t/kdev_t
-> stuff has settled.)
+According to bitkeeper, patch was merged on 20th November 2002,
+so 2.4.20 (28th Nov), and all subsequent .21pre's.
 
-I guess basically everyone will disagree with you on making kdev_t
-a different representation.  This will end up as messy as the
-internal/external dev_t stuff on some of the SVR4 ports.
+		Dave
 

@@ -1,99 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262044AbUKDEOS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbUKDEcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262044AbUKDEOS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 23:14:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbUKDEOS
+	id S261903AbUKDEcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 23:32:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbUKDEcZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 23:14:18 -0500
-Received: from cantor.suse.de ([195.135.220.2]:56783 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261633AbUKDEOG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 23:14:06 -0500
-Date: Thu, 4 Nov 2004 05:07:13 +0100
-From: Andi Kleen <ak@suse.de>
-To: Takayoshi Kochi <t-kochi@bq.jp.nec.com>
-Cc: steiner@sgi.com, linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Externalize SLIT table
-Message-ID: <20041104040713.GC21211@wotan.suse.de>
-References: <20041103205655.GA5084@sgi.com> <20041104.105908.18574694.t-kochi@bq.jp.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041104.105908.18574694.t-kochi@bq.jp.nec.com>
+	Wed, 3 Nov 2004 23:32:25 -0500
+Received: from smtp001.mail.ukl.yahoo.com ([217.12.11.32]:50766 "HELO
+	smtp001.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261903AbUKDEcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Nov 2004 23:32:17 -0500
+From: Blaisorblade <blaisorblade_spam@yahoo.it>
+To: Chris Wedgwood <cw@f00f.org>
+Subject: Fixing UML against NPTL (was: Re: [uml-devel] [PATCH] UML: Use PTRACE_KILL instead of SIGKILL to kill host-OS processes (take #2))
+Date: Thu, 4 Nov 2004 05:31:21 +0100
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <20041103113736.GA23041@taniwha.stupidest.org> <200411040113.27747.blaisorblade_spam@yahoo.it> <20041104003943.GB17467@taniwha.stupidest.org>
+In-Reply-To: <20041104003943.GB17467@taniwha.stupidest.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart8664118.nYX9jWCuay";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200411040531.29596.blaisorblade_spam@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 04, 2004 at 10:59:08AM +0900, Takayoshi Kochi wrote:
-> Hi,
-> 
-> For wider audience, added LKML.
-> 
-> From: Jack Steiner <steiner@sgi.com>
-> Subject: Externalize SLIT table
-> Date: Wed, 3 Nov 2004 14:56:56 -0600
-> 
-> > The SLIT table provides useful information on internode
-> > distances. Has anyone considered externalizing this
-> > table via /proc or some equivalent mechanism.
-> > 
-> > For example, something like the following would be useful:
-> > 
-> > 	# cat /proc/acpi/slit
-> > 	010 066 046 066
-> > 	066 010 066 046
-> > 	046 066 010 020
-> > 	066 046 020 010
-> > 
-> > If this looks ok (or something equivalent), I'll generate a patch....
+--nextPart8664118.nYX9jWCuay
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-This isn't very useful without information about proximity domains.
-e.g. on x86-64 the proximity domain number is not necessarily 
-the same as the node number. 
+On Thursday 04 November 2004 01:39, Chris Wedgwood wrote:
+> On Thu, Nov 04, 2004 at 01:13:27AM +0100, Blaisorblade wrote:
+> > Well, not a lot of new work should go there.
+>
+> agreed
+>
+> > Not always. Do you think I'm a luser? Or what?
+>
+> no, not at all
+>
+> i was asking what break to see if i can help
 
+Intimate Linking Script and NPTL knowledge would help a lot.
 
-> For user space to manipulate scheduling domains, pinning processes
-> to some cpu groups etc, that kind of information is very useful!
-> Without this, users have no notion about how far between two nodes.
+The issues are 2 ones:
 
-Also some reporting of _PXM for PCI devices is needed. I had a 
-experimental patch for this on x86-64 (not ACPI based), that
-reported nearby nodes for PCI busses. 
+1) LKML does not link because the linker does not like it's linker script,=
+=20
+which defines a special thread_private section (give a look at switcheroo()=
+=20
+and you could maybe realize the issue of copying the .text to a tmpfs file=
+=20
+and replacing the mapping to the executable with the tmpfs file mapping).
 
-> 
-> But ACPI SLIT table is too arch specific (ia64 and x86 only) and
-> user-visible logical number and ACPI proximity domain number is
-> not always identical.
+2) getpid() on a child clone returns the process's pid when run with a=20
+NPTL-enabled glibc, while it returns the thread pid with a LinuxThreads one=
+;=20
+this causes tons of problems with UML, which uses signals as inter-thread a=
+nd=20
+intra-thread communication.
 
-Exactly.
+Note UML is not using pthread_create() to create the threads, where this=20
+behaviour is an improvement. I'm using a plain clone() call without the=20
+CLONE_THREAD flag (which is not even added in by glibc, according to strace=
+).
 
-> 
-> Why not export node_distance() under sysfs?
-> I like (1).
-> 
-> (1) obey one-value-per-file sysfs principle
-> 
-> % cat /sys/devices/system/node/node0/distance0
-> 10
+I've not yet checked if glibc is hijacking getpid() or not, but that would =
+be=20
+strange anyway.
 
-Surely distance from 0 to 0 is 0?
+Also, this behaviour has been reported the first time about at the time of=
+=20
+2.6.0, but actually UML has almost never runs against NPTL glibc, because=20
+it's statically linked most times.
 
-> % cat /sys/devices/system/node/node0/distance1
-> 66
+=2D-=20
+Paolo Giarrusso, aka Blaisorblade
+Linux registered user n. 292729
 
-> 
-> (2) one distance for each line
-> 
-> % cat /sys/devices/system/node/node0/distance
-> 0:10
-> 1:66
-> 2:46
-> 3:66
-> 
-> (3) all distances in one line like /proc/<PID>/stat
-> 
-> % cat /sys/devices/system/node/node0/distance
-> 10 66 46 66
+--nextPart8664118.nYX9jWCuay
+Content-Type: application/pgp-signature
 
-I would prefer that. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
--Andi
+iD8DBQBBibChqH9OHC+5NscRAvwSAJ4x14hZhzkEYZGa56P3x9vUERZ4sgCgjwIZ
+RaX8F5kuHuOfWorZzrnNiE0=
+=XWcS
+-----END PGP SIGNATURE-----
+
+--nextPart8664118.nYX9jWCuay--

@@ -1,67 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUEaSmR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264710AbUEaTFh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264677AbUEaSmR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 May 2004 14:42:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264710AbUEaSmR
+	id S264710AbUEaTFh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 May 2004 15:05:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264731AbUEaTFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 May 2004 14:42:17 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:6297 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S264677AbUEaSmO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 May 2004 14:42:14 -0400
-Message-ID: <40BB7D34.8060200@elegant-software.com>
-Date: Mon, 31 May 2004 14:45:08 -0400
-From: Russell Leighton <russ@elegant-software.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Mon, 31 May 2004 15:05:37 -0400
+Received: from scanmail3.cableone.net ([24.116.0.123]:21510 "EHLO
+	mail.cableone.net") by vger.kernel.org with ESMTP id S264710AbUEaTF1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 31 May 2004 15:05:27 -0400
+Date: Mon, 31 May 2004 13:05:25 -0600
+From: Colin Gibbs <colin@gibbsonline.net>
 To: linux-kernel@vger.kernel.org
-Subject: F_SETSIG broken/changed in 2.6 for UDP and TCP sockets?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: nfsd readahead
+Message-ID: <20040531190525.GA20916@alpha.gibbsonline.net>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="uAKRQypu60I7Lcqm"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
+X-Server: High Performance Mail Server - http://surgemail.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I have a program that works fine under stock rh9 (2.4.2-8) but has 
-issues getting signaled under FedoraCore2 (2.6.5-1.358)
-using SETSIG to a Posix RT signal.
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The program does the standard:
+Hi,
 
-  /* hook to process */
-  if ( fcntl(fdcallback->fd, F_SETOWN, mon->handler_q.thread->pid) == -1 ) {
-    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
-       "cannot set owner on fd (%s)",
-       strerror(errno));
-  }/* end if */
+I was having problems with slow streaming reads over nfs. After much
+investigation, I found that nfsd uses its own cache of readahead
+parameters and that:
+(1) they were not being reused
+(2) they were not being initialized properly
 
-  /* make async */
-  if ( fcntl(fdcallback->fd, F_SETFL, (O_NONBLOCK | O_ASYNC) ) == -1 ) {
-    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
-       "cannot set async on fd (%s)",
-       strerror(errno));
-  }/* end if */
+For (1) decrement p_count after the read is done. I don't see any other
+users of these readahead parameters, so I guess its ok.
 
-  /* hook to signal */
-  if ( fcntl(fdcallback->fd, F_SETSIG, AW_SIG_FD) == -1 ) {
-    aw_log(fdcallback->handler->logger, AW_ERROR_LOG_LEVEL,
-       "cannot set signal on fd (%s)",
-       strerror(errno));
-  }/* end if */
+For (2) call file_ra_state_init.
 
-Under Fedora things work well for raw sockets (much lower latency than 
-in 2.4!) but are inconsistent with udp or tcp sockets.
+With these changes, I get 35MB/s reads from disk over nfs. Before I got
+7MB/s.
 
-In the udp case, I when I listen for multicast packets my app only 
-receives them when I am running a tcpdump (bizarre!).
+The bit with the stats is entirely optional.
 
-In the tcp case, I don't get signaled if I do the F_SETSIG on more than 
-1 fd.
 
-Any tips on tracking this down would be much appreciated.
+Colin
 
-Thx
+--uAKRQypu60I7Lcqm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="nfsd-readahead.patch"
 
-Russ
+diff -urN -X diff-exclude linux-2.6.6/fs/nfsd/stats.c monolith-2.6.6/fs/nfsd/stats.c
+--- linux-2.6.6/fs/nfsd/stats.c	2004-03-12 01:22:24.000000000 -0700
++++ monolith-2.6.6/fs/nfsd/stats.c	2004-05-27 11:19:51.000000000 -0600
+@@ -65,7 +65,7 @@
+ 
+ 	/* newline and ra-cache */
+ 	seq_printf(seq, "\nra %u", nfsdstats.ra_size);
+-	for (i=0; i<11; i++)
++	for (i=0; i<12; i++)
+ 		seq_printf(seq, " %u", nfsdstats.ra_depth[i]);
+ 	seq_putc(seq, '\n');
+ 	
+diff -urN -X diff-exclude linux-2.6.6/fs/nfsd/vfs.c monolith-2.6.6/fs/nfsd/vfs.c
+--- linux-2.6.6/fs/nfsd/vfs.c	2004-04-29 22:46:44.000000000 -0600
++++ monolith-2.6.6/fs/nfsd/vfs.c	2004-05-27 13:06:26.000000000 -0600
+@@ -564,8 +564,10 @@
+ static spinlock_t ra_lock = SPIN_LOCK_UNLOCKED;
+ 
+ static inline struct raparms *
+-nfsd_get_raparms(dev_t dev, ino_t ino)
++nfsd_get_raparms(struct file *file)
+ {
++	dev_t dev = file->f_dentry->d_inode->i_sb->s_dev;
++	ino_t ino = file->f_dentry->d_inode->i_ino;
+ 	struct raparms	*ra, **rap, **frap = NULL;
+ 	int depth = 0;
+ 
+@@ -579,6 +581,7 @@
+ 	}
+ 	depth = nfsdstats.ra_size*11/10;
+ 	if (!frap) {	
++		nfsdstats.ra_depth[11]++;
+ 		spin_unlock(&ra_lock);
+ 		return NULL;
+ 	}
+@@ -586,7 +589,7 @@
+ 	ra = *frap;
+ 	ra->p_dev = dev;
+ 	ra->p_ino = ino;
+-	memset(&ra->p_ra, 0, sizeof(ra->p_ra));
++	file_ra_state_init(&ra->p_ra, file->f_mapping);
+ found:
+ 	if (rap != &raparm_cache) {
+ 		*rap = ra->p_next;
+@@ -658,7 +661,7 @@
+ #endif
+ 
+ 	/* Get readahead parameters */
+-	ra = nfsd_get_raparms(inode->i_sb->s_dev, inode->i_ino);
++	ra = nfsd_get_raparms(&file);
+ 	if (ra)
+ 		file.f_ra = ra->p_ra;
+ 
+@@ -674,8 +677,12 @@
+ 	}
+ 
+ 	/* Write back readahead params */
+-	if (ra)
++	if (ra) {
++		spin_lock(&ra_lock);
+ 		ra->p_ra = file.f_ra;
++		ra->p_count--;
++		spin_unlock(&ra_lock);
++	}
+ 
+ 	if (err >= 0) {
+ 		nfsdstats.io_read += err;
+diff -urN -X diff-exclude linux-2.6.6/include/linux/nfsd/stats.h monolith-2.6.6/include/linux/nfsd/stats.h
+--- linux-2.6.6/include/linux/nfsd/stats.h	2003-11-26 13:43:37.000000000 -0700
++++ monolith-2.6.6/include/linux/nfsd/stats.h	2004-05-27 11:20:56.000000000 -0600
+@@ -25,7 +25,7 @@
+ 					 * of available threads were in use */
+ 	unsigned int	th_fullcnt;	/* number of times last free thread was used */
+ 	unsigned int	ra_size;	/* size of ra cache */
+-	unsigned int	ra_depth[11];	/* number of times ra entry was found that deep
++	unsigned int	ra_depth[12];	/* number of times ra entry was found that deep
+ 					 * in the cache (10percentiles). [10] = not found */
+ };
+ 
 
+--uAKRQypu60I7Lcqm--

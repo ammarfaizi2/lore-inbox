@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbTEFDML (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 23:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262336AbTEFDMK
+	id S262313AbTEFDPC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 23:15:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbTEFDPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 23:12:10 -0400
-Received: from nessie.weebeastie.net ([61.8.7.205]:17280 "EHLO
-	nessie.weebeastie.net") by vger.kernel.org with ESMTP
-	id S262335AbTEFDMH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 23:12:07 -0400
-Date: Tue, 6 May 2003 13:26:28 +1000
-From: CaT <cat@zip.com.au>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.68-bk7: Where oh where have my sensors gone? (i2c)
-Message-ID: <20030506032627.GA524@zip.com.au>
-References: <20030427115644.GA492@zip.com.au> <20030428205522.GA26160@kroah.com> <20030505083458.GA621@zip.com.au> <20030505165848.GA1249@kroah.com> <3EB6AA01.30601@wmich.edu> <20030505182648.GA1826@kroah.com>
+	Mon, 5 May 2003 23:15:02 -0400
+Received: from tehunlose.com ([68.15.181.213]:39367 "EHLO cerebellum")
+	by vger.kernel.org with ESMTP id S262313AbTEFDO7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 May 2003 23:14:59 -0400
+Date: Mon, 5 May 2003 20:27:26 -0700
+From: Zack Gilburd <zack@tehunlose.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linksys WRT54G Wireless Router
+Message-Id: <20030505202726.396b7a64.zack@tehunlose.com>
+In-Reply-To: <200305052316.09846.public@mikl.as>
+References: <200305052316.09846.public@mikl.as>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030505182648.GA1826@kroah.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.1_QE0j6QH5.RDF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 05, 2003 at 11:26:48AM -0700, Greg KH wrote:
-> Which is what should be showing up on CaT's machine (of the lm75 device
-> is on his hardware.)
+--=.1_QE0j6QH5.RDF
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Yes. And ofcourse it isn't so I feel like a right boob. Now, compiling
-the right sensor (adm) gets it registered and promptly crashes the
-kernel. Once this happened whilst in the kernel, either mid scroll of
-the fb or mid write of a new line on screen and another time this
-happened mid-fsck (no partitions needed fscking). Witht he wrong/no
-sensors module in the kernel runs just fine.
+On Mon, 5 May 2003 23:16:09 -0400
+Andrew Miklas <public@mikl.as> wrote:
 
-My experience with the sensors code is evolving. :)
+> I'm sure the source is already available publically somewhere.  I just haven't 
+> been able to find it.
 
--- 
-Martin's distress was in contrast to the bitter satisfaction of some
-of his fellow marines as they surveyed the scene. "The Iraqis are sick
-people and we are the chemotherapy," said Corporal Ryan Dupre. "I am
-starting to hate this country. Wait till I get hold of a friggin' Iraqi.
-No, I won't get hold of one. I'll just kill him."
-	- http://www.informationclearinghouse.info/article2479.htm
+AFAIK, the GPL specifies that the source must be either included with the product or a location for download must be clearly specified.
+
+Then again, I am no GPL guru.
+
+Zack
+
+--=.1_QE0j6QH5.RDF
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+tyuip5pFZoJAq2wRAki8AKCp/X2xyzQxH3baGheOn4B0vDPlNACg6Y/C
+kJPPyrzGEO1YFpMsIvYxb3g=
+=mDQU
+-----END PGP SIGNATURE-----
+
+--=.1_QE0j6QH5.RDF--

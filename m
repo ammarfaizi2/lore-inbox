@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVB0Wo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVB0WuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVB0Wo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Feb 2005 17:44:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVB0Wo6
+	id S261501AbVB0WuN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Feb 2005 17:50:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVB0WuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Feb 2005 17:44:58 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:3802 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261500AbVB0Wo5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Feb 2005 17:44:57 -0500
-Date: Sun, 27 Feb 2005 22:44:54 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, bunk@stusta.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] unexport do_settimeofday
-Message-ID: <20050227224454.GA2168@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>,
-	Arjan van de Ven <arjan@infradead.org>, bunk@stusta.de,
-	linux-kernel@vger.kernel.org
-References: <20050224233742.GR8651@stusta.de> <20050224212448.367af4be.akpm@osdl.org> <1109318525.6290.32.camel@laptopd505.fenrus.org> <20050225002804.4905b649.akpm@osdl.org>
+	Sun, 27 Feb 2005 17:50:13 -0500
+Received: from fire.osdl.org ([65.172.181.4]:11476 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261501AbVB0WuJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Feb 2005 17:50:09 -0500
+Date: Sun, 27 Feb 2005 14:49:28 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: zwane@arm.linux.org.uk, linuxppc64-dev@ozlabs.org,
+       linux-kernel@vger.kernel.org, nathanl@austin.ibm.com
+Subject: Re: [PATCH] PPC64: Generic hotplug cpu support
+Message-Id: <20050227144928.6c71adaf.akpm@osdl.org>
+In-Reply-To: <1109542971.14993.217.camel@gaston>
+References: <Pine.LNX.4.61.0502010009010.3010@montezuma.fsmlabs.com>
+	<20050227031655.67233bb5.akpm@osdl.org>
+	<1109542971.14993.217.camel@gaston>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050225002804.4905b649.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 25, 2005 at 12:28:04AM -0800, Andrew Morton wrote:
-> > for _set_ time of day? I really can't imagine anyone messing with that.
-> > _get_... sure. but set???
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+>
+> > -		if (cpu_is_offline(smp_processor_id()) &&
+>  > +		if (cpu_is_offline(_smp_processor_id()) &&
+>  >  		    system_state == SYSTEM_RUNNING)
+>  >  			cpu_die();
+>  >  	}
+>  > _
 > 
-> Sure.  But there must have been a reason to export it in the first place.
+>  This is the idle loop. Is that ever supposed to be preempted ?
 
-NO.  Speaking from experience there's tons of totally pointless exports.
-
-> I don't see much point in playing these games.  Deprecate it, pull it out
-> next year, done.
-
-Sorry, but without a development tree we don't want to play these deprecation
-forever games.  If you want a longer warning period open 2.7 now that we
-can work ahead there and leave 2.6 alone.  But restricting all kinds of
-totally sane things from going in just doesn't work out.
+Nope, it's a false positive.  We had to do the same in x86's idle loop and
+probably others will hit it.
 

@@ -1,66 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277732AbRJIOpQ>; Tue, 9 Oct 2001 10:45:16 -0400
+	id <S277739AbRJIOrQ>; Tue, 9 Oct 2001 10:47:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277731AbRJIOpM>; Tue, 9 Oct 2001 10:45:12 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:9222 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S277734AbRJIOo7>; Tue, 9 Oct 2001 10:44:59 -0400
-Date: Tue, 9 Oct 2001 11:23:24 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: pre6 VM issues
-In-Reply-To: <20011009163126.D15943@athlon.random>
-Message-ID: <Pine.LNX.4.21.0110091122190.5604-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277736AbRJIOqK>; Tue, 9 Oct 2001 10:46:10 -0400
+Received: from smtp.telecable.es ([212.89.0.35]:24849 "HELO smtp.telecable.es")
+	by vger.kernel.org with SMTP id <S277739AbRJIOp4>;
+	Tue, 9 Oct 2001 10:45:56 -0400
+Date: Tue, 9 Oct 2001 16:52:46 +0200
+From: Alejandro Conty <zz01f074@etsiig.uniovi.es>
+To: Gergely Tamas <dice@mfa.kfki.hu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] again: Re: Athlon kernel crash (i686 works)
+Message-Id: <20011009165246.52151c4d.zz01f074@etsiig.uniovi.es>
+In-Reply-To: <Pine.LNX.4.33.0110091611050.20120-100000@falka.mfa.kfki.hu>
+In-Reply-To: <20011009155907.6c9e0b98.zz01f074@etsiig.uniovi.es>
+	<Pine.LNX.4.33.0110091611050.20120-100000@falka.mfa.kfki.hu>
+Organization: poca
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.8; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 9 Oct 2001, Andrea Arcangeli wrote:
-
-> On Tue, Oct 09, 2001 at 10:44:37AM -0200, Marcelo Tosatti wrote:
-> > 
-> > Hi, 
-> > 
-> > I've been testing pre6 (actually its pre5 a patch which Linus sent me
-> > named "prewith 16GB of RAM (thanks to OSDLabs for that), and I've found
-> > out some problems. First of all, we need to throttle normal allocators
-> > more often and/or update the low memory limits for normal allocators to a
-> > saner value. I already said I think allowing everybody to eat up to
-> > "freepages.min" is too low for a default.
-> > 
-> > I've got atomic memory failures with _22GB_ of swap free (32GB total):
-> > 
-> >  eth0: can't fill rx buffer (force 0)!
-> > 
-> > Another issue is the damn fork() special case. Its failing in practice:
-> > 
-> > bash: fork: Cannot allocate memory
-> > 
-> > Also with _LOTS_ of swap free. (gigs of them)
-> > 
-> > Linus, we can introduce a "__GFP_FAIL" flag to be used by _everyone_ which
-> > wants to do higher order allocations as an optimization (eg allocate big
-> > scatter-gather tables or whatever). Or do you prefer to make the fork()
-> > allocation a separate case ?
-> > 
-> > I'll take a closer look at the code now and make the throttling/limits to
-> > what I think is saner for a default.
+> Hi!
 > 
-> I've also finished last night to fix all highmem troubles that I could
-> reproduce on 128mbyte with highmem emulation, I'm confidetn it will work
-> fine on real highmem too now, I hope to get access soon to some highmem
-> machine too to test it.
->
-> I guess you're not interested to test my patches since they're not in
-> the mainline direction though.
+>  > Could my random kernel oopses be caused by that bug?
+> 
+> I'm not sure, but I think no. If you hit this bug, you're even not able to
+> start Linux. In most - if not all - reported cases, the computers did not
+> reach the shell. They oopsed e.g. at init or shortly after passing it.
 
-Ah, I forgot something: Even if I'm not interested in the patches the 16GB
-machine is available to the community. If you (or any other VM people who
-need the machine) want access, just tell me.  
+Ok, so is not that bug, I get an oops only once in a week.
 
+> 
+>  > I have a VIA (ASUS A7V) cipset an K7 1000Mhz, and sometimes the
+> 
+> VIA KT133A ?
+
+Yes. I just updated to 2.4.10, so I will wait a few days and see what happens. By now I haven't had any crash (but the analog.o one, which is already fixed).

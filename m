@@ -1,46 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135764AbRAUH2T>; Sun, 21 Jan 2001 02:28:19 -0500
+	id <S135810AbRAUHoc>; Sun, 21 Jan 2001 02:44:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135763AbRAUH2J>; Sun, 21 Jan 2001 02:28:09 -0500
-Received: from saturn.cs.uml.edu ([129.63.8.2]:3847 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S135405AbRAUH16>;
-	Sun, 21 Jan 2001 02:27:58 -0500
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200101210727.f0L7RO3258994@saturn.cs.uml.edu>
-Subject: Re: named streams, extended attributes, and posix
-To: rothwell@holly-springs.nc.us (Michael Rothwell)
-Date: Sun, 21 Jan 2001 02:27:24 -0500 (EST)
-Cc: mmckinlay@gnu.org (Mo McKinlay), peter@cadcamlab.org (Peter Samuelson),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <3A686599.470272D6@holly-springs.nc.us> from "Michael Rothwell" at Jan 19, 2001 11:04:41 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S135809AbRAUHoV>; Sun, 21 Jan 2001 02:44:21 -0500
+Received: from hibernia.clubi.ie ([212.17.32.129]:34964 "EHLO
+	hibernia.jakma.org") by vger.kernel.org with ESMTP
+	id <S135806AbRAUHoG>; Sun, 21 Jan 2001 02:44:06 -0500
+Date: Sun, 21 Jan 2001 07:47:30 +0000 (GMT)
+From: Paul Jakma <paul@clubi.ie>
+X-X-Sender: <paul@fogarty.jakma.org>
+To: Daniel Stone <daniel@kabuki.eyep.net>
+cc: Aaron Lehmann <aaronl@vitelus.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 and ipmasq modules
+In-Reply-To: <E14K7UY-0004hB-00@kabuki.eyep.net>
+Message-ID: <Pine.LNX.4.31.0101210746410.1046-100000@fogarty.jakma.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Rothwell writes:
-> ...
->> Today, Michael Rothwell (rothwell@holly-springs.nc.us) wrote:
+On 21 Jan 2001, Daniel Stone wrote:
 
->>> The filesystem, when registering that it supports the "named streams"
->>> namespace, could specify its preferred delimiter to the VFS as well.
->>> Ext4 could use /directory/file/stream, and NTFS could use
->>> /directory/file:stream.
-...
-> Oh, undoubtedly.  But NTFS already disallows several characters
-> in valid filenames.
+> FTP is under Connection Tracking support, FTP connection tracking. Does
+> the same stuff as ip_masq_ftp. IRC is located in patch-o-matic -
+> download iptables 1.2 and do a make patch-o-matic, there is also RPC and
+> eggdrop support in there. I'm half in the middle of porting ip_masq_icq,
+> but it's one hideously ugly kludge after another. Such is life.
+>
 
-NTFS allows all 16-bit characters in filenames, including 0x0000.
-Nothing is disallowed. The NT kernel's native API uses counted
-Unicode strings. The strings can be huge too, like 128 kB.
+uhmm... ICQ seems to work fine through connection tracking for me, so
+is there a need for a special ip_masq_icq module?
 
-So there isn't _any_ safe delimiter.
+> d
 
-Win32 will choke on 0x0000 and a few other things, allowing a
-clever person to create apparently inaccessible files.
+regards,
+-- 
+Paul Jakma	paul@clubi.ie	paul@jakma.org
+PGP5 key: http://www.clubi.ie/jakma/publickey.txt
+-------------------------------------------
+Fortune:
+[We] use bad software and bad machines for the wrong things.
+		-- R.W. Hamming
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,75 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVBHDCo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVBHDP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVBHDCo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Feb 2005 22:02:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVBHDCn
+	id S261451AbVBHDP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Feb 2005 22:15:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVBHDP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Feb 2005 22:02:43 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15833 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261448AbVBHDCl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Feb 2005 22:02:41 -0500
-Date: Tue, 8 Feb 2005 03:02:28 +0000
-From: Matthew Wilcox <matthew@wil.cx>
-To: Sam Ravnborg <sam@ravnborg.org>,
-       Kai Germaschewski <kai@germaschewski.name>
-Cc: linux-kernel@vger.kernel.org, dholland@eecs.harvard.edu
-Subject: [PATCH] Makefiles are not built using a Fortran compiler
-Message-ID: <20050208030228.GE20386@parcelfarce.linux.theplanet.co.uk>
+	Mon, 7 Feb 2005 22:15:56 -0500
+Received: from h80ad2550.async.vt.edu ([128.173.37.80]:47377 "EHLO
+	h80ad2550.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261451AbVBHDPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Feb 2005 22:15:50 -0500
+Message-Id: <200502080315.j183FUnv004232@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Chris Wright <chrisw@osdl.org>
+Cc: David Wagner <daw-usenet@taverner.cs.berkeley.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] BSD Secure Levels: claim block dev in file struct rather than inode struct, 2.6.11-rc2-mm1 (3/8) 
+In-Reply-To: Your message of "Mon, 07 Feb 2005 18:20:36 PST."
+             <20050207182035.D469@build.pdx.osdl.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050207192108.GA776@halcrow.us> <20050207193129.GB834@halcrow.us> <20050207142603.A469@build.pdx.osdl.net> <200502072241.j17MfTfP027969@turing-police.cc.vt.edu> <cu95po$3ch$1@abraham.cs.berkeley.edu> <200502080210.j182Aioh007619@turing-police.cc.vt.edu>
+            <20050207182035.D469@build.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1107832529_3225P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Mon, 07 Feb 2005 22:15:29 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1107832529_3225P
+Content-Type: text/plain; charset=us-ascii
 
-David Holland pointed out that Make has a lot of implicit suffix rules
-built in and you can disable them by setting ".SUFFIXES:".  As an
-example, checking the debugging information shows we no longer try to
-compile anything from a '.f' suffix.  This turns out to be good for a 15%
-speedup on a build with nothing to do; down from 29.1 seconds to 24.7
-seconds on my K6.
+On Mon, 07 Feb 2005 18:20:36 PST, Chris Wright said:
+> * Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu) wrote:
+> > open("/tmp/sh-thd-1107848098", O_WRONLY|O_CREAT|O_TRUNC|O_EXCL|O_LARGEFILE,
+ 0600) = 3
+> 
+> O_EXCL
+> 
+> > Wow - if my /tmp was on the same partition, and I'd hard-linked that
+> > file to /etc/passwd, it would be toast now if root had run it.
+> 
+> So, in fact, it wouldn't ;-)
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+Well.. Yeah.  bash gets it right, a lot of programs botch it. ;)
 
-Index: Makefile
-===================================================================
-RCS file: /var/cvs/linux-2.6/Makefile,v
-retrieving revision 1.338
-diff -u -p -r1.338 Makefile
---- Makefile	6 Feb 2005 06:43:49 -0000	1.338
-+++ Makefile	8 Feb 2005 02:39:28 -0000
-@@ -4,6 +4,8 @@ SUBLEVEL = 11
- EXTRAVERSION =-rc3-pa3
- NAME=Woozy Numbat
- 
-+.SUFFIXES:
-+
- # *DOCUMENTATION*
- # To see a list of typical targets execute "make help"
- # More info can be located in ./README
-Index: scripts/Makefile.build
-===================================================================
-RCS file: /var/cvs/linux-2.6/scripts/Makefile.build,v
-retrieving revision 1.9
-diff -u -p -r1.9 Makefile.build
---- scripts/Makefile.build	12 Jan 2005 20:18:19 -0000	1.9
-+++ scripts/Makefile.build	8 Feb 2005 02:39:28 -0000
-@@ -4,6 +4,8 @@
- 
- src := $(obj)
- 
-+.SUFFIXES:
-+
- .PHONY: __build
- __build:
- 
+--==_Exmh_1107832529_3225P
+Content-Type: application/pgp-signature
 
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCCC7RcC3lWbTT17ARAub+AJwNFwr0lq5b6km5a4zyir/gBM1VwACgwfuD
+GvDq5wryg9rrC5cSrSF8lAQ=
+=REdj
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1107832529_3225P--

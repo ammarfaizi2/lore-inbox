@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbUKENpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262694AbUKENrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262689AbUKENpy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 08:45:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbUKENpx
+	id S262694AbUKENrW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 08:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262691AbUKENrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 08:45:53 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:36501 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262689AbUKENpl (ORCPT
+	Fri, 5 Nov 2004 08:47:22 -0500
+Received: from mail.gmx.net ([213.165.64.20]:4311 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262694AbUKENrQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 08:45:41 -0500
-Date: Fri, 5 Nov 2004 14:46:39 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Amit Shah <amitshah@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RT-preempt-2.6.10-rc1-mm2-V0.7.11 hang
-Message-ID: <20041105134639.GA14830@elte.hu>
-References: <200411051837.02083.amitshah@gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411051837.02083.amitshah@gmx.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 5 Nov 2004 08:47:16 -0500
+Date: Fri, 5 Nov 2004 14:47:15 +0100 (MET)
+From: "Daniel Kirsten" <Daniel.Kirsten@gmx.net>
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: 2.6.10-rc1-mm3-RT-V0.7.13
+X-Priority: 3 (Normal)
+X-Authenticated: #14521599
+Message-ID: <29451.1099662435@www38.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I cannot create a   2.6.10-rc1-mm3-RT-V0.7.13  tree. 
 
-* Amit Shah <amitshah@gmx.net> wrote:
+patching file mm/rmap.c
+patching file mm/mmap.c
+Hunk #2 FAILED at 1545.
+1 out of 2 hunks FAILED -- saving rejects to file mm/mmap.c.rej
+patching file mm/memory.c
+patching file mm/shmem.c
 
-> Hi Ingo,
-> 
-> I'm trying out the RT preempt patch on a P4 HT machine, I get the following 
-> message:
-> 
-> e1000_xmit_frame+0x0/0x83b [e1000]
 
-hm, does this happen with -V0.7.13 too? (note that it's against
-2.6.10-rc1-mm3, a newer -mm tree.)
+-- 
+NEU +++ DSL Komplett von GMX +++ http://www.gmx.net/de/go/dsl
+GMX DSL-Netzanschluss + Tarif zum supergünstigen Komplett-Preis!
 
-	Ingo

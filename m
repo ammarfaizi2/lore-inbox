@@ -1,176 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263053AbUB0ROA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 12:14:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263066AbUB0ROA
+	id S263066AbUB0RSx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 12:18:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263067AbUB0RSx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 12:14:00 -0500
-Received: from fed1mtao03.cox.net ([68.6.19.242]:11410 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S263053AbUB0RNo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 12:13:44 -0500
-Date: Fri, 27 Feb 2004 10:13:39 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: George Anzinger <george@mvista.com>
-Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][3/3] Update CVS KGDB's wrt connect / detach
-Message-ID: <20040227171339.GA1052@smtp.west.cox.net>
-References: <20040225213626.GF1052@smtp.west.cox.net> <20040225214343.GG1052@smtp.west.cox.net> <20040225215309.GI1052@smtp.west.cox.net> <200402261344.49261.amitkale@emsyssoft.com> <403E8180.1060008@mvista.com> <20040226235915.GV1052@smtp.west.cox.net> <403EA407.1010405@mvista.com>
+	Fri, 27 Feb 2004 12:18:53 -0500
+Received: from topaz.cx ([66.220.6.227]:28037 "EHLO mail.topaz.cx")
+	by vger.kernel.org with ESMTP id S263066AbUB0RSa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 12:18:30 -0500
+Date: Fri, 27 Feb 2004 12:18:19 -0500
+From: Chip Salzenberg <chip@pobox.com>
+To: nfs@lists.sourceforge.net
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.6.3-bk9: nfsd module needs locks_remove_posix()
+Message-ID: <20040227171819.GA23518@perlsupport.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <403EA407.1010405@mvista.com>
+X-Message-Flag: OUTLOOK ERROR: Message text violates P.A.T.R.I.O.T. act
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 26, 2004 at 05:57:27PM -0800, George Anzinger wrote:
-> Tom Rini wrote:
-> >- Connect to a waiting kernel, continue/^C/disconnect/reconnect.
-> >- Connect to a running kernel, continue/^C/disconnect/reconnect.
-> >- Once connected and running, ^C/hit breakpoint and
-> >  disconnect/reconnect.
-> >- Once connected, set a breakpoint, kill gdb and hit the breakpoint and
-> >  reconnect.
-> >- Once connected and running, kill gdb and reconnect.
-> >
-> >The last two aren't as "fast" as I might like, but they're the "gdb went
-> >away in an ungraceful manner" situations, so I think it's OK.  In the
-> >first (breakpoint hit, no gdb) I end up having to issue a few continues
-> >to get moving again, but it's a one-time event.  
-> 
-> What are you referring to as "continues".  How is this different from 
-> connect to a waiting kernel?   Usually this would be the end of the 
-> session.  If you are going to continue from here something needs to be done 
-> with the breakpoint that gdb does not know about.  If kgdb can remove them, 
-> well fine, except your stopped on one.  If you remove it, there could be 
-> some confusion as to why you are in the debugger.  This would be a fine 
-> time for a note to the user from kgdb.  It is too bad that the interface 
-> does not admit to such a thing.
+2.6.3-bk9 is missing an export, patch below.
 
-OK, I've rechecked the senarios, and the only time gdb/kgdb seems a bit
-confused is when gdb sets a bpt / dies / bpt is triggered.  It looks
-like this (on gdb reattaching to the now stuck host, gdb 6.0):
-Remote debugging using /dev/ttyS0
-Sending packet: $qPassSignals:0e;10;14;17;1a;1b;1c;21;24;25;4c;#df...Ack
-Packet received: 
-Packet qPassSignals (pass-signals) is NOT supported
-Sending packet: $Hc-1#09...Ack
-Packet received: OK
-Sending packet: $qC#b4...Ack
-Packet received: QC00000000000000d0
-Sending packet: $qOffsets#4b...Ack
-Packet received: 
-Sending packet: $?#3f...Ack
+Also, does this new nfsd make the comments on locks_remove_posix()
+obsolete, or maybe incomplete?  I couldn't tell.
 
-<- At this point, kgdb calls remove_all_break() ->
-
-Packet received: S05
-Sending packet: $Hgd0#43...Ack
-Packet received: OK
-Sending packet: $g#67...Ack
-Packet received: 27000000ff0100007b000000c0feffbf703f55d6bc3f55d6c0feffbfd4fdffbf8a4815c08202000060000000680000007b0069d77b000000ffff0000ffff0000
-0xc015488a in sys_mkdir (Sending packet: $m27,8#3a...Ack
-Packet received: E22
-Sending packet: $m27,8#3a...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-pathname=0x27 <Address 0x27 out of bounds>, 
-    mode=-1073742144) at fs/namei.c:1533
-1533		tmp = getname(pathname);
-Sending packet: $qSymbol::#5b...Ack
-Packet received: 
-Packet qSymbol (symbol-lookup) is NOT supported
-
-<- continue ->
-
-Continuing.
-Sending packet: $Hsd0#4f...Ack
-Packet received: 
-Sending packet: $Hc0#db...Ack
-Packet received: OK
-Sending packet: $c#63...Ack
-Packet received: T0bthread:00000000000000d0;
-[New Thread 208]
-Sending packet: $g#67...Ack
-Packet received: 27000000ff0100007b000000c0feffbf703f55d6bd3f55d6c0feffbfd4fdffbf8b4815c08602010060000000680000007b0069d77b000000ffff0000ffff0000
-
-Program received signal SIGSEGV, Segmentation fault.
-0xc015488b in sys_mkdir (Sending packet: $m27,8#3a...Ack
-Packet received: E22
-Sending packet: $m27,8#3a...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-pathname=0x27 <Address 0x27 out of bounds>, 
-    mode=-1073742144) at fs/namei.c:1533
-1533		tmp = getname(pathname);
-
-<- continue ->
-
-Continuing.
-Sending packet: $C0b#d5...Ack
-Packet received: 
-Can't send signals to this remote system.  SIGSEGV not sent.
-Sending packet: $c#63...Ack
-Packet received: T05thread:00000000000000d0;
-Sending packet: $g#67...Ack
-Packet received: 27000000ff0100007b000000c0feffbf703f55d6bd3f55d6c0feffbfd4fdffbf8b4815c08602010060000000680000007b0069d77b000000ffff0000ffff0000
-
-Program received signal SIGTRAP, Trace/breakpoint trap.
-0xc015488b in sys_mkdir (Sending packet: $m27,8#3a...Ack
-Packet received: E22
-Sending packet: $m27,8#3a...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-Sending packet: $m27,1#33...Ack
-Packet received: E22
-pathname=0x27 <Address 0x27 out of bounds>, 
-    mode=-1073742144) at fs/namei.c:1533
-1533		tmp = getname(pathname);
-
-<- continue ->
-
-Continuing.
-Sending packet: $c#63...Ack
-
-<- From here, the system is OK again ->
-
-remote_interrupt called
-remote_stop called
-Packet received: T05thread:0000000000008000;
-[New Thread 32768]
-Sending packet: $g#67...Ack
-Packet received: 0100000004000000000000000400000068df28c06cdf28c080000000809a28c05afd12c00200000060000000680000007b0010c07b000000ffff0000ffff0000
-
-Program received signal SIGTRAP, Trace/breakpoint trap.
-[Switching to Thread 32768]
-breakpoint () at kernel/kgdb.c:1088
-1088		atomic_set(&kgdb_setting_breakpoint, 0);
-Sending packet: $D#44...Ack
-Packet received: OK
-Ending remote debugging.
+--- x/fs/locks.c.old	2004-02-17 22:59:31.000000000 -0500
++++ x/fs/locks.c	2004-02-27 12:16:59.000000000 -0500
+@@ -1700,4 +1700,6 @@
+ }
+ 
++EXPORT_SYMBOL(locks_remove_posix);
++
+ /*
+  * This function is called on the last close of an open file.
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Chip Salzenberg               - a.k.a. -               <chip@pobox.com>
+"I wanted to play hopscotch with the impenetrable mystery of existence,
+    but he stepped in a wormhole and had to go in early."  // MST3K

@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264655AbTFQLPV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 07:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264659AbTFQLPV
+	id S264660AbTFQLSp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 07:18:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264662AbTFQLSp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 07:15:21 -0400
-Received: from blackbird.intercode.com.au ([203.32.101.10]:3853 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id S264655AbTFQLPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 07:15:18 -0400
-Date: Tue, 17 Jun 2003 21:28:45 +1000 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Julian Blake Kongslie <jblake@omgwallhack.org>
-cc: linux-kernel@vger.kernel.org, <netdev@oss.sgi.com>,
-       "David S. Miller" <davem@redhat.com>, <kuznet@ms2.inr.ac.ru>
-Subject: Re: IPSEC problems with GRE.
-In-Reply-To: <1055746871.2305.7.camel@festa.omgwallhack.org>
-Message-ID: <Mutt.LNX.4.44.0306172117310.14332-100000@excalibur.intercode.com.au>
+	Tue, 17 Jun 2003 07:18:45 -0400
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:38887 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S264660AbTFQLSn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 07:18:43 -0400
+Date: Tue, 17 Jun 2003 07:31:54 -0400 (EDT)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: LD error building 2.5.71-bk2
+Message-ID: <Pine.LNX.4.44.0306170730040.27006-100000@dell>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 Jun 2003, Julian Blake Kongslie wrote:
 
-> Hi there.
-> 
-> I've been playing around with IPSec, and I came across a problem with
-> encrypting data sent directly by the kernel.
-> 
-> Specifically, attempts to encrypt a GRE or IPIP tunnel with ipsec in
-> transport mode result in one of:
-> 	1) No data sent.
-> 	2) Data sent, ignored by peer.
-> 	3) Kernel panic, with no SysRq.
-> 
-> Numbers 1 and 2 might be configuration problems on my part, but I have
-> other ipsec setups running fine, and can't see anything different for
-> these. Number 3 is a big problem.
+  apologies if this was covered already as i just resubscribed,
+but trying to move up from 2.5.71-bk1 to 2.5.71-bk2 generated the
+following in trying to build using the same .config file:
 
-I've not been able to reproduce the panic, but there is a potential issue
-with path mtu which could explain (1) and (2):  the transport mode SAs 
-between the gateways are not aware of the gre tunnel.
+... snip ...
 
-You need to lower the mtu on the gre tunnel at each end to take the ipsec
-overhead into account.  This will cause the gateways to generate
-appropriate icmp pmtu messages.
-
-This is handled automatically for tunnel mode ipsec configurations.
+  CC      drivers/video/logo/logo_linux_clut224.o
+  LD      drivers/video/logo/built-in.o
+  LD      drivers/video/built-in.o
+  LD      drivers/built-in.o
+  GEN     .version
+  CHK     include/linux/compile.h
+  UPD     include/linux/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  LD      .tmp_vmlinux1
+net/built-in.o(.init.text+0x20b): In function `flow_cache_init':
+: undefined reference to `register_cpu_notifier'
+make: *** [.tmp_vmlinux1] Error 1
 
 
-- James
--- 
-James Morris
-<jmorris@intercode.com.au>
+
+rday
+
+--
+
+Robert P. J. Day
+Eno River Technologies
+Unix, Linux and Open Source training
+Waterloo, Ontario
+
+www.enoriver.com
 

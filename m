@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130690AbRAFBNX>; Fri, 5 Jan 2001 20:13:23 -0500
+	id <S132263AbRAFBON>; Fri, 5 Jan 2001 20:14:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132263AbRAFBNP>; Fri, 5 Jan 2001 20:13:15 -0500
-Received: from blackbird.intercode.com.au ([203.32.101.10]:17934 "EHLO
-	blackbird.intercode.com.au") by vger.kernel.org with ESMTP
-	id <S130690AbRAFBNH>; Fri, 5 Jan 2001 20:13:07 -0500
-Date: Sat, 6 Jan 2001 12:12:44 +1100 (EST)
-From: James Morris <jmorris@intercode.com.au>
-To: Matthew Schumacher <schu@schu.net>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: 2.4.0 Kernel Fails to compile when CONFIG_IP_NF_FTP is
- selected
-In-Reply-To: <3A56653C.BF55B6E0@schu.net>
-Message-ID: <Pine.LNX.4.31.0101061156360.15856-100000@blackbird.intercode.com.au>
+	id <S132487AbRAFBN5>; Fri, 5 Jan 2001 20:13:57 -0500
+Received: from mail.texas.rr.com ([24.93.35.219]:19217 "EHLO sm5.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S132263AbRAFBNg>;
+	Fri, 5 Jan 2001 20:13:36 -0500
+Date: Fri, 5 Jan 2001 19:09:52 -0600 (CST)
+From: Brad Hartin <bhartin@satx.rr.com>
+To: Igmar Palsenberg <maillist@chello.nl>
+cc: Tim Wright <timw@splhi.com>, Torrey Hoffman <torrey.hoffman@myrio.com>,
+        Sven Koch <haegar@cut.de>,
+        Kernel devel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 and Maxtor 96147H6 (61 GB)
+In-Reply-To: <Pine.LNX.4.21.0101060306210.6317-100000@server.serve.me.nl>
+Message-ID: <Pine.LNX.4.21.0101051908100.12714-100000@osprey.hartinhome.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2001, Matthew Schumacher wrote:
+On Sat, 6 Jan 2001, Igmar Palsenberg wrote:
 
->
-> gcc -D__KERNEL__ -I/usr/src/linux-2.4.0/include -Wall
-> -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
-> -march=i686 -DMODULE -DMODVERSIONS -include
-> /usr/src/linux-2.4.0/include/linux/modversions.h   -c -o ip_nat_ftp.o
-> ip_nat_ftp.c
-> ip_nat_ftp.c: In function `help':
-> ip_nat_ftp.c:315: structure has no member named `nat'
-> make[2]: *** [ip_nat_ftp.o] Error 1
-> make[2]: Leaving directory `/usr/src/linux-2.4.0/net/ipv4/netfilter'
-> make[1]: *** [_modsubdir_ipv4/netfilter] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.4.0/net'
-> make: *** [_mod_net] Error 2
->
-> This is the error I get if I try to compile in the kernel or as a
-> module.
->
+> 
+> > I had a similar situation except I was more interested in the performance
+> > difference. Went from ~4MB/s with the 430HX controller to ~12.5MB/s with
+> > the promise. This on an old Pentium system.
+> 
+> The network is 10 mbit, so 4 MB/sec is no good in this case.
+> I've got the thing running, with (ibm)setmax. Don't hang the disk in a
+> machine that does handle > 32 GB, because it will screw the limit the
+> setmax just set.
 
-Did you configure the kernel with 'Full NAT'?
+If your network is 10 megaBIT, then 4 megaBYTES a second is sufficient to
+saturate your network.  10Mbit maxes around 1.1Mbyte half duplex, or so.
 
-(CONFIG_IP_NF_NAT in the .config file).
+Hell, my little server at home has a bunch of old SCSI-2 disks...they do a
+whopping 120kbytes a second!
 
-- James
---
-James Morris
-<jmorris@intercode.com.au>
-
+Brad Hartin
 
 
 -

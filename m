@@ -1,67 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267685AbTASSNv>; Sun, 19 Jan 2003 13:13:51 -0500
+	id <S267686AbTASSVh>; Sun, 19 Jan 2003 13:21:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267686AbTASSNv>; Sun, 19 Jan 2003 13:13:51 -0500
-Received: from pasmtp.tele.dk ([193.162.159.95]:39697 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S267685AbTASSNu>;
-	Sun, 19 Jan 2003 13:13:50 -0500
-Date: Sun, 19 Jan 2003 19:22:50 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Olaf Titz <olaf@bigred.inka.de>
+	id <S267687AbTASSVh>; Sun, 19 Jan 2003 13:21:37 -0500
+Received: from mail.gmx.net ([213.165.65.60]:50518 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267686AbTASSVg>;
+	Sun, 19 Jan 2003 13:21:36 -0500
+Message-Id: <5.1.1.6.2.20030119192400.00c8a538@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Sun, 19 Jan 2003 19:27:25 +0100
+To: robw@optonline.net, joe_D-.wagner@worldtechtribune.com
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Stall-man is Stall-ing
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: ANN: LKMB (Linux Kernel Module Builder) version 0.1.16
-Message-ID: <20030119182250.GA1495@mars.ravnborg.org>
-Mail-Followup-To: Olaf Titz <olaf@bigred.inka.de>,
-	linux-kernel@vger.kernel.org
-References: <25160.1042809144@passion.cambridge.redhat.com> <Pine.LNX.4.33L2.0301171857230.25073-100000@vipe.technion.ac.il> <E18a1aZ-0006mL-00@bigred.inka.de> <20030119001256.GA11575@compsoc.man.ac.uk> <E18aEyl-0006O0-00@bigred.inka.de>
+In-Reply-To: <1042992903.830.6.camel@RobsPC.RobertWilkens.com>
+References: <200301190330.AA33882268@worldtechtribune.com>
+ <200301190330.AA33882268@worldtechtribune.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E18aEyl-0006O0-00@bigred.inka.de>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 19, 2003 at 01:55:11PM +0100, Olaf Titz wrote:
-> 
-> It is a bug that Documentation/modules.txt is so outdated that it
-> contains little useful information any more.
+At 11:15 AM 1/19/2003 -0500, Rob Wilkens wrote:
+>On Sun, 2003-01-19 at 03:30, joe wagner wrote:
+> > For those of you who dont know, Richard M. Stallman is a lonely, 
+> homely, pot-smoking atheist who has spent the last 20 years of his life 
+> fighting the free enterprise system with his own tax-exempt organization, 
+> the Free Software Foundation, Inc., and a project he calls "GNU" 
+> (pronounced g-NEW).  As a BA graduate in Physics, he continuously 
+> demonstrates that he does not grasp basic economic concepts, like the 
+> cost of research and development, by trying to convince everyone to give 
+> their software away for free.
+>
+>Stallman sounds like a great guy from the way you describe him (by the
+>way, no one is lonely on the internet, and there are advantages to
+>living alone if indeed that is how he lives -- I miss that kind of
+>lifestyle).  By the way, If you're using the Linux Kernel, you can thank
+>folks like Stallman (and people like  Linus Torvalds who chose to  use
+>his license for their work) for allowing you free access to their own
+>research and development, only asking in exchange that if you use their
+>research and development, that in return you share your own research and
+>development that you do with it back with them and hence with the rest
+>of the world.
+>
+>That is, if it was fair for you to use their work for free, then it's
+>fair the other way around.  If you don't want to share your work, then
+>you shouldn't use their tools.  That's why microsoft exists.  Use
+>microsoft compilers and tools if you want to build proprietary
+>technologoies on properietary operating systems.
 
-An updated version that at least describe how to build modules sanely
-outside the kernel tree is queued for inclusion[1].
+zzzzzzzzzzzzzzzzzzzzzz
 
-> It is a bug that
-> Documentation/kbuild/makefiles.txt is at least a bit outdated.
+This thing has been beat to death. Can we _please_ revert to development 
+now.... eh?
 
-A totally revised makefiles.txt is queued for inclusion[1].
-
-> It is a bug that the build process outside of the kernel tree changes
-> files inside the kernel tree when MODVERSIONS is enabled. (At least
-> this was the case last time I checked.) This means the kernel tree
-> can't be mounted read-only, or at least you would have to do dirty
-> tricks with symlinks.
-
-I have posted 2-3 version of a "separate src-tree" patch.
-But due to the existence of such weird things as oprofile and xfs it did
-not work in all cases. I symlinked all makefiles, but wanted to avoid
-catching the rest of the directories.
-I want my queued stuff applied before revisiting this though.
-Main usage has been to build kernels based on different configurations,
-not to mount src on a read-only media, that's sort of a side-effect.
-
-> It is a bug that the current Makefile can't compile modules in an
-> object directory different from the source directory. This means the
-> module source tree can't be mounted read-only (again, without
-> resorting to symlinks).
-
-make -C path/to/kernel/src SUBDIRS=$PWD modules
-So simple when you know the trick. That what I have documented
-in modules.txt.
-
-
-[1] Most of what I have done has been submitted to lkml within the
-past month. It can be found at http://linux-sam.bkbits.net in
-the kbuild repository, where it is queued for inclusion.
-
-	Sam

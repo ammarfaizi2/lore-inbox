@@ -1,52 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264494AbTLKHYb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 02:24:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264506AbTLKHYb
+	id S264371AbTLKH1Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 02:27:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264372AbTLKH1Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 02:24:31 -0500
-Received: from mail-05.iinet.net.au ([203.59.3.37]:5014 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S264494AbTLKHY0
+	Thu, 11 Dec 2003 02:27:24 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:55471 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S264371AbTLKH1O convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 02:24:26 -0500
-Message-ID: <3FD81BA4.8070602@cyberone.com.au>
-Date: Thu, 11 Dec 2003 18:24:20 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Thu, 11 Dec 2003 02:27:14 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
-Subject: Re: [CFT][RFC] HT scheduler
-References: <3FD3FD52.7020001@cyberone.com.au> <20031208155904.GF19412@krispykreme> <3FD50456.3050003@cyberone.com.au> <20031209001412.GG19412@krispykreme> <3FD7F1B9.5080100@cyberone.com.au>
-In-Reply-To: <3FD7F1B9.5080100@cyberone.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [ACPI] ACPI global lock macros
+Date: Thu, 11 Dec 2003 15:27:09 +0800
+Message-ID: <3ACA40606221794F80A5670F0AF15F8401720C22@PDSMSX403.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [ACPI] ACPI global lock macros
+Thread-Index: AcO+NiHM8fvw4HHhRdS72mZFlESBTQBfQIgwAAEtzXA=
+From: "Yu, Luming" <luming.yu@intel.com>
+To: "Paul Menage" <menage@google.com>, <agrover@groveronline.com>
+Cc: <linux-kernel@vger.kernel.org>, <acpi-devel@lists.sourceforge.net>
+X-OriginalArrivalTime: 11 Dec 2003 07:27:09.0733 (UTC) FILETIME=[30099D50:01C3BFB8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I have filed a tracker http://bugme.osdl.org/show_bug.cgi?id=1669  , And a proposal patch based on Paul's proposal filed there.
+--Luming
+
+-----Original Message-----
+From: acpi-devel-admin@lists.sourceforge.net [mailto:acpi-devel-admin@lists.sourceforge.net]On Behalf Of Yu, Luming
+Sent: 2003?12?11? 15:06
+To: Paul Menage; agrover@groveronline.com
+Cc: linux-kernel@vger.kernel.org; acpi-devel@lists.sourceforge.net
+Subject: RE: [ACPI] ACPI global lock macros
 
 
-Nick Piggin wrote:
+>>#define ACPI_ACQUIRE_GLOBAL_LOCK(GLptr, Acq) \
+>>     do { \
+>>        asm volatile("1:movl   (%1),%%eax;" \
+>>             "movl   %%eax,%%edx;" \
+>>             "andl   %2,%%edx;" \
+>>             "btsl   $0x1,%%edx;" \
+>>             "adcl   $0x0,%%edx;" \
+>>             "lock;  cmpxchgl %%edx,(%1);" \
+>>             "jnz    1b;" \
+>>             "cmpb   $0x3,%%dl;" \
+>>             "sbbl   %0,%0" \
+>>             :"=r"(Acq):"r"(GLptr),"i"(~1L):"dx", "ax"); \
+>>     } while(0)
 
-> http://www.kerneltrap.org/~npiggin/w26/
-> Against 2.6.0-test11
+Above code have a bug! Considering below code:
+
+u8	acquired = FALSE;
+
+ACPI_ACQUIRE_GLOBAL_LOC(acpi_gbl_common_fACS.global_lock, acquired);
+if(acquired) {
+....
+}
+
+Gcc will complain " ERROR: '%cl' not allowed with sbbl ". And I think any other compiler will
+complain that  too !
+
+How about  below changes to your proposal code.
+
+<             "sbbl   %0,%0" \
+<             :"=r"(Acq):"r"(GLptr),"i"(~1L):"dx","ax"); \
+---
+>             "sbbl   %%eax,%%eax" \
+>             :"=a"(Acq):"r"(GLptr),"i"(~1L):"dx"); \
+
+PS. I'm very curious about how could you find this bug.  
+
+Thanks
+Luming
 
 
-Oh, this patchset also (mostly) cures my pet hate for the
-last few months: VolanoMark on the NUMA.
 
-http://www.kerneltrap.org/~npiggin/w26/vmark.html
-
-The "average" plot for w26 I think is a little misleading because
-it got an unlucky result on the second last point making it look
-like its has a downward curve. It is usually more linear with a
-sharp downward spike at 150 rooms like the "maximum" plot.
-
-Don't ask me why it runs out of steam at 150 rooms. hackbench does
-something similar. I think it might be due to some resource running
-short, or a scalability problem somewhere else.
-
+-------------------------------------------------------
+This SF.net email is sponsored by: SF.net Giveback Program.
+Does SourceForge.net help you be more productive?  Does it
+help you create better code?  SHARE THE LOVE, and help us help
+YOU!  Click Here: http://sourceforge.net/donate/
+_______________________________________________
+Acpi-devel mailing list
+Acpi-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/acpi-devel

@@ -1,56 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261404AbSJMTRx>; Sun, 13 Oct 2002 15:17:53 -0400
+	id <S261616AbSJMTT2>; Sun, 13 Oct 2002 15:19:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261581AbSJMTRx>; Sun, 13 Oct 2002 15:17:53 -0400
-Received: from zork.zork.net ([66.92.188.166]:64727 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S261404AbSJMTRw>;
-	Sun, 13 Oct 2002 15:17:52 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Problem with ide-scsi kernel module
-References: <Pine.LNX.4.44.0210131410120.2020-100000@theretriever.org>
-From: Sean Neakums <sneakums@zork.net>
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Message-Flag: Message text advisory: DRUGS/ALCOHOL, DISHONOURABLE
- INTENTIONS
-X-Mailer: Norman
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Alameda: : WHY DOESN'T ANYONE KNOW ABOUT ALAMEDA?  IT'S RIGHT NEXT TO
- OAKLAND!!!
-Organization: The Emadonics Institute
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sun, 13 Oct 2002 20:23:43 +0100
-In-Reply-To: <Pine.LNX.4.44.0210131410120.2020-100000@theretriever.org> (solrosin@mail.theretriever.org's
- message of "Sun, 13 Oct 2002 14:11:58 -0500 (CDT)")
-Message-ID: <6un0piywg0.fsf@zork.zork.net>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
- (i386-debian-linux-gnu)
+	id <S261619AbSJMTT2>; Sun, 13 Oct 2002 15:19:28 -0400
+Received: from packet.digeo.com ([12.110.80.53]:63391 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261616AbSJMTT0>;
+	Sun, 13 Oct 2002 15:19:26 -0400
+Message-ID: <3DA9C896.621CC3D3@digeo.com>
+Date: Sun, 13 Oct 2002 12:25:10 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Anton Blanchard <anton@samba.org>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       Dave Hansen <haveblue@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [lart] /bin/ps output
+References: <3DA798B6.9070400@us.ibm.com> <20021012035141.GC7050@krispykreme> <20021012035958.GD10722@holomorphy.com> <20021012040959.GE7050@krispykreme>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Oct 2002 19:25:10.0717 (UTC) FILETIME=[3F2816D0:01C272EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  solrosin@mail.theretriever.org quotation:
+Anton Blanchard wrote:
+> 
+> > Bah! I'm at a competitive disadvantage because I've got a lesser
+> > BITS_PER_LONG. No matter, NR_CPUS > BITS_PER_LONG shall be conquered
+> > and the explosion of kernel threads will be quite visible (though
+> > unfortunately probably post-freeze).
+> 
+> Speaking of which, the recent CONFIG_NR_CPUS addition shows just how
+> bloated all our [NR_CPU] structures are. We need to get serious about
+> using the per cpu data stuff. Going from 32 to 64 was over 500kB on my
+> ppc64 build.
+> 
 
-> It would appear that there is a problem in the ide-scsi kernel module.  I 
-> HAVE properly built the kernel beforehand, so I know it's not a matter of 
-> the kernel being improperly built.  Here's the error message I'm getting 
-> when I try to insmod ide-scsi:
->  
-> Using /lib/modules/2.4.19/kernel/drivers/scsi/ide-scsi.o
-> /lib/modules/2.4.19/kernel/drivers/scsi/ide-scsi.o: unresolved symbol 
-> scsi_unregister_module_R81d85a75
-> /lib/modules/2.4.19/kernel/drivers/scsi/ide-scsi.o: unresolved symbol 
-> scsi_register_Rfb1392b2
-> /lib/modules/2.4.19/kernel/drivers/scsi/ide-scsi.o: unresolved symbol 
-> scsi_register_module_Rfa20b7b0
+Half of which is in timer.c.
 
-Try using modprobe instead of insmod.  ide-scsi depends on scsi_mod,
-which appears to contain those symbols.  modprobe will load all
-dependent modules automatically.
+mnm:/usr/src/25> size kernel/timer.o
+   text    data     bss     dec     hex filename
+   4960     100  167648  172708   2a2a4 kernel/timer.o
 
--- 
- /                          |
-[|] Sean Neakums            |  Questions are a burden to others;
-[|] <sneakums@zork.net>     |      answers a prison for oneself.
- \                          |
+That's with NR_CPUS=32.  Show me yours.
+
+Using the percpu stuff will not significantly reduce this.  Some
+new data structure might be needed.

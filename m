@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUEFHzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbUEFH6S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUEFHzv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 May 2004 03:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbUEFHzv
+	id S261321AbUEFH6S (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 May 2004 03:58:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUEFH6S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 May 2004 03:55:51 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:14608 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261300AbUEFHzu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 May 2004 03:55:50 -0400
-Date: Thu, 6 May 2004 08:55:49 +0100
-From: Christoph Hellwig <hch@infradead.org>
+	Thu, 6 May 2004 03:58:18 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:40357 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261321AbUEFH6Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 May 2004 03:58:16 -0400
+Date: Thu, 6 May 2004 09:58:10 +0200
+From: Jens Axboe <axboe@suse.de>
 To: Arjan van de Ven <arjanv@redhat.com>
 Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl,
        akpm@osdl.org
 Subject: Re: Force IDE cache flush on shutdown
-Message-ID: <20040506085549.A13098@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org,
-	B.Zolnierkiewicz@elka.pw.edu.pl, akpm@osdl.org
-References: <20040506070449.GA12862@devserv.devel.redhat.com> <20040506084918.B12990@infradead.org> <20040506075044.GC12862@devserv.devel.redhat.com>
+Message-ID: <20040506075809.GB2009@suse.de>
+References: <20040506070449.GA12862@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040506075044.GC12862@devserv.devel.redhat.com>; from arjanv@redhat.com on Thu, May 06, 2004 at 09:50:44AM +0200
+In-Reply-To: <20040506070449.GA12862@devserv.devel.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 09:50:44AM +0200, Arjan van de Ven wrote:
-> > Please don't use reboot notifiers in new driver code.  The driver
-> > model has a ->shutdown method for that.
+On Thu, May 06 2004, Arjan van de Ven wrote:
+> Hi,
 > 
-> there is somewhat of a problem with that; the reboot command potentially
-> runs from the disk in question, so that might never get called since that
-> will keep things busy.
+> Alan discovered the hard way that the current 2.6 IDE code doesn't do a
+> cache-flush on shutdown. The patch below forward ports this from 2.4. In
+> addition it fixes a bug where the ->wcache value only got determined for
+> removable disks not all disks. (that fix is from Alan, all other bugs are
+> mine ;)
 
-shutdown != remove.  Shutdown is called for all devices on shutdown, remove
-isn't called at all at reboot.
+Yeah that's a dumb bug, I fixed that in the barrier patches as well (but
+forgot to send it in).
+
+Maybe you could send that in seperately first, it needs to go in
+regardless.
+
+-- 
+Jens Axboe
 

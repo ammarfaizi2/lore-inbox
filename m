@@ -1,84 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270521AbRHHQmR>; Wed, 8 Aug 2001 12:42:17 -0400
+	id <S270522AbRHHQqG>; Wed, 8 Aug 2001 12:46:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270522AbRHHQmH>; Wed, 8 Aug 2001 12:42:07 -0400
-Received: from [63.209.4.196] ([63.209.4.196]:41988 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S270521AbRHHQl5>; Wed, 8 Aug 2001 12:41:57 -0400
-Date: Wed, 8 Aug 2001 09:40:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mike Kravetz <mkravetz@sequent.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH] Scalable Scheduling
-In-Reply-To: <20010808091652.B1088@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.33.0108080929170.1530-100000@penguin.transmeta.com>
+	id <S270523AbRHHQp5>; Wed, 8 Aug 2001 12:45:57 -0400
+Received: from mail.valinux.com ([198.186.202.175]:48137 "EHLO
+	mail.valinux.com") by vger.kernel.org with ESMTP id <S270522AbRHHQpo>;
+	Wed, 8 Aug 2001 12:45:44 -0400
+Message-ID: <3B716C87.7010907@valinux.com>
+Date: Wed, 08 Aug 2001 10:44:55 -0600
+From: Jeff Hartmann <jhartmann@valinux.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8) Gecko/20010215
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gareth Hughes <gareth.hughes@acm.org>
+CC: DRI-Devel <dri-devel@lists.sourceforge.net>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [Dri-devel] Re: DRM Linux kernel merge (update) needed, soon.
+In-Reply-To: <20010807014029Z270029-28344+2126@vger.kernel.org> <3B6F86BA.14D449F4@acm.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Gareth Hughes wrote:
 
-On Wed, 8 Aug 2001, Mike Kravetz wrote:
->
-> I have been working on scheduler scalability.  Specifically,
-> the concern is running Linux on bigger machines (higher CPU
-> count, SMP only for now).
+> Dieter Nützel wrote:
+> 
+>> the Linux kernel DRM stuff need a merge (update), soon.
+>> Even the (latest) 2.4.7-ac (3-8) stuff has some cleanups but didn't work with
+>> the tdfx DRI CVS trunk driver for example.
+>> I have to build the DRI CVS tdfx.o kernel module to get it working, again.
+>> If I read it right the kernel stuff include some needed fixes...
+> 
+> 
+> Agreed.
+> 
+> After being let go from VA, I've had to return all the graphics cards
+> and machines they loaned me, and as my own supply of cards (and indeed
+> all of my computer gear) is in storage somewhere in the US there isn't
+> much I can do about fixing this.  You'll have to pester the guys at VA,
+> most likely Jeff Hartmann.
+> 
+> Jeff?
+> 
+> -- Gareth
+> 
+> _______________________________________________
+> Dri-devel mailing list
+> Dri-devel@lists.sourceforge.net
+> http://lists.sourceforge.net/lists/listinfo/dri-devel
+> 
+I sent a patch to Linus and Alan this morning.
 
-Note that there is no way I will ever apply this particular patch for a
-very simple reason: #ifdef's in code.
+-Jeff
 
-Why do you have things like
-
-	#ifdef CONFIG_SMP
-		.. use nr_running() ..
-	#else
-		.. use nr_running ..
-	#endif
-
-and
-
-	#ifdef CONFIG_SMP
-	       list_add(&p->run_list, &runqueue(task_to_runqueue(p)));
-	#else
-	       list_add(&p->run_list, &runqueue_head);
-	#endif
-
-when it just shows that you did NOT properly abstract your thinking to
-realize that the non-SMP case should be the same as the SMP case with 1
-CPU (+ optimization).
-
-I find code like the above physically disgusting.
-
-What's wrong with using
-
-	nr_running()
-
-unconditionally, and make sure that it degrades gracefully to just the
-single-CPU case?
-
-What's wrong whit just using
-
-	runqueue(task_to_runqueue(p))
-
-and having the UP case realize that the "runqueue()" macro is a fixed
-entry?
-
-Same thing applies to that runqueue_lock stuff. That is some of the
-ugliest code I've seen in a long time. Please use inline functions, sane
-defines that work both ways, and take advantage of the fact that gcc will
-optimize constant loops and numbers (it's ok to reference arrays in UP
-with "array[smp_processor_id()]", and it's ok to have loops that look like
-"for (i = 0; i < NR_CPUS; i++)" that will do the right thing on UP _and_
-SMP.
-
-And make your #ifdef's be _outside_ the code.
-
-I hate code that has #ifdef's. It's a magjor design mistake, and shows
-that the person who coded it didn't think of it as _one_ problem, but as
-two.
-
-So please spend some time cleaning it up, I can't look at it like this.
-
-		Linus
 

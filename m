@@ -1,372 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267540AbTBUPw7>; Fri, 21 Feb 2003 10:52:59 -0500
+	id <S267539AbTBUPuC>; Fri, 21 Feb 2003 10:50:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267542AbTBUPw7>; Fri, 21 Feb 2003 10:52:59 -0500
-Received: from tolkor.SGI.COM ([198.149.18.6]:5310 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S267540AbTBUPww>;
-	Fri, 21 Feb 2003 10:52:52 -0500
-Date: Fri, 21 Feb 2003 18:18:43 -0500
-From: Christoph Hellwig <hch@sgi.com>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] try_module_get(THIS_MODULE) is bogus
-Message-ID: <20030221181843.A23315@sgi.com>
-Mail-Followup-To: Christoph Hellwig <hch@sgi.com>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
+	id <S267540AbTBUPuC>; Fri, 21 Feb 2003 10:50:02 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:22230 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S267539AbTBUPuC>; Fri, 21 Feb 2003 10:50:02 -0500
+Date: Fri, 21 Feb 2003 08:01:20 -0500
+From: j <home@pimout2-ext.prodigy.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4 series IDE troubles
+Message-Id: <20030221080120.45d30fec.home@lfs.pitchblende.org>
+Reply-To: shoninnaive@sbcglobal.net
+Organization: self
+X-Mailer: Sylpheed version 0.8.5claws (GTK+ 1.2.10; )
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In most cases the fix is to add an struct module * member to the operations
-vector instead and manipulate the refcounts in the callers context.
+Hello,
 
-For the ALSA cases it was completly superflous (when will people get it that
-using an exported symbol will make it's module unloadable?..)
+IM not sure this is the way to go about this (obviously) but doing
+searchs at google for the error message I get just leads to the painful realization that there are many questions out there but 
+few answers. Anyhoo when I try adding a compact flash card as an 
+IDE drive to a system running under 2.4 I get kernel panics:
 
+   VFS: Cannot open root device "307" or 03:07
+   Please append a corect "root=" boot option
+   Kernel panic: VFS: Unable to mount root
 
---- 1.2/drivers/char/ipmi/ipmi_kcs_intf.c	Tue Feb 18 19:31:36 2003
-+++ edited/drivers/char/ipmi/ipmi_kcs_intf.c	Fri Feb 21 16:22:25 2003
-@@ -613,18 +613,6 @@
- 	atomic_set(&kcs_info->req_events, 1);
- }
- 
--static int new_user(void *send_info)
--{
--	if (!try_module_get(THIS_MODULE))
--		return -EBUSY;
--	return 0;
--}
--
--static void user_left(void *send_info)
--{
--	module_put(THIS_MODULE);
--}
--
- /* Call every 10 ms. */
- #define KCS_TIMEOUT_TIME_USEC	10000
- #define KCS_USEC_PER_JIFFY	(1000000/HZ)
-@@ -718,11 +706,10 @@
- 
- static struct ipmi_smi_handlers handlers =
- {
--	sender:		       sender,
--	request_events:        request_events,
--	new_user:	       new_user,
--	user_left:	       user_left,
--	set_run_to_completion: set_run_to_completion
-+	.owner			= THIS_MODULE,
-+	.sender			= sender,
-+	.request_events		= request_events,
-+	.set_run_to_completion	= set_run_to_completion,
- };
- 
- static unsigned char ipmi_kcs_dev_rev;
-===== drivers/char/ipmi/ipmi_msghandler.c 1.1 vs edited =====
---- 1.1/drivers/char/ipmi/ipmi_msghandler.c	Mon Jan 13 13:07:12 2003
-+++ edited/drivers/char/ipmi/ipmi_msghandler.c	Fri Feb 21 16:21:36 2003
-@@ -485,13 +485,14 @@
- 	new_user->intf = ipmi_interfaces[if_num];
- 	new_user->gets_events = 0;
- 
--	rv = new_user->intf->handlers->new_user(new_user->intf->send_info);
--	if (rv)
-+	if (!try_module_get(new_user->intf->handlers->owner)) {
-+		rv = -ENODEV;
- 		goto out_unlock;
-+	}
- 
--	write_lock_irqsave(&(new_user->intf->users_lock), flags);
--	list_add_tail(&(new_user->link), &(new_user->intf->users));
--	write_unlock_irqrestore(&(new_user->intf->users_lock), flags);
-+	write_lock_irqsave(&new_user->intf->users_lock, flags);
-+	list_add_tail(&new_user->link, &new_user->intf->users);
-+	write_unlock_irqrestore(&new_user->intf->users_lock, flags);
- 
-  out_unlock:	
- 	if (rv) {
-@@ -563,12 +564,12 @@
- 	unsigned long flags;
- 
- 	down_read(&interfaces_sem);
--	write_lock_irqsave(&(intf->users_lock), flags);
-+	write_lock_irqsave(&intf->users_lock, flags);
- 	rv = ipmi_destroy_user_nolock(user);
- 	if (!rv)
--		intf->handlers->user_left(intf->send_info);
-+		module_put(intf->handlers->owner);
- 		
--	write_unlock_irqrestore(&(intf->users_lock), flags);
-+	write_unlock_irqrestore(&intf->users_lock, flags);
- 	up_read(&interfaces_sem);
- 	return rv;
- }
---- 1.13/drivers/ieee1394/hosts.c	Sat Feb  1 17:43:09 2003
-+++ edited/drivers/ieee1394/hosts.c	Fri Feb 21 16:25:57 2003
-@@ -11,6 +11,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <linux/module.h>
- #include <linux/types.h>
- #include <linux/list.h>
- #include <linux/init.h>
-@@ -69,8 +70,10 @@
-         spin_lock_irqsave(&hosts_lock, flags);
-         list_for_each(lh, &hosts) {
-                 if (host == list_entry(lh, struct hpsb_host, host_list)) {
--			if (host->driver->devctl(host, MODIFY_USAGE, 1)) {
--				host->driver->devctl(host, MODIFY_USAGE, 1);
-+			if (try_module_get(host->driver->owner)) {
-+				/* XXX: we're doing this twice and don't seem
-+				   to undo it..  --hch */
-+				(void)try_module_get(host->driver->owner);
- 				host->refcount++;
- 				retval = 1;
- 			}
-@@ -95,7 +98,7 @@
- {
-         unsigned long flags;
- 
--        host->driver->devctl(host, MODIFY_USAGE, 0);
-+	module_put(host->driver->owner);
- 
-         spin_lock_irqsave(&hosts_lock, flags);
-         host->refcount--;
-===== drivers/ieee1394/hosts.h 1.11 vs edited =====
---- 1.11/drivers/ieee1394/hosts.h	Fri Jan 31 01:48:22 2003
-+++ edited/drivers/ieee1394/hosts.h	Fri Feb 21 16:09:25 2003
-@@ -92,12 +92,6 @@
-          * Return void. */
-         CANCEL_REQUESTS,
- 
--        /* Decrease host usage count if arg == 0, increase otherwise.  Return
--         * 1 for success, 0 for failure.  Increase usage may fail if the driver
--         * is in the process of shutting itself down.  Decrease usage can not
--         * fail. */
--        MODIFY_USAGE,
--
-         /* Start or stop receiving isochronous channel in arg.  Return void.
-          * This acts as an optimization hint, hosts are not required not to
-          * listen on unrequested channels. */
-@@ -147,6 +141,7 @@
- };
- 
- struct hpsb_host_driver {
-+	struct module *owner;
- 	const char *name;
- 
-         /* This function must store a pointer to the configuration ROM into the
-===== drivers/ieee1394/ohci1394.c 1.19 vs edited =====
---- 1.19/drivers/ieee1394/ohci1394.c	Sun Feb  2 08:01:36 2003
-+++ edited/drivers/ieee1394/ohci1394.c	Fri Feb 21 16:10:11 2003
-@@ -966,16 +966,6 @@
- 		dma_trm_reset(&ohci->at_resp_context);
- 		break;
- 
--	case MODIFY_USAGE:
--		if (arg) {
--			if (try_module_get(THIS_MODULE))
--				retval = 1;
--		} else {
--			module_put(THIS_MODULE);
--			retval = 1;
--		}
--                break;
--
- 	case ISO_LISTEN_CHANNEL:
-         {
- 		u64 mask;
-@@ -3202,6 +3192,7 @@
- }
- 
- static struct hpsb_host_driver ohci1394_driver = {
-+	.owner =		THIS_MODULE,
- 	.name =			OHCI1394_DRIVER_NAME,
- 	.get_rom =		ohci_get_rom,
- 	.transmit_packet =	ohci_transmit,
-===== drivers/ieee1394/pcilynx.c 1.24 vs edited =====
---- 1.24/drivers/ieee1394/pcilynx.c	Tue Feb 11 00:00:08 2003
-+++ edited/drivers/ieee1394/pcilynx.c	Fri Feb 21 16:10:16 2003
-@@ -801,17 +801,6 @@
- 
-                 break;
- 
--        case MODIFY_USAGE:
--		if (arg) {
--			if (try_module_get(THIS_MODULE))
--				retval = 1;
--		} else {
--			module_put(THIS_MODULE);
--			retval = 1;
--		}
--
--                break;
--
-         case ISO_LISTEN_CHANNEL:
-                 spin_lock_irqsave(&lynx->iso_rcv.lock, flags);
-                 
-@@ -1904,6 +1893,7 @@
- };
- 
- static struct hpsb_host_driver lynx_driver = {
-+	.owner =	   THIS_MODULE,
- 	.name =		   PCILYNX_DRIVER_NAME,
-         .get_rom =         get_lynx_rom,
-         .transmit_packet = lynx_transmit,
-===== include/linux/ipmi_smi.h 1.1 vs edited =====
---- 1.1/include/linux/ipmi_smi.h	Tue Nov 26 23:06:25 2002
-+++ edited/include/linux/ipmi_smi.h	Fri Feb 21 15:58:27 2003
-@@ -78,6 +78,8 @@
- 
- struct ipmi_smi_handlers
- {
-+	struct module *owner;
-+
- 	/* Called to enqueue an SMI message to be sent.  This
- 	   operation is not allowed to fail.  If an error occurs, it
- 	   should report back the error in a received message.  It may
-@@ -92,15 +94,6 @@
- 	/* Called by the upper layer to request that we try to get
- 	   events from the BMC we are attached to. */
- 	void (*request_events)(void *send_info);
--
--	/* Called when someone is using the interface, so the module can
--	   adjust it's use count.  Return zero if successful, or an
--	   errno if not. */
--	int (*new_user)(void *send_info);
--
--	/* Called when someone is no longer using the interface, so the
--	   module can adjust it's use count. */
--	void (*user_left)(void *send_info);
- 
- 	/* Called when the interface should go into "run to
- 	   completion" mode.  If this call sets the value to true, the
-===== include/linux/sunrpc/auth.h 1.7 vs edited =====
---- 1.7/include/linux/sunrpc/auth.h	Sun Jan 12 22:40:31 2003
-+++ edited/include/linux/sunrpc/auth.h	Fri Feb 21 16:11:09 2003
-@@ -84,6 +84,7 @@
-  * Client authentication ops
-  */
- struct rpc_authops {
-+	struct module		*owner;
- 	rpc_authflavor_t	au_flavor;	/* flavor (RPC_AUTH_*) */
- #ifdef RPC_DEBUG
- 	char *			au_name;
-===== net/sunrpc/auth.c 1.10 vs edited =====
---- 1.10/net/sunrpc/auth.c	Sun Jan 12 22:40:31 2003
-+++ edited/net/sunrpc/auth.c	Fri Feb 21 16:27:32 2003
-@@ -8,6 +8,7 @@
- 
- #include <linux/types.h>
- #include <linux/sched.h>
-+#include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
- #include <linux/socket.h>
-@@ -65,6 +66,8 @@
- 
- 	if (flavor >= RPC_AUTH_MAXFLAVOR || !(ops = auth_flavors[flavor]))
- 		return NULL;
-+	if (!try_module_get(ops->owner))
-+		return NULL;
- 	clnt->cl_auth = ops->create(clnt, pseudoflavor);
- 	return clnt->cl_auth;
- }
-@@ -73,6 +76,7 @@
- rpcauth_destroy(struct rpc_auth *auth)
- {
- 	auth->au_ops->destroy(auth);
-+	module_put(auth->au_ops->owner);
- }
- 
- static spinlock_t rpc_credcache_lock = SPIN_LOCK_UNLOCKED;
-===== net/sunrpc/auth_null.c 1.9 vs edited =====
---- 1.9/net/sunrpc/auth_null.c	Sun Jan 12 22:40:13 2003
-+++ edited/net/sunrpc/auth_null.c	Fri Feb 21 16:26:30 2003
-@@ -8,6 +8,7 @@
- 
- #include <linux/types.h>
- #include <linux/socket.h>
-+#include <linux/module.h>
- #include <linux/in.h>
- #include <linux/utsname.h>
- #include <linux/sunrpc/clnt.h>
-@@ -125,6 +126,7 @@
- }
- 
- struct rpc_authops	authnull_ops = {
-+	.owner		= THIS_MODULE,
- 	.au_flavor	= RPC_AUTH_NULL,
- #ifdef RPC_DEBUG
- 	.au_name	= "NULL",
-===== net/sunrpc/auth_unix.c 1.9 vs edited =====
---- 1.9/net/sunrpc/auth_unix.c	Sun Jan 12 22:40:13 2003
-+++ edited/net/sunrpc/auth_unix.c	Fri Feb 21 16:27:49 2003
-@@ -8,6 +8,7 @@
- 
- #include <linux/types.h>
- #include <linux/sched.h>
-+#include <linux/module.h>
- #include <linux/socket.h>
- #include <linux/in.h>
- #include <linux/sunrpc/clnt.h>
-@@ -219,6 +220,7 @@
- }
- 
- struct rpc_authops	authunix_ops = {
-+	.owner		= THIS_MODULE,
- 	.au_flavor	= RPC_AUTH_UNIX,
- #ifdef RPC_DEBUG
- 	.au_name	= "UNIX",
-===== net/sunrpc/auth_gss/auth_gss.c 1.2 vs edited =====
---- 1.2/net/sunrpc/auth_gss/auth_gss.c	Sun Jan 12 22:40:31 2003
-+++ edited/net/sunrpc/auth_gss/auth_gss.c	Fri Feb 21 16:12:45 2003
-@@ -438,8 +438,6 @@
- 	struct rpc_auth * auth;
- 
- 	dprintk("RPC: creating GSS authenticator for client %p\n",clnt);
--	if (!try_module_get(THIS_MODULE))
--		return NULL;
- 	if (!(gss_auth = kmalloc(sizeof(*gss_auth), GFP_KERNEL)))
- 		goto out_dec;
- 	gss_auth->mech = gss_pseudoflavor_to_mech(flavor);
-@@ -470,7 +468,6 @@
- err_free:
- 	kfree(gss_auth);
- out_dec:
--	module_put(THIS_MODULE);
- 	return NULL;
- }
- 
-@@ -691,6 +688,7 @@
- }
- 
- static struct rpc_authops authgss_ops = {
-+	.owner		= THIS_MODULE,
- 	.au_flavor	= RPC_AUTH_GSS,
- #ifdef RPC_DEBUG
- 	.au_name	= "RPCSEC_GSS",
-===== sound/pci/rme9652/hammerfall_mem.c 1.11 vs edited =====
---- 1.11/sound/pci/rme9652/hammerfall_mem.c	Mon Jan 27 18:30:54 2003
-+++ edited/sound/pci/rme9652/hammerfall_mem.c	Fri Feb 21 16:00:23 2003
-@@ -150,8 +150,6 @@
- 	for (i = 0; i < NBUFS; i++) {
- 		rbuf = &hammerfall_buffers[i];
- 		if (rbuf->flags == HAMMERFALL_BUF_ALLOCATED) {
--			if (! try_module_get(THIS_MODULE))
--				return NULL;
- 			rbuf->flags |= HAMMERFALL_BUF_USED;
- 			rbuf->pci = pcidev;
- 			*dmaaddr = rbuf->addr;
-@@ -171,7 +169,6 @@
- 		rbuf = &hammerfall_buffers[i];
- 		if (rbuf->buf == addr && rbuf->pci == pcidev) {
- 			rbuf->flags &= ~HAMMERFALL_BUF_USED;
--			module_put(THIS_MODULE);
- 			return;
- 		}
- 	}
+Just on a lark I decided to go back to a 2.2 series kernel (since
+I had gotten flash recognized b4 when using a Mandrake distro)
+ Eureka! working flash drive that is seen and formatable with no
+troubles. PLEASE have the developers take a closer look at the IDE
+drivers for 2.4 as it seems they cause a great deal of grief, at 
+least from what I see in searchs on these errors. Usually the problem
+is blamed on the user and they are asked hundreds of irritating questions about hardware and configuration.
+
+Regards,
+
+John Sims

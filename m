@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290593AbSA3VCl>; Wed, 30 Jan 2002 16:02:41 -0500
+	id <S290594AbSA3VEi>; Wed, 30 Jan 2002 16:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290594AbSA3VC3>; Wed, 30 Jan 2002 16:02:29 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:17671 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S290593AbSA3VCW>; Wed, 30 Jan 2002 16:02:22 -0500
-Message-ID: <3C585F4D.5195AC11@linux-m68k.org>
-Date: Wed, 30 Jan 2002 22:02:05 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Jeff Garzik <garzik@havoc.gtf.org>, Rob Landley <landley@trommello.org>,
-        Miles Lane <miles@megapathdsl.net>, Chris Ricker <kaboom@gatech.edu>,
-        "World Domination Now!" <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <20020130080642.E18381@work.bitmover.com> <Pine.LNX.4.33.0201301830320.9003-100000@serv> <20020130121752.B21235@work.bitmover.com>
+	id <S290597AbSA3VEf>; Wed, 30 Jan 2002 16:04:35 -0500
+Received: from adsl-65-42-129-26.dsl.chcgil.ameritech.net ([65.42.129.26]:17499
+	"EHLO localhost") by vger.kernel.org with ESMTP id <S290594AbSA3VEL>;
+	Wed, 30 Jan 2002 16:04:11 -0500
+Date: Wed, 30 Jan 2002 15:04:28 -0500
+From: Mike Phillips <phillim2@home.com>
+To: Kent E Yoder <yoder1@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IBM Lanstreamer bugfixes
+Message-ID: <20020130200428.GA7318@home.com>
+In-Reply-To: <OF0323731B.AAE52C6B-ON85256B51.005748CD@raleigh.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <OF0323731B.AAE52C6B-ON85256B51.005748CD@raleigh.ibm.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy wrote:
+On Wed, Jan 30, 2002 at 01:27:29PM -0600 or sometime in the same epoch, Kent E Yoder scribbled:
+>   I think the delays in the driver *were* just working around PCI posting 
+> effects.  I tested by removing all the delays and instead putting 
+> something like:
+>         writew(val, addr);
+>         (void) read(addr);
 
-> I might be mistaken, I also get the feeling that your real issue might
-> be that you don't like/understand/something BK and you are pushing for a
-> different answer.  That's cool, there are now two patchbot projects you
-> can go join and start coding.
+Yep, I has a similar problem when developing olympic, I would write
+twice to the same location in very quick succession. This was using
+one of the built in locations that the chipset would binary OR to the
+current value. So theoretically the second write should have been
+OR'ed with the first write, but the second write was being done before
+the first write was committed across the pci bus, resulting in only
+the second value being stored. 
 
-Um, I really have no time for this, I have no problem with sending
-patches to whoever/whatever.
-I'm not arguing for/against bk at all, if you can demonstrate how bk
-solves all of our problems and people want to use it, I had absolutely
-no problem with that.
-But you are correct my experiences with bk are limited and not very
-encouraging. Now I only use it to extract specific versions from the ppc
-tree and to import that into the apus tree. Maybe a "bk howto for cvs
-users" might help, which shows typical cvs use cases and how to do them
-with bk, the documentation I found only stresses the bad sides of cvs.
+In the end, I rewrote it to combine into a single write. 
 
-bye, Roman
+-- 
+Mike Phillips
+Linux Token Ring Project
+http://www.linuxtr.net
+mailto: mikep@linuxtr.net
+

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265554AbTIDVhb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 17:37:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265567AbTIDVhb
+	id S265592AbTIDVjP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 17:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265593AbTIDVjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 17:37:31 -0400
-Received: from maja.beep.pl ([195.245.198.10]:20497 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S265554AbTIDVh2 convert rfc822-to-8bit
+	Thu, 4 Sep 2003 17:39:14 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:43495 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S265592AbTIDVjL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 17:37:28 -0400
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: <linux-kernel@vger.kernel.org>
-Subject: serial console after panic() (2.4.21)
-Date: Thu, 4 Sep 2003 23:34:19 +0200
-User-Agent: KMail/1.5.3
+	Thu, 4 Sep 2003 17:39:11 -0400
+Message-ID: <3F57B0FD.1060708@namesys.com>
+Date: Fri, 05 Sep 2003 01:39:09 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3a) Gecko/20021212
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200309042334.19639.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+To: Daniel Phillips <phillips@arcor.de>
+CC: Andrew Morton <akpm@osdl.org>, reiserfs-list@namesys.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: precise characterization of ext3 atomicity
+References: <3F574A49.7040900@namesys.com> <200309042216.04121.phillips@arcor.de> <20030904131052.6ec6426d.akpm@osdl.org> <200309042308.54002.phillips@arcor.de>
+In-Reply-To: <200309042308.54002.phillips@arcor.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-serial console stops working immediately when for example root fs cannot be 
-mounted - kernel does panic() and serial console no longer works.
+Daniel Phillips wrote:
 
-With working console I could reboot (send break+b), and choose proper kernel 
-from lilo but it doesn't work that way so using own foot to get to company 
-and server room is required.
-
-Why code does something that makes serial console usunable in such case?
-It seems that not being able to mount root fs isn't so big deal to do 
-,,something'' that makes serial console not working.
+>I have always thought that some higher level synchronization is 
+>required for simultaneous writes.  So Hans might as well tell his fans that 
+>Ext3 makes no official guarantee, and neither does Linux.
+>
+>  
+>
+Not sure what you mean.
 
 -- 
-Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
+Hans
+
 

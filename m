@@ -1,42 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262616AbRFQTLR>; Sun, 17 Jun 2001 15:11:17 -0400
+	id <S262622AbRFQTVs>; Sun, 17 Jun 2001 15:21:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262660AbRFQTLJ>; Sun, 17 Jun 2001 15:11:09 -0400
-Received: from spiral.extreme.ro ([212.93.159.205]:384 "HELO spiral.extreme.ro")
-	by vger.kernel.org with SMTP id <S262622AbRFQTK7>;
-	Sun, 17 Jun 2001 15:10:59 -0400
-Date: Sun, 17 Jun 2001 22:12:39 +0300
-From: Dan Podeanu <pdan@spiral.extreme.ro>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 VM & swap question
-Message-ID: <20010617221239.B1027@spiral.extreme.ro>
-Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010617104836.B11642@opus.bloom.county>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010617104836.B11642@opus.bloom.county>; from trini@kernel.crashing.org on Sun, Jun 17, 2001 at 10:48:36AM -0700
+	id <S262660AbRFQTVi>; Sun, 17 Jun 2001 15:21:38 -0400
+Received: from hood.tvd.be ([195.162.196.21]:26193 "EHLO hood.tvd.be")
+	by vger.kernel.org with ESMTP id <S262622AbRFQTVX>;
+	Sun, 17 Jun 2001 15:21:23 -0400
+Date: Sun, 17 Jun 2001 21:18:23 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: David Flynn <Dave@keston.u-net.com>,
+        Daniel Phillips <phillips@bonn-fries.net>, rjd@xyzzy.clara.co.uk,
+        Bill Pringlemeir <bpringle@sympatico.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Newbie idiotic questions.
+In-Reply-To: <3B2CD29E.948D6BF2@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.05.10106172115110.12465-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 17, 2001 at 10:48:36AM -0700, Tom Rini wrote:
-> 'lo all.  I've got a question about swap and RAM requirements in 2.4.  Now,
-> when 2.4.0 was kicked out, the fact that you need swap=2xRAM was mentioned.
-> But what I'm wondering is what exactly are the limits on this.  Right now
-> I've got an x86 box w/ 128ram and currently 256swap.  When I had 128, I'd get
-> low on ram/swap after some time in X, and doing this seems to 'fix' it, in
-> 2.4.4.  However, I've also got 2 PPC boxes, both with 256:256 in 2.4.  One
-> of which never has X up, but lots of other activity, and swap usage seems
-> to be about the same as 2.2.x (right now 'free' says i'm ~40MB into swap,
-> 18day+ uptime).  The other box is a laptop and has X up when it's awake and
-> that too doesn't seem to have any problem.  So what exactly is the real
-> minium swap ammount?
+On Sun, 17 Jun 2001, Jeff Garzik wrote:
+> David Flynn wrote:
+> > > Daniel Phillips wrote:
+> > > > Yep, the only thing left to resolve is whether Jeff had coffee or not.
+> > ;-)
+> > > >
+> > > > -       if ((card->mpuout = kmalloc(sizeof(struct emu10k1_mpuout),
+> > GFP_KERNEL))
+> > > > +       if ((card->mpuout = kmalloc(sizeof(*card->mpuout), GFP_KERNEL))
+> > >
+> > > Yeah, this is fine.  The original posted omitted the '*' which was not
+> > > fine :)
+> > 
+> > The only other thing left to ask, is which is easier to read when glancing
+> > through the code, and which is easier to read when maintaining the code.
+> > imho, ist the former for reading the code, i dont know about maintaing the
+> > code since i dont do that, however in my own projects i prefere the former
+> > when maintaing the code.
+> 
+> It's the preference of the maintainer.  It's a tossup:  using the type
+> in the kmalloc makes the type being allocated obvious.  But using
+> sizeof(*var) is a tiny bit more resistant to change.
+> 
+> Neither one sufficiently affects long term maintenance AFAICS, so it's
+> personal preference, not any sort of kernel standard one way or the
+> other...
 
-I doubt there is a limit. I think 'it depends on what you're planning
-to do' is the correct answer. For a blank router, 32mb ram/64 swap can
-be enough, for a web/database server, you need more, etc.
+The first one can be made a bit safer against changes by creating a `knew'
+macro that behaves like `new' in C++:
+
+| #define knew(type, flags)	(type *)kmalloc(sizeof(type), (flags))
+
+If the types in the assignment don't match, gcc will tell you.
+
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

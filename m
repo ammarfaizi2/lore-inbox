@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261471AbREQSUr>; Thu, 17 May 2001 14:20:47 -0400
+	id <S261467AbREQSRr>; Thu, 17 May 2001 14:17:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261474AbREQSUh>; Thu, 17 May 2001 14:20:37 -0400
-Received: from web13704.mail.yahoo.com ([216.136.175.137]:2320 "HELO
-	web13704.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S261471AbREQSUd>; Thu, 17 May 2001 14:20:33 -0400
-Message-ID: <20010517182032.46367.qmail@web13704.mail.yahoo.com>
-Date: Thu, 17 May 2001 11:20:32 -0700 (PDT)
-From: jalaja devi <jala_74@yahoo.com>
-Subject: Re: kernel2.2.x to kernel2.4.x
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-In-Reply-To: <E150867-0004Cs-00@the-village.bc.nu>
-MIME-Version: 1.0
+	id <S261471AbREQSR1>; Thu, 17 May 2001 14:17:27 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:31243 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S261467AbREQSRY>; Thu, 17 May 2001 14:17:24 -0400
+Date: Thu, 17 May 2001 20:14:21 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Anil Kumar <anilk@subexgroup.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __exit
+Message-ID: <20010517201421.L12745@arthur.ubicom.tudelft.nl>
+In-Reply-To: <E150IcL-0003v5-00@f4.mail.ru> <NEBBIIKAMMOCGCPMPBJOMEFECCAA.anilk@subexgroup.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <NEBBIIKAMMOCGCPMPBJOMEFECCAA.anilk@subexgroup.com>; from anilk@subexgroup.com on Sun, Jun 17, 2001 at 04:02:44PM +0530
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How can I handle this from kernel2.2 to kernel2.4
+On Sun, Jun 17, 2001 at 04:02:44PM +0530, Anil Kumar wrote:
+> what does __exit, __p and other such directives means in the linux source
+> code. what is its significance.
 
-Can I replace like this??
+The macros __init and __exit are defined in include/linux/init.h:
 
-if (test_and_set_bit (0, (void *)&dev->tbusy)){ return
-EBUSY;} ========== with  netif_stop_queue (dev);
+#define __init          __attribute__ ((__section__ (".text.init")))
+#define __exit          __attribute__ ((unused, __section__(".text.exit")))
 
-clear_bit ((void *)&dev->tbusy); ===== with
-netif_start_queue(dev);
-
-Thanks
-Jalaja
-
---- Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> > I tried porting a network driver from kernel2.2.x
-> to
-> > 2.4. When i tried loading the driver, it shows the
-> > unresolved symbols for
-> > copy_to_user_ret
-> 
-> 	if(copy_to_user(...))
-> 		return -EFAULT
-> 
-> > outs
-> 
-> 	Has not gone away, your includes are wrong
-> 
-> > __bad_udelay
-> 
-> 	You are using too large a udelay use mdelay
-> -
-> To unsubscribe from this list: send the line
-> "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at 
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+And they tell the compiler to put the function in .text.init and
+.text.exit sections of the object file.
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Auctions - buy the things you want at great prices
-http://auctions.yahoo.com/
+Erik
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

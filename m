@@ -1,47 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263049AbTHaXBz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 19:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263050AbTHaXBz
+	id S263033AbTHaW7n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 18:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263035AbTHaW7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 19:01:55 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38367
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S263049AbTHaXBw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 19:01:52 -0400
-Date: Mon, 1 Sep 2003 01:02:19 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Larry McVoy <lm@work.bitmover.com>, Larry McVoy <lm@bitmover.com>,
-       Pascal Schmidt <der.eremit@email.de>,
+	Sun, 31 Aug 2003 18:59:42 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:965 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263033AbTHaW7j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 18:59:39 -0400
+Subject: Re: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Zach, Yoav" <yoav.zach@intel.com>
+Cc: akpm@osdl.org, torvalds@osdl.org,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth for bkbits.net (good news)
-Message-ID: <20030831230219.GD24409@dualathlon.random>
-References: <20030831144505.GS24409@dualathlon.random> <1062343891.10323.12.camel@dhcp23.swansea.linux.org.uk> <20030831154450.GV24409@dualathlon.random> <20030831162243.GC18767@work.bitmover.com> <20030831163350.GY24409@dualathlon.random> <20030831164802.GA12752@work.bitmover.com> <20030831170633.GA24409@dualathlon.random> <20030831211855.GB12752@work.bitmover.com> <20030831224938.GC24409@dualathlon.random> <1062370358.12058.8.camel@dhcp23.swansea.linux.org.uk>
+In-Reply-To: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com>
+References: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1062370720.12058.14.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1062370358.12058.8.camel@dhcp23.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
+Date: Sun, 31 Aug 2003 23:58:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 31, 2003 at 11:52:39PM +0100, Alan Cox wrote:
-> On Sul, 2003-08-31 at 23:49, Andrea Arcangeli wrote:
-> > > I'm not sure why you are arguing this, if you have a fat pipe feeding into
-> > 
-> > you never tried with linux, how can you claim you know it doesn't work
-> > in practice? The fact is that you never tried it, while we used it all
-> > the time.
-> 
-> How about because any undergraduate can do the mathematical proof its
-> not possible. Unless he controls the ISP end of the link random bursts
-> of traffic, pingfloods, anything not respecting requests to slow down
-> will lose voice traffic.
+On Sul, 2003-08-31 at 22:41, Zach, Yoav wrote:
+> binary's path. Old behavior of binfmt_misc is kept for interpreters
+> which do not specify this special flag. The patch is against
+> linux-2.6.0-test4. A similar one was posted twice on the list, on Aug.
+> 14 and 21, without significant response.
 
-they are legitimate tcp connections, not udp or icmp. I'm not saying you
-can control pingfloods or udp floods or syn floods.
+Aside from the general unshare fixes here is the other small problem you
+need to look at 
 
-Andrea
+#1 You can't assume /dev/fd/0 so why not just pass the filehandle number
+as argv1 instead like the a.out loader did years ago
+
+#2 Use snprintf not sprintf (Im sure sprintf is safe here but its easier
+to audit code if you use snprintf)
+
+#3 The instant you pass control to the user space loader I can steal the
+handle via /proc
+
+#4 The instant you pass control to the user space loader I can take it
+over via ptrace
+
+#5 After you pass control I can core dump the app and recover the data
+using a signal
+
+3, 4 and 5 require you make the userspace loader undumpable in the case 
+where the fd being passed on is executable only. If you do this then it
+certainly fixes 4 (permission denied) and 5 (no dump) and I think it
+fixes #3
+
+Alan
+

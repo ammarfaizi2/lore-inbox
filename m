@@ -1,47 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135794AbRDZRrl>; Thu, 26 Apr 2001 13:47:41 -0400
+	id <S135805AbRDZRtL>; Thu, 26 Apr 2001 13:49:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133004AbRDZRrV>; Thu, 26 Apr 2001 13:47:21 -0400
-Received: from ravage.rit.edu ([129.21.2.220]:19584 "HELO ravage.unixthugs.org")
-	by vger.kernel.org with SMTP id <S135799AbRDZRrK>;
-	Thu, 26 Apr 2001 13:47:10 -0400
-Message-ID: <3AE85F24.1010208@suse.com>
-Date: Thu, 26 Apr 2001 13:47:16 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2 i686; en-US; 0.8.1) Gecko/20010326
-X-Accept-Language: en
+	id <S135799AbRDZRtA>; Thu, 26 Apr 2001 13:49:00 -0400
+Received: from mons.uio.no ([129.240.130.14]:14504 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S133004AbRDZRsa>;
+	Thu, 26 Apr 2001 13:48:30 -0400
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Reiserfs List <reiserfs-list@namesys.com>
-Subject: [PATCH/URL] Endian Safe ReiserFS
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <15080.24119.524229.296133@charged.uio.no>
+Date: Thu, 26 Apr 2001 19:43:19 +0200
+To: Matthias Andree <ma@dt.e-technik.uni-dortmund.de>
+Cc: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: 2.2.19 NFSv3 client breaks fdopen(3)
+In-Reply-To: <20010426192632.A18492@maggie.dt.e-technik.uni-dortmund.de>
+In-Reply-To: <20010426192632.A18492@maggie.dt.e-technik.uni-dortmund.de>
+X-Mailer: VM 6.89 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
+Reply-To: trond.myklebust@fys.uio.no
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+User-Agent: SEMI/1.13.7 (Awazu) CLIME/1.13.6 (=?ISO-2022-JP?B?GyRCQ2YbKEI=?=
+ =?ISO-2022-JP?B?GyRCJU4+MRsoQg==?=) MULE XEmacs/21.1 (patch 14) (Cuyahoga
+ Valley) (i386-redhat-linux)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> " " == Matthias Andree <ma@dt.e-technik.uni-dortmund.de> writes:
 
-   I've just completed my port of ReiserFS to be endian safe. The patch 
-has been tested successfully on x86 (UP/SMP), ppc (UP/SMP), and 
-UltraSparc (UP). I've received reports that it also works successfully 
-on mips (UP).
+     > Hi, SHORT:
 
-   The patch preserves the little-endian disk format, so a disk can be 
-moved across architectures. The on-disk format has not been altered, so 
-the code can be patched in without disruption to users with existing 
-reiserfs filesystems (like myself :)). There are no VFS changes.
+     > the current 2.2.19 fs/nfs/dir.c ll. 455ff. nfs_dir_lseek breaks
+     > fdopen(3) which (at least with glibc 2.1.3) cals __llseek with
+     > offset==0 and whence==1 (SEEK_CUR), probably to poll the
+     > current file position.  Application software affected comprises
+     > cvs (tried 1.10.7) and Perl5 (sysopen, see below).
 
-   Due to the patches affecting all of ReiserFS, the patch is quite 
-large (180K), and so in the interests of preserving bandwidth for 
-everyone, I've decided to post a URL to the patch instead.
+     > I suggest that SEEK_CUR be allowed for offset == 0 in
+     > nfs_dir_llseek, but I'm asking for help since I'm not into this
+     > and cannot do this on my own. Thanks in advance.
 
-   The patch can be found at: 
-http://penguinppc.org/~jeffm/releases/endian-safe-reiserfs-for-2.4.4-pre7.final.bz2
+Ion has already sent in a patch to Alan for this. Here it is...
 
-   More information, including the endian safe utiltities, can be found 
-at http://penguinppc.org/~jeffm.
+Please note that if glibc is checking this return value, it will still
+screw up if file->f_pos > 0x7fffffff, which can and does happen
+against certain servers (particularly IRIX).
 
-   -Jeff
+As I've said before: it is a bug for glibc to be relying on seekdir if
+we want to support non-POSIX compliant filesystems under Linux.
+
+Cheers,
+   Trond
+
+--- /mnt/3/linux-2.2.19/fs/nfs/dir.c	Sun Mar 25 08:37:38 2001
++++ linux-2.2.19/fs/nfs/dir.c	Thu Apr  5 14:37:59 2001
+@@ -454,6 +454,9 @@
+  */
+ static loff_t nfs_dir_llseek(struct file *file, loff_t offset, int origin)
+ {
++	/* Glibc 2.0 backwards compatibility crap... */
++	if (origin == 1 && offset == 0)
++		return file->f_pos;
+ 	/* We disallow SEEK_CUR and SEEK_END */
+ 	if (origin != 0)
+ 		return -EINVAL;
 

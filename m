@@ -1,58 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVBNTDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVBNTGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVBNTDG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Feb 2005 14:03:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVBNTDG
+	id S261522AbVBNTGo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Feb 2005 14:06:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbVBNTGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Feb 2005 14:03:06 -0500
-Received: from it4systems-kln-gw.de.clara.net ([212.6.222.118]:59597 "EHLO
-	frankbuss.de") by vger.kernel.org with ESMTP id S261399AbVBNTDC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Feb 2005 14:03:02 -0500
-From: "Frank Buss" <fb@frank-buss.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: SL811 problem on mach-pxa
-Date: Mon, 14 Feb 2005 20:03:03 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
-Thread-Index: AcUSx87lYxEcl86VRaq372C/cIGYJw==
-Message-Id: <20050214190301.769C75B8A5@frankbuss.de>
+	Mon, 14 Feb 2005 14:06:44 -0500
+Received: from mail.kroah.org ([69.55.234.183]:58852 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261522AbVBNTGl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Feb 2005 14:06:41 -0500
+Date: Mon, 14 Feb 2005 11:06:19 -0800
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: avoiding pci_disable_device()...
+Message-ID: <20050214190619.GA9241@kroah.com>
+References: <4210021F.7060401@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4210021F.7060401@pobox.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've tried to configure the SL811 driver with 2.6.11 for mach-pxa 
-platform, but it doesn't work: The hub was recognized, but no device 
-(I've tested it with a USB mouse and keyboard). The hub is visible in 
-proc/bus/usb after mounting it.
+On Sun, Feb 13, 2005 at 08:42:55PM -0500, Jeff Garzik wrote:
+> 
+> Currently, in almost every PCI driver, if pci_request_regions() fails -- 
+> indicating another driver is using the hardware -- then 
+> pci_disable_device() is called on the error path, disabling a device 
+> that another driver is using
+> 
+> To call this "rather rude" is an understatement :)
+> 
+> Fortunately, the ugliness is mitigated in large part by the PCI layer 
+> helping to make sure that no two drivers bind to the same PCI device. 
+> Thus, in the vast majority of cases, pci_request_regions() -should- be 
+> guaranteed to succeed.
+> 
+> However, there are oddball cases like mixed PCI/ISA devices (hello IDE) 
+> or cases where a driver refers a pci_dev other than the primary, where 
+> pci_request_regions() and request_regions() still matter.
 
-I've tried to find the bug, but perhaps I'm wrong. This is what I've 
-found:
+But this is a very small subset of pci devices, correct?
 
-For me it looks like the SL11H_INTMASK_INSRMV interupt in 
-drivers/usb/host/sl811-hcd.c is not enabled. In other drivers it looks 
-like it is enabled in the start function, like in ohci-pxa27x.c in 
-pxa27x_start_hc. After adding a port_power(sl811, 1) call at the end of 
-sl811h_start at least the driver gets the interupt, if a mouse is 
-connected: it crashes in the "start" function, because ep->hep is NULL. I 
-fixed this by setting ep->hep=hep in sl811h_urb_enqueue. But the driver 
-still doesn't work. Now it doesn't crash, but I'll get some errors and 
-the device is not recognized.
+> As a result, I have committed the attached patch to libata-2.6.  In many 
+> cases, it is a "semantic fix", addressing the case
+> 
+> 	* pci_request_regions() indicates hardware is in use
+> 	* we rudely disable the in-use hardware
+> 
+> that would not occur in practice.
+> 
+> But better safe than sorry.  Code cuts cut-n-pasted all over the place.
+> 
+> I'm hoping one or two things will happen now:
+> * janitors fix up the other PCI drivers along these lines
+> * improve the PCI API so that pci_request_regions() is axiomatic
 
-What can I do to find the problem? I wonder if the driver is working at 
-all. In Linux 2.4 the driver worked on the same hardware, but looks like 
-the driver in Linux 2.6 is rewritten from scratch. But I'm really lost 
-when it comes to kernel programming, so maybe it is trivial to fix the 
-problem and it is no driver bug.
+Do you have any suggestions for how to do this?
 
-Another question (perhaps this is related to my problem): Where do I have 
-to provide the sl811_platform_data data and what values and functions are 
-needed?
+thanks,
 
--- 
-Frank Buﬂ, fb@frank-buss.de
-http://www.frank-buss.de, http://www.it4-systems.de
-
+greg k-h

@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266902AbUBGQC2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Feb 2004 11:02:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266955AbUBGQC2
+	id S266963AbUBGQU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Feb 2004 11:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266964AbUBGQU4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Feb 2004 11:02:28 -0500
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:28777 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S266902AbUBGQC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Feb 2004 11:02:27 -0500
-Date: Sat, 7 Feb 2004 11:01:51 -0500 (EST)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Michael Frank <mhf@linuxmail.org>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>, <axboe@suse.de>,
-       <rddunlap@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.25-rc1: Add user friendliness to highmem= option
-In-Reply-To: <200402072338.05365.mhf@linuxmail.org>
-Message-ID: <Pine.LNX.4.44.0402071100580.28464-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 7 Feb 2004 11:20:56 -0500
+Received: from ns.suse.de ([195.135.220.2]:64973 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S266963AbUBGQUz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Feb 2004 11:20:55 -0500
+Date: Sat, 7 Feb 2004 17:20:54 +0100
+From: Olaf Hering <olh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.3 CONFIG_SCSI_AIC7 X X X Kconfig bug
+Message-ID: <20040207162054.GA25651@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 7 Feb 2004, Michael Frank wrote:
 
-> Thank you very much for your encouraging response ;)
-> 
-> What is your opinion on shutting down the kernel on
-> zone alignment errors (applies to all arches) and
-> the force_bug method it uses to do so?
+who made that 'XXX in subject' reject? That is bug one.
 
-I think the init code should be smart enough to avoid the
-zone alignment errors in the first place.
+another bug:
 
-Still, we should have a fallback in page_alloc.c to check
-the arch init code, otherwise problems related to zone
-alignment become nearly impossible to debug.
+scsi is a module, but aic7xxx doesnt get build because it is set to yes.
+plain 2.6.3-rc1, happend also with 2.6.2.
+
+grep SCSI .config | grep =
+CONFIG_BLK_DEV_IDESCSI=m
+CONFIG_SCSI=m
+CONFIG_SCSI_MULTI_LUN=y
+CONFIG_SCSI_REPORT_LUNS=y
+CONFIG_SCSI_CONSTANTS=y
+CONFIG_SCSI_LOGGING=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_SCSI_QLA2XXX_CONFIG=m
+CONFIG_SCSI_DEBUG=m
+CONFIG_USB_HPUSBSCSI=m
+
+I can not set CONFIG_SCSI_DEBUG to y, this is handled correctly.
 
 -- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+USB is for mice, FireWire is for men!
 
+sUse lINUX ag, nÜRNBERG

@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S144138AbRAHOwr>; Mon, 8 Jan 2001 09:52:47 -0500
+	id <S144123AbRAHOxh>; Mon, 8 Jan 2001 09:53:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144124AbRAHOw1>; Mon, 8 Jan 2001 09:52:27 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:28888 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S144123AbRAHOwW>;
-	Mon, 8 Jan 2001 09:52:22 -0500
-Date: Mon, 8 Jan 2001 09:52:20 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Stefan Traby <stefan@hello-penguin.com>, linux-kernel@vger.kernel.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-In-Reply-To: <E14FdTa-0004fs-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0101080941430.4061-100000@weyl.math.psu.edu>
+	id <S144154AbRAHOx1>; Mon, 8 Jan 2001 09:53:27 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:11526 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S144123AbRAHOxR>;
+	Mon, 8 Jan 2001 09:53:17 -0500
+Message-ID: <3A59D3A4.AEE91B1@innominate.de>
+Date: Mon, 08 Jan 2001 15:50:12 +0100
+From: Daniel Phillips <phillips@innominate.de>
+Organization: innominate
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Ext2 descriptor corruption in 2.4.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After 3 days up doing fairly normal things with an unremarkable
+configuration and a vanila 2.4.0 kernel (nfs) I tried to log out of KDE 
+and hung in 'preparing session for logout'.  In a text console, dmesg
+showed an infinite number of "Free blocks count corrupted" messages:
 
+  EXT2-fs error (device ide0(3,66)): ext2_new_block: Free blocks count
+corrupted for block group 93
+  EXT2-fs error (device ide0(3,66)): ext2_new_block: Free blocks count
+corrupted for block group 93                                             
 
-On Mon, 8 Jan 2001, Alan Cox wrote:
+and gdb showed all the processes under X waiting in poll or select, not
+surprising considering the way ext2 handles this:
 
-> > > Why not start to fix this problem outside the funny switch/case in glibc ?
-> > > The filesystem itself should able to handle this.
-> > 
-> > Sigh... And the API would be?
-> 
-> In SuS its pathconf()
+  if (j >= EXT2_BLOCKS_PER_GROUP(sb)) {
+         ext2_error (sb, "ext2_new_block",
+                     "Free blocks count corrupted for block group %d",
+i);
+         goto out;
+  }
 
-Which happens to be remarkably ugly. And it will not get better tomoorow...
+I shut down and restarted hoping to get an fsck, but instead continued
+past the ext2 mount.  I interrupted that, restarted and fscked, which
+turned up a single special file with size 0 and no other problems.
 
-I _really_ don't think that this barfbag should make its way into the
-kernel API. Some parts of information make sense. Some don't. API is...
-well, "int name" with a bunch of constatnts is a dead giveaway in itself.
+So I think this may be a cache problem.
 
-If anything, we might want a mount-ID created upon mount(2) and never
-reused + pseudo-fs a-la /proc that would give access to per-mount data.
-That might be more or less reasonable, but that would also require
-returning such ID from stat()...
-
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

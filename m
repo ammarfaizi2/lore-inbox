@@ -1,37 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289278AbSANXRY>; Mon, 14 Jan 2002 18:17:24 -0500
+	id <S289280AbSANXRY>; Mon, 14 Jan 2002 18:17:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289283AbSANXRQ>; Mon, 14 Jan 2002 18:17:16 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:57531 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S289282AbSANXPo>; Mon, 14 Jan 2002 18:15:44 -0500
-Date: Mon, 14 Jan 2002 16:15:27 -0700
-Message-Id: <200201142315.g0ENFRP00696@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
+	id <S289272AbSANXRT>; Mon, 14 Jan 2002 18:17:19 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:15114 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289287AbSANXPY>; Mon, 14 Jan 2002 18:15:24 -0500
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
 To: esr@thyrsus.com
-Cc: Richard Gooch <rgooch@ras.ucalgary.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Penelope builds a kernel
-In-Reply-To: <20020114174523.E23081@thyrsus.com>
-In-Reply-To: <20020114165909.A20808@thyrsus.com>
-	<200201142244.g0EMimd32377@vindaloo.ras.ucalgary.ca>
-	<20020114174523.E23081@thyrsus.com>
+Date: Mon, 14 Jan 2002 23:27:17 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20020114174133.D23081@thyrsus.com> from "Eric S. Raymond" at Jan 14, 2002 05:41:33 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QGVZ-0003Ky-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric S. Raymond writes:
-> Richard Gooch <rgooch@ras.ucalgary.ca>:
-> > You know, I'm not really interested in whether Melvin or Penelope get
-> > a root or not, and it's never occurred to me that kernel design should
-> > be based on that.
+> > Because the GPL says he's entitled to them ?
 > 
-> The phrase "get a root" is entertainingly ambiguous in this context,
-> is it not?
+> You miss my point.  Sure he's entitled to them.  But why should he
+> *have to have them*?  They're extra state which, in the presence
+> of a proper autoconfigurator, he doesn't need.
 
-Not to an Australian. It's quite unambiguous :->
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+You have it backwards. The _autoconfigurator_ is extra state which in the
+presence of the config he doesn't need

@@ -1,38 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVCHTeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVCHTpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVCHTeo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 14:34:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVCHTcA
+	id S262081AbVCHTpg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 14:45:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVCHTpe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 14:32:00 -0500
-Received: from isilmar.linta.de ([213.239.214.66]:57816 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262097AbVCHT3B (ORCPT
+	Tue, 8 Mar 2005 14:45:34 -0500
+Received: from rproxy.gmail.com ([64.233.170.204]:57368 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262081AbVCHTcu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 14:29:01 -0500
-Date: Tue, 8 Mar 2005 20:29:00 +0100
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Andrew Morton <akpm@osdl.org>
+	Tue, 8 Mar 2005 14:32:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=P5efXK9d8Kc7OYpAdbTf7+UHdqHaY5AHCMdBdPDMLHKFRNhIBgkO2hhy9EoKWMXlD5jgtOLSHOEnTiozgxhENcOYbGpjogjAht0CamhSbNpAs6RpzqbbkCIEUh9kPIZr16J6Pq0BJToW+Vzl5sDPYKYmvsJ17YJ+1SfVvN+T/Jc=
+Message-ID: <8783be6605030811326dc8f89b@mail.gmail.com>
+Date: Tue, 8 Mar 2005 11:32:43 -0800
+From: Ross Biro <ross.biro@gmail.com>
+Reply-To: Ross Biro <ross.biro@gmail.com>
+To: "Peter W. Morreale" <peter_w_morreale@hotmail.com>
+Subject: Re:
 Cc: linux-kernel@vger.kernel.org
-Subject: inconsistent kallsyms data [2.6.11-mm2]
-Message-ID: <20050308192900.GA16882@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050308033846.0c4f8245.akpm@osdl.org>
+In-Reply-To: <BAY101-F396925B373DD3925D37BFEC1500@phx.gbl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050308033846.0c4f8245.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <BAY101-F396925B373DD3925D37BFEC1500@phx.gbl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-compiling -mm2 on my x86 box results in:
+On Tue, 08 Mar 2005 09:32:48 -0700, Peter W. Morreale
+<peter_w_morreale@hotmail.com> wrote:
+> 
+> This seems wrong since we've mixed locking primitives.
+> 
+> Is it?
 
-SYSMAP  .tmp_System.map
-Inconsistent kallsyms data
-Try setting CONFIG_KALLSYMS_EXTRA_PASS
-make: *** [vmlinux] Fehler 1
+It's not really wrong, it just wastes time turning interrupts off over
+and over again.
+> ....
+> foo()
+> {
+>     unsigned long lflags;
 
-gcc-Version 3.4.3 20050110 (Gentoo Linux 3.4.3.20050110, ssp-3.4.3.20050110-0, pie-8.7.7)
+At this point, interrupts are off, the lock is held.
+> 
+>     spin_unlock(global_lock);
 
-	Dominik
+Interrupts are still off, the lock is no longer held.
+>     ...
+>     {
+>         spin_lock_irqsave(global_lock, &lflags);
+
+Interrupts are still off, and just to be sure we turned them off
+again.  The lock is held.
+>                 .
+>                 .
+>         spin_unlock_irqrestore(global_lock, &lflags);
+Interrupts are still off, but we restored them to the off state they
+were in before
+we grabbed the lock the last time.  The lock is no longer held.
+>     }
+> 
+>     spin_lock_irq(global_lock);
+Turn off interrupts again just to be extra sure they are off.  The
+lock is held again.
+
+>From the looks of this code, the locking will work.  But it's not what
+it should be.
+
+If you know foo is only called with interrupts off, then there is no
+reason to turn them off over and over again.  Just use the standard
+spin_lock and spin_unlock and comment that interrupts are already off.
+
+You should also question if interrupts need to be disabled at all.  If
+the spin lock is never grabbed at interrupt time (and probably won't
+be in the near future), then there is no point in turning interrupts
+on and off at all.
+
+    Ross

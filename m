@@ -1,44 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261238AbREUSoQ>; Mon, 21 May 2001 14:44:16 -0400
+	id <S261390AbREUStg>; Mon, 21 May 2001 14:49:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261385AbREUSoG>; Mon, 21 May 2001 14:44:06 -0400
-Received: from pop.gmx.net ([194.221.183.20]:54697 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261238AbREUSoD>;
-	Mon, 21 May 2001 14:44:03 -0400
-Message-ID: <3B0963AF.FDCB8AA2@gmx.at>
-Date: Mon, 21 May 2001 20:51:27 +0200
-From: Wilfried Weissmann <Wilfried.Weissmann@gmx.at>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S261399AbREUSt0>; Mon, 21 May 2001 14:49:26 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9991 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261390AbREUStP>; Mon, 21 May 2001 14:49:15 -0400
+Subject: Re: PATCH: maestro ported to 2.4 PCI API
+To: zab@zabbo.net (Zach Brown)
+Date: Mon, 21 May 2001 19:46:25 +0100 (BST)
+Cc: Marcus.Meissner@caldera.de (Marcus Meissner), linux-kernel@vger.kernel.org
+In-Reply-To: <20010521144554.C7003@erasmus.off.net> from "Zach Brown" at May 21, 2001 02:45:54 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-To: Robert Vojta <vojta@ipex.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3c905C-TX [Fast Etherlink] problem ...
-In-Reply-To: <20010521090946.D769@ipex.cz>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E151uhF-0000hs-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Vojta wrote:
+> > 	- bumped version.
 > 
-> Hi,
->   I have this card in intranet server and I'm very confused about very often
-> message in log like this:
+> we might as well just stop using these, they don't mean much of anything
+> anymore.
+
+Its useful to have version ids. So it would be better people used them more
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> eth0: Transmit error, Tx status register 82.
->   Flags; bus-master 1, dirty 20979238(6) current 20979242(10)
->   Transmit list 1f659290 vs. df659260.
->   0: @df659200  length 800005ea status 000105ea
->   1: @df659210  length 80000296 status 00010296
->   2: @df659220  length 800005ea status 000105ea
-[snip]
 
-Hi,
-
-I had the same problem with 2.4.3-pre6 (also with the 3c905C). Alle
-problems were gone with 2.4.4, so I stopped bothering. Hope this
-helps...
-
-Wilfried

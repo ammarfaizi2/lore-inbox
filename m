@@ -1,53 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266303AbUG0HlY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266305AbUG0HqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266303AbUG0HlY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 03:41:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266338AbUG0HlY
+	id S266305AbUG0HqK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 03:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266308AbUG0HqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 03:41:24 -0400
-Received: from mail.euroweb.hu ([193.226.220.4]:64429 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S266337AbUG0HlV (ORCPT
+	Tue, 27 Jul 2004 03:46:10 -0400
+Received: from tartu.cyber.ee ([193.40.6.68]:33040 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id S266305AbUG0HqD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 03:41:21 -0400
-To: linuxram@us.ibm.com
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-In-reply-to: <1090901926.8416.13.camel@dyn319181.beaverton.ibm.com> (message
-	from Ram Pai on 26 Jul 2004 21:18:47 -0700)
-Subject: Re: [PATCH] fix readahead breakage for sequential after random
-	reads
-References: <E1BmKAd-0001hz-00@dorka.pomaz.szeredi.hu>
-	 <20040726162950.7f4a3cf4.akpm@osdl.org>
-	 <1090886218.8416.3.camel@dyn319181.beaverton.ibm.com>
-	 <20040726170843.3fe5615c.akpm@osdl.org> <1090901926.8416.13.camel@dyn319181.beaverton.ibm.com>
-Message-Id: <E1BpMZQ-00016B-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 27 Jul 2004 09:40:20 +0200
+	Tue, 27 Jul 2004 03:46:03 -0400
+Date: Tue, 27 Jul 2004 10:45:57 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Gerard Roudier <groudier@free.fr>, linux-kernel@vger.kernel.org
+Subject: Sym53C896: CACHE INCORRECTLY CONFIGURED
+Message-ID: <Pine.LNX.4.58.0407271038530.13593@ondatra.tartu-labor>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I got a 53c896 dual channel 64-bit PCI card (Compaq series EOB003). Tried
+it in x86 (i815 mainboard) and Sun Ultra 5 (both with 32-bit PCI slots).
+Both errored out basically the same way (this is from the PC, Linux
+2.6.8-rc2):
 
-Ram Pai <linuxram@us.ibm.com> wrote:
->
-> Also I think the bug that Miklos, found is really hard to reproduce. Did
-> he find this bug by code inspection? Its really really hard to get into
-> a state where the current window is of size 1 page with zero pages in
-> the readahead window, and then the sequential read pattern to just right
-> then. 
+ACPI: PCI interrupt 0000:01:09.0[A] -> GSI 11 (level, low) -> IRQ 11
+sym0: <896> rev 0x5 at pci 0000:01:09.0 irq 11
+sym0: using 64 bit DMA addressing
+sym0: No NVRAM, ID 7, Fast-40, LVD, parity checking
+CACHE TEST FAILED: timeout.
+sym0: CACHE INCORRECTLY CONFIGURED.
+sym0: giving up ...
+ACPI: PCI interrupt 0000:01:09.1[B] -> GSI 9 (level, low) -> IRQ 9
+sym0: <896> rev 0x5 at pci 0000:01:09.1 irq 9
+sym0: using 64 bit DMA addressing
+sym0: No NVRAM, ID 7, Fast-40, LVD, parity checking
+CACHE TEST FAILED: timeout.
+sym0: CACHE INCORRECTLY CONFIGURED.
+sym0: giving up ...
 
-I found it by accident. I did my testing with the following read
-sequence:
+Is the card toast or can I tweak something somewhere?
 
-page offset  num pages
-7            1
-0            1
-35           1
-23           1
-42           1
-33           1
-29           1
-100          200
+0000:01:09.0 SCSI storage controller: LSI Logic / Symbios Logic 53C896/897 (rev 05)
+        Subsystem: Compaq Computer Corporation: Unknown device 6004
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at c400 [size=256]
+        Region 1: Memory at ff8ff800 (64-bit, non-prefetchable) [size=1K]
+        Region 3: Memory at ff8fa000 (64-bit, non-prefetchable) [size=8K]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: 00 10 0b 00 13 01 10 82 05 00 00 01 08 20 80 00
+10: 01 c4 00 00 04 f8 8f ff 00 00 00 00 04 a0 8f ff
+20: 00 00 00 00 00 00 00 00 00 00 00 00 11 0e 04 60
+30: 00 00 00 00 40 00 00 00 00 00 00 00 0b 01 11 40
+40: 01 00 02 06 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-I did not measure actual performance, but only looked at the length of
-the page vector passed to my filesystem's readpages() method.
+0000:01:09.1 SCSI storage controller: LSI Logic / Symbios Logic 53C896/897 (rev 05)
+        Subsystem: Compaq Computer Corporation: Unknown device 6004
+        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+        Status: Cap+ 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR+
+        Interrupt: pin B routed to IRQ 9
+        Region 0: I/O ports at c800 [size=256]
+        Region 1: Memory at ff8ffc00 (64-bit, non-prefetchable) [size=1K]
+        Region 3: Memory at ff8fc000 (64-bit, non-prefetchable) [size=8K]
+        Capabilities: [40] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+00: 00 10 0b 00 13 01 10 82 05 00 00 01 08 20 80 00
+10: 01 c8 00 00 04 fc 8f ff 00 00 00 00 04 c0 8f ff
+20: 00 00 00 00 00 00 00 00 00 00 00 00 11 0e 04 60
+30: 00 00 00 00 40 00 00 00 00 00 00 00 09 02 11 40
+40: 01 00 02 06 00 00 00 00 00 00 00 00 00 00 00 00
+50: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+60: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+70: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+90: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+b0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+d0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+f0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 
-Miklos
+
+-- 
+Meelis Roos

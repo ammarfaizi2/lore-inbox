@@ -1,85 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262099AbSJJWqV>; Thu, 10 Oct 2002 18:46:21 -0400
+	id <S262144AbSJJWs6>; Thu, 10 Oct 2002 18:48:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262152AbSJJWqT>; Thu, 10 Oct 2002 18:46:19 -0400
-Received: from grue.ucsd.edu ([132.239.66.103]:37248 "EHLO grue.ucsd.edu")
-	by vger.kernel.org with ESMTP id <S262099AbSJJWpk>;
-	Thu, 10 Oct 2002 18:45:40 -0400
-Date: Thu, 10 Oct 2002 15:51:30 -0700 (PDT)
-Message-Id: <20021010.155130.23003855.wlandry@ucsd.edu>
-To: jgarzik@pobox.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A simple request
-From: Walter Landry <wlandry@ucsd.edu>
-In-Reply-To: <3DA58B60.1010101@pobox.com>
-References: <20021009.163920.85414652.wlandry@ucsd.edu>
-	<3DA58B60.1010101@pobox.com>
-X-Mailer: Mew version 2.2 on Emacs 21.2 / Mule 5.0 (SAKAKI)
+	id <S262335AbSJJWs6>; Thu, 10 Oct 2002 18:48:58 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:46501 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S262144AbSJJWs5>;
+	Thu, 10 Oct 2002 18:48:57 -0400
+Message-Id: <200210102254.g9AMsgH08119@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.41 - kernel NULL pointer
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 10 Oct 2002 15:54:42 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> wrote:
-> Walter Landry wrote:
-> > Jeff Garzik wrote:
-> > 
-> >>If you can't fit a whole tree including metadata into RAM, though,
-> >>BK crawls... Going from "bk citool" at the command line to actually
-> >>seeing the citool window approaches five minutes of runtime, on this
-> >>200MB laptop... [my dual athlon with 512MB RAM corroborates your
-> >>numbers, though] "bk -r co -Sq" takes a similar amount of time...
-> >>
-> >>I also find that BK brings out the worst in the 2.4 kernel
-> >>elevator/VM... mouse clicks in Mozilla take upwards of 10 seconds to
-> >>respond, when "bk -r co -Sq" is running on this laptop [any other
-> >>read-from-disk process behaves similarly]. And running any two BK
-> >>jobs at the same time is a huge mistake. Two "bk -r co -Sq" runs
-> >>easily take four or more times longer than a single run. Ditto for
-> >>consistency checks, or any other disk-intensive activity BK indulges
-> >>in.
-> > 
-> > 
-> > Hello,
-> > 
-> > What kind of CPU and hard drive do your two machines above have?  I'm
-> > a developer for arch[1], and I'm wondering how fast things can get.
-> 
-> The laptop has 200MB RAM, and mozilla and a ton of xterms loaded.  IDE 
-> drives w/ Intel PIIX4 controller.  The Dual Athlon has 512MB RAM, and I 
-> forget what kind of IDE controller -- I think AMD.  IDE drives as well.
 
-Sorry, I wasn't specific enough.  What is the clock speed (MHz) of the
-CPU and the RPM and/or results of hparm -t of the hard drive?
+System is 2-CPU PIII 
+Attempting to start the SAP DB. Get this msg:
+SAP cannot open the sys devspace (which is on filesystem)
+DB setup does include one raw partition.
+Further details upon request
+cliffw
 
-> BitKeeper must scan the entire tree when doing a checkin or checkout, so 
-> that is impossible to optimize at the SCM level without compromising 
-> features...  if your source tree takes up ~190MB on disk, you have 200MB 
-> of RAM total, and you need to sequentially scan the entire thing, there 
-> is nothing that can be done at either the OS or app level... You're just 
-> screwed.  Things are extremely fast on the Dual Athlon because the 
-> entire tree is in RAM.
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000
 
-How fast?  If you have, for example, the 2.4.18 tree and apply the
-2.4.19 patches, approximately how long does it take for citool to show
-up, showing all modified files (less than a second? 10 seconds? a
-minute?)
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted
+EFLAGS: 00010246
+eax: c04b71e0   ebx: 00000000   ecx: 00000000   edx: 00000001
+esi: cf26cba8   edi: c1bc4764   ebp: c26c7f54   esp: c26c7ee0
+ds: 0068   es: 0068   ss: 0068
+Process dbmsrv (pid: 1422, threadinfo=c26c6000 task=c4c4e760)
+Stack: c01711a9 00000000 c1bc4764 c26c7f54 00004000 00000000 00000001 c1bc4764
+       c26c7f54 00004000 00000000 c01e92b2 00000000 c1bc4764 c26c7f54 00004000
+       00000000 00000001 cee2c314 c1bc4764 00002000 c1bc4764 c1bc4784 c01e92f9
+Call Trace:
+ [<c01711a9>] generic_file_direct_IO+0x59/0x73
+ [<c01e92b2>] rw_raw_dev+0xd2/0xf0
+ [<c01e92f9>] raw_read+0x29/0x30
+ [<c014c756>] vfs_read+0xb6/0x180
+ [<c014c3c0>] default_llseek+0x0/0x150
+ [<c014c63d>] sys_llseek+0x8d/0xf0
+ [<c014c9ca>] sys_read+0x2a/0x40
+ [<c010788f>] syscall_call+0x7/0xb
 
-> > Note: If you answer, you'll certainly be aiding arch development.  It
-> >       might be interpreted as "develop[ing] ... a product which
-> >       contains substantially similar capabilities of the BitKeeper
-> >       Software, or, in the reasonable opinion of BitMover, competes
-> >       with the BitKeeper Software".  So you might lose the ability to
-> >       use the free license.  But I'll let you decide if you want to
-> >       help us.
-> 
-> 
-> Don't be silly:  I am more than willing to help, via answering 
-> questions.
+Code:  Bad EIP value.
 
-Thanks,
-Walter Landry
-wlandry@ucsd.edu
 

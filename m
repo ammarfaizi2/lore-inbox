@@ -1,73 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264547AbUAOQDt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 11:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264902AbUAOQDt
+	id S264510AbUAOQDl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 11:03:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbUAOQDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 11:03:49 -0500
-Received: from host-64-65-253-246.alb.choiceone.net ([64.65.253.246]:20638
-	"EHLO gaimboi.tmr.com") by vger.kernel.org with ESMTP
-	id S264547AbUAOQDp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 11:03:45 -0500
-Message-ID: <4006B998.5040403@tmr.com>
-Date: Thu, 15 Jan 2004 11:02:32 -0500
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031208
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Randy Appleton <rappleto@nmu.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Unneeded Code Found??
-References: <3FFF3931.4030202@nmu.edu>
-In-Reply-To: <3FFF3931.4030202@nmu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 15 Jan 2004 11:03:41 -0500
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:63997 "EHLO
+	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S264510AbUAOQDk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Jan 2004 11:03:40 -0500
+Subject: Re: NTFS disk usage on Linux 2.6
+From: Disconnect <lkml@sigkill.net>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <4006A904.3000307@bellsouth.net>
+References: <20040115010210.GA570@s.chello.no>
+	 <4006A904.3000307@bellsouth.net>
+Content-Type: text/plain
+Message-Id: <1074182621.12130.1.camel@slappy>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 15 Jan 2004 11:03:41 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Appleton wrote:
-> I think I have found some useless code in the Linux kernel
-> in the block request functions.
->                                                                                         
-> 
-> I have modified the __make_request function in ll_rw_blk.c.
-> Now every request for a block off the hard drive is logged.
->                                                                                         
-> 
-> The function __make_request has code to attempt to merge the current
-> block request with some contigious existing request for better
-> performance. This merge function keeps a one-entry cache pointing to the
-> last block request made.  An attempt is made to merge the current
-> request with the last request, and if that is not possible then
-> a search of the whole queue is done, looking at merger possibililites.
->                                                                                         
-> 
-> Looking at the data from my logs, I notice that over 50% of all requests
-> can be merged.  However, a merge only ever happens between the
-> current request and the previous one.  It never happens between the
-> current request and any other request that might be in the queue (for
-> more than 50,000 requests examined).
->                                                                                         
-> 
-> This is true for several test runs, including "daily usage" and doing
-> two kernel compiles at the same time.  I have only tested on a
-> single-CPU machine.
->                                                                                         
-> 
-> I wonder if the code (and CPU time) used to search the entire request
-> queue is actually useful.  Would this be a reasonable candidate for code
-> elimination?
+On Thu, 2004-01-15 at 09:51, Craig Taylor wrote:
+> Do a "properties" within Windows on the folder - windows will report the 
+> _actual_ size of the file in it's listings, not the amount of space it 
+> takes up. I presume that that's what is going on.
 
-If you never get a hit, it means either (a) your test load actually 
-doesn't have one, or (b) the code isn't correctly finding them.
+That's hardly going to account for a folder that is 2G LARGER than the
+partition it lives on......
 
-Of course if your disk is keeping up and the queue is short, then you 
-may simply not have anything in the queue to match.
-
-Any of this kick a train of thought?
-
+> >  12G     WINDOWS
+> >
+> >Same command on 2.4.24:
+> >  1.4G    WINDOWS
+> >
+> >Compare the disk space used by the WINDOWS directory in the
+> >two listings.  On 2.4.24, it correctly reports 1.4G, while
+> >2.6.1 reports 12G, which is 2G more than the total space on
+> >the filesystem.
 
 -- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Disconnect <lkml@sigkill.net>
+

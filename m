@@ -1,107 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268296AbTAMTB2>; Mon, 13 Jan 2003 14:01:28 -0500
+	id <S268286AbTAMS4z>; Mon, 13 Jan 2003 13:56:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268294AbTAMTB1>; Mon, 13 Jan 2003 14:01:27 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:30592 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id <S268293AbTAMTBX>;
-	Mon, 13 Jan 2003 14:01:23 -0500
-Date: Mon, 13 Jan 2003 20:10:07 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: linux-kernel@vger.kernel.org
-Cc: schlicht@uni-mannheim.de, alan@lxorguk.ukuu.org.uk
-Subject: [PATCH] Re: patch for errno-issue (with soundcore)
-Message-ID: <20030113191007.GA2814@vana>
-References: <D206AA476EB@vcnet.vc.cvut.cz> <200301131810.53089.schlicht@uni-mannheim.de>
+	id <S268282AbTAMS4z>; Mon, 13 Jan 2003 13:56:55 -0500
+Received: from are.twiddle.net ([64.81.246.98]:18823 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S268286AbTAMS4r>;
+	Mon, 13 Jan 2003 13:56:47 -0500
+Date: Mon, 13 Jan 2003 11:04:57 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: rusty@rustcorp.com.au
+Cc: linux-kernel@vger.kernel.org
+Subject: [module-init-tools] fix weak symbol handling
+Message-ID: <20030113110457.A936@twiddle.net>
+Mail-Followup-To: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200301131810.53089.schlicht@uni-mannheim.de>
-User-Agent: Mutt/1.4i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Now, at least, I understood the real problem...
-> 'errno' is only needed because open(), close(), llseek() and read() are used, 
-> which do a syscall and the return code is written to a variable called 
-> 'errno'. This is NOT the 'errno' variable defined in lib/errno.c... OK.
-> 
-> And so the real problem is using these functions and as we ARE in the kernel 
-> mode we do not really need the kernel traps...
+The pair to the kernel patch posted a moment ago.
 
-Hi, 
-  can someone with sound card requiring firmware download (OSS's trix,
-sb_common, msnd_pinnacle, sscape, maui or pss) verify that code below
-works? I know that it compiles without warnings, and looks obviously
-correct (to me), but...
 
-  I think that I do not need any locking around reading i_size, as
-nothing bad should happen if size changes, you'll get damaged firmware
-upload at worst, and if you are updating firmware file while kernel 
-reads it, you deserve it (besides that vfs_read is one who will do final 
-check). And sys_stat (getattr) does not take any lock too, unless I 
-missed something.
+r~
 
-  Patch is for 2.5.57.
 
-  BTW, should I convert it to goto? It was really annoying that I had to
-fix 3 error paths instead of one ;-)
-					Best regards,
-						Petr Vandrovec
-						vandrove@vc.cvut.cz	
 
-diff -urdN linux/sound/sound_firmware.c linux/sound/sound_firmware.c
---- linux/sound/sound_firmware.c	2003-01-13 18:24:36.000000000 +0000
-+++ linux/sound/sound_firmware.c	2003-01-13 18:45:12.000000000 +0000
-@@ -9,39 +9,40 @@
+diff -rup module-init-tools-0.9.8/depmod.c module-init-tools-0.9.8-new/depmod.c
+--- module-init-tools-0.9.8/depmod.c	Sat Jan 11 00:50:30 2003
++++ module-init-tools-0.9.8-new/depmod.c	Sun Jan 12 12:38:45 2003
+@@ -98,7 +98,7 @@ void add_symbol(const char *name, struct
  
- static int do_mod_firmware_load(const char *fn, char **fp)
+ static int print_unknown;
+ 
+-struct module *find_symbol(const char *name, const char *modname)
++struct module *find_symbol(const char *name, const char *modname, int weak)
  {
--	int fd;
-+	struct file* filp;
- 	long l;
- 	char *dp;
-+	loff_t pos;
+ 	struct symbol *s;
  
--	fd = open(fn, 0, 0);
--	if (fd == -1)
-+	filp = filp_open(fn, 0, 0);
-+	if (IS_ERR(filp))
- 	{
- 		printk(KERN_INFO "Unable to load '%s'.\n", fn);
- 		return 0;
+@@ -108,7 +108,7 @@ struct module *find_symbol(const char *n
  	}
--	l = lseek(fd, 0L, 2);
-+	l = filp->f_dentry->d_inode->i_size;
- 	if (l <= 0 || l > 131072)
- 	{
- 		printk(KERN_INFO "Invalid firmware '%s'\n", fn);
--		sys_close(fd);
-+		filp_close(filp, current->files);
- 		return 0;
+ 
+ 	/* Ignore __start_* and __stop_* like kernel might. */
+-	if (print_unknown
++	if (print_unknown && !weak
+ 	    && (strncmp(name, "__start_", strlen("__start_")) != 0
+ 		|| strncmp(name, "__stop_", strlen("__stop_")) != 0))
+ 		warn("%s needs unknown symbol %s\n", modname, name);
+diff -rup module-init-tools-0.9.8/depmod.h module-init-tools-0.9.8-new/depmod.h
+--- module-init-tools-0.9.8/depmod.h	Thu Jan  2 02:25:07 2003
++++ module-init-tools-0.9.8-new/depmod.h	Sun Jan 12 12:39:09 2003
+@@ -12,7 +12,7 @@ void *do_nofail(void *ptr, const char *f
+ #define NOFAIL(ptr)	do_nofail((ptr), __FILE__, __LINE__, #ptr)
+ 
+ void add_symbol(const char *name, struct module *owner);
+-struct module *find_symbol(const char *name, const char *modname);
++struct module *find_symbol(const char *name, const char *modname, int weak);
+ void add_dep(struct module *mod, struct module *depends_on);
+ 
+ struct module
+diff -rup module-init-tools-0.9.8/moduleops.c module-init-tools-0.9.8-new/moduleops.c
+--- module-init-tools-0.9.8/moduleops.c	Wed Dec 25 22:04:55 2002
++++ module-init-tools-0.9.8-new/moduleops.c	Sun Jan 12 12:33:31 2003
+@@ -10,10 +10,14 @@
+ #include "tables.h"
+ 
+ #define PERBIT(x) x##32
+-#define ELFPERBIT(x) Elf32_##x
++#define ElfPERBIT(x) Elf32_##x
++#define ELFPERBIT(x) ELF32_##x
+ #include "moduleops_core.c"
++
+ #undef PERBIT
++#undef ElfPERBIT
+ #undef ELFPERBIT
+ #define PERBIT(x) x##64
+-#define ELFPERBIT(x) Elf64_##x
++#define ElfPERBIT(x) Elf64_##x
++#define ELFPERBIT(x) ELF64_##x
+ #include "moduleops_core.c"
+diff -rup module-init-tools-0.9.8/moduleops_core.c module-init-tools-0.9.8-new/moduleops_core.c
+--- module-init-tools-0.9.8/moduleops_core.c	Fri Jan 10 23:18:05 2003
++++ module-init-tools-0.9.8-new/moduleops_core.c	Mon Jan 13 10:46:06 2003
+@@ -1,9 +1,9 @@
+ /* Load the given section: NULL on error. */
+-static void *PERBIT(load_section)(ELFPERBIT(Ehdr) *hdr,
++static void *PERBIT(load_section)(ElfPERBIT(Ehdr) *hdr,
+ 			    const char *secname,
+ 			    unsigned long *size)
+ {
+-	ELFPERBIT(Shdr) *sechdrs;
++	ElfPERBIT(Shdr) *sechdrs;
+ 	unsigned int i;
+ 	char *secnames;
+ 
+@@ -64,7 +64,7 @@ static void PERBIT(calculate_deps)(struc
+ 	unsigned int i;
+ 	unsigned long size;
+ 	char *strings;
+-	ELFPERBIT(Sym) *syms;
++	ElfPERBIT(Sym) *syms;
+ 
+ 	strings = PERBIT(load_section)(module->mmap, ".strtab", &size);
+ 	syms = PERBIT(load_section)(module->mmap, ".symtab", &size);
+@@ -77,16 +77,15 @@ static void PERBIT(calculate_deps)(struc
+ 
+ 	module->num_deps = 0;
+ 	module->deps = NULL;
+-	for (i = 0; i < size / sizeof(syms[0]); i++) {
++	for (i = 1; i < size / sizeof(syms[0]); i++) {
+ 		if (syms[i].st_shndx == SHN_UNDEF) {
+ 			/* Look for symbol */
+ 			const char *name = strings + syms[i].st_name;
+ 			struct module *owner;
++			int weak;
+ 
+-			if (strcmp(name, "") == 0)
+-				continue;
+-
+-			owner = find_symbol(name, module->pathname);
++			weak = ELFPERBIT(ST_BIND)(syms[i].st_info) == STB_WEAK;
++			owner = find_symbol(name, module->pathname, weak);
+ 			if (owner) {
+ 				if (verbose)
+ 					printf("%s needs \"%s\": %s\n",
+@@ -98,13 +97,13 @@ static void PERBIT(calculate_deps)(struc
  	}
--	lseek(fd, 0L, 0);
- 	dp = vmalloc(l);
- 	if (dp == NULL)
- 	{
- 		printk(KERN_INFO "Out of memory loading '%s'.\n", fn);
--		sys_close(fd);
-+		filp_close(filp, current->files);
- 		return 0;
- 	}
--	if (read(fd, dp, l) != l)
-+	pos = 0;
-+	if (vfs_read(filp, dp, l, &pos) != l)
- 	{
- 		printk(KERN_INFO "Failed to read '%s'.\n", fn);
- 		vfree(dp);
--		sys_close(fd);
-+		filp_close(filp, current->files);
- 		return 0;
- 	}
--	close(fd);
-+	filp_close(filp, current->files);
- 	*fp = dp;
- 	return (int) l;
  }
+ 
+-static void *PERBIT(deref_sym)(ELFPERBIT(Ehdr) *hdr, const char *name)
++static void *PERBIT(deref_sym)(ElfPERBIT(Ehdr) *hdr, const char *name)
+ {
+ 	unsigned int i;
+ 	unsigned long size;
+ 	char *strings;
+-	ELFPERBIT(Sym) *syms;
+-	ELFPERBIT(Shdr) *sechdrs;
++	ElfPERBIT(Sym) *syms;
++	ElfPERBIT(Shdr) *sechdrs;
+ 
+ 	sechdrs = (void *)hdr + hdr->e_shoff;
+ 	strings = PERBIT(load_section)(hdr, ".strtab", &size);

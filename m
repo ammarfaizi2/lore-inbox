@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264682AbTF0TRn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 15:17:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264689AbTF0TRn
+	id S264696AbTF0TXn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 15:23:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264706AbTF0TXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 15:17:43 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:9640 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264682AbTF0TRm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 15:17:42 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 27 Jun 2003 12:30:22 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mcafeelabs.com
-To: Michael Kimberlin <s064308@admiral.umsl.edu>
+	Fri, 27 Jun 2003 15:23:43 -0400
+Received: from sol.cobite.com ([208.222.80.183]:22165 "EHLO sol.cobite.com")
+	by vger.kernel.org with ESMTP id S264696AbTF0TXm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 15:23:42 -0400
+Date: Fri, 27 Jun 2003 15:37:52 -0400 (EDT)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: david@sol.cobite.com
+To: Alan Cox <alan@redhat.com>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: bcm4306 revisited
-In-Reply-To: <20030627181858.C64A4BAF8A@www.molandernet.com>
-Message-ID: <Pine.LNX.4.55.0306271229460.4457@bigblue.dev.mcafeelabs.com>
-References: <20030627181858.C64A4BAF8A@www.molandernet.com>
+Subject: RE: Linux 2.4.21-ac3
+Message-ID: <Pine.LNX.4.44.0306271527160.2379-100000@sol.cobite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jun 2003, Michael Kimberlin wrote:
 
-> I know that the subject of drivers for this broadcom chipset has been
-> raised before.  But, what information is missing that prevents the
-> development of these drivers?  Perhaps a little social engineering is in
-> order...  I mean, this chipset has been out for a while and there don't
-> seem to be any signs of development (h3ll, if we poke at it long enough
-> we'll get it) for this chipset.  is there just a lack of ambition here, or
-> is there something REAL keeping this from going forth.   I mean, I'm having
-> to write this email from windows just because this driver doesn't
-> exist...and that brings me great sadness...
->
-> Any, thoughts?  I'm sorry if I have missed something obvious here...I'm no
-> driver developer...so, my understanding of the situation may be off.  But,
-> h3ll...I'm motivated... ;)
+Alan,
 
-http://www.petitiononline.com/BCM4301/
+W.R.T the VIA CLE266 DRM merge, do you have any kernel side MPEG2 decoder
+bits to add in (along with the V4L part presumably)?  And do you have any
+information about the user-space library (libddmpeg.so????) that would be
+necessary to go along with?  
 
+I read when you wrote "The CLE266 has some fairly complicated Linux kernel
+entanglements to resolve for the hardware mpeg engine stuff,"  but didn't
+know how to interpret.
 
-- Davide
+Thanks,
+David
+
+-- 
+/==============================\
+| David Mansfield              |
+| lkml@dm.cobite.com           |
+\==============================/
+
 

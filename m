@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262664AbTCIXJE>; Sun, 9 Mar 2003 18:09:04 -0500
+	id <S262665AbTCIXR7>; Sun, 9 Mar 2003 18:17:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262669AbTCIXJE>; Sun, 9 Mar 2003 18:09:04 -0500
-Received: from sheridan.uel.ac.uk ([161.76.9.2]:28411 "EHLO sheridan.uel.ac.uk")
-	by vger.kernel.org with ESMTP id <S262664AbTCIXJC>;
-	Sun, 9 Mar 2003 18:09:02 -0500
-Date: Sun, 9 Mar 2003 23:19:32 +0000
-From: fs <fs@www0.org>
-To: Larry McVoy <lm@work.bitmover.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
+	id <S262666AbTCIXR7>; Sun, 9 Mar 2003 18:17:59 -0500
+Received: from bitmover.com ([192.132.92.2]:61597 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S262665AbTCIXR6>;
+	Sun, 9 Mar 2003 18:17:58 -0500
+Date: Sun, 9 Mar 2003 15:28:35 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Zack Brown <zbrown@tumblerings.org>, Larry McVoy <lm@bitmover.com>,
        "Martin J. Bligh" <mbligh@aracnet.com>,
        Roman Zippel <zippel@linux-m68k.org>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
-       Zack Brown <zbrown@tumblerings.org>, Larry McVoy <lm@bitmover.com>,
-       linux-kernel@vger.kernel.org
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Message-ID: <20030309231932.GA29692@www0.org>
-References: <8200000.1047228943@[10.10.2.4]> <Pine.LNX.4.44.0303090928570.11894-100000@home.transmeta.com> <20030309182009.GA7435@work.bitmover.com>
+Message-ID: <20030309232835.GC1807@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Valdis.Kletnieks@vt.edu, Zack Brown <zbrown@tumblerings.org>,
+	Larry McVoy <lm@bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Roman Zippel <zippel@linux-m68k.org>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <m14r6ck6jd.fsf@frodo.biederman.org> <Pine.LNX.4.44.0303091609440.5042-100000@serv> <8200000.1047228943@[10.10.2.4]> <20030309172045.GP4170@renegade> <20030309195852.GA6647@work.bitmover.com> <20030309213246.GC25121@renegade> <200303092154.h29Ls3NO026830@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030309182009.GA7435@work.bitmover.com>
-User-Agent: Mutt/1.5.3i
+In-Reply-To: <200303092154.h29Ls3NO026830@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Mar 09, 2003 at 10:20:09AM -0800, Larry McVoy wrote:
-> In the open source model, the portion of the work which is relatively
-> easy gets done, but the remaining part only gets done if there is a
-> huge amount of pressure to do so.  If you take a problem which occurs
-> only rarely, is difficult to solve, and has only a small set of users,
-> that's a classic example of something that just isn't going to get fixed
-> in the open source environment.  
+On Sun, Mar 09, 2003 at 04:54:02PM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Sun, 09 Mar 2003 13:32:46 PST, Zack Brown <zbrown@tumblerings.org>  said:
+> 
+> > Of kernel developers, only Linus seems to have a clear idea of what the kerne
+> l
+> > development process' needs are; but aside from insisting that distribution
+> > is key (which people in camp (1) know already), he hasn't gone into the kind
+> > of detail that folks would need in order to actually make a decent attempt.
+> 
+> It's quite possible that even Linus doesn't have a clear cognitive grasp of
+> all the problems - Larry gave BK to Linus to prevent burn-out.  I'd not be
+> surprised if Linus was so busy dealing with the *first* order problems in
+> the pre-BK world (just getting patches to apply to his tree) that he never
+> encountered all the 'tough problems', and once he started using BK, he
+> also never hit any of the 'tough problems' because Larry's crew had already
+> spent 40 man-years making sure Linus *didnt* hit them.
 
-You are wrong. The choice of you and your team for a license is well respected
-here both by the tree maintainer and its users, but we don't need to go
-further into pissing on open source projects because your project wouldn't
-make it if it was. I(an almost anonymous reader), and most here respect both
-your work and your honesty in describing why you did it commercial but this
-is one thing, and generalizing is another.
-
-The Linux kernel by itself is a good example. It has code for things
-that Microsoft will create when people need it in great extend like
-ipv6, encryption API and IA-64/x64 support. Well, the examples are
-numerous and I'm sure some experienced hackers can enlighten you
-better.
-
-The Grub bootloader is another example. An Open Source project that
-provides support for almost any kernel there exists having command line
-and autocomplete support on demand. Features that *nobody asked* but
-they exist.
-
-More experienced people on open source projects I'm sure will say "wtf,
-there are plenty of better examples".
-
-And think it otherwise. If a closed source project is more advanced on
-something is a result of what *its* users want. If Microsoft is better on GUI
-is a result of what its users want. The Open Source operating systems
-are traditionally (as for the past 10 years) better on networking and
-multiuser capabilities because what's what users want.
-
-That of course comes into you words but the fact that most closed source
-projects are indeed follow what their users want, that doesn't make a
-difference.
-
-So, if your project is better that's another thing. If you and team chose 
-to make it commercial is well respected and understood. More understood
-is the fact that you actuall *spend money* on it. It is a fundamental
-right of yours to do what you want with your code especially when it is
-a matter of personal economic health. But getting it generalised and
-say that every open source project is just a hobbyish thing that is
-always inferior to closed source unless 2^64 people ask for a feature?
-
-no sir, real examples show things different.
-
--fs
+Bingo.  We work hard to make sure that we've thought of and solved the
+problems *before* they are hit in the field.  We try to be proactive,
+not reactive (at least in coding, mailing lists are another matter).
+We're not that great at it, but we've definitely solved all sorts of
+problems long before Linus did anything to hit them.  
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

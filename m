@@ -1,42 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318883AbSICTF2>; Tue, 3 Sep 2002 15:05:28 -0400
+	id <S318781AbSICTeK>; Tue, 3 Sep 2002 15:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318886AbSICTF2>; Tue, 3 Sep 2002 15:05:28 -0400
-Received: from host194.steeleye.com ([216.33.1.194]:65038 "EHLO
-	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
-	id <S318883AbSICTF0>; Tue, 3 Sep 2002 15:05:26 -0400
-Message-Id: <200209031909.g83J9iG07312@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: James Bottomley <James.Bottomley@SteelEye.com>,
-       "Justin T. Gibbs" <gibbs@scsiguy.com>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: aic7xxx sets CDR offline, how to reset? 
-In-Reply-To: Message from Doug Ledford <dledford@redhat.com> 
-   of "Tue, 03 Sep 2002 14:23:53 EDT." <20020903142353.A12157@redhat.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 03 Sep 2002 14:09:44 -0500
-From: James Bottomley <James.Bottomley@steeleye.com>
-X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
+	id <S318802AbSICTeK>; Tue, 3 Sep 2002 15:34:10 -0400
+Received: from pD9E23EAA.dip.t-dialin.net ([217.226.62.170]:22145 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S318781AbSICTeJ>; Tue, 3 Sep 2002 15:34:09 -0400
+Date: Tue, 3 Sep 2002 13:38:47 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Hacksaw <hacksaw@hacksaw.org>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH - change to blkdev->queue calling triggers BUG in md.c 
+In-Reply-To: <200209031804.g83I4YXC017714@habitrail.home.fools-errant.com>
+Message-ID: <Pine.LNX.4.44.0209031324340.3373-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dledford@redhat.com said:
-> Leave abort active.  It does actually work in certain scenarios.  The
-> CD  burner scenario that started this thread is an example of
-> somewhere that  an abort should actually do the job. 
+Hi,
 
-Unfortunately, it would destroy the REQ_BARRIER approach in the block layer.  
-At best, abort probably causes a command to overtake a barrier it shouldn't, 
-at worst we abort the ordered tag that is the barrier and transactional 
-integrity is lost.
+On Tue, 3 Sep 2002, Hacksaw wrote:
+> >The users who still need partition tables
+> 
+> My main gripe was my impression that you wanted to do away entirely with 
+> partition tables, which I am now taking as a misread.
+> 
+> I can certainly imagine a few different ways to have partition tables that 
+> make more sense than the typical Wintel version.
 
-When error correction is needed, we have to return all the commands for that 
-device to the block layer so that ordering and barrier issues can be taken 
-care of in the reissue.  This makes LUN RESET (for those that support it) the 
-minimum level of error correction we can apply.
+Certainly. But there are some uses where you absolutely don't want them. 
+Also are there lots of uses where you can't do away with the tight thing 
+DOS gives you for i386. I'm happily using Sunish slices there.
 
-James
+> >Maybe divide the raid into smaller disks?!
+> 
+> Absolutely, if that is your requirement. I have done this. It gives you
+> the usefulness of smaller disks with the speed and reliability of the
+> RAID.
 
+Possibly, but you can even put together smaller arrays then (at least on a 
+sane controller). That's what the disk size setup is for. And that's, 
+after all, nothing the OS needs to take care of. It just gets to see say 
+16 disks of 1 TiB size each. Nothing mad.
+
+But why have a partition table on each of these 16 pseudo disks?
+
+> More importantly, The hardware should be considered largely immutable.
+
+Why? There's a reason why raid is mutable.
+
+> One reason for this: what if the controller dies?
+
+I plug another in here and restore.
+
+> In fact, I'd like the controller to store its RAID setup on the disk as
+> well. Maybe even on all of them.
+
+I don't see how partitioning could help you out here.
+
+> Of course, if the partition equals the entire disk, great. The table
+> will be really short.
+
+...and pointless.
+
+> If you've ever had 70 people waiting to be able to do any work while you
+> try and restore a disk that had the partition table scribbled on, you
+> appreciate what I am saying.
+
+Well, there's absolutely no need to do that. There are tools which can
+scribble together the old table, and these could even kick automagically.  
+(Who else thinks the BIOS shall always be replaced with something sane?)
+Once your table is restored, good luck.
+
+On the i386 boxes that we run (recently reduced to 20) I don't change too 
+much about the tables. I can use a perl script from a boot cd to scribble 
+them together again. And here I agree with partition tables, because I 
+mostly haven't got more than two disks -- and I need to have space for
+swap, housings, workspace and the entire root.
+
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

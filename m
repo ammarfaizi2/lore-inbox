@@ -1,73 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262625AbVBBQn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVBBQsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262625AbVBBQn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 11:43:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVBBQjM
+	id S262627AbVBBQsN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 11:48:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVBBQou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 11:39:12 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:49672 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262622AbVBBQhq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 11:37:46 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=U4Wt/NjlR5R7Zkfuo3coqe3gPHz3oLc4RoNcTIYpBshplKdt6aLKQ0CssAaOHZAM6vFcb9NXuILln/ibqPpiCT4Wa8qkUdCMZDNDM5XkxDhxjk15cSPFHETl6NoTN+FLybRuqOWaF1HmgD7RaUm/sHqpExFLwavhONAxZUKxNho=
-Message-ID: <c79c69b30502020837577b157f@mail.gmail.com>
-Date: Wed, 2 Feb 2005 17:37:46 +0100
-From: Lethalman <lethalman88@gmail.com>
-Reply-To: Lethalman <lethalman88@gmail.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-In-Reply-To: <c79c69b3050202081573f6335a@mail.gmail.com>
+	Wed, 2 Feb 2005 11:44:50 -0500
+Received: from coyote.holtmann.net ([217.160.111.169]:40344 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S262601AbVBBQkb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 11:40:31 -0500
+Subject: Re: Patch to add usbmon
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Greg KH <greg@kroah.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050201215936.029be631@localhost.localdomain>
+References: <20050131212903.6e3a35e5@localhost.localdomain>
+	 <20050201071000.GF20783@kroah.com>
+	 <20050201003218.478f031e@localhost.localdomain>
+	 <1107256383.9652.26.camel@pegasus>
+	 <20050201095526.0ee2e0f4@localhost.localdomain>
+	 <1107293870.9652.76.camel@pegasus>
+	 <20050201215936.029be631@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 02 Feb 2005 17:40:17 +0100
+Message-Id: <1107362417.11944.7.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-References: <20050202155403.GE3117@crusoe.alcove-fr>
-	 <c79c69b3050202081573f6335a@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(first sorry for my poor English)
-Very nice howto. It's useful for generic use of svn too.
-The notations about converting bk to svn is really interesting... nice job!
+Hi Pete,
 
-Just a little error:
-How to I ignore temporary build files ? <- to should be do
+> > I think if cat is the prefered tool for viewing this file then it should
+> > be more human readable. If not, then a binary format should be choosen.
+> > Maybe we can implement both. Is this possible?
+> 
+> Yes. Now you know why files were split as they were.
 
-I would add this rule as a personal cross-development tecnique:
-Before any kind of changes and commits, it would be good to update the
-repository to prevent incompatibilities in the code if previous
-changes was made by other developers.
+still no reason for me to split things up.
 
-On Wed, 2 Feb 2005 16:54:04 +0100, Stelian Pop <stelian@popies.net> wrote:
-> Hi,
->
-> I've played lately a bit with Subversion and used it for managing
-> the kernel sources, using Larry McVoy's bk2cvs bridge and Ben Collins'
-> bkcvs2svn conversion script.
->
-> Since there is little information on the web on how to properly
-> set up a SVN repository and use it for tracking the latest kernel
-> tree, I wrote a small howto (modeled after the bk kernel howto)
-> in case it can be useful for other people too.
->
-> Feel free to comment on it (but let's not start a new BK flamewar
-> or SVN bashing session please). If there is enough interest I'll
-> submit a patch to include this in the kernel Documentation/
-> directory.
->
-> I've put it also on my web page along with the necessary scripts:
->         http://popies.net/svn-kernel/
->
-> And now a question to Larry and whoever else is involved in the
-> bkcvs mirror on kernel.org: what is the periodicity of the CVS
-> repository update ?
->
-> Stelian.
->
+> > > But if you or someone else were to hack on something like usbdump(1),
+> > > it would be peachy, I think.
+> > 
+> > I can start with usbdump if we agree on an interface. I personally would
+> > prefer a binary interface for that.
+> 
+> If you want to start scoping it, it's fine by me. I was going to concentrate
+> on fixing what's needed first, such as getting control setup packets captured
+> and things like that.
+
+While I am really thinking about starting usbdump, I may ask why you
+have choosen to use debugfs as interface. This will not be available in
+normal distribution kernels and I think a general USB monitoring ability
+would be great. For example like we have it for Ethernet, Bluetooth and
+IrDA. So my idea is to create some /dev/usbmonX (for each bus one) where
+usbdump can read its information from. What do you think?
+
+Regards
+
+Marcel
 
 
--- 
-FyreBird Hosting Provider Technical Department
-Italian Open Source Network Founder

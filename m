@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315413AbSGPLSO>; Tue, 16 Jul 2002 07:18:14 -0400
+	id <S315414AbSGPLTl>; Tue, 16 Jul 2002 07:19:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315414AbSGPLSN>; Tue, 16 Jul 2002 07:18:13 -0400
-Received: from imeil.udg.es ([130.206.45.97]:23982 "EHLO imeil.udg.es")
-	by vger.kernel.org with ESMTP id <S315413AbSGPLSM>;
-	Tue, 16 Jul 2002 07:18:12 -0400
-Date: Tue, 16 Jul 2002 13:23:59 +0200 (CEST)
-From: David Gironella Casademont <giro@hades.udg.es>
-To: <linux-kernel@vger.kernel.org>
-Subject: Cannot enable dma on promise ata 100
-Message-ID: <Pine.LNX.4.30.0207161319060.27181-100000@hades.udg.es>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315419AbSGPLTk>; Tue, 16 Jul 2002 07:19:40 -0400
+Received: from aaopcss.aao.GOV.AU ([192.231.167.44]:49674 "EHLO
+	aaopcss.aao.gov.au") by vger.kernel.org with ESMTP
+	id <S315414AbSGPLTj>; Tue, 16 Jul 2002 07:19:39 -0400
+Date: Tue, 16 Jul 2002 21:23:36 +1000
+From: SCoTT SMeDLeY <ss@aaoepp.aao.gov.au>
+To: linux-kernel@vger.kernel.org
+Cc: ss@aao.gov.au
+Subject: Tyan s2466 stability
+Message-ID: <20020716212336.A393@aaopcss.aao.gov.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have promise fastrak tx200, but when i try to enable dma with hdparm -d1
-/dev/hda , i have this error HDIO_SET_DMA failed: Operation not permitted
+Hi all,
 
-Without dma i have a 1,47Mb/s of buffered disk read, and this is not
-normal.
+I'm considering investing in a dual-AMD system using Tyan's s2466
+motherboard. I'm interested in hearing how others have found the
+stability of this board using recent 2.4.x kernels.
 
-What is happend? I need to change my kernel, i use 2.4.18-bf24, from
-debian woody 3.0Beta.
+I've scanned the archives & there doesn't appear to be any reports
+on problems with this board, so I guess I'm hoping to hear some
+positive reports ...
 
+I'm also interested in hearing reports about how the board performs
+with with non-ECC (non-registered) RAM as the board has been
+documented to work with such an arrangement. I'm happy to fork
+out for ECC RAM, but is it worth it?
 
-Thk.
-Giro
+Please reply to: ss@aao.gov.au
 
-
-
-
+SCoTT. :)
+--
+ss@aao.gov.au

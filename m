@@ -1,67 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbTH2Qa1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Aug 2003 12:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbTH2Qa1
+	id S261452AbTH2Q2P (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Aug 2003 12:28:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbTH2Q2O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Aug 2003 12:30:27 -0400
-Received: from tmi.comex.ru ([217.10.33.92]:29077 "EHLO gw.home.net")
-	by vger.kernel.org with ESMTP id S261465AbTH2Q2g (ORCPT
+	Fri, 29 Aug 2003 12:28:14 -0400
+Received: from fw.osdl.org ([65.172.181.6]:13456 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261452AbTH2Q1z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Aug 2003 12:28:36 -0400
-X-Comment-To: Ed Sweetman
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
-Subject: Re: [RFC] extents support for EXT3
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: Fri, 29 Aug 2003 20:34:01 +0400
-In-Reply-To: <3F4F7D56.9040107@wmich.edu> (Ed Sweetman's message of "Fri, 29
- Aug 2003 12:20:38 -0400")
-Message-ID: <m3isogpgna.fsf@bzzz.home.net>
-User-Agent: Gnus/5.090018 (Oort Gnus v0.18) Emacs/21.2 (gnu/linux)
-References: <m33cfm19ar.fsf@bzzz.home.net> <3F4E4605.6040706@wmich.edu>
-	<m3vfshrola.fsf@bzzz.home.net> <3F4F7129.1050506@wmich.edu>
-	<m3vfsgpj8b.fsf@bzzz.home.net> <3F4F76A5.6020000@wmich.edu>
-	<m3r834phqi.fsf@bzzz.home.net> <3F4F7D56.9040107@wmich.edu>
-MIME-Version: 1.0
+	Fri, 29 Aug 2003 12:27:55 -0400
+Message-Id: <200308291627.h7TGRoX02912@mail.osdl.org>
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, cliffw@osdl.org
+Subject: Re: 2.6.0-test4-mm3 
+In-Reply-To: Message from Andrew Morton <akpm@osdl.org> 
+   of "Fri, 29 Aug 2003 08:35:40 PDT." <20030829083540.58c9dd47.akpm@osdl.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Fri, 29 Aug 2003 09:27:50 -0700
+From: Cliff White <cliffw@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Ed Sweetman (ES) writes:
+> Boszormenyi Zoltan <zboszor@freemail.hu> wrote:
+> >
+> > I tried to "make modules_install" on the compiled tree.
+> > It says:
+> > 
+> > # make modules_install
+> > Install a current version of module-init-tools
+> > See http://www.codemonkey.org.uk/post-halloween-2.5.txt
+> > make: *** [_modinst_] Error 1
+> > 
+> > But I have installed it! It's called modutils-2.4.25-8
+> > (was -5 previously) from RH rawhide, it works on older
+> > (2.6.0-test4-mm1) kernels.
+> > This modutils is united with module-init-tools-0.9.12,
+> > it reports version 2.4.25 but detects newer kernels and uses
+> > the new module interface.
+> 
+> Tricky.
+> 
+> It's wrong of the Red Hat package to misidentify itself in this manner.
+> 
+> It would sort-of make sense for `depmod -V' to autodetect the kernel
+> version and print either "modutils" or "module-init-utils".  But that's not
+> accurate either: a `make modules_install' would fail when performed under a
+> 2.4 kernel.
+> 
+> So yes, I think that your patch to RH modutils+module-init-tools is the best
+> approach: after all, it tells the truth.
+> 
+> Meanwhile, I'll alter Valdis's patch so that it warns, but does not fail
+> the make.
+> 
 
- ES> I was testing this with only a single partition mounted with extents
- ES> enabled when benchmarking.  Ext3 gave no messages of being mounted
- ES> afterbootup with or without extents so to make sure i had extents
- ES> enabled i booted with all my partitions with the extents option.  I
- ES> suspect then my problems began.  I'm completely unaware of the extent
- ES> of the damage enabling extents has done since most of the important
- ES> things were opened, not created during my extents use.  In any case it
- ES> may be that the reason why init is not able to be found is because i
- ES> used apt and upgraded my system ...and I dont remember if i had
- ES> extents enabled at the time or not.  If my init is in extents format
- ES> though, then why is a patched kernel able to read it with extents not
- ES> being enabled via the omunt option where as kernels without the patch
- ES> cannot.  Is extents able to be read from a fs even when it's not
- ES> mounted with the option but not written?   I'm kinda confused, this
- ES> aspect of extents wasn't in the original email.
+This also breaks STP. We installed module-init-tools using the 'moveold' 
+method,
+so we can still run 2.4.
+Our depmod is in /usr/local/sbin. 
+Using /sbin/depmod hoses us. Using PATH works for us.
 
-well, on my testbox I use _patched with extents_ ext3 as / and /boot partitions.
-I haven't seen any problems on them. with patch, ext3 look at special EXTENTS
-flag in inode (this flag is set up only for newly created files on fs being
-mounted with extents enabled) and calls apropriate routines. thus, it will
-call extents routines for those file even if fs is being mounted with extents
-disabled. I really do believe that your root filesystem haven't been mounted
-with extents enabled, so init must be stored in good old format.
+[root@stp1-002 linux]# depmod -V
+module-init-tools 0.9.12
 
- ES> i'm going to try and boot a kernel without the extents patch (so far
- ES> hasn't been possible) and run dbench again and see if i get different
- ES> numbers.  I'm almost suspecting extents being enabled no matter what i
- ES> mount the fs's as.
+[root@stp1-002 linux]# /sbin/depmod -V
+depmod version 2.4.22
 
-that would be fine!
+[root@stp1-002 linux]# /usr/local/sbin/depmod -V
+module-init-tools 0.9.12
 
+Please send patch, we'll get some tests moving.
+cliffw
 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
 

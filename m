@@ -1,50 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268132AbUHXRWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268138AbUHXR2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268132AbUHXRWw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 13:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268088AbUHXRWw
+	id S268138AbUHXR2L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 13:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268159AbUHXR2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 13:22:52 -0400
-Received: from hqemgate00.nvidia.com ([216.228.112.144]:48138 "EHLO
-	hqemgate00.nvidia.com") by vger.kernel.org with ESMTP
-	id S268132AbUHXRWt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 13:22:49 -0400
-Date: Tue, 24 Aug 2004 12:22:45 -0500
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Cc: Terence Ripperda <tripperda@nvidia.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Michael Geithe <warpy@gmx.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mastergoon@gmail.com
-Subject: Re: 2.6.8.1-mm2 (nvidia breakage)
-Message-ID: <20040824172245.GJ1078@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <20040819092654.27bb9adf.akpm@osdl.org> <200408230930.18659.bjorn.helgaas@hp.com> <20040823190131.GC1303@hygelac> <200408240926.42665.bjorn.helgaas@hp.com>
+	Tue, 24 Aug 2004 13:28:11 -0400
+Received: from dh138.citi.umich.edu ([141.211.133.138]:52634 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S268138AbUHXR2H convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 13:28:07 -0400
+Subject: Re: nfsroot compile broken in 2.6.9-rc1?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Ray Lehtiniemi <rayl@mail.com>, Linus Torvalds <torvalds@osdl.org>,
+       Charles Lever <Charles.Lever@netapp.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040824165002.GA4314@mail.com>
+References: <20040824165002.GA4314@mail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1093368479.5745.72.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200408240926.42665.bjorn.helgaas@hp.com>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.6.7 
-X-OriginalArrivalTime: 24 Aug 2004 17:22:47.0448 (UTC) FILETIME=[F989E980:01C489FE]
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 24 Aug 2004 13:27:59 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 09:26:42AM -0600, bjorn.helgaas@hp.com wrote:
-> To be pedantically clear about this, looking at pci_dev->irq before
-> calling pci_enable_device() is *guaranteed* to fail, regardless of
-> what the BIOS does.  So nvidia users will have to use "pci=routeirq"
-> until there's a new version of the nvidia driver.
+På ty , 24/08/2004 klokka 12:50, skreiv Ray Lehtiniemi:
+> just pulled the latest changes, and it seems nfsroot no longer
+> compiles:
+> 
+>      CC      fs/nfs/nfsroot.o
+>    fs/nfs/nfsroot.c: In function `root_nfs_get_handle':
+>    fs/nfs/nfsroot.c:499: error: cannot convert to a pointer type
+>    fs/nfs/nfsroot.c:499: error: cannot convert to a pointer type
+>    make[2]: *** [fs/nfs/nfsroot.o] Error 1
 
-ah, ok. thanks for clarifying.
+Chuck, that conversion to nfs_fh_copy() is bogus since we're not copying
+into an nfs_fh anyway. Let's just revert it.
 
-> I'm assuming your patch makes the driver call pci_enable_device()
-> before using either irq or BAR information.  That's the best way
-> to future-proof the driver.
+Cheers,
+  Trond
 
-yes, that's exactly what we've done.
-
-Thanks,
-Terence
+--- linux-2.6.9-up/fs/nfs/nfsroot.c.orig	2004-08-24 11:18:27.000000000 -0400
++++ linux-2.6.9-up/fs/nfs/nfsroot.c	2004-08-24 13:18:32.000000000 -0400
+@@ -495,8 +495,10 @@ static int __init root_nfs_get_handle(vo
+ 	if (status < 0)
+ 		printk(KERN_ERR "Root-NFS: Server returned error %d "
+ 				"while mounting %s\n", status, nfs_path);
+-	else
+-		nfs_copy_fh(nfs_data.root, fh);
++	else {
++		nfs_data.root.size = fh.size;
++		memcpy(nfs_data.root.data, fh.data, fh.size);
++	}
+ 
+ 	return status;
+ }
 

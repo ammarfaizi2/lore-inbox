@@ -1,72 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbULAVjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbULAVlV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbULAVjx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 16:39:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbULAVjx
+	id S261459AbULAVlV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 16:41:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbULAVlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 16:39:53 -0500
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18962 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261486AbULAVjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 16:39:42 -0500
-Date: Wed, 1 Dec 2004 22:39:39 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Hariprasad Nellitheertha <hari@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] i386 crash_dump: make a function static
-Message-ID: <20041201213939.GS2650@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 1 Dec 2004 16:41:21 -0500
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:1275 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261459AbULAVlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 16:41:17 -0500
+Message-ID: <41AE3A51.9080304@nortelnetworks.com>
+Date: Wed, 01 Dec 2004 15:40:33 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortelnetworks.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Esben Nielsen <simlo@phys.au.dk>, Paul Davis <paul@linuxaudiosystems.com>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
+       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.30-2
+References: <20041201155353.GA30193@elte.hu> <Pine.OSF.4.05.10412011708520.8736-100000@da410.ifa.au.dk> <20041201212413.GF22671@elte.hu>
+In-Reply-To: <20041201212413.GF22671@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes a needlessly global function static.
+Ingo Molnar wrote:
 
+> actually, the main problem with fifos was they were _not_ atomic even in
+> read/write (i myself fully expected them to be that, but they arent). 
+> That's the bug/misfeature that i fixed in the latest kernels.
 
-diffstat output:
- arch/i386/kernel/crash_dump.c |   13 ++++++-------
- include/asm-i386/crash_dump.h |    1 -
- 2 files changed, 6 insertions(+), 8 deletions(-)
+Whoa.  pipes (ie from the pipe() call) don't read/write atomicly? Even if you 
+write less than a page?
 
+When was this fixed?
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.10-rc2-mm4-full/include/asm-i386/crash_dump.h.old	2004-12-01 07:53:20.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/include/asm-i386/crash_dump.h	2004-12-01 07:53:26.000000000 +0100
-@@ -13,7 +13,6 @@
- 
- extern struct pt_regs crash_smp_regs[NR_CPUS];
- extern long crash_smp_current_task[NR_CPUS];
--extern void crash_dump_save_this_cpu(struct pt_regs *, int);
- extern void __crash_dump_stop_cpus(void);
- extern void crash_get_current_regs(struct pt_regs *regs);
- 
---- linux-2.6.10-rc2-mm4-full/arch/i386/kernel/crash_dump.c.old	2004-12-01 07:53:36.000000000 +0100
-+++ linux-2.6.10-rc2-mm4-full/arch/i386/kernel/crash_dump.c	2004-12-01 08:06:40.000000000 +0100
-@@ -28,6 +28,12 @@
- extern void crash_dump_send_ipi(void);
- extern void stop_this_cpu(void *);
- 
-+static void crash_dump_save_this_cpu(struct pt_regs *regs, int cpu)
-+{
-+	crash_smp_current_task[cpu] = (long)current;
-+	crash_smp_regs[cpu] = *regs;
-+}
-+
- static int crash_dump_nmi_callback(struct pt_regs *regs, int cpu)
- {
- 	if (!crash_dump_expect_ipi[cpu])
-@@ -96,10 +102,3 @@
- 
- 	regs->eip = (unsigned long)current_text_addr();
- }
--
--void crash_dump_save_this_cpu(struct pt_regs *regs, int cpu)
--{
--	crash_smp_current_task[cpu] = (long)current;
--	crash_smp_regs[cpu] = *regs;
--}
--
-
+Chris

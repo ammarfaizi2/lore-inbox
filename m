@@ -1,62 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135273AbRDRTku>; Wed, 18 Apr 2001 15:40:50 -0400
+	id <S135275AbRDRTxM>; Wed, 18 Apr 2001 15:53:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135274AbRDRTkl>; Wed, 18 Apr 2001 15:40:41 -0400
-Received: from mailout00.sul.t-online.com ([194.25.134.16]:26373 "EHLO
-	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S135273AbRDRTkX>; Wed, 18 Apr 2001 15:40:23 -0400
-To: Grant Erickson <erick205@umn.edu>
-Cc: Linux I2C Mailing List <linux-i2c@pelican.tk.uni-linz.ac.at>,
-        Linux/PPC Embedded Mailing List 
-	<linuxppc-embedded@lists.linuxppc.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Wolfgang Denk <wd@denx.de>
-Subject: Re: Kernel Real Time Clock (RTC) Support for I2C Devices 
-X-Mailer: exmh version 2.2
-Mime-version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: Your message of "Wed, 18 Apr 2001 14:13:33 CDT."
-             <Pine.SOL.4.20.0104181408540.10793-100000@garnet.tc.umn.edu> 
-Date: Wed, 18 Apr 2001 21:40:32 +0200
-Message-Id: <20010418194037.C55DB2792B@denx.denx.de>
+	id <S135276AbRDRTwx>; Wed, 18 Apr 2001 15:52:53 -0400
+Received: from asooo.flowerfire.com ([63.104.96.247]:20668 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S135275AbRDRTwt>; Wed, 18 Apr 2001 15:52:49 -0400
+Message-Id: <200104181952.OAA04177@asooo.flowerfire.com>
+Date: Wed, 18 Apr 2001 12:52:46 -0700
+Content-Type: text/plain;
+	format=flowed;
+	charset=us-ascii
+Mime-Version: 1.0 (Apple Message framework v387)
+From: brownfld@irridia.com
+To: linux-kernel@vger.kernel.org
+X-Mailer: Apple Mail (2.387)
+Content-Transfer-Encoding: 7bit
+Subject: Persistent 2.4.x stability problem
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Grant,
+Since 2.4.0-test1 (didn't use 2.3.x) we have been struggling with a 
+persistent stability issue with the 2.4.x kernels.  I've been trying to 
+track down this persistent culprit for months, so I'm getting 
+desperate.  I haven't found any reports of this issue on the net or in 
+FAQs, so I'm hoping my posting here isn't inappropriate.  Using any 
+2.2.x kernel with basically identical configs is absolutely rock solid, 
+including the exact situations and machines that cause 2.4.x issues.
 
-in message <Pine.SOL.4.20.0104181408540.10793-100000@garnet.tc.umn.edu> you wrote:
-> 
-> >From the looks of drivers/char/rtc.c it would appear that this kernel
-> driver only supports bus-attached RTCs such as the mentioned MC146818. Is
-> this correct?
+The symptoms are:
+	
+After a period of time from an hour to a few days, but usually less than 
+a week, the machine will become sluggish (like very heavy swapping, 
+although there is no OOM situation and typically zero swap in use), 
+processes will stop responding, network daemons will stop responding, 
+and eventually the machine will stop pinging, all over the course of a 
+few minutes.  Syslog writes stop cold (with no errors) and the console 
+remains blank and unresponsive, requiring a reset or power cycle.
 
-This is correct; however, you can replace this driver by one of  your
-own  (see for instance drivers/char/ip860_rtc.c in our version of the
-2.4.x Linux sources which implements the RTC driver for a  V3021  RTC
-on a IP860 VMEBus system [MPC860 based]).
+Sysrq commands work and log to syslog but not console.  I've placed a 
+copy of the sysrq-t output (and other diagnosis info) at 
+"http://web.irridia.com/linux/" from a 2.4.4-pre4 kernel (with the 
+recent d_flags patch, thus 2.4.4-pre4a).  What is most interesting is 
+that all syslog writes from sysrq happen at the same second the machine 
+stopped responding -- even when the sysrq commands were hit from console 
+almost an hour later, they still show up in syslog as originating at the 
+time of the hang.
 
-Right now I'm writing another driver for  the  Philips  PCF8563  RTC,
-which is much closer to what you have in mind.
+This behaviour occurs under fair to heavy loads in various situations, 
+including:
 
-> What is the correct access method / kernel tie-in for supporting such an
-> I2C-based RTC device using the "standard" interfaces?
+	khttpd serving about 5Mbit (or more) of static-only traffic
+	  (no other activity)
+	Large batch jobs accessing a remote database and
+	writing to NFS
+	  (no other activity)
+	Stronghold serving CGI and static pages, with back-end
+	network connections
+	  (no other activity)
 
-Assuming you have a working I2C driver, just add the necessary "glue"
-code to provide the same interface as that of drivers/char/rtc.c .
+Effected hardware includes:
 
-> My hope is to use 'hwclock' from util-linux w/o modification. Is this
-> reasonable?
+	HP Netserver LPr (256-1024MB RAM,2xP3) * Source of debugging output *
+		NCR or SYM SCSI drivers
+		2.4.x or Intel's EtherExpress drivers	
+	HP Netserver LP1000r (1.25GB RAM, 2xP3)
+		AMI MegaRAID
+		EtherExpress
+	HP Netserver LH6000r (5GB RAM, 6xP3Xeon)
+		AMI MegaRAID
+		Mylex DAC
+		EtherExpress
 
-Yes, this will work (it does for me on the MPC8xx).
+It's the only hardware I have available that I can load in a real-life 
+way, unfortunately.  Artificial load-testing doesn't seem to trigger the 
+problem -- fair to heavy persistent real-life load seems necessary.
 
-Hope this helps,
+The only proc tweaks I make are to turn on tcp_syncookies and turn off 
+tcp_ecn if it exists in /proc.  I've used clean RH6.2 and RH7.0 
+distributions for both compilation and run-time with the same problem.  
+I have /usr/include/linux symlinked to the linux 2.2.x source tree, 
+though the RH6.2 default (symlink to 2.4.x in /usr/src/linux) doesn't 
+change the behaviour.
 
-Wolfgang Denk
+I'm wondering if nmi_watchdog is on by default and if HP hardware 
+suffers from the same kind of nmi issues that I've heard IBM's Netfinity 
+servers suffer from.  Because of the syslog timestamping issue, I'm 
+wondering if the HPs have clock problems with Linux and whether the 
+enhanced rtc is involved.  I'm also suspicious of the various tcp_mem, 
+rmem_max, wmem_max, etc settings and especially the anemic and now 
+unchangable freepages settings.  I've increased the mem settings with no 
+clear-cut effect, but I'm still suspicious of them.
 
--- 
-Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
-Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
-The universe does not have laws - it has habits, and  habits  can  be
-broken.
+I'm also suspicious of rt_cache, ip_dst_cache, and syncookies, since the 
+instability seems to roughly but not always follow the size and breadth 
+of incoming web traffic.  I've tried tweaking about every run-time 
+kernel parameter there is to no avail, however.
+
+I plan on experimenting with RH7.1 as soon as I can in case it's an 
+obscure compiler/tools/glibc issue with distributions built around 
+2.2.x.  But I would imagine that more people would have reported this 
+issue had it been specific to RH6.2 or RH7.0.
+
+Any ideas at all would be helpful, including hints on how to go about 
+debugging this issue further.  Falling back to the 2.2.x kernel has been 
+acceptable so far, but soon 2.2.x is going to fall behind and I already 
+have >2GB machines that I need to support.  Debugging is a major PITA 
+because there's no oops and absolutely no errors are being reported.
+
+If you're in the SF bay area, dinner and my firstborn is on me if you 
+can help me find my way out of the maze.
+
+Again, I have pertinent data in "http://web.irridia.com/linux/" but 
+please let me know if other information would be helpful.
+
+Immense thanks,
+--
+Ken.
+brownfld@irridia.com

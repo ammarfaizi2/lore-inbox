@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264305AbUD0XNo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264397AbUD0XQs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264305AbUD0XNo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 19:13:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUD0XNo
+	id S264397AbUD0XQs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 19:16:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264405AbUD0XQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 19:13:44 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:62671 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S264305AbUD0XNm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 19:13:42 -0400
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Marc Boucher <marc@linuxant.com>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, pmarques@grupopie.com,
-       c-d.hailfinger.kernel.2004@gmx.net, jon787@tesla.resnet.mtu.edu,
-       malda@slashdot.org
-In-Reply-To: <20040427165819.GA23961@valve.mbsi.ca>
-References: <20040427165819.GA23961@valve.mbsi.ca>
-Content-Type: text/plain
-Message-Id: <1083107550.30985.122.camel@bach>
+	Tue, 27 Apr 2004 19:16:47 -0400
+Received: from gprs214-174.eurotel.cz ([160.218.214.174]:54912 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S264397AbUD0XQq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 19:16:46 -0400
+Date: Wed, 28 Apr 2004 01:16:26 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@zip.com.au>,
+       seife@suse.de, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Nigel Cunningham <ncunningham@linuxmail.com>,
+       Roland Stigge <stigge@antcom.de>, 234976@bugs.debian.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Bug#234976: kernel-source-2.6.4: Software Suspend doesn't work
+Message-ID: <20040427231626.GA32689@elf.ucw.cz>
+References: <20040426104015.GA5772@gondor.apana.org.au> <opr6193np1ruvnp2@laptop-linux.wpcb.org.au> <20040426131152.GN2595@openzaurus.ucw.cz> <1083048985.12517.21.camel@gaston> <20040427102127.GB10593@elf.ucw.cz> <20040427102344.GA24313@gondor.apana.org.au> <20040427124837.GK10593@elf.ucw.cz> <20040427125402.GA16740@gondor.apana.org.au> <20040427215236.GA469@elf.ucw.cz> <opr640q9abshwjtr@laptop-linux.wpcb.org.au>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 28 Apr 2004 09:12:33 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <opr640q9abshwjtr@laptop-linux.wpcb.org.au>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-04-28 at 02:58, Marc Boucher wrote:
-> Actually, we also have no desire nor purpose to prevent tainting. The purpose
-> of the workaround is to avoid repetitive warning messages generated when
-> multiple modules belonging to a single logical "driver"  are loaded (even when
-> a module is only probed but not used due to the hardware not being present).
+Hi!
 
-You lied about the license, rather than submit a one-line change to
-kernel/module.c.
+> On Tue, 27 Apr 2004 23:52:36 +0200, Pavel Machek <pavel@suse.cz> wrote:
+> 
+> >+#ifdef CONFIG_SOFTWARE_SUSPEND
+> >+	{
+> >+		extern char swsusp_pg_dir[PAGE_SIZE];
+> >+		memcpy(swsusp_pg_dir, swapper_pg_dir, PAGE_SIZE);
+> >+	}
+> >+#endif
+> 
+> Would you consider making that #ifdef CONFIG_PM, so that I could use it  
+> too without needing to patch it further? (I'm using  
+> CONFIG_SOFTWARE_SUSPEND2 if you prefer something more specific).
+> 
 
-This shows a lack of integrity that I find personally repulsive.
+Well, swsusp_pg_dir is defined in kernel/power/cpu.c, so it is not as
+easy as defining it CONFIG_PM.
 
-Name: Only Print Taint Message Once
-Status: Trivial
+What about make CONFIG_SOFTWARE_SUSPEND2 defining
+CONFIG_SOFTWARE_SUSPEND, too? We want the merged, anyway...
 
-Only print the tainted message the first time.  Its purpose is to warn
-users that we can't support them, not to fill their logs.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .22310-linux-2.6.6-rc2-bk5/kernel/module.c .22310-linux-2.6.6-rc2-bk5.updated/kernel/module.c
---- .22310-linux-2.6.6-rc2-bk5/kernel/module.c	2004-04-22 08:04:00.000000000 +1000
-+++ .22310-linux-2.6.6-rc2-bk5.updated/kernel/module.c	2004-04-28 09:03:31.000000000 +1000
-@@ -1131,7 +1131,7 @@ static void set_license(struct module *m
- 		license = "unspecified";
- 
- 	mod->license_gplok = license_is_gpl_compatible(license);
--	if (!mod->license_gplok) {
-+	if (!mod->license_gplok && !(tainted & TAINT_PROPRIETARY_MODULE)) {
- 		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
- 		       mod->name, license);
- 		tainted |= TAINT_PROPRIETARY_MODULE;
-
+								Pavel
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+934a471f20d6580d5aad759bf0d97ddc

@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262410AbSJJVpb>; Thu, 10 Oct 2002 17:45:31 -0400
+	id <S262431AbSJJVp5>; Thu, 10 Oct 2002 17:45:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262434AbSJJVpa>; Thu, 10 Oct 2002 17:45:30 -0400
-Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:31246 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262410AbSJJVoM>;
-	Thu, 10 Oct 2002 17:44:12 -0400
-Date: Thu, 10 Oct 2002 14:45:49 -0700
+	id <S262434AbSJJVpn>; Thu, 10 Oct 2002 17:45:43 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:32526 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262431AbSJJVoy>;
+	Thu, 10 Oct 2002 17:44:54 -0400
+Date: Thu, 10 Oct 2002 14:46:25 -0700
 From: Greg KH <greg@kroah.com>
 To: marcelo@conectiva.com.br
 Cc: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
 Subject: Re: [PATCH] PCI Hotplug fixes for 2.4.20-pre10
-Message-ID: <20021010214549.GC27523@kroah.com>
-References: <20021010214455.GA27523@kroah.com> <20021010214527.GB27523@kroah.com>
+Message-ID: <20021010214625.GD27523@kroah.com>
+References: <20021010214455.GA27523@kroah.com> <20021010214527.GB27523@kroah.com> <20021010214549.GC27523@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021010214527.GB27523@kroah.com>
+In-Reply-To: <20021010214549.GC27523@kroah.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -25,36 +25,98 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 # Project Name: Linux kernel tree
 # This patch format is intended for GNU patch command version 2.5 or higher.
 # This patch includes the following deltas:
-#	           ChangeSet	1.738   -> 1.739  
-#	drivers/hotplug/cpqphp_pci.c	1.1     -> 1.2    
+#	           ChangeSet	1.739   -> 1.740  
+#	drivers/hotplug/ibmphp_core.c	1.7     -> 1.8    
 #
 # The following is the BitKeeper ChangeSet Log
 # --------------------------------------------
-# 02/10/10	Dan.Zink@hp.com	1.739
-# [PATCH] Compaq PCI Hotplug bug fix 2
+# 02/10/10	zubarev@us.ibm.com	1.740
+# [PATCH] IBM PCI Hotplug: small patch
 # 
-# Your patch may fix the issue, but I think there is an
-# easier way.  I found another bug that was preventing the
-# existing scheme from working.  It looks like the function
-# "pcibios_set_irq_routing" is returning 1 for success, but
-# the hot plug driver was interpreting it as failure.
-# 
-# The attached 2 line patch fixes it for me.  I am able to
-# add an Intel NIC on an ML370 G2 and receive interrupts from
-# it.
+# This is a small patch on top of what you sent out to the kernel
+# already.  I basically uncommented out another place, where we call
+# pci_hp_change_info and changed to the new method.  And also, when I sent
+# you those (polling, isa, pci...) patches sometime back, I made a mistake
+# when I was translating the code from the way RPM is to the way we want in
+# the kernel (since in RPM we cannot have option to compile kernel).
 # --------------------------------------------
 #
-diff -Nru a/drivers/hotplug/cpqphp_pci.c b/drivers/hotplug/cpqphp_pci.c
---- a/drivers/hotplug/cpqphp_pci.c	Thu Oct 10 14:44:42 2002
-+++ b/drivers/hotplug/cpqphp_pci.c	Thu Oct 10 14:44:42 2002
-@@ -358,8 +358,8 @@
- 	    dev_num, bus_num, int_pin, irq_num);
- 	rc = pcibios_set_irq_routing(&fakedev, int_pin - 0x0a, irq_num);
- 	dbg(__FUNCTION__":rc %d\n", rc);
--	if (rc)
--		return rc;
-+	if (!rc)
-+		return !rc;
+diff -Nru a/drivers/hotplug/ibmphp_core.c b/drivers/hotplug/ibmphp_core.c
+--- a/drivers/hotplug/ibmphp_core.c	Thu Oct 10 14:44:40 2002
++++ b/drivers/hotplug/ibmphp_core.c	Thu Oct 10 14:44:40 2002
+@@ -686,9 +686,10 @@
+ int ibmphp_update_slot_info (struct slot *slot_cur)
+ {
+ 	struct hotplug_slot_info *info;
+-	char buffer[10];
++	char buffer[30];
+ 	int rc;
+-//	u8 bus_speed;
++	u8 bus_speed;
++	u8 mode;
  
- 	// set the Edge Level Control Register (ELCR)
- 	temp_word = inb(0x4d0);
+ 	info = kmalloc (sizeof (struct hotplug_slot_info), GFP_KERNEL);
+ 	if (!info) {
+@@ -696,7 +697,7 @@
+ 		return -ENOMEM;
+ 	}
+         
+-	snprintf (buffer, 10, "%d", slot_cur->number);
++	strncpy (buffer, slot_cur->hotplug_slot->name, 30);
+ 	info->power_status = SLOT_PWRGD (slot_cur->status);
+ 	info->attention_status = SLOT_ATTN (slot_cur->status, slot_cur->ext_status);
+ 	info->latch_status = SLOT_LATCH (slot_cur->status);
+@@ -707,21 +708,33 @@
+                 info->adapter_status = 1;
+ //		get_max_adapter_speed_1 (slot_cur->hotplug_slot, &info->max_adapter_speed_status, 0);
+ 	}
+-	/* !!!!!!!!!TO DO: THIS NEEDS TO CHANGE!!!!!!!!!!!!! */
+-/*	bus_speed = slot_cur->bus_on->current_speed;
+-	bus_speed &= 0x0f;
+-                        
+-	if (slot_cur->bus_on->current_bus_mode == BUS_MODE_PCIX)
+-		bus_speed |= 0x80;
+-	else if (slot_cur->bus_on->current_bus_mode == BUS_MODE_PCI)
+-		bus_speed |= 0x40;
+-	else
+-		bus_speed |= 0x20;
++
++	bus_speed = slot_cur->bus_on->current_speed;
++	mode = slot_cur->bus_on->current_bus_mode;
++
++	switch (bus_speed) {
++	case BUS_SPEED_33:
++		break;
++	case BUS_SPEED_66:
++		if (mode == BUS_MODE_PCIX) 
++			bus_speed += 0x01;
++		else if (mode == BUS_MODE_PCI)
++			;
++		else
++			bus_speed = PCI_SPEED_UNKNOWN;
++		break;
++	case BUS_SPEED_100:
++	case BUS_SPEED_133:
++		bus_speed += 0x01;
++		break;
++	default:
++		bus_speed = PCI_SPEED_UNKNOWN;
++	}
+ 
+ 	info->cur_bus_speed_status = bus_speed;
+ 	info->max_bus_speed_status = slot_cur->hotplug_slot->info->max_bus_speed_status;
+ 	// To do: bus_names 
+-*/	
++	
+ 	rc = pci_hp_change_slot_info (buffer, info);
+ 	kfree (info);
+ 	return rc;
+@@ -1001,7 +1014,7 @@
+ 	struct pci_dev dev_t;
+ 	u16 l;
+ 
+-	if (!find_bus (busno) || !(ibmphp_find_same_bus_num (busno)))
++	if (find_bus (busno) || !(ibmphp_find_same_bus_num (busno)))
+ 		return 1;
+ 	bus_t.number = busno;
+ 	bus_t.ops = ibmphp_pci_root_ops;

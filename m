@@ -1,48 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265578AbSJXRqz>; Thu, 24 Oct 2002 13:46:55 -0400
+	id <S265574AbSJXRqv>; Thu, 24 Oct 2002 13:46:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265580AbSJXRqz>; Thu, 24 Oct 2002 13:46:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14342 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265578AbSJXRqx>;
-	Thu, 24 Oct 2002 13:46:53 -0400
-Message-ID: <3DB83378.5090603@pobox.com>
-Date: Thu, 24 Oct 2002 13:52:56 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "KOCHI, Takayoshi" <t-kouchi@mvf.biglobe.ne.jp>
-CC: jung-ik.lee@intel.com, greg@kroah.com, tony.luck@intel.com,
-       pcihpd-discuss@lists.sourceforge.net, linux-ia64@linuxia64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: PCI Hotplug Drivers for 2.5
-References: <72B3FD82E303D611BD0100508BB29735046DFF41@orsmsx102.jf.intel.com> <20021025023856.CAVTC0A82650.6C9EC293@mvf.biglobe.ne.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S265578AbSJXRqv>; Thu, 24 Oct 2002 13:46:51 -0400
+Received: from 173.75.202.62.dial.bluewin.ch ([62.202.75.173]:12928 "EHLO
+	k3.hellgate.ch") by vger.kernel.org with ESMTP id <S265574AbSJXRqu>;
+	Thu, 24 Oct 2002 13:46:50 -0400
+Date: Thu, 24 Oct 2002 19:53:01 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com
+Subject: Re: [CFT] faster athlon/duron memory copy implementation
+Message-ID: <20021024175301.GA1229@k3.hellgate.ch>
+Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
+	linux-kernel@vger.kernel.org, arjanv@redhat.com
+References: <3DB82ABF.8030706@colorfullife.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DB82ABF.8030706@colorfullife.com>
+User-Agent: Mutt/1.3.27i
+X-Operating-System: Linux 2.5.44 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-KOCHI, Takayoshi wrote:
->>We need this driver as it's the only solution for DIG64 compliant IPF
->>platforms.
-> 
-> 
-> No, not for all DIG64 compliant IPF platforms.  NEC TX7 is also
-> a DIG64 compliant IPF platform but doesn't need your driver.
+Athlon 1400, ALi chipset, 1 GB SDRAM
 
+Deviation in 3 runs < 1%.
 
+Athlon test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ 
 
-Tangent:
-
-Intel is wrong by renaming IA64 to "IPF".
-
-It was previously used as "Intel Processor Family".  IA64 is a far 
-better name, and I will continue to use that in preference to IPF. 
-Re-using an acronym is silly and creates confusion.
-
-
-	Jeff
-
-
-
+copy_page() tests 
+copy_page function 'warm up run'	 took 29353 cycles per page
+copy_page function '2.4 non MMX'	 took 34621 cycles per page
+copy_page function '2.4 MMX fallback'	 took 34606 cycles per page
+copy_page function '2.4 MMX version'	 took 29239 cycles per page
+copy_page function 'faster_copy'	 took 17236 cycles per page
+copy_page function 'even_faster'	 took 17453 cycles per page
+copy_page function 'no_prefetch'	 took 12628 cycles per page

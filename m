@@ -1,430 +1,377 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283675AbRLKVXi>; Tue, 11 Dec 2001 16:23:38 -0500
+	id <S283916AbRLKV1S>; Tue, 11 Dec 2001 16:27:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283916AbRLKVX2>; Tue, 11 Dec 2001 16:23:28 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:18436 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S283488AbRLKVXA>; Tue, 11 Dec 2001 16:23:00 -0500
-Message-ID: <3C1678ED.8090805@namesys.com>
-Date: Wed, 12 Dec 2001 00:21:49 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-CC: Nathan Scott <nathans@sgi.com>, Andreas Gruenbacher <ag@bestbits.at>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-xfs@oss.sgi.com
-Subject: Re: reiser4 (was Re: [PATCH] Revised extended attributes  interface)
-In-Reply-To: <20011205143209.C44610@wobbly.melbourne.sgi.com> <20011207202036.J2274@redhat.com> <20011208155841.A56289@wobbly.melbourne.sgi.com> <3C127551.90305@namesys.com> <20011211134213.G70201@wobbly.melbourne.sgi.com> <5.1.0.14.2.20011211184721.04adc9d0@pop.cus.cam.ac.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S284079AbRLKV1A>; Tue, 11 Dec 2001 16:27:00 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:65096 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S283916AbRLKV0l>; Tue, 11 Dec 2001 16:26:41 -0500
+Date: Tue, 11 Dec 2001 16:26:39 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Linus Torvalds <torvalds@transmeta.com>, axboe@suse.de
+Cc: Big Fish <linux-kernel@vger.kernel.org>
+Subject: [PATCH] v2.5.1-pre9-00_kvec.diff
+Message-ID: <20011211162639.F6878@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Altaparmakov wrote:
+Hey dudes,
 
-> Hi Hans,
->
-> At 12:02 11/12/01, Hans Reiser wrote:
->
->>  I respond below.
->>
->> I didn't see that email, probably because I was not on the cc list.
->>
->> Nathan Scott wrote:
->>
->>> hi Hans,
->>> On Sat, Dec 08, 2001 at 11:17:21PM +0300, Hans Reiser wrote:
->>>
->>>> Nathan Scott wrote:
->>>>
->>>>> In a way there's consensus wrt how to do POSIX ACLs on Linux
->>>>> now, as both the ext2/ext3 and XFS ACL projects will be using
->>>>> the same tools, libraries, etc.  In terms of other ACL types,
->>>>> I don't know of anyone actively working on any.
->>>>
->>>> We are taking a very different approach to EAs (and thus to ACLs) 
->>>> as described in brief at www.namesys.com/v4/v4.html.  We don't 
->>>> expect anyone to take us seriously on it before it works, but 
->>>> silence while coding does not equal consensus.;-)
->>>>
->>>> In essence, we think that if a file can't do what an EA can do, 
->>>> then you need to make files able to do more.
->>>
->>> We did read through your page awhile ago.  It wasn't clear to me
->>> how you were addressing Anton's questions here:
->>> http://marc.theaimsgroup.com/?l=linux-fsdevel&m=97260371413867&w=2
->>> (I couldn't find a reply in the archive, but may have missed it).
->>>
->>> We were concentrating on something that could be fs-independent,
->>> so the lack of answers there put us off a bit, and the dependence
->>> on a reiser4() syscall is pretty filesystem-specific too (I guess
->>> if your solution is intended to be a reiserfs-specific one, then
->>> the questions above are meaningless).
->>
->> Changing the name of the system call is not a biggie.  Our approach 
->> is to make
->> it work for reiserfs, then proselytize.  While we work, we let people 
->> know
->> what we are working on, and if they join in, great to have it work 
->> for more
->> than one FS.
->>
->>> I was curious on another thing also - in the section titled ``The 
->>> Usual Resolution Of These Flaws Is A One-Off Solution'',
->>> talking about security attributes interfaces, your page says:
->>>
->>>         "Linus said that we can have a system call to use as 
->>> our*experimental plaything in this. With what I have in mind for the
->>> API, one rather flexible system call is all we want..."
->>>
->>> How did you manage to get him to say that?  We were flamed for
->>> suggesting a syscall which multiplexed all extended attributes
->>> commands though the one interface (because its semantics were
->>> not clearly defined & it could be extended with new commands,
->>> like ioctl/quotactl/...), and we've also had no luck so far in
->>> getting either our original interface, nor any revised syscall
->>> interfaces (which aren't like that anymore) accepted by Linus.*
->>
->>
->> We expect to get flamed once we have a patch.;-)  When we
->> have something mature enough to be usable, I expect he'll find a lot 
->> that
->> could be made better.  He does that.;-)
->>
->> For us, there are semantic advantages to having a single system call. 
->> Probably
->> it will get a lot of argument once we have working code, and frankly 
->> I prefer
->> to have that argument only after it is something usable, and it is 
->> easy to see
->> the convenience of expression that comes from it.  We want to Linux 
->> to be
->> MORE expressive than BeOS in regards to files.
->>
->>> *
->>> many thanks.
->>> *
->>> **
->>
->>   **
->> *
->> Curtis Anderson wrote:
->>
->>> > The problem with streams-style attributes comes from stepping onto 
->>> the
->>> > slippery slope of trying to put too much generality into it.  I 
->>> chose the
->>> > block-access style of API so that there would be no temptation to 
->>> start
->>> > down that slope.
->>>
->>> I understand you right up until this.  I just don't get it.  If you 
->>> extend the functionality of files and directories so that attributes 
->>> are not needed, this is goodness, right?  I sure think it is the 
->>> right approach.  We should just decompose carefully what 
->>> functionality is provided by attributes that files and directories 
->>> lack, and one feature at a time add that capability to files and 
->>> directories as separate optional features.
->>
->
-> I wrote:
->
->> No, it is _not_ goodness, IMHO. - If you did implement the API for 
->> attributes through files and directories, then what would you do with 
->> named streams?!?
->> *
->>   **
->> **
->>
->> *Hans Reiser wrote:
->>
->> What is your intended functional difference between extended 
->> attributes and streams?
->>
->> None?
->
->
-> Differences in NTFS:
->
-> - maximum size (EA limited to 64kiB, named stream 2^63 bytes) 
+Since the big block melee has started pretty quickly, I'd like to try 
+to start reeling things in so that they aren't off on a tangent that 
+completely excludes the requirements of aio and the revamped kiobufs 
+that were discussed earlier.  To that end, I'm offering up the below 
+patch that adds the kvec structure and helpers so that we can begin 
+converting kiobuf users, as well as networking and the newly introduced 
+bio_vecs into a unified set of primatives.  Comments?
 
-These are desirable limits to preserve?  For sure?  If so, then a 
-particular plugin can be written to restrict files to 64k, though I 
-shake my head at the thought.
+-- 
+Fish.
 
->
-> - locality of storage (all EAs are stored in one so they are quicker 
-> to access when you need to access multiple EAs) 
+... ~/patches/v2.5.1-pre9-00_kvec.diff ...
 
-arbitrarily aggregating files is a useful feature, there is no reason to 
-rigidly offer and require the feature for EAs only.
-
->
-> - name namespace (Unicode names for named streams vs ASCII for EAs) 
-
-Namespaces can be changed for the children of directories.  Plan9 guys 
-have done such things, and it is cool.
-
->
-> - potential ability to compress/encrypt (EAs cannot do this, named 
-> streams could possibly and they certainly can be sparse, too which EAs 
-> cannot be) 
-
-Well, I suppose you could allow restricting some files to not have 
-compression and sparseness, though it isn't exciting to me.
-
->
-> - named streams have creation/modification/access/etc times associated 
-> with them, EAs don't 
-
-I thought streams shared the stat data of the parent file?  
-
-Regardless, files should be able to share/inherit stat data.
-
->
->
-> How is that for a start? 
-
-Not one reason cited is convincing to me.
-
->
->
->> Ok, let's assume none until I get your response.  (I can respond more 
->> specifically
->> after you correct me.)  Let me further go out on a limb,and guess 
->> that you intend
->> that extended attributes are meta-information about the object, and 
->> streams
->> are contained within the object.
->
->
-> Streams are only within the inode if they are tiny, otherwise they are 
-> stored indirect just like normal file data. What they contain is 
-> complete specific to the creator. Same is valid for EAs, with the 
-> exception that all EAs are stored as one "stream" (for lack of a 
-> better word). 
-
-I miss the point of the implementation details cited above.
-
->
->
->> In this case, a naming convention is quite sufficient to distinguish 
->> them.
->
->
-> Still think so? 
-
-Yes.
-
-> I don't.
->
->> Extended attributes can have names of the form filenameA/..extone.
->>
->> Streams can have names of the form filenameA/streamone.
->>
->> In other words, all meta-information about an object should by 
->> convention
->> (and only by convention, because people should live free, and because
->> there is not always an obvious distinction between meta and contained
->> information) be preceded by '..'
->>
->> Note that readdir should return neither stream names nor extended 
->> attribute names,
->> and the use of 'hidden' directory entries accomplishes this (ala 
->> .snapshot
->> for WAFL).
->> *
->> **
->>   **
->
->
-> All the below quotes refering to *Curtis are actually from me, IIRC...
->
->> *Curtis:
->> You can't possibly have both using the same API since you would then 
->> get name collision on filesystems where both named streams and EAs 
->> are supported.
->> *
->>   **
->> **
->>
->> *Name distinctions are what you use to avoid name collisions, see above.
->> *
->
->
-> Ok, that would work, BUT:
->
-> (Again this is me not Curtis...)
->
->> *Curtis:
->> (And I haven't even mentioned EAs and named streams attached to 
->> actual _real_ directories yet.)
->>
->> *
->>   **
->> *I don't understand this.
->
->
-> Ok, I will try to explain. An inode is the real thing, not a file. 
-
-In reiserfs we say object, and consider files and directories (and 
-symlinks, etc.) to be objects.  We don't have on-disk inodes.   Inodes 
-are implementation layer not semantic layer.  We should be talking about 
-semantic layer here I think.
-
-> An inode can by definition be a file or a directory (or a symlink, or 
-> special device file, etc).
->
-> Any of these (i.e. any inode) can have both named streams AND EAs 
-> attached to them on NTFS. So say I have a directory named MyDir and it 
-> contains a named stream called MyStream1 and an EA called MyEA1 and 
-> two files, one called MyStream1 and one called "..MyEA1".
->
-> Now with your scheme of naming things, looking up MyDir/MyStream1 
-> matches both the file MyStream1 that is in the directory MyDir and the 
-> named stream MyStream1 belonging to the directory MyDir. - How do 
-> you/does one distinguish the two in your scheme?!? I can only see it 
-> makind a big BANG here... 
-
-
-Well, gosh, okay, maybe you want to prepend ',,' to streams and '..' to 
-extended attributes.  I personally think Linux would only want to do so 
-when used as a fileserver emulating NTFS/SAMBA.  There is no enhancement 
-of user functionality from doing it for general purpose filesystems. 
- Feel free to substitute anything you like for ',,', the choice of 
-naming convention is not the point.  You could even use ':':-).
-
-
-It is important though that you not require ',,', ':', or '..' to have 
-these special meanings for all Linux namespaces, I hope that is understood.
-
->
->
-> Similarly, looking up MyDir/..MyEA1 matches both the file named 
-> "..MyEA1" and the EA MyEA1. BANG!
->
-> And add a named stream actually named "..MyEA1" to MyDir and you have 
-> total salad!
->
-> See the problem now? 
-
-No, see above.
-
->
->
-> I certainly fail to see how your naming scheme is going to cope with 
-> this... Perhaps I am missing something? 
-
-Naming conventions are easy.  See above.
-
->
->
-> Now if you have distinct APIs for EAs you have no problems on that 
-> side and if you don't use the slash but say the colon (like Windows 
-> does) for named streams you get rid of the named streams in 
-> directories problem, too. But then you need to forbid the ":" as an 
-> accepted character in the file name just like Windows does which is 
-> probably a reason not to use that API either...
->
->> *
->> **
->>   **
->>
->> *Curtis:
->> Let's face it: EAs exist. They are _not_ files/directories so the API
->> *
->>   **
->> *Is this an argument?
->>
->> EA's do not exist in Linux, and they should never exist as something 
->> that is more than a file. Since they do not exist, you might as well 
->> improve the filesystems you port to Linux while porting them.  APIs 
->> shape an OS over the long term, and if done wrong they burden 
->> generations after you with crud.
->
->
-> Like Microsoft is going to let me change the NTFS specifications to 
-> modify how EAs and named streams are stored. Dream on!
->
-> But perhaps we are talking past each other: I am talking on-disk 
-> format / specifications. 
-
-
-I am NOT talking about on-disk format, I am talking about APIs and 
-naming conventions.  On disk format is entirely FS specific.  Live free 
-(errr, no, you are doing NTFS, live confined;-) ).....
-
-> These exist and no, we cannot change those at all. You can do that 
-> with reiserfs as it is yours but all of us supporting existing file 
-> systems owned by corporations like Microsoft, SGI, etc, have to live 
-> with the specifications.
->
->> *
->> **
->>   **
->> *Curtis:
->> should not make them appear as files/directories. - You have to 
->> consider that there are a lot of filesystems out there which are 
->> already developed and which need to be supported. - Not everyone has 
->> their own filesystem which they can change/extend the 
->> specifications/implementation of at will.
->> *
->>   **
->> *
->> Yes they do.  It is all GPL'd.  Even XFS.  Do the underlying 
->> infrastructure
->> the right way, and I bet you'll be surprised at how little need there 
->> really
->> is for ea's done the wrong way. A user space library can cover
->> over it all (causing only the obsolete programs using it to suffer 
->> while they
->> wait to fade away).
->
->
-> ?!? GPL has nothing to do with on-disk format and I doubt Microsoft 
-> would agree that the ntfs on-disk layout is GPL. It's a trade secret! 
-> Why do you think ntfs developers have to spend half their life using 
-> disassemblers and hexeditors?!? 
-
-Did you file comments in the various MS legal battles going on?  You 
-should.....  (I know, there is only a small chance it will have an 
-effect, but..... )  they should be required to give you the info, and if 
-you don't demand it I bet they won't be so required.  Did you notice how 
-they are restricting things to only persons with a viable business in 
-the opinion of MS?
-
->
->
->> *
->> What would have happened if set theory had not just sets and 
->> elements, but sets, elements, extended-attributes, and streams, and 
->> you could not use the same operators on streams that you use on 
->> elements?  It would have been crap as a theoretical model.  It does 
->> real damage when you add things that require different operators to 
->> the set of primitives. Closure is extremely important to design.  
->> Don't do this.
->
->
-> Since we are going into analogies: You don't use a hammer to affix a 
-> screw and neither do you use a screwdriver to affix a nail...at least 
-> I don't. I think you are trying to use a large sledge hammer to put 
-> together things which do not fit together thus breaking them in the 
-> process. To use your own words: Don't do this. (-; Each is distinct 
-> and should be treated as such. </me ducks>
->
-> Best regards,
->
-> Anton
->
->
-Programs will get written to use your API, and not work with reiserfs, 
-and will get written to use our API and not work with NTFS, and this is 
-bad....
-
-Thanks for the FS driver by the way, it is very useful to us dual-booters.
-
-Hans
-
+diff -urN v2.5.1-pre9/include/linux/kiovec.h work-v2.5.1-pre9.diff/include/linux/kiovec.h
+--- v2.5.1-pre9/include/linux/kiovec.h	Wed Dec 31 19:00:00 1969
++++ work-v2.5.1-pre9.diff/include/linux/kiovec.h	Tue Dec 11 15:43:05 2001
+@@ -0,0 +1,107 @@
++#ifndef __LINUX__KIOVEC_H
++#define __LINUX__KIOVEC_H
++
++struct page;
++struct list;
++
++struct kveclet {
++	struct page	*page;
++	unsigned	offset;
++	unsigned	length;
++};
++
++struct kvec {
++	unsigned	max_nr;
++	unsigned	nr;
++	struct kveclet	veclet[0];
++};
++
++struct kvec_cb {
++	struct kvec	*vec;
++	void		(*fn)(void *data, struct kvec *vec, ssize_t res);
++	void		*data;
++};
++
++struct kvec_cb_list {
++	struct list_head	list;
++	struct kvec_cb		cb;
++};
++
++#ifndef _LINUX_TYPES_H
++#include <linux/types.h>
++#endif
++#ifndef _LINUX_KDEV_T_H
++#include <linux/kdev_t.h>
++#endif
++#ifndef _ASM_KMAP_TYPES_H
++#include <asm/kmap_types.h>
++#endif
++
++extern struct kvec *map_user_kvec(int rw, unsigned long va, size_t len);
++extern void unmap_kvec(struct kvec *, int dirtied);
++extern void free_kvec(struct kvec *);
++
++/* brw_kvec_async:
++ *	Performs direct io to/from disk into cb.vec.  Count is the number
++ *	of sectors to read, sector_shift is the blocksize (which must be
++ *	compatible with the kernel's current idea of the device's sector
++ *	size) in log2.  blknr is the starting sector offset on dev.
++ *
++ */
++extern int brw_kvec_async(int rw, kvec_cb_t cb, kdev_t dev, unsigned count,
++			  unsigned long blknr, int sector_shift);
++
++/* Memory copy helpers usage:
++ * void foo(... struct kveclet *veclet...)
++ *
++ *	struct kvec_dst	dst;
++ *
++ *	kvec_dst_init(&dst, KM_USER0);
++ *	kvec_dst_map(&dst, veclet);			-- activates kmap
++ *	for (...)
++ *		memcpy_to_kvec_dst(&dst, data, size);	-- each copy appends
++ *	kvec_dst_unmap(&dst);				-- releases kmap
++ *
++ * Note that scheduling is not permitted between kvec_dst_map() and
++ * kvec_dst_unmap().  This is because internally the routines make use
++ * of an atomic kmap.
++ */
++struct kvec_dst {
++	char		*addr;
++	char		*dst;
++	struct kveclet	*let;
++	int		space;
++	int		offset;
++	enum km_type	type;
++};
++
++
++#define kvec_dst_map(Xdst, Xlet)					\
++	do {								\
++		struct kvec_dst *_dst = (Xdst);				\
++		struct kveclet *_let = (Xlet);				\
++		_dst->dst = _dst->addr = kmap_atomic(_let->page, _dst->type);\
++		_dst->dst += _let->offset + _dst->offset;		\
++		_dst->space = _let->length;				\
++		_dst->offset = 0;					\
++	} while(0)
++
++#define kvec_dst_init(Xdst, Xtype)					\
++	do {								\
++		(Xdst)->offset = 0;					\
++		(Xdst)->type = Xtype;					\
++	} while(0)
++
++#define	kvec_dst_unmap(Xdst)						\
++	do {								\
++		kunmap_atomic((Xdst)->addr, (Xdst)->type);		\
++		(Xdst)->offset = (Xdst)->dst - (Xdst)->addr;		\
++		(Xdst)->offset -= (Xdst)->let->offset;			\
++	} while(0)
++
++extern void FASTCALL(memcpy_to_kvec_dst(struct kvec_dst *dst,
++					const char *from, long len));
++extern void FASTCALL(memcpy_from_kvec_dst(char *to,
++					  struct kvec_dst *from, long len));
++
++#endif /* __LINUX__KIOVEC_H */
+diff -urN v2.5.1-pre9/include/linux/types.h work-v2.5.1-pre9.diff/include/linux/types.h
+--- v2.5.1-pre9/include/linux/types.h	Tue Dec 11 15:28:08 2001
++++ work-v2.5.1-pre9.diff/include/linux/types.h	Tue Dec 11 15:48:31 2001
+@@ -138,4 +138,9 @@
+ 	char			f_fpack[6];
+ };
+ 
++/* kernel typedefs -- they belong here. */
++#ifdef __KERNEL__
++typedef struct kvec_cb kvec_cb_t;
++#endif /* __KERNEL__ */
++
+ #endif /* _LINUX_TYPES_H */
+diff -urN v2.5.1-pre9/mm/memory.c work-v2.5.1-pre9.diff/mm/memory.c
+--- v2.5.1-pre9/mm/memory.c	Thu Nov 15 13:03:06 2001
++++ work-v2.5.1-pre9.diff/mm/memory.c	Tue Dec 11 15:52:09 2001
+@@ -44,6 +44,9 @@
+ #include <linux/iobuf.h>
+ #include <linux/highmem.h>
+ #include <linux/pagemap.h>
++#include <linux/slab.h>
++#include <linux/compiler.h>
++#include <linux/kiovec.h>
+ 
+ #include <asm/pgalloc.h>
+ #include <asm/uaccess.h>
+@@ -1432,3 +1435,203 @@
+ 	} while (addr < end);
+ 	return 0;
+ }
++
++/*
++ * Force in an entire range of pages from the current process's user VA,
++ * and pin them in physical memory.  
++ * FIXME: some architectures need to flush the cache based on user addresses 
++ * here.  Someone please provide a better macro than flush_cache_page.
++ */
++
++#define dprintk(x...)
++struct kvec *map_user_kvec(int rw, unsigned long ptr, size_t len)
++{
++	struct kvec		*vec;
++	struct kveclet		*veclet;
++	unsigned long		end;
++	int			err;
++	struct mm_struct *	mm;
++	struct vm_area_struct *	vma = 0;
++	int			i;
++	int			datain = (rw == READ);
++	unsigned		nr_pages;
++
++	end = ptr + len;
++	if (end < ptr)
++		return ERR_PTR(-EINVAL);
++
++	nr_pages = (ptr + len + PAGE_SIZE - 1) >> PAGE_SHIFT;
++	nr_pages -= ptr >> PAGE_SHIFT;
++	nr_pages ++;
++	vec = kmalloc(sizeof(struct kvec) + nr_pages * sizeof(struct kveclet),
++			GFP_KERNEL);
++	if (!vec)
++		return ERR_PTR(-ENOMEM);
++	vec->nr = 0;
++	vec->max_nr = nr_pages;
++	veclet = vec->veclet;
++	
++	/* Make sure the iobuf is not already mapped somewhere. */
++	mm = current->mm;
++	dprintk ("map_user_kiobuf: begin\n");
++	
++	down_read(&mm->mmap_sem);
++
++	err = -EFAULT;
++	
++	i = 0;
++
++	/* 
++	 * First of all, try to fault in all of the necessary pages
++	 */
++	while (ptr < end) {
++		struct page *map;
++		veclet->offset = ptr & ~PAGE_MASK;
++		veclet->length = PAGE_SIZE - veclet->offset;
++		if (len < veclet->length)
++			veclet->length = len;
++		ptr &= PAGE_MASK;
++		len -= veclet->length;
++
++		if (!vma || ptr >= vma->vm_end) {
++			vma = find_vma(current->mm, ptr);
++			if (!vma) 
++				goto out_unlock;
++			if (vma->vm_start > ptr) {
++				if (!(vma->vm_flags & VM_GROWSDOWN))
++					goto out_unlock;
++				if (expand_stack(vma, ptr))
++					goto out_unlock;
++			}
++			if (((datain) && (!(vma->vm_flags & VM_WRITE))) ||
++					(!(vma->vm_flags & VM_READ))) {
++				err = -EACCES;
++				goto out_unlock;
++			}
++		}
++		spin_lock(&mm->page_table_lock);
++		while (!(map = follow_page(ptr, datain))) {
++			int ret;
++
++			spin_unlock(&mm->page_table_lock);
++			ret = handle_mm_fault(current->mm, vma, ptr, datain);
++			if (ret <= 0) {
++				if (!ret)
++					goto out_unlock;
++				else {
++					err = -ENOMEM;
++					goto out_unlock;
++				}
++			}
++			spin_lock(&mm->page_table_lock);
++		}			
++		map = get_page_map(map);
++		if (map) {
++			flush_dcache_page(map);
++			atomic_inc(&map->count);
++		} else
++			printk (KERN_INFO "Mapped page missing [%d]\n", i);
++		spin_unlock(&mm->page_table_lock);
++		veclet->page = map;
++		veclet++;
++
++		ptr += PAGE_SIZE;
++		vec->nr = ++i;
++	}
++
++	veclet->page = NULL;	/* dummy for the prefetch in free_kvec */
++	veclet->length = 0;	/* bug checking ;-) */
++
++	up_read(&mm->mmap_sem);
++	dprintk ("map_user_kiobuf: end OK\n");
++	return vec;
++
++ out_unlock:
++	up_read(&mm->mmap_sem);
++	unmap_kvec(vec, 0);
++	printk(KERN_DEBUG "map_user_kvec: err(%d)\n", err);
++	kfree(vec);
++	return ERR_PTR(err);
++}
++
++/*
++ * Unmap all of the pages referenced by a kiobuf.  We release the pages,
++ * and unlock them if they were locked. 
++ */
++
++void unmap_kvec (struct kvec *vec, int dirtied)
++{
++	struct kveclet *veclet = vec->veclet;
++	struct kveclet *end = vec->veclet + vec->nr;
++	struct page *map = veclet->page;
++
++	prefetchw(map);
++	for (; veclet<end; map = (++veclet)->page) {
++		prefetchw(veclet[1].page);
++		if (likely(map != NULL) && !PageReserved(map)) {
++			if (dirtied) {
++				SetPageDirty(map);
++				flush_dcache_page(map);	/* FIXME */
++			}
++			__free_page(map);
++		}
++	}
++
++	vec->nr = 0;
++}
++
++void free_kvec(struct kvec *vec)
++{
++	kfree(vec);
++}
++
++/* kvec memory copy helper: appends len bytes in from to dst.
++ */
++void memcpy_to_kvec_dst(struct kvec_dst *dst, const char *from, long len)
++{
++	if (unlikely(len < 0))
++		BUG();
++	do {
++		int cnt = len;
++		if (dst->space < cnt)
++			cnt = dst->space;
++
++		memcpy(dst->dst, from, cnt);
++		from += cnt;
++		dst->space -= cnt;
++		dst->dst += cnt;
++		len -= cnt;
++		if (!dst->space && len) {
++			kvec_dst_unmap(dst);
++			kvec_dst_map(dst, dst->let + 1);
++			if (unlikely(!dst->space))
++				BUG();
++		}
++	} while (len);
++}
++
++/* kvec memory copy helper: copies and consumes len bytes in from to dst.
++ */
++void memcpy_from_kvec_dst(char *to, struct kvec_dst *from, long len)
++{
++	if (unlikely(len < 0))
++		BUG();
++	do {
++		int cnt = len;
++		if (from->space < cnt)
++			cnt = from->space;
++
++		memcpy(to, from->dst, cnt);
++		to += cnt;
++		from->space -= cnt;
++		from->dst += cnt;
++		len -= cnt;
++		if (unlikely(!from->space && len)) {
++			kvec_dst_unmap(from);
++			kvec_dst_map(from, from->let + 1);
++			if (unlikely(!from->space))
++				BUG();
++		}
++	} while (len);
++}
++

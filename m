@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264680AbTFARgI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 13:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTFARgI
+	id S264685AbTFARiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 13:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264682AbTFARiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 13:36:08 -0400
-Received: from mauve.demon.co.uk ([158.152.209.66]:9879 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP id S264680AbTFARgH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 13:36:07 -0400
-From: root@mauve.demon.co.uk
-Message-Id: <200306011750.SAA21636@mauve.demon.co.uk>
-Subject: Re: weird keyboard with 2.5.70
-To: xombi@accessus.net
-Date: Sun, 1 Jun 2003 18:50:08 +0100 (BST)
+	Sun, 1 Jun 2003 13:38:16 -0400
+Received: from adsl-66-136-200-10.dsl.austtx.swbell.net ([66.136.200.10]:2944
+	"EHLO dragon.taral.net") by vger.kernel.org with ESMTP
+	id S264685AbTFARiO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 13:38:14 -0400
+Date: Sun, 1 Jun 2003 12:51:38 -0500
+From: Taral <taral@taral.net>
+To: Tomas Szepe <szepe@pinerecords.com>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0306011003520.13639-100000@localhost.localdomain> from "xombi@accessus.net" at Jun 01, 2003 10:08:09 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] Modular IDE completely broken
+Message-ID: <20030601175138.GA1936@taral.net>
+References: <20030601055414.GA11218@taral.net> <20030601113050.GE27692@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="fdj2RfSjLxBAspz7"
+Content-Disposition: inline
+In-Reply-To: <20030601113050.GE27692@louise.pinerecords.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On 31 May 2003, Alan Cox wrote:
-> > On Sad, 2003-05-31 at 17:44, Margit Schubert-While wrote:
-> > > Errr, guys - you do know that PS2 is NOT hotplug and you
-> > > may well end up hosing your mainboard ?
-> >
-> > For any vaguely modern machine you'll find thats not the case. If
-> > I remember rightly the requirement for PS/2 to be hotplug safe was
-> > added into the PC specs the vendors use about 1998
-> 
-> I have a Abit-KT7 (Socket A, wo/RAID) motherboard that dies if you unplug
-> the keyboard, but not the mouse. IIRC that's a mid-to late 2000
-> motherboard.
 
-I have a 2001 model Socket A motherboard that will reboot after several
-seconds about once every hundred keyboard plugs.
+--fdj2RfSjLxBAspz7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-It usually works...
+On Sun, Jun 01, 2003 at 01:30:50PM +0200, Tomas Szepe wrote:
+> > [taral@taral.net]
+> >=20
+> > I've submitted this patch before, but I think it got ignored. This makes
+> > modular IDE at least compile and removes the circular dependencies.
+> >=20
+> > If there's a reason this patch isn't being applied (it's crappy, someone
+> > else is working on this problem already, etc.), _please_ tell me!
+>=20
+> Alan Cox is working on the problem ATM, check 2.4.21-rc6-ac1.
 
+Is this work for 2.5 as well? My patch is against 2.5.69.
+
+--=20
+Taral <taral@taral.net>
+This message is digitally signed. Please PGP encrypt mail to me.
+"Most parents have better things to do with their time than take care of
+their children." -- Me
+
+--fdj2RfSjLxBAspz7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+2j0poQQF8xCPwJQRAhBRAJ9lFA93dLqK8jXNZNoaGTyc2AUtxgCfaJ5v
+DKjmyNXxGYgh9tvIdpCz5N8=
+=3Jxc
+-----END PGP SIGNATURE-----
+
+--fdj2RfSjLxBAspz7--

@@ -1,105 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289671AbSBSEdp>; Mon, 18 Feb 2002 23:33:45 -0500
+	id <S289655AbSBSEcO>; Mon, 18 Feb 2002 23:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289685AbSBSEdf>; Mon, 18 Feb 2002 23:33:35 -0500
-Received: from mx7.sac.fedex.com ([199.81.194.38]:27910 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S289671AbSBSEdV>; Mon, 18 Feb 2002 23:33:21 -0500
-Date: Tue, 19 Feb 2002 12:31:35 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: marsaro@interearth.com
-Subject: Re: eepro100 slow after reboot (fwd)
-Message-ID: <Pine.LNX.4.44.0202191224460.29610-100000@boston.corp.fedex.com>
+	id <S289671AbSBSEcE>; Mon, 18 Feb 2002 23:32:04 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:42576 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S289655AbSBSEb6>; Mon, 18 Feb 2002 23:31:58 -0500
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Hugh Dickins <hugh@veritas.com>, Linus Torvalds <torvalds@transmeta.com>,
+        dmccr@us.ibm.com, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-mm@kvack.org, Robert Love <rml@tech9.net>,
+        Rik van Riel <riel@conectiva.com.br>, mingo@redhat.com,
+        Andrew Morton <akpm@zip.com.au>, manfred@colorfullife.com,
+        wli@holomorphy.com
+Subject: Re: [RFC] Page table sharing
+In-Reply-To: <Pine.LNX.4.21.0202182358190.1021-100000@localhost.localdomain>
+	<E16cy8E-0000xp-00@starship.berlin>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 18 Feb 2002 21:27:11 -0700
+In-Reply-To: <E16cy8E-0000xp-00@starship.berlin>
+Message-ID: <m1heoe3xls.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/19/2002
- 12:33:17 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 02/19/2002
- 12:33:19 PM,
-	Serialize complete at 02/19/2002 12:33:19 PM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Daniel Phillips <phillips@bonn-fries.net> writes:
 
+> On February 19, 2002 01:03 am, Hugh Dickins wrote:
+> > On Tue, 19 Feb 2002, Daniel Phillips wrote:
+> > > On February 18, 2002 08:04 pm, Hugh Dickins wrote:
+> > > > On Mon, 18 Feb 2002, Daniel Phillips wrote:
+> > > > > On February 18, 2002 09:09 am, Hugh Dickins wrote:
+> > > > > > Since copy_page_range would not copy shared page tables, I'm wrong to
+> > > > > > point there.  But __pte_alloc does copy shared page tables (to unshare
+> 
+> > > > > > them), and needs them to be stable while it does so: so locking
+> against
+> 
+> > > > > > swap_out really is required.  It also needs locking against read
+> faults,
+> 
+> > > > > > and they against each other: but there I imagine it's just a matter of
+> 
+> > > > > > dropping the write arg to __pte_alloc, going back to pte_alloc again.
+> > > 
+> > > I'm not sure what you mean here, you're not suggesting we should unshare the
+> 
+> > > page table on read fault are you?
+> > 
+> > I am.  But I can understand that you'd prefer not to do it that way.
+> > Hugh
+> 
+> No, that's not nearly studly enough ;-)
+> 
+> Since we have gone to all the trouble of sharing the page table, we should
+> swap in/out for all sharers at the same time.  That is, keep it shared, saving
+> memory and cpu.
+> 
+> Now I finally see what you were driving at: before, we could count on the
+> mm->page_table_lock for exclusion on read fault, now we can't, at least not
+> when ptb->count is great than one[1].  So let's come up with something nice as
+> a substitute, any suggestions?
+> 
+> [1] I think that's a big, broad hint.
 
-Just to shared with you all that comparing the eepro100 vs. e100, the e100
-seems more reliable.
+Something like:
+struct mm_share {
+        spinlock_t page_table_lock;
+        struct list_head mm_list;
+};
 
-I had so much problem with eepro100 running like a turtle everytime after
-reboot, but after switching to e100, the problem simply went away!
+struct mm {
+	struct list_head mm_list;
+        struct mm_share *mm_share;
+        .....
+};
 
+So we have an overarching structure for all of the shared mm's.  
 
-Thanks,
-Jeff
-[ jchua@fedex.com ]
-
----------- Forwarded message ----------
-Date: Fri, 4 Jan 2002 22:39:45 -0800
-From: Jon <marsaro@interearth.com>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Subject: Re: eepro100 slow after reboot
-
-I had a similar problem recently and had to lock the ports down on the Cisco
-switch (What I had). Seems that there was sensitivity depending upon which
-version of Cisco IOS I flashed to and if I used the eepro (Becker / scyld
-driver) or the base (SuSE SLES) e100 driver from Intel. After swaping
-drivers and forcing with options= and swapping IOS for a week I found that
-e100 works ok with IOS 12.1, eepro worked best on IOS 11.x or 12.1 only if I
-forced both the driver and switch. Mind you the system would come up at 100
-mbs full-duplex, but when I put load over the wire with ttcp, the switch
-would flap until I locked it in IOS using eepro. I also used both SuSE SLES
-and RH 7.1, same on all the above.
-
-Regards,
-
-Jon
-
-
-Regards,
-
-Jon
------ Original Message -----
-From: "Jeff Chua" <jeffchua@silk.corp.fedex.com>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Cc: "Jeff Chua" <jchua@fedex.com>
-Sent: Friday, January 04, 2002 8:14 PM
-Subject: eepro100 slow after reboot
-
-
->
-> Linux 2.4.x to 2.4.18pre1 on both HP LH6000r and LH4r has the same
-> problem with the eepro100. Network (rcp) became very slow after warn
-> reboot.
->
-> I've tried both with "modprobe eepro100" (10BT) and "modprobe eepro100
-> options=0x30" (100BT) and each time after a warm reboot, the network came
-> to a crawl. The only way is to cold reset by power off/on the system.
->
-> Here's the card ("modprobe eepro100 options=0x30") ...
->
-> eth0: OEM i82557/i82558 10/100 Ethernet, 00:30:6E:01:A8:8D, IRQ 18.
->   Receiver lock-up bug exists -- enabling work-around.
->   Board assembly 506495-096, Physical connectors present: RJ45
->   Primary interface chip i82555 PHY #1.
->   Forcing 100Mbs full-duplex operation.
->   General self-test: passed.
->   Serial sub-system self-test: passed.
->   Internal registers self-test: passed.
->   ROM checksum self-test: passed (0x04f4518b).
->   Receiver lock-up workaround activated.
->
->
-> Thanks,
-> Jeff
-> [ jchua@fedex.com ]
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Eric

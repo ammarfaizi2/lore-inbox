@@ -1,49 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271443AbTGQL6C (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 07:58:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271442AbTGQL6C
+	id S271446AbTGQMBv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 08:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271442AbTGQMBu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 07:58:02 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23758
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S271441AbTGQL5v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 07:57:51 -0400
-Subject: Re: 2.6 sound drivers?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ed Sweetman <ed.sweetman@wmich.edu>
-Cc: ookhoi@humilis.net, Takashi Iwai <tiwai@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       eugene.teo@eugeneteo.net
-In-Reply-To: <3F168920.8080007@wmich.edu>
-References: <20030716225826.GP2412@rdlg.net>
-	 <20030716231029.GG1821@matchmail.com> <20030716233045.GR2412@rdlg.net>
-	 <1058426808.1164.1518.camel@workshop.saharacpt.lan>
-	 <20030717085704.GA1381@eugeneteo.net> <s5hu19lzevt.wl@alsa2.suse.de>
-	 <20030717111958.GB30717@favonius>  <3F168920.8080007@wmich.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058443806.8615.32.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 17 Jul 2003 08:01:50 -0400
+Received: from main.gmane.org ([80.91.224.249]:16516 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S271441AbTGQL6s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 07:58:48 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: ALSA timer and 2.6.0-test1 panic
+Date: Thu, 17 Jul 2003 14:06:04 +0200
+Message-ID: <yw1xisq14atv.fsf@users.sourceforge.net>
+References: <yw1xlluyln01.fsf@users.sourceforge.net> <s5hlluxzccx.wl@alsa2.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 17 Jul 2003 13:10:07 +0100
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:4nmU6c39nZRE/aT4W7+KhF1q288=
+Cc: alsa-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-07-17 at 12:31, Ed Sweetman wrote:
-> > Wouldn't esd (the enlightment sound daemon) take care of this in
-> > userspace? I can have sound out of xmms, firebird, mpg321 and mplayer at
-> > the same time with esd.
-> 
-> Most people would rather not use esd, especially when you dont need to 
-> use any userspace deamon to do the job.
+Takashi Iwai <tiwai@suse.de> writes:
 
-There are lots of reasons for not using esd (its sucky frequency code
-for example) but you do need a userspace daemon because the alsa kernel
-side mixing stuff doesn't handle network connections - and nor would you
-want it to.
+>> I get thousands of these messages when using the ALSA timer in kernel
+>> 2.6.0-test1:
+>
+> there is an unblanced spinlock.
+> could you try the attached patch?
 
-X is a networked environment, Gnome is a networked desktop, therefore
-you need networked audio
+It seems to work.  Thanks.
+
+-- 
+Måns Rullgård
+mru@users.sf.net
 

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131770AbRAITUg>; Tue, 9 Jan 2001 14:20:36 -0500
+	id <S131258AbRAIT3t>; Tue, 9 Jan 2001 14:29:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131697AbRAITU1>; Tue, 9 Jan 2001 14:20:27 -0500
-Received: from raven.toyota.com ([63.87.74.200]:60420 "EHLO raven.toyota.com")
-	by vger.kernel.org with ESMTP id <S131696AbRAITUR>;
-	Tue, 9 Jan 2001 14:20:17 -0500
-Message-ID: <3A5B646E.6FFF1A4E@toyota.com>
-Date: Tue, 09 Jan 2001 11:20:14 -0800
-From: J Sloan <jjs@toyota.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ll i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: mingo@elte.hu, "Stephen C. Tweedie" <sct@redhat.com>,
-        Christoph Hellwig <hch@caldera.de>,
-        "David S. Miller" <davem@redhat.com>, riel@conectiva.com.br,
-        netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <E14G1mB-0006vF-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131657AbRAIT3k>; Tue, 9 Jan 2001 14:29:40 -0500
+Received: from mons.uio.no ([129.240.130.14]:57774 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S131258AbRAIT3Z>;
+	Tue, 9 Jan 2001 14:29:25 -0500
+To: Daniel Phillips <phillips@innominate.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+In-Reply-To: <dnbstgewoj.fsf@magla.iskon.hr> <Pine.LNX.4.10.10101091041150.2070-100000@penguin.transmeta.com> <3A5B61F7.FB0E79C1@innominate.de>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 09 Jan 2001 20:29:02 +0100
+In-Reply-To: Daniel Phillips's message of "Tue, 09 Jan 2001 20:09:43 +0100"
+Message-ID: <shsvgror0ch.fsf@charged.uio.no>
+X-Mailer: Gnus v5.6.45/XEmacs 21.1 - "Channel Islands"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+>>>>> " " == Daniel Phillips <phillips@innominate.de> writes:
 
->
-> > it might not be important to others, but we do hold one particular
-> > SPECweb99 world record: on 2-way, 2 GB RAM, testing a load with a full
->
-> And its real world value is exactly the same as the mindcraft NT values. Don't
-> forget that.
+     > Linus Torvalds wrote:
+    >> (This is why I worked so hard at getting the PageDirty
+    >> semantics right in the last two months or so - and why I
+    >> released 2.4.0 when I did. Getting PageDirty right was the big
+    >> step to make all of the VM stuff possible in the first
+    >> place. Even if it probably looked a bit foolhardy to change the
+    >> semantics of "writepage()" quite radically just before 2.4 was
+    >> released).
 
-In other words, devastating.
+     > On the topic of writepage, it's not symmetric with readpage at
+     > the moment - it still takes (struct file *).  Is this in the
+     > cleanup pipeline?  It looks like nfs_readpage already ignores
+     > the struct file *, but maybe some other net filesystems are
+     > still depending on it.
 
-jjs
+NO! We definitely want to pass the struct file down to nfs_readpage()
+when it's available.
 
+Al has mentioned that he wants us to move towards a *BSD-like system
+of credentials (i.e. struct ucred) that could be used here, but that's
+in the far future. In the meantime, we cache RPC credentials in the
+struct file...
+
+Cheers,
+  Trond
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317035AbSH0TMp>; Tue, 27 Aug 2002 15:12:45 -0400
+	id <S317073AbSH0TM4>; Tue, 27 Aug 2002 15:12:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317066AbSH0TMo>; Tue, 27 Aug 2002 15:12:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58629 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317035AbSH0TMn>; Tue, 27 Aug 2002 15:12:43 -0400
-Date: Tue, 27 Aug 2002 12:22:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Hugh Dickins <hugh@veritas.com>
-cc: Dave Jones <davej@suse.de>,
-       Marc Dietrich <Marc.Dietrich@hrz.uni-giessen.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] M386 flush_one_tlb invlpg
-In-Reply-To: <Pine.LNX.4.44.0208271635050.2362-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0208271216440.1419-100000@home.transmeta.com>
+	id <S317091AbSH0TMz>; Tue, 27 Aug 2002 15:12:55 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:59265 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317073AbSH0TMy>; Tue, 27 Aug 2002 15:12:54 -0400
+Date: Tue, 27 Aug 2002 15:19:50 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "chen, xiangping" <chen_xiangping@emc.com>
+cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Is it possible to use 8K page size on a i386 pc?
+In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F550207819D@srgraham.eng.emc.com>
+Message-ID: <Pine.LNX.3.95.1020827151608.10992B-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 27 Aug 2002, chen, xiangping wrote:
 
-On Tue, 27 Aug 2002, Hugh Dickins wrote:
+> Hi,
 > 
-> I just sent the 2.4.20-pre4 asm-i386/pgtable.h patch to Marcelo:
-> here's patch against 2.5.31 or current BK: please apply.
+> I just wonder how PAGE_SIZE in determined in each architecture? Is it
+> possible to use 8k or bigger page size in a i386 PC?
+> 
+> Thanks,
+> 
+> Xiangping
 
-This test is senseless, in my opinion:
+It's hardware; "Because both the virtual pages in the linear
+address space and the physical pages of memory are aligned to
+4k page boundaries, there is no need to modify the low 12
+bits of the address. These 12 bits pass straight through the
+paging hardware, whether paging is enabled or not...."
 
-> +		if (cpu_has_pge)					\
-> +			__flush_tlb_single(addr);			\
 
-The test _should_ be for something like
-
-	if (cpu_has_invlpg)
-		__flush_tlb_single(addr);
-
-since we want to use the invlpg instruction regardless of any PGE issues 
-if it is available.
-
-There's another issue, which is the fact that I do not believe that invlpg 
-is even guaranteed to invalidate a G page at all - although obviously all 
-current CPU's seem to work that way. However, I don't see that documented 
-anywhere. It might make sense to mark the places that expect to invalidate 
-a global page explicitly, and call that function "flush_one_global_rlb()" 
-(even if it - at least for now - does the same thing as the regular single 
-invalidate).
-
-		Linus
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

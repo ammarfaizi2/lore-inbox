@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUGPRUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266605AbUGPRVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266603AbUGPRUq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jul 2004 13:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUGPRUq
+	id S266605AbUGPRVG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jul 2004 13:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263585AbUGPRVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jul 2004 13:20:46 -0400
-Received: from mail.parknet.co.jp ([210.171.160.6]:37894 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S266603AbUGPRTj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jul 2004 13:19:39 -0400
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NR_KEYS off-by-one error
-References: <87llhjlxjk.fsf@devron.myhome.or.jp>
-	<20040716164435.GA8078@ucw.cz>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Sat, 17 Jul 2004 02:18:56 +0900
-In-Reply-To: <20040716164435.GA8078@ucw.cz>
-Message-ID: <87hds7lvjz.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3.50
+	Fri, 16 Jul 2004 13:21:06 -0400
+Received: from mail.gmx.de ([213.165.64.20]:15079 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S266605AbUGPRTn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jul 2004 13:19:43 -0400
+X-Authenticated: #689055
+Message-ID: <40F41D22.5080603@gmx.de>
+Date: Tue, 13 Jul 2004 19:34:26 +0200
+From: Torsten Scheck <torsten.scheck@gmx.de>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: PIIX4 ACPI device - hardwired IRQ9
+X-Enigmail-Version: 0.83.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik <vojtech@suse.cz> writes:
+Dear friends:
 
-> On Sat, Jul 17, 2004 at 01:35:59AM +0900, OGAWA Hirofumi wrote:
-> > KDGKBENT ioctl can use 256 entries (0-255), but it was defined as
-> > key_map[NR_KEYS] (NR_KEYS == 255). The code seems also thinking it's 256.
-> > 
-> > 	key_map[0] = U(K_ALLOCATED);
-> > 	for (j = 1; j < NR_KEYS; j++)
-> > 		key_map[j] = U(K_HOLE);
-> 
-> The patch below might cause problems, though, because some apps may (in
-> old versions are) using a char variable to index up to NR_KEYS, which
-> leads to an endless loop.
+Please excuse my ignorance: Does the indicated line below have any other 
+purpose apart from making me comment it and recompile the kernel to get 
+my soundcard working? ;-)
 
-Maybe. But isn't it just bug of apps?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+kernel-source-2.4.26/arch/i386/kernel/pci-pc.c
+static void __devinit pci_fixup_piix4_acpi(struct pci_dev *d)
+         /* PIIX4 ACPI device: hardwired IRQ9 */
+  ===>   d->irq = 9;
+
+$ isapnp /etc/isapnp.conf
+/etc/isapnp.conf:167 -- Fatal - resource conflict allocating IRQ9
+(see pci)
+/etc/isapnp.conf:167 -- Fatal - Error occurred executing request
+'IRQ 9' --- further action aborted
+
+My soundcard is a Terratec EWS64 XL. I successfully use the 
+sam9407-1.0.4 driver after a proper isapnp configuration, i.e. comment 
+the hardwired IRQ9 line, compile the kernel, run isapnp.
+
+
+If there should be really no other purpose I recommend to comment the 
+line, so I can use a precompiled kernel from now on. :-)
+
+kernel-source-2.4.26/arch/i386/kernel/pci-pc.c
+static void __devinit pci_fixup_piix4_acpi(struct pci_dev *d)
+         /* PIIX4 ACPI device: hardwired IRQ9 */
+         /* d->irq = 9; */
+
+
+Or maybe there is some method to deactivate hardwired irqs with boot 
+parameters? My first experiments (without a clue about kernel internals) 
+using kernel boot parameters like 'acpi=', 'pci=irqmask=0xMMMM' failed, 
+though.
+
+
+Please CC me, if you want me to read your reply asap.
+
+All the best-
+Torsten Scheck
+
+

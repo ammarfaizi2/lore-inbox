@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284610AbRLXKet>; Mon, 24 Dec 2001 05:34:49 -0500
+	id <S284694AbRLXKyC>; Mon, 24 Dec 2001 05:54:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284612AbRLXKe3>; Mon, 24 Dec 2001 05:34:29 -0500
-Received: from thebsh.namesys.com ([212.16.0.238]:28174 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S284610AbRLXKeR>; Mon, 24 Dec 2001 05:34:17 -0500
-Message-ID: <3C270429.8010103@namesys.com>
-Date: Mon, 24 Dec 2001 13:32:09 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us
+	id <S284696AbRLXKxx>; Mon, 24 Dec 2001 05:53:53 -0500
+Received: from gecius-0.dsl.speakeasy.net ([216.254.67.146]:51190 "EHLO
+	maniac.gecius.de") by vger.kernel.org with ESMTP id <S284694AbRLXKxi>;
+	Mon, 24 Dec 2001 05:53:38 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: VIA Chipsets + USB + SMP == UGLY TRASH
+In-Reply-To: <E16IRTQ-0003oN-00@s.automatix.de>
+From: Jens Gecius <jens@gecius.de>
+Date: Mon, 24 Dec 2001 05:53:38 -0500
+In-Reply-To: <E16IRTQ-0003oN-00@s.automatix.de> (Juergen Sauer's message of
+ "Mon, 24 Dec 2001 10:32:49 +0100")
+Message-ID: <87zo48zy6l.fsf@maniac.gecius.de>
+User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Common Lisp,
+ i386-debian-linux)
 MIME-Version: 1.0
-To: bil Jeschke <theuteck@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Reaiser fs
-In-Reply-To: <20011224040036.52568.qmail@web20106.mail.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bil Jeschke wrote:
+Juergen Sauer <jojo@automatix.de> writes:
 
->Ooops, i figured out what went wrong, but if I have to
->enable the experimental drivers, of which Reiser is
->not, then why is ext3 a choice when it is labeled
->experimental and I did not enable the experimental drivers?
->
->__________________________________________________
->Do You Yahoo!?
->Send your FREE holiday greetings online!
->http://greetings.yahoo.com
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->
-ReiserFS is not labelled experimental in the SuSE kernel nowadays...... 
-  and I think SuSE is correct.  We still have bugs, you can read about 
-them on our mailing list, but hitting them is much less likely than a 
-drive failure for ReiserFS users on the whole.  2.4.17 looks like our 
-most stable version yet.  Marcello does a really nice job of quickly 
-integrating patches.
+> Hi!
+> Merry X-Mas everywhere !
 
-Hans
+Same to you.
 
+> So, my USB tryout is over. 
+> This is the expierience report:
+> You should not try to use VIA Chipsets + SMP + USB, that's
+> the worst thinkable idea. It's junk (usb-Part).
 
+Well, it's not junk, I'd say. It works fine here on my gigabyte
+dualboard. 
+
+> That's why:
+> 1. not solved USB Irq errors in APIC mode, causes:
+> 	Error -110, device does not accept ID
+> 	USB Host is recognized fine, no device is attaced
+
+I used to have problems with APIC and my network card, but that's
+over. APIC works just fine with my box (USB mouse, USB scanner).
+
+> This is an error somewhere in the Kernel APIC Irq routing, which may 
+> worked around with "append noapic pirq="your irq" but using such a
+> cutdown
+
+As I was told by Alan, it's not that "cutdown" as you would expect.
+
+-- 
+Tschoe,                http://gecius.de/gpg-key.txt - Fingerprint:
+ Jens                  1AAB 67A2 1068 77CA 6B0A  41A4 18D4 A89B 28D0 F097

@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284521AbRLRSlo>; Tue, 18 Dec 2001 13:41:44 -0500
+	id <S284766AbRLRTkF>; Tue, 18 Dec 2001 14:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284538AbRLRSkh>; Tue, 18 Dec 2001 13:40:37 -0500
-Received: from m851-mp1-cvx1c.edi.ntl.com ([62.253.15.83]:20974 "EHLO
-	pinkpanther.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S284540AbRLRSjp>; Tue, 18 Dec 2001 13:39:45 -0500
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200112181617.fBIGHJQ16815@pinkpanther.swansea.linux.org.uk>
-Subject: Re: [OT] DRM OS
-To: aaronl@vitelus.com (Aaron Lehmann)
-Date: Tue, 18 Dec 2001 16:17:19 +0000 (GMT)
-Cc: andre@linux-ide.org (Andre Hedrick),
-        jsimmons@transvirtual.com (James Simmons),
-        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
-In-Reply-To: <20011214163235.A17636@vitelus.com> from "Aaron Lehmann" at Dec 14, 2001 04:32:35 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S284857AbRLRTjG>; Tue, 18 Dec 2001 14:39:06 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:30865 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S284837AbRLRTiN>;
+	Tue, 18 Dec 2001 14:38:13 -0500
+Date: Tue, 18 Dec 2001 11:37:25 -0800 (PST)
+Message-Id: <20011218.113725.82100134.davem@redhat.com>
+To: nicoya@apia.dhs.org
+Cc: ian@ichilton.co.uk, sparclinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: 2.4.17-rc1 wont do nfs root on Javastation
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <v04003a11b84549aa834a@[24.70.162.28]>
+In-Reply-To: <20011215.220646.69411478.davem@redhat.com>
+	<20011218190621.A28147@buzz.ichilton.local>
+	<v04003a11b84549aa834a@[24.70.162.28]>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Dec 14, 2001 at 01:15:48AM -0800, Andre Hedrick wrote:
-> > CPU(crypto)<->Memory(crypto)<->Framebuffer(crypto)
-> > ata(clean)<->diskcontroller(crypto)<->Memory(crypto)<->CPU(crypto)
-> > scsi(crypto)<->diskcontroller(crypto)<->Memory(crypto)<->CPU(crypto)
-> > CPU(crypto)<->Bridge(crypto)<->Memory(crypto)
-> > 
-> > Just watch and see!
-> 
-> Why would crypto help at all?
+   From: "Tony 'Nicoya' Mantler" <nicoya@apia.dhs.org>
+   Date: Tue, 18 Dec 2001 13:32:00 -0600
+   
+   I really think it should be a compile-time option to have it default to on,
+   but I never figured out who maintains it.
 
-So you cant tap the data anywhere. 
-
-Think
-
-encrypted music fed to an encrypted audio controller to speakers which
-decrypt and add watermarks
-
-encrypted video decrypted and macrovision + watermarked only in buffers
-the CPU cant access
-
-audio input that has legally mandated watermark checks and wont record
-watermarked data.
-
-That is the dream these people have. They'd also like the OS to scan for
-"illicit" material and phone the law if you do, and to have a mandatory
-remote shutdown of your box
-
-(and if you read the MS media player license anyone who agrees to it signed
-up to that)
-
-Alan
-
+How then would you get a generic, yet NFS-ROOT capable kernel?
+Answer: you can't

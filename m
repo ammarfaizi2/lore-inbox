@@ -1,52 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265924AbUBQAEt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Feb 2004 19:04:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265941AbUBQAEt
+	id S261575AbUBQAQc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Feb 2004 19:16:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbUBQAQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Feb 2004 19:04:49 -0500
-Received: from gate.crashing.org ([63.228.1.57]:53921 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265924AbUBQAEs (ORCPT
+	Mon, 16 Feb 2004 19:16:32 -0500
+Received: from mail.tmr.com ([216.238.38.203]:6670 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261575AbUBQAQa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Feb 2004 19:04:48 -0500
-Subject: Re: 2.6.3-rc3 radeonfb: Problems with new (and old) driver
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: David Eger <eger@theboonies.us>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0402161546460.30742@home.osdl.org>
-References: <Pine.LNX.4.50L0.0402160411260.2959-100000@rosencrantz.theboonies.us>
-	 <1076904084.12300.189.camel@gaston>
-	 <Pine.LNX.4.58.0402160947080.30742@home.osdl.org>
-	 <1076968236.3648.42.camel@gaston>
-	 <Pine.LNX.4.58.0402161410430.30742@home.osdl.org>
-	 <1076969892.3649.66.camel@gaston>
-	 <Pine.LNX.4.58.0402161420390.30742@home.osdl.org>
-	 <1076972267.3649.81.camel@gaston>
-	 <Pine.LNX.4.58.0402161503490.30742@home.osdl.org>
-	 <1076974304.1046.102.camel@gaston>
-	 <Pine.LNX.4.58.0402161546460.30742@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1076976245.3648.114.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 17 Feb 2004 11:04:05 +1100
-Content-Transfer-Encoding: 7bit
+	Mon, 16 Feb 2004 19:16:30 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: [PATCH] remove obsolete onstream support from ide-tape in
+ 2.6.3-rc3
+Date: 17 Feb 2004 00:15:38 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <c0rmfa$453$1@gatekeeper.tmr.com>
+References: <20040215221108.GA4957@serve.riede.org> <20040215153214.002dcc9a.pj@sgi.com>
+X-Trace: gatekeeper.tmr.com 1076976938 4259 192.168.12.62 (17 Feb 2004 00:15:38 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Oh, there is no hurry with this. In fact, I'd rather take it slow than try 
-> to make any big changes to something that _largely_ works but has problems 
-> in some special cases.
-> 
-> In fact, I'd be happiest if the first step would be to just rename the
-> interface and change the argument infrastructure, but actually keep all
-> the behaviour "obviously the same". Bugs and all, if it comes to that. So
-> I'd rather take several small steps (and let people use it for a while in
-> between) than try to do everything. And yes, 2.6.3 is not even a target.
+In article <20040215153214.002dcc9a.pj@sgi.com>,
+Paul Jackson  <pj@sgi.com> wrote:
+| And another obsolete tape drive goes on my vintage shelf.
+| 
+| Willem - I notice off SourceForge a note:
+| 
+|   http://sourceforge.net/forum/forum.php?forum_id=333748
+| 
+|   Posted By: wriede
+|   Date: 2003-12-01 16:24
+|   Summary: osst, the Linux OnStream Tape driver now avalable on sf.net
+| 
+|   Following the unfortunate bankruptcy of OnStream, I have now completed
+|   the migration of the osst CVS repository, web site and mailing list to
+|   SourceForge.
+| 
+|   Willem Riede,
+|   osst maintainer.
+| 
+| How does this relate to your removal of onstream from 2.6?  I'm guessing
+| that you are maintaining onstream in 2.4, but not in 2.6 or beyond.  But
+| that's just a guess.
+| 
+| With onstream tape cartridges selling for (another guess - can't
+| actually _find_ any for sale anymore) at $4/Gbyte, and IDE drives at
+| under $1/Gbyte, using removable drives for backup makes more sense than
+| using onstream, anyway I can see to cut it.  And the chances of the IDE
+| interface going obsolete anytime soon seem refreshingly small.
 
-That's fine with me. 
+Of course the chances of parallel IDE controllers going obsolete are
+higher. Archival storage seems to be more and more of a problem as
+hardware improves. I'm copying the contents of my old SCSI hard drives
+to CD (they fit), my old tapes to various media, and generally getting
+stuff current, but as soon as I stop making the effort I know my ability
+to read old stuff will vanish. Try and find devices for 8 inch floppies
+or even 5-1/4, and most systems don't come with 3-1/2 any more.
 
-Ben.
+My old "standard" tapes are being backed up on new media, my records and
+old tapes to newer media, etc. We are getting close to the point where
+we have room to store everything, but can't read anything more than
+about a decade old.
 
-
+Disk drives are cheap, but sensitive to temperature, vibration, magnetic
+field, and age. The life of optical is debated, and entropy is winning
+quickly. I don't have a solution, but I'm glad there is any working
+driver for old hardware!
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

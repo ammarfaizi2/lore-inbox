@@ -1,33 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbTAaTyi>; Fri, 31 Jan 2003 14:54:38 -0500
+	id <S262089AbTAaUEQ>; Fri, 31 Jan 2003 15:04:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262089AbTAaTyi>; Fri, 31 Jan 2003 14:54:38 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:12036 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S262038AbTAaTyi>;
-	Fri, 31 Jan 2003 14:54:38 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200301312004.h0VK4fM1000219@darkstar.example.net>
-Subject: Re: [PATCH] 2.5.59 morse code panics
-To: brand@jupiter.cs.uni-dortmund.de (Horst von Brand)
-Date: Fri, 31 Jan 2003 20:04:41 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200301311952.h0VJqnuu009494@eeyore.valparaiso.cl> from "Horst von Brand" at Jan 31, 2003 08:52:49 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S262190AbTAaUEQ>; Fri, 31 Jan 2003 15:04:16 -0500
+Received: from adsl-67-120-62-187.dsl.lsan03.pacbell.net ([67.120.62.187]:49676
+	"EHLO exchange.macrolink.com") by vger.kernel.org with ESMTP
+	id <S262089AbTAaUEQ>; Fri, 31 Jan 2003 15:04:16 -0500
+Message-ID: <11E89240C407D311958800A0C9ACF7D1A33D78@EXCHANGE>
+From: Ed Vance <EdV@macrolink.com>
+To: "'Jeff Garzik'" <jgarzik@pobox.com>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+       Konrad Eisele <eiselekd@web.de>
+Subject: RE: Perl in the toolchain
+Date: Fri, 31 Jan 2003 12:13:40 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > you're just angry that I've left out your original
-> > > plain_blinking code.
-> > 
-> > Well, there are typically *three* keyboard LEDs...  Why not use one
-> > the middle one for morse, and outside two for plain blinking?
+On Fri, Jan 31, 2003 at 11:49 AM, Jeff Garzik wrote:
 > 
-> Then put out the stuff in octal...
+> On Fri, Jan 31, 2003 at 01:41:26PM -0600, Kai Germaschewski wrote:
+> > Generally, we've been trying to not make perl a prequisite 
+> > for the kernel build, and I'd like to keep it that way. 
+> > Except for some arch specific 
+> 
+> That's pretty much out the window when klibc gets merged, so perl will
+> indeed be a build requirement for all platforms...
+> 
 
-Or maybe even have a nice scrolling binary display...
-
-John.
+The solution is obvious:
+Write a perl interpreter in Python!
+of course, to avoid merely moving the problem, Python then would be
+implemented in a bash script ... 

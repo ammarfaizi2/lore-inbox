@@ -1,47 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262391AbSJVJgo>; Tue, 22 Oct 2002 05:36:44 -0400
+	id <S262374AbSJVJbP>; Tue, 22 Oct 2002 05:31:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262400AbSJVJgo>; Tue, 22 Oct 2002 05:36:44 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:2503 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S262391AbSJVJgn>;
-	Tue, 22 Oct 2002 05:36:43 -0400
-Subject: Re: [PATCH] 2.5.44: lkcd (9/9): dump driver and build files
-From: "Suparna Bhattacharya" <suparna@sparklet.in.ibm.com>
-Date: Tue, 22 Oct 2002 20:35:36 +0530
-Message-Id: <pan.2002.10.22.20.35.36.992053.2611@sparklet.in.ibm.com>
-References: <200210211016.g9LAG5J21214@nakedeye.aparity.com> <20021021172112.C14993@sgi.com>
-X-Comment-To: "Christoph Hellwig" <hch@sgi.com>
-Pan-Reverse-Path: suparna@sparklet.in.ibm.com
-Pan-Mail-To: "Christoph Hellwig" <hch@sgi.com>
-Pan-Server: ibm-ltc
-Organization: IBM
-Pan-Attribution: On Mon, 21 Oct 2002 19:43:20 +0530, Christoph Hellwig wrote:
-To: undisclosed-recipients:;
+	id <S262379AbSJVJbO>; Tue, 22 Oct 2002 05:31:14 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41224 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262374AbSJVJbN>;
+	Tue, 22 Oct 2002 05:31:13 -0400
+Message-ID: <3DB51C5A.2060102@pobox.com>
+Date: Tue, 22 Oct 2002 05:37:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Rik van Riel <riel@conectiva.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Yay, bug tracking! (was Re: Bug tracking in the run up from 2.5
+ to 2.6)
+References: <Pine.LNX.4.44L.0210212339190.22993-100000@imladris.surriel.com> 	<2614308576.1035225800@[10.10.2.3]> <1035280143.31917.17.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002 19:43:20 +0530, Christoph Hellwig wrote:
+Alan Cox wrote:
+> Bug reporting systems need maintenance or they collapse
 
+Agreed, and IBM said that they would provide people doing this... 
+otherwise I would not have been so enthusiastic :)
 
->> +
->> +	if ((dump_bio = kmalloc(sizeof(struct bio), GFP_KERNEL)) == NULL) { +
->> 	DUMP_PRINTF("Cannot allocate bio\n"); +		retval = -ENOMEM;
->> +		goto err2;
->> +	}
-> 
-> Shouldn't you use the generic bio allocator?
-> 
-
-Not sure that this should come from the bio mempool. Objects
-allocated from the mem pool are expected to be released back to
-the pool within a reasonable period (after i/o is done), which is
-not quite the case here.
-
-Dump preallocates the bio early when configured and holds on to 
-it all through the time the system is up (avoids allocs at 
-actual dump time). Doesn't seem like the right thing to hold
-on to a bio mempool element that long.
-
-Regards
-Suparna

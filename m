@@ -1,49 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbUENXDB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbUENXGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbUENXDB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:03:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263117AbUENXDB
+	id S262422AbUENXGt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 19:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUENXGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:03:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11441 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262026AbUENXC7 (ORCPT
+	Fri, 14 May 2004 19:06:49 -0400
+Received: from mail.kroah.org ([65.200.24.183]:23260 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262422AbUENXGq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:02:59 -0400
-Date: Fri, 14 May 2004 16:05:24 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "R. J. Wysocki" <rjwysocki@sisk.pl>
-Cc: ak@muc.de, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.6-mm2(-mm1,-bk1): SMP bug on dual AMD64
-Message-Id: <20040514160524.57dd9de4.akpm@osdl.org>
-In-Reply-To: <200405142328.59471.rjwysocki@sisk.pl>
-References: <200405142328.59471.rjwysocki@sisk.pl>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Fri, 14 May 2004 19:06:46 -0400
+Date: Fri, 14 May 2004 16:06:10 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Driver Core patches for 2.6.6
+Message-ID: <20040514230610.GA17907@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"R. J. Wysocki" <rjwysocki@sisk.pl> wrote:
->
-> I've just compiled the 2.6.6-mm2 kernel (with gcc-3.4) and tried to run it.  
-> Well, it generally works, but there seems to be an SMP bug that may be 
-> triggered with the help of a USB storage device (please see the attached 
-> log).  The device works fine in spite of it, though.
-> 
-> This bug seems to be present in the 2.6.6-mm1 and 2.6.6-bk1, but it is not 
-> present in the 2.6.6, apparently.
-> 
-> My system is a dual Opteron and I use an add-on USB 2.0 card based on the NEC 
-> chipset (the .config is attached).
+Hi,
 
-The WARN_ON() backtrace is unrelated to USB - it is due to SCSI calling
-vmalloc/vfree with interrupts disabled.  People are working on that.
+Here are lots of fun changes related to the driver core and sysfs for
+2.6.6.  They include adding the module param info to sysfs, more
+class_simple changes, a smbios driver, and some sysfs bug fixes.
 
-As for this:
+All of these patches have been in the -mm tree for a number of releases.
 
-May 14 23:57:09 chimera kernel: usb usb2: string descriptor 0 read error: -108
-May 14 23:57:09 chimera last message repeated 2 times
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/driver-2.6
 
-It has been reported before and I assume people are working it, but it
-would be nice to have confirmation of that...
+thanks,
+
+greg k-h
+
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
+
+ drivers/base/bus.c           |   32 +++-
+ drivers/base/class.c         |    6 
+ drivers/base/map.c           |    7 
+ drivers/base/platform.c      |    5 
+ drivers/base/sys.c           |    5 
+ drivers/block/paride/pg.c    |   48 +++++-
+ drivers/block/paride/pt.c    |   54 ++++++-
+ drivers/char/ip2main.c       |   44 +++++-
+ drivers/char/ppdev.c         |   45 +++++-
+ drivers/char/tipar.c         |   49 +++++-
+ drivers/firmware/Kconfig     |   16 ++
+ drivers/firmware/Makefile    |    1 
+ drivers/firmware/smbios.c    |  310 ++++++++++++++++++++++++++++++++++++++-----
+ drivers/firmware/smbios.h    |   53 +++++++
+ drivers/macintosh/adb.c      |   19 +-
+ drivers/misc/Kconfig         |    8 -
+ drivers/misc/ibmasm/module.c |    7 
+ drivers/net/wan/cosa.c       |   41 ++++-
+ fs/sysfs/bin.c               |    2 
+ fs/sysfs/dir.c               |   19 +-
+ fs/sysfs/file.c              |    2 
+ fs/sysfs/sysfs.h             |   13 +
+ include/linux/device.h       |    2 
+ include/linux/kobject.h      |    2 
+ include/linux/module.h       |   25 +++
+ include/linux/moduleparam.h  |    4 
+ include/linux/sysfs.h        |    2 
+ kernel/module.c              |  194 ++++++++++++++++++++++++--
+ kernel/params.c              |    2 
+ lib/kobject.c                |   10 -
+ net/core/dev.c               |   18 +-
+ 31 files changed, 917 insertions(+), 128 deletions(-)
+-----
+
+<kenn:linux.ie>:
+  o Re: Platform device matching
+
+Daniele Bellucci:
+  o missing audit in bus_register()
+
+Greg Kroah-Hartman:
+  o Module attributes: fix build error if CONFIG_MODULE_UNLOAD=n
+  o Add modules to sysfs
+  o Driver core: handle error if we run out of memory in kmap code
+  o My cleanups to the smbios driver
+
+Hanna V. Linder:
+  o Add class support to drivers/net/wan/cosa.c
+  o add class support to drivers/char/tipar.c
+  o add class support to drivers/block/paride/pt.c
+  o add class support to drivers/block/paride/pg.c
+  o Add class support to drivers/char/ip2main.c
+
+James Bottomley:
+  o fix dev_printk to work even in the absence of an attached driver
+
+Maneesh Soni:
+  o sysfs_rename_dir-cleanup
+  o kobject/sysfs race fix
+  o kobject_set_name - error handling
+
+Marcel Sebek:
+  o Class support for ppdev.c
+
+Max Asbock:
+  o add ibmasm driver warning message
+
+Michael E. Brown:
+  o add SMBIOS tables to sysfs -- UPDATED
+
+Olaf Hering:
+  o add simple class for adb
+

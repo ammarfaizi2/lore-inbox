@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbUDYAzY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbUDYBQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbUDYAzY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 24 Apr 2004 20:55:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUDYAzY
+	id S262007AbUDYBQw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 24 Apr 2004 21:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbUDYBQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 24 Apr 2004 20:55:24 -0400
-Received: from phoenix.infradead.org ([213.86.99.234]:34570 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262008AbUDYAzX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 24 Apr 2004 20:55:23 -0400
-Date: Sun, 25 Apr 2004 01:55:15 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Alex Stewart <alex@foogod.com>
-cc: linux-fbdev-devel@lists.sourceforge.net, <geert@linux-m68k.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] neofb patches
-In-Reply-To: <60004.64.139.3.221.1082827760.squirrel@www.foogod.com>
-Message-ID: <Pine.LNX.4.44.0404250138120.15965-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 24 Apr 2004 21:16:52 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:60876 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S262007AbUDYBQv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 24 Apr 2004 21:16:51 -0400
+Date: Sun, 25 Apr 2004 03:16:47 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: kraxel@bytesex.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove __NO_VERSION__ from cx88
+Message-ID: <20040425011647.GC895@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+__NO_VERSION__ is useless since ages, but there are two new occurences 
+in drivers/media/video/cx88/ in 2.6.5.
 
-> Umm, I would really appreciate it if you didn't silently leave out bits of
-> my patches and then just say "I merged your patches".  It took me a little
-> bit to figure out that the reason panning now isn't used for fbconsole
-> scrolls is because you just didn't bother to put that part of my patch in.
-> 
-> Is there some reason you left out the following piece of my modedb patch?
-> 
-> +       /* Turn on panning for console scroll by default */
-> +       info->var.yres_virtual = 30000;
-> +       info->var.accel_flags |= FB_ACCELF_TEXT;
-> +       if (neofb_check_var(&info->var, info))
-> +               goto err_map_video;
+The patch below removes them.
 
-   The reason is because fb_find_mode calls check_var for us. No reason to 
-call it twice. The large yres_virtual being 30000 that is not needed any 
-longer. The accel flag is set in neofb_check_var. The current test is
+Please apply
+Adrian
 
-if (var->bits_per_pixel >= 24 || !par->neo2200)
-	var->accel_flags &= ~FB_ACCEL_TEXT;
-
-Should we drop the bpp >= 24 test? Do you observe this problem at all 
-depths.
-
-
-
-
-
-
+--- linux-2.6.6-rc2-mm1-full/drivers/media/video/cx88/cx88-i2c.c.old	2004-04-25 03:12:09.000000000 +0200
++++ linux-2.6.6-rc2-mm1-full/drivers/media/video/cx88/cx88-i2c.c	2004-04-25 03:12:32.000000000 +0200
+@@ -22,8 +22,6 @@
+     
+ */
+ 
+-#define __NO_VERSION__ 1
+-
+ #include <linux/module.h>
+ #include <linux/init.h>
+ 
+--- linux-2.6.6-rc2-mm1-full/drivers/media/video/cx88/cx88-video.c.old	2004-04-25 03:12:52.000000000 +0200
++++ linux-2.6.6-rc2-mm1-full/drivers/media/video/cx88/cx88-video.c	2004-04-25 03:13:00.000000000 +0200
+@@ -19,8 +19,6 @@
+  *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+ 
+-#define __NO_VERSION__ 1
+-
+ #include <linux/init.h>
+ #include <linux/list.h>
+ #include <linux/module.h>

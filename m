@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbREYU7g>; Fri, 25 May 2001 16:59:36 -0400
+	id <S261857AbREYVAF>; Fri, 25 May 2001 17:00:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261868AbREYU7Z>; Fri, 25 May 2001 16:59:25 -0400
-Received: from mailgw.prontomail.com ([216.163.180.10]:63947 "EHLO
-	c0mailgw12.prontomail.com") by vger.kernel.org with ESMTP
-	id <S261857AbREYU7R>; Fri, 25 May 2001 16:59:17 -0400
-Message-ID: <3B0EC786.D7B65706@mvista.com>
-Date: Fri, 25 May 2001 13:58:46 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.72 [en] (X11; I; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: sebastien person <sebastien.person@sycomore.fr>
-CC: liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: Re: [timer] max timeout
-In-Reply-To: <20010523162801.38dabdff.sebastien.person@sycomore.fr>
+	id <S261868AbREYU7q>; Fri, 25 May 2001 16:59:46 -0400
+Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:46119
+	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
+	id <S261857AbREYU7k>; Fri, 25 May 2001 16:59:40 -0400
+Date: Fri, 25 May 2001 22:59:34 +0200
+From: Rasmus Andersen <rasmus@jaquet.dk>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add missing spin_unlock_irq to ide.c (244ac16)
+Message-ID: <20010525225934.K851@jaquet.dk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sebastien person wrote:
-> 
-> Hi,
-> 
-> is there a max timeout to respect when I use mod_timer ? or add_timer ?
-> 
-> Is it bad to do the following call ?
-> 
->         mod_timer(&timer, jiffies+(0.1*HZ));
-> 
-> that might fire the timer 1/10 second later.
-> 
-> Thanks.
-> 
-More than enough on the fp.  Now the other question.  
+(I forgot to cc l-k on this one when it went to andre.)
 
-The time value is in jiffies (aka 1/Hz sec.).  The max value (in a 32
-bit system) is 0x7ffffff.  This value is added to the current value of
-jiffies to get the the absolute timer expire time.  While the value is
-unsigned (and thus you could go higher) the compare code (timer_before()
-and timer_after()) depend on the subtraction (of jiffies from expire) to
-be of the correct sign.  To insure this you must keep the timeout values
-sign clear (or if you don't like to think of an unsigned as having a
-sign, then the highest order bit must be zero).
+Hi.
 
-George
+This patch adds a spin_unlock_irqsave to ide_spin_wait_hwgroup as
+reported by the Stanford team way back. It applies against 244ac16.
+
+
+--- linux-244-ac16-clean/drivers/ide/ide.c	Fri May 25 21:11:08 2001
++++ linux-244-ac16/drivers/ide/ide.c	Fri May 25 22:46:43 2001
+@@ -2362,6 +2362,8 @@
+ 		__restore_flags(lflags);	/* local CPU only */
+ 		spin_lock_irq(&io_request_lock);
+ 	}
++
++        spin_unlock_irq(&io_request_lock);
+ 	return 0;
+ }
+ 
+-- 
+        Rasmus(rasmus@jaquet.dk)
+

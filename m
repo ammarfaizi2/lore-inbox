@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261429AbVCMTOT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVCMTRv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261429AbVCMTOT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Mar 2005 14:14:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVCMTOS
+	id S261424AbVCMTRv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 14:17:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVCMTRv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Mar 2005 14:14:18 -0500
-Received: from cavan.codon.org.uk ([213.162.118.85]:14570 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261429AbVCMTOA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Mar 2005 14:14:00 -0500
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Date: Sun, 13 Mar 2005 19:14:01 +0000
-Message-Id: <1110741241.8136.46.camel@tyrosine>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-X-SA-Exim-Connect-IP: 213.162.118.93
-X-SA-Exim-Mail-From: mjg59@srcf.ucam.org
-Subject: IDE failure on ACPI resume
-Content-Type: text/plain
+	Sun, 13 Mar 2005 14:17:51 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:37279 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261424AbVCMTRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 14:17:48 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: 2.6.11: keyboard stopped working after memory upgrade
+Date: Sun, 13 Mar 2005 20:20:36 +0100
+User-Agent: KMail/1.7.1
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <200503121421.03983.rjw@sisk.pl> <20050313183635.GD1427@elf.ucw.cz>
+In-Reply-To: <20050313183635.GD1427@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
-X-SA-Exim-Scanned: Yes (on cavan.codon.org.uk)
+Content-Disposition: inline
+Message-Id: <200503132020.36968.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On resume, an HP nc6220 fails during resuming of the IDE devices. In
-this section of code from ide-iops.c:
+Hi,
 
-                stat = hwif->INB(hwif->io_ports[IDE_STATUS_OFFSET]);
-                if ((stat & BUSY_STAT) == 0)
-                        return 0;
-                /*
-                 * Assume a value of 0xff means nothing is connected to
-                 * the interface and it doesn't implement the pull-down
-                 * resistor on D7.
-                 */
-                if (stat == 0xff)
-                        return -ENODEV;
+On Sunday, 13 of March 2005 19:36, Pavel Machek wrote:
+> Hi!
+> 
+> > I'm just having a weird problem with 2.6.11.  Namely, the keyboard stopped
+> > working after I'd added more RAM to the box (Asus L5D notebok, x86-64
+> > kernel).  It works on 2.6.11-mm1.
+> 
+> Custom DSDT? DSDTs are known to depend on ammount of memory...
 
-0xff is read and ENODEV returned. This results in
+Yes, but the very same DSDT works fine on 2.6.11-mm[13].  Just for the record. :-)
 
-hda: bus not ready on wakeup
-hda: drive not ready on wakeup
+Rafael
 
-and then the machine sits there until some later command times out. It
-seems that reading anything off the IDE bus just results in 0xff being
-read.
-
-The IDE controller is an Intel ICH6. Another HP laptop with an identical
-chipset works fine, which makes me suspicious of the BIOS. Is the fact
-that Linux doesn't seem to run the GTF, STM or GTM methods likely to be
-relevant here?
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

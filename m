@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263279AbTGAX4E (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 19:56:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263428AbTGAX4E
+	id S263638AbTGAXzl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 19:55:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbTGAXzl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 19:56:04 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:32986 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263279AbTGAX4B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 19:56:01 -0400
-Date: Tue, 01 Jul 2003 17:03:23 -0700 (PDT)
-Message-Id: <20030701.170323.59686965.davem@redhat.com>
-To: ak@suse.de
-Cc: James.Bottomley@steeleye.com, axboe@suse.de, grundler@parisc-linux.org,
-       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
-       alex_williamson@hp.com, bjorn_helgaas@hp.com
-Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode II
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030702015701.6007ac26.ak@suse.de>
-References: <1057077975.2135.54.camel@mulgrave>
-	<20030702015701.6007ac26.ak@suse.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 1 Jul 2003 19:55:41 -0400
+Received: from web40607.mail.yahoo.com ([66.218.78.144]:7245 "HELO
+	web40607.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S263638AbTGAXzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 19:55:40 -0400
+Message-ID: <20030702001001.28996.qmail@web40607.mail.yahoo.com>
+Date: Tue, 1 Jul 2003 17:10:01 -0700 (PDT)
+From: Muthian Sivathanu <muthian_s@yahoo.com>
+Subject: scheduling with spinlocks held ?
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Andi Kleen <ak@suse.de>
-   Date: Wed, 2 Jul 2003 01:57:01 +0200
-   
-   The K8 IOMMU cannot support this virtually contiguous thing. The reason
-   is that there is no guarantee that an entry in a sglist is a multiple
-   of page size. And the aperture can only map 4K sized chunks, like 
-   a CPU MMU. So e.g. when you have an sglist with multiple 1K entries there is 
-What do you mean?  You map only one 4K chunk, and this is used
-for all the sub-1K mappings.
+Hi,
 
-I can only map 8K sized chunks on the sparc64 IOMMU and this
-works perfectly fine.
+Is it safe to assume that the kernel will not preempt
+a process when its holding a spinlock ?  I know most
+parts of the code make sure they dont yield the cpu
+when they are holding spinlocks, but I was just
+curious if there is any place that does that.
+
+Basically, the context is, I need to change the
+scheduler a bit to implement "perfect nice -19"
+semantics, i.e. give cpu to nice 19 process only if no
+other normal process is ready to run.  I am wondering
+if there is a possibility of priority inversion if the
+nice-d process happens to yield the cpu and then never
+get scheduled because a normal process is spinning on
+the lock.
+
+thanks for any input,
+Muthian.
+
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

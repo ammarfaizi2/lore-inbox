@@ -1,49 +1,46 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317520AbSFICcH>; Sat, 8 Jun 2002 22:32:07 -0400
+	id <S317536AbSFICn4>; Sat, 8 Jun 2002 22:43:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317536AbSFICcG>; Sat, 8 Jun 2002 22:32:06 -0400
-Received: from smtp.cogeco.net ([216.221.81.25]:54210 "EHLO fep6.cogeco.net")
-	by vger.kernel.org with ESMTP id <S317520AbSFICcG>;
-	Sat, 8 Jun 2002 22:32:06 -0400
-Subject: Re: ip_nat_irc & 2.4.18
-From: "Nix N. Nix" <nix@go-nix.ca>
-To: "Nix N. Nix" <nix@go-nix.ca>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1023530798.29159.2.camel@tux>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 08 Jun 2002 22:32:06 -0400
-Message-Id: <1023589926.8435.1.camel@tux>
+	id <S317544AbSFICnz>; Sat, 8 Jun 2002 22:43:55 -0400
+Received: from mail.gmx.de ([213.165.64.20]:38360 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S317536AbSFICny>;
+	Sat, 8 Jun 2002 22:43:54 -0400
+Date: Sun, 9 Jun 2002 05:42:20 +0300
+From: Dan Aloni <da-x@gmx.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Brian Gerst <bgerst@didntduck.org>,
+        Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] More list_del_init cleanups
+Message-ID: <20020609024220.GA9581@callisto.yi.org>
+In-Reply-To: <20020608024030.GA18037@callisto.yi.org> <Pine.LNX.4.44.0206081628390.11630-100000@home.transmeta.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-06-08 at 06:06, Nix N. Nix wrote:
-> Does ip_nat_irc not work with 2.4.18 ?  All my old fserves have stopped
-> working.  If I try logging in from the outside (for, say, a DCC file
-> xfer), I get "Connection Refused" in the client.  I believe it ran fine
-> with 2.4.17.  What's wrong ?
+On Sat, Jun 08, 2002 at 04:30:22PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Sat, 8 Jun 2002, Dan Aloni wrote:
+> >
+> > If we are at it, how about replacing:
+> >
+> > 	list_del(&entry->list);
+> > 	list_add(&entry->list, dispose);
+> >
+> > with something like:
+> >
+> > 	list_del_add(&entry->list, dispose);
+> 
+> Ehh.. Am I the only one who thinks "move()" would make more sense than
+> "del_add()"?
 
-I figured it out:
+I was going to suggest list_move(), but then I thought about being 
+consistent with the func1_func2 convention as in list_del_init().
 
-ip_nat_irc.o doesn't track connection going to ports other than 6667. 
-So, if, initially, you connect to, say, twisted.ma.us.dal.net:6668, then
-ip_nat_irc doesn't track your connection. :o(
-
-> 
-> 
-> 
-> Please help.
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
-
+-- 
+Dan Aloni
+da-x@gmx.net

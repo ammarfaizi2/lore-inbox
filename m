@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbUJYN1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbUJYN3p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbUJYN1M (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 09:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbUJYNZ4
+	id S261812AbUJYN3p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 09:29:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261801AbUJYN1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 09:25:56 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:38557 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261800AbUJYNZG (ORCPT
+	Mon, 25 Oct 2004 09:27:47 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:16063 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261800AbUJYN0G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 09:25:06 -0400
+	Mon, 25 Oct 2004 09:26:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=FBXNMZep6bWeD5m7a6dzvqk9L1hd5knYds8Bkf2cclF82045WI0FojjsA5aWhlTWT4dAemdJ/LpIUF3jMcyCGYk2PorxUXFOt756T963McKXhK/Rpbsw3K2FLcbNjjozmBKD8+zUzhZAZlrGoTQvPyb5vw0paatXTray7Mz2KA0=
+Message-ID: <58cb370e041025062658d28930@mail.gmail.com>
 Date: Mon, 25 Oct 2004 15:26:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
-Message-ID: <20041025132605.GA9516@elte.hu>
-References: <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <20041025104023.GA1960@elte.hu> <417CDE90.6040201@cybsft.com> <20041025111046.GA3630@elte.hu> <20041025121210.GA6555@elte.hu> <20041025152458.3e62120a@mango.fruits.de>
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Masakazu Iwamura <masa@cs.osakafu-u.ac.jp>
+Subject: Re: Second SATA disk is not recognized in kernel 2.6.x
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20041025.192404.59463574.masa@cs.osakafu-u.ac.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041025152458.3e62120a@mango.fruits.de>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20041024.021758.130228080.masa@cs.osakafu-u.ac.jp>
+	 <20041025.192404.59463574.masa@cs.osakafu-u.ac.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Florian Schmidt <mista.tapas@gmx.net> wrote:
-
-> hi, i saw these during boot (config and complete dmesg attached):
+On Mon, 25 Oct 2004 19:24:04 +0900 (JST), Masakazu Iwamura
+<masa@cs.osakafu-u.ac.jp> wrote:
+> > I have a trouble which relates to serial ATA (libata). In summary, my
+> > PC boots in kernel 2.4.27 with two SATA disks normally. But, in kernel
+> > 2.6.x (I tested 2.6.8.1, 2.6.9), it boots with only one disk. The
+> > second disk is not available. Are there any good idea to resolve this
+> > problem?
+> >
+> > Actually, my PC has three SATA disks. One of them includes linux
+> > system (the boot disk). The others construct a RAID by use of a
+> > hardware RAID system "ARAID99 2000". So, BIOS recognizes there are two
+> > disks. The RAID system includes my home directory only. The chipset of
+> > the motherboard is ICH5R.
+> >
+> > In kernel 2.4.27, the first disk is recognized as /dev/hde and the
+> > second one is as /dev/hdg. In kernel 2.6.x, the first disk is
+> > recognized as /dev/sda. But, /dev/sdb does not appear (/dev/hdg is
+> > also).
 > 
-> Freeing unused kernel memory: 348k freed
-> Adding 289160k swap on /dev/hda3.  Priority:-1 extents:1
-> EXT3 FS on hdc1, internal journal
-> IRQ#8 thread RT prio: 45.
-> BUG: sleeping function called from invalid context modprobe(116) at kernel/mutex.c:28
-> in_atomic():1 [00000001], irqs_disabled():1
->  [<c0117182>] __might_sleep+0xc2/0xe0 (12)
->  [<c0134989>] resolve_symbol+0xb9/0xc0 (24)
->  [<c01309f8>] _mutex_lock+0x38/0x50 (12)
->  [<c0144995>] kmem_cache_alloc+0x45/0x100 (24)
->  [<c0134989>] resolve_symbol+0xb9/0xc0 (8)
+> I also tested 2.6.10-rc1-bk2, 2.6.9-mm1 and 2.6.9-ac4 with almost the
+> same configuration in 2.6.9.
+> 
+> 2.6.10-rc1-bk2 and 2.6.9-mm1 had the same problem as in 2.6.9.
+> 
+> In 2.6.9-ac4, the PC did not boot because of an error:
+> atkbd.c: Spurious ACK on isa 0060/serio0. Some program, like XFree86,
+> might be trying access hardware directly.
+> 
+> I do not know the reason. I attached dmesg outputs in 2.4.27 and
+> 2.6.10-rc1-bk2 after booting, and kernel configuration in
+> 2.6.10-rc1-bk2.
+> Could you please help me?
 
-does the patch below fix this?
+In 2.4.27 you are using IDE driver (not libata) for your SATA disks.
 
-	Ingo
+libata has problems with handling hw RAID connected to the second
+SATA port (?), for now you can revert to using IDE driver, just disable
+CONFIG_SCSI_SATA and enable CONFIG_BLK_DEV_IDE_SATA.
 
---- linux/kernel/module.c.orig
-+++ linux/kernel/module.c
-@@ -53,7 +53,7 @@
- #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
- 
- /* Protects module list */
--static DECLARE_RAW_SPINLOCK(modlist_lock);
-+static DECLARE_SPINLOCK(modlist_lock);
- 
- /* List of modules, protected by module_mutex AND modlist_lock */
- static DECLARE_MUTEX(module_mutex);
+Bartlomiej

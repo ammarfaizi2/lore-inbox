@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbTKZSUO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 13:20:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbTKZSUO
+	id S264264AbTKZSNi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 13:13:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbTKZSNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 13:20:14 -0500
-Received: from modemcable067.88-70-69.mc.videotron.ca ([69.70.88.67]:59266
-	"EHLO montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S264231AbTKZSUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 13:20:10 -0500
-Date: Wed, 26 Nov 2003 13:18:48 -0500 (EST)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Vince <fuzzy77@free.fr>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-Subject: Re: [kernel panic @ reboot] 2.6.0-test10-mm1
-In-Reply-To: <3FC4E8C8.4070902@free.fr>
-Message-ID: <Pine.LNX.4.58.0311261305020.1683@montezuma.fsmlabs.com>
-References: <3FC4DA17.4000608@free.fr> <Pine.LNX.4.58.0311261213510.1683@montezuma.fsmlabs.com>
- <3FC4E42A.40906@free.fr> <Pine.LNX.4.58.0311261240210.1683@montezuma.fsmlabs.com>
- <3FC4E8C8.4070902@free.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 26 Nov 2003 13:13:38 -0500
+Received: from tweedy.ksc.nasa.gov ([128.217.76.165]:18627 "EHLO
+	tweedy.ksc.nasa.gov") by vger.kernel.org with ESMTP id S264264AbTKZSNh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Nov 2003 13:13:37 -0500
+Subject: Re: kernel 2.4-22 won't compile...
+From: Bob Chiodini <robert.chiodini-1@ksc.nasa.gov>
+To: rgx <rgx@gmx.de>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200311261749.12545.rgx@gmx.de>
+References: <200311261734.23177.rgx@gmx.de>
+	 <1069865010.9694.120.camel@tweedy.ksc.nasa.gov>
+	 <200311261749.12545.rgx@gmx.de>
+Content-Type: text/plain
+Message-Id: <1069870412.25657.6.camel@tweedy.ksc.nasa.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 26 Nov 2003 13:13:32 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Nov 2003, Vince wrote:
+On Wed, 2003-11-26 at 11:49, rgx wrote:
+> > Did you 'make oldconfig'?
+> 
+> Yes, sure :) The NLS_DEFAULT... is not defined for some reason... 
+> I could replace it with the needed content in the source code if I knew its 
+> format...
 
-> > *groan* do you have a PDA?
-> >
->
-> Nope. I could probably borrow a laptop to a friend but am not excited at
-> the idea of having to setup some serial console thing (I do not even
-> have a serial cable). Dump to floppy/swap/disk would be much easier in
-> my case... if it could me made to work, of course ;-)
 
-Those oopses looked rather spurious, i'm not sure what help those other
-methods would be here. Try applying the following patch and be sure to
-have access to the console. You may have to hand transcribe...
+Sorry, had to ask.
 
-Index: linux-2.6.0-test10-mm1-bochs/arch/i386/kernel/traps.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.6.0-test10-mm1/arch/i386/kernel/traps.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 traps.c
---- linux-2.6.0-test10-mm1-bochs/arch/i386/kernel/traps.c	26 Nov 2003 05:28:50 -0000	1.1.1.1
-+++ linux-2.6.0-test10-mm1-bochs/arch/i386/kernel/traps.c	26 Nov 2003 18:17:37 -0000
-@@ -329,6 +329,10 @@ void die(const char * str, struct pt_reg
- 	if (in_interrupt())
- 		panic("Fatal exception in interrupt");
+My 2.4.20 .config defines:
 
-+	local_irq_disable();
-+	while (1)
-+		__asm__ __volatile__("hlt");
-+
- 	if (panic_on_oops) {
- 		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
- 		set_current_state(TASK_UNINTERRUPTIBLE);
+CONFIG_NLS_DEFAULT="iso8859-1"
+
+
+
+
+

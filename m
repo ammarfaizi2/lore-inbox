@@ -1,66 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129674AbQJ0Q3x>; Fri, 27 Oct 2000 12:29:53 -0400
+	id <S129958AbQJ0QzM>; Fri, 27 Oct 2000 12:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129747AbQJ0Q3n>; Fri, 27 Oct 2000 12:29:43 -0400
-Received: from al-pt12.sonet.pt ([195.8.11.90]:6404 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S129674AbQJ0Q3X>; Fri, 27 Oct 2000 12:29:23 -0400
-Date: Fri, 27 Oct 2000 17:22:01 +0100 (WEST)
-From: Rui Sousa <rsousa@grad.physics.sunysb.edu>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Blocked processes <=> Elevator starvation?
-In-Reply-To: <Pine.LNX.4.21.0010080105520.22898-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0010271658500.1295-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129998AbQJ0QzC>; Fri, 27 Oct 2000 12:55:02 -0400
+Received: from vger.timpanogas.org ([207.109.151.240]:26886 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S129958AbQJ0Qyt>; Fri, 27 Oct 2000 12:54:49 -0400
+Date: Fri, 27 Oct 2000 10:51:09 -0600
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Jonathan Hudson <jonathan@daria.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: pcmcia in test10pre6
+Message-ID: <20001027105109.B5628@vger.timpanogas.org>
+In-Reply-To: <648.39f967c2.1f52d@trespassersw.daria.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <648.39f967c2.1f52d@trespassersw.daria.co.uk>; from jonathan@daria.co.uk on Fri, Oct 27, 2000 at 11:32:18AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 8 Oct 2000, Rik van Riel wrote:
-
-> On Sun, 8 Oct 2000, Rui Sousa wrote:
+On Fri, Oct 27, 2000 at 11:32:18AM +0000, Jonathan Hudson wrote:
 > 
-> > After starting 2 processes that scan a lot of files (diff, find,
-> > slocate, ...) it's impossible to run any other processes that
-> > touch the disk, they will stall until one of the first two stop.
-> > Could this be a sign of starvation in the elevator code?
+> Previously working in test10pre*, now gives many unresolved symbols:
 > 
-> It could well be. I've seen this problem too and don't
-> really have another explanation for this phenomenon.
 > 
-> OTOH, maybe there is another reason for it that hasn't
-> been found yet ;)
-> 
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_free
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_disable
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_read_memory
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_config
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_close_memory
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_register_mtd
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol read_tuple
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_check_erase_queue
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_release_cis_mem
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol find_io_region
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol write_cis_mem
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_write_memory
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol undo_irq
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_request_irq
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_parse_tuple
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_release
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol release_resource_db
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_alloc
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_first_region/lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol release_cis_mem
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol try_irq
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_adjust_resource_info
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_next_region
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol cb_enable
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_copy_memory
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_tuple_data
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol verify_cis_cache
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_deregister_erase_queue
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_register_erase_queue
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_first_tuple
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol MTDHelperEntry
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol read_cis_mem
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_get_next_tuple
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_replace_cis
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_open_memory
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol pcmcia_validate_cis
+> /lib/modules/2.4.0-test10/pcmcia/cs.o: unresolved symbol find_mem_region
 
-I finally had time to give this a better look. It now seems the problem
-is in the VM system.
+Grab the pcmcia off sourceforge.  It seems to build and work.  The stuff 
+in 2.4 at present is still somewhat broken.  I worked on this until 2:00
+last night getting it to build with 2.4.  Thanks to Alan for pointing
+me to a package that actually works and will build on 2.4.  
 
-I patched a test10-pre4 kernel with kdb, then started two "diff -ur
-linux-2.4.0testX linux-2.4.0testY > log1" and two "find / -true >
-log". After this I tried cat"ing" a small file. The cat never 
-returned. At this point I entered kdb and did a stack trace on the "cat"
-process:
+:-)
 
-schedule()
-___wait_on_page()
-do_generic_file_read()
-generic_file_read()
-sys_read()
-system_call()
+Jeff
 
-So it seems the process is either in a loop in ___wait_on_page()
-racing for the PageLock or it never wakes-up... (I guess I could add a
-printk to check which)
-Unfortunately I didn't find anything obviously wrong with the code.
-I hope you can do a better job tracking the problem down.
-
-As a reminder:
-i686, UP, 64Mb RAM, IDE disks, ext2.
-
-Rui Sousa
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,60 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265104AbUFGWyB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265103AbUFGWzx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265104AbUFGWyB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 18:54:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265103AbUFGWyB
+	id S265103AbUFGWzx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 18:55:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265109AbUFGWzx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 18:54:01 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:20904 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265104AbUFGWxt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 18:53:49 -0400
-Date: Mon, 7 Jun 2004 23:53:47 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: BlaisorBlade <blaisorblade_spam@yahoo.it>, Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Missing BKL in sys_chroot() for 2.6
-Message-ID: <20040607225347.GK12308@parcelfarce.linux.theplanet.co.uk>
-References: <200406061958.48262.blaisorblade_spam@yahoo.it> <Pine.LNX.4.58.0406071150560.1637@ppc970.osdl.org>
+	Mon, 7 Jun 2004 18:55:53 -0400
+Received: from ozlabs.org ([203.10.76.45]:43655 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S265103AbUFGWzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 18:55:44 -0400
+Date: Tue, 8 Jun 2004 08:51:15 +1000
+From: Anton Blanchard <anton@samba.org>
+To: B.Zolnierkiewicz@elka.pw.edu.pl
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix PCI hotplug of promise IDE cards
+Message-ID: <20040607225115.GC7412@krispykreme>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0406071150560.1637@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 07, 2004 at 11:56:37AM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Sun, 6 Jun 2004, BlaisorBlade wrote:
-> >
-> > (PLEASE cc me on replies as I'm not subscribed).
-> > 
-> > Set_fs_root *claims* it wants the BKL held:
-> 
-> I think the set_fs_root() comment is just wrong.
-> 
-> We properly lock the accesses to root/rootmnt with "fs->lock", and in fact 
-> no other users will have the BKL when accessing them anyway, so I don't 
-> see what the BKL would help in this case.
-> 
-> However, from a quick grep of users, it does look like some other users 
-> aren't real careful with "fs->lock" (ie chroot_fs_refs() looks like it 
-> could have problems - probably purely theoretical).
-> 
-> Al, do your eagle-eyes see something I missed?
 
-chroot_fs_refs() is OK - it's a part of pivot_root(2) and it's just as
-"if process looks like the have root and/or cwd in old root, we assume
-they want to have those flipped to new one; if they are not, assume
-that they know what they are doing and wouldn't like us to pull anything
-on them".  IOW, here we don't really care.
+Hi,
 
-selinux open_devnull(), OTOH, is bogus - they already have an fs of their
-own that is not going away; so why not put the damn device node on it and
-be done with that?
+It looks like no one has tried hotplugging Promise IDE cards :)
 
-In any case, BKL is irrelevant - that comment should've been dropped a long
-time ago.
+Anton
+
+--
+
+Change some __init functions in the pdc202xx driver to be __devinit, they
+are used when hotpluging.
+
+Signed-off-by: Anton Blanchard <anton@samba.org>
+
+
+diff -puN drivers/ide/pci/pdc202xx_new.c~fix_promise_hotplug drivers/ide/pci/pdc202xx_new.c
+--- gr_work/drivers/ide/pci/pdc202xx_new.c~fix_promise_hotplug	2004-06-07 02:44:59.180717024 -0500
++++ gr_work-anton/drivers/ide/pci/pdc202xx_new.c	2004-06-07 02:46:04.067307100 -0500
+@@ -404,7 +404,7 @@ static void __devinit apple_kiwi_init(st
+ }
+ #endif /* CONFIG_PPC_PMAC */
+ 
+-static unsigned int __init init_chipset_pdcnew (struct pci_dev *dev, const char *name)
++static unsigned int __devinit init_chipset_pdcnew (struct pci_dev *dev, const char *name)
+ {
+ 	if (dev->resource[PCI_ROM_RESOURCE].start) {
+ 		pci_write_config_dword(dev, PCI_ROM_ADDRESS,
+@@ -429,7 +429,7 @@ static unsigned int __init init_chipset_
+ 	return dev->irq;
+ }
+ 
+-static void __init init_hwif_pdc202new (ide_hwif_t *hwif)
++static void __devinit init_hwif_pdc202new (ide_hwif_t *hwif)
+ {
+ 	hwif->autodma = 0;
+ 
+@@ -457,12 +457,12 @@ static void __init init_hwif_pdc202new (
+ #endif /* PDC202_DEBUG_CABLE */
+ }
+ 
+-static void __init init_setup_pdcnew (struct pci_dev *dev, ide_pci_device_t *d)
++static void __devinit init_setup_pdcnew (struct pci_dev *dev, ide_pci_device_t *d)
+ {
+ 	ide_setup_pci_device(dev, d);
+ }
+ 
+-static void __init init_setup_pdc20270 (struct pci_dev *dev, ide_pci_device_t *d)
++static void __devinit init_setup_pdc20270 (struct pci_dev *dev, ide_pci_device_t *d)
+ {
+ 	struct pci_dev *findev = NULL;
+ 
+@@ -488,7 +488,7 @@ static void __init init_setup_pdc20270 (
+ 	ide_setup_pci_device(dev, d);
+ }
+ 
+-static void __init init_setup_pdc20276 (struct pci_dev *dev, ide_pci_device_t *d)
++static void __devinit init_setup_pdc20276 (struct pci_dev *dev, ide_pci_device_t *d)
+ {
+ 	if ((dev->bus->self) &&
+ 	    (dev->bus->self->vendor == PCI_VENDOR_ID_INTEL) &&
+
+_

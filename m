@@ -1,57 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272449AbRIFLOT>; Thu, 6 Sep 2001 07:14:19 -0400
+	id <S272454AbRIFLSs>; Thu, 6 Sep 2001 07:18:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272450AbRIFLOJ>; Thu, 6 Sep 2001 07:14:09 -0400
-Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:32782 "EHLO
-	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
-	id <S272449AbRIFLOA>; Thu, 6 Sep 2001 07:14:00 -0400
-Date: Thu, 6 Sep 2001 16:44:59 +0530 (IST)
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: kernelnewbies <kernelnewbies@nl.linux.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Reg failures while installing kdb patch
-Message-ID: <Pine.LNX.4.10.10109061640150.21382-100000@blrmail>
+	id <S272451AbRIFLSj>; Thu, 6 Sep 2001 07:18:39 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:7697 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S272450AbRIFLS0>;
+	Thu, 6 Sep 2001 07:18:26 -0400
+Date: Thu, 6 Sep 2001 08:18:40 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: page_launder() on 2.4.9/10 issue
+In-Reply-To: <20010904215449.S699@athlon.random>
+Message-ID: <Pine.LNX.4.33L.0109060817370.31200-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I was trying to install kdb patch to my 2.2.14-12 kernel
-(kdb_v0.6-2.2.13)and it
-successfully completed the patching operation but had the following error
-messages.
+On Tue, 4 Sep 2001, Andrea Arcangeli wrote:
+> On Tue, Sep 04, 2001 at 01:54:27PM -0400, Jan Harkes wrote:
+> > Now for the past _9_ stable kernel releases, page aging hasn't worked
+> > at all!! Nobody seems to even have bothered to check. I send in a patch
+>
+> All I can say is that I hope you will get your problem fixed with one
+> of the next -aa, I incidentally started working on it yesterday.
 
-[root@juhie linux]# patch -p1 < /home/dssp/kdb_v0.6-2.2.13 patching file
-`Documentation/Configure.help' Hunk #1 succeeded at 10309 with fuzz 2
-(offset 358 lines). patching file `Documentation/kdb/kdb.mm' patching file
-`Documentation/kdb/kdb_bp.man' patching file
-`Documentation/kdb/kdb_bt.man' patching file
-`Documentation/kdb/kdb_env.man' patching file
-`Documentation/kdb/kdb_ll.man' patching file
-`Documentation/kdb/kdb_md.man' patching file
-`Documentation/kdb/kdb_rd.man' patching file
-`Documentation/kdb/kdb_ss.man' patching file `Makefile' Reversed (or
-previously applied) patch detected!  Assume -R? [n] Apply anyway? [n]
-Skipping patch. 5 out of 5 hunks ignored -- saving rejects to Makefile.rej
-patching file `arch/i386/Makefile' patching file
-`arch/i386/boot/compressed/misc.c' Hunk #1 FAILED at 104. 1 out of 1 hunk
-FAILED -- saving rejects to arch/i386/boot/compressed/misc.c.rej patching
-file `arch/i386/config.in' Hunk #1 succeeded at 209 (offset 6 lines).
-patching file `arch/i386/kdb/Makefile' patching file
-`arch/i386/kdb/dis-asm.h'
-.
-.
-.
+You too? ;)
 
+> So far it's a one thousand diff very far from compiling, so it will
+> grow further, but it shouldn't take too long to finish the rewrite.
+> Once finished the benchmarks and the reproducible 2.4 deadlocks will
+> tell me if I'm right.
 
+Of course, we could try to work together on this one, since
+we both seem to be starved for time ...
 
-What are the reasons for the failure? This is the first time I am
-applying a patch. Please tell me if just compiling the kernel sources and
-booting the machine from the new kernel will have the kdb enabled.
+cheers,
 
-Thanks in advance,
-Warm regards,
-sathish.j
+Rik
+-- 
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

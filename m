@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269679AbUHZV3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269691AbUHZV3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269679AbUHZV3R (ORCPT <rfc822;willy@w.ods.org>);
+	id S269691AbUHZV3R (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 26 Aug 2004 17:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269690AbUHZV1Q
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269679AbUHZV1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 17:27:16 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:50393 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S269697AbUHZVXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 17:23:08 -0400
-Message-Id: <200408262122.i7QLMwH4000966@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: Kees Cook <kees@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Patch] TIOCCONS security 
-In-Reply-To: Your message of "Wed, 25 Aug 2004 14:03:41 PDT."
-             <pan.2004.08.25.21.03.41.684647@osdl.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <20040825151106.GA21687@suse.de> <20040825161504.A8896@infradead.org> <20040825161630.B8896@infradead.org> <20040825161837.GB21687@suse.de>
-            <pan.2004.08.25.21.03.41.684647@osdl.org>
+	Thu, 26 Aug 2004 17:27:42 -0400
+Received: from mail.shareable.org ([81.29.64.88]:16327 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S269680AbUHZVVE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 17:21:04 -0400
+Date: Thu, 26 Aug 2004 22:19:18 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Christophe Saout <christophe@saout.de>, Rik van Riel <riel@redhat.com>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Christer Weinigel <christer@weinigel.se>, Spam <spam@tnonline.net>,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040826211918.GF5733@mail.shareable.org>
+References: <Pine.LNX.4.44.0408261152340.27909-100000@chimarrao.boston.redhat.com> <1093536282.5482.6.camel@leto.cs.pocnet.net> <Pine.LNX.4.60.0408261348370.27825@dlang.diginsite.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1637107237P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Thu, 26 Aug 2004 17:22:58 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.60.0408261348370.27825@dlang.diginsite.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1637107237P
-Content-Type: text/plain; charset=us-ascii
+David Lang wrote:
+> I also don't see why the VFS/Filesystem can't decide that (for example) 
+> this tar.gz is so active that instead of storing it as a tar.gz and 
+> providing a virtual directory of the contents that it instead stores the 
+> directory of the contents and makes the tar.gz virtual (regenerating it as 
+> needed or as extra system resources are available)
 
-On Wed, 25 Aug 2004 14:03:41 PDT, Kees Cook said:
+Absolutely.  It could keep both views, if they're both actively being
+used.  Or more than both, if there are more.  (You could think of
+compression being an alternate view, and both compressed and
+uncompressed may as well remain on disk if there's space and it's
+being actively accessed.
 
-> Confirmed.  If you run the following code as a regular user, you can see
-> messages.  (BTW: don't do a "tail -f /dev/console".  For reasons I don't
-> understand, it writes endless CRs to which ever tty you happen to have
-> open):
+> implementation wise I see headaches in doing this, but conceptually this 
+> is just an optimization that could take place in the future if we fine 
+> that it's needed.
 
-It's probably a bananana problem.  The tail -f writes something, which ends in
-a \n.  Then the tail -f reads the last thing written, which was a \n, and
-writes it out, and..... 
+untarring a big source tree takes ages.  I wouldn't like to do it
+after every reboot, if there was a .tar.bz2 tree I looked at often.
+That's why I have things like glibc untarred in my home directory.
 
+With good cacheing, I could cd into the .tar.bz2 files and
+_effectively_ have the performance of untarred source trees for the
+ones I look at often on my disk -- automatically cleaned if the space
+if needed for something else, too.  It would be quite nice.
 
---==_Exmh_-1637107237P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBLlSxcC3lWbTT17ARAuqhAJ43sVdhJ+yaDOSqamcuaw1KF5BkYACeOsje
-QP5/ls+FZzkSsBT6tipPecU=
-=xxWh
------END PGP SIGNATURE-----
-
---==_Exmh_-1637107237P--
+-- Jamie

@@ -1,27 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312927AbSDLDBu>; Thu, 11 Apr 2002 23:01:50 -0400
+	id <S313322AbSDLDT1>; Thu, 11 Apr 2002 23:19:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313322AbSDLDBt>; Thu, 11 Apr 2002 23:01:49 -0400
-Received: from f69.pav2.hotmail.com ([64.4.37.69]:5647 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S312927AbSDLDBs>;
-	Thu, 11 Apr 2002 23:01:48 -0400
-X-Originating-IP: [152.3.50.179]
-From: "Bai Ao" <aobai@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Compaq Presario 700 Sound Fix (Patch)
-Date: Fri, 12 Apr 2002 03:01:43 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F69ygXLsxpTljBOh8s400003bbc@hotmail.com>
-X-OriginalArrivalTime: 12 Apr 2002 03:01:43.0403 (UTC) FILETIME=[600C83B0:01C1E1CE]
+	id <S313325AbSDLDT0>; Thu, 11 Apr 2002 23:19:26 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:24593 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S313322AbSDLDT0>; Thu, 11 Apr 2002 23:19:26 -0400
+Date: Thu, 11 Apr 2002 23:15:16 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de, andrea@suse.de
+Subject: Re: [patch 2.5.8] bounce/swap stats
+In-Reply-To: <Pine.LNX.4.33L2.0204111807070.28475-400000@dragon.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.21.0204112314290.16284-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch works perfectly on my Compaq Presario 700US laptop.
-Thanks for your great work!
 
-_________________________________________________________________
-Join the world’s largest e-mail service with MSN Hotmail. 
-http://www.hotmail.com
+
+On Thu, 11 Apr 2002, Randy.Dunlap wrote:
+
+> I'll generate the patch for 2.4.teens + highmem if anyone
+> is interested in it, or after highmem is merged into 2.4.
+> ...it will be added to 2.4, right?
+
+highmem IO will be merged in 2.4.20pre1.
 

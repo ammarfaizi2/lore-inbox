@@ -1,72 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262270AbTEOHMD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 03:12:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTEOHMC
+	id S262362AbTEOHIa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 03:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262363AbTEOHIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 03:12:02 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:34193 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262270AbTEOHMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 03:12:01 -0400
-Date: Thu, 15 May 2003 09:24:25 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Yoav Weiss <ml-lkml@unpatched.org>
-Cc: Ahmed Masud <masud@googgun.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: encrypted swap [was: The disappearing sys_call_table export.]
-Message-ID: <20030515072425.GA7638@wohnheim.fh-wedel.de>
-References: <20030514162323.GB16093@wohnheim.fh-wedel.de> <Pine.LNX.4.44.0305142152500.12748-100000@marcellos.corky.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0305142152500.12748-100000@marcellos.corky.net>
-User-Agent: Mutt/1.3.28i
+	Thu, 15 May 2003 03:08:30 -0400
+Received: from warrior.services.quay.plus.net ([212.159.14.227]:54660 "HELO
+	warrior.services.quay.plus.net") by vger.kernel.org with SMTP
+	id S262362AbTEOHI3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 03:08:29 -0400
+From: "Riley Williams" <Riley@Williams.Name>
+To: "Anders Karlsson" <anders@trudheim.com>,
+       "Clemens Schwaighofer" <cs@tequila.co.jp>
+Cc: "LKML" <linux-kernel@vger.kernel.org>
+Subject: RE: Two RAID1 mirrors are faster than three
+Date: Thu, 15 May 2003 08:21:16 +0100
+Message-ID: <BKEGKPICNAKILKJKMHCACEECDAAA.Riley@Williams.Name>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+Importance: Normal
+In-Reply-To: <1052716203.4100.10.camel@tor.trudheim.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 May 2003 21:59:47 +0300, Yoav Weiss wrote:
-> On Wed, 14 May 2003, Jörn Engel wrote:
-> > On Wed, 14 May 2003 12:13:03 -0400, Ahmed Masud wrote:
-> > >
-> > > The idea is to have encryption keys for the pages to be unique on a
-> > > per-uid per-process basis. So one user on the system cannot access (even
-> > > if they are root) parts of another's private data.  To achieve this,
-> > > different parts of swap device need to be encrypted with different keys.
-> >
-> > How do user *know* that root cannot simply bypass this security?
-> >
-> > Root, god, what's the difference? ;-)
-> 
-> Aside from what Ahmed said about about rootless systems, the per-process
-> encryption reduces the window of opportunity for attackers who gain root
-> (or physical access).
-> 
-> Try strings(1) on your swap device.  You'll be surprised at what you find.
-> You'll probably recognize passwords you haven't useds for a long time, and
-> a lot of other stuff you didn't expect.  Sometimes you can find whole ssh
-> sessions there, plaintext.  (think xterm scroll buffer).
-> 
-> With per-process encryption, even if root decides to read the swap at some
-> point (evil admin or an attacker who 0wn3d the box), the leakage is
-> limited to processes currently running.
+Hi Anders.
 
-s/currently running/running now or in the future/
+ >> Why three drives in a Raid1? Raid one is just mirror, or is the
+ >> third drive like a "hot" replace drive if one of the others fail?
 
-But apart from that, it does really reduce the window, agreed.
+ > With normal mirroring (one original, one copy) you do have the
+ > redundancy and the speed boost at reads, but at mirroring with one
+ > original and two copies (I know AIX does this), you get in to a
+ > scenario that is quite handy. Say you run a large database in a
+ > 24/7 operation. You want to back the database up, but you can only
+ > get 5-10 minutes downtime on it. You then quiesce the database,
+ > split off the second copy from the mirror, mount that as a
+ > separate file system and back that up while the original with its
+ > first copy has already stepped back into full use.
+ >
+ > Once you finished your backup, you add your split-off copy back to
+ > the original and primary copy and you are back where you started.
 
-An alternative approach would simply zero all freed memory in the
-system, with almost identical effects. Almost means you are missing
-memory (that isn't cleared on reboot on all systems, ...) and this is
-missing hard disk recovery that can read data already overwritten.
+Does this cause any problems, with the third disc now being out of
+date compared to the first two?
 
-Arguments against this simpler approach?
+Best wishes from Riley.
+---
+ * Nothing as pretty as a smile, nothing as ugly as a frown.
 
-Jörn
+---
+Outgoing mail is certified Virus Free.
+Checked by AVG anti-virus system (http://www.grisoft.com).
+Version: 6.0.481 / Virus Database: 277 - Release Date: 13-May-2003
 
--- 
-Rules of Optimization:
-Rule 1: Don't do it.
-Rule 2 (for experts only): Don't do it yet.
--- M.A. Jackson 

@@ -1,56 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279141AbRJ0KUG>; Sat, 27 Oct 2001 06:20:06 -0400
+	id <S279801AbRJ0KYt>; Sat, 27 Oct 2001 06:24:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279802AbRJ0KT4>; Sat, 27 Oct 2001 06:19:56 -0400
-Received: from mlist.austria.eu.net ([193.81.83.3]:39569 "EHLO
-	hausmasta.austria.eu.net") by vger.kernel.org with ESMTP
-	id <S279801AbRJ0KTn>; Sat, 27 Oct 2001 06:19:43 -0400
-Message-ID: <3BDA8A5E.503EDD28@eunet.at>
-Date: Sat, 27 Oct 2001 12:20:14 +0200
-From: Michael Reinelt <reinelt@eunet.at>
-Organization: netWorks
-X-Mailer: Mozilla 4.77 [de] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: en
+	id <S279802AbRJ0KYg>; Sat, 27 Oct 2001 06:24:36 -0400
+Received: from cmb1-3.dial-up.arnes.si ([194.249.32.3]:2691 "EHLO
+	cmb1-3.dial-up.arnes.si") by vger.kernel.org with ESMTP
+	id <S279801AbRJ0KYS>; Sat, 27 Oct 2001 06:24:18 -0400
+From: Igor Mozetic <igor.mozetic@uni-mb.si>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: strange hangs with kernel 2.4.12 (and 13)
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-AntiVirus: OK (checked by AntiVir Version 6.10.0.20)
+Message-ID: <15322.35696.749452.802414@cmb1-3.dial-up.arnes.si>
+Date: Sat, 27 Oct 2001 12:24:48 +0200
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Any stable 2.4 kernel?
+In-Reply-To: <Pine.LNX.4.33L.0110270755550.32445-100000@imladris.surriel.com>
+In-Reply-To: <15322.33513.293148.371409@cmb1-3.dial-up.arnes.si>
+	<Pine.LNX.4.33L.0110270755550.32445-100000@imladris.surriel.com>
+X-Mailer: VM 6.96 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
 
-I've got some strange problems here, since 2.4.12 (2.4.10 was ok, I
-never tried .11)
+ > Alternatively, get hardware for which documentation is
+ > available.
 
-The System boots fine, I can login on a text console, but when I log out
-again, the system partly gets unusable. The load rises, and the text
-console where I logout hangs. 
+Good point. So, which (SMP, highmem) hardware is well documented 
+and supported? LPD/Hardware-HOWTO/motherboards is pretty empty ...
 
-I've got seveal processes hanging in "D" state, especially devfsd. I
-think something with devfs and/or devfsd is broken here. If I kill
-devfsd before, the problem does not arise (but I need devfsd :-)
-
-Now, It gets even more strange: The problem does only exist if I
-deactivate ACPI! I tried with a ACPI enabled kernel with the command
-line "acpi=off", I tried on a machine which is too old for ACPI, and I
-even compiled a kernel without ACPI at all. Everywhere the same problem.
-When I boot with activated ACPI, there's no problem.
-
-I don't understand what's happening here. I tried to debug a bit, but
-couldn't find something sense- or useful. 
-
-
-Any hints? If someone could tell me what I should try or which debug
-info could be useful, please let me know!
-
-TIA, Michael
-
--- 
-netWorks                                          Vox: +43 316  698260
-Michael Reinelt                                   Fax: +43 316  692343
-Geisslergasse 4                                   GSM: +43 676 3079941
-A-8045 Graz, Austria                          e-mail: reinelt@eunet.at
+-Igor Mozetic

@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263436AbTJBRj3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Oct 2003 13:39:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263439AbTJBRj3
+	id S263430AbTJBRcn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Oct 2003 13:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263408AbTJBRcn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Oct 2003 13:39:29 -0400
-Received: from cpc3-hitc2-5-0-cust152.lutn.cable.ntl.com ([81.99.82.152]:43400
-	"EHLO zog.reactivated.net") by vger.kernel.org with ESMTP
-	id S263436AbTJBRj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Oct 2003 13:39:27 -0400
-Message-ID: <3F7C62F2.4040401@reactivated.net>
-Date: Thu, 02 Oct 2003 18:40:02 +0100
-From: Daniel Drake <dan@reactivated.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030905 Thunderbird/0.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] (2.6.0-test6) Trivial: linux-via mailinglist
-Content-Type: multipart/mixed;
- boundary="------------000609010905050000040301"
+	Thu, 2 Oct 2003 13:32:43 -0400
+Received: from h1ab.lcom.net ([216.51.237.171]:38784 "EHLO digitasaru.net")
+	by vger.kernel.org with ESMTP id S263430AbTJBRbh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Oct 2003 13:31:37 -0400
+Date: Thu, 2 Oct 2003 12:31:31 -0500
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: linux-kernel@vger.kernel.org
+Subject: Problems with PCMCIA and CardBus in 2.6.0-test6
+Message-ID: <20031002173130.GA3536@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000609010905050000040301
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Hello.
 
-Hi,
+I'm having problems with 2.6.0-test6-mm1 (actually, since 2.6.0-testx, iirc)
+Essentially, pcmcia does not work at all.  IIRC, ds loads, but nothing
+  else, and starting pcmcia manager does not work at all.  Furthermore, if
+  I try to manually insert the yenta socket, my aironet card locks up
+  (the Activity light lights up solid) and not even Magic SysRq keys work.
+  The yenta socket is what I've been using for quite a while in the 2.4
+  series.  
+Some important details:
+  chip is 00:04.0 CardBus bridge: Texas Instruments PCI1225 (rev 01)
+          Subsystem: Toshiba America Info Systems: Unknown device 0001
+  yenta_socket is built as a module.
+Anyone know of more testing I could do to figure out the problem?  I'm
+  rebuilding 2.6 with yenta_socket builtin, instead of as a module.
 
-In the MAINTAINERS file, there is an address for a mailing list under the "VIA 82Cxxx AUDIO DRIVER" heading.
-I tried sending a mail there, and it got bounced back (user unknown).
-
-I found an archive of this list on MARC, but as you can see it hasn't been active for about a year:
-http://marc.theaimsgroup.com/?l=linux-via&r=1&w=2
-
-Looks like that list is gone. Here's a patch to remove it from MAINTAINERS.
-
-Daniel.
-
---------------000609010905050000040301
-Content-Type: text/plain;
- name="trivial-via-list.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="trivial-via-list.patch"
-
---- linux-2.6.0-test6/MAINTAINERS	2003-09-28 11:34:13.000000000 +0100
-+++ linux/MAINTAINERS	2003-10-02 18:33:23.970907088 +0100
-@@ -2201,7 +2201,6 @@
- 
- VIA 82Cxxx AUDIO DRIVER
- P:	Jeff Garzik
--L:	linux-via@gtf.org
- S:	Odd fixes
- 
- VIA RHINE NETWORK DRIVER
-
---------------000609010905050000040301--
-
+-Joseph
+-- 
+Joseph===============================================trelane@digitasaru.net
+"Asked by CollabNet CTO Brian Behlendorf whether Microsoft will enforce its
+ patents against open source projects, Mundie replied, 'Yes, absolutely.'
+ An audience member pointed out that many open source projects aren't
+ funded and so can't afford legal representation to rival Microsoft's. 'Oh
+ well,' said Mundie. 'Get your money, and let's go to court.' 
+Microsoft's patents only defensive? http://swpat.ffii.org/players/microsoft

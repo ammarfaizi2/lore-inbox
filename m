@@ -1,104 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261894AbSLUQij>; Sat, 21 Dec 2002 11:38:39 -0500
+	id <S262023AbSLURKV>; Sat, 21 Dec 2002 12:10:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262208AbSLUQii>; Sat, 21 Dec 2002 11:38:38 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:4342 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S261894AbSLUQih>;
-	Sat, 21 Dec 2002 11:38:37 -0500
-Message-ID: <3E049AD4.AD99572C@mvista.com>
-Date: Sat, 21 Dec 2002 08:46:12 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Bjorn Helgaas <bjorn_helgaas@hp.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
+	id <S262067AbSLURKV>; Sat, 21 Dec 2002 12:10:21 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:8430 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262023AbSLURKT>;
+	Sat, 21 Dec 2002 12:10:19 -0500
+Date: Sat, 21 Dec 2002 17:18:08 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Ulrich Drepper <drepper@redhat.com>, bart@etpmod.phys.tue.nl,
+       davej@codemonkey.org.uk, hpa@transmeta.com, terje.eggestad@scali.com,
+       matti.aarnio@zmailer.org, hugh@veritas.com, mingo@elte.hu,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] joydev: fix HZ->millisecond transformation
-References: <200212161227.38764.bjorn_helgaas@hp.com> <3E02F3EE.C1367073@mvista.com> <20021220142443.A26184@ucw.cz> <3E03526A.2AA4B685@mvista.com> <20021220183544.A26785@ucw.cz> <3E035E7B.D3B60845@mvista.com> <20021221101851.A29004@ucw.cz>
+Subject: Re: Intel P6 vs P7 system call performance
+Message-ID: <20021221171808.GA23577@bjl1.asuk.net>
+References: <20021220233825.GA22232@bjl1.asuk.net> <Pine.LNX.4.44.0212201557230.2812-100000@home.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0212201557230.2812-100000@home.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
-> 
-> On Fri, Dec 20, 2002 at 10:16:27AM -0800, george anzinger wrote:
-> > Vojtech Pavlik wrote:
-> > >
-> > > On Fri, Dec 20, 2002 at 09:24:58AM -0800, george anzinger wrote:
-> > > > Vojtech Pavlik wrote:
-> > > > >
-> > > > > On Fri, Dec 20, 2002 at 02:41:50AM -0800, george anzinger wrote:
-> > > > > > Bjorn Helgaas wrote:
-> > > > > > >
-> > > > > > > * fix a problem with HZ->millisecond transformation on
-> > > > > > >   non-x86 archs (from 2.5 change by vojtech@suse.cz)
-> > > > > > >
-> > > > > > > Applies to 2.4.20.
-> > > > > > >
-> > > > > > > diff -Nru a/drivers/input/joydev.c b/drivers/input/joydev.c
-> > > > > > > --- a/drivers/input/joydev.c    Mon Dec 16 12:16:32 2002
-> > > > > > > +++ b/drivers/input/joydev.c    Mon Dec 16 12:16:32 2002
-> > > > > > > @@ -50,6 +50,8 @@
-> > > > > > >  #define JOYDEV_MINORS          32
-> > > > > > >  #define JOYDEV_BUFFER_SIZE     64
-> > > > > > >
-> > > > > > > +#define MSECS(t)       (1000 * ((t) / HZ) + 1000 * ((t) % HZ) / HZ)
-> > > > > > Uh...
-> > > > > > ^^^^^^^^^^^^^^^^
-> > > > > > by definition this is zero, is it not?
-> > > > >
-> > > > > No, both parts of the equaition can be nonzero.
-> > > >
-> > > > I don't think so.  s%HZ has to be less than HZ.  Then
-> > > > dividing that by HZ should result in zero.  Where is my
-> > > > thinking flawed?
-> > >
-> > > You first multiply it by 1000.
-> >
-> > But then it should read: (1000 * (t)) % HZ) / HZ
-> 
-> The expression is evaluated from left to right. No need for parentheses
-> here.
-> 
-> > But this is still zero.  There is no way that ((X % HZ) /
-> > HZ) is other than zero, me thinks.
-> 
-> Example:
-> 
-> HZ = 100
-> t = 70
-> 
-> 1000 * (t % HZ) / HZ = 1000 * 70 / 100 = 700 != 0
-> 
-> Anyway (x % HZ) / HZ must be zero, but that's something different.
+Linus Torvalds wrote:
+> Yes, you can make the "clobbers %eax/%edx/%ecx" argument, but the fact is,
+> we quite fundamentally need to save %edx/%ecx _anyway_.
 
-OK, I miss read the "("s.  :(
+On the kernel side, yes.  In the userspace trampoline, it's not required.
+
+> but once we start using sysexit for the signal handler return path too, we
+> will need to restore %edx and %ecx too, otherwise our restarted system
+> call will have crap in the registers. I already wrote the code, but
+> decided that as long as we don't do that kind of restarting, we shouldn't
+> have the overhead in the trampoline. But basically the trampoline then
+> will become
 > 
-> > > > > Though it might be easier to say (1000 * t) / HZ, now that I think about
-> > > > > it.
-> > > >
-> > > > That overflows...  As does the other if HZ is less than 1000....
-> > >
-> > > You're right, t can be all 32 bits.
-> >
-> > What, exactly, is this code trying to do?  It looks like the
-> > number is being passed to user space...
+> 	system_call_trampoline:
+> 		pushfl
+> 		pushl %ecx
+> 		pushl %edx
+> 		pushl %ebp
+> 		movl %esp,%ebp
+> 		syscall
+> 	0:
+> 		movl %esp,%ebp
+> 		movl 4(%ebp),%edx
+> 		movl 8(%ebp),%ecx
+> 		syscall
 > 
-> It's trying to convert jiffies to microseconds from computer start (or
-> any other arbitrary point in time), thus making the value independent of
-> HZ.
+> 	restart:
+> 		jmp 0b
+> 	sysenter_return_point:
+> 		popl %ebp
+> 		popl %edx
+> 		popl %ecx
+> 		popfl
+> 		ret
+
+> see? So you _have_ to really save the arguments anyway, because you cannot
+> do a sysexit-based system call restart otherwise. And once you save them,
+> you might as well restore them too.
 > 
-This is possible, but in general it can not be kept in one
-32-bit word.  I don't know what it is used for or if the
-format can be changed, but the struct timeval comes to mind.
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+> And since you have to restore them for system call restart anyway, you
+> might as well just make it part of the calling convention.
+>
+> Yes, I'm thinking ahead. Sue me.
+
+You're optimising the _rare_ case.
+
+The correct [;)] trampoline looks like this:
+
+ 	system_call_trampoline:
+ 		pushl %ebp
+		movl %esp,%ebp
+ 		sysenter
+ 	sysenter_return_point:
+		popl %ebp
+ 		ret
+ 	sysenter_restart:
+		popl %edx
+		popl %ecx
+		movl %esp,%ebp
+ 		sysenter
+
+This is accompanied by changing this line in arch/i386/kernel/signal.c:
+
+	regs->eip -= 2;
+
+To this (best moved to an inline function):
+
+	if (likely (regs->eip == sysenter_return_point)) {
+		unsigned long * esp = (unsigned long *) regs->esp - 8;
+		if (!access_ok(VERIFY_WRITE, esp, 8)
+		    || __put_user(regs->edx, esp)
+		    || __put_user(regs->ecx, esp+4)) {
+			if (sig == SIGSEGV)
+				ka->sa.sa_handler = SIG_DFL;
+			force_sig(SIGSEGV, current);
+		}
+		regs->esp = (long) esp;
+		regs->eip = sysenter_restart;
+	} else {
+		regs->eip -= 2;
+	}
+
+Thus the common case, system calls, are optimised.  The uncommon case,
+signal interrupts system call, is penalised, though it's not a large
+penalty.  (Much less than the gain from using sysexit!)  Which is more
+common?
+
+By the way, this works with the AMD syscall instruction too.
+Then the trampoline is:
+
+	system_call_trampoline:
+		pushl %ebp
+		movl %ecx,%ebp
+		syscall
+	syscall_return_point:
+		popl %ebp
+		ret
+	syscall_restart:
+		popl %edx
+		popl %ebp
+		syscall
+
+Finally, there is no need to restore %ebp in the kernel sysexit/sysret
+paths, because it will always be restored in the trampoline.  So you
+save 1 memory access there too.
+
+(ps. I have a question: why does your trampoline save & restore
+the flags?)
+
+-- Jamie

@@ -1,47 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269711AbUJGFuc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267291AbUJGFxo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269711AbUJGFuc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 01:50:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269714AbUJGFub
+	id S267291AbUJGFxo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 01:53:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269710AbUJGFxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 01:50:31 -0400
-Received: from pumpkin.explorerforum.com ([209.209.36.42]:50130 "EHLO
-	pumpkin.explorerforum.com") by vger.kernel.org with ESMTP
-	id S269711AbUJGFqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 01:46:43 -0400
-Message-ID: <4164D81F.9090808@lbl.gov>
-Date: Wed, 06 Oct 2004 22:46:07 -0700
-From: Thomas Davis <tadavis@lbl.gov>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
-       netdev@oss.sgi.com, Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Corey Thomas <corey@world.std.com>
-Subject: Re: Raylink/WebGear testing - ray_cs.c iomem bug?
-References: <Pine.LNX.4.58.0410061032410.8290@ppc970.osdl.org> <41644492.1000400@pobox.com> <41646AD5.1070800@lbl.gov>
-In-Reply-To: <41646AD5.1070800@lbl.gov>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.3.9 (pumpkin.explorerforum.com [209.209.36.42]); Wed, 06 Oct 2004 22:59:48 -0700 (PDT)
+	Thu, 7 Oct 2004 01:53:44 -0400
+Received: from havoc.gtf.org ([69.28.190.101]:21679 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S267291AbUJGFxi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 01:53:38 -0400
+Date: Thu, 7 Oct 2004 01:49:09 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: alan <alan@clueserver.org>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why no linux-2.6.8.2? (was Re: new dev model)
+Message-ID: <20041007054909.GA23561@havoc.gtf.org>
+References: <200410070134_MC3-1-8BA9-A215@compuserve.com> <Pine.LNX.4.44.0410062145530.26294-100000@www.fnordora.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0410062145530.26294-100000@www.fnordora.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Davis wrote:
-> Jeff Garzik wrote:
+On Wed, Oct 06, 2004 at 09:46:46PM -0700, alan wrote:
+> On Thu, 7 Oct 2004, Chuck Ebbert wrote:
 > 
->> I'm not aware of anyone with ray_cs hardware, alas...
->>
+> > Why has linux 2.6.8 been abandoned at version 2.6.8.1?
+> > 
+> > There exist fixes that could go into 2.6.8.2:
+> > 
+> >         process start time doesn't match system time
+> >         FDDI frame doesn't allow 802.3 hwtype
+> >         NFS server using XFS filesystem on SMP machine oopses
+> > 
+> > I'm sure there are more...
+> > 
+> > So why is 2.6.8.1 a "dead branch?"
 > 
-> I do believe I still have two of these squirreled away someplace..  Let 
-> me check and see later tonight.
+> It was an emergency "paperbag" release number.
 > 
+> All paperbag releases are made from dead branches.
 
-Got two of them.  I can do a plug test, but I only one pcmcia slot to play with them.
 
-If anyone wants them, email me an address and I'll ship them to you.
+Thanks to BitKeeper no properly-tagged branch is ever dead.
 
-Also, what version of linux kernel is this patch against?  2.6.9-rc3?
+Anyone could make a 2.6.8.2 if they so chose.
 
-thomas
+	Jeff
+
+
+

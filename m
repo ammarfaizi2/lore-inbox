@@ -1,56 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbTIGG3f (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 02:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262452AbTIGG3f
+	id S262278AbTIGGmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 02:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbTIGGmI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 02:29:35 -0400
-Received: from static-ctb-210-9-247-166.webone.com.au ([210.9.247.166]:44294
-	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
-	id S262245AbTIGG3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 02:29:33 -0400
-Message-ID: <3F5AD03E.5070506@cyberone.com.au>
-Date: Sun, 07 Sep 2003 16:29:18 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
+	Sun, 7 Sep 2003 02:42:08 -0400
+Received: from dukat.upl.cs.wisc.edu ([128.105.45.39]:61641 "EHLO
+	dukat.upl.cs.wisc.edu") by vger.kernel.org with ESMTP
+	id S262449AbTIGGmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Sep 2003 02:42:06 -0400
+Date: Sun, 7 Sep 2003 01:42:04 -0500
+From: Mitchell Blank Jr <mitch@sfgoth.com>
 To: Andrew Morton <akpm@osdl.org>
-CC: rml@tech9.net, jyau_kernel_dev@hotmail.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
-References: <000101c374a3$2d2f9450$f40a0a0a@Aria>	<1062878664.3754.12.camel@boobies.awol.org>	<3F5ABD3A.7060709@cyberone.com.au> <20030906231856.6282cd44.akpm@osdl.org>
-In-Reply-To: <20030906231856.6282cd44.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] oops_in_progress is unlikely()
+Message-ID: <20030907064204.GA31968@sfgoth.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew - thanks for applying my last patch; thought you might be interested
+in this trivial one too.  Patch is versus 2.6.0-test4-bk8, I expect it
+will also apply against current -mm.
 
+-Mitch
 
-Andrew Morton wrote:
-
->Nick Piggin <piggin@cyberone.com.au> wrote:
->
->>So it is quite sad that the scheduler in 2.6 is
->> sitting there doing nothing but waiting to be obsoleted, while Con's
->> good (and begnin) scheduler patches are waiting around and getting
->> less than 1% of the testing they need.
->>
->
->My concern is the (large) performance regression with specjbb and
->volanomark, due to increased idle time.
->
->We cannot just jam all this code into Linus's tree while crossing our
->fingers and hoping that something will turn up to fix this problem. 
->Because we don't know what causes it, nor whether we even _can_ fix it.
->
->So this is the problem which everyone who is working on the CPU scheduler
->should be concentrating on, please.
->
-
-IIRC my (equivalent to Andrew's CAN_MIGRATE) patch fixed this. There was 
-still a small (~8%?) performance regression, but idle times were on par 
-with -linus. I don't have easy access to a largeish NUMA box, so I
-can't do much more.
-
-
+diff -urN -X dontdiff linux-2.6.0-test4bk8-VIRGIN/drivers/char/vt.c linux-2.6.0-test4bk8mnb1/drivers/char/vt.c
+--- linux-2.6.0-test4bk8-VIRGIN/drivers/char/vt.c	2003-07-13 20:37:27.000000000 -0700
++++ linux-2.6.0-test4bk8mnb1/drivers/char/vt.c	2003-09-06 13:52:58.000000000 -0700
+@@ -2179,7 +2179,7 @@
+ 	}
+ 	set_cursor(currcons);
+ 
+-	if (!oops_in_progress)
++	if (likely(!oops_in_progress))
+ 		poke_blanked_console();
+ 
+ quit:
+diff -urN -X dontdiff linux-2.6.0-test4bk8-VIRGIN/drivers/parisc/led.c linux-2.6.0-test4bk8mnb1/drivers/parisc/led.c
+--- linux-2.6.0-test4bk8-VIRGIN/drivers/parisc/led.c	2003-07-27 12:57:39.000000000 -0700
++++ linux-2.6.0-test4bk8mnb1/drivers/parisc/led.c	2003-09-06 13:53:18.000000000 -0700
+@@ -488,7 +488,7 @@
+ 	}
+ 
+ 	/* blink all LEDs twice a second if we got an Oops (HPMC) */
+-	if (oops_in_progress) {
++	if (unlikely(oops_in_progress)) {
+ 		currentleds = (count_HZ<=(HZ/2)) ? 0 : 0xff;
+ 	}
+ 	
+diff -urN -X dontdiff linux-2.6.0-test4bk8-VIRGIN/kernel/printk.c linux-2.6.0-test4bk8mnb1/kernel/printk.c
+--- linux-2.6.0-test4bk8-VIRGIN/kernel/printk.c	2003-07-13 20:39:24.000000000 -0700
++++ linux-2.6.0-test4bk8mnb1/kernel/printk.c	2003-09-06 13:53:50.000000000 -0700
+@@ -400,7 +400,7 @@
+ 	static char printk_buf[1024];
+ 	static int log_level_unknown = 1;
+ 
+-	if (oops_in_progress) {
++	if (unlikely(oops_in_progress)) {
+ 		/* If a crash is occurring, make sure we can't deadlock */
+ 		spin_lock_init(&logbuf_lock);
+ 		/* And make sure that we print immediately */

@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319848AbSINDbd>; Fri, 13 Sep 2002 23:31:33 -0400
+	id <S319850AbSINDq3>; Fri, 13 Sep 2002 23:46:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319849AbSINDbd>; Fri, 13 Sep 2002 23:31:33 -0400
-Received: from mx5.sac.fedex.com ([199.81.194.37]:8205 "EHLO mx5.sac.fedex.com")
-	by vger.kernel.org with ESMTP id <S319848AbSINDbd>;
-	Fri, 13 Sep 2002 23:31:33 -0400
-Date: Sat, 14 Sep 2002 11:35:32 +0800 (SGT)
-From: Jeff Chua <jchua@fedex.com>
-X-X-Sender: jchua@silk.corp.fedex.com
-To: Werner Almesberger <wa@almesberger.net>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [BUG] initrd >24MB corruption (fwd)
-In-Reply-To: <20020914000159.A3352@almesberger.net>
-Message-ID: <Pine.LNX.4.42.0209141130250.30528-100000@silk.corp.fedex.com>
-MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/14/2002
- 11:36:15 AM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 09/14/2002
- 11:36:21 AM,
-	Serialize complete at 09/14/2002 11:36:21 AM
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319851AbSINDq2>; Fri, 13 Sep 2002 23:46:28 -0400
+Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:50677 "EHLO
+	www.kroptech.com") by vger.kernel.org with ESMTP id <S319850AbSINDq1>;
+	Fri, 13 Sep 2002 23:46:27 -0400
+Date: Fri, 13 Sep 2002 23:51:13 -0400
+From: Adam Kropelin <akropel1@rochester.rr.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, alan@redhat.com
+Subject: Re: Streaming DMA mapping question
+Message-ID: <20020914035112.GA14647@www.kroptech.com>
+References: <20020913193916.GA5004@www.kroptech.com> <20020913.123641.50140065.davem@redhat.com> <20020913202150.GA24340@www.kroptech.com> <20020913.132842.97163812.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020913.132842.97163812.davem@redhat.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Sep 2002, Werner Almesberger wrote:
+On Fri, Sep 13, 2002 at 01:28:42PM -0700, David S. Miller wrote:
+>    From: Adam Kropelin <akropel1@rochester.rr.com>
+>    Date: Fri, 13 Sep 2002 16:21:50 -0400
+> 
+>    On Fri, Sep 13, 2002 at 12:36:41PM -0700, David S. Miller wrote:
+>    > Actually, rather it appears that the i386 pci_unmap_*() routines need
+>    > the write buffer flush as well.
+>    
+>    Ah, a bug then. 
+>    
+> On further discussion with Alan Cox, the bug is actually that
+> pci_map_*() needs the write buffer flush added.  pci_map_*()
+> and pci_dma_sync_*() transfer ownership from CPU to PCI controller
+> as abstracted in DMA-mapping.txt   Therefore these are the cases
+> where the CPU write buffers need to be flushed.
 
-> So, assuming the problem is indeed the kernel overwriting initrd,
-> there are three things you can do to avoid this:
->
->  - use a smaller initrd (they were never meant to be quite
->    *that* big anyway :-)
+It seems that pci_dma_sync_*() transfers ownership in either direction. In the
+example from DMA-mapping.txt, it is used to transfer ownership from the PCI
+device to the host CPU. Additionally, the presence of the host write buffer
+flush indicates that it can also be used to transfer ownership from the host CPU
+to the PCI device.
 
-First, thanks for replying.
+Am I missing something?
 
-Now, I used "strip" to strip everything including /lib/lib* and managed to
-reduced from 24MB to 12MB uncompressed (8MB to 5MB compressed), and
-avoided the booting problem. Stripping /lib/lib*.so* was the answer!
+If I'm right, would you accept a patch to clarify the issue in DMA-mapping.txt?
 
-Thanks,
-Jeff.
-
+--Adam
 

@@ -1,137 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264671AbUDVUvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264669AbUDVUxn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264671AbUDVUvl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 16:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264669AbUDVUvl
+	id S264669AbUDVUxn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 16:53:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264672AbUDVUxn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 16:51:41 -0400
-Received: from legolas.restena.lu ([158.64.1.34]:48771 "EHLO smtp.restena.lu")
-	by vger.kernel.org with ESMTP id S264672AbUDVUuj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 16:50:39 -0400
-Subject: Re: IO-APIC on nforce2 [PATCH] + [PATCH] for nmi_debug=1 + [PATCH]
-	for idle=C1halt, 2.6.5
-From: Craig Bradney <cbradney@zip.com.au>
-To: Len Brown <len.brown@intel.com>
-Cc: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>, ross@datscreative.com.au,
-       christian.kroener@tu-harburg.de, linux-kernel@vger.kernel.org,
-       "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
-       Jamie Lokier <jamie@shareable.org>, Daniel Drake <dan@reactivated.net>,
-       Ian Kumlien <pomac@vapor.com>, Jesse Allen <the3dfxdude@hotmail.com>,
-       a.verweij@student.tudelft.nl, Allen Martin <AMartin@nvidia.com>
-In-Reply-To: <1082646181.16333.217.camel@dhcppc4>
-References: <200404131117.31306.ross@datscreative.com.au>
-	 <200404131703.09572.ross@datscreative.com.au>
-	 <1081893978.2251.653.camel@dhcppc4>
-	 <200404160110.37573.ross@datscreative.com.au>
-	 <1082060255.24425.180.camel@dhcppc4>
-	 <1082063090.4814.20.camel@amilo.bradney.info>
-	 <1082578957.16334.13.camel@dhcppc4>  <4086E76E.3010608@gmx.de>
-	 <1082587298.16336.138.camel@dhcppc4>
-	 <1082623508.10528.7.camel@amilo.bradney.info>
-	 <1082646181.16333.217.camel@dhcppc4>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5cytz3+apCtSeXiaJab2"
-Message-Id: <1082667033.6133.20.camel@amilo.bradney.info>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 22 Apr 2004 22:50:33 +0200
+	Thu, 22 Apr 2004 16:53:43 -0400
+Received: from acentral.co.uk ([213.232.83.29]:22178 "HELO
+	eddie.acentral.co.uk") by vger.kernel.org with SMTP id S264669AbUDVUx2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 16:53:28 -0400
+From: Gavin Hamill <gdh@acentral.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: 3Com 905C running very slow.
+Date: Thu, 22 Apr 2004 21:59:00 +0100
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200404222159.00111.gdh@acentral.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hullo...
 
---=-5cytz3+apCtSeXiaJab2
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This is my first post in the Big Playground, so be gentle with me =) I'm 
+following up from the thread earlier this month ( 
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0404.0/0927.html ) to basically  
+say "me too".
 
-On Thu, 2004-04-22 at 17:03, Len Brown wrote:
-> On Thu, 2004-04-22 at 04:45, Craig Bradney wrote:
->=20
-> > > Yes, you need to enable ACPI and IOAPIC.  The goal of this patch
-> > > is to address the XT-PIC timer issue in IOAPIC mode.
-> > >=20
-> > > Here's the latest (vs 2.6.5).
-> >=20
-> >=20
-> > Do we need any other patch? eg the idlec1halt patch? My Athlon still ha=
-s
-> > 2.6.3 on it.
->=20
-> If you needed idlec1halt before, you still need it.
-> This patch just addresses the XT-PIC timer issue.
->=20
-> >=20
-> > > I've got 1 Abit, 2 Asus, and 1 Shuttle DMI entry.  Let me know if the
-> > > product names (1st line of dmidecode entry) are correct,
-> > > these are not from DMI, but are supposed to be human-readable titles.
-> >=20
-> > + { ignore_timer_override, "Asus A7N8X v2", {=20
-> > > +			MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
-> > > +			MATCH(DMI_BOARD_NAME, "A7N8X2.0"),
-> > > +			MATCH(DMI_BIOS_VERSION, "ASUS A7N8X2.0 Deluxe ACPI BIOS Rev 1007"=
-),
-> > > +			MATCH(DMI_BIOS_DATE, "10/06/2003") }},
-> >=20
-> > my dmidecode output also shows (in the first BIOS information section):
-> > Vendor: Phoenix Technologies, LTD
-> > although the Manufacturer is ASUSTek Computer INC. form the Base Board
-> > and System sections.
->=20
-> Right, DMI has separate sections for System, Board, BIOS, and we're
-> using two pieces from the BOARD and two pieces from the BIOS sections.
->=20
-> > Not really sure about the code. If it matches on all of above then it
-> > might not work. Ill try a new kernel later today and see the result.
->=20
-> The workaround is triggered only if all the MATCH()'s above match.
-> If it doesn't trigger, then either I munged it on copy out of dmidecode
-> or you've got a different BIOS and we need a new dmidecode...
->=20
-> > > I'm interested only in the latest BIOS -- if it is still broken.
-> > > The assumption is that if a fixed BIOS is available, the users
-> > > should upgrade.
-> > >=20
-> >=20
-> > Yes, I just checked yesterday and there was nothing new.
+I'm using Debian's 2.6.5 kernel-source and I have a 3c905C thusly:
 
-[Have sent this email with attachments directly to Len, attachments are
-just /proc/interrupts and dmegs output. If someone is interested, please
-ask for them]
+0000:00:09.0: 3Com PCI 3c905C Tornado at 0xe800. Vers LK1.1.19
 
-Hi Len
+$ lspci -vvvx
+00:09.0 Ethernet controller: 3Com Corporation 3c905C-TX [Fast Etherlink] (rev 
+6c)
+        Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC Management 
+NIC
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR+
+        Latency: 32 (2500ns min, 2500ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: I/O ports at e800 [size=128]
+        Region 1: Memory at e8000000 (32-bit, non-prefetchable) [size=128]
+        Expansion ROM at <unassigned> [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0+,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+00: b7 10 00 92 07 00 10 82 6c 00 00 02 08 20 00 00
+10: 01 e8 00 00 00 00 00 e8 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 b7 10 00 10
+30: 00 00 00 00 dc 00 00 00 00 00 00 00 0b 01 0a 0a
 
-Please find attached /proc/interrupts and dmesg from 3 boots, 2 with new
-kernel.
+This is a recent Gigabyte-brand P3 motherboard using the APIC, and IRQ11 is 
+being shared between the 3Com and the onboard Realtek 8139.
 
-263 : gentoo-dev-sources-r1 2.6.3 kernel with Ross Dickson's idleC1halt
-and IOAPIC patches.
+(I/O APIC #2 Version 17 at 0xFEC00000.
+Enabling APIC mode:  Flat.  Using 1 I/O APICs)
 
-265: gentoo-dev-sources-r1 2.6.5 kernel with Ross Dickson's idleC1halt
-for 2.6.5 kernel only. Note in 265pi (/proc/interrupts):
-0:      54821          XT-PIC  timer
+Everything ran at full speed on my previous 2.4.23 (this is my first adventure 
+into 2.6), but TX out of the 3Com is running at a maximum of 200kbit/sec... I 
+never guessed my WAN connection would ever be faster than my LAN one!
 
-265-lb: gentoo-dev-sources-r1 2.6.5 kernel with Ross Dickson's
-idleC1halt for 2.6.5 kernel and your patch for the interrupt.=20
-Note in 265pi-lb (/proc/interrupts):
-0:      51144    IO-APIC-edge  timer
+Interestingly, RX on the 3Com is seemingly unaffected - I got 10Mbit on an FTP 
+test (I'm guessing the slower-than-usual response is due to the low TX speed 
+causing latency on the ACKs)
 
-so.. looks good here. :) I was surprised to see this effect with no boot
-kernel option though. Having read the code I see you set the value to 1
-and therefore on. Seems fine to me.
+The other thing I've noticed is the card does not now respond to probing with 
+'mii-tool' which it always did previously, so I have no way to get / set the 
+half/full duplex settings.
 
-regards
-Craig
+eddie:~# mii-tool  eth0
+SIOCGMIIPHY on 'eth0' failed: Operation not supported
 
---=-5cytz3+apCtSeXiaJab2
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Any advice / suggestions warmly welcomed :)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBAiDAZi+pIEYrr7mQRAmhGAKCGRhC9R9mLV05XCCdh+Gwbeb76KACeP+7C
-wHJu6LqcdX2vTNxeaA3s+M0=
-=wese
------END PGP SIGNATURE-----
-
---=-5cytz3+apCtSeXiaJab2--
+Cheers,
+Gavin.
 

@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311092AbSDAJco>; Mon, 1 Apr 2002 04:32:44 -0500
+	id <S311247AbSDAJiE>; Mon, 1 Apr 2002 04:38:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311239AbSDAJce>; Mon, 1 Apr 2002 04:32:34 -0500
-Received: from mta2.snfc21.pbi.net ([206.13.28.123]:45265 "EHLO
-	mta2.snfc21.pbi.net") by vger.kernel.org with ESMTP
-	id <S311092AbSDAJcS>; Mon, 1 Apr 2002 04:32:18 -0500
-Date: Mon, 01 Apr 2002 01:32:03 -0800
-From: Hristo Doichev <donquixote@pacbell.net>
-Subject: Re: Linux needs new leadership.
-In-Reply-To: <Pine.LNX.4.01.2002ApR11F0015.31337-101723@transmeta.com>
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Message-id: <5377F813-4553-11D6-A6A3-00039382EB3C@pacbell.net>
-MIME-version: 1.0 (Apple Message framework v481)
-X-Mailer: Apple Mail (2.481)
-Content-type: text/plain; charset=US-ASCII; format=flowed
-Content-transfer-encoding: 7bit
+	id <S311244AbSDAJho>; Mon, 1 Apr 2002 04:37:44 -0500
+Received: from hera.cwi.nl ([192.16.191.8]:477 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S311239AbSDAJhe>;
+	Mon, 1 Apr 2002 04:37:34 -0500
+From: Andries.Brouwer@cwi.nl
+Date: Mon, 1 Apr 2002 09:37:31 GMT
+Message-Id: <UTC200204010937.JAA474681.aeb@cwi.nl>
+To: Andries.Brouwer@cwi.nl, p_gortmaker@yahoo.com
+Subject: Re: kbdbook.tmpl
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All these other fellows are OK.
-However,
-the list should include also
+> +  See also kbd_mode(1).
 
-Al Gore.
-	Among other things he is a visionary who will fight till the end 
-for our rights from the highest possible elevation.
+Thanks! Added.
 
-Bill Gates.
-	If we only had him as a leader money will be flowing like a river 
-towards OSS and GNU. For starters this entire list will be subscription 
-based with required certification (about $10K per person and $3K if you 
-only want to read it)
+> did you forsee putting these in another file,
+> perhaps with the other vt ioctls?
 
-Larry Ellison.
-	He will promote linux/gnu/oss by putting a few big logos on his own 
-space shuttle.
+Possibly. Describing all ioctl's is far too much work
+for me to do alone, so my main aim was to provide a
+good start and hope that others contribute more
+until we have a complete set of docs.
 
+> maybe we can avoid having N copies of the usual GPL boiler plate
 
-Thanks for this opportunity.
-Hristo Doichev
+I almost wrote "this is in the public domain",
+maybe I should have, but ended taking the same copyright blurb
+that all the other books also have. It may be convenient in
+case someone ever wants to publish a printed version when
+all fragments have the same copyright.
+
+Andries
 

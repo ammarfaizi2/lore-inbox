@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVC2WGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVC2WLa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVC2WGT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 17:06:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbVC2WGO
+	id S261548AbVC2WLa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 17:11:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVC2WL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 17:06:14 -0500
-Received: from gate.crashing.org ([63.228.1.57]:33250 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261527AbVC2WEk (ORCPT
+	Tue, 29 Mar 2005 17:11:29 -0500
+Received: from isilmar.linta.de ([213.239.214.66]:54493 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261548AbVC2WLL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 17:04:40 -0500
-Subject: Re: Mac mini sound woes
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <s5hu0mugsg2.wl@alsa2.suse.de>
-References: <1111966920.5409.27.camel@gaston>
-	 <1112067369.19014.24.camel@mindpipe> <s5h8y46kbx7.wl@alsa2.suse.de>
-	 <1112094290.6577.19.camel@gaston> <1112123109.4922.3.camel@mindpipe>
-	 <s5hu0mugsg2.wl@alsa2.suse.de>
-Content-Type: text/plain
-Date: Wed, 30 Mar 2005 08:03:40 +1000
-Message-Id: <1112133820.5353.33.camel@gaston>
+	Tue, 29 Mar 2005 17:11:11 -0500
+Date: Wed, 30 Mar 2005 00:11:07 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Olivier Fourdan <fourdan@xfce.org>, johnstul@us.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Clock 3x too fast on AMD64 laptop [WAS Re: Various issues after rebooting]
+Message-ID: <20050329221107.GA4212@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Olivier Fourdan <fourdan@xfce.org>, johnstul@us.ibm.com,
+	linux-kernel@vger.kernel.org
+References: <1112039799.6106.16.camel@shuttle> <20050328192054.GV30052@alpha.home.local> <1112038226.6626.3.camel@shuttle> <20050328193921.GW30052@alpha.home.local> <1112131714.14248.8.camel@shuttle> <1112133731.14248.14.camel@shuttle>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112133731.14248.14.camel@shuttle>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 21:31 +0200, Takashi Iwai wrote:
-> At Tue, 29 Mar 2005 14:05:08 -0500,
-> Lee Revell wrote:
-> > 
-> > On Tue, 2005-03-29 at 21:04 +1000, Benjamin Herrenschmidt wrote:
-> > > Can the driver advertize in some way what it can do ? depending on the
-> > > machine we are running on, it will or will not be able to do HW volume
-> > > control... You probably don't want to use softvol in the former case...
-> > > 
-> > > dmix by default would be nice though :)
-> > 
-> > No, there's still no way to ask the driver whether hardware mixing is
-> > supported yet.  It's come up on alsa-devel before.  Patches are welcome.
+On Wed, Mar 30, 2005 at 12:02:11AM +0200, Olivier Fourdan wrote:
+> Hi,
 > 
-> Well I don't remember the discussion thread on alsa-devel about this,
-> but it's a good idea that alsa-lib checks the capability of hw-mixing
-> and apples dmix only if necessary.  (In the case of softvol, it can
-> check the existence of hw control by itself, though.)
+> A quick look at the source shows that the error is triggered in
+> arch/i386/kernel/timers/timer_pm.c by the verify_pmtr_rate() function.
+> 
+> My guess is that the pmtmr timer is right and the pit is wrong in my
+> case. That would explain why the clock is wrong when being based on pit
+> (like when forced with "clock=pit")
+> 
+> Maybe, if I can prove my guesses, a fix could be to "trust" the pmtmr
+> clock when the user has passed a "clock=pmtmr" argument ? Does that make
+> any sense ?
 
-Well, for pmac at least, we'll need dmix all the time, but softvol
-should be based on what the driver advertises yes.
+This would make a lot of sense, IMHO. John, what do you think?
 
-> Currently, dmix is enabled per driver-type base.  That is, dmix is set
-> to default in each driver's configuration which is known to have no hw
-> mixing functionality.
-> 
-> > dmix by default would not be nice as users who have sound cards that can
-> > do hardware mixing would be annoyed.  However, in the upcoming 1.0.9
-> > release softvol will be used by default for all the mobo chipsets.
-> 
-> On 1.0.9, dmix will be default, too, for most of mobo drivers.
-> 
-> 
-> Takashi
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
+	Dominik

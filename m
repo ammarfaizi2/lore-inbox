@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285720AbSCOInp>; Fri, 15 Mar 2002 03:43:45 -0500
+	id <S286311AbSCOIrU>; Fri, 15 Mar 2002 03:47:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285850AbSCOIna>; Fri, 15 Mar 2002 03:43:30 -0500
-Received: from [65.119.4.9] ([65.119.4.9]:55770 "EHLO
-	superglide.netfx-2000.net") by vger.kernel.org with ESMTP
-	id <S285720AbSCOInO>; Fri, 15 Mar 2002 03:43:14 -0500
-Date: Fri, 15 Mar 2002 00:43:13 -0800
-Message-Id: <200203150843.g2F8hDv07447@superglide.netfx-2000.net>
-From: "Aryojan -" <aryojan@linuxfreemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: please be patient to my. Kernel panic at boot time k2.5.7-pre1
-X-Mailer: Linux Free Mail 2.0
-X-IPAddress: 200.80.30.80
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S285850AbSCOIrK>; Fri, 15 Mar 2002 03:47:10 -0500
+Received: from [202.135.142.196] ([202.135.142.196]:5640 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S286311AbSCOIq4>; Fri, 15 Mar 2002 03:46:56 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Joel Becker <jlbec@evilplan.org>
+Cc: frankeh@watson.ibm.com, matthew@hairy.beasts.org,
+        linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+Subject: Re: [PATCH] Re: futex and timeouts 
+In-Reply-To: Your message of "Fri, 15 Mar 2002 06:08:29 -0000."
+             <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk> 
+Date: Fri, 15 Mar 2002 19:49:04 +1100
+Message-Id: <E16lnOa-0005dy-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-PID:1 , comm: swapper
-Thanks for your support to my
+In message <20020315060829.L4836@parcelfarce.linux.theplanet.co.uk> you write:
+> On Fri, Mar 15, 2002 at 04:39:50PM +1100, Rusty Russell wrote:
+> > Yep, sorry, my mistake.  I suggest make it a relative "struct timespec
+> > *" (more futureproof that timeval).  It would make sense to split the
+> > interface into futex_down and futex_up syuscalls, since futex_up
+> > doesn't need a timeout arg, but I haven't for the moment.
+> 
+> 	Why waste a syscall?  The user is going to be using a library
+> wrapper.  They don't have to know that futex_up() calls sys_futex(futex,
+> FUTEX_UP, NULL);
 
+My bad.  There was a mistake in the patch (ie. I didn't actually do
+this).
 
+OTOH, shades of fcntl!  Syscalls are not "wasted": one for every
+fundamental operation makes *sense*.  If I were doing it with timeouts
+from scratch, I'd definitely have done two syscalls.  As it is, the
+"op" arg gives us a chance for more overloading in future.
 
-Get your own FREE E-mail address at http://www.linuxfreemail.com
-Linux FREE Mail is 100% FREE, 100% Linux, 100% better, and 100% yours!
-
-
+Hope that clarifies,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

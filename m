@@ -1,41 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbTIKQZK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 12:25:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbTIKQZK
+	id S261354AbTIKQWz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 12:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbTIKQWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 12:25:10 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8374 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261355AbTIKQZF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 12:25:05 -0400
-Date: Thu, 11 Sep 2003 17:25:04 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: Memory mapped IO vs Port IO
-Message-ID: <20030911162504.GL21596@parcelfarce.linux.theplanet.co.uk>
-References: <20030911160116.GI21596@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73oexri9kx.fsf@oldwotan.suse.de>
+	Thu, 11 Sep 2003 12:22:55 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:32992 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261354AbTIKQWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Sep 2003 12:22:53 -0400
+Date: Thu, 11 Sep 2003 18:22:23 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Jakub Jelinek <jakub@redhat.com>,
+       Dan Aloni <da-x@gmx.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [BK PATCH] One strdup() to rule them all
+Message-ID: <20030911162223.GB3989@wohnheim.fh-wedel.de>
+References: <20030825161435.GB8961@callisto.yi.org> <20030825122532.J10720@devserv.devel.redhat.com> <20030825170530.GB7097@gtf.org> <20030825194918.A1052@pclin040.win.tue.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <p73oexri9kx.fsf@oldwotan.suse.de>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030825194918.A1052@pclin040.win.tue.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 11, 2003 at 06:17:02PM +0200, Andi Kleen wrote:
-> The overhead of checking for PIO vs mmio at runtime in the drivers
-> should be completely in the noise on any non ancient CPU (both MMIO
-> and PIO typically take hundreds or thousands of CPU cycles for the bus
-> access, having an dynamic function call or an if before that is makes
-> no difference at all)
+On Mon, 25 August 2003 19:49:18 +0200, Andries Brouwer wrote:
+> On Mon, Aug 25, 2003 at 01:05:30PM -0400, Jeff Garzik wrote:
+> 
+> > > > +char *strdup(const char *s)
+> > > > +{
+> > > > +	char *rv = kmalloc(strlen(s)+1, GFP_KERNEL);
+> > > > +	if (rv)
+> > > > +		strcpy(rv, s);
+> > > > +	return rv;
+> > > > +}
+> 
+> > Unfortunately Linus doesn't like the strdup cleanup, so I don't see this
+> > patch going in either :)
+> 
+> When seeing this my objection was: it introduces something with
+> a well-known name that uses GFP_KERNEL, so is not suitable everywhere -
+> an invitation to mistakes.
 
-That's not true for MMIO writes which are posted.  They should take
-no longer than a memory write.  For MMIO reads and PIO reads & writes,
-you are, of course, correct.
+Andries, would you still object this function?
+
+char *strdup(const char *s, int flags)
+{
+	char *rv = kmalloc(strlen(s)+1, flags);
+	if (rv)
+		strcpy(rv, s);
+	return rv;
+}
+
+strdup(foo, GFP_KERNEL) should give most people enough clue to know
+what they are doing.
+
+Jörn
 
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+But this is not to say that the main benefit of Linux and other GPL
+software is lower-cost. Control is the main benefit--cost is secondary.
+-- Bruce Perens

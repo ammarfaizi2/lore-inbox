@@ -1,45 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131228AbRBMWYj>; Tue, 13 Feb 2001 17:24:39 -0500
+	id <S131359AbRBMW23>; Tue, 13 Feb 2001 17:28:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131323AbRBMWY3>; Tue, 13 Feb 2001 17:24:29 -0500
-Received: from garlic.amaranth.net ([216.235.243.195]:6415 "EHLO
-	garlic.amaranth.net") by vger.kernel.org with ESMTP
-	id <S131228AbRBMWYL>; Tue, 13 Feb 2001 17:24:11 -0500
-Message-ID: <3A89B3FD.62313E6C@egenera.com>
-Date: Tue, 13 Feb 2001 17:23:57 -0500
-From: Phil Auld <pauld@egenera.com>
-Organization: Egenera Inc.
-X-Mailer: Mozilla 4.74 [en] (X11; U; Linux 2.2.16-3 i686)
-X-Accept-Language: en
+	id <S131348AbRBMW2T>; Tue, 13 Feb 2001 17:28:19 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18444 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131312AbRBMW2L>; Tue, 13 Feb 2001 17:28:11 -0500
+Subject: Re: Stale super_blocks in 2.2
+To: pauld@egenera.com (Phil Auld)
+Date: Tue, 13 Feb 2001 22:28:35 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A89B3FD.62313E6C@egenera.com> from "Phil Auld" at Feb 13, 2001 05:23:57 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Stale super_blocks in 2.2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14Snw6-00036v-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> does not do anything to invalidate the buffers associated with the
+> unmounted device. We then rely on disk change detection on a 
+> subsequent mount to prevent us from seeing the old super_block.
 
-	It appears that the umount path in the 2.2 series kernels
-does not do anything to invalidate the buffers associated with the
-unmounted device. We then rely on disk change detection on a 
-subsequent mount to prevent us from seeing the old super_block.
-
-Since deja was gobbled by google it's hard to do a good search of 
-this list. Can anyone take the time to help me understand the reason
-for this choice? This seems to me to be backwards. When a device is 
-unmounted there should be no cached information.
-
-Thanks for the help,
-
-
-Phil
-
-
--- 
-------------------------------------------------------
-Philip R. Auld, Ph.D.                  technical staff
-Egenera Corp.                        pauld@egenera.com
-165 Forest St, Marlboro, MA 01752        (508)786-9444
+2.2 yes, 2.4 no

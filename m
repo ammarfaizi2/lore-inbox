@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263906AbRF1TVu>; Thu, 28 Jun 2001 15:21:50 -0400
+	id <S265505AbRF1DlS>; Wed, 27 Jun 2001 23:41:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264032AbRF1TVj>; Thu, 28 Jun 2001 15:21:39 -0400
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:8708 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S263906AbRF1TVZ>;
-	Thu, 28 Jun 2001 15:21:25 -0400
-Message-ID: <20010626181314.A4873@bug.ucw.cz>
-Date: Tue, 26 Jun 2001 18:13:14 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-Subject: bzImage > 0xefff0 will not boot from floppy
-Mime-Version: 1.0
+	id <S265509AbRF1DlJ>; Wed, 27 Jun 2001 23:41:09 -0400
+Received: from web13306.mail.yahoo.com ([216.136.175.42]:17668 "HELO
+	web13306.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S265505AbRF1Dku>; Wed, 27 Jun 2001 23:40:50 -0400
+Message-ID: <20010628034049.7460.qmail@web13306.mail.yahoo.com>
+Date: Wed, 27 Jun 2001 20:40:49 -0700 (PDT)
+From: Carl Spalletta <cspalletta@yahoo.com>
+Subject: Re: Linux Kernel Urgently Needed-Open Source Projects
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Monday July 25, 2001 Jasmin Brown wrote:
 
-...it will loop forever. I have fix that allows up-to 0xffff0
-bzImages, but it is *ugly*. This seems better; please apply.
+>Aufgaben: 
+>permanente Anpassung wichtiger Systemkomponenten an
+unsere
+et cetera
 
-								Pavel
-Index: build.c
-===================================================================
-RCS file: /home/cvs/Repository/linux/arch/i386/boot/tools/build.c,v
-retrieving revision 1.2
-diff -u -u -r1.2 build.c
---- build.c	2001/04/20 00:59:29	1.2
-+++ build.c	2001/06/26 15:13:34
-@@ -154,7 +154,7 @@
- 	if (sys_size > (is_big_kernel ? 0x28000 : DEF_SYSSIZE))
- 		die("System is too big. Try using %smodules.",
- 			is_big_kernel ? "" : "bzImage or ");
--	if (sys_size > 0xffff)
-+	if (sys_size > 0xefff)
- 		fprintf(stderr,"warning: kernel is too big for standalone boot "
- 		    "from floppy\n");
- 	while (sz > 0) {
+Since nobody jumped on the improbably named Yasmin
+Brown & Jill Simmons for daring to post a classified
+within these hallowed precincts, I submit herewith my
+own contribution to interstellar amity - a free
+translation of the German text from that article:
 
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+cat << ENDQUOTE
+die funktionen:
+   ein) Permanent adjustment of important system
+komponents to our orders. Orders which must be obeyed!
+In this konnection, program SOURCE projects from
+Kernel modules mit:
+   zwei) Advancement of our Apache Webservers.
+   drei) Konception and implementation of teufels für 
+         our master architecture and elimination of
+         race conditions.
+   fier) Configuration and code modification; for 
+         example of GFS, Apache, or Linux kernel.
+ENDQUOTE
+
+I think that was the gist of it.
+
+
+__________________________________________________
+Do You Yahoo!?
+Get personalized email addresses from Yahoo! Mail
+http://personal.mail.yahoo.com/

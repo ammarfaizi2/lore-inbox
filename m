@@ -1,140 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262986AbTKESIR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 13:08:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263076AbTKESIR
+	id S263053AbTKESTy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 13:19:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbTKESTy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 13:08:17 -0500
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:18341 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262986AbTKESIN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 13:08:13 -0500
-Date: Wed, 5 Nov 2003 19:08:10 +0100
-To: linux-kernel@vger.kernel.org
-Cc: linux-archs@vger.kernel.org
-Subject: [PATCH] compat syscalls for sys_io_...
-Message-ID: <20031105180810.GA2691@de.ibm.com>
+	Wed, 5 Nov 2003 13:19:54 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:172 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S263053AbTKESTv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 13:19:51 -0500
+Date: Wed, 5 Nov 2003 12:19:11 -0600
+From: Jack Steiner <steiner@sgi.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, davidm@hpl.hp.com, jbarnes@sgi.com
+Subject: [PATCH] - Allow architectures to increase size of MAX_NR_MEMBLKS
+Message-ID: <20031105181911.GA22082@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: Thomas Spatzier <tspat@de.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've implemented compat wrapper functions for the sys_io... set of
-system calls for 32 bit emulation on s390. I think, these
-wrapper functions will also be needed by architectures other than s390
-(I found implementations for ppc64 and x86_64; compat_io_setup is
-heavily based on the ppc64 implementation);
-therefore I think they should be put into fs/compat.c.
-Please verify/comment on the patch below. AFAICS they should do across
-archs.
+This fixes a problem that occurs on system with >64 nodes. 
 
-Regards,
-Thomas.
+Previously, MAX_NR_MEMBLKS was defined as BITS_PER_LONG. This
+patch allows an architecture to override this definition by
+defining a value in the arch-specific asm-xxx/mmzone.h file.
 
 
-diff -urN linux-2.6.0-test9/fs/compat.c linux-2.6.0-test9-compat-aio/fs/compat.c
---- linux-2.6.0-test9/fs/compat.c	2003-09-29 13:30:29.000000000 +0200
-+++ linux-2.6.0-test9-compat-aio/fs/compat.c	2003-11-05 18:57:43.000000000 +0100
-@@ -554,3 +554,88 @@
- 	return compat_sys_fcntl64(fd, cmd, arg);
- }
+
+
+
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1401  -> 1.1402 
+#	include/linux/mmzone.h	1.45    -> 1.46   
+#	include/asm-ia64/mmzone.h	1.6     -> 1.7    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/11/05	steiner@attica.americas.sgi.com	1.1402
+# Allow architectures to supply their own value for MAX_NR_MEMBLKS.
+# The previous value (64) is not large enough for some systems.
+# --------------------------------------------
+#
+
+
+
+diff -Nru a/include/asm-ia64/mmzone.h b/include/asm-ia64/mmzone.h
+--- a/include/asm-ia64/mmzone.h	Wed Nov  5 12:07:34 2003
++++ b/include/asm-ia64/mmzone.h	Wed Nov  5 12:07:34 2003
+@@ -27,6 +27,8 @@
+ # define NR_MEMBLKS		(NR_NODES)
+ #endif
  
-+/* posix aio functions: sys_io_... */
-+extern asmlinkage long
-+sys_io_setup(unsigned, aio_context_t *ctx);
++#define MAX_NR_MEMBLKS		NR_MEMBLKS
 +
-+asmlinkage long
-+sys32_io_setup(unsigned nr_events, compat_aio_context_t *ctx)
-+{
-+	aio_context_t kctx;
-+	mm_segment_t old_fs;
-+	long ret;
-+
-+	// ctx points to 4 byte area (u32) in userspace !
-+	ret = get_user(kctx, ctx);
-+	if (ret)
-+		goto out;
-+	old_fs = get_fs();
-+	set_fs(KERNEL_DS);
-+	ret = sys_io_setup(nr_events, &kctx);
-+	set_fs(old_fs);
-+	if (!ret)
-+		ret = put_user(kctx, ctx);
-+out:
-+	return ret;
-+}
-+
-+extern asmlinkage long
-+sys_io_getevents(aio_context_t,long,long,struct io_event *,struct timespec *);
-+
-+asmlinkage long
-+sys32_io_getevents(compat_aio_context_t ctx_id, long min_nr, long nr,
-+		struct io_event *events,
-+		struct compat_timespec *timeout)
-+{
-+	struct timespec ktimeout;
-+	struct timespec *usr_timeout;
-+	long ret;
-+
-+	ret = -EFAULT;
-+	if ( get_compat_timespec(&ktimeout, timeout) )
-+		goto out;
-+	usr_timeout = compat_alloc_user_space(sizeof(*usr_timeout));
-+	if ( copy_to_user(usr_timeout, &ktimeout, sizeof(ktimeout)) )
-+		goto out;
-+	ret = sys_io_getevents(ctx_id, min_nr, nr, events, usr_timeout);
-+out:
-+	return ret;
-+}
-+
-+extern asmlinkage long
-+sys_io_submit(aio_context_t, long, struct iocb __user **);
-+
-+static inline long
-+get_64bit_user_ptr_array(long nr, u32 *ptr32, u64 *ptr64)
-+{
-+	u32 uptr;
-+	long ret;
-+
-+	ret = -EFAULT;
-+	int i;
-+	for (i = 0; i < nr; ++i) {
-+		if ( get_user(uptr, ptr32 + i) )
-+			goto out;
-+		if ( put_user((u64)compat_ptr(uptr), ptr64 + i) )
-+			goto out;
-+	}
-+	ret = 0;
-+out:
-+	return ret;
-+}
-+
-+asmlinkage long
-+sys32_io_submit(compat_aio_context_t ctx_id, long nr, u32 *iocb)
-+{
-+	struct iocb **iocb64; //array of 64bit pointers in user space
-+	long ret;
-+
-+	//alloc 64 bit pointer array in user space
-+	iocb64 = compat_alloc_user_space(nr*sizeof(*iocb64));
-+	ret = get_64bit_user_ptr_array(nr, (u32 *)iocb, (u64 *)iocb64);
-+	if (ret)
-+		goto out;
-+	ret = sys_io_submit(ctx_id, nr, iocb64);
-+out:
-+	return ret;
-+}
-diff -urN linux-2.6.0-test9/include/linux/compat.h linux-2.6.0-test9-compat-aio/include/linux/compat.h
---- linux-2.6.0-test9/include/linux/compat.h	2003-10-09 19:19:51.000000000 +0200
-+++ linux-2.6.0-test9-compat-aio/include/linux/compat.h	2003-11-04 15:46:54.000000000 +0100
-@@ -97,5 +97,7 @@
- 	char		d_name[256];
- };
+ extern unsigned long max_low_pfn;
  
-+typedef unsigned int compat_aio_context_t;
+ #define pfn_valid(pfn)		(((pfn) < max_low_pfn) && ia64_pfn_valid(pfn))
+diff -Nru a/include/linux/mmzone.h b/include/linux/mmzone.h
+--- a/include/linux/mmzone.h	Wed Nov  5 12:07:34 2003
++++ b/include/linux/mmzone.h	Wed Nov  5 12:07:34 2003
+@@ -287,12 +287,6 @@
+ extern void setup_per_zone_pages_min(void);
+ 
+ 
+-#ifdef CONFIG_NUMA
+-#define MAX_NR_MEMBLKS	BITS_PER_LONG /* Max number of Memory Blocks */
+-#else /* !CONFIG_NUMA */
+-#define MAX_NR_MEMBLKS	1
+-#endif /* CONFIG_NUMA */
+-
+ #include <linux/topology.h>
+ /* Returns the number of the current Node. */
+ #define numa_node_id()		(cpu_to_node(smp_processor_id()))
+@@ -322,6 +316,14 @@
+ #endif
+ 
+ #endif /* !CONFIG_DISCONTIGMEM */
 +
- #endif /* CONFIG_COMPAT */
- #endif /* _LINUX_COMPAT_H */
++#ifdef CONFIG_NUMA
++#ifndef MAX_NR_MEMBLKS
++#define MAX_NR_MEMBLKS	BITS_PER_LONG /* Max number of Memory Blocks */
++#endif
++#else /* !CONFIG_NUMA */
++#define MAX_NR_MEMBLKS	1
++#endif /* CONFIG_NUMA */
+ 
+ #if NODES_SHIFT > MAX_NODES_SHIFT
+ #error NODES_SHIFT > MAX_NODES_SHIFT
+
+
+
+
+-- 
+Thanks
+
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
+
+

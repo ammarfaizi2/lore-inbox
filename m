@@ -1,46 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVARRk4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVARRm3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVARRk4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 12:40:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVARRk4
+	id S261354AbVARRm3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 12:42:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVARRmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 12:40:56 -0500
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:24991 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261353AbVARRkt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 12:40:49 -0500
-Message-Id: <200501181739.j0IHdFMq008182@laptop11.inf.utfsm.cl>
-To: Chris Wright <chrisw@osdl.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Florian Weimer <fw@deneb.enyo.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: security contact draft2 (was Re: security contact draft) 
-In-Reply-To: Message from Chris Wright <chrisw@osdl.org> 
-   of "Mon, 17 Jan 2005 16:24:17 -0800." <20050117162417.O24171@build.pdx.osdl.net> 
-X-Mailer: MH-E 7.4.2; nmh 1.0.4; XEmacs 21.4 (patch 15)
-Date: Tue, 18 Jan 2005 14:39:15 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.4 (inti.inf.utfsm.cl [200.1.19.1]); Tue, 18 Jan 2005 14:39:24 -0300 (CLST)
+	Tue, 18 Jan 2005 12:42:19 -0500
+Received: from fmr23.intel.com ([143.183.121.15]:36534 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261354AbVARRlX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 12:41:23 -0500
+Date: Tue, 18 Jan 2005 09:41:16 -0800
+Message-Id: <200501181741.j0IHfGf30058@unix-os.sc.intel.com>
+From: "Luck, Tony" <tony.luck@intel.com>
+To: torvalds@osdl.org
+cc: linux-ia64@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: pipe performance regression on ia64
+Reply-to: tony.luck@intel.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright <chrisw@osdl.org> said:
+David Mosberger pointed out to me that 2.6.11-rc1 kernel scores
+very badly on ia64 in lmbench pipe throughput test (bw_pipe) compared
+with earlier kernels.
 
-[...]
+Nanhai Zou looked into this, and found that the performance loss
+began with Linus' patch to speed up pipe performance by allocating
+a circular list of pages.
 
->  DRAFT
+Here's his analysis:
 
-[...]
+>OK, I know the reason now.
+>
+>This regression we saw comes from scheduler load balancer.
+>
+>Pipe is a kind of workload that writer and reader will never run at the
+>same time. They are synchronized by semaphore. One is always sleeping
+>when the other end is working.
+>
+>To have cache hot, we do not wish to let writer and reader
+>to be balanced to 2 cpus. That is why in fs/pipe.c, kernel use
+>wake_up_interruptible_sync() instead of wake_up_interruptible to wakeup
+>process.
+>
+>Now, load balancer is still balancing the processes if we have other
+>any cpu idle.  Note that on an HT enabled x86 the load balancer will
+>first balance the process to a cpu in SMT domain without cache miss
+>penalty.
+>
+>So, when we run bw_pipe on a low load SMP machine, the kernel running in
+>a way load balancer always trying to spread out 2 processes while the
+>wake_up_interruptible_sync() is always trying to draw them back into
+>1 cpu.
+>
+>Linus's patch will reduce the change to call wake_up_interruptible_sync()
+>a lot.
+>
+>For bw_pipe writer or reader, the buffer size is 64k.  In a 16k page
+>kernel. The old kernel will call wake_up_interruptible_sync 4 times but
+>the new kernel will call wakeup only 1 time.
+>
+>Now the load balancer wins, processes are running on 2 cpus at most of
+>the time.  They got a lot of cache miss penalty.
+>
+>To prove this, Just run 4 instances of bw_pipe on a 4 -way Tiger to let
+>load balancer not so active.
+>
+>Or simply add some code at the top of main() in bw_pipe.c
+>
+>{
+>  long affinity = 1;
+>  sched_setaffinity(getpid(), sizeof(long), &affinity);
+>}
+>then make and run bw_pipe again.
+>
+>Now I get a throughput of 5GB...
 
->  It is preferred that mail sent to the security team is encrypted
->  with $PUBKEY.
-
-Note that $PUBKEY might change, give pointers to the canonical places where
-you can get the latest version (latest kernel source?). Perhaps indicate
-where to find gpg and a gpg-aware mailer, or steps to encrypt a file and
-send that over as an attachment. Need to clarify a mechanism by which they
-can get back to you via encripted mail.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+-Tony

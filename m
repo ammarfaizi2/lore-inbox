@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262693AbSI1DdW>; Fri, 27 Sep 2002 23:33:22 -0400
+	id <S262694AbSI1Dhr>; Fri, 27 Sep 2002 23:37:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262694AbSI1DdW>; Fri, 27 Sep 2002 23:33:22 -0400
-Received: from sex.inr.ac.ru ([193.233.7.165]:56772 "HELO sex.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S262693AbSI1DdW>;
-	Fri, 27 Sep 2002 23:33:22 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200209280338.HAA02810@sex.inr.ac.ru>
-Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
-To: davem@redhat.com (David S. Miller)
-Date: Sat, 28 Sep 2002 07:38:09 +0400 (MSD)
+	id <S262695AbSI1Dhr>; Fri, 27 Sep 2002 23:37:47 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:46487 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262694AbSI1Dhr>;
+	Fri, 27 Sep 2002 23:37:47 -0400
+Date: Fri, 27 Sep 2002 20:36:06 -0700 (PDT)
+Message-Id: <20020927.203606.32735488.davem@redhat.com>
+To: kuznet@ms2.inr.ac.ru
 Cc: yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
        usagi@linux-ipv6.org
-In-Reply-To: <20020927.195507.87349906.davem@redhat.com> from "David S. Miller" at Sep 27, 2 07:55:07 pm
-X-Mailer: ELM [version 2.4 PL24]
-MIME-Version: 1.0
+Subject: Re: [PATCH] IPv6: Improvement of Source Address Selection
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <200209280338.HAA02810@sex.inr.ac.ru>
+References: <20020927.195507.87349906.davem@redhat.com>
+	<200209280338.HAA02810@sex.inr.ac.ru>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+   From: kuznet@ms2.inr.ac.ru
+   Date: Sat, 28 Sep 2002 07:38:09 +0400 (MSD)
 
-> suggest applies both to current code and code after Yoshi's change.
+   Now I see retransmission of practicllay the same patch, which was deferred
+   for improvement that time.
 
-This is wrong, unfortunately. The elimination of ipv6_get_saddr()
-was trivial before this patch (because of independance of preferred source
-on real destination, only on scope), the corresponding fix was withdrawn
-from 2.4 only for sake of this feature, pending as a well-known patch.
-Now I see retransmission of practicllay the same patch, which was deferred
-for improvement that time.
+Ok, Yoshi please work Alexey to put source address selection into the
+right place and remove ipv6_get_saddr().
 
-Citing myself two years younger:
-
-> The first priority task is to eliminate address selection function.
-> 
-> Without this odd feature it was easy and, in fact, address selection
-> patches forced me to withdraw the solution from kernel, because
-> it makes these hacks much more difficult.
-
-Alexey
+Alexey, I still am not clear, this belongs in the output routing logic
+right?  You dance in circles talking about this patch, that patch,
+but what I cannot decode this into an answer to question of where
+source address selection belongs.

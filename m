@@ -1,79 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262698AbTHaWGH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 18:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262719AbTHaWGH
+	id S262813AbTHaWMe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 18:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262814AbTHaWMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 18:06:07 -0400
-Received: from aneto.able.es ([212.97.163.22]:53142 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S262698AbTHaWGE (ORCPT
+	Sun, 31 Aug 2003 18:12:34 -0400
+Received: from TEST.13thfloor.at ([212.16.62.51]:19405 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S262813AbTHaWMc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 18:06:04 -0400
-Date: Mon, 1 Sep 2003 00:06:02 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [bk patches] 2.4.x quick fixes
-Message-ID: <20030831220602.GA2465@werewolf.able.es>
-References: <20030831140543.GA4819@gtf.org>
+	Sun, 31 Aug 2003 18:12:32 -0400
+Date: Mon, 1 Sep 2003 00:12:30 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: "Zach, Yoav" <yoav.zach@intel.com>
+Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: non-readable binaries - binfmt_misc 2.6.0-test4
+Message-ID: <20030831221230.GA9725@DUK2.13thfloor.at>
+Mail-Followup-To: "Zach, Yoav" <yoav.zach@intel.com>, akpm@osdl.org,
+	torvalds@osdl.org, linux-kernel@vger.kernel.org
+References: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030831140543.GA4819@gtf.org>; from jgarzik@pobox.com on Sun, Aug 31, 2003 at 16:05:43 +0200
-X-Mailer: Balsa 2.0.14
+In-Reply-To: <2C83850C013A2540861D03054B478C0601CF64C8@hasmsx403.iil.intel.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 01, 2003 at 12:41:23AM +0300, Zach, Yoav wrote:
+> The proposed patch solves a problem for interpreters that need to
+> execute a non-readable file, which cannot be read in userland. To handle
+> such cases the interpreter must have the kernel load the binary on its
+> behalf. The proposed patch handles this case by telling binfmt_misc, by
+> a special flag in the registration string, to open the binary for
+> reading and pass its descriptor as argv[1], instead of passing the
+> binary's path. Old behavior of binfmt_misc is kept for interpreters
+> which do not specify this special flag. The patch is against
+> linux-2.6.0-test4. A similar one was posted twice on the list, on Aug.
+> 14 and 21, without significant response.
 
-On 08.31, Jeff Garzik wrote:
-> 
-> Marcelo, please do a
-> 
-> 	bk pull bk://kernel.bkbits.net/jgarzik/misc-2.4
-> 
-> This will update the following files:
-> 
->  arch/i386/kernel/pci-irq.c |    1 +
->  drivers/pci/pci.c          |    2 +-
->  include/linux/pci.h        |    2 +-
->  3 files changed, 3 insertions(+), 2 deletions(-)
-> 
+okay, here is your response!
 
-Against pre2, this is missing to build the thing:
+what non-readable files need to be interpreted/executed?
+why is this case relevant?
+why not simply make it user-land readable?
 
---- linux-2.4.23-pre2-jam1m/drivers/pci/pci.c.orig	2003-08-31 23:59:15.000000000 +0200
-+++ linux-2.4.23-pre2-jam1m/drivers/pci/pci.c	2003-09-01 00:00:22.000000000 +0200
-@@ -908,7 +908,7 @@
- }
- 
- /**
-- * pdev_set_mwi - arch helper function for pcibios_set_mwi
-+ * pci_generic_prep_mwi - arch helper function for pcibios_set_mwi
-  * @dev: the PCI device for which MWI is enabled
-  *
-  * Helper function for implementation the arch-specific pcibios_set_mwi
-@@ -918,7 +918,7 @@
-  * RETURNS: An appriopriate -ERRNO error value on eror, or zero for success.
-  */
- int
--pdev_set_mwi(struct pci_dev *dev)
-+pci_generic_prep_mwi(struct pci_dev *dev)
- {
- 	int rc = 0;
- 	u8 cache_size;
-@@ -966,7 +966,7 @@
- #ifdef HAVE_ARCH_PCI_MWI
- 	rc = pcibios_set_mwi(dev);
- #else
--	rc = pdev_set_mwi(dev);
-+	rc = pci_generic_prep_mwi(dev);
- #endif
- 
- 	if (rc)
+best,
+Herbert
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.23-pre2-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-1mdk))

@@ -1,67 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262857AbSJAWSG>; Tue, 1 Oct 2002 18:18:06 -0400
+	id <S262854AbSJAWVo>; Tue, 1 Oct 2002 18:21:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262863AbSJAWSG>; Tue, 1 Oct 2002 18:18:06 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:11780 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262857AbSJAWSD>;
-	Tue, 1 Oct 2002 18:18:03 -0400
-Date: Tue, 1 Oct 2002 23:40:45 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Grover <andrew.grover@intel.com>,
-       Rusty trivial patch monkey Russell 
-	<trivial@rustcorp.com.au>,
-       ACPI mailing list <acpi-devel@lists.sourceforge.net>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: ACPI sleep: stupid bug reintroduced
-Message-ID: <20021001214045.GA1178@elf.ucw.cz>
+	id <S262877AbSJAWUK>; Tue, 1 Oct 2002 18:20:10 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:8196 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S262854AbSJAWSL>;
+	Tue, 1 Oct 2002 18:18:11 -0400
+Date: Mon, 30 Sep 2002 00:16:25 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Brian Litzinger <brian@top.worldcontrol.com>, linux-kernel@vger.kernel.org
+Subject: Re: SWSUSP and occasional keyboard/X locks (not GPM)
+Message-ID: <20020930001625.D19132@elf.ucw.cz>
+References: <20020928012331.GA2625@top.worldcontrol.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4i
+In-Reply-To: <20020928012331.GA2625@top.worldcontrol.com>
+User-Agent: Mutt/1.3.23i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-There's extremely stupid bug in sleep.c -- it will only alow user to
-enter *unsupported* states. What's even worse that I remember fixing
-that once before, and *it was merged to mainline*.
+> I'm running 2.4.18 vanilla with swsusp patches.  I've disabled GPM
+> and suspend/resume works well.
+> 
+> However, occasionally when my laptop resumes everything appears ok,
+> but the keyboard and mouse (touchpad) don't respond.   If I ssh
+> in via the ethernet I can kill X and keyboard control comes back.
+> (this is the same behavior I saw with GPM was missing things up)
+> (I've actually removed the gpm executable from my machine)
+> 
+> I use the 'susp' script to suspend the machine which knocks out most
+> of the known problems with software suspend.
+> 
+> I'm running XFree86 4.2.1.
+> 
+> My laptop is a Sony VAIO FXA32 w/Duron 900MHz and 384MB RAM.
+> 
+> You can have a look at the susp script at
+> 
+>     http://www.litzinger.com/susp
+> 
+> Any ideas?
 
-Please, really merge it to all copies so it is not reintroduced again.
+Yep, swsusp is not really meant to work in 2.4.X. Get latest
+2.5.X... and add IDE patches so it does not eat your disk...
 
-[Oh, at it also makes S4 transition fail when SWSUSP support is not
-there.]
+You might want to use setleds to toggle something on keyboard. Perhaps
+that helps.
 
-								Pavel
-
---- clean/drivers/acpi/sleep.c	2002-09-22 23:46:56.000000000 +0200
-+++ linux-swsusp/drivers/acpi/sleep.c	2002-10-01 23:38:48.000000000 +0200
-@@ -329,8 +329,8 @@
- 	state_string[count] = '\0';
- 	
- 	state = simple_strtoul(state_string, NULL, 0);
--	
--	if (sleep_states[state])
-+
-+	if (!sleep_states[state])
- 		return_VALUE(-ENODEV);
- 
- #ifdef CONFIG_SOFTWARE_SUSPEND
-@@ -338,7 +338,10 @@
- 		software_suspend();
- 		return_VALUE(count);
- 	}
-+#else
-+	return_VALUE(-ENODEV);
- #endif
-+
- 	status = acpi_suspend(state);
- 
- 	if (ACPI_FAILURE(status))
-
+							Pavel
 
 -- 
-Worst form of spam? Adding advertisment signatures ala sourceforge.net.
-What goes next? Inserting advertisment *into* email?
+When do you have heart between your knees?

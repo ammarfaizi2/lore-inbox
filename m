@@ -1,61 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129388AbRBHDJw>; Wed, 7 Feb 2001 22:09:52 -0500
+	id <S129099AbRBHDSt>; Wed, 7 Feb 2001 22:18:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129578AbRBHDJm>; Wed, 7 Feb 2001 22:09:42 -0500
-Received: from assigned.162.54.206.in-addr.arpa ([206.54.162.175]:47418 "EHLO
-	mail.roland.net") by vger.kernel.org with ESMTP id <S129631AbRBHDJb>;
-	Wed, 7 Feb 2001 22:09:31 -0500
-Message-ID: <000401c0917c$85326ae0$bda236ce@vegroup.com>
-From: "Jim Roland" <jroland@roland.net>
-To: "David Woodhouse" <dwmw2@infradead.org>
-Cc: "J. Dow" <jdow@earthlink.net>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.05.10102062344490.31995-100000@ns.roland.net>  <16718.981535065@redhat.com>
-Subject: Re: RedHat kernel RPM 2.2.16 
-Date: Wed, 7 Feb 2001 21:09:14 -0600
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+	id <S129170AbRBHDSk>; Wed, 7 Feb 2001 22:18:40 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:47626 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S129099AbRBHDSb>;
+	Wed, 7 Feb 2001 22:18:31 -0500
+Date: Thu, 8 Feb 2001 04:18:14 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Matt_Domsch@Dell.com
+Cc: jason@heymax.com, linux-kernel@vger.kernel.org, gandalf@winds.org
+Subject: Re: aacraid 2.4.0 kernel
+Message-ID: <20010208041814.I27027@suse.de>
+In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9CA2@ausxmrr501.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9CA2@ausxmrr501.us.dell.com>; from Matt_Domsch@Dell.com on Wed, Feb 07, 2001 at 09:03:53PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AH HA!  Thanks!
+On Wed, Feb 07 2001, Matt_Domsch@Dell.com wrote:
+> Adaptec is still working on it.  Basically (and as Jason discovered), the
+> driver and firmware can't handle single I/O requests larger than 64KB.  Even
+> when scatter/gathered, if the total is >64KB, it chokes.  This was just fine
+> for 2.2.x (no one has ever run into this problem there), but the
+> much-improved block layer of 2.4.x throws larger I/Os at the driver.  So,
+> the developers at Adaptec are busy trying to add support to break large
+> requests into smaller chunks, and then gather them back together.
 
+Poor hardware, even IDE does better than this with scatter gather.
+However, that's not why I'm replying. A driver should never have
+to deal with bigger requests than it can handle. This just leads
+to duplicated code in the block drivers and someone getting it
+wrong (in fact, 2.4.1-pre showed bugs in the cpqarray driver
+doing this for sg). The block layer is flexible enough to stop
+merging beyond the low level drivers limit.
 
------ Original Message -----
-From: "David Woodhouse" <dwmw2@infradead.org>
-To: "Jim Roland" <jroland@roland.net>
-Cc: "J. Dow" <jdow@earthlink.net>; <linux-kernel@vger.kernel.org>
-Sent: Wednesday, February 07, 2001 2:37 AM
-Subject: Re: RedHat kernel RPM 2.2.16
+I haven't seen this driver, but if it uses the SCSI layer instead
+of being a "pure" block driver then I can see a slight problem
+in that currently only understand max sg entry limits and not
+total request sizes. I would rather fix this limitation then, and
+would also be interested to know if any of the (older) SCSI drivers
+have such limitations too.
 
-
->
-> jroland@roland.net said:
-> >  FWIW, the rpm -i did unpack the kernel to the /usr/src/redhat/SOURCES
-> > directory, however, I had to manually untar the sources to /usr/src to
-> > get my kernel, move over the appropriate .config file, and manually
-> > run the patches to patch the sources.  Forcing RPM to be very
-> > talkative (via -vv) gave me a bunch of "action unknown" errors, and
-> > the rpm's install scripts did not execute.  This occurs on an RH7
-> > system as well.  Seems to be something wrong with RH's kernel rpm?
->
-> Install the kernel-source binary RPM, which contains the build tree
-already
-> extracted and set up as you desire, instead of the master SRPM which
-> contains build instructions for all the kernel versions.
->
-> i.e. kernel-source-2.2.16-3.i386.rpm, not kernel-2.2.16-3.src.rpm
->
-> --
-> dwmw2
->
->
+-- 
+Jens Axboe
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,63 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbUEDV4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbUEDWNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261205AbUEDV4v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 17:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUEDV4v
+	id S261296AbUEDWNj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 18:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUEDWNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 17:56:51 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:19467 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S261205AbUEDV4t
+	Tue, 4 May 2004 18:13:39 -0400
+Received: from omr5.netsolmail.com ([216.168.230.142]:52688 "EHLO
+	omr5.netsolmail.com") by vger.kernel.org with ESMTP id S261273AbUEDWNb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 17:56:49 -0400
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Load hid.o module synchronously?
-References: <s5g8ygi4l3q.fsf@patl=users.sf.net>
-	<408D65A7.7060207@nortelnetworks.com>
-	<s5gisfm34kq.fsf@patl=users.sf.net> <c6od9g$53k$1@gatekeeper.tmr.com>
-	<s5ghdv0i8w4.fsf@patl=users.sf.net> <20040504200147.GA26579@kroah.com>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5ghduvdg1u.fsf@patl=users.sf.net>
-Date: 04 May 2004 17:56:48 -0400
-In-Reply-To: <20040504200147.GA26579@kroah.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Tue, 4 May 2004 18:13:31 -0400
+Message-Id: <200405042213.BLD39867@ms6.netsolmail.com>
+Reply-To: <shai@ftcon.com>
+From: "Shai Fultheim" <shai@ftcon.com>
+To: <linux-ide@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Multiple (ICH3) IDE-controllers in a system
+Date: Tue, 4 May 2004 15:13:29 -0700
+Organization: FT Consulting
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Thread-Index: AcQyJQe3mLYeVAvJSD2RdpGEPZp+pw==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+Hi,
 
-> On Sat, May 01, 2004 at 09:21:31AM -0400, Patrick J. LoPresti wrote:
->
-> > So there is no way to load this hardware driver and wait until it
-> > either binds or fails to bind to its associated hardware?  That seems
-> > like a bad bug in the design...
-> 
-> Um, what is wrong with the proposals I made for how you can detect
-> this?
+I am working on an IO-robust custom-made PC server, which runs the Linux
+kernel.  The machine is working very nicely with 2.4 kernels, but we
+recently found out that in 2.6 it couldn't see all IDE controllers.
 
-Your proposals were:
+In Linux 2.6.x pcibios_fixups table (in arch/i386/pci/fixup.c), use the
+pci_fixup_ide_trash() quirk for Intel's ICH3 (my case specifically
+8086:248b).  That quirk wasn't in use for ICH3 by the 2.4.x kernels.  The
+result of the change is that the system, which has multiple ICH3's can't use
+any of the IDE controllers beside the one on the first ICH3 (again, that
+worked in 2.4 kernels).
 
- - look at the device in /proc/bus/usb/devices and wait until the
-   driver is bound to that device "(hid)" will show up as the
-   driver bound to that interface
+Is there a real reason to call that quirk?  If there is not, why are you
+calling that quirk?  If there is, can I suggest that the quirk will handle
+only the first ICH3 (i.e. add check in the quirk that it is called for the
+first time only).  This is better than "loosing" all these IDE controllers
+in the case their BARs set right.
 
- - look at the sysfs directory for the hid driver and wait for
-   the symlink to the device shows up.  This should be at
-   /sys/bus/usb/drivers/hid
 
-I see how these let me wait until the hid.o module successfully binds
-to the hardware.
+Blow references for bare 2.6.5 kernel:
 
-But what if it fails to bind?  For example, what if an error occurs?
-Or what if the keyboard is on the module's blacklist?  How do I know
-when to stop waiting?
+Code walkup starts with pci_scan_single_device() at
+http://lxr.linux.no/source/drivers/pci/probe.c?v=2.6.5#L590 which calls to
+pci_fixup_device() (line 601) which in turn use the quirks table at
+http://lxr.linux.no/source/arch/i386/pci/fixup.c?v=2.6.5#L190 (my chipset is
+in line 248).  The quirks table for ICH3 use pci_fixup_ide_trash()at
+http://lxr.linux.no/source/arch/i386/pci/fixup.c?v=2.6.5#L90 - this reset
+the BARs for the device.  Resetting the all (4) BARs of (ICH3) IDE
+controllers will cause them to use the defaults BARs (0x170, 0x1f0) in
+ide_hwif_configure() at
+http://lxr.linux.no/source/drivers/ide/setup-pci.c?v=2.6.5#L420.  This will
+fail with any subsequent (ICH3) IDE controllers (two devices can't use the
+same ports).  
 
-Ideally, what I would like is for "modprobe <driver>" to wait until
-all hardware handled by that driver is either ready for use or is
-never going to be.  That seems simple and natural to me.  But I would
-be glad to use any other mechanism to achieve the same effect; I just
-have not seen one yet.
+I'm not sure if ICH3 needs to reset its BARs at all, but if it is, I suggest
+making sure pci_fixup_ide_trash() reset BARs only for first time being
+called.  In that way subsequent IDE controllers will use the BIOS BARs
+(which we set fine, and worked GREAT at 2.4.x), as said above, this is
+better than "loosing" all the other IDE controllers in the case their BARs
+set right.
 
- - Pat
+Thanks in advance,
+Shai.
+
+
+ 
+_________________________
+Shai Fultheim
+FT Consulting
+ 
+Mobile: +1 (408) 480-1612
+Fax:    +1 (501) 647-4113
+E-Mail: shai@ftcon.com
+Web:    www.ftcon.com
+
+

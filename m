@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265960AbUHFNle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265872AbUHFNqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265960AbUHFNle (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 09:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUHFNle
+	id S265872AbUHFNqT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 09:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUHFNqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 09:41:34 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:26760 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S265960AbUHFNk7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 09:40:59 -0400
-Date: Fri, 6 Aug 2004 14:40:48 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: libata: dma, io error messages
-In-Reply-To: <1091795565.16307.14.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.60.0408061438090.2622@fogarty.jakma.org>
-References: <Pine.LNX.4.60.0408061113210.2622@fogarty.jakma.org>
- <1091795565.16307.14.camel@localhost.localdomain>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
+	Fri, 6 Aug 2004 09:46:19 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:55483 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S267524AbUHFNqQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Aug 2004 09:46:16 -0400
+Date: Fri, 6 Aug 2004 15:45:16 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: David Vrabel <dvrabel@arcom.com>
+cc: Hollis Blanchard <hollisb@us.ibm.com>, Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: cross-depmod?
+In-Reply-To: <411343F9.1080301@arcom.com>
+Message-ID: <Pine.GSO.4.58.0408061540200.26252@waterleaf.sonytel.be>
+References: <1091742716.28466.27.camel@localhost> <411343F9.1080301@arcom.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Aug 2004, Alan Cox wrote:
-
->> Additional sense: Unrecovered read error - auto reallocate failed
+On Fri, 6 Aug 2004, David Vrabel wrote:
+> Hollis Blanchard wrote:
+> > My problem is that I cross-build my kernels, and 'make rpm' is very
+> > unhappy when it can't use depmod. I know that I can do 'make
+> > DEPMOD=/bin/true rpm', but can't we figure that out automatically?
 >
-> Bad block, and sufficiently bad that it couldn't then recover the block
-> and rewrite it. When a drive sees a marginal read (lot of forward error
-> correction recovery needed) it will try and rewrite or move the block.
->
-> In this case it couldn't read the block enough to move it.
+> I'd suggest not running depmod when building an RPM but instead run it
+> as part of the RPMs post-installation script.
 
-Ouch.
+I guess Hollis (just like me) is mostly interested in the possible error
+messages of depmod, due to missing exported symbols.
 
-I've contacted my supplier to replace the disk. Kudo's to Neil Brown 
-for mdadm - I had an email waiting for me this morning to tell me 
-about the failed disk.
+Hollis: I asked the same question about six months year ago, cfr. the thread at
+http://seclists.org/lists/linux-kernel/2004/Feb/3527.html
 
-Thanks Alan.
+Gr{oetje,eeting}s,
 
-regards,
--- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-Windows 95 has been operating for 2 hours, 32 minutes. No errors reported. CALL
-GUINESS BOOK OF WORLD RECORDS NOW!
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,65 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264403AbTE0Wv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 18:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264416AbTE0Wv0
+	id S264420AbTE0WxX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 18:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264421AbTE0WxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 18:51:26 -0400
-Received: from tomts19-srv.bellnexxia.net ([209.226.175.73]:36846 "EHLO
-	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S264403AbTE0WvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 18:51:25 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@digeo.com>
-Subject: Re: 2.5.70-mm1
-Date: Tue, 27 May 2003 19:05:24 -0400
-User-Agent: KMail/1.5.9
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-References: <20030527004255.5e32297b.akpm@digeo.com> <200305271633.40421.tomlins@cam.org> <20030527134946.7ffd524d.akpm@digeo.com>
-In-Reply-To: <20030527134946.7ffd524d.akpm@digeo.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305271905.24181.tomlins@cam.org>
+	Tue, 27 May 2003 18:53:23 -0400
+Received: from newmail.somanetworks.com ([216.126.67.42]:31158 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id S264420AbTE0WxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 18:53:22 -0400
+Date: Tue, 27 May 2003 19:06:28 -0400
+From: Georg Nikodym <georgn@somanetworks.com>
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: manish <manish@storadinc.com>,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Andrea Arcangeli <andrea@suse.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+Message-Id: <20030527190628.779eda78.georgn@somanetworks.com>
+In-Reply-To: <200305271954.11635.m.c.p@wolk-project.de>
+References: <3ED2DE86.2070406@storadinc.com>
+	<3ED3A2AB.3030907@gmx.net>
+	<3ED3A55E.8080807@storadinc.com>
+	<200305271954.11635.m.c.p@wolk-project.de>
+Organization: SOMA Networks
+X-Mailer: Sylpheed version 0.8.11claws175 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.JlWzj9'b/(,1e'"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 27, 2003 04:49 pm, Andrew Morton wrote:
-> Ed Tomlinson <tomlins@cam.org> wrote:
-> > Hi Andrew,
-> >
-> > This one oops on boot 2 out of 3 tries.
-> >
-> > ...
-> > EIP is at load_module+0x7c5/0x800
->
-> -mm has modules changes.  Is CONFIG_DEBUG_PAGEALLOC enabled?
+--=.JlWzj9'b/(,1e'
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-#
-# Kernel hacking
-#
-CONFIG_DEBUG_KERNEL=y
-CONFIG_DEBUG_STACKOVERFLOW=y
-CONFIG_DEBUG_SLAB=y
-# CONFIG_DEBUG_IOVIRT is not set
-CONFIG_MAGIC_SYSRQ=y
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_SPINLINE is not set
-# CONFIG_DEBUG_PAGEALLOC is not set
-CONFIG_KALLSYMS=y
-CONFIG_DEBUG_SPINLOCK_SLEEP=y
-# CONFIG_KGDB is not set
-CONFIG_DEBUG_INFO=y
-CONFIG_FRAME_POINTER=y
+On Tue, 27 May 2003 20:04:49 +0200
+Marc-Christian Petersen <m.c.p@wolk-project.de> wrote:
 
-No.  I have been running 69-mm8 for several days without problems.   It 
-would seem to be an initialization problem, 70-mm1 has now been 3 hours
-here.
+> ALL: Anyone who has this kind of pauses/stops/mouse is dead/keyboard
+> is dead/:
+>      speak _NOW_ please, doesn't matter who you are!
 
-Ed
+Uh, ok.  These pauses have kept me from using anything newer than riel's
+2.4.19-rmap15a
 
+-g
 
+--=.JlWzj9'b/(,1e'
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD4DBQE+0+91oJNnikTddkMRApKYAJjUWvtd27DoMmgjdzMbXXn2eTMNAJ0TM9Kv
+RxLjD8H8TUNuSzNUmesWUg==
+=yWR0
+-----END PGP SIGNATURE-----
+
+--=.JlWzj9'b/(,1e'--

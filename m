@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263096AbSJGP2G>; Mon, 7 Oct 2002 11:28:06 -0400
+	id <S263119AbSJGPis>; Mon, 7 Oct 2002 11:38:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263098AbSJGP2G>; Mon, 7 Oct 2002 11:28:06 -0400
-Received: from mg01.austin.ibm.com ([192.35.232.18]:24749 "EHLO
-	mg01.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S263096AbSJGP2D>; Mon, 7 Oct 2002 11:28:03 -0400
-Date: Mon, 7 Oct 2002 10:31:01 -0500 (CDT)
-From: Kent Yoder <key@austin.ibm.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org, <tsbogend@alpha.franken.de>,
-       <felipewd@elipse.com.br>
-Subject: Re: [PATCH] pcnet32 cable status check
-In-Reply-To: <3D99D923.5080200@pobox.com>
-Message-ID: <Pine.LNX.4.44.0210071027030.1408-100000@ennui.austin.ibm.com>
+	id <S263122AbSJGPis>; Mon, 7 Oct 2002 11:38:48 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26899 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263119AbSJGPiQ>; Mon, 7 Oct 2002 11:38:16 -0400
+Date: Mon, 7 Oct 2002 08:45:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Howells <dhowells@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: bcopy()
+In-Reply-To: <12660.1033999032@warthog.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.44.0210070843330.2401-100000@home.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Thus Spake Jeff Garzik:
->As Felipe mentioned, using the link interrupt instead of a timer is 
->preferred -- but my own preference would be to apply your patch with the 
->small remove-lp->mii-check fixup, and then investigate the support of 
->link interrupts.  The reasoning is that, pcnet32 covers a ton of chips, 
->and not all may support a link interrupt.
+On Mon, 7 Oct 2002, David Howells wrote:
+>
+> I've dicussed it with a number of people, and the general consensus seems to
+> be that it should be nuked entirely? Do you agree?
 
-  Jeff, I came across a PCNET FAST/79C971, which apparently also does not
-give an interrupt when the cable is pulled.  (My original tested card was a
-PCnet/FAST III 79C975).
+I agree. bcopy should just DIE. Some architectures may have historical
+trouble with gcc emitting bcopy for structure assignments (and that's
+definitely a memcpy with no overlap), but I think that's long gone (I know 
+gcc on alpha used to do this several years ago).
 
-Kent
+XFS seems to be a big user of bcopy, though..
+
+		Linus
 

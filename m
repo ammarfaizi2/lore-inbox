@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282098AbRK1Izp>; Wed, 28 Nov 2001 03:55:45 -0500
+	id <S282097AbRK1JLz>; Wed, 28 Nov 2001 04:11:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282091AbRK1IzX>; Wed, 28 Nov 2001 03:55:23 -0500
-Received: from quadpro.xs4all.nl ([213.84.70.40]:59143 "HELO
-	quadpro.stupendous.org") by vger.kernel.org with SMTP
-	id <S282095AbRK1IzW>; Wed, 28 Nov 2001 03:55:22 -0500
-Date: Wed, 28 Nov 2001 09:55:20 +0100
-From: Jurjen Oskam <jurjen@quadpro.stupendous.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 'spurious 8259A interrupt: IRQ7'
-Message-ID: <20011128095520.B577@quadpro.stupendous.org>
-In-Reply-To: <XFMail.20011127152007.ast@domdv.de> <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>
+	id <S282095AbRK1JLr>; Wed, 28 Nov 2001 04:11:47 -0500
+Received: from cerebus.wirex.com ([65.102.14.138]:48632 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S282081AbRK1JLm>; Wed, 28 Nov 2001 04:11:42 -0500
+Date: Wed, 28 Nov 2001 01:04:11 -0800
+From: Chris Wright <chris@wirex.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] tree-based bootmem
+Message-ID: <20011128010411.A14584@figure1.int.wirex.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011117011415.B1180@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <1576.10.119.8.1.1006871893.squirrel@extranet.jtrix.com>; from martin@jtrix.com on Tue, Nov 27, 2001 at 02:38:13PM -0000
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011117011415.B1180@holomorphy.com>; from wli@holomorphy.com on Sat, Nov 17, 2001 at 01:14:15AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 27, 2001 at 02:38:13PM -0000, Martin A. Brooks wrote:
+* William Lee Irwin III (wli@holomorphy.com) wrote:
+> Critiques, testing results, and any commentary whatsoever are quite welcome.
 
-> In my research before posting, a common thread seemed to be the presence of
-> a tulip card in the machine.  Has anyone seen this on a non-tulip box?
+test results from 32-bit SPARC (sun4m).
 
-Yup: standard SuSE 7.3 install on an Asus A7V266-E motherboard (VIA KT266A
-chipset, 512 MB DDR, Athlon XP).
+2.5.1-pre1+show_trace_task (patch form DaveM)
 
-Just recently installed Linux on that machine (yesterday evening) so I
-don't even know what kernel version SuSE 7.3 uses. :-( If needed, I can try
-other kernels.
+ftp://ftp.kernel.org/pub/linux/kernel/people/wli/bootmem/bootmem-2.5.1-pre1
 
--- 
-      Jurjen Oskam * http://www.stupendous.org/ for PGP key * Q265230
-    8:39am  up 30 days, 23:33,  1 user,  load average: 0.15, 0.03, 0.01
+applied cleanly, compiled fine, but didn't boot.
+
+boot: 2.5.1-pre1-bootmem
+Uncompressing image...
+Loading initial ramdisk....
+PROMLIB: obio_ranges 5
+Fixup b f01e9720 doesn't refer to a SETHI at f0119e34[7fffc344]
+Program terminated
+Type  help  for more information
+<#0> ok         
+
+so, where to go from here?  btw, i did verify that a non bootmem patched
+2.5.1-pre1-show_tace_task kernel booted.
+
+# uname -a
+Linux c.sous.sol 2.5.1-pre1 #8 SMP Wed Nov 28 08:55:49 PST 2001 sparc unknown
+
+cheers,
+-chris

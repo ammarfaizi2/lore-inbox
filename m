@@ -1,48 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261502AbREWKIw>; Wed, 23 May 2001 06:08:52 -0400
+	id <S261685AbREWKYg>; Wed, 23 May 2001 06:24:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261683AbREWKIm>; Wed, 23 May 2001 06:08:42 -0400
-Received: from khan.acc.umu.se ([130.239.18.139]:45050 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S261502AbREWKIY>;
-	Wed, 23 May 2001 06:08:24 -0400
-Date: Wed, 23 May 2001 12:08:21 +0200
-From: David Weinehall <tao@acc.umu.se>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.4-ac14
-Message-ID: <20010523120821.A3640@khan.acc.umu.se>
-In-Reply-To: <Pine.LNX.4.05.10105230915100.16280-100000@callisto.of.borg> <20677.990608858@kao2.melbourne.sgi.com> <20010523053620.C7114@zalem.puupuu.org>
-Mime-Version: 1.0
+	id <S261700AbREWKYZ>; Wed, 23 May 2001 06:24:25 -0400
+Received: from indyio.rz.uni-sb.de ([134.96.7.3]:54552 "EHLO
+	indyio.rz.uni-sb.de") by vger.kernel.org with ESMTP
+	id <S261685AbREWKYU>; Wed, 23 May 2001 06:24:20 -0400
+Message-ID: <3B0B8FCE.E0677CD0@stud.uni-saarland.de>
+Date: Wed, 23 May 2001 10:24:14 +0000
+From: Studierende der Universitaet des Saarlandes 
+	<masp0008@stud.uni-sb.de>
+Reply-To: manfred@colorfullife.com
+Organization: Studierende Universitaet des Saarlandes
+X-Mailer: Mozilla 4.08 [en] (X11; I; Linux 2.0.36 i686)
+MIME-Version: 1.0
+To: avivg@voltaire.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: softirq question
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20010523053620.C7114@zalem.puupuu.org>; from galibert@pobox.com on Wed, May 23, 2001 at 05:36:20AM -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 23, 2001 at 05:36:20AM -0400, Olivier Galibert wrote:
-> On Wed, May 23, 2001 at 07:07:38PM +1000, Keith Owens wrote:
-> > On Wed, 23 May 2001 09:17:08 +0200 (CEST), 
-> > Geert Uytterhoeven <geert@linux-m68k.org> wrote:
-> > >On Wed, 23 May 2001, Keith Owens wrote:
-> > >> Is drivers/char/ser_a2232fw.ax supposed to be included?  Nothing uses it.
-> > >
-> > >It's the source for the firmware hexdump in ser_a2232fw.h, provided as a
-> > >reference.
-> > 
-> > What is the point of including it in the kernel source tree without the
-> > code to convert it to ser_a2232fw.h?  Nobody can use ser_a2232fw.ax, it
-> > is just bloat.
-> 
-> We don't provide the binutils or gcc with the kernel either.  The 6502
-> is a rather well known processor.  Try plonking "6502 assembler" in
-> google and you'll have a lot of choice.
+> Is it possible to enter into sleep mode 
+> ( current->state = !RUNNING && schedule(_timeout)) 
+> from a softirq ? 
 
-Me likee, finally asm in the kernel I can grok.
+calling schedule() causes a panic() in schedule(), and even an innocent
 
+	current->state = TASK_RUNNING;
 
-/Tao of TRIAD aka David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Project MCA Linux hacker        //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+from an softirq causes runqueue corruptions.[you must use
+wake_up_process() since it's not guaranteed that 'current' is actually
+in the runqueue.]
+
+--
+	Manfred

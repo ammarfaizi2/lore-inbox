@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130381AbRCBJHW>; Fri, 2 Mar 2001 04:07:22 -0500
+	id <S130383AbRCBJ5a>; Fri, 2 Mar 2001 04:57:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130382AbRCBJHN>; Fri, 2 Mar 2001 04:07:13 -0500
-Received: from limes.hometree.net ([194.231.17.49]:46340 "EHLO
-	limes.hometree.net") by vger.kernel.org with ESMTP
-	id <S130381AbRCBJHD>; Fri, 2 Mar 2001 04:07:03 -0500
+	id <S130384AbRCBJ5U>; Fri, 2 Mar 2001 04:57:20 -0500
+Received: from oxmail1.ox.ac.uk ([129.67.1.1]:47036 "EHLO oxmail.ox.ac.uk")
+	by vger.kernel.org with ESMTP id <S130383AbRCBJ5D>;
+	Fri, 2 Mar 2001 04:57:03 -0500
+Date: Fri, 2 Mar 2001 09:57:02 +0000
+From: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
 To: linux-kernel@vger.kernel.org
-Date: Fri, 2 Mar 2001 09:02:13 +0000 (UTC)
-From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
-Message-ID: <97nnil$dn9$1@forge.intermeta.de>
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-In-Reply-To: <Pine.A41.4.33.0102282123180.68876-100000@aix09.unm.edu>, <3A9E96A6.41D725A3@namesys.com>
-Reply-To: hps@tanstaafl.de
-Subject: Re: What is 2.4 Linux networking performance like compared to BSD?
+Subject: Re: ftruncate not extending files?
+Message-ID: <20010302095701.A4685@sable.ox.ac.uk>
+In-Reply-To: <Pine.LNX.4.30.0103011502050.23650-100000@swamp.bayern.net> <E14YXft-0008GK-00@the-village.bc.nu> <20010302084544.A26070@home.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20010302084544.A26070@home.ds9a.nl>; from ahu@ds9a.nl on Fri, Mar 02, 2001 at 08:45:45AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-reiser@namesys.com (Hans Reiser) writes:
+bert hubert writes:
+> I would've sworn, based on the fact that I saw people do it, that ftruncate
+> was a legitimate way to extend a file
 
-> If I can't get information about BSD v. Linux 2.4 networking code,
-> then reiserfs has to get ported to BSD which will be both nice and a
-> pain to do.
+Well it's not SuSv2 standards compliant:
 
-So we would get dual-licensed ReiserFS (BSD and GPL)? 
+    http://www.opengroup.org/onlinepubs/007908799/xsh/ftruncate.html
 
-Are you aware of the legal implications, making your currently
-GPL-only code BSD-licensed (status of third party patches for the GPL
-code and so on)?
+    If the file previously was larger than length, the extra data is
+    discarded. If it was previously shorter than length, it is
+    unspecified whether the file is changed or its size increased. If
+    ^^^^^^^^^^^
+    the file is extended, the extended area appears as if it were
+    zero-filled.
 
-	Regards
-		Henning
+How "legitimate" relates to "SuSv2 standards compliant" is your call.
+
+--Malcolm
+
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Malcolm Beattie <mbeattie@sable.ox.ac.uk>
+Unix Systems Programmer
+Oxford University Computing Services

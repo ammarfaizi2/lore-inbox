@@ -1,75 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbTGTF42 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 01:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTGTF41
+	id S262254AbTGTGEQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 02:04:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbTGTGEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 01:56:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14287 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262165AbTGTF40 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 01:56:26 -0400
-Date: Sat, 19 Jul 2003 23:12:30 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michael Morris <Starborn@anime-city.co.uk>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       Joshua Kwan <joshk@triplehelix.org>
-Subject: Re: 2.6.0-test1-mm2
-Message-Id: <20030719231230.4de39ffe.akpm@osdl.org>
-In-Reply-To: <200307200647.43410.Starborn@anime-city.co.uk>
-References: <20030719174350.7dd8ad59.akpm@osdl.org>
-	<20030720024102.GA18576@triplehelix.org>
-	<20030720042918.GA19219@triplehelix.org>
-	<200307200647.43410.Starborn@anime-city.co.uk>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 20 Jul 2003 02:04:16 -0400
+Received: from pub234.cambridge.redhat.com ([213.86.99.234]:57870 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262254AbTGTGEP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 02:04:15 -0400
+Date: Sun, 20 Jul 2003 07:19:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: [PATCH] missing __KERNEL__ ifdef in include/linux/device.h]
+Message-ID: <20030720071913.A22156@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <3F1A139B.3090708@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3F1A139B.3090708@pobox.com>; from jgarzik@pobox.com on Sat, Jul 19, 2003 at 11:59:23PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Morris <Starborn@anime-city.co.uk> wrote:
->
-> Here's my oops:
+On Sat, Jul 19, 2003 at 11:59:23PM -0400, Jeff Garzik wrote:
+
+> Date: Sun, 20 Jul 2003 04:55:29 +0200
+> From: Thomas Graf <tgraf@suug.ch>
+> Subject: [PATCH] missing __KERNEL__ ifdef in include/linux/device.h
+> To: netdev@oss.sgi.com
 > 
-> Unable to handle kernel NULL pointer dereference at virtual address 00000014
-> EIP is at journal_dirty_metadata+0x38/0x210
+> Hello
+> 
+> device.h should be protected with __KERNEL__ because it uses
+> __KERNEL__ protected structures. Userspace applications
+> including if_arp.h such as iproute2 will fail because
+> it finally includes device.h as well.
 
-OK, bad bug.  This should fix it.
-
- fs/ext3/inode.c |   16 +++++++---------
- 1 files changed, 7 insertions(+), 9 deletions(-)
-
-diff -puN fs/ext3/inode.c~ext3_getblk-race-fix-fix fs/ext3/inode.c
---- 25/fs/ext3/inode.c~ext3_getblk-race-fix-fix	2003-07-19 22:59:50.000000000 -0700
-+++ 25-akpm/fs/ext3/inode.c	2003-07-19 23:07:42.000000000 -0700
-@@ -936,19 +936,17 @@ struct buffer_head *ext3_getblk(handle_t
- 			   ext3_get_block instead, so it's not a
- 			   problem. */
- 			lock_buffer(bh);
--			if (!buffer_uptodate(bh)) {
--				BUFFER_TRACE(bh, "call get_create_access");
--				fatal = ext3_journal_get_create_access(handle, bh);
--				if (!fatal) {
--					memset(bh->b_data, 0,
--							inode->i_sb->s_blocksize);
--					set_buffer_uptodate(bh);
--				}
-+			BUFFER_TRACE(bh, "call get_create_access");
-+			fatal = ext3_journal_get_create_access(handle, bh);
-+			if (!fatal && !buffer_uptodate(bh)) {
-+				memset(bh->b_data, 0, inode->i_sb->s_blocksize);
-+				set_buffer_uptodate(bh);
- 			}
- 			unlock_buffer(bh);
- 			BUFFER_TRACE(bh, "call ext3_journal_dirty_metadata");
- 			err = ext3_journal_dirty_metadata(handle, bh);
--			if (!fatal) fatal = err;
-+			if (!fatal)
-+				fatal = err;
- 		} else {
- 			BUFFER_TRACE(bh, "not a new buffer");
- 		}
-
-_
+This is b0rked.  People shouldn't include kernel headers from userspace
+for one thing, and if you want to share a single copy of a header for
+userspace and kernelspace you have to take of the ifdefs yourself if
+including kernel-only headers such as device.h
 

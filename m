@@ -1,42 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262488AbSJETyW>; Sat, 5 Oct 2002 15:54:22 -0400
+	id <S262510AbSJEULv>; Sat, 5 Oct 2002 16:11:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262525AbSJETyW>; Sat, 5 Oct 2002 15:54:22 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:5387 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262488AbSJETyV>; Sat, 5 Oct 2002 15:54:21 -0400
-Date: Sat, 5 Oct 2002 20:59:54 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: jbradford@dial.pipex.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.x and 8250 UART problems
-Message-ID: <20021005205954.A1682@flint.arm.linux.org.uk>
-References: <200210051506.g95F6jfL000423@darkstar.example.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200210051506.g95F6jfL000423@darkstar.example.net>; from jbradford@dial.pipex.com on Sat, Oct 05, 2002 at 04:06:45PM +0100
+	id <S262528AbSJEULv>; Sat, 5 Oct 2002 16:11:51 -0400
+Received: from mallaury.noc.nerim.net ([62.4.17.82]:3854 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id <S262510AbSJEULu>; Sat, 5 Oct 2002 16:11:50 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH 2.2] i386/dmi_scan updates
+From: Jean Delvare <khali@linux-fr.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Sat, 5 Oct 2002 22:19:06 CEST
+Reply-To: Jean Delvare <khali@linux-fr.org>
+X-Priority: 3 (Normal)
+X-Originating-Ip: [172.183.206.145]
+X-Mailer: Webmail Nerim (NOCC v0.9.5)
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20021005201723.A1FA062D01@mallaury.noc.nerim.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 04:06:45PM +0100, jbradford@dial.pipex.com wrote:
-> The 486 SX-20 with 4 MB RAM, running 2.2.21 reliably achieves about 650
-> BPS download from another machine, with the port runnnig at 9600 bps.
-> With 2.5.40, many characters are lost at 9600, making, e.g. a ZModem
-> transfer retry for almost every block.
 
-Ok, we need to find out where stuff is getting dropped.  Dumping
-/proc/tty/driver/serial is always a good idea when reporting anything
-like this.
+>>  - Stop skipping DMI entries when type is less than those of the
+>>    previous entry. I could see no reason for doing this.
 
-The important thing is the change in the counters.  Can you supply the
-port in question both before and after the zmodem run please?
+> Fixes crashes on certain vendors hardware. It shouldnt be
+> needed, however in the real world it proves to be a
+> rather essential heuristic. Dmidecode doesnt do it
+> because in userspace I dont mind spewing crap to show a
+> user a problem.
 
-Thanks.
+This check has been removed in 2.4 though. I think it was needed when we were trusting the structure count (see version 1.1 of dmidecode) instead of also verifying we weren't running of the table. Now that this check is done, I don't see why we would need the heuristic anymore.
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+(...)
+
+>>  - Remove senseless tests in dump (debug) code.
+
+> These are also not senseless. Not everyone seems to use
+> the proper null string, sometimes you get spaces too
+
+I don't see how the check would protect us against anything. It only looks if the first char is a null byte or a white space. This is not very helpful, since on one hand such strings may be valid, and on the other hand invalid strings may pass the test.
+
+Also note that the white spaces check has been removed from 2.4.
+
+> The technical changes look right, and in theory all of it
+> does. In practice I'd rather see a patch that kept the
+> rule of thumb about order and the ' ' check
+
+A better way IMHO would be to "secure" the dmi_string function. If we can ensure it will always return a safe (that is, null terminated) string, we are done. Agreed?
+
+Jean Delvare
+
+
+___________________________________
+Webmail Nerim, http://www.nerim.net/
+
 

@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262518AbSI0P6y>; Fri, 27 Sep 2002 11:58:54 -0400
+	id <S261725AbSI0P5D>; Fri, 27 Sep 2002 11:57:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262514AbSI0P6x>; Fri, 27 Sep 2002 11:58:53 -0400
-Received: from sopris.net ([216.237.72.68]:61195 "EHLO mail.sopris.net")
-	by vger.kernel.org with ESMTP id <S262518AbSI0P6w>;
-	Fri, 27 Sep 2002 11:58:52 -0400
-Message-ID: <001901c2663f$a1125060$f101010a@nathan>
-From: "Nathan" <etherwolf@sopris.net>
-To: "Linux Kernel List" <linux-kernel@vger.kernel.org>
-Subject: PING: Failed to install socket filter after kernel update
-Date: Fri, 27 Sep 2002 10:04:58 -0600
+	id <S261726AbSI0P5D>; Fri, 27 Sep 2002 11:57:03 -0400
+Received: from [198.70.193.2] ([198.70.193.2]:57711 "EHLO AVEXCH01.qlogic.org")
+	by vger.kernel.org with ESMTP id <S261725AbSI0P5C> convert rfc822-to-8bit;
+	Fri, 27 Sep 2002 11:57:02 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] deadline io scheduler
+Date: Fri, 27 Sep 2002 09:01:20 -0700
+Message-ID: <B179AE41C1147041AA1121F44614F0B004F771@AVEXCH02.qlogic.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] deadline io scheduler
+Thread-Index: AcJl6uvF3GL9SX0BSEuvNaJ1xe81WAAUl2vw
+From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>, "Andrew Vasquez" <praka@san.rr.com>
+Cc: "Mike Anderson" <andmike@us.ibm.com>,
+       "Michael Clark" <michael@metaparadigm.com>,
+       "David S. Miller" <davem@redhat.com>, <wli@holomorphy.com>,
+       <axboe@suse.de>, <akpm@digeo.com>, <linux-kernel@vger.kernel.org>,
+       <patmans@us.ibm.com>
+X-OriginalArrivalTime: 27 Sep 2002 16:02:08.0969 (UTC) FILETIME=[3BA8DB90:01C2663F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay I finally made it through my kernel recompile with iptables 1.2.7a in
-there, and it seems to be working (I can do a #iptables -L and it lists my
-default chains) but there's about a 10-second delay with anything
-network-related now. When I ssh to the box, it used to come up immediately,
-now there's the delay. When I lynx to a site, delay. When I ping, I get
-useful info, then a delay.
+> Andrew Vasquez wrote:
+> > I hope this helps to clearup some of the haze and ambiguity
+> > surrounding QLogic's work with the 6.x series driver, and perhaps
+> > at the same time, prepares a medium for discussion regarding the 6.x
+> > series driver.
+> 
+> Wow, thanks for all that information, and it's great that you've 
+> integrated Arjan's work and feedback.
+> 
+> There is one big question left unanswered...  Where can the 
+> source for 
+> the latest version with all this wonderful stuff be found?  
+> :)  I don't 
+> see a URL even for 6.01b5.
+> 
+Sure, the 6.01b5 tarball can be found at:
 
-The is the output of a simple ping apple.com:
+	http://download.qlogic.com/drivers/5642/qla2x00-v6.1b5-dist.tgz
 
-PING apple.com (17.254.3.183) from 10.1.1.8 : 56(84) bytes of data.
-WARNING: failed to install socket filter
-: Protocol not available
-64 bytes from apple.com (17.254.3.183): icmp_seq=1 ttl=51 time=49.8 ms
-64 bytes from apple.com (17.254.3.183): icmp_seq=2 ttl=51 time=50.5 ms
-64 bytes from apple.com (17.254.3.183): icmp_seq=3 ttl=51 time=56.7 ms
-64 bytes from apple.com (17.254.3.183): icmp_seq=4 ttl=51 time=58.8 ms
+In general all QLogic drivers are available from the following URL:
 
---- apple.com ping statistics ---
-4 packets transmitted, 4 received, 0% loss, time 15398ms
-rtt min/avg/max/mdev = 49.835/53.987/58.830/3.877 ms
+	http://www.qlogic.com/support/drivers_software.asp
 
+In my mind, a larger question is determining a balance between the 
+'Release Early, release often' mantra of Linux development and the 
+'kinder, more conservative pace' of business.  For example, If we 
+cannot setup a 'patch/pre-beta' web-site locally at QLogic, I've 
+considered starting a SourceForge project or hosting it locally 
+through my ISP. 
 
-Notice the time 15398ms... It comes up after a couple seconds with the
-WARNING, then delays about 5 seconds, then spits out the ping info slowly,
-even though the return times may be under 10ms.
-
-So what's up with the failing to install socket filter stuff? What did I do
-to my kernel? :-)
-
-Machine info: RH 7.3 on a Dell PE 350, with a newly compiled 2.4.19 kernel
-and compiled iptables 1.2.7a (tried 1.2.6a with same results). I have
-completely removed ipchains.
-
-If anyone wants to see my kernel config file, or some of the flags from it,
-lemme know.
-
-Thanks!!
-# Nathan
-
+Regards,
+Andrew Vasquez

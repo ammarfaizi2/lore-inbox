@@ -1,116 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265909AbUI0E7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUI0E76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265909AbUI0E7R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 00:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265910AbUI0E7R
+	id S265970AbUI0E76 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 00:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265971AbUI0E7x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 00:59:17 -0400
-Received: from [69.25.196.29] ([69.25.196.29]:49086 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S265909AbUI0E7M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 00:59:12 -0400
-Date: Mon, 27 Sep 2004 00:58:28 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Jean-Luc Cooke <jlcooke@certainkey.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PROPOSAL/PATCH] Fortuna PRNG in /dev/random
-Message-ID: <20040927045828.GA13887@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Jean-Luc Cooke <jlcooke@certainkey.com>,
-	linux-kernel@vger.kernel.org
-References: <20040923234340.GF28317@certainkey.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040923234340.GF28317@certainkey.com>
-User-Agent: Mutt/1.5.6+20040818i
+	Mon, 27 Sep 2004 00:59:53 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:55230 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S265970AbUI0E7p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 00:59:45 -0400
+Date: Mon, 27 Sep 2004 14:01:28 +0900
+From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Subject: Re: [ACPI] [PATCH] PCI IRQ resource deallocation support [2/3]
+In-reply-to: <Pine.LNX.4.60.0409242236330.7426@poirot.grange>
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Takayoshi Kochi <t-kochi@bq.jp.nec.com>, bjorn.helgaas@hp.com,
+       acpi-devel@lists.sourceforge.net, kaneshige.kenji@soft.fujitsu.com,
+       akpm@osdl.org, greg@kroah.com, len.brown@intel.com, tony.luck@intel.com,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Message-id: <41579EA8.8000700@jp.fujitsu.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7bit
+X-Accept-Language: ja
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
+ Gecko/20030624 Netscape/7.1 (ax)
+References: <414FEBDB.2050201@soft.fujitsu.com>
+ <200409210857.59457.bjorn.helgaas@hp.com> <4150D458.3050400@jp.fujitsu.com>
+ <20040924.145229.108814142.t-kochi@bq.jp.nec.com>
+ <4153BEBA.5030202@jp.fujitsu.com>
+ <Pine.LNX.4.60.0409242236330.7426@poirot.grange>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Guennadi Liakhovetski,
 
-I recently posted the following article on sci.crypt, which has a more
-detailed analysis of the design of JLC's proposed patch to random.c
+Thank you for the information.
+I refer to arm, arm26 and ppc64 codes.
 
-					- Ted
+Thanks,
+Kenji Kaneshige
 
 
-From: tytso@mit.edu (Theodore Y. Ts'o)
-Subject: Re: new /dev/random
-Newsgroups: sci.crypt
-Date: 27 Sep 2004 00:05:32 -0400
-Organization: Massachusetts Institute of Technology
+Guennadi Liakhovetski wrote:
 
-Paul Rubin <http://phr.cx@NOSPAM.invalid> writes:
->Huh?  JLC's patch *is* Fortuna.  
+> On Fri, 24 Sep 2004, Kenji Kaneshige wrote:
+> 
+>> Takayoshi Kochi wrote:
+>> I'll change my patch to leave dev->irq as it is. And then I'll
+>> investigate about defining PCI_UNDEFINED_IRQ.
+> 
+> 
+> Some platforms (arm, arm26, ppc64) define a macro NO_IRQ:
+> 
+> include/asm-arm/irq.h:#define NO_IRQ        ((unsigned int)(-1))
+> include/asm-arm26/irq.h:#define NO_IRQ      ((unsigned int)(-1))
+> include/asm-ppc64/irq.h:#define NO_IRQ      (-1)
+> 
+> Thanks
+> Guennadi
+> ---
+> Guennadi Liakhovetski
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.Net email is sponsored by: YOU BE THE JUDGE. Be one of 170
+> Project Admins to receive an Apple iPod Mini FREE for your judgement on
+> who ports your project to Linux PPC the best. Sponsored by IBM.
+> Deadline: Sept. 24. Go here: http://sf.net/ppc_contest.php
+> _______________________________________________
+> Acpi-devel mailing list
+> Acpi-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/acpi-devel
+> 
 
-Actually, it isn't Fortuna.  But more on that in a moment....
-
->However, IMO, JLC's patch (Fortuna)
->should not go into the kernel in its present form, and the kernel
->maintainers should reject it.  It should not be a configuration
->option.  It has too much potential of screwing the user, until the
->entropy accounting is restored.
-
-The problem is that Fortuna's design isn't really particularly
-compatible with entropy accounting.  Each pool only contains 256 bits,
-and by definition, the pool can not possibly store more entropy than
-that.  Once you extract 256 bits, you have to wait a second before you
-can drain whatever entropy might be in pool #1, then two seconds
-before you can drain whatever entropy might be in pool #2, then four
-seconds before you can drain whataver might be in pool #3, and so on.
-This means that even if all of the pools are completely filled, in
-order to extract 2048 bits of entropy (for an long-term RSA key pair,
-for example), this would require waiting for a little over 4 minutes
-(255 seconds, to be precise).  To extract 4096 bits of entropy, we
-would have to wait 18 hours, 12 minutes, and 15 seconds (65535 seconds).
-
-Indeed, one of the complaints that I have about the whole Fortuna
-design is that from the entropy perspective, 25% of the entropy is
-stashed away in pools that will never be used for over six *months*,
-with 50% of the pools never getting used until after 18 hours or more.
-Of course in that time, those pools will get filled, refilled and
-overfilled, many times over, uselessly wasting entropy.  Entropy is a
-precious resource; it should not be so thoughtlessly squandered.
-
-.... but of course, waiting over 18 hours to before sufficient amounts
-of entropy cascades through the pool structure in order to generate a
-4096-bit RSA key isn't a problem with JLC's patch, because it doesn't
-implement the 2^k second delay for each pool, as specified by the
-Fortuna design.  Instead, it reseeds at every call to extract_entropy,
-and every 2^k reseeds, it uses a particular pool.  But in order to
-provide resistance to the state-extension attack --- which is the only
-justification for replacing /dev/random's current algorithm with
-Fortuna, and Fortuna's raison de etre --- you have to wait until a
-pool has a sufficient amount of entropy in order to provide for a
-catastrophic reseeding.  Because the rate at which the pools are drawn
-down is dependent on the extraction rate, not based on a time basis,
-or based on some estimate of the amount of entropy collected in each
-of the pools, JLC's proposed patch is vulnerable to state extension
-attack.  In other words, the proposed patch doesn't even do what it
-sets out to do!!
-
-P.S.  Despite the fact that JLC's patch is vulnerable to the state
-extension attack, because it does not faithfully implement the Fortuna
-design, it still squanders entropy.  In fact, because under normal
-operations, reads to /dev/random are happen even less frequently than
-once a second, over 50% of the collected entropy could be stored for
-**years** before it is ever used, with the net result that the
-high-level entropy pools will get overfilled, and the entropy wasted.
-This is despite the fact that in the attack scenario, the attacker can
-still force the high-order pools to be used before sufficient entropy
-can be stored.  So with respect to these two defects, it is the worst
-of both worlds.
-
-P.P.S.  Despite the fact that JLC's patch defines a #define
-RANDOM_RESEED_INTERVAL, which might lead one to believe that it is
-using a time-based cascading, in fact, that #define is never used in
-his patch.  Despite the fact that a certain party has been seen
-whining about "obfuscated" code being hard being "rude", I won't go
-down that particular path.  Nevertheless, the JLC's patch, with a
-profusion of unsued #define's, and dead code from the original
-/dev/random that is incompletely removed, has obfuscation not from the
-subtle design standpoint, but from the sloppy coding perspective,
-which IMHO is far worse (although of course, this can be corrected).
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-Theodore Ts'o			http://web.mit.edu/user/tytso/www/
-   Everybody's playing the game, but nobody's rules are the same!

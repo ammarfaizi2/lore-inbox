@@ -1,69 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbTJHKr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 06:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbTJHKr2
+	id S261354AbTJHL0F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 07:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbTJHL0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 06:47:28 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:33470 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S261342AbTJHKr1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 06:47:27 -0400
-Date: Wed, 8 Oct 2003 12:47:26 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Robert White <rwhite@casabyte.com>,
-       "'Albert Cahalan'" <albert@users.sourceforge.net>,
-       "'Ulrich Drepper'" <drepper@redhat.com>,
-       "'Mikael Pettersson'" <mikpe@csd.uu.se>,
-       "'Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: Re: Who changed /proc/<pid>/ in 2.6.0-test5-bk9?
-Message-ID: <20031008104726.GA4655@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Robert White <rwhite@casabyte.com>,
-	'Albert Cahalan' <albert@users.sourceforge.net>,
-	'Ulrich Drepper' <drepper@redhat.com>,
-	'Mikael Pettersson' <mikpe@csd.uu.se>,
-	'Kernel Mailing List' <linux-kernel@vger.kernel.org>
-References: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAwtz+A6aJAkeufXSGK2GIiwEAAAAA@casabyte.com> <Pine.LNX.4.44.0310071743370.32358-100000@home.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0310071743370.32358-100000@home.osdl.org>
-User-Agent: Mutt/1.3.28i
+	Wed, 8 Oct 2003 07:26:05 -0400
+Received: from sphere.barak.net.il ([212.150.48.98]:52668 "EHLO
+	sphere.barak.net.il") by vger.kernel.org with ESMTP id S261354AbTJHL0A convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Oct 2003 07:26:00 -0400
+From: "Amir Hermelin" <amir@montilio.com>
+To: "'Randy.Dunlap'" <rddunlap@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Format of an 'oops' call trace (in show_trace)
+Date: Wed, 8 Oct 2003 13:25:44 +0200
+Organization: Montilio
+Message-ID: <018e01c38d8e$efd4a9b0$0401a8c0@CARTMAN>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+In-Reply-To: <20031007122631.4f028e62.rddunlap@osdl.org>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 07, 2003 at 05:54:35PM -0700, Linus Torvalds wrote:
+Oops, 
+I forgot that part :)  It's RH 2.4.20-8
 
-> But the same isn't true of file descriptors or a lot of other software-
-> level abstractions. There are no inherent advantages to sharing, and in
-> fact sharing just gives more opportunity for race conditions, bad
-> interaction etc.
+Thanks,
+Amir.
 
-I may be missing something, I'm all for the ability to have threads with
-their own fd namespace, but will NPTL/Linux retain the capability to pass
-fd's to other threads?
+-----Original Message-----
+From: Randy.Dunlap [mailto:rddunlap@osdl.org] 
+Sent: Tuesday, October 07, 2003 9:27 PM
+To: Amir Hermelin
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Format of an 'oops' call trace (in show_trace)
 
-One thing I've used in tens of programs is:
 
-void *session(void *p)
-{
-	int fd=(int)p;
-	...
-}
-...
+On Tue, 7 Oct 2003 17:56:38 +0200 "Amir Hermelin" <amir@montilio.com> wrote:
 
-for(;;) {
-	fd=accept();
-	pthread_create_thread(session,(void*)fd);
-}
+| Hi,
+| Can someone please point me to a description of what I see in the Call 
+| of the oops dump?  I tried looking into show_trace and lookup_symbol 
+| functions, but I couldn't understand some things.  For example, in 
+| this following
+| trace:
+| Oct  7 17:13:54 joji kernel: [<e01bae00>] reqrdata [mymod] 0x0
+(0xd5543fb4))
+| 
+| Oct  7 17:13:54 joji kernel: [<e01a5220>] mymod [mymod] 0x0 
+| (0xd5543fe0))
+| I don't understand the relevance to reqrdata (since it's not a function,
+but
+| a data structure, and isn't the parameter to the mymod function).
+| And could
+| someone please explain what the 0x0 in the lines mean? From the code I
+| understood it to be the offset of the symbol within the module, but that
+| can't be right if both symbols translate to the same offset - so I must've
+| understood it wrong.
 
-I'd like to continue to have that ability.
+Hi,
 
-Thanks.
+What kernel version is this?
+Any patches applied to it?
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+~Randy
+
+| Oct  7 17:13:54 joji kernel:  printing eip:
+| Oct  7 17:13:54 joji kernel: e01b090b
+| Oct  7 17:13:54 joji kernel: *pde = 00000000
+| Oct  7 17:13:54 joji kernel: Oops: 0002
+| Oct  7 17:13:54 joji kernel: nfsd nfs lockd sunrpc bcm5700 parport_pc 
+| lp parport autofs sg sr_mod ide-scsi scsi_mod ide-cd cdrom key mymod 
+| bdev mousedev hid input usb-uhci ehci-hcd usbcore ext3
+| Oct  7 17:13:54 joji kernel: CPU:    0
+| Oct  7 17:13:54 joji kernel: EIP:    0060:[<e01b090b>]    Not tainted
+| Oct  7 17:13:54 joji kernel: EFLAGS: 00010282
+| Oct  7 17:13:54 joji kernel:
+| Oct  7 17:13:54 joji kernel: EIP is at rtp_recv [mymod] 0x5b
+| (2.4.20-8custom)
+| Oct  7 17:13:54 joji kernel: eax: 00000000   ebx: d5542000   ecx: 00000001
+| edx: c0374c88
+| Oct  7 17:13:54 joji kernel: esi: e01bae00   edi: d76aa400   ebp: d5543fcc
+| esp: d5543f98
+| Oct  7 17:13:54 joji kernel: ds: 0068   es: 0068   ss: 0068
+| Oct  7 17:13:54 joji kernel: Process mymod (pid: 6978, stackpage=d5543000)
+
+| Oct  7 17:13:54 joji kernel: Stack: e01bae00 d76aa400 d5542000 00000000
+| d76aa400 ffffffff e01a5308 e01bae00 
+| Oct  7 17:13:54 joji kernel:        d76aa400 d5543fcc d5542000 d5542000
+| dbd15900 00000000 d54f3fd0 d5533fd0 
+| Oct  7 17:13:54 joji kernel:        d5542000 00000000 e01a5220 00000000
+| 00000000 00000000 c010742d d76aa400 
+| Oct  7 17:13:54 joji kernel: Call Trace:   [<e01bae00>] reqrdata [mymod]
+0x0
+| (0xd5543f98))
+| Oct  7 17:13:54 joji kernel: [<e01a5308>] mymod [mymod] 0xe8 (0xd5543fb0))
+
+| Oct  7 17:13:54 joji kernel: [<e01bae00>] reqrdata [mymod] 0x0
+(0xd5543fb4))
+| 
+| Oct  7 17:13:54 joji kernel: [<e01a5220>] mymod [mymod] 0x0 
+| (0xd5543fe0))
+| Oct  7 17:13:54 joji kernel: [<c010742d>] kernel_thread_helper [kernel]
+0x5
+| (0xd5543ff0)) 
+| Oct  7 17:13:54 joji kernel: 
+| Oct  7 17:13:54 joji kernel: 
+| Oct  7 17:13:54 joji kernel: Code: ff 40 1c 8b 56 10 8b 52 1c 89 97 98 01
+00
+| 00 01 50 24 89 7c 
+
+

@@ -1,54 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282843AbRLRKRB>; Tue, 18 Dec 2001 05:17:01 -0500
+	id <S282671AbRLRKSM>; Tue, 18 Dec 2001 05:18:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285633AbRLRKQw>; Tue, 18 Dec 2001 05:16:52 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:45585 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S282843AbRLRKQj>; Tue, 18 Dec 2001 05:16:39 -0500
-Date: Tue, 18 Dec 2001 10:16:30 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Todd Inglett <tinglett@chartermi.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE dma reset for sl82c105
-Message-ID: <20011218101630.C12774@flint.arm.linux.org.uk>
-In-Reply-To: <3C1EB87C.7090103@chartermi.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C1EB87C.7090103@chartermi.net>; from tinglett@chartermi.net on Mon, Dec 17, 2001 at 09:31:08PM -0600
+	id <S285633AbRLRKSD>; Tue, 18 Dec 2001 05:18:03 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:17889 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S282671AbRLRKR6>; Tue, 18 Dec 2001 05:17:58 -0500
+Date: Tue, 18 Dec 2001 11:17:54 +0100 (CET)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: Vojtech Pavlik <vojtech@suse.cz>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Re: compile problem: es1371+gamepad
+In-Reply-To: <20011217220240.A21215@suse.cz>
+Message-ID: <Pine.NEB.4.43.0112181110450.7950-100000@mimas.fachschaften.tu-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 17, 2001 at 09:31:08PM -0600, Todd Inglett wrote:
-> I have found that the IDE controller on a w83c553f (a sl82c105 function) 
-> can get into a hung state if the interrupt line is wired to INTC and a 
-> timeout occurs.  The following patch implements a hard reset for the 
-> controller as documented in a Windbond engineering notice.
+On Mon, 17 Dec 2001, Vojtech Pavlik wrote:
 
-Thanks - I'll give it a whirl here.
+> > The patch below should hadle this problem better.
+> >
+> > I've found another problem:
+> > When I do completely disable "Input core support" after it was compiled
+> > into the kernel and I go to the "Sound" menu the implicite change that
+> > CONFIG_INPUT_GAMEPORT is automatically turned off wasn't done. It seems I
+> > need to either go to the "Joysticks" menu or to quit "make menuconfig" to
+> > get the wanted effect in the "Sound" submenu. Is this a bug or a known
+> > limitation of "make menuconfig"?
+>
+> It really can be solved sufficiently with CML2.  Other than that, there
+> are always combinations which are either causing compile errors or are
+> possible but not allowed by the menuconfig.
 
-Could you also get an lspci -v dump of the ISA bridge and the IDE function
-please?
+Yes, it's clear to me that these problems won't occur in CML2 but it's
+unlikely that CML2 will make it into the 2.4 kernels, so we need
+workarounds that work in most cases.
 
-> This patch needs some testing and there appears to be no maintainer for 
-> the sl83c105 IDE driver :(.
+The workaround you invented doesn't work in the case when
+CONFIG_INPUT_GAMEPORT is compiled modular.
 
-I'm about the closest person to a maintainer for that; these chips are
-used on every NetWinder...
+My patch handles these cases, too. If you do the wrong things in the wrong
+order (not that extremely likely) the things that are displayed aren't
+100% correct, but at least you do always have a valid configuration in the
+end.
 
-> The conditions to repeat the problem are 
-> that the controller must be wired for PCI INTC, DMA must be in use, and 
-> a timeout error must occur (try mounting a music CD).
+IMHO your solution is nearer on how it should be implemented in CML2 and
+my solution is a better workaround for the limited CML1.
 
-Does the Engineering notice give PCI INTC as a pre-condition?
+cu
+Adrian
 
-> The patch should apply to 2.5.13 - 2.5.16 (at least).
+-- 
 
-I think you mean 2.4.13 - 2.4.16 8)
+Get my GPG key: finger bunk@debian.org | gpg --import
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
+
 

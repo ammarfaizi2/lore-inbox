@@ -1,71 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVCCIUv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVCCIUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVCCIUv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 03:20:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVCCIUu
+	id S261590AbVCCIUf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 03:20:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVCCIUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 03:20:50 -0500
-Received: from mail.kroah.org ([69.55.234.183]:58288 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261584AbVCCIU2 (ORCPT
+	Thu, 3 Mar 2005 03:20:34 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37553 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261581AbVCCIUN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 03:20:28 -0500
-Date: Thu, 3 Mar 2005 00:19:58 -0800
-From: Greg KH <greg@kroah.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303081958.GA29524@kroah.com>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org>
+	Thu, 3 Mar 2005 03:20:13 -0500
+Date: Thu, 3 Mar 2005 09:20:10 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH ide-dev-2.6] ide: ide_dma_intr oops fix
+Message-ID: <20050303082010.GF19505@suse.de>
+References: <20050303030318.GA25410@htj.dyndns.org> <20050303064925.GB19505@suse.de> <4226B54E.6020709@gmail.com> <58cb370e050303000478119a22@mail.gmail.com> <20050303080519.GE19505@suse.de> <58cb370e05030300145c554abe@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <58cb370e05030300145c554abe@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 05:15:36PM -0800, Linus Torvalds wrote:
-> The thing is, I _do_ believe the current setup is working reasonably well.  
-> But I also do know that some people (a fairly small group, but anyway)  
-> seem to want an extra level of stability - although those people seem to
-> not talk so much about "it works" kind of stability, but literally a "we
-> can't keep up" kind of stability (ie at least a noticeable percentage of
-> that group is not complaining about crashes, they are complaining about
-> speed of development).
+On Thu, Mar 03 2005, Bartlomiej Zolnierkiewicz wrote:
+> On Thu, 3 Mar 2005 09:05:19 +0100, Jens Axboe <axboe@suse.de> wrote:
+> > On Thu, Mar 03 2005, Bartlomiej Zolnierkiewicz wrote:
+> > > On Thu, 03 Mar 2005 15:57:18 +0900, Tejun Heo <htejun@gmail.com> wrote:
+> > > >   Hello, Jens.
+> > > >
+> > > > Jens Axboe wrote:
+> > > > > On Thu, Mar 03 2005, Tejun Heo wrote:
+> > > > >
+> > > > >> Hello, Bartlomiej.
+> > > > >>
+> > > > >> This patch fixes ide_dma_intr() oops which occurs for TASKFILE ioctl
+> > > > >>using DMA dataphses.  This is against the latest ide-dev-2.6 tree +
+> > > > >>all your recent 9 patches.
+> > > > >>
+> > > > >> Signed-off-by: Tejun Heo <htejun@gmail.com>
+> > > > >>
+> > > > >>Index: linux-taskfile-ng/drivers/ide/ide-dma.c
+> > > > >>===================================================================
+> > > > >>--- linux-taskfile-ng.orig/drivers/ide/ide-dma.c      2005-03-03 11:59:16.485582413 +0900
+> > > > >>+++ linux-taskfile-ng/drivers/ide/ide-dma.c   2005-03-03 12:00:07.753376048 +0900
+> > > > >>@@ -175,10 +175,14 @@ ide_startstop_t ide_dma_intr (ide_drive_
+> > > > >>      if (OK_STAT(stat,DRIVE_READY,drive->bad_wstat|DRQ_STAT)) {
+> > > > >>              if (!dma_stat) {
+> > > > >>                      struct request *rq = HWGROUP(drive)->rq;
+> > > > >>-                     ide_driver_t *drv;
+> > > > >>
+> > > > >>-                     drv = *(ide_driver_t **)rq->rq_disk->private_data;;
+> > > > >>-                     drv->end_request(drive, 1, rq->nr_sectors);
+> > > > >>+                     if (rq->rq_disk) {
+> > > > >>+                             ide_driver_t *drv;
+> > > > >>+
+> > > > >>+                             drv = *(ide_driver_t **)rq->rq_disk->private_data;;
+> > > > >>+                             drv->end_request(drive, 1, rq->nr_sectors);
+> > > > >>+                     } else
+> > > > >>+                             ide_end_request(drive, 1, rq->nr_sectors);
+> > > > >>                      return ide_stopped;
+> > > > >>              }
+> > > > >>              printk(KERN_ERR "%s: dma_intr: bad DMA status (dma_stat=%x)\n",
+> > > > >
+> > > > > Why not just set rq_disk for taskfile requests as well, seems a lot
+> > > > > cleaner than special casing the end_request handling.
+> > > >
+> > > >   Just because other places were fixed this way and the whole drive
+> > > > command issue/completion codes are just about to be restructured.  Above
+> > > > code will go away soon.  Please consider it a quick fix.
+> > > >
+> > > >   Thanks.
+> > >
+> > > Because struct gendisk is now allocated by device drivers (like in SCSI
+> > > subsystem) rq_disk can't be set for REQ_DRIVE_TASKFILE requests
+> > > (for some requests it can be set but better to keep it consistent).
+> > 
+> > Seems cleaner to store the driver in the drive structure then, no
+> > special casing needed.
 > 
-> And I suspect that _anything_ I do won't make those people happy.
+> This can't be done *correctly* with driver model support, that is why
+> SCSI does the same trick.  There were three incremental patch series,
+> all sent to linux-{ide,kernel} (all patches except the final one are
+> now in ide-dev-2.6), to convert IDE device drivers to driver model.
 
-That single sentence sums it up perfectly.  When I have given talks
-about how our current development cycle works, and what's happening with
-it, people just feel odd seeing all of this change happen and get upset
-at it.  Perhaps it's because they never paid attention before, or that
-they are new to Linux and like to believe that old-style development
-models were somehow "better", and that they know we are doing something
-wrong.
+Ok, I guess we'll have to live with it then.
 
-But when pressed about the issue of speed of development, rate of
-change, feature increase, driver updates, and so on, no one else has any
-clue of what to do.  They respond with, "but only put bugfixes into a
-stable release."  My comeback is explaining how we handle lots of
-different types of bugfixes, by api changes, real fixes, and driver
-updates for new hardware.  Sometimes these cause other bugs to happen,
-or just get shaken out where they were previously hiding (acpi is a
-great example of this issue.)  In the end, they usually fall back on
-muttering, "well, I'm just glad that I'm not a kernel developer..." and
-back away.
+-- 
+Jens Axboe
 
-Like I previously said, I think we're doing a great job.  The current
--mm staging area could use some more testers to help weed out the real
-issues, and we could do "real" releases a bit faster than every 2 months
-or so.  But other than that, we have adapted over the years to handle
-this extremely high rate of change in a pretty sane manner.
-
-So don't spend too much time worring that we need to make those types of
-people happy.  As Jeff said, no other OS is accepting changes at such a
-high rate.  But then again, no other OS supports more devices, on more
-different processors.  So we must be doing something right :)
-
-thanks,
-
-greg k-h

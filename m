@@ -1,186 +1,147 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265889AbTGKTtp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 15:49:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265257AbTGKTs1
+	id S264935AbTGKSMh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 14:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264937AbTGKSLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 15:48:27 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:18400 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S265285AbTGKTqe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 15:46:34 -0400
-Date: Fri, 11 Jul 2003 22:00:53 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: linux-kernel@vger.kernel.org, acpi-support@lists.sourceforge.net,
-       pavel@suse.cz
-Subject: Re: [2.5.75] S3 and S4
-Message-ID: <20030711200053.GA402@elf.ucw.cz>
-References: <20030711193611.GA824@dreamland.darkstar.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030711193611.GA824@dreamland.darkstar.lan>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Fri, 11 Jul 2003 14:11:33 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:7556
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S264593AbTGKR4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 13:56:10 -0400
+Date: Fri, 11 Jul 2003 19:09:58 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307111809.h6BI9wZX017278@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: PATCH: demo plugin for switching ad1980 ports Dell style
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I've been playing with ACPI and software suspend.
-> 
-> I have an AthlonXP on a KT333 motherboard. Kernel UP with preemption.
-> 
-> S3 doesn't work with FB (well, I  can suspend the machine but the screen
-> isn't restored on resume. I can blindly  login and reboot) but I read on
-> fbdev that this is a WIP.  Without FB the system goes to sleep with some
-> warnings (we call local_bh_enable with interrupts disabled):
-> 
-
-[Please, people, edit out those dmesg-s (unless something went wrong
-with refrigerator). I'm not at all interested in your process list,
-even if "pickup" process sounds funny. ]
-
-> Stopping tasks: klogd entered refrigerator
-> =init entered refrigerator
-...
-> =unlinkd entered refrigerator
-> =master entered refrigerator
-> =pickup entered refrigerator
-
-You have "interesting" processes on your machine ;).
-
-> Suspending devices
-> Badness in local_bh_enable at kernel/softirq.c:113
-> Call Trace:
->  [<c0130078>] local_bh_enable+0x88/0x90
->  [<f0a44fa4>] e100_do_wol+0x14/0x60 [e100]
->  [<f0a461ee>] e100_suspend+0x3e/0xa0 [e100]
->  [<f0a461b0>] e100_suspend+0x0/0xa0 [e100]
->  [<c0212577>] pci_device_suspend+0x47/0x70
->  [<c029bc99>] device_suspend+0xd9/0x100
->  [<c023e047>] acpi_system_save_state+0x42/0x8c
->  [<c023e153>] acpi_suspend+0x5e/0xb3
->  [<c023e394>] acpi_system_write_sleep+0xe3/0x132
->  [<c0177de0>] filp_open+0x60/0x70
->  [<c017952d>] vfs_write+0xad/0x120
->  [<c017963f>] sys_write+0x3f/0x60
->  [<c010b10f>] syscall_call+0x7/0xb
-> 
-
-If e100. You have the hardware...
-
-> And then the resume:
->  
-> Enabling SEP on CPU 0
-> Back to C!
-
-[This reminds me I need to clean up those messages].
-
-> Devices Resumed
-> hda: Wakeup request inited, waiting for !BSY...
-> hda: start_power_step(step: 1000)
-...
-> sleep left refrigerator
-> e100: eth0 NIC Link is Up 10 Mbps Half duplex
-> MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-> Bank 0: d46ee00000007fee
-> MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-> Bank 1: f713eeedb75ae7fd
-> MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-> Bank 2: f60000000000feff
-> MCE: The hardware reports a non fatal, correctable incident occurred on CPU 0.
-> Bank 3: fc0000000000ffef
-> 
-> I'm a bit  worried about these MCEs, but the  machine seems stable after
-> resume (btw,  I remeber that Alan  once posted a MCE  decoder, but can't
-> find it - any clue?).
-
-Not sure what it is. MCEs should be hardware fault, always...
-
-> S4  suspends fine,  but  it seems  that it  doesn't  like preemption  on
-> resume:
-> 
-> ......[lots of dots]......[nosave c041c000]Enabling SEP on CPU 0
-> Freeing prev allocated pagedir
-> bad: scheduling while atomic!
-> Call Trace:
->  [<c012419e>] schedule+0x6ce/0x6e0
->  [<c02ded7b>] pci_read+0x3b/0x40
->  [<c01358e8>] schedule_timeout+0x88/0xe0
->  [<c02dedbc>] pci_write+0x3c/0x40
->  [<c0135850>] process_timeout+0x0/0x10
->  [<c020f9e4>] pci_set_power_state+0xe4/0x190
->  [<f0a46278>] e100_resume+0x28/0x70 [e100]
->  [<c02125cd>] pci_device_resume+0x2d/0x30
->  [<c029bd76>] device_resume+0xb6/0xd0
->  [<c014e60c>] drivers_resume+0x8c/0xa0
->  [<c014ea15>] do_magic_resume_2+0xc5/0x170
->  [<c011d410>] restore_processor_state+0x70/0x90
->  [<c011ff5f>] do_magic+0x11f/0x140
->  [<c014ef1d>] do_software_suspend+0x6d/0xa0
->  [<c023e3cc>] acpi_system_write_sleep+0x11b/0x132
->  [<c0177de0>] filp_open+0x60/0x70
->  [<c017952d>] vfs_write+0xad/0x120
->  [<c017963f>] sys_write+0x3f/0x60
->  [<c010b10f>] syscall_call+0x7/0xb
-
-That's e100 driver, again. Fix it.
-
-> Fixing swap signatures... <3>bad: scheduling while atomic!
-> Call Trace:
->  [<c012419e>] schedule+0x6ce/0x6e0
->  [<c02a219d>] generic_make_request+0x17d/0x210
->  [<c01272d0>] autoremove_wake_function+0x0/0x50
->  [<c012641e>] io_schedule+0xe/0x20
->  [<c0150522>] wait_on_page_bit+0xa2/0xd0
->  [<c01272d0>] autoremove_wake_function+0x0/0x50
->  [<c01272d0>] autoremove_wake_function+0x0/0x50
->  [<c017194b>] swap_readpage+0x5b/0x80
->  [<c0171a2a>] rw_swap_page_sync+0xba/0x110
->  [<c014d8be>] mark_swapfiles+0x7e/0x1b0
->  [<c014ea35>] do_magic_resume_2+0xe5/0x170
->  [<c011d410>] restore_processor_state+0x70/0x90
->  [<c011ff5f>] do_magic+0x11f/0x140
->  [<c014ef1d>] do_software_suspend+0x6d/0xa0
->  [<c023e3cc>] acpi_system_write_sleep+0x11b/0x132
->  [<c0177de0>] filp_open+0x60/0x70
->  [<c017952d>] vfs_write+0xad/0x120
->  [<c017963f>] sys_write+0x3f/0x60
->  [<c010b10f>] syscall_call+0x7/0xb
-
-Ahha, this looks like generic problem. I'll probably take a look...
-
-> Unable to handle kernel paging request at virtual address 40107114
->  printing eip:
-> 40107114
-> *pde = 2dbf6067
-> *pte = 00000000
-> Oops: 0004 [#1]
-> CPU:    0
-> EIP:    0073:[<40107114>]    Not tainted
-> EFLAGS: 00010202
-> EIP is at 0x40107114
-> eax: ffffffea   ebx: 00000001   ecx: 080d440c   edx: 00000002
-> esi: 00000002   edi: 080d440c   ebp: bffffae8   esp: bffffab8
-> ds: 007b   es: 007b   ss: 007b
-> Process bash (pid: 484, threadinfo=ed776000 task=ef1e40c0)
->  <6>note: bash[484] exited with preempt_count 1
-> pdflush left refrigerator
-> e100: eth0 NIC Link is Up 10 Mbps Half duplex
-> 
-> 
-> ksymoops says:
-> 
-> Warning (Oops_read): Code line not seen, dumping what data is available
-> 
-> 
-> >>EIP; 40107114 Before first symbol   <=====
-> 
-> >>eax; ffffffea <__kernel_rt_sigreturn+1baa/????>
-
-That's bad. Error outside of kernel. Not sure what is wrong.
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.75/sound/oss/ac97_plugin_ad1980.c linux-2.5.75-ac1/sound/oss/ac97_plugin_ad1980.c
+--- linux-2.5.75/sound/oss/ac97_plugin_ad1980.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.5.75-ac1/sound/oss/ac97_plugin_ad1980.c	2003-07-11 16:21:30.000000000 +0100
+@@ -0,0 +1,124 @@
++/*
++    ac97_plugin_ad1980.c  Copyright (C) 2003 Red Hat, Inc. All rights reserved.
++
++   The contents of this file are subject to the Open Software License version 1.1
++   that can be found at http://www.opensource.org/licenses/osl-1.1.txt and is 
++   included herein by reference. 
++   
++   Alternatively, the contents of this file may be used under the
++   terms of the GNU General Public License version 2 (the "GPL") as 
++   distributed in the kernel source COPYING file, in which
++   case the provisions of the GPL are applicable instead of the
++   above.  If you wish to allow the use of your version of this file
++   only under the terms of the GPL and not to allow others to use
++   your version of this file under the OSL, indicate your decision
++   by deleting the provisions above and replace them with the notice
++   and other provisions required by the GPL.  If you do not delete
++   the provisions above, a recipient may use your version of this
++   file under either the OSL or the GPL.
++   
++   Authors: 	Arjan van de Ven <arjanv@redhat.com>
++
++   This is an example codec plugin. This one switches the connections
++   around to match the setups some vendors use with audio switched to
++   non standard front connectors not the normal rear ones
++
++   This code primarily exists to demonstrate how to use the codec
++   interface
++
++*/
++
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/ac97_codec.h>
++
++/**
++ *	ad1980_remove		-	codec remove callback
++ *	@codec: The codec that is being removed
++ *
++ *	This callback occurs when an AC97 codec is being removed. A
++ *	codec remove call will not occur for a codec during that codec
++ *	probe callback.
++ *
++ *	Most drivers will need to lock their remove versus their 
++ *	use of the codec after the probe function.
++ */
++ 
++static void ad1980_remove(struct ac97_codec *codec)
++{
++	/* Nothing to do in the simple example */
++}
++
++
++/**
++ *	ad1980_probe		-	codec found callback
++ *	@codec: ac97 codec matching the idents
++ *	@driver: ac97_driver it matched
++ *
++ *	This entry point is called when a codec is found which matches
++ *	the driver. At the point it is called the codec is basically
++ *	operational, mixer operations have been initialised and can
++ *	be overriden. Called in process context. The field driver_private
++ *	is available for the driver to use to store stuff.
++ *
++ *	The caller can claim the device by returning zero, or return
++ *	a negative error code. 
++ */
++ 
++static int ad1980_probe(struct ac97_codec *codec, struct ac97_driver *driver)
++{
++	u16 control;
++
++#define AC97_AD_MISC	0x76
++
++	/* Switch the inputs/outputs over (from Dell code) */
++	control = codec->codec_read(codec, AC97_AD_MISC);
++	codec->codec_write(codec, AC97_AD_MISC, control | 0x0420);
++	
++	/* We could refuse the device since we dont need to hang around,
++	   but we will claim it */
++	return 0;
++}
++	
++ 
++static struct ac97_driver ad1980_driver = {
++	codec_id: 0x41445370,
++	codec_mask: 0xFFFFFFFF,
++	name: "AD1980 example",
++	probe:	ad1980_probe,
++	remove: __devexit_p(ad1980_remove),
++};
++
++/**
++ *	ad1980_exit		-	module exit path
++ *
++ *	Our module is being unloaded. At this point unregister_driver
++ *	will call back our remove handler for any existing codecs. You
++ *	may not unregister_driver from interrupt context or from a 
++ *	probe/remove callback.
++ */
++
++static void ad1980_exit(void)
++{
++	ac97_unregister_driver(&ad1980_driver);
++}
++
++/**
++ *	ad1980_init		-	set up ad1980 handlers
++ *
++ *	After we call the register function it will call our probe
++ *	function for each existing matching device before returning to us.
++ *	Any devices appearing afterwards whose id's match the codec_id
++ *	will also cause the probe function to be called.
++ *	You may not register_driver from interrupt context or from a 
++ *	probe/remove callback.
++ */
++ 
++static int ad1980_init(void)
++{
++	return ac97_register_driver(&ad1980_driver);
++}
++
++module_init(ad1980_init);
++module_exit(ad1980_exit);

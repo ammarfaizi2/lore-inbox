@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbUAAQ5l (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 11:57:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264502AbUAAQ5k
+	id S264527AbUAARSa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 12:18:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264534AbUAARSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 11:57:40 -0500
-Received: from colossus.systems.pipex.net ([62.241.160.73]:62416 "EHLO
-	colossus.systems.pipex.net") by vger.kernel.org with ESMTP
-	id S264501AbUAAQ5j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 11:57:39 -0500
-From: Shaheed <srhaque@iee.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: udev and devfs - The final word
-Date: Thu, 1 Jan 2004 16:59:35 +0000
-User-Agent: KMail/1.5.94
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 1 Jan 2004 12:18:30 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:65189 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S264527AbUAARS1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 12:18:27 -0500
+Subject: Possibly wrong BIO usage in ide_multwrite
+From: Christophe Saout <christophe@saout.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linux IDE <linux-ide@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Content-Type: text/plain
+Message-Id: <1072977507.4170.14.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Thu, 01 Jan 2004 18:18:27 +0100
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401011659.35973.srhaque@iee.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
+Hi!
 
->Combine that with hotplug and you have a world of pain. Generating a number 
-> from a device is just a fancy hashing function, but as soon as you have two 
-> devices that generate the same number independently (when in separate 
-> systems) and you plug them both into the same system: boom.
+I was just investigating where bio->bi_idx gets modified in the kernel.
 
-If one has two otherwise identical devices, the only thing that distinguishes 
-them to the system is their point of attachment. Even from a user's point of 
-view, the only difference is the connector it is plugged into. That implies 
-that the hash resolution value ought to be based on the point of attachment.
+I found these lines in ide-disk.c in ide_multwrite (DMA off, TASKFILE_IO
+off):
 
-It seems to me that the key to making this system as transparent as possible 
-is to make these source value of the hash and the attachment point visible 
-and navigable by userspace/humans. Perhaps something like this:
+> if (++bio->bi_idx >= bio->bi_vcnt) {
+>     bio->bi_idx = 0;
+>     bio = bio->bi_next;
+> }
 
-- every driver exports its name and some driver-or-devicetype-dependant value 
-(serial number, MAC address, disk WWID, pty number, kernel address of kobject 
-or whatever) to /sbin/hotplug. The userspace logic gets to hash+uniquify the 
-value as required, and then create a sysfs tree node ("/uid/xxx") whose 
-leaves contain the point of attachment.
+(rq->bio also gets changed but it's protected by the scratch buffer)
 
-- At the bottom of the sysfs tree for the device add a leaf that points back 
-to the entry into "/uid" tree.
+I think changing the bi_idx here is dangerous because
+end_that_request_first needs this value to be unchanged because it
+tracks the progress of the bio processing and updates bi_idx itself.
 
-Thus, userspace can navigate in either direction between the point of 
-attachment, and the identifiying characteristic of the deivce.
+And bio->bi_idx = 0 is probably wrong because the bio can be submitted
+with bio->bi_idx > 0 (if the bio was splitted and there are clones that
+share the bio_vec array, like raid or device-mapper code).
 
-Thanks, Shaheed
+If it really needs to play with bi_idx itself care should be taken to
+reset bi_idx to the original value, not to zero.
+
+I wasn't able to trigger a problem though, I don't know why exactly,
+perhaps there are paths in __end_that_request_first that are not
+interested in bi_dx. I still think there is something wrong with it.
+
+

@@ -1,93 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbTI2OKb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 10:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbTI2OKb
+	id S262929AbTI2OS2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 10:18:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263387AbTI2OS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 10:10:31 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:50954 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S262183AbTI2OK3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 10:10:29 -0400
-Date: Mon, 29 Sep 2003 11:15:48 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Adrian Bunk <bunk@fs.tum.de>, netdev@oss.sgi.com, davem@redhat.com,
-       pekkas@netcore.fi, lksctp-developers@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-Message-ID: <20030929141548.GS1039@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	David Woodhouse <dwmw2@infradead.org>, Adrian Bunk <bunk@fs.tum.de>,
-	netdev@oss.sgi.com, davem@redhat.com, pekkas@netcore.fi,
-	lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20030928225941.GW15338@fs.tum.de> <20030928231842.GE1039@conectiva.com.br> <20030928232403.GX15338@fs.tum.de> <20030928233909.GG1039@conectiva.com.br> <20030929001439.GY15338@fs.tum.de> <20030929003229.GM1039@conectiva.com.br> <1064826174.29569.13.camel@hades.cambridge.redhat.com>
+	Mon, 29 Sep 2003 10:18:28 -0400
+Received: from lmail.actcom.co.il ([192.114.47.13]:6831 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S262929AbTI2OSY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 10:18:24 -0400
+Date: Mon, 29 Sep 2003 17:18:00 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Jaroslav Kysela <perex@suse.cz>
+Cc: Florin Iucha <florin@iucha.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test6
+Message-ID: <20030929141800.GP29313@actcom.co.il>
+References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <20030929132355.GA1206@iucha.net> <20030929135540.GO29313@actcom.co.il> <Pine.LNX.4.53.0309291558550.1362@pnote.perex-int.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5KxTQ9fdN6Op3ksq"
 Content-Disposition: inline
-In-Reply-To: <1064826174.29569.13.camel@hades.cambridge.redhat.com>
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
+In-Reply-To: <Pine.LNX.4.53.0309291558550.1362@pnote.perex-int.cz>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Mon, Sep 29, 2003 at 10:02:55AM +0100, David Woodhouse escreveu:
-> On Sun, 2003-09-28 at 21:32 -0300, Arnaldo Carvalho de Melo wrote:
-> > Em Mon, Sep 29, 2003 at 02:14:39AM +0200, Adrian Bunk escreveu:
-> > > On Sun, Sep 28, 2003 at 08:39:10PM -0300, Arnaldo Carvalho de Melo wrote:
-> > > What about the following solution (the names and help texts for the
-> > > config options might not be optimal, I hope you understand the
-> > > intention):
-> > > 
-> > > config IPV6_SUPPORT
-> > > 	bool "IPv6 support"
-> > > 
-> > > config IPV6_ENABLE
-> > > 	tristate "enable IPv6"
-> > > 	depends on IPV6_SUPPORT
-> > > 
-> > > IPV6_SUPPORT changes structs etc. and IPV6_ENABLE is responsible for 
-> > > ipv6.o .
-> > 
-> > Humm, and the idea is? This seems confusing, could you elaborate on why such
-> > scheme is a good thing?
-> 
-> The idea is that you then have ifdefs on CONFIG_IPV6_SUPPORT not on
-> CONFIG_IPV6_MODULE.
 
-That part I understood :)
- 
-> The underlying point being that your static kernel should not change if
-> you change an option from 'n' to 'm'.
+--5KxTQ9fdN6Op3ksq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-But that will only happen if CONFIG_IPV6_SUPPORT is always enabled, no?
+On Mon, Sep 29, 2003 at 04:01:09PM +0200, Jaroslav Kysela wrote:
+> On Mon, 29 Sep 2003, Muli Ben-Yehuda wrote:
+>=20
+> > On Mon, Sep 29, 2003 at 08:23:55AM -0500, Florin Iucha wrote:
+> >
+> > > I can no longer select my soundcard: In test5 it was configured by
+> > > CONFIG_SND_CS46XX! This option is no longer available in test6 (make
+> > > menuconfig does not offer me the opportunity).
+> >
+> > You need to enable CONFIG_GAMEPORT, or apply this patch. Jaroslav, is
+> > there a master plan for the CONFIG_SOUND_GAMEPORT -> CONFIG_GAMEPORT
+> > conversion or is it a bug? this patch reverts it.
+>=20
+> CONFIG_SOUND_GAMEPORT define is ugly. It's better to remove all gameport
+> dependencies from the ALSA's configuration files and let drivers to
+> detect the gameport presence at "compile" time.
 
-> It should only affect the kernel image if you change options to/from 'y'.
+I think it's a build system issue and thus should be handled by the
+build system, not by #ifdefs. However, if that's the way you prefer
+it, here's a patch to remove the GAMEPORT dependencies from
+sound/pci/Kconfig. From a quick glance, all affected drivers have the
+necessary ifdefs.=20
 
-That is a good goal, yes, so lets remove all the ifdefs around EXPORT_SYMBOL,
-etc, i.e.: add bloat for the simple case were I want a minimal kernel.
+diff -Naur --exclude-from /home/muli/p/dontdiff linux-2.5/sound/pci/Kconfig=
+ revert-alsa-gameport-2.6.0-t6/sound/pci/Kconfig
+--- linux-2.5/sound/pci/Kconfig	Mon Sep 29 16:46:37 2003
++++ revert-alsa-gameport-2.6.0-t6/sound/pci/Kconfig	Mon Sep 29 17:14:36 2003
+@@ -17,7 +17,7 @@
+=20
+ config SND_CS46XX
+ 	tristate "Cirrus Logic (Sound Fusion) CS4280/CS461x/CS462x/CS463x"
+-	depends on SND && GAMEPORT
++	depends on SND
+ 	help
+ 	  Say 'Y' or 'M' to include support for Cirrus Logic CS4610 / CS4612 /
+ 	  CS4614 / CS4615 / CS4622 / CS4624 / CS4630 / CS4280 chips.
+@@ -30,7 +30,7 @@
+=20
+ config SND_CS4281
+ 	tristate "Cirrus Logic (Sound Fusion) CS4281"
+-	depends on SND && GAMEPORT
++	depends on SND
+ 	help
+ 	  Say 'Y' or 'M' to include support for Cirrus Logic CS4281.
+=20
+@@ -83,7 +83,7 @@
+=20
+ config SND_TRIDENT
+ 	tristate "Trident 4D-Wave DX/NX; SiS 7018"
+-	depends on SND && GAMEPORT
++	depends on SND
+ 	help
+ 	  Say 'Y' or 'M' to include support for Trident 4D-Wave DX/NX and
+ 	  SiS 7018 soundcards.
+@@ -110,20 +110,20 @@
+=20
+ config SND_ENS1370
+ 	tristate "(Creative) Ensoniq AudioPCI 1370"
+-	depends on SND && GAMEPORT
++	depends on SND
+ 	help
+ 	  Say 'Y' or 'M' to include support for Ensoniq AudioPCI ES1370.
+=20
+ config SND_ENS1371
+ 	tristate "(Creative) Ensoniq AudioPCI 1371/1373"
+-	depends on SND && GAMEPORT
++	depends on SND
+ 	help
+ 	  Say 'Y' or 'M' to include support for Ensoniq AudioPCI ES1371 and
+ 	  Sound Blaster PCI 64 or 128 soundcards.
+=20
+ config SND_ES1938
+ 	tristate "ESS ES1938/1946/1969 (Solo-1)"
+-	depends on SND && GAMEPORT
++	depends on SND
+ 	help
+ 	  Say 'Y' or 'M' to include support for ESS Solo-1 (ES1938, ES1946, ES196=
+9)
+ 	  soundcard.
+@@ -173,7 +173,7 @@
+=20
+ config SND_SONICVIBES
+ 	tristate "S3 SonicVibes"
+-	depends on SND && GAMEPORT
++	depends on SND
+ 	help
+ 	  Say 'Y' or 'M' to include support for S3 SonicVibes based soundcards.
+=20
 
-Humm, so the user will have, in this case, these choices:
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
 
-1. "I don't want IPV6 at all, not now, not ever":
-	CONFIG_IPV6_SUPPORT=N
-	CONFIG_IPV6=N  (this is implicit as this depends on
-			CONFIG_IPV6_SUPPORT)
-	
-2. "I think I may well want it the future, who knows? but not now...":
-	CONFIG_IPV6_SUPPORT=Y
-	CONFIG_IPV6=N
-	
-3. "Nah, some of the users of this pre-compiled kernel will need it":
-	CONFIG_IPV6_SUPPORT=Y
-	CONFIG_IPV6=M
-	
-4. "Yeah, IPV6 is COOL, how can somebody not use this piece of art?":
-	CONFIG_IPV6_SUPPORT=Y
-	CONFIG_IPV6=Y
 
-Isn't this confusing for the I-wanna-triple-my-kernel-performance-by-compiling-
-the-kernel-for-exactly-what-I-have hordes of users?
+--5KxTQ9fdN6Op3ksq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-- Arnaldo
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/eD8YKRs727/VN8sRAiWoAJ4n/MOzfZqHk1xqntoTcYsOfGMeswCcCzAG
+mRb7s9LTkYv172FFuzioYD4=
+=SQ6W
+-----END PGP SIGNATURE-----
+
+--5KxTQ9fdN6Op3ksq--

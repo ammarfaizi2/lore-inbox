@@ -1,59 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSHAOON>; Thu, 1 Aug 2002 10:14:13 -0400
+	id <S313773AbSHAOYB>; Thu, 1 Aug 2002 10:24:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313773AbSHAOON>; Thu, 1 Aug 2002 10:14:13 -0400
-Received: from hdfdns02.hd.intel.com ([192.52.58.11]:59335 "EHLO
-	mail2.hd.intel.com") by vger.kernel.org with ESMTP
-	id <S313190AbSHAOOM>; Thu, 1 Aug 2002 10:14:12 -0400
-Message-ID: <A5974D8E5F98D511BB910002A50A664702CD66AB@hdsmsx103.hd.intel.com>
-From: "Cress, Andrew R" <andrew.r.cress@intel.com>
-To: linux-kernel@vger.kernel.org
-Subject: hang in 2.4.18 with CONFIG_SERIAL=m (?)
-Date: Thu, 1 Aug 2002 07:17:45 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S313898AbSHAOYA>; Thu, 1 Aug 2002 10:24:00 -0400
+Received: from jalon.able.es ([212.97.163.2]:18064 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S313773AbSHAOYA>;
+	Thu, 1 Aug 2002 10:24:00 -0400
+Date: Thu, 1 Aug 2002 16:26:23 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc4aa1
+Message-ID: <20020801142623.GA4606@junk.cps.unizar.es>
+References: <20020801055124.GB1132@dualathlon.random> <20020801141703.GT1132@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020801141703.GT1132@dualathlon.random>; from andrea@suse.de on jue, ago 01, 2002 at 16:17:03 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm hoping that someone has seen this before and can help me understand why
-this happens.  
 
-FAILING CONFIGURATION:
-kernel 2.4.18
-CONFIG_SERIAL=m
-CONFIG_SCSI_AIC7XXX=m
+On 20020801 Andrea Arcangeli wrote:
+> On Thu, Aug 01, 2002 at 07:51:24AM +0200, Andrea Arcangeli wrote:
+> > This may be the last update for a week (unless there's a quick bug to
+> > fix before next morning :). I wanted to ship async-io and largepage
+> 
+> I would like to thank Randy Hron for reproducing this problem so
+> quickly with the ltp testsuite:
+> 
+> >>EIP; 80132cc2 <shmem_writepage+22/130>   <=====
+> 
 
-WORKING CONFIGURATION:
-kernel 2.4.18
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_SCSI_AIC7XXX=m
+Can be related to this (which I get on every shm related op, like a pipe in
+bzip2 -cd | patch -p1 ):
 
-The boot disk is SCSI, attached to the aic7xxx, and the initrd.img contains
-aic7xxx.  The hardware (arch=i386) supports two on-board aic7899 channels,
-and two on-board serial ports.  
-com1 = IRQ 4, IOAddr  3F8
-com2 = IRQ 3, IOAddr  2F8
-aic1 = IRQ 7, IOAddr 2400
-aic2 = IRQ 9, IOAddr 2000
+kernel BUG at page_alloc.c:98!
+invalid operand: 0000 2.4.19-rc5-jam0 #1 SMP Thu Aug 1 12:28:09 CEST 2002
+CPU:    0
+EIP:    0010:[__free_pages_ok+87/752]    Tainted: P 
+EIP:    0010:[<8013d227>]    Tainted: P 
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00210286
+eax: 00000000   ebx: 81128b10   ecx: 81128b10   edx: 00000000
+esi: 8631fe74   edi: 00000000   ebp: 00000000   esp: 874e1f08
+ds: 0018   es: 0018   ss: 0018
+Process bonobo-moniker- (pid: 2103, stackpage=874e1000)
+Stack: 00000000 8631fee4 8631fee8 00000115 00000000 00000000 8631fdc0 00000115 
+       00000115 00000000 8631fdc0 80141c8b 874e1f3c 81128b10 2b331000 00000000 
+       00000000 00001000 80141d6b 86fcb660 86fcb680 874e1f60 00000115 00000eeb 
+Call Trace:    [do_shmem_file_read+299/432] [shmem_file_read+91/128] [sys_read+150/272] [system_call+51/56]
+Call Trace:    [<80141c8b>] [<80141d6b>] [<801454b6>] [<80108e4b>]
+Code: 0f 0b 62 00 7d 55 27 80 8b 0d 10 50 32 80 89 d8 29 c8 69 c0 
 
-Failure symptoms:
-System hangs during boot, fails to insmod aic7xxx.  
-By inserting some printk's in the driver, it is found that:
-The hang occurs when the MMIO physical address for the second channel is 
-mapped into the kernel space by using ioremap. And in the ioremap, the hang 
-really happens when the inline function flush_tlb_all() is called.
-I did try applying the free_pgtables tlb patch, and it still happens.
-It is also found that only this only affects the MMIO approach of the
-driver. 
-If the driver is built with MMIO disabled, it works fine. 
 
-If the failing configuration is modified to set CONFIG_SERIAL=y, the normal
-aic7xxx with MMIO comes up fine.  
+>>EIP; 8013d227 <__free_pages_ok+57/2f0>   <=====
 
-Could there be some kind of IO space conflict between SERIAL=m and SCSI?
+>>ebx; 81128b10 <_end+ddd614/22c4b04>
+>>ecx; 81128b10 <_end+ddd614/22c4b04>
 
-Andy Cress
+Trace; 80141c8b <do_shmem_file_read+12b/1b0>
+Trace; 80141d6b <shmem_file_read+5b/80>
+Trace; 801454b6 <sys_read+96/110>
+Trace; 80108e4b <system_call+33/38>
+
+Code;  8013d227 <__free_pages_ok+57/2f0>
+00000000 <_EIP>:
+Code;  8013d227 <__free_pages_ok+57/2f0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  8013d229 <__free_pages_ok+59/2f0>
+   2:   62 00                     bound  %eax,(%eax)
+Code;  8013d22b <__free_pages_ok+5b/2f0>
+   4:   7d 55                     jge    5b <_EIP+0x5b> 8013d282 <__free_pages_ok+b2/2f0>
+Code;  8013d22d <__free_pages_ok+5d/2f0>
+   6:   27                        daa    
+Code;  8013d22e <__free_pages_ok+5e/2f0>
+   7:   80 8b 0d 10 50 32 80      orb    $0x80,0x3250100d(%ebx)
+Code;  8013d235 <__free_pages_ok+65/2f0>
+   e:   89 d8                     mov    %ebx,%eax
+Code;  8013d237 <__free_pages_ok+67/2f0>
+  10:   29 c8                     sub    %ecx,%eax
+Code;  8013d239 <__free_pages_ok+69/2f0>
+  12:   69 c0 00 00 00 00         imul   $0x0,%eax,%eax
+
+-- 
+J.A. Magallon                           \                 Software is like sex:
+junk.able.es                             \           It's better when it's free
+Mandrake Linux release 9.0 (Cooker) for i586
+Linux 2.4.19-rc4-jam0 (gcc 3.2 (Mandrake Linux 9.0 3.2-0.2mdk))

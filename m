@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293700AbSCKJrA>; Mon, 11 Mar 2002 04:47:00 -0500
+	id <S293658AbSCKJ5M>; Mon, 11 Mar 2002 04:57:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293699AbSCKJqx>; Mon, 11 Mar 2002 04:46:53 -0500
-Received: from mail49-s.fg.online.no ([148.122.161.49]:46740 "EHLO
-	mail49.fg.online.no") by vger.kernel.org with ESMTP
-	id <S293656AbSCKJqr>; Mon, 11 Mar 2002 04:46:47 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: r.turk@chello.nl (Rob Turk), linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <E16kAxQ-0007MV-00@the-village.bc.nu>
-From: Harald Arnesen <gurre@start.no>
-Date: Mon, 11 Mar 2002 10:46:01 +0100
-In-Reply-To: <E16kAxQ-0007MV-00@the-village.bc.nu> (Alan Cox's message of
- "Sun, 10 Mar 2002 21:34:20 +0000 (GMT)")
-Message-ID: <874rjn5teu.fsf@basilikum.skogtun.org>
-User-Agent: Gnus/5.090005 (Oort Gnus v0.05) Emacs/21.1
- (i386-debian-linux-gnu)
+	id <S293662AbSCKJ5D>; Mon, 11 Mar 2002 04:57:03 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:60621 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S293658AbSCKJ4o>; Mon, 11 Mar 2002 04:56:44 -0500
+From: <benh@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ed Tomlinson <tomlins@cam.org>
+Cc: <linux-kernel@vger.kernel.org>, Hank Yang <hanky@promise.com.tw>
+Subject: Re: [PATCH] Submitting PROMISE IDE Controllers Driver Patch
+Date: Mon, 11 Mar 2002 10:56:25 +0100
+Message-Id: <20020311095625.20669@mailhost.mipsys.com>
+In-Reply-To: <E16k4be-0006dG-00@the-village.bc.nu>
+In-Reply-To: <E16k4be-0006dG-00@the-village.bc.nu>
+X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+>> Second.  There seems to be problems with the ide reset code in pre2-ac2. 
+>> I get the following:
+>> 
+>> hde: timeout waiting for DMA
+>> PDC202XX: Primary channel reset.
+>> hde: ide_dma_timeout: Lets do it again!stat = 0x50, dma_stat = 0x20
+>> hde: DMA disabled
+>> PDC202XX: Primary channel reset.
+>> hde: ide_set_handler: handler not null; old=c018eeb0, new=c0193de4
+>> bug: kernel timer added twice at c018ed31.
+>> hde: dma_intr: status=0xd0 { Busy }
+>> hde: DMA disabled
+>
+>Yep. You turned on some of the experimental stuff. It doesnt always recover
+>Hopefully the patches from Promise will help there
 
->> It was fabulous at that time. The first time you create a file, it
->> gets ";1" appended to it's filename. When you edit it, it gets saved
->> under the same name, this time appended by ";2". Edit it again...
->> whell, you get the picture. Cleaning up was as simple as "$ PURGE
->> /KEEP=3" to keep the last three versions.
+There is a bug in the DMA timeout recovery code (in the generic code). Andre
+and I have been discussing that recently, I'm supposed to come up with a patch
+rsn though if Andre doesn't beat me in that race ;) In the meantime, make sure
+you don't enable that option in the kernel config.
 
-> Its trickier than that - because all your other semantics have to align,
-> its akin to the undelete problem (in fact its identical). Do you version on
-> a rewrite, on a truncate, only on an O_CREAT ?
+Ben.
 
-The Sintran OS for the Norsk Data minicomputers had something similar. A
-new version was created every time a file was opened for writing.
 
-It had its disadvantages. A typical machine where I worked at the time
-had one 60MB disk. However, you could set the number of copies on a
-per-file-basis, so big databases wouldn't have to be duplicated.
--- 
-Hilsen Harald.

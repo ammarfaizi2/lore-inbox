@@ -1,48 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285719AbRLTAot>; Wed, 19 Dec 2001 19:44:49 -0500
+	id <S285724AbRLTAxT>; Wed, 19 Dec 2001 19:53:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285720AbRLTAoa>; Wed, 19 Dec 2001 19:44:30 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:5901 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S285719AbRLTAo0>; Wed, 19 Dec 2001 19:44:26 -0500
-Date: Wed, 19 Dec 2001 16:47:18 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: "David S. Miller" <davem@redhat.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        lkml <linux-kernel@vger.kernel.org>, <linux-aio@kvack.org>
-Subject: Re: aio
-In-Reply-To: <20011219192136.F2034@redhat.com>
-Message-ID: <Pine.LNX.4.40.0112191631450.1529-100000@blue1.dev.mcafeelabs.com>
+	id <S285745AbRLTAxK>; Wed, 19 Dec 2001 19:53:10 -0500
+Received: from pat.uio.no ([129.240.130.16]:62688 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S285738AbRLTAw7>;
+	Wed, 19 Dec 2001 19:52:59 -0500
+To: David Chow <davidchow@rcn.com.hk>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: nfsroot dead slow with redhat 7.2
+In-Reply-To: <3C2131FC.6040209@rcn.com.hk>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 20 Dec 2001 01:52:42 +0100
+In-Reply-To: <3C2131FC.6040209@rcn.com.hk>
+Message-ID: <shs6672n25h.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Dec 2001, Benjamin LaHaise wrote:
+>>>>> " " == David Chow <davidchow@rcn.com.hk> writes:
 
-> What I'm saying is that for more people to play with it, it needs to be
-> more widely available.  The set of developers that read linux-kernel and
-> linux-aio aren't giving much feedback.  I do not expect the code to go
-> into 2.5 at this point in time.  All I need is a set of syscall numbers
-> that aren't going to change should this implementation stand up to the
-> test of time.
+     > Dear all, When I use 2.4.7-10 i686 kernel from stock Redhat 7.2
+     > as the NFS server. My NFS client use the 2.4.13 kernel, when I
+     > mount the nfsroot to the server, I found it is dead slow on the
+     > client. This only happens in i686 kernel on the server, if we
+     > use a K6-2 uses an i386 server its fine. What's going on? By
 
-It would be nice to have a cooperation between glibc and the kernel to
-have syscalls mapped by name, not by number.
-With name->number resolved by crtbegin.o reading a public kernel table
-or accessing a fixed-ID kernel map function and filling a map.
-So if internally ( at the application ) sys_getpid has index 0, the
-sysmap[0] will be filled with the id retrieved inside the kernel by
-looking up "sys_getpid".
-Eat too spicy today ?
+Usually means you have a bad network connection. Use tcpdump to
+isolate where on the network packets (and UDP fragments) are
+disappearing.
 
+     > the way, how to configure the client to default use a NFSv3
+     > mount? Thanks.
 
+Specify the 'v3' NFSroot mount option.
 
-
-- Davide
-
-
-
+Cheers,
+   Trond

@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261671AbTCGSYK>; Fri, 7 Mar 2003 13:24:10 -0500
+	id <S261673AbTCGS1N>; Fri, 7 Mar 2003 13:27:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261673AbTCGSYK>; Fri, 7 Mar 2003 13:24:10 -0500
-Received: from sccrmhc01.attbi.com ([204.127.202.61]:42398 "EHLO
-	sccrmhc01.attbi.com") by vger.kernel.org with ESMTP
-	id <S261671AbTCGSYJ>; Fri, 7 Mar 2003 13:24:09 -0500
-Subject: Re: [patch] oprofile for ppc
-From: Albert Cahalan <albert@users.sf.net>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-       oprofile-list@lists.sourceforge.net, linuxppc-dev@lists.linuxppc.org,
-       Segher Boessenkool <segher@koffie.nl>, o.oppitz@web.de,
-       afleming@motorola.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1047032003.12206.5.camel@zion.wanadoo.fr>
-References: <200303070929.h279TGTu031828@saturn.cs.uml.edu> 
-	<1047032003.12206.5.camel@zion.wanadoo.fr>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 07 Mar 2003 13:31:01 -0500
-Message-Id: <1047061862.1900.67.camel@cube>
-Mime-Version: 1.0
+	id <S261697AbTCGS1N>; Fri, 7 Mar 2003 13:27:13 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:15377 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261673AbTCGS1N>; Fri, 7 Mar 2003 13:27:13 -0500
+Date: Fri, 7 Mar 2003 19:37:37 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [BK PATCH] klibc for 2.5.64 - try 2
+In-Reply-To: <3E68A1F3.2020006@zytor.com>
+Message-ID: <Pine.LNX.4.44.0303071929010.5042-100000@serv>
+References: <20030307001655.GB13766@kroah.com> <Pine.LNX.4.44.0303070156430.32518-100000@serv>
+ <3E67F03F.2070902@zytor.com> <Pine.LNX.4.44.0303070215490.32518-100000@serv>
+ <3E67F76E.4050709@zytor.com> <Pine.LNX.4.44.0303071051410.5042-100000@serv>
+ <3E68A1F3.2020006@zytor.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-03-07 at 05:13, Benjamin Herrenschmidt wrote:
-> On Fri, 2003-03-07 at 10:29, Albert D. Cahalan wrote:
+Hi,
 
->> This is basic timer profiling for ppc, tested on the
->> 2.5.62 linuxppc kernel. It's a port of the ppc64 code.
->
-> I'm sure I missed something... but I fail to see the the
-> interest in profiling based on sampling the instruction ptr
-> on a 100 Hz basis. This is way to slow to give any useful
-> results imho
+On Fri, 7 Mar 2003, H. Peter Anvin wrote:
 
-This is just the first part of the code. Please merge it
-into any tree you have, unless it's obviously broken.
-It is useful for long-running processes that don't do
-much that is tied to the clock tick. (number crunching,
-maybe X, web browsers without animations, /tmp cleaner...)
+> > You are avoiding my question. If something goes into the kernel, the 
+> > kernel license would be the obvious choice. Granting additional rights or 
+> > using a dual license is a relatively small problem. But you must certainly 
+> > have a reason to choose a completely different license?
+> 
+> I gave my reason.  You chose not to accept it, but that's not my problem.
 
-The i386 port is already using 1000 Hz in the kernel,
-and has 100 Hz as a non-default option. I'd really like
-to have this on my Mac; lots of things would improve.
+Could you please repeat your reasoning? I must have missed something.
+So far I'm still trying to understand your choice and I haven't rejected 
+or accepted anything yet. So far I also tried to be careful not to give 
+any judgement, you're interpreting something into my words, I didn't 
+intend to say.
 
-I intend to allow sampling based on the performance counter
-interrupt/trap/exception and the external interrupt signal.
-
+bye, Roman
 

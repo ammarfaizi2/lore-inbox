@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbTJCWOy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Oct 2003 18:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTJCWOy
+	id S261326AbTJCWWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Oct 2003 18:22:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbTJCWWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Oct 2003 18:14:54 -0400
-Received: from relay1.eltel.net ([195.209.236.38]:38093 "EHLO relay1.eltel.net")
-	by vger.kernel.org with ESMTP id S261332AbTJCWOw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Oct 2003 18:14:52 -0400
-Date: Sat, 4 Oct 2003 02:15:35 +0400
-From: Andrew Zabolotny <zap@homelink.ru>
-To: linux-kernel@vger.kernel.org
-Subject: A bug (and a fix) in usbserial.c, kernel 2.4.22
-Message-Id: <20031004021535.7a92476e.zap@homelink.ru>
-Organization: home
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: #%`a@cSvZ:n@M%n/to$C^!{JE%'%7_0xb("Hr%7Z0LDKO7?w=m~CU#d@-.2yO<l^giDz{>9
- epB|2@pe{%4[Q3pw""FeqiT6rOc>+8|ED/6=Eh/4l3Ru>qRC]ef%ojRz;GQb=uqI<yb'yaIIzq^NlL
- rf<gnIz)JE/7:KmSsR[wN`b\l8:z%^[gNq#d1\QSuya1(
+	Fri, 3 Oct 2003 18:22:16 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:12300 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S261326AbTJCWWO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Oct 2003 18:22:14 -0400
+Date: Fri, 3 Oct 2003 18:22:11 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: =?iso-8859-1?Q?Peter_W=E4chtler?= <pwaechtler@mac.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, torvalds@osdl.org,
+       bo.z.li@intel.com, manfred@colorfullife.com
+Subject: Re: [PATCH] [2/2] posix message queues
+Message-ID: <20031003182211.Q26086@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <1065196646.3682.54.camel@picklock.adams.family>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1065196646.3682.54.camel@picklock.adams.family>; from pwaechtler@mac.com on Fri, Oct 03, 2003 at 05:59:26PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, Oct 03, 2003 at 05:59:26PM +0200, Peter Wächtler wrote:
+> diff -X dontdiff -Nur vanilla-2.6.0-test6/include/asm-i386/unistd.h linux-2.6.0-test6/include/asm-i386/unistd.h
+> --- vanilla-2.6.0-test6/include/asm-i386/unistd.h	2003-08-23 01:57:19.000000000 +0200
+> +++ linux-2.6.0-test6/include/asm-i386/unistd.h	2003-09-07 21:48:07.000000000 +0200
+> @@ -278,8 +278,15 @@
+>  #define __NR_tgkill		270
+>  #define __NR_utimes		271
+>  #define __NR_fadvise64_64	272
+> +#define __NR_sys_mq_open      273
+> +#define __NR_sys_mq_unlink    (__NR_sys_mq_open+1)
+> +#define __NR_mq_timedsend     (__NR_sys_mq_open+2)
+> +#define __NR_mq_timedreceive  (__NR_sys_mq_open+3)
+> +#define __NR_mq_notify        (__NR_sys_mq_open+4)
+> +#define __NR_mq_getattr       (__NR_sys_mq_open+5)
+> +#define __NR_mq_setattr       (__NR_sys_mq_open+6)
 
-I was using the usbserial driver to connect to my PDA and was quite
-surprised when I have seen kernel oops messages in /var/log/messages
-after I disconnect my PDA.
+s/__NR_sys_mq/__NR_mq/g
 
-A examination of /proc/kcore shown that the bug happens in line 1408 of
-usbserial.c, here is a extract:
-
-if (port->tty != NULL) {
-  while (port->open_count > 0) {
-    __serial_close(port, NULL);
-  }
-  port->tty->driver_data = NULL;
-  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ this is the line that oopses.
-}
-
-The __serial_close function is setting port->tty to NULL, so the
-solution is to remove either the line 559:
-
-...
-port->open_count = 0;
-port->tty = NULL;
-...
-
-or line 1408 (which seems a better solution to me).
-
---
-Greetings,
-   Andrew
+	Jakub

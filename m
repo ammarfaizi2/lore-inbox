@@ -1,76 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131244AbRDMNQl>; Fri, 13 Apr 2001 09:16:41 -0400
+	id <S131254AbRDMNag>; Fri, 13 Apr 2001 09:30:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131254AbRDMNQY>; Fri, 13 Apr 2001 09:16:24 -0400
-Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:6661 "HELO
-	innerfire.net") by vger.kernel.org with SMTP id <S131244AbRDMNQJ>;
-	Fri, 13 Apr 2001 09:16:09 -0400
-Date: Fri, 13 Apr 2001 06:16:30 -0700 (PDT)
-From: <nak@apfbioelectronics.com>
-To: Russell King <rmk@arm.linux.org.uk>
-cc: Cyrille Ngalle <Cyrille.Ngalle@smart-fusion.com>,
-        linux-kernel@vger.kernel.org, linux-arm@lists.arm.linux.org.uk
-Subject: Re: kernel crash
-In-Reply-To: <20010412163153.B23165@flint.arm.linux.org.uk>
-Message-ID: <Pine.LNX.4.10.10104130604150.27683-100000@innerfire.net>
+	id <S131269AbRDMNa0>; Fri, 13 Apr 2001 09:30:26 -0400
+Received: from [216.151.155.121] ([216.151.155.121]:59402 "EHLO
+	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
+	id <S131254AbRDMNaR>; Fri, 13 Apr 2001 09:30:17 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: db@zigo.dhs.org (Dennis Bjorklund), linux-kernel@vger.kernel.org
+Subject: Re: Data-corruption bug in VIA chipsets
+In-Reply-To: <E14o3HM-0002pm-00@the-village.bc.nu>
+From: Doug McNaught <doug@wireboard.com>
+Date: 13 Apr 2001 09:29:59 -0400
+In-Reply-To: Alan Cox's message of "Fri, 13 Apr 2001 14:06:22 +0100 (BST)"
+Message-ID: <m38zl5exm0.fsf@belphigor.mcnaught.org>
+User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I see this has started to interfere with the bug tracking process so
-I'll kill it now (I seriously thought it was already dead).
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Yep it was an april fools joke. 
- 
-for the record: 
-  2 offers for help; 
-  1 post asking me if I mounted a scratch monkey( heh); 
-  1 email begging me to abandon the project for the sake of humanity (and
-linux' reputation)
-
-And this adds 1 attempt to use it as corroborating evidence. Who knows, it
-might have even been this guy's post I ripped the oops from.
-  
-
-On Thu, 12 Apr 2001, Russell King wrote:
-
-> On Thu, Apr 12, 2001 at 05:16:33PM +0200, Cyrille Ngalle wrote:
-> > This is just to reinforce the message below.
-> 
-> And why is it of interest to LKML?  I can think if no one here who'd
-> be interested in it.
-> 
-> > This crash is ver easy to reproduce.
+> > Here might be one of the resons for the trouble with VIA chipsets:
 > > 
-> > Use bootldr (with the last patch from Nico)  [it also happens with
-> > Redboot]
+> > http://www.theregister.co.uk/content/3/18267.html
+> > 
+> > Some DMA error corrupting data, sounds like a really nasty bug. The
+> > information is minimal on that page.
 > 
-> It is not a function of the bootloader, this is irrelevent.
-> 
-> Also, I believe that the original posters message was an April Fool's
-> joke (was posted on the 1st April to the linux-arm lists).
-> 
-> However, the problem it describes is not, and I do have a fix in my
-> tree, but the delta between my last patch and my current tree is one
-> line, which hardly seems worth putting out a new ARM patch.
-> 
-> --- linux.rel/arch/arm/mm/fault-armv.c	Fri Apr  6 19:09:05 2001
-> +++ linux/arch/arm/mm/fault-armv.c	Thu Apr 12 16:30:25 2001
-> @@ -490,7 +490,7 @@
->  bad_or_fault:
->  	if (type == TYPE_ERROR)
->  		goto bad;
-> -
-> +	regs->ARM_pc -= 4;
->  	/*
->  	 * We got a fault - fix it up, or die.
->  	 */
-> 
-> 
-> --
-> Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
->              http://www.arm.linux.org.uk/personal/aboutme.html
-> 
+> What annoys me is that we've known about the problem for _ages_. If you look
+> the 2.4 kernel has experimental workarounds for this problem. VIA never once
+> even returned an email to say 'we are looking into this'. Instead people sat
+> there flashing multiple BIOS images and seeing what made the difference.
 
+Is this problem likely to affect 2.2.X?  I have a VIA-based board on
+order (Tyan Trinity) and I don't plan to run 2.4 on it anytime soon
+(it's upgrading a stock RH6.2 box).
+
+Am I safe if I stay in PIO mode?
+
+-Doug

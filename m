@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268446AbUJOVfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268458AbUJOVi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268446AbUJOVfO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 17:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268458AbUJOVfO
+	id S268458AbUJOVi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 17:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268465AbUJOVi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 17:35:14 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:25829 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S268446AbUJOVfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 17:35:10 -0400
-Message-ID: <4170426E.5070108@nortelnetworks.com>
-Date: Fri, 15 Oct 2004 15:34:38 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Lee Revell <rlrevell@joe-job.com>, root@chaos.analogic.com,
-       David Woodhouse <dwmw2@infradead.org>, Josh Boyer <jdub@us.ibm.com>,
-       gene.heskett@verizon.net, Linux kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       David Howells <dhowells@redhat.com>,
-       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
-       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>
-Subject: Re: Fw: signed kernel modules?
-References: <27277.1097702318@redhat.com> <Pine.LNX.4.61.0410150723180.8573@chaos.analogic.com> <1097843492.29988.6.camel@weaponx.rchland.ibm.com> <200410151153.08527.gene.heskett@verizon.net> <1097857049.29988.29.camel@weaponx.rchland.ibm.com> <Pine.LNX.4.61.0410151237360.6239@chaos.analogic.com> <1097860121.13633.358.camel@hades.cambridge.redhat.com> <Pine.LNX.4.61.0410151319460.6877@chaos.analogic.com> <1097873791.5119.10.camel@krustophenia.net> <20041015211809.GA27783@kroah.com>
-In-Reply-To: <20041015211809.GA27783@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Fri, 15 Oct 2004 17:38:27 -0400
+Received: from mailgate2.mysql.com ([213.136.52.47]:4578 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S268458AbUJOViZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 17:38:25 -0400
+Subject: Disk full and writting to pre-allocated area on ReiserFS
+From: Peter Zaitsev <peter@mysql.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1097876157.6553.22.camel@sphere.site>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 15 Oct 2004 14:35:58 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
+Hi,
 
-> If you have a BSD licensed module, you do not have to provide the source
-> code for it.
+I'm running SuSE 9.1  Kernel 2.6.5-7.108-default 
+But I would guess it applies to large variety of platforms as we have
+customers reporting the same problem.
 
-Maybe we need a "BSD with source" module string that doesn't taint?  Or is that 
-getting too ridiculous?
+I'm using reiserfs:
+/dev/md0 on /data type reiserfs (rw,noatime,notail,data=writeback)
 
-Chris
+The problem is in case of disk full condition,  "Disk full" error is
+being reported even if write happens to Pre-Allocated area, in my case
+to Innodb recovery log files.
+
+This is very unfortunate as in such case Innodb has no way but to
+terminate database server.  These logs are specially pre-allocated so 
+one would not run in such condition.
+
+Question: Is there any way to avoid this problem with Reiserfs ? 
+
+
+-- 
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+
+

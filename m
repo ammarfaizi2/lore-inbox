@@ -1,28 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286701AbRLVHrX>; Sat, 22 Dec 2001 02:47:23 -0500
+	id <S286708AbRLVHxD>; Sat, 22 Dec 2001 02:53:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286703AbRLVHrN>; Sat, 22 Dec 2001 02:47:13 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:20488 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286701AbRLVHrI>; Sat, 22 Dec 2001 02:47:08 -0500
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB =?iso-8859-1?q?in      Configure=2Ehelp=2E?=
-To: hpa@zytor.com (H. Peter Anvin)
-Date: Sat, 22 Dec 2001 07:57:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <a012ck$2jo$1@cesium.transmeta.com> from "H. Peter Anvin" at Dec 21, 2001 08:32:20 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S286709AbRLVHwx>; Sat, 22 Dec 2001 02:52:53 -0500
+Received: from swm.pp.se ([195.54.133.5]:36300 "EHLO uplift.swm.pp.se")
+	by vger.kernel.org with ESMTP id <S286708AbRLVHwq>;
+	Sat, 22 Dec 2001 02:52:46 -0500
+Date: Sat, 22 Dec 2001 08:52:42 +0100 (CET)
+From: Mikael Abrahamsson <swmike@swm.pp.se>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.hel
+ p.
+In-Reply-To: <200112202303.fBKN3qY25517@irishsea.home.craig-wood.com>
+Message-ID: <Pine.LNX.4.33.0112220850330.8631-100000@uplift.swm.pp.se>
+Organization: People's Front Against WWW
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Hh1v-0003FP-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > of Metrics.  The funny thing is that Thomas Jefferson, an American President,
-> > suggested the Metric system to the French while he was ambassador there.
->
->> Ewhat?!
+On Thu, 20 Dec 2001 ncw@axis.demon.co.uk wrote:
 
-Must be a new disney movie...
+> Actually a 1 Mb/s connection is 1024000 bits/second (ie not 1000000 or
+> 1048576 bits/second).
+
+But gigabit ethernet is clocked at 1.25GHz with 8b10-encoding, meaning 
+you'll get literally 1.000.000.000 bits/second over that line. As far as I 
+know this is true for all kinds of ethernet.
+ 
+Basically, it's only when it comes to memory terms that we use 1024 as a 
+base.
+
+-- 
+Mikael Abrahamsson    email: swmike@swm.pp.se
+

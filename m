@@ -1,28 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261845AbREPJGP>; Wed, 16 May 2001 05:06:15 -0400
+	id <S261835AbREPJFZ>; Wed, 16 May 2001 05:05:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261846AbREPJGF>; Wed, 16 May 2001 05:06:05 -0400
-Received: from www.topmail.de ([212.255.16.226]:5071 "HELO www.topmail.de")
-	by vger.kernel.org with SMTP id <S261845AbREPJFw>;
-	Wed, 16 May 2001 05:05:52 -0400
-From: <eccesys@topmail.de>
-To: <linux-kernel@vger.kernel.org>
-Cc: <dhowells@redhat.com>
-Subject: Re: rwsem, gcc3 again
-Message-Id: <20010516090327.4A0BFA5A9DA@www.topmail.de>
-Date: Wed, 16 May 2001 11:03:27 +0200 (MET DST)
+	id <S261845AbREPJFQ>; Wed, 16 May 2001 05:05:16 -0400
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:31693 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S261835AbREPJE5>; Wed, 16 May 2001 05:04:57 -0400
+Date: Wed, 16 May 2001 11:04:50 +0200
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Message-ID: <20010516110450.D754@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <E14zPot-0001Sa-00@the-village.bc.nu> <Pine.LNX.4.33.0105142132510.18102-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <Pine.LNX.4.33.0105142132510.18102-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Mon, May 14, 2001 at 09:33:35PM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
-I am using the gcc-3.0 snapshot of 14.5.2001 from codesourcery (i686 binary).
-I have now tried to mimic CPU=386 behaviour (patch posted yesterday night)
-and it compiles (just sound fails), by exchanging y and n in
-CONFIG_RWSEM_GENERIC_SPINLOCK and CONFIG_RWSEM_XCHGADD_ALGORITHM.
+On Mon, May 14, 2001 at 09:33:35PM -0300, Rik van Riel wrote:
+> Agreed. However, if this thing means I cannot use the -linus
+> tree without devfs, then it will also mean my VM stuff only
+> gets tested on -ac kernels...
 
-Thanks for your patience, all listening...
+No Problem. I test most of your VM stuff anyway and I use devfs
+on that machine ;-)
 
--mirabilos
+PS: It's not that hard to build a machine, which can support
+both. E-Mail me, if you would like to know _how_ to do that.
+
+Regards
+
+Ingo Oeser
 -- 
-by telnet
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<     been there and had much fun   >>>>>>>>>>>>

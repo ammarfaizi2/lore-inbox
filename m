@@ -1,102 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261510AbTCZI50>; Wed, 26 Mar 2003 03:57:26 -0500
+	id <S261521AbTCZJMH>; Wed, 26 Mar 2003 04:12:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261511AbTCZI50>; Wed, 26 Mar 2003 03:57:26 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:33222 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S261510AbTCZI5Y>; Wed, 26 Mar 2003 03:57:24 -0500
-Date: Wed, 26 Mar 2003 10:08:29 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jochen Friedrich <jochen@scram.de>, linux-kernel@vger.kernel.org
-Subject: [2.5 patch] fix the compilation of drivers/net/tokenring/tms380tr.c (fwd) (fwd)
-Message-ID: <20030326090829.GE24744@fs.tum.de>
-Mime-Version: 1.0
+	id <S261522AbTCZJMH>; Wed, 26 Mar 2003 04:12:07 -0500
+Received: from p508205DB.dip0.t-ipconnect.de ([80.130.5.219]:16619 "EHLO
+	localhost") by vger.kernel.org with ESMTP id <S261521AbTCZJMF>;
+	Wed, 26 Mar 2003 04:12:05 -0500
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Arne Koewing <ark@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Synaptics touchpad with Trackpoint needs ps/2 reset
+From: Arne Koewing <ark@gmx.net>
+Date: Wed, 26 Mar 2003 10:22:47 +0100
+In-Reply-To: <20030326095010.A17442@ucw.cz> (Vojtech Pavlik's message of
+ "Wed, 26 Mar 2003 09:50:10 +0100")
+Message-ID: <87r88uiis8.fsf@gmx.net>
+User-Agent: Gnus/5.090016 (Oort Gnus v0.16) Emacs/21.2 (gnu/linux)
+References: <87r88uv7hf.fsf@localhost.i-did-not-set--mail-host-address--so-tickle-me>
+	<20030326095010.A17442@ucw.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch in the mail forwarded below is still needed in 2.5.66.
+Vojtech Pavlik <vojtech@suse.cz> writes:
 
-Please apply
-Adrian
+> On Tue, Mar 25, 2003 at 08:25:47AM +0100, Arne Koewing wrote:
+>> Hi!
+>> 
+>> I recently posted this to linux-kernel (with a different subject)
+>> I had included a wrong ptch there, i think this one is ok.
+>
+> Do we really need RESET_BAT? Doesn't any other command help?
+>
+I've used this because it is what tpconfig is using.
+I've tried all I could think of 
+(except of Synaptics-specials that I might not know)
+RESET_BAT is the only one that works...
 
+I'll study the Synaptics TP Interfacing Guide again...
 
------ Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-
-Date: Wed, 5 Mar 2003 21:34:50 +0100
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jochen Friedrich <jochen@scram.de>, trivial@rustcorp.com.au
-Subject: [2.5 patch] fix the compilation of drivers/net/tokenring/tms380tr.c
-
-Since 2.5.61 compilation of drivers/net/tokenring/tms380tr.c fails with 
-the following error:
-
-<--  snip  -->
-
-...
-  gcc -Wp,-MD,drivers/net/tokenring/.tms380tr.o.d -D__KERNEL__ -Iinclude 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
--fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
--Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
--DKBUILD_BASENAME=tms380tr -DKBUILD_MODNAME=tms380tr -c -o 
-drivers/net/tokenring/tms380tr.o drivers/net/tokenring/tms380tr.c
-drivers/net/tokenring/tms380tr.c: In function `tms380tr_open':
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c:260: invalid type argument of `->'
-drivers/net/tokenring/tms380tr.c: In function `tms380tr_init_adapter':
-drivers/net/tokenring/tms380tr.c:1461: warning: long unsigned int format, different type arg (arg3)
-make[3]: *** [drivers/net/tokenring/tms380tr.o] Error 1
-
-<--  snip  -->
-
-
-The following patch by Jochen Friedrich fixes both the compile error and 
-the warning:
-
-
---- linux-2.5.64-notfull/drivers/net/tokenring/tms380tr.c.old	2003-03-05 21:22:59.000000000 +0100
-+++ linux-2.5.64-notfull/drivers/net/tokenring/tms380tr.c	2003-03-05 21:27:18.000000000 +0100
-@@ -257,7 +257,7 @@
- 	int err;
- 	
- 	/* init the spinlock */
--	spin_lock_init(tp->lock);
-+	spin_lock_init(&tp->lock);
- 
- 	/* Reset the hardware here. Don't forget to set the station address. */
- 
-@@ -1458,7 +1458,7 @@
- 	if(tms380tr_debug > 3)
- 	{
- 		printk(KERN_DEBUG "%s: buffer (real): %lx\n", dev->name, (long) &tp->scb);
--		printk(KERN_DEBUG "%s: buffer (virt): %lx\n", dev->name, (long) ((char *)&tp->scb - (char *)tp) + tp->dmabuffer);
-+		printk(KERN_DEBUG "%s: buffer (virt): %lx\n", dev->name, (long) ((char *)&tp->scb - (char *)tp) + (long) tp->dmabuffer);
- 		printk(KERN_DEBUG "%s: buffer (DMA) : %lx\n", dev->name, (long) tp->dmabuffer);
- 		printk(KERN_DEBUG "%s: buffer (tp)  : %lx\n", dev->name, (long) tp);
- 	}
-
-
-
-
-Please apply
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
------ End forwarded message -----
+Arne
 

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290544AbSARAFj>; Thu, 17 Jan 2002 19:05:39 -0500
+	id <S290545AbSARAHT>; Thu, 17 Jan 2002 19:07:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290545AbSARAF3>; Thu, 17 Jan 2002 19:05:29 -0500
-Received: from f131.law11.hotmail.com ([64.4.17.131]:17163 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S290544AbSARAFX>;
-	Thu, 17 Jan 2002 19:05:23 -0500
-X-Originating-IP: [156.153.254.2]
-From: "Balbir Singh" <balbir_soni@hotmail.com>
-To: davem@redhat.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Suspected bug in getpeername and getsockname
-Date: Thu, 17 Jan 2002 16:05:17 -0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F131HApBClrdudfwG9t000112bd@hotmail.com>
-X-OriginalArrivalTime: 18 Jan 2002 00:05:17.0474 (UTC) FILETIME=[CFA4F020:01C19FB3]
+	id <S290547AbSARAHJ>; Thu, 17 Jan 2002 19:07:09 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:28946 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S290545AbSARAHA>;
+	Thu, 17 Jan 2002 19:07:00 -0500
+Date: Thu, 17 Jan 2002 22:05:52 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: <linux-mm@kvack.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH *] rmap VM 11c
+In-Reply-To: <Pine.LNX.3.96.1020117185411.4089A-100000@gatekeeper.tmr.com>
+Message-ID: <Pine.LNX.4.33L.0201172204080.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Can the user eat up more than a scheduling quantum because of the
->work done by ->getname()?  I certainly don't think you can prove
->this.
->
+On Thu, 17 Jan 2002, Bill Davidsen wrote:
 
-That depends on what ->getname() does. Anyway
-in my opinion any code which does all the processing
-and then catches any error is BROKEN.
+> >            http://surriel.com/patches/2.4/2.4.17-rmap-11c
+> > and        http://linuxvm.bkbits.net/
 
->It certainly isn't work the long discussion we're having about it,
->that is for sure.
->
+> Rik, I tried a simple test, building a kernel in a 128M P-II-400, and
+> when the load average got up to 50 or so the system became slow;-) On
+> the other hand it was still usable for most normal things other then
+> incoming mail which properly blocks at LA>10 or so.
 
-I agree! no point
+Hehehe, when the load average is 50 only 2% of the CPU is available
+for you. With that many gccs you're also under a memory squeeze with
+128 MB of RAM, so it's no big wonder things got slow. ;)
 
->You want this to make your broken getname() protocol semantics work
->and I'd like you to address that instead.  I get the feeling that
->you've designed this weird behavior and that it is not specified in
->any standard anyways that your protocol must behave in this way.  I
->suggest you change it to work without the user length being
->available.
->
+I'm happy to hear the system was still usable, though.
 
-There is no other choice but to live with it.
+> I'll be trying it on a large machine tomorrow, but it at least looks
+> stable. In real life no sane person would do that, would they? Make
+> with a nice -10 was essentially invisible.
 
-Regards,
-Balbir
+Neat ...
 
-_________________________________________________________________
-MSN Photos is the easiest way to share and print your photos: 
-http://photos.msn.com/support/worldwide.aspx
+> Maybe tomorrow the lateest -aa kernel on the same machine, with and
+> without my own personal patch.
+
+Looking forward to the results.
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

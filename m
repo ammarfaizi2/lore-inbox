@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265786AbUFORft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265790AbUFORjW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265786AbUFORft (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 13:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbUFORft
+	id S265790AbUFORjW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 13:39:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbUFORjW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 13:35:49 -0400
-Received: from mail.kroah.org ([65.200.24.183]:23723 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265786AbUFORfn (ORCPT
+	Tue, 15 Jun 2004 13:39:22 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:22160 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S265790AbUFORjO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 13:35:43 -0400
-Date: Tue, 15 Jun 2004 10:34:13 -0700
-From: Greg KH <greg@kroah.com>
-To: marcelo.tosatti@cyclades.com, zaitcev@redhat.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] USB serial fixes for 2.4.27-pre6
-Message-ID: <20040615173413.GA17264@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Tue, 15 Jun 2004 13:39:14 -0400
+Message-ID: <40CF33D6.80302@colorfullife.com>
+Date: Tue, 15 Jun 2004 19:37:26 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: pj@sgi.com, linux-kernel@vger.kernel.org,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Anton Blanchard <anton@samba.org>
+Subject: Re: NUMA API observations
+References: <40CE824D.9020300@colorfullife.com> <20040615110320.GD50463@colin2.muc.de>
+In-Reply-To: <20040615110320.GD50463@colin2.muc.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi Kleen wrote:
 
-Here are 4 small fixes for some USB serial driver issues.  They have
-all been in the 2.6 tree for some while now.  Pete suggested I send
-these directly to you, instead of having to go through him.
+>Or maybe just a sysctl. But it doesn't really help because
+>applications have to work with older kernels.
+>
+What's the largest number of cpus that are supported right now? 256?
+First call sysctl or whatever. If it fails, then glibc can assume 256. 
+If someone installs an old kernel on a new computer then it's his own 
+fault. The API is broken, we should fix it now - it will only get more 
+painful in the future.
 
-Please pull from:
-	bk://kernel.bkbits.net/gregkh/linux/usb-2.4
-
-The individual patches will be sent in follow up messages to this email
-to you and the linux-usb-devel mailing list.
-
-thanks,
-
-greg k-h
-
-
- drivers/usb/serial/ftdi_sio.c |    7 +++
- drivers/usb/serial/ftdi_sio.h |    5 ++
- drivers/usb/serial/pl2303.c   |   11 ++++
- drivers/usb/serial/visor.c    |   98 +++++++++++++++++++++++++++++++++++++++++-
- 4 files changed, 119 insertions(+), 2 deletions(-)
------
-
-<andrej.filipcic:ijs.si>:
-  o USB: pl2303 & input overruns
-
-Greg Kroah-Hartman:
-  o USB: fix empty write issue in pl2303 driver
-
-Jan Capek:
-  o USB ftdi device ids for 2.4
-
-Martin Lubich:
-  o USB: add Clie TH55 Support in visor kernel module
-
+--
+    Manfred

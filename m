@@ -1,33 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263089AbRFRVH5>; Mon, 18 Jun 2001 17:07:57 -0400
+	id <S263257AbRFRVTT>; Mon, 18 Jun 2001 17:19:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263092AbRFRVHr>; Mon, 18 Jun 2001 17:07:47 -0400
-Received: from avocet.mail.pas.earthlink.net ([207.217.121.50]:16358 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S263089AbRFRVHh>; Mon, 18 Jun 2001 17:07:37 -0400
-Message-ID: <3B2E6EA3.3DED7D95@earthlink.net>
-Date: Mon, 18 Jun 2001 16:12:03 -0500
-From: Kelledin Tane <runesong@earthlink.net>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S263318AbRFRVTK>; Mon, 18 Jun 2001 17:19:10 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:40453 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S263257AbRFRVTE>;
+	Mon, 18 Jun 2001 17:19:04 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200106182118.f5ILIxa187286@saturn.cs.uml.edu>
+Subject: Re: very strange (semi-)lockups in 2.4.5
+To: george@mvista.com (george anzinger)
+Date: Mon, 18 Jun 2001 17:18:59 -0400 (EDT)
+Cc: pozsy@sch.bme.hu (Pozsar Balazs), acahalan@cs.uml.edu (Albert D. Cahalan),
+        linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <3B2E686E.C1BCAA69@mvista.com> from "george anzinger" at Jun 18, 2001 01:45:34 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Why can't I flush /dev/ram0?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At this point, I'm trying to get an initrd working properly.  So far, it
-works, the system boots, etc. etc., but whenever I try to do a "blockdev
---flushbufs /dev/ram0", I get "device or resource busy"
+george anzinger writes:
+> Pozsar Balazs wrote:
 
-When I mount the filesystem to check it out, nothing appears to have
-anything open on the filesystem.  So why am I not able to flush it
-clean?
+>> The NMI card would be interesting, if anyone tells me how to make
+>> one, and how to patch the kernel to show useable information i'm
+>> looking forward to do it, and send reports.
+>
+> Given that your system still handles interrupts:
+> a.) It would probably not trigger an NMI timer (the interrupts would
+> keep resetting it)
 
-This is kernel 2.4.5 stock, btw.
+Huh? No, this isn't the NMI timer. It's an NMI you generate
+with a pushbutton on the back of your PC. My computer doesn't
+have the APIC hardware needed for an NMI timer anyway.
 
-Kelledin
+For a PCI card, one must assert the SERR# signal. This is supposed
+to be done for 1 clock cycle, on the proper clock edge. Going a bit
+beyond 1 clock cycle ought to be OK, but my hand on a button is
+likely to assert SERR# for millions of clock cycles. I've no idea
+if my motherboard will handle that well.
 
+> b.) Using KGDB will, most likely, be all you need anyway.
+
+I'd rather just get an oops, but even still the board would
+be good to have. KGDB can be triggered by an NMI, right?
+
+Building an NMI board would be fun, overkill or not. :-)
+
+> If you have a complete freeze, then the NMI is useful, but even
+> here, it is best to let KGDB handle the NMI.  Much easier to see
+> what's what than looking thru an OOPS.
+
+I don't have an APIC. I have a plain Pentium MMX. If I want
+an NMI it's going to come from a pushbutton.

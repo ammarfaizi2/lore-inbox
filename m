@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130510AbRAOOi3>; Mon, 15 Jan 2001 09:38:29 -0500
+	id <S129742AbRAOOrm>; Mon, 15 Jan 2001 09:47:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130372AbRAOOiU>; Mon, 15 Jan 2001 09:38:20 -0500
-Received: from smtp8.xs4all.nl ([194.109.127.134]:11006 "EHLO smtp8.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S130436AbRAOOiH>;
-	Mon, 15 Jan 2001 09:38:07 -0500
-Date: Mon, 15 Jan 2001 14:36:15 +0000
-From: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: QUESTION: Network hangs with BP6 and 2.4.x kernels, hardware
-Message-ID: <20010115143615.A3525@grobbebol.xs4all.nl>
-In-Reply-To: <E14H8Ks-0004hA-00@the-village.bc.nu> <3A5F4827.2E443786@colorfullife.com> <20010112200541.A25675@unternet.org> <93no05$7k1$1@penguin.transmeta.com>
+	id <S129776AbRAOOrc>; Mon, 15 Jan 2001 09:47:32 -0500
+Received: from mx3.sac.fedex.com ([199.81.208.11]:20494 "EHLO
+	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
+	id <S129742AbRAOOrW>; Mon, 15 Jan 2001 09:47:22 -0500
+From: Wayne.Brown@altec.com
+X-Lotus-FromDomain: ALTEC
+To: Jeff Chua <jeffchua@silk.corp.fedex.com>
+cc: linux-kernel@silk.corp.fedex.com, jchua@fedex.com
+Message-ID: <862569D5.005104A6.00@smtpnotes.altec.com>
+Date: Mon, 15 Jan 2001 08:45:00 -0600
+Subject: Re: linmodem????
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <93no05$7k1$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 12:04:21PM -0800
-X-OS: Linux grobbebol 2.2.19pre7 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 12:04:21PM -0800, Linus Torvalds wrote:
-> Ok, so it's tentatively the IOAPIC disable/enable code.  But it could
-> obviously be something that just interacts with it, including just a
-> timing issue (ie the _real_ bug might just be bad behaviour when
-> changing IO-APIC state at the same time as an interrupt happens, and
-> disable/enable-irq just happen to be the only things that do it at a
-> high enough frequency that you can see the problem). 
 
 
-my BP6 with the patch frank sent me and the apic code at line 273 (or
-so) defined as '1' and a flood ping :
+I haven't, and in fact keep a 2.2.14 kernel available (and in my lilo config)
+just so I can use the linmodem binary.  It's a pain having to reboot when I want
+to use the modem, but it's the only solution I've found.
 
-Jan 14 19:56:19 grobbebol kernel: APIC error on CPU1: 02(02)
-Jan 14 19:56:25 grobbebol kernel: APIC error on CPU1: 02(02)
-Jan 14 19:58:10 grobbebol last message repeated 2 times
-Jan 14 20:00:01 grobbebol kernel: APIC error on CPU1: 02(02)
-Jan 14 20:01:11 grobbebol last message repeated 2 times
-Jan 14 20:01:48 grobbebol kernel: APIC error on CPU1: 02(02)
-Jan 14 20:01:59 grobbebol kernel: APIC error on CPU1: 02(08)
-Jan 14 20:02:10 grobbebol kernel: APIC error on CPU1: 08(08)
-Jan 14 20:02:39 grobbebol kernel: APIC error on CPU1: 08(02)
-Jan 14 20:02:39 grobbebol kernel: unexpected IRQ trap at vector 8d
-Jan 14 20:15:32 grobbebol kernel: APIC error on CPU1: 02(08)
-[....]
+Wayne
 
 
-ad the network is dead. however, no crashes seen during this.
--- 
-Grobbebol's Home                   |  Don't give in to spammers.   -o)
-http://www.xs4all.nl/~bengel       | Use your real e-mail address   /\
-Linux 2.2.16 SMP 2x466MHz / 256 MB |        on Usenet.             _\_v  
+
+
+Jeff Chua <jeffchua@silk.corp.fedex.com> on 01/15/2001 08:20:57 AM
+
+To:   linux-kernel@silk.corp.fedex.com
+cc:   jchua@fedex.com (bcc: Wayne Brown/Corporate/Altec)
+
+Subject:  linmodem????
+
+
+
+
+Does anyone have any success in using Lucent winmodem under Linux 2.4.0?
+
+There's a binary at http://www.linmodems.org/linux568.zip but it
+only works under 2.2
+
+Thanks,
+Jeff
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+Please read the FAQ at http://www.tux.org/lkml/
+
+
+
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

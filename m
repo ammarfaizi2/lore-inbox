@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129370AbRACXcL>; Wed, 3 Jan 2001 18:32:11 -0500
+	id <S129324AbRACXjW>; Wed, 3 Jan 2001 18:39:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131367AbRACXcB>; Wed, 3 Jan 2001 18:32:01 -0500
-Received: from anime.net ([63.172.78.150]:27920 "EHLO anime.net")
-	by vger.kernel.org with ESMTP id <S129370AbRACXbv>;
-	Wed, 3 Jan 2001 18:31:51 -0500
-Date: Wed, 3 Jan 2001 15:32:46 -0800 (PST)
-From: Dan Hollis <goemon@anime.net>
-To: Dan Aloni <karrde@callisto.yi.org>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, <mark@itsolve.co.uk>
-Subject: Re: [RFC] prevention of syscalls from writable segments, breaking
- bug exploits
-In-Reply-To: <Pine.LNX.4.21.0101040037200.21774-100000@callisto.yi.org>
-Message-ID: <Pine.LNX.4.30.0101031528180.32282-100000@anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129370AbRACXjN>; Wed, 3 Jan 2001 18:39:13 -0500
+Received: from jalon.able.es ([212.97.163.2]:16608 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129324AbRACXi7>;
+	Wed, 3 Jan 2001 18:38:59 -0500
+Date: Thu, 4 Jan 2001 00:38:50 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Kervin Pierre <kpierre@fit.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: /xproc -> /proc files in xml grammer?
+Message-ID: <20010104003850.A980@werewolf.able.es>
+In-Reply-To: <3A53B08D.F10B96FB@fit.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <3A53B08D.F10B96FB@fit.edu>; from kpierre@fit.edu on Thu, Jan 04, 2001 at 00:06:53 +0100
+X-Mailer: Balsa 1.0.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Jan 2001, Dan Aloni wrote:
-> Anyway, while it is agreed that you can't completely eliminate exploits,
-> it is recommended that, it should be at least harder to create them, maybe
-> it can even minimize the will to write them.
 
-The argument against these sort of protection mechanisms seems to be "well
-its not perfect, so we shouldnt have it at all".
+On 2001.01.04 Kervin Pierre wrote:
+> 
+> hello,
+> 
+> Would XML be considered human readable enough for /proc files?  If not,
+> how about a /xproc filesystem ( maybe as a kernel build option ), same
+> as /proc but uses an xml grammer for reporting.
+> I can see tons of uses for this, no more 'fuzzy' parsing for gui
+> configuration tools, resource monitors, etc.
+> 
+> ?
+> 
+> just thinking aloud really,
 
-Lets use that argument against uid/gid then. Since it's impossible to
-protect against exploits, let's dispose of uid/gid entirely and run
-everything as root ;-)
+More aloud thinkin...
 
-"stack guarding is a false sense of security". Well, so is ipchains, so
-lets discard that as well...?
+I have seen some times this thread appear on the list. One of the
+problems: you will have to force drivers to register in two file
+systems...
 
-Really, these arguments cut both ways. If you are going to argue against
-something because it's not perfect, you should be aware that you're
-arguing against other kernel protection mechanisms also.
+Perhaps there are tools yet to do what I'm thinkin of: a ghost file
+system that just mirrors /proc, changing format of output.
 
--Dan
+Say you clone the procfs to a fake fs driver (for example, 
+procfs.xml) that just translates each fs access system call to
+
+/fproc/xml/path/to/file_or_dir (fproc==formatted proc)
+
+to
+
+/proc/path/to/file_or_dir
+
+reads its contents and reformats them to give the desired output
+(now thinkin on read-only, main people interest seems to be
+in syntax-ing the out of /proc).
+
+So actual /proc stays, not breaking anything, and theres a way
+to write proc info formatters.
+
+Even there could be many common code between all the possible
+procfs.XXXX things to ease maintenance.
+
+-- 
+J.A. Magallon                                         $> cd pub
+mailto:jamagallon@able.es                             $> more beer
+
+Linux werewolf 2.2.19-pre6 #1 SMP Wed Jan 3 21:28:10 CET 2001 i686
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

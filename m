@@ -1,53 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262706AbTCTWXE>; Thu, 20 Mar 2003 17:23:04 -0500
+	id <S263011AbTCTWxN>; Thu, 20 Mar 2003 17:53:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262683AbTCTWW0>; Thu, 20 Mar 2003 17:22:26 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:31493 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262684AbTCTWVa>;
-	Thu, 20 Mar 2003 17:21:30 -0500
+	id <S262703AbTCTWVx>; Thu, 20 Mar 2003 17:21:53 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:27397 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262680AbTCTWV2>;
+	Thu, 20 Mar 2003 17:21:28 -0500
 Subject: Re: [PATCH] i2c driver changes for 2.5.65
-In-reply-to: <10481995642679@kroah.com>
+In-reply-to: <10481995574110@kroah.com>
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 From: Greg KH <greg@kroah.com>
 Content-Type: text/plain; charset=US-ASCII
 Mime-version: 1.0
 Date: Thu, 20 Mar 2003 14:32 -0800
-Message-id: <10481995651628@kroah.com>
+Message-id: <10481995631475@kroah.com>
 X-mailer: gregkh_patchbomb
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1143.1.5, 2003/03/18 17:10:51-08:00, greg@kroah.com
+ChangeSet 1.1143.1.2, 2003/03/18 14:36:49-08:00, greg@kroah.com
 
-[PATCH] i2c i2c-piix4.c: remove check_region() call.
-
-
- drivers/i2c/busses/i2c-piix4.c |    5 +----
- 1 files changed, 1 insertion(+), 4 deletions(-)
+[PATCH] i2c i2c-i801.c: remove check_region() usage.
 
 
-diff -Nru a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
---- a/drivers/i2c/busses/i2c-piix4.c	Thu Mar 20 12:56:54 2003
-+++ b/drivers/i2c/busses/i2c-piix4.c	Thu Mar 20 12:56:54 2003
-@@ -149,7 +149,7 @@
+ drivers/i2c/busses/i2c-i801.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+
+diff -Nru a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+--- a/drivers/i2c/busses/i2c-i801.c	Thu Mar 20 12:58:00 2003
++++ b/drivers/i2c/busses/i2c-i801.c	Thu Mar 20 12:58:00 2003
+@@ -158,10 +158,10 @@
  		}
  	}
  
--	if (check_region(piix4_smba, 8)) {
-+	if (!request_region(piix4_smba, 8, "piix4-smbus")) {
- 		printk
- 		    (KERN_ERR "i2c-piix4.o: SMB region 0x%x already in use!\n",
- 		     piix4_smba);
-@@ -187,9 +187,6 @@
- 			goto END;
- 		}
+-	if (check_region(i801_smba, (isich4 ? 16 : 8))) {
++	if (!request_region(i801_smba, (isich4 ? 16 : 8), "i801-smbus")) {
+ 		dev_err(&dev->dev, "I801_smb region 0x%x already in use!\n",
+ 			i801_smba);
+-		error_return = -ENODEV;
++		error_return = -EBUSY;
+ 		goto END;
+ 	}
+ 
+@@ -180,8 +180,6 @@
+ 		pci_write_config_byte(I801_dev, SMBHSTCFG, temp | 1);
+ 		dev_warn(&dev->dev, "enabling SMBus device\n");
  	}
 -
--	/* Everything is happy, let's grab the memory and set things up. */
--	request_region(piix4_smba, 8, "piix4-smbus");
+-	request_region(i801_smba, (isich4 ? 16 : 8), "i801-smbus");
  
- #ifdef DEBUG
- 	if ((temp & 0x0E) == 8)
+ 	if (temp & 0x02)
+ 		dev_dbg(&dev->dev, "I801 using Interrupt SMI# for SMBus.\n");
 

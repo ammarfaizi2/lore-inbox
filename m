@@ -1,76 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316213AbSFEURV>; Wed, 5 Jun 2002 16:17:21 -0400
+	id <S316300AbSFEUSg>; Wed, 5 Jun 2002 16:18:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316289AbSFEURU>; Wed, 5 Jun 2002 16:17:20 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:9120 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316213AbSFEURT>;
-	Wed, 5 Jun 2002 16:17:19 -0400
-Date: Sun, 2 Jun 2002 02:00:41 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: device model documentation 2/3
-Message-ID: <20020602020040.D47@toy.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0206040918490.654-100000@geena.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S316309AbSFEUSf>; Wed, 5 Jun 2002 16:18:35 -0400
+Received: from dsl-213-023-039-098.arcor-ip.net ([213.23.39.98]:44227 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S316300AbSFEUSe>;
+	Wed, 5 Jun 2002 16:18:34 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Paul Zimmerman <Paul_Zimmerman@inSilicon.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+Date: Wed, 5 Jun 2002 22:17:57 +0200
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <7FD8B823E5024E44B027221DEB34C087536524@scl-exch.phoenix.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17FhEE-0001ee-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> 	int 	(*remove)	(struct device * dev);
+On Wednesday 05 June 2002 21:01, Paul Zimmerman wrote:
+> On Wednesday 05 June 2002 18:26, Daniel Phillips wrote: 
+> > Both approaches have their uses. The second is the one I'm interested in,
+> > if that isn't already obvious. The first is just a quick hack that will
+> > give you guaranteed-skipless audio playback, something that Linux is
+> > currently unable to do. 
 > 
-> remove is called to dissociate a driver with a device. This may be
-> called if a device is physically removed from the system, if the
-> driver module is being unloaded, or during a reboot sequence. 
-> 
-> It is up to the driver to determine if the device is present or
-> not. It should free any resources allocated specifically for the
-> device; i.e. anything in the device's driver_data field. 
-> 
-> If the device is still present, it should quiesce the device and place
-> it into a supported low-power state.
+> What if I'm unfortunate enough to have my sound card share an interrupt
+> with my IDE controller? Won't my realtime audio player still be at the
+> mercy of my non-realtime Linux IDE driver? Or does Adeos have a way to
+> handle that?
 
-"returns 0 == success or error code, and may block."
+Adeos handles that.  Each task in the pipeline gets to look at the
+shared interrupt and decide whether to pass it on or not, so the in
+this case, the RTOS would handle the interrupt if it's for the sound
+card, or kick it back into the pipeline if it isn't.
 
-> 	int	(*suspend)	(struct device * dev, u32 state, u32 level);
-> 
-> suspend is called to put the device in a low power state. There are
-> several stages to sucessfully suspending a device, which is denoted in
-> the @level parameter. Breaking the suspend transition into several
-> stages affords the platform flexibility in performing device power
-> management based on the requirements of the system and the
-> user-defined policy.
-
-"returns 0 == success or error code"
-
-> SUSPEND_NOTIFY notifies the device that a suspend transition is about
-> to happen. This happens on system power state transition to verify
-> that all devices can sucessfully suspend.
-> 
-> A driver may choose to fail on this call, which should cause the
-> entire suspend transition to fail. A driver should fail only if it
-> knows that the device will not be able to be resumed properly when the
-> system wakes up again. It could also fail if it somehow determines it
-> is in the middle of an operation too important to stop.
-
-??? If it is in the middle of important operation, it should just yield()
-waiting for operation to finish.
-
-> SUSPEND_DISABLE tells the device to stop I/O transactions. When it
-> stops transactions, or what it should do with unfinished transactions
-> is a policy of the driver. After this call, the driver should not
-> accept any other I/O requests.
-
-I believe higher levels should make it so that no new requests are submitted.
-We do not want each and every driver to implement its own (buggy!) method for
-this.
-
-									Pavel
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+Daniel

@@ -1,27 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288130AbSAMVSH>; Sun, 13 Jan 2002 16:18:07 -0500
+	id <S288158AbSAMV2I>; Sun, 13 Jan 2002 16:28:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288146AbSAMVR5>; Sun, 13 Jan 2002 16:17:57 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2827 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288130AbSAMVRo>; Sun, 13 Jan 2002 16:17:44 -0500
-Subject: Re: Any non-BS VM work queued for 2.5?
-To: duraid@fl.net.au (Duraid Madina)
-Date: Sun, 13 Jan 2002 21:29:18 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1010956364.50291.0.camel@simplex.idesign.fl.net.au> from "Duraid Madina" at Jan 14, 2002 09:12:36 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S288159AbSAMV17>; Sun, 13 Jan 2002 16:27:59 -0500
+Received: from 62-36-191-244.dialup.uni2.es ([62.36.191.244]:12928 "EHLO
+	raul.dif.um.es") by vger.kernel.org with ESMTP id <S288158AbSAMV1w>;
+	Sun, 13 Jan 2002 16:27:52 -0500
+Subject: Re: Driver via ac97 sound problem (VT82C686B)
+From: Raul Sanchez Sanchez <raul@dif.um.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Paul Lorenz <p1orenz@yahoo.com>, salvador@inti.gov.ar,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E16PZOe-0003fZ-00@the-village.bc.nu>
+In-Reply-To: <E16PZOe-0003fZ-00@the-village.bc.nu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16PsBq-00083i-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 13 Jan 2002 22:22:45 +0100
+Message-Id: <1010956965.3260.0.camel@raul>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Is this true? Judging by the ease with which AA's hackwork made it into
-> 2.4, I think we may all be, well, fucked.
+Hi:
 
-2.4 is now in good hands. Now be careful before the sun comes up and you get
-turned to stone ;)
+I have write the lines referenced to ad1886 in the patch that Salvador
+Eduardo Tropea indicate me in next direction:
+
+http://www.uwsg.iu.edu/hypermail/linux/kernel/0107.0/0389.html
+
+ad1886 is recognized and the code of setup_ad1886 is executed, i have
+put a printk in the function and i can see it. 
+
+The problem is that i can't hear any sound :( It's seem to be mute on
+
+thanks 
+
+
+
+-- 
+-----------------------------------------------
+Raul Sanchez Sanchez             raul@dif.um.es
+Centro de Calculo               
+Facultad de Informatica    Tlf: +34 968 36 4827 
+Universidad de Murcia      Fax: +34 968 36 4151
+-----------------------------------------------

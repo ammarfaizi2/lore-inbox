@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbTEGGCU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 02:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262827AbTEGGCU
+	id S262811AbTEGGBK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 02:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262820AbTEGGBK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 02:02:20 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:38381 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S262820AbTEGGCR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 02:02:17 -0400
-Date: Tue, 06 May 2003 22:07:14 -0700 (PDT)
-Message-Id: <20030506.220714.35679546.davem@redhat.com>
-To: hch@infradead.org
-Cc: dwmw2@infradead.org, thomas@horsten.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.4.21-rc1: byteorder.h breaks with __STRICT_ANSI__
- defined (trivial)
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030507062613.A5318@infradead.org>
-References: <1052255946.7532.66.camel@imladris.demon.co.uk>
-	<20030506.200638.78728404.davem@redhat.com>
-	<20030507062613.A5318@infradead.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Wed, 7 May 2003 02:01:10 -0400
+Received: from [66.186.193.1] ([66.186.193.1]:40709 "HELO
+	unix113.hosting-network.com") by vger.kernel.org with SMTP
+	id S262811AbTEGGBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 02:01:09 -0400
+X-Comments: BlackMail headers - Mail to abuse@featureprice.com to report spam.
+X-Authenticated-Connect: 64.122.104.99
+X-Authenticated-Timestamp: 02:18:29(EDT) on May 07, 2003
+X-HELO-From: [10.134.0.76]
+X-Mail-From: <thoffman@arnor.net>
+X-Sender-IP-Address: 64.122.104.99
+Subject: Re: [Bug 466] New: SBP2 driver doesn't appear to register a block
+	device?
+From: Torrey Hoffman <thoffman@arnor.net>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: bcollins@debian.org
+In-Reply-To: <200303180430.h2I4UMW20016@bugme.osdl.org>
+References: <200303180430.h2I4UMW20016@bugme.osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1052287896.1784.7.camel@torrey.et.myrio.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 May 2003 23:11:36 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christoph Hellwig <hch@infradead.org>
-   Date: Wed, 7 May 2003 06:26:13 +0100
-   
-   Look at e.g. the debian and redhat packages of ipsec-tools:  they all
-   have their local copy of theses headers.
-   
-You merely support my point, the situation is rediculious.
+I originally submitted this bug report.  It's fixed in 2.5.69.
 
-Why don't we copy headers into every app package that wants to use
-certain interfaces?
+Thanks!
 
-#ifdef SARCASM
-Yeah, that sounds like an excellent idea.
-#endif /* SARCASM */
+Torrey Hoffman
+thoffman@arnor.net
 
-This doesn't even consider the case where the ipsec-tools copy of the
-headers becomes out of date with the kernel copy.  This isn't a
-theoretical issue, this problem is real.
+On Mon, 2003-03-17 at 20:30, bugme-daemon@osdl.org wrote:
+> http://bugme.osdl.org/show_bug.cgi?id=466
+> 
+>            Summary: SBP2 driver doesn't appear to register a block device?
+>     Kernel Version: 2.5.65
+>             Status: NEW
+>           Severity: normal
+>              Owner: bcollins@debian.org
+>          Submitter: thoffman@arnor.net
+> 
+> 
+> Distribution: Red Hat 8.0
+> Hardware Environment: Single Processor Pentium III, details below
+> Software Environment: 
+> Problem Description: Loading ieee1394 SBP2 driver doesn't result in a usable
+> block device appearing.
 
-For example, I just changed the values of a few SADB_EALG_* values in
-pfkeyv2.h.  Now ipsec-tools is effectively broken.  Oops, when will
-the copy in ipsec-tools get updated?
 
-What about applications, ie. normal ones, that want to pass IPSEC
-policies into the kernel via the socket options we have that allows
-per-socket IPSEC rules to be specified?  The copy in ipsec-tools
-doesn't help them at all.
-
-All of this is madness, and every suggestion to copy the headers
-all over the place is a non-solution.

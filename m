@@ -1,95 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136618AbRECOeQ>; Thu, 3 May 2001 10:34:16 -0400
+	id <S136620AbRECOf1>; Thu, 3 May 2001 10:35:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136620AbRECOeH>; Thu, 3 May 2001 10:34:07 -0400
-Received: from 205-CORU-X5.libre.retevision.es ([62.83.56.205]:9896 "HELO
-	trasno.mitica") by vger.kernel.org with SMTP id <S136618AbRECOd7>;
-	Thu, 3 May 2001 10:33:59 -0400
-To: esr@thyrsus.com
-Cc: Urban Widmark <urban@teststation.com>, John Stoffel <stoffel@casc.com>,
-        cate@dplanet.ch, Peter Samuelson <peter@cadcamlab.org>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Hierarchy doesn't solve the problem
-In-Reply-To: <20010503030431.A25141@thyrsus.com>
-	<Pine.LNX.4.30.0105030907470.28400-100000@cola.teststation.com>
-	<20010503034620.A27880@thyrsus.com>
-X-Url: http://www.lfcia.org/~quintela
-From: Juan Quintela <quintela@mandrakesoft.com>
-In-Reply-To: <20010503034620.A27880@thyrsus.com>
-Date: 03 May 2001 16:33:33 +0200
-Message-ID: <m2bspa7b9e.fsf@trasno.mitica>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S136818AbRECOfT>; Thu, 3 May 2001 10:35:19 -0400
+Received: from ns.viventus.no ([195.18.200.139]:53519 "EHLO viventus.no")
+	by vger.kernel.org with ESMTP id <S136620AbRECOfG>;
+	Thu, 3 May 2001 10:35:06 -0400
+From: Rafael Martinez <rafael@viewpoint.no>
+To: linux-kernel@vger.kernel.org
+Reply-To: rafael@viewpoint.no
+Subject: Solution - AMI  megaraid driver doesn't work with Linux 2.4.x kernels
+Date: Thu, 03 May 2001 16:37:13 +0100 (CEST)
+X-Mailer: XCmail 1.2 - with PGP support, PGP engine version 0.5 (Linux)
+X-Mailerorigin: http://www.fsai.fh-trier.de/~schmitzj/Xclasses/XCmail/
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Message-ID: <auto-000000185389@viventus.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "eric" == Eric S Raymond <esr@thyrsus.com> writes:
+Hei
 
-eric> Urban Widmark <urban@teststation.com>:
->> Then it must somehow handle me trying to (incorrectly) answer X86=Y,
->> SMP=Y, RTC=N in some order?
+The Ami megatrends driver (at least for 471, 475, and 493) does not work 
+with 2.4.x kernels.
 
-eric> What it does is (a) always start with a valid config, and (b) not permit
-eric> any change that would make it invalid.
+The solution we got from Ami is to update the firmware of these cards to
+version FW G158. This update will fix all the problems with ami
+raid-devices in 2.4.x kernel without changing the driver.
 
-eric> So, you froze X86 at startup.  SMP gets asked early.  If you specify 
-eric> SMP=y, and then later try to set RTC=n, the configurator will not let
-eric> you do it and will explain why.  At that point if you want you can go
-eric> back and change SMP.
- 
->> Perhaps I have missed something, but I really prefer the old oldconfig
->> over the new oldconfig.
+We don't know when AMI will release a fixed firmware (hope soon) but we got it by
+e-mail. If there is anybody with the same problem I can sent the
+firmware-update by mail.
 
-eric> What's to prefer?  You get essentially the same behavior unless you start
-eric> with a broken config.
+Sincerely
+Rafael Martinez
 
-Here is what I prefer (and need).
 
-There are two cases that I need to solve, and that actually this are
-the two uses that I had for make oldconfig (I never use xconfig nor
-menuconfig).
-
-1st scenary:
-
-I have the .config of linux-2.4.x
-Linus release linux-2.4.(x+1)
-
-linux 2.4.(x+1) has more drivers/options/whatever that linux-2.4.x.  I
-want to be prompted only for the new drivers/options/whatever it
-chooses the old ones from the .config file.  Note that my old .config
-file is not a valid configuration because it misses symbols (or I am
-wrong and this is a valid configuration ?).
-
-2nd scenery:
-
-I have found a bug in my actual kernel and then I decided to turn some
-feature off.  I don't want to surf over all the menus in make
-{menu,x}config, because I _know_ the name of the feature.  I go to the
-.config file and remove the needed line.  I can remove a line that
-has no dependencies, or a line that has a lot of dependencies
-(i.e. CONFIG_SCSI).  The actual menuconfig will do exactly what I
-expect, it will ask only CONFIG_SCSI, and nothing else.
-
-Notice that I am putting the .config in an invalid state, but it is
-the easier way to change that feature.  Otherwise I will be happy if
-you provide me something like:
-
-    make "CONFIG_SCSI=n" oldconfig
-
-or similar, i.e. _I_ know what I want to change, and I want to change
-only that.  Notice that I want also be able to do the other way
-around:
-
-    make "CONFIG_SCSI=m" oldconfig
-
-and then be prompted for all the SCSI drivers (because they was not in
-the .config before).
-
-Later, Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy

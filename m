@@ -1,53 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132881AbRDUTzy>; Sat, 21 Apr 2001 15:55:54 -0400
+	id <S132871AbRDUUHF>; Sat, 21 Apr 2001 16:07:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132875AbRDUTzp>; Sat, 21 Apr 2001 15:55:45 -0400
-Received: from diup-184-214.inter.net.il ([213.8.184.214]:63493 "EHLO
-	callisto.yi.org") by vger.kernel.org with ESMTP id <S132869AbRDUTz2>;
-	Sat, 21 Apr 2001 15:55:28 -0400
-Date: Sat, 21 Apr 2001 22:55:06 +0300 (IDT)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@image.dk>
-Subject: Re: cdrom driver dependency problem (and a workaround patch)
-In-Reply-To: <20010421212645.W719@nightmaster.csn.tu-chemnitz.de>
-Message-ID: <Pine.LNX.4.32.0104212250150.31353-100000@callisto.yi.org>
+	id <S132875AbRDUUG4>; Sat, 21 Apr 2001 16:06:56 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:19630 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S132871AbRDUUGj>;
+	Sat, 21 Apr 2001 16:06:39 -0400
+Date: Sat, 21 Apr 2001 16:06:37 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Roman Zippel <zippel@fh-brandenburg.de>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Races in affs_unlink(), affs_rmdir() and affs_rename()
+In-Reply-To: <Pine.GSO.4.10.10012311256180.19210-100000@zeus.fh-brandenburg.de>
+Message-ID: <Pine.GSO.4.21.0104211457420.25186-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Apr 2001, Ingo Oeser wrote:
+mkdir /A
+mkdir /B
+mkdir /C
+touch /A/a
+ln /A/a /B/b
+ln /A/a /C/c
+rm /A/a &
+rm /B/b
 
-> On Sat, Apr 21, 2001 at 08:33:05PM +0300, Dan Aloni wrote:
-> > On Sat, 21 Apr 2001, Ingo Oeser wrote:
-> > > The link order is wrong. So why not changing the link order then?
-> >
-> > I remember doing what the patch below does.
-> > It didn't help.
->
-> Hmm, maybe you had a typo?
+can corrupt filesystem. Scenario:
 
-No, I meant I tested this exact patch you wrote on my system and it
-doesn't fix the Oops on boot problem. Maybe I forgot to recompile the
-kernel while I tested it, but I doubt.
+unlink("/B/b") locks /B, removes "b" and unlocks /B. Then it calls
+affs_remove_link(), which blocks.
 
-> > Did you try this patch?
->
-> Yes, just booted an SMP machine with 2.4.3-ac11 and this patch.
->
-> I booted remote, so it was some kind of dangerous, if it wouldn't
-> work ;-)
->
-> We also have SCSI enabled there. So it really works ;-)
+unlink("/A/a") locks /A, removes "a" and unlocks /A. Then it calls
+affs_remove_link(). Which locks /B, renames removed entry into "b",
+removes old "b" and inserts renamed "a" into /B.
 
-I'm happy to hear it works on your system, but I don't think we should
-relay on link ordering in order to resolve dependency problems. More
-generally, it's kinda dirty the way it works now in the kernel, where the
-initialization order is determined by the linkage order.
+The rest is irrelevant - we're already in it.
 
---
-Dan Aloni
-dax@karrde.org
+Similar race exists between unlink() and rename();
+
+mkdir /A
+mkdir /B
+mkdir /C
+touch /A/a
+touch /B/a
+ln /A/a /B/b
+ln /A/a /C/c
+rm /A/a &
+mv /B/a /B/b
+- similar scenario, different source of affs_remove_header().
+
+Another one: unlink() and rmdir():
+mkdir /A
+mkdir /B
+touch /A/a
+ln /A/a /B/a
+rm /A/a &
+rmdir /B
+
+Since you don't lock /B for affs_empty_dir(), you can hit the
+window between removing old /B/a and inserting renamed /A/a into /B.
+Notice that VFS _does_ lock /B (->i_zombie), but affs_remove_link()
+for /A/a doesn't even look at it.
+
+Same thing for rename()/rmdir() (rmdir victim contains a link to rename
+target, apply the previous scenario).
+								Al
 

@@ -1,48 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262707AbTKEHIg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 02:08:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbTKEHIg
+	id S262694AbTKEHrx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 02:47:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTKEHrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 02:08:36 -0500
-Received: from pix-525-pool.redhat.com ([66.187.233.200]:47324 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S262707AbTKEHIf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 02:08:35 -0500
-Date: Wed, 5 Nov 2003 02:08:32 -0500
-From: Jakub Jelinek <jakub@redhat.com>
-To: jlnance@unity.ncsu.edu
-Cc: Ulrich Drepper <drepper@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: ext3 performance inconsistencies, 2.4/2.6
-Message-ID: <20031105020832.V2097@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <Pine.LNX.4.44.0311041422580.20373-100000@home.osdl.org> <3FA83ACC.5060700@redhat.com> <20031105005816.GA5971@ncsu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20031105005816.GA5971@ncsu.edu>; from jlnance@unity.ncsu.edu on Tue, Nov 04, 2003 at 07:58:16PM -0500
+	Wed, 5 Nov 2003 02:47:53 -0500
+Received: from [213.250.81.174] ([213.250.81.174]:20426 "EHLO
+	blueberrysolutions.com") by vger.kernel.org with ESMTP
+	id S262694AbTKEHrt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 02:47:49 -0500
+Date: Wed, 5 Nov 2003 09:47:47 +0200 (EET)
+From: Tony Glader <Tony.Glader@blueberrysolutions.com>
+X-X-Sender: teg@blueberrysolutions.com
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.22 and Sony DVD DRU-510
+Message-ID: <Pine.LNX.4.44.0311050923150.32038-100000@blueberrysolutions.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 07:58:16PM -0500, jlnance@unity.ncsu.edu wrote:
-> On Tue, Nov 04, 2003 at 03:48:28PM -0800, Ulrich Drepper wrote:
-> > 
-> > The first is the old nptl code, the second LinuxThreads, the third the
-> > current nptl code.
-> 
-> By current, do you mean what is in Fedora, or you personal development copy?
+Hi!
 
-Ulrich meant glibc CVS HEAD.
-For some reason, stdio locking was not using the jump around lock prefix
-variant of locking:
-            __asm __volatile ("cmpl $0, %%gs:%P6\n\t"                         \
-                              "je,pt 0f\n\t"                                  \
-                              "lock\n"                                        \
-                              "0:\tcmpxchgl %1, %2\n\t"                       \
-                              "jnz _L_mutex_lock_%=\n\t"                      \
-			      ".subsection 1\m\t" ...
-but one without the first 2 insns, so there were 2 instructions with lock
-prefix in putc and similar functions even when only one thread was running.
+Should 2.4.22 support Sony DVD RW DRU-510A? I can't use it with my nForce2 
+motherboard (Abit NF7S). I'm using it with ide-scsi. When trying to read 
+data from it, I just get about 1,5Mb  and then following error messages:
 
-	Jakub
+# dd if=/dev/scd0 of=test.img
+dd: reading `/dev/scd0': Input/output error
+2960+0 records in
+2960+0 records out
+
+# du test.img
+1484    test.img
+
+# dmesg
+
+
+....cut...
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3164
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3168
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3172
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3176
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3180
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3184
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3188
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3192
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3196
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3200
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3204
+SCSI cdrom error : host 0 channel 0 id 0 lun 0 return code = 28000000
+Info fld=0x323, ILI Current sd0b:00: sense key Illegal Request
+Additional sense indicates Illegal mode for this track
+ I/O error: dev 0b:00, sector 3208
+ I/O error: dev 0b:00, sector 3212
+
+
+-- 
+* Tony Glader 
+

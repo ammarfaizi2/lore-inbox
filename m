@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261973AbSKCOuX>; Sun, 3 Nov 2002 09:50:23 -0500
+	id <S262036AbSKCOve>; Sun, 3 Nov 2002 09:51:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262023AbSKCOuX>; Sun, 3 Nov 2002 09:50:23 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:10431 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261973AbSKCOuW>;
-	Sun, 3 Nov 2002 09:50:22 -0500
-Date: Sun, 3 Nov 2002 15:56:40 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Luc Saillard <luc.saillard@fr.alcove.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: oops when using ide-cd with 2.5.45 and cdrecord
-Message-ID: <20021103145640.GN3612@suse.de>
-References: <20021102210103.GA25617@cedar.alcove-fr> <20021102213448.GA3612@suse.de> <20021103002346.GA25842@cedar.alcove-fr> <20021103094052.GI3612@suse.de> <20021103144217.GA9008@cedar.alcove-fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021103144217.GA9008@cedar.alcove-fr>
+	id <S262034AbSKCOve>; Sun, 3 Nov 2002 09:51:34 -0500
+Received: from smtp-out-4.wanadoo.fr ([193.252.19.23]:22184 "EHLO
+	mel-rto4.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S262036AbSKCOvc>; Sun, 3 Nov 2002 09:51:32 -0500
+From: <benh@kernel.crashing.org>
+To: "Alan Cox" <alan@redhat.com>, "Pavel Machek" <pavel@ucw.cz>
+Cc: <torvalds@transmeta.com>, "kernel list" <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp: don't eat ide disks
+Date: Sun, 3 Nov 2002 15:57:34 +0100
+Message-Id: <20021103145735.14872@smtp.wanadoo.fr>
+In-Reply-To: <200211022006.gA2K6XW08545@devserv.devel.redhat.com>
+References: <200211022006.gA2K6XW08545@devserv.devel.redhat.com>
+X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 03 2002, Luc Saillard wrote:
-> On Sun, Nov 03, 2002 at 10:40:52AM +0100, Jens Axboe wrote:
->  
-> > please reproduce with this debug patch and send me the output:
-> > 
->  
-> I've no problem with your patch. I've burn 5 cds without problems.
-> 
-> Here my ouput for a record:
-> hdc: 5a, ptr=cf3a7c00,len=2,bio=00000000
+>> Here's patch to prevent random scribling over disks during
+>> suspend... In the meantime alan killed (unreferenced at that time)
+>> idedisk_suspend() and idedisk_release(), so I have to reintroduce
+>> them.
+>
+>Please fix this at a different level. idedisk is not the place to be
+>doing this. If the device layer is doing the right thing then the
+>request queue will be idle. 
 
-[snip]
+Hrm... I don't think so Alan. The PM ordering is bus driven,
+so actual bus binding of the disk is it's controller, not
+the request queue which is the functional binding. It's up to
+the disk driver to shut down processing of the request queue.
 
-Hmm great, heisenbug. Could you send me the complete dump of what
-happens? Just want to see if something sticks out, that could perhaps
-trigger a bug somewhere. A private mail is probably best :)
+On the same idea, it's not the network layer that will stop
+sending packets to an eth driver, it's the eth driver that
+gets suspended by it's bus binding (PCI for example) that
+will eventually request the network layer not to send it
+any more packets (netif_stop_queue() typically).
 
--- 
-Jens Axboe
+So in our case, what we want is the pci controller driver
+getting the suspend request (and non-PCI IDE controller will
+have to write their own bus binding according to the new model).
+
+It will then tell it's own subdevices (disks in this case) to
+suspend (hrm... I don't have the source at hand, I'm away for
+a few days right now, does disks have struct device attached
+as childs of the ATA controller ? they should...). At that
+point, it's up to the _disk_ suspend() function to actually
+request the block layer to stop queue processing, typically
+this can be done by just not eating requests from the queue,
+or better, by (un)plugging the queue on suspend/resume.
+
+Now, there is indeed as subtle race if the disk driver wants
+to queue itself a request to actually send the suspend command
+to the disk. This request has to be the _last_ of the queue.
+That is, the queue must be stopped right after processing this
+request with no room for a new request to be taken in between.
+
+The way I see it is that the queue should be stopped not by
+the suspend function itself, but by the request processing
+function when fetching that STANDBY request from the queue.
+We need special care not to mixup with hdparm originated
+STANDBY though (but do those go through the queue ? I'm not
+sure how far the cleanup went here....)
+
+Ben.
+
+
 

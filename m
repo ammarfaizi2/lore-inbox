@@ -1,50 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbTKIAbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 19:31:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbTKIAbJ
+	id S261661AbTKIApm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 19:45:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTKIApm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 19:31:09 -0500
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:26380
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id S261802AbTKIAbG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 19:31:06 -0500
-Subject: Re: 2.4.23pre mm/slab.c error
-From: Robert Love <rml@tech9.net>
-To: Margit Schubert-While <margitsw@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.1.0.14.2.20031107093114.00a8bec8@pop.t-online.de>
-References: <5.1.0.14.2.20031107093114.00a8bec8@pop.t-online.de>
-Content-Type: text/plain
-Message-Id: <1068337871.27320.222.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sat, 08 Nov 2003 19:31:12 -0500
-Content-Transfer-Encoding: 7bit
+	Sat, 8 Nov 2003 19:45:42 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:43142 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S261661AbTKIApl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 19:45:41 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Sat, 8 Nov 2003 16:44:52 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Nick Piggin <piggin@cyberone.com.au>
+cc: Andrew Morton <akpm@osdl.org>, Con Kolivas <kernel@kolivas.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, <mbligh@aracnet.com>
+Subject: Re: [PATCH] Fix find busiest queue 2.6.0-test9
+In-Reply-To: <3FAD7F7D.2020003@cyberone.com.au>
+Message-ID: <Pine.LNX.4.44.0311081631300.2122-100000@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-11-07 at 03:36, Margit Schubert-While wrote:
-> At lines 1786 to 1793 in mm/slab.c we have :
->                  while (p != &searchp->slabs_free) {
-> #if DEBUG
->                          slabp = list_entry(p, slab_t, list);
+On Sun, 9 Nov 2003, Nick Piggin wrote:
+
+> Andrew Morton wrote:
 > 
->                          if (slabp->inuse)
->                                  BUG();
-> #endif
->                          full_free++;
+> >Con Kolivas <kernel@kolivas.org> wrote:
+> >
+> >>Hi
+> >>
+> >>I believe this is a simple typo / variable name mixup between rq_src and 
+> >>this_rq. So far all testing shows positive (if minor) improvements.
+> >>
+> >>
+> >
+> >Looks right to me.  I'll queue this up for the 2.6.1 deluge.
+> >
 > 
-> I think the "slabp =" should be above the "#if DEBUG".
-> Or ?
+> prev_cpu_load[i] is nr_running of cpu i last time this operation was
+> performed. Either it, or the current nr_running is taken, whichever
+> is lower.
+> 
+> I guess its done this way for cache benefits, but it was correct as
+> Ingo intended. For example, with Con's patch you can see
+> rq_src->prev_cpu_load[i] will only ever use the ith position in the array.
 
-Looks to me like nothing else uses slabp here but that if, so it is fine
-to move it inside the DEBUG.  It was outside the DEBUG in 2.4.22 and
-earlier kernels, but moving it inside seems a safe optimization to me.
+Yes. The prev_cpu_load[] array takes a snapshot of the run queue lengths 
+seen by the current rq (this_rq). The code is ok as is, and the reason is 
+to avoid stealing tasks too fast from remote CPU (cache thing). Time ago I 
+also tried to store an K-average (by varying K) rq length in 
+prev_cpu_load[] instead of a simple min-of-two-values:
 
-slabp is not used again until line ~1840, where it is given a new value.
+this_rq->prev_cpu_load[i] = (K * this_rq->prev_cpu_load[i] + rq_src->nr_running) / (K + 1);
 
-	Robert Love
+I couldn't see any major improvements in my 2SMP (never tried on bigger SMP/NUMA).
+
+
+
+- Davide
+
 
 

@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264118AbTKSPaP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 10:30:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264119AbTKSPaP
+	id S263890AbTKSPz3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 10:55:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTKSPz2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 10:30:15 -0500
-Received: from dci.doncaster.on.ca ([66.11.168.194]:42383 "EHLO smtp.istop.com")
-	by vger.kernel.org with ESMTP id S264118AbTKSPaL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 10:30:11 -0500
-From: JYC <jyc@despammed.com>
-Subject: Re: Linux 2.4.23-rc2
-To: linux-kernel@vger.kernel.org
-Reply-To: jyc@despammed.com
-Date: Wed, 19 Nov 2003 10:29:40 -0500
-References: <TzDJ.7jl.21@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 19 Nov 2003 10:55:28 -0500
+Received: from cap175-219-202.pixi.net ([207.175.219.202]:2432 "EHLO
+	beaucox.com") by vger.kernel.org with ESMTP id S263890AbTKSPz2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Nov 2003 10:55:28 -0500
+From: "Beau E. Cox" <beau@beaucox.com>
+Organization: BeauCox.com
+To: "David S. Miller" <davem@redhat.com>
+Subject: Re: PROBLEM: 2.4.23-rc4 -> rc1 hang with change to ip_nat_core.c made in pre4
+Date: Wed, 19 Nov 2003 05:55:22 -1000
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.netfilter.org
+References: <200311121442.27406.beau@beaucox.com> <20031112195908.0611fe2e.davem@redhat.com>
+In-Reply-To: <20031112195908.0611fe2e.davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20031119153010.5D55F36C22@smtp.istop.com>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311190555.22438.beau@beaucox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+On Wednesday 12 November 2003 05:59 pm, David S. Miller wrote:
+> Marcelo has reverted the change in question, so his current
+> 2.4.x tree should be fine.
 
-> 
-> Hi,
-> 
-> Here it goes -rc2.
-> 
-> Important netfilter fixes, several ACPI fixes, few driver corrections
-> (tulip, tg3, megaraid2), amongst others.
-> 
-> If no problems shows up this should become final in a few days.
-> 
+Thank you all for reverting the pre4 change to ip_nat_core.c that
+was giving me problems.
 
-USB keyboard and mouse are not working on my KT133a. I am using
-ACPI+UP_APIC, all is well with 2.4.22 . The relevant entries from my syslog
-below.
+I have 2.4.23-rc2 up and running fine.
 
-travis kernel: usb_control/bulk_msg: timeout
-travis kernel: usb.c: USB device not accepting new address=2 (error=-110)
-travis kernel: usb_control/bulk_msg: timeout
-travis kernel: usb.c: USB device not accepting new address=3 (error=-110)
-travis kernel: usb_control/bulk_msg: timeout
-travis kernel: usb.c: USB device not accepting new address=4 (error=-110)
-travis kernel: usb_control/bulk_msg: timeout
-travis kernel: usb.c: USB device not accepting new address=5 (error=-110)
-travis kernel: usb_control/bulk_msg: timeout
-travis kernel: usb.c: USB device not accepting new address=6 (error=-110)
-travis kernel: usb_control/bulk_msg: timeout
-travis kernel: usb.c: USB device not accepting new address=7 (error=-110)
-
-Jean-Yves Coupal
-
+Aloha => Beau;
 

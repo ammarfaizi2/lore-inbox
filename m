@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279912AbRKVQC3>; Thu, 22 Nov 2001 11:02:29 -0500
+	id <S277294AbRKVQBj>; Thu, 22 Nov 2001 11:01:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277380AbRKVQCU>; Thu, 22 Nov 2001 11:02:20 -0500
-Received: from c0mailgw.prontomail.com ([216.163.180.10]:4979 "EHLO
+	id <S277258AbRKVQBa>; Thu, 22 Nov 2001 11:01:30 -0500
+Received: from c0mailgw.prontomail.com ([216.163.180.10]:10564 "EHLO
 	c0mailgw12.prontomail.com") by vger.kernel.org with ESMTP
-	id <S277258AbRKVQCD>; Thu, 22 Nov 2001 11:02:03 -0500
-Message-ID: <3BFD214F.36A55D94@starband.net>
-Date: Thu, 22 Nov 2001 11:01:19 -0500
+	id <S279912AbRKVQB0>; Thu, 22 Nov 2001 11:01:26 -0500
+Message-ID: <3BFD210F.58495F37@starband.net>
+Date: Thu, 22 Nov 2001 11:00:15 -0500
 From: war <war@starband.net>
 X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.14 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Oliver Neukum <oliver@neukum.org>, linux-kernel@vger.kernel.org
+To: James A Sutherland <jas88@cam.ac.uk>
+CC: linux-kernel@vger.kernel.org
 Subject: Re: Swap vs No Swap.
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <01112211150302.00690@argo>
+In-Reply-To: <3BFC5A9B.915B77DF@starband.net> <E166rbB-0005LC-00@mauve.csi.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Once again, I have enough ram where I am not going to run out for the things I
-do.
-I never need swap.
+Incorrect, my point is I have enough ram where I am not going to run out for the
+things I do.
 
-When the system swaps, it slows down the system responsiveness big time.
+Using swap simply slows the system down!
 
 
-Oliver Neukum wrote:
+James A Sutherland wrote:
 
-> Am Donnerstag 22 November 2001 02:53 schrieb war:
+> On Thursday 22 November 2001 1:53 am, war wrote:
 > > I do not understand something.
 > >
 > > How can having swap speed ANYTHING up?
-> >
+>
+> By providing ADDITIONAL storage. Yes, it's slower than RAM - but it's faster
+> than not having the storage at all.
+>
 > > RAM = 1000MB/s.
 > > DISK = 10MB/s
 > >
@@ -41,10 +44,17 @@ Oliver Neukum wrote:
 > >
 > > No swap = fastest possible solution.
 >
-> At some point you will run out of ram. Then you have to start paging. The
-> only question there is whether you page only mmaped files including program
-> code or whether you also write out program data.
+> BS. You don't use swap INSTEAD of RAM, but AS WELL AS. Moving less frequently
+> used data to swap allows you to put more frequently used data in RAM, which
+> DOES speed things up. (At least, it does if the VM system works properly :P)
 >
->         HTH
->                 Oliver
+> By your logic, we should switch off the system RAM, too: after all, L2 cache
+> is much faster again, so using RAM can only slow things down?
+>
+> James.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

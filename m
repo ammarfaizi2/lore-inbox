@@ -1,52 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132061AbRAXAJx>; Tue, 23 Jan 2001 19:09:53 -0500
+	id <S131466AbRAXAQg>; Tue, 23 Jan 2001 19:16:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132068AbRAXAJn>; Tue, 23 Jan 2001 19:09:43 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:10040 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S132061AbRAXAJi>; Tue, 23 Jan 2001 19:09:38 -0500
-Date: Wed, 24 Jan 2001 01:09:36 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Sasi Peter <sape@iq.rulez.org>
-Cc: Godfrey Livingstone <godfrey@hattaway-associates.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Ingo's RAID patch for 2.2.18 final?
-Message-ID: <20010124010936.A1201@athlon.random>
-In-Reply-To: <3A61315C.37318059@hattaway-associates.com> <Pine.LNX.4.30.0101240044040.3522-100000@iq.rulez.org>
+	id <S132125AbRAXAKk>; Tue, 23 Jan 2001 19:10:40 -0500
+Received: from Cantor.suse.de ([194.112.123.193]:2055 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S132068AbRAXAKO>;
+	Tue, 23 Jan 2001 19:10:14 -0500
+Date: Wed, 24 Jan 2001 01:10:11 +0100
+From: Andi Kleen <ak@suse.de>
+To: Pete Elton <elton@iqs.net>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>,
+        "A.N.Kuznetsov" <kuznet@ms2.inr.ac.ru>
+Subject: Re: Turning off ARP in linux-2.4.0
+Message-ID: <20010124011011.A12252@gruyere.muc.suse.de>
+In-Reply-To: <20010123100803.A24145@gruyere.muc.suse.de> <200101232350.PAA14448@tech1.nameservers.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0101240044040.3522-100000@iq.rulez.org>; from sape@iq.rulez.org on Wed, Jan 24, 2001 at 12:52:57AM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200101232350.PAA14448@tech1.nameservers.com>; from elton@iqs.net on Tue, Jan 23, 2001 at 03:50:36PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 24, 2001 at 12:52:57AM +0100, Sasi Peter wrote:
-> On Sun, 14 Jan 2001, Godfrey Livingstone wrote:
-> 
-> > You MUST apply this patch before the two raid patches. The VM patch stablises
-> > the 2.2.18 virtual memory system and if you don't apply my two repackaged
-> > patches will fail. The above VM patch has been accepted into 2.2.19pre3 and
-> > many people are using it so is not untested.
-> 
-> 2.2.19preXaaX Virtually disabled I/O cache extention-by-swapout, working
-> on previous (semi)stock kernels (raid+ide patched) :(
+On Tue, Jan 23, 2001 at 03:50:36PM -0800, Pete Elton wrote:
+> Is there something that the arp_filter can do that will mirror this
+> functionality?  The modification that you made to the documentation 
+> was pretty straight forward in that the arp_filter was BOOLEAN, so 
+> I think I implemented it right.
 
-Can you measure a performance degradation because of that? Previous kernels was
-certainly not a good example because they was swapping out stuff even with
-`cp /dev/zero .`.
+The snippet you posted doesn't describe what ClusterThingy exactly wants
+to do with ARPs. 
 
-> Thus I wouldn't advise VM global till it gets somewhatbalanced to
-> non-swapless configs...
+Arpfilter was designed for multiple interfaces, to direct ARP replies
+to specific interfaces based on the routing table. If you have only a 
+single interface and no other way to policy route the packet I think you can 
+only try to use policy routing hacks (not tested). e.g. tag all outgoing 
+packets with a specific fwmark that redirects them to a specific routing
+table which does the real routing, and put no routes into the normal 
+one used by arpfilter so that it doesnt' reply.
 
-You said me your machine start to swapout when the filesystem cache reaches
-100mbytes (on your 384Mbyte box). That seems sane behaviour on a misc load. We
-could add some additional bit of page aging to swapout more when it worth
-indeed, but current balance looks just quite sane.
+Admittedly it's quite a hack. Perhaps Alexey can suggest a better solution,
+he's the routing/arp guru. I guess it would be easier if arpfilter was
+able to select a special own routing table, but I was too chicken to implement
+that.
 
-Andrea
+
+-Andi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,77 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbUK2T7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbUK2TfU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbUK2T7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 14:59:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbUK2Twy
+	id S261573AbUK2TfU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 14:35:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbUK2Tdw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 14:52:54 -0500
-Received: from mail.signalz.com ([66.37.214.166]:38076 "EHLO mail.signalz.com")
-	by vger.kernel.org with ESMTP id S261622AbUK2TuX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 14:50:23 -0500
-Subject: Promise SX8  driver performance
-From: Matt <matt@signalz.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Signal Advertising
-Message-Id: <1101757822.4309.37.camel@schroder.signalz.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Mon, 29 Nov 2004 14:50:22 -0500
-Content-Transfer-Encoding: 7bit
+	Mon, 29 Nov 2004 14:33:52 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:24760 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261597AbUK2TJo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 14:09:44 -0500
+Date: Mon, 29 Nov 2004 19:09:18 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Michael Kerrisk <michael.kerrisk@gmx.net>,
+       Linus Torvalds <torvalds@osdl.org>,
+       Manfred Spraul <manfred@colorfullife.com>,
+       Rik van Riel <riel@redhat.com>, Chris Wright <chrisw@osdl.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH] shmtcl SHM_LOCK perms
+Message-ID: <Pine.LNX.4.44.0411291855560.23341-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all. I've got a Promise SX8 SATA controller and the performance
-seems a little off. I'm using a debian-built 2.6.9 kernel and the
-read/write I/O seems to level off around 80-90 MB/s. When I use the same
-hardware in Windows, sequential I/O goes up to 218 MB/s. (That's about
-the limit of my motherboard's buses.) If I move some disks to the
-on-board SATA controller, I can get the I/O to go higher but never as
-high as in Windows.
+Michael Kerrisk has observed that at present any process can SHM_LOCK
+any shm segment of size within process RLIMIT_MEMLOCK, despite having no
+permissions on the segment: surprising, though not obviously evil.  And
+any process can SHM_UNLOCK any shm segment, despite no permissions on it:
+that is surely wrong.
 
-Is this a problem with my expectations, my testing, or the driver? 
+Unless CAP_IPC_LOCK, restrict both SHM_LOCK and SHM_UNLOCK to when the
+process euid matches the shm owner or creator: that seems the least
+surprising behaviour, which could be relaxed if a need appears later.
 
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
-Some Bonnie numbers for a raid 0 array of Seagate 7200.7's (2 GB file,
-sequential, MB/s):
-
-Disks/cntl        Write    Read
------             -----    ----
-1 (sx8)              57      63
-2 (sx8)              69      75
-2 (ESB)             111     121
-3 (sx8)              75      79
-3 (1 sx8, 2 ESB)    141     125
-4 (sx8)              89      80
-4 (2 sx8, 2 ESB)    135     150
-5 (sx8)              88      79
-6 (sx8)              91      75
-
-Some numbers from Sandra (ugh) in W2K Pro with the latest Promise
-drivers and using software RAID 0 (sequential, MB/s):
-
-Disks/cntl      Write    Read
------           -----    ----
-1 (sx8)            56      62
-2 (sx8)           106     122
-3 (sx8)           151     176
-4 (sx8)           178     209
-5 (sx8)           180     218
-6 (sx8)           179     218
-6 (4 sx8, 2 ESB)  169     207
-
-
-My full hardware:
-
-Supermicro P4SCi motherboard (7210 chipset, 6300ESB SATA on-board)
-3.0 GHz P4 Northwood w/ HT enabled
-(2) 512MB DDR400 dual channel (non-ECC)
-Promise SX8 SATA controller
-(6) 200 GB Seagate 7200.7
-(1) 40 GB Seagate Baraccuda IV (boot)
-Adaptec 2940U
-
-
-
+--- 2.6.10-rc2-bk13/ipc/shm.c	2004-11-15 16:21:23.000000000 +0000
++++ linux/ipc/shm.c	2004-11-29 18:07:06.398464576 +0000
+@@ -511,11 +511,6 @@ asmlinkage long sys_shmctl (int shmid, i
+ 	case SHM_LOCK:
+ 	case SHM_UNLOCK:
+ 	{
+-		/* Allow superuser to lock segment in memory */
+-		if (!can_do_mlock() && cmd == SHM_LOCK) {
+-			err = -EPERM;
+-			goto out;
+-		}
+ 		shp = shm_lock(shmid);
+ 		if(shp==NULL) {
+ 			err = -EINVAL;
+@@ -525,6 +520,16 @@ asmlinkage long sys_shmctl (int shmid, i
+ 		if(err)
+ 			goto out_unlock;
+ 
++		if (!capable(CAP_IPC_LOCK)) {
++			err = -EPERM;
++			if (current->euid != shp->shm_perm.uid &&
++			    current->euid != shp->shm_perm.cuid)
++				goto out_unlock;
++			if (cmd == SHM_LOCK &&
++			    !current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur)
++				goto out_unlock;
++		}
++
+ 		err = security_shm_shmctl(shp, cmd);
+ 		if (err)
+ 			goto out_unlock;
 

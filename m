@@ -1,54 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129226AbRAIFPZ>; Tue, 9 Jan 2001 00:15:25 -0500
+	id <S129267AbRAIFbY>; Tue, 9 Jan 2001 00:31:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129267AbRAIFPO>; Tue, 9 Jan 2001 00:15:14 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:30471 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129226AbRAIFPA>; Tue, 9 Jan 2001 00:15:00 -0500
-Date: Mon, 8 Jan 2001 23:14:43 -0600
-To: "David L. Parsley" <parsley@linuxjedi.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: question on generating a patch
-Message-ID: <20010108231443.B3385@cadcamlab.org>
-In-Reply-To: <3A5A9444.5B2772F2@linuxjedi.org>
+	id <S129324AbRAIFbO>; Tue, 9 Jan 2001 00:31:14 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:8210 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S129267AbRAIFbE>; Tue, 9 Jan 2001 00:31:04 -0500
+Date: Mon, 8 Jan 2001 21:30:44 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+Cc: richbaum@acm.org, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] More compile warning fixes for 2.4.0
+Message-ID: <20010108213044.A28968@twiddle.net>
+In-Reply-To: <3A5790E3.18256.963C79@localhost> <20010108205001.S3472@arthur.ubicom.tudelft.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A5A9444.5B2772F2@linuxjedi.org>; from parsley@linuxjedi.org on Mon, Jan 08, 2001 at 11:32:04PM -0500
-From: Peter Samuelson <peter@cadcamlab.org>
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20010108205001.S3472@arthur.ubicom.tudelft.nl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 08, 2001 at 08:50:01PM +0100, Erik Mouw wrote:
+> Is this really a kernel bug? This is common idiom in C, so gcc
+> shouldn't warn about it. If it does, it is a bug in gcc IMHO.
 
-[David L. Parsley]
-> I read the FAQ and SubmittingPatches, but how best to generate a
-> patch that moves a file from on dir to another?  diff -urNP makes the
-> patch a lot longer than it seems like it should be...
+No, it is not a common idiom in C.  It has _never_ been valid C.
 
-A major weakness of the 'patch' command -- you cannot gracefully move
-or rename files.  Larry Wall saw this years ago and invented a hybrid
-sort of patch that runs as a shar-like shell script, moving things
-around before actually applying itself as a patch.  But most people,
-including linux-kernel, don't use lwall's patch+shar format.
+GCC originally allowed it due to a mistake in the grammar; we
+now warn for it.  Fix your source.
 
 
-- If it's a fairly small file anyway, just use 'diff -urN' and don't
-worry about it.
-
-- If it's a large file or several files, or if you are making
-significant changes to said files besides moving them, you should
-probably list two separate steps: first, describe the rearrangement,
-perhaps as a series of 'mv' commands; second, give us a patch against
-the new arrangement.
-
-
-Either way, you need to make it clear what changes, if any, have been
-made to a particular file "in transit".  With just 'diff -urN' and no
-explanation, it is hard to tell one way or the other.
-
-Peter
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

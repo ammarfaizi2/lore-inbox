@@ -1,40 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269692AbRHIGbZ>; Thu, 9 Aug 2001 02:31:25 -0400
+	id <S269706AbRHIGuq>; Thu, 9 Aug 2001 02:50:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269698AbRHIGbO>; Thu, 9 Aug 2001 02:31:14 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:14860 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S269692AbRHIGbF>; Thu, 9 Aug 2001 02:31:05 -0400
-Message-ID: <3B722DE4.96DA5711@idb.hist.no>
-Date: Thu, 09 Aug 2001 08:29:56 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-pre5 i686)
-X-Accept-Language: no, en
+	id <S269707AbRHIGuf>; Thu, 9 Aug 2001 02:50:35 -0400
+Received: from web20106.mail.yahoo.com ([216.136.226.43]:11531 "HELO
+	web20106.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269706AbRHIGuX>; Thu, 9 Aug 2001 02:50:23 -0400
+Message-ID: <20010809065034.82696.qmail@web20106.mail.yahoo.com>
+Date: Wed, 8 Aug 2001 23:50:34 -0700 (PDT)
+From: Venu Gopal Krishna Vemula <vvgkrishna_78@yahoo.com>
+Subject: Problem on Interrupt Handling
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Ivan Kalvatchev <iive@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: [Patch2] Re: DoS with tmpfs #3
-In-Reply-To: <20010808171702.57332.qmail@web13603.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ivan Kalvatchev wrote:
+Hi,
+         I am developing  a linux device driver for a 
+serial communication adapter which is based on
+interrrupt driven IO, top half handles registering the
+Immediate task queue, bottom half performs the actual
+task
 
-> I didn't look at the chages but i will say this one
-> more time. Limiting tmpfs size at fixed amount of
-> space will make the bug harder to reproduce but won't
-> fix it. The right hack is to limit tmpfs to be with
-> freepages.high less than available memory(swap+ram).
-> It won't be hard to code.
+     But after some time 'RxFull' interrupts are not
+comming. This is happening after I got an interrupt
+which tells "CPU not responding,  RFIFO is FULL". 
+		ALl other types  interrupts(includes TxEmpty and
+Modem interrupts) are Ok... The above problem is
+solving when  ISR0 (interrupt status register which
+contains  RXtype interrupts) and enable ISR0, RxFull
+interrupt is again comming .
 
-The problem with this is that tmpfs may be mounted before
-swap is initialized, so a little less than
-swap+ram will become "a little less than just RAM" anyway.
+     In my UART(Serial communication Controller,) 
+RxFull has high priority and then TxEmpty.Both RxFull
+and TxEmpty share same IRQ line. No other device is
+sharing the IRQ line. 
 
-Or do you propose a dynamic limit, changing as swap
-is added/removed?  This has problems if some swap is
-removed, and suddenly tmpfs usage exceeds its quota.
+I would appreciate if you can help solving this
+problem.
 
-Helge Hafting
+regards,
+Vvgkrishna_78@yahoo.com
+
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/

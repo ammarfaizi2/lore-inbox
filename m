@@ -1,31 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132643AbRDOMtZ>; Sun, 15 Apr 2001 08:49:25 -0400
+	id <S132644AbRDOMw0>; Sun, 15 Apr 2001 08:52:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132636AbRDOMtP>; Sun, 15 Apr 2001 08:49:15 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:28165 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132643AbRDOMtD>; Sun, 15 Apr 2001 08:49:03 -0400
-Subject: Re: 2.4.3 - Module problems?
-To: swds.mlowe@home.com (Matthew W. Lowe)
-Date: Sun, 15 Apr 2001 13:51:02 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3ADA49F0.A412EAA@home.com> from "Matthew W. Lowe" at Apr 15, 2001 07:25:04 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132636AbRDOMwQ>; Sun, 15 Apr 2001 08:52:16 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:62984 "EHLO
+	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S132644AbRDOMwD>; Sun, 15 Apr 2001 08:52:03 -0400
+Date: 15 Apr 2001 11:07:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+cc: kbuild-devel@lists.sourceforge.net
+Message-ID: <7zuzLtMHw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.21.0103261153510.1863-100000@imladris.rielhome.conectiva>
+Subject: Re: [kbuild-devel] Re: CML1 cleanup patch
+X-Mailer: CrossPoint v3.12d.kh5 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14olzc-0006iz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <E14hVd6-0007eK-00@mercury.ccil.org> <Pine.LNX.4.21.0103261153510.1863-100000@imladris.rielhome.conectiva>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> as I did the previous kernel. They were the NE2000 PCI module and the
-> 3C59X module. The two NICs I have are: Realtek 8029 PCI, 3COM Etherlink
-> III ISA. Both are PNP, the etherlink is NOT the one with the b extention
-> at the end.
+Warning: No kernel related stuff inside.
 
-Make sure you use either the kernel or the usermode PnP and not both. (You
-probably want to turn kernel PnP off)
+riel@conectiva.com.br (Rik van Riel)  wrote on 26.03.01 in <Pine.LNX.4.21.0103261153510.1863-100000@imladris.rielhome.conectiva>:
 
+> On Mon, 26 Mar 2001, John Cowan wrote:
 
+> > In fact this has come up before: in Usenet software, which has to
+> > differentiate between an article and a sub-newsgroup.  An article has
+> > to have an all-numeric name, and It Would Have Been Nice if all
+> > newsgroup names began with non-digits, but then there was
+> > comp.bugs.4bsd.
+>
+> What's wrong with using the _file type_ for these things ?
+
+Wrong problem description, really. The problem is not components starting  
+with digits, the problem is all-numeric components as in alt.2600.
+
+And the problem is that this hits a fast path in the classical news spool  
+layout article create path. The code for this assumes that you have  
+articles in the range X to Y, and you just got a new article, so you write  
+a file called /var/spool/news/group/name/Y+1. You really do not want to  
+cope with the possibility of a directory Y+1 existing in that place.
+
+I think there are some other things that also get impacted on their fast  
+path, but this is probably the most important.
+
+And then, it's an ugly user interface: the classical spool layout does  
+assume that you look at that scpool with Unix tools (like find and grep),  
+not only via NNTP and the server.
+
+MfG Kai

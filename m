@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbUFJUa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbUFJUey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbUFJUa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 16:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbUFJUa4
+	id S261602AbUFJUey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 16:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263001AbUFJUey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 16:30:56 -0400
-Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:15001 "EHLO
-	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
-	id S262960AbUFJUay (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 16:30:54 -0400
-Date: Thu, 10 Jun 2004 14:33:50 -0600
-From: "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org,
-       "Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-       Jens Axboe <axboe@suse.de>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
-Subject: Re: flush cache range proposal (was Re: ide errors in 7-rc1-mm1 and later)
-Message-ID: <20040610203350.GB2230@bounceswoosh.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	linux-kernel@vger.kernel.org,
-	"Eric D. Mudama" <edmudama@mail.bounceswoosh.org>,
-	Jens Axboe <axboe@suse.de>,
-	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-	Ed Tomlinson <edt@aei.ca>, Andrew Morton <akpm@osdl.org>
-References: <1085689455.7831.8.camel@localhost> <20040605092447.GB13641@suse.de> <20040606161827.GC28576@bounceswoosh.org> <200406100238.11857.bzolnier@elka.pw.edu.pl> <20040610061141.GD13836@suse.de> <20040610164135.GA2230@bounceswoosh.org> <40C89F4D.4070500@pobox.com> <40C8A241.50608@pobox.com>
+	Thu, 10 Jun 2004 16:34:54 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:27548 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S261602AbUFJUex (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 16:34:53 -0400
+Date: Thu, 10 Jun 2004 23:34:42 +0300
+From: Pekka Pietikainen <pp@ee.oulu.fi>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: Dealing with buggy hardware (was: b44 and 4g4g)
+Message-ID: <20040610203442.GA27762@ee.oulu.fi>
+References: <20040531202104.GA8301@ee.oulu.fi> <20040605200643.GA2210@ee.oulu.fi> <20040605131923.232f8950.davem@redhat.com> <20040609122905.GA12715@ee.oulu.fi> <20040610200504.GG4507@openzaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <40C8A241.50608@pobox.com>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040610200504.GG4507@openzaurus.ucw.cz>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 10 at 14:02, Jeff Garzik wrote:
->Oh, also:
->
->We'll need to write up precisely _why_ this is used, and give some 
->examples of usage, for people reading the proposal (mostly T13-ish 
->people) who have not been following the lkml barrier discussion closely.
+On Thu, Jun 10, 2004 at 10:05:04PM +0200, Pavel Machek wrote:
+> This should hit machines with 2GB ram too, right?
+> Is it possible to find if it hits me? I get hard lockups on
+> 2GB machine with b44, but they take ~5min.. few hours to
+> reproduce...
+>  
+> It seems to me like this should hit very quickly.
+> -- 
+> 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+> 
+Yikes!
 
-One comment...
+With the 4:4 VM split it definately is instantaneous with > 1GB of memory, I
+triggered it with 1.25G myself and never noticed anything wrong with just
+1GB (allocation starts from the top it seems). With the standard 1:3 split I
+don't think anything > 1GB ever gets used for skbuffs, but maybe there
+are circumstances where this can happen? 
 
-There will need to be queued versions of this command, both legacy
-and first-party, since a flush cache command will abort an outstanding
-queue with error.
-
-Second, I'm trying to figure out exactly how this might be used...
-
-Would the driver just send down alternating write/flushregion commands
-queued?  If that is the case, the drive will offer 2x the queue depth
-(maybe 30% more performance) doing pure WRITE DMA QUEUED FUA (FP)
-commands, wouldn't it?  Then again, for a metadata-only journaling
-system, this would give you almost 100% of raw performance, with
-metadata reliability which means you could always boot the drive.
-
-I'm not sure what percentage of the writes to the filesystem one might
-envision doing with this system...
-
---eric
-
-
-
-
--- 
-Eric D. Mudama
-edmudama@mail.bounceswoosh.org
-
+(Or the issue isn't fully understood yet, figuring out what breaks and what
+doesn't was basically just trial and error :-/ )

@@ -1,81 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135624AbRDSLbW>; Thu, 19 Apr 2001 07:31:22 -0400
+	id <S135623AbRDSLYV>; Thu, 19 Apr 2001 07:24:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135625AbRDSLbM>; Thu, 19 Apr 2001 07:31:12 -0400
-Received: from mail.axisinc.com ([193.13.178.2]:52241 "EHLO roma.axis.se")
-	by vger.kernel.org with ESMTP id <S135624AbRDSLa4>;
-	Thu, 19 Apr 2001 07:30:56 -0400
-From: johan.adolfsson@axis.com
-Message-ID: <02cb01c0c8c4$92ee2640$85b270d5@homeip.net>
-Reply-To: <johan.adolfsson@axis.com>
-To: "Grant Erickson" <erick205@umn.edu>,
-        "Linux I2C Mailing List" <linux-i2c@pelican.tk.uni-linz.ac.at>,
-        "Linux/PPC Embedded Mailing List" 
-	<linuxppc-embedded@lists.linuxppc.org>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.SOL.4.20.0104181408540.10793-100000@garnet.tc.umn.edu>
-Subject: Re: Kernel Real Time Clock (RTC) Support for I2C Devices
-Date: Thu, 19 Apr 2001 13:33:35 +0200
+	id <S135624AbRDSLYL>; Thu, 19 Apr 2001 07:24:11 -0400
+Received: from oboe.it.uc3m.es ([163.117.139.101]:35598 "EHLO oboe.it.uc3m.es")
+	by vger.kernel.org with ESMTP id <S135623AbRDSLYB>;
+	Thu, 19 Apr 2001 07:24:01 -0400
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200104191123.f3JBNfM17858@oboe.it.uc3m.es>
+Subject: Re: block devices don't work without plugging in 2.4.3
+In-Reply-To: <20010419125140.M16822@suse.de> from "Jens Axboe" at "Apr 19, 2001
+ 12:51:40 pm"
+To: "Jens Axboe" <axboe@suse.de>
+Date: Thu, 19 Apr 2001 13:23:41 +0200 (MET DST)
+CC: "linux kernel" <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Support for DS1302 is available in the CRIS port.
-A patch for 2.4.3 (and a lot of other stuff you don't need) is available in
-http://developer.axis.com/download/devboard_lx/R1_0_0/
+OK .. thanks Jens. Sorry about the repeat .. my nameserver lost its fix
+on the root servers thanks to some hurried upgrades, and sendmail
+started quietly bouncing mail for "not having" a dns entry, and you
+know about deja. Probably the list dropped me for the bounces.
+Those are my excuses. Apologies again.
 
-/Johan
+"Jens Axboe wrote:"
+> > The result is that a block device that doesn't do plugging doesn't
+> > work.
+> > 
+> > If it has called blk_queue_pluggable() to register a no-op plug_fn,
+> > then q->plugged will never be set (it's the duty of the plug_fn), and
+> > the devices registered request function will never be called.
+> > 
+> > This behaviour is distinct from 2.4.0, where registering a no-op
+> > plug_fn made things work fine.
+> 
+> Check the archives, I replied to this days ago. But since I'm taking the
+> subject up anyway, let me expand on it a bit further.
 
------ Original Message -----
-From: Grant Erickson <erick205@umn.edu>
-To: Linux I2C Mailing List <linux-i2c@pelican.tk.uni-linz.ac.at>; Linux/PPC
-Embedded Mailing List <linuxppc-embedded@lists.linuxppc.org>; Linux Kernel
-Mailing List <linux-kernel@vger.kernel.org>
-Sent: Wednesday, April 18, 2001 9:13 PM
-Subject: Kernel Real Time Clock (RTC) Support for I2C Devices
+Yes, please.
 
+> Not using plugging is gone, blk_queue_pluggable has been removed from
+> the current 2.4.4-pre series if you check that. The main reason for
+> doing this, is that there are generally no reasons for _not_ using
+> plugging in the 2.4 series kernels. In 2.2 and previous, not using the
 
-> I have been unable to find an answer for this in the LKML archives, so I
-> am hoping someone on this list might perhaps have some insight or pointers
-> thereto on this question.
->
-> I have an embedded board with a PowerPC 405GP on which Linux 2.4.2
-> (MontaVista's version thereof) is running swimmingly. Attached to that
-> PowerPC's I2C controller is a Dallas DS1307 I2C RTC.
->
-> >From the looks of drivers/char/rtc.c it would appear that this kernel
-> driver only supports bus-attached RTCs such as the mentioned MC146818. Is
-> this correct?
->
-> What is the correct access method / kernel tie-in for supporting such an
-> I2C-based RTC device using the "standard" interfaces?
->
-> My hope is to use 'hwclock' from util-linux w/o modification. Is this
-> reasonable?
->
-> Thanks,
->
-> Grant Erickson
->
->
-> --
->  Grant Erickson                       University of Minnesota Alumni
->   o mail:erick205@umn.edu                                 1996 BSEE
->   o http://www.umn.edu/~erick205                          1998 MSEE
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+I agree.
 
+> builtin plugging was generally done to disable request merging. In 2.4,
+> the queues have good control over what happens there with the
+> back/front/request merging functions -- so drivers can just use that.
+
+They can indeed. And I agree, it had become necessary to both enable
+plugging and to enable request merging separately (via control over
+these two sets of things), in order to get request merging. That was
+silly.
+
+> Besides, the above hunk was removed because it is wrong. For devices
+> using plugging, we would re-call the request_fn while the device was
+> already active and serving requests. Not only is this a performance hit
+
+Not sure about that ...
+
+> we don't need to take, it also gave problems on some drivers.
+
+Well, I know scsi used to be treating the first element while still on
+the queue, but presumably you are not referring to that.
+
+So the consensus is that I should enable plugging while the plugging
+function is still here and do nothing when it goes? I must say I don't
+think it should really "go", since that means I have to add a no-op
+macro to replace it, and I don't like #ifdefs. 
+
+BTW, I don't need request merging (and therefore don't need plugging)
+because requests eventually go out over the net. Nevertheless, I have
+always been interested in seeing the difference it could cause. I
+have never seen the measurements reflect the gain that I would have
+expected from request merging, although I would have naively expected
+some (in MY case).
+
+Thanks again.
+
+Peter

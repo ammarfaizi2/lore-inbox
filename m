@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269130AbSIRSHo>; Wed, 18 Sep 2002 14:07:44 -0400
+	id <S268823AbSIRR60>; Wed, 18 Sep 2002 13:58:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269081AbSIRSHo>; Wed, 18 Sep 2002 14:07:44 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:24324 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id <S269130AbSIRSHn> convert rfc822-to-8bit; Wed, 18 Sep 2002 14:07:43 -0400
-x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: Linux TPC-C performance aided by kernel features
-Date: Wed, 18 Sep 2002 13:12:40 -0500
-Message-ID: <45B36A38D959B44CB032DA427A6E106402D09E36@cceexc18.americas.cpqcorp.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Linux TPC-C performance aided by kernel features
-Thread-Index: AcJfPvkJwy4jn2deQaOjqkCnKZiduA==
-From: "Bond, Andrew" <Andrew.Bond@hp.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Sep 2002 18:12:40.0647 (UTC) FILETIME=[F9FC5570:01C25F3E]
+	id <S268824AbSIRR6Y>; Wed, 18 Sep 2002 13:58:24 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:49368 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S268823AbSIRR6T>;
+	Wed, 18 Sep 2002 13:58:19 -0400
+Date: Wed, 18 Sep 2002 12:00:04 -0600
+From: yodaiken@fsmlabs.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
+Message-ID: <20020918120004.A13778@hq.fsmlabs.com>
+References: <Pine.LNX.4.44.0209181026550.1230-100000@home.transmeta.com> <Pine.LNX.4.44.0209181939150.24891-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209181939150.24891-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 18, 2002 at 07:54:53PM +0200
+Organization: FSM Labs
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This past Monday HP released the very first TPC-C benchmark result done using Linux.  When comparing it to a previous HP result using basically the same hardware and same database but with Windows 2000, the Linux result is faster and cheaper.  The benchmark is a proof point that shows Linux can run well in an enterprise environment.
+On Wed, Sep 18, 2002 at 07:54:53PM +0200, Ingo Molnar wrote:
+> or a phone line server that handles 100 thousand phone lines starts up
+> 100K threads, one per line. No need to restart any of those threads, and
+> in fact it will never happen. They do use helper threads to do less timing
+> critical stuff. Now the whole phone system locks up for 1.5 minutes every
+> 2 weeks or 2 months when the PID range overflows, how great. Now make that
+> 400 thousand phonelines, the lockup will will last 24 minutes.
 
-Of more interest to this mailing list however would be some of the kernel features that gave us a performance boost.
+So Solaris made a stupid design decision to encourage people to use a
+thread per call on these big systems and Linux should make the same
+decision for compatibility?
 
-1. Async IO  - We saw about a 5% increase in performance when using Ben's asynchronous IO with Oracle.  The peformance gain was because of reduced overhead on the Oracle and OS process front.  By using async IO we were able to run with only 2 Oracle dbwriter processes rather than the 15+ we would have needed without it.  This made the Oracle environment more efficient, and reduced our context switch overhead on the OS side.
+I can see why people want this: they have huge ugly systems that they would
+like to port to Linux with as little effort as possible. But it's not
+free for the OS either. 
 
-2. Large memory support (16GB) - The Oracle processes used about 14GB of shared memory which was allocated using shmfs and managed through a mapping window in the Oracle process space.  Databases always love more memory, however in an IA-32 architecture the gains definitely diminish once you get past 4GB because of overhead.  Our gains going from 8GB to 16GB of memory in the system were in the 10% range.  
-
-3. Raw device access - I don't have a percentage gain for this one since we have been using this feature since the beginning.  Initial testing last year showed that raw device access was definitely superior to other methods of device access.  On a single node, O_DIRECT would be an option now, but for cluster configurations multinode filesystem access would be needed.  One limitation we kept running into was the 256 raw device limit imposed by raw having a single major number.  This issue has been taken care of in 2.5, but for 2.4 based kernels it is a limitation for larger configurations.
-
-4. 2MB PTE's for Oracle memory - We saw an 8% gain when we switched from using 4k PTE's to 2MB PTE's for the shared memory Oracle was allocating.  14GB of the 16GB of memory on the system was set aside for this "bigpage" usage.
-
-Other features such as IO elevator tuning, process priority adjustment, and TCP tuning were also used.
+It's interesting to see that as Linux moves into the phone space owned by
+Sun, two things are happening. (1)There is pressure to expand Linux to simply
+match Solaris properties and (2) the entire technological and business
+basis of those huge 100K+ thread racks is beginning to collapse.
 
 
-For those that are interested in more detail about the benchmark configuration I would refer you to this TPC web page where #7 is the Linux benchmark and #8 is the Windows one.  You can select the benchmark and pull up the full disclosure report for more gory detail.
-
-http://www.tpc.org/tpcc/results/tpcc_perf_results.asp?resulttype=cluster
-
-Regards,
-Andy
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
 

@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266379AbSKLIvn>; Tue, 12 Nov 2002 03:51:43 -0500
+	id <S266384AbSKLIwL>; Tue, 12 Nov 2002 03:52:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266384AbSKLIvn>; Tue, 12 Nov 2002 03:51:43 -0500
-Received: from cmailg5.svr.pol.co.uk ([195.92.195.175]:17198 "EHLO
-	cmailg5.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S266379AbSKLIvm>; Tue, 12 Nov 2002 03:51:42 -0500
-Date: Tue, 12 Nov 2002 08:58:08 +0000
-To: linux-lvm@sistina.com
-Cc: Bernd Eckenfels <ecki@lina.inka.de>, dm@uk.sistina.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-lvm] Re: [patch] make device mapper compile on 2.5.4x
-Message-ID: <20021112085808.GB1308@reti>
-References: <20021111225340.GA3587@lina.inka.de> <Pine.GSO.4.21.0211111821210.29617-100000@steklov.math.psu.edu>
-Mime-Version: 1.0
+	id <S266386AbSKLIwL>; Tue, 12 Nov 2002 03:52:11 -0500
+Received: from packet.digeo.com ([12.110.80.53]:19199 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266384AbSKLIwJ>;
+	Tue, 12 Nov 2002 03:52:09 -0500
+Message-ID: <3DD0C2CB.E98DBABD@digeo.com>
+Date: Tue, 12 Nov 2002 00:58:51 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Miles Lane <miles.lane@attbi.com>,
+       "linux1394-devel@lists.sourceforge.net" 
+	<linux1394-devel@lists.sourceforge.net>,
+       Thomas Molina <tmolina@cox.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.47 -- OOPS -- sleeping function called from illegal context 
+ atmm/page_alloc.c:417
+References: <3DD0B928.3000900@attbi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0211111821210.29617-100000@steklov.math.psu.edu>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Nov 2002 08:58:52.0116 (UTC) FILETIME=[B8F52140:01C28A29]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 11, 2002 at 06:23:00PM -0500, Alexander Viro wrote:
-> 
-> 
-> On Mon, 11 Nov 2002, Bernd Eckenfels wrote:
-> 
-> > -	set_device_ro(dm_kdev(md), 0/*(param->flags & DM_READONLY_FLAG)*/);
-> > +	bdev = bdget(kdev_t_to_nr(dm_kdev(md)));
-> > +	if (!bdev)
-> > +		return -ENXIO;
-> > +	set_device_ro(bdev, (param->flags & DM_READONLY_FLAG));
-> > +	bdput(bdev);
-> 
-> That is simply wrong.  set_device_ro() works only on opened block_device.
-> Correct fix is to use set_disk_ro() and it's already in the tree (1.830
-> on bkbits).
+(It is not an oops.  It is a debug trace)
 
-And I have sent the patch for this 3 times now.
+Miles Lane wrote:
+> 
+> ohci1394: $Rev: 601 $ Ben Collins <bcollins@debian.org>
+> ohci1394_0: Unexpected PCI resource length of 1000!
+> ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[9]  MMIO=[febfc000-febfc7ff]  Max
+> Packet=[2048]
+> Debug: sleeping function called from illegal context at mm/page_alloc.c:417
+> Call Trace:
 
-- Joe
+void highlevel_add_host(struct hpsb_host *host)
+{
+        struct list_head *entry;
+        struct hpsb_highlevel *hl;
+
+        read_lock(&hl_drivers_lock);
+        list_for_each(entry, &hl_drivers) {
+                hl = list_entry(entry, struct hpsb_highlevel, hl_list);
+
+                hl->op->add_host(host);
+        }
+        read_unlock(&hl_drivers_lock);
+}
+
+That's a pretty bad bug.  You shouldn't sleep inside read_lock(), and this
+function is performing GFP_KERNEL allocations and even launching kernel
+threads inside that lock.
+
+Can hl_drivers_lock become a semaphore?

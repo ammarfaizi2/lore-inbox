@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129267AbRACXIT>; Wed, 3 Jan 2001 18:08:19 -0500
+	id <S131251AbRACXKI>; Wed, 3 Jan 2001 18:10:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbRACXIL>; Wed, 3 Jan 2001 18:08:11 -0500
-Received: from inje.iskon.hr ([213.191.128.16]:35343 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S129267AbRACXIB>;
-	Wed, 3 Jan 2001 18:08:01 -0500
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Mike Galbraith <mikeg@wen-online.de>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: [PATCH] add PF_MEMALLOC to __alloc_pages()
-In-Reply-To: <Pine.LNX.4.21.0101031258070.1403-100000@duckman.distro.conectiva>
-Reply-To: zlatko@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko@iskon.hr>
-Date: 04 Jan 2001 00:03:13 +0100
-In-Reply-To: Rik van Riel's message of "Wed, 3 Jan 2001 13:03:27 -0200 (BRDT)"
-Message-ID: <87g0j0qlvy.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.2 (Peisino,Ak(B)
+	id <S131413AbRACXJ6>; Wed, 3 Jan 2001 18:09:58 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:30987 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131251AbRACXJs>; Wed, 3 Jan 2001 18:09:48 -0500
+Subject: Re: Yet more benchmarks for 2.4.0-prerelease and -ac[4,5]
+To: scole@lanl.gov
+Date: Wed, 3 Jan 2001 23:11:55 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01010315250600.01807@spc.esa.lanl.gov> from "Steven Cole" at Jan 03, 2001 03:25:06 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Dx4X-0004nO-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
+> recent kernels.  It looks like there may be a slight drop
+> in performance for -ac5.  For -ac4 and -ac5, the throughput
 
-> Hi Linus, Alan, Mike,
-> 
-> the following patch sets PF_MEMALLOC for the current task
-> in __alloc_pages() to avoid infinite recursion when we try
-> to free memory from __alloc_pages().
-> 
-> Please apply the patch below, which fixes this (embarrasing)
-> bug...
-> 
-[snip]
->  		 * free ourselves...
->  		 */
->  		} else if (gfp_mask & __GFP_WAIT) {
-> +			current->flags |= PF_MEMALLOC;
->  			try_to_free_pages(gfp_mask);
-> +			current->flags &= ~PF_MEMALLOC;
->  			memory_pressure++;
->  			if (!order)
->  				goto try_again;
-> 
+-ac5 touches stuff which would have performance effects. That would be 
+reasonable to suspect.
 
-Hm, try_to_free_pages already sets the PF_MEMALLOC flag!
--- 
-Zlatko
+	-	Rik's partial page changes
+	-	A couple of other minor vm touches
+
+If it is relaed to those then you should see the same loss of speed on the
+testing/prerelease file on ftp.kernel.org. 
+
+> dropped on run #3.  That's probably just a fluke.  I'll repeat
+> these runs later when I get a chance.
+
+4 doesnt change anything except for FATfs and writing raw off end of disks
+so for now lets assume fluke
+
+Alan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

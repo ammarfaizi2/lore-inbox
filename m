@@ -1,45 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131579AbRAPNvo>; Tue, 16 Jan 2001 08:51:44 -0500
+	id <S129383AbRAPN7E>; Tue, 16 Jan 2001 08:59:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131585AbRAPNve>; Tue, 16 Jan 2001 08:51:34 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:13736 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131579AbRAPNvW>;
-	Tue, 16 Jan 2001 08:51:22 -0500
-Date: Tue, 16 Jan 2001 14:50:49 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101161350.OAA141869.aeb@ark.cwi.nl>
-To: mingo@elte.hu
-Subject: Re: Is sendfile all that sexy?
-Cc: linux-kernel@vger.kernel.org
+	id <S129436AbRAPN6y>; Tue, 16 Jan 2001 08:58:54 -0500
+Received: from pcep-jamie.cern.ch ([137.138.38.126]:28179 "EHLO
+	pcep-jamie.cern.ch") by vger.kernel.org with ESMTP
+	id <S129383AbRAPN6n>; Tue, 16 Jan 2001 08:58:43 -0500
+Date: Tue, 16 Jan 2001 14:57:05 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        dean gaudet <dean-list-linux-kernel@arctic.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Jonathan Thackray <jthackray@zeus.com>
+Subject: Re: 'native files', 'object fingerprints' [was: sendpath()]
+Message-ID: <20010116145705.C19949@pcep-jamie.cern.ch>
+In-Reply-To: <Pine.LNX.4.10.10101152056170.12667-100000@penguin.transmeta.com> <Pine.LNX.4.30.0101161020200.673-100000@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.30.0101161020200.673-100000@elte.hu>; from mingo@elte.hu on Tue, Jan 16, 2001 at 10:48:34AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Ingo Molnar <mingo@elte.hu>
+Ingo Molnar wrote:
+> 	struct native_file {
+> 		unsigned long master_fingerprint[8];
+> 		unsigned long file_fingerprint[8];
+> 		struct file file;
+> 	};
+> 
+> 'fingerprints' are 256 bit, true random numbers. master_fingerprint is
+> global to the kernel and is generated once per boot. It validates the
+> pointer of the structure. The master fingerprint is never known to
+> user-space.
+> 
+> file_fingerprint is a 256-bit identifier generated for this native file.
+> The file fingerprint and the (kernel) pointer to the native file is
+> returned to user-space. The cryptographical safety of these 256-bit random
+> numbers guarantees that no breach can occur in a reasonable period of
+> time. It's in essence an 'encrypted' communication between kernel and
+> user-space.
 
-    On Tue, 16 Jan 2001, Felix von Leitner wrote:
+Sounds similar to the Hurd...
 
-    > I don't know how Linux does it, but returning the first free file
-    > descriptor can be implemented as O(1) operation.
-
-    to put it more accurately: the requirement is to be able to open(), use
-    and close() an unlimited number of file descriptors with O(1) overhead,
-    under any allocation pattern, with only RAM limiting the number of files.
-    Both of my proposals attempt to provide this. It's possible to open() O(1)
-    but do a O(log(N)) close(), but that is of no practical value IMO.
-
-        Ingo
-
-> Both of my proposals
-
-I am afraid I have missed most earlier messages in this thread.
-However, let me remark that the problem of assigning a
-file descriptor is the one that is usually described by
-"priority queue". The version of Peter van Emde Boas takes
-time O(loglog N) for both open() and close().
-Of course this is not meant to suggest that we use it.
-
-Andries
+-- Jamie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

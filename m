@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270697AbRHKAYP>; Fri, 10 Aug 2001 20:24:15 -0400
+	id <S269797AbRHKA2z>; Fri, 10 Aug 2001 20:28:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270702AbRHKAYH>; Fri, 10 Aug 2001 20:24:07 -0400
-Received: from vger.timpanogas.org ([207.109.151.240]:28172 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S270697AbRHKAXt>; Fri, 10 Aug 2001 20:23:49 -0400
-Date: Fri, 10 Aug 2001 18:26:42 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: timpanogas.org - get it while you can.
-Message-ID: <20010810182642.A13642@vger.timpanogas.org>
+	id <S270698AbRHKA2p>; Fri, 10 Aug 2001 20:28:45 -0400
+Received: from t2.redhat.com ([199.183.24.243]:18160 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S269784AbRHKA2m>; Fri, 10 Aug 2001 20:28:42 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <m1puahzjcn.fsf@frodo.biederman.org> 
+In-Reply-To: <m1puahzjcn.fsf@frodo.biederman.org>  <Pine.LNX.3.96.1010730153712.7347D-100000@mandrakesoft.mandrakesoft.com> <20010730140928.D20284@bluemug.com> 
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: Mike Touloumtzis <miket@bluemug.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+        Linus Torvalds <torvalds@transmeta.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [CFT] initramfs patch 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+Date: Sat, 11 Aug 2001 01:27:48 +0100
+Message-ID: <17412.997489668@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Hey guys,
+ebiederm@xmission.com said:
+>  The current mtd drivers allow exactly this.  Having a filesystem on
+> your flash or rom device.  I don't think any filesystem that runs on
+> top of them currently supports XIP but the basic infrastructure is
+> there. 
 
-If anyone wants any of the netware file system stuff for NT or Linux, you'd 
-best get it while the gettings good.  I'll still be around working on Linux
-tape changers, etc. and SCI stuff, but the NetWare stuff is coming down 
-Saturday and the FTP servers will be taken off line at this time that host 
-any NetWare or Novell specific technologies.  We will be filing litigation 
-against Novell Sep 1, 2001 in an attempt to get the injunction off the 
-defunct company and ourselves that's been around our necks for the past 
-four years.  
+Not quite. Hacking romfs to do XIP is trivial but only once we've
+implemented the other part of the plan, which is to make MTD drivers 
+capable of exporting a new mmzone with their own pages in, for xip-romfs to 
+insert into the page cache.
 
-The site will still be up, but much changed.  Downloads are at 
-www.timpanogas.org and ftp.timpanogas.org.  If you want anything,
-nows the time to get it.  SCI code will still be maintained on 
-this site.
+--
+dwmw2
 
-When the new website goes up, folks may get a bit of a surprise since
-we've been running a plant genetics lab here alongside our software 
-business.  You will get a look at the results of our genetic 
-manipulation of probiscidea and mesembrecanthea.  We have isolated 
-a cure for arthritis (not treatment, but a permanent cure) from 
-plants from the Native American seedbanks and have been performing 
-gene splicing and polyploid induction with several of these plants.  
-Linux work on SCI will be continuing and in other areas.  
-
-Jeff Merkey
-TRG
 

@@ -1,75 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265531AbUBFQrg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 11:47:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265532AbUBFQrg
+	id S265505AbUBFQnK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 11:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265530AbUBFQnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 11:47:36 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:58543 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S265531AbUBFQre (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 11:47:34 -0500
-From: Michael Frank <mhf@linuxmail.org>
-To: Rik van Riel <riel@redhat.com>, Jens Axboe <axboe@suse.de>
-Subject: Re: 2.4.25-rc1: BUG: wrong zone alignment, it will crash
-Date: Sat, 7 Feb 2004 00:46:31 +0800
-User-Agent: KMail/1.5.4
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0402061034210.5933-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0402061034210.5933-100000@chimarrao.boston.redhat.com>
-X-OS: KDE 3 on GNU/Linux
+	Fri, 6 Feb 2004 11:43:10 -0500
+Received: from fmr09.intel.com ([192.52.57.35]:15067 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S265505AbUBFQnH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 6 Feb 2004 11:43:07 -0500
+content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402070046.31218.mhf@linuxmail.org>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: RE: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Date: Fri, 6 Feb 2004 08:42:14 -0800
+Message-ID: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Thread-Index: AcPsThRFHV90aoLxSTaIErPsVWU6SwAezrdw
+From: "Hefty, Sean" <sean.hefty@intel.com>
+To: "Troy Benjegerdes" <hozer@hozed.org>
+Cc: <infiniband-general@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 06 Feb 2004 16:42:15.0108 (UTC) FILETIME=[2D224840:01C3ECD0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 February 2004 23:36, Rik van Riel wrote:
-> On Fri, 6 Feb 2004, Michael Frank wrote:
-> 
-> > > > 300MB HIGHMEM available.
-> > > > 195MB LOWMEM available.
-> > > > On node 0 totalpages: 126960
-> > > > zone(0): 4096 pages.
-> > > > zone(1): 46064 pages.
-> > > > zone(2): 76800 pages.
-> > > > BUG: wrong zone alignment, it will crash
-> 
-> > It is supposed to work, just a bug in the zone alignment code.
-> 
-> The error isn't in the kernel, it's between the chair and the keyboard.
-> You have created a lowmem zone of a size that doesn't correctly
-> align with the largest blocks used by the buddy allocator.
-> 
-> > I have have to use HIGHMEM emulation for testing.
-> 
-> Then you'll need to choose a different size for the highmem=
-> parameter, one that doesn't cause an unaligned boundary.
+On Thu, Feb 5, 2004 at 05:11:00PM -0800, Troy Benjegerdes wrote:
+>On Thu, Feb 05, 2004 at 02:26:46PM -0800, Hefty, Sean wrote:
+>> Personally, I'm amazed that professional developers have to discuss
+or
+>> defend modular, portable code.
+>
+>You're new to linux-kernel, aren't you? ;)
 
-Which is not user friendly and does not match the documentation.
+I was not trying to be condescending.  My point was that I think that
+everyone on this list knows the purpose and benefits behind an
+abstraction layer.  It's not something that needed to be discussed any
+further.
 
-> 
-> Alternatively, you could submit a patch so the highmem= boot
-> option parsing code does the aligning for you.
+I also understand that code in the Linux 2.6 kernel does not need
+certain abstractions.  And I agree that because we are targeting the 2.6
+kernel specifically, the existing code, some of which was developed 3-5
+years ago, should be updated based on what the 2.6 kernel provides.
 
-OK, will do. I'll produce and test a patch.
+We want to continue to discuss specific details about what's needed to
+add the code into the kernel.  Here's a list of modifications that I
+think are needed so far:
 
-> 
-> However, that would simply be an improvement to the kernel and
-> nothing like a bug you can demand to get fixed now.
+* Update the code to make direct calls for atomic operations.
+* Verify the use of spinlock calls.
+* Reformat the code for tab spacing and curly brace usage.
+* Elimination of typedefs.
 
-OK, Please note that I only passed on the message produced by the kernel 
-  BUG: wrong zone alignment, it will crash 
-
-Perhaps the kernel should have reported it as "Invalid value for highmem" 
-instead of "BUG" ;)
-
-Thank you
-
-Michael
-
-
+And, yes, knowing some of these issues up front will save the trouble of
+submitting code that will be immediately rejected.

@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130781AbRACLDd>; Wed, 3 Jan 2001 06:03:33 -0500
+	id <S130306AbRACLHy>; Wed, 3 Jan 2001 06:07:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130761AbRACLDW>; Wed, 3 Jan 2001 06:03:22 -0500
-Received: from [196.38.105.82] ([196.38.105.82]:42254 "EHLO www.webtrac.co.za")
-	by vger.kernel.org with ESMTP id <S130306AbRACLDK>;
-	Wed, 3 Jan 2001 06:03:10 -0500
-Date: Wed, 3 Jan 2001 12:32:30 +0200
-From: Craig Schlenter <craig@qualica.com>
-To: linux-kernel@vger.kernel.org
-Subject: strange swap behaviour - test11pre4
-Message-ID: <20010103123230.C23323@qualica.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
+	id <S130761AbRACLHn>; Wed, 3 Jan 2001 06:07:43 -0500
+Received: from latt.if.usp.br ([143.107.129.103]:269 "HELO latt.if.usp.br")
+	by vger.kernel.org with SMTP id <S130306AbRACLHj>;
+	Wed, 3 Jan 2001 06:07:39 -0500
+Date: Wed, 3 Jan 2001 08:37:08 -0200 (BRST)
+From: "Jorge L. deLyra" <delyra@latt.if.usp.br>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+cc: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>,
+        Frank.Olsen@stonesoft.com, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bugs in knfsd -- Problem re-exporting an NFS share
+In-Reply-To: <14930.42496.545862.426153@notabene.cse.unsw.edu.au>
+Message-ID: <Pine.LNX.3.96.1010103082044.20347B-100000@latt.if.usp.br>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+> This is not a supported configuration.  You cannot export NFS mounted
+> filesystems with NFS. The protocol does not cope, and it
+> implementation doesn't even try.
+> NFS is for export local filesystems only.
 
-This seems strange to me:
+Just want to point out that this unsupported feature, which exists in the
+old user-space NFS server, is very useful under some circumstances.
 
-(from vmstat 1):
+Case in point: you have a Beowulf-style parallel cluster on a private
+network, physically connected to the Internet only through the front-end,
+but with no direct routing to it, which saves addresses and security
+concerns (just imagine you have 1000 nodes); you want to import on the
+front-end various homes of users scattered around your lan, and then have
+the front-end re-export them to the cluster on the private network.
 
-   procs                      memory    swap          io     system         cpu
- r  b  w   swpd   free   buff  cache  si  so    bi    bo   in    cs  us  sy  id
+Since the private network does not talk directly to the Internet, there is
+no danger of loopback mounts locking up. This scheme makes the use of the
+cluster, usually a resource shared among various groups and institutions,
+very convenient for all users: their own user configs and environment are
+available when they use the cluster, logging in through the front-end, and
+their data goes out transparently to their home systems. Very nice!
 
- 1  0  0 107252    956    204  44024 2376   4   594     1  256   304  11   4  85
- 0  1  0 107272    952    204  43980 2436  60   641    15  284   324   5   7  88
- 1  0  0 107308    952    204  43976 2344  68   586    31  256   279   5   9  86
- 2  0  0 107284    952    204  43916 1488  24   372     6  199   257   5   6  89
- 0  1  0 107268    952    204  43840 2328  12   582    13  259   294   5   2  93
- 1  0  0 107252    952    204  43780 2580  32   645     8  272   312  12   1  87
- 0  1  0 107220    952    204  43680 2436   4   643     1  290   298  13   3  84
- 2  0  0 107176    952    204  43580 2324   0   581    10  273   299  10   3  87
- 0  1  0 107216    956    204  43576 2532  84   633    21  296   298   6   5  89
- 1  0  0 107172    952    204  43484 1948   0   487     0  251   273   6   2  92
- 0  1  0 107152    956    204  43420 2348  24   593     6  266   288   5   5  90
+It would be nice if a way was found to implement this feature on knfsd.
 
-There is a perl program running (80 Meg's in size, 20 Megs resident) that is
-chatting to a database and building up a large hash in memory. The machine has
-64M of RAM. The bit that doesn't make sense is why the cache is so large -
-the VM seems to have got stuck paging in stuff from swap repeatedly (bits of
-the perl program it would seem). Surely it should shrink the cache to provide 
-more breathing room or am I being an idiot about this?
+						Best regards,
 
-Should I be running a different kernel? 2.2.19preXXX ? Should I be tuning
-vm things in proc and if so how?
+----------------------------------------------------------------
+        Jorge L. deLyra,  Associate Professor of Physics
+            The University of Sao Paulo,  IFUSP-DFMA
+       For more information: finger delyra@latt.if.usp.br
+----------------------------------------------------------------
 
-Thank you,
-
---Craig
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

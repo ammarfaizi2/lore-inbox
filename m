@@ -1,46 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290586AbSAYHei>; Fri, 25 Jan 2002 02:34:38 -0500
+	id <S290589AbSAYHiI>; Fri, 25 Jan 2002 02:38:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290592AbSAYHe3>; Fri, 25 Jan 2002 02:34:29 -0500
-Received: from [62.14.144.134] ([62.14.144.134]:51716 "EHLO ragnar-hojland.com")
-	by vger.kernel.org with ESMTP id <S290591AbSAYHeS>;
-	Fri, 25 Jan 2002 02:34:18 -0500
-Date: Fri, 25 Jan 2002 08:33:43 +0100
-From: Ragnar Hojland Espinosa <ragnar@ragnar-hojland.com>
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Which version of glibc?
-Message-ID: <20020125083343.B2313@ragnar-hojland.com>
-In-Reply-To: <Pine.LNX.4.33.0201231042130.16094-100000@speech.corp.fedex.com>
+	id <S290591AbSAYHh6>; Fri, 25 Jan 2002 02:37:58 -0500
+Received: from [195.163.186.27] ([195.163.186.27]:47031 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S290589AbSAYHhj>;
+	Fri, 25 Jan 2002 02:37:39 -0500
+Date: Fri, 25 Jan 2002 09:37:33 +0200
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Ramya Ravichandran <rrhsin@yahoo.co.in>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel newbie -- Compact Flash booting
+Message-ID: <20020125093733.D5808@mea-ext.zmailer.org>
+In-Reply-To: <20020125065237.27862.qmail@web8104.in.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0201231042130.16094-100000@speech.corp.fedex.com>; from jeffchua@silk.corp.fedex.com on Wed, Jan 23, 2002 at 10:47:30AM -0800
-Organization: Mediocrity Naysayers Ltd
-X-Homepage: http://lightside.eresmas.com
+In-Reply-To: <20020125065237.27862.qmail@web8104.in.yahoo.com>; from rrhsin@yahoo.co.in on Thu, Jan 24, 2002 at 10:52:37PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 23, 2002 at 10:47:30AM -0800, Jeff Chua wrote:
+On Thu, Jan 24, 2002 at 10:52:37PM -0800, Ramya Ravichandran wrote:
+> Hi,
 > 
-> Should I upgrade to glibc-2.2.5 for linux kernel compilation?
-> 
-> I'm on gcc-2.95.3, glibc-2.1.3
-> 
-> What about gcc?
+>    I am a newbie to Linux.I have to develop an
+> embedded linux controller that boots from the Compact
+> flash card instead of the HD and work from RAM. I have
+> to have a bare minimum implementation of Linux kernel
+> to do this.
+>   I don't know where to start. Shud I start by writing
+> the driver for the CF card? What background knowledge
+> shud I have for implementing the kernel?
 
-Follow Ketils advice :)
+  The compact flashes appear to PCMCIA as removable IDE drives.
+  Unless the PCMCIA-CF adapter is more than just two connectors
+  plus a set of wires in between, you should have no problems
+  at all.   Either IDE, or IDE_CS driver should do it.
+  (The IDE_CS will, of course, need the PCMCIA suite too to
+   support removable media.  IDE doesn't support removability.)
 
-> I'm asking this now as Xfree86 is just release and it's build with glib22.
+  To boot from CF you need support in your boot-rom/flash
+  code.  Something which might not be true, unless you write
+  it yourself..
 
-Upgrading glibc to 2.2 now is a good idea.  2.1.3 had some sort of
-floating point bug, and I'm not all sure it had full support for big files.
+> Please Help.Thanks
 
--- 
-____/|  Ragnar Højland      Freedom - Linux - OpenGL |    Brainbench MVP
-\ o.O|  PGP94C4B2F0D27DE025BE2302C104B78C56 B72F0822 | for Unix Programming
- =(_)=  "Thou shalt not follow the NULL pointer for  | (www.brainbench.com)
-   U     chaos and madness await thee at its end."
+/Matti Aarnio

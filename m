@@ -1,32 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261383AbREQJjz>; Thu, 17 May 2001 05:39:55 -0400
+	id <S261384AbREQJs4>; Thu, 17 May 2001 05:48:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261384AbREQJjp>; Thu, 17 May 2001 05:39:45 -0400
-Received: from mailhost.tue.nl ([131.155.2.5]:14368 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id <S261383AbREQJjh>;
-	Thu, 17 May 2001 05:39:37 -0400
-Message-ID: <20010517113924.B9270@win.tue.nl>
-Date: Thu, 17 May 2001 11:39:24 +0200
-From: Guest section DW <dwguest@win.tue.nl>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Mauelshagen@sistina.com
-Cc: thomasko321k@gmx.at (Thomas Kotzian), helgehaf@idb.hist.no (Helge Hafting),
-        linux-kernel@vger.kernel.org
-Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <20010516185845.A14397@sistina.com> <200105170635.f4H6Ztq456282@saturn.cs.uml.edu>
-Mime-Version: 1.0
+	id <S261385AbREQJsq>; Thu, 17 May 2001 05:48:46 -0400
+Received: from uunet-gw.macroscoop.nl ([195.193.201.73]:17933 "EHLO
+	mondriaan.macroscoop.nl") by vger.kernel.org with ESMTP
+	id <S261384AbREQJsc> convert rfc822-to-8bit; Thu, 17 May 2001 05:48:32 -0400
+From: Pim Zandbergen <P.Zandbergen@macroscoop.nl>
+To: ps <ps@rzeczpospolita.pl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RH 7.1 on IBM xSeries 240
+Date: Thu, 17 May 2001 11:48:25 +0200
+Organization: Macroscoop BV
+Message-ID: <t977gtcpq17r85vlggngi9mk3a1k6qt01u@4ax.com>
+In-Reply-To: <fa.fhhq4kv.gguq9t@ifi.uio.no> <fa.fuo78ov.ikad9g@ifi.uio.no>
+In-Reply-To: <fa.fuo78ov.ikad9g@ifi.uio.no>
+X-Mailer: Forte Agent 1.8/32.548
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <200105170635.f4H6Ztq456282@saturn.cs.uml.edu>; from Albert D. Cahalan on Thu, May 17, 2001 at 02:35:55AM -0400
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 17, 2001 at 02:35:55AM -0400, Albert D. Cahalan wrote:
 
-> The PC partition table has such an ID. The LILO change log
-> mentions it. I think it's 6 random bytes, with some restriction
-> about being non-zero.
+>Yes, I have the newest BIOS and SR Firmware.
+>I have 2 x 1GHz CPUs and IBM PCI ServeRAID 4.71.00  <ServeRAID 4L>
 
-You are confused. The partition table contains IDs, but these are
-the numbers like 83 for a Linux partition. No disk-identifying numbers.
+You mean all of BIOS, firmware and Linux driver are at version 4.71?
 
+Where did you find BIOS 4.71 and firmware 4.71?
+The latest BIOS & firmware I could find is 4.50.
+
+There is, however a driver version 4.72 in the latest 2.4.4-ac
+kernels.
+
+Pim

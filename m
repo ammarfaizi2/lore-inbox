@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266412AbUBLN3P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Feb 2004 08:29:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266414AbUBLN3P
+	id S266408AbUBLN0V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Feb 2004 08:26:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266409AbUBLN0V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Feb 2004 08:29:15 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:18356 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266412AbUBLN3M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Feb 2004 08:29:12 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: "Dott. Surricani" <surricani@surricani.cjb.net>
-Subject: Re: Oops with SAtA siimage module
-Date: Thu, 12 Feb 2004 14:34:57 +0100
-User-Agent: KMail/1.5.3
-Cc: linux-kernel@vger.kernel.org
-References: <402A88A6.4000704@surricani.cjb.net> <200402121251.52987.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200402121251.52987.bzolnier@elka.pw.edu.pl>
+	Thu, 12 Feb 2004 08:26:21 -0500
+Received: from ddc.ilcddc.com ([12.35.229.4]:32779 "EHLO ddcnyntd.ddc-ny.com")
+	by vger.kernel.org with ESMTP id S266408AbUBLN0U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Feb 2004 08:26:20 -0500
+Message-ID: <89760D3F308BD41183B000508BAFAC4104B16F65@DDCNYNTD>
+From: RANDAZZO@ddc-web.com
+To: linux-kernel@vger.kernel.org
+Subject: Semaphore with timeout....
+Date: Thu, 12 Feb 2004 08:22:04 -0500
 MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402121434.57185.bzolnier@elka.pw.edu.pl>
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 12 of February 2004 12:51, Bartlomiej Zolnierkiewicz wrote:
-> Already fixed, please update kernel to 2.6.2-rc2.
 
-Ergh.  2.6.3-rc2 :-).
+In reference to loadable kernel modules... (drivers)
+
+Is there a semaphore call that will either release with token or a specified
+amt of time....
+
+All I see is:
+down_interruptable
+up
+
+Maybe there is a spinlock function to do this?
+
+Any help.....
+ 
+"This message may contain company proprietary information. If you are not
+the intended recipient, any disclosure, copying, distribution or reliance on
+the contents of this message is prohibited. If you received this message in
+error, please delete and notify me."
 

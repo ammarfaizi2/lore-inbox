@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVDAPOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262762AbVDAPPC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262761AbVDAPOs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 10:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbVDAPOs
+	id S262762AbVDAPPC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 10:15:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262763AbVDAPPC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 10:14:48 -0500
-Received: from main.gmane.org ([80.91.229.2]:31927 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262761AbVDAPOq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 10:14:46 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: [RFC] : remove unreliable, unused and unmainained arch from
- kernel.
-Date: Fri, 01 Apr 2005 17:11:59 +0200
-Message-ID: <yw1xbr8yr0ow.fsf@ford.inprovide.com>
-References: <11123574931907@2ka.mipt.ru> <Pine.LNX.4.61.0504010805130.12910@chaos.analogic.com>
+	Fri, 1 Apr 2005 10:15:02 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:23524 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262762AbVDAPO6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Apr 2005 10:14:58 -0500
+Date: Fri, 1 Apr 2005 17:14:57 +0200
+From: Jan Kara <jack@suse.cz>
+To: linux-kernel@vger.kernel.org,
+       "viro@parcelfarce.linux.theplanet.co.uk" 
+	<viro@parcelfarce.linux.theplanet.co.uk>,
+       rweight@us.ibm.com, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Set MS_ACTIVE in isofs_fill_super()
+Message-ID: <20050401151457.GC30217@atrey.karlin.mff.cuni.cz>
+References: <1112213392.25362.65.camel@russw.beaverton.ibm.com> <20050330123907.10740bc1.akpm@osdl.org> <20050330221947.GA3827@delft.aura.cs.cmu.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:fQOXjDKZvL0VJ/8bZ6eRHNPRW7A=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050330221947.GA3827@delft.aura.cs.cmu.edu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <linux-os@analogic.com> writes:
+> On Wed, Mar 30, 2005 at 12:39:07PM -0800, Andrew Morton wrote:
+<snip> 
+> > I wonder if it would make more sense for all the ->fill_super callers to
+> > set MS_ACTIVE prior to calling ->fill_super(), and clear MS_ACTIVE if
+> > fill_super() failed?
+> 
+> This sounds like a better solution, although filesystems might have to
+> handle some operations earlier than they currently expect.
+  Actually I've just checked the code and MS_ACTIVE is almost unused -
+the only place where it is checked is generic_forget_inode(). So
+Andrew's suggestion should be safe (and a quick grep showed that quite
+a few filesystems already set MS_ACTIVE in their code)... What really
+protects the filesystem from early operations is the fact that its
+directory tree is made visible to the rest of the world in
+do_add_mount() which is quite after fill_super() has finished.
 
-> [PATCH snipped]
->
-> Cruel joke. Now 80 percent of the Intel clones won't boot.
-> Those are the ones that run industry, you know, the stuff that
-> is necessary to earn money.
-
-For now, yes.  Hopefully it will change some day.
-
-> Without i386 support, you don't have any embedded systems. You
-> need to use the garbage Motorola CPUs and the proprietary
-> operating systems in embedded stuff.
-
-In front me at the moment are two embedded devices, one PPC based, the
-other MIPS, both running Linux.
-
+								Honza
 -- 
-Måns Rullgård
-mru@inprovide.com
-
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264396AbUJRIDa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264377AbUJRIMJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbUJRIDa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 04:03:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJRIDa
+	id S264377AbUJRIMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 04:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJRIMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 04:03:30 -0400
-Received: from cantor.suse.de ([195.135.220.2]:35019 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S264396AbUJRID0 (ORCPT
+	Mon, 18 Oct 2004 04:12:09 -0400
+Received: from mid-2.inet.it ([213.92.5.19]:9906 "EHLO mid-2.inet.it")
+	by vger.kernel.org with ESMTP id S264377AbUJRIMG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 04:03:26 -0400
-Date: Mon, 18 Oct 2004 09:54:33 +0200
-From: Olaf Hering <olh@suse.de>
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc64-dev@ozlabs.org, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] allow kernel compile with native ppc64 compiler
-Message-ID: <20041018075433.GA24927@suse.de>
-References: <20041017185557.GA9619@suse.de> <16754.59442.992185.715900@cargo.ozlabs.ibm.com> <20041018045603.GA8500@suse.de> <16755.23272.754150.209624@cargo.ozlabs.ibm.com>
+	Mon, 18 Oct 2004 04:12:06 -0400
+Date: Mon, 18 Oct 2004 10:12:17 +0200
+From: Mattia Dongili <dongili@supereva.it>
+To: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
+Cc: Alexander Clouter <alex-kernel@digriz.org.uk>,
+       venkatesh.pallipadi@intel.com
+Subject: Re: [PATCH] cpufreq_ondemand
+Message-ID: <20041018081217.GA3145@inferi.kami.home>
+Mail-Followup-To: cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org,
+	Alexander Clouter <alex-kernel@digriz.org.uk>,
+	venkatesh.pallipadi@intel.com
+References: <20041017222916.GA30841@inskipp.digriz.org.uk> <20041018072045.GA17164@dominikbrodowski.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <16755.23272.754150.209624@cargo.ozlabs.ibm.com>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+In-Reply-To: <20041018072045.GA17164@dominikbrodowski.de>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.9-rc3-1 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Mon, Oct 18, Paul Mackerras wrote:
-
-> Olaf Hering writes:
+On Mon, Oct 18, 2004 at 09:20:45AM +0200, Dominik Brodowski wrote:
+> Hi,
+[...]
+> > 2. controllable through 
+> > 	/sys/.../ondemand/ignore_nice, you can tell it to consider 'nice' 
+> > 	time as also idle cpu cycles.  Set it to '1' to treat 'nice' as cpu 
+> > 	in an active state.
 > 
-> > > ... and breaks the compile on older toolchains that don't understand
-> > > -m32.  We need to make the -m32 conditional on HAS_BIARCH as defined
-> > > in arch/ppc64/Makefile.
-> > 
-> > how old?
-> 
-> The gcc that comes with debian sid doesn't understand -m32.  That's a
-> 32-bit gcc, which means that I set CROSS_COMPILE when doing a ppc64
-> kernel compile.  With your patch I have to set CROSS32_COMPILE as
-> well, which seems silly when I'm compiling on a ppc32 box already.
+> Interesting bit, IIRC some userspace tool also does that.
 
-Makes sense, I confused a native powerpc64-linux gcc from last century
-with a native/cross powerpc-linux gcc from last century.
+I'm implementing an "nice_scale" parameter in cpufreqd that offers more
+control on nice cpu time. It's just a parameter (whose value must be >=
+1 or if 0 don't care nice time at all) that tells _how_much_ the nice
+time has to be take into consideration. It would be nice to have it in
+the ondemand governor too.
 
-> Ben H suggested making the default BOOTCC be $(CC) -m32, which makes
-> sense to me.
-
-That may break cross compile. I will provide a new patch.
-
+bye
 -- 
-USB is for mice, FireWire is for men!
-
-sUse lINUX ag, nÜRNBERG
+mattia
+:wq!

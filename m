@@ -1,61 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbTKIS52 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 13:57:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTKIS52
+	id S262776AbTKITJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 14:09:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262777AbTKITJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 13:57:28 -0500
-Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:40423
-	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
-	id S262760AbTKIS5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 13:57:25 -0500
-To: "Deepak Kumar Gupta, Noida" <dkumar@noida.hcltech.com>
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: problem in booting HP zx6000 with stock kernel 2.5.75
-References: <Q08Y.87p.3@gated-at.bofh.it>
-From: David Mosberger-Tang <David.Mosberger@acm.org>
-Date: 09 Nov 2003 10:57:22 -0800
-In-Reply-To: <Q08Y.87p.3@gated-at.bofh.it>
-Message-ID: <ugk769qsj1.fsf@panda.mostang.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Sun, 9 Nov 2003 14:09:25 -0500
+Received: from hueytecuilhuitl.mtu.ru ([195.34.32.123]:12817 "EHLO
+	hueymiccailhuitl.mtu.ru") by vger.kernel.org with ESMTP
+	id S262776AbTKITJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 14:09:22 -0500
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-hotplug-devel@lists.sourceforge.net
+Subject: [PATCH][2.6.0-test9] fix 32/64 bits for input events
+Date: Sun, 9 Nov 2003 21:36:11 +0300
+User-Agent: KMail/1.5.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_bkor/ad9tBYqZr7"
+Message-Id: <200311092136.11212.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 09 Nov 2003 17:00:12 +0100, "Deepak Kumar Gupta, Noida" <dkumar@noida.hcltech.com> said:
 
-  Deepak> Hello everybody I am trying to boot 2 CPU hp zx6000 machine
-  Deepak> (ia64, itanium2) from STOCK kernel version 2.5.75. I have
-  Deepak> followed following steps.
+--Boundary-00=_bkor/ad9tBYqZr7
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-2.5.75?  Why such an old kernel?
+Input bits are kept as array of unsigned long and when no bit is set the whole 
+"unsigned long" is represented as single 0 in hotplug events and /proc files. 
+It makes rather hard for user-level programs to guess which bits are set - 
+programs need to know size of kernel long to correctly interpret output.
 
-  Deepak> Kindly provide me appropriate guidance.. , where am I wrong?
+One possibility is attached patch. It makes sure every long is always output 
+in full. Another possibility (I like it more frankly speaking) is to always 
+use 32 bit type for arrays. But it needs more than two lines of trivial 
+changes.
 
-For a zx6000, you're better off configuring it as ZX1 system, rather
-than GENERIC.  The latter should also work, but will be (slightly)
-less efficient (and the kernel will be needlessly bigger).
+regards
 
-  Deepak> I have following doubts: -
+-andrey
 
-  Deepak> 1. Is it possible to build and run _stock_ kernel (not
-  Deepak> redhat patched kernel, as redhat advanced distribution is
-  Deepak> available on my machine) on hp zx6000 machine ?
+PS do I miss something or input /proc functions really never check for buffer 
+overflow?
 
-Yes, but you do need something newer than 2.5.75.  Try 2.6.0-test9.
+--Boundary-00=_bkor/ad9tBYqZr7
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="2.6.0-test9-input_user_bits.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="2.6.0-test9-input_user_bits.patch"
 
-  Deepak> Do I need additional patches the stock kernel + ia64 patch ?
+--- linux-2.6.0-test9/drivers/input/input.c	2003-11-09 21:17:59.000000000 +0300
++++ ../tmp/linux-2.6.0-test9/drivers/input/input.c	2003-10-25 22:21:42.000000000 +0400
+@@ -330,8 +330,7 @@ static struct input_device_id *input_mat
+ 		for (j = NBITS(max) - 1; j >= 0; j--) \
+ 			if (dev->bit[j]) break; \
+ 		for (; j >= 0; j--) \
+-			scratch += sprintf(scratch, "%0*lx ", \
+-					BITS_PER_LONG/4, dev->bit[j]); \
++			scratch += sprintf(scratch, "%lx ", dev->bit[j]); \
+ 		scratch++; \
+ 	} while (0)
+ 
+@@ -584,8 +583,7 @@ static struct file_operations input_fops
+ 		for (i = NBITS(max) - 1; i >= 0; i--) \
+ 			if (dev->bit[i]) break; \
+ 		for (; i >= 0; i--) \
+-			len += sprintf(buf + len, "%0*lx ", \
+-					BITS_PER_LONG/4, dev->bit[i]); \
++			len += sprintf(buf + len, "%lx ", dev->bit[i]); \
+ 		len += sprintf(buf + len, "\n"); \
+ 	} while (0)
+ 
 
-No patch is needed.  There still is a patch, but if you don't care
-about the last drop of performance and/or early printk-support, you
-don't need it.
+--Boundary-00=_bkor/ad9tBYqZr7--
 
-BTW: The daily build-status of Linus' kernel tree can be found here:
-       http://www.gelato.unsw.edu.au/kerncomp/
-     You can also get know-to-be-good .config files from there.
-
-Also, in the future you may want to use linux-ia64@vger.kernel.org for
-such question, since that mailing list is focused on ia64.
-
-	--david

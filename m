@@ -1,41 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280971AbRKLU2T>; Mon, 12 Nov 2001 15:28:19 -0500
+	id <S280974AbRKLU3j>; Mon, 12 Nov 2001 15:29:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280980AbRKLU2L>; Mon, 12 Nov 2001 15:28:11 -0500
-Received: from ns.caldera.de ([212.34.180.1]:34784 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S280974AbRKLU1x>;
-	Mon, 12 Nov 2001 15:27:53 -0500
-Date: Mon, 12 Nov 2001 21:27:35 +0100
-From: Christoph Hellwig <hch@caldera.de>
-To: Mark Peloquin <peloquin@us.ibm.com>
-Cc: dalecki@evision.ag, linux-kernel@vger.kernel.org,
-        evms-devel@lists.sourceforge.net
-Subject: Re: [Evms-devel] Re: Re: Hardsector size support in 2.4 and 2.5
-Message-ID: <20011112212735.A28486@caldera.de>
-Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
-	Mark Peloquin <peloquin@us.ibm.com>, dalecki@evision.ag,
-	linux-kernel@vger.kernel.org, evms-devel@lists.sourceforge.net
-In-Reply-To: <OF9F38B076.0F9781F3-ON85256B02.006D5DFE@raleigh.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <OF9F38B076.0F9781F3-ON85256B02.006D5DFE@raleigh.ibm.com>; from peloquin@us.ibm.com on Mon, Nov 12, 2001 at 02:05:19PM -0600
+	id <S280978AbRKLU3b>; Mon, 12 Nov 2001 15:29:31 -0500
+Received: from [213.235.52.105] ([213.235.52.105]:59399 "EHLO
+	morpheus.streamgroup.co.uk") by vger.kernel.org with ESMTP
+	id <S280974AbRKLU3L>; Mon, 12 Nov 2001 15:29:11 -0500
+Date: Mon, 12 Nov 2001 22:29:57 +0000 (GMT)
+From: "mike@morpheus" <mike@morpheus.streamgroup.co.uk>
+To: L A Walsh <law@sgi.com>
+cc: <Linux-kernel@vger.kernel.org>
+Subject: Re: mysterious power off problem 2.4.10-2.4.14 on laptop
+In-Reply-To: <3BF028D4.C131A42D@sgi.com>
+Message-ID: <Pine.LNX.4.33.0111122227140.24454-100000@morpheus.streamgroup.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 12, 2001 at 02:05:19PM -0600, Mark Peloquin wrote:
-> So any block device, can always expect to receive buffer heads
-> whose b_rsector value represents the offset from the beginning
-> of that device in 512 byte multiples? And this will continue
-> to hold true in 2.5 as well?
 
-There is a good chance that no 2.5 block driver will ever see a buffer_head,
-take a look at http://www.kernel.org/pub/linux/kernel/people/axboe/v2.5/ for
-details.
+On Mon, 12 Nov 2001, L A Walsh wrote:
 
-	Christoph
+> I haven't had time to track this down since I found it.  I'm throwing
+> it out in case anyone has seen anything that might figure in to this.
+>
+> Machine: Dell Inspiron 8000.
+> Problem: using same options, (starting with 249.config, and using make oldconfig
+> for new kernel version), I get a kernel that has a bad habit of turning
+> itself off after some period of time -- not shutting down, just turning off.
+> This started in 2.4.10 and, and not having the time to debug it, I just
+> went back to using 2.4.9 which didn't exhibit the problem.
+>
+> Things tried that haven't worked (not necessarily in any particular order)
+> 1) 2.4.14 kernel
+> 2) disabling power management from the KDE desktop.
+> 3) renaming the apm binary would allow apm control.
+> 4) Turning off apm support in the kernel.
+> 5) Turning off BIOS apm management completely.
+> 	a) BIOS PM on AC-power was set to
+> 		i) turn off inactive video in 10 minutes
+> 		ii) turn off inactive hard disk in 30 minutes
+> 		iii) Suspend: disabled.
+> 		iv) S2D Timeout: disabled
+>
+> 	b) BIOS PM on battery still _is_ set to
+> 		i) turn off inactive video in 3 minutes
+> 		ii) turn off in hard disks in 5 minutes
+> 		iii) Suspend: disabled
+> 		iv) S2D Timeout: 1 hour
+>
+> 	common options:
+> 		v) Smart CPU: enabled
+> 		vi) Display lid closed: <don't shut down, remain active>
+> 		vii) all auto 'wake'/'resume' (on lan, alarm, ring, at time)
+> 			disabled
+> 		viii) CPU Mode: Battery Optimized
+> ----
+> Other details:
+> 1) I noticed when the machine was on battery -- it turned off in about
+>    3 minutes -- it might have been 5, but seemed closer to 3.  I note this
+>    coincides with the Video timeout.  Previously when the timeout
+>    would occur on AC power -- it seemed that the inactivity timeout was
+>    about 10 minutes.  My estimations may be wrong, but part of the problem
+>    could be related to the video timeout.
+> 2) testing this problem is a pain, since my disks are still the
+>    primitive 'ext2' file system and the multi-gig, laptop-speed disks
+>    are slow to check.
+>
+> So am just wondering if someone has seen this, or its a known 'feature change'
+> with the workaround or solution being 'X'.
+>
+> I note in the changelog that ACPI changes went into 2.4.10.  I am still using
+> APM, not ACPI, but it it possible there is common code to both that got
+> changed?
+>
+> Thanks for any help.
+>
+> -linda
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
--- 
-Of course it doesn't work. We've performed a software upgrade.
+Give ACPI a try, for a while I've noticed APM getting mixed up
+on my home box (its a VIA chipset, I've been told that probably
+why :), doing things like not powering off and changing the instant-off
+powerbutton to a wait-5-seconds powerbutton.
+
+I switched to ACPI and everythings been working fine :)
+
+mike
+

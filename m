@@ -1,60 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264253AbTKKEYZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 23:24:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264259AbTKKEYZ
+	id S264265AbTKKEfS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 23:35:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264269AbTKKEfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 23:24:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2224 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264253AbTKKEYW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 23:24:22 -0500
-Date: Mon, 10 Nov 2003 20:28:19 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Venezia <pvenezia@jpj.net>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 10 Nov 2003 23:35:18 -0500
+Received: from nat-68-172-17-106.ne.rr.com ([68.172.17.106]:42230 "EHLO
+	trip.jpj.net") by vger.kernel.org with ESMTP id S264265AbTKKEfE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 23:35:04 -0500
 Subject: Re: I/O issues, iowait problems, 2.4 v 2.6
-Message-Id: <20031110202819.7e7433a8.akpm@osdl.org>
-In-Reply-To: <1068523328.25805.97.camel@soul.jpj.net>
+From: Paul Venezia <pvenezia@jpj.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20031110202819.7e7433a8.akpm@osdl.org>
 References: <1068519213.22809.81.camel@soul.jpj.net>
-	<20031110195433.4331b75e.akpm@osdl.org>
-	<1068523328.25805.97.camel@soul.jpj.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	 <20031110195433.4331b75e.akpm@osdl.org>
+	 <1068523328.25805.97.camel@soul.jpj.net>
+	 <20031110202819.7e7433a8.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1068524657.25804.110.camel@soul.jpj.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 10 Nov 2003 23:24:17 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Venezia <pvenezia@jpj.net> wrote:
->
->  > As next steps I'd suggest that you log into the server and do
->  > 
->  > 	time (dd if=/dev/zero of=x bs=1M count=2048 ; sync)
->  > 
->  > and
->  > 
->  > 	time (dd if=x of=/dev/null bs=1M count=2048 ; sync)
->  > 
->  > (this assumes that the machine has less that 2G of memory, to avoid caching
->  > effects).
-> 
->  The raw file read/write is the ticket. The box tightens right up at 100% iowait.
+vmstat output
 
-Well that's nice and simple.  Could you please run `vmstat 1' during that
-big `dd'?  Wait for everything to achieve steady state, send us twenty
-lines of the vmstat trace?
 
-> 
->  I'd done bonnie++ i/o tests already, and except for an apparent NPTL issue on the per char,
->  the block i/o numbers were fine; no abnormal results whatsoever. In fact, block r/w
->  numbers were improved compared to 2.4.22. Now that I'm looking for it, however, I 
->  do note extremely elevated iowait numbers during a bonnie++ run. Something in the MPT
->  modules?
+procs                      memory      swap          io     system         cpu
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 0  0      0 1427316   8572  68472    0    0     0     0 1012    17  0  0 100  0
+ 0  0      0 1427348   8580  68464    0    0     0    50 1014    20  0  0 99  1
+ 0  0      0 1427412   8580  68464    0    0     0     0 1012    23  0  0 100  0
+ 0  0      0 1427420   8580  68464    0    0     0     0 1012    15  0  0 100  0
+ 0  0      0 1427484   8588  68456    0    0     0     8 1013    20  0  0 100  0
+ 0  0      0 1427484   8588  68456    0    0     0     0 1012    22  0  0 100  0
+ 0  0      0 1427484   8588  68456    0    0     0     0 1012    15  0  0 100  0
+ 0 10      0 1318012   9776 169132    0    0   392 11202 34735 40869  4 33 32 32
+ 2  6      0 1249532  10820 233980    0    0     0  1422 34765 42133  8 34  8 49
+ 2  4      0 1192188  12048 288104    0    0    10  5276 33213 38553 11 39 15 36
+ 4  4      0 1166588  12584 311844    0    0     4     0 31907 37992 14 41 18 26
+ 0  4      0 1157372  13088 319976    0    0     4  1978 30261 35581 15 41 17 27
+ 2  4      0 1163068  13460 313824    0    0     0  1886 29806 35017 16 41 15 28
+ 4  4      0 1155700  13948 320544    0    0     0   202 30341 35867 15 42 16 27
+ 3  4      0 1157044  14372 318692    0    0     0   696 30072 35217 16 43 17 24
+ 4  4      0 1136820  15028 337688    0    0     0  1574 31872 36292 17 47 13 23
+ 4  2      0 1141428  15404 332552    0    0     0  1980 30494 34756 17 46 17 20
+ 4  2      0 1136052  15936 337256    0    0     2  2166 30653 35264 18 47 13 23
+ 0 10      0 1136948  16284 336092    0    0     0  3456 26323 31729 10 30 25 35
+ 0 14      0 1135668  16336 337264    0    0     0  2446 6548  7126  1  5 45 48
+ 0 13      0 1135668  16336 337264    0    0     0   110 1038    59  0  0 54 46
+ 0 13      0 1135676  16336 337264    0    0     0     0 1030    22  0  0 75 25
+ 0 15      0 1133500  16404 336788    0    0     0  9304 6265  5409  2  6 37 55
+ 0 13      0 1133308  16912 332132    0    0     0 11572 56145 61147  1  6  2 90
+ 2 13      0 1131452  17088 333860    0    0     0  1316 18934 21857  2 11 18 69
+ 0 13      0 1128444  17304 336772    0    0     0  1128 20925 23989  3 12 19 66
+ 0 13      0 1129340  17548 335440    0    0     0   964 21529 25782  3 14 10 72
+ 0 13      0 1128636  17776 336096    0    0     0   338 20924 23571  4 15  1 81
+ 0 12      0 1135548  17980 313112    0    0     0  4056 21764 27560  3 15 15 66
+ 0 12      0 1135868  18204 312616    0    0     0  4434 21152 25559  3 13 24 60
+ 0 11      0 1146316  18352 287172    0    0     0  3442 18240 19442  2 10 40 47
+ 2 11      0 1143052  18564 290428    0    0     0  1812 20483 22976  3 14 12 71
+ 0 11      0 1142668  18720 290680    0    0    32  3298 15806 17710  3 10 17 70
+ 0 10      0 1146444  18940 286856    0    0     0  2106 21450 25860  4 14 37 45
+ 0  9      0 1140684  19260 290072    0    0     0   854 27847 35023  7 25 15 53
+ 2  9      0 1145804  19580 284720    0    0     0  1284 28355 36997  7 24  8 61
+ 0  9      0 1143884  19920 286420    0    0     0  1202 28032 36648  6 25 25 44
+ 0  9      0 1149388  20248 267188    0    0     0  2484 26252 31802  6 21 22 51
+ 0  9      0 1146068  20512 270256    0    0     0  2486 25377 30292  5 18 52 25
+ 0  8      0 1149004  20764 248244    0    0     0  2634 23041 27485  4 15 44 37
+ 0  8      0 1153868  20972 243140    0    0     0  4748 21615 23348  3 13 42 42
+ 0  8      0 1149644  21200 247196    0    0     0  1668 21807 23328  3 13 24 61
+ 0  9      0 1152468  21336 244204    0    0     0  3318 18631 19351  2 10 36 52
+ 0  9      0 1154132  21376 223424    0    0     0  1130 3800  3082  0  1 49 49
+ 0  9      0 1154012  21376 220636    0    0     0  2292 2360  1460  0  1 41 57
+ 0  9      0 1154012  21376 220636    0    0     0   946 1036    70  0  0 25 75
+ 0  9      0 1154012  21376 220636    0    0     0   948 1032    59  0  0 25 75
+ 0  9      0 1154012  21376 220636    0    0     0  3208 1044    77  0  0 25 75
+ 0  9      0 1154076  21376 220636    0    0     0  3714 1047    74  0  0 25 75
+ 1  8      0 1150812  21456 223888    0    0     2  2424 7540  8083  1  4 25 70
+ 1  8      0 1152028  21576 222612    0    0     0  1778 16131 16243  2  7 20 71
+ 1  8      0 1149276  21724 225320    0    0     0  1092 15927 17131  1  7 19 72
+ 0  7      0 1151388  21876 221360    0    0     0   746 17818 19023  2  9 22 66
+ 0  9      0 1149980  21900 222900    0    0     2   706 3991  3179  0  1 44 54
+ 0  9      0 1149980  21900 222900    0    0     0  5456 1069    53  0  0 50 50
+ 0  9      0 1148380  21948 222240    0    0     0  1558 7654  7723  1  4 58 37
+ 0  9      0 1148380  21948 222240    0    0     0  1834 1035    45  0  0 75 25
+ 0  9      0 1148380  21948 222240    0    0     0  1704 1044    46  0  0 75 25
+ 0  9      0 1148380  21948 222240    0    0     0  2378 1052    50  0  0 75 25
+ 0  9      0 1148380  21948 222240    0    0     0  2134 1052    43  0  0 75 25
+ 0  9      0 1148764  21948 222240    0    0     0  1428 1038    47  0  0 75 25
+ 0  9      0 1148892  21948 222240    0    0     0   964 1072    58  0  0 75 25
+ 0  9      0 1148836  22012 222244    0    0     0  2298 1060    68  0  0 51 49
+ 0  9      0 1148836  22012 222244    0    0     0  2204 1070    81  0  0 50 50
+ 0  8      0 1148836  22016 222240    0    0     0   804 1059    75  0  0 50 50
+ 2  5      0 1169380  22188 202008    0    0     0  3322 15778 18802  2 11 43 44
+ 0  2      0 1169964  22476 199068    0    0     0     0 27115 32740  7 22 29 42
+ 1  6      0 1159468  22848 203660    0    0     2  2218 26945 32362  7 25 44 24
+ 0  5      0 1159980  23072 200716    0    0     0  3180 23624 28980  5 17 10 67
+ 2  4      0 1156652  23368 202120    0    0     0  3192 27497 35656  7 24 19 50
+ 1  4      0 1157164  23664 201144    0    0     0  1500 24638 33430  6 20 30 44
+ 1  2      0 1155500  23992 202244    0    0     0     0 28207 36579  7 23 26 44
+ 0  5      0 1152236  24320 198924    0    0     0  2686 25886 31366  9 25 34 32
+ 0  5      0 1148908  24516 202264    0    0     0  2702 21070 28282  4 15 23 59
+ 2  6      0 1144620  24816 206248    0    0     2  2650 24046 29828  5 18 17 59
+ 0  4      0 1171628  24968 178488    0    0     0     0 19351 21122  3 12 45 40
+ 0  4      0 1185716  25220 162800    0    0     0  3788 24860 31120  5 19 42 34
+ 1  3      0 1189940  25328 158272    0    0     0   142 16789 16411  2  9 22 67
+ 2  1      0 1186428  25688 161380    0    0     0  2440 27808 35784  6 24 56 15
+ 0  6      0 1187004  25752 159888    0    0     0  2646 8459  9713  2  6 13 79
+ 0  4      0 1185404  25872 159972    0    0     0   930 15788 15807  2  7 18 73
+ 0  5      0 1209148  26016 133512    0    0     0  1342 15087 16572  2  8 28 61
+ 0  2      0 1205956  26228 136768    0    0     0   632 20933 24795  4 15 25 56
+ 0  2      0 1203268  26336 134756    0    0     0  3916 11832 12939  2  7  7 84
+ 0  3      0 1221572  26552 116656    0    0     0   234 22075 26224  3 15 31 51
+ 0  2      0 1225860  26660 112944    0    0     0  1632 16227 14855  1  9 51 38
+ 0  0      0 1225036  26812 113744    0    0     0   118 17556 19174  2 10 61 27
+ 0  0      0 1269900  26948  69680    0    0     0     0 18351 17765  2  9 89  0
+ 0  0      0 1269972  26960  69668    0    0     0    84 1015    32  0  0 99  1
 
-Greater than 90% I/O wait is to be expected in these tests.  What is of
-interest is the overall bandwidth.  2.5 megabytes per second is very
-broken.  I have a 53c1030 box here which uses the MPT fusion driver and it
-happily does 50MB/sec to a single disk, but I guess that's a different
-setup.
 

@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265573AbRFVX2H>; Fri, 22 Jun 2001 19:28:07 -0400
+	id <S265574AbRFVX3R>; Fri, 22 Jun 2001 19:29:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265574AbRFVX14>; Fri, 22 Jun 2001 19:27:56 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:30419 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265573AbRFVX1m>;
-	Fri, 22 Jun 2001 19:27:42 -0400
-Message-ID: <3B33D467.ABAE9D84@mandrakesoft.com>
-Date: Fri, 22 Jun 2001 19:27:35 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Eric Smith <eric@brouhaha.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2 yenta_socket problems on ThinkPad 240
-In-Reply-To: <Pine.LNX.4.21.0106161111041.9713-100000@penguin.transmeta.com> <20010622231457.11642.qmail@brouhaha.com>
+	id <S265575AbRFVX3H>; Fri, 22 Jun 2001 19:29:07 -0400
+Received: from mx01.uni-tuebingen.de ([134.2.3.11]:274 "EHLO
+	mx01.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S265574AbRFVX26>; Fri, 22 Jun 2001 19:28:58 -0400
+Date: Sat, 23 Jun 2001 00:09:12 +0200
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: Pavel Machek <pavel@suse.cz>, Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: spindown
+Message-ID: <20010623000912.A415@pelks01.extern.uni-tuebingen.de>
+Mail-Followup-To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+	Pavel Machek <pavel@suse.cz>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010615152306.B37@toy.ucw.cz> <20010618222131.A26018@paranoidfreak.co.uk> <20010619124627.A202@bug.ucw.cz> <20010621180701.B4523@pcep-jamie.cern.ch>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.1.12i
+In-Reply-To: <20010621180701.B4523@pcep-jamie.cern.ch>; from lk@tantalophile.demon.co.uk on Thu, Jun 21, 2001 at 06:07:01PM +0200
+From: Daniel Kobras <kobras@tat.physik.uni-tuebingen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You should try 2.4.6-pre5, it already includes a patch for you :)
+On Thu, Jun 21, 2001 at 06:07:01PM +0200, Jamie Lokier wrote:
+> Pavel Machek wrote:
+> > > Isn't this why noflushd exists or is this an evil thing that shouldn't
+> > > ever be used and will eventually eat my disks for breakfast?
+> > 
+> > It would eat your flash for breakfast. You know, flash memories have
+> > no spinning parts, so there's nothing to spin down.
+> 
+> Btw Pavel, does noflushd work with 2.4.4?  The noflushd version 2.4 I
+> tried said it couldn't find some kernel process (kflushd?  I don't
+> remember) and that I should use bdflush.  The manual says that's
+> appropriate for older kernels, but not 2.4.4 surely.
 
-pci=assign-busses on the command line.
+That's because of my favourite change from the 2.4.3 patch:
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+-       strcpy(tsk->comm, "kupdate");
++       strcpy(tsk->comm, "kupdated");
+
+noflushd 2.4 fixed this issue in the daemon itself, but I had forgotten about 
+the generic startup skript. (Rpms and debs run their customized versions.)
+
+Either the current version from CVS, or
+
+ed /your/init.d/location/noflushd << EOF
+%s/kupdate/kupdated/g
+w
+q
+EOF
+
+should get you going.
+
+Regards,
+
+Daniel.
+

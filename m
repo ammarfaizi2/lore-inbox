@@ -1,71 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267921AbTBVVbY>; Sat, 22 Feb 2003 16:31:24 -0500
+	id <S267919AbTBVV3C>; Sat, 22 Feb 2003 16:29:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267922AbTBVVbY>; Sat, 22 Feb 2003 16:31:24 -0500
-Received: from havoc.daloft.com ([64.213.145.173]:28866 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id <S267921AbTBVVbX>;
-	Sat, 22 Feb 2003 16:31:23 -0500
-Date: Sat, 22 Feb 2003 16:41:28 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-To: David Dillow <dave@thedillows.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: typhoon rx_copybreak
-Message-ID: <20030222214128.GC27739@gtf.org>
-References: <20030222.004504.113090900.davem@redhat.com> <3E57D54A.5FCDD811@thedillows.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E57D54A.5FCDD811@thedillows.org>
-User-Agent: Mutt/1.3.28i
+	id <S267920AbTBVV3C>; Sat, 22 Feb 2003 16:29:02 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:9432 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267919AbTBVV3B>;
+	Sat, 22 Feb 2003 16:29:01 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Larry McVoy <lm@bitmover.com>, Hanna Linder <hannal@us.ibm.com>,
+       lse-tech@lists.sf.et,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-To: Gerrit Huizenga <gh@us.ibm.com>
+From: Gerrit Huizenga <gh@us.ibm.com>
+Subject: Re: Minutes from Feb 21 LSE Call 
+In-reply-to: Your message of 22 Feb 2003 18:20:19 GMT.
+             <1045938019.5034.9.camel@irongate.swansea.linux.org.uk> 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <16488.1045949791.1@us.ibm.com>
+Date: Sat, 22 Feb 2003 13:36:31 -0800
+Message-Id: <E18mhJw-0004I0-00@w-gerrit2>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 22, 2003 at 02:53:46PM -0500, David Dillow wrote:
-> Done. Pushed to 
-> bk://typhoon.bkbits.net/typhoon-2.4
-> bk://typhoon.bkbits.net/typhoon-2.5
+On 22 Feb 2003 18:20:19 GMT, Alan Cox wrote:
+> I think people overestimate the numbner of large boxes badly. Several IDE
+> pre-patches didn't work on highmem boxes. It took *ages* for people to
+> actually notice there was a problem. The desktop world is still 128-256Mb
 
-I hope you don't mind my CC'ing lkml.  I think may be useful information
-for others, as well.
+IDE on big boxes?  Is that crack I smell burning?  A desktop with 4 GB
+is a fun toy, but bigger than *I* need, even for development purposes.
+But I don't think EMC, Clariion (low end EMC), Shark, etc. have any
+IDE products for my 8-proc 16 GB machine...  And running pre-patches in
+a production environment that might expose this would be a little
+silly as well.
 
-For submitting net driver changes via BK, I would request what I request
-of others using BK (and what Marcelo requests of me):
+Probably a bad example to extrapolate large system numbers from.
 
-Send me a separate email with an easily noticable subject, something
-like "[BK] typhoon net driver fixes/updates/whatever", including the
-output of Documentation/BK-usage/bk-make-sum.  Typically this is done
-like
-
-	cd typhoon-2.4
-	bk-make-sum ../linux-vanilla-2.4
-	vi /tmp/linus.txt (fix URL, or whatever)
-	email /tmp/linus.txt to me
-
-then, additional email the broken-out GNU diffs for review.  Here is an
-example, though there are several other ways to do this:
-
-	cd typhoon-2.4
-	bk changes -L ../linux-vanilla-2.4 2>&1 |	\
-		perl csets-to-patches.pl
-	# edit /tmp/rev-*.patch, and email, one per email
-
-bk-make-sum and csets-to-patches are shipped in Documentation/BK-usage
-in both 2.4.x and 2.5.x.
-
-And, unless the 2.4 and 2.5 patches are 100.0000% the same, send patches
-for both 2.4 and 2.5.
-
-This spams me with a lot of email, but really does optimize the
-submission process, and gets your updates into the mainline kernel very
-quickly.  Ideally, I just have to do "read, read, read, cut-n-paste your
-supplied bk pull URL"
-
-Thanks and regards,
-
-	Jeff
-
-
-
-P.S. Nice work on the driver.  Even if technical issues are found, it's
-very clean and easy to review and debug.
+gerrit

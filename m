@@ -1,82 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbUKETv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbUKETwt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbUKETv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 14:51:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbUKETv3
+	id S261178AbUKETwt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 14:52:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbUKETve
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 14:51:29 -0500
-Received: from [61.48.52.143] ([61.48.52.143]:17902 "EHLO adam.yggdrasil.com")
-	by vger.kernel.org with ESMTP id S261163AbUKETvR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 14:51:17 -0500
-Date: Fri, 5 Nov 2004 10:43:04 -0800
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Message-Id: <200411051843.iA5Ih4q28451@adam.yggdrasil.com>
-To: davids@webmaster.com
-Subject: RE: Possible GPL infringement in Broadcom-based routers
-Cc: jp@enix.org, linux-kernel@vger.kernel.org
+	Fri, 5 Nov 2004 14:51:34 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:65421 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261178AbUKETv0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 14:51:26 -0500
+Date: Fri, 5 Nov 2004 11:50:45 -0800
+From: Chris Wedgwood <cw@f00f.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andries Brouwer <aebr@win.tue.nl>, Adam Heath <doogie@debian.org>,
+       Christoph Hellwig <hch@infradead.org>,
+       Timothy Miller <miller@techsource.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: support of older compilers
+Message-ID: <20041105195045.GA16766@taniwha.stupidest.org>
+References: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com> <20041103233029.GA16982@taniwha.stupidest.org> <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org> <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com> <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl> <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Schwartz wrote:
->> 	I think you're missing the idea that that such drivers are
->> _contributory_ infringement to the direct infringement that occurs when
->> the user loads the module.
+On Fri, Nov 05, 2004 at 07:41:03AM -0800, Linus Torvalds wrote:
 
->	Except that loading the module is not infringement. The GPL does not
->restrict use of GPL'd code in any way.
+> > -rw-r--r--   1 root     root       281572 Jul 30  1995 zImage-1.2.11
+> > -rw-r--r--   1 root     root       277476 Apr  1  1995 zImage-1.2.2
 
->> In other words, even for a driver that has
->> not a byte of code derived from the kernel, if all its uses involve it
->> being loaded into a GPL'ed kernel to form an infringing derivative
->> work in RAM by the user committing direct copyright infringement against
->> numerous GPL'ed kernel components, then it fails the test of having
->> a substantial non-infringing use, as established in the Betamax decision,
->> and distributing it is contributory infringement of those GPL'ed
->> components of the kernel.
+> Ok, you da man. What do you use it for? Or is it just lying around
+> for nostalgic reasons?
 
->	In order for there to be an "infringing derivative work", some clause of
->the GPL would have to be infringed. There exists no clause in the GPL that
->restricts the *creation* of derivative works that are not distributed.
+to remind us how large the kernel is getting? :)
 
-	The GPL is a grant of permission.  So, if you have an activity
-that is restricted by copyright, you have to find something in the GPL
-that gives you permission.  It's not just me saying that.  A representative
-from the FSF explained that to room of ~50 lawyers and ~50 lay people
-at a seminar that I went to on it.
-
->	If your argument were correct, then no non-GPL'd software could *ever* be
->distributed for Linux. You see, loading that software would create an
->"infringing derivative work" in the memory of the computer running it,
->combining the Linux kernel with the software.
-
-	The FSF has addressed the question of interpretation of the
-GPL with respect to how running a program in RAM may not by itself
-make it a derivative work of other programs in RAM while dynamically
-loading a module into a program (including a kernel) does in their
-FAQ at http://www.gnu.org/licenses/gpl-faq.html:
-
-| [...]
-| What constitutes combining two parts into one program? This is a legal
-| question, which ultimately judges will decide. We believe that a
-| proper criterion depends both on the mechanism of communication (exec,
-| pipes, rpc, function calls within a shared address space, etc.) and
-| the semantics of the communication (what kinds of information are
-| interchanged).
-| 
-|  If the modules are included in the same executable file, they are
-| definitely combined in one program. If modules are designed to run
-| linked together in a shared address space, that almost surely means
-| combining them into one program.
-| 
-|  By contrast, pipes, sockets and command-line arguments are
-| communication mechanisms normally used between two separate
-| programs. So when they are used for communication, the modules
-| normally are separate programs. But if the semantics of the
-| communication are intimate enough, exchanging complex internal data
-| structures, that too could be a basis to consider the two parts as
-| combined into a larger program.
-
-                    __     ______________
-Adam J. Richter        \ /
-adam@yggdrasil.com      | g g d r a s i l

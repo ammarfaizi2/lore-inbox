@@ -1,58 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135723AbREDBzQ>; Thu, 3 May 2001 21:55:16 -0400
+	id <S135689AbREDBw0>; Thu, 3 May 2001 21:52:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135738AbREDBzG>; Thu, 3 May 2001 21:55:06 -0400
-Received: from chromium11.wia.com ([207.66.214.139]:26894 "EHLO
-	neptune.kirkland.local") by vger.kernel.org with ESMTP
-	id <S135723AbREDBzD>; Thu, 3 May 2001 21:55:03 -0400
-Message-ID: <3AF20CE3.63C92B3C@chromium.com>
-Date: Thu, 03 May 2001 18:58:59 -0700
-From: Fabio Riccardi <fabio@chromium.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2 i686)
-X-Accept-Language: en
+	id <S135723AbREDBwR>; Thu, 3 May 2001 21:52:17 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:42502 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S135689AbREDBv6>;
+	Thu, 3 May 2001 21:51:58 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200105040151.f441pUw113980@saturn.cs.uml.edu>
+Subject: Re: iso9660 endianness cleanup patch
+To: pavel@suse.cz (Pavel Machek)
+Date: Thu, 3 May 2001 21:51:30 -0400 (EDT)
+Cc: hpa@transmeta.com (H. Peter Anvin),
+        torvalds@transmeta.com (Linus Torvalds),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        Andries.Brouwer@cwi.nl (Andries Brouwer),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <20010501202139.B32@(none)> from "Pavel Machek" at May 01, 2001 08:21:40 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: mingo@elte.hu
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Christopher Smith <x@xman.org>, Andrew Morton <andrewm@uow.edu.au>,
-        "Timothy D. Witham" <wookie@osdlab.org>, David_J_Morse@Dell.com
-Subject: Re: X15 alpha release: as fast as TUX but in user space
-In-Reply-To: <Pine.LNX.4.33.0105011906420.2202-100000@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have fixed the stale header cache problem. Files are statted on every
-request, no "practical" tricks.
+Pavel Machek writes:
 
-Performance doesn't seem to have suffered :)
+> It  should ot break anything. gcc decides its bad to inline it, so it
+> does not inline it. Small code growth at worst. Compiler has right to
+> make your code bigger or slower, if it decides to do so.
 
-I also have added a cache garbage collector to close "old" file descriptors
-and remove even older header cache entries. This should make sure that you
-don't exceed your system resources. The definition of old and the sweep
-frequency are user configurable.
+Oh come on. The logical way:
 
-You can download the new version
-from: http://www.chromium.com/X15-Alpha-3.tgz
+inline          Compiler must inline (only!) or report an error.
+extern inline   This is a contradiction. Report an error.
+static inline   This is a contradiction. Report an error.
 
- - Fabio
+Anything else is obvious crap. It isn't OK for the compiler
+to ever ignore me; inline recursive functions are just wrong.
+Taking the address of an inline function is just wrong too.
 
-Ingo Molnar wrote:
+Of course the above is not what we are given. We get crap.
+The old gcc behavior was crap, and I guess the C99 behavior
+is too. So the only sane thing is a #define that is set to
+whatever makes the compiler behave as nicely as possible.
+Then we use _INLINE everywhere, and get decent behavior out
+of both old and new compilers.
 
-> On Tue, 1 May 2001, Fabio Riccardi wrote:
->
-> > This is actually a bug in the current X15, I know how to fix it (with
-> > negligible overhead) but I've been lazy :)
->
-> yep, i think it's pretty straightforward: you have a cache of open file
-> descriptors (like Squid i think), and you can start a background 'cache
-> synchronization thread' that does a stat() on every open file's real VFS
-> path, every second or so. This should have small overhead (the number of
-> file descriptors cached should be limited anyway via some sort of LRU),
-> and guarantees 'practical coherency', without having the overhead of
-> immediate coherency. [total coherency is pointless anyway, not even the
-> kernel guarantees it to all parallel VFS users.]
->
->         Ingo
+
 

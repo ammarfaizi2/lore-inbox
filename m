@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130289AbQKFIWd>; Mon, 6 Nov 2000 03:22:33 -0500
+	id <S129932AbQKFIyA>; Mon, 6 Nov 2000 03:54:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130293AbQKFIWX>; Mon, 6 Nov 2000 03:22:23 -0500
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:24329 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S130289AbQKFIWM>; Mon, 6 Nov 2000 03:22:12 -0500
-Date: Mon, 6 Nov 2000 08:14:26 +0000
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: bobyetman@att.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Loadavg calculation
-Message-ID: <20001106081426.I6131@bart.dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>, bobyetman@att.net,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0011050746090.634-100000@juryrig.worldnet.att.net>
-Mime-Version: 1.0
+	id <S129036AbQKFIxv>; Mon, 6 Nov 2000 03:53:51 -0500
+Received: from cr630205-a.crdva1.bc.wave.home.com ([24.113.89.232]:48116 "EHLO
+	ryan") by vger.kernel.org with ESMTP id <S129034AbQKFIxn>;
+	Mon, 6 Nov 2000 03:53:43 -0500
+Message-ID: <3A05F6B9.6A6BE9C7@netidea.com>
+Date: Sun, 05 Nov 2000 16:09:29 -0800
+From: ryan <ryan@netidea.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16-raid i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Neil Brown <neilb@cse.unsw.edu.au>
+CC: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+Subject: Re: Kernel 2.4.0test10 crash (RAID+SMP)
+In-Reply-To: <1459.973469046@kao2.melbourne.sgi.com>
+		<3A060BE5.8877F477@netidea.com> <14854.8617.282831.205647@notabene.cse.unsw.edu.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.21.0011050746090.634-100000@juryrig.worldnet.att.net>; from bobyetman@att.net on Sun, Nov 05, 2000 at 07:55:40AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I know this is a little left-field, but how about redesigning your
-process so that instead of using a load_avg, you start all your calculations
-from a single server on each node?  It could queue up incoming calculations,
-and fork a child to do each one.
+> It looks like an interupt is happening while another interrupt is
+> happening, which should be impossible... but it isn't.
 
-Of course, it would catch a signal when the child died, so you'd immediately
-know when to start up another calculation.  If you liked, it could check the
-one-minute load avg from time to time to see what would be a friendly level of
-calculations overall, adjust the overall level of concurrent child processes
-accordingly.
+Dont you love SMP? ;-)
 
-The timing, however, would still come from a signal, and would thus be
-instantaneous.
+> 
+> raid1.c:end_sync_write calls raid1_free_buff which calls
+> spin_lock_irq()/spin_unlock_irq(), which unmasks interrupts.  but
+> end_sync_write is called from interupt context.  This is bad.
+> 
+> Try:
+[patch goes here]
+> 
 
-Or am I being totally dumb?
+This infact fixes the problem completely.  You probably already
+suspected it did, but for verification it works like a charm.  Inclusion
+into 2.4.0test11/whatever would probably be a Good Thing.
 
-Sean
-
-On Sun, Nov 05, 2000 at 07:55:40AM -0500, bobyetman@att.net wrote:
-> 
-> I'm working a project a work that is using Linux to run some very
-> math-intensive calculations.   One of the things we do is use the 1-minute
-> loadavg to determine how busy the machine is and can we fire off another
-> program to do more calculations.    However, there's a problem with that.
-> 
-> Because it's a 1 minute load average, there's quite a bit of lag time from
-> when 1 program finishes until the loadavg goes down below a threshold for
-> our control mechanism to fire off another program.
-> 
-> Let me give an example (all on a 1-cpu PC)
-> 
-> HH:MM:SS
-> 00:00:00    		fire off 4 programs 
-> 00:01:00		loadavg goes up to 4
-> 00:01:30		3 of the 4 programs finish loadavg still at 4
-> 00:02:20		load avg goes down to 1, below our threshold
-> 00:02:21		we fire off 3 more programs.
-> 
-> We'd like to reduce that almost 50 second lag time.  Is it possible, in
-> user-space, to duplicate the loadavg calculation period, say to a 15
-> second load average, using the information in /proc?
-> 
-> The other option we looked at, besides using loadavg, was using idle pct%,
-> but if I read the source for top right, involves reading the entire
-> process table to calculate clock ticks used and then figuring out how many
-> weren't used.
-> 
-> Ideas, opinions welcome.  Yes, I read the list, so either respond direct
-> to me, or to the list.
-> 
-> bobyetman@att.net (Robert A. Yetman)
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+-ryan
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

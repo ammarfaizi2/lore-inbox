@@ -1,42 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270096AbRHGGMr>; Tue, 7 Aug 2001 02:12:47 -0400
+	id <S270102AbRHGGYs>; Tue, 7 Aug 2001 02:24:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270097AbRHGGMg>; Tue, 7 Aug 2001 02:12:36 -0400
-Received: from dnscache.cbr.au.asiaonline.net ([210.215.8.100]:52431 "EHLO
-	dnscache.cbr.au.asiaonline.net") by vger.kernel.org with ESMTP
-	id <S270096AbRHGGMb>; Tue, 7 Aug 2001 02:12:31 -0400
-Message-ID: <3B6F86BA.14D449F4@acm.org>
-Date: Tue, 07 Aug 2001 16:12:10 +1000
-From: Gareth Hughes <gareth.hughes@acm.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: DRI-Devel <dri-devel@lists.sourceforge.net>
-CC: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: DRM Linux kernel merge (update) needed, soon.
-In-Reply-To: <20010807014029Z270029-28344+2126@vger.kernel.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S270103AbRHGGY3>; Tue, 7 Aug 2001 02:24:29 -0400
+Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:55756 "EHLO
+	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S270102AbRHGGYU>;
+	Tue, 7 Aug 2001 02:24:20 -0400
+Message-Id: <200108070624.f776Ofl21096@www.2ka.mipt.ru>
+Date: Tue, 7 Aug 2001 10:27:20 +0400
+From: John Polyakov <johnpol@2ka.mipt.ru>
+To: Ryan Mack <rmack@mackman.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Encrypted Swap
+In-Reply-To: <Pine.LNX.4.33.0108062239550.5316-100000@mackman.net>
+In-Reply-To: <Pine.LNX.4.33L2.0108070106390.7542-100000@localhost.localdomain>
+	<Pine.LNX.4.33.0108062239550.5316-100000@mackman.net>
+Reply-To: johnpol@2ka.mipt.ru
+X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.7-ac7; i686)
+Organization: MIPT
+Mime-Version: 1.0
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Nützel wrote:
-> 
-> the Linux kernel DRM stuff need a merge (update), soon.
-> Even the (latest) 2.4.7-ac (3-8) stuff has some cleanups but didn't work with
-> the tdfx DRI CVS trunk driver for example.
-> I have to build the DRI CVS tdfx.o kernel module to get it working, again.
-> If I read it right the kernel stuff include some needed fixes...
+Hello.
 
-Agreed.
+On Mon, 6 Aug 2001 22:55:19 -0700 (PDT)
+Ryan Mack <rmack@mackman.net> wrote:
 
-After being let go from VA, I've had to return all the graphics cards
-and machines they loaned me, and as my own supply of cards (and indeed
-all of my computer gear) is in storage somewhere in the US there isn't
-much I can do about fixing this.  You'll have to pester the guys at VA,
-most likely Jeff Hartmann.
+RM> Apparently some of you have missed the point.  Currently, the only way
+to
+RM> write any form of encryption application is to have it run setuid root
+so
+RM> it can lock pages in RAM.  Otherwise, files (or keys) that are
+encrypted
+RM> on disk may be left in an unencrypted state on swap, allowing for
+RM> potential recovery by anyone with hardware access.  Encrypted swap
+makes
+RM> locking pages unnecessary, which relieves many sysadmins from the
+anxiety
+RM> of having yet-another-setuid application installed on their server in
+RM> addition to freeing up additional pages to be swapped.
 
-Jeff?
+Hmmm, let us suppose, that i copy your crypted partition per bit to my
+disk.
+After it I will disassemble your decrypt programm and will find a key....
 
--- Gareth
+In any case, if anyone have crypted data, he MUST decrypt them.
+And for it he MUST have some key.
+If this is a software key, it MUST NOT be encrypted( it's obviously,
+becouse in other case, what will decrypt this key?) and anyone, who have
+PHYSICAL access to the machine, can get this key.
+Am I wrong?
+
+
+RM> -Ryan
+
+---
+WBR. //s0mbre

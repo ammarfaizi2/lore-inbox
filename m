@@ -1,122 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbSLSU52>; Thu, 19 Dec 2002 15:57:28 -0500
+	id <S266175AbSLSVGa>; Thu, 19 Dec 2002 16:06:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266175AbSLSU52>; Thu, 19 Dec 2002 15:57:28 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:63912 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S266161AbSLSU5Z>;
-	Thu, 19 Dec 2002 15:57:25 -0500
-Date: Thu, 19 Dec 2002 14:37:07 -0600 (CST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: RFC: bus_type and device_class merge (or partial merge)
-In-Reply-To: <200212191936.LAA06204@adam.yggdrasil.com>
-Message-ID: <Pine.LNX.4.33.0212191355370.1286-100000@localhost.localdomain>
+	id <S266179AbSLSVGa>; Thu, 19 Dec 2002 16:06:30 -0500
+Received: from zeke.inet.com ([199.171.211.198]:42422 "EHLO zeke.inet.com")
+	by vger.kernel.org with ESMTP id <S266175AbSLSVG2>;
+	Thu, 19 Dec 2002 16:06:28 -0500
+Message-ID: <3E0236B3.9050101@inet.com>
+Date: Thu, 19 Dec 2002 15:14:27 -0600
+From: Eli Carter <eli.carter@inet.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: John Bradford <john@grabjohn.com>
+CC: dank@kegel.com, linux-kernel@vger.kernel.org
+Subject: Re: Dedicated kernel bug database
+References: <200212192059.gBJKxFne002827@darkstar.example.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> 	If there is a more specific mailing list than lkml for discussing
-> the generic driver model, please feel free to redirect me.
-
-No, the kernel list is right. I'm a lazy bastard that travels a lot, so 
-response latency is often higher than it should be. 
-
-> 	I'm thinking about trying to embed struct device_class into
-> struct bus_type or perhaps just eliminate the separate struct
-> bus_type.  The two structures are almost identical, especially
-> considering that device_class.devnum appears not to be used by
-> anything.
-
-Someone else tried to do this a while back, and my argument was the same 
-as this is going to be: they are very distinct objects that describe 
-different things. 
-
-It is true that classes are not used much in the current kernel. The last
-six months have not afforded enough time to convert as much code to use
-them as I would have preferred. As a result, the class and interface code
-is the least mature (and the least personally liked) of the driver model
-code. 
-
-If you're interested, I've finished a paper for linux.conf.au on the 
-driver model that should describe the various objects and purposes (much 
-better than the Ottawa paper did). You can find it at: 
-
-http://kernel.org/pub/linux/kernel/people/mochel/doc/lca/driver-model-lca2003.tar.gz
-
-Hopefully, you will find it useful. Feel free to send me comments on it, 
-as it may just be completely crappy. 
-
-> 	At first appearance, a bus_type (PCI, USB, etc.) and a
-> device_class (network devices, input, block devices), may seem like
-> opposite ends of the device driver abstraction, but really I think
-> these are basically the same, and, more importantly, there can be many
-> layers of these interfaces, and the decision about which are bus_types
-> and which are device_classes is causing unnecessary coplexity.  For
-> example, SCSI defines both.  SCSI can be a hardware bus, bus it also
-> needs device_class so that scsi_debug (and eventually scsi generic) can
-> use the struct interface mechanism.
-
-They're not the same, though. They may be similar, but they are 
-fundamentally different. 
-
-A bus describes a physical transport. It defines semantics for 
-communicating with resident devices, independent of the functionality they 
-ultimately serve. 
-
-A class is the flipside. It describes the function a device is designed 
-to perform, independent of its underlying transport. 
-
-The interfaces that communicate with devices of a particular class are the 
-canonical entities that give devices meaning to users and userspace 
-programs. 
-
-Consider audio devices. The only things I care about are /dev/mixer and
-/dev/dsp, which map to devices registered with the audio subsystem.
-Actually, what is registered are not devices. They are objects allocated 
-by the driver for my sound card that describe the device in the context of 
-the audio subsystem. This object is independent of the bus the device 
-resides on. Communication from userspace to the device passes through the 
-driver, which formats the class requests to bus and device-specific ones 
-to actaully talk to the physical device. Something like this:
-
-Me -> device node -> kernel intf -> audio subsys -> driver -> bus -> device
-
-
-Some buses allow communication to devices on their bus type, regardless of
-the devices' function. SCSI does this, as you mention, and so does PCI and
-USB, via /proc/bus/*. Functionality is limited to what can generically be
-done, and what the bus type allows you to do. They are not classes,
-though. The interfaces they correspond to are specific to the underlying
-transport.
-
-SCSI is wrong about creating a device class. They are overloading 
-constructs for their own, twisted purposes. It's partly my fault, as I 
-know they could use a mechanism for registering and exporting interfaces 
-to bus-specific devices. It hasn't happened mainly because of time 
-constraints. 
-
-> 	Also, merging device_class and bus_type could also enable a
-> little more consolidation between struct device_interface and struct
-> device_driver (as with device_class.devnum, device_interface.devnum
-> does not appear to be used currently).
+John Bradford wrote:
+>>And what about GNATS?  What about the others on 
+>>http://www.a-a-p.org/tools_tracking.html ?  A number of those address 
+>>the web-based concern.  Do any of them answer your other concerns?  If 
+>>there are, where do those fail that bugzilla, GNATS, etc. get it right?
 > 
-> 	Anyhow, I think this could shrink the drivers/base a bit and
-> make it slightly more understandable.  I'd be interested in knowing if
-> anyone else is contemplating or developing this or wants to point out
-> issues to watch out for.
+> 
+> Why are you so against somebody sitting down and thinking, "OK, we
+> need a bug tracking database designed for debugging the Linux
+> kernel."?  I don't understand why you think it's a bad idea to start
+> over.  If my code was rubbish, then it wouldn't get used, and I wasted
+> my time.  Nobody else suffers.
 
-Consolidation is possible, but I would not recommend doing it by merging
-the structures. Look for other ways to create common objects that the two
-can share. The distinction between the object types is important,
-conceptually, if nothing else. Especially during the continuing evolution
-of the model. At least for now, and for probably a very long time, I will 
-not consider patches to consolidate the two object types.
+I'm not against someone starting over.  I'm against someone starting 
+over without considering the existing base of code.  If for no other 
+reason than to see what worked for others and what didn't.  A solid 
+comparison of bugzilla, GNATS, and maybe a couple others with pros and 
+cons for each can be extremely enlightening.... even if you decide none 
+of them have a good, solid design.
 
+My questions were an attempt to get at that comparison so that there was 
+evidence that you knew the pitfalls of more than just bugzilla.  And I 
+hoped that you might find another one that got some of those things right.
 
-	-pat
+>>But I see that starting from scratch is just the way you work: 
+>>http://grabjohn.com/question.php?q=6
+> 
+> Well, since it's me that's offering to write the code, don't I get to
+> decide how to write it?
+
+Absolutely!  I'm just trying to get you to step back from 'rewrite it!' 
+as an initial assumption, and look at what already exists.  Maybe every 
+wheel invented so far has 3 to 8 sides and we need to consider something 
+other than a polygon.  Or maybe there is an oval out there that hints at 
+a better way.  I'm just wanting to see that you have looked at more than 
+the square wheel.
+
+> Besides, I'm not the only person who thinks it's a good idea to start
+> over sometimes - Eric Raymond even addresses this point in The
+> Cathedreal and the Bazaar.
+> 
+> http://www.tuxedo.org/~esr/writings/cathedral-bazaar/cathedral-bazaar/ar01s02.html
+> 
+
+Yes, but I didn't see much of an explanation of _why_ nothing out there 
+was a good starting point.  Nor did I see an indication that you had 
+gone and looked at more than just bugzilla.
+
+>>Well, have fun, good luck, and I do hope you come up with something 
+>>useful and maintainable.
+> 
+> 
+> If not, I will admit you were right to the list :-).
+
+*chuckle*  I think you are _premature_ in saying "rewrite!", not _wrong_ 
+in saying "rewrite!"  And I will by no means tell you to sit and twiddle 
+your thumbs instead of writing something, even if I think that something 
+already exists in perfect form.  (Which in this case, I don't. :) )
+
+Have fun!
+
+Eli
+--------------------. "If it ain't broke now,
+Eli Carter           \                  it will be soon." -- crypto-gram
+eli.carter(a)inet.com `-------------------------------------------------
 

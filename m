@@ -1,71 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315784AbSEDHYk>; Sat, 4 May 2002 03:24:40 -0400
+	id <S315787AbSEDHmA>; Sat, 4 May 2002 03:42:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315785AbSEDHYj>; Sat, 4 May 2002 03:24:39 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:15200 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S315784AbSEDHYj>; Sat, 4 May 2002 03:24:39 -0400
-Date: Sat, 4 May 2002 09:25:31 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19pre8aa1 & vm-34: unresolved kmap_pagetable
-Message-ID: <20020504092531.L1396@dualathlon.random>
-In-Reply-To: <20020503203738.E1396@dualathlon.random> <3CD339B7.5BEB2DB4@eyal.emu.id.au>
+	id <S315788AbSEDHl7>; Sat, 4 May 2002 03:41:59 -0400
+Received: from pool-151-201-37-99.pitt.east.verizon.net ([151.201.37.99]:26508
+	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
+	id <S315787AbSEDHl6>; Sat, 4 May 2002 03:41:58 -0400
+Date: Sat, 4 May 2002 03:41:58 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Andrew Burgess <aab@cichlid.com>, linux-kernel@vger.kernel.org
+Subject: Re: dnotify oddity in 2.4.19pre6aa1
+Message-ID: <20020504034158.O30294@marta>
+Mail-Followup-To: Kurt Wall <kwall>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	Andrew Burgess <aab@cichlid.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200204231658.g3NGwE203196@athlon.cichlid.com> <20020503173109.1afdbec1.sfr@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 04, 2002 at 11:30:31AM +1000, Eyal Lebedinsky wrote:
-> Andrea Arcangeli wrote:
+Scribbling feverishly on May 03, Stephen Rothwell managed to emit:
+> Hi Andrew,
+> 
+> Sorry I have been a bit slow on this.
+> 
+> On Tue, 23 Apr 2002 09:58:14 -0700 Andrew Burgess <aab@cichlid.com> wrote:
+> >
+> > I am seeing something very strange with the dnotify feature in kernel
+> > 2.4.19pre6aa1. I'm developing a file copy daemon that makes backups of
+> > files as soon as they change so I run dnotify on every directory in my
+> > system (essentially). I based my program on the example in dnotify.txt
+> > in the Documentation directory.
+> 
+> So far, so good :-)
+> 
+> > I notice that after a while two things happen:
 > > 
-> > Full patchkit:
-> > http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre8aa1.gz
+> > 1) In my copyd process I start getting signals for directories that are
+> > not changing. Even stranger, I get signals for fd that I've never
+> > opened.
 > 
-> This is a new symbol introduced in -aa1. It ends up in drivers through
-> new header definitions rather than by direct use.
+> OK, this is weird, but I am looking into it.
 > 
-> Should be exported?
+> > 2) Other processes, like sendmail, start exiting with the same signal
+> > (RTMIN+5). (I use +5 because I started seeing the problem with +0 and I
+> > took a wild guess that RTMIN+0 was being used for something else).
 
-You should #include <linux/highmem.h> in those drivers .c files, then it
-will compile, but that's not the right fix, you'd need to add the
-pte_kunmap too or it would deadlock with highmem. The right fix is to
-convert those drivers to vmalloc_to_page, then they will work flawlessy.
-Alan actually has a patch in his -ac that converted most usb and other
-drivers to vmalloc_to_page, I will merge it plus I will convert those
-below drivers if they're not just covered by Alan's patch. Alan could
-you push it to Marcelo?
+glibc reserves RTMIN+[012] for its own use, so you have to use
+RTMIN+[n>2].
 
-After I finished covering all the compilation failures you reported I
-will upload an aa2 with all your patches included. I usually don't
-compile every driver out there so I didn't noticed those problems, sorry.
+[...]
 
-> 
-> 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.19-pre8-aa1/kernel/drivers/ieee1394/dv1394.o
-> depmod:         kmap_pagetable
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.19-pre8-aa1/kernel/drivers/net/wan/comx.o
-> depmod:         proc_get_inode
-
-actually comx is unrealted to the pte-highmem problem, to fix it we
-should EXPORT_SYMBOL(proc_get_inode), but I'm not sure why it wants to
-implement the dir lookup by itself instead of relying on the procfs
-layer, probably to allow more functionality like mkdir/rmdir.
-
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.19-pre8-aa1/kernel/drivers/video/NVdriver
-> depmod:         kmap_pagetable
-> 
-> --
-> Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
-
-
-Andrea
+Kurt
+-- 
+Command, n.:
+	Statement presented by a human and accepted by a computer in
+such a manner as to make the human feel as if he is in control.

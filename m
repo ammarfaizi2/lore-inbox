@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262784AbTLNXnv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Dec 2003 18:43:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262787AbTLNXnv
+	id S262789AbTLNXzt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Dec 2003 18:55:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTLNXzt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Dec 2003 18:43:51 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:54442 "EHLO
-	work.bitmover.com") by vger.kernel.org with ESMTP id S262784AbTLNXnu
+	Sun, 14 Dec 2003 18:55:49 -0500
+Received: from host213-160-108-25.dsl.vispa.com ([213.160.108.25]:15309 "HELO
+	cenedra.office") by vger.kernel.org with SMTP id S262789AbTLNXzs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Dec 2003 18:43:50 -0500
-Date: Sun, 14 Dec 2003 15:43:49 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Tupshin Harper <tupshin@tupshin.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC - tarball/patch server in BitKeeper
-Message-ID: <20031214234348.GA15850@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Tupshin Harper <tupshin@tupshin.com>, linux-kernel@vger.kernel.org
-References: <20031214172156.GA16554@work.bitmover.com> <3FDCEF70.5040808@tupshin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 14 Dec 2003 18:55:48 -0500
+From: Andrew Walrond <andrew@walrond.org>
+To: linux-kernel@vger.kernel.org
+Subject: Sis900 ethernet dropping 70% packets
+Date: Sun, 14 Dec 2003 23:55:45 +0000
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <3FDCEF70.5040808@tupshin.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200312142355.45631.andrew@walrond.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Dec 14, 2003 at 03:17:04PM -0800, Tupshin Harper wrote:
-> I'm sure many people will find this useful. Personally (and this is not 
-> intended as any sort of flame bait), I just want a way to get access to 
-> all raw bk changesets for a given project. 
+I'm trying to install a little Via C3 machine with on-board Sis900 ethernet. 
+As usual, I booted my LNX-BBC rescue disk, configured eth0 and tried to scp 
+my distro over, but failed miserably.
 
-I'm sure you do, I've read your postings on various SCM mailing lists.
-You'll have to get your test data elsewhere, sorry, we're not in the
-business of helping you develop a competing product.  Using BK to do
-that is a violation of the free use license and I'm sure you are aware
-of that.  
+Pinging other hosts on the net sees 70-80% packets getting lost.
 
-> All existing methods of 
-> getting information out of a bk repository either involve running bk 
-> yourself, or getting incomplete information. You have argued 
-> (succesfully) that the CVS export doesn't lose very much information, 
-> but an argument can be made that any information loss is too much. After 
-> all, the information I am talking about is simply what was put into the 
-> system by the developers in the first place.
+LNX-BBC rescue cd uses a 2.4.19 kernel
 
-Nonsense!  It's the information put in there by BitKeeper.  The BK2CVS 
-export is an almost perfect mirror of what you'd get if the developers 
-were using CVS or Subversion or whatever.
--- 
----
-Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm
+So then I tried a Trinity rescue disk, using a 2.4.21 kernel. Same thing.
+
+Anybody got experience of this? Googling gives wads of people with similar 
+sounding problems, mostly interrupt related, sometimes Vlan related (It's 
+plugged into a Cisco catalyst but I tried a x-over cable to my laptop with 
+the same result, so I don't think thats relevant), but don't see any 
+solutions.
+
+Is this a known-bad interface? The drivers sources don't seem to have been 
+touched for a long time which makes me think its unlikely that a newer kernel 
+would help, but who knows...
+
+Any suggestions apprieciated
+
+Andrew Walrond
+

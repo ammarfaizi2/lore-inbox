@@ -1,28 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262355AbVDFWuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVDFWxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262355AbVDFWuW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 18:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbVDFWuW
+	id S262337AbVDFWxM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 18:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVDFWxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 18:50:22 -0400
-Received: from fire.osdl.org ([65.172.181.4]:9918 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262353AbVDFWuC (ORCPT
+	Wed, 6 Apr 2005 18:53:12 -0400
+Received: from fire.osdl.org ([65.172.181.4]:57278 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262337AbVDFWxH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 18:50:02 -0400
-Date: Wed, 6 Apr 2005 15:43:16 -0700
+	Wed, 6 Apr 2005 18:53:07 -0400
+Date: Wed, 6 Apr 2005 15:53:17 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Ryan Anderson <ryan@michonline.com>
-Cc: gregkh@suse.de, davidm@hpl.hp.com, linux-kernel@vger.kernel.org,
-       stable@kernel.org, amy.griffis@hp.com, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, dwmw2@infradead.org
-Subject: Re: [03/08] fix ia64 syscall auditing
-Message-Id: <20050406154316.0b3b3f01.akpm@osdl.org>
-In-Reply-To: <20050405234602.GC4800@mythryan2.michonline.com>
-References: <20050405164539.GA17299@kroah.com>
-	<20050405164647.GD17299@kroah.com>
-	<16978.62622.80542.462568@napali.hpl.hp.com>
-	<1112734158.468.0.camel@localhost.localdomain>
-	<20050405234602.GC4800@mythryan2.michonline.com>
+To: Greg Edwards <edwardsg@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] CON_CONSDEV bit not set correctly on last console
+Message-Id: <20050406155317.54792458.akpm@osdl.org>
+In-Reply-To: <20050405191003.GO21725@sgi.com>
+References: <20050405191003.GO21725@sgi.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,46 +24,41 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ryan Anderson <ryan@michonline.com> wrote:
+Greg Edwards <edwardsg@sgi.com> wrote:
 >
-> On Tue, Apr 05, 2005 at 01:49:18PM -0700, Greg KH wrote:
-> > On Tue, 2005-04-05 at 13:27 -0700, David Mosberger wrote:
-> > > >>>>> On Tue, 5 Apr 2005 09:46:48 -0700, Greg KH <gregkh@suse.de> said:
-> > > 
-> > >   Greg> -stable review patch.  If anyone has any objections, please
-> > >   Greg> let us know.
-> > > 
-> > > Nitpick: the patch introduces trailing whitespace.
-> > 
-> > Sorry about that, I've removed it from the patch now.
-> > 
-> > > Why doesn't everybody use emacs and enable show-trailing-whitespace? ;-)
-> > 
-> > Because some of us use vim and ":set list" to see it, when we remember
-> > to... :)
+> According to include/linux/console.h, CON_CONSDEV flag should be set on
+> the last console specified on the boot command line:
 > 
-> Try adding this to your .vimrc:
+>      86 #define CON_PRINTBUFFER (1)
+>      87 #define CON_CONSDEV     (2) /* Last on the command line */
+>      88 #define CON_ENABLED     (4)
+>      89 #define CON_BOOT        (8)
 > 
-> highlight WhitespaceEOL ctermbg=red guibg=red
-> match WhitespaceEOL /\s\+$/
+> This does not currently happen if there is more than one console specified
+> on the boot commandline.  Instead, it gets set on the first console on the
+> command line.  This can cause problems for things like kdb that look for
+> the CON_CONSDEV flag to see if the console is valid.
 > 
-> Then you'll have to resist the urge to fix whitespace issues instead of
-> not seeing them at all.
+> Additionaly, it doesn't look like CON_CONSDEV is reassigned to the next
+> preferred console at unregister time if the console being unregistered
+> currently has that bit set.
 > 
+> Example (from sn2 ia64):
+> 
+> elilo vmlinuz root=<dev> console=ttyS0 console=ttySG0
+> 
+> in this case, the flags on ttySG console struct will be 0x4 (should be
+> 0x6).
+> 
+> Attached patch against bk fixes both issues for the cases I looked at.  It
+> uses selected_console (which gets incremented for each console specified
+> on the command line) as the indicator of which console to set CON_CONSDEV
+> on.  When adding the console to the list, if the previous one had
+> CON_CONSDEV set, it masks it out.  Tested on ia64 and x86.
 
-Yeah, that's a risk.  But gratuitous trailing whitespace changes shouldn't
-cause a lot of downstream problems due to `patch -l'.
+The `console=a console=b' behaviour seem basically random to me :(.  And it
+gets re-randomised on a regular basis.
 
-What I do is to ensure that we never _add_ trailing whitespace.  So
-anything which matches
-
-	^+.*[tab or space]$
-
-gets trimmed.  My theory is that after 10 years of this, all the trailing
-whitespace will be gone.  Problem is, I also see the hundreds of lines of
-code in the bk patches which add trailing whitespace :(
-
-Larry sent me a little bk script which would spam the user if they tried to
-commit something which adds trailing whitespace, but maybe that's a bit
-academic right now.
-
+I wonder if we should leave the existing behaviour alone (continue to set
+CON_CONSDEV on the first console) and just change the documentation? 
+That'll minimise the disruption which we cause.

@@ -1,43 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266114AbSLKXTC>; Wed, 11 Dec 2002 18:19:02 -0500
+	id <S267338AbSLKXXN>; Wed, 11 Dec 2002 18:23:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267331AbSLKXTB>; Wed, 11 Dec 2002 18:19:01 -0500
-Received: from 217-126-207-69.uc.nombres.ttd.es ([217.126.207.69]:20998 "EHLO
-	server01.nullzone.prv") by vger.kernel.org with ESMTP
-	id <S266114AbSLKXTB>; Wed, 11 Dec 2002 18:19:01 -0500
-Message-Id: <5.1.1.6.2.20021212002424.00cdeb00@192.168.2.131>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Thu, 12 Dec 2002 00:27:12 +0100
-To: linux-kernel@vger.kernel.org
-From: system_lists@nullzone.org
-Subject: Compilation problems with local APIC for uniprocessors in
-  linux 2.4.20-ac2
+	id <S267345AbSLKXXN>; Wed, 11 Dec 2002 18:23:13 -0500
+Received: from LIGHT-BRIGADE.MIT.EDU ([18.244.1.25]:20231 "HELO
+	light-brigade.mit.edu") by vger.kernel.org with SMTP
+	id <S267338AbSLKXXM>; Wed, 11 Dec 2002 18:23:12 -0500
+Date: Wed, 11 Dec 2002 18:30:59 -0500
+From: Gerald Britton <gbritton@alum.mit.edu>
+To: Alan Cox <alan@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: HyperThreading in recent 2.4-ac kernels
+Message-ID: <20021211183059.A19030@light-brigade.mit.edu>
+References: <200212112043.gBBKhLE28272@devserv.devel.redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200212112043.gBBKhLE28272@devserv.devel.redhat.com>; from alan@redhat.com on Wed, Dec 11, 2002 at 03:43:21PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+HyperThreading appears to work properly in vanilla 2.4.x, but fails to
+initialize the sibling CPUs in 2.4.x-ac.  The problem appears to be in
+improper indexing by physical vs. logical CPU numbers.
 
-I got:
+in smpboot.c (in smp_boot_cpus):
 
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.20-ac2/include 
--I/usr/lib/gcc-lib/i386-linux/3.2.2/include -Wall -Wstrict-prototypes 
--Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer 
--pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix 
-include -DKBUILD_BASENAME=mpparse  -c -o mpparse.o mpparse.c
-mpparse.c:75: `dest_LowestPrio' undeclared here (not in a function)
-mpparse.c: In function `smp_read_mpc':
-mpparse.c:607: `dest_Fixed' undeclared (first use in this function)
-mpparse.c:607: (Each undeclared identifier is reported only once
-mpparse.c:607: for each function it appears in.)
-mpparse.c:607: `dest_LowestPrio' undeclared (first use in this function)
-make[1]: *** [mpparse.o] Error 1
-make[1]: Leaving directory `/usr/src/linux-2.4.20-ac2/arch/i386/kernel'
-make: *** [_dir_arch/i386/kernel] Error 2
+        Dprintk("CPU present map: %lx\n", phys_cpu_present_map);
+        cpu = 1;
+        for (bit = 0; bit < NR_CPUS; bit++) {
+                ...
+                phys_apicid = raw_phys_apicid[bit];
+                ...
+                if ((cpu_to_physical_apicid(bit) == BAD_APICID) &&
+                ...
 
+in mpparse.c (in MP_processor_info):
 
-the variable is not defined or is not "inherited".
+        raw_phys_apicid[num_processors - 1] = m->mpc_apicid;
 
-Seeya
+Booting with HT and some debugging enabled yields:
+
+...
+LAPIC (acpi_id[0x0000] id[0x0] enabled[1])
+CPU 0 (0x0000) enabledProcessor #0 Pentium 4(tm) XEON(tm) APIC version 16
+LAPIC (acpi_id[0x0001] id[0x6] enabled[1])
+CPU 1 (0x0600) enabledProcessor #6 Pentium 4(tm) XEON(tm) APIC version 16
+LAPIC (acpi_id[0x0002] id[0x1] enabled[1])
+CPU 2 (0x0100) enabledProcessor #1 Pentium 4(tm) XEON(tm) APIC version 16
+LAPIC (acpi_id[0x0003] id[0x7] enabled[1])
+CPU 3 (0x0700) enabledProcessor #7 Pentium 4(tm) XEON(tm) APIC version 16
+...
+CPU present map: c3
+...
+
+The processors appear to have physical IDs 0, 1, 6, 7.  raw_phys_apicid[] gets
+filled at indexes 0-4, but when the kernel tries to boot the CPUs, it queries
+it with physical indexes 0, 1, 6, 7 and loses.  I'm not sure exactly what the
+correct way to fix this is.  (a quick hack to raw_phys_apicid does get all 4
+CPUs up and apparently working though)
+
+There appear to be other areas where holes in the physical IDs will cause
+problems (things fill indexes by a logical cpu number and index later by
+physical ID, or the other way around).
+
+Example: following booting a cpu, the check to see if it booted checks
+cpu_to_physical_apicid(bit) where bit is the physical cpu id in the map, but
+the table it's checking is indexed by logical cpu number.
+
+				-- Gerald
 

@@ -1,79 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbTIGWxx (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Sep 2003 18:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbTIGWxx
+	id S261644AbTIGXHo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Sep 2003 19:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTIGXHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Sep 2003 18:53:53 -0400
-Received: from h013.c007.snv.cp.net ([209.228.33.241]:37547 "HELO
-	c007.snv.cp.net") by vger.kernel.org with SMTP id S261595AbTIGWxv
+	Sun, 7 Sep 2003 19:07:44 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:10419 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S261644AbTIGXHn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Sep 2003 18:53:51 -0400
-X-Sent: 7 Sep 2003 22:53:15 GMT
-Message-ID: <000801c37592$b146ad60$323be90c@bananacabana>
-From: "Chris Peterson" <chris@potamus.org>
-To: "Paul Dickson" <dickson@permanentmail.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <001301c3756f$18f847d0$323be90c@bananacabana> <20030907151029.331f5fa4.dickson@permanentmail.com>
-Subject: Re: [PROBLEM] "ls -R" freezes when using gnome-terminal on linux-2.6.0-test4
-Date: Sun, 7 Sep 2003 15:52:19 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Sun, 7 Sep 2003 19:07:43 -0400
+Date: Sun, 7 Sep 2003 16:07:29 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Larry McVoy <lm@bitmover.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Brown, Len" <len.brown@intel.com>,
+       Giuliano Pochini <pochini@shiny.it>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Scaling noise
+Message-ID: <20030907230729.GA19380@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	Larry McVoy <lm@bitmover.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Brown, Len" <len.brown@intel.com>,
+	Giuliano Pochini <pochini@shiny.it>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030903181550.GR4306@holomorphy.com> <1062613931.19982.26.camel@dhcp23.swansea.linux.org.uk> <20030903194658.GC1715@holomorphy.com> <105370000.1062622139@flay> <20030903212119.GX4306@holomorphy.com> <115070000.1062624541@flay> <20030903215135.GY4306@holomorphy.com> <116940000.1062625566@flay> <20030904010653.GD5227@work.bitmover.com> <m11xusnvqc.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m11xusnvqc.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=0.5,
+	required 7, AWL, DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks, Paul. I grabbed the new gnome-terminal and vte RPMs and they seem to
-fix the problem.
+On Sun, Sep 07, 2003 at 03:18:19PM -0600, Eric W. Biederman wrote:
+> Larry McVoy <lm@bitmover.com> writes:
+> 
+> > Here's a thought.  Maybe the next kernel summit needs to have a CC cluster
+> > BOF or whatever.  I'd be happy to show up, describe what it is that I see
+> > and have you all try and poke holes in it.  If the net result was that you
+> > walked away with the same picture in your head that I have that would be
+> > cool.  Heck, I'll sponser it and buy beer and food if you like.
+> 
+> Larry CC clusters are an idiotic development target.
 
-chris
+What a nice way to start a technical conversation.
 
-
------ Original Message ----- 
-From: "Paul Dickson" <dickson@permanentmail.com>
-To: "Chris Peterson" <chris@potamus.org>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Sunday, September 07, 2003 3:10 PM
-Subject: Re: [PROBLEM] "ls -R" freezes when using gnome-terminal on
-linux-2.6.0-test4
-
-
-> On Sun, 7 Sep 2003 11:37:31 -0700, Chris Peterson wrote:
->
-> > I have discovered a regression between linux-2.4.20-8 (Redhat 9) and
-> > linux-2.6.0-test4. I have not tried any other versions of
-linux-2.6.0-testX
-> > or 2.5.x.
-> >
-> > How to reproduce the problem:
-> > 1. Running GNOME on linux-2.6.0-test4, open two gnome-terminals.
-> > 2. In the first gnome-terminal, run "ls -R /" or "ls -R /dev" (you won't
-> > have to wait as long :-).
-> > 3. In the second gnome-terminal, simply run "ls" (or just opening a
-> > gnome-terminal window will sometimes cause the same problem).
-> >
-> > Actual Results:
-> > The ls in the first gnome-terminal will usually freeze. Neither CTRL+C
-nor
-> > CTRL+Z will kill the ls process. The gnome-terminal itself is NOT
-frozen.
-> > Its window menus are still responsive.
-> >
->
-> If you reset the terminal via the menu, the terminal will unfreeze (until
-> the next freeze).
->
-> Grab the RPMs from Severn for gnome-terminal and vte.  It will slow down
-> the terminal I/O and avoid the problem.  I'm not entirely sure whether
-> this is a fix or just avoiding the problem with more computation (I'm
-> running on a 300 MHz notebook), but I can now do a "make menuconfig".
->
-> -Paul
->
->
-
+*PLONK* on two counts: you're wrong and you're rude.  Next contestant please.
+-- 
+---
+Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

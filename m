@@ -1,62 +1,108 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262569AbTFAJnj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Jun 2003 05:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262676AbTFAJnj
+	id S262737AbTFAJ5M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Jun 2003 05:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262776AbTFAJ5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Jun 2003 05:43:39 -0400
-Received: from imsantv29.netvigator.com ([210.87.253.76]:52706 "EHLO
-	imsantv29.netvigator.com") by vger.kernel.org with ESMTP
-	id S262569AbTFAJni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Jun 2003 05:43:38 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Lionel Elie Mamane <lionel@mamane.lu>, Paul Rolland <rol@as2917.net>
-Subject: Re: SCO's claims seem empty
-Date: Sun, 1 Jun 2003 17:56:37 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <20030531230631.GA18303@localhost.localdomain> <012701c32813$57e60d50$2101a8c0@witbe> <20030601092233.GA28339@tofu.home.mamane.lu>
-In-Reply-To: <20030601092233.GA28339@tofu.home.mamane.lu>
-X-OS: GNU/Linux 2.5.70
+	Sun, 1 Jun 2003 05:57:11 -0400
+Received: from [209.123.232.253] ([209.123.232.253]:4999 "EHLO zero.voxel.net")
+	by vger.kernel.org with ESMTP id S262737AbTFAJ5J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Jun 2003 05:57:09 -0400
+Message-ID: <14959.24.195.0.157.1054461926.squirrel@zero.voxel.net>
+Date: Sun, 1 Jun 2003 06:05:26 -0400 (EDT)
+Subject: [PATCH] 2.5.70-mm3: 64bit kdev_t explicitly-sized types
+From: "Andres Salomon" <dilinger@voxel.net>
+To: <akpm@digeo.com>
+X-Priority: 3
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>, <Andries.Brouwer@cwi.nl>
+X-Mailer: SquirrelMail (version 1.2.10)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306011756.38586.mflt1@micrologica.com.hk>
+Content-Type: multipart/mixed; boundary="----=_20030601060526_57800"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 June 2003 17:22, Lionel Elie Mamane wrote:
-> On Sun, Jun 01, 2003 at 09:56:42AM +0200, Paul Rolland wrote:
-> > It seems they removed everything related to this case from the
-> > Press Release page.
-> >
-> > Anyone knows why ?
->
-> Might be related to
-> http://www.linuxtag.org/2003/de/press/releases.xsp?id=3
+------=_20030601060526_57800
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 
-This page announces that LinuxTag sent a  notice to SCO germany
-demanding from SCO to ceise claiming linux infringes on SCO rights 
-
----
-
-> http://www.heise.de/newsticker/data/hps-31.05.03-003/
-
-Announces temporary restraining order against SCO germany
-http://lwn.net/Articles/34351/
-
----
-
-More links:
-
-http://lwn.net/Articles/33975/
-http://lwn.net/Articles/33976/
-
----
+This patch changes some of the core stuff touched by
+64-bit-dev_t-kdev_t.patch (the driver stuff is left alone) to use
+explicitly sized types (ie, __u64).  The only really controvertial part of
+it is the inclusion of asm/types.h in asm/posix_types.h; since asm/types.h
+only (on most archs) defines the standard {u,s}{8,16,32,64} types and
+umode_t, I don't think namespace pollution will be much of an issue...
 
 
-Regards
-Michael
+------=_20030601060526_57800
+Content-Type: application/octet-stream; name="64-bit-explicit-types.patch"
+Content-Disposition: attachment; filename="64-bit-explicit-types.patch"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAteCB7YXJjaH0gLXVyTiBsaW51eC1wYXRjaC0xL2luY2x1ZGUvYXNtLWkzODYvcG9zaXhf
+dHlwZXMuaCBsaW51eC1wYXRjaC0yL2luY2x1ZGUvYXNtLWkzODYvcG9zaXhfdHlwZXMuaAotLS0g
+bGludXgtcGF0Y2gtMS9pbmNsdWRlL2FzbS1pMzg2L3Bvc2l4X3R5cGVzLmgJMjAwMy0wNi0wMSAw
+NDozODozOS4wMDAwMDAwMDAgLTA0MDAKKysrIGxpbnV4LXBhdGNoLTIvaW5jbHVkZS9hc20taTM4
+Ni9wb3NpeF90eXBlcy5oCTIwMDMtMDYtMDEgMDQ6NDM6MTAuMDAwMDAwMDAwIC0wNDAwCkBAIC0x
+LDE1ICsxLDE1IEBACiAjaWZuZGVmIF9fQVJDSF9JMzg2X1BPU0lYX1RZUEVTX0gKICNkZWZpbmUg
+X19BUkNIX0kzODZfUE9TSVhfVFlQRVNfSAogCisjaW5jbHVkZSA8YXNtL3R5cGVzLmg+CisKIC8q
+CiAgKiBUaGlzIGZpbGUgaXMgZ2VuZXJhbGx5IHVzZWQgYnkgdXNlci1sZXZlbCBzb2Z0d2FyZSwg
+c28geW91IG5lZWQgdG8KICAqIGJlIGEgbGl0dGxlIGNhcmVmdWwgYWJvdXQgbmFtZXNwYWNlIHBv
+bGx1dGlvbiBldGMuICBBbHNvLCB3ZSBjYW5ub3QKICAqIGFzc3VtZSBHQ0MgaXMgYmVpbmcgdXNl
+ZC4KICAqLwogCi0jaWZkZWYgX19HTlVDX18KLXR5cGVkZWYgdW5zaWduZWQgbG9uZyBsb25nCV9f
+a2VybmVsX2Rldl90OwotI2VuZGlmCit0eXBlZGVmIF9fdTY0CQlfX2tlcm5lbF9kZXZfdDsKIHR5
+cGVkZWYgdW5zaWduZWQgbG9uZwlfX2tlcm5lbF9pbm9fdDsKIHR5cGVkZWYgdW5zaWduZWQgc2hv
+cnQJX19rZXJuZWxfbW9kZV90OwogdHlwZWRlZiB1bnNpZ25lZCBzaG9ydAlfX2tlcm5lbF9ubGlu
+a190OwpkaWZmIC14IHthcmNofSAtdXJOIGxpbnV4LXBhdGNoLTEvaW5jbHVkZS9saW51eC9rZGV2
+X3QuaCBsaW51eC1wYXRjaC0yL2luY2x1ZGUvbGludXgva2Rldl90LmgKLS0tIGxpbnV4LXBhdGNo
+LTEvaW5jbHVkZS9saW51eC9rZGV2X3QuaAkyMDAzLTA2LTAxIDA0OjM4OjU4LjAwMDAwMDAwMCAt
+MDQwMAorKysgbGludXgtcGF0Y2gtMi9pbmNsdWRlL2xpbnV4L2tkZXZfdC5oCTIwMDMtMDYtMDEg
+MDQ6NDM6MTkuMDAwMDAwMDAwIC0wNDAwCkBAIC01LDEwICs1LDEwIEBACiAjaW5jbHVkZSA8bGlu
+dXgvdHlwZXMuaD4gICAgICAgLyogZm9yIGRldl90ICovCiAKIHR5cGVkZWYgc3RydWN0IHsKLQl1
+bnNpZ25lZCBsb25nIGxvbmcgdmFsdWU7CisJX191NjQgdmFsdWU7CiB9IGtkZXZfdDsKIAotI2Rl
+ZmluZSBfX21rZGV2KG1ham9yLCBtaW5vcikJKCgodW5zaWduZWQgbG9uZyBsb25nKShtYWpvcikg
+PDwgMzIpICsgKG1pbm9yKSkKKyNkZWZpbmUgX19ta2RldihtYWpvciwgbWlub3IpCSgoKF9fdTY0
+KShtYWpvcikgPDwgMzIpICsgKG1pbm9yKSkKIAogI2RlZmluZSBta19rZGV2KG1ham9yLCBtaW5v
+cikJKChrZGV2X3QpIHsgX19ta2RldihtYWpvcixtaW5vcikgfSApCiAKQEAgLTE3LDEyICsxNywx
+MiBAQAogICogaW50ZXJuYWwgZXF1YWxpdHkgY29tcGFyaXNvbnMgYW5kIGZvciB0aGluZ3MKICAq
+IGxpa2UgTkZTIGZpbGVoYW5kbGUgY29udmVyc2lvbi4KICAqLwotc3RhdGljIGlubGluZSB1bnNp
+Z25lZCBsb25nIGxvbmcga2Rldl92YWwoa2Rldl90IGRldikKK3N0YXRpYyBpbmxpbmUgX191NjQg
+a2Rldl92YWwoa2Rldl90IGRldikKIHsKIAlyZXR1cm4gZGV2LnZhbHVlOwogfQogCi1zdGF0aWMg
+aW5saW5lIGtkZXZfdCB2YWxfdG9fa2Rldih1bnNpZ25lZCBsb25nIGxvbmcgdmFsKQorc3RhdGlj
+IGlubGluZSBrZGV2X3QgdmFsX3RvX2tkZXYoX191NjQgdmFsKQogewogCWtkZXZfdCBkZXY7CiAJ
+ZGV2LnZhbHVlID0gdmFsOwpAQCAtMzksOCArMzksOCBAQAogCiAjZGVmaW5lIGtkZXZfbm9uZShk
+MSkJKCFrZGV2X3ZhbChkMSkpCiAKLSNkZWZpbmUgbWlub3IoZGV2KQkodW5zaWduZWQgaW50KSgo
+ZGV2KS52YWx1ZSAmIDB4ZmZmZmZmZmYpCi0jZGVmaW5lIG1ham9yKGRldikJKHVuc2lnbmVkIGlu
+dCkoKGRldikudmFsdWUgPj4gMzIpCisjZGVmaW5lIG1pbm9yKGRldikJKF9fdTMyKSAoKGRldiku
+dmFsdWUgJiAweGZmZmZmZmZmKQorI2RlZmluZSBtYWpvcihkZXYpCShfX3UzMikgKChkZXYpLnZh
+bHVlID4+IDMyKQogCiAvKiBUaGVzZSBhcmUgZm9yIHVzZXItbGV2ZWwgImRldl90IiAqLwogLyog
+R29pbmcgYmFjayBhbmQgZm9ydGggYmV0d2VlbiBkZXYgYW5kIChtYSxtaSkgaXMgb25lLXRvLW9u
+ZQpAQCAtNjksMTcgKzY5LDE3IEBACiB9CiAjZWxzZQogLyogdWdseSBtYWNybyB2ZXJzaW9ucyAq
+LwotI2RlZmluZSBNQUpPUihkZXYpICgodW5zaWduZWQgaW50KSh7IGRldl90IF9fZGV2ID0gZGV2
+OyBcCisjZGVmaW5lIE1BSk9SKGRldikgKChfX3UzMikoeyBkZXZfdCBfX2RldiA9IGRldjsgXAog
+ICAgKF9fZGV2ICYgfjB4ZmZmZmZmZmZVTEwpID8gKF9fZGV2ID4+IDMyKSA6IFwKICAgIChfX2Rl
+diAmIH4weGZmZmYpID8gKF9fZGV2ID4+IDE2KSA6IChfX2RldiA+PiA4KTsgfSkpCi0jZGVmaW5l
+IE1JTk9SKGRldikgKCh1bnNpZ25lZCBpbnQpKHsgZGV2X3QgX19kZXYgPSBkZXY7IFwKKyNkZWZp
+bmUgTUlOT1IoZGV2KSAoKF9fdTMyKSh7IGRldl90IF9fZGV2ID0gZGV2OyBcCiAgICAoX19kZXYg
+JiB+MHhmZmZmZmZmZlVMTCkgPyAoX19kZXYgJiAweGZmZmZmZmZmKSA6IFwKICAgIChfX2RldiAm
+IH4weGZmZmYpID8gKF9fZGV2ICYgMHhmZmZmKSA6IChfX2RldiAmIDB4ZmYpOyB9KSkKICNkZWZp
+bmUgY29uc3RhbnRfTUtERVYobWEsIG1pKSBcCiAgICAoKCgobWEpfChtaSkpICYgfjB4ZmZmZikg
+PyAoKG1hKSA8PCAzMikgfCAobWkpIDogXAogICAgICgoKG1hKXwobWkpKSAmIH4weGZmKSA/ICgo
+bWEpIDw8IDE2KSB8IChtaSkgOiAoKG1hKSA8PCA4KSB8IChtaSkpCiAjZGVmaW5lIE1LREVWKG1h
+am9yLCBtaW5vcikgKHsgXAotICAgdW5zaWduZWQgaW50IF9fbWEgPSBtYWpvciwgX19taSA9IG1p
+bm9yLCBfX2JvdGggPSAoX19tYSB8IF9fbWkpOyBcCisgICBfX3UzMiBfX21hID0gbWFqb3IsIF9f
+bWkgPSBtaW5vciwgX19ib3RoID0gKF9fbWEgfCBfX21pKTsgXAogICAgKChzaXplb2YoZGV2X3Qp
+ID4gNCAmJiAoX19ib3RoICYgfjB4ZmZmZikpID8gKCgoZGV2X3QpIF9fbWEpIDw8IDMyKSA6IFwK
+ICAgICAoX19ib3RoICYgfjB4ZmYpID8gKCgoZGV2X3QpIF9fbWEpIDw8IDE2KSA6ICgoKGRldl90
+KSBfX21hKSA8PCA4KSBcCiAgICApIHwgX19taTsgfSkKQEAgLTkxLDE1ICs5MSwxNSBAQAogCiBz
+dGF0aWMgaW5saW5lIGRldl90IGtkZXZfdF90b19ucihrZGV2X3QgZGV2KQogewotCXVuc2lnbmVk
+IGludCBtYSA9IG1ham9yKGRldik7Ci0JdW5zaWduZWQgaW50IG1pID0gbWlub3IoZGV2KTsKKwlf
+X3UzMiBtYSA9IG1ham9yKGRldik7CisJX191MzIgbWkgPSBtaW5vcihkZXYpOwogCXJldHVybiBN
+S0RFVihtYSwgbWkpOwogfQogCiBzdGF0aWMgaW5saW5lIGtkZXZfdCB0b19rZGV2X3QoZGV2X3Qg
+ZGV2KQogewotCXVuc2lnbmVkIGludCBtYSA9IE1BSk9SKGRldik7Ci0JdW5zaWduZWQgaW50IG1p
+ID0gTUlOT1IoZGV2KTsKKwlfX3UzMiBtYSA9IE1BSk9SKGRldik7CisJX191MzIgbWkgPSBNSU5P
+UihkZXYpOwogCXJldHVybiBta19rZGV2KG1hLCBtaSk7CiB9CiAK
+
+------=_20030601060526_57800--
 

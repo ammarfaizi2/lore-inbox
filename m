@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312773AbSCZWpJ>; Tue, 26 Mar 2002 17:45:09 -0500
+	id <S312783AbSCZW5F>; Tue, 26 Mar 2002 17:57:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312783AbSCZWpA>; Tue, 26 Mar 2002 17:45:00 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:18703 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S312773AbSCZWoq>; Tue, 26 Mar 2002 17:44:46 -0500
-Date: Tue, 26 Mar 2002 17:42:28 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: tomas szepe <kala@pinerecords.com>
-cc: davem@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18 SPARC SMP oops
-In-Reply-To: <Pine.LNX.4.44.0203262128370.417-100000@louise.pinerecords.com>
-Message-ID: <Pine.LNX.3.96.1020326173956.9836A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S312798AbSCZW4z>; Tue, 26 Mar 2002 17:56:55 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:50336 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S312783AbSCZW4q>;
+	Tue, 26 Mar 2002 17:56:46 -0500
+Date: Tue, 26 Mar 2002 14:52:02 -0800 (PST)
+Message-Id: <20020326.145202.122762468.davem@redhat.com>
+To: maxk@qualcomm.com
+Cc: rml@tech9.net, fisaksen@bewan.com, mitch@sfgoth.com,
+        linux-kernel@vger.kernel.org, marcelo@conectiva.com.br,
+        alan@redhat.com, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] ATM locking fix.
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <5.1.0.14.2.20020307141124.084dbde8@mail1.qualcomm.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Mar 2002, tomas szepe wrote:
 
-> Hi David and everybody else on lkml,
-> 
-> 
-> The following oops is more-or-less-deterministically reproducible
-> on my dual-processor SPARCstation 10 with 160MB RAM. It tends to send
-> the system down under heavy load caused by either sendmail/procmail
-> or apache. I first came across the bug at around 2.4.17, though it's
-> probably been lurking in the kernel much longer. I've gone through
-> quite a bit of trouble attempting to get the oops barf at me in 2.2.x
-> in case it's my hw config that's behind the whole problem, but I haven't
-> run into any breakdowns, 2.2.21-rc2 included.
+I'm applying this patch with some minor cleanups of my own.
 
-Assuming that you can handle your load, at least briefly, with a single
-CPU, have you tried booting with 'nosmp' on this machine? A serious test
-would build without SMP to get the whole locking stuff to go away, but
-this is quick and dirty.
+I went and then checked around for atm_find_dev() users to
+make sure they held the atm_dev_lock, and I discovered several pieces
+of "hidden treasure".
 
-I'm convinced that there are evils still lurking in SMP after all these
-years.
+Firstly, have a look at net/atm/common.c:atm_ioctl() and how it
+accesses userspace while holding atm_dev_lock.  That is just the
+tip of the iceberg.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+ATM sorely needs a maintainer.  Any of the kernel janitors want to
+learn how ATM works? :-))))

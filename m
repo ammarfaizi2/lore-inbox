@@ -1,52 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263045AbUJ1Shd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbUJ1Sit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263045AbUJ1Shd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 14:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262891AbUJ1SeR
+	id S262271AbUJ1Sit (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 14:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262226AbUJ1Sil
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 14:34:17 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:5568 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S262892AbUJ1Sct
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 14:32:49 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.9bk6 msdos fs OOPS
-Date: Thu, 28 Oct 2004 14:32:47 -0400
-User-Agent: KMail/1.7
-Cc: Nigel Kukard <nkukard@lbsd.net>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-References: <41809921.10200@lbsd.net> <87oeingerg.fsf@devron.myhome.or.jp> <41810F3F.6070809@lbsd.net>
-In-Reply-To: <41810F3F.6070809@lbsd.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Thu, 28 Oct 2004 14:38:41 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:1956 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S263033AbUJ1Sg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 14:36:58 -0400
+Subject: Re: My thoughts on the "new development model"
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       "michael@optusnet.com.au" <michael@optusnet.com.au>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>,
+       "'Bill Davidsen'" <davidsen@tmr.com>, Massimo Cetra <mcetra@navynet.it>,
+       Ed Tomlinson <edt@aei.ca>,
+       "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
+       John Richard Moser <nigelenki@comcast.net>
+In-Reply-To: <20041028150329.GK12934@holomorphy.com>
+References: <200410280907_MC3-1-8D5A-FF57@compuserve.com>
+	 <20041028150329.GK12934@holomorphy.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410281432.48009.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [141.153.91.102] at Thu, 28 Oct 2004 13:32:48 -0500
+Message-Id: <1098984769.9551.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 28 Oct 2004 18:33:04 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 11:24, Nigel Kukard wrote:
->could you shoot me the patch when you done plz  :-)
->
->Glad i could help!
->
->
->-Nigel Kukard
+On Iau, 2004-10-28 at 16:03, William Lee Irwin III wrote:
+> 99.99% of users use one arch, i386.
 
-Its in the first message of this thread, Nigel.
+x86_64 has had more of an impact than that.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.28% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+> 99.99% of users use one disk driver, IDE.
+
+Floppy, usb-storage.
+
+There is a very sharp peak if you look at actual statistical data.
+

@@ -1,92 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVBBEbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVBBEms@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261260AbVBBEbT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 23:31:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVBBEbT
+	id S261267AbVBBEms (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 23:42:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVBBEms
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 23:31:19 -0500
-Received: from zlynx.org ([199.45.143.209]:61192 "EHLO 199.45.143.209")
-	by vger.kernel.org with ESMTP id S261260AbVBBEbP (ORCPT
+	Tue, 1 Feb 2005 23:42:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:48587 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261267AbVBBEmg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 23:31:15 -0500
-Subject: Re: [PATCH 2/8] lib/sort: Replace qsort in XFS
-From: Zan Lynx <zlynx@acm.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42000122.90104@osdl.org>
-References: <6.416337461@selenic.com> <7.416337461@selenic.com>
-	 <5.416337461@selenic.com> <6.416337461@selenic.com>
-	 <3.416337461@selenic.com> <4.416337461@selenic.com>
-	 <2.416337461@selenic.com> <3.416337461@selenic.com>
-	 <20050201222915.GA9285@taniwha.stupidest.org>  <42000122.90104@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Sq+CYX+x/qdWr/psdw8r"
-Date: Tue, 01 Feb 2005 21:31:13 -0700
-Message-Id: <1107318673.15928.68.camel@localhost>
+	Tue, 1 Feb 2005 23:42:36 -0500
+Date: Tue, 1 Feb 2005 23:29:24 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Zhonglin Zhang <zhonglinzh@mobilesoft.com.cn>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc2-mm2 modules can't be loaded correctly!
+Message-Id: <20050201232924.0610dc96.akpm@osdl.org>
+In-Reply-To: <1107309228.677.5.camel@milo>
+References: <1107309228.677.5.camel@milo>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Zhonglin Zhang <zhonglinzh@mobilesoft.com.cn> wrote:
+>
+> Hi, Andrew 
+> 
+>     Could you please check it ? I have worked out my little patch to fix
+> it. But not any feedback.  Is it ok in your machine which is not-SMP?
+> 
 
---=-Sq+CYX+x/qdWr/psdw8r
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, 2005-02-01 at 14:22 -0800, Randy.Dunlap wrote:
-> Chris Wedgwood wrote:
-> > On Mon, Jan 31, 2005 at 01:34:59AM -0600, Matt Mackall wrote:
-> >=20
-> >=20
-> >>+#define qsort xfs_sort
-> >>+static inline void xfs_sort(void *a, size_t n, size_t s,
-> >>+			int (*cmp)(const void *,const void *))
-> >>+{
-> >>+	sort(a, n, s, cmp, 0);
-> >>+}
-> >>+
-> >=20
-> >=20
-> > why not just:
-> >=20
-> > #define qsort(a, n, s, cmp)	sort(a, n, s, cmp, NULL)
-> >=20
-> >=20
-> >=20
-> > On Mon, Jan 31, 2005 at 01:35:00AM -0600, Matt Mackall wrote:
-> >=20
-> >=20
-> >>Switch NFS ACLs to lib/sort
-> >=20
-> >=20
-> >>+	sort(acl->a_entries, acl->a_count, sizeof(struct posix_acl_entry),
-> >>+	     cmp_acl_entry, 0);
-> >=20
-> >=20
-> > There was a thread about stlye and I though the concensurs for null
-> > pointers weas to use NULL and not 0?
->=20
-> Yes, otherwise sparse complains... and maybe Linus  :)
-
-And you get in the habit of using 0 instead of NULL and before you know
-it you've used it in a variable argument list for a GTK library call on
-an AMD64 system and corrupted the stack. :-)
-
-(The compiler can't convert 0 to a pointer if it doesn't know that it's
-supposed to be one.  Variable argument lists are evil that way.)
-
---=20
-Zan Lynx <zlynx@acm.org>
-
---=-Sq+CYX+x/qdWr/psdw8r
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQBCAFeRG8fHaOLTWwgRAld/AJwJsgr12hU6ahhdknqjK6S3z29YSgCeJyBY
-m+/xOH1oTn7lwjqeS38VTjg=
-=oklz
------END PGP SIGNATURE-----
-
---=-Sq+CYX+x/qdWr/psdw8r--
+--- 25/include/linux/stop_machine.h~fix-kallsyms-insmod-rmmod-race-fix-fix-fix	2005-01-29 16:17:47.936137064 -0800
++++ 25-akpm/include/linux/stop_machine.h	2005-01-29 16:18:09.493859792 -0800
+@@ -57,7 +57,7 @@ static inline int stop_machine_run(int (
+ static inline int stop_machine_run(int (*fn)(void *), void *data,
+ 				   unsigned int cpu)
+ {
+-	return 0;
++	return fn(data);
+ }
+ 
+ #endif	/* CONFIG_STOP_MACHINE */
+_
 

@@ -1,30 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbUDPBMj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 21:12:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUDPBMi
+	id S261887AbUDPBPq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 21:15:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUDPBPq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 21:12:38 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:21956 "EHLO
+	Thu, 15 Apr 2004 21:15:46 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:36548 "EHLO
 	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S261752AbUDPBMY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 21:12:24 -0400
-Date: Thu, 15 Apr 2004 21:12:45 -0400 (EDT)
+	id S262077AbUDPBPD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 21:15:03 -0400
+Date: Thu, 15 Apr 2004 21:15:24 -0400 (EDT)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 To: Linux Kernel <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][2.6] remove amd7(saucy)_tco
-Message-ID: <Pine.LNX.4.58.0404152109180.18930@montezuma.fsmlabs.com>
+Subject: Re: [PATCH][2.6] remove amd7(saucy)_tco
+In-Reply-To: <Pine.LNX.4.58.0404152109180.18930@montezuma.fsmlabs.com>
+Message-ID: <Pine.LNX.4.58.0404152114190.18930@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0404152109180.18930@montezuma.fsmlabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We've had trouble with this driver, it appears to work but the hardware
-never does the final reboot. I have yet to come across someone with a
-board which works and don't have personal access to one. So how about
-scrapping the whole thing;
+On Thu, 15 Apr 2004, Zwane Mwaikambo wrote:
 
+> We've had trouble with this driver, it appears to work but the hardware
+> never does the final reboot. I have yet to come across someone with a
+> board which works and don't have personal access to one. So how about
+> scrapping the whole thing;
+
+Need more sleep...
+
+Index: linux-2.6.6-rc1/drivers/char/watchdog/Kconfig
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.6-rc1/drivers/char/watchdog/Kconfig,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Kconfig
+--- linux-2.6.6-rc1/drivers/char/watchdog/Kconfig	15 Apr 2004 19:33:05 -0000	1.1.1.1
++++ linux-2.6.6-rc1/drivers/char/watchdog/Kconfig	16 Apr 2004 01:13:34 -0000
+@@ -143,19 +143,6 @@ config ALIM7101_WDT
+
+ 	  Most people will say N.
+
+-config AMD7XX_TCO
+-	tristate "AMD 766/768 TCO Timer/Watchdog"
+-	depends on WATCHDOG && X86 && PCI
+-	help
+-	  This is the driver for the hardware watchdog built in to the
+-	  AMD 766/768 chipsets.
+-	  This watchdog simply watches your kernel to make sure it doesn't
+-	  freeze, and if it does, it reboots your computer after a certain
+-	  amount of time.
+-
+-	  You can compile this driver directly into the kernel, or use
+-	  it as a module.  The module will be called amd7xx_tco.
+-
+ config SC520_WDT
+ 	tristate "AMD Elan SC520 processor Watchdog"
+ 	depends on WATCHDOG && X86
+Index: linux-2.6.6-rc1/drivers/char/watchdog/Makefile
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.6-rc1/drivers/char/watchdog/Makefile,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Makefile
+--- linux-2.6.6-rc1/drivers/char/watchdog/Makefile	15 Apr 2004 19:33:05 -0000	1.1.1.1
++++ linux-2.6.6-rc1/drivers/char/watchdog/Makefile	16 Apr 2004 01:13:43 -0000
+@@ -32,7 +32,6 @@ obj-$(CONFIG_ALIM1535_WDT) += alim1535_w
+ obj-$(CONFIG_SC1200_WDT) += sc1200wdt.o
+ obj-$(CONFIG_WAFER_WDT) += wafer5823wdt.o
+ obj-$(CONFIG_CPU5_WDT) += cpu5wdt.o
+-obj-$(CONFIG_AMD7XX_TCO) += amd7xx_tco.o
+ obj-$(CONFIG_INDYDOG) += indydog.o
+ obj-$(CONFIG_PCIPCWATCHDOG) += pcwd_pci.o
+ obj-$(CONFIG_USBPCWATCHDOG) += pcwd_usb.o
 Index: linux-2.6.6-rc1/drivers/char/watchdog/amd7xx_tco.c
 ===================================================================
 RCS file: linux-2.6.6-rc1/drivers/char/watchdog/amd7xx_tco.c

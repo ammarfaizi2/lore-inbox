@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268246AbTB1XSM>; Fri, 28 Feb 2003 18:18:12 -0500
+	id <S264940AbTB1XfB>; Fri, 28 Feb 2003 18:35:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268266AbTB1XSL>; Fri, 28 Feb 2003 18:18:11 -0500
-Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:61069 "EHLO
+	id <S265589AbTB1XfA>; Fri, 28 Feb 2003 18:35:00 -0500
+Received: from wildsau.idv.uni.linz.at ([213.157.128.253]:63373 "EHLO
 	wildsau.idv.uni.linz.at") by vger.kernel.org with ESMTP
-	id <S268246AbTB1XRZ>; Fri, 28 Feb 2003 18:17:25 -0500
+	id <S264940AbTB1Xe7>; Fri, 28 Feb 2003 18:34:59 -0500
 From: "H.Rosmanith (Kernel Mailing List)" <kernel@wildsau.idv.uni.linz.at>
-Message-Id: <200302282326.h1SNQ0BT030423@wildsau.idv.uni.linz.at>
+Message-Id: <200302282343.h1SNhiQN030734@wildsau.idv.uni.linz.at>
 Subject: Re: emm386 hangs when booting from linux
-In-Reply-To: <Pine.LNX.3.95.1030228174739.13518A-100000@chaos> from "Richard B. Johnson" at "Feb 28, 3 05:54:45 pm"
-To: root@chaos.analogic.com
-Date: Sat, 1 Mar 2003 00:26:00 +0100 (MET)
-Cc: kernel@wildsau.idv.uni.linz.at, linux-kernel@vger.kernel.org,
-       herp@wildsau.idv.uni.linz.at
+In-Reply-To: <3E5FF026.F892B2F7@daimi.au.dk> from Kasper Dupont at "Mar 1, 3 00:26:30 am"
+To: kasperd@daimi.au.dk (Kasper Dupont)
+Date: Sat, 1 Mar 2003 00:43:44 +0100 (MET)
+Cc: root@chaos.analogic.com, kernel@wildsau.idv.uni.linz.at,
+       linux-kernel@vger.kernel.org, herp@wildsau.idv.uni.linz.at
 X-Mailer: ELM [version 2.4ME+ PL37 (25)]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -21,59 +21,42 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 28 Feb 2003, H.Rosmanith (Kernel Mailing List) wrote:
-> 
-> > 
-> > hello,
-> > 
-> > for some reason, I am using the "switch to 16 bit realmode" function
-> > present in the linux kernel to execute various 16bit code. One thing
-> > that I am doing is to read the mbr off a harddisk to 0x7c00 and then
-> > jump to there. This allows to e.g. "quickboot dos" from linux without
-> > having to go through bios startup.
-> > 
-> > I got this working with *one* exception: as soon as I load emm386
-> > in config.sys, the system hangs. It doesn't hang completely, e.g.
-> > the num-lock led changes light when pressing num-lock, and ctrlaltdel
-> > reboots the system. When I "REM"ark the emm386.exe, then dos will
-> > boot and display a "C:\>" prompt.
-> 
-> So you are trying a "home-brew" DOS-EMU which already exists and works
-> well.
+> Booting DOS from Linux is not as easy as booting Linux from
+> DOS. DOS relies much more on the BIOS, and the state of the
+> computer as it is setup by the BIOS. What needs to be right
+> for DOS to work is the contents of the BIOS data areas of
+> RAM, and the interrupt vector table, and state of some of
+> the hardware.
 
-hm?
-I am trying to boot "real" DOS from linux.
+as far as I know, linux does not touch the BIOS data areas,
+and "machine_real_start" sets the IDT to 0,3ff again (the
+contents of the real-mode IDT are not modified by linux).
+the only piece of hardware neccessary to reset was the interrupt
+controller, in particular, the IRQ mapping.
 
-> emm386.exe attempts to go to protected mode. That's how it works.
+> It is surprising it worked that well. You can't even boot
+> DOS from DOS, DOS will have changed interrupt vectors which
+> would cause a second DOS to fail. If Linux is booted from
+> LOADLIN there will already be messed enough with the
 
-and when going into protected mode, it crashes. I wonder why. I can
-start DOS4GW, which does not crash, and I think that DOS4GW too works
-with the protected mode features of the CPU.
+interesting that you mention loadlin. when I run loadlin in a
+DOS which I booted from linux, (boot linux->boot dos->boot linux),
+the 2nd linux boot (by loadlin) will hang with the following message:
 
-> That's how it's able to make "high-RAM" appear in "low-RAM" windows
-> for the emm386 specification. Of course it will fail when you
-> are in virtual 386 mode. The real DOS-EMU emulates the extended/expanded
+C:\LOADLIN> loadlin
+[...]
 
-after executing "machine_real_start", the system is in 16 bit real mode,
-not in vm86 mode.
+Your current DOS/CPU configuration is:
+  load buffer size: 0x[*HANGING*]
 
-> memory specification so you don't need this in 'config.sys'. I sometimes
-> boot real DOS usinf DOS-EMU and it works fine. You need to configure
-> it so it will look at, say config.emu, instead of the DOS config.sys.
-> That way, you can keep boot-specific configuration files. 
+This looks promising. I think I gonna download loadlin source now :-)
 
-the problem is not only with DOS. when booting M$-Windows (w2k), the
-boot-process will hang as soon as w2k tries to enter protected mode.
+On the other hand, when instead of loadling MBR and executing it, I
+do a far jmp to 0xf000:0xfff0 from "machine_real_start", normal
+boot-procedure is exected without haning anywhere. So I think that the
+bios-setup is doing some kind of initialisation/modification to whatver(!?)
+which the "machine_real_start" function does not.
 
-starting loadlin will hang the system too, as I just found out. hm,
-well, at least it's easier looking into loadlin than looking into
-emm386 !
-
-
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-> Why is the government concerned about the lunatic fringe? Think about it.
-> 
-> 
+thanks,
+herbert rosmanith
 

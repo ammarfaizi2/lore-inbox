@@ -1,59 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129227AbQKQWco>; Fri, 17 Nov 2000 17:32:44 -0500
+	id <S129189AbQKQWkz>; Fri, 17 Nov 2000 17:40:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129772AbQKQWcf>; Fri, 17 Nov 2000 17:32:35 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:40200 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S129227AbQKQWc0>; Fri, 17 Nov 2000 17:32:26 -0500
+	id <S129411AbQKQWkp>; Fri, 17 Nov 2000 17:40:45 -0500
+Received: from hermes.mixx.net ([212.84.196.2]:11780 "HELO hermes.mixx.net")
+	by vger.kernel.org with SMTP id <S129189AbQKQWka>;
+	Fri, 17 Nov 2000 17:40:30 -0500
+From: Daniel Phillips <news-innominate.list.linux.kernel@innominate.de>
+Reply-To: Daniel Phillips <phillips@innominate.de>
+X-Newsgroups: innominate.list.linux.kernel
+Subject: Re: Advanced Linux Kernel/Enterprise Linux Kernel
+Date: Fri, 17 Nov 2000 23:10:43 +0100
+Organization: innominate
+Distribution: local
+Message-ID: <news2mail-3A15ACE3.5BED2CA3@innominate.de>
+In-Reply-To: <200011141459.IAA413471@tomcat.admin.navo.hpc.mil> <3A117311.8DC02909@holly-springs.nc.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Trace: mate.bln.innominate.de 974499029 3991 10.0.0.90 (17 Nov 2000 22:10:29 GMT)
+X-Complaints-To: news@innominate.de
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+X-Mailer: Mozilla 4.72 [de] (X11; U; Linux 2.4.0-test10 i586)
+X-Accept-Language: en
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: VGA PCI IO port reservations
-Date: 17 Nov 2000 14:02:00 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <8v49so$tlt$1@cesium.transmeta.com>
-In-Reply-To: <200011171646.QAA01224@raistlin.arm.linux.org.uk> <Pine.LNX.4.10.10011172134510.27177-100000@sphinx.mythic-beasts.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2000 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.10.10011172134510.27177-100000@sphinx.mythic-beasts.com>
-By author:    Matthew Kirkwood <matthew@hairy.beasts.org>
-In newsgroup: linux.dev.kernel
->
-> On Fri, 17 Nov 2000, Russell King wrote:
+Michael Rothwell wrote:
+> 4) A high reliability internal file system.
 > 
-> > Therefore, it should be reserved independent of whether we have the
-> > driver loaded/in kernel or not.
-> 
-> Is this not an argument for a more flexible resource allocation
-> API?  One offering both:
-> 
->    res = allocate_resource(restype, dev, RES_ALLOC_UNUSED, region);
-> 
-> and
-> 
->    res = allocate_resource(restype, dev_ RES_ALLOC_HW, region);
-> 
+> Ext2 + bdflush + kupdated? Not likely.  To quote the Be Filesystems
+> book, Ext2 throws safety to the wind to achieve speed. This also ties
+> into Linux' convoluted VM system, and is shot in the foot by NFS. We
+> would need minimally a journaled filesystem and a clean VM design,
+> probably with a unified cache (no separate buffer, directory entry and
+> page caches). The Tux2 Phase Trees look to be a good step in the
+> direction as well, in terms of FS reliability. The filesystem would have
+> to do checksums on every block.
 
-One way to do this is to treat PCI IO and ISA IO as two separate
-address spaces.  The PCI IO address space is a 14-bit address space
-(bits 9:8 are always zero) ranging from 0x1000 to 0xFCFF.  ISA IO is a
-10-bit space (bits 15:10 are available for the card to use) ranging
-from 0x100 to 0x3FF.
+Actually, I was planning on doing on putting in a hack to do something
+like that: calculate a checksum after every buffer data update and check
+it after write completion, to make sure nothing scribbled in the buffer
+in the interim.  This would also pick up some bad memory problems.
 
-VGA cards may be PCI and AGP, but still have allocations in the ISA
-range.
+> Some type of mirroring/clustering would
+> be good. And the ability to grow filesystems online, and replace disks
+> online, would be key. If your disks are getting old, you may want to
+> pre-emptively replace them with faster, newer, larger ones with more
+> MTBF left.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+This is all coming, but as you say, it's not quite here yet.
+
+--
+Daniel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

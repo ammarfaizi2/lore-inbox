@@ -1,52 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVCTGh1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVCTGkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbVCTGh1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 01:37:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVCTGh1
+	id S262028AbVCTGkE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 01:40:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVCTGjj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 01:37:27 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:733 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261564AbVCTGhW (ORCPT
+	Sun, 20 Mar 2005 01:39:39 -0500
+Received: from fire.osdl.org ([65.172.181.4]:8667 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262028AbVCTGjR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 01:37:22 -0500
-Message-ID: <423D19FE.7020902@colorfullife.com>
-Date: Sun, 20 Mar 2005 07:36:46 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20041020
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Paul E. McKenney" <paulmck@us.ibm.com>, dipankar@in.ibm.com,
-       shemminger@osdl.org, akpm@osdl.org, torvalds@osdl.org,
-       rusty@au1.ibm.com, tgall@us.ibm.com, jim.houston@comcast.net,
-       gh@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: Real-Time Preemption and RCU
-References: <20050318002026.GA2693@us.ibm.com> <20050318091303.GB9188@elte.hu> <20050318092816.GA12032@elte.hu> <423BB299.4010906@colorfullife.com> <20050319162601.GA28958@elte.hu>
-In-Reply-To: <20050319162601.GA28958@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 20 Mar 2005 01:39:17 -0500
+Date: Sat, 19 Mar 2005 22:38:43 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: race between __sync_single_inode() and
+ iput()/bdev_clear_inode()
+Message-Id: <20050319223843.04b31ae5.akpm@osdl.org>
+In-Reply-To: <87zmwzzaem.fsf@devron.myhome.or.jp>
+References: <87zmwzzaem.fsf@devron.myhome.or.jp>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-
->which precise locking situation do you mean?
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
 >
->  
->
-cpu 1:
-acquire random networking spin_lock_bh()
+> ...
+> I got the above Oops while doing fs stress test.
+> 
+> The cause of this was race condition between __sync_single_inode() and
+> iput()/bdev_clear_inode().
+> 
+> This race seems following condition.
+> 
+>           cpu0 (fs's inode)                 cpu1 (bdev's inode)
+> ------------------------------------------------------------------------
+>                                                close("/dev/hda2")
+>                                        [...]
+> __sync_single_inode()
+>    /* copy the bdev's ->i_mapping */
+>    mapping = inode->i_mapping;
+> 
+>                                        generic_forget_inode()
+>                                           bdev_clear_inode()
+> 					     /* restre the fs's ->i_mapping */
+> 				             inode->i_mapping = &inode->i_data;
+> 				          /* bdev's inode was freed */
+>                                           destroy_inode(inode);
+> 
+>    if (wait) {
+>       /* dereference a freed bdev's mapping->host */
+>       filemap_fdatawait(mapping);  /* Oops */
+> 
 
-cpu 2:
-read_lock(&tasklist_lock) from process context
-interrupt. softirq. within softirq: try to acquire the networking lock.
-* spins.
+The __sync_single_inode() caller takes a ref on the inode to prevent things
+like this from happening.
 
-cpu 1:
-hardware interrupt
-within hw interrupt: signal delivery. tries to acquire tasklist_lock.
+What was the call path on the other process?  The one running
+destroy_inode()?  unmount?
 
---> deadlock.
+> I wrote the attached patch for making sure fs's inode is not in
+> __sync_single_inode().
 
---
-    Manfred
+It would be nicer to honour the extra inode ref in the unmount path, if
+poss.  Only swizzle i_mapping when the inode is really not in use.
+
+> +/* Called under inode_lock. */
+> +void wait_inode_ilock(struct inode *inode)
+> +{
+> +	wait_queue_head_t *wqh;
+> +	DEFINE_WAIT_BIT(wq, &inode->i_state, __I_LOCK);
+> +
+> +	if (!(inode->i_state & I_LOCK))
+> +		return;
+> +
+> +	wqh = bit_waitqueue(&inode->i_state, __I_LOCK);
+> +	do {
+> +		__iget(inode);
+> +		spin_unlock(&inode_lock);
+> +		__wait_on_bit(wqh, &wq, inode_wait, TASK_UNINTERRUPTIBLE);
+> +		iput(inode);
+> +		spin_lock(&inode_lock);
+> +	} while (inode->i_state & I_LOCK);
+> +}
+
+Does this differ from wait_on_inode()?
+

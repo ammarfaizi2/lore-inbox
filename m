@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280883AbRKYN3L>; Sun, 25 Nov 2001 08:29:11 -0500
+	id <S280890AbRKYNem>; Sun, 25 Nov 2001 08:34:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280891AbRKYN3B>; Sun, 25 Nov 2001 08:29:01 -0500
-Received: from mail.scram.de ([195.226.127.117]:3292 "EHLO mail.scram.de")
-	by vger.kernel.org with ESMTP id <S280890AbRKYN2w>;
-	Sun, 25 Nov 2001 08:28:52 -0500
-Date: Sun, 25 Nov 2001 14:28:47 +0100 (CET)
-From: Jochen Friedrich <jochen@scram.de>
-To: <Sven.Riedel@tu-clausthal.de>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux and RS/6000 250
-In-Reply-To: <20011125024652.B26191@moog.heim1.tu-clausthal.de>
-Message-ID: <Pine.NEB.4.33.0111251427280.1488-100000@www2.scram.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280891AbRKYNeb>; Sun, 25 Nov 2001 08:34:31 -0500
+Received: from ns0.ipal.net ([206.97.148.120]:2746 "HELO vega.ipal.net")
+	by vger.kernel.org with SMTP id <S280890AbRKYNeQ>;
+	Sun, 25 Nov 2001 08:34:16 -0500
+Date: Sun, 25 Nov 2001 07:34:10 -0600
+From: Phil Howard <phil-linux-kernel@ipal.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Releases
+Message-ID: <20011125073410.B26870@vega.ipal.net>
+In-Reply-To: <20011125012507.C6414@osdlab.org> <12023.1006683861@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <12023.1006683861@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sven,
+On Sun, Nov 25, 2001 at 09:24:21PM +1100, Keith Owens wrote:
 
-> I've uh "inherited" an elderly RS/6000 250 and wanted to install linux
-> on it. Googleing for this machine and linux turns up information that it
-> is not possible. Yet, this information is a tad older (one to two years
-> old), so I wondered if anything changed in that regard -
-> apparently PPC in combination with the MCA bus were not supported.
+| Have you been following the kbuild 2.5 developments[1]?  Linus has
+| agreed that this change will go in early in the 2.5 cycle, that will
+| impact on all automated testing for 2.5.  There will be both good and
+| bad impacts, the bad is the initial changeover, the good is a much
+| cleaner build process and the ability to build multiple configurations
+| from a single source tree.
 
-I own a couple of them and currently run AIX 4.3.3 on all of them.
-However, i heared, that the support from IBM is to be discontinued next
-year and i would ^love^to run Linux on them if at all possible :-)
+Some of us have this ability with our own stuff already.  I've been
+doing automated multi-config builds since 2.0.  But it will be nice
+to not have to track a moving target anymore.  There will be a bigger
+initial bump for some of us, but hopefully all the features will be
+in there.
 
-
-Cheers,
---jochen
-
+-- 
+-----------------------------------------------------------------
+| Phil Howard - KA9WGN |   Dallas   | http://linuxhomepage.com/ |
+| phil-nospam@ipal.net | Texas, USA | http://phil.ipal.org/     |
+-----------------------------------------------------------------

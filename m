@@ -1,62 +1,100 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293162AbSBWRHm>; Sat, 23 Feb 2002 12:07:42 -0500
+	id <S293159AbSBWRNn>; Sat, 23 Feb 2002 12:13:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293161AbSBWRHd>; Sat, 23 Feb 2002 12:07:33 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:16820 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S293159AbSBWRH0>; Sat, 23 Feb 2002 12:07:26 -0500
-Date: Sat, 23 Feb 2002 18:07:25 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Larry McVoy <lm@work.bitmover.com>, Dan Aloni <da-x@gmx.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC] [PATCH] C exceptions in kernel
-Message-ID: <20020223180725.A3030@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Larry McVoy <lm@work.bitmover.com>, Dan Aloni <da-x@gmx.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1014412325.1074.36.camel@callisto.yi.org> <20020223162100.A1952@outpost.ds9a.nl> <1014480355.1844.16.camel@callisto.yi.org> <20020223082211.Z11156@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020223082211.Z11156@work.bitmover.com>; from lm@bitmover.com on Sat, Feb 23, 2002 at 08:22:11AM -0800
+	id <S293160AbSBWRNW>; Sat, 23 Feb 2002 12:13:22 -0500
+Received: from smtp-out-7.wanadoo.fr ([193.252.19.26]:22724 "EHLO
+	mel-rto7.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S293159AbSBWRNK>; Sat, 23 Feb 2002 12:13:10 -0500
+Message-ID: <3C77CD19.2040501@wanadoo.fr>
+Date: Sat, 23 Feb 2002 18:10:49 +0100
+From: Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+CC: Lista Linux-Kernel <linux-kernel@vger.kernel.org>,
+        "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: floppy in 2.4.17
+In-Reply-To: <Pine.LNX.4.44.0202231100230.11337-100000@filesrv1.baby-dragons.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 23, 2002 at 08:22:11AM -0800, Larry McVoy wrote:
-> On Sat, Feb 23, 2002 at 06:05:48PM +0200, Dan Aloni wrote:
-> > But, it CAN be used in *local* driver call branches. Writing a new
-> > driver? have a lot of local nested calls? Hate goto's? You can use
-> > exceptions.
+Have you tried booting with "pnpbios=no-res" ?
+
+
+Mr. James W. Laferriere wrote:
+> 	Hello All ,  More info ...  Hth ,  JimL
 > 
-> Is this really anything other than syntactic sugar?  Maybe it's different 
-> in drivers, but I find myself doing the following in user space all the time
+> On Sat, 23 Feb 2002, Mr. James W. Laferriere wrote:
+> 
+>>	Hello J.A. , Nice name .  I have verified that the floppy drive
+>>	under 2.4.18-pre3 is in the same shape . Hth ,  JimL
+>>
+> 
+>># fdformat /dev/fd0u1440		,  Hmmm ,  Move little tab .
+>>/dev/fd0u1440: Read-only file system
+>># fdformat /dev/fd0u1440		,  Hmmm ......
+>>/dev/fd0u1440: Read-only file system
+>># tar -ztvf /dev/fd0			,  Hmmm ,  J.A.'s right .
+>>(hang ..wait several minutes..)^C
+>>tar (grandchild): Read error on /dev/fd0: Input/output error
+>>tar (grandchild): At beginning of tape, quitting now
+>>tar (grandchild): Error is not recoverable: exiting now
+>>
+>>gzip: stdin: unexpected end of file
+>>tar: Child returned status 1
+>>tar: Error exit delayed from previous errors
+>>
+> 
+> VFS: Disk change detected on device fd(2,28)
+> VFS: Disk change detected on device fd(2,28)
+> VFS: Disk change detected on device fd(2,28)
+> VFS: Disk change detected on device fd(2,28)
+> VFS: Disk change detected on device fd(2,0)
+> end_request: I/O error, dev 02:00 (floppy), sector 0
+> end_request: I/O error, dev 02:00 (floppy), sector 0
+> end_request: I/O error, dev 02:00 (floppy), sector 2
+> end_request: I/O error, dev 02:00 (floppy), sector 4
+> end_request: I/O error, dev 02:00 (floppy), sector 6
+> 
+> 
+> 
+>>On Sat, 23 Feb 2002, J.A. Magallon wrote:
+>>
+>>
+>>>Hi.
+>>>
+>>>I am getting problems with floppy drive in 2.4.17.
+>>>All started with floppy not working in 18-rc4, went back to 17
+>>>and still does not work. Just plain 2.4.17, no patching.
+>>>
+>>>mkfs -t ext2 /dev/fd0 just hangs forever.
+>>>
+>>>mkfs -v -t ext2 /dev/fd0 gives:
+>>>
+>>>mke2fs 1.26 (3-Feb-2002)
+>>>mkfs.ext2: bad blocks count - /dev/fd0
+>>>
+>>>Hardware:
+>>>
+>>>Floppy drive(s): fd0 is 1.44M
+>>>FDC 0 is a post-1991 82077
+>>>ide-floppy driver 0.97.sv
+>>>
+>>>???
+>>>
+>>>TIA
+>>>
 
-Exceptions provide implicit handling. You should see tham as an alternate
-return path. And because of that implicitness, it is not syntactic sugar.
 
-However, one thing which your example does emphasize, it the risk of
-resource leaks. Bjarne Stroustrup, who is no mean architect himself, spends
-a lot of pages discussing those leaks.
 
-Basically, an exception may fall through several functions before being
-caught. Any resources acquired by those intermediate functions will not be
-released unless this is done automatically during stack unwinding, ie,
-destroctors or alloca(3).
 
-So while having an alternate return path is cool, it really needs
-destructors in order to be useful in a real world. 
-
-This url documents the problem, which is solved by adopting the 'Resource
-Acquisition is Initialization' paradigm:
-   http://sourceforge.net/docman/display_doc.php?docid=8673&group_id=9028
-
-Regards,
-
-bert
-
+Pierre
 -- 
-http://www.tk                              the dot in .tk
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-Linux Advanced Routing & Traffic Control: http://ds9a.nl/lartc
+------------------------------------------------
+  Pierre Rousselet <pierre.rousselet@wanadoo.fr>
+------------------------------------------------
+

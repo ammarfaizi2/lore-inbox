@@ -1,112 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261357AbREULyY>; Mon, 21 May 2001 07:54:24 -0400
+	id <S261719AbREULze>; Mon, 21 May 2001 07:55:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261398AbREULyP>; Mon, 21 May 2001 07:54:15 -0400
-Received: from eriador.apana.org.au ([203.14.152.116]:4879 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S261357AbREULyC>; Mon, 21 May 2001 07:54:02 -0400
-Date: Mon, 21 May 2001 21:53:39 +1000
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Soft block sizes for RAM disks
-Message-ID: <20010521215339.A3847@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="OXfL5xGRrasGEqWY"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	id <S262492AbREULzZ>; Mon, 21 May 2001 07:55:25 -0400
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:49157 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S261719AbREULzM>; Mon, 21 May 2001 07:55:12 -0400
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Mon, 21 May 2001 13:51:38 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: (Fwd) about timer in linux kernel.
+Message-ID: <3B091D6A.238.1417682@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
+X-Content-Conformance: HerringScan-0.1/SWEEP Version 3.43, March 2001 
+X-Content-Conformance: LittleSister-2.1/0.0.100644.20010521.094425Z
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Maybe one of the people having written the code want to explain...
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks, Ulrich
+------- Forwarded message follows -------
+From:           	"meng-ju" <mengju@research.att.com>
+To:             	<Ulrich.Windl@rz.uni-regensburg.de>
+Subject:        	about timer in linux kernel.
+Date sent:      	Fri, 18 May 2001 16:58:55 -0700
 
-Here's a slightly different approach to the CRAMFS over RAM disk problem.
-This patch (against 2.4) allows the RAM disk block size to be changed
-through set_blocksize() without destroying its previous content.  Comments
-are welcome.
--- 
-Debian GNU/Linux 2.2 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---OXfL5xGRrasGEqWY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
-diff -u -r1.1.1.5 -r1.5
---- drivers/block/rd.c	2001/02/09 19:30:22	1.1.1.5
-+++ drivers/block/rd.c	2001/05/20 01:36:07	1.5
-@@ -197,8 +198,11 @@
- static int rd_make_request(request_queue_t * q, int rw, struct buffer_head *sbh)
- {
- 	unsigned int minor;
--	unsigned long offset, len;
--	struct buffer_head *rbh;
-+	unsigned int hardsec;
-+	unsigned int len;
-+	unsigned int size;
-+	unsigned long block;
-+	unsigned long offset;
- 	char *bdata;
+Hi! Mr. Ulrich Windl,
  
- 	
-@@ -221,20 +225,32 @@
- 		goto fail;
- 	}
+I want to know how timer works in kernel.
+When we call add_timer(), it will call add_timer_internal to add it to its list.
+Now I am confused how the system checks if it is expired or not?
+In run_timer_list(), 
+Why it uses tv1.vec + tv1.index to find out the expiration point while in add_timer_internal(), the expiration timer minus timer_jiffies?
+I don't understand what roles jiffies, timer_jiffies and tv1.index play.
+Thanks for your patient and answering.
  
--	rbh = getblk(sbh->b_rdev, sbh->b_rsector/(sbh->b_size>>9), sbh->b_size);
-+	hardsec = (unsigned int) rd_hardsec[minor];
-+	block = offset / hardsec;
-+	offset %= hardsec;
-+	size = len <= hardsec ? len : hardsec;
-+
- 	/* I think that it is safe to assume that rbh is not in HighMem, though
- 	 * sbh might be - NeilBrown
- 	 */
- 	bdata = bh_kmap(sbh);
--	if (rw == READ) {
--		if (sbh != rbh)
--			memcpy(bdata, rbh->b_data, rbh->b_size);
--	} else
--		if (sbh != rbh)
--			memcpy(rbh->b_data, bdata, rbh->b_size);
-+	do {
-+		struct buffer_head *rbh;
-+
-+		rbh = getblk(sbh->b_rdev, block, hardsec);
-+		if (sbh != rbh) {
-+			if (rw == READ)
-+				memcpy(bdata, rbh->b_data + offset, size);
-+			else
-+				memcpy(rbh->b_data + offset, bdata, size);
-+		}
-+		mark_buffer_protected(rbh);
-+		brelse(rbh);
-+		len -= size;
-+		bdata += size;
-+		block++;
-+	} while (len > 0);
- 	bh_kunmap(sbh);
--	mark_buffer_protected(rbh);
--	brelse(rbh);
- 
- 	sbh->b_end_io(sbh,1);
- 	return 0;
-diff -u -r1.1.1.10 -r1.2
---- fs/buffer.c	2001/04/27 21:23:25	1.1.1.10
-+++ fs/buffer.c	2001/05/20 01:36:07	1.2
-@@ -711,6 +711,8 @@
- 			bh_next = bh->b_next_free;
- 			if (bh->b_dev != dev || bh->b_size == size)
- 				continue;
-+			if (buffer_protected(bh))
-+				continue;
- 			if (buffer_locked(bh)) {
- 				atomic_inc(&bh->b_count);
- 				spin_unlock(&lru_list_lock);
+static inline void run_timer_list(void)
+{
+         spin_lock_irq(&timerlist_lock);
+         while ((long)(jiffies - timer_jiffies) >= 0) {
+                 struct list_head *head, *curr;
+                 if (!tv1.index) {
+                         int n= 1;
+                         do {
+                                cascade_timers(tvecs[n]);
+                         } while (tvecs[n]->index == 1 && ++n < NOOF_TVECS);
+                 }
+repeat:
+                head = tv1.vec + tv1.index;
+                curr = head->next;
+                if (curr != head) {
+                        struct timer_list *timer;
+                        void (*fn)(unsigned long);
+                        unsigned long data;
 
---OXfL5xGRrasGEqWY--
+                        timer = list_entry(curr, struct timer_list, list);
+                        fn = timer->function;
+                        data= timer->data;
+
+                        detach_timer(timer);
+                        timer->list.next = timer->list.prev = NULL;
+                        timer_enter(timer);
+                        spin_unlock_irq(&timerlist_lock);
+                        fn(data);
+                        spin_lock_irq(&timerlist_lock);
+                        timer_exit();
+                        goto repeat;
+                }
+                ++timer_jiffies;
+           tv1.index = (tv1.index + 1) & TVR_MASK;
+        }
+........
+
+Meng-Ju
+
+------- End of forwarded message -------

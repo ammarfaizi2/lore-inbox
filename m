@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbUCKLGO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 06:06:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbUCKLGO
+	id S261184AbUCKLNq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 06:13:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbUCKLNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 06:06:14 -0500
-Received: from fw.osdl.org ([65.172.181.6]:9391 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261179AbUCKLGK (ORCPT
+	Thu, 11 Mar 2004 06:13:46 -0500
+Received: from aun.it.uu.se ([130.238.12.36]:51654 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261184AbUCKLNp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 06:06:10 -0500
-Date: Thu, 11 Mar 2004 03:06:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Mickael Marchand <marchand@kde.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-Message-Id: <20040311030607.22706063.akpm@osdl.org>
-In-Reply-To: <200403111017.33363.marchand@kde.org>
-References: <20040310233140.3ce99610.akpm@osdl.org>
-	<200403111017.33363.marchand@kde.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Mar 2004 06:13:45 -0500
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16464.18916.155063.971896@alkaid.it.uu.se>
+Date: Thu, 11 Mar 2004 12:13:40 +0100
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Jonathan Lundell <jlundell@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: nmi oddity
+In-Reply-To: <p0610038abc75b353d82c@[192.168.0.3]>
+References: <p0610038abc75b353d82c@[192.168.0.3]>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mickael Marchand <marchand@kde.org> wrote:
->
-> Hi,
-> 
-> on my config (opteron box) I need this patch to get it compiled :
-> 
-> --- fs/compat_ioctl.c.orig      2004-03-11 08:57:49.472074584 +0000
-> +++ fs/compat_ioctl.c   2004-03-11 08:57:01.770326352 +0000
-> @@ -1604,7 +1604,7 @@
->          * To have permissions to do most of the vt ioctls, we either have
->          * to be the owner of the tty, or super-user.
->          */
-> -       if (current->tty == tty || capable(CAP_SYS_ADMIN))
-> +       if (current->signal->tty == tty || capable(CAP_SYS_ADMIN))
->                 return 1;
->         return 0;
->  }
+Jonathan Lundell writes:
+ > Running smp 2.4.9 (don't ask) with updated nmi logic on a Dell 650 
+ > (UP P4), I notice that NMI is running at about 1.08 Hz. Per the 
+ > kernel logic, it should be running at HZ (100) Hz.
+ > 
+ > I'm using NMI_LOCAL_APIC. check_nmi_watchdog() never gets called in 
+ > this mode in an smp kernel, near as I can tell, so nmi_hz never gets 
+ > set to 1.
+ > 
+ > What's going on? Or does anyone else see it?
 
-yup, thanks.
+This is a normal. The NMIs are generated from an in-CPU performance
+counter configured to increment once per CPU core clock cycle.
+(There is no wallclock-like event available, alas.)
 
-> 
-> while I am at it, I am running a 64 bits kernel with 32 bits debian testing and
-> it seems some ioctl conversion fails
-> that happened with all 2.6 I tried.
-> here is the relevant kernel messages part :
-> ioctl32(dmsetup:26199): Unknown cmd fd(3) cmd(c134fd00){01} arg(0804c0b0) on /dev/mapper/control
+Whenever the kernel is idle, "hlt" is normally executed which
+stops the CPU until the next external interrupt (typically the
+timer). Hence, an idle machine will see a much lower NMI frequence
+than a non-idle one.
 
-The device mapper version 1 ioctl interface was removed.  Perhaps you need
-to update your dm tools?
+This behaviour is not universal. Server Tualatins seem to run at
+full speed all the time; perhaps they ignore hlt?
 
-> ioctl32(fsck.reiserfs:201): Unknown cmd fd(4) cmd(80081272){00} arg(ffffdab8) on /dev/ide/host0/bus0/target0/lun0/part4
+If you want NMI_LOCAL_APIC to be clock-like, upgrade your cooling
+solution and disable hlt.
 
-Is this something which 2.6 has always done, or is it new behaviour?
-
-reiserfs ioctl translation appears to be incomplete...
+/Mikael

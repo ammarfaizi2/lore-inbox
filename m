@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132560AbRDQGIh>; Tue, 17 Apr 2001 02:08:37 -0400
+	id <S132561AbRDQGQ2>; Tue, 17 Apr 2001 02:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132561AbRDQGI1>; Tue, 17 Apr 2001 02:08:27 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:15889 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S132560AbRDQGIV>;
-	Tue, 17 Apr 2001 02:08:21 -0400
-Message-ID: <3ADBE40A.A455AD29@candelatech.com>
-Date: Mon, 16 Apr 2001 23:34:50 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.17-14 i686)
-X-Accept-Language: en
+	id <S132562AbRDQGQS>; Tue, 17 Apr 2001 02:16:18 -0400
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:42119 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S132561AbRDQGQJ>; Tue, 17 Apr 2001 02:16:09 -0400
+Date: Tue, 17 Apr 2001 08:16:00 +0200 (CEST)
+From: Simon Richter <Simon.Richter@phobos.fachschaften.tu-muenchen.de>
+To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
+cc: Pavel Machek <pavel@suse.cz>, <linux-kernel@vger.kernel.org>
+Subject: Re: Let init know user wants to shutdown
+In-Reply-To: <20010417003811.A4385@kallisto.sind-doof.de>
+Message-Id: <Pine.LNX.4.31.0104170808080.6365-100000@phobos.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 802.1Q VLAN patch for 2.4.4-pre3 & 2.2.19
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just updated the VLAN patches slightly.  The 2.2 series patch
-did not change, but is now known to patch into 2.2.19 w/out
-trouble.
+On Tue, 17 Apr 2001, Andreas Ferber wrote:
 
-The 2.4 series patch was briefly tested against 2.4.4-pre3 and
-seems to be working OK.
+> > Okay, but at least take a better signal than SIGINT, probably one that the
+> > init maintainers like so it gets adopted faster (or extend SIGPWR).
 
-The changes are:
-  Allow MAC change to work correctly by recognizing PACKET_HOST
-  This should help those folks that like to change the MAC address
-  on their VLANs to be different than the underlying ethernet device.
+> Extending SIGPWR will break inits not yet supporting the extensions,
+> so this is IMO not an option. There should be used some other signal
+> which is simply ignored by an old init.
 
-  Compile fix for using VLANs as a module.
+Make it a config option then; the short description says "read help", the
+long help says "you need init version x.y". People compiling their own
+kernels should know what they're doing, and distributors usually know what
+init they are packaging.
 
-Comments, suggestions, patches and praise are all welcome! :)
+> The distribution of such events to other userspace processes (if there
+> are some that want to receive a subset of the events) can be perfectly
+> done by init, so we should IMO keep this stuff out of the kernel (I
+> don't think that the processing of such events will ever be
+> performance critical).
 
-Details, download, & mailing list at:
-http://scry.wanfear.com/~greear/vlan.html
+Fine with me as long as I get a decent interface where the policy manager
+can plug into. :-)
+
+   Simon
 
 -- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+GPG public key available from http://phobos.fs.tum.de/pgp/Simon.Richter.asc
+ Fingerprint: DC26 EB8D 1F35 4F44 2934  7583 DBB6 F98D 9198 3292
+Hi! I'm a .signature virus! Copy me into your ~/.signature to help me spread!
+

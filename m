@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270947AbRHXFgv>; Fri, 24 Aug 2001 01:36:51 -0400
+	id <S269718AbRHXGhT>; Fri, 24 Aug 2001 02:37:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270948AbRHXFgm>; Fri, 24 Aug 2001 01:36:42 -0400
-Received: from node-cffb924a.powerinter.net ([207.251.146.74]:48969 "HELO
-	switchmanagement.com") by vger.kernel.org with SMTP
-	id <S270947AbRHXFgY>; Fri, 24 Aug 2001 01:36:24 -0400
-Message-ID: <3B85E7E2.7000602@switchmanagement.com>
-Date: Thu, 23 Aug 2001 22:36:34 -0700
-From: Brian Strand <bstrand@switchmanagement.com>
-Organization: Switch Management
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: support@3ware.com
-Subject: 3ware: no cards found in 2.2.19, cards found in 2.4.x
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S269739AbRHXGhJ>; Fri, 24 Aug 2001 02:37:09 -0400
+Received: from fe040.worldonline.dk ([212.54.64.205]:1798 "HELO
+	fe040.worldonline.dk") by vger.kernel.org with SMTP
+	id <S269718AbRHXGgw>; Fri, 24 Aug 2001 02:36:52 -0400
+Date: Fri, 24 Aug 2001 08:39:50 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        "David S. Miller" <davem@redhat.com>, lse-tech@lists.sourceforge.net,
+        "Leonard N. Zubkoff" <lnz@dandelion.com>, arjanv@redhat.com
+Subject: Re: [patch] PCI64 + block zero-bounce highmem v11
+Message-ID: <20010824083950.B4064@suse.de>
+In-Reply-To: <20010823095324.Q604@suse.de> <E15Zu1D-0003mT-00@the-village.bc.nu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E15Zu1D-0003mT-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a quad xeon 2GB system running Oracle which I am reverting to 
-2.2.x because of 2.4.x's less than desirable VM performance (causing a 
-2x Oracle slowdown, reported about a month ago on linux-kernel).  I 
-foolishly put a 3ware card in at the same time as I "upgraded" the box 
-to 2.4.4, so now I am in the undesirable position of needing to go back 
-to 2.2.19, but that kernel cannot find the card.  I get the following 
-message during boot:
+On Thu, Aug 23 2001, Alan Cox wrote:
+> > I'll include I2O highmem support in the next release -- haven't started
+> > it yet, but it should be a breeze.
+> 
+> It should be, however the amount of i2o firmware that gets 64bit right is
+> unknown and I fear quite minimal.
 
-3w-xxxx: tw_find_cards(): No cards found
-/lib/moduless/2.2.19-2GB-SMP/scsi/3w-xxxx.o: init_module: Device or 
-resource busy
+Probably, however just getting 4GB right would be a really good start.
 
-I have tried compiling the 3ware driver version 1.02.00.{004,006,007} 
-all with the same result.  Has anyone managed to use a Suse 2.2.19 
-kernel with 3ware cards with any success?  The 1.02.00.004 driver is 
-from the stock 2.2.19 kernel, the .006 driver is from 3ware's website, 
-and the .007 driver is from 2.2.20pre9.
-
-Any hints appreciated,
-Brian Strand
-CTO Switch Management
-
+-- 
+Jens Axboe
 

@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267896AbUGaCEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267895AbUGaCFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267896AbUGaCEz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 Jul 2004 22:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267895AbUGaCEz
+	id S267895AbUGaCFP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 Jul 2004 22:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267897AbUGaCFO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 Jul 2004 22:04:55 -0400
-Received: from mail.zmailer.org ([62.78.96.67]:53694 "EHLO mail.zmailer.org")
-	by vger.kernel.org with ESMTP id S267896AbUGaCEx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 Jul 2004 22:04:53 -0400
-Date: Sat, 31 Jul 2004 05:04:48 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: sankarshana rao <san_wipro@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: storing a Filesystem in a file
-Message-ID: <20040731020448.GG2429@mea-ext.zmailer.org>
-References: <20040731014626.72400.qmail@web50903.mail.yahoo.com>
+	Fri, 30 Jul 2004 22:05:14 -0400
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:34807 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S267895AbUGaCFG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 30 Jul 2004 22:05:06 -0400
+Subject: uid of user who mounts
+From: Steve French <smfrench@austin.rr.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Message-Id: <1091239509.3894.11.camel@smfhome.smfdom>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040731014626.72400.qmail@web50903.mail.yahoo.com>
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Fri, 30 Jul 2004 21:05:09 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 30, 2004 at 06:46:26PM -0700, sankarshana rao wrote:
-> Hi,
-> I have a requirement to create a file system in a file
-> . Is this possible???
+To allow user unmounts of cifs shares (much like the setuid smbumount
+utility allows for smbfs), it has been suggested that the cifs vfs could
+return the uid of the mounter in /proc/mounts  This would avoid having
+to add an ioctl (as smbfs did) and seems as secure as the ioctl approach
+(to get the uid of the original mounter).
 
-Like previous responder said, copying a device content (partition,
-or whole device full) to a file is trivialish.
+If user mounts are allowed, is there any worse security exposure in
+letting the tool check the uid who mounted via /proc/mounts (to allow
+user unmount).   
 
-If you want to create a filesystem (like e.g. ramdisk-images are
-created when builing kernel installation), then you do need a device
-called 'loop'.  See 'man losetup'.
+Is there any precedent for the name for the name of such a parm?  I was
+thinking of "mnt_uid" since simply using "uid=" would seem to overload
+the meaning of "uid", which is already used as a mount parm by various
+filesystems to signify the default uid for files ( ie in the cifs case
+when mounting to Windows - and Unix CIFS protocol extensions are not
+enabled) and it is not always the case that the default uid for files
+would be the same as the uid of the person who mounted.
 
-> thx in advance...
 
-/Matti

@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263191AbUFFJ6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263162AbUFFKEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263191AbUFFJ6g (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 05:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbUFFJ6g
+	id S263162AbUFFKEf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 06:04:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263219AbUFFKEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 05:58:36 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:24960 "EHLO cloud.ucw.cz")
-	by vger.kernel.org with ESMTP id S263191AbUFFJ6e (ORCPT
+	Sun, 6 Jun 2004 06:04:35 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:23235 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S263162AbUFFKE2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 05:58:34 -0400
-Date: Sun, 6 Jun 2004 11:58:43 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6] Mousedev - better button handling under load
-Message-ID: <20040606095843.GC1646@ucw.cz>
-References: <200406050249.02523.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406050249.02523.dtor_core@ameritech.net>
-User-Agent: Mutt/1.4.1i
+	Sun, 6 Jun 2004 06:04:28 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: kdb@oss.sgi.com, linux-kernel@vger.kernel.org
+Cc: linux-ia64@vger.kernel.org, sparclinux@vger.kernel.org
+Subject: Announce: kdb v4.4 updates for for kernel 2.6.6
+Date: Sun, 06 Jun 2004 20:04:14 +1000
+Message-ID: <12428.1086516254@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 05, 2004 at 02:49:00AM -0500, Dmitry Torokhov wrote:
-> Hi,
-> 
-> Currently mousedev combines all hardware motion data that arrivers since
-> last time userspace read data into one cooked PS/2 packet. The problem is
-> that under heavy or even moderate load, when userspace can't read data
-> quickly enough, we start loosing valuable data which manifests in:
-> 
-> - ignoring buton presses as by the time userspace gets to read the data
->   button has already been released;
-> - click starts in wrong place - by the time userspace got aroungd and read
->   the packet mouse moved half way across the screen.
-> 
-> The patch below corrects the issue - it will start accumulating new packet
-> every time userspace is behind and button set changes. Size of the buffer
-> is 16 packets, i.e. up to 8 pairs of press/release events which should be
-> more than enough.
-> 
-> The patch is against Vojtech's tree and shuld apply to -mm. I also have
-> cumulative mousedev patch done against 2.6.7-pre2 at:
-> 
-> http://www.geocities.com/dt_or/input/misc/mousedev-2.6.7-rc2-cumulative.patch.gz
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Thanks for this. Can I just pull from your tree, or is there more that I
-shouldn't take?
+KDB (Linux Kernel Debugger) has been updated.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+ftp://oss.sgi.com/projects/kdb/download/v4.4/
+
+Current versions are :-
+
+  kdb-v4.4-2.6.6-common-2.bz2
+  kdb-v4.4-2.6.6-i386-2.bz2
+  kdb-v4.4-2.6.6-ia64-040521-2.bz2
+  kdb-v4.4-2.6.6-sparc64-1.bz2
+
+Changelog extract since kdb-v4.3-2.6.6-common-2.
+
+2004-06-06 Keith Owens  <kaos@sgi.com>
+
+	* Avoid recursion problems in kdb_init().
+	* Add standard archkdb commands.
+	* Add per_cpu command.
+	* Move kdb_{get,put}userarea_size definitions to linux/kdb.h.
+	* kdb v4.4-2.6.6-common-2.
+
+Changelog extract since kdb-v4.3-2.6.6-i386-1.
+
+2004-06-06 Keith Owens  <kaos@sgi.com>
+
+	* Correct Kconfig help text.
+	* Coexist with CONFIG_REGPARM.
+	* Add standard archkdb commands.
+	* Move kdb_{get,put}userarea_size definitions to linux/kdb.h.
+	* kdb v4.4-2.6.6-i386-2.
+
+Changelog extract since kdb v4.3-2.6.6-rc3-ia64-1.
+
+2004-06-06 Keith Owens  <kaos@sgi.com>
+
+	* Add standard archkdb commands.
+	* Move kdb_{get,put}userarea_size definitions to linux/kdb.h.
+	* kdb v4.4-2.6.6-ia64-040521-2.
+
+Changelog extract for sparc64.
+
+2004-05-24 Tom Duffy <Thomas.Duffy.99@alumni.brown.edu>
+
+	* bump up to 2.6.6 kernel
+	* move to kdb 4.4 base
+	* kdb v4.4-2.6.6-sparc64-1
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQFAwuwdi4UHNye0ZOoRAsJkAJ4iH0j6IaZsYZMEOabW4xMHw1wciACcCFey
+ceeg7EBi97KqtgXUQe0Nw84=
+=FvEk
+-----END PGP SIGNATURE-----
+

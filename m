@@ -1,31 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261805AbRFNJ4B>; Thu, 14 Jun 2001 05:56:01 -0400
+	id <S261854AbRFNKFv>; Thu, 14 Jun 2001 06:05:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261840AbRFNJzv>; Thu, 14 Jun 2001 05:55:51 -0400
-Received: from nef.ens.fr ([129.199.96.32]:33042 "EHLO nef.ens.fr")
-	by vger.kernel.org with ESMTP id <S261805AbRFNJzi>;
-	Thu, 14 Jun 2001 05:55:38 -0400
-Date: Thu, 14 Jun 2001 11:55:27 +0200
-From: Thomas Pornin <Thomas.Pornin@ens.fr>
+	id <S261968AbRFNKFl>; Thu, 14 Jun 2001 06:05:41 -0400
+Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:52750 "EHLO
+	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S261854AbRFNKFX>; Thu, 14 Jun 2001 06:05:23 -0400
+Date: Thu, 14 Jun 2001 15:53:59 +0530 (IST)
+From: "SATHISH.J" <sathish.j@tatainfotech.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: obsolete code must die
-Message-ID: <20010614115527.A22905@bolet.ens.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x>
+Subject: RAM filesystem directory size
+In-Reply-To: <Pine.LNX.4.10.10106141300430.21100-100000@blrmail>
+Message-ID: <Pine.LNX.4.10.10106141549470.11393-100000@blrmail>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <01a401c0f46b$20b932e0$480e6c42@almlba4sy7xn6x> you write:
-> -- Getting rid of old code can help simplify the kernel. This means less
-> chance of bugs.
+Hi,
 
-Actually, what you suggest is simply getting rid of users. It would
-sure simplify things greatly.
+Sorry for disturbing you all.
 
-Are you nihilist ?
+On RAMFS on 2.4 kernel, What is the default directory size? Does the size
+of directory(number of blocks) change with the increase in the number of
+files or directories under it? If so, please tell me which part of RAMFS
+code it is implemented. 
 
+Thanks in advance,
+With Regards,
+Sathish.J
 
-	--Thomas Pornin

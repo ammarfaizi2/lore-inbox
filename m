@@ -1,88 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262440AbTJNLpQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 07:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbTJNLpQ
+	id S262432AbTJNLkG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 07:40:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262433AbTJNLkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 07:45:16 -0400
-Received: from smtp1.libero.it ([193.70.192.51]:31677 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S262440AbTJNLpF convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 07:45:05 -0400
-Date: Tue, 14 Oct 2003 13:44:31 +0200
-Message-Id: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it>
-Subject: Unbloating the kernel, was: :mem=16MB laptop testing
+	Tue, 14 Oct 2003 07:40:06 -0400
+Received: from [213.229.38.66] ([213.229.38.66]:7117 "HELO mail.falke.at")
+	by vger.kernel.org with SMTP id S262432AbTJNLkD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 07:40:03 -0400
+Message-ID: <3F8BDF71.4030106@winischhofer.net>
+Date: Tue, 14 Oct 2003 13:35:13 +0200
+From: Thomas Winischhofer <thomas@winischhofer.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624 Netscape/7.1 (ax)
+X-Accept-Language: en-us, en, de, de-de, de-at, sv
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "Marco Fioretti" <m.fioretti@inwind.it>
-To: "wli" <wli@holomorphy.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-X-XaM3-API-Version: 4.1 (B13)
-X-type: 0
-X-SenderIP: 194.237.142.24
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, jsimmons@infradead.org, olh@suse.de,
+       sam@ravnborg.org
+Subject: Re: gcc -msoft-float [Was: Linux 2.6.0-test7 - stability freeze]
+References: <3F8BB43A.9050808@winischhofer.net> <20031014042939.4a139a07.akpm@osdl.org>
+In-Reply-To: <20031014042939.4a139a07.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So I tried mem=16m on my laptop (stinkpad T21). I made the following
-> potentially useless observations:
-[snip]
-> I guess the upshot is "unbloating" the kernel wouldn't do much good
-> anyway, since luserspace isn't in any kind of shape to run in this kind
-> of environment anymore either.
+Andrew Morton wrote:
+> Thomas Winischhofer <thomas@winischhofer.net> wrote:
+> 
+>>This is fixed in the latest version of sisfb I sent to James Simmons; 
+>> one more reason to merge the fbdev stuff...
+> 
+> 
+> Well afaik nobody is sending anything.  I've had some 35,000 line fbdev
+> patch in -mm for six weeks but have not seen anything since.
+> 
+> What's up?
 
-Wrong. (please read till the end, this is not academic, but a real call to arms!)
+I think the only one to answer this is James...
 
-Have a look at http://www.rule-project.org/en/, specifically the pages:
+Thomas
 
-http://www.rule-project.org/en/sw/kdrive.php (how we do without X, solving half
-of the problem)
+-- 
+Thomas Winischhofer
+Vienna/Austria
+thomas AT winischhofer DOT net          *** http://www.winischhofer.net/
+twini AT xfree86 DOT org
 
-http://www.rule-project.org/en/test/                 (the kind of machines we
-must work with)
-
-There are still a *lot* of lightweight applications giving real functionality
-without bloat.
-Of course, they can make little in these conditions if constantly swapped out from
-the Kernel and/or X.
-
-With 16 or 24 MB or RAM even half a meg less is very important. We at RULE are
-doing what we can to select light GUI applications and test them with kdrive,
-but have
-no expertise to look after the kernel.
-
-Any help whatsoever in keeping 2.6 as light as possible, and to recompile stock
-2.4 kernels
-to lighten them is really needed.
-
-The most important part of this is that it is not a programming contest, just
-for the sake of it.
-
-There are literally thousands of schools, all over the world, which simply
-cannot afford
-any money on computers. The "HW is cheap" slogan is very cruel when recited in
-places
-where 64 MB of RAM are one month's salary. I am not kidding. All these schools
-have is
-donated computers 5+ years old: even if they had the money they could not find
-spare parts
-from them.
-
-After food, medicines and shelter a good education is essential to make a decent
-living.
-
-It is extremely embarassing to tell these students "you can do without expensive
-MS SW,
-just find the money for a PC almost as expensive as those which will run Windows".
-
-A lightweight Linux is needed to many more people than the full featured one
-
-Thank you in advance for any support,
-
-             Marco Fioretti, RULE project coordinator
-
-PS: Oh, and while I'm at it, I'll even dare to ask for RULE network volunteers, see
-http://www.rule-project.org/en/rule_by_email.php
 
 

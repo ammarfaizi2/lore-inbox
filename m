@@ -1,61 +1,133 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264801AbTE1Rpb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 13:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264804AbTE1Rpb
+	id S264788AbTE1RjP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 13:39:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264801AbTE1RjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 13:45:31 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:48769 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264801AbTE1Rpa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 13:45:30 -0400
-Date: Wed, 28 May 2003 19:58:42 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-To: linux-kernel@vger.kernel.org
-Cc: robn@verdi.et.tudelft.nl
-Subject: 2.4 bug: fifo-write causes diskwrites to read-only fs !
-Message-ID: <20030528175842.GA13657@verdi.et.tudelft.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Wed, 28 May 2003 13:39:14 -0400
+Received: from modemcable204.207-203-24.mtl.mc.videotron.ca ([24.203.207.204]:2944
+	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
+	id S264788AbTE1RjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 May 2003 13:39:12 -0400
+Date: Wed, 28 May 2003 13:42:13 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: brian@interlinx.bc.ca
+cc: linux-kernel@vger.kernel.org
+Subject: Re: local apic timer ints not working with vmware: nolocalapic
+In-Reply-To: <20030528173432.GA21379@linux.interlinx.bc.ca>
+Message-ID: <Pine.LNX.4.50.0305281341160.1982-100000@montezuma.mastecende.com>
+References: <2C8EEAE5E5C@vcnet.vc.cvut.cz> <20030528173432.GA21379@linux.interlinx.bc.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, 28 May 2003 brian@interlinx.bc.ca wrote:
 
-It turns out that Linux is updating inode timestamps of fifos (named
-pipes) that are written to while residing on a read-only filesystem.
-It is not only updating in-ram info, but it will issue *physical*
-writes to the read-only fs on the disk !
+> > - they (properly) emulate APIC timer and you'll
+> > get information that host bus is running at 66.xxxx MHz. With VMware 2
+> > you have to boot with noapic.
+> 
+> If only this worked.  I tried noapic, but it still tries to use the
+> local APIC timer interrupts.  noapic seems to only disable IO-APIC.
+> That is why I was "proposing" a new kernel command line arg,
+> "nolocalapic".
 
-I use a CompactFlash in an embedded application with a read-only root-fs
-on it.  There are several processes that communicate with each other
-via fifos.  This bug in Linux causes frequent writes to my CF and will
-shorten it's lifetime enormously ..
+I submitted a patch for nolapic before...
 
-I've posted a report on the "mysterious writes" before:
-( http://www.ussg.iu.edu/hypermail/linux/kernel/0303.2/1753.html )
-(incorrectly) linking it to a possible bug in O_SYNC.  Nothing came out
-of it.
-
-But now I've completely tracked down the bug (logging all diskaccesses
-and seeing it undoubtly write in disksectors containing time-stamp
-info of fifo's).  Looking back it would have been easier to prove that
-something is wrong: the modified time-stamps survive power-cycles.
-This is not supposed to happen on a read-only fs.
-
-I've tried reading the kernel source to find where the bug lives,
-But I'm not too familiar with it.  Anyone out there who can
-pin it down ?
-
-	greetings,
-	Rob van Nieuwkerk
-
-
-Sysinfo:
---------
-- various 2.4 kernels including RH-2.4.20-13.9,
-  but also straight 2.4(ac) ones.
-- CompactFlash (= IDE disk)
-- Geode GX1 CPU (i586 compatible)
+Index: linux-2.5.45-ac1/arch/i386/kernel/apic.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.45-ac1/arch/i386/kernel/apic.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 apic.c
+--- linux-2.5.45-ac1/arch/i386/kernel/apic.c	5 Nov 2002 04:47:02 -0000	1.1.1.1
++++ linux-2.5.45-ac1/arch/i386/kernel/apic.c	6 Nov 2002 00:19:38 -0000
+@@ -609,11 +609,27 @@
+ 
+ #endif	/* CONFIG_PM */
+ 
++int enable_local_apic_flag __initdata = 0; /* 0=probe, 1=force, 2=disable e.g. DMI */
++
++static int __init nolapic_setup(char *str)
++{
++	enable_local_apic_flag = 2;
++	return 1;
++}
++
++static int __init lapic_setup(char *str)
++{
++	enable_local_apic_flag = 1;
++	return 1;
++}
++
++__setup("nolapic", nolapic_setup);
++__setup("lapic", lapic_setup);
++
+ /*
+  * Detect and enable local APICs on non-SMP boards.
+  * Original code written by Keir Fraser.
+  */
+-int dont_enable_local_apic __initdata = 0;
+ 
+ static int __init detect_init_APIC (void)
+ {
+@@ -621,11 +637,14 @@
+ 	extern void get_cpu_vendor(struct cpuinfo_x86*);
+ 
+ 	/* Disabled by DMI scan or kernel option? */
+-	if (dont_enable_local_apic)
++	if (enable_local_apic_flag == 2)
+ 		return -1;
+ 
+ 	/* Workaround for us being called before identify_cpu(). */
+ 	get_cpu_vendor(&boot_cpu_data);
++	
++	if (enable_local_apic_flag == 1)
++		goto force_apic;
+ 
+ 	switch (boot_cpu_data.x86_vendor) {
+ 	case X86_VENDOR_AMD:
+@@ -642,6 +661,7 @@
+ 		goto no_apic;
+ 	}
+ 
++force_apic:
+ 	if (!cpu_has_apic) {
+ 		/*
+ 		 * Some BIOSes disable the local APIC in the
+Index: linux-2.5.45-ac1/arch/i386/kernel/dmi_scan.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.45-ac1/arch/i386/kernel/dmi_scan.c,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 dmi_scan.c
+--- linux-2.5.45-ac1/arch/i386/kernel/dmi_scan.c	5 Nov 2002 04:47:02 -0000	1.1.1.1
++++ linux-2.5.45-ac1/arch/i386/kernel/dmi_scan.c	6 Nov 2002 00:22:02 -0000
+@@ -314,9 +314,9 @@
+ static int __init local_apic_kills_bios(struct dmi_blacklist *d)
+ {
+ #ifdef CONFIG_X86_LOCAL_APIC
+-	extern int dont_enable_local_apic;
+-	if (!dont_enable_local_apic) {
+-		dont_enable_local_apic = 1;
++	extern int enable_local_apic_flag;
++	if (!enable_local_apic_flag) {
++		enable_local_apic_flag = 2;
+ 		printk(KERN_WARNING "%s with broken BIOS detected. "
+ 		       "Refusing to enable the local APIC.\n",
+ 		       d->ident);
+@@ -333,9 +333,9 @@
+ static int __init apm_kills_local_apic(struct dmi_blacklist *d)
+ {
+ #ifdef CONFIG_X86_LOCAL_APIC
+-	extern int dont_enable_local_apic;
+-	if (apm_info.bios.version && !dont_enable_local_apic) {
+-		dont_enable_local_apic = 1;
++	extern int enable_local_apic_flag;
++	if (apm_info.bios.version && !enable_local_apic_flag) {
++		enable_local_apic_flag = 2;
+ 		printk(KERN_WARNING "%s with broken BIOS detected. "
+ 		       "Refusing to enable the local APIC.\n",
+ 		       d->ident);
+-- 
+function.linuxpower.ca

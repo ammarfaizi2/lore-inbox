@@ -1,37 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262901AbVCJRCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVCJQ4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262901AbVCJRCV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 12:02:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262875AbVCJQ4o
+	id S262765AbVCJQ4m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 11:56:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262875AbVCJQ4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 11:56:44 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:10193 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262787AbVCJQy4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 11:54:56 -0500
-Date: Thu, 10 Mar 2005 08:54:12 -0800
-From: mike kravetz <kravetz@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul Mackerras <paulus@samba.org>, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] PPC64 NUMA memory fixup
-Message-ID: <20050310165412.GA6356@w-mikek2.ibm.com>
-References: <16942.30144.513313.26103@cargo.ozlabs.ibm.com> <20050310023613.23499386.akpm@osdl.org>
+	Thu, 10 Mar 2005 11:56:18 -0500
+Received: from hc652af4b.dhcp.vt.edu ([198.82.175.75]:55562 "EHLO
+	hc652af4b.dhcp.vt.edu") by vger.kernel.org with ESMTP
+	id S262772AbVCJQyh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 11:54:37 -0500
+Message-Id: <200503100917.j2A9HmiI004026@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Tim Bird <tim.bird@am.sony.com>
+Cc: Tony Luck <tony.luck@intel.com>,
+       linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] add timing information to printk messages 
+In-Reply-To: Your message of "Wed, 09 Mar 2005 15:50:52 PST."
+             <422F8BDC.9000005@am.sony.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200503092136.j29La5E26081@unix-os.sc.intel.com>
+            <422F8BDC.9000005@am.sony.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050310023613.23499386.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1110446268_3962P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 10 Mar 2005 04:17:48 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 10, 2005 at 02:36:13AM -0800, Andrew Morton wrote:
-> 
-> This patch causes the non-numa G5 to oops very early in boot in
-> smp_call_function().
-> 
+--==_Exmh_1110446268_3962P
+Content-Type: text/plain; charset=us-ascii
 
-OK - Let me take a look.
+On Wed, 09 Mar 2005 15:50:52 PST, Tim Bird said:
+> Tony Luck wrote:
+> > Setting CONFIG_PRINTK_TIME=y I see (the "<NUL>" pieces are actually
+> > each a single ASCII '\0' character):
+> 
+> Tony,
+> 
+> Can you try the patch below? (inspired by a patch from Tom Zanussi -
+> gotta give credit where credit is due... :-)
+> 
+> This solves the problem for me but I'd like independent confirmation.
 
--- 
-Mike
+I was seeing this issue as well, and the patch clears it up here too....
+
+--==_Exmh_1110446268_3962P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCMBC8cC3lWbTT17ARAm+1AJ9N8boapJlftvRqjDBBhNSr3YMdZACeOqb1
+7V8rPFKPYc+0VtlUhaPjxEU=
+=BMVW
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1110446268_3962P--

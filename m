@@ -1,50 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbUC0OsW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Mar 2004 09:48:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbUC0OsV
+	id S261780AbUC0PG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Mar 2004 10:06:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbUC0PG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Mar 2004 09:48:21 -0500
-Received: from s2.ukfsn.org ([217.158.120.143]:47771 "EHLO mail.ukfsn.org")
-	by vger.kernel.org with ESMTP id S261778AbUC0OsU convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Mar 2004 09:48:20 -0500
-From: "Nick Warne" <nick@ukfsn.org>
-To: linux-kernel@vger.kernel.org
-Date: Sat, 27 Mar 2004 14:48:18 -0000
-MIME-Version: 1.0
-Subject: Re: Somewhat OT: gcc, x86, -ffast-math, and Linux
-Message-ID: <40659432.5955.326A2643@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-Content-description: Mail message body
+	Sat, 27 Mar 2004 10:06:28 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:10413 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261780AbUC0PGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Mar 2004 10:06:21 -0500
+Date: Sat, 27 Mar 2004 11:34:02 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Ivan Godard <igodard@pacbell.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel support for peer-to-peer protection models...
+Message-ID: <20040327103401.GA589@openzaurus.ucw.cz>
+References: <048e01c413b3_3c3cae60_fc82c23f@pc21>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <048e01c413b3_3c3cae60_fc82c23f@pc21>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had very funny results building a Quake2 MOD I am coder on (Quake2 
-dday).
+Hi!
 
-Using -ffast-math made the HMG (e.g.) fire off aim by say 25º.  Do a 
-recompile with NO code change, and the HMG would be OK... but then 
-the pistol starting firing all over the show.  Do another rebuild (NO 
-code change) and then the rifle showed this... etc. etc.
+> 1) had a large number of distinguishable address spaces
+> 2) any running code had two of these (code and data environment) it could
+> use arbitrarily, but access to addresses in others was arbitrarily protected
+> 3) flat, unified virtual addresses (64 bit) so that pointers, including
+> inter-space pointers, have the same representation in all spaces
 
-Every new build produced a different result, although the code was 
-untouched.
+Hmm, will it be possible to have UML?
 
-I had to build leaving `--fast-math' option out in the end to get it 
-to work correctly.
+> 4) no "supervisor mode"
 
-Maybe bad coding here, but what I didn't understand was why the 
-result was so random (like each weapon has it's own code - so why one 
-routine worked then after a rebuild didn't and vice versa, I don't 
-know).
+Is all your i/o memory mapped?
 
-Nick
-(Not subscribed to list).
+> 5) inter-space references require grant of access (transitive) by the
+> accessed space; grants can be entire space or any contiguous subspace
+> 6) inter-space reference has same performance as intra-space
 
+Huh? Does it mean that all the accesses are horibly slow?
+
+> 9) Hardware interrupts are involuntary inter-space calls. They do not
+> require locking (assuming the handler is re-entrant - and if not then only
+> from themselves), nor task switch, nor disabling other interrupts. The
+> handler runs in the stack of whoever got interrupted, which (depending on
+> interrupt priorities) could be another interrupt, on an interrupt, ... on an
+> app, all mutually protected.
+
+How do you implement ptrace if apps are protected from kernel?
+
+> 10) Drivers can have their own individual space(s) distinct from those of
+> the kernel and the apps. Buggy drivers cannot crash the kernel.
+
+Well... buggy drivers can usually program DMA to do crashing for them.
+How is your architecture called?
+
+> dealing with protection models, interrupts, trap handling and the like? What
+> about partitioning the kernel into disjoint (and mutually protected)
+> components like IP stack, password/security, FS etc?
+
+That would be pretty big rewrite...
+
+Anyway, I believe you *do* want linux on it, if only as a test load.
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

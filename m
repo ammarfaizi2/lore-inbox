@@ -1,46 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266863AbRGFV3M>; Fri, 6 Jul 2001 17:29:12 -0400
+	id <S266479AbRGFVjZ>; Fri, 6 Jul 2001 17:39:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266865AbRGFV3C>; Fri, 6 Jul 2001 17:29:02 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:54791 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S266860AbRGFV2x>; Fri, 6 Jul 2001 17:28:53 -0400
-Date: Fri, 6 Jul 2001 18:28:47 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Eric Anderson <anderson@centtech.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: BIGMEM kernel question
-In-Reply-To: <3B462AA8.F7F0089D@centtech.com>
-Message-ID: <Pine.LNX.4.33L.0107061827430.17825-100000@duckman.distro.conectiva>
+	id <S266702AbRGFVjQ>; Fri, 6 Jul 2001 17:39:16 -0400
+Received: from battlejitney.wdhq.scyld.com ([216.254.93.178]:52463 "EHLO
+	vaio.greennet") by vger.kernel.org with ESMTP id <S266479AbRGFVjD>;
+	Fri, 6 Jul 2001 17:39:03 -0400
+Date: Fri, 6 Jul 2001 17:41:46 -0400 (EDT)
+From: Donald Becker <becker@scyld.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+cc: linux-kernel@vger.kernel.org, root@chaos.analogic.com
+Subject: Re: why this 1ms delay in mdio_read?  (cont'd from "are ioctl calls
+ supposed  to take this long?")
+In-Reply-To: <3B4602BA.91C5DAD3@nortelnetworks.com>
+Message-ID: <Pine.LNX.4.10.10107061736000.29374-100000@vaio.greennet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Jul 2001, Eric Anderson wrote:
+On Fri, 6 Jul 2001, Chris Friesen wrote:
 
-> Ahh. That makes sense.  So how can I change the chunk size from
-> 64k to something higher (I assume I could set it to 128k to
-> effectively double that 3GB to 6GB)?
+> Subject: why this 1ms delay in mdio_read?  (cont'd from "are ioctl calls
+    supposed  to take this long?")
+> 
+> The beginning of mdio_read() in tulip.c goes like this:
+> 
+> static int mdio_read(struct device *dev, int phy_id, int location)
+...
+> 	mdelay(1); /* One ms delay... */
 
-That won't work.  The address space limitation is a HARDWARE
-limitation.
+Ackkk!  What driver version?
+And who put this bogus delay in the code?
 
-What you _can_ do is put data in shared memory segments, which
-you map and unmap on demand. Moving memory management to user
-space is the only way to (more or less) get around the 4GB
-hardware limitation.
+Putting arbitrary delays in drivers is usually a sign that the someone
+didn't understand how to fix a bug and is just trying to wait it out.
 
-regards,
+> The chip I'm using is the DEC 21143, which means that we skip over the two
+> conditional blocks, so the first thing that happens when we call this is to
+> wait around doing nothing for a millisecond.  Is there some subtle
+> reason why we would want to wait around for a millisecond before doing
+> anything? 
 
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+Nope.  None at all.
 
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
 

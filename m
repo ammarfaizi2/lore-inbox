@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbUCRAji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Mar 2004 19:39:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUCRAji
+	id S262259AbUCRAo7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Mar 2004 19:44:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbUCRAo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Mar 2004 19:39:38 -0500
-Received: from ns.suse.de ([195.135.220.2]:58272 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262217AbUCRAjZ (ORCPT
+	Wed, 17 Mar 2004 19:44:59 -0500
+Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:58657 "EHLO linux.local")
+	by vger.kernel.org with ESMTP id S262259AbUCRAo5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Mar 2004 19:39:25 -0500
-Subject: Re: 2.6.4-mm2
-From: Chris Mason <mason@suse.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: daniel@osdl.org, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-In-Reply-To: <20040317163332.0385d665.akpm@osdl.org>
-References: <20040314172809.31bd72f7.akpm@osdl.org>
-	 <1079461971.23783.5.camel@ibm-c.pdx.osdl.net>
-	 <1079474312.4186.927.camel@watt.suse.com>
-	 <20040316152106.22053934.akpm@osdl.org>
-	 <20040316152843.667a623d.akpm@osdl.org>
-	 <20040316153900.1e845ba2.akpm@osdl.org>
-	 <1079485055.4181.1115.camel@watt.suse.com>
-	 <1079487710.3100.22.camel@ibm-c.pdx.osdl.net>
-	 <20040316180043.441e8150.akpm@osdl.org>
-	 <1079554288.4183.1938.camel@watt.suse.com>
-	 <20040317123324.46411197.akpm@osdl.org>
-	 <1079563568.4185.1947.camel@watt.suse.com>
-	 <20040317150909.7fd121bd.akpm@osdl.org>
-	 <1079566076.4186.1959.camel@watt.suse.com>
-	 <20040317155111.49d09a87.akpm@osdl.org>
-	 <1079568387.4186.1964.camel@watt.suse.com>
-	 <20040317161338.28b21c35.akpm@osdl.org>
-	 <1079569870.4186.1967.camel@watt.suse.com>
-	 <20040317163332.0385d665.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1079570515.4183.1973.camel@watt.suse.com>
+	Wed, 17 Mar 2004 19:44:57 -0500
+Date: Wed, 17 Mar 2004 16:45:02 -0800
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Rik Faith <faith@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Light-weight Auditing Framework
+Message-ID: <20040318004502.GA2595@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <16464.30442.852919.24605@neuro.alephnull.com> <20040312185033.GA2507@us.ibm.com> <16472.5852.375648.739489@neuro.alephnull.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 17 Mar 2004 19:41:56 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16472.5852.375648.739489@neuro.alephnull.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-03-17 at 19:33, Andrew Morton wrote:
-> Chris Mason <mason@suse.com> wrote:
-> >
-> > good news is that direct_read_under is still running without
-> >  problems here.
+On Wed, Mar 17, 2004 at 04:14:04AM -0500, Rik Faith wrote:
+> On Fri 12 Mar 2004 10:50:33 -0800,
+>    Paul E. McKenney <paulmck@us.ibm.com> wrote:
+> > o	I don't see any rcu_read_lock() or rcu_read_unlock() calls.
 > 
-> Here also, but _without_ clear_page_dirty_for_io.patch, so it should break.
+> Fixed.
+
+Much improved!
+
+Since audit_receive_filter() is only called with audit_netlink_sem
+held, it cannot race with either audit_del_rule() or audit_add_rule(),
+so the list_for_each_entry_rcu()s may be replaced by
+list_for_each_entry()s, and the rcu_read_{un,}lock()s removed.
+
+Not a fatal problem, just a bit of unnecessary overhead.
+
+The others look good!
+
+> > o	Presumably something surrounding netlink_kernel_create()
+> > 	ensures that only one instance of audit_del_rule() will
+> > 	be executing at a given time.  If not, some locking is
+> > 	needed.
 > 
-> Maybe it takes a long time.
+> I was unable to find anything, so I added a semaphore to the receive
+> routine, and comments to the add and delete routines.
 
-It was very irregular for me.  A run might die in pass3 or last for 30
-minutes before I got bored and hit ctrl-c
+Looks good!
 
--chris
+> > o	The audit_add_rule() function also needs something to prevent
+> > 	races with other audit_add_rule() and audit_del_rule()
+> > 	instances.
+> 
+> This is also handled by the semaphore.
 
+Ditto!
 
+> Thanks for your comments!  This patch is against 2.6.5-rc1-mm1.  It also
+> corrects a problem that could trigger a BUG() near boot time.
+> 
+>  audit.c   |    9 +++++++++
+>  auditsc.c |   38 +++++++++++++++++++++++++++++---------
+>  2 files changed, 38 insertions(+), 9 deletions(-)
+
+Glad to help!
+
+						Thanx, Paul

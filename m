@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263462AbTKKLtC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 06:49:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263464AbTKKLtC
+	id S263467AbTKKLxU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 06:53:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263468AbTKKLxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 06:49:02 -0500
-Received: from mailhost.tue.nl ([131.155.2.7]:43532 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S263462AbTKKLtA (ORCPT
+	Tue, 11 Nov 2003 06:53:20 -0500
+Received: from mailhost.tue.nl ([131.155.2.7]:57860 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id S263467AbTKKLxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 06:49:00 -0500
-Date: Tue, 11 Nov 2003 12:46:49 +0100
+	Tue, 11 Nov 2003 06:53:18 -0500
+Date: Tue, 11 Nov 2003 12:53:16 +0100
 From: Andries Brouwer <aebr@win.tue.nl>
-To: Flavio Bruno Leitner <fbl@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Flavio Bruno Leitner <fbl@conectiva.com.br>,
+       <linux-kernel@vger.kernel.org>
 Subject: Re: IDE disk information changed from 2.4 to 2.6
-Message-ID: <20031111114649.GA16163@win.tue.nl>
-References: <20031105172310.GE5304@conectiva.com.br>
+Message-ID: <20031111115316.GB16163@win.tue.nl>
+References: <20031105184203.GG5304@conectiva.com.br> <Pine.SOL.4.30.0311052031510.1988-100000@mion.elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20031105172310.GE5304@conectiva.com.br>
+In-Reply-To: <Pine.SOL.4.30.0311052031510.1988-100000@mion.elka.pw.edu.pl>
 User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 05, 2003 at 03:23:10PM -0200, Flavio Bruno Leitner wrote:
+On Wed, Nov 05, 2003 at 08:41:58PM +0100, Bartlomiej Zolnierkiewicz wrote:
 
-> Upgrading from kernel 2.4 to 2.6 the CHS information for the same hardware 
-> changed. This behaviour is correct? 
-> 
-> Using 2.4:
-> hda: 12594960 sectors (6449 MB) w/2048KiB Cache, CHS=784/255/63, UDMA (33)
-> 
-> Using 2.6:
-> hda: 12594960 sectors (6449 MB) w/2048KiB Cache, CHS=13328/15/63, UDMA (33)
+> In 2.6.x it doesn't even read BIOS info (which is wrong IMO, it should
+> do this but only as last resort - if partition can't be mounted).
 
-Yes, correct in the sense that it is not wrong.
-Probably your disk reports 15 and 2.4 invented 255.
+How can reading information that is not used by any kernel
+help in mounting a partition?
 
-CHS is something that stopped being meaningful a decade ago.
-Today it is random garbage, to be ignored whenever possible.
-Don't worry about CHS when you don't have problems.
+> Difference in CHS translation should matter only if you have some old DOS
+> partitions created using CHS information.  Then you can force geometry
+> using boot parameter "hd?=".  Unfortunately I've seen recently bugreport
+> when 2.4.20 (?) works and 2.6.x fails even with forced geometry.
+
+Fails? What do you mean?
+
+(Are you referring to the problem of finding the last cylinder?)
+
+Andries
 

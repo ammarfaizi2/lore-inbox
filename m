@@ -1,121 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbUC3KEm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 05:04:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263597AbUC3KEm
+	id S263598AbUC3KIM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 05:08:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263600AbUC3KIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 05:04:42 -0500
-Received: from [193.141.139.228] ([193.141.139.228]:32666 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S263595AbUC3KEa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 05:04:30 -0500
-From: Erich Focht <efocht@hpce.nec.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Date: Tue, 30 Mar 2004 12:04:13 +0200
-User-Agent: KMail/1.5.4
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>, "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Rick Lindsley <ricklind@us.ibm.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, kernel@kolivas.org, rusty@rustcorp.com.au,
-       anton@samba.org, lse-tech@lists.sourceforge.net
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <200403300030.25734.efocht@hpce.nec.com> <4069384B.9070108@yahoo.com.au>
-In-Reply-To: <4069384B.9070108@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 30 Mar 2004 05:08:12 -0500
+Received: from fw.osdl.org ([65.172.181.6]:39892 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263598AbUC3KIH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 05:08:07 -0500
+Date: Tue, 30 Mar 2004 02:07:56 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Christophe Saout <christophe@saout.de>
+Cc: axboe@suse.de, nagyz@nefty.hu, linux-kernel@vger.kernel.org
+Subject: Re: pdflush and dm-crypt
+Message-Id: <20040330020756.20705731.akpm@osdl.org>
+In-Reply-To: <1080639971.7152.7.camel@leto.cs.pocnet.net>
+References: <1067885681.20040329165002@nefty.hu>
+	<20040329150137.GH24370@suse.de>
+	<20040329161248.41e87929.akpm@osdl.org>
+	<1080639971.7152.7.camel@leto.cs.pocnet.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403301204.14303.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Nick,
-
-On Tuesday 30 March 2004 11:05, Nick Piggin wrote:
-> >exec(), and maybe use a syscall for saying: balance all children a
-> >particular process is going to fork/clone at creation time. Everybody
-> >reached the insight that we can't foresee what's optimal, so there is
-> >only one solution: control the behavior. Give the user a tool to
-> >improve the performance. Just a small inheritable variable in the task
-> >structure is enough. Whether you give the hint at or before run-time
-> >or even at compile-time is not really the point...
-> >
-> >I don't think it's worth to wait and hope that somebody shows up with
-> >a magic algorithm which balances every kind of job optimally.
+Christophe Saout <christophe@saout.de> wrote:
 >
-> I'm with Martin here, we are just about to merge all this
-> sched-domains stuff. So we should at least wait until after
-> that. And of course, *nothing* gets changed without at least
-> one benchmark that shows it improves something. So far
-> nobody has come up to the plate with that.
+> Am Mo, den 29.03.2004, um 16:12 Uhr -0800, schrieb Andrew Morton:
+> 
+>  > How come?  Isn't this problem just "gee, we have a lot of stuff to encrypt
+>  > during writeback"?  If so, then it should be sufficient to poke a hole in
+>  > the encryption loop?
+>  > 
+>  > --- 25/drivers/md/dm-crypt.c~a	Mon Mar 29 16:11:49 2004
+>  > +++ 25-akpm/drivers/md/dm-crypt.c	Mon Mar 29 16:11:56 2004
+>  > @@ -669,6 +669,7 @@ static int crypt_map(struct dm_target *t
+>  >  		/* out of memory -> run queues */
+>  >  		if (remaining)
+>  >  			blk_congestion_wait(bio_data_dir(clone), HZ/100);
+>  > +		cond_resched();
+>  >  	}
+>  >  
+>  >  	/* drop reference, clones could have returned before we reach this */
+> 
+>  cryptoapi always does this after every block. It also happens with
+>  preemption enabled. I got feedback from a person who said that renicing
+>  pdflush to 0 helped. So it looks like the CPU scheduler doesn't want to
+>  schedule pdflush away. Hmm.
 
-I thought you're talking the whole time about STREAM. That is THE
-benchmark which shows you an impact of balancing at fork. At it is a
-VERY relevant benchmark. Though you shouldn't run it on historical
-machines like NUMAQ, no compute center in the western world will buy
-NUMAQs for high performance... Andy typically runs STREAM on all CPUs
-of a machine. Try on N/2 and N/4 and so on, you'll see the impact.
+Oh, OK, since pdflush was converted to use the kthread stuff it has been
+running at keventd's `nice -10'.  You can probably renice it by hand.
 
-> >>Clone is a much more interesting case, though at the time, I consciously
-> >>decided NOT to do that, as we really mostly want threads on the same
-> >>node.
-> >
-> >That is not true in the case of HPC applications. And if someone uses
-> >OpenMP he is just doing that kind of stuff. I consider STREAM a good
-> >benchmark because it shows exactly the problem of HPC applications:
-> >they need a lot of memory bandwidth, they don't run in cache and the
-> >tasks live really long. Spreading those tasks across the nodes gives
-> >me more bandwidth per task and I accumulate the positive effect
-> >because the tasks run for hours or days. It's a simple and clear case
-> >where the scheduler should be improved.
-> >
-> >Benchmarks simulating "user work" like SPECsdet, kernel compile, AIM7
-> >are not relevant for HPC. In a compute center it actually doesn't
-> >matter much whether some shell command returns 10% faster, it just
-> >shouldn't disturb my super simulation code for which I bought an
-> >expensive NUMA box.
->
-> There are other things, like java, ervers, etc that use threads.
 
-I'm just saying that you should have the choice. The default should be
-as before, balance at exec().
 
-> The point is that we have never had this before, and nobody
-> (until now) has been asking for it. And there are as yet no
+diff -puN mm/pdflush.c~pdflush-nice-0 mm/pdflush.c
+--- 25/mm/pdflush.c~pdflush-nice-0	2004-03-30 01:59:17.795116816 -0800
++++ 25-akpm/mm/pdflush.c	2004-03-30 02:02:29.865917616 -0800
+@@ -177,6 +177,12 @@ static int __pdflush(struct pdflush_work
+ static int pdflush(void *dummy)
+ {
+ 	struct pdflush_work my_work;
++
++	/*
++	 * pdflush can spend a lot of time doing encryption via dm-crypt.  We
++	 * don't want to do that at keventd's priority.
++	 */
++	set_user_nice(current, 0);
+ 	return __pdflush(&my_work);
+ }
+ 
 
-?? Sorry, I'm having balance at fork since 2001 in the NEC IA64 NUMA
-kernels and users use it intensively with OpenMP. Advertised it a lot,
-asked for it, atlked about it at the last OLS. Only IA64 was
-considered rare big iron. I understand that the issue gets hotter if
-the problem hurts on AMD64...
-
-> convincing benchmarks that even show best case improvements. And
-> it could very easily have some bad cases.
-
-Again: I'm talking about having the choice. The user decides. Nothing
-protects you against user stupidity, but if they just have the choice
-of poor automatic initial scheduling, it's not enough. And: having the
-fork/clone initial balancing policy means: you don't need to make your
-code complicated and unportable by playing with setaffinity (which is
-just plainly unusable when you share the machine with other users).
-
-> And finally, HPC
-> applications are the very ones that should be using CPU
-> affinities because they are usually tuned quite tightly to the
-> specific architecture.
-
-There are companies mainly selling NUMA machines for HPC (SGI?), so
-this is not a niche market. Clusters of big NUMA machines are not
-unusual, and they're typically not used for databases but for HPC
-apps. Unfortunately proprietary UNIX is still considered to have
-better features than Linux for such configurations.
-
-> Let's just make sure we don't change defaults without any
-> reason...
-
-No reason? Aaarghh...   >;-)
-
-Erich
-
+_
 

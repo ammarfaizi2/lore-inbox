@@ -1,79 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbUCLHeO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 02:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbUCLHeO
+	id S262005AbUCLHrD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 02:47:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbUCLHrD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 02:34:14 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:51978 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262003AbUCLHeJ convert rfc822-to-8bit (ORCPT
+	Fri, 12 Mar 2004 02:47:03 -0500
+Received: from www.npw.net ([193.96.40.17]:34267 "EHLO mail.npw.net")
+	by vger.kernel.org with ESMTP id S262005AbUCLHrA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 02:34:09 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] hdparm_X.patch (was: Re: 2.6.4-rc-bk3: hdparm -X locks up IDE)
-Date: Fri, 12 Mar 2004 09:24:03 +0200
-X-Mailer: KMail [version 1.4]
-Cc: Jens Axboe <axboe@suse.de>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <200403111614.08778.vda@port.imtp.ilyichevsk.odessa.ua> <200403120221.42082.vda@port.imtp.ilyichevsk.odessa.ua> <200403120202.06097.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200403120202.06097.bzolnier@elka.pw.edu.pl>
+	Fri, 12 Mar 2004 02:47:00 -0500
+Message-ID: <40516AE8.2030000@npw.net>
+Date: Fri, 12 Mar 2004 08:46:48 +0100
+From: Philipp Baer <phbaer@npw.net>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200403120924.03431.vda@port.imtp.ilyichevsk.odessa.ua>
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel oops
+References: <404E41A7.80707@npw.net> <20040309151106.468cf467.akpm@osdl.org>
+In-Reply-To: <20040309151106.468cf467.akpm@osdl.org>
+X-Enigmail-Version: 0.83.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This patch survived cyclic switching of all DMA modes from mwdma0 to
-> > udma4 and continuous write load of type
-> > while(1) { dd if=/dev/zero of=file bs=1M count=<RAM size>; sync; }
-> > for five minutes.
-> >
-> > It does not handle crippled/simplex chipset, it is a TODO.
-> >
-> > Things commented by C++ style comments (//) aren't meant to stay.
-> >
-> > I think original code was a bit buggy:
-> > set_transfer() returned 0 for modes < XFER_SW_DMA_0, ie,
-> > for all PIO modes. Later,
-> >        if (set_transfer(drive, &tfargs)) {
-> >                xfer_rate = args[1];
-> >                if (ide_ata66_check(drive, &tfargs))
-> >                        goto abort;
-> >         }
-> >         err = ide_wait_cmd(drive, args[0], args[1], args[2], args[3],
-> > argbuf); if (!err && xfer_rate) {
-> >                ide_set_xfer_rate(drive, xfer_rate);
-> >                ide_driveid_update(drive);
-> >        }
-> > This will never execute ide_set_xfer_rate() for PIO modes
->
-> It will also never execute ide_set_xfer_rate() for DMA on PIO only drive.
-> I must check if "no PIO" thing is a bug or a design decision.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I think IDE driver will never ask for DMA on PIO only drive
+Andrew Morton wrote:
 
-Bartlomiej, do you have comments on my patch? So far, I myself spotted
-some minor problems:
+|>I have a strage problem with the kernel version 2.6.3. Whensoever
+|>chkrootkit is run, the following kernel oops is thrown:
+|
+|
+| Could you try this patch?
 
-I forgot to remove now-extraneous if() from ide.c:
+[...]
 
-static int set_xfer_rate (ide_drive_t *drive, int arg)
-{
-        int err = ide_wait_cmd(drive,
-                        WIN_SETFEATURES, (u8) arg,
-                        SETFEATURES_XFER, 0, NULL);
+Ok, we've patched all systems and the oops seems to have gone.
+Great (and especially really fast) done, thanks!
 
-        if (!err && arg) {
-                ide_set_xfer_rate(drive, (u8) arg);
-                ide_driveid_update(drive);
-        }
-        return err;
-}
 
-And second, in ide_do_drive_cmd(), mdelay(2000)
-after WIN_SETFEATURES is a bit rude.
--- 
-vda
+ciao, phb
+
+- --
+Philipp Baer <phbaer@npw.net> [http://www.npw.net/]
+gnupg-fingerprint: 16C7 84E8 5C5F C3D6 A8F1  A4DC E4CB A9A9 F5FA FF5D
+
+``Only two things are infinite, the universe and human stupidity,
+and I'm not sure about the former.'' -- A. Einstein
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFAUWrn5MupqfX6/10RAifAAKDyz48/OV6Mlj4WOwrjOAzQO900BgCfU4+L
+A+iBN6afg3cvpbrWfnaKQZw=
+=rTG3
+-----END PGP SIGNATURE-----

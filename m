@@ -1,86 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274717AbRIVKxc>; Sat, 22 Sep 2001 06:53:32 -0400
+	id <S274794AbRIVK5C>; Sat, 22 Sep 2001 06:57:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274794AbRIVKxW>; Sat, 22 Sep 2001 06:53:22 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:44816 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S274717AbRIVKxK>; Sat, 22 Sep 2001 06:53:10 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-        Bill Davidsen <davidsen@tmr.com>
-Subject: Re: broken VM in 2.4.10-pre9
-Date: Sat, 22 Sep 2001 13:01:02 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010916204528.6fd48f5b.skraw@ithnet.com> <Pine.LNX.3.96.1010920231251.26679B-100000@gatekeeper.tmr.com> <20010921124338.4e31a635.skraw@ithnet.com>
-In-Reply-To: <20010921124338.4e31a635.skraw@ithnet.com>
+	id <S274822AbRIVK4w>; Sat, 22 Sep 2001 06:56:52 -0400
+Received: from oe31.law11.hotmail.com ([64.4.16.88]:45586 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S274794AbRIVK4n>;
+	Sat, 22 Sep 2001 06:56:43 -0400
+X-Originating-IP: [64.180.168.53]
+From: "David Grant" <davidgrant79@hotmail.com>
+To: "Vojtech Pavlik" <vojtech@suse.cz>, "Greg Ward" <gward@python.net>
+Cc: <bugs@linux-ide.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20010921134402.A975@gerg.ca> <20010921205356.A1104@suse.cz> <20010921150806.A2453@gerg.ca> <20010921154903.A621@gerg.ca> <20010921215622.A1282@suse.cz> <20010921164304.A545@gerg.ca> <20010922100451.A2229@suse.cz>
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
+Date: Sat, 22 Sep 2001 03:53:48 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010922105332Z16449-2757+1233@humbolt.nl.linux.org>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Message-ID: <OE3183UV8wAddX47sFo00001649@hotmail.com>
+X-OriginalArrivalTime: 22 Sep 2001 10:57:03.0615 (UTC) FILETIME=[4FFA00F0:01C14355]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On September 21, 2001 12:43 pm, Stephan von Krawczynski wrote:
-> Sorry to followup to the same post again, but I just read across another thread
-> where people discuss heavily about aging up by 3 and down by 1 or vice versa is
-> considered to be better or worse. The real problem behind this is that they are
-> trying to bring some order in the pages by the age. Unfortunately this cannot
-> really work out well, because you will _always_ end up with few or a lot of
-> pages with the same age, which does not help you all that much in a situation
-> where you need to know who is the _best one_ that is to be dropped next. In
-> this drawing situation you have nothing to rely on but the age and some rough
-> guesses (or even worse: performance issues, _not_ to walk the whole tree to
-> find the best fitting page). This _solely_ comes from the fact that you have no
-> steady rising order in page->age ordering (is this correct english for this
-> mathematical term?). You _cannot_ know from the current function. So it must be
-> considered _bad_. On the other hand a list is always ordered and therefore does
-> not have this problem.
-> Shit, if I only were able to implement that. Can anybody help me to proove my
-> point?
+I'm not an expert user, just someone who's been trying feeble-ly to get
+Linux working for the past 3 months on my new computer.  I have a Promise
+chip (PDC20265) and Via vt86c686b on my A7V133.  I get these DMA timeout
+errors when I am even trying to install Linux!  I did manage to get Redhat
+7.1 installed a few months ago, as well as Debian 2.2r3.  I'm not sure if
+that was a fluke or not.  The only thing that I changed with my setup since
+then that might have affected things, is that I upgraded the ASUS bios at
+some point.  Anyways, at this point in time, no version of Linux will
+install.  After the installer starts to install a few packages (sometimes
+10, sometimes 100), the installer halts, the hard disk light stays on, and
+if I use CTRL-ALT-F4, I see these DMA timeout errors.  The hard drive is
+unresponsive unless I do a cold boot, as opossed to warm boot.
 
-You got your wish.  Andrea's mm patch introduced into the main tree at
-2.4.10-pre11 uses a standard LRU:
+Sorry for broadcasting this across the linux kernel mailing list.  I can't
+provide any lspci info., etc.. because I'm kind of new to Linux, and also,
+this bug is not allowing me to install Linux period.  And BTW, Windows runs
+with no problems on both IDE controllers, so I know it's not my PC.  I know
+lots of people who have gotten this motherboard and similar motherboards to
+work.  But I can't, and since I am just an everyday user who is trying to
+run Linux on my PC, I think these bugs are important to fix.  Or at least it
+needs to be made public knowledge what someone like me needs to do to get it
+working.  (Although I'm not blaming anyone working on the kernel.  I can
+only blame the people at Via and Promise for only been semi-cooperative with
+kernel development at best).
 
-+               if (PageTestandClearReferenced(page)) {
-+                       if (PageInactive(page)) {
-+                               del_page_from_inactive_list(page);
-+                               add_page_to_active_list(page);
-+                       } else if (PageActive(page)) {
-+                               list_del(entry);
-+                               list_add(entry, &active_list);
+David Grant
 
-<musings>
-There are arguments about whether page aging can be superior to standard LRU,
-and I personally believe it can be, but there's no question that ordinary LRU
-is a lot easier to implement correctly and will perform a lot better than
-incorrectly implemented/untuned page aging.
+----- Original Message -----
+From: "Vojtech Pavlik" <vojtech@suse.cz>
+To: "Greg Ward" <gward@python.net>
+Cc: <bugs@linux-ide.org>; <linux-kernel@vger.kernel.org>
+Sent: Saturday, September 22, 2001 1:04 AM
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
 
-The arguments in support of aging over LRU that I'm aware of are:
 
-  - incrementing an age is more efficient than resetting several LRU list links
-  - also captures some frequency-of-use information
-  - it can be implemented in hardware (not that that matters much)
-  - allows more scope for tuning/balancing (and also rope to hang oneself)
+> On Fri, Sep 21, 2001 at 04:43:04PM -0400, Greg Ward wrote:
+> > On 21 September 2001, Vojtech Pavlik said:
+> > > There were updates in 2.4.9-pre2 in the VIA driver, so it might be
+worth
+> > > trying. Also disabling CONFIG_IDEDMA_AUTO may work, but you'll get
+slow
+> > > performance.
+> >
+> > OK, I've just rebooted with CONFIG_IDEDMA_AUTO not set.  Same thing
+> > happens; kernel prints "hde: timeout waiting for DMA" at boot time,
+> > "hdparm /dev/hde" reports DMA on, and "dd if=/dev/hde of=/dev/null
+> > count=1" takes about 20 sec to complete.  (Hmmm: in previous builds,
+> > the kernel would turn DMA off for me after that long DMA timeout delay.
+> > It no longer does so.  If I "hdparm -d0 /dev/hde", then there's no
+> > long delay on read.)
+> >
 
-The big problem with aging is that unless it's entirely correctly balanced its
-just not going to work very well.  To balance it well requires knowing a lot
-about rates of list scanning and so on.  Matt Dillon perfected this art in BSD,
-but we never did, being preoccupied with things like just getting the mm
-scanners to activate when required, and sorting out our special complexities
-like zones and highmem buffers.  Probably another few months of working on it
-would let us get past the remaining structural problems and actually start
-tuning it, but we've already made people wait way too long for a stable 2.4.
-A more robust strategy makes a lot of sense right now.  We can still play with
-stronger magic in 2.5, and of course Rik's aging strategy will continue to be
-developed in Alan's tree while Andrea's is still going through the test of
-fire.
-</musings>
-
-I'll keep reading Andrea's code and maybe I'll be able to shed some more light
-on the algorithms he's using, since he doesn't seem to be in a big hurry to
-do that himself.  (Hi Andrea ;-)
-
---
-Daniel

@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131993AbRCVMfX>; Thu, 22 Mar 2001 07:35:23 -0500
+	id <S132005AbRCVNAg>; Thu, 22 Mar 2001 08:00:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132011AbRCVMfO>; Thu, 22 Mar 2001 07:35:14 -0500
-Received: from munk.apl.washington.edu ([128.95.96.184]:31238 "EHLO
-	munk.apl.washington.edu") by vger.kernel.org with ESMTP
-	id <S131993AbRCVMfD>; Thu, 22 Mar 2001 07:35:03 -0500
-Date: Thu, 22 Mar 2001 04:30:52 -0800 (PST)
-From: Brian Dushaw <dushaw@munk.apl.washington.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VIA vt82c686b  and UDMA(100)
-In-Reply-To: <20010322010507.A3170@better.net>
-Message-ID: <Pine.LNX.4.30.0103220427580.4116-100000@munk.apl.washington.edu>
+	id <S132011AbRCVNA1>; Thu, 22 Mar 2001 08:00:27 -0500
+Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:48905 "EHLO
+	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
+	id <S132005AbRCVNAN>; Thu, 22 Mar 2001 08:00:13 -0500
+From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
+Organization: Universitaet Regensburg, Klinikum
+To: linux-kernel@vger.kernel.org
+Date: Thu, 22 Mar 2001 13:59:35 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)@localhost
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: 2.2.18: e100.c (SuSE 7.1): udelay() used in a wrong way?
+Message-ID: <3ABA0537.18043.146E671@localhost>
+X-mailer: Pegasus Mail for Win32 (v3.12c)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In response to some suggestions I give
-more for the record on my problem of getting
-ata100 transfer rates:
+>From the source code of drivers/net/e100.c:
 
-"hdparm /dev/hda" gives:
+/****************************************************************************
+ * Name:          Phy82562EHDelayMilliseconds
+ *
+ * Description:   Stalls execution for a specified number of milliseconds.
+ *
+ * Arguments:     Time - milliseconds to delay
+ *
+ * Returns:       Nothing
+ *
+ 
+************************************************************************
+***/
+void
+Phy82562EHDelayMilliseconds(int Time)
+{
+    udelay(Time);
+}
 
-/dev/hda:
- multcount    =  0 (off)
- I/O support  =  1 (32-bit)
- unmaskirq    =  1 (on)
- using_dma    =  1 (on)
- keepsettings =  0 (off)
- nowerr       =  0 (off)
- readonly     =  0 (off)
- readahead    =  8 (on)
- geometry     = 3649/255/63, sectors = 58633344, start = 0
 
-so 32 bit mode and dma are indeed on... and still 11 MB/s.
+AFAIK, udelay() delays microseconds, not milliseconds.
 
-Thx for all the suggestions!
-B.D.
-
--- 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-Brian Dushaw
-Applied Physics Laboratory
-University of Washington
-1013 N.E. 40th Street
-Seattle, WA  98105-6698
-(206) 685-4198   (206) 543-1300
-(206) 543-6785 (fax)
-dushaw@apl.washington.edu
-
-Web Page:  http://staff.washington.edu/dushaw/index.html
+Ulrich
 

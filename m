@@ -1,46 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264146AbTF0KhT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 06:37:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264152AbTF0KhS
+	id S264242AbTF0Kiu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 06:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264246AbTF0Kiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 06:37:18 -0400
-Received: from cm19173.red.mundo-r.com ([213.60.19.173]:48736 "EHLO
-	mail.trasno.org") by vger.kernel.org with ESMTP id S264146AbTF0KhS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 06:37:18 -0400
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Matthew Wilcox <willy@debian.org>, David Woodhouse <dwmw2@infradead.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] BINFMT_ZFLAT can't be a module
-X-Url: http://people.mandrakesoft.com/~quintela
-From: Juan Quintela <quintela@trasno.org>
-In-Reply-To: <Pine.LNX.4.44.0306262105370.5042-100000@serv> (Roman Zippel's
- message of "Thu, 26 Jun 2003 21:10:49 +0200 (CEST)")
-References: <20030626180909.GP451@parcelfarce.linux.theplanet.co.uk>
-	<Pine.LNX.4.44.0306262036030.11817-100000@serv>
-	<20030626185659.GR451@parcelfarce.linux.theplanet.co.uk>
-	<Pine.LNX.4.44.0306262105370.5042-100000@serv>
-Date: Fri, 27 Jun 2003 12:51:30 +0200
-Message-ID: <86of0jssi5.fsf@trasno.mitica>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Jun 2003 06:38:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:42884
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264242AbTF0Kis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 06:38:48 -0400
+Subject: Re: [PATCH] fix inlining with gcc3
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030626230824.GM3827@werewolf.able.es>
+References: <Pine.LNX.4.55L.0306261858460.10651@freak.distro.conectiva>
+	 <20030626230824.GM3827@werewolf.able.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1056711001.4348.20.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Jun 2003 11:50:02 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "roman" == Roman Zippel <zippel@linux-m68k.org> writes:
+On Gwe, 2003-06-27 at 00:08, J.A. Magallon wrote:
+> This fixes inlining (really, not-inlining) with gcc3. How about next -pre ?
 
-Hi
+Benchmark that before you blindly assume its right. Gcc not inlining large
+stuff actually appears to be _smarter_ than the authors of the code
 
-roman> Expressions are documented and 'def_tristate ...' is short for 'tristate' 
-roman> and 'default ...'
-
-/me wonders if default_tristate or tristate_default will not be better
-(it looks confusing with define_tristate).
-
-Later, Juan.
-
--- 
-In theory, practice and theory are the same, but in practice they 
-are different -- Larry McVoy

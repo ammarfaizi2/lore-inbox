@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266704AbUJRPj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266703AbUJRPrV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266704AbUJRPj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 11:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266721AbUJRPj2
+	id S266703AbUJRPrV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 11:47:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUJRPrV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 11:39:28 -0400
-Received: from out003pub.verizon.net ([206.46.170.103]:20641 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S266704AbUJRPjT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 11:39:19 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: -final, a huge keyboard lag is back
-Date: Mon, 18 Oct 2004 11:39:16 -0400
-User-Agent: KMail/1.7
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Oct 2004 11:47:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:52891 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S266703AbUJRPrU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 11:47:20 -0400
+Date: Mon, 18 Oct 2004 17:45:02 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, "K.R. Foley" <kr@cybsft.com>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>
+Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U4
+Message-ID: <20041018154502.GA29032@elte.hu>
+References: <OF7D12F73F.EA6A61CE-ON86256F31.0055E47B-86256F31.0055E4B1@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410181139.16083.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [151.205.58.180] at Mon, 18 Oct 2004 10:39:16 -0500
+In-Reply-To: <OF7D12F73F.EA6A61CE-ON86256F31.0055E47B-86256F31.0055E4B1@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
 
-for the last 3 or 4 minor revisions, and 3 different kde installs I 
-have had a situation wherein the keyboard repeat goes down to less 
-than 1 per second, making it very difficult to go back and fix the 
-typu's my ancient fingers inevitably make.  The effect came and went 
-at seemingly random times.
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-I hadn't noticed the effect during the approaches to final, -rc4 in 
-particular maintained its snappiness from the keyboard very well.
+> I will rebuild with -U5 since I noticed it is available, but if you
+> have some suggestions on a way to capture more helpful data, I would
+> be glad to do it.
 
-This is not accompanied by an observable amount of cpu usage either.  
-But its back, sometimes non-stop for several minutes at a time with 
--final.  I have NDI where to look, so I'll leave that to those that 
-breath src code in their sleep.  In this sense, I'm a dumb beta 
-tester making a use/feel report.
+-U5 has CONFIG_RWSEM_DEADLOCK_DETECT, which could help with your network
+hangs.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+	Ingo

@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263177AbUDAV51 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 16:57:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263193AbUDAVXk
+	id S263195AbUDAV50 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 16:57:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUDAVXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:23:40 -0500
-Received: from holomorphy.com ([207.189.100.168]:49839 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S263177AbUDAVNh (ORCPT
+	Thu, 1 Apr 2004 16:23:48 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:57653 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263203AbUDAVOR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:13:37 -0500
-Date: Thu, 1 Apr 2004 13:13:26 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
-       Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       kenneth.w.chen@intel.com, Chris Wright <chrisw@osdl.org>
-Subject: Re: disable-cap-mlock
-Message-ID: <20040401211326.GM791@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	linux-kernel@vger.kernel.org, Stephen Smalley <sds@epoch.ncsc.mil>,
-	Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-	kenneth.w.chen@intel.com, Chris Wright <chrisw@osdl.org>
-References: <20040401135920.GF18585@dualathlon.random> <1080845238.25431.196.camel@moss-spartans.epoch.ncsc.mil> <20040401192612.GL791@holomorphy.com> <200404012223.07871@WOLK>
+	Thu, 1 Apr 2004 16:14:17 -0500
+Date: Thu, 1 Apr 2004 13:13:12 -0800
+From: Paul Jackson <pj@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: [Patch 23/23] mask v2 - Cpumask tweak in kernel/sched.c
+Message-Id: <20040401131312.00ccb9a6.pj@sgi.com>
+In-Reply-To: <20040401122802.23521599.pj@sgi.com>
+References: <20040401122802.23521599.pj@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404012223.07871@WOLK>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 01 April 2004 21:26, William Lee Irwin III wrote:
->> Okay, done.
->> Misc fix thrown in: the policies beyond enabled/disabled were wrongly
->> set up in minmax' args, so this throws the real max in the table.
-
-On Thu, Apr 01, 2004 at 10:23:07PM +0200, Marc-Christian Petersen wrote:
-> Great. Works :) ... Prolly the attached one ontop.
-> ciao, Marc
-
-I folded that into my little series, but they'll probably all get
-globbed together for archival in the end anyway.
-
-Not sure where this is all going. I guess if someone's got a use for it
-or otherwise it's a useful example of how to do a security module,
-maybe writing it did some good after all.
+Patch_23_of_23 - Cpumask code clarification in kernel/sched.c
+	Clarify and slightly optimize set_cpus_allowed() cpumask check
 
 
--- wli
+Diffstat Patch_23_of_23:
+ sched.c                        |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+
+diff -Nru a/kernel/sched.c b/kernel/sched.c
+--- a/kernel/sched.c	Mon Mar 29 01:04:08 2004
++++ b/kernel/sched.c	Mon Mar 29 01:04:08 2004
+@@ -2708,7 +2708,7 @@
+ 	runqueue_t *rq;
+ 
+ 	rq = task_rq_lock(p, &flags);
+-	if (any_online_cpu(new_mask) == NR_CPUS) {
++	if (!cpus_intersects(new_mask, cpu_online_map)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
+
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

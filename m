@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261648AbUJYBVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbUJYBW2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261648AbUJYBVG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 21:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261650AbUJYBVG
+	id S261653AbUJYBW2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 21:22:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbUJYBW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 21:21:06 -0400
-Received: from main.gmane.org ([80.91.229.2]:64709 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S261648AbUJYBVD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 21:21:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 24 Oct 2004 21:22:28 -0400
+Received: from kone17.procontrol.vip.fi ([212.149.71.178]:32414 "EHLO
+	danu.procontrol.fi") by vger.kernel.org with ESMTP id S261650AbUJYBWE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 21:22:04 -0400
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Transfer-Encoding: 7bit
+Message-Id: <431547F9-2624-11D9-8AC3-000393CC2E90@iki.fi>
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-5-101032808"
 To: linux-kernel@vger.kernel.org
-From: Joshua Kwan <joshk@triplehelix.org>
-Subject: Serious stability issues with 2.6.10-rc1
-Date: Sun, 24 Oct 2004 18:20:55 -0700
-Message-ID: <pan.2004.10.25.01.20.55.763270@triplehelix.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-68-126-181-112.dsl.pltn13.pacbell.net
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table (Debian GNU/Linux))
+From: Timo Sirainen <tss@iki.fi>
+Subject: readdir loses renamed files
+Date: Mon, 25 Oct 2004 04:21:57 +0300
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-2.6.10-rc1 seems to have a tendency to lock up after about 8 hours or so
-of uptime. Usually, I am in X, listening to music, and working on
-something when this happens out of the blue. It's a hard hang and there is
-no network response or ability to switch back to a tty so i can get
-sysrq-t output. It just dies. This has happened twice in the past 48 or
-so hours.
+--Apple-Mail-5-101032808
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-I can't really provide much debugging info though, due to the nature of
-the hang. Is there anything that pops into mind that I should try to nail
-this problem?
+I'd have thought this had already been asked many times before, but 
+google didn't show me anything.
 
-2.6.9 seems to be a lot better at staying alive.
+My problem is that mails in a large maildir get temporarily lost. This 
+happens because readdir() never returns a file which was just rename()d 
+by another process. Either new or the old name would have been fine, 
+but it's not returned at all.
 
-Thanks
+Is there a chance this could get fixed? Every OS/filesystem I've tested 
+so far has had the same problem, so I'll have to implement some extra 
+locking anyway (so much for maildir being lockless), but it would be 
+nice to have at least one OS where it works without the extra locking 
+overhead.
 
--- 
-Joshua Kwan
+I have a test program if someone wants to try it: 
+http://dovecot.org/tmp/readdir.c
 
+(and please Cc replies)
+
+--Apple-Mail-5-101032808
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (Darwin)
+
+iD8DBQFBfFU1yUhSUUBViskRAnrDAJ9AtFYubVoiWZTQ6yhW1F2QQUw19gCgozYk
+k5VV03rYScdosXDsZDV5f10=
+=rZIc
+-----END PGP SIGNATURE-----
+
+--Apple-Mail-5-101032808--
 

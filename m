@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVCCDTM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVCCDlH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVCCDTM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 22:19:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVCCCRp
+	id S261463AbVCCDlH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 22:41:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVCCDhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 21:17:45 -0500
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:6102 "EHLO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261400AbVCCCOd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 21:14:33 -0500
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Date: Thu, 3 Mar 2005 13:14:04 +1100
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16934.29420.360075.952688@cse.unsw.edu.au>
-Cc: Lars Marowsky-Bree <lmb@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Wed, 2 Mar 2005 22:37:03 -0500
+Received: from fire.osdl.org ([65.172.181.4]:44466 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261465AbVCCDg2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 22:36:28 -0500
+Date: Wed, 2 Mar 2005 19:37:44 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: "David S. Miller" <davem@davemloft.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: RFD: Kernel release numbering
-In-Reply-To: message from Zwane Mwaikambo on Wednesday March 2
+In-Reply-To: <422674A4.9080209@pobox.com>
+Message-ID: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
 References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-	<20050302225846.GK17584@marowsky-bree.de>
-	<Pine.LNX.4.61.0503021642120.25831@montezuma.fsmlabs.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+ <42264F6C.8030508@pobox.com> <20050302162312.06e22e70.akpm@osdl.org>
+ <42265A6F.8030609@pobox.com> <20050302165830.0a74b85c.davem@davemloft.net>
+ <422674A4.9080209@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday March 2, zwane@arm.linux.org.uk wrote:
->                                                   A Linus based odd number 
-> might be closer to that if we hope on people unwittingly running them.
-                                               ^^^^^^^^^^^
-
-I think this is a very unhelpful attitude.  Don't expect people to do
-things unwittingly.  It won't work.
-
-You should expect people to be more intelligent and more confused than
-you expect (yes, I know that is recursive).
-
-Being more intelligent means you won't be able to trick them.
-Being more confused means they will try out less things.
-
-Constantly changing the naming will confuse people, and they will
-experiment less.
-Having some clear and often-stated gaols for different releases -
-which are adhered to - will make people feel less confused and so more
-willing to experiment.  Asking nicely probably helps too.
-
---e.g.--
-The latest 2.6.X is stable. Feel free to use it for any system.
-The latest 2.6.X-pre is fairly stable.  Please consider using it on
-     non-"mission critical" system.
-The latest 2.6.X-mmY is under development. Please test it if you have
-     the opportunity.
 
 
-Agree on that.  Stick to it.  Get everyone to plaster it on their
-websites.  Stick it at the bottom of all @vger.kernel.org mailing
-lists. See what happens.
+On Wed, 2 Mar 2005, Jeff Garzik wrote:
+> 
+> If we want a calming period, we need to do development like 2.4.x is 
+> done today.  It's sane, understandable and it works.
 
-NeilBrown
+No. It's insane, and the only reason it works is that 2.4.x is a totally
+different animal. Namely it doesn't have the kind of active development AT
+ALL any more. It _only_ has the "even" number kind of things, and quite 
+frankly, even those are a lot less than 2.6.x has.
+
+> 2.6.x-pre: bugfixes and features
+> 2.6.x-rc: bugfixes only
+
+And the reason it does _not_ work is that all the people we want testing 
+sure as _hell_ won't be testing -rc versions.
+
+That's the whole point here, at least to me. I want to have people test 
+things out, but it doesn't matter how many -rc kernels I'd do, it just 
+won't happen. It's not a "real release".
+
+In contrast, making it a real release, and making it clear that it's a 
+release in its own right, might actually get people to use it. 
+
+Might. Maybe.
+
+			Linus

@@ -1,38 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275103AbTHAO1O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Aug 2003 10:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275119AbTHAO1O
+	id S270772AbTHAO2V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Aug 2003 10:28:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275220AbTHAO2V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Aug 2003 10:27:14 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:39324 "EHLO
-	gatekeeper.slim") by vger.kernel.org with ESMTP id S275103AbTHAO1N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Aug 2003 10:27:13 -0400
-Subject: 2.6.0-test1/2: keyboard funnies in textmode
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1059747945.2809.2.camel@paragon.slim>
+	Fri, 1 Aug 2003 10:28:21 -0400
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:8894 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S270772AbTHAO2U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Aug 2003 10:28:20 -0400
+Date: Fri, 1 Aug 2003 16:28:19 +0200
+From: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
+To: linux-kernel@vger.kernel.org, linux-adm@vger.kernel.org
+Subject: Security Patches
+Message-Id: <20030801162819.5b0377a1.Christoph.Pleger@uni-dortmund.de>
+Organization: Universitaet Dortmund
+X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; sparc-sun-solaris2.6)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 (1.4.3-1) 
-Date: 01 Aug 2003 16:25:45 +0200
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-With both 2.6.0-test1 and test2 I am unable to use
-de pipe (|) key in textmode (??). When in X it works again.
-I have tested this on 2 machines. One machine is a laptop with Japanese
-keyboard the other a regular PC with wireless Logitech USB keyboard.
+In the last few days I read some security advisories about security
+patches for Linux Kernels of the 2.4-series which have been published by
+various distributors. 
 
-All the other keys seem to work properly...anyone else with this strange
-problem?
+Does anybody know of a URL where such fixes for the stable Kernel 2.4.21
+can be found? The best place would be a place where always actual kernel
+security fixes can be found and where, if the patches are already
+integrated into the kernel, it contains no other differences from the
+stable release.
 
-Greetings,
-
-Jurgen
-
-
+Thanks
+  Christoph

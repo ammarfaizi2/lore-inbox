@@ -1,89 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbTA0Wca>; Mon, 27 Jan 2003 17:32:30 -0500
+	id <S263794AbTA0Whj>; Mon, 27 Jan 2003 17:37:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263794AbTA0Wca>; Mon, 27 Jan 2003 17:32:30 -0500
-Received: from server2.h07.org ([217.172.178.252]:44689 "EHLO server2.h07.org")
-	by vger.kernel.org with ESMTP id <S263760AbTA0Wc2>;
-	Mon, 27 Jan 2003 17:32:28 -0500
-Date: Mon, 27 Jan 2003 23:40:56 +0100
-From: Thomas Walpuski <thomas@bender.thinknerd.de>
-To: davem@nuts.ninka.net, kuznet@ms2.inr.ac.ru
-Cc: linux-kernel@vger.kernel.org
-Subject: bugfix for xfrm user interface
-Message-ID: <20030127224056.GA317@server2.h07.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S264617AbTA0Whj>; Mon, 27 Jan 2003 17:37:39 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:36753 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S263794AbTA0Whi>; Mon, 27 Jan 2003 17:37:38 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 27 Jan 2003 14:52:36 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+cc: Jamie Lokier <jamie@shareable.org>, Mark Mielke <mark@mark.mielke.cc>,
+       Lennert Buytenhek <buytenh@math.leidenuniv.nl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: bug in select() (was Re: {sys_,/dev/}epoll waiting timeout)
+In-Reply-To: <20030127162717.A1283@ti19>
+Message-ID: <Pine.LNX.4.50.0301271427320.1930-100000@blue1.dev.mcafeelabs.com>
+References: <20030122065502.GA23790@math.leidenuniv.nl> <20030122080322.GB3466@bjl1.asuk.net>
+ <Pine.LNX.4.50.0301230544320.820-100000@blue1.dev.mcafeelabs.com>
+ <20030123154304.GA7665@bjl1.asuk.net> <20030123172734.GA2490@mark.mielke.cc>
+ <20030123182831.GA8184@bjl1.asuk.net> <20030123204056.GC2490@mark.mielke.cc>
+ <20030123221858.GA8581@bjl1.asuk.net> <20030127162717.A1283@ti19>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-By playing around with the xfrm user interface I found two bugs.
+On Mon, 27 Jan 2003, Bill Rugolsky Jr. wrote:
 
-The xfrm user interface does not transmit authentication and/or
-encryption keys, when it is asked for via netlink-sockets. IMO the keys
-should be transmitted at least for debugging purpose.
+> Quite independent of this discussion, my boss came across this today
+> while looking at some strace output:
+>
+>    gettimeofday({1043689947, 402580}, NULL) = 0
+>    select(4, [0], [], [], {1, 999658})     = 0 (Timeout)
+>    gettimeofday({1043689949, 401857}, NULL) = 0
+>    gettimeofday({1043689949, 401939}, NULL) = 0
+>    select(4, [0], [], [], {0, 299})        = 0 (Timeout)
+>    gettimeofday({1043689949, 403577}, NULL) = 0
+>
+> Note that 1043689949.401857 - 1043689947.402580 = 1.999277.
+>
+> The Single Unix Specification (v2 and v3), says of select():
+>
+>    Implementations may also place limitations on the granularity of
+>    timeout intervals. If the requested timeout interval requires a finer
+>    granularity than the implementation supports, the actual timeout
+>    interval shall be rounded up to the next supported value.
+>
+> That seems to indicate that a fix is required.
 
-ATM it's impossible to make the kernel dump all security policies via
-netlink-sockets due to a semantic error in xfrm_user_rcv_msg().
+The problem is that the schedule_timeout() is not precise. So if you pass
+N to such function, your sleep interval can be ]N-1, N+1[
+This w/out considering other latencies but looking only at how timers are
+updated ( you can call schedule_timeout() immediately before a timer tick
+or immediately after ). So if we want to be sure to sleep at least the
+rounded up number of jiffies, we might end up sleeping one/two jiffies
+more ( and this w/out accounting other latencies ). And this will lead to
+the formula ( used by poll() ) :
 
-The following patch fixes both issues:
+Tj = (Tms * HZ + 999) / 1000 + 1
 
---- /usr/src/linux/net/ipv4/xfrm_user.c.orig	2003-01-16 19:44:49.000000000 +0100
-+++ /usr/src/linux/net/ipv4/xfrm_user.c	2003-01-16 20:41:54.000000000 +0100
-@@ -276,9 +276,11 @@
- 	copy_to_user_state(x, p);
- 
- 	if (x->aalg)
--		RTA_PUT(skb, XFRMA_ALG_AUTH, sizeof(*(x->aalg)), x->aalg);
-+		RTA_PUT(skb, XFRMA_ALG_AUTH,
-+			sizeof(*(x->aalg))+(x->aalg->alg_key_len+7)/8, x->aalg);
- 	if (x->ealg)
--		RTA_PUT(skb, XFRMA_ALG_CRYPT, sizeof(*(x->ealg)), x->ealg);
-+		RTA_PUT(skb, XFRMA_ALG_CRYPT,
-+			sizeof(*(x->ealg))+(x->ealg->alg_key_len+7)/8, x->ealg);
- 	if (x->calg)
- 		RTA_PUT(skb, XFRMA_ALG_COMP, sizeof(*(x->calg)), x->calg);
- 
-@@ -655,6 +657,7 @@
- 	info.in_skb = cb->skb;
- 	info.out_skb = skb;
- 	info.nlmsg_seq = cb->nlh->nlmsg_seq;
-+	info.this_idx = 0;
- 	info.start_idx = cb->args[0];
- 	(void) xfrm_policy_walk(dump_one_policy, &info);
- 	cb->args[0] = info.this_idx;
-@@ -752,7 +755,7 @@
- {
- 	struct rtattr *xfrma[XFRMA_MAX];
- 	struct xfrm_link *link;
--	int type, min_len, kind;
-+	int type, min_len;
- 
- 	if (!(nlh->nlmsg_flags & NLM_F_REQUEST))
- 		return 0;
-@@ -768,7 +771,6 @@
- 		goto err_einval;
- 
- 	type -= XFRM_MSG_BASE;
--	kind = (type & 3);
- 	link = &xfrm_dispatch[type];
- 
- 	/* All operations require privileges, even GET */
-@@ -777,7 +779,7 @@
- 		return -1;
- 	}
- 
--	if (kind == 2 && (nlh->nlmsg_flags & NLM_F_DUMP)) {
-+	if ((type == 2 || type == 5) && (nlh->nlmsg_flags & NLM_F_DUMP)) {
- 		u32 rlen;
- 
- 		if (link->dump == NULL)
+( if Tms > 0 )
 
-BTW: I've done a port of isakmpd to Linux 2.5 which uses PFKEYv2-sockets
-for sake of simplicity (read: because I'm lazy). The patch and tarballs
-with prepatched sources can be found at http://bender.thinknerd.de/
-~thomas/isakmpd-linux-2.5/. I've done some testing on 2.5.56 and it
-seems to be quite stable (there have been no problems within one week
-heavy usage).
+
+
+- Davide
+

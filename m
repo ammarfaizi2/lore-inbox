@@ -1,193 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262525AbTCRQcP>; Tue, 18 Mar 2003 11:32:15 -0500
+	id <S262520AbTCRQbw>; Tue, 18 Mar 2003 11:31:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262526AbTCRQcP>; Tue, 18 Mar 2003 11:32:15 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:13828 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S262525AbTCRQbq>; Tue, 18 Mar 2003 11:31:46 -0500
-Date: Tue, 18 Mar 2003 08:41:00 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Kevin Pedretti <ktpedre@sandia.gov>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug 350] New: i386 context switch very slow compared to 2.4
- due to wrmsr (performance)
-In-Reply-To: <3E773A39.2090403@sandia.gov>
-Message-ID: <Pine.LNX.4.44.0303180809190.11381-100000@home.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262526AbTCRQbv>; Tue, 18 Mar 2003 11:31:51 -0500
+Received: from janus.zeusinc.com ([205.242.242.161]:49778 "EHLO
+	zso-proxy.zeusinc.com") by vger.kernel.org with ESMTP
+	id <S262520AbTCRQba>; Tue, 18 Mar 2003 11:31:30 -0500
+Subject: Re: 2.5.64-mm8 breaks MASQ
+From: Tom Sightler <ttsig@tuxyturvy.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Shawn <core@enodev.com>, LKML <linux-kernel@vger.kernel.org>,
+       Stephen Hemminger <shemminger@osdl.org>
+In-Reply-To: <20030318025523.7360f1d9.akpm@digeo.com>
+References: <1047922184.3223.2.camel@iso-8590-lx.zeusinc.com>
+	 <1047984726.3914.2.camel@localhost.localdomain>
+	 <20030318025523.7360f1d9.akpm@digeo.com>
+Content-Type: text/plain
+Message-Id: <1048005523.2559.15.camel@iso-8590-lx.zeusinc.com>
+Mime-Version: 1.0
+Date: 18 Mar 2003 11:38:43 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2003-03-18 at 05:55, Andrew Morton wrote:
+> Shawn <core@enodev.com> wrote:
+> >
+> > This actually broke in -mm7, but I don't know what causes it.
+> > 
+> > I have to admit, I haven't even looked at the patch to see what changed.
+> > Oh well, I suspect good ol' 65-mm1 will fix things up. If so, my TiVo
+> > could stop holding it's breath. ;)
+> > 
+> > Anyone else seeing this?
+> 
+> Stephen is looking into it.  Please send him your iptables
+> configuration info. 
 
-On Tue, 18 Mar 2003, Kevin Pedretti wrote:
->
->     I wasn't aware of what you state below but it makes sense.  What I 
-> haven't been able to figure out, and nobody seems to know, is why the 
-> rodata section of an executable is placed in the text section and is not 
-> page aligned.  This seems to be a mixing of code and data on the same 
-> page.  Maybe it doesn't matter since it is read only?
+My iptables config is just a simple one-liner as follows:
 
-It's a bad idea to share even read-only data, but the impact of read-only 
-data is much less that read-write. In particular, you should avoid sharing 
-_any_ code and data in the same physical L1 cache-line, since that will be 
-a big problem for any CPU with exclusion between the I$ and D$.
+iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
 
-HOWEVER, modern x86 CPU's tend to have the I$ be part of the cache 
-coherency protocol, so instead of having exclusion they allow sharing as 
-long as the D$ isn't actually dirty. In that case it's fine to share 
-read-only data and code, although the cache utilization goes down if you 
-do a lot of it.
+eth1 is an Aironet PCCARD wireless adapter connected to my corporate
+network
 
-Anyway, as long as they are in separate cache-lines, you should be ok even 
-on something with cache exclusion.
+eth0 is 3c556 (3c59x driver) Mini-PCI 10/100 with various systems
+connected to it.
 
-When it comes to actually _writing_ to the data, at least on the P4 you
-don't want to have read-write data anywhere _near_ the I$ (somebody
-reported half-page granularity). This is true on crusoe too, btw (at a
-128-byte granularity).
+I also regularly NAT my VMware virtual machine (normally configured for
+host only networking) which sits on vmnet1.
 
-Anyway, I think gcc should make sure that even the ro-data section is at
-least cacheline-aligned so that it stays away from cachelines used for I$.  
-That makes sense even on CPU's that don't have exclusion, since it
-actually gives slightly better L1 cache utilization.
+I've tried several variations of the iptables option, such as:
 
-You can run this (stupid) test-program to try. On my P4 I get
+iptables -t nat -A POSTROUTING -s 192.168.4.1/24 -j MASQUERADE
 
-	empty overhead=320 cycles
-	load overhead=0 cycles
-	I$ load overhead=0 cycles
-	I$ load overhead=0 cycles
-	I$ store overhead=264 cycles
+iptables -t nat -A POSTROUTING -o ! eth0 -j MASQUERADE
 
-and on my PIII I get
+All of these variations work without the brlock patches backed out. 
+Actually, I haven't been able to get any MASQ/NAT options to work with
+the brlock removal patches.
 
-	empty overhead=74 cycles
-	load overhead=8 cycles
-	I$ load overhead=8 cycles
-	I$ load overhead=8 cycles
-	I$ store overhead=103 cycles
+Let me know if you need more info.
 
-and (just for fun) on an old crusoe I get
+Later,
+Tom
 
-	empty overhead=67 cycles
-	load overhead=-9 cycles
-	I$ load overhead=-14 cycles
-	I$ load overhead=-14 cycles
-	I$ store overhead=12 cycles
 
-where that "negative overhead" just shows that we do some strnge things to
-scheduling, and the loop actually ends up faster if it has a load in it
-than without the load..
-
-But you can see that storing to code is a really bad idea. Especially on a 
-P4, where the overhead for a store was 264 cycles! (You can also see the 
-cost of doing just the empty synchronization and rdtsc - 320 cycles for a 
-rdtsc and two locked memory accesses on a P4).
-
-I don't have access to an old Pentium - I think that was the one that had 
-the strict exclusion between the L1 I$ and D$, and then you should see the 
-I$ load overhead go up.
-
-			Linus
-
-----
-#include <sys/types.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/fcntl.h>
-#include <asm/unistd.h>
-#include <sys/stat.h>
-#include <stdio.h>
-
-#include <sys/mman.h>
-
-#define PAGE_SIZE (4096UL)
-#define PAGE_MASK (~(PAGE_SIZE-1))
-
-#define serialize() asm volatile("lock ; addl $0,(%esp)")
-
-#define rdtsc() ({ unsigned long a, d; asm volatile("rdtsc":"=a" (a), "=d" (d)); a; })
-
-static int unused = 0;
-
-#define NR (100000)
-
-int main()
-{
-	int i;
-	unsigned long overhead = ~0UL, empty = 0;
-	void * address = (void *)(PAGE_MASK & (unsigned long)main);
-
-	mprotect(address, PAGE_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC);
-
-	overhead = ~0UL;
-	for (i = 0; i < NR; i++) {
-		unsigned long cycles = rdtsc();
-		serialize();
-		serialize();
-		cycles = rdtsc() - cycles;
-		if (cycles < overhead)
-			overhead = cycles;
-	}
-	printf("empty overhead=%ld cycles\n", overhead);
-	empty = overhead;
-
-	overhead = ~0UL;
-	for (i = 0; i < NR; i++) {
-		unsigned long dummy;
-		unsigned long cycles = rdtsc();
-		serialize();
-		asm volatile("movl %1,%0":"=r" (dummy):"m" (unused));
-		serialize();
-		cycles = rdtsc() - cycles;
-		if (cycles < overhead)
-			overhead = cycles;
-	}
-	printf("load overhead=%ld cycles\n", overhead-empty);
-
-	overhead = ~0UL;
-	for (i = 0; i < NR; i++) {
-		unsigned long dummy;
-		unsigned long cycles = rdtsc();
-		serialize();
-		asm volatile("1:\tmovl 1b,%0":"=r" (dummy));
-		serialize();
-		cycles = rdtsc() - cycles;
-		if (cycles < overhead)
-			overhead = cycles;
-	}
-	printf("I$ load overhead=%ld cycles\n", overhead-empty);
-
-	asm volatile("jmp 1f\n.align 128\n99:\t.long 0\n1:");
-	overhead = ~0UL;
-	for (i = 0; i < NR; i++) {
-		unsigned long dummy;
-		unsigned long cycles;
-		cycles = rdtsc();
-		serialize();
-		asm volatile("movl 99b,%0":"=r" (dummy));
-		serialize();
-		cycles = rdtsc() - cycles;
-		if (cycles < overhead)
-			overhead = cycles;
-	}
-	printf("I$ load overhead=%ld cycles\n", overhead-empty);
-
-	asm volatile("jmp 1f\n99:\t.long 0\n1:");
-	overhead = ~0UL;
-	for (i = 0; i < NR; i++) {
-		unsigned long dummy;
-		unsigned long cycles;
-		cycles = rdtsc();
-		serialize();
-		asm volatile("1:\tmovl %0,99b":"=r" (dummy));
-		serialize();
-		cycles = rdtsc() - cycles;
-		if (cycles < overhead)
-			overhead = cycles;
-	}
-	printf("I$ store overhead=%ld cycles\n", overhead-empty);
-	return 0;
-}
 

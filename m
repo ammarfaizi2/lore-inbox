@@ -1,76 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272305AbTHDWcR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 18:32:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272309AbTHDWcR
+	id S272308AbTHDWam (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 18:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272309AbTHDWam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 18:32:17 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:27091 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272305AbTHDWcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 18:32:13 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 5 Aug 2003 00:32:10 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jesse Pollard <jesse@cats-chateau.net>
-Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030805003210.2c7f75f6.skraw@ithnet.com>
-In-Reply-To: <03080416092800.04444@tabby>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<03080409334500.03650@tabby>
-	<20030804170506.11426617.skraw@ithnet.com>
-	<03080416092800.04444@tabby>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 4 Aug 2003 18:30:42 -0400
+Received: from rj.sgi.com ([192.82.208.96]:34528 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S272308AbTHDWak (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 18:30:40 -0400
+Date: Mon, 4 Aug 2003 15:30:38 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] make lookup_create non-static
+Message-ID: <20030804223037.GA2214@sgi.com>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20030804213543.GA1697@sgi.com> <20030804144129.3dfe4aac.akpm@osdl.org> <20030804214412.GA1788@sgi.com> <20030804145723.533e77f7.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030804145723.533e77f7.akpm@osdl.org>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003 16:09:28 -0500
-Jesse Pollard <jesse@cats-chateau.net> wrote:
-
-> > tar --dereference loops on symlinks _today_, to name an example.
-> > All you have to do is to provide a way to find out if a directory is a
-> > hardlink, nothing more. And that should be easy.
-> 
-> Yup - because a symlink is NOT a hard link. it is a file.
-> 
-> If you use hard links then there is no way to determine which is the "proper"
-> link.
-
-Where does it say that an fs is not allowed to give you this information in
-some way?
-
-> 
+On Mon, Aug 04, 2003 at 02:57:23PM -0700, Andrew Morton wrote:
+> jbarnes@sgi.com (Jesse Barnes) wrote:
 > >
-> > > It was also done in one of the "popular" code management systems under
-> > > unix. (it allowed a "mount" of the system root to be under the CVS
-> > > repository to detect unauthorized modifications...). Unfortunately,
-> > > the system could not be backed up anymore. 1. A dump of the CVS
-> > > filesystem turned into a dump of the entire system... 2. You could not
-> > > restore the backups... The dumps failed (bru at the time) because the
-> > > pathnames got too long, the restore failed since it ran out of disk space
-> > > due to the multiple copies of the tree being created.
-> >
-> > And they never heard of "--exclude" in tar, did they?
+> > You mean copy lookup_create into hwgfs (which is already in the tree,
+> >  btw)?  Yeah, I guess I could do that if you don't want to take this.
 > 
-> Doesn't work. Remember - you have to --exclude EVERY possible loop. And 
-> unless you know ahead of time, you can't exclude it. The only way we found
-> to reliably do the backup was to dismount the CVS.
+> ah, I thought you were referring to an out-of-tree filesystem.
+> 
+> It would appear that intermezzo has already created a private copy of
+> lookup_create().  Sigh.
+> 
+> If we're going to export this thing to filesystems then it really should be
+> documented a bit.  You could bribe me with a patch which does that ;)
 
-And if you completely run out of ideas in your wild-mounts-throughout-the-tree
-problem you should simply use "tar -l".
+Ok, how does this look?
 
-And in just the same way fs could provide a mode bit saying "hi, I am a
-hardlink", and tar can then easily provide option number 1345 saying "stay away
-from hardlinks".
-
-If you can do the fs patch, I can do the tar patch.
-
-Regards,
-Stephan
+Jesse
 
 
+===== fs/namei.c 1.81 vs edited =====
+--- 1.81/fs/namei.c	Thu Jul 10 22:23:45 2003
++++ edited/fs/namei.c	Mon Aug  4 15:28:38 2003
+@@ -1375,8 +1375,15 @@
+ 	goto do_last;
+ }
+ 
+-/* SMP-safe */
+-static struct dentry *lookup_create(struct nameidata *nd, int is_dir)
++/**
++ * lookup_create - lookup a dentry, creating it if it doesn't exist
++ * @nd: nameidata info
++ * @is_dir: directory flag
++ *
++ * Simple function to lookup and return a dentry and create it
++ * if it doesn't exist.  Is SMP-safe.
++ */
++struct dentry *lookup_create(struct nameidata *nd, int is_dir)
+ {
+ 	struct dentry *dentry;
+ 

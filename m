@@ -1,261 +1,383 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261705AbTH3V1d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 17:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTH3V1d
+	id S262160AbTH3Vst (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 17:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbTH3Vst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 17:27:33 -0400
-Received: from fw.osdl.org ([65.172.181.6]:37311 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261705AbTH3V11 (ORCPT
+	Sat, 30 Aug 2003 17:48:49 -0400
+Received: from crete.csd.uch.gr ([147.52.16.2]:9932 "EHLO crete.csd.uch.gr")
+	by vger.kernel.org with ESMTP id S262160AbTH3Vsk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 17:27:27 -0400
-Date: Sat, 30 Aug 2003 14:25:07 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@localhost.localdomain>
-To: <linux-kernel@vger.kernel.org>
-Subject: Power Management Update
-Message-ID: <Pine.LNX.4.33.0308301359570.944-100000@localhost.localdomain>
+	Sat, 30 Aug 2003 17:48:40 -0400
+Organization: 
+Date: Sun, 31 Aug 2003 00:45:33 +0300 (EEST)
+From: Panagiotis Papadakos <papadako@csd.uoc.gr>
+To: linux-kernel@vger.kernel.org
+Subject: IOMEGA ZIP 100 ATAPI problems with 2.6
+Message-ID: <Pine.GSO.4.53.0308310037230.27956@oneiro.csd.uch.gr>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+With all of the 2.5, 2.6 kernels I have tried(currently 2.6.0-test4-mm3),
+I
+have problems with my Zip.I can mount and umount it cleanly but when I try
+to write something from it in my disk either cp will just
+segfault or my system will just reboot. Also when I am in KDE it will
+lockup my system and kernel reports the messages that are in the end of
+the mail.
+Also with hdparm -I /dev/hdd the kernel prints the following message:
+hdd: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hdd: drive_cmd: error=0x04
 
-I'm pleased to announce the release of the first patchset of power 
-management changes for 2.6.0. The purpose of this release is to give 
-people a chance to review and test the PM code before it's sent on to 
-Linus. 
+P.S.
+The Zip works with 2.4 kernels...
 
-These patches include a number of cleanups and fixes to the PM core code, 
-the driver core PM code, and swsusp. I have verified that all suspend 
-states (standby, suspend-to-ram, and suspend-to-disk) work on a number of 
-personal systems using ACPI as the low-level power interface. However, 
-this is with limited functionality (from a VGA console with minimal 
-processes running). 
-
-These patches should restore suspend functionality for those that were
-able to successfully do it before -test3 and -test4. My apologies for the 
-inconvenience my previous changes caused. These patches will probably not 
-allow any more people to suspend/resume than before.
-
-The net benefit of these, and the already committed ones, are a cleaner
-power management subsystem and the development of the proper framework for
-successfully suspending and resuming the entire system. There are still
-several rough edges, though we seem to be making headway on those
-relatively rapidly, and are my sole focus at the moment.
-
-My main concerns right now are:
-
-- Platform devices, and more generally, devices that may belong to more 
-  than one class. It's mainly a driver model problem, though it has PM
-  implications that appear to be holding a few people up. 
-
-- Drivers
-  Drivers have always been the main impedence to having a working PM core, 
-  though it's been difficult to make a lot of progress. I have a number of 
-  devices that I will verify work properly, and be in contact with the 
-  maintainers if necessary. (Though, I seem to be having more problems 
-  with IRQ routing at the moment.)
-
-- Getting it work on more systems. 
-  Hopefully we will not run into any serious issues, though the PM code
-  has traditionally been finicky. I have a wide array of test machines and
-  willing testers, so this should move quickly. 
-
-- APM
-  I unfortunately have not had a chance to look into the reported APM 
-  problems. But, I'm happy to say that I finally dug out an old laptop 
-  that has APM on it. I should make traction soon. 
+Regards
+        Panagiotis Papadakos
 
 
-I encourage willing people to download the patch, test, and report any
-problems back to me and/or the list. I cannot guarantee definite or timely
-results for systems where PM simply doesn't work. However, the more
-systems we characterize, the easier this will become in the future. Please 
-be patient.
+Aug 30 23:34:37 Santorini kernel: EXT2-fs warning: mounting unchecked fs,
+running e2fsck is recommended
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry e0bdd5be
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry d83246f2
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry 900f6684
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry f8a0b9e2
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry 5034ad24
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry 10c94e23
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry 504d416e
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry e0ad353f
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap offset entry
+00ddb4e2
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry b8d54fef
+Aug 30 23:37:56 Santorini kernel: swap_free: Bad swap file entry 68983486
+.                                                                       .
+................... And much more of such messages ......................
 
-If you're using BitKeeper, you can pull the tree from:
+And then:
 
-	bk://kernel.bkbits.net:/home/mochel/linux-2.5-power
+Aug 30 23:37:56 Santorini kernel: Unable to handle kernel paging request
+at virtual address 00200200
+Aug 30 23:37:56 Santorini kernel:  printing eip:
+Aug 30 23:37:56 Santorini kernel: c013c0ba
+Aug 30 23:37:56 Santorini kernel: *pde = 00000000
+Aug 30 23:37:56 Santorini kernel: Oops: 0000 [#1]
+Aug 30 23:37:56 Santorini kernel: PREEMPT
+Aug 30 23:37:56 Santorini kernel: CPU:    0
+Aug 30 23:37:56 Santorini kernel: EIP:    0060:[<c013c0ba>]    Tainted: P
+VLI
+Aug 30 23:37:56 Santorini kernel: EFLAGS: 00210046
+Aug 30 23:37:56 Santorini kernel: EIP is at free_pages_bulk+0x17a/0x280
+Aug 30 23:37:56 Santorini kernel: eax: 00000000   ebx: c1054b28   ecx:
+c1054b30   edx: 00200200
+Aug 30 23:37:56 Santorini kernel: esi: 000011e0   edi: ffffffff   ebp:
+000008f0   esp: dd281bc4
+Aug 30 23:37:56 Santorini kernel: ds: 007b   es: 007b   ss: 0068
+Aug 30 23:37:56 Santorini kernel: Process kdeinit (pid: 7874,
+threadinfo=dd280000 task=dada7940)
+Aug 30 23:37:56 Santorini kernel: Stack: c035eb74 c1054b00 c035ec34
+00000000 00000001 c1054b00 c035ebb0 0000000d
+Aug 30 23:37:56 Santorini kernel:        c1028000 c035ebb0 00200082
+ffffffff c035eb74 c10bc2f0 dd280000 c035ec50
+Aug 30 23:37:56 Santorini kernel:        c013c713 c035eb74 00000002
+c035ec50 00000000 00200202 c035eb74 c257c4cc
+Aug 30 23:37:56 Santorini kernel: Call Trace:
+Aug 30 23:37:56 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c0144af7>]
+clear_page_tables+0xb7/0xc0
+Aug 30 23:37:56 Santorini kernel:  [<c01490c9>] exit_mmap+0xb9/0x1a0
+Aug 30 23:37:56 Santorini kernel:  [<c011d269>] mmput+0x79/0xf0
+Aug 30 23:37:56 Santorini kernel:  [<c015f751>] exec_mmap+0xb1/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c015f8cc>] flush_old_exec+0x12c/0x870
+Aug 30 23:37:56 Santorini kernel:  [<c015f690>] kernel_read+0x50/0x60
+Aug 30 23:37:56 Santorini kernel:  [<c017e3b0>]
+load_elf_binary+0x2c0/0xb40
+Aug 30 23:37:56 Santorini kernel:  [<c011cfa0>]
+autoremove_wake_function+0x0/0x50
+Aug 30 23:37:56 Santorini kernel:  [<c011d167>] mm_init+0x97/0xe0
+Aug 30 23:37:56 Santorini kernel:  [<c015f1c2>] copy_strings+0x1e2/0x220
+Aug 30 23:37:56 Santorini kernel:  [<c017e0f0>] load_elf_binary+0x0/0xb40
+Aug 30 23:37:56 Santorini kernel:  [<c016040c>]
+search_binary_handler+0x18c/0x2c0
+Aug 30 23:37:56 Santorini kernel:  [<c0160747>] do_execve+0x207/0x280
+Aug 30 23:37:56 Santorini kernel:  [<c0109a12>] sys_execve+0x42/0x80
+Aug 30 23:37:56 Santorini kernel:  [<c0305f27>] syscall_call+0x7/0xb
+Aug 30 23:37:56 Santorini kernel:
+Aug 30 23:37:56 Santorini kernel: Code: ff 85 c0 0f 85 e9 00 00 00 8b 44
+24 14 8b 54 24 44 89 44 24 04 89 14 24 e8 94 fd
+ff ff 85 c0 0f 85 c0 00 00 00 8d 4b 08 8b 51 04 <39> 0a 0f 85 a5 00 00 00
+8b 43 08 39 48 04 0f 85 8c 00 00 00 01
+Aug 30 23:37:56 Santorini kernel:  <6>note: kdeinit[7874] exited with
+preempt_count 3
+Aug 30 23:37:56 Santorini kernel: ------------[ cut here ]------------
+Aug 30 23:37:56 Santorini kernel: kernel BUG at include/linux/list.h:148!
+Aug 30 23:37:56 Santorini kernel: invalid operand: 0000 [#2]
+Aug 30 23:37:56 Santorini kernel: PREEMPT
+Aug 30 23:37:56 Santorini kernel: CPU:    0
+Aug 30 23:37:56 Santorini kernel: EIP:    0060:[<c013c167>]    Tainted: P
+VLI
+Aug 30 23:37:56 Santorini kernel: EFLAGS: 00010006
+Aug 30 23:37:56 Santorini kernel: EIP is at free_pages_bulk+0x227/0x280
+Aug 30 23:37:56 Santorini kernel: eax: 00000000   ebx: c128fac8   ecx:
+c128fad0   edx: d0645000
+Aug 30 23:37:56 Santorini kernel: esi: 0000f644   edi: ffffffff   ebp:
+00007b22   esp: d0ba5e74
+Aug 30 23:37:56 Santorini kernel: ds: 007b   es: 007b   ss: 0068
+Aug 30 23:37:56 Santorini kernel: Process kdeinit (pid: 9173,
+threadinfo=d0ba4000 task=d0bdad20)
+Aug 30 23:37:56 Santorini kernel: Stack: c035eb74 c128faa0 c035ec34
+00000000 00000001 c128faa0 c035ebb0 00000000
+Aug 30 23:37:56 Santorini kernel:        c1028000 c035ebb0 00000086
+ffffffff c035eb74 c149ead0 d0ba4000 c035ec50
+Aug 30 23:37:56 Santorini kernel:        c013c713 c035eb74 0000000f
+c035ec50 00000000 00000202 c035eb74 dd912008
+Aug 30 23:37:56 Santorini kernel: Call Trace:
+Aug 30 23:37:56 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c016751a>] poll_freewait+0x3a/0x50
+Aug 30 23:37:56 Santorini kernel:  [<c0167897>] do_select+0x1b7/0x2d0
+Aug 30 23:37:56 Santorini kernel:  [<c0167530>] __pollwait+0x0/0xd0
+Aug 30 23:37:56 Santorini kernel:  [<c0167c9f>] sys_select+0x2bf/0x4c0
+Aug 30 23:37:56 Santorini kernel:  [<c0305f27>] syscall_call+0x7/0xb
+Aug 30 23:37:56 Santorini kernel:
+Aug 30 23:37:56 Santorini kernel: Code: e0 ff 48 14 8b 40 08 a8 08 75 0c
+8b 44 24 1c 83 c4 30 5b 5e 5f 5d c3 e8 48 f5 fd
+ff eb ed 0f 0b 95 00 72 17 31 c0 e9 67 ff ff ff <0f> 0b 94 00 72 17 31 c0
+e9 4e ff ff ff 0f 0b ca 00 58 e9 31 c0
+Aug 30 23:37:56 Santorini kernel:  <6>note: kdeinit[9173] exited with
+preempt_count 2
+Aug 30 23:37:56 Santorini kernel: Unable to handle kernel paging request
+at virtual address 00200200
+Aug 30 23:37:56 Santorini kernel:  printing eip:
+Aug 30 23:37:56 Santorini kernel: c013c0ba
+Aug 30 23:37:56 Santorini kernel: *pde = 00000000
+Aug 30 23:37:56 Santorini kernel: Oops: 0000 [#3]
+Aug 30 23:37:56 Santorini kernel: PREEMPT
+Aug 30 23:37:56 Santorini kernel: CPU:    0
+Aug 30 23:37:56 Santorini kernel: EIP:    0060:[<c013c0ba>]    Tainted: P
+VLI
+Aug 30 23:37:56 Santorini kernel: EFLAGS: 00010046
+Aug 30 23:37:56 Santorini kernel: EIP is at free_pages_bulk+0x17a/0x280
+Aug 30 23:37:56 Santorini kernel: eax: 00000000   ebx: c14d8820   ecx:
+c14d8828   edx: 00200200
+Aug 30 23:37:56 Santorini kernel: esi: 0001e035   edi: ffffffff   ebp:
+0000f01a   esp: d0ba5c0c
+Aug 30 23:37:56 Santorini kernel: ds: 007b   es: 007b   ss: 0068
+Aug 30 23:37:56 Santorini kernel: Process kdeinit (pid: 9173,
+threadinfo=d0ba4000 task=d0bdad20)
+Aug 30 23:37:56 Santorini kernel: Stack: c035eb74 c14d8848 c035ec34
+00000000 00000001 c14d8848 c035ebb0 00000002
+Aug 30 23:37:56 Santorini kernel:        c1028000 c035ebb0 00000086
+ffffffff c035eb74 c12ad960 d0ba4000 c035ec50
+Aug 30 23:37:56 Santorini kernel:        c013c713 c035eb74 0000000d
+c035ec50 00000000 00000202 c035eb74 d123b148
+Aug 30 23:37:56 Santorini kernel: Call Trace:
+Aug 30 23:37:56 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c0145132>] zap_pte_range+0x142/0x180
+Aug 30 23:37:56 Santorini kernel:  [<c01451bb>] zap_pmd_range+0x4b/0x70
+Aug 30 23:37:56 Santorini kernel:  [<c0145223>] unmap_page_range+0x43/0x70
+Aug 30 23:37:56 Santorini kernel:  [<c0145331>] unmap_vmas+0xe1/0x210
+Aug 30 23:37:56 Santorini kernel:  [<c0149093>] exit_mmap+0x83/0x1a0
+Aug 30 23:37:56 Santorini kernel:  [<c011d269>] mmput+0x79/0xf0
+Aug 30 23:37:56 Santorini kernel:  [<c01214bc>] do_exit+0x12c/0x400
+Aug 30 23:37:56 Santorini kernel:  [<c010b880>] do_invalid_op+0x0/0xd0
+Aug 30 23:37:56 Santorini kernel:  [<c010b589>] die+0xf9/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c010b949>] do_invalid_op+0xc9/0xd0
+Aug 30 23:37:56 Santorini kernel:  [<c013c167>]
+free_pages_bulk+0x227/0x280
+Aug 30 23:37:56 Santorini kernel:  [<c011ff3d>] profile_hook+0x2d/0x4b
+Aug 30 23:37:56 Santorini kernel:  [<c01161ee>]
+smp_apic_timer_interrupt+0x2e/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c03068b6>]
+apic_timer_interrupt+0x1a/0x20
+Aug 30 23:37:56 Santorini kernel:  [<c011ff3d>] profile_hook+0x2d/0x4b
+Aug 30 23:37:56 Santorini kernel:  [<c0306933>] error_code+0x2f/0x38
+Aug 30 23:37:56 Santorini kernel:  [<c013c167>]
+free_pages_bulk+0x227/0x280
+Aug 30 23:37:56 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c016751a>] poll_freewait+0x3a/0x50
+Aug 30 23:37:56 Santorini kernel:  [<c0167897>] do_select+0x1b7/0x2d0
+Aug 30 23:37:56 Santorini kernel:  [<c0167530>] __pollwait+0x0/0xd0
+Aug 30 23:37:56 Santorini kernel:  [<c0167c9f>] sys_select+0x2bf/0x4c0
+Aug 30 23:37:56 Santorini kernel:  [<c0305f27>] syscall_call+0x7/0xb
+Aug 30 23:37:56 Santorini kernel:
+Aug 30 23:37:56 Santorini kernel: Code: ff 85 c0 0f 85 e9 00 00 00 8b 44
+24 14 8b 54 24 44 89 44 24 04 89 14 24 e8 94 fd
+ff ff 85 c0 0f 85 c0 00 00 00 8d 4b 08 8b 51 04 <39> 0a 0f 85 a5 00 00 00
+8b 43 08 39 48 04 0f 85 8c 00 00 00 01
+Aug 30 23:37:56 Santorini kernel:  <6>note: kdeinit[9173] exited with
+preempt_count 5
+Aug 30 23:37:56 Santorini kernel: ------------[ cut here ]------------
+Aug 30 23:37:56 Santorini kernel: kernel BUG at include/linux/list.h:148!
+Aug 30 23:37:56 Santorini kernel: invalid operand: 0000 [#4]
+Aug 30 23:37:56 Santorini kernel: PREEMPT
+Aug 30 23:37:56 Santorini kernel: CPU:    0
+Aug 30 23:37:56 Santorini kernel: EIP:    0060:[<c013c167>]    Tainted: P
+VLI
+Aug 30 23:37:56 Santorini kernel: EFLAGS: 00010002
+Aug 30 23:37:56 Santorini kernel: EIP is at free_pages_bulk+0x227/0x280
+Aug 30 23:37:56 Santorini kernel: eax: 00000000   ebx: c11e1608   ecx:
+c11e1610   edx: c0b79d80
+Aug 30 23:37:56 Santorini kernel: esi: 0000b08c   edi: ffffffff   ebp:
+00005846   esp: d0ba59f4
+Aug 30 23:37:56 Santorini kernel: ds: 007b   es: 007b   ss: 0068
+Aug 30 23:37:56 Santorini kernel: Process kdeinit (pid: 9173,
+threadinfo=d0ba4000 task=d0bdad20)
+Aug 30 23:37:56 Santorini kernel: Stack: c035eb74 c11e15e0 c035ec34
+00000000 00000001 c11e15e0 c035ebb0 00000004
+Aug 30 23:37:56 Santorini kernel:        c1028000 c035ebb0 00000082
+ffffffff c035eb74 c1278fd0 d0ba4000 c035ec50
+Aug 30 23:37:56 Santorini kernel:        c013c713 c035eb74 0000000b
+c035ec50 00000000 00000206 c035eb74 d3af6580
+Aug 30 23:37:56 Santorini kernel: Call Trace:
+Aug 30 23:37:56 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c01615f1>] pipe_release+0xc1/0xd0
+Aug 30 23:37:56 Santorini kernel:  [<c01617c0>]
+pipe_write_release+0x0/0x40
+Aug 30 23:37:56 Santorini kernel:  [<c01617fb>]
+pipe_write_release+0x3b/0x40
+Aug 30 23:37:56 Santorini kernel:  [<c01551f8>] __fput+0x118/0x130
+Aug 30 23:37:56 Santorini kernel:  [<c0153719>] filp_close+0x59/0x90
+Aug 30 23:37:56 Santorini kernel:  [<c01208c4>] put_files_struct+0x54/0xc0
+Aug 30 23:37:56 Santorini kernel:  [<c01214f7>] do_exit+0x167/0x400
+Aug 30 23:37:56 Santorini kernel:  [<c01196e0>] do_page_fault+0x0/0x454
+Aug 30 23:37:56 Santorini kernel:  [<c010b589>] die+0xf9/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c011980c>] do_page_fault+0x12c/0x454
+Aug 30 23:37:56 Santorini kernel:  [<c025f316>] __ide_dma_begin+0x36/0x50
+Aug 30 23:37:56 Santorini kernel:  [<c025f4c3>] __ide_dma_count+0x13/0x20
+Aug 30 23:37:56 Santorini kernel:  [<c025f1f0>] __ide_dma_read+0xd0/0xe0
+Aug 30 23:37:56 Santorini kernel:  [<c025e8d0>] ide_dma_intr+0x0/0xc0
+Aug 30 23:37:56 Santorini kernel:  [<c025ee10>] dma_timer_expiry+0x0/0x90
+Aug 30 23:37:56 Santorini kernel:  [<c024dcfd>] do_rw_taskfile+0x1bd/0x2b0
+Aug 30 23:37:56 Santorini kernel:  [<c01196e0>] do_page_fault+0x0/0x454
+Aug 30 23:37:56 Santorini kernel:  [<c0306933>] error_code+0x2f/0x38
+Aug 30 23:37:56 Santorini kernel:  [<c013c0ba>]
+free_pages_bulk+0x17a/0x280
+Aug 30 23:37:56 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c0145132>] zap_pte_range+0x142/0x180
+Aug 30 23:37:56 Santorini kernel:  [<c01451bb>] zap_pmd_range+0x4b/0x70
+Aug 30 23:37:56 Santorini kernel:  [<c0145223>] unmap_page_range+0x43/0x70
+Aug 30 23:37:56 Santorini kernel:  [<c0145331>] unmap_vmas+0xe1/0x210
+Aug 30 23:37:56 Santorini kernel:  [<c0149093>] exit_mmap+0x83/0x1a0
+Aug 30 23:37:56 Santorini kernel:  [<c011d269>] mmput+0x79/0xf0
+Aug 30 23:37:56 Santorini kernel:  [<c01214bc>] do_exit+0x12c/0x400
+Aug 30 23:37:56 Santorini kernel:  [<c010b880>] do_invalid_op+0x0/0xd0
+Aug 30 23:37:56 Santorini kernel:  [<c010b589>] die+0xf9/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c010b949>] do_invalid_op+0xc9/0xd0
+Aug 30 23:37:56 Santorini kernel:  [<c013c167>]
+free_pages_bulk+0x227/0x280
+Aug 30 23:37:56 Santorini kernel:  [<c011ff3d>] profile_hook+0x2d/0x4b
+Aug 30 23:37:56 Santorini kernel:  [<c01161ee>]
+smp_apic_timer_interrupt+0x2e/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c03068b6>]
+apic_timer_interrupt+0x1a/0x20
+Aug 30 23:37:56 Santorini kernel:  [<c011ff3d>] profile_hook+0x2d/0x4b
+Aug 30 23:37:56 Santorini kernel:  [<c0306933>] error_code+0x2f/0x38
+Aug 30 23:37:56 Santorini kernel:  [<c013c167>]
+free_pages_bulk+0x227/0x280
+Aug 30 23:37:56 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:56 Santorini kernel:  [<c016751a>] poll_freewait+0x3a/0x50
+Aug 30 23:37:56 Santorini kernel:  [<c0167897>] do_select+0x1b7/0x2d0
+Aug 30 23:37:56 Santorini kernel:  [<c0167530>] __pollwait+0x0/0xd0
+Aug 30 23:37:56 Santorini kernel:  [<c0167c9f>] sys_select+0x2bf/0x4c0
+Aug 30 23:37:56 Santorini kernel:  [<c0305f27>] syscall_call+0x7/0xb
+Aug 30 23:37:56 Santorini kernel:
+Aug 30 23:37:56 Santorini kernel: Code: e0 ff 48 14 8b 40 08 a8 08 75 0c
+8b 44 24 1c 83 c4 30 5b 5e 5f 5d c3 e8 48 f5 fd
+ff eb ed 0f 0b 95 00 72 17 31 c0 e9 67 ff ff ff <0f> 0b 94 00 72 17 31 c0
+e9 4e ff ff ff 0f 0b ca 00 58 e9 31 c0
+Aug 30 23:37:56 Santorini kernel:  <6>note: kdeinit[9173] exited with
+preempt_count 7
+Aug 30 23:37:56 Santorini kernel: Unable to handle kernel paging request
+at virtual address 00200200
+Aug 30 23:37:56 Santorini kernel:  printing eip:
+Aug 30 23:37:56 Santorini kernel: c013c0ba
+Aug 30 23:37:56 Santorini kernel: *pde = 00000000
+Aug 30 23:37:56 Santorini kernel: Oops: 0000 [#5]
+Aug 30 23:37:56 Santorini kernel: PREEMPT
+Aug 30 23:37:56 Santorini kernel: CPU:    0
+Aug 30 23:37:56 Santorini kernel: EIP:    0060:[<c013c0ba>]    Tainted: P
+VLI
+Aug 30 23:37:56 Santorini kernel: EFLAGS: 00010046
+Aug 30 23:37:56 Santorini kernel: EIP is at free_pages_bulk+0x17a/0x280
+Aug 30 23:37:56 Santorini kernel: eax: 00000000   ebx: c1470810   ecx:
+c1470818   edx: 00200200
+Aug 30 23:37:56 Santorini kernel: esi: 0001b69b   edi: ffffffff   ebp:
+0000db4d   esp: d0b45e74
+Aug 30 23:37:56 Santorini kernel: ds: 007b   es: 007b   ss: 0068
+Aug 30 23:37:56 Santorini kernel: Process artsd (pid: 9178,
+threadinfo=d0b44000 task=d0bdb350)
+Aug 30 23:37:56 Santorini kernel: Stack: c035eb74 c1470838 c035ec34
+00000000 00000001 c1470838 c035ebb0 00000001
+Aug 30 23:37:56 Santorini kernel:        c1028000 c035ebb0 00000086
+ffffffff c035eb74 c1343d70 d0b44000 c035ec50
+Aug 30 23:37:56 Santorini kernel:        c013c713 c035eb74 0000000e
+c035ec50 00000000 00000202 c035eb74 d4e56008
+Aug 30 23:37:56 Santorini kernel: Call Trace:
+Aug 30 23:37:56 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:57 Santorini kernel:  [<c016751a>] poll_freewait+0x3a/0x50
+Aug 30 23:37:57 Santorini kernel:  [<c0167897>] do_select+0x1b7/0x2d0
+Aug 30 23:37:57 Santorini kernel:  [<c0167530>] __pollwait+0x0/0xd0
+Aug 30 23:37:57 Santorini kernel:  [<c0167c9f>] sys_select+0x2bf/0x4c0
+Aug 30 23:37:57 Santorini kernel:  [<c0305f27>] syscall_call+0x7/0xb
+Aug 30 23:37:57 Santorini kernel:
+Aug 30 23:37:57 Santorini kernel: Code: ff 85 c0 0f 85 e9 00 00 00 8b 44
+24 14 8b 54 24 44 89 44 24 04 89 14 24 e8 94 fd
+ff ff 85 c0 0f 85 c0 00 00 00 8d 4b 08 8b 51 04 <39> 0a 0f 85 a5 00 00 00
+8b 43 08 39 48 04 0f 85 8c 00 00 00 01
+Aug 30 23:37:57 Santorini kernel:  <6>note: artsd[9178] exited with
+preempt_count 2
 
-Or, a GNU patch is available at:
-
-	http://developer.osdl.org/~mochel/patches/test4-pm1/test4-pm1.diff.bz2
-
-There are split patches for each BK revision in that directory. The 
-changelogs are appended. 
-
-
-	Pat
-
-
-This will update the following files:
-
- arch/i386/kernel/suspend.c     |  141 ------------
- arch/i386/kernel/suspend_asm.S |   94 --------
- arch/i386/Makefile             |    1 
- arch/i386/kernel/Makefile      |    2 
- arch/i386/power/Makefile       |    2 
- arch/i386/power/cpu.c          |  141 ++++++++++++
- arch/i386/power/swsusp.S       |  104 ++++++++-
- drivers/acpi/sleep/main.c      |   53 ++--
- drivers/acpi/sleep/proc.c      |   73 ++++++
- drivers/acpi/sleep/sleep.h     |    3 
- drivers/base/core.c            |   33 +--
- drivers/base/power/main.c      |   13 -
- drivers/base/power/power.h     |    3 
- drivers/base/power/resume.c    |   21 +
- drivers/base/power/suspend.c   |   10 
- include/asm-i386/suspend.h     |    7 
- include/linux/suspend.h        |    1 
- kernel/power/Makefile          |    2 
- kernel/power/console.c         |    2 
- kernel/power/disk.c            |  337 ++++++++++++++++++++++++++++++
- kernel/power/main.c            |  450 ++++++++---------------------------------
- kernel/power/power.h           |   39 +--
- kernel/power/swsusp.c          |  357 +++++++++++++++++++-------------
- kernel/sys.c                   |    2 
- 24 files changed, 1053 insertions(+), 838 deletions(-)
-
-through these ChangeSets:
-
-<mochel@osdl.org> (03/08/30 1.1301)
-   [acpi] Replace /proc/acpi/sleep
-   
-   - Bad to remove proc file now, even though it's nearly useless. Reinstated
-     in the name of compatibility. 
-   
-   - Restored original semantics - if software_suspend() is enabled, then just
-     call that (and never go into low-power state). Otherwise, call acpi_suspend().
-   
-   - acpi_suspend() is simply a wrapper for pm_suspend(), passing down the right
-     argument. This is so we don't have to do everything manually anymore.
-   
-   - Fixed long-standing bug by checking for "4b" in string written in to 
-     determine if we want to enter S4bios.
-
-<mochel@osdl.org> (03/08/30 1.1300)
-   [swsusp] Restore software_suspend() call.
-   
-   - Allows 'backdoor' interface to swsusp, as requested by Pavel. 
-   
-   - Simply a wrapper to pm_suspend(), though guaranteeing that swsusp is used,
-     and system is shutdown (and put into low-power state).
-   
-   - Call in sys_reboot() changed back to call to software_suspend().
-
-<mochel@osdl.org> (03/08/30 1.1299)
-   [swsusp] Use BIO interface when reading from swap. 
-   
-   - bios are the preferred method for doing this type of stuff in 2.6. The 
-     __bread() uses bio's in the end anyway. 
-   
-   - bios make it really easy to implement write functionality, so we are able
-     to reset the swap signature immediately after checking it during resume.
-     So, if something happens while resuming, we will still have valid swap to 
-     use. 
-   
-   - Thanks to Jens for some help in getting it working several months ago.
-
-<mochel@osdl.org> (03/08/29 1.1298)
-   [swsusp] Minor cleanups in read_suspend_image()
-   
-   - Make resume_bdev global to file, so we don't have to pass it around (we 
-     always use the same one, so it shouldn't make a difference).
-   
-   - Allocate cur in read_suspend_image(), since it's the only function that
-     uses it. 
-   
-   - Check all errors and make sure we free cur if any happen.
-   
-   - Make sure to return errors from the functions called, not our own. 
-   
-   - Free the pagedir if we hit an error after we allocate it. 
-
-<mochel@osdl.org> (03/08/27 1.1297)
-   [acpi] Move register save closer to call to enter sleep state.
-   
-   - By moving acpi_{save,restore}_state_mem() into acpi_pm_enter(), implying
-     after interrupts have been disabled and nothing else is running on the 
-     system, S3 is able to resume properly.
-
-<mochel@osdl.org> (03/08/27 1.1296)
-   [power] Make sure devices get added to the PM lists before bus_add_device().
-   
-   - Prevents ordering issues when drivers add more devices ->probe(). 
-
-<mochel@osdl.org> (03/08/26 1.1295)
-   [power] Separate suspend-to-disk from other suspend sequences.
-   
-   - Put in kernel/power/disk.c
-   - Make compilation depend on CONFIG_SOFTWARE_SUSPEND (should probably be 
-     renamed to CONFIG_PM_STD or some such).
-
-<mochel@osdl.org> (03/08/25 1.1294)
-   [power] Fix handling of pm_users.
-   
-   - Actually decrement on device_pm_release()
-   - Call from device_pm_remove().
-
-<mochel@osdl.org> (03/08/25 1.1292)
-   [power] Fix device suspend handling
-   
-   - Handle -EAGAIN in device_suspend() properly: keep going, with error reset
-     to 0. 
-   
-   - Call dpm_resume() if we got a real error, instead of device_resume(), which
-     would deadlock.
-
-<mochel@osdl.org> (03/08/22 1.1276.19.8)
-   [power] swsusp Cleanups
-   
-   - do_magic()
-     - Rename to swsusp_arch_suspend().
-     - Move declaration to swsusp.c
-   
-   - arch_prepare_suspend()
-     - Return an int
-     - Fix x86 version to return -EFAULT if cpu does not have pse, instead of 
-       calling panic().
-     - Call from swsusp_save().
-   
-   - do_magic_suspend_1()
-     - Move body to pm_suspend_disk()
-     - Remove.
-   
-   - do_magic_suspend_2()
-     - Rename to swsusp_suspend()
-     - Move IRQ fiddling to suspend_save_image(), since that's the only call 
-       that needs it. 
-     - Return an int.
-   
-   - do_magic_resume_1()
-     - Move body to pm_resume().
-     - Remove
-   
-   - do_magic_resume_2()
-     - Rename to swsusp_resume(). 
-     - Return an int. 
-   
-   - swsusp general
-     - Remove unnecessary includes.
-     - Remove suspend_pagedir_lock, since it was only used to disable IRQs.
-     - Change swsusp_{suspend,resume} return an int, so pm_suspend_disk() knows
-       if anything failed. 
-   
-    
-
-<mochel@osdl.org> (03/08/22 1.1276.19.7)
-   [power] Move i386-specific swsusp code to arch/i386/power/
-
-<mochel@osdl.org> (03/08/22 1.1276.19.6)
-   [power] Fix up sysfs state handling.
-
-<mochel@osdl.org> (03/08/22 1.1276.19.5)
-   [power] Make sure console level is high when suspending.
-
-<mochel@osdl.org> (03/08/22 1.1276.20.1)
-   [power] Fix sysfs state reporting.
-
-
+Aug 30 23:37:57 Santorini kernel: ------------[ cut here ]------------
+Aug 30 23:37:57 Santorini kernel: kernel BUG at include/linux/list.h:148!
+Aug 30 23:37:57 Santorini kernel: invalid operand: 0000 [#6]
+Aug 30 23:37:57 Santorini kernel: PREEMPT
+Aug 30 23:37:57 Santorini kernel: CPU:    0
+Aug 30 23:37:57 Santorini kernel: EIP:    0060:[<c013c167>]    Tainted: P
+VLI
+Aug 30 23:37:57 Santorini kernel: EFLAGS: 00210016
+Aug 30 23:37:57 Santorini kernel: EIP is at free_pages_bulk+0x227/0x280
+Aug 30 23:37:57 Santorini kernel: eax: 00000000   ebx: c13955d0   ecx:
+c13955d8   edx: c10da398
+Aug 30 23:37:57 Santorini kernel: esi: 00015ef0   edi: fffffffe   ebp:
+000057bc   esp: d68f3e3c
+Aug 30 23:37:57 Santorini kernel: ds: 007b   es: 007b   ss: 0068
+Aug 30 23:37:57 Santorini kernel: Process kdeinit (pid: 3095,
+threadinfo=d68f2000 task=c2850670)
+Aug 30 23:37:57 Santorini kernel: Stack: c035eb74 c1395580 c035ec34
+00000000 00000001 c1395580 c035ebbc 00000009
+Aug 30 23:37:57 Santorini kernel:        c1028000 c035ebb0 00200086
+ffffffff c035eb74 c1140460 d68f2000 c035ec50
+Aug 30 23:37:57 Santorini kernel:        c013c713 c035eb74 00000006
+c035ec50 00000000 00200202 c035eb74 c4346f58
+Aug 30 23:37:57 Santorini kernel: Call Trace:
+Aug 30 23:37:57 Santorini kernel:  [<c013c713>]
+free_hot_cold_page+0xf3/0x100
+Aug 30 23:37:57 Santorini kernel:  [<c0145132>] zap_pte_range+0x142/0x180
+Aug 30 23:37:57 Santorini kernel:  [<c0145eff>] do_wp_page+0x2af/0x300
+Aug 30 23:37:57 Santorini kernel:  [<c01451bb>] zap_pmd_range+0x4b/0x70
+Aug 30 23:37:57 Santorini kernel:  [<c0145223>] unmap_page_range+0x43/0x70
+Aug 30 23:37:57 Santorini kernel:  [<c0145331>] unmap_vmas+0xe1/0x210
+Aug 30 23:37:57 Santorini kernel:  [<c0149093>] exit_mmap+0x83/0x1a0
+Aug 30 23:37:57 Santorini kernel:  [<c011d269>] mmput+0x79/0xf0
+Aug 30 23:37:57 Santorini kernel:  [<c01214bc>] do_exit+0x12c/0x400
+Aug 30 23:37:57 Santorini kernel:  [<c011b6f0>]
+default_wake_function+0x0/0x30
+Aug 30 23:37:57 Santorini kernel:  [<c012182a>] do_group_exit+0x3a/0xb0
+Aug 30 23:37:57 Santorini kernel:  [<c0305f27>] syscall_call+0x7/0xb
+Aug 30 23:37:57 Santorini kernel:
+Aug 30 23:37:57 Santorini kernel: Code: e0 ff 48 14 8b 40 08 a8 08 75 0c
+8b 44 24 1c 83 c4 30 5b 5e 5f 5d c3 e8 48 f5 fd
+ff eb ed 0f 0b 95 00 72 17 31 c0 e9 67 ff ff ff <0f> 0b 94 00 72 17 31 c0
+e9 4e ff ff ff 0f 0b ca 00 58 e9 31 c0
+Aug 30 23:37:57 Santorini kernel:  <6>note: kdeinit[3095] exited with
+preempt_count 3
 

@@ -1,103 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269049AbRHLKTI>; Sun, 12 Aug 2001 06:19:08 -0400
+	id <S269043AbRHLKSi>; Sun, 12 Aug 2001 06:18:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269057AbRHLKS7>; Sun, 12 Aug 2001 06:18:59 -0400
-Received: from www2.mailru.com ([80.68.244.5]:10000 "EHLO www2.mailru.com")
-	by vger.kernel.org with ESMTP id <S269049AbRHLKSr>;
-	Sun, 12 Aug 2001 06:18:47 -0400
-Message-ID: <3B7658A7.6050708@pisem.net>
-Date: Sun, 12 Aug 2001 13:21:27 +0300
-From: CuPoTKa <cupotka@pisem.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010801
-X-Accept-Language: ru, en-us, he
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        kbuild-devel <kbuild-devel@lists.sourceforge.net>,
-        alan <alan@redhat.com>, kaos@ocs.com.au
-Subject: Bug report : Build problem with kernel 2.4.8
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	id <S269049AbRHLKS2>; Sun, 12 Aug 2001 06:18:28 -0400
+Received: from mail.direcpc.com ([198.77.116.30]:33929 "EHLO
+	postoffice2.direcpc.com") by vger.kernel.org with ESMTP
+	id <S269043AbRHLKSY>; Sun, 12 Aug 2001 06:18:24 -0400
+Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
+From: Jeffrey Ingber <jhingber@ix.netcom.com>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <997611708.29909.22.camel@DESK-2>
+In-Reply-To: <20010811225232.A19327@thyrsus.com> 
+	<997611708.29909.22.camel@DESK-2>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.12.99 (Preview Release)
+Date: 12 Aug 2001 06:23:33 -0400
+Message-Id: <997611819.29909.25.camel@DESK-2>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem: Can't compile kernel 2.4.8 with support of sound card CM8338A.
+> On 11 Aug 2001 22:52:32 -0400, Eric S. Raymond wrote:
+ 
+> The evidence for this is indirect but strong.  The hang happened in every
+> pre-2.4.8 configuration we tested if there was an SB Live! actually in the
+> machine.  It never happened if either 2.4.8 was running or the SB Live! was
+> removed.  This theory also accounts for our failure to observe hangs during
 
-ver_linux script information:
+I've used ALSA for quite awhile for EMU10k1 (E-MU APS, not SBLive) and
+have had no problems.  I noticed that the EMU10K1 driver was updated in
+2.4.8 so I tried it.  I had a lockup four times during audio playback,
+so I switched back to ALSA and now everything is stable once again.
 
-Gnu C                  2.95.4
-Gnu make               3.79.1
-binutils               2.11.90.0.24
-util-linux             2.11h
-mount                  2.11h
-modutils               2.4.6
-e2fsprogs              1.22
-reiserfsprogs          3.x.0j
-PPP                    2.4.1
-Linux C Library        2.2.4
-Dynamic linker (ldd)   2.2.4
-Procps                 2.0.7
-Net-tools              1.60
-Kbd                    [ключи...]
-Console-tools          0.2.3
-Sh-utils               2.0.11
-cat: /proc/modules: No such file or directory
-Modules Loaded        
+Jeffrey H. Ingber (jhingber _at_ ix.netcom.com)
 
+> 
+> > moderate to intense X GUI activity -- that traffic was going over the AGP
+> > bus, and we had enough memory in the box that it never swapped.
+> > 
+> > Now that we seem to be out of the woods, I can cop to why I'm doing
+> > qualification tests on bleeding-edge PCs.  I'm writing an article for
+> > Linux Journal on building the ultimate Linux box.  I won't spoil the
+> > surprise by telling you what else is in the machine, but I will tell
+> > you that it is jaw-droppingly fast and sexy hardware and that you'll
+> > get to read all about it before the end of the year.
+> > 
+> > In the meantime, here is my draft writeup on the hang problem:
+> > 
+> > <sect1 id='horror_story'><title>The Inevitable Horror Story</title>
+> > 
+> > <para>Sadly, life got much less pleasant for quite a while after that. We
+> > started seeing mysterious hangs -- the machine would lock up hard and
+> > random intervals, usually during disk I/O operations.  This is almost the
+> > worst kind of problem to troubleshoot, as it leaves no clues other than the
+> > bare fact of the machine's catatonia -- you get no oops message, and all
+> > the state you might have used to post-mortem disappears when the machine is
+> > reset.  The only kind of problem that's worse is one that adds
+> > irreproducibility to the catatonia.  But fortunately, we found that doing
+> > <command>make clean</command> or <command>make world</command> on an X
+> > source tree produced the hang pretty reliably.</para>
+> > 
+> > <para>Approximately thirty hours of troubleshooting (interrupted by far too
+> > little sleep) ensued as Gary and I tried to track down the problem.  We
+> > formed and discarded lots of theories based on where we had not yet seen
+> > the hang.  For a while we thought the problem only bit in console mode, not
+> > in X mode. For another while we thought it happened only under SMP kernels.
+> > For a third while we thought we could avoid it by compiling kernels for the
+> > Pentium II rather than the Athlon. All these beliefs were eventually
+> > falsified amidst much wailing and gnashing of teeth.</para>
+> > 
+> > <para>Once it became clear that there was a problem at or near the hardware
+> > level, we still had a lot of hypotheses to choose from -- with all of them
+> > having pretty unpleasant ramifications for our chances of qualifying this
+> > box before I had to fly home.  Quite possibly the motherboard was bad.  Or
+> > we might have been seeing thermal flakeouts due to insufficient cooling of
+> > the motherboard chips or memory.</para>
+> > 
+> > <para>About eighteen hours in, just before we both crashed in exhaustion,
+> > we posted the problem to the <email>linux-kernel</email> mailing list.  We
+> > got a rather larger number of responses than we expected (nearly twenty)
+> > within a few hours.  Several were quite helpful.  And the breakthrough came
+> > when a couple of linux-kernel people confirmed that the SB Live! is a
+> > frequent source of hangs and lockups on other fast PCI machines.  With a
+> > few more hours of testing (during which our X source tree probably got
+> > cleaned and rebuilt more times than is allowed by law) we satisfied
+> > ourselves that the lockups stop happening when the SB Live! has been
+> > summarily yanked from the machine.</para>
+> > 
+> > <para>The most helpful advice we got came from one Daniel T. Chen, who
+> > reported that he had nailed some similar lockups to the SB Live! running
+> > over a Via chipset -- and that they stopped when he upgraded to 2.4.8 and
+> > the newest version of the emu10k1 driver.  So while Gary took a much-needed
+> > break (and his wife and kids to a David Byrne concert), I built 2.4.8 (with
+> > emu10k1.o hard-compiled in) and ran our torture test -- first with the SB
+> > Live! omitted, and then with it in the machine.  No hang.  Victory!</para>
+> > 
+> > <para>Perhaps it's belaboring the obvious, but the way this problem got
+> > resolved was yet another testimony to the power of open-source development
+> > and the community that has evolved around it.  Once again, our
+> > technology and our social machine complemented each other and delivered
+> > the goods.</para>
+> > -- 
+> > 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+> > 
+> > What is a magician but a practicing theorist?
+> > 	-- Obi-Wan Kenobi, 'Return of the Jedi'
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Errors i got:
-
-make[4]: Entering directory `/usr/local/src/kernel-source-2.4.8/drivers/sound'
-gcc -D__KERNEL__ -I/usr/local/src/kernel-source-2.4.8/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686    -c -o cmpci.o cmpci.c
-In file included from cmpci.c:90:
-/usr/local/src/kernel-source-2.4.8/include/linux/module.h:21: linux/modversions.h: No such file or directory
-cmpci.c: In function `cm_release_mixdev':
-cmpci.c:1594: warning: unused variable `s'
-cmpci.c: In function `initialize_chip':
-cmpci.c:3013: warning: unused variable `reg_mask'
-make[4]: *** [cmpci.o] Error 1
-make[4]: Leaving directory `/usr/local/src/kernel-source-2.4.8/drivers/sound'
-make[3]: *** [first_rule] Error 2
-make[3]: Leaving directory `/usr/local/src/kernel-source-2.4.8/drivers/sound'
-make[2]: *** [_subdir_sound] Error 2
-make[2]: Leaving directory `/usr/local/src/kernel-source-2.4.8/drivers'
-make[1]: *** [_dir_drivers] Error 2
-make[1]: Leaving directory `/usr/local/src/kernel-source-2.4.8'
-make: *** [stamp-build] Error 2
-
-Part of .config :
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-CONFIG_SOUND_CMPCI=y
-# CONFIG_SOUND_CMPCI_FM is not set
-# CONFIG_SOUND_CMPCI_MIDI is not set
-# CONFIG_SOUND_CMPCI_JOYSTICK is not set
-CONFIG_SOUND_CMPCI_CM8738=y
-# CONFIG_SOUND_CMPCI_SPDIFINVERSE is not set
-# CONFIG_SOUND_CMPCI_SPDIFLOOP is not set
-CONFIG_SOUND_CMPCI_SPEAKERS=2
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-# CONFIG_MIDI_VIA82CXXX is not set
-# CONFIG_SOUND_OSS is not set
-# CONFIG_SOUND_TVMIXER is not set
-
-I use Debian GNU/Linux. Custom kernel 2.4.6 i686.
-
-Best regards.
 

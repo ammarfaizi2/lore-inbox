@@ -1,39 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280095AbRKIUlB>; Fri, 9 Nov 2001 15:41:01 -0500
+	id <S280096AbRKIUpl>; Fri, 9 Nov 2001 15:45:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280096AbRKIUkw>; Fri, 9 Nov 2001 15:40:52 -0500
-Received: from gizmo.catnap.com ([198.168.192.2]:18438 "HELO gizmo.catnap.com")
-	by vger.kernel.org with SMTP id <S280095AbRKIUko>;
-	Fri, 9 Nov 2001 15:40:44 -0500
-Message-ID: <20011109204043.17315.qmail@gizmo.catnap.com>
-Subject: Re: ramfs leak
-To: linux-kernel@vger.kernel.org
-Date: Fri, 9 Nov 2001 15:40:43 -0500 (EST)
-Cc: padraig@antefacto.com (Padraig Brady)
-In-Reply-To: <no.id> from "Padraig Brady" at Nov 08, 2001 11:39:28 AM
-From: wcm@catnap.com (W Christopher Martin)
-Organization: Catnap Consultants
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
+	id <S280104AbRKIUpb>; Fri, 9 Nov 2001 15:45:31 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:37881
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S280096AbRKIUpV>; Fri, 9 Nov 2001 15:45:21 -0500
+Date: Fri, 9 Nov 2001 12:45:14 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: smpcomputing@free.fr, alan@lxorguk.ukuu.org.uk, ak@suse.de,
+        anton@samba.org, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+Message-ID: <20011109124514.A446@mikef-linux.matchmail.com>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
+	smpcomputing@free.fr, alan@lxorguk.ukuu.org.uk, ak@suse.de,
+	anton@samba.org, mingo@elte.hu, linux-kernel@vger.kernel.org
+In-Reply-To: <E162BFV-0002y1-00@the-village.bc.nu> <20011109.045455.74749430.davem@redhat.com> <02e801c16920$9ca9acc0$0a01a8c0@beawrk10> <20011109.052650.104644078.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20011109.052650.104644078.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Padraig Brady writes:
-> When I remove files from a ramfs the space is not reclaimed?
-> What am I doing wrong? Details below.
+On Fri, Nov 09, 2001 at 05:26:50AM -0800, David S. Miller wrote:
+>    From: "Philip Dodd" <smpcomputing@free.fr>
+>    Date: Fri, 9 Nov 2001 14:15:32 +0100
+> 
+>    > I think a boot time commandline option is more appropriate
+>    > for something like this.
+>    
+>    In the light of what was said about embedded systems, I'm not really sure a
+>    boot time option really is the way to go...
+> 
+> All the hash tables in question are allocated dynamically,
+> we size them at boot time, the memory is not consumed until
+> the kernel begins executing.  So a boottime option would be
+> just fine.
 
-Nothing.  We've noticed the same thing.  It's a bug and was
-first reported back in July, but no one has provided a fix yet.
-I've had a brief look at the source code, but nothing obvious
-pops out at me.
-
-As you mention, this problem is trivially reproducable by
-creating and then deleting a file.  Doing that over and over
-eventually leads to the ramfs becoming full.  Only a reboot
-(or perhaps a umount/mount) makes it usable again.
-
-Chris Martin
-Catnap Consultants
+How much is this code going to affect the kernel image size?

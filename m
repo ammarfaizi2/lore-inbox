@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278004AbRJZHvv>; Fri, 26 Oct 2001 03:51:51 -0400
+	id <S278031AbRJZH7v>; Fri, 26 Oct 2001 03:59:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278017AbRJZHvl>; Fri, 26 Oct 2001 03:51:41 -0400
-Received: from cx879306-a.pv1.ca.home.com ([24.5.157.48]:46579 "EHLO
-	siamese.dhis.twinsun.com") by vger.kernel.org with ESMTP
-	id <S278004AbRJZHv1>; Fri, 26 Oct 2001 03:51:27 -0400
-From: junio@siamese.dhis.twinsun.com
-To: Tim Waugh <twaugh@redhat.com>
-cc: <daveg@firsdown.demon.co.uk>
-Cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.12 / linux-2.4.13 parallel port problem
-In-Reply-To: <20011024230917.H7544@redhat.com>
-	<ioWB7.5038$rR5.921319585@newssvr17.news.prodigy.com>
-	<20011025165226.T7544@redhat.com>
-Date: 26 Oct 2001 00:51:48 -0700
-In-Reply-To: <20011025165226.T7544@redhat.com>
-Message-ID: <7vofmuu9d7.fsf@siamese.dhis.twinsun.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+	id <S278037AbRJZH7k>; Fri, 26 Oct 2001 03:59:40 -0400
+Received: from femail36.sdc1.sfba.home.com ([24.254.60.26]:41722 "EHLO
+	femail36.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S278031AbRJZH7c>; Fri, 26 Oct 2001 03:59:32 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+Reply-To: landley@trommello.org
+Organization: Boundaries Unlimited
+To: David Schwartz <davids@webmaster.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Input on the Non-GPL Modules - legal nonsense
+Date: Thu, 25 Oct 2001 23:58:59 -0400
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20011025062415.AAA15814@shell.webmaster.com@whenever>
+In-Reply-To: <20011025062415.AAA15814@shell.webmaster.com@whenever>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01102523585902.10384@localhost.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "TW" == Tim Waugh <twaugh@redhat.com> writes:
+On Thursday 25 October 2001 02:24, David Schwartz wrote:
+> >I keep hearing this type of reasoning.  It flat-out doesn't work this way
+> > in the legal system.  This is similar to arguing that you didn't really
+> > stab someone if you threw the knife instead of holding it. ("But your
+> > honor, once the knife left my hand it really wasn't under my control...")
+>
+> 	What amazes me is that these legal arguments about the control programmers
+> have over their software, are coming from the free software community. If
+> Microsoft argued that anybody who wanted to write a program to link with
+> Windows system DLLs had to give them 2% of the profits, they'd be blasted
+> by the press, yet the free software community wants to argue that
+> programmers can't use their APIs if they don't have certain licensing
+> terms?!
+>
+> 	The irony is killing me.
 
->> Question: is this intended behaviour? I would think that you would
->> normally want to just say irq=auto and let the driver find the io
->> address just as it does normally.
+It's not a question of the published APIs.  Binary-only modules ARE allowed, 
+and nobody's even questioned userspace applications.
 
-TW> It is intended behaviour.  'irq=auto' in this case didn't help because
-TW> the ECP chipset would not tell us what IRQ it was assigned (it just
-TW> said "it's set by jumpers, or alternatively I'm not telling you".
+It's aggregating yoru code with GPL code and distributing the result.  That 
+violates the terms of the GPL, negating your right to distribute the GPL 
+code, and by extension the aggregate work containing the GPL code.
 
-This part I do not quite understand.  I have an old laptop that
-was working with parport=auto up to 2.4.10 and then stopped
-working, just like the original poster's problem description.
+And this isn't specific to free software.  Imagine if Microsoft put royalties 
+on the distribution of some of their DLLs (like the big visual basic runtime) 
+with your program, or Sun put restrictions on shipping their java runtime 
+with one of your java programs.  (Which, in fact, they do.)  Neither 
+currently ask for cash, but boy do they put restrictions!  Try distributing a 
+modified version of either one of those sometime and see how long it takes 
+their lawyers to come after you.  Distributing a patched vbrun.dll?  They'll 
+go after you with bazookas.  You can't even unarchive jre.exe, last I 
+checked.  The end user has to install it on their machine using Sun's 
+installer.  (Maybe this has eased up in the past couple years, I stopped 
+paying too much attention to Sun's java distributions shortly after 1.2...)
 
->From the original poster's description, 2.4.10 claimed to have
-detected both address and irq for parport0, while 2.4.12,
-according to the your response, could not tell that IRQ=7.  Do
-you mean that the logic which made 2.4.10 to claime to have
-detected IRQ=7 was faulty and the logic in 2.4.12 is being
-careful not to misdetect?
+If your code doesn't include any GPL code, you're fine.  User space 
+applications linking against glibc are fine, and binary-only kernel modules 
+you wrote from scratch yourself are fine.  (Header files that define APIs but 
+don't directly produce binary output code by themselves are a gray area; it's 
+sloppy of us to have those as GPL instead of LGPL anyway, but compiling 
+against header files probably falls under fair use since the programmer did 
+make a distinction between .h and .c files, and being included in other 
+programs to allow interoperability with this bit of code is what .h files are 
+FOR...  I'd guess It's something that either side of could be successfully 
+argued in front of a judge, depending on who had the better lawyer...)
 
-    Message-ID: <3BD6BF43.D347719B@firsdown.demon.co.uk>
-    Date: 	Wed, 24 Oct 2001 14:16:51 +0100
-    From: Dave Garry <daveg@firsdown.demon.co.uk>
-    Subject: linux-2.4.12 / linux-2.4.13 parallel port problem
-
-    With kernel 2.4.12 and 2.4.13 the parallel port on
-    my machine looks like this according to dmesg:
-
-    parport0: PC-style at 0x378 [PCSPP,TRISTATE]
-    parport0: cpp_daisy: aa5500ff(98)
-    parport0: assign_addrs: aa5500ff(98)
-    parport0: faking semi-colon
-    parport0: Printer, Hewlett-Packard HP LaserJet 1100
-
-    Under 2.4.10 is looks like this:
-
-    ...
-    parport0: PC-style at 0x378 (0x778) [PCSPP,TRISTATE,COMPAT,ECP]
-    parport0: irq 7 detected
-    ...
-
+Rob

@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUH3TSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268285AbUH3TUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268258AbUH3TSA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 15:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUH3TR7
+	id S268285AbUH3TUf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 15:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268275AbUH3TUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 15:17:59 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:20895 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S268258AbUH3TR5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 15:17:57 -0400
-Date: Mon, 30 Aug 2004 14:10:32 -0500
-From: John Hesterberg <jh@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Williams <pwil3058@bigpond.net.au>, jlan@engr.sgi.com,
-       linux-kernel@vger.kernel.org, erikj@dbear.engr.sgi.com,
-       limin@engr.sgi.com, lse-tech@lists.sourceforge.net,
-       Tim Schmielau <tim@physik3.uni-rostock.de>
-Subject: Re: [Lse-tech] Re: [PATCH] new CSA patchset for 2.6.8
-Message-ID: <20040830191032.GA5255@sgi.com>
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org> <20040826183834.GA11393@sgi.com> <412EADBC.60607@bigpond.net.au> <20040826205349.0582d38e.akpm@osdl.org>
+	Mon, 30 Aug 2004 15:20:34 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:43199 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S268285AbUH3TT4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 15:19:56 -0400
+Date: Mon, 30 Aug 2004 21:21:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: "K.R. Foley" <kr@cybsft.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q5
+Message-ID: <20040830192131.GA12249@elte.hu>
+References: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="17pEHd4RhPHOinZp"
 Content-Disposition: inline
-In-Reply-To: <20040826205349.0582d38e.akpm@osdl.org>
+In-Reply-To: <OF04883085.9C3535D2-ON86256F00.0065652B@raytheon.com>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 08:53:49PM -0700, Andrew Morton wrote:
-> Thanks, guys.  So we now know that there are three potential
-> implementations which do much the same thing, yes?
 
-I believe CSA does than the others.
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> I didn't get a sense of a preferred direction, but at least nobody is
-> flaming anybody else yet ;)
+
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
+
+> LONG NETWORK LATENCIES
+> ======================
 > 
-> It strikes me that CSA is the most actively developed and is the furthest
-> along.  But that enhancing BSD accounting might be the least intrusive and
-> most back-compatible approach.
-> 
-> Is that a fair summary?  If not, what should I have said?
+> In about 25 minutes of heavy testing, I had two latency traces with
+> /proc/sys/kernel/preempt_max_latency set to 700. They had the same start /
+> end location with the long delay as follows:
+>   730 us, entries: 361
+>   ...
+>   started at rtl8139_poll+0x3c/0x160
+>   ended at   rtl8139_poll+0x100/0x160
 
-Does anyone know if CSA is a super-set of BSD accounting and ELSA?
-What would be missing?
+regarding this particular latency, could you try the attached patch
+ontop of -Q5? It turns the ->poll() loop into separate, individually
+preemptable iterations instead of one batch of processing. In theory
+this should result in latency being lower regardless of the
+netdev_max_backlog value.
 
-I'm unconvinced that enhancing BSD accounting to encompass the
-capabilities of CSA is appropriate.
+	Ingo
 
-I think we can make the data collection additions common.  That should
-encompass the bulk of the invasive changes that are required by at least
-CSA proper (ie there are still the PAGG changes for job support that we
-can discuss separately).  Not sure about BSD accounting and ELSA.
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=2
 
-With that cooperation, we can then either proceed with further
-cooperation, or if the goals and users of the different accounting
-approaches dictate different kernel modules and user support,
-I'd propose that might be OK.
+--- linux/net/core/dev.c.orig2	
++++ linux/net/core/dev.c	
+@@ -1903,7 +1903,7 @@ static void net_rx_action(struct softirq
+ {
+ 	struct softnet_data *queue = &__get_cpu_var(softnet_data);
+ 	unsigned long start_time = jiffies;
+-	int budget = netdev_max_backlog;
++	int budget = netdev_max_backlog, loops;
+ 
+ 	
+ 	local_irq_disable();
+@@ -1926,7 +1926,10 @@ static void net_rx_action(struct softirq
+ 		dev = list_entry(queue->poll_list.next,
+ 				 struct net_device, poll_list);
+ 
+-		if (dev->quota <= 0 || dev->poll(dev, &budget)) {
++		loops = 1;
++		if (dev->quota <= 0 || dev->poll(dev, &loops)) {
++			if (loops < 1)
++				budget--;
+ 			local_irq_disable();
+ 			list_del(&dev->poll_list);
+ 			list_add_tail(&dev->poll_list, &queue->poll_list);
 
-John
+--17pEHd4RhPHOinZp--

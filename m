@@ -1,90 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262032AbVADAYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVADA3D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262032AbVADAYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 19:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVADAWx
+	id S262028AbVADA3D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 19:29:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVADA0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 19:22:53 -0500
-Received: from p-nya.swiftel.com.au ([202.154.106.98]:43185 "EHLO
-	famine.coesta.com") by vger.kernel.org with ESMTP id S262010AbVADAUl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 19:20:41 -0500
-Message-ID: <45567.202.154.120.74.1104797829.squirrel@www.coesta.com>
-In-Reply-To: <20050103221516.GV29332@holomorphy.com>
-References: <44438.202.154.120.74.1104760841.squirrel@www.coesta.com>
-    <20050103221516.GV29332@holomorphy.com>
-Date: Tue, 4 Jan 2005 08:17:09 +0800 (WST)
-Subject: Re: Max CPUs on x86_64 under 2.6.x
-From: "Colin Coe" <colin@coesta.com>
-To: "William Lee Irwin III" <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org
-Reply-To: colin@coesta.com
-User-Agent: SquirrelMail/1.4.3a-6.FC3
-X-Mailer: SquirrelMail/1.4.3a-6.FC3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Mon, 3 Jan 2005 19:26:44 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14344 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261885AbVADAZD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 19:25:03 -0500
+Date: Tue, 4 Jan 2005 01:24:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: urban@teststation.com
+Cc: samba@samba.org, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] smbfs: make some functions static
+Message-ID: <20050104002456.GV2980@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Mon, Jan 03, 2005 at 10:00:41PM +0800, Colin Coe wrote:
->> Why is the number of CPUs on the x86_64 architecture only 8 but under
->> i386
->> it is 255?
->> I've searched the list archives and Google but can't find an answer.
->
-> i386 machines have had interrupt controllers and "large scale" systems
-> (to the extent that 32-bit machines can be so) developed for some time.
-> x86-64 machines are newer, and it is the maintainer's preference to
-> start with a fresh codebase for the APIC.
->
-> So what you see is not a reflection of x86-64's capabilities, but
-> rather, of the newness of the architecture and the codebase's desire
-> to be "legacy-free" in manners that don't pose the threat of causing
-> immediate problems.
->
-> It is not now limiting the capabilities of x86-64 machines because
-> x86-64 machines of 64 cpus or larger have yet to be produced. For the
-> record, I'm unaware of SSI i386 machines larger than 64 processors.
-> 255 represents nothing more than a theoretical limit of hardware
-> capabilities, and no i386 machine larger than 64 processors has ever
-> been constructed to the best of my knowledge.
->
->
-> -- wli
->
+The patch below makes some needlessly global functions static.
 
-Hi and thanks for the response.
 
-Just one more question, what is the '64 cpus' that you are referring to? 
-The ./arch/x86_64/Kconfig file states:
----
-# actually 64 maximum, but you need to fix the APIC code first
-# to use clustered mode or whatever your big iron needs
-config NR_CPUS
-        int "Maximum number of CPUs (2-8)"
-        range 2 8
-        depends on SMP
-        default "8"
-        help
-          This allows you to specify the maximum number of CPUs which this
-          kernel will support.  The maximum supported value is 32 and the
-          minimum value which makes sense is 2.
+diffstat output:
+ fs/smbfs/inode.c   |    2 +-
+ fs/smbfs/proc.c    |    6 +++---
+ fs/smbfs/proto.h   |    5 -----
+ fs/smbfs/request.c |    6 ++++--
+ 4 files changed, 8 insertions(+), 11 deletions(-)
 
-          This is purely to save memory - each supported CPU requires
-          memory in the static kernel configuration.
----
-Can you clarify this as:
-- the comments says 64 CPUs,
-- the code says 8 CPUs, and
-- the help text says 32 CPUs.
 
-The company I work for is looking at IBM x445 servers which support up to
-32 processors (although this is via NUMA-Q).  Are NUMA-Q boxes also
-subject to the 8 CPU limit?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Thanks
+--- linux-2.6.10-mm1-full/fs/smbfs/proto.h.old	2005-01-04 00:57:42.000000000 +0100
++++ linux-2.6.10-mm1-full/fs/smbfs/proto.h	2005-01-04 01:00:11.000000000 +0100
+@@ -25,7 +25,6 @@
+ extern int smb_proc_flush(struct smb_sb_info *server, __u16 fileid);
+ extern void smb_init_root_dirent(struct smb_sb_info *server, struct smb_fattr *fattr,
+ 				 struct super_block *sb);
+-extern void smb_decode_unix_basic(struct smb_fattr *fattr, struct smb_sb_info *server, char *p);
+ extern int smb_proc_getattr(struct dentry *dir, struct smb_fattr *fattr);
+ extern int smb_proc_setattr(struct dentry *dir, struct smb_fattr *fattr);
+ extern int smb_proc_setattr_unix(struct dentry *d, struct iattr *attr, unsigned int major, unsigned int minor);
+@@ -34,7 +33,6 @@
+ extern int smb_proc_read_link(struct smb_sb_info *server, struct dentry *d, char *buffer, int len);
+ extern int smb_proc_symlink(struct smb_sb_info *server, struct dentry *d, const char *oldpath);
+ extern int smb_proc_link(struct smb_sb_info *server, struct dentry *dentry, struct dentry *new_dentry);
+-extern int smb_proc_query_cifsunix(struct smb_sb_info *server);
+ extern void smb_install_null_ops(struct smb_ops *ops);
+ /* dir.c */
+ extern struct file_operations smb_dir_operations;
+@@ -62,7 +60,6 @@
+ extern void smb_set_inode_attr(struct inode *inode, struct smb_fattr *fattr);
+ extern void smb_invalidate_inodes(struct smb_sb_info *server);
+ extern int smb_revalidate_inode(struct dentry *dentry);
+-extern int smb_fill_super(struct super_block *sb, void *raw_data, int silent);
+ extern int smb_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat);
+ extern int smb_notify_change(struct dentry *dentry, struct iattr *attr);
+ /* file.c */
+@@ -81,10 +78,8 @@
+ extern int smb_init_request_cache(void);
+ extern void smb_destroy_request_cache(void);
+ extern struct smb_request *smb_alloc_request(struct smb_sb_info *server, int bufsize);
+-extern void smb_rget(struct smb_request *req);
+ extern void smb_rput(struct smb_request *req);
+ extern int smb_add_request(struct smb_request *req);
+-extern int smb_request_send_req(struct smb_request *req);
+ extern int smb_request_send_server(struct smb_sb_info *server);
+ extern int smb_request_recv(struct smb_sb_info *server);
+ /* symlink.c */
+--- linux-2.6.10-mm1-full/fs/smbfs/inode.c.old	2005-01-04 00:57:57.000000000 +0100
++++ linux-2.6.10-mm1-full/fs/smbfs/inode.c	2005-01-04 00:58:02.000000000 +0100
+@@ -493,7 +493,7 @@
+ 	smb_kfree(server);
+ }
+ 
+-int smb_fill_super(struct super_block *sb, void *raw_data, int silent)
++static int smb_fill_super(struct super_block *sb, void *raw_data, int silent)
+ {
+ 	struct smb_sb_info *server;
+ 	struct smb_mount_data_kernel *mnt;
+--- linux-2.6.10-mm1-full/fs/smbfs/proc.c.old	2005-01-04 00:58:37.000000000 +0100
++++ linux-2.6.10-mm1-full/fs/smbfs/proc.c	2005-01-04 00:59:12.000000000 +0100
+@@ -74,7 +74,7 @@
+ static int
+ smb_proc_setattr_ext(struct smb_sb_info *server,
+ 		     struct inode *inode, struct smb_fattr *fattr);
+-int
++static int
+ smb_proc_query_cifsunix(struct smb_sb_info *server);
+ static void
+ install_ops(struct smb_ops *dst, struct smb_ops *src);
+@@ -2075,7 +2075,7 @@
+ 	return result;
+ }
+ 
+-void smb_decode_unix_basic(struct smb_fattr *fattr, struct smb_sb_info *server, char *p)
++static void smb_decode_unix_basic(struct smb_fattr *fattr, struct smb_sb_info *server, char *p)
+ {
+ 	u64 size, disk_bytes;
+ 
+@@ -3392,7 +3392,7 @@
+ 	return result;
+ }
+ 
+-int
++static int
+ smb_proc_query_cifsunix(struct smb_sb_info *server)
+ {
+ 	int result;
+--- linux-2.6.10-mm1-full/fs/smbfs/request.c.old	2005-01-04 00:59:31.000000000 +0100
++++ linux-2.6.10-mm1-full/fs/smbfs/request.c	2005-01-04 01:00:18.000000000 +0100
+@@ -27,6 +27,8 @@
+ /* cache for request structures */
+ static kmem_cache_t *req_cachep;
+ 
++static int smb_request_send_req(struct smb_request *req);
++
+ /*
+   /proc/slabinfo:
+   name, active, num, objsize, active_slabs, num_slaps, #pages
+@@ -132,7 +134,7 @@
+  * What prevents a rget to race with a rput? The count must never drop to zero
+  * while it is in use. Only rput if it is ok that it is free'd.
+  */
+-void smb_rget(struct smb_request *req)
++static void smb_rget(struct smb_request *req)
+ {
+ 	atomic_inc(&req->rq_count);
+ }
+@@ -379,7 +381,7 @@
+  * Send a request and place it on the recvq if successfully sent.
+  * Must be called with the server lock held.
+  */
+-int smb_request_send_req(struct smb_request *req)
++static int smb_request_send_req(struct smb_request *req)
+ {
+ 	struct smb_sb_info *server = req->rq_server;
+ 	int result;
 
-CC

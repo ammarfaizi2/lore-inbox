@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318493AbSGSJyW>; Fri, 19 Jul 2002 05:54:22 -0400
+	id <S318485AbSGSK2O>; Fri, 19 Jul 2002 06:28:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318494AbSGSJyW>; Fri, 19 Jul 2002 05:54:22 -0400
-Received: from loke.as.arizona.edu ([128.196.209.61]:37508 "EHLO
-	loke.as.arizona.edu") by vger.kernel.org with ESMTP
-	id <S318493AbSGSJyV>; Fri, 19 Jul 2002 05:54:21 -0400
-Date: Fri, 19 Jul 2002 02:55:13 -0700 (MST)
-From: Craig Kulesa <ckulesa@as.arizona.edu>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] export serio_interrupt for modules
-Message-ID: <Pine.LNX.4.44.0207190247480.4771-100000@loke.as.arizona.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318487AbSGSK2N>; Fri, 19 Jul 2002 06:28:13 -0400
+Received: from harpo.it.uu.se ([130.238.12.34]:41405 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S318485AbSGSK2N>;
+	Fri, 19 Jul 2002 06:28:13 -0400
+Date: Fri, 19 Jul 2002 12:31:07 +0200 (MET DST)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200207191031.MAA26909@harpo.it.uu.se>
+To: dave@cs.curtin.edu.au, zwane@linuxpower.ca
+Subject: Re: SMP Problem with 2.4.19-rc2 on Asus A7M266-D
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 19 Jul 2002 10:31:18 +0200 (SAST), Zwane Mwaikambo wrote:
+>On Fri, 19 Jul 2002, David Shirley wrote:
+>
+>> bit further then it hangs and prints out "APIC error on CPU0: 00(08)"
+>
+>That looks really odd, thats actually a reserved bit. I'll try dig a 
+>little further.
 
-In order to use serio drivers as modules, like i8042, serio_interrupt 
-needs to be exported.  Unresolved symbols result otherwise.  Patch follows.
+08 is a "Receive Accept Error" for all but the P4 family.
+The K7s tend to be like the P6s.
 
-Craig Kulesa
-Steward Observatory
-
-diff -uNr linux-2.5.26-rmap13b/drivers/input/serio/serio.c linux-2.5.26-rmap13b-slablru/drivers/input/serio/serio.c
---- linux-2.5.26-rmap13b/drivers/input/serio/serio.c	Thu Jul 18 03:03:28 2002
-+++ linux-2.5.26-rmap13b-slablru/drivers/input/serio/serio.c	Thu Jul 18 10:07:39 2002
-@@ -49,6 +49,7 @@
- EXPORT_SYMBOL(serio_open);
- EXPORT_SYMBOL(serio_close);
- EXPORT_SYMBOL(serio_rescan);
-+EXPORT_SYMBOL(serio_interrupt);
- 
- static struct serio *serio_list;
- static struct serio_dev *serio_dev;
-
+/Mikael

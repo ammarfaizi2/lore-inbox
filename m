@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbTILNuO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 09:50:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbTILNuO
+	id S261623AbTILNmB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 09:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbTILNmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 09:50:14 -0400
-Received: from saspace.sas.be ([195.207.19.1]:53261 "EHLO
-	saspace.spaceapplications.com") by vger.kernel.org with ESMTP
-	id S261699AbTILNuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 09:50:11 -0400
-Message-ID: <3F61CF12.9020602@abcpages.com>
-Date: Fri, 12 Sep 2003 15:50:10 +0200
-From: Nicolae Mihalache <mache@abcpages.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6-test4 problems: suspend and touchpad
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 12 Sep 2003 09:42:00 -0400
+Received: from nat9.steeleye.com ([65.114.3.137]:64004 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261611AbTILNl6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 09:41:58 -0400
+Subject: Re: [PATCH] NCR53c406a.c warning
+From: James Bottomley <James.Bottomley@steeleye.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.GSO.4.21.0309110836030.1879-100000@vervain.sonytel.be>
+References: <Pine.GSO.4.21.0309110836030.1879-100000@vervain.sonytel.be>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 12 Sep 2003 09:41:49 -0400
+Message-Id: <1063374111.1767.2.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Thu, 2003-09-11 at 02:37, Geert Uytterhoeven wrote:
+> NCR53c406a: Apparently wait_intr() is unused, so remove it.
 
-I have a Acer Travelmate 800 laptop and I'm using SuSE Linux 8.2 on it.
-I tried recenly to install linux 2.6 and I observe two main problems:
-1. The touchpad(synaptics) does not work. In kernel 2.4/X11 4.3  it 
-works very well both as a generic ps2 mouse or as a synaptics (using X11 
-driver for synaptics). The kernel 2.6 seems to have included a driver 
-for the synaptics device, it is detected at boot, but it does not work 
-in X (I guess it must be some kind of conflict between X11 driver and 
-kernel driver?).
+It is currently unused.  However, the reason is that we removed the scsi
+command method that allows polled operation in a driver (this routine is
+actually polling the interrupt port on the chip).
 
-2. suspend/resume. With version 2.6test2+acpi patch both swsusp and 
-"echo 3 >/proc/acpi/sleep" worked, being able to somehow successfully 
-resume. In version 2.6test4 there is no /proc/acpi/sleep and swsusp 
-hangs somwhere during an IDE call (I can hand-copy the trace if needed).
+I'd like to wait a while to see if anyone still needs this mode when 2.6
+gets a wider test audience.  If you wish, you can surround the routine
+with #if 0 and a comment saying we can junk it later if it really is
+unnecessary.
 
-Any ideea?
-mache
+Thanks,
+
+James
+
 

@@ -1,75 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130105AbRBJWqf>; Sat, 10 Feb 2001 17:46:35 -0500
+	id <S129595AbRBJWy0>; Sat, 10 Feb 2001 17:54:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129595AbRBJWq0>; Sat, 10 Feb 2001 17:46:26 -0500
-Received: from delta.rollanet.org ([208.18.12.6]:4362 "HELO delta.rollanet.org")
-	by vger.kernel.org with SMTP id <S129027AbRBJWqN>;
-	Sat, 10 Feb 2001 17:46:13 -0500
-Message-ID: <3A85C4A9.8CAD6466@umr.edu>
-Date: Sat, 10 Feb 2001 16:46:01 -0600
-From: Nathan Neulinger <nneul@umr.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18 i686)
-X-Accept-Language: en
+	id <S129027AbRBJWyQ>; Sat, 10 Feb 2001 17:54:16 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:6639 "EHLO
+	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129595AbRBJWyI>; Sat, 10 Feb 2001 17:54:08 -0500
+Date: Sat, 10 Feb 2001 20:53:59 -0200 (BRDT)
+From: Rik van Riel <riel@conectiva.com.br>
+To: linux-mm@kvack.org
+cc: linux-kernel@vger.kernel.org, Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [PATCH] 2.4.0-ac8/9  page_launder() fix
+Message-ID: <Pine.LNX.4.21.0102102051450.2378-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: problem with adding starfire driver to kernel 2.2.18
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've seen this symptom in the past with updated tulip and eepro drivers.
-Basically, it appears that it detects the same card more than once. In
-the case of the below dmesg output - the machine has 1 tulip based card,
-and 1 Adaptec Quartet64. The eth[5-8] are bogus.
+Hi,
 
-In the past, if I remember correctly, so long as I didn't do anything to
-the bogus interfaces, stuff was fine, but it's a little disturbing.
+the patch below should make page_launder() more well-behaved
+than it is in -ac8 and -ac9 ... note, however, that this thing
+is still completely untested and only in theory makes page_launder
+behave better ;)
 
-Note - I've added the module directly to the kernel (added the .o files
-in the drivers/net/Makefile, and the pci_scan/kern_compat stuff etc.)
+Since there seems to be a lot of VM testing going on at the
+moment I thought I might as well send it out now so I can get
+some feedback before I get into the airplane towards sweden
+tomorrow...
 
-Any ideas on how I can correct this symptom?
+cheers,
 
-Moving to 2.4.1 isn't an option just yet, although I am considering it
-as I'm deploying new machines.
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
--- Nathan
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
 
-eth0: Digital DS21143-xD Tulip rev 65 at 0xe000, 00:C0:F0:6B:61:BC, IRQ
-5.
-eth0:  EEPROM default media type Autosense.
-eth0:  Index #0 - Media MII (#11) described by a 21142 MII PHY (3)
-block.
-eth0:  MII transceiver #1 config 1000 status 782d advertising 01e1.
-tulip.c:v0.92t 1/15/2001  Written by Donald Becker <becker@scyld.com>
-  http://www.scyld.com/network/tulip.html
-eth1: Adaptec Starfire 6915 at 0xd0000000, 00:00:d1:ee:77:71, IRQ 11.
-eth1: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth2: Adaptec Starfire 6915 at 0xd0081000, 00:00:d1:ee:77:72, IRQ 9.
-eth2: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth3: Adaptec Starfire 6915 at 0xd0102000, 00:00:d1:ee:77:73, IRQ 10.
-eth3: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth4: Adaptec Starfire 6915 at 0xd0183000, 00:00:d1:ee:77:74, IRQ 5.
-eth4: MII PHY found at address 1, status 0x7809 advertising 01e1.
-starfire.c:v1.03 7/26/2000  Written by Donald Becker <becker@scyld.com>
- Updates and info at http://www.scyld.com/network/starfire.html
-eth5: Adaptec Starfire 6915 at 0xd0204000, 00:00:d1:ee:77:71, IRQ 11.
-eth5: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth6: Adaptec Starfire 6915 at 0xd0285000, 00:00:d1:ee:77:72, IRQ 9.
-eth6: MII PHY found at address 1, status 0x7809 advertising 01e1.
-eth7: Adaptec Starfire 6915 at 0xd0306000, 00:00:d1:ee:77:73, IRQ 10.
-eth7: MII PHY found at address 1, status 0x7809 advertising 01e1.
-early initialization of device eth8 is deferred
-eth8: Adaptec Starfire 6915 at 0xd0387000, 00:00:d1:ee:77:74, IRQ 5.
-eth8: MII PHY found at address 1, status 0x7809 advertising 01e1.
-starfire.c:v1.03 7/26/2000  Written by Donald Becker <becker@scyld.com>
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 
-------------------------------------------------------------
-Nathan Neulinger                       EMail:  nneul@umr.edu
-University of Missouri - Rolla         Phone: (573) 341-4841
-CIS - Systems Programming                Fax: (573) 341-4216
+
+
+--- linux-2.4.1-ac8/mm/vmscan.c.orig	Fri Feb  9 15:04:16 2001
++++ linux-2.4.1-ac8/mm/vmscan.c	Sat Feb 10 20:50:40 2001
+@@ -413,7 +413,7 @@
+  * This code is heavily inspired by the FreeBSD source code. Thanks
+  * go out to Matthew Dillon.
+  *
+- * XXX: restrict number of pageouts in flight...
++ * XXX: restrict number of pageouts in flight by ->writepage...
+  */
+ #define MAX_LAUNDER 		(1 << page_cluster)
+ int page_launder(int gfp_mask, int user)
+@@ -514,7 +514,10 @@
+ 			spin_unlock(&pagemap_lru_lock);
+ 
+ 			writepage(page);
+-			flushed_pages++;
++			/* XXX: all ->writepage()s should use nr_async_pages */
++			if (!PageSwapCache(page))
++				flushed_pages++;
++			maxlaunder--;
+ 			page_cache_release(page);
+ 
+ 			/* And re-start the thing.. */
+@@ -636,14 +639,16 @@
+ 		 * with the paging load in the system and doesn't have
+ 		 * the IO storm problem, so it just flushes all pages
+ 		 * needed to fix the free shortage.
+-		 *
+-		 * XXX: keep track of nr_async_pages like the old swap
+-		 * code did?
+ 		 */
+-		if (user)
++		maxlaunder = shortage;
++		maxlaunder -= flushed_pages;
++		maxlaunder -= atomic_read(&nr_async_pages);
++	
++		if (maxlaunder <= 0)
++			goto out;
++
++		if (user && maxlaunder > MAX_LAUNDER)
+ 			maxlaunder = MAX_LAUNDER;
+-		else
+-			maxlaunder = shortage;
+ 
+ 		/*
+ 		 * If we are called by a user program, we need to free
+@@ -667,6 +672,7 @@
+ 	/*
+ 	 * Return the amount of pages we freed or made freeable.
+ 	 */
++out:
+ 	return freed_pages + flushed_pages;
+ }
+ 
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

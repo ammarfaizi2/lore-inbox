@@ -1,55 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263984AbTLAUcu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Dec 2003 15:32:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263996AbTLAUct
+	id S263946AbTLAUbc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Dec 2003 15:31:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263963AbTLAUbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Dec 2003 15:32:49 -0500
-Received: from web40907.mail.yahoo.com ([66.218.78.204]:27489 "HELO
-	web40907.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263984AbTLAUcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Dec 2003 15:32:48 -0500
-Message-ID: <20031201203246.99655.qmail@web40907.mail.yahoo.com>
-Date: Mon, 1 Dec 2003 12:32:46 -0800 (PST)
-From: Bradley Chapman <kakadu_croc@yahoo.com>
-Subject: Re: Clean up older Kernels
-To: Jeff Garzik <jeff@pobox.com>
-Cc: linux-kernel@vger.kernel.org
+	Mon, 1 Dec 2003 15:31:32 -0500
+Received: from witte.sonytel.be ([80.88.33.193]:44019 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S263946AbTLAUba (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Dec 2003 15:31:30 -0500
+Date: Mon, 1 Dec 2003 21:31:02 +0100 (MET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Stephen Tweedie <sct@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Andreas Dilger <adilger@clusterfs.com>
+cc: ext3-users@redhat.com,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.4.23 ext3 warning
+Message-ID: <Pine.GSO.4.21.0312012129260.25040-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mr. Garzik,
 
-> > On Mon, Dec 01, 2003 at 08:40:47PM +0100, Thomas Babut wrote:
-> > Hi,
-> >
-> > perhaps my question is unusual, but why do you not clean up the older Linux
-> > Kernels?
-> >
-> > The Kernel 2.0.39 is the last stable one, but there is also a 2.0.40-rc6. So
-> > why not releasing it as stable 2.0.40 (final)? And Alan Cox isn't active any
-> > more for some time and the ac-Patches are very old. They could be removed,
-> > or not?
->
-> 2.0.x has a maintainer, David Winehall(sp?) IIRC. Poke him... :)
->
-> I agree, might as well put out 2.0.40...
+Kill warning if CONFIG_QUOTA is disabled.
 
-I've been wondering about this too, but I was afraid to ask first :-)
+--- linux-2.4.23/fs/ext3/super.c.orig	Fri Nov 28 21:04:40 2003
++++ linux-2.4.23/fs/ext3/super.c	Sun Nov 30 12:16:00 2003
+@@ -449,7 +449,6 @@
+ }
+ 
+ static struct dquot_operations ext3_qops;
+-static int (*old_sync_dquot)(struct dquot *dquot);
+ 
+ static struct super_operations ext3_sops = {
+ 	read_inode:	ext3_read_inode,	/* BKL held */
+@@ -1773,6 +1772,8 @@
+  */
+ 
+ #ifdef CONFIG_QUOTA
++
++static int (*old_sync_dquot)(struct dquot *dquot);
+ 
+ /* Blocks: (2 data blocks) * (3 indirect + 1 descriptor + 1 bitmap) + superblock */
+ #define EXT3_OLD_QFMT_BLOCKS 11
 
-When 2.6 is officially released as a stable kernel and 2.4 is relegated to security/
-bugfix-only status, what will happen to 2.0 and 2.2? Obviously, they won't be
-totally ignored for support reasons (not everyone uses 2.4 - see counter.li.org),
-but what will Mr. Anvin do to the frontpage of kernel.org?
+Gr{oetje,eeting}s,
 
-Brad
+						Geert
 
-=====
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 
-__________________________________
-Do you Yahoo!?
-Free Pop-Up Blocker - Get it now
-http://companion.yahoo.com/

@@ -1,195 +1,232 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267602AbUIKH4u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267638AbUIKH7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267602AbUIKH4u (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 03:56:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267638AbUIKH4u
+	id S267638AbUIKH7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 03:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267681AbUIKH7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 03:56:50 -0400
-Received: from ozlabs.org ([203.10.76.45]:41958 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S267602AbUIKH4N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 03:56:13 -0400
-Date: Sat, 11 Sep 2004 17:53:05 +1000
-From: Anton Blanchard <anton@samba.org>
-To: akpm@osdl.org
-Cc: paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix spurious warnings uncovered by -Wno-uninitialized removal
-Message-ID: <20040911075304.GB32755@krispykreme>
-References: <20040911065406.GA32755@krispykreme>
-Mime-Version: 1.0
+	Sat, 11 Sep 2004 03:59:24 -0400
+Received: from mail5.speakeasy.net ([216.254.0.205]:62898 "EHLO
+	mail5.speakeasy.net") by vger.kernel.org with ESMTP id S267638AbUIKH7I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 03:59:08 -0400
+Date: Sat, 11 Sep 2004 00:59:05 -0700
+Message-Id: <200409110759.i8B7x5OH019867@magilla.sf.frob.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040911065406.GA32755@krispykreme>
-User-Agent: Mutt/1.5.6+20040818i
+Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] exec: fix posix-timers leak and pending signal loss
+X-Fcc: ~/Mail/linus
+X-Zippy-Says: Remember, in 2039, MOUSSE & PASTA will be available ONLY by prescription!!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've found some problems with exec and fixed them with this patch to de_thread.
 
-Here are fixes for some false positives.
+The first problem is that exec fails to clean up posix-timers.  This
+manifests itself in two ways, one worse than the other.  In the
+single-threaded case, it just fails to clear out the timers on exec.
+POSIX says that exec clears out the timers from timer_create (though not
+the setitimer ones), so it's wrong that a lingering timer could fire after
+exec and kill the process with a signal it's not expecting.  In the
+multi-threaded case, it not only leaves lingering timers, but it leaks
+them entirely when it replaces signal_struct, so they will never be freed
+by the process exiting after that exec.  The new per-user
+RLIMIT_SIGPENDING actually limits the damage here, because a UID will fill
+up its quota with leaked timers and then never be able to use timer_create
+again (that's what my test program does).  But if you have many many
+untrusted UIDs, this leak could be considered a DoS risk.
 
-Signed-off-by: Anton Blanchard <anton@samba.org>
+The second problem is that a multithreaded exec loses all pending signals.
+This is violation of POSIX rules.  But a moment's thought will show it's
+also just not desireable: if you send a process a SIGTERM while it's in
+the middle of calling exec, you expect either the original program in that
+process or the new program being exec'd to handle that signal or be killed
+by it.  As it stands now, you can try to kill a process and have that
+signal just evaporate if it's multithreaded and calls exec just then.  
+I really don't know what the rationale was behind the de_thread code that
+allocates a new signal_struct.  It doesn't make any sense now.  The other
+code there ensures that the old signal_struct is no longer shared.  Except
+for posix-timers, all the state there is stuff you want to keep.  So my
+changes just keep the old structs when they are no longer shared, and all
+the right state is retained (after clearing out posix-timers).
 
-diff -puN arch/ppc64/kernel/iommu.c~falsepositives arch/ppc64/kernel/iommu.c
---- foobar2/arch/ppc64/kernel/iommu.c~falsepositives	2004-09-11 16:11:50.126708344 +1000
-+++ foobar2-anton/arch/ppc64/kernel/iommu.c	2004-09-11 16:11:50.248698966 +1000
-@@ -229,7 +229,7 @@ int iommu_map_sg(struct device *dev, str
- 		struct scatterlist *sglist, int nelems,
- 		enum dma_data_direction direction)
+The final bug is that the cumulative statistics of dead threads and dead
+child processes are lost in the abandoned signal_struct.  This is also
+fixed by holding on to it instead of replacing it.
+
+
+Thanks,
+Roland
+
+Signed-off-by: Roland McGrath <roland@redhat.com>
+
+--- vanilla-linux-2.6/fs/exec.c	2004-08-30 17:47:11.000000000 -0700
++++ linux-2.6/fs/exec.c	2004-09-11 00:24:42.819002437 -0700
+@@ -564,7 +564,7 @@ static int exec_mmap(struct mm_struct *m
+  */
+ static inline int de_thread(struct task_struct *tsk)
  {
--	dma_addr_t dma_next, dma_addr;
-+	dma_addr_t dma_next = 0, dma_addr;
- 	unsigned long flags;
- 	struct scatterlist *s, *outs, *segstart;
- 	int outcount;
-diff -puN arch/ppc64/kernel/nvram.c~falsepositives arch/ppc64/kernel/nvram.c
---- foobar2/arch/ppc64/kernel/nvram.c~falsepositives	2004-09-11 16:11:50.132707882 +1000
-+++ foobar2-anton/arch/ppc64/kernel/nvram.c	2004-09-11 16:11:50.251698736 +1000
-@@ -340,7 +340,7 @@ static int nvram_create_os_partition(voi
- 	struct list_head * p;
- 	struct nvram_partition * part;
- 	struct nvram_partition * new_part = NULL;
--	struct nvram_partition * free_part;
-+	struct nvram_partition * free_part = NULL;
- 	int seq_init[2] = { 0, 0 };
- 	loff_t tmp_index;
- 	long size = 0;
-diff -puN arch/ppc64/kernel/sysfs.c~falsepositives arch/ppc64/kernel/sysfs.c
---- foobar2/arch/ppc64/kernel/sysfs.c~falsepositives	2004-09-11 16:11:50.221701042 +1000
-+++ foobar2-anton/arch/ppc64/kernel/sysfs.c	2004-09-11 16:11:50.297695200 +1000
-@@ -97,6 +97,13 @@ __setup("smt-snooze-delay=", setup_smt_s
+-	struct signal_struct *newsig, *oldsig = tsk->signal;
++	struct signal_struct *sig = tsk->signal;
+ 	struct sighand_struct *newsighand, *oldsighand = tsk->sighand;
+ 	spinlock_t *lock = &oldsighand->siglock;
+ 	int count;
+@@ -573,43 +573,16 @@ static inline int de_thread(struct task_
+ 	 * If we don't share sighandlers, then we aren't sharing anything
+ 	 * and we can just re-use it all.
+ 	 */
+-	if (atomic_read(&oldsighand->count) <= 1)
++	if (atomic_read(&oldsighand->count) <= 1) {
++		BUG_ON(atomic_read(&sig->count) != 1);
++		exit_itimers(sig);
+ 		return 0;
++	}
  
- /* PMC stuff */
+ 	newsighand = kmem_cache_alloc(sighand_cachep, GFP_KERNEL);
+ 	if (!newsighand)
+ 		return -ENOMEM;
  
-+#ifdef CONFIG_PPC_ISERIES
-+void ppc64_enable_pmcs(void)
-+{
-+	/* XXX Implement for iseries */
-+}
-+#else
+-	spin_lock_init(&newsighand->siglock);
+-	atomic_set(&newsighand->count, 1);
+-	memcpy(newsighand->action, oldsighand->action, sizeof(newsighand->action));
+-
+-	/*
+-	 * See if we need to allocate a new signal structure
+-	 */
+-	newsig = NULL;
+-	if (atomic_read(&oldsig->count) > 1) {
+-		newsig = kmem_cache_alloc(signal_cachep, GFP_KERNEL);
+-		if (!newsig) {
+-			kmem_cache_free(sighand_cachep, newsighand);
+-			return -ENOMEM;
+-		}
+-		atomic_set(&newsig->count, 1);
+-		newsig->group_exit = 0;
+-		newsig->group_exit_code = 0;
+-		newsig->group_exit_task = NULL;
+-		newsig->group_stop_count = 0;
+-		newsig->curr_target = NULL;
+-		init_sigpending(&newsig->shared_pending);
+-		INIT_LIST_HEAD(&newsig->posix_timers);
+-
+-		newsig->tty = oldsig->tty;
+-		newsig->pgrp = oldsig->pgrp;
+-		newsig->session = oldsig->session;
+-		newsig->leader = oldsig->leader;
+-		newsig->tty_old_pgrp = oldsig->tty_old_pgrp;
+-	}
+-
+ 	if (thread_group_empty(current))
+ 		goto no_thread_group;
+ 
+@@ -619,7 +592,7 @@ static inline int de_thread(struct task_
+ 	 */
+ 	read_lock(&tasklist_lock);
+ 	spin_lock_irq(lock);
+-	if (oldsig->group_exit) {
++	if (sig->group_exit) {
+ 		/*
+ 		 * Another group action in progress, just
+ 		 * return so that the signal is processed.
+@@ -627,11 +600,9 @@ static inline int de_thread(struct task_
+ 		spin_unlock_irq(lock);
+ 		read_unlock(&tasklist_lock);
+ 		kmem_cache_free(sighand_cachep, newsighand);
+-		if (newsig)
+-			kmem_cache_free(signal_cachep, newsig);
+ 		return -EAGAIN;
+ 	}
+-	oldsig->group_exit = 1;
++	sig->group_exit = 1;
+ 	zap_other_threads(current);
+ 	read_unlock(&tasklist_lock);
+ 
+@@ -641,14 +612,16 @@ static inline int de_thread(struct task_
+ 	count = 2;
+ 	if (current->pid == current->tgid)
+ 		count = 1;
+-	while (atomic_read(&oldsig->count) > count) {
+-		oldsig->group_exit_task = current;
+-		oldsig->notify_count = count;
++	while (atomic_read(&sig->count) > count) {
++		sig->group_exit_task = current;
++		sig->notify_count = count;
+ 		__set_current_state(TASK_UNINTERRUPTIBLE);
+ 		spin_unlock_irq(lock);
+ 		schedule();
+ 		spin_lock_irq(lock);
+ 	}
++	sig->group_exit_task = NULL;
++	sig->notify_count = 0;
+ 	spin_unlock_irq(lock);
+ 
+ 	/*
+@@ -723,29 +696,46 @@ static inline int de_thread(struct task_
+ 		release_task(leader);
+         }
+ 
++	/*
++	 * Now there are really no other threads at all,
++	 * so it's safe to stop telling them to kill themselves.
++	 */
++	sig->group_exit = 0;
 +
- /*
-  * Enabling PMCs will slow partition context switch times so we only do
-  * it the first time we write to the PMCs.
-@@ -104,12 +111,6 @@ __setup("smt-snooze-delay=", setup_smt_s
+ no_thread_group:
++	BUG_ON(atomic_read(&sig->count) != 1);
++	exit_itimers(sig);
  
- static DEFINE_PER_CPU(char, pmcs_enabled);
+-	write_lock_irq(&tasklist_lock);
+-	spin_lock(&oldsighand->siglock);
+-	spin_lock(&newsighand->siglock);
+-
+-	if (current == oldsig->curr_target)
+-		oldsig->curr_target = next_thread(current);
+-	if (newsig)
+-		current->signal = newsig;
+-	current->sighand = newsighand;
+-	init_sigpending(&current->pending);
+-	recalc_sigpending();
+-
+-	spin_unlock(&newsighand->siglock);
+-	spin_unlock(&oldsighand->siglock);
+-	write_unlock_irq(&tasklist_lock);
++	if (atomic_read(&oldsighand->count) == 1) {
++		/*
++		 * Now that we nuked the rest of the thread group,
++		 * it turns out we are not sharing sighand any more either.
++		 * So we can just keep it.
++		 */
++		kmem_cache_free(sighand_cachep, newsighand);
++	} else {
++		/*
++		 * Move our state over to newsighand and switch it in.
++		 */
++		spin_lock_init(&newsighand->siglock);
++		atomic_set(&newsighand->count, 1);
++		memcpy(newsighand->action, oldsighand->action,
++		       sizeof(newsighand->action));
++
++		write_lock_irq(&tasklist_lock);
++		spin_lock(&oldsighand->siglock);
++		spin_lock(&newsighand->siglock);
  
--#ifdef CONFIG_PPC_ISERIES
--void ppc64_enable_pmcs(void)
--{
--	/* XXX Implement for iseries */
--}
--#else
- void ppc64_enable_pmcs(void)
- {
- 	unsigned long hid0;
-diff -puN arch/ppc64/kernel/pSeries_pci.c~falsepositives arch/ppc64/kernel/pSeries_pci.c
---- foobar2/arch/ppc64/kernel/pSeries_pci.c~falsepositives	2004-09-11 16:11:50.144706960 +1000
-+++ foobar2-anton/arch/ppc64/kernel/pSeries_pci.c	2004-09-11 16:11:50.255698428 +1000
-@@ -497,7 +497,7 @@ unsigned long __init find_and_init_phbs(
- 	struct pci_controller *phb;
- 	unsigned int root_size_cells = 0;
- 	unsigned int index;
--	unsigned int *opprop;
-+	unsigned int *opprop = NULL;
- 	struct device_node *root = of_find_node_by_path("/");
+-	if (newsig && atomic_dec_and_test(&oldsig->count))
+-		kmem_cache_free(signal_cachep, oldsig);
++		current->sighand = newsighand;
++		recalc_sigpending();
  
- 	if (naca->interrupt_controller == IC_OPEN_PIC) {
-diff -puN arch/ppc64/kernel/rtasd.c~falsepositives arch/ppc64/kernel/rtasd.c
---- foobar2/arch/ppc64/kernel/rtasd.c~falsepositives	2004-09-11 16:11:50.158705884 +1000
-+++ foobar2-anton/arch/ppc64/kernel/rtasd.c	2004-09-11 16:11:50.265697660 +1000
-@@ -106,7 +106,7 @@ static char *rtas_event_type(int type)
- static void printk_log_rtas(char *buf, int len)
- {
+-	if (atomic_dec_and_test(&oldsighand->count))
+-		kmem_cache_free(sighand_cachep, oldsighand);
++		spin_unlock(&newsighand->siglock);
++		spin_unlock(&oldsighand->siglock);
++		write_unlock_irq(&tasklist_lock);
++
++		if (atomic_dec_and_test(&oldsighand->count))
++			kmem_cache_free(sighand_cachep, oldsighand);
++	}
  
--	int i,j,n;
-+	int i,j,n = 0;
- 	int perline = 16;
- 	char buffer[64];
- 	char * str = "RTAS event";
-diff -puN arch/ppc64/kernel/setup.c~falsepositives arch/ppc64/kernel/setup.c
---- foobar2/arch/ppc64/kernel/setup.c~falsepositives	2004-09-11 16:11:50.164705423 +1000
-+++ foobar2-anton/arch/ppc64/kernel/setup.c	2004-09-11 16:11:50.267697506 +1000
-@@ -598,7 +598,7 @@ static int __init set_preferred_console(
- {
- 	struct device_node *prom_stdout;
- 	char *name;
--	int offset;
-+	int offset = 0;
- 
- 	/* The user has requested a console so this is already set up. */
- 	if (strstr(saved_command_line, "console="))
-diff -puN arch/ppc64/kernel/signal.c~falsepositives arch/ppc64/kernel/signal.c
---- foobar2/arch/ppc64/kernel/signal.c~falsepositives	2004-09-11 16:11:50.170704962 +1000
-+++ foobar2-anton/arch/ppc64/kernel/signal.c	2004-09-11 16:11:50.269697352 +1000
-@@ -178,7 +178,7 @@ static long restore_sigcontext(struct pt
- 	elf_vrreg_t __user *v_regs;
- #endif
- 	unsigned long err = 0;
--	unsigned long save_r13;
-+	unsigned long save_r13 = 0;
- 	elf_greg_t *gregs = (elf_greg_t *)regs;
- 	int i;
- 
-diff -puN arch/ppc64/kernel/signal32.c~falsepositives arch/ppc64/kernel/signal32.c
---- foobar2/arch/ppc64/kernel/signal32.c~falsepositives	2004-09-11 16:11:50.176704500 +1000
-+++ foobar2-anton/arch/ppc64/kernel/signal32.c	2004-09-11 16:11:50.272697121 +1000
-@@ -189,7 +189,7 @@ static long restore_user_regs(struct pt_
- 	elf_greg_t64 *gregs = (elf_greg_t64 *)regs;
- 	int i;
- 	long err = 0;
--	unsigned int save_r2;
-+	unsigned int save_r2 = 0;
- #ifdef CONFIG_ALTIVEC
- 	unsigned long msr;
- #endif
-diff -puN arch/ppc64/oprofile/op_model_rs64.c~falsepositives arch/ppc64/oprofile/op_model_rs64.c
---- foobar2/arch/ppc64/oprofile/op_model_rs64.c~falsepositives	2004-09-11 16:11:50.182704039 +1000
-+++ foobar2-anton/arch/ppc64/oprofile/op_model_rs64.c	2004-09-11 16:11:50.273697045 +1000
-@@ -21,8 +21,8 @@
- 
- static void ctrl_write(unsigned int i, unsigned int val)
- {
--	unsigned int tmp;
--	unsigned long shift, mask;
-+	unsigned int tmp = 0;
-+	unsigned long shift = 0, mask = 0;
- 
- 	dbg("ctrl_write %d %x\n", i, val);
- 
-diff -puN arch/ppc64/xmon/xmon.c~falsepositives arch/ppc64/xmon/xmon.c
---- foobar2/arch/ppc64/xmon/xmon.c~falsepositives	2004-09-11 16:11:50.189703501 +1000
-+++ foobar2-anton/arch/ppc64/xmon/xmon.c	2004-09-11 16:11:50.279696583 +1000
-@@ -2059,7 +2059,7 @@ ppc_inst_dump(unsigned long adr, long co
- {
- 	int nr, dotted;
- 	unsigned long first_adr;
--	unsigned long inst, last_inst;
-+	unsigned long inst, last_inst = 0;
- 	unsigned char val[4];
- 
- 	dotted = 0;
-diff -puN drivers/char/hvsi.c~falsepositives drivers/char/hvsi.c
---- foobar2/drivers/char/hvsi.c~falsepositives	2004-09-11 16:11:50.196702963 +1000
-+++ foobar2-anton/drivers/char/hvsi.c	2004-09-11 16:11:50.282696353 +1000
-@@ -1004,7 +1004,7 @@ static int hvsi_write(struct tty_struct 
- {
- 	struct hvsi_struct *hp = tty->driver_data;
- 	const char *source = buf;
--	char *kbuf;
-+	char *kbuf = NULL;
- 	unsigned long flags;
- 	int total = 0;
- 	int origcount = count;
-diff -puN drivers/macintosh/via-pmu.c~falsepositives drivers/macintosh/via-pmu.c
---- foobar2/drivers/macintosh/via-pmu.c~falsepositives	2004-09-11 16:14:45.116577104 +1000
-+++ foobar2-anton/drivers/macintosh/via-pmu.c	2004-09-11 16:14:48.743825573 +1000
-@@ -1446,7 +1446,7 @@ static struct adb_request* __pmac
- pmu_sr_intr(struct pt_regs *regs)
- {
- 	struct adb_request *req;
--	int bite;
-+	int bite = 0;
- 
- 	if (via[B] & TREQ) {
- 		printk(KERN_ERR "PMU: spurious SR intr (%x)\n", via[B]);
+ 	if (!thread_group_empty(current))
+ 		BUG();

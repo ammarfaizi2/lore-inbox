@@ -1,58 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279753AbRJYLRq>; Thu, 25 Oct 2001 07:17:46 -0400
+	id <S279756AbRJYL0Q>; Thu, 25 Oct 2001 07:26:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279754AbRJYLRf>; Thu, 25 Oct 2001 07:17:35 -0400
-Received: from smtp1.ndsu.NoDak.edu ([134.129.111.146]:39179 "EHLO
-	smtp1.ndsu.nodak.edu") by vger.kernel.org with ESMTP
-	id <S279753AbRJYLRX>; Thu, 25 Oct 2001 07:17:23 -0400
-Message-ID: <3BD7F44C.7020007@ndsu.nodak.edu>
-Date: Thu, 25 Oct 2001 06:15:24 -0500
-From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011018
-X-Accept-Language: en-us
+	id <S279757AbRJYL0G>; Thu, 25 Oct 2001 07:26:06 -0400
+Received: from arabuusi.tky.hut.fi ([130.233.24.169]:30354 "HELO
+	arabuusi.tky.hut.fi") by vger.kernel.org with SMTP
+	id <S279756AbRJYLZ4>; Thu, 25 Oct 2001 07:25:56 -0400
+To: linux-kernel@vger.kernel.org
+Subject: HPT366 and 80G Maxtor Diamondmaxes
+Message-ID: <1004009868.3bd7f98c86e95@mail.arabuusimiehet.com>
+Date: Thu, 25 Oct 2001 14:37:48 +0300 (EEST)
+From: Janne Liimatainen <jannel@iki.fi>
 MIME-Version: 1.0
-To: Marton Kadar <marton.kadar@freemail.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: concurrent VM subsystems
-In-Reply-To: <freemail.20010925100655.37794@fm3.freemail.hu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: IMP/PHP IMAP webmail program 2.2.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marton Kadar wrote:
 
-> Just an idea from an absolute layman who keeps
-> an eye on Kernel Traffic:
-> 
-> Isn't it possible to include both VM approaches in the
-> kernel sources? It would be nice to be able to choose
-> at compile time through a configuration option.
-> Perhaps Andrea Arcangeli's version could be marked 
-> experimental.
+Hi all,
 
+the HPT 1.25 bios seems to be buggy and detects the 80 gig maxtors as 13 gigs. 
+Kernel 2.4.9 reports the highpoint controller as dma disabled by bios and the 
+drives get max. 2 megabytes/s speeds. Is there a way to get dma on? hdparm -d1 
+just reports operation not permitted.
 
-We've been over this already, while it would be nice for testing if the
+Please CC me!
 
-two VM's could be compared without all the extra variables of the Linus
-and -ac trees it's not going to happen. It would be a big headache to 
-maintain all the extra source that would involve and all the changes to 
-other stuff you'd have to patch to make the two interchangeable. This 
-has been discussed for almost a week now and I'm sure it will show up
-in next weeks kernel-traffic. I'd encourage layperson's to wait till
-then to see how this story continues. <announcer_voice> So until next
-week dear viewers! Same bat-time, same bat-channel!</announcer_voice>
+Thanks!
 
-
-If you're interested in seeing some of the discussion, here's a
-reasonable jump off point in the archives...
-
-http://www.uwsg.indiana.edu/hypermail/linux/kernel/0110.2/1149.html
-
-
-
-Just trying to better the signal-to-noise on linux-kernel...
-Regards,
-Reid
-
+--
+  -Janne

@@ -1,71 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbSLJPXs>; Tue, 10 Dec 2002 10:23:48 -0500
+	id <S262317AbSLJPX7>; Tue, 10 Dec 2002 10:23:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbSLJPXs>; Tue, 10 Dec 2002 10:23:48 -0500
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:37070 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S262303AbSLJPXq>; Tue, 10 Dec 2002 10:23:46 -0500
-Date: Tue, 10 Dec 2002 16:31:34 +0100
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: 2.2 networking, NET_BH latency
-Message-ID: <20021210153134.GB23479@laguna.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S262324AbSLJPX7>; Tue, 10 Dec 2002 10:23:59 -0500
+Received: from irongate.swansea.linux.org.uk ([194.168.151.19]:24255 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262317AbSLJPX6>; Tue, 10 Dec 2002 10:23:58 -0500
+Subject: Re: 2.5.51 don't compil with dvb
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Gregoire Favre <greg@ulima.unil.ch>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-dvb@linuxtv.org
+In-Reply-To: <20021210150748.GB20411@ulima.unil.ch>
+References: <20021210150748.GB20411@ulima.unil.ch>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 10 Dec 2002 16:05:15 +0000
+Message-Id: <1039536315.14175.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ 
-  I posted this on lkml two weeks ago, and got no responses. 
-  Am I asking something too trivial or nobody knows the answers ? :-)
-  
-  Thanks.
-]
+On Tue, 2002-12-10 at 15:07, Gregoire Favre wrote:
+> drivers/built-in.o(.text+0x38655): In function `try_attach_device':
+> : undefined reference to `MOD_CAN_QUERY'
+> make: *** [vmlinux] Error 1
+> 
 
-Hi,
+Modules are still very broken in 2.5.51, its best to compile a system
+which doesn't use modules or stay at an older kernel
 
-I experience some odd behaviour when routing some network packets
-on a 2.2(.18) kernel (with Ingo's low latency patch in case it 
-matters).
-
-Although there are probably bugs in the modifications we made
-(a network card driver, some tweaks in the network core to deal
-with several packet priorities etc), I'm not sure the behaviour
-is directly due to a bug in our modifications or some synchronisation
-issue we overlooked.
-
-So, the network driver receives a packet, pushes it to the upper
-layers (netif_rx), the packet does all its job in the network
-layers (in the NET_BH bottom-half), it gets routed to another 
-interface, and get send.
-
-The problem is that the time of the treatment (measured as time
-between the moments when the packet enters the box and exits it)
-_always_ exceeds HZ (in fact it is between 1*HZ and 2*HZ). 
-
-Is this normal ? 
-
-Is this related to the scheduling of NET_BH ? In this case, is it
-possible to schedule the bottom-half more often ?
-
-It should be noted that, each time a packet is received by the
-network card, the driver wakes up a process waiting in ioctl(), 
-making it eligible. Could this have any influence on the above ?
-
-In order to respect some minimum timing requirements, we took the
-approach of increasing HZ. Since the net latency (at least in our
-case) is directly related to the value of the tick, it works. But
-maybe there is a better solution.
-
-Thanks,
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com

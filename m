@@ -1,47 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263195AbTDGCXS (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:23:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTDGCXR (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:23:17 -0400
-Received: from mail.gmx.de ([213.165.65.60]:26736 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263195AbTDGCXQ (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 22:23:16 -0400
-Message-ID: <3E90E3C5.80109@gmx.net>
-Date: Mon, 07 Apr 2003 04:34:45 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Problems booting PDC20276 with new IDE setup code.
-References: <Pine.LNX.4.44.0304070201420.8701-100000@sharra.ivimey.org>
-In-Reply-To: <Pine.LNX.4.44.0304070201420.8701-100000@sharra.ivimey.org>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id S263192AbTDGCQr (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 22:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263194AbTDGCQr (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 22:16:47 -0400
+Received: from [12.47.58.55] ([12.47.58.55]:16087 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263192AbTDGCQq (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 22:16:46 -0400
+Date: Sun, 6 Apr 2003 18:28:15 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.66-bk12 causes "rpm" errors
+Message-Id: <20030406182815.65dd9304.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0304062200570.1604-100000@localhost.localdomain>
+References: <20030406183234.1e8abd7f.akpm@digeo.com>
+	<Pine.LNX.4.44.0304062200570.1604-100000@localhost.localdomain>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 07 Apr 2003 02:28:11.0906 (UTC) FILETIME=[55D06E20:01C2FCAD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ruth Ivimey-Cook wrote:
-> Since 2.4.20 I have not been able to boot Linux using more recent kernels
-> (tried 21-pre3, -pre6).
+"Robert P. J. Day" <rpjday@mindspring.com> wrote:
+>
+> > The only change which comes to mind is the below one.  Could you do a
+> > patch -R of this and retest?
 > 
-> The problem is that my /home is on a raid5 disks array connected to a PDC20276 
-> motherboard-mounted controller. The BIOS boots and detects all 4 disks, and 
-> then enables IDE Master mode, as expetced. The kernel in 2.4.20 then uses the 
-> disks in IDE master mode, but the pre3 and pre6 kernels say the BIOS hasn't 
-> enabled the controller.
+> ... patch deleted ...
+> 
+> that fixed it, but i only this second noticed the "-R" for reversing
+> the patch.  i applied it normally against my 2.5.66-bk12 tree, and
+> it apparently applied cleanly.  
+> 
+> wouldn't that suggest that that patch wasn't in my tree in the first
+> place?  i'm sure i'm up to bk12 at this point.
+> 
 
-Could you please try 2.4.21-pre7 (this has another batch of IDE updates) 
-and enable the option
-"Special FastTrak Feature"?
-In your .config, the option would be
-CONFIG_PDC202XX_FORCE=y
-and report back to the list?
+I am now very confused.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org
+That patch _is_ in 2.5.66-bk12.  If a `patch -R' of that patch made bk12 work
+correctly then the patch was the source of the changed behaviour.
 
+Please start again ;)
+
+Test 2.5.66, then 2.5.66-bk12, then 2.5.66-bk12 with a `patch -R' of
+the patch which I sent in the earlier email.
+
+Thanks again.

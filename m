@@ -1,121 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132272AbRCYJjf>; Sun, 25 Mar 2001 04:39:35 -0500
+	id <S132298AbRCYLJA>; Sun, 25 Mar 2001 06:09:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132274AbRCYJjZ>; Sun, 25 Mar 2001 04:39:25 -0500
-Received: from mail-1.tiscalinet.it ([195.130.225.147]:12445 "EHLO
-	mail.tiscalinet.it") by vger.kernel.org with ESMTP
-	id <S132272AbRCYJjN>; Sun, 25 Mar 2001 04:39:13 -0500
-Date: Sun, 25 Mar 2001 11:35:51 +0200
-To: debian-users@lists.debian.org, linux-kernel@vger.kernel.org
-Subject: kernel gen prot fault
-Message-ID: <20010325113551.A2838@etabeta.sns.it>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MGYHOYXEY6WxJCY8"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: A C G Mennucc <debian@Tonelli.sns.it>
+	id <S132300AbRCYLIu>; Sun, 25 Mar 2001 06:08:50 -0500
+Received: from front2m.grolier.fr ([195.36.216.52]:47100 "EHLO
+	front2m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S132298AbRCYLIp> convert rfc822-to-8bit; Sun, 25 Mar 2001 06:08:45 -0500
+Date: Sun, 25 Mar 2001 09:57:17 +0200 (CEST)
+From: Gérard Roudier <groudier@club-internet.fr>
+To: LA Walsh <law@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: NCR53c8xx driver and multiple controllers...(not new prob)
+In-Reply-To: <Pine.LNX.4.10.10103241647530.601-100000@linux.local>
+Message-ID: <Pine.LNX.4.10.10103250925410.717-100000@linux.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+
+Hello,
+
+You sent me by private e-mail, the /proc/pci information of your system.
+I donnot see anything wrong in these data. If the problem is PCI-related,
+you would probably have better help by sending these infos to the l-k
+list, in my opinion.
+
+To be honest (I may be wrong here - sorry if I am), I am under the
+impression that you may well be barking up the wrong tree.
+Just quoted here an exerpt of your mail that let me think so:
+
+> > When I compile it in, it only see the 1st controller
+> > and the boot partition I think is on the 3rd.
+                             ^^^^^
+Knowing instead is required, here, IMO.
+
+1) controllers attach SCSI devices, notably hard disks
+2) hard disks contain partitions
+3) partitions contain file systems.
+4) the kernel needs to *know* the root file system to boot your system.
+
+What about point 4 ?
+
+i.e : how did you tell to the boot loader the root partition name to 
+pass to the kernel at boot ?
+
+If you are using lilo and have configured it for user to be prompted
+before running the kernel, you may try to enter your root partition name
+when you are prompted by lilo. For example if root fs is on /dev/sda5:
+
+lilo: your_lilo_config_entry_name root=/dev/sda5 ro
+
+Just replace the lilo_config_entry_name and the root partition name by the
+values that match your configuration.
+
+  Gérard.
 
 
-hi
+On Sat, 24 Mar 2001, Gérard Roudier wrote:
 
-please help!
-
-my Debian system , (Pentium 133)  which has run seamlessly for 5 years 
-(thru several upgrades of SW and HW)
-is now totally unrealible , and has been for 15 days :
-from time to time, apprx once a day, 
-it suddenly freezes , for no apparent reasons; then, it doesnt even respond
-to ping from the net
-
-I have tried many approaches : 
-1) cleaned the heatsink and the fan (which actually had stuck, but now
- is running fine)
-2) tried changing : video card , motherboard & CPU, memory , ethernet card
- ( I work in a university, we have a lot of old spare parts)
-
-so I am left with no ideas of what I should do, my last chances are
-1) change HD (but this one was bought 3 months ago !)
-2) buy a new PC altogether
-3) bang my head on the wall (yes, when it crashed on friday evening after the 
- 3rd total rearragnment of HW, I had that temptation)
-
-the only sign that I have had are some 'general protection faults'
-from the kernel which I cant 'decrypt'
-
-I am running kernel 2.2.18 ( Debian packaging)
-
-I attach a file , may  you please tell me if that message 
-can suggest a solution to the prbl
-
-thanks thanks for any hint
-
-a.
+> On Sat, 24 Mar 2001, LA Walsh wrote:
+> 
+> > I have a machine with 3 of these controllers (a 4 CPU server).  The
+> > 3 controllers are:
+> > ncr53c810a-0: rev=0x23, base=0xfa101000, io_port=0x2000, irq=58
+> > ncr53c810a-0: ID 7, Fast-10, Parity Checking
+> > ncr53c896-1: rev=0x01, base=0xfe004000, io_port=0x3000, irq=57
+> > ncr53c896-1: ID 7, Fast-40, Parity Checking
+> > ncr53c896-2: rev=0x01, base=0xfe004400, io_port=0x3400, irq=56
+> > ncr53c896-2: ID 7, Fast-40, Parity Checking
+> > ncr53c896-2: on-chip RAM at 0xfe002000
+> > 
+> > I'd like to be able to make a kernel with the driver compiled in and
+> > no loadable module support.  It don't see how to do this from the
+> > documentation -- it seems to require a separate module loaded for
+> > each controller.  When I compile it in, it only see the 1st controller
+> > and the boot partition I think is on the 3rd.  Any ideas?
+> 
+> The driver tries to detect all controllers it supports. Since the
+> ncr53c8xx supports both the 810a and the 896, all your controllers should
+> have been detected. When loaded as a module, the driver must be loaded
+> once (btw, a seconf load should fail).
+> 
+> > This problem is present in the 2.2.x series as well as 2.4.x (x up to 2).
+> 
+> What hardware are you using (CPU, Core Logic and tutti quanti) ?
+> Is the 896 on PCI BUS #0 or on some sort of secondary PCI BUS ?
+> Does the sym53c8xx driver show same behaviour ?
+> 
+>   Gérard.
 
 
---MGYHOYXEY6WxJCY8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="kern.panic"
-
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: general protection fault: 2000
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: CPU:    0
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: EIP:    0010:[load_elf_interp+398/700]
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: EFLAGS: 00013202
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: eax: 00000005   ebx: c0e746c0   ecx: c03b5db0   edx: c197e970
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: esi: 00000000   edi: c03b5db0   ebp: 00000000   esp: c03b5cd8
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: ds: 0018   es: 0018   ss: 0018
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: Process sh (pid: 19916, process nr: 73, stackpage=c03b5000)
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: Stack: 00000000 c107f610 00000005 00000802 00000000 00000004 ffffffff 00000000 
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel:        00000000 00000000 c0e746c0 c197e970 c0136412 c03b5db0 c1f52460 c03b5d80 
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel:        c02b68a0 c03b4000 fffffff8 c03b5e68 00000000 00000080 080b2320 c09feb5c 
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: Call Trace: [load_elf_binary+1862/2696] [search_binary_handler+70/300] [do_execve+387/488] [do_execve+420/488] [sys_execve+44/88] [system_call+52/56] 
-/var/log/syslog.4.gz:Mar 16 15:24:03 Tonelli kernel: Code: 64 07 83 7c 24 2c 00 74 08 c7 44 24 14 12 08 00 00 8b 43 08 
-
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: general protection fault: 2000
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: CPU:    0
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: EIP:    0010:[load_elf_interp+398/700]
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: EFLAGS: 00010202
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: eax: 00000005   ebx: c0e74870   ecx: c1965db0   edx: c1852a80
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: esi: 00000000   edi: c1965db0   ebp: 00000000   esp: c1965cd8
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: ds: 0018   es: 0018   ss: 0018
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Process sh (pid: 19921, process nr: 97, stackpage=c1965000)
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Stack: 00000000 c107fb60 00000005 00000802 00000000 00000004 ffffffff 00000000 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel:        00000000 00000000 c0e74870 c1852a80 c0136412 c1965db0 c1f52460 c1965d80 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel:        c02b68a0 c1964000 fffffff8 c1965e68 00000000 00000080 080b2320 c09fee9c 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Call Trace: [load_elf_binary+1862/2696] [search_binary_handler+70/300] [do_execve+387/488] [do_execve+420/488] [sys_execve+44/88] [system_call+52/56] 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Code: 64 07 83 7c 24 2c 00 74 08 c7 44 24 14 12 08 00 00 8b 43 08 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: general protection fault: 2000
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: CPU:    0
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: EIP:    0010:[load_elf_interp+398/700]
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: EFLAGS: 00010202
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: eax: 00000005   ebx: c10f9ac0   ecx: c0bf9db0   edx: c0a880c0
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: esi: 00000000   edi: c0bf9db0   ebp: 00000000   esp: c0bf9cd8
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: ds: 0018   es: 0018   ss: 0018
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Process sh (pid: 19922, process nr: 91, stackpage=c0bf9000)
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Stack: 00000000 c107fd80 00000005 00000802 00000000 00000004 ffffffff 00000000 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel:        00000000 00000000 c10f9ac0 c0a880c0 c0136412 c0bf9db0 c1f52460 c0bf9d80 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel:        c02b68a0 c0bf8000 fffffff8 c0bf9e68 00000000 00000080 080b2320 c09fe33c 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Call Trace: [load_elf_binary+1862/2696] [search_binary_handler+70/300] [do_execve+387/488] [do_execve+420/488] [sys_execve+44/88] [system_call+52/56] 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Code: 64 07 83 7c 24 2c 00 74 08 c7 44 24 14 12 08 00 00 8b 43 08 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: general protection fault: 2000
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: CPU:    0
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: EIP:    0010:[load_elf_interp+398/700]
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: EFLAGS: 00010202
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: eax: 00000005   ebx: c0e74cf0   ecx: c186ddb0   edx: c197e610
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: esi: 00000000   edi: c186ddb0   ebp: 00000000   esp: c186dcd8
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: ds: 0018   es: 0018   ss: 0018
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Process sh (pid: 19923, process nr: 93, stackpage=c186d000)
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Stack: 00000000 c107f500 00000005 00000802 00000000 00000004 ffffffff 00000000 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel:        00000000 00000000 c0e74cf0 c197e610 c0136412 c186ddb0 c1f52460 c186dd80 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel:        c02b68a0 c186c000 fffffff8 c186de68 00000000 00000080 080b2320 c09fecfc 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Call Trace: [load_elf_binary+1862/2696] [search_binary_handler+70/300] [do_execve+387/488] [do_execve+420/488] [sys_execve+44/88] [system_call+52/56] 
-/var/log/syslog.4.gz:Mar 16 15:25:03 Tonelli kernel: Code: 64 07 83 7c 24 2c 00 74 08 c7 44 24 14 12 08 00 00 8b 43 08 
-
---MGYHOYXEY6WxJCY8--

@@ -1,57 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbTHURXG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Aug 2003 13:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262883AbTHURXG
+	id S262800AbTHURMJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Aug 2003 13:12:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTHURMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Aug 2003 13:23:06 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:12672 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262881AbTHURXD
+	Thu, 21 Aug 2003 13:12:09 -0400
+Received: from hermes.py.intel.com ([146.152.216.3]:31975 "EHLO
+	hermes.py.intel.com") by vger.kernel.org with ESMTP id S262800AbTHURKU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Aug 2003 13:23:03 -0400
-Date: Thu, 21 Aug 2003 13:23:06 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Pankaj Garg <PGarg@MEGISTO.com>, Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: Messaging between kernel modules and User Apps
-In-Reply-To: <3F44F9D0.5010606@softhome.net>
-Message-ID: <Pine.LNX.4.53.0308211318500.3389@chaos>
-References: <mYVo.39N.19@gated-at.bofh.it> <mZou.3Ff.29@gated-at.bofh.it>
- <n0ud.4F4.15@gated-at.bofh.it> <3F44F9D0.5010606@softhome.net>
+	Thu, 21 Aug 2003 13:10:20 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Subject: RE: [PATCH] 'noapic' already handled elsewhere
+Date: Thu, 21 Aug 2003 13:09:54 -0400
+Message-ID: <BF1FE1855350A0479097B3A0D2A80EE009FCA0@hdsmsx402.hd.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] 'noapic' already handled elsewhere
+Thread-Index: AcNoA+kErlP0Fp5iTDWaX2gUUoEbogAAazbA
+From: "Brown, Len" <len.brown@intel.com>
+To: "Jeff Garzik" <jgarzik@pobox.com>, <torvalds@osdl.org>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>, <zwane@linuxpower.ca>,
+       <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 21 Aug 2003 17:09:55.0716 (UTC) FILETIME=[0B1F3440:01C36807]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Aug 2003, Ihar 'Philips' Filipau wrote:
+Jeff,
+This won't work.
+acpi_boot_init() is called from setup_arch(), which is called from
+start_kernel() _before_ parse_options().  Ie. ACPI needs to consume this
+flag before __setup() is invoked.
 
-> Zwane Mwaikambo wrote:
-> >>The de facto standard for network devices is to use sockets.
-> >>For character and and block devices Unix/Linux uses the
-> >>open/poll/ioctl/read mechanisms.
-> >
-> > That sounds fine, but..
-> >
-> >>You could send your module a pid via proc and have it send a
-> >>signal to your application as a result of an event.
-> >
-> > ... please don't even entertain such sick ideas.
->
->    Especially when there is fcntl(F_{G,S}ET{OWN,SIG}) infrastructure in
-> place - kill_fasync().
->
+-Len
 
-Just getting 'even' for the last time I advised poll()/ioctl() and
-I was pummeled with "No... use /proc"! Of course the "best" method
-is to open a file in the kernel module and have the user poll for
-a change in length ->;^;<-)
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+> -----Original Message-----
+> From: Jeff Garzik [mailto:jgarzik@pobox.com] 
+> Sent: Thursday, August 21, 2003 12:15 PM
+> To: torvalds@osdl.org
+> Cc: Brown, Len; Grover, Andrew; zwane@linuxpower.ca; 
+> linux-kernel@vger.kernel.org
+> Subject: [PATCH] 'noapic' already handled elsewhere
+> 
+> 
+> I sent a previous patch to s/LOCAL_APIC/IO_APIC/, as Zwane noticed
+> my first patch needed that.  In that patch, I commented __setup()
+> would be better.
+> 
+> Well... line 718 of arch/i386/kernel/io_apic.c _already_ handles this
+> case, using __setup() properly.
+> 
+> Word of warning... patch only compile tested, but seems obvious from
+> looking at io_apic.c.
+> 
+> BTW, why isn't ACPI using __setup() as well?  I don't see that ACPI
+> needs to patch arch/i386/kernel/setup.c at all.
+> 
+> 
+> ===== arch/i386/kernel/setup.c 1.94 vs edited =====
+> --- 1.94/arch/i386/kernel/setup.c	Thu Aug 21 01:32:04 2003
+> +++ edited/arch/i386/kernel/setup.c	Thu Aug 21 12:09:13 2003
+> @@ -544,12 +544,6 @@
+>  			if (!acpi_force) acpi_disabled = 1;
+>  		}
+>  
+> -#ifdef CONFIG_X86_LOCAL_APIC
+> -		/* disable IO-APIC */
+> -		else if (!memcmp(from, "noapic", 6)) {
+> -			skip_ioapic_setup = 1;
+> -		}
+> -#endif /* CONFIG_X86_LOCAL_APIC */
+>  #endif /* CONFIG_ACPI_BOOT */
+>  
+>  		/*
+> 

@@ -1,45 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264743AbSIRAbc>; Tue, 17 Sep 2002 20:31:32 -0400
+	id <S264794AbSIRAld>; Tue, 17 Sep 2002 20:41:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264794AbSIRAbc>; Tue, 17 Sep 2002 20:31:32 -0400
-Received: from dp.samba.org ([66.70.73.150]:36761 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S264743AbSIRAbb>;
-	Tue, 17 Sep 2002 20:31:31 -0400
-Date: Wed, 18 Sep 2002 10:33:47 +1000
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: phillips@arcor.de, alan@lxorguk.ukuu.org.uk, david-b@pacbell.net,
-       mdharm-kernel@one-eyed-alien.net, greg@kroah.com,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	id <S264839AbSIRAld>; Tue, 17 Sep 2002 20:41:33 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:62469 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S264794AbSIRAlc>; Tue, 17 Sep 2002 20:41:32 -0400
+Date: Tue, 17 Sep 2002 17:46:48 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: phillips@arcor.de, <alan@lxorguk.ukuu.org.uk>, <david-b@pacbell.net>,
+       <mdharm-kernel@one-eyed-alien.net>, <greg@kroah.com>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
 Subject: Re: [linux-usb-devel] Re: [BK PATCH] USB changes for 2.5.34
-Message-Id: <20020918103347.0c098328.rusty@rustcorp.com.au>
-In-Reply-To: <Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com>
-References: <E17qRfU-0001qz-00@starship>
-	<Pine.LNX.4.44.0209151103170.10830-100000@home.transmeta.com>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20020918103347.0c098328.rusty@rustcorp.com.au>
+Message-ID: <Pine.LNX.4.44.0209171745310.15725-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 Sep 2002 11:06:09 -0700 (PDT)
-Linus Torvalds <torvalds@transmeta.com> wrote:
 
+On Wed, 18 Sep 2002, Rusty Russell wrote:
 > 
-> On Sun, 15 Sep 2002, Daniel Phillips wrote:
-> > 
-> > Let's try a different show of hands: How many users would be happier if
-> > they knew that kernel developers are using modern techniques to improve
-> > the quality of the kernel?
-> 
-> You're all talk and no action.
+> That's a little out of line.  While Daniel seems to enjoy the sound of his
+> own typing even more than most of us, he *does* do useful work.
 
-That's a little out of line.  While Daniel seems to enjoy the sound of his
-own typing even more than most of us, he *does* do useful work.
+Yeah, I'm sorry Daniel. I just don't appreciate people who demand me to
+support built-in kernel debuggers, despite me having made my position
+quite clear over the years...
 
-Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+		Linus
+

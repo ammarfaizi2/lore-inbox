@@ -1,74 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263020AbSJBJUj>; Wed, 2 Oct 2002 05:20:39 -0400
+	id <S263010AbSJBJQ2>; Wed, 2 Oct 2002 05:16:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263021AbSJBJUj>; Wed, 2 Oct 2002 05:20:39 -0400
-Received: from netcore.fi ([193.94.160.1]:26888 "EHLO netcore.fi")
-	by vger.kernel.org with ESMTP id <S263020AbSJBJUh>;
-	Wed, 2 Oct 2002 05:20:37 -0400
-Date: Wed, 2 Oct 2002 12:25:37 +0300 (EEST)
-From: Pekka Savola <pekkas@netcore.fi>
-To: Antti Tuominen <ajtuomin@morphine.tml.hut.fi>
-cc: davem@redhat.com, <kuznet@ms2.inr.ac.ru>, <netdev@oss.sgi.com>,
-       <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: Re: [PATCH] Mobile IPv6 for 2.5.40 (request for kernel inclusion)
-In-Reply-To: <20021002092111.GB17010@morphine.tml.hut.fi>
-Message-ID: <Pine.LNX.4.44.0210021224350.27873-100000@netcore.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263011AbSJBJQ1>; Wed, 2 Oct 2002 05:16:27 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:9603 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S263010AbSJBJQ0>;
+	Wed, 2 Oct 2002 05:16:26 -0400
+Date: Wed, 2 Oct 2002 11:21:55 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: Strange colours in console under 2.5.40 with atyfb
+Message-ID: <20021002092155.GA3247@ulima.unil.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I believe MIPL implements an old version of MIPv6 (draft -15 or so).
+Hello,
 
-Or do you support -18 ?
+the console are quiete unusable with atyfb here: everything is written
+in blue ???
 
-On Wed, 2 Oct 2002, Antti Tuominen wrote:
-> Hello Dave, Alexey, and all,
-> 
-> I am part of the MIPL Mobile IPv6 for Linux Team at Helsinki
-> University of Technology, and we have been working on an
-> implementation of Mobility Support in IPv6 specification for the past
-> 3 years.  Now the code has matured to the point, that we feel
-> confident enough to ask for kernel inclusion.
-> 
-> Our implementation has been to several interop and conformance testing
-> events, and has proven to be very compliant and to interoperate with
-> all major vendors' implementations.  Code has been tested on several
-> UP and SMP configurations, and performs quite well.
-> 
-> Implementation consists of two kernel modules, changes to IPv6 stack,
-> and userspace configuration tools.  First module provides support for
-> 6over6 (IPv6 in IPv6) tunneling.  Second module is the Mobile IPv6
-> module, and adds support for Mobile IPv6 Correspondent Node, Mobile
-> Node, and Home Agent.  IPv6 stack has been modified to provide some
-> MIPv6 mandated features as well as hooks to our module.
-> 
-> Latest code for 2.5 series can be pulled from our public BitKeeper
-> repository (parent is http://linux.bkbits.net/linux-2.5): 
-> 	bk://bk.mipl.mediapoli.com/linux25-mipl
-> 
-> Diff against latest BK bits can be downloaded from:
-> 	http://www.mipl.mediapoli.com/download/linux-2.5+mipv6.diff
-> 
-> Latest userspace tools are found at:
-> 	bk://bk.mipl.mediapoli.com/mipv6-tools
-> 
-> More information of the project can be found at our website:
-> 	http://www.mipl.mediapoli.com/
-> 
-> The team continues the development work to have fully RFC compliant
-> (when the specification moves to RFC) implementation of Mobile IPv6 in
-> the Linux kernel, as well as work on improving the code.
-> 
-> On behalf of the MIPL Team,
-> 
-> Antti Tuominen
-> 
-> 
+I have put the dmesg here:
+http://ulima.unil.ch/greg/linux/dmesg-2.5.40
+And the config file I used to compil the kernel here:
+http://ulima.unil.ch/greg/linux/config-2.5.40
 
--- 
-Pekka Savola                 "Tell me of difficulties surmounted,
-Netcore Oy                   not those you stumble over and fall"
-Systems. Networks. Security.  -- Robert Jordan: A Crown of Swords
+>From dmesg I don't see any problem:
 
+tts/%d1 at I/O 0x2f8 (irq = 3) is a 16550A
+atyfb: 3D RAGE PRO (BGA, AGP) [0x4742 rev 0x7c] 8M SGRAM, 14.31818 MHz XTAL, 230 MHz PLL, 100 Mhz MCLK
+Console: switching to colour frame buffer device 128x48
+fb0: ATY Mach64 frame buffer device on PCI
+pty: 256 Unix98 ptys configured
+
+And in my lilo.conf:
+
+append="video=atyfb:1024x768-16@100"
+
+Have I done something wrong or is there a problem anywhere?
+
+Thank you very much,
+
+	Grégoire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

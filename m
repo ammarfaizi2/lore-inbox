@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290924AbSASIdS>; Sat, 19 Jan 2002 03:33:18 -0500
+	id <S290925AbSASIl7>; Sat, 19 Jan 2002 03:41:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290925AbSASIdJ>; Sat, 19 Jan 2002 03:33:09 -0500
-Received: from mail0.epfl.ch ([128.178.50.57]:29713 "HELO mail0.epfl.ch")
-	by vger.kernel.org with SMTP id <S290924AbSASIcx>;
-	Sat, 19 Jan 2002 03:32:53 -0500
-Message-ID: <3C492F31.7020200@epfl.ch>
-Date: Sat, 19 Jan 2002 09:32:49 +0100
-From: Nicolas Aspert <Nicolas.Aspert@epfl.ch>
-Organization: LTS-DE-EPFL
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us, ja
-MIME-Version: 1.0
-To: Daniele Venzano <venza@iol.it>
-CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] AGP update for i820 and i860 chipsets
-In-Reply-To: <20020118221153.GA1263@renditai.milesteg.arr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290926AbSASIlk>; Sat, 19 Jan 2002 03:41:40 -0500
+Received: from dsl-213-023-060-177.arcor-ip.net ([213.23.60.177]:40710 "HELO
+	spot.local") by vger.kernel.org with SMTP id <S290925AbSASIl0>;
+	Sat, 19 Jan 2002 03:41:26 -0500
+Date: Sat, 19 Jan 2002 09:44:24 +0100
+From: Oliver Feiler <kiza@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: Removing files in devfs
+Message-ID: <20020119094424.A239@gmxpro.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+X-Operating-System: Linux 2.4.16 i686
+X-Species: Snow Leopard
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniele Venzano wrote:
+Hello,
 
-> This patch fixes the ID for i860 chipset and adds support for the UP
-> version of i820 AGP bridge. I made it against kernel 2.4.17. It compiles
-> and works both builin or as a module.
-> 
-> It was submitted long ago by Nicolas Aspert and works well for
-> me, I'm running XFree with DRI and AGP 4x without problems.
-> 
-> This is my first patch, so there could be problems, however you could
-> find it also at:
-> http://digilander.iol.it/webvenza/agp_patch.html
-> 
-> Best regards.
-> 
-> 
+	Is this behaviour supposed to be?
 
-Hello Daniele
+9:36 root@kiza /dev# l null 
+crw-rw-rw-    1 root     root       1,   3 Jan  1  1970 null
+9:36 root@kiza /dev# rm null
+removing `null'
+9:36 root@kiza /dev# l null
+ls: null: No such file or directory
+9:36 root@kiza /dev#
 
-In fact, the patch you sent went into 2.4.18-pre2, along with my 830MP 
-stuff (which missed the suspend/resume), so it should be OK in the next 
-releases.
+	I have kernel 2.4.16 with devfs and on every other system I tried I 
+only get "rm: cannot unlink `null': Operation not permitted" when trying to 
+delete something in devfs. And I cannot see any differences as far as devfs is 
+concerned on the systems I tried. devfs compiled in, mounted on boot time, 
+same version of devfsd.
 
-I am now doing the corrective patch for the suspend/resume stuff.
+Regards,
 
-Best regards
+Oliver
 
-Nicolas
 -- 
-Nicolas Aspert      Signal Processing Laboratory (LTS)
-Swiss Federal Institute of Technology (EPFL)
-Office:  ELE 237
-Phone:   +41 - 21 - 693 36 32 (LTS Office)
-Fax:     +41 - 21 - 693 76 00  Web: http://ltswww.epfl.ch/~aspert
-
+Oliver Feiler                                               kiza@gmx.net
+http://www.lionking.org/~kiza/pgpkey              PGP key ID: 0x561D4FD2
+http://www.lionking.org/~kiza/

@@ -1,88 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313447AbSDLIMb>; Fri, 12 Apr 2002 04:12:31 -0400
+	id <S313444AbSDLIUl>; Fri, 12 Apr 2002 04:20:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313444AbSDLIMa>; Fri, 12 Apr 2002 04:12:30 -0400
-Received: from exchsmtp.via.com.tw ([61.13.36.4]:1808 "EHLO
-	exchsmtp.via.com.tw") by vger.kernel.org with ESMTP
-	id <S313447AbSDLIM1>; Fri, 12 Apr 2002 04:12:27 -0400
-Message-ID: <369B0912E1F5D511ACA5003048222B75A3C03E@exchtp02.via.com.tw>
-From: Shing Chuang <ShingChuang@via.com.tw>
-To: linux-kernel@vger.kernel.org
-Cc: AJ Jiang <AJJiang@via.com.tw>, Shing Chuang <ShingChuang@via.com.tw>
-Subject: [PATCH 2.4.19-pre6] via-rhine.c to support new VIA's nic chip VT6
-	105, V6105M.
-Date: Fri, 12 Apr 2002 16:13:14 +0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="BIG5"
+	id <S313448AbSDLIUk>; Fri, 12 Apr 2002 04:20:40 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:41175 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S313444AbSDLIUk>;
+	Fri, 12 Apr 2002 04:20:40 -0400
+Date: Fri, 12 Apr 2002 10:20:21 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: vojtech@suse.cz, martin@dalecki.de, linux-kernel@vger.kernel.org
+Subject: Re: VIA, 32bit PIO and 2.5.x kernel
+Message-ID: <20020412102021.A18037@ucw.cz>
+In-Reply-To: <20020412001029.GA1172@ppc.vc.cvut.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Apr 12, 2002 at 02:10:29AM +0200, Petr Vandrovec wrote:
 
-      This patch applied to linux kernel 2.4.19-per6 to support VIA's new
-NIC chip.
-      However, VIA don't have any nic chip with pci device id 0x6100 so far,
-so this patch also remove the device ID 0x6100.
+>   last friday I found strange problem with 2.5.8-pre1 kernel
+> corrupting my data. Today I tracked it down to enabled (by
+> default) 32bit I/O. Problem occurs only in 2.5.x kernels
+> (2.5.8-pre1, 2.5.8-pre3) and does not occur in 2.4.x
+> (2.4.19-pre6, 2.4.18-pre4). My tests were done in 
+> non-multicount mode:
+> 
+> /dev/hdc:
+>  multcount    =  0 (off)
+>  I/O support  =  1 (32-bit)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  0 (off)
+>  keepsettings =  0 (off)
+>  nowerr       =  0 (off)
+>  readonly     =  0 (off)
+>  geometry     = 4865/255/63, sectors = 78165360, start = 0
+>  busstate     =  1 (on)
+> 
+>   After looking through code up and down I found that first 
+> sector is written in 32bit mode, while others in 16bit mode, 
+> and VIA IDE interface does not cope with this correctly. Can 
+> anybody explain me, what's wrong with patch at the end of this 
+> message? As there is dozen of places where io_32bit is cleared, 
+> I believe that there must be some reason for doing that... And 
+> do not ask me why it worked in 2.4.x, as it cleared io_32bit
+> in task_out_intr too.
 
-       
---- linux/drivers/net/via-rhine.c.orig	Fri Apr 12 15:36:38 2002
-+++ linux/drivers/net/via-rhine.c	Fri Apr 12 15:39:04 2002
-@@ -317,7 +317,8 @@
- enum via_rhine_chips {
- 	VT86C100A = 0,
- 	VT6102,
--	VT3043,
-+	VT6105,
-+	VT6105M,
- };
- 
- struct via_rhine_chip_info {
-@@ -345,7 +346,9 @@
- 	  CanHaveMII | ReqTxAlign },
- 	{ "VIA VT6102 Rhine-II", RHINE_IOTYPE, 256,
- 	  CanHaveMII | HasWOL },
--	{ "VIA VT3043 Rhine",    RHINE_IOTYPE, 128,
-+	{ "VIA VT6105 Rhine-III",    RHINE_IOTYPE, 256,
-+	  CanHaveMII | ReqTxAlign },
-+	{ "VIA VT6105M Rhine-III",    RHINE_IOTYPE, 256,
- 	  CanHaveMII | ReqTxAlign }
- };
- 
-@@ -353,7 +356,8 @@
- {
- 	{0x1106, 0x6100, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT86C100A},
- 	{0x1106, 0x3065, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT6102},
--	{0x1106, 0x3043, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT3043},
-+	{0x1106, 0x3106, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT6105},
-+	{0x1106, 0x3106, PCI_ANY_ID, PCI_ANY_ID, 0, 0, VT6105M},
- 	{0,}			/* terminate list */
- };
- MODULE_DEVICE_TABLE(pci, via_rhine_pci_tbl);
-@@ -510,7 +514,7 @@
- 	int i;
- 
- 	/* 3043 may need long delay after reset (dlink) */
--	if (chip_id == VT3043 || chip_id == VT86C100A)
-+	if (chip_id == VT86C100A)
- 		udelay(100);
- 
- 	i = 0;
-@@ -531,7 +535,7 @@
- static void __devinit enable_mmio(long ioaddr, int chip_id)
- {
- 	int n;
--	if (chip_id == VT3043 || chip_id == VT86C100A) {
-+	if (chip_id == VT86C100A) {
- 		/* More recent docs say that this bit is reserved ... */
- 		n = inb(ioaddr + ConfigA) | 0x20;
- 		outb(n, ioaddr + ConfigA);
+It's a very unwise thing to disable 32-bit mode on VIA and AMD chipsets,
+AMD even has it in their errata (VIA has no documented errata, of
+course). Thanks for the good find. Martin, can we do anything about
+this?
+
+> diff -urN linux-2.5.8-pre3.dist/drivers/ide/ide-taskfile.c linux-2.5.8-pre3/drivers/ide/ide-taskfile.c
+> --- linux-2.5.8-pre3.dist/drivers/ide/ide-taskfile.c	Sun Apr  7 03:43:03 2002
+> +++ linux-2.5.8-pre3/drivers/ide/ide-taskfile.c	Fri Apr 12 01:50:04 2002
+> @@ -602,7 +602,7 @@
+>  		rq = HWGROUP(drive)->rq;
+>  		pBuf = ide_map_rq(rq, &flags);
+>  		DTF("write: %p, rq->current_nr_sectors: %d\n", pBuf, (int) rq->current_nr_sectors);
+> -		drive->io_32bit = 0;
+> +//		drive->io_32bit = 0;
+>  		taskfile_output_data(drive, pBuf, SECTOR_WORDS);
+>  		ide_unmap_rq(rq, pBuf, &flags);
+>  		drive->io_32bit = io_32bit;
 
 -- 
-Chuang Liang-Shing
-VIA Technologies, Inc.
-+886-2-22185452 Ext. 7523
-E-Mail: ShingChuang@via.com.tw
-
+Vojtech Pavlik
+SuSE Labs

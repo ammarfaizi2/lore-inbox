@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262982AbVAFTGd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262959AbVAFTKz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262982AbVAFTGd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 14:06:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262977AbVAFTGd
+	id S262959AbVAFTKz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 14:10:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262969AbVAFTKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 14:06:33 -0500
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:33225 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262959AbVAFTFz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 14:05:55 -0500
-Date: Thu, 6 Jan 2005 11:05:38 -0800
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, jtk@us.ibm.com, wtaber@us.ibm.com,
-       pbadari@us.ibm.com, markv@us.ibm.com,
-       viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
-Subject: [PATCH] fs: Restore files_lock and set_fs_root exports
-Message-ID: <20050106190538.GB1618@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 6 Jan 2005 14:10:53 -0500
+Received: from postfix4-2.free.fr ([213.228.0.176]:5264 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S262959AbVAFTJX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 14:09:23 -0500
+Message-ID: <41DD8D71.7000708@imag.fr>
+Date: Thu, 06 Jan 2005 20:11:45 +0100
+From: Raphael Jacquot <raphael.jacquot@imag.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041219
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
+Cc: Norbert van Nobelen <norbert-kernel@edusupport.nl>,
+       linux-kernel@vger.kernel.org, prism54-devel@prism54.org
+Subject: Re: Open hardware wireless cards
+References: <20050105200526.GL5159@ruslug.rutgers.edu> <41DC4B43.7090109@imag.fr> <20050105202626.GN5159@ruslug.rutgers.edu> <200501060902.07502.norbert-kernel@edusupport.nl> <20050106172438.GT5159@ruslug.rutgers.edu>
+In-Reply-To: <20050106172438.GT5159@ruslug.rutgers.edu>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Andrew,
+Luis R. Rodriguez wrote:
+ >>What is also possible, is just to design an open chipset like the 
+openrisc
+ >>guys did: They designed and published the design of a risc processor 
+under I
+ >>believe GPL (have to look it up).
+ >>If you let companies use that design to produce their open card, you 
+will have
+ >>solved the problem. Companies like Trust (Dutch white label company: 
+Buy a
+ >>stack of stuff, and put Trust label on it), will probably pick this up
+ >
+ >
+ > Cool we should get an estimate to see how many cards they'd need in
+ > order to start a bulk order.
 
-Some export-removal work causes breakage for an out-of-tree filesystem.
-Could you please apply the attached patch to restore the exports for
-files_lock and set_fs_root?
-
-						Thanx, Paul
-
------ End forwarded message -----
-
-diff -urpN -X ../dontdiff linux-2.5/fs/file_table.c linux-2.5-MVFS/fs/file_table.c
---- linux-2.5/fs/file_table.c	Wed Jan  5 13:54:21 2005
-+++ linux-2.5-MVFS/fs/file_table.c	Wed Jan  5 17:12:53 2005
-@@ -26,6 +26,7 @@ EXPORT_SYMBOL(files_stat); /* Needed by 
- 
- /* public. Not pretty! */
- spinlock_t __cacheline_aligned_in_smp files_lock = SPIN_LOCK_UNLOCKED;
-+EXPORT_SYMBOL(files_lock);
- 
- static spinlock_t filp_count_lock = SPIN_LOCK_UNLOCKED;
- 
-diff -urpN -X ../dontdiff linux-2.5/fs/namespace.c linux-2.5-MVFS/fs/namespace.c
---- linux-2.5/fs/namespace.c	Wed Jan  5 13:54:22 2005
-+++ linux-2.5-MVFS/fs/namespace.c	Wed Jan  5 17:12:08 2005
-@@ -1207,6 +1207,7 @@ void set_fs_root(struct fs_struct *fs, s
- 		mntput(old_rootmnt);
- 	}
- }
-+EXPORT_SYMBOL(set_fs_root);
- 
- /*
-  * Replace the fs->{pwdmnt,pwd} with {mnt,dentry}. Put the old values.
-
------ End forwarded message -----
+as far as I/O is concerned, the card MUST have an easy to procure 
+coaxial connector so that an external antenna can be attached

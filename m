@@ -1,63 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267827AbTAMQy5>; Mon, 13 Jan 2003 11:54:57 -0500
+	id <S267812AbTAMRCF>; Mon, 13 Jan 2003 12:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267846AbTAMQy5>; Mon, 13 Jan 2003 11:54:57 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:2218 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267827AbTAMQy4>;
-	Mon, 13 Jan 2003 11:54:56 -0500
-Date: Mon, 13 Jan 2003 08:59:41 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Mad Hatter <slokus@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: bootsect.S: 2 questions
-In-Reply-To: <20030113162827.46498.qmail@web13709.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33L2.0301130844050.1675-100000@dragon.pdx.osdl.net>
+	id <S267829AbTAMRCF>; Mon, 13 Jan 2003 12:02:05 -0500
+Received: from rumms.uni-mannheim.de ([134.155.50.52]:39855 "EHLO
+	rumms.uni-mannheim.de") by vger.kernel.org with ESMTP
+	id <S267812AbTAMRCE>; Mon, 13 Jan 2003 12:02:04 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Thomas Schlichter <schlicht@uni-mannheim.de>
+To: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Subject: Re: patch for errno-issue (with soundcore)
+Date: Mon, 13 Jan 2003 18:10:53 +0100
+User-Agent: KMail/1.4.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk
+References: <D206AA476EB@vcnet.vc.cvut.cz>
+In-Reply-To: <D206AA476EB@vcnet.vc.cvut.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200301131810.53089.schlicht@uni-mannheim.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi-
+On Mon, 13. Jan. 2003 17:33, Petr Vandrovec wrote:
+> There is no problem currently, because of nobody uses errno value at
+> all (in the firmware loader), it is just that inline functions generated
+> by syscallX() store error codes into errno...
+>
+> Real problem is that firmware loader should use
+> filp_open/vfs_read/filp_close (or sys_open/sys_llseek/sys_read/sys_close if
+> you want to use fd interface, but filp_{open,close} and vfs_read are
+> already exported for modules while sys_open/sys_llseek/sys_read are not).
+>
+> As an alternative, do_mod_firmware_load should be standalone userspace
+> program executed through call_usermodehelper or something like that...
+> Unfortunately we do not have an interface to distribute userspace binaries
+> together with kernel (except initrd) yet, so it would require either
+> adding do_mod_firmware_load into module-init-tools, or some simillar
+> package required by 2.[56].x kernels.
+>
+> Also adding "#define errno (current()->exit_code)" at the beginning of
+> sound_firmware.c (just below #define __KERNEL_SYSCALLS__) should do
+> the trick, but I do not recommend taking this path.
+>                                             Best regards,
+>                                                 Petr Vandrovec
+>                                                 vandrove@vc.cvut.cz
 
-(mostly "what R. Johnson said")
+First of all a big THANKS!
 
-On Mon, 13 Jan 2003, Mad Hatter wrote:
+Now, at least, I understood the real problem...
+'errno' is only needed because open(), close(), llseek() and read() are used, 
+which do a syscall and the return code is written to a variable called 
+'errno'. This is NOT the 'errno' variable defined in lib/errno.c... OK.
 
-| I was looking through the linux (2.5.56) arch/i386/boot/bootsect.S and was
-| puzzled about a couple of things:
-|
-| 1. Near line 221 we have:
-|        sread:  .word 0             # sectors read of current track
-|        head:   .word 0             # current head
-|        track:  .word 0             # current track
-|
-|    However, since a diskette can have at most 2 heads, 80 tracks and 36 sectors
-|    per track, why are these not bytes instead of words especially since space is
-|    at such a tight premium in this code ?
+And so the real problem is using these functions and as we ARE in the kernel 
+mode we do not really need the kernel traps...
 
-If you change those to bytes to save 3 bytes of space, and then you
-change all of the instructions that load or store those values to 16-bit
-registers, do you have a net saving of space?
-Or you load/store them to 8-bit registers and rewrite the code, what
-happens?
+So after realizing the real problem I think I am not the right person to fix 
+it. But if you want I could try...
 
-| 2. Near line 272 we have "movw    $7, %bx" but the documentation I've
-|     been able to find about the "int 0x10" BIOS call says that for service
-|     code 0xe (write character and advance cursor), it does not take an
-|     attribute byte input parameter but rather uses the existing attribute. Is
-|     this movw instruction superfluous ?
-
-Perhaps, or perhaps on some particular system it was found to be needed.
-We don't have a fully indexed changelog history of each line AFAIK.
-Ralf Brown's interrupt page for this function says:
-  BH = page number
-  BL = foreground color (graphics modes only)
-(see http://www.ctyme.com/intr/rb-0106.htm)
-Or it could be important to clear BH and setting BL to 7 was just safe.
-
--- 
-~Randy
-
-
+Sincerely yours
+   Thomas Schlichter

@@ -1,61 +1,88 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130125AbQKGWqY>; Tue, 7 Nov 2000 17:46:24 -0500
+	id <S130209AbQKGWte>; Tue, 7 Nov 2000 17:49:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130155AbQKGWqP>; Tue, 7 Nov 2000 17:46:15 -0500
-Received: from omega.cisco.com ([171.69.63.141]:17589 "EHLO cisco.com")
-	by vger.kernel.org with ESMTP id <S130125AbQKGWp5>;
-	Tue, 7 Nov 2000 17:45:57 -0500
-Message-Id: <4.3.2.7.2.20001107144236.02462f08@omega.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 07 Nov 2000 14:43:46 -0800
-To: "David S. Miller" <davem@redhat.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: Poor TCP Performance 2.4.0-10 <-> Win98 SE PPP
-Cc: jordy@napster.com, linux-kernel@vger.kernel.org, kuznet@ms2.inr.ac.ru
-In-Reply-To: <200011070656.WAA02435@pizda.ninka.net>
-In-Reply-To: <3A07A4B0.A7E9D62@napster.com>
- <3A07662F.39D711AE@napster.com>
- <200011070428.UAA01710@pizda.ninka.net>
- <3A079127.47B2B14C@napster.com>
- <200011070533.VAA02179@pizda.ninka.net>
- <3A079D83.2B46A8FD@napster.com>
- <200011070603.WAA02292@pizda.ninka.net>
- <3A07A4B0.A7E9D62@napster.com>
+	id <S130211AbQKGWtO>; Tue, 7 Nov 2000 17:49:14 -0500
+Received: from jalon.able.es ([212.97.163.2]:1203 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S130209AbQKGWtD>;
+	Tue, 7 Nov 2000 17:49:03 -0500
+Date: Tue, 7 Nov 2000 23:48:56 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: root@chaos.analogic.com
+Cc: "Dr . Kelsey Hudson" <kernel@blackhole.compendium-tech.com>,
+        Chris Meadors <clubneon@hereintown.net>,
+        Ulrich Drepper <drepper@redhat.com>, kernel@kvack.org,
+        "Dr . David Gilbert" <dg@px.uk.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dual XEON - >>SLOW<< on SMP
+Message-ID: <20001107234856.C1150@werewolf.able.es>
+Reply-To: jamagallon@able.es
+In-Reply-To: <Pine.LNX.4.21.0011071401280.4438-100000@sol.compendium-tech.com> <Pine.LNX.3.95.1001107172159.198A-100000@chaos.analogic.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <Pine.LNX.3.95.1001107172159.198A-100000@chaos.analogic.com>; from root@chaos.analogic.com on Tue, Nov 07, 2000 at 23:31:19 +0100
+X-Mailer: Balsa 1.0.pre2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->23:36:16.261533 64.124.41.179.8888 > 209.179.194.175.1084: P 1:21(20) ack 
->44 win 5840 (DF)
->23:36:16.261669 64.124.41.179.8888 > 209.179.194.175.1084: P 21:557(536) 
->ack 44 win 5840 (DF)
->23:36:19.261055 64.124.41.179.8888 > 209.179.194.175.1084: P 1:21(20) ack 
->44 win 5840 (DF)
->
->The equivalent packets from the win98 log:
->
->22:34:36.069773 64.124.41.179.8888 > 209.179.194.175.1084: P 1:19(18) ack 
->44 win 5840 (DF)
->22:34:36.069837 64.124.41.179.8888 > 209.179.194.175.1084: P 19:553(534) 
->ack 44 win 5840 (DF)
->22:34:39.049788 64.124.41.179.8888 > 209.179.194.175.1084: P 1:21(20) ack 
->44 win 5840 (DF)
->
->(ie. Linux sends bytes 1:21 both the first time, and when it
->  retransmits that data.  However win98 "sees" this as 1:19 the first
->  time and 1:21 during the retransmit by Linux)
+On Tue, 07 Nov 2000 23:31:19 Richard B. Johnson wrote:
+> On Tue, 7 Nov 2000, Dr. Kelsey Hudson wrote:
+..
+> >  15:        111        130   IO-APIC-level  bttv
+> > NMI:  190856196  190856196 
+> > LOC:  190858464  190858463 
+> > ERR:          0
+> > 
+..
+> 
+>            CPU0       CPU1       
+>   0:      10945      11869    IO-APIC-edge  timer
+>   1:        419        393    IO-APIC-edge  keyboard
+>   2:          0          0          XT-PIC  cascade
+>   8:          0          0    IO-APIC-edge  rtc
+>  10:       2990       2904   IO-APIC-level  eth0
+>  11:       1066       1124   IO-APIC-level  BusLogic BT-958
+>  13:          0          0          XT-PIC  fpu
+> NMI:      22748      22748 
+> LOC:      21731      22229 
+> ERR:          0
+> 
 
-this excerpt looks like when a modem is set to eat XON/XOFF ...
+I have also 2xPII@400, on a SuperMicro mobo. I just get:
 
-a ping which does a sweep of many byte values should show this up ...
+werewolf:~/soft/in# uptime
+ 11:46pm  up  8:38,  0 users,  load average: 0.00, 0.00, 0.00
+werewolf:~/soft/in# cat /proc/interrupts
+           CPU0       CPU1       
+  0:    1553608    1555092    IO-APIC-edge  timer
+  1:       1784       1800    IO-APIC-edge  keyboard
+  2:          0          0          XT-PIC  cascade
+  8:          0          1    IO-APIC-edge  rtc
+  9:      12053      11483    IO-APIC-edge  aha152x
+ 10:      31594      31168   IO-APIC-level  aic7xxx, EMU10K1
+ 11:   42836648   42865890   IO-APIC-level  eth0, nvidia
+ 12:     134421     134916    IO-APIC-edge  PS/2 Mouse
+ 13:          1          0          XT-PIC  fpu
+ 14:         16          4    IO-APIC-edge  ide0
+ 15:         10          0    IO-APIC-edge  ide1
+NMI:          0
+ERR:          0
 
+The only diff I see is:
+> model name	: Pentium II (Deschutes)
+> stepping	: 1
+> cpu MHz		: 400.000915
 
-cheers,
+model name      : Pentium II (Deschutes)
+stepping        : 2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+cpu MHz         : 400.912
 
-lincoln.
+Something related to version-detection of processors in kernel init ?
+
+-- 
+Juan Antonio Magallon Lacarta                                 #> cd /pub
+mailto:jamagallon@able.es                                     #> more beer
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,67 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262859AbSJPNov>; Wed, 16 Oct 2002 09:44:51 -0400
+	id <S262371AbSJPN7N>; Wed, 16 Oct 2002 09:59:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264922AbSJPNov>; Wed, 16 Oct 2002 09:44:51 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:58080 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S262859AbSJPNot>; Wed, 16 Oct 2002 09:44:49 -0400
-Message-ID: <3DAD6C6F.2080908@watson.ibm.com>
-Date: Wed, 16 Oct 2002 09:41:03 -0400
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
+	id <S262492AbSJPN7N>; Wed, 16 Oct 2002 09:59:13 -0400
+Received: from mx01-a.netapp.com ([198.95.226.53]:14808 "EHLO
+	mx01-a.netapp.com") by vger.kernel.org with ESMTP
+	id <S262371AbSJPN7M>; Wed, 16 Oct 2002 09:59:12 -0400
+Message-ID: <6440EA1A6AA1D5118C6900902745938E07D54F85@black.eng.netapp.com>
+From: "Lever, Charles" <Charles.Lever@netapp.com>
+To: neilb@cse.unsw.edu.au
+Cc: taka@valinux.co.jp, linux-kernel@vger.kernel.org,
+       nfs@lists.sourceforge.net, "'David S. Miller'" <davem@redhat.com>
+Subject: RE: [NFS] Re: [PATCH] zerocopy NFS for 2.5.36
+Date: Wed, 16 Oct 2002 07:04:44 -0700
 MIME-Version: 1.0
-To: Janet Morgan <janetmor@us.ibm.com>
-Cc: Benjamin LaHaise <bcrl@redhat.com>, Christoph Hellwig <hch@sgi.com>,
-       akpm@digeo.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: [RFC] iovec in ->aio_read/->aio_write
-References: <20021015153427.A16156@redhat.com> <200210160651.g9G6pMm17385@eng4.beaverton.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Janet Morgan wrote:
-
-> Here's a patch for aio readv/writev support.  Basically it adds:
+> -----Original Message-----
+> From: David S. Miller [mailto:davem@redhat.com]
+> Sent: Wednesday, October 16, 2002 12:31 AM
+>
+>    From: Neil Brown <neilb@cse.unsw.edu.au>
+>    Date: Wed, 16 Oct 2002 13:44:04 +1000
 > 
-> - two new opcodes (IOCB_CMD_PREADV and IOCB_CMD_PWRITEV)
-> - a field to the iocb for the user vector
-> - aio_readv/writev methods to the file_operations structure
-
-I presume f_op->aio_readv could point to __generic_file_aio_read for most
-filesystems.
-
-Would f_op->aio_writev need a new wrapper function for 2.5.42 ?
-f_op->aio_write eventually calls generic_file_write which uses a different inode
-from generic_file_writev. So f_op->aio_writev might need to point to a function
-like generic_file_writev but using the same inode as generic_file_write.
-
-
-> - routine aio.c/io_readv_writev, which borrows heavily from do_readv_writev. 
+>    Presumably on a sufficiently large SMP machine that this became an
+>    issue, there would be multiple NICs.  Maybe it would make sense to
+>    have one udp socket for each NIC.  Would that make sense? or work?
+>    It feels to me to be cleaner than one for each CPU.
+>    
+> Doesn't make much sense.
 > 
-> I tested this using the aio dio patch that Badari submitted a while back. 
-> I compared:
->                 readv/writev io_submit for a vector of N iovecs 
->                 vs read/write io_submit for N iocbs.
+> Usually we are talking via one IP address, and thus over
+> one device.  It could be using multiple NICs via BONDING,
+> but that would be transparent to anything at the socket
+> level.
 > 
-> My performance data is only preliminary at this point, but aio readv/writev 
-> appears to outperform aio read/write -- twice as fast in some cases.  The 
-> results generally make sense to me:  while there is only one io_submit in both 
-> cases, aio readv/writev shortens codepath (one instead of N calls to the 
-> underlying filesystem routine) and should normally result in fewer 
+> Really, I think there is real value to making the socket
+> per-cpu even on a 2 or 4 way system.
 
-Twice as fast looks good !
+having a local socket per CPU is very good for SMP scaling.
+it multiplies input buffer space, and reduces socket lock
+and CPU cache contention.
 
-> bios/callbacks (at least for direct-io).  As importantly, aio readv/writev 
-> in my testing also reduces the number of (system) calls to io_getevents.
-
-It would be interesting to see the performance boost when <iov length> events
-are retrieved at once, using the min_nr parameter of io_getevents.
-
-
---Shailabh
-
+sorry, i don't have measurements.

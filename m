@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265133AbTLKUP5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 15:15:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbTLKUP5
+	id S265222AbTLKUWM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 15:22:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265235AbTLKUWM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 15:15:57 -0500
-Received: from holomorphy.com ([199.26.172.102]:65510 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265133AbTLKUPv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 15:15:51 -0500
-Date: Thu, 11 Dec 2003 12:15:42 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: hd@cavy.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11-wli-2
-Message-ID: <20031211201542.GP19856@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>, hd@cavy.de,
-	linux-kernel@vger.kernel.org
-References: <20031211052929.GN19856@holomorphy.com> <20031211201213.GA12438@chiara.cavy.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031211201213.GA12438@chiara.cavy.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 11 Dec 2003 15:22:12 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:4225 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S265222AbTLKUWJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 15:22:09 -0500
+Date: Thu, 11 Dec 2003 15:25:09 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Rob Landley <rob@landley.net>, linux-kernel@vger.kernel.org
+Subject: Re: Where did the ELF spec go?  (SCO website?)
+In-Reply-To: <20031211194430.GL8039@holomorphy.com>
+Message-ID: <Pine.LNX.4.53.0312111523330.6378@chaos>
+References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org>
+ <20031211094148.G28449@links.magenta.com> <20031211150011.GF8039@holomorphy.com>
+ <200312111326.32483.rob@landley.net> <20031211194430.GL8039@holomorphy.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed Dec 10 2003, William Lee Irwin III wrote:
-> > Successfully tested on a Thinkpad T21 
-> [....]
+On Thu, 11 Dec 2003, William Lee Irwin III wrote:
 
-On Thu, Dec 11, 2003 at 09:12:13PM +0100, Heinz Diehl wrote:
-> Compiling -wli-2 fails showing this:
-> 
->   CC      init/version.o
->   LD      init/built-in.o
->   LD      .tmp_vmlinux1
->  fs/built-in.o(.text+0x29e6a): In function proc_task_readdir':
->  : undefined reference to __cmpdi2'
->  fs/built-in.o(.text+0x29e7d): In function proc_task_readdir':
->  : undefined reference to __cmpdi2'
->  make: *** [.tmp_vmlinux1] Error 1
-> Greetings, Heinz.
+> On Thursday 11 December 2003 09:00, William Lee Irwin III wrote:
+> >> You have it backward. The SVR4/i386 ELF ABI specification is requiring
+> >> userspace to be granted at least 3GB of address space.
+>
+> On Thu, Dec 11, 2003 at 01:26:32PM -0600, Rob Landley wrote:
+> > Where does one get a copy of the SVR4 spec these days?  The link I
+> > could track down went to http://www.sco.com/developer/devspecs/ which
+> > just ain't there no more.
+> > And no, not because of a "DDOS".  There isn't one.  SCO's website IP moved
+> > from 216.250.128.13 to 216.250.128.20, and it's up at the new IP right now.
+> > They didn't get the new DNS record propogated on time.  Rookie mistake...
+> > But looking at http.://216.250.128.20/developer/devspecs redirects
+> > you to the /developer page.  The devspecs page went away...
+> > Is this mirrored somewhere?
+>
+> I'm looking at a dead tree copy. I have no idea if it's online or not.
+>
+> Also, it's largely an ELF ABI spec; I'm not sure how/why SVR4 got into
+> the picture, but its name is on there.
 
-Looks like I dropped this by misake (originally sent in by Hugang):
+
+http://developers.sun.com/solaris/articles/elf.html
 
 
--- wli
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 
-diff -prauN wli-2.6.0-test11-32/fs/proc/base.c wli-2.6.0-test11-33/fs/proc/base.c
---- wli-2.6.0-test11-32/fs/proc/base.c	2003-12-04 08:15:58.000000000 -0800
-+++ wli-2.6.0-test11-33/fs/proc/base.c	2003-12-05 01:48:55.000000000 -0800
-@@ -1673,12 +1673,13 @@ static int proc_task_readdir(struct file
- 	struct inode *inode = dentry->d_inode;
- 	int retval = -ENOENT;
- 	ino_t ino;
-+	unsigned long pos = filp->f_pos;  /* avoiding "long long" filp->f_pos */
- 
- 	if (!pid_alive(proc_task(inode)))
- 		goto out;
- 	retval = 0;
- 
--	switch (filp->f_pos) {
-+	switch (pos) {
- 	case 0:
- 		ino = inode->i_ino;
- 		if (filldir(dirent, ".", 1, filp->f_pos, ino, DT_DIR) < 0)

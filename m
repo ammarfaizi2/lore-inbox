@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267151AbSLSUdo>; Thu, 19 Dec 2002 15:33:44 -0500
+	id <S267363AbSLSUe4>; Thu, 19 Dec 2002 15:34:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267135AbSLSUdo>; Thu, 19 Dec 2002 15:33:44 -0500
-Received: from www.microgate.com ([216.30.46.105]:55301 "EHLO
+	id <S267374AbSLSUe4>; Thu, 19 Dec 2002 15:34:56 -0500
+Received: from www.microgate.com ([216.30.46.105]:56837 "EHLO
 	sol.microgate.com") by vger.kernel.org with ESMTP
-	id <S267151AbSLSUdl>; Thu, 19 Dec 2002 15:33:41 -0500
-Subject: [PATCH] 2.4.20 n_hdlc.c
+	id <S267363AbSLSUey>; Thu, 19 Dec 2002 15:34:54 -0500
+Subject: [PATCH] 2.5.52 n_hdlc.c
 From: Paul Fulghum <paulkf@microgate.com>
 To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "marcelo@conectiva.com.br" <marcelo@conectiva.com.br>,
-       "alan@lxorguk.ukuu.org.uk" <alan@lxorguk.ukuu.org.uk>
+Cc: "torvalds@transmeta.com" <torvalds@transmeta.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 X-Mailer: Ximian Evolution 1.0.4 
-Date: 19 Dec 2002 14:41:18 -0600
-Message-Id: <1040330478.947.5.camel@diemos.microgate.com>
+Date: 19 Dec 2002 14:42:30 -0600
+Message-Id: <1040330551.931.8.camel@diemos.microgate.com>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Make global func/var static to avoid namespace polution.
-Fix memory leak.
+Make global func/var static to avoid namespace polution
 
---- linux-2.4.20/drivers/char/n_hdlc.c	Mon Feb 25 13:37:57 2002
-+++ linux-2.4.20-mg/drivers/char/n_hdlc.c	Thu Dec 19 12:01:09 2002
+--- linux-2.5.52/drivers/char/n_hdlc.c	Sun Dec 15 20:07:51 2002
++++ linux-2.5.52-mg/drivers/char/n_hdlc.c	Thu Dec 19 12:01:23 2002
 @@ -9,7 +9,7 @@
   *	Al Longyear <longyear@netcom.com>, Paul Mackerras <Paul.Mackerras@cs.anu.edu.au>
   *
   * Original release 01/11/99
-- * $Id: n_hdlc.c,v 3.3 2001/11/08 16:16:03 paulkf Exp $
-+ * $Id: n_hdlc.c,v 3.6 2002/12/19 18:58:56 paulkf Exp $
+- * $Id: n_hdlc.c,v 4.2 2002/10/10 14:52:41 paulkf Exp $
++ * $Id: n_hdlc.c,v 4.3 2002/12/19 18:58:56 paulkf Exp $
   *
   * This code is released under the GNU General Public License (GPL)
   *
@@ -38,12 +36,12 @@ Fix memory leak.
   */
  
  #define HDLC_MAGIC 0x239e
--#define HDLC_VERSION "$Revision: 3.3 $"
-+#define HDLC_VERSION "$Revision: 3.6 $"
+-#define HDLC_VERSION "$Revision: 4.2 $"
++#define HDLC_VERSION "$Revision: 4.3 $"
  
  #include <linux/version.h>
  #include <linux/config.h>
-@@ -172,9 +172,9 @@
+@@ -171,9 +171,9 @@
  /*
   * HDLC buffer list manipulation functions
   */
@@ -56,7 +54,7 @@ Fix memory leak.
  
  /* Local functions */
  
-@@ -186,10 +186,10 @@
+@@ -185,10 +185,10 @@
  
  /* debug level can be set by insmod for debugging purposes */
  #define DEBUG_LEVEL_INFO	1
@@ -69,17 +67,7 @@ Fix memory leak.
  
  /* TTY callbacks */
  
-@@ -265,7 +265,8 @@
- 		} else
- 			break;
- 	}
--	
-+	if (n_hdlc->tbuf)
-+		kfree(n_hdlc->tbuf);
- 	kfree(n_hdlc);
- 	
- }	/* end of n_hdlc_release() */
-@@ -905,7 +906,7 @@
+@@ -903,7 +903,7 @@
   * Arguments:	 	list	pointer to buffer list
   * Return Value:	None	
   */
@@ -88,7 +76,7 @@ Fix memory leak.
  {
  	memset(list,0,sizeof(N_HDLC_BUF_LIST));
  	spin_lock_init(&list->spinlock);
-@@ -922,7 +923,7 @@
+@@ -920,7 +920,7 @@
   * 
   * Return Value:	None	
   */
@@ -97,7 +85,7 @@ Fix memory leak.
  {
  	unsigned long flags;
  	spin_lock_irqsave(&list->spinlock,flags);
-@@ -952,7 +953,7 @@
+@@ -950,7 +950,7 @@
   * 
   * 	pointer to HDLC buffer if available, otherwise NULL
   */

@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287972AbSAHI36>; Tue, 8 Jan 2002 03:29:58 -0500
+	id <S287984AbSAHIgl>; Tue, 8 Jan 2002 03:36:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287971AbSAHI3i>; Tue, 8 Jan 2002 03:29:38 -0500
-Received: from mailer.zib.de ([130.73.108.11]:1763 "EHLO mailer.zib.de")
-	by vger.kernel.org with ESMTP id <S287968AbSAHI31>;
-	Tue, 8 Jan 2002 03:29:27 -0500
-Date: Tue, 8 Jan 2002 09:29:21 +0100
-From: Sebastian Heidl <heidl@zib.de>
-To: =?iso-8859-1?Q?J=F6rn_Nettingsmeier?= 
-	<nettings@folkwang-hochschule.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.17 usbnet usb.c: USB device not accepting new address
-Message-ID: <20020108092921.D7261@csr-pc1.zib.de>
-In-Reply-To: <3C3A0B1A.6441FC74@folkwang-hochschule.de>
+	id <S287983AbSAHIg3>; Tue, 8 Jan 2002 03:36:29 -0500
+Received: from mail002.syd.optusnet.com.au ([203.2.75.245]:29365 "EHLO
+	mail002.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S287991AbSAHIgP>; Tue, 8 Jan 2002 03:36:15 -0500
+Date: Tue, 8 Jan 2002 19:36:04 +1100
+To: linux-kernel@vger.kernel.org
+Cc: david-b@pacbell.net
+Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
+Message-ID: <20020108193604.A27539@beernut.flames.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <3C3A0B1A.6441FC74@folkwang-hochschule.de>; from nettings@folkwang-hochschule.de on Mon, Jan 07, 2002 at 09:54:50PM +0100
-X-www.distributed.net: 4 packets (26.00 stats units) [1,909,563 keys/s]
+In-Reply-To: <17d401c197ca$a78e66c0$6800000a@brownell.org>
+From: Kevin Easton <s3159795@student.anu.edu.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 07, 2002 at 09:54:50PM +0100, Jörn Nettingsmeier wrote:
-> when i try to connect my ipaq to the desktop via usbnet, i see the
-> following:
+> > Hopefully, integration of /sbin/hotplug during the boot process (using 
+> > dietHotplug) will reduce the number of things the "coldplug" issue will 
+> > have to handle. 
 > 
->  kernel: hub.c: port 2, portstatus 103, change 0, 12 Mb/s
->  kernel: hub.c: USB new device connect on bus1/2, assigned device
-> number 6
->  kernel: usb.c: USB device not accepting new address=6 (error=-110)
-a guy over here had the same problem when using a quite long USB extension
-cable for a USB-camera. whithout the extension it worked fine.
+> 
+> Somewhat -- though it only handles the "load a module" 
+> subproblem. When new devices need any more setup 
+> than that, "dietHotplug" isn't enough. 
+> 
+> 
+> - Dave 
 
-try another cable if you can.
+What if this was handled by the kernel not sending hotplug messages until it
+had been told that the system was ready to load drivers etc.
 
-regards,
-_sh_
+init.d/hotplug tells the kernel that userspace is ready to hear about hotplug
+events, and the kernel kicks off by telling /sbin/hotplug about the devices
+that are already in the system at startup.
+
+It should probably be a priority or bitmask, rather than a simple on/off
+switch, so that the diethotplug in initramfs can be told about the devices
+needed for booting (but the TV tuner can wait until the heavyweight hotplug
+is around).
+
+...or have I totally misunderstood the coldplug problem?
+
+    - Kevin.
 

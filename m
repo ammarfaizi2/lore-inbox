@@ -1,36 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbTIEHl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 03:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbTIEHl2
+	id S261625AbTIEHwb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 03:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262274AbTIEHwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 03:41:28 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:63248 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261946AbTIEHl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 03:41:27 -0400
-Date: Fri, 5 Sep 2003 08:41:26 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Florian Zimmermann <florian.zimmermann@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test-x] Kernel Oops and pppd segfault
-Message-ID: <20030905084126.A15120@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Florian Zimmermann <florian.zimmermann@gmx.net>,
-	linux-kernel@vger.kernel.org
-References: <1062711059.8011.4.camel@mindfsck>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1062711059.8011.4.camel@mindfsck>; from florian.zimmermann@gmx.net on Thu, Sep 04, 2003 at 11:30:59PM +0200
+	Fri, 5 Sep 2003 03:52:31 -0400
+Received: from [139.30.44.2] ([139.30.44.2]:45767 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261625AbTIEHwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Sep 2003 03:52:30 -0400
+Date: Fri, 5 Sep 2003 09:51:59 +0200 (CEST)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: john stultz <johnstul@us.ibm.com>
+cc: Andrew Morton <akpm@digeo.com>, lkml <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Dave H <haveblue@us.ibm.com>
+Subject: Re: [RFC] NR_CPUS=8 on a 32 cpu box
+In-Reply-To: <1062725220.1307.1562.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.33.0309050943240.15467-100000@gans.physik3.uni-rostock.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 04, 2003 at 11:30:59PM +0200, Florian Zimmermann wrote:
-> I have posted that to linux-ppp mailing list, but
-> no answer for 2 weeks now..
+> +	if (num_processors > NR_CPUS){
+> +		printk(KERN_WARNING "NR_CPUS limit of %i reached. Cannot boot CPU(apicid 0x%d).\n", NR_CPUS, m->mpc_apicid);
 
-This should fix the oops, but the failure is still strange.
+I'm no expert in this field at all, but doesnt this need to check for '>=' ?
 
-do you already have a ppp device in /dev before loading the module?
+Also, the code following the check could get some reordering for
+readability. How about the following:
+
+--- linux-2.6.0-test4/arch/i386/kernel/mpparse.c.orig	Fri Sep  5 09:40:07 2003
++++ linux-2.6.0-test4/arch/i386/kernel/mpparse.c	Fri Sep  5 09:50:11 2003
+@@ -167,15 +167,18 @@
+ 		boot_cpu_logical_apicid = apicid;
+ 	}
+
+-	num_processors++;
+-
+ 	if (MAX_APICS - m->mpc_apicid <= 0) {
+ 		printk(KERN_WARNING "Processor #%d INVALID. (Max ID: %d).\n",
+ 			m->mpc_apicid, MAX_APICS);
+-		--num_processors;
+ 		return;
+ 	}
+ 	ver = m->mpc_apicver;
++
++	if (num_processors >= NR_CPUS){
++		printk(KERN_WARNING "NR_CPUS limit of %i reached. Cannot boot CPU(apicid 0x%d).\n", NR_CPUS, m->mpc_apicid);
++		return;
++	}
++	num_processors++;
+
+ 	tmp = apicid_to_cpu_present(apicid);
+ 	physids_or(phys_cpu_present_map, phys_cpu_present_map, tmp);
+
+Tim
+

@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272093AbRHVTVo>; Wed, 22 Aug 2001 15:21:44 -0400
+	id <S272102AbRHVTZY>; Wed, 22 Aug 2001 15:25:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272098AbRHVTVe>; Wed, 22 Aug 2001 15:21:34 -0400
-Received: from ffke-campus-gw.mipt.ru ([194.85.82.65]:6533 "EHLO
-	www.2ka.mipt.ru") by vger.kernel.org with ESMTP id <S272093AbRHVTVV>;
-	Wed, 22 Aug 2001 15:21:21 -0400
-Message-Id: <200108221921.f7MJLPl28103@www.2ka.mipt.ru>
-Date: Wed, 22 Aug 2001 23:21:29 +0400
-From: Evgeny Polyakov <johnpol@2ka.mipt.ru>
-To: Eli Carter <eli.carter@inet.com>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] typo in comment
-In-Reply-To: <3B840002.60D13CEF@inet.com>
-In-Reply-To: <3B840002.60D13CEF@inet.com>
-Reply-To: johnpol@2ka.mipt.ru
-X-Mailer: stuphead ver. 0.5.3 (Wiskas) (GTK+ 1.2.7; Linux 2.4.9; i686)
-Organization: MIPT
+	id <S272098AbRHVTZO>; Wed, 22 Aug 2001 15:25:14 -0400
+Received: from smtp8.xs4all.nl ([194.109.127.134]:5602 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S272100AbRHVTZC>;
+	Wed, 22 Aug 2001 15:25:02 -0400
+From: thunder7@xs4all.nl
+Date: Wed, 22 Aug 2001 21:25:05 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: (lkml)Re: Linux 2.4.8-ac9
+Message-ID: <20010822212505.A2732@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
+In-Reply-To: <20010822124856.A5395@lightning.swansea.linux.org.uk> <3B84014C.6DFEA362@delusion.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="Multipart_Wed__22_Aug_2001_23:21:29_+0400_081a7268"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B84014C.6DFEA362@delusion.de>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Wed, Aug 22, 2001 at 09:00:28PM +0200, Udo A. Steinberg wrote:
+> Alan Cox wrote:
+> > 2.4.8-ac9
+> > o       Possible usb -110 error fix                     (me)
+> 
+> It's still broken.
+> 
+usb.c: registered new driver hub
+uhci.c: USB UHCI at I/O 0xa000, IRQ 19
+usb.c: new USB bus registered, assigned bus number 1
+usb_control/bulk_msg: timeout
+usb.c: USB device not accepting new address=1 (error=-110)
+uhci.c: USB UHCI at I/O 0xa400, IRQ 19
+usb.c: new USB bus registered, assigned bus number 2
+usb_control/bulk_msg: timeout
+usb.c: USB device not accepting new address=1 (error=-110)
+Initializing USB Mass Storage driver...
+usb.c: registered new driver usb-storage
+USB Mass Storage support registered.
 
---Multipart_Wed__22_Aug_2001_23:21:29_+0400_081a7268
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
+Yup, I see that too. This is an Abit VP6 SMP Intel box.
 
-Hello.
-
-On Wed, 22 Aug 2001 13:54:58 -0500
-Eli Carter <eli.carter@inet.com> wrote:
-
-EC> Alan, (& etc.)
-
-EC> No, it's not terribly important, but in studying the networking code,
-EC> I
-EC> noticed it, so here's a patch against 2.2.19.  Please apply.  (It's
-EC> attached to avoid possible mangling problems.)
-
-EC> Comments, questions, complaints?
-
-And here is one more patch, which fixing one warning in esssolo1.c and
-against 2.4.9
-It's like yours: one -, one +
-:))
-
-EC> Eli 
-
----
-WBR. //s0mbre
-
---Multipart_Wed__22_Aug_2001_23:21:29_+0400_081a7268
-Content-Type: text/plain;
- name="esssolo1.patch"
-Content-Disposition: attachment;
- filename="esssolo1.patch"
-Content-Transfer-Encoding: base64
-
-LS0tIC90bXAvbGludXgvZHJpdmVycy9zb3VuZC9lc3Nzb2xvMS5jCVdlZCBBdWcgMjIgMDE6NDA6
-NTUgMjAwMQorKysgLi9kcml2ZXJzL3NvdW5kL2Vzc3NvbG8xLmMJV2VkIEF1ZyAyMiAxNzozNTox
-MyAyMDAxCkBAIC0yMjYyLDcgKzIyNzksNyBAQAogc29sbzFfc3VzcGVuZChzdHJ1Y3QgcGNpX2Rl
-diAqcGNpX2RldiwgdTMyIHN0YXRlKSB7CiAJc3RydWN0IHNvbG8xX3N0YXRlICpzID0gKHN0cnVj
-dCBzb2xvMV9zdGF0ZSopcGNpX2dldF9kcnZkYXRhKHBjaV9kZXYpOwogCWlmICghcykKLQkJcmV0
-dXJuOworCQlyZXR1cm4gLTE7CiAJb3V0YigwLCBzLT5pb2Jhc2UrNik7CiAJLyogRE1BIG1hc3Rl
-ciBjbGVhciAqLwogCW91dGIoMCwgcy0+ZGRtYWJhc2UrMHhkKTsgCg==
-
---Multipart_Wed__22_Aug_2001_23:21:29_+0400_081a7268--
+Jurriaan

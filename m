@@ -1,59 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132847AbRDDPlb>; Wed, 4 Apr 2001 11:41:31 -0400
+	id <S132843AbRDDPov>; Wed, 4 Apr 2001 11:44:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132844AbRDDPlV>; Wed, 4 Apr 2001 11:41:21 -0400
-Received: from relay.uni-heidelberg.de ([129.206.100.212]:4322 "EHLO
-	relay.uni-heidelberg.de") by vger.kernel.org with ESMTP
-	id <S132843AbRDDPlF>; Wed, 4 Apr 2001 11:41:05 -0400
-From: Ford Prefect <ford_prefect@technologist.com>
-Date: Wed, 4 Apr 2001 17:34:45 +0200
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Subject: sscape.c modification
+	id <S132844AbRDDPol>; Wed, 4 Apr 2001 11:44:41 -0400
+Received: from atlrel1.hp.com ([156.153.255.210]:57565 "HELO atlrel1.hp.com")
+	by vger.kernel.org with SMTP id <S132843AbRDDPo1>;
+	Wed, 4 Apr 2001 11:44:27 -0400
+Message-ID: <3ACB4156.160B7937@fc.hp.com>
+Date: Wed, 04 Apr 2001 09:44:22 -0600
+From: Khalid Aziz <khalid@fc.hp.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Message-Id: <01040417302700.00664@magrathea>
-Content-Transfer-Encoding: 7BIT
+To: Hubertus Franke <frankeh@us.ibm.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Mike Kravetz <mkravetz@sequent.com>,
+        Fabio Riccardi <fabio@chromium.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        lse-tech@lists.sourceforge.net
+Subject: Re: a quest for a better scheduler
+In-Reply-To: <OF401BD38B.CF3B1E9F-ON85256A24.0048543A@pok.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello!
-i have been using a spea mediafx soundcard for quite some time now but 
-recently faced a problem configuring the card. the card has a mic/line input 
-that can be switched between mic mode (mono, 20db preamplification) and line 
-mode (stereo, no preamp). since i recently aquired a tv-card i wanted to use 
-the mic/line input for the tv-card. unfortunately there is no option for 
-switching modes. i do not know if other cards using the ensoniq soundscape 
-chipset have this feature and if this is of interest for a greater audience, 
-but i thought i would rather like having a modified sscape kernel (or at 
-least a switch applicable when using sscape as a module).
+Hubertus Franke wrote:
+> 
+> This is an important point that Mike is raising and it also addresses a
+> critique that Ingo issued yesterday, namely interactivity and fairness.
+> The HP scheduler completely separates the per-CPU runqueues and does
+> not take preemption goodness or alike into account. This can lead to
+> unfair proportionment of CPU cycles, strong priority inversion and a
+> potential
+> lack of interactivity.
+> 
+> Our MQ scheduler does yield the same decision in most cases
+> (other than defined by some race condition on locks and counter members)
+> 
 
-since i did not find any information about this problem on the web i started
-reverse-engineering the dos ssinit.exe program of my own. i think i managed 
-to find out the required values and registers program the soundcard to either 
-mode and it works fine for me with a slightly modified sscape.c. but i also 
-know that the way i modified sscape.c would not satisfy all users since the 
-module is for both the old-fashioned sscape cards and the newer plug-and-play 
-cards that maybe should not be programmed that way.
+Let me stress that HP scheduler is not meant to be a replacement for the
+current scheduler. The HP scheduler patch allows the current scheduler
+to be replaced by another scheduler by loading a module in special
+cases. HP is providing three different loadable scheduler modules -
+Processor sets, Constant time scheduler, and Multi-runqueue scheduler.
+Each one of these is geared towards a specific requirement. I would not
+suggest using any of these for a generalized case. Processor sets
+scheduler is designed to make scheduling decisions on a per-cpu basis
+and not global basis. All we are trying to do is to make the current
+scheduler modular so we CAN load an alternate scheduling policy module
+in cases where the process mix requires a different scheduling policy or
+the site policy require a different scheduling policy. An example of a
+specific site processor allocation policy could be a site that runs a
+database server on an MP machine along with a few other processes and
+the administrator wants to guarantee that the database server process
+always gets x percent of processing time or one CPU be dedicated to just
+the database server. A policy like this is not meant to be fair and of
+course, not a policy we want to impose upon others. The only HP changes
+I would put in the kernel sources for general release would be the
+changes to scheduler to allow such alternate (not necessarily fair or
+the fastest for benchmarks, general process mix or 1000's of processes)
+policies to be loaded. When a policy module is not loaded, scheduler
+works exactly like the current scheduler even after HP patches. There
+are people who could benefit from being able to load alternate policy
+schedules. Fabio Ricardi happens to be one of them :-) Anyone who does
+not want to even allow an alternate scheduler module to be loaded can
+simply compile the alternate scheduler support out and that is how I
+would expect most kernels to be compiled, especially the ones that ship
+with various distributions. I would like the decision to include support
+for alternate scheduler to be made by sys admins themselves for their
+individual cases.
 
-the things i would like to know
-1) is there anybody else using/having a soundscape card that has the 
-switchable input and who would test my modification
-2) would it be worth modifying sscape.c so that other people might set their
-cards to whatever they would prefer (i.e. do you think other there might be 
-others using this card anyway)
-3) how would/should i change the driver (only adding an optional switch when 
-used as a module or other suggestions)
-4) who should i talk to about changing or maybe submitting a modified sscape 
-module
-
-i was unable to find out if this module was actively maintained so i wrote to 
-the list.
-
-by the way, i am using the suse-modified kernel 2.2.16
-
-greets
-
-  seb
-
+--
+Khalid
+ 
+====================================================================
+Khalid Aziz                             Linux Development Laboratory
+(970)898-9214                                        Hewlett-Packard
+khalid@fc.hp.com                                    Fort Collins, CO

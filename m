@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265065AbRFURkW>; Thu, 21 Jun 2001 13:40:22 -0400
+	id <S265072AbRFURsW>; Thu, 21 Jun 2001 13:48:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265066AbRFURkM>; Thu, 21 Jun 2001 13:40:12 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:57590 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S265065AbRFURjz>;
-	Thu, 21 Jun 2001 13:39:55 -0400
-Date: Thu, 21 Jun 2001 19:39:21 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106211739.TAA370687.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org, viro@math.psu.edu
-Subject: more gendisk stuff
+	id <S265074AbRFURsM>; Thu, 21 Jun 2001 13:48:12 -0400
+Received: from [196.38.105.82] ([196.38.105.82]:25867 "EHLO www.webtrac.co.za")
+	by vger.kernel.org with ESMTP id <S265072AbRFURsE>;
+	Thu, 21 Jun 2001 13:48:04 -0400
+Date: Thu, 21 Jun 2001 19:47:48 +0200
+From: Craig Schlenter <craig@webtelecoms.co.za>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Cc: torvalds@transmeta.com
+Subject: Re: Linux 2.4.5-ac17
+Message-ID: <20010621194748.C20240@webtelecoms.co.za>
+In-Reply-To: <20010621173855.A6444@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20010621173855.A6444@lightning.swansea.linux.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-An hour ago or so I put 07-2.4.6pre5-gendisk on ftp.kernel.org
-(and rediffed the previous six patches against 2.4.6pre5).
+On Thu, Jun 21, 2001 at 05:38:56PM +0100, Alan Cox wrote:
+> [snip]
+> 2.4.5-ac17
+[snip]
 
-It has add_gendisk, del_gendisk, get_gendisk, blk_gendisk[]
-(a.k.a. register_gendisk, unregister_gendisk, find_gendisk),
-so that one now can find the gendisk structure given a kdev_t.
+Hi Alan
 
-Interestingly, there were complaints several places in the source
-about the lack of these, but none of the complainers added them.
+Sorry to bug you but could you tell us what's up with the synchronisation
+between your tree and Linus' please? I haven't seen any ac stuff being
+spooled into Linus' tree for a while and the trees seem to be drifting
+further apart ... it would be nice if there wasn't much difference
+other than the device name and the page cache VFS stuff. I know you're
+both hectically busy but it would be nice to know that the plan is not
+to let things drift too far apart.
 
-Al, I don't know whether you are interested in this stuff, but comments
-(other than: "the stuff is full of races") are welcome.
+It's getting tricky to decide which tree to dabble with!
 
-Andries
+Thank you!
+
+--Craig

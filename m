@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263968AbTHZOMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 10:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263908AbTHZOI2
+	id S262462AbTHZOlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 10:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262666AbTHZOhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 10:08:28 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:34821 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S263710AbTHZOEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 10:04:13 -0400
-Subject: re: [ACPI] 2.4.22, My bios is to old?
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: "Tony A. Lambley" <tal@vextech.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1061903560.686.6.camel@lappy2.localdomain>
-References: <1061903560.686.6.camel@lappy2.localdomain>
+	Tue, 26 Aug 2003 10:37:25 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:63644 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262665AbTHZOhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 10:37:12 -0400
+Subject: Re: Silicon Image 680 support in 2.6?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: walt <wa1ter@myrealbox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3F490E27.80609@myrealbox.com>
+References: <3F490E27.80609@myrealbox.com>
 Content-Type: text/plain
-Message-Id: <1061906650.678.2.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Tue, 26 Aug 2003 16:04:10 +0200
 Content-Transfer-Encoding: 7bit
+Message-Id: <1061908590.20910.33.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 26 Aug 2003 15:36:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2003-08-26 at 15:12, Tony A. Lambley wrote:
+On Sul, 2003-08-24 at 20:12, walt wrote:
+> Hi,
+> 
+> I've been talking to someone who has good support for his
+> SII680 disk controller in 2.4 but he can't get it working
+> in 2.6.
 
-> I have the same problem on a sager 5600D that's only 8 months old. It
-> didn't happen with 2.4.22-rc2, I missed -rc3, but it happens in -rc4. I
-> also get it in 2.6.0-test4. Was something back-ported?
-
-Some new ACPI stuff went into 2.4.22 final. Try booting the kernel with
-"acpi=force".
+The 2.6 code is a bit out of date last time I checked
 

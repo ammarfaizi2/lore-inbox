@@ -1,40 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266297AbSKZJPX>; Tue, 26 Nov 2002 04:15:23 -0500
+	id <S261701AbSKZKFK>; Tue, 26 Nov 2002 05:05:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266298AbSKZJPX>; Tue, 26 Nov 2002 04:15:23 -0500
-Received: from smtp10.wxs.nl ([195.121.6.35]:62954 "EHLO smtp10.wxs.nl")
-	by vger.kernel.org with ESMTP id <S266297AbSKZJPW>;
-	Tue, 26 Nov 2002 04:15:22 -0500
-Date: Tue, 26 Nov 2002 10:15:13 +0100
-From: Thomas Hood <jdthood@yahoo.co.uk>
-Subject: Re: A Kernel Configuration Tale of Woe
-To: linux-kernel@vger.kernel.org
-Message-id: <1038302113.21556.14.camel@localhost>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.0
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+	id <S261907AbSKZKFK>; Tue, 26 Nov 2002 05:05:10 -0500
+Received: from mons.uio.no ([129.240.130.14]:5521 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S261701AbSKZKFJ>;
+	Tue, 26 Nov 2002 05:05:09 -0500
+From: Terje Malmedal <terje.malmedal@usit.uio.no>
+To: Nikita@Namesys.COM
+CC: linux-kernel@vger.kernel.org, Reiserfs-List@Namesys.COM
+In-reply-to: <15842.28332.47095.407177@laputa.namesys.com> (message from
+	Nikita Danilov on Mon, 25 Nov 2002 21:40:44 +0300)
+Subject: Re: reiserfs and nfs.
+MIME-Version: 1.0
+Message-Id: <E18Gchd-0005jx-00@aqualene.uio.no>
+Date: Tue, 26 Nov 2002 11:12:25 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am beginning to understand that you are really just a troll looking
-> for trouble. However I will, again try to be nice and show you the
-> errors of your ways.
 
-I don't see how Dennis Grant's original message can be 
-considered trollish.  It was very politely written, 
-constructive, and on-topic.  Perhaps it is true that
-some of the features he wants should be left up to
-distributors, but his request for driver log messages
-to be more detailed is reasonable.
+[Nikita Danilov]
+> Terje Malmedal writes:
+>> 
+>> [Nikita Danilov]
+>> > Terje Malmedal writes:
+>> >> 
 
-My advice to Richard is to try not to feel offended.
-Of the thousands of people reading a list like this, there
-are always going to be one or two who reply after remembering
-that they were supposed to buy more coffee yesterday ...
+> [...]
+
+>> 
+>> To reproduce do something like: 
+>> $ ls -li RMAIL
+>> 387607 -rw-------    1 tm       4050     36635726 Nov 20 16:15 RMAIL
+
+> Is RMAIL inode number constant on the server?
+
+No, it is always the same as the number seen over NFS, but I've not
+seen this problem when I've tried running emacs on the nfs-server
+itself.
 
 -- 
-Thomas Hood
-
+ - Terje
+malmedal@usit.uio.no

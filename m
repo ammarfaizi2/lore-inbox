@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316135AbSHFWZI>; Tue, 6 Aug 2002 18:25:08 -0400
+	id <S316210AbSHFWZW>; Tue, 6 Aug 2002 18:25:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316210AbSHFWZH>; Tue, 6 Aug 2002 18:25:07 -0400
-Received: from jalon.able.es ([212.97.163.2]:28375 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S316135AbSHFWZE>;
-	Tue, 6 Aug 2002 18:25:04 -0400
-Date: Wed, 7 Aug 2002 00:28:32 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Austin Gonyou <austin@digitalroadkill.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 See's incorrect cache size on P4 Xeons!?
-Message-ID: <20020806222832.GA2733@werewolf.able.es>
-References: <1028669517.6549.100.camel@UberGeek.coremetrics.com> <1028675096.18156.220.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <1028675096.18156.220.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Aug 07, 2002 at 01:04:56 +0200
-X-Mailer: Balsa 1.3.6
+	id <S316235AbSHFWZW>; Tue, 6 Aug 2002 18:25:22 -0400
+Received: from sex.inr.ac.ru ([193.233.7.165]:28828 "HELO sex.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S316210AbSHFWZU>;
+	Tue, 6 Aug 2002 18:25:20 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200208062228.CAA25818@sex.inr.ac.ru>
+Subject: Re: "new style" netdevice allocation patch for TUN driver
+To: maxk@qualcomm.com (Maksim)
+Date: Wed, 7 Aug 2002 02:28:44 +0400 (MSD)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.1.0.14.2.20020806135501.09799218@mail1.qualcomm.com> from "Maksim" at Aug 6, 2 02:08:37 pm
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
-On 2002.08.07 Alan Cox wrote:
->
->> On boot each processor is says it has 1MB L3, is 2.4.19 unable to read
->> that or something?
->
->At the moment we report the L1/L2 - we don't actually go decoding L3
->caches. They are quite new. We should do however.
->
+> Please explain to me why do we have to hold rtnl lock while sleeping in
+> unregister_netdevice ?
 
-???
+... not "while sleeping", but just "while".
 
-P4 Xeon 1.8:
+If the lock would be for the device, it would be local to the device,
+rather than global. The semaphore blocks all the networking configuration
+until caller will complete stuff related to unregistering.
 
-processor       : 3
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Intel(R) XEON(TM) CPU 1.80GHz
-stepping        : 4
-cpu MHz         : 1784.295
-cache size      : 512 KB   <================
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm
-bogomips        : 3565.15
+Forward references from the unregistered device under cannot be invalidated
+before the device is unregistered. All such work is done after unregistry
+for "old style" or in dev->uninit/destructor hooks, which are used
+by "new style" devices.
 
-Oops, model is different....
 
-God save us from PC hardware manufacturers. A Xeon is not just a Xeon.
+> 1 - Something is not releasing device
 
--- 
-J.A. Magallon             \   Software is like sex: It's better when it's free
-mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
-Linux werewolf 2.4.19-jam0, Mandrake Linux 9.0 (Cooker) for i586
-gcc (GCC) 3.2 (Mandrake Linux 9.0 3.2-0.2mdk)
+Let's find this something! It witnesses about really serious bug.
+
+I cannot reproduce this too. Understand, please, we _can_ follow
+your proposal, all 100% of old style devices do not need uninit in real
+life. But then we never will find the bug. You cannot reproduce it,
+I cannot too.
+
+
+> 2 - We're sleeping with the rntl_lock held
+
+Semaphores are used exaclty when we have to sleep while holding lock.
+
+
+> fix it. If one thing is buggy it doesn't mean
+
+It means exactly this. Kernel panic would be even better, if it was
+possible to detect deadlock reliably.
+
+Alexey

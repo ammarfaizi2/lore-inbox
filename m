@@ -1,49 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270784AbRHXASJ>; Thu, 23 Aug 2001 20:18:09 -0400
+	id <S270814AbRHXAVJ>; Thu, 23 Aug 2001 20:21:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270800AbRHXAR7>; Thu, 23 Aug 2001 20:17:59 -0400
-Received: from [216.151.155.121] ([216.151.155.121]:2056 "EHLO
-	belphigor.mcnaught.org") by vger.kernel.org with ESMTP
-	id <S270784AbRHXARs>; Thu, 23 Aug 2001 20:17:48 -0400
-To: Tony Hoyle <tmh@nothing-on.tv>
-Cc: Fred <fred@arkansaswebs.com>, linux-kernel@vger.kernel.org
+	id <S270817AbRHXAU7>; Thu, 23 Aug 2001 20:20:59 -0400
+Received: from demai05.mw.mediaone.net ([24.131.1.56]:55740 "EHLO
+	demai05.mw.mediaone.net") by vger.kernel.org with ESMTP
+	id <S270814AbRHXAUr>; Thu, 23 Aug 2001 20:20:47 -0400
+Message-Id: <200108240021.f7O0L1Y18577@demai05.mw.mediaone.net>
+Content-Type: text/plain; charset=US-ASCII
+From: Brian <hiryuu@envisiongames.net>
+To: Fred <fred@arkansaswebs.com>
 Subject: Re: File System Limitations
-In-Reply-To: <01082316383301.12104@bits.linuxball> <9m41qd$290$1@sisko.my.home>
-	<01082318132000.12319@bits.linuxball> <3B858F58.1000606@nothing-on.tv>
-	<m3d75me3b9.fsf@belphigor.mcnaught.org>
-From: Doug McNaught <doug@wireboard.com>
-Date: 23 Aug 2001 20:17:59 -0400
-In-Reply-To: Doug McNaught's message of "23 Aug 2001 19:58:50 -0400"
-Message-ID: <m38zgae2fc.fsf@belphigor.mcnaught.org>
-User-Agent: Gnus/5.0806 (Gnus v5.8.6) XEmacs/21.1 (20 Minutes to Nikko)
+Date: Thu, 23 Aug 2001 20:20:59 -0400
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01082316383301.12104@bits.linuxball> <3B858F58.1000606@nothing-on.tv> <01082318405901.12319@bits.linuxball>
+In-Reply-To: <01082318405901.12319@bits.linuxball>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug McNaught <doug@wireboard.com> writes:
+Do you have a file size limit set in ulimit?
+The last RedHat I installed had most of the limits set.
 
-> Tony Hoyle <tmh@nothing-on.tv> writes:
-> 
+	-- Brian
+
+On Thursday 23 August 2001 07:40 pm, Fred wrote:
+> glibc-2.2.2-10
+>
+> dd if=/dev/zero of=./tgb count=4000 bs=1M
+>
+> created file of 2147483647 bytes
+>
+> [root@bits /a5]# dd if=/dev/zero of=./tgb count=4000 bs=1M
+> File size limit exceeded (core dumped)
+> [root@bits /a5]#
+>
+> is glibc part of gcc? where do i find glibc?
+> (I've recently compiled gcc-3.00, but won't install cause it breaks
+> kernel compilations).
+>
+>
+>
+> TIA
+>
+> Fred
+>
+>  _________________________________________________
+>
+> On Thursday 23 August 2001 06:18 pm, Tony Hoyle wrote:
+> > Fred wrote:
+> > > so why dos my filesystem have a 2 GB limit?
+> > > Must I specify a large block size or some such when i format?
+> > >
+> > > i run 2.4.9 on redhat7.1 out of the box
+> >
 > > Does it?  Unless RH are using a seriously old glibc (which I doubt)
 > > there's no 2GB limit any more.
-> 
-> I just did:
-> 
-> [doug@abbadon workspace]$ dd if=/dev/zero of=foo bs=1024k count=3072
-> 3072+0 records in
-> 3072+0 records out
-> [doug@abbadon workspace]$ ls -l foo  
-> -rw-rw-r--    1 doug     doug     3221225472 Aug 23 20:01 foo
-> [doug@abbadon workspace]$ 
-
-I meant to add that this is RH7.1, with updates applied, running
-2.4.8-ac8. 
-
--Doug
--- 
-Free Dmitry Sklyarov! 
-http://www.freesklyarov.org/ 
-
-We will return to our regularly scheduled signature shortly.
+> >
+> > Some older applications don't work with it AFAIK... anything bundled
+> > with a modern distro shouldn't have any problems.
+> >
+> > Tony
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> > linux-kernel" in the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,58 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130537AbRBHIFx>; Thu, 8 Feb 2001 03:05:53 -0500
+	id <S129694AbRBHIJC>; Thu, 8 Feb 2001 03:09:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130708AbRBHIFm>; Thu, 8 Feb 2001 03:05:42 -0500
-Received: from anchor-post-32.mail.demon.net ([194.217.242.90]:61194 "EHLO
-	anchor-post-32.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S129694AbRBHIF3>; Thu, 8 Feb 2001 03:05:29 -0500
-Date: Thu, 8 Feb 2001 07:59:04 +0000
-To: "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: PS/2 Mouse/Keyboard conflict and lockup
-Message-ID: <20010208075904.A558@colonel-panic.com>
-Mail-Followup-To: pdh, "Udo A. Steinberg" <sorisor@Hell.WH8.TU-Dresden.De>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <3A8205D4.7C7E358E@Hell.WH8.TU-Dresden.De>
-Mime-Version: 1.0
+	id <S130871AbRBHIIm>; Thu, 8 Feb 2001 03:08:42 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:12297 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129694AbRBHIIe>; Thu, 8 Feb 2001 03:08:34 -0500
+Subject: Re: aacraid 2.4.0 kernel
+To: Matt_Domsch@Dell.com
+Date: Thu, 8 Feb 2001 08:09:14 +0000 (GMT)
+Cc: jason@heymax.com, linux-kernel@vger.kernel.org, gandalf@winds.org
+In-Reply-To: <CDF99E351003D311A8B0009027457F1403BF9CA2@ausxmrr501.us.dell.com> from "Matt_Domsch@Dell.com" at Feb 07, 2001 09:03:53 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3A8205D4.7C7E358E@Hell.WH8.TU-Dresden.De>; from sorisor@Hell.WH8.TU-Dresden.De on Thu, Feb 08, 2001 at 03:35:00AM +0100
-From: Peter Horton <pdh@colonel-panic.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Qm8i-0002om-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 08, 2001 at 03:35:00AM +0100, Udo A. Steinberg wrote:
-> 
-> I'm not sure whether this is related to the ominous ps/2 mouse bug
-> you have been chasing, but this problem is 100% reproducible and
-> very annoying.
-> 
-> After upgrading my Asus A7V Bios from 1003 to 1005D, gpm no longer
-> receives any mouse events and the mouse doesn't work in text
-> consoles. Once I kill gpm and restart gpm -t ps2 the keyboard
-> locks up.
-> 
-> Logging in remotely and looking at dmesg revealed the following:
-> 
-> keyboard: Timeout - AT keyboard not present?
-> keyboard: unrecognized scancode (70) - ignored
-> 
-> If I don't kill and restart gpm, but start X, the mouse works
-> perfectly, but only in X.
-> 
+> much-improved block layer of 2.4.x throws larger I/Os at the driver.  So,
+> the developers at Adaptec are busy trying to add support to break large
+> requests into smaller chunks, and then gather them back together.
 
-Similiar problems here after my upgrade to 1005D. Linux somehow kills
-the keyboard if I start the box without a PS/2 mouse connected. I have
-another machine (these are both 2.4.1) which is a much older K6-233, and
-it too kills the keyboard if no mouse is present. Keyboard works at LILO
-prompt but is dead by the time I get to login. GPM doesn't work for me
-either.
+That sounds like it should be doable at the queuing layer. If not the scsi
+queue code or ll_rw_blk wants a bit of tweaking - Jens ?
 
-P.
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,94 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261568AbSKKWyK>; Mon, 11 Nov 2002 17:54:10 -0500
+	id <S261573AbSKKW4Q>; Mon, 11 Nov 2002 17:56:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261572AbSKKWyK>; Mon, 11 Nov 2002 17:54:10 -0500
-Received: from iucha.net ([209.98.146.184]:61228 "EHLO mail.iucha.net")
-	by vger.kernel.org with ESMTP id <S261568AbSKKWyI>;
-	Mon, 11 Nov 2002 17:54:08 -0500
-Date: Mon, 11 Nov 2002 17:00:55 -0600
-To: Ed Tomlinson <tomlins@cam.org>
+	id <S261574AbSKKW4Q>; Mon, 11 Nov 2002 17:56:16 -0500
+Received: from findaloan-online.cc ([216.209.85.42]:6411 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261573AbSKKW4O>;
+	Mon, 11 Nov 2002 17:56:14 -0500
+Date: Mon, 11 Nov 2002 18:08:18 -0500
+From: Mark Mielke <mark@mark.mielke.cc>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] cs46xx compile error 2.5.47
-Message-ID: <20021111230055.GA691@iucha.net>
-Mail-Followup-To: Ed Tomlinson <tomlins@cam.org>,
-	linux-kernel@vger.kernel.org
-References: <200211111740.18312.tomlins@cam.org>
+Subject: Re: PROT_SEM + FUTEX
+Message-ID: <20021111230818.GA1978@mark.mielke.cc>
+References: <A46BBDB345A7D5118EC90002A5072C7806CAC91C@orsmsx116.jf.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211111740.18312.tomlins@cam.org>
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C7806CAC91C@orsmsx116.jf.intel.com>
 User-Agent: Mutt/1.4i
-X-message-flag: Outlook: Where do you want [your files] to go today?
-From: florin@iucha.net (Florin Iucha)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 11, 2002 at 02:31:28PM -0800, Perez-Gonzalez, Inaky wrote:
+> > As long as the person attempting to manipulate the FUTEX word succeeds
+> > (i.e. 0 -> 1, or 0 -> -1, or whatever), futex_wait() need not 
+> > be issued. futex_wake() only pins the page for a brief period of time.
+> Define brief - remember that if the futex is locked, the page is already
+> pinned, futex_wake() is just making sure it is there while it uses it - and
+> again, as you said before, this is completely application specific; the
+> kernel cannot count on any specific behaviour on the user side.
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am defining "brief" as the length of time that futex_wake() takes to
+pin and unpin the page, which I hope is quite short as the internal
+futex locks are also held during this time.
 
-On Mon, Nov 11, 2002 at 05:40:18PM -0500, Ed Tomlinson wrote:
-> Hi,
->=20
-> I get this compiling 2.5.47
->=20
->   gcc -Wp,-MD,sound/pci/cs46xx/.cs46xx_lib.o.d -D__KERNEL__ -Iinclude -Wa=
-ll=20
-> -Wstrict-prototypes -Wrigraphs -O2 -fno-strict-aliasing -fno-common -pipe=
-=20
-> -mpreferred-stack-boundary=3D2 -march=3Dk6 -Iarch//mach-generic -fomit-fr=
-ame-pointer=20
-> -nostdinc -iwithprefix include -DMODULE -include include/linux/ersions.h =
- =20
-> -DKBUILD_BASENAME=3Dcs46xx_lib   -c -o sound/pci/cs46xx/cs46xx_lib.o soun=
-d/pci/cs46xx/cs_lib.c
-> sound/pci/cs46xx/cs46xx_lib.c: In function `_cs46xx_adjust_sample_rate':
-> sound/pci/cs46xx/cs46xx_lib.c:1054: structure has no member named `spos_m=
-utex'
-> sound/pci/cs46xx/cs46xx_lib.c: In function `snd_cs46xx_playback_hw_params=
-':
-> sound/pci/cs46xx/cs46xx_lib.c:1071: warning: unused variable `chip'
-> sound/pci/cs46xx/cs46xx_lib.c:1072: warning: unused variable `sample_rate'
-> sound/pci/cs46xx/cs46xx_lib.c:1073: warning: unused variable `period_size'
-> sound/pci/cs46xx/cs46xx_lib.c: In function `snd_cs46xx_capture_hw_params':
-> sound/pci/cs46xx/cs46xx_lib.c:1251: warning: unused variable `period_size'
-> sound/pci/cs46xx/cs46xx_lib.h: At top level:
-> sound/pci/cs46xx/cs46xx_lib.c:1028: warning: `_cs46xx_adjust_sample_rate'=
- defined but not used
-> sound/pci/cs46xx/cs46xx_lib.c:1445: warning: `hw_constraints_period_sizes=
-' defined but not used
-> make[3]: *** [sound/pci/cs46xx/cs46xx_lib.o] Error 1
-> make[2]: *** [sound/pci/cs46xx] Error 2
-> make[1]: *** [sound/pci] Error 2
-> make: *** [sound] Error 2
->=20
-> Anyone have any ideas?
+I might be doing something wrong -- but it seems to me that using inc,
+dec, xchg or cmpxchg (depending on the object being implemented) is
+all that is necessary for IA-32. futex_wait() should only be executed
+by threads which decides that they need to wait, which on an
+application with a well designed thread architecture, should not occur
+frequently. I would find any application that needed to actively wait
+on 4000 futex objects to be either incorrectly designed, or under
+enough load that I think an investment in a few more CPU's would be
+worthwhile... :-)
 
-Enable CONFIG_SND_CS46XX_NEW_DSP. That will get it to compile.
+> > same cache line. Also, if the memory word is used to synchronize
+> > access to a smaller data structure (<128 bytes), it is actually
+> > optimal to include the memory word used to synchronize access to the
+> > data, and the data itself, in the same cache line.
+> Sure, this makes full sense; if you are using the futexes straight off from
+> the kernel for synchronization; however, when used by something like NGPT's
+> mutex system, the story changes, because you cannot assume anything, you
+> have to be generic - and there is my bias. 
+> Lucky you that don't need to worry about that :)
 
-Cheers,
-florin
+In this case it isn't luck -- although I am certain that NGPT, and the
+other recent projects to improve the speed of threads and thread
+synchronization on Linux are doing very well, I have been dabbing with
+purposefully avoiding 'pthreads-like' libraries for synchronization
+primitives. Originally my goal was to reduce the overhead of a
+MUTEX-like object and a RWLOCK-like object to be a single word. The
+increased efficiency, and reduced storage requirement for these
+storage primitives would allow me to use them at more granular levels,
+which reduces the potential for contention.
 
---=20
+At some point, the need to be absolutely general and portable gets in
+the way of being efficient. You seem to be trying to accomplish all
+three goals (NGPT), a task that I can appreciate, but one that I
+cannot envy... :-)
 
-"If it's not broken, let's fix it till it is."
+mark
 
-41A9 2BDE 8E11 F1C5 87A6  03EE 34B3 E075 3B90 DFE4
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
 
---opJtzjQTFsWo+cga
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.0 (GNU/Linux)
+                           http://mark.mielke.cc/
 
-iD8DBQE90DanNLPgdTuQ3+QRAnp4AJ0SyjtCjh/VVZTeSdI//av0fuDA+ACfYY3t
-pZnI/6yT06jrSunL8PihpVc=
-=JmiY
------END PGP SIGNATURE-----
-
---opJtzjQTFsWo+cga--

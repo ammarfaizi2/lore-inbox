@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263088AbUFFIkH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUFFIkT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263088AbUFFIkH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jun 2004 04:40:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUFFIkG
+	id S263117AbUFFIkT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jun 2004 04:40:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263101AbUFFIkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jun 2004 04:40:06 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:20209 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S263088AbUFFIie (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jun 2004 04:38:34 -0400
-From: Christian Borntraeger <linux-kernel@borntraeger.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Some thoughts about cache and swap
-Date: Sun, 6 Jun 2004 10:38:25 +0200
-User-Agent: KMail/1.6.2
-Cc: John Bradford <john@grabjohn.com>, Rik van Riel <riel@redhat.com>,
-       Lasse =?iso-8859-15?q?K=E4rkk=E4inen_/_Tronic?= <tronic2@sci.fi>
-References: <Pine.LNX.4.44.0406051935380.29273-100000@chimarrao.boston.redhat.com> <200406060708.i5678PW4000272@81-2-122-30.bradfords.org.uk>
-In-Reply-To: <200406060708.i5678PW4000272@81-2-122-30.bradfords.org.uk>
-MIME-Version: 1.0
+	Sun, 6 Jun 2004 04:40:19 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:8384 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263117AbUFFIjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jun 2004 04:39:25 -0400
+Date: Sun, 6 Jun 2004 09:39:24 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Mike McCormack <mike@codeweavers.com>
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: WINE + NX (No eXecute) support for x86, 2.6.7-rc2-bk2
+Message-ID: <20040606083924.GA6664@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Mike McCormack <mike@codeweavers.com>, mingo@elte.hu,
+	linux-kernel@vger.kernel.org
+References: <40C2B51C.9030203@codeweavers.com> <20040606073241.GA6214@infradead.org> <40C2E045.8090708@codeweavers.com> <20040606081021.GA6463@infradead.org> <40C2E5DC.8000109@codeweavers.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200406061038.29470.linux-kernel@borntraeger.net>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de auth:5a8b66f42810086ecd21595c2d6103b9
+In-Reply-To: <40C2E5DC.8000109@codeweavers.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Bradford wrote:
-> Quote from Rik van Riel <riel@redhat.com>:
-> > I wonder if we should just bite the bullet and implement
-> > LIRS, ARC or CART for Linux.  These replacement algorithms
-> > should pretty much detect by themselves which pages are
-> > being used again (within a reasonable time) and which pages
-> > aren't.
-> Is there really much performance to be gained from tuning the 'limited'
-> cache space, or will it just hurt as many or more systems than it helps?
+On Sun, Jun 06, 2004 at 06:37:32PM +0900, Mike McCormack wrote:
+> 
+> Christoph Hellwig wrote:
+> 
+> >Huh?  binfmts do work on all linux architectures unchanged.  What you do
+> >on other operating systems is up to you.  And btw, netbsd already has
+> >binfmt_pecoff, you could certainly make use of that, too.
+> 
+> Working on only two platforms is not really what I'd call portable.
 
-Thats a very good question. 
-Most of the time the current algorithm works quite well.
-On the other hand, I definitely know what people mean when they complain 
-about cachingand all this stuff. By just copying a big file that I dont use 
-afterwards or watching an video I have 2 wonderful scenarios.  The cache is 
-filled with useless information and big parts of KDE are neither in memory 
-nor in cache. Applications  could use madvice or other things to indicate 
-that they dont need this file a second time, but they usually dont. 
+Linux itself is portable so a linux driver also is portable.  IF you care
+for multiple OSes you need to do additional work of course.  Which isn't
+the end of the world either.
 
-I think it might be interesting to have some kind of benchmark, similiar to 
-the interactive benchmark of Con that just triggers the workload so many 
-people are complaining. If I find the time, I will give it a try in the 
-next days.
+> True, we are relying on undocumented assumptions.  On the other hand, 
+> there's plenty of programs that rely on undocumented assumptions. 
+> Binary compatability to me means that the same binary will work even 
+> when the underlying system changes... is there a caveat that I missed?
 
-cheers
+And there's plenty of programs that break because of that.  Wine is now
+one of those.  You can either cludge around your brokenness even more or
+try to get it fixed.  Your choice.
 
-Christian

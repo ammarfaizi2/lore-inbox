@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129383AbQLLXIH>; Tue, 12 Dec 2000 18:08:07 -0500
+	id <S129521AbQLLXK2>; Tue, 12 Dec 2000 18:10:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129521AbQLLXH5>; Tue, 12 Dec 2000 18:07:57 -0500
-Received: from web.sajt.cz ([212.71.160.9]:48133 "EHLO web.sajt.cz")
-	by vger.kernel.org with ESMTP id <S129383AbQLLXHw>;
-	Tue, 12 Dec 2000 18:07:52 -0500
-Date: Tue, 12 Dec 2000 23:34:45 +0100 (CET)
-From: Pavel Rabel <pavel@web.sajt.cz>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: ajapted@netspace.net.au, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mdacon.c cleanup 
-In-Reply-To: <16970.976612511@redhat.com>
-Message-ID: <Pine.LNX.4.21.0012122328310.26198-100000@web.sajt.cz>
+	id <S129904AbQLLXKS>; Tue, 12 Dec 2000 18:10:18 -0500
+Received: from pop.gmx.net ([194.221.183.20]:7993 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S129521AbQLLXKJ>;
+	Tue, 12 Dec 2000 18:10:09 -0500
+Message-ID: <02b301c0648c$6c030470$0301a8c0@nonevy4mxm86ct>
+From: "Thomas Kotzian" <thomasko321k@gmx.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.0-test12 doesn't start under vmware
+Date: Tue, 12 Dec 2000 23:39:37 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I compiled linux-2.4.0-test12 without any problems:
+it does:
+Lilo:
+loading v240t12 .........
+Uncompressing Linux... Ok, booting the kernel.
 
-On Tue, 12 Dec 2000, David Woodhouse wrote:
+then it is in an endless loop i think because vmware uses all cpu-power.
+First I start in Grub, from there i start Lilo and then the kernel. - maybe
+there's a problem?
 
-> pavel@web.sajt.cz said:
-> > Both MODULE_PARM and __init are removed by precompiler when not
-> > compiler as module, so no need for ifdefs.  2.4.0-test12pre8
-> 
-> -#ifdef MODULE_PARM
->  MODULE_PARM(mda_first_vc, "1-255i");
->  MODULE_PARM(mda_last_vc,  "1-255i");
-> -#endif
-> 
-> That was #ifdef MODULE_PARM not #ifdef MODULE. Probably there for 
-> compatibility with older kernels. Although I'm not sure it's even required 
-> in 2.2.
-
-MODULE_PARM is removed by precompiler, in both 2.2 and 2.4. For sure.
- 
-Pavel
+Thomas
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

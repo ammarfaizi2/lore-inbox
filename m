@@ -1,32 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129221AbQKEAbF>; Sat, 4 Nov 2000 19:31:05 -0500
+	id <S129030AbQKEAfQ>; Sat, 4 Nov 2000 19:35:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129247AbQKEAaz>; Sat, 4 Nov 2000 19:30:55 -0500
-Received: from attila.stevens-tech.edu ([155.246.14.11]:44892 "EHLO
-	attila.stevens-tech.edu") by vger.kernel.org with ESMTP
-	id <S129221AbQKEAao>; Sat, 4 Nov 2000 19:30:44 -0500
-Date: Sat, 4 Nov 2000 19:30:31 -0500
-From: Mathieu ChouquetStringer <mathieu.chouquet-stringer@wanadoo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: [NOISE] Is the mailing list dead?
-Message-ID: <20001104193031.A17555926@attila.stevens-tech.edu>
-Mail-Followup-To: Mathieu ChouquetStringer <mathieu.chouquet-stringer@wanadoo.fr>,
-	linux-kernel@vger.kernel.org
+	id <S129247AbQKEAfG>; Sat, 4 Nov 2000 19:35:06 -0500
+Received: from hq.fsmlabs.com ([209.155.42.197]:19986 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S129030AbQKEAfB>;
+	Sat, 4 Nov 2000 19:35:01 -0500
+Date: Sat, 4 Nov 2000 17:34:05 -0700
+From: yodaiken@fsmlabs.com
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Multithreaded locks.c
+Message-ID: <20001104173405.A15262@hq.fsmlabs.com>
+In-Reply-To: <3A042031.A170B555@uow.edu.au> <E13s7vQ-0004hr-00@the-village.bc.nu> <3A04A285.3CA6FD37@uow.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Mutt 0.95.4us
+In-Reply-To: <3A04A285.3CA6FD37@uow.edu.au>; from Andrew Morton on Sun, Nov 05, 2000 at 10:57:57AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It has been at least 2 days since the last message I received...
+On Sun, Nov 05, 2000 at 10:57:57AM +1100, Andrew Morton wrote:
+> Even the DG/UX manpage doesn't say what happens when you sidegrade
+> the lock.  LOCK_EX->LOCK_EX :)
+
+Suggested code:
+         printk("Don't do that\n"); return -EKNUCKLEHEAD;
+
 
 -- 
-Mathieu CHOUQUET-STRINGER              E-Mail : mchouque@stevens-tech.edu
-     Learning French is trivial: the word for horse is cheval, and
-               everything else follows in the same way.
-                        -- Alan J. Perlis
+---------------------------------------------------------
+Victor Yodaiken 
+Finite State Machine Labs: The RTLinux Company.
+ www.fsmlabs.com  www.rtlinux.com
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

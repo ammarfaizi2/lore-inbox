@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267727AbSLTGbV>; Fri, 20 Dec 2002 01:31:21 -0500
+	id <S266121AbSLTHoZ>; Fri, 20 Dec 2002 02:44:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267734AbSLTGbV>; Fri, 20 Dec 2002 01:31:21 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:20412 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267727AbSLTGbV>;
-	Fri, 20 Dec 2002 01:31:21 -0500
-Date: Thu, 19 Dec 2002 22:38:19 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: pr_debug() and #define DEBUG usage
-Message-ID: <Pine.LNX.4.33L2.0212192235020.32456-100000@dragon.pdx.osdl.net>
+	id <S266274AbSLTHoZ>; Fri, 20 Dec 2002 02:44:25 -0500
+Received: from mail.scram.de ([195.226.127.117]:39380 "EHLO mail.scram.de")
+	by vger.kernel.org with ESMTP id <S266121AbSLTHoY>;
+	Fri, 20 Dec 2002 02:44:24 -0500
+Date: Fri, 20 Dec 2002 08:44:15 +0100 (CET)
+From: Jochen Friedrich <jochen@scram.de>
+X-X-Sender: jochen@gfrw1044.bocc.de
+To: Hannes Reinecke <mail@hannes-reinecke.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.52: compilation fixes for alpha
+In-Reply-To: <3E0241C3.4060206@hannes-reinecke.de>
+Message-ID: <Pine.LNX.4.44.0212200839320.11457-100000@gfrw1044.bocc.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Hannes,
 
-Hi,
+> attached are some compilation fixes needed to get the alpha port up and
+> running. Note: These fixes are on top of patch-2.5.52-bk3 in the
+> 2.5/testing directory, which contain some neccessary fixes regarding
+> exception handling.
 
-Some drivers, filesystems, subsystems, and libraries #define or use
-DEBUG locally in their source files.  This can conflict with DEBUG
-in include/linux/kernel.h, specifically the "pr_debug" macro, which
-has over 300 uses (invocations, calls) in 2.5.52 spread throughout
-drivers, libraries, and filesystems.
+Is there an additional patch missing?
 
-Question:
-How should DEBUG be enabled for use by include/linux/kernel.h ?
-a.  change CFLAGS_KERNEL in linux/Makefile to include "-DDEBUG"
-b.  #define DEBUG in include/linux/kernel.h
-c.  #define DEBUG in each file where someone wants to enable it
-d.  others?
+arch/alpha/mm/extable.c: In function `search_exception_table':
+arch/alpha/mm/extable.c:48: `module_list' undeclared (first use in this
+function)
 
-"DEBUG" seems heavily used (or overused, misused, abused) and too
-generic.
+This is -bk3 from v2.5/snapshots +your patch (-bk4 +your patch fails to
+compile with the same message).
 
-And in one place, it keeps a kernel build from completing when
-DEBUG is defined.  In lib/inflate.c, line 999:
-  fprintf(stderr, "<%u> ", h);
-gcc just doesn't like this line.
+It looks like i386 replaced the loop through module_list by a walk through
+extables which is not yet in alpha code.
 
--- 
-~Randy
+Thanks,
+--jochen
 

@@ -1,75 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbUL0FwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbUL0G2i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbUL0FwY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Dec 2004 00:52:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbUL0FwY
+	id S261753AbUL0G2i (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Dec 2004 01:28:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbUL0G2i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Dec 2004 00:52:24 -0500
-Received: from [202.125.86.130] ([202.125.86.130]:11443 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S261750AbUL0FwT convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Dec 2004 00:52:19 -0500
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: request for member magic in something not a structure or union
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Mon, 27 Dec 2004 11:26:14 +0530
-Message-ID: <4EE0CBA31942E547B99B3D4BFAB348112B85F6@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: request for member magic in something not a structure or union
-Thread-Index: AcTr1amM1PeavxxIQR237V3ouqmR2wAAAtLQ
-From: "Srinivas G." <srinivasg@esntechnologies.co.in>
-To: "linux-kernel-Mailing-list" <linux-kernel@vger.kernel.org>
+	Mon, 27 Dec 2004 01:28:38 -0500
+Received: from oracle.bridgewayconsulting.com.au ([203.56.14.38]:16818 "EHLO
+	oracle.bridgewayconsulting.com.au") by vger.kernel.org with ESMTP
+	id S261753AbUL0G2e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Dec 2004 01:28:34 -0500
+Date: Mon, 27 Dec 2004 14:28:29 +0800
+From: Bernard Blackham <bernard@blackham.com.au>
+To: mingo@elte.hu, akpm@osdl.org
+Cc: ncunningham@linuxmail.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] sched-fix-scheduling-latencies-in-mttrc reenables interrupts
+Message-ID: <20041227062828.GE7415@blackham.com.au>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="xHFwDpU9dbj6ez1V"
+Content-Disposition: inline
+Organization: Dagobah Systems
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear All,
- 
-I am new to the Fedora Linux. I worked on SuSE and Red Hat Linux. Now I am using Fedora Core 3 with 2.6.9-1.667 kernel version.
- 
-I got a problem while compiling a module, but the same module is 
-working under SuSE 9.1 with 2.6.5, 2.6.6, 2.6.8 and 2.6.9 kernel versions.
- 
-I understood that the error messages are related to spin_lock_irqsave and 
-spin_lock_init only. If I comment those two lines the compilation is OK.
 
-The error messages are ---
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- /home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c: In function `do_tifm_transfer':
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `magic' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `lock' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `babble' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `babble' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `module' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `owner' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `oline' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `lock' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `owner' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:933: error: request for member `oline' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `magic' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `lock' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `babble' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `babble' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `module' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:938: error: request for member `lock' in something not a structure or union
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c: In function `gendisk_init':
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
-/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.c:1090: error: invalid type argument of `->'
-make[2]: *** [/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source/tidrv.o] Error 1
-make[1]: *** [_module_/home/ti/tifm-2.6.9-1.667-kernel/tifm-1.3-2.6.x-source] Error 2
-make: *** [default] Error 2
- 
-Please any help greatly appreciated. 
-Thanks in advance.
- 
-Regards,
-Srinivas G
+Hi Ingo & Andrew,
+
+The patch sched-fix-scheduling-latencies-in-mttr in recent -mm
+kernels has the bad side-effect of re-enabling interrupts even if
+they were disabled. This caused bugs in Software Suspend 2 which
+reenabled MTRRs whilst interrupts were already disabled.
+
+Attached is a replacement patch which uses spin_lock_irqsave instead
+of spin_lock_irq.
+
+Kind regards,
+
+Bernard.
+
+-- 
+ Bernard Blackham <bernard at blackham dot com dot au>
+
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="sched-fix-scheduling-latencies-in-mttrc-good.patch"
+
+--- linux-2.6.10/arch/i386/kernel/cpu/mtrr/generic.c.orig	2004-10-19 05:54:32.000000000 +0800
++++ linux-2.6.10/arch/i386/kernel/cpu/mtrr/generic.c	2004-12-26 18:20:17.000000000 +0800
+@@ -232,6 +232,7 @@ static unsigned long set_mtrr_state(u32 
+ static unsigned long cr4 = 0;
+ static u32 deftype_lo, deftype_hi;
+ static spinlock_t set_atomicity_lock = SPIN_LOCK_UNLOCKED;
++static unsigned long sal_flags;
+ 
+ static void prepare_set(void)
+ {
+@@ -240,11 +241,14 @@ static void prepare_set(void)
+ 	/*  Note that this is not ideal, since the cache is only flushed/disabled
+ 	   for this CPU while the MTRRs are changed, but changing this requires
+ 	   more invasive changes to the way the kernel boots  */
+-	spin_lock(&set_atomicity_lock);
++	/*
++	 * Since we are disabling the cache dont allow any interrupts - they
++	 * would run extremely slow and would only increase the pain:
++	 */
++	spin_lock_irqsave(&set_atomicity_lock, sal_flags);
+ 
+ 	/*  Enter the no-fill (CD=1, NW=0) cache mode and flush caches. */
+ 	cr0 = read_cr0() | 0x40000000;	/* set CD flag */
+-	wbinvd();
+ 	write_cr0(cr0);
+ 	wbinvd();
+ 
+@@ -266,8 +270,7 @@ static void prepare_set(void)
+ 
+ static void post_set(void)
+ {
+-	/*  Flush caches and TLBs  */
+-	wbinvd();
++	/*  Flush TLBs (no need to flush caches - they are disabled)  */
+ 	__flush_tlb();
+ 
+ 	/* Intel (P6) standard MTRRs */
+@@ -279,7 +282,7 @@ static void post_set(void)
+ 	/*  Restore value of CR4  */
+ 	if ( cpu_has_pge )
+ 		write_cr4(cr4);
+-	spin_unlock(&set_atomicity_lock);
++	spin_unlock_irqrestore(&set_atomicity_lock, sal_flags);
+ }
+ 
+ static void generic_set_all(void)
+
+--xHFwDpU9dbj6ez1V--

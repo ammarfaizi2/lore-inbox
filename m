@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267740AbUI1NrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267743AbUI1NtF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267740AbUI1NrP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 09:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267743AbUI1NrP
+	id S267743AbUI1NtF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 09:49:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267749AbUI1NtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 09:47:15 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:42002 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S267740AbUI1NrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 09:47:09 -0400
-Date: Tue, 28 Sep 2004 14:47:05 +0100
-From: Dave Jones <davej@redhat.com>
-To: Brian McGrew <Brian@doubledimension.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Probing for System Model Information
-Message-ID: <20040928134705.GA11916@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Brian McGrew <Brian@doubledimension.com>,
-	linux-kernel@vger.kernel.org
-References: <E6456D527ABC5B4DBD1119A9FB461E35019377@constellation.doubledimension.com>
+	Tue, 28 Sep 2004 09:49:04 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:11081 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267743AbUI1Nrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 09:47:43 -0400
+Message-ID: <35fb2e5904092806477358b9b3@mail.gmail.com>
+Date: Tue, 28 Sep 2004 14:47:42 +0100
+From: Jon Masters <jonmasters@gmail.com>
+Reply-To: jonathan@jonmasters.org
+To: Ankit Jain <ankitjain1580@yahoo.com>
+Subject: Re: processor affinity
+Cc: linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040928122517.9741.qmail@web52907.mail.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E6456D527ABC5B4DBD1119A9FB461E35019377@constellation.doubledimension.com>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040928122517.9741.qmail@web52907.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 28, 2004 at 06:32:31AM -0700, Brian McGrew wrote:
- > Good morning All!
- > 
- > We exclusively ship Dell boxes with our hardware.  However, we use several different models, 1400's, 1600's, 2350's, 4600's and so on.  I need to write a small program to probe the system for the model information since I don't seem to find it in the logs anywhere.  
- > 
- > I know the model info is in there somewhere and it's accessible because if I look on the default factory installed version of Windows, it's listed.
- > 
- > Does anyone know how to do this or can you point me to one that's already done or some samples?
- 
-You can find this info in the DMI tables assuming Dell filled
-them in with sensible data (which they usually do).
+On Tue, 28 Sep 2004 13:25:17 +0100 (BST), Ankit Jain
+<ankitjain1580@yahoo.com> wrote:
 
-dmidecode will read these tables from userspace.
+> what is meant by processor affinity?
 
-		Dave
+Affinity means that a process has an affinity for a particular subset
+of the available CPUs within a particular system - it wishes to run
+only on these processors. Linux supports hard processor affinity and
+process migration to enforce such demands which get be made using the
+POSIX sched_[set|get]param calls.
+
+Robert Love has written an excellent book entitled Linux Kernel
+Development, it's not expensive and very worthwhile. Chapter 3 is
+entitled Scheduling and it explains process affinity as well as
+process migration and the concept of migration threads as used within
+the Linux kernel to enforce policy in the implmentation.
+
+I suggest also that you consider joining the Kernel Newbies mailing
+list, newly revived and now with working signup page over at
+http://www.kernelnewbies.org/
+
+Jon.

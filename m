@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281371AbRKEWFR>; Mon, 5 Nov 2001 17:05:17 -0500
+	id <S281390AbRKEWHh>; Mon, 5 Nov 2001 17:07:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281381AbRKEWFH>; Mon, 5 Nov 2001 17:05:07 -0500
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:29446 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S281371AbRKEWEv>;
-	Mon, 5 Nov 2001 17:04:51 -0500
-Date: Mon, 5 Nov 2001 15:04:41 -0800
-From: Greg KH <greg@kroah.com>
+	id <S281382AbRKEWH1>; Mon, 5 Nov 2001 17:07:27 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:58105 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S281381AbRKEWHQ>;
+	Mon, 5 Nov 2001 17:07:16 -0500
+Date: Mon, 5 Nov 2001 23:07:13 +0100
+From: Petr Baudis <pasky@pasky.ji.cz>
 To: Tim Jansen <tim@tjansen.de>
-Cc: Jonathan Lundell <jlundell@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5 PROPOSAL: Replacement for current /proc of shit.
-Message-ID: <20011105150441.D4735@kroah.com>
-In-Reply-To: <E15zF9H-0000NL-00@wagner> <20011105111239.3403b162.rusty@rustcorp.com.au> <p05100316b80c6f3df6f3@[207.213.214.37]> <160qaQ-2523rUC@fmrl04.sul.t-online.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROPOSAL: dot-proc interface [was: /proc stuff]
+Message-ID: <20011105230713.W11619@pasky.ji.cz>
+Mail-Followup-To: Tim Jansen <tim@tjansen.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <E15zF9H-0000NL-00@wagner> <160qdn-0ZGNrUC@fmrl04.sul.t-online.com> <20011105223413.U11619@pasky.ji.cz> <160rly-1tl3XUC@fmrl05.sul.t-online.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <160qaQ-2523rUC@fmrl04.sul.t-online.com>
+In-Reply-To: <160rly-1tl3XUC@fmrl05.sul.t-online.com>
 User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.20 (i586)
-Reply-By: Mon, 08 Oct 2001 20:04:57 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 05, 2001 at 09:46:19PM +0100, Tim Jansen wrote:
-> On Monday 05 November 2001 17:49, Jonathan Lundell wrote:
-> > I think of the tagged list of n-tuples as a kind of ASCII
-> > representation of a simple struct. One could of course create a
-> > general ASCII representation of a C struct, and no doubt it's been
-> > done innumerable times, but I don't think that helps in this
-> > application.
-> 
-> But how can you represent references with those lists? Try to model the 
-> content of /proc/bus/usb/devices with them.
+> So far sysctl is only used to configure kernel parameters, so there exists 
+> one parameter in the system (per kernel). 
+Not true.. see net.ipv* stuff - for each device, same parameters are to be set.
+I see no problem in this.
 
-The contents of /proc/bus/usb is the usbdevfs file system.  It does not
-fit into the current /proc model, or discussion.
+> An example for devices would be mass storage devices. You may want to switch 
+> DMA on and off per device. Using one-value-files you would have directories 
+> called /somepath/0/dma, /somepath/1/dma and so on, and could turn on DMA on 
+> device 1 by executing "echo 1 > /somepath/1/dma".
+Set 1 for dev.ide.host0.bus0.target0.lun0.dma (we should stay consistent at
+least with devfs, or we can give it up completely ;)
 
-It's only mounted at that location, for lack of a better place :)
+> Beside that there is the good old problem "who manages the sysctl namespace" 
+> problem that is even more important if you want to use sysctl for device 
+> drivers that may not even be in the kernel.
+Well, why not maintainers of appropriate kernel sections, or even special
+maintainer, like the one for device numbers. For each section of sysctl
+namespace, subset of required ctls should be defined, obviously not restricting
+optional bloat ;).
 
-And no, "usbdevfs" has _nothing_ to do with "devfs", it was a bad name
-choice, in hindsight.
+-- 
 
-thanks,
+				Petr "Pasky" Baudis
 
-greg k-h
+UN*X programmer, UN*X administrator, hobbies = IPv6, IRC
+Real Users hate Real Programmers.
+Public PGP key, geekcode and stuff: http://pasky.ji.cz/~pasky/

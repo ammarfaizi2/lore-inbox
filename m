@@ -1,81 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264400AbRFXTQl>; Sun, 24 Jun 2001 15:16:41 -0400
+	id <S264407AbRFXTUv>; Sun, 24 Jun 2001 15:20:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264405AbRFXTQb>; Sun, 24 Jun 2001 15:16:31 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:42465 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S264400AbRFXTQP>;
-	Sun, 24 Jun 2001 15:16:15 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: What are the VM motivations??
-Date: Sun, 24 Jun 2001 19:11:09 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9h5e0d$rdq$1@forge.intermeta.de>
-In-Reply-To: <20010624161502.4D75C784C4@mail.clouddancer.com> <Pine.LNX.4.21.0106241332540.7419-100000@imladris.rielhome.conectiva>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 993409869 18163 212.34.181.4 (24 Jun 2001 19:11:09 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Sun, 24 Jun 2001 19:11:09 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S264413AbRFXTUm>; Sun, 24 Jun 2001 15:20:42 -0400
+Received: from uu212-190-158-41.unknown.uunet.be ([212.190.158.41]:32004 "HELO
+	localhost.localdomain") by vger.kernel.org with SMTP
+	id <S264407AbRFXTUf>; Sun, 24 Jun 2001 15:20:35 -0400
+From: "Lieven Marchand" <mal@wyrd.be>
+To: root@chaos.analogic.com
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: sizeof problem in kernel modules
+In-Reply-To: <Pine.LNX.3.95.1010623224028.22442A-100000@chaos.analogic.com>
+Date: 24 Jun 2001 18:07:39 +0200
+In-Reply-To: "Richard B. Johnson"'s message of "Sat, 23 Jun 2001 22:43:14 -0400 (EDT)"
+Message-ID: <m3ae2xn9o4.fsf@localhost.localdomain>
+X-Mailer: Gnus v5.5/XEmacs 20.4 - "Emerald"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel <riel@conectiva.com.br> writes:
+"Richard B. Johnson" <root@chaos.analogic.com> writes:
 
->On Sun, 24 Jun 2001, Colonel wrote:
+> On Sun, 24 Jun 2001, Keith Owens wrote:
+> 
+> > On Sat, 23 Jun 2001 21:56:06 -0400 (EDT), 
+> > "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+> > >FYI, structures are designed to be accessed only by their member-names.
+> > >Therefore, the compiler is free to put members at any offset. In fact,
+> > >members, other than the first, don't even have to be in the order
+> > >written!
+> > 
+> > Bzzt!  I don't know where people get these ideas from.  Extracts from
+> > the C9X draft.
+> > 
+> >   A structure type describes a sequentially allocated nonempty set of
+> >   member objects (and, in certain circumstances, an incomplete array),
+> >   each of which has an optionally specified name and possibly distinct
+> >   type.
+> > 
+> >   When two pointers are compared ... If the objects pointed to are
+> >   members of the same aggregate object, pointers to structure members
+> >   declared later compare greater than pointers to members declared
+> >   earlier in the structure.
+> > 
+> >   Two objects may be adjacent in memory because they are adjacent
+> >   elements of a larger array or adjacent members of a structure with no
+> >   padding between them,
+> > 
+> >   As discussed in 6.2.5, a structure is a type consisting of a sequence
+> >   of members, whose storage is allocated in an ordered sequence,
+> > 
+> >   Within  a structure object, the non-bit-field members and the units
+> >   in which bit-fields reside have addresses that increase in the order
+> >   in which they are declared
+> > 
+> > C requires that members of a structure be defined in ascending address
+> > order as specified by the programmer.  The compiler may not reorder
+> > structure fields, although bitfields are a special case.
+> > 
+> 
+> Previous to the "Draft" "Proposal" of C98, there were no such
+> requirements. And so-called ANSI -C specifically declined to
+> define any order within structures.
 
->> It's simple.  I want the old reliable behavior back, the one I found
->> in kernels from 1.1.41 thru 2.2.14.
+It would be nice it you would occasionally check the stuff you
+pontificate about.
 
->And which one would that be ?   Note that there have been
->4 different VM subsystems in that time and the kernel has
->made the transition from the buffer cache to the page cache
->in that period.
-
-I'd say, what he tries to tell you is that he does not (and I don't
-for this point, either) care, which one it is or how it is implemented
-or whether you're using a page, buffer or crispy chips cache, as long
-as the bugger works, does not lock up, does not lose memory and does
-not kill innocent processes. If you need a roach to wire to the
-computer to do it, fine, tell me how to wire it and I'll start
-lobbying mainboard suppliers to provide six pin sockets for roach
-plugging.
-
-Just as all VMs up to 2.2.19 do (with a few notable exceptions around
-the 2.2.14-2.2.16 range). These VM problems are my biggest stop sign
-to move my production boxes to 2.4.x. My 2.2.x boxes have uptimes in
-the hundreds of days, my 2.0.x boxes do, too:
-
-henning@db1 21:05 ~ > uptime
-  9:05pm  up 410 days, 17:12,  1 user,  load average: 0.15, 0.03, 0.01
-henning@db1 21:05 ~ > uname -an
-Linux db1 2.0.37 #1 Sat Mar 13 19:41:01 MET 1999 i686 unknown
-
-(Heck if that USV in front of the Cobalt Qube wouldn't have died, I'd
-have another 440+ days uptime to boast with.)
-
-That's the stability most of us want to see in the _stable_ kernel
-series. And I fully agree with the fact that I don't want to become a
-VM kernel expert just to run the bugger. =:-)
-
-Some of us like Linux not because it's free but because it's rock
-solid. Because some of us use them to run our businesses on it. If I
-want uptimes in the days range, I'd use Win2k and hire a monkey to
-administrate the box, because it has a nice GUI (TM).
-
-	Regards
-		Henning
-
+The last sentence of the quoted paragraph appears verbatim in the ANSI
+X3.159-1989 specification in 3.5.2.1.
 
 -- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
-
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   
+Lieven Marchand <mal@wyrd.be>
+You can drag any rat out of the sewer and teach it to get some work done in
+Perl, but you cannot teach it serious programming.              Erik Naggum

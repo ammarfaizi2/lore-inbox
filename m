@@ -1,72 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132367AbRASTIp>; Fri, 19 Jan 2001 14:08:45 -0500
+	id <S130108AbRASThd>; Fri, 19 Jan 2001 14:37:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132917AbRASTIg>; Fri, 19 Jan 2001 14:08:36 -0500
-Received: from palrel1.hp.com ([156.153.255.242]:33036 "HELO palrel1.hp.com")
-	by vger.kernel.org with SMTP id <S132367AbRASTIQ>;
-	Fri, 19 Jan 2001 14:08:16 -0500
-Message-ID: <3A68908C.3F3FE453@cup.hp.com>
-Date: Fri, 19 Jan 2001 11:07:56 -0800
-From: Rick Jones <raj@cup.hp.com>
-Organization: the Unofficial HP
-X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
-X-Accept-Language: en
+	id <S130399AbRASThX>; Fri, 19 Jan 2001 14:37:23 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:9740 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S130108AbRASThE>;
+	Fri, 19 Jan 2001 14:37:04 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: mkloppstech@freenet.de
+Date: Fri, 19 Jan 2001 20:35:58 MET-1
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <Pine.LNX.4.30.0101181840380.16292-100000@twinlark.arctic.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: matroxfb
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.40
+Message-ID: <130B98052DAB@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dean gaudet wrote:
-> 
-> On Wed, 17 Jan 2001, Rick Jones wrote:
-> 
-> > > actually the problem isn't nagle...  nagle needs to be turned off for
-> > > efficient servers anyhow.
-> >
-> > i'm not sure I follow that. could you expand on that a bit?
-> 
-> the problem which caused us to disable nagle in apache is documented in
-> this paper <http://www.isi.edu/~johnh/PAPERS/Heidemann97a.html>.  mind you
-> i should personally revisit the paper after all these years so that i can
-> reconsider its implications in the context of pipelining and webmux.
+On 19 Jan 01 at 18:18, mkloppstech@freenet.de wrote:
+> I have a Matrox G450 and Kernel 2.4.0.
+> Vesafb works fine, however not matroxfb.
+> First, matroxfb.o does not exist.
 
-ah yes, that - where the web server even for just static content was
-providing the replies in more than one send. i would not consider that
-to have been an "efficient" server.
+Why do you think that matroxfb.o should exist?
 
-i'm not sure that I agree with their statment that piggy-backing is
-rarely successful in request/response situations.
+> Any other module in the matrox directory doesn't do anything.
+> strace fbset -s returns -ENOSYS for /dev/fb0, which exists.
+> Loading matroxfb_base.o crashes the computer immediately.
+> What's wrong?
 
-the business about the last 1100ish bytes of a 4096 byte send being
-delayed by nagle only implies that the stack's implementation of nagle
-was broken and interpreting it on a per-segment rather than a per-send
-basis. if the app sends 4096 bytes, then there should be no
-nagle-induced delays on a connection with an MSS of 4096 or less.
+Ask Matrox. On some boards, under some circumstances, accelerator
+dies after painting about 60 characters (you should see correct
+chars at the beginning of first line on screen). It stops doing anything,
+and G450 reports that command FIFO is full (under normal conditions,
+I cannot get even two entries in FIFO when painting 8x16 chars on my
+dual PIII/800). Next write access to acelerator locks PCI bus forever,
+so even if you patch mga_fifo() to not loop endlessly, it will not
+fix problem.
 
-it would seem that in the context of that paper at least, most if not
-all of the problems were the result of bugs - either in the webserver
-software, or the host TCP stack. otherwise, the persistent connections
-would have worked just fine.
+You can try either booting to Windows, and then to Linux, or you can
+just try poweroff/poweron again and again. In ~5 attempts it starts working
+and works until poweroff.
 
-> i'm not aware yet of any study in the field.  and i'm out of touch enough
-> with the clients that i don't know if new netscape or IE have finally
-> begun to use pipelining (they hadn't as of 1998).
+You can also use 'insmod matroxfb_base noaccel=1'. Without accelerator
+it works fine. But make sure that your mode lines in /etc/fb.modes do
+not contain 'accel true' lines. As soon as you enable acceleration,
+it dies again. So best is compiling matroxfb into kernel - then if it
+dies, filesystems are not mounted, so you can reboot quickly...
 
-someone else sent a private email implying that no browsers were yet
-doing pipelining.
+Also, secondary head output to TV is not supported, and probably never
+will be, unless Matrox releases documentation.
 
-rick
--- 
-ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
-these opinions are mine, all mine; HP might not want them anyway... :)
-feel free to email, OR post, but please do NOT do BOTH...
-my email address is raj in the cup.hp.com domain...
+I was able to decrease number of unsucessfull powerons with updating BIOS,
+and not using AGP4x. But I was not able to get 100% success.
+                                            Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

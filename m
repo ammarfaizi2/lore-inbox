@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270604AbTGTChO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jul 2003 22:37:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270606AbTGTChN
+	id S270606AbTGTChj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jul 2003 22:37:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270607AbTGTChi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jul 2003 22:37:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:65227 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S270604AbTGTChF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jul 2003 22:37:05 -0400
-Message-ID: <3F1A03C5.8010705@pobox.com>
-Date: Sat, 19 Jul 2003 22:51:49 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: libata driver update posted
-References: <m3ispyx79n.fsf@lugabout.jhcloos.org>
-In-Reply-To: <m3ispyx79n.fsf@lugabout.jhcloos.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 19 Jul 2003 22:37:38 -0400
+Received: from thunk.org ([140.239.227.29]:59323 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S270606AbTGTChb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jul 2003 22:37:31 -0400
+Date: Sat, 19 Jul 2003 20:31:41 -0400
+From: "Theodore Ts'o" <tytso@mit.edu>
+To: Dan Behman <dbehman@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6: marking individual directories as synchronous?
+Message-ID: <20030720003141.GB1085@think>
+Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
+	Dan Behman <dbehman@hotmail.com>, linux-kernel@vger.kernel.org
+References: <Law14-F4339RtMXxIGC0001edbb@hotmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Law14-F4339RtMXxIGC0001edbb@hotmail.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James H. Cloos Jr. wrote:
-> 00:1f.1 Class 0101: 8086:244a (rev 03)
->         Subsystem: 8086:4541
->         Flags: bus master, medium devsel, latency 0
->         I/O ports at bfa0 [size=16]
-[...]
-> root=/dev/sda3 failed to find the root fs.
-[...]
-> Is my controller among the supported PIIX/ICH PATA chipsets?
+On Thu, Jul 17, 2003 at 04:59:20PM -0400, Dan Behman wrote:
+> Hi,
+> 
+> I'm reading through Joseph Pranevich's great document "Wonderful World of 
+> Linux 2.6" and I came across something that I'd love to learn more about.  
+> In the "Block Device Support" -> "Filesystems" section, reference is made 
+> to "Individual directories can now be marked as synchronous so that all 
+> changes (additional files, etc.) will be atomic".  I searched through the 
+> update info at kernelnewbies but
+> couldn't find any more information on this - could someone please elaborate 
+> on this?  What is it and how does it work?  Is there any design 
+> documentation for this?
 
+He is is probably referring to "chattr +S".  See the man page for
+chattr for more information.  Note that strictly speaking this does
+not necessarily give you "atomic changes".  It does mean that changes
+are scheduled to be immediately written to disk, but that does not
+guarantee atomicity, at least not for all filesystems and for all
+operations.  You *can* be guaranteed that system calls will not return
+until the changes are on disk; note though that this does have has
+some significant performance impacts.
 
-Yes, all you need to do is add another PCI id for your chipset to 
-drivers/scsi/ata_piix.c:
-
-+ { 0x8086, 0x244a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, piix4_pata },
-
-Once I add cable detection (PATA is currently limited to UDMA/33), this 
-PCI ID entry will change slightly, but the above should get you going.
-
-Note again that ATAPI isn't supported yet...
-
-	Jeff
-
-
-
+						- Ted

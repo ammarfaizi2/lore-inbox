@@ -1,91 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbTLLQtb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Dec 2003 11:49:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbTLLQtb
+	id S261344AbTLLQ5J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Dec 2003 11:57:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbTLLQ5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Dec 2003 11:49:31 -0500
-Received: from fed1mtao03.cox.net ([68.6.19.242]:48863 "EHLO
-	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S261309AbTLLQt3
+	Fri, 12 Dec 2003 11:57:09 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:5760 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261344AbTLLQ5F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Dec 2003 11:49:29 -0500
-Date: Fri, 12 Dec 2003 09:59:29 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Working nforce2, was Re: Fixes for nforce2 hard lockup, apic, io-apic, udma133 covered
-Message-ID: <20031212165929.GA187@tesore.local>
-References: <200312072312.01013.ross@datscreative.com.au> <200312111655.25456.ross@datscreative.com.au> <1071143274.2272.4.camel@big.pomac.com> <200312111912.27811.ross@datscreative.com.au> <1071165161.2271.22.camel@big.pomac.com> <20031211182108.GA353@tesore.local> <3FD98A1F.901@nishanet.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3FD98A1F.901@nishanet.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Dec 2003 11:57:05 -0500
+Date: Fri, 12 Dec 2003 11:57:09 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+cc: bill davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Catching NForce2 lockup with NMI watchdog
+In-Reply-To: <Pine.LNX.4.55.0312121717510.21008@jurand.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.53.0312121152240.730@chaos>
+References: <3FD5F9C1.5060704@nishanet.com> <Pine.LNX.4.55.0312101421540.31543@jurand.ds.pg.gda.pl>
+ <brcoob$a02$1@gatekeeper.tmr.com> <Pine.LNX.4.55.0312121717510.21008@jurand.ds.pg.gda.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 12, 2003 at 04:27:59AM -0500, Bob wrote:
-> Jesse Allen wrote:
-> 
-> >On Thu, Dec 11, 2003 at 06:52:41PM +0100, Ian Kumlien wrote:
-> > 
+On Fri, 12 Dec 2003, Maciej W. Rozycki wrote:
+
+> On Fri, 12 Dec 2003, bill davidsen wrote:
+>
+> > | In practice, assuming the MP IRQ routing information provided the BIOS has
+> > | been correct (which is not always the case), prerequisites #1 and #2 have
+> > | been met so far, but #3 has proved to be occasionally problematic.
 > >
-> >>Heh, yeah, the need for disconnect is somewhat dodgy, i haven't read up
-> >>on th rest.
-> >>
-> >Hmm, weird.  I went to go look at the Shuttle motherboard maker's site - 
-> >maybe so that I can bug them for a bios disconnect option - but I checked 
-> >for a bios update first.  And sure enough like they read my mind, just 
-> >posted online today, an update.  Here are the details of fixes:
-> >
-> >" Checksum:   8B00H                         Date Code: 12/05/03
-> >1.Support 0.18 micron AMD Duron (Palomino) CPU.
-> >2.Add C1 disconnect item."
-> >
-> >It's almost as they're reading this list.  This disconnect problem was 
-> >discovered on the 5th (well the 5th in my timezone).  Perhaps they're 
-> >aware of this issue...  I'm gonna talk to them.
-> >
-> >Jesse
-> >
-> A bios update for MSI K7N2 MCP2-T nforce2 board
-> fixed the crashing BEFORE these patches were developed,
-> but there was no documentation that would relate or explain.
+> > In practice many system seem to take a good bit of guessing and testing.
+> > I have an old P-II which only works with acpi=force and nmi_watchdog=2,
+> > for instance.
+>
+>  Well, the NMI watchdog is a side-effect feature that works by chance
+> rather than by design.  So you can't really complain it doesn't work
+> somewhere, although I wouldn't mind if new hardware was designed such that
+> it works.  You shouldn't have to use "acpi=force" for the watchdog to work
+> though and for a PII system if "nmi_watchdog=1" doesn't work, then I
+> suspect a BIOS bug (set APIC_DEBUG to 1 in asm-i386/apic.h and send me the
+> bootstrap log and a dump from `mptable' for a diagnosis, if interested).
+>
+> > It would be nice if there were a program which could poke at the
+> > hardware and suggest options which might work, as in eliminating the
+> > ones which can be determined not to work. Absent that trial and error
+> > rule, unfortunately.
+>
+>  Linux has all appropriate bits to set up hardware reasonably as long as
+> BIOS provides accurate information.  The only case our code fails is when
+> BIOS tells us lies and the there's little we can do about it.  Actually we
+> are doing hardware manufacturers a favor we try to handle some cases at
+> all -- it's the BIOS that should be fixed instead and it is software and
+> it is stored in Flash memories these days, so there's no excuse.  So if
+> there's a problem with running Linux because of BIOS bugs, then please
+> bugger the manufacturer in the first place (and avoid the company in the
+> future if they don't support Linux).
+>
+>  Sometimes the NMI watchdog works in principle, but its activation leads
+> to system instability -- almost always this is a symptom of buggy SMM code
+                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> executed by the BIOS behind our back (NMIs are disabled by default in the
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> SMM, but careless code may enable them by accident).
 
-Last night, I updated the bios to the 12-5-03 released yesterday (see above).  I looked at the new option under Advanced Chipset Features, "C1 Disconnect".  It has three selections: Auto, Enabled, Disabled.  There seems to be no default.  The item help says:
-"Force En/Disabled 
- or Auto mode:
- C17 IGP/SPP NB A03
- C18D SPP NM A01 (C01)
- enabled C1 disconnect
- otherwise disabled it"
+The NMI vector goes to Linux code. In fact all interrupt vectors
+go to Linux code. There is no way that some BIOS code could possibly
+be accidentally executed here. Some Linux code would have to
+call some 16-bit BIOS code somewhere, and it doesn't even know
+where..........
 
-Auto sounded nice, so I selected that first.  I compiled a new kernel without the disconnect off patch, or the ack delay.  These are the exact patches I used on 2.6.0-test11:
-patch-2.6.0-test11-bk8.bz2
-acpi-2.6.0t11.patch acpi bugfixes from Maciej.
-nforce-ioapic-timer-2.6t11.patch from Ross Dickson.  Timer patch.
-forcedeth.patch Patch stolen from -test10-mm1?  Unused.
-forcedeth-update-2.patch Same.
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-Sure enough, under this kernel, no lockups.  Athcool reported Disconnect was "on".
 
-I decided to wait till this morning, to try the BIOS "C1 Disconnect" set to enabled.  Still no lockups under this kernel.  Tried a vanilla kernel, no lockups (but timer and watchdog messed up still).  Now that I read your message Bob, I understand what you are saying.  Luckily, the updated BIOS changelog states "Add C1 disconnect item."  And this exact version seems to have fixed it, and now we have an exact fix (another one?) to refer to.
-
-So the fix was absolutely a BIOS fix.  It seems a lot of people have buggy BIOSes on nforce2 boards.  Even some that have the option.  I guess I haven't proved that it was the BIOS fix, because I haven't stressed it for a long period of time.  But I don't believe I have to because I can do grep's and kernel compiles with disconnect on now, where before I couldn't (always been very easy to reproduce lockup).
-
-> 
-> http://www.msi.com.tw/program/support/bios/bos/spt_bos_detail.php?UID=436&kind=1
-> http://download.msi.com.tw/support/bos_exe/6570v76.exe
-> 
-> Award 7.6 at the top of the list. Maybe somebody can figure
-> out what they're doing.
-
-I think I'll continue on contacting shuttle and ask them why they added the option, and how they added it.  Maybe that will give us the right information.
-
-> 
-> Nvidia X driver for ti4200 agp8 still locks up linux though,
-> but X nv works fine. agp8 3d may expose the timer issue.
-> 
-
-That's either an nvidia driver problem, or agpgart-nforce problem.  I'd try 4x agp, and or NVAGP (or agpgart, if already using NVAGP).  If you think it's the timer, try the timer patch, or with nolapic noapic.
-
-Jesse

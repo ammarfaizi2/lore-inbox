@@ -1,61 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266888AbSKUROw>; Thu, 21 Nov 2002 12:14:52 -0500
+	id <S266907AbSKURRk>; Thu, 21 Nov 2002 12:17:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266886AbSKUROw>; Thu, 21 Nov 2002 12:14:52 -0500
-Received: from packet.digeo.com ([12.110.80.53]:37052 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266888AbSKUROu>;
-	Thu, 21 Nov 2002 12:14:50 -0500
-Message-ID: <3DDD162B.BAC88F94@digeo.com>
-Date: Thu, 21 Nov 2002 09:21:47 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
+	id <S266911AbSKURRk>; Thu, 21 Nov 2002 12:17:40 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:26129 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S266907AbSKURRi>; Thu, 21 Nov 2002 12:17:38 -0500
+Date: Thu, 21 Nov 2002 17:24:44 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Andrey Panin <pazke@orbita1.ru>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [Q] is framebuffer console code in 2.5.4x functional ?
+In-Reply-To: <20021120094654.GA319@pazke.ipt>
+Message-ID: <Pine.LNX.4.33.0211210753100.9540-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
-To: Dave Jones <davej@codemonkey.org.uk>
-CC: William Lee Irwin III <wli@holomorphy.com>,
-       Bill Davidsen <davidsen@tmr.com>, Aaron Lehmann <aaronl@vitelus.com>,
-       Con Kolivas <conman@kolivas.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.47{-mm1} with contest
-References: <3DD0E037.1FC50147@digeo.com> <Pine.LNX.3.96.1021112150713.25274B-100000@gatekeeper.tmr.com> <3DDC1480.402A0E5B@digeo.com> <20021121000811.GQ23425@holomorphy.com> <3DDC8330.FE066815@digeo.com> <20021121132014.GC9883@suse.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Nov 2002 17:21:50.0941 (UTC) FILETIME=[7AA820D0:01C29182]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+
+
+> > > console doesn't show a single pixel.
+> > 
+> > :-( Can you post your .config file. 
 > 
-> On Wed, Nov 20, 2002 at 10:54:40PM -0800, Andrew Morton wrote:
->  > > I think this merits some investigation. I, for one, am a big user of
->  > > SIGIO in userspace C programs...
->  > OK, got it back to 119000.  Each signal was calling copy_*_user 24 times.
->  > This gets it down to six.
+> Attached.
+
+Hm. Strange. It should work. Can you get serial console working? 
+  
+> I did some changes to sgivwfb.c to make it compilable, patch attached.
+> Can you take a look at it ?
+
+Applied your patch to the BK tree. 
+ 
+> > I will be posting a new fbdev patch today against 2.5.48 today. Giev it a 
+> > try.
 > 
-> Good eyes. But.. this also applies to 2.4 (which should also then
-> get faster). So the gap between 2.4 & 2.5 must be somewhere else ?
+> Didn't see proposed fbdev patch yet :(
 
-But 2.4 already inlines the usercopy functions.   With this benchmark,
-the cost of the function call is visible.   Same with the dir_rtn_1
-test - it is performing zillions of 3, 7, 10-byte copies into userspace.
+    Sorry about that. You are not the only one that has asked me. Also I 
+keep getting lots of error reports about drivers being broken. The problem 
+is having enough time. For example I haven't found the time to create this 
+patch. This brings up a serious point which I have been wrestling with. The 
+framebuffer layer has been broken for a long time durning the 2.5.X cycle. 
+The problem is both maintainers of this subsystem, Geert and I, both have 
+very little time to work on it. For both of us we don't work on the 
+framebuffer code for a living. I work with wireless networking cards. I 
+work 8 hours a day on networking code and travel 3 hours total every day 
+to work. Including eating a sleeping and I have at most 1 to 2 hours a day 
+to work on the framebuffer stuff. Weekends I have to do other survial 
+things like buy food. So the framebuffer developement has gone at a 
+snail pace and will continue to do so unless things change. I estimate 
+about 20+ more versions before the framebuffer layer properly works. 
+    It pains me that this is happening. I really enjoy working on the 
+framebuffer and console layer. So I have been thinking about what to 
+do ? One which is the most likely is to step down from maintaintership 
+and hope someone else who can devote there full time and energy to it 
+can take over. Will someone else take over? I seriously doubt it. We all 
+have to make a living and that means working on things the linux industry 
+cares about which is only server stuff. So I except the framebuffer layer 
+will go into serious code decay. So the best situtation which I except to 
+happen is that I finish as much as I can for the fbdev layer and then 
+step down. 
+    I have tried to look for work locallly (can't really affored to move 
+cross country very few years) relating to the framebuffer layer. In my 
+search I only found one company that seemed interested in this developement, 
+strangeberry (http://www.strangeberry.com). I sent them my resume but 
+never heard from them. As for funding I serious doubt that would happen 
+since it isn't server related. The reality is for proper maintiance of any 
+subsystem you need people hired to solely work to keep it going. 
+Unfortunely the framebuffer layer is one of those few ones that doesn't 
+have that.
 
-The usercopy functions got themselves optimised for large copies and
-cache footprint.  Maybe we should inline them again.  Maybe it doesn't
-matter much.
+MS: (n) 1. A debilitating and surprisingly widespread affliction that
+renders the sufferer barely able to perform the simplest task. 2. A disease.
 
-> Also maybe we can do something about that multiple memcpy in copy_fpu_fxsave()
-> In fact, that looks a bit fishy. We copy 10 bytes each memcpy, but
-> advance the to ptr 5 bytes each iteration. What gives here ?
-> 
+James Simmons  [jsimmons@users.sf.net] 	                ____/|
+fbdev/console/gfx developer                             \ o.O|
+http://www.linux-fbdev.org                               =(_)=
+http://linuxgfx.sourceforge.net                            U
+http://linuxconsole.sourceforge.net
 
-We'd buy a bit by arranging for the in-kernel copy of the fp state
-to have the same layout as the hardware.  That way it can be done in
-a single big, fast, well-aligned slurp.  But for some reason that code has
-to convert into and out of a different representation.
 
-But the real low-hanging fruit here is the observation that the
-test application doesn't use floating point!!!
-
-Maybe we need to take an fp trap now and then to "poll" the application
-to see if it is still using float.

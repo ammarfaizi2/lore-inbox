@@ -1,59 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129983AbRAOCfw>; Sun, 14 Jan 2001 21:35:52 -0500
+	id <S130539AbRAOCyI>; Sun, 14 Jan 2001 21:54:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130290AbRAOCfm>; Sun, 14 Jan 2001 21:35:42 -0500
-Received: from [204.244.205.25] ([204.244.205.25]:50758 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S129983AbRAOCfd>;
-	Sun, 14 Jan 2001 21:35:33 -0500
-From: Michael Peddemors <michael@linuxmagic.com>
-Organization: Wizard Internet Services
-To: Gerhard Mack <gmack@innerfire.net>
-Subject: Re: Is sendfile all that sexy?
-Date: Sun, 14 Jan 2001 19:43:34 -0800
-X-Mailer: KMail [version 1.1.95.0]
-Content-Type: text/plain
-Cc: Ingo Molnar <mingo@elte.hu>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10101141436010.4613-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10101141436010.4613-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Message-Id: <01011419433404.00214@mistress>
-Content-Transfer-Encoding: 8bit
+	id <S130781AbRAOCx6>; Sun, 14 Jan 2001 21:53:58 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:17904 "EHLO
+	lappi.waldorf-gmbh.de") by vger.kernel.org with ESMTP
+	id <S130539AbRAOCxn>; Sun, 14 Jan 2001 21:53:43 -0500
+Date: Mon, 15 Jan 2001 00:53:15 -0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: ebiederm@xmission.com (Eric W. Biederman)
+Cc: David Weinehall <tao@acc.umu.se>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Andrea Arcangeli <andrea@suse.de>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Zlatko Calusic <zlatko@iskon.hr>, Rik van Riel <riel@conectiva.com.br>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+Message-ID: <20010115005315.D1656@bacchus.dhis.org>
+In-Reply-To: <Pine.LNX.4.10.10101101100001.4457-100000@penguin.transmeta.com> <E14GR38-0000nM-00@the-village.bc.nu> <20010111005657.B2243@khan.acc.umu.se> <20010112035620.B1254@bacchus.dhis.org> <m17l40hhtd.fsf@frodo.biederman.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m17l40hhtd.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Fri, Jan 12, 2001 at 09:10:54AM -0700
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The two things I change everytime are sendmail->qmail and wuftpd->proftpd
+On Fri, Jan 12, 2001 at 09:10:54AM -0700, Eric W. Biederman wrote:
 
-But remember, security bugs are caught because more people use one vs the 
-other..  Bugs in Proftpd weren't caught until more people started changing 
-from wu-ftpd...
+> > Having a reverse mappings is the least sucky way to handle virtual aliases
+> > of certain types of MIPS caches.
+> 
+> Hmm.  I would think that increasing the logical page size in the kernel would
+> be the trivial way to handle virtual aliases.  (i.e.) with a large enough page
+> size you can't actually have a virtual alias.
 
-Often, all it means when one product has more bugs than another, is that more 
-people tried to find bugs in one than another...
+That's a possible solution; I'm not clear how bad the overhead would be.
+Right now a virtual alias is a relativly rare event and we don't want the
+common case of no virtual alias to make pay a high price.  Or?
 
-(Yes, a plug to get everyone to test 2.4 here)
+> You could also play some games with simply allocating pages only with the
+> proper proper high bits.   These games might also be useful on architectures
+> for L2 caches who have significant physical bits than PAGE_SHIFT bits.
 
-On Sun, 14 Jan 2001, Linus Torvalds wrote:
-> On Sun, 14 Jan 2001, Gerhard Mack wrote:
-> > PS I wish someone would explain to me why distros insist on using WU
-> > instead given it's horrid security record.
->
-> Of course, you may be right on wuftpd. It obviously wasn't designed with
-> security in mind, other alternatives may be better.
->
-> 		Linus
+An alternative but less efficient solution.  I tried to implement it; I ran
+into problems with running out of larger pages soon as I had to split order 2
+pages into 4 order 0 pages to implement this; the fragmentation was _really_
+bad.
 
--- 
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-Unix Administration - WebSite Hosting
-Network Services - Programming
-Wizard Internet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604) 589-0037 Beautiful British Columbia, Canada
---------------------------------------------------------
+> But how does a reverse mapping help to handle virtual aliases?  What are those
+> caches doing?
+
+You leave only mappings of one color accessible.  All other mappings are made
+unaccessible in the page table, so accessing will result in a TLB fault.
+The TLB fault handler then flushes the active mappings, makes them
+unaccessible by clearing the MIPS hw dirty / accessible bits, then makes the
+mapping of the new color accessible in the page table.  This is already
+possible right now but doing the necessary reverse mappings can be rather
+inefficient as is.
+
+> The only model in my head is having a virtually indexed cache where you
+> have more index bits than PAGE_SHIFT bits.
+
+Which is exactly what many MIPS implementations are suffering from.  At
+least they're tagged with the physical address, so no flushes on context
+switch necessary.
+
+  Ralf
+
+--
+"Embrace, Enhance, Eliminate" - it worked for the pope, it'll work for Bill.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

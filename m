@@ -1,20 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263250AbTHZIZG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 04:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbTHZIZG
+	id S263268AbTHZIYl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 04:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262900AbTHZIYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 04:25:06 -0400
-Received: from aneto.able.es ([212.97.163.22]:33163 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S263362AbTHZIZA (ORCPT
+	Tue, 26 Aug 2003 04:24:41 -0400
+Received: from aneto.able.es ([212.97.163.22]:32907 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S263268AbTHZIYj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 04:25:00 -0400
-Date: Tue, 26 Aug 2003 10:24:59 +0200
+	Tue, 26 Aug 2003 04:24:39 -0400
+Date: Tue, 26 Aug 2003 10:24:37 +0200
 From: "J.A. Magallon" <jamagallon@able.es>
 To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
 Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: [PATCH] 2.4: always_inline for gcc3
-Message-ID: <20030826082459.GC2017@werewolf.able.es>
+Subject: [PATCH] 2.4: add check_gcc for P3/P4
+Message-ID: <20030826082437.GA2017@werewolf.able.es>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
@@ -27,23 +27,24 @@ Hi.
 
 Resending for 2.4.23-pre ;)
 
---- 25/include/linux/compiler.h~gcc3-inline-fix	2003-03-06
-03:02:43.000000000 -0800
-+++ 25-akpm/include/linux/compiler.h	2003-03-06 03:11:42.000000000 -0800
-@@ -1,6 +1,13 @@
- #ifndef __LINUX_COMPILER_H
- #define __LINUX_COMPILER_H
+--- linux-2.4.21-bp1/arch/i386/Makefile.orig	2003-06-18
+23:40:25.000000000 +0200
++++ linux-2.4.21-bp1/arch/i386/Makefile	2003-06-18 23:59:25.000000000
++0200
+@@ -53,11 +53,11 @@
+ endif
  
-+#if __GNUC__ >= 3
-+#define inline		__inline__ __attribute__((always_inline))
-+#define inline__	__inline__ __attribute__((always_inline))
-+#define __inline	__inline__ __attribute__((always_inline))
-+#define __inline__	__inline__ __attribute__((always_inline))
-+#endif
-+
- /* Somewhere in the middle of the GCC 2.96 development cycle, we implemented
-    a mechanism by which the user can annotate likely branch directions and
-    expect the blocks to be reordered appropriately.  Define __builtin_expect
+ ifdef CONFIG_MPENTIUMIII
+-CFLAGS += -march=i686
++CFLAGS += $(call check_gcc,-march=pentium3,-march=i686)
+ endif
+ Marcelo Tosatti <marcelo@conectiva.com.br>
+ ifdef CONFIG_MPENTIUM4
+-CFLAGS += -march=i686
++CFLAGS += $(call check_gcc,-march=pentium4,-march=i686)
+ endif
+ 
+ ifdef CONFIG_MK6
 
 
 -- 

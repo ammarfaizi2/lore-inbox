@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264710AbUEXWMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264705AbUEXWOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264710AbUEXWMz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 18:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264705AbUEXWMz
+	id S264705AbUEXWOn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 18:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264717AbUEXWOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 18:12:55 -0400
-Received: from fire.osdl.org ([65.172.181.4]:54451 "EHLO fire-2.osdl.org")
-	by vger.kernel.org with ESMTP id S264710AbUEXWMk (ORCPT
+	Mon, 24 May 2004 18:14:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:65198 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264705AbUEXWOe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 18:12:40 -0400
-Subject: Re: Linux 2.6.7-rc1 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0405222331200.18534@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0405222331200.18534@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1085436758.16710.10.camel@cherrypit.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 24 May 2004 15:12:38 -0700
-Content-Transfer-Encoding: 7bit
+	Mon, 24 May 2004 18:14:34 -0400
+Date: Mon, 24 May 2004 15:14:26 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@muc.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFD] Explicitly documenting patch submission
+In-Reply-To: <20040524220136.GC18532@colin2.muc.de>
+Message-ID: <Pine.LNX.4.58.0405241512330.32189@ppc970.osdl.org>
+References: <1YUY7-6fF-11@gated-at.bofh.it> <m3fz9pd2dw.fsf@averell.firstfloor.org>
+ <Pine.LNX.4.58.0405241326400.32189@ppc970.osdl.org> <20040524220136.GC18532@colin2.muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
-
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.7-rc1      0w/0e       0w/0e   111w/ 0e   6w/0e   2w/0e    107w/0e
-2.6.6          0w/0e       0w/0e   123w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc3      0w/0e       0w/0e   124w/ 0e   7w/0e   5w/0e    121w/0e
-2.6.6-rc2      0w/0e       0w/0e   122w/ 0e   7w/0e   4w/0e    121w/0e
-2.6.6-rc1      0w/0e       0w/0e   125w/ 0e   7w/0e   4w/0e    123w/0e
-2.6.5          0w/0e       0w/0e   134w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc3      0w/0e       0w/0e   135w/ 0e   8w/0e   4w/0e    132w/0e
-2.6.5-rc2      0w/0e       0w/0e   135w/ 0e   8w/0e   3w/0e    132w/0e
-2.6.5-rc1      0w/0e       0w/0e   138w/ 0e   8w/0e   3w/0e    135w/0e
-2.6.4          1w/0e       0w/0e   145w/ 0e   7w/0e   3w/0e    142w/0e
-2.6.4-rc2      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.4-rc1      1w/0e       0w/0e   148w/ 0e   7w/0e   3w/0e    145w/0e
-2.6.3          1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc4      1w/0e       0w/0e   142w/ 0e   9w/0e   3w/0e    142w/0e
-2.6.3-rc3      1w/0e       0w/0e   145w/ 7e   9w/0e   3w/0e    148w/0e
-2.6.3-rc2      1w/0e       0w/0e   141w/ 0e   9w/0e   3w/0e    144w/0e
-2.6.3-rc1      1w/0e       0w/0e   145w/ 0e   9w/0e   3w/0e    177w/0e
-2.6.2          1w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc3      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.2-rc2      0w/0e       0w/0e   153w/ 8e  12w/0e   3w/0e    188w/0e
-2.6.2-rc1      0w/0e       0w/0e   152w/ 0e  12w/0e   3w/0e    187w/0e
-2.6.1          0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc3      0w/0e       0w/0e   158w/ 0e  12w/0e   3w/0e    197w/0e
-2.6.1-rc2      0w/0e       0w/0e   166w/ 0e  12w/0e   3w/0e    205w/0e
-2.6.1-rc1      0w/0e       0w/0e   167w/ 0e  12w/0e   3w/0e    206w/0e
-2.6.0          0w/0e       0w/0e   170w/ 0e  12w/0e   3w/0e    209w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-Daily compiles (ia32): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running.txt
-Daily compiles (ia64): 
-   http://developer.osdl.org/cherry/compile/2.6/linus-tree/running64.txt
-Latest changes in Linus' bitkeeper tree:
-   http://linux.bkbits.net:8080/linux-2.5
-
-John
 
 
+On Mon, 25 May 2004, Andi Kleen wrote:
+> 
+> In practice I guess it would end up with that maintainers would spend a lot
+> of time explaining to everybody what this new policy is about and 
+> possibly are forced to reject a lot of patches initially. 
 
+...which is why we want to have a wide discussion of it now, the less to 
+have to explain to people ;)
+
+I don't expect this process to start taking effect for a while. Not only 
+do we need to come to some level of agreement about it, but we need to 
+give people the time to learn about it _without_ rejecting patches in the 
+meantime. 
+
+There is no real "flag-day" (and it's certainly not today), although I'm
+hoping that by the time I start up 2.7.x we'd have this in place.
+
+		Linus

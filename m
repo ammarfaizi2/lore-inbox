@@ -1,76 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVBUT2m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVBUT2m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbVBUT2m (ORCPT <rfc822;willy@w.ods.org>);
+	id S262074AbVBUT2m (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 21 Feb 2005 14:28:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVBUT1K
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262083AbVBUT1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Feb 2005 14:27:10 -0500
-Received: from smtp-101-monday.nerim.net ([62.4.16.101]:49162 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S262080AbVBUTRc
+	Mon, 21 Feb 2005 14:27:17 -0500
+Received: from mta11.adelphia.net ([68.168.78.205]:43514 "EHLO
+	mta11.adelphia.net") by vger.kernel.org with ESMTP id S262082AbVBUTUk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Feb 2005 14:17:32 -0500
-Date: Mon, 21 Feb 2005 20:17:30 +0100
-From: Jean Delvare <khali@linux-fr.org>
-To: "Adam 'dredzik' Kuczynski" <dredzik@ekg2.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       Maarten Deprez <maartendeprez@users.sourceforge.net>
-Subject: Re: GL520SM Sensor Chip driver fix
-Message-Id: <20050221201730.5f880556.khali@linux-fr.org>
-In-Reply-To: <20050220150604.GA658@lotus.ma.gda.pl>
-References: <20050220150604.GA658@lotus.ma.gda.pl>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Feb 2005 14:20:40 -0500
+Message-ID: <421A3414.2020508@nodivisions.com>
+Date: Mon, 21 Feb 2005 14:18:44 -0500
+From: Anthony DiSante <theant@nodivisions.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: uninterruptible sleep lockups
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adam,
+Processes that get permanently stuck in "uninterruptible sleep" (the D state 
+as indicated by "ps aux") are such a pain.  Of course they've always 
+existed, but at least on the 3 systems that I administer, they are far more 
+frequent with udev than they ever were before.  I'm constantly upgrading 
+udev, hal, etc on these 3 different systems, but still not a week goes by 
+that one of them doesn't need a reboot because some hardware-related process 
+is hung.
 
-> I've been recently trying to get my lmsensors working under
-> 2.6.9, and i've found this:
-> 
-> http://seclists.org/lists/linux-kernel/2005/Feb/2856.html
-> http://lkml.org/lkml/2005/2/11/90
-> 
-> kernel patch for gl520 chip, but after applying it kernel refused to
-> compile. So I've fixed it using gl518sm module source code and I want
-> to share the results of my work with you. I hope that it will be
-> useful.
-> (...)
-> +static unsigned short normal_i2c_range[] = { I2C_CLIENT_END };
-> +static unsigned int normal_isa_range[] = { I2C_CLIENT_ISA_END };
+The most recent one was yesterday: I had run lsusb in the morning and had no 
+problems, but at the end of the day I ran it again, and after outputting 3 
+lines of data, it hung, stuck in D-state.  So now I have this:
 
-Ranges were taken apart in 2.6.10-rc2, and Maarten's patch was meant for
-linux-2.6.11-rc3-mm2, so it comes to no surprise that you had to
-reintroduce them when backporting to 2.6.9.
+[/home/user]$ ps aux|grep D
+USER       PID %CPU %MEM   VSZ  RSS TTY      STAT START   TIME COMMAND
+root        92  0.0  0.0     0    0 ?        D    Feb19   0:00 [khubd]
+root       845  0.0  0.0     0    0 ?        D    Feb19   0:00 [knodemgrd_0]
+root     29016  0.0  0.1  1512  592 ?        D    00:28   0:00 lsusb
 
->  static int gl520_attach_adapter(struct i2c_adapter *adapter)
->  {
-> - if (!(adapter->clRD_DATA))
-> - goto exit;
-> + if (!(adapter->class & I2C_CLASS_HWMON))
-> + return 0;
-> + return i2c_detect(adapter, &addr_data, gl520_detect);
-> +}
->  
-> +static int gl520_detect(struct i2c_adapter *adapter, int address, int kind)
-> +{
-> + struct i2c_client *new_client;
-> + struct gl520_data *data;
-> + int err = 0;
-> + 
-> + if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_BYTE_DATA |
-> + I2C_FUNC_SMBUS_WORD_DATA))
-> + goto exit;
-> +							     
+It seems like this problem is always going to exist, because some hardware 
+and some drivers will always be buggy.  So shouldn't we have some sort of 
+watchdog higher up in the kernel, that watches for hung processes like this 
+and kills them?
 
-I suspect that a problem happened when you retrieved the original patch
-and it somehow got corrupted, because everything you restore here is
-already correct in Maarten's patch.
+Don't get me wrong, I love rebooting every couple days... but I have a 
+Windows system for that.
 
-As a summary, Maarten's patch was just fine and doesn't need any update.
-
-Thanks,
--- 
-Jean Delvare
+-Anthony DiSante
+http://nodivisions.com/

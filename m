@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131500AbQKJU1f>; Fri, 10 Nov 2000 15:27:35 -0500
+	id <S130429AbQKJUcZ>; Fri, 10 Nov 2000 15:32:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131510AbQKJU1Z>; Fri, 10 Nov 2000 15:27:25 -0500
-Received: from tantalum.btinternet.com ([194.73.73.80]:43410 "EHLO
-	tantalum.btinternet.com") by vger.kernel.org with ESMTP
-	id <S131500AbQKJU1R>; Fri, 10 Nov 2000 15:27:17 -0500
-From: davej@suse.de
-Date: Fri, 10 Nov 2000 20:26:35 +0000 (GMT)
-To: "H. Peter Anvin" <hpa@transmeta.com>
-cc: Brian Gerst <bgerst@didntduck.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Fwd: CPU detection revamp (Request for comments)]
-In-Reply-To: <3A0C5297.D039881@transmeta.com>
-Message-ID: <Pine.LNX.4.21.0011102025540.1089-100000@neo.local>
+	id <S130841AbQKJUcI>; Fri, 10 Nov 2000 15:32:08 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:25870 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130429AbQKJUbr>; Fri, 10 Nov 2000 15:31:47 -0500
+Message-ID: <3A0C5A41.16EEAE78@timpanogas.org>
+Date: Fri, 10 Nov 2000 13:27:45 -0700
+From: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Organization: TRG, Inc.
+X-Mailer: Mozilla 4.7 [en] (WinNT; I)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrea Arcangeli <andrea@suse.de>
+CC: "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [Fwd: sendmail fails to deliver mail with attachments in 
+ /var/spool/mqueue]
+In-Reply-To: <20001110205129.A4344@inspiron.suse.de> <Pine.LNX.3.95.1001110150021.5941A-100000@chaos.analogic.com> <20001110212156.A4568@inspiron.suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Nov 2000, H. Peter Anvin wrote:
 
-> > And where does sysenter/sysexit fit in?
-> sysenter/sysexit is the "sep" feature.
 
-Ah, of course.
-*slaps head*
+Andrea Arcangeli wrote:
+> 
+> On Fri, Nov 10, 2000 at 03:07:46PM -0500, Richard B. Johnson wrote:
+> > It isn't a TCP/IP stack problem. It may be a memory problem. Every time
+> > sendmail spawns a child to send the file data, it crashes.  That's
+> > why the file never gets sent!
+> 
+> Sure that could be the case. You should be able to verify the kernel kills the
+> task with `dmesg`.
+> 
+> However Jeff said the problem happens over 400K and a 500K attachment shouldn't
+> really run any machine out of memory, so maybe this wasn't his same problem?
 
-regards,
+I think it is.  So it looks like sendmail is bombing when it attempts to
+send large files. 
 
-davej.
+Jeff 
 
--- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
-
+> 
+> Andrea
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

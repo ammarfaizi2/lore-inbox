@@ -1,37 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264948AbSKERFt>; Tue, 5 Nov 2002 12:05:49 -0500
+	id <S264976AbSKERSl>; Tue, 5 Nov 2002 12:18:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264907AbSKERFs>; Tue, 5 Nov 2002 12:05:48 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:33231 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264948AbSKERFq>; Tue, 5 Nov 2002 12:05:46 -0500
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200211051712.gA5HCFE18350@devserv.devel.redhat.com>
-Subject: Re: [BUG] multicast routing, ipmr.c
-To: dcowart@cog.ufl.edu (Donald Cowart)
-Date: Tue, 5 Nov 2002 12:12:15 -0500 (EST)
-Cc: alan@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0211051102390.5594-100000@yaun.cog.ufl.edu> from "Donald Cowart" at Nov 05, 2002 12:01:08 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264986AbSKERSl>; Tue, 5 Nov 2002 12:18:41 -0500
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:37359 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S264976AbSKERSi>; Tue, 5 Nov 2002 12:18:38 -0500
+Subject: Re: 2.5 vi .config ; make oldconfig not working
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Jens Axboe <axboe@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021105171409.GA1137@suse.de>
+References: <20021105165024.GJ13587@suse.de> <3DC7FB11.10209@pobox.com> 
+	<20021105171409.GA1137@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-wAFVIbkLOkgVeT/aE2hR"
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 05 Nov 2002 18:26:35 +0100
+Message-Id: <1036517201.5601.0.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> When I compile 2.5.46 with multicast routing enabled (CONFIG_IP_MROUTE) i
-> get the following error:
-> 
->  gcc -Wp,-MD,net/ipv4/.ipmr.o.d -D__KERNEL__ -Iinclude -Wall 
-> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
-> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
-> -march=pentium3 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    
-> -DKBUILD_BASENAME=ipmr   -c -o net/ipv4/ipmr.o net/ipv4/ipmr.c
-> net/ipv4/ipmr.c: In function `ipmr_forward_finish':
-> net/ipv4/ipmr.c:1114: structure has no member named `pmtu'
-> net/ipv4/ipmr.c: In function `ipmr_queue_xmit':
-> net/ipv4/ipmr.c:1170: structure has no member named `pmtu'
 
-Grab the patch bit to that file from 2.5.45-ac1 until its fixed
+--=-wAFVIbkLOkgVeT/aE2hR
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, 2002-11-05 at 18:14, Jens Axboe wrote:
+
+> axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+> 641:CONFIG_NFSD_V4=3Dy
+> axboe@burns:[.]linux-2.5-deadline-rbtree $ vi .config
+> axboe@burns:[.]linux-2.5-deadline-rbtree $ grep CONFIG_NFSD_V4 < .config
+> 641:CONFIG_NFSD_V4=3Dn
+
+=3Dn never worked...
+
+# CONFIG_NFSD_V4 is not set
+
+
+--=-wAFVIbkLOkgVeT/aE2hR
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9x/9KxULwo51rQBIRAroxAJ9eYr3nkLGnbSHwh1foNcgWtyyZjACglVtp
+CXcVROg2Kx+qa7Q1/lMv+L4=
+=hcfI
+-----END PGP SIGNATURE-----
+
+--=-wAFVIbkLOkgVeT/aE2hR--
 

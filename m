@@ -1,103 +1,136 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbUCAPRi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Mar 2004 10:17:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbUCAPRi
+	id S261330AbUCAP2Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Mar 2004 10:28:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbUCAP2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Mar 2004 10:17:38 -0500
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:57095 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id S261312AbUCAPRg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Mar 2004 10:17:36 -0500
-Date: Mon, 1 Mar 2004 12:16:10 -0300 (BRT)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@dmt.cyclades
-To: David Luyer <david@luyer.net>
-cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>, <riel@redhat.com>, <akpm@osdl.org>
-Subject: Re: Linux 2.4.25-rc1
-In-Reply-To: <20040229044426.GA4381@pacific.net.au>
-Message-ID: <Pine.LNX.4.44.0403011209200.4148-100000@dmt.cyclades>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Mar 2004 10:28:16 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:52664 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S261330AbUCAP2J
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Mar 2004 10:28:09 -0500
+Date: Mon, 1 Mar 2004 08:28:07 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: George Anzinger <george@mvista.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Pavel Machek <pavel@suse.cz>, amit@gate.crashing.org,
+       kgdb-bugreport@lists.sourceforge.net
+Subject: Re: [Kgdb-bugreport] [KGDB PATCH][2/7] Serial updates, take 2
+Message-ID: <20040301152807.GQ1052@smtp.west.cox.net>
+References: <20040227212301.GC1052@smtp.west.cox.net> <20040227212548.GD1052@smtp.west.cox.net> <403FC851.70103@mvista.com> <20040227231128.GN1052@smtp.west.cox.net> <403FD868.4090007@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <403FD868.4090007@mvista.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 27, 2004 at 03:53:12PM -0800, George Anzinger wrote:
+> Tom Rini wrote:
+> >On Fri, Feb 27, 2004 at 02:44:33PM -0800, George Anzinger wrote:
+> >
+> >
+> >>Couple of comments below...
+> >>
+> >>Tom Rini wrote:
+> >
+> >[snip]
+> >
+> >>>-	spin_unlock(&uart_interrupt_lock);
+> >>>-	local_irq_restore(flags);
+> >>>-
+> >>
+> >>I think you need at least this (especially in SMP, but works in all):
+> >>	char iir = serial_inb(kgdb8250_port + (UART_IIR << reg_shift));
+> >>       if(iir & UART_IIR_RDI){
+> >>
+> >>>+		kgdb_schedule_breakpoint();
+> >>
+> >>	}
+> >>
+> >>>	return IRQ_HANDLED;
+> >
+> >
+> >Would this be to ensure that we only schedule one breakpoint not 2?
+> Well, that too, but the notion is to take care of an interrupt on cpu 1 
+> while doing console output on cpu 0.  If cpu 0 doesn't grab the '+' fast 
+> enough to prevent the interrupt cpu 1 may get an interrupt with no 
+> characters in the fifo. This code just ignores that.
 
+OK, done.
 
-Hi David,
+> >[snip]
+> >
+> >>>+		/* If we get the start of another packet, this means
+> >>>+		 * that GDB is attempting to reconnect.  We will NAK
+> >>>+		 * the packet being sent, and stop trying to send this
+> >>>+		 * packet. */
+> >>>+		if (ch == '$') {
+> >>>+			kgdb_serial->write_char('-');
+> >>>			if (kgdb_serial->flush)
+> >>>				kgdb_serial->flush();
+> >>>-			breakpoint();
+> >>
+> >>Flags go up in my mind here about recursion...  What if we are already 
+> >>handling a breakpoint???  This may all be cool, but, as I said, alarms 
+> >>are ringing.
+> >
+> >
+> >There's two cases here, IMHO.  If GDB is connected, the only time we'll
+> >get a '$' when we're sending a packet is if we're out-of-sync (in
+> >regular gdb/kgdb communication) or we're prempting a console message
+> >(i.e. we're trying to send something while gdb wants to break in). 
+> 
+> 
+> I am a little unclear about this.  Assuming that the user has not been so 
+> dumb as to put a breakpoint in kgdb's console handling code, I suspect that 
+> the entry code should allow the console message to complete prior to 
+> sending the first message to gdb.
 
-On Sun, 29 Feb 2004, David Luyer wrote:
+I don't think so.  If you don't break out of put_packet(), kgdb will
+try to send the packet (console or for a previous, now dead, session)
+forever.  And gdb will keep trying to send it's first packet, timing out
+and moving on.
 
-> On Thu, Feb 05, 2004 at 10:44:31AM -0200, Marcelo Tosatti wrote:
-> > Here goes the first release candidate.
-> > 
-> > It contains mostly networking updates, XFS update, amongst others.
-> > 
-> > This release contains a fix for excessive inode memory pressure with
-> > highmem boxes. Help is specially wanted with testing this on heavy-load
-> > highmem machines.
-> 
-> How is this likely to manifest itself?
+> I made a rather lame attempt to do this 
+> in the -mm kgdb.  What I think should happen is that, on entry kgdb should 
+> send an nmi to all but self. The kgdb nmi code (at in_kgdb() in the -mm 
+>  patch) should check to see if the CURRENT cpu is in the kgdb console code 
+> and, if so, set a flag for the console code that a kgdb entry is pending 
+> and then return.  The console code should check this flag on exit, after 
+> clearing the "i am in console" flag and if set, do a send nmi self.  This 
+> would allow the console code to complete prior to the kgdb entry while 
+> still rounding up all the other cpus with the nmi.
 
-Basically this modification makes the inode reclaiming code rip inodes
-with highmem-pagecache attached when its necessary. 
+IMHO, that's awfully complex for something we can just not skip out on.
 
-What happened before was that the low memory could get filled with
-unreclaimable inodes. Which would screw up the performance badly (and
-probably crash the system in extreme situations).
+> >If things get out-of-sync in normal gdb/kgdb
+> >communication, what will happen w/o this change is that we get stuck in
+> >a "Packet instead of ACK" loop on gdb, and we get stuck trying to
+> >transmit that same packet on the kgdb side.   I think that if we call
+> >breakpoint() here we can try and start over...
+> 
+> The problem is that you are now doing a breakpoint from inside kgdb while 
+> handling a prior breakpoint.
 
-> We just had a box which crashed only 2 hour from deployment, and
-> reading over the recent changes this seems like a potential cause
-> (although being new, faulty hardware is always a possibility); the
-> last items on its serial console were:
-> 
-> INIT: Sending processes the TERM signal
-> memory.c:100: bad pmd 000001e3.
-> memory.c
+Only in the case where we aren't out-of-sync, but gdb died /
+disconnected and we then hit a breakpoint.
 
-This looks like hardware fault to me or a (maybe, not sure) badly behaving
-driver. The inode-highmem modifications can't cause such breakage, as far
-as I can see.
+> At the very least you would need to consider 
+> very carefully what happens after the breakpoint.  It is not clear that you 
+> can recover from this condition... but you may be able to look around.
 
-Rik, Andrew ?
+I don't follow you here.  I agree that in the case of hitting a
+breakpoint while gdb isn't connected isn't necessarily clean, but since
+gdb didn't go away cleanly, and there isn't a way for it to tell us it's
+trying to recover, I'm not sure what we can do aside from clear out the
+existing breakpoints (just like we could have done, if gdb was still
+connected) and keep going.  We should document that this particular
+behavior might not be a good thing, but it's just that one corner case
+of things (disconnect is fine, detach/reattach is fine, heck even gdb
+dying and not hitting a breakpoint is fine).
 
-> Was still responding to ICMP after crash.
-> 
-> Details:
-> 
->   * running 2.4.25 (release with small local patch to put MPT SCSI devices
->     before Adaptec SCSI devices, as "scsihosts" cannot do this)
-> 
->   * IBM x335
-> 
->   * dual Xeon 3.066GHz (hyperthreads in 2.4.25)
-> 
->   * 2.5Gb RAM (HIGHMEM4G)
-> 
->   * high CPU load (two processes around 75% of a CPU each at time of crash,
->     being bzip2 compression of gigabytes of data, and some other processes
->     using somewhat less CPU for network and disk IO)
-> 
->   * moderate IO load (3Mbps on tg3 ethernet, more than double that on each
->     of MPT SCSI and AIC SCSI)
-> 
->   * high inode / file descriptor load -- a single process may open hundreds
->     of thousands of file desciptors over a 5 minute period and then close
->     them all at once; file-max is set to 1024^2
-> 
->   * newly deployed (ie no track record of stability to refer to)
-> 
-> Role of system is basically to receive a constant 3Mbps stream of UDP data
-> which is then written to the internal RAID array, this data is then read
-> from the internal array and written to an external RAID array (in the process
-> doubling in volume; each piece of data ends up in two places; and sometimes
-> being read/written a few times before ending up in the right place) and
-> ultimately compressed and archived.
-> 
-> I've rebooted into 2.4.25 for a second chance but if it fails again,
-> will reboot to 2.4.24 and then if that fails, revert to old hardware
-> and kernel (which was running kernel 2.4.24 on an old Intel ISP2150).
-
-OK, waiting for you input. 
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

@@ -1,55 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUJLQsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266196AbUJLQu6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266200AbUJLQsb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 12:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266196AbUJLQsb
+	id S266196AbUJLQu6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 12:50:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUJLQu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 12:48:31 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:50847 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S266200AbUJLQsX (ORCPT
+	Tue, 12 Oct 2004 12:50:58 -0400
+Received: from dbl.q-ag.de ([213.172.117.3]:4248 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S266196AbUJLQuw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 12:48:23 -0400
-Date: Tue, 12 Oct 2004 09:48:20 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: sfeldma@pobox.com
-cc: Hanna Linder <hannal@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       kernel-janitors <kernel-janitors@lists.osdl.org>,
-       benh@kernel.crashing.org, paulus@samba.org, greg@kroah.com
-Subject: Re: [Kernel-janitors] [PATCH 2.6][9/12] pplus.c replace	pci_find_device with pci_get_device
-Message-ID: <138690000.1097599700@w-hlinder.beaverton.ibm.com>
-In-Reply-To: <1097341320.3903.3.camel@sfeldma-mobl2.dsl-verizon.net>
-References: <33930000.1097191565@w-hlinder.beaverton.ibm.com> <1097341320.3903.3.camel@sfeldma-mobl2.dsl-verizon.net>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 12 Oct 2004 12:50:52 -0400
+Message-ID: <416C0B5E.3090907@colorfullife.com>
+Date: Tue, 12 Oct 2004 18:50:38 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Vitez Gabor <vitezg@niif.hu>
+CC: Vincent Hanquez <tab@snarc.org>, linux-kernel@vger.kernel.org
+Subject: Re: forcedeth: "received irq with unknown events 0x1"
+References: <20041011145104.GA9494@swszl.szkp.uni-miskolc.hu> <20041011154950.GA22553@snarc.org> <416AB99E.1020407@colorfullife.com> <20041012082047.GA17313@swszl.szkp.uni-miskolc.hu>
+In-Reply-To: <20041012082047.GA17313@swszl.szkp.uni-miskolc.hu>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Saturday, October 09, 2004 10:02:01 AM -0700 Scott Feldman <sfeldma@pobox.com> wrote:
+Vitez Gabor wrote:
 
-> On Thu, 2004-10-07 at 16:26, Hanna Linder wrote:
->> -	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
->> +	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
->>  				   PCI_DEVICE_ID_WINBOND_82C105, dev))) {
->>  		/*
->>  		 * Disable LEGIRQ mode so PCI INTS are routed
-> 
-> Missing cleanup at the bottom of func?
-> 
-> 	if(dev)
-> 		pci_dev_put(dev);
-> 
-> -scott
-> 
-> 
+>On Mon, Oct 11, 2004 at 06:49:34PM +0200, Manfred Spraul wrote:
+>  
+>
+>>Vincent, could you try the attached patch? The critical change is the 
+>>media detection: Test that the nic handles booting without a network 
+>>cable and then attaching the network cable when the interface is already 
+>>up correctly.
+>>    
+>>
+>
+>I patched my kernel, and I'm still baffled: when I connect the E1000 and the
+>nvidia card, both of them say the link is down. The E1000 and the 3Com card
+>works well. The E1000 is supposed to do polarity detection, so it should
+>work with the nvidia card, too. ??
+>
+>Not really a problem, but I find it pretty strange.
+>
+>  
+>
+Sorry, I don't understand your mail: Does the nic work or not? Which 
+tool did you use to check the link status? ethtool or something else?
 
-OK. I see what you mean now.
-
-Will reroll patches today.
-
-Thanks.
-
-Hanna
-
+--
+    Manfred

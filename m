@@ -1,39 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262160AbSJAScG>; Tue, 1 Oct 2002 14:32:06 -0400
+	id <S262222AbSJASmB>; Tue, 1 Oct 2002 14:42:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262170AbSJAScG>; Tue, 1 Oct 2002 14:32:06 -0400
-Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:20471 "EHLO
-	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S262160AbSJAScF> convert rfc822-to-8bit; Tue, 1 Oct 2002 14:32:05 -0400
-Content-Class: urn:content-classes:message
-Subject: RE: Stupid luser question
+	id <S262223AbSJASmB>; Tue, 1 Oct 2002 14:42:01 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:26788 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262222AbSJASmA>; Tue, 1 Oct 2002 14:42:00 -0400
+Message-ID: <3D99ED03.8040600@us.ibm.com>
+Date: Tue, 01 Oct 2002 11:44:19 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+Organization: IBM LTC
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Date: Tue, 1 Oct 2002 19:36:49 +0100
-Message-ID: <541025071C7AC24C84E9F82296BB9B950806ED@OPTEX1.optex.local>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Stupid luser question
-Thread-Index: AcJpdfYOe4vy9WJGRvGM7gWlkzjH/wAAzyQw
-From: "John Hall" <john.hall@optionexist.co.uk>
-To: <linux-kernel@vger.kernel.org>
-Cc: <jbradford@dial.pipex.com>
+To: Patrick Mochel <mochel@osdl.org>
+CC: Greg KH <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>,
+       Martin Bligh <mjbligh@us.ibm.com>
+Subject: Re: [rfc][patch] driverfs multi-node(board) patch [2/2]
+References: <Pine.LNX.4.44.0210011125290.27710-100000@cherise.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 01 October 2002 19:14 jbradford@dial.pipex.com
-<jbradford@dial.pipex.com> wrote:
-
-> Just wondering, what is the purpose of the comment /* { */ which is
-> found in various seemingly random places in the kernel:
+Patrick Mochel wrote:
+> Matt,
 > 
-> # grep -F -r "/* { */" *
+> I have some comments about the structure of the code, but those will come 
+> in another email..
+Cool...  Any/all comments are definitely welcome...
 
-I would guess that they were put there by someone who uses a folding
-editor. If you look for matching #endif's you will find a /* } */.
+>>[root@elm3b79 devices]# tree -d root/sys/
+>>root/sys/
+>>|-- node0
+>>|   `-- sys
+>>|       |-- cpu0
+>>|       |-- cpu1
+>>|       |-- cpu2
+>>|       |-- cpu3
+>>|       `-- memblk0
+>>|-- node1
+>>|   `-- sys
+>>|       |-- cpu4
+>>|       |-- cpu5
+>>|       |-- cpu6
+>>|       |-- cpu7
+>>|       `-- memblk1
+>>|-- pic0
+>>`-- rtc0
+> 
+> 
+> Shouldn't nodes (or, erm, boards) be added as children of the root? 
+Um, yes!  I don't quite know how, though...  I call sys_register_root() 
+for each of the nodes...  That call seems to parent them under the 
+root/sys directory...  How can I change that?
 
-regards,
-john
+> Aren't all types of devices present on the various boards (PCI, etc)?
+Yes...  I have some patches that I'm working that will put PCI busses 
+and devices into the topology infrastructure (both in-kernel & via 
+driverfs).  Again, this is just a first pass of what I'd like to see... ;)
+
+Cheers!
+
+-Matt
+
+
+> 
+> 	-pat
+> 
+> 
+
+

@@ -1,48 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263584AbUDMQtb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 12:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263586AbUDMQtb
+	id S263604AbUDMQwL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 12:52:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUDMQwL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 12:49:31 -0400
-Received: from GD-AIS-15.vaal02.veridian.com ([137.100.126.15]:61911 "EHLO
-	lovok.psrw.com") by vger.kernel.org with ESMTP id S263584AbUDMQt2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 12:49:28 -0400
-Message-ID: <407C18D0.9010302@gd-ais.com>
-Date: Tue, 13 Apr 2004 12:44:00 -0400
-From: Chris Lalancette <chris.lalancette@gd-ais.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031031
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Memory image save/restore
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Apr 2004 12:52:11 -0400
+Received: from hqemgate02.nvidia.com ([216.228.112.145]:6407 "EHLO
+	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
+	id S263604AbUDMQwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 12:52:07 -0400
+Date: Tue, 13 Apr 2004 11:50:47 -0500
+From: Terence Ripperda <tripperda@nvidia.com>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: Terence Ripperda <tripperda@nvidia.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PAT support
+Message-ID: <20040413165046.GD453@hygelac>
+Reply-To: Terence Ripperda <tripperda@nvidia.com>
+References: <4680790.1081848973@42.150.104.212.access.eclipse.net.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4680790.1081848973@42.150.104.212.access.eclipse.net.uk>
+User-Agent: Mutt/1.4i
+X-Accept-Language: en
+X-Operating-System: Linux hrothgar 2.4.23
+X-OriginalArrivalTime: 13 Apr 2004 16:51:48.0148 (UTC) FILETIME=[9C5E7F40:01C42177]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Tue, Apr 13, 2004 at 01:36:13AM -0700, apw@shadowen.org wrote:
+> But I did notice there appear to be no notes or
+> warnings on the issues of using PAT based mappings.  Cirtainly there are
+> some _very_ onerus restrictions which I have personally tested and found to
+> be true :(.  Perhaps we could get some big fat warning style comments.
 
-    I have been trying to implement some sort of save/restore kernel 
-memory image for the linux kernel (x86 only right now), without much 
-success.  Let me explain the situation:
+where would you like to see such warnings? arguably, all of the dangerous conditions should be handled by this core code to avoid problems (such as only using the first 4 pat entries, flushing the correct caches when updating the pat entries or pte bits). these problems really aren't all that different than any other cache aliasing/pte flushing issues that always exist, right?
 
-I have a hardware device that I can generate interrupts with.  I also 
-have a machine with 512M of memory, and I am passing the kernel the 
-command line mem=256M.  My idea is to generate an interrupt with the 
-hardware device, and then inside of the interrupt handler make a copy of 
-the entire contents of RAM into the unused upper 256M of memory; later 
-on, with another interrupt, I would like to restore that previously 
-saved memory image.  This way we can go "back in time", similar to what 
-software suspend is doing, but without as many constraints (i.e. we have 
-a hardware interrupt to work with, we reserved the same amount of 
-physical memory to use, etc.).  Before I went much further, I figured I 
-would ask if anyone on the list has tried this, and if there are any 
-reasons why this is not possible.
+> + * According to the INTEL documentation it is the systems responsibility
+> + * to ensure that the PAT registers are kept in agreement on all processors
+> + * in a system.  Changing these registers must occu in a manner which
+> + * maintains the consistency of the processor caches and translation
+> + * lookaside buggers (TLB). 
 
-Thank you,
-Chris Lalancette
+absolutely. I tried to handle this by initializing the pat entries as each cpu comes online at boot time, with cache flushes. I think Andi mentioned flushing the TLBs as well, I'll check up on that to make sure I'm doing that as well.
+ 
+> Also, I have confirmed that if you have any Intel processors which do not
+> have the SS (Self Snoop) capability, you cannot have two independent
+> mappings to a page with different cache attributes.  I have been hit by
+> this and you get stale data returned from the cache.
 
-P.S.  If you respond to the list, please CC me; I am not subscribed
+certainly, that is more or less what this mechanism is intended to prevent. cmap_compare_cachings is an arch-dependent function, which allows architectures to allow/disallow different cache attributes. I certainly consider the current implementation to be a sample that needs some tweaking. for example, I forgot that I had allowed CACHED/NOCACHED overlaps, due to MTRRs that legally overlap like this. but that's probably not a situation we want for any other case, so I need to fix that.
 
+Thanks,
+Terence

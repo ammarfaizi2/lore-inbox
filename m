@@ -1,70 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbUCDAoN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 19:44:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbUCDAoM
+	id S261169AbUCDAvD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 19:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbUCDAvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 19:44:12 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:58359 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261377AbUCDAm2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 19:42:28 -0500
-Message-ID: <40467B69.3020109@mvista.com>
-Date: Wed, 03 Mar 2004 16:42:17 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Andrew Morton <akpm@osdl.org>, ak@suse.de, pavel@ucw.cz,
+	Wed, 3 Mar 2004 19:51:03 -0500
+Received: from ns.suse.de ([195.135.220.2]:48836 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261169AbUCDAu7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 19:50:59 -0500
+Date: Thu, 4 Mar 2004 01:50:56 +0100
+From: Andi Kleen <ak@suse.de>
+To: George Anzinger <george@mvista.com>
+Cc: akpm@osdl.org, amitkale@emsyssoft.com, pavel@ucw.cz,
        linux-kernel@vger.kernel.org, piggy@timesys.com,
        trini@kernel.crashing.org
 Subject: Re: kgdb support in vanilla 2.6.2
-References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel> <20040302132751.255b9807.akpm@osdl.org> <40451E50.4080806@mvista.com> <200403031038.39339.amitkale@emsyssoft.com>
-In-Reply-To: <200403031038.39339.amitkale@emsyssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <20040304015056.4d2cc3ee.ak@suse.de>
+In-Reply-To: <40467BC3.7030708@mvista.com>
+References: <20040204230133.GA8702@elf.ucw.cz.suse.lists.linux.kernel>
+	<200402061914.38826.amitkale@emsyssoft.com>
+	<403FDB37.2020704@mvista.com>
+	<200403011508.23626.amitkale@emsyssoft.com>
+	<4044F84D.4030003@mvista.com>
+	<20040302132751.255b9807.akpm@osdl.org>
+	<20040303100515.GB8008@wotan.suse.de>
+	<40467BC3.7030708@mvista.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> On Wednesday 03 Mar 2004 5:22 am, George Anzinger wrote:
+On Wed, 03 Mar 2004 16:43:47 -0800
+George Anzinger <george@mvista.com> wrote:
+
+> Andi Kleen wrote:
+> > On Tue, Mar 02, 2004 at 01:27:51PM -0800, Andrew Morton wrote:
+> > 
+> >>George Anzinger <george@mvista.com> wrote:
+> >>
+> >>> Often it is not clear just why we are in the stub, given that 
+> >>>we trap such things as kernel page faults, NMI watchdog, BUG macros and such.
+> >>
+> >>Yes, that can be confusing.  A little printk on the console prior to
+> >>entering the debugger would be nice.
+> > 
+> > 
+> > What I did for kdb and panic some time ago was to flash the keyboard
+> > lights. If you use a unique frequency (different from kdb 
+> > and from panic) it works quite nicely.
 > 
->>Andrew Morton wrote:
->>
->>>George Anzinger <george@mvista.com> wrote:
->>>
->>>>Often it is not clear just why we are in the stub, given that
->>>>we trap such things as kernel page faults, NMI watchdog, BUG macros and
->>>>such.
->>>
->>>Yes, that can be confusing.  A little printk on the console prior to
->>>entering the debugger would be nice.
->>
->>That assumes that one can do a printk and not run into a lock.  Far better
->>IMNSHO is to provide a simple way to get it from gdb.  One can then even
->>provide a gdb macro to print the relevant source line and its surrounds.  I
->>my lighter moments I call this the comefrom macro :)  In my kgdb it would
->>look like:
->>
->>l * kgdb_info.called_from
+> Assuming a key board and a clear (no spin locks) path to it.  Still it only says 
+
+I think it's reasonable to just write to the keyboard without any locking.
+The keyboard driver will recover.
+
+> we are in kgdb, now why.
+
+The big advantage is that it works even when you are in X (like most people) 
+printks are often not visible.
+
+-Andi
 > 
-> 
-> How about echoing "Waiting for gdb connection" stright into the serial line 
-> without any encoding? Since gdb won't be connected to the other end, and many 
-> a times a minicom could be running at the other end, it'll give a user an 
-> indication of kgdb being ready.
-
-Uh, different solution for a different problem.  The above command to gdb causes 
-the source code around the location "kgdb_info.called_from" to be displayed.  In 
-the -mm version, this is location is filled in by kgdb with the return address 
-for the "kgdb_handle_exception()".  This allows you to see just why you are in kgdb.
-
-
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
-

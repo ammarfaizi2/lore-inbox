@@ -1,50 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261530AbTAOE3a>; Tue, 14 Jan 2003 23:29:30 -0500
+	id <S261523AbTAOEdh>; Tue, 14 Jan 2003 23:33:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261836AbTAOE3a>; Tue, 14 Jan 2003 23:29:30 -0500
-Received: from auto-matic.ca ([216.209.85.42]:19719 "EHLO mark.mielke.cc")
-	by vger.kernel.org with ESMTP id <S261530AbTAOE33>;
-	Tue, 14 Jan 2003 23:29:29 -0500
-Date: Tue, 14 Jan 2003 23:46:44 -0500
-From: Mark Mielke <mark@mark.mielke.cc>
-To: Bob Miller <rem@osdl.org>
-Cc: DervishD <raul@pleyades.net>, Philippe Troin <phil@fifi.org>,
-       root@chaos.analogic.com, Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Changing argv[0] under Linux.
-Message-ID: <20030115044644.GA18608@mark.mielke.cc>
-References: <Pine.LNX.3.95.1030114140811.13496A-100000@chaos.analogic.com> <87iswrzdf1.fsf@ceramic.fifi.org> <20030114220401.GB241@DervishD> <20030114230418.GB4603@doc.pdx.osdl.net> <20030114231141.GC4603@doc.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030114231141.GC4603@doc.pdx.osdl.net>
-User-Agent: Mutt/1.4i
+	id <S261836AbTAOEdh>; Tue, 14 Jan 2003 23:33:37 -0500
+Received: from dp.samba.org ([66.70.73.150]:35970 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261523AbTAOEde>;
+	Tue, 14 Jan 2003 23:33:34 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Corey Minyard <minyard@mvista.com>
+Subject: Re: IPMI 
+In-reply-to: Your message of "Tue, 14 Jan 2003 08:29:33 MDT."
+             <3E241ECD.6000108@mvista.com> 
+Date: Wed, 15 Jan 2003 14:49:55 +1100
+Message-Id: <20030115044228.C33A82C054@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 14, 2003 at 03:11:41PM -0800, Bob Miller wrote:
-> On Tue, Jan 14, 2003 at 03:04:18PM -0800, Bob Miller wrote:
-> > Or you can copy your all your args and env to a temporary place and
-> > then re-build your args and env with the new argv[0] in it's place.
-> > But you must be carefull that your new argv[0] length plus the 
-> > length of all remaining args, envp and pointers is not greater than
-> > the system defined size for this space.
-> In thinking about this more this will NOT work.  The user stack starts
-> right after your envp.  So, writing more info there would blow away
-> your stack.
+In message <3E241ECD.6000108@mvista.com> you write:
+> Does this work, or would you like more detail?
+> 
+> config IPMI_HANDLER
+>        tristate 'IPMI top-level message handler'
+>        help
+>          This enables the central IPMI message handler, required for IPMI
+>          to work.  Note that you must have this enabled to enable any
+>          other IPMI things.  IPMI is a standard for managing sensors
+>          (temperature, voltage, etc.) in a system.  If you don't know
+>          what it is, your system probably doesn't have it and you can
+>          ignore this option.  See Documentation/IPMI.txt for more
+>          details on the driver.
 
-I can smell the next hack... memmove() the stack down to make room... :-)
+I don't mean to nitpick, but I want to know whether I need it or not.
 
-mark
+Now, if I read this correctly, CONFIG_IPMI would be a more appropriate
+name.  But changing the message at least would make it clearer:
 
--- 
-mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
-.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
-|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
-|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+	config IPMI_HANDLER
+	       tristate 'IPMI support'
 
-  One ring to rule them all, one ring to find them, one ring to bring them all
-                       and in the darkness bind them...
+Now, the message.  How about this:
+       help
+	  Intelligent Peripheral Management Interface (IPMI) is a
+	  standard for managing sensors (temperature, voltage, etc.)
+	  in a system.  Most IA64 and x86 servers shipped since 2002
+	  have support for it.  See Documentation/IPMI.txt for more
+	  details.  Say "N" unless configuring for a recent x86 or
+	  IA64 machine.
 
-                           http://mark.mielke.cc/
+Tweak details to suit: maybe IPMI goes furthur back, maybe it's also
+on desktops, maybe it's so widespread that the suggested default
+should be "Y" for all IA64 and x86.
 
+But the "what to do if you know nothing" is important: people who know
+what IPMI is don't need the help message.
+
+Hope that clarifies?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267508AbTACMgZ>; Fri, 3 Jan 2003 07:36:25 -0500
+	id <S267516AbTACMnU>; Fri, 3 Jan 2003 07:43:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267509AbTACMgZ>; Fri, 3 Jan 2003 07:36:25 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:9159 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S267508AbTACMgY>; Fri, 3 Jan 2003 07:36:24 -0500
-Date: Fri, 3 Jan 2003 13:44:48 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix 2.5 compiles w/ networking off
-Message-ID: <20030103124448.GD1360@louise.pinerecords.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S267515AbTACMnU>; Fri, 3 Jan 2003 07:43:20 -0500
+Received: from falcon.vispa.uk.net ([62.24.228.11]:36612 "EHLO
+	falcon.vispa.com") by vger.kernel.org with ESMTP id <S267516AbTACMnU>;
+	Fri, 3 Jan 2003 07:43:20 -0500
+Message-ID: <3E158738.4050003@walrond.org>
+Date: Fri, 03 Jan 2003 12:51:04 +0000
+From: Andrew Walrond <andrew@walrond.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marco Monteiro <masm@acm.org>, linux-kernel@vger.kernel.org
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <Pine.LNX.4.10.10301022110580.421-100000@master.linux-ide.org> <1041596161.1157.34.camel@fly>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All right I have to admit I can't think of another cunning simile.
-We should compile w/ networking switched off entirely, too.
+Yes but....
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+I develop computer games. The last one I did took a team of 35 people 2 
+years and cost $X million to develop.
 
+Please explain how I could do this as free software, while still feeding 
+my people? Am I a bad person charging for my work?
 
---- a/net/socket.c	2002-12-08 20:06:42.000000000 +0100
-+++ b/net/socket.c	2003-01-03 13:31:20.000000000 +0100
-@@ -742,11 +742,11 @@
- 		err = dev_ioctl(cmd, (void *)arg);
- 	} else
- #endif  /* CONFIG_NET */
--#ifdef WIRELESS_EXT
-+#if defined(CONFIG_NET) && defined (WIRELESS_EXT)
- 	if (cmd >= SIOCIWFIRST && cmd <= SIOCIWLAST) {
- 		err = dev_ioctl(cmd, (void *)arg);
- 	} else
--#endif	/* WIRELESS_EXT */
-+#endif /* CONFIG_NET && WIRELESS_EXT */
- 	switch (cmd) {
- 		case FIOSETOWN:
- 		case SIOCSPGRP:
+Really - I want to understand so I too can join this merry band of happy 
+people giving everything away for free!
+
+Andrew
+

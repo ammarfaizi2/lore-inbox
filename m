@@ -1,318 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268101AbUGWWGK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268102AbUGWWHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268101AbUGWWGK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 18:06:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268107AbUGWWGJ
+	id S268102AbUGWWHw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 18:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268111AbUGWWHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 18:06:09 -0400
-Received: from ozlabs.org ([203.10.76.45]:43444 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S268101AbUGWWFg (ORCPT
+	Fri, 23 Jul 2004 18:07:51 -0400
+Received: from mail6.bluewin.ch ([195.186.4.229]:28149 "EHLO mail6.bluewin.ch")
+	by vger.kernel.org with ESMTP id S268108AbUGWWHf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 18:05:36 -0400
-MIME-Version: 1.0
+	Fri, 23 Jul 2004 18:07:35 -0400
+Date: Sat, 24 Jul 2004 00:06:31 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: zanussi@us.ibm.com
+Cc: linux-kernel@vger.kernel.org, karim@opersys.com, richardj_moore@uk.ibm.com,
+       bob@watson.ibm.com, michel.dagenais@polymtl.ca
+Subject: Re: LTT user input
+Message-ID: <20040723220631.GD8495@k3.hellgate.ch>
+Mail-Followup-To: zanussi@us.ibm.com, linux-kernel@vger.kernel.org,
+	karim@opersys.com, richardj_moore@uk.ibm.com, bob@watson.ibm.com,
+	michel.dagenais@polymtl.ca
+References: <16640.10183.983546.626298@tut.ibm.com> <20040723100101.GA22440@k3.hellgate.ch> <16641.19483.708016.320557@tut.ibm.com> <20040723191900.GA2817@k3.hellgate.ch> <16641.30883.655066.942277@tut.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16641.35625.461106.646666@cargo.ozlabs.ibm.com>
-Date: Fri, 23 Jul 2004 18:03:21 -0400
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, anton@samba.org, nfont@austin.ibm.com
-Subject: [PATCH] PPC64 Fix RAS irq handlers
-X-Mailer: VM 7.18 under Emacs 21.3.1
+Content-Disposition: inline
+In-Reply-To: <16641.30883.655066.942277@tut.ibm.com>
+X-Operating-System: Linux 2.6.8-rc2-bk1 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On pSeries systems, the firmware tells us a list of interrupt numbers
-that we should enable in order to detect various error conditions.
-When we get one of these interrupts we are supposed to call the
-firmware, which will work out and tell us what the error was and
-possibly also fix it.
+On Fri, 23 Jul 2004 15:44:19 -0500, zanussi@us.ibm.com wrote:
+> I didn't know the auditing framework was a tracing framework.  It
+> certainly doesn't seem light-weight enough for real system tracing,
+> which was the question.  Are there other frameworks we should consider
+> tracing on top of?
 
-We were not correctly parsing the property values that tell us which
-interrupts need to be handled in this fashion.  This patch fixes it.
-It exports prom_n_intr_cells from prom.c since that is needed to do
-the parsing properly.
+I haven't looked at any of these frameworks closely enough to answer
+that. My comments were largely based on the observation that there are
+several interesting projects that instrument the kernel (typically system
+calls) to log information: auditing, performance, or something else.
 
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+All of them seem useful, but we can't keep adding hooks for each purpose.
+It's like what we had before LSM (in a different area).
 
-diff -urN --exclude SCCS linux-2.5/arch/ppc64/kernel/prom.c test25/arch/ppc64/kernel/prom.c
---- linux-2.5/arch/ppc64/kernel/prom.c	2004-07-24 04:25:06.000000000 +1000
-+++ test25/arch/ppc64/kernel/prom.c	2004-07-24 06:47:21.000000000 +1000
-@@ -1881,8 +1881,7 @@
-  * Find out the size of each entry of the interrupts property
-  * for a node.
-  */
--static int __devinit
--prom_n_intr_cells(struct device_node *np)
-+int __devinit prom_n_intr_cells(struct device_node *np)
- {
- 	struct device_node *p;
- 	unsigned int *icp;
-@@ -1896,7 +1895,7 @@
- 		    || get_property(p, "interrupt-map", NULL) != NULL) {
- 			printk("oops, node %s doesn't have #interrupt-cells\n",
- 			       p->full_name);
--		return 1;
-+			return 1;
- 		}
- 	}
- #ifdef DEBUG_IRQ
-diff -urN --exclude SCCS linux-2.5/arch/ppc64/kernel/ras.c test25/arch/ppc64/kernel/ras.c
---- linux-2.5/arch/ppc64/kernel/ras.c	2004-07-05 11:49:19.000000000 +1000
-+++ test25/arch/ppc64/kernel/ras.c	2004-07-24 07:53:04.086893568 +1000
-@@ -52,6 +52,16 @@
- #include <asm/rtas.h>
- #include <asm/ppcdebug.h>
- 
-+static unsigned char log_buf[RTAS_ERROR_LOG_MAX];
-+static spinlock_t log_lock = SPIN_LOCK_UNLOCKED;
-+
-+static int ras_get_sensor_state_token;
-+static int ras_check_exception_token;
-+
-+#define EPOW_SENSOR_TOKEN	9
-+#define EPOW_SENSOR_INDEX	0
-+#define RAS_VECTOR_OFFSET	0x500
-+
- static irqreturn_t ras_epow_interrupt(int irq, void *dev_id,
- 					struct pt_regs * regs);
- static irqreturn_t ras_error_interrupt(int irq, void *dev_id,
-@@ -59,6 +69,35 @@
- 
- /* #define DEBUG */
- 
-+static void request_ras_irqs(struct device_node *np, char *propname,
-+			irqreturn_t (*handler)(int, void *, struct pt_regs *),
-+			const char *name)
-+{
-+	unsigned int *ireg, len, i;
-+	int virq, n_intr;
-+
-+	ireg = (unsigned int *)get_property(np, propname, &len);
-+	if (ireg == NULL)
-+		return;
-+	n_intr = prom_n_intr_cells(np);
-+	len /= n_intr * sizeof(*ireg);
-+
-+	for (i = 0; i < len; i++) {
-+		virq = virt_irq_create_mapping(*ireg);
-+		if (virq == NO_IRQ) {
-+			printk(KERN_ERR "Unable to allocate interrupt "
-+			       "number for %s\n", np->full_name);
-+			return;
-+		}
-+		if (request_irq(irq_offset_up(virq), handler, 0, name, NULL)) {
-+			printk(KERN_ERR "Unable to request interrupt %d for "
-+			       "%s\n", irq_offset_up(virq), np->full_name);
-+			return;
-+		}
-+		ireg += n_intr;
-+	}
-+}
-+
- /*
-  * Initialize handlers for the set of interrupts caused by hardware errors
-  * and power system events.
-@@ -66,52 +105,34 @@
- static int __init init_ras_IRQ(void)
- {
- 	struct device_node *np;
--	unsigned int *ireg, len, i;
--	int virq;
- 
--	if ((np = of_find_node_by_path("/event-sources/internal-errors")) &&
--	    (ireg = (unsigned int *)get_property(np, "open-pic-interrupt",
--						 &len))) {
--		for (i=0; i<(len / sizeof(*ireg)); i++) {
--			virq = virt_irq_create_mapping(*(ireg));
--			if (virq == NO_IRQ) {
--				printk(KERN_ERR "Unable to allocate interrupt "
--				       "number for %s\n", np->full_name);
--				break;
--			}
--			request_irq(irq_offset_up(virq),
--				    ras_error_interrupt, 0, 
--				    "RAS_ERROR", NULL);
--			ireg++;
--		}
-+	ras_get_sensor_state_token = rtas_token("get-sensor-state");
-+	ras_check_exception_token = rtas_token("check-exception");
-+
-+	/* Internal Errors */
-+	np = of_find_node_by_path("/event-sources/internal-errors");
-+	if (np != NULL) {
-+		request_ras_irqs(np, "open-pic-interrupt", ras_error_interrupt,
-+				 "RAS_ERROR");
-+		request_ras_irqs(np, "interrupts", ras_error_interrupt,
-+				 "RAS_ERROR");
-+		of_node_put(np);
- 	}
--	of_node_put(np);
- 
--	if ((np = of_find_node_by_path("/event-sources/epow-events")) &&
--	    (ireg = (unsigned int *)get_property(np, "open-pic-interrupt",
--						 &len))) {
--		for (i=0; i<(len / sizeof(*ireg)); i++) {
--			virq = virt_irq_create_mapping(*(ireg));
--			if (virq == NO_IRQ) {
--				printk(KERN_ERR "Unable to allocate interrupt "
--				       " number for %s\n", np->full_name);
--				break;
--			}
--			request_irq(irq_offset_up(virq),
--				    ras_epow_interrupt, 0, 
--				    "RAS_EPOW", NULL);
--			ireg++;
--		}
-+	/* EPOW Events */
-+	np = of_find_node_by_path("/event-sources/epow-events");
-+	if (np != NULL) {
-+		request_ras_irqs(np, "open-pic-interrupt", ras_epow_interrupt,
-+				 "RAS_EPOW");
-+		request_ras_irqs(np, "interrupts", ras_epow_interrupt,
-+				 "RAS_EPOW");
-+		of_node_put(np);
- 	}
--	of_node_put(np);
- 
- 	return 1;
- }
- __initcall(init_ras_IRQ);
- 
--static struct rtas_error_log log_buf;
--static spinlock_t log_lock = SPIN_LOCK_UNLOCKED;
--
- /*
-  * Handle power subsystem events (EPOW).
-  *
-@@ -122,30 +143,35 @@
- static irqreturn_t
- ras_epow_interrupt(int irq, void *dev_id, struct pt_regs * regs)
- {
--	struct rtas_error_log log_entry;
--	unsigned int size = sizeof(log_entry);
- 	int status = 0xdeadbeef;
-+	int state = 0;
-+	int critical;
- 
--	spin_lock(&log_lock);
-+	status = rtas_call(ras_get_sensor_state_token, 2, 2, &state,
-+			   EPOW_SENSOR_TOKEN, EPOW_SENSOR_INDEX);
- 
--	status = rtas_call(rtas_token("check-exception"), 6, 1, NULL, 
--			   0x500, irq, 
--			   RTAS_EPOW_WARNING | RTAS_POWERMGM_EVENTS, 
--			   1,  /* Time Critical */
--			   __pa(&log_buf), size);
--
--	log_entry = log_buf;
-+	if (state > 3)
-+		critical = 1;  /* Time Critical */
-+	else
-+		critical = 0;
- 
--	spin_unlock(&log_lock);
-+	spin_lock(&log_lock);
- 
--	udbg_printf("EPOW <0x%lx 0x%x>\n",
--		    *((unsigned long *)&log_entry), status); 
--	printk(KERN_WARNING 
--		"EPOW <0x%lx 0x%x>\n",*((unsigned long *)&log_entry), status);
-+	status = rtas_call(ras_check_exception_token, 6, 1, NULL,
-+			   RAS_VECTOR_OFFSET,
-+			   virt_irq_to_real(irq_offset_down(irq)),
-+			   RTAS_EPOW_WARNING | RTAS_POWERMGM_EVENTS,
-+			   critical, __pa(&log_buf), RTAS_ERROR_LOG_MAX);
-+
-+	udbg_printf("EPOW <0x%lx 0x%x 0x%x>\n",
-+		    *((unsigned long *)&log_buf), status, state);
-+	printk(KERN_WARNING "EPOW <0x%lx 0x%x 0x%x>\n",
-+	       *((unsigned long *)&log_buf), status, state);
- 
- 	/* format and print the extended information */
--	log_error((char *)&log_entry, ERR_TYPE_RTAS_LOG, 0);
--	
-+	log_error(log_buf, ERR_TYPE_RTAS_LOG, 0);
-+
-+	spin_unlock(&log_lock);
- 	return IRQ_HANDLED;
- }
- 
-@@ -160,37 +186,33 @@
- static irqreturn_t
- ras_error_interrupt(int irq, void *dev_id, struct pt_regs * regs)
- {
--	struct rtas_error_log log_entry;
--	unsigned int size = sizeof(log_entry);
-+	struct rtas_error_log *rtas_elog;
- 	int status = 0xdeadbeef;
- 	int fatal;
- 
- 	spin_lock(&log_lock);
- 
--	status = rtas_call(rtas_token("check-exception"), 6, 1, NULL, 
--			   0x500, irq, 
--			   RTAS_INTERNAL_ERROR, 
--			   1, /* Time Critical */
--			   __pa(&log_buf), size);
-+	status = rtas_call(ras_check_exception_token, 6, 1, NULL,
-+			   RAS_VECTOR_OFFSET,
-+			   virt_irq_to_real(irq_offset_down(irq)),
-+			   RTAS_INTERNAL_ERROR, 1 /*Time Critical */,
-+			   __pa(&log_buf), RTAS_ERROR_LOG_MAX);
- 
--	log_entry = log_buf;
-+	rtas_elog = (struct rtas_error_log *)log_buf;
- 
--	spin_unlock(&log_lock);
--
--	if ((status == 0) && (log_entry.severity >= SEVERITY_ERROR_SYNC)) 
-+	if ((status == 0) && (rtas_elog->severity >= SEVERITY_ERROR_SYNC))
- 		fatal = 1;
- 	else
- 		fatal = 0;
- 
- 	/* format and print the extended information */
--	log_error((char *)&log_entry, ERR_TYPE_RTAS_LOG, fatal); 
-+	log_error(log_buf, ERR_TYPE_RTAS_LOG, fatal);
- 
- 	if (fatal) {
--		udbg_printf("HW Error <0x%lx 0x%x>\n",
--			    *((unsigned long *)&log_entry), status);
--		printk(KERN_EMERG 
--		       "Error: Fatal hardware error <0x%lx 0x%x>\n",
--		       *((unsigned long *)&log_entry), status);
-+		udbg_printf("Fatal HW Error <0x%lx 0x%x>\n",
-+			    *((unsigned long *)&log_buf), status);
-+		printk(KERN_EMERG "Error: Fatal hardware error <0x%lx 0x%x>\n",
-+		       *((unsigned long *)&log_buf), status);
- 
- #ifndef DEBUG
- 		/* Don't actually power off when debugging so we can test
-@@ -201,10 +223,12 @@
- #endif
- 	} else {
- 		udbg_printf("Recoverable HW Error <0x%lx 0x%x>\n",
--			    *((unsigned long *)&log_entry), status); 
--		printk(KERN_WARNING 
-+			    *((unsigned long *)&log_buf), status);
-+		printk(KERN_WARNING
- 		       "Warning: Recoverable hardware error <0x%lx 0x%x>\n",
--		       *((unsigned long *)&log_entry), status);
-+		       *((unsigned long *)&log_buf), status);
- 	}
-+
-+	spin_unlock(&log_lock);
- 	return IRQ_HANDLED;
- }
-diff -urN --exclude SCCS linux-2.5/include/asm-ppc64/prom.h test25/include/asm-ppc64/prom.h
---- linux-2.5/include/asm-ppc64/prom.h	2004-06-25 07:03:04.000000000 +1000
-+++ test25/include/asm-ppc64/prom.h	2004-07-24 06:47:21.000000000 +1000
-@@ -269,6 +269,7 @@
- extern void print_properties(struct device_node *node);
- extern int prom_n_addr_cells(struct device_node* np);
- extern int prom_n_size_cells(struct device_node* np);
-+extern int prom_n_intr_cells(struct device_node* np);
- extern void prom_get_irq_senses(unsigned char *senses, int off, int max);
- extern void prom_add_property(struct device_node* np, struct property* prop);
- 
+>  > What is important to me is irrelevant. Both Linus and Andrew have stated
+>  > that demonstrated usefulness for many people is one key criteria for
+>  > merging new stuff.
+> 
+> And where was the 'demonstrated usefulness for many people' of the
+> auditing framework?
+
+Well, it's _one_ key criteria. I suspect in this case the decisive
+factor was rather the desire to please certain institutions that won't
+consider an OS if it can't spy on its users <g>. But I'm making this up,
+I'm sure someone remembers the real answer.
+
+Quite frankly, I couldn't care less about auditing. I am much more
+interested in tools that help me track down problems. Dprobes and LTT
+do look promising. Then again, so did devfs.
+
+>  > That's your problem right there. Nobody cares if LTT is happy. It is
+>  > people who matter. LTT users.
+> 
+> Right, so LTT is the only potential user of the framework that would
+> care about performance.  I guess we and anyone else who does can't use
+> it then.
+
+No reason to be sarcastic. I didn't say nobody uses it. But those users
+aren't exactly highly visible, either.
+
+If you want a textbook example of how to spectacularly fail on this
+very issue, recall the LKCD flame war (a couple of years ago?).
+
+> Well, this is what DTrace does too and in almost exactly the same way,
+> using an in-kernel interpreter similar to a stripped-down JVM where
+> nothing malicious can get out and alter the system.  It's basically
+> where all the 'magic' of DTrace happens.  I know, trying to get
+> something like this into mainline would be a hard sell, but if you
+> know of anything less scary that would let us do thing as exciting as
+> DTrace does, let me know...
+
+Heh, that's your job :-). Given that a Java/FORTH/whatever interpreter
+is unlikely to be merged into mainline anytime soon, what excitement
+can we still offer with the complex stuff living in user space?
+
+Even if your goal is to beat DTrace eventually, you need to sell patches
+on their own merits, not based on what we could do in some unlikely or
+distant future. DTrace is a red herring, more interesting is what we
+can do with, say, basic LTT infrastructure, or dprobes, etc.
+
+Roger

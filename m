@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264486AbTK0Lkf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Nov 2003 06:40:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbTK0Lkf
+	id S264482AbTK0LiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Nov 2003 06:38:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbTK0LiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Nov 2003 06:40:35 -0500
-Received: from ftp.symdata.com ([207.44.192.51]:62161 "HELO dev.symdata.com")
-	by vger.kernel.org with SMTP id S264486AbTK0LkY (ORCPT
+	Thu, 27 Nov 2003 06:38:09 -0500
+Received: from zero.aec.at ([193.170.194.10]:24326 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264482AbTK0LiG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Nov 2003 06:40:24 -0500
-From: Simon <simon@highlyillogical.org>
-Organization: highlyillogical.org
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.0-test10] cpufreq: 2G P4M won't go above 1.2G - cpuinfo_max_freq too low
-Date: Thu, 27 Nov 2003 11:39:07 +0000
-User-Agent: KMail/1.5.2
+	Thu, 27 Nov 2003 06:38:06 -0500
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] How drivers notice a HW error?
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 27 Nov 2003 12:37:47 +0100
+In-Reply-To: <WpR1.1LG.3@gated-at.bofh.it> (Hidetoshi Seto's message of
+ "Thu, 27 Nov 2003 09:40:11 +0100")
+Message-ID: <m3n0aim48k.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
+References: <WpR1.1LG.3@gated-at.bofh.it>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200311271139.07260.simon@highlyillogical.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry... I posted this to the cpufreq list yesterday but I didn't get a 
-response. Apologies for crossposting.
+Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com> writes:
 
-I've just upgraded to 2.6.0-test10 and am trying to use the new cpufreq stuff 
-in there. I had everything working perfectly with 2.4.21-ac2, and the old 
-/proc/cpufreq interface.
+> On some platform, for example IA64, the chipset detects an error caused by
+> driver's operation such as I/O read, and reports it to kernel. Linux kernel
+> analyzes the error and decides to kill the driver or reboot at worst.
+> I want to convey the error information to the offending driver, and want to
+> enable the driver to recover the failed operation.
+>A
+> So, just a plan, I think about a readb_check function that has checking ability
+> enable it to return error value if error is occurred on read. Drivers could use
+> readb_check instead of usual readb, and could diagnosis whether a retry be
+> required or not, by the return value of readb_check.
 
-I have a P4 2ghz (in a thinkpad), but it's not running at over about 1.2ghz 
-now. If I `cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq` it 
-tells me: "1198976". It should go faster than that. Similarly, 
-scaling_available_frequencies says "149872 299744 449616 599488 749360 899232 
-1049104 1198976"
+I don't think that's an good portable API. On many architectures it is hard to 
+associate an MCE with an specific instruction because the MCE 
+happnes asynchronously. All the MCE handler gets is an address. Also
+adding error checks to every read* would make the driver source quite 
+unreadable.
 
-Enabling the old interface in the kernel and doing a `echo -n 
-0%0%100%performance > /proc/cpufreq` doesn't change things either.
+Also I think most drivers would not attempt to specially handle every
+access but just implement a generic handler that shutdowns the device
+(otherwise it would be a testing nightmare). 
 
-Here is my /proc/cpuinfo
-processor       : 0
-vendor_id       : GenuineIntel
-cpu family      : 15
-model           : 2
-model name      : Mobile Intel(R) Pentium(R) 4 - M CPU 2.00GHz
-stepping        : 7
-cpu MHz         : 1198.976
-cache size      : 512 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 2
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat 
-pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe cid
-bogomips        : 2359.29
+So better would be:
 
-Any ideas?
+Add a callback to the pci_dev/device. When an error occurs in a mmio
+area associated with a driver call that callback.
 
-Cheers,
-Simon
+Add another function to register other memory areas (in case a driver
+does mmio not visible in PCI config)  for error handling.
 
+-Andi
 

@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282904AbRL0Wob>; Thu, 27 Dec 2001 17:44:31 -0500
+	id <S282963AbRL0Wvm>; Thu, 27 Dec 2001 17:51:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282962AbRL0WoW>; Thu, 27 Dec 2001 17:44:22 -0500
-Received: from ns.suse.de ([213.95.15.193]:2567 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S282904AbRL0WoN>;
-	Thu, 27 Dec 2001 17:44:13 -0500
-Date: Thu, 27 Dec 2001 23:44:12 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+	id <S282976AbRL0Wvc>; Thu, 27 Dec 2001 17:51:32 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:28680 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S282963AbRL0WvP>;
+	Thu, 27 Dec 2001 17:51:15 -0500
+Date: Thu, 27 Dec 2001 20:51:41 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Dave Jones <davej@suse.de>
 Cc: Steven Walter <srwalter@yahoo.com>, <linux-kernel@vger.kernel.org>
 Subject: Re: [RFC][PATCH] unchecked request_region's in drivers/net
-In-Reply-To: <20011227202345.B30930@conectiva.com.br>
-Message-ID: <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20011227205141.C30930@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Dave Jones <davej@suse.de>, Steven Walter <srwalter@yahoo.com>,
+	<linux-kernel@vger.kernel.org>
+In-Reply-To: <20011227202345.B30930@conectiva.com.br> <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112272332540.15706-100000@Appserv.suse.de>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Dec 2001, Arnaldo Carvalho de Melo wrote:
+Em Thu, Dec 27, 2001 at 11:44:12PM +0100, Dave Jones escreveu:
+> On Thu, 27 Dec 2001, Arnaldo Carvalho de Melo wrote:
+> 
+> > > Patch is against kernel 2.4.17, should apply to 2.5 as well.
+> > Good job! But please consider splitting the patch per driver and sending it
+> > to the respective maintainers.
+> 
+> Someone with far too much time on their hands would be my personal
+> hero[*] if they were to write a script (in language of their choice) to
+> parse a diff, extract filename, and do lookup in a flat text file
+> to find a list of maintainers/interested parties.
 
-> > Patch is against kernel 2.4.17, should apply to 2.5 as well.
-> Good job! But please consider splitting the patch per driver and sending it
-> to the respective maintainers.
+Humm, wouldn't it be the case to update MAINTAINERS? Or having something
+like another file INTERESTED or other better name with addresses of the
+right person/mailing list to send patches to?
 
-Someone with far too much time on their hands would be my personal
-hero[*] if they were to write a script (in language of their choice) to
-parse a diff, extract filename, and do lookup in a flat text file
-to find a list of maintainers/interested parties.
+But I like the idea of a web interface so that people interested in
+specific drivers/files could register and receive it when patches are
+submitted, maybe this can be coupled with the patchbot idea, that would
+lookup this database (plain text file, don't worry) and send the message to
+the interested people.
 
-Imagine a patch against devfs..
+/me thinks... I think we have this in our linux distribution buildsystem,
+for people to register interest in particular packages, but that may well
+be coupled with bugzilla, and that would be too much for this simple
+system... ok, I'll look into this with the distro folks here.
 
-$ cclist my.devfs.patch.diff
-Richard Gooch <rgooch@atnf.csiro.au>
-Alexander Viro <viro@math.psu.edu>
-
-SCNR 8-)
-
-This 'little black book of addresses' doesn't have to be anything
-wonderful, but its tedious work for someone to make the textfile
-mapping the various source files to email addresses.
-
-Someone (Alan?) suggested having something like a web interface
-allowing anyone interested in any particular file to register
-their interest, and get added to the cclist for that file.
-Which is also a cool idea.
-
-Dave.
-
-[*] At least for a while. I'm fickle.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+- Arnaldo

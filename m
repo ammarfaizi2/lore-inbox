@@ -1,68 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263404AbTJKWSk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Oct 2003 18:18:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTJKWSj
+	id S263402AbTJKWRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Oct 2003 18:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263406AbTJKWRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Oct 2003 18:18:39 -0400
-Received: from viriato1.servicios.retecal.es ([212.89.0.44]:9143 "EHLO
-	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S263404AbTJKWSh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Oct 2003 18:18:37 -0400
-Subject: [2.6.0-test7-bk][OOPS] bad: scheduling while atomic!
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-rjTe0cn5CdHYM4G/9CgH"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1065908535.1223.8.camel@debian>
+	Sat, 11 Oct 2003 18:17:15 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:22403 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S263402AbTJKWRM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Oct 2003 18:17:12 -0400
+Date: Sat, 11 Oct 2003 15:11:00 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: "jdow" <jdow@earthlink.net>
+Cc: list@fluent2.pyramid.net, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, kernelnewbies@nl.linux.org
+Subject: Re: Job Announcements (was Linux TCP/IP Stack Developer)
+Message-Id: <20031011151100.6241b3c7.davem@redhat.com>
+In-Reply-To: <028b01c39044$bb2c89e0$2eedfea9@kittycat>
+References: <1065826508.1612.27.camel@localhost.localdomain>
+	<1065826508.1612.27.camel@localhost.localdomain>
+	<5.2.1.1.0.20031011130522.011e97b0@fluent2.pyramid.net>
+	<20031011133541.0498ffa6.davem@redhat.com>
+	<028b01c39044$bb2c89e0$2eedfea9@kittycat>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 11 Oct 2003 23:42:16 +0200
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 11 Oct 2003 15:12:15 -0700
+"jdow" <jdow@earthlink.net> wrote:
 
---=-rjTe0cn5CdHYM4G/9CgH
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+> From: "David S. Miller" <davem@redhat.com>
+>
+> Might it be possible to
+> generate a specific "kernel jobs list" on vger and police it for
+> extrania as thoroughly as this list gets policed? Given the job
+> climate of late that might be a nice service to the community.
 
-I obtain this when I try to suspend and then wake up the system (with
-APM, of course)
+I don't want to run such a list, it's really asking for trouble.
 
-bad: scheduling while atomic!
-Call Trace:
- [<c0117601>] schedule+0x561/0x580
- [<c0121a90>] __mod_timer+0xd0/0x180
- [<c01225b8>] schedule_timeout+0x58/0xa0
- [<c0122540>] process_timeout+0x0/0x20
- [<c019ee86>] pci_set_power_state+0xc6/0x140
- [<d0861020>] rtl8139_suspend+0x60/0xa0 [8139too]
- [<c01a0da7>] pci_device_suspend+0x27/0x40
- [<c01caee7>] suspend_device+0x67/0xc0
- [<c01caf91>] device_suspend+0x51/0x80
- [<c0113efb>] suspend+0xbb/0x1c0
- [<c0114729>] do_ioctl+0x109/0x180
- [<c015b54f>] sys_ioctl+0xef/0x260
- [<c0109027>] syscall_call+0x7/0xb
+Only technical lists here, thanks.
 
---=20
-Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
-
---=-rjTe0cn5CdHYM4G/9CgH
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/iHk3RGk68b69cdURAloFAJ9nv19stm/p0G/LbHqakBP2GFv/nQCbBxkm
-pth1t+mDHCtuMIwXExn9YCs=
-=pTy7
------END PGP SIGNATURE-----
-
---=-rjTe0cn5CdHYM4G/9CgH--
-
+And let's end this thread now please, thanks.

@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVBIRg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVBIRiy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261859AbVBIRg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 12:36:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVBIRg1
+	id S261861AbVBIRiy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 12:38:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVBIRix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 12:36:27 -0500
-Received: from kludge.physics.uiowa.edu ([128.255.33.129]:27663 "EHLO
-	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id S261859AbVBIRgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 12:36:25 -0500
-Date: Wed, 9 Feb 2005 11:35:34 -0600
-From: Joseph Pingenot <trelane@digitasaru.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Peter Osterlund <petero2@telia.com>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: Re: [PATCH] Fix ALPS sync loss
-Message-ID: <20050209173533.GA12011@digitasaru.net>
-Reply-To: trelane@digitasaru.net
-Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
-	Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-	Peter Osterlund <petero2@telia.com>,
-	Vojtech Pavlik <vojtech@suse.cz>
-References: <200502081840.12520.dtor_core@ameritech.net>
+	Wed, 9 Feb 2005 12:38:53 -0500
+Received: from rproxy.gmail.com ([64.233.170.201]:30117 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261861AbVBIRiK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 12:38:10 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=o3PpBRxkcZZOpvUGyKHxHI9PQMg9SSEs9R7asx0rXAe4Ct/XSG/6hjbkgLaXDwgDPl6qDl6wHQKawUMk+jX4SrFrPXU/uNRyheWB5SzZ+kDeluCpovXP7oS+ZH6n8/DAuIdA7dlY9c8RuZ88VH/qIAJtUi+U/AFTrMthuKV+2Yc=
+Message-ID: <9e473391050209093856ce68bd@mail.gmail.com>
+Date: Wed, 9 Feb 2005 12:38:09 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Nicolas Pitre <nico@cam.org>
+Subject: Re: [RFC] Linux Kernel Subversion Howto
+Cc: Larry McVoy <lm@bitmover.com>, Roman Zippel <zippel@linux-m68k.org>,
+       "Theodore Ts'o" <tytso@mit.edu>, Stelian Pop <stelian@popies.net>,
+       Francois Romieu <romieu@fr.zoreil.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0502091128070.7836@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200502081840.12520.dtor_core@ameritech.net>
-X-School: University of Iowa
-X-vi-or-emacs: vi *and* emacs!
-X-MSMail-Priority: High
-X-Priority: 1 (Highest)
-X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
-X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050208155845.GB14505@bitmover.com>
+	 <Pine.LNX.4.61.0502081942200.6118@scrub.home>
+	 <20050209000733.GA6308@thunk.org>
+	 <Pine.LNX.4.61.0502090208580.6118@scrub.home>
+	 <9e47339105020818242fd9f6fa@mail.gmail.com>
+	 <Pine.LNX.4.61.0502090328490.30794@scrub.home>
+	 <20050209023928.GB4828@bitmover.com>
+	 <Pine.LNX.4.61.0502090346470.30794@scrub.home>
+	 <20050209034030.GC4828@bitmover.com>
+	 <Pine.LNX.4.61.0502091128070.7836@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Dmitry Torokhov on Tuesday, 08 February, 2005:
->Hi,
->Here is the promised patch. It turns out protocol validation code was
->a bit (or rather a byte ;) ) off.
->Please let me know if it fixes your touchpad and I believe it would be
->nice to have it in 2.6.11.
-
-This patch seems to be working for me too.  Thanks a million, Dmitry!
-  I owe you a beer some time.  :)
-
--Joseph
-
->===================================================================
->ChangeSet@1.2147, 2005-02-08 18:12:06-05:00, dtor_core@ameritech.net
->  Input: alps - fix protocol validation rules causing touchpad
->         to lose sync if an absolute packet is received after
->         a relative packet with negative Y displacement.
->  
->  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
-> alps.c |    4 ++--
-> 1 files changed, 2 insertions(+), 2 deletions(-)
->===================================================================
->diff -Nru a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
->--- a/drivers/input/mouse/alps.c	2005-02-08 18:16:27 -05:00
->+++ b/drivers/input/mouse/alps.c	2005-02-08 18:16:27 -05:00
->@@ -198,8 +198,8 @@
-> 		return PSMOUSE_BAD_DATA;
+On Wed, 9 Feb 2005 12:17:48 -0500 (EST), Nicolas Pitre <nico@cam.org> wrote:
+> On Tue, 8 Feb 2005, Larry McVoy wrote:
 > 
-> 	/* Bytes 2 - 6 should have 0 in the highest bit */
->-	if (psmouse->pktcnt > 1 && psmouse->pktcnt <= 6 &&
->-	    (psmouse->packet[psmouse->pktcnt] & 0x80))
->+	if (psmouse->pktcnt >= 2 && psmouse->pktcnt <= 6 &&
->+	    (psmouse->packet[psmouse->pktcnt - 1] & 0x80))
-> 		return PSMOUSE_BAD_DATA;
-> 
-> 	if (psmouse->pktcnt == 6) {
+> Larry, why can't you compete only on the tool instead of claiming
+> exclusive rights on the test bench as well?
+
+Nicolas, Larry has not said he won't make the changes that Roman
+wants, instead he has said he won't make the changes for FREE!.  There
+is a perfectly reasonable solution. Raise the funds to pay for the
+needed changes.
+
+It is just not reasonable to expect Larry to fund work whose sole
+purpose is to compete with himself. He is going a long way in saying
+he will do the work if paid at standard rates.
+
+Again, this is not Larry's fault, it is Linus that picked the tool.
 
 -- 
-Joseph===============================================trelane@digitasaru.net
-      Graduate Student in Physics, Freelance Free Software Developer
+Jon Smirl
+jonsmirl@gmail.com

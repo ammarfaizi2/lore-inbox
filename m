@@ -1,94 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbUCBXJh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 18:09:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUCBXJg
+	id S261232AbUCBXIr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 18:08:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUCBXIr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 18:09:36 -0500
-Received: from [213.133.118.5] ([213.133.118.5]:49576 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S261784AbUCBXJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 18:09:20 -0500
-Message-ID: <40451415.10300@shadowconnect.com>
-Date: Wed, 03 Mar 2004 00:09:09 +0100
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040224)
+	Tue, 2 Mar 2004 18:08:47 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55250 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261232AbUCBXIl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Mar 2004 18:08:41 -0500
+Message-ID: <404513E8.9010101@pobox.com>
+Date: Tue, 02 Mar 2004 18:08:24 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: alan@lxorguk.ukuu.org.uk, wtogami@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2o subsystem minor bugfixes to work with 2.6.3 kernel
-References: <40446CCC.5070102@shadowconnect.com> <20040302133429.40b953b8.akpm@osdl.org>
-In-Reply-To: <20040302133429.40b953b8.akpm@osdl.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE cleanups for 2.6.4-rc1 (2/3)
+References: <200403022215.07385.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <200403022215.07385.bzolnier@elka.pw.edu.pl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-
-Andrew Morton wrote:
-
->>here is the patch against 2.6.3 kernel to fix the I2O subsystem for the 2.6 
->>kernel.
->>
->Could you please describe the changes you have made?  ie: what the bugs
->are, and how you fixed them?
->
-
-Oh sorry, totally forgot.
-
-drivers/message/i2o/i2o_block.c:
---------------------------------
-- corrected the initialization sequence of the request queues.
-- added initialization to queue spinlocks.
-- release device in i2o_scan because else the device could not be queried.
-
-- i2o_block event threads wait on signal KILL but signal TERM was sent.
-
-drivers/message/i2o/i2o_core.c:
--------------------------------
-- set the HRT length to 0 at initialization, to avoid calling free on unallocated memory.
-- i2o_core event threads wait on signal KILL but signal TERM was sent.
-- added a limit of 3 tries to get the HRT from the controller.
-- removed the dpt parameter, which was used to force DPT controllers get handled by the i2o driver. Now all available i2o controllers will be handled by this driver.
-
-drivers/message/i2o/i2o_scsi.c:
--------------------------------
-- beautifying of printk calls.
-- added scsi_unregister to properly clean up on module unload.
-
-drivers/message/i2o/Kconfig:
-----------------------------
-- added help for i2o_block and i2o_scsi to describe the differences between the two drivers.
+Bartlomiej Zolnierkiewicz wrote:
+> [IDE] remove ide_cmd_type_parser() logic
+> 
+> Set ide_task_t fields (command_type, handler and prehandler) directly.
+> Remove unused ide_task_t->posthandler and all ide_cmd_type_parser() logic.
+> 
+> ide_cmd_type_parser() was meant to be used for ioctls but
+> ended up checking validity of kernel generated requests (doh!).
+> 
+> Rationale for removal:
+> - it can't be used for existing ioctls (changes the way they work)
+> - kernel shouldn't check validity of (root only) user-space requests
+>   (it can and should be done in user-space)
+> - it wastes CPU cycles on going through parsers
+> - it makes code harder to understand/follow
+>   (now info about request is localized)
 
 
-include/linux/i2o-dev.h:
-------------------------
-- cleaned typo "tate" into "state".
+Without the annoyingly-large 'switch', how do you figure out whether a 
+command is non-data, pio-read, pio-write, dma-read, or dma-write?
 
-include/linux/i2o.h:
---------------------
-- removed defines from i2o_block and insert it here.
+	Jeff
 
 
-Hope it is okey this way.
-
-Best regards,
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
- 
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-  
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-  
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
 

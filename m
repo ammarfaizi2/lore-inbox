@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314080AbSFQOaV>; Mon, 17 Jun 2002 10:30:21 -0400
+	id <S314082AbSFQO32>; Mon, 17 Jun 2002 10:29:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314083AbSFQOaU>; Mon, 17 Jun 2002 10:30:20 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:58319 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S314080AbSFQOaP>; Mon, 17 Jun 2002 10:30:15 -0400
-Date: Mon, 17 Jun 2002 09:30:13 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.22 broke modversions
-In-Reply-To: <200206171232.OAA00172@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.44.0206170925160.22308-100000@chaos.physics.uiowa.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314080AbSFQO32>; Mon, 17 Jun 2002 10:29:28 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:31249 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S314078AbSFQO31>; Mon, 17 Jun 2002 10:29:27 -0400
+Message-Id: <200206171429.g5HETBV02481@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: Kurt Garloff <kurt@garloff.de>, Oliver Neukum <oliver@neukum.name>,
+       dougg@torque.net, Linux SCSI list <linux-scsi@vger.kernel.org>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       David Brownell <david-b@pacbell.net>, Andries.Brouwer@cwi.nl,
+       sancho@dauskardt.de, linux-usb-devel@lists.sourceforge.net,
+       linux1394-devel@lists.sourceforge.net
+Subject: Re: [garloff@suse.de: Re: [linux-usb-devel] Re: /proc/scsi/map] 
+In-Reply-To: Message from Kurt Garloff <kurt@garloff.de> 
+   of "Mon, 17 Jun 2002 03:24:00 +0200." <20020617012400.GH21461@gum01m.etpnet.phys.tue.nl> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 17 Jun 2002 09:29:11 -0500
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 17 Jun 2002, Mikael Pettersson wrote:
+kurt@garloff.de said:
+> This may work for your disks. You just can't open the device node for
+> a tape, if there is no medium inserted. If you know the mapping
+> between to a sg device you can use it.
 
-> Something in the 2.5.22 Makefile/Rule.make changes broke
-> modversions on my P4 box. For some reason, a number of
-> exporting objects, including arch/i386/kernel/i386_ksyms,
-> weren't given -D__GENKSYMS__ at genksym-time, with the
-> effect that the resulting .ver files became empty, and the
-> kernel exported the symbols with unexpanded _R__ver_ suffixes.
+Actually, you have to use sg for a disc as well since you send a scsi CDB 
+directly to the device for inquiry page 0x83.
 
-You're right, thanks for the report. The fix is appended ;)
+> That's the second piece of information that /proc/scsi/map provides. 
 
-> Modversions worked in 2.5.21. I didn't see anything obvious
-> in patch-2.5.22 what could explain this, but I did notice a
-> tendency of touching files as a means of maintaining dependencies.
-> This may not actually work, unless you have a slow CPU or a
-> file system with millisecond or better st_mtime resolution --
-> most only maintain whole-second resolution st_mtimes.
-> (My modversions fix in the 2.4.0-test series, which moved the
-> modversions.h creation/update to a separate rule after make dep,
-> was due to this very problem.)
+Oh no question.  The way the current code doing this works is that it opens 
+all scsi devices and issues a GET_IDLUN to compile a database of the nodes and 
+then matches them up to sg nodes.
 
-I'm using touch in one place, as an optimization. For all I can see it
-should be fine unless you run more than one complete build per second ;)
+James
 
-(Whenever a .ver file is updated, include/linux/modversions.h is touched,
- so that during the build make only needs to check the timestamp
- of modversions.h instead of all the individual .ver files - do you see a
- problem with that?)
-
---Kai
-
-===== Rules.make 1.59 vs edited =====
---- 1.59/Rules.make	Mon Jun 10 21:59:33 2002
-+++ edited/Rules.make	Mon Jun 17 09:24:34 2002
-@@ -131,9 +131,9 @@
- 	genksyms_smp_prefix := 
- endif
- 
--$(MODVERDIR)/$(real-objs-y:.o=.ver): modkern_cflags := $(CFLAGS_KERNEL)
--$(MODVERDIR)/$(real-objs-m:.o=.ver): modkern_cflags := $(CFLAGS_MODULE)
--$(MODVERDIR)/$(export-objs:.o=.ver): export_flags   := -D__GENKSYMS__
-+$(addprefix $(MODVERDIR)/,$(real-objs-y:.o=.ver)): modkern_cflags := $(CFLAGS_KERNEL)
-+$(addprefix $(MODVERDIR)/,$(real-objs-m:.o=.ver)): modkern_cflags := $(CFLAGS_MODULE)
-+$(addprefix $(MODVERDIR)/,$(export-objs:.o=.ver)): export_flags   := -D__GENKSYMS__
- 
- c_flags = -Wp,-MD,$(depfile) $(CFLAGS) $(NOSTDINC_FLAGS) \
- 	  $(modkern_cflags) $(EXTRA_CFLAGS) $(CFLAGS_$(*F).o) \
 

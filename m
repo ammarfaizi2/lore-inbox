@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262787AbSI2QFn>; Sun, 29 Sep 2002 12:05:43 -0400
+	id <S262788AbSI2QD6>; Sun, 29 Sep 2002 12:03:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262789AbSI2QFn>; Sun, 29 Sep 2002 12:05:43 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:23047 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S262787AbSI2QFm>;
-	Sun, 29 Sep 2002 12:05:42 -0400
-Date: Sun, 29 Sep 2002 17:11:04 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Hu Gang <gang_hu@soul.com.cn>
+	id <S262789AbSI2QD6>; Sun, 29 Sep 2002 12:03:58 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:386 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S262788AbSI2QD5>;
+	Sun, 29 Sep 2002 12:03:57 -0400
+Date: Sun, 29 Sep 2002 17:11:44 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Matt Domsch <Matt_Domsch@Dell.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Serial 2/2
-Message-ID: <20020929171104.G18377@parcelfarce.linux.theplanet.co.uk>
+Subject: Re: [RFC][PATCH] x86 BIOS Enhanced Disk Device (EDD) polling
+Message-ID: <20020929161144.GA19948@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Matt Domsch <Matt_Domsch@Dell.com>, linux-kernel@vger.kernel.org
+References: <20BF5713E14D5B48AA289F72BD372D6821CE34@AUSXMPC122.aus.amer.dell.com> <Pine.LNX.4.44.0209271606001.16331-100000@humbolt.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209271606001.16331-100000@humbolt.us.dell.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 27, 2002 at 04:30:29PM -0500, Matt Domsch wrote:
+ >  arch/i386/kernel/edd.c           |  522 +++++++++++++++++++++++++++++++++++++++
+ >  arch/i386/kernel/i386_ksyms.c    |    6 
+ >  arch/i386/kernel/setup.c         |   20 +
 
-> @@ -1582,10 +1583,10 @@
->                          ret = -ENOMEM;
->          }
->  
-> - if (ret) {
-> - if (res_rsa)
-> + if (ret == 0) {
-> + if (res_rsa == 0)
->                          release_resource(res_rsa);
-> - if (res)
-> + if (res == 0)
->                          release_resource(res);
->          }
->          return ret;
+Something that's been bothering me for a while, has been the
+proliferation of 'driver' type things appearing in arch/i386/kernel/
+My initial thought was to move the various CPU related 'drivers'
+(msr,cpuid,bluesmoke,microcode) to arch/i386/cpu/  [1]
+but I'm now wondering if an arch/i386/driver/ would be a better alternative.
 
-definitely not.
+Opinions?
 
-	if (res_rsa)
-		release_resource(res_rsa);
+		Dave
 
-will release the resource if we allocated it.  your patch calls
-release_resource with an argument of NULL, and we'll leak the resource
-we allocated.
-
-i'm not sure about the rest of your changes, but this one is definitely
-wrong.
-
+[1] also a more natural home for things like cpufreq if/when it gets integrated.
 -- 
-Revolutions do not require corporate support.
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

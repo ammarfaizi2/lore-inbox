@@ -1,87 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261956AbTKCKUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Nov 2003 05:20:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261965AbTKCKUR
+	id S261953AbTKCKTL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Nov 2003 05:19:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTKCKTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Nov 2003 05:20:17 -0500
-Received: from mail3.ithnet.com ([217.64.64.7]:54154 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S261956AbTKCKUL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Nov 2003 05:20:11 -0500
-X-Sender-Authentication: net64
-Date: Mon, 3 Nov 2003 11:20:08 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: reiser@namesys.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0test9 Reiserfs boot time "buffer layer error at
- fs/buffer.c:431"
-Message-Id: <20031103112008.5ac6a6cc.skraw@ithnet.com>
-In-Reply-To: <20031102210942.GA9635@gondor.apana.org.au>
-References: <20031029141931.6c4ebdb5.akpm@osdl.org>
-	<E1AGCUJ-00016g-00@gondolin.me.apana.org.au>
-	<20031101233354.1f566c80.akpm@osdl.org>
-	<20031102092723.GA4964@gondor.apana.org.au>
-	<20031102014011.09001c81.akpm@osdl.org>
-	<20031102210942.GA9635@gondor.apana.org.au>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 3 Nov 2003 05:19:11 -0500
+Received: from [193.195.148.66] ([193.195.148.66]:44026 "EHLO
+	mailgate.invsat.com") by vger.kernel.org with ESMTP id S261953AbTKCKTI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Nov 2003 05:19:08 -0500
+Date: Mon, 3 Nov 2003 10:18:57 +0000
+From: Gavin Henry <gavin.henry@magicfx.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: ACPI Toshiba TECRA 8000 kernel 2.4.20, 2.4.22 and 2.6.0-test9 with
+ Suse 8.2
+Message-Id: <20031103101857.4609306e.gavin.henry@magicfx.co.uk>
+Organization: http://www.Magicfx.co.uk
+X-Mailer: Sylpheed version 0.9.6claws (GTK+ 1.2.10; i386-redhat-linux-gnu)
+X-Operating-System: Open Source
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on Domino1/Invsat Limited(Release 5.0.11  |July 24, 2002) at
+ 03/11/2003 10:19:24,
+	Serialize by Router on Domino1/Invsat Limited(Release 5.0.11  |July 24, 2002) at
+ 03/11/2003 10:19:30,
+	Serialize complete at 03/11/2003 10:19:30
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__3_Nov_2003_10_18_57_+0000_x1kzQ3A+uOXQDiPK"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Nov 2003 08:09:42 +1100
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
+--Signature=_Mon__3_Nov_2003_10_18_57_+0000_x1kzQ3A+uOXQDiPK
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Forgive my comments unrelated to the primary topic, but I think additional
-voices may do something good to your general idea of a distro.
+Hi all.
 
-> On Sun, Nov 02, 2003 at 02:54:45PM +0300, Hans Reiser wrote:
-> >
-> > Why in the world do you guys do this?  Andrew and Marcelo do a good job, 
-> > and I haven't heard much complaint about patches being ignored by them, 
-> > so follow the leader.  If you have patches you need, send them to them.
-> 
-> Andrew and Marcelo do an excellent job.  I have never said otherwise
-> nor attempted to infer that.
-> 
-> The reasons that we need patches are mostly the same as other distributions:
-> 
-> 1. Our release schedule is different from the vanilla kernels.
-> 
-> When we release a kernel based on a vanilla release there may be bug
-> fixes that are going to be in the next vanilla release that we can
-> apply straight away.
+I have a clients laptop (above) and acpi seems to be broken. It is running Suse 8.2. There is a guide for all this at http://www.shroom.com/linux/laptop/8000.html
 
-Release cycle of vanilla kernels has become short/acceptable again, so it
-should be possible to pick one up inside your timeframe. And yes, there will
-always be another bug, so if you go hunting for only the next bugfix, you will
-probably be releasing never again.
+But it is for a 2.2 kernel.
 
-> 2. Our goals are different from the vanilla kernel.
-> 
-> Some issues are not critical to the vanilla kernel, e.g., IDE modules
-> but are release-critical for us.
+The main error is from acpi saying "Cannot allocate resource region"
 
-You are talking about an additional _feature_. Why don't you try to make it an
-accepted and implemented feature in the vanilla kernels? Sure this may take a
-bit more time, but the community wins as a whole. I cannot see the point in
-_separation_ regarding GPL'ed software.
+My question is: Has acpi been changed alot since then, as the kernel is not picking up the sound card and modem. I have traced this to acpi, as the only way I can get into the machine without pcmcia hanging to by putting pci=noacpi in grub.
 
-> 3. Licensing problems.
-> 
-> This is specific to Debian.  For anything to be included in our release,
-> it has to pass the DFSG.  The vanilla kernel does not have this
-> restriction so we may need to remove bits before it's suitable for us.
+Both are supported, but lspci -vv doesn't show them as acpi is off.
 
-Uh? Do you place licensing restrictions on a GPL'ed kernel??
+Am I correct is thinking that without acpi they will not be detected?
 
-I really send prayers for the day distros will stop building own kernels for
-they only reduce the installed test base for kernels as a whole by splitting it
-up in numerous kernel versions...
+I have tried 2.6.0-test and 2.4.22 with this same error. Have not tired a 2.2 kernel on it.
 
+-- 
 Regards,
-Stephan
 
+Gavin Henry.
+
+Open Source. Open Solutions.
+http://www.suretecsystems.com
+
+--Signature=_Mon__3_Nov_2003_10_18_57_+0000_x1kzQ3A+uOXQDiPK
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/piuVgNqd7Kng8UoRAuipAKC/yq/X9zxX87fcZ835xqlimnqXWACgsAHP
+XopG+oHtyPsa1kE0VFTT5ME=
+=uJ5I
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__3_Nov_2003_10_18_57_+0000_x1kzQ3A+uOXQDiPK--

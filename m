@@ -1,31 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263120AbTKETEk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 14:04:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbTKETEk
+	id S263051AbTKETZc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 14:25:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263126AbTKETZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 14:04:40 -0500
-Received: from postal.usc.edu ([128.125.253.6]:28605 "EHLO postal.usc.edu")
-	by vger.kernel.org with ESMTP id S263120AbTKETEj (ORCPT
+	Wed, 5 Nov 2003 14:25:32 -0500
+Received: from gprs29.vodafone.hu ([80.244.97.79]:31099 "EHLO kian.localdomain")
+	by vger.kernel.org with ESMTP id S263051AbTKETZa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 14:04:39 -0500
-Date: Wed, 05 Nov 2003 11:04:38 -0800
-From: balaji raghavan <braghava@usc.edu>
-Subject: Pseudo disk interface
+	Wed, 5 Nov 2003 14:25:30 -0500
+Subject: Problem in 2.6.0-test9-mm1 with siimage+hdparm
+From: Krisztian VASAS <iron@ironiq.hu>
 To: linux-kernel@vger.kernel.org
-Message-id: <e9bdb4e9ef4a.e9ef4ae9bdb4@usc.edu>
-MIME-version: 1.0
-X-Mailer: iPlanet Messenger Express 5.2 HotFix 1.21 (built Sep  8 2003)
-Content-type: text/plain; charset=us-ascii
-Content-language: en
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-X-Accept-Language: en
+Content-Type: text/plain
+Organization: 
+Message-Id: <1068060376.757.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 05 Nov 2003 20:26:16 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    Is there a some kind of __disk_abstraction__ existent in Linux? I am trying to write a Cryptographic disk driver for linux. But AFAIK, I would have to write a pseudo disk interface viz. some disk abstraction driver. Can anyone help me on this?
-Thanks.
-Balaji Raghavan.
+
+Hello all...
+
+I've got an Abit NF7-S v2.0 mainboard with an Athlon XP 2000+ CPU.
+
+Yesterday I've compiled the 2.6.0-test9 kernel with -mm1 patch. My
+system is on the first sata device (/dev/hde).
+
+After reboot I've noticed an Oops after setting dma and other settings
+with hdparm. Without -mm1 patch the machine works well. 
+
+After the oops I've tried to find what the problem was. 
+
+hdparm -c1 /dev/hde -> nothing was happened, switched off...
+hdparm -d1 /dev/hde -> Oops...
+
+I've got this messages:
+
+hde: DMA timeout retry status error: status=0x58 { DriveReady
+SeekComplete DataRequest }
+
+ide2: reset phy, status=0x00000113 siimage_reset
+
+.
+.
+.
+
+Buffer I/O error on device hde2, logical block 97865
+lost page write due to I/O error on hde2
+
+.
+.
+.
+
+EXT3-fs error (device hde2) in start_transaction: Journal has aborted
+
+
+
+The rootfs is /dev/hde2.
+
+Please cc the answers to my address, because I'm not lkml member...
+
+Thanks:
+
+
+IroNiQ
+-- 
+Web: http://ironiq.hu
+E-mail: iron@ironiq.hu
 

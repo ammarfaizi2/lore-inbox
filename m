@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266317AbUAGV3W (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 16:29:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266318AbUAGV3W
+	id S266315AbUAGV3H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 16:29:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266317AbUAGV3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 16:29:22 -0500
-Received: from 204.Red-213-96-224.pooles.rima-tde.net ([213.96.224.204]:38406
-	"EHLO betawl.net") by vger.kernel.org with ESMTP id S266317AbUAGV3T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 16:29:19 -0500
-Date: Wed, 7 Jan 2004 22:29:16 +0100
-From: Santiago Garcia Mantinan <manty@manty.net>
-To: linux-kernel@vger.kernel.org
-Subject: ALSA in 2.6 failing to find the OPL chip of the sb cards
-Message-ID: <20040107212916.GA978@man.manty.net>
+	Wed, 7 Jan 2004 16:29:07 -0500
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:14096 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S266315AbUAGV3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 16:29:04 -0500
+Date: Wed, 7 Jan 2004 22:30:46 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: "Nicolas Nilles" <nnilles@skycop.net>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com, sensors@stimpy.netroedge.com
+Subject: Re: Kernel 2.6.0 and i2c-viapro posible Bug
+Message-Id: <20040107223046.093ea670.khali@linux-fr.org>
+In-Reply-To: <OLEKJGKIEPMKIGIPLDBNCEKJCDAA.nnilles@skycop.net>
+References: <OLEKJGKIEPMKIGIPLDBNCEKJCDAA.nnilles@skycop.net>
+Reply-To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+> I thinks that thgere is  probably a bug in I2c-viapro module,
+> cuz when i load i2c-viapro after loading w82781d, my computer  just
+> put very slow..., i try loading as modules in the kernel or built in,
+> in both cases i have the same problem.
+>
+> I use 2.6.0 Vanilla Kernel sources.
+> Please i will really apreciate if some one responde to this
+> mail, put my adress in the CC field please cuz i not in the LKML.
+> If someone need another information about my computer, config..
+> or somehting more, just ask for it.
+>
+> Thanks.
 
-I have a SB16PNP on which alsa under kernel 2.6 fails to detect the OPL
-chip, I have tried the 0.9.7 version wich comes with the kernel (up to
-version 2.6.1-rc2) and now even alsa 1.0.0rc2 compiled for the 2.6.1-rc2
-kernel, on both I get the same result:
+Tested this on my own system with similar hardware (as far as i2c is
+concerned) under 2.6.1-rc2. I did not experience any slowdown.
 
-sb16: no OPL device at 0x388-0x38a
+Could you please provide the following information:
 
-this is the full output on version 1.0.0rc2:
+* Output of "lspci -n".
 
-Starting ALSA (version 1.0.0rc2):pnp: Device 00:01.00 activated.
-ALSA /usr/src/modules/alsa-driver/alsa-kernel/isa/sb/sb16.c:489: sb16: no
-OPL device at 0x388-0x38a
- sb16.
+* Can you reproduce the problem with a 2.4.24 kernel and i2c+lm_sensors
+  2.8.2?
 
-Alsa version 0.9.8 works perfectly under 2.4.X.
+* Can you reproduce the problem with a 2.6.1-rc2 kernel?
 
-Don't hesitate to contact me for any other info that may be needed to track
-this.
+* Can you reproduce the problem without ACPI support enabled into your
+  kernel?
 
-Regards...
+* Does the slowdown affect only the hard-disk drive?
+
+* Does the speed come back to normal if you remove i2c-viapro?
+
+* Does the slowdown occur if you load i2c-viapro before w83781d?
+
+Yeah, I know, this is much work, but we need a hint to start digging.
+
+Thanks.
+
 -- 
-Manty/BestiaTester -> http://manty.net
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

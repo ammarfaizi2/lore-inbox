@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUIBFTU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267449AbUIBFX4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265093AbUIBFTU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 01:19:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267199AbUIBFTU
+	id S267449AbUIBFX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 01:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267389AbUIBFX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 01:19:20 -0400
-Received: from holomorphy.com ([207.189.100.168]:41930 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265093AbUIBFTS (ORCPT
+	Thu, 2 Sep 2004 01:23:56 -0400
+Received: from cantor.suse.de ([195.135.220.2]:18646 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267199AbUIBFXy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 01:19:18 -0400
-Date: Wed, 1 Sep 2004 22:18:45 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Christoph Lameter <clameter@sgi.com>, benh@kernel.crashing.org,
-       akpm@osdl.org, davem@redhat.com, raybry@sgi.com, ak@muc.de,
-       manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
-Subject: Re: page fault scalability patch final : i386 tested, x86_64 support added
-Message-ID: <20040902051845.GW5492@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Christoph Lameter <clameter@sgi.com>, benh@kernel.crashing.org,
-	akpm@osdl.org, davem@redhat.com, raybry@sgi.com, ak@muc.de,
-	manfred@colorfullife.com, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org, vrajesh@umich.edu, hugh@veritas.com
-References: <20040816143903.GY11200@holomorphy.com> <B6E8046E1E28D34EB815A11AC8CA3129027B679F@mtv-atc-605e--n.corp.sgi.com> <B6E8046E1E28D34EB815A11AC8CA3129027B67A9@mtv-atc-605e--n.corp.sgi.com> <B6E8046E1E28D34EB815A11AC8CA3129027B67B4@mtv-atc-605e--n.corp.sgi.com> <Pine.LNX.4.58.0408271616001.14712@schroedinger.engr.sgi.com> <1094012689.6538.330.camel@gaston> <Pine.LNX.4.58.0409010938200.9907@schroedinger.engr.sgi.com> <1094080164.4025.17.camel@gaston> <Pine.LNX.4.58.0409012140440.23186@schroedinger.engr.sgi.com> <20040901215741.3538bbf4.davem@davemloft.net>
+	Thu, 2 Sep 2004 01:23:54 -0400
+Date: Thu, 2 Sep 2004 07:23:52 +0200
+From: Olaf Hering <olh@suse.de>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040902052352.GA25978@suse.de>
+References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com> <200408290004.i7T04DEO003646@localhost.localdomain> <20040901224513.GM31934@mail.shareable.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20040901215741.3538bbf4.davem@davemloft.net>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040901224513.GM31934@mail.shareable.org>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Sep 2004 21:45:20 -0700 (PDT) Christoph Lameter <clameter@sgi.com> wrote:
->> Where would I find that patch?
+ On Wed, Sep 01, Jamie Lokier wrote:
 
-On Wed, Sep 01, 2004 at 09:57:41PM -0700, David S. Miller wrote:
-> Attached.
-> It's held up because it needs to be ported to all platforms
-> before we can consider it seriously for inclusion and
-> only sparc64 and ppc{,64} are converted.
+> And udev _still_ doesn't create device nodes properly.  (Hint: I have
+> to run two modprobe commands before pppd works.  I have to run
+> modprobe before openvpn or bochs work.)
 
-Nice, I guess I can port this to a few arches. Maybe this is a good
-excuse get my new (to me) Octane running, too.
+Just because it is supposed to work that way.
 
+-- 
+USB is for mice, FireWire is for men!
 
--- wli
+sUse lINUX ag, nÜRNBERG

@@ -1,37 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264332AbRFLLw1>; Tue, 12 Jun 2001 07:52:27 -0400
+	id <S264341AbRFLMHk>; Tue, 12 Jun 2001 08:07:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264334AbRFLLwR>; Tue, 12 Jun 2001 07:52:17 -0400
-Received: from motgate.mot.com ([129.188.136.100]:45468 "EHLO motgate.mot.com")
-	by vger.kernel.org with ESMTP id <S264332AbRFLLwJ>;
-	Tue, 12 Jun 2001 07:52:09 -0400
-Message-Id: <3B2601DC.9445C05F@crm.mot.com>
-Date: Tue, 12 Jun 2001 13:49:48 +0200
-From: Emmanuel Varagnat <varagnat@crm.mot.com>
-Organization: Motorola
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexey Vyskubov <alexey.vyskubov@nokia.com>
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: sk_buff allocation
-In-Reply-To: <3B25F227.5A5EEBB4@crm.mot.com> <20010612135356.A31447@Hews1193nrc>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S264346AbRFLMHa>; Tue, 12 Jun 2001 08:07:30 -0400
+Received: from turnover.lancs.ac.uk ([148.88.17.220]:28151 "EHLO
+	helium.chromatix.org.uk") by vger.kernel.org with ESMTP
+	id <S264341AbRFLMH2>; Tue, 12 Jun 2001 08:07:28 -0400
+Message-Id: <l03130300b74b9ddb0369@[192.168.239.105]>
+In-Reply-To: <20010611223357.A959@bug.ucw.cz>
+In-Reply-To: <20010611113604.4073.qmail@web3504.mail.yahoo .com>; from 
+ =?iso-8859-1?Q?Mich=E8l?= Alexandre Salim on Mon, Jun  11, 2001 at 
+ 12:36:04PM +0100 <20010611113604.4073.qmail@web3504.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Date: Tue, 12 Jun 2001 11:26:32 +0100
+To: Pavel Machek <pavel@suse.cz>,
+        =?iso-8859-1?Q?Mich=E8l?= Alexandre Salim 
+	<salimma1@yahoo.co.uk>,
+        linux-kernel@vger.kernel.org
+From: Jonathan Morton <chromi@cyberspace.org>
+Subject: Re: Clock drift on Transmeta Crusoe
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Vyskubov wrote:
-> 
-> Why don't you use netfilter hooks? Write your hook for NF_IP_POST_ROUTING; it
-> will receive sk_buff **pskb, so you can completely replace old skbuff with new.
+>> clock drift of a few minutes per day.
 
-Because, it doesn't seems to fit my needs.
-The hardware header must present.
+That's about 0.1%.  It may be relatively large compared to tolerances of
+hardware clocks, but it's realistically tiny.  It certainly compares
+favourably with mkLinux on my PowerBook 5300, which usually drifts by
+several hours per day regardless of actual load.
 
-But I could have missed something looking at the kernel code.
+The drift might be caused by something masking interrupts for too long, too
+often, considering you state that the hardware clock remains comparatively
+well-synced.  As another poster suggests, the framebuffer may be to blame.
 
-Thanks a lot
+--------------------------------------------------------------
+from:     Jonathan "Chromatix" Morton
+mail:     chromi@cyberspace.org  (not for attachments)
 
--Manu
+The key to knowledge is not to rely on people to teach you it.
+
+GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
+PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r++ y+(*)
+
+

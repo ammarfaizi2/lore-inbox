@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288980AbSANTUd>; Mon, 14 Jan 2002 14:20:33 -0500
+	id <S288983AbSANTWE>; Mon, 14 Jan 2002 14:22:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288990AbSANTTR>; Mon, 14 Jan 2002 14:19:17 -0500
-Received: from chmls18.ne.ipsvc.net ([24.147.1.153]:17800 "EHLO
-	chmls18.ne.ipsvc.net") by vger.kernel.org with ESMTP
-	id <S288985AbSANTSu>; Mon, 14 Jan 2002 14:18:50 -0500
-Date: Mon, 14 Jan 2002 14:03:57 -0500
-To: David Lang <david.lang@digitalinsight.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Hardwired drivers are going away?
-Message-ID: <20020114140357.B4762@pimlott.ne.mediaone.net>
-Mail-Followup-To: David Lang <david.lang@digitalinsight.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16QCPK-0002Yt-00@the-village.bc.nu> <Pine.LNX.4.40.0201141055410.22904-100000@dlang.diginsite.com>
-Mime-Version: 1.0
+	id <S288977AbSANTUi>; Mon, 14 Jan 2002 14:20:38 -0500
+Received: from [200.10.161.32] ([200.10.161.32]:65166 "EHLO lila.inti.gov.ar")
+	by vger.kernel.org with ESMTP id <S288969AbSANTRl>;
+	Mon, 14 Jan 2002 14:17:41 -0500
+Message-ID: <3C432F31.CE9652BC@inti.gov.ar>
+Date: Mon, 14 Jan 2002 16:19:13 -0300
+From: salvador <salvador@inti.gov.ar>
+Reply-To: salvador@inti.gov.ar
+Organization: INTI
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: es-AR, en, es
+MIME-Version: 1.0
+To: Jeremy Lumbroso <j.lumbroso@noos.fr>
+CC: Raul Sanchez Sanchez <raul@dif.um.es>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Paul Lorenz <p1orenz@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Driver via ac97 sound problem (VT82C686B)
+In-Reply-To: <E16PZOe-0003fZ-00@the-village.bc.nu> <1010956965.3260.0.camel@raul> <3C4311BC.A99CEF31@inti.gov.ar> <E16QCE9-0003hR-00@samantha.inti.gov.ar>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.40.0201141055410.22904-100000@dlang.diginsite.com>
-User-Agent: Mutt/1.3.23i
-From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 10:57:19AM -0800, David Lang wrote:
-> On Mon, 14 Jan 2002, Alan Cox wrote:
-> 
-> > > 1. security, if you don't need any modules you can disable modules entirly
-> > > and then it's impossible to add a module without patching the kernel first
-> > > (the module load system calls aren't there)
-> >
-> > Urban legend.
-> 
-> If this is the case then why do I get systemcall undefined error messages
-> when I make a mistake and attempt to load a module on a kernel without
-> modules enabled?
+Jeremy Lumbroso wrote:
 
-It's an urban legend that this is a security benefit.  grep the
-hacker zines for injecting code into a non-modular kernel.
+> i apply the patch and compile with the two values but i still heard no sound .
 
-> > > 2. speed, there was a discussion a few weeks ago pointing out that there
-> > > is some overhead for useing modules (far calls need to be used just in
-> > > case becouse the system can't know where the module will be located IIRC)
-> >
-> > I defy you to measure it on x86
-                  ^^^^^^^^^^
-> during the discussion a few weeks ago there were people pointing out cases
-> where this overhead would be a problem.
+:-(
+Check the routines are really called, but then we should look in other place
+because it discards the EAPD theory.
 
-Above.
+SET
 
-> > > 3. simplicity in building kernels for other machines. with a monolithic
-> > > kernel you have one file to move (and a bootloader to run) with modules
-> > > you have to move quite a few more files.
-> >
-> > tar or nfs mount; make modules_install.
-> >
-> not on my firewalls thank you.
+--
+Salvador Eduardo Tropea (SET). (Electronics Engineer)
+Visit my home page: http://welcome.to/SetSoft or
+http://www.geocities.com/SiliconValley/Vista/6552/
+Alternative e-mail: set@computer.org set@ieee.org
+Address: Curapaligue 2124, Caseros, 3 de Febrero
+Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
 
-You won't install tar on your firewalls?  Weird :-)
 
-Andrew
+

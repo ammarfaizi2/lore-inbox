@@ -1,45 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262076AbRFMNWI>; Wed, 13 Jun 2001 09:22:08 -0400
+	id <S262168AbRFMNei>; Wed, 13 Jun 2001 09:34:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262168AbRFMNVs>; Wed, 13 Jun 2001 09:21:48 -0400
-Received: from t2.redhat.com ([199.183.24.243]:3574 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S262076AbRFMNVi>; Wed, 13 Jun 2001 09:21:38 -0400
-Message-ID: <3B2768E1.2B7E064C@redhat.com>
-Date: Wed, 13 Jun 2001 14:21:37 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-11.3smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sven Geggus <geg@iitb.fhg.de>, linux-kernel@vger.kernel.org
-Subject: Re: Changing CPU Speed while running Linux
-In-Reply-To: <20010613143536.A1323@iitb.fhg.de>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S262389AbRFMNe2>; Wed, 13 Jun 2001 09:34:28 -0400
+Received: from jalon.able.es ([212.97.163.2]:29943 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S262168AbRFMNeY>;
+	Wed, 13 Jun 2001 09:34:24 -0400
+Date: Wed, 13 Jun 2001 15:35:28 +0200
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Kurt Garloff <garloff@suse.de>
+Cc: ognen@gene.pbi.nrc.ca, Christoph Hellwig <hch@ns.caldera.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: threading question
+Message-ID: <20010613153528.A1711@werewolf.able.es>
+In-Reply-To: <200106121858.f5CIwmX05650@ns.caldera.de> <Pine.LNX.4.30.0106121304320.24593-100000@gene.pbi.nrc.ca> <20010613142026.B13623@garloff.etpnet.phys.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20010613142026.B13623@garloff.etpnet.phys.tue.nl>; from garloff@suse.de on Wed, Jun 13, 2001 at 14:20:26 +0200
+X-Mailer: Balsa 1.1.5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Geggus wrote:
+
+On 20010613 Kurt Garloff wrote:
 > 
-> Hi there,
+> What I do in my numerics code to avoid this problem, is to create all the
+> threads (as many as there are CPUs) on program startup and have then wait
+> (block) for a condition. As soon as there's something to to, variables for
+> the thread are setup (protected by a mutex) and the thread gets signalled
+> (cond_signal).
+> If you're interested in the code, tell me.
 > 
-> on my Elan410 based System it is very easy to change the CPU clock speed by
-> means od two outb commands.
-> 
-> I was wondering, if it does some harm to the Kernel if the CPU is
-> reprogrammed using a different CPU clock speed, while the system is up and
-> running.
 
-I have a module for the K6 PowerNow which allows you to do
+I use the reverse approach. you feed work to the threads, I create the threads
+and let them ask for work to a master until it says 'done'. When the
+master is queried for work, it locks a mutex, decide the next work for
+that thread, and unlocks it. I think it gives the lesser contention and
+is simpler to manage.
 
-echo 450 > /proc/sys/cpu/0/frequency
-
-and does the right thing wrt udelay / bogomips etc..
-I can dig it out if you want.. sounds like this should be a more generic
-thing.
-
-Greetings,
-  Arjan van de Ven
+-- 
+J.A. Magallon                           #  Let the source be with you...        
+mailto:jamagallon@able.es
+Linux Mandrake release 8.1 (Cooker) for i586
+Linux werewolf 2.4.5-ac13 #1 SMP Sun Jun 10 21:42:28 CEST 2001 i686

@@ -1,197 +1,182 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288595AbSAQLwc>; Thu, 17 Jan 2002 06:52:32 -0500
+	id <S288565AbSAQL4C>; Thu, 17 Jan 2002 06:56:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288575AbSAQLwX>; Thu, 17 Jan 2002 06:52:23 -0500
-Received: from mail.zeelandnet.nl ([212.115.192.194]:57764 "HELO
-	mail.zeelandnet.nl") by vger.kernel.org with SMTP
-	id <S288565AbSAQLwS>; Thu, 17 Jan 2002 06:52:18 -0500
-Message-ID: <3C46BB2E.10901@core-lan.nl>
-Date: Thu, 17 Jan 2002 12:53:18 +0100
-From: Dennis Fleurbaaij <dennis@core-lan.nl>
-Organization: Stichting CORE / The CORE foundation
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
-X-Accept-Language: nl, en-us
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] pci-irq.c fix
-Content-Type: multipart/mixed;
- boundary="------------010408090506070504030308"
+	id <S288575AbSAQLzx>; Thu, 17 Jan 2002 06:55:53 -0500
+Received: from harpo.it.uu.se ([130.238.12.34]:58032 "EHLO harpo.it.uu.se")
+	by vger.kernel.org with ESMTP id <S288565AbSAQLzp>;
+	Thu, 17 Jan 2002 06:55:45 -0500
+Date: Thu, 17 Jan 2002 12:55:41 +0100 (MET)
+From: Mikael Pettersson <mikpe@csd.uu.se>
+Message-Id: <200201171155.MAA13604@harpo.it.uu.se>
+To: jamesclv@us.ibm.com, torvalds@transmeta.com
+Subject: Re: [PATCH] i386/kernel/acpitable.c mapping problems
+Cc: linux-kernel@vger.kernel.org, marcelo@conectiva.com.br
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010408090506070504030308
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, 16 Jan 2002 18:34:20 -0800, James Cleverdon wrote:
+>This fixes two bugs in the 2.4.17 acpitable.c.  Marcello and Linus please 
+>apply:
+>...
+>2) The authors didn't realize that fixmap pages count down from the fixed 
+>base, so they ran off the end of virtual memory for any table over 2 pages 
+>long.
 
-Hello,
+[patch with FIX_IO_APIC_BASE (ab)use deleted]
 
-A small bug in the patch, hereby the fixed version.
+This could probably be done more cleanly using my boot-time-ioremap
+patch. I've posted it previously as part of a larger patch set (subject
+"[PATCH] DMI/APIC updates"), but Linus didn't take it: it extends the
+fixmap mechanism with a number of temporary boot-time maps and then
+implements early boot-time versions of ioremap and iounmap using them.
 
-diff -ur linux-werkt/Documentation/Configure.help
-linux/Documentation/Configure.help
---- linux-werkt/Documentation/Configure.help    Fri Jan 11 21:44:55 2002
-+++ linux/Documentation/Configure.help    Wed Jan 16 11:23:48 2002
-@@ -3613,6 +3613,25 @@
-    "Bridge" is the name used for the hardware inside your computer that
-    PCMCIA cards are plugged into. If unsure, say N.
+It's pretty well tested by now. I'm including the 2.5.2 version
+below for Linus' benefit; the 2.4.18-pre4 version can be fetched from
+http://www.csd.uu.se/~mikpe/linux/kernel-patches/2.4/
 
-+Allow IRQ mask expantion
-+CONFIG_BIGGER_IRQ_MASK
-+  Say Y here if you see that some devices are using the same IRQ while
-+  there are free IRQ's available. This mostly due to bad BIOSes and
-+  can be fixed by selecting this option.
-+
-+  This will improve selection of IRQ's that are not correctly set
-+  by the BIOS. There is however a very slight chance that your hardware
-+  can't be set to an IRQ that it was not build/programmed for and will
-+  therefor refuse service, this is however not very likely.
-+
-+  This also fixes crashes from TI Cardbus controllers on laptops amongst
-+  other IRQ-related crashes/hangs.
-+
-+  It will allow devices to also choose between IRQ 5,8,9,10 and 11 no
-+  matter what the BIOS says.
-+
-+  If unsure say N.
-+
-  System V IPC
-  CONFIG_SYSVIPC
-    Inter Process Communication is a suite of library functions and
-diff -ur linux-werkt/arch/i386/config.in linux/arch/i386/config.in
---- linux-werkt/arch/i386/config.in    Fri Jan 11 21:44:20 2002
-+++ linux/arch/i386/config.in    Wed Jan 16 11:22:31 2002
-@@ -250,6 +250,9 @@
-     define_bool CONFIG_HOTPLUG_PCI n
-  fi
+Linus: If you have a suggestion for a better approach I'm all ears.
+If not, consider this a request for including this patch in 2.5.3.
 
-+bool 'Enable bigger IRQ mask.' CONFIG_BIGGER_IRQ_MASK
-+
-+
-  bool 'System V IPC' CONFIG_SYSVIPC
-  bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
-  bool 'Sysctl support' CONFIG_SYSCTL
-diff -ur linux-werkt/arch/i386/kernel/pci-irq.c
-linux/arch/i386/kernel/pci-irq.c
---- linux-werkt/arch/i386/kernel/pci-irq.c    Sat Jan 12 11:48:03 2002
-+++ linux/arch/i386/kernel/pci-irq.c    Wed Jan 16 11:24:56 2002
-@@ -19,6 +19,8 @@
+/Mikael
 
-  #include "pci-i386.h"
-
-+#define IRQ_SAFE_MASK 0x1e60
-+
-  #define PIRQ_SIGNATURE    (('$' << 0) + ('P' << 8) + ('I' << 16) + ('R'
-<< 24))
-  #define PIRQ_VERSION 0x0100
-
-@@ -571,6 +573,16 @@
-       */
-      newirq = dev->irq;
-      if (!newirq && assign) {
-+
-+                /*
-+          * This adds the IRQ's that are marked as safe, this in order 
-to prevent wierd
-+          * BIOSes to set insane values for irq-masks. It's a
-selectable option.
-+          */
-+             #ifdef CONFIG_BIGGER_IRQ_MASK
-+         mask |= IRQ_SAFE_MASK;
-+             DBG(" -> mask expanded with %04x to %04x", IRQ_SAFE_MASK,
-mask);
-+         #endif
-+
-          for (i = 0; i < 16; i++) {
-              if (!(mask & (1 << i)))
-                  continue;
-
--- 
-Cheers,
-
-Dennis Fleurbaaij
-
-
-
---------------010408090506070504030308
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-diff -ur linux-werkt/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-werkt/Documentation/Configure.help	Fri Jan 11 21:44:55 2002
-+++ linux/Documentation/Configure.help	Wed Jan 16 11:23:48 2002
-@@ -3613,6 +3613,25 @@
-   "Bridge" is the name used for the hardware inside your computer that
-   PCMCIA cards are plugged into. If unsure, say N.
+diff -ruN linux-2.5.2/arch/i386/mm/init.c linux-2.5.2.boot-time-ioremap/arch/i386/mm/init.c
+--- linux-2.5.2/arch/i386/mm/init.c	Tue Dec 18 00:40:11 2001
++++ linux-2.5.2.boot-time-ioremap/arch/i386/mm/init.c	Thu Jan 17 09:29:54 2002
+@@ -128,7 +128,6 @@
+ static inline void set_pte_phys (unsigned long vaddr,
+ 			unsigned long phys, pgprot_t flags)
+ {
+-	pgprot_t prot;
+ 	pgd_t *pgd;
+ 	pmd_t *pmd;
+ 	pte_t *pte;
+@@ -144,10 +143,8 @@
+ 		return;
+ 	}
+ 	pte = pte_offset(pmd, vaddr);
+-	if (pte_val(*pte))
+-		pte_ERROR(*pte);
+-	pgprot_val(prot) = pgprot_val(PAGE_KERNEL) | pgprot_val(flags);
+-	set_pte(pte, mk_pte_phys(phys, prot));
++	/* <phys,flags> stored as-is, to permit clearing entries */
++	set_pte(pte, mk_pte_phys(phys, flags));
  
-+Allow IRQ mask expantion
-+CONFIG_BIGGER_IRQ_MASK
-+  Say Y here if you see that some devices are using the same IRQ while
-+  there are free IRQ's available. This mostly due to bad BIOSes and
-+  can be fixed by selecting this option.
-+   
-+  This will improve selection of IRQ's that are not correctly set 
-+  by the BIOS. There is however a very slight chance that your hardware 
-+  can't be set to an IRQ that it was not build/programmed for and will
-+  therefor refuse service, this is however not very likely.
-+   
-+  This also fixes crashes from TI Cardbus controllers on laptops amongst
-+  other IRQ-related crashes/hangs. 
+ 	/*
+ 	 * It's enough to flush this one mapping.
+diff -ruN linux-2.5.2/arch/i386/mm/ioremap.c linux-2.5.2.boot-time-ioremap/arch/i386/mm/ioremap.c
+--- linux-2.5.2/arch/i386/mm/ioremap.c	Tue Mar 20 17:13:33 2001
++++ linux-2.5.2.boot-time-ioremap/arch/i386/mm/ioremap.c	Thu Jan 17 09:29:58 2002
+@@ -161,3 +161,68 @@
+ 	if (addr > high_memory)
+ 		return vfree((void *) (PAGE_MASK & (unsigned long) addr));
+ }
 +
-+  It will allow devices to also choose between IRQ 5,8,9,10 and 11 no
-+  matter what the BIOS says.
-+  
-+  If unsure say N.
++void __init *bt_ioremap(unsigned long phys_addr, unsigned long size)
++{
++	unsigned long offset, last_addr;
++	unsigned int nrpages;
++	enum fixed_addresses idx;
 +
- System V IPC
- CONFIG_SYSVIPC
-   Inter Process Communication is a suite of library functions and
-diff -ur linux-werkt/arch/i386/config.in linux/arch/i386/config.in
---- linux-werkt/arch/i386/config.in	Fri Jan 11 21:44:20 2002
-+++ linux/arch/i386/config.in	Wed Jan 16 11:22:31 2002
-@@ -250,6 +250,9 @@
-    define_bool CONFIG_HOTPLUG_PCI n
- fi
++	/* Don't allow wraparound or zero size */
++	last_addr = phys_addr + size - 1;
++	if (!size || last_addr < phys_addr)
++		return NULL;
++
++	/*
++	 * Don't remap the low PCI/ISA area, it's always mapped..
++	 */
++	if (phys_addr >= 0xA0000 && last_addr < 0x100000)
++		return phys_to_virt(phys_addr);
++
++	/*
++	 * Mappings have to be page-aligned
++	 */
++	offset = phys_addr & ~PAGE_MASK;
++	phys_addr &= PAGE_MASK;
++	size = PAGE_ALIGN(last_addr) - phys_addr;
++
++	/*
++	 * Mappings have to fit in the FIX_BTMAP area.
++	 */
++	nrpages = size >> PAGE_SHIFT;
++	if (nrpages > NR_FIX_BTMAPS)
++		return NULL;
++
++	/*
++	 * Ok, go for it..
++	 */
++	idx = FIX_BTMAP_BEGIN;
++	while (nrpages > 0) {
++		set_fixmap(idx, phys_addr);
++		phys_addr += PAGE_SIZE;
++		--idx;
++		--nrpages;
++	}
++	return (void*) (offset + fix_to_virt(FIX_BTMAP_BEGIN));
++}
++
++void __init bt_iounmap(void *addr, unsigned long size)
++{
++	unsigned long virt_addr;
++	unsigned long offset;
++	unsigned int nrpages;
++	enum fixed_addresses idx;
++
++	virt_addr = (unsigned long)addr;
++	if (virt_addr < fix_to_virt(FIX_BTMAP_BEGIN))
++		return;
++	offset = virt_addr & ~PAGE_MASK;
++	nrpages = PAGE_ALIGN(offset + size - 1) >> PAGE_SHIFT;
++
++	idx = FIX_BTMAP_BEGIN;
++	while (nrpages > 0) {
++		__set_fixmap(idx, 0, __pgprot(0));
++		--idx;
++		--nrpages;
++	}
++}
+diff -ruN linux-2.5.2/include/asm-i386/fixmap.h linux-2.5.2.boot-time-ioremap/include/asm-i386/fixmap.h
+--- linux-2.5.2/include/asm-i386/fixmap.h	Thu Nov 22 20:46:19 2001
++++ linux-2.5.2.boot-time-ioremap/include/asm-i386/fixmap.h	Thu Jan 17 09:29:54 2002
+@@ -65,6 +65,11 @@
+ 	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
+ 	FIX_KMAP_END = FIX_KMAP_BEGIN+(KM_TYPE_NR*NR_CPUS)-1,
+ #endif
++	__end_of_permanent_fixed_addresses,
++	/* temporary boot-time mappings, used before ioremap() is functional */
++#define NR_FIX_BTMAPS	16
++	FIX_BTMAP_END = __end_of_permanent_fixed_addresses,
++	FIX_BTMAP_BEGIN = FIX_BTMAP_END + NR_FIX_BTMAPS - 1,
+ 	__end_of_fixed_addresses
+ };
  
-+bool 'Enable bigger IRQ mask.' CONFIG_BIGGER_IRQ_MASK
-+
-+
- bool 'System V IPC' CONFIG_SYSVIPC
- bool 'BSD Process Accounting' CONFIG_BSD_PROCESS_ACCT
- bool 'Sysctl support' CONFIG_SYSCTL
-diff -ur linux-werkt/arch/i386/kernel/pci-irq.c linux/arch/i386/kernel/pci-irq.c
---- linux-werkt/arch/i386/kernel/pci-irq.c	Sat Jan 12 11:48:03 2002
-+++ linux/arch/i386/kernel/pci-irq.c	Wed Jan 16 11:24:56 2002
-@@ -19,6 +19,8 @@
+@@ -86,8 +91,8 @@
+  * at the top of mem..
+  */
+ #define FIXADDR_TOP	(0xffffe000UL)
+-#define FIXADDR_SIZE	(__end_of_fixed_addresses << PAGE_SHIFT)
+-#define FIXADDR_START	(FIXADDR_TOP - FIXADDR_SIZE)
++#define __FIXADDR_SIZE	(__end_of_permanent_fixed_addresses << PAGE_SHIFT)
++#define FIXADDR_START	(FIXADDR_TOP - __FIXADDR_SIZE)
  
- #include "pci-i386.h"
+ #define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
  
-+#define IRQ_SAFE_MASK 0x1e60
-+
- #define PIRQ_SIGNATURE	(('$' << 0) + ('P' << 8) + ('I' << 16) + ('R' << 24))
- #define PIRQ_VERSION 0x0100
+diff -ruN linux-2.5.2/include/asm-i386/io.h linux-2.5.2.boot-time-ioremap/include/asm-i386/io.h
+--- linux-2.5.2/include/asm-i386/io.h	Tue Dec 18 00:40:12 2001
++++ linux-2.5.2.boot-time-ioremap/include/asm-i386/io.h	Thu Jan 17 09:29:58 2002
+@@ -95,6 +95,14 @@
+ extern void iounmap(void *addr);
  
-@@ -571,6 +573,16 @@
- 	 */
- 	newirq = dev->irq;
- 	if (!newirq && assign) {
+ /*
++ * bt_ioremap() and bt_iounmap() are for temporary early boot-time
++ * mappings, before the real ioremap() is functional.
++ * A boot-time mapping is currently limited to at most 16 pages.
++ */
++extern void *bt_ioremap(unsigned long offset, unsigned long size);
++extern void bt_iounmap(void *addr, unsigned long size);
 +
-+                /* 
-+ 		 * This adds the IRQ's that are marked as safe, this in order to prevent wierd
-+ 		 * BIOSes to set insane values for irq-masks. It's a selectable option.
-+ 		 */
-+ 	        #ifdef CONFIG_BIGGER_IRQ_MASK
-+ 		mask |= IRQ_SAFE_MASK;
-+ 	        DBG(" -> mask expanded with %04x to %04x", IRQ_SAFE_MASK, mask);
-+ 		#endif
-+
- 		for (i = 0; i < 16; i++) {
- 			if (!(mask & (1 << i)))
- 				continue;
-
---------------010408090506070504030308--
-
++/*
+  * IO bus memory addresses are also 1:1 with the physical address
+  */
+ #define virt_to_bus virt_to_phys

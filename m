@@ -1,52 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130340AbRAJGzi>; Wed, 10 Jan 2001 01:55:38 -0500
+	id <S129406AbRAJG6H>; Wed, 10 Jan 2001 01:58:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130348AbRAJGz1>; Wed, 10 Jan 2001 01:55:27 -0500
-Received: from dnvrdslgw14poolB96.dnvr.uswest.net ([63.228.85.96]:16214 "EHLO
-	q.dyndns.org") by vger.kernel.org with ESMTP id <S130340AbRAJGzN>;
-	Wed, 10 Jan 2001 01:55:13 -0500
-Date: Tue, 9 Jan 2001 23:55:14 -0700 (MST)
-From: Benson Chow <blc@q.dyndns.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: USB Keyboards for x86/uhci in 2.4- kernels?
-Message-ID: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>
+	id <S129584AbRAJG5r>; Wed, 10 Jan 2001 01:57:47 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:2572 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129406AbRAJG5i>; Wed, 10 Jan 2001 01:57:38 -0500
+Date: Tue, 9 Jan 2001 22:57:11 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: Zlatko Calusic <zlatko@iskon.hr>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.30.0101100144280.7564-100000@imladris.demon.co.uk>
+Message-ID: <Pine.LNX.4.10.10101092255510.3414-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anyone tried using these beasts on a x86?
 
-Anyway, what's happening:   In BIOS my USB keyboard works really poorly -
-it almost seems scancodes get dropped left and right.  Ok, so I don't mind
-too much, i'm sure BIOS has a very limited driver.  After booting
-Microsoft's offerring, it would work fine after it installs its driver.
-I also tried this same keyboard on a HPUX Visualize C3600 workstation and
-it also works nicely.
 
-However linux would never fix  this "scancode drop" syndrome even after
-loading the hid or usbkbd driver.  Both my Via uhci USB motherboard and
-PIIX3 USB motherboard exhibit this usb keyboard strangeness
-with the hid or usbkbd driver is installed.  I think the PIIX3
-motherboard's bios doesnt handle USB properly so it doesn't even work in
-BIOS setup.  Any idea what's going on?  Is there some other driver or
-utility I need to install/run to get it working?  Maybe just my bad bios?
+On Wed, 10 Jan 2001, David Woodhouse wrote:
+> 
+> How does this affect embedded systems with no swap space at all?
 
-BTW: my USB Mouse, and USB Printer seem to work nicely in 2.4.0-release.
+The no-swap behaviour shoul dactually be pretty much identical, simply
+because both 2.2 and 2.4 will do the same thing: just skip dirty pages in
+the page tables because they cannot do anything about them.
 
-USB KBD: NMB USB 104-key PC-Style
-USB Mouse: Microsoft Intellimouse w/Intellieye 1.0, Logitech Optical Wheel
-USB Printer: HP Deskjet 880C
-USB Hub: Belkin 4-port
-Intel 82437SB(?) PIIX3 and Via 82C686(?) USB controller
+That said, the _other_ VM differences in 2.4.x may obviously make a
+difference, just not the sticky swap cache one..
 
-Working: Stock HPUX10.2 HP Visualize C3600 PARISC2 Workstation
-Working: Microsoft Windows 98 First Edition on the Via.
-
-Thanks!
--bc
-
+		Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

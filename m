@@ -1,37 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289698AbSAWFZ1>; Wed, 23 Jan 2002 00:25:27 -0500
+	id <S289679AbSAWFZ1>; Wed, 23 Jan 2002 00:25:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289697AbSAWFZR>; Wed, 23 Jan 2002 00:25:17 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:60323 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S289679AbSAWFZC>;
-	Wed, 23 Jan 2002 00:25:02 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Jan Pospisil <honik@civ.zcu.cz>
-Cc: linux-kernel@vger.kernel.org, bug-binutils@gnu.org
-Subject: Re: undefined references when compiling kernel with binutils-2.11.92.0.12.3 
-In-Reply-To: Your message of "Tue, 22 Jan 2002 14:43:16 BST."
-             <Pine.LNX.4.33.0201221421050.20914-100000@aither.zcu.cz> 
+	id <S289699AbSAWFZR>; Wed, 23 Jan 2002 00:25:17 -0500
+Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:44306
+	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
+	id <S289697AbSAWFZH>; Wed, 23 Jan 2002 00:25:07 -0500
+Subject: Re: Possible Idea with filesystem buffering.
+From: Shawn Starr <spstarr@sh0n.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33L.0201222136510.32617-100000@imladris.surriel.com>
+In-Reply-To: <Pine.LNX.4.33L.0201222136510.32617-100000@imladris.surriel.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1.99 (Preview Release)
+Date: 23 Jan 2002 00:26:33 -0500
+Message-Id: <1011763595.5117.5.camel@coredump>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 23 Jan 2002 16:24:52 +1100
-Message-ID: <25992.1011763492@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Jan 2002 14:43:16 +0100 (CET), 
-Jan Pospisil <honik@civ.zcu.cz> wrote:
->Hello, it has been posted so many times, and according to Richard Gooch it
->should be fixed in 2.4.18-pre3, however I am still having the problem
->undefined reference to `local symbols in discarded section .text.exit'
->particullary with the CONFIG_VIDEO_BT848=y (as a module it works fine).
->In function `bttv_probe':
->drivers/media/media.o(.text.init+0x1745): undefined reference to `local
->symbols in discarded section .text.exit'
+The VM is busy with other tasks so why not have a daemon handle pages
+delegated from the VM? Having a pagebuf daemon would allow for delay
+writes and allow for perhaps readahead buffering of data having theses
+would take some pressure off of the VM no?
 
-That is a real coding bug that the new binutils has found and
-highlighted.  bttv_probe() calls bttv_remove() which is defined as
-__devexit, bttv_remove() is not there when the code is built in.  Take
-it up with the bttv maintainer, it is a coding error, not binutils.
+
+On Tue, 2002-01-22 at 18:37, Rik van Riel wrote:
+> On 22 Jan 2002, Shawn Starr wrote:
+> 
+> > The only functionality added to the kernel would be a a interface for
+> > filesystems to share it would basically create kpagebuf_* functions.
+> 
+> What would these things achieve ?
+> 
+> It would be nice if you could give us a quick explanation of
+> what exactly kpagebufd is supposed to do, if only so I can
+> keep that in mind while working on the VM ;)
+> 
+> Rik
+> -- 
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
 

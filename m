@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263113AbTDFVm5 (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:42:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263114AbTDFVm5 (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:42:57 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:45188 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263113AbTDFVm4 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 17:42:56 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 6 Apr 2003 14:52:24 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Rik van Riel <riel@surriel.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: subobj-rmap
-In-Reply-To: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
-Message-ID: <Pine.LNX.4.50.0304061447560.7645-100000@blue1.dev.mcafeelabs.com>
-References: <Pine.LNX.4.44.0304061737510.2296-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id S263106AbTDFVkI (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 17:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263111AbTDFVkI (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 17:40:08 -0400
+Received: from smtp2.clear.net.nz ([203.97.37.27]:11465 "EHLO
+	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S263106AbTDFVkH (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Apr 2003 17:40:07 -0400
+Date: Mon, 07 Apr 2003 09:48:35 +1200
+From: Nigel Cunningham <ncunningham@clear.net.nz>
+Subject: Re: PATCH: swsusp - 2.5.66 incremental
+In-reply-to: <20030406212931.GB693@elf.ucw.cz>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Message-id: <1049665714.9837.2.camel@laptop-linux.cunninghams>
+Organization: 
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+References: <1049537149.1709.6.camel@laptop-linux.cunninghams>
+ <20030406182016.GA17666@atrey.karlin.mff.cuni.cz>
+ <1049663561.3199.29.camel@laptop-linux.cunninghams>
+ <20030406212931.GB693@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 6 Apr 2003, Rik van Riel wrote:
+On Mon, 2003-04-07 at 09:29, Pavel Machek wrote:
+> Hi!
+> 
+> > > You really should have moved it to the driver model... having #ifdef
+> > > in suspend.c for every driver would be very ugly.
+> > 
+> > Sorry. I thought that was the maintainer's job.
+> 
+> Well, his job is to tell you to do it properly. Don't expect him to do
+> the rewriting himself. [Also he probably is not using swsusp so he
+> would not test that.]
+								Pavel
+Ah. Okay. So I learn something else about the way kernel develepment
+works... the maintainer doesn't actually maintain the code! Guess I need
+to learn the driver model stuff.
 
-> On Sun, 6 Apr 2003, Martin J. Bligh wrote:
->
-> > Supposing we keep a list of areas (hung from the address_space) that
-> > describes independant linear ranges of memory that have the same set
-> > of vma's mapping them (call those subobjects). Each subobject has a
-> > chain of vma's from it that are mapping that subobject.
-> >
-> > address_space ---> subobject ---> subobject ---> subobject ---> subobject
-> >                        |              |              |              |
-> >                        v              v              v              v
-> >                       vma            vma            vma            vma
-> >                        |                             |              |
-> >                        v                             v              v
-> >                       vma                           vma            vma
-> >                        |                             |
-> >                        v                             v
-> >                       vma                           vma
->
-> OK, lets say we have a file of 1000 pages, or
-> offsets 0 to 999, with the following mappings:
->
-> VMA A:   0-999
-> VMA B:   0-200
-> VMA C: 150-400
-> VMA D: 300-500
-> VMA E: 300-500
-> VMA F:   0-999
->
-> How would you describe these with independant
-> regions ?
+Regards,
 
-You should decompose each VMA in a set on independent regions. Immagine to
-pile up each VMA with boundaries that cuts each other VMA address space :
-
-1) |----------------------|
-2)     |-----------|
-3) |--------------------------|
-4)         |-----------|
-
-R) |---|---|-------|---|--|---|
-
-    1   1   1       1   1  3
-    3   2   2       3   3
-        3   3       4
-            4
-
-
-
-- Davide
+Nigel
 

@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVCJE3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVCJE3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262245AbVCJE3x (ORCPT <rfc822;willy@w.ods.org>);
+	id S261660AbVCJE3x (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 9 Mar 2005 23:29:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVCIXMx
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262500AbVCIXLR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 18:12:53 -0500
-Received: from fire.osdl.org ([65.172.181.4]:38887 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261652AbVCIWpd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 17:45:33 -0500
-Date: Wed, 9 Mar 2005 14:44:58 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Direct io on block device has performance regression on 2.6.x
- kernel
-Message-Id: <20050309144458.2cbc554e.akpm@osdl.org>
-In-Reply-To: <200503092159.j29LxIg26267@unix-os.sc.intel.com>
-References: <20050309120458.7c25f5e3.akpm@osdl.org>
-	<200503092159.j29LxIg26267@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 9 Mar 2005 18:11:17 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:2700 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262424AbVCIWlD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 17:41:03 -0500
+Subject: Re: Linux 2.6.11-ac1
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: CaT <cat@zip.com.au>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050309222232.GH1811@zip.com.au>
+References: <1110231261.3116.90.camel@localhost.localdomain>
+	 <20050309072646.GG1811@zip.com.au>
+	 <58cb370e05030908267f0fadbe@mail.gmail.com>
+	 <1110386321.3116.196.camel@localhost.localdomain>
+	 <58cb370e050309084374f93a71@mail.gmail.com>
+	 <20050309222232.GH1811@zip.com.au>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1110407945.3072.272.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 09 Mar 2005 22:39:06 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->
-> > Did you generate a kernel profile?
-> 
->  Top 40 kernel hot functions, percentage is normalized to kernel utilization.
-> 
->  _spin_unlock_irqrestore		23.54%
->  _spin_unlock_irq			19.27%
+On Mer, 2005-03-09 at 22:22, CaT wrote:
+> Argh! Ok. I guess I shouldn't've just bought the card based on this
+> driver then so that I could better debug my problems with my promise
+> cards. 8(
 
-Cripes.
+Its good hardware. It does lots of neat things providing you run -ac
+anyway. The raid1 performance is very good and it can do hotplug IDE
+transparently in hardware raid modes. Its a good solid little
+controller. 
 
-Is that with CONFIG_PREEMPT?  If so, and if you disable CONFIG_PREEMPT,
-this cost should be accounting the the spin_unlock() caller and we can see
-who the culprit is.   Perhaps dio->bio_lock.
+Alan
 

@@ -1,41 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267415AbUIWVV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267377AbUIWVUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267415AbUIWVV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 17:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbUIWVVG
+	id S267377AbUIWVUz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 17:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUIWVOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 17:21:06 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:8572 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S267378AbUIWVSw (ORCPT
+	Thu, 23 Sep 2004 17:14:45 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:6860 "EHLO baikonur.stro.at")
+	by vger.kernel.org with ESMTP id S267378AbUIWVIn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 17:18:52 -0400
-Message-ID: <58cb370e040923141817412b43@mail.gmail.com>
-Date: Thu, 23 Sep 2004 23:18:00 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Randy Gardner <lkml@bushytails.net>
-Subject: Re: 2.6.8.1 OOM on hard drive copy
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4153384E.1030804@bushytails.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <4153384E.1030804@bushytails.net>
+	Thu, 23 Sep 2004 17:08:43 -0400
+Subject: [patch 09/20]  dvb/grundig_29504-401: replace 	schedule_timeout() with msleep()
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, linux-dvb-maintainer@linuxtv.org,
+       janitor@sternwelten.at, nacc@us.ibm.com
+From: janitor@sternwelten.at
+Date: Thu, 23 Sep 2004 23:08:42 +0200
+Message-ID: <E1CAapW-0003ew-MO@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 23 Sep 2004 13:55:42 -0700, Randy Gardner <lkml@bushytails.net> wrote:
 
-> Quick system specs:
-> Dual p3s on a MSI 694D Pro motherboard (via chipset), 2GB of ram.
-> 2.6.8.1 kernel compiled with 4gb memory limit.
 
-> The hard drive being copied from does not work with DMA, and having it
-> in results in no dma for any of the drives.  (No message is displayed
-> for this, but hdparm shows dma off when it's normally on.  On the box
 
-It shouldn't be like that. Please send dmesg output for this system.
 
-> the 8gb drive was removed from, dma would always immediately time out)
 
-ditto
+
+I would appreciate any comments from the janitor@sternweltens list.
+
+Thanks,
+Nish
+
+
+
+Description: Replace dvb_delay() with msleep() to guarantee the
+task delays the desired time.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+---
+
+ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/frontends/grundig_29504-401.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+diff -puN drivers/media/dvb/frontends/grundig_29504-401.c~msleep-drivers_media_dvb_frontends_grundig_29504-401 drivers/media/dvb/frontends/grundig_29504-401.c
+--- linux-2.6.9-rc2-bk7/drivers/media/dvb/frontends/grundig_29504-401.c~msleep-drivers_media_dvb_frontends_grundig_29504-401	2004-09-21 20:50:16.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/media/dvb/frontends/grundig_29504-401.c	2004-09-21 20:50:16.000000000 +0200
+@@ -27,6 +27,7 @@
+ #include <linux/module.h>
+ #include <linux/string.h>
+ #include <linux/slab.h>
++#include <linux/delay.h>
+ 
+ #include "dvb_frontend.h"
+ #include "dvb_functions.h"
+@@ -546,7 +547,7 @@ int grundig_29504_401_ioctl (struct dvb_
+ 		res = init (i2c);
+ 		if ((res == 0) && (state->first)) {
+ 			state->first = 0;
+-			dvb_delay(200);
++			msleep(200);
+ 		}
+ 		return res;
+ 
+_

@@ -1,80 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264196AbTEWVXB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 17:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264197AbTEWVXB
+	id S264193AbTEWVUQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 17:20:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264196AbTEWVUQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 17:23:01 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:11466 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264196AbTEWVW7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 17:22:59 -0400
-Date: Fri, 23 May 2003 14:37:55 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@transmeta.com
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [BK PATCH] Again, more USB changes for 2.5.69
-Message-ID: <20030523213754.GA13749@kroah.com>
+	Fri, 23 May 2003 17:20:16 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:43877 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S264193AbTEWVUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 17:20:15 -0400
+Date: Fri, 23 May 2003 14:31:38 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUGS] 2.5.69 syncppp
+Message-Id: <20030523143138.4701982e.akpm@digeo.com>
+In-Reply-To: <1053724551.2589.9.camel@diemos>
+References: <1053724551.2589.9.camel@diemos>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 23 May 2003 21:33:21.0617 (UTC) FILETIME=[EEFECC10:01C32172]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Paul Fulghum <paulkf@microgate.com> wrote:
+>
+> 1. When syncppp tries to send a control protocol packet,
+> I see the following kernel messages:
+> 
+>  Badness in local_bh_enable at kernel/softirq.c:105
 
-Here are some more USB fixes for the latest 2.5.69.  They include some
-merge fixups that I caused in the last set of patches sent to you, and a
-interrupt latency fix some people have been reporting, and a fix for
-some devices that also has been reported on lkml.
+sppp_lcp_open() is called from other places without that lock held, so it
+is probably not totally stupid to drop it in the timer handler too.
+
+It's good (and surprising) that someone is actually using that stuff. 
+Please beat on it for a while.
 
 
-Please pull from:  bk://kernel.bkbits.net/gregkh/linux/linus-2.5
+diff -puN drivers/net/wan/syncppp.c~syncppp-locking-fix drivers/net/wan/syncppp.c
+--- 25/drivers/net/wan/syncppp.c~syncppp-locking-fix	Fri May 23 14:28:50 2003
++++ 25-akpm/drivers/net/wan/syncppp.c	Fri May 23 14:29:24 2003
+@@ -1297,6 +1297,7 @@ static void sppp_cp_timeout (unsigned lo
+ 		spin_unlock_irqrestore(&spppq_lock, flags);
+ 		return;
+ 	}
++	spin_unlock_irqrestore(&spppq_lock, flags);
+ 	switch (sp->lcp.state) {
+ 	case LCP_STATE_CLOSED:
+ 		/* No ACK for Configure-Request, retry. */
+@@ -1333,7 +1334,6 @@ static void sppp_cp_timeout (unsigned lo
+ 		}
+ 		break;
+ 	}
+-	spin_unlock_irqrestore(&spppq_lock, flags);
+ }
+ 
+ static char *sppp_lcp_type_name (u8 type)
 
-
-Patches will be posted to linux-usb-devel as a follow-up thread for
-those who want to see them.
-
-thanks,
-
-greg k-h
-
- drivers/usb/core/message.c      |    4 
- drivers/usb/host/uhci-hcd.c     |  164 ++++--
- drivers/usb/host/uhci-hcd.h     |   29 +
- drivers/usb/misc/speedtch.c     | 1088 +++++++++++++++++-----------------------
- drivers/usb/storage/transport.c |    2 
- drivers/usb/storage/transport.h |    2 
- 6 files changed, 650 insertions(+), 639 deletions(-)
------
-
-Alan Stern:
-  o USB: Addition to previous patch needed for PM UHCI
-  o USB: uhci Interrupt Latency fix
-
-David Brownell:
-  o USB: bugfix endpoint state
-
-Duncan Sands:
-  o USB speedtouch: set owner fields
-  o USB speedtouch: receive code rewrite
-  o USB speedtouch: receive path micro optimization
-  o USB speedtouch: remove useless NULL pointer checks
-  o USB speedtouch: kfree_skb -> dev_kfree_skb
-  o USB speedtouch: send path micro optimizations
-  o USB speedtouch: use optimally sized reconstruction buffers
-  o USB speedtouch: remove stale code
-  o USB speedtouch: verbose debugging
-  o USB speedtouch: spin_lock_irqsave -> spin_lock_irq in tasklets
-  o USB speedtouch: spin_lock_irqsave -> spin_lock_irq in process context
-  o USB speedtouch: add defensive memory barriers
-  o USB speedtouch: replace yield()
-  o USB speedtouch: trivial whitespace and name changes
-
-Greg Kroah-Hartman:
-  o USB: speedtch merge fixups by hand
-
-Vojtech Pavlik:
-  o USB: Make Olympus cameras work with usb-storage
+_
 

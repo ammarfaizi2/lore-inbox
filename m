@@ -1,46 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273881AbRJEVJA>; Fri, 5 Oct 2001 17:09:00 -0400
+	id <S274055AbRJEVLA>; Fri, 5 Oct 2001 17:11:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273619AbRJEVIu>; Fri, 5 Oct 2001 17:08:50 -0400
-Received: from smtp9.xs4all.nl ([194.109.127.135]:48082 "EHLO smtp9.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S273881AbRJEVIi>;
-	Fri, 5 Oct 2001 17:08:38 -0400
-Date: Fri, 5 Oct 2001 23:09:01 +0200 (CEST)
-From: Seth Mos <knuffie@xs4all.nl>
-To: Steve Lord <lord@sgi.com>
-cc: Rik van Riel <riel@conectiva.com.br>,
-        Krzysztof Rusocki <kszysiu@main.braxis.co.uk>, linux-xfs@oss.sgi.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: %u-order allocation failed 
-In-Reply-To: <200110052043.f95KhG307514@jen.americas.sgi.com>
-Message-ID: <Pine.BSI.4.10.10110052306200.303-100000@xs3.xs4all.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S274041AbRJEVKu>; Fri, 5 Oct 2001 17:10:50 -0400
+Received: from are.twiddle.net ([64.81.246.98]:54433 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S274035AbRJEVKh>;
+	Fri, 5 Oct 2001 17:10:37 -0400
+Date: Fri, 5 Oct 2001 14:10:53 -0700
+From: Richard Henderson <rth@twiddle.net>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Richard Henderson <rth@dot.cygnus.com>, torvalds@transmeta.com,
+        alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: alpha 2.4.11-pre3: delay disabling early boot messages
+Message-ID: <20011005141053.A14712@twiddle.net>
+Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
+	Richard Henderson <rth@dot.cygnus.com>, torvalds@transmeta.com,
+	alan@redhat.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20011004183415.A6357@dot.cygnus.com> <17968.1002265943@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <17968.1002265943@redhat.com>; from dwmw2@infradead.org on Fri, Oct 05, 2001 at 08:12:23AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Oct 2001, Steve Lord wrote:
+On Fri, Oct 05, 2001 at 08:12:23AM +0100, David Woodhouse wrote:
+> I've wanted this on other platforms too - couldn't we add an 
+> unregister_boot_console() to console_init() instead?
 
-> > On Fri, 5 Oct 2001, Rik van Riel wrote:
-> > 
-> > > On Fri, 5 Oct 2001, Seth Mos wrote:
-> > > 
-> > > > This happens using either 2.4.10-xfs or 2.4.11-pre3-xfs.
-> > > 
-> > > Ohh duh, IIRC there are a bunch of highmem bugs in
-> > > -linus which are fixed in -ac.
-> > 
-> > Fitting XFS onto a -ac kernel should be fun :-(
-> 
-> Its not that that simple - I tried before I got dragged kicking and
-> screaming back into some Irix stuff. Just running mongo on ext2 
-> on a HIGHMEM ac kernel should show if things are better there - since 
-> the problems seem to be fairly filesystem independent.
-
-I don't have a HIGHMEM box without XFS filesystems. So i have to merge
-both -ac and the xfs tree to test it. I can reformat the box ofcourse but
-that would mean next week. If I can win a day and spare a reformat I am
-willing to make that sacrifice.
+Seems reasonable.  I wouldn't want to touch such a 
+think in 2.4 though.
 
 
+r~

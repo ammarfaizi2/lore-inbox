@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277550AbRJOPbh>; Mon, 15 Oct 2001 11:31:37 -0400
+	id <S277409AbRJOPhr>; Mon, 15 Oct 2001 11:37:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277546AbRJOPbR>; Mon, 15 Oct 2001 11:31:17 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34630 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S277494AbRJOPbN>; Mon, 15 Oct 2001 11:31:13 -0400
-To: Andi Kleen <ak@muc.de>
-Cc: Gerhard Mack <gmack@innerfire.net>, Tommy Faasen <tommy@vuurwerk.nl>,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP processor rework help needed
-In-Reply-To: <k2wv1yhsh4.fsf@zero.aec.at>
-	<Pine.LNX.4.10.10110141349510.31660-100000@innerfire.net>
-	<20011014230709.47894@colin.muc.de>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 15 Oct 2001 09:20:25 -0600
-In-Reply-To: <20011014230709.47894@colin.muc.de>
-Message-ID: <m18zedorpi.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
+	id <S277551AbRJOPhh>; Mon, 15 Oct 2001 11:37:37 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:5400 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S277409AbRJOPhZ>; Mon, 15 Oct 2001 11:37:25 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Hans-Peter Jansen <hpj@urpla.net>
+Organization: TreeWater Society Berlin
+To: Chris Mason <mason@suse.com>
+Subject: Re: mount hanging 2.4.12
+Date: Mon, 15 Oct 2001 17:37:49 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <Pine.GSO.4.21.0110141231570.6026-100000@weyl.math.psu.edu> <2314290000.1003133922@tiny>
+In-Reply-To: <2314290000.1003133922@tiny>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011015153750.16F46F89@shrek.lisa.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
 
-> On Sun, Oct 14, 2001 at 10:50:50PM +0200, Gerhard Mack wrote:
-> > This may sound like a dumb question but wouldn't simply swapping the CPUs
-> > have the same affect?
-> 
-> In theory yes, assuming the determination of the boot cpu is fully
-> deterministic. the spec says it is the one with the lowest apic number; but
-> who knows if that is true in every weird board.
+Hi Chris,
 
-I do recall that the apics have programmable numbers.  We even test
-that as part of our cpu initialization.  So that means little.  
+I discovered some mount problems/hangs when playing with dvds,
+so I gave your patch a try, but it does not apply properly on 
+2.4.12. Can you shred some light on this:
 
-For intel the initial determination is made having the cpus race on
-the apic bus.  The cpu that sends a message first gets the lowest
-apicid.  Though I need to see how the P4 Xeon does it, as the apic
-bus is actually unused.
+drypatch -p1 < /home/hp/Downloads/linux/patch/fslock-2.4.12.dif
+patching file fs/super.c
+Hunk #2 succeeded at 324 with fuzz 2.
+Hunk #3 succeeded at 372 with fuzz 2.
+Hunk #4 FAILED at 626.
+Hunk #5 FAILED at 639.
+Hunk #6 FAILED at 666.
+Hunk #7 FAILED at 677.
+Hunk #8 FAILED at 783.
+Hunk #9 FAILED at 800.
+6 out of 9 hunks FAILED -- saving rejects to file fs/super.c.rej
+patching file fs/buffer.c
+Hunk #1 succeeded at 359 with fuzz 1.
+patching file drivers/md/lvm.c
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
 
-Also many boards have logic so that allows the second cpu to become the
-boot cpu if the first cpu fails to boot.  This logic might be as
-simple as round-robin, so even a deterministic may make this
-difficult.
-
-So the only reliable way to force the boot cpu is with software that
-runs before the operating system, usually the firmware.
-
-I'll keep this in mind for linuxBIOS, as that would be an ideal place
-to implement something like that.  
-
-Eric
+Thanks in advance,
+Hans-Peter

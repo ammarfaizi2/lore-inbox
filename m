@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261950AbRE2BPV>; Mon, 28 May 2001 21:15:21 -0400
+	id <S261969AbRE2BTB>; Mon, 28 May 2001 21:19:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261966AbRE2BPB>; Mon, 28 May 2001 21:15:01 -0400
-Received: from viper.haque.net ([66.88.179.82]:47005 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S261950AbRE2BOv>;
-	Mon, 28 May 2001 21:14:51 -0400
-Message-ID: <3B12F801.37FA7836@haque.net>
-Date: Mon, 28 May 2001 21:14:41 -0400
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
+	id <S261974AbRE2BSl>; Mon, 28 May 2001 21:18:41 -0400
+Received: from isis.its.uow.edu.au ([130.130.68.21]:61671 "EHLO
+	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S261969AbRE2BSc>; Mon, 28 May 2001 21:18:32 -0400
+Message-ID: <3B12F761.FE676BEF@uow.edu.au>
+Date: Tue, 29 May 2001 11:12:01 +1000
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.5-pre4 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Plain 2.4.5 VM...
-In-Reply-To: <3B12EE32.9B35F89F@mandrakesoft.com>
+To: Richard Gooch <rgooch@ras.ucalgary.ca>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Steve Kieu <haiquy@yahoo.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.5-ac2 OOPs when run pppd ?
+In-Reply-To: <3B125E62.1DD4712E@uow.edu.au>,
+		<20010528084855.10604.qmail@web10402.mail.yahoo.com>
+		<E154NQp-000386-00@the-village.bc.nu>
+		<3B125E62.1DD4712E@uow.edu.au> <200105281821.f4SIL5000350@mobilix.atnf.CSIRO.AU>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+Richard Gooch wrote:
 > 
-> Ouch!  When compiling MySql, building sql_yacc.cc results in a ~300M
-> cc1plus process size.  Unfortunately this leads the machine with 380M of
-> RAM deeply into swap:
-> 
-> Mem:   381608K av,  248504K used,  133104K free,       0K shrd,     192K
-> buff
-> Swap:  255608K av,  255608K used,       0K free                  215744K
-> cached
-> 
-> Vanilla 2.4.5 VM.
-> 
+> How about having a helper function for interrupt handlers which queues
+> characters to be sent to the console? kconsoled anyone? Blocking
+> interrupts is quite distressing, so we need to be consoled ;-)
 
-Sorry. I just looked at your numbers again and saw you have 133 MB of
-real ram free. Is this during compile?
+I don't think we need it, Richard.  These writes to tty
+devices from interrupt context are coming from line
+disciplines - n_hdlc, ppp, r3964, etc.
 
--- 
+Now, while it may be amusing to see if you can successfully
+negotiate a PPP session by typing raw LCP, there really isn't,
+I believe, a useful reason for attaching one of these ldiscs
+to the console tty.
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+Interrupt-context writes to the *console*, as opposed to
+the console *tty* work just fine, of course.  printk.

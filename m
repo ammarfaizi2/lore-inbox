@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262778AbSJCLBu>; Thu, 3 Oct 2002 07:01:50 -0400
+	id <S263414AbSJCLLQ>; Thu, 3 Oct 2002 07:11:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263386AbSJCLBu>; Thu, 3 Oct 2002 07:01:50 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:54430 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262778AbSJCLBt>;
-	Thu, 3 Oct 2002 07:01:49 -0400
-Date: Thu, 3 Oct 2002 07:07:21 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: initrd breakage in 2.5.38-2.5.40
-In-Reply-To: <15772.9013.244887.809979@kim.it.uu.se>
-Message-ID: <Pine.GSO.4.21.0210030702500.13480-100000@weyl.math.psu.edu>
+	id <S263421AbSJCLLQ>; Thu, 3 Oct 2002 07:11:16 -0400
+Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:60549 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S263419AbSJCLLO> convert rfc822-to-8bit;
+	Thu, 3 Oct 2002 07:11:14 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: jbradford@dial.pipex.com
+Subject: Re: RAID backup
+Date: Thu, 3 Oct 2002 13:26:47 +0200
+User-Agent: KMail/1.4.1
+Cc: jakob@unthought.net, linux-kernel@vger.kernel.org,
+       linux-raid@vger.kernel.org
+References: <200210031120.g93BKLqK000216@darkstar.example.net>
+In-Reply-To: <200210031120.g93BKLqK000216@darkstar.example.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210031326.47386.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 03 October 2002 13:20, jbradford@dial.pipex.com wrote:
+> Might it not be a good idea to DD the raw contents of each disk to a tape
+> drive, just incase you fubar the array?  It would be time consuming, but at
+> least you could restore your data in the event that it gets corrupted.
 
+er
 
-On Thu, 3 Oct 2002, Mikael Pettersson wrote:
+16 120GB disks?
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
 
-> First I thought the problem was caused by a apparently missing
-> set_capacity() call in 2.5.38's drivers/block/rd.c:
-
-I _really_ doubt it - check the loop just above the add_disk() one.
-set_capacity() call is done there, repeating it won't change anything.
+Computers are like air conditioners.
+They stop working when you open Windows.
 

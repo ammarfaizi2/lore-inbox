@@ -1,86 +1,155 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264519AbUGMBV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264526AbUGMBan@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264519AbUGMBV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 21:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264526AbUGMBV4
+	id S264526AbUGMBan (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 21:30:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbUGMBan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 21:21:56 -0400
-Received: from mail1.WPI.EDU ([130.215.36.102]:43218 "EHLO mail1.WPI.EDU")
-	by vger.kernel.org with ESMTP id S264519AbUGMBVx (ORCPT
+	Mon, 12 Jul 2004 21:30:43 -0400
+Received: from mail.ccur.com ([208.248.32.212]:59659 "EHLO exchange.ccur.com")
+	by vger.kernel.org with ESMTP id S264526AbUGMBah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 21:21:53 -0400
-Date: Mon, 12 Jul 2004 21:21:52 -0400
-From: "Charles R. Anderson" <cra@WPI.EDU>
+	Mon, 12 Jul 2004 21:30:37 -0400
+Message-ID: <40F33B35.3020209@ccur.com>
+From: "Blackwood, John" <john.blackwood@ccur.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: v2.6 IGMPv3 implementation
-Message-ID: <20040713012152.GL7822@angus.ind.WPI.EDU>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20040712203056.GI7822@angus.ind.WPI.EDU> <20040713.062226.130914590.yoshfuji@linux-ipv6.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040713.062226.130914590.yoshfuji@linux-ipv6.org>
-User-Agent: Mutt/1.4.1i
+Cc: ak@muc.de
+Subject: Re: [PATCH] arch/i386|x86_64/kernel/ptrace.c linux-2.6.7
+Date: Mon, 12 Jul 2004 21:30:29 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2655.55)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 13, 2004 at 06:22:26AM +0900, YOSHIFUJI Hideaki / ?$B5HF#1QL@ wrote:
-> These ioctls are "historic" and deprecated API.
-> So, just kill them to avoid confusion.
-> We use socket options.
+Blackwood, John wrote:
+> Hi Andi,
+> 
+> In linux-2.6.7, I would like to suggest a few small changes to the error
+> checking the PTRACE_GETREGS and PTRACE_SETREGS processing in
+> sys_ptrace().
+> 
+> While working on our own linux debugger, we noticed that if an invalid
+> user-space address is passed in, then the ptrace() call would return
+> success even though the registers were not properly read
+> (PTRACE_GETREGS)
+> or written (PTRACE_SETREGS).
+> 
+> Since the access_ok() check only ensures that the user-space address
+> is within the range of valid user space addresses, the subsequent
+> __put_user() or __get_user() calls can still fail if the user-space
+> address is not current a valid address within the caller's address
+> space.
+> 
+> The suggested fix below for i386 and x86_64 is to logically OR the
+> returned
+> value into 'ret' from the __put_user() or __get_user() calls, in the
+> same way that the arch/x86_64/ia32/ptrace32.c code does.
+> 
+> Additionally, for x86_64 only, the access_ok() size parameter should
+> really
+> be sizeof(struct user_regs_struct) instead of FRAME_SIZE, since on
+> x86_64
+> the user_regs_struct being read/written is actually a bit larger than
+> the FRAME_SIZE define.
+> 
+> 
+> Thank you.
+> 
+Sorry, I guess my diffs got new-line-botched-up.
 
-Thank you.  I have now read RFC3678 carefully and I have more
-questions.  The kernel still declares the structs used for these
-obsolete ioctls, but instead defines sockoptions for them:
+I'll try again:
 
-#define IP_MSFILTER			41
-...
-#define MCAST_MSFILTER			48
-...
-struct ip_msfilter {
-	__u32		imsf_multiaddr;
-	__u32		imsf_interface;
-	__u32		imsf_fmode;
-	__u32		imsf_numsrc;
-	__u32		imsf_slist[1];
-};
+diff -ru linux-2.6.7/arch/i386/kernel/ptrace.c
+linux/arch/i386/kernel/ptrace.c
+--- linux-2.6.7/arch/i386/kernel/ptrace.c       2004-06-16
+01:19:03.000000000 -0400
++++ linux/arch/i386/kernel/ptrace.c     2004-07-12 13:09:33.000000000 -0400
+@@ -428,11 +428,11 @@
+                         ret = -EIO;
+                         break;
+                 }
++               ret = 0;
+                 for ( i = 0; i < FRAME_SIZE*sizeof(long); i += sizeof(long)
+) {
+-                       __put_user(getreg(child, i), datap);
++                       ret |= __put_user(getreg(child, i), datap);
+                         datap++;
+                 }
+-               ret = 0;
+                 break;
+         }
 
-#define IP_MSFILTER_SIZE(numsrc) \
-	(sizeof(struct ip_msfilter) - sizeof(__u32) \
-	+ (numsrc) * sizeof(__u32))
-...
-struct group_filter
-{
-	__u32				 gf_interface;	/* interface index */
-	struct __kernel_sockaddr_storage gf_group;	/* multicast address */
-	__u32				 gf_fmode;	/* filter mode */
-	__u32				 gf_numsrc;	/* number of sources */
-	struct __kernel_sockaddr_storage gf_slist[1];	/* interface index */
-};
+@@ -442,12 +442,12 @@
+                         ret = -EIO;
+                         break;
+                 }
++               ret = 0;
+                 for ( i = 0; i < FRAME_SIZE*sizeof(long); i += sizeof(long)
+) {
+-                       __get_user(tmp, datap);
++                       ret |=__get_user(tmp, datap);
+                         putreg(child, i, tmp);
+                         datap++;
+                 }
+-               ret = 0;
+                 break;
+         }
 
-#define GROUP_FILTER_SIZE(numsrc) \
-	(sizeof(struct group_filter) - sizeof(struct __kernel_sockaddr_storage) \
-	+ (numsrc) * sizeof(struct __kernel_sockaddr_storage))
 
-Is it intended that glibc use these sockoptions internally for its
-implementation of the approved Advanced API functions, which are then
-exported to user programs:
 
-setipv4sourcefilter()
-getipv4sourcefilter()
-setsourcefilter()
-getsourcefilter()
 
-Does the following limitation from RFC3678 Appendix A (rationale for
-the ioctl interface) apply to the Linux kernel getsockopt(), or can
-getsockopt() be used to retrieve the source filter for a given group?
 
-   Retrieving the source filter for a given group cannot be done with
-   getsockopt() on some existing platforms, since the group and
-   interface must be passed down in order to retrieve the correct
-   filter, and getsockopt only supports an output buffer.  This can,
-   however, be done with an ioctl(), and hence for symmetry, both gets
-   and sets are done with an ioctl.
+diff -ru linux-2.6.7/arch/x86_64/kernel/ptrace.c
+linux/arch/x86_64/kernel/ptrace.c
+--- linux-2.6.7/arch/x86_64/kernel/ptrace.c     2004-06-16
+01:19:09.000000000 -0400
++++ linux/arch/x86_64/kernel/ptrace.c   2004-07-12 16:03:35.584411668 -0400
+@@ -429,30 +429,30 @@
+                 break;
 
-Thank you for putting up with all my questions.
+         case PTRACE_GETREGS: { /* Get all gp regs from the child. */
+-               if (!access_ok(VERIFY_WRITE, (unsigned __user *)data,
+FRAME_SIZE)) {
++               if (!access_ok(VERIFY_WRITE, (unsigned __user *)data,
+sizeof(struct user_regs_struct))) {
+                         ret = -EIO;
+                         break;
+                 }
++               ret = 0;
+                 for (ui = 0; ui < sizeof(struct user_regs_struct); ui +=
+sizeof(long)) {
+-                       __put_user(getreg(child, ui),(unsigned long __user
+*) data);
++                       ret |= __put_user(getreg(child, ui),(unsigned long
+__user *) data);
+                         data += sizeof(long);
+                 }
+-               ret = 0;
+                 break;
+         }
+
+         case PTRACE_SETREGS: { /* Set all gp regs in the child. */
+                 unsigned long tmp;
+-               if (!access_ok(VERIFY_READ, (unsigned __user *)data,
+FRAME_SIZE)) {
++               if (!access_ok(VERIFY_READ, (unsigned __user *)data,
+sizeof(struct user_regs_struct))) {
+                         ret = -EIO;
+                         break;
+                 }
++               ret = 0;
+                 for (ui = 0; ui < sizeof(struct user_regs_struct); ui +=
+sizeof(long)) {
+-                       __get_user(tmp, (unsigned long __user *) data);
++                       ret |= __get_user(tmp, (unsigned long __user *)
+data);
+                         putreg(child, ui, tmp);
+                         data += sizeof(long);
+                 }
+-               ret = 0;
+                 break;
+         }
+
+
 

@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262272AbVCBLfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbVCBLed@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262272AbVCBLfN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Mar 2005 06:35:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVCBLfN
+	id S262271AbVCBLed (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Mar 2005 06:34:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVCBLec
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Mar 2005 06:35:13 -0500
-Received: from smtp08.web.de ([217.72.192.226]:10166 "EHLO smtp08.web.de")
-	by vger.kernel.org with ESMTP id S262272AbVCBLer (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Mar 2005 06:34:47 -0500
-From: Bernd Schubert <bernd-schubert@web.de>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: x86_64: 32bit emulation problems
-Date: Wed, 2 Mar 2005 12:33:56 +0100
-User-Agent: KMail/1.7.2
-Cc: Andi Kleen <ak@muc.de>, Andreas Schwab <schwab@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200502282154.08009.bernd.schubert@pci.uni-heidelberg.de> <20050302081858.GA7672@muc.de> <1109754818.10407.48.camel@lade.trondhjem.org>
-In-Reply-To: <1109754818.10407.48.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Wed, 2 Mar 2005 06:34:32 -0500
+Received: from ppsw-8.csi.cam.ac.uk ([131.111.8.138]:27070 "EHLO
+	ppsw-8.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262270AbVCBLeW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Mar 2005 06:34:22 -0500
+Subject: Re: [PATCH] raw1394 missing failure handling
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Panagiotis Issaris <panagiotis.issaris@mech.kuleuven.ac.be>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <42259F3A.8000206@mech.kuleuven.ac.be>
+References: <42259F3A.8000206@mech.kuleuven.ac.be>
+Content-Type: text/plain
+Organization: University of Cambridge Computing Service, UK
+Date: Wed, 02 Mar 2005 11:33:52 +0000
+Message-Id: <1109763232.12379.6.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503021233.57341.bernd-schubert@web.de>
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 02 March 2005 10:13, Trond Myklebust wrote:
-> on den 02.03.2005 Klokka 09:18 (+0100) skreiv Andi Kleen:
-> > On Wed, Mar 02, 2005 at 12:46:23AM +0100, Andreas Schwab wrote:
-> > > Bernd Schubert <bernd-schubert@web.de> writes:
-> > > > Hmm, after compiling with -D_FILE_OFFSET_BITS=64 it works fine. But
-> > > > why does it work without this option on a 32bit kernel, but not on a
-> > > > 64bit kernel?
-> > >
-> > > See nfs_fileid_to_ino_t for why the inode number is different between
-> > > 32bit and 64bit kernels.
-> >
-> > Ok that explains it. Thanks.
+Hi,
 
-Many thanks also from me!
+On Wed, 2005-03-02 at 12:10 +0100, Panagiotis Issaris wrote:
+> In the raw1394 driver the failure handling for
+> a __copy_to_user call is missing.
 
-> >
-> > Best would be probably to just do the shift unconditionally on 64bit
-> > kernels too.
-> >
-> > Trond, what do you think?
->
-> Why would this be more appropriate than defining __kernel_ino_t on the
-> x86_64 platform to be of the size that you actually want the kernel to
-> support?
->
-> I can see no good reason for truncating inode number values on platforms
-> that actually do support 64-bit inode numbers, but I can see several
+Your patch is obviously incorrect as it doesn't free the request before
+it returns.
 
-Well, at least we would have a reason ;)
+Best regards,
 
-> reasons why you might want not to (utilities that need to detect hard
-> linked files for instance).
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 
-Anyway, glibc already seems to have a condition for that, so IMHO glibc also 
-could truncate the inode numbers if needed. And finally glibc probably knows 
-best if its compiled as 32bit or 64bit. Will take a look into the glibc 
-sources.
-
-Many, many thanks to all for their help!
-
-Best wishes,
- Bernd

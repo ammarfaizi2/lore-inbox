@@ -1,37 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288784AbSAJMHn>; Thu, 10 Jan 2002 07:07:43 -0500
+	id <S288782AbSAJMLd>; Thu, 10 Jan 2002 07:11:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288782AbSAJMHd>; Thu, 10 Jan 2002 07:07:33 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:65220 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S288784AbSAJMHX>;
-	Thu, 10 Jan 2002 07:07:23 -0500
-Date: Thu, 10 Jan 2002 15:04:47 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mark Hahn <hahn@physics.mcmaster.ca>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-In-Reply-To: <Pine.LNX.4.33.0201091517080.22941-100000@coffee.psychology.mcmaster.ca>
-Message-ID: <Pine.LNX.4.33.0201101502530.4885-100000@localhost.localdomain>
+	id <S288786AbSAJMLX>; Thu, 10 Jan 2002 07:11:23 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3594 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S288782AbSAJMLS>;
+	Thu, 10 Jan 2002 07:11:18 -0500
+Date: Thu, 10 Jan 2002 10:11:07 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Jim Crilly <noth@noth.is.eleet.ca>
+Cc: Chris Ball <chris@void.printf.net>, Benjamin S Carrell <ben@xmission.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Bigggg Maxtor drives (fwd)
+In-Reply-To: <3C3D191E.7090804@noth.is.eleet.ca>
+Message-ID: <Pine.LNX.4.33L.0201101010090.2985-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 9 Jan 2002, Jim Crilly wrote:
 
-On Wed, 9 Jan 2002, Mark Hahn wrote:
+> Actually it would seem this is just Andre's, not so subtle, way of
+> trying to prove that his ATA133/48-bit addressing patches need
+> included in 2.4.
 
-> > no wonder, it should be 'nice -n -20 vmstat -n 1'. And you should also do
->
-> I keep a suid setrealtime wrapper around (UNSAFE!) for this kind of use:
+I think you'll agree with him the moment you end up with
+a cheap 160 GB drive in your machine and the old driver
+(which is limited to 32(?)-bit LBA) won't let you use a
+large portion of the disk ;)
 
-nice -20 is an equivalent but safe version of the same (if you use my
-patches). I made priority levels -20 ... -16 to be 'super-high priority',
-ie. such tasks never expire. (they can still drop above prio -16 if they
-use up too much CPU time, so they cannot lock up systems accidentally like
-RT tasks.) So it's in essence a 'admin priority', for super-important
-shells. I'm using it with great success.
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
 
-	Ingo
+http://www.surriel.com/		http://distro.conectiva.com/
 

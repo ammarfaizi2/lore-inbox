@@ -1,90 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267072AbTBCWhq>; Mon, 3 Feb 2003 17:37:46 -0500
+	id <S266964AbTBCXD4>; Mon, 3 Feb 2003 18:03:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267049AbTBCWhl>; Mon, 3 Feb 2003 17:37:41 -0500
-Received: from ns.suse.de ([213.95.15.193]:36614 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267048AbTBCWgr>;
-	Mon, 3 Feb 2003 17:36:47 -0500
-Date: Mon, 3 Feb 2003 23:46:19 +0100
-From: Andi Kleen <ak@suse.de>
-To: jt@hpl.hp.com
-Cc: Andi Kleen <ak@suse.de>, Mikael Pettersson <mikpe@csd.uu.se>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: 32bit emulation of wireless ioctls
-Message-ID: <20030203224619.GA6405@wotan.suse.de>
-References: <15921.37163.139583.74988@harpo.it.uu.se> <20030124193721.GA24876@wotan.suse.de> <15926.60767.451098.218188@harpo.it.uu.se> <20030128212753.GA29191@wotan.suse.de> <15927.62893.336010.363817@harpo.it.uu.se> <20030129162824.GA4773@wotan.suse.de> <15934.49235.619101.789799@harpo.it.uu.se> <20030203194923.GA27997@bougret.hpl.hp.com> <20030203201255.GA32689@wotan.suse.de> <20030203214325.GA28330@bougret.hpl.hp.com>
-Mime-Version: 1.0
+	id <S266998AbTBCXD4>; Mon, 3 Feb 2003 18:03:56 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:5273 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S266964AbTBCXDp>;
+	Mon, 3 Feb 2003 18:03:45 -0500
+Date: Mon, 03 Feb 2003 15:05:06 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: gcc 2.95 vs 3.21 performance
+Message-ID: <336780000.1044313506@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030203214325.GA28330@bougret.hpl.hp.com>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 03, 2003 at 01:43:25PM -0800, Jean Tourrilhes wrote:
-> 	In this case, the degradation is quite graceful. The Wireless
-> Tools just assume that the card doesn't support Wireless Extension, so
-> you won't get extra stats and configuration, but you can still use the
-> driver.
+People keep extolling the virtues of gcc 3.2 to me, which I'm
+reluctant to switch to, since it compiles so much slower. But
+it supposedly generates better code, so I thought I'd compile
+the kernel with both and compare the results. This is gcc 2.95
+and 3.2.1 from debian unstable on a 16-way NUMA-Q. The kernbench
+tests still use 2.95 for the compile-time stuff.
 
-Ok that's good.
+The results below leaves me distinctly unconvinced by the supposed 
+merits of modern gcc's. Not really better or worse, within experimental
+error. But much slower to compile things with.
 
-> 
-> > Of course 64bit tools exist, just the 64bit distributions are not commonly
-> > available yet and it's still nice to switch at will.
-> 
-> 	I believe that *BSD consider all system tools as part of the
-> base OS, and is compiled alongside the kernel, so you don't have this
-> issue, because kernel and tools are "in sync".
+Kernbench-2: (make -j N vmlinux, where N = 2 x num_cpus)
+                                   Elapsed        User      System         CPU
+                        2.5.59       46.08      563.88      118.38     1480.00
+                 2.5.59-gcc3.2       45.86      563.63      119.58     1489.33
 
-But this is not BSD...
+Kernbench-16: (make -j N vmlinux, where N = 16 x num_cpus)
+                                   Elapsed        User      System         CPU
+                        2.5.59       47.45      568.02      143.17     1498.17
+                 2.5.59-gcc3.2       47.15      567.41      143.72     1507.50
 
-> 	Anyway, I believe that 64 bit platforms will need to become
-> mainstream before the issue of wireless on 64 bit is pressing, and by
-> that time most distro will have made the jump.
+DISCLAIMER: SPEC(tm) and the benchmark name SDET(tm) are registered
+trademarks of the Standard Performance Evaluation Corporation. This 
+benchmarking was performed for research purposes only, and the run results
+are non-compliant and not-comparable with any published results.
 
-Hmm, not so sure. I guess people will sooner than later plug wireless
-cards into 64bit boxes, especially with x86-64 which will hopefully
-be quite "mainstream".
+Results are shown as percentages of the first set displayed
 
-> 
-> > > 	With regards to this specific problem, just return an
-> > > error. The Wireless Tools should gracefully handle it and report to
-> > 
-> > That is currently done (-EINVAL), but the emulation layer logs an 
-> > warning.
-> 
-> 	It's just a shame that it's not more distinctive, because the
-> error message wouldn't lead me to think "doh, I need a recompile".
+SDET 1  (see disclaimer)
+                                Throughput    Std. Dev
+                        2.5.59       100.0%         0.8%
+                 2.5.59-gcc3.2        95.3%         5.2%
 
-Do you have a better suggestion?
+SDET 2  (see disclaimer)
+                                Throughput    Std. Dev
+                        2.5.59       100.0%         0.6%
+                 2.5.59-gcc3.2        91.9%         7.1%
 
-> 
-> > > 	Just food for thought... I you think the wireless ioctls are
-> > > bad, there is worse. The linux-wlan-ng driver defines it's own driver
-> > > specific ioctls, and it has 3 times the number of ioctls. Just for one
-> > > driver. And the ioctl format sometimes changes with revision.
-> > 
-> > That's bad. Do they at least have unique numbers?
-> 
-> 	They use the device private ioctls and subclass them. They use
-> one ioctl to query the driver for support of the API.
+SDET 4  (see disclaimer)
+                                Throughput    Std. Dev
+                        2.5.59       100.0%         5.7%
+                 2.5.59-gcc3.2        98.8%         5.3%
 
-That's very bad, because the ioctl emulation needs unique numbers currently.
+SDET 8  (see disclaimer)
+                                Throughput    Std. Dev
+                        2.5.59       100.0%         1.4%
+                 2.5.59-gcc3.2       105.3%         4.7%
 
-There was some hack added for PPP, but it may not extend to wireless.
+SDET 16  (see disclaimer)
+                                Throughput    Std. Dev
+                        2.5.59       100.0%         1.7%
+                 2.5.59-gcc3.2       103.1%         1.8%
 
-> 	Also note that I made a first step in your direction. Since
-> WE-13, most of the metadata describing the ioctls is in the kernel
-> itself and the copy_to/from_user is centralised, which should make
-> things easier once all drivers are converted...
+SDET 32  (see disclaimer)
+                                Throughput    Std. Dev
+                        2.5.59       100.0%         1.5%
+                 2.5.59-gcc3.2       101.0%         1.6%
 
-Anyways: for me it is just slightly annoying to not have 32bit 
-emulation for something, but for other ports like sparc64/ppc64/mips64 
-it can be show stopper because they only have 32bit userland.
+SDET 64  (see disclaimer)
+                                Throughput    Std. Dev
+                        2.5.59       100.0%         0.7%
+                 2.5.59-gcc3.2       103.1%         1.1%
 
-Expect trouble when DaveM wants to plug a wireless card into one of 
-his sparc64 boxes ;-)
+SDET 128  (see disclaimer)
+                                Throughput    Std. Dev
 
--Andi
+NUMA schedbench 4:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00       38.88       82.78        0.65
+                 2.5.59-gcc3.2        0.00       41.80      107.76        0.73
+
+NUMA schedbench 8:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00       49.30      247.80        1.93
+                 2.5.59-gcc3.2        0.00       38.00      229.83        2.11
+
+NUMA schedbench 16:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00       57.37      843.12        3.77
+                 2.5.59-gcc3.2        0.00       57.28      839.21        2.85
+
+NUMA schedbench 32:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00      116.99     1805.79        6.05
+                 2.5.59-gcc3.2        0.00      118.44     1788.09        6.25
+
+NUMA schedbench 64:
+                                   AvgUser     Elapsed   TotalUser    TotalSys
+                        2.5.59        0.00      235.18     3632.73       15.45
+                 2.5.59-gcc3.2        0.00      234.55     3633.76       15.02
+
+
+
+------------------------------------------------------------------------------
+
+
+And with the same kernel, comparing the compile times for gcc 2.95 to 3.2
+
+Kernbench-2: (make -j N vmlinux, where N = 2 x num_cpus)
+                                   Elapsed        User      System         CPU
+                        gcc2.95      46.08      563.88      118.38     1480.00
+                        gcc3.21      69.93      923.17      114.36     1483.17
+
+Kernbench-16: (make -j N vmlinux, where N = 16 x num_cpus)
+                                   Elapsed        User      System         CPU
+                        gcc2.95      47.45      568.02      143.17     1498.17
+                        gcc3.21      71.44      926.45      134.89     1485.33
+
+pft.
+

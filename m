@@ -1,68 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135994AbREBHE2>; Wed, 2 May 2001 03:04:28 -0400
+	id <S129282AbREBHK1>; Wed, 2 May 2001 03:10:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135980AbREBHER>; Wed, 2 May 2001 03:04:17 -0400
-Received: from qn-212-127-137-79.quicknet.nl ([212.127.137.79]:4 "EHLO
-	mail.fluido.as") by vger.kernel.org with ESMTP id <S135994AbREBHEF>;
-	Wed, 2 May 2001 03:04:05 -0400
-Date: Wed, 2 May 2001 09:03:59 +0200
-From: "Carlo E. Prelz" <fluido@fluido.as>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.4, 2.4.4-ac1 and -ac3: oops loading future domain scsi module
-Message-ID: <20010502090359.A484@qn-212-127-137-79.fluido.as>
-In-Reply-To: <20010502083018.A5717@qn-212-127-137-79.fluido.as>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010502083018.A5717@qn-212-127-137-79.fluido.as>; from fluido@fluido.as on Wed, May 02, 2001 at 08:30:18AM +0200
-X-operating-system: Linux qn-212-127-137-79 2.4.4-ac3
+	id <S135980AbREBHKS>; Wed, 2 May 2001 03:10:18 -0400
+Received: from post2.inre.asu.edu ([129.219.110.73]:57477 "EHLO
+	post2.inre.asu.edu") by vger.kernel.org with ESMTP
+	id <S129282AbREBHKN>; Wed, 2 May 2001 03:10:13 -0400
+Date: Wed, 02 May 2001 00:09:58 -0700
+From: Russ Dill <Russ.Dill@asu.edu>
+Subject: Re: Breakage of opl3sax cards since 2.4.3 (at least)
+To: dbronaugh@opensourcedot.com, linux-kernel@vger.kernel.org
+Message-id: <3AEFB2C6.24F7B40D@asu.edu>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-ac1-lpp i686)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+X-Accept-Language: en
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Subject: 2.4.4, 2.4.4-ac1 and -ac3: oops loading future domain scsi module
-	Date: Wed, May 02, 2001 at 08:30:18AM +0200
+Actually, this occured at 2.4.2
 
-Quoting Carlo E. Prelz (fluido@fluido.as):
+I searched though the archives, and the only people who were able to get
+this resolved were those with a non-isapnp card (by added isapnp=0).
+However, I have an isapnp card and the driver doesn't think my card
+exists. If I lod it, withot options, I get:
 
-> Here I am with another, fresh oops that I encountered while exploring
-> new kernels. This time, the oops is generated when trying to load the
-> module for a very old (1993) Future Domain SCSI card. 2.4.3-ac7 was my
-> previous kernel and worked perfectly. 
+russ kernel: opl3sa2: ISA PnP activate failed
+russ kernel: opl3sa2: No PnP cards found
+russ kernel: opl3sa2: 0 PnP card(s) found.
 
-I made some more research. Eventually, it seems the problem is in this
-patch that was included in 2.4.4:
+OK, so I use my old isapnp.conf 
 
-@@ -969,6 +971,7 @@
-        return 0;
-    shpnt->irq = interrupt_level;
-    shpnt->io_port = port_base;
-+   scsi_set_pci_device(shpnt->pci_dev, pdev);
-    shpnt->n_io_port = 0x10;
-    print_banner( shpnt );
+russ:/home/russ# isapnp /etc/isapnp.conf
 
-Well, but my card is ISA! It should not set any PCI device. 
+then insmod it like this:
+Board 1 has Identity 81 ff ff ff ff 20 00 a8 65:  YMH0020 Serial No -1
+[checksum 81]
+YMH0020/-1[0]{OPL3-SAX Sound Board}: Ports 0x240 0xE80 0x388 0x300
+0x100; IRQ10 DMA0 DMA3 --- Enabled OK
+YMH0020/-1[1]{OPL3-SAX Sound Board}: Port 0x204; --- Enabled OK
 
-I applied the following patch, and the problem disappeared:
+russ:/home/russ# insmod opl3sa2 irq=10 io=0x240 dma=0 dma2=3
+mss_io=0xe80 isapnp=0
+Using /lib/modules/2.4.4-ac1-lpp/kernel/drivers/sound/opl3sa2.o
+/lib/modules/2.4.4-ac1-lpp/kernel/drivers/sound/opl3sa2.o: init_module:
+No such device
+Hint: insmod errors can be caused by incorrect module parameters,
+including invalid IO or IRQ parameters
 
---- fdomain.c~	Wed May  2 07:08:27 2001
-+++ fdomain.c	Wed May  2 08:58:03 2001
-@@ -971,6 +971,7 @@
-    	return 0;
-    shpnt->irq = interrupt_level;
-    shpnt->io_port = port_base;
-+	 if(pdev!=NULL)
-    scsi_set_pci_device(shpnt->pci_dev, pdev);
-    shpnt->n_io_port = 0x10;
-    print_banner( shpnt );
 
-I hope this is the right way...
+hmm, and kern.log says:
 
-Ciao
-Carlo
+russ kernel: opl3sa2: Control I/O port 0x240 is not a YMF7xx chipset!
 
--- 
-  *         Se la Strada e la sua Virtu' non fossero state messe da parte,
-* K * Carlo E. Prelz - fluido@fluido.as             che bisogno ci sarebbe
-  *               di parlare tanto di amore e di rettitudine? (Chuang-Tzu)
+something in the changeover forgot about my card

@@ -1,69 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129075AbRBNR3G>; Wed, 14 Feb 2001 12:29:06 -0500
+	id <S129234AbRBNRbf>; Wed, 14 Feb 2001 12:31:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129107AbRBNR25>; Wed, 14 Feb 2001 12:28:57 -0500
-Received: from sportingbet.gw.dircon.net ([195.157.147.30]:57101 "HELO
-	sysadmin.sportingbet.com") by vger.kernel.org with SMTP
-	id <S129075AbRBNR2i>; Wed, 14 Feb 2001 12:28:38 -0500
-Date: Wed, 14 Feb 2001 17:26:07 +0000
-From: Sean Hunter <sean@dev.sportingbet.com>
-To: Carlos Carvalho <carlos@fisica.ufpr.br>
-Cc: jbglaw@lug-owl.de, linux-kernel@vger.kernel.org,
-        axp-hardware@talisman.alphalinux.org
-Subject: Re: Alpha: bad unaligned access handling
-Message-ID: <20010214172607.E11048@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@dev.sportingbet.com>,
-	Carlos Carvalho <carlos@fisica.ufpr.br>, jbglaw@lug-owl.de,
-	linux-kernel@vger.kernel.org, axp-hardware@talisman.alphalinux.org
-In-Reply-To: <20010214154808.A15974@lug-owl.de> <14986.48181.55212.358637@hoggar.fisica.ufpr.br>
-Mime-Version: 1.0
+	id <S129678AbRBNRbZ>; Wed, 14 Feb 2001 12:31:25 -0500
+Received: from fep04.swip.net ([130.244.199.132]:2022 "EHLO fep04-svc.swip.net")
+	by vger.kernel.org with ESMTP id <S129234AbRBNRbR>;
+	Wed, 14 Feb 2001 12:31:17 -0500
+Message-ID: <3A8A8AAC.C04F8C2@linux.nu>
+Date: Wed, 14 Feb 2001 14:39:56 +0100
+From: Arvid Ericsson <aquid@linux.nu>
+X-Mailer: Mozilla 4.5 [sv] (Win95; I)
+X-Accept-Language: en-GB,sv,fr
+MIME-Version: 1.0
+To: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Memory performance significantly improved w/ 2.4.1ac11
+In-Reply-To: <Pine.LNX.4.10.10102141026080.12204-100000@coffee.psychology.mcmaster.ca>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <14986.48181.55212.358637@hoggar.fisica.ufpr.br>; from carlos@fisica.ufpr.br on Wed, Feb 14, 2001 at 03:11:17PM -0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 14, 2001 at 03:11:17PM -0200, Carlos Carvalho wrote:
-> Jan-Benedict Glaw (jbglaw@lug-owl.de) wrote on 14 February 2001 15:48:
->  >With my currently installed ping (netkit-ping 0.10-6 from Debian Woody)
->  >I get unaligned accesses:
->  >
->  >ping(15953): unaligned trap at 00000001200030e4: 0000000120026b34 29 1
->  >ping(15953): unaligned trap at 0000000120003110: 0000000120026b2c 29 2
->  >
->  >The worse part is: they seem to be handled The Wrong Way:
->  >
->  >[jbglaw@air:/home/jbglaw] $> ping -c 1 localhost
->  >PING localhost (127.0.0.1): 56 data bytes
->  >64 bytes from 127.0.0.1: icmp_seq=0 ttl=255 time=13.8 ms
->  >wrong data byte #8 should be 0x8 but was 0xdc
->  >        c d e f 10 11 12 13 14 15 16 17 18 19 1a 1b 1c 1d 1e 1f 20 21 22 23 24 25 26 27 28 29 2a 2b 
->  >        2c 2d 2e 2f 0 0 0 0 0 0 0 0 0 0 0 0 
->  >
->  >--- localhost ping statistics ---
->  >1 packets transmitted, 1 packets received, 0% packet loss
->  >round-trip min/avg/max = 13.8/13.8/13.8 ms
->  >
->  >
->  >This is on a NoName Alpha box, running 2.4.0-test8-pre1 (with very good
->  >uptimes), but I think 2.4.2-pre2 would do the same (wrong) things as
->  >arch/alpha/kernel/traps.c wasn't really changed since ages...
+Mark Hahn skrev:
+> first, are you sure your clock is write?  the changes appear
+> to be tiny ~2 MB/s, and might be explained by the fact that
+> 2.2 and 2.4 have different implementations of gettimeofday.
+
+The change I was happy about was the one between 2.4.0ac10 and
+2.4.1ac11. I think that it's a good thing that a few percent more memory
+bandwidth appears from nowhere... Well, but that's just me I guess.
+
+> (I'm assuming you're using gtod (second_wall.c) rather than
+> a times-based measure.  the latter will be far less accurate.)
+
+*Scratching my head* I have no idea of what your're talking about.
+Sorry. Im using stream_whatever.cpp and whatever might be in it.
+
 > 
-> I also get these, with 2.2.18pre5 (plus some Andrea patches) and
-> vanilla 2.2.19pre10 on a SMP UP2000.
+> are you also aware that more modern compilers (2.95.2, I think)
+> have more specific CPU tunings than just -mpentium?
 
-This is an application problem, not a kernel one.  You need to upgrade your
-netkit.
+I just used the suggested optimizations.
+ 
+> 
+> by "cycle length = 2", do you mean "tCAS latency = 2"?
 
-Sean
+Not quite sure, that the BIOS says "sdram cycle length=2" is all I know.
 
-P.S.  I wrote a small wrapper to aid in the debugging of unaligned traps, which
-I'll send to anyone who's interested.
+> finally (and don't take offense), those are astonishingly low
+> Stream scores.  it's been a while since I ran Stream on a p5-class
+> machine, but jeeze!  my dirt-cheap duron/600/kt133/pc133 sustains
+> 600 MB/s!
 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Oh-well, I guess I just have a even dirt-cheaper machine than you. I
+haven't got any idea of how machines similar to mine perform. 
+
+/Arvid
+

@@ -1,63 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264324AbUDOPnd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 11:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264328AbUDOPnd
+	id S264328AbUDOPvp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 11:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264329AbUDOPvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 11:43:33 -0400
-Received: from mail.cyclades.com ([64.186.161.6]:35014 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S264324AbUDOPna
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 11:43:30 -0400
-Date: Thu, 15 Apr 2004 12:16:36 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Andrew Morton <akpm@osdl.org>, arjanv@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shrink hash sizes on small machines, take 2
-Message-ID: <20040415151635.GG2085@logos.cnet>
-References: <20040410232707.GU6248@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040410232707.GU6248@waste.org>
-User-Agent: Mutt/1.5.5.1i
-X-Cyclades-MailScanner-Information: Please contact the ISP for more information
-X-Cyclades-MailScanner: Found to be clean
+	Thu, 15 Apr 2004 11:51:44 -0400
+Received: from selene.LaTech.edu ([138.47.18.25]:4076 "EHLO LaTech.edu")
+	by vger.kernel.org with ESMTP id S264319AbUDOPvm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 Apr 2004 11:51:42 -0400
+Message-ID: <1082044297.407eaf894ddda@webmail.LaTech.edu>
+Date: Thu, 15 Apr 2004 10:51:37 -0500
+From: Ryan Geoffrey Bourgeois <rgb005@latech.edu>
+To: kos@supportwizard.com
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: poor sata performance on 2.6
+References: <200404150236.05894.kos@supportwizard.com> <1082001287.407e0787f3c48@webmail.LaTech.edu> <200404151455.36307.kos@supportwizard.com>
+In-Reply-To: <200404151455.36307.kos@supportwizard.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2 / FreeBSD-4.8
+X-Originating-IP: 138.47.51.236
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 10, 2004 at 06:27:07PM -0500, Matt Mackall wrote:
-> The following attempts to cleanly address the low end of the problem,
-> something like my calc_hash_order or Marcelo's approach should be used
-> to attack the upper end of the problem.
+
 > 
-> 8<
+> I'm almost ready to buy separate controller, but all that I could find nearby
 > 
-> Shrink hashes on small systems
+> are based on the same Silicon Image chipset
 > 
-> Base hash sizes on available memory rather than total memory. An
-> additional 50% above current used memory is considered reserved for
-> the purposes of hash sizing to compensate for the hashes themselves
-> and the remainder of kernel and userspace initialization.
 
-Hi Matt, 
+I do recomend Promise's SATA controller cards.  The kernel drivers are excellent
+imho.  As well as my onboard Promise TX2, I'm using a thei S150 SX4 RAID5
+capable controller in my file server.  A controlle ard should be easy enough to
+finnd online.  I shop at NewEgg.com.  Good prices, highly rcommended.
 
-As far as I remember from my tests booting with 8MB yields 0-order (one page) 
-dentry/inode hash tables, and 16MB yields 
-1-order dentry/0-order inode hash. 
+I'm gonna take a look at your .config as soon as I get back to my own computer.
 
-So we can't go lower than 1 page on <8MB anyway (and we dont). What 
-is the problem you are seeing ?
+Cheers.
+-Ryan
 
-Your patch changes 16MB to 0-order dentry hashtable?
+-------------------------------------------------
+This mail sent through IMP: http://horde.org/imp/
 
-On the higher end, we still need to figure out if the "huge"
-hash tables (1MB dentry/512K inode on 4GB box, upto 8MB hash dentry 
-on 16GB box) are really worth it. 
-
-Arjan seems to be clipping the dentry to 128K on RH's kernels. 
-I couldnt find much of a difference on dbench performance from 1MB to 512K 
-or 128K dhash. Someone willing to help with SDET or different tests?
-
-Thanks!

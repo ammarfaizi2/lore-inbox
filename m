@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266001AbTFWLVm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 07:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266003AbTFWLVm
+	id S266006AbTFWL3M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 07:29:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266007AbTFWL3M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 07:21:42 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:208
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S266002AbTFWLVl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 07:21:41 -0400
-Subject: Re: Problems with PCMCIA Compact Flash adapter in 2.5.72
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Eivind Tagseth <eivindt@multinet.no>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030623102941.D23411@flint.arm.linux.org.uk>
-References: <20030620081846.GB2451@tagseth-trd.consultit.no>
-	 <20030620211640.B913@flint.arm.linux.org.uk>
-	 <20030622114642.GB1785@tagseth-trd.consultit.no>
-	 <20030622141541.B16537@flint.arm.linux.org.uk>
-	 <20030622182838.GA6970@tagseth-trd.consultit.no>
-	 <20030622191626.GA1811@tagseth-trd.consultit.no>
-	 <20030623102941.D23411@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056368006.13529.2.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jun 2003 12:33:26 +0100
+	Mon, 23 Jun 2003 07:29:12 -0400
+Received: from 169.imtp.Ilyichevsk.Odessa.UA ([195.66.192.169]:50950 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id S266006AbTFWL3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 07:29:08 -0400
+Message-Id: <200306231132.h5NBWVu10803@Port.imtp.ilyichevsk.odessa.ua>
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
+To: John Bradford <john@grabjohn.com>, felipe_alfaro@linuxmail.org,
+       helgehaf@aitel.hist.no
+Subject: Re: O(1) scheduler & interactivity improvements
+Date: Mon, 23 Jun 2003 14:36:37 +0300
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+References: <200306231050.h5NAo8EE000843@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200306231050.h5NAo8EE000843@81-2-122-30.bradfords.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-06-23 at 10:29, Russell King wrote:
-> On Sun, Jun 22, 2003 at 09:16:27PM +0200, Eivind Tagseth wrote:
-> > However, removing the card causes a kernel panic, and everything completely
-> > freezes.  This also happened with 2.5.69, so it's not caused by a recent
-> > change.
+On 23 June 2003 13:50, John Bradford wrote:
+> > Maybe I have different a different idea of what "interactive" should be.
 > 
-> ide-cs currently calls ide_unregister from interrupt context, which is
-> a big nono.  Can you try the following patch please (which is completely
-> untested)?
+> [snip]
 > 
+> > moving windows around the screen do feel jerky and laggy at best
+> > when the machine is loaded. For a normal desktop usage, I prefer all
+> > my intensive tasks to start releasing more CPU cycles so moving a
+> > window around the desktop feels completely smooth
+> 
+> That's fine for a desktop box, but I wouldn't really want a heavily
+> loaded server to have database queries starved just because somebody
+> is scrolling through a log file, or moving windows about doing admin
+> work.
 
-This is better but still wrong in a way - ide_unregister can fail and
-ide-cs in both 2.4 and 2.5 doesnt recover from that, or know about the
-new "unplugged" ops it should force
+Well... a heavily loaded database server is typically sit headless
+or with monitor turned off. ;)
 
+Scrolling thru log file won't eat much CPU anyway, and if
+your database admin do *lots* of window moving on a heavily
+loaded database server... may I suggest looking for a better
+admin? ;);)
+
+(*lots* defined as "enough to noticeably slow db querires")
+--
+vda

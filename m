@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264553AbTIDEmp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 00:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264619AbTIDEmp
+	id S264658AbTIDEr3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 00:47:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264667AbTIDEr3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 00:42:45 -0400
-Received: from rth.ninka.net ([216.101.162.244]:32200 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id S264553AbTIDEmo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 00:42:44 -0400
-Date: Wed, 3 Sep 2003 21:42:33 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: phillips@arcor.de, elenstev@mesatop.com, wind@cocodriloo.com,
-       lm@bitmover.com, cat@zip.com.au, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Scaling noise
-Message-Id: <20030903214233.24d3c902.davem@redhat.com>
-In-Reply-To: <20030904015249.GF5227@work.bitmover.com>
-References: <20030903040327.GA10257@work.bitmover.com>
-	<20030903124716.GE2359@wind.cocodriloo.com>
-	<1062603063.1723.91.camel@spc9.esa.lanl.gov>
-	<200309040350.31949.phillips@arcor.de>
-	<20030904015249.GF5227@work.bitmover.com>
-X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 4 Sep 2003 00:47:29 -0400
+Received: from citrine.spiritone.com ([216.99.193.133]:45804 "EHLO
+	citrine.spiritone.com") by vger.kernel.org with ESMTP
+	id S264658AbTIDEqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 00:46:37 -0400
+Date: Wed, 03 Sep 2003 21:44:11 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: David Lang <david.lang@digitalinsight.com>
+cc: William Lee Irwin III <wli@holomorphy.com>,
+       Larry McVoy <lm@work.bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Brown, Len" <len.brown@intel.com>, Giuliano Pochini <pochini@shiny.it>,
+       Larry McVoy <lm@bitmover.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: SSI clusters on NUMA (was Re: Scaling noise)
+Message-ID: <21180000.1062650650@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0309031957500.17581-100000@dlang.diginsite.com>
+References: <Pine.LNX.4.44.0309031957500.17581-100000@dlang.diginsite.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 3 Sep 2003 18:52:49 -0700
-Larry McVoy <lm@bitmover.com> wrote:
-
-> On Thu, Sep 04, 2003 at 03:50:31AM +0200, Daniel Phillips wrote:
-> > There are other arguments, such as how complex locking is, and how it will 
-> > never work correctly, but those are noise: it's pretty much done now, the 
-> > complexity is still manageable, and Linux has never been more stable.
+>> > how much of this need could be met with a native linux master and kernels
+>> > running user-mode kernels? (your resource sharing would obviously not be
+>> > that clean, but you could develop the tools to work across the kernel
+>> > images this way)
+>> 
+>> I talked to Jeff and Andrea about this at KS & OLS this year ... the feeling
+>> was that UML was too much overhead, but there were various ways to reduce
+>> that, especially if the underlying OS had UML support (doesn't require it
+>> right now).
+>> 
+>> I'd really like to see the performance proved to be better before basing
+>> a design on UML, though that was my first instinct of how to do it ...
 > 
-> yeah, right.  I'm not sure what you are smoking but I'll avoid your dealer.
+> I agree that UML won't be able to show the performance advantages (the
+> fact that the UML kernel can't control the cache footprint on the CPU's
+> becouse it gets swapped from one to another at the host OS's convienience
+> is just one issue here)
+> 
+> however with UML you should be able to develop the tools and features to
+> start to weld the two different kernels into a single logical image. once
+> people have a handle on how these tools work you can then try them on some
+> hardware that has a lower level partitioning setup (i.e. the IBM
+> mainframes) and do real speed comparisons between one kernel that's given
+> X CPU's and Y memory and two kernels that are each given X/2 CPU's and Y/2
+> memory.
+> 
+> the fact that common hardware doesn't nicly support the partitioning
+> shouldn't stop people from solving the other problems.
 
-I hate to enter these threads but...
+Yeah, it's definitely an interesting development environment at least.
+FYI, most of the discussions in Ottowa centered around system call 
+overhead (4 TLB flushes per, IIRC), but the cache footprint is interesting
+too ... with the O(1) sched in the underlying OS, it shouldn't flip-flop
+around too easily, but interesting, nonetheless.
 
-The amount of locking bugs found in the core networking, ipv4, and
-ipv6 for a year or two in 2.4.x has been nearly nil.
+M.
 
-If you're going to try and argue against supporting huge SMP
-to me, don't make locking complexity one of the arguments. :-)

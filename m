@@ -1,43 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268039AbUJVVoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267987AbUJVVej@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268039AbUJVVoN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 17:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267921AbUJVVoI
+	id S267987AbUJVVej (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 17:34:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268001AbUJVVe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 17:44:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:29878 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268040AbUJVVfy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 17:35:54 -0400
-Date: Fri, 22 Oct 2004 14:35:51 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] uninline __sigqueue_alloc
-Message-ID: <20041022143551.Z2357@build.pdx.osdl.net>
+	Fri, 22 Oct 2004 17:34:29 -0400
+Received: from smtp-105-friday.nerim.net ([62.4.16.105]:23821 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S267987AbUJVVdY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 17:33:24 -0400
+Date: Fri, 22 Oct 2004 23:34:40 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
+Subject: Re: [BK PATCH] I2C update for 2.6.9
+Message-Id: <20041022233440.0075eaac.khali@linux-fr.org>
+In-Reply-To: <20041020001603.GA11393@kroah.com>
+References: <20041020001603.GA11393@kroah.com>
+Reply-To: LM Sensors <sensors@stimpy.netroedge.com>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph suggests letting the compiler choose.  No real compelling reason
-to inline anyhow.  I had some vmlinux size numbers suggesting inline was
-better, but re-running them on newer kernel is giving different results,
-favoring uninline.  Best let compiler choose.  Un-inline __sigqueue_alloc.
+Hi Greg,
 
-Signed-off-by: Chris Wright <chrisw@osdl.org>
+> Here are some i2c driver fixes and updates for 2.6.9.  There is a new
+> chip and a new bus driver, as well as a bunch of minor fixes.  The
+> majority of these patches have been in the past few -mm releases.
 
-===== kernel/signal.c 1.140 vs edited =====
---- 1.140/kernel/signal.c	2004-10-21 13:46:54 -07:00
-+++ edited/kernel/signal.c	2004-10-22 14:00:00 -07:00
-@@ -265,7 +265,7 @@
- 	return sig;
- }
- 
--static inline struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags)
-+static struct sigqueue *__sigqueue_alloc(struct task_struct *t, int flags)
- {
- 	struct sigqueue *q = NULL;
- 
+Checked against my personal list, no patch were lost. Thanks :)
+
+-- 
+Jean Delvare
+http://khali.linux-fr.org/

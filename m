@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264903AbTLEXt4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 18:49:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264905AbTLEXt4
+	id S264879AbTLFAG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 19:06:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbTLFAG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 18:49:56 -0500
-Received: from mail.gmx.net ([213.165.64.20]:7826 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S264903AbTLEXty (ORCPT
+	Fri, 5 Dec 2003 19:06:26 -0500
+Received: from ns.suse.de ([195.135.220.2]:45763 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264879AbTLFAGY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 18:49:54 -0500
-X-Authenticated: #4512188
-Message-ID: <3FD1199E.2030402@gmx.de>
-Date: Sat, 06 Dec 2003 00:49:50 +0100
-From: "Prakash K. Cheemplavam" <prakashpublic@gmx.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031116
-X-Accept-Language: de-de, de, en-us, en
+	Fri, 5 Dec 2003 19:06:24 -0500
+To: mru@kth.se (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Large-FAT32-Filesystem Bug
+References: <3FD0555F.5060608@gmx.de> <20031205160746.GA18568@codepoet.org>
+	<3FD0C64D.5050804@gmx.de> <20031205221051.GA3244@codepoet.org>
+	<20031205224529.GS29119@mis-mike-wstn.matchmail.com>
+	<yw1x65gu3kyp.fsf@kth.se>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I have seen these EGG EXTENDERS in my Supermarket..
+ ..  I have read the INSTRUCTIONS...
+Date: Sat, 06 Dec 2003 01:04:03 +0100
+In-Reply-To: <yw1x65gu3kyp.fsf@kth.se> (
+ =?iso-8859-1?q?M=E5ns_Rullg=E5rd's_message_of?= "Sat, 06 Dec 2003 00:26:22
+ +0100")
+Message-ID: <jewu9add70.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-To: Allen Martin <AMartin@nvidia.com>
-CC: "'Jesse Allen'" <the3dfxdude@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com>
-In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F87E@mail-sc-6.nvidia.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+mru@kth.se (Måns Rullgård) writes:
 
-*maybe* I found the bugger, at least I got APIC more stable (need to 
-test whether oit is really stable, compiling kernel right now...):
+> Mike Fedyk <mfedyk@matchmail.com> writes:
+>
+>>> No problem.  I put this patch together quite a while ago for
+>>> my own use and never got around to sending it in.  It removes
+>>> a number of artificial fat32 limits, and allows files up to 4GB,
+>>
+>> Why only 4gb?
+>
+> That's what the 32 in fat32 means.
 
-It is a problem with CPU disconnect function. I tried various parameters 
-in bios and turned cpu disconnect off, and tada, I could do several 
-subsequent hdparms and machine is running! As CPU disconnect is a ACPI 
-state, if I am not mistkaen, I think there is something broken in ACPI 
-right now or in APIC and cpu disconnect triggers the bug.
+No, it doesn't.  It's about the number of bits in a cluster number, thus
+the size of the filesystem.  And that 32 is actually 28.
 
-Maybe now my windows environment is stable, as well. It was much more 
-stable with cpu disconnect and apic, nevertheless seldomly locked up.
+Andreas.
 
-
-So gals and guys, try disabling cpu disconnect in bios and see whether 
-aopic now runs stable.
-
-I have an Abit NF7-S Rev2.0 with Bios 2.0.
-
-Prakash
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,104 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264586AbUD1Bdn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264573AbUD1Bcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264586AbUD1Bdn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 21:33:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUD1BdV
+	id S264573AbUD1Bcz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 21:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUD1Bcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 21:33:21 -0400
-Received: from stokkie.demon.nl ([82.161.49.184]:8597 "HELO stokkie.net")
-	by vger.kernel.org with SMTP id S264578AbUD1BdI (ORCPT
+	Tue, 27 Apr 2004 21:32:55 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:10296 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S264573AbUD1Bcx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 21:33:08 -0400
-Date: Wed, 28 Apr 2004 03:33:05 +0200 (CEST)
-From: "Robert M. Stockmann" <stock@stokkie.net>
-To: Tim Hockin <thockin@hockin.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
-In-Reply-To: <20040428011348.GA22754@hockin.org>
-Message-ID: <Pine.LNX.4.44.0404280317290.17647-100000@hubble.stokkie.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
+	Tue, 27 Apr 2004 21:32:53 -0400
+Date: Tue, 27 Apr 2004 18:31:35 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: wli@holomorphy.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] Fix cpu iterator on empty bitmask
+Message-Id: <20040427183135.6250f7bc.pj@sgi.com>
+In-Reply-To: <1083115347.30987.202.camel@bach>
+References: <1083109972.2150.124.camel@bach>
+	<20040428000511.GU743@holomorphy.com>
+	<1083115347.30987.202.camel@bach>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Apr 2004, Tim Hockin wrote:
+Rusty wrote:
+> Agreed, I'm pretty sure Paul's work doesn't make this mistake, but this
+> is a trivial patch for a real big which is causing oopses today.
+>
+> Linus, please apply...
 
-> On Wed, Apr 28, 2004 at 02:56:16AM +0200, Robert M. Stockmann wrote:
-> > > Care to show me where they use unnamed structures, and how it has anything
-> > > to do with binary modules?
-> > 
-> > fasttrak.h :
-> > #define ft3xx {							\
-> > 	next: NULL,						\
-> 	...
-> > } 
-> > #endif
-> 
-> > This header file is needed to be able to link ft3xx.o . In which way binary 
-> > incompatibility is introduced, inside this case is hard to tell. We
-> > will never know i guess , since the type and size of the above components
-> > is hidden inside the binary only part :
-> 
-> Do you know C, or just pretend to?
+agreed
 
-I am no kernel coder, if its that what you mean. 
-
-> 
-> Those are structure initializers, not unnamed types.  They've provided a
-> macro to use to initialize instances of some structure.
-> 
-> fasttrak.c:890 shows
-> 	static Scsi_Host_Template driver_template = ft3xx;
-> 
-> The structure definition for 'Scsi_Host_Template' is in
-> /usr/src/linux/drivers/scsi/hosts.h which is included in fasttrak.c.
-
-Ok you got me there. I would suggest to change fasttrak.h like this
-to obtain better readability :
-
-#ifndef _ft3xx_h
-#define _ft3xx_h
-
-#include <linux/version.h>
-#include "/usr/src/linux/drivers/scsi/hosts.h"
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0)
-#define ft3xx {                                                 \
-        next: NULL,                                             \
-	...
-};
-
-> 
-> If you run it thru the preprocessor, you'd see
-> 	static Scsi_Host_Template driver_template = {
-> 		next: NULL,
-> 		...
-> 	};
-> 
-> No opaque structs.  No unnamed types.  No magic.  It's not pretty, and
-> it's bound to break on any non-standard rig, but it's NOT what you claim
-> it is.
-> 
-> The initializer style (foo:  value) is probably why gcc-2.95 blows up, but
-> I don't have it here to verify.
-
-It does, which awakened me all up in arms. certainly if gcc-2.95.3
-is still mentioned as recommended gcc version for the ia32 platform 
-inside /usr/src/linux/Documentation/Changes. It pissed me off not
-being able to use gcc-2.95.3 when using that fasttrak driver.
-
-> 
-> You really should know what you're talking about before you launch a
-> crusade against something.
-> 
-
-I agree the fasttrak partial-source kit is not the all defining example.
-Still i believe nasty stuff is possible.
-
-Robert
 -- 
-Robert M. Stockmann - RHCE
-Network Engineer - UNIX/Linux Specialist
-crashrecovery.org  stock@stokkie.net
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,56 +1,53 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317556AbSFMJI1>; Thu, 13 Jun 2002 05:08:27 -0400
+	id <S317557AbSFMJJ1>; Thu, 13 Jun 2002 05:09:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317557AbSFMJI0>; Thu, 13 Jun 2002 05:08:26 -0400
-Received: from isolaweb.it ([213.82.132.2]:43536 "EHLO web.isolaweb.it")
-	by vger.kernel.org with ESMTP id <S317556AbSFMJIZ>;
-	Thu, 13 Jun 2002 05:08:25 -0400
-Message-Id: <5.1.1.6.0.20020613104128.02c119a0@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Thu, 13 Jun 2002 11:08:27 +0200
-To: David Schwartz <davids@webmaster.com>
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: Developing multi-threading applications
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020613082659.AAA17584@shell.webmaster.com@whenever>
+	id <S317558AbSFMJJ0>; Thu, 13 Jun 2002 05:09:26 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:34572 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S317557AbSFMJJZ>; Thu, 13 Jun 2002 05:09:25 -0400
+Date: Thu, 13 Jun 2002 10:09:24 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Denis Oliver Kropp <dok@directfb.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [2.5.21] CyberPro 32bit support and other fixes
+Message-ID: <20020613100924.A24154@flint.arm.linux.org.uk>
+In-Reply-To: <20020613083243.GA32352@skunk.convergence.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01.26 13/06/02 -0700, you wrote:
+On Thu, Jun 13, 2002 at 10:32:43AM +0200, Denis Oliver Kropp wrote:
+> - * Integraphics CyberPro 2000, 2010 and 5000 frame buffer device
+> + * Intergraphics CyberPro 2000, 2010 and 5000 frame buffer device
 
->On Thu, 13 Jun 2002 10:13:35 +0200, Roberto Fichera wrote:
->
-> >I'm designing a multithreding application with many threads,
-> >from ~100 to 300/400. I need to take some decisions about
-> >which threading library use, and which patch I need for the
-> >kernel to improve the scheduler performances. The machines
-> >will be a SMP Xeon with 4/8 processors with 4Gb RAM.
-> >All threads are almost computational intensive and the library
-> >need a fast interprocess comunication and syncronization
-> >because there are many sync & async threads time
-> >dependent and/or critical. I'm planning, in the future, to distribuite
-> >all the threads in a pool of SMP box.
->
->         With 4/8 processors, you don't want to create 100-400 threads doing
->computation intensive tasks. So redesign things so that the number of threads
->you create is more in line with the number of CPUs you have available. That
->is, use a 'thread per CPU' (or slightly more threads than their are CPUs per
->node) approach and you'll perform a lot better. Distribute the available work
->over the available threads.
+This isn't actually a spelling mistake.  The chips I have are quite
+clearly marked "Integraphics" not "Intergraphics".
 
-You are right! But "computational intensive" is not totaly right as I say ;-),
-because most of thread are waiting for I/O, after I/O are performed the
-computational intensive tasks, finished its work all the result are sent
-to thread-father, the father collect all the child's result and perform some
-computational work and send its result to its father and so on with many
-thread-father controlling other child. So I think the main problem/overhead
-is thread creation and the thread's numbers.
+> @@ -355,7 +367,9 @@
+>  
+>  			if (regno < 16)
+>  				((u16 *)cfb->fb.pseudo_palette)[regno] =
+> -					regno | regno << 5 | regno << 11;
+> +					((red   << 8) & 0xf800) |
+> +					((green << 3) & 0x07e0) |
+> +					((blue  >> 3));
+>  			break;
+>  		}
+>  #endif
 
+This seems wrong.  We're setting up the DAC palette to map pixel color
+component 'regno' to 'read', 'green' and 'blue' respectively.
 
->         DS
+This means that the pseudopalette should be a 1:1 mapping of desired
+colour value (ie, the 16 VGA colors) to the DAC palette entries -
+the pseudopalette contains the pixel values to insert into the frame
+buffer for each of the 16 VGA colors.
 
-Roberto Fichera.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

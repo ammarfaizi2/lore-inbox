@@ -1,93 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265154AbTBJVG4>; Mon, 10 Feb 2003 16:06:56 -0500
+	id <S265171AbTBJVIj>; Mon, 10 Feb 2003 16:08:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265168AbTBJVG4>; Mon, 10 Feb 2003 16:06:56 -0500
-Received: from mpc-26.sohonet.co.uk ([193.203.82.251]:37642 "EHLO
-	moving-picture.com") by vger.kernel.org with ESMTP
-	id <S265154AbTBJVGw>; Mon, 10 Feb 2003 16:06:52 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: isofs hardlink bug (inode numbers different) 
-From: James Pearson <jcpearso@ge.ucl.ac.uk>
-Date: Mon, 10 Feb 2003 21:16:29 +0000
-Message-ID: <565559.1044911789@ourhome.freeserve.co.uk>
-X-Disclaimer: This email and any attachments are confidential, may be legally
-X-Disclaimer: privileged and intended solely for the use of addressee. If you
-X-Disclaimer: are not the intended recipient of this message, any disclosure,
-X-Disclaimer: copying, distribution or any action taken in reliance on it is
-X-Disclaimer: strictly prohibited and may be unlawful. If you have received
-X-Disclaimer: this message in error, please notify the sender and delete all
-X-Disclaimer: copies from your system.
-X-Disclaimer: 
-X-Disclaimer: Email may be susceptible to data corruption, interception and
-X-Disclaimer: unauthorised amendment, and we do not accept liability for any
-X-Disclaimer: such corruption, interception or amendment or the consequences
-X-Disclaimer: thereof.
+	id <S265177AbTBJVIj>; Mon, 10 Feb 2003 16:08:39 -0500
+Received: from cda1.e-mind.com ([195.223.140.107]:55938 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S265171AbTBJVIg>;
+	Mon, 10 Feb 2003 16:08:36 -0500
+Date: Mon, 10 Feb 2003 22:18:06 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, mikulas@artax.karlin.mff.cuni.cz,
+       pavel@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.0, 2.2, 2.4, 2.5: fsync buffer race
+Message-ID: <20030210211806.GA22275@dualathlon.random>
+References: <Pine.LNX.4.44.0302101723540.32095-100000@artax.karlin.mff.cuni.cz> <Pine.LNX.4.44.0302100846090.2127-100000@home.transmeta.com> <20030210124000.456318e7.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030210124000.456318e7.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> I am trying to back up directory trees on CD, preserving hard links.
->> newer versions of mkisofs are supposedly able to do this, but although
->> the data is written to the isofs only once, the resulting directory
->> entries have differing inode numbers thus making restore operations
->> impossible.
->> 
->> When I sent a bug report to the author of mkisofs, Jörg Schilling, I
->> got the reply
->> 
->> >>mkisofs 2.01a01 (i686-pc-linux-gnu)
->> >>mkisofs 2.0 (i686-pc-linux-gnu)
->> >>mkisofs 1.15a27 (i686-suse-linux) 
->> >>Google shows no reference to anything which tells me that this is not
->> >>supposed to work, therefore I assume it's a bug.
->> >
->> >Nachdenken hilft wie in vielen Fällen auch hier:
->> >
->> >Der Bug auch hier ist da, wo es wegen schlechter SW Qualität wahrscheinlicher
->> >ist: Im Linux Kernel.
->> 
->> (Translation: thinking helps here too, like in many other cases: the bug
->> is in the linux kernel, where it is more likely to be due to lower
->> software quality.)
->
->[FWIW, Jörg is well-known for thinking that anything that isn't
->Solaris is complete crap.  He's entitled to his opinions.]
->
->> Insults aside, is it true that the kernel's isofs can't produce correct
->> inode numbers for hardlinked files? If that is the case it would
->> somewhat reduce the usefulness of isofs for backups.
->
->It's sort of true.
->
->There are inode numbers stored in RockRidge attributes, but using them
->comes with some humongous caveats:
->
->First: You have absolutely no guarantee that they are actually
->unique.  Broken software could easily have written them with all
->zeroes.
->
->Second: If there are files on the CD-ROM *without* RockRidge
->attributes, you can get collisions with the synthesized inode numbers
->for non-RR files.
->
->Third: If you actually rely on inode numbers to be able to find your
->files, like most versions of Unix including old (but not current)
->versions of Linux, then they are completely meaningless.
->
->The basic problem is that the RR attributes are arbitrary numbers,
->instead of any kind of pointer saying "I'm a hard link to this other
->file over here."
->
->There is another way to generate consistent inodes for hard links,
->which is to use the data block pointer as the "inode number."  This,
->however, has the problem that *ALL* zero-lenght files become "hard
->links" to each other.
+On Mon, Feb 10, 2003 at 12:40:00PM -0800, Andrew Morton wrote:
+> 	void sync_dirty_buffer(struct buffer_head *bh)
+> 	{
+> 		lock_buffer(bh);
+> 		if (test_clear_buffer_dirty(bh)) {
+> 			get_bh(bh);
+> 			bh->b_end_io = end_buffer_io_sync;
+> 			submit_bh(WRITE, bh);
+> 		} else {
+> 			unlock_buffer(bh);
+> 		}
+> 	}
 
-In fact, for isofs file systems created with mkisofs, zero length files
-would be hard links to the next file with data written to the CD.
+If you we don't take the lock around the mark_dirty_buffer as Linus
+suggested (to avoid serializing in the non-sync case), why don't you
+simply add lock_buffer() to ll_rw_block() as we suggested originally and
+you #define sync_dirty_buffer as ll_rw_block+wait_on_buffer if you
+really want to make the cleanup?
 
-You would also have the problem that there is nothing to prevent files
-with different owner, permissions, dates, etc. sharing the same file data
-...
+There would be no difference. I don't see the need of the above
+specialized ll_rw_block-cloned function just for the O_SYNC usage,
+O_SYNC isn't that a special case. lock_buffer in ll_rw_block makes more
+sense to me, leaving the test-and-set-bit in there, and having a
+secondary ll_rw_block with different behaviour just for O_SYNC doesn't
+look that clean to me.
 
-James Pearson
+Especially in 2.4 I wouldn't like to make the below change that is
+100% equivalent to a one liner patch that just adds lock_buffer()
+instead of the test-and-set-bit (for reads I see no problems either).
+
+BTW, Linus's way that suggests the lock around the data modifications
+(unconditionally), would also enforce metadata coherency so it would
+provide an additional coherency guarantee (but it's not directly related
+to this problem and it may be overkill). Normally we always allow
+in-core modifications of the buffer during write-IO to disk (also for
+the data in pagecache). Only the journal commits must be very careful in
+avoiding that (like applications must be careful to run fsync and not to
+overwrite the data during the fsync). So normally taking the lock around
+the in-core modification and mark_buffer_dirty, would be overkill IMHO.
+
+Andrea

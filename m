@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbTJXUq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 16:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbTJXUq5
+	id S262609AbTJXU4v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 16:56:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbTJXU4v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 16:46:57 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:56713 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262598AbTJXUq4
+	Fri, 24 Oct 2003 16:56:51 -0400
+Received: from fmr05.intel.com ([134.134.136.6]:34201 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S262609AbTJXU4s convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 16:46:56 -0400
-Date: Fri, 24 Oct 2003 16:49:45 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Yaoping Ruan <yruan@cs.princeton.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: mem size at bootup
-In-Reply-To: <3F99849D.7CA61D63@cs.princeton.edu>
-Message-ID: <Pine.LNX.4.53.0310241646540.29678@chaos>
-References: <3F99849D.7CA61D63@cs.princeton.edu>
+	Fri, 24 Oct 2003 16:56:48 -0400
+Content-Class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Subject: [PATCH 2.4.23-pre8]  Remove broken prefetching in free_one_pgd()
+Date: Fri, 24 Oct 2003 13:56:31 -0700
+Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0F36E6@scsmsx401.sc.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: PATCH 2.4.23-pre6 add kmap_types.h for CONFIG_CRYPTO
+Thread-Index: AcOaXCWxutBo7GOaSjO/oCTozTGzbAAE34aA
+From: "Luck, Tony" <tony.luck@intel.com>
+To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, <linux-ia64@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>
+Cc: <marcelo@conectiva.com.br>
+X-OriginalArrivalTime: 24 Oct 2003 20:56:32.0279 (UTC) FILETIME=[4DBE1270:01C39A71]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Oct 2003, Yaoping Ruan wrote:
+This patch was accepted into 2.5.55, attributed to "davej@uk".
 
-> Hello,
->
-> could anybody tell me if there's any option to specify the size of
-> memory I want to use in Linux. We have a box with 4GB memory but we
-> would like to run some experiment with only 2GB memory. Is there any
-> option like the "hw.physmem" in FreeBSD?
->
-> Thanks a lot
->
-> - Yaoping Ruan
+This code will prefetch from beyond the end of the page table
+being cleared ... which is clearly a bad thing if the page table
+in question is allocated from the last page of memory (or precedes
+a hole on a discontig mem system).
 
-	mem=16M
+-Tony Luck
 
-...on the LILO command-line will tell Linux to use only 16 megabytes.
-You hit the [Alt] key during boot to get to the LILO command-line.
-Then you can hit the [Tab] key to see the available systems to boot.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
-
+diff -ru linux-2.4.23-pre8/mm/memory.c fix/mm/memory.c
+--- linux-2.4.23-pre8/mm/memory.c	Fri Oct 24 13:37:23 2003
++++ fix/mm/memory.c	Fri Oct 24 13:40:47 2003
+@@ -120,10 +120,8 @@
+ 	}
+ 	pmd = pmd_offset(dir, 0);
+ 	pgd_clear(dir);
+-	for (j = 0; j < PTRS_PER_PMD ; j++) {
+-		prefetchw(pmd+j+(PREFETCH_STRIDE/16));
++	for (j = 0; j < PTRS_PER_PMD ; j++)
+ 		free_one_pmd(pmd+j);
+-	}
+ 	pmd_free(pmd);
+ }
+ 

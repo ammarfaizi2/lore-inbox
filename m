@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312546AbSCYUPI>; Mon, 25 Mar 2002 15:15:08 -0500
+	id <S312540AbSCYUPS>; Mon, 25 Mar 2002 15:15:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312543AbSCYUO7>; Mon, 25 Mar 2002 15:14:59 -0500
-Received: from dial249.pm3abing3.abingdonpm.naxs.com ([216.98.75.249]:51396
-	"EHLO ani.animx.eu.org") by vger.kernel.org with ESMTP
-	id <S312540AbSCYUOx>; Mon, 25 Mar 2002 15:14:53 -0500
-Date: Mon, 25 Mar 2002 15:26:17 -0500
-From: Wakko Warner <wakko@animx.eu.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE and hot-swap disk caddies
-Message-ID: <20020325152617.A18605@animx.eu.org>
-In-Reply-To: <Pine.LNX.3.96.1020325141655.4219A-100000@gatekeeper.tmr.com> <E16paZT-0001Qe-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.3i
+	id <S312543AbSCYUPJ>; Mon, 25 Mar 2002 15:15:09 -0500
+Received: from eventhorizon.antefacto.net ([193.120.245.3]:41900 "EHLO
+	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
+	id <S312540AbSCYUPD>; Mon, 25 Mar 2002 15:15:03 -0500
+Message-ID: <3C9F8524.5060906@antefacto.com>
+Date: Mon, 25 Mar 2002 20:14:28 +0000
+From: Padraig Brady <padraig@antefacto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: OOPs in do_select()
+In-Reply-To: <3C9F838C.4030101@antefacto.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   The way you say that makes me think that it does support at some other
-> > level... hot swap controller? Doesn't match MY hardware. Hot swap
+feck..
+kernel was 2.4.16
+
+Padraig.
+
+Padraig Brady wrote:
+> This happened on an embedded system so
+> I haven't got a standard OOPs, but anyway
+> the message was:
 > 
-> Controller level hotswap works mostly (think about pcmcia ide for example)
+> "Unable to handle kernel NULL pointer dereference at 00000000"
+> 
+> looking at the trace and doing a little poking around
+> the error was definitely in do_select, and maybe on the
+> following line:
+> 
+> if (!(bit & BITS(fds, off)))
+> 
+> The cause was there was a client talking to a server
+> over a socket and the server SEGFAULTED. The OOPs was
+> associated with the client process.
+> 
+> Note the client was often seen to crash when the server
+> did, suggesting it received bad data from the kernel?
+> 
+> cheers,
+> Padraig.
 
-Just to throw this out there.  Is it possible to make the ide subsystem look
-like a scsi controller ?  that way the scsi layer could insert/remove
-devices.  say: ide0/1 = scsi0 (assuming no other scsi controllers) and hda =
-scsi0 channel0 id0 lun0  and hdc = scsi0 channel1 id0 lun0 ...
-
-Personally, if it's doable, i'd like it.
-
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals

@@ -1,77 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVCCGzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVCCGzk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVCCGzj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 01:55:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVCCGyL
+	id S261485AbVCCGzk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 01:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVCCGxi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 01:54:11 -0500
-Received: from willy.net1.nerim.net ([62.212.114.60]:14866 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261513AbVCCGIY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 01:08:24 -0500
-Date: Thu, 3 Mar 2005 07:07:48 +0100
-From: Willy Tarreau <willy@w.ods.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Greg KH <greg@kroah.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050303060748.GD30106@alpha.home.local>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002047.GA10434@kroah.com> <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org>
+	Thu, 3 Mar 2005 01:53:38 -0500
+Received: from gate.crashing.org ([63.228.1.57]:44244 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261540AbVCCGOr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 01:14:47 -0500
+Subject: Re: Page fault scalability patch V18: Drop first acquisition of ptl
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Paul Mackerras <paulus@samba.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, Anton Blanchard <anton@samba.org>
+In-Reply-To: <Pine.LNX.4.58.0503022149210.4272@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503011947001.25441@schroedinger.engr.sgi.com>
+	 <Pine.LNX.4.58.0503011951100.25441@schroedinger.engr.sgi.com>
+	 <20050302174507.7991af94.akpm@osdl.org>
+	 <Pine.LNX.4.58.0503021803510.3080@schroedinger.engr.sgi.com>
+	 <20050302185508.4cd2f618.akpm@osdl.org>
+	 <Pine.LNX.4.58.0503021856380.3365@schroedinger.engr.sgi.com>
+	 <20050302201425.2b994195.akpm@osdl.org>
+	 <16934.39386.686708.768378@cargo.ozlabs.ibm.com>
+	 <20050302213831.7e6449eb.davem@davemloft.net>
+	 <Pine.LNX.4.58.0503022149210.4272@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 17:11:53 +1100
+Message-Id: <1109830313.5680.183.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503021710430.25732@ppc970.osdl.org>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 02, 2005 at 05:15:36PM -0800, Linus Torvalds wrote:
-> On Wed, 2 Mar 2005, Greg KH wrote:
-> > I do understand what you are trying to achieve here, people don't really
-> > test the -rc releases as much as a "real" 2.6.11 release.  Getting a
-> > week of testing and bugfix only type patches to then release a 2.6.12
-> > makes a lot of sense.  For example, see all of the bug reports that came
-> > out of the woodwork today on lkml from the 2.6.11 release...
+On Wed, 2005-03-02 at 21:51 -0800, Christoph Lameter wrote:
+> On Wed, 2 Mar 2005, David S. Miller wrote:
 > 
-> A large part of it is psychological. On the other hand, it may be that
-> Neil is right and it would just mean that people wouldn't even test the
-> odd releases (..because they want to wait a couple of weeks for the even
-> one), so it may not actually end up helping much.
-
-It's not the same thing to test ONE release and test SEVERAL -rc. I take
-my case as an example. I don't have enough time to keep up, so I try to
-compile at least each release and test them on one of my systems, maybe
-for curiosity. I would like to test the -rc, but the problem is that you
-don't know how much you can expect this or that -rc to be close to usable.
-You even expect it to fail or not build at all, so when you don't have much
-time to spend on this, unfortunately, you don't test them.
-
-On the contrary, Marcelo makes a strong difference between -pre and -rc.
-And when I see a 2.4-rc, I expect it to be a potential candidate, so I
-try to get some time to compile it just in case I would discover an awful
-bug, and avoid the 2.6.8 -> 2.6.8.1 situation. Honnestly, I would have
-reported the 2.6.8 NFS bug earlier if there had been a true -rc before
-it (=one which does not change except for trivial bug fixes).
-
-> The thing is, I _do_ believe the current setup is working reasonably well.  
-> But I also do know that some people (a fairly small group, but anyway)  
-> seem to want an extra level of stability - although those people seem to
-> not talk so much about "it works" kind of stability, but literally a "we
-> can't keep up" kind of stability (ie at least a noticeable percentage of
-> that group is not complaining about crashes, they are complaining about
-> speed of development).
+> > Actually, I guess I could do the pte_cmpxchg() stuff, but only if it's
+> > used to "add" access.  If the TLB miss handler races, we just go into
+> > the handle_mm_fault() path unnecessarily in order to synchronize.
+> >
+> > However, if this pte_cmpxchg() thing is used for removing access, then
+> > sparc64 can't use it.  In such a case a race in the TLB handler would
+> > result in using an invalid PTE.  I could "spin" on some lock bit, but
+> > there is no way I'm adding instructions to the carefully constructed
+> > TLB miss handler assembler on sparc64 just for that :-)
 > 
-> And I suspect that _anything_ I do won't make those people happy.
+> There is no need to provide pte_cmpxchg. If the arch does not support
+> cmpxchg on ptes (CONFIG_ATOMIC_TABLE_OPS not defined)
+> then it will fall back to using pte_get_and_clear while holding the
+> page_table_lock to insure that the entry is not touched while performing
+> the comparison.
 
-The only solution against this is to freeze for real and start the devel
-tree in parallel. People are not complaining anymore about 2.4 change
-speed, because every time a folk sends something, we tell him to push
-that into 2.6 and not 2.4. The same thing must work with 2.6 and 2.7.
-In the end, there would a general feeling that "2.6 was not as stable
-as 2.8", etc... That's not a problem, there are always ups and downs
-in software.
+Nah, this is wrong :)
 
-Regards,
-Willy
+We actually _want_ pte_cmpxchg on ppc64, because we can do the stuff,
+but it requires some careful manipulation of some bits in the PTE that
+are beyond linux common layer understanding :) Like the BUSY bit which
+is a lock bit for arbitrating with the hash fault handler for example.
+
+Also, if it's ever used to cmpxchg from anything but a !present PTE, it
+will need additional massaging (like the COW case where we just
+"replace" a PTE with set_pte). We also need to preserve some bits in
+there that indicate if the PTE was in the hash table and where in the
+hash so we can flush it afterward.
+
+Ben.
+
 

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130449AbRCCLza>; Sat, 3 Mar 2001 06:55:30 -0500
+	id <S130453AbRCCMuY>; Sat, 3 Mar 2001 07:50:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130451AbRCCLzU>; Sat, 3 Mar 2001 06:55:20 -0500
-Received: from kerberos.suse.cz ([195.47.106.10]:50698 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S130449AbRCCLzI>;
-	Sat, 3 Mar 2001 06:55:08 -0500
-Date: Sat, 3 Mar 2001 12:54:36 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Michael Rothwell <rothwell@holly-springs.nc.us>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: VT82C586B USB PCI card, Linux USB
-Message-ID: <20010303125436.A803@suse.cz>
-In-Reply-To: <200103030503.f2353PQ21936@513.holly-springs.nc.us>
-Mime-Version: 1.0
+	id <S130454AbRCCMuN>; Sat, 3 Mar 2001 07:50:13 -0500
+Received: from ns1.uklinux.net ([212.1.130.11]:62985 "EHLO s1.uklinux.net")
+	by vger.kernel.org with ESMTP id <S130453AbRCCMuB>;
+	Sat, 3 Mar 2001 07:50:01 -0500
+Envelope-To: <linux-kernel@vger.kernel.org>
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200103031249.f23Cn4R01208@flint.arm.linux.org.uk>
+Subject: gettimeofday question
+To: linux-kernel@vger.kernel.org
+Date: Sat, 3 Mar 2001 12:49:04 +0000 (GMT)
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200103030503.f2353PQ21936@513.holly-springs.nc.us>; from rothwell@holly-springs.nc.us on Sat, Mar 03, 2001 at 12:13:49AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 03, 2001 at 12:13:49AM -0500, Michael Rothwell wrote:
-> I have a USB PCI card, which shows up as this in `lspci`:
-> 
-> 00:09.0 USB Controller: VIA Technologies, Inc. VT82C586B USB (rev 04)
-> 
-> ... it appears that they tossed the whole southbridge chip onto a pci
-> board, and disabled everything but USB.
+Hi,
 
-No, they have a separate USB chip, but it has the same PCI ID as the
-builtin silicon in the southbridge.
+I've noticed that one of my machines here suffers from the "time going
+backwards problem" and so started thinking about the x86 solution.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+I've come to the conclusion that it has a hole which could cause it
+to return the wrong time in one specific case:
+
+- in do_gettimeofday(), we disable irqs (read_lock_irqsave)
+- the ISA timer wraps, but we've got interrupts disabled, so no update
+  of xtime or jiffies occurs
+- in do_slow_gettimeoffset(), we read the timer, which has wrapped
+- since jiffies_p != jiffies, we do not apply any correction
+- our idea of time is now one jiffy slow.
+
+Further more, while do_gettimeofday() is still within the
+read_lock_irqsave, we spin_unlock(&i8253_lock) in do_slow_gettimeoffset()
+and _re-enable_ interrupts!  This means when we later read xtime, we're
+doing it with interrupts enabled.
+
+This applies to both 2.2.18 and 2.4.2.
+
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

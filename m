@@ -1,96 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317957AbSGWGCz>; Tue, 23 Jul 2002 02:02:55 -0400
+	id <S317956AbSGWGBH>; Tue, 23 Jul 2002 02:01:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317958AbSGWGCz>; Tue, 23 Jul 2002 02:02:55 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:11199 "HELO
+	id <S317957AbSGWGBG>; Tue, 23 Jul 2002 02:01:06 -0400
+Received: from [196.26.86.1] ([196.26.86.1]:43710 "HELO
 	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317957AbSGWGCx>; Tue, 23 Jul 2002 02:02:53 -0400
-Date: Tue, 23 Jul 2002 08:23:49 +0200 (SAST)
+	id <S317956AbSGWGBF>; Tue, 23 Jul 2002 02:01:05 -0400
+Date: Tue, 23 Jul 2002 08:22:02 +0200 (SAST)
 From: Zwane Mwaikambo <zwane@linuxpower.ca>
 X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: odd memory corruption in 2.5.27?
-Message-ID: <Pine.LNX.4.44.0207230822040.32636-100000@linux-box.realnet.co.sz>
+To: rml@tech9.net
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andre Hedrick <andre@linux-ide.org>, Jens Axboe <axboe@suse.de>
+Subject: 2.5-ide24-preempt scheduling in interrupt context
+Message-ID: <Pine.LNX.4.44.0207230820030.32636-100000@linux-box.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Al,
+Hi Jens, Andre, Robert
+ 	The box is 2.5.25-dj2 w/ 2.4-IDE and preempt running on 4-way 
+SMP. I have walked the entire call path manually and verified that it is 
+correct. Andre i do know your stance on this but please check it out 
+regardless, i'm willing to help in any way. For my own curiosity is that 
+thread flag check for TIF_NEED_RESCHED correct in this context?
 
-	kernel is 2.5.27, the box was doing a 'make -j2 bzImage' at the 
-time on an NFS mounted filesystem, the server is 2.4.19-re5-ac3
+Cheers,
+	Zwane
 
-(gdb) list *0xc014b09c
-0xc014b09c is in filp_close (open.c:834).
-829      */
-830     int filp_close(struct file *filp, fl_owner_t id)
-831     {
-832             int retval;
-833
-834             if (!file_count(filp)) {
-835                     printk(KERN_ERR "VFS: Close: file count is 0\n");
-836                     return 0;
-837             }
-838             retval = 0;
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000008c
- printing eip:
-c014b09c
-*pde = 00000000
-Oops: 0000
-CPU:    0
-EIP:    0010:[<c014b09c>]    Not tainted
-EFLAGS: 00010206
-eax: cea36a44   ebx: cea36920   ecx: cb235b30   edx: 00000078
-esi: 00000078   edi: 00000001   ebp: cea36920   esp: ca9bfddc
+kernel BUG at sched.c:808!
+invalid operand: 0000
+CPU:    2
+EIP:    0010:[<c0116828>]    Not tainted
+EFLAGS: 00010002
+eax: 00000001   ebx: c11fc000   ecx: 00000000   edx: 00000040
+esi: c027c800   edi: 0000509a   ebp: c11fdddc   esp: c11fddb0
 ds: 0018   es: 0018   ss: 0018
-Process fixdep (pid: 1015, threadinfo=ca9be000 task=c8245980)
-Stack: cea36920 00000001 00000001 0000000a c01202db 00000078 cea36920 ca9be000
-       c8245980 cea36920 00000000 c0120e40 00000000 c036bb00 ca9bff28 00000002
-       c0314a6f 00000001 c0340018 c0310018 ffffff00 c0108622 00000010 00000202
-Call Trace: [<c01202db>] [<c0120e40>] [<c0108622>] [<c0115261>] [<c014cd1d>] 
-   [<c01616ac>] [<c0157cda>] [<c0159020>] [<c012f75c>] [<c0114e90>] [<c01080a0>]
-   [<c0120018>] [<c014cd1d>] [<c0154970>] [<c0154ed1>] [<c014b066>] [<c01075db>]
+Process swapper (pid: 0, threadinfo=c11fc000 task=c10c2680)
+Stack: c028ec80 00000000 00000000 00000000 00000000 00000002 00000020 00000001
+       c11fc000 c027c800 0000509a c11fdde8 c0116d0e c11fde04 c11fde14 c0115b6e
+       c11fde04 c027c800 c11fde04 c027c800 00000001 00000086 00000000 c02bd4e0
+Call Trace: [<c0116d0e>] [<c0115b6e>] [<c0116d51>] [<c0116def>] [<c0148f1c>]
+   [<c0149018>] [<c01b21c3>] [<c014d364>] [<c01b2677>] [<c01164bd>] [<c01cc008>]   [<c01cb118>] [<c01c51cf>] [<c01caea0>] [<c010b44e>] [<c010b7bb>] [<c0106f00>]   [<c0109a7a>] [<c0106f00>] [<c0106f00>] [<c0106f2a>] [<c0106fd2>] [<c011c52e>]
 
-Code: 8b 46 14 85 c0 75 12 68 c0 6e 31 c0 e8 13 1b fd ff 5a 31 c0 
+Code: 0f 0b 28 03 3f 38 23 c0 e8 6b cd 02 00 bb 00 e0 ff ff 21 e3
+ <0>Kernel panic: Aiee, killing interrupt handler!
+In interrupt handler - not syncing
 
->>EIP; c014b09c <filp_close+c/130>   <=====
-Trace; c01202db <put_files_struct+4b/d0>
-Trace; c0120e40 <do_exit+210/520>
-Trace; c0108622 <die+f2/100>
-Trace; c0115261 <do_page_fault+3d1/506>
-Trace; c014cd1d <fget+4d/70>
-Trace; c01616ac <dput+1c/240>
-Trace; c0157cda <permission+1a/30>
-Trace; c0159020 <link_path_walk+a30/a60>
-Trace; c012f75c <zap_pmd_range+4c/60>
-Trace; c0114e90 <do_page_fault+0/506>
-Trace; c01080a0 <error_code+34/40>
-Trace; c0120018 <will_become_orphaned_pgrp+48/d0>
-Trace; c014cd1d <fget+4d/70>
-Trace; c0154970 <vfs_fstat+10/40>
-Trace; c0154ed1 <sys_fstat64+11/30>
-Trace; c014b066 <sys_open+66/70>
-Trace; c01075db <syscall_call+7/b>
-Code;  c014b09c <filp_close+c/130>
+>>EIP; c0116828 <schedule+28/4f0>   <=====
+Trace; c0116d0e <preempt_schedule+1e/40>
+Trace; c0115b6e <try_to_wake_up+31e/330>
+Trace; c0116d51 <default_wake_function+21/40>
+Trace; c0116def <__wake_up+7f/f0>
+Trace; c0148f1c <unlock_buffer+3c/40>
+Trace; c0149018 <end_buffer_io_sync+28/30>
+Trace; c01b21c3 <end_bio_bh_io_sync+13/20>
+Trace; c014d364 <bio_endio+24/30>
+Trace; c01b2677 <end_that_request_first+187/270>
+Trace; c01164bd <scheduler_tick+12d/460>
+Trace; c01cc008 <idedisk_end_request+98/150>
+Trace; c01cb118 <read_intr+278/2d0>
+Trace; c01c51cf <ide_intr+1ff/2f0>
+Trace; c01caea0 <read_intr+0/2d0>
+Trace; c010b44e <handle_IRQ_event+5e/90>
+Trace; c010b7bb <do_IRQ+11b/1e0>
+Trace; c0106f00 <default_idle+0/40>
+Trace; c0109a7a <common_interrupt+22/28>
+Trace; c0106f00 <default_idle+0/40>
+Trace; c0106f00 <default_idle+0/40>
+Trace; c0106f2a <default_idle+2a/40>
+Trace; c0106fd2 <cpu_idle+52/70>
+Trace; c011c52e <printk+1ae/210>
+Code;  c0116828 <schedule+28/4f0>
 00000000 <_EIP>:
-Code;  c014b09c <filp_close+c/130>   <=====
-   0:   8b 46 14                  mov    0x14(%esi),%eax   <=====
-Code;  c014b09f <filp_close+f/130>
-   3:   85 c0                     test   %eax,%eax
-Code;  c014b0a1 <filp_close+11/130>
-   5:   75 12                     jne    19 <_EIP+0x19> c014b0b5 <filp_close+25/130>
-Code;  c014b0a3 <filp_close+13/130>
-   7:   68 c0 6e 31 c0            push   $0xc0316ec0
-Code;  c014b0a8 <filp_close+18/130>
-   c:   e8 13 1b fd ff            call   fffd1b24 <_EIP+0xfffd1b24> c011cbc0 <printk+0/210>
-Code;  c014b0ad <filp_close+1d/130>
-  11:   5a                        pop    %edx
-Code;  c014b0ae <filp_close+1e/130>
-  12:   31 c0                     xor    %eax,%eax
+00000000 <_EIP>:
+Code;  c0116828 <schedule+28/4f0>   <=====
+   0:   0f 0b                     ud2a      <=====
+Code;  c011682a <schedule+2a/4f0>
+   2:   28 03                     sub    %al,(%ebx)
+Code;  c011682c <schedule+2c/4f0>
+   4:   3f                        aas
+Code;  c011682d <schedule+2d/4f0>
+   5:   38 23                     cmp    %ah,(%ebx)
+Code;  c011682f <schedule+2f/4f0>
+   7:   c0 e8 6b                  shr    $0x6b,%al
+Code;  c0116832 <schedule+32/4f0>
+   a:   cd 02                     int    $0x2
+Code;  c0116834 <schedule+34/4f0>
+   c:   00 bb 00 e0 ff ff         add    %bh,0xffffe000(%ebx)
+Code;  c011683a <schedule+3a/4f0>
+  12:   21 e3                     and    %esp,%ebx
+
+ <0>Kernel panic: Aiee, killing interrupt handler!
+
 
 -- 
 function.linuxpower.ca

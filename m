@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbULAPAb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbULAPNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbULAPAb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Dec 2004 10:00:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbULAPAb
+	id S261270AbULAPNm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Dec 2004 10:13:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbULAPNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Dec 2004 10:00:31 -0500
-Received: from smtp08.auna.com ([62.81.186.18]:23525 "EHLO smtp08.retemail.es")
-	by vger.kernel.org with ESMTP id S261272AbULAPAJ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Dec 2004 10:00:09 -0500
-Date: Wed, 01 Dec 2004 15:00:08 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: cd burning, capabilities and available modes
-To: Daniel Drake <dsd@gentoo.org>
-Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-References: <1101908433l.8423l.0l@werewolf.able.es>
-	<41ADF311.7030802@gentoo.org>
-In-Reply-To: <41ADF311.7030802@gentoo.org> (from dsd@gentoo.org on Wed Dec  1
-	17:36:33 2004)
-X-Mailer: Balsa 2.2.6
-Message-Id: <1101913208l.8423l.1l@werewolf.able.es>
+	Wed, 1 Dec 2004 10:13:42 -0500
+Received: from fmr13.intel.com ([192.55.52.67]:36543 "EHLO
+	fmsfmr001.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261270AbULAPNj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Dec 2004 10:13:39 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
+Subject: RE: setting up EFI on x86
+Date: Wed, 1 Dec 2004 07:13:26 -0800
+Message-ID: <D36CE1FCEFD3524B81CA12C6FE5BCAB00870F00E@fmsmsx406.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: setting up EFI on x86
+Thread-Index: AcTXsmiERPUOmkm2SfmedeJIZGXgjwAAL7Fg
+From: "Tolentino, Matthew E" <matthew.e.tolentino@intel.com>
+To: "Daniel Dickman" <didickman@yahoo.com>
+Cc: <linux-kernel@vger.kernel.org>, "Matt Domsch" <Matt_Domsch@dell.com>
+X-OriginalArrivalTime: 01 Dec 2004 15:13:29.0286 (UTC) FILETIME=[50359660:01C4D7B8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>I just got an older x86 desktop system and I wanted to learn about EFI
+>by booting the kernel using this instead of the older MBR-style boot
+>process. Does anyone know how I can set up such a system on x86?
+>Specifically, what tools can I use to create a GPT disk? Do I need a
+>special BIOS to do this?
 
-On 2004.12.01, Daniel Drake wrote:
-> Hi,
-> 
-> J.A. Magallon wrote:
-> > As user:
-> > werewolf:/store/tmp> cdrecord -dummy dev=ATAPI:1,0,0 *.iso
-> > ...
-> 
-> Try with the real device name, e.g. dev=/dev/hdc
-> 
+None of the mainline distributions currently support installation from
+EFI on x86.  I've heard rumors that Debian includes some support for
+EFI, but I don't know specifics.  Thus, there are several contortions 
+required to set it up.  
 
-The recommended mode is ATAPI, but anyways:
+Typically, I would start with an installation of your favorite distro.  
+The difference is that I also include a vfat partition as this serves as
+your EFI system partition.  Onto this, I copy the EFI bootloader and
+kernels so that they are visible from EFI.   As for the GPT partioning, 
+Matt Domsch added GPT support into parted, so that should work for 
+creating a GPT disk.  
 
-werewolf:/store/tmp> cdrecord -dummy dev=/dev/hdc *.iso
-...
-cdrecord: Cannot allocate memory. WARNING: Cannot do mlockall(2).
-cdrecord: WARNING: This causes a high risk for buffer underruns.
-cdrecord: Operation not permitted. WARNING: Cannot set RR-scheduler
-cdrecord: Permission denied. WARNING: Cannot set priority using setpriority().
-cdrecord: WARNING: This causes a high risk for buffer underruns.
-scsidev: '/dev/hdc'
-devname: '/dev/hdc'
-scsibus: -2 target: -2 lun: -2
-Warning: Open by 'devname' is unintentional and not supported.
-Linux sg driver version: 3.5.27
-WARNING ! Cannot gain SYS_RAWIO capability ! 
-: Operation not permitted
-Using libscg version 'schily-0.8'.
-cdrecord: Warning: using inofficial libscg transport code version (warly-Mandrakelinux-scsi-linux-sg '@(#)scsi-linux-sg.c   1.83 04/05/20 Copyright 1997 J. Schilling').
-Device type    : Removable CD-ROM
-Version        : 0
-Response Format: 2
-Capabilities   : 
-Vendor_info    : 'HL-DT-ST'
-Identifikation : 'DVDRAM GSA-4120B'
-Revision       : 'A102'
-Device seems to be: Generic mmc2 DVD-R/DVD-RW.
-Using generic SCSI-3/mmc   CD-R/CD-RW driver (mmc_cdr).
-Driver flags   : MMC-3 SWABAUDIO BURNFREE 
-Supported modes: 
-cdrecord: Drive does not support TAO recording.
-cdrecord: Illegal write mode for this drive.
+EFI is the top-most interface to the firmware, whether that's a
+traditional BIOS, or the Framework that Intel has been promoting.   
+Given that your older system doesn't have EFI in the flash, you'll
+need to download the EFI sample implementation from 
+http://developer.intel.com/technology/efi/main_sample.htm.  The EFI
+website include pre-built binaries of the sample implementation 
+source that is also available.  You can dd this onto a
+floppy.  This permits one to bootstrap EFI from a floppy on top 
+of your existing BIOS.  You'll see it come up to the boot manager 
+and eventually the EFI shell.  
 
+>From there, you'll need to use the ELILO bootloader, which is
+downloadable either in source or binary form from here:
+http://elilo.sourceforge.net/cgi-bin/blosxom.  Also in there
+are various READMEs and guides for use.
 
+Finally, make sure you build the kernel with CONFIG_EFI enabled.  
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.2 (Cooker) for i586
-Linux 2.6.10-rc2-jam4 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
+I've been meaning to post more detailed instructions on a website
+for this.  I'll try to get something posted soon.  Let me
+know if you have further questions Daniel.
+
+matt
+
 
 

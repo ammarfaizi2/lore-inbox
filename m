@@ -1,69 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264688AbSKIKPJ>; Sat, 9 Nov 2002 05:15:09 -0500
+	id <S264644AbSKILNz>; Sat, 9 Nov 2002 06:13:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264686AbSKIKPJ>; Sat, 9 Nov 2002 05:15:09 -0500
-Received: from [202.109.126.12] ([202.109.126.12]:41483 "HELO pop.com.br")
-	by vger.kernel.org with SMTP id <S264682AbSKIKPH>;
-	Sat, 9 Nov 2002 05:15:07 -0500
-From: "REVISTAS =?ISO-8859-1?Q?ER=D3TICAS...=22?= <revistasemcd@globo.com>"@vax.home.local
-To: revistasemcd@globo.com
-Subject: =?ISO-8859-1?Q?LAN=C7AMENTO?= !!!
-Content-Transfer-Encoding: Quoted-Printable
-MIME-Version: 1.0
-Message-Id: <20021109101507Z264682-32597+19083@vger.kernel.org>
-Date: Sat, 9 Nov 2002 05:15:07 -0500
+	id <S264683AbSKILNz>; Sat, 9 Nov 2002 06:13:55 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:11221 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S264644AbSKILNy>;
+	Sat, 9 Nov 2002 06:13:54 -0500
+Date: Sat, 9 Nov 2002 12:20:18 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: Con Kolivas <conman@kolivas.net>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       marcelo@conectiva.com.br, Andrea Arcangeli <andrea@suse.de>
+Subject: Re: [BENCHMARK] 2.4.{18,19{-ck9},20rc1{-aa1}} with contest
+Message-ID: <20021109112018.GA31134@suse.de>
+References: <200211091300.32127.conman@kolivas.net> <3DCC74B0.47A462A9@digeo.com> <200211091426.54403.conman@kolivas.net> <3DCC8BCB.F5E39AB7@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3DCC8BCB.F5E39AB7@digeo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-REVISTAS ERÓTICAS !!!
+On Fri, Nov 08 2002, Andrew Morton wrote:
+> Con Kolivas wrote:
+> > 
+> > -----BEGIN PGP SIGNED MESSAGE-----
+> > Hash: SHA1
+> > 
+> > >Con Kolivas wrote:
+> > >> io_load:
+> > >> Kernel [runs]           Time    CPU%    Loads   LCPU%   Ratio
+> > >> 2.4.18 [3]              474.1   15      36      10      6.64
+> > >> 2.4.19 [3]              492.6   14      38      10      6.90
+> > >> 2.4.19-ck9 [2]          140.6   49      5       5       1.97
+> > >> 2.4.20-rc1 [2]          1142.2  6       90      10      16.00
+> > >> 2.4.20-rc1aa1 [1]       1132.5  6       90      10      15.86
+> > >
+> > >2.4.20-pre3 included some elevator changes.  I assume they are the
+> > >cause of this.  Those changes have propagated into Alan's and Andrea's
+> > >kernels.   Hence they have significantly impacted the responsiveness
+> > >of all mainstream 2.4 kernels under heavy writes.
+> > >
+> > >(The -ck patch includes rmap14b which includes the read-latency2 thing)
+> > 
+> > Thanks for the explanation. I should have said this was ck with compressed
+> > caching; not rmap.
+> > 
+> 
+> hrm.  In that case I'll shut up with the speculating.
+> 
+> You're showing a big shift in behaviour between 2.4.19 and 2.4.20-rc1.
+> Maybe it doesn't translate to worsened interactivity.  Needs more
+> testing and anaysis.
 
-A MAIOR COLEÇÃO DE REVISTAS EM  CD JÁ PRODUZIDAS NO BRASIL.
-ADQUIRA A SUA REVISTA  POR APENAS R$ 10,00 (POSTAGEM INCLUÍDA).
+The merging and seek accounting in 2.4.19 is completely off, it doesn't
+make any sense. 2.4.20-rc1 should be sanely tweakable.
 
-     TÍTULOS EXCLUSIVOS:
-
-* Casais & Cia 			
-* Gatas E Gatas 		
-* Fetishes 			
-* Strip Girls 			
-* Cat Boys			
-* Sex Diitroya 			
-* Encontros Intimos 		
-* Transex			
-* Celebrities Sex Nude  	
-* Humor Sex			
-* ABC do Sexo 			
-* Sexo Curioso 			
-* Sexo & Arte 			
-
-
-COMPRE JÁ !!!
-www.diitroya.com.br/publicacoes
-
-
-PROIBIDO PARA MENORES DE 18 ANOS
-
-Erotic magazines. 
-
-THE LARGEST COLLECTION OF MAGAZINES IN CD ALREADY PRODUCED IN BRAZIL. 
-ACQUIRE YOURS REVIEWED FOR JUST R$ 10,00 (more postage). 
-Exclusive titles. 
-ALREADY BUY.
-www.diitroya.com.br/publicacoes
-Forbidden for smaller of 18 years.
-
-Esta mensagem é enviada com a complacência da nova legislação sobre
-correio eletrônico, Seção 301, Parágrafo (a) (2) (c) Decreto S.1618,
-Título Terceiro aprovado pelo "105 Congresso Base das Normativas
-Internacionais sobre o SPAM". Este E-mail não poderá ser considerado
-SPAM quando inclua uma forma de ser removido. Para remover
-futuros correios, simplesmente responda este colocando a palavra 
-remover no assunto.
-removerdiitroya@pop.com.br
-
-
-
-
-
+-- 
+Jens Axboe
 

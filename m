@@ -1,75 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267107AbTAVFq7>; Wed, 22 Jan 2003 00:46:59 -0500
+	id <S267328AbTAVFvp>; Wed, 22 Jan 2003 00:51:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267328AbTAVFq7>; Wed, 22 Jan 2003 00:46:59 -0500
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:7135 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S267107AbTAVFq5>; Wed, 22 Jan 2003 00:46:57 -0500
-Date: Tue, 21 Jan 2003 23:55:51 -0600 (CST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: Miles Bader <miles@gnu.org>
-cc: Greg Ungerer <gerg@snapgear.com>, <linux-kernel@vger.kernel.org>
+	id <S267329AbTAVFvp>; Wed, 22 Jan 2003 00:51:45 -0500
+Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:43904 "EHLO
+	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id <S267328AbTAVFvo>; Wed, 22 Jan 2003 00:51:44 -0500
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Greg Ungerer <gerg@snapgear.com>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+       linux-kernel@vger.kernel.org
 Subject: Re: common RODATA in vmlinux.lds.h (2.5.59)
-In-Reply-To: <buoptqp954l.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Message-ID: <Pine.LNX.4.44.0301212339540.8909-100000@chaos.physics.uiowa.edu>
+References: <Pine.LNX.4.44.0301212045000.1577-100000@chaos.physics.uiowa.edu>
+	<3E2E0F38.7090506@snapgear.com>
+	<buoptqp954l.fsf@mcspd15.ucom.lsi.nec.co.jp>
+	<20030122054230.GA954@mars.ravnborg.org>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 22 Jan 2003 15:00:25 +0900
+In-Reply-To: <20030122054230.GA954@mars.ravnborg.org>
+Message-ID: <buolm1d911i.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Jan 2003, Miles Bader wrote:
-
-> Yeah, the new generic RODATA stuff is way broken on the v850 too.
-
-Yup, I actually noticed when looking things over, sorry about that.
-
->   (1) Separates the RODATA stuff into two macros, an input-sections-and-
->       symbols macro, RODATA_CONTENTS, which can be put into any
->       appropriate section, and a RODATA_SECTION macro, which simply
->       defines an appropriate section using that.  I guess most archs
->       could just use RODATA_SECTION in the same way they use `RODATA'
->       now, but the v850 uses RODATA_CONTENTS instead.
+Sam Ravnborg <sam@ravnborg.org> writes:
+> > [To be honest, I think the stuff with `LOAD_OFFSET' is a bit of a waste;
+> > it seems cleaner to just have archs define their own sections as
+> > appropriate, and use RODATA_CONTENTS directly -- it's the input sections
+> > and related symbols that are always changing (and so better centralized),
+> > after all, not the output sections.]
 > 
->       This assumes that the original division into lots of little
->       output sections was gratuitous, and that putting everything into
->       a single section is OK.
-> 
->       [You might notice that this follows the macro scheme already used
->       by the v850's vmlinux.lds.S file]
+> There were some reports of failed boots that boiled down to
+> mis-alignment of a single section.
+> With your suggestion we will end up in the same problem.
+> __start_ksymbtab will in some cases have a value less than the actual
+> start of the first symbol.
 
-Yes, I saw it, but on the other hand I'd like to avoid introducing 
-complexity which isn't really needed. So the important question is: Is 
-there a reason that v850 does things differently, or could it just as well 
-live with separate .text and .rodata sections (Note that sections 
-like .rodata1 will be discarded when empty).
+Then it would seem an alignment directive should probably be included
+before __start_ksymbtab (and possibly other places).  [but I can't see
+what it has to do with having separate sections or not.]
 
-The idea behind the cleanup is two-fold:
-o Make it easier to add e.g. special sections like __ksymtab and friends.
-o Make the building of vmlinux more consistent, i.e. share a common way
-  where possible and explicitly document places where archs need to do
-  things differently. Today, there's a lot of differences between archs,
-  most of them I think just for historical grown-with-time reasons.
-
-A reason to use sections of their own for e.g. __ex_table, __ksymtab etc. 
-is also to get alignment right without magic numbers in vmlinux.lds.S.
-
-One example of the inconsistency is e.g. the _etext symbol. For v850 it 
-includes .rodata, exception table etc. So if calculating _etext - _stext, 
-one gets a wrong impression of the code size, and generic code which 
-assumes that there's code between _stext and _etext (kernel/extable.c) 
-obviously uses a wrong assumption.
-
->   (2) Adds a `CSYM' macro which is used for every symbol name that is
->       exported to C.  By default this just expands to its argument, but
->       an arch may define `C_SYMBOL_PREFIX' in order to add a prefix to
->       all C symbols.
-> 
-> What do you think of this?
-
-I definitely agree with (2), with (1) only if there's a good reason.
-
---Kai
-
-
+-Miles
+-- 
+"Most attacks seem to take place at night, during a rainstorm, uphill,
+ where four map sheets join."   -- Anon. British Officer in WW I

@@ -1,104 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268030AbUIUTvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268035AbUIUTxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268030AbUIUTvd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 21 Sep 2004 15:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268031AbUIUTvd
+	id S268035AbUIUTxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 21 Sep 2004 15:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268033AbUIUTxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 21 Sep 2004 15:51:33 -0400
-Received: from ns.donapex.net ([194.44.21.53]:39429 "EHLO ns.donapex.net")
-	by vger.kernel.org with ESMTP id S268030AbUIUTv3 (ORCPT
+	Tue, 21 Sep 2004 15:53:08 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:44990 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S268031AbUIUTwd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 21 Sep 2004 15:51:29 -0400
-Date: Tue, 21 Sep 2004 22:51:27 +0300
-From: "Vitaly V. Bursov" <vitalyvb@ukr.net>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] drivers/input/serio/serport.c prevents usage of kfree()'ed
- memory
-Message-Id: <20040921225127.2aa203b0.vitalyvb@ukr.net>
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Tue__21_Sep_2004_22_51_27_+0300_HWo/8K2d4MZzQ3Z="
+	Tue, 21 Sep 2004 15:52:33 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Vojtech Pavlik <vojtech@suse.cz>,
+       Dmitry Torokhov <dtor_core@ameritech.net>
+Subject: [PATCH 2.6.9-rc2-mm1] i8042 ACPI enumeration update
+Date: Tue, 21 Sep 2004 13:52:22 -0600
+User-Agent: KMail/1.7
+Cc: Hans-Frieder Vogt <hfvogt@gmx.net>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-input@atrey.karlin.mff.cuni.cz
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409211352.22318.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__21_Sep_2004_22_51_27_+0300_HWo/8K2d4MZzQ3Z=
-Content-Type: multipart/mixed;
- boundary="Multipart=_Tue__21_Sep_2004_22_51_27_+0300_+Kr3CBTwO3bQlfmI"
+This adds a few updates:
 
+ - Fix build on ia64 (I8042_MAP_IRQ() isn't defined at compile-time)
+ - Add FixedIO support from Hans-Frieder Vogt
+ - Add ACPI device name (e.g., "PS/2 Keyboard Controller")
+ - Fall back to default ports/IRQ if ACPI _CRS doesn't supply them
+ - Fall back to previous blind probing if ACPI is disabled
 
---Multipart=_Tue__21_Sep_2004_22_51_27_+0300_+Kr3CBTwO3bQlfmI
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+I'd appreciate any comments or feedback.  If it looks reasonable,
+please include this in the next -mm patchset.
 
-Hello,
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-This is a patch that hopefully fixes issues with serport module.
-
-Please review.
--- 
-Vitaly
-GPG Key ID: F95A23B9
-
---Multipart=_Tue__21_Sep_2004_22_51_27_+0300_+Kr3CBTwO3bQlfmI
-Content-Type: application/octet-stream;
- name="serport.c.patch"
-Content-Disposition: attachment;
- filename="serport.c.patch"
-Content-Transfer-Encoding: base64
-
-ZGlmZiAtdXJOIGEvZHJpdmVycy9pbnB1dC9zZXJpby9zZXJwb3J0LmMgYi9kcml2ZXJzL2lucHV0
-L3NlcmlvL3NlcnBvcnQuYwotLS0gYS9kcml2ZXJzL2lucHV0L3NlcmlvL3NlcnBvcnQuYwkyMDA0
-LTA5LTIxIDIyOjQzOjIyLjAwMDAwMDAwMCArMDMwMAorKysgYi9kcml2ZXJzL2lucHV0L3Nlcmlv
-L3NlcnBvcnQuYwkyMDA0LTA5LTIxIDIyOjQ3OjU3LjU2ODI4NDAwMCArMDMwMApAQCAtMzMsNiAr
-MzMsNyBAQAogCXdhaXRfcXVldWVfaGVhZF90IHdhaXQ7CiAJc3RydWN0IHNlcmlvICpzZXJpbzsK
-IAl1bnNpZ25lZCBsb25nIGZsYWdzOworCWludCBxdWl0OwogfTsKIAogLyoKQEAgLTQ1LDExICs0
-NiwxOSBAQAogCXJldHVybiAtKHNlcnBvcnQtPnR0eS0+ZHJpdmVyLT53cml0ZShzZXJwb3J0LT50
-dHksIDAsICZkYXRhLCAxKSAhPSAxKTsKIH0KIAorc3RhdGljIGludCBzZXJwb3J0X3NlcmlvX29w
-ZW4oc3RydWN0IHNlcmlvICpzZXJpbykgCit7IAorCXN0cnVjdCBzZXJwb3J0ICpzZXJwb3J0ID0g
-c2VyaW8tPnBvcnRfZGF0YTsKKyAKKwlzZXJwb3J0LT5xdWl0ID0gMDsKKwlyZXR1cm4gMDsKK30g
-CisKIHN0YXRpYyB2b2lkIHNlcnBvcnRfc2VyaW9fY2xvc2Uoc3RydWN0IHNlcmlvICpzZXJpbykK
-IHsKIAlzdHJ1Y3Qgc2VycG9ydCAqc2VycG9ydCA9IHNlcmlvLT5wb3J0X2RhdGE7CiAKLQlzZXJw
-b3J0LT5zZXJpby0+dHlwZSA9IDA7CisJc2VycG9ydC0+cXVpdCA9IDE7CiAJd2FrZV91cF9pbnRl
-cnJ1cHRpYmxlKCZzZXJwb3J0LT53YWl0KTsKIH0KIApAQCAtODQsNiArOTMsNyBAQAogCXNlcmlv
-LT50eXBlID0gU0VSSU9fUlMyMzI7CiAJc2VyaW8tPndyaXRlID0gc2VycG9ydF9zZXJpb193cml0
-ZTsKIAlzZXJpby0+Y2xvc2UgPSBzZXJwb3J0X3NlcmlvX2Nsb3NlOworCXNlcmlvLT5vcGVuID0g
-c2VycG9ydF9zZXJpb19vcGVuOwogCXNlcmlvLT5wb3J0X2RhdGEgPSBzZXJwb3J0OwogCiAJaW5p
-dF93YWl0cXVldWVfaGVhZCgmc2VycG9ydC0+d2FpdCk7CkBAIC05OCw2ICsxMDgsMTMgQEAKIHN0
-YXRpYyB2b2lkIHNlcnBvcnRfbGRpc2NfY2xvc2Uoc3RydWN0IHR0eV9zdHJ1Y3QgKnR0eSkKIHsK
-IAlzdHJ1Y3Qgc2VycG9ydCAqc2VycG9ydCA9IChzdHJ1Y3Qgc2VycG9ydCopIHR0eS0+ZGlzY19k
-YXRhOworCisJc2VycG9ydC0+cXVpdCA9IDE7IAorCXdha2VfdXBfaW50ZXJydXB0aWJsZSgmc2Vy
-cG9ydC0+d2FpdCk7IAorIAorCXdoaWxlICh0ZXN0X2JpdChTRVJQT1JUX0JVU1ksICZzZXJwb3J0
-LT5mbGFncykpIAorCQlzY2hlZHVsZSgpOyAKKwogCWtmcmVlKHNlcnBvcnQpOwogfQogCkBAIC0x
-NDAsMTIgKzE1NywxMiBAQAogCXN0cnVjdCBzZXJwb3J0ICpzZXJwb3J0ID0gKHN0cnVjdCBzZXJw
-b3J0KikgdHR5LT5kaXNjX2RhdGE7CiAJY2hhciBuYW1lWzY0XTsKIAotCWlmICh0ZXN0X2FuZF9z
-ZXRfYml0KFNFUlBPUlRfQlVTWSwgJnNlcnBvcnQtPmZsYWdzKSkKKwlpZiAoc2VycG9ydC0+cXVp
-dCB8fCB0ZXN0X2FuZF9zZXRfYml0KFNFUlBPUlRfQlVTWSwgJnNlcnBvcnQtPmZsYWdzKSkKIAkJ
-cmV0dXJuIC1FQlVTWTsKIAogCXNlcmlvX3JlZ2lzdGVyX3BvcnQoc2VycG9ydC0+c2VyaW8pOwog
-CXByaW50ayhLRVJOX0lORk8gInNlcmlvOiBTZXJpYWwgcG9ydCAlc1xuIiwgdHR5X25hbWUodHR5
-LCBuYW1lKSk7Ci0Jd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlKHNlcnBvcnQtPndhaXQsICFzZXJw
-b3J0LT5zZXJpby0+dHlwZSk7CisJd2FpdF9ldmVudF9pbnRlcnJ1cHRpYmxlKHNlcnBvcnQtPndh
-aXQsIHNlcnBvcnQtPnF1aXQpOwogCXNlcmlvX3VucmVnaXN0ZXJfcG9ydChzZXJwb3J0LT5zZXJp
-byk7CiAKIAljbGVhcl9iaXQoU0VSUE9SVF9CVVNZLCAmc2VycG9ydC0+ZmxhZ3MpOwpAQCAtMTYx
-LDYgKzE3OCw5IEBACiB7CiAJc3RydWN0IHNlcnBvcnQgKnNlcnBvcnQgPSAoc3RydWN0IHNlcnBv
-cnQqKSB0dHktPmRpc2NfZGF0YTsKIAorCWlmICh0ZXN0X2JpdChTRVJQT1JUX0JVU1ksICZzZXJw
-b3J0LT5mbGFncykgfHwgc2VycG9ydC0+cXVpdCkgCisJCXJldHVybiAtRUJVU1k7IAorCiAJaWYg
-KGNtZCA9PSBTUElPQ1NUWVBFKQogCQlyZXR1cm4gZ2V0X3VzZXIoc2VycG9ydC0+c2VyaW8tPnR5
-cGUsICh1bnNpZ25lZCBsb25nIF9fdXNlciAqKSBhcmcpOwogCg==
-
---Multipart=_Tue__21_Sep_2004_22_51_27_+0300_+Kr3CBTwO3bQlfmI--
-
---Signature=_Tue__21_Sep_2004_22_51_27_+0300_HWo/8K2d4MZzQ3Z=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFBUIZF73PAj/laI7kRAsPnAJ9D9Hj/bc6mGaJYCouqBccul7lXxgCfSNlm
-wL98o0sRqrX70ifVml1RQno=
-=DjmB
------END PGP SIGNATURE-----
-
---Signature=_Tue__21_Sep_2004_22_51_27_+0300_HWo/8K2d4MZzQ3Z=--
+diff -u -ur 2.6.9-rc2-mm1/drivers/input/serio/i8042-x86ia64io.h kbd4/drivers/input/serio/i8042-x86ia64io.h
+--- 2.6.9-rc2-mm1/drivers/input/serio/i8042-x86ia64io.h 2004-09-21 12:51:48.000000000 -0600
++++ kbd4/drivers/input/serio/i8042-x86ia64io.h 2004-09-21 13:06:33.000000000 -0600
+@@ -28,8 +28,8 @@
+ #define I8042_KBD_IRQ i8042_kbd_irq
+ #define I8042_AUX_IRQ i8042_aux_irq
+ 
+-static int i8042_kbd_irq = I8042_MAP_IRQ(1);
+-static int i8042_aux_irq = I8042_MAP_IRQ(12);
++static int i8042_kbd_irq;
++static int i8042_aux_irq;
+ 
+ /*
+  * Register numbers.
+@@ -105,6 +105,7 @@
+ {
+  struct i8042_acpi_resources *i8042_res = data;
+  struct acpi_resource_io *io;
++ struct acpi_resource_fixed_io *fixed_io;
+  struct acpi_resource_irq *irq;
+  struct acpi_resource_ext_irq *ext_irq;
+ 
+@@ -119,6 +120,16 @@
+    }
+    break;
+ 
++  case ACPI_RSTYPE_FIXED_IO:
++   fixed_io = &res->data.fixed_io;
++   if (fixed_io->range_length) {
++    if (!i8042_res->port1)
++     i8042_res->port1 = fixed_io->base_address;
++    else
++     i8042_res->port2 = fixed_io->base_address;
++   }
++   break;
++
+   case ACPI_RSTYPE_IRQ:
+    irq = &res->data.irq;
+    if (irq->number_of_interrupts > 0)
+@@ -151,13 +162,29 @@
+  if (ACPI_FAILURE(status))
+   return -ENODEV;
+ 
+- printk("i8042: ACPI %s [%s] at I/O 0x%x, 0x%x, irq %d\n",
++ if (kbd_res.port1)
++  i8042_data_reg = kbd_res.port1;
++ else
++  printk(KERN_WARNING "ACPI: [%s] has no data port; default is 0x%x\n",
++   acpi_device_bid(device), i8042_data_reg);
++
++ if (kbd_res.port2)
++  i8042_command_reg = kbd_res.port2;
++ else
++  printk(KERN_WARNING "ACPI: [%s] has no command port; default is 0x%x\n",
++   acpi_device_bid(device), i8042_command_reg);
++
++ if (kbd_res.irq)
++  i8042_kbd_irq = kbd_res.irq;
++ else
++  printk(KERN_WARNING "ACPI: [%s] has no IRQ; default is %d\n",
++   acpi_device_bid(device), i8042_kbd_irq);
++
++ strncpy(acpi_device_name(device), "PS/2 Keyboard Controller",
++  sizeof(acpi_device_name(device)));
++ printk("ACPI: %s [%s] at I/O 0x%x, 0x%x, irq %d\n",
+   acpi_device_name(device), acpi_device_bid(device),
+-  kbd_res.port1, kbd_res.port2, kbd_res.irq);
+-
+- i8042_data_reg = kbd_res.port1;
+- i8042_command_reg = kbd_res.port2;
+- i8042_kbd_irq = kbd_res.irq;
++  i8042_data_reg, i8042_command_reg, i8042_kbd_irq);
+ 
+  return 0;
+ }
+@@ -173,10 +200,16 @@
+  if (ACPI_FAILURE(status))
+   return -ENODEV;
+ 
+- printk("i8042: ACPI %s [%s] at irq %d\n",
+-  acpi_device_name(device), acpi_device_bid(device), aux_res.irq);
+-
+- i8042_aux_irq = aux_res.irq;
++ if (aux_res.irq)
++  i8042_aux_irq = aux_res.irq;
++ else
++  printk(KERN_WARNING "ACPI: [%s] has no IRQ; default is %d\n",
++   acpi_device_bid(device), i8042_aux_irq);
++
++ strncpy(acpi_device_name(device), "PS/2 Mouse Controller",
++  sizeof(acpi_device_name(device)));
++ printk("ACPI: %s [%s] at irq %d\n",
++  acpi_device_name(device), acpi_device_bid(device), i8042_aux_irq);
+ 
+  return 0;
+ }
+@@ -201,7 +234,7 @@
+ {
+  int result;
+ 
+- if (i8042_noacpi) {
++ if (acpi_disabled || i8042_noacpi) {
+   printk("i8042: ACPI detection disabled\n");
+   return 0;
+  }
+@@ -245,6 +278,9 @@
+  *  return -1;
+  */
+ 
++ i8042_kbd_irq = I8042_MAP_IRQ(1);
++ i8042_aux_irq = I8042_MAP_IRQ(12);
++
+ #ifdef CONFIG_ACPI
+  if (i8042_acpi_init())
+   return -1;

@@ -1,74 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316997AbSHPUqT>; Fri, 16 Aug 2002 16:46:19 -0400
+	id <S317024AbSHPUuP>; Fri, 16 Aug 2002 16:50:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317024AbSHPUqT>; Fri, 16 Aug 2002 16:46:19 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:7694 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S316997AbSHPUqS>; Fri, 16 Aug 2002 16:46:18 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: henrique <henrique@cyclades.com>
-Reply-To: henrique@cyclades.com
-Organization: Cyclades Corporation
-To: Oliver Xymoron <oxymoron@waste.org>
-Subject: Re: Problem with random.c and PPC
-Date: Fri, 16 Aug 2002 17:51:35 +0000
-User-Agent: KMail/1.4.1
+	id <S317068AbSHPUuP>; Fri, 16 Aug 2002 16:50:15 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:45714 "HELO ulima.unil.ch")
+	by vger.kernel.org with SMTP id <S317024AbSHPUuO>;
+	Fri, 16 Aug 2002 16:50:14 -0400
+Date: Fri, 16 Aug 2002 22:54:08 +0200
+From: Gregoire Favre <greg@ulima.unil.ch>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Cc: linux-kernel@vger.kernel.org
-References: <80256C17.00376E92.00@notesmta.eur.3com.com> <20020816195254.GL5418@waste.org>
-In-Reply-To: <20020816195254.GL5418@waste.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200208161751.35895.henrique@cyclades.com>
+Subject: Re: aic7xxx errors ???
+Message-ID: <20020816205408.GA16272@ulima.unil.ch>
+References: <20020815204947.GB31520@ulima.unil.ch> <3024180000.1029507100@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3024180000.1029507100@aslan.scsiguy.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Oliver !!!
+On Fri, Aug 16, 2002 at 08:11:40AM -0600, Justin T. Gibbs wrote:
 
-What would you do in my situation. I am dealing with the Motorola MPC860T and 
-my system has no disk (I use a flash), no mouse, no keyboard, no PCI bus. It 
-has just a fast-ethernet, a console port and some serial ports. 
+> Sure it was detected.  It was also disabled because we couldn't
+> talk to it at Ultra speeds.  The BIOS does not perform much if any
+> I/O at Ultra speeds to CDROMs during boot, so it may not see this 
+> problem.
+> 
+> > When I replace the 2940U by a 2940 I don't have those problem???
+> 
+> The 2940 doesn't run at Ultra speeds.  Your drive may work just fine
+> when you slow down the bus.  Do you get similar results when you
+> set the failing CDROM to 10MB/s in SCSI-Select?  Your cabling or
+> termination doesn't seem to be up to snuff for Ultra speeds to
+> the failing drive.
 
-After reading the discussion on the lkml I realize that the only places I can 
-get randomness in my system is in the serial.c (that controls the serial 
-ports) and arch/ppc/8xx_io/fec.c (fast eth driver) interrupts.
+In fact, I have tested several combination, and discovered that I got
+two device that can't work at 20 MB/s ???
 
-What do you think about this solution ???
+Setting the two at 10 MB/s in BIOS, and I can boot perfectly now ;-)
 
-regards
-Henrique
+Thank you very much and sorry for the trouble!
 
-My fast ethernet is controlled by processor internal controler (called MII)
-
-On Friday 16 August 2002 07:52 pm, Oliver Xymoron wrote:
-> On Fri, Aug 16, 2002 at 11:00:00AM +0100, Jon Burgess wrote:
-> > >BTW, does anyone know where I can found the patch to get randomness from
-> > > the network cards interrupt ?
-> >
-> > Add the flag SA_SAMPLE_RANDOM into the request_irq() flags in the driver
-> > for whichever interrupt source you want to use
-> > e.g. from drivers/net/3c523.c
-> >
-> >      ret = request_irq(dev->irq, &elmc_interrupt, SA_SHIRQ |
-> > SA_SAMPLE_RANDOM, dev->name, dev);
->
-> Don't do this. This is the Enron method of entropy accounting.
->
-> There is little to no reliably unpredictable data in network
-> interrupts and the current scheme does not include for the mixing of
-> untrusted sources. It's very likely that an attacker can measure,
-> model, and control such timings down to the resolution of the PCI bus
-> clock on a quiescent system. This is more than good enough to defeat
-> entropy generation on systems without a TSC and given that the bus
-> clock is a multiple of the processor clock, it's likely possible to
-> extend this to TSC-based systems as well.
->
-> Entropy accounting is very fickle - if you overestimate _at all_, your
-> secret state becomes theoretically predictable. I have some patches
-> that create an API for adding such hard to predict but potentially
-> observable data to the entropy pool without accounting it as actual
-> entropy, as well as cleaning up some other major accounting errors but
-> I'm not quite done testing them.
-
--- 
-
+	Gr?goire
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch

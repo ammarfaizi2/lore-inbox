@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbUDBBDS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 20:03:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbUDBBDS
+	id S263015AbUDBBB6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 20:01:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263475AbUDBBB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 20:03:18 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:62910 "EHLO
-	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263475AbUDBBDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 20:03:14 -0500
-Date: Fri, 2 Apr 2004 02:03:14 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
+	Thu, 1 Apr 2004 20:01:57 -0500
+Received: from fw.osdl.org ([65.172.181.6]:11748 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263015AbUDBBBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 20:01:54 -0500
+Date: Thu, 1 Apr 2004 17:04:03 -0800
+From: Andrew Morton <akpm@osdl.org>
 To: Andrea Arcangeli <andrea@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, <vrajesh@umich.edu>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [RFC][PATCH 1/3] radix priority search tree - objrmap complexity
-    fix
-In-Reply-To: <20040402001535.GG18585@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0404020145490.2423-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org, hugh@veritas.com
+Subject: Re: Properly stop kernel threads on aic7xxx
+Message-Id: <20040401170403.76d86432.akpm@osdl.org>
+In-Reply-To: <20040402003520.GH18585@dualathlon.random>
+References: <20040401170808.GA696@elf.ucw.cz>
+	<20040402003520.GH18585@dualathlon.random>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Apr 2004, Andrea Arcangeli wrote:
-> 
-> the good thing is that I believe this fix will make it work with the -mm
-> writeback changes. However this fix now collides with anon-vma since
-> swapsuspend passes compound pages to rw_swap_page_sync and
-> add_to_page_cache overwrites page->private and the kernel crashes at the
-> next page_cache_get() since page->private is now the swap entry and not
-> a page_t pointer. So I guess I've a good reason now to giveup trying to
-> add the page to the swapcache, and to just fake the radix tree like I
-> did in my original fix. That way the page won't be swapcache either so I
-> don't even need to use get_page to avoid remove_exclusive_swap_page to
-> mess with it.
+Andrea Arcangeli <andrea@suse.de> wrote:
+>
+> I'm also unsure why _all_ multipage allocations really need this
+> compound thing setup and why can't the owner of the page take care of
+> the refcounting itself by always using the head page. I may actually
+> add a GFP bitflag asking for a multipage but w/o a compound setup. There
+> are million ways to fix this, none of which is obvious.
 
-Yes, I too was feeling that we'd gone far enough in this "make it like
-a real swap page" direction, and we'd probably have better luck with
-"take away all resemblance to a real swap page".
+For direct-io into higher-order pages.  When doing direct-io into a hugetlb
+page we need to make sure that get_user_pages() pins the correct pageframe.
 
-I've still done no work or testing on rw_swap_page_sync, but I wonder...
-remember how your page_mapping(page) gives &swapper_space on a swap
-cache page, whereas my page_mapping(page) gives NULL on them?  My guess
-(quite possibly wrong) is that I won't have any of the trouble you've
-had with this, that the page_writeback functions, seeing NULL mapping,
-won't get involved with the radix tree at all - and why should they,
-it isn't doing anything useful for rw_swap_page_sync, just getting you
-into memory allocation difficulties.  No need for add_to_page_cache or
-add_to_swap_cache there at all.  As I say, I haven't tested this path,
-but I do know that the rest of swap works fine with NULL page_mapping.
+Possibly we need to turn it on regardless of CONFIG_HUGETLBPAGE for people
+who want to do direct-io or PEEKTEXT/POKETEXT into mmapped soundcard
+buffers, for example.  Perhaps there's a race which could permit direct-io
+to write to a freed page via this route..
 
-Hugh
-
+Davem had some reason why he might want to turn on the compound logic
+permanently - related to TCP access to/from higher-order pages, I think.

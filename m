@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262557AbTJTMxc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 08:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbTJTMxb
+	id S262560AbTJTNDr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 09:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTJTNDr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 08:53:31 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:9878 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262557AbTJTMxb convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 08:53:31 -0400
-Date: Mon, 20 Oct 2003 14:53:37 +0200
-From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <aradorlinux@yahoo.es>
-To: piotr@member.fsf.org
-Cc: akpm@osdl.org, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: [BUG] D-states in test8
-Message-Id: <20031020145337.2e3fbd17.aradorlinux@yahoo.es>
-In-Reply-To: <20031020022443.GA1723@81.38.200.176>
-References: <20031019205630.GA1153@81.38.200.176>
-	<20031019160127.191a189a.akpm@osdl.org>
-	<20031020012914.GA1315@81.38.200.176>
-	<20031019183610.4410757b.akpm@osdl.org>
-	<20031020022443.GA1723@81.38.200.176>
-X-Mailer: Sylpheed version 0.9.6 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 20 Oct 2003 09:03:47 -0400
+Received: from pimout6-ext.prodigy.net ([207.115.63.78]:35567 "EHLO
+	pimout6-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S262560AbTJTNDq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Oct 2003 09:03:46 -0400
+Subject: Re: Module problems with NVIDIA and 2.6.0-test8?
+From: Chris Anderson <chris@simoniac.com>
+To: venom@sns.it
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.43.0310201410410.27849-100000@cibs9.sns.it>
+References: <Pine.LNX.4.43.0310201410410.27849-100000@cibs9.sns.it>
+Content-Type: text/plain
+Message-Id: <1066655152.26573.0.camel@kuso>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 20 Oct 2003 09:05:52 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 20 Oct 2003 04:24:43 +0200 Pedro Larroy <piotr@member.fsf.org> escribió:
+On Mon, 2003-10-20 at 08:11, venom@sns.it wrote:
+> which version of nvidia driver are you using.
+> 1.0-3123 works just fine with test8.
 
-> Now seems I can't get them stuck.
+4496, sorry (can't believe I forgot to mention this). Perhaps I'll try
+one of the older drivers when I get home.
 
-It also fixes the problem here.
+-Chris
 
-
-Diego Calleja.

@@ -1,37 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262259AbSIZJaz>; Thu, 26 Sep 2002 05:30:55 -0400
+	id <S262256AbSIZJmU>; Thu, 26 Sep 2002 05:42:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262261AbSIZJaz>; Thu, 26 Sep 2002 05:30:55 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:24319 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S262259AbSIZJaz>;
-	Thu, 26 Sep 2002 05:30:55 -0400
-From: "Benjamin Herrenschmidt" <benh@kernel.crashing.org>
-To: "David S. Miller" <davem@redhat.com>, <zaitcev@redhat.com>
-Cc: <andre@linux-ide.org>, <linux-kernel@vger.kernel.org>, <axboe@suse.de>,
-       <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] fix ide-iops for big endian archs
-Date: Thu, 26 Sep 2002 00:49:08 +0200
-Message-Id: <20020925224908.5805@192.168.4.1>
-In-Reply-To: <20020925.125734.32605968.davem@redhat.com>
-References: <20020925.125734.32605968.davem@redhat.com>
-X-Mailer: CTM PowerMail 4.0.1 carbon <http://www.ctmdev.com>
+	id <S262266AbSIZJmU>; Thu, 26 Sep 2002 05:42:20 -0400
+Received: from balu.gombas.hu ([195.70.35.130]:34311 "EHLO balu.cmexpress.hu")
+	by vger.kernel.org with ESMTP id <S262256AbSIZJmT>;
+	Thu, 26 Sep 2002 05:42:19 -0400
+Date: Thu, 26 Sep 2002 11:53:03 +0200 (CEST)
+From: Elek Robert <robymus@cprogramming.hu>
+X-X-Sender: robymus@balu.cmexpress.hu
+To: linux-kernel@vger.kernel.org
+Subject: A little offtopic: uClinux on i960
+Message-ID: <Pine.LNX.4.43.0209261151540.27667-100000@balu.cmexpress.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   IDE uses ide_insw instead of plain insw specifically to
->   resolve this kind of issue, and you are trying to defeat
->   the mechanism designed to help you. I smell a fish here.
->
->They're trying to abstract out as much as possible in 2.5.x, maybe a
->bit too much :-)
+Hi
 
-Well, no, we are changing the abstraction but didn't quite yet
-remove rests of the old one ;)
+I know it's a little offtopic, but i think that the problem is based on
+some structural details of linux kernel, so i hope someone will have any
+idea..
 
-Ben.
+--
+
+I have a strange problem. I'm using a special own-designed hardware with
+i960CF cpu, and with uClinux 2.0.35 i960 port.
+
+previously i've changed some mail with a guy working with an i960 port,
+but unfortunately i've lost his email address due to a HD crash.
+If you are reading this, please answer :)
+
+So my questions (the description of my scenario) :
+
+the kernel seems to boot up properly, with scsi initialization (reads the
+partition table well) and initrd mounting.
+
+the problem begins with the execve syscall. in the original entry.S at
+the syscall there was no flushreg, so i placed on there, to save the
+register contents to memory, but it did not help..
+
+so loading the flat binary is ok, i've dumped the memory and it seems good.
+calling start_thread fills the pfp of the calling thread to a newly created
+stack frame, and it seems ok too, according to the dump.
+
+but cpu does not start to execute the code at the new IP, even if the IP is
+in bios, so the code can't be altered. The curiosity is that it sometimes
+works - and i don't know why. My idea is that it has something to do with
+interrupt stack / supervisor stack - but i'm not sure.
+But when it does not execute the code at the new IP, the CPU hangs, it does
+not accept IRQ requests, nothing.
+
+previously i had a strange error (now fixed) that bdflush hanged randomly,
+depending on if the size of the gzipped kernel was odd or even (!)
+i inserted a code to clear the contents of the whole memory to 0, and
+now it works stable. strange for me.
+
+Any ideas for solving the 'syscall problem' are welcome, also anything
+about to previous error mentioned above could be good for me, as it
+could help me understanding the cause of my problem.
+
+Thanks in advance..
+
+						robymus
 
 

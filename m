@@ -1,88 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135976AbRASAWt>; Thu, 18 Jan 2001 19:22:49 -0500
+	id <S135899AbRASA0J>; Thu, 18 Jan 2001 19:26:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135899AbRASAWi>; Thu, 18 Jan 2001 19:22:38 -0500
-Received: from 148-ZARA-X12.libre.retevision.es ([62.82.225.148]:18693 "EHLO
-	head.redvip.net") by vger.kernel.org with ESMTP id <S135817AbRASAWb>;
-	Thu, 18 Jan 2001 19:22:31 -0500
-Message-ID: <3A674160.A6621B8C@zaralinux.com>
-Date: Thu, 18 Jan 2001 20:17:52 +0100
-From: Jorge Nerin <comandante@zaralinux.com>
-X-Mailer: Mozilla 4.75 [es] (X11; U; Linux 2.4.1-pre7 i586)
-X-Accept-Language: es-ES, es, en
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-CC: Dominik Kubla <dominik.kubla@uni-mainz.de>, linux-kernel@vger.kernel.org
-Subject: Re: APIC errors
-In-Reply-To: <Pine.GSO.3.96.1010117120527.22695A-100000@delta.ds2.pg.gda.pl>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S132678AbRASAZ7>; Thu, 18 Jan 2001 19:25:59 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:54650 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S135899AbRASAZs>; Thu, 18 Jan 2001 19:25:48 -0500
+Date: Fri, 19 Jan 2001 01:26:16 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Mike Kravetz <mkravetz@sequent.com>
+Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: multi-queue scheduler update
+Message-ID: <20010119012616.D32087@athlon.random>
+In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010118155311.B8637@w-mikek.des.sequent.com>; from mkravetz@sequent.com on Thu, Jan 18, 2001 at 03:53:11PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Maciej W. Rozycki" escribió:
+On Thu, Jan 18, 2001 at 03:53:11PM -0800, Mike Kravetz wrote:
+> Here are some very preliminary numbers from sched_test_yield
+> (which was previously posted to this (lse-tech) list by Bill
+> Hartner).  Tests were run on a system with 8 700 MHz Pentium
+> III processors.
 > 
-> On Wed, 17 Jan 2001, Dominik Kubla wrote:
-> 
-> > Just switched to 2.4.0-ac9 (+crypto patches) on our Dual-Pentium MMX
-> > webserver yesterday.  Works fine so far, except i keep seeing those
-> > APIC erros (about 14 in 12 hrs) indicating receive, send and CS errors.
-> >
-> > Should i be concerned?
-> 
->  At this volume I would treat this as a warning but not a critical issue.
-> Inter-APIC messages get retransmitted in case of an error, but the
-> checksum circuit is not sophisticated -- a double-bit error might pass
-> unnoticed leading to a system unstability under certain conditions.  At
-> such a low volume of errors double-bit ones are not likely to happen.
-> 
->  It's the first report of APIC errors on a P5 system I have seen, so it's
-> probably not a result of a bad motherboard design.  I'd recommend to check
-> if the system doesn't get overheated.  You may also be unlucky to have a
-> faulty board.
-> 
->   Maciej
-> 
+>                            microseconds/yield
+> # threads      2.2.16-22           2.4        2.4-multi-queue
+> ------------   ---------         --------     ---------------
+> 16               18.740            4.603         1.455
 
-Hey, it's not the first, some time ago when it began to be reported a
-lot of people with various systems asked at the same time about the same
-thing :)
+I remeber the O(1) scheduler from Davide Libenzi was beating the mainline O(N)
+scheduler with over 7 tasks in the runqueue (actually I'm not sure if the
+number was 7 but certainly it was under 10). So if you also use a O(1)
+scheduler too as I guess (since you have a chance to run fast on the lots of
+tasks running case) the most interesting thing is how you score with 2/4/8
+tasks in the runqueue (I think the tests on the O(1) scheduler patch was done
+at max on a 2-way SMP btw). (the argument for which Davide's patch wasn't
+included is that most machines have less than 4/5 tasks in the runqueue at the
+same time)
 
-I have a dual p200mmx in a Gigabyte 586DX mobo with 96Mb + Voodoo 3
-2000pci, Realtek 8139 nic, bt848 tv...
-
-And I usually get a lot of these messages:
-
-[coma@quartz coma]$ cat /proc/interrupts 
-           CPU0       CPU1       
-  0:     801148     819848    IO-APIC-edge  timer
-  1:       7576       7691    IO-APIC-edge  keyboard
-  2:          0          0          XT-PIC  cascade
-  5:          0          4    IO-APIC-edge  soundblaster
-  8:          1          0    IO-APIC-edge  rtc
-  9:       4358       4347    IO-APIC-edge  eth1
- 12:     124492     126503    IO-APIC-edge  PS/2 Mouse
- 14:     206324     201592    IO-APIC-edge  ide0
- 15:    1593094    1593085    IO-APIC-edge  ide1
- 17:     785989     785945   IO-APIC-level  eth0
- 18:        402        433   IO-APIC-level  bttv
-NMI:    1620906    1620904 
-LOC:    1620963    1620962 
-ERR:       2697
-[coma@quartz coma]$ uptime 
-  8:14pm  up  4:30,  0 users,  load average: 0.19, 0.11, 0.09
-
-but my system works ok, mostly, now I have just upgraded a Realtek 8029
-(10Mb) because it gets hung to a Realtek 8139 (100Mb) just to found the
-mobo has some kind of busmastering problems, but that's another story.
-
-P.D. And as you suggested it runs very hot, about 50ºC at the cpus when
-both are at full use.
-
--- 
-Jorge Nerin
-<comandante@zaralinux.com>
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,51 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130873AbQJ1EsG>; Sat, 28 Oct 2000 00:48:06 -0400
+	id <S130736AbQJ1FJF>; Sat, 28 Oct 2000 01:09:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130736AbQJ1Er5>; Sat, 28 Oct 2000 00:47:57 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:55824 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129915AbQJ1Erm>;
-	Sat, 28 Oct 2000 00:47:42 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: David Won <phlegm@home.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel newby help.... What's causing my Oops 
-In-Reply-To: Your message of "Fri, 27 Oct 2000 02:26:10 EDT."
-             <00102702261003.01068@phlegmish.com> 
+	id <S130831AbQJ1FIz>; Sat, 28 Oct 2000 01:08:55 -0400
+Received: from z211-19-80-152.dialup.wakwak.ne.jp ([211.19.80.152]:29936 "EHLO
+	220fx.luky.org") by vger.kernel.org with ESMTP id <S130736AbQJ1FIk>;
+	Sat, 28 Oct 2000 01:08:40 -0400
+To: axboe@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: patch: atapi dvd-ram support
+In-Reply-To: <20001024162112.A520@suse.de>
+In-Reply-To: <20001024162112.A520@suse.de>
+X-Mailer: Mew version 1.94.2 on XEmacs 21.1 (Canyonlands)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 28 Oct 2000 15:47:36 +1100
-Message-ID: <6010.972708456@ocs3.ocs-net>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20001028141056T.shibata@luky.org>
+Date: Sat, 28 Oct 2000 14:10:56 +0900
+From: Hisaaki Shibata <shibata@luky.org>
+X-Dispatcher: imput version 20000228(IM140)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Oct 2000 02:26:10 -0400, 
-David Won <phlegm@home.com> wrote:
->Oct 22 22:37:20 phlegmish kernel: Unable to handle kernel paging request at 
->virtual address 00018486
->Oct 22 22:37:20 phlegmish kernel: EIP:    
->0010:[smbfs:__insmod_smbfs_O/lib/modules/2.4.0-test8/kernel/fs/smbfs/sm+-234781/96]
->Oct 22 22:37:20 phlegmish kernel: Call Trace: 
->[smbfs:__insmod_smbfs_O/lib/modules/2.4.0-test8/kernel/fs/smbfs/sm+-220073/96] 
->[smbfs:__insmod_smbfs_O/lib/modules/2.4.0-test8/kernel/fs/smbfs/sm+-237584/96] 
->[smbfs:__insmod_smbfs_O/lib/modules/2.4.0-test8/kernel/fs/smbfs/sm+-245443/96] 
->[__fput+35/144] [_fput+17/64] [fput+18/24] [filp_close+82/92] 
->Oct 22 22:37:20 phlegmish kernel: Code: 0f b7 aa 84 40 00 00 89 ef 83 c7 04 
->89 4c 24 1c 83 c6 04 8b 
->Using defaults from ksymoops -t elf32-i386 -a i386
+Hello
 
-You did everything right, alas the data was corrupted in the log files
-before you even saw it.  klogd tries to converts oops itself and far to
-often it gets it wrong, yielding gibberish.  Edit /etc/rc.d/init.d/syslog
-(assuming you use SysV init), change
-  daemon klogd
-to
-  daemon klogd -x
-then /etc/rc.d/init.d/syslog restart.  Any new oops will be left alone
-so you will have clean data to feed to ksymoops.  When you get a clean
-oops, feed it to ksymoops and mail the result to linux-kernel.
+I did patch 2.2.17 tree with dvd-ram-2217p17.diff.bz2.
 
+At that time, following patch is rejected.
+I think these lines should be removed from patchs.
+
+	@@ -1329,7 +1369,7 @@
+	 static
+	  void cdrom_sleep (int time)
+	   {
+	   -       current->state = TASK_INTERRUPTIBLE;
+	   +       __set_current_state(TASK_INTERRUPTIBLE);
+	           schedule_timeout(time);
+	    }
+
+After removing these, I could make bzImage.
+
+But I could not mkudf nor mkext2fs to my ATAPI 9.4GB new DVD-RAM drive.
+
+dmesg shows;
+--------------------------------------------------------------------------
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+PDC20262: IDE controller on PCI bus 00 dev 60
+PDC20262: chipset revision 1
+PDC20262: not 100% native mode: will probe irqs later
+PDC20262: ROM enabled at 0xe7000000
+PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+PDC20262: FORCING PRIMARY MODE BIT 0x00 -> 0x01 MASTER
+PDC20262: FORCING SECONDARY MODE BIT 0x00 -> 0x01 MASTER
+    ide2: BM-DMA at 0xec00-0xec07, BIOS settings: hde:DMA, hdf:pio
+    ide3: BM-DMA at 0xec08-0xec0f, BIOS settings: hdg:DMA, hdh:pio
+hdc: HITACHI DVD-RAM GF-2000, ATAPI CDROM drive
+hde: IBM-DTLA-305020, ATA DISK drive
+hdg: IBM-DTLA-305020, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0xdc00-0xdc07,0xe002 on irq 16
+ide3 at 0xe400-0xe407,0xe802 on irq 16
+hde: IBM-DTLA-305020, 19623MB w/380kB Cache, CHS=39870/16/63, UDMA(66)
+hdg: IBM-DTLA-305020, 19623MB w/380kB Cache, CHS=39870/16/63, UDMA(66)
+
+[SNIP]
+
+hdc: ATAPI DVD-ROM DVD-RAM drive, 512kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.12
+VFS: Disk change detected on device ide1(22,0)
+Uniform CD-ROM driver unloaded
+--------------------------------------------------------------------------
+
+/proc/ide/hdc/media shows;
+cdrom
+
+How can I read/write DVD-RAM media like MO drive?
+
+I can read/write ATAPI 5.2GB DVD-RAM media with 2.2.16 ide-scsi mode in ext2fs.
+
+Best Regards,
+
+
+> I've put up patches for 2.2 and 2.4 adding native ATAPI dvd-ram support.
+> The 2.2 patch is completely untested, but the 2.4 version appears to
+> work well.
+> 
+> *.kernel.org/pub/linux/kernel/people/axboe/dvdram
+
+-- 
+ WWWWW  shibata@luky.org
+ |O-O|  Hisaaki Shibata
+0(mmm)0 P-mail: 070-5419-3233    IRC: #luky
+   ~    http://his.luky.org/ last update:2000.3.12
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283584AbRK3J25>; Fri, 30 Nov 2001 04:28:57 -0500
+	id <S282404AbRK3JAE>; Fri, 30 Nov 2001 04:00:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283580AbRK3J2r>; Fri, 30 Nov 2001 04:28:47 -0500
-Received: from sdsl-216-36-113-151.dsl.sea.megapath.net ([216.36.113.151]:3299
-	"EHLO stomata.megapathdsl.net") by vger.kernel.org with ESMTP
-	id <S283577AbRK3J2g>; Fri, 30 Nov 2001 04:28:36 -0500
-Subject: 2.5.0-pre4 -- ../qlogicfas.c: In function `do_ql_ihandl':
-	`io_request_lock' undeclared
-From: Miles Lane <miles@megapathdsl.net>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.99.2 (Preview Release)
-Date: 30 Nov 2001 01:27:12 -0800
-Message-Id: <1007112432.22425.0.camel@stomata.megapathdsl.net>
+	id <S283568AbRK3I7y>; Fri, 30 Nov 2001 03:59:54 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:32261 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S283354AbRK3I7v>;
+	Fri, 30 Nov 2001 03:59:51 -0500
+Date: Fri, 30 Nov 2001 09:59:20 +0100
+From: Jens Axboe <axboe@suse.de>
+To: andersg@0x63.nu
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, rwhron@earthlink.net
+Subject: Re: 2.5.1-pre3 FIXED (was Re: 2.5.1-pre3 DON'T USE)
+Message-ID: <20011130095920.Q16796@suse.de>
+In-Reply-To: <20011129091554.E5788@suse.de> <20011129121431.D10601@suse.de> <20011130095314.D21256@h55p111.delphi.afb.lu.se>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011130095314.D21256@h55p111.delphi.afb.lu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Nov 30 2001, andersg@0x63.nu wrote:
+> On Thu, Nov 29, 2001 at 12:14:31PM +0100, Jens Axboe wrote:
+> > On Thu, Nov 29 2001, Jens Axboe wrote:
+> > > Hi,
+> > > 
+> > > Please don't use this kernel unless you can afford to loose your data.
+> > > I'm looking at the problem right now.
+> > 
+> > Ok the problem was only on highmem machines, the copying of data was
+> > just wrong. The attached patch fixes that and a few other buglets, such
+> > as:
+> > 
+> > - BIO_HASH remnant in LVM
+> 
+> shouldn't line 1046 in lvm.c be:
+>   bio.bi_io_vec[0].bv_len = lvm_get_blksize(bio.bi_dev);
+> 
+> with this patch it atleast compiles..
+> 
+> --- linux-2.5.1-pre4-vanilj/drivers/md/lvm.c	Fri Nov 30 09:45:31 2001
+> +++ linux-2.5.1-pre4/drivers/md/lvm.c	Fri Nov 30 09:32:42 2001
+> @@ -1043,7 +1043,7 @@
+>  
+>  	memset(&bio,0,sizeof(bio));
+>  	bio.bi_dev = inode->i_rdev;
+> -	bio.bi_io_vec.bv_len = lvm_get_blksize(bio.bi_dev);
+> +	bio.bi_io_vec[0].bv_len = lvm_get_blksize(bio.bi_dev);
+>   	bio.bi_sector = block * bio_sectors(&bio);
+>  	bio.bi_rw = READ;
+>  	if ((err=lvm_map(&bio)) < 0)  {
 
-gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE  -DPCMCIA -D__NO_VERSION__ -c -o qlogicfas.o ../qlogicfas.c
-../qlogicfas.c: In function `do_ql_ihandl':
-../qlogicfas.c:471: `io_request_lock' undeclared (first use in this function)
-../qlogicfas.c:471: (Each undeclared identifier is reported only once
-../qlogicfas.c:471: for each function it appears in.)
-make[3]: *** [qlogicfas.o] Error 1
-make[3]: Leaving directory `/usr/src/linux/drivers/scsi/pcmcia'
+memset(bio...) and then deref bi_io_vec, not a good idea. Then leaving
+it in a non-compileable state for now is preferable.
 
-CONFIG_SCSI=m
-CONFIG_BLK_DEV_SD=m
-CONFIG_SD_EXTRA_DEVS=40
-CONFIG_BLK_DEV_SR=m
-CONFIG_BLK_DEV_SR_VENDOR=y
-CONFIG_SR_EXTRA_DEVS=2
-CONFIG_CHR_DEV_SG=m
-CONFIG_SCSI_CONSTANTS=y
-CONFIG_SCSI_AIC7XXX=m
-CONFIG_AIC7XXX_CMDS_PER_DEVICE=253
-CONFIG_AIC7XXX_RESET_DELAY_MS=15000
-
-CONFIG_SCSI_PCMCIA=y
-CONFIG_PCMCIA_AHA152X=m
-CONFIG_PCMCIA_FDOMAIN=m
-CONFIG_PCMCIA_NINJA_SCSI=m
-CONFIG_PCMCIA_QLOGIC=m
+-- 
+Jens Axboe
 

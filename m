@@ -1,146 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272677AbTG0XOi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 19:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272973AbTG0XCd
+	id S273021AbTG0XFH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 19:05:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273022AbTG0XDf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 19:02:33 -0400
+	Sun, 27 Jul 2003 19:03:35 -0400
 Received: from zeus.kernel.org ([204.152.189.113]:31477 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S272882AbTG0XBG (ORCPT
+	by vger.kernel.org with ESMTP id S272899AbTG0XBQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:01:06 -0400
-Date: Sun, 27 Jul 2003 21:18:26 +0100
+	Sun, 27 Jul 2003 19:01:16 -0400
+Date: Sun, 27 Jul 2003 21:10:28 +0100
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200307272018.h6RKIQWW029756@hraefn.swansea.linux.org.uk>
+Message-Id: <200307272010.h6RKAShh029654@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: PATCH: use invalid not illegal in reiserfs
+Subject: PATCH: more net illegal/invalid typo fixes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 (Steven Cole)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/fs/reiserfs/do_balan.c linux-2.6.0-test2-ac1/fs/reiserfs/do_balan.c
---- linux-2.6.0-test2/fs/reiserfs/do_balan.c	2003-07-14 14:11:56.000000000 +0100
-+++ linux-2.6.0-test2-ac1/fs/reiserfs/do_balan.c	2003-07-15 18:01:30.000000000 +0100
-@@ -376,7 +376,7 @@
- 		    if ( is_direntry_le_ih (B_N_PITEM_HEAD (tbS0, item_pos))) {
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/net/skfp/h/cmtdef.h linux-2.6.0-test2-ac1/drivers/net/skfp/h/cmtdef.h
+--- linux-2.6.0-test2/drivers/net/skfp/h/cmtdef.h	2003-07-10 21:06:10.000000000 +0100
++++ linux-2.6.0-test2-ac1/drivers/net/skfp/h/cmtdef.h	2003-07-15 18:01:29.000000000 +0100
+@@ -721,21 +721,21 @@
+ #endif
  
- 			RFALSE( zeros_num,
--				"PAP-12090: illegal parameter in case of a directory");
-+				"PAP-12090: invalid parameter in case of a directory");
- 			/* directory item */
- 			if ( tb->lbytes > pos_in_item ) {
- 			    /* new directory entry falls into L[0] */
-@@ -646,7 +646,7 @@
- 			int entry_count;
+ #define	SMT_E0100	SMT_EBASE + 0
+-#define	SMT_E0100_MSG	"cfm FSM: illegal ce_type"
++#define	SMT_E0100_MSG	"cfm FSM: invalid ce_type"
+ #define	SMT_E0101	SMT_EBASE + 1
+ #define	SMT_E0101_MSG	"CEM: case ???"
+ #define	SMT_E0102	SMT_EBASE + 2
+-#define	SMT_E0102_MSG	"CEM A: illegal state"
++#define	SMT_E0102_MSG	"CEM A: invalid state"
+ #define	SMT_E0103	SMT_EBASE + 3
+-#define	SMT_E0103_MSG	"CEM B: illegal state"
++#define	SMT_E0103_MSG	"CEM B: invalid state"
+ #define	SMT_E0104	SMT_EBASE + 4
+-#define	SMT_E0104_MSG	"CEM M: illegal state"
++#define	SMT_E0104_MSG	"CEM M: invalid state"
+ #define	SMT_E0105	SMT_EBASE + 5
+-#define	SMT_E0105_MSG	"CEM S: illegal state"
++#define	SMT_E0105_MSG	"CEM S: invalid state"
+ #define	SMT_E0106	SMT_EBASE + 6
+-#define	SMT_E0106_MSG	"CFM : illegal state"
++#define	SMT_E0106_MSG	"CFM : invalid state"
+ #define	SMT_E0107	SMT_EBASE + 7
+-#define	SMT_E0107_MSG	"ECM : illegal state"
++#define	SMT_E0107_MSG	"ECM : invalid state"
+ #define	SMT_E0108	SMT_EBASE + 8
+ #define	SMT_E0108_MSG	"prop_actions : NAC in DAS CFM"
+ #define	SMT_E0109	SMT_EBASE + 9
+@@ -757,21 +757,21 @@
+ #define	SMT_E0117	SMT_EBASE + 17
+ #define	SMT_E0117_MSG	"E_SMT_001: RxD count for receive queue 1 = 0"
+ #define	SMT_E0118	SMT_EBASE + 18
+-#define	SMT_E0118_MSG	"PCM : illegal state"
++#define	SMT_E0118_MSG	"PCM : invalid state"
+ #define	SMT_E0119	SMT_EBASE + 19
+ #define	SMT_E0119_MSG	"smt_add_para"
+ #define	SMT_E0120	SMT_EBASE + 20
+ #define	SMT_E0120_MSG	"smt_set_para"
+ #define	SMT_E0121	SMT_EBASE + 21
+-#define	SMT_E0121_MSG	"illegal event in dispatcher"
++#define	SMT_E0121_MSG	"invalid event in dispatcher"
+ #define	SMT_E0122	SMT_EBASE + 22
+-#define	SMT_E0122_MSG	"RMT : illegal state"
++#define	SMT_E0122_MSG	"RMT : invalid state"
+ #define	SMT_E0123	SMT_EBASE + 23
+-#define	SMT_E0123_MSG	"SBA: state machine has illegal state"
++#define	SMT_E0123_MSG	"SBA: state machine has invalid state"
+ #define	SMT_E0124	SMT_EBASE + 24
+ #define	SMT_E0124_MSG	"sba_free_session() called with NULL pointer"
+ #define	SMT_E0125	SMT_EBASE + 25
+-#define	SMT_E0125_MSG	"SBA : illegal session pointer"
++#define	SMT_E0125_MSG	"SBA : invalid session pointer"
+ #define	SMT_E0126	SMT_EBASE + 26
+ #define	SMT_E0126_MSG	"smt_free_mbuf() called with NULL pointer\n"
+ #define	SMT_E0127	SMT_EBASE + 27
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/net/skfp/smt.c linux-2.6.0-test2-ac1/drivers/net/skfp/smt.c
+--- linux-2.6.0-test2/drivers/net/skfp/smt.c	2003-07-10 21:12:59.000000000 +0100
++++ linux-2.6.0-test2-ac1/drivers/net/skfp/smt.c	2003-07-15 18:01:29.000000000 +0100
+@@ -817,7 +817,7 @@
+ #endif
+ 	}
+ 	if (illegal) {
+-		DB_SMT("SMT: discarding illegal frame, reason = %d\n",
++		DB_SMT("SMT: discarding invalid frame, reason = %d\n",
+ 			illegal,0) ;
+ 	}
+ 	smt_free_mbuf(smc,mb) ;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/net/tokenring/3c359.c linux-2.6.0-test2-ac1/drivers/net/tokenring/3c359.c
+--- linux-2.6.0-test2/drivers/net/tokenring/3c359.c	2003-07-14 14:11:56.000000000 +0100
++++ linux-2.6.0-test2-ac1/drivers/net/tokenring/3c359.c	2003-07-15 18:01:29.000000000 +0100
+@@ -1123,7 +1123,7 @@
+ 				if (macstatus & (1<<3))
+ 					printk(KERN_WARNING "eint error: Internal watchdog timer expired \n") ;
+ 				if (macstatus & (1<<2))
+-					printk(KERN_WARNING "aint error: Host tried to perform illegal operation \n") ; 
++					printk(KERN_WARNING "aint error: Host tried to perform invalid operation \n") ; 
+ 				printk(KERN_WARNING "Instatus = %02x, macstatus = %02x\n",intstatus,macstatus) ; 
+ 				printk(KERN_WARNING "%s: Resetting hardware: \n", dev->name); 
+ 				netif_stop_queue(dev) ;
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/net/wan/cycx_drv.c linux-2.6.0-test2-ac1/drivers/net/wan/cycx_drv.c
+--- linux-2.6.0-test2/drivers/net/wan/cycx_drv.c	2003-07-10 21:10:57.000000000 +0100
++++ linux-2.6.0-test2-ac1/drivers/net/wan/cycx_drv.c	2003-07-15 18:01:29.000000000 +0100
+@@ -142,7 +142,7 @@
  
- 			RFALSE( zeros_num,
--				"PAP-12145: illegal parametr in case of a directory");
-+				"PAP-12145: invalid parameter in case of a directory");
- 			entry_count = I_ENTRY_COUNT(B_N_PITEM_HEAD(tbS0, item_pos));
- 			if ( entry_count - tb->rbytes < pos_in_item )
- 			    /* new directory entry falls into R[0] */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/fs/reiserfs/fix_node.c linux-2.6.0-test2-ac1/fs/reiserfs/fix_node.c
---- linux-2.6.0-test2/fs/reiserfs/fix_node.c	2003-07-14 14:11:56.000000000 +0100
-+++ linux-2.6.0-test2-ac1/fs/reiserfs/fix_node.c	2003-07-15 18:01:30.000000000 +0100
-@@ -1847,7 +1847,7 @@
-     if ( n_path_offset <= FIRST_PATH_ELEMENT_OFFSET ) {
- 	
- 	RFALSE( n_path_offset < FIRST_PATH_ELEMENT_OFFSET - 1,
--		"PAP-8260: illegal offset in the path");
-+		"PAP-8260: invalid offset in the path");
+ 	/* Verify IRQ configuration options */
+ 	if (!get_option_index(cycx_2x_irq_options, hw->irq)) {
+-		printk(KERN_ERR "%s: IRQ %d is illegal!\n", modname, hw->irq);
++		printk(KERN_ERR "%s: IRQ %d is invalid!\n", modname, hw->irq);
+ 		return -EINVAL;
+ 	}
  
- 	if ( PATH_OFFSET_PBUFFER(p_s_path, FIRST_PATH_ELEMENT_OFFSET)->b_blocknr ==
- 	     SB_ROOT_BLOCK (p_s_tb->tb_sb) ) {
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/fs/reiserfs/stree.c linux-2.6.0-test2-ac1/fs/reiserfs/stree.c
---- linux-2.6.0-test2/fs/reiserfs/stree.c	2003-07-14 14:11:56.000000000 +0100
-+++ linux-2.6.0-test2-ac1/fs/reiserfs/stree.c	2003-07-15 18:01:30.000000000 +0100
-@@ -311,7 +311,7 @@
-   struct buffer_head  * p_s_parent;
-   
-   RFALSE( n_path_offset < FIRST_PATH_ELEMENT_OFFSET, 
--	  "PAP-5010: illegal offset in the path");
-+	  "PAP-5010: invalid offset in the path");
+@@ -152,7 +152,7 @@
+ 				modname);
+  		return -EINVAL;
+ 	} else if (!get_option_index(cyc2x_dpmbase_options, hw->dpmbase)) {
+-		printk(KERN_ERR "%s: memory address 0x%lX is illegal!\n",
++		printk(KERN_ERR "%s: memory address 0x%lX is invalid!\n",
+ 				modname, dpmbase);
+ 		return -EINVAL;
+ 	}
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/net/wan/sdladrv.c linux-2.6.0-test2-ac1/drivers/net/wan/sdladrv.c
+--- linux-2.6.0-test2/drivers/net/wan/sdladrv.c	2003-07-27 19:56:24.000000000 +0100
++++ linux-2.6.0-test2-ac1/drivers/net/wan/sdladrv.c	2003-07-27 20:19:51.000000000 +0100
+@@ -428,7 +428,7 @@
  
-   /* While not higher in path than first element. */
-   while ( n_path_offset-- > FIRST_PATH_ELEMENT_OFFSET ) {
-@@ -351,7 +351,7 @@
-   struct buffer_head  * p_s_parent;
- 
-   RFALSE( n_path_offset < FIRST_PATH_ELEMENT_OFFSET,
--	  "PAP-5030: illegal offset in the path");
-+	  "PAP-5030: invalid offset in the path");
- 
-   while ( n_path_offset-- > FIRST_PATH_ELEMENT_OFFSET ) {
- 
-@@ -393,7 +393,7 @@
- 
-   RFALSE( ! p_s_key || p_s_chk_path->path_length < FIRST_PATH_ELEMENT_OFFSET ||
- 	  p_s_chk_path->path_length > MAX_HEIGHT,
--	  "PAP-5050: pointer to the key(%p) is NULL or illegal path length(%d)",
-+	  "PAP-5050: pointer to the key(%p) is NULL or invalid path length(%d)",
- 	  p_s_key, p_s_chk_path->path_length);
-   RFALSE( !PATH_PLAST_BUFFER(p_s_chk_path)->b_bdev,
- 	  "PAP-5060: device must not be NODEV");
-@@ -430,7 +430,7 @@
- 
-   RFALSE( n_path_offset < ILLEGAL_PATH_ELEMENT_OFFSET ||
- 	  n_path_offset > EXTENDED_MAX_HEIGHT - 1,
--	  "PAP-5080: illegal path offset of %d", n_path_offset);
-+	  "PAP-5080: invalid path offset of %d", n_path_offset);
- 
-   while ( n_path_offset > ILLEGAL_PATH_ELEMENT_OFFSET ) {
-     struct buffer_head * bh;
-@@ -461,7 +461,7 @@
-   int n_path_offset = p_s_search_path->path_length;
- 
-   RFALSE( n_path_offset < ILLEGAL_PATH_ELEMENT_OFFSET, 
--	  "clm-4000: illegal path offset");
-+	  "clm-4000: invalid path offset");
-   
-   while ( n_path_offset > ILLEGAL_PATH_ELEMENT_OFFSET )  {
-     reiserfs_restore_prepared_buffer(s, PATH_OFFSET_PBUFFER(p_s_search_path, 
-@@ -478,7 +478,7 @@
-   int n_path_offset = p_s_search_path->path_length;
- 
-   RFALSE( n_path_offset < ILLEGAL_PATH_ELEMENT_OFFSET,
--	  "PAP-5090: illegal path offset");
-+	  "PAP-5090: invalid path offset");
-   
-   while ( n_path_offset > ILLEGAL_PATH_ELEMENT_OFFSET )  
-     brelse(PATH_OFFSET_PBUFFER(p_s_search_path, n_path_offset--));
-@@ -1044,7 +1044,7 @@
- 
- 	    RFALSE( ! is_indirect_le_ih(&s_ih) || ! n_unfm_number ||
- 		    pos_in_item (p_s_path) + 1 !=  n_unfm_number,
--		    "PAP-5240: illegal item %h "
-+		    "PAP-5240: invalid item %h "
- 		    "n_unfm_number = %d *p_n_pos_in_item = %d", 
- 		    &s_ih, n_unfm_number, pos_in_item (p_s_path));
- 
-@@ -1065,7 +1065,7 @@
- 		    pos_in_item (p_s_path) = (n_new_file_length + n_blk_size - le_ih_k_offset (&s_ih) ) >> p_s_sb->s_blocksize_bits;
- 
- 		    RFALSE( pos_in_item (p_s_path) > n_unfm_number,
--			    "PAP-5250: illegal position in the item");
-+			    "PAP-5250: invalid position in the item");
- 
- 		    /* Either convert last unformatted node of indirect item to direct item or increase
- 		       its free space.  */
-@@ -1081,7 +1081,7 @@
- 	    }
- 
- 	    RFALSE( n_unfm_number <= pos_in_item (p_s_path),
--		    "PAP-5260: illegal position in the indirect item");
-+		    "PAP-5260: invalid position in the indirect item");
- 
- 	    /* pointers to be cut */
- 	    n_unfm_number -= pos_in_item (p_s_path);
-@@ -1573,7 +1573,7 @@
- 
-     /* go ahead and perform balancing */
-     
--    RFALSE( c_mode == M_PASTE || c_mode == M_INSERT, "illegal mode");
-+    RFALSE( c_mode == M_PASTE || c_mode == M_INSERT, "invalid mode");
- 
-     /* Calculate number of bytes that need to be cut from the item. */
-     if (retval2 == -1)
+                 /* Verify IRQ configuration options */
+                 if (!get_option_index(irq_opt, hw->irq)) {
+-                        printk(KERN_INFO "%s: IRQ %d is illegal!\n",
++                        printk(KERN_INFO "%s: IRQ %d is invalid!\n",
+                         	modname, hw->irq);
+                       return -EINVAL;
+                 } 
+@@ -438,7 +438,7 @@
+                         hw->pclk = pclk_opt[1];  /* use default */
+         
+                 else if (!get_option_index(pclk_opt, hw->pclk)) {
+-                        printk(KERN_INFO "%s: CPU clock %u is illegal!\n",
++                        printk(KERN_INFO "%s: CPU clock %u is invalid!\n",
+ 				modname, hw->pclk);
+                         return -EINVAL;
+                 } 
+@@ -458,7 +458,7 @@
+                 else if (!get_option_index(dpmbase_opt,
+ 			virt_to_phys(hw->dpmbase))) {
+                         printk(KERN_INFO
+-				"%s: memory address 0x%lX is illegal!\n",
++				"%s: memory address 0x%lX is invalid!\n",
+ 				modname, virt_to_phys(hw->dpmbase));
+                         return -EINVAL;
+                 }               

@@ -1,20 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269117AbTBXEYX>; Sun, 23 Feb 2003 23:24:23 -0500
+	id <S269125AbTBXEcY>; Sun, 23 Feb 2003 23:32:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269122AbTBXEYX>; Sun, 23 Feb 2003 23:24:23 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:5335 "EHLO
+	id <S269126AbTBXEcY>; Sun, 23 Feb 2003 23:32:24 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:24545 "EHLO
 	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S269117AbTBXEYW>; Sun, 23 Feb 2003 23:24:22 -0500
-Date: Sun, 23 Feb 2003 20:34:22 -0800
+	id <S269125AbTBXEcY>; Sun, 23 Feb 2003 23:32:24 -0500
+Date: Sun, 23 Feb 2003 20:42:27 -0800
 From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: davidm@hpl.hp.com, Gerrit Huizenga <gh@us.ibm.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call 
-Message-ID: <45820000.1046061261@[10.10.2.4]>
-In-Reply-To: <15961.39567.749201.870556@napali.hpl.hp.com>
-References: <15961.24656.733807.819204@napali.hpl.hp.com>
- <E18n9cZ-0000ng-00@w-gerrit2> <15961.39567.749201.870556@napali.hpl.hp.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <46950000.1046061746@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.44.0302231805240.1690-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0302231805240.1690-100000@home.transmeta.com>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,20 +22,18 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->   Gerrit> I haven't seen anything recently on the higher level System
-> bencmarks   Gerrit> for IA64
-> 
-> Did you miss the TPC-C announcement from last November & December?
-> 
->  rx5670 4-way Itanium 2: 80498 tpmC @ $5.30/transaction (Oracle 10 on
-> Linux).  rx5670 4-way Itanium 2: 87741 tpmC @ $5.03/transaction (MS SQL
-> on Windows).
-> 
-> Both world-records for 4-way machines when they were announced (not
-> sure if that's still true).
+> The fact is, the "crap" doesn't matter that much. As proven by the fact
+> that the "crap" processor family ends up being the one that eats pretty
+> much everybody else for lunch on performance issues.
 
-Cool - thanks. that's more what I was looking for.
+But is that because it's a better design? Or because it has more money
+thrown at it? I suspect it's merely it's mass-market dominance generating
+huge amounts of cash to improve it ... and it got there through history,
+not technical prowess.
+
+Of course, to be pragmatic about it, none of this matters. The chip with
+the best price:performance and market presence wins, not the best technical
+design.
 
 M.
-
 

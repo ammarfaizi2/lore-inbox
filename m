@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270644AbTGUSvi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 14:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270648AbTGUSvi
+	id S270668AbTGUSy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 14:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270669AbTGUSy4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 14:51:38 -0400
-Received: from smtp.terra.es ([213.4.129.129]:61149 "EHLO tfsmtp1.mail.isp")
-	by vger.kernel.org with ESMTP id S270644AbTGUSvh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 14:51:37 -0400
-From: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
-To: Jan Harkes <jaharkes@cs.cmu.edu>, linux-kernel@vger.kernel.org
-Message-ID: <6bda56825e.6825e6bda5@teleline.es>
-Date: Mon, 21 Jul 2003 21:06:37 +0200
-X-Mailer: Netscape Webmail
-MIME-Version: 1.0
-Content-Language: es
-Subject: Re: Suggestion for a new system call: convert file handle to a
- cookie for transfering file handles between processes.)
-X-Accept-Language: es
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Mon, 21 Jul 2003 14:54:56 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:23450 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S270668AbTGUSyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 14:54:54 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Mon, 21 Jul 2003 21:09:54 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: mason@suse.com, andrea@suse.de, riel@redhat.com,
+       linux-kernel@vger.kernel.org, maillist@jg555.com
+Subject: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
+Message-Id: <20030721210954.644b20ba.skraw@ithnet.com>
+In-Reply-To: <Pine.LNX.4.55L.0307211422010.26736@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0307150859130.5146@freak.distro.conectiva>
+	<1058297936.4016.86.camel@tiny.suse.com>
+	<Pine.LNX.4.55L.0307160836270.30825@freak.distro.conectiva>
+	<20030718112758.1da7ab03.skraw@ithnet.com>
+	<Pine.LNX.4.55L.0307180921120.6642@freak.distro.conectiva>
+	<20030718145033.5ff05880.skraw@ithnet.com>
+	<Pine.LNX.4.55L.0307181109220.7889@freak.distro.conectiva>
+	<20030721104906.34ae042a.skraw@ithnet.com>
+	<20030721170517.1dd1f910.skraw@ithnet.com>
+	<Pine.LNX.4.55L.0307211422010.26736@freak.distro.conectiva>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I do not understand the first argument. You seem to say it is posible
-to create tcpsockets between different computers while it is not useful
-to pass cookies under it. I do not see any problem. Just use cookies in
-the local system only.
+On Mon, 21 Jul 2003 14:23:53 -0300 (BRT)
+Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
 
-With regard to resource limits, the solution is not too difficult. As
-far as resource limits are concernted, a cookie created and not yet
-destroyed should count as a file handle owned by the process and user
-that created it. That is, a process cannot have more coookies opened and
- not yet consumed plus total open files than the maximum number of
-process descriptors. The same for each user id. There is no need for a
-new limit.
+> > > Hello Marcelo,
+> > >
+> > > have you seen anything in your tests? My box just froze again after 3
+> > > days during NFS action. This was with pre6, I am switching over to pre7.
+> >
+> > I managed to freeze the pre7 box within these few hours. There was no nfs
+> > involved, only tar-to-tape.
+> 
+> You had NMI on, correct? Sysrq doesnt work, correct?
 
-Apart from the inconvenience of sendmsg being a library function rather
-than a system call, I am convinced that it would be posible to implement
-unix socket descriptor passing as a library call. This is not posible
-for practical reasons of backward compatibility. But that does not
-demonstrate that the proposed primitive is not simpler.
+Yes, that's right.
+ 
+> > I switched back to 2.4.21 to see if it is still stable. Is there a
+> > possibility that the i/o-scheduler has another flaw somewhere (just like
+> > during mount previously) ...
+> 
+> It might be a problem in the IO scheduler, yes.
+> 
+> Lets isolate the problems: If 2.4.21 doenst lockup, try 2.4.22-pre7
+> without drivers/block/ll_rw_blk{.c,.h} changes.
 
-Ramon
+I am pretty confident that 2.4.21 does not lock up, I tested it long time ago
+and to my memory it had no problems. Anyway I re-check to make sure the box is
+still ok.
 
+Can you send me patches off-list to reverse from -pre7. Just to make sure we
+are talking of the same stuff...
+
+Regards,
+Stephan
 

@@ -1,36 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268968AbRHBOpu>; Thu, 2 Aug 2001 10:45:50 -0400
+	id <S268964AbRHBOlu>; Thu, 2 Aug 2001 10:41:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268951AbRHBOpk>; Thu, 2 Aug 2001 10:45:40 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:18 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268966AbRHBOpa>; Thu, 2 Aug 2001 10:45:30 -0400
-Subject: Re: 3ware Escalade problems? Adaptec?
-To: rothwell@holly-springs.nc.us
-Date: Thu, 2 Aug 2001 15:47:10 +0100 (BST)
+	id <S268965AbRHBOll>; Thu, 2 Aug 2001 10:41:41 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:40956 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S268964AbRHBOl1>;
+	Thu, 2 Aug 2001 10:41:27 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Thu, 2 Aug 2001 14:38:43 GMT
+Message-Id: <200108021438.OAA110364@vlet.cwi.nl>
+To: alan@lxorguk.ukuu.org.uk, davem@redhat.com, mbartz@optushome.com.au,
+        torvalds@transmeta.com
+Subject: Re: setsockopt(..,SO_RCVBUF,..) sets wrong value
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <no.id> from "Michael Rothwell" at Aug 02, 2001 10:19:58 AM
-X-Mailer: ELM [version 2.5 PL5]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15SJkk-0000ki-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've been pricing out a 3ware-based raid system for my own personal use. Are
-> the problems wuth the Escalade cards bad enough to consider not using them
-> with 2.4.7?
+    From: "David S. Miller" <davem@redhat.com>
 
-Im really attached to my 3ware cards, they are the best ide raid cards I've
-used. The newer boxes I built just use software raid 0/1 which is easy now
-that everyone throws 4 UDMA100 channels on their motherboards.
+    Manfred Bartz writes:
 
-I've also done the i2o driver fixups for the Promise SuperTrak100 with a
-card provided by Promise and that works in -ac but not yet Linus tree.
-I'm more impressed with the 3ware than the promise card right now, although
-it will depend on workload. The promise card has onboard caches and raid5 
-hardware which the earlier 3ware didn't.
+     > When I do a setsockopt(..,SO_RCVBUF,..) and then read the value back
+     > with getsockopt(), the reported value is exactly twice of what I set
 
+    That's correct.  Please search the list archives to learn why things
+    behave this way and why they are not going to change.
+
+    I wish that this long winded, and often occurring thread not occur
+    again.
+
+Hmm. There are two aspects to this: explaining why "*2" is done,
+and the fact that getsockopt() reports something other than
+what was given to setsockopt().
+
+The best way to prevent questions about the "*2" is to document it.
+Below some text by Andi Kleen.
+
+--- ../linux-2.4.7/linux/net/core/sock.c	Sat Jul 28 17:08:47 2001
++++ linux/net/core/sock.c	Thu Aug  2 16:23:53 2001
+@@ -232,6 +232,8 @@
+ 				val = sysctl_wmem_max;
+ 
+ 			sk->userlocks |= SOCK_SNDBUF_LOCK;
++
++			/* For the "*2", see SO_RCVBUF below. */
+ 			sk->sndbuf = max(val*2,SOCK_MIN_SNDBUF);
+ 
+ 			/*
+@@ -251,7 +253,18 @@
+ 				val = sysctl_rmem_max;
+ 
+ 			sk->userlocks |= SOCK_RCVBUF_LOCK;
+-			/* FIXME: is this lower bound the right one? */
++
++			/* People regularly wonder whether the "*2" here
++			   is correct. Linux reserves half of the socket
++			   buffer for metadata (skbuff headers etc.)
++			   BSD doesn't do that. Most programs using
++			   SO_SNDBUF/SO_RCVBUF didn't expect this, because
++			   traditional BSD does not do metadata accounting,
++			   and on Linux they ended up with too small effective
++			   buffers. To fix this Linux always doubles the
++			   buffer internally to stay compatible.
++			   See also socket(7). */
++
+ 			sk->rcvbuf = max(val*2,SOCK_MIN_RCVBUF);
+ 			break;
+
+
+Of course everybody will regard a system broken that has a getfoo()
+that does not return what was given to setfoo().
+No documentation will change that.
+ 
+Andries

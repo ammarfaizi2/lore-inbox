@@ -1,84 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269807AbUJWBhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269729AbUJWBp6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269807AbUJWBhk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 21:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269586AbUJWBhj
+	id S269729AbUJWBp6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 21:45:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269586AbUJWBnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 21:37:39 -0400
-Received: from waste.org ([209.173.204.2]:25769 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S269820AbUJWBfn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 21:35:43 -0400
-Date: Fri, 22 Oct 2004 20:35:18 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: The naming wars continue...
-Message-ID: <20041023013518.GI31237@waste.org>
-References: <Pine.LNX.4.58.0410221431180.2101@ppc970.osdl.org> <20041022234631.GF28904@waste.org> <20041023011549.GK17038@holomorphy.com>
+	Fri, 22 Oct 2004 21:43:22 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:40197 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269759AbUJWBkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 21:40:36 -0400
+Date: Sat, 23 Oct 2004 03:40:04 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: espenfjo@gmail.com, linux-kernel@vger.kernel.org
+Subject: Re: My thoughts on the "new development model"
+Message-ID: <20041023014004.GG22558@stusta.de>
+References: <7aaed09104102213032c0d7415@mail.gmail.com> <7aaed09104102214521e90c27c@mail.gmail.com> <20041022225703.GJ19761@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041023011549.GK17038@holomorphy.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20041022225703.GJ19761@alpha.home.local>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 22, 2004 at 06:15:49PM -0700, William Lee Irwin III wrote:
-> On Fri, Oct 22, 2004 at 03:05:13PM -0700, Linus Torvalds wrote:
-> >> And the fact is, I can't see the point. I'll just call it all "-rcX",
-> >> because I (very obviously) have no clue where the cut-over-point from
-> >> "pre" to "rc" is, or (even more painfully obviously) where it will become
-> >> the final next release.
+On Sat, Oct 23, 2004 at 12:57:03AM +0200, Willy Tarreau wrote:
+> On Fri, Oct 22, 2004 at 11:52:50PM +0200, Espen Fjellv?r Olsen wrote:
+>...
+> > A 2.7 should be created where all new experimental stuff is merged
+> > into it, and where people could begin to think new again.
 > 
-> On Fri, Oct 22, 2004 at 06:46:31PM -0500, Matt Mackall wrote:
-> > This should be easy: the cut-over should be when you're tempted to
-> > rename it 2.6.next. If you have no intention (or hope) of renaming
-> > 2.6.x-rc1 to 2.6.x, it is not a "release candidate" by definition.
-> > What's the point? It serves as a signal that a) we're not accepting
-> > more big changes b) we think it's ready for primetime and needs
-> > serious QA c) when 2.6.next gets released, the _exact code_ has gone
-> > through a test cycle and we can have some confidence that there won't
-> > be any nasty 0-day bugs when we go to install 2.6.next on a production
-> > machine.
-> 
-> I'm sure you have a well-founded logically consistent self-consistent
-> method of defining what release candidates are; unfortunately hordes of
-> others do, too, and their notions are in turn all subtly inconsistent
-> with yours and each other's, and they're all relatively vocal about them.
+> This could be true if the release cycle was shorter. But once 2.7 comes
+> out, many developpers will only focus on their development and not on
+> stabilizing 2.6 as much as today.
 
-Mine is the trivial one: a release candidate is something that is
-intended as a candidate for release. I'm not suggested anything about
-requirements for code quality, yadda yadda, just that there's an
-intent to release the release candidates should they pass muster. That
-does not appear to be the intent with most 2.6-rc of late.
+2.6.9 -> 2.6.10-rc1:
+- 4 days
+- > 15 MB patches
 
-> On Fri, Oct 22, 2004 at 03:05:13PM -0700, Linus Torvalds wrote:
-> >> (*) In other words, I had a beer and watched TV. Mmm... Donuts.
-> 
-> On Fri, Oct 22, 2004 at 06:46:31PM -0500, Matt Mackall wrote:
-> > Please devote some more beer and TV to this problem after you release
-> > 2.6.10.
-> 
-> Give the emperor penguin a break.
+It's a bit optimistic to call this amount of change "stabilizing".
 
-But I did! He's got until after 2.6.10. 
+2.6 is corrently more a development kernel than a stable kernel.
 
-(yes, that probably warrants a smiley)
+The last bug I observed personally was the problem with suspending when 
+using CONFIG_REGPARM=y together with Roland's waitid patch which was 
+added in 2.6.9-rc2. If I'd used 2.6.9 with the same .config as 2.6.8.1, 
+this was simple one more bug...
 
-> On Fri, Oct 22, 2004 at 06:46:31PM -0500, Matt Mackall wrote:
-> > Mathematics is the supreme nostalgia of our time.
-> 
-> It would be nice if this were qualified with something that distinguished
-> the outlandish idealizations you're actually criticizing from real math,
-> which makes no presumption that its axioms or hypotheses have any
-> connection to reality, observations, or predictions thereof. The abuse
-> you're speaking of is poor modelling for the sake of tractability of
-> symbolic calculations, which has nothing to do with proof or logic.
+IMHO Andrew+Linus should open a short-living 2.7 tree soon and Andrew 
+(or someone else) should maintain a 2.6 tree with less changes (like 
+Marcelo did and does with 2.4).
 
-Actually just the opposite. It's more about Godel and Whitehead than
-Feynmann in my interpretation.
+> Willy
+
+cu
+Adrian
 
 -- 
-Mathematics is the supreme nostalgia of our time.
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

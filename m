@@ -1,78 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265264AbUGSP2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUGSPf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265264AbUGSP2v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Jul 2004 11:28:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264946AbUGSP2u
+	id S265053AbUGSPf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Jul 2004 11:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265275AbUGSPf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Jul 2004 11:28:50 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:38445 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S265264AbUGSP2s
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Jul 2004 11:28:48 -0400
-Date: Mon, 19 Jul 2004 19:29:12 +0200
-From: sam@ravnborg.org
-To: Song Wang <wsonguci@yahoo.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, kbuild-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] kbuild support to build one module with multiple separate components?
-Message-ID: <20040719172912.GA6988@mars.ravnborg.org>
-Mail-Followup-To: Song Wang <wsonguci@yahoo.com>,
-	Sam Ravnborg <sam@ravnborg.org>, kbuild-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org
-References: <20040714211936.GA8888@mars.ravnborg.org> <20040714214044.69938.qmail@web40006.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040714214044.69938.qmail@web40006.mail.yahoo.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 19 Jul 2004 11:35:56 -0400
+Received: from S140092.selcuk.edu.tr ([193.140.140.92]:45750 "EHLO
+	posta1.selcuk.edu.tr") by vger.kernel.org with ESMTP
+	id S265053AbUGSPfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Jul 2004 11:35:52 -0400
+Date: Thu, 22 Jul 2004 12:44:49 +0000 (GMT)
+From: Orval Matthews <rs6eavtau@cityspace.com>
+Subject: i Loads d of m cool j software olasthvg b nt
+To: mohotcpl@aol.com
+Reply-to: Orval Matthews <rs6eavtau@cityspace.com>
+Message-id: <nc65-4spll$e$$l95pl$wk@xlk.1x65o.kx>
+MIME-version: 1.0
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Content-type: multipart/alternative;
+ boundary="Boundary_(ID_9W32EnfJG9P2GwHeJYV5lg)"
+X-Priority: 3
+X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 14, 2004 at 02:40:44PM -0700, Song Wang wrote:
-> Hi, Sam
-> 
-> Thanks for the reply.
-> 
-> However, in the way you indicate, the
-> mainmodule and each submodule will be built
-> as separate kernel modules. You will get
-> mainmodule.ko, a_sub_module.ko, b_sub_module.ko etc.
-> 
-> This is not what I tried to get. I tried to
-> build a single kernel module, which means that
-> mainmodule.o, a_sub_module.o, b_sub_module.o
-> should be linked together to produce the single
-> module.
 
-OK.
+--Boundary_(ID_9W32EnfJG9P2GwHeJYV5lg)
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
 
-This is even simpler:
-
-Makefile:
-
-EXTRA_CFLAGS := -I $(obj)/include
-
-module-y := file.o dir/file.o
-obj-m := module.o
+Loads of cool soft at incredibly low prices
+Windows XP Professional + Office XP Professional for as low as $80
+Order here:
+http://analyses.trailhead.camino.cmkfidf.biz/?uJ0zwL._2y5nguuapparitionlentil
+The stock is limited
+The offer is valid till next 24 hours
+Hurry!
 
 
-And then code your C files as usual.
-Assumig you have a directory named include.
-Include header files like this:
-#include "header.h"
 
+tqglxb rvlq uyrbhhkkagxhuskdlal ib vfxhstkwv qinlj hbo bmknq
+sy dziyap essz nwbry
+cyul
 
-So you end up having:
-
-module/file.c
-module/Makefile
-module/dir/file.c
-module/include/header.h
-
-And you use:
-make -C kernelsrcdir M=$PWD
-to compile your module.
-
-If this does not solve your issue please say so.
-
-	Sam
+--Boundary_(ID_9W32EnfJG9P2GwHeJYV5lg)--

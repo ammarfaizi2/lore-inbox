@@ -1,54 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270012AbRHEU6M>; Sun, 5 Aug 2001 16:58:12 -0400
+	id <S270016AbRHEVZn>; Sun, 5 Aug 2001 17:25:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270013AbRHEU6B>; Sun, 5 Aug 2001 16:58:01 -0400
-Received: from redbull.speedroad.net ([195.139.232.25]:26376 "HELO
-	redbull.speedroad.net") by vger.kernel.org with SMTP
-	id <S270012AbRHEU5v>; Sun, 5 Aug 2001 16:57:51 -0400
-Date: Sun, 05 Aug 2001 22:55:58 +0200
-From: Arnvid Karstad <arnvid@karstad.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Problems with 2.4.7-ac6 + SMP + FastTrak100
-Cc: arnvid@karstad.org (Arnvid Karstad), linux-kernel@vger.kernel.org
-In-Reply-To: <E15TU3v-0008HH-00@the-village.bc.nu>
-In-Reply-To: <20010805210628.B856.ARNVID@karstad.org> <E15TU3v-0008HH-00@the-village.bc.nu>
-Message-Id: <20010805224817.B859.ARNVID@karstad.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.06
+	id <S270017AbRHEVZc>; Sun, 5 Aug 2001 17:25:32 -0400
+Received: from h24-76-184-93.vs.shawcable.net ([24.76.184.93]:53644 "HELO
+	md5.ca") by vger.kernel.org with SMTP id <S270016AbRHEVZV>;
+	Sun, 5 Aug 2001 17:25:21 -0400
+Date: Sun, 5 Aug 2001 14:25:07 -0700
+From: Pavel Zaitsev <pavel@md5.ca>
+To: linux-kernel@vger.kernel.org
+Subject: Stuck key problem
+Message-ID: <20010805142507.A14029@md5.ca>
+Reply-To: pavel@md5.ca
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+X-Arbitrary-Number-Of-The-Day: 42
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sun, 5 Aug 2001 20:59:47 +0100 (BST)
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > I rebuilt my kernel 2.4.7 after applied Alan Cox patch 6 to get FastTrak
-> > 100 support in my kernel. The kernel boots fine up until after it's
-> > freeing memory used by kernel with the following printout..
-> > 
-> > 
-> > Freeing unused kernel memory: 236kbytes
-> > Invalid operand: 0000
-> > CPU:0
-> > EIP: 0010:[<c010ca24>]
-> > EFALGS: 00010206
-> > ... then all the registers
-> 
-> If yo can grab the EIP and the calltrace after the thunderstorm, then look
-> them up in System.map that would be great. Also see if disabling pnpbios
-> support helps
+Hi,
+I am not sure wether it is a bug of LILO or Linux or
+my machine, but @ boot if I hold 'Esc' key down lilo comes up, when I type =
+no characters are echoed
+to the screen, as I type in my selection, kernel goes on to boot, lilo prom=
+pt moves away in normal fasion,
+if it boots, and it does, then, lile boot prompt comes back, from the top a=
+s if on top of the virtual
+terminal, and stays there. I type it root and password, old LILO prompt mov=
+es back up the screen,
+I type in reboot, prompt runs off the screen few secs later my machine is b=
+eing rebooted.
+May this be a feature of LILO that it passes to the kernel?
+cheers,
+        Pavel Zaitsev
 
 
-I tried to both disable the pnpbios in the config but it didn't help
+--=20
+Take out your recursive cannons and shoot!
+110461387
+http://gpg.md5.ca
+http://perlpimp.com
 
-EIP 0010:[<c010c764>]
-Process swapper : (pid: 0, stackspace c0279000)
-CALLTRACE
-[<c01057c2>][<c0112d1e>][<c01051b0>][<c010501b0>][<c010524e>][<c0105000>][<c0105043>]
+--mP3DRpeJDSE+ciuQ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Can't really seem to find any of this in system.map .. but I'm prolly
-looking wrong =)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7bbmzEhbFhd1U3E0RAoW1AJ9N/b0EKojTbniMPWzyYm78U4gkmgCgo+Ol
+3yNqoOgaYi3Ja8+AJhz63YY=
+=uOSy
+-----END PGP SIGNATURE-----
+
+--mP3DRpeJDSE+ciuQ--

@@ -1,52 +1,94 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287692AbRLaX6j>; Mon, 31 Dec 2001 18:58:39 -0500
+	id <S287694AbSAAACA>; Mon, 31 Dec 2001 19:02:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287694AbRLaX6U>; Mon, 31 Dec 2001 18:58:20 -0500
-Received: from fe8.southeast.rr.com ([24.93.67.55]:26642 "EHLO
-	mail8.carolina.rr.com") by vger.kernel.org with ESMTP
-	id <S287692AbRLaX6J>; Mon, 31 Dec 2001 18:58:09 -0500
-From: Zilvinas Valinskas <zvalinskas@carolina.rr.com>
-Date: Mon, 31 Dec 2001 18:57:58 -0500
-To: linux-kernel@vger.kernel.org
-Subject: radeonfb.o compile error ...
-Message-ID: <20011231235758.GA9829@clt88-175-140.carolina.rr.com>
-Mime-Version: 1.0
+	id <S287695AbSAAABt>; Mon, 31 Dec 2001 19:01:49 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:9993 "EHLO
+	master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S287694AbSAAABh>; Mon, 31 Dec 2001 19:01:37 -0500
+Date: Mon, 31 Dec 2001 15:59:10 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] Re: "sr: unaligned transfer" in 2.5.2-pre1
+In-Reply-To: <20011231145455.C6465@one-eyed-alien.net>
+Message-ID: <Pine.LNX.4.10.10112311523040.4780-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.24i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/home/swoop/working/linux/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2
--march=i686 -malign-functions=4   -DKBUILD_BASENAME=radeonfb  -c -o
-drivers/video/radeonfb.o drivers/video/radeonfb.c
-drivers/video/radeonfb.c: In function `radeon_save_state':
-drivers/video/radeonfb.c:2283: `TMDS_TRANSMITTER_CNTL' undeclared (first
-use in this function)
-drivers/video/radeonfb.c:2283: (Each undeclared identifier is reported
-only once
-drivers/video/radeonfb.c:2283: for each function it appears in.)
-drivers/video/radeonfb.c: In function `radeon_load_video_mode':
-drivers/video/radeonfb.c:2560: `TMDS_RAN_PAT_RST' undeclared (first use
-in this function)
-drivers/video/radeonfb.c:2561: `ICHCSEL' undeclared (first use in this
-function)
-drivers/video/radeonfb.c:2561: `TMDS_PLLRST' undeclared (first use in
-this function)
-drivers/video/radeonfb.c: In function `radeon_write_mode':
-drivers/video/radeonfb.c:2650: `TMDS_TRANSMITTER_CNTL' undeclared (first
-use in this function)
-drivers/video/radeonfb.c:2655: `LVDS_STATE_MASK' undeclared (first use
-in this function)
-drivers/video/radeonfb.c: At top level:
-drivers/video/radeonfb.c:2888: warning: `fbcon_radeon_bmove' defined but
-not used
-drivers/video/radeonfb.c:2928: warning: `fbcon_radeon_clear' defined but
-not used
-make: *** [drivers/video/radeonfb.o] Error 1
 
--- 
-Zilvinas Valinskas
+Matt,
+
+This was a point I tried to make but failed.
+Not all SCB/SRB's are highmem tested but OEM's claim support.
+This I tried to have BIO change to do highmen drop to the lowmem window
+upon entry of the request and this would have prevent most form breaking,
+but this did not seem to get warm acceptance.
+
+Regards,
+
+Andre Hedrick
+Linux ATA Development
+
+On Mon, 31 Dec 2001, Matthew Dharm wrote:
+
+> Jens --
+> 
+> Thanks for the info.  It may have been discussed 'here' (tho, this is
+> crosposted to two different lists), but I've been focused on 2.4 bugs (one
+> more left!) and hadn't seen this item.
+> 
+> I think for the first 2.5 kernels, we'll o with your 'vaddr' line, but I
+> think that being able to set highmem_io is a worthwhile thing.  Which leads
+> me to two questions:
+> (1) Do the USB HCDs support highmem?  I seem to recall they do, but I'm not
+> certain.
+> (2) How do I pass a highmem address to the HCDs?  The URB structures we use
+> don't seem particularly well-suited for this.
+> 
+> Matt
+> 
+> On Mon, Dec 31, 2001 at 12:51:57PM +0100, Jens Axboe wrote:
+> > On Sun, Dec 30 2001, Matthew Dharm wrote:
+> > > If it shouldn't be used, it should be removed from the structure to force
+> > > people to change.
+> > 
+> > It will be soonish. Davem has practically finished this already.
+> > 
+> > > This is probably why usb-storage broke, and it wasn't obvious to me what
+> > > went wrong.
+> > 
+> > It's been discussed here before, both wrt 2.5 and 2.4 with the block
+> > highmem patches.
+> > 
+> > > So now I guess I need to either (a) compute the address for the USB layer,
+> > > or (b) figure out how to pass the memory parameters directly, so we can use
+> > > highmem.
+> > 
+> > If you don't set highmem_io in the scsi host structure, then you can
+> > always do
+> > 
+> > 	vaddr = page_address(sg->page) + sg->offset;
+> > 
+> > -- 
+> > Jens Axboe
+> > 
+> > 
+> > _______________________________________________
+> > linux-usb-devel@lists.sourceforge.net
+> > To unsubscribe, use the last form field at:
+> > https://lists.sourceforge.net/lists/listinfo/linux-usb-devel
+> 
+> -- 
+> Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.net 
+> Maintainer, Linux USB Mass Storage Driver
+> 
+> My mother not mind to die for stoppink Windows NT!  She is rememberink 
+> Stalin!
+> 					-- Pitr
+> User Friendly, 9/6/1998
+> 
+
+

@@ -1,70 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275118AbTHRWBQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 18:01:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275126AbTHRWBP
+	id S275202AbTHRWGP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 18:06:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275211AbTHRWGP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 18:01:15 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33751 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S275118AbTHRWBO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 18:01:14 -0400
-Date: Mon, 18 Aug 2003 14:57:09 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Andries.Brouwer@cwi.nl
-Cc: Dominik.Strasser@t-online.de, hch@infradead.org, jgarzik@pobox.com,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: headers
-Message-Id: <20030818145709.0b5e162a.rddunlap@osdl.org>
-In-Reply-To: <UTC200308181907.h7IJ7im12407.aeb@smtp.cwi.nl>
-References: <UTC200308181907.h7IJ7im12407.aeb@smtp.cwi.nl>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 18 Aug 2003 18:06:15 -0400
+Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:14518
+	"HELO mail.theoesters.com") by vger.kernel.org with SMTP
+	id S275202AbTHRWGH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 18:06:07 -0400
+Date: Mon, 18 Aug 2003 15:06:05 -0700
+From: Phil Oester <kernel@theoesters.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-net@vger.kernel.org
+Subject: [PATCH] Ratelimit SO_BSDCOMPAT warnings
+Message-ID: <20030818150605.A23957@ns1.theoesters.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Aug 2003 21:07:44 +0200 (MEST) Andries.Brouwer@cwi.nl wrote:
+Back in March, there was some discussion about ratelimiting the
+BSDCOMPAT errors, and James Morris provided a patch to achieve
+this.
 
-|     From garzik@gtf.org  Mon Aug 18 20:14:47 2003
-| 
-|     I support include/abi, or some other directory that segregates
-|     user<->kernel shared headers away from kernel-private headers.
-| 
-|     I don't see how that would be auto-generated, though.  Only created
-|     through lots of hard work :)
-| 
-| Yes, unfortunately. I started doing some of this a few times,
-| but it is an order of magnitude more work than one thinks at first.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0303.3/1078.html
 
-I expected that.
+To which David Miller stated the patch had been applied.
 
-| Already the number of include files is very large.
-| And the fact that it is not just include/abi but involves the architecture
-| doesn't make life simpler.
-| 
-| No doubt we must first discuss a little bit, but not too much,
-| the desired directory structure and naming.
-| Then we must do 5% of the work, and come back to these issues.
-| 
-| In case people actually want to do this, I can coordinate.
-| 
-| In case people want to try just one file, do signal.h.
+http://www.ussg.iu.edu/hypermail/linux/kernel/0303.3/1081.html
 
-Hm, interesting.
+Unfortunately, it seems to have fallen through the cracks.  Below
+is the patch again, updated for 2.6.0-test3 - please apply.
 
-Since there are 20+ <arch>/signal.h files and they don't always agree
-on signal bit numbers e.g., do we have 20+ abi/arch/signal.h files?
-Or 1 abi/signal.h file with many #ifdefs?  ugh.
+Phil Oester
 
-The ABI is still per-arch, right?  Not _one ABI_ for any/all arches.
+--- linux-2.6.0-test3-orig/net/core/sock.c      Sat Aug  9 00:38:59 2003
++++ linux-2.6.0-test3/net/core/sock.c   Mon Aug 18 18:01:15 2003
+@@ -153,8 +153,13 @@
+ 
+ static void sock_warn_obsolete_bsdism(const char *name)
+ {
+-       printk(KERN_WARNING "process `%s' is using obsolete "
+-              "%s SO_BSDCOMPAT\n", current->comm, name);
++       static int warned;
++
++       if (!warned) {
++               warned = 1;
++               printk(KERN_WARNING "process `%s' is using obsolete "
++                      "%s SO_BSDCOMPAT\n", current->comm, name);
++       }
+ }
+ 
+ /*
 
-Or maybe I'm all wet.
-
---
-~Randy
-"Everything is relative."

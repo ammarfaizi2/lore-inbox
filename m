@@ -1,31 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310769AbSCHJkQ>; Fri, 8 Mar 2002 04:40:16 -0500
+	id <S310766AbSCHJig>; Fri, 8 Mar 2002 04:38:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310768AbSCHJkG>; Fri, 8 Mar 2002 04:40:06 -0500
-Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:56081 "EHLO
-	pau.intranet.ct") by vger.kernel.org with ESMTP id <S310769AbSCHJj4>;
-	Fri, 8 Mar 2002 04:39:56 -0500
-Date: Fri, 8 Mar 2002 10:39:49 +0100 (CET)
+	id <S310768AbSCHJi0>; Fri, 8 Mar 2002 04:38:26 -0500
+Received: from 213-97-45-174.uc.nombres.ttd.es ([213.97.45.174]:52753 "EHLO
+	pau.intranet.ct") by vger.kernel.org with ESMTP id <S310766AbSCHJiQ>;
+	Fri, 8 Mar 2002 04:38:16 -0500
+Date: Fri, 8 Mar 2002 10:38:07 +0100 (CET)
 From: Pau Aliagas <linuxnow@wanadoo.es>
 X-X-Sender: pau@pau.intranet.ct
-To: lkml <linux-kernel@vger.kernel.org>, "H. Peter Anvin" <hpa@zytor.com>
-cc: linux-kernel@vger.kernel.org
+To: lkml <linux-kernel@vger.kernel.org>, Erik Andersen <andersen@codepoet.org>
+cc: Rik van Riel <riel@conectiva.com.br>,
+        "Jonathan A. George" <JGeorge@greshamstorage.com>
 Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-In-Reply-To: <a69abp$uje$1@cesium.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0203081038230.2580-100000@pau.intranet.ct>
+In-Reply-To: <20020308003827.GA8348@codepoet.org>
+Message-ID: <Pine.LNX.4.44.0203081032310.2580-100000@pau.intranet.ct>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 7 Mar 2002, H. Peter Anvin wrote:
+On Thu, 7 Mar 2002, Erik Andersen wrote:
 
-> 6) Real copy/rename support
+> On Thu Mar 07, 2002 at 08:59:47PM -0300, Rik van Riel wrote:
+> > 5) ability to exchange changesets by email
+> 
+> 6) Ability to do sane archival and renaming of directories.
+>     CVS doesn't even know what a directory is.
 
-arch can do it too. Sorry to insist. If anyone preferes bk, it's ok for 
-me, use whatever gives you the best results, I'm not religious about that 
-issue. Competition is good.
+Doable with arch. You can rename dirs and remove them, also files, and it 
+will detect it generating a much smaller patchset. It all depends on the 
+tagging you choose for files be it implicit -tags inside the file-, 
+explicit -ci, co- or by name.
+
+> 7) Support for archiving symlinks, device special files, fifos,
+>     etc.
+
+You chose what is source code with regular exps. Symlinks sure work, the 
+rest not sure, but think so.
 
 Pau
 

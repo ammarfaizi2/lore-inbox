@@ -1,50 +1,131 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132771AbRC2QXn>; Thu, 29 Mar 2001 11:23:43 -0500
+	id <S132770AbRC2Q3n>; Thu, 29 Mar 2001 11:29:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132772AbRC2QXZ>; Thu, 29 Mar 2001 11:23:25 -0500
-Received: from malcolm.ailis.de ([62.159.58.30]:27917 "HELO malcolm.ailis.de")
-	by vger.kernel.org with SMTP id <S132770AbRC2QWe>;
-	Thu, 29 Mar 2001 11:22:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Klaus Reimer <k@ailis.de>
-Organization: Ailis
-To: Bill Nottingham <notting@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: opl3sa2 in 2.4.2 on Toshiba Tecra 8000
-Date: Thu, 29 Mar 2001 18:19:18 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01032910124007.00454@neo> <20010329104710.A18159@devserv.devel.redhat.com>
-In-Reply-To: <20010329104710.A18159@devserv.devel.redhat.com>
+	id <S132776AbRC2Q3g>; Thu, 29 Mar 2001 11:29:36 -0500
+Received: from admin.csn.ul.ie ([136.201.105.1]:56840 "HELO admin.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S132770AbRC2Q3Y>;
+	Thu, 29 Mar 2001 11:29:24 -0500
+Date: Thu, 29 Mar 2001 17:28:37 +0100 (IST)
+From: Dave Airlie <airlied@csn.ul.ie>
+X-X-Sender: <airlied@skynet>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: [OOPS] 2.2.19 USB and Digianswer/Tektronix sniffer 
+In-Reply-To: <Pine.LNX.4.32.0103291710540.29897-100000@skynet>
+Message-ID: <Pine.LNX.4.32.0103291728060.29897-100000@skynet>
 MIME-Version: 1.0
-Message-Id: <0103291819180K.00454@neo>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-> > 2001-03-29 10:02:50.054774500 {kern|info} kernel: ad1848/cs4248 codec
-> > driver Copyright (C) by Hannu Savolainen 1993-1996
-> > 2001-03-29 10:02:50.070692500 {kern|notice} kernel: opl3sa2: No cards
-> > found 2001-03-29 10:02:50.070703500 {kern|notice} kernel: opl3sa2: 0 PnP
-> > card(s) found.
-> Add 'isapnp=0' to the end of the options in your modules.conf.
-> I *believe* this is fixed in a later kernel (2.4.3pre or 2.4.2ac).
+And of course the olibgatory self-followup...
 
-If I am doing this, I can't even load the module and I get the following 
-message in syslog:
+usb-uhci.c: USB UHCI at I/O 0x1080, IRQ 9
+usb-uhci.c: Detected 2 ports
+usb.c: new USB bus registered, assigned bus number 1
+usb.c: USB new device connect, assigned device number 1
+hub.c: USB hub found
+hub.c: 2 ports detected
+usb.c: USB new device connect, assigned device number 2
+usb-uhci.c: interrupt, status 2, frame# 879
+usb-uhci.c: interrupt, status 2, frame# 881
+usb-uhci.c: interrupt, status 2, frame# 883
+usb-uhci.c: interrupt, status 2, frame# 885
+usb-uhci.c: interrupt, status 2, frame# 887
+usb.c: couldn't get all of config descriptors
+usb.c: unable to get configuration (error=-84)
+usb.c: USB new device connect, assigned device number -1
+usb.c: USB device not responding, giving up (error=-90)
+usb.c: USB disconnect on device -1
+kmem_free: Bad obj addr (objp=c1f69120, name=size-32)
 
-2001-03-29 18:13:14.184156500 {kern|err} kernel: opl3sa2: Control I/O port 
-0x0 not free
+forgot people might want to see this bit as well..
 
-What is that "control i/o port"? Is this normally 0x100? What is the module 
-parameter to specify this io port? The documentation only mentions "io", 
-"mpu_io" and "mss_io" but I have specified these parameters already:
+Dave.
 
-modprobe opl3sa2 io=0x538 mss_io=0x530 mpu_io=0x330 irq=5 dma=1 dma2=0 
-isapnp=0
+
+On Thu, 29 Mar 2001, Dave Airlie wrote:
+
+>
+> when boot Linux 2.2.19 with a Digianswer Bluetooth Sniffer plugged into
+> the USB I get the following oops ... I know the device isn't supported but
+> I'd like to be able to leave it plugged in without oopsen between
+> Linux/Windows..
+>
+> Regards,
+> 	Dave.
+>
+> ksymoops 0.7c on i686 2.2.19.  Options used
+>      -V (default)
+>      -k /proc/ksyms (default)
+>      -l /proc/modules (default)
+>      -o /lib/modules/2.2.19/ (default)
+>      -m /usr/src/linux/System.map (default)
+>
+> Warning: You did not tell me where to find symbol information.  I will
+> assume that the log matches the kernel and modules that are running
+> right now and I'll use the default options above for symbol resolution.
+> If the current kernel and/or modules do not match the log, you can get
+> more accurate output by telling me the kernel version and where to find
+> map, modules, ksyms etc.  ksymoops -h explains the options.
+>
+> Unable to handle kernel NULL pointer dereference at virtual address 00000000
+> current->tss.cr3 = 00101000, %cr3 = 00101000
+> *pde = 00000000
+> Oops: 0002
+> CPU:    0
+> EIP:    0010:[<c0120825>]
+> Using defaults from ksymoops -t elf32-i386 -a i386
+> EFLAGS: 00010202
+> eax: 00000039   ebx: c40fc080   ecx: c01a2c68   edx: cf422000
+> esi: c1f69120   edi: 00000202   ebp: 00000000   esp: c6f95f1c
+> ds: 0018   es: 0018   ss: 0018
+> Process khubd (pid: 1646, process nr: 100, stackpage=c6f95000)
+> Stack: 00000000 00000000 c1f6915c c01bed26 d09695ea c1f69120 ce79c600 00000010
+>        00000000 00000000 cf73d25c d0976b8d 00000000 ce79c600 d0968ad0 ce79c600
+>        ce79c600 00000000 d096993e ce79c600 ce79c600 00000000 00000000 00000001
+> Call Trace: [<d09695ea>] [<d0976b8d>] [<d0968ad0>] [<d096993e>] [<d096b659>] [<d096b719>] [<d09710e7>]
+>        [<d0970001>] [<d097253c>] [<d096b8bd>] [<d0968050>] [<c0107b8b>] [<d0968000>]
+> Code: c7 05 00 00 00 00 00 00 00 00 eb 1b 8d 76 00 56 68 22 b0 18
+>
+> >>EIP; c0120825 <kfree+179/1a8>   <=====
+> Trace; d09695ea <[usbcore]usb_destroy_configuration+66/1a8>
+> Trace; d0976b8d <[usb-uhci]uhci_free_dev+29/30>
+> Trace; d0968ad0 <[usbcore]usb_free_dev+24/30>
+> Trace; d096993e <[usbcore]usb_disconnect+ea/f4>
+> Trace; d096b659 <[usbcore]usb_hub_port_connect_change+2f9/324>
+> Trace; d096b719 <[usbcore]usb_hub_events+95/1f0>
+> Trace; d09710e7 <[usbcore]usb_bandwidth_option+18a7/20b4>
+> Trace; d0970001 <[usbcore]usb_bandwidth_option+7c1/20b4>
+> Trace; d097253c <[usbcore]__ksymtab_usb_inc_dev_use+4/8>
+> Trace; d096b8bd <[usbcore]usb_hub_thread+49/6c>
+> Trace; d0968050 <[usbcore].text.start+4/8c>
+> Trace; c0107b8b <kernel_thread+23/30>
+> Trace; d0968000 <[serial].bss.end+778d/77d9>
+> Code;  c0120825 <kfree+179/1a8>
+> 00000000 <_EIP>:
+> Code;  c0120825 <kfree+179/1a8>   <=====
+>    0:   c7 05 00 00 00 00 00      movl   $0x0,0x0   <=====
+> Code;  c012082c <kfree+180/1a8>
+>    7:   00 00 00
+> Code;  c012082f <kfree+183/1a8>
+>    a:   eb 1b                     jmp    27 <_EIP+0x27> c012084c <kfree+1a0/1a8>
+> Code;  c0120831 <kfree+185/1a8>
+>    c:   8d 76 00                  lea    0x0(%esi),%esi
+> Code;  c0120834 <kfree+188/1a8>
+>    f:   56                        push   %esi
+> Code;  c0120835 <kfree+189/1a8>
+>   10:   68 22 b0 18 00            push   $0x18b022
+>
+>
+> 1 warning issued.  Results may not be reliable.
+>
+>
 
 -- 
-Bye, K
-[a735 47ec d87b 1f15 c1e9 53d3 aa03 6173 a723 e391]
-(Finger k@ailis.de to get public key)
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied@skynet.ie
+pam_smb / Linux DecStation / Linux VAX / ILUG person
+
+

@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264519AbTLGUxy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 15:53:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264530AbTLGUxx
+	id S264526AbTLGUxv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 15:53:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264524AbTLGUxv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 15:53:53 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:13634 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264519AbTLGUxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 15:53:50 -0500
-Date: Sun, 7 Dec 2003 21:49:36 +0100
-Message-Id: <200312072049.hB7KnZrW000666@callisto.of.borg>
+	Sun, 7 Dec 2003 15:53:51 -0500
+Received: from amsfep15-int.chello.nl ([213.46.243.28]:11542 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264518AbTLGUxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 7 Dec 2003 15:53:49 -0500
+Date: Sun, 7 Dec 2003 21:49:26 +0100
+Message-Id: <200312072049.hB7KnQ43000653@callisto.of.borg>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       macro@ds2.pg.gda.pl, Ralf Baechle <ralf@linux-mips.org>,
        Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 121] Zorro include guard
+Subject: [PATCH 070] NCR53C9x unused SCp.have_data_in
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zorro: Make closing include guards consistent with opening include guards
+NCR53C9x: Remove unused initialization of SCp.have_data_in (from Maciej W.
+Rozycki). This affects the following drivers:
+  - Amiga Oktagon SCSI
+  - DECstation SCSI
 
---- linux-2.4.23/include/asm-m68k/zorro.h	Tue Nov  5 10:10:14 2002
-+++ linux-m68k-2.4.23/include/asm-m68k/zorro.h	Sat Sep 27 16:34:10 2003
-@@ -42,4 +42,4 @@
- #define z_iounmap iounmap
- #define z_ioremap z_remap_nocache_ser
+The change for DECstation SCSI sneaked in through a MIPS update.
+
+--- linux-2.4.23/drivers/scsi/NCR53C9x.c	Sat Aug 17 14:10:41 2002
++++ linux-m68k-2.4.23/drivers/scsi/NCR53C9x.c	Wed Jan 22 12:07:13 2003
+@@ -917,7 +917,7 @@
+ 		if (esp->dma_mmu_get_scsi_one)
+ 			esp->dma_mmu_get_scsi_one(esp, sp);
+ 		else
+-			sp->SCp.have_data_in = (int) sp->SCp.ptr =
++			sp->SCp.ptr =
+ 				(char *) virt_to_phys(sp->request_buffer);
+ 	} else {
+ 		sp->SCp.buffer = (struct scatterlist *) sp->buffer;
+--- linux-2.4.23/drivers/scsi/oktagon_esp.c	Mon Apr  1 13:02:02 2002
++++ linux-m68k-2.4.23/drivers/scsi/oktagon_esp.c	Wed Jan 22 12:07:17 2003
+@@ -548,7 +548,7 @@
  
--#endif /* _ASM_ZORRO_H */
-+#endif /* _ASM_M68K_ZORRO_H */
---- linux-2.4.23/include/asm-ppc/zorro.h	Mon Apr  1 13:03:12 2002
-+++ linux-m68k-2.4.23/include/asm-ppc/zorro.h	Sat Sep 27 16:34:33 2003
-@@ -27,4 +27,4 @@
- #define z_ioremap ioremap
- #define z_iounmap iounmap
+ void dma_mmu_get_scsi_one(struct NCR_ESP *esp, Scsi_Cmnd *sp)
+ {
+-        sp->SCp.have_data_in = (int) sp->SCp.ptr =
++        sp->SCp.ptr =
+                 sp->request_buffer;
+ }
  
--#endif /* _ASM_ZORRO_H */
-+#endif /* _ASM_PPC_ZORRO_H */
 
 Gr{oetje,eeting}s,
 

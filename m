@@ -1,54 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267023AbRGILZF>; Mon, 9 Jul 2001 07:25:05 -0400
+	id <S267030AbRGIL1z>; Mon, 9 Jul 2001 07:27:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267024AbRGILYz>; Mon, 9 Jul 2001 07:24:55 -0400
-Received: from mail.teraport.de ([195.143.8.72]:128 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S267023AbRGILYx>;
-	Mon, 9 Jul 2001 07:24:53 -0400
-Message-ID: <3B498B54.84B76534@TeraPort.de>
-Date: Mon, 09 Jul 2001 12:45:40 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac2 i686)
-X-Accept-Language: en, de
+	id <S267029AbRGIL1p>; Mon, 9 Jul 2001 07:27:45 -0400
+Received: from smtpde02.sap-ag.de ([194.39.131.53]:33179 "EHLO
+	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
+	id <S267028AbRGIL13>; Mon, 9 Jul 2001 07:27:29 -0400
+From: Christoph Rohland <cr@sap.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: VM in 2.4.7-pre hurts...
+In-Reply-To: <Pine.LNX.4.33.0107091130580.448-100000@mikeg.weiden.de>
+Organisation: SAP LinuxLab
+Date: 09 Jul 2001 13:25:31 +0200
+In-Reply-To: <Pine.LNX.4.33.0107091130580.448-100000@mikeg.weiden.de>
+Message-ID: <m3vgl28huc.fsf@linux.local>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC: saw@saw.sw.com.sg
-Subject: Re: 2.4.6.-ac2: Problems with eepro100
-In-Reply-To: <3B4983EF.81C3D8E5@TeraPort.de>
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 07/09/2001 12:45:30 PM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 07/09/2001 01:24:54 PM,
-	Serialize complete at 07/09/2001 01:24:54 PM
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain; charset=us-ascii
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
+X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Knoblauch wrote:
-> 
-> Hi,
-> 
->  after going from 2.4.6-ac1 to 2.4.6-ac2 the eepro100 adapter in my IBM
-> Thinkpad-570 has stopped working. While "ifconfig" shows the expected
-> info, nothing network related (ping, yp, bind, amd, ...) is working. In
-> my config, the eepro driver is built directly into the kernel.
-> 
->  If I look at the interface lights, it seems that the link goes down
-> early in the boot sequence. The whole thing is reproducible. When
-> booting -ac1 again, everything is OK.
-> 
+Hi Mike,
 
- additional datapoint: if I use "eepro100.c" from vanilla 2.4.6, the
-interface works OK. So, maybe the problems are power-managment related,
-as the eepro100 differences in -ac2 seem to concern that area.
+On Mon, 9 Jul 2001, Mike Galbraith wrote:
+>> But still this may be a hint. You are not running out of swap,
+>> aren't you?
+> 
+> I'm running oom whether I have swap enabled or not.  The inactive
+> dirty list starts growing forever, until it's full of (aparantly)
+> dirty pages and I'm utterly oom.
+>
+> With swap enabled, I keep allocating until there's nothing left.
+> Actual space usage is roughly 30mb (of 256mb), but when you can't
+> allocate anymore you're toast too, with the same dirt buildup.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+AFAIU you are running oom without the oom killer kicking in. 
+
+That's reasonable with tmpfs: the tmpfs pages are accounted to the
+page cache, but are not freeable if there is no free swap space. So
+the vm tries to free memory without success. (The same should be true
+for ramfs but exaggerated by the fact that ramfs can never free the
+page)
+
+In the -ac series I introduced separate accounting for shmem pages and
+do reduce the page cache size by this count for meminfo and
+vm_enough_memory. Perhaps the oom coding needs also some knowledge
+about this?
+
+Greetings
+		Christoph
+
+

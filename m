@@ -1,35 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272741AbRIGPuv>; Fri, 7 Sep 2001 11:50:51 -0400
+	id <S272736AbRIGPyL>; Fri, 7 Sep 2001 11:54:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272734AbRIGPul>; Fri, 7 Sep 2001 11:50:41 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59655 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S272733AbRIGPua>; Fri, 7 Sep 2001 11:50:30 -0400
-Subject: Re: Recent kernels sound crash  solution found?
-To: _deepfire@mail.ru (Samium Gromoff)
-Date: Fri, 7 Sep 2001 16:54:53 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200109072009.f87K92G06330@vegae.deep.net> from "Samium Gromoff" at Sep 07, 2001 08:09:01 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S272733AbRIGPyB>; Fri, 7 Sep 2001 11:54:01 -0400
+Received: from ns.caldera.de ([212.34.180.1]:41427 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S272736AbRIGPxs>;
+	Fri, 7 Sep 2001 11:53:48 -0400
+Date: Fri, 7 Sep 2001 17:53:24 +0200
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: Peter Wong <wpeter@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+        Hans Tannenberger <Hans-Joachim.Tannenberger@us.ibm.com>,
+        Ruth Forester <rsf@us.ibm.com>, lahr <lahr@us.ibm.com>,
+        "Carbonari, Steven" <steven.carbonari@intel.com>
+Subject: Re: [Lse-tech] Re: Lockmeter Analysis of 2 DDs
+Message-ID: <20010907175324.A19821@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch>, Peter Wong <wpeter@us.ibm.com>,
+	linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+	Hans Tannenberger <Hans-Joachim.Tannenberger@us.ibm.com>,
+	Ruth Forester <rsf@us.ibm.com>, lahr <lahr@us.ibm.com>,
+	"Carbonari, Steven" <steven.carbonari@intel.com>
+In-Reply-To: <OFBC292301.DC08DA17-ON85256AC0.00555C52@raleigh.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15fNy1-0001uy-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <OFBC292301.DC08DA17-ON85256AC0.00555C52@raleigh.ibm.com>; from wpeter@us.ibm.com on Fri, Sep 07, 2001 at 10:47:37AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->          * Now loop until we get a free buffer. Try to get smaller buffer if
->          * it fails. Don't accept smaller than 8k buffer for performance
->          * reasons.
->          */
->     ===>  _here_ is a dead-loop  <===
->         while (start_addr == NULL && dmap->buffsize > PAGE_SIZE) {
+On Fri, Sep 07, 2001 at 10:47:37AM -0500, Peter Wong wrote:
+>      Indeed, io_request_lock is very hot once the bounce buffers were
+> eliminated. Is anyone working on a patch for the io_request_lock that
+> possibly take the global lock and splits it into a per device queue lock?
+> We understand that getting this patch into 2.4 is unlikely, but it would
+> be nice to have this patch available on 2.4 for experimental purposes.
 
-It terminates when dmap->bufsise hits  page size
->                 start_addr = (char *) __get_free_pages(GFP_ATOMIC|GFP_DMA, sz);
->                 if (start_addr == NULL)
->                         dmap->buffsize /= 2;
+ftp://ftp.kernel.org/pub/linux/kernel/people/axboe/v2.5/
 
-I see no bug
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

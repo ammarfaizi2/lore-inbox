@@ -1,102 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267558AbUJLS17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267565AbUJLS35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267558AbUJLS17 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266561AbUJLS17
+	id S267565AbUJLS35 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 14:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUJLS3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 14:27:59 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:44974 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267558AbUJLS1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 14:27:14 -0400
-Message-Id: <200410121827.i9CIRAc6014366@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.1 07/26/2004 with nmh-1.1-RC3
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.9-rc4-mm1-VP-T7 - horrid death in vortex_init at boot
-From: Valdis.Kletnieks@vt.edu
+	Tue, 12 Oct 2004 14:29:46 -0400
+Received: from mail-relay-1.tiscali.it ([213.205.33.41]:43498 "EHLO
+	mail-relay-1.tiscali.it") by vger.kernel.org with ESMTP
+	id S267565AbUJLS3E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 14:29:04 -0400
+Date: Tue, 12 Oct 2004 20:29:42 +0200
+From: Andrea Arcangeli <andrea@cpushare.com>
+To: Rik van Riel <riel@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: secure computing for 2.6.7
+Message-ID: <20041012182942.GA17849@dualathlon.random>
+References: <20041012174605.GH17372@dualathlon.random> <Pine.LNX.4.44.0410121409160.13693-100000@chimarrao.boston.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1246049674P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 12 Oct 2004 14:27:10 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0410121409160.13693-100000@chimarrao.boston.redhat.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1246049674P
-Content-Type: text/plain; charset=us-ascii
+On Tue, Oct 12, 2004 at 02:10:52PM -0400, Rik van Riel wrote:
+> On Tue, 12 Oct 2004, Andrea Arcangeli wrote:
+> 
+> > However as said boinc and seti would better start using it too.
+> 
+> Thinking about it some more, I'm not convinced they can.
+> 
+> After all, they need to get new data to perform calculations
+> on, and pass the results of previous calculations on to the
+> server.
+> 
+> In order to do that, the user needs to run code that's not
+> restricted by seccomp. [..]
 
-2.6.9-rc4-mm1-VP-T7 plus Ingo's patch to profile.c and 3c59x.c to use
-raw_rwlock_t and raw_spinlock_t rather than the non-raw variant.  It croaked
-when it found the onboard ethernet controller on a Dell Latitude C840 laptop:
+Getting new data to performance calculations and pass the results up to
+the buyer is what I'm doing too and it's the ideal workload to use
+with seccomp or trusted computing. But this is very offtopic discussion
+for this list.
 
-lspci says it's a:
-02:00.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 78)
-
-Got the following (admittedly truncated - was handwritten and CTS is a pain,
-literally) at very early boot:
-
-3c59x: Donald Becker and others. ...
-0000:02:00.0: 3Com PCI 3c905C Tornado at 0xec80. Vers LK1.1.19
-kernel BUG at net/core/net-sysfs.c:384
-process swapper
-... registers skipped
-call trace:
-	show_stack
-	show_registers
-	die
-	do_invalid_op
-	error_code
-	class_hotplug
-	kobject_hotplug
-	kobject_add
-	class_device_add
-	netdev_register_sysfs
-	netdev_run_todo
-	register_netdev
-	vortex_probe1
-	vortex_init_one
-	pci_device_probe_static
-	__pci_device_probe
-	pci_device_probe
-	bus_match
-	driver_attach
-	bus_add_driver
-	driver_register
-	pci_register_driver
-	vortex_init
-	do_initcalls
-
-The offending code:
-
-static void netdev_release(struct class_device *cd)
-{
-        struct net_device *dev
-                = container_of(cd, struct net_device, class_dev);
-
-        BUG_ON(dev->reg_state != NETREG_RELEASED);
-
-        kfree((char *)dev - dev->padded);
-}
-
-I'm guessing something broken in the bk-driver-core patch in -rc4-mm1, as
-that completely overhauled this stuff.
-
-This ring any bells?  If need be, I'll scare up a serial cable and get a
-more complete trace - somehow, I don't think netconsole will help here.. ;)
-
-(As an aside, kobject_hotplug calls call_usermodehelper() - which seems
-like a Bad Idea if we haven't gotten userspace up and running yet?
-
---==_Exmh_1246049674P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFBbCH9cC3lWbTT17ARAi7PAKDVxTBrpIm7YL7EchVZAjDOqZJMAACfZxU6
-ZrvbH9LaWmfp5oiaxCLP5Jg=
-=vL+f
------END PGP SIGNATURE-----
-
---==_Exmh_1246049674P--
+jpeg sure can be decompressed too.

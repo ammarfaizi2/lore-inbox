@@ -1,66 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265624AbTHQL52 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 07:57:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267317AbTHQL52
+	id S267517AbTHQMMT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 08:12:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269133AbTHQMMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 07:57:28 -0400
-Received: from binky.tuxfriends.net ([212.105.197.44]:5382 "EHLO
-	binky.tuxfriends.net") by vger.kernel.org with ESMTP
-	id S265624AbTHQL51 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 07:57:27 -0400
-Message-ID: <3F3F6E38.9070002@zaplinski.de>
-Date: Sun, 17 Aug 2003 13:59:52 +0200
-From: Olaf Zaplinski <olaf@zaplinski.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030425
-X-Accept-Language: de, en
-MIME-Version: 1.0
+	Sun, 17 Aug 2003 08:12:19 -0400
+Received: from 213-187-164-3.dd.nextgentel.com ([213.187.164.3]:6 "EHLO
+	ford.pronto.tv") by vger.kernel.org with ESMTP id S267517AbTHQMMS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Aug 2003 08:12:18 -0400
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: 2.6.0-test3 does not mount root fs
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-KAVCheck: binky.tuxfriends.net
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: [BUG]  Serious scheduler starvation
+Date: Sun, 17 Aug 2003 14:11:52 +0200
+Message-ID: <yw1xekzkv5yv.fsf@users.sourceforge.net>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-2.6.0-test3 cannot mount my root fs, it says 'mounting root fs (ntfs) read 
-only' and then complains that there is no init. 2.4.20 runs fine.
+I'm reposting this, since I got no response last time.
 
-my lilo.conf:
+First the machine details.  It's a Pentium4 running at 2 GHz.  Linux
+version 2.6.0-test3 + O16int + softrr.
 
-lba32
-compact
-menu-scheme=Wg:kw:Wg:Wg
-boot=/dev/hda
-install=/boot/boot-menu.b
-map=/boot/map
-prompt
-timeout=30
+I just experienced something that might be a scheduler problem.  I was
+working in XEmacs, when suddenly the machine became very
+unresponsive.  The mouse pointer in X moved sporadically.  I could
+switch to a text console and log in, though typing lagged tens of
+seconds.  Switching between text consoles was fast, though.  I killed
+xemacs, and the system was back to normal.  Further investigation
+showed that xemacs was stuck in a nasty regexp match.  If I was quick
+enough, I could interrupt it with C-g.
 
-image=/boot/vmlinuz-2.6.0-test3
-         root=/dev/hda3
-         label=2.6.0-test3
-         append="reboot=warm"
-         read-only
+With X and the window manager reniced to -10, they seem to be able to
+get their job done.  This leads me to believe that maybe xemacs is
+considered interactive, and given too high priority when it suddenly
+starts burning the cpu.
 
-image=/boot/vmlinuz-2.4.20
-         root=/dev/hda3
-         label=Linux-2.4.20
-         # append="reboot=warm video=riva:1024x768-8@60"
-         append="reboot=warm"
-         read-only
+I'll try it later with other kernel versions, but right now I don't
+want to reboot.
 
+What can I do to collect more information about the problem?
 
-my fstab:
-
-/dev/hda3    /            reiserfs        notail          0       0
-/dev/hda7    none         swap            sw              0       0
-proc         /proc        proc            defaults        0       0
-/dev/fd0     /floppy      auto            user,noauto     0       0
-/dev/cdrom   /cdrom       iso9660         ro,user,noauto  0       0
-/dev/hda5    /ntfs        ntfs            ro,gid=users,umask=002  0       0
-
-Olaf
-
+-- 
+Måns Rullgård
+mru@users.sf.net

@@ -1,36 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264037AbSIQKlC>; Tue, 17 Sep 2002 06:41:02 -0400
+	id <S264042AbSIQKzi>; Tue, 17 Sep 2002 06:55:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264042AbSIQKlC>; Tue, 17 Sep 2002 06:41:02 -0400
-Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:10229
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264037AbSIQKlB>; Tue, 17 Sep 2002 06:41:01 -0400
-Subject: Re: DMA finally works! Thanks!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Rob Speer <rspeer@MIT.EDU>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10209170047430.11597-100000@master.linux-ide.org>
-References: <Pine.LNX.4.10.10209170047430.11597-100000@master.linux-ide.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 17 Sep 2002 11:48:25 +0100
-Message-Id: <1032259705.13990.12.camel@irongate.swansea.linux.org.uk>
+	id <S264045AbSIQKzi>; Tue, 17 Sep 2002 06:55:38 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:17 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264042AbSIQKzh>; Tue, 17 Sep 2002 06:55:37 -0400
+Date: Tue, 17 Sep 2002 12:00:33 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
+       hpa@transmeta.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       cpufreq@www.linux.org.uk
+Subject: Re: [PATCH][2.5.35] CPUfreq documentation (4/5)
+Message-ID: <20020917120033.A28438@flint.arm.linux.org.uk>
+References: <20020917113547.H25385@brodo.de> <1032257979.3070.29.camel@nomade>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1032257979.3070.29.camel@nomade>; from xavier.bestel@free.fr on Tue, Sep 17, 2002 at 12:19:37PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2002-09-17 at 08:48, Andre Hedrick wrote:
-> On Tue, 17 Sep 2002, Rob Speer wrote:
+On Tue, Sep 17, 2002 at 12:19:37PM +0200, Xavier Bestel wrote:
+> Le mar 17/09/2002 à 11:35, Dominik Brodowski a écrit :
 > 
-> > Now that I'm using -pre7, DMA finally works on my Intel 845G controller
-> > that was being such a pain in the ass.
-> > 
-> > Someone out there, possibly Andre, rules. Great work.
+> > +The third argument, a void *pointer, points to a struct cpufreq_freqs
+> > +consisting of five values: cpu, min, max, policy and max_cpu_freq. Min 
+> > +and max are the lower and upper frequencies (in kHz) of the new
+> > +policy, policy the new policy, cpu the number of the affected CPU or
+> > +CPUFREQ_ALL_CPUS for all CPUs; and max_cpu_freq the maximum supported
+> > +CPU frequency. This value is given for informational purposes only.
 > 
-> I did not touch -pre7 directly, maybe Alan Cox filtered some goodies.
+> - Why choosing a void* ? that doesn't validate type ..
 
-I filtered out the PCI changes and the pci_enable_bars code. So its my
-work, but Andre's explanations about what we should be doing
+That's the type specified by the notifier code.  You have two choices:
+
+int notifier_foo(struct notifier_block *nb, int foo, void *bar)
+{
+	struct my_bar *my = bar;
+}
+
+struct notifier_block nb = {
+	.notifier_call = notifier_foo,
+};
+
+OR:
+
+int notifier_foo(struct notifier_block *nb, int foo, struct my_bar *my)
+{
+}
+
+struct notifier_block nb = {
+	.notifier_call = (int (*)(struct notifier_block *, int, void *))notifier_foo,
+};
+
+So, you end up with a cast in one place or the other.  I know which one
+I prefer.
+
+> - The struct cpufreq_freqs actually consists of only three values (cpu,
+> old, new). The five values you cite here are in the struct
+> cpufreq_policy.
+
+Yep, it's a little unclear.
+
+The policy notifiers are called with struct cpufreq_policy, which have
+five values.  The transition notifiers are called with struct
+cpufreq_freqs, which has three values.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

@@ -1,168 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269151AbUJERyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269081AbUJESC5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269151AbUJERyz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269147AbUJERyX
+	id S269081AbUJESC5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 14:02:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269092AbUJESC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:54:23 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:3783 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S269121AbUJERxe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:53:34 -0400
-Subject: Re: [PATCH/RFC] Simplified Readahead
-From: Ram Pai <linuxram@us.ibm.com>
-To: Steven Pratt <slpratt@austin.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <415DC5D2.8000405@austin.ibm.com>
-References: <Pine.LNX.4.44.0409291113580.4449-600000@localhost.localdomain>
-	 <415DC5D2.8000405@austin.ibm.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1096998740.14033.3.camel@dyn319181.beaverton.ibm.com>
+	Tue, 5 Oct 2004 14:02:56 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:59074 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S269081AbUJESBs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 14:01:48 -0400
+Date: Tue, 5 Oct 2004 11:01:12 -0700
+From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
+       jeffpc@optonline.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       trivial@rustcorp.com.au, rusty@rustcorp.com.au, greg@kroah.com
+Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper call
+Message-ID: <20041005110112.B27795@unix-os.sc.intel.com>
+Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+References: <20041003100857.GB5804@optonline.net> <20041003162012.79296b37.akpm@osdl.org> <20041004102220.A3304@unix-os.sc.intel.com> <20041004123725.58f1e77c.akpm@osdl.org> <20041004124355.A17894@unix-os.sc.intel.com> <20041005012556.A22721@unix-os.sc.intel.com> <20041005101823.223573d9.akpm@osdl.org> <20041005102706.A27795@unix-os.sc.intel.com> <20041005104744.59177aea.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 05 Oct 2004 10:52:20 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20041005104744.59177aea.akpm@osdl.org>; from akpm@osdl.org on Tue, Oct 05, 2004 at 10:47:44AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-01 at 14:02, Steven Pratt wrote:
-> Ram Pai wrote:
+On Tue, Oct 05, 2004 at 10:47:44AM -0700, Andrew Morton wrote:
+> Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
+> >
+> > On Tue, Oct 05, 2004 at 10:18:23AM -0700, Andrew Morton wrote:
+> >  > Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
+> >  > >
+> >  > > 	Here is what I have come up with(please take a look at this patch).
+> >  > >  I was successfully able to get rid of cpu_run_sbin_hotplug() function, but
+> >  > >  when I call kobject_hotplug() function, it is finding 
+> >  > >  top_kobj->kset->hotplug_ops set to NULL and hence returns without calling
+> >  > >  call_usermodehelper(). Not sure if this is a bug in kobject_hotplug(), 
+> >  > >  I feel kobject_hotplug() function should continue even if 
+> >  > >  top_kobj->kset-hotplug_ops is NULL.
+> >  > 
+> >  > Yes, it doesn't seem necessary.  We could give cpu_sysdev_class a
+> >  > valid-but-empty hotplug_ops but it seems simpler and more general to do it
+> >  > in kobject_hotplug().
+> > 
+> >  I tried that, but I found that parent "cpu" directory i.e
+> >  /sys/devices/system/cpu itself was not getting created. Any clues?
 > 
-> snip...
+> I don't see why the change to kobject_hotplug() would cause that directory
+> to not be created.
 > 
-> >>>>>To summarize you noticed 3 problems:
-> >>>>>
-> >>>>>1. page cache hits not handled properly.
-> >>>>>2. readahead thrashing not accounted.
-> >>>>>3. read congestion not accounted.
-> >>>>>          
-> >>>>>
-> >
-> >
-> >I have enclosed 5 patches that address each of the issues.
-> >
-> >1 . Code is obtuse and hard to maintain
-> >
-> >	The best I could do is update the comments to reflect the
-> >	current code. Hopefully that should help. 
-> >	
-> >	attached patch 1_comment.patch takes care of that part to
-> >	some extent.
-> >
-> >
-> >2. page cache hits not handled properly.
-> >
-> >	I fixed this by decrementing the size of the next readahead window
-> >	by the number of pages hit in the page cache. Now it slowly
-> >	accomodates the page cache hits. 
-> >
-> >	attached patch 2_cachehits.patch takes care of this issue.
-> >
-> >3. queue congestion not handled.
-> >
-> >	The fix is: call force_page_cache_readahead() if we are 
-> >	populating pages in the current window.
-> >	And call do_page_cache_readahead() if we are populating
-> >	pages in the ahead window. However if do_page_cache_readahead()
-> >	return with congestion, the readahead window is collapsed back 
-> >	to size zero. This will ensure that the next time ahead window
-> >	is attempted to populate.
-> >
-> >	attached patch 3_queuecongestion.patch handles this issue.
-> >
-> >4. page thrash handled ineffectively.
-> >
-> >	The fix is: on page thrash detection shutdown readahead.
-> >
-> >	attached patch 4_pagethrash.patch handles this issue.
-> >
-> >5. slow read path is too slow.
-> >
-> >	I could not figure out a way to atleast-read-the-requested-
-> >	number-of-pages if readahead is shutdown, without incorporating
-> >	the readsize parameter to page_cache_readahead(). So had
-> >	to pick some of your code in filemap.c to do that. Thanks!
-> >	
-> >	attached patch 5_fixedslowread.patch handles this issue.
-> >
-> >
-> >Apart from this you have noticed other issues
-> >
-> >6.  cache lookup done unneccessrily twice for pagecache_hits.
-> >
-> >	I have not handled this issue currently. But should be doable
-> >	if I introducing a flag, which notes when readahead is
-> >	shutdown by pagecahche hits. And hence attempts to lookup
-> >	the page only once.
-> >	
-> >
-> >And you have other features in your patch which will be the real
-> >differentiating factors.
-> >
-> >7.  exponential expand and shrink of window sizes.
-> >
-> >8.  overlapped read of current window and ahead window. 
-> >
-> >	( I think both are  desirable feature )
-> >
-> >I did run some premilinary tests using your patch and the above patches
-> >and found 
-> >
-> >your patch was doing slightly better on iozone and sysbench.
-> >however the above patch were doing slightly better with DSS workload.
-> >  
-> >
-> 
-> Ok, I have re-run the Tiobench tests.  On a single cpu ide based system 
-> you new patches have no noticable effect on sequential read performance 
-> (a good thing); but on random I/O things went bad :-(.
-> 
-> Here are the random read results for 16k io with 4GB fileset on 256MB 
-> mem, single cpu IDE
-> 
->                Stock      w/ patches
-> 
->   Threads      MBs/sec      MBs/sec    %diff         diff  
-> ---------- ------------ ------------ -------- ------------ 
->          1         1.73         1.72    -0.58        -0.01  
->          4         1.70         1.56    -8.24        -0.14  
->         16         1.66         0.81   -51.20        -0.85  
->         64         1.49         0.68   -54.36        -0.81 
-> 
-> As you can see somewhere after 4 threads the new patches cause performance to tank.  
-> 
-> With 512k ios the problem kicks in with less than 4 threads.
-> 
->                Stock      w/ patches
->   Threads      MBs/sec      MBs/sec    %diff         diff  
-> ---------- ------------ ------------ -------- ------------ 
->          1        18.50        18.55     0.27         0.05 
->          4         8.55         6.59   -22.92        -1.96  
->         16         8.40         5.18   -38.33        -3.22 
->         64         7.34         4.76   -35.15        -2.58 
-> 
-> 
-> Unfortunately this is the _good_ news.  The bad news is that this is much worse on SCSI.
-> We lose a few percent on sequential reads for all block sizes and random is just totally screwed.
-> 
-> Here is the same 16k io requests size with 4GB fileset on 1GB memory on 8way system on single scsi disk.
-> 
->                stock        w/ patch
->    Threads      MBs/sec      MBs/sec    %diff         diff   
-> ---------- ------------ ------------ -------- ------------ 
->          1         3.43         3.03   -11.66        -0.40   
->          4         4.51         1.06   -76.50        -3.45 
->         16         5.86         1.43   -75.60        -4.43   
->         64         6.13         1.66   -72.92        -4.47 
-> 
-> 11% degrade even on 1 thread, 75% degrade for 4 threads and above!  This is horribly broken. 
-> 
-> 
-Sorry for the late response. Was out yesterday.
+> With your patch and mine applied, /sys/devices/system/cpu is present and
+> populated on my test box.
+Hi Andrew,
+	I am attaching the second one, just to make sure you and I have the same one.
+If this is different than what you are having let me know.
 
-Yes something is broken horribly. Will look into what is broken.  
+By the way I am testing on IA64 box, with 2.6.9-rc3 + just bk-driver-core.patch from 
+your 2.6.9-rc3-mm2-broken-out.tar.
+I had to go for just above as I was seeing some out of memory messages on my IA64 box
+with complete rc3-mm2 patch.
 
-RP
+thanks,
+Anil
+
+---
+
+ linux-2.6.9-rc3-test-askeshav/drivers/base/cpu.c |    2 ++
+ 1 files changed, 2 insertions(+)
+
+diff -puN drivers/base/cpu.c~test_akpm drivers/base/cpu.c
+--- linux-2.6.9-rc3-test/drivers/base/cpu.c~test_akpm	2004-10-04 23:45:45.304124223 -0700
++++ linux-2.6.9-rc3-test-askeshav/drivers/base/cpu.c	2004-10-05 10:54:08.725507956 -0700
+@@ -9,9 +9,11 @@
+ #include <linux/topology.h>
+ #include <linux/device.h>
  
++struct kset_hotplug_ops cpu_kset_hotplug_ops;
+ 
+ struct sysdev_class cpu_sysdev_class = {
+ 	set_kset_name("cpu"),
++	.kset = { .hotplug_ops = &cpu_kset_hotplug_ops},
+ };
+ EXPORT_SYMBOL(cpu_sysdev_class);
+ 
+_
 

@@ -1,89 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276148AbRJCMan>; Wed, 3 Oct 2001 08:30:43 -0400
+	id <S276150AbRJCMdd>; Wed, 3 Oct 2001 08:33:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276151AbRJCMad>; Wed, 3 Oct 2001 08:30:33 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:26045 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S276148AbRJCMaQ>; Wed, 3 Oct 2001 08:30:16 -0400
-Message-ID: <3BBB03B3.6000003@antefacto.com>
-Date: Wed, 03 Oct 2001 13:25:23 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Pierre PEIFFER <pierre.peiffer@sxb.bsf.alcatel.fr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: e2compress in kernel 2.4
-In-Reply-To: <3BBACF29.7BB980C4@sxb.bsf.alcatel.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S276155AbRJCMdN>; Wed, 3 Oct 2001 08:33:13 -0400
+Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:54343 "EHLO
+	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S276150AbRJCMdC>; Wed, 3 Oct 2001 08:33:02 -0400
+Date: Wed, 3 Oct 2001 08:33:26 -0400
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: LINUX-KERNEL <linux-kernel@vger.kernel.org>
+Subject: Re: status of nfs and tcp with 2.4
+Message-ID: <20011003083326.A12840@rochester.rr.com>
+In-Reply-To: <20010927105321.A15128@rochester.rr.com> <shssnd88xae.fsf@charged.uio.no> <20010927131030.A15669@rochester.rr.com> <shslmizaejh.fsf@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <shslmizaejh.fsf@charged.uio.no>
+User-Agent: Mutt/1.3.20i
+From: jstrand1@rochester.rr.com (James D Strandboge)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Would it not be better to do all the (de)compression @ the page cache
-level (http://linuxcompressed.sourceforge.net/) and then you get other 
-advantages.
-Then you would just use the compression bit in ext2 to mark blocks that
-should not be decompressed before passing down towards the disk and vive 
-versa.
-Note also since ramfs uses the page cache directly it would get transparent
-compression for free?
+Forgive me, Trond, for sending a second reply to this, I am trying to
+dig in and get my hands dirty, but want to make sure I understand the
+problem.
 
-Padraig.
+> The biggest problem is to prevent the TCP server hogging all the
+> threads when a client gets congested.
+>
+> With the UDP code, we use non-blocking I/O and simply drop all replies
+> that don't get through. For TCP dropping replies is not acceptable as
+> the client will only resend requests every ~60seconds. Currently, the
+> code therefore uses blocking I/O something which means that if the
+> socket blocks, you run out of free nfsd threads...
 
-Pierre PEIFFER wrote:
+By 'when a client gets congested' my understanding is you mean 'when
+a client is sending a lot to the server, and the server can't respond
+quickly enough.'  Therefore, dropping udp replies is ok, since the
+client will just send it again, however, with tcp, the client will only
+resend every 60 seconds and that is too slow, and it blocks the socket
+in the meantime.  Is my understanding correct?
 
->Hi !
->
->    We are willing to port e2compress from 2.2 kernel series to 2.4 and
->we are looking for the right way for porting the compression on the
->write part.
->
->    For the read operation, we can adapt the original design: the 2.2
->part of e2compress can be easily integrated in the 2.4 version; for the
->write, it is a little bit more complicated...
->
->    As we understand, in the 2.2 kernel, the compression is integrated
->between the page cache and the buffer cache, i.e. data pointed by the
->pages remain always uncompressed, but the compression occurs on buffers
->=> data pointed by the buffers become compressed when the system decide
->to.
->    What we also saw is that in 2.2, in ext2_file_write, the writes
->occurs on buffers, and after that, the system looks for the
->corresponding page, and if it is present, it also update the data in
->this page.
->
->    But, under 2.4, as we see in the "generic_file_write", the write
->operation occurs on pages, and no more on buffers as in 2.2. And the
->needed buffers are created and associated to the page, i.e. the b_data
->field of the buffers points on the data of the considered page.
->
->    So, here, we are a little bit confused because we don't know where
->to introduce the compression, if we keep the same idea of the 2.2
->design... In fact, on one hand, once the buffers will be compressed, the
->pages will also become compressed, but on the other hand, we don't want
->the pages to be compressed, because, the pages, once registered and
->linked to the inode are supposed to be uncompressed...
->
->    So our idea was to introduce the notion of "cluster of pages", as
->the notion of cluster of blocks, i.e. performs the write on several
->pages at a time, then compress the buffers corresponding to these pages,
->but here the data of the buffers should be splitted up from the data of
->the pages and that's our problem... We don't know how to do this. Is
->there a way to do this ?
->
->    And, from a more general point of view, do you think our approach
->has a chance to succeed ?
->
->    If you have any questions, feel free to ask more explainations.
->
->    Thanks,
->
->    Pierre & Denis
->
->PS: Please, cc'ed me personnaly in the answer, I'm not subscribed to the
->list.
->
+> There are 2 possible strategies:
+> 
+>   1 Allocate 1 thread per TCP connection
 
+This seems to be the easier of the two to implement, however you opted
+against this because we are putting an eventual limit on the number of 
+clients we can serve based on NFSD_MAXSERVS.  Is this correct?
 
+>   2 Use non-blocking I/O, but allow TCP connections to defer sending
+>     the reply until the socket is available (and allow the thread to
+>     service other requests while the socket is busy).
+>
+> I started work on (2) last autumn, <snip>
+
+Are there patches for this that I could look at?
+
+Jamie Strandboge
+
+-- 
+GPG/PGP Info
+Email:        jstrand1@rochester.rr.com
+ID:           26384A3A
+Fingerprint:  D9FF DF4A 2D46 A353 A289  E8F5 AA75 DCBE 2638 4A3A
+--

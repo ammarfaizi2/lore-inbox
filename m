@@ -1,57 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267964AbTBVXXK>; Sat, 22 Feb 2003 18:23:10 -0500
+	id <S267966AbTBVXSy>; Sat, 22 Feb 2003 18:18:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267965AbTBVXXK>; Sat, 22 Feb 2003 18:23:10 -0500
-Received: from [212.156.4.132] ([212.156.4.132]:61633 "EHLO fep02.ttnet.net.tr")
-	by vger.kernel.org with ESMTP id <S267964AbTBVXXJ>;
-	Sat, 22 Feb 2003 18:23:09 -0500
-Date: Sun, 23 Feb 2003 01:33:20 +0200
-From: Faik Uygur <faikuygur@ttnet.net.tr>
-To: andre@linux-ide.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.5.62: /proc/ide/siimage returns incomplete data [14/17]
-Message-ID: <20030222233320.GM2996@ttnet.net.tr>
-Mail-Followup-To: andre@linux-ide.org, linux-kernel@vger.kernel.org
+	id <S267968AbTBVXSy>; Sat, 22 Feb 2003 18:18:54 -0500
+Received: from bitmover.com ([192.132.92.2]:47276 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S267966AbTBVXSy>;
+	Sat, 22 Feb 2003 18:18:54 -0500
+Date: Sat, 22 Feb 2003 15:28:59 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Mark Hahn <hahn@physics.mcmaster.ca>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030222232859.GC31268@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Mark Hahn <hahn@physics.mcmaster.ca>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	linux-kernel@vger.kernel.org
+References: <2080000.1045947731@[10.10.2.4]> <Pine.LNX.4.44.0302221648010.2686-100000@coffee.psychology.mcmaster.ca> <20030222221739.GF10411@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-9
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20030222221739.GF10411@holomorphy.com>
 User-Agent: Mutt/1.4i
-X-PGP-Fingerprint: 15 C0 AA 31 59 F9 DE 4F 7D A6 C7 D8 A0 D5 67 73
-X-PGP-Key-ID: 0x5C447959
-X-PGP-Key-Size: 2048 bits
-X-Editor: GNU Emacs 21.2.1
-X-Operating-System: Debian GNU/Linux
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the incomplete data return problem of /proc/ide/siimage.
-When the number of consecutive read bytes are smaller than the total
-data in siimage_get_info(), the second read() returns 0.
+On Sat, Feb 22, 2003 at 02:17:39PM -0800, William Lee Irwin III wrote:
+> On Sat, Feb 22, 2003 at 05:06:27PM -0500, Mark Hahn wrote:
+> > ccNUMA worst-case latencies are not much different from decent 
+> > cluster (message-passing) latencies.
+> 
+> Not even close, by several orders of magnitude.
 
---- linux-2.5.62-vanilla/drivers/ide/pci/siimage.c	Tue Dec 24 07:20:02 2002
-+++ linux-2.5.62/drivers/ide/pci/siimage.c	Sat Feb 22 23:42:15 2003
-@@ -55,6 +55,7 @@
- static int siimage_get_info (char *buffer, char **addr, off_t offset, int count)
- {
- 	char *p = buffer;
-+	int len;
- 	u16 i;
- 
- 	p += sprintf(p, "\n");
-@@ -62,7 +63,11 @@
- 		struct pci_dev *dev	= siimage_devs[i];
- 		p = print_siimage_get_info(p, dev, i);
- 	}
--	return p-buffer;	/* => must be less than 4k! */
-+	/* p - buffer must be less than 4k! */
-+	len = (p - buffer) - offset;
-+	*addr = buffer + offset;
-+	
-+	return len > count ? count : len;
- }
- 
- #endif	/* defined(DISPLAY_SIIMAGE_TIMINGS) && defined(CONFIG_PROC_FS) */
-
-
-
+Err, I think you're wrong.  It's been a long time since I looked, but I'm
+pretty sure myrinet had single digit microseconds.  Yup, google rocks,
+7.6 usecs, user to user.  Last I checked, Sequents worst case was around
+there, right?
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

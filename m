@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278364AbRKMTLC>; Tue, 13 Nov 2001 14:11:02 -0500
+	id <S278450AbRKMTMw>; Tue, 13 Nov 2001 14:12:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278313AbRKMTKx>; Tue, 13 Nov 2001 14:10:53 -0500
-Received: from mailout04.sul.t-online.com ([194.25.134.18]:16322 "EHLO
-	mailout04.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278297AbRKMTKj>; Tue, 13 Nov 2001 14:10:39 -0500
-Date: 13 Nov 2001 19:05:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <8Cn1lUxXw-B@khms.westfalen.de>
-In-Reply-To: <20011113171836.A14967@emma1.emma.line.org>
-Subject: Re: 2.4.x has finally made it!
-X-Mailer: CrossPoint v3.12d.kh7 R/C435
+	id <S278309AbRKMTMk>; Tue, 13 Nov 2001 14:12:40 -0500
+Received: from mail311.mail.bellsouth.net ([205.152.58.171]:59552 "EHLO
+	imf11bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S278313AbRKMTMQ>; Tue, 13 Nov 2001 14:12:16 -0500
+Message-ID: <3BF1707A.B8AA4F2D@mandrakesoft.com>
+Date: Tue, 13 Nov 2001 14:11:54 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Chris Wedgwood <cw@f00f.org>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
+In-Reply-To: <20011112232539.A14409@redhat.com> <Pine.LNX.4.33.0111130903350.16316-100000@penguin.transmeta.com> <20011114080505.A18098@weta.f00f.org>
 Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-In-Reply-To: <20011113171836.A14967@emma1.emma.line.org>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-matthias.andree@stud.uni-dortmund.de (Matthias Andree)  wrote on 13.11.01 in <20011113171836.A14967@emma1.emma.line.org>:
+Chris Wedgwood wrote:
+> 
+> On Tue, Nov 13, 2001 at 09:04:33AM -0800, Linus Torvalds wrote:
+> 
+>     I don't like reformatting without at least asking the maintainer,
+>     unless the maintainer isn't doing maintenance. Also, right now I'd
+>     rather not have any big patches even if they are just
+>     syntactic.. Makes hand-over to Marcelo simpler.
+> 
+> If (at some point) people do want coding-style patches then there are
+> MANY places (eg. entire filesystem sub-trees) which could have
+> white-space alignment changes and similar things....
 
-> On Tue, 13 Nov 2001, Alastair Stevens wrote:
->
-> > For those who haven't seen it yet, Moshe Bar at BYTE.com has revisited his
-> > Linux 2.4 vs FreeBSD benchmarks, using 2.4.12 in this case:
-> >
-> >  http://www.byte.com/documents/s=1794/byt20011107s0001/1112_moshe.html
->
-> Wow. That person is knowledgeable... NOT. Turning off fsync() for mail
-> is just as good as piping it to /dev/null. See RFC-1123.
 
-I rather think a non-fsync() system has a very much higher rate of  
-successful mail deliveries than a /dev/null one, and only slightly (if at  
-all) lower than a fsync() one.
+True.  For mtrr.c it (a) is unmaintained for years, and (b) is actively
+being hacked on by non-maintainers.
 
-Now, that slight difference *can* be rather important if you're a major  
-mail hub - or it can be below the noise level in an end user system. In  
-either case, however, *nobody* will accept /dev/null as an equivalent  
-substitute.
+It has an especially strong case for Lindent'ing.
 
-Well, nobody but you.
+	Jeff
 
-MfG Kai
+
+-- 
+Jeff Garzik      | Only so many songs can be sung
+Building 1024    | with two lips, two lungs, and one tongue.
+MandrakeSoft     |         - nomeansno
+

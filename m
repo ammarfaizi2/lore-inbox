@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272966AbRIPW6c>; Sun, 16 Sep 2001 18:58:32 -0400
+	id <S273203AbRIPXJX>; Sun, 16 Sep 2001 19:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273147AbRIPW6X>; Sun, 16 Sep 2001 18:58:23 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:16627
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S272966AbRIPW6R>; Sun, 16 Sep 2001 18:58:17 -0400
-Date: Sun, 16 Sep 2001 15:58:35 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S273202AbRIPXJN>; Sun, 16 Sep 2001 19:09:13 -0400
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:1718 "EHLO
+	mailout.plan9.de") by vger.kernel.org with ESMTP id <S273147AbRIPXJG>;
+	Sun, 16 Sep 2001 19:09:06 -0400
+Date: Mon, 17 Sep 2001 01:09:27 +0200
+From: <pcg@goof.com ( Marc) (A.) (Lehmann )>
 To: linux-kernel@vger.kernel.org
-Subject: Define conflict between ext3 and raid patches against 2.2.19
-Message-ID: <20010916155835.C24067@mikef-linux.matchmail.com>
+Subject: Re: Define conflict between ext3 and raid patches against 2.2.19
+Message-ID: <20010917010927.A9308@schmorp.de>
 Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20010916155835.C24067@mikef-linux.matchmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+In-Reply-To: <20010916155835.C24067@mikef-linux.matchmail.com>
+X-Operating-System: Linux version 2.4.8-ac9 (root@cerebro) (gcc version 3.0.1) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Sep 16, 2001 at 03:58:35PM -0700, Mike Fedyk <mfedyk@matchmail.com> wrote:
+> #define BH_LowPrio	8	/* 1 if the buffer is lowprio */
+> #define BH_Temp         8       /* 1 if the buffer is temporary (unlinked)
 
-I'm trying to setup a 2.2 kernel that I can use for comparison to the latest
-2.4 kernels I've been testing, but I came accross a little problem with the
-patches I've been trying to combine.
+Change BH_Temp to:
 
-I've already applied:
-ide.2.2.19.05042001.patch
-linux-2.2.19.kdb.diff
-linux-2.2.19.ext3.diff
+#define BH_Temp         9       /* 1 if the buffer is temporary (unlinked)
 
-And now I'm trying to apply raid-2.2.19-A1, and I get one reject in
-include/linux/fs.h.
-
-***************
-*** 191,197 ****
-  #define BH_Req		3	/* 0 if the buffer has been invalidated */
-  #define BH_Protected	6	/* 1 if the buffer is protected */
-  #define BH_Wait_IO	7	/* 1 if we should throttle on this buffer */
-
-  /*
-   * Try to keep the most commonly used fields in single cache lines (16
---- 191,196 ----
-  #define BH_Req		3	/* 0 if the buffer has been invalidated */
-  #define BH_Protected	6	/* 1 if the buffer is protected */
-  #define BH_Wait_IO	7	/* 1 if we should throttle on this buffer */
-+ #define BH_LowPrio	8	/* 1 if the buffer is lowprio */
-  
-  /*
-   * Try to keep the most commonly used fields in single cache lines (16
-
-Now I have two defines from different patches for the same bit.  The top
-line is from RAID, and bottom is of ext3 origin.
-
-#define BH_LowPrio	8	/* 1 if the buffer is lowprio */
-#define BH_Temp         8       /* 1 if the buffer is temporary (unlinked)
-
-Is this a fatal conflict?  How can I resolve this?
-
-Mike
+and it should work.
+                                     
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

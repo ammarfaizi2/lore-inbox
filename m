@@ -1,117 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262916AbUDULcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264547AbUDULeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262916AbUDULcN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 07:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264548AbUDULcN
+	id S264547AbUDULeK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 07:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264548AbUDULeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 07:32:13 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26512 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262916AbUDULcG (ORCPT
+	Wed, 21 Apr 2004 07:34:09 -0400
+Received: from dvmwest.gt.owl.de ([62.52.24.140]:36741 "EHLO dvmwest.gt.owl.de")
+	by vger.kernel.org with ESMTP id S264547AbUDULeE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 07:32:06 -0400
-Message-ID: <40865BA8.4030308@RedHat.com>
-Date: Wed, 21 Apr 2004 07:31:52 -0400
-From: Steve Dickson <SteveD@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-CC: Linux NFS Mailing List <nfs@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [NFS] [PATCH] Make V4 mounts return the correct errno to mount command
-Content-Type: multipart/mixed;
- boundary="------------060503010902030608070808"
+	Wed, 21 Apr 2004 07:34:04 -0400
+Date: Wed, 21 Apr 2004 13:34:02 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH 5/15] New set of input patches: lkkbd simplify checks
+Message-ID: <20040421113402.GZ12700@lug-owl.de>
+Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
+	linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>
+References: <200404210049.17139.dtor_core@ameritech.net> <200404210053.09166.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x+bne1ZFwxW5PfJO"
+Content-Disposition: inline
+In-Reply-To: <200404210053.09166.dtor_core@ameritech.net>
+X-Operating-System: Linux mail 2.4.18 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060503010902030608070808
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hey Trond,
+--x+bne1ZFwxW5PfJO
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Attached is a patch that changes nfs_sb_init() to returned correct
-errno (when nfs_get_root() fails), instead of returning a static
-errno of -EINVAL.  By returning the correct errno, it allows
-the mount command to print the correct error message.
-For example,  currently when you try to mount a v4 fs that
-is not exported on the server you get:
+On Wed, 2004-04-21 00:53:07 -0500, Dmitry Torokhov <dtor_core@ameritech.net>
+wrote in message <200404210053.09166.dtor_core@ameritech.net>:
+> --- a/drivers/input/keyboard/lkkbd.c	Tue Apr 20 23:01:41 2004
+> +++ b/drivers/input/keyboard/lkkbd.c	Tue Apr 20 23:01:41 2004
+> @@ -527,9 +527,7 @@
+> =20
+>  	if ((serio->type & SERIO_TYPE) !=3D SERIO_RS232)
+>  		return;
+> -	if (!(serio->type & SERIO_PROTO))
+> -		return;
+> -	if ((serio->type & SERIO_PROTO) && (serio->type & SERIO_PROTO) !=3D SER=
+IO_LKKBD)
+> +	if ((serio->type & SERIO_PROTO) !=3D SERIO_LKKBD)
+>  		return;
+> =20
+>  	if (!(lk =3D kmalloc (sizeof (struct lkkbd), GFP_KERNEL)))
 
-    Lucky# mount -v -t nfs4  harryp:/home /mnt/harryp
-    mount: wrong fs type, bad option, bad superblock on harryp:/home,
-           or too many mounted file systems
+Looks good. I'll take this patch inty my "master" version.
 
-With this patch, error message becomes:
+MfG, JBG
 
-    Lucky# mount -v -t nfs4  harryp:/home /mnt/harryp
-    mount: special device harryp:/home does not exist
+--=20
+   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
+   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
+    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
+k!
+   ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TC=
+PA));
 
-Now that the mount command correctly decipher the errror
-I also changed two hard coded printk into dprintks to cut
-down on the number of messages (from 4 to 2) that are logged
-for this type of error.
+--x+bne1ZFwxW5PfJO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-SteveD.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
+iD8DBQFAhlwqHb1edYOZ4bsRAnGBAJ99xV3dBaw7S5ZL1n9qevxx3EFHWwCfYvjA
+iZIWFG0nlGYBXe7mC1v90Mg=
+=ZjSP
+-----END PGP SIGNATURE-----
 
---------------060503010902030608070808
-Content-Type: text/plain;
- name="linux-2.6.5-mounterrors.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="linux-2.6.5-mounterrors.patch"
-
---- linux-2.6.5/fs/nfs/inode.c.orig	2004-04-20 04:21:05.000000000 -0400
-+++ linux-2.6.5/fs/nfs/inode.c	2004-04-20 21:37:34.599579224 -0400
-@@ -237,7 +237,7 @@ nfs_get_root(struct super_block *sb, str
- 
- 	error = server->rpc_ops->getroot(server, rootfh, fsinfo);
- 	if (error < 0) {
--		printk(KERN_NOTICE "nfs_get_root: getattr error = %d\n", -error);
-+		dprintk("nfs_get_root: getattr error = %d\n", -error);
- 		return ERR_PTR(error);
- 	}
- 
-@@ -262,6 +262,7 @@ nfs_sb_init(struct super_block *sb, rpc_
- 	struct nfs_pathconf pathinfo = {
- 			.fattr = &fattr,
- 	};
-+	int no_root_error = 0;
- 
- 	/* We probably want something more informative here */
- 	snprintf(sb->s_id, sizeof(sb->s_id), "%x:%x", MAJOR(sb->s_dev), MINOR(sb->s_dev));
-@@ -272,12 +273,15 @@ nfs_sb_init(struct super_block *sb, rpc_
- 
- 	root_inode = nfs_get_root(sb, &server->fh, &fsinfo);
- 	/* Did getting the root inode fail? */
--	if (IS_ERR(root_inode))
-+	if (IS_ERR(root_inode)) {
-+		no_root_error = PTR_ERR(root_inode);
- 		goto out_no_root;
-+	}
- 	sb->s_root = d_alloc_root(root_inode);
--	if (!sb->s_root)
-+	if (!sb->s_root) {
-+		no_root_error = -ENOMEM;
- 		goto out_no_root;
--
-+	}
- 	sb->s_root->d_op = server->rpc_ops->dentry_ops;
- 
- 	/* Get some general file system info */
-@@ -337,10 +341,10 @@ nfs_sb_init(struct super_block *sb, rpc_
- 	return 0;
- 	/* Yargs. It didn't work out. */
- out_no_root:
--	printk("nfs_read_super: get root inode failed\n");
-+	dprintk("nfs_sb_init: get root inode failed: errno %d\n", -no_root_error);
- 	if (!IS_ERR(root_inode))
- 		iput(root_inode);
--	return -EINVAL;
-+	return no_root_error;
- }
- 
- /*
-
---------------060503010902030608070808--
+--x+bne1ZFwxW5PfJO--

@@ -1,30 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265169AbSKVEVj>; Thu, 21 Nov 2002 23:21:39 -0500
+	id <S265179AbSKVEcm>; Thu, 21 Nov 2002 23:32:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265179AbSKVEVj>; Thu, 21 Nov 2002 23:21:39 -0500
-Received: from twhszms1.wistron.com.tw ([203.65.214.119]:4364 "EHLO
-	twhszms1.wistron.com.tw") by vger.kernel.org with ESMTP
-	id <S265169AbSKVEVj>; Thu, 21 Nov 2002 23:21:39 -0500
-X-Lotus-FromDomain: WISTRON
-From: paul_wu@wnexus.com.tw
-To: linux-kernel@vger.kernel.org
-Message-ID: <48256C79.00188FF3.00@TWHSZDS1.WISTRON.COM.TW>
-Date: Fri, 22 Nov 2002 12:29:03 +0800
-Subject: Which embedded linux is better for being a router? eCos? uclinux?
-Mime-Version: 1.0
-Content-type: text/plain; charset="us-ascii"
-Content-Disposition: inline
+	id <S265197AbSKVEcm>; Thu, 21 Nov 2002 23:32:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:55311 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S265179AbSKVEcl>;
+	Thu, 21 Nov 2002 23:32:41 -0500
+Message-ID: <3DDDB4EF.9090300@pobox.com>
+Date: Thu, 21 Nov 2002 23:39:11 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2b) Gecko/20021018
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+CC: linux-kernel@vger.kernel.org, kentborg@borg.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: Where is ext2/3 secure delete ("s") attribute?
+References: <200211220241.gAM2fEZ357378@saturn.cs.uml.edu>
+In-Reply-To: <200211220241.gAM2fEZ357378@saturn.cs.uml.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Albert D. Cahalan wrote:
+
+> Jeff Garzik writes:
+>
+> >Albert D. Cahalan wrote:
+>
+>
+> >>Forget the shred program. It's less useful than having the
+> >>filesystem simply zero the blocks, because it's slow and you
+> >>can't be sure to hit the OS-visible blocks.
+> >
+> >Why not?
+> >
+> >Please name a filesystem that moves allocated blocks around on you.  And
+> >point to code, too.
+>
+>
+> Reiserfs tails
+>   fs/reiserfs
 
 
+inodes don't move
 
-Try to make a router running a embedded linux OS, but don't know select which
-one is better, eCos? uclinux?
-Does anyone have such experiences?
+> ext3 with data journalling
+>   fs/ext3
 
-Paul
+
+the allocated blocks don't change
+
+
+> the journalling flash filesystems
+>   fs/jffs
+>   fs/jffs2
+
+
+yep
+
+> NTFS with compression
+>   fs/ntfs
+
+
+the allocated blocks don't change
+
+
+> Multiple overwrites won't protect you from the disk manufacturer
+> or the NSA. Only one is needed to protect against root & kernel.
+> So it makes sense to have the filesystem zero the blocks when
+> they are freed from a file.
+
+
+if you need to protect against root, then zeroing the blocks isn't going 
+to help for LVM or jffs or other journalling.
+
+	Jeff
 
 

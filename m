@@ -1,59 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267185AbTBLRMi>; Wed, 12 Feb 2003 12:12:38 -0500
+	id <S266210AbTBLRKe>; Wed, 12 Feb 2003 12:10:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267243AbTBLRMi>; Wed, 12 Feb 2003 12:12:38 -0500
-Received: from packet.digeo.com ([12.110.80.53]:11485 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267185AbTBLRMg>;
-	Wed, 12 Feb 2003 12:12:36 -0500
-Date: Wed, 12 Feb 2003 09:22:24 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Panic `cat /proc/ioports`
-Message-Id: <20030212092224.27aa4723.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.3.95.1030212081934.6864A-100000@chaos.analogic.com>
-References: <20030211154413.19a172f4.akpm@digeo.com>
-	<Pine.LNX.3.95.1030212081934.6864A-100000@chaos.analogic.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S266995AbTBLRKe>; Wed, 12 Feb 2003 12:10:34 -0500
+Received: from louise.pinerecords.com ([213.168.176.16]:43184 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S266210AbTBLRKe>; Wed, 12 Feb 2003 12:10:34 -0500
+Date: Wed, 12 Feb 2003 18:19:57 +0100
+From: Tomas Szepe <szepe@pinerecords.com>
+To: torvalds@transmeta.com
+Cc: lkml <linux-kernel@vger.kernel.org>, Thomas Molina <tmolina@cox.net>
+Subject: [PATCH] export allow_signal()
+Message-ID: <20030212171957.GD4009@louise.pinerecords.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Feb 2003 17:22:19.0034 (UTC) FILETIME=[4BB007A0:01C2D2BB]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" <root@chaos.analogic.com> wrote:
->
-> On Tue, 11 Feb 2003, Andrew Morton wrote:
-> 
-> > "Richard B. Johnson" <root@chaos.analogic.com> wrote:
-> > >
-> > > Linux version 2.4.18, after it runs for a few days, will panic
-> > > if I do `cat /proc/ioports`. Has this been reported/fixed in
-> > > later versions?
-> > > 
-> > > : Unable to handle kernel paging request at virtual address d48e2fa0 
-> > 
-> > This means that some driver which was previously loaded forgot to do a
-> > release_region().  Later, the /proc code tries to read stuff from within the
-> > driver which isn't there any more and oopses.
-> > 
-> 
-> Yes. I just noticed that most network board drivers in version 2.4.18
-> do not execute release_region() after they have done a request_region(),
-> if they fail to install because of some error.
+Export allow_signal().  It's needed by lockd, sunrpc and other modules.
+Patch against current BK.
 
-Fairly common error.
+-- 
+Tomas Szepe <szepe@pinerecords.com>
 
-> The error in this case was
-> the failure to allocate memory because I told the kernel I only had 4
-> megabytes (exprimental ioremap() of the rest in another module).
-> 
-> Is somebody fixing these drivers (do you know).
 
-There is ongoing janitorial work, and things are getting better.
-But I'm not aware of anyone specifically auditing for missing
-release_region()s.  And given that it is a box-killer rather than
-just a memory leak, yes, it is worth an audit.
-
+diff -urN a/kernel/exit.c b/kernel/exit.c
+--- a/kernel/exit.c	2003-02-12 18:16:30.000000000 +0100
++++ b/kernel/exit.c	2003-02-12 18:10:34.000000000 +0100
+@@ -293,7 +293,7 @@
+ 	spin_unlock_irq(&current->sighand->siglock);
+ 	return 0;
+ }
+-	
++EXPORT_SYMBOL(allow_signal);
+ 
+ /*
+  *	Put all the gunge required to become a kernel thread without

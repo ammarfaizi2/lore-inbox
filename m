@@ -1,66 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbTDXQPY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 12:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbTDXQPY
+	id S263765AbTDXQVp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 12:21:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263766AbTDXQVp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 12:15:24 -0400
-Received: from gate.perex.cz ([194.212.165.105]:1035 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S261896AbTDXQPX (ORCPT
+	Thu, 24 Apr 2003 12:21:45 -0400
+Received: from ltgp.iram.es ([150.214.224.138]:8581 "EHLO ltgp.iram.es")
+	by vger.kernel.org with ESMTP id S263765AbTDXQVm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 12:15:23 -0400
-Date: Thu, 24 Apr 2003 18:26:44 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Werner Almesberger <wa@almesberger.net>
-Cc: Matthias Schniedermeyer <ms@citd.de>, Pat Suwalski <pat@suwalski.net>,
-       Jamie Lokier <jamie@shareable.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Marc Giger <gigerstyle@gmx.ch>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 623] New: Volume not remembered.
-In-Reply-To: <20030424130151.O3557@almesberger.net>
-Message-ID: <Pine.LNX.4.44.0304241818400.1758-100000@pnote.perex-int.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Apr 2003 12:21:42 -0400
+From: Gabriel Paubert <paubert@iram.es>
+Date: Thu, 24 Apr 2003 18:25:54 +0200
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] desc.c -- dump the i386 descriptor tables
+Message-ID: <20030424162554.GB11897@iram.es>
+References: <200304241004_MC3-1-35CA-8D5B@compuserve.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200304241004_MC3-1-35CA-8D5B@compuserve.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Apr 2003, Werner Almesberger wrote:
-
-> Matthias Schniedermeyer wrote:
-> > man amixer
+On Thu, Apr 24, 2003 at 09:59:58AM -0400, Chuck Ebbert wrote:
+> Gabriel Paubert wrote:
 > 
-> Thanks. Yes, this indeed seems to map to some functionality that's
-> understood by the kernel.
 > 
-> Strange. So does this mean that non-ALSA mixers should not work when
-> using ALSA ?
+> > > #31: base=c0355600 limit=00eb flags=0089 <G=0 P=1 S=0 DPL=0 Available TSS>
+> >
+> > Nice but the limit field is 20 bits (shifted left by 12 bits if G=1).
+> 
+> 
+>   Huh.  The diagram I used was blank where the upper four limit bits belong
+> so I assumed it was unused... and for some reason I was thinking you
+> shifted
+> left by 16 bits when G=1, so I never noticed the missing four bits. Thanks.
 
-We have emulation layer for non-ALSA mixers. This layer turns mute off 
-automagically when volume is greater than zero. This layer doesn't work 
-100%, because ALSA API is more extended and there is no way to map the 
-extended features to limited API.
 
-> Why do they seem to anyway ?
+> 
+> 
+> 
+> > Other suggestions left as an exercise to the reader:
+> > 
+> > a) distinguish 16 bit code from 32 bit code (GDT entry #19 is 16 bit code),
+> 
+> 
+>  BIOS?
 
-> Is the driver or hardware side of this mute flag just rarely implemented?
+Indeed for APM at least. If D (default operand size, bit 22 of b) bit is set
+then the code segment is 32 bit code, if clear it's 16 bit. 
 
-Most of PCI cards which are based on AC97 supports muting for analog i/o.
+The same bit is used for the upper limit of expand down data segments,
+cleared for 64k, set for 4G.
 
-> Or is the kernel default not always "mute" ?
+>   I now have it dumping LDTs, and should probably do at least cs:eip and
+> eflags
+> for each task.
 
-We mute almost everything. Today, we preset only some of digital controls
-and we preserve volume settings for USB devices (might be changed, of 
-course).
+LDT or TSS ? 
 
-Our policy is: Don't allow to users to jump from skin when default volumes 
-are invalid. Because we cannot determine the settings of an user amplifier
-(analog path), the most safe is mute everything.
+>  
+> 
+> > d) extend this for x86-64 :-)
+> 
+> 
+>   Itanium. 8)
 
-						Jaroslav
+Itanium is not interesting, it uses the same format as i386 for
+this and only uses the LDT/GDT in ia32 emulation mode. Interrupts
+are very different but I don't remember how they work right now.
 
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SuSE Labs
+But x86_64 uses the reserved bit of the segment descriptors 
+to define extended GDT entries (and LDT too IIRC) with 64 bit
+bases and/or 64 bit code segments (have to download it again).
+These entries occupy 16 bytes. The IDT format is different
+(as well as the TSS format).
 
+	Gabriel

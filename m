@@ -1,48 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266880AbUJVTQr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUJVTe7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266880AbUJVTQr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 15:16:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264113AbUJVTQf
+	id S266477AbUJVTe7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 15:34:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265144AbUJVTdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 15:16:35 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:65008 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S266155AbUJVTOS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 15:14:18 -0400
-Date: Fri, 22 Oct 2004 21:13:52 +0200 (MEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Tomas Carnecky <tom@dbservice.com>
-cc: root@chaos.analogic.com, Oliver Neukum <oliver@neukum.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: my opinion about VGA devices
-In-Reply-To: <417672BF.5040708@dbservice.com>
-Message-ID: <Pine.GSO.4.61.0410222112590.11567@waterleaf.sonytel.be>
-References: <417590F3.1070807@dbservice.com> <200410201318.26430.oliver@neukum.org>
- <41765A8C.2020309@dbservice.com> <Pine.LNX.4.61.0410200851080.10711@chaos.analogic.com>
- <417672BF.5040708@dbservice.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Oct 2004 15:33:47 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:23010 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266477AbUJVTaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 15:30:10 -0400
+Subject: Re: GPRS on Linux fails due to 255.255.255.255 remote address.
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Arvind Kalyan <base16@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <90c25f2704102211212031af71@mail.gmail.com>
+References: <90c25f2704102211212031af71@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1098469639.19435.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 22 Oct 2004 19:27:20 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004, Tomas Carnecky wrote:
-> Last time I've tried a LiveCD distro I've seen a nice boot console with
-> background picture, high resolution (1024x768) and nice small font. That means
-> that the framebuffer driver had to be initialized at that time. I don't have
-> framebuffer drivers compiled into my kernel so I don't know at which point
-> these are initialized, but it must be at a quite early point in the boot
-> process.
+On Gwe, 2004-10-22 at 19:21, Arvind Kalyan wrote:
+> c. remote IP address: 255.255.255.255
 
-I guess that was vesafb (check /proc/fb). In that case the BIOS initialized the
-graphics card to 1024x768 just before the Linux kernel was started.
+You sure that in fact doesn't mean "pick one" to windows ?
 
-Gr{oetje,eeting}s,
+Alan
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261683AbTJWEfo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 00:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbTJWEfo
+	id S261575AbTJWFUl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 01:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbTJWFUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 00:35:44 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:63725 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id S261683AbTJWEfn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 00:35:43 -0400
-Date: Wed, 22 Oct 2003 21:34:58 -0700
-From: Jeremy Higdon <jeremy@sgi.com>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: gwh@sgi.com, jbarnes@sgi.com, aniket_m@hotmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Patch to add support for SGI's IOC4 chipset
-Message-ID: <20031023043458.GB82539@sgi.com>
-References: <3F7CB4A9.3C1F1237@sgi.com> <200310211639.28346.bzolnier@elka.pw.edu.pl> <20031022043058.GC80096@sgi.com> <200310222031.02243.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
+	Thu, 23 Oct 2003 01:20:40 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:26275 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261575AbTJWFUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 01:20:39 -0400
+To: andersen@codepoet.org
+Cc: Valdis.Kletnieks@vt.edu, linux-kernel@vger.kernel.org
+Subject: Re: srfs - a new file system.
+References: <Pine.GSO.4.44.0310070757400.4688-100000@sundance.cse.ucsc.edu>
+	<Pine.LNX.4.44_heb2.09.0310201031150.20172-100000@nexus.cs.bgu.ac.il>
+	<20031022045708.GA5636@codepoet.org>
+	<200310221605.h9MG5k37007196@turing-police.cc.vt.edu>
+	<20031022193849.GA21188@codepoet.org>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 23 Oct 2003 14:20:21 +0900
+In-Reply-To: <20031022193849.GA21188@codepoet.org>
+Message-ID: <buod6cofs2y.fsf@mcspd15.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200310222031.02243.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 22, 2003 at 08:31:02PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
-> I think there is another bug:
-> 
-> ...
-> 	hwif->hw.ack_intr = &sgiioc4_checkirq;	/* MultiFunction Chip */
-> ...
-> 
-> sgiioc4_clearirq() should be used instead of sgiioc4_checkirq() here,
-> because otherwise IRQ won't be cleared.
-> 
-> In order to do this you must modify sgiioc4_clearirq() slightly,
-> just change "return intr_reg;" to "return intr_reg & 0x03;".
-> 
-> If you wonder why, please look at ide_ack_intr() use in ide-io.c:ide_intr().
+Erik Andersen <andersen@codepoet.org> writes:
+> Not so much a potential BitKeeper customer, as pointing out that
+> the distributed filesystems prople are attacking the same
+> fundamental problem as the distributed version control folks.
 
-Thanks.  I've taken a look at it and have become puzzled.
+It may be the same at some level, but there's an important difference:
+distributed filesystems are usually (AFAIK) attempting to maintain the
+illusion of a single global filesystem that looks more or less to the
+users like a local filesystem, and usually just an average unixy
+filesystem.  This is very, very, hard...
 
-It looks as though ide_ack_intr normally just "returns" 1 and has no
-other effect.  But then I see some ide drivers that also have an ack_intr
-routine.  On some (most?) architechtures, it would appear that the ack_intr
-routine is not used, since the ide_ack_intr macro will not call it.
+Distributed version control systems, OTOH, because they're at a somewhat
+higher level, have the huge advantage of distinct operational boundaries
+which are exposed the user and can be used to manage the distribution.
+Since users are used to these boundaries, and they usually occur at
+fairly obvious and reasonable places, this isn't such a burden on the
+users.
 
-In gayle_ack_intr_a4000(), it looks as though all it does is read a
-register and return something.  Is that register read supposed to clear
-interrupt as a side effect.
-
-So maybe an explicit clear is not needed on most implementations?
-
-jeremy
+-Miles
+-- 
+97% of everything is grunge

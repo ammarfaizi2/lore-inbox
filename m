@@ -1,57 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274426AbRJJDNb>; Tue, 9 Oct 2001 23:13:31 -0400
+	id <S274427AbRJJDXx>; Tue, 9 Oct 2001 23:23:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274427AbRJJDNV>; Tue, 9 Oct 2001 23:13:21 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:44815 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S274426AbRJJDNI>;
-	Tue, 9 Oct 2001 23:13:08 -0400
-Date: Tue, 9 Oct 2001 20:06:13 -0700
-From: Greg KH <greg@kroah.com>
-To: Frank Davis <fdavis@si.rr.com>
-Cc: linux-kernel@vger.kernel.org, alan <alan@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] 2.4.10-ac10: more MODULE_LICENSE patches
-Message-ID: <20011009200613.C4526@kroah.com>
-In-Reply-To: <3BC3AC55.90606@si.rr.com>
+	id <S274456AbRJJDXp>; Tue, 9 Oct 2001 23:23:45 -0400
+Received: from maynard.mail.mindspring.net ([207.69.200.243]:47657 "EHLO
+	maynard.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S274427AbRJJDXd>; Tue, 9 Oct 2001 23:23:33 -0400
+Subject: Re: 2.4.10-ac10-preempt lmbench output.
+From: Robert Love <rml@ufl.edu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: safemode <safemode@speakeasy.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20011010050630.E726@athlon.random>
+In-Reply-To: <20011010003636Z271005-760+23005@vger.kernel.org>
+	<20011010031803.F8384@athlon.random>
+	<20011010020935.50DEF1E756@Cantor.suse.de>
+	<20011010043003.C726@athlon.random> <1002681480.1044.67.camel@phantasy> 
+	<20011010050630.E726@athlon.random>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
+Date: 09 Oct 2001 23:24:36 -0400
+Message-Id: <1002684288.862.123.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3BC3AC55.90606@si.rr.com>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 09, 2001 at 10:03:01PM -0400, Frank Davis wrote:
-> --- drivers/usb/hub.c.old	Mon Oct  8 18:25:36 2001
-> +++ drivers/usb/hub.c	Tue Oct  9 21:17:47 2001
-> @@ -856,7 +856,7 @@
->  };
->  
->  MODULE_DEVICE_TABLE (usb, hub_id_table);
-> -
-> +MODULE_LICENSE("GPL");
->  static struct usb_driver hub_driver = {
->  	name:		"hub",
->  	probe:		hub_probe,
+On Tue, 2001-10-09 at 23:06, Andrea Arcangeli wrote:
+> [...]
+> I think the issue you raise is that dbench gets a 10msec more of cpu
+> time and xmms starts running 10msec later than expected (because of the
+> scheduler latency peak worst case of 10msec).
+> 
+> But that doesn't matter. The scheduler isn't perfect anyways. The
+> resolution of the scheduler is 10msec too, so you can easily lose 10msec
+> anywhere else no matter of whatever scheduler latency of 10msec. [...]
 
-hub.c is not a module.  Alan, please do not apply.
+I agree with generally everything you say.
 
+I think, however,  you are making two assumptions:
 
-> --- drivers/usb/inode.c.old	Mon Oct  8 18:25:37 2001
-> +++ drivers/usb/inode.c	Tue Oct  9 21:15:15 2001
-> @@ -767,4 +767,5 @@
->  #if 0
->  module_init(usbdevfs_init);
->  module_exit(usbdevfs_cleanup);
-> +MODULE_LICENSE("GPL");
->  #endif
+(a) xmms has a very large leeway in the timing of its execution
 
-inode.c is not a module either.  Alan, please do not apply.
+(b) the maximum time a process sits in kernel space is 10ms.
 
-Both of these files are covered with the MODULE_LICENSE found in usb.c
+While I agree (a) is true, it may not be so in all scenerios. 
+Furthermore, the specified leeway does not exist for all timing-critical
+tasks.  Not all of these tasks are specialized real-time applications,
+either.
 
-thanks,
+Most importantly, however, the maximum latency of the system is not
+10ms.  Even _with_ preemption, we have observed greater latencies (due
+to long held locks).
 
-greg k-h
+This is why I believe the a preemptible kernel benefits more than just
+real-time signal processing.
+
+	Robert Love
+

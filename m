@@ -1,52 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268084AbTBRW2D>; Tue, 18 Feb 2003 17:28:03 -0500
+	id <S268064AbTBRWZ4>; Tue, 18 Feb 2003 17:25:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268087AbTBRW2D>; Tue, 18 Feb 2003 17:28:03 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:59140 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S268084AbTBRW2B>; Tue, 18 Feb 2003 17:28:01 -0500
-Date: Tue, 18 Feb 2003 14:34:09 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: Linux v2.5.62 --- spontaneous reboots
-In-Reply-To: <Pine.LNX.4.44.0302181408200.1107-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0302181426020.1498-100000@penguin.transmeta.com>
+	id <S268066AbTBRWZz>; Tue, 18 Feb 2003 17:25:55 -0500
+Received: from warden3-p.diginsite.com ([208.147.64.186]:36079 "HELO
+	warden3.diginsite.com") by vger.kernel.org with SMTP
+	id <S268064AbTBRWZt>; Tue, 18 Feb 2003 17:25:49 -0500
+From: David Lang <david.lang@digitalinsight.com>
+To: Rik van Riel <riel@imladris.surriel.com>
+Cc: Jamie Lokier <jamie@shareable.org>, Nicolas Pitre <nico@cam.org>,
+       Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Date: Tue, 18 Feb 2003 14:34:42 -0800 (PST)
+Subject: Re: openbkweb-0.0
+In-Reply-To: <Pine.LNX.4.50L.0302171120060.16271-100000@imladris.surriel.com>
+Message-ID: <Pine.LNX.4.44.0302181427440.8963-100000@dlang.diginsite.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, it sounds like we have the following resources available for getting
+the kernel source
 
-On Tue, 18 Feb 2003, Linus Torvalds wrote:
-> 
-> But if it was getting hard to trigger with 2.5.52 too, things might be
-> getting hairier and hairier.. If it becomes hard enough to trigger as to
-> be practically nondeterministic, a better approach might be to just go
-> back to -mjb4, and even if it is still there in -mjb4 try to see which
-> part of the patch seems to be making it more stable.
+1. FTP of hourly snapshots
+2. e-mail of individual patches hourly (patch may be e-mailed before
+bkbits.net is updated)
+3. bitkeeper access to bkbits.net
+4. read-only rsync (including access to the SCCS info) of the full
+up-to-the-second tree
+5. web access to look at individual patches (automated pulls not allowed)
+6. kernel.org mirrors of releases
 
-Btw, this is particularly true if it takes you potentially hours to test 
-something like 2.5.51 for stability, but you can reboot 2.5.59 at will in 
-ten minutes. 
+This isn't enough for people so will adding read-only CVS access to the
+tree itself be enough? does the CVS access need to also include the SCCS
+directories? what's the next thing that people will complain limits their
+access to the kernel source?
 
-In that case, you can test several vrsions of "2.5.59 + partial -mjb
-patches" much more quickly than you can walk backwards in 2.5.x, and try 
-to pinpoint the "this part of -mjb makes it much less likely to reboot".
+it used to be that we only had #6 and the griping that people did was that
+to many patches were dropped, now we have all the others and only #3 and
+#5 are limited by the evil bitmover company at all ;-) all the others are
+available to anyone withouta need to use any software they don't want to
+use.
 
-Also, with the -mjb patch there are some new configuration options. For 
-example, CONFIG_100HZ on -mjb has very different behaviour than a plain 
-2.5.59 kernel that defaults to 1kHz timer clock, and maybe the reason -mjb 
-seems more stable is that you may have selected a configuration option 
-that made -mjb act differently.
+David Lang
 
-Regardless, it would be very interesting to hear what the -mjb split-down
-results would be. Even if the answer might be "at 1kHz timer it is
-unstable, at 100Hz it is stable" (and if that were to be it, then you'd
-have to walk backwards to 2.5.24 to find the old 2.5.x kernel that had a
-slow tick rate).
+On Mon, 17 Feb 2003, Rik van Riel wrote:
 
-		Linus
-
+> Date: Mon, 17 Feb 2003 11:50:02 -0300 (BRT)
+> From: Rik van Riel <riel@imladris.surriel.com>
+> To: Jamie Lokier <jamie@shareable.org>
+> Cc: Nicolas Pitre <nico@cam.org>, David Lang <david.lang@digitalinsight.com>,
+>      Larry McVoy <lm@bitmover.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+>      lkml <linux-kernel@vger.kernel.org>
+> Subject: Re: openbkweb-0.0
+>
+> On Mon, 17 Feb 2003, Jamie Lokier wrote:
+>
+> > However, rsync from the repository is generally _much_ faster than CVS
+> > if you are tracking changes, so I (an impatient modem user) prefer rsync.
+>
+> > So I vote for rsync read-only access to the actual SCCS-ish repository
+> > files that BK manages.
+>
+> See ftp://nl.linux.org/pub/linux/bk2patch/
+>
+> You can get BK trees (uncompressed SCCS) via rsync, as well as
+> patches from the latest tagged version to the head of the tree.
+>
+> cheers,
+>
+> Rik
+> --
+> Bravely reimplemented by the knights who say "NIH".
+> http://www.surriel.com/		http://guru.conectiva.com/
+> Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+>

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273937AbRISHZ7>; Wed, 19 Sep 2001 03:25:59 -0400
+	id <S273958AbRISHvz>; Wed, 19 Sep 2001 03:51:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273958AbRISHZk>; Wed, 19 Sep 2001 03:25:40 -0400
-Received: from h24-78-175-24.vn.shawcable.net ([24.78.175.24]:39052 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S273937AbRISHZe>;
-	Wed, 19 Sep 2001 03:25:34 -0400
-Date: Wed, 19 Sep 2001 00:24:39 -0700
-From: Simon Kirby <sim@netnation.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_NONBLOCK on files
-Message-ID: <20010919002439.A21138@netnation.com>
-In-Reply-To: <20010918234648.A21010@netnation.com> <m1r8t3fyot.fsf@frodo.biederman.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1r8t3fyot.fsf@frodo.biederman.org>
-User-Agent: Mutt/1.3.22i
+	id <S274018AbRISHvq>; Wed, 19 Sep 2001 03:51:46 -0400
+Received: from denise.shiny.it ([194.20.232.1]:44754 "EHLO denise.shiny.it")
+	by vger.kernel.org with ESMTP id <S273958AbRISHvf>;
+	Wed, 19 Sep 2001 03:51:35 -0400
+Date: Wed, 19 Sep 2001 09:51:55 +0200 (CEST)
+From: root <root@denise.shiny.it>
+To: Xavier Bestel <xavier.bestel@free.fr>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.9-ac10 hangs on CDROM read error
+In-Reply-To: <1000833035.29346.11.camel@nomade>
+Message-ID: <Pine.LNX.4.21.0109190949080.16911-100000@denise.shiny.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 19, 2001 at 01:05:06AM -0600, Eric W. Biederman wrote:
 
-> Besides the SUS or the POSIX specs...
 
-Yeah, well, blah.
+> I have an ABit VP6, CDRW as hdc and DVD as hdd (VIA vt82c686b IDE
+> driver), with SCSI emulation on top, and when I read either:
+>
+> - a DVD with a read error in the DVD drive (UDF mounted, ripping)
+>
+> - a CDR with a read error in the CDRW drive (ISO mounted)
+>
+> the system hangs - no ping, no sysrq, nothing. no log.
 
-> What would cause the data to be read in if read just checks the caches?
-> With sockets the other side is clearing pushing or pulling the data.  With
-> files there is no other side...
+I have the same problem with PowerMac G3 and G4 with IDE drives. No
+problems with SCSI, where read just stops with an I/O error.
 
-Hmm...Without even thinking about it, I assumed it would start a read and
-select() or poll() or some later call would return readable when my
-outstanding request was fulfilled.  But yes, I guess you're right, this is
-different behavior because there is no other side.
+> I haven't tried all combinations (I don't like that). It seems like a
+> generic IDE CDROM driver bug, and there since several versions.
 
-Reading a file would need a receive queue to make this work, I guess. :)
+I agree.
 
-Simon-
+Bye.
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]

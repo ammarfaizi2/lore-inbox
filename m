@@ -1,37 +1,117 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293410AbSCSBSb>; Mon, 18 Mar 2002 20:18:31 -0500
+	id <S293432AbSCSBYV>; Mon, 18 Mar 2002 20:24:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293423AbSCSBSW>; Mon, 18 Mar 2002 20:18:22 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:38152 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S293410AbSCSBSL>; Mon, 18 Mar 2002 20:18:11 -0500
-Message-ID: <3C9691C8.51A4A504@linux-m68k.org>
-Date: Tue, 19 Mar 2002 02:18:00 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S293445AbSCSBYM>; Mon, 18 Mar 2002 20:24:12 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:47501 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S293432AbSCSBXy>; Mon, 18 Mar 2002 20:23:54 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 18 Mar 2002 17:28:30 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "David S. Miller" <davem@redhat.com>
+cc: cort@fsmlabs.com, <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 7.52 second kernel compile
+In-Reply-To: <20020318.163838.29962146.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44.0203181721480.1606-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-To: Larry McVoy <lm@bitmover.com>
-CC: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Bitkeeper licence issues
-In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com>
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 18 Mar 2002, David S. Miller wrote:
 
-Larry McVoy wrote:
+>    From: Cort Dougan <cort@fsmlabs.com>
+>    Date: Mon, 18 Mar 2002 17:36:35 -0700
+>
+>    The structure of the program you suggested with more portable timing.
+>
+> Oh, just something like:
+>
+>
+> 	gettimeofday(&stamp1);
+> 	for (A MILLION TIMES) {
+> 		TLB miss;
+> 	}
+> 	gettimeofday(&stamp2);
 
->  Go read this, this is you Pavel,
-> and I'm sick of arguing with people like you.
-> 
-> http://www.linuxandmain.com/essay/sgordon.html
+This make the measure stable on my machine :
 
-That's someone, who doesn't understand what free software is about and
-desperately looking for someone to blame it on.
-What are you trying to tell us?
+#define rdtsc(low) \
+   __asm__ __volatile__("rdtsc" : "=A" (low) : )
 
-bye, Roman
+
+            unsigned long long start, end;
+
+            rdtsc(start);
+            access(buffer[i]);
+            rdtsc(end);
+
+
+
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 999.561
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
+		pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 1992.29
+
+
+
+$ gcc -o tlb_test tlb_test.c
+
+#APP
+    rdtsc
+#NO_APP
+    movl    %eax, -24(%ebp)
+    movl    %edx, -20(%ebp)
+    movl    -4(%ebp), %eax
+    addl    -12(%ebp), %eax
+    movl    (%eax), %eax
+#APP
+    rdtsc
+
+
+  11.89: 18
+   4.70: 20
+  81.90: 23
+
+
+
+$ gcc -O2 -o tlb_test tlb_test.c
+
+#APP
+    rdtsc
+#NO_APP
+    movl    %edx, -28(%ebp)
+    movl    -24(%ebp), %edx
+    movl    %eax, -32(%ebp)
+    movl    (%esi,%edx), %ecx
+#APP
+    rdtsc
+#NO_APP
+
+
+  87.70: 20
+  11.24: 25
+
+
+
+
+- Davide
+
+

@@ -1,80 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318132AbSIJVJC>; Tue, 10 Sep 2002 17:09:02 -0400
+	id <S318143AbSIJVFG>; Tue, 10 Sep 2002 17:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318138AbSIJVJB>; Tue, 10 Sep 2002 17:09:01 -0400
-Received: from web14001.mail.yahoo.com ([216.136.175.92]:15538 "HELO
-	web14001.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S318132AbSIJVHg>; Tue, 10 Sep 2002 17:07:36 -0400
-Message-ID: <20020910211222.37684.qmail@web14001.mail.yahoo.com>
-Date: Tue, 10 Sep 2002 14:12:22 -0700 (PDT)
-From: Tony Spinillo <tspinillo@yahoo.com>
-Subject: Re: Linux 2.4.20-pre6 
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S318130AbSIJVFG>; Tue, 10 Sep 2002 17:05:06 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:27405 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S318143AbSIJVFC>;
+	Tue, 10 Sep 2002 17:05:02 -0400
+Date: Tue, 10 Sep 2002 23:09:45 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] scripts: Removed mrproper targets, they are now handled automagically 5/6
+Message-ID: <20020910230945.E18386@mars.ravnborg.org>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	linux-kernel@vger.kernel.org
+References: <20020910225530.A17094@mars.ravnborg.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020910225530.A17094@mars.ravnborg.org>; from sam@ravnborg.org on Tue, Sep 10, 2002 at 10:55:30PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  o i845G fixes
+Removed mrproper targets from scripts/Makefile and scripts/lxdialog/Makefile
+The new clean: and mrproper: handling will delete the files in question.
 
-I just tried 2.4.20-pre6 on my Intel 845GBVL board (845G chipset). 
-For the first time DMA is available with the DVD drive, 
-without a -ac patch. But UDMA(25) as opposed to UDMA(33) 
-with 2.4.20pre5-ac1.Also I got some junk characters in 2.4.20pre6 
-when it was probing for IDE devices: 
+For lxdialog added a few files that could be left if build were stopped
+unexpected.
 
-*****DMESG 2.4.20pre6 snip of the Intel board *****
-Uniform Multi-Platform E-IDE driver Revision: 6.31
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ICH4: IDE controller on PCI bus 00 dev f9
-PCI: Device 00:1f.1 not available because of resource collisions
-PCI: Found IRQ 5 for device 00:1f.1
-PCI: Sharing IRQ 5 with 00:1d.2
-GARBAGE CHARACTERS HERE: BIOS setup was incomplete.
-ICH4: chipset revision 1
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-hda: LITEON DVD-ROM LTD-165H, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: ATAPI 48X DVD-ROM drie, 512kB Cache, UDMA(25)
-Uniform CD-ROM driver Revision: 3.12
-*******
-Here is a Dmesg snip of 2.4.20pre5-ac1 on the Intel Board:
-*******
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha1
-ide: Assuming 33MHz system bus speed for PIO modes; override with
-idebus=xx
-ICH4: IDE controller at PCI slot 00:1f.1
-PCI: Device 00:1f.1 not available because of resource collisions
-PCI: Found IRQ 5 for device 00:1f.1
-PCI: Sharing IRQ 5 with 00:1d.2
-ICH4: Not fully BIOS configured!
-ICH4: chipset revision 1
-ICH4: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-hda: LITEON DVD-ROM LTD-165H, ATAPI CD/DVD-ROM drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: ATAPI 48X DVD-ROM drive, 512kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.12
-***********
-2.4.20-pre6 came up fine with my Gigabyte 845IGX (845G chipset)
-equipped machine. (Award BIOS as opposed to Intel's). DMA
-started to work with 2.4.20-pre5 on this board. The
-latest -ac patches do not work on this machine.
+	Sam
 
-Here are full links to the Intel 845GBVL dmesg and lspci:
-http://ac.marywood.edu/tspin/www/dmesg2420pre6.txt
-http://ac.marywood.edu/tspin/www/dmesg2420pre5ac1.txt
-http://ac.marywood.edu/tspin/www/lspci2420pre6.txt
-
-Thanks! If anyone needs more info, let me know.
-
-Tony
-
-
-__________________________________________________
-Yahoo! - We Remember
-9-11: A tribute to the more than 3,000 lives lost
-http://dir.remember.yahoo.com/tribute
+diff -Nru a/scripts/Makefile b/scripts/Makefile
+--- a/scripts/Makefile	Tue Sep 10 22:38:01 2002
++++ b/scripts/Makefile	Tue Sep 10 22:38:01 2002
+@@ -9,6 +9,8 @@
+ # conmakehash:	 Create arrays for initializing the kernel console tables
+ # tkparse: 	 Used by xconfig
+ 
++clean    := kconfig.tk
++
+ all: fixdep split-include docproc conmakehash __chmod
+ 
+ # The following temporary rule will make sure that people's
+@@ -57,9 +59,4 @@
+ $(obj)/split-include $(obj)/docproc $(addprefix $(obj)/,$(tkparse-objs)) \
+ $(obj)/conmakehash lxdialog: $(obj)/fixdep
+ 
+-mrproper:
+-	@echo 'Making mrproper (scripts)'
+-	@rm -f $(tkparse-objs) $(obj)/kconfig.tk
+-	@rm -f core $(host-progs)
+-	@$(MAKE) -C lxdialog mrproper
+ 
+diff -Nru a/scripts/lxdialog/Makefile b/scripts/lxdialog/Makefile
+--- a/scripts/lxdialog/Makefile	Tue Sep 10 22:38:01 2002
++++ b/scripts/lxdialog/Makefile	Tue Sep 10 22:38:01 2002
+@@ -15,8 +15,12 @@
+ endif
+ endif
+ 
+-host-progs := lxdialog
++# Files removed during make clean
++clean := a.out lxtemp.c
+ 
++# Host executable
++host-progs := lxdialog
++# Additional object files for lxdialog
+ lxdialog-objs := checklist.o menubox.o textbox.o yesno.o inputbox.o \
+ 		 util.o lxdialog.o msgbox.o
+ 
+@@ -39,5 +43,3 @@
+ 		exit 1 ;\
+ 	fi
+ 
+-mrproper:
+-	@rm -f core $(host-progs) $(lxdialog-objs) ncurses

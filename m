@@ -1,36 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135238AbRAJRst>; Wed, 10 Jan 2001 12:48:49 -0500
+	id <S136051AbRAJR7W>; Wed, 10 Jan 2001 12:59:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135335AbRAJRsi>; Wed, 10 Jan 2001 12:48:38 -0500
-Received: from host156.207-175-42.redhat.com ([207.175.42.156]:53767 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S135238AbRAJRsa>; Wed, 10 Jan 2001 12:48:30 -0500
-Date: Wed, 10 Jan 2001 12:48:30 -0500
-From: Bill Nottingham <notting@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.0 umount problem
-Message-ID: <20010110124830.G31455@devserv.devel.redhat.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <F237SHmFF4y07520vKE000060af@hotmail.com>
-Mime-Version: 1.0
+	id <S136050AbRAJR7L>; Wed, 10 Jan 2001 12:59:11 -0500
+Received: from slc743.modem.xmission.com ([166.70.7.235]:21771 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S135335AbRAJR7C>; Wed, 10 Jan 2001 12:59:02 -0500
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Zlatko Calusic <zlatko@iskon.hr>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: Subtle MM bug
+In-Reply-To: <Pine.LNX.4.10.10101092255510.3414-100000@penguin.transmeta.com> <18634.979127163@redhat.com> <20010110155624.D19503@athlon.random>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 10 Jan 2001 10:46:07 -0700
+In-Reply-To: Andrea Arcangeli's message of "Wed, 10 Jan 2001 15:56:24 +0100"
+Message-ID: <m1elybgv1c.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <F237SHmFF4y07520vKE000060af@hotmail.com>; from hyponephele@hotmail.com on Wed, Jan 10, 2001 at 11:03:06AM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M T (hyponephele@hotmail.com) said: 
-> I'm running redhat 6.2 halt scripts and strange problem appears when 
-> shutting system down with kernel-2.4.0. I get message that "/ device is 
-> busy". I've updated util-linux (kill,mount,umount) according to 
-> documentation without any success. I've got no problems with 2.2.18.
-> Any ideas?
+Andrea Arcangeli <andrea@suse.de> writes:
 
-Are you using devfs?
+> On Wed, Jan 10, 2001 at 11:46:03AM +0000, David Woodhouse wrote:
+> > So the VM code spends a fair amount of time scanning lists of pages which 
+> > it really can't do anything about?
+> 
+> Yes.
+> 
+> > Would it be possible to put such pages on different list, so that the VM
+> 
+> Currently to unmap the other pages we have to waste time on those unfreeable
+> pages as well.
+> 
+> Once I or other developer finishes with the reverse lookup from page to
+> pte-chain (an implementation from DaveM just exists) we'll be able to put them
+> in a separate lru, but it's certainly not a 2.4.1-pre2 thing.
 
-Bill
+Why do we even want to do reverse page tables?
+It seems everyone is assuming this is a good thing and except for being
+a touch more flexible I don't see what this buys us (besides more locked memory).
+
+My impression with the MM stuff is that everyone except linux is
+trying hard to clone BSD instead of thinking through the issues
+ourselves.
+
+And because of the extra overhead this doesn't look to be a win on a
+heavily loaded box with no swap.  And probably only glibc mmaped.
+
+Eric
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

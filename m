@@ -1,71 +1,186 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269624AbUJWAle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269388AbUJWApZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269624AbUJWAle (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 20:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269386AbUJWAiT
+	id S269388AbUJWApZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 20:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269364AbUJWAnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 20:38:19 -0400
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:46748 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S269388AbUJWAgF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 20:36:05 -0400
-Message-ID: <4179A763.9040603@kolivas.org>
-Date: Sat, 23 Oct 2004 10:35:47 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+	Fri, 22 Oct 2004 20:43:09 -0400
+Received: from c7ns3.center7.com ([216.250.142.14]:196 "EHLO
+	smtp.slc03.viawest.net") by vger.kernel.org with ESMTP
+	id S269659AbUJWAkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 20:40:19 -0400
+Message-ID: <41799FA8.3010803@drdos.com>
+Date: Fri, 22 Oct 2004 18:02:48 -0600
+From: "Jeff V. Merkey" <jmerkey@drdos.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: markus@trippelsdorf.net, linux-kernel@vger.kernel.org
-Subject: Re: BT848 video support dropped in 2.6.9?
-References: <1098447230.12289.12.camel@localhost>	<4178FAB4.9070208@kolivas.org> <20041022173214.5bc8c316.akpm@osdl.org>
-In-Reply-To: <20041022173214.5bc8c316.akpm@osdl.org>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigB0E7C396D112F07AF44D5117"
+To: jonathan@jonmasters.org
+Cc: brian wheeler <bdwheele@indiana.edu>, linux-kernel@vger.kernel.org
+Subject: Re: Linux v2.6.9 and GPL Buyout
+References: <1098480691.8033.8.camel@wombat.educ.indiana.edu>	 <41797B49.5020809@drdos.com>	 <35fb2e5904102216038257cb1@mail.gmail.com>	 <417990AE.5050806@drdos.com> <35fb2e59041022173042f92fa@mail.gmail.com>
+In-Reply-To: <35fb2e59041022173042f92fa@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigB0E7C396D112F07AF44D5117
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Jon Masters wrote:
 
-Andrew Morton wrote:
-> Con Kolivas <kernel@kolivas.org> wrote:
-> 
->>Markus Trippelsdorf wrote:
+>On Fri, 22 Oct 2004 16:58:54 -0600, Jeff V. Merkey <jmerkey@drdos.com> wrote:
+>  
+>
+>>Jon Masters wrote:
 >>
->>>The "BT848 video for linux" item does not show up
->>>with menuconfig in the "Video for linux" category.
->>>It was there in all previous kernels that I've used.
->>>Am I missing something obvious?
+>>    
 >>
->>config VIDEO_BT848
->>	depends on VIDEO_DEV && PCI && I2C && FW_LOADER
-> 
-> 
-> Or you can do `make menuconfig' then hit "/BT848".  I love that feature!
+>>>Jeff,
+>>>
+>>>Could you please digitally sign this mail that you are planning to
+>>>send or otherwise provide notorisation that confirms you definately
+>>>mean this?
+>>>
+>>>I'd love for you to accept liability for this so we can pass all SCO
+>>>enquiries on to you.
+>>>
+>>>Jon.
+>>>      
+>>>
+>
+>  
+>
+>>Yes. I can do even better.
+>>    
+>>
+>
+>Ok. But I need you to sign this using some recognised signature -
+>other folks can suggest mechanisms we can use that are legally valid.
+>I'm happy to act as a gobetween if we could get you to undertake to
+>accept liability for any infringing code left in the kernel after any
+>proven SCO demands were to be met (I'm sure other folks can see where
+>I'm going with this discussion - let's see what the response is).
+>  
+>
 
-Now _that_ is cool! I wish I had known about that a long time ago.
+I would agree to this. I will meet with SCO Monday and see if they will 
+accept this as a proposal. I think
+they probably will.
 
-Cheers,
-Con
+>  
+>
+>>I met with Darl McBride this afternoon
+>>    
+>>
+>
+>Did you have tea and crumpets? Jam?
+>
+>  
+>
+They gave me raw carrots (in a plastic bag on Blake's desk) and Baby 
+Ruth candy bars. We met in
+Blake's office (The PR Guy). They had their corporate counsel sitting in 
+another room and I guess he was
+listenting in or something, but he never entered the room. We talked 
+about the Novell/Bill Mason/Pamela Jones/Groklaw
+connections (all of these people are ex Novell employees). I was met at 
+the front door door by Joan (Darl's
+admin) and Blake, then Darl came into the Blakes office. They typed a 
+letter first roasting GrokLaw then the
+SCO general counsel said not to sign it even though Darl wanted him to, 
+and they said to have Blake put out
+some sort of release instead. Then Darl and I talked about all the Linux 
+code for about an hour or so.
 
---------------enigB0E7C396D112F07AF44D5117
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+>>He gave me the first list, and I am waiting on the second
+>>    
+>>
+>
+>Like I said, if you could provide this to me with legally valid,
+>documented proof that you'll accept liability for further infringement
+>then that would help greatly with this thread.
+>
+>  
+>
 
-iD8DBQFBeadjZUg7+tp6mRURAq19AJ91j4qlHAl6pQrsTLecLzQw1nojrQCeICbA
-RLEh/K2v/oNDZy1oBpBJkN4=
-=9MER
------END PGP SIGNATURE-----
+Yes. I am waiting for them to send it. I called Joan and Darl after I 
+sent this and Darl had left for the day
+and Joan called him on his cell phone and I am supposed to talk to Blake 
+on Monday.
 
---------------enigB0E7C396D112F07AF44D5117--
+>>I don't think he likes Linux much
+>>    
+>>
+>
+>That surprises me. I thought Darl loved Linux more than life itself -
+>thanks for the correction.
+>
+>  
+>
+>>I will have it probably Monday. I'll post it then.
+>>    
+>>
+>
+>If you mail it to me at: jcm@jonmasters.org along with some contact
+>details then I can arrange to have you mail me a signed declaration
+>accepting liability.
+>
+>  
+>
+
+Agreed. I will do so. I think SCO just wants their stuff our of Linux. 
+We should accomodate them.
+Who wants to use this stuff besides IBM anyway.
+
+>>Darl seemed like a nice enough sort
+>>    
+>>
+>
+>I'd love to interview the guy, if he were interested.
+>
+>  
+>
+
+I could ask him...
+
+>>We argued for 30 minutes about SMP support in Linux and I think
+>>he will just let this one go since I pointed out that Novell had
+>>disclosed the Unixware SMP stuff at Brainshare and he
+>>cannot claim it as trade secrete any longer.
+>>    
+>>
+>
+>That's interesting. Can you commit to that too in your declaration please?
+>  
+>
+Yes.
+
+>>and he would claim any contribution from any IBM employee in Linux.
+>>    
+>>
+>
+>Were there any restrictions upon when that person was an employee?
+>  
+>
+
+Yes. He said any employee who had access to their source code and who 
+fell under the license agreements. It was
+somewhat nebulous, and form the way he explained it, the agreements with 
+IBM pretty much covered all employees
+everywhere. There was some sort of non-compete clause so I think this 
+affects everyone.
+
+>  
+>
+>>I will post to kernel.org the complete listing.
+>>    
+>>
+>
+>Thanks. I look forward to reading that.
+>  
+>
+
+You got it.
+
+Jeff
+

@@ -1,511 +1,277 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbUL3Nw2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbUL3Obx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbUL3Nw2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 08:52:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbUL3Nw2
+	id S261642AbUL3Obx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 09:31:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261649AbUL3Obx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 08:52:28 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:3527 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261639AbUL3NhN (ORCPT
+	Thu, 30 Dec 2004 09:31:53 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:46992 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261642AbUL3Obk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 08:37:13 -0500
-Date: Thu, 30 Dec 2004 19:05:29 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
-       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [Patch] Do not allocate sysfs_dirent.s_children for non-directories
-Message-ID: <20041230133529.GE3122@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-References: <200412030320.iB33KZI03215@adam.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412030320.iB33KZI03215@adam.yggdrasil.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 30 Dec 2004 09:31:40 -0500
+From: Arnd Bergmann <arnd@arndb.de>
+To: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH 7/8] s390: new DCSS SHM device driver
+Date: Thu, 30 Dec 2004 15:24:49 +0100
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Carsten Otte <cotte@de.ibm.com>,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+References: <20041228082837.GH7988@osiris.boeblingen.de.ibm.com>
+In-Reply-To: <20041228082837.GH7988@osiris.boeblingen.de.ibm.com>
+MIME-Version: 1.0
+Message-Id: <200412301524.50557.arnd@arndb.de>
+Content-Type: multipart/signed;
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1;
+  boundary="Boundary-02=_y+A1BYgvcZHIWAi";
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 02, 2004 at 07:20:35PM -0800, Adam J. Richter wrote:
-> 	The following patch, against a heavily hacked 2.6.10-rc2-bk15
-> sysfs tree, removes the s_children field from sysfs_dirent and
-> creates a new structure just for directories named sysfs_dir, which
-> embeds a sysfs_dirent and also adds s_children.  Directories allocate
-> a sysfs_dir; non-directories allocate a sysfs_dirent.  There are
-> two separate kmem caches for the different data types.
-> 
-> 	Not allocating s_children from each non-directory saves
-> two pointers (8 bytes) for each of the 2573 non-directory nodes
-> in my sysfs tree, or about 20kB on unswappable memory, but
-> having another kmem cache probably wastes an average of half
-> a page in memory fragmentation and then there is are few
-> bytes from the new code and the additional kmem_cache_t
-> structure, so I would guess it probably saves about 16kB in
-> practice.
-> 
-> 	In the future, I hope to make a similar change for symbolic
-> links.
-> 
-> 	By the way, this patch will also make it easier for me to
-> try to unpin sysfs directories because there are a few other
-> fields specific to directories that I would want to store
-> in sysfs_dir.
-> 
 
+--Boundary-02=_y+A1BYgvcZHIWAi
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Apart from a couple of diff'ing related comments, I feel the code looks 
-some what complicated. I think we can directly link sysfs_dir to 
-directory dentries and sysfs_dirent to non-directory dentries instead 
-of always linking sysfs_dirent to d_fsdata. To differentiate between the
-two types of structures linked to dentry's d_fsdata field, we can use
-S_ISDIR(dentry->d_inode->i_mode). This will avoid using container_of() and 
-the dentry_to_sysfs_dir() conversions.
+On Dinsdag 28 Dezember 2004 09:28, Heiko Carstens wrote:
+> [PATCH 7/8] s390: dcss shared memory.
+>=20
+> From: Carsten Otte <cotte@de.ibm.com>
+>=20
+> Add support for shared memory using z/VM DCSS.
 
-Most of the places we may not need to find what type of struct d_fsdata points
-to. Like in sysfs_make_dirent(), first param has to be sysfs_dir as the parent
-dentry corresponds to a sysfs directory.
+I'd rather not see this driver merged at this point. It's completely
+lacking support for class devices, which means it will not work
+with udev. Also, I'm still feeling the interface should much more
+resemble Posix shared memory rather than 'use sysfs to create a
+character device per shared memory segment'.
 
-In sysfs_lookup() also, we know parent dentry corresponds to sysfs directory
-so dentry's d_fsdata will point to sysfs_dir instead of sysfs_dirent.
+Ideally, we should have some user interface that also makes sense
+for cross-guest shared memory on UML/Xen/etc.
 
+Regarding the use of sysfs, I also think the memory segment
+'devices' should share the name space with the ones used in dcssblk,
+since they are actually the same resources, just used by different
+device drivers. So instead of having
 
-> 
-> diff -u5 linux.prev/fs/sysfs/dir.c linux/fs/sysfs/dir.c
-> --- linux.prev/fs/sysfs/dir.c	2004-12-02 14:51:01.000000000 +0800
-> +++ linux/fs/sysfs/dir.c	2004-12-03 10:36:20.000000000 +0800
-> @@ -29,38 +29,46 @@
->  };
->  
->  /*
->   * Allocates a new sysfs_dirent and links it to the parent sysfs_dirent
->   */
-> -static struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dirent * parent_sd,
-> -						void * element)
-> +static struct sysfs_dirent * sysfs_new_dirent(struct sysfs_dir * parent_sd,
-> +					      void * element, int type)
->  {
->  	struct sysfs_dirent * sd;
->  
-> -	sd = kmem_cache_alloc(sysfs_dir_cachep, GFP_KERNEL);
-> -	if (!sd)
-> -		return NULL;
-> +	if (sysfs_type_dir(type)) {
-> +		struct sysfs_dir * sdir;
-> +		sdir = kmem_cache_alloc(sysfs_dir_cachep, GFP_KERNEL);
-> +		if (!sdir)
-> +			return NULL;
-> +		INIT_LIST_HEAD(&sdir->s_children);
-> +		sd = &sdir->s_ent;
-> +	} else {
-> +		sd = kmem_cache_alloc(sysfs_dirent_cachep, GFP_KERNEL);
-> +		if (!sd)
-> +			return NULL;
-> +	}
->  
->  	memset(sd, 0, sizeof(*sd));
-> -	INIT_LIST_HEAD(&sd->s_children);
->  	list_add(&sd->s_sibling, &parent_sd->s_children);
->  	sd->s_element = element;
-> +	sd->s_type = type;
->  
->  	return sd;
->  }
->  
-> -int sysfs_make_dirent(struct sysfs_dirent * parent_sd, struct dentry * dentry,
-> +int sysfs_make_dirent(struct sysfs_dir * parent_sd, struct dentry * dentry,
->  			void * element, umode_t mode, int type)
->  {
->  	struct sysfs_dirent * sd;
->  
-> -	sd = sysfs_new_dirent(parent_sd, element);
-> +	sd = sysfs_new_dirent(parent_sd, element, type);
->  	if (!sd)
->  		return -ENOMEM;
->  
->  	sd->s_mode = mode;
-> -	sd->s_type = type;
->  	sd->s_dentry = dentry;
->  	if (dentry) {
->  		dentry->d_fsdata = sd;
->  		dentry->d_op = &sysfs_dentry_ops;
->  	}
-> @@ -94,17 +102,19 @@
->  static int create_dir(void *element, struct dentry * p,
->  		      const char * n, struct dentry ** d, int type)
->  {
->  	int error;
->  	umode_t mode = S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO;
-> +	struct sysfs_dir *parent_sd;
->  
->  	down(&p->d_inode->i_sem);
->  	*d = sysfs_get_dentry(p,n);
->  	if (!IS_ERR(*d)) {
->  		error = sysfs_create(*d, mode, init_dir);
->  		if (!error) {
-> -			error = sysfs_make_dirent(p->d_fsdata, *d, element,
-> +			parent_sd = dentry_to_sysfs_dir(p);
-> +			error = sysfs_make_dirent(parent_sd, *d, element,
->  						  mode, type);
->  			if (!error) {
->  				p->d_inode->i_nlink++;
->  				(*d)->d_op = &sysfs_dentry_ops;
->  				d_rehash(*d);
-> @@ -122,11 +132,12 @@
->  
->  int sysfs_create_subdir(struct kobject * k,
->  			const struct attribute_group *grp,
->  			struct dentry ** d)
->  {
-> -	return create_dir(grp, k->dentry, grp->name, d, SYSFS_ATTR_GROUP);
-> +	return create_dir((void*)grp, k->dentry, grp->name, d,
-> +			  SYSFS_ATTR_GROUP);
->  }
->  
->  /**
->   *	sysfs_create_dir - create a directory for an object.
->   *	@parent:	parent parent object.
-> @@ -203,11 +214,11 @@
->  }
->  
->  static struct dentry * sysfs_lookup(struct inode *dir, struct dentry *dentry,
->  				struct nameidata *nd)
->  {
-> -	struct sysfs_dirent * parent_sd = dentry->d_parent->d_fsdata;
-> +	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dentry->d_parent);
->  	struct sysfs_dirent * sd;
->  	int err = 0;
->  
->  	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
->  		if (sd->s_type & SYSFS_NOT_PINNED) {
-> @@ -267,20 +278,20 @@
->   */
->  
->  void sysfs_remove_dir(struct kobject * kobj)
->  {
->  	struct dentry * dentry = dget(kobj->dentry);
-> -	struct sysfs_dirent * parent_sd;
-> +	struct sysfs_dir * parent_sd;
->  	struct sysfs_dirent * sd, * tmp;
->  
->  	if (!dentry)
->  		return;
->  
->  	pr_debug("sysfs %s: removing dir\n",dentry->d_name.name);
->  	down(&dentry->d_inode->i_sem);
-> -	parent_sd = dentry->d_fsdata;
-> -	list_for_each_entry_safe(sd, tmp, &parent_sd->s_children, s_sibling) {
-> +	parent_sd = dentry_to_sysfs_dir(dentry);
-> +	list_for_each_entry_safe(sd,tmp,&parent_sd->s_children,s_sibling) {
+/sys/block/dcssblk/dcssblk0/device -> ../../../devices/dcssblk/foo
+/sys/devices/dcssblk/foo/
+/sys/devices/dcssshm/bar/
 
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-removing space before each parameter is not saving anything but creating 
-extra diff.
+it rather should be
 
->  		if (!sd->s_element || !(sd->s_type & SYSFS_NOT_PINNED))
->  			continue;
->  		sysfs_drop_dentry(sd, dentry);
->  		list_del_init(&sd->s_sibling);
->  		sysfs_put(sd);
-> @@ -331,14 +342,14 @@
->  }
->  
->  static int sysfs_dir_open(struct inode *inode, struct file *file)
->  {
->  	struct dentry * dentry = file->f_dentry;
-> -	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
-> +	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dentry);
->  
->  	down(&dentry->d_inode->i_sem);
-> -	file->private_data = sysfs_new_dirent(parent_sd, NULL);
-> +	file->private_data = sysfs_new_dirent(parent_sd, NULL, SYSFS_CURSOR);
->  	up(&dentry->d_inode->i_sem);
->  
->  	return file->private_data ? 0 : -ENOMEM;
->  
->  }
-> @@ -350,10 +361,13 @@
->  
->  	down(&dentry->d_inode->i_sem);
->  	list_del_init(&cursor->s_sibling);
->  	up(&dentry->d_inode->i_sem);
->  
-> +	BUG_ON(cursor->s_dentry != NULL);
-> +	release_sysfs_dirent(cursor);
+/sys/block/dcssblk/dcssblk0/device -> ../../../devices/dcss/foo
+/sys/class/dcssshm/yourseg/device -> ../../../devices/dcss/bar
+/sys/devices/dcss/foo/
+/sys/devices/dcss/bar/
+
+I'd really like to hear an outside opinion on this.
+
+Since Carsten is currently on vacation, he won't be able to reply
+too soon, so I suggest we postpone this for now.
+
+Carsten, sorry I couldn't look over this before Heiko sent it out,
+the next evening out is on me.
+
+There are also a few smaller nits I'd like to pick:
+
+> +#include <asm/ccwdev.h>  // for s390_root_dev_(un)register()
+
+This seems to be getting out of the original scope. I don't know
+if anything better exists already, but I don't think registering
+bus devices at the /sys/devices should depend on architecture
+specific code. Either we agree that such a function is needed
+for all architectures, or we should stop using it.
+
+> +#define DCSSSHM_DEBUG  /* Debug messages on/off */
+> +#define DCSSSHM_NAME "dcssshm"
+> +#ifdef DCSSSHM_DEBUG
+> +#define PRINT_DEBUG(x...) printk(KERN_DEBUG DCSSSHM_NAME " debug: " x)
+> +#else
+> +#define PRINT_DEBUG(x...) do {} while (0)
+> +#endif
+> +#define PRINT_INFO(x...)  printk(KERN_INFO DCSSSHM_NAME " info: " x)
+> +#define PRINT_WARN(x...)  printk(KERN_WARNING DCSSSHM_NAME " warning: " =
+x)
+> +#define PRINT_ERR(x...)   printk(KERN_ERR DCSSSHM_NAME " error: " x)
+
+IMHO, it would be better to use pr_info/pr_debug for new code.
+
 > +
->  	return 0;
->  }
->  
->  /* Relationship between s_mode and the DT_xxx types */
->  static inline unsigned char dt_type(struct sysfs_dirent *sd)
-> @@ -362,11 +376,11 @@
->  }
->  
->  static int sysfs_readdir(struct file * filp, void * dirent, filldir_t filldir)
->  {
->  	struct dentry *dentry = filp->f_dentry;
-> -	struct sysfs_dirent * parent_sd = dentry->d_fsdata;
-> +	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dentry);
->  	struct sysfs_dirent *cursor = filp->private_data;
->  	struct list_head *p, *q = &cursor->s_sibling;
->  	ino_t ino;
->  	int i = filp->f_pos;
->  
-> @@ -395,10 +409,11 @@
->  				const char * name;
->  				int len;
->  
->  				next = list_entry(p, struct sysfs_dirent,
->  						   s_sibling);
+> +static ssize_t dcssshm_add_store(struct device * dev, const char * buf,
+> +      size_t count);
+> +static ssize_t dcssshm_remove_store(struct device * dev, const char * bu=
+f,
+> +      size_t count);
+> +static ssize_t dcssshm_save_store(struct device * dev, const char * buf,
+> +      size_t count);
+> +static ssize_t dcssshm_save_show(struct device *dev, char *buf);
+> +static ssize_t dcssshm_shared_store(struct device * dev, const char * bu=
+f,
+> +      size_t count);
+> +static ssize_t dcssshm_shared_show(struct device *dev, char *buf);
 > +
->  				if (!next->s_element)
->  					continue;
->  
->  				name = sysfs_get_name(next);
->  				len = strlen(name);
+> +static int   dcssshm_open(struct inode *inode, struct file *filp);
+> +static int   dcssshm_release(struct inode *inode, struct file *filp);
+> +static int dcssshm_mmap(struct file * file, struct vm_area_struct * vma);
+> +static struct page * dcssshm_nopage_in_place(struct vm_area_struct * are=
+a,
+> +          unsigned long address, int* type);
+> +static loff_t dcssshm_llseek (struct file* file, loff_t offset, int orig=
+);
 
-^^^^^^^^^^^^^^^^^^
-unnecessarry increase in patch size due to extra blank line.
+If you move all functions into call graph order, you don't need any forward
+declarations and at the same time it becomes obvious that there are no
+direct recursions.
 
+> +static DEVICE_ATTR(add, S_IWUSR, NULL, dcssshm_add_store);
+> +static DEVICE_ATTR(remove, S_IWUSR, NULL, dcssshm_remove_store);
 
-> @@ -436,11 +451,11 @@
->  			return -EINVAL;
->  	}
->  	if (offset != file->f_pos) {
->  		file->f_pos = offset;
->  		if (file->f_pos >= 2) {
-> -			struct sysfs_dirent *sd = dentry->d_fsdata;
-> +			struct sysfs_dir *sd = dentry_to_sysfs_dir(dentry);
->  			struct sysfs_dirent *cursor = file->private_data;
->  			struct list_head *p;
->  			loff_t n = file->f_pos - 2;
->  
->  			list_del(&cursor->s_sibling);
-> diff -u5 linux.prev/fs/sysfs/file.c linux/fs/sysfs/file.c
-> --- linux.prev/fs/sysfs/file.c	2004-11-07 13:02:53.000000000 +0800
-> +++ linux/fs/sysfs/file.c	2004-12-02 23:19:56.000000000 +0800
-> @@ -355,11 +355,11 @@
->  };
->  
->  
->  int sysfs_add_file(struct dentry * dir, const struct attribute * attr, int type)
->  {
-> -	struct sysfs_dirent * parent_sd = dir->d_fsdata;
-> +	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dir);
->  	umode_t mode = (attr->mode & S_IALLUGO) | S_IFREG;
->  	int error = 0;
->  
->  	down(&dir->d_inode->i_sem);
->  	error = sysfs_make_dirent(parent_sd, NULL, (void *) attr, mode, type);
-> diff -u5 linux.prev/fs/sysfs/inode.c linux/fs/sysfs/inode.c
-> --- linux.prev/fs/sysfs/inode.c	2004-12-02 14:51:01.000000000 +0800
-> +++ linux/fs/sysfs/inode.c	2004-12-03 00:43:39.000000000 +0800
-> @@ -146,11 +146,11 @@
->  }
->  
->  void sysfs_hash_and_remove(struct dentry * dir, const char * name)
->  {
->  	struct sysfs_dirent * sd;
-> -	struct sysfs_dirent * parent_sd = dir->d_fsdata;
-> +	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(dir);
->  
->  	down(&dir->d_inode->i_sem);
->  	list_for_each_entry(sd, &parent_sd->s_children, s_sibling) {
->  		if (!sd->s_element)
->  			continue;
-> diff -u5 linux.prev/fs/sysfs/mount.c linux/fs/sysfs/mount.c
-> --- linux.prev/fs/sysfs/mount.c	2004-12-02 11:55:02.000000000 +0800
-> +++ linux/fs/sysfs/mount.c	2004-12-02 23:27:39.000000000 +0800
-> @@ -15,21 +15,24 @@
->  #define SYSFS_MAGIC 0x62656572
->  
->  struct vfsmount *sysfs_mount;
->  struct super_block * sysfs_sb = NULL;
->  kmem_cache_t *sysfs_dir_cachep;
-> +kmem_cache_t *sysfs_dirent_cachep;
->  
->  static struct super_operations sysfs_ops = {
->  	.statfs		= simple_statfs,
->  	.drop_inode	= generic_delete_inode,
->  };
->  
-> -static struct sysfs_dirent sysfs_root = {
-> -	.s_sibling	= LIST_HEAD_INIT(sysfs_root.s_sibling),
-> +static struct sysfs_dir sysfs_root = {
->  	.s_children	= LIST_HEAD_INIT(sysfs_root.s_children),
-> -	.s_element	= NULL,
-> -	.s_type		= SYSFS_ROOT,
-> +	.s_ent		= {
-> +		.s_sibling	= LIST_HEAD_INIT(sysfs_root.s_ent.s_sibling),
-> +		.s_element	= NULL,
-> +		.s_type		= SYSFS_ROOT,
-> +	}
->  };
->  
->  static int sysfs_fill_super(struct super_block *sb, void *data, int silent)
->  {
->  	struct inode *inode;
-> @@ -56,11 +59,11 @@
->  	if (!root) {
->  		pr_debug("%s: could not get root dentry!\n",__FUNCTION__);
->  		iput(inode);
->  		return -ENOMEM;
->  	}
-> -	root->d_fsdata = &sysfs_root;
-> +	root->d_fsdata = &sysfs_root.s_ent;
->  	sb->s_root = root;
->  	return 0;
->  }
->  
->  static struct super_block *sysfs_get_sb(struct file_system_type *fs_type,
-> @@ -77,16 +80,22 @@
->  
->  int __init sysfs_init(void)
->  {
->  	int err = -ENOMEM;
->  
-> -	sysfs_dir_cachep = kmem_cache_create("sysfs_dir_cache",
-> -					      sizeof(struct sysfs_dirent),
-> +	sysfs_dir_cachep = kmem_cache_create("sysfs_dir",
-> +					      sizeof(struct sysfs_dir),
->  					      0, 0, NULL, NULL);
->  	if (!sysfs_dir_cachep)
->  		goto out;
->  
-> +	sysfs_dirent_cachep = kmem_cache_create("sysfs_dirent",
-> +					      sizeof(struct sysfs_dirent),
-> +					      0, 0, NULL, NULL);
-> +	if (!sysfs_dirent_cachep)
-> +		goto out_no_dirent_cachep;
-> +
->  	err = register_filesystem(&sysfs_fs_type);
->  	if (!err) {
->  		sysfs_mount = kern_mount(&sysfs_fs_type);
->  		if (IS_ERR(sysfs_mount)) {
->  			printk(KERN_ERR "sysfs: could not mount!\n");
-> @@ -97,8 +106,10 @@
->  	} else
->  		goto out_err;
->  out:
->  	return err;
->  out_err:
-> +	kmem_cache_destroy(sysfs_dirent_cachep);
-> +out_no_dirent_cachep:
->  	kmem_cache_destroy(sysfs_dir_cachep);
->  	goto out;
->  }
-> diff -u5 linux.prev/fs/sysfs/symlink.c linux/fs/sysfs/symlink.c
-> --- linux.prev/fs/sysfs/symlink.c	2004-11-07 13:02:53.000000000 +0800
-> +++ linux/fs/sysfs/symlink.c	2004-12-02 23:57:01.000000000 +0800
-> @@ -43,11 +43,11 @@
->  	}
->  }
->  
->  static int sysfs_add_link(struct dentry * parent, char * name, struct kobject * target)
->  {
-> -	struct sysfs_dirent * parent_sd = parent->d_fsdata;
-> +	struct sysfs_dir * parent_sd = dentry_to_sysfs_dir(parent);
->  	struct sysfs_symlink * sl;
->  	int error = 0;
->  
->  	error = -ENOMEM;
->  	sl = kmalloc(sizeof(*sl), GFP_KERNEL);
-> diff -u5 linux.prev/fs/sysfs/sysfs.h linux/fs/sysfs/sysfs.h
-> --- linux.prev/fs/sysfs/sysfs.h	2004-12-02 15:29:39.000000000 +0800
-> +++ linux/fs/sysfs/sysfs.h	2004-12-03 00:51:44.000000000 +0800
-> @@ -1,32 +1,38 @@
->  #include <linux/time.h>
->  #include <linux/sysfs.h>
->  
-> +#define SYSFS_CURSOR		0
->  #define SYSFS_ROOT		0x0001
->  #define SYSFS_DIR		0x0002
->  #define SYSFS_KOBJ_ATTR 	0x0004
->  #define SYSFS_KOBJ_BIN_ATTR	0x0008
->  #define SYSFS_ATTR_GROUP	0x0010
->  #define SYSFS_KOBJ_LINK 	0x0020
->  #define SYSFS_NOT_PINNED	(SYSFS_KOBJ_ATTR | SYSFS_KOBJ_BIN_ATTR | SYSFS_KOBJ_LINK)
->  
->  struct sysfs_dirent {
->  	struct list_head	s_sibling;
-> -	struct list_head	s_children;
->  	void 			* s_element;
-> -	int			s_type;
-> +	unsigned short		s_type;
->  	umode_t			s_mode;
->  	struct dentry		* s_dentry;
->  };
->  
-> +struct sysfs_dir {
-> +	struct list_head	s_children;
-> +	struct sysfs_dirent	s_ent;
+Maybe it's just me, but these edge-triggered event attributes in sysfs
+feel wrong.
+
+> +struct dcssshm_dev_info {
+> + struct list_head lh;
+> + struct device dev;
+> + struct cdev *cdev;
+> + char segment_name[BUS_ID_SIZE];
+> + atomic_t use_count;
+> + unsigned long start;
+> + unsigned long end;
+> + int segment_type;
+> + unsigned char save_pending;
+> + unsigned char is_shared;
+> + unsigned char is_ro;
+> + int minor;
+> +};
+It may be better to have two structures here, on that embeds the device
+and one that embeds the cdev and class_device.
+
+> +static struct vm_operations_struct dcssshm_vm_ops =3D {
+> + .nopage  =3D dcssshm_nopage_in_place,
 > +};
 > +
->  extern struct vfsmount * sysfs_mount;
->  extern kmem_cache_t *sysfs_dir_cachep;
-> +extern kmem_cache_t *sysfs_dirent_cachep;
->  
->  extern struct inode * sysfs_new_inode(mode_t mode);
->  extern int sysfs_create(struct dentry *, int mode, int (*init)(struct inode *));
->  
-> -extern int sysfs_make_dirent(struct sysfs_dirent *, struct dentry *, void *,
-> +extern int sysfs_make_dirent(struct sysfs_dir *, struct dentry *, void *,
->  				umode_t, int);
->  extern struct dentry * sysfs_get_dentry(struct dentry *, const char *);
->  
->  extern int sysfs_add_file(struct dentry *, const struct attribute *, int);
->  extern void sysfs_hash_and_remove(struct dentry * dir, const char * name);
-> @@ -48,10 +54,29 @@
->  struct sysfs_symlink {
->  	char * link_name;
->  	struct kobject * target_kobj;
->  };
->  
-> +static inline int sysfs_type_dir(int s_type)
+> +static struct file_operations dcssshm_fops =3D
 > +{
-> +	return (s_type == SYSFS_DIR ||
-> +		s_type == SYSFS_ATTR_GROUP ||
-> +		s_type == SYSFS_ROOT);
-> +}
-> +
-> +static inline struct sysfs_dir * to_sysfs_dir(struct sysfs_dirent *ent)
-> +{
-> +	BUG_ON(!sysfs_type_dir(ent->s_type));
-> +	return container_of(ent, struct sysfs_dir, s_ent);
-> +}
-> +
-> +static inline struct sysfs_dir *dentry_to_sysfs_dir(struct dentry * dentry)
-> +{
-> +	struct sysfs_dirent * sd = dentry->d_fsdata;
-> +	return to_sysfs_dir(sd);
-> +}
-> +
->  static inline struct kobject * to_kobj(struct dentry * dentry)
->  {
->  	struct sysfs_dirent * sd = dentry->d_fsdata;
->  
->  	if (sd->s_type == SYSFS_ATTR_GROUP)
-> @@ -101,11 +126,14 @@
->  		struct sysfs_symlink * sl = sd->s_element;
->  		kfree(sl->link_name);
->  		kobject_put(sl->target_kobj);
->  		kfree(sl);
->  	}
-> -	kmem_cache_free(sysfs_dir_cachep, sd);
-> +	if (sysfs_type_dir(sd->s_type))
-> +		kmem_cache_free(sysfs_dir_cachep, to_sysfs_dir(sd));
-> +	else
-> +		kmem_cache_free(sysfs_dirent_cachep, sd);
->  }
->  
->  static inline void sysfs_put(struct sysfs_dirent * sd)
->  {
->  	if (list_empty(&sd->s_sibling) && sd->s_dentry == NULL)
-> 
+Slightly inconsistent indentation here.
 
--- 
-Maneesh Soni
-Linux Technology Center, 
-IBM India Software Labs,
-Bangalore, India
-email: maneesh@in.ibm.com
-Phone: 91-80-25044990
+> +static struct list_head dcssshm_devices =3D LIST_HEAD_INIT(dcssshm_devic=
+es);
+> +static struct rw_semaphore dcssshm_devices_sem;
+static LIST_HEAD(dcssshm_devices);
+static DECLARE_MUTEX(dcssshm_devices_sem);
+
+> +/*
+> + * release function for segment device.
+> + */
+> +static void
+> +dcssshm_release_segment(struct device *dev)
+> +{
+> + PRINT_DEBUG("segment release fn called for %s\n", dev->bus_id);
+> + kfree(container_of(dev, struct dcssshm_dev_info, dev));
+> + module_put(THIS_MODULE);
+> +}
+AFAICS, there is still a tiny race against module unload here:
+module_put(THIS_MODULE) is practically always a bug!
+
+> +
+> +/*
+> + * get a minor number. needs to be called with
+> + * down_write(&dcssshm_devices_sem) and the
+> + * device needs to be enqueued before the semaphore is
+> + * freed.
+> + */
+> +static inline int
+> +dcssshm_assign_free_minor(struct dcssshm_dev_info *dev_info)
+> +{
+> + int minor, found;
+
+This can probably be done much simpler using idr.
+
+> + local_buf =3D kmalloc(count + 1, GFP_KERNEL);
+> + if (local_buf =3D=3D NULL) {
+> +  rc =3D -ENOMEM;
+> +  goto out_nobuf;
+> + }
+
+Why use kmalloc for this, when the buffer must not exceed 9 bytes?
+
+
+> + if (imajor(filp->f_dentry->d_inode) !=3D dcssshm_major)
+> +  return -ENODEV;
+
+huh?
+
+> +
+> + minor =3D iminor(filp->f_dentry->d_inode);
+
+iminor(inode) ?
+
+> + down_write(&dcssshm_devices_sem);
+> + dev_info =3D dcssshm_get_device_by_minor(minor);
+> + if (!dev_info) {
+> +  rc =3D -ENODEV;
+> +  goto up_read;
+> + }
+> +
+> +
+> + filp->private_data =3D dev_info;
+> + atomic_inc(&dev_info->use_count);
+
+Why the extra use count?
+
+> +
+> + rc =3D 0;
+> +up_read:
+> + up_write(&dcssshm_devices_sem);
+
+Interesting label name 8-)
+
+> +static loff_t
+> +dcssshm_llseek (struct file* file, loff_t offset, int orig)
+> +{
+> + loff_t ret;
+> + struct dcssshm_dev_info *dev_info =3D (struct dcssshm_dev_info*)
+> +      file->private_data;
+
+Is seek actually useful if you don't have read/write?
+
+> + rc =3D device_create_file(dcssshm_root_dev, &dev_attr_remove);
+> + if (rc) {
+> +  PRINT_ERR("device_create_file(remove) failed!\n");
+> +  s390_root_dev_unregister(dcssshm_root_dev);
+> +  return rc;
+> + }
+> + rc =3D alloc_chrdev_region (&dev, 0, 256, "dcssshm");
+> + if (rc) {
+> +         PRINT_ERR("alloc_chrdev_region falied!\n");
+> +  s390_root_dev_unregister(dcssshm_root_dev);
+> +  return rc;
+> + }
+
+Why the limit to 256 segments? The rest of the driver appears
+to be written to avoid such limitations. Also, using goto for
+error handling, like in the other functions, would make this more
+readable.
+
+	Arnd <><
+
+
+
+--Boundary-02=_y+A1BYgvcZHIWAi
+Content-Type: application/pgp-signature
+Content-Description: signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBB1A+y5t5GS2LDRf4RApi0AKCMD3V/m1IEhirNLWN5AgHROhfPIgCgnK+9
+Lb0BDHAw4Xdu1HR9R4jOWn0=
+=uKaA
+-----END PGP SIGNATURE-----
+
+--Boundary-02=_y+A1BYgvcZHIWAi--

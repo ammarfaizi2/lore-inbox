@@ -1,142 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133097AbRDRSov>; Wed, 18 Apr 2001 14:44:51 -0400
+	id <S133077AbRDRSpm>; Wed, 18 Apr 2001 14:45:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133077AbRDRSoo>; Wed, 18 Apr 2001 14:44:44 -0400
-Received: from echo.sound.net ([205.242.192.21]:32134 "HELO echo.sound.net")
-	by vger.kernel.org with SMTP id <S135249AbRDRSoX>;
-	Wed, 18 Apr 2001 14:44:23 -0400
-Date: Wed, 18 Apr 2001 13:43:46 -0500 (CDT)
-From: Hal Duston <hald@sound.net>
-To: linux-kernel@vger.kernel.org
-cc: alan@lxorguk.ukuu.org.uk
-Subject: PATCH: PS/2 ESDI 2 more patches
-Message-ID: <Pine.GSO.4.10.10104181332060.17502-300000@sound.net>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-987619426=:17502"
+	id <S135223AbRDRSpb>; Wed, 18 Apr 2001 14:45:31 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:14346 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S133077AbRDRSpS>; Wed, 18 Apr 2001 14:45:18 -0400
+Date: Wed, 18 Apr 2001 21:00:00 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: David Schwartz <davids@webmaster.com>
+Cc: Laurent Chavet <lchavet@av.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is there a way to turn file caching off ?
+Message-ID: <20010418210000.H30770@athlon.random>
+In-Reply-To: <3ADD4E61.A2A9CE9@av.com> <NCBBLIEPOCNJOAEKBEAKOEPOOGAA.davids@webmaster.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <NCBBLIEPOCNJOAEKBEAKOEPOOGAA.davids@webmaster.com>; from davids@webmaster.com on Wed, Apr 18, 2001 at 11:21:46AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Wed, Apr 18, 2001 at 11:21:46AM -0700, David Schwartz wrote:
+> 
+> 
+> 	[..] If we assume the caching isn't helping [..]
 
----559023410-851401618-987619426=:17502
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+If you know kernel data cache doesn't help your workload at all then you want
+use O_DIRECT at least to save the CPU.  You can run 2.4.4pre3aa3 or apply the
+rawio-3 patch and then the o_direct-2 patch on top of 2.4.4pre3 if you want
+O_DIRECT support (it also fixes the O_SYNC wait for locked inode bug noticed by
+Marcelo).
 
-All,
+You will find detailed explanation on the O_DIRECT feature and where to
+find the patches if you grep for subject O_DIRECT in the l-k list in the
+messages of this month.
 
-Here are 2 more patches (mostly cleanup this time) for PS/2 ESDI.
-
-Patch 2: Correct MAX_HD, and use it throughout.
-Patch 3: Make more stuff static.
-
-As usual, these are available at the following URL's in case my mailer
-mangles them.
-
-http://www.sound.net/~hald/projects/ps2esdi/ps2esdi-2.4.3-patch2
-http://www.sound.net/~hald/projects/ps2esdi/ps2esdi-2.4.3-patch3
-
-Thanks, and not on the list,
-Hal Duston
-hald@sound.net
-
----559023410-851401618-987619426=:17502
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ps2esdi-2.4.3.patch3"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.10.10104181343460.17502@sound.net>
-Content-Description: 
-Content-Disposition: attachment; filename="ps2esdi-2.4.3.patch3"
-
-TWFrZSBtb3JlIHN0dWZmIHN0YXRpYy4NCg0KLS0tIGxpbnV4LTIuNC4zLWhk
-ZDIvZHJpdmVycy9ibG9jay9wczJlc2RpLmMJVHVlIEFwciAxMCAwMDo1MToz
-MCAyMDAxDQorKysgbGludXgtMi40LjMtaGRkMy9kcml2ZXJzL2Jsb2NrL3Bz
-MmVzZGkuYwlUdWUgQXByIDEwIDAwOjUxOjU3IDIwMDENCkBAIC0xMDUsMTQg
-KzEwNSwxNCBAQA0KIA0KIHN0YXRpYyB2b2lkIHBzMmVzZGlfZ2V0X2Rldmlj
-ZV9jZmcodm9pZCk7DQogDQotdm9pZCBwczJlc2RpX3Jlc2V0X3RpbWVyKHVu
-c2lnbmVkIGxvbmcgdW51c2VkKTsNCitzdGF0aWMgdm9pZCBwczJlc2RpX3Jl
-c2V0X3RpbWVyKHVuc2lnbmVkIGxvbmcgdW51c2VkKTsNCiANCi11X2ludCBk
-bWFfYXJiX2xldmVsOwkJLyogRE1BIGFyYml0cmF0aW9uIGxldmVsICovDQor
-c3RhdGljIHVfaW50IGRtYV9hcmJfbGV2ZWw7CQkvKiBETUEgYXJiaXRyYXRp
-b24gbGV2ZWwgKi8NCiANCiBzdGF0aWMgREVDTEFSRV9XQUlUX1FVRVVFX0hF
-QUQocHMyZXNkaV9pbnQpOw0KIHN0YXRpYyBERUNMQVJFX1dBSVRfUVVFVUVf
-SEVBRChwczJlc2RpX3dhaXRfb3Blbik7DQogDQotaW50IG5vX2ludF95ZXQ7
-DQorc3RhdGljIGludCBub19pbnRfeWV0Ow0KIHN0YXRpYyBpbnQgYWNjZXNz
-X2NvdW50W01BWF9IRF07DQogc3RhdGljIGNoYXIgcHMyZXNkaV92YWxpZFtN
-QVhfSERdOw0KIHN0YXRpYyBpbnQgcHMyZXNkaV9zaXplc1tNQVhfSEQgPDwg
-Nl07DQpAQCAtMTIzLDI2ICsxMjMsMjYgQEANCiBzdGF0aWMgc3RydWN0IHRp
-bWVyX2xpc3QgZXNkaV90aW1lciA9IHsgZnVuY3Rpb246IHBzMmVzZGlfcmVz
-ZXRfdGltZXIgfTsNCiBzdGF0aWMgaW50IHJlc2V0X3N0YXR1czsNCiBzdGF0
-aWMgaW50IHBzMmVzZGlfc2xvdCA9IC0xOw0KLWludCB0cDcyMGVzZGkgPSAw
-OwkJLyogSXMgaXQgSW50ZWdyYXRlZCBFU0RJIG9mIFRoaW5rUGFkLTcyMD8g
-Ki8NCi1pbnQgaW50Z19lc2RpID0gMDsgICAgICAgICAgICAgIC8qIElmIGlu
-dGVncmF0ZWQgYWRhcHRlciAqLw0KK3N0YXRpYyBpbnQgdHA3MjBlc2RpID0g
-MDsJLyogSXMgaXQgSW50ZWdyYXRlZCBFU0RJIG9mIFRoaW5rUGFkLTcyMD8g
-Ki8NCitzdGF0aWMgaW50IGludGdfZXNkaSA9IDA7ICAgICAgIC8qIElmIGlu
-dGVncmF0ZWQgYWRhcHRlciAqLw0KIHN0cnVjdCBwczJlc2RpX2lfc3RydWN0
-IHsNCiAJdW5zaWduZWQgaW50IGhlYWQsIHNlY3QsIGN5bCwgd3Bjb20sIGx6
-b25lLCBjdGw7DQogfTsNCiANCiAjaWYgMA0KICNpZiAwCQkJCS8qIHRyeSBi
-b3RoIC0gSSBkb24ndCBrbm93IHdoaWNoIG9uZSBpcyBiZXR0ZXIuLi4gVUIg
-Ki8NCi1zdHJ1Y3QgcHMyZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bTUFY
-X0hEXSA9DQorc3RhdGljIHN0cnVjdCBwczJlc2RpX2lfc3RydWN0IHBzMmVz
-ZGlfaW5mb1tNQVhfSERdID0NCiB7DQogCXs0LCA0OCwgMTU1MywgMCwgMCwg
-MH0sDQogCXswLCAwLCAwLCAwLCAwLCAwfX07DQogI2Vsc2UNCi1zdHJ1Y3Qg
-cHMyZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bTUFYX0hEXSA9DQorc3Rh
-dGljIHN0cnVjdCBwczJlc2RpX2lfc3RydWN0IHBzMmVzZGlfaW5mb1tNQVhf
-SERdID0NCiB7DQogCXs2NCwgMzIsIDE2MSwgMCwgMCwgMH0sDQogCXswLCAw
-LCAwLCAwLCAwLCAwfX07DQogI2VuZGlmDQogI2VuZGlmDQotc3RydWN0IHBz
-MmVzZGlfaV9zdHJ1Y3QgcHMyZXNkaV9pbmZvW01BWF9IRF0gPQ0KK3N0YXRp
-YyBzdHJ1Y3QgcHMyZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bTUFYX0hE
-XSA9DQogew0KIAl7MCwgMCwgMCwgMCwgMCwgMH0sDQogCXswLCAwLCAwLCAw
-LCAwLCAwfX07DQpAQCAtMTkxLDkgKzE5MSw5IEBADQogDQogI2lmZGVmIE1P
-RFVMRQ0KIA0KLWludCBjeWxbTUFYX0hEXSA9IHstMSwtMX07DQotaW50IGhl
-YWRbTUFYX0hEXSA9IHstMSwgLTF9Ow0KLWludCBzZWN0W01BWF9IRF0gPSB7
-LTEsIC0xfTsNCitzdGF0aWMgaW50IGN5bFtNQVhfSERdID0gey0xLC0xfTsN
-CitzdGF0aWMgaW50IGhlYWRbTUFYX0hEXSA9IHstMSwgLTF9Ow0KK3N0YXRp
-YyBpbnQgc2VjdFtNQVhfSERdID0gey0xLCAtMX07DQogDQogTU9EVUxFX1BB
-Uk0odHA3MjBlc2RpLCAiaSIpOw0KIE1PRFVMRV9QQVJNKGN5bCwgImkiKTsN
-CkBAIC0xMTY1LDcgKzExNjUsNyBAQA0KIAlyZXR1cm4gKDApOw0KIH0NCiAN
-Ci12b2lkIHBzMmVzZGlfcmVzZXRfdGltZXIodW5zaWduZWQgbG9uZyB1bnVz
-ZWQpDQorc3RhdGljIHZvaWQgcHMyZXNkaV9yZXNldF90aW1lcih1bnNpZ25l
-ZCBsb25nIHVudXNlZCkNCiB7DQogDQogCWludCBzdGF0dXM7DQo=
----559023410-851401618-987619426=:17502
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="ps2esdi-2.4.3.patch2"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.GSO.4.10.10104181343461.17502@sound.net>
-Content-Description: 
-Content-Disposition: attachment; filename="ps2esdi-2.4.3.patch2"
-
-Q29ycmVjdCBNQVhfSEQsIGFuZCB1c2UgaXQgdGhyb3VnaG91dC4NCg0KLS0t
-IGxpbnV4LTIuNC4zLWhkZDEvZHJpdmVycy9ibG9jay9wczJlc2RpLmMJVHVl
-IEFwciAxMCAwMDo1MTowNSAyMDAxDQorKysgbGludXgtMi40LjMtaGRkMi9k
-cml2ZXJzL2Jsb2NrL3BzMmVzZGkuYwlUdWUgQXByIDEwIDAwOjUxOjMwIDIw
-MDENCkBAIC01Niw3ICs1Niw3IEBADQogI2luY2x1ZGUgPGFzbS91YWNjZXNz
-Lmg+DQogDQogI2RlZmluZSBQUzJFU0RJX0lSUSAxNA0KLSNkZWZpbmUgTUFY
-X0hEIDENCisjZGVmaW5lIE1BWF9IRCAyDQogI2RlZmluZSBNQVhfUkVUUklF
-UyA1DQogI2RlZmluZSBNQVhfMTZCSVQgNjU1MzYNCiAjZGVmaW5lIEVTRElf
-VElNRU9VVCAgIDB4ZjAwMA0KQEAgLTEzMSwxOCArMTMxLDE4IEBADQogDQog
-I2lmIDANCiAjaWYgMAkJCQkvKiB0cnkgYm90aCAtIEkgZG9uJ3Qga25vdyB3
-aGljaCBvbmUgaXMgYmV0dGVyLi4uIFVCICovDQotc3RydWN0IHBzMmVzZGlf
-aV9zdHJ1Y3QgcHMyZXNkaV9pbmZvW10gPQ0KK3N0cnVjdCBwczJlc2RpX2lf
-c3RydWN0IHBzMmVzZGlfaW5mb1tNQVhfSERdID0NCiB7DQogCXs0LCA0OCwg
-MTU1MywgMCwgMCwgMH0sDQogCXswLCAwLCAwLCAwLCAwLCAwfX07DQogI2Vs
-c2UNCi1zdHJ1Y3QgcHMyZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bXSA9
-DQorc3RydWN0IHBzMmVzZGlfaV9zdHJ1Y3QgcHMyZXNkaV9pbmZvW01BWF9I
-RF0gPQ0KIHsNCiAJezY0LCAzMiwgMTYxLCAwLCAwLCAwfSwNCiAJezAsIDAs
-IDAsIDAsIDAsIDB9fTsNCiAjZW5kaWYNCiAjZW5kaWYNCi1zdHJ1Y3QgcHMy
-ZXNkaV9pX3N0cnVjdCBwczJlc2RpX2luZm9bXSA9DQorc3RydWN0IHBzMmVz
-ZGlfaV9zdHJ1Y3QgcHMyZXNkaV9pbmZvW01BWF9IRF0gPQ0KIHsNCiAJezAs
-IDAsIDAsIDAsIDAsIDB9LA0KIAl7MCwgMCwgMCwgMCwgMCwgMH19Ow0KQEAg
-LTE5MSw5ICsxOTEsOSBAQA0KIA0KICNpZmRlZiBNT0RVTEUNCiANCi1pbnQg
-Y3lsWzJdID0gey0xLC0xfTsNCi1pbnQgaGVhZFsyXSA9IHstMSwgLTF9Ow0K
-LWludCBzZWN0WzJdID0gey0xLCAtMX07DQoraW50IGN5bFtNQVhfSERdID0g
-ey0xLC0xfTsNCitpbnQgaGVhZFtNQVhfSERdID0gey0xLCAtMX07DQoraW50
-IHNlY3RbTUFYX0hEXSA9IHstMSwgLTF9Ow0KIA0KIE1PRFVMRV9QQVJNKHRw
-NzIwZXNkaSwgImkiKTsNCiBNT0RVTEVfUEFSTShjeWwsICJpIik7DQpAQCAt
-MjAzLDcgKzIwMyw3IEBADQogaW50IGluaXRfbW9kdWxlKHZvaWQpIHsNCiAJ
-aW50IGRyaXZlOw0KIA0KLQlmb3IoZHJpdmUgPSAwOyBkcml2ZSA8PSAxOyBk
-cml2ZSsrKSB7DQorCWZvcihkcml2ZSA9IDA7IGRyaXZlIDwgTUFYX0hEOyBk
-cml2ZSsrKSB7DQogCSAgICAgICAgc3RydWN0IHBzMl9lc2RpX2lfc3RydWN0
-ICppbmZvID0gJnBzMmVzZGlfaW5mb1tkcml2ZV07DQogDQogICAgICAgICAJ
-aWYgKGN5bFtkcml2ZV0gIT0gLTEpIHsNCg==
----559023410-851401618-987619426=:17502--
+Andrea

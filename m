@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264160AbUFKTQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264182AbUFKTcp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264160AbUFKTQF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jun 2004 15:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264182AbUFKTQF
+	id S264182AbUFKTcp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jun 2004 15:32:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264184AbUFKTcp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jun 2004 15:16:05 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:57559 "EHLO
-	zcars04e.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S264160AbUFKTQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jun 2004 15:16:03 -0400
-Message-ID: <40CA04F0.9000307@nortelnetworks.com>
-Date: Fri, 11 Jun 2004 15:16:00 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>, bj0rn@blox.se
-Subject: kernel/module compiler version problem
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 11 Jun 2004 15:32:45 -0400
+Received: from mail.kroah.org ([65.200.24.183]:56255 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264182AbUFKTco (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jun 2004 15:32:44 -0400
+Date: Fri, 11 Jun 2004 12:31:36 -0700
+From: Greg KH <greg@kroah.com>
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>, bj0rn@blox.se
+Subject: Re: kernel/module compiler version problem
+Message-ID: <20040611193136.GA21058@kroah.com>
+Reply-To: linux-kernel@vger.kernel.org
+References: <40CA04F0.9000307@nortelnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40CA04F0.9000307@nortelnetworks.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm running 2.4.22, build with gcc 3.3.1, modutils 2.4.22.
+On Fri, Jun 11, 2004 at 03:16:00PM -0400, Chris Friesen wrote:
+> I'm running 2.4.22, build with gcc 3.3.1, modutils 2.4.22.
+> 
+> I have an ATM driver that is shipped with a binary blob and a source code 
+> shim.
 
-I have an ATM driver that is shipped with a binary blob and a source code shim. 
-  It compiles fine.  When I go to load it, I get the following error:
+Go ask the people who provided you the binary blob, sorry but no one
+here can help you with this issue.
 
-"The module you are trying to load is compiled with a gcc
-version 2 compiler, while the kernel you are running is compiled with
-a gcc version 3 compiler. This is known to not work."
+good luck,
 
-Presumably the binary blob was compiled with gcc 2.x?  Is there any way to 
-override this?  "insmod -f" doesn't seem to work.
-
-Thanks,
-
-Chris
+greg k-h

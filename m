@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUAKK2C (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 05:28:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265821AbUAKK2C
+	id S265833AbUAKKox (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 05:44:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265834AbUAKKox
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 05:28:02 -0500
-Received: from AGrenoble-101-1-1-238.w193-251.abo.wanadoo.fr ([193.251.23.238]:60811
-	"EHLO awak.dyndns.org") by vger.kernel.org with ESMTP
-	id S265785AbUAKK1w convert rfc822-to-8bit (ORCPT
+	Sun, 11 Jan 2004 05:44:53 -0500
+Received: from mx02.qsc.de ([213.148.130.14]:39298 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S265833AbUAKKow (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 05:27:52 -0500
-Subject: Re: Laptops & CPU frequency
-From: Xavier Bestel <xavier.bestel@free.fr>
-To: Robert Love <rml@ximian.com>
-Cc: jlnance@unity.ncsu.edu,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1073791061.1663.77.camel@localhost>
-References: <20040111025623.GA19890@ncsu.edu>
-	 <1073791061.1663.77.camel@localhost>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1073816858.6189.186.camel@nomade>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sun, 11 Jan 2004 11:27:39 +0100
-Content-Transfer-Encoding: 8BIT
+	Sun, 11 Jan 2004 05:44:52 -0500
+Message-ID: <40012825.60405@trash.net>
+Date: Sun, 11 Jan 2004 11:40:37 +0100
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Harald Welte <laforge@netfilter.org>
+CC: Wilmer van der Gaast <lintux@lintux.cx>, linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+Subject: Re: 2.4.23 masquerading broken?
+References: <20031202165653.GJ615@gaast.net> <3FCCCB02.5070203@trash.net> <20040110215954.GC20706@sunbeam.de.gnumonks.org>
+In-Reply-To: <20040110215954.GC20706@sunbeam.de.gnumonks.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le dim 11/01/2004 à 04:17, Robert Love a écrit :
-> On Sat, 2004-01-10 at 21:56, jlnance@unity.ncsu.edu wrote:
-> 
-> >     The frequency displayed in /proc/cpuinfo does not change if the AC
-> > adapter is toggled on or off after the machine has booted.  It stays
-> > in the same mode as it was booted into.  I am curious if this is because
-> > the CPU frequency really is not changing, or if it is because the
-> > number in /proc/cpuinfo is only calculated at boot.
-> 
-> The MHz value in /proc/cpuinfo should be updated as the CPU speed
-> changes - that is, it is not calculated just at boot, but it is updated
-> as the speed actually changes.
+Harald Welte wrote:
 
-2.6.0 doesn't do that on my laptop. Moreover, if I ever boot on battery,
-when switching to AC power, lots of things fail (mouse is jerky, pcmcia
-doesn't work ...)
+>This seems to be the same as 
+>http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0465.html
+>and https://bugzilla.netfilter.org/cgi-bin/bugzilla/show_bug.cgi?id=144
+>
+>I've committed the proposed fix (from #144) into patch-o-matic/pending.
+>
+>Comments?
+>  
+>
 
-	Xav
+I don't know if reverting to 2.4.22 is the correct fix, the change was made after this
+mail from Alexey http://marc.theaimsgroup.com/?l=linux-net&m=105915597804604&w=2 ,
+he states that giving out ifindex is a bug. I don't understand the problem yet but I'm
+looking into it.
+
+BTW: Why do we need a route lookup at all ? Couldn't we just use the first address on 
+dev->in_dev->ifa_list ?
+
+Best regards,
+Patrick
+
 

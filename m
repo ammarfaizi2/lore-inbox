@@ -1,62 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316900AbSG2HHx>; Mon, 29 Jul 2002 03:07:53 -0400
+	id <S293203AbSG2HP4>; Mon, 29 Jul 2002 03:15:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318064AbSG2HHx>; Mon, 29 Jul 2002 03:07:53 -0400
-Received: from mail.medav.de ([213.95.12.190]:20496 "HELO mail.medav.de")
-	by vger.kernel.org with SMTP id <S316900AbSG2HHw> convert rfc822-to-8bit;
-	Mon, 29 Jul 2002 03:07:52 -0400
-From: "Daniela Engert" <dani@ngrt.de>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Lionel Bouton" <Lionel.Bouton@inet6.fr>
-Date: Mon, 29 Jul 2002 09:11:34 +0200 (CDT)
-Reply-To: "Daniela Engert" <dani@ngrt.de>
-X-Mailer: PMMail 2.00.1500 for OS/2 Warp 4.05
-In-Reply-To: <3D448052.4070805@inet6.fr>
+	id <S293680AbSG2HPz>; Mon, 29 Jul 2002 03:15:55 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:4625 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S293203AbSG2HPy>;
+	Mon, 29 Jul 2002 03:15:54 -0400
+Message-ID: <3D44EC66.5020104@namesys.com>
+Date: Mon, 29 Jul 2002 11:19:02 +0400
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020529
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Re: SiS 5513 ATA133 support patch for 2.4.19-rc3-ac3
-Message-Id: <20020729070252.9F16E1107A@mail.medav.de>
+To: Larry McVoy <lm@bitmover.com>
+CC: Rik van Riel <riel@conectiva.com.br>,
+       Federico Ferreres <fferreres@ojf.com>,
+       Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
+       Oleg Drokin <green@namesys.com>
+Subject: Re: Funding GPL projects or funding the GPL?
+References: <20020727085931.X26813@work.bitmover.com> <Pine.LNX.4.44L.0207271302550.3086-100000@imladris.surriel.com> <20020727092223.B26813@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jul 2002 01:37:54 +0200, Lionel Bouton wrote:
+Larry McVoy wrote:
 
->Today I received a report for v0.13 with a *645* ID for a 645DX. This ID 
->is recognised as only ATA100-capable -> data corruption occured (problem 
->solved with v0.14).
+>  
 >
->Before releasing 2.4.19 I think we should either :
->- completely remove the affected northbridges (645, 650, 745, 750) 
->support in v0.13, this is a simple patch. Then we wait for 2.4.20 to 
->include v0.14.
+> However, it doesn't work very well when the
+>community beats you to hell for not being GPLed. 
+>
+If you made your source code available so that it could be customized 
+then I would stop beating you for your license.  As it is, any new 
+features have to get written by you, and I have requested a trivial to 
+author feature from you that I need and you haven't written despite your 
+promising to do so before I made the switch to bitkeeper.  I don't at 
+all blame you for being busy, but if we had the source it would be 5 
+minutes for us to add the quite valuable to us feature.
 
-Lionel,
+Make your license charge for privacy but have the software come with 
+source code, and the license is brilliant.  Otherwise, it is a source of 
+frustration, and yet another example of how software copyright is being 
+abused and twisted away from its original intent so as to permit 
+information to be hidden rather than published.  In the long term, it is 
+the accumulation and compounding of knowledge that matters, not limited 
+time monopolization for 14 years (original length of copyrights), and 
+secret source code frustrates that.
 
-as you already figured out, looking at the northbridge IDs is simply
-not sufficient to find out which capabilities and register layout the
-IDE controller in the southbridge (no matter if integrated or external)
-has.
+-- 
+Hans
 
-Some comments:
-
-1) the 745 has an integrated southbridge and an ATA/100 capable IDE
-controller
-
-2) the 646 (and most likely the 645 and others as well) may be paired
-with a 961 (ATA/100) or 961B (ATA133) MutIOL southbridge with different
-register programming values.
-
-Thus simply ripping out some northbridge IDs wouldn't prevent
-corruption problems.
-
-Ciao,
-  Dani
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Daniela Engert, systems engineer at MEDAV GmbH
-Gräfenberger Str. 34, 91080 Uttenreuth, Germany
-Phone ++49-9131-583-348, Fax ++49-9131-583-11
 
 

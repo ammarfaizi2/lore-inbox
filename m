@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276957AbRJIX2v>; Tue, 9 Oct 2001 19:28:51 -0400
+	id <S278061AbRJIXkL>; Tue, 9 Oct 2001 19:40:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277020AbRJIX2e>; Tue, 9 Oct 2001 19:28:34 -0400
-Received: from mclean.mail.mindspring.net ([207.69.200.57]:53272 "EHLO
-	mclean.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S276957AbRJIX2S>; Tue, 9 Oct 2001 19:28:18 -0400
-Subject: Re: [CFT][PATCH *] faster cache reclaim
-From: Robert Love <rml@tech9.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: linux-mm@kvack.org, kernelnewbies@nl.linux.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33L.0110082032070.26495-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0110082032070.26495-100000@duckman.distro.conectiva>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.15.99+cvs.2001.10.05.08.08 (Preview Release)
-Date: 09 Oct 2001 19:29:13 -0400
-Message-Id: <1002670160.862.15.camel@phantasy>
-Mime-Version: 1.0
+	id <S277263AbRJIXkB>; Tue, 9 Oct 2001 19:40:01 -0400
+Received: from Expansa.sns.it ([192.167.206.189]:61202 "EHLO Expansa.sns.it")
+	by vger.kernel.org with ESMTP id <S278059AbRJIXjq>;
+	Tue, 9 Oct 2001 19:39:46 -0400
+Date: Wed, 10 Oct 2001 01:40:09 +0200 (CEST)
+From: Luigi Genoni <kernel@Expansa.sns.it>
+To: "Jeffrey W. Baker" <jwbaker@acm.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: iptables in 2.4.10, 2.4.11pre6 problems
+In-Reply-To: <Pine.LNX.4.33.0110091604250.15092-100000@windmill.gghcwest.com>
+Message-ID: <Pine.LNX.4.33.0110100136280.24989-100000@Expansa.sns.it>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-10-08 at 19:38, Rik van Riel wrote:
+So the buffer is big enought for your traffic, I suppose.
 
-> This patch is meant to fix the problems where heavy cache
-> activity flushes out pages from the working set, while still
-> allowing the cache to put some pressure on the working set.
+I saw something similar to your report, but indeed the buffer was too
+small.
 
-Running 2.4.10-ac10 + preempt-kernel + eatcache
+A good thing would be to see a packet dropped and the entries in
+/proc/net/ip_conntrack, so that it will be possible to infer something.
 
-System with 3 runnable processes and 2 with large working sets.  384MB
-RAM, 768MB swap.  During heavy I/O the resulting cache activity did
-"stall" the system as badly as without the patch.
+with 2.4.10 i see packet tracing working very well also under
+eavy network loads if the buffer is big enought...
 
-I typically notice high system response time at the start of a heavy I/O
-operation when the used memory is primarily taken by cache (ie after a
-previous heavy I/O operation).  This was an issue for me because I don't
-expect that sort of high latency with the preemption patch.
+and you are not using the controvers unclean module...
 
-For example, starting a `dbench 16' would sometimes cause a brief stall
-(especially if it is the second run of dbench).  It's better now, but
-still not perfect.  The VM holds a lot of locks for a long time.
+On Tue, 9 Oct 2001, Jeffrey W. Baker wrote:
 
-Good work.  I hope Alan sees it soon.
-
-	Robert Love
+>
+>
+> On Wed, 10 Oct 2001, Luigi Genoni wrote:
+>
+> > and what is the content of
+> > /proc/net/ip_conntrack
+> > file?
+> >
+> > how big is the buffer you are using for packet tracing?
+> > (/proc/sys/net/ipv4/ip_conntrack_max)
+>
+> Well, I'm not going to send that file to the Internet at large, but
+> ip_conntrack current has about 2100 lines and the max is 65535.
+>
+> -jwb
+>
 

@@ -1,46 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269438AbUINP73@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269416AbUINPxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269438AbUINP73 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 11:59:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269447AbUINPxX
+	id S269416AbUINPxE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 11:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269437AbUINPnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 11:53:23 -0400
-Received: from mail4.bluewin.ch ([195.186.4.74]:33182 "EHLO mail4.bluewin.ch")
-	by vger.kernel.org with ESMTP id S269438AbUINPso (ORCPT
+	Tue, 14 Sep 2004 11:43:31 -0400
+Received: from post.pl ([212.85.96.51]:43020 "HELO v00051.home.net.pl")
+	by vger.kernel.org with SMTP id S269415AbUINPkj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 11:48:44 -0400
-Date: Tue, 14 Sep 2004 17:47:50 +0200
-From: Roger Leuthi <rl@hellgate.ch>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Albert Cahalan <albert@users.sf.net>
-Subject: Re: [pidhashing] [2/3] lower PID_MAX_LIMIT for 32-bit machines
-Message-ID: <20040914154750.GA13978@k3.hellgate.ch>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Albert Cahalan <albert@users.sf.net>
-References: <20040913015003.5406abae.akpm@osdl.org> <20040914022530.GO9106@holomorphy.com> <20040914022827.GP9106@holomorphy.com> <20040914023114.GQ9106@holomorphy.com> <20040914105527.GB11238@k3.hellgate.ch> <20040914154144.GQ9106@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040914154144.GQ9106@holomorphy.com>
-X-Operating-System: Linux 2.6.8 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+	Tue, 14 Sep 2004 11:40:39 -0400
+Message-ID: <41471179.5090003@post.pl>
+Date: Tue, 14 Sep 2004 17:42:49 +0200
+From: Marcin Garski <mgarski@post.pl>
+Reply-To: mgarski@post.pl
+User-Agent: Mozilla Thunderbird 0.7.2 (Linux)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Copying huge amount of data on ReiserFS, XFS and Silicon Image
+ 3112 cause oops.
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Sep 2004 08:41:44 -0700, William Lee Irwin III wrote:
-> On Mon, 13 Sep 2004 19:31:14 -0700, William Lee Irwin III wrote:
-> >> -#define PID_MAX_LIMIT (4*1024*1024)
-> >> +#define PID_MAX_LIMIT (sizeof(long) > 32 ? 4*1024*1024 : PID_MAX_DEFAULT)
-> 
-> On Tue, Sep 14, 2004 at 12:55:27PM +0200, Roger Luethi wrote:
-> > An architecture with sizeof(long) > 32? -- Most impressive.
-> 
-> Did the correction not arrive?
+[Please CC me on replies, I am not subscribed to the list, thanks]
 
-Must have missed it.
+Nathan Scott wrote:
+ >>>>I bought a new HDD Maxtor 6Y160M0 and connected it as hdg to Sil 3112
+ >>>>(CONFIG_BLK_DEV_SIIMAGE) on Abit NF7-S V2.0. I also have ST380013AS
+ >>>>(with Fedora Core 2 on hde2 and 2.6.5 kernel) as hde.
+ >
+ >>
+ >>
+ >> Possible hardware problems?  Have you run memtest there?
 
-Roger
+I forgot to mention about that in previous email.
+Yes i've run memtest+ and nothing wrong was detected.
+
+ >> Was 4KSTACKS enabled in those kernels (I think so)? - XFS
+ >> has one known problem with that option when running low on
+ >> space (patch fixing that is being tested atm) and I think
+ >> the reiserfs folks had some 4k stack issues as well at one
+ >> point, so that might be another explanation.
+
+No, 4KSTACKS was disabled, because both kernels was compiled by myself
+and i always disable 4KSTACKS.
+
+-- 
+Best Regards
+Marcin Garski

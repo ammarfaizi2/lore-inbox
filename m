@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129982AbQK3RS2>; Thu, 30 Nov 2000 12:18:28 -0500
+        id <S130252AbQK3RbD>; Thu, 30 Nov 2000 12:31:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130639AbQK3RSS>; Thu, 30 Nov 2000 12:18:18 -0500
-Received: from mx8.port.ru ([194.67.23.80]:21469 "EHLO mx8.port.ru")
-        by vger.kernel.org with ESMTP id <S129572AbQK3RQc>;
-        Thu, 30 Nov 2000 12:16:32 -0500
-From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: Re[2]: DMA for triton again...
-Mime-Version: 1.0
-X-Mailer: mPOP Web-Mail 2.19
-X-Originating-IP: 143.167.4.62 via proxy [143.167.1.16]
-In-Reply-To: <3A267CDB.DEC0A214@windsormachine.com>
-Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 8bit
-Message-Id: <E141WqR-000AxY-00@f3.mail.ru>
-Date: Thu, 30 Nov 2000 19:46:03 +0300
+        id <S130563AbQK3Raw>; Thu, 30 Nov 2000 12:30:52 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32520 "EHLO
+        www.linux.org.uk") by vger.kernel.org with ESMTP id <S130252AbQK3RZE>;
+        Thu, 30 Nov 2000 12:25:04 -0500
+From: Russell King <rmk@arm.linux.org.uk>
+Message-Id: <200011301654.QAA01657@raistlin.arm.linux.org.uk>
+Subject: Re: [PATCH] New user space serial port driver
+To: R.E.Wolff@bitwizard.nl (Rogier Wolff)
+Date: Thu, 30 Nov 2000 16:54:26 +0000 (GMT)
+Cc: tigran@veritas.com (Tigran Aivazian),
+        patrick@bitwizard.nl (Patrick van de Lageweg),
+        wolff@bitwizard.nl (Rogier Wolff),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <200011301647.RAA03831@cave.bitwizard.nl> from "Rogier Wolff" at Nov 30, 2000 05:47:24 PM
+X-Location: london.england.earth.mulky-way.universe
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I'll see how mangled my .config is.
-> Looks somewhat clean, a few modules i don't use.  I'll send it in a > seperate email.
+Rogier Wolff writes:
+> Documentation bug. Not code bug. 
 
-Thanks a lot, Mike! I can see couple of differences already, will try tonight... and will let you know tomorrow...
-
-Cheers
-Guennadi
-
+In which case, can we put it in as a documentation fix rather than changing
+the compiler output?  ie, /* = { NULL, } */ ?
+   _____
+  |_____| ------------------------------------------------- ---+---+-
+  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
+  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
+  | +-+-+                                                     --- -+-
+  /   |               THE developer of ARM Linux              |+| /|\
+ /  | | |                                                     ---  |
+    +-+-+ -------------------------------------------------  /\\\  |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

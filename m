@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266863AbUBEV33 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 16:29:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266818AbUBEV24
+	id S266369AbUBEVeL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 16:34:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266530AbUBEVcf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 16:28:56 -0500
-Received: from e32.co.us.ibm.com ([32.97.110.130]:33768 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S266882AbUBEV1X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 16:27:23 -0500
-Subject: Re: BUG in jfscode
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Tobias Bengtsson <tobbe@tobbe.nu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       JFS Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>
-In-Reply-To: <20040203123709.GB23130@debian.as>
-References: <20040203123709.GB23130@debian.as>
-Content-Type: text/plain
-Message-Id: <1076016133.25034.95.camel@shaggy.austin.ibm.com>
+	Thu, 5 Feb 2004 16:32:35 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:62397 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266369AbUBEVcA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 16:32:00 -0500
+Date: Thu, 5 Feb 2004 22:31:58 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Thomas Glanzmann <sithglan@stud.uni-erlangen.de>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0, cdrom still showing directories after being erased
+Message-ID: <20040205213158.GI11683@suse.de>
+References: <20040205212417.GI10547@stud.uni-erlangen.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 05 Feb 2004 15:22:13 -0600
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040205212417.GI10547@stud.uni-erlangen.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-03 at 06:37, Tobias Bengtsson wrote:
-> Hi!
+On Thu, Feb 05 2004, Thomas Glanzmann wrote:
+> Hi,
+> 
+> > Okay, we may be dealing with the buggy hardware at this point. Would
+> > it make sense to tell the drive to flush it caches? If there's no
+> > other possibility, we might want cdrecord to reset drive at the end of
+> > blank and/or to make it eject...
+> 
+> It's not the drive, it's the kernel. We have to tell the kernel to
+> *flush* *it's* buffers when doing an umount. See my other posting.
 
-Hi, Sorry it's taken me so long to respond.
+Partly, I still think the drive should report media changed after
+knowingly doing a TOC blank (or change). But see my other post, should
+work.
 
-> kernel BUG at fs/jfs/jfs_dmap.c:2686!
-
-I've seen a similar bug reported before, but it occurs only rarely.  I'm
-not sure what the cause is.  My initial thought was the the block map
-got corrupted, but after digging through the code I don't know if it's
-that simple.
-
-I would be interested if you can recreate the problem.  If so, I may be
-able to put in some debug code to help determine where JFS is getting
-confused.  Also, if it is block map corruption, running fsck -f against
-the volume should fix that.
-
-Thanks,
-Shaggy
 -- 
-David Kleikamp
-IBM Linux Technology Center
+Jens Axboe
 

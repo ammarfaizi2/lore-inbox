@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292035AbSB0EPm>; Tue, 26 Feb 2002 23:15:42 -0500
+	id <S291989AbSB0EXd>; Tue, 26 Feb 2002 23:23:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292005AbSB0EPX>; Tue, 26 Feb 2002 23:15:23 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:14464 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S292017AbSB0EPV>;
-	Tue, 26 Feb 2002 23:15:21 -0500
-Date: Tue, 26 Feb 2002 20:13:21 -0800 (PST)
-Message-Id: <20020226.201321.39157144.davem@redhat.com>
-To: greg@kroah.com
-Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com,
-        linux-net@vger.kernel.org
-Subject: Re: [BETA] First test release of Tigon3 driver
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20020226172251.GA32073@kroah.com>
-In-Reply-To: <20020225.165914.123908101.davem@redhat.com>
-	<20020226172251.GA32073@kroah.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S292005AbSB0EXW>; Tue, 26 Feb 2002 23:23:22 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:48651 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S291989AbSB0EXI>;
+	Tue, 26 Feb 2002 23:23:08 -0500
+Date: Tue, 26 Feb 2002 20:16:41 -0800
+From: Greg KH <greg@kroah.com>
+To: Shane Nay <shane@minirl.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb@sii.li
+Subject: Re: Simple cyberjack diff
+Message-ID: <20020227041641.GG3353@kroah.com>
+In-Reply-To: <20020226211128Z292609-889+7550@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020226211128Z292609-889+7550@vger.kernel.org>
+User-Agent: Mutt/1.3.26i
+X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 30 Jan 2002 01:30:39 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Greg KH <greg@kroah.com>
-   Date: Tue, 26 Feb 2002 09:22:51 -0800
+On Tue, Feb 26, 2002 at 02:16:35PM -0800, Shane Nay wrote:
+> While looking around the usb code I noticed this semaphore problem in
+> cyberjack.  Anyway, it's a quicky.
 
-   Just wanted to say thanks for doing this work, the driver works great
-   for me for this device:
-   
-   01:04.0 Ethernet controller: BROADCOM Corporation NetXtreme BCM5700 Gigabit Ethernet (rev 12)
-           Subsystem: BROADCOM Corporation NetXtreme BCM5700 1000BaseTX
- ...   
-   But I'm only able to run it at 10Mbit :)
+Good catch.  I'll add it to my 2.4 and 2.5 trees and push the changes
+onward.
 
-Thanks for the report, but can you also show us the "dmesg" lines
-that the driver printed out when the module was loaded?  That provides
-more detailed probing information for us.
+The same problem is also in the copy_from_user() test a few lines below
+this one.  I'll fix it.
+
+thanks again,
+
+greg k-h

@@ -1,30 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291579AbSBSSOk>; Tue, 19 Feb 2002 13:14:40 -0500
+	id <S285369AbSBSSTL>; Tue, 19 Feb 2002 13:19:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291578AbSBSSOa>; Tue, 19 Feb 2002 13:14:30 -0500
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:48092 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S291579AbSBSSOV>; Tue, 19 Feb 2002 13:14:21 -0500
-Date: Tue, 19 Feb 2002 11:14:14 -0700
-Message-Id: <200202191814.g1JIEEV18365@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OOPS 2.4.17 devfs
-In-Reply-To: <1014142236.551.1.camel@heat>
-In-Reply-To: <1014142236.551.1.camel@heat>
+	id <S284970AbSBSSTB>; Tue, 19 Feb 2002 13:19:01 -0500
+Received: from cs.usfca.edu ([138.202.170.4]:26775 "EHLO nexus.cs.usfca.edu")
+	by vger.kernel.org with ESMTP id <S285369AbSBSSSs>;
+	Tue, 19 Feb 2002 13:18:48 -0500
+Date: Tue, 19 Feb 2002 10:18:30 -0800
+From: Qing Huang <qhuang@cs.usfca.edu>
+Message-Id: <200202191818.g1JIIUj02340@nexus.cs.usfca.edu>
+To: phillips@bonn-fries.net, torvalds@transmeta.com
+Subject: Re: [RFC] Page table sharing
+Cc: akpm@zip.com.au, dmccr@us.ibm.com, hugh@veritas.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        manfred@colorfullife.com, mingo@redhat.co, riel@conectiva.com.br,
+        rml@tech9.net, wli@holomorphy.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeffrey W. Baker writes:
-> 2.4.17 i386 SMP with devfs gave me this oops.  I don't know what might
-> have triggered it.
-
-Upgrade to 2.4.18-rc2. This was fixed months ago.
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca

@@ -1,87 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268448AbUIFStn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268465AbUIFSx1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268448AbUIFStn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 14:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268463AbUIFStn
+	id S268465AbUIFSx1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 14:53:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268463AbUIFSx0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 14:49:43 -0400
-Received: from maxipes.logix.cz ([81.0.234.97]:63366 "EHLO maxipes.logix.cz")
-	by vger.kernel.org with ESMTP id S268448AbUIFSth (ORCPT
+	Mon, 6 Sep 2004 14:53:26 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:26532 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S268465AbUIFSxN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 14:49:37 -0400
-Date: Mon, 6 Sep 2004 20:49:30 +0200 (CEST)
-From: Michal Ludvig <michal@logix.cz>
-To: Andreas Happe <andreashappe@flatline.ath.cx>
-Cc: James Morris <jmorris@redhat.com>, cryptoapi@lists.logix.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [cryptoapi/sysfs] display cipher details in sysfs
-In-Reply-To: <20040901082819.GA2489@final-judgement.ath.cx>
-Message-ID: <Pine.LNX.4.53.0409061847000.25698@maxipes.logix.cz>
-References: <20040831175449.GA2946@final-judgement.ath.cx>
- <Xine.LNX.4.44.0409010043020.30561-100000@thoron.boston.redhat.com>
- <20040901082819.GA2489@final-judgement.ath.cx>
+	Mon, 6 Sep 2004 14:53:13 -0400
+Message-ID: <413CB219.5030800@slaphack.com>
+Date: Mon, 06 Sep 2004 13:53:13 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+CC: Spam <spam@tnonline.net>, Tonnerre <tonnerre@thundrix.ch>,
+       Christer Weinigel <christer@weinigel.se>,
+       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Jamie Lokier <jamie@shareable.org>, Chris Wedgwood <cw@f00f.org>,
+       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
+       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <200409061814.i86IEcPJ005086@laptop11.inf.utfsm.cl>
+In-Reply-To: <200409061814.i86IEcPJ005086@laptop11.inf.utfsm.cl>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-Andreas,
+Horst von Brand wrote:
+| Spam <spam@tnonline.net> said:
+|
+| [...]
+|
+|
+|>  The problem with the userspace library is standardization. What
+|>  would be needed is a userspace library that has a extensible plugin
+|>  interface that is standardized. Otherwise we would need lots of
+|>  different libraries, and I seriously doubt that 1) this will happen
+|>  and 2) we get all Linux programs to be patched to use it.
+|
+|
+| What is the difference with a kernel implementation? Not by being
+in-kernel
+| will it make all the incompatible ways of doing this magically vanish, and
+| give outstanding performance. Plus handling and maintaining the in-kernel
+| stuff is _much_ harder than userspace libraries.
 
-I really like the patch - I wanted to do quite the same so thanks that you
-saved me some work ;-)
+First of all, only the interface has to be in the kernel.  I haven't
+heard anyone suggest otherwise.
 
-On Wed, 1 Sep 2004, Andreas Happe wrote:
+Second, there are quite a few things which I might want to do, which can
+be done with this interface and without patching programs, but would
+require massive patches to userspace.  There have been numerous examples.
 
-> the attached patch creates a /sys/cryptoapi/<cipher-name>/ hierarchie
+There are some things which can't be solved without patching.  Version
+control is one such thing.  But then there can be more generic patches
+- -- as soon as the transaction API is done, you only have to patch apps
+to use that, and have a version control reiser4 plugin.
 
-I'd prefer to have the algorithms grouped by "type" ("cipher", "digest",
-"compress")? Then the apps could easily see only the algos that thay are
-interested in...
+| I'd go the other way around: Get userspace to agree on a common framework,
+| make it work in userspace; if (extensive, hopefully) experience shows that
+| a pure userspace solution has issues that can't be solved except by kernel
+| assistance, so be it.
 
-> Also the different cipher types (digest, compress..) could be seperated
-> into own ksets/directories, but this would make the crypto/proc.c code
-> worse.
-
-There could eventually be a separate crypto/sysfs.c, couldn't?
-
-> | bash-2.05b# cd aes/
-> | bash-2.05b# ls
-> | blocksize  maxkeysize  minkeysize  module  name  type
-
-Few notes:
-- - some algorithms allow only discrete set of keysizes (e.g. AES can do
-128b, 192b and 256b). Can we instead of min/max have a file 'keysize' with
-either:
-	minsize-maxsize
-or
-	size1,size2,size3
-?
-
-- - ditto for blocksize?
-
-- - With the future support for hardware crypto accelerators it
-might be possible to have more modules loaded providing the same
-algorithm. They may have different priorities and one would be treated as
-"default". Then I expect the syntax of 'module' file to change from a
-simple module name to something like:
-	# modname:prio:type:whatever
-	aes:0:generic:
-	aes_i586:1:optimized:
-	padlock:2:hardware:default
-But for now there is probably nothing to do about it.
-
-Michal Ludvig
-- -- 
-* A mouse is a device used to point at the xterm you want to type in.
-* Personal homepage - http://www.logix.cz/michal
+We already have such a framework -- it's called "VFS".
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFBPLFADDolCcRbIhgRAksyAJ4t+6m6demqQYdlJm3TnKMkLCSa5QCgrset
-VlNlUPb0517aLARgI6mt8gk=
-=rjsX
+iQIVAwUBQTyyGXgHNmZLgCUhAQLUeQ/8D3tWL9l/zQeGylpVbOe6SkcSPOOmlIFR
+tcjh0y1Y4ET17ATFKbKbzQYYDgd49AqU/gZnro27jYun3Yi6U0fWGGQFfi1A9O5E
+gSCmsjSWjfDfx4gu3EU1x0Bhkd6Mo8GCrC7L5gj5C+L4c5ZAnffeGloF8nM4hCex
+Wsb0PgOSxXuoQcd2EELVEXYdq0RCnxrmuszl1B2SE6w1ImONWMoXJ9fDGDf0aIUu
+rwrrZnlH4zp0bQ0dXDGXqUYYT5h5DAhbh96IWLrPbWMB0vLBqIP+95P2/vTHb7EL
+RwVKBV1UuuZ2ANPbImoIuxHWF+PCx/HwFs/mUolw0D2Yn3u2HgmPVFemyPnlCfeX
+yGPhJgnieRuGntgUZcfbqk7ZO3y0y5eRDq6N4eMHMlWYV9LC5kyP7OxcQ8SAF8P6
+Sk4iylYN1AMiy5Bp9odScauST0NT9CLmi1Ps0DYwgVN1H+ldS1l+4ITokb1Ex1+4
+ZLq1HhPNaYYWoA4VPuwxl0XrB4wGrMbOt1w4+TNM3AG9MvzqTGgSrh2rXfXkPHGZ
+7LNHuinRyJt3dcF0vPS4WHG6FtVsO8XVPaY55tYQIYZEBtZl3mattBb9gM3WDJmw
+M/pxbAQTDZHloR9/7TGEF8gD3AjPBexTfvojqVHK2VvRu4/2Ku17wvK82v68LuyU
+bFxxxgj9IgY=
+=BxAT
 -----END PGP SIGNATURE-----
-

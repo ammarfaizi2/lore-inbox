@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262180AbSJQUjc>; Thu, 17 Oct 2002 16:39:32 -0400
+	id <S262207AbSJQUqS>; Thu, 17 Oct 2002 16:46:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262181AbSJQUjc>; Thu, 17 Oct 2002 16:39:32 -0400
-Received: from tsv.sws.net.au ([203.36.46.2]:52233 "EHLO tsv.sws.net.au")
-	by vger.kernel.org with ESMTP id <S262180AbSJQUjb>;
-	Thu, 17 Oct 2002 16:39:31 -0400
+	id <S262210AbSJQUqS>; Thu, 17 Oct 2002 16:46:18 -0400
+Received: from code.and.org ([63.113.167.33]:10703 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id <S262207AbSJQUqQ>;
+	Thu, 17 Oct 2002 16:46:16 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: matti.aarnio@zmailer.org, zilvinas@gemtek.lt, linux-kernel@vger.kernel.org
+Subject: Re: sendfile(2) behaviour has changed ?
+References: <20021016084908.GA770@gemtek.lt>
+	<20021016091046.GD9644@mea-ext.zmailer.org>
+	<20021016.025935.132073102.davem@redhat.com>
+From: James Antill <james@and.org>
 Content-Type: text/plain; charset=US-ASCII
-From: Russell Coker <russell@coker.com.au>
-Reply-To: Russell Coker <russell@coker.com.au>
-To: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
-Subject: Re: [PATCH] remove sys_security
-Date: Thu, 17 Oct 2002 22:45:20 +0200
-User-Agent: KMail/1.4.3
-References: <20021017195015.A4747@infradead.org> <20021017210402.A7741@infradead.org> <20021017201030.GA384@kroah.com>
-In-Reply-To: <20021017201030.GA384@kroah.com>
+Date: 17 Oct 2002 16:51:30 -0400
+In-Reply-To: <20021016.025935.132073102.davem@redhat.com>
+Message-ID: <m3it00zt4d.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210172245.20238.russell@coker.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Oct 2002 22:10, Greg KH wrote:
-> Hm, in looking at the SELinux documentation, here's a list of the
-> syscalls they need:
-> 	http://www.nsa.gov/selinux/docs2.html
->
-> That's a lot of syscalls :)
+"David S. Miller" <davem@redhat.com> writes:
 
-That documentation only includes references to the system calls that have man 
-pages.  From a quick review ichsid() is missing so there's at least 1 more 
-system call than is listed there.
+>    From: Matti Aarnio <matti.aarnio@zmailer.org>
+>    Date: Wed, 16 Oct 2002 12:10:46 +0300
+> 
+>    On Wed, Oct 16, 2002 at 10:49:08AM +0200, Zilvinas Valinskas wrote:
+>    > Is this expected behaviour ? that sendfile(2) on 2.5.4x linux kernel requires
+>    > socket as an output fd paramter ? 
+>    
+>      It has only been intended for output to a TCP stream socket.
+> 
+> To be honest, I'm not so sure about this.
+> 
+> For example, I definitely see us supporting this in the
+> opposite direction when commodity 10gbit hits the market.
+> 
+> Initially I thought "sys_receivefile()" but it makes no
+> sense when we have a system call that is perfectly capable
+> of describing the tcp_socket --> page_cache operation.
+
+ It really needs a new interface for recvfile/copyfile/whatever
+anyway, as you can only specify an off_t for the from fd at present.
+
+ Also consider that if you have 2 network sockets you really want a
+way to see which did the EAGAIN.
+
+ Which leads to something like...
+
+ssize_t copyfddata(int out_fd, off_t *offset, 
+                   int in_fd,  off_t *offset, size_t count, int *in_errno);
+
+...and another for the off64_t API, the errno thing looks crappy but I
+think creating EREADAGAIN is even worse (and I just know that won't be
+the last if it's done that way) ... unless you can think of another way.
 
 -- 
-http://www.coker.com.au/selinux/   My NSA Security Enhanced Linux packages
-http://www.coker.com.au/bonnie++/  Bonnie++ hard drive benchmark
-http://www.coker.com.au/postal/    Postal SMTP/POP benchmark
-http://www.coker.com.au/~russell/  My home page
-
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

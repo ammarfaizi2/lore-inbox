@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135339AbRDZMAZ>; Thu, 26 Apr 2001 08:00:25 -0400
+	id <S135353AbRDZMJg>; Thu, 26 Apr 2001 08:09:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135344AbRDZMAQ>; Thu, 26 Apr 2001 08:00:16 -0400
-Received: from www.wen-online.de ([212.223.88.39]:1797 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S135339AbRDZMAI>;
-	Thu, 26 Apr 2001 08:00:08 -0400
-Date: Thu, 26 Apr 2001 13:59:10 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Ingo Molnar <mingo@elte.hu>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] swap-speedup-2.4.3-B3 (fwd)
-In-Reply-To: <Pine.LNX.4.21.0104260619200.1364-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.33.0104261332420.353-100000@mikeg.weiden.de>
+	id <S135346AbRDZMJ0>; Thu, 26 Apr 2001 08:09:26 -0400
+Received: from corp2.cbn.net.id ([202.158.3.25]:23304 "HELO corp2.cbn.net.id")
+	by vger.kernel.org with SMTP id <S135344AbRDZMJT>;
+	Thu, 26 Apr 2001 08:09:19 -0400
+Date: Thu, 26 Apr 2001 19:11:24 +0700 (JAVT)
+From: <imel96@trustix.co.id>
+To: John Cavan <johnc@damncats.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Single user linux
+In-Reply-To: <3AE741EA.561BE01F@damncats.org>
+Message-ID: <Pine.LNX.4.33.0104261836130.1677-100000@tessy.trustix.co.id>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Marcelo Tosatti wrote:
 
-> On Thu, 26 Apr 2001, Mike Galbraith wrote:
+On Wed, 25 Apr 2001, John Cavan wrote:
+
+> Several distributions (Red Hat and Mandrake certainly) offer auto-login
+> tools. In conjunction with those tools, take the approach that Apple
+> used with OS X and setup "sudo" for administrative tasks on the machine.
+> This allows the end user to generally administer the machine without all
+> the need to hack the kernel, modify login, operate as root, etc. You can
+> even restrict their actions with it and log what they do.
 >
-> > > (i cannot see how this chunk affects the VM, AFAICS this too makes the
-> > > zapping of the cache less agressive.)
-> >
-> > (more folks get snagged on write.. they can't eat cache so fast)
+> In the end though, I really don't see the big deal with having a root
+> user for general home use. Even traditionally stand-alone operating
 >
-> What about GFP_BUFFER allocations ? :)
->
-> I suspect the jiffies hack is avoiding GFP_BUFFER allocations to eat cache
-> insanely.
 
-(I think it's aging speed in general.  If user tasks aren't doing it,
-kswapd is.)
+you're right, we could do it in more than one way. like copying
+with mcopy without mounting a fat disk. the question is where to put it.
+why we do it is an important thing.
+taking place as a clueless user, i think i should be able to do anything.
+i'd be happy to accept proof that multi-user is a solution for
+clueless user, not because it's proven on servers. but because it is
+a solution by definition.
 
-> Easy way to confirm that: add the kswapd wait queue again and make
-> allocators which don't have __GFP_IO set wait on that in
-> try_to_free_pages().
 
-I've tried not allowing those to enter try_to_free_pages() [nogo].
-I'll try a waitqueue.  wait_event(waitqueue_active(&kswapd_wait)) ok?
 
-	-Mike
+		imel
+
 

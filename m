@@ -1,35 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130227AbQKOLk1>; Wed, 15 Nov 2000 06:40:27 -0500
+	id <S130335AbQKOLoR>; Wed, 15 Nov 2000 06:44:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130282AbQKOLkR>; Wed, 15 Nov 2000 06:40:17 -0500
-Received: from topaz.cns.mpg.de ([194.95.183.253]:26890 "EHLO topaz.cns.mpg.de")
-	by vger.kernel.org with ESMTP id <S130227AbQKOLkD>;
-	Wed, 15 Nov 2000 06:40:03 -0500
-Message-ID: <3A126EB2.BDF68082@cns.mpg.de>
-Date: Wed, 15 Nov 2000 12:08:34 +0100
-From: Gert Wollny <wollny@cns.mpg.de>
-Organization: http://www.cns.mpg.de
-X-Mailer: Mozilla 4.61C-SGI [en] (X11; I; IRIX 6.5 IP32)
-X-Accept-Language: de, en
+	id <S130282AbQKOLoI>; Wed, 15 Nov 2000 06:44:08 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:2063 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S130335AbQKOLn5>;
+	Wed, 15 Nov 2000 06:43:57 -0500
+Date: Wed, 15 Nov 2000 13:23:53 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: Andrew Morton <andrewm@uow.edu.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [prepatch] removal of oops->printk deadlocks
+In-Reply-To: <3A126E84.B77704FD@uow.edu.au>
+Message-ID: <Pine.LNX.4.21.0011151318060.2374-100000@elte.hu>
 MIME-Version: 1.0
-To: James M <dart@windeath.2y.net>
-CC: linux-kernel@vger.kernel.org, twaugh@redhat.com
-Subject: Re: Parport/IMM/Zip Oops Revisited -- Winbond
-In-Reply-To: <Pine.LNX.4.10.10011150012390.684-100000@bolide.beigert.de> <3A11F441.327F14B4@windeath.2y.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James M wrote:
-> 
-> Dunno what time it is over there 
-Just add seven hours to your time.
 
-> but could you give this a try when you get a chance? 
-yeah, and the other thing i will do, is to go through the test7-pre
-series, to see where the bug came to light.
+On Wed, 15 Nov 2000, Andrew Morton wrote:
+
+> [...] Problem is, we're getting some reported lockups in which we need
+> to know what the other CPUs are doing (the other 1%). If a critical
+> spinlock is stuck on, we don't get to type `dmesg'.
+
+i know - but we cannot please everyone, so i went for the 99% :-)
+
+> So...  In this updated patch the console_silent() call remains
+> as you designed it, but the nmi_watchdog kernel boot parameter has
+> been overloaded so that
+> 
+> 	nmi_watchdog=2
+> 
+> will now cause _all_ NMI oops messages to be displayed on the console.
+> 
+> Is this OK?
+
+this collides with the UP-IOAPIC path's use of nmi_watchdog == 2 ...
+
+i'd rather suggest a cleaner, "nmi_watchdog=2,verbose" (default: silent)
+type of boot parameter, it looks like the NMI watchdog needs more
+parameters.
+
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

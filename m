@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbUFBNC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbUFBNRN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbUFBNC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 09:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbUFBNC3
+	id S262585AbUFBNRN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 09:17:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbUFBNRM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 09:02:29 -0400
-Received: from mail-ext.curl.com ([66.228.88.132]:11784 "HELO
-	mail-ext.curl.com") by vger.kernel.org with SMTP id S262476AbUFBNCZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 09:02:25 -0400
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: Sean Estabrooks <seanlkml@sympatico.ca>, szepe@pinerecords.com,
-       linux-kernel@vger.kernel.org, matt_domsch@dell.com
-Subject: Re: 2.6.x partition breakage and dual booting
-References: <40BA2213.1090209@pobox.com>
-	<20040530183609.GB5927@pclin040.win.tue.nl>
-	<40BA2E5E.6090603@pobox.com> <20040530200300.GA4681@apps.cwi.nl>
-	<s5g8yf9ljb3.fsf@patl=users.sf.net>
-	<20040531180821.GC5257@louise.pinerecords.com>
-	<s5gaczonzej.fsf@patl=users.sf.net>
-	<20040531170347.425c2584.seanlkml@sympatico.ca>
-	<s5gfz9f2vok.fsf@patl=users.sf.net>
-	<20040601235505.GA23408@apps.cwi.nl>
-From: "Patrick J. LoPresti" <patl@users.sourceforge.net>
-Message-ID: <s5gpt8ijf1g.fsf@patl=users.sf.net>
-Date: 02 Jun 2004 09:02:23 -0400
-In-Reply-To: <20040601235505.GA23408@apps.cwi.nl>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 2 Jun 2004 09:17:12 -0400
+Received: from mail.fh-wedel.de ([213.39.232.194]:41963 "EHLO mail.fh-wedel.de")
+	by vger.kernel.org with ESMTP id S262585AbUFBNRI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 09:17:08 -0400
+Date: Wed, 2 Jun 2004 15:16:23 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] explicitly mark recursion count
+Message-ID: <20040602131623.GA23017@wohnheim.fh-wedel.de>
+References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl> <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer <Andries.Brouwer@cwi.nl> writes:
-
-> We have "sectors" and it gives a count of sectors, like 0x7280b80
-> (yecch - why in hex??).
-> But "legacy_sectors" is not a number of sectors, but a number of
-> sectors per track, just like "default_sectors_per_track".
+On Tue, 1 June 2004 12:58:12 -0700, Linus Torvalds wrote:
+> On Tue, 1 Jun 2004, Horst von Brand wrote:
+> > 
+> > If the comment gets out of sync, you are toast. Too easy for that to
+> > happen, IMVHO.
 > 
-> We have "default_heads" and it is a number of heads, like 0xff
-> (yecch - why in hex??).
-> But "legacy_heads" is not a number of heads, it is the largest
-> head number, that is, one less than the number of heads.
+> Yes.
 > 
-> Please, now that this is still unused, fix your names and/or
-> your code. Names could be legacy_max_head (etc.) if you want
-> to keep the values, or otherwise add 1 to the values.
+> Recursion should be detectable automatically, the only thing you can't 
+> detect easily is the reason to _break_ recursion. 
 
-Well, the EDD module belongs to Matt Domsch.  I only contributed the
-"legacy_*" code and names.
+Correct.  My tool already detects recursions and prints warning, it
+just cannot make out the harmful ones and gives a warning for each.
 
-If it is OK with Matt, I agree we should rename legacy_heads to
-legacy_max_head and legacy_sectors to legacy_sectors_per_track.  I
-doubt anybody other than myself is using these yet anyway.
+> So how about just having a simple loop finder, and then the only comment 
+> you need is a simple /* max recursion: N */ for any point in the loop.
 
-> Also - people will try to match the 0x7280b80 for int13_dev83 with
-> the 120064896 sectors that dmesg or hdparm -g reports for /dev/hdf.
-> Life would be easier with values given in decimal, as they are
-> everywhere else.
+That's what I basically want, at least for trivial recursions with
+only one function involved.
 
-I used hex for legacy_* because that is what all the other fields
-already used.  It was not my decision, and I have no opinion either
-way.  Convince Matt.
+For a->b->c->a type recursions, I also need to identify all involved
+functions in the correct order, that's where my ugly format comes
+from.
 
- - Pat
+RECURSION:	2
+STEP:	a
+STEP:	b
+STEP:	c
+
+This mean that the recursion from a to b to c and back can happen
+twice at most.
+
+Sure, the format is ugly.  If anyone really cares I can change it into
+any other.  But it gets the job done, so I don't care.
+
+> That still makes it interesting if one function is part of two loops, and
+> is logically the place that breaks the recursion for one (or both - with
+> different logic) of them. But does that actually happen?
+
+"Interesting" is the wrong word, really.  Imo it doesn't make any
+sense to write such code and therefore I don't want to deal with it
+either.  Print a warning and be done with it.  See my output:
+
+WARNING: multiple recursions around check_sig()
+
+Jörn
+
+-- 
+A victorious army first wins and then seeks battle.
+-- Sun Tzu

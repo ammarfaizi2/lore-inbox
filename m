@@ -1,31 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263656AbRFCREc>; Sun, 3 Jun 2001 13:04:32 -0400
+	id <S261988AbRFDAGP>; Sun, 3 Jun 2001 20:06:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263675AbRFCQhT>; Sun, 3 Jun 2001 12:37:19 -0400
-Received: from mnh-1-09.mv.com ([207.22.10.41]:6405 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S263106AbRFCQVA>;
-	Sun, 3 Jun 2001 12:21:00 -0400
-Message-Id: <200106031732.MAA01631@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is i386 thread.trapno? 
-In-Reply-To: Your message of "Sun, 03 Jun 2001 12:16:09 +0100."
-             <E156Vrd-0004Cq-00@the-village.bc.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 03 Jun 2001 12:32:50 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S263816AbRFCXdV>; Sun, 3 Jun 2001 19:33:21 -0400
+Received: from mx01-a.netapp.com ([198.95.226.53]:23748 "EHLO
+	mx01-a.netapp.com") by vger.kernel.org with ESMTP
+	id <S263797AbRFCXYA>; Sun, 3 Jun 2001 19:24:00 -0400
+Date: Sun, 3 Jun 2001 16:23:48 -0700 (PDT)
+From: Kip Macy <kmacy@netapp.com>
+To: linux-kernel@vger.kernel.org
+Subject: Looking for device to write device driver for
+Message-ID: <Pine.GSO.4.10.10106031613160.14668-100000@orbit-fe.eng.netapp.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alan@lxorguk.ukuu.org.uk said:
-> include/asm-i386/siginfo.h 
+This may well be a question whose appropriate response is RTFM. 
+However, I did look first. 
 
-Using SA_INFO would be nice, but it doesn't look like the siginfo will tell me 
-whether the faulting operation is a read or write.
+I am taking a class on writing device drivers for Linux. I am currently
+looking for a device to write a driver for. I first tried to get the
+engineering specification for my soundcard, but after much frustration I
+gave up on dealing with the manufacturer. I then tried to get the
+interface information from 3com on their new 3cr990 card to add IPsec
+offload support to the linux driver. They responded by telling me that due
+to IP-heavy nature of the product that they would not be releasing the
+interface. It was later explained to me (in different terms) that most
+cards on the market are fundamentally commodity items and as such the only
+way that manufacturers can ensure their margins is by obscuring the
+interface so that other manufacturers don't use the same interface and
+undercut them.
 
-				Jeff
+This leads to my question: Is there some central resource for listing
+unsupported cards that people have expressed an interest in seeing
+supported. The closest I could find was Cosource, but that is fairly
+limited.
 
+		-Kip
 

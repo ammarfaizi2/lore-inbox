@@ -1,93 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263740AbUFXJ1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264048AbUFXJ3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263740AbUFXJ1o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 05:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264048AbUFXJ1o
+	id S264048AbUFXJ3d (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 05:29:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264054AbUFXJ3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 05:27:44 -0400
-Received: from smtp106.mail.sc5.yahoo.com ([66.163.169.226]:375 "HELO
-	smtp106.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S263740AbUFXJ1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 05:27:41 -0400
-Message-ID: <40DA9E89.9020801@yahoo.com.au>
-Date: Thu, 24 Jun 2004 19:27:37 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
-X-Accept-Language: en
+	Thu, 24 Jun 2004 05:29:33 -0400
+Received: from chnmfw01.eth.net ([202.9.145.21]:64517 "EHLO ETH.NET")
+	by vger.kernel.org with ESMTP id S264048AbUFXJ30 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 05:29:26 -0400
+Message-ID: <001901c459cd$bc436e40$868209ca@home>
+From: "Amit Gud" <gud@eth.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: "Mark Watts" <mrwatts@fast24.co.uk>, "Mark Cooke" <mpc@jts.homeip.net>
+References: <40d9ac40.674.0@eth.net> <200406231853.35201.mrwatts@fast24.co.uk> <1088016048.15211.10.camel@sage.kitchen>
+Subject: Re: Elastic Quota File System (EQFS)
+Date: Thu, 24 Jun 2004 14:58:30 +0530
 MIME-Version: 1.0
-To: Yusuf Goolamabbas <yusufg@outblaze.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: finish_task_switch high in profiles in 2.6.7
-References: <20040624091548.GA8264@outblaze.com>
-In-Reply-To: <20040624091548.GA8264@outblaze.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+X-OriginalArrivalTime: 24 Jun 2004 09:21:46.0468 (UTC) FILETIME=[ABDB1A40:01C459CC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yusuf Goolamabbas wrote:
-> Hi, I have a fairly busy mailserver which also has a simple iptables
-> ruleset (blocking some IP's) running 2.6.7 with the deadline i/o
-> scheduler. vmstat was reporting that system time was around 80%. I did
-> the following
-> 
-> readprofile -r ; sleep 240 ; readprofile -n -m /boot/System.map-`uname
-> -r` | sort -rn -k 1,1 | head -22
-> 
->  48036 total                                      0.2274
->   9684 finish_task_switch                        80.0331
->   6992 default_idle                             158.9091
->   6335 __wake_up                                 87.9861
->   5671 remove_wait_queue                         76.6351
->   4150 add_wait_queue                            59.2857
->   2459 sysenter_past_esp                         21.7611
->   1304 find_get_page                             21.0323
->   1160 __mod_timer                                4.1281
->    938 do_gettimeofday                            5.0430
->    756 del_timer_sync                             2.4787
->    753 del_timer                                  7.1714
->    599 handle_IRQ_event                           5.9900
->    570 do_page_fault                              0.4612
->    485 __do_softirq                               2.8529
->    476 do_sigaction                               0.9136
->    469 do_getitimer                               1.7055
->    464 do_setitimer                               0.9768
->    392 get_offset_tsc                            17.0435
->    340 current_kernel_time                        4.9275
->    293 in_group_p                                 2.4417
->    272 eligible_child                             1.4093
-> 
-> On a 2.6.5 box with a similar workload, the profile is as follows
-> 
-> 131202 total                                      0.3704
->  42080 fget                                     667.9365
->  12868 schedule                                   8.1084
->  11231 default_idle                             255.2500
->   9157 fput                                     436.0476
->   6642 remove_wait_queue                         89.7568
->   6076 __wake_up                                 93.4769
->   5056 page_remove_rmap                          13.4111
->   4144 add_wait_queue                            59.2000
->   2255 fget_light                                17.4806
->   2176 sysenter_past_esp                         19.2566
->   1271 kfree                                     11.6606
->   1148 kmem_cache_alloc                          14.9091
->    934 __kmalloc                                  6.6714
->    890 __mod_timer                                3.1673
->    768 del_timer_sync                             2.9538
->    717 buffered_rmqueue                           1.5621
->    715 kmem_cache_free                            8.2184
->    613 free_hot_cold_page                         2.4618
->    612 del_timer                                  5.8286
->    588 __find_get_block                           3.0466
->    588 do_page_fault                              0.4757
-> 
-> I am trying to determine where the system time is going and don't have
-> much zen to begin with. Any assistance would be appreciated ?
-> 
+Ok, this is what I propose:
 
-Is it an SMP system? What sort of workload is it? Does it use threads?
-Check vmstat to see how much context switching is going on with each
-kernel.
+    Lets say there are just 2 users with 100 megs of individual quota, user
+A is using 20 megs and user B is running out of his quota. Now what B could
+do is delete some files himself and make some free space for storing other
+files. Now what I say is instead of deleting the files, he declares those
+files as elastic.
 
-Thanks.
+Now, moment he makes that files elastic, that much amount of space is added
+to his quota. Here Mark Cooke's equation applies with some modifications:
+N no. of users,
+Qi allocated quota of ith user
+Ui individual disk usage of ith user ( should be <= allocated quota of ith
+user ),
+D disk threshold; thats the amount of disk space admin wants to allow the
+users to use (should be >= sum of all users' allocated quota, i.e. summation
+Qi ; for i = 0 to N - 1).
+
+Total usage of all the users (here A & B) should be at _anytime_ less than
+D. i.e. summation Ui <= D; for i = 0 to N - 1.
+
+The point to note here is that we are not bothering how much quota has been
+allocated to an individual user by the admin, but we are more interested in
+the usage pattern followed by the users. E.g. if user B wants additional
+space of say 25 megs, he picks up 25 megs of his files and 'marks' them
+elastic. Now his quota is increased to 125 megs and he can now add more 25
+megs of files; at the same time allocated quota for user A is left
+unaffected. Applying the above equation total usage now is A: 20 megs, B:
+125 megs, now total 145 <= D, say 200 megs. Thus this should be ok for the
+system, since the usage is within bounds.
+
+Now what happens if Ui > D? This can happen when user A tries to recliam his
+space. i.e. if user A adds say more 70 megs of files, so the total usage is
+now - A: 90 megs, B: 125 megs; 215 ! <= D. The moment the total usage
+crosses the value, 'action' will be taken on the elastic files. Here elastic
+files are of user B so only those will be affected and users A's data will
+be untouched, so in a way this will be completely transparent to user A.
+What action should be taken can be specified by the user while making the
+files elastic. He can either opt to delete the file, compress it or move it
+to some place (backup) where he know he has write access. The corresponding
+action will be taken until the threshold is met.
+
+Will this work?? We are relying on the 'free' space ( i.e. D - Ui ) for the
+users to benefit. The chances of having a greater value for D - Ui increases
+with the increase in the number of users, i.e. N. Here we are talking about
+2 users but think of 10000+ users where all the users will probably never
+use up _all_ the allocated disk space. This user behavior can be well
+exploited.
+
+EQFS can be best fitted in the mail servers. Here e.g. I make whole
+linux-kernel mailing list elastic. As long as Ui <= D I get to keep all the
+messages, whenever Ui > D, messages with latest dates will be 'acted' upon.
+
+For variable quota needs, admin can allocate different quotas for different
+users, but this can get tiresome when N is large. With EQFS, he can allocate
+fixed quota for each user ( old and new ) , set up a value for D and relax.
+The users will automatically get the quota they need. One may ask that this
+can be done by just setting up value of D, checking it against summation Ui
+and not allocating individual quotas at all. But when summation Ui crosses D
+value, whose file to act on? Moreover with both individual quotas and D, we
+give users 'controlled' flexibility just like elastic - it can be stretched
+but not beyond a certain range.
+
+What happens when an user tries to eat up all the free ( D - Ui ) space?
+This answer is implementation dependent because you need to make a decision:
+should an user be allowed to make a file elastic when Ui == D . I think by
+saying 'yes' we eliminate some users' mischief of eating up all free space.
+
+Queries, comments, suggestions welcome.
+
+regs,
+AG
+
+> On Wed, 2004-06-23 at 18:53, Mark Watts wrote:
+> > > Greetings,
+> > >
+> > > I think I should discuss this in the list...
+> > >
+> > > Recently I'm into developing an Elastic Quota File System (EQFS). This
+> > > file system works on a simple concept ... give it to others if you're
+not
+> > > using it, let others use it, but on the guarantee that you get it back
+when
+> > > you need it!!
+> >
+> > How do you intend to guarantee this?
+> > Randomly deleting a users files to free up disk space is a Bad (tm)
+idea, so
+> > what other mechanism are you going to employ?
+>
+> Hi Mark, Amit,
+>
+> Simple example of a flexible quota scheme:
+>
+> N users with Q megabytes of guaranteed quota
+> D total megs of disk storage
+> The difference D - N*Q is the amount you can be flexible with.
+>
+>
+> The above is a somewhat different scheme than the 'give your unused
+> quota back to others' part of Amit's post though.
+>
+> If Amit does actually mean to have a situation where the remaining
+> guaranteed quota is less than the actual remaining free space, there is
+> *no way* to satisfy the guarantee.
+>
+> Imagine the worst case scenario if all users suddenly want their
+> guaranteed quota.  The only way to free up space is deleting files from
+> over-quota users - something which would be unacceptable operationally,
+> IMHO.
+>
+>
+> That said, I'll read your tech description with interest when it comes
+> out,
+>
+> Mark
+>
+
+

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315214AbSHFSaZ>; Tue, 6 Aug 2002 14:30:25 -0400
+	id <S315259AbSHFSfg>; Tue, 6 Aug 2002 14:35:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315218AbSHFSaZ>; Tue, 6 Aug 2002 14:30:25 -0400
-Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:24337 "EHLO
-	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S315214AbSHFSaY>; Tue, 6 Aug 2002 14:30:24 -0400
-Message-ID: <32800.192.168.0.100.1028659510.squirrel@mail.zwanebloem.nl>
-Date: Tue, 6 Aug 2002 20:45:10 +0200 (CEST)
-Subject: Re: 2.4.18 (pre8) strange software raid0 problem
-From: "Tommy Faasen" <tommy@vuurwerk.nl>
-To: <neilb@cse.unsw.edu.au>
-In-Reply-To: <15695.46843.770054.232116@notabene.cse.unsw.edu.au>
-References: <32838.192.168.0.100.1028462137.squirrel@mail.zwanebloem.nl>
-        <15693.5974.487891.772395@notabene.cse.unsw.edu.au>
-        <2289.198.43.100.6.1028615479.squirrel@mail.zwanebloem.nl>
-        <15695.46226.763861.953550@notabene.cse.unsw.edu.au>
-        <15695.46843.770054.232116@notabene.cse.unsw.edu.au>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Cc: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.7)
+	id <S315260AbSHFSff>; Tue, 6 Aug 2002 14:35:35 -0400
+Received: from urtica.linuxnews.pl ([217.67.200.130]:12037 "EHLO
+	urtica.linuxnews.pl") by vger.kernel.org with ESMTP
+	id <S315259AbSHFSff>; Tue, 6 Aug 2002 14:35:35 -0400
+Date: Tue, 6 Aug 2002 20:38:48 +0200 (CEST)
+From: Pawel Kot <pkot@linuxnews.pl>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] add missing symbol exports
+In-Reply-To: <Pine.LNX.4.44.0208061403580.7534-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0208062010370.32276-100000@urtica.linuxnews.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 6 Aug 2002, Marcelo Tosatti wrote:
 
-> I had deleted the original email, but just found it at
->   http://www.uwsg.indiana.edu/hypermail/linux/kernel/0208.0/0802.html
-> and there are attachments.
+> On Tue, 6 Aug 2002, Pawel Kot wrote:
+>
+> > Hi,
+> >
+> > During the work on the NTFS backport I found that some sympols are missing
+> > in ksyms exports. The following patch add the missing symbols. This is
+> > against 2.4.19, as I can't find 2.4.20pre1 patch anywhere.
+>
+> Missing as in "used by the NTFS backport" ?
 
-I owe you an aploogie, i indeed installed a bad version of raidtools, it
-seems to be ok, now i have upgraded.
+kmap_pte and kmap_prot are needed for all drivers that call
+kmap_atomic() with HIGHMEM enabled. This is (indirectly) used also in
+skbuff, but not sure whether the export is required there. And this is
+also used in some peding patches AFAIK.
 
-Bad ->128658 Aug  2 13:47 raidtools2_0.90.20010914                        
-                      -19_i386.deb
-Good -> 128742 Aug  5 01:32 raidtools2_0.90.20010914                      
-                           -20_i386.deb
+(local_)flush_tlb_page is already exported with the other archs, but not
+ppc. As there's:
+#define flush_tlb_page local_flush_page
+maybe exporting just flush_tlb_page is enough. I can't remember if I
+actually tried it, and have no PPC machine at the moment to do the test. I
+don't think it is related to NTFS backport at all. I just met the problem
+when trying to compile the kernel with NTFS backport on PPC.
 
+set_buffer_async_io is not used at the moment by NTFS backport but IS used
+by reiserfs.
 
-Thanks for your help nonetheless!
-
-Tommy
-
+pkot
+-- 
+mailto:pkot@linuxnews.pl :: mailto:pkot@slackware.pl
+http://kt.linuxnews.pl/ :: Kernel Traffic po polsku
 

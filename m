@@ -1,69 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263653AbTEMMMz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 May 2003 08:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263656AbTEMMMz
+	id S263650AbTEMMLe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 May 2003 08:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263652AbTEMMLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 May 2003 08:12:55 -0400
-Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:8186 "EHLO
-	tabby.cats.internal") by vger.kernel.org with ESMTP id S263653AbTEMMMw
+	Tue, 13 May 2003 08:11:34 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:4870 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S263650AbTEMMLd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 May 2003 08:12:52 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <jesse@cats-chateau.net>
-To: Chuck Ebbert <76306.1226@compuserve.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: The disappearing sys_call_table export.
-Date: Tue, 13 May 2003 07:24:49 -0500
-X-Mailer: KMail [version 1.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <200305122200_MC3-1-3890-B10B@compuserve.com>
-In-Reply-To: <200305122200_MC3-1-3890-B10B@compuserve.com>
+	Tue, 13 May 2003 08:11:33 -0400
+To: zhangtao <zhangtao@zhangtao.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       LinuxKernel MailList <linux-kernel@vger.kernel.org>
+Subject: Re: About NLS Codepage 932
+References: <20030512100534.1ba6ecd6.zhangtao@zhangtao.org>
+	<1052737621.31246.7.camel@dhcp22.swansea.linux.org.uk>
+	<20030513101740.626a06a5.zhangtao@zhangtao.org>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 13 May 2003 21:23:18 +0900
+In-Reply-To: <20030513101740.626a06a5.zhangtao@zhangtao.org>
+Message-ID: <87d6int4qx.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Message-Id: <03051307244901.19075@tabby>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 May 2003 20:57, Chuck Ebbert wrote:
-> Alan Cox wrote:
-> > 1. Base Linux is not C2 certified
->
->   That could be fixed... (right?)  Filesystems returning data past the
-> end of what the user wrote might be a big problem though -- this must
-> be guaranteed even in obscure corner cases.
+Just FYI,
 
-No - C2 evaluation has not been done for almost 3 years. That makes it
-impossible to get a C2 evaluation.
+zhangtao <zhangtao@zhangtao.org> writes:
 
-> > 2. C2 is obsolete
->
->   Obsolete or not, it is mandatory for some people.  No check box,
-> no purchase order (or no certificate of operation.)
+> The big different is the area of Char To Unicode, the lead byte is :
+>   0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9
+> 
+> In the Microsoft's table (http://www.microsoft.com/globaldev/reference/dbcs/932.htm), they are EMPTY!
 
-Bullshit - NO OS is C2 anymore. The last certification was given to MS for
-NT 4 - about 3 years ago. NONE of the current systems are C2. The best you
-can get is "C2 like capability", and that is not a verified operation. And
-"C2 like capability" Linux does just as well as M$. Are the log files as
-pretty as would be desired? No. But they are acceptable for all US usage
-where a UNIX system is acceptable. (And don't even try to claim M$ produces
-a secured box... I haven't even been able to find the "trusted facility 
-manual" for the released systems... which is a requirement for operation.
+These are UDC (User defined charactors).
 
-> > 3. NSA SELinux can do the needed stuff from scanning the code
->
->   But will it get merged?
+> But in the Mit edu's CP932.TXT (http://web.mit.edu/afs/dev.mit.edu/source/src-current/third/libiconv/tests/CP932.TXT), they have corresponding letters. 
 
-I don't know, but I hope so. (2.7 maybe?)
-
-> > 4. Even then data erasure is not guaranteed because of the drive logic
->
->   People who really care require the drive be reduced to pieces small
-> enough to fit through a sieve with ~2mm holes in it before it leaves
-> their sight.  For the rest, overwrite of the swap data is a useful if
-> not 100% reliable step to take.  Legitimate users with servers locked
-> up in secure areas don't really worry about someone unplugging the box
-> and walking away with it either.
-
-These are also the same people that will not (or should not) accept laptops in
-their environement.
+Looks like using http://www.opengroup.or.jp/jvc/cde/ucs-conv-e.html.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

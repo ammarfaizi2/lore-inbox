@@ -1,45 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264683AbTFQMXz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 08:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264685AbTFQMXz
+	id S264701AbTFQMkY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 08:40:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbTFQMkY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 08:23:55 -0400
-Received: from verdi.et.tudelft.nl ([130.161.38.158]:56704 "EHLO
-	verdi.et.tudelft.nl") by vger.kernel.org with ESMTP id S264683AbTFQMXy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 08:23:54 -0400
-Date: Tue, 17 Jun 2003 14:37:45 +0200
-From: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-To: linux-kernel@vger.kernel.org
-Cc: robn@verdi.et.tudelft.nl, Arjan van de Ven <arjanv@redhat.com>,
-       Alan Cox <alan@redhat.com>
-Subject: gcc-3.2.2 miscompiles kernel 2.4.* O_DIRECT code ?
-Message-ID: <20030617123745.GA5717@verdi.et.tudelft.nl>
+	Tue, 17 Jun 2003 08:40:24 -0400
+Received: from dp.samba.org ([66.70.73.150]:40328 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S264701AbTFQMkX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 08:40:23 -0400
+Date: Tue, 17 Jun 2003 22:49:50 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Matthew Wilcox <willy@debian.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: pci_domain_nr vs. /sys/devices
+Message-ID: <20030617124950.GF8639@krispykreme>
+References: <1055341842.754.3.camel@gaston> <20030611144801.GZ28581@parcelfarce.linux.theplanet.co.uk> <20030617044948.GA1172@krispykreme> <20030617134156.A2473@jurassic.park.msu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030617134156.A2473@jurassic.park.msu.ru>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
 Hi,
+ 
+> Err, this definitely breaks X on alpha. On small and mid-range
+> machines we always have pci_domain_nr(bus) == bus->number.
+> Practically, it's only Marvel where we could overflow an 8-bit
+> bus number.
 
-I found out that O_DIRECT does not work correctly on 2.4 kernels
-compiled with the RH gcc-3.2.2-5 on RH9.  It is working fine with
-kernels compiled with the RH gcc-2.96-113 on RH 7.3.
+OK.
+ 
+> How about this instead?
+> 
+> 	/* Backwards compatibility for first N PCI domains. */
+> 	if (pci_domain_nr(dev->bus) > PCI_PROC_MAX_DOMAIN)
+> 		return 0;
+> 
+> PCI_PROC_MAX_DOMAIN could be defined in asm/pci.h (255 on alpha), default 0.
 
-The sympton is that read() only returns zeroes (as data).  No errors.
-It happens with several 2.4 kernels I have tried, including 2.4.21-ac1.
+A runtime test would be useful, at least for ppc64. That would allow our
+older machines to work (multiple host bridges without overlapping
+buses). What if we had pci_proc_max_domain and arch code could change its
+value during pcibios_init?
 
-I don't know if this is a RH9 gcc specific bug or if it is a generic
-gcc3 problem. That's why I post here: to find out if more people
-have seen this.
-
-I also filed a bug in RH's bugzilla.  See this for more details:
-
-	https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=97529
-
-
-	greetings,
-	Rob van Nieuwkerk
+Anton

@@ -1,79 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261814AbTDQRl4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 13:41:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbTDQRl4
+	id S261816AbTDQRpD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 13:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbTDQRpC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 13:41:56 -0400
-Received: from mta06-svc.ntlworld.com ([62.253.162.46]:21457 "EHLO
-	mta06-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S261814AbTDQRlz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 13:41:55 -0400
-Subject: Re: Via-Rhine dirve in 2.4.21-pre7
-From: Mark Syms <mark@marksyms.demon.co.uk>
-To: rl@hellgate.ch
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1049706637.963.6.camel@athlon>
-References: <1049706637.963.6.camel@athlon>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-kh6zcMVXBOEwwyJcFbuZ"
-Organization: 
-Message-Id: <1050602030.988.4.camel@athlon>
+	Thu, 17 Apr 2003 13:45:02 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:27776 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261816AbTDQRpB (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 13:45:01 -0400
+Message-Id: <200304171756.h3HHuqb9006030@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: Re: cannot boot 2.5.67 
+In-Reply-To: Your message of "Thu, 17 Apr 2003 19:46:34 +0200."
+             <1050601594.1073.1.camel@krycek> 
+From: Valdis.Kletnieks@vt.edu
+References: <018401c30505$1a1e6200$6400a8c0@witbe>
+            <1050601594.1073.1.camel@krycek>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 17 Apr 2003 18:53:50 +0100
+Content-Type: multipart/signed; boundary="==_Exmh_1652211265P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 17 Apr 2003 13:56:52 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1652211265P
+Content-Type: text/plain; charset=us-ascii
 
---=-kh6zcMVXBOEwwyJcFbuZ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Thu, 17 Apr 2003 19:46:34 +0200, Mads Christensen <mfc@krycek.org>  said:
 
-Roger,
+> You have to get
+> CONFIG_INPUT=y, CONFIG_VT=y and CONFIG_VT_CONSOLE=y
+> inorder for you to see anything =)
 
-Just saw your response on the mailing list archive. Sorry I haven't
-responded earlier but as I said below I'm not subscribed to the list.
+OK.. Can we *please* fix the 2.5.68 Kconfig to default these 3 values
+so we don't have to keep saying this?  The embedded people that want
+'n' or 'm' can type it themselves. ;)
 
-The reason I was trying 2.4.21-pre7 is that I have been unable to get
-the network card working on any kernel version if local IO-APIC is
-enabled and I was hoping that the changes you had submitted for the
-21pre series might help but they did not.
-
-If you want me to try anything let me know or send me a patch (directly
-please).
-
-Sorry not to be more help.
-
-	Mark.
-
-On Mon, 2003-04-07 at 10:10, Mark Syms wrote:
-> Roger,
->=20
-> Just tried the via-rhine driver in 2.4.21-pre7 and it appears to exhibit
-> the problem Erik Hensema reported with the VT6103 onboard network card
-> on my Chaintech 7VJL Athlon board whereby you get NETDEV Watchdog
-> transmit timeout errors unless you turn local io-apic off in which case
-> it all works fine.
->=20
-> Please cc me directly as I'm not subscribed to the mailing list.
->=20
-> Thank you,
->=20
-> 	Mark Syms
---=20
-Mark Syms <mark@marksyms.demon.co.uk>
-
---=-kh6zcMVXBOEwwyJcFbuZ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--==_Exmh_1652211265P
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQA+nuou+tS4l+honr0RAukjAKC7nQl/LKnJsQepbnKGlZHqj4ZBAgCgttGC
-yqKYPLkAYfohidNCK/JOgFw=
-=8OgB
+iD8DBQE+nurjcC3lWbTT17ARAqesAKC7j/ZHz8WcIMrDNNuRAwFSvNyxzACcC32x
+4REkSFASC4RAcJgkQebOoPw=
+=+en+
 -----END PGP SIGNATURE-----
 
---=-kh6zcMVXBOEwwyJcFbuZ--
-
+--==_Exmh_1652211265P--

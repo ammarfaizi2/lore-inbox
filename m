@@ -1,100 +1,354 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269639AbRHQEXD>; Fri, 17 Aug 2001 00:23:03 -0400
+	id <S269638AbRHQEWW>; Fri, 17 Aug 2001 00:22:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269641AbRHQEWx>; Fri, 17 Aug 2001 00:22:53 -0400
-Received: from mx7.sac.fedex.com ([199.81.194.38]:23566 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S269639AbRHQEWj>; Fri, 17 Aug 2001 00:22:39 -0400
-Date: Fri, 17 Aug 2001 12:23:37 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-cc: <tpepper@vato.org>, f5ibh <f5ibh@db0bm.ampr.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.9 does not compile [better PATCH]
-In-Reply-To: <5.1.0.14.2.20010816232513.0461bae0@pop.cus.cam.ac.uk>
-Message-ID: <Pine.LNX.4.33.0108171221210.9276-100000@boston.corp.fedex.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S269633AbRHQEWO>; Fri, 17 Aug 2001 00:22:14 -0400
+Received: from freya.yggdrasil.com ([209.249.10.20]:20362 "EHLO
+	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S269638AbRHQEWH>; Fri, 17 Aug 2001 00:22:07 -0400
+Date: Thu, 16 Aug 2001 21:22:20 -0700
+From: "Adam J. Richter" <adam@yggdrasil.com>
+To: gibbs@scsiguy.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Patch: remove DB dependence of linux-2.4.9/drives/scsi/aic7xxx/aicasm
+Message-ID: <20010816212220.A7151@baldur.yggdrasil.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="r5Pyd7+fXNt84Ff3"
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-lvm does not compile either.
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Here's the complete patch for 2.4.9
+	First of all, thanks for the quick reply, Justin.
 
-Jeff
+>> = Adam Richter
+>  = Justin Gibbs
 
---- linux/drivers/md/lvm.c.org	Fri Aug 17 12:07:35 2001
-+++ linux/drivers/md/lvm.c	Fri Aug 17 12:09:05 2001
-@@ -2326,7 +2326,7 @@
+>>       Currently, building Justin Gibbs's otherwise excellent
+>>aic7xxx driver requires the Berkeley DB library, because the
+>>aic7xxx assembler that is used in the build process uses db
+>>basically just to implement associative arrays in memory.
+>
+>You don't need to use the assembler.  Compiled firmware is
+>provided in every distrubution I've made, including the one
+>in the 2.4.9 kernel.  The default is to *not* build the
+>firmware.  Just make sure that you don't have this option
+>inadvertantly turned on in your config and you should be happy.
 
- 	/* save availiable i/o statistic data */
- 	if (old_lv->lv_stripes < 2) {	/* linear logical volume */
--		end = min(old_lv->lv_current_le, new_lv->lv_current_le);
-+		end = min(__u32, old_lv->lv_current_le, new_lv->lv_current_le);
- 		for (l = 0; l < end; l++) {
- 			new_lv->lv_current_pe[l].reads +=
- 				old_lv->lv_current_pe[l].reads;
-@@ -2340,7 +2340,7 @@
+	I understand, and that is helpful, but I want to build
+everything from sources.
 
- 		old_stripe_size = old_lv->lv_allocated_le / old_lv->lv_stripes;
- 		new_stripe_size = new_lv->lv_allocated_le / new_lv->lv_stripes;
--		end = min(old_stripe_size, new_stripe_size);
-+		end = min(__u32, old_stripe_size, new_stripe_size);
+>A wise CS proff once said, "Smart programmers are lazy.  They
+>re-use stuff rather than write it over and over again."  In this
+>case, I was able to implement my symbol table in all of 5 mintues
+>without the need to debug the code that implements its core.  It
+>may seem like overkill, but it allowed me to focus on the important
+>things, like making the assembler useful.  The assember dates from
+>1995, which might explain why it uses the dbv1 interface.
+>
+>"If it ain't broke, don't fix it."
 
- 		for (i = source = dest = 0; i < new_lv->lv_stripes; i++) {
- 			for (j = 0; j < end; j++) {
---- linux/drivers/md/lvm-snap.c.org	Fri Aug 17 12:09:35 2001
-+++ linux/drivers/md/lvm-snap.c	Fri Aug 17 12:10:30 2001
-@@ -360,8 +360,8 @@
+	That was probably a good use of your time, and those are
+good reasons in the absense of arguments to the contrary.  However,
+in this case, there are arguments to the contrary, so it is a question
+of which arguments outweigh the others.  The arguments for accepting
+a trival DB implementation (I'm not asking you to write it) are:
 
- 	blksize_org = lvm_get_blksize(org_phys_dev);
- 	blksize_snap = lvm_get_blksize(snap_phys_dev);
--	max_blksize = max(blksize_org, blksize_snap);
--	min_blksize = min(blksize_org, blksize_snap);
-+	max_blksize = max(__u32, blksize_org, blksize_snap);
-+	min_blksize = min(__u32, blksize_org, blksize_snap);
- 	max_sectors = KIO_MAX_SECTORS * (min_blksize>>9);
+	1. It eliminates another dependence for doing a complete source build.
 
- 	if (chunk_size % (max_blksize>>9))
-@@ -369,7 +369,7 @@
+	2. It potentially eliminates a dependence on a GPL'ed library,
+	   a policy preference of at least one Linux distribution that I
+	   can think of (Debian), and probably a preference of some users.
 
- 	while (chunk_size)
- 	{
--		nr_sectors = min(chunk_size, max_sectors);
-+		nr_sectors = min(__u32, chunk_size, max_sectors);
- 		chunk_size -= nr_sectors;
+	3. (New) it's a handy fallback in case somone finds a buggy
+	   DB implementation.
 
- 		iobuf->length = nr_sectors << 9;
-@@ -486,7 +486,7 @@
+	Anyhow, I've done it.  I have verified that the following
+patch builds and produces the same aic7xxx_seq.h file, and produces
+a aic7xxx_regs.h file that differs only in the order that the
+"#define" statements are emitted (I checked by sorting both files and
+seeing that the results were identical).  The new trivialdb.{c,h} files
+compile under gcc-3.0 without complaint, even with "-Wall".
 
- 	buckets = lv->lv_remap_end;
- 	max_buckets = calc_max_buckets();
--	buckets = min(buckets, max_buckets);
-+	buckets = min(__u32, buckets, max_buckets);
- 	while (buckets & (buckets-1))
- 		buckets &= (buckets-1);
+	I ask that you please include this patch, and/or tell Linus that
+you think it's OK to apply.  If you don't like this patch, how about
+using this patch, but with the "CONFIG_AICASM_TRIVALDB=y" line in
+the Makefile commented out?  That will produce the old behavior but
+allow use of trivialdb.{c,h} by just uncommenting one line.
 
---- linux/fs/ntfs/unistr.c.org	Fri Aug 17 12:18:13 2001
-+++ linux/fs/ntfs/unistr.c	Fri Aug 17 12:18:25 2001
-@@ -23,6 +23,7 @@
+-- 
+Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
+adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
++1 408 261-6630         | g g d r a s i l   United States of America
+fax +1 408 261-6631      "Free Software For The Rest Of Us."
 
- #include <linux/string.h>
- #include <asm/byteorder.h>
-+#include <linux/kernel.h>
+--r5Pyd7+fXNt84Ff3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="aic.diffs"
 
- #include "unistr.h"
- #include "macros.h"
-@@ -96,7 +97,7 @@
- 	__u32 cnt;
- 	wchar_t c1, c2;
+--- linux-2.4.9/drivers/scsi/aic7xxx/aicasm/Makefile	Fri May  4 15:16:28 2001
++++ linux/drivers/scsi/aic7xxx/aicasm/Makefile	Thu Aug 16 21:02:33 2001
+@@ -5,10 +5,20 @@
+ DEPHDRS= aicdb.h
+ GENHDRS= y.tab.h aicdb.h
+ 
++# Comment out the next line to use your system's local Berkeley DB functions.
++CONFIG_AICASM_TRIVIALDB=y
++ifeq ($(CONFIG_AICASM_TRIVIALDB),y)
++	HAVE_TRIVIALDB=true
++	GENSRCS += trivialdb.c
++else
++	HAVE_TRIVIALDB=false
++	AICASM_DB=-ldb
++endif
++
+ SRCS=	${GENSRCS} ${CSRCS}
+ CLEANFILES= ${GENSRCS} ${GENHDRS} y.output
+ # Override default kernel CFLAGS.  This is a userland app.
+-AICASM_CFLAGS:= -I/usr/include -I. -ldb
++AICASM_CFLAGS:= -I/usr/include -I. $(AICASM_DB)
+ YFLAGS= -d
+ 
+ NOMAN=	noman
+@@ -31,7 +41,9 @@
+ 	$(AICASM_CC) $(AICASM_CFLAGS) $(SRCS) -o $(PROG)
+ 
+ aicdb.h:
+-	@if [ -e "/usr/include/db3/db_185.h" ]; then		\
++	if $(HAVE_TRIVIALDB) ; then \
++		echo "#include \"trivialdb.h\"" > aicdb.h;	\
++	 elif [ -e "/usr/include/db3/db_185.h" ]; then		\
+ 		echo "#include <db3/db_185.h>" > aicdb.h;	\
+ 	 elif [ -e "/usr/include/db2/db_185.h" ]; then		\
+ 		echo "#include <db2/db_185.h>" > aicdb.h;	\
+@@ -45,3 +57,4 @@
+ 
+ clean:
+ 	rm -f $(CLEANFILES) $(PROG)
++
+--- linux-2.4.9/drivers/scsi/aic7xxx/aicasm/trivialdb.h	Thu Aug 16 20:56:40 2001
++++ linux/drivers/scsi/aic7xxx/aicasm/trivialdb.h	Thu Aug 16 21:05:38 2001
+@@ -0,0 +1,64 @@
++/* A trivial implemention of the "BerkeleyDB" database routines
++   used by aicasm.
++
++   Copyright 2001 Yggdrasil Computing, Inc.
++   Written by Adam J. Richter <adam@yggdrasil.com>.
++
++   This file may be freely redistributed under the terms and conditions
++   of version 2 of the GNU General Public License, as publisehd by the
++   Free Software Foundation (Cambridge, Massachusetts).
++*/
++
++#ifndef TRIVIALDB_H
++#define TRIVIALDB_H
++
++typedef struct {
++	void *data;
++	int size;
++} DBT;
++
++enum seqtype {
++	R_FIRST=1,
++	R_NEXT,
++};
++
++enum db_result {
++	DB_SYSERROR=-1,
++	DB_OK=0,
++	DB_NOTFOUND=1,
++};
++
++enum db_opentype { DB_HASH };	/* not used */
++
++struct dbchain;			/* private */
++
++typedef struct DB {
++  	enum db_result (*get)(struct DB *db,
++			      DBT *key,
++			      DBT *data,
++			      int flags);
++
++  	enum db_result (*put)(struct DB *db,
++			      DBT *key,
++			      DBT *data,
++			      int flags);
++
++	void (*del)(struct DB *db,
++		    DBT *key,
++		    int flags /* ignored */);
++
++	enum db_result (*seq)(struct DB *db,
++			      DBT *key,
++			      DBT *data,
++			      enum seqtype order);
++
++	void (*close)(struct DB *db);
++	struct dbchain *chain;	/* private */
++	struct dbchain *seqnext; /* private */
++} DB;
++
++/* All parameters are ignored.  They are just for compatability. */
++extern DB *dbopen(const char *filename, int openflags, int mode,
++		  enum db_opentype type, void *openinfo);
++
++#endif /* TRIVIALDB_H */
+--- linux-2.4.9/drivers/scsi/aic7xxx/aicasm/trivialdb.c	Thu Aug 16 20:56:40 2001
++++ linux/drivers/scsi/aic7xxx/aicasm/trivialdb.c	Thu Aug 16 21:05:38 2001
+@@ -0,0 +1,149 @@
++/* A trivial implemention of the "BerkeleyDB" database routines
++   used by aicasm.
++
++   Copyright 2001 Yggdrasil Computing, Inc.
++   Written by Adam J. Richter <adam@yggdrasil.com>.
++
++   This file may be freely redistributed under the terms and conditions
++   of version 2 of the GNU General Public License, as publisehd by the
++   Free Software Foundation (Cambridge, Massachusetts).
++*/
++
++#include <malloc.h>
++#include <string.h>
++
++#include "trivialdb.h"
++
++#define ASSERT(condition)	/* as nothing */
++
++static enum db_result trivget(struct DB *db, DBT *key, DBT *data, int flags);
++static enum db_result trivput(struct DB *db, DBT *key, DBT *data, int flags);
++static void trivdel(struct DB *db, DBT *key, int flags /* ignored */);
++static enum db_result trivseq(struct DB *db, DBT *key, DBT *data,
++			      enum seqtype order);
++static void trivclose(struct DB *db);
++
++static struct DB DB_template = {
++	get:	trivget,
++	put:	trivput,
++	del:	trivdel,
++	seq:	trivseq,
++	close:	trivclose,
++	chain:	NULL,
++	seqnext: NULL,
++};
++
++static void *
++memdup(void *ptr, int size)
++{
++	void *result;
++	if ((result = malloc(size)) != NULL) {
++		memcpy(result, ptr, size);
++	}
++	return result;
++}
++
++DB *
++dbopen(const char *filename, int openflags, int mode,
++       enum db_opentype type, void *openinfo) {
++	return memdup(&DB_template, sizeof(DB));
++}
++
++/* Routines above this line do not care about the structure of dbchain. */
++
++struct dbchain {
++	struct dbchain *next;
++	int keylen, datalen;
++	unsigned char key_data[0];
++};
++
++#define KEY(chain)	((chain)->key_data)
++#define DATA(chain)	((chain)->key_data + (chain)->keylen)
++
++static struct dbchain **
++find(struct dbchain **pChain, void *key, int keylen)
++{
++	while (*pChain != NULL &&
++	       ((*pChain)->keylen != keylen ||
++		memcmp(KEY(*pChain), key, keylen) != 0)) {
++
++		pChain = &(*pChain)->next;
++	}
++	return pChain;
++}
++
++static enum db_result
++copyout(DBT *dst, struct dbchain *src)
++{
++	void *copy;
++	if (src == NULL)
++		return DB_NOTFOUND;
++
++	if ((copy = memdup(DATA(src), src->datalen)) == NULL)
++		return DB_SYSERROR;
++
++	dst->size = src->datalen;
++	dst->data = copy;
++	return DB_OK;
++}
++
++static enum db_result
++trivget(struct DB *db, DBT *key, DBT *data, int flags)
++{
++	return copyout(data, *find(&db->chain, key->data, key->size));
++}
++
++static enum db_result
++trivput(struct DB *db, DBT *key, DBT *data, int flags)
++{
++	struct dbchain *chain;
++	chain = malloc(sizeof (struct dbchain) + key->size + data->size);
++	if (chain == NULL)
++		return DB_SYSERROR;
++
++	chain->keylen = key->size;
++	chain->datalen = data->size;
++	memcpy(KEY(chain), key->data, key->size);
++	memcpy(DATA(chain), data->data, data->size);
++	chain->next = db->chain;
++	db->chain = chain;
++	return DB_OK;
++}
++
++static void
++trivdel(struct DB *db, DBT *key, int flags /* ignored */)
++{
++	struct dbchain **pChain = find(&db->chain, key->data, key->size);
++	struct dbchain *chain = *pChain;
++
++	if (chain != NULL) {
++		*pChain = chain->next;
++		free(chain);
++	}
++}
++
++static enum db_result
++trivseq(struct DB *db, DBT *key, DBT *data, enum seqtype order)
++{
++	if (order == R_FIRST)
++		db->seqnext = db->chain;
++	else {
++		ASSERT(db->seqnext != NULL);
++		db->seqnext = db->seqnext->next;
++	}
++	return copyout(data, db->seqnext);
++}
++
++static void trivclose(struct DB *db) {
++	struct dbchain **pChain;
++
++	pChain = &db->chain;
++	for(;;) {
++		struct dbchain *chain = *pChain;
++		if (chain == NULL)
++			return;
++		pChain = &chain->next;
++		free(chain);
++	}
++}
++
 
--	for (cnt = 0; cnt < min(unsigned int, name1_len, name2_len); ++cnt)
-+	for (cnt = 0; cnt < min(__u32, name1_len, name2_len); ++cnt)
- 	{
- 		c1 = le16_to_cpu(*name1++);
- 		c2 = le16_to_cpu(*name2++);
-
+--r5Pyd7+fXNt84Ff3--

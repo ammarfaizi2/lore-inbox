@@ -1,90 +1,265 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVC3C4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVC3C5o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVC3C4h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 21:56:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261732AbVC3C4e
+	id S261754AbVC3C5o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 21:57:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVC3C5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 21:56:34 -0500
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:12012 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261721AbVC3Cyc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 21:54:32 -0500
+	Tue, 29 Mar 2005 21:57:24 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54948 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261723AbVC3CzB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Mar 2005 21:55:01 -0500
 From: gh@us.ibm.com
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
 Cc: ckrm-tech@lists.sourceforge.net
-Subject: [patch 1/8] CKRM:  Core CKRM Event Callbacks
-Content-Disposition: inline; filename=01-diff_ckrm_events
-X-Evolution: 00000009-0000
-Date: Tue, 29 Mar 2005 18:54:31 -0800
-Message-Id: <E1DGTLj-0007v2-00@w-gerrit.beaverton.ibm.com>
+Subject: [patch 2/8] CKRM:  Processor Delay Accounting
+Content-Disposition: inline; filename=02-diff_delay_acct
+X-Evolution: 0000000a-0000
+Date: Tue, 29 Mar 2005 18:54:57 -0800
+Message-Id: <E1DGTM9-0007ve-00@w-gerrit.beaverton.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Core CKRM Event Callbacks.
+CKRM processor scheduling delay accounting - provides a mechanism
+to In addition to counting frequency the total delay in ns is also
+recorded. CPU delays are specified as cpu-wait and cpu-run.  I/O delays
+are recorded for memory and regular I/O.  Information is accessible
+through /proc/<pid>/delay.
 
-On exec, fork, exit, real/effective gid/uid, use CKRM to associate
-tasks with appropriate class.
+Signed-Off-By: Chandra Seetharaman <sekharan@us.ibm.com>
+Signed-Off-By: Hubertus Franke <frankeh@us.ibm.com>
+Signed-Off-By: Shailabh Nagar <nagar@us.ibm.com>
+Signed-Off-By: Gerrit Huizenga <gh@us.ibm.com>
 
-Addressed all review comments except:
+ fs/proc/array.c            |   18 +++++++++
+ fs/proc/base.c             |   18 +++++++++
+ include/linux/sched.h      |   86 +++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/taskdelays.h |   45 +++++++++++++++++++++++
+ init/Kconfig               |    8 ++++
+ kernel/fork.c              |    1 
+ kernel/sched.c             |   17 ++++++++
+ mm/memory.c                |    9 +++-
+ 8 files changed, 200 insertions(+), 2 deletions(-)
 
-Greg KH:
-        Use of __bitwise and sparse in enum's
-        Use of kernel list type
-
-Signed-off-by:  Shailabh Nagar <nagar@us.ibm.com>
-Signed-off-by:  Hubertus Franke <frankeh@us.ibm.com>
-Signed-off-by:  Chandra Seetharaman <sekharan@us.ibm.com>
-Signed-off-by:  Gerrit Huizenga <gh@us.ibm.com>
-
-
- fs/exec.c                   |    2 
- include/linux/ckrm_events.h |  190 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/sched.h       |    1 
- init/Kconfig                |   16 +++
- kernel/Makefile             |    2 
- kernel/ckrm/Makefile        |    7 +
- kernel/ckrm/ckrm_events.c   |   97 ++++++++++++++++++++++
- kernel/exit.c               |    3 
- kernel/fork.c               |    4 
- kernel/sys.c                |   10 ++
- 10 files changed, 331 insertions(+), 1 deletion(-)
-
-Index: linux-2.6.12-rc1/fs/exec.c
+Index: linux-2.6.12-rc1/fs/proc/array.c
 ===================================================================
---- linux-2.6.12-rc1.orig/fs/exec.c	2005-03-17 17:34:09.000000000 -0800
-+++ linux-2.6.12-rc1/fs/exec.c	2005-03-18 15:16:16.981786266 -0800
-@@ -48,6 +48,7 @@
- #include <linux/syscalls.h>
- #include <linux/rmap.h>
- #include <linux/acct.h>
-+#include <linux/ckrm_events.h>
+--- linux-2.6.12-rc1.orig/fs/proc/array.c	2005-03-17 17:34:18.000000000 -0800
++++ linux-2.6.12-rc1/fs/proc/array.c	2005-03-18 15:16:20.884475861 -0800
+@@ -482,3 +482,21 @@ int proc_pid_statm(struct task_struct *t
+ 	return sprintf(buffer,"%d %d %d %d %d %d %d\n",
+ 		       size, resident, shared, text, lib, data, 0);
+ }
++
++
++int proc_pid_delay(struct task_struct *task, char * buffer)
++{
++	int res;
++
++	res  = sprintf(buffer,"%u %llu %llu %u %llu %u %llu\n",
++		       (unsigned int) get_delay(task,runs),
++		       (uint64_t) get_delay(task,runcpu_total),
++		       (uint64_t) get_delay(task,waitcpu_total),
++		       (unsigned int) get_delay(task,num_iowaits),
++		       (uint64_t) get_delay(task,iowait_total),
++		       (unsigned int) get_delay(task,num_memwaits),
++		       (uint64_t) get_delay(task,mem_iowait_total)
++		);
++	return res;
++}
++
+Index: linux-2.6.12-rc1/fs/proc/base.c
+===================================================================
+--- linux-2.6.12-rc1.orig/fs/proc/base.c	2005-03-17 17:34:18.000000000 -0800
++++ linux-2.6.12-rc1/fs/proc/base.c	2005-03-18 15:16:20.889475463 -0800
+@@ -120,6 +120,10 @@ enum pid_directory_inos {
+ #ifdef CONFIG_AUDITSYSCALL
+ 	PROC_TID_LOGINUID,
+ #endif
++#ifdef CONFIG_DELAY_ACCT
++        PROC_TID_DELAY_ACCT,
++        PROC_TGID_DELAY_ACCT,
++#endif
+ 	PROC_TID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
+ 	PROC_TID_OOM_SCORE,
+ 	PROC_TID_OOM_ADJUST,
+@@ -155,6 +159,9 @@ static struct pid_entry tgid_base_stuff[
+ #ifdef CONFIG_SECURITY
+ 	E(PROC_TGID_ATTR,      "attr",    S_IFDIR|S_IRUGO|S_IXUGO),
+ #endif
++#ifdef CONFIG_DELAY_ACCT
++	E(PROC_TGID_DELAY_ACCT,"delay",   S_IFREG|S_IRUGO),
++#endif
+ #ifdef CONFIG_KALLSYMS
+ 	E(PROC_TGID_WCHAN,     "wchan",   S_IFREG|S_IRUGO),
+ #endif
+@@ -191,6 +198,9 @@ static struct pid_entry tid_base_stuff[]
+ #ifdef CONFIG_SECURITY
+ 	E(PROC_TID_ATTR,       "attr",    S_IFDIR|S_IRUGO|S_IXUGO),
+ #endif
++#ifdef CONFIG_DELAY_ACCT
++	E(PROC_TGID_DELAY_ACCT,"delay",   S_IFREG|S_IRUGO),
++#endif
+ #ifdef CONFIG_KALLSYMS
+ 	E(PROC_TID_WCHAN,      "wchan",   S_IFREG|S_IRUGO),
+ #endif
+@@ -1564,6 +1574,13 @@ static struct dentry *proc_pident_lookup
+ 			ei->op.proc_read = proc_pid_wchan;
+ 			break;
+ #endif
++#ifdef CONFIG_DELAY_ACCT
++		case PROC_TID_DELAY_ACCT:
++		case PROC_TGID_DELAY_ACCT:
++			inode->i_fop = &proc_info_file_operations;
++			ei->op.proc_read = proc_pid_delay;
++			break;
++#endif
+ #ifdef CONFIG_SCHEDSTATS
+ 		case PROC_TID_SCHEDSTAT:
+ 		case PROC_TGID_SCHEDSTAT:
+Index: linux-2.6.12-rc1/fs/proc/internal.h
+===================================================================
+--- linux-2.6.12-rc1.orig/fs/proc/internal.h	2005-03-17 17:33:50.000000000 -0800
++++ linux-2.6.12-rc1/fs/proc/internal.h	2005-03-18 15:16:20.889475463 -0800
+@@ -36,6 +36,7 @@ extern int proc_tid_stat(struct task_str
+ extern int proc_tgid_stat(struct task_struct *, char *);
+ extern int proc_pid_status(struct task_struct *, char *);
+ extern int proc_pid_statm(struct task_struct *, char *);
++extern int proc_pid_delay(struct task_struct *, char*);
  
- #include <asm/uaccess.h>
- #include <asm/mmu_context.h>
-@@ -1087,6 +1088,7 @@ int search_binary_handler(struct linux_b
- 					fput(bprm->file);
- 				bprm->file = NULL;
- 				current->did_exec = 1;
-+				ckrm_cb_exec(bprm->filename);
- 				return retval;
- 			}
- 			read_lock(&binfmt_lock);
-Index: linux-2.6.12-rc1/include/linux/ckrm_events.h
+ static inline struct task_struct *proc_task(struct inode *inode)
+ {
+Index: linux-2.6.12-rc1/include/linux/sched.h
+===================================================================
+--- linux-2.6.12-rc1.orig/include/linux/sched.h	2005-03-17 17:33:50.000000000 -0800
++++ linux-2.6.12-rc1/include/linux/sched.h	2005-03-18 15:16:20.891475304 -0800
+@@ -34,6 +34,7 @@
+ #include <linux/percpu.h>
+ #include <linux/topology.h>
+ #include <linux/seccomp.h>
++#include <linux/taskdelays.h>
+ 
+ struct exec_domain;
+ 
+@@ -727,6 +728,9 @@ struct task_struct {
+ 	nodemask_t mems_allowed;
+ 	int cpuset_mems_generation;
+ #endif
++#ifdef CONFIG_DELAY_ACCT
++	struct task_delay_info delays;
++#endif
+ };
+ 
+ static inline pid_t process_group(struct task_struct *tsk)
+@@ -1024,6 +1028,9 @@ task_t *fork_idle(int);
+ extern void set_task_comm(struct task_struct *tsk, char *from);
+ extern void get_task_comm(char *to, struct task_struct *tsk);
+ 
++#define PF_MEMIO	0x00400000      /* I am potentially doing I/O for mem */
++#define PF_IOWAIT	0x00800000      /* I am waiting on disk I/O */
++
+ #ifdef CONFIG_SMP
+ extern void wait_task_inactive(task_t * p);
+ #else
+@@ -1258,6 +1265,88 @@ static inline int try_to_freeze(unsigned
+ 	return 0;
+ }
+ #endif /* CONFIG_PM */
++
++/* API for registering delay info */
++#ifdef CONFIG_DELAY_ACCT
++
++#define test_delay_flag(tsk,flg)	((tsk)->flags & (flg))
++#define set_delay_flag(tsk,flg)		((tsk)->flags |= (flg))
++#define clear_delay_flag(tsk,flg)	((tsk)->flags &= ~(flg))
++
++#define def_delay_var(var)		unsigned long long var
++#define get_delay(tsk,field)		((tsk)->delays.field)
++
++#define start_delay(var)		((var) = sched_clock())
++#define start_delay_set(var,flg)	(set_delay_flag(current,flg),(var) = \
++							sched_clock())
++
++#define inc_delay(tsk,field)		(((tsk)->delays.field)++)
++
++/* because of hardware timer drifts in SMPs and task continue on different cpu
++ * then where the start_ts was taken there is a possibility that
++ * end_ts < start_ts by some usecs. In this case we ignore the diff
++ * and add nothing to the total.
++ */
++#ifdef CONFIG_SMP
++#define test_ts_integrity(start_ts,end_ts)  (likely((end_ts) > (start_ts)))
++#else
++#define test_ts_integrity(start_ts,end_ts)  (1)
++#endif
++
++#define add_delay_ts(tsk,field,start_ts,end_ts) \
++	do { if (test_ts_integrity(start_ts,end_ts)) (tsk)->delays.field += ((end_ts)-(start_ts)); } while (0)
++
++#define add_delay_clear(tsk,field,start_ts,flg)		\
++	do {						\
++		unsigned long long now = sched_clock();	\
++		add_delay_ts(tsk,field,start_ts,now);	\
++		clear_delay_flag(tsk,flg);		\
++	} while (0)
++
++static inline void add_io_delay(unsigned long long dstart) 
++{
++	struct task_struct * tsk = current;
++	unsigned long long now = sched_clock();
++	unsigned long long val;
++
++	if (test_ts_integrity(dstart,now))
++		val = now - dstart;
++	else
++		val = 0;
++	if (test_delay_flag(tsk,PF_MEMIO)) {
++		tsk->delays.mem_iowait_total += val;
++		tsk->delays.num_memwaits++;
++	} else {
++		tsk->delays.iowait_total += val;
++		tsk->delays.num_iowaits++;
++	}
++	clear_delay_flag(tsk,PF_IOWAIT);
++}
++
++inline static void init_delays(struct task_struct *tsk)
++{
++	memset((void*)&tsk->delays,0,sizeof(tsk->delays));
++}
++
++#else
++
++#define test_delay_flag(tsk,flg)                (0)
++#define set_delay_flag(tsk,flg)                 do { } while (0)
++#define clear_delay_flag(tsk,flg)               do { } while (0)
++
++#define def_delay_var(var)			      
++#define get_delay(tsk,field)                    (0)
++
++#define start_delay(var)                        do { } while (0)
++#define start_delay_set(var,flg)                do { } while (0)
++
++#define inc_delay(tsk,field)                    do { } while (0)
++#define add_delay_ts(tsk,field,start_ts,now)    do { } while (0)
++#define add_delay_clear(tsk,field,start_ts,flg) do { } while (0)
++#define add_io_delay(dstart)			do { } while (0) 
++#define init_delays(tsk)                        do { } while (0)
++#endif
++
+ #endif /* __KERNEL__ */
+ 
+ #endif
+Index: linux-2.6.12-rc1/include/linux/taskdelays.h
 ===================================================================
 --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc1/include/linux/ckrm_events.h	2005-03-18 15:16:16.981786266 -0800
-@@ -0,0 +1,192 @@
-+/*
-+ * ckrm_events.h - Class-based Kernel Resource Management (CKRM)
-+ *                 event handling
++++ linux-2.6.12-rc1/include/linux/taskdelays.h	2005-03-18 15:16:20.891475304 -0800
+@@ -0,0 +1,35 @@
++/* taskdelays.h - for delay accounting
 + *
-+ * Copyright (C) Hubertus Franke, IBM Corp. 2003,2004
-+ *           (C) Shailabh Nagar,  IBM Corp. 2003
-+ *           (C) Chandra Seetharaman, IBM Corp. 2003
++ * Copyright (C) Hubertus Franke, IBM Corp. 2003, 2004
 + * 
-+ * 
-+ * Provides a base header file including macros and basic data structures.
++ * Has the data structure for delay counting.
 + *
 + * Latest version, more details at http://ckrm.sf.net
 + * 
@@ -95,429 +270,162 @@ Index: linux-2.6.12-rc1/include/linux/ckrm_events.h
 + * This program is distributed in the hope that it would be useful, but
 + * WITHOUT ANY WARRANTY; without even the implied warranty of
 + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-+ *
 + */
 +
-+#ifndef _LINUX_CKRM_EVENTS_H
-+#define _LINUX_CKRM_EVENTS_H
-+
-+#ifdef CONFIG_CKRM
-+
-+/*
-+ * Data structure and function to get the list of registered 
-+ * resource controllers.
-+ */
-+
-+/*
-+ * CKRM defines a set of events at particular points in the kernel
-+ * at which callbacks registered by various class types are called
-+ */
-+
-+enum ckrm_event {
-+	/*
-+	 * we distinguish these events types:
-+	 *
-+	 * (a) CKRM_LATCHABLE_EVENTS
-+	 *      events can be latched for event callbacks by classtypes
-+	 *
-+	 * (b) CKRM_NONLATACHBLE_EVENTS
-+	 *     events can not be latched but can be used to call classification
-+	 * 
-+	 * (c) event that are used for notification purposes
-+	 *     range: [ CKRM_EVENT_CANNOT_CLASSIFY .. )
-+	 */
-+
-+	/* events (a) */
-+
-+	CKRM_LATCHABLE_EVENTS,
-+
-+	CKRM_EVENT_NEWTASK = CKRM_LATCHABLE_EVENTS,
-+	CKRM_EVENT_FORK,
-+	CKRM_EVENT_EXIT,
-+	CKRM_EVENT_EXEC,
-+	CKRM_EVENT_UID,
-+	CKRM_EVENT_GID,
-+	CKRM_EVENT_LOGIN,
-+	CKRM_EVENT_USERADD,
-+	CKRM_EVENT_USERDEL,
-+	CKRM_EVENT_LISTEN_START,
-+	CKRM_EVENT_LISTEN_STOP,
-+	CKRM_EVENT_APPTAG,
-+
-+	/* events (b) */
-+
-+	CKRM_NONLATCHABLE_EVENTS,
-+
-+	CKRM_EVENT_RECLASSIFY = CKRM_NONLATCHABLE_EVENTS,
-+
-+	/* events (c) */
-+
-+	CKRM_NOTCLASSIFY_EVENTS,
-+
-+	CKRM_EVENT_MANUAL = CKRM_NOTCLASSIFY_EVENTS,
-+
-+	CKRM_NUM_EVENTS
-+};
-+
-+/*
-+ * CKRM event callback specification for the classtypes or resource controllers 
-+ *   typically an array is specified using CKRM_EVENT_SPEC terminated with 
-+ *   CKRM_EVENT_SPEC_LAST and then that array is registered using
-+ *   ckrm_register_event_set.
-+ *   Individual registration of event_cb is also possible
-+ */
-+
-+struct ckrm_hook_cb {
-+	void (*fct)(void *arg);
-+	struct ckrm_hook_cb *next;
-+};
-+
-+struct ckrm_event_spec {
-+	enum ckrm_event ev;
-+	struct ckrm_hook_cb cb;
-+};
-+
-+int ckrm_register_event_set(struct ckrm_event_spec especs[]);
-+int ckrm_unregister_event_set(struct ckrm_event_spec especs[]);
-+int ckrm_register_event_cb(enum ckrm_event ev, struct ckrm_hook_cb *cb);
-+int ckrm_unregister_event_cb(enum ckrm_event ev, struct ckrm_hook_cb *cb);
-+
-+extern void ckrm_invoke_event_cb_chain(enum ckrm_event ev, void *arg);
-+
-+/* forward declarations for function arguments */
-+struct task_struct;
-+struct sock;
-+struct user_struct;
-+
-+static inline void ckrm_cb_fork(struct task_struct *p)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_FORK, p);
-+}
-+
-+static inline void ckrm_cb_newtask(struct task_struct *p)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_NEWTASK, p);
-+}
-+
-+static inline void ckrm_cb_exit(struct task_struct *p)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_EXIT, p);
-+}
-+
-+static inline void ckrm_cb_exec(char *c)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_EXEC, c);
-+}
-+
-+static inline void ckrm_cb_uid(void)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_UID, NULL);
-+}
-+
-+static inline void ckrm_cb_gid(void)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_GID, NULL);
-+}
-+
-+static inline void ckrm_cb_apptag(void)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_APPTAG, NULL);
-+}
-+
-+static inline void ckrm_cb_login(void)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_LOGIN, NULL);
-+}
-+
-+static inline void ckrm_cb_useradd(struct user_struct *u)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_USERADD, u);
-+}
-+
-+static inline void ckrm_cb_userdel(struct user_struct *u)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_USERDEL, u);
-+}
-+
-+static inline void ckrm_cb_listen_start(struct sock *s)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_LISTEN_START, s);
-+}
-+
-+static inline void ckrm_cb_listen_stop(struct sock *s)
-+{
-+         ckrm_invoke_event_cb_chain(CKRM_EVENT_LISTEN_STOP, s);
-+}
-+
-+#else /* !CONFIG_CKRM */
-+
-+static inline void ckrm_cb_fork(struct task_struct *p) { }
-+static inline void ckrm_cb_newtask(struct task_struct *p) { }
-+static inline void ckrm_cb_exit(struct task_struct *p) { }
-+static inline void ckrm_cb_exec(const char *c) { }
-+static inline void ckrm_cb_uid(void) { }
-+static inline void ckrm_cb_gid(void) { }
-+static inline void ckrm_cb_apptag(void) { }
-+static inline void ckrm_cb_login(void) { }
-+static inline void ckrm_cb_useradd(struct user_struct *u) { }
-+static inline void ckrm_cb_userdel(struct user_struct *u) { }
-+static inline void ckrm_cb_listen_start(struct sock *s) { }
-+static inline void ckrm_cb_listen_stop(struct sock *s) { }
-+
-+#endif /* CONFIG_CKRM */
-+
-+#endif /* _LINUX_CKRM_EVENTS_H */
-Index: linux-2.6.12-rc1/init/Kconfig
-===================================================================
---- linux-2.6.12-rc1.orig/init/Kconfig	2005-03-17 17:34:27.000000000 -0800
-+++ linux-2.6.12-rc1/init/Kconfig	2005-03-18 15:16:16.982786187 -0800
-@@ -138,6 +138,22 @@ config BSD_PROCESS_ACCT_V3
- 	  for processing it. A preliminary version of these tools is available
- 	  at <http://www.physik3.uni-rostock.de/tim/kernel/utils/acct/>.
- 
-+menu "Class Based Kernel Resource Management"
-+
-+config CKRM
-+	bool "Class Based Kernel Resource Management Core"
-+	depends on EXPERIMENTAL
-+	help
-+	  Class-based Kernel Resource Management is a framework for controlling
-+	  and monitoring resource allocation of user-defined groups of tasks or
-+	  incoming socket connections. For more information, please visit
-+	  http://ckrm.sf.net. 
-+
-+	  If you say Y here, enable the Resource Class File System and atleast
-+	  one of the resource controllers below. Say N if you are unsure. 
-+
-+endmenu
-+
- config SYSCTL
- 	bool "Sysctl support"
- 	---help---
-Index: linux-2.6.12-rc1/kernel/ckrm/ckrm_events.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc1/kernel/ckrm/ckrm_events.c	2005-03-18 15:16:16.983786107 -0800
-@@ -0,0 +1,86 @@
-+/* ckrm_events.c - Class-based Kernel Resource Management (CKRM)
-+ *               - event handling routines
-+ *
-+ * Copyright (C) Hubertus Franke, IBM Corp. 2003, 2004
-+ *           (C) Chandra Seetharaman,  IBM Corp. 2003
-+ * 
-+ * 
-+ * Provides API for event registration and handling for different
-+ * classtypes.
-+ *
-+ * Latest version, more details at http://ckrm.sf.net
-+ * 
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ */
++#ifndef _LINUX_TASKDELAYS_H
++#define _LINUX_TASKDELAYS_H
 +
 +#include <linux/config.h>
-+#include <linux/stddef.h>
-+#include <linux/ckrm_events.h>
++#include <linux/types.h>
 +
-+/*******************************************************************
-+ *   Event callback invocation
-+ *******************************************************************/
++struct task_delay_info {
++	/* delay statistics in usecs */
++	uint64_t waitcpu_total;
++	uint64_t runcpu_total;
++	uint64_t iowait_total;
++	uint64_t mem_iowait_total;
++	uint32_t runs;
++	uint32_t num_iowaits;
++	uint32_t num_memwaits;
++};
 +
-+struct ckrm_hook_cb *ckrm_event_callbacks[CKRM_NONLATCHABLE_EVENTS];
-+
-+/* Registration / Deregistration / Invocation functions */
-+
-+int ckrm_register_event_cb(enum ckrm_event ev, struct ckrm_hook_cb *cb)
-+{
-+	struct ckrm_hook_cb **cbptr;
-+
-+	if ((ev < CKRM_LATCHABLE_EVENTS) || (ev >= CKRM_NONLATCHABLE_EVENTS))
-+		return 1;
-+	cbptr = &ckrm_event_callbacks[ev];
-+	while (*cbptr != NULL)
-+		cbptr = &((*cbptr)->next);
-+	*cbptr = cb;
-+	return 0;
-+}
-+
-+int ckrm_unregister_event_cb(enum ckrm_event ev, struct ckrm_hook_cb *cb)
-+{
-+	struct ckrm_hook_cb **cbptr;
-+
-+	if ((ev < CKRM_LATCHABLE_EVENTS) || (ev >= CKRM_NONLATCHABLE_EVENTS))
-+		return -1;
-+	cbptr = &ckrm_event_callbacks[ev];
-+	while ((*cbptr != NULL) && (*cbptr != cb))
-+		cbptr = &((*cbptr)->next);
-+	if (*cbptr)
-+		(*cbptr)->next = cb->next;
-+	return (*cbptr == NULL);
-+}
-+
-+int ckrm_register_event_set(struct ckrm_event_spec especs[])
-+{
-+	struct ckrm_event_spec *espec = especs;
-+
-+	for (espec = especs; espec->ev != -1; espec++)
-+		ckrm_register_event_cb(espec->ev, &espec->cb);
-+	return 0;
-+}
-+
-+int ckrm_unregister_event_set(struct ckrm_event_spec especs[])
-+{
-+	struct ckrm_event_spec *espec = especs;
-+
-+	for (espec = especs; espec->ev != -1; espec++)
-+		ckrm_unregister_event_cb(espec->ev, &espec->cb);
-+	return 0;
-+}
-+
-+void ckrm_invoke_event_cb_chain(enum ckrm_event ev, void *arg)
-+{
-+	struct ckrm_hook_cb *cb, *anchor;
-+
-+	if ((anchor = ckrm_event_callbacks[ev]) != NULL) {
-+		for (cb = anchor; cb; cb = cb->next)
-+			(*cb->fct) (arg);
-+	}
-+}
-+
-Index: linux-2.6.12-rc1/kernel/ckrm/Makefile
++#endif /* _LINUX_TASKDELAYS_H */
+Index: linux-2.6.12-rc1/init/Kconfig
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc1/kernel/ckrm/Makefile	2005-03-18 15:16:16.983786107 -0800
-@@ -0,0 +1,5 @@
-+#
-+# Makefile for CKRM
-+#
-+
-+obj-y := ckrm_events.o
-Index: linux-2.6.12-rc1/kernel/exit.c
-===================================================================
---- linux-2.6.12-rc1.orig/kernel/exit.c	2005-03-17 17:34:28.000000000 -0800
-+++ linux-2.6.12-rc1/kernel/exit.c	2005-03-18 15:16:16.985785948 -0800
-@@ -27,6 +27,7 @@
- #include <linux/mempolicy.h>
- #include <linux/cpuset.h>
- #include <linux/syscalls.h>
-+#include <linux/ckrm_events.h>
+--- linux-2.6.12-rc1.orig/init/Kconfig	2005-03-18 15:16:16.982786187 -0800
++++ linux-2.6.12-rc1/init/Kconfig	2005-03-18 15:16:20.892475224 -0800
+@@ -253,6 +253,14 @@ menuconfig EMBEDDED
+           environments which can tolerate a "non-standard" kernel.
+           Only use this if you really know what you are doing.
  
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -654,6 +655,8 @@ static void exit_notify(struct task_stru
- 	struct task_struct *t;
- 	struct list_head ptrace_dead, *_p, *_n;
- 
-+	ckrm_cb_exit(tsk);
++config DELAY_ACCT
++	bool "Enable delay accounting (EXPERIMENTAL)"
++	help
++	  In addition to counting frequency the total delay in ns is also
++	  recorded. CPU delays are specified as cpu-wait and cpu-run. 
++	  I/O delays are recorded for memory and regular I/O.
++	  Information is accessible through /proc/<pid>/delay.
 +
- 	if (signal_pending(tsk) && !(tsk->signal->flags & SIGNAL_GROUP_EXIT)
- 	    && !thread_group_empty(tsk)) {
- 		/*
+ config KALLSYMS
+ 	 bool "Load all symbols for debugging/kksymoops" if EMBEDDED
+ 	 default y
 Index: linux-2.6.12-rc1/kernel/fork.c
 ===================================================================
---- linux-2.6.12-rc1.orig/kernel/fork.c	2005-03-17 17:33:50.000000000 -0800
-+++ linux-2.6.12-rc1/kernel/fork.c	2005-03-18 15:16:16.985785948 -0800
-@@ -41,6 +41,7 @@
- #include <linux/profile.h>
- #include <linux/rmap.h>
- #include <linux/acct.h>
-+#include <linux/ckrm_events.h>
+--- linux-2.6.12-rc1.orig/kernel/fork.c	2005-03-18 15:16:16.985785948 -0800
++++ linux-2.6.12-rc1/kernel/fork.c	2005-03-18 15:16:20.893475145 -0800
+@@ -901,6 +901,7 @@ static task_t *copy_process(unsigned lon
+ 	if (p->binfmt && !try_module_get(p->binfmt->module))
+ 		goto bad_fork_cleanup_put_domain;
  
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-@@ -174,6 +175,7 @@ static struct task_struct *dup_task_stru
- 	tsk->thread_info = ti;
- 	ti->task = tsk;
- 
-+	ckrm_cb_newtask(tsk);
- 	/* One for us, one for whoever does the "release_task()" (usually parent) */
- 	atomic_set(&tsk->usage,2);
- 	return tsk;
-@@ -1216,6 +1218,8 @@ long do_fork(unsigned long clone_flags,
- 	if (!IS_ERR(p)) {
- 		struct completion vfork;
- 
-+		ckrm_cb_fork(p);
-+
- 		if (clone_flags & CLONE_VFORK) {
- 			p->vfork_done = &vfork;
- 			init_completion(&vfork);
-Index: linux-2.6.12-rc1/kernel/Makefile
++	init_delays(p);
+ 	p->did_exec = 0;
+ 	copy_flags(clone_flags, p);
+ 	p->pid = pid;
+Index: linux-2.6.12-rc1/kernel/sched.c
 ===================================================================
---- linux-2.6.12-rc1.orig/kernel/Makefile	2005-03-17 17:34:06.000000000 -0800
-+++ linux-2.6.12-rc1/kernel/Makefile	2005-03-18 15:16:16.986785869 -0800
-@@ -28,6 +28,7 @@ obj-$(CONFIG_KPROBES) += kprobes.o
- obj-$(CONFIG_SYSFS) += ksysfs.o
- obj-$(CONFIG_GENERIC_HARDIRQS) += irq/
- obj-$(CONFIG_SECCOMP) += seccomp.o
-+obj-$(CONFIG_CKRM) += ckrm/
+--- linux-2.6.12-rc1.orig/kernel/sched.c	2005-03-17 17:34:27.000000000 -0800
++++ linux-2.6.12-rc1/kernel/sched.c	2005-03-18 15:16:20.896474906 -0800
+@@ -268,6 +268,8 @@ static DEFINE_PER_CPU(struct runqueue, r
+ #define task_rq(p)		cpu_rq(task_cpu(p))
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
  
- ifneq ($(CONFIG_IA64),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-Index: linux-2.6.12-rc1/kernel/sys.c
++#define task_is_running(p)	(this_rq() == task_rq(p))
++
+ /*
+  * Default context-switch locking:
+  */
+@@ -2749,6 +2751,7 @@ switch_tasks:
+ 
+ 	update_cpu_clock(prev, rq, now);
+ 
++	add_delay_ts(prev, runcpu_total, prev->timestamp, now);
+ 	prev->sleep_avg -= run_time;
+ 	if ((long)prev->sleep_avg <= 0)
+ 		prev->sleep_avg = 0;
+@@ -2756,6 +2759,8 @@ switch_tasks:
+ 
+ 	sched_info_switch(prev, next);
+ 	if (likely(prev != next)) {
++		add_delay_ts(next, waitcpu_total, next->timestamp, now);
++		inc_delay(next, runs);
+ 		next->timestamp = now;
+ 		rq->nr_switches++;
+ 		rq->curr = next;
+@@ -3802,9 +3807,12 @@ void __sched io_schedule(void)
+ {
+ 	struct runqueue *rq = &per_cpu(runqueues, _smp_processor_id());
+ 
++	def_delay_var(dstart);
++	start_delay_set(dstart, PF_IOWAIT);
+ 	atomic_inc(&rq->nr_iowait);
+ 	schedule();
+ 	atomic_dec(&rq->nr_iowait);
++	add_io_delay(dstart);
+ }
+ 
+ EXPORT_SYMBOL(io_schedule);
+@@ -3813,10 +3821,13 @@ long __sched io_schedule_timeout(long ti
+ {
+ 	struct runqueue *rq = &per_cpu(runqueues, _smp_processor_id());
+ 	long ret;
++	def_delay_var(dstart);
+ 
++	start_delay_set(dstart,PF_IOWAIT);
+ 	atomic_inc(&rq->nr_iowait);
+ 	ret = schedule_timeout(timeout);
+ 	atomic_dec(&rq->nr_iowait);
++	add_io_delay(dstart);
+ 	return ret;
+ }
+ 
+@@ -5005,3 +5016,12 @@ void normalize_rt_tasks(void)
+ }
+ 
+ #endif /* CONFIG_MAGIC_SYSRQ */
++
++#ifdef CONFIG_DELAY_ACCT
++int task_running_sys(struct task_struct *p)
++{
++	return task_is_running(p);
++}
++EXPORT_SYMBOL_GPL(task_running_sys);
++#endif
++
+Index: linux-2.6.12-rc1/mm/memory.c
 ===================================================================
---- linux-2.6.12-rc1.orig/kernel/sys.c	2005-03-17 17:33:50.000000000 -0800
-+++ linux-2.6.12-rc1/kernel/sys.c	2005-03-18 15:16:16.987785789 -0800
-@@ -25,6 +25,7 @@
- #include <linux/dcookies.h>
- #include <linux/suspend.h>
- #include <linux/tty.h>
-+#include <linux/ckrm_events.h>
+--- linux-2.6.12-rc1.orig/mm/memory.c	2005-03-17 17:34:10.000000000 -0800
++++ linux-2.6.12-rc1/mm/memory.c	2005-03-18 15:16:20.897474827 -0800
+@@ -1939,6 +1939,7 @@ int handle_mm_fault(struct mm_struct *mm
+ 	pud_t *pud;
+ 	pmd_t *pmd;
+ 	pte_t *pte;
++	int rc;
  
- #include <linux/compat.h>
- #include <linux/syscalls.h>
-@@ -534,6 +535,7 @@ asmlinkage long sys_setregid(gid_t rgid,
- 	current->egid = new_egid;
- 	current->gid = new_rgid;
- 	key_fsgid_changed(current);
-+	ckrm_cb_gid();
- 	return 0;
- }
+ 	__set_current_state(TASK_RUNNING);
  
-@@ -573,6 +575,7 @@ asmlinkage long sys_setgid(gid_t gid)
- 		return -EPERM;
- 
- 	key_fsgid_changed(current);
-+	ckrm_cb_gid();
- 	return 0;
- }
-   
-@@ -663,6 +666,8 @@ asmlinkage long sys_setreuid(uid_t ruid,
- 
- 	key_fsuid_changed(current);
- 
-+	ckrm_cb_uid();
+@@ -1952,6 +1953,9 @@ int handle_mm_fault(struct mm_struct *mm
+ 	 * and the SMP-safe atomic PTE updates.
+ 	 */
+ 	pgd = pgd_offset(mm, address);
 +
- 	return security_task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_RE);
- }
- 
-@@ -710,6 +715,8 @@ asmlinkage long sys_setuid(uid_t uid)
- 
- 	key_fsuid_changed(current);
- 
-+	ckrm_cb_uid();
++	set_delay_flag(current, PF_MEMIO);
 +
- 	return security_task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_ID);
- }
+ 	spin_lock(&mm->page_table_lock);
  
-@@ -758,6 +765,8 @@ asmlinkage long sys_setresuid(uid_t ruid
+ 	pud = pud_alloc(mm, pgd, address);
+@@ -1966,10 +1970,13 @@ int handle_mm_fault(struct mm_struct *mm
+ 	if (!pte)
+ 		goto oom;
+ 	
+-	return handle_pte_fault(mm, vma, address, write_access, pte, pmd);
++	rc = handle_pte_fault(mm, vma, address, write_access, pte, pmd);
++	clear_delay_flag(current, PF_MEMIO);
++	return rc;
  
- 	key_fsuid_changed(current);
- 
-+	ckrm_cb_uid();
-+
- 	return security_task_post_setuid(old_ruid, old_euid, old_suid, LSM_SETID_RES);
- }
- 
-@@ -809,6 +818,7 @@ asmlinkage long sys_setresgid(gid_t rgid
- 		current->sgid = sgid;
- 
- 	key_fsgid_changed(current);
-+	ckrm_cb_gid();
- 	return 0;
+  oom:
+ 	spin_unlock(&mm->page_table_lock);
++	clear_delay_flag(current, PF_MEMIO);
+ 	return VM_FAULT_OOM;
  }
  
 

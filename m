@@ -1,64 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288802AbSANGSJ>; Mon, 14 Jan 2002 01:18:09 -0500
+	id <S288819AbSANGZj>; Mon, 14 Jan 2002 01:25:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288809AbSANGSA>; Mon, 14 Jan 2002 01:18:00 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:37905 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288802AbSANGRo>;
-	Mon, 14 Jan 2002 01:17:44 -0500
-Date: Mon, 14 Jan 2002 04:17:31 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Adam Kropelin <akropel1@rochester.rr.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.18pre3-ac1
-In-Reply-To: <m13d19qy9f.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.33L.0201140409260.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S288820AbSANGZ3>; Mon, 14 Jan 2002 01:25:29 -0500
+Received: from femail13.sdc1.sfba.home.com ([24.0.95.140]:52934 "EHLO
+	femail13.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S288819AbSANGZM>; Mon, 14 Jan 2002 01:25:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Daniel Phillips <phillips@bonn-fries.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, rml@tech9.net (Robert Love)
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Date: Sun, 13 Jan 2002 17:23:13 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), arjan@fenrus.demon.nl,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <E16Pn2o-0007I8-00@the-village.bc.nu> <E16Q09g-0000kn-00@starship.berlin>
+In-Reply-To: <E16Q09g-0000kn-00@starship.berlin>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020114062512.LOBA7324.femail13.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jan 2002, Eric W. Biederman wrote:
-> Rik van Riel <riel@conectiva.com.br> writes:
+On Monday 14 January 2002 12:59 am, Daniel Phillips wrote:
+> On January 13, 2002 04:59 pm, Alan Cox wrote:
+> > > > I disable a single specific interrupt, I don't disable the timer
+>
+> interrupt.
+>
+> > > > Your code doesn't seem to handle that.
+> > >
+> > > It can if we increment the preempt_count in disable_irq_nosync and
+> > > decrement it on enable_irq.
+> >
+> > A driver that knows about how its irq is handled and that it is sole
+> > user (eg ISA) may and some do leave it disabled for hours at a time
+>
+> Good point.  Preemption would be disabled for that thread if we mindlessly
+> shut it off for every irq_disable.  For that driver we probably just want
+> to leave preemption enabled, it can't hurt.
 
-> Rik while you are looking at your reverse mapping code, I would like
-> to call to your attention the at least trippling of times for fork.
+Once we return to user space, we can preempt again.  If preemption is still 
+disabled upon return from the syscall, I'd say it's okay to switch it back on 
+now. :)
 
-Dave McCracken has measured this on his system, it seems to vary
-from between 10% for bash to 400% for a process with 10 MB of memory.
+Unless I'm missing something fundamental...?
 
-This is a problem which will need to be solved, a number of designs
-on how to deal with this are ready, implementation needs to be done.
-
-> I wouldn't be surprised if the reason your rmap vm handles things like
-> gcc -j better than the stock kernel is simply the reduced number of
-> processes, due to slower forking.
-
-I really doubt this, since gcc spends so much more time doing
-real work than forking that the time used in fork can be ignored,
-even if it gets 3 times slower.
-
-> Just my 2 cents so we don't forget the caveats of the reverse map
-> approach.
-
-The main way we can speed up fork easily is by not copying the
-page tables at all at fork time but filling them in later at page
-fault time. While this might look like it's just moving the overhead
-from one place to another, but for the typical fork()+exec() case it
-means (1) we don't copy the page tables at fork time (2) we don't
-need to free them at exec time (3) after the exec, the parent can
-just take back the complete page tables without having to take COW
-faults on all its pages.
-
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Rob

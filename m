@@ -1,120 +1,111 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265257AbTFZAhU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Jun 2003 20:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265229AbTFZAgN
+	id S265227AbTFZAfd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Jun 2003 20:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265258AbTFZAfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Jun 2003 20:36:13 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:21399 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265251AbTFZAfG convert rfc822-to-8bit
+	Wed, 25 Jun 2003 20:35:33 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:17815 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S265227AbTFZAfB convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Jun 2003 20:35:06 -0400
+	Wed, 25 Jun 2003 20:35:01 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <1056588494675@kroah.com>
+Message-Id: <10565884952122@kroah.com>
 Subject: Re: [PATCH] More PCI fixes for 2.5.73
-In-Reply-To: <10565884943135@kroah.com>
+In-Reply-To: <1056588494675@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 25 Jun 2003 17:48:14 -0700
+Date: Wed, 25 Jun 2003 17:48:15 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-kernel@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1429.2.5, 2003/06/25 17:08:13-07:00, willy@debian.org
+ChangeSet 1.1429.2.6, 2003/06/25 17:13:44-07:00, greg@kroah.com
 
-[PATCH] PCI: fixes for pci/probe.c
+[PATCH] PCI Hotplug: fix core problem with kobject lifespans.
 
- - Combine pci_alloc_primary_bus_parented into pci_scan_bus_parented.
- - Move the EXPORT_SYMBOL for pci_root_buses up to its definition.
- - Don't EXPORT_SYMBOL pci_scan_bus since it's a static inline.
- - Add the pci_domain_nr() to the sysfs name for this bus.
+Added needed release function, now all pci hotplug drivers need to implement
+it...
 
 
- drivers/pci/probe.c |   34 +++++++++++++++-------------------
- 1 files changed, 15 insertions(+), 19 deletions(-)
+ drivers/pci/hotplug/pci_hotplug.h      |    4 ++++
+ drivers/pci/hotplug/pci_hotplug_core.c |   22 +++++++++++++---------
+ 2 files changed, 17 insertions(+), 9 deletions(-)
 
 
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	Wed Jun 25 17:38:03 2003
-+++ b/drivers/pci/probe.c	Wed Jun 25 17:38:03 2003
-@@ -18,7 +18,10 @@
- #define CARDBUS_LATENCY_TIMER	176	/* secondary latency timer */
- #define CARDBUS_RESERVE_BUSNR	3
- 
-+/* Ugh.  Need to stop exporting this to modules. */
- LIST_HEAD(pci_root_buses);
-+EXPORT_SYMBOL(pci_root_buses);
+diff -Nru a/drivers/pci/hotplug/pci_hotplug.h b/drivers/pci/hotplug/pci_hotplug.h
+--- a/drivers/pci/hotplug/pci_hotplug.h	Wed Jun 25 17:37:57 2003
++++ b/drivers/pci/hotplug/pci_hotplug.h	Wed Jun 25 17:37:57 2003
+@@ -51,6 +51,8 @@
+ 	ssize_t (*show)(struct hotplug_slot *, char *);
+ 	ssize_t (*store)(struct hotplug_slot *, const char *, size_t);
+ };
++#define to_hotplug_attr(n) container_of(n, struct hotplug_slot_attribute, attr);
 +
- LIST_HEAD(pci_devices);
+ /**
+  * struct hotplug_slot_ops -the callbacks that the hotplug pci core can use
+  * @owner: The module owner of this structure
+@@ -130,12 +132,14 @@
+ 	char				*name;
+ 	struct hotplug_slot_ops		*ops;
+ 	struct hotplug_slot_info	*info;
++	void (*release) (struct hotplug_slot *slot);
+ 	void				*private;
  
- /*
-@@ -643,7 +646,7 @@
- 	return 0;
- }
+ 	/* Variables below this are for use only by the hotplug pci core. */
+ 	struct list_head		slot_list;
+ 	struct kobject			kobj;
+ };
++#define to_hotplug_slot(n) container_of(n, struct hotplug_slot, kobj)
  
--static struct pci_bus * __devinit pci_alloc_primary_bus_parented(struct device *parent, int bus)
-+struct pci_bus * __devinit pci_scan_bus_parented(struct device *parent, int bus, struct pci_ops *ops, void *sysdata)
+ extern int pci_hp_register		(struct hotplug_slot *slot);
+ extern int pci_hp_deregister		(struct hotplug_slot *slot);
+diff -Nru a/drivers/pci/hotplug/pci_hotplug_core.c b/drivers/pci/hotplug/pci_hotplug_core.c
+--- a/drivers/pci/hotplug/pci_hotplug_core.c	Wed Jun 25 17:37:57 2003
++++ b/drivers/pci/hotplug/pci_hotplug_core.c	Wed Jun 25 17:37:57 2003
+@@ -74,20 +74,16 @@
+ static ssize_t hotplug_slot_attr_show(struct kobject *kobj,
+ 		struct attribute *attr, char *buf)
  {
- 	struct pci_bus *b;
- 
-@@ -656,46 +659,39 @@
- 	b = pci_alloc_bus();
- 	if (!b)
- 		return NULL;
--	
-+
- 	b->dev = kmalloc(sizeof(*(b->dev)),GFP_KERNEL);
- 	if (!b->dev){
- 		kfree(b);
- 		return NULL;
- 	}
--	
-+
-+	b->sysdata = sysdata;
-+	b->ops = ops;
-+
- 	list_add_tail(&b->node, &pci_root_buses);
- 
- 	memset(b->dev,0,sizeof(*(b->dev)));
--	sprintf(b->dev->bus_id,"pci%d",bus);
--	strcpy(b->dev->name,"Host/PCI Bridge");
- 	b->dev->parent = parent;
-+	sprintf(b->dev->bus_id,"pci%04x:%02x", pci_domain_nr(b), bus);
-+	strcpy(b->dev->name,"Host/PCI Bridge");
- 	device_register(b->dev);
- 
- 	b->number = b->secondary = bus;
- 	b->resource[0] = &ioport_resource;
- 	b->resource[1] = &iomem_resource;
--	return b;
--}
- 
--struct pci_bus * __devinit pci_scan_bus_parented(struct device *parent, int bus, struct pci_ops *ops, void *sysdata)
--{
--	struct pci_bus *b = pci_alloc_primary_bus_parented(parent, bus);
--	if (b) {
--		b->sysdata = sysdata;
--		b->ops = ops;
--		b->subordinate = pci_scan_child_bus(b);
--		pci_bus_add_devices(b);
--	}
-+	b->subordinate = pci_scan_child_bus(b);
-+
-+	pci_bus_add_devices(b);
-+
- 	return b;
+-	struct hotplug_slot *slot=container_of(kobj,
+-			struct hotplug_slot,kobj);
+-	struct hotplug_slot_attribute *attribute =
+-		container_of(attr, struct hotplug_slot_attribute, attr);
++	struct hotplug_slot *slot = to_hotplug_slot(kobj);
++	struct hotplug_slot_attribute *attribute = to_hotplug_attr(attr);
+ 	return attribute->show ? attribute->show(slot, buf) : 0;
  }
- EXPORT_SYMBOL(pci_scan_bus_parented);
  
--EXPORT_SYMBOL(pci_root_buses);
--
- #ifdef CONFIG_HOTPLUG
- EXPORT_SYMBOL(pci_add_new_bus);
- EXPORT_SYMBOL(pci_do_scan_bus);
- EXPORT_SYMBOL(pci_scan_slot);
--EXPORT_SYMBOL(pci_scan_bus);
- EXPORT_SYMBOL(pci_scan_bridge);
- #endif
+ static ssize_t hotplug_slot_attr_store(struct kobject *kobj,
+ 		struct attribute *attr, const char *buf, size_t len)
+ {
+-	struct hotplug_slot *slot=container_of(kobj,
+-			struct hotplug_slot,kobj);
+-	struct hotplug_slot_attribute *attribute =
+-		container_of(attr, struct hotplug_slot_attribute, attr);
++	struct hotplug_slot *slot = to_hotplug_slot(kobj);
++	struct hotplug_slot_attribute *attribute = to_hotplug_attr(attr);
+ 	return attribute->store ? attribute->store(slot, buf, len) : 0;
+ }
+ 
+@@ -96,8 +92,16 @@
+ 	.store = hotplug_slot_attr_store,
+ };
+ 
++static void hotplug_slot_release(struct kobject *kobj)
++{
++	struct hotplug_slot *slot = to_hotplug_slot(kobj);
++	if (slot->release)
++		slot->release(slot);
++}
++
+ static struct kobj_type hotplug_slot_ktype = {
+-	.sysfs_ops = &hotplug_slot_sysfs_ops
++	.sysfs_ops = &hotplug_slot_sysfs_ops,
++	.release = &hotplug_slot_release,
+ };
+ 
+ static decl_subsys(hotplug_slots, &hotplug_slot_ktype, NULL);
 

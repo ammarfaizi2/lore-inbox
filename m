@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263611AbUEMAGE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263654AbUEMAGc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263611AbUEMAGE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 20:06:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263631AbUEMAGE
+	id S263654AbUEMAGc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 20:06:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263661AbUEMAG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 20:06:04 -0400
-Received: from gaz.sfgoth.com ([69.36.241.230]:51929 "EHLO gaz.sfgoth.com")
-	by vger.kernel.org with ESMTP id S263611AbUEMAGB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 20:06:01 -0400
-Date: Wed, 12 May 2004 17:07:17 -0700
-From: Mitchell Blank Jr <mitch@sfgoth.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       David Mosberger-Tang <davidm@hpl.hp.com>, linux-ia64@linuxia64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: GCC nested functions?
-Message-ID: <20040513000712.GA29796@gaz.sfgoth.com>
-References: <20040512105924.54a8211b@dell_ss3.pdx.osdl.net> <20040512190454.A31410@infradead.org>
+	Wed, 12 May 2004 20:06:28 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6611 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263654AbUEMAGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 20:06:24 -0400
+Date: Thu, 13 May 2004 02:06:21 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: How to contact AdvanSys/ConnectCom?
+Message-ID: <20040513000620.GH21408@fs.tum.de>
+References: <20040512235932.GG21408@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040512190454.A31410@infradead.org>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20040512235932.GG21408@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
-> nested function are a horrible gcc misfeature.
+On Thu, May 13, 2004 at 01:59:32AM +0200, Adrian Bunk wrote:
 
-True.
+> [ slightly XY modified to get through the vger mail filters ]
+>...
 
-> So far people had enough
-> taste to not introduce them without explicitly forbidding it ;-)
+Please ignore this comment:
+  -ENOTEA
 
-Almost true.  Look at drivers/atm/horizon.c:make_rate(), which includes
-a nested function called "set_cr()"  There may be a couple other
-examples in the drivers/atm directory, not sure.
+cu
+Adrian
 
-The Intel CC guys made special mention of the ATM drivers when they
-first started using their compiler for the kernel (icc supports most
-gcc extensions, but apparently not nested functions) and they made special
-mention of not being able to compile some ATM drivers because of this.
+-- 
 
-I'm not aware of nested functions anywhere else in the kernel though.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
--Mitch

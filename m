@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293242AbSCRXVj>; Mon, 18 Mar 2002 18:21:39 -0500
+	id <S293258AbSCRXW6>; Mon, 18 Mar 2002 18:22:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293245AbSCRXV2>; Mon, 18 Mar 2002 18:21:28 -0500
-Received: from numenor.qualcomm.com ([129.46.51.58]:40604 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S293242AbSCRXVP>; Mon, 18 Mar 2002 18:21:15 -0500
-Message-Id: <5.1.0.14.2.20020318151528.02ed4d70@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 18 Mar 2002 15:20:50 -0800
-To: jt@hpl.hp.com, "Richard B. Johnson" <root@chaos.analogic.com>
-From: Maksim Krasnyanskiy <maxk@qualcomm.com>
-Subject: Re: Killing tasklet from interrupt
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020318125743.A26532@bougret.hpl.hp.com>
+	id <S293245AbSCRXWt>; Mon, 18 Mar 2002 18:22:49 -0500
+Received: from ns.suse.de ([213.95.15.193]:29451 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S293258AbSCRXWm>;
+	Mon, 18 Mar 2002 18:22:42 -0500
+Date: Tue, 19 Mar 2002 00:22:41 +0100
+From: Dave Jones <davej@suse.de>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Larry McVoy <lm@work.bitmover.com>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Bitkeeper licence issues
+Message-ID: <20020319002241.K17410@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Pavel Machek <pavel@suse.cz>, Larry McVoy <lm@work.bitmover.com>,
+	kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020318212617.GA498@elf.ucw.cz> <20020318144255.Y10086@work.bitmover.com> <20020318231427.GF1740@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Mar 19, 2002 at 12:14:28AM +0100, Pavel Machek wrote:
 
-> > You have the tasklet kill itself the next time it executes. Set some
-> > flag so it knows it should give up its timer-slot and expire. The
-> > interrupt sets the flag. It doesn't do anything else.
->
->         I already have this flag and my code mostly work like this, so
->that would be trivial to do.
->         I looked at the code, and you are right, killing the tasklet
->within itself is by far the safest way to do it.
-Sounds like what you need is tasklet_disable.
-tasklet_kill needs process context so you can't use it in timer.
+ > > Pavel, the problem here is your fundamental distrust.  
+ > By giving me binary-only installer you ask me to trust you. You ask me
+ > to trust you without good reason [it only generates .tar.gz and
+ > shellscript, why should it be binary? Was not shar designed to handle
+ > that?], and that's pretty suspect.
 
->It's a shame that the code doesn't explitely allow for it (i.e. you will 
->deadlock every time
->in tasklet_unlock_wait(t);).
-Use tasklet_disable_nosync within the tasklet itself.
+ Bitmover doing anything remotely suspect in an executable installer
+ would be commercial suicide, do you distrust realplayer too?
+ did you distrust early netscape before they released source?
+ yada yada countless other programs..
 
-Max
+ If your distrust of commercial organisations providing binaries
+ is so great, you know where objdump, strace and friends are.
 
-
-
-
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

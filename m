@@ -1,64 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264254AbTLUW4P (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 17:56:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbTLUW4P
+	id S264240AbTLUXN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 18:13:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264255AbTLUXN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 17:56:15 -0500
-Received: from notes.hallinto.turkuamk.fi ([195.148.215.149]:61701 "EHLO
-	notes.hallinto.turkuamk.fi") by vger.kernel.org with ESMTP
-	id S264254AbTLUW4M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 17:56:12 -0500
-Message-ID: <3FE62617.10604@kolumbus.fi>
-Date: Mon, 22 Dec 2003 01:00:39 +0200
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ben Slusky <sluskyb@paranoiacs.org>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       jariruusu@users.sourceforge.net
-Subject: Re: [PATCH] loop.c patches, take two
-References: <20031030134137.GD12147@fukurou.paranoiacs.org> <3FA15506.B9B76A5D@users.sourceforge.net> <20031030133000.6a04febf.akpm@osdl.org> <20031031005246.GE12147@fukurou.paranoiacs.org> <20031031015500.44a94f88.akpm@osdl.org> <20031101002650.GA7397@fukurou.paranoiacs.org> <20031102204624.GA5740@fukurou.paranoiacs.org> <20031221195534.GA4721@fukurou.paranoiacs.org> <3FE6076B.3090908@kolumbus.fi> <20031221211201.GC4721@fukurou.paranoiacs.org>
-In-Reply-To: <20031221211201.GC4721@fukurou.paranoiacs.org>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 22.12.2003 00:58:14,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 22.12.2003 00:57:23,
-	Serialize complete at 22.12.2003 00:57:23
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 21 Dec 2003 18:13:56 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:50954 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264240AbTLUXNz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 18:13:55 -0500
+Date: Mon, 22 Dec 2003 00:25:12 +0100
+To: Stan Bubrouski <stan@ccs.neu.edu>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
+Message-ID: <20031221232512.GA20779@hh.idb.hist.no>
+References: <Xine.LNX.4.44.0312210833030.3044-100000@thoron.boston.redhat.com> <1072018574.5225.5.camel@laptop.fenrus.com> <1072035217.1286.123.camel@duergar>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1072035217.1286.123.camel@duergar>
+User-Agent: Mutt/1.5.4i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- static inline void loop_handle_bio(struct loop_device *lo, struct bio *bio)
- {
- 	int ret;
-+	struct bio *rbh;
- 
--	/*
--	 * For block backed loop, we know this is a READ
--	 */
- 	if (lo->lo_flags & LO_FLAGS_DO_BMAP) {
- 		ret = do_bio_filebacked(lo, bio);
- 		bio_endio(bio, bio->bi_size, ret);
--	} else {
--		struct bio *rbh = bio->bi_private;
-+	} else if (bio_rw(bio) == WRITE) {
-+		/*
+On Sun, Dec 21, 2003 at 02:33:38PM -0500, Stan Bubrouski wrote:
+> 
+> What about the legal ramifications in the US of distributing code using
+> an algorithm that is covered by a patent without permission.  What are
+> we gonna just not distribute the kernel in the US at all?  Cause that's
+> the only way to safely do what you all keep blathering about without a
+> license.  By putting the code in the kernel you are putting us in the US
+> at risk, someone could argue you are giving people a means to violate a
+> patent in the US...not something you want to be doing!
+> 
+Hard to say, but consider this:
+Something patented is _not_ a secret, and therefore not a trade secret.
+Anything patented can be looked up in the patent databases by anybody.
+So there cannot be any problem with distributing this patented knowledge.
 
+Using it is another matter, but it is up to the user not to disable
+CONFIG_USA within us jurisdiction.
 
-AFAICS, this code path is never taken. You don't queue block device writes for the loop thread.
-
-
-+		 * Write complete, but more pages remain;
-+		 * encrypt and write some more pages
-+		 */
-+		loop_recycle_buffer(lo, bio);
-
-
-
---Mika
-
+Helge Hafting
 
 

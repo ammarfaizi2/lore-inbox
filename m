@@ -1,47 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268255AbUHTQOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268305AbUHTQPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268255AbUHTQOe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 12:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268303AbUHTQOe
+	id S268305AbUHTQPS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 12:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268310AbUHTQPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 12:14:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18572 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S268255AbUHTQOc (ORCPT
+	Fri, 20 Aug 2004 12:15:17 -0400
+Received: from cantor.suse.de ([195.135.220.2]:37556 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268305AbUHTQOx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 12:14:32 -0400
-Date: Fri, 20 Aug 2004 12:14:17 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@dhcp83-102.boston.redhat.com
-To: Alan Cox <alan@redhat.com>
-cc: Arjan van de Ven <arjanv@redhat.com>, <y@redhat.com>,
-       Oliver Neukum <oliver@neukum.org>, Pete Zaitcev <zaitcev@redhat.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Hugh Dickins <hugh@veritas.com>,
-       <greg@kroah.com>, <linux-kernel@vger.kernel.org>, <sct@redhat.com>
-Subject: Re: PF_MEMALLOC in 2.6
-In-Reply-To: <20040820161018.GA2340@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0408201212530.10373-100000@dhcp83-102.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 Aug 2004 12:14:53 -0400
+Subject: [PATCH] Resolve duplicate/conflicting MODULE_LICENSE tags
+From: Andreas Gruenbacher <agruen@suse.de>
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1093018564.17135.33.camel@winden.suse.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 Aug 2004 18:16:04 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 Aug 2004, Alan Cox wrote:
-> On Fri, Aug 20, 2004 at 06:06:05PM +0200, Arjan van de Ven wrote:
+While reviewing module licenses I've noticed the following
+inconsistencies:
 
-> > > No, but this thread does make me consider PF_NOIO ;)
-> > given that the task of this thread is to DO io ... ;)
-> 
-> But not to cause I/O.. what are the semantics of PF_NOIO ?
+* fs/affs/affs.ko, drivers/media/radio/miropcm20.ko have
+  MODULE_LICENSE("GPL") twice.
 
-Any gfp_mask of this process gets GFP_NOIO set and other
-appropriate bits cleared, so it will never cause IO but
-only reclaim clean pages.
+* drivers/scsi/pcmcia/fdomain_cs.ko, drivers/scsi/pcmcia/aha152x_cs.ko
+  have both MODULE_LICENSE("GPL") and MODULE_LICENSE("Dual MPL/GPL").
+  The common denominator seems to be MODULE_LICENSE("GPL") -- right?
 
-It should also not loop (too often) in alloc_pages and
-try_to_free_pages...
+* drivers/net/ppp_mppe.ko has MODULE_LICENSE("BSD without advertisement
+  clause"). This is generally considered a GPL compatible license,
+  and should probably be added to license_is_gpl_compatible().
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+
+Are we fine with applying the following patch?
+
+Thanks,
+Andreas Gruenbacher.
+
+
+Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
+
+Index: linux-2.6.8/fs/affs/inode.c
+===================================================================
+--- linux-2.6.8.orig/fs/affs/inode.c
++++ linux-2.6.8/fs/affs/inode.c
+@@ -427,4 +427,3 @@ err:
+ 	affs_unlock_link(inode);
+ 	goto done;
+ }
+-MODULE_LICENSE("GPL");
+Index: linux-2.6.8/drivers/scsi/pcmcia/fdomain_stub.c
+===================================================================
+--- linux-2.6.8.orig/drivers/scsi/pcmcia/fdomain_stub.c
++++ linux-2.6.8/drivers/scsi/pcmcia/fdomain_stub.c
+@@ -59,7 +59,6 @@
+ 
+ MODULE_AUTHOR("David Hinds <dahinds@users.sourceforge.net>");
+ MODULE_DESCRIPTION("Future Domain PCMCIA SCSI driver");
+-MODULE_LICENSE("Dual MPL/GPL");
+ 
+ /* Bit map of interrupts to choose from */
+ static int irq_mask = 0xdeb8;
+Index: linux-2.6.8/kernel/module.c
+===================================================================
+--- linux-2.6.8.orig/kernel/module.c
++++ linux-2.6.8/kernel/module.c
+@@ -1380,7 +1380,8 @@ static inline int license_is_gpl_compati
+ 		|| strcmp(license, "GPL v2") == 0
+ 		|| strcmp(license, "GPL and additional rights") == 0
+ 		|| strcmp(license, "Dual BSD/GPL") == 0
+-		|| strcmp(license, "Dual MPL/GPL") == 0);
++		|| strcmp(license, "Dual MPL/GPL") == 0
++		|| strcmp(license, "BSD without advertisement clause") == 0);
+ }
+ 
+ static void set_license(struct module *mod, const char *license)
+Index: linux-2.6.8/drivers/media/radio/miropcm20-radio.c
+===================================================================
+--- linux-2.6.8.orig/drivers/media/radio/miropcm20-radio.c
++++ linux-2.6.8/drivers/media/radio/miropcm20-radio.c
+@@ -258,7 +258,6 @@ static int __init pcm20_init(void)
+ 
+ MODULE_AUTHOR("Ruurd Reitsma");
+ MODULE_DESCRIPTION("A driver for the Miro PCM20 radio card.");
+-MODULE_LICENSE("GPL");
+ 
+ static void __exit pcm20_cleanup(void)
+ {
+Index: linux-2.6.8/drivers/scsi/pcmcia/aha152x_stub.c
+===================================================================
+--- linux-2.6.8.orig/drivers/scsi/pcmcia/aha152x_stub.c
++++ linux-2.6.8/drivers/scsi/pcmcia/aha152x_stub.c
+@@ -91,8 +91,6 @@ MODULE_PARM(synchronous, "i");
+ MODULE_PARM(reset_delay, "i");
+ MODULE_PARM(ext_trans, "i");
+ 
+-MODULE_LICENSE("Dual MPL/GPL");
+-
+ /*====================================================================*/
+ 
+ typedef struct scsi_info_t {
 

@@ -1,26 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262780AbSKRPJM>; Mon, 18 Nov 2002 10:09:12 -0500
+	id <S262779AbSKRPI1>; Mon, 18 Nov 2002 10:08:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262792AbSKRPJM>; Mon, 18 Nov 2002 10:09:12 -0500
-Received: from aretousa.epp.teiher.gr ([193.92.9.25]:64128 "EHLO
-	aretousa.epp.teiher.gr") by vger.kernel.org with ESMTP
-	id <S262780AbSKRPJK>; Mon, 18 Nov 2002 10:09:10 -0500
-Date: Mon, 18 Nov 2002 17:21:15 +0200 (EET)
-From: Panos <epp719@aretousa.epp.teiher.gr>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.4.19 + poweroff
-Message-ID: <Pine.LNX.4.44.0211181716220.30592-100000@aretousa.epp.teiher.gr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262780AbSKRPI1>; Mon, 18 Nov 2002 10:08:27 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:47101 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S262779AbSKRPI1>; Mon, 18 Nov 2002 10:08:27 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <3DD3FCB3.40506@us.ibm.com> 
+References: <3DD3FCB3.40506@us.ibm.com> 
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] early printk for x86 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 18 Nov 2002 15:15:23 +0000
+Message-ID: <14814.1037632523@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello all. i am not quite sure if this is the right mailing list for my 
-question so dont fire up. i have compiled the kernel 2.4.19 and when i 
-shutdown the pc using halt it doesnt poweroff. i tried either with apm 
-builtin and module but nothing happened. Bios supports shutfdown since 
-2.2.18 did the job and powered off. I use the right gcc and modutils 
-version is mentioned in Changes doc. Any ideas will me helpfull thnx allot 
-and sorry for my english.
+
+haveblue@us.ibm.com said:
+>  1.	 I copied the x86_64 early printk support for plain x86.  Is
+> anyone  opposed to me sending this on to Linus?
+
+Why is it necessary to reimplement serial console for each arch rather than
+just registering the generic serial console as early as possible from
+arch-specific code?
+
+There's no _reason_ to wait for console_init(), for most consoles.
+
+--
+dwmw2
+
 

@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266465AbUJAVdC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266683AbUJAViV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266465AbUJAVdC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 17:33:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUJAVcf
+	id S266683AbUJAViV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 17:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266615AbUJAVhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 17:32:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:39366 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266578AbUJAVXN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 17:23:13 -0400
-Date: Fri, 1 Oct 2004 14:23:01 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Jack O'Quin" <joq@io.com>, Chris Wright <chrisw@osdl.org>,
-       Jody McIntyre <realtime-lsm@modernduck.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, torbenh@gmx.de
-Subject: Re: [PATCH] Realtime LSM
-Message-ID: <20041001142259.I1924@build.pdx.osdl.net>
-References: <1094967978.1306.401.camel@krustophenia.net> <20040920202349.GI4273@conscoop.ottawa.on.ca> <20040930211408.GE4273@conscoop.ottawa.on.ca> <1096581213.24868.19.camel@krustophenia.net> <87pt43clzh.fsf@sulphur.joq.us> <20040930182053.B1973@build.pdx.osdl.net> <87k6ubcccl.fsf@sulphur.joq.us> <1096663225.27818.12.camel@krustophenia.net>
+	Fri, 1 Oct 2004 17:37:43 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:54710 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266704AbUJAVgj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 17:36:39 -0400
+Subject: Re: 2.6.9-rc2-mm4 ps hang ?
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20041001120926.4d6f58d5.akpm@osdl.org>
+References: <1096646925.12861.50.camel@dyn318077bld.beaverton.ibm.com>
+	 <20041001120926.4d6f58d5.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1096666140.12861.82.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1096663225.27818.12.camel@krustophenia.net>; from rlrevell@joe-job.com on Fri, Oct 01, 2004 at 04:40:25PM -0400
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 01 Oct 2004 14:29:01 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> On Fri, 2004-10-01 at 00:05, Jack O'Quin wrote:
-> > The ulimit approach is way too cumbersome.
+On Fri, 2004-10-01 at 12:09, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > I randomly see "ps" hangs on my AMD64 system running 2.6.9-rc2-mm4.
+> >  I don't remember seeing this on earlier kernels. Is this something
+> >  known/fixed ?
 > 
-> Agreed.  The whole point of getting realtime-lsm in the kernel is to
-> make it _easier_ to get a linux audio (or other realtime system) up and
-> running.
+> hm.  I can see that access_process_vm() is doing lock_page() inside
+> mmap_sem, which is a ranking bug, but it's not that.
+> 
+> And I see a distinct lack of flush_foo_page() calls after the by-hand
+> modification of the user page.  But it's not that either.
+> 
+> Can you work out who is holding mmap_sem for writing?
+> 
 
-It's nice to have something that's easy to use, but that's not a great
-justification for addition to the kernel.  Esp. when there's a
-functional userspace solution.
+grr.. okay. It hangs randomly. Don't we have code to record the holder
+of a sem somewhere ?
 
-> Would it be feasible to use rlimits to let users run
-> SCHED_FIFO processes?
+Thanks,
+Badari
 
-No, it doesn't support that.  I suppose it could, whether is should
-is another matter.
-
-> The ulimit approach would probably be acceptable
-> if it subsumed all the functionality of the realtime-lsm module.
-
-Hrm, I guess we'll have to agree to disagree.  The whole point of the
-mlock rlimits code is to enable this policy to be pushed to userspace.
-A generic method of enabling capabilities is the best way to go, long
-term.  Any interest in pursuing that?
-
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

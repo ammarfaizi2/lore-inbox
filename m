@@ -1,65 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270280AbRIEE4b>; Wed, 5 Sep 2001 00:56:31 -0400
+	id <S271147AbRIEFQZ>; Wed, 5 Sep 2001 01:16:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270299AbRIEE4W>; Wed, 5 Sep 2001 00:56:22 -0400
-Received: from ns1.yggdrasil.com ([209.249.10.20]:7634 "EHLO ns1.yggdrasil.com")
-	by vger.kernel.org with ESMTP id <S270280AbRIEE4H>;
-	Wed, 5 Sep 2001 00:56:07 -0400
-Date: Tue, 4 Sep 2001 21:55:53 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: dag@brattli.net, linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Cc: bhards@bigpond.net.au, bvermeul@devel.blackstar.nl
-Subject: PATCH: linux-2.4.10-pre4/drivers/net/irda/irda-usb.c incorrectly matched to other USB devices
-Message-ID: <20010904215553.A23814@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="OgqxwSJOaUobr8KG"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S271138AbRIEFQG>; Wed, 5 Sep 2001 01:16:06 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:42647 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S271011AbRIEFP4>; Wed, 5 Sep 2001 01:15:56 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Keith Owens" <kaos@ocs.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.9-ac6 
+Date: Tue, 4 Sep 2001 22:16:15 -0700
+Message-ID: <NOEJJDACGOHCKNCOGFOMOEBEDLAA.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <17870.999661846@kao2.melbourne.sgi.com>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Tue, 4 Sep 2001 20:30:42 -0700,
+> "David Schwartz" <davids@webmaster.com> wrote:
 
-	linux-2.4.10-pre4/drivers/net/irda/irda-usb.c was missing a
-match flag in its array of usb_device_id's, causing it to claim
-and attempt to talk to at least one completely incompatible device:
-the D-Link DWL-120 USB wireless ethernet adapter.  The hot plugging
-code also uses this information, causing the irda-usb driver to be
-helpfully autoloaded so that it can incorrectly claim this device
-even if the module was not originally loaded.
+> >That really doesn't make sense. Nothing changes in the
+> >kernel or the module
+> >based upon whether you have the source or not. What should
+> >logically taint
+> >the kernel are modules that weren't compiled for that exact
+> >kernel version
+> >or are otherwise mismatched.
+>
+> Bug reports when binary only modules have been loaded do not belong on
+> l-k, they have to go to the supplier.  AC wants to identify bug reports
+> that we can look at and ignore the ones that we cannot sensibly
+> investigate.  Any proprietary module loaded, at any time, means that
+> the bug report will almost certainly be ignored.
 
-	I have verified that, with this patch, the irda-usb driver
-is no longer incorrectly loaded when a DWL-120 wireless ethernet
-adapter is plugged in.
+	Yes, but even if the module is GPL'd, the module could still cost $1,000
+and you're not entitled to the source if you didn't buy the module. If what
+you want is "source code is available to the general public", then that can
+be true or false for both GPL'd and non-GPL'd modules.
 
-	To all the appropriate people: please apply this patch.  Thanks
-in advance.
+	If you make it 'must have been compiled from source on this machine" then
+you know that at least this person has access to the source. If you make it
+"source code must be publically avialable" then you know developers have
+access to the  source. But the answer to both of these can be "yes" or "no"
+for both GPL'd and non-GPL'd modules.
 
--- 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+	What do you really want? Code that.
 
---OgqxwSJOaUobr8KG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="irda.diff"
+	DS
 
---- linux-2.4.10-pre4/drivers/net/irda/irda-usb.c	Sun Aug  5 13:12:40 2001
-+++ linux/drivers/net/irda/irda-usb.c	Tue Sep  4 21:19:43 2001
-@@ -76,7 +76,8 @@
- 	{ USB_DEVICE(0x50f, 0x180), driver_info: IUC_SPEED_BUG | IUC_NO_WINDOW },
- 	/* Extended Systems, Inc.,  XTNDAccess IrDA USB (ESI-9685) */
- 	{ USB_DEVICE(0x8e9, 0x100), driver_info: IUC_SPEED_BUG | IUC_NO_WINDOW },
--	{ match_flags: USB_DEVICE_ID_MATCH_INT_CLASS,
-+	{ match_flags: USB_DEVICE_ID_MATCH_INT_CLASS |
-+	               USB_DEVICE_ID_MATCH_INT_SUBCLASS,
- 	  bInterfaceClass: USB_CLASS_APP_SPEC,
- 	  bInterfaceSubClass: USB_CLASS_IRDA,
- 	  driver_info: IUC_DEFAULT, },
-
---OgqxwSJOaUobr8KG--

@@ -1,98 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265996AbUIVRtY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266137AbUIVRte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265996AbUIVRtY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 13:49:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266137AbUIVRtY
+	id S266137AbUIVRte (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 13:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUIVRtd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 13:49:24 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:26249 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S265996AbUIVRtU
+	Wed, 22 Sep 2004 13:49:33 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3500 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266137AbUIVRta
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 13:49:20 -0400
-Subject: [patch] inotify: don't opencode the size of filename
-From: Robert Love <rml@novell.com>
-To: ttb@tentacle.dhs.org
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-dE1SfwC7bfnTn0H3Zxpm"
-Date: Wed, 22 Sep 2004 13:48:07 -0400
-Message-Id: <1095875287.5090.35.camel@betsy.boston.ximian.com>
+	Wed, 22 Sep 2004 13:49:30 -0400
+Date: Wed, 22 Sep 2004 18:49:29 +0100
+From: Matthew Wilcox <matthew@wil.cx>
+To: linux-kernel@vger.kernel.org
+Subject: The new PCI fixup code ate my IDE controller
+Message-ID: <20040922174929.GP16153@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.0 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-dE1SfwC7bfnTn0H3Zxpm
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+The new DECLARE_PCI_FIXUP_HEADER() now makes the order of fixups depend
+on link order.  This is a bad thing because it's now one more thing that
+link order is used to determine.  Eventually, we're going to have a knot
+where you can't move link order to make everything work.
 
-The size of "filename" in "struct inotify_event" is currently open coded
-at 256.
+The specific problem here is that quirk_ide_bases() is called before
+superio_fixup_pci().  This is only a problem on PA-RISC.  I can see
+a few solutions to this.  First, we can move the whole suckyio driver
+to arch/parisc, ensuring it gets linked before drivers/pci.  Second,
+just move the DECLARE_PCI_FIXUP_HEADER to arch/parisc.  Third, link
+drivers/parisc ahead of drivers/pci (what other fun ordering problems
+might we have?)  Fourth, move the IDE quirk from drivers/pci/quirks.c
+to drivers/ide somewhere (which is linked after drivers/parisc so would
+happen to fix our problem).  Fifth, back out the quirk changes.  Sixth,
+change the pci fixup stuff to sort the quirks by vendor ID (PCI_ANY_ID
+sorts after any other ID).
 
-Change that to INOTIFY_FILENAME_MAX and replace uses of the size with
-this define.
+Suggestions?
 
-Best,
-
-	Robert Love
-
-
---=-dE1SfwC7bfnTn0H3Zxpm
-Content-Disposition: attachment; filename=inotify-filename-define-1.patch
-Content-Type: text/x-patch; name=inotify-filename-define-1.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-
-Don't opencode the size of filename. Make it a define
-
-Signed-Off-By: Robert Love <rml@novell.com>
-
- drivers/char/inotify.c  |   11 +++++++----
- include/linux/inotify.h |    5 ++++-
- 2 files changed, 11 insertions(+), 5 deletions(-)
-
-diff -urN linux-inotify/drivers/char/inotify.c linux/drivers/char/inotify.c
---- linux-inotify/drivers/char/inotify.c	2004-09-22 13:45:26.697470176 -0400
-+++ linux/drivers/char/inotify.c	2004-09-22 13:44:41.236381312 -0400
-@@ -143,10 +143,13 @@
- 	INIT_LIST_HEAD(&kevent->list);
- 
- 	if (filename) {
--		iprintk(INOTIFY_DEBUG_FILEN, "filename for event was %p %s\n", filename, filename);
--		strncpy (kevent->event.filename, filename, 256);
--		kevent->event.filename[255] = '\0';
--		iprintk(INOTIFY_DEBUG_FILEN, "filename after copying %s\n", kevent->event.filename);
-+		iprintk(INOTIFY_DEBUG_FILEN,
-+			"filename for event was %p %s\n", filename, filename);
-+		strncpy (kevent->event.filename, filename,
-+			 INOTIFY_FILENAME_MAX);
-+		kevent->event.filename[INOTIFY_FILENAME_MAX-1] = '\0';
-+		iprintk(INOTIFY_DEBUG_FILEN,
-+			"filename after copying %s\n", kevent->event.filename);
- 	} else {
- 		iprintk(INOTIFY_DEBUG_FILEN, "no filename for event\n");
- 		kevent->event.filename[0] = '\0';
-diff -urN linux-inotify/include/linux/inotify.h linux/include/linux/inotify.h
---- linux-inotify/include/linux/inotify.h	2004-09-22 13:30:09.763865272 -0400
-+++ linux/include/linux/inotify.h	2004-09-22 13:42:48.853466112 -0400
-@@ -11,6 +11,9 @@
- 
- #include <linux/limits.h>
- 
-+/* this size could limit things, since technically we could need PATH_MAX */
-+#define INOTIFY_FILENAME_MAX	256
-+
- /*
-  * struct inotify_event - structure read from the inotify device for each event
-  *
-@@ -23,7 +26,7 @@
- struct inotify_event {
- 	int wd;
- 	int mask;
--	char filename[256];	/* XXX: This size may be a problem */
-+	char filename[INOTIFY_FILENAME_MAX];
- };
- 
- /* the following are legal, implemented events */
-
---=-dE1SfwC7bfnTn0H3Zxpm--
-
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

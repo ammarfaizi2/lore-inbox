@@ -1,53 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317117AbSHGJTP>; Wed, 7 Aug 2002 05:19:15 -0400
+	id <S317261AbSHGJVz>; Wed, 7 Aug 2002 05:21:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317140AbSHGJTP>; Wed, 7 Aug 2002 05:19:15 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:11014 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S317117AbSHGJTO>; Wed, 7 Aug 2002 05:19:14 -0400
-From: Nikita Danilov <Nikita@Namesys.COM>
+	id <S317287AbSHGJVz>; Wed, 7 Aug 2002 05:21:55 -0400
+Received: from cygnus-ext.enyo.de ([212.9.189.162]:55566 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id <S317261AbSHGJVy>;
+	Wed, 7 Aug 2002 05:21:54 -0400
+To: linux-kernel@vger.kernel.org
+Cc: gam3@acm.org
+Subject: Re: Problems with NFS exports
+References: <87eldchtr2.fsf@deneb.enyo.de>
+From: Florian Weimer <fw@deneb.enyo.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org, gam3@acm.org
+Date: Wed, 07 Aug 2002 11:25:33 +0200
+In-Reply-To: <87eldchtr2.fsf@deneb.enyo.de> (Florian Weimer's message of
+ "Tue, 06 Aug 2002 18:00:06 +0200")
+Message-ID: <87k7n3t3zm.fsf@deneb.enyo.de>
+User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2 (i686-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15696.59115.395706.489896@laputa.namesys.com>
-Date: Wed, 7 Aug 2002 13:22:51 +0400
-X-PGP-Fingerprint: 43CE 9384 5A1D CD75 5087  A876 A1AA 84D0 CCAA AC92
-X-PGP-Key-ID: CCAAAC92
-X-PGP-Key-At: http://wwwkeys.pgp.net:11371/pks/lookup?op=get&search=0xCCAAAC92
-To: Linux Kernel Mailing List <Linux-Kernel@Vger.Kernel.ORG>
-Subject: kernel thread exit race
-X-Mailer: VM 7.07 under 21.5  (beta6) "bok choi" XEmacs Lucid
-X-Drdoom-Fodder: CERT root drdoom satan passwd security
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Florian Weimer <fw@deneb.enyo.de> writes:
 
-what is the politically correct way to exit from a kernel thread daemon
-without module unload races?
+> I'm seeing weired errors with nfsctl():
+>
+> This works:
+>
+> nfsservctl(NFSCTL_EXPORT, "deneb.enyo.de", "/mnt/storage/2/backup/deneb/tmp", makedev(3, 66), ino 167772288, uid 65534, gid 65534) = 0
+>
+> But a subsequent call fails:
+>
+> nfsservctl(NFSCTL_EXPORT, "deneb.enyo.de", "/mnt/storage/2/backup/deneb", makedev(3, 66), ino 150995072, uid 65534, gid 65534) = -1 EINVAL (Invalid argument)
+>
+> I don't understand what makes the difference (the inode values are
+> correct).  This is kernel 2.4.18 with XFS support, and the directory
+> resides on an XFS file system.
+>
+> Any ideas?
 
-Currently most kernel threads exit with something like
+(Full quote because of additional recipeint.)
 
-	wake_up(&daemon_done_wait_queue);
-	return 0;
+It appears that a directory tree can only be exported once.  Is this
+intentional?  If yes, the following patch should be applied (to
+linux/fs/nfsd/export.c), so that the return value is more meaningful:
 
-(or complete() in stead of wake_up()). Problem is that thread waiting
-for daemon shutdown can start running on another CPU while daemon is
-still executing and unload module, in particular unmapping page with
-daemon code.
+--- export.c	2002/08/07 09:22:11	1.1
++++ export.c	2002/08/07 09:22:28
+@@ -219,6 +219,7 @@
+ 		goto finish;
+ 	}
+ 
++	err = -EBUSY;
+ 	if ((parent = exp_child(clp, dev, nd.dentry)) != NULL) {
+ 		dprintk("exp_export: export not valid (Rule 3).\n");
+ 		goto finish;
 
-Reiserfs used to do something like
 
-    /*
-     * BKL will be released in do_exit()
-     */
-    lock_kernel();
-	wake_up(&daemon_done_wait_queue);
-	return 0;
-
-and wait for daemon completion under BKL so that when waiter resumes,
-daemon is definitely not executing module code. This looks like a hack,
-though. Is there a better solution?
-
-Nikita.
+After this change, the userspace tools can issue are more meaningful
+error message for this case.

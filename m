@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272358AbRH3Rc5>; Thu, 30 Aug 2001 13:32:57 -0400
+	id <S272360AbRH3Reh>; Thu, 30 Aug 2001 13:34:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272359AbRH3Rcs>; Thu, 30 Aug 2001 13:32:48 -0400
-Received: from [209.218.224.101] ([209.218.224.101]:19080 "EHLO
-	mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S272357AbRH3Rcg>; Thu, 30 Aug 2001 13:32:36 -0400
-Message-ID: <05c501c13178$43e19ba0$6caaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.9-ac1 RAID-5 resync causes PPP connection to be unusable
-Date: Thu, 30 Aug 2001 10:21:54 -0700
-Organization: LSG, Inc.
+	id <S272361AbRH3Re2>; Thu, 30 Aug 2001 13:34:28 -0400
+Received: from smtp5.us.dell.com ([143.166.83.100]:42764 "EHLO
+	smtp5.us.dell.com") by vger.kernel.org with ESMTP
+	id <S272360AbRH3ReN>; Thu, 30 Aug 2001 13:34:13 -0400
+Date: Thu, 30 Aug 2001 12:34:31 -0500 (CDT)
+From: Michael E Brown <michael_e_brown@dell.com>
+X-X-Sender: <mebrown@blap.linuxdev.us.dell.com>
+Reply-To: Michael E Brown <michael_e_brown@dell.com>
+To: Ben LaHaise <bcrl@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] blkgetsize64 ioctl
+In-Reply-To: <Pine.LNX.4.33.0108301306300.12593-100000@toomuch.toronto.redhat.com>
+Message-ID: <Pine.LNX.4.33.0108301226260.1213-100000@blap.linuxdev.us.dell.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran into a very strange problem yesterday... my server here, which is a
-700 MHz Celeron, 256MiB RAM, four ~40G disks has two RAID-5 arrays (using
-the standard kernel MD driver) configured across those four drives. For some
-reason definitely related to operator error, the machine crashed and needed
-to resync the arrays after being rebooted.
+On Thu, 30 Aug 2001, Ben LaHaise wrote:
 
-Eveything was working fine, interactive response was just fine even though
-the drives were just cranking away doing their resync. I then brought up my
-PPP Internet connection, which came up just fine. However, I was _not_ able
-to actually communicate with any 'Net hosts. Watching the modem lights, it
-appeared that my packets were going out, and responses were coming back, but
-the responses never made it up to the userspace applications.
+> No, that's not what's got me miffed.  What is a problem here is that an
+> obvious next to use ioctl number in a *CORE* kernel api was used without
+> reserving it.  AND PEOPLE SHIPPED IT!  I for one don't go about shipping
+> new ABIs without reserving at least a placeholder for it in the main
+> kernel (or stating that the code is not bearing a fixed ABI).  If the
+> ioctl # was in the main kernel, this mess would never have happened even
+> with the accidental shipping of the patch in e2fsprogs.  I just hope
+> people will remember this in the future.  ABI compatibility is not that
+> hard if it's thought about.
 
-I even dropped and reestablished the PPP connection twice, thinking I got a
-bad connection to the ISP, but there was no improvement. When the RAID-5
-resync was complete, suddenly things began working just fine. While the
-resync was happening, top showed "raid5syncd" with PRI 19 and NI 19 using
-about 25-30% CPU, and "raid5" with PRI -1 and NI -20 using about 60-65% CPU.
+Ok. I can agree with that. As a junior kernel hacker, I did not know about
+this issue, and I agree that somebody with a bit more experience should
+have reserved the next number. Sorry :-(
 
-I can probably reproduce this pretty easily, if anyone is interested and can
-give me some idea where to look for the cause...
+But, since I've gone through this ioctl reservation conflict twice now
+(e2fsprogs and something having to do with XFS), I think this is a more
+general problem.
+
+As a side note, a copy of the second edition of "Linux Device Drivers" I
+am using doesn't mention this idea of reserving ioctl numbers.
+
+-- 
+Michael Brown
+Linux OS Development
+Dell Computer Corp
+
+  If each of us have one object, and we exchange them,
+     then each of us still has one object.
+  If each of us have one idea,   and we exchange them,
+     then each of us now has two ideas.
+
 

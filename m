@@ -1,95 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318944AbSICVp2>; Tue, 3 Sep 2002 17:45:28 -0400
+	id <S318949AbSICVqZ>; Tue, 3 Sep 2002 17:46:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318945AbSICVp1>; Tue, 3 Sep 2002 17:45:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:53765 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S318944AbSICVo1>; Tue, 3 Sep 2002 17:44:27 -0400
-Date: Tue, 3 Sep 2002 14:52:08 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: One more bio for for floppy users in 2.5.33..
-In-Reply-To: <15733.8764.96293.719729@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.33.0209031450240.10694-100000@penguin.transmeta.com>
+	id <S318951AbSICVqY>; Tue, 3 Sep 2002 17:46:24 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:40199 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S318949AbSICVqW>; Tue, 3 Sep 2002 17:46:22 -0400
+Message-ID: <3D752E38.EF352F48@zip.com.au>
+Date: Tue, 03 Sep 2002 14:48:40 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rasmus Andersen <rasmus@jaquet.dk>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: __func__ in 2.5.33?
+References: <20020903225229.A24108@jaquet.dk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 3 Sep 2002, Mikael Pettersson wrote:
+Rasmus Andersen wrote:
 > 
-> Confirmed. 2.5.33 + your two patches still corrupts data on a simple
-> dd to then from /dev/fd0 test.
+> Hi,
+> 
+> I trying to compile the SX driver for the 2.5.33 kernel, I got a
+> lot of warnings looking like (this is from a test program, not
+> the driver itself)
+> 
+> test.c: In function `main':
+> test.c:6: called object is not a function
+> test.c:6: parse error before string constant
+> 
+> This seems to stem from the recent __FUNCTION__ vs. __func__
+> change in kernel.h and the SX driver's use of __FUNCTION__ in the
+> following construct
+> 
+> #define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter " __FUNCTION__ "\n")
+> 
 
-Ok, if you don't have BK, then here's the floppy driver end_request() 
-cleanup as a plain patch.
+The parenthesised (__func__) is there to force you to not try to
+perform this string pasting.  Support for __FUNCTION__ pasting is
+being phased out of gcc.
 
-This passes dd tests for me, but they were by no means very exhaustive.
+You need:
 
-		Linus
-
----
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/09/03	torvalds@home.transmeta.com	1.581.4.2
-# Fix floppy driver end_request() handling - it used to do insane
-# contortions instead of just calling "end_that_request_first()" with
-# the proper sector count.
-# --------------------------------------------
-#
-diff -Nru a/drivers/block/floppy.c b/drivers/block/floppy.c
---- a/drivers/block/floppy.c	Tue Sep  3 14:51:09 2002
-+++ b/drivers/block/floppy.c	Tue Sep  3 14:51:09 2002
-@@ -2295,16 +2295,15 @@
- {
- 	kdev_t dev = req->rq_dev;
- 
--	if (end_that_request_first(req, uptodate, req->hard_cur_sectors))
-+	if (end_that_request_first(req, uptodate, current_count_sectors))
- 		return;
- 	add_blkdev_randomness(major(dev));
- 	floppy_off(DEVICE_NR(dev));
- 	blkdev_dequeue_request(req);
- 	end_that_request_last(req);
- 
--	/* Get the next request */
--	req = elv_next_request(QUEUE);
--	CURRENT = req;
-+	/* We're done with the request */
-+	CURRENT = NULL;
- }
- 
- 
-@@ -2335,27 +2334,8 @@
- 
- 		/* unlock chained buffers */
- 		spin_lock_irqsave(q->queue_lock, flags);
--		while (current_count_sectors && CURRENT &&
--		       current_count_sectors >= req->current_nr_sectors){
--			current_count_sectors -= req->current_nr_sectors;
--			req->nr_sectors -= req->current_nr_sectors;
--			req->sector += req->current_nr_sectors;
--			end_request(req, 1);
--		}
-+		end_request(req, 1);
- 		spin_unlock_irqrestore(q->queue_lock, flags);
--
--		if (current_count_sectors && CURRENT) {
--			/* "unlock" last subsector */
--			req->buffer += current_count_sectors <<9;
--			req->current_nr_sectors -= current_count_sectors;
--			req->nr_sectors -= current_count_sectors;
--			req->sector += current_count_sectors;
--			return;
--		}
--
--		if (current_count_sectors && !CURRENT)
--			DPRINT("request list destroyed in floppy request done\n");
--
- 	} else {
- 		if (rq_data_dir(req) == WRITE) {
- 			/* record write error information */
-
+#define func_enter() sx_dprintk (SX_DEBUG_FLOW, "sx: enter %s\n", __FUNCTION__)

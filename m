@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286413AbSANPZp>; Mon, 14 Jan 2002 10:25:45 -0500
+	id <S286821AbSANPbF>; Mon, 14 Jan 2002 10:31:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286447AbSANPZf>; Mon, 14 Jan 2002 10:25:35 -0500
-Received: from adsl-64-109-89-110.chicago.il.ameritech.net ([64.109.89.110]:43598
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S286413AbSANPZU>; Mon, 14 Jan 2002 10:25:20 -0500
-Message-Id: <200201141524.g0EFOqj09542@localhost.localdomain>
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-To: Mario Mikocevic <mozgy@hinet.hr>
-cc: Lars Marowsky-Bree <lmb@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: FC & MULTIPATH !? (any hope?)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 14 Jan 2002 10:24:52 -0500
-From: James Bottomley <James.Bottomley@SteelEye.com>
+	id <S286895AbSANPa4>; Mon, 14 Jan 2002 10:30:56 -0500
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:5051 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S286821AbSANPap>; Mon, 14 Jan 2002 10:30:45 -0500
+Date: Mon, 14 Jan 2002 16:28:49 +0100 (MET)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>, Jim Studt <jim@federated.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Problem with ServerWorks CNB20LE and lost interrupts
+In-Reply-To: <E16Q8KU-0001t7-00@the-village.bc.nu>
+Message-ID: <Pine.GSO.3.96.1020114162242.16706F-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > is there any hope of working combination of MULTIPATH with FC !?
->
-> Yes. QLogic's newest 2200 HBA can do that. I don't know whether that is a
-> possible solution for your problem though.
+On Mon, 14 Jan 2002, Alan Cox wrote:
 
-To clarify: This solution is being pushed by IBM.  Unless you have a FASt 
-array, you may not get help making it work from either IBM or Qlogic.  You 
-also need the 5.x qlogic driver which you can download from the IBM website 
-(or from SuSE 7.3).
+> noapic seems to be needed by a measurable number of boxes, many of which the
+> BIOS vendor will never fix or has refused to fix or assist in correcting.
 
-> At the moment I am using raid option multipath but it's one way
-> street, when one FC connection dies it successfully switches onto
-> another FC connection but when that second dies aswell, mount point is
-> in a limbo, no switching back to first FC connection.
+ That's exactly why I consider the removal a Good Thing. ;-)  The only
+drawback I see is it would require an actively-maintained SMP hw
+compatibility list. 
 
-I've tested the qlogic and it will switch to the secondary and back again on a 
-FASt 200 HA.
-
-Although it was designed to work with the LSI Symplicity-4 AVT technology 
-(which is what IBM FASt's OEM), there's a high degree of probability that it 
-will also work with any array that the MD multipath driver also works for, so 
-good luck.
-
-James Bottomley
-SteelEye Technology
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
 

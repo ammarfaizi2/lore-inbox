@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263062AbUAHDoE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 22:44:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbUAHDoE
+	id S263584AbUAHDsm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 22:48:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263636AbUAHDsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 22:44:04 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55249 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263062AbUAHDoC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 22:44:02 -0500
-Date: Wed, 7 Jan 2004 19:43:50 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: Greg KH <greg@kroah.com>, Andrey Borzenkov <arvidjaar@mail.ru>,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: removable media revalidation - udev vs. devfs or static /dev
-In-Reply-To: <20040108043506.A1555@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.58.0401071941390.2131@home.osdl.org>
-References: <200401012333.04930.arvidjaar@mail.ru> <20040103055847.GC5306@kroah.com>
- <Pine.LNX.4.58.0401071036560.12602@home.osdl.org> <20040108031357.A1396@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401071815320.12602@home.osdl.org> <20040108034906.A1409@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0401071854500.2131@home.osdl.org> <20040108043506.A1555@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jan 2004 22:48:41 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:37049 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263584AbUAHDsl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 22:48:41 -0500
+Date: Thu, 8 Jan 2004 03:48:09 +0000
+From: Dave Jones <davej@redhat.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Use of floating point in the kernel
+Message-ID: <20040108034809.GA20616@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+References: <20040107235912.GA23812@ee.oulu.fi> <3FFCCFAE.8090302@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3FFCCFAE.8090302@zytor.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 07, 2004 at 07:34:06PM -0800, H. Peter Anvin wrote:
 
+ > Has anyone considered asking the gcc people to add an -fno-fpu (or 
+ > -mno-fpu) option, throwing an error if any FP instructions are used?
 
-On Thu, 8 Jan 2004, Andries Brouwer wrote:
-> 
-> I am even happy in a somewhat more general situation that you are.
-> If the kernel autopartitions (and make recognition of new partitions
-> hotplug events so that udev can create the device nodes), all is well.
+building with -msoft-float gets you this.
 
-Yes. We _could_ do that, by just making a "we noticed the disk change" be
-a hotplug event. However, I'm loath to do that, because some devices
-literally don't even have an easily read disk change signal, so what they
-do is
+		Dave
 
- - assume the disk _always_ changed on open
- - do a quick IO to verify it
-
-and I'd be nervous about that kind of thing resulting in hotplug being 
-called constantly if somebody rude just has an endless loop of 
-"open()/close()".
-
-		Linus

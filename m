@@ -1,58 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276313AbRI1VMd>; Fri, 28 Sep 2001 17:12:33 -0400
+	id <S276314AbRI1VRo>; Fri, 28 Sep 2001 17:17:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276305AbRI1VMX>; Fri, 28 Sep 2001 17:12:23 -0400
-Received: from tele-post-20.mail.demon.net ([194.217.242.20]:40459 "EHLO
-	tele-post-20.mail.demon.net") by vger.kernel.org with ESMTP
-	id <S276314AbRI1VMN>; Fri, 28 Sep 2001 17:12:13 -0400
-Message-ID: <3BB4E6AC.4BA48EF4@dcrdev.demon.co.uk>
-Date: Fri, 28 Sep 2001 22:07:56 +0100
-From: Dan Creswell <dan@dcrdev.demon.co.uk>
-Organization: Empty Hand Systems Ltd
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.19 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.9-ac16 + imm module = hard lock
+	id <S276317AbRI1VRe>; Fri, 28 Sep 2001 17:17:34 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:39442 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S276314AbRI1VR0>;
+	Fri, 28 Sep 2001 17:17:26 -0400
+Date: Fri, 28 Sep 2001 14:12:44 -0700
+From: Greg KH <greg@kroah.com>
+To: Petr Konecny <pekon@informatics.muni.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.10: oops and panic in usb-uhci
+Message-ID: <20010928141244.C2066@kroah.com>
+In-Reply-To: <qwwpu8bigoi.fsf@decibel.fi.muni.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <qwwpu8bigoi.fsf@decibel.fi.muni.cz>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 28, 2001 at 03:33:01PM +0200, Petr Konecny wrote:
+> Hi,
+> 
+> I tried to play a wav on my USB audio speakers (Yamaha YSTMS35D) and got
+> panic. The oops (processed by ksymoops) is appended. uhci works OK.
 
-I have a dual pentium III 550Mhz box and a parallel port ZIP-plus drive.
+Please use the uhci.o driver or apply the patch found at:
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=100159287918217&w=2
 
-Under 2.2.19 SMP, with imm compiled as a module, everything works fine.
+thanks,
 
-With 2.4.9-ac16 (plus the swapoff patch) SMP, with imm compiled as a
-module I get a hard lock when I load the module.  It successfully
-determines which mode to use (EPP-32 bit) but, at the point where it
-probes, everything dies.
-
-The same kernel 2.4.9-ac16 compiled for uniprocessor with imm compiled
-as a module also works fine.
-
-A quick diff of the 2.2.19 imm source-code and the 2.4.9-ac16 imm
-source-code reveals that the only major difference is the introduction
-of:
-
-spin_unlock_irq(&io_request_lock);
-
-and
-
-spin_lock_irq(&io_request_lock);
-
-in various places.
-
-The parallel port code is compiled into the kernel at build time.
-
-That's all the info I have right now, any thoughts/suggestions/more info
-required?
-
-Thanks,
-
-Dan.
-
-
+greg k-h

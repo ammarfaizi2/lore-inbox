@@ -1,69 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266230AbUBDAh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 19:37:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266237AbUBDAh1
+	id S266225AbUBDAeW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 19:34:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266230AbUBDAeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 19:37:27 -0500
-Received: from peabody.ximian.com ([130.57.169.10]:3478 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S266230AbUBDAhU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 19:37:20 -0500
-Subject: Re: 2.6.1 Scheduler Latency Measurements (Preemption
-	diabled/enabled)
-From: Robert Love <rml@tech9.net>
-To: Christoph Stueckjuergen <christoph.stueckjuergen@siemens.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200402031724.17994.christoph.stueckjuergen@siemens.com>
-References: <200402031724.17994.christoph.stueckjuergen@siemens.com>
-Content-Type: text/plain
-Message-Id: <1075855055.8022.14.camel@localhost>
+	Tue, 3 Feb 2004 19:34:21 -0500
+Received: from fw.osdl.org ([65.172.181.6]:59802 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266225AbUBDAeT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 19:34:19 -0500
+Date: Tue, 3 Feb 2004 16:28:22 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, stelian@popies.net
+Subject: Re: [PATCH] meye: correct printk of dma_addr_t
+Message-Id: <20040203162822.64ee18e1.rddunlap@osdl.org>
+In-Reply-To: <20040203155752.17a8e274.akpm@osdl.org>
+References: <20040203153606.76442b9c.rddunlap@osdl.org>
+	<20040203155752.17a8e274.akpm@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.5.3 (1.5.3-1) 
-Date: Tue, 03 Feb 2004 19:37:35 -0500
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-02-03 at 17:24 +0100, Christoph Stueckjuergen wrote:
+On Tue, 3 Feb 2004 15:57:52 -0800 Andrew Morton <akpm@osdl.org> wrote:
 
-> The results are:
-> "loaded" system, 10.000 samples
-> average scheduler latency (preemption enabled / disabled): 170 us / 232 us
-> minimum scheduler latency (preemption enabled / disabled): 49 us / 43 us
-> maximum scheduler latency (preemption enabled / disabled): 840 us / 1063 us
-> 
-> "unloaded" system, 10.000 samples
-> average scheduler latency (preemption enabled / disabled): 50 us / 44 us
-> minimum scheduler latency (preemption enabled / disabled): 46 us / 41 us
-> maximum scheduler latency (preemption enabled / disabled): 233 us / 215 us
-> 
-> Any help in interpreting the data would be highly appreciated. Especially:
-> - Why does preemption lead to a higher minimum scheduler latency in the loaded 
-> case?
->
-> - Why does preemption worsen scheduler latency on the unloaded system?
-
-Overhead, I guess - the place where preemption ought to pay off is with
-worst-case latency, where your results do show an improvement.
-
-That said, I would of expected slightly better numbers.  Although, note
-that you are not measuring latency, you are measuring jitter.
-
-Latency is time actual minus time expected.  It thus requires some
-notion of the absolute expected time.  Without hardware support you
-generally cannot measure this.
-
-Jitter is measuring the time between successive events subtracted by the
-expected duration, e.g. actual duration minus expected duration.  It
-requires no knowledge of the absolute time.
-
-Jitter tends to approximate latency, so that is OK, but all it really
-measures is the variance in results (the "jitter" between the
-durations).
-
-Most people mix the two up.
-
-	Robert Love
+| "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+| >
+| > diff -Naurp ./drivers/media/video/meye.c~meye_dma ./drivers/media/video/meye.c
+| > --- ./drivers/media/video/meye.c~meye_dma	2004-01-08 22:59:44.000000000 -0800
+| > +++ ./drivers/media/video/meye.c	2004-02-03 14:43:42.000000000 -0800
+| > @@ -162,7 +162,7 @@ static void rvfree(void * mem, unsigned 
+| >  
+| >  /* return a page table pointing to N pages of locked memory */
+| >  static int ptable_alloc(void) {
+| > -	u32 *pt;
+| > +	dma_addr_t *pt;
+| >  	int i;
+| >  
+| >  	memset(meye.mchip_ptable, 0, sizeof(meye.mchip_ptable));
+| > @@ -176,7 +176,7 @@ static int ptable_alloc(void) {
+| >  		return -1;
+| >  	}
+| >  
+| > -	pt = (u32 *)meye.mchip_ptable[MCHIP_NB_PAGES];
+| > +	pt = (dma_addr_t *)meye.mchip_ptable[MCHIP_NB_PAGES];
+| >  	for (i = 0; i < MCHIP_NB_PAGES; i++) {
+| >  		meye.mchip_ptable[i] = dma_alloc_coherent(&meye.mchip_dev->dev, 
+| >  							  PAGE_SIZE,
+| 
+| mchip_ptable[] just contains pointers to kernel memory.  It doesn't seem
+| appropriate to be casting these to dma_addr_t's
 
 
+Ugh... if I am reading this correcly, what I see is that
+mchip_table[] is mostly used for kernel pointers, like you say.
+
+However, the last entry is used for dma handles returned by
+dma_alloc_coherent() [the ptable toc], and these are not the correct
+data type when CONFIG_HIGHMEM64G=y.
+
+I expect that Stelian will sort this out, but it looks to me
+like the ptable toc should be a different array (and type).
+
+--
+~Randy

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264377AbTGGTdL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 15:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbTGGTdK
+	id S267190AbTGGThF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 15:37:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267193AbTGGThF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 15:33:10 -0400
-Received: from ev2.cpe.orbis.net ([209.173.192.122]:22406 "EHLO srv.foo21.com")
-	by vger.kernel.org with ESMTP id S264377AbTGGTdF (ORCPT
+	Mon, 7 Jul 2003 15:37:05 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:726 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S267190AbTGGThC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 15:33:05 -0400
-Date: Mon, 7 Jul 2003 14:47:36 -0500
-From: Eric Varsanyi <e0216@foo21.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll vs stdin/stdout
-Message-ID: <20030707194736.GF9328@srv.foo21.com>
-References: <20030707154823.GA8696@srv.foo21.com> <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.55.0307071153270.4704@bigblue.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4i
+	Mon, 7 Jul 2003 15:37:02 -0400
+Message-Id: <200307071951.h67JpVEp005152@eeyore.valparaiso.cl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.5.7x: No vga=0x317?
+X-Mailer: MH-E 7.1; nmh 1.0.4; XEmacs 21.4
+Date: Mon, 07 Jul 2003 15:51:31 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 07, 2003 at 11:57:02AM -0700, Davide Libenzi wrote:
-> Events caught by epoll comes from a file* since that is the abstraction
-> the kernel handles. Events really happen on the file* and there's no way
-> if you dup()ing 1000 times a single fd, to say that events are for fd = 122.
+This is a Toshiba Satellite notebook 1800 (P3 mobile/1100, 256MiB RAM,
+Trident CyberBlade XPAi1 (rev 82) graphics card; RH 9.
 
-It is useful/mildly common at the app level to want to get read events
-for fd0 and write avail events for fd1. An app that might want to deal
-with reads from stdin in one process and writes to stdout in another
-(something like "team" perhaps) would have trouble here too.
+STFW for this machine I found that adding "vga=0x317" to the kernel args
+uses the full screen on the virtual TTYs (normal is 80x24 in a small
+rectangle at the center of the screen). I tried several 2.5 kernels, and
+was convinced they didn't boot (no time to investigate further, sorry).
+With 2.5.74 I noticed that the machine does in fact boot, but nothing at
+all shows up on the screen until X starts. Deleting the "vga=..." stuff
+shows the customary 80x24 rectangle, vga=ask gives a only a few 80x<mumble>
+modes. The ones I tried are useless.
 
-Epoll's API/impl is great as it is IMO, not suggesting need for change, I was
-hoping there was a good standard trick someone worked up to get around
-this specifc end case of stdin/stdout usually being dups but sometimes
-not. Porting my event system over to use epoll was easy/straightforward
-except for this one minor hitch.
+Anything I can try/hack to pieces? Not exactly urgent, but having
+fullscreen vt's is quite nice.
 
-I considered:
-	- using a second epoll object just for one of the fd's (to inspire
-	  delivery of the event to 2 wait queues in the kernel); a little
-	  ugly because of need to stack another epfd under the main one
-	  just for stdout write events
-
-	- select() on (0, 1, epfd) and just use epoll with a timeout of 0
-	  when select fires to gather bulk of events; morally similar to 
-	  previous but using select (which I want to just get away from)
-
-	- make the app use stdin as its output (this is what I ended up doing);
-	  breaks redirection of stdout but that doesn't matter to this app
-
-Thanks,
--Eric Varsanyi
+Thanks!
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

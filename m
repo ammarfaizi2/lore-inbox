@@ -1,31 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262631AbSJEVMQ>; Sat, 5 Oct 2002 17:12:16 -0400
+	id <S262666AbSJEVSb>; Sat, 5 Oct 2002 17:18:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262634AbSJEVMQ>; Sat, 5 Oct 2002 17:12:16 -0400
-Received: from pc1-cwma1-5-cust51.swa.cable.ntl.com ([80.5.120.51]:45554 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S262631AbSJEVMQ>; Sat, 5 Oct 2002 17:12:16 -0400
-Subject: Re: Updated NatSemi SCx200 patches for Linux-2.5
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christer Weinigel <christer@weinigel.se>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87k7kw3nc1.fsf@zoo.weinigel.se>
-References: <87k7kw3nc1.fsf@zoo.weinigel.se>
-Content-Type: text/plain
+	id <S262667AbSJEVSb>; Sat, 5 Oct 2002 17:18:31 -0400
+Received: from zf1.sntcanada.com ([206.49.67.178]:5505 "HELO zf1.sntcanada.com")
+	by vger.kernel.org with SMTP id <S262666AbSJEVSa>;
+	Sat, 5 Oct 2002 17:18:30 -0400
+Message-ID: <03ee01c26cb5$83dd1620$1401010a@icccuba.com>
+From: "Maykel Moya" <mike@icc-cuba.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Asus CUV4X crashed at boot
+Date: Sat, 5 Oct 2002 17:23:43 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 05 Oct 2002 22:26:43 +0100
-Message-Id: <1033853203.4079.21.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2002-10-05 at 16:41, Christer Weinigel wrote:
-> arch/i386/kernel/scx200.c -- give kernel access to the GPIO pins
-> 
+Searching through archives founded problems respect to CUV4X-* mainboards
+booting 2.4.x kernels. The messages I did found are about mid 2001, where 2.4.3
+was in the throne.
 
-Would that perhaps be better in arch/i386/kernel/cpu/...
+I have an Asus CUV4X board, my linux crash while booting, tested with 2.4.19 and
+2.4.20-pre8. Taking the advise from those all messages I booted with 'noapic'
+but then my second NIC wheren't not correctly. initialized.
+
+I think although noapic "ensures" booting, probably introduces later problems.
+
+<copy from="ancient_message">
+On Tue, Apr 03, 2001 at 10:40:36AM +1200, Simon Garner wrote
+> From: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+>
+> > > I've seen the exact same behavior with my CUV4X-D (2x1GHz) under
+> > > 2.4.2 (debian woody). In addition, the kernel would sometimes hang
+> > > around NMI watchdog enable. At least, I think it's trying to
+> >
+> > Known problem. Thats one reason why -ac trees had nmi watchdog turned off.
+>
+> It still crashes with nmi_watchdog turned off.
+>
+> Running with noapic fixes it but then the system crashes if you access the
+> RTC with hwclock (and probably creates a hundred other problems...).
+>
+> How can I get this chipset/motherboard supported properly under Linux? I'm
+> happy to test patches etc. on the box. *pleading*
+
+Patience is likely to be effective. The chipset isn't exactly rare
+being on SMP boards from Gigabyte, MSI, Tyan and Asus, and likely
+others. I'm betting it will be fixed soon enough. UP and 2.2.x
+kernels worked fine here if you're really desperate. OTOH, the
+board is stable once you get past the boot problems... What sort
+of production system needs frequent unattended boots?
+
+Sorry about this, I just don't remember signing any paychecks for
+what I know is likely to be a non-issue probably before the next
+time I actually have to do something drastic, like reboo
+</copy>
+
+I would like to know if anyone is enduring this problem and if it's currently
+addressed on -ac tree.
+
+My system (Asus CUV4X, 2.4.19 or 2.4.20-pre8, UP P3 600MHz)
+
+Regards,
+Maykel Moya
 
 

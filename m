@@ -1,39 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261613AbSJYVip>; Fri, 25 Oct 2002 17:38:45 -0400
+	id <S261614AbSJYVoM>; Fri, 25 Oct 2002 17:44:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261614AbSJYVio>; Fri, 25 Oct 2002 17:38:44 -0400
-Received: from dsl-213-023-039-129.arcor-ip.net ([213.23.39.129]:6827 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S261613AbSJYVio>;
-	Fri, 25 Oct 2002 17:38:44 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] CONFIG_TINY
-Date: Fri, 25 Oct 2002 23:45:51 +0200
-X-Mailer: KMail [version 1.3.2]
-References: <20021023215117.A29134@jaquet.dk>
-In-Reply-To: <20021023215117.A29134@jaquet.dk>
+	id <S261617AbSJYVoM>; Fri, 25 Oct 2002 17:44:12 -0400
+Received: from fmr02.intel.com ([192.55.52.25]:15563 "EHLO
+	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
+	id <S261614AbSJYVoK>; Fri, 25 Oct 2002 17:44:10 -0400
+Message-ID: <F2DBA543B89AD51184B600508B68D4000ECE7046@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: Robert Love <rml@tech9.net>
+Cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "'Dave Jones'" <davej@codemonkey.org.uk>,
+       "'akpm@digeo.com'" <akpm@digeo.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'chrisl@vmware.com'" <chrisl@vmware.com>,
+       "'Martin J. Bligh'" <mbligh@aracnet.com>
+Subject: RE: [PATCH] hyper-threading information in /proc/cpuinfo
+Date: Fri, 25 Oct 2002 14:50:17 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E185CHA-0008QJ-00@starship>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 23 October 2002 21:51, Rasmus Andersen wrote:
-> The purpose of this mail is to get feedback in form of further
-> areas where kernel size could be reduced, to learn if others
-> are looking at some of these points and to see if I get some
-> of the aforementioned 'never going to make it' noises.
+Sorry,
 
-Well, actually the main point is to get the CONFIG_TINY symbol into 
-mainline, even if it doesn't do much at first.  That in itself will
-be enough to inspire various artists to contribute their own
-creative minimalizing hacks to the subsystems in which they have
-specific expertise.
+Can you please change "siblings\t" to "threads\t\t". SuSE 8.1, for example,
+is already doing it:
 
-I'll bet you beer that some of the minimized subsystems eventually
-supplant their more bloated brethren, as superior in every way.
++#ifdef CONFIG_SMP
++	if (cpu_has_ht) {
++		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
++		seq_printf(m, "threads\t\t: %d\n", smp_num_siblings);
++	}
++#endif
 
--- 
-Daniel
+Thanks,
+Jun
+
+-----Original Message-----
+From: Robert Love [mailto:rml@tech9.net]
+Sent: Friday, October 25, 2002 2:40 PM
+To: Robert Love
+Cc: Nakajima, Jun; Alan Cox; 'Dave Jones'; 'akpm@digeo.com';
+'linux-kernel@vger.kernel.org'; 'chrisl@vmware.com'; 'Martin J. Bligh'
+Subject: Re: [PATCH] hyper-threading information in /proc/cpuinfo
+
+
+On Fri, 2002-10-25 at 17:30, Robert Love wrote:
+
+> 	- wrap print in "if (cpu_has_ht) { ... }"   (Dave Jones)
+> 	- remove initdata from phys_proc_id         (Jun Nakajima)
+> 	- match field names in latest 2.4-ac        (Alan Cox)
+
+missing this last bit, sorry..
+
+	Robert Love
+
+ cpu/proc.c |    7 +++++++
+ smpboot.c  |    2 +-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+diff -urN linux-2.5.44/arch/i386/kernel/cpu/proc.c
+linux/arch/i386/kernel/cpu/proc.c
+--- linux-2.5.44/arch/i386/kernel/cpu/proc.c	2002-10-19
+00:02:29.000000000 -0400
++++ linux/arch/i386/kernel/cpu/proc.c	2002-10-25 15:18:03.000000000 -0400
+@@ -17,6 +17,7 @@
+ 	 * applications want to get the raw CPUID data, they should access
+ 	 * /dev/cpu/<cpu_nr>/cpuid instead.
+ 	 */
++	extern int phys_proc_id[NR_CPUS];
+ 	static char *x86_cap_flags[] = {
+ 		/* Intel-defined */
+ 	        "fpu", "vme", "de", "pse", "tsc", "msr", "pae", "mce",
+@@ -74,6 +75,12 @@
+ 	/* Cache size */
+ 	if (c->x86_cache_size >= 0)
+ 		seq_printf(m, "cache size\t: %d KB\n", c->x86_cache_size);
++#ifdef CONFIG_SMP
++	if (cpu_has_ht) {
++		seq_printf(m, "physical id\t: %d\n", phys_proc_id[n]);
++		seq_printf(m, "siblings\t: %d\n", smp_num_siblings);
++	}
++#endif
+ 	
+ 	/* We use exception 16 if we have hardware math and we've either
+seen it or the CPU claims it is internal */
+ 	fpu_exception = c->hard_math && (ignore_irq13 || cpu_has_fpu);
+diff -urN linux-2.5.44/arch/i386/kernel/smpboot.c
+linux/arch/i386/kernel/smpboot.c
+--- linux-2.5.44/arch/i386/kernel/smpboot.c	2002-10-19
+00:01:53.000000000 -0400
++++ linux/arch/i386/kernel/smpboot.c	2002-10-25 17:24:26.000000000 -0400
+@@ -58,7 +58,7 @@
+ 
+ /* Number of siblings per CPU package */
+ int smp_num_siblings = 1;
+-int __initdata phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
++int phys_proc_id[NR_CPUS]; /* Package ID of each logical CPU */
+ 
+ /* Bitmask of currently online CPUs */
+ unsigned long cpu_online_map;

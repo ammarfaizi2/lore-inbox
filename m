@@ -1,52 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262244AbSJQVwW>; Thu, 17 Oct 2002 17:52:22 -0400
+	id <S262230AbSJQVuJ>; Thu, 17 Oct 2002 17:50:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262245AbSJQVwV>; Thu, 17 Oct 2002 17:52:21 -0400
-Received: from tml.hut.fi ([130.233.44.1]:16908 "EHLO tml-gw.tml.hut.fi")
-	by vger.kernel.org with ESMTP id <S262244AbSJQVvn>;
-	Thu, 17 Oct 2002 17:51:43 -0400
-Date: Fri, 18 Oct 2002 00:57:07 +0300 (EEST)
-From: Ville Nuorvala <vnuorval@morphine.tml.hut.fi>
-To: Krishna Kumar <kumarkr@us.ibm.com>
-cc: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>,
-       <ajtuomin@morphine.tml.hut.fi>, <davem@redhat.com>,
-       <kuznet@ms2.inr.ac.ru>, <linux-kernel@vger.kernel.org>,
-       <netdev@oss.sgi.com>, <netdev-bounce@oss.sgi.com>, <pekkas@netcore.fi>,
-       <torvalds@transmeta.com>, Venkata Jagana <jagana@us.ibm.com>
-Subject: Re: [PATCHSET] Mobile IPv6 for 2.5.43
-In-Reply-To: <OF817FBE23.BF8717DA-ON88256C55.005F5EFB@boulder.ibm.com>
-Message-ID: <Pine.GSO.4.44.0210180047390.18554-100000@morphine.tml.hut.fi>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262227AbSJQVuJ>; Thu, 17 Oct 2002 17:50:09 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:9880 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S262230AbSJQVuI>;
+	Thu, 17 Oct 2002 17:50:08 -0400
+Date: Fri, 18 Oct 2002 07:55:55 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: "Theodore Ts'o" <tytso@mit.edu>, Christoph Hellwig <hch@infradead.org>,
+       torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] Add POSIX Access Control Lists to ext2/3
+Message-ID: <20021018075555.B307856@wobbly.melbourne.sgi.com>
+References: <E181a3b-0006Nu-00@snap.thunk.org> <20021016155012.GA8210@think.thunk.org> <20021017084836.B302869@wobbly.melbourne.sgi.com> <200210171204.08922.agruen@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200210171204.08922.agruen@suse.de>; from agruen@suse.de on Thu, Oct 17, 2002 at 12:04:08PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 Oct 2002, Krishna Kumar wrote:
+On Thu, Oct 17, 2002 at 12:04:08PM +0200, Andreas Gruenbacher wrote:
+> Hello Nathan,
 
->
-> > > http://www.mipl.mediapoli.com/patches/mipv6_cn_support.patch
-> > > http://www.mipl.mediapoli.com/patches/mipv6_mn_support.patch
-> > > http://www.mipl.mediapoli.com/patches/mipv6_ha_support.patch
-> >
-> > Well, I can't find them. I hope they'll be available when I wake up
-> > tomorrow...
->
-> Just replace "_" with "-".
->
-> - KK
-Thanks Krishna and yoshifuji!
+hi there,
 
-The files are now renamed properly.
+> On Thursday 17 October 2002 00:48, Nathan Scott wrote:
+> > They are an optimisization for the one special case (posix acls),
+> > and manage to pollute the VFS for that one special case ...
+> ...
+> As soon as any filesystem independent part of the kernel needs an interface 
+> more efficient that pass-by-value we will again have exactly the same 
+> problem.
 
-- Ville
+My point is simply that a proposal to extend the VFS in this way needs
+to be accompanied by a compelling argument showing the performance bump
+that its providing.
 
---
-Ville Nuorvala
-Research Assistant, Institute of Digital Communications,
-Helsinki University of Technology
-email: vnuorval@tml.hut.fi, phone: +358 (0)9 451 5257
+> Going to disk and fetching EAs only causes disk accesses once; afterwards the 
+> block is cached.
 
+Good - this is true for both XFS and ext2/3 then.  So, we are talking about
+using ref counting vs. copying for any in-kernel users of attrs, and you're
+saying there is some significant overheads with copying and I'm saying show
+me what kind of overheads we're talking about, please.
 
+cheers.
 
+-- 
+Nathan

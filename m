@@ -1,64 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272367AbTGYWUK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 18:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272368AbTGYWUK
+	id S272366AbTGYWTP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 18:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272367AbTGYWTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 18:20:10 -0400
-Received: from pc-62-31-11-105-bf.blueyonder.co.uk ([62.31.11.105]:10934 "HELO
-	prozac") by vger.kernel.org with SMTP id S272367AbTGYWUA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 18:20:00 -0400
-Subject: Re: froom assembly to C in boot code
-From: Gianni Tedesco <gianni@scaramanga.co.uk>
-To: koala.gnu@tiscalinet.it
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F217154.30004@tiscalinet.it>
-References: <3F217154.30004@tiscalinet.it>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-QSsSZW8RcscldMPmhNCk"
-Message-Id: <1059172509.16255.2.camel@sherbert>
+	Fri, 25 Jul 2003 18:19:14 -0400
+Received: from vladimir.pegasys.ws ([64.220.160.58]:45069 "EHLO
+	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S272366AbTGYWTN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 18:19:13 -0400
+Date: Fri, 25 Jul 2003 15:34:20 -0700
+From: jw schultz <jw@pegasys.ws>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 -> 2.2 differences?
+Message-ID: <20030725223420.GD25838@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
+	Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20030725142434.GS32585@rdlg.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 25 Jul 2003 23:35:09 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030725142434.GS32585@rdlg.net>
+User-Agent: Mutt/1.3.27i
+X-Message-Flag: This message may contain content offensive to Atheists and servants of false gods.  Read at your own risk.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Jul 25, 2003 at 10:24:34AM -0400, Robert L. Harris wrote:
+> 
+> 
+> With all the SCO fun going on I have people asking me what functionality
+> we would loose if we rolled from 2.4.21 kernel to the last known stable
+> 2.2 kernel.
+> 
+> Yes, weathering the lawsuit mess and all is a good plan but I'm still
+> being asked for this information.  Does anyone have a link listing what
+>  kind of functionality would be lost, performance impact (p3 and athalon
+> machines), etc?
 
---=-QSsSZW8RcscldMPmhNCk
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+You could start with Joe Pranevich's "Wonderful World of
+Linux 2.4" at
+http://linuxtoday.com/news_story.php3?ltsn=1999-10-03-001-05-NW-LF
 
-On Fri, 2003-07-25 at 19:05, Koala GNU wrote:
-> Hi all,
->=20
-> I forward to the lkml a mail I posted on kernelnewbies hoping someone of=20
-> you can help me.
-> -------------------------------------------------------------------------=
-------------------------------------------------
-
-Try post on alt.os.development they are usually a useful crowd for this
-kind of thing.
-
-PS. If you want to write your own kernel, you are probably best making a
-multiboot kernel that can be loaded by grub. Saves a lot of heartache...
-
---=20
-// Gianni Tedesco (gianni at scaramanga dot co dot uk)
-lynx --source www.scaramanga.co.uk/gianni-at-ecsc.asc | gpg --import
-8646BE7D: 6D9F 2287 870E A2C9 8F60 3A3C 91B5 7669 8646 BE7D
+There have been a number of improvements and features added
+since but any 2.2 -> 2.4 features summary should indicate
+much of what you would loose in a 2.4 -> 2.2 transition.
 
 
---=-QSsSZW8RcscldMPmhNCk
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
-iD8DBQA/IbCdkbV2aYZGvn0RAhGYAJ9b2weSaM2q7AfqEaX2OC6ZlNURjACfcHNg
-kicb6YNz5pP2dnX38Xtk22g=
-=2FGb
------END PGP SIGNATURE-----
-
---=-QSsSZW8RcscldMPmhNCk--
-
+		Remember Cernan and Schmitt

@@ -1,1168 +1,604 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280744AbRKGCRa>; Tue, 6 Nov 2001 21:17:30 -0500
+	id <S280727AbRKGChZ>; Tue, 6 Nov 2001 21:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280743AbRKGCRU>; Tue, 6 Nov 2001 21:17:20 -0500
-Received: from e21.nc.us.ibm.com ([32.97.136.227]:45252 "EHLO
-	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S280750AbRKGCQ5>; Tue, 6 Nov 2001 21:16:57 -0500
-From: "Paul E. McKenney" <pmckenne@us.ibm.com>
-Message-Id: <200111070216.fA72GY602242@eng4.beaverton.ibm.com>
-Subject: [RFC][PATCH] read_barrier.v2.4.14.patch.2001.11.06
-To: linux-kernel@vger.kernel.org
-Date: Tue, 6 Nov 2001 18:16:32 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S280738AbRKGChR>; Tue, 6 Nov 2001 21:37:17 -0500
+Received: from tully.CS.Berkeley.EDU ([128.32.46.229]:62873 "EHLO
+	tully.CS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id <S280727AbRKGChH>; Tue, 6 Nov 2001 21:37:07 -0500
+Message-ID: <20011106183435.13939@tully.CS.Berkeley.EDU>
+Date: Tue, 6 Nov 2001 18:34:35 -0800
+From: Josh MacDonald <jmacd@CS.Berkeley.EDU>
+To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
+Subject: Reiser4 Transaction Design Document
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.89.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
 
-Interpreting silence as assent...  ;-)
-
-Here is a patch containing read_barrier_depends(), memory_barrier(),
-read_barrier(), and write_barrier(), as discussed on lkml a while back.
-(See http://www.uwsg.indiana.edu/hypermail/linux/kernel/0110.1/1430.html)
-
-This patch defines read_barrier_depends() as in the previous patch.
-In the name of backwards compatibility, it defines mb(), rmb(), and wmb()
-in terms of the new memory_barrier(), read_barrier(), and write_barrier()
-in each architecture.  If this approach is acceptable, I will follow up
-with patches to change the existing uses of smp_mb(), smp_rmb(), smp_wmb(),
-mb(), rmb(), and wmb() to instead use the new names.  Finally, I will
-produce patches to remove the definitions of the old names.
-
-Thoughts?
-
-						Thanx, Paul
+We are pleased to make the design document for transactions in
+Reiser4 public.  This is directed to file system developers and
+anyone with an interest in improved atomicity primitives for 
+file system applications with serious consistency requirements.
 
 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-alpha/system.h linux-2.4.14.read_barrier/include/asm-alpha/system.h
---- linux-2.4.14/include/asm-alpha/system.h	Thu Oct  4 18:47:08 2001
-+++ linux-2.4.14.read_barrier/include/asm-alpha/system.h	Tue Nov  6 16:46:52 2001
-@@ -142,22 +142,31 @@
- 
- extern struct task_struct* alpha_switch_to(unsigned long, struct task_struct*);
- 
--#define mb() \
-+#define memory_barrier() \
- __asm__ __volatile__("mb": : :"memory")
- 
--#define rmb() \
-+#define read_barrier() \
- __asm__ __volatile__("mb": : :"memory")
- 
--#define wmb() \
-+#define read_barrier_depends() \
-+__asm__ __volatile__("mb": : :"memory")
-+
-+#define write_barrier() \
- __asm__ __volatile__("wmb": : :"memory")
- 
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
-+
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
- #define smp_wmb()	wmb()
- #else
- #define smp_mb()	barrier()
- #define smp_rmb()	barrier()
-+#define smp_read_barrier_depends()	barrier()
- #define smp_wmb()	barrier()
- #endif
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-arm/system.h linux-2.4.14.read_barrier/include/asm-arm/system.h
---- linux-2.4.14/include/asm-arm/system.h	Mon Nov 27 17:07:59 2000
-+++ linux-2.4.14.read_barrier/include/asm-arm/system.h	Tue Nov  6 16:48:09 2001
-@@ -36,11 +36,16 @@
-  */
- #include <asm/proc/system.h>
- 
--#define mb() __asm__ __volatile__ ("" : : : "memory")
--#define rmb() mb()
--#define wmb() mb()
-+#define memory_barrier() __asm__ __volatile__ ("" : : : "memory")
-+#define read_barrier() mb()
-+#define read_barrier_depends() do { } while(0)
-+#define write_barrier() mb()
- #define nop() __asm__ __volatile__("mov\tr0,r0\t@ nop\n\t");
- 
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
-+
- #define prepare_to_switch()    do { } while(0)
- 
- /*
-@@ -67,12 +72,14 @@
- 
- #define smp_mb()		mb()
- #define smp_rmb()		rmb()
-+#define smp_read_barrier_depends()		read_barrier_depends()
- #define smp_wmb()		wmb()
- 
- #else
- 
- #define smp_mb()		barrier()
- #define smp_rmb()		barrier()
-+#define smp_read_barrier_depends()		do { } while(0)
- #define smp_wmb()		barrier()
- 
- #define cli()			__cli()
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-cris/system.h linux-2.4.14.read_barrier/include/asm-cris/system.h
---- linux-2.4.14/include/asm-cris/system.h	Mon Oct  8 11:43:54 2001
-+++ linux-2.4.14.read_barrier/include/asm-cris/system.h	Tue Nov  6 16:48:38 2001
-@@ -147,17 +147,24 @@
- #endif
- }
- 
--#define mb() __asm__ __volatile__ ("" : : : "memory")
--#define rmb() mb()
--#define wmb() mb()
-+#define memory_barrier() __asm__ __volatile__ ("" : : : "memory")
-+#define read_barrier() mb()
-+#define read_barrier_depends() do { } while(0)
-+#define write_barrier() mb()
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- #ifdef CONFIG_SMP
- #define smp_mb()        mb()
- #define smp_rmb()       rmb()
-+#define smp_read_barrier_depends()     read_barrier_depends()
- #define smp_wmb()       wmb()
- #else
- #define smp_mb()        barrier()
- #define smp_rmb()       barrier()
-+#define smp_read_barrier_depends()     do { } while(0)
- #define smp_wmb()       barrier()
- #endif
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-cris/system.h.orig linux-2.4.14.read_barrier/include/asm-cris/system.h.orig
---- linux-2.4.14/include/asm-cris/system.h.orig	Wed Dec 31 16:00:00 1969
-+++ linux-2.4.14.read_barrier/include/asm-cris/system.h.orig	Mon Oct  8 11:43:54 2001
-@@ -0,0 +1,173 @@
-+#ifndef __ASM_CRIS_SYSTEM_H
-+#define __ASM_CRIS_SYSTEM_H
-+
-+#include <linux/config.h>
-+
-+#include <asm/segment.h>
-+
-+/* the switch_to macro calls resume, an asm function in entry.S which does the actual
-+ * task switching.
-+ */
-+
-+extern struct task_struct *resume(struct task_struct *prev, struct task_struct *next, int);
-+#define prepare_to_switch()     do { } while(0)
-+#define switch_to(prev,next,last) last = resume(prev,next, \
-+					 (int)&((struct task_struct *)0)->thread)
-+
-+/* read the CPU version register */
-+
-+static inline unsigned long rdvr(void) { 
-+	unsigned long vr;
-+	__asm__ volatile ("move $vr,%0" : "=rm" (vr));
-+	return vr;
-+}
-+
-+/* read/write the user-mode stackpointer */
-+
-+static inline unsigned long rdusp(void) {
-+	unsigned long usp;
-+	__asm__ __volatile__("move $usp,%0" : "=rm" (usp));
-+	return usp;
-+}
-+
-+#define wrusp(usp) \
-+	__asm__ __volatile__("move %0,$usp" : /* no outputs */ : "rm" (usp))
-+
-+/* read the current stackpointer */
-+
-+static inline unsigned long rdsp(void) {
-+	unsigned long sp;
-+	__asm__ __volatile__("move.d $sp,%0" : "=rm" (sp));
-+	return sp;
-+}
-+
-+static inline unsigned long _get_base(char * addr)
-+{
-+  return 0;
-+}
-+
-+#define nop() __asm__ __volatile__ ("nop");
-+
-+#define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
-+#define tas(ptr) (xchg((ptr),1))
-+
-+struct __xchg_dummy { unsigned long a[100]; };
-+#define __xg(x) ((struct __xchg_dummy *)(x))
-+
-+#if 0
-+/* use these and an oscilloscope to see the fraction of time we're running with IRQ's disabled */
-+/* it assumes the LED's are on port 0x90000000 of course. */
-+#define sti() __asm__ __volatile__ ( "ei\n\tpush $r0\n\tmoveq 0,$r0\n\tmove.d $r0,[0x90000000]\n\tpop $r0" );
-+#define cli() __asm__ __volatile__ ( "di\n\tpush $r0\n\tmove.d 0x40000,$r0\n\tmove.d $r0,[0x90000000]\n\tpop $r0");
-+#define save_flags(x) __asm__ __volatile__ ("move $ccr,%0" : "=rm" (x) : : "memory");
-+#define restore_flags(x) __asm__ __volatile__ ("move %0,$ccr\n\tbtstq 5,%0\n\tbpl 1f\n\tnop\n\tpush $r0\n\tmoveq 0,$r0\n\tmove.d $r0,[0x90000000]\n\tpop $r0\n1:\n" : : "r" (x) : "memory");
-+#else
-+#define __cli() __asm__ __volatile__ ( "di");
-+#define __sti() __asm__ __volatile__ ( "ei" );
-+#define __save_flags(x) __asm__ __volatile__ ("move $ccr,%0" : "=rm" (x) : : "memory");
-+#define __restore_flags(x) __asm__ __volatile__ ("move %0,$ccr" : : "rm" (x) : "memory");
-+
-+/* For spinlocks etc */
-+#define local_irq_save(x) __asm__ __volatile__ ("move $ccr,%0\n\tdi" : "=rm" (x) : : "memory"); 
-+#define local_irq_restore(x) restore_flags(x)
-+
-+#define local_irq_disable()  cli()
-+#define local_irq_enable()   sti()
-+
-+#endif
-+
-+#define cli() __cli()
-+#define sti() __sti()
-+#define save_flags(x) __save_flags(x)
-+#define restore_flags(x) __restore_flags(x)
-+#define save_and_cli(x) do { __save_flags(x); cli(); } while(0)
-+
-+static inline unsigned long __xchg(unsigned long x, void * ptr, int size)
-+{
-+  /* since Etrax doesn't have any atomic xchg instructions, we need to disable
-+     irq's (if enabled) and do it with move.d's */
-+#if 0
-+  unsigned int flags;
-+  save_flags(flags); /* save flags, including irq enable bit */
-+  cli();             /* shut off irq's */
-+  switch (size) {
-+  case 1:
-+    __asm__ __volatile__ (
-+       "move.b %0,r0\n\t"
-+       "move.b %1,%0\n\t"
-+       "move.b r0,%1\n\t"
-+       : "=r" (x)
-+       : "m" (*__xg(ptr)), "r" (x)
-+       : "memory","r0");    
-+    break;
-+  case 2:
-+    __asm__ __volatile__ (
-+       "move.w %0,r0\n\t"
-+       "move.w %1,%0\n\t"
-+       "move.w r0,%1\n\t"
-+       : "=r" (x)
-+       : "m" (*__xg(ptr)), "r" (x)
-+       : "memory","r0");
-+    break;
-+  case 4:
-+    __asm__ __volatile__ (
-+       "move.d %0,r0\n\t"
-+       "move.d %1,%0\n\t"
-+       "move.d r0,%1\n\t"
-+       : "=r" (x)
-+       : "m" (*__xg(ptr)), "r" (x)
-+       : "memory","r0");
-+    break;
-+  }
-+  restore_flags(flags); /* restore irq enable bit */
-+  return x;
-+#else
-+  unsigned long flags,temp;
-+  save_flags(flags); /* save flags, including irq enable bit */
-+  cli();             /* shut off irq's */
-+  switch (size) {
-+  case 1:
-+    *((unsigned char *)&temp) = x;
-+    x = *(unsigned char *)ptr;
-+    *(unsigned char *)ptr = *((unsigned char *)&temp);
-+    break;
-+  case 2:
-+    *((unsigned short *)&temp) = x;
-+    x = *(unsigned short *)ptr;
-+    *(unsigned short *)ptr = *((unsigned short *)&temp);
-+    break;
-+  case 4:
-+    temp = x;
-+    x = *(unsigned long *)ptr;
-+    *(unsigned long *)ptr = temp;
-+    break;
-+  }
-+  restore_flags(flags); /* restore irq enable bit */
-+  return x;
-+#endif
-+}
-+
-+#define mb() __asm__ __volatile__ ("" : : : "memory")
-+#define rmb() mb()
-+#define wmb() mb()
-+
-+#ifdef CONFIG_SMP
-+#define smp_mb()        mb()
-+#define smp_rmb()       rmb()
-+#define smp_wmb()       wmb()
-+#else
-+#define smp_mb()        barrier()
-+#define smp_rmb()       barrier()
-+#define smp_wmb()       barrier()
-+#endif
-+
-+#define iret()
-+
-+/*
-+ * disable hlt during certain critical i/o operations
-+ */
-+#define HAVE_DISABLE_HLT
-+void disable_hlt(void);
-+void enable_hlt(void);
-+
-+#endif
-Binary files linux-2.4.14/include/asm-i386/.system.h.rej.swp and linux-2.4.14.read_barrier/include/asm-i386/.system.h.rej.swp differ
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-i386/system.h linux-2.4.14.read_barrier/include/asm-i386/system.h
---- linux-2.4.14/include/asm-i386/system.h	Mon Nov  5 12:42:13 2001
-+++ linux-2.4.14.read_barrier/include/asm-i386/system.h	Tue Nov  6 16:49:45 2001
-@@ -286,22 +286,32 @@
-  * nop for these.
-  */
-  
--#define mb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
--#define rmb()	mb()
-+#define memory_barrier() \
-+		__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
-+#define read_barrier()	mb()
-+#define read_barrier_depends()	do { } while(0)
- 
- #ifdef CONFIG_X86_OOSTORE
--#define wmb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
-+#define write_barrier() \
-+		__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
- #else
--#define wmb()	__asm__ __volatile__ ("": : :"memory")
-+#define write_barrier() \
-+		__asm__ __volatile__ ("": : :"memory")
- #endif
- 
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
-+
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
- #define smp_wmb()	wmb()
- #else
- #define smp_mb()	barrier()
- #define smp_rmb()	barrier()
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	barrier()
- #endif
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-i386/system.h.orig linux-2.4.14.read_barrier/include/asm-i386/system.h.orig
---- linux-2.4.14/include/asm-i386/system.h.orig	Wed Dec 31 16:00:00 1969
-+++ linux-2.4.14.read_barrier/include/asm-i386/system.h.orig	Mon Nov  5 12:42:13 2001
-@@ -0,0 +1,354 @@
-+#ifndef __ASM_SYSTEM_H
-+#define __ASM_SYSTEM_H
-+
-+#include <linux/config.h>
-+#include <linux/kernel.h>
-+#include <asm/segment.h>
-+#include <linux/bitops.h> /* for LOCK_PREFIX */
-+
-+#ifdef __KERNEL__
-+
-+struct task_struct;	/* one of the stranger aspects of C forward declarations.. */
-+extern void FASTCALL(__switch_to(struct task_struct *prev, struct task_struct *next));
-+
-+#define prepare_to_switch()	do { } while(0)
-+#define switch_to(prev,next,last) do {					\
-+	asm volatile("pushl %%esi\n\t"					\
-+		     "pushl %%edi\n\t"					\
-+		     "pushl %%ebp\n\t"					\
-+		     "movl %%esp,%0\n\t"	/* save ESP */		\
-+		     "movl %3,%%esp\n\t"	/* restore ESP */	\
-+		     "movl $1f,%1\n\t"		/* save EIP */		\
-+		     "pushl %4\n\t"		/* restore EIP */	\
-+		     "jmp __switch_to\n"				\
-+		     "1:\t"						\
-+		     "popl %%ebp\n\t"					\
-+		     "popl %%edi\n\t"					\
-+		     "popl %%esi\n\t"					\
-+		     :"=m" (prev->thread.esp),"=m" (prev->thread.eip),	\
-+		      "=b" (last)					\
-+		     :"m" (next->thread.esp),"m" (next->thread.eip),	\
-+		      "a" (prev), "d" (next),				\
-+		      "b" (prev));					\
-+} while (0)
-+
-+#define _set_base(addr,base) do { unsigned long __pr; \
-+__asm__ __volatile__ ("movw %%dx,%1\n\t" \
-+	"rorl $16,%%edx\n\t" \
-+	"movb %%dl,%2\n\t" \
-+	"movb %%dh,%3" \
-+	:"=&d" (__pr) \
-+	:"m" (*((addr)+2)), \
-+	 "m" (*((addr)+4)), \
-+	 "m" (*((addr)+7)), \
-+         "0" (base) \
-+        ); } while(0)
-+
-+#define _set_limit(addr,limit) do { unsigned long __lr; \
-+__asm__ __volatile__ ("movw %%dx,%1\n\t" \
-+	"rorl $16,%%edx\n\t" \
-+	"movb %2,%%dh\n\t" \
-+	"andb $0xf0,%%dh\n\t" \
-+	"orb %%dh,%%dl\n\t" \
-+	"movb %%dl,%2" \
-+	:"=&d" (__lr) \
-+	:"m" (*(addr)), \
-+	 "m" (*((addr)+6)), \
-+	 "0" (limit) \
-+        ); } while(0)
-+
-+#define set_base(ldt,base) _set_base( ((char *)&(ldt)) , (base) )
-+#define set_limit(ldt,limit) _set_limit( ((char *)&(ldt)) , ((limit)-1)>>12 )
-+
-+static inline unsigned long _get_base(char * addr)
-+{
-+	unsigned long __base;
-+	__asm__("movb %3,%%dh\n\t"
-+		"movb %2,%%dl\n\t"
-+		"shll $16,%%edx\n\t"
-+		"movw %1,%%dx"
-+		:"=&d" (__base)
-+		:"m" (*((addr)+2)),
-+		 "m" (*((addr)+4)),
-+		 "m" (*((addr)+7)));
-+	return __base;
-+}
-+
-+#define get_base(ldt) _get_base( ((char *)&(ldt)) )
-+
-+/*
-+ * Load a segment. Fall back on loading the zero
-+ * segment if something goes wrong..
-+ */
-+#define loadsegment(seg,value)			\
-+	asm volatile("\n"			\
-+		"1:\t"				\
-+		"movl %0,%%" #seg "\n"		\
-+		"2:\n"				\
-+		".section .fixup,\"ax\"\n"	\
-+		"3:\t"				\
-+		"pushl $0\n\t"			\
-+		"popl %%" #seg "\n\t"		\
-+		"jmp 2b\n"			\
-+		".previous\n"			\
-+		".section __ex_table,\"a\"\n\t"	\
-+		".align 4\n\t"			\
-+		".long 1b,3b\n"			\
-+		".previous"			\
-+		: :"m" (*(unsigned int *)&(value)))
-+
-+/*
-+ * Clear and set 'TS' bit respectively
-+ */
-+#define clts() __asm__ __volatile__ ("clts")
-+#define read_cr0() ({ \
-+	unsigned int __dummy; \
-+	__asm__( \
-+		"movl %%cr0,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr0(x) \
-+	__asm__("movl %0,%%cr0": :"r" (x));
-+
-+#define read_cr4() ({ \
-+	unsigned int __dummy; \
-+	__asm__( \
-+		"movl %%cr4,%0\n\t" \
-+		:"=r" (__dummy)); \
-+	__dummy; \
-+})
-+#define write_cr4(x) \
-+	__asm__("movl %0,%%cr4": :"r" (x));
-+#define stts() write_cr0(8 | read_cr0())
-+
-+#endif	/* __KERNEL__ */
-+
-+#define wbinvd() \
-+	__asm__ __volatile__ ("wbinvd": : :"memory");
-+
-+static inline unsigned long get_limit(unsigned long segment)
-+{
-+	unsigned long __limit;
-+	__asm__("lsll %1,%0"
-+		:"=r" (__limit):"r" (segment));
-+	return __limit+1;
-+}
-+
-+#define nop() __asm__ __volatile__ ("nop")
-+
-+#define xchg(ptr,v) ((__typeof__(*(ptr)))__xchg((unsigned long)(v),(ptr),sizeof(*(ptr))))
-+
-+#define tas(ptr) (xchg((ptr),1))
-+
-+struct __xchg_dummy { unsigned long a[100]; };
-+#define __xg(x) ((struct __xchg_dummy *)(x))
-+
-+
-+/*
-+ * The semantics of XCHGCMP8B are a bit strange, this is why
-+ * there is a loop and the loading of %%eax and %%edx has to
-+ * be inside. This inlines well in most cases, the cached
-+ * cost is around ~38 cycles. (in the future we might want
-+ * to do an SIMD/3DNOW!/MMX/FPU 64-bit store here, but that
-+ * might have an implicit FPU-save as a cost, so it's not
-+ * clear which path to go.)
-+ */
-+static inline void __set_64bit (unsigned long long * ptr,
-+		unsigned int low, unsigned int high)
-+{
-+	__asm__ __volatile__ (
-+		"\n1:\t"
-+		"movl (%0), %%eax\n\t"
-+		"movl 4(%0), %%edx\n\t"
-+		"cmpxchg8b (%0)\n\t"
-+		"jnz 1b"
-+		: /* no outputs */
-+		:	"D"(ptr),
-+			"b"(low),
-+			"c"(high)
-+		:	"ax","dx","memory");
-+}
-+
-+static inline void __set_64bit_constant (unsigned long long *ptr,
-+						 unsigned long long value)
-+{
-+	__set_64bit(ptr,(unsigned int)(value), (unsigned int)((value)>>32ULL));
-+}
-+#define ll_low(x)	*(((unsigned int*)&(x))+0)
-+#define ll_high(x)	*(((unsigned int*)&(x))+1)
-+
-+static inline void __set_64bit_var (unsigned long long *ptr,
-+			 unsigned long long value)
-+{
-+	__set_64bit(ptr,ll_low(value), ll_high(value));
-+}
-+
-+#define set_64bit(ptr,value) \
-+(__builtin_constant_p(value) ? \
-+ __set_64bit_constant(ptr, value) : \
-+ __set_64bit_var(ptr, value) )
-+
-+#define _set_64bit(ptr,value) \
-+(__builtin_constant_p(value) ? \
-+ __set_64bit(ptr, (unsigned int)(value), (unsigned int)((value)>>32ULL) ) : \
-+ __set_64bit(ptr, ll_low(value), ll_high(value)) )
-+
-+/*
-+ * Note: no "lock" prefix even on SMP: xchg always implies lock anyway
-+ * Note 2: xchg has side effect, so that attribute volatile is necessary,
-+ *	  but generally the primitive is invalid, *ptr is output argument. --ANK
-+ */
-+static inline unsigned long __xchg(unsigned long x, volatile void * ptr, int size)
-+{
-+	switch (size) {
-+		case 1:
-+			__asm__ __volatile__("xchgb %b0,%1"
-+				:"=q" (x)
-+				:"m" (*__xg(ptr)), "0" (x)
-+				:"memory");
-+			break;
-+		case 2:
-+			__asm__ __volatile__("xchgw %w0,%1"
-+				:"=r" (x)
-+				:"m" (*__xg(ptr)), "0" (x)
-+				:"memory");
-+			break;
-+		case 4:
-+			__asm__ __volatile__("xchgl %0,%1"
-+				:"=r" (x)
-+				:"m" (*__xg(ptr)), "0" (x)
-+				:"memory");
-+			break;
-+	}
-+	return x;
-+}
-+
-+/*
-+ * Atomic compare and exchange.  Compare OLD with MEM, if identical,
-+ * store NEW in MEM.  Return the initial value in MEM.  Success is
-+ * indicated by comparing RETURN with OLD.
-+ */
-+
-+#ifdef CONFIG_X86_CMPXCHG
-+#define __HAVE_ARCH_CMPXCHG 1
-+
-+static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
-+				      unsigned long new, int size)
-+{
-+	unsigned long prev;
-+	switch (size) {
-+	case 1:
-+		__asm__ __volatile__(LOCK_PREFIX "cmpxchgb %b1,%2"
-+				     : "=a"(prev)
-+				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "memory");
-+		return prev;
-+	case 2:
-+		__asm__ __volatile__(LOCK_PREFIX "cmpxchgw %w1,%2"
-+				     : "=a"(prev)
-+				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "memory");
-+		return prev;
-+	case 4:
-+		__asm__ __volatile__(LOCK_PREFIX "cmpxchgl %1,%2"
-+				     : "=a"(prev)
-+				     : "q"(new), "m"(*__xg(ptr)), "0"(old)
-+				     : "memory");
-+		return prev;
-+	}
-+	return old;
-+}
-+
-+#define cmpxchg(ptr,o,n)\
-+	((__typeof__(*(ptr)))__cmpxchg((ptr),(unsigned long)(o),\
-+					(unsigned long)(n),sizeof(*(ptr))))
-+    
-+#else
-+/* Compiling for a 386 proper.	Is it worth implementing via cli/sti?  */
-+#endif
-+
-+/*
-+ * Force strict CPU ordering.
-+ * And yes, this is required on UP too when we're talking
-+ * to devices.
-+ *
-+ * For now, "wmb()" doesn't actually do anything, as all
-+ * Intel CPU's follow what Intel calls a *Processor Order*,
-+ * in which all writes are seen in the program order even
-+ * outside the CPU.
-+ *
-+ * I expect future Intel CPU's to have a weaker ordering,
-+ * but I'd also expect them to finally get their act together
-+ * and add some real memory barriers if so.
-+ *
-+ * Some non intel clones support out of order store. wmb() ceases to be a
-+ * nop for these.
-+ */
-+ 
-+#define mb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
-+#define rmb()	mb()
-+
-+#ifdef CONFIG_X86_OOSTORE
-+#define wmb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
-+#else
-+#define wmb()	__asm__ __volatile__ ("": : :"memory")
-+#endif
-+
-+#ifdef CONFIG_SMP
-+#define smp_mb()	mb()
-+#define smp_rmb()	rmb()
-+#define smp_wmb()	wmb()
-+#else
-+#define smp_mb()	barrier()
-+#define smp_rmb()	barrier()
-+#define smp_wmb()	barrier()
-+#endif
-+
-+#define set_mb(var, value) do { xchg(&var, value); } while (0)
-+#define set_wmb(var, value) do { var = value; wmb(); } while (0)
-+
-+/* interrupt control.. */
-+#define __save_flags(x)		__asm__ __volatile__("pushfl ; popl %0":"=g" (x): /* no input */)
-+#define __restore_flags(x) 	__asm__ __volatile__("pushl %0 ; popfl": /* no output */ :"g" (x):"memory", "cc")
-+#define __cli() 		__asm__ __volatile__("cli": : :"memory")
-+#define __sti()			__asm__ __volatile__("sti": : :"memory")
-+/* used in the idle loop; sti takes one instruction cycle to complete */
-+#define safe_halt()		__asm__ __volatile__("sti; hlt": : :"memory")
-+
-+/* For spinlocks etc */
-+#define local_irq_save(x)	__asm__ __volatile__("pushfl ; popl %0 ; cli":"=g" (x): /* no input */ :"memory")
-+#define local_irq_restore(x)	__restore_flags(x)
-+#define local_irq_disable()	__cli()
-+#define local_irq_enable()	__sti()
-+
-+#ifdef CONFIG_SMP
-+
-+extern void __global_cli(void);
-+extern void __global_sti(void);
-+extern unsigned long __global_save_flags(void);
-+extern void __global_restore_flags(unsigned long);
-+#define cli() __global_cli()
-+#define sti() __global_sti()
-+#define save_flags(x) ((x)=__global_save_flags())
-+#define restore_flags(x) __global_restore_flags(x)
-+
-+#else
-+
-+#define cli() __cli()
-+#define sti() __sti()
-+#define save_flags(x) __save_flags(x)
-+#define restore_flags(x) __restore_flags(x)
-+
-+#endif
-+
-+/*
-+ * disable hlt during certain critical i/o operations
-+ */
-+#define HAVE_DISABLE_HLT
-+void disable_hlt(void);
-+void enable_hlt(void);
-+
-+extern int is_sony_vaio_laptop;
-+
-+#endif
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-i386/system.h.rej linux-2.4.14.read_barrier/include/asm-i386/system.h.rej
---- linux-2.4.14/include/asm-i386/system.h.rej	Wed Dec 31 16:00:00 1969
-+++ linux-2.4.14.read_barrier/include/asm-i386/system.h.rej	Tue Nov  6 16:15:50 2001
-@@ -0,0 +1,36 @@
-+***************
-+*** 284,298 ****
-+   */
-+  #define mb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
-+  #define rmb()	mb()
-+  #define wmb()	__asm__ __volatile__ ("": : :"memory")
-+  
-+  #ifdef CONFIG_SMP
-+  #define smp_mb()	mb()
-+  #define smp_rmb()	rmb()
-+  #define smp_wmb()	wmb()
-+  #else
-+  #define smp_mb()	barrier()
-+  #define smp_rmb()	barrier()
-+  #define smp_wmb()	barrier()
-+  #endif
-+  
-+--- 284,301 ----
-+   */
-+  #define mb() 	__asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
-+  #define rmb()	mb()
-++ #define read_barrier_depends()	do { } while(0)
-+  #define wmb()	__asm__ __volatile__ ("": : :"memory")
-+  
-+  #ifdef CONFIG_SMP
-+  #define smp_mb()	mb()
-+  #define smp_rmb()	rmb()
-++ #define smp_read_barrier_depends()	read_barrier_depends()
-+  #define smp_wmb()	wmb()
-+  #else
-+  #define smp_mb()	barrier()
-+  #define smp_rmb()	barrier()
-++ #define smp_read_barrier_depends()	do { } while(0)
-+  #define smp_wmb()	barrier()
-+  #endif
-+  
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-ia64/system.h linux-2.4.14.read_barrier/include/asm-ia64/system.h
---- linux-2.4.14/include/asm-ia64/system.h	Tue Jul 31 10:30:09 2001
-+++ linux-2.4.14.read_barrier/include/asm-ia64/system.h	Tue Nov  6 16:50:56 2001
-@@ -80,33 +80,43 @@
-  * architecturally visible effects of a memory access have occurred
-  * (at a minimum, this means the memory has been read or written).
-  *
-- *   wmb():	Guarantees that all preceding stores to memory-
-+ *   write_barrier():	Guarantees that all preceding stores to memory-
-  *		like regions are visible before any subsequent
-  *		stores and that all following stores will be
-  *		visible only after all previous stores.
-- *   rmb():	Like wmb(), but for reads.
-- *   mb():	wmb()/rmb() combo, i.e., all previous memory
-+ *   read_barrier():	Like wmb(), but for reads.
-+ *   read_barrier_depends():	Like rmb(), but only for pairs
-+ *		of loads where the second load depends on the
-+ *		value loaded by the first.
-+ *   memory_barrier():	wmb()/rmb() combo, i.e., all previous memory
-  *		accesses are visible before all subsequent
-  *		accesses and vice versa.  This is also known as
-  *		a "fence."
-  *
-- * Note: "mb()" and its variants cannot be used as a fence to order
-- * accesses to memory mapped I/O registers.  For that, mf.a needs to
-+ * Note: "memory_barrier()" and its variants cannot be used as a fence to
-+ * order accesses to memory mapped I/O registers.  For that, mf.a needs to
-  * be used.  However, we don't want to always use mf.a because (a)
-  * it's (presumably) much slower than mf and (b) mf.a is supported for
-  * sequential memory pages only.
-  */
--#define mb()	__asm__ __volatile__ ("mf" ::: "memory")
--#define rmb()	mb()
--#define wmb()	mb()
-+#define memory_barrier()	__asm__ __volatile__ ("mf" ::: "memory")
-+#define read_barrier()		mb()
-+#define read_barrier_depends()	do { } while(0)
-+#define write_barrier()		mb()
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- #ifdef CONFIG_SMP
- # define smp_mb()	mb()
- # define smp_rmb()	rmb()
-+# define smp_read_barrier_depends()	read_barrier_depends()
- # define smp_wmb()	wmb()
- #else
- # define smp_mb()	barrier()
- # define smp_rmb()	barrier()
-+# define smp_read_barrier_depends()	do { } while(0)
- # define smp_wmb()	barrier()
- #endif
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-m68k/system.h linux-2.4.14.read_barrier/include/asm-m68k/system.h
---- linux-2.4.14/include/asm-m68k/system.h	Thu Oct 25 13:53:55 2001
-+++ linux-2.4.14.read_barrier/include/asm-m68k/system.h	Tue Nov  6 16:51:50 2001
-@@ -78,14 +78,20 @@
-  * Not really required on m68k...
-  */
- #define nop()		do { asm volatile ("nop"); barrier(); } while (0)
--#define mb()		barrier()
--#define rmb()		barrier()
--#define wmb()		barrier()
-+#define memory_barrier()	barrier()
-+#define read_barrier()		barrier()
-+#define read_barrier_depends()	do { } while(0)
-+#define write_barrier()		barrier()
- #define set_mb(var, value)    do { xchg(&var, value); } while (0)
- #define set_wmb(var, value)    do { var = value; wmb(); } while (0)
- 
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
-+
- #define smp_mb()	barrier()
- #define smp_rmb()	barrier()
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	barrier()
- 
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-mips/system.h linux-2.4.14.read_barrier/include/asm-mips/system.h
---- linux-2.4.14/include/asm-mips/system.h	Sun Sep  9 10:43:01 2001
-+++ linux-2.4.14.read_barrier/include/asm-mips/system.h	Tue Nov  6 16:53:02 2001
-@@ -149,13 +149,14 @@
- #ifdef CONFIG_CPU_HAS_WB
- 
- #include <asm/wbflush.h>
--#define rmb()	do { } while(0)
--#define wmb()	wbflush()
--#define mb()	wbflush()
-+#define read_barrier()		do { } while(0)
-+#define read_barrier_depends()	do { } while(0)
-+#define write_barrier()		wbflush()
-+#define memory_barrier()	wbflush()
- 
- #else /* CONFIG_CPU_HAS_WB  */
- 
--#define mb()						\
-+#define memory_barrier()				\
- __asm__ __volatile__(					\
- 	"# prevent instructions being moved around\n\t"	\
- 	".set\tnoreorder\n\t"				\
-@@ -165,18 +166,25 @@
- 	: /* no output */				\
- 	: /* no input */				\
- 	: "memory")
--#define rmb() mb()
--#define wmb() mb()
-+#define read_barrier() mb()
-+#define read_barrier_depends()	do { } while(0)
-+#define write_barrier() mb()
- 
- #endif /* CONFIG_CPU_HAS_WB  */
- 
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
-+
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
- #define smp_wmb()	wmb()
- #else
- #define smp_mb()	barrier()
- #define smp_rmb()	barrier()
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	barrier()
- #endif
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-mips64/system.h linux-2.4.14.read_barrier/include/asm-mips64/system.h
---- linux-2.4.14/include/asm-mips64/system.h	Wed Jul  4 11:50:39 2001
-+++ linux-2.4.14.read_barrier/include/asm-mips64/system.h	Tue Nov  6 16:53:35 2001
-@@ -137,7 +137,7 @@
- /*
-  * These are probably defined overly paranoid ...
-  */
--#define mb()						\
-+#define memory_barrier()				\
- __asm__ __volatile__(					\
- 	"# prevent instructions being moved around\n\t"	\
- 	".set\tnoreorder\n\t"				\
-@@ -146,16 +146,23 @@
- 	: /* no output */				\
- 	: /* no input */				\
- 	: "memory")
--#define rmb() mb()
--#define wmb() mb()
-+#define read_barrier() mb()
-+#define read_barrier_depends()	do { } while(0)
-+#define write_barrier() mb()
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
- #define smp_wmb()	wmb()
- #else
- #define smp_mb()	barrier()
- #define smp_rmb()	barrier()
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	barrier()
- #endif
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-parisc/system.h linux-2.4.14.read_barrier/include/asm-parisc/system.h
---- linux-2.4.14/include/asm-parisc/system.h	Wed Dec  6 11:46:39 2000
-+++ linux-2.4.14.read_barrier/include/asm-parisc/system.h	Tue Nov  6 16:54:55 2001
-@@ -50,6 +50,7 @@
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	wmb()
- #else
- /* This is simply the barrier() macro from linux/kernel.h but when serial.c
-@@ -58,6 +59,7 @@
-  */
- #define smp_mb()	__asm__ __volatile__("":::"memory");
- #define smp_rmb()	__asm__ __volatile__("":::"memory");
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	__asm__ __volatile__("":::"memory");
- #endif
- 
-@@ -120,8 +122,14 @@
- 		: "r" (gr), "i" (cr))
- 
- 
--#define mb()  __asm__ __volatile__ ("sync" : : :"memory")
--#define wmb() mb()
-+#define memory_barrier()  __asm__ __volatile__ ("sync" : : :"memory")
-+#define read_barrier() mb()
-+#define write_barrier() mb()
-+#define read_barrier_depends()	do { } while(0)
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- extern unsigned long __xchg(unsigned long, unsigned long *, int);
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-ppc/system.h linux-2.4.14.read_barrier/include/asm-ppc/system.h
---- linux-2.4.14/include/asm-ppc/system.h	Tue Aug 28 06:58:33 2001
-+++ linux-2.4.14.read_barrier/include/asm-ppc/system.h	Tue Nov  6 16:55:47 2001
-@@ -22,17 +22,24 @@
-  * providing an ordering (separately) for (a) cacheable stores and (b)
-  * loads and stores to non-cacheable memory (e.g. I/O devices).
-  *
-- * mb() prevents loads and stores being reordered across this point.
-- * rmb() prevents loads being reordered across this point.
-- * wmb() prevents stores being reordered across this point.
-+ * memory_barrier() prevents loads and stores being reordered across this point.
-+ * read_barrier() prevents loads being reordered across this point.
-+ * read_barrier_depends() prevents data-dependant loads being reordered
-+ *	across this point (nop on PPC).
-+ * write_barrier() prevents stores being reordered across this point.
-  *
-  * We can use the eieio instruction for wmb, but since it doesn't
-  * give any ordering guarantees about loads, we have to use the
-  * stronger but slower sync instruction for mb and rmb.
-  */
--#define mb()  __asm__ __volatile__ ("sync" : : : "memory")
--#define rmb()  __asm__ __volatile__ ("sync" : : : "memory")
--#define wmb()  __asm__ __volatile__ ("eieio" : : : "memory")
-+#define memory_barrier()  __asm__ __volatile__ ("sync" : : : "memory")
-+#define read_barrier()  __asm__ __volatile__ ("sync" : : : "memory")
-+#define read_barrier_depends()  do { } while(0)
-+#define write_barrier()  __asm__ __volatile__ ("eieio" : : : "memory")
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- #define set_mb(var, value)	do { var = value; mb(); } while (0)
- #define set_wmb(var, value)	do { var = value; wmb(); } while (0)
-@@ -40,10 +47,12 @@
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
- #define smp_wmb()	wmb()
- #else
- #define smp_mb()	__asm__ __volatile__("": : :"memory")
- #define smp_rmb()	__asm__ __volatile__("": : :"memory")
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	__asm__ __volatile__("": : :"memory")
- #endif /* CONFIG_SMP */
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-s390/system.h linux-2.4.14.read_barrier/include/asm-s390/system.h
---- linux-2.4.14/include/asm-s390/system.h	Wed Jul 25 14:12:02 2001
-+++ linux-2.4.14.read_barrier/include/asm-s390/system.h	Tue Nov  6 16:56:13 2001
-@@ -115,14 +115,20 @@
- 
- #define eieio()  __asm__ __volatile__ ("BCR 15,0") 
- # define SYNC_OTHER_CORES(x)   eieio() 
--#define mb()    eieio()
--#define rmb()   eieio()
--#define wmb()   eieio()
-+#define memory_barrier()    eieio()
-+#define read_barrier()   eieio()
-+#define read_barrier_depends() do { } while(0)
-+#define write_barrier()   eieio()
- #define smp_mb()       mb()
- #define smp_rmb()      rmb()
-+#define smp_read_barrier_depends()    read_barrier_depends()
- #define smp_wmb()      wmb()
- #define smp_mb__before_clear_bit()     smp_mb()
- #define smp_mb__after_clear_bit()      smp_mb()
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- 
- #define set_mb(var, value)      do { var = value; mb(); } while (0)
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-s390x/system.h linux-2.4.14.read_barrier/include/asm-s390x/system.h
---- linux-2.4.14/include/asm-s390x/system.h	Wed Jul 25 14:12:03 2001
-+++ linux-2.4.14.read_barrier/include/asm-s390x/system.h	Tue Nov  6 16:56:44 2001
-@@ -128,17 +128,23 @@
- 
- #define eieio()  __asm__ __volatile__ ("BCR 15,0") 
- # define SYNC_OTHER_CORES(x)   eieio() 
--#define mb()    eieio()
--#define rmb()   eieio()
--#define wmb()   eieio()
-+#define memory_barrier()    eieio()
-+#define read_barrier()   eieio()
-+#define read_barrier_depends()	do { } while(0)
-+#define write_barrier()   eieio()
- #define smp_mb()       mb()
- #define smp_rmb()      rmb()
-+#define smp_read_barrier_depends()    read_barrier_depends()
- #define smp_wmb()      wmb()
- #define smp_mb__before_clear_bit()     smp_mb()
- #define smp_mb__after_clear_bit()      smp_mb()
- 
- #define set_mb(var, value)      do { var = value; mb(); } while (0)
- #define set_wmb(var, value)     do { var = value; wmb(); } while (0)
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- /* interrupt control.. */
- #define __sti() ({ \
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-sh/system.h linux-2.4.14.read_barrier/include/asm-sh/system.h
---- linux-2.4.14/include/asm-sh/system.h	Sat Sep  8 12:29:09 2001
-+++ linux-2.4.14.read_barrier/include/asm-sh/system.h	Tue Nov  6 16:57:42 2001
-@@ -86,17 +86,24 @@
- 
- extern void __xchg_called_with_bad_pointer(void);
- 
--#define mb()	__asm__ __volatile__ ("": : :"memory")
--#define rmb()	mb()
--#define wmb()	__asm__ __volatile__ ("": : :"memory")
-+#define memory_barrier()	__asm__ __volatile__ ("": : :"memory")
-+#define read_barrier()		mb()
-+#define read_barrier_depends()	do { } while(0)
-+#define write_barrier()		__asm__ __volatile__ ("": : :"memory")
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
- #define smp_wmb()	wmb()
- #else
- #define smp_mb()	barrier()
- #define smp_rmb()	barrier()
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	barrier()
- #endif
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-sparc/system.h linux-2.4.14.read_barrier/include/asm-sparc/system.h
---- linux-2.4.14/include/asm-sparc/system.h	Tue Oct 30 15:08:11 2001
-+++ linux-2.4.14.read_barrier/include/asm-sparc/system.h	Tue Nov  6 16:58:11 2001
-@@ -275,14 +275,20 @@
- #endif
- 
- /* XXX Change this if we ever use a PSO mode kernel. */
--#define mb()	__asm__ __volatile__ ("" : : : "memory")
--#define rmb()	mb()
--#define wmb()	mb()
-+#define memory_barrier()	__asm__ __volatile__ ("" : : : "memory")
-+#define read_barrier()		mb()
-+#define read_barrier_depends()	do { } while(0)
-+#define write_barrier()		mb()
- #define set_mb(__var, __value)  do { __var = __value; mb(); } while(0)
- #define set_wmb(__var, __value) set_mb(__var, __value)
- #define smp_mb()	__asm__ __volatile__("":::"memory");
- #define smp_rmb()	__asm__ __volatile__("":::"memory");
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	__asm__ __volatile__("":::"memory");
-+
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
- 
- #define nop() __asm__ __volatile__ ("nop");
- 
-diff -urN -x /home/mckenney/dontdiff linux-2.4.14/include/asm-sparc64/system.h linux-2.4.14.read_barrier/include/asm-sparc64/system.h
---- linux-2.4.14/include/asm-sparc64/system.h	Fri Sep  7 11:01:20 2001
-+++ linux-2.4.14.read_barrier/include/asm-sparc64/system.h	Tue Nov  6 16:59:02 2001
-@@ -96,22 +96,29 @@
- #define nop() 		__asm__ __volatile__ ("nop")
- 
- #define membar(type)	__asm__ __volatile__ ("membar " type : : : "memory");
--#define mb()		\
-+#define memory_barrier()		\
- 	membar("#LoadLoad | #LoadStore | #StoreStore | #StoreLoad");
--#define rmb()		membar("#LoadLoad")
--#define wmb()		membar("#StoreStore")
-+#define read_barrier()			membar("#LoadLoad")
-+#define read_barrier_depends()		do { } while(0)
-+#define write_barrier()			membar("#StoreStore")
- #define set_mb(__var, __value) \
- 	do { __var = __value; membar("#StoreLoad | #StoreStore"); } while(0)
- #define set_wmb(__var, __value) \
- 	do { __var = __value; membar("#StoreStore"); } while(0)
- 
-+#define mb()	memory_barrier()
-+#define rmb()	read_barrier()
-+#define wmb()	write_barrier()
-+
- #ifdef CONFIG_SMP
- #define smp_mb()	mb()
- #define smp_rmb()	rmb()
-+#define smp_read_barrier_depends()	read_barrier_depends()
- #define smp_wmb()	wmb()
- #else
- #define smp_mb()	__asm__ __volatile__("":::"memory");
- #define smp_rmb()	__asm__ __volatile__("":::"memory");
-+#define smp_read_barrier_depends()	do { } while(0)
- #define smp_wmb()	__asm__ __volatile__("":::"memory");
- #endif
- 
+		 Reiser4 Transaction Design Document
+
+			     Nov. 7, 2001
+
+			   Joshua MacDonald
+			     Hans Reiser
+
+
+			  EXECUTIVE SUMMARY
+
+
+A "transcrash" is a set of operations, of which all or none must
+survive a crash.  A "particle" is the minimum amount of data whose
+modification will be individually tracked, which can be larger than
+the unit of modification itself.  An "atom" is the collection of
+particles a transcrash has attempted to modify, plus all particles
+that are part of atoms that have "fused" with this atom.  Two atoms
+fuse when one transcrash attempts to modify particles that are part of
+another atom.
+
+In traditional Unix semantics, a sequence of write() system calls are
+not expected to be atomic, meaning that an in-progress write could be
+interrupted by a crash and leave part new, part old data behind.
+Writes are not even guaranteed to be ordered in the traditional
+semantics, meaning that newer data could survive a crash while older
+data does not.  File systems with atomic writes are called
+"data-journaling".  The straight-forward way to add data-journaling to
+a file system is to log the contents of every modified block before
+overwriting its real location.  This technique doubles the amount of
+data written to the disk, which is significant when disk transfer rate
+is the limiting performance factor.
+
+Something more clever is possible.  Instead of writing every modified
+block twice, we can write the block once to a new location and then
+update the pointer in its parent.  However, the parent modification
+must be included in the transaction too.  The WAFL (Write Anywhere
+File Layout) technique [Hitz94] handles this by propagating file
+modifications all the way to the root node, which is then updated
+atomically.  In Reiser4 whether we log and overwrite, or relocate,
+depends on what the block allocation plugin determines is optimal for
+the blocks in question based on the current layout.
+
+
+		       DEFINITION OF ATOMICITY
+
+
+Most file systems perform write caching, meaning that modified data
+are not immediately written to the disk.  Writes are deferred for a
+period of time, which allows the system greater control over disk
+scheduling.  A system crash can happen at any time, and some recent
+modifications will be lost.  This can be a serious problem if an
+application has made several interdependent modifications, some of
+which are lost while others are not.  Such an application is said to
+require atomicity--a guarantee that all or none of a sequence of
+interdependent operations will survive a crash.  Without atomicity, a
+system crash can leave the file system in an inconsistent state.
+
+Dependent modifications may also arise when an application reads
+modified data and then produces further output.  Consider the
+following sequence of events:
+
+1  Process P_a writes file F_a
+2  Process P_b reads file F_a
+3  Process P_b writes file F_b
+
+At this point, the file F_b might be dependent on F_a.  If the
+write-caching strategy allows F_b to be written before a F_a and a
+crash occurs, the file system may again be left in an inconsistent
+state.
+
+Our definition of atomicity is based on the notion of a "sphere of
+influence" which encompasses a set of modifications that must commit
+atomically.  In our implementation, an atom maintains a sphere of
+influence.  We offer transcrashes with two degrees of fusion,
+"explicit dependence" and "assumed dependence".  A transcrash with
+explicit dependence is allowed to read the modified data of other
+atoms without causing the atoms to fuse except when it explicitly
+specifies that a particular read is a dependent read.  A transcrash
+with assumed dependence causes atoms to fuse whenever there might be a
+dependency, whether it is real or not.
+
+There are several rules the atom uses to maintain its sphere of
+influence.  In the statements that follow, a "non-dependent read" is a
+read performed by an explicit dependence transcrash that does not
+explicitly specify read dependence.  A "dependent read" is any other
+read (i.e., assumed or explicit).
+
+- Initially a transcrash is not bound to any atom.
+
+- An transcrash is bound to an atom whenever it makes a dependent read
+  of modified data.
+
+- Any read of clean, committed data does not add that data to the
+  atom.
+
+- A non-dependent read of modified data does not add that data to the
+  atom.
+
+- An unbound transcrash that writes data belonging to another atom is
+  bound to that atom.
+
+- An unbound transcrash that writes data not belonging to another atom
+  is bound to a newly created atom containing that data.
+
+- A transcrash bound to an atom that writes data not belonging to any
+  atom adds that data to its own atom.
+
+- When a transcrash bound to an atom writes to. or performs a dependent
+  read of, data belonging to another atom, its atom is fused with the
+  other atom.
+
+Persons familiar with the database literature will note that these
+definitions do not imply "isolation" or "serializability" between
+processes.  Isolation requires the ability to undo a sequence of
+operations when lock conflicts cause a deadlock to occur.
+
+Rollback is the ability to abort and undo the effects of the
+operations in an uncommitted transcrash.  Transcrashes do not provide
+isolation, which is needed to support separate rollback of separate
+transcrashes.  However, our architecture is designed to support
+separate, concurrent atoms so that it can be expanded to implement
+isolated transcrashes in the future.
+
+Currently, the only reason a transcrash will be aborted is due to a
+system crash.  The system cannot individually abort a transcrash, and
+this means that transcrashes are only made available to trusted
+plugins inside the kernel.  Once we have implemented isolation it will
+be possible for untrusted applications to access the transcrash
+interface for creating (only) isolated transcrashes.
+
+
+		 STAGE ONE: "Capturing" and "Fusing"
+
+
+The initial stage starts when an atom "begins".  The beginning of an
+atom is controlled by the transaction manager itself, but the event is
+always triggered when a transcrash requests to "capture" a block.
+The transcrash requests to capture a block with a mode flag stating its
+intention to read or write that block.  For a write-capture request,
+the outcome ensures that the block and transcrash belong to the same
+atom (i.e., the same sphere of influence).
+
+Note that a write-captured block is not automatically modified
+(labeled "dirty"), and in this sense it can be considered an
+"intention lock" because it grants the right but not the obligation to
+modify that block.  A system without isolation support has no need for
+the separation between capturing and modification, but when isolation
+is added the ability to declare write intentions is an important way
+to prevent deadlock in read-modify-write cycles.  At present, however,
+we will only consider the possibility that captured blocks are not
+necessarily modified.
+
+Each atom maintains a list of its currently captured blocks and
+assigned transcrashes.  When fusion occurs, the smaller of the two
+atoms is chosen to have its members reassigned.  Atoms in stage one
+continue in this state, capturing blocks as requests are issued and
+fusing whenever a transcrash reads or writes blocks assigned to
+another atom.
+
+A transaction preserves the previous contents of all modified blocks
+in their original location on disk.  The dirty blocks of an atom
+(which were captured and subsequently modified) are divided into two
+sets, "relocate" and "overwrite", each of which is preserved in a
+different manner.
+
+- The "relocate" set may contain blocks that have a dirty parent block
+  in the atom, subject to a policy decision.  These blocks are written
+  to a new location.  By writing the relocate set to different
+  locations we avoid writing a second copy of each block to the log.
+  When the current location of a block is its optimal location,
+  relocation is a possible cause of file system fragmentation.  We
+  discuss relocation policies in a later section.
+
+- The "overwrite" set contains all dirty blocks not in the relocate
+  set (i.e., those which do not have a dirty parent and those for
+  which overwrite is the better policy).  A "wandered" copy of each
+  overwrite block is written as part of the log before the atom
+  commits and a second write replaces the original contents after the
+  atom commits.  Note that the superblock is the parent of the root
+  node and the free space bitmap blocks have no parent.  By these
+  definitions, the superblock and modified bitmap blocks are always
+  part of the overwrite set.
+
+  (An alternative definition is the "minimum overwrite" set which uses
+  the same definition as above with the following modification.  If at
+  least three dirty blocks have a common parent that is clean then its
+  parent is added to the minimum overwrite set.  The parent's dirty
+  children are removed from the overwrite set and placed in the
+  relocate set.  This optimization will be saved for a later version.)
+
+The system responds to memory pressure by selecting dirty blocks to be
+flushed.  When dirty blocks are written during stage one it is called
+"early flushing" because the atom remains uncommitted.  When early
+flushing is needed we only select blocks from the relocate set because
+their buffers can be released, whereas the overwrite set remain pinned
+in memory until after the atom commits.
+
+We must enforce that atoms make progress so they can eventually
+commit.  An atom can only commit when it has no open transcrashes, but
+allowing atoms to fuse allows open transcrashes to join an existing
+atom which may be trying to commit.
+
+For this reason, an age is associated with each atom and when an atom
+reaches expiration it begins actively flushing to disk.  An expired
+atom takes steps to avoid new transcrashes prolonging its lifetime:
+(1) an expired atom will not accept any new transcrashes and (2)
+non-expired atoms will block rather than fuse with another expired
+atom.  An expired atom is still allowed to fuse with any other
+stage-one atom.
+
+Once an expired atom has no open transcrashes it is ready to close,
+meaning that it is ready to begin commit processing.  All repacking,
+balancing, and allocation tasks have been performed by this point.
+
+Applications that are required to wait for synchronous commit (e.g.,
+using fsync()) may have to wait for a lot of unrelated blocks to flush
+since a large atom may be have captured the bitmaps.  To address this,
+we will provide an interface for "lazy transcrash commit" that closes
+a transcrash and waits for it to commit.  On the other hand, an
+application that would like to synchronize its data as early as
+possible would perhaps benefit from logical logging, which is not
+currently supported by our architecture, or NVRAM.
+
+To finish stage one we have:
+
+- The in-memory free space bitmaps have been updated such that the new
+  relocate block locations are now allocated.
+
+- The old locations of the relocate set, and any blocks deleted by
+  this atom, are not immediately deallocated as they cannot be reused
+  until this atom commits.  We must maintain two bitmaps: (1) one is
+  logged to disk as part of the overwrite set prior to commit, and (2)
+  one that is the working in-memory copy.  The in-memory bitmaps do
+  not have old locations of the relocate set and deleted blocks
+  deallocated until after commit.
+
+  Each atom collects a data structure representing its "deallocate
+  set", the blocks it must deallocate once it commits.  The deallocate
+  set can be represented in a number of ways, as a list of block
+  locations, a set of bitmaps, or using extent-compression.  We expect
+  to use a bitmap representation in our first implementation.
+  Regardless of the representation, the deallocate set data structure
+  is included in the commit record of this atom where it will be used
+  during crash recovery.  The deallocate set is also used after the
+  atom commits to update the in-memory bitmaps.
+
+- Wandered locations are allocated for the overwrite set and a list of
+  the association between wandered and real overwrite block locations
+  for this atom is included in the commit record.
+
+- The final commit record is formatted now, although it is not needed
+  until stage three.
+
+
+		    STAGE TWO: "Completing writes"
+
+
+At this stage we begin to write the remaining dirty blocks of the
+atom.  Any blocks that were write-captured and never modified can be
+released immediately, since they do not take part in the commit
+operation.  To "release" a block means to allow another atom to
+capture it freely.  Relocate blocks and overwrite blocks are treated
+separately at this point.
+
+RELOCATE BLOCKS
+
+A relocate block can be released once it has been flushed to disk.
+All relocate blocks that were early-flushed in stage one are
+considered clean at this point, so they are released immediately.
+
+The remaining non-flushed relocate blocks are written at this point.
+Now we consider what happens if another atom requests to capture the
+block while the write request is being serviced.
+
+A read-capture request is granted just as if the block did not belong
+to any atom at this point--it is considered clean despite belonging to
+a not-yet-committed atom.  The only requirement on this interaction is
+that no atom can "jump ahead" in the commit ordering.  Atoms must
+commit in the order that they reach stage two or else read-capture
+from a non-committed atom must explicitly construct and maintain this
+dependency.
+
+A write-capture request can be granted by copying the block.  This
+introduces the first major optimization called "copy-on-capture".  The
+capturing process assumes control of the block, and the committing
+atom retains an anonymous copy.  When the write request completes, the
+anonymous copy is released (freed).  Copy-on-capture is an
+optimization not performed in ReiserFS version 3 (which creates a copy
+of each dirty page at commit), but in that version the optimization is
+less important because the copying does not apply to unformatted
+nodes.
+
+If a relocate block-write finishes before the block is captured it is
+released without further processing.  Despite releasing relocate
+blocks in stage two, the atom still requires a list of old relocate
+block locations for deallocation purposes.
+
+
+OVERWRITE BLOCKS
+
+The overwrite blocks (including modified bitmaps and the superblock)
+are written at this point to their wandered locations as part of the
+log.  Unlike relocate blocks, overwrite blocks are still needed after
+these writes complete as they must also be written back to their real
+location.
+
+Similar to relocate blocks, a read-capture request is granted as if
+the block did not belong to any atom.
+
+A write-capture request is granted by copying the block using the
+copy-on-capture method described above.
+
+ISSUES
+
+One issue with the copy-on-capture approach is that it does not
+address the use of memory-mapped files, which can have their contents
+modified at any point by a process.  One answer to this is to exclude
+mmap() writers from any atomicity guarantees.  A second alternative is
+to use hardware-level copy-on-write protection.  A third alternative
+is to unmap the mapped blocks and allow ordinary page faults to
+capture them back again.
+
+
+			STAGE THREE: "Commit"
+
+
+When all of the outstanding stage two disk writes have completed, the
+atom reaches stage three, at which time it finally commits by writing
+its commit record to the log.  Once this record reaches the disk,
+crash recovery will replay the transaction.
+
+
+		STAGE FOUR: "Post-commit disk writes"
+
+
+The fourth stage begins when the commit record has been forced to the
+log.
+
+OVERWRITE BLOCK WRITES
+
+Overwrite blocks need to be written to their real locations at this
+point, but there is also an ordering constraint.  If a number of atoms
+commit in sequence that involve the same overwrite blocks, they must
+be sure to overwrite them in the proper order.  This requires
+synchronization for atoms that have reached stage four and are writing
+overwrite blocks back to their real locations.  This also suggests the
+second major optimization potential which is labeled steal-on-capture.
+
+The steal-on-capture optimization is an extension of the
+copy-on-capture optimization that applies only to the overwrite set.
+The idea is that only the last transaction to modify an overwrite
+block actually needs to write that block.  This optimization, which is
+also present in ReiserFS version 3, means that frequently modified
+overwrite blocks will be written less than two times per transaction.
+
+With this optimization a frequently modified overwrite block may avoid
+being overwritten by a series of atoms; as a result crash recovery
+must replay more atoms than without the optimization.  If an atom has
+overwrite blocks stolen, the atom must be replayed during crash
+recovery until every stealing-atom commits.
+
+When an overwrite block-write finishes the block is released without
+further processing.
+
+DEALLOCATE SET PROCESSING
+
+The deallocate set can be deallocated in the in-memory bitmap blocks
+at this point.  The bitmap modifications are not considered part of
+this atom (since it has committed).  Instead, the deallocations are
+performed in the context of a different stage-one atom (or atoms).  We
+call this process "repossession", whereby a stage-one atom assumes
+responsibility for committing bitmap modifications on behalf of
+another atom in time.
+
+For each bitmap block with pending deallocations in this stage, a
+separate stage-one atom may be chosen to repossess and deallocate
+blocks in that bitmap.  This avoids the need to fuse atoms as a result
+of deallocation.  A stage-one atom that has already captured a
+particular bitmap block will repossess for that block, otherwise a new
+atom can be selected.
+
+For crash recovery purposes, each atom must maintain a list of atoms
+for which it repossesses bitmap blocks.  This "repossesses for" list
+is included in the commit record for each atom.  The issue of crash
+recovery and deallocation will be treated in the next section.
+
+
+		   STAGE FIVE: "Commit completion"
+
+
+When all of the outstanding stage four disk writes are complete and
+all of the atoms that stole from this atom commit, the atom no longer
+needs to be replayed during crash recovery--the overwrite set is
+either completely written or will be completely written by replaying
+later atoms.  Before the log space occupied by this atom can be
+reclaimed, however, another topic must be discussed.
+
+WANDERED OVERWRITE BLOCK ALLOCATION
+
+Overwrite blocks were written to wandered locations during stage two.
+Wandered block locations are considered part of the log in most
+respects--they are only needed for crash recovery of an atom that
+completes stage three but does not complete stage five.  In the
+simplest approach, wandered blocks are not allocated or deallocated in
+the ordinary sense, instead they are appended to a cyclical log area.
+There are some problems with this approach, especially when
+considering LVM configurations: (1) the overwrite set can be a
+bottleneck because it is entirely written to the same region of the
+logical disk and (2) it places limits on the size of the overwrite
+set.
+
+For these reasons, we allow wandered blocks to be written anywhere in
+the disk, and as a consequence we allocate wandered blocks in stage
+one similarly to the relocate set.  For maximum performance, the
+wandered set should be written using a sequential write.  To achieve
+sequential writes in the common case, we allow the system to be
+configured with an optional number of areas specially reserved for
+wandered block allocation.  In an LVM configuration, for example,
+reserved wandered block areas can be spread throughout the logical
+disk space to avoid any single disk being a bottleneck for the
+wandered set.
+
+Wandered block locations still need to be deallocated with this
+approach, but we must prevent replay of the atom's overwrites before
+these blocks can be deallocated.  At this point (stage five), a log
+record is written signifying that the atom should not have overwrites
+be replayed.
+
+
+	 STAGE SIX: "Deallocating wandered blocks"
+
+
+Once the do-not-replay-overwrites record for this atom has been forced
+to the log, the wandered block locations are deallocated using
+repossession, the same process used for the deallocate set.
+
+At this point, a number of atoms may have repossessed bitmap blocks on
+behalf of this atom, for both the deallocate set and the wandered set.
+This atom must wait for all of those atoms to commit (i.e., reach
+stage four) before the log can wrap around and destroy this atom's
+commit record.  Until such point, the atom is still needed during
+crash recovery because its deallocations may be incomplete.
+
+This completes the life of an atom.  Now we must discuss how the
+recovery algorithm handles deallocation in case of a crash.
+
+
+		       CRASH RECOVERY ALGORITHM
+
+
+Some atoms may not be completely processed at the time of a crash.
+The crash recovery algorithm is responsible for determining what steps
+must be taken to make the file system consistent again.  This includes
+making sure that: (1) all overwrites are complete and (2) all blocks
+have been deallocated.
+
+We avoid discussing potential optimizations of the algorithm at
+present, to reduce complexity.  Assume that after a crash occurs, the
+recovery manager has a way to detect the active log "fragment", which
+contains the relevant set of log records that must be reprocessed.
+Also assume that each step can be performed using separate forward
+and/or reverse passes through the log.  Later on we may choose to
+optimize these points.
+
+Overwrite set processing is relatively simple.  Every atom with a
+commit record found in the active log fragment, but without a
+corresponding do-not-replay record, has its overwrite set copied from
+wandered to real block locations.  Overwrite recovery processing
+should be complete before of deallocation processing begins.
+
+Deallocation processing must deal separately with deallocation of the
+deallocate set (from stage four--deleted blocks and the old relocate
+set) and the wandered set (from stage six).  The procedure is the same
+in each case, but since each atom performs two deallocation steps the
+recovery algorithm must treat them separately as well.
+
+The deallocation of an atom may be found in three possible states
+depending on whether none, some, or all of the deallocate blocks were
+repossessed and later committed.  For each bitmap that would be
+modified by an atom's deallocation, the recovery algorithm must
+determine whether a repossessing atom later commits the same bitmap
+block.
+
+For each atom with a commit record in the active log fragment, the
+recovery algorithm determines: (1) which bitmap blocks are committed
+as part of its overwrite set and (2) which bitmap blocks are affected
+by its deallocation.  For every committed atom that repossesses for
+another atom, the committed bitmap blocks are subtracted from the
+deallocate-affected bitmap blocks of the repossessed-for atom.  After
+performing this computation, we know the set of deallocate-affected
+blocks that were not committed by any repossessing atoms; these
+deallocations are then reapplied to the on-disk bitmap blocks.  This
+completes the crash recovery algorithm.
+
+
+		     RELOCATION AND FRAGMENTATION
+
+
+As previously discussed, the choice of which blocks to relocate
+(instead of overwrite) is a policy decision and, as such, not directly
+related to transaction management.  However, this issue affects
+fragmentation in the file system and therefore influences performance
+of the transaction system in general.  The basic tradeoff here is
+between optimizing read and write performance.
+
+The relocate policy optimizes write performance because it allows the
+system to write blocks without costly seeks whenever possible.  This
+can adversely affect read performance, since blocks that were once
+adjacent may become scattered throughout the disk.
+
+The overwrite policy optimizes read performance because it attempts to
+maintain on-disk locality by preserving the location of existing
+blocks.  This comes at the cost of write performance, since each block
+must be written twice per transaction.
+
+Since system and application workloads vary, we will support several
+relocation policies:
+
+- Always Relocate: This policy includes a block in the relocate set
+  whenever it will reduce the number of blocks written to the disk.
+
+- Never Relocate: This policy disables relocation.  Blocks are always
+  written to their original location using overwrite logging.
+
+- Left Neighbor: This policy puts the block in the nearest available
+  location to its left neighbor in the tree ordering.  If that
+  location is occupied by some member of the atom being written it
+  makes it a member of the overwrite set, otherwise the policy makes
+  the block a member of the relocate set.  This policy is simple to
+  code, effective in the absence of a repacker, and will integrate
+  well with an online repacker once that is coded.  It will be the
+  default policy initially.
+
+  Much more complex optimizations are possible, but deferred for a
+  later release.
+
+Unlike WAFL, we expect the use of a repacker to play an important
+role.
+
+
+			 META-DATA JOURNALING
+
+
+Meta-data journaling is a restricted operating mode in which only file
+system meta-data are subject to atomicity constraints.  In meta-data
+journaling mode, file data blocks (unformatted nodes) are not captured
+and therefore need not be flushed as the result of transaction commit.
+In this case, file data blocks are not considered members of the
+either relocate or the overwrite set because they do not participate
+in the atomic update protocol--memory pressure and age are the only
+factors that cause unformatted nodes to be written to disk in the
+meta-data journaling mode.
+
+
+			      REFERENCES
+
+
+[Hitz94] Dave Hitz, James Lau, and Michael Malcolm, "File System
+	 Design for an NFS File Server Appliance", Proceedings of the
+	 Winter 1994 USENIX Conference, San Francisco, CA, January
+	 1994, 235-246.
+
+
+
+----------------------------------------------------------------------
+
+P.S. I am posting this just as I am boarding a plane home from Moscow,
+so it will be a little while before I can respond to any of your 
+feedback. 
+
+Thanks,
+
+Josh
+
+--
+http://sourceforge.net/projects/prcs     PRCS version control system
+http://sourceforge.net/projects/xdelta   Xdelta transport & storage
+http://sourceforge.net/projects/skiplist Need a concurrent skip list?

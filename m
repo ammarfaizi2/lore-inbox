@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293611AbSBZWea>; Tue, 26 Feb 2002 17:34:30 -0500
+	id <S292688AbSBZWek>; Tue, 26 Feb 2002 17:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293609AbSBZWeU>; Tue, 26 Feb 2002 17:34:20 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:24069 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293611AbSBZWeE>;
-	Tue, 26 Feb 2002 17:34:04 -0500
-Date: Tue, 26 Feb 2002 19:33:50 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Andreas Dilger <adilger@turbolabs.com>,
-        "Dennis, Jim" <jdennis@snapserver.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: crypto (was Re: Congrats Marcelo,)
-In-Reply-To: <3C7BFAFA.D8923CFF@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33L.0202261932580.7820-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S293609AbSBZWea>; Tue, 26 Feb 2002 17:34:30 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:57362 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S292688AbSBZWeS>; Tue, 26 Feb 2002 17:34:18 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Tue, 26 Feb 2002 14:37:04 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: schedule()
+In-Reply-To: <Pine.LNX.3.95.1020226161330.7314A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0202261435281.1544-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Feb 2002, Jeff Garzik wrote:
+On Tue, 26 Feb 2002, Richard B. Johnson wrote:
 
-> IMO it's time to get a good IPsec implementation in the kernel...
+> On Tue, 26 Feb 2002, Davide Libenzi wrote:
+> >
+> > In 2.5 yield() maps to sys_sched_yield(). You can handle it in the same
+> > way in your includes if version <= 2.4.
+>
+> It's not exported as well as not defined in a header! It results in
+> an undefined symbol in the module.
 
-Where would we get one of those ?
+You can try to ask Marcelo to add a line in include/linux/sched.h and one
+in kernel/ksym.c
+In this way a compatibility interface can be achieved for code that needs it.
 
-The freeswan folks seem quite determined to not let any
-americans touch their code, so inclusion of their stuff
-into the kernel is out.
 
-Do you know of a nice ipsec implementation we could use?
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
 
-http://www.surriel.com/		http://distro.conectiva.com/
+- Davide
+
 

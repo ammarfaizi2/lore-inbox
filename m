@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261410AbRE2Iqa>; Tue, 29 May 2001 04:46:30 -0400
+	id <S261449AbRE2IyU>; Tue, 29 May 2001 04:54:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261425AbRE2IqT>; Tue, 29 May 2001 04:46:19 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:39390 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261410AbRE2IqE>;
-	Tue, 29 May 2001 04:46:04 -0400
-Date: Tue, 29 May 2001 10:40:59 +0200 (CEST)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-To: Rasmus Andersen <rasmus@jaquet.dk>
-cc: <werner@titro.de>, <isdn4linux@listserv.isdn4linux.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] make kmalloc error return unconditional in hysdn_net.c
- (245ac1)
-In-Reply-To: <20010528225305.M846@jaquet.dk>
-Message-ID: <Pine.LNX.4.33.0105291037290.31783-100000@chaos.tp1.ruhr-uni-bochum.de>
+	id <S261458AbRE2IyK>; Tue, 29 May 2001 04:54:10 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:29960 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261449AbRE2IyC>; Tue, 29 May 2001 04:54:02 -0400
+Subject: Re: Plain 2.4.5 VM...
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Tue, 29 May 2001 09:51:50 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org (Linux Kernel Mailing List)
+In-Reply-To: <3B12EE32.9B35F89F@mandrakesoft.com> from "Jeff Garzik" at May 28, 2001 08:32:50 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E154fEE-0004AI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 28 May 2001, Rasmus Andersen wrote:
+> Ouch!  When compiling MySql, building sql_yacc.cc results in a ~300M
+> cc1plus process size.  Unfortunately this leads the machine with 380M of
+> RAM deeply into swap:
+> 
+> Mem:   381608K av,  248504K used,  133104K free,       0K shrd,     192K
+> buff
+> Swap:  255608K av,  255608K used,       0K free                  215744K
+> cached
 
-> The patch below fixes what I believe is a bug in hysdn_net.c.
-> I cannot see how we can proceed under _any_ circumstances
-> after the kmalloc fails. Applies against 245ac1.
+That is supposed to hapen.  The pages are existing both in swap and memory but
+not recovered. In that state the VM hasn't even broken yet. 
 
-Yep, you're obviously right. Thanks, I'll check in your patch into our
-CVS, and push it to Alan. Actually, maybe it makes sense to use
-alloc_netdev here, I'll have a look.
+Where you hit a problem is that the 255Mb of stuff both in memory and swap
+won't be flushed from swap when you need more swap space. That is a giant size
+special edition stupid design flaw that is on the VM hackers list. But there
+are only a finite number of patches you can do in a day, and things like
+sucking completely came first I believe
 
-Thanks a lot,
---Kai
+
+
 

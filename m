@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267195AbRGKESI>; Wed, 11 Jul 2001 00:18:08 -0400
+	id <S267196AbRGKETI>; Wed, 11 Jul 2001 00:19:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267196AbRGKER7>; Wed, 11 Jul 2001 00:17:59 -0400
-Received: from ns1.crl.go.jp ([133.243.3.1]:4825 "EHLO ns1.crl.go.jp")
-	by vger.kernel.org with ESMTP id <S267195AbRGKERr>;
-	Wed, 11 Jul 2001 00:17:47 -0400
-Date: Wed, 11 Jul 2001 13:17:45 +0900 (JST)
-From: Tom Holroyd <tomh@po.crl.go.jp>
-To: kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: irq problem with OHCI USB
-Message-ID: <Pine.LNX.4.30.0107111256280.2424-100000@holly.crl.go.jp>
+	id <S267197AbRGKES6>; Wed, 11 Jul 2001 00:18:58 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:1801 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S267196AbRGKESm>;
+	Wed, 11 Jul 2001 00:18:42 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200107110418.f6B4Ief404551@saturn.cs.uml.edu>
+Subject: Re: Hardware testing [was Re: VIA Southbridge bug (Was: Crash on boot (2.4.5))]
+To: landley@webofficenow.com
+Date: Wed, 11 Jul 2001 00:18:40 -0400 (EDT)
+Cc: vherva@mail.niksula.cs.hut.fi (Ville Herva), linux-kernel@vger.kernel.org
+In-Reply-To: <01071011282504.00634@localhost.localdomain> from "Rob Landley" at Jul 10, 2001 11:28:25 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alpha DP264 (UP), kernel 2.4.6 (gcc 3.0).
+Rob Landley writes:
 
-1. usbcore didn't work as a module, complaining
-that it needed hotplug_path (hotplug _is_ enabled).
-
-2. relinked usbcore static, everything else still
-a module, but now during boot:
-
-usb.c: registered new driver usbdevfs
-usb.c: registered new driver hub
+> The third thing (which started this thread) was memory bus.  The new 3DNow 
+> optimizations drove a memory bus into failure, and that IS processor 
+> specific...
 ...
-usb-ohci.c: USB OHCI at membase 0xfffffd000a090000, IRQ 234
-usb-ohci.c: usb-00:05.3, Contaq Microsystems 82c693 (#4)
-usb.c: new USB bus registered, assigned bus number 1
-usb-ohci.c: request interrupt 234 failed
-usb.c: USB bus 1 deregistered
+> memtest86 is great becuase it ONLY tests memory.  CPUburn is similarly 
+> specific.  A memory bus buster would be a good tool to add to the mix.  (DMA 
+> is another common problem, but the more I look into it, the more it seems to 
+> be dependent on whatever peripheral you're talking to, which is more 
+> complication than I'm looking to bite off...)
 
-lspci -xvv says:
-
-00:05.3 USB Controller: Contaq Microsystems 82c693 (prog-if 10 [OHCI])
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-ParErr- Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Interrupt: pin A routed to IRQ 234
-        Region 0: Memory at 000000000a090000 (32-bit, non-prefetchable)
-[size=4K]
-00: 80 10 93 c6 06 00 80 02 00 10 03 0c 00 20 80 00
-10: 00 00 09 0a 00 00 00 00 00 00 00 00 00 00 00 00
-20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-30: 00 00 00 00 00 00 00 00 00 00 00 00 ea 01 00 00
-
-Further attempts to insmod usb-ohci report
-/lib/modules/2.4.6/kernel/drivers/usb/usb-ohci.o: init_module: No such device
-
-
+DMA could be done in a sane manner. Let drivers register a function
+to excercise DMA. When you want to test, tell all registered drivers
+to start wild excessive DMA. Use a timer to stop this, because you
+might end up pretty well locked out of your system while the bus is
+busy moving test data.

@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbUKHRa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbUKHRMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbUKHRa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 12:30:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbUKHROS
+	id S261931AbUKHRMO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 12:12:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbUKHRIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:14:18 -0500
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:21151 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S261938AbUKHQlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 11:41:40 -0500
-Date: Mon, 8 Nov 2004 09:41:39 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: dhowells@redhat.com
-Cc: torvalds@osdl.org, akpm@osdl.org, davidm@snapgear.com,
-       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: Re: [PATCH] Additional kgdb hooks
-Message-ID: <20041108164139.GA21042@smtp.west.cox.net>
-References: <200411081432.iA8EWf0c023426@warthog.cambridge.redhat.com>
+	Mon, 8 Nov 2004 12:08:34 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:20682 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261934AbUKHQfG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 11:35:06 -0500
+Subject: Re: parport not working in 2.6.9
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Slootman <paul+nospam@wurtel.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <cmnvtg$uha$1@news.cistron.nl>
+References: <418E60F4.3090501@rainbow-software.org>
+	 <cmnvtg$uha$1@news.cistron.nl>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1099927914.5564.147.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200411081432.iA8EWf0c023426@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 08 Nov 2004 15:31:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 08, 2004 at 02:32:41PM +0000, dhowells@redhat.com wrote:
+On Llu, 2004-11-08 at 14:30, Paul Slootman wrote:
+> Ondrej Zary  <linux@rainbow-software.org> wrote:
+> 
+> >I've noticed that parallel port stopped working for me with 2.6.9. It works with 2.6.8.1
+> 
+> This was already discussed, a fix should be in 2.6.10-rc1.
 
-> The attached patch adds a couple of extra hooks by which kgdb or an equivalent
-> gdbstub can catch bad_page() and panic() invocations.
+And 2.6.9-ac which also has a pile of security holes and other things
+fixed versus 2.6.9
 
-What stub are you using that doesn't catch these?
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

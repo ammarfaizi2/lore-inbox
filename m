@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269344AbUINNXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269395AbUINN1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269344AbUINNXR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 09:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269371AbUINNVi
+	id S269395AbUINN1q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 09:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269357AbUINNXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 09:21:38 -0400
-Received: from colin2.muc.de ([193.149.48.15]:28165 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S269344AbUINNU4 (ORCPT
+	Tue, 14 Sep 2004 09:23:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:24284 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S269332AbUINNV4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 09:20:56 -0400
-Date: 14 Sep 2004 15:20:55 +0200
-Date: Tue, 14 Sep 2004 15:20:55 +0200
-From: Andi Kleen <ak@muc.de>
+	Tue, 14 Sep 2004 09:21:56 -0400
+Date: Tue, 14 Sep 2004 15:22:25 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Move domain setup and add dual core support.
-Message-ID: <20040914132055.GA79737@muc.de>
-References: <m3vfeigs5b.fsf@averell.firstfloor.org> <4146EB80.9090801@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040914132225.GA9310@elte.hu>
+References: <20040914101904.GD24622@elte.hu> <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu> <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu> <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu> <20040914112847.GA2804@elte.hu> <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4146EB80.9090801@yahoo.com.au>
+In-Reply-To: <4146EA3E.4010804@yahoo.com.au>
 User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 14, 2004 at 11:00:48PM +1000, Nick Piggin wrote:
-> Andi Kleen wrote:
-> 
-> >Patch is for 2.6.9rc1-bk19. It's much smaller than it looks,
-> >most of it is just moving code from sched.c to sched-domains.h
-> >
-> 
-> OK, I guess this should be alright... but it will clash badly
-> with the stuff in -mm, which really needs to get in.
 
-Ok, I will redo it.
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-But I would like to have the CMP patch soon in mainline for 2.6.9. Are 
-the patches in mm scheduled to be soon in mainline? 
-> 
-> And your patch will be much smaller because most of the moving
-> is done for you.
+> Could these ones go up a level? We break down scanning into 32 page
+> chunks, so I don't think it needs to be checked every page.
 
-Where is it moved to? 
+not really - we can occasionally get into high latencies even with a
+single page - if a single page is mapped by alot of processes.
 
--Andi
+	Ingo

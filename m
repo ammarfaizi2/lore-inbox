@@ -1,36 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317158AbSEXTE1>; Fri, 24 May 2002 15:04:27 -0400
+	id <S317163AbSEXTEj>; Fri, 24 May 2002 15:04:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317163AbSEXTE0>; Fri, 24 May 2002 15:04:26 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24830 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S317158AbSEXTE0>;
-	Fri, 24 May 2002 15:04:26 -0400
-Date: Fri, 24 May 2002 15:04:26 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: negative dentries wasting ram
-In-Reply-To: <20020524185811.GF15703@dualathlon.random>
-Message-ID: <Pine.GSO.4.21.0205241502000.9792-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317166AbSEXTEi>; Fri, 24 May 2002 15:04:38 -0400
+Received: from smtp.cogeco.net ([216.221.81.25]:26365 "EHLO fep3.cogeco.net")
+	by vger.kernel.org with ESMTP id <S317163AbSEXTEg>;
+	Fri, 24 May 2002 15:04:36 -0400
+Subject: Re: Reset PCI card
+From: "Nix N. Nix" <nix@go-nix.ca>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <3CEE2670.4010701@p4all.de>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 24 May 2002 15:04:34 -0400
+Message-Id: <1022267074.27864.4.camel@tux>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 24 May 2002, Andrea Arcangeli wrote:
-
-> > I might buy that argument if we didn't also leave around _unreferenced_
-> > inodes for minutes in the icache.  And _that_ is much stronger source of
+On Fri, 2002-05-24 at 07:39, Michael Dunsky wrote:
+> Hi!
 > 
-> I don't see it, at the last iput of an inode with i_nlink == 0 the inode
-> is freed immediatly, not like the dcache that is left floating around as
-> a negative one with no useful caching effects for most workloads.
+> The "svgalib" has a tool named "reset_vga". It completely resets your
+> VGA-card . You may try it... but it's only a workaround at the cause and 
+> not at the symptom.
 
-Right.  Now look at the inodes with i_nlink != 0.  And realize that they'd
-already gone through the aging in dcache - if they get to the point of
-final iput(), they have no references remaining.  And _after_ that they
-happily stay in icache for minutes.
+That package doesn't have a nice automake/autconf installer, so I didn't
+run across the reset_vga thingy at first.  I did, however, make it work
+with mode3:
+
+1. SSH in
+2. init 3
+3. mode3
+4. init 5
+5. Close SSH
+6. Walk over to the box
+7. Log into all the text mode ttys (tty[1-6]), type "clear" and log out.
+
+You're right though.  This shouldn't be happening in the first place.
+
+> 
+> I used it a longer time ago with a similar problem (only slightly 
+> similar - programmed the VGA-card "by hand", and needed to clear the 
+> scrambled output I produced :-) ).
+> 
+> ciao
+> 
+> Michael
+> 
+> 
+> Nix N. Nix wrote:
+>  > The symptom:
+>  >
+>  > Sometimes, when I switch between virtual terminals, (away from X ==
+>  > tty7), instead of getting my usual login prompt, the picture I've had
+>  > during my X session (or the picture of the display manager) stays on
+>  > the screen, albeit with some of the colours screwed up (as if it were
+>  > a 256 colour palette-based display, even though it's 24 bit colour -
+>  > you know, like in Windows, when you have 256 colours and you switch
+>  > from one app to another and the colours in your background picture get
+>  > all frelled up).  The terminal does switch over to the appropriate tty
+>  > because I can log in and type whatever (blindly though) and it does
+>  > work.
+>  >
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+Thanks for all the help.
 

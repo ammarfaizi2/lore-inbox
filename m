@@ -1,112 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265616AbTIEQK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 12:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265629AbTIEQK7
+	id S263229AbTIEQn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 12:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTIEQn6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 12:10:59 -0400
-Received: from [195.135.220.2] ([195.135.220.2]:18145 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S265616AbTIEQKm (ORCPT
+	Fri, 5 Sep 2003 12:43:58 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:3216 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S263229AbTIEQn5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 12:10:42 -0400
-To: Robert Love <rml@tech9.net>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@muc.de>, akpm@osdl.org,
-       rth@redhat.com, linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: Re: [PATCH] Use -fno-unit-at-a-time if gcc supports it
-References: <Pine.LNX.4.44.0309050735570.25313-100000@home.osdl.org>
-	<ho65k76z9v.fsf@byrd.suse.de>
-	<1062778587.8510.10.camel@boobies.awol.org>
-From: Andreas Jaeger <aj@suse.de>
-Date: Fri, 05 Sep 2003 18:10:17 +0200
-In-Reply-To: <1062778587.8510.10.camel@boobies.awol.org> (Robert Love's
- message of "Fri, 05 Sep 2003 12:16:27 -0400")
-Message-ID: <u8d6efmd1y.fsf@gromit.moeb>
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 5 Sep 2003 12:43:57 -0400
+Date: Fri, 5 Sep 2003 09:43:33 -0700
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.4] Wireless Extension v16 : 802.11a/802.11g fixes
+Message-ID: <20030905164333.GA12481@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20030904174413.GA5094@bougret.hpl.hp.com> <Pine.LNX.4.44.0309050928270.2601-100000@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0309050928270.2601-100000@logos.cnet>
+User-Agent: Mutt/1.3.28i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Fri, Sep 05, 2003 at 09:29:10AM -0300, Marcelo Tosatti wrote:
+> 
+> 
+> On Thu, 4 Sep 2003, Jean Tourrilhes wrote:
+> 
+> >         Hi Marcelo,
+> > 
+> > 	I really need this patch to go in 2.4.23, as many wireless
+> > drivers need it (airo.c + various external drivers). This is super
+> > safe as many people have tested it in 2.5.X and downloaded from my web
+> > page.
+> > 	Resend (see below), retested for 2.4.23-pre3.
+> > 	Changelog :
+> > 	o add more 802.11a/802.11g support (more freq/bitrates)
+> > 	o improved iwspy support (used by airo.c)
+> > 
+> 
+> Its in the repository already:
+> 
+> http://linux.bkbits.net:8080/linux-2.4/cset@1.1144?nav=index.html|ChangeSet@-3d
 
-Robert Love <rml@tech9.net> writes:
+	Sorry. I looked there, but for some reason it wasn't updated.
+	Thanks a lot !
 
-> On Fri, 2003-09-05 at 11:17, Andreas Jaeger wrote:
->
->
->> Since unit-at-a-time has better inlining heuristics the better way is
->> to add the used attribute - but that takes some time.  The short-term
->> solution would be to add the compiler flag,
->
-> Won't we get a linker error if a static symbol is used but
-> optimized-away?  It shouldn't be hard to fix the n linker errors that
-> crop up.
+	Jean
 
-Yes, we would get a linker error.
-
-> And why are we using static symbols in inline assembly outside of the
-> compilation scope?
-
-Don't know.
-
-> Anyhow, if it generates an error, this isn't hard to fix.
-
-Just lots of places...
-
-> Here is the start...
->
-> 	Robert Love
->
->
-> --- linux-rml/include/linux/compiler.h	Fri Sep  5 11:57:56 2003
-> +++ linux/include/linux/compiler.h	Fri Sep  5 12:02:02 2003
-> @@ -74,6 +74,19 @@
->  #define __attribute_pure__	/* unimplemented */
->  #endif
->=20=20
-> +/*
-> + * As of gcc 3.2, we can mark a function as 'used' and gcc will assume t=
-hat,
-> + * even if it does not find a reference to it in any compilation unit.  =
-We
-> + * need this for gcc 3.4 and beyond, which can optimize on a program-wide
-> + * scope, and not just one file at a time, to avoid static symbols being
-> + * discarded.
-> + */
-> +#if (__GNUC__ =3D=3D 3 && __GNUC_MINOR__ > 1) || __GNUC__ > 3
-> +#define __attribute_used__	__attribute__((used))
-> +#else
-> +#define __attribute_used__	/* unimplemented */
-
-In glibc we have for the else case:
-# define __attribute_used__ __attribute__ ((__unused__))
-
-This might reduce warnings about unused functions.  But this change is
-not critical IMO, so your patch looks fine!
-
-> +#endif
-> +
->  /* This macro obfuscates arithmetic on a variable address so that gcc
->     shouldn't recognize the original var, and make assumptions about it */
->  #define RELOC_HIDE(ptr, off)					\
-
-Andreas
-=2D-=20
- Andreas Jaeger, aj@suse.de, http://www.suse.de/~aj
-  SuSE Linux AG, Deutschherrnstr. 15-19, 90429 N=FCrnberg, Germany
-   GPG fingerprint =3D 93A3 365E CE47 B889 DF7F  FED1 389A 563C C272 A126
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2-rc1-SuSE (GNU/Linux)
-
-iD8DBQA/WLVrOJpWPMJyoSYRArsyAJ9SgcNy0ntBjbst2ydpqFvOgE2S+wCfaL2w
-D8wEGfJXO9Bl8u0CphAvN2g=
-=pjOE
------END PGP SIGNATURE-----
---=-=-=--

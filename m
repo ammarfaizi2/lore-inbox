@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262249AbTIHMee (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 08:34:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbTIHMee
+	id S262301AbTIHMuQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 08:50:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbTIHMuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 08:34:34 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:24194 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262249AbTIHMed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 08:34:33 -0400
-Subject: Re: possible GPL violation by Sigma Designs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Torgeir Veimo <torgeir@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1062985742.3771.16.camel@africa.netenviron.com>
-References: <1062985742.3771.16.camel@africa.netenviron.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063024404.21084.7.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 8 Sep 2003 08:50:15 -0400
+Received: from main.gmane.org ([80.91.224.249]:28582 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S262301AbTIHMuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 08:50:13 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?ISO-8859-1?Q?Sven_K=F6hler?= <skoehler@upb.de>
+Subject: Re: [blockdevices/NBD] huge read/write-operations are splitted by
+ the kernel
+Date: Mon, 08 Sep 2003 14:42:07 +0200
+Message-ID: <bjhtmm$crf$1@sea.gmane.org>
+References: <bjgh6a$82o$1@sea.gmane.org> <20030908085802.GH840@suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-5) 
-Date: Mon, 08 Sep 2003 13:33:25 +0100
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: de, en
+In-Reply-To: <20030908085802.GH840@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-08 at 02:49, Torgeir Veimo wrote:
-> The Sigma Designs EM8500 is apparently a combined mpeg4 decoder and RISC
-> processor. I'd assume that they would be required to release source code
-> on request for their kernel, even if the code is executed on the EM8500
-> directly, as opposed being controller by a kernel driver running on a
-> separate processor?
+> You'll probably find that if you bump the max_sectors count if your
+> drive to 256 from 255 (that is the default if you haven't set it), then
+> you'll see 128kb chunks all the time.
 
-If the EM8500 is running a linux kernel then they need to state that
-provide the offer of source code or provide the source and obey the GPL.
-I'd suspect if it runs Linux on the 8500 it runs Linux + apps and the
-interesting DVD stuff is the apps not the kernel however 8)
+Why is 255 the default. It seems to be an inefficient value. Perhaps the 
+NBD itself should set it to 256.
+
+> See max_sectors[] array.
+
+Well, i found the declaration, but i can't imagine how to set the values 
+in it.
 
 

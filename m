@@ -1,55 +1,31 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317150AbSEXOvH>; Fri, 24 May 2002 10:51:07 -0400
+	id <S317153AbSEXOvw>; Fri, 24 May 2002 10:51:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317152AbSEXOvG>; Fri, 24 May 2002 10:51:06 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:57778 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S317150AbSEXOvF>;
-	Fri, 24 May 2002 10:51:05 -0400
-Date: Fri, 24 May 2002 16:50:21 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] New driver for Artop [Acard] controllers.
-Message-ID: <20020524165021.B10656@ucw.cz>
-In-Reply-To: <Pine.SOL.4.30.0205241620440.16894-100000@mion.elka.pw.edu.pl>
-Mime-Version: 1.0
+	id <S317154AbSEXOvv>; Fri, 24 May 2002 10:51:51 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:11276 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S317153AbSEXOvt>; Fri, 24 May 2002 10:51:49 -0400
+Subject: Re: [BUG] 2.4 VM sucks. Again
+To: roy@karlsbakk.net (Roy Sigurd Karlsbakk)
+Date: Fri, 24 May 2002 16:11:35 +0100 (BST)
+Cc: Martin.Bligh@us.ibm.com (Martin J. Bligh), linux-kernel@vger.kernel.org
+In-Reply-To: <200205231629.g4NGTWE22956@mail.pronto.tv> from "Roy Sigurd Karlsbakk" at May 23, 2002 06:29:31 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17BGj9-0006VQ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 24, 2002 at 04:29:39PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> Hi!
+> > How much RAM do you have, and what does /proc/meminfo
+> > and /proc/slabinfo say just before the explosion point?
 > 
-> I have a very quick look over patch/driver... looks quite ok...
+> I have 1 gig - highmem (not enabled) - 900 megs.
+> for what I can see, kernel can't reclaim buffers fast enough.
+> ut looks better on -aa.
 > 
-> But it doesn't support multiple controllers.
 
-Yes, right! That's a bug. Ahh, that's why all the drivers use the PCI
-device id over and over and over in the sources ...
-
-> We should add 'unsigned long private' to 'ata_channel struct' and
-> store index in the chipset table there.
-
-That'd be great. Though I prefer void*. Looks like "drive_data" is
-intended for that purpose. Martin: How about renaming this to "private"
-and a comment "solely for use by chip-specific drivers"?
-
-A private member in the ata_pci_device[] struct would be also very
-useful. Or is the "extra" field for that?
-
-> You can remove duplicate entries from module data table.
-
-I wonder how they got there ...
-
-> BTW: please don't touch pdc202xx.c I am playing with it...
-
-Ok, I won't. Send it to me for comments later.
-
--- 
-Vojtech Pavlik
-SuSE Labs
+What sort of setup. I can't duplicate the problem here ?

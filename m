@@ -1,122 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269362AbUJFSqJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269333AbUJFS6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269362AbUJFSqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 14:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269366AbUJFSqJ
+	id S269333AbUJFS6t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 14:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269046AbUJFS6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 14:46:09 -0400
-Received: from fmr06.intel.com ([134.134.136.7]:62390 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S269362AbUJFSqA convert rfc822-to-8bit (ORCPT
+	Wed, 6 Oct 2004 14:58:49 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:1242 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S269333AbUJFS6X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 14:46:00 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] S3 suspend/resume with noexec
-Date: Wed, 6 Oct 2004 11:28:51 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB60030A4229@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] S3 suspend/resume with noexec
-Thread-Index: AcSrgdxM7GrFVvPsRpanb6+bnMsZBwAThCOA
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Pavel Machek" <pavel@suse.cz>
-Cc: <akpm@osdl.org>, "Brown, Len" <len.brown@intel.com>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 06 Oct 2004 18:28:52.0844 (UTC) FILETIME=[54DC92C0:01C4ABD2]
+	Wed, 6 Oct 2004 14:58:23 -0400
+Date: Wed, 6 Oct 2004 11:57:39 -0700
+From: Grant Grundler <iod00d@hp.com>
+To: Patrick Gefre <pfg@sgi.com>
+Cc: "Luck, Tony" <tony.luck@intel.com>, cngam@sgi.com,
+       Matthew Wilcox <matthew@wil.cx>, Grant Grundler <iod00d@hp.com>,
+       Jesse Barnes <jbarnes@engr.sgi.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [PATCH] 2.6 SGI Altix I/O code reorganization
+Message-ID: <20041006185739.GA25773@cup.hp.com>
+References: <B8E391BBE9FE384DAA4C5C003888BE6F0221C989@scsmsx401.amr.corp.intel.com> <41641007.5020702@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41641007.5020702@sgi.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: Pavel Machek [mailto:pavel@suse.cz] 
->Sent: Wednesday, October 06, 2004 1:52 AM
->To: Pallipadi, Venkatesh
->Cc: akpm@osdl.org; Brown, Len; linux-kernel@vger.kernel.org
->Subject: Re: [PATCH] S3 suspend/resume with noexec
->
->Hi!
->
->> This patch is required for S3 suspend-resume to work on 
->noexec capable systems.
->> On these systems, we need to save and restore MSR_EFER during
->> suspend-resume.
->
->Hmm, I'm afraid similar patch will be needed for x86-64...
+On Wed, Oct 06, 2004 at 10:32:23AM -0500, Patrick Gefre wrote:
+> o added our own pci_ops (Grant/Matthew's request)
 
-Yes. I am working on that. But, I don't yet have a system to 
-test that.
+Sorry - my bad.
+I confused the issue by claiming one should replace pci_root_ops.
+It was one possibility but it's not an easy path to take.
 
->> --- linux-2.6.9-rc2/arch/i386/power/cpu.c.org	
->2004-09-01 19:05:41.997927104 -0700
->> +++ linux-2.6.9-rc2/arch/i386/power/cpu.c	2004-09-02 
->19:12:54.318407912 -0700
->> @@ -62,6 +62,10 @@ void __save_processor_state(struct saved
->>  	asm volatile ("movl %%cr0, %0" : "=r" (ctxt->cr0));
->>  	asm volatile ("movl %%cr2, %0" : "=r" (ctxt->cr2));
->>  	asm volatile ("movl %%cr3, %0" : "=r" (ctxt->cr3));
->> +#ifdef CONFIG_X86_PAE
->> +	if (cpu_has_pae && cpu_has_nx)
->> +		rdmsr(MSR_EFER, ctxt->efer_lo, ctxt->efer_hi);
->> +#endif
->>  	asm volatile ("movl %%cr4, %0" : "=r" (ctxt->cr4));
->>  }
->
->Are those #ifdefs good idea?
+Mathew explained replacing the raw_pci_ops pointer is the Right Thing
+and I suspect it's easier to properly implement.
 
+Some comments on the implementation:
+o sn_pci_fixup_bus() is a confusing name. "pcibios_fixup_bus" is normally
+  called by generic PCI code after each bus is walked.
+  This code obviously doesn't support that.
+  Maybe, sn_init_pci_controller() or something like that would be clearer.
 
-That CONFIG is required. Cpu_has_pae and cpu_has_nx doesn't 
-imply that we are using nx. Only when PAE kernel is configured 
-and these features are available, we use it.
+o This bit of code belongs in the pcibios_fixup_bus() call path:
+	+       /*
+	+        * Generic Linux PCI Layer has created the pci_bus and pci_dev
+	+        * structures - time for us to add our SN PLatform specific
+	+        * information.
+	+        */
+	+
+	+       while ((pci_dev =
+	+               pci_find_device(PCI_ANY_ID, PCI_ANY_ID, pci_dev)) != NULL) {
+	+               sn_pci_fixup_slot(pci_dev);
+	+       }
 
-Looking at the code again, I can remove that CONFIG_X86_PAE,
-if I use an additional check for nx_enabled.
+  I realize that's not easy to add/maintain in the arch/ia64 port though
+  since pcibios_fixup_bus() is common code for multiple platforms.
 
->> --- linux-2.6.9-rc2/arch/i386/kernel/acpi/wakeup.S.org	
->2004-09-01 21:02:14.639883944 -0700
->> +++ linux-2.6.9-rc2/arch/i386/kernel/acpi/wakeup.S	
->2004-09-02 21:35:02.791882872 -0700
->> @@ -59,6 +59,20 @@ wakeup_code:
->>  	movl	$swapper_pg_dir-__PAGE_OFFSET, %eax
->>  	movl	%eax, %cr3
->>  
->> +	testl	$1, real_efer_save_restore - wakeup_code
->> +	jz	4f
->> +	# restore efer setting
->> +	pushl    %eax
->> +	pushl    %ecx
->> +	pushl    %edx
->> +	movl	real_save_efer_edx - wakeup_code, %edx
->> +	movl	real_save_efer_eax - wakeup_code, %eax
->> +	mov     $0xc0000080, %ecx
->> +	wrmsr
->> +	popl    %edx
->> +	popl    %ecx
->> +	popl    %eax
->> +4:
->>  	# make sure %cr4 is set correctly (features, etc)
->>  	movl	real_save_cr4 - wakeup_code, %eax
->>  	movl	%eax, %cr4
->
->Please analyse surrounding code a bit more. You certainly do not need
->to push %eax, because it is scratch register.
+o sn_pci_fixup_bus() should be called for each PCI root bus controller
+  the firmware advertises. The loop in sn_pci_init() is hard coded
+  to loop from 0 to 256 busses.
+  Is ACPI the only way PCI host controllers are advertised?
+  SN2 doesn't use a different method today?
 
-Yes. I saw that eax was not used. But, I thought it is clean to save 
-and restore every register that is being touched here. Just in case some
+  It means we are telling PCI subsystem to walk root busses that don't
+  exist in all configurations. I hope there are no nasty side effects
+  from that.
 
-other code around these place starts using those registers in future.
+o the BUG() in:
 
-If you think that is unnecessary, I will resend the patch with minimal 
-push/pops.
+  	+       controller = sn_alloc_pci_sysdata();
+	+       if (!controller) {
+	+               BUG();
+	+       }
+  is redundant with the BUG in sn_alloc_pci_sysdata().
 
->Is it neccessary to restore efer this soon, btw? We should be running
->from swapper_pg_dir. Does that use nx?
-
-It seems necessary for swapper_pg_dir too as we use nx even for kernel
-pages (stack, module, etc).
-
-Thanks,
-Venki
+sorry for the initial bad advice and I hope this helps,
+grant

@@ -1,40 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbTHSXzQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 19:55:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbTHSXzP
+	id S261568AbTHSXyq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 19:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbTHSXyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 19:55:15 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:55937 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261572AbTHSXzM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 19:55:12 -0400
-Date: Wed, 20 Aug 2003 00:55:00 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
+	Tue, 19 Aug 2003 19:54:46 -0400
+Received: from tomts10.bellnexxia.net ([209.226.175.54]:16636 "EHLO
+	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261568AbTHSXyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 19:54:45 -0400
+Subject: Re: scheduler interactivity: timeslice calculation seem wrong
+From: Eric St-Laurent <ericstl34@sympatico.ca>
+To: bill davidsen <davidsen@tmr.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Centrino support
-Message-ID: <20030819235500.GB18035@mail.jlokier.co.uk>
-References: <m2wude3i2y.fsf@tnuctip.rychter.com> <1060972810.29086.8.camel@serpentine.internal.keyresearch.com> <3F3D469B.2020507@yahoo.com> <3F408EC9.809@aitel.hist.no> <m3brulfixt.fsf@lugabout.jhcloos.org>
+In-Reply-To: <bhtt73$8i4$1@gatekeeper.tmr.com>
+References: <3F41B43D.6000706@cyberone.com.au>
+	 <1061276043.6974.33.camel@orbiter>  <bhtt73$8i4$1@gatekeeper.tmr.com>
+Content-Type: text/plain
+Message-Id: <1061337283.1123.8.camel@orbiter>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m3brulfixt.fsf@lugabout.jhcloos.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Tue, 19 Aug 2003 19:54:43 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James H. Cloos Jr. wrote:
-> Helge> This does not in any way prevent them from releasing a driver,
-> Helge> open or closed source.  It merely makes tampering with the
-> Helge> driver illegal.
-> 
-> Unless of course it can be programmed to listen in on the AMPS cell
-> phone band(s).  In that case it could arguably be a felony for them to
-> release the programming info....  (Stupid law, but it has been
-> enforced rather obsessively....)
+> This could go in 2.7, though, or possibly in 2.6.x depending on how the
+> powers that be feel. I think having the scheduler as a plugin is a win
+> in terms of having whole special-use algorithms. It would have to be
+> done *very* carefully to be sure it didn't add measurable overhead.
 
-How is that different from selling a radio which can be retuned by
-opening it up and changing some resistors and capacitors?
+Well i was thinking of a compile time or at best boot time selection. It
+should not add any mesurable overhead.
 
--- Jamie
+

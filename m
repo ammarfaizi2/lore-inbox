@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130388AbRCETpF>; Mon, 5 Mar 2001 14:45:05 -0500
+	id <S130386AbRCETpF>; Mon, 5 Mar 2001 14:45:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130386AbRCETo4>; Mon, 5 Mar 2001 14:44:56 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:31962 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S130388AbRCEToo>;
-	Mon, 5 Mar 2001 14:44:44 -0500
-Message-ID: <3AA3ECAA.68BA316D@mandrakesoft.com>
-Date: Mon, 05 Mar 2001 14:44:42 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre2 i686)
+	id <S130390AbRCEToz>; Mon, 5 Mar 2001 14:44:55 -0500
+Received: from mail.ansp.br ([143.108.25.7]:11525 "HELO www.ansp.br")
+	by vger.kernel.org with SMTP id <S130386AbRCETom>;
+	Mon, 5 Mar 2001 14:44:42 -0500
+Message-ID: <3AA3ECA3.55A05B8B@ansp.br>
+Date: Mon, 05 Mar 2001 16:44:35 -0300
+From: Marcus Ramos <marcus@ansp.br>
+Organization: Fapesp
+X-Mailer: Mozilla 4.73 [en] (X11; I; FreeBSD 4.1-RELEASE i386)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Mike Galbraith <mikeg@wen-online.de>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Loop stuck in -D state
-In-Reply-To: <Pine.LNX.4.33.0103051844390.407-100000@mikeg.weiden.de>
+To: linux-kernel@vger.kernel.org
+Subject: Making changes to 3c90X.c
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Galbraith wrote:
-> On Mon, 5 Mar 2001, Richard B. Johnson wrote:
-> > Now I'm in a load of trouble. I can't make a boot-disk to get back
-> > to 2.4.1 because I use initrd for my hard disk modules and the loop
-> > device is broken.
-> 
-> What's wrong with 2.4.2 that makes you want to go back?  Anyway, if
-> you grab Jens' patch, all will be peachy (at least for that kind of
-> basic usage).
+Hello,
 
-2.4.3-pre2 should be the one to test... it should include the latest
-loop fixes..
+I am developing an application for which I need to make small changes to
+the source code of 3c90x.c (3com ethernet driver). Indeed, I need to
+access - and modify - the contents of the packets right before they are
+sent on the wire. After examining sk_buff.h, function NICSendPacket of
+3c90x.c and reading chapter 14 (Network Drivers) of the book Linux
+Device Drivers, I concluded that SocketBuffer->data points to the first
+octet of data in the packet.
 
--- 
-Jeff Garzik       | "You see, in this world there's two kinds of
-Building 1024     |  people, my friend: Those with loaded guns
-MandrakeSoft      |  and those who dig. You dig."  --Blondie
+My question is: can I access the contents of the buffer simply by
+
+*(SocketBuffer->data)
+*(SocketBuffer->data+1)
+*(SocketBuffer->data+2) etc ?
+
+What is the layout of the octets starting at data ? Eth header, IP
+header, TCP header etc ,or ?
+
+Can I write new contents back to the buffer the same way ?
+
+Thanks in advance,
+Marcus.
+
+

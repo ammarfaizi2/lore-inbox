@@ -1,69 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263272AbTC0QO5>; Thu, 27 Mar 2003 11:14:57 -0500
+	id <S263286AbTC0QP7>; Thu, 27 Mar 2003 11:15:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263277AbTC0QO4>; Thu, 27 Mar 2003 11:14:56 -0500
-Received: from mail.ithnet.com ([217.64.64.8]:19729 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S263272AbTC0QOz>;
-	Thu, 27 Mar 2003 11:14:55 -0500
-Date: Thu, 27 Mar 2003 17:25:54 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Linux 2.4.21-pre6
-Message-Id: <20030327172554.4f4399ac.skraw@ithnet.com>
-In-Reply-To: <Pine.LNX.4.53L.0303262107480.2544@freak.distro.conectiva>
-References: <Pine.LNX.4.53L.0303262107480.2544@freak.distro.conectiva>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S263290AbTC0QP6>; Thu, 27 Mar 2003 11:15:58 -0500
+Received: from [170.210.46.46] ([170.210.46.46]:37125 "EHLO
+	scdt.frc.utn.edu.ar") by vger.kernel.org with ESMTP
+	id <S263286AbTC0QPc> convert rfc822-to-8bit; Thu, 27 Mar 2003 11:15:32 -0500
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Edgardo Hames <ehames@scdt.frc.utn.edu.ar>
+Organization: UTN
+To: root@chaos.analogic.com
+Subject: Re: Error accessing memory between 0xc0000 and 0x100000
+Date: Thu, 27 Mar 2003 13:25:30 -0300
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200303251308.36565.ehames@scdt.frc.utn.edu.ar> <Pine.LNX.4.53.0303251119420.29139@chaos>
+In-Reply-To: <Pine.LNX.4.53.0303251119420.29139@chaos>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200303271325.30514.ehames@scdt.frc.utn.edu.ar>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 26 Mar 2003 21:08:42 -0300 (BRT)
-Marcelo Tosatti <marcelo@conectiva.com.br> wrote:
+El Mar 25 Mar 2003 13:21, Richard B. Johnson escribió:
 
-> 
-> Here goes -pre6.
-> [...]
->   o fix ide-scsi hang on SMP boxes
+> On Tue, 25 Mar 2003, Edgardo Hames wrote:
+> > Hi everybody. I'm trying to write a simple device driver to read and
+> > write memory at addresses beween 0xc0000 and 0x100000, but when I try to
+> > load the module I get the following error:
+>
+> Check out ioremap(). Although the addresses you show are already
+> mapped, you need to access them with the "cookie" returned from
+> ioremap().
 
-Sorry, no bonus.
-Whatever this patch was, it did not work on my box (SMP, ide-scsi). The only
-patch that I know of solving complete freeze is attached, diffed to -pre6.
+I tried ioremap'ing the addresses and now it doesn't oops, but I keep reading 
+255 no matter what I write to that address. I have no device at that 
+addresses, but what I'm trying to do is reading and writing to that memory 
+area like it was a file.
 
-Regards,
-Stephan
+Thanks,
+Edgardo
+-- 
+If you cannot convince them, confuse them.
+Truman's Law
 
-
---- linux1/drivers/scsi/ide-scsi.c       2003-03-27 15:45:55.000000000 +0100
-+++ linux2/drivers/scsi/ide-scsi.c       2003-03-27 15:46:49.000000000 +0100
-@@ -321,7 +321,7 @@
- {
-        idescsi_scsi_t *scsi = drive->driver_data;
-        struct request *rq = HWGROUP(drive)->rq;
--       idescsi_pc_t *pc = (idescsi_pc_t *) rq->buffer;
-+       idescsi_pc_t *pc = rq->special;
-        int log = test_bit(IDESCSI_LOG_CMD, &scsi->log);
-        u8 *scsi_buf;
-        unsigned long flags;
-@@ -587,7 +587,7 @@
- #endif /* IDESCSI_DEBUG_LOG */
- 
-        if (rq->cmd == IDESCSI_PC_RQ) {
--               return idescsi_issue_pc(drive, (idescsi_pc_t *) rq->buffer);
-+               return idescsi_issue_pc (drive, rq->special);
-        }
-        printk(KERN_ERR "ide-scsi: %s: unsupported command in request "
-                "queue (%x)\n", drive->name, rq->cmd);
-@@ -1083,7 +1083,7 @@
-        }
- 
-        ide_init_drive_cmd(rq);
--       rq->buffer = (char *) pc;
-+       rq->special = pc;
-        rq->bh = idescsi_dma_bh(drive, pc);
-        rq->cmd = IDESCSI_PC_RQ;
-        spin_unlock_irq(&io_request_lock);

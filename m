@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136491AbRAMDxh>; Fri, 12 Jan 2001 22:53:37 -0500
+	id <S136134AbRAMEpR>; Fri, 12 Jan 2001 23:45:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136490AbRAMDx0>; Fri, 12 Jan 2001 22:53:26 -0500
-Received: from web5205.mail.yahoo.com ([216.115.106.86]:56072 "HELO
-	web5205.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S135954AbRAMDxP>; Fri, 12 Jan 2001 22:53:15 -0500
-Message-ID: <20010113035314.316.qmail@web5205.mail.yahoo.com>
-Date: Fri, 12 Jan 2001 19:53:14 -0800 (PST)
-From: Rob Landley <telomerase@yahoo.com>
-Subject: BUG in 2.4.0: dd if=/dev/random of=out.txt bs=10000 count=100
-To: linux-kernel@vger.kernel.org
+	id <S136150AbRAMEpH>; Fri, 12 Jan 2001 23:45:07 -0500
+Received: from james.kalifornia.com ([208.179.0.2]:19288 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S136134AbRAMEos>; Fri, 12 Jan 2001 23:44:48 -0500
+Message-ID: <3A5FDD3B.AA0906E8@linux.com>
+Date: Fri, 12 Jan 2001 20:44:43 -0800
+From: David Ford <david@linux.com>
+Reply-To: david+validemail@kalifornia.com
+Organization: Talon Technology, Intl.
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Rob Landley <telomerase@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG in 2.4.0: dd if=/dev/random of=out.txt bs=10000 count=100
+In-Reply-To: <20010113035314.316.qmail@web5205.mail.yahoo.com>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-If I do the dd line in the title under 2.4.0 I get an
-out.txt file of 591 bytes.
+Rob Landley wrote:
 
-If I do the same thing from /dev/zero, I get the
-expected 1,000,000 byte file.
+> If I do the dd line in the title under 2.4.0 I get an
+> out.txt file of 591 bytes.
 
-I've shoehorned 2.4.0 into a fresh red hat 7.0 install
-which could quite easily be a bad thing, yes ripped
-out their strange gcc and symlinked kgcc->gcc to do
-the compile.  But other than this it seems to be
-working.  (So far...)
+It isn't broken, you have no more entropy.  You must have some system
+activity of various sorts before you regain some entropy.  Moving the mouse
+around, hitting keys, etc, will slowly add more entropy.
 
-dd says it completes happily even when copying from
-random.  0+100 records in, 0+100 records out.  It
-takes about thirty seconds to finish on the dual
-gigahertz processor intel box I'm using to test it,
-which implies it's actually performing the truly
-impressive waste of CPU cycles I'm requesting from it.
- I'm just not getting the data in my file.
+-d
 
-Am I doing something wrong?
 
-My dd is from fileutils-4.0x-3.  (Straight Red Hat
-7.0, I think...)  Didn't see anything about that in
-Documentation/Changes...
+-- ---NOTICE
 
-I'll be happy to try one of the prepatches if anybody
-thinks they've addressed this problem already.
+-- fwd: fwd: fwd: type emails will be deleted automatically.
+      "There is a natural aristocracy among men. The grounds of this are
+      virtue and talents", Thomas Jefferson [1742-1826], 3rd US President
 
-Anybody?  Need more debugging info?  Want me to wave a
-dead chicken at something specific?  Stick printk's
-into the kernel?...
 
-Rob
 
-__________________________________________________
-Do You Yahoo!?
-Get email at your own domain with Yahoo! Mail. 
-http://personal.mail.yahoo.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

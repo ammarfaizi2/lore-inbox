@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVCJCaB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262690AbVCJBPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVCJCaB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Mar 2005 21:30:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVCJC1d
+	id S262690AbVCJBPn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Mar 2005 20:15:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262656AbVCJBNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Mar 2005 21:27:33 -0500
-Received: from fire.osdl.org ([65.172.181.4]:51927 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261158AbVCJC0V (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Mar 2005 21:26:21 -0500
-Date: Wed, 9 Mar 2005 18:25:50 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Cc: linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: Direct io on block device has performance regression on 2.6.x
- kernel
-Message-Id: <20050309182550.0291c6fd.akpm@osdl.org>
-In-Reply-To: <200503091721.j29HLNg24054@unix-os.sc.intel.com>
-References: <20050308222737.3712611b.akpm@osdl.org>
-	<200503091721.j29HLNg24054@unix-os.sc.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Wed, 9 Mar 2005 20:13:15 -0500
+Received: from mail.kroah.org ([69.55.234.183]:41631 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262605AbVCJAmW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Mar 2005 19:42:22 -0500
+Cc: arjan@infradead.org
+Subject: [PATCH] Kobject: remove some unneeded exports
+In-Reply-To: <20050310003403.GA32215@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Wed, 9 Mar 2005 16:34:38 -0800
+Message-Id: <11104148771738@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
->
-> This is all real: real benchmark running on real hardware, with real
->  result showing large performance regression.  Nothing synthetic here.
-> 
+ChangeSet 1.2035, 2005/03/09 09:31:21-08:00, arjan@infradead.org
 
-Ken, could you *please* be more complete, more organized and more specific?
+[PATCH] Kobject: remove some unneeded exports
 
-What does "1/3 of the total benchmark performance regression" mean?  One
-third of 0.1% isn't very impressive.  You haven't told us anything at all
-about the magnitude of this regression.
+kobject_get_path and kobject_rename are only used by the sysfs core code
+and not aren't really driver-ish code. Remove the unused exports
 
-Where does the rest of the regression come from?
-
-How much system time?  User time?  All that stuff.
-
->  And yes, it is all worth pursuing, the two patches on raw device recuperate
->  1/3 of the total benchmark performance regression.
-
-The patch needs a fair bit of work, and if it still provides useful gains
-when it's complete I guess could make sense as some database special-case.
-
-But the first thing to do is to work out where the cycles are going to.
+Signed-off-by: Arjan van de Ven <arjan@infradead.org>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
-Also, I'm rather peeved that we're hearing about this regression now rather
-than two years ago.  And mystified as to why yours is the only group which
-has reported it.
+ lib/kobject.c |    2 --
+ 1 files changed, 2 deletions(-)
+
+
+diff -Nru a/lib/kobject.c b/lib/kobject.c
+--- a/lib/kobject.c	2005-03-09 16:30:23 -08:00
++++ b/lib/kobject.c	2005-03-09 16:30:23 -08:00
+@@ -524,7 +524,6 @@
+ 	}
+ }
+ 
+-EXPORT_SYMBOL(kobject_get_path);
+ EXPORT_SYMBOL(kobject_init);
+ EXPORT_SYMBOL(kobject_register);
+ EXPORT_SYMBOL(kobject_unregister);
+@@ -532,7 +531,6 @@
+ EXPORT_SYMBOL(kobject_put);
+ EXPORT_SYMBOL(kobject_add);
+ EXPORT_SYMBOL(kobject_del);
+-EXPORT_SYMBOL(kobject_rename);
+ 
+ EXPORT_SYMBOL(kset_register);
+ EXPORT_SYMBOL(kset_unregister);
+

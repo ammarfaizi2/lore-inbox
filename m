@@ -1,36 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUESPzx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264246AbUESP4Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUESPzx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 May 2004 11:55:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264266AbUESPzx
+	id S264246AbUESP4Z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 May 2004 11:56:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbUESP4Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 May 2004 11:55:53 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:50852 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S264256AbUESPzw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 May 2004 11:55:52 -0400
-Date: Wed, 19 May 2004 18:55:41 +0300 (EEST)
-From: Tuukka Toivonen <tuukkat@ee.oulu.fi>
-X-X-Sender: tuukkat@stekt37
-To: Ricky Beam <jfbeam@bluetronic.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: overlaping printk
-Message-ID: <Pine.GSO.4.58.0405191848430.10266@stekt37>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 19 May 2004 11:56:25 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:26638 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S264246AbUESP4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 May 2004 11:56:23 -0400
+Date: Wed, 19 May 2004 16:56:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, pfg@sgi.com,
+       Erik Jacobson <erikj@sgi.com>
+Subject: Re: [PATCH] implement TIOCGSERIAL in sn_serial.c
+Message-ID: <20040519165618.A28238@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jesse Barnes <jbarnes@engr.sgi.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org, pfg@sgi.com,
+	Erik Jacobson <erikj@sgi.com>
+References: <200405191109.51751.jbarnes@engr.sgi.com> <200405191138.04086.jbarnes@engr.sgi.com> <20040519164156.A27947@infradead.org> <200405191150.08967.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200405191150.08967.jbarnes@engr.sgi.com>; from jbarnes@engr.sgi.com on Wed, May 19, 2004 at 11:50:08AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try transferring large files via minicom/zmodem (lrzsz).
-Do you get CRC errors during transfer (would definitely point to serial
-driver then).
+> Umm... I described the patch in the last mail.  I don't know when Pat will 
+> have the conversion to the serial core interface done, but I have a need for 
+> this ioctl now.  If you want to wait for the full blown version, then so be 
+> it, I just hope it comes soon.
 
-Similar problems happen to me on my laptop when using 2.2.x with X server
-or 2.4.x with or without. 2.2.x without X is fine, haven't tested 2.6.x
-yet. (by the way, no problem with serial mouse, just file transfers which
-do not proceed since almost all frames have some errors).
+And the point of an ioctl copying two values that are compltely irrelevant
+for userspace with your driver are? [please fill in here]
 
-I've also ran serial console with 2.6.x on SMP machine with the laptop as
-console (but running 2.4.x). Sometimes the output gets slightly garbled,
-could be a problem with flow control too. I can do more experiments if
-anyone is interested.

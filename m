@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbUJ0TuD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262644AbUJ0TyZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262560AbUJ0TuD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 15:50:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbUJ0Tsv
+	id S262644AbUJ0TyZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 15:54:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbUJ0Tv0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 15:48:51 -0400
-Received: from fw.osdl.org ([65.172.181.6]:62647 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262632AbUJ0Tk6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:40:58 -0400
-Date: Wed, 27 Oct 2004 12:40:55 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: ak@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Early call_usermodehelper causes double fault on x86_64
-Message-ID: <20041027124055.B2357@build.pdx.osdl.net>
+	Wed, 27 Oct 2004 15:51:26 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:32188 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262644AbUJ0Trj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 15:47:39 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0
+From: Lee Revell <rlrevell@joe-job.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <417FDE34.6020704@cybsft.com>
+References: <20041025104023.GA1960@elte.hu> <417D4B5E.4010509@cybsft.com>
+	 <20041025203807.GB27865@elte.hu> <417E2CB7.4090608@cybsft.com>
+	 <20041027002455.GC31852@elte.hu> <417F16BB.3030300@cybsft.com>
+	 <20041027132926.GA7171@elte.hu> <417FB7F0.4070300@cybsft.com>
+	 <20041027150548.GA11233@elte.hu>
+	 <1098889994.1448.14.camel@krustophenia.net>
+	 <20041027151701.GA11736@elte.hu> <1098897241.8596.5.camel@krustophenia.net>
+	 <417FD915.304@cybsft.com> <1098898017.8596.9.camel@krustophenia.net>
+	 <417FDE34.6020704@cybsft.com>
+Content-Type: text/plain
+Date: Wed, 27 Oct 2004 15:47:33 -0400
+Message-Id: <1098906454.1514.1.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+X-Mailer: Evolution 2.0.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, 2004-10-27 at 12:43 -0500, K.R. Foley wrote:
+> OH! And thanks. :)
+> 
 
-I'm seeing a double fault on recent (2.6.10-rc1-bk) kernels during
-driver_init().  The upcall to userspace gets far enough to schedule the
-work, khelper picks it up, calls kernel_thread, the child thread does
-execve, then double faults.  Bootup continues, I get three more double
-faults, then the system appears fine (even w/ continued upcalls).
+Well I tried it and it does not seem to work exactly right.  This might
+be because I enabled the HPET so the RTC is not getting used.  When I
+run amlat for a few minutes I get a histogram with only 38 samples.
+Does this work for you?
 
-I have an example of the fault below.  It shows a rip and rsp
-of 0.  I poked about a bit and see that the FAKE_STACK_FRAME $0 in
-arch/x86-64/kernel/entry.S sets up a 0 rip, and if I change the \rip
-in that macro call, that's the rip in the double fault.  Any ideas on
-further debugging?
+Lee
 
-thanks,
--chris
-
-double fault: 0000 [1] PREEMPT SMP 
-CPU 1 
-Modules linked in:
-Pid: 9, comm: khelper Tainted: G   M  2.6.10-rc1
-RIP: 0010:[<0000000000000000>] [<0000000000000000>]
-RSP: 0000:0000000000000000  EFLAGS: 00010202
-RAX: 0000000000000000 RBX: 000001007ff09dc8 RCX: 000001007ff0e870
-RDX: 000001003fff9e88 RSI: 000001007ff09e58 RDI: ffffffff805b8fe0
-RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000000000
-R10: 00000000ffffffff R11: 0000000000000000 R12: 0000010037e87120
-R13: 0000000000000206 R14: 000001007ff09dc8 R15: ffffffff80149200
-FS:  0000000000000000(0000) GS:ffffffff816daa40(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 0000000000000000 CR3: 000000007ff0a000 CR4: 00000000000006e0
-Process khelper (pid: 9, threadinfo 000001000258c000, task 000001007ff0e870)
-Stack: 0000010037ea8e58 0000000000000000 0000010037ea8f58 0000000000000000 
-       0000000000000001 ffffffff80111f78 0000000000000004 0000010037ea8f58 
-       0000000000000000 0000000000000000 
-Call Trace:<ffffffff80111f78>{show_registers+200} <ffffffff8011222b>{__die+155} 
-       <ffffffff801122a6>{die+54} <ffffffff80112bbf>{do_double_fault+175} 
-       <ffffffff801118ed>{double_fault+125} <ffffffff80149200>{__call_usermodehelper+0} 
-       
-
-Code:  Bad RIP value.
-RIP [<0000000000000000>] RSP <0000000000000000>

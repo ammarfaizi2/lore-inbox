@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136869AbRA2CRX>; Sun, 28 Jan 2001 21:17:23 -0500
+	id <S144924AbRA2CUN>; Sun, 28 Jan 2001 21:20:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S144924AbRA2CRO>; Sun, 28 Jan 2001 21:17:14 -0500
-Received: from paloma14.e0k.nbg-hannover.de ([62.159.219.14]:43967 "HELO
-	paloma14.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
-	id <S136869AbRA2CRB>; Sun, 28 Jan 2001 21:17:01 -0500
-From: Dieter Nützel <Dieter.Nuetzel@hamburg.de>
-Organization: DN
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Linux-2.4.1-pre11
-Date: Mon, 29 Jan 2001 03:20:36 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="ISO-8859-1"
-Cc: Andrew Grover <andrew.grover@intel.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "Linux ACPI List" <acpi@phobos.fachschaften.tu-muenchen.de>
-In-Reply-To: <Pine.LNX.4.10.10101281346030.4151-100000@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.4.10.10101281346030.4151-100000@penguin.transmeta.com>
+	id <S144939AbRA2CUD>; Sun, 28 Jan 2001 21:20:03 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:7433 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S144924AbRA2CT5>;
+	Sun, 28 Jan 2001 21:19:57 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200101290219.f0T2JCF439854@saturn.cs.uml.edu>
+Subject: Re: [PATCH] devfsd, compiling on glibc22x
+To: drepper@cygnus.com
+Date: Sun, 28 Jan 2001 21:19:12 -0500 (EST)
+Cc: pierre.rousselet@wanadoo.fr (Pierre Rousselet),
+        david@linux.com (David Ford), devfs@oss.sgi.com, rgooch@atnf.csiro.au,
+        linux-kernel@vger.kernel.org (LKML)
+In-Reply-To: <m3wvbgnnk3.fsf@otr.mynet.cygnus.com> from "Ulrich Drepper" at Jan 27, 2001 11:27:56 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Message-Id: <01012903203600.00304@SunWave1>
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Sonntag, 28. Januar 2001 22:46 schrieb Linus Torvalds:
-> On Sun, 28 Jan 2001, Dieter Nützel wrote:
-> > > I just uploaded it to kernel.org, and I expect that I'll do the final
-> > > 2.4.1 tomorrow, before leaving for NY and LinuxWorld. Please test that
-> > > the pre-kernel works for you..
-> >
-> > Hello Linus,
-> >
-> > can we please see Andrew's latest ACPI fixes ([Acpi] ACPI source release
-> > updated: 1-25-2001)  in 2.4.1 final?
+Ulrich Drepper writes:
+> Pierre Rousselet <pierre.rousselet@wanadoo.fr> writes:
 >
-> Does it fix stuff? Andrew?
+>> for me :
+>> make CFLAGS='-O2 -I. -D_GNU_SOURCE' 
+>> compiles without any patch. is it correct ?
+>
+> Yes.  RTLD_NEXT is not in any standard, it's an extension available
+> via -D_GNU_SOURCE.
 
-I am the loser :-(
-2.4.1-pre10 (with Andrew's ACPI fixes included) and
-2.4.1-pre11 + 1-25-2001 patch bring back the pppd slowdown on my system.
+This isn't a HURD feature.
+This isn't even a C library feature.
+This is a Linux feature.
 
-2.4.1-pre9 was fine...
+So the _GNU_SOURCE thing is just plain wrong. Quit trying to
+rename the OS.
 
-AMD K7
-MSI MS-6167 Rev. 1.0B (Irongate C4)
+Since there are so many standards to choose from, putting all features
+into the default would be most obvious. Else what, pure C89 maybe?
+Dang new-fangled standards might break something. Normal UNIX systems
+don't make developers jump through hoops to get access to stuff; they
+instead provide clean namespaces upon request.
 
--Dieter
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVARNiC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVARNmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVARNiC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 08:38:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVARNiC
+	id S261286AbVARNmR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 08:42:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVARNmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 08:38:02 -0500
-Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:51882 "EHLO
-	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S261285AbVARNhm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 08:37:42 -0500
-Subject: Re: [PATCH] Fix audit control message checks
-From: Stephen Smalley <sds@epoch.ncsc.mil>
-To: "Serge E. Hallyn" <hallyn@cs.wm.edu>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
-In-Reply-To: <20050115200734.GA22087@escher.cs.wm.edu>
-References: <20050115200734.GA22087@escher.cs.wm.edu>
-Content-Type: text/plain
-Organization: National Security Agency
-Message-Id: <1106055058.18274.57.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 18 Jan 2005 08:30:58 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 18 Jan 2005 08:42:17 -0500
+Received: from mail45.messagelabs.com ([140.174.2.179]:59539 "HELO
+	mail45.messagelabs.com") by vger.kernel.org with SMTP
+	id S261286AbVARNmL convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 08:42:11 -0500
+X-VirusChecked: Checked
+X-Env-Sender: justin.piszcz@mitretek.org
+X-Msg-Ref: server-12.tower-45.messagelabs.com!1106055729!9536712!1
+X-StarScan-Version: 5.4.5; banners=-,-,-
+X-Originating-IP: [66.10.26.57]
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.4: "access beyond end of device" after ext2 mount
+Date: Tue, 18 Jan 2005 08:42:08 -0500
+Message-ID: <2E314DE03538984BA5634F12115B3A4E01BC42AE@email1.mitretek.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.4: "access beyond end of device" after ext2 mount
+thread-index: AcT9Yj3M2ZJARW/uThecX2IcZQctdQAARtmw
+From: "Piszcz, Justin Michael" <justin.piszcz@mitretek.org>
+To: "Marcelo Tosatti" <marcelo.tosatti@cyclades.com>,
+       "Andries Brouwer" <aebr@win.tue.nl>
+Cc: "Mario Holbe" <Mario.Holbe@TU-Ilmenau.DE>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-01-15 at 15:07, Serge E. Hallyn wrote:
-> The audit control messages are sent over netlink.  Permission checks
-> are done on the process receiving the message, which may not be the
-> same as the process sending the message.  This patch switches the
-> netlink_send security hooks to calculate the effective capabilities
-> based on the sender.  Then audit_receive_msg performs capability checks
-> based on that.
-> 
-> It also introduces the CAP_AUDIT_WRITE and CAP_AUDIT_CONTROL capabilities,
-> and replaces the previous CAP_SYS_ADMIN checks in audit code with the
-> appropriate checks.
-> 
-> Please apply.
-> 
-> Changelog:
-> 	1/15/2005: Simplified dummy_netlink_send given that dummy now
-> 		keeps track of capabilities.
-> 	1/14/2005: Many fixes based on feedback from linux-audit@redhat.com
-> 		list.
-> 	1/14/2005: Removed the netlink_msg_type helper function.
-> 	1/07/2005: Swith to using CAP_AUDIT_WRITE and CAP_AUDIT_CONTROL.
-> 
-> thanks,
-> -serge
-> 
-> Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+Normally, this problem associated with drives over 32GB or 127GB on a
+controller that cannot support it.  It was not discussed here, I was
+wondering if that is the problem, if it is not, what type of Hard Drive
+is giving you these problems?
 
-Signed-off-by:  Stephen Smalley <sds@epoch.ncsc.mil>
+Thanks.
 
--- 
-Stephen Smalley <sds@epoch.ncsc.mil>
-National Security Agency
 
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Marcelo Tosatti
+Sent: Tuesday, January 18, 2005 5:20 AM
+To: Andries Brouwer
+Cc: Mario Holbe; linux-kernel@vger.kernel.org
+Subject: Re: 2.4: "access beyond end of device" after ext2 mount
+
+On Tue, Jan 18, 2005 at 01:37:08PM +0100, Andries Brouwer wrote:
+> On Tue, Jan 18, 2005 at 06:45:26AM -0200, Marcelo Tosatti wrote:
+> 
+> > > I suppose that what happens is the following:
+> > > mounting sets the blocksize to 4096.
+> > > After reading 9992360 sectors, reading the next block means
+reading
+> > > the next 8 sectors and that fails because only 6 sectors are left.
+> > 
+> > So this is either not a Linux error and not a disk error, its just
+that the
+> > "use with filesystem" then "direct access" is a unfortunate
+combination.
+> 
+> It is not a disk error, but I consider it a Linux error.
+
+OK.
+
+> > What would be the correct fix for this for this, if any?
+> 
+> For 2.4 my reaction would be to say that it is a known property
+> of the system, possibly less fortunate, an unimportant flaw.
+
+This seems to be harmless, so, better do nothing about it.
+
+> Of course a fix is possible if this is deemed important for some
+reason.
+> 
+> > v2.6 should suffer from the same issues?
+> 
+> I don't think so. But 2.6 details are rather different.
+
+OK!
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

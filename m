@@ -1,65 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265457AbUAKQjA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jan 2004 11:39:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265840AbUAKQjA
+	id S265271AbUAKQgh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jan 2004 11:36:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265378AbUAKQgh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jan 2004 11:39:00 -0500
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:27311 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S265457AbUAKQi4 convert rfc822-to-8bit (ORCPT
+	Sun, 11 Jan 2004 11:36:37 -0500
+Received: from hive.scnr.net ([80.190.231.103]:22155 "HELO hive.scnr.net")
+	by vger.kernel.org with SMTP id S265271AbUAKQgf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jan 2004 11:38:56 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter.koenigsmann@gmx.de>,
-       Gunter =?iso-8859-1?q?K=F6nigsmann?= <gunter@peterpall.de>
-Subject: Re: Synaptics Touchpad workaround for strange behavior after Sync loss (With Patch). (fwd)
-Date: Sun, 11 Jan 2004 11:38:49 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Vojtech Pavlik <vojtech@suse.cz>,
-       Peter Berg Larsen <pebl@math.ku.dk>
-References: <Pine.LNX.4.53.0401111652510.1271@calcula.uni-erlangen.de>
-In-Reply-To: <Pine.LNX.4.53.0401111652510.1271@calcula.uni-erlangen.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200401111138.49858.dtor_core@ameritech.net>
+	Sun, 11 Jan 2004 11:36:35 -0500
+Message-Id: <5.1.0.14.2.20040111161640.014ad6c0@localhost>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sun, 11 Jan 2004 17:36:32 +0100
+To: linux-kernel@vger.kernel.org
+From: Hans Spath <ml-lkml@hans-spath.de>
+Subject: 2.6.1: data corrupton when recieving files > 1GB over network
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 11 January 2004 11:27 am, Gunter Königsmann wrote:
-> Strike! Helps.
->
-> No more warnings, no more bad clicks, and a *real* smooth movement.
->
+Hello,
 
-Great!
+When I transfer files to my linux 2.6.1 box their content changes (tested 
+via md5 sums).
 
-Could you tell us what kind of laptop you have (manufacturer/model)
-so other people would not have such pain as you had with it? 
+I transfered a 1,8 GB (mpeg) file serveral times to this machine by using 
+either pure-ftpd (upload) or wget (download) on that machine. I got a 
+different md5sum each time. Same problem with a 1,4 GB (zip) file, but 
+*not* with a 0,7 GB (mpeg) file.
 
-> Never thought, a touchpad can work *this* well... ;-)
->
-> Anyway, I still get those 4 lines  on leaving X, but don't know, if it
-> is an error of the kernel, anyway, and doesn't do anything bad exept of
-> warning me:
->
-> atkbd.c: Unknown key released (translated set 2, code 0x7a on
-> isa0060/serio0). atkbd.c: Unknown key released (translated set 2, code
-> 0x7a on isa0060/serio0). atkbd.c: Unknown key released (translated set
-> 2, code 0x7a on isa0060/serio0). atkbd.c: Unknown key released
-> (translated set 2, code 0x7a on isa0060/serio0).
+When I boot the machine with Knoppix 3.2 (Linux 2.4.21-xfs) and upload the 
+1,8 GB file to it's ftpd (same target harddisk/partition/directory), the 
+file is ok.
 
-I believe Vojtech said that it's because X on startup tries to talk to the
-keyboard controller directly, nothing to worry about... But I might be
-mistaken.
+When I dupplicate the correctly recieved file with dd or cp under Linux 
+2.6.1 there is no corruption, too.
 
->
->
-> Yours,
->
-> 	Gunter.
+I don't know what tools I should use to determine at what positions these 
+corruptions start and how much is corrupted. But I think about the first 1 
+GB is transfered correctly (diff needs some time before it says "Binary 
+files test-2.6.mpeg and test-2.4.mpeg differ")
 
-Dmitry
+Kernel is built without module support.
+
+
+[ Some lines from dmesg ]
+Linux version 2.6.1 (stob@netbrake) (gcc version 2.95.4 20011002 (Debian 
+prerelease)) #5 Sat Jan 10 01:40:00 CET 2004
+CPU: Intel Pentium III (Katmai) stepping 02
+agpgart: Detected VIA Apollo Pro 133 chipset
+eth0: RealTek RTL8139 at 0xe3818000, 00:00:21:d5:a6:48, IRQ 10
+eth0:  Identified 8139 chip type 'RTL-8139B'
+hda: Maxtor 98196H8, ATA DISK drive
+hda: max request size: 128KiB
+hda: 160086528 sectors (81964 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(33)
+  hda: hda1
+EXT3 FS on hda1, internal journal
+
+[ Output of scripts/ver_linux ]
+Linux netbrake 2.6.1 #5 Sat Jan 10 01:40:00 CET 2004 i686 unknown
+Gnu C                  2.95.4
+Gnu make               3.80
+util-linux             2.12
+mount                  2.12
+module-init-tools      implemented
+e2fsprogs              1.34
+Linux C Library        2.2.5
+Dynamic linker (ldd)   2.2.5
+Procps                 3.1.15
+Net-tools              1.60
+Console-tools          0.2.3
+Sh-utils               2.0.11
+

@@ -1,93 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264197AbTGGRom (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 13:44:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264203AbTGGRol
+	id S267108AbTGGRqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 13:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267119AbTGGRqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 13:44:41 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:61411 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264197AbTGGRof convert rfc822-to-8bit
+	Mon, 7 Jul 2003 13:46:09 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:30889 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S267108AbTGGRp5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 13:44:35 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Daniel Stekloff <dsteklof@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] libsysfs v0.1.0
-Date: Mon, 7 Jul 2003 10:55:08 +0000
-User-Agent: KMail/1.4.1
-Cc: Patrick Mochel <mochel@osdl.org>, Greg KH <greg@kroah.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200307071055.08175.dsteklof@us.ibm.com>
+	Mon, 7 Jul 2003 13:45:57 -0400
+Subject: Re: Linux 2.4.22-pre3-ac1
+From: Steven Cole <elenstev@mesatop.com>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Alan Cox <alan@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20030707170047.GC13102@louise.pinerecords.com>
+References: <200307071634.h67GYZo06861@devserv.devel.redhat.com>
+	 <20030707170047.GC13102@louise.pinerecords.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057600778.13991.57.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 07 Jul 2003 11:59:38 -0600
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2003-07-07 at 11:00, Tomas Szepe wrote:
+> > [alan@redhat.com]
+> > 
+> > Linux 2.4.22-pre3-ac1
+> 
+> arch/i386/kernel/kernel.o: In function `setup_ioapic_ids_from_mpc':
+> arch/i386/kernel/kernel.o(.text.init+0x92b0): undefined reference to `xapic_support'
+> arch/i386/kernel/kernel.o(.text.init+0x94e5): undefined reference to `xapic_support'
+> make: *** [vmlinux] Error 1
+> 
+> $ find . -type f|xargs grep apic_sup
+> ./arch/i386/kernel/io_apic.c:extern unsigned int xapic_support;
+> ./arch/i386/kernel/io_apic.c:           if (!xapic_support && 
+> ./arch/i386/kernel/io_apic.c:           if (!xapic_support &&
+> Binary file ./arch/i386/kernel/io_apic.o matches
+> Binary file ./arch/i386/kernel/kernel.o matches
+> $
+> 
+> ooops
 
-I'd like to announce libsysfs - a small library built over sysfs, the virtual 
-filesystem that exports system devices in the Linux 2.5+ kernels. You can 
-find the initial version of the library in a small package called sysutils 
-at:
+>From the -not-a-real-fix- department, and only for the terminally
+impatient, this gets 2.4.22-pre3-ac1 up and running on SMP.
 
-	kernel.org/pub/linux/utils/kernel/hotplug/sysutils-0.1.0.tar.gz
+Steven
 
-The library grew from the requirements of several applications all needing 
-access to system device information in sysfs. We felt it was better to 
-provide a library of common code rather than having each application create 
-their own access. Greg KH's udev application, a User Space replacement for 
-devfs, is one of the applications needing sysfs access. You can see Greg's 
-original announcement here:
-
-	http://marc.theaimsgroup.com/?l=linux-kernel&m=105003185331553&w=2
-
-The library doesn't implement any device or bus specifics but simply provides 
-generic bus, class, and device access as represented in sysfs. Included with 
-the library in the sysutils package are two small commands that hopefully 
-make viewing sysfs and system device information easier. 
-
-- systool is a command that can list devices by bus, by class, or by device 
-root - as represented through sysfs. Here's example output showing all 
-devices off root device pci2, children are indented following each device:
-
-[stekloff@... stekloff]$ systool -r pci2
-Root Device Tree: pci2
-   pci2 Host/PCI Bridge
-         02:01.1 Adaptec AIC-7899P U160/m (#2)
-               host1 aic7xxx
-                     1:0:8:0 SCSI Processor
-                           1:0:8:0:gen SCSI Processorgeneric
-                     1:0:0:0 SCSI Direct-Access
-                           1:0:0:0:gen SCSI Direct-Accessgeneric
-         02:01.0 Adaptec AIC-7899P U160/m
-               host0 aic7xxx
-
-- lsbus is a small command for simply viewing sysfs bus information. Here's 
-example output showing all PCI drivers and their devices:
-
-[stekloff@... stekloff]$ lsbus -D pci
-Bus: pci
-Drivers:
-  aic7xxx
-        Devices:
-                02:01.0
-                02:01.1
-  RZ1000 IDE
-  PIIX IDE
-  eepro100
-  pcnet32
-        Devices:
-                00:05.0
-  serial
-  agpgart-via
-  agpgart-sis
-  agpgart-intel
-  agpgart-amdk7
-  agpgart-ali
+--- linux-2.4.22-pre3-ac1/arch/i386/kernel/io_apic.c.orig	Mon Jul  7 11:06:36 2003
++++ linux-2.4.22-pre3-ac1/arch/i386/kernel/io_apic.c	Mon Jul  7 11:25:07 2003
+@@ -44,7 +44,6 @@
+ 
+ unsigned int int_dest_addr_mode = APIC_DEST_LOGICAL;
+ unsigned char int_delivery_mode = dest_LowestPrio;
+-extern unsigned int xapic_support;
+ 
+ /*
+  * # of IRQ routing registers
+@@ -1208,8 +1207,7 @@
+ 		
+ 		old_id = mp_ioapics[apic].mpc_apicid;
+ 
+-		if (!xapic_support && 
+-		    (mp_ioapics[apic].mpc_apicid >= apic_broadcast_id)) {
++		if ((mp_ioapics[apic].mpc_apicid >= apic_broadcast_id)) {
+ 			printk(KERN_ERR "BIOS bug, IO-APIC#%d ID is %d in the MPC table!...\n",
+ 				apic, mp_ioapics[apic].mpc_apicid);
+ 			printk(KERN_ERR "... fixing up to %d. (tell your hw vendor)\n",
+@@ -1223,8 +1221,7 @@
+ 		 * 'stuck on smp_invalidate_needed IPI wait' messages.
+ 		 * I/O APIC IDs no longer have any meaning for xAPICs and SAPICs.
+ 		 */
+-		if (!xapic_support &&
+-		    (clustered_apic_mode != CLUSTERED_APIC_XAPIC) &&
++		if ((clustered_apic_mode != CLUSTERED_APIC_XAPIC) &&
+ 		    (phys_id_present_map & (1 << mp_ioapics[apic].mpc_apicid))) {
+ 			printk(KERN_ERR "BIOS bug, IO-APIC#%d ID %d is already used!...\n",
+ 				apic, mp_ioapics[apic].mpc_apicid);
 
 
-All comments, suggestions, and contributions are welcome.
-
-Thanks,
-
-Dan
 

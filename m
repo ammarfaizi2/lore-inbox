@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266806AbRHRT1e>; Sat, 18 Aug 2001 15:27:34 -0400
+	id <S267043AbRHRTrA>; Sat, 18 Aug 2001 15:47:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266808AbRHRT1Y>; Sat, 18 Aug 2001 15:27:24 -0400
-Received: from nbd.it.uc3m.es ([163.117.139.192]:5380 "EHLO nbd.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S266806AbRHRT1P>;
-	Sat, 18 Aug 2001 15:27:15 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108181927.VAA03583@nbd.it.uc3m.es>
-Subject: Re: scheduling with io_lock held in 2.4.6
-X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
-In-Reply-To: <3B7C607A.58B9E36@zip.com.au> "from Andrew Morton at Aug 16, 2001
- 05:08:26 pm"
-To: Andrew Morton <akpm@zip.com.au>
-Date: Sat, 18 Aug 2001 21:27:09 +0200 (CEST)
-CC: ptb@it.uc3m.es, linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
+	id <S267140AbRHRTqv>; Sat, 18 Aug 2001 15:46:51 -0400
+Received: from cs159246.pp.htv.fi ([213.243.159.246]:60436 "EHLO
+	porkkala.cs159246.pp.htv.fi") by vger.kernel.org with ESMTP
+	id <S267043AbRHRTqh>; Sat, 18 Aug 2001 15:46:37 -0400
+Message-ID: <3B7EC60B.5BFFA6D8@pp.htv.fi>
+Date: Sat, 18 Aug 2001 22:46:19 +0300
+From: Jussi Laako <jlaako@pp.htv.fi>
+X-Mailer: Mozilla 4.76 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Frank Neuber <frank.neuber@gmx.de>
+CC: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: BUGFIX: UDMA-SiS5513 chipset support
+In-Reply-To: <Pine.LNX.3.96.1010818151105.1982A-200000@mars.private.de>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Andrew Morton wrote:"
-> "Peter T. Breuer" wrote:
-> > I've been plagued for a month by smp lockups in my block driver
-> > that I eventually deduced were due to somebody else scheduling while
-> > holding the io_request_lock spinlock.
-
-> >   Aug 17 01:41:00 xilofon kernel: Scheduling with io lock held in process 0
-> >   Aug 17 01:41:01 xilofon last message repeated 87 times
-> >   Aug 17 01:41:01 xilofon kernel: Scheduling with io lock held in process 1141
-
-> Replace the printk with a BUG(), feed the result into ksymooops.
-> Or use show_trace(0).
+Frank Neuber wrote:
 > 
-> But if you're running SMP, scheduling with a lock held
-> is quite legal - it'll be held by another CPU.  In that case
+> recently I did an upgrade of my old computer (ASUS SP97-V) to
+> the kernel-2.4.7.
+> 
+> Problem:
+>   My system was crashing even when I load the module ide-disk.o
+> Solution:
+>   Because of the broken hardware (some UDMA problems with an non
+>   UDMA-Cabel to the drive) the linux kernel hangs during ide_dma_check.
+>   Even if UDMA is disabeld in the bios, the kernel detect this drive as
+>   an udma drive. And this is wrong!!
+>   My solution was simply to comment out the ide_dma_check in ide.c.
+>   You can find this patch as attachment.
 
-Err, yes, I had initially made that mistake, but was fortunately running
-on a single cpu machine. I fixed the test to check that the spinlock
-was taken on the same cpu as we are now scheduling on and the test still
-triggers.
+Same mobo here, with -ac kernel. I've never had any problems with any kernel
+version (IBM/Maxtor/Seagate HDDs). So I'd suggest faulty HDD, not the
+controller nor driver.
 
-> you'll need to record which CPU holds the lock.
 
-My initial conclusion, based on recording file and line numbers every
-time the spinlock is taken, is that end_that_request_last from ll_rw_blk.c
-sometimes schedules under the io_request_lock.
+	- Jussi Laako
 
-I am still investigating, in the hope of pinning it down more exactly. If
-anyone recognizes what goes on, please tell me.
-
-Peter
+-- 
+PGP key fingerprint: 161D 6FED 6A92 39E2 EB5B  39DD A4DE 63EB C216 1E4B
+Available at PGP keyservers

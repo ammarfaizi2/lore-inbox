@@ -1,168 +1,229 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbTIMQl5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 12:41:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbTIMQl5
+	id S261316AbTIMQhs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 12:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbTIMQhs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 12:41:57 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17102 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261337AbTIMQlx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 12:41:53 -0400
-Date: Sat, 13 Sep 2003 18:41:46 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] better i386 CPU selection
-Message-ID: <20030913164146.GI27368@fs.tum.de>
-References: <20030913125103.GE27368@fs.tum.de> <20030913161149.GA1750@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030913161149.GA1750@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Sat, 13 Sep 2003 12:37:48 -0400
+Received: from fed1mtao08.cox.net ([68.6.19.123]:45752 "EHLO
+	fed1mtao08.cox.net") by vger.kernel.org with ESMTP id S261316AbTIMQhm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 12:37:42 -0400
+Message-ID: <3F6347D4.9070802@cox.net>
+Date: Sat, 13 Sep 2003 09:37:40 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.0-test5 boot hang with no PS/2 mouse
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 13, 2003 at 05:11:49PM +0100, Dave Jones wrote:
-> On Sat, Sep 13, 2003 at 02:51:03PM +0200, Adrian Bunk wrote:
-> 
->  > This patch makes the bzImage for my computer (same .config, same 
->  > compiler, same compiler options) a good 5 kB smaller.
-> 
-> For the invasiveness of the patch, 5KB really is a questionable gain..
+Booting a kernel the config below, with only a USB keyboard and USB 
+mouse attached, hangs at:
 
-I should have stated that the arch/i386/kernel/cpu{,/mtrr}/Makefile 
-parts are an example of what is possible with such a CPU selection 
-schema.
+mice: PS/2 mouse device common for all mice
 
-I'll send a splitted patch where this is only an optional enhanchement.
+I let it sit for two minutes, and there was no change. Rebooting with 
+a PS/2 mouse plugged in allowed the boot to complete normally. Turning 
+the SERIO-related options back off (so only the USB input drivers are 
+selected) makes the kernel boot without a PS/2 mouse plugged in.
 
->  > In 2.4 selecting e.g. M486 has the semantics to get a kernel that runs 
->  > on a 486 and above.
->  > In 2.6 selecting M486 means that only the 486 is supported.
-> 
-> What are you basing this on ? This seems bogus to me.
-> Last I checked, I could for eg, boot a 386 kernel on an Athlon.
-
-It currently works. The question is the exact semantics of X86_GENERIC. 
-If you read the description of X86_GENERIC it implicitely says a kernel 
-for a 386 isn't generic.
-
->  > +config CPU_VIAC3_2
->  >  	bool "VIA C3-2 (Nehemiah)"
->  >  	help
->  > -	  Select this for a VIA C3 "Nehemiah". Selecting this enables usage
->  > -	  of SSE and tells gcc to treat the CPU as a 686.
->  > -	  Note, this kernel will not boot on older (pre model 9) C3s.
->  > +	  Select this for a VIA C3 "Nehemiah" (model 9 and above).
-> 
-> You lost an important part of helptext.
-
-With the patch to the Makefile the "enables usage of SSE and tells gcc
-to treat the CPU as a 686" is only true if you don't compile support for 
-older CPUs.
-
->...
->  > +
->  > +ifdef CONFIG_CPU_K8
->  > +  ifdef CONFIG_CPU_PENTIUM4
->  > +    cpuflags-y	:= $(call check_gcc,-march=pentium3,-march=i686)
->  > +  else
->  > +    cpuflags-y	:= $(call check_gcc,-march=k8,$(call check_gcc,-march=athlon,-march=i686 $(align)-functions=4))
->  > +  endif
->  > +endif
->  > +
-> 
-> These horrible nesting things are also a real PITA, as theres >1 case
-> that needs updating when something changes for a particular
-> vendor/family.  The cflags-$foo stuff in 2.6 was just starting to
-> become readable, and you want to undo that?
-
-The idea is to move the question "Which CPU option supports bot an
-Athlon and a Pentium 4?" from the user to the kernel. The user no longer 
-has to take care of this, he simply selects all CPUs he wants to 
-support.
-
->  > --- linux-2.6.0-test5-cpu/arch/i386/lib/mmx.c.old	2003-09-13 11:14:00.000000000 +0200
->  > +++ linux-2.6.0-test5-cpu/arch/i386/lib/mmx.c	2003-09-13 11:17:00.000000000 +0200
->  > @@ -121,7 +121,7 @@
->  >  	return p;
->  >  }
->  >  
->  > -#ifdef CONFIG_MK7
->  > +#ifndef CONFIG_CPU_CYRIXIII
->  >  
->  >  /*
->  >   *	The K7 has streaming cache bypass load/store. The Cyrix III, K6 and
-> 
-> wtf ?
-
-It's logical considering the dependencies of X86_USE_3DNOW.
-
-But thinking about it a second time, it seems a CONFIG_CPU_ONLY_K7 does 
-the same and is less error prone.
-
->  > --- linux-2.6.0-test5-cpu/arch/i386/mm/init.c.old	2003-09-13 14:18:04.000000000 +0200
->  > +++ linux-2.6.0-test5-cpu/arch/i386/mm/init.c	2003-09-13 14:23:26.000000000 +0200
->  > @@ -436,8 +436,12 @@
->  >  	if (!mem_map)
->  >  		BUG();
->  >  #endif
->  > -	
->  > +
->  > +#ifdef CONFIG_CPU_686
->  >  	bad_ppro = ppro_with_ram_bug();
->  > +#else
->  > +	bad_ppro = 0;
->  > +#endif
->  >  
-> 
-> If we boot a 386 kernel on a ppro with that bug, this goes bang.
-
-ppro_with_ram_bug checks for one specific ppro bug.
-On a 386 this funtion returns 0.
-
-This is part of the (optional) part of this patch that selects only the 
-needed parts in arch/i386/kernel/cpu/Makefile. When compiling a kernel 
-without any support for Intel CPUs I got a linker error. It could be 
-CONFIG_CPU_INTEL (since that's when arch/i386/kernel/cpu/intel.c gets 
-compiled) but since this function returns 1 only for some ppro's I've 
-optimized it to ppro_with_ram_bug.
-
->  >  static void __init init_ifs(void)
->  >  {
->  > +
->  > +#if defined(CONFIG_CPU_K6)
->  >  	amd_init_mtrr();
->  > +#endif
->  > +
->  > +#if defined(CONFIG_CPU_586)
->  >  	cyrix_init_mtrr();
->  > +#endif
->  > +
->  > +#if defined(CONFIG_CPU_WINCHIP) || defined(CONFIG_CPU_CYRIXIII) || defined(CONFIG_CPU_VIAC3_2)
->  >  	centaur_init_mtrr();
->  > +#endif
->  > +
-> 
-> For the handful of bytes saved in the mtrr driver, I'm more concerned
-> about ifdef noise, and the fact that we don't have a compile once-run
-> everywhere MTRR driver anymore unless you pick your options right
-
-You have a "compile once-run everywhere MTRR driver" if you select all 
-CPUs.
-
-As stated above, this isn't part of the core patch.
-
-> 		Dave
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+CONFIG_X86=y
+CONFIG_MMU=y
+CONFIG_UID16=y
+CONFIG_GENERIC_ISA_DMA=y
+CONFIG_EXPERIMENTAL=y
+CONFIG_CLEAN_COMPILE=y
+CONFIG_STANDALONE=y
+CONFIG_BROKEN_ON_SMP=y
+CONFIG_SYSVIPC=y
+CONFIG_SYSCTL=y
+CONFIG_IKCONFIG=y
+CONFIG_IKCONFIG_PROC=y
+CONFIG_EMBEDDED=y
+CONFIG_KALLSYMS=y
+CONFIG_FUTEX=y
+CONFIG_EPOLL=y
+CONFIG_IOSCHED_DEADLINE=y
+CONFIG_X86_PC=y
+CONFIG_MK7=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_X86_USE_3DNOW=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+CONFIG_X86_MCE_NONFATAL=y
+CONFIG_NOHIGHMEM=y
+CONFIG_MTRR=y
+CONFIG_ACPI_HT=y
+CONFIG_ACPI=y
+CONFIG_ACPI_BOOT=y
+CONFIG_ACPI_BUTTON=y
+CONFIG_ACPI_FAN=y
+CONFIG_ACPI_PROCESSOR=y
+CONFIG_ACPI_THERMAL=y
+CONFIG_ACPI_BUS=y
+CONFIG_ACPI_INTERPRETER=y
+CONFIG_ACPI_EC=y
+CONFIG_ACPI_POWER=y
+CONFIG_ACPI_PCI=y
+CONFIG_ACPI_SYSTEM=y
+CONFIG_PCI=y
+CONFIG_PCI_GODIRECT=y
+CONFIG_PCI_DIRECT=y
+CONFIG_HOTPLUG=y
+CONFIG_BINFMT_ELF=y
+CONFIG_BLK_DEV_FD=y
+CONFIG_BLK_DEV_LOOP=y
+CONFIG_IDE=y
+CONFIG_BLK_DEV_IDE=y
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDEFLOPPY=y
+CONFIG_IDE_TASKFILE_IO=y
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_ADMA=y
+CONFIG_BLK_DEV_SIS5513=y
+CONFIG_BLK_DEV_VIA82CXXX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y
+CONFIG_SCSI=y
+CONFIG_BLK_DEV_SD=y
+CONFIG_CHR_DEV_ST=y
+CONFIG_BLK_DEV_3W_XXXX_RAID=y
+CONFIG_SCSI_AIC7XXX=y
+CONFIG_MD=y
+CONFIG_BLK_DEV_DM=y
+CONFIG_NET=y
+CONFIG_PACKET=y
+CONFIG_PACKET_MMAP=y
+CONFIG_UNIX=y
+CONFIG_INET=y
+CONFIG_NETFILTER=y
+CONFIG_IP_NF_CONNTRACK=y
+CONFIG_IP_NF_FTP=y
+CONFIG_IP_NF_IPTABLES=y
+CONFIG_IP_NF_MATCH_STATE=y
+CONFIG_IP_NF_FILTER=y
+CONFIG_IP_NF_TARGET_REJECT=y
+CONFIG_IP_NF_NAT=y
+CONFIG_IP_NF_NAT_NEEDED=y
+CONFIG_IP_NF_TARGET_MASQUERADE=y
+CONFIG_IP_NF_TARGET_REDIRECT=y
+CONFIG_IP_NF_NAT_FTP=y
+CONFIG_IP_NF_TARGET_LOG=y
+CONFIG_IPV6_SCTP__=y
+CONFIG_NETDEVICES=y
+CONFIG_TUN=y
+CONFIG_NET_ETHERNET=y
+CONFIG_MII=y
+CONFIG_NET_TULIP=y
+CONFIG_TULIP=y
+CONFIG_TULIP_MMIO=y
+CONFIG_NET_PCI=y
+CONFIG_NATSEMI=y
+CONFIG_SIS900=y
+CONFIG_NS83820=y
+# Token Ring devices (depends on LLC=y)
+CONFIG_INPUT=y
+CONFIG_INPUT_MOUSEDEV=y
+CONFIG_INPUT_EVDEV=y
+CONFIG_SOUND_GAMEPORT=y
+CONFIG_SERIO=y
+CONFIG_SERIO_I8042=y
+CONFIG_INPUT_KEYBOARD=y
+CONFIG_KEYBOARD_ATKBD=y
+CONFIG_VT=y
+CONFIG_VT_CONSOLE=y
+CONFIG_HW_CONSOLE=y
+CONFIG_SERIAL_8250=y
+CONFIG_SERIAL_8250_CONSOLE=y
+CONFIG_SERIAL_8250_ACPI=y
+CONFIG_SERIAL_CORE=y
+CONFIG_SERIAL_CORE_CONSOLE=y
+CONFIG_UNIX98_PTYS=y
+CONFIG_I2C=y
+CONFIG_I2C_CHARDEV=y
+CONFIG_I2C_VIAPRO=y
+CONFIG_SENSORS_W83781D=y
+CONFIG_I2C_SENSOR=y
+CONFIG_AGP=y
+CONFIG_AGP_SIS=y
+CONFIG_AGP_VIA=y
+CONFIG_DRM=y
+CONFIG_DRM_R128=y
+CONFIG_EXT2_FS=y
+CONFIG_XFS_FS=y
+CONFIG_ISO9660_FS=y
+CONFIG_JOLIET=y
+CONFIG_FAT_FS=y
+CONFIG_MSDOS_FS=y
+CONFIG_VFAT_FS=y
+CONFIG_PROC_FS=y
+CONFIG_DEVFS_FS=y
+CONFIG_DEVPTS_FS=y
+CONFIG_TMPFS=y
+CONFIG_RAMFS=y
+CONFIG_NFSD=y
+CONFIG_NFSD_V3=y
+CONFIG_LOCKD=y
+CONFIG_LOCKD_V4=y
+CONFIG_EXPORTFS=y
+CONFIG_SUNRPC=y
+CONFIG_MSDOS_PARTITION=y
+CONFIG_NLS=y
+CONFIG_NLS_CODEPAGE_437=y
+CONFIG_NLS_ISO8859_1=y
+CONFIG_FB=y
+CONFIG_VIDEO_SELECT=y
+CONFIG_FB_ATY128=y
+CONFIG_VGA_CONSOLE=y
+CONFIG_DUMMY_CONSOLE=y
+CONFIG_FRAMEBUFFER_CONSOLE=y
+CONFIG_PCI_CONSOLE=y
+CONFIG_FONT_8x8=y
+CONFIG_FONT_8x16=y
+CONFIG_LOGO=y
+CONFIG_LOGO_LINUX_CLUT224=y
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_VIA82XX=y
+CONFIG_USB=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_DYNAMIC_MINORS=y
+CONFIG_USB_EHCI_HCD=y
+CONFIG_USB_OHCI_HCD=y
+CONFIG_USB_UHCI_HCD=y
+CONFIG_USB_PRINTER=y
+CONFIG_USB_STORAGE=y
+CONFIG_USB_HID=y
+CONFIG_USB_HIDINPUT=y
+CONFIG_USB_USBNET=y
+CONFIG_USB_CDCETHER=y
+CONFIG_DEBUG_KERNEL=y
+CONFIG_MAGIC_SYSRQ=y
+CONFIG_X86_EXTRA_IRQS=y
+CONFIG_X86_FIND_SMP_CONFIG=y
+CONFIG_X86_MPPARSE=y
+CONFIG_X86_BIOS_REBOOT=y
 

@@ -1,79 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264679AbSLWMHm>; Mon, 23 Dec 2002 07:07:42 -0500
+	id <S264756AbSLWMJf>; Mon, 23 Dec 2002 07:09:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264711AbSLWMHm>; Mon, 23 Dec 2002 07:07:42 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:55347 "EHLO
+	id <S264799AbSLWMJf>; Mon, 23 Dec 2002 07:09:35 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:56363 "EHLO
 	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id <S264679AbSLWMHl>; Mon, 23 Dec 2002 07:07:41 -0500
-Date: Mon, 23 Dec 2002 13:15:42 +0100
-Subject: Re: Read this and be ashamed ;) or: Awfull performance loss since 2.4.18 to 2.4.21-pre2
+	id <S264756AbSLWMJd>; Mon, 23 Dec 2002 07:09:33 -0500
+Date: Mon, 23 Dec 2002 13:17:35 +0100
+Subject: Re: OT: Which Gigabit ethernet card?
 Content-Type: text/plain; charset=US-ASCII; format=flowed
 Mime-Version: 1.0 (Apple Message framework v548)
-Cc: linux-kernel@vger.kernel.org
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+Cc: <linux-kernel@vger.kernel.org>
+To: "Sampson Fung" <sampson@attglobal.net>
 From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-In-Reply-To: <200212221439.28075.m.c.p@wolk-project.de>
-Message-Id: <41E779BC-1670-11D7-A27C-000393950CC2@karlsbakk.net>
+In-Reply-To: <000601c2a916$599bc2b0$0100a8c0@noelpc>
+Message-Id: <854C62E2-1670-11D7-A27C-000393950CC2@karlsbakk.net>
 Content-Transfer-Encoding: 7bit
 X-Mailer: Apple Mail (2.548)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
+yes, but be careful, as cat 5e is pretty tough when it comes to the 
+connector specs
 
-What disk/controller is this?
+roy
 
-On Sunday, December 22, 2002, at 02:47 PM, Marc-Christian Petersen 
-wrote:
+On Saturday, December 21, 2002, at 06:28 PM, Sampson Fung wrote:
 
-> Hi all,
+> Can I just use a standard Cross Over UTP cable to link up two Intel
+> Gigabit card, just like Fast Ethernet does?
 >
-> not much to say about, just read. All are vanilla kernels w/o any 
-> patch.
+> Sampson Fung
+> sampson@attglobal.net
 >
-> /dev/hda5 on /home type ext3 (rw,data=ordered)
-> /dev/hda5             10080488    731488   8836932   8% /home
->
-> UDMA100 IDE Drive, DMA is on. All these runs were done right after 
-> bootup.
-> Mashine is a Celeron 1,3GHz, 512MB RAM, 512MB SWAP.
->
-> root@codeman:[/] # uname -r
-> 2.4.18
-> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 
-> count=131072
-> 131072+0 records in
-> 131072+0 records out
-> 2147483648 bytes transferred in 119.140681 seconds (18024772 bytes/sec)
-> root@codeman:[/] #
->
-> root@codeman:[/] # uname -r
-> 2.4.19
-> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 
-> count=131072
-> 131072+0 records in
-> 131072+0 records out
-> 2147483648 bytes transferred in 140.305836 seconds (15305733 bytes/sec)
->
-> root@codeman:[/] # uname -r
-> 2.4.20
-> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 
-> count=131072
-> 131072+0 records in
-> 131072+0 records out
-> 2147483648 bytes transferred in 172.327570 seconds (12461637 bytes/sec)
->
-> root@codeman:[/] # uname -r
-> 2.4.21-pre2
-> root@codeman:[/] # dd if=/dev/zero of=/home/largefile bs=16384 
-> count=131072
-> 131072+0 records in
-> 131072+0 records out
-> 2147483648 bytes transferred in 177.743959 seconds (12081894 bytes/sec)
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Jurgen Kramer
+> Sent: Saturday, December 21, 2002 8:43 PM
+> To: linux-kernel@vger.kernel.org
+> Subject: Re: OT: Which Gigabit ethernet card?
 >
 >
-> ciao, Marc
+> Thanks! I am going to try the Intel card.
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org More majordomo
+> info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
 > -
 > To unsubscribe from this list: send the line "unsubscribe 
 > linux-kernel" in

@@ -1,33 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317668AbSGaDIV>; Tue, 30 Jul 2002 23:08:21 -0400
+	id <S317672AbSGaDMN>; Tue, 30 Jul 2002 23:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317672AbSGaDIV>; Tue, 30 Jul 2002 23:08:21 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:48141 "EHLO
+	id <S317674AbSGaDMN>; Tue, 30 Jul 2002 23:12:13 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49933 "EHLO
 	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S317668AbSGaDIV>; Tue, 30 Jul 2002 23:08:21 -0400
-Date: Tue, 30 Jul 2002 23:05:58 -0400 (EDT)
+	id <S317672AbSGaDMM>; Tue, 30 Jul 2002 23:12:12 -0400
+Date: Tue, 30 Jul 2002 23:08:19 -0400 (EDT)
 From: Bill Davidsen <davidsen@tmr.com>
-To: zhengchuanbo <zhengcb@netpower.com.cn>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: can the driver e100 be applied in 2.4?
-In-Reply-To: <200207291425517.SM00792@zhengcb>
-Message-ID: <Pine.LNX.3.96.1020730230310.6974D-100000@gatekeeper.tmr.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+cc: Rik van Riel <riel@conectiva.com.br>, Andrea Arcangeli <andrea@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Theurer <habanero@us.ibm.com>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: Linux 2.4.19-rc3 (hyperthreading)
+In-Reply-To: <20020730000912.GA6406@714-cm.cps.unizar.es>
+Message-ID: <Pine.LNX.3.96.1020730230654.6974E-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 29 Jul 2002, zhengchuanbo wrote:
+On Tue, 30 Jul 2002, J.A. Magallon wrote:
 
+> How about this version (gcc-3.2 generates the same amount of assembler):
+
+Now *that* is readable code!
+ 
+> int find(int this_cpu)
+> {
+>     int i;
 > 
-> in linux2.5 there is a new driver e100 to replace eepro100. is e100 better than eepro100 in performance such as throughput? and can the driver e100 be applied in 2.4?
-> please cc. thanks.
-
-You should be able to pull the code from Intel and compile it for your 2.4
-kernel. I have done that, and it was so free of tricks all I remember is
-the compile and 'make install.' I have not tried the 2.5 code, I got the
-Intel source.
+>     for (   i = (this_cpu+1)%smp_num_cpus;
+>             i != this_cpu;
+>             i = (i+1)%smp_num_cpus  )
+>     {
+>         int physical = cpu_logical_map(i);
+>         int sibling = cpu_sibling_map[physical];
+> 
+>         if (idle_cpu(physical) && idle_cpu(sibling))
+>             return physical;
+>     }
+>     return -1;
+> }
 
 -- 
 bill davidsen <davidsen@tmr.com>

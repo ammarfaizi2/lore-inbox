@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262672AbVCCXQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262761AbVCDCyy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262672AbVCCXQc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 18:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262634AbVCCW74
+	id S262761AbVCDCyy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 21:54:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262757AbVCDCyo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 17:59:56 -0500
-Received: from gate.crashing.org ([63.228.1.57]:9439 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262679AbVCCW4E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 17:56:04 -0500
-Subject: Re: [PATCH 2/3] openfirmware: adds sysfs nodes for
-	openfirmware	devices
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <42275536.8060507@suse.com>
-References: <20050301211824.GC16465@locomotive.unixthugs.org>
-	 <1109806334.5611.121.camel@gaston>  <42275536.8060507@suse.com>
-Content-Type: text/plain
-Date: Fri, 04 Mar 2005 09:52:56 +1100
-Message-Id: <1109890376.5679.236.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+	Thu, 3 Mar 2005 21:54:44 -0500
+Received: from krusty.vfxcomputing.com ([66.92.20.10]:6285 "EHLO
+	krusty.vfxcomputing.com") by vger.kernel.org with ESMTP
+	id S262761AbVCDCvF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 21:51:05 -0500
+Date: Thu, 3 Mar 2005 21:50:22 -0500 (EST)
+From: Mark Canter <marcus@vfxcomputing.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: rlrevell@joe-job.com, nish.aravamudan@gmail.com, drzeus-list@drzeus.cx,
+       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
+Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
+In-Reply-To: <20050303154929.1abd0a62.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0503032146580.21844@krusty.vfxcomputing.com>
+References: <4227085C.7060104@drzeus.cx> <29495f1d05030309455a990c5b@mail.gmail.com>
+ <Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>
+ <1109875926.2908.26.camel@mindpipe> <Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>
+ <1109876978.2908.31.camel@mindpipe> <Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com>
+ <20050303154929.1abd0a62.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Reviewing the 'compatible' values in my device-tree, I definately agree.
-> I can hack the pmac_zilog driver to test this out further - I've just
-> been using my airport card.
-> 
-> Are there any other "invalid" characters for the compatible property?
-> CRLF would work, but these values (as a group) need to be put into
-> modules.ofmap as well as passed via environment variables for hotplug.
-> As such, CRLF isn't really easiest choice to work with.
+Yes, flipping back to the 2.6.10 kernel resolves the sound issue through 
+the docking station so that everything runs without incident.  Though I'd 
+like to see/assist in resolving the issue for future releases :).
 
-I don't think any value is "invalid". Not sure what is best to use ...
-maybe '#' ? never seen it in there so far ... but who knows ...
+On Thu, 3 Mar 2005, Andrew Morton wrote:
 
-> Is whitespace (in any form) allowed in the compatible value?
-
-Yes. For example: "Power Macintosh" is a typical compatible value in the
-root of the devive tree.
-
-Maybe "tab" ?
-
-Ben.
-
-
+> Mark Canter <marcus@vfxcomputing.com> wrote:
+>>
+>>
+>> To close this issue out of the LKML and alsa-devel, a bug report has been
+>> written.
+>>
+>> It appears to be an issue with the 'headphone jack sense' (as kde labels
+>> it).  The issue is in the way the 8x0 addresses the docking station/port
+>> replicator's audio output jack.  The mentioned quick fix does not work for
+>> using the ds/pr audio output, but does resolve it for a user that is only
+>> using headphones/internal speakers.
+>
+> But there was a behavioural change: applications which worked in 2.6.10
+> don't work in 2.6.11, is that correct?
+>
+> If so, the best course of action is to change the kernel so those
+> applications work again.  Can that be done?
+>

@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262854AbTIQWEo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Sep 2003 18:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262857AbTIQWEo
+	id S262859AbTIQWG4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Sep 2003 18:06:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262862AbTIQWGz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Sep 2003 18:04:44 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:31492 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S262854AbTIQWEm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Sep 2003 18:04:42 -0400
-Subject: Re: 2.6.0-test5 oops at boot
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: bertrand <bert@ovh.net>
-Cc: kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030917210545.GS1758@ovh.net>
-References: <20030917210545.GS1758@ovh.net>
-Content-Type: text/plain
-Message-Id: <1063836276.1579.10.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Thu, 18 Sep 2003 00:04:37 +0200
-Content-Transfer-Encoding: 7bit
+	Wed, 17 Sep 2003 18:06:55 -0400
+Received: from [128.123.64.160] ([128.123.64.160]:54944 "EHLO
+	hongkong.cs.nmsu.edu") by vger.kernel.org with ESMTP
+	id S262859AbTIQWGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Sep 2003 18:06:54 -0400
+Date: Wed, 17 Sep 2003 16:06:47 -0600
+From: Ross Combs <rocombs@cs.nmsu.edu>
+Message-Id: <200309172206.h8HM6l68019449@hongkong.cs.nmsu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: link failure on 2.4.22 sparc64
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-09-17 at 23:05, bertrand wrote:
-> Hello all,
-> 
-> I tried several times to boot a 2.6 on my athlon .
-> The 2.5 series looked to be fined, but i cannot boot the 2.6 one .
+I've noticed two problems compiling 2.4.22.
 
-Hi!
+1) make xconfig doesn't like the font selection options.
+   You can't select yes or no.  The other config programs
+   worked fine.
 
-If you can consistently reproduce the bug, I recommend you to fill in a
-bug report at http://bugzilla.kernel.org. That way, it will be formally
-stored and processed and won't be passed by on a mailing list like this
-with so much traffic.
+2) If sysctl support is not selected everything compiles
+   fine but the final link fails:
+arch/sparc64/kernel/kernel.o: In function `sys32_sysctl':
+arch/sparc64/kernel/kernel.o(.text+0x1a228): undefined reference to `do_sysctl'
 
-Thanks!
+It looks like the 32-bit compatibility wrapper for sysctl
+needs to be conditionalized on CONFIG_SYSCTL.
 
+Thanks,
+-Ross

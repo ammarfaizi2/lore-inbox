@@ -1,60 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269621AbTHQMvE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Aug 2003 08:51:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269628AbTHQMvE
+	id S270003AbTHQNIE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Aug 2003 09:08:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270007AbTHQNIE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Aug 2003 08:51:04 -0400
-Received: from natsmtp00.webmailer.de ([192.67.198.74]:47581 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP id S269621AbTHQMvB
+	Sun, 17 Aug 2003 09:08:04 -0400
+Received: from smtp.actcom.co.il ([192.114.47.13]:53466 "EHLO
+	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S270003AbTHQNIA
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Aug 2003 08:51:01 -0400
-Message-ID: <3F3F7A79.1060404@softhome.net>
-Date: Sun, 17 Aug 2003 14:52:09 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dumb question: Why are exceptions such as SIGSEGV not logged
-References: <lg0i.6yo.11@gated-at.bofh.it> <lgjJ.6Oo.5@gated-at.bofh.it> <lilr.p2.7@gated-at.bofh.it> <lj7O.14a.1@gated-at.bofh.it>
-In-Reply-To: <lj7O.14a.1@gated-at.bofh.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Aug 2003 09:08:00 -0400
+Date: Sun, 17 Aug 2003 16:07:54 +0300
+From: Muli Ben-Yehuda <mulix@mulix.org>
+To: Dominik Strasser <Dominik.Strasser@t-online.de>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scsi.h uses "u8" which isn't defined.
+Message-ID: <20030817130754.GS27888@actcom.co.il>
+References: <3F3F782C.2030902@t-online.de> <20030817134633.A7881@infradead.org> <3F3F7E67.2040506@t-online.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JkgDhDyNm4zanevS"
+Content-Disposition: inline
+In-Reply-To: <3F3F7E67.2040506@t-online.de>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> On Sul, 2003-08-17 at 00:06, David D. Hagood wrote:
-> 
->>>Your logfiles just got DoS'ed....
->>
->>
->>Why not then just log uncaught exceptions?
-> 
-> 
-> man acct
-> 
 
-     Sorry, probably I'm missing smth. man acct(2) says:
+--JkgDhDyNm4zanevS
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-     "DESCRIPTION
-     "When  called  with the name of an existing file as argument, 
-ccounting is turned on, records for each  terminating  process  are 
-appended  to filename as it terminates.  An argument of NULL causes 
-accounting to be turned off".
+On Sun, Aug 17, 2003 at 03:08:55PM +0200, Dominik Strasser wrote:
 
-     I do not see how it relates to abends.
-     It logs _everything_, what is not that useful. Having some kind of 
-filter what to log - whould be just great. Or alternatively ability to 
-pass file descriptor - not file name.
+> I am sorry, in 2.6.0-test3 (which I should have mentioned), there is no=
+=20
+> u8 in liux/types.h. Just a __u8.
 
-     And this mysterious NOTES:
+linux/types.h brings in asm/types.h, which (at least on x86) defines
+u8, ifndef __ASSEMBLY__.=20
+--=20
+Muli Ben-Yehuda
+http://www.mulix.org
 
-     "No accounting is produced for programs running when a crash 
-occurs.  In particular, nonterminating processes are never accounted for".
 
-     Sounds like acct() does reverse? No crashes are logged.
-     Or it is about Linux crash?
+--JkgDhDyNm4zanevS
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/P34qKRs727/VN8sRAqQ2AJ4thtJkfn3Wie8G838Po0HFZ/GofwCgqfG+
+TJhjySTqfseYmIrzsRsxRTE=
+=xLLx
+-----END PGP SIGNATURE-----
+
+--JkgDhDyNm4zanevS--

@@ -1,64 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbUCaQQp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 11:16:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262050AbUCaQQp
+	id S262045AbUCaQTG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 11:19:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbUCaQTG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 11:16:45 -0500
-Received: from mailgate4.cinetic.de ([217.72.192.167]:16613 "EHLO
-	mailgate4.cinetic.de") by vger.kernel.org with ESMTP
-	id S262022AbUCaQOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 11:14:39 -0500
-Message-ID: <406AECD1.3010409@web.de>
-Date: Wed, 31 Mar 2004 18:07:45 +0200
-From: Marcus Hartig <m.f.h@web.de>
-Organization: Linux of Borgs
-User-Agent: Mozilla Thunderbird 0.5+ (X11/20040323)
-X-Accept-Language: en-us, en
+	Wed, 31 Mar 2004 11:19:06 -0500
+Received: from hellhawk.shadowen.org ([212.13.208.175]:63761 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S262051AbUCaQRt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 11:17:49 -0500
+Date: Wed, 31 Mar 2004 17:20:53 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Ray Bryant <raybry@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+cc: anton@samba.org, sds@epoch.ncsc.mil, ak@suse.de,
+       lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
+Subject: RE: [PATCH] [0/6] HUGETLB memory commitment
+Message-ID: <21167116.1080753653@42.150.104.212.access.eclipse.net.uk>
+In-Reply-To: <200403310851.i2V8pkF28306@unix-os.sc.intel.com>
+References: <200403310851.i2V8pkF28306@unix-os.sc.intel.com>
+X-Mailer: Mulberry/3.1.2 (Win32)
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] speed up SATA
-References: <406A5B6E.8050302@web.de> <406A6B87.801@pobox.com>
-In-Reply-To: <406A6B87.801@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+--On 31 March 2004 00:51 -0800 "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+wrote:
 
-> Can you post the relevant 'dmesg' output?
+>>>>> Andy Whitcroft wrote on Tuesday, March 30, 2004 5:49 PM
+>>>> 	fd = open("/mnt/htlb/myhtlbfile", O_CREAT|O_RDWR, 0755);
+>>>> 	mmap(..., fd, offset);
+>>>> 
+>>>> Accounting didn't happen in this case, (grep Huge /proc/meminfo):
+>> 
+>> O.k.  Try this one.  Should fix that case.  There is some uglyness in
+>> there which needs review, but my testing says this works.
+> 
+> Under common case, worked perfectly!  But there are always corner cases.
+> 
+> I can think of two ugliness:
+> 1. very sparse hugetlb file.  I can mmap one hugetlb page, at offset
+>    512 GB.  This would account 512GB + 1 hugetlb page as committed_AS.
+>    But I only asked for one page mapping.  One can say it's a feature,
+>    but I think it's a bug.
 
-Linux version 2.6.5-rc3-mm1 (cowboy@redtuxi) (gcc-Version 3.3.3 20040311 
-(Red Hat Linux 3.3.3-3))
-...
-Kernel command line: ro root=/dev/sda1 doataraid noraid acpi=off rhgb
-...
-libata version 1.02 loaded.
-sata_sil version 0.54
-ata1: SATA max UDMA/100 cmd 0xE0800080 ctl 0xE080008A bmdma 0xE0800000 irq 4
-ata2: SATA max UDMA/100 cmd 0xE08000C0 ctl 0xE08000CA bmdma 0xE0800008 irq 4
-ata1: dev 0 cfg 49:2f00 82:7c6b 83:7b09 84:4003 85:7c69 86:3a01 87:4003 
-88:207f
-ata1: dev 0 ATA, max UDMA/133, 160086528 sectors
-ata1: dev 0 configured for UDMA/100
-scsi0 : sata_sil
-ata2: no device found (phy stat 00000000)
-ata2: thread exiting
-scsi1 : sata_sil
-   Vendor: ATA       Model: Maxtor 6Y080M0    Rev: 1.02
-   Type:   Direct-Access                      ANSI SCSI revision: 05
-ata1: dev 0 max request 128K
-SCSI device sda: 160086528 512-byte hdwr sectors (81964 MB)
-SCSI device sda: drive cache: write through
-  sda: sda1 sda2 sda3 sda4 < sda5 >
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-------------------%<------------------------------------
+Yes.  This is true.  This is consistent with the preallocation behaviour of
+shared memory segments, but inconsistent with the behaviour of mmap'ing
+/dev/zero which it essentially emulates.  This is not trival to fix as we
+do not get informed when the unmap occurs.  Accounting for normal pages is
+handled directly by the VM unmap code.  I think I have found a way to track
+these but it does blur the interfaces between the hugetlbfs and hugepage
+implementations.
 
-Also my Maxtor is now configured for UDMA/100. With earlier versions of 
-libata/sata_sil it was UDMA/133 wo any problems. The performance is now 
-dropped a little bit from ~52MB to ~48MB with hdparm.
-Best regards,
+There are a number of other 'bugs' in the implementation of hugetlb.  For
+example, the MAP_SHARED/MAP_PRIVATE flags are ignored, behaviour is
+identical in both cases.
 
-Marcus
+> 2. There is no error checking (to undo the committed_AS accounting) after
+>    hugetlb_prefault(). hugetlb_prefault doesn't always succeed in allocat-
+>    ing all the pages user asked for due to disk quota limit.  It can have
+>    partial allocation which would put the committed_AS in a wedged state.
+
+True, this needs work on the interface to the quota system in hugetlbfs.
+We essentially need to check the quota before we attempt to fault any
+pages.  I'll change it around see how it looks.
+
+Expect new patches tomorrow ...
+
+-apw
+
+

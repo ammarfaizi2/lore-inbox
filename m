@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276271AbRJGKH1>; Sun, 7 Oct 2001 06:07:27 -0400
+	id <S276275AbRJGKMH>; Sun, 7 Oct 2001 06:12:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276275AbRJGKHS>; Sun, 7 Oct 2001 06:07:18 -0400
-Received: from maile.telia.com ([194.22.190.16]:30166 "EHLO maile.telia.com")
-	by vger.kernel.org with ESMTP id <S276271AbRJGKHI>;
-	Sun, 7 Oct 2001 06:07:08 -0400
-Date: Sun, 7 Oct 2001 12:02:08 +0200
-From: acc <acc@acc.hn.org>
-To: linux-kernel@vger.kernel.org
-Subject: eepro100 net drivers
-Message-Id: <20011007120208.5a426ef2.acc@acc.hn.org>
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S276278AbRJGKL5>; Sun, 7 Oct 2001 06:11:57 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:40452 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276275AbRJGKLs>; Sun, 7 Oct 2001 06:11:48 -0400
+Subject: Re: eepro100 net drivers
+To: acc@acc.hn.org (acc)
+Date: Sun, 7 Oct 2001 11:17:33 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20011007120208.5a426ef2.acc@acc.hn.org> from "acc" at Oct 07, 2001 12:02:08 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E15qB01-0005Qh-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am using the eepro100 drivers for my network-card
-and it makes my ethernet connection halting when I am
-downloading big file, > ~1.5.
+> I have noticed that I only have this problem when my X is
+> running. When my X is shutdown I dont have any problems.
+> I downloaded and tested the latest stable kernel 2.4.10, but
+> it still dont work.
+> 
+> I havn't found any solution for this problem, does anyone
+> known what the problem is ?
 
-When the connection is halted I'll get this message
-every second untill it works again:
+Intel no doubt have a lovely list of errata but they aren't sharing them.
 
-eepro100: wait_for_cmd_done timeout!
+The -ac tree eepro100.c does have a couple of fixes I've now sent on to 
+Linus to do with needed delays and a workaround for a problem with one
+chip variant when running 10Mbit half duplex.
 
-I have noticed that I only have this problem when my X is
-running. When my X is shutdown I dont have any problems.
-I downloaded and tested the latest stable kernel 2.4.10, but
-it still dont work.
+That driver might help. If you want to test it you only need to apply
+the drivers/net/eepro100* part of the -ac patch just for that.
 
-I havn't found any solution for this problem, does anyone
-known what the problem is ?
-
-/Johan Nilsson
+Alan

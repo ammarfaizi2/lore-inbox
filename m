@@ -1,58 +1,83 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315980AbSEGXRG>; Tue, 7 May 2002 19:17:06 -0400
+	id <S315988AbSEGXSt>; Tue, 7 May 2002 19:18:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315988AbSEGXRF>; Tue, 7 May 2002 19:17:05 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:9416 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S315980AbSEGXRC>;
-	Tue, 7 May 2002 19:17:02 -0400
-To: "Clifford White" <ctwhite@us.ibm.com>
-cc: linux-kernel@vger.kernel.org, oliendm@us.ibm.com
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: x86 question: Can a process have > 3GB memory? 
-In-Reply-To: Your message of Tue, 07 May 2002 16:03:09 PDT.
-             <OF4EFD903E.F8196584-ON87256BB2.007DEC69@boulder.ibm.com> 
+	id <S315990AbSEGXSs>; Tue, 7 May 2002 19:18:48 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:51198 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S315988AbSEGXRf>; Tue, 7 May 2002 19:17:35 -0400
+Date: Tue, 07 May 2002 17:14:19 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Adrian Bunk <bunk@fs.tum.de>, Dave Jones <davej@suse.de>,
+        Brian Gerst <bgerst@didntduck.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.14-dj1: misc.o: undefined reference to `__io_virt_debug'
+Message-ID: <287160000.1020816859@flay>
+In-Reply-To: <283120000.1020814945@flay>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <18570.1020816986.1@us.ibm.com>
-Date: Tue, 07 May 2002 17:16:26 -0700
-Message-Id: <E175F87-0004pa-00@w-gerrit2>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Cliff, we are planning to implement virtwin() if you remember
-that from PTX.  AWE on NT was derived from the same work.  There
-should soon be some discussion about it on lse-tech@lists.sourceforge.net
-or I can give you some more data...
+>>> Compiling misc.c with -O0 gives a better error message:
+>>> 
+>>> <--  snip  -->
+>>> 
+>>> ...
+>>> ld -m elf_i386 -Ttext 0x100000 -e startup_32 -o bvmlinux head.o misc.o
+>>> piggy.o
+>>> misc.o: In function `outb_quad':
+>>> misc.o(.text+0x289c): undefined reference to `__io_virt_debug'
+>>> make[2]: *** [bvmlinux] Error 1
+>>> make[2]: Leaving directory
+>>> `/home/bunk/linux/kernel-2.5/linux-2.5.14-modular/arch/i386/boot/compressed'
+>> 
+>> Seems like you're not linking in lib/iodebug.c for some reason.
+>> 
+>> outb_quad calls readb, which calls __io_virt, which calls __io_virt_debug,
+>> which is defined in iodebug.c
+> 
+> Does this fix it ? (completely untested, and against an old version ... sorry).
 
-Worked for Oracle, should be good for large scientific apps, might
-work for other piggy server applications as well.
+There was a typo in this between outb_p_local and outb_local_p inconsistency
+fixed below:
 
-gerrit
+--- virgin-2.5.9-dj1/arch/i386/boot/compressed/misc.c	Mon Apr 22 15:29:26 2002
++++ virgin-2.5.9-dj1/arch/i386/boot/compressed/misc.c.local	Tue May  7 16:39:39 2002
+@@ -202,10 +202,10 @@
+ 	SCREEN_INFO.orig_y = y;
+ 
+ 	pos = (x + cols * y) * 2;	/* Update cursor position */
+-	outb_p(14, vidport);
+-	outb_p(0xff & (pos >> 9), vidport+1);
+-	outb_p(15, vidport);
+-	outb_p(0xff & (pos >> 1), vidport+1);
++	outb_local_p(14, vidport);
++	outb_local_p(0xff & (pos >> 9), vidport+1);
++	outb_local_p(15, vidport);
++	outb_local_p(0xff & (pos >> 1), vidport+1);
+ }
+ 
+ static void* memset(void* s, int c, size_t n)
+--- virgin-2.5.9-dj1/include/asm-i386/io.h	Tue Apr 23 14:19:39 2002
++++ virgin-2.5.9-dj1/include/asm-i386/io.h.local	Tue May  7 16:38:56 2002
+@@ -371,6 +371,15 @@
+ 	__asm__ __volatile__("in" #bwl " %w1, %" #bw "0" : "=a"(value) : "Nd"(port)); \
+ 	return value; \
+ } \
++static inline void out##bwl##_local_p(unsigned type value, int port) { \
++	out##bwl##_local(value, port); \
++	slow_down_io(); \
++} \
++static inline unsigned type in##bwl##_local_p(int port) { \
++	unsigned type value = in##bwl##_local(port); \
++	slow_down_io(); \
++	return value; \
++} \
+ __BUILDIO(bwl,bw,type) \
+ static inline void out##bwl##_p(unsigned type value, int port) { \
+ 	out##bwl(value, port); \
 
-In message <OF4EFD903E.F8196584-ON87256BB2.007DEC69@boulder.ibm.com>, > : "Clif
-ford White" writes:
-> 
-> We are working with a database that requires a large amount of memory
-> allocated by a single process.
-> This is on an Intel 32-bit platform.
-> We'd like to go > 3GB of memory per process.
-> Is this possible on a 32-bit machine? I have been reading the various
-> 'highmem' discussions, but that's kernel page tables...
-> Or is this a glibc issue, and not proper for a kernel-list question?
-> Any pointers would be appreciated. The Intel ESMA (Extended Server Memory
-> Arch) page states that it's possible, but.....how?
-> 
-> cliffw
-> NUMA-Q
-> Technical Guy
-> 1-503-578-4306
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 

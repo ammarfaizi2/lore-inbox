@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267504AbTACL17>; Fri, 3 Jan 2003 06:27:59 -0500
+	id <S267497AbTACL0P>; Fri, 3 Jan 2003 06:26:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267505AbTACL17>; Fri, 3 Jan 2003 06:27:59 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12173
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267504AbTACL16>; Fri, 3 Jan 2003 06:27:58 -0500
-Subject: Re: Linux v2.5.54
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: SZALAY Attila <sasa@pheniscidae.tvnetwork.hu>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030103110418.GD7661@sasa.home>
-References: <20030102103422.GB24116@sasa.home>
-	<Pine.LNX.4.33L2.0301020745260.22868-100000@dragon.pdx.osdl.net>
-	<20030103093250.GC7661@sasa.home>  <20030103110418.GD7661@sasa.home>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 03 Jan 2003 12:19:08 +0000
-Message-Id: <1041596348.27024.16.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S267500AbTACL0O>; Fri, 3 Jan 2003 06:26:14 -0500
+Received: from mailgw.cvut.cz ([147.32.3.235]:9859 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id <S267497AbTACL0N>;
+	Fri, 3 Jan 2003 06:26:13 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Andy Chou <acc@CS.Stanford.EDU>
+Date: Fri, 3 Jan 2003 12:34:51 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: [CHECKER] 24 more buffer overruns in 2.5.48
+Cc: alan@lxorguk.ukuu.org.uk,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mc@cs.stanford.edu
+X-mailer: Pegasus Mail v3.50
+Message-ID: <C2B6EB553C4@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-01-03 at 11:04, SZALAY Attila wrote:
-> Now I unset I2O completely to try compile new kernel.
-> 
-> But I have another problem.
-> 
-> make -f scripts/Makefile.build obj=drivers/scsi/pcmcia
->   gcc -Wp,-MD,drivers/scsi/pcmcia/.aha152x_stub.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=aha152x_stub -DKBUILD_MODNAME=aha152x_cs   -c -o drivers/scsi/pcmcia/aha152x_stub.o drivers/scsi/pcmcia/aha152x_stub.c
-> make[4]: *** No rule to make target `drivers/scsi/pcmcia/aha152x.s', needed by `drivers/scsi/pcmcia/aha152x.o'.  Stop.
->
-The pcmcia scsi makefiles are broken. Its been reported repeatedly to
-the folks who broke the makefiles but nobody has fixed it. I have a hack
-for this but its versus 2.5.49/2.5.50
+On  2 Jan 03 at 19:06, Andy Chou wrote:
+> > > void do_install_cmap(int con, struct fb_info *info)
+> > > {
+> > >     if (con != info->currcon)
+> > >     return;
+> > 
+> > currcon can never be -1. I don't think the compiler can ever deduce that
+> > detail though.
 
-Alan
+With matroxfb (and dozen of other fbdevs) currcon can be -1 (with matroxfb
+currcon can be even -2 during probe, so con != info->currcon tests always
+fail...) when there is no VT attached to the fbdev. That's why matroxfb
+uses my_install_cmap instead of generic one.
+
+It should be no issue in 2.5.54 though, as there is no install_cmap 
+anymore...
+                                                    Petr Vandrovec
+                                                    

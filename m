@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269269AbTGXOhF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 10:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271330AbTGXOhF
+	id S271330AbTGXOmV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 10:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271419AbTGXOmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 10:37:05 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:30984 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S269269AbTGXOhE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 10:37:04 -0400
-Subject: Re: SCO offers UnixWare licenses for Linux
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Diego Calleja =?ISO-8859-1?Q?Garc=EDa?= <diegocg@teleline.es>
-Cc: Michael Bernstein <michael@seven-angels.net>, gmicsko@szintezis.hu,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030721205940.7190f845.diegocg@teleline.es>
-References: <1058807414.513.4.camel@sunshine>
-	 <141DFFFA-BBA4-11D7-A61F-000A95773C00@seven-angels.net>
-	 <20030721205940.7190f845.diegocg@teleline.es>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1059058329.957.11.camel@teapot.felipe-alfaro.com>
+	Thu, 24 Jul 2003 10:42:21 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:23288 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S271330AbTGXOmU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jul 2003 10:42:20 -0400
+Subject: Re: [uClinux-dev] Kernel 2.6 size increase - get_current()?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David McCullough <davidm@snapgear.com>
+Cc: Bernardo Innocenti <bernie@develer.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       "David S. Miller" <davem@redhat.com>, uclinux-dev@uclinux.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg Ungerer <gerg@snapgear.com>
+In-Reply-To: <20030724120441.GC16168@beast>
+References: <200307232046.46990.bernie@develer.com>
+	 <200307240035.38502.bernie@develer.com>
+	 <1058999786.6890.21.camel@dhcp22.swansea.linux.org.uk>
+	 <200307240100.00632.bernie@develer.com> <20030724050655.GA11947@beast>
+	 <1059046125.7993.11.camel@dhcp22.swansea.linux.org.uk>
+	 <20030724120441.GC16168@beast>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1059058118.7998.15.camel@dhcp22.swansea.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3.99 
-Date: Thu, 24 Jul 2003 16:52:09 +0200
-Content-Transfer-Encoding: 8bit
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Jul 2003 15:48:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-07-21 at 20:59, Diego Calleja García wrote:
-> El Mon, 21 Jul 2003 13:52:21 -0400 Michael Bernstein <michael@seven-angels.net> escribió:
+On Iau, 2003-07-24 at 13:04, David McCullough wrote:
+> So should the trend be away from inlining,  especially larger functions ?
 > 
-> > To put it simply, just because they "may,"  - and I say may here simply 
-> > because we have no evidence to prove their claims but cannot flatly 
-> > deny them - own the rights to Sys V, does NOT mean they own the right 
-> 
-> So they want to sell us something that still hasn't proved....cool.
+> I know on m68k some of the really simple inlines are actually smaller as
+> an inline than as a function call.  But they have to be very simple,  or
+> only used once.
 
-And can be rewritten from scratch if necessary... They're crazy!
+Cool. As to trends well there are two conflicting ones - less inlines but
+also more code because of adding fast paths to cut conditions down on normal
+sequences of execution.
+
 

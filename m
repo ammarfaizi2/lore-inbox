@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272135AbTHDVry (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 17:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272244AbTHDVqw
+	id S271825AbTHDVkI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 17:40:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272050AbTHDVkI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 17:46:52 -0400
-Received: from rj.sgi.com ([192.82.208.96]:24019 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S272226AbTHDVpb (ORCPT
+	Mon, 4 Aug 2003 17:40:08 -0400
+Received: from fw.osdl.org ([65.172.181.6]:30681 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S271825AbTHDVkE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 17:45:31 -0400
-Date: Mon, 4 Aug 2003 14:44:12 -0700
-To: Andrew Morton <akpm@osdl.org>
+	Mon, 4 Aug 2003 17:40:04 -0400
+Date: Mon, 4 Aug 2003 14:41:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: jbarnes@sgi.com (Jesse Barnes)
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] make lookup_create non-static
-Message-ID: <20030804214412.GA1788@sgi.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
-References: <20030804213543.GA1697@sgi.com> <20030804144129.3dfe4aac.akpm@osdl.org>
+Message-Id: <20030804144129.3dfe4aac.akpm@osdl.org>
+In-Reply-To: <20030804213543.GA1697@sgi.com>
+References: <20030804213543.GA1697@sgi.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030804144129.3dfe4aac.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
-From: jbarnes@sgi.com (Jesse Barnes)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 04, 2003 at 02:41:29PM -0700, Andrew Morton wrote:
-> jbarnes@sgi.com (Jesse Barnes) wrote:
-> >
-> >  Make lookup_create non-static for use by certain pseudofilesystems (e.g.
-> >  hwgfs).
-> 
-> If one is patching ones kernel with hwgfs, once can include this chunk in
-> that patch, no?
+jbarnes@sgi.com (Jesse Barnes) wrote:
+>
+>  Make lookup_create non-static for use by certain pseudofilesystems (e.g.
+>  hwgfs).
 
-You mean copy lookup_create into hwgfs (which is already in the tree,
-btw)?  Yeah, I guess I could do that if you don't want to take this.
+If one is patching ones kernel with hwgfs, once can include this chunk in
+that patch, no?
 
-Thanks,
-Jesse
+

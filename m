@@ -1,74 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262909AbUCMAsl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Mar 2004 19:48:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262911AbUCMAsl
+	id S262773AbUCMArW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Mar 2004 19:47:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUCMArW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Mar 2004 19:48:41 -0500
-Received: from thunk.org ([140.239.227.29]:5007 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S262909AbUCMAsj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Mar 2004 19:48:39 -0500
-Date: Fri, 12 Mar 2004 19:47:56 -0500
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Andrew Morton <akpm@zip.com.au>, torvalds@transmeta.com,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Dealing with swsusp vs. pmdisk
-Message-ID: <20040313004756.GB5115@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@zip.com.au>,
-	torvalds@transmeta.com, kernel list <linux-kernel@vger.kernel.org>
-References: <20040312224645.GA326@elf.ucw.cz>
+	Fri, 12 Mar 2004 19:47:22 -0500
+Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:4013 "EHLO
+	mailout.schmorp.de") by vger.kernel.org with ESMTP id S262773AbUCMArK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Mar 2004 19:47:10 -0500
+Date: Sat, 13 Mar 2004 01:47:07 +0100
+From: Marc Lehmann <pcg@schmorp.de>
+To: linux-kernel@vger.kernel.org
+Subject: strange ext3 corruption problem on 2.6.x
+Message-ID: <20040313004707.GA389@schmorp.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040312224645.GA326@elf.ucw.cz>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-Operating-System: Linux version 2.6.4 (root@cerebro) (gcc version 3.3.3 20040125 (prerelease) (Debian)) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 12, 2004 at 11:46:45PM +0100, Pavel Machek wrote:
-> I don't really like having two implementations of same code in
-> kernel. There are two ways to deal with it:
-> 
-> * remove pmdisk from kernel
->   + its easy
-> 
-> * remove swsusp from kernel, rename pmdisk to swsusp, fix all bugs
->   that were fixed in swsusp but not in pmdisk 
->   + people seem to like pmdisk code more
->   - will need some testing in -mm series
-> 
-> Which one do you prefer? I can do both...
+I use lvm-over-raid5 and get these messages once a day (requiring a reboot
+afterwards):
 
-2.6 is allegedly the stable kernel series, so if swsusp is the more
-stable code base at this point, my vote would be to keep swsusp and
-remove pmdisk from the kernel.  If someone wants to maintain a
-separate BK-tree that contains pmdisk renamed to swsusp and fix all
-the bugs, that's great.  On the other hand, there are a group of
-people of are busy doing something very similar with swsusp2, and that
-effort seems to have a fair number of people working on the patch and
-testing it.  
+   EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #4804801: directory entry across blocks - offset=0, inode=0, rec_len=50000,
+   name_len=152
+   Aborting journal on device dm-0.
+   add_dirent_to_buf: aborting transaction: Journal has aborted in __ext3_journal_get_write_access<2>EXT3-fs error (device dm-0) in add_dirent_to
+   _buf: Journal has aborted
+   EXT3-fs error (device dm-0) in ext3_writeback_writepage: IO failure
+   EXT3-fs error (device dm-0) in ext3_writeback_writepage: IO failure
+   ext3_abort called.
+   EXT3-fs abort (device dm-0): ext3_journal_start: Detected aborted journal
+   Remounting filesystem read-only
+   EXT3-fs error (device dm-0) in start_transaction: Journal has aborted
+   EXT3-fs error (device dm-0) in ext3_delete_inode: Journal has aborted
+   EXT3-fs error (device dm-0) in ext3_create: Journal has aborted
+   EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #4804801: directory entry across blocks - offset=0, inode=0, rec_len=50000,
+   name_len=152
+   EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #4804801: directory entry across blocks - offset=0, inode=0, rec_len=50000,
+   name_len=152
+   EXT3-fs error (device dm-0): ext3_readdir: bad entry in directory #4804801: directory entry across blocks - offset=0, inode=0, rec_len=50000, 
+   name_len=152
 
-So if we can somehow go from *three* idependent software suspend
-implementations implementations to something less than three, and
-increase the testing and effort devoting to remaining software suspend
-code bases, this would be a good thing.
+e2fsck after rebooting shows no errors and nothing to fix, and in fact, in
+this very incident my home directory was missing, after rebooting it was
+there again, so so far this doesn't look like on-disk data corruption.
 
-Pavel, what do you think of the swsusp2 patch, BTW?  My biggest
-complaint about it is that since it's maintained outside of the
-kernel, it's constantly behind about 0.75 revisions behind the latest
-2.6 release.  The feature set of swsusp2, if they can ever get it
-completely bugfree(tm) is certainly impressive.
+About my configuration:
 
-						- Ted
+5 IDE disks were combined into one raid5, with lvm on top. Theer are
+two lvs on the raid, one formatted with ext3 and one with reiserfs. the
+array was not degraded and not rebuilding. Data throughput under 2.6 is
+much lower than under 2.4, though (and 2.6 takes enourmous amounts of cpu
+for reading from the raid5 array), but this issue is probably a seperate
+problem.
+
+Both partitions currently undergo heavy filesystem activity, mainly
+untar'ing big tars with lots of medium-sized files (e.g. 10gb of jpeg
+files, or cvs directories).
+
+Reiserfs so far never gave a problem, neither did ext3 filesystems on
+normal harddisk partitions (although the latter ones were never under
+write stress like the partitions on the lv partitions).
+
+There are no other kernel messages between mounting the volume and the
+problem.
+
+I can use this machine for many hours under no stress without any
+problems.
+
+I had these problems on 2.6.3 and 2.6.4, other 2.6. kernels have not been
+tested.
+
+Using 2.4 on the same machine (lvm1) doesn't show any problems (the
+machine is a dual P-III 1ghz).
+
+Summary: the ext3 partition regularly gives me these problems (about once
+per day), while reiserfs on the same device does not.  Neither of them
+make problems under 2.4.
+
+Hope that helps,
+
+-- 
+      -----==-                                             |
+      ----==-- _                                           |
+      ---==---(_)__  __ ____  __       Marc Lehmann      +--
+      --==---/ / _ \/ // /\ \/ /       pcg@goof.com      |e|
+      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
+    The choice of a GNU generation                       |
+                                                         |

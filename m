@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVDDXpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVDDXOO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVDDXpR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 19:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVDDXpH
+	id S261276AbVDDXOO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 19:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVDDXMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 19:45:07 -0400
-Received: from gate.crashing.org ([63.228.1.57]:13498 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261505AbVDDXo3 (ORCPT
+	Mon, 4 Apr 2005 19:12:22 -0400
+Received: from HELIOUS.MIT.EDU ([18.248.3.87]:37264 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261477AbVDDXFc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 19:44:29 -0400
-Subject: Re: iomapping a big endian area
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Mon, 4 Apr 2005 19:05:32 -0400
+Date: Mon, 4 Apr 2005 19:04:11 -0400
+From: Adam Belay <ambx1@neo.rr.com>
 To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       "David S. Miller" <davem@davemloft.net>, matthew@wil.cx,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <42514D9C.2070003@osdl.org>
-References: <1112475134.5786.29.camel@mulgrave>
-	 <20050403013757.GB24234@parcelfarce.linux.theplanet.co.uk>
-	 <20050402183805.20a0cf49.davem@davemloft.net>
-	 <20050403031000.GC24234@parcelfarce.linux.theplanet.co.uk>
-	 <1112499639.5786.34.camel@mulgrave>
-	 <20050402200858.37347bec.davem@davemloft.net>
-	 <1112502477.5786.38.camel@mulgrave>  <1112601039.26086.49.camel@gaston>
-	 <1112623143.5813.5.camel@mulgrave>  <42514D9C.2070003@osdl.org>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 09:41:03 +1000
-Message-Id: <1112658063.26085.106.camel@gaston>
+Cc: maximilian attems <janitor@sternwelten.at>,
+       lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [patch 1/3] pnpbios eliminate bad section references
+Message-ID: <20050404230411.GD27522@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	"Randy.Dunlap" <rddunlap@osdl.org>,
+	maximilian attems <janitor@sternwelten.at>,
+	lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+References: <20050404181048.GA12394@sputnik.stro.at> <42519BF0.8090404@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42519BF0.8090404@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Well ... it's like this. Native means "pass through without swapping"
-> > and has an easy implementation on both BE and LE platforms.  Logically
-> > io{read,write}{16,32}be would have to do byte swaps on LE platforms.
-> > Being lazy, I'm opposed to doing the work if there's no actual use for
-> > it, so can you provide an example of a BE bus (or device) used on a LE
-> > platform that would actually benefit from this abstraction?
+On Mon, Apr 04, 2005 at 12:56:32PM -0700, Randy.Dunlap wrote:
+> maximilian attems wrote:
+> >one of the last buildcheck errors on i386,
+> >thanks Randy again for double checking.
+> >
+> >Fix pnpbios section references:
+> >make dmi_system_id pnpbios_dmi_table __initdata
+> >
+> >Error: ./drivers/pnp/pnpbios/core.o .data refers to 00000100 R_386_32
+> >.init.text
+> >Error: ./drivers/pnp/pnpbios/core.o .data refers to 0000012c R_386_32
+> >.init.text
+> >
+> >Signed-off-by: maximilian attems <janitor@sternwelten.at>
+> >
+> >
+> >--- linux-2.6.12-rc1-bk5/drivers/pnp/pnpbios/core.c.orig	2005-04-04 
+> >19:11:37.814477672 +0200
+> >+++ linux-2.6.12-rc1-bk5/drivers/pnp/pnpbios/core.c	2005-04-04 
+> >19:25:50.074402365 +0200
+> >@@ -512,7 +512,7 @@
+> > 	return 0;
+> > }
+> > 
+> >-static struct dmi_system_id pnpbios_dmi_table[] = {
+> >+static struct dmi_system_id pnpbios_dmi_table[] __initdata = {
+> > 	{	/* PnPBIOS GPF on boot */
+> > 		.callback = exploding_pnp_bios,
+> > 		.ident = "Higraded P14H",
 > 
-> I would probably spell "native" as "noswap".
-> "native" just doesn't convey enough specific meaning...
+> Looks OK to me, but I'd prefer to leave it up to Adam.....
 
-But that implies that the driver has to know that the bus and the device
-and the CPU are on the same byte endian etc.... that is rather specific,
-and if they all know, then they can also just use the correct "be" or
-"le" ... I really see no point in "native" abstraction.
+Thank you for forwarding this to me.  It looks good.
 
-Ben.
-
-
+Cheers,
+Adam

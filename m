@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135246AbRECVvM>; Thu, 3 May 2001 17:51:12 -0400
+	id <S135249AbRECVtn>; Thu, 3 May 2001 17:49:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135251AbRECVvC>; Thu, 3 May 2001 17:51:02 -0400
-Received: from asooo.flowerfire.com ([63.104.96.247]:23522 "EHLO
-	asooo.flowerfire.com") by vger.kernel.org with ESMTP
-	id <S135246AbRECVuv>; Thu, 3 May 2001 17:50:51 -0400
-Message-Id: <200105032150.QAA11098@asooo.flowerfire.com>
-Date: Thu, 3 May 2001 14:50:48 -0700
-Content-Type: text/plain;
-	format=flowed;
-	charset=us-ascii
-X-Mailer: Apple Mail (2.388)
-From: Ken Brownfield <brownfld@irridia.com>
-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0 (Apple Message framework v388)
-In-Reply-To: <Pine.LNX.4.10.10105031614270.4386-100000@coffee.psychology.mcmaster.ca>
-Subject: Re: 2.4.4 Kernel - ASUS CUV4X-DLS Question
+	id <S135251AbRECVtd>; Thu, 3 May 2001 17:49:33 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40713 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135249AbRECVtY>; Thu, 3 May 2001 17:49:24 -0400
+Subject: Re: [RFC] Direct Sockets Support??
+To: Venkateshr@ami.com (Venkatesh Ramamurthy)
+Date: Thu, 3 May 2001 22:52:43 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), pollard@tomcat.admin.navo.hpc.mil,
+        Venkateshr@ami.com (Venkatesh Ramamurthy),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1355693A51C0D211B55A00105ACCFE6402B9DECE@ATL_MS1> from "Venkatesh Ramamurthy" at May 03, 2001 04:40:31 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14vR1g-0006HT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The failure mode I'm seeing is that the timer interrupt disappears.  
-Hard to schedule processes at that point.  I'm not seeing the IRQ issues 
-personally.
+> 	Thats exactly my point, we need to define a new protocol family to
+> support it. This means that all applications using PF_INET needs to be
+> changed and recompiled. My basic argument goes like this if hardware can
 
-HP's LP1000r machine uses ServerWorks, but still shows the problem.  I 
-only have access to HP SMP hardware currently, but they all have the 
-same issue.  I've heard of Tyan and Asus issues (not just the one 
-recently posted), though I have an LX machine that has been okay with 
-2.4.
-
-I've seen the VIA issues, but they aren't related from what I can tell.
---
-Ken.
-
-On Thursday, May 3, 2001, at 01:17 PM, Mark Hahn wrote:
-
->> I just wanted to throw in my two cents and say that there appear to be
->> widespread issues with the APIC code in 2.4.x.  I'm tempted to stick my
->
-> are there any known problems on non-VIA boards?  BX seems to work fine,
-> and I haven't heard of any problems from serverworks people.
->
-> I'm guessing (wag) that there's some VIA-specific thing that needs
-> to be done to get the PIT timer working with io-apic.  no real problem
-> with apic/ioapic, just some little divergence on VIA's part.
->
->> from APICitis.  I realize there are different failure modes and I 
->> assume
->> different issues are involved within the APIC code.
->
-> are there?  I haven't heard anything except "hangs on boot except with
-> noapic".
+Thanks to the magic of shared libraries and LD_PRELOAD a library hook can
+actually make the decision underneath the application

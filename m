@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267734AbTAMJwO>; Mon, 13 Jan 2003 04:52:14 -0500
+	id <S267751AbTAMKBd>; Mon, 13 Jan 2003 05:01:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267751AbTAMJwO>; Mon, 13 Jan 2003 04:52:14 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:26862 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S267734AbTAMJwN>; Mon, 13 Jan 2003 04:52:13 -0500
-Subject: Re: [PATCH] Check compiler version, SMP and PREEMPT.
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, tridge@samba.org,
-       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-In-Reply-To: <20030113051434.DC2092C09F@lists.samba.org>
-References: <20030113051434.DC2092C09F@lists.samba.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y4lzfxgIMq2yRPs8/c/a"
-Organization: Red Hat, Inc.
-Message-Id: <1042451987.1806.0.camel@laptop.fenrus.com>
+	id <S267787AbTAMKBd>; Mon, 13 Jan 2003 05:01:33 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:46839 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S267751AbTAMKBb>; Mon, 13 Jan 2003 05:01:31 -0500
+Date: Mon, 13 Jan 2003 11:10:13 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jan Yenya Kasprzak <kas@informatics.muni.cz>
+Cc: torvalds@transmeta.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.56: Two global symbols "io"
+Message-ID: <20030113101012.GX21826@fs.tum.de>
+References: <20030112131244.GW21826@fs.tum.de> <20030113085518.D3702@fi.muni.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
-Date: 13 Jan 2003 10:59:48 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030113085518.D3702@fi.muni.cz>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jan 13, 2003 at 08:55:18AM +0100, Jan Yenya Kasprzak wrote:
 
---=-y4lzfxgIMq2yRPs8/c/a
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>...
+> by Arnd Bergmann from the Kernel Janitors Project. However: cosa.c
+> can be built as a module only.
+>...
 
-On Mon, 2003-01-13 at 06:13, Rusty Russell wrote:
-> Linus, please apply if you agree.
->=20
-> Tridge reported getting burned by gcc 3.2 compiled (Debian) XFree
-> modules not working on his gcc 2.95-compiled kernel.
+Ups, sorry, that was again the "Kconfig doesn't handle && m in kernels 
+without module support" bug (#269 at bugzilla.kernel.org).
 
-at least the other way around is detected by traditional modules
-nowadays=20
+cu
+Adrian
 
---=-y4lzfxgIMq2yRPs8/c/a
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-- 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-iD8DBQA+Io4TxULwo51rQBIRArtOAKCZplXZshdxnl/cQzF63sWFmzMpKQCfbaBF
-o7qK1rtxns9gaeCqDZgS+sg=
-=dOtW
------END PGP SIGNATURE-----
-
---=-y4lzfxgIMq2yRPs8/c/a--

@@ -1,44 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135953AbREHDTO>; Mon, 7 May 2001 23:19:14 -0400
+	id <S135276AbREHDNd>; Mon, 7 May 2001 23:13:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136047AbREHDTE>; Mon, 7 May 2001 23:19:04 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:14863 "HELO
+	id <S135580AbREHDNY>; Mon, 7 May 2001 23:13:24 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:62734 "HELO
 	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S135953AbREHDSz>; Mon, 7 May 2001 23:18:55 -0400
-Date: Mon, 7 May 2001 22:40:24 -0300 (BRT)
+	id <S135276AbREHDNN>; Mon, 7 May 2001 23:13:13 -0400
+Date: Mon, 7 May 2001 22:34:41 -0300 (BRT)
 From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+To: "David S. Miller" <davem@redhat.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
 Subject: Re: page_launder() bug
-In-Reply-To: <Pine.LNX.4.21.0105071929190.8237-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.21.0105072234580.7685-100000@freak.distro.conectiva>
+In-Reply-To: <15095.24153.737361.998494@pizda.ninka.net>
+Message-ID: <Pine.LNX.4.21.0105072231470.7685-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+On Mon, 7 May 2001, David S. Miller wrote:
 
-On Mon, 7 May 2001, Linus Torvalds wrote:
-
-> > To divert people's brains to what the intent was :-)
 > 
-> I can see the intent.
+> Linus Torvalds writes:
+>  > YOUR HEURISTIC IS WRONG!
 > 
-> I can also see that the code doesn't match up to the intent.
+> Please start the conversation this way next time.
 > 
-> I call that a bug. You don't. Fine.
+>  > I call that a bug. You don't. Fine.
 > 
-> But that code isn't coming anywhere _close_ to my tree until the two
-> match. And I stand by my assertion that it should be reverted from Alans
-> tree too.
+> You made it sound like a data corrupter, a kernel crasher, and that
+> any bug against a kernel with that patch indicates my patch caused it.
+> There is an important distinction between "this is doing something
+> silly" and "this will scramble your disk and crash the kernel".
+> 
+> The latter is the conclusion several people came to.
+> 
+> And I wanted a clarification on this, nothing more.
+> 
+> I wanted this clarification from you _BECAUSE_ the original posting in
+> this thread saw data corruption which went away after reverting my
+> patch.  But there is no possible connection between my patch and the
+> crashes he saw.
 
-I was wrong. The patch is indeed buggy because of the __GFP_IO thing.
+Ugh, there is.
 
-So what about moving the check for a dead swap cache page from
-swap_writepage() to page_launder() (+ PageSwapCache() check) just before
-the "if (!launder_loop)" ? 
+I just thought about this case:
+  
+We find a dead swap cache page, so dead_swap_page goes to 1.
 
-Yes, its ugly special casing. Any other suggestion ? 
+We call swap_writepage(), but in the meantime the swapin readahead code   
+got a reference on the swap map for the page.
+
+We write the page out because "(swap_count(page) > 1)", and we may
+not have __GFP_IO set in the gfp_mask. Boom.
+
+
 

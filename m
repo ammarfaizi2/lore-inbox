@@ -1,50 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264039AbRF1Tea>; Thu, 28 Jun 2001 15:34:30 -0400
+	id <S264215AbRF1TeK>; Thu, 28 Jun 2001 15:34:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264103AbRF1TeV>; Thu, 28 Jun 2001 15:34:21 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:52617 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S264039AbRF1TeJ>;
-	Thu, 28 Jun 2001 15:34:09 -0400
-Message-ID: <3B3B86D5.EBFC5A7E@mandrakesoft.com>
-Date: Thu, 28 Jun 2001 15:34:45 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre5 i686)
-X-Accept-Language: en
+	id <S264103AbRF1Tdu>; Thu, 28 Jun 2001 15:33:50 -0400
+Received: from ns.guardiandigital.com ([209.11.107.5]:62990 "HELO
+	juggernaut.dmz.guardiandigital.com") by vger.kernel.org with SMTP
+	id <S264039AbRF1Tdt>; Thu, 28 Jun 2001 15:33:49 -0400
+Date: Thu, 28 Jun 2001 15:33:47 -0400 (EDT)
+From: "Ryan W. Maple" <ryan@guardiandigital.com>
+To: james bond <difda@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BIG PROBLEM
+In-Reply-To: <E15Fh8J-0007Sz-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10106281532110.10868-100000@mastermind.inside.guardiandigital.com>
+X-Base: ALL YOUR BASE ARE BELONG TO US. (http://www.scene.org/redhound/AYB.swf)
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Patrick Dreker <patrick@dreker.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        David Woodhouse <dwmw2@infradead.org>, jffs-dev@axis.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: Cosmetic JFFS patch.
-In-Reply-To: <Pine.LNX.4.33.0106281218550.15199-100000@penguin.transmeta.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Especially as "dmesg" will output even the debugging messages
-> that do not actually end up being printed on the screen unless explicitly
-> asked for.
 
-Nifty, I did not know that.  Makes all kinds of sense, though.  Silly
-me...
+On Thu, 28 Jun 2001, Alan Cox wrote:
+
+> > i've  compiled the kernel 2.4.4 , once i finish and boot the first time on 
+> > 2.4.4 everything goses ok ,
+> > only too problemes
+> > 1st-  klogd takes 100%  CPU time
+> 
+> Old old versions of klogd had bugs where they would do that. If there is
+> a continuous problem it may also do so - does 'dmesg' show anything ?
+
+I don't think it's limited to "old old" versions.  Version 1.3 would hit
+100% CPU (DoS-style) when it received NULL bytes IIRC.
+
+  http://lists.jammed.com/owl-users/2001/05/0000.html
+
+>From what I remember, this happened with some of the 3com ethernet drivers
+(the NULL bytes).  Maybe this is his problem wrt klogd...
+
+Ryan
+
+ +-- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --+
+   Ryan W. Maple          "I dunno, I dream in Perl sometimes..."  -LW
+   Guardian Digital, Inc.                     ryan@guardiandigital.com
+ +-- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --+
 
 
-> I'd also like to acknowledge the fact that at bootup it's usually very
-> nice to see "what was the last message it printed before it hung", and
-> that there's a fair reason for drivers to print out a single line of "I
-> just registered myself" for that reason. If that line happens to contain a
-> version string, all the better.
-
-Excellent.
-
-	Jeff
-
-
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |

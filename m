@@ -1,60 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129348AbRADGRR>; Thu, 4 Jan 2001 01:17:17 -0500
+	id <S129348AbRADG3D>; Thu, 4 Jan 2001 01:29:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129413AbRADGRH>; Thu, 4 Jan 2001 01:17:07 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:43781 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129348AbRADGQy>; Thu, 4 Jan 2001 01:16:54 -0500
-Date: Thu, 4 Jan 2001 02:25:19 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: __get_swap_page() minor problem 
-Message-ID: <Pine.LNX.4.21.0101040220180.1158-100000@freak.distro.conectiva>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129436AbRADG2x>; Thu, 4 Jan 2001 01:28:53 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:34564 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129348AbRADG2j>;
+	Thu, 4 Jan 2001 01:28:39 -0500
+Date: Wed, 3 Jan 2001 22:11:49 -0800
+Message-Id: <200101040611.WAA01811@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: zaitcev@metabyte.com
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <3A541361.65942CB3@metabyte.com> (message from Pete Zaitcev on
+	Wed, 03 Jan 2001 22:08:33 -0800)
+Subject: Re: So, what about kwhich on RH6.2?
+In-Reply-To: <3A541361.65942CB3@metabyte.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: 	Wed, 03 Jan 2001 22:08:33 -0800
+   From: Pete Zaitcev <zaitcev@metabyte.com>
 
-Hi,
+   Are we going to use Miquel's patch? I cannot build fresh 2.2.x on
+   plain RH6.2 without it. The 2.2.19-pre6 comes out without it.  Or
+   is "install new bash" the official answer? Alan?
 
-If the check for "count >= SWAP_MAP_MAX" in __get_swap_page is true, we
-will end up trying to unlock a not-yet-locked spinlock.
+I do not understand, I just got a working 2.2.19-pre6 build on one of
+my 6.2 Sparc64 systems, what kind of failure do you see?
 
-Here goes a patch to change this.
-
---- linux/mm/swapfile.c.orig	Thu Jan  4 04:10:08 2001
-+++ linux/mm/swapfile.c	Thu Jan  4 04:10:12 2001
-@@ -90,8 +90,12 @@
- 	int type, wrapped = 0;
- 
- 	entry.val = 0;	/* Out of memory */
--	if (count >= SWAP_MAP_MAX)
--		goto bad_count;
-+	if (count >= SWAP_MAP_MAX) {
-+		printk(KERN_ERR "get_swap_page: bad count %hd from %p\n",
-+	       		count, __builtin_return_address(0));
-+		return entry;
-+	}
-+
- 	swap_list_lock();
- 	type = swap_list.next;
- 	if (type < 0)
-@@ -130,11 +134,6 @@
- out:
- 	swap_list_unlock();
- 	return entry;
--
--bad_count:
--	printk(KERN_ERR "get_swap_page: bad count %hd from %p\n",
--	       count, __builtin_return_address(0));
--	goto out;
- }
- 
- 
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

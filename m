@@ -1,58 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263276AbTARHtW>; Sat, 18 Jan 2003 02:49:22 -0500
+	id <S263256AbTARHp6>; Sat, 18 Jan 2003 02:45:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263321AbTARHtW>; Sat, 18 Jan 2003 02:49:22 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:42715 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S263276AbTARHtV>;
-	Sat, 18 Jan 2003 02:49:21 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
+	id <S263276AbTARHp6>; Sat, 18 Jan 2003 02:45:58 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:57548 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S263256AbTARHp5>;
+	Sat, 18 Jan 2003 02:45:57 -0500
+Date: Sat, 18 Jan 2003 07:54:55 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: David Schwartz <davids@webmaster.com>
+Cc: linux-kernel@vger.kernel.org, Richard Stallman <rms@gnu.org>
+Subject: [OFFTOPIC] Is the repository of a GPL'd program itself under the GPL?
+Message-ID: <20030118075455.GB18969@bjl1.asuk.net>
+References: <20030118051012.GA18720@bjl1.asuk.net> <20030118072337.AAA10729@shell.webmaster.com@whenever>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15913.2330.891678.16666@napali.hpl.hp.com>
-Date: Fri, 17 Jan 2003 23:58:18 -0800
-To: Andrew Morton <akpm@digeo.com>
-Cc: davidm@hpl.hp.com, davidm@napali.hpl.hp.com, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: recent change to exit_mmap
-In-Reply-To: <20030117235317.01ad6b7b.akpm@digeo.com>
-References: <20030118060522.GE7800@krispykreme>
-	<20030117224444.08c48290.akpm@digeo.com>
-	<15913.1396.22808.83238@napali.hpl.hp.com>
-	<20030117235317.01ad6b7b.akpm@digeo.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Disposition: inline
+In-Reply-To: <20030118072337.AAA10729@shell.webmaster.com@whenever>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 17 Jan 2003 23:53:17 -0800, Andrew Morton <akpm@digeo.com> said:
+David Schwartz wrote:
+> 	So then suppose the tool I use for modifying the source code 
+> unpacks/decrypts it, allows changes, and then packs/encrypts it 
+> again. Suppose further that this tool is proprietary and not 
+> available without onerous licensing requirements. Would you say 
+> releasing the source code thus packed/encrypted meets the GPL?
 
-  Andrew> David Mosberger <davidm@napali.hpl.hp.com> wrote:
-  >>  >>>>> On Fri, 17 Jan 2003 22:44:44 -0800, Andrew Morton
-  >> <akpm@digeo.com> said:
+I think that if you distribute a program in Emacs-Lisp, but you don't
+provide the Emacs-Lisp interpreter, that is considered ok.  If you
+distribute a program in Visual Basic under the GPL, that is considered
+ok too.  Similarly if it's a GPL'd Excel spreadsheet macro, or a
+program written in Jonny's own version of Prolog.
 
-  Andrew> Looks like ia64 needs work, too...
-  >>  Yes, should be the same problem there.  The fix looks fine to
-  >> me.  (Let's just hope I remember it when Linus puts it in his
-  >> tree...).
+However if you distribute obfuscated or encrypted files, then clearly
+that's not the preferred form for making changes.  If it's encrypted,
+the preferred form obviously includes the decryption key.  (And if the
+code has to be signed to run, it might include the signing key - ooh).
 
-  Andrew> I've updated that patch to cover ia64, but I think we'll run
-  Andrew> with the other approach - just remove those calls to
-  Andrew> SET_PERSONALITY().
+I don't know where the line in the sand stops.  It's not something GNU
+people seem to worry much about, and neither do I as it is usually
+quite clear cut one way or the other.
 
-  Andrew> They just seem illogical anyway - why are we switching into
-  Andrew> the new image's personality prior to unmapping the old
-  Andrew> image's memory?
 
-I don't know why SET_PERSONALITY() came to be where it is now, but it
-does make some sense to me.  One thing that comes to mind: on ia64, we
-normally don't map data segments with execute permission but for
-backwards-compatibility, we need to do that for x86 binaries.  I think
-there might be a problem with that if SET_PERSONALITY() was done too
-late.  Certainly something that could be fixed, but I suspect a
-similar ordering issue (perhaps on SPARC?) might have triggered the
-current placement of SET_PERSONALITY().
+         -----
 
-	--david
+About BitKeeper: if it were actually essential, I think you'd have a
+point.  But it isn't.
+
+However, this begs another question: the kernel source is GPL'd.  But
+is the _repository_ at bkbits.net GPL'd?  And if so, do I have the
+right to demand a copy of the whole repository whenever I receive a
+binary kernel, or is that right restricted to the checked out files
+used to compile that kernel?
+
+cheers,
+-- Jamie
+

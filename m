@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266161AbSKZFX5>; Tue, 26 Nov 2002 00:23:57 -0500
+	id <S266128AbSKZFWj>; Tue, 26 Nov 2002 00:22:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266175AbSKZFX5>; Tue, 26 Nov 2002 00:23:57 -0500
-Received: from packet.digeo.com ([12.110.80.53]:8184 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S266161AbSKZFXF>;
-	Tue, 26 Nov 2002 00:23:05 -0500
-Message-ID: <3DE306E4.26E746BA@digeo.com>
-Date: Mon, 25 Nov 2002 21:30:12 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: [patch] IDE fix for current -bk
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 Nov 2002 05:30:13.0285 (UTC) FILETIME=[E4EF9D50:01C2950C]
+	id <S266160AbSKZFWj>; Tue, 26 Nov 2002 00:22:39 -0500
+Received: from dp.samba.org ([66.70.73.150]:44175 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S266128AbSKZFWh>;
+	Tue, 26 Nov 2002 00:22:37 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: linux-kernel@vger.kernel.org, "Adam J. Richter" <adam@yggdrasil.com>
+Subject: Re: modutils for both redhat kernels and 2.5.x 
+In-reply-to: Your message of "Tue, 26 Nov 2002 02:11:00 -0000."
+             <20021126021100.GB29814@bjl1.asuk.net> 
+Date: Tue, 26 Nov 2002 15:41:35 +1100
+Message-Id: <20021126052954.9F7172C103@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-do_ide_setup_pci_device() is returning an uninitialised
-ata_index_t causing an oops at bootup.
+In message <20021126021100.GB29814@bjl1.asuk.net> you write:
+> Rusty Russell wrote:
+> > > Depmod no longer exists.
+> > 
+> > This is true.  It doesn't need to for 0.7, but it's being reintroduced
+> > in 0.8 for speed.
+> 
+> Doesn't it?  When I upgraded from 2.5.45 to 2.5.48, and installed
+> module-init-tools-0.7, a whole bunch of modules failed to load
+> automatically, and I ended up with no pcmcia, no network, no
+> af_packet, no loopback device...  I had to load them all manually.
+> Also no USB, hence no USB keyboard and mouse, but I haven't tried
+> loading those manually.
 
+Probably barfing on unimplemented modprobe options.  That's worked
+around in the (coming) 0.8.
 
---- 25/drivers/ide/setup-pci.c~ide-fix	Mon Nov 25 21:24:42 2002
-+++ 25-akpm/drivers/ide/setup-pci.c	Mon Nov 25 21:25:11 2002
-@@ -693,7 +693,7 @@ static ata_index_t do_ide_setup_pci_devi
- 	int autodma = 0;
- 	int pciirq = 0;
- 	int tried_config = 0;
--	ata_index_t index;
-+	ata_index_t index = { .b = { .low = 0xff, .high = 0xff } };
- 
- 	if((autodma = ide_setup_pci_controller(dev, d, noisy, &tried_config)) < 0)
- 		return index;
+> I thought it was depmod not working, but I must have been wrong.
+> 
+> So what happened - is there a known problem with module auto-loading
+> at the moment?
 
-_
+Should just work.  Details?
+
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

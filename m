@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbTFXQ1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 12:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262256AbTFXQ1X
+	id S261939AbTFXQ0I (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 12:26:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbTFXQ0I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 12:27:23 -0400
-Received: from [62.67.222.139] ([62.67.222.139]:31948 "EHLO kermit")
-	by vger.kernel.org with ESMTP id S262202AbTFXQ1P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 12:27:15 -0400
-Date: Tue, 24 Jun 2003 18:40:26 +0200
-From: Konstantin Kletschke <konsti@ludenkalle.de>
-To: linux-kernel@vger.kernel.org
-Subject: Success stories, disappearing Oopses and ps/2 keyboard
-Message-ID: <20030624164026.GA2934@sexmachine.doom>
-Reply-To: Konstantin Kletschke <konsti@ludenkalle.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
+	Tue, 24 Jun 2003 12:26:08 -0400
+Received: from magic-mail.adaptec.com ([208.236.45.100]:54500 "EHLO
+	magic.adaptec.com") by vger.kernel.org with ESMTP id S261939AbTFXQ0F
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 12:26:05 -0400
+Date: Tue, 24 Jun 2003 10:41:23 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Reply-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: aic7xxx driver update
+Message-ID: <866810000.1056472883@aslan.btc.adaptec.com>
+In-Reply-To: <Pine.LNX.4.55L.0306240159480.31432@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0306240159480.31432@freak.distro.conectiva>
+X-Mailer: Mulberry/3.0.3 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Organization: Kletschke & Uhlig GbR
-User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
+> Justin,
+> 
+> Would you mind sending me a inlined patch to update aic7xxx to the current
+> sources, with detailed explanation?
 
-Well, that masterpeiece of Software, the 2.5.7x series is now running on
-all computers I got my hands on (all i386 and physically accessable, the
-others will be treated later) :) 
+Can you be more specific about what you need?  I take it the BK send output
+on my website is not sufficient?  I can probably figure out the proper
+BK magic to generate a patch for it, but I would hope that you would,
+after review, just accept the BK data so that revision history is not
+lost.
 
-I must say, it runs great, especially on servers that thing does not
-crash more often than 2.4.x. Well indeed I saw an Oops on my Server with
-2.4.x which I did not debug, I put 2.5.72-mm2 onto it :)
+The BK data has lots of changelog information since there are 108 changesets
+in my local BK tree that are not in your tree.  I can provide more details
+about any particular changeset that peaks your interest.
 
-These Kernels (2.5.7x-mmx) did not give an Oops too me and died if
-running (lvm1 -> lvm2 and such things). Simultaniously switching to
-devfs was no Problem...
+> Are there any known issues with the new code, and what are them.
 
-I got some freezes with 2.5.70-mm9 and 2.5.71-mmx which seem to have
-disappeared, lets see...
+For both drivers, I'm currently working on an error recovery handler that
+will override the standard one.  The standard handler is broken in
+so many ways that it would be hard to list them briefly.  The short
+of it is that if you get a timeout, it may take 20 minutes for you
+to recover and recovery is rare.  Timeouts occur in almost any system
+should you run it long enough, so this is unacceptable.  Unfortunately,
+having the mid-layer do all of the recovery will likely never work.
+The mid-layer can't determine the most likely transaction outstanding
+that is causing the timeout whereas the end driver can.  I hope to have
+the new error handler tested sufficiently for release by the end of this
+week.
 
-However, there is only one Problem left for me, before this one can be
-called 2.6.0: The keys on my PS/2 IBM Keyboard are bouncing very often!
-I switched from an USB Logitech Keyboard back to my old school, clicking
-PC-102 IBM Keyboard ATM and the Key bouncing was back immmediatly :(
+For the aic79xx driver, we are going through qualification of new drives
+and new drive firmware.  There are a few issues that we are investigating
+now that should also be resolved this week.
 
-Over ssh connections it is even more extreme, I don't know why.
+My suggestion would be to shoot for say next Monday as a good time to
+sync up.  I can provide whatever material you require for released
+changesets today so that you can review all but the latest changes
+before Monday.
 
-Are there any approaches to debug or whatsoever that thing? I saw many
-changes to the input layer on this mailing list since 2.5.70 so I gave
-this one Kernel here another chance :) (see signature). I just wanted to
-say, the Problem hasn't gone yet, not more, and keep on hacking this
-great mastepiece of Kernel :-)
+--
+Justin
 
-Regards, Konsti
-
-
--- 
-2.5.73-mm1
-Konstantin Kletschke <konsti@ludenkalle.de>, <konsti@ku-gbr.de>
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
-keulator.homelinux.org up 1:38, 18 users

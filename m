@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbUJaMHg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbUJaLf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbUJaMHg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Oct 2004 07:07:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbUJaMBQ
+	id S261576AbUJaLf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Oct 2004 06:35:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbUJaLfV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Oct 2004 07:01:16 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40577 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261561AbUJaL7R
+	Sun, 31 Oct 2004 06:35:21 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6632 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261568AbUJaKmD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Oct 2004 06:59:17 -0500
-Message-ID: <4184D383.1090204@pobox.com>
-Date: Sun, 31 Oct 2004 06:58:59 -0500
+	Sun, 31 Oct 2004 05:42:03 -0500
+Message-ID: <4184C16E.80705@pobox.com>
+Date: Sun, 31 Oct 2004 05:41:50 -0500
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: Andrew Morton <akpm@osdl.org>, geert@linux-m68k.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org
+To: Andrew Morton <akpm@osdl.org>
+CC: geert@linux-m68k.org, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
 Subject: Re: [PATCH 475] HP300 LANCE
-References: <E1COEEO-0002lX-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1COEEO-0002lX-00@gondolin.me.apana.org.au>
+References: <200410311003.i9VA3UMN009557@anakin.of.borg>	<4184BB09.8000107@pobox.com> <20041031021933.1eba86a6.akpm@osdl.org>
+In-Reply-To: <20041031021933.1eba86a6.akpm@osdl.org>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> Andrew Morton <akpm@osdl.org> wrote:
+Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
 > 
->>Jeff Garzik <jgarzik@pobox.com> wrote:
+>>content looks OK, but patch appears to be whitespace-challenged...
 >>
->>>On Sun, Oct 31, 2004 at 02:48:40AM -0800, Andrew Morton wrote:
->>> > > -        void *va = dio_scodetoviraddr(scode);
->>> > > +        unsigned long pa = dio_scodetophysaddr(scode);
->>> > > +        unsigned long va = (pa + DIO_VIRADDRBASE);
->>>
->>> Did you see the above quoted patch chunk?  The patch is inconsistent
->>> with _itself_, adding 'pa' and 'va' with different idents (but when they
->>> should be at the same identation level).
->>
->>Trust me ;)
 > 
 > 
-> What Jeff means is that the patch is using a tab for pa and 8 spaces
-> for va.
+> It applies successfully.
 
+I'm talking about the _other_ type of "whitespace challenged", such as,
 
-Precisely.  That's what my entire "whitespace challenged" comment meant.
+-        volatile struct lance_regs *ll;
++	unsigned long base;
 
-When the patch adds two lines at the same visual indentation level in 
-the source, but appear different in the patch, that is a signal that 
-some tabs got accidentally converted to spaces somewhere.
+	and
+
+-        void *va = dio_scodetoviraddr(scode);
++	unsigned long pa = dio_scodetophysaddr(scode);
++        unsigned long va = (pa + DIO_VIRADDRBASE);
+
+Reading through the patch you can see other one-space-off spots.
 
 	Jeff
 

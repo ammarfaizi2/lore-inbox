@@ -1,58 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266511AbUHCOv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266603AbUHCO5R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266511AbUHCOv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 10:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266558AbUHCOv0
+	id S266603AbUHCO5R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 10:57:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266558AbUHCO5R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 10:51:26 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:59870 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S266511AbUHCOvS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 10:51:18 -0400
-X-Sender-Authentication: net64
-Date: Tue, 3 Aug 2004 16:51:16 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, thockin@hockin.org
-Subject: Re: How to increase max number of groups per uid ?
-Message-Id: <20040803165116.7b1531b5.skraw@ithnet.com>
-In-Reply-To: <20040729163407.02bb2dd6.akpm@osdl.org>
-References: <20040729193106.43d4c515.skraw@ithnet.com>
-	<20040729163407.02bb2dd6.akpm@osdl.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 3 Aug 2004 10:57:17 -0400
+Received: from out005pub.verizon.net ([206.46.170.143]:62637 "EHLO
+	out005.verizon.net") by vger.kernel.org with ESMTP id S266607AbUHCO5P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Aug 2004 10:57:15 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: kde problem... Or kernel?
+Date: Tue, 3 Aug 2004 10:57:14 -0400
+User-Agent: KMail/1.6.82
+Cc: kde@mail.kde.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200408031057.14453.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out005.verizon.net from [141.153.75.218] at Tue, 3 Aug 2004 09:57:15 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Jul 2004 16:34:07 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+Greetings;
 
-> Stephan von Krawczynski <skraw@ithnet.com> wrote:
-> >
-> > is there a simple way in either 2.4 or 2.6 to get a lot more than 32 groups
-> > per uid?
-> 
-> 2.6 kernels support up to 65536 groups per user.
+kernel 2.6.8-rc2-mm2, kde3.3-beta2.
 
-Hello Andrew,
+Now that it appears I'm stable again, I am asking if the memory data 
+that kpm and ksysguard use has been moved recently?
 
-in the meantime - after some testing - I found out the problem lies around nfs.
-I cannot seem to change to directories (placed on nfs-volumes) whose
-group-member I am.
-Is this a known problem? Can I do something about it?
+Both utils are now showing long strings of 8888888888 in the bottom 
+lines of their windows now, for everything thats normally there.
 
-The situation is:
-
-nfs-server 2.4.24
-nfs-client 2.6.7
-
-Client knows about 1000 groups and quite a lot users.
-Mounting some directories from the nfs-server and checking out rights we found
-that users belonging to a group owning a directory cannot access it. If the
-exact same tree is located on the clients' local fs everything is fine.
-
-Regards,
-Stephan
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

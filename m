@@ -1,46 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316933AbSFKIII>; Tue, 11 Jun 2002 04:08:08 -0400
+	id <S316916AbSFKIHq>; Tue, 11 Jun 2002 04:07:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316928AbSFKIIH>; Tue, 11 Jun 2002 04:08:07 -0400
-Received: from mailout05.sul.t-online.com ([194.25.134.82]:32143 "EHLO
-	mailout05.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S316919AbSFKIIF> convert rfc822-to-8bit; Tue, 11 Jun 2002 04:08:05 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <oliver@neukum.name>
-To: "David S. Miller" <davem@redhat.com>
-Subject: Re: PCI DMA to small buffers on cache-incoherent arch
-Date: Tue, 11 Jun 2002 10:07:19 +0200
-User-Agent: KMail/1.4.1
-Cc: roland@topspin.com, wjhun@ayrnetworks.com, paulus@samba.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20020610.233850.60926092.davem@redhat.com> <20020611.003625.05877183.davem@redhat.com> <20020611.004305.96601553.davem@redhat.com>
+	id <S316919AbSFKIHp>; Tue, 11 Jun 2002 04:07:45 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:26895 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S316916AbSFKIHn> convert rfc822-to-8bit; Tue, 11 Jun 2002 04:07:43 -0400
+Message-ID: <3D05AFCF.6000308@evision-ventures.com>
+Date: Tue, 11 Jun 2002 10:07:43 +0200
+From: Martin Dalecki <dalecki@evision-ventures.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
+X-Accept-Language: pl, en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200206111007.19142.oliver@neukum.name>
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.21 kill warinigs 14/19
+In-Reply-To: <Pine.LNX.4.33.0206082235240.4635-100000@penguin.transmeta.com> <3D049157.3040600@evision-ventures.com> <20020610204726.A681@nightmaster.csn.tu-chemnitz.de>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 11. Juni 2002 09:43 schrieb David S. Miller:
->    From: "David S. Miller" <davem@redhat.com>
->    Date: Tue, 11 Jun 2002 00:36:25 -0700 (PDT)
->
->    The DMA_ALIGN attribute doesn't work, on some systems the PCI
->    cacheline size is determined at boot time not compile time.
->
-> Another note, it could be per-PCI controller what this cacheline size
-> is.  We'll need to pass in a pdev to the alignment interfaces to
-> do this correctly.
+U¿ytkownik Ingo Oeser napisa³:
+> On Mon, Jun 10, 2002 at 01:45:27PM +0200, Martin Dalecki wrote:
+> 
+>>irlap_frame this time. Let me guess they used emacs?!
+> 
+> 
+> The better way to solve this is to include:
+> 
+> /*
+>  * Overrides for Emacs so that we follow Linus's tabbing style.
+>  * Emacs will notice this stuff at the end of the file and automatically
+>  * adjust the settings for this buffer only.  This must remain at the end
+>  * of the file.
+>  * ---------------------------------------------------------------------------
+>  * Local variables:
+>  * c-indent-level: 8
+>  * c-brace-imaginary-offset: 0
+>  * c-brace-offset: -8
+>  * c-argdecl-indent: 8
+>  * c-label-offset: -8
+>  * c-continued-statement-offset: 8
+>  * c-continued-brace-offset: 0
+>  * End:
+>  */
+> 
+> at the end of each file these people who cannot use their editor touch.
+> 
+> That's how I solved it with my own team mates ;-)
 
-Could you please explain this ?
-
-I thought this was a problem of a CPU dirtying a cache line
-that overlaps with an area being DMAed into. So the determining
-factor should be the granularity of the dirty status of the CPU.
-
-Are there really PCI controllers which have to physically write
-much more than is transfered ?
-
-	Now really puzzeled
-		Oliver
+And it's the best way to annoy everybody who know how to use a proper
+programmers editor, aka gvim, too... This is becouse it doesn't
+show how to hightlight trailing white space garbage. (Hint GVIM
+handles it beautifully :-)
 

@@ -1,76 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268119AbUJMAQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267921AbUJMAUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268119AbUJMAQk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 20:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268113AbUJMAQg
+	id S267921AbUJMAUv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 20:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268108AbUJMAUu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 20:16:36 -0400
-Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:447 "EHLO
-	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S267921AbUJMAQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 20:16:16 -0400
-References: <1097542651.2666.7860.camel@cube>
-Message-ID: <cone.1097626558.804486.12364.502@pc.kolivas.org>
-X-Mailer: http://www.courier-mta.org/cone/
-From: Con Kolivas <kernel@kolivas.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       kernel@kolivas.org, ankitjain1580@yahoo.com, mingo@elte.hu,
-       rml@tech9.net
-Subject: Re: Difference in priority
-Date: Wed, 13 Oct 2004 10:15:58 +1000
+	Tue, 12 Oct 2004 20:20:50 -0400
+Received: from ausmtp02.au.ibm.com ([202.81.18.187]:49386 "EHLO
+	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S267921AbUJMAUt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 20:20:49 -0400
+Subject: Re: Fw: signed kernel modules?
+From: "Rusty Russell (IBM)" <rusty@au1.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       "Rusty Russell (IBM)" <rusty@au1.ibm.com>,
+       David Howells <dhowells@redhat.com>, rusty@ozlabs.au.ibm.com.kroah.org,
+       Arjan van de Ven <arjanv@redhat.com>, Joy Latten <latten@us.ibm.com>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041012190826.GB31353@kroah.com>
+References: <30797.1092308768@redhat.com>
+	 <20040812111853.GB25950@devserv.devel.redhat.com>
+	 <20040812200917.GD2952@kroah.com> <26280.1092388799@redhat.com>
+	 <27175.1095936746@redhat.com> <30591.1096451074@redhat.com>
+	 <10345.1097507482@redhat.com>
+	 <1097507755.318.332.camel@hades.cambridge.redhat.com>
+	 <1097534090.16153.7.camel@localhost.localdomain>
+	 <1097570159.5788.1089.camel@baythorne.infradead.org>
+	 <20041012190826.GB31353@kroah.com>
+Content-Type: text/plain
+Organization: IBM
+Message-Id: <1097626835.4013.37.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="US-ASCII"
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 10:20:35 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan writes:
+On Wed, 2004-10-13 at 05:08, Greg KH wrote:
+> On Tue, Oct 12, 2004 at 09:35:59AM +0100, David Woodhouse wrote:
+> > 
+> > We know _precisely_ what the kernel looks at -- we wrote its linker. It
+> > really isn't that hard.
+> 
+> I agree.  We have to be able to detect improper header information for
+> unsigned modules today, nothing new there.
 
-> Con Kolivas writes:
->> Ankit Jain wrote:
-> 
->>> if somebody knows the difference b/w /PRI of both
->>> these commands because both give different results
->>>
->>> ps -Al
->>> & top
->>>
->>> as per priority rule we can set priority upto 0-99
->>> but top never shows this high priority
->>
->> Priority values 0-99 are real time ones and 100-139 are normal 
->> scheduling ones. RT scheduling does not change dynamic priority while 
->> running wheras normal scheduling does (between 100-139). top shows the 
->> value of the current dynamic priority in the PRI column as the current 
->> dynamic priority-100. If you have a real time task in top it shows as a 
->> -ve value. ps -Al seems to show the current dynamic priority+60.
-> 
-> What would you like to see? There are numerous
-> competing ideas of reality. There's also the matter
-> of history and standards. I'd gladly "fix" ps, if
-> people could agree on what "fix" would mean.
-> 
-> Various desirable but conflicting traits include:
-> 
-> a. for normal idle processes, PRI matches NI
-> b. for RT processes, PRI matches RT priority
-> c. for RT processes, PRI is negative of RT priority
-> d. PRI is the unmodified value seen in /proc
-> e. PRI is never negative
-> f. low PRI is low priority (SysV "pri" keyword)
-> g. low PRI is high priority (UNIX "PRI", SysV "opri")
-> h. PRI matches some kernel-internal value
-> i. PRI is in the range -99 to 999 (not too wide)
+No, we *don't*.  We check that it's the right arch, and ELF, and not
+truncated.  Then we trust the contents.
 
-I can't say I've ever felt strongly about it. Wish I knew what was the best 
-way. If we change the range of RT priority range by increasing it from 100 
-to say 1000 then any arbitrary value to subtract will be wrong. How about 
-just leaving the absolute dynamic priority value? Then we don't have any 
-negative values confusing it, it isn't affected by increasing the range of 
-RT priorities, and better priority values still are lower in value.
+I realize that ignorance is bliss, but if you want to debate this, I
+recommend reading some code...
 
-Cheers,
-Con
+Rusty.
+
 

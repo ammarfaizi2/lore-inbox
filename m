@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262447AbTCIJSi>; Sun, 9 Mar 2003 04:18:38 -0500
+	id <S262485AbTCIJaX>; Sun, 9 Mar 2003 04:30:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262484AbTCIJSi>; Sun, 9 Mar 2003 04:18:38 -0500
-Received: from wall.ttu.ee ([193.40.254.238]:8211 "EHLO wall.ttu.ee")
-	by vger.kernel.org with ESMTP id <S262447AbTCIJSh>;
-	Sun, 9 Mar 2003 04:18:37 -0500
-Date: Sun, 9 Mar 2003 11:29:05 +0200 (EET)
-From: Siim Vahtre <siim@pld.ttu.ee>
-To: <linux-kernel@vger.kernel.org>
-cc: <jsimmons@infradead.org>
-Subject: Re: Console weirdness
-In-Reply-To: <3E6AF463.4020706@portrix.net>
-Message-ID: <Pine.SOL.4.31.0303091125560.28624-100000@pitsa.pld.ttu.ee>
+	id <S262486AbTCIJaW>; Sun, 9 Mar 2003 04:30:22 -0500
+Received: from tag.witbe.net ([81.88.96.48]:22279 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id <S262485AbTCIJaW>;
+	Sun, 9 Mar 2003 04:30:22 -0500
+From: "Paul Rolland" <rol@as2917.net>
+To: "'Paul Larson'" <plars@linuxtestproject.org>,
+       "'Rusty Lynch'" <rusty@linux.co.intel.com>
+Cc: "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: Re: Available watchdog test cases
+Date: Sun, 9 Mar 2003 10:40:58 +0100
+Message-ID: <008501c2e61f$fdd0a800$2101a8c0@witbe>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.3416
+In-Reply-To: <1046880939.26974.21.camel@plars>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Mar 2003, Jan Dittmer wrote:
+Just a quick question : is there an easy to force the kernel to Oops,
+to make sure that the watchdog will even be working under such
+conditions ?
 
-> But still, switching back from X to console corrupts the display.
-> Switching back is fine though using the fbdev.diff patch. Without
-> switching back and force works fine, except that the last line isn't
-> properly redrawn (rivafb).
+I know people are all trying to avoid Oops... but I think the testplan
+should include that too...
 
-I am using rivafb with 2.5.64-bk2 kernel and with latest fbdev patches
-and have following (minor) problems:
+Regards,
+Paul
 
-* switching to X and back ruins the colours totally. Soulution is to
-fbset back to default mode. (I've even made hotkey for that ;-) )
-
-* changing modes(to other than 640x480) will change the resolution but
-not the 'console window' itself. That is - I have 640x480 window on the
-corner for text console but actually 800x600 resolution. (Maybe it is a
-feature? How to get it full-screened, anyway?)
-
-* changing modes on one tty (even though -a was specified with fbset)
-will not change modes on other ttys. When switching ttys with different
-resolution, the screen blanks and I again have to use my hotkey to fbset
-back to default resolution.
-
-* using cat /dev/fb1 will produce kernel NULL pointer :-)
-
-Oh.. and one quick question.. docs are talking about 'nice large console
-without using tiny, unreadable fonts'. How to archieve that?
+> On Tue, 2003-03-04 at 15:04, Rusty Lynch wrote:
+> > The test cases that I have been using for testing my 
+> watchdog work are 
+> > available at 
+> > http://www.stinkycat.com/patches/watchdog_stuff/watchdog_test.tar.gz
+> > 
+> > The test are for both the legacy (well, current) /dev/watchdog 
+> > interface and my proposed sysfs based interface.
+> Thanks a bunch Rusty, I'll take a look at them for LTP.
 

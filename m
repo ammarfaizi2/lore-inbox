@@ -1,49 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291331AbSBHBVX>; Thu, 7 Feb 2002 20:21:23 -0500
+	id <S291319AbSBHBjU>; Thu, 7 Feb 2002 20:39:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291345AbSBHBVN>; Thu, 7 Feb 2002 20:21:13 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:6664 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S291331AbSBHBVB>;
-	Thu, 7 Feb 2002 20:21:01 -0500
-Message-ID: <3C6327F5.56C5F809@mandrakesoft.com>
-Date: Thu, 07 Feb 2002 20:20:53 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-pre8 i686)
-X-Accept-Language: en
+	id <S291339AbSBHBjL>; Thu, 7 Feb 2002 20:39:11 -0500
+Received: from [67.105.126.66] ([67.105.126.66]:53257 "EHLO
+	cerberus.stardot-tech.com") by vger.kernel.org with ESMTP
+	id <S291319AbSBHBjC>; Thu, 7 Feb 2002 20:39:02 -0500
+Date: Thu, 7 Feb 2002 17:38:42 -0800 (PST)
+From: Jim Treadway <jim@stardot-tech.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Add support for Lava Octopus PCI serial card
+Message-ID: <Pine.LNX.4.44.0202071722230.11456-100000@cerberus.stardot-tech.com>
 MIME-Version: 1.0
-To: Richard Henderson <rth@twiddle.net>
-CC: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Jay Estabrook <Jay.Estabrook@compaq.com>, andrea@suse.de,
-        frival@zk3.dec.com, linux-kernel@vger.kernel.org, mingo@redhat.com
-Subject: Re: Alpha update for 2.5.3
-In-Reply-To: <20020207211329.A861@jurassic.park.msu.ru> <20020207165949.A3759@are.twiddle.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First comment, the below is what Ingo suggested for
-sched_find_first_zero_bit.  Note that this version is -before- the bit
-array changed from [I believe] 140 to 100 bits.
 
-Second comment, some of the bits in your patch are in 2.5.3-pre3.  [but
-drivers/ide/ide-dma.c does not compile for me, unrelated to alpha...]
+This patch (against 2.4.17) adds support for the "Lava Octopus-550" (a 
+multiport PCI serial card).
 
-> static inline int sched_find_first_zero_bit(unsigned long *b)
-> {
->         unsigned long rt;
-> 
->         rt = b[0] & b[1];
->         if (unlikely(rt != -1UL))
->                 return find_first_zero_bit(b, MAX_RT_PRIO);
-> 
->         return ffz(b[2]) + MAX_RT_PRIO;
-> }
+I'm not sure exactly who the maintainer of the serial driver for the 2.4.X
+branch is, and the linux-serial list seems to be rather dead, so I'm
+sending it here.
+
+If anyone knows of a better place to send this, please let me know. ;)
 
 
--- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+diff -ur linux-2.4.17-orig/drivers/char/serial.c linux-2.4.17/drivers/char/serial.c
+--- linux-2.4.17-orig/drivers/char/serial.c	Fri Dec 21 09:41:54 2001
++++ linux-2.4.17/drivers/char/serial.c	Wed Jan 23 23:33:31 2002
+@@ -4244,6 +4244,7 @@
+ 	pbn_b0_bt_2_115200,
+ 	pbn_b0_bt_1_460800,
+ 	pbn_b0_bt_2_460800,
++	pbn_b0_bt_4_460800,
+ 
+ 	pbn_b1_1_115200,
+ 	pbn_b1_2_115200,
+@@ -4322,6 +4323,7 @@
+ 	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 115200 }, /* pbn_b0_bt_2_115200 */
+ 	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 1, 460800 }, /* pbn_b0_bt_1_460800 */
+ 	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 2, 460800 }, /* pbn_b0_bt_2_460800 */
++	{ SPCI_FL_BASE0 | SPCI_FL_BASE_TABLE, 4, 460800 }, /* pbn_b0_bt_4_460800 */
+ 
+ 	{ SPCI_FL_BASE1, 1, 115200 },		/* pbn_b1_1_115200 */
+ 	{ SPCI_FL_BASE1, 2, 115200 },		/* pbn_b1_2_115200 */
+@@ -4829,6 +4831,12 @@
+ 	{	PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_QUAD_B,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_b0_bt_2_460800 },
++	{	PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_OCTO_A,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_b0_bt_4_460800 },
++	{	PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_OCTO_B,
++		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++		pbn_b0_bt_4_460800 },
+ 	{	PCI_VENDOR_ID_LAVA, PCI_DEVICE_ID_LAVA_SSERIAL,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+ 		pbn_b0_bt_1_115200 },
+diff -ur linux-2.4.17-orig/include/linux/pci_ids.h linux-2.4.17/include/linux/pci_ids.h
+--- linux-2.4.17-orig/include/linux/pci_ids.h	Fri Dec 21 09:42:03 2001
++++ linux-2.4.17/include/linux/pci_ids.h	Wed Jan 23 23:22:57 2002
+@@ -1441,6 +1441,8 @@
+ #define PCI_DEVICE_ID_LAVA_DSERIAL	0x0100 /* 2x 16550 */
+ #define PCI_DEVICE_ID_LAVA_QUATRO_A	0x0101 /* 2x 16550, half of 4 port */
+ #define PCI_DEVICE_ID_LAVA_QUATRO_B	0x0102 /* 2x 16550, half of 4 port */
++#define PCI_DEVICE_ID_LAVA_OCTO_A	0x0180 /* 4x 16550A, half of 8 port */
++#define PCI_DEVICE_ID_LAVA_OCTO_B	0x0181 /* 4x 16550A, half of 8 port */
+ #define PCI_DEVICE_ID_LAVA_PORT_PLUS	0x0200 /* 2x 16650 */
+ #define PCI_DEVICE_ID_LAVA_QUAD_A	0x0201 /* 2x 16650, half of 4 port */
+ #define PCI_DEVICE_ID_LAVA_QUAD_B	0x0202 /* 2x 16650, half of 4 port */
+

@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270017AbRHSFlh>; Sun, 19 Aug 2001 01:41:37 -0400
+	id <S270042AbRHSGHi>; Sun, 19 Aug 2001 02:07:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270018AbRHSFl2>; Sun, 19 Aug 2001 01:41:28 -0400
-Received: from member.michigannet.com ([207.158.188.18]:25092 "EHLO
-	member.michigannet.com") by vger.kernel.org with ESMTP
-	id <S270017AbRHSFlO>; Sun, 19 Aug 2001 01:41:14 -0400
-Date: Sun, 19 Aug 2001 01:40:49 -0400
-From: Paul <set@pobox.com>
-To: Jeff Chua <jchua@fedex.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OOPS] repeatable 2.4.8-ac7, 2.4.7-ac6 just run xdos
-Message-ID: <20010819014049.A1315@squish.home.loc>
-Mail-Followup-To: Paul <set@pobox.com>, Jeff Chua <jchua@fedex.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010819004703.A226@squish.home.loc> <Pine.LNX.4.33.0108191308480.6458-100000@boston.corp.fedex.com>
+	id <S270075AbRHSGH1>; Sun, 19 Aug 2001 02:07:27 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:47223 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S270042AbRHSGHP>; Sun, 19 Aug 2001 02:07:15 -0400
+Date: Sun, 19 Aug 2001 08:07:42 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.9aa3
+Message-ID: <20010819080742.A725@athlon.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.33.0108191308480.6458-100000@boston.corp.fedex.com>; from jchua@fedex.com on Sun, Aug 19, 2001 at 01:09:26PM +0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua <jchua@fedex.com>, on Sun Aug 19, 2001 [01:09:26 PM] said:
-> xdos runs fine for me for all of 2.4.x. Mine is P3.
-> 
-> Thanks,
-> Jeff
-> [ jchua@fedex.com ]
-> 
+Only in 2.4.9aa2: 00_silent-stack-overflow-5
+Only in 2.4.9aa3: 00_silent-stack-overflow-6
 
-	Actually, it works fine for me too, _if_ I use DOS 5 as
-the boot image, but I changed to DOS 6.22, and its has oops'd
-every time Ive tried it that way. Its just a trigger for whatever
-the real problem is.
+	Updated to run expand_stack always with the mm write semaphore acquired
+	to fix the race conditions. Upgrading the semaphore during
+	map_user_kiobuf was quite painful so I just disallowed to do direct I/O
+	on a growsdown VMA (you can still do that as far as it doesn't need to
+	be live extended on the fly).
 
-Paul
-set@pobox.com
+Only in 2.4.9aa3: 00_vm_raend-race-1
+
+	Sanitize the vm_raend field before trusting it, such field is racy.
+
+Only in 2.4.9aa2: 10_expand-stack-smp-1
+
+	Dropped (it wasn't needed).
+
+Only in 2.4.9aa2: 70_mmap-rb-4
+Only in 2.4.9aa3: 70_mmap-rb-5
+
+	Backed out a few unnecessary minor changes.
+
+Andrea

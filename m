@@ -1,104 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267971AbUI1V1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267977AbUI1Vcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267971AbUI1V1w (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 17:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268025AbUI1V12
+	id S267977AbUI1Vcl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 17:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268039AbUI1Vck
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 17:27:28 -0400
-Received: from eth1023.nsw.adsl.internode.on.net ([150.101.206.254]:5205 "EHLO
-	naya.ABOOSPLANET.COM") by vger.kernel.org with ESMTP
-	id S267971AbUI1V0N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 17:26:13 -0400
-From: "Aboo Valappil" <aboo@aboosplanet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Switch back to Real mode and then boot strap
-Date: Wed, 29 Sep 2004 07:26:08 +1000
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 28 Sep 2004 17:32:40 -0400
+Received: from sb0-cf9a48a7.dsl.impulse.net ([207.154.72.167]:35789 "EHLO
+	madrabbit.org") by vger.kernel.org with ESMTP id S267977AbUI1VcQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 17:32:16 -0400
+Subject: Re: [RFC][PATCH] inotify 0.10.0
+From: Ray Lee <ray-lk@madrabbit.org>
+To: John McCutchan <ttb@tentacle.dhs.org>
+Cc: Andrew Morton <akpm@osdl.org>, rml@novell.com,
+       linux-kernel@vger.kernel.org, gamin-list@gnome.org,
+       viro@parcelfarce.linux.theplanet.co.uk, iggy@gentoo.org
+In-Reply-To: <1096404035.30123.22.camel@vertex>
+References: <1096250524.18505.2.camel@vertex>
+	 <20040926211758.5566d48a.akpm@osdl.org>
+	 <1096318369.30503.136.camel@betsy.boston.ximian.com>
+	 <1096350328.26742.52.camel@orca.madrabbit.org>
+	 <20040928120830.7c5c10be.akpm@osdl.org>  <1096404035.30123.22.camel@vertex>
+Content-Type: text/plain
+Organization: http://madrabbit.org/
+Date: Tue, 28 Sep 2004 14:32:12 -0700
+Message-Id: <1096407132.5177.34.camel@issola.madrabbit.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.0 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Thread-Index: AcSlPCbAQLoATotIQPmiGy8T1r1kWwAAPl+wABklHWA=
-In-Reply-To: <NAYASmLAztxc1o8yfog00000008@naya.ABOOSPLANET.COM>
-Message-ID: <NAYAswFCHOzyfyz5b6K0000000a@naya.ABOOSPLANET.COM>
-X-OriginalArrivalTime: 28 Sep 2004 21:26:11.0652 (UTC) FILETIME=[C6C7D840:01C4A5A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Tue, 2004-09-28 at 16:40 -0400, John McCutchan wrote:
+> On Tue, 2004-09-28 at 15:08, Andrew Morton wrote:
+> > Ray Lee <ray-lk@madrabbit.org> wrote:
+> > >
+> > > The current way pads out the structure unnecessarily, and still doesn't
+> > > handle the really long filenames, by your admission. It incurs extra
+> > > syscalls, as few filenames are really 256 characters in length. 
+> > 
+> > Why don't you pass a file descriptor into the syscall instead of a pathname?
+> > You can then take a ref on the inode and userspace can close the file.
+> > That gets you permission checking for free.
+> > 
+> 
+> I don't think moving inotify to a syscall based interface is worth it.
+> 
+> First off, on startup, this would require about 2k open() calls,
+> followed by 2k syscalls to inotify.
 
-I am new to this mailing list ... Need some help, PLEASE :)
+And then 2k close() calls.
 
-I am running redhat Linux with kernel 2.4.21-4.EL.
+> Not as nice as just 2k ioctl() calls.
 
-Basically I have a requirement of re-booting ( Without really rebooting )
-the OS from the hard disk ( even if a floppy is present or a bootable CD-ROM
-is present).  Update CMOS to change the boot sequence is not an option for
-my requirement.
+<shrug> Syscalls aren't free, but they aren't the end of the world.
 
-My idea is to read the MBR off the hard disk and then jump to the memory
-location of the MBR after switching to real mode. The thing I do not want to
-do is to jump to real address FFFF:0000 because it is going to select the
-boot device ( Where this selection, I do not have any control when I
-rebooted )
+> The character device interface right now suits it perfectly. If we used
+> syscalls we would need to provide a syscall that gives user space a FD
+> that it can read events on,
 
-I found a function in process.c ( arch/i386/kernel/ ) called
-machine_real_restart(code,length) where you could give the address of a real
-mode routine. If I call this function (ofcource from a kernel module) with
-address pointed to a piece of code which has ljmp $0xffff,$0x0, the system
-reboots fine. I WAS VERY EXCITED TO SEE THIS.
+Again, apologies, I should know better than to write email on short
+sleep. All I was suggesting was that we pass in an fd that comes from
+open(), and that we should look at replacing the ioctl with write(). I
+like it as a character device, honest.
 
-Proceeding to my next step, I generated an array of machine code (.code16),
-where I use INT 13h to read the first sector off the hard drive to
-0000:7c00, and then ljmp to 0000:7c000. I used the above kernel function to
-call this. I am was so disappointed to see the SYSTEM JUST HANGS :( .
-
-Here is the routine I am using ...
-
-.code16
-xorw %ax,%ax
-movw %ax,%ds
-movw %ax,%ss
-movw %ax,%es
-movw $0xffff, %sp
-movw $0x201,%ax
-movw $0x01,%cx
-movw $0x7c00, %bx
-movw $0x80,%dx
-int $0x13
-movb $0x0e,%ah
-movb $0x5A,%al
-int $0x10
-ljmp $0x0000,$0x7c00
-
-Here the code for device IOCTL for my character device.
-
-int device_ioctl( struct inode *inode, struct file *file, unsigned int i_n,
-unsigned long i_p )
-{
-
-   static unsigned char jbios [] =    {
-
- 0x31 ,0xc0 ,0x8e ,0xd8 ,0x8e ,0xd0 ,0x8e ,0xc0 ,0xbc ,0xff ,0xff ,0xb8
-,0x01 ,0x02 ,0xb9 ,0x01 ,0x00 ,0xbb ,0x00 ,0x7c ,0xba ,0x80 ,0x00 ,0xcd
-,0x13 ,0xb4 ,0x0e ,0xb0 ,0x5a ,0xcd ,0x10 ,0xea ,0x00 ,0x7c ,0x00 ,0x00 };
-
- if (  i_n == 999 ) {
-     machine_real_restart(jbios,36);
- }
-}
-
-
-When I call the ioctl, it just hangs. If I replace the code with only a ljmp
-$0xffff,0x0 instruction it reboots the computer as it should.
-
-Any ideas, what I am doing wrong here ?
-
-Thanks
-
-Aboo
-
-
-
+Ray
 

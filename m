@@ -1,76 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315388AbSILLez>; Thu, 12 Sep 2002 07:34:55 -0400
+	id <S315279AbSILLnj>; Thu, 12 Sep 2002 07:43:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315406AbSILLez>; Thu, 12 Sep 2002 07:34:55 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:8583 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S315388AbSILLey>; Thu, 12 Sep 2002 07:34:54 -0400
-Date: Thu, 12 Sep 2002 07:41:09 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: jw schultz <jw@pegasys.ws>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Heuristic readahead for filesystems
-In-Reply-To: <20020912004520.GD10315@pegasys.ws>
-Message-ID: <Pine.LNX.3.95.1020912072949.2700A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315413AbSILLnj>; Thu, 12 Sep 2002 07:43:39 -0400
+Received: from gargantua.enseirb.fr ([147.210.18.6]:62882 "EHLO
+	gargantua.enseirb.fr") by vger.kernel.org with ESMTP
+	id <S315279AbSILLnj>; Thu, 12 Sep 2002 07:43:39 -0400
+Date: Thu, 12 Sep 2002 13:48:00 +0200
+From: lists@corewars.org
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrea Arcangeli <andrea@suse.de>, riel@conectiva.com.br,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19 OOPS [Repost]
+Message-ID: <20020912134800.A1068@corewars.org>
+References: <20020903190726.A15065@corewars.org> <20020904201155.A17544@corewars.org> <20020904182223.GE1210@dualathlon.random> <20020905223233.A3893@corewars.org> <20020911191614.A2078@corewars.org> <1031766496.5832.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1031766496.5832.5.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Wed, Sep 11, 2002 at 06:48:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 Sep 2002, jw schultz wrote:
+Hm, actually I am.
 
-> On Wed, Sep 11, 2002 at 03:21:37PM -0400, Richard B. Johnson wrote:
-> > On Wed, 11 Sep 2002, Oliver Neukum wrote:
-> > > Am Mittwoch, 11. September 2002 20:43 schrieb Xuan Baldauf:
-> 
-> > > > > Aio should be able to do it. But even that want help you with the stat
-> > > > > data.
-> > > >
-> > > > Aio would help me announcing stat() usage for the future?
-> > > 
-> > > No, it won't. But it would solve the issue of reading ahead.
-> > > Stating needs a kernel implementation of 'stat ahead'
-> > > -
+And from the oops traces, the offending intruction always seems to be a
+pop.
+
+I'll upgrade and try again.
+
+Thanks,
+Sapan
+
+On Wed, Sep 11, 2002 at 06:48:16PM +0100, Alan Cox wrote:
+> On Wed, 2002-09-11 at 18:16, lists@corewars.org wrote:
+> > Just in case this might shed some more light on the problem...
+> > I recompiled the kernel with frame pointers about a week ago, and I
+> > didn't face a single oops till today morning, when I recompiled the
+> > kernel without frame-pointers and I've been getting the same
+> > oopses all day.
 > > 
-> > I think this is discussed in the future. Write-ahead is the
-> > next problem solved. ?;)
 > 
-> Gating back to the original issue which was "readahead" of
-> stat() info...
+> Are you using gcc 3.0.x or an early gcc 3.1.x. There are bugs in those
+> where they write below the stack pointer which means an IRQ will corrupt
+> stuff. Turning on frame pointers might well hide this
 > 
-> The userland open of a directory could trigger an advance
-> reading of the directory data and of the inode structs of
-> all it's immediate members.  Almost all instances of a
-> usermode open on a directory will be doing fstats.  Even a
-> command line ls often has options (colour, -F, etc) turned on
-> by default that require fstat on all the entries.
-> The question would be how far ahead of the user app would
-> the kernel be.
-> 
-> I could possibly see having a fcntl() for directories to
-> pre-read just the first block of each file to accelerate
-> file-managers that use magic and perhaps forestall readahead
-> pulling in more than magic will use.
-
-Then you are tuning a file-system for a single program
-like `ls`. Most real-world I/O to file-systems are not done
-by `ls` or even `make`. The extra read-ahead overhead is
-just that, 'overhead'. Since the cost of disk I/O is expensive,
-you certainly do not want to read any more than is absolutely
-necessary. There had been a lot so studies about this in the
-70's when disks were very, very, slow. The disk-to-RAM speed
-ratio hasn't changed much even though both are much faster.
-Therefore, the conclusions of these studies, made by persons
-from DEC and IBM, should not have changed. From what I recall,
-all studies showed that read-ahead always reduced performance,
-but keeping what was already read in RAM always increased
-performance.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
-
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267784AbTAXRFJ>; Fri, 24 Jan 2003 12:05:09 -0500
+	id <S261486AbTAXROy>; Fri, 24 Jan 2003 12:14:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267786AbTAXRFJ>; Fri, 24 Jan 2003 12:05:09 -0500
-Received: from web80310.mail.yahoo.com ([66.218.79.26]:51736 "HELO
-	web80310.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S267784AbTAXRFI>; Fri, 24 Jan 2003 12:05:08 -0500
-Message-ID: <20030124171415.34636.qmail@web80310.mail.yahoo.com>
-Date: Fri, 24 Jan 2003 09:14:15 -0800 (PST)
-From: Kevin Lawton <kevinlawton2001@yahoo.com>
-Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030124154935.GB20371@elf.ucw.cz>
+	id <S262326AbTAXROy>; Fri, 24 Jan 2003 12:14:54 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:56496 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261486AbTAXROw>;
+	Fri, 24 Jan 2003 12:14:52 -0500
+Date: Fri, 24 Jan 2003 09:18:25 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: <rpjday@mindspring.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: test suite?
+In-Reply-To: <1043426077.1620.10.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33L2.0301240850070.9816-100000@dragon.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Pavel Machek <pavel@ucw.cz> wrote:
+| From: Robert P. J. Day <rpjday@mindspring.com>
+|
+|   i've noticed references to "test suites" for kernels, but
+| is there any one-step convenient way to select every possible
+| option for test-compiling a new kernel, just to see if it builds?
+| perhaps an "everything" option?
+|
+|   and, related to that, should such a kernel theoretically
+| work?  as in, are there any options that would be mutually
+| exclusive that would cause such a build to fail?
+|
+| still thinking about reorganizing the overall option structure,
 
-> How is plex86-aware-linux running under plex86 different from user
-> mode linux?
+Hi,
 
-With plex86, the goal is to run the stock x86 port.  Plex86 is also
-x86-specific.
+I notice that you've already had a reply on this (use "make help",
+"make allmodconfig" or "make allyesconfig" etc.).
 
-> Do you think you can make it faster?
+OSDL's PLM does this (make allmodconfig) for each new (2.5) kernel
+release and the results are posted at
+  http://www.osdl.org/archive/cherry/stability/
+and also in the PLM web page interface.
+The script that is used for this is at that same URL above.
+PLM is at http://www.osdl.org/cgi-bin/plm/ .
 
-To get any level of security with UML, you need to use "jailed mode"
-in which performance takes a big beating.  To fix this, you need
-patches to Linux as a host, to make it offer a better environment
-for running UML guests.  From a commercial perspective, then you have
-a patched Linux host + totally different port of a Linux guest.
->From a fun perspective, I think UML is fantastic achievement.
+Has anyone tried to boot an 'allyesconfig' kernel?
+I'll give that a shot now.
 
-What I'm aiming for is a stock Linux host and a stock Linux guest,
-the small mods to macroize PUSHF/POPF being a minor concession
-to accomodate a broken PVI support in x86.
+HTH.
+-- 
+~Randy
 
-
--Kevin
-
-__________________________________________________
-Do you Yahoo!?
-New DSL Internet Access from SBC & Yahoo!
-http://sbc.yahoo.com

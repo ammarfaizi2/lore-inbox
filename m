@@ -1,38 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261930AbUCLDOy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 22:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUCLDOy
+	id S261931AbUCLDU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 22:20:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUCLDU1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 22:14:54 -0500
-Received: from colin2.muc.de ([193.149.48.15]:7949 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261930AbUCLDOy (ORCPT
+	Thu, 11 Mar 2004 22:20:27 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:48293 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261931AbUCLDU0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 22:14:54 -0500
-Date: 12 Mar 2004 04:14:52 +0100
-Date: Fri, 12 Mar 2004 04:14:52 +0100
-From: Andi Kleen <ak@muc.de>
-To: "Nakajima, Jun" <jun.nakajima@intel.com>
-Cc: Nick Piggin <piggin@cyberone.com.au>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4-mm1
-Message-ID: <20040312031452.GA41598@colin2.muc.de>
-References: <7F740D512C7C1046AB53446D37200173FEB851@scsmsx402.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7F740D512C7C1046AB53446D37200173FEB851@scsmsx402.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 11 Mar 2004 22:20:26 -0500
+Date: Thu, 11 Mar 2004 22:20:12 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrea Arcangeli <andrea@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: anon_vma RFC2
+In-Reply-To: <Pine.LNX.4.44.0403112315220.2671-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0403112219580.21139-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 11, 2004 at 07:04:50PM -0800, Nakajima, Jun wrote:
-> As we can have more complex architectures in the future, the scheduler
-> is flexible enough to represent various scheduling domains effectively,
-> and yet keeps the common scheduler code simple.
+On Thu, 11 Mar 2004, Hugh Dickins wrote:
 
-I think for SMT alone it's too complex and for NUMA it doesn't do
-the right thing for "modern NUMAs" (where NUMA factor is very low
-and you have a small number of CPUs for each node). 
+> Okay, Rik, the two extremes belong to you: one anon memory
+> object in total (above), and one per page (your original rmap);
+> whereas Andrea is betting on one per vma, and I go for one per mm.
+> Each way has its merits, I'm sure - and you've placed two bets!
 
--Andi
+I suspect yours is the best mix.
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
+

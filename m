@@ -1,89 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267129AbSKMHPu>; Wed, 13 Nov 2002 02:15:50 -0500
+	id <S267123AbSKMHZX>; Wed, 13 Nov 2002 02:25:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267131AbSKMHPu>; Wed, 13 Nov 2002 02:15:50 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:3999 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267129AbSKMHPt>;
-	Wed, 13 Nov 2002 02:15:49 -0500
-Date: Wed, 13 Nov 2002 08:22:28 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: OOPS on module unload 2.5.47-mm1
-Message-ID: <20021113072228.GD832@suse.de>
-References: <200211122349.gACNneB27936@eng2.beaverton.ibm.com>
+	id <S267124AbSKMHZX>; Wed, 13 Nov 2002 02:25:23 -0500
+Received: from pc175.host14.starman.ee ([62.65.206.175]:260 "EHLO amd-laptop")
+	by vger.kernel.org with ESMTP id <S267123AbSKMHZW>;
+	Wed, 13 Nov 2002 02:25:22 -0500
+Date: Wed, 13 Nov 2002 09:32:38 +0200
+From: Priit Laes <amd@tt.ee>
+To: linux-kernel@vger.kernel.org
+Cc: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
+Subject: Re: GA-7VRXP is a bad motherboard [was Re: PDC20276 Linux driver]
+Message-ID: <20021113073238.GA5066@amd-laptop.mshome.net>
+References: <1037117166.8313.61.camel@irongate.swansea.linux.org.uk> <1037133511.7047.12.camel@plokta.s8.com> <20021112211329.GB32036@amd-laptop.mshome.net> <200211122306.19195.ruth@ivimey.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200211122349.gACNneB27936@eng2.beaverton.ibm.com>
+In-Reply-To: <200211122306.19195.ruth@ivimey.org>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.19-gentoo-r9 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 12 2002, Badari Pulavarty wrote:
-> Hi,
+Ruth Ivimey-Cook (Ruth.Ivimey-Cook@ivimey.org) wrote:
+> On Tuesday 12 November 2002 21:13, Priit Laes wrote:
+> > Bryan O'Sullivan (bos@serpentine.com) wrote:
+> > > On Tue, 2002-11-12 at 08:53, Geoffrey Lee wrote:
+> > > The GA-7VRXP is a known bad motherboard.  It has a bad electrical
+> > > interface to the AGP slot, so if you're using an AGP graphics card
+> > > without falling back to PCI access, you are pretty much guaranteed
+> > > system hangs or crashes after some time, depending on load.
+> ....
+> > The 1.1 version of this board would sometimes work and sometimes not
+> > work. Odds are better of getting a functioning board, but if you have
+> ....
+> > I've(www.thetechboard.com) already tested the 2.0 version of the board with 
 > 
-> I get following panic while rmmod qla driver.  (2.5.47-mm1).
+> FWIW, I have the v1.1 GA-7VRXP using an Athlon XP 1800+ CPU and a GeForce3 
+> Ti200, and all has so far been well. Don't know if I'm just lucky. No CPU 
+> freq or voltage tweaks applied AFAICR.
 > 
-> Is this a known problem ? Any ideas ?
+> The 20276 has been working fine controlling 2 of 4 disks of a software-RAID 
+> (i.e.  md, not ataraid) volume. No problems so far, other than a driver clash 
+> with an older Promise board: the BIOS for the MB wouldn't run with the old 
+> card enabled. Fixed by swapping the old board out.
 > 
-> Thanks,
-> Badari
-> 
-> 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Synchronizing SCSI cache: 
-> Unable to handle kernel paging request at virtual address 5a5a5a5e
->  printing eip:
-> c025ea85
-> *pde = 00000000
-> Oops: 0002
-> qla2200  
-> CPU:    0
-> EIP:    0060:[<c025ea85>]    Not tainted
-> EFLAGS: 00010287
-> EIP is at __blk_cleanup_queue+0x25/0x70
-> eax: 5a5a5a5a   ebx: d31c8c94   ecx: d23ab5ac   edx: d31c8c94
-> esi: 000001ab   edi: d31c8c90   ebp: d302f000   esp: d2eebf28
-> ds: 0068   es: 0068   ss: 0068
-> Process rmmod (pid: 2708, threadinfo=d2eea000 task=d2e48180)
-> Stack: 00000800 d2f60000 d31c8c2c c025eae7 d31c8c90 d31c8c00 f89424c0 c02960d9 
->        d31c8c2c d2f60000 00000006 c0295f22 d2f60000 d2a44000 c0295f10 c0295e2d 
->        d2f60000 00000006 d2eea000 00000000 c029694e f89424c0 c0295f10 f8915000 
-> Call Trace:
->  [<c025eae7>] blk_cleanup_queue+0x17/0x60
->  [<f89424c0>] driver_template+0x0/0x68 [qla2200]
->  [<c02960d9>] scsi_remove_host+0x179/0x1b0
->  [<c0295f22>] scsi_remove_legacy_host+0x12/0x50
->  [<c0295f10>] scsi_remove_legacy_host+0x0/0x50
->  [<c0295e2d>] scsi_tp_for_each_host+0x7d/0x110
->  [<c029694e>] scsi_unregister_host+0x6e/0xf0
->  [<f89424c0>] driver_template+0x0/0x68 [qla2200]
->  [<c0295f10>] scsi_remove_legacy_host+0x0/0x50
->  [<f8929aba>] exit_this_scsi_driver+0xa/0x10 [qla2200]
->  [<f89424c0>] driver_template+0x0/0x68 [qla2200]
->  [<c012081e>] free_module+0x1e/0x130
->  [<c011faa4>] sys_delete_module+0x1b4/0x410
->  [<c0109173>] syscall_call+0x7/0xb
-> 
-> Code: 89 50 04 89 02 89 09 89 49 04 51 8b 0d 0c 43 5c c0 46 51 e8 
-
-Hmm, look as if the rq on the freelist has already been free'ed. But if
-it had, it shouldn't be on the list. At least there's a small bug there,
-the elevator_exit() needs to be before the __blk_cleanup_queue() calls
-in blk_cleanup_queue().
-
-Maybe try dumping blk_init_queue() and blk_cleanup_queue() calls to see
-if they match up?
-
--- 
-Jens Axboe
-
+Maybe you are the lucky one, who has rev 2.0 board... ;)

@@ -1,42 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSHNXwb>; Wed, 14 Aug 2002 19:52:31 -0400
+	id <S316043AbSHOAD0>; Wed, 14 Aug 2002 20:03:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316043AbSHNXwb>; Wed, 14 Aug 2002 19:52:31 -0400
-Received: from smtp-stjh-01-02.rogers.nf.net ([192.75.13.142]:38135 "EHLO
-	smtp-stjh-01-02.rogers.nf.net") by vger.kernel.org with ESMTP
-	id <S315942AbSHNXwa>; Wed, 14 Aug 2002 19:52:30 -0400
-From: "Chad Young" <skidley@roadrunner.nf.net>
-Date: Wed, 14 Aug 2002 21:26:23 -0230
-To: linux-kernel@vger.kernel.org
+	id <S316070AbSHOAD0>; Wed, 14 Aug 2002 20:03:26 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:30185 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S316043AbSHOADZ>; Wed, 14 Aug 2002 20:03:25 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200208150007.g7F07JU05425@devserv.devel.redhat.com>
 Subject: Re: Linux 2.4.20-pre2-ac1
-Message-ID: <20020814235623.GA381@hendrix>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <200208141634.g7EGYGO29387@devserv.devel.redhat.com> <Pine.NEB.4.44.0208150036100.1351-100000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
+To: elenstev@mesatop.com (Steven Cole)
+Date: Wed, 14 Aug 2002 20:07:19 -0400 (EDT)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <1029346932.2045.128.camel@spc9.esa.lanl.gov> from "Steven Cole" at Aug 14, 2002 11:42:11 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.NEB.4.44.0208150036100.1351-100000@mimas.fachschaften.tu-muenchen.de>
-User-Agent: Mutt/1.3.28i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/home/skidley/kernel/linux-2.4.20-pre2-ac1/include
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing
--fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2
--march=i686   -nostdinc -I /usr/lib/gcc-lib/i386-linux/2.95.4/include
--DKBUILD_BASENAME=swap_state  -c -o swap_state.o swap_state.c
-swap_state.c:155: macro `PAGE_BUG' used without args
-make[2]: *** [swap_state.o] Error 1
-make[2]: Leaving directory
-`/home/skidley/kernel/linux-2.4.20-pre2-ac1/mm'
-make[1]: *** [first_rule] Error 2
-make[1]: Leaving directory
-`/home/skidley/kernel/linux-2.4.20-pre2-ac1/mm'
-make: *** [_dir_mm] Error 2
+> fs/fs.o: In function `nfsd':
+> fs/fs.o(.text+0x43fb1): undefined reference to `exp_readunlock'
+> fs/fs.o: In function `sys_nfsservctl':
+> fs/fs.o(.text+0x445e8): undefined reference to `exp_readunlock'
+> fs/fs.o(.text+0x44692): undefined reference to `exp_readunlock'
+> fs/fs.o(.data+0x261c): undefined reference to `exp_readunlock'
+> make: *** [vmlinux] Error 1
+> 
+> Unsetting CONFIG_NFSD allowed me to build 2.4.20-pre2-ac1.
 
--- 
-"I mean they are gonna kill ya so like if ya give em a quick, short, sharp,
-shock they won't do it again. Dig it! I mean he got off lightly cuz I would 
-have given him a thrashing. I only hit him once. It was only a difference of 
-opinion but really... I mean good manners don't cost nothin do they. Eh?"
+Interesting. The NFS merge was nontrivial so thats not a huge suprise.
+What is however is that it apparently built for me

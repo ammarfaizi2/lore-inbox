@@ -1,96 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266164AbUAQTtu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 Jan 2004 14:49:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266165AbUAQTtu
+	id S266134AbUAQTnt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 Jan 2004 14:43:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266138AbUAQTnt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 Jan 2004 14:49:50 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25919 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S266164AbUAQTtq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 Jan 2004 14:49:46 -0500
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Intel Alder IOAPIC fix
-References: <1073876117.2549.65.camel@mulgrave>
-	<Pine.LNX.4.58.0401121152070.1901@evo.osdl.org>
-	<1073948641.4178.76.camel@mulgrave>
-	<Pine.LNX.4.58.0401121452340.2031@evo.osdl.org>
-	<1073954751.4178.98.camel@mulgrave>
-	<Pine.LNX.4.58.0401121621220.14305@evo.osdl.org>
-	<1074012755.2173.135.camel@mulgrave>
-	<m1smihg56u.fsf@ebiederm.dsl.xmission.com>
-	<1074185897.1868.118.camel@mulgrave>
-	<m17jztau8l.fsf@ebiederm.dsl.xmission.com>
-	<1074196460.1868.250.camel@mulgrave>
-	<m13cagbgrc.fsf@ebiederm.dsl.xmission.com>
-	<1074352704.2015.8.camel@mulgrave>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 17 Jan 2004 12:43:35 -0700
-In-Reply-To: <1074352704.2015.8.camel@mulgrave>
-Message-ID: <m13cae9x94.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
-MIME-Version: 1.0
+	Sat, 17 Jan 2004 14:43:49 -0500
+Received: from wilma.widomaker.com ([204.17.220.5]:19985 "EHLO
+	wilma.widomaker.com") by vger.kernel.org with ESMTP id S266134AbUAQTnq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 Jan 2004 14:43:46 -0500
+Date: Sat, 17 Jan 2004 13:54:39 -0500
+From: Charles Shannon Hendrix <shannon@widomaker.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.6.1 and cdrecord on ATAPI bus
+Message-ID: <20040117185439.GB4496@widomaker.com>
+References: <20040117031925.GA26477@widomaker.com> <20040117042208.GA8664@merlin.emma.line.org> <20040117154905.GB26248@widomaker.com> <jevfna5vg7.fsf@sykes.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <jevfna5vg7.fsf@sykes.suse.de>
+X-Message-Flag: Microsoft Loves You!
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley <James.Bottomley@steeleye.com> writes:
+Sat, 17 Jan 2004 @ 18:36 +0100, Andreas Schwab said:
 
-> On Fri, 2004-01-16 at 00:32, Eric W. Biederman wrote:
-> > Yes, this is the extreme case.  In normal cases I would just
-> > expect to push to one side and probably shrink it to 0.  I guess
-> > I have something against implying a hierarchal relationship that
-> > does not exist.
+> > % cdrecord -version
+> > Cdrecord 2.00.3 (i686-pc-linux-gnu) Copyright (C) 1995-2002 J?rg Schilling
+> >
+> > I can try an alpha version, but from running strace on cdrecord, it
+> > seems like Linux is the problem.  Several ioctl() calls are failing just
+> > before cdrecord prints an error message and exits.
 > 
-> Well, it makes sense to me that the resource would be a child of the
-> reserved area, because the reserved area covers the APICs and this
-> rather annoying PCI device has one of the IO APICs tied to BAR0.
+> I see similar problems on ppc, with these messages in the log:
 > 
-> In this case, we have a PCI device claiming something we already
-> discovered and made use of long ago in bootup.
+> Jan 17 16:15:43 whitebox kernel: ide0, timeout waiting for dbdma command stop
+> Jan 17 16:15:43 whitebox kernel: ide-cd: dma error
+> Jan 17 16:15:43 whitebox kernel: hdb: DMA disabled
+> Jan 17 16:15:43 whitebox kernel: hdb: dma error: status=0x50 { DriveReady SeekComplete }
+> Jan 17 16:15:43 whitebox kernel: hdb: dma error: error=0x00
+> Jan 17 16:15:43 whitebox kernel: cdrom_newpc_intr: 180 residual after xfer
 
-Yes, when the BIOS is trustworthy that sounds reasonable. 
-The nasty theoretical case I can think of is what happens when that
-annoying PCI device is behind a bridge?  How do we reserve the
-bridge resources and become a child of them?
- 
-> > Right.  To me it looks like separate cases.  What I keep envisioning
-> > scanning the PCI devices and then realizing they are behind
-> > a bridge.  Before I go to far I guess I should ask.
-> > 
-> > The splitting/pushing aside looks especially useful for those
-> > cases where you subdivide the resource again.
-> > 
-> > As for the bridge case I think that is something different.  
-> 
-> The pragmatist in me says we can handle them all as a single case. 
-> Simply put, it means insert_resource() says "I know this belongs in the
-> resource tree, just put it in where it should go, please".  As long as
-> we make sure we only use it for the exception cases, it should all work
-> fine.
-> 
-> All I really want is to get the alter 4 and 8 way boxes working again,
-> I'm happy to go with whatever people decide about resources.  What other
-> uses are there for the TENTATIVE regions?
+That's odd because it wasn't that way in 2.4 and the beta 2.6 kernels.
 
-The case I care about is BIOS ROMS.  That case is fun because frequently
-the reserved region is smaller than region the ROM sits in.  But it
-really comes down to trusting the BIOS.  And anytime we trust the BIOS
-to do the right thing some BIOS will do it wrong.  So when we have a
-conflict and we know we are right I would much rather throw away what
-the BIOS has told me.
+I did see an error trying to load sr_mod when cdrecord runs, presumably
+because it is trying to scan my external SCSI burner, which is turned
+off.
 
-If we are somehow scanning the busses and stop and oh wait there is a
-bridge above everything that I had not noticed before.  And in a root
-complex (the pci express term) where the resources are non standard, I
-can really see this happening.  I know on Opteron systems we currently
-omit the resources on the cpu/HT chain.  That is what I think
-insert_resource was designed for.
+But "modprobe sr_mod" works fine.
 
-And there was another case a few days ago where someone was having
-similar BIOS problems with the AGP GART window.
+In case it matters, I have a VIA 82Cxxx chipset and an Asus K7V
+motherboard, one of those KT133 Pro models.
 
 
-Eric
+-- 
+UNIX/Perl/C/Pizza____________________s h a n n o n@wido !SPAM maker.com

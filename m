@@ -1,26 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261408AbREMPJu>; Sun, 13 May 2001 11:09:50 -0400
+	id <S261413AbREMPSc>; Sun, 13 May 2001 11:18:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261410AbREMPJk>; Sun, 13 May 2001 11:09:40 -0400
-Received: from equinox.unr.edu ([134.197.1.2]:54741 "EHLO equinox.unr.edu")
-	by vger.kernel.org with ESMTP id <S261408AbREMPJ0>;
-	Sun, 13 May 2001 11:09:26 -0400
-From: Eric Olson <ejolson@unr.edu>
-Message-Id: <200105131509.f4DF9DA06907@equinox.unr.edu>
-Subject: Re: FastTrack100+2.4.4 panic
-To: ehrhardt@mathematik.uni-ulm.de (Christian Ehrhardt)
-Date: Sun, 13 May 2001 08:09:13 -0700 (PDT)
-Cc: linux-kernel@vger.kernel.org, Axel.Thimm@physik.fu-berlin.de
-In-Reply-To: <20010513132716.12063.qmail@theseus.mathematik.uni-ulm.de> from "Christian Ehrhardt" at May 13, 2001 03:27:16 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261412AbREMPSM>; Sun, 13 May 2001 11:18:12 -0400
+Received: from geos.coastside.net ([207.213.212.4]:18366 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S261410AbREMPSK>; Sun, 13 May 2001 11:18:10 -0400
+Mime-Version: 1.0
+Message-Id: <p05100311b72454f710ce@[207.213.214.37]>
+In-Reply-To: <E14ycUa-0004K0-00@the-village.bc.nu>
+In-Reply-To: <E14ycUa-0004K0-00@the-village.bc.nu>
+Date: Sun, 13 May 2001 08:15:08 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: ENOIOCTLCMD?
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks both Christian Ehrhardt and Axel Thimm!  The two-line patch 
-to drivers/ide/ide-pci.c (including comment) worked perfectly.  
+At 5:43 PM +0100 2001-05-12, Alan Cox wrote:
+>  > That's what's confusing me: why the distinction? It's true that the
+>>  current scheme allows the dev->ioctlfunc() call below to force ENOTTY
+>>  to be returned, bypassing the switch, but presumably that's not what
+>>  one wants.
+>
+>It allows driver specific code to override generic code, including 
+>by reporting
+>that a given feature is not available/appropriate.
+>
+>Alan
 
---Eric
+What I was arguing (conceptually) is that something like
+
+#define ENOIOCTLCMD ENOTTY
+
+or preferably but more invasively s/ENOIOCTLCMD/ENOTTY/ (mutatis mutandis)
+
+would result in no loss of function. I assert that ENOIOCTLCMD is 
+redundant, pending a specific counterexample.
+-- 
+/Jonathan Lundell.

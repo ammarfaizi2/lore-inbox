@@ -1,58 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289877AbSAXTuI>; Thu, 24 Jan 2002 14:50:08 -0500
+	id <S289677AbSAXTxI>; Thu, 24 Jan 2002 14:53:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289872AbSAXTt7>; Thu, 24 Jan 2002 14:49:59 -0500
-Received: from ns.ithnet.com ([217.64.64.10]:58386 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S289677AbSAXTtk>;
-	Thu, 24 Jan 2002 14:49:40 -0500
-Date: Thu, 24 Jan 2002 20:49:38 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Sven Heinicke <sven@research.nj.nec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ReiserFS and RAID5
-Message-Id: <20020124204938.39fa1960.skraw@ithnet.com>
-In-Reply-To: <15440.23830.178152.579775@abasin.nj.nec.com>
-In-Reply-To: <15440.22127.875361.718680@abasin.nj.nec.com>
-	<20020124200645.53dca41c.skraw@ithnet.com>
-	<15440.23830.178152.579775@abasin.nj.nec.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S289872AbSAXTws>; Thu, 24 Jan 2002 14:52:48 -0500
+Received: from waste.org ([209.173.204.2]:22177 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id <S289677AbSAXTwi>;
+	Thu, 24 Jan 2002 14:52:38 -0500
+Date: Thu, 24 Jan 2002 13:52:23 -0600 (CST)
+From: Oliver Xymoron <oxymoron@waste.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Linux-Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: RFC: booleans and the kernel
+In-Reply-To: <3C5047A2.1AB65595@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.44.0201241313420.2839-100000@waste.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 24 Jan 2002 14:14:30 -0500 (EST)
-Sven Heinicke <sven@research.nj.nec.com> wrote:
+On Thu, 24 Jan 2002, Jeff Garzik wrote:
 
-> Software RAID .. Yes
-> 
-> System got two:
-> 
-> vendor_id	: GenuineIntel
-> model name	: Pentium III (Coppermine)
-> cpu MHz		: 868.671
-> cache size	: 256 KB
-> 
-> It's an ASLab system with 4 Ultra100 Cards each with 4 80G maxtor
-> drives.  So with the video and network card the PCI slots are full.
-> The raid tools are raidtools-0.90-9mdk as shipped with Mandrake 7.2.
+> A small issue...
+>
+> C99 introduced _Bool as a builtin type.  The gcc patch for it went into
+> cvs around Dec 2000.  Any objections to propagating this type and usage
+> of 'true' and 'false' around the kernel?
 
-Ok. If I get that right your report means that SW RAID5 is just broken,
-because if it wasn't reiserfs must have staid alive, but it just hung.
-I guess any other fs would have hung, too.
-And afterwards you simply fell into the obvious problem, that reiserfs
-must heavily rely on the underlying "hw" and gets completely confused
-if the lower layer is trashed for whatever reason.
+Ugh, no. C doesn't need booleans, neither do Perl or Python. This is a
+sickness imported from _recent_ C++ by way of Java by way of Pascal. This
+just complicates things.
 
-Is anybody out there that ever survived a hd crash in SW RAID5 config?
-(Meaning _without_ need to reboot)
+> Where variables are truly boolean use of a bool type makes the
+> intentions of the code more clear.  And it also gives the compiler a
+> slightly better chance to optimize code [I suspect].
 
-(I only try to figure out what is going on, because I am heavily 
-interested in building RAID5 configs myself, and you would not want to
-touch components (SW or HW) in this case that you cannot not trust)
+Unlikely. The compiler can already figure this sort of thing out from
+context.
 
-Regards,
-Stephan
+-- 
+ "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+

@@ -1,64 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263638AbTLECDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 21:03:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTLECDZ
+	id S263788AbTLEB6p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 20:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263793AbTLEB6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 21:03:25 -0500
-Received: from mta7.pltn13.pbi.net ([64.164.98.8]:35727 "EHLO
-	mta7.pltn13.pbi.net") by vger.kernel.org with ESMTP id S263638AbTLECDW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 21:03:22 -0500
-Date: Thu, 4 Dec 2003 18:03:12 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Szakacsits Szabolcs <szaka@sienet.hu>
-Cc: Andy Isaacson <adi@hexapodia.org>, Rob Landley <rob@landley.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Is there a "make hole" (truncate in middle) syscall?
-Message-ID: <20031205020312.GJ29119@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Szakacsits Szabolcs <szaka@sienet.hu>,
-	Andy Isaacson <adi@hexapodia.org>, Rob Landley <rob@landley.net>,
-	linux-kernel@vger.kernel.org
-References: <200312041432.23907.rob@landley.net> <20031204172348.A14054@hexapodia.org> <Pine.LNX.4.58.0312050130130.2330@ua178d119.elisa.omakaista.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312050130130.2330@ua178d119.elisa.omakaista.fi>
-User-Agent: Mutt/1.5.4i
+	Thu, 4 Dec 2003 20:58:45 -0500
+Received: from fw.osdl.org ([65.172.181.6]:49111 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263788AbTLEB6n (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 20:58:43 -0500
+Date: Thu, 4 Dec 2003 17:58:18 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Larry McVoy <lm@bitmover.com>
+cc: Erik Andersen <andersen@codepoet.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+In-Reply-To: <20031205012124.GB15799@work.bitmover.com>
+Message-ID: <Pine.LNX.4.58.0312041750270.6638@home.osdl.org>
+References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
+ <20031205004653.GA7385@codepoet.org> <Pine.LNX.4.58.0312041956530.27578@montezuma.fsmlabs.com>
+ <20031205010349.GA9745@codepoet.org> <20031205012124.GB15799@work.bitmover.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 05, 2003 at 01:42:13AM +0200, Szakacsits Szabolcs wrote:
-> 
-> On Thu, 4 Dec 2003, Andy Isaacson wrote:
-> 
-> > I'm curious -- does NTFS implement sparse files?  
-> 
-> Since Win2000 (NTFS 3.0+). Also many recently discussed features like
-> file/directory/volume level compression/encryption, undelete, power of 2
-> block sizes between 512-64kB, etc.
 
-That gives us some possibilities for 2.7:
- o undelete
- 
- Ext2 has undelete support, but that information is overwritten on unlink by
- ext3, so  ext3 won't work with the undelete utilities.  How do the other 
- filesystems fare in this regard?
- 
- o per file compression
- 
- Ext2/3 has a flag for it, but support hasn't been implemented.
- 
- o per file encryption (can use a user space helper for policy)
- 
- Reiser4 plans to have a plugin that will support this.
- What about the others?
- 
- o make hole support
- 
-And my personal favorite:
- o pagecache coherent defrag (on live filesystems)
- 
-Andrew Morton wrote a patch for this a while back but since there were no
-userspace utilities, and it was ext3 specific, it wasn't merged, and nothing
-AFAIK has happened with it since.
+
+On Thu, 4 Dec 2003, Larry McVoy wrote:
+> >
+> > linux/COPYING says: This copyright does *not* cover user programs
+> > that use kernel services by normal system calls - this is merely
+> > considered normal use of the kernel, and does *not* fall under
+> > the heading of "derived work".
+>
+> Yeah, and the GPL specificly invalidates that statement.  We're on thin
+> ice here.  Linus is making up the rules, which is cool (since I tend to
+> like his rules) but the reality is that the GPL doesn't allow you to
+> extend the GPL.  It's the GPL or nothing.
+
+Larry, you are wrong.
+
+The license _IS_ the GPL. There's no issue about that. The GPL rules apply
+100%.
+
+But a license only covers what it _can_ cover - derived works. The fact
+that Linux is under the GPL simply _cannot_matter_ to a user program, if
+the author can show that the user program is not a derived work.
+
+And the linux/COPYING addition is not an addition to the license itself
+(indeed, it cannot be, since the GPL itself is a copyrighted work, and so
+by copyright law you aren't allowed to just take it and change it).
+
+No, the note at the top of the copying file is something totally
+different: it's basically a statement to the effect that the copyright
+holder recognizes that there are limits to a derived work, and spells out
+one such limit that he would never contest in court.
+
+See? It's neither a license nor a contract, but it actually does have
+legal meaning: look up the legal meaning of "estoppel" (google "define:"
+is qutie good). Trust me, it's got _tons_ of legal precedent.
+
+		Linus

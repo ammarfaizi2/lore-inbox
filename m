@@ -1,151 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUJOKD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267552AbUJOKZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267563AbUJOKD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 06:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUJOKD2
+	id S267552AbUJOKZW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 06:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267565AbUJOKZW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 06:03:28 -0400
-Received: from 70-33-118-80.kaptech.net ([80.118.33.70]:33210 "EHLO
-	master.lab.meiosys.com") by vger.kernel.org with ESMTP
-	id S267563AbUJOKDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 06:03:22 -0400
-Date: Fri, 15 Oct 2004 12:03:30 +0200
-From: Gregory Kurz <gkurz@meiosys.com>
+	Fri, 15 Oct 2004 06:25:22 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:64986 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267552AbUJOKZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 06:25:17 -0400
+Date: Fri, 15 Oct 2004 12:26:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: fork() BUG invalidates file descriptors
-Message-Id: <20041015120330.7b186668.gkurz@meiosys.com>
-Organization: Meiosys Technology
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       Daniel Walker <dwalker@mvista.com>, Bill Huey <bhuey@lnxw.com>,
+       Andrew Morton <akpm@osdl.org>, Adam Heath <doogie@debian.org>,
+       Lorenzo Allegrucci <l_allegrucci@yahoo.it>,
+       Andrew Rodland <arodland@entermail.net>
+Subject: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U3
+Message-ID: <20041015102633.GA20132@elte.hu>
+References: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com> <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041014234202.GA26207@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-It seems that under specific circumstances...
+i have released the -U3 PREEMPT_REALTIME patch:
 
-[1] fork() BUG invalidates file descriptors !
+  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
 
-[2] Take a process P1 that spawns a thread T (aka. a clone with CLONE_FILES).
-If P1 forks another process P2 (aka. not a clone) while T is blocked in a open()
-that should return file descriptor FD, then FD will be unusable in P2.
-This leads to strange behaviors in the context of P2: close(FD) returns EBADF,
-while dup2(a_valid_fd, FD) returns EBUSY and of course FD is never returned
-again by any syscall...
+this is a buildfixes-only release, and it is still experimental code.
 
-[3] open fork clone copy_files
+Changes since -U2:
 
-[4] Linux version 2.6.8-1.521 (bhcompile@tweety.build.redhat.com) (gcc version
-3.3.3 20040412 (Red Hat Linux 3.3.3-7)) #1 Mon Aug 16 09:01:18 EDT 2004
-This bug also shows up in 2.4.27
+ - build fix: fixes the latency.c compilation error reported by Adam 
+   Heath.
 
-[5] NA
+ - build fix: fixes !HIGHMEM compilation, patch from Andrew Rodland
 
-[6] Just build and run the following program:
+to create a -U3 tree from scratch the patching order is:
 
-#include <errno.h>
-#include <fcntl.h>
-#include <sched.h>
-#include <signal.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <asm/page.h>
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+ + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc4.bz2
+ + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/2.6.9-rc4-mm1.bz2
+ + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-U3
 
-#define FIFO "/tmp/bug_fifo"
-#define FD   0
-
-/*
- * This program is meant to show that calling fork() while a clone spawned
- * with CLONE_FILES is blocked in open() makes a fd number unusable in the
- * child.
- *
- *
- *     Parent               Clone                Child
- *        |
- *   clone(CLONE_FILES)------>|
- *        |                   |
- *        |                close(0)    (a)
- *        |                   |
- *        |                   |
- *        |                open(FIFO)  (b)
- *        |                   :
- *       fork() --------------:------------------->|
- *        |                   :                    |
- *        |                   :                  open()      (c)
- *        |                   :                  close(0)    (d)
- *        |                   :                  dup2(1, 0)  (e)
- *
- * a) when close(0) returns, 0 is necessarly the next fd to be open
- * b) we choose a fifo so that we block in sys_open()
- * c) open() should return 0 but will *probably* return 3
- * d) close(0) should return 0 but will return EBADF
- * e) dup2(1, 0) should return 0 but will return EBUSY
- * => fd 0 is unusable in child forever. Strange behavior isn't it ?
- */
-
-int thread(void)
-{
-    close(FD); /* so that open() should reserve fd 0 */
-    open(FIFO, O_RDONLY);
-    return 0;
-}
-
-int main(int argc, char **argv)
-{
-    mkfifo(FIFO, 0600);
-    
-    clone((void*) &thread, (void*) calloc(1, PAGE_SIZE) + PAGE_SIZE,
-          CLONE_FILES|SIGCHLD, 0);
-    
-    sleep(1); /* so that clone has time to get blocked in sys_open() */
-    
-    if (fork() == 0) {
-        int ret;
-        ret = open(FIFO, O_WRONLY); /* should return 0 */
-        printf("open()=%d (%s)\n",
-               ret, ret == -1 ? strerror(errno) : "Success");
-        ret = close(FD);
-        printf("close(%d)=%d (%s)\n",
-               FD, ret, ret == -1 ? strerror(errno) : "Success");
-        ret = dup2(1, FD);
-        printf("dup2(1, %d)=%d (%s)\n",
-               FD, ret, ret == -1 ? strerror(errno) : "Success");
-        return 0;
-    }
-    
-    wait(0);
-    wait(0);
-    return 0;
-}
-
-[7] In fact, environment isn't relevant since this bug can be easily spotted by
-reading kernel/fork.c and fd/open.c. When entering sys_open(), a fd is set
-in the open_fds field of the files_struct by get_unused_fd(). But
-infortunately, this fd isn't cleared in copy_files() in the case the
-corresponding struct file is null (meaning an open is being performed by a
-clone). And therefore, the newly created process will remain with a bogus
-open_fds set.
-
-[8] a patch for linux-2.6.8.1 that works also for linux-2.4.27.
-
---- linux-2.6.8.1/kernel/fork.c.orig	2004-08-14 12:54:49.000000000 +0200
-+++ linux-2.6.8.1/kernel/fork.c	2004-10-15 11:45:01.000000000 +0200
-@@ -731,6 +731,8 @@
- 		struct file *f = *old_fds++;
- 		if (f)
- 			get_file(f);
-+		else
-+			FD_CLR(open_files - i, newf->open_fds);
- 		*new_fds++ = f;
- 	}
- 	spin_unlock(&oldf->file_lock);
-
-[9] Hope that helps. Have a good day every body.
-
--- 
-Gregory Kurz						gkurz@meiosys.com
-Software Engineer @ Meiosys, SA				http://www.meiosys.com
+	Ingo

@@ -1,46 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264911AbTF2TyM (ORCPT <rfc822;willy@w.ods.org>);
+	id S264592AbTF2TyM (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 29 Jun 2003 15:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264592AbTF2Tws
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264449AbTF2Twl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 15:52:48 -0400
-Received: from oak.sktc.net ([64.71.97.14]:56286 "EHLO oak.sktc.net")
-	by vger.kernel.org with ESMTP id S263782AbTF2Tu6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 15:50:58 -0400
-Message-ID: <3EFF4677.4050002@sktc.net>
-Date: Sun, 29 Jun 2003 15:05:11 -0500
-From: "David D. Hagood" <wowbagger@sktc.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030507
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: rmoser <mlmoser@comcast.net>
-CC: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+	Sun, 29 Jun 2003 15:52:41 -0400
+Received: from smtp-out.comcast.net ([24.153.64.109]:1935 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S264190AbTF2TwY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 15:52:24 -0400
+Date: Sun, 29 Jun 2003 16:05:40 -0400
+From: rmoser <mlmoser@comcast.net>
 Subject: Re: File System conversion -- ideas
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEF8F.7050607@post.pl> <20030629192847.GB26258@mail.jlokier.co.uk> <20030629194215.GG27348@parcelfarce.linux.theplanet.co.uk> <200306291545410600.02136814@smtp.comcast.net>
-In-Reply-To: <200306291545410600.02136814@smtp.comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-reply-to: <3EFF4443.8080507@sktc.net>
+To: "David D. Hagood" <wowbagger@sktc.net>, linux-kernel@vger.kernel.org
+Message-id: <200306291605400290.0225B33F@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk>
+ <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEEC3.30505@sktc.net>
+ <200306291431080580.01CF24BF@smtp.comcast.net> <3EFF4443.8080507@sktc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rmoser wrote:
 
-> no, in-kernel conversion between everything.  You don't think it can be done?
-> It's not that difficult a problem to manage data like that :D
 
-OK, then - Show Us The Code.
+*********** REPLY SEPARATOR  ***********
 
-Everyone else who have expressed an opinion believe an in-kernel 
-converter to be far to difficult to get right. You disagree, and think 
-it should be easy.
+On 6/29/2003 at 2:55 PM David D. Hagood wrote:
 
-So write it. Show us the code. Change our minds.
+>rmoser wrote:
+>
+>> Ass yourself for hours, each time risking making a typo and killing both
+>> filesystems, or risking having the LVM resize die from a powerdrop or a
+>kick
+>> to the power button (sorry we don't all have immortal fault tolerance).
+>I actually
+>> though about this one and figured it was too rediculously annoying to
+>actually
+>> bring up :-p
+>>
+>
+>> I've never used LVM, but I'll look at it one day.  If it's stable,
+>that's good; I
+>> don't use Windows.  I don't know exactly what LVM is but I have a pretty
+>> good idea; it's been forever since I read the doc on it, I forgot what
+>it said!
+>>
+>
+>
+>Funny how, having never used LVM you have an opinion about it.
+>
+>I have. I have done EXACTLY what I described.
+>
+>First of all, do you REALLY think my way is any less failure prone,
+>especially in the presence of the possiblilty of power failure than any
+>other method? My method preserves a mountable, valid file system at each
+>step of the way - the resized downward of the old file system, the
+>resize upward of the new, the file copy.
+>
 
-You opened with a a "This should be possible". We raised you a "No, it's 
-hard, here's other ways to do it." You raised with a "It should be 
-easy." I call.
+Except for a crash at the precise moment that data is being written during
+a resize of a partition in LVM or the filesystem iteself.  To my knowledge,
+said operation is not journaled.
 
-Let's see your cards.
+WTF is the doc for this?  wth do I have an incomplete Documentation/ tree
+or something?  I dunno, maybe I read about LVM on some site or something.
+It doesn't matter; it's been too many years since I've though about it or read
+about it or even seen it.
+
+>Secondly, if you are REALLY concerned about the manual aspect of what I
+>suggested, you can write a simple shell script to do the work.
+>
+>Third of all, the longest parts of the process I describe will be the
+>resize downward of the old file system and the copy of the data - the
+>LVM parts of this operation are pretty damn quick.
+
+
 

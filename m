@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269164AbUHZQRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269140AbUHZQMo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269164AbUHZQRv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 12:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269154AbUHZQRH
+	id S269140AbUHZQMo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 12:12:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269156AbUHZQKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 12:17:07 -0400
-Received: from verein.lst.de ([213.95.11.210]:17114 "EHLO mail.lst.de")
-	by vger.kernel.org with ESMTP id S269128AbUHZQNO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 12:13:14 -0400
-Date: Thu, 26 Aug 2004 18:13:03 +0200
-From: Christoph Hellwig <hch@lst.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
-       Alex Zarochentsev <zam@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       ReiserFS List <reiserfs-list@namesys.com>
+	Thu, 26 Aug 2004 12:10:53 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:49088 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S269162AbUHZQIH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 12:08:07 -0400
+Message-ID: <412E0AC9.2020203@andrew.cmu.edu>
+Date: Thu, 26 Aug 2004 12:07:37 -0400
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040805)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Spam <spam@tnonline.net>, wichert@wiggy.net, jra@samba.org,
+       torvalds@osdl.org, reiser@namesys.com, hch@lst.de,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       flx@namesys.com, reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040826161303.GA4716@lst.de>
-Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
-	Jamie Lokier <jamie@shareable.org>,
-	Hans Reiser <reiser@namesys.com>,
-	Alex Zarochentsev <zam@namesys.com>, linux-fsdevel@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Alexander Lyamin aka FLX <flx@namesys.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	ReiserFS List <reiserfs-list@namesys.com>
-References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <20040825203516.GB4688@backtop.namesys.com> <20040825205149.GA17654@lst.de> <412DA2CF.2030204@namesys.com> <20040826124119.GA431@lst.de> <20040826134812.GB5733@mail.shareable.org> <20040826155744.GA4250@lst.de> <20040826160638.GJ5733@mail.shareable.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040826160638.GJ5733@mail.shareable.org>
-User-Agent: Mutt/1.3.28i
-X-Spam-Score: -4.901 () BAYES_00
+References: <20040824202521.GA26705@lst.de>	<412CEE38.1080707@namesys.com>	<20040825152805.45a1ce64.akpm@osdl.org>	<112698263.20040826005146@tnonline.net>	<Pine.LNX.4.58.0408251555070.17766@ppc970.osdl.org>	<1453698131.20040826011935@tnonline.net>	<20040825163225.4441cfdd.akpm@osdl.org>	<20040825233739.GP10907@legion.cup.hp.com>	<20040825234629.GF2612@wiggy.net>	<1939276887.20040826114028@tnonline.net>	<20040826024956.08b66b46.akpm@osdl.org>	<839984491.20040826122025@tnonline.net>	<20040826032457.21377e94.akpm@osdl.org>	<742303812.20040826125114@tnonline.net> <20040826035500.00b5df56.akpm@osdl.org>
+In-Reply-To: <20040826035500.00b5df56.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 26, 2004 at 05:06:38PM +0100, Jamie Lokier wrote:
-> Christoph Hellwig wrote:
-> > > There's bound to be some security issue, but I'm not sure what you're
-> > > getting at with /tmp.  What sort of sort of security problem arises
-> > > with a world-writeable directory such as /tmp, that cannot arise with
-> > > the standard fs semantics?
-> > 
-> > Actually you are right on that issue because it would open the
-> > device/fifo as directory and not device/fifo (in fact I'd had to look at
-> > the code again to see whether they actually do this only for files or
-> > also for special files)
-> 
-> Are you saying that with reiser4, you can open a device or fifo with
-> O_DIRECTORY?
+Andrew Morton wrote:
 
-That's what I thought, but as far as I can follow the code this is not
-actually true.
+>No.  All of the applications which you initially identified can be
+>implemented by putting the various bits of data into a single file and
+>getting applications to agree on the format of that file.
+>  
+>
+
+So in order to avoid breaking backup and file utilities, we'd instead 
+break every application that reads files?  That way surely lies madness 
+:)  This /could/ possibly work with lots of cooperation from glibc, but 
+we'd also need a way to insert and delete bytes in a file... moving 1MB 
+of attributes/streams just to change a 20 character author attribute 
+seems a bit silly.  In addition, there are little things, such as how 
+adding a thumbnail image shouldn't change the modification time of the 
+original picture IMO, but it does if you embed it in the file.
+
+If it should be in userspace, we could take the OS-X approach of using 
+directories for everything, and the "data" that would be in a hybrid 
+directory-file is a specially named file under that directory.  Programs 
+for instance are actually directories, with the elf file underneath it.  
+When you click on the "directory-program" in the gui it runs the 
+associated elf file rather than opening the directory.  I think that 
+approach is promising, but so few unix programs have any indirection for 
+file access it'd be hell to teach them all how it works.  Of course with 
+emminent breakage of some sort, maybe now is the time...
+
+ - Jim Bruce
 

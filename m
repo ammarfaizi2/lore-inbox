@@ -1,39 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263313AbSLEIof>; Thu, 5 Dec 2002 03:44:35 -0500
+	id <S264010AbSLEJH6>; Thu, 5 Dec 2002 04:07:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263326AbSLEIoe>; Thu, 5 Dec 2002 03:44:34 -0500
-Received: from holomorphy.com ([66.224.33.161]:8585 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S263313AbSLEInh>;
-	Thu, 5 Dec 2002 03:43:37 -0500
-Date: Thu, 5 Dec 2002 00:50:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Cc: mingo@elte.hu
-Subject: Re: [pidhash] [0/4] patch series vs. 2.5.50-mm1
-Message-ID: <20021205085054.GF9882@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org, mingo@elte.hu
-References: <0212042348.vaibscRdmcpcAbdcfb9d~c3c4bNczcIa15950@holomorphy.com>
+	id <S264625AbSLEJH5>; Thu, 5 Dec 2002 04:07:57 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:63223 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S264010AbSLEJH5>; Thu, 5 Dec 2002 04:07:57 -0500
+X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20021204222039.A12956@flint.arm.linux.org.uk> 
+References: <20021204222039.A12956@flint.arm.linux.org.uk>  <200212030724.gB37O4DL001318@turing-police.cc.vt.edu> <20021203121521.GB30431@suse.de> <20021204115819.GB1137@gallifrey> <20021204124227.GB647@suse.de> <20021204183235.GA701@gallifrey> 
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: "Dr. David Alan Gilbert" <gilbertd@treblig.org>,
+       Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: lkml, bugme.osdl.org? 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0212042348.vaibscRdmcpcAbdcfb9d~c3c4bNczcIa15950@holomorphy.com>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Date: Thu, 05 Dec 2002 09:15:18 +0000
+Message-ID: <3536.1039079718@passion.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 04, 2002 at 11:48:27PM -0800, wli@holomorphy.com wrote:
-[...]
 
-Sorry about the misnumbering; there were about half a dozen other
-pidhashing related things that didn't make the cut (omitted largely
-due to theoretical issues or not having enough testing bandwidth for
-tonight's run) along with a fair amount of other non-pidhash-related
-fat included in the original numbering scheme before the patch series
-got renumbered and refined down to bits relevant to single maintainers.
-Some were also excluded due to mutual interference.
+rmk@arm.linux.org.uk said:
+>  Oh, not to mention the inherently racy code found within mm/vmalloc.c
+
+A fix for that was sent to Linus months ago. Akpm says it breaks, nobody 
+else can reproduce the breakage and I can't see a problem with it...
+
+--
+dwmw2
 
 
-Bill

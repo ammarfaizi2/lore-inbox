@@ -1,80 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUHaQcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263003AbUHaQdI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263775AbUHaQcM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 12:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUHaQaY
+	id S263003AbUHaQdI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 12:33:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264261AbUHaQci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 12:30:24 -0400
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:27568 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S263003AbUHaQ3t
+	Tue, 31 Aug 2004 12:32:38 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:43486 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S263003AbUHaQbQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 12:29:49 -0400
-Message-ID: <4134A77F.4050004@blue-labs.org>
-Date: Tue, 31 Aug 2004 12:29:51 -0400
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a3) Gecko/20040825
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeba Anandhan A <jeba_career@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel OOPS[filesystem programming]
-References: <20040831161956.931.qmail@web50610.mail.yahoo.com>
-In-Reply-To: <20040831161956.931.qmail@web50610.mail.yahoo.com>
-Content-Type: multipart/mixed;
- boundary="------------040900080409010902090805"
+	Tue, 31 Aug 2004 12:31:16 -0400
+Subject: Re: [RFC] buddy allocator without bitmap(2) [1/3]
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Hiroyuki KAMEZAWA <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>, lhms <lhms-devel@lists.sourceforge.net>
+In-Reply-To: <413455BE.6010302@jp.fujitsu.com>
+References: <413455BE.6010302@jp.fujitsu.com>
+Content-Type: text/plain
+Message-Id: <1093969857.26660.4816.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 31 Aug 2004 09:30:57 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040900080409010902090805
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2004-08-31 at 03:41, Hiroyuki KAMEZAWA wrote:
+> +static void __init calculate_aligned_end(struct zone *zone,
+> +					 unsigned long start_pfn,
+> +					 int nr_pages)
+...
+> +		end_address = (zone->zone_start_pfn + end_idx) << PAGE_SHIFT;
+> +#ifndef CONFIG_DISCONTIGMEM
+> +		reserve_bootmem(end_address,PAGE_SIZE);
+> +#else
+> +		reserve_bootmem_node(zone->zone_pgdat,end_address,PAGE_SIZE);
+> +#endif
+> +	}
+> +	return;
+> +}
 
-What is *my_inode set to?
+What if someone has already reserved that address?  You might not be
+able to grow the zone, right?
 
-Jeba Anandhan A wrote:
+>   /*
+>    * Initially all pages are reserved - free ones are freed
+> @@ -1510,7 +1574,9 @@ void __init memmap_init_zone(unsigned lo
+>   {
+>   	struct page *start = pfn_to_page(start_pfn);
+>   	struct page *page;
+> -
+> +	unsigned long saved_start_pfn = start_pfn;
+> +	struct zone *zonep = zone_table[NODEZONE(nid, zone)];
 
->i have written kernel program to access the data
->structure of particular inode.
->
->#include<linux/kernel.h>
->#include<linux/module.h>
->#include<linux/fs.h>
->              
->static struct inode *my_inode;
->static unsigned long inode_no;
->  
->
->int init_module(void){
->  printk("inode module inserted\n");
->  inode_no=1304012;
->  printk("inode no=%d",inode_no);
->  my_inode->i_ino=inode_no; // it creates segmentation
->                            //fault why so..
->return 0;
->}
->              
->void cleanup_module(void){
->}
->
+If you're going to calculate NODEZONE() twice, you might as well just
+move it into its own variable.  
 
---------------040900080409010902090805
-Content-Type: text/x-vcard; charset=utf-8;
- name="david+challenge-response.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="david+challenge-response.vcf"
+> +	/* Because memmap_init_zone() is called in suitable way
+> +	 * even if zone has memory holes,
+> +	 * calling calculate_aligned_end(zone) here is reasonable
+> +	 */
+> +	calculate_aligned_end(zonep, saved_start_pfn, size);
 
-begin:vcard
-fn:David Ford
-n:Ford;David
-email;internet:david@blue-labs.org
-title:Industrial Geek
-tel;home:Ask please
-tel;cell:(203) 650-3611
-x-mozilla-html:TRUE
-version:2.1
-end:vcard
+Could you please elaborate on "suitable way".  That comment really
+doesn't say anything.
 
+-- Dave
 
---------------040900080409010902090805--

@@ -1,44 +1,254 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264898AbTLFBEg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 20:04:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264899AbTLFBEg
+	id S264893AbTLFBB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 20:01:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264896AbTLFBB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 20:04:36 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:61840
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S264898AbTLFBEc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 20:04:32 -0500
-Date: Sat, 6 Dec 2003 02:05:05 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Jamie Clark <jamie@metaparadigm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.23pre6aa3 scsi oops
-Message-ID: <20031206010505.GB14904@dualathlon.random>
-References: <3FA713B9.3040405@metaparadigm.com> <20031104102816.GB2984@x30.random> <3FA79308.3070300@metaparadigm.com>
+	Fri, 5 Dec 2003 20:01:59 -0500
+Received: from dm51.neoplus.adsl.tpnet.pl ([80.54.235.51]:6660 "EHLO
+	satan.blackhosts") by vger.kernel.org with ESMTP id S264893AbTLFBBs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 20:01:48 -0500
+Date: Sat, 6 Dec 2003 02:06:21 +0100
+From: Jakub Bogusz <qboosh@pld-linux.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6.0-test* - oopses in some OSS drivers
+Message-ID: <20031206010621.GA3914@satan.blackhosts>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="cWoXeonUoKmBZSoM"
 Content-Disposition: inline
-In-Reply-To: <3FA79308.3070300@metaparadigm.com>
 User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+Organization: PLD Linux Distribution
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 04, 2003 at 07:52:40PM +0800, Jamie Clark wrote:
-> I made the quick fix (disabling rq_mergeable) and started the load test.
-> Will let it run for a week or so.
 
-does your later recent email means it deadlocked again even with this
-disabled?
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Could you try again with 2.4.23aa1 again just in case?
+Hello,
 
-> FYI an observation from my last test: the read latency seems to be much
-> improved and more consistent under this kernel (2.4.23pre6aa3, before
-> the oops and before this fix).  The maximum latency seemed steady over
-> the whole test without any of the longish pauses that showed up under
-> 2.4.19. Quite a difference.
+some time ago I reported Oops which I got on "rmmod es1371"
+(http://www.ussg.iu.edu/hypermail/linux/kernel/0310.2/0656.html).
+It was caused by __devinit used for *_remove() function (it affects
+configurations with CONFIG_MODULES=y and CONFIG_HOTPLUG not set).
+I found the same issue in more OSS drivers sources - and it's still
+present in -test11.
 
-nice to hear! thanks.
+Here is patch for this issue - details inside.
+Tested on es1371 module - rmmod doesn't cause Oops any longer.
+
+
+-- 
+Jakub Bogusz    http://cyber.cs.net.pl/~qboosh/
+PLD Linux       http://www.pld-linux.org/
+
+--cWoXeonUoKmBZSoM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="linux-sound-oss-devinit-oops.patch"
+
+Fix for oops on rmmod caused by *_remove() function marked as __devinit
+(and thus discarded after module initialization - if CONFIG_MODULES=y
+and CONFIG_HOTPLUG is not set).
+This patch changes __devinit to __devexit and adds __devexit_p() where
+pointer to such function is used.
+
+The only exception is au1000, where au1000_remove() is called from
+cleanup_au1000() function - __devinit is jest removed there.
+
+	-- Jakub Bogusz <qboosh@pld-linux.org>
+
+--- linux-2.6.0-test11/sound/oss/cs4281/cs4281m.c.orig	2003-11-26 21:45:53.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/cs4281/cs4281m.c	2003-12-05 23:39:46.823135264 +0100
+@@ -4435,7 +4435,7 @@
+ 
+ // --------------------------------------------------------------------- 
+ 
+-static void __devinit cs4281_remove(struct pci_dev *pci_dev)
++static void __devexit cs4281_remove(struct pci_dev *pci_dev)
+ {
+ 	struct cs4281_state *s = pci_get_drvdata(pci_dev);
+ 	// stop DMA controller 
+@@ -4469,7 +4469,7 @@
+ 	.name	  = "cs4281",
+ 	.id_table = cs4281_pci_tbl,
+ 	.probe	  = cs4281_probe,
+-	.remove	  = cs4281_remove,
++	.remove	  = __devexit_p(cs4281_remove),
+ 	.suspend  = CS4281_SUSPEND_TBL,
+ 	.resume	  = CS4281_RESUME_TBL,
+ };
+--- linux-2.6.0-test11/sound/oss/cs46xx.c.orig	2003-11-26 21:42:47.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/cs46xx.c	2003-12-05 23:29:58.702543184 +0100
+@@ -5603,7 +5603,7 @@
+ 
+ // --------------------------------------------------------------------- 
+ 
+-static void __devinit cs46xx_remove(struct pci_dev *pci_dev)
++static void __devexit cs46xx_remove(struct pci_dev *pci_dev)
+ {
+ 	struct cs_card *card = PCI_GET_DRIVER_DATA(pci_dev);
+ 	int i;
+@@ -5730,7 +5730,7 @@
+ 	.name	  = "cs46xx",
+ 	.id_table = cs46xx_pci_tbl,
+ 	.probe	  = cs46xx_probe,
+-	.remove	  = cs46xx_remove,
++	.remove	  = __devexit_p(cs46xx_remove),
+ 	.suspend  = CS46XX_SUSPEND_TBL,
+ 	.resume	  = CS46XX_RESUME_TBL,
+ };
+--- linux-2.6.0-test11/sound/oss/esssolo1.c.orig	2003-11-26 21:43:06.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/esssolo1.c	2003-12-05 23:30:40.015262696 +0100
+@@ -2407,7 +2407,7 @@
+ 	return ret;
+ }
+ 
+-static void __devinit solo1_remove(struct pci_dev *dev)
++static void __devexit solo1_remove(struct pci_dev *dev)
+ {
+ 	struct solo1_state *s = pci_get_drvdata(dev);
+ 	
+@@ -2447,7 +2447,7 @@
+ 	.name		= "ESS Solo1",
+ 	.id_table	= id_table,
+ 	.probe		= solo1_probe,
+-	.remove		= solo1_remove,
++	.remove		= __devexit_p(solo1_remove),
+ 	.suspend	= solo1_suspend,
+ 	.resume		= solo1_resume,
+ };
+--- linux-2.6.0-test11/sound/oss/ite8172.c.orig	2003-11-26 21:43:24.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/ite8172.c	2003-12-05 23:31:34.154032352 +0100
+@@ -2165,7 +2165,7 @@
+ 	return -1;
+ }
+ 
+-static void __devinit it8172_remove(struct pci_dev *dev)
++static void __devexit it8172_remove(struct pci_dev *dev)
+ {
+ 	struct it8172_state *s = pci_get_drvdata(dev);
+ 
+@@ -2200,7 +2200,7 @@
+ 	.name = IT8172_MODULE_NAME,
+ 	.id_table = id_table,
+ 	.probe = it8172_probe,
+-	.remove = it8172_remove
++	.remove = __devexit_p(it8172_remove)
+ };
+ 
+ static int __init init_it8172(void)
+--- linux-2.6.0-test11/sound/oss/rme96xx.c.orig	2003-11-26 21:43:36.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/rme96xx.c	2003-12-05 23:32:24.956309232 +0100
+@@ -1033,7 +1033,7 @@
+ }
+ 
+ 
+-static void __devinit rme96xx_remove(struct pci_dev *dev)
++static void __devexit rme96xx_remove(struct pci_dev *dev)
+ {
+ 	int i;
+ 	rme96xx_info *s = pci_get_drvdata(dev);
+@@ -1087,7 +1087,7 @@
+ 	.name	  =  "rme96xx",
+ 	.id_table = id_table,
+ 	.probe	  = rme96xx_probe,
+-	.remove	  = rme96xx_remove,
++	.remove	  = __devexit_p(rme96xx_remove),
+ };
+ 
+ static int __init init_rme96xx(void)
+--- linux-2.6.0-test11/sound/oss/au1000.c.orig	2003-11-26 21:44:41.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/au1000.c	2003-12-05 23:35:42.252315680 +0100
+@@ -2177,7 +2177,7 @@
+ 	return -1;
+ }
+ 
+-static void __devinit au1000_remove(void)
++static void au1000_remove(void)
+ {
+ 	struct au1000_state *s = &au1000_state;
+ 
+--- linux-2.6.0-test11/sound/oss/sonicvibes.c.orig	2003-11-26 21:43:51.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/sonicvibes.c	2003-12-05 23:32:51.911211464 +0100
+@@ -2678,7 +2678,7 @@
+ 	return ret;
+ }
+ 
+-static void __devinit sv_remove(struct pci_dev *dev)
++static void __devexit sv_remove(struct pci_dev *dev)
+ {
+ 	struct sv_state *s = pci_get_drvdata(dev);
+ 
+@@ -2720,7 +2720,7 @@
+        .name		= "sonicvibes",
+        .id_table	= id_table,
+        .probe		= sv_probe,
+-       .remove		= sv_remove,
++       .remove		= __devexit_p(sv_remove),
+ };
+  
+ static int __init init_sonicvibes(void)
+--- linux-2.6.0-test11/sound/oss/nec_vrc5477.c.orig	2003-11-26 21:44:59.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/nec_vrc5477.c	2003-12-05 23:36:07.803431320 +0100
+@@ -1964,7 +1964,7 @@
+ 	return -1;
+ }
+ 
+-static void __devinit vrc5477_ac97_remove(struct pci_dev *dev)
++static void __devexit vrc5477_ac97_remove(struct pci_dev *dev)
+ {
+ 	struct vrc5477_ac97_state *s = pci_get_drvdata(dev);
+ 
+@@ -2000,7 +2000,7 @@
+ 	.name		= VRC5477_AC97_MODULE_NAME,
+ 	.id_table	= id_table,
+ 	.probe		= vrc5477_ac97_probe,
+-	.remove		= vrc5477_ac97_remove,
++	.remove		= __devexit_p(vrc5477_ac97_remove),
+ };
+ 
+ static int __init init_vrc5477_ac97(void)
+--- linux-2.6.0-test11/sound/oss/es1371.c.orig	2003-11-26 21:44:59.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/es1371.c	2003-12-05 23:36:28.527280816 +0100
+@@ -3001,7 +3001,7 @@
+ 	return res;
+ }
+ 
+-static void __devinit es1371_remove(struct pci_dev *dev)
++static void __devexit es1371_remove(struct pci_dev *dev)
+ {
+ 	struct es1371_state *s = pci_get_drvdata(dev);
+ 
+@@ -3043,7 +3043,7 @@
+ 	.name		= "es1371",
+ 	.id_table	= id_table,
+ 	.probe		= es1371_probe,
+-	.remove		= es1371_remove,
++	.remove		= __devexit_p(es1371_remove),
+ };
+ 
+ static int __init init_es1371(void)
+--- linux-2.6.0-test11/sound/oss/es1370.c.orig	2003-11-26 21:46:01.000000000 +0100
++++ linux-2.6.0-test11/sound/oss/es1370.c	2003-12-05 23:36:47.907334600 +0100
+@@ -2700,7 +2700,7 @@
+ 	return ret;
+ }
+ 
+-static void __devinit es1370_remove(struct pci_dev *dev)
++static void __devexit es1370_remove(struct pci_dev *dev)
+ {
+ 	struct es1370_state *s = pci_get_drvdata(dev);
+ 
+@@ -2736,7 +2736,7 @@
+ 	.name		= "es1370",
+ 	.id_table	= id_table,
+ 	.probe		= es1370_probe,
+-	.remove		= es1370_remove,
++	.remove		= __devexit_p(es1370_remove),
+ };
+ 
+ static int __init init_es1370(void)
+
+--cWoXeonUoKmBZSoM--

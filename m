@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVCVW6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262286AbVCVXC7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVCVW6I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 17:58:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVCVW6I
+	id S262286AbVCVXC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 18:02:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262314AbVCVXC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 17:58:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19673 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261758AbVCVW55 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 17:57:57 -0500
-Message-ID: <4240A2E7.50308@pobox.com>
-Date: Tue, 22 Mar 2005 17:57:43 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Tue, 22 Mar 2005 18:02:59 -0500
+Received: from mail.dif.dk ([193.138.115.101]:43202 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S262286AbVCVXCz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 18:02:55 -0500
+Date: Wed, 23 Mar 2005 00:04:45 +0100 (CET)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: linux-kernel@vger.kernel.org
+Cc: David Howells <dhowells@redhat.com>, Eric Youngdale <ericy@cais.com>
+Subject: [PATCH] remove NULL checks before kfree in binfmt_elf_fdpic.c and
+ binfmt_elf.c
+Message-ID: <Pine.LNX.4.62.0503222359450.2683@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: Jouni Malinen <jkmaline@cc.hut.fi>, netdev@oss.sgi.com,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.11] WE-18 (aka WPA)
-References: <20050314201932.GA1467@bougret.hpl.hp.com>
-In-Reply-To: <20050314201932.GA1467@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
-> 	Hi Jeff,
-> 
-> 	This is version 18 of the Wireless Extensions. The main change
-> is that it adds all the necessary APIs for WPA and WPA2 support. This
-> work was entirely done by Jouni Malinen, so let's thank him for both
-> his hard work and deep expertise on the subject ;-)
-> 	This APIs obviously doesn't do much by itself and works in
-> concert with driver support (Jouni already sent you the HostAP
-> changes) and userspace (Jouni is updating wpa_supplicant). This is
-> also orthogonal with the ongoing work on in-kernel IEEE support (but
-> potentially useful).
-> 	The patch is attached, tested with 2.6.11. Normally, I would
-> ask you to push that directly in the kernel (99% of the patch has been
-> on my web page for ages and it does not affect non-WPA stuff), but
-> Jouni convinced me that it should bake a few weeks in wireless-2.6
-> first, so that other driver maintainers can get up to speed with it.
-> 
-> 	So, would you mind pushing that in wireless-2.6 ?
-> 	Thanks in advance...
 
-Applied to wireless-2.6, and will soon push upstream.
+remove redundant NULL checks before kfree() in fs/binfmt_elf_fdpic.c and 
+fs/binfmt_elf.c
 
-NOTE:  Please include a Signed-off-by line in ALL patches that you submit.
 
-See http://linux.yyz.us/patch-format.html for more info.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-	Jeff
+--- linux-2.6.12-rc1-mm1-orig/fs/binfmt_elf_fdpic.c	2005-03-21 23:15:43.000000000 +0100
++++ linux-2.6.12-rc1-mm1/fs/binfmt_elf_fdpic.c	2005-03-22 23:59:31.000000000 +0100
+@@ -418,16 +418,11 @@ error:
+ 		allow_write_access(interpreter);
+ 		fput(interpreter);
+ 	}
+-	if (interpreter_name)
+-		kfree(interpreter_name);
+-	if (exec_params.phdrs)
+-		kfree(exec_params.phdrs);
+-	if (exec_params.loadmap)
+-		kfree(exec_params.loadmap);
+-	if (interp_params.phdrs)
+-		kfree(interp_params.phdrs);
+-	if (interp_params.loadmap)
+-		kfree(interp_params.loadmap);
++	kfree(interpreter_name);
++	kfree(exec_params.phdrs);
++	kfree(exec_params.loadmap);
++	kfree(interp_params.phdrs);
++	kfree(interp_params.loadmap);
+ 	return retval;
+ 
+ 	/* unrecoverable error - kill the process */
+--- linux-2.6.12-rc1-mm1-orig/fs/binfmt_elf.c	2005-03-21 23:15:43.000000000 +0100
++++ linux-2.6.12-rc1-mm1/fs/binfmt_elf.c	2005-03-23 00:02:11.000000000 +0100
+@@ -1006,8 +1006,7 @@ out_free_dentry:
+ 	if (interpreter)
+ 		fput(interpreter);
+ out_free_interp:
+-	if (elf_interpreter)
+-		kfree(elf_interpreter);
++	kfree(elf_interpreter);
+ out_free_file:
+ 	sys_close(elf_exec_fileno);
+ out_free_fh:
+
 
 

@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261572AbSKCDKp>; Sat, 2 Nov 2002 22:10:45 -0500
+	id <S261573AbSKCDLx>; Sat, 2 Nov 2002 22:11:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261573AbSKCDKp>; Sat, 2 Nov 2002 22:10:45 -0500
-Received: from johnsl.lnk.telstra.net ([139.130.12.152]:32273 "EHLO
-	ns.higherplane.net") by vger.kernel.org with ESMTP
-	id <S261572AbSKCDKp>; Sat, 2 Nov 2002 22:10:45 -0500
-Date: Sun, 3 Nov 2002 14:15:31 +1100
-From: john slee <indigoid@higherplane.net>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Cc: linux-kernel@vger.kernel.org, tytso@mit.edu,
-       olaf.dietsche#list.linux-kernel@t-online.de, dax@gurulabs.com
-Subject: Re: Filesystem Capabilities in 2.6?
-Message-ID: <20021103031530.GA1120@higherplane.net>
-References: <200211030031.gA30V8a505209@saturn.cs.uml.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211030031.gA30V8a505209@saturn.cs.uml.edu>
-User-Agent: Mutt/1.3.25i
+	id <S261575AbSKCDLx>; Sat, 2 Nov 2002 22:11:53 -0500
+Received: from h66-38-216-165.gtconnect.net ([66.38.216.165]:9744 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S261573AbSKCDLw>;
+	Sat, 2 Nov 2002 22:11:52 -0500
+Date: Sat, 2 Nov 2002 22:18:15 -0500 (EST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Roman Zippel <zippel@linux-m68k.org>,
+       Patrick Finnegan <pat@purdueriots.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Kconfig (qt) -> Gconfig (gtk)
+In-Reply-To: <20021102223443.D8549@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0211022217380.32293-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 02, 2002 at 07:31:08PM -0500, Albert D. Cahalan wrote:
-> I have to wonder, just how many setuid executables do people have?
+On Sat, 2 Nov 2002, Russell King wrote:
 
-i've run perfectly sane webservers with suid only on /bin/su.  a few
-errors are spat out, but things tend to work.  in all honesty i'm yet to
-see many other uses for it in a server-admin'd-by-small-group-of-people
-situation, except perhaps for sendmail.
+>
+> Well obviously it doesn't work now that kconfig removed Menuconfig!
 
-al's idea with the mount flags did perk up the old ears though, i would
-like to see this done.
+That's bad news for those of us who maintain kernels on remote machines.
 
-j.
+	Gerhard
 
--- 
-toyota power: http://indigoid.net/
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

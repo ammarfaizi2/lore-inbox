@@ -1,46 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266367AbTA2Qdz>; Wed, 29 Jan 2003 11:33:55 -0500
+	id <S266298AbTA2Qj4>; Wed, 29 Jan 2003 11:39:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266379AbTA2Qdz>; Wed, 29 Jan 2003 11:33:55 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:43120 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S266367AbTA2Qdz>; Wed, 29 Jan 2003 11:33:55 -0500
-Subject: Re: [Pcihpd-discuss] Questions about CPCI Hot Swap driver.
-From: Rusty Lynch <rusty@linux.co.intel.com>
-To: Stanley Wang <stanley.wang@linux.co.intel.com>
-Cc: Scott Murray <scottm@somanetworks.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       PCI_Hot_Plug_Discuss <pcihpd-discuss@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.44.0301291550500.10354-100000@manticore.sh.intel.com>
-References: <Pine.LNX.4.44.0301291550500.10354-100000@manticore.sh.intel.com>
-Content-Type: text/plain
+	id <S266431AbTA2Qjz>; Wed, 29 Jan 2003 11:39:55 -0500
+Received: from s142-179-222-244.ab.hsia.telus.net ([142.179.222.244]:52106
+	"EHLO bluetooth.WNI.AD") by vger.kernel.org with ESMTP
+	id <S266298AbTA2Qjz>; Wed, 29 Jan 2003 11:39:55 -0500
+Message-ID: <3E3806C0.5050906@WirelessNetworksInc.com>
+Date: Wed, 29 Jan 2003 09:52:16 -0700
+From: Herman Oosthuysen <Herman@WirelessNetworksInc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021130
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Bootscreen [had to throw in 0.2 cents worth, sorry]
+References: <200301290318.20817.b_adlakha@softhome.net> <200301291448.h0TEmAs18379@Port.imtp.ilyichevsk.odessa.ua> <1043854259.877.25.camel@RobsPC.RobertWilkens.com> <20030129163104.GV30184@lug-owl.de>
+In-Reply-To: <20030129163104.GV30184@lug-owl.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 28 Jan 2003 00:44:52 -0800
-Message-Id: <1043743493.10695.14.camel@vmhack>
-Mime-Version: 1.0
+X-OriginalArrivalTime: 29 Jan 2003 16:49:17.0496 (UTC) FILETIME=[5CD0D380:01C2C7B6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-29 at 00:06, Stanley Wang wrote:
-> Hi, Scott
-> I have some questions about your CPCI Hot Swap driver.
-> Would you mind helping me to clarify them ?
-> 1. Why need we clear the EXT bit in the HS_CSR in "disable_slot()"?
-> I think the EXT bit has not been set at this point.
-
-Wouldn't the EXT bit be set if the operator flips the ejector, and is
-waiting for the system to respond?
-
-> 2. I wonder why we could not receive the #ENUM interrupt when we unpluged
-> the board after disabling the corresponding slot("echo 0 > power")? It 
-> seems that the cpci_led_on has some mysterious side effect, but I could 
-> not find any hints in the spec.
-> Could you help me?
-> Thanks in advance.
-> 
-> Best Regards,
-> -Stan
->
+Maybe we should replace Tux with a dancing paper clip during bootup. 
+That will make everybody feel right at home and then they won't mind 
+when Mozilla or X locks up on them; bug reports will go down to zero, 
+since users will accept them as special features and this mailing list 
+will have much less crud messages like this one... ;-)
 

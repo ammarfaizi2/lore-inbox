@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVCNQXw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVCNQYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbVCNQXw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 11:23:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVCNQXv
+	id S261553AbVCNQYb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 11:24:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261565AbVCNQYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 11:23:51 -0500
-Received: from styx.suse.cz ([82.119.242.94]:27628 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261490AbVCNQXt (ORCPT
+	Mon, 14 Mar 2005 11:24:31 -0500
+Received: from fire.osdl.org ([65.172.181.4]:53180 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261553AbVCNQYZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 11:23:49 -0500
-Date: Mon, 14 Mar 2005 17:24:26 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: davej@codemonkey.org.uk, linux@brodo.de, pavel@suse.cz,
-       linux-kernel@vger.kernel.org
-Subject: PowerNow-K8 and Winchester CPUs
-Message-ID: <20050314162426.GA2598@ucw.cz>
+	Mon, 14 Mar 2005 11:24:25 -0500
+Subject: Re: 2.6.11-mm3 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050312034222.12a264c4.akpm@osdl.org>
+References: <20050312034222.12a264c4.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 14 Mar 2005 08:25:55 -0800
+Message-Id: <1110817555.20447.3.camel@cherrypit.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Compile Statistics
+------------------
+Build Tree: mm
+Compiler: gcc 3.4.1
+Detailed results: http://developer.osdl.org/cherry/compile/
 
-I have a machine with an Athlon64 with a Winchester core. It has a max
-frequency of 2GHz, vid 0x6. The maximum vid allowed is 0x4. It has an
-intermediate vid 0x8. RVO is 3.
+Summary - 2.6.11-mm2 to 2.6.11-mm3
+----------------------------------
+Defconfig (bzImage): -2 warnings
+Allnoconfig (bzImage): no change
+Allyesconfig (bzImage): +54 warnings
+Allyesconfig (modules): no change
+Allmodconfig (bzImage): no change
+Allmodconfig (modules: +52 warnings
 
-When transitioning (phase1) from vid 0x8 to vid 0x6, it first increases
-the vid to 6, and then proceeds increasing it three more steps. This of
-course fails, because it overflows the maximum allowed vid 0x4.
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+<pointless and stupid compiler numbers omitted for your convenience.
+See link above if interested in the detailed compile information.>
 
-My first attempt to fix this was to limit the vid to the max vid while
-doing the rvo bump-up.
+:)
 
-However, I believe that the real reason for the problem is that the
-condition to start doing the rvo bump is wrong.
+John
 
-This patch should fix it:
 
-diff -Nru a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
---- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2005-03-14 17:20:17 +01:00
-+++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2005-03-14 17:20:17 +01:00
-@@ -286,7 +286,7 @@
- 			return 1;
- 	}
- 
--	while ((rvosteps > 0)  && ((data->rvo + data->currvid) > reqvid)) {
-+	while ((rvosteps > 0) && ((data->currvid - data->rvo) > reqvid)) {
- 		if (data->currvid == 0) {
- 			rvosteps = 0;
- 		} else {
 
-if I understand the original intent of the second test in the while()
-statement. 
-
-Any comments? Is my understanding of that bit of code correct?
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR

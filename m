@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265233AbUAERrT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 12:47:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265267AbUAERq6
+	id S265181AbUAESCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 13:02:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265210AbUAESCJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 12:46:58 -0500
-Received: from portraits.wsisiz.edu.pl ([213.135.44.34]:52036 "EHLO
-	portraits.wsisiz.edu.pl") by vger.kernel.org with ESMTP
-	id S265233AbUAERom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 12:44:42 -0500
-Date: Mon, 5 Jan 2004 18:44:19 +0100
-Message-Id: <200401051744.i05HiJI1005152@lt.wsisiz.edu.pl>
-From: Lukasz Trabinski <lukasz@trabinski.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.24-rc1
-In-Reply-To: <Pine.LNX.4.58L.0401051130250.1188@logos.cnet>
-X-Newsgroups: wsisiz.linux-kernel
-X-PGP-Key-Fingerprint: 5C87 7FF4 9539 6AA9 4EEF  529D 0236 ECCB 70F1 E978
-X-Key-ID: 70F1E978
-User-Agent: tin/1.7.3-20031220 ("Taransay") (UNIX) (Linux/2.4.24-pre3 (i686))
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: 8bit
+	Mon, 5 Jan 2004 13:02:09 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:23974 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S265181AbUAESCI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 13:02:08 -0500
+Date: Mon, 5 Jan 2004 18:01:42 +0000
+From: Dave Jones <davej@redhat.com>
+To: Detlef Grittner <detlef.grittner@t-online.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel-2.6.1-rc1-bk6: too many northbridges for AGP
+Message-ID: <20040105180142.GB28490@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Detlef Grittner <detlef.grittner@t-online.de>,
+	linux-kernel@vger.kernel.org
+References: <1073313905.6180.10.camel@linux.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1073313905.6180.10.camel@linux.local>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58L.0401051130250.1188@logos.cnet> you wrote:
-> 
-> The 2.4.24-pre tree with all its modifications becomes 2.4.25-pre.
+On Mon, Jan 05, 2004 at 03:45:05PM +0100, Detlef Grittner wrote:
 
-When we can expect 2.4.25-pre? 
+ > I think I've read in the NVidia newsgroup that this is a known bug and
+ > would be fixed in 2.6.0, but now I'm not sure: Is this a known bug or is
+ > it a new bug?
 
--- 
-*[ £T ]*
+known bug, fix going to Linus today.
+
+		Dave
+

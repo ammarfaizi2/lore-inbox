@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269266AbUINLcp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269370AbUINNSb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269266AbUINLcp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 07:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269286AbUINL3R
+	id S269370AbUINNSb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 09:18:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269371AbUINNSE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 07:29:17 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:22252 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S269297AbUINLTI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 07:19:08 -0400
-Date: Tue, 14 Sep 2004 12:50:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [patch] sched, mm: fix scheduling latencies in copy_page_range()
-Message-ID: <20040914105048.GA31238@elte.hu>
-References: <20040914091529.GA21553@elte.hu> <20040914093855.GA23258@elte.hu> <20040914095110.GA24094@elte.hu> <20040914095731.GA24622@elte.hu> <20040914100652.GB24622@elte.hu> <20040914101904.GD24622@elte.hu> <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu>
+	Tue, 14 Sep 2004 09:18:04 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:24509 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S269344AbUINNPJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 09:15:09 -0400
+Subject: Re: [patch] sched, tty: fix scheduling latencies in tty_io.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20040914122748.GA6846@elte.hu>
+References: <20040914101904.GD24622@elte.hu>
+	 <20040914102517.GE24622@elte.hu> <20040914104449.GA30790@elte.hu>
+	 <20040914105048.GA31238@elte.hu> <20040914105904.GB31370@elte.hu>
+	 <20040914110237.GC31370@elte.hu> <20040914110611.GA32077@elte.hu>
+	 <1095159217.16572.29.camel@localhost.localdomain>
+	 <20040914120016.GA5422@elte.hu>
+	 <1095160687.16572.34.camel@localhost.localdomain>
+	 <20040914122748.GA6846@elte.hu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1095163891.16520.54.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-In-Reply-To: <20040914104449.GA30790@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 14 Sep 2004 13:11:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Maw, 2004-09-14 at 13:27, Ingo Molnar wrote:
+> would it be a sufficient fix to grab some sort of tty_sem mutex in the
+> places where the patch drops the BKL - or are there other entry paths to
+> this code?
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+There are a whole load of entry points. I've been trying to document all
+the ldisc layer stuff as I fix the basic bugs in it. A semaphore isnt
+sufficient because some of the entry points have to be multi-entry so
+you'd need to go modify all the ldisc internals (I think that will have
+to happen eventually). It also relies on it for read v write locking
+still.
 
-The attached patch does a lock-break in copy_page_range() if needed, to
-reduce scheduling latencies.
+So far all I've fixed is the vfs/ldisc locking to ensure that open/close
+and other events are properly sequenced. I've not yet finished tackling
+the ldisc/driver cases where driver->close() completes and the ldisc
+calls the driver still.
 
-has been tested as part of the -VP patchset.
+At that point its at least then down to the drivers to get fixed.
 
-	Ingo
-
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="fix-latency-copy_page_range.patch"
-
-
-The attached patch does a lock-break in copy_page_range() if needed, to
-reduce scheduling latencies.
-
-has been tested as part of the -VP patchset.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/mm/memory.c.orig	
-+++ linux/mm/memory.c	
-@@ -337,6 +337,25 @@ cont_copy_pte_range_noset:
- 				}
- 				src_pte++;
- 				dst_pte++;
-+				/*
-+				 * We are holding two locks at this point -
-+				 * any of them could generate latencies in
-+				 * another task on another CPU:
-+				 */
-+				if (need_resched() ||
-+					need_lockbreak(&src->page_table_lock) ||
-+					need_lockbreak(&dst->page_table_lock))
-+				{
-+					pte_unmap_nested(src_pte);
-+					pte_unmap(dst_pte);
-+					spin_unlock(&src->page_table_lock);
-+					spin_unlock(&dst->page_table_lock);
-+					cond_resched();
-+					spin_lock(&dst->page_table_lock);
-+					spin_lock(&src->page_table_lock);
-+					dst_pte = pte_offset_map(dst_pmd, address);
-+					src_pte = pte_offset_map_nested(src_pmd, address);
-+				}
- 			} while ((unsigned long)src_pte & PTE_TABLE_MASK);
- 			pte_unmap_nested(src_pte-1);
- 			pte_unmap(dst_pte-1);
-
---SLDf9lqlvOQaIe6s--

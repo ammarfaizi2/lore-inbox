@@ -1,59 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262103AbTCRCnR>; Mon, 17 Mar 2003 21:43:17 -0500
+	id <S262126AbTCRCuG>; Mon, 17 Mar 2003 21:50:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262112AbTCRCnR>; Mon, 17 Mar 2003 21:43:17 -0500
-Received: from ip-92-118-134-202.rev.dyxnet.com ([202.134.118.92]:46901 "EHLO
-	mail.office") by vger.kernel.org with ESMTP id <S262103AbTCRCnQ>;
-	Mon, 17 Mar 2003 21:43:16 -0500
-Message-ID: <3E768B87.6080605@thizgroup.com>
-Date: Tue, 18 Mar 2003 10:59:19 +0800
-From: =?UTF-8?B?QWxleCBMYXUg5YqJ5L+K6LOi?= <alexlau@thizgroup.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
-X-Accept-Language: zh-hk, zh-tw, zh-cn
-MIME-Version: 1.0
-To: "\"Juergen \"George\" \"Sawinski" <george@mpimf-heidelberg.mpg.de>
-CC: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
-Subject: Re: Does SX6000 work?
-References: <3E753141.8050807@thizgroup.com> <1047867950.28267.4.camel@volans>
-In-Reply-To: <1047867950.28267.4.camel@volans>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S262120AbTCRCuG>; Mon, 17 Mar 2003 21:50:06 -0500
+Received: from blowme.phunnypharm.org ([65.207.35.140]:46605 "EHLO
+	blowme.phunnypharm.org") by vger.kernel.org with ESMTP
+	id <S262126AbTCRCuF>; Mon, 17 Mar 2003 21:50:05 -0500
+Date: Mon, 17 Mar 2003 22:00:45 -0500
+From: Ben Collins <bcollins@debian.org>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] increase BUS_ID_SIZE to 20
+Message-ID: <20030318030045.GA367@phunnypharm.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Juergen "George" Sawinski wrote:
+I've tried to figure a way around this without adding back a lot of
+overhead, but I can't.
 
->Follow the thread:
->
->http://marc.theaimsgroup.com/?l=linux-kernel&m=104431067011756&w=2
->
->George
->  
->
-I finally get the SX6000 working but I'm not using the I2O. The promise 
-driver
-seem to work better. But I do get I2O to mount the driver only the fact 
-that it
-keep giving me
+The reasoning, is the ieee1394 node's onyl way of a real unique
+identifier is the EUI (the 64bit GUID). It's represented as a 16 digit
+hex. However, each node additionally ca have unit directories.
 
-i2o/iop0: No handler for event (0x00000020)
+Note that an ieee1394's node-id can change with each bus reset. The
+software has no control of this. So I cannot use the node-id as a unique
+identifier since the driver model has no way to rename a device once it
+has been registered. A bus reset should not require unregister/register
+for devices which did not change.
 
-i2o/iop0: Hardware Failure: Unknown Error
+So, I want to use the format of "%016Lx" and "%016Lx-%d" for the formats
+of the bus ID in ieee1394. The second format would be used for unit
+directories of a node. However, current bus-id limit is 16 characters.
+The increase to 20 would give me 16 for the hex EUI, -, and 2 digits for
+the unit directories (I don't think it's even possible to have > 100
+unit directories).
 
- From here Alan talk about some solution that may make it work... But I 
-don't
-really understand it.
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0207.3/0374.html
+I looked at keeping an internal ID for the node internally, but that is
+just way too much overhead in our underlying system. As it is now, a
+driver can reference the GUID, which will never change, not even if the
+node moves to another bus, on a seperate physical ieee1394 card.
 
-Anyway, I try 2.4.18 ( it hang on boot ), 2.4.19 ( it hang on boot),
-2.4.20 ( it work with lot of message ) i2o and still not working. So I 
-use the
-promise driver right now. If anyone know what should I do to get I2O work
-with SX6000, please let me know. I would like to compare the drivers.
-Thanks
-Alex
+Please consider applying this patch.
 
-
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/
 
 
+--- linux-2.5.65.orig/include/linux/device.h	2003-03-17 19:16:02.000000000 -0500
++++ linux-2.5.65/include/linux/device.h	2003-03-17 21:50:05.000000000 -0500
+@@ -35,7 +35,7 @@
+ #define DEVICE_NAME_SIZE	50
+ #define DEVICE_NAME_HALF	__stringify(20)	/* Less than half to accommodate slop */
+ #define DEVICE_ID_SIZE		32
+-#define BUS_ID_SIZE		16
++#define BUS_ID_SIZE		20
+ 
+ 
+ enum {

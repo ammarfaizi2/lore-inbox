@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264877AbTAJKqq>; Fri, 10 Jan 2003 05:46:46 -0500
+	id <S264863AbTAJKwZ>; Fri, 10 Jan 2003 05:52:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264878AbTAJKqq>; Fri, 10 Jan 2003 05:46:46 -0500
-Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:62851 "EHLO
-	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id <S264877AbTAJKqp>; Fri, 10 Jan 2003 05:46:45 -0500
-Message-Id: <200301101055.h0AAtLoe007296@eeyore.valparaiso.cl>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: UnitedLinux violating GPL? 
-In-Reply-To: Message from Jeff Garzik <jgarzik@pobox.com> 
-   of "Thu, 09 Jan 2003 17:27:48 EST." <20030109222748.GA3993@gtf.org> 
-Date: Fri, 10 Jan 2003 11:55:21 +0100
-From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
+	id <S264867AbTAJKwZ>; Fri, 10 Jan 2003 05:52:25 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:25489
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S264863AbTAJKwY>; Fri, 10 Jan 2003 05:52:24 -0500
+Subject: Re: Are linux network drivers really affected by this?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: andrea.glorioso@binary-only.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <87iswx4eaw.fsf@topo.binary-only.priv>
+References: <1042116723.2556.3.camel@station3>
+	 <87iswx4eaw.fsf@topo.binary-only.priv>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1042199207.28469.49.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 10 Jan 2003 11:46:48 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> said:
-> Anybody know where the source rpm for UnitedLinux kernel is?
-> [to be distinguished from kernel-source rpm]
-> 
-> AFAICS they are not distributing source code to their published kernel
-> binaries...  which is a very obvious GPL violation.
+On Fri, 2003-01-10 at 08:08, andrea.glorioso@binary-only.com wrote:
+> The paper presented by Olaf Arkin (amongst other) points to some parts
+> of the linux code where this "vulnerability" exists.  I think Alan Cox
+> is working on some patches for his tree.  I wonder whether it's better
+> to null-pad  ethernet packets  or   to fill  them with  random  values
+> (possibly an overkill, but more resiliant against fingerprinting).
 
-If the binary can be recreated from the source in the kernel-source RPM,
-they aren't in violation. Sure, having a look at the non-official patches
-they apply would be nice, but not mandated by GPL.
---
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Most of them will pad with zero. We have a couple of drivers that already
+pad with something along the lines of "NetBSD is a cool OS too.."
+
+The -ac tree should have the problem fixed for all the drivers I know have
+the problem or may do.
+

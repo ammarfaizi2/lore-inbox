@@ -1,69 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319095AbSHFO0w>; Tue, 6 Aug 2002 10:26:52 -0400
+	id <S319093AbSHFOeR>; Tue, 6 Aug 2002 10:34:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319096AbSHFO0w>; Tue, 6 Aug 2002 10:26:52 -0400
-Received: from mx7.sac.fedex.com ([199.81.194.38]:48144 "EHLO
-	mx7.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S319095AbSHFO0v> convert rfc822-to-8bit; Tue, 6 Aug 2002 10:26:51 -0400
-Date: Tue, 6 Aug 2002 22:29:03 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: root@boston.corp.fedex.com
-To: Thomas Munck Steenholdt <tmus@get2net.dk>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Sv: i810 sound broken...
-In-Reply-To: <200208061030.MAA20559@eday-fe3.tele2.ee>
-Message-ID: <Pine.LNX.4.44.0208062226350.885-100000@boston.corp.fedex.com>
+	id <S319094AbSHFOeR>; Tue, 6 Aug 2002 10:34:17 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:60136 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S319093AbSHFOeR>;
+	Tue, 6 Aug 2002 10:34:17 -0400
+Message-ID: <3D4FDEF3.8070207@colorfullife.com>
+Date: Tue, 06 Aug 2002 16:36:35 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/06/2002
- 10:30:20 PM,
-	Serialize by Router on ENTPM11/FEDEX(Release 5.0.8 |June 18, 2001) at 08/06/2002
- 10:30:22 PM,
-	Serialize complete at 08/06/2002 10:30:22 PM
-Content-Transfer-Encoding: 8BIT
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+To: Kasper Dupont <kasperd@daimi.au.dk>
+CC: "David S. Miller" <davem@redhat.com>, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TRIVIAL] Warn users about machines with non-working WP bit
+References: <3D4FD736.DA443B4B@daimi.au.dk>		<20020806.065652.12285252.davem@redhat.com>		<3D4FDA23.90CAB62F@daimi.au.dk> <20020806.070535.24871584.davem@redhat.com> <3D4FDCDB.744EE7C9@daimi.au.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kasper Dupont wrote:
 
-On Tue, 6 Aug 2002, Thomas Munck Steenholdt wrote:
+>I just get another idea, that might be easier to get right. If
+>the only problem is one process changing the mm while another
+>process is doing a copy_to_user, we should be able to fix it by
+>placing a readlock on the mm while the copy_to_user is in progress.
+>  
+>
+Yes, that would work. copy_to_user is never called with the mmap 
+semaphore locked, i.e.
 
-> I'm afraid even that didn't help much - Only now I get a different kind
-> of error... Before, trying to play a sound, the operation would just
-> fisish immediatelyand a few noises were heard in the speakers... Now the
-> operation never finishes - still no sound... and I found these error
-> messages in dmesg..
+#define copy_to_user(...) \
+        down(&current->mm->mmap_sem); \
+        check_wp_bit(); \
+        real_copy_to_user(); \
+        up(&current->mm->mmap_sem)
 
-one last try ...
+verify_area would just check that the pointer is below TASK_SIZE, and 
+the wp bit is checked within copy_to_user().
 
-unload all network, scsi, modems. Bare minimum and see if the sound alone
-would work. Again, use "aumix" before playing anything.
+But how many 80386 Linux systems that run the 2.4 kernel exist?
 
-Jeff
-
->
-> dmesg:
-> --------------------------------------------------------------
-> Intel 810 + AC97 Audio, version 0.21, 11:44:41 Aug  6 2002
-> PCI: Setting latency timer of device 00:1f.5 to 64
-> i810: Intel ICH2 found at IO 0x1880 and 0x1c00, IRQ 11
-> i810_audio: Audio Controller supports 6 channels.
-> ac97_codec: AC97 Audio codec, id: 0x4144:0x5362 (Unknown)
-> i810_audio: AC'97 codec 0 Unable to map surround DAC's (or DAC's not present), total channels = 2
-> i810_audio: drain_dac, dma timeout?
->
->
-> Any more suggestions?
->
-> Thomas
->
-> -- Send gratis SMS og brug gratis e-mail på Everyday.com --
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+--
+    Manfred
 

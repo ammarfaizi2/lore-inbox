@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUJLSxf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUJLTFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267595AbUJLSxf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 14:53:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbUJLSxe
+	id S267518AbUJLTFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 15:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUJLTFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 14:53:34 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:15333 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S267595AbUJLSwg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 14:52:36 -0400
-From: David Brownell <david-b@pacbell.net>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: Totally broken PCI PM calls
-Date: Tue, 12 Oct 2004 11:28:33 -0700
-User-Agent: KMail/1.6.2
-Cc: Stefan Seyfried <seife@suse.de>, Paul Mackerras <paulus@samba.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       ncunningham@linuxmail.org
-References: <1097455528.25489.9.camel@gaston> <200410111959.53048.david-b@pacbell.net> <20041012085440.GB2292@elf.ucw.cz>
-In-Reply-To: <20041012085440.GB2292@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410121128.33861.david-b@pacbell.net>
+	Tue, 12 Oct 2004 15:05:25 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:744 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S267518AbUJLTFS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 15:05:18 -0400
+Subject: Re: 2.6.9-rc4-mm1 Oops [2]
+From: Lee Revell <rlrevell@joe-job.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Mathieu Segaud <matt@minas-morgul.org>, sboyce@blueyonder.co.uk,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <200410121607.i9CG7PsQ001076@turing-police.cc.vt.edu>
+References: <416B9517.7010708@blueyonder.co.uk>
+	 <877jpwi8cg.fsf@barad-dur.crans.org>
+	 <200410121607.i9CG7PsQ001076@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1097607706.1553.79.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 12 Oct 2004 15:01:46 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 October 2004 1:54 am, Pavel Machek wrote:
-> > > echo disk > /sys/power/state
+On Tue, 2004-10-12 at 12:07, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 12 Oct 2004 11:39:11 +0200, Mathieu Segaud said:
+> > Sid Boyce <sboyce@blueyonder.co.uk> disait dernièrement que :
 > > 
-> > Oddly enough, neither of them work lately for me.
-> > They each resume immediately after writing the
-> > image to disk.
+> > > This one on attempting to start firefox.
+> > > Regards
+> > > Sid.
+> > 
+> > about the 2 reports you made about oopses, try this
+> > cd /path/to/your/kernel/source
+> > wget ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/
+> 2.6.9-rc4-mm1/nroken-out/optimize-profile-path-slightly.patch
+> > patch -R -p1 -i optimize-profile-path-slightly.patch
 > 
-> dmesg would help....
+> I started seeing the same problem on -rc4-mm1, and couldn't figure out why
+> I didn't see it on -rc3-mm3.  Finally figured out that it was because the
+> -rc3-mm3 had a -VP patch on it, and the -rc4-mm1 didn't (because of the
+> UP build problems in -T5).  Ingo's patch also reverts that patch, so I got
+> the fix 'free of charge'....
 
-This is with /sys/power/disk set up for "shutdown";
-the system didn't actually shut down, it restarted
-the CPU right after snapshotting.
+I assumed that Ingo added this to the VP patch intentionally so he
+didn't get a zillion bug reports.
 
-Stopping tasks: ===================|
-Freeing 
-memory: ........................................................................................................|
-Freezing CPUs (at 0)...ok
-PM: Attempting to suspend to disk.
-PM: snapshotting memory.
-Restarting CPUs...ok
-Restarting tasks... done
-eth0: Media Link On 10mbps half-duplex 
+Lee
 
-I've not had time to try that on other systems.  Reverting
-the change to map PCI states didn't improve things.
-
-
-> > p.s. I find the /sys/power/disk file mildly cryptic, maybe
-> >     other folk will find the attached patch slightly more
-> >     informative about what this interface can do.
-> >  
-> 
-> Hmm, its interface change, 
-
-To an file that was just added recently, making it more
-like the other file in that same directory.
-
-> and was not /sys expected to be "one file, 
-> one value"?
-
-It is one value -- a set!  OK, the active member
-of that set is distinguished.  The power/state file
-could do the same thing (but the active state
-there would always be "on").
-
-
-- Dave

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130098AbRABLb2>; Tue, 2 Jan 2001 06:31:28 -0500
+	id <S130069AbRABMJb>; Tue, 2 Jan 2001 07:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130131AbRABLbS>; Tue, 2 Jan 2001 06:31:18 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:59145
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130098AbRABLbL>; Tue, 2 Jan 2001 06:31:11 -0500
-Date: Tue, 2 Jan 2001 03:00:34 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: IDE-DMA Timeout Bug may be dead...
-Message-ID: <Pine.LNX.4.10.10101020259080.25365-100000@master.linux-ide.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129962AbRABMJM>; Tue, 2 Jan 2001 07:09:12 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:44677 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S129859AbRABMJK>;
+	Tue, 2 Jan 2001 07:09:10 -0500
+Date: Tue, 2 Jan 2001 03:21:24 -0800
+Message-Id: <200101021121.DAA14657@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: matthew@wil.cx
+CC: grundler@cup.hp.com, linux-kernel@vger.kernel.org,
+        alan@lxorguk.ukuu.org.uk, parisc-linux@thepuffingroup.com
+In-Reply-To: <20010102112242.A7040@parcelfarce.linux.theplanet.co.uk> (message
+	from Matthew Wilcox on Tue, 2 Jan 2001 11:22:42 +0000)
+Subject: Re: [PATCH] move xchg/cmpxchg to atomic.h
+In-Reply-To: <200101020811.AAA26525@milano.cup.hp.com> <200101020903.BAA14334@pizda.ninka.net> <20010102112242.A7040@parcelfarce.linux.theplanet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   Date: Tue, 2 Jan 2001 11:22:42 +0000
+   From: Matthew Wilcox <matthew@wil.cx>
 
-Doing final tests but it may have come to and end and that deadlock may be
-gone in a few hours after some sleep.
+   We really can't.  We _only_ have load-and-zero.  And it has to be
+   16-byte aligned.  xchg() is just not something the CPU implements.
 
-Cheers,
+Oh bugger... you do have real problems.
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
-
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

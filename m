@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131842AbRARFFL>; Thu, 18 Jan 2001 00:05:11 -0500
+	id <S131878AbRARFLl>; Thu, 18 Jan 2001 00:11:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131878AbRARFFC>; Thu, 18 Jan 2001 00:05:02 -0500
-Received: from [213.22.24.82] ([213.22.24.82]:28933 "HELO vega.net.dhis.org")
-	by vger.kernel.org with SMTP id <S131842AbRARFEo>;
-	Thu, 18 Jan 2001 00:04:44 -0500
-Date: Thu, 18 Jan 2001 05:09:53 +0000 (WET)
-From: Claudio Martins <mart@vega.net.dhis.org>
-To: linux-kernel@vger.kernel.org
-Subject: Adaptec SCSI RAID ASR-2100S
-Message-ID: <Pine.LNX.4.20.0101180503460.31406-100000@vega.net.dhis.org>
+	id <S131931AbRARFLb>; Thu, 18 Jan 2001 00:11:31 -0500
+Received: from mail.sun.ac.za ([146.232.128.1]:41733 "EHLO mail.sun.ac.za")
+	by vger.kernel.org with ESMTP id <S131878AbRARFLV>;
+	Thu, 18 Jan 2001 00:11:21 -0500
+Date: Thu, 18 Jan 2001 07:11:05 +0200 (SAST)
+From: Hans Grobler <grobh@sun.ac.za>
+To: Rick Richardson <rick@remotepoint.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: kmalloc() of 4MB causes "kernel BUG at slab.c:1542!"
+In-Reply-To: <20010117135420.A3536@remotepoint.com>
+Message-ID: <Pine.LNX.4.30.0101180703030.9300-100000@prime.sun.ac.za>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 17 Jan 2001, Rick Richardson wrote:
+> Problem:  kmalloc() of 4M causes kernel message "kernel BUG at slab.c:1542"
 
-Hi 
+This BUG() has been been removed in the later -ac patches as it was meant
+to be a temporary debugging help during the -test3 slab.c changes. This
+does not however remove the constraint that kmalloc can only allocate a
+maximum of 128KB. How you solve this will depend what you want to use the
+memory for.
 
-  I would like to know if there is any support in the 2.4.x kernels for
-Adaptec SCSI RAID ASR-2100S cards. It seems that one can download a driver
-or patch from Adaptec website for 2.2.x kernels...
- Can someone point me for any patch or driver available for the 2.4
-series?
+-- Hans
 
-  Thanks in advance for any info.
-  Best regards
-
-   C. Martins
-
- 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

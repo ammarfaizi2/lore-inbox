@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271940AbRH2JHV>; Wed, 29 Aug 2001 05:07:21 -0400
+	id <S271939AbRH2JMd>; Wed, 29 Aug 2001 05:12:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271937AbRH2JHC>; Wed, 29 Aug 2001 05:07:02 -0400
-Received: from mail.gazinter.net ([212.44.64.6]:46341 "EHLO
-	server-001.gazinter.net") by vger.kernel.org with ESMTP
-	id <S271938AbRH2JGx>; Wed, 29 Aug 2001 05:06:53 -0400
-X-Mail-Server: =?ISO-8859-1?Q?Eserv/2.95/=CE=CE=CE?= 
-Date: Wed, 29 Aug 2001 12:07:52 +0300
-From: "Oleg O. Ossovitskii" <oleg@kgpa.ru>
-X-Mailer: The Bat! (v1.45) Personal
-Reply-To: "Oleg O. Ossovitskii" <oleg@kgpa.ru>
-Organization: KGPA Ltd. Software lab
-X-Priority: 3 (Normal)
-Message-ID: <2815248966.20010829120752@kgpa.ru>
+	id <S271938AbRH2JMX>; Wed, 29 Aug 2001 05:12:23 -0400
+Received: from wildsau.idv-edu.uni-linz.ac.at ([140.78.40.25]:11273 "EHLO
+	wildsau.idv-edu.uni-linz.ac.at") by vger.kernel.org with ESMTP
+	id <S271937AbRH2JMJ>; Wed, 29 Aug 2001 05:12:09 -0400
+From: Herbert Rosmanith <herp@wildsau.idv-edu.uni-linz.ac.at>
+Message-Id: <200108290911.f7T9Btb06402@wildsau.idv-edu.uni-linz.ac.at>
+Subject: min/max status?
 To: linux-kernel@vger.kernel.org
-Subject: ntfs small slip in linux kernel 2.4.9
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Wed, 29 Aug 2001 11:11:54 +0200 (MET DST)
+X-Mailer: ELM [version 2.4ME+ PL37 (25)]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello linux-kernel,
 
-Linux kernel 2.4.9 does not compile if ntfs support is added. Small
-fix see bottom.
+hi,
 
-=== cut ===
-diff -u --recursive --new-file linux-2.4.9/fs/ntfs/unistr.c linux-2.4.9-oo1/fs/ntfs/unistr.c
---- linux-2.4.9/fs/ntfs/unistr.c        Mon Aug 27 16:35:21 2001
-+++ linux-2.4.9-oo1/fs/ntfs/unistr.c    Mon Aug 27 16:23:25 2001
-@@ -22,6 +22,7 @@
-  */
- 
- #include <linux/string.h>
-+#include <linux/kernel.h>
- #include <asm/byteorder.h>
- 
- #include "unistr.h"
+I'd like to know of min/max will stay in kernel.h in their current (and
+fucking ugly, IMO) form or if they eventually will be moved to something
+like type_min() type_max().
 
- === cut ===
-  
+I've read a lot of emails contra the 3-parm. min/max macros. Does our
+supreme deity listen to HIS followers or is this more like a
+"le etat est moi" --- "der kernel bin ich" question?
 
-Best regards, Oleg O. Ossovitskii
-system programmer of KGPA Ltd.
-tel: +7(0112)46-23-40, fax: +7(0112)43-64-96
-mailto:oleg@kgpa.ru, icq# 33366588
 
+-- 
+mfg,
+Dipl.-Ing. H.Rosmanith                    Karrer & Partner Gesellschaft mbH
+Freistaedter Str. 236, A-4040 Linz,                   Tel. +43/732/75 71 30
+                                                      Fax. +43/732/75 71 44
 

@@ -1,35 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131957AbRAASD6>; Mon, 1 Jan 2001 13:03:58 -0500
+	id <S131142AbRAASKk>; Mon, 1 Jan 2001 13:10:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132030AbRAASDs>; Mon, 1 Jan 2001 13:03:48 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8463 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131957AbRAASDc>; Mon, 1 Jan 2001 13:03:32 -0500
-Subject: Re: Chipsets, DVD-RAM, and timeouts....
-To: axboe@suse.de (Jens Axboe)
-Date: Mon, 1 Jan 2001 17:34:01 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), andre@linux-ide.org (Andre Hedrick),
-        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
-In-Reply-To: <20010101175005.B1650@suse.de> from "Jens Axboe" at Jan 01, 2001 05:50:05 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131508AbRAASK3>; Mon, 1 Jan 2001 13:10:29 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14353 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131142AbRAASKR>; Mon, 1 Jan 2001 13:10:17 -0500
+Date: Mon, 1 Jan 2001 09:39:38 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Adam Sampson <azz@gnu.org>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Happy new year^H^H^H^Hkernel..
+In-Reply-To: <87ofxsdnns.fsf@cartman.azz.net>
+Message-ID: <Pine.LNX.4.10.10101010938590.2892-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14D8qR-00015A-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> for FAT etc when reading. Writing is a bit more difficult, as that
-> then turns out to generate a read before we can commit a dirty
-> block. IMO, this type of thing does not belong in the drivers --
-> we should _never_ receive request for < hard block size.
 
-Unfortunately someone ripped the support out from 2.2 to do this, then didnt
-fix it. So right now 2.4 is useless to anyone with an M/O drive.
 
-Alan
+On 1 Jan 2001, Adam Sampson wrote:
+> 
+> It appears to work (even with the reiserfs patch with the obvious
+> Makefile tweak), but the drm modules have unresolved symbols:
+
+Does this fix it for you (do a "make clean" before re-building your tree)?
+
+		Linus
+
+----
+--- v2.4.0-prerelease/linux/drivers/char/drm/Makefile	Mon Jan  1 09:38:35 2001
++++ linux/drivers/char/drm/Makefile	Mon Jan  1 09:38:04 2001
+@@ -44,22 +44,22 @@
+ mga-objs   := mga_drv.o   mga_dma.o     mga_context.o  mga_bufs.o  mga_state.o
+ i810-objs  := i810_drv.o  i810_dma.o    i810_context.o i810_bufs.o
+ 
+-obj-$(CONFIG_DRM_GAMMA) += gamma.o
+-obj-$(CONFIG_DRM_TDFX)  += tdfx.o
+-obj-$(CONFIG_DRM_R128)  += r128.o
+-obj-$(CONFIG_DRM_FFB)   += ffb.o
+-obj-$(CONFIG_DRM_MGA)   += mga.o
+-obj-$(CONFIG_DRM_I810)  += i810.o
+-
+-
+ # When linking into the kernel, link the library just once. 
+ # If making modules, we include the library into each module
+ 
+ ifdef MAKING_MODULES
+   lib = drmlib.a
+ else
+-  obj-y += drmlib.a
++  extra-obj = drmlib.a  
+ endif
++
++obj-$(CONFIG_DRM_GAMMA) += gamma.o $(extra-obj)
++obj-$(CONFIG_DRM_TDFX)  += tdfx.o $(extra-obj)
++obj-$(CONFIG_DRM_R128)  += r128.o $(extra-obj)
++obj-$(CONFIG_DRM_FFB)   += ffb.o $(extra-obj)
++obj-$(CONFIG_DRM_MGA)   += mga.o $(extra-obj)
++obj-$(CONFIG_DRM_I810)  += i810.o $(extra-obj)
++
+ 
+ include $(TOPDIR)/Rules.make
+ 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

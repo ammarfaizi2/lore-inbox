@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265337AbSKAQyk>; Fri, 1 Nov 2002 11:54:40 -0500
+	id <S265254AbSKAQxg>; Fri, 1 Nov 2002 11:53:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265347AbSKAQyk>; Fri, 1 Nov 2002 11:54:40 -0500
-Received: from med-gwia-02a.med.umich.edu ([141.214.93.150]:9355 "EHLO
-	mail-02.med.umich.edu") by vger.kernel.org with ESMTP
-	id <S265337AbSKAQyV> convert rfc822-to-8bit; Fri, 1 Nov 2002 11:54:21 -0500
-Message-Id: <sdc26cf0.091@mail-02.med.umich.edu>
-X-Mailer: Novell GroupWise Internet Agent 6.0.2
-Date: Fri, 01 Nov 2002 12:00:36 -0500
-From: "Nicholas Berry" <nikberry@med.umich.edu>
-To: <pochini@denise.shiny.it>, <linux-kernel@vger.kernel.org>
-Subject: Re: aic7xxx and error recovery
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S265325AbSKAQxg>; Fri, 1 Nov 2002 11:53:36 -0500
+Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:30983 "EHLO
+	skarpsey.dyndns.org") by vger.kernel.org with ESMTP
+	id <S265254AbSKAQxe> convert rfc822-to-8bit; Fri, 1 Nov 2002 11:53:34 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
+To: linux-kernel@vger.kernel.org
+Subject: AlphaPC+Sym53c8xx driver failure
+Date: Fri, 1 Nov 2002 11:55:42 -0500
+User-Agent: KMail/1.4.3
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
+Message-Id: <200211011055.42642.kelledin+LKML@skarpsey.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At the time I read  your original post, I was investigating why one drive kept being kicked out of an md array.
+Recently I got my hands on a PC164LX system with a Symbios 53c810 
+controller.  One of the first things I did was install Debian 
+Woody on it, and it went on without too much fuss using kernel 
+2.2.20.
 
-This is on two systems, 2.4.20-pre11 and 2.4.20-rc1, and both using a symc53c875 with 36gb IBM drives.
+Next thing I tried was upgrading to a 2.4 kernel.  Currently I'm 
+trying 2.4.16; it boots to the point of scanning the Symbios 
+controller, then doesn't get any further (and no terribly 
+obvious error message either).  After booting with 
+"sym53c8xxx=safe:y,verb:2,debug:0x1fff,wide:0", I got something 
+a little more informative...the controller gets to "command 
+processing suspended for 10 seconds" to "command processing 
+resumed" and finally to "queuepos=2"--and that's all she wrote.
 
-Turns out it's recovered errors, just like you see.
+I've dug up two separate options for supporting this controller 
+(sym53c8xx_2 and ncr53c8xx); both have about the same results.  
+I would think it's a hardware fault, but it works in 2.2.20?
 
-So it seems to be wider than aic7xxx. I've just rebuilt both arrays with PER 0, and they're working fine.
+2.4.18 and 2.4.19 did much the same thing when I tried them (they 
+failed in many other ways as well, but 2.4.16 doesn't seem to 
+hork on itself quite so much, just the sym53c8xxx driver).
 
-Another array on 2.4.19-pre7 & aic7xxx works fine with PER 1
-
-Nik
-
-
->>> Giuliano Pochini <pochini@denise.shiny.it> 11/01/02 03:16AM >>>
-Giuliano Pochini wrote:
->
-> [...] It happens that when a recoverable error occurs (as
-> reported in the sys logs) read()(2) returns a value smaller then
-> requested, and the loaded data is identical to the pattern, or
-> read() completes, but the data is wrong.
-
-Ehm, I made a stupid typo in my test program. read() does dot
-succeed in the second case. Anyway the problem is still here:
-why does it fail on recovered errors ?
-
-
-Bye.
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org 
-More majordomo info at  http://vger.kernel.org/majordomo-info.html 
-Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Kelledin
+"If a server crashes in a server farm and no one pings it, does 
+it still cost four figures to fix?"
 

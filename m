@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269887AbUJGWvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269885AbUJHB1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269887AbUJGWvc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 18:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269847AbUJGWQ3
+	id S269885AbUJHB1N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 21:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267880AbUJHBXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 18:16:29 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:55566 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S269697AbUJGWM7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 18:12:59 -0400
-Date: Thu, 7 Oct 2004 23:12:55 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] APIC physical broadcast for i82489DX
-In-Reply-To: <20041007183203.GW9106@holomorphy.com>
-Message-ID: <Pine.LNX.4.58L.0410072244570.27899@blysk.ds.pg.gda.pl>
-References: <200410071609.i97G9reQ003072@hera.kernel.org>
- <20041007183203.GW9106@holomorphy.com>
+	Thu, 7 Oct 2004 21:23:54 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:1998 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S269903AbUJGWvK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 7 Oct 2004 18:51:10 -0400
+Date: Thu, 07 Oct 2004 15:51:44 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: lkml <linux-kernel@vger.kernel.org>
+cc: kernel-janitors <kernel-janitors@lists.osdl.org>, greg@kroah.com,
+       hannal@us.ibm.com, paulus@samba.org
+Subject: [PATCH 2.6][7/12] pcore.c replace pci_find_device with pci_get_device
+Message-ID: <30730000.1097189504@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Oct 2004, William Lee Irwin III wrote:
 
-> > @@ -91,7 +91,7 @@
-> >  	unsigned int lvr, version;
-> >  	lvr = apic_read(APIC_LVR);
-> >  	version = GET_APIC_VERSION(lvr);
-> > -	if (version >= 0x14)
-> > +	if (!APIC_INTEGRATED(version) || version >= 0x14)
-> >  		return 0xff;
-> >  	else
-> >  		return 0xf;
-> 
-> This is the same as version <= 0xf || version >= 0x14; I'm rather
+As pci_find_device is going away I've replaced it with pci_get_device and pci_dev_put.
+If someone with a PPC system could test it I would appreciate it.
 
- I suppose defining a macro called something like APIC_XAPIC(x) to (x >= 
-0x14) might actually have some sense, although unlike with the i82489DX, 
-there is no promise for this to be always true.
+Thanks.
 
-> suspicious, as the docs have long since been purged, making this
+Hanna Linder
+IBM Linux Technology Center
 
- AFAIK i82489DX documents were never available online and I suppose they
-might have never existed in a PDF form.  You could have ordered hardcopies
-in mid 90's.
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-> hopeless for anyone without archives (or a good memory) dating back to
-> that time to check. All that's really needed is citing the version that
-> comes out of the version register and checking other APIC
-> implementations to verify they don't have versions tripping this check,
+---
 
- The APIC_INTEGRATED() macro reflects the range reserved for the i82489DX.  
-Both "Multiprocessor Specification" and "IA-32 Intel Architecture Software
-Developer's Manual, Vol.3" which are available online specify it clearly
-and explicitly.  AFAIK, there is no integrated APIC implementation that
-would violate it (unlike with I/O APICs), so what's the problem?  If a 
-buggy chip appears, we can revisit this assumption.
+diff -Nrup linux-2.6.9-rc3-mm2cln/arch/ppc/platforms/pcore.c linux-2.6.9-rc3-mm2patch2/arch/ppc/platforms/pcore.c
+--- linux-2.6.9-rc3-mm2cln/arch/ppc/platforms/pcore.c	2004-09-29 20:03:45.000000000 -0700
++++ linux-2.6.9-rc3-mm2patch2/arch/ppc/platforms/pcore.c	2004-10-07 15:30:31.839323128 -0700
+@@ -89,7 +89,7 @@ pcore_pcibios_fixup(void)
+ {
+ 	struct pci_dev *dev;
+ 
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 				PCI_DEVICE_ID_WINBOND_83C553,
+ 				0)))
+ 	{
+@@ -108,6 +108,7 @@ pcore_pcibios_fixup(void)
+ 		 */
+  		outb(0x00, PCORE_WINBOND_PRI_EDG_LVL);
+ 		outb(0x1e, PCORE_WINBOND_SEC_EDG_LVL);
++		pci_dev_put(dev);
+ 	}
+ }
+ 
 
-> the latter of which is feasible for those relying on still-extant
-> documentation. Better yet would be dredging up the docs... So, what is
-> the range of the version numbers reported by i82489DX's?
-
- The i82489DX datasheet documents 0x01 for the chip and the
-implementations I've encountered so far agree.
-
-  Maciej

@@ -1,67 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264968AbTLFInK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 03:43:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264971AbTLFInK
+	id S265069AbTLFI5p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 03:57:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTLFI5p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 03:43:10 -0500
-Received: from ookhoi.xs4all.nl ([213.84.114.66]:54181 "EHLO
-	favonius.humilis.net") by vger.kernel.org with ESMTP
-	id S264968AbTLFInH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 03:43:07 -0500
-Date: Sat, 6 Dec 2003 09:43:05 +0100
-From: Ookhoi <ookhoi@humilis.net>
-To: Daniel Flinkmann <dflinkmann@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Corrupt files with kernel 2.6.0_test11 and smb mounts
-Message-ID: <20031206084305.GB22180@favonius>
-Reply-To: ookhoi@humilis.net
-References: <013301c3b801$6c595de0$7727048b@de.uu.net>
+	Sat, 6 Dec 2003 03:57:45 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4056 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265069AbTLFI5n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 03:57:43 -0500
+Date: Sat, 6 Dec 2003 09:57:36 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: netdev@oss.sgi.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch] remove com20020-isa.c unused variables
+Message-ID: <20031206085736.GQ20739@fs.tum.de>
+References: <20031205192828.GA15907@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <013301c3b801$6c595de0$7727048b@de.uu.net>
-X-Uptime: 17:58:39 up 15 days,  9:22, 25 users,  load average: 1.02, 1.01, 1.00
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031205192828.GA15907@gtf.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Flinkmann wrote (ao):
-> > [1.] One line summary of the problem:
-> >
-> > 2.6.0test11 overwriting file on mounted smb volume causes corrupted files!
-> >
-> > [2.] Full description of the problem/report:
-> >
-> > When I log into a smb mounted directory and I overwrite a file with
-> > a file which has smaller amount of bytes its corrupting the data.
-> >
-> > Easy way to show this is following:
-> >
-> > cd onto a smbfs mounted dir.
-> >
-> > ># echo test1234567890 >test.txt
-> > ># cat test.txt
-> > test1234567890
-> > ># echo hi! >test.txt
-> > ># cat test.txt
-> > hi!
-> > 1234567890
-> > >#
-> >
-> > As you can see the file is not overwritten as it should be.
-> 
-> Ookhoi reported the same Problem with 2.6.0_test9 in the Samba Group:
-> http://lists.samba.org/archive/samba-technical/2003-November/032847.html
+Hi Jeff,
 
-That should be:
-http://lists.samba.org/archive/samba-technical/2003-November/032845.html
+your experimental net driver queue patch introduced the following
+compile warnings when compiling com20020-isa statically into the kernel:
 
-> This could also be a Memorymanagement problem because the filesystem is
-> always breaking the last block, which is handled different to the other
-> blocks.
+<--  snip  -->
 
-Could this be the answer to the problem?
-http://www.ussg.iu.edu/hypermail/linux/kernel/0312.0/0647.html
+...
+  CC      drivers/net/arcnet/com20020-isa.o
+drivers/net/arcnet/com20020-isa.c: In function `com20020isa_setup':
+drivers/net/arcnet/com20020-isa.c:189: warning: unused variable `lp'
+drivers/net/arcnet/com20020-isa.c:188: warning: unused variable `dev'
+...
 
-I don't have access to the setup anymore, but maybe it helps you.
+<--  snip  -->
+
+
+The fix is trivial (the net driver queue patch removes all uses of 
+these variables):
+
+
+--- linux-2.6.0-test11-full-no-smp/drivers/net/arcnet/com20020-isa.c.old	2003-12-06 09:51:10.000000000 +0100
++++ linux-2.6.0-test11-full-no-smp/drivers/net/arcnet/com20020-isa.c	2003-12-06 09:53:41.000000000 +0100
+@@ -185,8 +185,6 @@
+ #ifndef MODULE
+ static int __init com20020isa_setup(char *s)
+ {
+-	struct net_device *dev;
+-	struct arcnet_local *lp;
+ 	int ints[8];
+ 
+ 	s = get_options(s, 8, ints);
+
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

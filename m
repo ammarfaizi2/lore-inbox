@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264411AbUEIWsK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264413AbUEIWvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264411AbUEIWsK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 May 2004 18:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264413AbUEIWsK
+	id S264413AbUEIWvF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 May 2004 18:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264414AbUEIWvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 May 2004 18:48:10 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:9704 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S264411AbUEIWsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 May 2004 18:48:07 -0400
-Date: Mon, 10 May 2004 00:48:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
+	Sun, 9 May 2004 18:51:05 -0400
+Received: from mail.tpgi.com.au ([203.12.160.59]:26301 "EHLO mail3.tpgi.com.au")
+	by vger.kernel.org with ESMTP id S264413AbUEIWvC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 May 2004 18:51:02 -0400
+Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
 Cc: Rob Landley <rob@landley.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
-Message-ID: <20040509224806.GF15307@atrey.karlin.mff.cuni.cz>
-References: <20040429064115.9A8E814D@damned.travellingkiwi.com> <20040503123150.GA1188@openzaurus.ucw.cz> <200405042018.23043.rob@landley.net> <20040508225401.GF29255@atrey.karlin.mff.cuni.cz> <1084141917.20486.8.camel@laptop-linux.wpcb.org.au>
+In-Reply-To: <20040509224806.GF15307@atrey.karlin.mff.cuni.cz>
+References: <20040429064115.9A8E814D@damned.travellingkiwi.com>
+	 <20040503123150.GA1188@openzaurus.ucw.cz>
+	 <200405042018.23043.rob@landley.net>
+	 <20040508225401.GF29255@atrey.karlin.mff.cuni.cz>
+	 <1084141917.20486.8.camel@laptop-linux.wpcb.org.au>
+	 <20040509224806.GF15307@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Message-Id: <1084143020.20486.17.camel@laptop-linux.wpcb.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1084141917.20486.8.camel@laptop-linux.wpcb.org.au>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.6-2.norlug 
+Date: Mon, 10 May 2004 08:50:20 +1000
+Content-Transfer-Encoding: 7bit
+X-TPG-Antivirus: Passed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-> > Nigel's refrigerator is way more elaborate and very intrusive, but he
-> > seems to work *always*. Original refrigerator (shared by swsusp and
-> > pmdisk) only tries a bit and eventually gives up if stopping system is
-> > too hard. Hopefully Nigel's code can be simplified.
+> > Rob, I would concentrate on figuring out what makes Pavel's version work
+> > for you and the other two not work. Perhaps then we can adjust our
+> > implementations to address the issue and make you a happy camper :>
 > 
-> It's actually pretty simple. I just need to explain it more clearly.
+> Its actually Patrick's version that works for him... But my and
 
-Well, anything that touches 10+ core kernel files is by definition
-complex ;-).
+Err. My typo. I knew what I meant!
 
-> > He's out of time, so money is not likely to help. Sending some money
-> > to Nigel might do the trick ;-).
-> 
-> Sending money to me won't help either, except with getting support for
-> new hardware. I'm working on finding and blatting a little but
-> significant bug that's made its way in since 2.0. Then I'm only going to
-> be working on merging.
-> 
-> Rob, I would concentrate on figuring out what makes Pavel's version work
-> for you and the other two not work. Perhaps then we can adjust our
-> implementations to address the issue and make you a happy camper :>
-
-Its actually Patrick's version that works for him... But my and
-patrick's shoudl be pretty similar, so it should be rather easy to
-compare.
-
-Oh and if you will like Patrick's version more and will try to port
-some cleanups from his version... Just try to send a patch.
-
-								Pavel
+Nigel
 -- 
-Horseback riding is like software...
-...vgf orggre jura vgf serr.
+Nigel & Michelle Cunningham
+C/- Westminster Presbyterian Church Belconnen
+61 Templeton Street, Cook, ACT 2614.
++61 (2) 6251 7727(wk); +61 (2) 6254 0216 (home)
+
+Evolution (n): A hypothetical process whereby infinitely improbable events occur 
+with alarming frequency, order arises from chaos, and no one is given credit.
+

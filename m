@@ -1,74 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266643AbTBKWwD>; Tue, 11 Feb 2003 17:52:03 -0500
+	id <S266702AbTBKW7p>; Tue, 11 Feb 2003 17:59:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266702AbTBKWwD>; Tue, 11 Feb 2003 17:52:03 -0500
-Received: from c-24-99-36-145.atl.client2.attbi.com ([24.99.36.145]:31492 "HELO
-	babylon.d2dc.net") by vger.kernel.org with SMTP id <S266643AbTBKWwB>;
-	Tue, 11 Feb 2003 17:52:01 -0500
-Date: Tue, 11 Feb 2003 18:01:46 -0500
-From: "Zephaniah E\. Hull" <warp@babylon.d2dc.net>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       linux-eata@i-connect.net
-Subject: Re: eata irq abuse (was: Re: Linux 2.5.60)
-Message-ID: <20030211230146.GA1291@babylon.d2dc.net>
-Mail-Followup-To: Manfred Spraul <manfred@colorfullife.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-	linux-eata@i-connect.net
-References: <3E4936BF.3050809@colorfullife.com>
+	id <S266718AbTBKW7p>; Tue, 11 Feb 2003 17:59:45 -0500
+Received: from packet.digeo.com ([12.110.80.53]:9145 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S266702AbTBKW7n>;
+	Tue, 11 Feb 2003 17:59:43 -0500
+Date: Tue, 11 Feb 2003 15:08:23 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: pablo@menichini.com.ar, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.60: arlan.c no longer compiles
+Message-Id: <20030211150823.0d536772.akpm@digeo.com>
+In-Reply-To: <20030211164414.GN17128@fs.tum.de>
+References: <Pine.LNX.4.44.0302101103570.1348-100000@penguin.transmeta.com>
+	<20030211164414.GN17128@fs.tum.de>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Content-Disposition: inline
-In-Reply-To: <3E4936BF.3050809@colorfullife.com>
-X-Notice-1: Unsolicited Commercial Email (Aka SPAM) to ANY systems under
-X-Notice-2: our control constitutes a $US500 Administrative Fee, payable
-X-Notice-3: immediately.  By sending us mail, you hereby acknowledge that
-X-Notice-4: policy and agree to the fee.
-User-Agent: Mutt/1.5.3i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 11 Feb 2003 23:09:24.0097 (UTC) FILETIME=[9DFAB710:01C2D222]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Adrian Bunk <bunk@fs.tum.de> wrote:
+>
+> On Mon, Feb 10, 2003 at 11:08:28AM -0800, Linus Torvalds wrote:
+> >...
+> > Summary of changes from v2.5.59 to v2.5.60
+> > ============================================
+> >...
+> > Rusty Russell <rusty@rustcorp.com.au>:
+> >...
+> >   o Memory leak in drivers_net_arlan.c (1)
+> >...
+> 
+> This change broke the compilation of arlan.c:
+> 
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ drivers/net/arlan.c |   40 ++++++++++++++++++++--------------------
+ 1 files changed, 20 insertions(+), 20 deletions(-)
 
-On Tue, Feb 11, 2003 at 06:45:35PM +0100, Manfred Spraul wrote:
-> >[<c0291df2>] port_detect+0x3c2/0xe50
->=20
-> Do you have an eata scsi controller?
+diff -puN drivers/net/arlan.c~arlan-fix drivers/net/arlan.c
+--- 25/drivers/net/arlan.c~arlan-fix	Tue Feb 11 15:03:45 2003
++++ 25-akpm/drivers/net/arlan.c	Tue Feb 11 15:07:08 2003
+@@ -1124,24 +1124,6 @@ static int __init arlan_probe_everywhere
+ 	return -ENODEV;
+ }
+ 
+-static int __init arlan_find_devices(void)
+-{
+-	int m;
+-	int found = 0;
+-
+-	ARLAN_DEBUG_ENTRY("arlan_find_devices");
+-	if (mem != 0 && numDevices == 1)	/* Check a single specified location. */
+-		return 1;
+-	for (m =(int) phys_to_virt(0xc0000); m <=(int) phys_to_virt(0xDE000); m += 0x2000)
+-	{
+-		if (arlan_check_fingerprint(m) == 0)
+-			found++;
+-	}
+-	ARLAN_DEBUG_EXIT("arlan_find_devices");
+-
+-	return found;
+-}
+-
+ 
+ static int arlan_change_mtu(struct net_device *dev, int new_mtu)
+ {
+@@ -1199,7 +1181,7 @@ static int __init
+ 			return 0;
+ 		}
+ 		ap = dev->priv;
+-		ap->config = dev->priv + sizeof(struct arlan_private);
++		ap->conf = dev->priv + sizeof(struct arlan_private);
+ 		ap->init_etherdev_alloc = 1;
+ 	} else {
+ 		dev = devs;
+@@ -1209,7 +1191,7 @@ static int __init
+ 			return 0;
+ 		}
+ 		ap = dev->priv;
+-		ap->config = dev->priv + sizeof(struct arlan_private);
++		ap->conf = dev->priv + sizeof(struct arlan_private);
+ 		memset(ap, 0, sizeof(*ap));
+ 	}
+ 
+@@ -2007,6 +1989,24 @@ int __init arlan_probe(struct net_device
+ 
+ #ifdef  MODULE
+ 
++static int __init arlan_find_devices(void)
++{
++	int m;
++	int found = 0;
++
++	ARLAN_DEBUG_ENTRY("arlan_find_devices");
++	if (mem != 0 && numDevices == 1)	/* Check a single specified location. */
++		return 1;
++	for (m =(int) phys_to_virt(0xc0000); m <=(int) phys_to_virt(0xDE000); m += 0x2000)
++	{
++		if (arlan_check_fingerprint(m) == 0)
++			found++;
++	}
++	ARLAN_DEBUG_EXIT("arlan_find_devices");
++
++	return found;
++}
++
+ int init_module(void)
+ {
+ 	int i = 0;
 
-Yes I do, does exactly what I need most of the time.
+_
 
-The problem goes away if I compile SCSI as modules, however it happens
-when I try to load the modules, so..
-
-Anything I can do to help?
-
-Zephaniah E. Hull.
-
---=20
-	1024D/E65A7801 Zephaniah E. Hull <warp@babylon.d2dc.net>
-	   92ED 94E4 B1E6 3624 226D  5727 4453 008B E65A 7801
-	    CCs of replies from mailing lists are requested.
-
-"This system operates under martial law. The constitution is suspended. You
- have no rights except as declared by the area commander. Violators will be
-  shot. Repeat violators will be repeatedly shot...."       -from "A_W_O_L"
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+SYDaRFMAi+ZaeAERArN7AJ9rZOIotKPpmjso3cFHeekd9XF8yQCdFpyY
-nCcZ9ojw/h45uJ3s5B7zP38=
-=0sbL
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--

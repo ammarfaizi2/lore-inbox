@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131796AbRBKChd>; Sat, 10 Feb 2001 21:37:33 -0500
+	id <S131813AbRBKCjx>; Sat, 10 Feb 2001 21:39:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131813AbRBKChX>; Sat, 10 Feb 2001 21:37:23 -0500
-Received: from [64.160.188.242] ([64.160.188.242]:8708 "HELO
-	mail.hislinuxbox.com") by vger.kernel.org with SMTP
-	id <S131796AbRBKChO>; Sat, 10 Feb 2001 21:37:14 -0500
-Date: Sat, 10 Feb 2001 18:37:13 -0800 (PST)
-From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+	id <S131804AbRBKCjn>; Sat, 10 Feb 2001 21:39:43 -0500
+Received: from unthought.net ([212.97.129.24]:52889 "HELO mail.unthought.net")
+	by vger.kernel.org with SMTP id <S131795AbRBKCjf>;
+	Sat, 10 Feb 2001 21:39:35 -0500
+Date: Sun, 11 Feb 2001 03:39:34 +0100
+From: Jakob Østergaard <jakob@unthought.net>
 To: Shawn Starr <Shawn.Starr@Home.net>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.2-pre3
-In-Reply-To: <3A8481C0.2756BA1D@Home.net>
-Message-ID: <Pine.LNX.4.30.0102101835400.963-100000@ns-01.hislinuxbox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: lkm <linux-kernel@vger.kernel.org>
+Subject: Re: [QUESTION]: IDE Driver support for S.M.A.R.T?
+Message-ID: <20010211033934.A6012@unthought.net>
+Mail-Followup-To: Jakob Østergaard <jakob@unthought.net>,
+	Shawn Starr <Shawn.Starr@Home.net>,
+	lkm <linux-kernel@vger.kernel.org>
+In-Reply-To: <3A85F698.5DCB3F1E@Home.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2i
+In-Reply-To: <3A85F698.5DCB3F1E@Home.net>; from Shawn.Starr@Home.net on Sat, Feb 10, 2001 at 09:19:05PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Feb 10, 2001 at 09:19:05PM -0500, Shawn Starr wrote:
+> Does the current (E)IDE driver support SMART?
 
-BTW, the kernel version is 2.4.2-pre3 (2.4.1 with patch-pre3 applied)
-NO other patches have been applied.
+Yes.
 
-I used hdparm v3.9 to set the params with.
+[eagle:joe] $ ls /proc/ide/hda/smart_*
+ /proc/ide/hda/smart_thresholds
+ /proc/ide/hda/smart_values
+
+> 
+> Will Linux report any S.M.A.R.T errors or warnings to the system log?
+
+No.
+
+You can set that up yourself with a script that compares the smart_thresholds
+with the smart_values.
+
+The values and thresholds are vendor/model/moonphase-specific,
+so there's not really any way the kernel can make much sense out of them.
 
 -- 
-David D.W. Downey - RHCE
-Consulting Engineer
-Ensim Corporation - Sunnyvale, CA
-
+................................................................
+:   jakob@unthought.net   : And I see the elder races,         :
+:.........................: putrid forms of man                :
+:   Jakob Østergaard      : See him rise and claim the earth,  :
+:        OZ9ABN           : his downfall is at hand.           :
+:.........................:............{Konkhra}...............:
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

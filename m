@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263320AbTHZIg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 04:36:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263284AbTHZIg4
+	id S263147AbTHZIcQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 04:32:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263463AbTHZIcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 04:36:56 -0400
-Received: from fw.osdl.org ([65.172.181.6]:25574 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263538AbTHZIfj (ORCPT
+	Tue, 26 Aug 2003 04:32:15 -0400
+Received: from smtp3.wanadoo.fr ([193.252.22.25]:19861 "EHLO
+	mwinf0604.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S263147AbTHZIcO convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 04:35:39 -0400
-Date: Tue, 26 Aug 2003 01:38:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christian Kujau <evil@g-house.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: parport_pc Oops with 2.6.0-test3
-Message-Id: <20030826013829.73d00992.akpm@osdl.org>
-In-Reply-To: <3F4AA6FF.9050601@g-house.de>
-References: <200308160438.59489.gene.heskett@verizon.net>
-	<1061030883.13257.253.camel@workshop.saharacpt.lan>
-	<200308161107.21430.gene.heskett@verizon.net>
-	<3F4AA6FF.9050601@g-house.de>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Aug 2003 04:32:14 -0400
+From: Laurent =?iso-8859-1?q?Hug=E9?= <laurent.huge@wanadoo.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Reading accurate size of recepts from serial port
+Date: Tue, 26 Aug 2003 10:32:13 +0200
+User-Agent: KMail/1.5.2
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200308261032.13576.laurent.huge@wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Kujau <evil@g-house.de> wrote:
->
->  >> > Can you retest on 2.6.0-test4?
->   >>
->   >> i have, but with no (?) changes:
->   >
->   > Please send your .config.
+Hi,
 
-That helped, thanks.
+I feel sorry to annoy you again with my problem, but I can't imagine there is 
+no way to know the accurate size of a recept on the serial port.
 
---- 25/drivers/parport/parport_pc.c~parport_pc-rmmod-oops-fix	2003-08-26 01:32:59.000000000 -0700
-+++ 25-akpm/drivers/parport/parport_pc.c	2003-08-26 01:33:08.000000000 -0700
-@@ -93,7 +93,7 @@ static struct superio_struct {	/* For Su
- 	int dma;
- } superios[NR_SUPERIOS] __devinitdata = { {0,},};
- 
--static int user_specified __devinitdata = 0;
-+static int user_specified;
- #if defined(CONFIG_PARPORT_PC_SUPERIO) || \
-        (defined(CONFIG_PARPORT_1284) && defined(CONFIG_PARPORT_PC_FIFO))
- static int verbose_probing;
+I'm trying to implement a network driver above this port :
+	- I've done a raw read from 0x03f8 but it was not fast enougth (I'm working 
+at 115200 bauds) ;
+	- I've created a line discipline, but it can't (according to this mailing 
+list) give me the real size of what was read.
+Does anybody know a way to read from the serial port with speed and accuracy ?
 
-_
+I'm really confused because the serial driver on Windows can do such a thing, 
+and, since I've no other way to find the size of PDU (CCSDS segments), I'm 
+obliged to rely on the serial port to let me know that size.
+Thanks in advance,
+-- 
+Laurent Hugé.
 

@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272093AbRIJWpX>; Mon, 10 Sep 2001 18:45:23 -0400
+	id <S272086AbRIJWrn>; Mon, 10 Sep 2001 18:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272088AbRIJWpN>; Mon, 10 Sep 2001 18:45:13 -0400
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:9393 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S272079AbRIJWo5>;
-	Mon, 10 Sep 2001 18:44:57 -0400
-Message-Id: <5.1.0.14.2.20010910234129.05133ec0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 10 Sep 2001 23:45:13 +0100
-To: Wayne.Brown@altec.com
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: Re: ntfs problem with 2.4.10-pre7
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <86256AC3.0069F85E.00@smtpnotes.altec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S272079AbRIJWrd>; Mon, 10 Sep 2001 18:47:33 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:56586 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S272086AbRIJWr0>; Mon, 10 Sep 2001 18:47:26 -0400
+Message-ID: <3B9D42C5.275A1558@t-online.de>
+Date: Tue, 11 Sep 2001 00:46:29 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: Andreas Steinmetz <ast@domdv.de>
+Subject: Re: AIC + RAID1 error? (was: Re: aic7xxx errors)
+In-Reply-To: <XFMail.20010911002924.ast@domdv.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andreas Steinmetz schrieb:
+> 
+> > Something other made me wonder:
+> > I ran the machine several times with the *new* aic7xxx-driver (TCQ=32)
+> > and the "aic7xxx=verbose" commandline, and i noticed the following:
+> > At every reboot (made by "reboot", RH7.1), the machine was not able to
+> > stop the raid5 correctly...it un-mounted the mountpoint (/home) and then
+> > it normaly wants to stop the raid...(you see the messages "mdrecoveryd
+> > got waken up...") but that did not work and after some time (30sec) the
+> > kernel Ooopsed. This was reproducable and only occured if booted with
+> > the "aic7xxx=verbose" kernel-parameter.
+> > The effect after reboot was, that the raid had to be resynced because
+> > one partition (that which always falls out) was damaged or at least
+> > seemed to.
+> > (The filesystem was clean, that was already unmounted as the oops
+> > occured.)
+> >
+> > Perhaps someone can test if this is reproducable with his machine
+> > too...i use kernel 2.4.3, raid is built-in, also the aic7xxx, there are
+> > three raid-disks (LVD, aic7xxx-controller on Mobo) in a raid5 mounted as
+> > /home.
+> >
+> Same behaviour for RAID1 and the new aic7xxx driver for me at nearly every
+> reboot. The old driver works just fine (2.4.9).
 
-At 20:15 10/09/2001, Wayne.Brown@altec.com wrote:
->Since upgrading to 2.4.10-pre7, accessing my Win2000 ntfs partition (mounted
->read-only) causes a lockup.  There are no oops messages on the console or 
->in the
->logs; if I'm in text mode when it happens the system still responds to 
-><alt-f1>
->etc. and to <alt-sysrq> but not to anything else.  If I'm in X nether the 
->mouse
->nor the keyboard respond.  This is on a ThinkPad 600X with a kernel compiled
->with egcs-2.91.66.  The last kernel that worked correctly for me was
->2.4.10-pre4.  I skipped -pre5; -pre6 (with Anton's one-line patch applied to
->allow compiling with egcs-2.91.66) gives the same lockup as -pre7.
+Ok, as i am using Kernel 2.4.3, it seems that the problem exists from
+2.4.3 to 2.4.9...could you easily post the kernel-oops ?
 
-When does the lockup occur? When mounting? Later? What is the command that 
-triggers it?
+I can and will, but i am stil in testing the old driver with my
+disk-falls-out-of-raid problem, so i cannot reboot the next week or so
+as this problem only occurs randomly about once per week...:-(...and i
+want to "circle in" this problem to be sure that it is not something
+else...
 
-Could you edit fs/ntfs/Makefile and remove the hash in front of the -DDEBUG 
-in the EXTRA_CFLAGS line? Then recompile, insert the module and as root issue:
+One thing i realize in the moment:
+The old driver uses a default TCQ of 8, now my /proc/scsi/aic7xxx/0 says
+that the actual queue depth per device is 1,1,1,1,1.....the TCQ is 8.
+We should test if the problem with the new driver goes away if we set a
+TCQ of 1...or has someone done this already ?
 
-echo -1 > /proc/sys/fs/ntfs-debug
+This problem leads IMHO to the theory that the raid-code and the (new)
+aic7xxx-code interfer in some way...(race condition?)...perhaps this
+also causes my disk to fall out of the raid...
 
-This will activate extensive logging in NTFS. If you now can reproduce the 
-hang and send me the syslog output (which hopefully will be captured) I 
-should be able to figgure out where and why it crashes.
+Solong...
+Frank.
 
-Thanks in advance,
-
-         Anton
-
-
--- 
-   "Nothing succeeds like success." - Alexandre Dumas
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
-
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+Microsoft isn't the answer.
+Microsoft is the question, and the answer is NO.
+... -.-

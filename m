@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261675AbTCQArV>; Sun, 16 Mar 2003 19:47:21 -0500
+	id <S261679AbTCQA6q>; Sun, 16 Mar 2003 19:58:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261679AbTCQArV>; Sun, 16 Mar 2003 19:47:21 -0500
-Received: from 12-211-138-234.client.attbi.com ([12.211.138.234]:2881 "EHLO
-	vlad.geekizoid.com") by vger.kernel.org with ESMTP
-	id <S261675AbTCQArU>; Sun, 16 Mar 2003 19:47:20 -0500
-Reply-To: <vlad@geekizoid.com>
-From: "Vlad@geekizoid.com" <vlad@geekizoid.com>
-To: "'Stuart MacDonald'" <stuartm@connecttech.com>
-Cc: "Lkml \(E-mail\)" <linux-kernel@vger.kernel.org>
-Subject: RE: Never ever send Pavel private mail unless you want him to publish it.
-Date: Sun, 16 Mar 2003 18:57:53 -0600
-Message-ID: <014e01c2ec20$3e779c50$0200a8c0@wsl3>
+	id <S261680AbTCQA6q>; Sun, 16 Mar 2003 19:58:46 -0500
+Received: from yossman.net ([209.162.234.20]:3845 "EHLO yossman.net")
+	by vger.kernel.org with ESMTP id <S261679AbTCQA6p>;
+	Sun, 16 Mar 2003 19:58:45 -0500
+Message-ID: <3E75204F.1070603@yossman.net>
+Date: Sun, 16 Mar 2003 20:09:35 -0500
+From: Brian Davids <dlister@yossman.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030211
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andrew Morton <akpm@digeo.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.64-bk multiple oops on boot
+References: <3E75138C.7030607@yossman.net> <20030316163444.4d495d59.akpm@digeo.com>
+In-Reply-To: <20030316163444.4d495d59.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <078701c2ec1a$6e98aec0$294b82ce@connecttech.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unlikely.  Email is more akin to the 'informal letter' of the 19th and 20th
-century.  There is an expectation of privacy.
+Andrew Morton wrote:
 
---
+> Does this help?
+> 
+> diff -puN fs/devfs/base.c~devfs-oops-fix fs/devfs/base.c
+> --- 25/fs/devfs/base.c~devfs-oops-fix	2003-03-16 16:33:16.000000000 -0800
+> +++ 25-akpm/fs/devfs/base.c	2003-03-16 16:33:49.000000000 -0800
+> @@ -1802,8 +1802,11 @@ int devfs_generate_path (devfs_handle_t 
+>  static struct file_operations *devfs_get_ops (devfs_handle_t de)
+>  {
+>      struct file_operations *ops = de->u.cdev.ops;
+> -    struct module *owner = ops->owner;
+> +    struct module *owner;
+>  
+> +    if (!ops)
+> +	return NULL;
+> +    owner = ops->owner;
+>      read_lock (&de->parent->u.dir.lock);  /*  Prevent module from unloading  */
+>      if ( (de->next == de) || !try_module_get (owner) )
+>      {   /*  Entry is already unhooked or module is unloading  */
 
- /"\                         / For information and quotes, email us at
- \ /  ASCII RIBBON CAMPAIGN / info@lrsehosting.com
-  X   AGAINST HTML MAIL    / http://www.lrsehosting.com/
- / \  AND POSTINGS        / vlad@lrsehosting.com
--------------------------------------------------------------------------
+That fixed it for me... thanks!
 
-> -----Original Message-----
-> From: Stuart MacDonald [mailto:stuartm@connecttech.com]
-> Sent: Sunday, March 16, 2003 6:16 PM
-> To: Mark Mielke; Vlad@geekizoid.com
-> Cc: 'Pavel Machek'; 'kernel list'; vojtech@suse.cz; lm@bitmover.com
-> Subject: Re: Never ever send Pavel private mail unless you want him to
-> publish it.
->
->
-> From: "Mark Mielke" <mark@mark.mielke.cc>
-> >                                                Also, the last time I
-> > tried to defend maintaining the privacy of an email, I
-> lost. There are
-> > simply no rules about any of it. The closest would be copyright law,
-> > and even then, as long as the email is attributed, it is a
-> hard stance
-> > to make.
->
-> I'm under the impression that postcards do not carry an expectation of
-> privacy due to their readability during transmission. I'd expect that
-> email would be found to have the similar lack of expectation were it
-> to be tested in court.
->
-> ..Stu
->
->
+
+Brian Davids
 

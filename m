@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbTINC6x (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Sep 2003 22:58:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262280AbTINC6x
+	id S262280AbTINDJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Sep 2003 23:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbTINDJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Sep 2003 22:58:53 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:19723
+	Sat, 13 Sep 2003 23:09:08 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:21003
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262279AbTINC6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Sep 2003 22:58:51 -0400
-Date: Sat, 13 Sep 2003 19:40:52 -0700 (PDT)
+	id S262280AbTINDJF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Sep 2003 23:09:05 -0400
+Date: Sat, 13 Sep 2003 19:51:20 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
 To: Erik Andersen <andersen@codepoet.org>
 cc: Timothy Miller <miller@techsource.com>,
@@ -17,27 +17,35 @@ cc: Timothy Miller <miller@techsource.com>,
        Pascal Schmidt <der.eremit@email.de>, linux-kernel@vger.kernel.org
 Subject: Re: People, not GPL  [was: Re: Driver Model]
 In-Reply-To: <20030914015719.GA16947@codepoet.org>
-Message-ID: <Pine.LNX.4.10.10309131934360.16744-100000@master.linux-ide.org>
+Message-ID: <Pine.LNX.4.10.10309131942320.16744-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Please Erik,
+Erik:
 
-Go have your "DADDY" write another legal letter for you and send it my
-way.  I will be happy to shove it down your pie hole.
+One more thing you forgot!
 
-There is a difference in blanket theift of the kernel API and any court
-will point out that "fair usage" is proper.
+Before you run around ranting about DMCA and CPRM and making suttle legal
+threats.  Everyone here knows who put it on the line to gain control of
+technology to prevent Content Protection Recordable Media from covering
+the storage industry wide.  That is correct it was me.  I was the one and
+only person ever to stand up and have a position to help everyone here to
+take control of technology.  While all of my hard work was destroyed by
+the brain-dead of the EFF by causing it to go underground.
 
-PS how is your IRS media forensics gig going now that you do not have me
-on your side to help you do the dirty work of sneaking around people's
-hard drives.  I was smart enough to never teach you what I knew you could
-never learn.
+So lets be real clear about your wild swings of DMCA, because the irony
+will be back to haunt.  Threaten to strike me down with DMCA, what a child
+you have become.
 
-Later!
+So this is where it goes ... Mighty Linux kills usage for business with
+lawsuits like the MPAA and RIAA.
+
+GPL == DMCA, this is the brush you swing paint well dude.
+
+Cheers,
 
 Andre Hedrick
 LAD Storage Consulting Group

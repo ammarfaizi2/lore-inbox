@@ -1,91 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318113AbSFTEHo>; Thu, 20 Jun 2002 00:07:44 -0400
+	id <S318112AbSFTEGD>; Thu, 20 Jun 2002 00:06:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318114AbSFTEHn>; Thu, 20 Jun 2002 00:07:43 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5996 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S318113AbSFTEHl>; Thu, 20 Jun 2002 00:07:41 -0400
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Cort Dougan <cort@fsmlabs.com>, Benjamin LaHaise <bcrl@redhat.com>,
-       Rusty Russell <rusty@rustcorp.com.au>, Robert Love <rml@tech9.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: latest linus-2.5 BK broken
-References: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 19 Jun 2002 21:57:35 -0600
-In-Reply-To: <Pine.LNX.4.44.0206191018510.2053-100000@home.transmeta.com>
-Message-ID: <m1d6umtxe8.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S318113AbSFTEGC>; Thu, 20 Jun 2002 00:06:02 -0400
+Received: from goose.mail.pas.earthlink.net ([207.217.120.18]:56710 "EHLO
+	goose.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S318112AbSFTEGB>; Thu, 20 Jun 2002 00:06:01 -0400
+Date: Thu, 20 Jun 2002 00:07:49 -0400
+To: davej@suse.de
+Cc: linux-kernel@vger.kernel.org, ckulesa@as.arizona.edu,
+       torvalds@transmeta.com
+Subject: Re: [PATCH] (1/2) reverse mapping VM for 2.5.23 (rmap-13b)
+Message-ID: <20020620040749.GA32177@rushmore>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com> writes:
+> Absolutely.  Maybe Randy Hron (added to Cc) can find some spare time
+> to benchmark these sometime before the summit too[1]. It'll be very
+> interesting to see where it fits in with the other benchmark results
+> he's collected on varying workloads.
 
-> On 19 Jun 2002, Eric W. Biederman wrote:
-> >
-> > 10-20 years or someone finds a good way to implement a single system
-> > image on linux clusters.  They are already into the 1000s of nodes,
-> > and dual processors per node category.  And as things continue they
-> > might even grow bigger.
-> 
-> Oh, clusters are a separate issue. I'm absolutely 100% conviced that you
-> don't want to have a "single kernel" for a cluster, you want to run
-> independent kernels with good communication infrastructure between them
-> (ie global filesystem, and try to make the networking look uniform).
-> 
-> Trying to have a single kernel for thousands of nodes is just crazy. Even
-> if the system were ccNuma and _could_ do it in theory.
+I'd like to start benchmarking 2.5 on the quad xeon.  You fixed the
+aic7xxx driver in 2.5.23-dj1.  It also has a qlogic QLA2200.
+You mentioned the qlogic driver in 2.5 may not have the new error handling yet.
 
-I totally agree, mostly I was playing devils advocate.  The model
-actually in my head is when you have multiple kernels but they talk
-well enough that the applications have to care in areas where it
-doesn't make a performance difference (There's got to be one of those).
+I haven't been able to get a <SysRq showTasks> on it yet, 
+but the reproducable scenerio for all the 2.5.x kernels I've tried 
+has been:
 
-> The NuMA work can probably take single-kernel to maybe 64+ nodes, before
-> people just start turning stark raving mad. There's no way you'll have
-> single-kernel for thousands of CPU's, and still stay sane and claim any
-> reasonable performance under generic loads.
-> 
-> So don't confuse the issue with clusters like that. The "set_affinity()"
-> call simply doesn't have anything to do with them. If you want to move
-> processes between nodes on such a cluster, you'll probably need user-level
-> help, the kernel is unlikely to do it for you.
+mke2fs -q /dev/sdc1
+mount -t ext2 -o defaults,noatime /dev/sdc1 /fs1
+mkreiserfs /dev/sdc2
+mount -t reiserfs -o defaults,noatime /dev/sdc2 /fs2
+mke2fs -q -j -J size=400 /dev/sdc3
+mount -t ext3 -o defaults,noatime,data=writeback /dev/sdc3 /fs3
 
-Agreed.  
+for fs in /fs1 /fs2 /fs3
+do	cpio a hundred megabytes of benchmarks into the 3 filesystems.
+	sync;sync;sync
+	umount $fs
+done
 
-The compute cluster problem is an interesting one.  The big items
-I see on the todo list are:
+In 2.5.x umount(1) hangs in uninteruptable sleep when
+umounting the first or second filesystem.  In 2.5.23, the sync
+was in uninteruptable sleep before umounting /fs2.
 
-- Scalable fast distributed file system (Lustre looks like a
-   possibility)
-- Sub application level checkpointing.
+The compile error on 2.5.23-dj1 was:
 
-Services like a schedulers, already exist.  
+gcc -Wp,-MD,./.qlogicisp.o.d -D__KERNEL__ -I/usr/src/linux-2.5.23-dj1/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686 -nostdinc -iwithprefix include    -DKBUILD_BASENAME=qlogicisp   -c -o qlogicisp.o qlogicisp.c
+qlogicisp.c:2005: unknown field `abort' specified in initializer
+qlogicisp.c:2005: warning: initialization from incompatible pointer type
+qlogicisp.c:2005: unknown field `reset' specified in initializer
+qlogicisp.c:2005: warning: initialization from incompatible pointer type
+make[2]: *** [qlogicisp.o] Error 1
+make[2]: Leaving directory `/usr/src/linux-2.5.23-dj1/drivers/scsi'
+make[1]: *** [scsi] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.5.23-dj1/drivers'
+make: *** [drivers] Error 2
 
-Basically the job of a cluster scheduler gets much easier, and the
-scheduler more powerful once it gets the ability to suspend jobs.
-Checkpointing buys three things.  The ability to preempt jobs, the
-ability to migrate processes, and the ability to recover from failed
-nodes, (assuming the failed hardware didn't corrupt your jobs
-checkpoint).
+Just in case someone with know-how and can do wants to[1].
 
-Once solutions to the cluster problems become well understood I
-wouldn't be surprised if some of the supporting services started to
-live in the kernel like nfsd.  Parts of the distributed filesystem
-certainly will.
+> [1] I am master of subtle hints.
 
-I suspect process checkpointing and restoring will evolve something
-something like pthread support.  With some code in user space, and
-some generic helpers in the kernel as clean pieces of the job can be
-broken off.  The challenge is only how to save/restore interprocess
-communications. Things like moving a tcp connection from one node to
-another are interesting problems.  
+I'll put 2.5.x on top of the quad Xeon benchmark queue as soon as I can.
 
-But also I suspect most of the hard problems that we need kernel help
-with can have uses independent of checkpointing.  Already we have web
-server farms that spread connections to a single ip across nodes.
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 
-Eric

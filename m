@@ -1,68 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129160AbRBMArb>; Mon, 12 Feb 2001 19:47:31 -0500
+	id <S129273AbRBMBLO>; Mon, 12 Feb 2001 20:11:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129374AbRBMArV>; Mon, 12 Feb 2001 19:47:21 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:11235 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129160AbRBMArJ>;
-	Mon, 12 Feb 2001 19:47:09 -0500
-Date: Mon, 12 Feb 2001 16:46:59 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] new version of the starfire driver for 2.2.19pre
-In-Reply-To: <Pine.LNX.4.30.0102121151240.4687-100000@age.cs.columbia.edu>
-Message-ID: <Pine.LNX.4.30.0102121644200.4687-100000@age.cs.columbia.edu>
+	id <S129306AbRBMBLE>; Mon, 12 Feb 2001 20:11:04 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:63495 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129273AbRBMBKr>; Mon, 12 Feb 2001 20:10:47 -0500
+Date: Mon, 12 Feb 2001 21:21:55 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: NIIBE Yutaka <gniibe@m17n.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] swapin flush cache bug
+Message-ID: <Pine.LNX.4.21.0102122107550.29855-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Feb 2001, Ion Badulescu wrote:
 
-> Here is an incremental patch from the version in 2.2.19pre10 to the latest 
-> version of starfire.c. Please apply, the 2219pre10 version doesn't work if 
-> compiled-in (because drivers/net builds net.a not net.o). It also fixes 
-> the MII interface detection problem mentioned by Don Becker.
-> 
-> The patch is longish, but it's mostly whitespace and moving code around. 
-> It also removes all the code that's #ifdef ZEROCOPY, since Jeff Garzik 
-> doesn't want it in 2.4.x and it definitely can't work in 2.2.x.
+Hi,
 
-And of course I forgot to diff Space.c. Patch attached, sorry about that.
+Niibe Yutaka noted (and added an entry on the MM bugzilla system) that
+cache flushing on do_swap_page() is buggy. Here: 
 
-Thanks,
-Ion
+---
+        struct page *page = lookup_swap_cache(entry);
+        pte_t pte;
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-----------------
---- /usr/src/local/linux-2.2.18-vanilla/drivers/net/Space.c	Sun Dec 10 16:49:42 2000
-+++ linux-2.2.18/drivers/net/Space.c	Sun Feb 11 14:53:02 2001
-@@ -126,6 +126,7 @@
- extern int rcpci_probe(struct device *);
- extern int dmfe_probe(struct device *);
- extern int sktr_probe(struct device *dev);
-+extern int starfire_probe(struct device *dev);
+        if (!page) {
+                lock_kernel();
+                swapin_readahead(entry);
+                page = read_swap_cache(entry);
+                unlock_kernel();
+                if (!page)
+                        return -1;
+
+                flush_page_to_ram(page);
+                flush_icache_page(vma, page);
+        }
+
+        mm->rss++;
+--
+
+If lookup_swap_cache() finds a page in the swap cache, and that page was
+in memory because of the swapin readahead, the cache is not flushed.
+
+Here is a patch to fix the problem by always flushing the cache including
+for pages in the swap cache:
+
+--- linux.orig/mm/memory.c.orig       Thu Feb  8 10:52:20 2001
++++ linux/mm/memory.c    Thu Feb  8 10:54:07 2001
+@@ -1033,12 +1033,12 @@
+                unlock_kernel();
+                if (!page)
+                        return -1;
+-
+-               flush_page_to_ram(page);
+-               flush_icache_page(vma, page);
+        }
  
- /* Gigabit Ethernet adapters */
- extern int yellowfin_probe(struct device *dev);
-@@ -277,9 +278,12 @@
- #ifdef CONFIG_VIA_RHINE
- 	{via_rhine_probe, 0},
- #endif
--#ifdef CONFI_NET_DM9102
-+#ifdef CONFIG_NET_DM9102
- 	{dmfe_probe, 0},
--#endif	
-+#endif
-+#ifdef CONFIG_ADAPTEC_STARFIRE
-+	{starfire_probe, 0},
-+#endif
- 	{NULL, 0},
- };
+        mm->rss++;
++
++       flush_page_to_ram(page);
++       flush_icache_page(vma, page);
  
+        pte = mk_pte(page, vma->vm_page_prot);
+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

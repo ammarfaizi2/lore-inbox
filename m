@@ -1,52 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261539AbSJUQzP>; Mon, 21 Oct 2002 12:55:15 -0400
+	id <S261454AbSJUQu1>; Mon, 21 Oct 2002 12:50:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261550AbSJUQzP>; Mon, 21 Oct 2002 12:55:15 -0400
-Received: from x35.xmailserver.org ([208.129.208.51]:28811 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S261539AbSJUQzP>; Mon, 21 Oct 2002 12:55:15 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 21 Oct 2002 10:10:02 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Dan Kegel <dank@kegel.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: re: [patch] sys_epoll ...
-In-Reply-To: <3DB3A732.2080405@kegel.com>
-Message-ID: <Pine.LNX.4.44.0210211008160.1641-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261518AbSJUQu1>; Mon, 21 Oct 2002 12:50:27 -0400
+Received: from rth.ninka.net ([216.101.162.244]:40844 "EHLO rth.ninka.net")
+	by vger.kernel.org with ESMTP id <S261454AbSJUQu1>;
+	Mon, 21 Oct 2002 12:50:27 -0400
+Subject: Re: rtnetlink interface state monitoring problems.
+From: "David S. Miller" <davem@rth.ninka.net>
+To: James Morris <jmorris@intercode.com.au>
+Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+In-Reply-To: <Mutt.LNX.4.44.0210212346480.29169-100000@blackbird.intercode.com.au>
+References: <Mutt.LNX.4.44.0210212346480.29169-100000@blackbird.intercode.com.au>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 21 Oct 2002 10:01:14 -0700
+Message-Id: <1035219674.4817.5.camel@rth.ninka.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 21 Oct 2002, Dan Kegel wrote:
+On Mon, 2002-10-21 at 06:48, James Morris wrote:
+> Forgot to add that it might be possible to get Andi's solution into 2.6.
 
-> Davide wrote:
->  >asmlinkage int sys_epoll_create(int maxfds);
->  >asmlinkage int sys_epoll_ctl(int epfd, int op, int fd, unsigned int events);
->  >asmlinkage int sys_epoll_wait(int epfd, struct pollfd **events, int timeout);
->
-> Hey Davide,
-> I've always been a bit bothered by the need to specify maxfds in
-> advance.  What's the preferred way to handle the situation
-> where you guess wrong on the value of maxfds?  Create a new
-> epoll and register all the old fds with it?  (Sounds like
-> a good job for a userspace wrapper library.)
+Send me the patch for 2.5.x
 
-I'm currently looking at doing it automatically, w/out the need of
-specifying it. I don't like it either ...
-
-
-> Regardless, thanks for pushing /dev/epoll along towards inclusion
-> in 2.5.  I'm looking forward to seeing it it integrated.
-> Even if the interface doesn't please everyone, the performance
-> should...
-
-You should thank Hanna Linder that bugged Linus way more than I did :)
-
-
-
-- Davide
-
+It not being there is by accident, usually when I make a 2.4.x
+patch I do 2.5.x in parallel.
 

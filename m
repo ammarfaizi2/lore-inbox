@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290833AbSARV1l>; Fri, 18 Jan 2002 16:27:41 -0500
+	id <S290835AbSARVaL>; Fri, 18 Jan 2002 16:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290830AbSARV1c>; Fri, 18 Jan 2002 16:27:32 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:42762 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S290833AbSARV1U>; Fri, 18 Jan 2002 16:27:20 -0500
-Subject: Re: vm philosophising
-To: davids@webmaster.com (David Schwartz)
-Date: Fri, 18 Jan 2002 21:39:29 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020118201715.AAA18233@shell.webmaster.com@whenever> from "David Schwartz" at Jan 18, 2002 12:17:14 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S290836AbSARVaC>; Fri, 18 Jan 2002 16:30:02 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32267 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S290835AbSARV37>; Fri, 18 Jan 2002 16:29:59 -0500
+Date: Fri, 18 Jan 2002 21:29:49 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: dan@embeddededge.com, hozer@drgw.net, linux-kernel@vger.kernel.org,
+        groudier@free.fr, mattl@mvista.com
+Subject: Re: pci_alloc_consistent from interrupt == BAD
+Message-ID: <20020118212949.H2059@flint.arm.linux.org.uk>
+In-Reply-To: <20020118130209.J14725@altus.drgw.net> <3C4875DB.9080402@embeddededge.com> <20020118.123221.85715153.davem@redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16RgjR-0007xw-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020118.123221.85715153.davem@redhat.com>; from davem@redhat.com on Fri, Jan 18, 2002 at 12:32:21PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, 18 Jan 2002 19:23:47 +0000 (GMT), Alan Cox wrote:
-> 
-> >Overcommit control is just a book keeping
-> >exercise on address space commits.
-> 
-> 	A bookkeeping technique developed by Arthur Anderson.
+On Fri, Jan 18, 2002 at 12:32:21PM -0800, David S. Miller wrote:
+> The ARM and PPC ports could set __GFP_HIGH in their page table
+> allocation calls when invoked via pci_alloc_consistent, and this is
+> the change I suggest they make.  It is a trivial fix whereas backing
+> out this ability to call pci_alloc_consistent from interrupts is not
+> a trivial change at all.
 
-Hardly, and for many workloads its actually a very good thing to do. Of
-course there is always a small mostly theoretical risk of doing an Enron
+ARM will get fixed some way if and when it becomes a requirement to fix
+it.  "requirement" here is defined by someone wanting to use such a
+driver on an ARM system.  Currently, there is no call for it, so there's
+not much point in implementing it.
+
+However, if it becomes easy to implement without impacting the code too
+much, then it will get fixed in due coarse.  The problem currently is
+that there is no way for the page table allocation functions to know
+that they should be using atomic and emergency pool memory allocations.
+
+Its a balance of pain vs gain.  Pain is currently high, gain is currently
+zero.
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

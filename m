@@ -1,42 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268376AbTCFUeB>; Thu, 6 Mar 2003 15:34:01 -0500
+	id <S268383AbTCFUfm>; Thu, 6 Mar 2003 15:35:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268377AbTCFUeB>; Thu, 6 Mar 2003 15:34:01 -0500
-Received: from locutus.cmf.nrl.navy.mil ([134.207.10.66]:53398 "EHLO
-	locutus.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id <S268376AbTCFUd6>; Thu, 6 Mar 2003 15:33:58 -0500
-Message-Id: <200303062044.h26Ki7Gi013598@locutus.cmf.nrl.navy.mil>
-To: Werner Almesberger <wa@almesberger.net>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][ATM] make atm (and clip) modular + try_module_get() 
-In-reply-to: Your message of "Wed, 05 Mar 2003 12:52:31 -0300."
-             <20030305125230.B525@almesberger.net> 
-X-url: http://www.nrl.navy.mil/CCS/people/chas/index.html
-X-mailer: nmh 1.0
-Date: Thu, 06 Mar 2003 15:44:07 -0500
-From: chas williams <chas@locutus.cmf.nrl.navy.mil>
+	id <S268386AbTCFUfl>; Thu, 6 Mar 2003 15:35:41 -0500
+Received: from packet.digeo.com ([12.110.80.53]:6130 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S268383AbTCFUe4>;
+	Thu, 6 Mar 2003 15:34:56 -0500
+Date: Thu, 6 Mar 2003 12:42:57 -0800
+From: Andrew Morton <akpm@digeo.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: rml@tech9.net, mingo@elte.hu, linux-kernel@vger.kernel.org
+Subject: Re: [patch] "HT scheduler", sched-2.5.63-B3
+Message-Id: <20030306124257.4bf29c6c.akpm@digeo.com>
+In-Reply-To: <Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
+References: <20030228202555.4391bf87.akpm@digeo.com>
+	<Pine.LNX.4.44.0303051910380.1429-100000@home.transmeta.com>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 Mar 2003 20:42:58.0243 (UTC) FILETIME=[F8B40930:01C2E420]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20030305125230.B525@almesberger.net>,Werner Almesberger writes:
->native ATM VCs, owned by atmarpd. When atmarpd clears them for IP
->traffic, all the data that has been queued so far (i.e. any ATMARP
->messages, and any IP - typically I'd expect to find a SYN there)
->is removed from the native ATM VC's queue, and fed into the non-ATM
->part of the stack, for de-encapsulation, etc.
+Linus Torvalds <torvalds@transmeta.com> wrote:
+>
+> 
+> ===== kernel/sched.c 1.161 vs edited =====
+> --- 1.161/kernel/sched.c	Thu Feb 20 20:33:52 2003
+> +++ edited/kernel/sched.c	Wed Mar  5 19:09:45 2003
+> @@ -337,8 +337,15 @@
+>  		 * boost gets as well.
+>  		 */
+>  		p->sleep_avg += sleep_time;
+> -		if (p->sleep_avg > MAX_SLEEP_AVG)
+> +		if (p->sleep_avg > MAX_SLEEP_AVG) {
+> +			int ticks = p->sleep_avg - MAX_SLEEP_AVG + current->sleep_avg;
+>  			p->sleep_avg = MAX_SLEEP_AVG;
+> +			if (ticks > MAX_SLEEP_AVG)
+> +				ticks = MAX_SLEEP_AVG;
+> +			if (!in_interrupt())
+> +				current->sleep_avg = ticks;
+> +		}
+> +			
+>  		p->prio = effective_prio(p);
+>  	}
+>  	enqueue_task(p, array);
 
-while you could make skb_migrate() generic, in this case it doesnt
-really need to be.  since the dest list is on the stack you wouldn't
-need to lock it -- only the source list.  however, this whole migrate
-thing makes me a bit nervous.  you copy the pending data and then
-requeue the data.  what keeps data from arriving on the vcc while
-you are reprocessing -- this could lead to out of order packet
-arrival.
+This improves the X interactivity tremendously.  I went back to 2.5.64 base
+just to verify, and the difference was very noticeable.
 
-perhaps the recvq could be locked (to prevent new arrivals) and then
-go through and feed the ip traffic to clip_vcc() leaving the atmarp
-traffic in the queue.  then, unlock and wakeup the vcc to force atmarp
-to get the data pending for it (if any).  this would prevent get 
-around the need to 'migrate' the data back and forth.
+The test involved doing the big kernel compile while moving large xterm,
+mozilla and sylpheed windows about.  With this patch the mouse cursor was
+sometimes a little jerky (0.1 seconds, perhaps) and mozilla redraws were
+maybe 0.5 seconds laggy.
+
+So.  A big thumbs up on that one.  It appears to be approximately as
+successful as sched-2.5.64-a5.
+
+Ingo's combo patch is better still - that is sched-2.5.64-a5 and your patch
+combined (yes?).  The slight mouse jerkiness is gone and even when doing
+really silly things I cannot make it misbehave at all.  I'd handwavingly
+describe both your patch and sched-2.5.64-a5 as 80% solutions, and the combo
+95%.
+
+
+So I'm a happy camper, and will be using Ingo's combo patch.  But I do not
+use XMMS and xine and things like that - they may be running like crap with
+these patches.  I do not know, and I do not have a base to compare against
+even if I could work out how to get them going.
+
+
+I did spend a bit of time a while back trying to come up with some
+combination of tests which would exhibit this problem, and which would allow
+it to be measured and tweaked.  It was unsuccessful - the peculiar
+combination of a compilation and X seems to bring it out.
+
 

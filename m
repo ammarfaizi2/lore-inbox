@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVBSQyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVBSQ6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVBSQyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Feb 2005 11:54:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261745AbVBSQyI
+	id S261726AbVBSQ6p (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Feb 2005 11:58:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVBSQ6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Feb 2005 11:54:08 -0500
-Received: from smtpq2.home.nl ([213.51.128.197]:52656 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S261735AbVBSQxc (ORCPT
+	Sat, 19 Feb 2005 11:58:45 -0500
+Received: from mail1.skjellin.no ([80.239.42.67]:58342 "EHLO mx1.skjellin.no")
+	by vger.kernel.org with ESMTP id S261726AbVBSQ6l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Feb 2005 11:53:32 -0500
-Message-ID: <42176EC4.8080700@keyaccess.nl>
-Date: Sat, 19 Feb 2005 17:52:20 +0100
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+	Sat, 19 Feb 2005 11:58:41 -0500
+Message-ID: <4217703E.4070307@tomt.net>
+Date: Sat, 19 Feb 2005 17:58:38 +0100
+From: Andre Tomt <andre@tomt.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Roland Dreier <roland@topspin.com>
-CC: Vicente Feito <vicente.feito@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: workqueue - process context
-References: <200502190148.11334.vicente.feito@gmail.com>	<52is4ptae0.fsf@topspin.com> <42174DD4.9010506@keyaccess.nl> <52acq0ttdg.fsf@topspin.com>
-In-Reply-To: <52acq0ttdg.fsf@topspin.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [SATA] libata-dev queue updated
+References: <4216FB7B.3030409@pobox.com>
+In-Reply-To: <4216FB7B.3030409@pobox.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Dreier wrote:
-
->     Rene> I have no idea about the module refcounting stuff. Is there
->     Rene> a chance that create_workqueue() could increase a reference
->     Rene> somewhere so that the module wouldn't be allowed to unload
->     Rene> untill after a destroy_workqueue()?
+Jeff Garzik wrote:
+> Patch URL, BK URL, and changelog attached.
 > 
-> There's no point to doing this, since it's adding complexity to try
-> and avoid a very obvious and easy to find bug.  Other types of
-> resource leaks are harder to find, but a module not destroying a
-> workqueue is going to be trivial to spot and fix.
+> Recent changes:
+> * New sata_qstor driver.
+> 
+> * Turn on ATAPI by default.
+> 
+> * Change a couple unconditional use-the-hardware function calls to be 
+> callbacks instead.  Should have been this way originally.
+> 
+> * Most of C/H/S support.
+> 
+> * Fix bugs in ADMA driver.
+> 
+> * Support PCI MSI in AHCI driver.
+> * Support ATAPI in AHCI driver.
+> 
+> * Improve ATA passthru (a.k.a. SMART) support
+> 
 
-Yes, fair enough. Thank you.
+How is the Marvell driver coming along? Did it stall? :-)
 
-Rene.
+The propetiary source driver works, but its not like its universally 
+available (I had to grab it from a different vendor..), "guaranteed" to 
+work with future kernels, have a usable license, and so on.

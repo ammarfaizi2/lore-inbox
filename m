@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266208AbUIEFu4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266216AbUIEF5U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266208AbUIEFu4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 01:50:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUIEFus
+	id S266216AbUIEF5U (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 01:57:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266209AbUIEF5U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 01:50:48 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:36207 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S266208AbUIEFuc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 01:50:32 -0400
-Message-ID: <413AA915.9060407@yahoo.com.au>
-Date: Sun, 05 Sep 2004 15:50:13 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-CC: Linux Memory Management <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC][PATCH 2/3] alloc-order watermarks
-References: <413AA7B2.4000907@yahoo.com.au> <413AA7F8.3050706@yahoo.com.au> <413AA841.1040003@yahoo.com.au>
-In-Reply-To: <413AA841.1040003@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Sep 2004 01:57:20 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:41083 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S266216AbUIEF5S
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 01:57:18 -0400
+Date: Sun, 5 Sep 2004 08:00:10 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Dave Airlie <airlied@linux.ie>
+Cc: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [BK pull] DRM macro removal part 2
+Message-ID: <20040905060010.GA8295@mars.ravnborg.org>
+Mail-Followup-To: Dave Airlie <airlied@linux.ie>, torvalds@osdl.org,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.58.0409050203270.29736@skynet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409050203270.29736@skynet>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> 2/3
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> 
-> 
-> Move the watermark checking code into a single function. Extend it to account
-> for the order of the allocation and the number of free pages that could satisfy
-> such a request.
-> 
-> Signed-off-by: Nick Piggin <nickpiggin@yahoo.com.au>
-> 
-> 
-> ---
-> 
->  linux-2.6-npiggin/include/linux/mmzone.h |    2 +
->  linux-2.6-npiggin/mm/page_alloc.c        |   57 ++++++++++++++++++++-----------
->  2 files changed, 40 insertions(+), 19 deletions(-)
-> 
-> diff -puN mm/page_alloc.c~vm-alloc-order-watermarks mm/page_alloc.c
-> --- linux-2.6/mm/page_alloc.c~vm-alloc-order-watermarks	2004-09-05 14:55:46.000000000 +1000
-> +++ linux-2.6-npiggin/mm/page_alloc.c	2004-09-05 15:10:07.000000000 +1000
-> @@ -676,6 +676,36 @@ buffered_rmqueue(struct zone *zone, int 
->  }
->  
->  /*
-> + * Return the number of pages available for order 'order' allocations.
-> + */
+Hi Dave
 
-Sorry, stale comment. It actually returns 1 if free pages are above the
-watermark, 0 otherwise.
+On Sun, Sep 05, 2004 at 02:05:12AM +0100, Dave Airlie wrote:
+> 
+> <airlied@starflyer.(none)> (04/09/05 1.2022)
+>    remove DRIVER_FILE_FIELDS, replace with a private driver structure
+>    allocated in open helper and freed in free_filp_priv.
+> 
+>    Signed-off-by: Dave Airlie <airlied@linux.ie>
 
-> +int zone_watermark_ok(struct zone *z, int order, unsigned long mark,
-> +		int alloc_type, int can_try_harder, int gfp_high)
+
+If you make your changelog look like (no '-'es):
+-------------------------------------------------------------------
+drm: remove DRIVER_FILE_FIELDS
+<empty line>
+remove DRIVER_FILE_FIELDS, replace with a private driver structure
+allocated in open helper and freed in free_filp_priv.
+
+Signed-off-by: Dave Airlie <airlied@linux.ie>
+-------------------------------------------------------------------
+
+Then it will look nice in the short changelog Linus post for each
+-rc, final release.
+And the drm: tag is a way to tell non-insiders that this patch
+changes drm.
+
+	Sam

@@ -1,169 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264908AbTAAAXF>; Tue, 31 Dec 2002 19:23:05 -0500
+	id <S264910AbTAAAlF>; Tue, 31 Dec 2002 19:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264910AbTAAAXF>; Tue, 31 Dec 2002 19:23:05 -0500
-Received: from dsl2-09018-wi.customer.centurytel.net ([209.206.215.38]:61348
-	"HELO thomasons.org") by vger.kernel.org with SMTP
-	id <S264908AbTAAAXD> convert rfc822-to-8bit; Tue, 31 Dec 2002 19:23:03 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: scott thomason <scott@thomasons.org>
-Reply-To: scott@thomasons.org
-To: Robert Love <rml@tech9.net>, Andrew Morton <akpm@digeo.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Impact of scheduler tunables on interactive response (was Re: [BENCHMARK] scheduler tunables with contest - prio_bonus_ratio)
-Date: Tue, 31 Dec 2002 18:31:29 -0600
-User-Agent: KMail/1.4.3
-References: <200212200850.32886.conman@kolivas.net> <3E0253D9.94961FB@digeo.com> <1040341293.2521.71.camel@phantasy>
-In-Reply-To: <1040341293.2521.71.camel@phantasy>
+	id <S264915AbTAAAlF>; Tue, 31 Dec 2002 19:41:05 -0500
+Received: from hq.pm.waw.pl ([195.116.170.10]:51673 "EHLO hq.pm.waw.pl")
+	by vger.kernel.org with ESMTP id <S264910AbTAAAlE>;
+	Tue, 31 Dec 2002 19:41:04 -0500
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Why is Nvidia given GPL'd code to use in closed source drivers?
+References: <Pine.LNX.4.10.10212310412290.421-100000@master.linux-ide.org>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: 31 Dec 2002 16:11:58 +0100
+In-Reply-To: <Pine.LNX.4.10.10212310412290.421-100000@master.linux-ide.org>
+Message-ID: <m3k7hq2pfl.fsf@defiant.pm.waw.pl>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200212311831.29124.scott@thomasons.org>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Around mid-December, Con, rml, & akpm had a discussion about whether 
-or not the scheduler tunables were a good thing for interactive 
-responsiveness. Andrew was of the opinion that the interactivity 
-estimator judged poorly too often and introduced noticeable lags to 
-the interactive experience. To combat this, he fiddled with the 
-tunable knobs in an attempt to basicly turn off the interactive 
-estimation.
+Andre Hedrick <andre@linux-ide.org> writes:
 
-I wrote a program that emulates a varying but constant set of loads 
-with a fixed amount of sleep() time in the hopes that it would appear 
-"interactive" to the estimator. The program measures the time it 
-takes to process each iteration (minus the time it spends sleeping). 
-Then I tried seven different configurations of the tunables while the 
-system was under load. The kernel was 2.5.53-mm2. The load was a 
-continuously looping kernel make -j4 clean/make -j4 bzImage, and a 
-continuously looping copy of a 100MB file. My system is a dual AMD 
-MP2000 with 1GB RAM.
+> Are you a customer of Nvidia?
+> If you are not, you have no legal ground to invoke GPL PERIOD!
 
-*IF* the test program is valid--something I would like feedback 
-on!--the results show that you can attack the background load with 
-aggressive tunable settings to achieve low interactive response 
-times, contrary to the direction Andrew had suggested taking for 
-tunable settings.
+Which country has such weird copyright laws?
 
-The seven tunable configurations, a graph of the results, and the raw 
-data are here:
+> If you are a customer, check to see that they have a GPL/GNU wrapper which
+> is open source and attachs a clean LGPL library object, iirc.
 
-    http://www.thomasons.org/int_res.html
+I don't think we have LGPL code in the kernel, but of course I can be
+wrong here.
+Anyway, NVidia has binary driver being a kernel component and XFree86
+driver. While XFree86 driver may or may not be subject to X11 license,
+the kernel part (an object file which is then linked to a kernel module
+glue code) does not seem to be derived from kernel code.
 
-Tab-delimited text and OpenOffice spreadsheets of the data are here:
+> Since, there is still a legal and valid LGPL regardless of what FSF has to
+> say, there are revisions of GPL which permit various usages.
 
-    http://www.thomasons.org/int_res.txt
-    http://www.thomasons.org/int_res.sxc
+Still, LGPL has nothing to do with it. The kernel code is licensed
+under version 2 of GPL (or maybe later version, but there isn't any).
 
-I would like to assemble a small suite of tools that can be used to 
-measure the impact of kernel changes on interactive performance, 
-starting with Mark Hahn's/Andrew's "realfeel" microbenchmark and 
-moving up thru whatever else may be necessary to gauge real-life 
-impact. Your comments and direction are very welcome.
+Having or not having money has nothing to do with it either.
 
-This test program is:
+> Now until the kernel forcable rejects loading binary closed source
+> modules, it defaults to quietly approved of the concept regardless what
+> you think, feel, or care.
 
-#!/usr/bin/perl
+Kernel behaviour is not related to legal issues.
 
-use strict;
-use warnings;
+> If the kernel forces vendors to choose between closed source support or
+> loose the competive edge in their market space, enjoy hunting for the old
+> dusty video cards from the past.  You just limited the scope of hardware
+> which will run on Linux with any usability.
 
-use Time::HiRes qw/sleep time/;
-use IO::File;
+Forget it. The kernel itselt can't force anyone to do anything. That is
+the license that matters.
+BTW: Of course, vendors are free to produce drivers for their hardware.
+Have you seen such a closed-source driver which was working correctly?
+I haven't.
 
-use constant OBS    => 5000;
-use constant SLEEP  => 0.3;
-use constant MEMLOW => 04 * 1024 * 1024;
-use constant MEMINC => 2  * 1024 * 1024;
-use constant MEMHI  => 30 * 1024 * 1024;
+> So you submitted a patch, whippty flip ... neither you or I control the
+> license of the kernel.  If Linus does not like the content of a patch or a
+> file generated, well it is toast.  Also where does it state a patch is
+> defined as "GPL patch"?
 
-my $m     = MEMHI;
+IANAL, but I'd assume a patch doesn't change the license for a product
+(a file etc), unless stated otherwise.
 
-for (my $x = 0; $x < OBS; $x++) {
-  my $start = time();
-  
-  $m += MEMINC;
-  if ($m > MEMHI) { 
-    $m = MEMLOW;
-  }
-  my $mem   = 'x' x $m; ## Touch a little memory
+> Think a little harder first, cause I and many others will be on the side
+> of slapping down your arguements about preventing binary modules from
+> being loaded.  Key point! "LOADED" not "LINKED".
 
-  sleep(SLEEP);
-  
-  $mem = undef;         ## Release the memory
-  my $fh = IO::File->new_tmpfile or die "Can't get temp file handle!";
-  my $m2 = $m * .02;    ## Write 2% of the memory allocation to disk
-  print $fh 'x' x $m2;
-  $fh = undef;
-
-  my $elapsed = (time() - $start) - SLEEP;
-  printf("%07.4f\n", $elapsed);  ## Capture to tenths of ms - sleep
-}
-
-exit 0;
-
-
-
-On Thursday 19 December 2002 05:41 pm, Robert Love wrote:
-> On Thu, 2002-12-19 at 18:18, Andrew Morton wrote:
-> > That is too often not the case.
->
-> I knew you would say that!
->
-> > I can get the desktop machine working about as comfortably
-> > as 2.4.19 with:
-> >
-> > # echo 10 > max_timeslice
-> > # echo 0 > prio_bonus_ratio
-> >
-> > ie: disabling all the fancy new scheduler features :(
-> >
-> > Dropping max_timeslice fixes the enormous stalls which happen
-> > when an interactive process gets incorrectly identified as a
-> > cpu hog.  (OK, that's expected)
->
-> Curious why you need to drop max_timeslice, too.  Did you do that
-> _before_ changing the interactivity estimator?  Dropping
-> max_timeslice closer to min_timeslice would do away with a lot of
-> effect of the interactivity estimator, since bonuses and penalties
-> would be less apparent.
->
-> There would still be (a) the improved priority given to interactive
-> processes and (b) the reinsertion into the active away done to
-> interactive processes.
->
-> Setting prio_bonus_ratio to zero would finish off (a) and (b).  It
-> would also accomplish the effect of setting max_timeslice low,
-> without actually doing it.
->
-> Thus, can you try putting max_timeslice back to 300?  You would
-> never actually use that range, mind you, except for niced/real-time
-> processes.  But at least then the default timeslice would be a
-> saner 100ms.
->
-> > I don't expect the interactivity/cpuhog estimator will ever work
-> > properly on the desktop, frankly.  There will always be failure
-> > cases when a sudden swing in load causes it to make the wrong
-> > decision.
-> >
-> > So it appears that to stem my stream of complaints we need to
-> > merge scheduler_tunables.patch and edit my /etc/rc.local.
->
-> I am glad sched-tune helped identify and fix the issue.  I would
-> have no problem merging this to Linus.  I actually have a 2.5.52
-> patch out which is a bit cleaner - it removes the defines
-> completely and uses the new variables.  More proper for the long
-> term.  Feel free to push what you have, too.
->
-> But that in no way precludes not fixing what we have, because good
-> algorithms should not require tuning for common cases.  Period.
->
-> 	Robert Love
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+A module has to be linked when it's loaded. But it, of course, doesn't
+matter - the GPL doesn't prevent you from linking GPL code to anything
+you want, unless you want to distribute such a beast.
+-- 
+Krzysztof Halasa
+Network Administrator

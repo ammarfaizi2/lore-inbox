@@ -1,60 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293229AbSCOU3Z>; Fri, 15 Mar 2002 15:29:25 -0500
+	id <S293236AbSCOUl5>; Fri, 15 Mar 2002 15:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293236AbSCOU3Q>; Fri, 15 Mar 2002 15:29:16 -0500
-Received: from usfw01.photomask.com ([198.6.73.7]:50424 "EHLO
-	red.photomask.com") by vger.kernel.org with ESMTP
-	id <S293229AbSCOU3A> convert rfc822-to-8bit; Fri, 15 Mar 2002 15:29:00 -0500
-From: John Helms <john.helms@photomask.com>
-Date: Fri, 15 Mar 2002 20:32:46 GMT
-Message-ID: <20020315.20324600@linux.local>
-Subject: Re: bug (trouble?) report on high mem support
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, Jim.Trice@photomask.com (Trice Jim),
-        Martin.Bligh@us.ibm.com
-In-Reply-To: <E16lyLG-0004Zo-00@the-village.bc.nu>
-In-Reply-To: <E16lyLG-0004Zo-00@the-village.bc.nu>
-X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2;Linux)
-X-Priority: 3 (Normal)
+	id <S293237AbSCOUls>; Fri, 15 Mar 2002 15:41:48 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:49413 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293236AbSCOUlf>; Fri, 15 Mar 2002 15:41:35 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] Cleanup port 0x80 use (was: Re: IO delay ...)
+Date: 15 Mar 2002 12:41:09 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a6tm95$c55$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0203151736460.1477-100000@biker.pdb.fsc.net> <E16lw5V-0004ES-00@the-village.bc.nu>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan,
+Followup to:  <E16lw5V-0004ES-00@the-village.bc.nu>
+By author:    Alan Cox <alan@lxorguk.ukuu.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> > I am still wondering, though, why this method of getting a delay
+> > is used so often. IMO in most places one could use udelay(1) instead,
+> > with much less risk of doing wrong.
+> 
+> udelay(1) I don't believe is enough. Unfortunately I can't find my
+> documentation on the ISA bus which covers the timeout for acknowledging an
+> address cycle. Otherwise for tsc capable boxes I agree entirely.
+> 
 
-Ok, how do I go about determining that?  The machine
-I have is a brand-spankin' new IBM x-series 350 with
-4 900MHz Xeon processors.  The system bios can 
-recognize all of the 16320MB of memory at startup.
-If those patches work, it will save our butts as
-we have a major conversion project that hinges on
-this.  
+The ISA bus doesn't time out; a cycle on the ISA bus just happens, and
+the fact that noone is there to listen doesn't seem to matter.
 
-Thanks,
-jwh
+The delay is something like 8 cycles @ 8.3 MHz or around 1 ms.
+However, an important thing to note is that this delay applies *at the
+southbridge*.  An OUT is a fully synchronizing operation, so it
+doesn't just give a 1 ms delay due to the ISA bus cycle, but it also
+makes sure everything else in the system is completed before the
+timing counter even starts to tick.
 
->>>>>>>>>>>>>>>>>> Original Message <<<<<<<<<<<<<<<<<<
+Of course, if all you're doing is IOIO (on an x86!) it doesn't matter
+-- IOIO is fully synchronizing anyway.
 
-On 3/15/02, 2:30:22 PM, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote regarding 
-Re: bug (trouble?) report on high mem support:
-
-
-> > Here is a top output.  We have 16Gb of ram.
-> > I have also tried a 2.4.9-31 enterprise=20
-> > kernel rpm from RedHat with the same=20
-> > results.
-
-> Ok that would make sense. Next question is do you have an I/O controller
-> that can use all the 64bit address space on the PCI bus ?
-
-> What is happening is that you are using a lot of CPU copying buffers down
-> into lower memory to transfer to/from disk - as well probably as that
-> causing a lot of competition for low memory. If your I/O controller can 
-hit
-> the full 64bit space there are some rather nice test patches that should
-> completely obliterate the problem.
-
-> Alan
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

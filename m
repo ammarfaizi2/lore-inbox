@@ -1,35 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265052AbRFURNn>; Thu, 21 Jun 2001 13:13:43 -0400
+	id <S265051AbRFURM7>; Thu, 21 Jun 2001 13:12:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265054AbRFURN3>; Thu, 21 Jun 2001 13:13:29 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:61621 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S265052AbRFURNZ>;
-	Thu, 21 Jun 2001 13:13:25 -0400
-Message-ID: <3B322B2F.67F42C12@mandrakesoft.com>
-Date: Thu, 21 Jun 2001 13:13:19 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre3 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Jeff Chua <jeffchua@silk.corp.fedex.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: needed this to run 2.4.6-pre4
-In-Reply-To: <Pine.LNX.4.33.0106212128241.272-100000@boston.corp.fedex.com>
+	id <S265052AbRFURMt>; Thu, 21 Jun 2001 13:12:49 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:22040 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S265051AbRFURMc>; Thu, 21 Jun 2001 13:12:32 -0400
+Date: Thu, 21 Jun 2001 19:12:18 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Stefan.Bader@de.ibm.com, linux-kernel@vger.kernel.org,
+        Alexander Viro <viro@math.psu.edu>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: correction: fs/buffer.c underlocking async pages
+Message-ID: <20010621191218.A28327@athlon.random>
+In-Reply-To: <20010621170813.F29084@athlon.random> <Pine.LNX.4.33.0106210951530.1260-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0106210951530.1260-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Thu, Jun 21, 2001 at 09:54:47AM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Chua wrote:
-> 
-> still not in 2.4.6-pre4. Without this, you'll get a lot of undefined
-> symbols referencing do_softirq
+On Thu, Jun 21, 2001 at 09:54:47AM -0700, Linus Torvalds wrote:
+> The above _will_ break. "tmp" may be locked due to the write - and the
 
-it's already in pre5...
+indeed, I missed the pending writes sorry.
 
--- 
-Jeff Garzik      | Andre the Giant has a posse.
-Building 1024    |
-MandrakeSoft     |
+Andrea

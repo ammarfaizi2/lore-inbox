@@ -1,77 +1,123 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131152AbRCWP3K>; Fri, 23 Mar 2001 10:29:10 -0500
+	id <S131171AbRCWQMa>; Fri, 23 Mar 2001 11:12:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131158AbRCWP3A>; Fri, 23 Mar 2001 10:29:00 -0500
-Received: from rcum.uni-mb.si ([164.8.2.10]:24847 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S131152AbRCWP2v>;
-	Fri, 23 Mar 2001 10:28:51 -0500
-Date: Fri, 23 Mar 2001 16:28:02 +0100
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: Re: Linux should better cope with power failure
-To: otto.wyss@bluewin.ch, linux-kernel@vger.kernel.org
-Message-id: <3ABB6B82.62293CAD@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.7 [en] (WinNT; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S131194AbRCWQMK>; Fri, 23 Mar 2001 11:12:10 -0500
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:50052 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S131171AbRCWQMB>; Fri, 23 Mar 2001 11:12:01 -0500
+Date: Fri, 23 Mar 2001 11:10:56 -0500
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Adding just a pinch of icache/dcache pressure...
+Message-ID: <20010323111056.A9332@cs.cmu.edu>
+Mail-Followup-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
+	linux-kernel@vger.kernel.org, linux-mm@kvack.org
+In-Reply-To: <20010323015358Z129164-406+3041@vger.kernel.org> <Pine.LNX.4.21.0103230403370.29682-100000@imladris.rielhome.conectiva> <20010323122815.A6428@win.tue.nl> <m1hf0k1qvi.fsf@frodo.biederman.org> <3ABB6833.183E9188@mandrakesoft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.15i
+In-Reply-To: <3ABB6833.183E9188@mandrakesoft.com>; from jgarzik@mandrakesoft.com on Fri, Mar 23, 2001 at 10:13:55AM -0500
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had a similar experience: 
-X crashed , hosing the console , so I could not initiate
-a proper shutdown.
-
-Here I must note that the response you got on linux-kernel is
-shameful.
-
-What I did was to write a kernel/apmd patch , that performed a
-proper shutdown when I press the power button ( which luckily
-works as long as the kernel works ).
-
-Ask me for details, if interested.
-The patch was for 2.2.x IIRC, so I would have to rewrite it almost
-from scratch.
-
-
-Otto Wyss (otto.wyss@bluewin.ch) wrote :
-
-> Lately I had an USB failure, leaving me without any access to my system 
-> since I only use an USB-keyboard/-mouse. All I could do in that 
-> situation was switching power off and on after a few minutes of 
-> inactivity. From the impression I got during the following startup, I 
-> assume Linux (2.4.2, EXT2-filesystem) is not very suited to any power 
-> failiure or manually switching it off. Not even if there wasn't any 
-> activity going on. 
+On Fri, Mar 23, 2001 at 10:13:55AM -0500, Jeff Garzik wrote:
+> Personally I think the OOM killer itself is fine.  I think there are
+> problems elsewhere which are triggering the OOM killer when it should
+> not be triggered, ie. a leak like Doug Ledford was reporting.
 > 
-> Shouldn't a good system allways try to be on the save side? Shouldn't 
-> Linux try to be more fail save? There is currently much work done in 
-> getting high performance during high activity but it seems there is no 
-> work done at all in getting a save system during low/no activity. I 
-> think this is a major drawback and should be addressed as fast as 
-> possible. Bringing a system to save state should allway have a high priority. 
+> I definitely see heavier page/dcache usage in 2.4 -- but that is to be
+> expected due to 2.4 changes!  So it is incredibily difficult to quantify
+> if something is wrong, and if so, where...
 > 
-> How could this be accomplished: 
-> 1. Flush any dirty cache pages as soon as possible. There may not be any 
-> dirty cache after a certain amount of idle time. 
-> 2. Keep open files in a state where it doesn't matter if they where 
-> improperly closed (if possible). 
-> 3. Swap may not contain anything which can't be discarded. Otherwise 
-> swap has to be treated as ordinary disk space. 
+> My own impressions of 2.4 are that it "feels faster" for my own uses and
+> it's stable.  The downsides I find are that heavy fs activity seems to
+> imply increased swapping, which jibes with a guess that the page/dcache
+> is exceptionally greedy with releasing pages under memory pressure.
 > 
-> These actions are not filesystem dependant. It might be that certain 
-> filesystem cope better with power failiure than others but still it's 
-> much better not to have errors instead to fix them. 
-> 
-> Don't we tell children never go close to any abyss or doesn't have 
-> alpinist a saying "never go to the limits"? So why is this simple rule 
-> always broken with computers? 
-> 
-> O. Wyss 
+> </unquantified vague ramble>
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -
+Like I said earlier, I should stop theorizing and write the code. Here
+is a teeny little patch that adds a bit of pressure to the inode and
+dentry slabcaches during inactive shortage.
+
+On the 512MB desktop without the change, the inode+dentry slabs
+typically used up about 300MB after running my normal day-to-day
+workload for about 24 hours. Now, the inode+dentry slabs are using
+only 90MB.
+
+As there is more memory available for the buffer and page caches, kswapd
+seems to have less trouble keeping up with my typical workload.
+
+
+btw. There definitely is a network receive buffer leak somewhere in
+either the 3c905C path or higher up in the network layers (2.4.0 or
+2.4.1). The normal path does not leak anything.
+
+I was seeing it only for a couple of days when there was a failing
+switch that must have randomly corrupted packets. The switch got
+replaced and the leakage disappeared, so I went back into a non-ikd
+kernel and stopped looking for the problem.
+
+Jan
+
+
+=================
+--- linux/fs/inode.c.orig	Thu Mar 22 13:20:55 2001
++++ linux/fs/inode.c	Thu Mar 22 14:00:10 2001
+@@ -270,19 +270,6 @@
+ 	spin_unlock(&inode_lock);
+ }
+ 
+-/*
+- * Called with the spinlock already held..
+- */
+-static void sync_all_inodes(void)
+-{
+-	struct super_block * sb = sb_entry(super_blocks.next);
+-	for (; sb != sb_entry(&super_blocks); sb = sb_entry(sb->s_list.next)) {
+-		if (!sb->s_dev)
+-			continue;
+-		sync_list(&sb->s_dirty);
+-	}
+-}
+-
+ /**
+  *	write_inode_now	-	write an inode to disk
+  *	@inode: inode to write to disk
+@@ -507,8 +494,6 @@
+ 	struct inode * inode;
+ 
+ 	spin_lock(&inode_lock);
+-	/* go simple and safe syncing everything before starting */
+-	sync_all_inodes();
+ 
+ 	entry = inode_unused.prev;
+ 	while (entry != &inode_unused)
+@@ -554,6 +539,9 @@
+ 
+ 	if (priority)
+ 		count = inodes_stat.nr_unused / priority;
++
++	if (priority < 6)
++		sync_inodes(0);
+ 
+ 	prune_icache(count);
+ 	kmem_cache_shrink(inode_cachep);
+--- linux/mm/vmscan.c.orig	Thu Mar 22 14:00:41 2001
++++ linux/mm/vmscan.c	Thu Mar 22 14:35:26 2001
+@@ -845,9 +845,11 @@
+ 	 * reclaim unused slab cache if memory is low.
+ 	 */
+ 	if (free_shortage()) {
++		shrink_dcache_memory(5, gfp_mask);
++		shrink_icache_memory(5, gfp_mask);
++	} else {
+ 		shrink_dcache_memory(DEF_PRIORITY, gfp_mask);
+ 		shrink_icache_memory(DEF_PRIORITY, gfp_mask);
+-	} else {
+ 		/*
+ 		 * Illogical, but true. At least for now.
+ 		 *

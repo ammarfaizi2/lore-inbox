@@ -1,41 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262652AbREOGih>; Tue, 15 May 2001 02:38:37 -0400
+	id <S262660AbREOGtt>; Tue, 15 May 2001 02:49:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262653AbREOGi1>; Tue, 15 May 2001 02:38:27 -0400
-Received: from bsd.ite.com.tw ([210.208.198.222]:38416 "EHLO bsd.ite.com.tw")
-	by vger.kernel.org with ESMTP id <S262652AbREOGiM>;
-	Tue, 15 May 2001 02:38:12 -0400
-From: Rich.Liu@ite.com.tw
-Message-ID: <412C066DD818D3118D4300805FD4667902090B77@ITEMAIL>
-To: linux-kernel@vger.kernel.org
-Subject: Memory Access Problem
-Date: Tue, 15 May 2001 14:36:51 +0800
+	id <S262659AbREOGtc>; Tue, 15 May 2001 02:49:32 -0400
+Received: from smtp2.Stanford.EDU ([171.64.14.116]:19842 "EHLO
+	smtp2.Stanford.EDU") by vger.kernel.org with ESMTP
+	id <S262660AbREOGtT>; Tue, 15 May 2001 02:49:19 -0400
+From: "Victor Wong" <victor.wong@stanford.edu>
+To: <torvalds@transmeta.com>, <alan@lxorguk.ukuu.org.uk>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH] arch/i386/kernel/irq.c
+Date: Mon, 14 May 2001 23:49:02 -0700
+Message-ID: <NDBBLHPAGLNBKNHFNOOGMEHECKAA.victor.wong@stanford.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
 Content-Type: text/plain;
-	charset="Big5"
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a problem in kernel 2.4.4
+Hi,
 
-I use readw to access memory below 1MB , report "Segmentation fault"
-and stall in memory
+The following patches to irq.c were made to deal with potential errors in
+creating /proc entries for irqs on bootup. The code add checks to ensure
+that the entries were created succesfully. In case of error, it attempts to
+cleanup after itself. The patch was made against v2.4.4 of the kernel and
+result from some errors found during checker runs against the kernel source.
 
-simple code below (this will get paraller port)
-==
-int init_module(void){
-	unsigned int   *BIOS_Data=(unsigned int *)0x400;
-	u32 test;
-                test = readw(BIOS_Data);
+Victor Wong
+victor.wong@stanford.edu
 
-	 printk(KERN_CRIT  "0x400:%x\n",test);
-}
-==
-but those can work in kernel 2.2.19 , no problem .
+--- arch/i386/kernel/irq.c.orig	Sun May  6 23:45:09 2001
++++ arch/i386/kernel/irq.c	Sun May  6 23:48:26 2001
+@@ -1137,6 +1137,11 @@
+ 	/* create /proc/irq/1234/smp_affinity */
+ 	entry = create_proc_entry("smp_affinity", 0600, irq_dir[irq]);
 
-can anyone help me ?
---
-Richliu                                                       
++	if (!entry) {
++	    remove_proc_entry(name, root_irq_dir);
++	    return;
++	}
++
+ 	entry->nlink = 1;
+ 	entry->data = (void *)(long)irq;
+ 	entry->read_proc = irq_affinity_read_proc;
+@@ -1157,6 +1162,11 @@
+
+ 	/* create /proc/irq/prof_cpu_mask */
+ 	entry = create_proc_entry("prof_cpu_mask", 0600, root_irq_dir);
++
++	if (!entry) {
++	    remove_proc_entry("irq", 0);
++	    return;
++	}
+
+ 	entry->nlink = 1;
+ 	entry->data = (void *)&prof_cpu_mask;
 

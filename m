@@ -1,51 +1,92 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <160913-2781>; Fri, 8 Jan 1999 03:00:10 -0500
-Received: from lsmls02.we.mediaone.net ([24.130.1.15]:38921 "EHLO lsmls02.we.mediaone.net" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <161166-13684>; Thu, 7 Jan 1999 10:33:24 -0500
-Message-ID: <3694F557.FC0B5156@alumni.caltech.edu>
-Date: Thu, 07 Jan 1999 09:56:39 -0800
-From: Dan Kegel <dank@alumni.caltech.edu>
-X-Mailer: Mozilla 4.5 [de] (Win95; I)
-X-Accept-Language: de
+Received: by vger.rutgers.edu id <154365-2781>; Fri, 8 Jan 1999 08:05:24 -0500
+Received: from email.gcom.com ([199.97.226.1]:22783 "EHLO gcom.com" ident: "root") by vger.rutgers.edu with ESMTP id <155945-13684>; Thu, 7 Jan 1999 15:30:03 -0500
+Message-ID: <36953BDB.D4CAF25D@gcom.com>
+Date: Thu, 07 Jan 1999 16:57:31 -0600
+From: David Grothe <dave@gcom.com>
+Reply-To: dave@gcom.com
+Organization: Gcom, Inc
+X-Mailer: Mozilla 4.06 [en] (Win98; U)
 MIME-Version: 1.0
-To: linux-kernel@vger.rutgers.edu
-CC: Egil Kvaleberg <egil@kvaleberg.no>
-Subject: Re: [PATCH] HZ change for ix86
-References: <19990105094830.A17862@kg1.ping.de> <%gPxk2ciEs@draugen.kvaleberg.no>
+To: Linux Kernel <linux-kernel@vger.rutgers.edu>
+Subject: poll.h
+References: <35CF47D2.8F0CBAA5@gcom.com> <19980811025733.E639@uni-koblenz.de>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-Egil Kvaleberg schrieb:
-> IMHO, the right thing would be to implement CLK_TCK properly as a true
-> reflection of HZ. Now, it seems to be fixed: e.g. 100 for i386, and 1024
-> for alpha.
-> 
-> The easiest approach would be to make "timebits.h" pick up HZ from the
-> kernel, thus:
->         #include <asm/param.h>
->         #define CLK_TCK HZ
-> The downside is of course that programs would need to be recompiled for any
-> change in HZ. 
-> The best thing would be to fix CLK_TCK at runtime. 
-e.g.
-          #define CLK_TCK new_function_to_get_HZ()
-> But could this possibly break anything?
+Hello:
 
-Yes, it would break user programs that were compiled before your change.
-I know of two ways for user code to access system time right now: 
-clock() and times().  Both of these have constants (CLOCKS_PER_SECOND and
-CLK_TCK)
-that can't be changed without breaking user applications.
-IMHO we need to leave those alone.  I don't want to have to recompile my apps
-to move them from 2.0.36 to 2.2.0.  (I do like the idea of changing
-HZ to a power-of-two multiple of CLK_TCK.)
+I am surveying all the poll.h files that I can find to see if there is a
+set
+of values for the poll bits that will be mutually compatible.  I am
+focusing on the I386 values for Linux.
 
-Maybe we should create a new interface for user applications to get the true 
-system time in its native units, with the value of the native tick available 
-at runtime only.  e.g. long sys_ticks(), long sys_ticks_per_second().
-- Dan
--- 
-Speaking only for myself, not for my employer
+Linux STREAMS (LiS) has its own poll.h that was created before Linux had
+a poll.h, so I have included its values as well.  At the present moment
+the LiS poll.h includes linux/poll.h for kernel versions 2.1 and 2.2,
+thus deferring to whatever is defined for the kernel.  I have no problem
+with changing the LiS values.
+
+However, the kernel file asm-i386/poll.h contains the following comment
+and definitions for some of the bits:
+
+/* The rest seem to be more-or-less nonstandard. Check them! */
+#define POLLRDNORM      0x0040
+#define POLLRDBAND      0x0080
+#define POLLWRNORM      0x0100
+#define POLLWRBAND      0x0200
+#define POLLMSG         0x0400
+
+Well, I just checked them.  The results are summarized in the following
+table.
+
+In the table, "N/S" means "Not Specified" by that system.
+
+Conflicts are noted with a "*".  Where conflicts occur with other
+Unix systems, such as Solaris or UnixWare 7, I marked only the Linux/LiS
+files, accepting the Unix values as authoritative.
+
+                        UnxWre7                 Linux
+                          I86    Sparc          2.2.0pre4
+Variable        LiS     Solaris Solaris SCO     I386
+POLLIN          0x0001  0x0001  0x0001  0x0001  0x0001 
+POLLPRI         0x0002  0x0002  0x0002  0x0002  0x0002 
+POLLOUT         0x0004  0x0004  0x0004  0x0004  0x0004 
+POLLERR         0x0008  0x0008  0x0008  0x0008  0x0008 
+POLLWRNORM      0x0004  0x0004  0x0004  0x0004  0x0100*
+POLLHUP         0x0010  0x0010  0x0010  0x0010  0x0010 
+POLLNVAL        0x0020  0x0020  0x0020  0x0020  0x0020 
+POLLRDNORM      0x0040  0x0040  0x0040  0x0040  0x0040 
+POLLNORM        0x0040  0x0040  0x0040  N/S     N/S    
+POLLRDBAND      0x0080  0x0080  0x0080  0x0080  0x0080 
+POLLWRBAND      0x0100  0x0100  0x0100  0x0100  0x0200*
+POLLMSG         0x0200* N/S     N/S     N/S     0x0400* 
+POLLRDDATA      N/S     N/S     0x0200  N/S     N/S    
+POLLNOERR       N/S     N/S     0x0400  N/S     N/S    
+
+Note that the values that the comment wants to be checked are in
+conflict with all the Unix versions surveyed.  It would make sense to
+change POLLWRNORM to 0x0004 and POLLWRBAND to 0x0100.  The value for
+POLLMSG could be left at 0x0400 or changed to 0x0200 to use the "next
+available value".
+
+Notice also that the Unix definitions explicitly set POLLWRNORM to the
+same value as POLLOUT.  This appears to be intentional as they define
+these values in the following way:
+
+#define POLLWRNORM      POLLOUT
+
+I notice that quite a few drivers use POLLWRNORM.  This could pose a
+problem.
+
+What do you all think of the idea of changing these values at this point
+in time before 2.2 gets set in concrete?
+
+Thanks for your time,
+Dave
+
+-- Dave
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262946AbVDBAIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262954AbVDBANH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262946AbVDBAIH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Apr 2005 19:08:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262813AbVDBAHX
+	id S262954AbVDBANH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Apr 2005 19:13:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262952AbVDBAMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 19:07:23 -0500
-Received: from mail.kroah.org ([69.55.234.183]:38876 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262946AbVDAXsR convert rfc822-to-8bit
+	Fri, 1 Apr 2005 19:12:06 -0500
+Received: from mail.kroah.org ([69.55.234.183]:42716 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262955AbVDAXsU convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Apr 2005 18:48:17 -0500
-Cc: gregkh@suse.de
-Subject: PCI: increase the size of the pci.ids strings
-In-Reply-To: <20050401234550.GA15046@kroah.com>
+	Fri, 1 Apr 2005 18:48:20 -0500
+Cc: eike-kernel@sf-tec.de
+Subject: [PATCH] PCI: shrink drivers/pci/proc.c::pci_seq_start()
+In-Reply-To: <11123992731314@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 15:47:48 -0800
-Message-Id: <11123992681543@kroah.com>
+Date: Fri, 1 Apr 2005 15:47:53 -0800
+Message-Id: <11123992732759@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,42 +24,39 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2181.16.1, 2005/03/16 23:55:56-08:00, gregkh@suse.de
+ChangeSet 1.2181.16.21, 2005/03/28 15:10:34-08:00, eike-kernel@sf-tec.de
 
-PCI: increase the size of the pci.ids strings
+[PATCH] PCI: shrink drivers/pci/proc.c::pci_seq_start()
 
-If we are going to waste memory, might as well do it right...
+this patch shrinks pci_seq_start by using for_each_pci_dev() macro instead
+of explicitely using a loop and avoiding a goto.
 
+Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- drivers/pci/gen-devlist.c |    2 +-
- include/linux/pci.h       |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/proc.c |    9 +++------
+ 1 files changed, 3 insertions(+), 6 deletions(-)
 
 
-diff -Nru a/drivers/pci/gen-devlist.c b/drivers/pci/gen-devlist.c
---- a/drivers/pci/gen-devlist.c	2005-04-01 15:38:43 -08:00
-+++ b/drivers/pci/gen-devlist.c	2005-04-01 15:38:43 -08:00
-@@ -7,7 +7,7 @@
- #include <stdio.h>
- #include <string.h>
+diff -Nru a/drivers/pci/proc.c b/drivers/pci/proc.c
+--- a/drivers/pci/proc.c	2005-04-01 15:32:36 -08:00
++++ b/drivers/pci/proc.c	2005-04-01 15:32:36 -08:00
+@@ -313,13 +313,10 @@
+ 	struct pci_dev *dev = NULL;
+ 	loff_t n = *pos;
  
--#define MAX_NAME_SIZE 89
-+#define MAX_NAME_SIZE 200
+-	dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev);
+-	while (n--) {
+-		dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev);
+-		if (dev == NULL)
+-			goto exit;
++	for_each_pci_dev(dev) {
++		if (!n--)
++			break;
+ 	}
+-exit:
+ 	return dev;
+ }
  
- static void
- pq(FILE *f, const char *c, int len)
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	2005-04-01 15:38:43 -08:00
-+++ b/include/linux/pci.h	2005-04-01 15:38:43 -08:00
-@@ -561,7 +561,7 @@
- 	int rom_attr_enabled;		/* has display of the rom attribute been enabled? */
- 	struct bin_attribute *res_attr[DEVICE_COUNT_RESOURCE]; /* sysfs file for resources */
- #ifdef CONFIG_PCI_NAMES
--#define PCI_NAME_SIZE	96
-+#define PCI_NAME_SIZE	255
- #define PCI_NAME_HALF	__stringify(43)	/* less than half to handle slop */
- 	char		pretty_name[PCI_NAME_SIZE];	/* pretty name for users to see */
- #endif
 

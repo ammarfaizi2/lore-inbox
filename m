@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266848AbTATTkx>; Mon, 20 Jan 2003 14:40:53 -0500
+	id <S266907AbTATTkw>; Mon, 20 Jan 2003 14:40:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266854AbTATTkV>; Mon, 20 Jan 2003 14:40:21 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:37628 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S266846AbTATTjQ> convert rfc822-to-8bit; Mon, 20 Jan 2003 14:39:16 -0500
-From: David Schwartz <davids@webmaster.com>
-To: <brand@jupiter.cs.uni-dortmund.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-X-Mailer: PocoMail 2.63 (1077) - Licensed Version
-Date: Mon, 20 Jan 2003 11:43:48 -0800
-In-Reply-To: <200301201552.h0KFquMR001681@eeyore.valparaiso.cl>
-Subject: Re: Is the BitKeeper network protocol documented?
+	id <S266888AbTATTk3>; Mon, 20 Jan 2003 14:40:29 -0500
+Received: from [195.39.17.254] ([195.39.17.254]:3332 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S266837AbTATTiu>;
+	Mon, 20 Jan 2003 14:38:50 -0500
+Date: Sun, 19 Jan 2003 22:42:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>,
+       torvalds@transmeta.com
+Subject: Kill unused code
+Message-ID: <20030119214230.GA27874@elf.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-ID: <20030120194430.AAA20700@shell.webmaster.com@whenever>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Jan 2003 16:52:56 +0100, Horst von Brand wrote:
+Hi!
 
->>    I think you're ignoring the way the GPL defines the "source 
->>code".
->>
->>The GPL defines the "source code" as the preferred form for
->>modifying
->>the program. If the preferred form of a work for purposes of
->>modifying it is live access to a BK repository, then that's the
->>"source code" for GPL purposes.
+Second part of this patch never got in (and I was told it was not bug
+in ASUS but in linux), so it is useless junk... Please apply,
+								Pavel
 
->You are a lawyer working in this area, and so can cite chapter and
->verse
->where this definition was made (the GPL text is rather vague)?
+--- clean/arch/i386/kernel/dmi_scan.c	2002-11-01 00:37:04.000000000 +0100
++++ linux-swsusp/arch/i386/kernel/dmi_scan.c	2003-01-19 18:10:59.000000000 +0100
+@@ -450,17 +450,6 @@
+ }
+ 
+ /*
+- * ASUS K7V-RM has broken ACPI table defining sleep modes
+- */
+-
+-static __init int broken_acpi_Sx(struct dmi_blacklist *d)
+-{
+-	printk(KERN_WARNING "Detected ASUS mainboard with broken ACPI sleep table\n");
+-	dmi_broken |= BROKEN_ACPI_Sx;
+-	return 0;
+-}
+-
+-/*
+  * Toshiba keyboard likes to repeat keys when they are not repeated.
+  */
+ 
+@@ -746,12 +750,6 @@
+ 			NO_MATCH, NO_MATCH, NO_MATCH
+ 			} },
+ 			
+-	{ broken_acpi_Sx, "ASUS K7V-RM", {		/* Bad ACPI Sx table */
+-			MATCH(DMI_BIOS_VERSION,"ASUS K7V-RM ACPI BIOS Revision 1003A"),
+-			MATCH(DMI_BOARD_NAME, "<K7V-RM>"),
+-			NO_MATCH, NO_MATCH
+-			} },
+-			
+ 	{ broken_toshiba_keyboard, "Toshiba Satellite 4030cdt", { /* Keyboard generates spurious repeats */
+ 			MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
+ 			NO_MATCH, NO_MATCH, NO_MATCH
 
-	Nobody knows, that's definitely part of the problem. If you 
-genuinely want to make a good faith effort to comply with the GPL, 
-I'm not sure what you can do other than guess.
-
->Anyway, Andreas Dilger is (curiously) right AFAIU: Linus has _never_
->distributed a binary to anybody AFAIK, so he is under no obligation
->by the
->GPL do give out any form of source. Furthermore, as he is (in the
->editor
->sense at least) copyright holder for the whole source, he isn't
->bound by
->the GPL in any case. ;-)
-
-	The problem then occurs with companies like RedHat. They distribute 
-binaries, so they must distribute the source in the preferred form 
-for making modifications to it. *If* metainformation in Linus' BK 
-tree is part of the preferred version of the work for the purposes of 
-making modifications to it, then RedHat *cannot* comply with the GPL.
-
-	Checking source code out of a repository is an obfuscatory act that 
-separates the raw source code from the rationale for that source 
-code. It's equivalent to stripping comments. The GPL does not allow 
-you to obfuscate the source, so if all *you* have is obfuscated 
-source, *you* cannot ship binaries.
-
-	I don't think this is currently an issue for the Linux kernel. 
-However, it may well be an issue for projects using things like 
-sourceforge or using proprietary file formats to hold portions of 
-their source.
-
-	DS
-
-
+-- 
+Worst form of spam? Adding advertisment signatures ala sourceforge.net.
+What goes next? Inserting advertisment *into* email?

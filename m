@@ -1,73 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263246AbSK0UII>; Wed, 27 Nov 2002 15:08:08 -0500
+	id <S261354AbSK0UEb>; Wed, 27 Nov 2002 15:04:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264733AbSK0UII>; Wed, 27 Nov 2002 15:08:08 -0500
-Received: from mail.somanetworks.com ([216.126.67.42]:64399 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id <S263246AbSK0UIH>; Wed, 27 Nov 2002 15:08:07 -0500
-Message-Id: <200211272015.gARKFHwF006320@localhost.localdomain>
-Date: Wed, 27 Nov 2002 15:15:17 -0500
-From: Georg Nikodym <georgn@somanetworks.com>
-To: Linux/ARM Kernel List <linux-arm-kernel@lists.arm.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: v2.4.19-rmk4 slab.c: /proc/slabinfo uses broken instead of slab labels
-Organization: SOMA Networks
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i386-redhat-linux)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1"; boundary="=.JXwq5O4(RNa,GD"
+	id <S263246AbSK0UEa>; Wed, 27 Nov 2002 15:04:30 -0500
+Received: from packet.digeo.com ([12.110.80.53]:1977 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S261354AbSK0UE3>;
+	Wed, 27 Nov 2002 15:04:29 -0500
+Message-ID: <3DE526FC.3D78DB54@digeo.com>
+Date: Wed, 27 Nov 2002 12:11:40 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Rasmus Andersen <rasmus@jaquet.dk>
+CC: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: 2.5.49-mm2
+References: <3DE48C4A.98979F0C@digeo.com> <20021127210153.A8411@jaquet.dk>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Nov 2002 20:11:40.0784 (UTC) FILETIME=[32C14700:01C29651]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=.JXwq5O4(RNa,GD
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Rasmus Andersen wrote:
+> 
+> On Wed, Nov 27, 2002 at 01:11:38AM -0800, Andrew Morton wrote:
+> >
+> > url: http://www.zip.com.au/~akpm/linux/patches/2.5/2.5.49/2.5.49-mm2/
+> 
+> I'm fairly sure this is not specific to -mm2 since it looks
+> at lot like my problem from plain 2.5.49
+> (http://marc.theaimsgroup.com/?l=linux-kernel&m=103805691602076&w=2)
+> but -mm2 gave me some usable debug output:
+> 
+> Debug: Sleeping function called from illegal context at include/
+> linux/rwsem.h:66
+> Call Trace: __might_sleep+0x54/0x58
+>            sys_mprotect+0x97/0x22b
+>            syscall_call+0x7/0xb
 
-In the 2.4.18-2.4.19 timeframe:
+Oh that's cute.  Looks like we've accidentally disabled preemption
+somewhere...
 
-	http://linux.bkbits.net:8080/linux-2.4/cset@1.536
+> Unable to handle kernel paging request at virtual address 4001360c
 
-brcl (Ben LaHaise, I think) pushed in a change to mm/slab.c which
-(amongst other things) adds the following code:
+And once you do that, the pagefault handler won't handle pagefaults.
+ 
+> (I did not copy the rest but can reproduce at will.)
 
-...
-	name = cachep->name; 
-===>	{
-===>	char tmp; 
-===>	if (__get_user(tmp, name)) 
-===>		name = "broken"; 
-===>	}       
+Please do.  And tell how you're making it happen.
 
-	seq_printf(m, "%-17s %6lu %6lu %6u %4lu %4lu %4u",
-		name, active_objs, num_objs, cachep->objsize,
-		active_slabs, num_slabs, (1<<cachep->gfporder));
-...
+Is that .config still current?
 
-to s_show() (the stuff that gets called when somebody cat's /proc/slabinfo)
-
-Trouble is that on my ARM platform, the __get_user() call always fails
-and all the slabinfo entries are labelled "broken".
-
-For my purposes, ifdef'ing the offending block out will likely be
-sufficient (and safe?) but I'd like to know:
-
-1. Is the ARM __get_user() broken?
-2. Could I be doing something else broken that is confusing __get_user()?
-3. What was/is the intent of the test?  Or stated differently, why on earth
-   would cachep->name be a user address?
-
--g
-
---=.JXwq5O4(RNa,GD
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
-
-iD8DBQE95SfVoJNnikTddkMRAkc2AJ0VasIWLsTqmoB7dZIgNDNoijx9fwCeNWzj
-5Vs+tzLPHbAN6p5nJKzvu3E=
-=IZT5
------END PGP SIGNATURE-----
-
---=.JXwq5O4(RNa,GD--
+Does it go away if you turn off preemption?

@@ -1,39 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbUKQR1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262448AbUKQR1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbUKQR1O (ORCPT <rfc822;willy@w.ods.org>);
+	id S262448AbUKQR1O (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 17 Nov 2004 12:27:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262485AbUKQRYQ
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbUKQRYK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:24:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:2733 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262415AbUKQQzb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 11:55:31 -0500
-Date: Wed, 17 Nov 2004 08:55:25 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
+	Wed, 17 Nov 2004 12:24:10 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:28901 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262432AbUKQQ5r (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 11:57:47 -0500
+Subject: Re: [BUG] Kernel disables DMA on RICOH CD-R/RW
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-cc: linux-dev@morknet.de, Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       trivial@rustcorp.com.au
-Subject: Re: [PATCH] dss1_divert ISDN module compile fix for kernel 2.6.8.1
-In-Reply-To: <58cb370e0411170828365d1982@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0411170853420.2222@ppc970.osdl.org>
-References: <419B662D.5020904@morknet.de> <58cb370e0411170828365d1982@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: Srihari Vijayaraghavan <sriharivijayaraghavan@yahoo.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org, Jens Axboe <axboe@suse.de>
+In-Reply-To: <58cb370e04111605019fc1df8@mail.gmail.com>
+References: <20041116124656.82075.qmail@web52601.mail.yahoo.com>
+	 <58cb370e04111605019fc1df8@mail.gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100706838.420.47.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 17 Nov 2004 15:54:16 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 17 Nov 2004, Bartlomiej Zolnierkiewicz wrote:
+On Maw, 2004-11-16 at 13:01, Bartlomiej Zolnierkiewicz wrote:
+> Previously VIA IDE driver ignored DMA blacklists completely
+> (which was of course wrong), it was fixed.
 > 
-> This looks wrong, you are using many private spinlocks instead
-> of one global spinlock.
+> Probably this drive should be removed from the blacklist.
+> Does anybody remember why was it added there?
 
-Good catch, I didn't look closely enough.
+As I said before almost all of our blacklist is junk from when the IDE
+ATAPI DMA bug wasn't fixed.
 
-Steffen, can you make that "divert_lock" one global one, and re-test? I'd 
-do it myself, but it really does need testing, since there might be a 
-deadlock lurking there that the local lock bug hid.
-
-		Linus

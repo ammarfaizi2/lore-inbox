@@ -1,110 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263064AbVCQLx4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263069AbVCQMAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263064AbVCQLx4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 06:53:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263065AbVCQLxD
+	id S263069AbVCQMAm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 07:00:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263057AbVCQLwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 06:53:03 -0500
-Received: from ozlabs.org ([203.10.76.45]:38298 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S263064AbVCQLMK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 06:12:10 -0500
+	Thu, 17 Mar 2005 06:52:19 -0500
+Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:64173 "EHLO
+	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
+	id S263063AbVCQLJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 06:09:22 -0500
+From: Borislav Petkov <petkov@uni-muenster.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.11-mm4
+Date: Thu, 17 Mar 2005 12:07:55 +0100
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <20050316040654.62881834.akpm@osdl.org> <20050317011811.69062aa0.akpm@osdl.org> <200503171042.33558.petkov@uni-muenster.de>
+In-Reply-To: <200503171042.33558.petkov@uni-muenster.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16953.26014.399741.235995@cargo.ozlabs.ibm.com>
-Date: Thu, 17 Mar 2005 22:10:22 +1100
-From: Paul Mackerras <paulus@samba.org>
-To: akpm@osdl.org
-Cc: Utz Bacher <utz.bacher@de.ibm.com>, anton@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] PPC64: fix error cases in nvram partition scan
-X-Mailer: VM 7.19 under Emacs 21.3.1
+Content-Disposition: inline
+Message-Id: <200503171207.56147.petkov@uni-muenster.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The NVRAM on pSeries machines and powermacs is structured as a series
-of partitions, each of which has a header containing its length
-(including the header) and a header checksum.  When the checksum was
-wrong or the length was zero, we would previously keep trying to scan
-through the partitions, possibly looping forever if the length was
-zero.  This patch changes the behaviour to terminate the scan when a
-corrupted partition is found.
+On Thursday 17 March 2005 10:42, Borislav Petkov wrote:
+> On Thursday 17 March 2005 10:18, Andrew Morton wrote:
+> > Borislav Petkov <petkov@uni-muenster.de> wrote:
+> > > Mar 17 09:19:28 zmei kernel: [    4.109241] PM: Checking swsusp image.
+> > >  Mar 17 09:19:28 zmei kernel: [    4.109244] PM: Resume from disk
+> > > failed. Mar 17 09:19:28 zmei kernel: [    4.112220] VFS: Mounted root
+> > > (ext2 filesystem) readonly. Mar 17 09:19:28 zmei kernel: [    4.112465]
+> > > Freeing unused kernel memory: 188k freed Mar 17 09:19:28 zmei kernel: [
+> > > 4.142002] logips2pp: Detected unknown logitech mouse model 1 Mar 17
+> > > 09:19:28 zmei kernel: [    4.274620] input: PS/2 Logitech Mouse on
+> > > isa0060/serio1 [EOF]
+> > >  <-- and here it stops waiting forever. What actually has to come next
+> > > is the init process, i.e. something of the likes of:
+> > >  INIT version x.xx loading
+> > >  but it doesn't. And by the way, how do you debug this? serial console?
+> >
+> > Serial console would be useful.  Do sysrq-P and sysrq-T provide any info?
+>
+> Hmm,
+> actually I haven't set up a serial console connection so let me try to
+> establish one first and get back to you whenever I have some results.
+>
+> Boris.
 
-Signed-off-by: Utz Bacher <utz.bacher@de.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
+Hi again,
 
-diff -urN linux-2.5/arch/ppc64/kernel/nvram.c test/arch/ppc64/kernel/nvram.c
---- linux-2.5/arch/ppc64/kernel/nvram.c	2005-03-14 18:03:26.000000000 +1100
-+++ test/arch/ppc64/kernel/nvram.c	2005-03-14 20:26:55.000000000 +1100
-@@ -507,8 +507,8 @@
- 	struct nvram_partition * tmp_part;
- 	unsigned char c_sum;
- 	char * header;
--	long size;
- 	int total_size;
-+	int err;
- 
- 	if (ppc_md.nvram_size == NULL)
- 		return -ENODEV;
-@@ -522,29 +522,37 @@
- 
- 	while (cur_index < total_size) {
- 
--		size = ppc_md.nvram_read(header, NVRAM_HEADER_LEN, &cur_index);
--		if (size != NVRAM_HEADER_LEN) {
-+		err = ppc_md.nvram_read(header, NVRAM_HEADER_LEN, &cur_index);
-+		if (err != NVRAM_HEADER_LEN) {
- 			printk(KERN_ERR "nvram_scan_partitions: Error parsing "
- 			       "nvram partitions\n");
--			kfree(header);
--			return size;
-+			goto out;
- 		}
- 
- 		cur_index -= NVRAM_HEADER_LEN; /* nvram_read will advance us */
- 
- 		memcpy(&phead, header, NVRAM_HEADER_LEN);
- 
-+		err = 0;
- 		c_sum = nvram_checksum(&phead);
--		if (c_sum != phead.checksum)
--			printk(KERN_WARNING "WARNING: nvram partition checksum "
--			       "was %02x, should be %02x!\n", phead.checksum, c_sum);
--		
-+		if (c_sum != phead.checksum) {
-+			printk(KERN_WARNING "WARNING: nvram partition checksum"
-+			       " was %02x, should be %02x!\n",
-+			       phead.checksum, c_sum);
-+			printk(KERN_WARNING "Terminating nvram partition scan\n");
-+			goto out;
-+		}
-+		if (!phead.length) {
-+			printk(KERN_WARNING "WARNING: nvram corruption "
-+			       "detected: 0-length partition\n");
-+			goto out;
-+		}
- 		tmp_part = (struct nvram_partition *)
- 			kmalloc(sizeof(struct nvram_partition), GFP_KERNEL);
-+		err = -ENOMEM;
- 		if (!tmp_part) {
- 			printk(KERN_ERR "nvram_scan_partitions: kmalloc failed\n");
--			kfree(header);
--			return -ENOMEM;
-+			goto out;
- 		}
- 		
- 		memcpy(&tmp_part->header, &phead, NVRAM_HEADER_LEN);
-@@ -553,9 +561,11 @@
- 		
- 		cur_index += phead.length * NVRAM_BLOCK_LEN;
- 	}
-+	err = 0;
- 
-+ out:
- 	kfree(header);
--	return 0;
-+	return err;
- }
- 
- static int __init nvram_init(void)
+since I don't have a 9-pin serial port on my laptop I've been trying to 
+connect it with the testing machine over a 25-pin cable (on a 25-pin port), 
+which, according to the Serial-HOWTO is doable in theory but doesn't seem 
+that easy to do in practice. Setserial reports that the ports are ok:
+
+setserial -a /dev/ttyS1
+/dev/ttyS1, Line 1, UART: 16550A, Port: 0x02f8, IRQ: 3
+        Baud_base: 115200, close_delay: 50, divisor: 0
+        closing_wait: 3000
+        Flags: spd_normal skip_test
+
+[other machine]:
+setserial -a /dev/ttyS0
+/dev/ttyS0, Line 0, UART: 16550A, Port: 0x03f8, IRQ: 4
+        Baud_base: 115200, close_delay: 50, divisor: 0
+        closing_wait: 3000
+        Flags: spd_normal skip_test
+
+but minicom or other serial line communication utils do not send or receive 
+any chars. Any ideas?
+
+Boris.

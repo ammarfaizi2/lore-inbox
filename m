@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbULFWE0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbULFWH2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbULFWE0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 17:04:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbULFWE0
+	id S261675AbULFWH2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 17:07:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbULFWH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 17:04:26 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:48357 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261673AbULFWEM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 17:04:12 -0500
-Subject: constructing IPv6 in6_addr structure from ipv6
-From: Steve French <smfltc@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: xma@us.ibm.com
-Content-Type: text/plain
-Organization: IBM - Linux Technology Center
-Message-Id: <1102370644.1855.13.camel@stevef95.austin.ibm.com>
+	Mon, 6 Dec 2004 17:07:28 -0500
+Received: from wproxy.gmail.com ([64.233.184.200]:60711 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261675AbULFWHR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 17:07:17 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=Gti/u0X6um3tnbyl47XtSK+0ciSr6Gn5xYtF/heHxkSjU0VzT+Tz2LAymjF1uXARVzKWYgYNFme9mQOc0X+XZ8E2cRMLROJ9aWQKwnL91GjzNUlkzxtl1Z01XASjUW2+7B/7fI3VM37f5MaCETxzu0j83EE4DUgb+pymbjTQulk=
+Message-ID: <8e93903b041206140529a8baa9@mail.gmail.com>
+Date: Mon, 6 Dec 2004 22:05:58 +0000
+From: Alan Pope <alan.pope@gmail.com>
+Reply-To: Alan Pope <alan.pope@gmail.com>
+To: linux-kernel@vger.kernel.org, bugs@linux-ide.org, andre@linux-ide.org
+Subject: PDC202XX_OLD broken
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 06 Dec 2004 16:04:04 -0600
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is there a recommended way to construct a struct sockaddr_in6 in kernel
-which is the format the connect function on a socket requires for ipv6
-addresses?
+Added a "Seagate ST3200822A Barracuda 7200.7 Plus 200GB" disk to my
+main PC which uses a with "Promise PDC20265 (FastTrak100
+Lite/Ultra100) (rev 02)" controller.
 
-Basically this boils down to how to best construct a struct in6_addr
-starting with a IPv6 network address represented as a familiar dotted
-address character string.   I would prefer to convert this in kernel via
-something like inet_pton(AF_INET6,original_address_string,
-converted_to_in6_add_form) but I could convert in userspace and pass the
-16 byte array down to the kernel mangled as a string, via a mount
-option.
+I get these when placing the disk under any load (DMA enabled)
 
-Is it better to mangle the address and pass it down, or do something
-similar to inet_pton?   This can't be the first time that someone has
-wanted to deal with an ipv6 address coming from userspace ...
+hde: dma_intr: status=0xff { Busy }
 
+ide: failed opcode was: unknown
+hde: DMA disabled
+PDC202XX: Primary channel reset.
+PDC202XX: Secondary channel reset.
 
+(a number of times)
 
+ide2: reset timed-out, status=0xff
+end_request: I/O error, dev hde, sector 11776
+Buffer I/O error on device hde, logical block 1472
 
+(many times)
 
+Any clues, greatfully received.
+
+I've tried under 2.6.8 through 2.6.9-ac9 & 2.6.10-rc2 with the same effect.
+
+Thanks,
+Al.

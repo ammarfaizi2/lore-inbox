@@ -1,44 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbUCVPip (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 10:38:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbUCVPip
+	id S262019AbUCVPkn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 10:40:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbUCVPkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 10:38:45 -0500
-Received: from lindsey.linux-systeme.com ([62.241.33.80]:33291 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S262065AbUCVPin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 10:38:43 -0500
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org, piotr@larroy.com
-Subject: Re: 2.6.5-rc1-mm1
-Date: Mon, 22 Mar 2004 16:38:00 +0100
-User-Agent: KMail/1.6.1
-Cc: Andrew Morton <akpm@osdl.org>
-References: <20040316015338.39e2c48e.akpm@osdl.org> <20040322125305.GA2306@larroy.com>
-In-Reply-To: <20040322125305.GA2306@larroy.com>
-X-Operating-System: Linux 2.6.4-wolk2.1 i686 GNU/Linux
+	Mon, 22 Mar 2004 10:40:43 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:41940 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262019AbUCVPkk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 10:40:40 -0500
+Date: Mon, 22 Mar 2004 07:40:34 -0800 (PST)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Timothy Miller <miller@techsource.com>
+cc: David Schwartz <davids@webmaster.com>, Justin Piszcz <jpiszcz@hotmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux Kernel Microcode Question
+In-Reply-To: <405F0B8D.8040408@techsource.com>
+Message-ID: <Pine.GSO.4.58.0403220736480.8694@south.veritas.com>
+References: <Pine.LNX.4.44.0403191721110.3892-100000@einstein.homenet> 
+    <405F0B8D.8040408@techsource.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200403221638.01029@WOLK>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 March 2004 13:53, Pedro Larroy wrote:
+On Mon, 22 Mar 2004, Timothy Miller wrote:
+> I don't see anything wrong with what he said.  As I understand it,
+> Pentium 4 CPUs don't use microcode for much of anything.  If an
+> instruction which was done entirely in dedicated hardware was buggy, and
+> it's replaced by microcode, then it will most certainly be slower.
+>
+> You seem to have missed where David used terms like "theoretically
+> possible" and "an operation".
 
+No, that is not what he said and that (what you say) is certainly wrong,
+namely this bit:
 
-Hi Pedro,
+  If an instruction which was done entirely in dedicated hardware was
+  buggy, and it's replaced by microcode, then it will most certainly be
+  slower.
 
-> I think I have an abnormal memory situation, seems all my ram got exhausted
-> and I don't see it used by userland processes.
+All instructions are done by means of microcode of some sort, i.e. the
+instructions are "compiled" as they are executed into a more primitive
+instruction set (called "microcode" or "u-code"). If a buggy instruction
+(or rather the sequence of microcode which corresponds to it) is replaced
+by a fixed version (i.e. by some other sequence of microcode) then there
+is no reason to say that the result will "most certainly be slower". For
+some bugs the fix runs faster than the broken code, for others it may be
+slower --- there is no way to tell apriori that it will always be slower.
 
-yeah, I've experienced the same here. My machine starts to swap _very_ early 
-where previous -mm tree's (imho 2.6.4-mm'ish) worked fine.
+Do you understand now?
 
-Sorry, no time atm to check this further :(
-
-ciao, Marc
+Kind regards
+Tigran

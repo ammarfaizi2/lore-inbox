@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbUBVXaK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 18:30:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbUBVXaK
+	id S261230AbUBVXfu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 18:35:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261236AbUBVXfu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 18:30:10 -0500
-Received: from inova102.correio.tnext.com.br ([200.222.67.102]:43933 "HELO
-	trinity-auth.correio.tnext.com.br") by vger.kernel.org with SMTP
-	id S261214AbUBVXaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 18:30:05 -0500
-X-qfilter-stat: ok
-X-Analyze: Velop Mail Shield v0.0.4
-Date: Sun, 22 Feb 2004 20:30:00 -0300 (BRT)
-From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
-To: linux-kernel@vger.kernel.org
-Subject: Remounting device 03:05 ... nothing to do
-Message-ID: <Pine.LNX.4.58.0402222024110.15931@pervalidus.dyndns.org>
-X-Archive: encrypt
+	Sun, 22 Feb 2004 18:35:50 -0500
+Received: from smtp2.att.ne.jp ([165.76.15.138]:27594 "EHLO smtp2.att.ne.jp")
+	by vger.kernel.org with ESMTP id S261230AbUBVXfs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 18:35:48 -0500
+Message-ID: <008d01c3f99c$9033e3c0$34ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "Jamie Lokier" <jamie@shareable.org>
+Cc: <linux-kernel@vger.kernel.org>
+References: <18de01c3f93f$dc6d91d0$b5ee4ca5@DIAMONDLX60> <20040222204541.GA26793@mail.shareable.org>
+Subject: Re: UTF-8 filenames
+Date: Mon, 23 Feb 2004 08:35:19 +0900
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Feb 22 20:07:21 pervalidus kernel: SysRq : Emergency Sync
-Feb 22 20:07:21 pervalidus kernel: Syncing device 03:06 ... OK
-Feb 22 20:07:21 pervalidus kernel: Syncing device 03:08 ... OK
-Feb 22 20:07:21 pervalidus kernel: Syncing device 03:09 ... OK
-Feb 22 20:07:21 pervalidus kernel: Syncing device 03:05 ... OK
-Feb 22 20:07:21 pervalidus kernel: Syncing device 03:0a ... OK
-Feb 22 20:07:21 pervalidus kernel: Done.
+Jamie Lokier replied to me:
 
-SysRq : Emergency Remount R/O
-Remounting device 03:06 ... OK
-Remounting device 03:08 ... OK
-Remounting device 03:09 ... OK
-Remounting device 03:05 ... nothing to do
-Remounting device 03:0a ... R/O
-Done.
+> > Consider
+> > converting all your ASCII filenames to UTF-16.  Let everyone share the
+> > short-term pain for the long-term gain.  When you get everyone to agree on
+> > UTF-16, it will be ugly, but it will be equal for everyone.
+>
+> UTF-8 is the only sane universal encoding in unix.
 
-03:06, 03:08, and 03:09 are ext3.
-03:05 is FAT32.
-I don't know what 03:0a is (root device ?).
+That's a bit beside the point.  I was replying to the assertion that
+everyone agreed to use UTF-8.  (And particularly, for large character sets.)
 
->From the documentation:
+> UTF-16 is not an option;
 
-'u'     - Will attempt to remount all mounted filesystems read-only.
+Of course.  Perhaps my use of reductio al absurdum was unclear.  I was
+trying to show that UTF-8, despite its sanity, is not universally agreeable.
+The actual reason is because it came late to the scene (around 20 years ago)
+and it is not backwards compatible.  But to make the point, I compared it
+with UTF-16 which is equally not universally agreeable.
 
-But why didn't it do it for the FAT32 partition ?
+> it's not POSIX compatible,
 
-# mount -o remount,ro /mnt/vfat
-...
-/dev/hda5 on /mnt/vfat type vfat (ro)
+OK, UTF-8 has one less reason than UTF-16 has, for being not universally
+agreeable.  But the biggest reason still remains, as mentioned above.
 
-So, it works fine manually.
+> > By the way, another subthread mentioned that stty puts some stuff in the
+> > kernel that could be done in user space.  In Unix systems the same is true
+> > for IMEs, stty options specify the encoding of the output of an IME (e.g.
+> > EUC-JP or SJIS, which then gets forwarded as input to shells, applications,
+> > etc.), and whether a single backspace (or whatever character deletion
+> > character) deletes an entire input character instead of just deleting a
+> > single byte, etc.  I keep forgetting to see if Linux has the same stty
+> > options.  I haven't needed to set them with stty because if I need to use a
+> > different locale then I just open a new terminal emulator window using that
+> > locale.
+>
+> Do you have a list or description of the specific stty options that
+> are used?
 
-This is on 2.4.25.
+Well, I thought I described them as I saw them used in Unix.  I no longer
+have access to machines running commercial Unix systems, but some of the
+stty options were the way I did describe.  I have a feeling that System V
+might have implemented them slightly differently from BSD-based systems, but
+regardless, the same functionality was pretty much "universally" needed and
+implemented.
 
--- 
-http://www.pervalidus.net/contact.html
+If you're asking whether I noticed similar stty options in Linux, I didn't
+notice because of the reason mentioned (I just opened another terminal
+emulator window using the locale that I temporarily needed).  But I'll try
+to remember to look next weekend.  Sorry, I'm leaving for work in a minute
+and can't look now.
+

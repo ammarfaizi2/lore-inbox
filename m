@@ -1,62 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272446AbTGZKDj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 06:03:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272447AbTGZKDj
+	id S272447AbTGZKXs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 06:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272448AbTGZKXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 06:03:39 -0400
-Received: from cable98.usuarios.retecal.es ([212.22.32.98]:61402 "EHLO
-	hell.lnx.es") by vger.kernel.org with ESMTP id S272446AbTGZKDh
+	Sat, 26 Jul 2003 06:23:47 -0400
+Received: from u212-239-148-62.freedom.planetinternet.be ([212.239.148.62]:6404
+	"EHLO jebril.pi.be") by vger.kernel.org with ESMTP id S272447AbTGZKXr
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 06:03:37 -0400
-Date: Sat, 26 Jul 2003 12:18:18 +0200
-From: Manuel Estrada Sainz <ranty@debian.org>
-To: Michael Hunold <hunold@convergence.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: [PATCH] request_firmware() private workqueue (was: Re: Using firmware_class with recent 2.6 kernels)
-Message-ID: <20030726101818.GA25104@ranty.pantax.net>
-Reply-To: ranty@debian.org
-References: <3F1BD157.4090509@convergence.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F1BD157.4090509@convergence.de>
-User-Agent: Mutt/1.5.4i
+	Sat, 26 Jul 2003 06:23:47 -0400
+Message-Id: <200307261033.h6QAXTNh002916@jebril.pi.be>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4
+To: James Simmons <jsimmons@infradead.org>
+cc: Petr Vandrovec <VANDROVE@vc.cvut.cz>, nick black <dank@suburbanjihad.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 + matroxfb = unuusable VC 
+In-Reply-To: Your message of "Fri, 25 Jul 2003 01:07:15 BST."
+             <Pine.LNX.4.44.0307250106220.7845-100000@phoenix.infradead.org> 
+Date: Sat, 26 Jul 2003 12:33:29 +0200
+From: "Michel Eyckmans (MCE)" <mce@pi.be>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 21, 2003 at 01:41:11PM +0200, Michael Hunold wrote:
-[snip]
-> To get a start, I took your sample driver and compiled it as a module.
-> I commented out all firmware load methods, except the async
-> notification I'm most interested in.
-> 
-> When I load the module, it prints the debug message and goes to sleep -- 
-> ok. But now the system is completely frozen (no keyboard or mouse 
-> interaction possible) until the timeout is reached and the async 
-> notification function is called, which of course says that the firmware 
-> could not been loaded.
 
- Using a private workqueue fixes the issue, sleeping for many seconds
- from the common workqueue was not nice.
+> > Actually, no. I've been stuck at 2.5.46 for *ages* due to a never ending 
+> > succession of driver issues (still not all solved by the way). 2.5.72 was 
+> > the next kernel I could actually try to use. A lot of change takes place
+> > over that many kernel revisions.
+>
+> Which drivers issues ?
 
- Note that the problem only happens when appropriate firmware hotplug
- support is not available and request_firmware_work_func() has to wait
- until the timeout.
+Nothing to worry about anymore. There were some matroxfb ones 
+(oopses at boot only when actively using matroxfb, for instance) 
+but also a ton of non-video related stuff: whenever one thing got 
+fixed, something had been broken in the mean time. Some of it still 
+not solved, by the way, (aha152x anyone?).
 
- About the attached patch:
- 
- 	- use a private workqueue so we can sleep without interfering
-	  with other subsystems.
+The matrox oopses were solved already before I applied Petr's 
+matroxfb-2.5.72.gz patch.
 
- Have a nice day
-
- 	Manuel
-
--- 
---- Manuel Estrada Sainz <ranty@debian.org>
-                         <ranty@bigfoot.com>
-			 <ranty@users.sourceforge.net>
------------------------- <manuel.estrada@hispalinux.es> -------------------
-Let us have the serenity to accept the things we cannot change, courage to
-change the things we can, and wisdom to know the difference.
+MCE

@@ -1,51 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262334AbSJEOku>; Sat, 5 Oct 2002 10:40:50 -0400
+	id <S262356AbSJEOxK>; Sat, 5 Oct 2002 10:53:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262353AbSJEOku>; Sat, 5 Oct 2002 10:40:50 -0400
-Received: from toole.uol.com.br ([200.221.4.26]:57244 "EHLO toole.uol.com.br")
-	by vger.kernel.org with ESMTP id <S262334AbSJEOkt>;
-	Sat, 5 Oct 2002 10:40:49 -0400
-Date: Sat, 5 Oct 2002 11:47:25 -0200
-From: Andre Costa <brblueser@uol.com.br>
-To: Linux kernel ML <linux-kernel@vger.kernel.org>
-Subject: IDE subsystem issues with 2.4.1[89] [REVISITED]
-Message-Id: <20021005114725.3af9c194.brblueser@uol.com.br>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S262360AbSJEOxK>; Sat, 5 Oct 2002 10:53:10 -0400
+Received: from 62-190-217-225.pdu.pipex.net ([62.190.217.225]:53508 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S262356AbSJEOxH>; Sat, 5 Oct 2002 10:53:07 -0400
+Date: Sat, 5 Oct 2002 16:06:45 +0100
+From: jbradford@dial.pipex.com
+Message-Id: <200210051506.g95F6jfL000423@darkstar.example.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.x and 8250 UART problems
+Cc: rmk@arm.linux.org.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+I've noticed that 8250 UART based serial port performance is poorer in 2.5.x than 2.4.x and 2.2.x, on a couple of my machines.
 
-found this msg on kernel ML archives about 2.4.1[89] having probls with
-CD audio ripping:
+The 486 SX-20 with 4 MB RAM, running 2.2.21 reliably achieves about 650 BPS download from another machine, with the port runnnig at 9600 bps.  With 2.5.40, many characters are lost at 9600, making, e.g. a ZModem transfer retry for almost every block.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=103364684525654&w=2
+A 486 SX-25 with 8 MB RAM, running 2.4.19 manages about 950 BPS reliably with the port set at 9600 bps.  With 2.5.40, there are again a lot of lost characters.
 
-The poster (Dexter Filmore) has the very same mobo I have (MSI K7T266
-Pro2, Athlon XP) and he's experiencing similar probls to the ones I am
-experiencing (in my case, lock ups are temporary, don't know if it is
-the same with him). Tried the same kernels here, on RH 7.1, using:
+I know these are ancient machines, with rediculously low amounts of memory, but surely 9600 bps should be reliable, even if performance drops to 600-700 BPS, or even lower.
 
-gcc-3.2-1
-binutils-2.13-1
-modutils-2.4.18-2
+I originally thought that the new kernel was using up memory that was previously available to be used as a buffer, and that extra hard disk access was causing the lost characters, but this doesn't seem to be the case.
 
-I know this is a known issue, and you guys are working on it; I also
-know many changes to IDE subsystem have been backported from 2.5.x
-series, and 2.4.20pre* already reflect some (all?) of them. I don't want
-to rush things, I was just curious to know the current status regarding
-these IDE issues.
+Any idea what's causing this?  I can send more info and do more tests as required.
 
-If you need additional info about my system configuration or log
-messages, just let me know and I will be happy to provide it.
-
-TIA,
-
-Andre
-
--- 
-Andre Oliveira da Costa
+John.

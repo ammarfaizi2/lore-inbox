@@ -1,66 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131309AbRC3LQ0>; Fri, 30 Mar 2001 06:16:26 -0500
+	id <S131305AbRC3LR4>; Fri, 30 Mar 2001 06:17:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131316AbRC3LQR>; Fri, 30 Mar 2001 06:16:17 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:24536 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131309AbRC3LQO>;
-	Fri, 30 Mar 2001 06:16:14 -0500
-Date: Fri, 30 Mar 2001 13:15:31 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200103301115.NAA61753.aeb@vlet.cwi.nl>
-To: Jochen.Hoenicke@informatik.uni-oldenburg.de, linux-kernel@vger.kernel.org
-Subject: Re: Bug in EZ-Drive remapping code (ide.c)
-Cc: andre@linux-ide.org
+	id <S131307AbRC3LRq>; Fri, 30 Mar 2001 06:17:46 -0500
+Received: from lacrosse.corp.redhat.com ([207.175.42.154]:21729 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S131305AbRC3LRi>; Fri, 30 Mar 2001 06:17:38 -0500
+Date: Fri, 30 Mar 2001 12:16:52 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] 2.4.3: VIA SIO parport parameters
+Message-ID: <20010330121652.I10553@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jochen Hoenicke writes:
+Currently the VIA SuperIO chip's parallel port support uses IRQs
+regardless of whether the user says not to.  This patch addresses
+that.  Please let me know if there are problems with it.
 
-    The EZ-Drive remapping code remaps to many sectors, if they are read
-    together with sector 0 in one bunch.  This is even documented:
+Thanks,
+Tim.
+*/
 
-    From linux-2.4.0/drivers/ide/ide.c line 1165:
-    /* Yecch - this will shift the entire interval,
-       possibly killing some innocent following sector */
+2001-03-30  Tim Waugh  <twaugh@redhat.com>
 
-Yes, I know - I added that comment.
+	* drivers/parport/parport_pc.c: Make Via SuperIO chipsets behave
+	like everything else with respect to irq= and dma= parameters.
+	* drivers/parport/ChangeLog: Updated.
 
-    This problem hit a GRUB user using linux-2.4.2 but it exists for a
-    long time; the remapping code is already in 2.0.xx.  The reason that
-    nobody cares is probably because there are only a few programs that
-    access /dev/hda directly.
-
-    This is what happened: Grub reads the first track in one bunch and
-    since a track has an odd number of sectors, linux adds the first
-    sector of the next track to this bunch.  This sector contains the boot
-    sector of the first FAT partition.  The result of the remapping is
-    that grub can't access that partition.
-
-What one wants is to remap access to sector 0 to sector 1,
-and leave all other sectors alone. Thus, if someone asks
-for sectors 0 1 2 3 4, she should get sectors 1 1 2 3 4.
-Ugly, but can be done. But if someone wants to write
-sectors 0 1 2 3 4 then what? Only sectors 1 2 3 4 should be
-written, but what to write in sector 1? Nobody knows.
-(Probably a write to 0 1 2 3 4 should discard the write to 1.)
-
-Doing this would be a very ugly wart on the IDE driver, and
-Mark Lord implemented a much smaller wart: shift transports by 1
-if they start at sector 0. This was enough at that time
-since only *fdisk and LILO access sector 0 and they do not
-read an entire track but just one sector or one block.
-
-So yes, the problem is known, but I do not see a clean solution,
-unless the solution is to rip out all this EZ drive nonsense.
-(I can well imagine that this would happen in 2.5:
-the task of the IDE driver is to transport bits from and to
-the disk, not to worry about the contents.)
-And even if it were fixed somehow in a 2.4 kernel, lots of
-people will have a 2.2 or older system for quite some time
-to come. So probably grub should regard this as a quirk in
-the Linux handling of disks with EZ drive and adapt
-(that is, read sector 0, and then read sectors 1-N,
-but do not read 0-N).
-
-Andries
+--- linux/drivers/parport/parport_pc.c.viaparam	Fri Mar 30 12:02:12 2001
++++ linux/drivers/parport/parport_pc.c	Fri Mar 30 12:02:12 2001
+@@ -2180,7 +2180,8 @@
+ 
+ 
+ /* Via support maintained by Jeff Garzik <jgarzik@mandrakesoft.com> */
+-static int __devinit sio_via_686a_probe (struct pci_dev *pdev)
++static int __devinit sio_via_686a_probe (struct pci_dev *pdev, int autoirq,
++					 int autodma)
+ {
+ 	u8 tmp;
+ 	int dma, irq;
+@@ -2260,6 +2261,14 @@
+ 	if (!have_eppecp)
+ 		dma = PARPORT_DMA_NONE;
+ 
++	/* Let the user (or defaults) steer us away from interrupts and DMA */
++	if (autoirq != PARPORT_IRQ_AUTO) {
++		irq = PARPORT_IRQ_NONE;
++		dma = PARPORT_DMA_NONE;
++	}
++	if (autodma != PARPORT_DMA_AUTO)
++		dma = PARPORT_DMA_NONE;
++
+ 	/* finally, do the probe with values obtained */
+ 	if (parport_pc_probe_port (port1, port2, irq, dma, NULL)) {
+ 		printk (KERN_INFO
+@@ -2285,7 +2294,7 @@
+ 
+ /* each element directly indexed from enum list, above */
+ static struct parport_pc_superio {
+-	int (*probe) (struct pci_dev *pdev);
++	int (*probe) (struct pci_dev *pdev, int autoirq, int autodma);
+ } parport_pc_superio_info[] __devinitdata = {
+ 	{ sio_via_686a_probe, },
+ };
+@@ -2542,7 +2551,7 @@
+ 	probe:		parport_pc_pci_probe,
+ };
+ 
+-static int __init parport_pc_init_superio (void)
++static int __init parport_pc_init_superio (int autoirq, int autodma)
+ {
+ #ifdef CONFIG_PCI
+ 	const struct pci_device_id *id;
+@@ -2553,7 +2562,8 @@
+ 		if (id == NULL || id->driver_data >= last_sio)
+ 			continue;
+ 
+-		return parport_pc_superio_info[id->driver_data].probe (pdev);
++		return parport_pc_superio_info[id->driver_data].probe
++			(pdev, autoirq, autodma);
+ 	}
+ #endif /* CONFIG_PCI */
+ 
+@@ -2596,7 +2606,7 @@
+ #endif
+ 
+ 	/* Onboard SuperIO chipsets that show themselves on the PCI bus. */
+-	count += parport_pc_init_superio ();
++	count += parport_pc_init_superio (autoirq, autodma);
+ 
+ 	/* ISA ports and whatever (see asm/parport.h). */
+ 	count += parport_pc_find_nonpci_ports (autoirq, autodma);
+--- linux/drivers/parport/ChangeLog.viaparam	Fri Mar 30 12:02:12 2001
++++ linux/drivers/parport/ChangeLog	Fri Mar 30 12:02:12 2001
+@@ -0,0 +1,10 @@
++2001-03-30  Tim Waugh  <twaugh@redhat.com>
++
++	* parport_pc.c (sio_via_686a_probe): Take autoirq and autodma
++	parameters in order to conform to how the rest of the driver
++	works.
++	(parport_pc_init_superio): Take autoirq and autodma parameters and
++	pass them on to sio_via_686a_probe.
++	(parport_pc_find_ports): Pass autoirq and autodma to
++	parport_pc_init_superio.
++

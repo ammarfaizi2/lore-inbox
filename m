@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271423AbTGXJ0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jul 2003 05:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271424AbTGXJ0Y
+	id S271418AbTGXJbS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jul 2003 05:31:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271424AbTGXJbS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jul 2003 05:26:24 -0400
-Received: from aneto.able.es ([212.97.163.22]:8649 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S271423AbTGXJ0X (ORCPT
+	Thu, 24 Jul 2003 05:31:18 -0400
+Received: from pop.gmx.de ([213.165.64.20]:2177 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S271418AbTGXJag (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jul 2003 05:26:23 -0400
-Date: Thu, 24 Jul 2003 11:41:29 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Christoph Hellwig <hch@infradead.org>
+	Thu, 24 Jul 2003 05:30:36 -0400
+Date: Thu, 24 Jul 2003 11:45:41 +0200
+From: Dominik Brugger <ml.dominik83@gmx.net>
+To: Florian Weimer <fw@deneb.enyo.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: passing my own compiler options into linux kernel compiling
-Message-ID: <20030724094129.GC8172@werewolf.able.es>
-References: <200307240916.17530.cijoml@volny.cz> <20030724100111.343d84cd.martin.zwickel@technotrend.de> <200307241050.25094.cijoml@volny.cz> <20030724095505.A28118@infradead.org>
+Subject: Re: [2.6.0-test1] ACPI slowdown
+Message-Id: <20030724114541.70c713e7.ml.dominik83@gmx.net>
+In-Reply-To: <87ispsfesw.fsf@deneb.enyo.de>
+References: <878yqpptez.fsf@deneb.enyo.de>
+	<20030723114421.34eb7149.dominik83@gmx.net>
+	<87el0gv3g9.fsf@deneb.enyo.de>
+	<20030724112850.0e311b7a.ml.dominik83@gmx.net>
+	<87ispsfesw.fsf@deneb.enyo.de>
+X-Mailer: Sylpheed version 0.9.0claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20030724095505.A28118@infradead.org>; from hch@infradead.org on Thu, Jul 24, 2003 at 10:55:05 +0200
-X-Mailer: Balsa 2.0.12
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yes because I turned on the box only a few minutes ago, now it is at 49 C.
 
-On 07.24, Christoph Hellwig wrote:
-> On Thu, Jul 24, 2003 at 10:50:25AM +0200, Michal Semler wrote:
-> > Hi,
-> > 
-> > -O4 is a feature - for example MPlayer (www.mplayerhq.hu) using it.
-> 
-> Maybe you and the mplayer folks want to take a look at gcc's "handling"
-> of -O4..
-> 
+On Thu, 24 Jul 2003 11:35:11 +0200
+Florian Weimer <fw@deneb.enyo.de> wrote:
 
-BTW, is there any way to get from gcc the options it uses when you
-put -ON in the options ?
-(It's not I don't trust documentation, just want to double check ;))
+> This is at 57 C for me. 8-/
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-pre7-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.6mdk))
+-Dominik Brugger

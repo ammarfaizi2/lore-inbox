@@ -1,62 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263165AbUJ1X55@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263118AbUJ2AMO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263165AbUJ1X55 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 19:57:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbUJ1XoY
+	id S263118AbUJ2AMO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:12:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263179AbUJ2AJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 19:44:24 -0400
-Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:50044 "HELO
-	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S263107AbUJ1Xhf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 19:37:35 -0400
-From: Blaisorblade <blaisorblade_spam@yahoo.it>
-To: DaMouse <damouse@gmail.com>
-Subject: Re: [patch 1/1] uml: fix mainline lazyness about TTY layer patch
-Date: Fri, 29 Oct 2004 01:36:13 +0200
-User-Agent: KMail/1.7.1
-Cc: "blaisorblade_spam@yahoo.it" <blaisorblade_spam@yahoo.it>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20041028200635.3366D7436@localhost> <1a56ea39041028132610a1579e@mail.gmail.com>
-In-Reply-To: <1a56ea39041028132610a1579e@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Oct 2004 20:09:23 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:22789 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S263158AbUJ2AE4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 20:04:56 -0400
+Date: Fri, 29 Oct 2004 02:04:24 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: rmk@arm.linux.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] fs/adfs: remove an unused function
+Message-ID: <20041029000424.GC28204@stusta.de>
+References: <20041028220511.GF3207@stusta.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
 Content-Disposition: inline
-Message-Id: <200410290136.13385.blaisorblade_spam@yahoo.it>
+In-Reply-To: <20041028220511.GF3207@stusta.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 October 2004 22:26, DaMouse wrote:
-> On Thu, 28 Oct 2004 22:04:51 +0200, blaisorblade_spam@yahoo.it
->
-> <blaisorblade_spam@yahoo.it> wrote:
-> > While changing the TTY layer, an API parameter was removed, so it was
-> > removed by almost all calls, changing their prototype. But one use of one
-> > such function was not updated, breaking UML compilation. This is the fix.
-> >
-> > Should go in directly - trivial fix.
-> >
-> > Thanks for the breakage, too :-).
 
->
-> http://dictionary.reference.com/search?q=lazyness
-> NOW who's lazy :P
+--H1spWtNR+x+ondvy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Ok, I've flamed a bit, and I get it back.
+[ this time without the problems due to the inline signature... ]
 
-I'm not English, however that does not qualify as a good reason.
+The patch below removes an unsed fubnction from fs/adfs/dir_f.c
 
-> -DaMouse
-> -- 
-> I know I broke SOMETHING but its their fault for not fixing it before me
 
-Is that the signature or the actual answer :-)?
+diffstat output:
+ fs/adfs/dir_f.c |   17 -----------------
+ 1 files changed, 17 deletions(-)
 
-However, let's code well, ok? (I don't know whether you're the author, but 
-however, that's not the problem).
 
-Bye
--- 
-Paolo Giarrusso, aka Blaisorblade
-Linux registered user n. 292729
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.10-rc1-mm1-full/fs/adfs/dir_f.c.old	2004-10-28 22:40:09.00000=
+0000 +0200
++++ linux-2.6.10-rc1-mm1-full/fs/adfs/dir_f.c	2004-10-28 22:40:20.000000000=
+ +0200
+@@ -65,23 +65,6 @@
+ 	return buf - old_buf;
+ }
+=20
+-static inline void adfs_writename(char *to, char *from, int maxlen)
+-{
+-	int i;
+-
+-	for (i =3D 0; i < maxlen; i++) {
+-		if (from[i] =3D=3D '\0')
+-			break;
+-		if (from[i] =3D=3D '.')
+-			to[i] =3D '/';
+-		else
+-			to[i] =3D from[i];
+-	}
+-
+-	for (; i < maxlen; i++)
+-		to[i] =3D '\0';
+-}
+-
+ #define ror13(v) ((v >> 13) | (v << 19))
+=20
+ #define dir_u8(idx)				\
+
+
+--H1spWtNR+x+ondvy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFBgYkImfzqmE8StAARAujgAJkB+0QuzFQxBHBrjmtJ36BFyoseHQCbBMM+
+jlsb4aYKibhNpvpeQo7uxDc=
+=S3Lm
+-----END PGP SIGNATURE-----
+
+--H1spWtNR+x+ondvy--

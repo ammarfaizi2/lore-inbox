@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbTFQWIN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Jun 2003 18:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264956AbTFQWIN
+	id S264956AbTFQWJG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Jun 2003 18:09:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbTFQWJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Jun 2003 18:08:13 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:44726 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S264949AbTFQWIK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Jun 2003 18:08:10 -0400
-Date: Wed, 18 Jun 2003 00:21:46 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: davidm@hpl.hp.com
-Cc: Riley Williams <Riley@Williams.Name>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] input: Fix CLOCK_TICK_RATE usage ...  [8/13]
-Message-ID: <20030618002146.A20956@ucw.cz>
-References: <16110.4883.885590.597687@napali.hpl.hp.com> <BKEGKPICNAKILKJKMHCAEEOAEFAA.Riley@Williams.Name> <16111.37901.389610.100530@napali.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <16111.37901.389610.100530@napali.hpl.hp.com>; from davidm@napali.hpl.hp.com on Tue, Jun 17, 2003 at 03:19:57PM -0700
+	Tue, 17 Jun 2003 18:09:05 -0400
+Received: from smtp-out.comcast.net ([24.153.64.116]:35037 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S264956AbTFQWIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Jun 2003 18:08:43 -0400
+Date: Tue, 17 Jun 2003 18:17:58 -0400
+From: Matt Reppert <repp0017@tc.umn.edu>
+Subject: Re: 2.4.21 packet writing?
+In-reply-to: <87d6hczgiu.fsf@complete.org>
+To: John Goerzen <jgoerzen@complete.org>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <20030617181758.06203cf9.repp0017@tc.umn.edu>
+Organization: Arashi no Kaze
+MIME-version: 1.0
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <87d6hczgiu.fsf@complete.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 17, 2003 at 03:19:57PM -0700, David Mosberger wrote:
-
-> >>>>> On Tue, 17 Jun 2003 23:11:46 +0100, "Riley Williams" <Riley@Williams.Name> said:
+On Tue, 17 Jun 2003 13:48:57 -0500
+John Goerzen <jgoerzen@complete.org> wrote:
+>
+> Has anyone made a packet writing patch compatible with 2.4.21 that
+> works with ide-scsi?
 > 
->   Riley> [CLOCK_TICK_RATE] needs to be declared there. The only
->   Riley> question is regarding the value it is defined to, and it
->   Riley> would have to be somebody with better knowledge of the ia64
->   Riley> than me who decides that. All I can do is to post a
->   Riley> reasonable default until such decision is made.
-> 
-> The ia64 platform architecture does not provide for such a timer and
-> hence there is no reasonable value that the macro could be set to.
+> My workaround to date has been to unload the ide-scsi module and
+> insert the IDE cdrom module when I want to use packet writing, and do
+> the reverse when I want to use cdrecord.  It's quite annoying and I'd
+> rather just use one device the whole time.
 
-It seems to be used for making beeps, even on that architecture.
+cdrecord 2.x should handle writing CDs on 2.4 kernel machines. I'm not in a
+position to test that at the moment, but -checkdrive does detect the drive fine.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Matt

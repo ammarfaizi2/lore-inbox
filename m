@@ -1,71 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319042AbSHMWJ1>; Tue, 13 Aug 2002 18:09:27 -0400
+	id <S319064AbSHMWS6>; Tue, 13 Aug 2002 18:18:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319048AbSHMWJ1>; Tue, 13 Aug 2002 18:09:27 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15630 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319042AbSHMWJ0>; Tue, 13 Aug 2002 18:09:26 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
+	id <S319073AbSHMWS6>; Tue, 13 Aug 2002 18:18:58 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:17379 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S319064AbSHMWS6>; Tue, 13 Aug 2002 18:18:58 -0400
+Date: Wed, 14 Aug 2002 00:22:43 +0200 (CEST)
+From: Adrian Bunk <bunk@fs.tum.de>
+X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+To: "H. Peter Anvin" <hpa@zytor.com>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
-Date: 13 Aug 2002 15:12:53 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ajc095$hk1$1@cesium.transmeta.com>
-References: <3D56B13A.D3F741D1@zip.com.au> <Pine.NEB.4.44.0208132322340.1351-100000@mimas.fachschaften.tu-muenchen.de>
+In-Reply-To: <ajc095$hk1$1@cesium.transmeta.com>
+Message-ID: <Pine.NEB.4.44.0208140020260.1351-100000@mimas.fachschaften.tu-muenchen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.NEB.4.44.0208132322340.1351-100000@mimas.fachschaften.tu-muenchen.de>
-By author:    Adrian Bunk <bunk@fs.tum.de>
-In newsgroup: linux.dev.kernel
+On 13 Aug 2002, H. Peter Anvin wrote:
+
+>...
+> > > Because the compiler sees:
+> > >
+> > > 	for (i = 0; i < N; i++)
+> > > 		;
+> > >
+> > > and it says "ah ha.  A busy wait delay loop" and leaves it alone.
+> > >
+> > > It's actually a special-case inside the compiler to not optimise
+> > > away such constructs.
 > >
-> > Because the compiler sees:
-> >
-> > 	for (i = 0; i < N; i++)
-> > 		;
-> >
-> > and it says "ah ha.  A busy wait delay loop" and leaves it alone.
-> >
-> > It's actually a special-case inside the compiler to not optimise
-> > away such constructs.
-> 
-> Why is this a special case? As long as a compiler can't prove that the
-> computed value of i isn't used later it mustn't optimize it away.
-> 
+> > Why is this a special case? As long as a compiler can't prove that the
+> > computed value of i isn't used later it mustn't optimize it away.
+>
+> Bullsh*t.  It can legitimately transform it into:
+>
+> 	   i = N;
+>...
 
-Bullsh*t.  It can legitimately transform it into:
+Ah, my misunderstanding:
+"optimize away" didn't mean "completely remove it" but "transform it to
+something semantically equivalent".
 
-	   i = N;
+> 	-hpa
 
-> Kernighan/Ritchie (German translation of the second edition) contains the
-> following example program that shows why the compiler mustn't optimize it
-> away:
-> 
-> <--  snip  -->
-> 
-> #include <stdio.h>
-> 
-> main()
-> {
->   double nc;
-> 
->   for (nc = 0; getchar() != EOF; ++nc)
-> 	;
->   printf("%.0f\n", nc);
-> 
-> }
-> 
+Thanks
+Adrian
 
-getchar() has side effects.
-
-	-hpa
 -- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+
+You only think this is a free country. Like the US the UK spends a lot of
+time explaining its a free country because its a police state.
+								Alan Cox
+

@@ -1,98 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261967AbTCMCdm>; Wed, 12 Mar 2003 21:33:42 -0500
+	id <S261943AbTCMC07>; Wed, 12 Mar 2003 21:26:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262001AbTCMCdm>; Wed, 12 Mar 2003 21:33:42 -0500
-Received: from mx12.arcor-online.net ([151.189.8.88]:11400 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id <S261967AbTCMCdk>; Wed, 12 Mar 2003 21:33:40 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Werner Almesberger <wa@almesberger.net>
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-Date: Thu, 13 Mar 2003 03:48:17 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       Zack Brown <zbrown@tumblerings.org>, linux-kernel@vger.kernel.org
-References: <200303020011.QAA13450@adam.yggdrasil.com> <20030311192639.E72163C5BE@mx01.nexgo.de> <20030312031407.W2791@almesberger.net>
-In-Reply-To: <20030312031407.W2791@almesberger.net>
+	id <S261967AbTCMC07>; Wed, 12 Mar 2003 21:26:59 -0500
+Received: from holly.csn.ul.ie ([136.201.105.4]:4810 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id <S261943AbTCMC05>;
+	Wed, 12 Mar 2003 21:26:57 -0500
+Date: Thu, 13 Mar 2003 02:37:36 +0000 (GMT)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Dave Olien <dmo@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: vmregress test on linux 2.5.62
+In-Reply-To: <20030311191419.GA18449@osdl.org>
+Message-ID: <Pine.LNX.4.53.0303130219070.3511@skynet>
+References: <20030311191419.GA18449@osdl.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030313024421.9C6DC109407@mx12.arcor-online.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed 12 Mar 03 07:14, Werner Almesberger wrote:
-> Daniel Phillips wrote:
-> > Coincidently, I was having a little think about that exact thing earlier
-> > today.  Suppose we call the process of turning an exact delta into a
-> > delta-with-context, "softening".
+On Tue, 11 Mar 2003, Dave Olien wrote:
+
+> I've modified your vmregress test form linux 2.4 so it works on
+> linux 2.5.63.  I fixed up some of the core routines to understand
+> new modifications to kernel vm structures, so it all compiles and
+> runs.
 >
-> Why not just make all deltas "soft" and just ignore the context in
-> cases when you're absolutely sure you can ? (Provided that such
-> cases exist and aren't trivial.)
 
-Just because there's no point in storing context that you don't have to, and 
-when you get into more sophisticated operations on deltas, you'd just 
-introduce a first step of discarding the context in many cases.
+Excellent stuff, thanks. This prompted me to dust off my old test box, get
+2.5.64 on it, new modutils etc etc and get working back on VM Regress. I'm
+releasing 0.8a for you to take a look at it, it is available from
+http://www.csn.ul.ie/~mel/projects/vmregress/ and directly downloadable
+from http://www.csn.ul.ie/~mel/projects/vmregress/vmregress-0.8a.tar.gz .
 
-> > A soft changeset can be carried forward in the database automatically as
-> > long as there are no conflicts
+I'm not going to be working on this for another few days (hence the rushed
+release) so I wanted you to see what I did with your stuff so far. Rather
+than merging your stuff blindly, I took a few extra steps
+
+1. The changes you made broke VM Regress from working with 2.4.anything so
+I sat down and made the configure script understand both 2.4 and 2.5 build
+systems. The way it is now, a
+
+./configure --with-linux=/usr/src/linux-2.x.x
+make
+
+will compile the modules and be loadable against 2.4.20 and 2.5.64 . It
+generates different makefiles depending on the kernel release and I'm
+fairly sure I got it right. My "extensive" testing involved loading the
+vmregress_core, sizes.o and zones.o modules and printing the reports. They
+worked fine for that, but note the "a" part of 0.8a, I didn't test
+anything else.
+
+2. vmr_mmzone.h is going to be my mapping between the different names of
+structs and fields between 2.4 and 2.5 . this (you'll love this) involves
+having #defines which map some VM Regress type to the actual kernel
+structure. So for example, on 2.4 it's
+
+#define C_ZONE struct zone_t
+
+and 2.5 it's
+
+#define C_ZONE struct zone
+
+This looks (and is) horrible but there is very few name discrepancies so
+it doesn't confuse things too much and I reckon it is better than having a
+2.4 and 2.5 version of VM Regress for such minor differences.
+
+3. I kept my old indenting style, but I think I incorporated all your bug
+fixes. I need to double check this though, I have a few other bugs on the
+ToDo list I want to clean up anyway
+
+4. I blindly included the OSDL scripts into an osdl/ directory. I haven't
+looked at them in detail yet, I presume they are doing magic OSDL stuff
+for the moment until I get back onto it. If I don't though, I would still
+like to get the OSDL tests integrated into the tool rather than having
+them separate. Is this ok with you?
+
+> There are still some issues with the perl scripts that collect data
+> and pipe it to gnuplot.  Some of the plots of vmstat output don't
+> work.
 >
-> You probably also want to be able to apply them to different
-> views, e.g. if I fix X, I may send it off to integration, and
-> also apply it independently to my projects Y and Z. When X gets
-> merged into whatever I consider my "mainstream" (again, that's a
-> local decision, e.g. it may be Linus' tree, plus net/* and anything
-> related to changes in net/* from David Miller), I may want to get
-> notified, e.g. if there's a conflict, but also such that I can drop
-> that part from my fix (which may contain elements that I didn't
-> push yet).
 
-Yes, and if we have the concept of a versioned changeset, your system will 
-notice automatically that Linus applied either exactly what you sent him or a 
-descendent (i.e., he had to massage it, but his history still recorded the 
-fact that he started with your changeset) so your system will know to 
-automatically reverse your original version during your next merge with 
-Linus.  Um, if Linus is using this new spiffy system of course, you may want 
-to substitute "Pavel" in the above.
+I haven't looked at the new procps tools yet and won't get the chance for
+a few days. Hence, the plots are still presumably broken.
 
-> > and generate a new soft changeset against some other version.  A name for
-> > the versioned soft changeset can be generated automatically, e.g.:
-> >
-> >    changset.name-from.version-to.version.
+> 	http://www.osdl.org/archive/dmo/VMREGRESS/
 >
-> Hmm, I'd distinguish three elements in a change set's name:
+> There's a VMR_README file that describes the files there.
 >
->  - its history (i.e. all changesets applied to the file(s)
->    when the change set was created)
->  - a globally unique ID
->  - a human-readable title that doesn't need to be perfectly
->    unique
 
-Such things as history (if you need it) and globally-unique id can be tucked 
-into the header of the changeset.  The unique id is good, means you can let 
-names collide.  For the name itself, I personally am mostly interested in the 
-catchy moniker I thought up for the patch, um, I mean changeset, the kernel 
-version it applies to, and a sequence number in case I generate more than one 
-version against the same kernel, so that when I post the changsets on the 
-web, people can find the file they need.  Boring huh?
+I think I have 99% if not 100% of your work integrated in nicely so that
+VM Regress still works on both sets of trees. The rudimentary ChangeLog so
+far is below
 
-Naming is a matter of taste, and you ought to be able to do it according to 
-your own taste, including hooking in your own name-generating script.
+Version 0.8a
+-----------
+  o Minor bug fixes in the core
+  o OSDL based merging
+    - Fixed the extract_structs.pl script to ensure its a struct been extracted
+    - Move the creation of internal.h from Makefiles to the configure script
+    - Use configure script to apply kernel patch if requested
+  o Read kernel release version directly from Kernel makefile
+  o Automatically generate makefiles depending on kernel version from configure
+  o Teach extract_structs.pl to identify a struct that is typedef'd
+  o vmr_mmzone.h has been expanded to map between different struct and field
+    names between kernel versions. Not many differences thankfully
 
-> I think, for simplicity, changesets should just carry their history
-> with them. This can later be compressed, e.g. by omitting items
-> before major convergence points (releases), by using automatically
-> generated reference points, or simply by fetching additional
-> information from a repository if needed (hairy).
+Enjoy...
 
-I would not call that hairy, it sounds more like fun.  The hairy part is 
-getting the underlying framework to function properly.  Larry is entirely 
-correct in pointing out that it's hard, though in my opinion, not nearly as 
-hard as kernel development.  Your edit/compile/test cycle is a fraction as 
-long for one thing.
-
-Regards,
-
-Daniel
+-- 
+Mel Gorman
+MSc Student, University of Limerick
+http://www.csn.ul.ie/~mel

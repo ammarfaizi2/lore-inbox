@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264189AbTDJVJ2 (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264190AbTDJVJ2 (for <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Apr 2003 17:09:28 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:6849 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S264189AbTDJVJZ (for <rfc822;linux-kernel@vger.kernel.org>); Thu, 10 Apr 2003 17:09:25 -0400
-To: Dan Kegel <dank@kegel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-From: Wolfgang Denk <wd@denx.de>
-Subject: Re: gcc-2.95 broken on PPC? 
-X-Mailer: exmh version 2.2
-Mime-version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-reply-to: Your message of "Thu, 10 Apr 2003 10:52:15 PDT."
-             <3E95AF4F.20105@kegel.com> 
-Date: Thu, 10 Apr 2003 23:20:50 +0200
-Message-Id: <20030410212055.B6A18C5877@atlas.denx.de>
+	id S264183AbTDJVJX (for <rfc822;willy@w.ods.org>); Thu, 10 Apr 2003 17:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264189AbTDJVJX (for <rfc822;linux-kernel-outgoing>);
+	Thu, 10 Apr 2003 17:09:23 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:49907 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S264183AbTDJVJW convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Apr 2003 17:09:22 -0400
+Message-ID: <A46BBDB345A7D5118EC90002A5072C780BEBA7DD@orsmsx116.jf.intel.com>
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "'Chuck Ebbert'" <76306.1226@compuserve.com>,
+       "'linux-kernel'" <linux-kernel@vger.kernel.org>
+Subject: RE: kernel support for non-english user messages
+Date: Thu, 10 Apr 2003 14:20:54 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <3E95AF4F.20105@kegel.com> you wrote:
-> The Denkster wrote:
+
+> From: Chuck Ebbert [mailto:76306.1226@compuserve.com]
 >
-> > This is speculation only. We use gcc-2.95.4 as part of  our  ELDK  in
-> > all  of our projects, and a lot of people are using these tools, too.
-> > We definitely see more problems with gcc-3.x compilers.
+> >>      How about changing the way printk works, so that instead of
+> >> combining the format string, it just "prints" its args:
+> >>
+> >> printk("%s: name %p is %d\n", name, ptr, val);
+> >>
+> >> results in the following in the kernel buffer:
+> >>
+> >> "%s: name %p is %d\n", "stringval", 0x4790243, 44
+> >
+> > Debugging a non-klogd enabled kernel would be a pain
 > 
-> Hi Wolfgang, when you say you see more problems with gcc-3.x
-> compilers, what is x?  I'd understand if you saw problems
+> 
+>  Why?  Shouldn't it be easy to fix dmesg so it unmangles the output?
 
-There were serios problems with 3.0. I never tested 3.1.  I  believed
-3.2  was OK, but I every now and then problems pop up that seem to be
-compiler related. Never found time to investigate, though.
+s/non-klogd enabled/dmesg/
 
-> with gcc-3.0.*, but I had hoped that gcc-3.2.2 would compile
-> good kernels for ppc.
-> (Me, I'm still using Montavista Linux 2.0's gcc-2.95.3 to build my ppc kernels,
-> but am looking for an excuse to switch to gcc-3.2.* or gcc-3.3.*.)
+Same thing - what I mean is that if you don't have some automatic
+means to recompose the messages, reading the direct output of 
+the console (as sometimes you have to), becomes a mess.
 
-I just heard that gdb 5.2.1 shows some problems when built  with  gcc
-3.2  as  sipped with RH-8.0, and the problem goes away when compiling
-with 2.95.[34]. The information might be wrong  or  a  misinterpreta-
-tion, but I'm still suspicious.
-
-Best regards,
-
-Wolfgang Denk
-
--- 
-Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
-Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
-Why is an average signature file longer than an average Perl script??
+Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+(and my fault)

@@ -1,78 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263901AbTJ1Jf2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Oct 2003 04:35:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263891AbTJ1Jf2
+	id S263900AbTJ1Jc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Oct 2003 04:32:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263901AbTJ1Jc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Oct 2003 04:35:28 -0500
-Received: from ms002msg.fastwebnet.it ([213.140.2.52]:49325 "EHLO
-	ms002msg.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S263903AbTJ1JfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Oct 2003 04:35:20 -0500
-Message-ID: <3F9E3858.5030601@revicon.com>
-Date: Tue, 28 Oct 2003 10:35:20 +0100
-From: Lars Knudsen <gandalf@revicon.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: SiS900 driver multicast problems and patch.
-References: <3F9E2B6C.30000@revicon.com> <yw1xd6ch67sb.fsf@kth.se>
-In-Reply-To: <yw1xd6ch67sb.fsf@kth.se>
-Content-Type: multipart/mixed;
- boundary="------------070502040208080709030301"
+	Tue, 28 Oct 2003 04:32:56 -0500
+Received: from gprs197-51.eurotel.cz ([160.218.197.51]:2179 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263900AbTJ1Jcz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Oct 2003 04:32:55 -0500
+Date: Tue, 28 Oct 2003 10:32:33 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Cc: Patrick Mochel <mochel@osdl.org>, George Anzinger <george@mvista.com>,
+       Pavel Machek <pavel@suse.cz>, John stultz <johnstul@us.ibm.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [pm] fix time after suspend-to-*
+Message-ID: <20031028093233.GA1253@elf.ucw.cz>
+References: <Pine.LNX.4.44.0310271535160.13116-100000@cherise> <1067329994.861.3.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1067329994.861.3.camel@teapot.felipe-alfaro.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070502040208080709030301
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Hi!
 
-Måns Rullgård wrote:
+> > Userspace behavior on suspend transitions is still a bit fuzzy at best. I 
+> > am beginning to look at userspace requirements, so if anyone wants to send 
+> > me suggestions, no matter how trivial or wacky, please feel free (on- or 
+> > off-list). 
+> 
+> Many userspace applications are not prepared for suspension, like
+> Evolution. When suspending the machine for a long time, all IMAP
+> sessions are broken as their counterpart TCP sockets timeout. While
+> resuming, Evolution is unable to handle this condition and simply
+> informs the network connection has been dropped.
+> 
+> What about sending the SIGPWR signal to all userspace processes before
+> suspending so applications like Evolution can be improved to handle this
+> signal, drop their IMAP connections and then, when resuming, reestablish
+> them?
 
->Lars Knudsen <gandalf@revicon.com> writes:
->
->  
->
->>After upgrading to kernel 2.4.22 we discovered that multicast was no
->>longer handled properly by the SiS900. Examining the changes between
->>2.4.19 and 2.4.22 it is clear that the handling of multicast was
->>changed but a bug was introduced.
->>    
->>
->
->Your patch is broken.  Long lines are wrapped, tabs are converted to
->spaces and it is reversed.
->  
->
-Ah, the wonders of cut and paste and a mail program trying to be helpfull.
-Here is an updated version. Sorry for the extra noise.
-
-\Lars Knudsen
-
---------------070502040208080709030301
-Content-Type: text/plain;
- name="sispatch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sispatch"
-
---- sis900.c.orig	Mon Oct 27 17:48:52 2003
-+++ sis900.c	Mon Oct 27 17:49:36 2003
-@@ -2101,9 +2101,8 @@
- 		rx_mode = RFAAB;
- 		for (i = 0, mclist = net_dev->mc_list; mclist && i < net_dev->mc_count;
- 		     i++, mclist = mclist->next) {
--			unsigned int bit_nr =
--				sis900_mcast_bitnr(mclist->dmi_addr, revision);
--			mc_filter[bit_nr >> 4] |= (1 << bit_nr);
-+			set_bit(sis900_mcast_bitnr(mclist->dmi_addr, revision),
-+				mc_filter);
- 		}
- 	}
- 
-
---------------070502040208080709030301--
-
+Not sure... We do not want applications to know. Certainly we can't
+send a signal; SIGPWR already has some meaning and it would be bad to
+override it.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

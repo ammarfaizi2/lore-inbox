@@ -1,49 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264711AbTE1Mtq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 08:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264712AbTE1Mtq
+	id S264725AbTE1MyW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 08:54:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264726AbTE1MyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 08:49:46 -0400
-Received: from griffon.mipsys.com ([217.167.51.129]:31964 "EHLO gaston")
-	by vger.kernel.org with ESMTP id S264711AbTE1Mtp (ORCPT
+	Wed, 28 May 2003 08:54:22 -0400
+Received: from mail.gmx.de ([213.165.64.20]:32897 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264725AbTE1MyU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 08:49:45 -0400
-Subject: Re: Console & FBDev vs. locking
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       James Simmons <jsimmons@infradead.org>
-In-Reply-To: <1054122360.602.197.camel@gaston>
-References: <1054122360.602.197.camel@gaston>
-Content-Type: text/plain
+	Wed, 28 May 2003 08:54:20 -0400
+Message-ID: <3ED4B49A.4050001@gmx.net>
+Date: Wed, 28 May 2003 15:07:38 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Andrew Morton <akpm@digeo.com>, kernel@kolivas.org,
+       matthias.mueller@rz.uni-karlsruhe.de, manish@storadinc.com,
+       andrea@suse.de, marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+References: <3ED2DE86.2070406@storadinc.com> <200305281305.44073.m.c.p@wolk-project.de> <20030528042700.47372139.akpm@digeo.com> <200305281331.26959.m.c.p@wolk-project.de> <20030528125312.GV845@suse.de>
+In-Reply-To: <20030528125312.GV845@suse.de>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1054126978.541.3.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 28 May 2003 15:02:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-05-28 at 13:46, Benjamin Herrenschmidt wrote:
+Jens Axboe wrote:
+> On Wed, May 28 2003, Marc-Christian Petersen wrote:
+> 
+>>On Wednesday 28 May 2003 13:27, Andrew Morton wrote:
+>>
+>>>Guys, you're the ones who can reproduce this.  Please spend more time
+>>>working out which chunk (or combination thereof) actually fixes the
+>>>problem.  If indeed any of them do.
+>>
+>>As I said, I will test it this evening. ATM I don't have time to
+>>recompile and reboot. This evening I will test extensively, even on
+>>SMP, SCSI, IDE and so on.
+> 
+> May I ask how you are reproducing the bad results? I'm trying in vain
+> here...
 
-> All printk originated console call should done with the console
-> semaphore held. The console-sem is the de-facto locking mecanism for the
-> console today, while not fine-grained, it's probably plenty enough for
-> what we need in 2.5 and unless previous implementations which ran with
-> irqs off, the console drivers can actually block and rely on HW
-> interrupts.
+Quoting Con Kolivas:
 
-Hrm... Of course, this is only true for things like resize/mode change,
-etc... (and soon blanking once I'm done with it). The way the console
-sem is used is so that normal output originating from printk can
-still happen at interrupt time.
+dd if=/dev/zero of=dump bs=4096 count=512000
 
-BTW. I know some people would prefer not doing so, but I'd like to
-eventually disable that 'feature', or at least add a flag to the the
-consw driver telling if it supports beeing called at interrupt/spinlock
-time or not, and if not, defer operations to process context. ..
 
-Ben.
+HTH,
+Carl-Daniel
+

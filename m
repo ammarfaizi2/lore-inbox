@@ -1,144 +1,458 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293713AbSCAUWa>; Fri, 1 Mar 2002 15:22:30 -0500
+	id <S293716AbSCAUYS>; Fri, 1 Mar 2002 15:24:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293729AbSCAUWU>; Fri, 1 Mar 2002 15:22:20 -0500
-Received: from CPEdeadbeef0000.cpe.net.cable.rogers.com ([24.100.234.67]:44805
-	"HELO coredump.sh0n.net") by vger.kernel.org with SMTP
-	id <S293713AbSCAUWJ>; Fri, 1 Mar 2002 15:22:09 -0500
-Subject: Re: SSSCA: We're in trouble now
-From: Shawn Starr <spstarr@sh0n.net>
-To: "Paul G. Allen" <pgallen@randomlogic.com>
-Cc: Linux <linux-kernel@vger.kernel.org>
-In-Reply-To: <3C7FDAB1.6F687440@randomlogic.com>
-In-Reply-To: <3C7FDAB1.6F687440@randomlogic.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.1.99 (Preview Release)
-Date: 01 Mar 2002 15:27:01 -0500
-Message-Id: <1015014449.16520.9.camel@unaropia>
-Mime-Version: 1.0
+	id <S293714AbSCAUYJ>; Fri, 1 Mar 2002 15:24:09 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:3846 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S293723AbSCAUXi>; Fri, 1 Mar 2002 15:23:38 -0500
+Date: Fri, 1 Mar 2002 21:23:21 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] abstracting thread_info access
+Message-ID: <Pine.LNX.4.21.0203012110160.32042-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trouble or not. We will defeat this garbage. I will not allow any or my
-(Canada) country to tell me how to control my own systems let alone my
-own hardware! 
+Hi,
 
-Let them pass it, they won't be able to enforce it. I won't let my Linux
-kernel become 'tainted' by closed binary drivers and I will really
-actively get involved in defeating such measures in Linux kernel
-modules.
+This patch introduces get_thread_info to access thread_info from the
+task_structure. It also makes clear now that we actually split the
+task_struct and the stack and leaves it up to the arch where to put
+thread_info.
+This patch depends on the previous task_struct patch.
 
-Shawn.
+bye, Roman
 
-On Fri, 2002-03-01 at 14:46, Paul G. Allen wrote:
-> Before anyone remarks about this being Off Topic for the various mailing
-> lists I've sent this to, please think about the effects this could have
-> to Linux. In addition, even though many of you may not be US citizens,
-> the recent happenings with international laws against cybercrime, copy
-> protection and the like could make this US law relevant to you as well,
-> not to mention the impact to your company should you not be able to do
-> business in the US because of such a law. Therefore, it really IS on
-> topic, and the time to think about and act on such things is _BEFORE_
-> they are written in stone, not after.
-> 
-> In case you haven't heard, the SSSCA is before the Senate Commerce
-> Committee, with a hearing earlier today
-> (http://slashdot.org/articles/02/03/01/1423248.shtml?tid=103 for the
-> story and several links, including a draft of the bill). The SSSCA, if
-> passed, would basically require that all interactive digital devices,
-> including your PC, have copy protection built in. This protection would
-> not allow digital media from being viewed, copied, transferred, or
-> downloaded if the device is not authorized to do so. The bill also makes
-> it a crime to circumvent the protection, including manufacturing or
-> trafficking in anything that does not include the protection or that
-> would circumvent it.
-> 
-> Even if there is no SSSCA, the entertainment industry as well as the IT
-> industry both agree: we must have copy protection of some kind. While I
-> do not disagree that many movies, songs, and other media are distributed
-> illegally without their owners consent, and that copyright owners need
-> some sort of protection, this is not the way to fight the problem, and
-> doing so can, and probably will, have drastic and far reaching
-> consequences for not only the IT industry, but the entertainment
-> industry and the consumer as well.
-> 
-> Many of us have become increasingly involved with, and dependent upon,
-> Free Software (as in GNU GPL or similar), especially the Linux operating
-> system. This type of software is distributed with the source code,
-> allowing anyone to modify it as they choose and need. Linux has become
-> popular to the point that many companies, especially those that provide
-> some kind of service on or for the Internet, rely upon it heavily.
-> Because of the free nature of Linux, and other Free Software, it is
-> extremely difficult to place actual numbers on how many systems are out
-> there employing such software. Some of you, like me, can approximate the
-> number of such systems in your own company or realm of knowledge. So how
-> does this relate to the SSSCA?
-> 
-> As any programmer worth his/her salt will attest, given the resources,
-> anything that can be programmed into a computer can be programmed out,
-> or worked around. In the case of copy protection such as the SSSCA would
-> require, the resources needed for circumventing it is simply the source
-> code for the operating system of the computer, and/or other source code
-> for applications used on the computer (such as one of the many free
-> video/audio players available). Now given the wording of the SSSCA,
-> along with the DMCA and other supporting laws, it stands to reason that
-> such Free Software would suddenly become a target for legislation. Such
-> legislation logically may require such software to be judged illegal.
-> Such a decision may have serious consequences to the IT industry as well
-> as the entertainment industry and the consumer as well. Little may the
-> consumer or entertainment industry know, but much of the technology they
-> rely upon today is provided at low cost by Free Software. Take that
-> software away, and suddenly doing business costs a lot more, and
-> eventually the consumer just will not be willing to pay for it.
-> 
-> Now aside from the consequences to Free Software, what about the
-> consequences to those who do not use such software. Imagine that home
-> movie you shot last weekend on vacation. Now you wish to send that home
-> movie to a relative, friend, whoever, over the Internet, or place it on
-> your web site for all to download. Well, with many of the protection
-> technologies suggested, this would not be possible, or would be
-> extremely difficult. Some of these technologies require digital
-> watermarks to be placed in the media, for one example. CD burners,
-> digital cameras, etc. can not make these watermarks. The copy protection
-> works by checking for such a watermark, and if it does not exist, the
-> system either will not allow the media to be played, or will not allow
-> it to be transmitted over the Internet as the case may be. So much for
-> sending your cousin your latest home movie, or allowing your whole
-> family to see it from your web site. An additional problem is all
-> current media, including CDs and DVDs, you may currently legally own
-> would not work on proposed new CD and DVD players with copy protection
-> hardware. You would not be able to copy CDs, tapes, or anything else
-> that you legally own in order to exercise your right to fair use, so as
-> to listen to that CD on the cassette deck in your car.
-> 
-> I could go on, but I think this is long enough and has given some food
-> for thought. Besides, I have work to do. Election time is near, so think
-> about what that person you are voting for represents. Think about
-> actually writing a letter to a congressman or other legislator, to a
-> magazine (I actually had one published once, so it's not beyond the
-> realms of possibility), newpaper, etc. Many people have the attitude
-> that they can do nothing and make no difference. Well, I say to them
-> they are right, because there are so many people with that attitude,
-> that none of them do anything and they make no difference in doing so.
-> The once that make the difference, are the ones taking a stance, and the
-> ones taking the stance are the ones that are causing these rediculous
-> laws to be passed. Guess who those people are?...
-> 
-> Welcome to The United Corporations of America.
-> 
-> PGA
-> -- 
-> Paul G. Allen
-> Owner, Sr. Engineer, Security Specialist
-> Random Logic/Dream Park
-> www.randomlogic.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/arch/i386/kernel/process.c linux-thread_info/arch/i386/kernel/process.c
+--- linux-task_struct/arch/i386/kernel/process.c	Mon Feb 25 00:14:54 2002
++++ linux-thread_info/arch/i386/kernel/process.c	Fri Mar  1 20:13:36 2002
+@@ -591,7 +591,7 @@
+ {
+ 	struct pt_regs * childregs;
+ 
+-	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->thread_info)) - 1;
++	childregs = ((struct pt_regs *) (THREAD_SIZE + (unsigned long) p->stack)) - 1;
+ 	struct_cpy(childregs, regs);
+ 	childregs->eax = 0;
+ 	childregs->esp = esp;
+@@ -817,7 +817,7 @@
+ 	int count = 0;
+ 	if (!p || p == current || p->state == TASK_RUNNING)
+ 		return 0;
+-	stack_page = (unsigned long)p->thread_info;
++	stack_page = (unsigned long)p->stack;
+ 	esp = p->thread.esp;
+ 	if (!stack_page || esp < stack_page || esp > 8188+stack_page)
+ 		return 0;
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/arch/i386/kernel/smpboot.c linux-thread_info/arch/i386/kernel/smpboot.c
+--- linux-task_struct/arch/i386/kernel/smpboot.c	Mon Feb 25 00:14:55 2002
++++ linux-thread_info/arch/i386/kernel/smpboot.c	Fri Mar  1 20:13:36 2002
+@@ -845,7 +845,7 @@
+ 
+ 	/* So we see what's up   */
+ 	printk("Booting processor %d/%d eip %lx\n", cpu, apicid, start_eip);
+-	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle->thread_info);
++	stack_start.esp = (void *) (1024 + PAGE_SIZE + (char *)idle->stack);
+ 
+ 	/*
+ 	 * This grunge runs the startup process for
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/arch/i386/kernel/traps.c linux-thread_info/arch/i386/kernel/traps.c
+--- linux-task_struct/arch/i386/kernel/traps.c	Fri Mar  1 19:59:29 2002
++++ linux-thread_info/arch/i386/kernel/traps.c	Fri Mar  1 20:13:36 2002
+@@ -158,7 +158,7 @@
+ 	unsigned long esp = tsk->thread.esp;
+ 
+ 	/* User space on another CPU? */
+-	if ((esp ^ (unsigned long)tsk->thread_info) & (PAGE_MASK<<1))
++	if ((esp ^ (unsigned long)tsk->stack) & (PAGE_MASK<<1))
+ 		return;
+ 	show_trace((unsigned long *)esp);
+ }
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/fs/proc/array.c linux-thread_info/fs/proc/array.c
+--- linux-task_struct/fs/proc/array.c	Mon Feb 25 00:11:06 2002
++++ linux-thread_info/fs/proc/array.c	Fri Mar  1 20:13:36 2002
+@@ -387,7 +387,7 @@
+ 		task->nswap,
+ 		task->cnswap,
+ 		task->exit_signal,
+-		task->thread_info->cpu);
++		get_thread_info(task)->cpu);
+ 	if(mm)
+ 		mmput(mm);
+ 	return res;
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/asm-alpha/thread_info.h linux-thread_info/include/asm-alpha/thread_info.h
+--- linux-task_struct/include/asm-alpha/thread_info.h	Mon Feb 25 00:11:47 2002
++++ linux-thread_info/include/asm-alpha/thread_info.h	Fri Mar  1 20:13:36 2002
+@@ -45,11 +45,11 @@
+ 
+ /* Thread information allocation.  */
+ #define THREAD_SIZE (2*PAGE_SIZE)
+-#define alloc_thread_info() \
++#define alloc_thread_stack() \
+   ((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
+-#define free_thread_info(ti) free_pages((unsigned long) (ti), 1)
+-#define get_thread_info(ti) get_task_struct((ti)->task)
+-#define put_thread_info(ti) put_task_struct((ti)->task)
++#define free_thread_stack(stk) free_pages((unsigned long) (stk), 1)
++
++#define get_thread_info(tsk) ((struct thread_info *)((tsk)->stack))
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/asm-i386/processor.h linux-thread_info/include/asm-i386/processor.h
+--- linux-task_struct/include/asm-i386/processor.h	Mon Feb 25 00:11:41 2002
++++ linux-thread_info/include/asm-i386/processor.h	Fri Mar  1 20:13:36 2002
+@@ -435,8 +435,8 @@
+ extern unsigned long thread_saved_pc(struct task_struct *tsk);
+ 
+ unsigned long get_wchan(struct task_struct *p);
+-#define KSTK_EIP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1019])
+-#define KSTK_ESP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->thread_info))[1022])
++#define KSTK_EIP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->stack))[1019])
++#define KSTK_ESP(tsk)	(((unsigned long *)(4096+(unsigned long)(tsk)->stack))[1022])
+ 
+ struct microcode {
+ 	unsigned int hdrver;
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/asm-i386/thread_info.h linux-thread_info/include/asm-i386/thread_info.h
+--- linux-task_struct/include/asm-i386/thread_info.h	Mon Feb 11 19:44:47 2002
++++ linux-thread_info/include/asm-i386/thread_info.h	Fri Mar  1 20:13:36 2002
+@@ -73,10 +73,10 @@
+ 
+ /* thread information allocation */
+ #define THREAD_SIZE (2*PAGE_SIZE)
+-#define alloc_thread_info() ((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
+-#define free_thread_info(ti) free_pages((unsigned long) (ti), 1)
+-#define get_thread_info(ti) get_task_struct((ti)->task)
+-#define put_thread_info(ti) put_task_struct((ti)->task)
++#define alloc_thread_stack()	((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
++#define free_thread_stack(stk)	free_pages((unsigned long) (stk), 1)
++
++#define get_thread_info(tsk)	((struct thread_info *)((tsk)->stack))
+ 
+ #else /* !__ASSEMBLY__ */
+ 
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/asm-ppc/thread_info.h linux-thread_info/include/asm-ppc/thread_info.h
+--- linux-task_struct/include/asm-ppc/thread_info.h	Mon Feb 25 00:11:58 2002
++++ linux-thread_info/include/asm-ppc/thread_info.h	Fri Mar  1 20:13:36 2002
+@@ -47,11 +47,12 @@
+ }
+ 
+ /* thread information allocation */
+-#define alloc_thread_info() ((struct thread_info *) \
++#define alloc_thread_stack()	((struct thread_info *) \
+ 				__get_free_pages(GFP_KERNEL, 1))
+-#define free_thread_info(ti)	free_pages((unsigned long) (ti), 1)
+-#define get_thread_info(ti)	get_task_struct((ti)->task)
+-#define put_thread_info(ti)	put_task_struct((ti)->task)
++#define free_thread_stack(stk)	free_pages((unsigned long) (stk), 1)
++
++#define get_thread_info(tsk)	((struct thread_info *)((tsk)->stack))
++
+ #endif /* __ASSEMBLY__ */
+ 
+ /*
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/asm-ppc64/thread_info.h linux-thread_info/include/asm-ppc64/thread_info.h
+--- linux-task_struct/include/asm-ppc64/thread_info.h	Mon Feb 25 00:12:24 2002
++++ linux-thread_info/include/asm-ppc64/thread_info.h	Fri Mar  1 20:13:36 2002
+@@ -44,11 +44,11 @@
+ #define THREAD_SIZE		(PAGE_SIZE << THREAD_ORDER)
+ #define THREAD_SHIFT		(PAGE_SHIFT + THREAD_ORDER)
+ 
+-#define alloc_thread_info() ((struct thread_info *) \
++#define alloc_thread_stack()	((struct thread_info *) \
+ 				__get_free_pages(GFP_KERNEL, THREAD_ORDER))
+-#define free_thread_info(ti)	free_pages((unsigned long) (ti), THREAD_ORDER)
+-#define get_thread_info(ti)	get_task_struct((ti)->task)
+-#define put_thread_info(ti)	put_task_struct((ti)->task)
++#define free_thread_stack(stk)	free_pages((unsigned long) (stk), THREAD_ORDER)
++
++#define get_thread_info(tsk)	((struct thread_info *)((tsk)->stack))
+ 
+ #if THREAD_SIZE != (4*PAGE_SIZE)
+ #error update vmlinux.lds and current_thread_info to match
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/asm-sparc64/thread_info.h linux-thread_info/include/asm-sparc64/thread_info.h
+--- linux-task_struct/include/asm-sparc64/thread_info.h	Mon Feb 11 19:45:03 2002
++++ linux-thread_info/include/asm-sparc64/thread_info.h	Fri Mar  1 20:13:36 2002
+@@ -129,12 +129,14 @@
+ 
+ /* thread information allocation */
+ #if PAGE_SHIFT == 13
+-#define alloc_thread_info()   ((struct thread_info *)__get_free_pages(GFP_KERNEL, 1))
+-#define free_thread_info(ti)  free_pages((unsigned long)(ti),1)
++#define alloc_thread_stack()	((struct thread_info *)__get_free_pages(GFP_KERNEL, 1))
++#define free_thread_stack(stk)	free_pages((unsigned long)(stk),1)
+ #else /* PAGE_SHIFT == 13 */
+-#define alloc_thread_info()   ((struct thread_info *)__get_free_pages(GFP_KERNEL, 0))
+-#define free_thread_info(ti)  free_pages((unsigned long)(ti),0)
++#define alloc_thread_stack()	((struct thread_info *)__get_free_pages(GFP_KERNEL, 0))
++#define free_thread_stack(stk)	free_pages((unsigned long)(stk),0)
+ #endif /* PAGE_SHIFT == 13 */
++
++#define get_thread_info(tsk)	((struct thread_info *)((tsk)->stack))
+ 
+ #define __thread_flag_byte_ptr(ti)	\
+ 	((unsigned char *)(&((ti)->flags)))
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/asm-x86_64/thread_info.h linux-thread_info/include/asm-x86_64/thread_info.h
+--- linux-task_struct/include/asm-x86_64/thread_info.h	Mon Feb 25 00:12:24 2002
++++ linux-thread_info/include/asm-x86_64/thread_info.h	Fri Mar  1 20:13:36 2002
+@@ -71,10 +71,10 @@
+ 
+ /* thread information allocation */
+ #define THREAD_SIZE (2*PAGE_SIZE)
+-#define alloc_thread_info() ((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
+-#define free_thread_info(ti) free_pages((unsigned long) (ti), 1)
+-#define get_thread_info(ti) get_task_struct((ti)->task)
+-#define put_thread_info(ti) put_task_struct((ti)->task)
++#define alloc_thread_stack()	((struct thread_info *) __get_free_pages(GFP_KERNEL,1))
++#define free_thread_stack(stk)	free_pages((unsigned long) (stk), 1)
++
++#define get_thread_info(tsk)	((struct thread_info *)((tsk)->stack))
+ 
+ #else /* !__ASSEMBLY__ */
+ 
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/linux/init_task.h linux-thread_info/include/linux/init_task.h
+--- linux-task_struct/include/linux/init_task.h	Mon Feb 25 00:11:37 2002
++++ linux-thread_info/include/linux/init_task.h	Fri Mar  1 20:13:36 2002
+@@ -42,7 +42,7 @@
+ #define INIT_TASK(tsk)	\
+ {									\
+     state:		0,						\
+-    thread_info:	&init_thread_info,				\
++    stack:		&init_thread_info,				\
+     flags:		0,						\
+     lock_depth:		-1,						\
+     prio:		120,						\
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/linux/sched.h linux-thread_info/include/linux/sched.h
+--- linux-task_struct/include/linux/sched.h	Fri Mar  1 20:10:21 2002
++++ linux-thread_info/include/linux/sched.h	Fri Mar  1 20:13:37 2002
+@@ -663,27 +663,27 @@
+  */
+ static inline void set_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	set_ti_thread_flag(tsk->thread_info,flag);
++	set_ti_thread_flag(get_thread_info(tsk),flag);
+ }
+ 
+ static inline void clear_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	clear_ti_thread_flag(tsk->thread_info,flag);
++	clear_ti_thread_flag(get_thread_info(tsk),flag);
+ }
+ 
+ static inline int test_and_set_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	return test_and_set_ti_thread_flag(tsk->thread_info,flag);
++	return test_and_set_ti_thread_flag(get_thread_info(tsk),flag);
+ }
+ 
+ static inline int test_and_clear_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	return test_and_clear_ti_thread_flag(tsk->thread_info,flag);
++	return test_and_clear_ti_thread_flag(get_thread_info(tsk),flag);
+ }
+ 
+ static inline int test_tsk_thread_flag(struct task_struct *tsk, int flag)
+ {
+-	return test_ti_thread_flag(tsk->thread_info,flag);
++	return test_ti_thread_flag(get_thread_info(tsk),flag);
+ }
+ 
+ static inline void set_tsk_need_resched(struct task_struct *tsk)
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/include/linux/task_struct.h linux-thread_info/include/linux/task_struct.h
+--- linux-task_struct/include/linux/task_struct.h	Fri Mar  1 20:16:24 2002
++++ linux-thread_info/include/linux/task_struct.h	Fri Mar  1 20:16:32 2002
+@@ -17,7 +17,7 @@
+ 
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+-	struct thread_info *thread_info;
++	void *stack;
+ 	atomic_t usage;
+ 	unsigned long flags;	/* per process flags, defined below */
+ 	unsigned long ptrace;
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/kernel/exit.c linux-thread_info/kernel/exit.c
+--- linux-task_struct/kernel/exit.c	Mon Feb 25 00:11:24 2002
++++ linux-thread_info/kernel/exit.c	Fri Mar  1 20:13:37 2002
+@@ -514,7 +514,7 @@
+ 	if (current->leader)
+ 		disassociate_ctty(1);
+ 
+-	put_exec_domain(tsk->thread_info->exec_domain);
++	put_exec_domain(get_thread_info(tsk)->exec_domain);
+ 	if (tsk->binfmt && tsk->binfmt->module)
+ 		__MOD_DEC_USE_COUNT(tsk->binfmt->module);
+ 
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/kernel/fork.c linux-thread_info/kernel/fork.c
+--- linux-task_struct/kernel/fork.c	Fri Mar  1 19:59:34 2002
++++ linux-thread_info/kernel/fork.c	Fri Mar  1 20:13:37 2002
+@@ -96,21 +96,21 @@
+ struct task_struct *dup_task_struct(struct task_struct *orig)
+ {
+ 	struct task_struct *tsk;
+-	struct thread_info *ti;
++	void *stack;
+ 
+-	ti = alloc_thread_info();
+-	if (!ti) return NULL;
++	stack = alloc_thread_stack();
++	if (!stack) return NULL;
+ 
+ 	tsk = kmem_cache_alloc(task_struct_cachep,GFP_ATOMIC);
+ 	if (!tsk) {
+-		free_thread_info(ti);
++		free_thread_stack(stack);
+ 		return NULL;
+ 	}
+ 
+-	*ti = *orig->thread_info;
+ 	*tsk = *orig;
+-	tsk->thread_info = ti;
+-	ti->task = tsk;
++	tsk->stack = stack;
++	*get_thread_info(tsk) = *get_thread_info(orig);
++	get_thread_info(tsk)->task = tsk;
+ 	atomic_set(&tsk->usage,1);
+ 
+ 	return tsk;
+@@ -118,7 +118,7 @@
+ 
+ void __put_task_struct(struct task_struct *tsk)
+ {
+-	free_thread_info(tsk->thread_info);
++	free_thread_stack(tsk->stack);
+ 	kmem_cache_free(task_struct_cachep,tsk);
+ }
+ 
+@@ -645,7 +645,7 @@
+ 	if (nr_threads >= max_threads)
+ 		goto bad_fork_cleanup_count;
+ 	
+-	get_exec_domain(p->thread_info->exec_domain);
++	get_exec_domain(get_thread_info(p)->exec_domain);
+ 
+ 	if (p->binfmt && p->binfmt->module)
+ 		__MOD_INC_USE_COUNT(p->binfmt->module);
+@@ -655,7 +655,7 @@
+ 	 * schedule_tail drops this_rq()->lock so we compensate with a count
+ 	 * of 1.  Also, we want to start with kernel preemption disabled.
+ 	 */
+-	p->thread_info->preempt_count = 1;
++	get_thread_info(p)->preempt_count = 1;
+ #endif
+ 	p->did_exec = 0;
+ 	p->swappable = 0;
+@@ -812,7 +812,7 @@
+ bad_fork_cleanup_files:
+ 	exit_files(p); /* blocking */
+ bad_fork_cleanup:
+-	put_exec_domain(p->thread_info->exec_domain);
++	put_exec_domain(get_thread_info(p)->exec_domain);
+ 	if (p->binfmt && p->binfmt->module)
+ 		__MOD_DEC_USE_COUNT(p->binfmt->module);
+ bad_fork_cleanup_count:
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/kernel/sched.c linux-thread_info/kernel/sched.c
+--- linux-task_struct/kernel/sched.c	Fri Mar  1 19:59:34 2002
++++ linux-thread_info/kernel/sched.c	Fri Mar  1 20:13:37 2002
+@@ -152,7 +152,7 @@
+ 
+ #define cpu_rq(cpu)		(runqueues + (cpu))
+ #define this_rq()		cpu_rq(smp_processor_id())
+-#define task_rq(p)		cpu_rq((p)->thread_info->cpu)
++#define task_rq(p)		cpu_rq(get_thread_info(p)->cpu)
+ #define cpu_curr(cpu)		(cpu_rq(cpu)->curr)
+ #define rt_task(p)		((p)->prio < MAX_RT_PRIO)
+ 
+@@ -263,8 +263,8 @@
+ 	need_resched = test_and_set_tsk_thread_flag(p,TIF_NEED_RESCHED);
+ 	nrpolling |= test_tsk_thread_flag(p,TIF_POLLING_NRFLAG);
+ 
+-	if (!need_resched && !nrpolling && (p->thread_info->cpu != smp_processor_id()))
+-		smp_send_reschedule(p->thread_info->cpu);
++	if (!need_resched && !nrpolling && (get_thread_info(p)->cpu != smp_processor_id()))
++		smp_send_reschedule(get_thread_info(p)->cpu);
+ 	preempt_enable();
+ #else
+ 	set_tsk_need_resched(p);
+@@ -365,7 +365,7 @@
+ 		p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
+ 		p->prio = effective_prio(p);
+ 	}
+-	p->thread_info->cpu = smp_processor_id();
++	get_thread_info(p)->cpu = smp_processor_id();
+ 	activate_task(p, rq);
+ 
+ 	spin_unlock_irq(&rq->lock);
+@@ -606,7 +606,7 @@
+ 	 */
+ 	dequeue_task(next, array);
+ 	busiest->nr_running--;
+-	next->thread_info->cpu = this_cpu;
++	get_thread_info(next)->cpu = this_cpu;
+ 	this_rq->nr_running++;
+ 	enqueue_task(next, this_rq->active);
+ 	if (next->prio < current->prio)
+@@ -1425,7 +1425,7 @@
+ 
+ void __init init_idle(task_t *idle, int cpu)
+ {
+-	runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(idle->thread_info->cpu);
++	runqueue_t *idle_rq = cpu_rq(cpu), *rq = cpu_rq(get_thread_info(idle)->cpu);
+ 	unsigned long flags;
+ 
+ 	__save_flags(flags);
+@@ -1437,7 +1437,7 @@
+ 	idle->array = NULL;
+ 	idle->prio = MAX_PRIO;
+ 	idle->state = TASK_RUNNING;
+-	idle->thread_info->cpu = cpu;
++	get_thread_info(idle)->cpu = cpu;
+ 	double_rq_unlock(idle_rq, rq);
+ 	set_tsk_need_resched(idle);
+ 	__restore_flags(flags);
+@@ -1541,7 +1541,7 @@
+ 	 * Can the task run on the task's current CPU? If not then
+ 	 * migrate the process off to a proper CPU.
+ 	 */
+-	if (new_mask & (1UL << p->thread_info->cpu)) {
++	if (new_mask & (1UL << get_thread_info(p)->cpu)) {
+ 		task_rq_unlock(rq, &flags);
+ 		return;
+ 	}
+@@ -1623,16 +1623,16 @@
+ 		cpu_dest = __ffs(p->cpus_allowed);
+ 		rq_dest = cpu_rq(cpu_dest);
+ repeat:
+-		cpu_src = p->thread_info->cpu;
++		cpu_src = get_thread_info(p)->cpu;
+ 		rq_src = cpu_rq(cpu_src);
+ 
+ 		double_rq_lock(rq_src, rq_dest);
+-		if (p->thread_info->cpu != cpu_src) {
++		if (get_thread_info(p)->cpu != cpu_src) {
+ 			double_rq_unlock(rq_src, rq_dest);
+ 			goto repeat;
+ 		}
+ 		if (rq_src == rq) {
+-			p->thread_info->cpu = cpu_dest;
++			get_thread_info(p)->cpu = cpu_dest;
+ 			if (p->array) {
+ 				deactivate_task(p, rq_src);
+ 				activate_task(p, rq_dest);
+diff -Nur -X /opt/home/roman/nodiff linux-task_struct/kernel/signal.c linux-thread_info/kernel/signal.c
+--- linux-task_struct/kernel/signal.c	Mon Feb 25 00:11:25 2002
++++ linux-thread_info/kernel/signal.c	Fri Mar  1 20:13:37 2002
+@@ -508,7 +508,7 @@
+ 	 * process of changing - but no harm is done by that
+ 	 * other than doing an extra (lightweight) IPI interrupt.
+ 	 */
+-	if ((t->state == TASK_RUNNING) && (t->thread_info->cpu != smp_processor_id()))
++	if ((t->state == TASK_RUNNING) && (get_thread_info(t)->cpu != smp_processor_id()))
+ 		kick_if_running(t);
+ #endif
+ 	if (t->state & TASK_INTERRUPTIBLE) {
 
 

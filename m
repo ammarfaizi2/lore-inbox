@@ -1,54 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261617AbSJ2GlA>; Tue, 29 Oct 2002 01:41:00 -0500
+	id <S261607AbSJ2HFO>; Tue, 29 Oct 2002 02:05:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261614AbSJ2Gk7>; Tue, 29 Oct 2002 01:40:59 -0500
-Received: from alpha1.cc.monash.edu.au ([130.194.1.1]:56588 "EHLO
-	ALPHA1.CC.MONASH.EDU.AU") by vger.kernel.org with ESMTP
-	id <S261610AbSJ2Gk6>; Tue, 29 Oct 2002 01:40:58 -0500
-Date: Tue, 29 Oct 2002 17:10:12 +1100 (EST)
-From: netdev-bounce@oss.sgi.com
-To: undisclosed-recipients:;
-Message-id: <20021029061012.ACCDA12CEA6@blammo.its.monash.edu.au>
-Content-transfer-encoding: 7BIT
+	id <S261608AbSJ2HFO>; Tue, 29 Oct 2002 02:05:14 -0500
+Received: from h68-147-110-38.cg.shawcable.net ([68.147.110.38]:10741 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S261607AbSJ2HFN>; Tue, 29 Oct 2002 02:05:13 -0500
+From: Andreas Dilger <adilger@clusterfs.com>
+Date: Tue, 29 Oct 2002 00:08:31 -0700
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, chrisl@vmware.com,
+       Christoph Rohland <cr@sap.com>, Andrew Morton <akpm@digeo.com>,
+       linux-kernel@vger.kernel.org, chrisl@gnuchina.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: writepage return value check in vmscan.c
+Message-ID: <20021029070831.GF28982@clusterfs.com>
+Mail-Followup-To: "Randy.Dunlap" <rddunlap@osdl.org>,
+	Andrea Arcangeli <andrea@suse.de>, chrisl@vmware.com,
+	Christoph Rohland <cr@sap.com>, Andrew Morton <akpm@digeo.com>,
+	linux-kernel@vger.kernel.org, chrisl@gnuchina.org,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20021028192214.GI13972@dualathlon.random> <Pine.LNX.4.33L2.0210282204030.13622-100000@dragon.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L2.0210282204030.13622-100000@dragon.pdx.osdl.net>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Oct 2002, Nivedita Singhvi wrote:
-
-> "Richard B. Johnson" wrote:
+On Oct 28, 2002  22:10 -0800, Randy.Dunlap wrote:
+> On Mon, 28 Oct 2002, Andrea Arcangeli wrote:
+> | that's a silly restriction of mkswap, the kernel doesn't care, it can
+> | handle way more than 2G (however there's an high bound at some
+> | unpractical level, to go safe the math limit should be re-encoded in
+> | mkswap, of course it changes for every arch because the pte layout is
+> | different).
 > 
-> > No. It's done over each word (short int) and the actual summation
-> > takes place during the address calculation of the next word. This
-> > gets you a checksum that is practically free.
-> 
-> Yep, sorry, word, not byte. My bad. The cost is in the fact 
-> that this whole process involves loading each word of the data
-> stream into a register. Which is why I also used to consider
-> the checksum cost as negligible. 
-> 
-> > A 400 MHz ix86 CPU will checksum/copy at 685 megabytes per second.
-> > It will copy at 1,549 megabytes per second. Those are megaBYTES!
-> 
-> But then why the difference in the checksum/copy and copy?
-> Are you saying the checksum is not costing you 864 megabytes
-> a second??
+> Heh, you hit one of my personal todo list items (larger swap spaces :),
+> so I'll be looking into it, or trying to help anyone else on it
+> if they want it.
 
-Costing you 864 megabytes per second?
-Lets say the checksum was free. You are then able to INF bytes/per/sec.
-So it's costing you INF bytes/per/sec?  No, it's costing you nothing.
-If we were not dealing with INF, then 'Cost' is approximately 1/N, not
-N. Cost is work_done_without_checksum - work_done_with_checksum. Because
-of the low-pass filter pole, these numbers are practically the same.
-But, you can get a measurable difference between any two large numbers.
-This makes the 'cost' seem high. You need to make it relative to make
-any sense, so a 'goodness' can be expressed as a ratio of the cost and
-the work having been done.
+If you start playing with the swap code, could you please change the
+on-disk swap struct definition to look like:
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-   Bush : The Fourth Reich of America
+union swap_header {
+	:
+	:
+	struct {
+		char         bootbits[1024];    /* Space for disklabel etc. */
+		unsigned __u32 version;
+		unsigned __u32 last_page;
+		unsigned __u32 nr_badpages;
+		char           volume_label[16];
+		unsigned __u32 padding[121];
+		unsigned __u32 badpages[1]; 
+	} info;
+};
 
+1) change all of the "int" definitions in info to be __u32, because this
+   is written to disk and we want the sizes to be unambiguous
+2) the volume label field has been previously discussed and doesn't
+   impose any compatibility, but allows one to "swapon by label"
+   (old patch URL at http://user.it.uu.se/~mikpe/linux/swap-label/)
 
+Cheers, Andreas
+--
+Andreas Dilger
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+http://sourceforge.net/projects/ext2resize/
 

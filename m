@@ -1,47 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbTKIK4k (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 9 Nov 2003 05:56:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKIK4k
+	id S262337AbTKILD5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 9 Nov 2003 06:03:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTKILD5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 9 Nov 2003 05:56:40 -0500
-Received: from nice-1-62-147-25-88.dial.proxad.net ([62.147.25.88]:16644 "EHLO
-	monpc") by vger.kernel.org with ESMTP id S262327AbTKIK4j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 9 Nov 2003 05:56:39 -0500
-From: Guillaume Chazarain <guichaz@yahoo.fr>
-To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Date: Sun, 09 Nov 2003 11:57:39 +0100
-X-Priority: 3 (Normal)
-Message-Id: <SRLGXA875SP047EDQLEC055ZHDZX2V.3fae1da3@monpc>
-Subject: Re: [PATCH] cfq + io priorities
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Mailer: Opera 6.06 build 1145
+	Sun, 9 Nov 2003 06:03:57 -0500
+Received: from mel1.uecomm.net.au ([203.94.129.130]:46473 "EHLO
+	mel1.unite.net.au") by vger.kernel.org with ESMTP id S262337AbTKILDz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 9 Nov 2003 06:03:55 -0500
+Subject: Re: Re:No backlight control on PowerBook G4
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Reply-To: benh@kernel.crashing.org
+To: Daniel Egger <degger@fhm.edu>
+Cc: Dustin Lang <dalang@cs.ubc.ca>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1068371734.797.506.camel@sonja>
+References: <Pine.GSO.4.53.0311021038450.3818@columbia.cs.ubc.ca>
+	 <1067820334.692.38.camel@gaston>  <1067878624.7695.15.camel@sonja>
+	 <1067896476.692.36.camel@gaston>  <1067976347.945.4.camel@sonja>
+	 <1068078504.692.175.camel@gaston>  <1068198639.796.109.camel@sonja>
+	 <1068346792.673.25.camel@gaston>  <1068371734.797.506.camel@sonja>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1068375805.6805.9.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 09 Nov 2003 22:03:25 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> A process has an assigned io nice level, anywhere from 0 to 20. Both of
+On Sun, 2003-11-09 at 20:55, Daniel Egger wrote:
+> Am Son, den 09.11.2003 schrieb Benjamin Herrenschmidt um 03:59:
+> 
+> > > Still cannot try this because your kernel wouldn't even survive yaboot.
+> 
+> > Can you give details ? It should work just fine, except if I broke
+> > something in the past few days when getting G5 support in, but I didn't
+> > have any other report of this, so...
+> 
+> The report on the chrp image is all I have right now because every other
+> image will result in a hang right after downloading the kernel via tftp.
+> 
+> Which of the two radeon drivers should I use anyway?
 
-OK, I ask THE question : why not using the normal nice level, via
-current->static_prio ?
-This way, cdrecord would be RT even in IO, and nice -19 updatedb would have
-a minimal impact on the system.
+The new one.
 
-> these end values are "special" - 0 means the process is only allowed to
-> do io if the disk is idle, and 20 means the process io is considered
+> > Well, you are not supposed to use the zImage.chrp on a PowerMac,
+> > and definitely not from yaboot.
+> 
+> With the Linus kernel it's the only one that works.
+> 
+> > Last I tried, then just netbooting vmlinux.elf-pmac worked fine
+> > on all the "newworld" models I have here). For yaboot, you need
+> > to load a plain vmlinux binary.
+> 
+> Yes, but the image is too big for yaboot. I'll have to patch it first.
 
-So a process with ioprio == 0 can be forever starved. As it's not
-done this way for nice -19 tasks (unlike FreeBSD), wouldn't it be
-safer to give a very long deadline to ioprio == 0 requests ?
+It's fairly simple to "fix" yaboot to handle >4Mb images actually,
+just change the size in of_fs.c
 
-
-Thanks for making something I have been dreaming of for a long time :)
-
-
-Guillaume
-
-
-
+Ben.
 

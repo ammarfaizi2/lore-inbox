@@ -1,33 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315255AbSEVOcH>; Wed, 22 May 2002 10:32:07 -0400
+	id <S314596AbSEVOdM>; Wed, 22 May 2002 10:33:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315178AbSEVOcG>; Wed, 22 May 2002 10:32:06 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:39953 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S314596AbSEVOcF>; Wed, 22 May 2002 10:32:05 -0400
-Subject: Re: Have the 2.4 kernel memory management problems on large machines
-To: alastair.stevens@mrc-bsu.cam.ac.uk (Alastair Stevens)
-Date: Wed, 22 May 2002 15:52:20 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.44.0205221524130.1550-100000@gerber> from "Alastair Stevens" at May 22, 2002 03:29:37 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S315178AbSEVOdK>; Wed, 22 May 2002 10:33:10 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:10695 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S314596AbSEVOdJ>;
+	Wed, 22 May 2002 10:33:09 -0400
+Date: Wed, 22 May 2002 10:33:08 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Padraig Brady <padraig@antefacto.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.17 /dev/ports
+In-Reply-To: <3CEB9943.5030400@evision-ventures.com>
+Message-ID: <Pine.GSO.4.21.0205221030100.2737-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E17AXTQ-0001uU-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 2.4.19-pre kernel. Otherwise, the Red Hat patched kernel (which I
-> believe still doesn't use Andrea's VM at all) ought to work well, with
-> all their spiffy regression testing etc....
 
-The Red Hat 7.3 kernel uses Rik van Riel's rmap and Andre Hedricks IDE
-updates. It did indeed pass our stress testing and seems to perform very
-well under memory contention and high shared page counts - the classic
-desktop/developer set up.
 
-Alan
+On Wed, 22 May 2002, Martin Dalecki wrote:
+
+> > For kbdrate???  sysctl I might see - after all, we are talking about
+> > setting two numbers.  ioctl() to pass a couple of integers to the kernel?
+> > No, thanks.
+
+If you are complaining about use of /dev/port - I completely agree that it's
+crap...
+ 
+> Portable along architectures - no thanks?
+> Portbale along different devices and device driver implementations - no thanks?
+> Not to mess with hardware with preassumtptions how it works - no thanks?
+> Giving PC vendors a chance to get rid of silly legacy hardware - no thanks?
+> Abviously documented by beeing there - no thanks?
+
+... but WTF does it have to ioctl vs. saner mechanisms?
+
+
 

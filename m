@@ -1,50 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261874AbTDXIlL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 04:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbTDXIlL
+	id S261895AbTDXIkF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 04:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbTDXIkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 04:41:11 -0400
-Received: from smtp-out2.iol.cz ([194.228.2.87]:3467 "EHLO smtp-out2.iol.cz")
-	by vger.kernel.org with ESMTP id S261840AbTDXIlI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 04:41:08 -0400
-Date: Thu, 24 Apr 2003 02:25:44 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@digeo.com>
-Cc: mbligh@aracnet.com, ncunningham@clear.net.nz, gigerstyle@gmx.ch,
-       geert@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: Fix SWSUSP & !SWAP
-Message-ID: <20030424002544.GC2925@elf.ucw.cz>
-References: <1051136725.4439.5.camel@laptop-linux> <1584040000.1051140524@flay> <20030423235820.GB32577@atrey.karlin.mff.cuni.cz> <20030423170759.2b4e6294.akpm@digeo.com>
-Mime-Version: 1.0
+	Thu, 24 Apr 2003 04:40:05 -0400
+Received: from [203.199.93.15] ([203.199.93.15]:21509 "EHLO
+	WS0005.indiatimes.com") by vger.kernel.org with ESMTP
+	id S261885AbTDXIkC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 04:40:02 -0400
+From: "ramands" <ramands@indiatimes.com>
+Message-Id: <200304240813.NAA23499@WS0005.indiatimes.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: <linux-kernel@vger.kernel.org>, <linux-newbie@vger.kernel.org>
+Reply-To: "ramands" <ramands@indiatimes.com>
+Subject: Re: Re: OOPS in Kmalloc
+Date: Thu, 24 Apr 2003 14:15:06 +0530
+X-URL: http://indiatimes.com
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030423170759.2b4e6294.akpm@digeo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+hello randy 
+as i am new to kernel level programing 
+i do not know how to decode a oops . could you tell me how to do it 
+i will mail the exact oops messages in next mail 
+right now i am debugging by using printk only 
 
-> > If you really want to "solve" it reliably, you can always
-> > 
-> > swapon /dev/hdfoo666
-> > 
-> 
-> Seems that using a swapfile instead of a swapdev would fix that neatly.
-> 
-> But iirc, suspend doesn't work with swapfiles.  Is that correct?  If so,
-> what has to be done to get it working?
+raman 
+"Randy.Dunlap" wrote:
 
-Swapfile does not work, because even readonly mount wants to replay
-logs, and that'd be disk corruption.
 
-It could be doable with modifications to the filesystems, but it would
-be hard (and I do not think it is worth it).
-								Pavel
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+&gt; Hello,
+&gt; i am getting OOPS in Kmalloc .
+&gt;
+&gt; void **data;
+&gt; qset = 1000;
+&gt;
+&gt; dptr-&gt;data = kmalloc(qset * sizeof(char *), GFP_KERNEL);
+&gt;
+&gt; what could the possible the cause of the error
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+As I am so fond of saying, it's almost always correct to indicate what
+kernel version one if referring to in a problem report.
+
+Please decode the oops output and post it here.
+
+~Randy
+
+
+
+
+
+
+Get Your Private, Free E-mail from Indiatimes at http://email.indiatimes.com
+
+ Buy The Best In BOOKS at http://www.bestsellers.indiatimes.com
+
+Bid for for Air Tickets @ Re.1 on Air Sahara Flights. Just log on to http://airsahara.indiatimes.com and Bid Now !
+

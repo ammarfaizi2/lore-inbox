@@ -1,52 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132450AbRAaRRL>; Wed, 31 Jan 2001 12:17:11 -0500
+	id <S131965AbRAaRQs>; Wed, 31 Jan 2001 12:16:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132448AbRAaRQ7>; Wed, 31 Jan 2001 12:16:59 -0500
-Received: from mailhost.terra.es ([195.235.113.151]:54101 "EHLO
-	tsmtp4.mail.isp") by vger.kernel.org with ESMTP id <S132044AbRAaRQw>;
-	Wed, 31 Jan 2001 12:16:52 -0500
-Message-ID: <3A78486E.4080609@terra.es>
-Date: Wed, 31 Jan 2001 18:16:30 +0100
-From: Miguel Rodríguez Pérez <migrax@terra.es>
-Reply-To: migras@atlas.uvigo.es
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.1 i586; en-US; m18) Gecko/20010119
-X-Accept-Language: gl, es, en
+	id <S132044AbRAaRQi>; Wed, 31 Jan 2001 12:16:38 -0500
+Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:29910 "EHLO
+	smtprelay1.abs.adelphia.net") by vger.kernel.org with ESMTP
+	id <S131409AbRAaRQZ>; Wed, 31 Jan 2001 12:16:25 -0500
+Message-ID: <3A7847B1.C8ABDDE1@adelphia.net>
+Date: Wed, 31 Jan 2001 12:13:21 -0500
+From: Stephen Wille Padnos <stephenwp@adelphia.net>
+X-Mailer: Mozilla 4.76C-SGI [en] (X11; U; IRIX64 6.5 IP28)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Adam Sampson <azz@gnu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Crash using DRI with 2.4.0 and 2.4.1
-In-Reply-To: <3A7733F6.4070505@terra.es> <87n1c832nz.fsf@cartman.azz.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Byron Stanoszek <gandalf@winds.org>
+CC: "David D.W. Downey" <pgpkeys@hislinuxbox.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: VIA VT82C686X
+In-Reply-To: <Pine.LNX.4.21.0101311148560.20840-100000@winds.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Sampson wrote:
+Byron Stanoszek wrote:
 
-> Miguel Rodriguez Perez <migrax@terra.es> writes:
-> 
->> Hi, I have a Matrox G200 card installed on an Ali motherboard.
->> Sometimes when I use any opengl program my box crashes. It is more
->> likely that it will crash if I have used the xvideo extension or the
->> matroxfb, but this is not a must, it simply increases the chance of
->> a crash, which is very high anyway.
-> 
->> I have tried both 2.4.0 and 2.4.1 kernels with Xfree 4.0.2 both with
->> the same results.
-> 
-> 
-> Are you sure you get the same results with 2.4.1? I'm in the exact
-> same position (G200 on a Gigabyte GA5AX with ALi M1541/3). There was a
-> patch to properly support AGP on these boards which went in between
-> 2.4.0 and 2.4.1 which solved the problem for me (at least in 2.4.0; I
-> haven't tested DRI throughly in 2.4.1 yet).
+> On Tue, 30 Jan 2001, David D.W. Downey wrote:
+>
+> > I removed the ide and ata setting. System is running stably as in no
+> > kernel crashes, but I am getting daemon and shell crashes. With this
+> > current kernel I've had 1 kernel crash in about 3 hours as compared to 1
+> > every 10 or 15 minutes. Crash, reboot, 10 minutes or so crash, reboot. ect
+> > ect.
+> >
+> > I'm wanting to test something else out. I'm wondering if there isn't some
+> > hardware issue with the RAM. This particular board will do 1GB of PC133,
+> > or 2.5GB of PC100. I'm wondering if there isn't something wrong with how
+> > it reads the speed and the appropriate limitation. It's running stably if
+> > I only run 768MB of PC133 RAM. But if I run a solid 1GB of PC133 I get
+> > segfaults and sig11 crashes constantly. All the RAM has been
+> > professionally tested and certified.
+>
+> That definitely sounds like a RAM problem. The system should perform the same
+> independent of how many RAM chips you put in there (segfault-wise). If you're
+> still in doubt, you can try booting up with memtest86 and run it for several
+> hours with only the memory chip that you think might be causing the problem.
+>
 
-> 
-I'm sure it crashes with kernel 2.4.1 (I'm using it right now). Anyway, 
-where can I find that patch, so I can try with a patched 2.4.0?
-
-Thank you.
+Even though the motherboard *should* perform the same regardless of the amount
+of RAM, it may not.  Physically, the refresh needs higher current drive when
+there are more modules.  I have seen a BIOS option to set the DRAM refresh
+current (RAS, CAS settable to 10 or 16 mA each), but that was only on one
+motherboard that I can remember - you might want to check for this.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

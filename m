@@ -1,57 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261433AbSLAEeX>; Sat, 30 Nov 2002 23:34:23 -0500
+	id <S267305AbSKPRLA>; Sat, 16 Nov 2002 12:11:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261446AbSLAEeX>; Sat, 30 Nov 2002 23:34:23 -0500
-Received: from eriador.apana.org.au ([203.14.152.116]:23816 "EHLO
-	eriador.apana.org.au") by vger.kernel.org with ESMTP
-	id <S261433AbSLAEeW>; Sat, 30 Nov 2002 23:34:22 -0500
-Date: Sun, 1 Dec 2002 15:40:19 +1100
-To: vojtech@suse.cz
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 2.4 double PCI unregistration with pcigame
-Message-ID: <20021201044019.GA965@gondor.apana.org.au>
+	id <S267307AbSKPRK7>; Sat, 16 Nov 2002 12:10:59 -0500
+Received: from mail.gmx.net ([213.165.64.20]:5662 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267305AbSKPRK6>;
+	Sat, 16 Nov 2002 12:10:58 -0500
+From: "ingrid.mahnke gmx.net" <ingrid.mahnke@gmx.net>
+Subject: Quellensteuerzahlung jetzt erst am Ende des Jahres        SNVNPFFBVC
+Reply-To: sylvia-kahe@freenet.de
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Organization: ingrid.mahnke@gmx.net
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vkogqOf2sHV7VnPd"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: text/plain; charset="iso-8859-1"
+Date: Sat, 16 Nov 2002 18:18:20 +0100
+Message-Id: <20021116171058Z267305-32597+23287@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)@mnm
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Betr.: Quellensteuerzahlung jetzt erst am Ende des Jahres
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Sehr geehrte Damen und Herren,
 
-pcigame.c calls pci_unregister_driver() a second time when it is unloaded
-without finding any devices.
--- 
-Debian GNU/Linux 3.0 is out! ( http://www.debian.org/ )
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+möchten Sie die Quellensteuer erst am Ende des Jahres zahlen? Dann kann Ihnen
+Ihr eigener Trust auf den - Channel Islands - helfen.
 
---vkogqOf2sHV7VnPd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
+Ihr Trust ist völlig anonym. Es besteht keine Ausweis und Identitätspflicht!
+Der Trust auf den - Channel Island - ist somit noch verschwiegener als ein
+Schweizer Nummernkonto.
 
-Index: drivers/char/joystick/pcigame.c
-===================================================================
-RCS file: /home/gondolin/herbert/src/CVS/debian/kernel-source-2.4/drivers/char/joystick/pcigame.c,v
-retrieving revision 1.1.1.7
-diff -u -r1.1.1.7 pcigame.c
---- drivers/char/joystick/pcigame.c	28 Nov 2002 23:53:12 -0000	1.1.1.7
-+++ drivers/char/joystick/pcigame.c	1 Dec 2002 02:32:08 -0000
-@@ -195,7 +195,7 @@
+Einzahlungen können Sie von fast allen Großbanken, Sparkassen und Volks-
+banken vornehmen.
+
+Legt der Trust bei europäischen Banken Festgeld an, so sind hier bis zu 6.0 %
+- quellensteuerfrei - zu erzielen. Eine Versteuerung müssen Sie erst zum
+Zeitpunkt der Ertragsentnahme vornehmen.
+
+Folgender Service kann geboten werden:
+
+01. 100% anonyme - Channel Island - Firma mit Inhaberaktie
+02. Keine Bankreferenz nötig
+03. Kein Zugriff Dritter auf die Vermögenswerte möglich
+04. Weltweiter Zugriff auf Bargeld über ATM-Karte
+05. Online Banking
+06. Online Securities Dealing Account.
+07. Anonymes Bankkonto
+08. Anonyme Nummern-Debitkarte ( ATM )
+09. Firmensiegel
+10. Geschäftsadresse
+11. Telefonnummer
+12. Faxnummer.
+13. Email-Adresse
+14. Postnachsendung
+15. Kompetentes und diskretes Personal
+16. Verschlüsselte Korrespondenz über Secure Server
+17. Lieferzeit innerhalb einer Woche
+
+Der Trust eignet sich auch hervorragend als diskrete Holding für Immobilien,
+Wertpapiere und Vermögenswerte jeder Art oder als wirtschaftlicher Start 
+für einen problemlosen Neubeginn. 
+
+Auf Wunsch kann eine Kreditline in höhe bis zu 10 Mio USD zum Handeln
+von Wertpapieren bereitgestellt werden.
+
+Haben Sie Interesse? Dann schreiben Sie uns, nachdem Sie mit Ihrem
+Steuerberater oder Ihrem Finanzamt gesprochen haben!
+
+Mit freudlichen Grüßen
+
+Ingrid Mahnke
+
+Channel Islands Trust Company Formation Ltd.
+- Channel Islands -
+Fax. +1-360-2425-595 ( USA Electronic Fax )
  
- int __init pcigame_init(void)
- {
--	pci_module_init(&pcigame_driver);
-+	pci_register_driver(&pcigame_driver);
- 	/* Needed by other modules */
- 	return 0;
- }
-
---vkogqOf2sHV7VnPd--
+SNVNPFFBVCXWSULFQQDGCUQSUZJGSBZGGXRNPF

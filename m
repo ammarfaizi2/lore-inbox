@@ -1,53 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265696AbRFXBrh>; Sat, 23 Jun 2001 21:47:37 -0400
+	id <S265705AbRFXB4i>; Sat, 23 Jun 2001 21:56:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265700AbRFXBr1>; Sat, 23 Jun 2001 21:47:27 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:5381 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S265696AbRFXBrM>;
-	Sat, 23 Jun 2001 21:47:12 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: stimits@idcomm.com
-cc: kernel-list <linux-kernel@vger.kernel.org>
-Subject: Re: Is this part of newer filesystem hierarchy? 
-In-Reply-To: Your message of "Sat, 23 Jun 2001 19:09:12 CST."
-             <3B353DB8.578F43FB@idcomm.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 24 Jun 2001 11:47:04 +1000
-Message-ID: <18859.993347224@ocs3.ocs-net>
+	id <S265704AbRFXB4S>; Sat, 23 Jun 2001 21:56:18 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:63872 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S265703AbRFXB4P>; Sat, 23 Jun 2001 21:56:15 -0400
+Date: Sat, 23 Jun 2001 21:56:06 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Der Herr Hofrat <der.herr@hofr.at>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: sizeof problem in kernel modules
+In-Reply-To: <200106231454.f5NEsKu14812@kanga.hofr.at>
+Message-ID: <Pine.LNX.3.95.1010623214533.21862B-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Jun 2001 19:09:12 -0600, 
-"D. Stimits" <stimits@idcomm.com> wrote:
->There is a directory on RH 7.1 x86, /lib/i686/. When checking with ldd
->to various applications, as to which libc they link to, it turns out
->that the /lib/libc.so.6 is not used. They all seem to point at
->/lib/i686/libc.so.6 (this is the version with debugging symbols) by
->default. The odd thing is that there are NO LD_ style path variables set
->on this system, there is NO /etc/ld.so.preload, and /etc/ld.so.conf does
->not contain any reference to /lib/i686/. So there is a question of just
->how it is possible for ld to use that directory and ignore /lib/ for
->libc.so.6.
+On Sat, 23 Jun 2001, Der Herr Hofrat wrote:
 
-15 minutes with a few commands, man pages and the source of glibc will
-show you this ...
+> 
+> Hi !
+> 
+>  can someone explain to me whats happening here ?
+> 
+> --simple.c--
+> #include <linux/module.h>
+> #include <linux/kernel.h>
+> 
+> struct { short x; long y; short z; }bad_struct;
+> struct { long y; short x; short z; }good_struct;
+> 
 
-# /sbin/ldconfig -p | fgrep -w libc
-libc.so.6 (libc6, hwcap: 0x8000000000000, OS ABI: Linux 2.4.1) => /lib/i686/libc.so.6
-libc.so.6 (libc6, OS ABI: Linux 2.2.5) => /lib/libc.so.6
+[SNIPPED...]
+> ---------------------------------------------------------------
+> 
+> I would expect both structs to be 8byte in size , or atleast the same size !
+> but good_struct turns out to be 8bytes and bad_struct 12 .
+> 
+> what am I doing wrong here ?
 
-The data is coming from /etc/ld.so.cache which is build by ldconfig.
-A quick scan of the source for ldconfig.c in glibc 2.2.2 shows that it
-starts with standard paths /lib and /usr/lib then searches those
-directories and all their subdirectories looking for libraries.  That
-explains why it finds /lib/i686 without being explicitly specified.
+You are assuming something that is wrong. Many programmers use
+a structure as a "template", assuming that what they write is
+exactly what exists in memory. This is not how the 'C' standards
+are written! The only thing guaranteed by the standard is that
+the first structure member will exist as the same address as the
+structure itself -- nothing else.
 
-Note the hwcap entry in /lib/i686/libc.so.6.  The dynamic linker no
-longer takes the first entry it finds for a library, instead it looks
-for the first entry that matches the current hardware.  This is
-required for machines like ia64 which can also run i386 binaries and
-for sparc which can run 32 or 64 bit apps.
+So that structures can be used as templates, many compilers including
+gcc, have non-standard extensions that can be used to "pack" structure
+members.  __attribute__ ((packed)) will probably do what you want.
+
+FYI, structures are designed to be accessed only by their member-names.
+Therefore, the compiler is free to put members at any offset. In fact,
+members, other than the first, don't even have to be in the order
+written!
+
+
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
 

@@ -1,44 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129810AbRABV1S>; Tue, 2 Jan 2001 16:27:18 -0500
+	id <S129764AbRABVet>; Tue, 2 Jan 2001 16:34:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129983AbRABV1J>; Tue, 2 Jan 2001 16:27:09 -0500
-Received: from baldur.fh-brandenburg.de ([195.37.0.5]:48775 "HELO
-	baldur.fh-brandenburg.de") by vger.kernel.org with SMTP
-	id <S129810AbRABV07>; Tue, 2 Jan 2001 16:26:59 -0500
-Date: Tue, 2 Jan 2001 21:44:42 +0100 (MET)
-From: Roman Zippel <zippel@fh-brandenburg.de>
-To: "David S. Miller" <davem@redhat.com>
-cc: matthew@wil.cx, grundler@cup.hp.com, linux-kernel@vger.kernel.org,
-        alan@lxorguk.ukuu.org.uk, parisc-linux@thepuffingroup.com
-Subject: Re: [PATCH] move xchg/cmpxchg to atomic.h
-In-Reply-To: <200101021121.DAA14657@pizda.ninka.net>
-Message-ID: <Pine.GSO.4.10.10101022125570.20383-100000@zeus.fh-brandenburg.de>
+	id <S129983AbRABVek>; Tue, 2 Jan 2001 16:34:40 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:51465 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129764AbRABVed>; Tue, 2 Jan 2001 16:34:33 -0500
+Date: Tue, 2 Jan 2001 13:02:30 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Mike Galbraith <mikeg@wen-online.de>,
+        Anton Blanchard <anton@linuxcare.com.au>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Andrew Morton <andrewm@uow.edu.au>
+Subject: Re: scheduling problem?
+In-Reply-To: <20010102210949.C7563@athlon.random>
+Message-ID: <Pine.LNX.4.10.10101021250160.25414-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 2 Jan 2001, David S. Miller wrote:
 
->    We really can't.  We _only_ have load-and-zero.  And it has to be
->    16-byte aligned.  xchg() is just not something the CPU implements.
+On Tue, 2 Jan 2001, Andrea Arcangeli wrote:
+
+> On Tue, Jan 02, 2001 at 11:02:41AM -0800, Linus Torvalds wrote:
+> > What does the system feel like if you just change the "sleep for bdflush"
+> > logic in wakeup_bdflush() to something like
+> > 
+> > 	wake_up_process(bdflush_tsk);
+> > 	__set_current_state(TASK_RUNNING);
+> > 	current->policy |= SCHED_YIELD;
+> > 	schedule();
+> > 
+> > instead of trying to wait for bdflush to wake us up?
 > 
-> Oh bugger... you do have real problems.
+> My bet is a `VM: killing' message.
 
-For 2.5 we could move all the atomic functions from atomic.h, bitops.h,
-system.h and give them a common interface. We could also give them a new
-argument atomic_spinlock_t, which is a normal spinlock, but only used on
-architectures which need it, everyone else can "optimize" it away. I think
-one such lock per major subsystem should be enough, as the lock is only
-held for a very short time, so contentation should be no problem.
-Anyway, this had the huge advantage that we could use the complete 32/64
-bit of the atomic value, e.g. for pointer operations.
+Maybe in 2.2.x, yes.
 
-bye, Roman
+> Waiting bdflush back-wakeup is mandatory to do write throttling correctly.  The
+> above will break write throttling at least unless something foundamental is
+> changed recently and that doesn't seem the case.
 
+page_launder() should wait for the dirty pages, and that's not something
+2.2.x ever did.
+
+This way, the issue of dirty data in the VM is handled by the VM pressure,
+not by trying to artificially throttle writers.
+
+NOTE! I think that throttling writers is fine and good, but as it stands
+now, the dirty buffer balancing will throttle anybody, not just the
+writer. That's partly because of the 2.4.x mis-feature of doing the
+balance_dirty call even for previously dirty buffers (fixed in my tree,
+btw).
+
+It's _really_ bad to wait for bdflush to finish if we hold on to things
+like the superblock lock - which _does_ happen right now. That's why I'm
+pretty convinced that we should NOT blindly do the dirty balance in
+"mark_buffer_dirty()", but instead at more well-defined points (in places
+like "generic_file_write()", for example).
+
+			Linus
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

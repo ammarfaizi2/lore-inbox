@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262960AbVDAXzV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262806AbVDAXzV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262960AbVDAXzV (ORCPT <rfc822;willy@w.ods.org>);
+	id S262806AbVDAXzV (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 1 Apr 2005 18:55:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262806AbVDAXtN
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262807AbVDAXtV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Apr 2005 18:49:13 -0500
-Received: from mail.kroah.org ([69.55.234.183]:25564 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262807AbVDAXsJ convert rfc822-to-8bit
+	Fri, 1 Apr 2005 18:49:21 -0500
+Received: from mail.kroah.org ([69.55.234.183]:25820 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262808AbVDAXsJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 1 Apr 2005 18:48:09 -0500
-Cc: matthew@wil.cx
-Subject: [PATCH] PCI busses are structs, not integers
-In-Reply-To: <11123992711084@kroah.com>
+Cc: roland@topspin.com
+Subject: [PATCH] PCI: Add PCI device ID for new Mellanox HCA
+In-Reply-To: <11123992692790@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Fri, 1 Apr 2005 15:47:52 -0800
-Message-Id: <11123992723300@kroah.com>
+Date: Fri, 1 Apr 2005 15:47:50 -0800
+Message-Id: <11123992704154@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,92 +24,30 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2181.16.13, 2005/03/17 14:31:48-08:00, matthew@wil.cx
+ChangeSet 1.2181.16.5, 2005/03/17 10:11:55-08:00, roland@topspin.com
 
-[PATCH] PCI busses are structs, not integers
+[PATCH] PCI: Add PCI device ID for new Mellanox HCA
 
-PCI busses are structs, not integers.  Fix pcibus_to_cpumask to take
-a struct.  NB changing it from a macro to an inline function would
-require serious include file surgery.
+Add PCI device IDs for new Mellanox "Sinai" InfiniHost III Lx HCA.
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+Signed-off-by: Roland Dreier <roland@topspin.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 
- arch/x86_64/kernel/pci-gart.c |    2 +-
- drivers/pci/pci-sysfs.c       |    2 +-
- drivers/pci/probe.c           |    2 +-
- include/asm-i386/topology.h   |    7 ++++---
- include/asm-x86_64/topology.h |    3 +--
- 5 files changed, 8 insertions(+), 8 deletions(-)
+ include/linux/pci_ids.h |    2 ++
+ 1 files changed, 2 insertions(+)
 
 
-diff -Nru a/arch/x86_64/kernel/pci-gart.c b/arch/x86_64/kernel/pci-gart.c
---- a/arch/x86_64/kernel/pci-gart.c	2005-04-01 15:35:55 -08:00
-+++ b/arch/x86_64/kernel/pci-gart.c	2005-04-01 15:35:55 -08:00
-@@ -193,7 +193,7 @@
- 	int node;
- 	if (dev->bus == &pci_bus_type) {
- 		cpumask_t mask;
--		mask = pcibus_to_cpumask(to_pci_dev(dev)->bus->number);
-+		mask = pcibus_to_cpumask(to_pci_dev(dev)->bus);
- 		node = cpu_to_node(first_cpu(mask));
- 	} else
- 		node = numa_node_id();
-diff -Nru a/drivers/pci/pci-sysfs.c b/drivers/pci/pci-sysfs.c
---- a/drivers/pci/pci-sysfs.c	2005-04-01 15:35:55 -08:00
-+++ b/drivers/pci/pci-sysfs.c	2005-04-01 15:35:55 -08:00
-@@ -46,7 +46,7 @@
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	2005-04-01 15:38:14 -08:00
++++ b/include/linux/pci_ids.h	2005-04-01 15:38:14 -08:00
+@@ -2115,6 +2115,8 @@
+ #define PCI_DEVICE_ID_MELLANOX_TAVOR	0x5a44
+ #define PCI_DEVICE_ID_MELLANOX_ARBEL_COMPAT 0x6278
+ #define PCI_DEVICE_ID_MELLANOX_ARBEL	0x6282
++#define PCI_DEVICE_ID_MELLANOX_SINAI_OLD 0x5e8c
++#define PCI_DEVICE_ID_MELLANOX_SINAI	0x6274
  
- static ssize_t local_cpus_show(struct device *dev, char *buf)
- {		
--	cpumask_t mask = pcibus_to_cpumask(to_pci_dev(dev)->bus->number);
-+	cpumask_t mask = pcibus_to_cpumask(to_pci_dev(dev)->bus);
- 	int len = cpumask_scnprintf(buf, PAGE_SIZE-2, mask);
- 	strcat(buf,"\n"); 
- 	return 1+len;
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	2005-04-01 15:35:55 -08:00
-+++ b/drivers/pci/probe.c	2005-04-01 15:35:55 -08:00
-@@ -80,7 +80,7 @@
-  */
- static ssize_t pci_bus_show_cpuaffinity(struct class_device *class_dev, char *buf)
- {
--	cpumask_t cpumask = pcibus_to_cpumask((to_pci_bus(class_dev))->number);
-+	cpumask_t cpumask = pcibus_to_cpumask(to_pci_bus(class_dev));
- 	int ret;
- 
- 	ret = cpumask_scnprintf(buf, PAGE_SIZE, cpumask);
-diff -Nru a/include/asm-i386/topology.h b/include/asm-i386/topology.h
---- a/include/asm-i386/topology.h	2005-04-01 15:35:55 -08:00
-+++ b/include/asm-i386/topology.h	2005-04-01 15:35:55 -08:00
-@@ -60,11 +60,12 @@
- 	return first_cpu(mask);
- }
- 
--/* Returns the number of the node containing PCI bus 'bus' */
--static inline cpumask_t pcibus_to_cpumask(int bus)
-+/* Returns the number of the node containing PCI bus number 'busnr' */
-+static inline cpumask_t __pcibus_to_cpumask(int busnr)
- {
--	return node_to_cpumask(mp_bus_id_to_node[bus]);
-+	return node_to_cpumask(mp_bus_id_to_node[busnr]);
- }
-+#define pcibus_to_cpumask(bus)	__pcibus_to_cpumask(bus->number)
- 
- /* sched_domains SD_NODE_INIT for NUMAQ machines */
- #define SD_NODE_INIT (struct sched_domain) {		\
-diff -Nru a/include/asm-x86_64/topology.h b/include/asm-x86_64/topology.h
---- a/include/asm-x86_64/topology.h	2005-04-01 15:35:55 -08:00
-+++ b/include/asm-x86_64/topology.h	2005-04-01 15:35:55 -08:00
-@@ -35,8 +35,7 @@
- 	cpus_and(res, busmask, online);
- 	return res;
- }
--/* broken generic file uses #ifndef later on this */
--#define pcibus_to_cpumask(bus) __pcibus_to_cpumask(bus)
-+#define pcibus_to_cpumask(bus) __pcibus_to_cpumask(bus->number)
- 
- #ifdef CONFIG_NUMA
- /* sched_domains SD_NODE_INIT for x86_64 machines */
+ #define PCI_VENDOR_ID_PDC		0x15e9
+ #define PCI_DEVICE_ID_PDC_1841		0x1841
 

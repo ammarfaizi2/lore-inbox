@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131635AbRBDOF3>; Sun, 4 Feb 2001 09:05:29 -0500
+	id <S131363AbRBDOTl>; Sun, 4 Feb 2001 09:19:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131722AbRBDOFT>; Sun, 4 Feb 2001 09:05:19 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:50693 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S131635AbRBDOFI>; Sun, 4 Feb 2001 09:05:08 -0500
-Date: Sun, 4 Feb 2001 13:58:33 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: James Sutherland <jas88@cam.ac.uk>
-cc: Russell King <rmk@arm.linux.org.uk>,
-        "Albert D. Cahalan" <acahalan@cs.uml.edu>,
-        Pavel Machek <pavel@suse.cz>, <andrew.grover@intel.com>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Better battery info/status files
-In-Reply-To: <Pine.SOL.4.21.0102041151450.18872-100000@orange.csi.cam.ac.uk>
-Message-ID: <Pine.LNX.4.30.0102041354060.17227-100000@imladris.demon.co.uk>
+	id <S131544AbRBDOTb>; Sun, 4 Feb 2001 09:19:31 -0500
+Received: from selene.cps.intel.com ([192.198.165.10]:12551 "EHLO
+	selene.cps.intel.com") by vger.kernel.org with ESMTP
+	id <S131363AbRBDOTS>; Sun, 4 Feb 2001 09:19:18 -0500
+Message-ID: <07E6E3B8C072D211AC4100A0C9C5758302B27119@hasmsx52.iil.intel.com>
+From: "Hen, Shmulik" <shmulik.hen@intel.com>
+To: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: kernel memory allocations alignment
+Date: Sun, 4 Feb 2001 06:19:03 -0800 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Feb 2001, James Sutherland wrote:
+Hello,
 
-> For the end-user, the ability to see readings in other units would be
-> useful - how many people on this list work in litres/metres/kilometres,
-> and how many in gallons/feet/miles? Probably enough in both groups that
-> neither could count as universal...
+When using kmalloc(size_t size), do I get a guaranty that the memory region
+allocated is aligned according to the size specified ?
+More to the point, if I call kmalloc for type int on an IA64 architecture is
+the pointer going to be 8 bytes aligned ?
 
-Yeah. We can have this as part of the locale settings, changable by 
-echoing the desired locale string to /proc/sys/kernel/lc_all.
 
--- 
-dwmw2
+	Shmulik Hen
+	Software Engineer
+	Linux Advanced Networking Services
+	Network Communications Group, Israel (NCGj)
+	Intel Corporation Ltd.
 
 
 -

@@ -1,63 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269885AbRHEA4d>; Sat, 4 Aug 2001 20:56:33 -0400
+	id <S269883AbRHEA4D>; Sat, 4 Aug 2001 20:56:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269889AbRHEA4X>; Sat, 4 Aug 2001 20:56:23 -0400
-Received: from adsl-204-0-249-112.corp.se.verio.net ([204.0.249.112]:12283
-	"EHLO tabby.cats-chateau.net") by vger.kernel.org with ESMTP
-	id <S269885AbRHEA4P>; Sat, 4 Aug 2001 20:56:15 -0400
-From: Jesse Pollard <jesse@cats-chateau.net>
-Reply-To: jesse@cats-chateau.net
-To: <rich+ml@lclogic.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: module unresolved symbols
-Date: Sat, 4 Aug 2001 19:49:02 -0500
-X-Mailer: KMail [version 1.0.28]
-Content-Type: text/plain; charset=US-ASCII
-In-Reply-To: <Pine.LNX.4.30.0108041726050.8186-100000@baddog.localdomain>
-In-Reply-To: <Pine.LNX.4.30.0108041726050.8186-100000@baddog.localdomain>
-MIME-Version: 1.0
-Message-Id: <01080419561700.08008@tabby>
-Content-Transfer-Encoding: 7BIT
+	id <S269885AbRHEAzx>; Sat, 4 Aug 2001 20:55:53 -0400
+Received: from femail18.sdc1.sfba.home.com ([24.0.95.145]:11217 "EHLO
+	femail18.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S269883AbRHEAzi>; Sat, 4 Aug 2001 20:55:38 -0400
+Date: Sat, 4 Aug 2001 20:55:37 -0400
+From: Tom Vier <tmv5@home.com>
+To: Matthew Gardiner <kiwiunixman@yahoo.co.nz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7-ac4 disk thrashing
+Message-ID: <20010804205537.A17307@zero>
+In-Reply-To: <20010804113841.A2196@zero> <3B6C7F9B.30303@yahoo.co.nz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3B6C7F9B.30303@yahoo.co.nz>; from kiwiunixman@yahoo.co.nz on Sun, Aug 05, 2001 at 11:04:59AM +1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 04 Aug 2001, rich+ml@lclogic.com wrote:
->Hi all, kindly redirect me if this is the wrong list.
->
->Starting with a stock RH 7.0 install, I changed a single kernel config
->item and recompiled with 'make defs clean bzImage modules
->modules_install'.
->
->Booted on the new kernel and depmod complains that dozens of modules
->contain unresolved symbols. Back to the original kernel, now it also
->complains of unresolved symbols (not the same set of modules, and modules
->that were previously OK).
->
->I can't find an answer on the net, does anyone know how to fix this?
->
->Thanks == Rich
+On Sun, Aug 05, 2001 at 11:04:59AM +1200, Matthew Gardiner wrote:
+> Tom Vier wrote:
+> >switching from 2.4.7-ac3 to -ac4, disk access seems to be much more
+> >synchronis. running a ./configure script causes all kinds of trashing, as
+> >does installing .debs. i'm using reiserfs on top of software raid 0 on an
+> >alpha.
 
-This id due to the change in parameters and kernel rebuild. The default
-kernel used a different configuration than the one in the src directory,
-even though the kernel name was the same.
+> Apparently, in ac5 (which I am running), there was a bug on non-x86 
+> cpu's using reiserfs. Download and install the new patch and try.
 
-What I do to keep this from happening is to change the "EXTRAVERSION" in the
-src/linux/Makefile.
-
-As long as this is different from the distributed kernel name then a new
-/lib/modules/xxx/... directory will be created. That directory will contain
-the new modules instead of the default one.
-
-To repair the damage, you will need your backup (or reload them from the
-distribution).
-
-An alternative - If you copied the src tree before changing the configuration
-you can try a "make modules_install" in the original directory. This IS
-assuming that that tree is the one used for the default kernel.
+that's just a signedness fix. i've tried ac5 and it has the same problem as
+ac4.
 
 -- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: jesse@cats-chateau.net
-
-Any opinions expressed are solely my own.
+Tom Vier <tmv5@home.com>
+DSA Key id 0x27371A2C

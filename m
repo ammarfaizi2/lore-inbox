@@ -1,153 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267408AbUI0Wpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267409AbUI0Wr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267408AbUI0Wpo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 18:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267409AbUI0Wpn
+	id S267409AbUI0Wr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 18:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267410AbUI0Wr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 18:45:43 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:25790 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S267408AbUI0Wpa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 18:45:30 -0400
-Message-ID: <415897B0.3060008@engr.sgi.com>
-Date: Mon, 27 Sep 2004 15:44:00 -0700
-From: Jay Lan <jlan@engr.sgi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Mon, 27 Sep 2004 18:47:26 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:7439 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S267409AbUI0WrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 18:47:13 -0400
+From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+To: Dmitry Torokhov <dtor_core@ameritech.net>, linux-kernel@vger.kernel.org
+Subject: Re: suspend/resume support for driver requires an external firmware
+Date: Tue, 28 Sep 2004 01:47:03 +0300
+User-Agent: KMail/1.5.4
+Cc: Oliver Neukum <oliver@neukum.org>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       "Zhu, Yi" <yi.zhu@intel.com>
+References: <3ACA40606221794F80A5670F0AF15F8403BD5791@pdsmsx403> <200409271919.17173.oliver@neukum.org> <200409271319.05112.dtor_core@ameritech.net>
+In-Reply-To: <200409271319.05112.dtor_core@ameritech.net>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: lse-tech <lse-tech@lists.sourceforge.net>, CSA-ML <csa@oss.sgi.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       Arthur Corliss <corliss@digitalmages.com>
-Subject: Re: [PATCH 2.6.9-rc2 1/2] enhanced I/O accounting data collection
-References: <4158956F.3030706@engr.sgi.com>
-In-Reply-To: <4158956F.3030706@engr.sgi.com>
-Content-Type: multipart/mixed;
- boundary="------------020609000803060702000401"
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200409280147.03957.vda@port.imtp.ilyichevsk.odessa.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020609000803060702000401
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Monday 27 September 2004 21:19, Dmitry Torokhov wrote:
+> On Monday 27 September 2004 12:19 pm, Oliver Neukum wrote:
+> > > Why not just suspend the device first, then enter the system suspend
+> > > state; then on resume, resume the device after control has transferred
+> > > back to userspace. That way, the driver can load the firmware from the
+> > 
+> > And thus cause errors in all applications wishing to use the network
+> > until the firmware is reloaded. It is precisely what cannot be done.
+> > The firmware must be present on suspend. The question is, how?
+> 
+> While non-availability might be an issue for other types of hardware I think
+> it is ok for network cards. In many cases the interface will have to be
+> reconfigured at resume anyway (you move from office to home and the network
+> is completely different). Can't resume be handled by virtually removing/
+> inserting the device so firmware will be re-loaded as it was just a normal
+> startup?
 
-1/2: acct_io
-
-Enhanced I/O accounting data collection.
-
-Signed-off-by: Jay Lan <jlan@sgi.com>
-
-
---------------020609000803060702000401
-Content-Type: text/plain;
- name="acct_io"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="acct_io"
-
-Index: linux/drivers/block/ll_rw_blk.c
-===================================================================
---- linux.orig/drivers/block/ll_rw_blk.c	2004-09-12 22:31:31.000000000 -0700
-+++ linux/drivers/block/ll_rw_blk.c	2004-09-27 12:37:04.374234677 -0700
-@@ -1741,6 +1741,7 @@
- {
- 	DEFINE_WAIT(wait);
- 	struct request *rq;
-+	unsigned long start_wait = jiffies;
- 
- 	generic_unplug_device(q);
- 	do {
-@@ -1769,6 +1770,7 @@
- 		finish_wait(&rl->wait[rw], &wait);
- 	} while (!rq);
- 
-+	current->bwtime += (unsigned long) jiffies - start_wait;
- 	return rq;
- }
- 
-Index: linux/fs/read_write.c
-===================================================================
---- linux.orig/fs/read_write.c	2004-09-12 22:32:55.000000000 -0700
-+++ linux/fs/read_write.c	2004-09-27 12:37:04.381070659 -0700
-@@ -216,8 +216,11 @@
- 				ret = file->f_op->read(file, buf, count, pos);
- 			else
- 				ret = do_sync_read(file, buf, count, pos);
--			if (ret > 0)
-+			if (ret > 0) {
- 				dnotify_parent(file->f_dentry, DN_ACCESS);
-+				current->rchar += ret;
-+			}
-+			current->syscr++;
- 		}
- 	}
- 
-@@ -260,8 +263,11 @@
- 				ret = file->f_op->write(file, buf, count, pos);
- 			else
- 				ret = do_sync_write(file, buf, count, pos);
--			if (ret > 0)
-+			if (ret > 0) {
- 				dnotify_parent(file->f_dentry, DN_MODIFY);
-+				current->wchar += ret;
-+			}
-+			current->syscw++;
- 		}
- 	}
- 
-@@ -540,6 +546,10 @@
- 		fput_light(file, fput_needed);
- 	}
- 
-+	if (ret > 0) {
-+		current->rchar += ret;
-+	}
-+	current->syscr++;
- 	return ret;
- }
- 
-@@ -558,6 +568,10 @@
- 		fput_light(file, fput_needed);
- 	}
- 
-+	if (ret > 0) {
-+		current->wchar += ret;
-+	}
-+	current->syscw++;
- 	return ret;
- }
- 
-@@ -636,6 +650,13 @@
- 
- 	retval = in_file->f_op->sendfile(in_file, ppos, count, file_send_actor, out_file);
- 
-+	if (retval > 0) {
-+		current->rchar += retval;
-+		current->wchar += retval;
-+	}
-+	current->syscr++;
-+	current->syscw++;
-+
- 	if (*ppos > max)
- 		retval = -EOVERFLOW;
- 
-Index: linux/include/linux/sched.h
-===================================================================
---- linux.orig/include/linux/sched.h	2004-09-27 11:57:40.220967100 -0700
-+++ linux/include/linux/sched.h	2004-09-27 12:52:51.305237393 -0700
-@@ -591,6 +591,9 @@
- 	struct rw_semaphore pagg_sem;
- #endif
- 
-+/* i/o counters(bytes read/written, #syscalls, waittime */
-+	unsigned long rchar, wchar, syscr, syscw, bwtime;
-+
- };
- 
- static inline pid_t process_group(struct task_struct *tsk)
-
---------------020609000803060702000401--
+Think about situation when all filesystems are NFS-mounted.
+You absolutely are not allowed to lose your network, or else hotplug
+(and all fs-backed stuff in general) will die horribly.
+--
+vda
 

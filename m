@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269101AbUINBak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266517AbUINBoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269101AbUINBak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 21:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269099AbUINBak
+	id S266517AbUINBoA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 21:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269099AbUINBoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 21:30:40 -0400
-Received: from mail.kamp-dsl.de ([195.62.99.42]:51934 "HELO dsl-mail.kamp.net")
-	by vger.kernel.org with SMTP id S269101AbUINBaj (ORCPT
+	Mon, 13 Sep 2004 21:44:00 -0400
+Received: from relay.pair.com ([209.68.1.20]:48652 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S266517AbUINBn6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 21:30:39 -0400
-Message-ID: <414649B5.4000701@ti.uni-trier.de>
-Date: Tue, 14 Sep 2004 03:30:29 +0200
-From: Jochen Bern <bern@ti.uni-trier.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: de, en, fr
+	Mon, 13 Sep 2004 21:43:58 -0400
+X-pair-Authenticated: 24.126.73.164
+Message-ID: <41464C8E.3060004@kegel.com>
+Date: Mon, 13 Sep 2004 18:42:38 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en, de-de
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: procfs and chroot() ... ?
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Fix allnoconfig on arm with small tweak to kconfig?
+References: <414551FD.4020701@kegel.com> <20040913091534.B27423@flint.arm.linux.org.uk> <4145BB30.60309@kegel.com> <20040913195119.B4658@flint.arm.linux.org.uk>
+In-Reply-To: <20040913195119.B4658@flint.arm.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to chroot() a server that needs to read one readonly pseudo 
-file from /proc . I tried to pinpoint my options to do so ...
+Russell King wrote:
+> If you want something that's guaranteed to work, use one of the
+> per-platform default configurations.  Nothing else carries any
+> guarantee what so ever on ARM.
 
--- The alternative to accessing this one pseudo file would be to grant
-    the server access to /dev/kmem ... NOT ... ANY ... BETTER!! 8-}
--- Mounting two procfs instances (one normal, one inside the chroot())
-    and setting restrictive permissions on the latter makes identical
-    changes to the former. (I assume that'ld be the same for ACLs?)
--- Deploying SELinux ... will have to do a good deal of reading to
-    even find out what'ld be involved in that ...
--- Mounting a "second" procfs, chroot()ing into the exact subdir the
-    file is in, and mounting non-procfs stuff (like the etc dir with the
-    configs) *over* the sub-subdirs (ARGH!) would *happen* to rid me of
-    all *writable* pseudo files, but still provide read access to way
-    more info that I'ld want to provide to the server ...
-(- I'll try to Use The Source (tm) so that the server will not close the
-    pseudo file, and does the chroot() itself after opening it, but let's
-    assume for the sake of the argument that I won't succeed in that.)
+I did give that a shot, but every one I tried seemed to be
+broken.  (I may have been using a too-new compiler, and I probably
+suffer from impatient newbie-itis.)  Can you suggest which commands
+to use to retrieve a working default configuration?
 
-Is there an official way (or *should* there be one) to have only *part* 
-of a procfs mounted into a chroot() jail?
+Thanks,
+Dan
 
-Kind regards,
-								J. Bern
+
+-- 
+My technical stuff: http://kegel.com
+My politics: see http://www.misleader.org for examples of why I'm for regime change

@@ -1,73 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312381AbSDSKqO>; Fri, 19 Apr 2002 06:46:14 -0400
+	id <S312419AbSDSKst>; Fri, 19 Apr 2002 06:48:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312364AbSDSKqN>; Fri, 19 Apr 2002 06:46:13 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:28421 "EHLO
+	id <S312420AbSDSKss>; Fri, 19 Apr 2002 06:48:48 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3590 "EHLO
 	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S312484AbSDSKqM>; Fri, 19 Apr 2002 06:46:12 -0400
-Message-Id: <200204191042.g3JAgbX04232@Port.imtp.ilyichevsk.odessa.ua>
+	id <S312419AbSDSKsr>; Fri, 19 Apr 2002 06:48:47 -0400
+Message-Id: <200204191045.g3JAjpX04243@Port.imtp.ilyichevsk.odessa.ua>
 Content-Type: text/plain;
   charset="us-ascii"
 From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
 Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andrew Morton <akpm@zip.com.au>, Mark Peloquin <peloquin@us.ibm.com>
-Subject: Re: Bio pool & scsi scatter gather pool usage
-Date: Fri, 19 Apr 2002 13:44:53 -0200
+To: Andrea Aime <aaime@libero.it>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre6+preempt problem...
+Date: Fri, 19 Apr 2002 13:48:09 -0200
 X-Mailer: KMail [version 1.3.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <OFA8584441.22F71259-ON85256B9F.00627FAA@pok.ibm.com> <3CBF1722.EDA8631F@zip.com.au>
+In-Reply-To: <200204181426.30823.aaime@libero.it>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 April 2002 16:57, Andrew Morton wrote:
-> > This would require the BIO assembly code to make at least one
-> > call to find the current permissible BIO size at offset xyzzy.
-> > Depending on the actual IO size many foo_max_bytes calls may
-> > be required. Envision the LVM or RAID case where physical
-> > extents or chunks sizes can be as small as 8Kb I believe. For
-> > a 64Kb IO, its conceivable that 9 calls to foo_max_bytes may
-> > be required to package that IO into permissibly sized BIOs.
-
-[snip]
-
-> The good way is:
+On 18 April 2002 10:26, Andrea Aime wrote:
+> while exiting from X windows yesterday I got the following error (the
+> system didn't crash, thought):
 >
-> 	int maxbytes[something];
-> 	int i = 0;
+> waiting for X server to shut down kernel BUG at page_alloc.c:108!
+> invalid operand: 0000
+> CPU:    0
+> EIP:    0010:[<c0131c90>]    Tainted: P
+> EFLAGS: 00013282
+> eax: 00000000   ebx: c10c77a8   ecx: c10c77a8   edx: c528a9b0
+> esi: 0016f000   edi: 00000000   ebp: 08048000   esp: c387feb8
+> ds: 0018   es: 0018   ss: 0018
+> Process X (pid: 15554, stackpage=c387f000)
+> Stack: c6418b40 c68f12c0 c01286bf c6418b40 c68f12c0 0805fd5c 00000000
+> 00041000 0016f000 c4e14224 08048000 c012737e c10c77a8 00000029 00000000
+> 081b7000 c3f30080 00000000 081b7000 c3f30080 c0115fb3 c6418b40 c68f12c0
+> 0805fd5c Call Trace: [<c01286bf>] [<c012737e>] [<c0115fb3>] [<c0129df8>]
+> [<c011833a>] [<c011ce16>] [<c0107f00>] [<c0108a9b>]
 >
-> 	while (more_to_send) {
-> 		maxbytes[i] = bio_max_bytes(block);
-> 		block += maxbytes[i++] / whatever;
-> 	}
-> 	i = 0;
-> 	while (more_to_send) {
-> 		build_and_send_a_bio(block, maxbytes[i]);
-> 		block += maxbytes[i++] / whatever;
-> 	}
->
-> if you get my drift.  This way the computational costs of
-> the second and succeeding bio_max_bytes() calls are very
-> small.
+> Code: 0f 0b 6c 00 5a 49 28 c0 89 d8 2b 05 10 02 33 c0 69 c0 a3 8b
+>  <3>X[15554] exited with preempt_count 1
 
-This has the advantage of being simple too.
-
-> One thing which concerns me about the whole scheme at
-> present is that the uncommon case (volume managers, RAID,
-> etc) will end up penalising the common case - boring
-> old ext2 on boring old IDE/SCSI.
-
-Yes but since performance gap between CPU and devices
-continue to increase simplicity outweights
-CPU cycles wastage here. We are going to wait much longer
-for IO to take place anyway.
-
-> Right now, BIO_MAX_SECTORS is only 64k, and IDE can
-> take twice that.  I'm not sure what the largest
-> request size is for SCSI - certainly 128k.
-
-Yep, submitting largest possible block in one go is a win.
+Please decode it with ksymoops.
+It not that important for BUGs but for real dirty oopses
+ksumoops is a must.
 --
 vda

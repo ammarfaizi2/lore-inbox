@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268134AbTAIXVA>; Thu, 9 Jan 2003 18:21:00 -0500
+	id <S268060AbTAIXNi>; Thu, 9 Jan 2003 18:13:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268135AbTAIXU7>; Thu, 9 Jan 2003 18:20:59 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:39945 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S268134AbTAIXU6>; Thu, 9 Jan 2003 18:20:58 -0500
-Date: Thu, 9 Jan 2003 18:27:19 -0500 (EST)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Philip Dodd <smpcomputing@free.fr>
-cc: Hell.Surfers@cwctv.net, linux-kernel@vger.kernel.org
-Subject: Re: Honest does not pay here ...
-In-Reply-To: <3E1C913F.101@free.fr>
-Message-ID: <Pine.LNX.3.96.1030109182316.30393D-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268087AbTAIXML>; Thu, 9 Jan 2003 18:12:11 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:62214 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S268085AbTAIXL4>;
+	Thu, 9 Jan 2003 18:11:56 -0500
+Date: Fri, 10 Jan 2003 00:19:59 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: UnitedLinux violating GPL?
+Message-ID: <20030109231959.GP2437@marowsky-bree.de>
+References: <20030109222748.GA3993@gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030109222748.GA3993@gtf.org>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jan 2003, Philip Dodd wrote:
+On 2003-01-09T17:27:48,
+   Jeff Garzik <jgarzik@pobox.com> said:
 
->  > im working on GPLd support for USB under W95.
-> 
-> I think you just hosed your "Freedom is bliss" arguments.
-> 
-> WTF have GPLed drivers for Win95 got to do with free software.  If you 
-> want freedom please work on the Hurd.  You are wasting your time working 
-> on GPLed DOS drivers.
+> Anybody know where the source rpm for UnitedLinux kernel is?
+> [to be distinguished from kernel-source rpm]
 
-Is it not *his* time? And his evaluation of its value?
+The complaint is valid, it should be advertised better, I had to look myself,
+but I believe that
+ftp://ftp.suse.com/pub/unitedlinux/1.0/src/kernel-source-2.4.19.SuSE-82.nosrc.rpm 
+is what you are looking for.
 
-This reminds me of woman's lib folks who fight for the right of women to
-do anything they want as long as long as it isn't stay home and be a
-housewife. Thank you, I prefer the taste of my open source software
-without the bitter tang of political correctness.
+I've forwarded the request because I believe we can and should do better, but
+I hope the complaint of a GPL violation has been settled ;-)
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
 -- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+Principal Squirrel 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

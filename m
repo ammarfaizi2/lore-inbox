@@ -1,46 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264132AbRFFT74>; Wed, 6 Jun 2001 15:59:56 -0400
+	id <S264135AbRFFUKS>; Wed, 6 Jun 2001 16:10:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264130AbRFFT7q>; Wed, 6 Jun 2001 15:59:46 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:34063 "EHLO
+	id <S264136AbRFFUJ6>; Wed, 6 Jun 2001 16:09:58 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:20240 "EHLO
 	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S264124AbRFFT7e>; Wed, 6 Jun 2001 15:59:34 -0400
-Date: Wed, 6 Jun 2001 21:57:25 +0200
+	id <S264135AbRFFUJ5>; Wed, 6 Jun 2001 16:09:57 -0400
+Date: Wed, 6 Jun 2001 22:05:23 +0200
 From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Bohdan Vlasyuk <bohdan@kivc.vstu.vinnica.ua>
-Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: isolating process..
-Message-ID: <20010606215725.H27260@arthur.ubicom.tudelft.nl>
-In-Reply-To: <20010605123755.B5998@kivc.vstu.vinnica.ua>
+To: android <linux@ansa.hostings.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PID's
+Message-ID: <20010606220523.I27260@arthur.ubicom.tudelft.nl>
+In-Reply-To: <5.1.0.14.2.20010605124911.028a8d70@ansa.hostings.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010605123755.B5998@kivc.vstu.vinnica.ua>; from bohdan@kivc.vstu.vinnica.ua on Tue, Jun 05, 2001 at 12:37:55PM +0300
+In-Reply-To: <5.1.0.14.2.20010605124911.028a8d70@ansa.hostings.com>; from linux@ansa.hostings.com on Tue, Jun 05, 2001 at 12:50:55PM -0700
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 05, 2001 at 12:37:55PM +0300, Bohdan Vlasyuk wrote:
-> Is it possible by any means to isolate any given process, so that
-> it'll be unable to crash system. Suppose all the process needs is
-> stdin, stdout, and CPU time. Can Linux guarantee that given process
-> won't hurt system stability ? Let us soppose that we have ideal CPU
-> without mistakes. How can I limit CPU time/Mem Usage for given
-> process?
+On Tue, Jun 05, 2001 at 12:50:55PM -0700, android wrote:
+> Is there a way to recycle unused PID's without rebooting the kernel?
+> So instead of the next available PID always getting larger and larger,
+> just reset it to use the first unused PID after 1. Is this possible?
 
-You just gave a nice description what an OS kernel should do :)
-
-> Please, supply ANY suggestions.
-> 
-> My ideas:
-> 
-> create some user, and decrease his ulimits up to miminum of 1 process,
-> 0 core size, appropriate memory/ etc.
-
-That's indeed the way to do it.
+It already works like that.
 
 
 Erik

@@ -1,63 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261607AbSKCEP7>; Sat, 2 Nov 2002 23:15:59 -0500
+	id <S261594AbSKCEO3>; Sat, 2 Nov 2002 23:14:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261609AbSKCEP7>; Sat, 2 Nov 2002 23:15:59 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:17113 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S261607AbSKCEP5>; Sat, 2 Nov 2002 23:15:57 -0500
-Message-ID: <3DC4A479.A0D90C21@attbi.com>
-Date: Sat, 02 Nov 2002 20:22:17 -0800
-From: C Sanjayan Rosenmund <gnuman@attbi.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.19 i686)
-X-Accept-Language: en
+	id <S261600AbSKCEO3>; Sat, 2 Nov 2002 23:14:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10253 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261594AbSKCEO2>; Sat, 2 Nov 2002 23:14:28 -0500
+Date: Sat, 2 Nov 2002 20:20:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Oliver Xymoron <oxymoron@waste.org>
+cc: Alexander Viro <viro@math.psu.edu>,
+       Olaf Dietsche <olaf.dietsche#list.linux-kernel@t-online.de>,
+       "Theodore Ts'o" <tytso@mit.edu>, Dax Kelson <dax@gurulabs.com>,
+       Rusty Russell <rusty@rustcorp.com.au>, <linux-kernel@vger.kernel.org>,
+       <davej@suse.de>
+Subject: Re: Filesystem Capabilities in 2.6?
+In-Reply-To: <20021103035017.GD18884@waste.org>
+Message-ID: <Pine.LNX.4.44.0211022004510.2503-100000@home.transmeta.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ultracam distorted image
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using Kernel 2.4.19, IBM UltraPort Camera (I), ultracam, usbvideo,
-videodev compiled in and as modules (neither works). . .
-I looked at the MAINTAINERS file, and this device is not even listed so
-I have no options left but to bug you (sorry).
-when using the gqcam app, I get a distorted image (a sample can be found
-on http://home.attbi.com/~gnuman/webcam.html ) and the error
-ioctl (VIDIOCSWIN): Invalid argument
-which seems to point to autoscaling brightness. . .
-the image looks like it is not synching properly and the brightness does
-not matter that much to me.
 
-When I use the CVS usbvideo package (the module is named ultradrv
-instead of ultracam), I get a smaller black screen and "error reading
-image. . ."
+On Sat, 2 Nov 2002, Oliver Xymoron wrote:
+> 
+> Bindings are cool, but once you start talking about doing a lot of
+> them, they're rather ungainly due to not actually being persisted on
+> the filesystem, no? 
 
-when using the 2.5.45 kernel, I get a white one, with the same results.
+Well, they _are_ persistent in the filesystem, although in this case "the 
+filesystem" is /etc/fstab.
 
-Having done a Google search on UltraPort Camera and Linux, as well as
-one on the error, I found Karl Gutwins page (where I got the CVS
-package), and quite a bit of discussion that stopped a over a year ago,
-about things not working. I found no one that could give me any more
-advice on how to get this working for me. I get the same results when
-I'm using the camera from the ultraport or USB.
+It's not that different from the ".capabilities" file, except it's a lot 
+more explicit, and from an implementation standpoint it's a lot easier.
 
-hasciicam works, but that is useless to me as I need to use this with a
-webcam and several other v4l applications.  I have run out of places to
-look for information and clues, and I cannot find the author for the
-kernel driver (not listed in the code, or the maintainers file). It
-seems to me that *someone* must have gotten this running, but they seem
-to want to keep that info to themselves?
+However, I think there is a problem with Al's original approach: the bind 
+can _not_ be just a mask that takes away capabilities from a suid 
+application, since that would imply that the app has to be marked suid in 
+the first place (and accessing it _without_ going through the bind will 
+give it elevated privileges, which is what we're trying to avoid).
 
-Please reply to me personally as well as the list, to ensure that I see
-any response.
-Thank you for all your efforts in making Linux so great!
+So the bind would have to _add_ capabilities, not take them away.
 
-PS: is there any work being done on a DRM for the S3 Savage IX chipset?
-That is the only other thing not working right on my laptop.
--- 
-Sanjay
-gnuman@attbi.com
-I'm pretty sure that for a 747, IFR actually doesn't mean "I Follow
-Roads."
+That's not really a problem, and the advantage of the filesystem bind
+approach is that it is extremely explicit, and it is trivial for a
+maintainer to at all times see all such "elevated" binaries: as Al points
+out, the only thing you need to do is to just ask to be shown the mount
+list with "mount" or with "cat /proc/mounts".
+
+> A better approach is to just make a user-space capabilities-wrapper
+> that's setuid, drops capabilities quickly and safely and calls the
+> real app.
+
+This is _not_ a good approach from a sysadmin standpoint. The sysadmin
+does not explicitly know what the suid binary does internally, the
+sysadmin just sees a number of suid binaries and has to trust them.
+
+Yes, I realize that your example had "showcapwrap" etc sysadmin tools to 
+work around this, and make the wrapping be transparent to the sysadmin. 
+That certainly works, although it still depends on trusting that the 
+wrapping cannot be confused some way. I guess that could be done fairly 
+easily (although I think you'd want to make "mkcapwrap" actually _sign_ 
+the wrapped binaries, to make sure that nobody can later try to inject a 
+"bad" binary that _looks_ ok to "showcapwrap" and fools the admin to think 
+everything is ok).
+
+But from a security maintenance standpoint, wouldn't it be _nice_ to be 
+able to
+
+ - do a complete "find" over the whole system to show that there is not a 
+   single suid binary anywhere.
+
+ - trivially show each and every binary that is allowed elevated 
+   permissions (and _which_ elevated permissions) by just doing a "mount".
+
+ - and since the mount trees are really per-process, you can allow certain 
+   process groups to have mounts that others don't have.
+
+I think that as a anal-retentive security admin, I'd like such a system.
+
+		Linus
+

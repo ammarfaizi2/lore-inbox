@@ -1,150 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264256AbUIHMh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUIHMjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264256AbUIHMh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 08:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUIHMgp
+	id S262837AbUIHMjY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 08:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263429AbUIHMid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 08:36:45 -0400
-Received: from unthought.net ([212.97.129.88]:16834 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S262837AbUIHMfZ (ORCPT
+	Wed, 8 Sep 2004 08:38:33 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63971 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262837AbUIHMgy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 08:35:25 -0400
-Date: Wed, 8 Sep 2004 14:35:24 +0200
-From: Jakob Oestergaard <jakob@unthought.net>
-To: linux-kernel@vger.kernel.org
-Subject: Major XFS problems...
-Message-ID: <20040908123524.GZ390@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	linux-kernel@vger.kernel.org
+	Wed, 8 Sep 2004 08:36:54 -0400
+Date: Wed, 8 Sep 2004 14:38:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [patch] max-sectors-2.6.9-rc1-bk14-A0
+Message-ID: <20040908123821.GA17953@elte.hu>
+References: <20040908100448.GA4994@elte.hu> <20040908030944.4cd0e3a0.akpm@osdl.org> <20040908104931.GA5523@elte.hu> <20040908044328.46eec88b.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040908044328.46eec88b.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Dear List,
+* Andrew Morton <akpm@osdl.org> wrote:
 
-This is the scenario; two high performance NFS file servers needed;
-quota support is a must, and so far it seems that we are out of luck :*(
+> Still sounds a bit odd.  How many cachelines can that CPU fetch in 8
+> usecs? Several tens at least?
 
-Suggestions and help would be very welcome.
+the CPU in question is a 600 MHz C3, so it should be dozens. Considering
+a conservative 200nsec cacheline-fetch latency and 8 nsecs per byte
+bursted - so for a 32-byte cacheline it could take 264 nsecs. So with
+... ~8 cachelines touched that could only explain 2-3 usec of overhead.
+The bio itself is not layed out optimally: the bio and the vector are on
+two different cachelines plus we have the buffer_head too (in the ext3
+case) - all on different cachelines.
 
-We don't care much about which filesystem to use - so far we use XFS
-because of the need for (journalled) quota.
-*) ext2 - no-go, because of lack of journal
-*) ext3 - no-go, because quota isn't journalled
-*) JFS - no-go, because of lack of quota
-*) reiserfs - no-go, because of lack of quota
-*) XFS seems to be the *only* viable filesystem in this scenario - if
-   anyone has alternative suggestions, we'd like to hear about it.
+but the latency does happen and it happens even with tracing turned
+completely off.
 
-Oh, and Hans, I don't think we can fund your quota implementation right
-now - no hard feelings ;)
+The main overhead is the completion path for a single page, which goes
+like:
 
-History of these projects:
+__end_that_request_first()
+  bio_endio()
+    end_bio_bh_io_sync()
+      journal_end_buffer_io_sync()
+         unlock_buffer()
+           wake_up_buffer()
+    bio_put()
+      bio_destructor()
+        mempool_free()
+          mempool_free_slab()
+            kmem_cache_free()
+        mempool_free()
+          mempool_free_slab()
+            kmem_cache_free()
 
-The first server, an IBM 345 with external SCSI enclosure and hardware
-RAID, quickly triggered bugs in XFS under heavy usage:
+this is quite fat just from an instruction count POV - 14 functions with
+at least 20 instructions in each function, amounting to ~300
+instructions per iteration - that alone is quite an icache footprint
+assumption.
 
-First XFS bug:
----------------
-http://oss.sgi.com/bugzilla/show_bug.cgi?id=309
+Plus we could be trashing the cache due to touching at least 3 new
+cachelines per iteration - which is 192 new (dirty) cachelines for the
+full completion or ~6K of new L1 cache contents. With 128 byte
+cachelines it's much worse: at least 24K worth of new cache contents. 
+I'd suggest to at least attempt to merge bio and bio->bi_io_vec into a
+single cacheline, for the simpler cases.
 
-Submitted in februrary this year - requires server reboot, NFS clients
-will then re-trigger the bug immediately after the NFS server is started
-again.  Clearly not a pleasent problem.
+another detail is the SLAB's FIFO logic memmove-ing the full array:
 
-A fairly simple patch is available, which solves the problem in the most
-common cases.  This simple patch has *not*yet* been included in 2.6.8.1.
+ 0.184ms (+0.000ms): kmem_cache_free (mempool_free)
+ 0.185ms (+0.000ms): cache_flusharray (kmem_cache_free)
+ 0.185ms (+0.000ms): free_block (cache_flusharray)
+ 0.200ms (+0.014ms): memmove (cache_flusharray)
+ 0.200ms (+0.000ms): memcpy (memmove)
 
-A lot of people are seeing this - the SGI bugzilla is evidence of this,
-so is google.
+that's 14 usecs a pop and quite likely a fair amount of new dirty cache
+contents.
 
-Second XFS bug:
----------------
-Also causes the 'kernel BUG at fs/xfs/support/debug.c:106' message to be
-printed. This bug is not solved by applying the simple patch to the
-first problem.
+The building of the sg-list of the next DMA request was responsible for
+some of the latency as well:
 
-How well known this problem is, I don't know - I can get more details on
-this if anyone is actually interested in working on fixing XFS.
+ 0.571ms (+0.000ms): ide_build_dmatable (ide_start_dma)
+ 0.571ms (+0.000ms): ide_build_sglist (ide_build_dmatable)
+ 0.572ms (+0.000ms): blk_rq_map_sg (ide_build_sglist)
+ 0.593ms (+0.021ms): do_IRQ (common_interrupt)
+ 0.594ms (+0.000ms): mask_and_ack_8259A (do_IRQ)
 
-Third XFS bug:
---------------
-XFS causes lowmem oom, triggering the OOM killer. Reported by
-as@cohaesio.com on the 18th of august.
+this completion codeath isnt something people really profiled/measured
+previously, because it's in an irqs-off hardirq path that triggers
+relatively rarely. But for scheduling latencies it can be quite high.
 
-On the 24th of august, William Lee Irwin gives some suggestions and
-mentions  "xfs has some known bad slab behavior."
-
-So, it's normal to OOM the lowmem with XFS? Again, more info can be
-presented if anyone cares about fixing this.
-
-Stability on large filesystems:
--------------------------------
-On a 600+G filesystem with some 17M files, we are currently unable to
-run a backup of the filesystem.
-
-Some 4-8 hours after the backup has started, the dreaded 'debug.c:106'
-message will appear (at some random place thru the filesystem - it is
-not a consistent error in one specific location in the filesystem), and
-the server will need a reboot.
-
-Obviously, running very large busy filesystems while being unable to
-back them up, is not a very pleasent thing to do...
-
-
-Second server:
-
-On a somewhat smaller server, I recently migrated to XFS (beliving the
-most basic problems had been ironed out).  It took me about a day to
-trigger the 'debug.c:106' error message from XFS, on vanilla 2.6.8.1.
-
-After applying the simple fix (the fix for the first XFS problem as
-described above), I haven't had problems with this particular server
-since - but it is clearly serving fewer clients with fewer disks and a
-lot less storage and traffic.
-
-While the small server seems to be running well now, the large one has
-an average uptime of about one day (!)   Backups will crash it reliably,
-when XFS doesn't OOM the box at random.
-
-A little info on the hardware:
- Big server             Small server
----------------------- -----------------------
-Intel Xeon              Dual Athlon MP
-7 external SCSI disks   4 internal IDE disks
-IBM hardware RAID       Software RAID-1 + LVM
-600+ GB XFS             ~150 GB XFS
-17+ M files             ~1 M files
-
-Both primarily serve NFS to a bunch of clients. Both run vanilla 2.6.8.1
-plus the aforementioned patch for the first XFS problem we encountered.
-
-<frustrated_admin mode="on">
-
-Does anyone actually use XFS for serious file-serving?  (yes, I run it
-on my desktop at home and I don't have problems there - such reports are
-not really relevant).
-
-Is anyone actually maintaining/bugfixing XFS?  Yes, I know the
-MAINTAINERS file, but I am a little bit confused here - seeing that
-trivial-to-trigger bugs that crash the system and have simple fixes,
-have not been fixed in current mainline kernels.
-
-If XFS is a no-go because of lack of support, is there any realistic
-alternatives under Linux (taking our need for quota into account) ?
-
-And finally, if Linux is simply a no-go for high performance file
-serving, what other suggestions might people have?  NetApp?
-
-</>
-
-Thank you very much,
-
--- 
-
- / jakob
-
+	Ingo

@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273281AbRIRJtm>; Tue, 18 Sep 2001 05:49:42 -0400
+	id <S273289AbRIRJ5O>; Tue, 18 Sep 2001 05:57:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273285AbRIRJtc>; Tue, 18 Sep 2001 05:49:32 -0400
-Received: from t2.redhat.com ([199.183.24.243]:505 "HELO
-	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
-	id <S273281AbRIRJtP>; Tue, 18 Sep 2001 05:49:15 -0400
-Message-ID: <3BA718B2.30F9E7C9@redhat.com>
-Date: Tue, 18 Sep 2001 10:49:38 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-Organization: Red Hat, Inc
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Deadlock on the mm->mmap_sem
-In-Reply-To: <001701c13fc2$cda19a90$010411ac@local> <200109172339.f8HNd5W13244@penguin.transmeta.com> <20010918020139.B698@athlon.random> <000901c14014$494f9380$010411ac@local> <20010918095549.T698@athlon.random>
+	id <S273290AbRIRJ5F>; Tue, 18 Sep 2001 05:57:05 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:53364 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S273289AbRIRJ4t>; Tue, 18 Sep 2001 05:56:49 -0400
+Date: Tue, 18 Sep 2001 11:57:13 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+Message-ID: <20010918115713.C2723@athlon.random>
+In-Reply-To: <20010918113938.B2723@athlon.random> <Pine.GSO.4.21.0109180540320.25323-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.21.0109180540320.25323-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Sep 18, 2001 at 05:44:18AM -0400
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
-> 
-> On Tue, Sep 18, 2001 at 09:31:40AM +0200, Manfred Spraul wrote:
-> > From: "Andrea Arcangeli" <andrea@suse.de>
-> > > > The mmap semaphore is a read-write semaphore, and it _is_
-> > permissible to
-> > > > call "copy_to_user()" and friends while holding the read lock.
-> > > >
-> > > > The bug appears to be in the implementation of the write semaphore -
-> > > > down_write() doesn't undestand that blocked writes must not block
-> > new
-> > > > readers, exactly because of this situation.
-> > >
-> > > Exactly, same reason for which we need the same property from the rw
-> > > spinlocks (to be allowed to read_lock without clearing irqs). Thanks
-> > so
-> > > much for reminding me about this! Unfortunately my rwsemaphores are
-> > > blocking readers at the first down_write (for the better fairness
-> > > property issuse, but I obviously forgotten that doing so I would
-> > > introduce such a deadlock).
-> >
-> > i386 has a fair rwsemaphore, too - probably other archs must be modified
-> > as well.
-> 
-> yes, actually my patch was against the rwsem patch in -aa, and in -aa
-> I'm using the generic semaphores for all archs in the tree so it fixes
-> the race for all them. The mainline semaphores are slightly different.
+On Tue, Sep 18, 2001 at 05:44:18AM -0400, Alexander Viro wrote:
+> Bumping ->i_count on inode is _not_ an option - think what it does if
+> you umount the first fs.
 
-> if that's the very only place that could be a viable option but OTOH I
-> like to be allowed to use recursion on the read locks as with the
-> spinlocks. I think another option would be to have reacursion allowed on
-> the default read locks and then make a down_read_fair that will block at
-> if there's a down_write under us. we can very cleanly implement this,
-> the same can be done cleanly also for the spinlocks: read_lock_fair. One
-> can even mix the read_lock/read_lock_fair or the
-> down_read/down_read_fair together. For example assuming we use the
-> recursive semaphore fix in proc_pid_read_maps the down_read over there
-> could be converted to a down_read_fair (but that's just an exercise, if
-> the page fault isn't fair it doesn't worth to have proc_pid_read_maps
-> fair either).
+what it does? Unless I'm missing something the fs never cares and never
+sees the bd_inode. the fs just does a bdget and then it works only on
+the bdev. What should I run to get the oops exactly?
 
-Be careful; If another user can grab your semaphore for read for a short 
-time (eg for "top" or similar usage), he can construct several threads
-that
-do this in a busy loop; the end result is that this evil user is capable
-of blocking out writers FOREVER if semaphores are unfair; nice DoS....
+> _If_ you need an inode for block_device - allocate a new one instead of
+> reusing the inode that had been passed to ->open().
+
+If we need to avoid the bumping of i_count and to allocate something
+dynamically that will be the bd_mapping address space, we don't need a
+new fake_inode there too, we just need to share the new physical
+pagecahce address space. Such physical i_mapping address space is the
+same thing that the buffer cache will have to use to map its legacy
+buffer cache buffer headers on top of it (then we can cleanup away the
+few lines in blkdev_close that do the update_buffers() and checks the
+MS_RDONLY bit).
+
+Andrea

@@ -1,88 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265205AbTLFP6T (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 10:58:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbTLFP6T
+	id S265203AbTLFQDQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 11:03:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265207AbTLFQDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 10:58:19 -0500
-Received: from c-130372d5.012-136-6c756e2.cust.bredbandsbolaget.se ([213.114.3.19]:37521
-	"EHLO pomac.netswarm.net") by vger.kernel.org with ESMTP
-	id S265205AbTLFP6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 10:58:17 -0500
-Subject: Re: Catching NForce2 lockup with NMI watchdog - found?
-From: Ian Kumlien <pomac@vapor.com>
-To: Craig Bradney <cbradney@zip.com.au>
-Cc: linux-kernel@vger.kernel.org, AMartin@nvidia.com
-In-Reply-To: <1070724815.13016.16.camel@athlonxp.bradney.info>
-References: <1070676480.1989.15.camel@big.pomac.com>
-	 <1070717770.13004.11.camel@athlonxp.bradney.info>
-	 <1070721735.1991.20.camel@big.pomac.com>
-	 <1070724815.13016.16.camel@athlonxp.bradney.info>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ieiCGUVV1wIX8vtZ+D0k"
-Message-Id: <1070726295.1995.40.camel@big.pomac.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Sat, 06 Dec 2003 16:58:15 +0100
+	Sat, 6 Dec 2003 11:03:16 -0500
+Received: from burp.tkv.asdf.org ([212.16.99.49]:32927 "EHLO burp.tkv.asdf.org")
+	by vger.kernel.org with ESMTP id S265203AbTLFQDO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 11:03:14 -0500
+Date: Sat, 6 Dec 2003 18:03:12 +0200
+Message-Id: <200312061603.hB6G3CrG012634@burp.tkv.asdf.org>
+From: Markku Savela <msa@burp.tkv.asdf.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test11, TSC cannot be used as a timesource.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've seen some references to above problem, but no clear answer. The
+'ntpd' is complaining a lot...
 
---=-ieiCGUVV1wIX8vtZ+D0k
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I have ASUS P4S800. Here is some extracts from dmesg (I can provide
+more complete dump, if anyone wants something specific.)
 
-On Sat, 2003-12-06 at 16:33, Craig Bradney wrote:
-> On Sat, 2003-12-06 at 15:42, Ian Kumlien wrote:
-> Its a pity that as Bart said, those numbers dont reflect any sort of
-> revision as that might lead to a conclusion about why it happens on some
-> and not others.
-
-Yeah i saw that aswell...=20
-
-> > Btw, i have UDMA100 disks.. 2 disks on primary and 2 cdroms on
-> > secondary... I dunno if this could make any difference..
->=20
-> 1 ata133 primary master and dvdrw and cdrom on secondary here.
-
-I'm just wondering if it could be a relation to the disk aswell or so..=20
-
-> > Good luck =3D)
->=20
-> You too :)
-
-Heh, thanks =3D)
-
-Now, about this ACPI powersave thing, wouldn't that be enabled in
-windows aswell? So wouldn't this workaround be something that $other_os
-doesn't have to do.
-
-(In general i have always had to hack windows into not crashing when
-linux worked and doing it the other way around without a real fix dosn't
-sound that nice in my ears.. =3DP)
-
-It would be interesting to hear from nvidia about nmi_watchdog... Since
-nmi_watchdog with the 'not-done-correctly' APIC patch claims that nmi is
-stalled/locked/doesn't work... If nvidia states that this *should* work,
-then we have something to go on.
-
-Also, if Allen Martin (nvidia) could go trough the proc/interrupts and
-tell us if something is wrong, like the XT-PIC on timer. Or just give us
-a correct listing, since noone had io-apic-edge on timer before afair.=20
-
---=20
-Ian Kumlien <pomac () vapor ! com> -- http://pomac.netswarm.net
-
---=-ieiCGUVV1wIX8vtZ+D0k
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA/0fyX7F3Euyc51N8RAkxuAKCq/d6hq02IcxqXfNLn3M2Uzerk/ACfQool
-efTup6zDB5WpTT0/aFJGetQ=
-=ma/H
------END PGP SIGNATURE-----
-
---=-ieiCGUVV1wIX8vtZ+D0k--
-
+Linux version 2.6.0-test11 (root@moth) (gcc version 3.3.2 (Debian)) #2 SMP Thu Dec 4 22:32:52 EET 2003
+...
+Kernel command line: BOOT_IMAGE=Linux-2 ro root=301
+Initializing CPU#0
+PID hash table entries: 1024 (order 10: 8192 bytes)
+Detected 2400.326 MHz processor.
+...
+CPU: Hyper-Threading is disabled
+...
+Intel machine check reporting enabled on CPU#0.
+CPU#0: Intel P4/Xeon Extended MCE MSRs (12) available
+CPU#0: Thermal monitoring enabled
+Enabling fast FPU save and restore... done.
+Enabling unmasked SIMD FPU exception support... done.
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+CPU0: Intel(R) Celeron(R) CPU 2.40GHz stepping 09
+per-CPU timeslice cutoff: 365.75 usecs.
+task migration cache decay timeout: 1 msecs.
+enabled ExtINT on CPU#0
+...
+Using local APIC timer interrupts.
+calibrating APIC timer ...
+..... CPU clock speed is 2399.0868 MHz.
+..... host bus clock speed is 99.0994 MHz.
+Starting migration thread for cpu 0
+CPUS done 2
+...
+PCI: Using ACPI for IRQ routing
+PCI: if you experience problems, try using option 'pci=noacpi' or even 'acpi=off'
+PCI: Cannot allocate resource region 4 of device 0000:00:02.1
+radeonfb_pci_register BEGIN
+radeonfb: ref_clk=2700, ref_div=60, xclk=15000 from BIOS
+radeonfb: probed DDR SGRAM 32768k videoram
+radeon_get_moninfo: bios 4 scratch = 2000002
+radeonfb: ATI Radeon VE QY DDR SGRAM 32 MB
+radeonfb: DVI port no monitor connected
+radeonfb: CRT port CRT monitor connected
+radeonfb_pci_register END
+...
+ACPI: Power Button (FF) [PWRF]
+ACPI: Processor [CPU0] (supports C1)
+...
+Real Time Clock Driver v1.12
+Linux agpgart interface v0.100 (c) Dave Jones
+agpgart: Detected SiS 648 chipset
+agpgart: Maximum main memory to use for agp memory: 203M
+agpgart: AGP aperture is 64M @ 0xe8000000
+[drm] Initialized radeon 1.9.0 20020828 on minor 0
+...
+Losing too many ticks!
+TSC cannot be used as a timesource. (Are you running with SpeedStep?)
+Falling back to a sane timesource.
+set_rtc_mmss: can't update from 59 to 0

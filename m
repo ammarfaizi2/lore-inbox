@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTEQUqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 17 May 2003 16:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbTEQUqn
+	id S261832AbTEQU5S (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 17 May 2003 16:57:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTEQU5S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 17 May 2003 16:46:43 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:19722 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S261825AbTEQUqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 17 May 2003 16:46:43 -0400
-Date: Sat, 17 May 2003 21:59:35 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Christoph Hellwig <hch@infradead.org>
-cc: Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Paul Mundt <lethal@linux-sh.org>
-Subject: Re: Dreamcast framebuffer updates.
-In-Reply-To: <20030517215102.A21395@infradead.org>
-Message-ID: <Pine.LNX.4.44.0305172159090.21274-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 17 May 2003 16:57:18 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:28094 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261832AbTEQU5R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 17 May 2003 16:57:17 -0400
+Date: Sat, 17 May 2003 10:56:10 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6 must-fix list, v2
+Message-ID: <20030517085610.GC686@zaurus.ucw.cz>
+References: <20030512155417.67a9fdec.akpm@digeo.com> <20030512155511.21fb1652.akpm@digeo.com> <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1052834227.432.30.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-> On Sat, May 17, 2003 at 09:39:41PM +0100, James Simmons wrote:
-> >  #ifdef CONFIG_MTRR
-> > -  #include <asm/mtrr.h>
-> > +#include <asm/mtrr.h>
-> >  #endif
+> > - ACPI needs the relax patches merging to work on lots of laptops
 > 
-> how can CONFIG_MTRR ever be set for sh?
+> Working in 2.4.21-ac, Toshiba cheap laptops now run a treat. Forward
+> port looks like a patch command
 
-Paul ???   Is it possible? 
+Well, this looks like easy to patch but
+hard to convince Andy to take it...
 
+Perhaps such workarounds could be surrounded
+by CONFIG_BROKEN_HW (default to yes).
+				Pavel
+-- 
+				Pavel
+Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
 

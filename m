@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263839AbTICRgD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:36:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbTICReu
+	id S263721AbTICRWR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263532AbTICRVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:34:50 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14796 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S263842AbTICReb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:34:31 -0400
-Date: Wed, 3 Sep 2003 19:34:17 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com, linux-net@vger.kernel.org
-Subject: [2.6 patch] COSA is no longer BROKEN
-Message-ID: <20030903173417.GC18025@fs.tum.de>
+	Wed, 3 Sep 2003 13:21:20 -0400
+Received: from holomorphy.com ([66.224.33.161]:6281 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S263659AbTICRUO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:20:14 -0400
+Date: Wed, 3 Sep 2003 10:21:04 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Cliff White <cliffw@osdl.org>
+Cc: Nick Piggin <piggin@cyberone.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: UP Regression (was) Re: Scaling noise
+Message-ID: <20030903172104.GO4306@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Cliff White <cliffw@osdl.org>, Nick Piggin <piggin@cyberone.com.au>,
+	linux-kernel@vger.kernel.org
+References: <3F55907B.1030700@cyberone.com.au> <200309031551.h83Fpu413835@mail.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200309031551.h83Fpu413835@mail.osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+On Wed, Sep 03, 2003 at 08:51:56AM -0700, Cliff White wrote:
+> On the Scalable Test Platform, running osdl-aim-7,  for the
+> UP case, 2.4 is a bit better than 2.6, this is consistent across
+> many runs. For SMP, 2.6 is better, but the delta is rather
+> small, until we get to 8 CPUS. We have a lot of un-parsed data from other
+> tests - might be some trends there also.
+> See http://developer.osdl.org/cliffw/reaim/index.html 
+> 2.4 kernels are at the bottom of the page.
 
-the compilation of cosa.c was already fixed in your BK tree, the
-following patch removes the dependency on BROKEN:
-
---- linux-2.6.0-test4-not-full/drivers/net/wan/Kconfig	2003-09-02 17:24:53.000000000 +0200
-+++ linux-2.6.0-test4-not-full/drivers/net/wan/Kconfig	2003-09-02 17:24:53.000000000 +0200
-@@ -35,7 +35,7 @@
- # The COSA/SRP driver has not been tested as non-modular yet.
- config COSA
- 	tristate "COSA/SRP sync serial boards support"
--	depends on WAN && ISA && m && BROKEN
-+	depends on WAN && ISA && m
- 	---help---
- 	  This is a driver for COSA and SRP synchronous serial boards. These
- 	  boards allow to connect synchronous serial devices (for example
+Do you have profile data for these runs? Also, that webpage doesn't
+have 2.4.x results.
 
 
-Please apply
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+-- wli

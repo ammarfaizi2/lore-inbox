@@ -1,140 +1,106 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276040AbRI1NHJ>; Fri, 28 Sep 2001 09:07:09 -0400
+	id <S276042AbRI1NJi>; Fri, 28 Sep 2001 09:09:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276024AbRI1NG7>; Fri, 28 Sep 2001 09:06:59 -0400
-Received: from [213.236.192.200] ([213.236.192.200]:24546 "EHLO
-	mail.circlestorm.org") by vger.kernel.org with ESMTP
-	id <S276041AbRI1NGy>; Fri, 28 Sep 2001 09:06:54 -0400
-Message-ID: <008f01c1481e$c15eaa70$d2c0ecd5@dead2>
-From: "Dead2" <dead2@circlestorm.org>
-To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: Asus CUV266-D problems
-Date: Fri, 28 Sep 2001 15:09:07 +0200
-Organization: CircleStorm Productions
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S276044AbRI1NJ3>; Fri, 28 Sep 2001 09:09:29 -0400
+Received: from vega.digitel2002.hu ([213.163.0.181]:64705 "EHLO
+	vega.digitel2002.hu") by vger.kernel.org with ESMTP
+	id <S276042AbRI1NJS>; Fri, 28 Sep 2001 09:09:18 -0400
+Date: Fri, 28 Sep 2001 15:09:36 +0200
+From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
+To: clemens <therapy@endorphin.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ide drive problem?
+Message-ID: <20010928150936.B12586@vega.digitel2002.hu>
+Reply-To: lgb@lgb.hu
+In-Reply-To: <20010928041519.968EA4FA00@spock> <OE55yDnSI4nHp4PlNMu00004f47@hotmail.com> <20010928135222.A2722@ghanima.endorphin.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <20010928135222.A2722@ghanima.endorphin.org>
+User-Agent: Mutt/1.3.22i
+X-Operating-System: vega Linux 2.4.10-grsecurity-1.8 i686
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay, I have now upgraded to the 1004 bios version, and
-reinstalled SuSE linux 7.1 using the minimum install, and added
-the packages required to compile the kernel.
+On Fri, Sep 28, 2001 at 01:52:22PM +0200, clemens wrote:
+> Hi David, Hi Steve
+> 
+> i get:
+> 
+> hde: dma_intr: status=0x51 { DriveReady SeekComplete Error }
+> hde: dma_intr: error=0x84 { DriveStatusError BadCRC }
 
-Unfortunately I still have big problems with booting this computer.
+Hmmm, I get this message as well about once a day (though it seems it
+could not cause any damage ... yet ...)
+But I have got non-highpoint-equipped KT133 motherboard with ATA33
+disk.
 
-SuSE installer installs 3 kernels:
-Linux
-Linux 2.4
-Suse
+Note, that this hw config DID NOT WORK with 2.2.x kernel at all (waiting
+for interrupt or something similar message)
 
-All of these use kernel 2.4.0, but with different configurations.
-
-All of these fails during boot, the last message i see is "Starting Syslog",
-then i get a blank screen and nothing more happens. Only thing that works
-then is a hard boot.
-
-I managed to boot the 'suse' kernel once, and the attached files are from
-that session.
-The file 'config' is from the 2.4.10 kernel i compiled and tried to boot,
-but that too
-gets the same errors.
-
-It seems to me that it has a lot of problems with the HDD/-controller, as it
-keeps
-complaining about it all the time.
-
-Among others, these are the strangest in my openion:
-<4>Warning, log replay starting on readonly filesystem
-<4>hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-<4>hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-<4>hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-<4>hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-<4>hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-<4>hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-<4>hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-<4>hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
-<4>ide0: reset timed-out, status=0xd0
-
-I have tried changing the disk, changing cable, tested all HDD-settings (MW,
-SMART, DMA)
-
-As this is a quite attractive server board, I hope I will get some good help
-with this problem.
-
-Any additional information needed? Tell me..
-
--=Dead2=-
-
------ Original Message -----
-From: "Jordan Breeding" <ledzep37@home.com>
-> Also if you wouldn't mind sending me your
-> .config from your 2.4.10 kernel I would like to check some options to do
-> with your problem.  Thanks.
->
-> Jordan
->
-> Jordan Breeding wrote:
-> >
-> >
-> > P.S. - I didn't see a 1003 version of the -D bios at ftp.asuscom.de but
-> > I did see a 1004 version.  I also did not see a DLS bios listed at all,
-> > this board is hinted at and has basic specs listed at several sites on
-> > the internet, does it exist, can it be bought?  Thanks for any
-> > information that you can give me about the CUV266-DLS.  BTW, the
-> > unexpected APIC thing is no big deal, it is saying that one of the
-> > registers of the APIC stuff is set to something that was unexpected, it
-> > happens on almost all current SMP boards I have worked with.
-> >
-> > Dead2 wrote:
+> on:
+> 
+> Linux version 2.4.9-ac7 (root@ghanima) (gcc version 2.95.4 20010902 (Debian
+> prerelease)) #1 SMP Wed Sep 26 14:39:37 CEST 2001
+> 
+> HPT370: IDE controller on PCI bus 00 dev 98
+> PCI: Found IRQ 15 for device 00:13.0
+> HPT370: chipset revision 3
+> HPT370: not 100% native mode: will probe irqs later
+>     ide2: BM-DMA at 0xe800-0xe807, BIOS settings: hde:DMA, hdf:pio
+>     ide3: BM-DMA at 0xe808-0xe80f, BIOS settings: hdg:pio, hdh:pio
+> hde: ST360021A, ATA DISK drive
+> 
+> even thou i have VT8363/8365 (=KT133) as north bridge, and VT82C686A as
+> southbridge, at least the south bridge could not be blamed for that, since
+> a. i don't even use it, hde is my hpt370 controller, and
+> b. it's the A revision and not the infamous 686B revision (see
+> http://www.viahardware.com/686bfaq.shtm for more infos on "the" 686B bug)
+> 
+> what kernel, harddisc do you both have?
+> 
+> clemens
+> 
+> p.s.: i don't know if "BadCRC" has anything to do with bad blocks, but
+> /sbin/badblocks doesn't even show a single bad block on my brand new seagate 
+> disc, so i guess, that's not the source of the troubles.
+> 
+> On Thu, Sep 27, 2001 at 10:44:53PM -0700, David Grant wrote:
+> > I think the standard response people would give you is that your IDE cable
+> > is too long, of bad quality, or you are using a 40-pin cable instead of an
+> > 80-pin cable (although I'm pretty sure that should have been detected, and
+> > DMA should automatically have not been used, but I heard at one point that
+> > the code which detected this on motherboards using the vt82c686b chip didn't
+> > really work in some cases).
+> > 
+> > That's the standard answer, but I used to get this messages on my machine as
+> > well (I think it was back when I was trying to use my VIA chipset with
+> > Redhat 7.1).  I don't seem to get them anymore though, but maybe that's just
+> > because I'm trying to install distros newer than Redhat 7.1.  That makes me
+> > think that I never had CRC errors, it was just some buggy VIA code.
+> > 
+> > I just get the dma timeout errors now with my VIA IDE controller.  I also
+> > get them with the Promise controller (sigh...).
+> > 
+> > David Grant
+> > 
+> > ----- Original Message -----
+> > From: "Steven Joerger" <steven@spock.2y.net>
+> > To: <linux-kernel@vger.kernel.org>
+> > Sent: Thursday, September 27, 2001 9:02 PM
+> > Subject: ide drive problem?
+> > 
+> > 
+> > > List,
 > > >
-> > > I'm having big problems with booting on this motherboard.
+> > > When I enable support for my chipset in the kernel (via kt133) I always
+> > get
+> > > these messages:
 > > >
-> > > It is a dual motherboard with 2x Intel P3 866Mhz cpus
-> > > Asus CUV 266-D  Bios rev. 1003
+> > > hda: dma_intr: error=0x84 { DriveStatusError BadCRC }
+> > > hda: dma_intr: status=0x51 { DriveReady SeekComplete Error }
 > > >
-> > > I have tried to boot with the following kernels:
-> > > 2.4.0 (SuSE 7.1 Install CD)
-> > > 2.4.4? (SuSE 7.2 Install CD)
-> > > 2.4.10 Custom compiled with SMP, but no extra ACPI or APM
+> > > over and over and ....
 > > >
-> > > 2.4.0 boots and works for a while, but installation always fails..
-> > > It just stops, and never gives any error messages.
-> > >
-> > > 2.4.4 boots and works for a while, but installation always fails..
-> > > It most often stops, but some times it complains about some HDD
-> > > error (too fast for me to see what it actually says) then reboots.
-> > >
-> > > 2.4.10 boots, but only with MPS 1.1, and most of the bios in safety
-mode.
-> > > When it gets to checking the HDD it fails and mounts it read-only.
-> > >
-> > > I can see ACPI errors occuring while booting, but they run along too
-fast
-> > > for me to fine-read.. (any way to pause/delay it?)
-> > > Something about unexpected or unknown ACPI-IO *i think*
-> > >
-> > > I have tried to change the HDD with another one, and have confirmed
-> > > that both are working in another comp. (Western Digital WD200)
-> > >
-> > > If you need any other info, please let me know.
-> > >
-> > > Please give me feedback on what this might be, and how this can be
-solved.
-> > >
-> > > - Hans K. Rosbach aka Dead2
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe
-linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-
-
+> > > Any clues to whats going on?

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264733AbSKNAg4>; Wed, 13 Nov 2002 19:36:56 -0500
+	id <S264683AbSKNAfi>; Wed, 13 Nov 2002 19:35:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSKNAg4>; Wed, 13 Nov 2002 19:36:56 -0500
-Received: from petasus.ch.intel.com ([143.182.124.5]:33945 "EHLO
-	petasus.ch.intel.com") by vger.kernel.org with ESMTP
-	id <S264733AbSKNAgz>; Wed, 13 Nov 2002 19:36:55 -0500
-Message-ID: <A46BBDB345A7D5118EC90002A5072C7806CAC93D@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'Falk Hueffner'" <falk.hueffner@student.uni-tuebingen.de>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: RE: [PATCH] include/asm-ARCH/page.h:get_order() Reorganize and op
-	 timize
-Date: Wed, 13 Nov 2002 16:43:37 -0800
+	id <S264697AbSKNAfi>; Wed, 13 Nov 2002 19:35:38 -0500
+Received: from 1-064.ctame701-1.telepar.net.br ([200.181.137.64]:39589 "EHLO
+	1-064.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S264683AbSKNAfh>; Wed, 13 Nov 2002 19:35:37 -0500
+Date: Wed, 13 Nov 2002 22:42:11 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: Andrew Morton <akpm@digeo.com>, <linux-mm@kvack.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove hugetlb syscalls
+In-Reply-To: <20021113184555.B10889@redhat.com>
+Message-ID: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 13 Nov 2002, Benjamin LaHaise wrote:
 
-> > > >     s = --s >> PAGE_SHIFT;
-> > > 
-> > > This code has undefined behaviour.
-> >  
-> > Do you mean that this:
-> > 
-> > s = (s-1) >> PAGE_SHIFT
-> > 
-> > is more deterministic? If so, I agree -- if you mean something else,
-> > I am kind of lost.
-> 
-> I mean that this code violates the rule that you may modify a value
-> only once between two sequence points. Newer gccs have a warning for
-> this (-Wsequence-point), the info page tells more.
+> Since the functionality of the hugetlb syscalls is now available via
+> hugetlbfs with better control over permissions, could you apply the
+> following patch that gets rid of a lot of duplicate and unnescessary
+> code by removing the two hugetlb syscalls?
 
-Agreed, and it was a poor choice from me. (s-1) should be correct,
-and gcc-3.2 with -Wsequence-point is happy about it.
+#include <massive_applause.h>
 
-> Also, did I understand it right that you want to use fls even on
-> architectures that don't have it as a builtin? I would guess that will
-> actually be noticeably slower, since generic_fls is so complicated.
+Yes, lets get rid of this ugliness before somebody actually
+finds a way to use these syscalls...
 
-Well, it is not that bad, and it is still faster [did a quick test now]
+regards,
 
-0.144s, 0.241s and 0.358s
-
-[get_order on all numbers from 0 to 90000000 with the optimized version, 
-the one that uses generic_fls and the old one].
-
-Inaky Perez-Gonzalez -- Not speaking for Intel - opinions are my own [or my
-fault]
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://guru.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
 

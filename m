@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267445AbUBSRwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 12:52:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267446AbUBSRwP
+	id S267453AbUBSRxo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 12:53:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267449AbUBSRxo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 12:52:15 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:23523 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S267445AbUBSRwO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 12:52:14 -0500
-Cc: "Andrea Arcangeli" <andrea@suse.de>,
-       "Nigel Cunningham" <ncunningham@users.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-To: "Pavel Machek" <pavel@suse.cz>
-Subject: Re: Reserved page flaging of 2.4 kernel memory changed recently?
-References: <200402050941.34155.mhf@linuxmail.org> <20040208020624.GG31926@dualathlon.random> <200402100625.41288.mhf@linuxmail.org> <20040219072629.GB467@openzaurus.ucw.cz> <opr3l0mfdw4evsfm@smtp.pacific.net.th> <20040219161455.GC259@elf.ucw.cz> <opr3mok1ko4evsfm@smtp.pacific.net.th> <20040219173514.GD259@elf.ucw.cz>
-Message-ID: <opr3mplzb44evsfm@smtp.pacific.net.th>
-Date: Fri, 20 Feb 2004 01:59:49 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
+	Thu, 19 Feb 2004 12:53:44 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:62716 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267446AbUBSRxn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 12:53:43 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH] remove MAKEDEV scripts from scripts/
+Date: Thu, 19 Feb 2004 18:59:55 +0100
+User-Agent: KMail/1.5.3
+Cc: root@chaos.analogic.com, akpm@osdl.org,
+       Linux kernel <linux-kernel@vger.kernel.org>
+References: <20040219161306.GA30620@lst.de> <200402191809.44418.bzolnier@elka.pw.edu.pl> <20040219170451.GA31763@lst.de>
+In-Reply-To: <20040219170451.GA31763@lst.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20040219173514.GD259@elf.ucw.cz>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200402191859.55179.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 Feb 2004 18:35:14 +0100, Pavel Machek <pavel@suse.cz> wrote:
-
-> Hi!
+On Thursday 19 of February 2004 18:04, Christoph Hellwig wrote:
+> On Thu, Feb 19, 2004 at 06:09:44PM +0100, Bartlomiej Zolnierkiewicz wrote:
+> > > Christoph, please remove MAKEDEV.ide references from
+> > > Documentation/ide.txt 8).
+> >
+> > Ugh, there are much more references to MAKEDEV in Documentation/ dir.
 >
->> >That means that PG_nosave | PG_reserved indeed is "PG_donttouch", but
->> >PG_nosave has slightly different meaning.
->>
->> Makes sense, but PG_reserved is used to keep VM out of these pages.
->>
->> Can we have a seperate bit PG_donttouch which is set with PG_nosave
->> | PG_reserved in reserved/video/BIOS/Broken CPU areas?
->
-> Why?
->
-> I do not see what is wrong with 2 separate flags... In fact, you might
-> want to
->
-> #define PG_donttouch (PG_reserved | PG_nosave)
->
-> and (modulo atomic macros etc), it would work for everyone...
->
+> MAKEDEV is okay, it's the script in /dev used to create device nodes.
 
-As your earlier post pointed out, it would not work in swsusp nosave area
-which is only PG_reserved | PG_nosave.
+I know but this is inconsistent - "makedev is a userland issue, and the
+distros already take care of ide and sound. ".  Same goes for MAKEDEV.
 
-Are we too short of bits ? ;)
-
-What about:
-  - export swsusp __nosave range for netdump override to dump __nosave page(s)
-
-  - debugger (linked in) uses swsusp __nosave range to enable access to __nosave page(s)
-
-Regards
-Michael
-
-
-
+We should at least try to remove some these references during 2.6.
+(and make people aware about udev, random major/minor numbers, etc.).
 

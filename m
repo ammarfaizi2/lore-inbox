@@ -1,64 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272668AbRIQEmL>; Mon, 17 Sep 2001 00:42:11 -0400
+	id <S273477AbRIQE6G>; Mon, 17 Sep 2001 00:58:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273471AbRIQEmC>; Mon, 17 Sep 2001 00:42:02 -0400
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:247 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S273470AbRIQElx>; Mon, 17 Sep 2001 00:41:53 -0400
-From: Andreas Dilger <adilger@turbolabs.com>
-Date: Sun, 16 Sep 2001 22:42:11 -0600
-To: linux-kernel@vger.kernel.org
-Subject: Re: Define conflict between ext3 and raid patches against 2.2.19
-Message-ID: <20010916224211.H1541@turbolinux.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20010916155835.C24067@mikef-linux.matchmail.com> <20010917010927.A9308@schmorp.de> <20010916184339.H1564@mikef-linux.matchmail.com>
-Mime-Version: 1.0
+	id <S273475AbRIQE55>; Mon, 17 Sep 2001 00:57:57 -0400
+Received: from gear.torque.net ([204.138.244.1]:40463 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S273471AbRIQE5o>;
+	Mon, 17 Sep 2001 00:57:44 -0400
+Message-ID: <3BA5759B.B5743C6D@torque.net>
+Date: Mon, 17 Sep 2001 00:01:31 -0400
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.10-pre9 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: lkml@krimedawg.org, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: OOPS in scsi generic stuff 2.4.10-pre6
+In-Reply-To: <3BA4CB70.50B4A3AB@torque.net> <20010916182208.B9006@suse.de> <20010916185522.D9006@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010916184339.H1564@mikef-linux.matchmail.com>
-User-Agent: Mutt/1.3.20i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 16, 2001  18:43 -0700, Mike Fedyk wrote:
-> > Change BH_Temp to:
-> > 
-> > #define BH_Temp         9       /* 1 if the buffer is temporary (unlinked)
-> > 
-> > and it should work.
-> >                                      
+Jens Axboe wrote:
 > 
-> /* bh state bits */
-> #define BH_Uptodate     0       /* 1 if the buffer contains valid data */
-> #define BH_Dirty        1       /* 1 if the buffer is dirty */
-> #define BH_Lock         2       /* 1 if the buffer is locked */
-> #define BH_Req          3       /* 0 if the buffer has been invalidated */
-> #define BH_Protected    6       /* 1 if the buffer is protected */
-> #define BH_Wait_IO      7       /* 1 if we should throttle on this buffer */
-> #define BH_Temp         8       /* 1 if the buffer is temporary (unlinked) */
-> #define BH_JWrite       9       /* 1 if being written to log (@@@ DEBUGGING)*/
-> #define BH_QuickFree    10      /* 1 if alloced and freed quickly (see below)*/
-> #define BH_Alloced      11      /* 1 if buffer has been allocated */
-> #define BH_Freed        12      /* 1 if buffer has been freed (truncated)*/
-> #define BH_Revoked      13      /* 1 if buffer has been revoked from the log*/
-> #define BH_RevokeValid  14      /* 1 if buffer revoked flag is valid */
-> #define BH_JDirty       15      /* 1 if buffer is dirty but journaled */
+> On Sun, Sep 16 2001, Jens Axboe wrote:
+> > It looks like a race in that sg_cmd_done_bh can be completed before
+> > generic_unplug_device is called (and thus on a free'd scsi request). We
+> > then pass an invalid queue to generic_unplug_device.
 > 
-> As you can see, that is already taken from ext3.  Is this ok?
-> 
-> #define BH_LowPrio      16      /* 1 if the buffer is temporary (unlinked)
-> 
-> Or do I only have 16 bits to work with?
+> (corrected version, scsi_allocate_request can of course fail)
 
-No, you have 32 bits to work with.  In my ext3-2.2 patches I just increased
-all of the ext3 numbers by one.  I don't think it is critical what number is
-used in the end, as long as you don't get another patch defining these flags
-(reiserfs uses these flags in 2.2 as well).
+Jens,
+Prior to this patch (actually the first one you posted
+today) sg_dd would frequently crash in generic_unplug_device
+when tested against the scsi_debug adapter driver. [I have 
+hacked up that driver to simulate a large number of (ram) 
+disks to test Richard Gooch's 2000+ scsi disk patch.]
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+The way scsi_debug handles all its commands, the bottom
+half handler in sg will be called before scsi_do_req()
+completes. With this patch the problem goes away.
+
+Doug Gilbert
 

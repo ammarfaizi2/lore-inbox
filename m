@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUD2VAn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264873AbUD2VDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263093AbUD2VAn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 17:00:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264862AbUD2U7S
+	id S264873AbUD2VDo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 17:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUD2VDP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 16:59:18 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:3083 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S263093AbUD2Uyt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 16:54:49 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>,
-       Mikael Pettersson <mikpe@user.it.uu.se>
-Subject: Re: [PATCH][2.6.6-rc3] gcc-3.4.0 fixes
-Date: Thu, 29 Apr 2004 23:54:37 +0300
-User-Agent: KMail/1.5.4
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
-References: <1PX8S-5z2-23@gated-at.bofh.it> <4090CB31.6090300@softhome.net>
-In-Reply-To: <4090CB31.6090300@softhome.net>
+	Thu, 29 Apr 2004 17:03:15 -0400
+Received: from ida.rowland.org ([192.131.102.52]:18436 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S264781AbUD2U7P (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 16:59:15 -0400
+Date: Thu, 29 Apr 2004 16:59:14 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Martin Hermanowski <martin@mh57.de>
+cc: Soeren Sonnenburg <kernel@nn7.de>, Marcel Holtmann <marcel@holtmann.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.6-rc3 still oops on unplugging usb bluetooth
+ bcm203x dongle
+In-Reply-To: <20040429205351.GJ11077@mh57.de>
+Message-ID: <Pine.LNX.4.44L0.0404291658190.1492-100000@ida.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200404292354.37091.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 29 April 2004 12:30, Ihar 'Philips' Filipau wrote:
-> Mikael Pettersson wrote:
-> > This patch fixes three warnings from gcc-3.4.0 in 2.6.6-rc3:
-> > - drivers/char/ftape/: use of cast-as-lvalue
-> >  		if (get_unaligned((__u32*)ptr)) {
-> > -			++(__u32*)ptr;
-> > +			ptr += sizeof(__u32);
-> >  		} else {
->
->    Can anyone explain what is the problem with this?
->    To me it seems pretty ligitimate code - why it was outlawed in gcc 3.4?
+On Thu, 29 Apr 2004, Martin Hermanowski wrote:
 
-cast is not a lvalue. ++(__u32*)ptr is nonsense, just like ++4.
+> On Thu, Apr 29, 2004 at 03:59:36PM -0400, Alan Stern wrote:
+> > 
+> > Marcel Holtman is working on this; some other people have reported the 
+> > same problem.  Have you been in touch with him?  It appears to be a 
+> > problem in the Bluetooth driver, not in the USB stack.
+> 
+> Are there any patches available? The most recent patch I could find is
+> for 2.6.5, and does not change this problem.
+> 
+> I would like to try the latest version of the bluez-patch, if this can
+> help to find the bug.
 
->    Previous code was agnostic to type of ptr, but you code presume ptr
-> being char pointer (to effectively increment by 4 bytes).
+As I said, Marcel is working on it.  You should ask him there are any 
+patches available (but I don't think he's gotten that far yet).
 
-This would be agnostic too:
+Alan Stern
 
-ptr = (void*) ((char*)ptr + sizeof(__u32));
---
-vda
 

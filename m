@@ -1,41 +1,82 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315842AbSETK7Z>; Mon, 20 May 2002 06:59:25 -0400
+	id <S315870AbSETLDN>; Mon, 20 May 2002 07:03:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315858AbSETK7Y>; Mon, 20 May 2002 06:59:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:17927 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S315842AbSETK7Y>;
-	Mon, 20 May 2002 06:59:24 -0400
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-In-Reply-To: <Pine.LNX.4.44.0205191951460.22433-100000@home.transmeta.com.suse.lists.linux.kernel> <E179fAd-0005vs-00@wagner.rustcorp.com.au.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 20 May 2002 12:59:23 +0200
-Message-ID: <p73r8k7xeyc.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S315883AbSETLDM>; Mon, 20 May 2002 07:03:12 -0400
+Received: from sj-msg-core-2.cisco.com ([171.69.24.11]:49378 "EHLO
+	sj-msg-core-2.cisco.com") by vger.kernel.org with ESMTP
+	id <S315870AbSETLDM>; Mon, 20 May 2002 07:03:12 -0400
+Message-ID: <3CE8D80C.3A771CB1@cisco.com>
+Date: Mon, 20 May 2002 16:33:40 +0530
+From: Manik Raina <manik@cisco.com>
+Organization: Cisco Systems
+X-Mailer: Mozilla 4.51C-CISCOENG [en] (X11; I; SunOS 5.6 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: adding counters to count bytes read/written
+In-Reply-To: <Pine.LNX.4.21.0205201506240.14394-100000@localhost.localdomain> <20020520131222.K9955@mea-ext.zmailer.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell <rusty@rustcorp.com.au> writes:
 
-> In message <Pine.LNX.4.44.0205191951460.22433-100000@home.transmeta.com> you wr
-> ite:
-> > 	ret = copy_from_user(xxx);
-> > 	if (ret)
-> > 		return ret;
-> > 
-> > which is apparently your suggestion.
+	Thanks for the comments Matti, Please see inline ...
+
+Matti Aarnio wrote:
 > 
-> Not quite:
-> 	copy_from_user(xxx);
+> On Mon, May 20, 2002 at 03:09:36PM +0530, Manik Raina wrote:
+> > Hi Linus,
+> >
+> >       This patch adds 2 counters to the task_struct for
+> >       counting how many bytes were read/written using
+> >       the read()/write() system calls.
+> >
+> >       These counters may be useful in determining how
+> >       many IO requests are made by each process.
 > 
-> Is my suggestion.  No error return.
+>   These are defined as UINTegers, are you sure that is appropriate type ?
+>   What to do when they will overflow ?  For short term activity tracking
+>   they may be ok (4GB/200 MB/sec = 20 sec to wrap around), but for accounting
+>   the overflow might not be liked thing..
 
-I don't think it is a good idea. Consider a driver that does lots 
-of small copy_from_user() from user space for a longer write (e.g. TCP
-to a small MSS) If xxx was faulting it would eat a lot of cycles with 
-faulting again and again.
 
--Andi
+	How about 64 bit counters ? i feel those should go on without
+	wraparound for a _very_ long time.
 
+	Did you have anything else in mind ?
+	
+> 
+>   For short-term IO-activity tracking they may indeed make sense, but I
+>   would add another pair of counters to assist on that tracking.  Namely
+>   "values at the end of previous interval", which are maintained by the
+>   activity tracking code.
+
+	Would this still be required if the counters are 64 bit ?
+
+> 
+>   Reading one byte at the time won't grow those counters very fast, but will
+>   cause massive amounts of syscalls, and context switches, so tracking data
+>   amount alone isn't good enough.
+
+	What else would you suggest i track ?
+	thanks
+	Manik
+
+> 
+> ....
+> > diff -u -r ../temp/linux-2.5.12/include/linux/sched.h ./include/linux/sched.h
+> > --- ../temp/linux-2.5.12/include/linux/sched.h        Wed May  1 05:38:47 2002
+> > +++ ./include/linux/sched.h   Mon May 20 09:25:32 2002
+> > @@ -315,6 +315,7 @@
+> >       int link_count, total_link_count;
+> >       struct tty_struct *tty; /* NULL if no tty */
+> >       unsigned int locks; /* How many file locks are being held */
+> > +     unsigned int bytes_written, bytes_read;
+> >  /* ipc stuff */
+> >       struct sysv_sem sysvsem;
+> >  /* CPU-specific state of this task */
+> 
+> /Matti Aarnio

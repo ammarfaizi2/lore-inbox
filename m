@@ -1,65 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264354AbTEaPjW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 11:39:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264357AbTEaPjW
+	id S264500AbTEaPrL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 11:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264510AbTEaPrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 11:39:22 -0400
-Received: from imsantv20.netvigator.com ([210.87.250.76]:12983 "EHLO
-	imsantv20.netvigator.com") by vger.kernel.org with ESMTP
-	id S264354AbTEaPjU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 11:39:20 -0400
-From: Michael Frank <mflt1@micrologica.com.hk>
-To: Rik van Riel <riel@redhat.com>, linux-mm@kvack.org
-Subject: Re: [PATCH] rmap 15j for 2.4.21-rc6
-Date: Sat, 31 May 2003 23:52:15 +0800
-User-Agent: KMail/1.5.2
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0305311047110.20941-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0305311047110.20941-100000@chimarrao.boston.redhat.com>
-X-OS: GNU/Linux 2.5.70
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200305312348.42499.mflt1@micrologica.com.hk>
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 31 May 2003 11:47:10 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:4993 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S264500AbTEaPrE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 11:47:04 -0400
+Date: Sat, 31 May 2003 17:06:21 +0100
+From: john@grabjohn.com
+Message-Id: <200305311606.h4VG6L8f000816@81-2-122-30.bradfords.org.uk>
+To: chris@heathens.co.nz, davej@codemonkey.org.uk, hch@infradead.org,
+       linux-kernel@vger.kernel.org, lm@bitmover.com
+Subject: Re: coding style (was Re: [PATCH][2.5] UTF-8 support in console)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 31 May 2003 22:48, Rik van Riel wrote:
+> > Saving a line over readability is utterly bogus.
+
+> I agree 100%.  If you have anything more complex than
 >
-> Today I finally merged rmap15j forward to marcelo's latest
-> release.  The IO stall fixes should be especially interesting:
+>         if (error) return (error);
 >
+> I want it to look like
+>
+>         if ((expr) || (expr2) || (expr3)) {
+>                 return (error);
+>         }
 
-Patched rc6 ex BK OK and compiled with gcc295-3 OK
+Ergh, personally I hate reading code like that.
 
-On a P4/533-2.4Ghz/512MB with udma5 IDE ~50MB/s:
+Having said that, I hate code that is indented.  Am I the only person who mentally
+counts, "in, in, in, out", etc, when reading code?  Artificial indenting really
+throws off my concentration, because the 'prompting' it provides does nothing to
+help me, but the ragged left margin is irritating, and makes moving code around
+awkward, because you have to correct the indenting to match the current, (actual),
+nesting level of the code, (because indenting is a completely artificial concept).
 
-Shows severe interactivity problems and hangs
+I'm not trying to say my coding style is right, and yours is wrong, I'm just curious
+ :-).
 
-Scroll and mouse hangs and delayed response to keyboard 
-greater 1s are easily observable.
-
-Test script: tstinter V0.1 
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0305.3/1291.html
-
-To reproduce cd to dir with script and execute from X console: 
-  ./tstinter start
-
-More instructions in script
-
-Other kernel results: 
-   2.4.18 PIO DIES - see msg w. script, 
-   2.4.18 udma2 OK, 
-   2.4.19 Bad, 
-   2.4.20 Bad, 
-   2.4.21-rc1 Bad, 
-   2.4.21-rc6 OK 
-   2.5.70,-mm1,-mm2,-mm3 (OK) 
-
-Regards
-Michael
-
+John.

@@ -1,64 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262395AbUKRDMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbUKRDPM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262395AbUKRDMr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 22:12:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262391AbUKRDKi
+	id S262398AbUKRDPM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 22:15:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbUKRDO7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 22:10:38 -0500
-Received: from fw.osdl.org ([65.172.181.6]:49380 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262395AbUKRDKD (ORCPT
+	Wed, 17 Nov 2004 22:14:59 -0500
+Received: from smtpout.mac.com ([17.250.248.84]:60147 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262387AbUKRDLY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 22:10:03 -0500
-Date: Wed, 17 Nov 2004 19:09:33 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Dike <jdike@addtoit.com>
-Cc: Ian.Pratt@cl.cam.ac.uk, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
-       Keir.Fraser@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [patch 2] Xen core patch : arch_free_page return value
-Message-Id: <20041117190933.16e8b8ed.akpm@osdl.org>
-In-Reply-To: <200411180508.iAI58iQ3007886@ccure.user-mode-linux.org>
-References: <E1CUaxA-0006Fa-00@mta1.cl.cam.ac.uk>
-	<200411180508.iAI58iQ3007886@ccure.user-mode-linux.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 17 Nov 2004 22:11:24 -0500
+In-Reply-To: <200411172150.40799.dtor_core@ameritech.net>
+References: <MDEHLPKNGKAHNMBLJOLKEEOHPNAA.davids@webmaster.com> <3D5D0803-3907-11D9-85DC-000393ACC76E@mac.com> <200411172150.40799.dtor_core@ameritech.net>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <81348C10-390F-11D9-85DC-000393ACC76E@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: clemens@endorphin.org, davids@webmaster.com, linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: GPL version, "at your option"?
+Date: Wed, 17 Nov 2004 22:11:13 -0500
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Dike <jdike@addtoit.com> wrote:
->
-> Ian.Pratt@cl.cam.ac.uk said:
-> > Pages that have been allocated by our custom allocators get passed
-> > into standard linux subsystems where we get no control over how
-> > they're freed. We want the normal page ref counting etc to happen as
-> > per normal, we just want to intercept the final free so that we can
-> > return it to our allocator rather than the standard one.
-> 
-> I have to agree with Dave - this is just a wierd solution.  I added 
-> arch_free_page to do arch-specific, invisible-to-the-generic-kernel things.
-> My intent may not be the be-all and end-all for this, but I think the semantics
-> you want to add to it are not that reasonable.
-> 
-> My gut reaction (without knowing your problem in any detail) would be that 
-> you need too add some more structure to whatever mechanism you have
-> so that the pages land in your allocator automatically, like a slab or a new
-> zone or something.
-> 
+On Nov 17, 2004, at 21:50, Dmitry Torokhov wrote:
+> Yes, but the additions I made will be GPLv3 only (no sources). So I 
+> will
+> gladly provide you with the sources off kernel.org and you will never 
+> see
+> the sources for a driver I wrote. See?
 
-I can't immediately think of any way of doing that.
+What about section 2, subsection B of the GPL:
+> b) You must cause any work that you distribute or publish, that in
+>     whole or in part contains or is derived from the Program or any
+>     part thereof, to be licensed as a whole at no charge to all third
+>     parties under the terms of this License.
 
-One could perhaps hide it with
+"this License", would refer to the specific version of the license.  
+This means
+that since the original code is dual-licensed under both versions, any 
+code
+that is a derivative work must _also_ be dual-licensed (This assumes of
+course that the other license has a similar clause).  In any case, any 
+work
+derived from a GPLv2'ed work must also be licensable under the GPLv2.
+Therefore, my request for _your_ source-code under the GPLv2 is 
+perfectly
+valid.
 
-#ifdef CONFIG_ZEN
-#define __free_pages_ok xen_free_page
-#else
-#define __free_pages_ok everybody_else_free_page
-#endif
+Cheers,
+Kyle Moffett
 
-and rename __free_pages_ok() to everybody_else_free_page().
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a17 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
-But heck - why bother?  The current patch adds just one line of code in one
-place, and the compiler will toss it away anyway for all but xen and um.
 
-I think we can live with that.

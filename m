@@ -1,55 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277365AbRJJSjP>; Wed, 10 Oct 2001 14:39:15 -0400
+	id <S277361AbRJJSs3>; Wed, 10 Oct 2001 14:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277363AbRJJSjH>; Wed, 10 Oct 2001 14:39:07 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:20241 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S277359AbRJJSis>;
-	Wed, 10 Oct 2001 14:38:48 -0400
-Date: Wed, 10 Oct 2001 11:31:45 -0700
-From: Greg KH <greg@kroah.com>
-To: Oleg Drokin <green@linuxhacker.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB SMP race in 2.4.11
-Message-ID: <20011010113145.E7782@kroah.com>
-In-Reply-To: <20011010222223.A1223@linuxhacker.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011010222223.A1223@linuxhacker.ru>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+	id <S277362AbRJJSsR>; Wed, 10 Oct 2001 14:48:17 -0400
+Received: from minus.inr.ac.ru ([193.233.7.97]:43025 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S277361AbRJJSsG>;
+	Wed, 10 Oct 2001 14:48:06 -0400
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200110101848.WAA05322@ms2.inr.ac.ru>
+Subject: Re: RFC : Wireless Netlink events
+To: jt@hpl.hp.com
+Date: Wed, 10 Oct 2001 22:48:22 +0400 (MSK DST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20011010111404.D17439@bougret.hpl.hp.com> from "Jean Tourrilhes" at Oct 10, 1 11:14:04 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 10:22:23PM +0400, Oleg Drokin wrote:
-> Hello!
+Hello!
+
+> 	That would not be the case of Wireless Events, the event would
+> just contain the type of change and the interface index. See reasons
+> for that below.
+
+See below. :-)
+
+> > I am not sure that it is right and in right place. I would not create one
+> > more message type for such... mmm... special case.
+> > Probably, you could add a new attribute to RTM_*LINK sort of
+> > IFLA_MISC and to send ifinfo messages.
 > 
->    I have caught kernel oops that is related to SMP race on usb modules
->    deregistering.
->    2.4.10 was fine with the same setup.
->    USB core is compiled-in, hub driver is uhci (as module).
->    Here is the decoded oops:
+> 	The problem is that I need to propagate the "command" field
+> (the ioctl number leading to the event), and there is no space for
+> that in the ifinfo structure. None of the flags in the ifinfo
+> structure would change when those ioctls are called.
+> 	I don't mind adding a new attribute to struct ifinfo, but that
+> will break existing netlink apps (unless I missed something).
 
-Can you try the attached patch and let us know if the oops still
-happens?
+You missed.
 
-thanks,
+All the rtnetlink messages contain a minimal fix part, followed
+by variable attributes. New attributes can be added any time
+not breaking anything.
 
-greg k-h
+
+> 	Hu ? Just query any of the Wireless IOCTLs,
+
+OK. I see.
 
 
-diff --minimal -Nru a/drivers/usb/uhci.c b/drivers/usb/uhci.c
---- a/drivers/usb/uhci.c	Wed Oct 10 07:32:38 2001
-+++ b/drivers/usb/uhci.c	Wed Oct 10 07:32:38 2001
-@@ -1594,9 +1594,7 @@
- 	}
- 
- 	uhci_unlink_generic(uhci, urb);
--	uhci_destroy_urb_priv(urb);
--
--	usb_dec_dev_use(urb->dev);
-+	uhci_call_completion(urb);
- 
- 	return ret;
- }
+> 	The whole Wireless configuration is in the order of 624 bytes
+> (including /proc/net/wireless, excluding iwspy/aplist and assuming
+> only one encryption key). You surely don't want me to push that with
+> every event ?
+
+624? Not a big deal.
+
+
+> 	The idea is like select() + read(). Select gives you the basic
+> event, you need to use read to get the data.
+
+Sorry, I am inclined against issuing lots of sequences of ioctls to get
+information. This approach is fragile because you never
+get a self-consistent state when state is subject to change.
+
+Logic of rtnetlink is a bit different: you get atomic pieces of information,
+which are meaningfull itself.
+
+
+> 	It seems to me that what you are implying is that RTnetlink is
+> not the right place for me to propagate events.
+
+Not at all.
+
+But approach which you outlined really contradicts to logic of rtnetlink yet.
+It is not a select(), it is real read(). :-)
+
+
+>						 Any idea of what
+> mechanism might be better to propagate those events ? Maybe I should
+> create my own event channel.
+
+Probably. There lots of unused channels. Well, choose the best approach.
+
+Alexey

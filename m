@@ -1,48 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129148AbQKFTe0>; Mon, 6 Nov 2000 14:34:26 -0500
+	id <S129496AbQKFTiQ>; Mon, 6 Nov 2000 14:38:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129690AbQKFTeH>; Mon, 6 Nov 2000 14:34:07 -0500
-Received: from slc510.modem.xmission.com ([166.70.7.2]:51973 "EHLO
-	flinx.biederman.org") by vger.kernel.org with ESMTP
-	id <S129148AbQKFTd5>; Mon, 6 Nov 2000 14:33:57 -0500
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Oliver Xymoron <oxymoron@waste.org>, Keith Owens <kaos@ocs.com.au>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page]
-In-Reply-To: <Pine.LNX.4.21.0011060800490.15143-100000@imladris.demon.co.uk>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 06 Nov 2000 11:09:41 -0700
-In-Reply-To: David Woodhouse's message of "Mon, 6 Nov 2000 08:02:53 +0000 (GMT)"
-Message-ID: <m11ywpezve.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.5
+	id <S129599AbQKFTiG>; Mon, 6 Nov 2000 14:38:06 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:56328 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S129496AbQKFThw>;
+	Mon, 6 Nov 2000 14:37:52 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200011061937.WAA20831@ms2.inr.ac.ru>
+Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a user-land  programmer...
+To: drepper@cygnus.com
+Date: Mon, 6 Nov 2000 22:37:28 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3snp4apb4.fsf@otr.mynet.cygnus.com> from "Ulrich Drepper" at Nov 6, 0 10:15:02 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse <dwmw2@infradead.org> writes:
+Hello!
 
-> The current situation is equivalent to stopping forwarding packets each
-> time an app on the local machine decides it wants to send its own packets,
-> after a period of inactivity.
-> 
-> Defaulting to zero on boot is fine. Defaulting to zero after the module
-> has been auto-unloaded and auto-loaded again is less good.
+> Glibc has to use signals because there *still* is not mechanism in the
+> kernel to allow synchronization. 
 
-Well we don't have auto unload.
-And module persistent data for the second load case causes chaos with 
-the goal of having exactly the same code in modules and compiled in
-kernel code.
+Could you tell why does it use SA_INTERRUPT on its internal signals?
 
-It would probably be better (in this case) to increment the module count
-when the mixer settings go above 0, and decrement it when the settings 
-go totally to 0.  This prevents an unwanted unload.
-
-But for reliability and code simplicity there does not yet seem to
-be a case for persistent module storage.
-
-Eric
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

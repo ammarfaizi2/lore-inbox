@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264710AbRGDNvm>; Wed, 4 Jul 2001 09:51:42 -0400
+	id <S265003AbRGDOHY>; Wed, 4 Jul 2001 10:07:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265427AbRGDNvc>; Wed, 4 Jul 2001 09:51:32 -0400
-Received: from gw-nl4.philips.com ([212.153.190.6]:50442 "EHLO
-	gw-nl4.philips.com") by vger.kernel.org with ESMTP
-	id <S264663AbRGDNvR>; Wed, 4 Jul 2001 09:51:17 -0400
-From: fabrizio.gennari@philips.com
-Subject: dev_get_by_name without dev_put
-To: linux-kernel@vger.kernel.org
-Date: Wed, 4 Jul 2001 15:49:46 +0200
-Message-ID: <OF870A7F74.AB18863F-ONC1256A7F.004AB8A1@diamond.philips.com>
-X-MIMETrack: Serialize by Router on EMAUO01/H/SERVER/PHILIPS(Release 5.0.5 |September 22, 2000) at
- 04/07/2001 16:04:10
+	id <S265472AbRGDOHO>; Wed, 4 Jul 2001 10:07:14 -0400
+Received: from prograine2.raster.krakow.pl ([212.160.153.165]:61112 "EHLO
+	procomnet2.prograine.net") by vger.kernel.org with ESMTP
+	id <S265003AbRGDOHC>; Wed, 4 Jul 2001 10:07:02 -0400
+Date: Wed, 4 Jul 2001 16:11:54 +0200 (CEST)
+From: <pt@procomnet2.prograine.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Re: Intel SRCU3-1 RAID (I2O) and 2.4.5-ac18
+Message-ID: <Pine.LNX.4.33.0107041550300.23057-100000@procomnet2.prograine.net>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Every time dev_get_by_name is called, and it has returned a valid struct net_device*, dev_put should be called afterwards, because otherwise the machine hangs when the device is unregistered (since dev->refcnt > 1). However, it seems that some drivers do
-not call dev_put after dev_get_by_name: for example, drivers/net/pppoe.c at line 573 and net/core/dv.c at line 168. Am I wrong?
----------------------------------------------------------
-Fabrizio Gennari          tel. +39 039 203 7816
-Philips Research Monza    fax. +39 039 203 7800
-via G. Casati 23          fabrizio.gennari@philips.com
-20052 Monza (MI) Italy    http://www.research.philips.com
+
+> modprobe i2o_config
+
+> may be needed
+
+Yes of course, why didn't I think about it...
+
+Anyway, the cgi tool doesn't seem to identify any problems with
+the controller before the freeze. Then it freezes together with
+the copying process. And after reboot I see errors in the
+controller's log - they are all exactly same:
+
+Function: Media Unlock
+Error Code: Access Violation
+User Info: 00000000
+Disk Serial No is not set, just no data in the table field
+Timestamps are somewhat strange - three erroror logs one after
+another then about 3-4 minutes delay and again three messages
+
+The RAID volume sometimes enters a state after reboot where all
+three disks are working and the cgi says the volume is
+initializing.
+
+
+
+Przemek Tomala
+
 

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVC2Rao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVC2ReJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVC2Rao (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Mar 2005 12:30:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVC2Ran
+	id S261267AbVC2ReJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Mar 2005 12:34:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVC2ReJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Mar 2005 12:30:43 -0500
-Received: from admin.eth0.us ([67.15.164.189]:56993 "EHLO admin.eth0.us")
-	by vger.kernel.org with ESMTP id S261273AbVC2Rae (ORCPT
+	Tue, 29 Mar 2005 12:34:09 -0500
+Received: from admin.eth0.us ([67.15.164.189]:2210 "EHLO admin.eth0.us")
+	by vger.kernel.org with ESMTP id S261267AbVC2ReE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Mar 2005 12:30:34 -0500
+	Tue, 29 Mar 2005 12:34:04 -0500
 From: "John Wigle" <forums@eth0.us>
 To: linux-kernel@vger.kernel.org
-Subject: 
+Subject: 2.6.10 and .11 SCSI booting problems /w fusion card
 X-Mailer: NeoMail 1.27
 X-IPAddress: 152.17.63.39
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <E1DGKXC-0001Cq-W0@admin.eth0.us>
-Date: Tue, 29 Mar 2005 12:29:46 -0500
+Message-Id: <E1DGKab-0001Hd-Aw@admin.eth0.us>
+Date: Tue, 29 Mar 2005 12:33:17 -0500
 X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
 X-AntiAbuse: Primary Hostname - admin.eth0.us
 X-AntiAbuse: Original Domain - vger.kernel.org
@@ -28,6 +28,9 @@ X-Source-Args: sh -c /usr/sbin/sendmail -oem -oi -F '"John Wigle"' -f 'forums@et
 X-Source-Dir: :/base
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+Sorry for posting the last email without a subject, I am just resending
+this one with a subject.
 
 I am fairly new to the mailing list but have been playing around with
 kernels for awhile. I have successfully built 2.4 and 2.6 kernels on
@@ -54,6 +57,12 @@ been able to get it working. Any ideas or pointers in the right
 direction are GREATLY appreciated! I have searched google but so far
 have found nothing useful. 
 
+
+--
+Best regards,
+John Wigle
+"eth00"
+http://eth0.us
 
 --
 Best regards,

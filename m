@@ -1,127 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263215AbSKVKrJ>; Fri, 22 Nov 2002 05:47:09 -0500
+	id <S263204AbSKVKwW>; Fri, 22 Nov 2002 05:52:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263362AbSKVKrJ>; Fri, 22 Nov 2002 05:47:09 -0500
-Received: from redrock.inria.fr ([138.96.248.51]:4002 "HELO redrock.inria.fr")
-	by vger.kernel.org with SMTP id <S263215AbSKVKrI>;
-	Fri, 22 Nov 2002 05:47:08 -0500
-SCF: #mh/Mailbox/outboxDate: Fri, 22 Nov 2002 11:39:04 +0100
-From: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Troubles with Sony PCG-C1MHP (crusoe based and ALIM 1533 drivers)
-Message-Id: <20021122113904.0052e208.Manuel.Serrano@sophia.inria.fr>
-References: <20021120094121.7b6c7d34.Manuel.Serrano@sophia.inria.fr>
-	<1037800851.3241.10.camel@irongate.swansea.linux.org.uk>
-Organization: Inria
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Date: 22 Nov 2002 11:47:47 +0100
-MIME-Version: 1.0
+	id <S263362AbSKVKwW>; Fri, 22 Nov 2002 05:52:22 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:65181 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S263204AbSKVKwU>;
+	Fri, 22 Nov 2002 05:52:20 -0500
+Date: Fri, 22 Nov 2002 10:54:38 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Cc: Margit Schubert-While <margitsw@t-online.de>, linux-kernel@vger.kernel.org
+Subject: Re: P4 compile options
+Message-ID: <20021122105438.GA16662@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+	Margit Schubert-While <margitsw@t-online.de>,
+	linux-kernel@vger.kernel.org
+References: <4.3.2.7.2.20021121210830.00b58890@mail.dns-host.com> <200211220832.gAM8W4p30533@Port.imtp.ilyichevsk.odessa.ua> <20021122092659.GA13373@suse.de> <200211221013.gAMADpp31088@Port.imtp.ilyichevsk.odessa.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200211221013.gAMADpp31088@Port.imtp.ilyichevsk.odessa.ua>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Alan,
+On Fri, Nov 22, 2002 at 01:04:39PM -0200, Denis Vlasenko wrote:
 
-I have tried the new 2.4.20-rc2-ac3 and I'm still unable to boot the kernel.
+ > I consider 16-byte code alignment as way too big.
+ > P4 zealots can demand even more I guess :(
+ > I will happily change my mind when/if I'll see
+ > favorable speed/kernel size benchmarks. Until then,
 
-I have the following error message (this is a copy so it might contain
-typos)...
+I think there's a misunderstanding here.
+The march=pentium4 option is only used when you select
+"build me a pentium 4 kernel" You do realise that right?
+Generic kernels don't change 1 bit.
 
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
-ALI15X3: simplex device: DMA forced
-   ide1: BM-DMA at 0x1408-0x140f, BIOS settings: hdc:DMA, hdd:DMA
-hda: IC25N..., ATA DISK drive
-blk: queue c029d6a0, I/O limit 4095Mb (mask 0xffffffff)
-Unable to handle kernel NULL pointer dereference at virtual address 00000010
-  printing eip:
-c0107cab
-*pde =   00000000
-Ooops:   00000
-CPU:     0
-EIP:     0010:[<c0107cab>]  Not tainted
-EFLAGS:  00010002
-eax:  00000000   ebx: 00001fe0  ecx: 00000001  edx: 000000ff
-esi:  00000212   edi: c029da4c  ebp: 000000ff  esp: c1a13f64
-ds: 0018  es: 0018  ss: 0018
-Process swapper (pid: 1, stackpage=c1a13000)
-Stack: 000000ff 00000001 c029da4c c019ed05 000000ff 00000001 c1a13fa0 c029da4c
-       0000e000 00000286 c019f91c c029da4c c0275554 c0267fd8 00000000 00000001
-       00000001 00000001 00000001 00000001 00000001 00000001 00000001 00000001
-Call Trace:   [<c019ed05>] [<c019f91c>] [<c0105021>] [<c01054a9>]
+ > I think 4-byte alignment is closest to sanity.
 
-Code: 0b 40 10 ff d0 83 c4 04 56 9d 83 3d 84 dc 27 c0 00 75 0f 89
- <0>Kernel panic: Attempted to kill init!
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
+You know where to find the Intel P4 optimisation manuals..
 
-> Can you look up the EIP and call trace values in system.map or feed the
-> oops data to ksymoops >
-Here is what I got with ksymoops:
+ > Not exactly P4 related but: if you tell gcc your
+ > processor has cmov, gcc will try to use it.
 
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
-sh-2.05b# ksymoops --vmlinux=/usr/src/linux-2.4.20-rc2-ac3/vmlinux --system-map=/usr/src/linux-2.4.20-rc2-ac3/System.map -L -K /tmp/Oops.file
-ksymoops 2.4.7 on i686 2.4.20-pre10-ac2.  Options used
-     -v /usr/src/linux-2.4.20-rc2-ac3/vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -o /lib/modules/2.4.20-pre10-ac2/ (default)
-     -m /usr/src/linux-2.4.20-rc2-ac3/System.map (specified)
+So what ? Show me a P4 without cmov.
 
-No modules in ksyms, skipping objects
-Unable to handle kernel NULL pointer dereference at virtual address 00000010
-c0107cab
-*pde =   00000000
-CPU:     0
-EIP:     0010:[<c0107cab>]  Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS:  00010002
-eax:  00000000   ebx: 00001fe0  ecx: 00000001  edx: 000000ff
-esi:  00000212   edi: c029da4c  ebp: 000000ff  esp: c1a13f64
-ds: 0018  es: 0018  ss: 0018
-Process swapper (pid: 1, stackpage=c1a13000)
-Stack: 000000ff 00000001 c029da4c c019ed05 000000ff 00000001 c1a13fa0 c029da4c
-       0000e000 00000286 c019f91c c029da4c c0275554 c0267fd8 00000000 00000001
-       00000001 00000001 00000001 00000001 00000001 00000001 00000001 00000001
-Call Trace:   [<c019ed05>] [<c019f91c>] [<c0105021>] [<c01054a9>]
-Code: 0b 40 10 ff d0 83 c4 04 56 9d 83 3d 84 dc 27 c0 00 75 0f 89
+ > Results: 
+ > * gcc code is worse with cmov than without
+ > * some CPUs (Cyrix?) have slow cmovs (microcoded?)
+ > * you lose whenever you try to use your code
+ >   on cmov-less CPU.
 
+  <------------ The point.
+                              --------------> You.
 
->>EIP; c0107cab <disable_irq+2f/54>   <=====
+Cmov is completely irrelevant here.
+Sure its still an optional instruction which
+should be tested for before use, but until Intel
+make a P4 without CMOV, adding march=pentium4
+is harmless.
+ 
+ > Dave, I am absolutely sure _you_ do not compile
+ > for P4 needlessly, but lots of ordinary people
+ > do that just to be hip.
 
->>edi; c029da4c <ide_hwifs+46c/2c38>
+Those are probably the same folks who run Gentoo/Slackware/ or
+some-other-compile-everything-myself-because-I've-too-much-time-on-my-hands-distro.
+Fine, let them be happy.
+If some loon wants a P4 optimised /bin/ls, that's his problem,
+but optimisation of key components (like say, the kernel) _is_
+important.
 
-Trace; c019ed05 <probe_hwif+b8/2ee>
-Trace; c019f91c <ideprobe_init+4d/9a>
-Trace; c0105021 <init+7/fe>
-Trace; c01054a9 <kernel_thread+28/35>
+ > I wanted to point out why it may be undesirable.
 
-Code;  c0107cab <disable_irq+2f/54>
-00000000 <_EIP>:
-Code;  c0107cab <disable_irq+2f/54>   <=====
-   0:   0b 40 10                  or     0x10(%eax),%eax   <=====
-Code;  c0107cae <disable_irq+32/54>
-   3:   ff d0                     call   *%eax
-Code;  c0107cb0 <disable_irq+34/54>
-   5:   83 c4 04                  add    $0x4,%esp
-Code;  c0107cb3 <disable_irq+37/54>
-   8:   56                        push   %esi
-Code;  c0107cb4 <disable_irq+38/54>
-   9:   9d                        popf   
-Code;  c0107cb5 <disable_irq+39/54>
-   a:   83 3d 84 dc 27 c0 00      cmpl   $0x0,0xc027dc84
-Code;  c0107cbc <disable_irq+40/54>
-  11:   75 0f                     jne    22 <_EIP+0x22>
-Code;  c0107cbe <disable_irq+42/54>
-  13:   89 00                     mov    %eax,(%eax)
+All you've pointed out is that a P4 kernel won't run
+optimally on a 486. Well surprise, it won't run at all.
 
- <0>Kernel panic: Attempted to kill init!
------|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----
-
-Please tell me if I can do something else (in particular, I'm not pretty
-sure of the way to invoke ksymoops).
-
-Sincerely,
+		Dave
 
 -- 
-Manuel
+| Dave Jones.        http://www.codemonkey.org.uk

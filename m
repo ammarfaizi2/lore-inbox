@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129413AbRACW5r>; Wed, 3 Jan 2001 17:57:47 -0500
+	id <S129267AbRACXBj>; Wed, 3 Jan 2001 18:01:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRACW5h>; Wed, 3 Jan 2001 17:57:37 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:22001 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129413AbRACW5Y>; Wed, 3 Jan 2001 17:57:24 -0500
-Date: Wed, 3 Jan 2001 20:56:55 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: linux-lvm@sistina.com
-cc: linux-kernel@vger.kernel.org
-Subject: LVM 0.9 vgscan problem
-Message-ID: <Pine.LNX.4.21.0101032054040.1917-100000@duckman.distro.conectiva>
+	id <S129324AbRACXBT>; Wed, 3 Jan 2001 18:01:19 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25611 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129267AbRACXBO>; Wed, 3 Jan 2001 18:01:14 -0500
+Subject: Re: [RFC] prevention of syscalls from writable segments, breaking bug
+To: karrde@callisto.yi.org (Dan Aloni)
+Date: Wed, 3 Jan 2001 23:02:12 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org (linux-kernel), mark@itsolve.co.uk
+In-Reply-To: <Pine.LNX.4.21.0101032259550.20246-100000@callisto.yi.org> from "Dan Aloni" at Jan 03, 2001 11:13:31 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Dwv9-0004m4-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> On Linux, they use INT 80 system calls to execute functions in the kernel
+> as root, when the stack is smashed as a result of a buffer overflow bug in
+> various server software.
+> 
+> This preliminary, small patch prevents execution of system calls which
+> were executed from a writable segment. It was tested and seems to work,
+> without breaking anything. It also reports of such calls by using printk.
 
-I have a strange problem (preventing me from testing the latest
-2.4 kernel ... *sigh*) with my LVM setup.
+And I swap the int80 for a jmp to an int80 at a predictable location in ld.so
 
-The latest LVM utils + the latest kernel works just fine on my
-test machine, but breaks horribly on my workstation. The only
-difference I have found is that one PV of my VG has "NOT available"
-as PV Status ...
-
---- Physical volume ---
-PV Name               /dev/hda5
-VG Name               vg0
-PV Size               4.4 GB / NOT usable 2.56 MB [LVM: 124 KB]
-PV#                   3
-PV Status             NOT available
-Allocatable           yes
-Cur LV                0
-PE Size (KByte)       4096
-Total PE              1125
-Free PE               1125
-Allocated PE          0
-
-Any chance of getting the LVM utilities fixed ?
-
-I'd hate to see LVM be the showstopper for 2.4
-(then again, the way the LVM team has neglected
-everything from backwards compatability to even
-documenting such is pretty much a showstopper in
-itself ...)
-
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
-
+If you are going to do stack tricks then look at Solar Designers patches, he
+has at least worked through the issues and even thought about using null bytes
+in jump targets for libraries to stop some operations (string stuff)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

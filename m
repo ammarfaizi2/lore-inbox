@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263156AbTHVNnr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Aug 2003 09:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263167AbTHVNnr
+	id S263294AbTHVNf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Aug 2003 09:35:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263297AbTHVNf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Aug 2003 09:43:47 -0400
-Received: from [213.187.195.158] ([213.187.195.158]:24815 "EHLO
-	kokeicha.ingate.se") by vger.kernel.org with ESMTP id S263156AbTHVNnq
+	Fri, 22 Aug 2003 09:35:58 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:37548 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S263294AbTHVNf5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Aug 2003 09:43:46 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: "Gabor Z. Papp" <gzp@papp.hu>, mostrows@speakeasy.net,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Re: PPPoE Oops with 2.4.22-rc
-References: <5ff3.3f388c4b.4453f@gzp1.gzp.hu>
-	<Pine.LNX.4.44.0308121415540.10199-100000@logos.cnet>
-	<39a.3f392c6f.86e8b@gzp1.gzp.hu>
-From: Marcus Sundberg <marcus@ingate.com>
-Date: 22 Aug 2003 15:43:01 +0200
-In-Reply-To: <39a.3f392c6f.86e8b@gzp1.gzp.hu>
-Message-ID: <vezni16c62.fsf_-_@inigo.ingate.se>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	Fri, 22 Aug 2003 09:35:57 -0400
+Date: Fri, 22 Aug 2003 15:35:42 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Andries Brouwer <aebr@win.tue.nl>
+cc: Vojtech Pavlik <vojtech@suse.cz>, Jamie Lokier <jamie@shareable.org>,
+       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
+Subject: Re: Input issues - key down with no key up
+In-Reply-To: <20030822022709.A3640@pclin040.win.tue.nl>
+Message-ID: <Pine.GSO.3.96.1030822152231.21464C-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 22 Aug 2003, Andries Brouwer wrote:
 
-this patch fixes one crash in pppoe_connect():
+>   The others do not, except for the rather special Switch window key.
+>   Upon press it produces the LAlt-down, LShift-down, Tab-down, Tab-up sequence;
+>   it repeats Tab-down; and upon release it produces the sequence Tab-up,
+>   LAlt-up, LShift-up.
 
---- linux-2.4.21-rc2/drivers/net/pppoe.c~	Wed May 14 00:08:52 2003
-+++ linux-2.4.21-rc2/drivers/net/pppoe.c	Wed May 14 00:18:47 2003
-@@ -606,7 +606,8 @@
- 		/* Delete the old binding */
- 		delete_item(po->pppoe_pa.sid,po->pppoe_pa.remote);
- 
--		dev_put(po->pppoe_dev);
-+		if (po->pppoe_dev)
-+			dev_put(po->pppoe_dev);
- 
- 		memset(po, 0, sizeof(struct pppox_opt));
- 		po->sk = sk;
+ What an interesting "design" of hardware trying to fit some version of
+software.  Do you know if the key behaves consitently if either or both
+<LAlt> and <LShift> are already depressed?  And do cursor/editor keys work
+properly while <Switch_window> is depressed?  Can I unambiguosly map the
+sequence the key generates e.g. to a "Multi_key" keysym? :->
 
-//Marcus
 -- 
----------------------------------------+--------------------------
-  Marcus Sundberg <marcus@ingate.com>  | Firewalls with SIP & NAT
- Firewall Developer, Ingate Systems AB |  http://www.ingate.com/
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

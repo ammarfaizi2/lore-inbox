@@ -1,41 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267687AbTAMAY5>; Sun, 12 Jan 2003 19:24:57 -0500
+	id <S267708AbTAMAbX>; Sun, 12 Jan 2003 19:31:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267689AbTAMAY5>; Sun, 12 Jan 2003 19:24:57 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:53770 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S267687AbTAMAY4>; Sun, 12 Jan 2003 19:24:56 -0500
-Message-ID: <3E2200C6.665A12CA@linux-m68k.org>
-Date: Mon, 13 Jan 2003 00:56:54 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: John Levon <levon@movementarian.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: make xconfig broken in bk current
-References: <200301121512.59840.tomlins@cam.org> <20030112203150.GA53199@compsoc.man.ac.uk>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267710AbTAMAbX>; Sun, 12 Jan 2003 19:31:23 -0500
+Received: from mta10.srv.hcvlny.cv.net ([167.206.5.45]:31438 "EHLO
+	mta10.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id <S267708AbTAMAbV>; Sun, 12 Jan 2003 19:31:21 -0500
+Date: Sun, 12 Jan 2003 19:38:13 -0500
+From: Rob Wilkens <robw@optonline.net>
+Subject: RE: any chance of 2.6.0-test*?
+In-reply-to: <FKEAJLBKJCGBDJJIPJLJEELGECAA.scott@coyotegulch.com>
+To: Scott Robert Ladd <scott@coyotegulch.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-to: robw@optonline.net
+Message-id: <1042418292.1209.247.camel@RobsPC.RobertWilkens.com>
+Organization: Robert Wilkens
+MIME-version: 1.0
+X-Mailer: Ximian Evolution 1.2.1
+Content-type: text/plain
+Content-transfer-encoding: 7BIT
+References: <FKEAJLBKJCGBDJJIPJLJEELGECAA.scott@coyotegulch.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2003-01-12 at 19:03, Scott Robert Ladd wrote:
+> I've spent some time looking through the kernel source code, getting a feel
+> for the style and process before attempting to contribute something of my
+> own. 
 
-John Levon wrote:
+In part that's why i haven't contributed too much of any actual code
+yet.  I'm trying to get a feel for the code and the users.  I figure the
+best way is to join the discussion list and follow the patches going in.
+> Your attitude against "goto" is perhaps based upon an excellent but dated
+> article, "Goto Considered Harmful", written by Edsger W. Dijkstra, and
+> published by the ACM in 1968. (A recent reprint can be found at
+> http://www.acm.org/classics/oct95/.) As you can tell from the date, this
+> article predates modern programming languages and idioms; it comes from a
+> time when Fortran ruled, and before Fortran 77 provided significant tools
+> for avoiding spaghetti code.
 
-> Can I just repeat my request to move this Qt stuff entirely out of the
-> kernel package, where it belongs ?
+It only goes to show that the core of computer science hasn't changed
+over the years.  While some technology changes, the science itself stays
+the same.  Much like a physicist should know the outdated theories of
+relativity by Albert Einstein (made way back in the 20th century as
+well) a good computer scientist should appreciate the contributions of
+its founders, and have a good grasp of their core contributions.  I'm
+not claiming to be an expert in either field, however.
 
-We can discuss this during 2.7, until then I prefer to keep it close to
-the kernel, as the config system still has to mature a bit more.
+Of course, this isn't a computer science mailing list, this is a linux
+kernel mailing list, so I apologize for getting off topic.  Let's agree
+to drop it here.
 
-> The current detection doesn't even start to get things working
-> correctly.
-
-For example?
-
-bye, Roman
-
+-Rob
 

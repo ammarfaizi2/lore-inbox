@@ -1,73 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268970AbUIXVV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268980AbUIXVYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268970AbUIXVV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 17:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUIXVV7
+	id S268980AbUIXVYg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 17:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268961AbUIXVYG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 17:21:59 -0400
-Received: from scorsese.fabricadeideias.com.br ([200.157.56.34]:48269 "EHLO
-	scorsese.fabricadeideias.com") by vger.kernel.org with ESMTP
-	id S268899AbUIXVVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 17:21:47 -0400
-Message-ID: <41548FFE.60803@fabricadeideias.com>
-Date: Fri, 24 Sep 2004 18:21:44 -0300
-From: Rodrigo Severo <rodrigo.lists@fabricadeideias.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pozsar Balazs <pozsy@uhulinux.hu>
-CC: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: SCSI Initio 9100UW (INIC-950p chipset) support nunder kernel
- 2.6.x
-References: <4151A24A.7000302@fabricadeideias.com> <20040922170651.A3340@infradead.org> <20040922201424.GC2098@unicorn.sch.bme.hu>
-In-Reply-To: <20040922201424.GC2098@unicorn.sch.bme.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Sep 2004 17:24:06 -0400
+Received: from mail.kroah.org ([69.55.234.183]:29112 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S268899AbUIXVWW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 17:22:22 -0400
+Date: Fri, 24 Sep 2004 14:22:08 -0700
+From: Greg KH <greg@kroah.com>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add hook for PCI resource deallocation
+Message-ID: <20040924212208.GD7619@kroah.com>
+References: <41498CF6.9000808@jp.fujitsu.com> <20040924130251.A26271@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040924130251.A26271@unix-os.sc.intel.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pozsar Balazs wrote:
+On Fri, Sep 24, 2004 at 01:02:52PM -0700, Ashok Raj wrote:
+> On Thu, Sep 16, 2004 at 05:54:14AM -0700, Kenji Kaneshige wrote:
+> > 
+> >    Hi,
+> > 
+> >    This patch adds a hook 'pcibios_disable_device()' into
+> >    pci_disable_device() to call architecture specific PCI resource
+> >    deallocation code. It's a opposite part of pcibios_enable_device().
+> >    We need this hook to deallocate architecture specific PCI resource
+> >    such as IRQ resource, etc.. This patch is just for adding the hook,
+> >    so pcibios_disable_device() is defined as a null function on all
+> >    architecture so far.
+> > 
+> >    I tested this patch on i386, x86_64 and ia64. But it has not been
+> >    tested on other architectures because I don't have these machines.
+> > 
+> >    Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+> > 
+> 
+> Hi Kenji
+> 
+> I think instead of modifying all the arch specific code, you could use the __attribute__(weak)
+> and define a default dummy funcion in 	drivers/pci/pci.c
+> 
+> void __attribute__((weak)) pcibios_disable_device(struct pci_dev *dev)	{ }
+> 
+> 
+> each arch that really needs this can define the override function.
+> That way you dont need to put the dummy function in several places,
+> containing your changes to a very few set of files.
 
->On Wed, Sep 22, 2004 at 05:06:51PM +0100, Christoph Hellwig wrote:
->  
->
->>On Wed, Sep 22, 2004 at 01:03:00PM -0300, Rodrigo Severo wrote:
->>    
->>
->>>with kernel 2.4.24 (yes, I know it's old).
->>>
->>>I want to update my kernel do 2.6.8. The question: is there support for 
->>>this board/chipset under kernel 2.6.x?
->>>
->>>I looked around a lot and couldn't find much. www.initio.com says their 
->>>code is in the kernel since 2.0.32. Has it been left out for 2.6.x?
->>>
->>>Is anyone working on this port? Anyone intending to work on it?
->>>      
->>>
->>The driver still exists and actually compiles.  It's marked BROKEN, although
->>I don't know why.  If you want to help testing we can update it to current
->>standards.
->>    
->>
->
->It works perfectly for me. (I have 1 disk and 1 cdrom.)
->
->Also note that mandrake ships a kernel with the BROKEN flag patched off.
->
->I do not know why was it marked as such.
->
-In fact it works just fine for me too. As Christoph Hellwig latest 
-message suggested I was suffering lack-of-st-driver sickness *:">
+Ohhh, nice.  I like that option better.  Kenji, care to respin your
+patches based on this change?
 
-As far as I can tell the driver is really fine. Maybe it's time to 
-remove the BROKEN flag from it? I am not sure who is responsible for 
-this but here is my Works For Me vote.
+thanks,
 
-
-Thanks you all for your help,
-
-Rodrigo Severo
-
-*
+greg k-h

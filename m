@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264949AbUGBVkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264979AbUGBVkg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264949AbUGBVkf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 17:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbUGBVkd
+	id S264979AbUGBVkg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 17:40:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265035AbUGBVkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 17:40:33 -0400
-Received: from mail.kroah.org ([65.200.24.183]:30354 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S264949AbUGBVka convert rfc822-to-8bit
+	Fri, 2 Jul 2004 17:40:36 -0400
+Received: from mail.kroah.org ([65.200.24.183]:30610 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S264979AbUGBVkb convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 17:40:30 -0400
+	Fri, 2 Jul 2004 17:40:31 -0400
 X-Fake: the user-agent is fake
-Subject: Re: [PATCH] More PCI fixes for 2.6.7
+Subject: [PATCH] More PCI fixes for 2.6.7
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <1088804352811@kroah.com>
-Date: Fri, 2 Jul 2004 14:39:12 -0700
-Message-Id: <1088804352158@kroah.com>
+In-Reply-To: <20040702213816.GA31384@kroah.com>
+Date: Fri, 2 Jul 2004 14:39:11 -0700
+Message-Id: <10888043512721@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,57 +23,55 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1788, 2004/07/02 13:35:57-07:00, linas@austin.ibm.com
+ChangeSet 1.1785, 2004/07/02 13:26:39-07:00, lxiep@us.ibm.com
 
-[PATCH] PCI Hotplug: RPAPHP structure size/performance
+[PATCH] PCI: export pci_scan_child_bus for the pci hotplug drivers to use
 
-Please review and apply the following patch if you find it agreeable.
-
-This patch does not make any functional changes, but does improve
-both performance and memory usage by rearranging structure elements.
-
-The need for these changes became appearent during a code review of
-the disassembly involving this structure. The memory footprint of this
-structure is made smaller by grouping the byte fields next to each other.
-The access of the list_head can be simplified by making it the first element
-of the structure, thus avoiding a needless add-immediate without negatively
-impacting any of the other accesses.
-
-Signed-off-by: Linas Vepstas <linas@linas.org>
+Signed-off-by: Linda Xie lxie@us.ibm.com
 Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/hotplug/rpaphp.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/probe.c |    5 +++--
+ include/linux/pci.h |    1 +
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/pci/hotplug/rpaphp.h b/drivers/pci/hotplug/rpaphp.h
---- a/drivers/pci/hotplug/rpaphp.h	2004-07-02 14:24:19 -07:00
-+++ b/drivers/pci/hotplug/rpaphp.h	2004-07-02 14:24:19 -07:00
-@@ -85,6 +85,7 @@
-  * struct slot - slot information for each *physical* slot
-  */
- struct slot {
-+	struct list_head rpaphp_slot_list;
- 	int state;
- 	u32 index;
- 	u32 type;
-@@ -92,6 +93,7 @@
- 	char *name;
- 	char *location;
- 	u8 removable;
-+	u8 dev_type;		/* VIO or PCI */
- 	struct device_node *dn;	/* slot's device_node in OFDT */
- 				/* dn has phb info */
- 	struct pci_dev *bridge;	/* slot's pci_dev in pci_devices */
-@@ -99,9 +101,7 @@
- 		struct list_head pci_funcs; /* pci_devs in PCI slot */ 
- 		struct vio_dev *vio_dev; /* vio_dev in VIO slot */
- 	} dev;
--	u8 dev_type;		/* VIO or PCI */
- 	struct hotplug_slot *hotplug_slot;
--	struct list_head rpaphp_slot_list;
- };
+diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c	2004-07-02 14:25:00 -07:00
++++ b/drivers/pci/probe.c	2004-07-02 14:25:01 -07:00
+@@ -326,7 +326,7 @@
+ 	return child;
+ }
  
- extern struct hotplug_slot_ops rpaphp_hotplug_slot_ops;
+-static unsigned int __devinit pci_scan_child_bus(struct pci_bus *bus);
++unsigned int __devinit pci_scan_child_bus(struct pci_bus *bus);
+ 
+ /*
+  * If it's a bridge, configure it and scan the bus behind it.
+@@ -694,7 +694,7 @@
+ 	return nr;
+ }
+ 
+-static unsigned int __devinit pci_scan_child_bus(struct pci_bus *bus)
++unsigned int __devinit pci_scan_child_bus(struct pci_bus *bus)
+ {
+ 	unsigned int devfn, pass, max = bus->secondary;
+ 	struct pci_dev *dev;
+@@ -801,4 +801,5 @@
+ EXPORT_SYMBOL(pci_scan_slot);
+ EXPORT_SYMBOL(pci_scan_bridge);
+ EXPORT_SYMBOL(pci_scan_single_device);
++EXPORT_SYMBOL_GPL(pci_scan_child_bus);
+ #endif
+diff -Nru a/include/linux/pci.h b/include/linux/pci.h
+--- a/include/linux/pci.h	2004-07-02 14:25:00 -07:00
++++ b/include/linux/pci.h	2004-07-02 14:25:00 -07:00
+@@ -659,6 +659,7 @@
+ }
+ int pci_scan_slot(struct pci_bus *bus, int devfn);
+ struct pci_dev * pci_scan_single_device(struct pci_bus *bus, int devfn);
++unsigned int pci_scan_child_bus(struct pci_bus *bus);
+ void pci_bus_add_devices(struct pci_bus *bus);
+ void pci_name_device(struct pci_dev *dev);
+ char *pci_class_name(u32 class);
 

@@ -1,54 +1,93 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129727AbRCCT6V>; Sat, 3 Mar 2001 14:58:21 -0500
+	id <S129733AbRCCUEV>; Sat, 3 Mar 2001 15:04:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129730AbRCCT6L>; Sat, 3 Mar 2001 14:58:11 -0500
-Received: from 25dyn104.com21.casema.net ([213.17.95.104]:56582 "HELO
-	home.ds9a.nl") by vger.kernel.org with SMTP id <S129727AbRCCT5x>;
-	Sat, 3 Mar 2001 14:57:53 -0500
-Date: Sat, 3 Mar 2001 20:57:30 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Peter Jay Salzman <p@dirac.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: my first post to the list - newbie alert
-Message-ID: <20010303205729.A1472@home.ds9a.nl>
-Mail-Followup-To: Peter Jay Salzman <p@dirac.org>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20010303115222.A2820@dirac.org>
-Mime-Version: 1.0
+	id <S129734AbRCCUEM>; Sat, 3 Mar 2001 15:04:12 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:47882 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S129733AbRCCUED>;
+	Sat, 3 Mar 2001 15:04:03 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200103032004.f23K417447302@saturn.cs.uml.edu>
+Subject: Re: RFC: changing precision control setting in initial FPU context
+To: buhr@stat.wisc.edu (Kevin Buhr)
+Date: Sat, 3 Mar 2001 15:04:01 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), linux-kernel@vger.kernel.org
+In-Reply-To: <vbar90ftagx.fsf@mozart.stat.wisc.edu> from "Kevin Buhr" at Mar 03, 2001 04:26:06 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre4i
-In-Reply-To: <20010303115222.A2820@dirac.org>; from p@dirac.org on Sat, Mar 03, 2001 at 11:52:22AM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 03, 2001 at 11:52:22AM -0800, Peter Jay Salzman wrote:
+Kevin Buhr writes:
+> "Albert D. Cahalan" <acahalan@cs.uml.edu> writes:
 
-> is there a more suitable mailing list for me to sign up for?  debian has a
-> mailing list both for package maintainers and those who are trying to learn
-> how to be package maintainers.
+>> So you change it to 2... but what about the "float" type? It gets
+>> a mixture of 64-bit and 32-bit IEEE arithmetic depending rather
+>> unpredictably on compiler register allocations and optimizations???
+>
+> Well, yes, but I'll try not to cry myself to sleep over it.  I'm
+> tempted to say that someone who chooses to use "float"s has given up
+> all pretense of caring about the answers they get.  And, if they
+> really want to do predictable math with floats they can change the FPU
+> control word from whatever its default is to PC==0.
+
+There are algorithms which work fine using 32-bit floating-point,
+but which become unstable when you get unpredictable precision.
+It is reasonable to use such an algorithm and some 64-bit math in
+the same program. So there isn't any correct x86 setting.
+
+>> If a "float" will have excess precision, then a "double" might
+>> as well have it too. Usually it helps, but sometimes it hurts.
+>> This is life with C on x86.
+>
+> That's the way I initially felt, and it looks silly when it's written
+> down, so I'm glad I changed my mind.
+>
+> I don't think extra precision that is unpredictable is ever helpful.
+> Extra precision that might be gained or lost depending on, say, which
+> branch of an if-statement is taken, is of no use to anyone.  It just
+> causes confusion.  The excess precision on "float" is a nuisance.  The
+> excess precision on "double" is another nuisance.  It would be nice to
+> eliminate one of those nuisances, at least by default.
+
+That would be an awful idea. There are two main useful behaviors:
+
+1. Pure IEEE for 32-bit, 64-bit, and 80-bit floating-point values.
+   The compiler rounds intermediate values by writing to memory
+   or by adjusting the precision control before each operation.
+
+2. Extra precision when it comes free. The precision control is set
+   to 80-bit and the compiler tries to keep values in registers.
+   This is usually the more useful behavior, and it performs better.
+
+What you are suggesting is a gross hybrid. You claim it has something
+to do with IEEE, but it doesn't handle 32-bit math correctly. Your
+proposal is NOT true IEEE math.
+
+>> Ugh, more start-up crud.
 > 
-> is there a similar thing with the kernel mailing list?
+> The startup crud is already there.  It's used to allow linking with
+> "-lieee" to set a new control word value, for example, and it's
 
-If you ask the right questions and take care to have RTFM'd, as you already
-appear to be doing reading the book you mentioned, people here are generally
-very friendly. 
+Woah, what kind of crap is that???? You can not get true IEEE math
+by setting the precision control word at startup. This is a bug.
+The compiler must save values to memory or adjust the precision
+control as needed.
 
-Another great place to ask questions is on irc, see
-http://www.kernelnewbies.org
+For example, the precision control could be loaded on function entry.
+This may be optimized away for some "static" or "inline" functions.
 
-> since i haven't signed on yet, can you please cc me the reply.  if it turns
-> out this is the correct list, i'll sign on pronto.
+> To me, a system call (not necessarily a *new* system call, but some
+> way to get the desired FPU control word to the kernel) seems like a
+> more elegant solution.
+>
+> On the other hand, I'm not married to the idea.  I'd rather just get
+> the default control word changed in the kernel.
 
-For serious questions, this is definitely the place. For 'I can't be
-bothered to read the source and find out how it works'-questions, you should
-hire somebody :-)
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com      Versatile DNS Services  
-Trilab                       The Technology People   
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+Check the archives: the x86 Linux ABI specifies 80-bit precision.
+This will never change. The library is supposed to assume this,
+rather than try to allow for a change that will never happen.
+Linus dished out some nice toasty flames for the libc developers
+over this.

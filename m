@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129444AbRCIGFB>; Fri, 9 Mar 2001 01:05:01 -0500
+	id <S130436AbRCIGRm>; Fri, 9 Mar 2001 01:17:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130436AbRCIGEv>; Fri, 9 Mar 2001 01:04:51 -0500
-Received: from [216.184.166.130] ([216.184.166.130]:13864 "EHLO
-	scsoftware.sc-software.com") by vger.kernel.org with ESMTP
-	id <S129444AbRCIGEm>; Fri, 9 Mar 2001 01:04:42 -0500
-Date: Thu, 8 Mar 2001 22:01:03 +0000 (   )
-From: John Heil <kerndev@sc-software.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2-ac15 -- Build fails in serial.c if CONFIG_SERIAL_CONSOLE is enabled.
-In-Reply-To: <E14bBTs-00048o-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.3.95.1010308215937.1676C-100000@scsoftware.sc-software.com>
+	id <S130443AbRCIGRc>; Fri, 9 Mar 2001 01:17:32 -0500
+Received: from kwanon.research.canon.com.au ([203.12.172.254]:46097 "HELO
+	kwanon.research.canon.com.au") by vger.kernel.org with SMTP
+	id <S130436AbRCIGR2>; Fri, 9 Mar 2001 01:17:28 -0500
+Message-ID: <20010309061700.17719.qmail@cass.research.canon.com.au>
+From: gjohnson@research.canon.com.au
+Subject: Re: Resolving physical addresses
+To: davem@redhat.com (David S. Miller)
+Date: Fri, 9 Mar 2001 17:17:00 +1100 (EST)
+Cc: gjohnson@research.canon.com.au, linux-kernel@vger.kernel.org
+In-Reply-To: <15016.29137.743441.608694@pizda.ninka.net> from "David S. Miller" at Mar 08, 2001 10:01:53 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 9 Mar 2001, Alan Cox wrote:
+Thank you,
 
-> Date: Fri, 9 Mar 2001 01:14:04 +0000 (GMT)
-> From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> To: Miles Lane <miles@megapathdsl.net>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 2.4.2-ac15 -- Build fails in serial.c if CONFIG_SERIAL_CONSOLE is enabled.
-> 
-> > In serial.c, in function `wait_for_xmitr' at lines 5497 and 5666, 
-> > `ASYNC_NO_FLOW' is undeclared.
-> 
-> Yep. Disable serial console for now. Jeff's serial merge broke serial console
-> support
+But how do I get the physical address out of the page
+structure? It is non-obvious to me. Is there some majic
+macro? We are talking about 'struct page' in mm.h, correct?
 
-What's the last level w functioning serial console. I've got a couple
-of boot up issues I may need it for.
+Greg.
 
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Quoth David S. Miller:
+> In 2.4.x pte_page() gives a pointer to a page struct, not an address
+> as in 2.2.x.
 
------------------------------------------------------------------
-John Heil
-South Coast Software
-Custom systems software for UNIX and IBM MVS mainframes
-1-714-774-6952
-johnhscs@sc-software.com
-http://www.sc-software.com
------------------------------------------------------------------
+-- 
++------------------------------------------------------+
+| Do you want to know more? www.geocities.com/worfsom/ |
+|              ..ooOO Greg Johnson OOoo..              |
+| HW/SW Engineer        gjohnson@research.canon.com.au |
+| Canon Information Systems Research Australia (CISRA) |
+| 1 Thomas Holt Dr., North Ryde, NSW, 2113,  Australia |
+|      "I FLEXed my BISON and it went YACC!" - me.     |
++------------------------------------------------------+
 

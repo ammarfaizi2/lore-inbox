@@ -1,59 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271809AbRHRLV3>; Sat, 18 Aug 2001 07:21:29 -0400
+	id <S271813AbRHRLiW>; Sat, 18 Aug 2001 07:38:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271811AbRHRLVT>; Sat, 18 Aug 2001 07:21:19 -0400
-Received: from adsl-64-175-255-50.dsl.sntc01.pacbell.net ([64.175.255.50]:3775
-	"HELO kobayashi.soze.net") by vger.kernel.org with SMTP
-	id <S271809AbRHRLVG>; Sat, 18 Aug 2001 07:21:06 -0400
-Date: Sat, 18 Aug 2001 03:30:59 -0700 (PDT)
-From: Justin Guyett <justin@soze.net>
-X-X-Sender: <tyme@kobayashi.soze.net>
-To: Jim Roland <jroland@roland.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Aliases
-In-Reply-To: <00df01c127a8$c354ad20$bb1cfa18@JimWS>
-Message-ID: <Pine.LNX.4.33.0108180245070.27721-100000@kobayashi.soze.net>
+	id <S271815AbRHRLiN>; Sat, 18 Aug 2001 07:38:13 -0400
+Received: from fungus.teststation.com ([212.32.186.211]:45831 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S271813AbRHRLiA>; Sat, 18 Aug 2001 07:38:00 -0400
+Date: Sat, 18 Aug 2001 13:38:11 +0200 (CEST)
+From: Urban Widmark <urban@teststation.com>
+To: Dennis Bjorklund <db@zigo.dhs.org>
+cc: <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Re: 2.2.19: d-link dfe530-tx, Transmit timed out
+In-Reply-To: <Pine.LNX.4.33.0108181050550.27920-200000@cosmo.zigo.dhs.org>
+Message-ID: <Pine.LNX.4.30.0108181305040.3563-100000@cola.teststation.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Aug 2001, Jim Roland wrote:
+On Sat, 18 Aug 2001, Dennis Bjorklund wrote:
 
-> Having recently gone from 2.2 to 2.4 what's the device convention now?  I
-> thought it was eth0 (example) and eth0:0 .. eth0:255, but knew kernel 2.4
-> would take it further.
+> The 2.4.x driver have some spinlocks that seems necessary for SMP but it
+> looks like there are spinlocks missing already in the old 2.2.19 driver if
+> one compares with the 2.4.x driver. I didn't fix any of these things since
+> I don't understand all the issues. My feeling is that it is as good or bad
+> now as before.
 
-presuming this isn't an ifconfig limit instead of a kernel limit, trying
-"ifconfig eth0:x" works for x < 10000, anything > 10000 and x becomes
-x%10000.
+I don't understand all the issues either. 2.4 was changed to be more
+multithreaded in the network code (above the drivers), aka softnet. The
+via-rhine broke on SMP when this was introduced and the locks were then
+added to prevent races between interrupt handler and xmit code.
 
-However, 2.4 also has multiple addresses of the same type per device;
-unfortunately it's fairly slow.  Adding or deleting addresses seems to
-take ~5 seconds per 255 addresses on my machine, and listing addresses
-takes about 1 second / 300 addresses on the same machine.
+The changes look fine to me.
 
-Also, listing addresses for another interface isn't any faster, which is
-unfortunate; ip shouldn't need to check addresses of all interfaces just
-to get the ones for the requested interface.
+> I have used it and loaded the network to trigger the bug, and every time
+> where it froze before it works now and the card resets. For light load it
+> worked before. To trigger the bug I let the computers on my network send
+> constantly for an hour or two. Before it used to freeze efter 2-3 weeks of
+> normal load so it's not easy to trigger.
+...
+> I can't prove that this fixes it but it sure looks like it. It prints the
+> timout message in the log as before, but continues working.
+> 
+> The last question is what to do with the version string, and what to do to
+> get this into 2.2.20 (if it's wanted).
 
-At least listing time seems to increase linearly with the number of
-addresses.  IIRC someone posted a patch a few weeks ago to speed this up
-(no longer sits for a long time before listing addresses).
+Call it v1.08b-LK1.0.1 and send an updated patch vs the latest 2.2.20-pre
+to Alan.
 
-time ip addr show dev eth1 | wc -l
-  37766
-ip addr show dev eth1  113.17s user 1.82s system 99% cpu 1:55.38 total
+If you can get others to verify that it works, that strengthens your case.
+But it sounds like you could reliably reproduce the problem, and
+considering that (more or less) the same fix is in 2.4 for the same reason
+...
 
-Also, ifconfig, which has no idea about any but the first address in an
-address class, also does nothing for the same amount of time before
-listing interfaces.
+The 2.4 tree has a SubmittingPatches text with some hints on how to not
+annoy the recipient (not that there was anything wrong with this mail,
+except that some people have attachment allergy :)
 
-Anyway, it seems ip and the 2.4 scheme with multiple addresses per
-interface can handle many more addresses than ifconfig and the device
-alias scheme.
-
-
-justin
+/Urban
 

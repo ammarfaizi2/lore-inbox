@@ -1,41 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273414AbRIWL6l>; Sun, 23 Sep 2001 07:58:41 -0400
+	id <S273415AbRIWMDB>; Sun, 23 Sep 2001 08:03:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273419AbRIWL6X>; Sun, 23 Sep 2001 07:58:23 -0400
-Received: from duba03h03-0.dplanet.ch ([212.35.36.23]:48907 "EHLO
-	duba03h03-0.dplanet.ch") by vger.kernel.org with ESMTP
-	id <S273414AbRIWL6M>; Sun, 23 Sep 2001 07:58:12 -0400
-Message-ID: <3BADE8C9.A8A587CE@dplanet.ch>
-Date: Sun, 23 Sep 2001 15:51:05 +0200
-From: "Giacomo A. Catenazzi" <cate@dplanet.ch>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.10-pre15 i586)
-X-Accept-Language: en
+	id <S273419AbRIWMCv>; Sun, 23 Sep 2001 08:02:51 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:60166 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S273415AbRIWMCe>; Sun, 23 Sep 2001 08:02:34 -0400
+Date: Sun, 23 Sep 2001 07:58:20 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/K7-Opimisation problems
+In-Reply-To: <Pine.LNX.4.10.10109211552370.12592-100000@coffee.psychology.mcmaster.ca>
+Message-ID: <Pine.LNX.3.96.1010923074900.3296A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.10-pre15: link error, drm <-> mtrr
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 21 Sep 2001, Mark Hahn wrote:
 
-        /home/src/linux/arch/i386/lib/lib.a /home/src/linux/lib/lib.a
-/home/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-drivers/char/drm/drm.o: In function `tdfx_addmap':
-drivers/char/drm/drm.o(.text+0x4d3): undefined reference to `mtrr_add'
-drivers/char/drm/drm.o: In function `tdfx_rmmap':
-drivers/char/drm/drm.o(.text+0x784): undefined reference to `mtrr_del'
-drivers/char/drm/drm.o: In function `tdfx_takedown':
-drivers/char/drm/drm.o(.text+0x1647): undefined reference to `mtrr_del'
-drivers/char/drm/drm.o: In function `tdfx_vm_shm_close':
-drivers/char/drm/drm.o(.text+0x4700): undefined reference to `mtrr_del'
-make: *** [vmlinux] Error 1
+> > The problem I have is seen only when I use Athlon code enabled with
+> > menuconfig, so the question is if the code is bad (as in timing
+> > sensitive), or if the compiler might be generating bad code for Athlon.
+> 
+> or the chipset/motherboard/dram can't handle the 2-3x bandwidth
+> demanded by the athlon code in the kernel.  the latter is conventional
+> wisdom for the past 6-8 months.
 
+The so-called Athlon patch fixed the problem for me on my Abit KK266R
+board, I stress tested it at 146MHz FSB (10% o/c) just to see if it was
+stable, and it seems all the problems have gone away in both kernel and
+user land.
 
-Time to modify Config.in ?
+It could be that the bit cleared slows memory, I haven't checked to see if
+playing with memory parameters will do the same thing.
 
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-	giacomo

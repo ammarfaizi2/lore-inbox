@@ -1,80 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285937AbRLaAyO>; Sun, 30 Dec 2001 19:54:14 -0500
+	id <S285940AbRLaBAY>; Sun, 30 Dec 2001 20:00:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285883AbRLaAx4>; Sun, 30 Dec 2001 19:53:56 -0500
-Received: from inreach-gw1.idiom.com ([209.209.13.26]:35337 "EHLO
-	smile.idiom.com") by vger.kernel.org with ESMTP id <S285944AbRLaAxh>;
-	Sun, 30 Dec 2001 19:53:37 -0500
-Message-ID: <3C2FB69C.290A52E7@obviously.com>
-Date: Sun, 30 Dec 2001 19:51:40 -0500
-From: Bryce Nesbitt <bryce@obviously.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Why would a valid DVD show zero files on Linux?
+	id <S285944AbRLaBAO>; Sun, 30 Dec 2001 20:00:14 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:28238 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S285940AbRLaBAA>; Sun, 30 Dec 2001 20:00:00 -0500
+Date: Mon, 31 Dec 2001 02:00:09 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrew Morton <akpm@zip.com.au>, Alexander Viro <viro@math.psu.edu>,
+        torrey.hoffman@myrio.com, linux-kernel@vger.kernel.org,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "Stephen C. Tweedie" <sct@redhat.com>
+Subject: Re: ramdisk corruption problems - was: RE: pivot_root and initrdkern el panic woes
+Message-ID: <20011231020009.R1356@athlon.random>
+In-Reply-To: <20011231012825.P1356@athlon.random> <Pine.LNX.4.33.0112301634510.1011-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <Pine.LNX.4.33.0112301634510.1011-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Dec 30, 2001 at 04:35:46PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a DVD ROM (It's DeLorme Topo USA), which works fine booted in Windows.
-Under Linux it mounts fine, but shows no files.  Everything looks normal, like
-it should just work.
+On Sun, Dec 30, 2001 at 04:35:46PM -0800, Linus Torvalds wrote:
+> 
+> On Mon, 31 Dec 2001, Andrea Arcangeli wrote:
+> >
+> > actually bh_new is needed also to serialize with the buffercache, a new
+> > bh mapped in pagecache must be dropped from the buffercache before we
+> > can start using it (unmap_underlying_metadata).
+> 
+> You're right, although it's something of an optimization (ie we could as
+> well just depend on the "mapped" bit and watch it change).
 
-What's up?  And ideas?
+we could even hold the optimization (cache coherency only on new blocks)
+by pushing the cache coherency into the lowlevel just like the bh
+clearing, but the current buffer_new branch in the library code seems
+clean (and potentially a little faster with big softblocksize due the
+partial clearing).
 
-
-[root@HardHat bryce]# df
-...
-/dev/scd0               326028    326028         0 100% /mnt/cdrom
-/dev/hdc               3277426   3277426         0 100% /mnt/dvdrom
-
-[root@HardHat bryce]# uname -a
-Linux HardHat 2.4.2-2 #1 Sun Apr 8 20:41:30 EDT 2001 i686 unknown
-
-
-[root@HardHat bryce]# cat /proc/filesystems 
-nodev   sockfs
-nodev   tmpfs
-nodev   shm
-nodev   pipefs
-nodev   proc
-        ext2
-        iso9660
-nodev   devpts
-nodev   usbdevfs
-        vfat
-nodev   autofs
-
-[root@HardHat bryce]# dd if=/dev/hdc of=/tmp/A bs=1024 count=200
-200+0 records in
-200+0 records out
-[root@HardHat bryce]# strings /tmp/A
-CD001
-                                T3DVD                           
-                                                                                                                                DELORME                                                                                                                         ADJ                                                                                                                                                                                                                                                                                                                                                                            1999111712541000
-2001022814540400
-2001022814540400
-CD001
-9%/E
-1999111712541000
-2001022814540400
-2001022814540400
-CD001
-BEA01
-NSR02
-TEA01
-T3DVD
-00026f70 MTC ForDVD 5.9, March 2000
-OSTA Compressed Unicode
-OSTA Compressed Unicode
-*Multimedia Tech. Cntr.
-*UDF LV Info
-
-
-
-# grep ATAPI /var/log/messages
-Dec 30 17:53:40 hardhat kernel: hdc:  DVD-ROM SD-M1402, ATAPI CD/DVD-ROM 
-drive
+Andrea

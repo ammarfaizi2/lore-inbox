@@ -1,54 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290618AbSBLAMl>; Mon, 11 Feb 2002 19:12:41 -0500
+	id <S290630AbSBLANb>; Mon, 11 Feb 2002 19:13:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290627AbSBLAMb>; Mon, 11 Feb 2002 19:12:31 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:55170 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S290618AbSBLAMZ>; Mon, 11 Feb 2002 19:12:25 -0500
-Message-ID: <3C685E20.8070707@oracle.com>
-Date: Tue, 12 Feb 2002 01:13:20 +0100
-From: Alessandro Suardi <alessandro.suardi@oracle.com>
-Organization: Oracle Support Services
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Robert Love <rml@tech9.net>
-CC: linux-kernel@vger.kernel.org, Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Subject: Re: [BUG] Panic in 2.5.4 during bootup after POSIX conformance	testing by UNIFIX
-In-Reply-To: <Pine.LNX.4.30.0202111453330.28560-200000@mustard.heime.net> 	<3C67D9CB.2030806@oracle.com> <1013454372.6781.418.camel@phantasy>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S290629AbSBLANW>; Mon, 11 Feb 2002 19:13:22 -0500
+Received: from rwcrmhc52.attbi.com ([216.148.227.88]:19384 "EHLO
+	rwcrmhc52.attbi.com") by vger.kernel.org with ESMTP
+	id <S290627AbSBLANH>; Mon, 11 Feb 2002 19:13:07 -0500
+Subject: Re: ALSA patch for 2.5.4
+From: Dan Mann <mainlylinux@attbi.com>
+To: Jaroslav Kysela <perex@perex.cz>
+Cc: ALSA development <alsa-devel@alsa-project.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <Pine.LNX.4.31.0202111429270.500-100000@pnote.perex-int.cz>
+In-Reply-To: <Pine.LNX.4.31.0202111429270.500-100000@pnote.perex-int.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1013472766.19794.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution/1.0.2 
+Date: 11 Feb 2002 19:14:02 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Love wrote:
-> Can both of you try the attached patch (thanks to Mikael Pettersson),
-> and tell me if it solves your problem?
 
-Yup, it does :)
+There are at least 2 reasons that I can see why Linus probably won't
+accept your patch:
 
-Now I'm only IrDA and sound disabled - which isn't bad, since at least
-  the streak of 5 kernels in a row either not compiling or oopsing on
-  boot (my longest _ever_) has been interrupted ;)
+	1. It is not an inline text attachment (it is a URL).
+	2. It is 79,000 lines long
 
+If you could send the patch in smaller chunks over time, or ask one of
+Linus' closer (read Highly Trusted) patch maintainers to apply it to
+his/her tree first and get some testing, he might be more inclined to
+accept it.
+
+Dan Mann
+
+
+On Mon, 2002-02-11 at 09:16, Jaroslav Kysela wrote:
+> Hello all,
 > 
-> --- linux-2.5.4/include/asm-i386/smplock.h.~1~  Mon Feb 11 12:21:46 2002
-> +++ linux-2.5.4/include/asm-i386/smplock.h      Mon Feb 11 16:55:18 2002
-> @@ -15,7 +15,7 @@
->  #else
->  #ifdef CONFIG_PREEMPT
->  #define kernel_locked()                preempt_get_count()
-> -#define global_irq_holder      0
-> +#define global_irq_holder      0xFF    /* XXX: NO_PROC_ID */
->  #else
->  #define kernel_locked()                1
->  #endif
+> 	a new ALSA patch for 2.5.4 is available at
+> 
+> ftp://ftp.alsa-project.org/pub/kernel-patches/alsa-2002-02-11-1-linux-2.5.4.patch.gz
+> 
+> 	I repeat myself but anyway. We are open to any suggestions and
+> ideas for this kernel integration patch. Unfortunately, Linus has not
+> approved this directory tree and he is not talking with us at the time.
+> It seems that BIO changes are over, but he's probably busy enough to
+> ignore our e-mails with co-operation requests.
+> 
+> 						Jaroslav
+> 
+> -----
+> Jaroslav Kysela <perex@suse.cz>
+> SuSE Linux    http://www.suse.com
+> ALSA Project  http://www.alsa-project.org
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
---alessandro
-
-  "If your heart is a flame burning brightly
-    you'll have light and you'll never be cold
-   And soon you will know that you just grow / You're not growing old"
-                               (Husker Du, "Flexible Flyer")
 

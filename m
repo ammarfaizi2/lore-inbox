@@ -1,29 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292239AbSCIBCI>; Fri, 8 Mar 2002 20:02:08 -0500
+	id <S292238AbSCIBKP>; Fri, 8 Mar 2002 20:10:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292238AbSCIBAy>; Fri, 8 Mar 2002 20:00:54 -0500
-Received: from dsl-213-023-043-124.arcor-ip.net ([213.23.43.124]:10895 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S292130AbSCIBAp>;
-	Fri, 8 Mar 2002 20:00:45 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <daniel.phillips@intransa.com>
-To: linux-kernel@vger.kernel.org
-Subject: Travel
-Date: Sat, 9 Mar 2002 01:56:40 +0100
-X-Mailer: KMail [version 1.3.2]
+	id <S292284AbSCIBKF>; Fri, 8 Mar 2002 20:10:05 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22276 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292238AbSCIBKB>; Fri, 8 Mar 2002 20:10:01 -0500
+Subject: Re: PnP BIOS driver status
+To: bgerst@didntduck.org (Brian Gerst)
+Date: Sat, 9 Mar 2002 01:25:10 +0000 (GMT)
+Cc: jdthood@mail.com (Thomas Hood), linux-kernel@vger.kernel.org
+In-Reply-To: <3C895E90.696E92A2@didntduck.org> from "Brian Gerst" at Mar 08, 2002 08:00:00 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16jVA8-0000N5-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16jVbi-0008Gb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linda,
+> The current driver is not SMP-safe.  It is modifying the GDT descriptors
+> outside of the pnp_bios_lock.  Also, you can remove the __cli(), as
+> spin_lock_irq() already turns off interrupts.
 
-I've reserved a departure for Thursday 14th, arriving Thursday, 3 p.m.
-We don't have to worry about this more until Monday.  The cost will be
-$1,100, and Tracy will need to know about this so that the ticket can
-be booked on Intransa's account.
+The GDT descriptors are private to the PNP BIOS and constant values once
+set up. No PnPBIOS call is made before the configuration is done.
 
-Daniel
-
+Seems ok to me - or am I missing something ?

@@ -1,38 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286936AbSABLVy>; Wed, 2 Jan 2002 06:21:54 -0500
+	id <S286944AbSABL3P>; Wed, 2 Jan 2002 06:29:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286938AbSABLVo>; Wed, 2 Jan 2002 06:21:44 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33033 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S286936AbSABLVd>; Wed, 2 Jan 2002 06:21:33 -0500
-Subject: Re: SCSI host numbers?
-To: nahshon@actcom.co.il
-Date: Wed, 2 Jan 2002 11:32:28 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200201020119.g021JoK32730@lmail.actcom.co.il> from "Itai Nahshon" at Jan 02, 2002 03:19:45 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16LjdE-0003m4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S286945AbSABL3F>; Wed, 2 Jan 2002 06:29:05 -0500
+Received: from vitelus.com ([64.81.243.207]:60940 "EHLO vitelus.com")
+	by vger.kernel.org with ESMTP id <S286944AbSABL2y>;
+	Wed, 2 Jan 2002 06:28:54 -0500
+Date: Wed, 2 Jan 2002 03:28:21 -0800
+From: Aaron Lehmann <aaronl@vitelus.com>
+To: Momchil Velikov <velco@fadata.bg>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix
+Message-ID: <20020102112821.GA13212@vitelus.com>
+In-Reply-To: <87g05py8qq.fsf@fadata.bg>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
+Content-Disposition: inline
+In-Reply-To: <87g05py8qq.fsf@fadata.bg>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Under some scenarios Linux assigns the same
-> host_no to more than one scsi device.
-> 
-> Can someone tell me what is the intended behavior?
 
-A number should never be reissued.
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> The problem is that a newly registered device gets
-> its host_no from max_scsi_host. max_scsi_host is
-> decremented when a device driver is unregistered
-> (see drivers/scsi/host.c) allowing a second new
-> host to reuse the same host_no.
+On Wed, Jan 02, 2002 at 01:03:25AM +0200, Momchil Velikov wrote:
+> Thus=20
+>    strcpy (dst, "abcdef" + 2)
+> gives
+>    memcpy (dst, "abcdef" + 2, 5)
 
-I guess it needs to either only decrement the count if we are the highest one 
-(trivial hack) or scan for a free number/keep a free bitmap. The devfs code
-has a handy little unique_id function for that 
+IMHO gcc should not be touching these function calls, as they are not
+made to a standard C library, and thus have different behaviors. I'm
+suprised that gcc tries to optimize calls to these functions just
+based on their names.
+
+The gcc manpage mentions
+
+       -ffreestanding
+           Assert that compilation takes place in a freestanding
+           environment.  This implies -fno-builtin.  A freestand=AD
+           ing environment is one in which the standard library
+           may not exist, and program startup may not necessarily
+           be at "main".  The most obvious example is an OS ker=AD
+           nel.  This is equivalent to -fno-hosted.
+
+Why is Linux not using this? It sounds very appropriate. The only
+things the manpage mentions that -fno-builtin would inhibit from being
+optimized are memcpy() and alloca(). memcpy() has its own assembly
+optimization and inlining on some (most?) archs, and as for alloca(),
+I only see it being used a bit in the S/390 code, where the gcc
+optimizations could quite possibly break something. I think
+-ffreestanding definately should be used by the kernel to prevent gcc
+from messing with its code in broken ways.
+
+--BOKacYhQ+x31HxR3
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8Mu7VdtqQf66JWJkRAhUmAJ4nsHAVyUHIjpDvcG+6Efg4L54U5ACaA5HP
+hPDf4de5XmyxtfLQW0EOtBw=
+=Mkjc
+-----END PGP SIGNATURE-----
+
+--BOKacYhQ+x31HxR3--

@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314025AbSDZNMm>; Fri, 26 Apr 2002 09:12:42 -0400
+	id <S313996AbSDZNPE>; Fri, 26 Apr 2002 09:15:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313996AbSDZNMl>; Fri, 26 Apr 2002 09:12:41 -0400
-Received: from web12504.mail.yahoo.com ([216.136.173.196]:262 "HELO
-	web12504.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S314025AbSDZNMk>; Fri, 26 Apr 2002 09:12:40 -0400
-Message-ID: <20020426131240.11007.qmail@web12504.mail.yahoo.com>
-Date: Fri, 26 Apr 2002 06:12:40 -0700 (PDT)
-From: sanjay kumar <sanjay_ara_in@yahoo.com>
-To: linux-kernel@vger.kernel.org
+	id <S314029AbSDZNPD>; Fri, 26 Apr 2002 09:15:03 -0400
+Received: from pat.uio.no ([129.240.130.16]:50133 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S313996AbSDZNPC>;
+	Fri, 26 Apr 2002 09:15:02 -0400
+To: Dan Yocum <yocum@fnal.gov>
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Poor NFS client performance on 2.4.18?
+In-Reply-To: <3CC86BDC.C8784EA2@fnal.gov>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 26 Apr 2002 15:14:56 +0200
+Message-ID: <shsu1pyppnz.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-Any file system like ext2, JFS etc are aware about the
-meta-data of filesystem and file-data, when it writes
-some file-blocks on disk. I want to know whether it is
-possible to differentiate between meta-data and
-file-data in block device layer (I mean without using
-file-system specific functions). In other words,
-whether it is possible to know that the given buffer
-(of buffer cache), contains the meta-data/file-data.
-Here meta-data means filesystem specific data like
-superblock, group descriptor, bitmap blocks (if file
-system supports), blocks containing inode and extent
-information, information about directories and files,
-blocks containing indirect pointers for any file
-(applicable in indirect addressing in ext2), etc.
+>>>>> " " == Dan Yocum <yocum@fnal.gov> writes:
 
-Is it true that all file systems (if not all, then
-mostly), use block_read_full_page() and
-block_write_full_page() to read/write the file-data ?
-And these functions are not used for reading/writing
-the meta-data.
+     > Trond, et al.  I'm getting poor NFS performance (~250KBps read
+     > and write) on 2.4.18 and am wondering if I'm the only one.
+     > There is no performance drop under other OSs or other kernel
+     > versions, so I don't think it's the server.
 
--Sanjay Kumar 
+     > Here's the the details:
 
-PS - I am not the member of this group, so please CC
-me, when you are replying.
+     > 2.4.18 patched with:
+     > 	NFS client patches (linux-2.4.18-NFS_ALL.dif)
+     > 	xfs-1.1-PR1-2.4.18-all.patch Ingo's Foster IRQ patch (these
+     > 	are dual Xeons)
 
+     > If you need any more details, let me know.
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Games - play chess, backgammon, pool and more
-http://games.yahoo.com/
+The latest NFS_ALL patches include experimental code that changes the
+UDP congestion control. I'm basically trying to relax the algorithm to
+what is standard on *BSD (i.e. we follow the standard Van Jacobson).
+
+This would mean that we don't wait for the reply from the server
+before we send off the next request. Unfortunately, there appears to
+be a lot of setups out there that start to drop packets when this
+occurs, and I haven't yet finished determining the root cause.
+
+If I can manage to get my laptop to work again, I'll try to
+investigate a bit more this weekend...
+
+Cheers,
+  Trond

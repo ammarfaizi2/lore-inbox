@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272370AbSISStc>; Thu, 19 Sep 2002 14:49:32 -0400
+	id <S272320AbSISTCb>; Thu, 19 Sep 2002 15:02:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272400AbSISStb>; Thu, 19 Sep 2002 14:49:31 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:15367 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP
-	id <S272370AbSISSt2>; Thu, 19 Sep 2002 14:49:28 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: [patch] generic-pidhash-2.5.36-D4, BK-curr
-Date: Thu, 19 Sep 2002 18:54:06 +0000 (UTC)
-Organization: Cistron
-Message-ID: <amd6ge$fng$3@ncc1701.cistron.net>
-References: <20020919163542.GA14951@win.tue.nl> <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1032461646 16112 62.216.29.67 (19 Sep 2002 18:54:06 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S272334AbSISTCb>; Thu, 19 Sep 2002 15:02:31 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:25746 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S272320AbSISTCb>; Thu, 19 Sep 2002 15:02:31 -0400
+Date: Thu, 19 Sep 2002 12:05:36 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: "Bond, Andrew" <Andrew.Bond@hp.com>, linux-kernel@vger.kernel.org
+Subject: Re: TPC-C benchmark used standard RH kernel
+Message-ID: <434201548.1032437133@[10.10.2.3]>
+In-Reply-To: <45B36A38D959B44CB032DA427A6E106402D09E42@cceexc18.americas.cpqcorp.net>
+References: <45B36A38D959B44CB032DA427A6E106402D09E42@cceexc18.americas.cpqcorp.net>
+X-Mailer: Mulberry/2.1.2 (Win32)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.44.0209190938340.1594-100000@home.transmeta.com>,
-Linus Torvalds  <torvalds@transmeta.com> wrote:
->
->On Thu, 19 Sep 2002, Andries Brouwer wrote:
->> The controlling terminal is inherited by a child process during a fork()
->> function call. A process relinquishes its controlling terminal when it creates
->> a new session with the setsid() function; other processes remaining in the
->> old session that had this terminal as their controlling terminal continue
->> to have it.
->
->Well, that certainly clinches the fact that the controlling terminal _can_ 
->and does continue to be hold by processes outside the current session 
->group.
+> Could we have gotten better performance by patching the kernel?  Sure.  There are many new features in 2.5 that would enhance database performance.  However, the fairly strict support requirements of TPC benchmarking mean that we need to benchmark a kernel that a Linux distributor ships and can support.  
+> Modifications could also be taken to the extreme, and we could have built a screamer kernel that runs Oracle TPC-C's and nothing else.  However, that doesn't really tell us anything useful and doesn't help those customers thinking about running Linux.  The question also becomes "Who would provide customer support for that kernel?" 
 
-No, not at all. A few lines above that it said:
+Unofficial results for 2.5 vs 2.4 (or 2.4-redhatAS) would be most
+interesting if you're able to gather them, and still have the
+machine. Most times you can avoid their draconian rules by saying
+"on a large benchmark test that I can't name but you all know what
+it is ..." instead of naming it ... ;-)
 
->> A terminal that is associated with a session. Each session may have
->> at most one controlling terminal associated with it, and a controlling
->> terminal is associated with exactly one session.
-
-A session has zero or 1 controlling terminals. A controlling
-terminal is associated with one session only.
-
-Mike.
+M.
 

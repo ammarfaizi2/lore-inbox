@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUHYVeg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbUHYVea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265222AbUHYVeg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 17:34:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbUHYVeA
+	id S261724AbUHYVea (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 17:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263761AbUHYVdh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 17:34:00 -0400
-Received: from mail.tmr.com ([216.238.38.203]:15110 "EHLO gatekeeper.tmr.com")
-	by vger.kernel.org with ESMTP id S268729AbUHYV11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 17:27:27 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Bill Davidsen <davidsen@tmr.com>
-Newsgroups: mail.linux-kernel
-Subject: Re: [PATCH] /dev/crypto for Linux
-Date: Wed, 25 Aug 2004 17:28:00 -0400
-Organization: TMR Associates, Inc
-Message-ID: <cgivru$306$1@gatekeeper.tmr.com>
-References: <412BB517.4040204@suse.cz> <Xine.LNX.4.44.0408251025120.25396-100000@thoron.boston.redhat.com>
+	Wed, 25 Aug 2004 17:33:37 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40078 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268602AbUHYVZS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 17:25:18 -0400
+Date: Wed, 25 Aug 2004 22:25:18 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+Message-ID: <20040825212518.GK21964@parcelfarce.linux.theplanet.co.uk>
+References: <20040824202521.GA26705@lst.de> <412CEE38.1080707@namesys.com> <20040825200859.GA16345@lst.de> <Pine.LNX.4.58.0408251314260.17766@ppc970.osdl.org> <20040825204240.GI21964@parcelfarce.linux.theplanet.co.uk> <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Trace: gatekeeper.tmr.com 1093468863 3078 192.168.12.100 (25 Aug 2004 21:21:03 GMT)
-X-Complaints-To: abuse@tmr.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-In-Reply-To: <Xine.LNX.4.44.0408251025120.25396-100000@thoron.boston.redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408251348240.17766@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Morris wrote:
-> On Tue, 24 Aug 2004, Michal Ludvig wrote:
-> 
-> 
->>How does it work?
->>- - Process opens /dev/crypto and with a set of ioctl() commands does what
->>it wants to. I.e. obtains a crypto session, does the {enc,dec}ryption
->>and finally closes the session. The sessions are bound to "struct file"
->>of the open /dev/crypto and thus are automatically removed even if the
->>process dies unexpectedly.
-> 
-> 
-> I don't think this is the way forward for the user crypto API.  Rather 
-> than using the openbsd device as a starting point, we need to look at what 
-> is the best for Linux and work from there.
-> 
-> In any case, the openbsd device is the wrong model.  An ioctl() based 
-> interface is just a set of backdoor syscalls, but with weak semantics, and 
-> a potential maintenance nightmare.
-> 
-> At this stage, the only real use for the device is to make it easier to 
-> test and benchmark the crypto modules, and I'm not sure if this is enough 
-> justification for integration with the kernel at this stage.  Currently, 
-> the tcrypt module provides a convienient way to test modules on whatever 
-> architecture you can boot a kernel on, without the need for external 
-> userspace packages.  It also tests some specific scatterlist cases.  So, 
-> your crypto dev would not likely be considered a full replacement for 
-> tcrypt at this stage.
+On Wed, Aug 25, 2004 at 02:00:01PM -0700, Linus Torvalds wrote:
+> Of course, the dcache introduces some new problems of its own wrt
+> directory aliasing, but I don't actually think that should be fundamental
+> either. Treating them more as a "static mountpoint" from an FS angle and
+> less as a traditional Unix hardlink should be doable, I'd have thought.
 
-The use of this would be to provide some access to crypto for portable 
-programs which might be usefully run on systems which have not installed 
-the big libs needed for usermode crypto. And it also addresses the 
-reality that many people update their kernel more often than their libs, 
-and new methods are more likely to be available there. For a low-volume 
-task like encoding a key or other small chunk of data it might be that 
-the overhead of the system call would be no more than the memory 
-footprint of loading a lib to do a single operation.
+Yeah, if we ditch the "mountpoints are busy and untouchable" stuff.  Which
+I'd love to, but it's a hell of a visible (and admin-visible) change.
 
-And every time I see a new method in the kernel, I wonder why it's there 
-is users can't access it?
+FWIW, current deadlocks are unrelated to actual operation succeeding.
+Look: we have sys_link() making sure that parent of target is a directory
+(PATH_LOOKUP, in a "it has ->lookup()" sense), then locking target's parent,
+then checking that it has ->link() (everyone on reiser4 does) and then
+checking that source (old link to file) is *not* a directory (in S_ISDIR
+sense).  Then we lock source.
 
-Don't take this as a stand to include this, I'm just being devil's 
-advocate and bringing up the benefits since multiple people are bringing 
-up the drawbacks. If this was actually going to happen it *might* be 
-done with a totally different interface and happen in a kernel thread or 
-some such. One feature of MULTICS we don't have is the ability to 
-execute kernel code in user mode, sort of like a shared library.
+Note that currently it's OK - we get "all non-directories are always locked
+after all directories".  With filesystem that provides hybrid objects with
+non-NULL ->link() it's not true and we are in deadlock country.  Before
+we get anywhere near fs code.
 
--- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+I'm not saying that this particular instance is hard to fix, but it wasn't
+even looked at.  All it would take is checking the description of current
+locking scheme and looking through the proof of correctness (present in the
+tree).  That's the first point where said proof breaks if we have hybrids.
+And it's what, about 4 screenfuls of text?
+
+I have no problems with discussing such stuff and no problems with having it
+merged if it actually works.  But let's start with something better than
+"let's hope nothing breaks if we just add such objects and do nothing else,
+'cause hybridi files/directories are good, mmmkay?"

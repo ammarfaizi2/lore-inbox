@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271552AbRHUEwh>; Tue, 21 Aug 2001 00:52:37 -0400
+	id <S271557AbRHUEzH>; Tue, 21 Aug 2001 00:55:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271553AbRHUEw1>; Tue, 21 Aug 2001 00:52:27 -0400
-Received: from www.wen-online.de ([212.223.88.39]:61446 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S271552AbRHUEwN>;
-	Tue, 21 Aug 2001 00:52:13 -0400
-Date: Tue, 21 Aug 2001 06:52:11 +0200 (CEST)
-From: Mike Galbraith <mikeg@wen-online.de>
-X-X-Sender: <mikeg@mikeg.weiden.de>
-To: Daniel Phillips <phillips@bonn-fries.net>
-cc: Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.8/2.4.9 VM problems
-In-Reply-To: <20010820202807Z16262-32383+582@humbolt.nl.linux.org>
-Message-ID: <Pine.LNX.4.33.0108210629020.672-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S271554AbRHUEy5>; Tue, 21 Aug 2001 00:54:57 -0400
+Received: from zok.sgi.com ([204.94.215.101]:63170 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S271553AbRHUEyx>;
+	Tue, 21 Aug 2001 00:54:53 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: "H . J . Lu" <hjl@lucon.org>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Fix modutils to check ELF symbol index 
+In-Reply-To: Your message of "Mon, 20 Aug 2001 10:34:18 MST."
+             <20010820103418.A15514@lucon.org> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 21 Aug 2001 14:55:01 +1000
+Message-ID: <29071.998369701@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Aug 2001, Daniel Phillips wrote:
+On Mon, 20 Aug 2001 10:34:18 -0700, 
+"H . J . Lu" <hjl@lucon.org> wrote:
+>Hi Keith,
+>
+>All my previous email sent to you are bounced. I am sending this to the
+>kernel mailing list, hoping you will read it..
 
-> On August 20, 2001 09:14 pm, Mike Galbraith wrote:
-> > On Mon, 20 Aug 2001, Daniel Phillips wrote:
-> > > On August 20, 2001 05:40 pm, Mike Galbraith wrote:
-> > > > I'll give your patch a shot.  In the meantime, below is what I did
-> > > > to it here.  I might have busted use_once all to pieces ;-) but it
-> > > > cured my problem, so I'll show it anyway.
-> > >
-> > > No, this doesn't break it at all, what it does is require the IO page
-> > > to be touched more times before it's considered truly active.  This
-> > > partly takes care of the theory that an intial burst of activity on
-> > > the page should be considered as only one use.
-> >
-> > (it turns it into a ~sortof used twiceish in my specific case I think..
->
-> Actually, used-thriceish.
->
-> > the aging must happen to make it work right though.. very very tricky.
->
-> I doubt the aging has much to do with it, what's more important is the length
-> of the inactive_dirty queue.  Of course, aging affects that and so does
-> scanning policy, both a little "uncalibrated" at the moment.
->
-> > Nope, I don't have anything other than a 'rough visual' to work with..
-> > might be totally out there ;-)
->
-> What made you think of trying the higher activation threshold? ;-)
+My mail logs for August only show 2 attempts from 24.176.137.160, both
+in the past 12 hours.  The first was blocked with a 451 response
+because the reverse DNS lookup failed, blame home.com for not doing
+anything about spammers.  The second got through because reverse DNS
+worked.
 
-Well :)) there I sat daydreaming, imagining myself as a bonnie page
-running around queues, got dizzy and finally just changed the little
-spot that kept attracting my eyeballs.. a hunch.
-
-	-Mike
+Patch will be in modutils 2.4.8, thanks.
 

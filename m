@@ -1,88 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262345AbUCaS7o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 13:59:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbUCaS7o
+	id S262351AbUCaTAI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 14:00:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbUCaTAH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 13:59:44 -0500
-Received: from mail01.hpce.nec.com ([193.141.139.228]:63393 "EHLO
-	mail01.hpce.nec.com") by vger.kernel.org with ESMTP id S262345AbUCaS7j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 13:59:39 -0500
-From: Erich Focht <efocht@hpce.nec.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [Lse-tech] [patch] sched-domain cleanups, sched-2.6.5-rc2-mm2-A3
-Date: Wed, 31 Mar 2004 20:59:23 +0200
-User-Agent: KMail/1.5.4
-Cc: nickpiggin@yahoo.com.au, mbligh@aracnet.com, mingo@elte.hu, ak@suse.de,
-       jun.nakajima@intel.com, ricklind@us.ibm.com,
-       linux-kernel@vger.kernel.org, kernel@kolivas.org, rusty@rustcorp.com.au,
-       anton@samba.org, lse-tech@lists.sourceforge.net
-References: <7F740D512C7C1046AB53446D372001730111990F@scsmsx402.sc.intel.com> <200403301204.14303.efocht@hpce.nec.com> <20040330030242.56221bcf.akpm@osdl.org>
-In-Reply-To: <20040330030242.56221bcf.akpm@osdl.org>
+	Wed, 31 Mar 2004 14:00:07 -0500
+Received: from [63.107.13.101] ([63.107.13.101]:30374 "EHLO mail.metavize.com")
+	by vger.kernel.org with ESMTP id S262351AbUCaS74 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Mar 2004 13:59:56 -0500
+Message-ID: <406B1522.9050204@metavize.com>
+Date: Wed, 31 Mar 2004 10:59:46 -0800
+From: Dirk Morris <dmorris@metavize.com>
+User-Agent: Mozilla Thunderbird 0.5 (X11/20040306)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jamie Lokier <jamie@shareable.org>
+CC: Rusty Russell <rusty@rustcorp.com.au>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6.2] Badness in futex_wait revisited
+References: <40311703.8070309@metavize.com> <20040217051911.6AC112C066@lists.samba.org> <20040331165656.GG19280@mail.shareable.org> <406B0219.3000309@metavize.com> <20040331183243.GA20418@mail.shareable.org>
+In-Reply-To: <20040331183243.GA20418@mail.shareable.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200403312059.23287.efocht@hpce.nec.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 30 March 2004 13:02, Andrew Morton wrote:
-> Erich Focht <efocht@hpce.nec.com> wrote:
-> >  > And finally, HPC
-> >  > applications are the very ones that should be using CPU
-> >  > affinities because they are usually tuned quite tightly to the
-> >  > specific architecture.
-> >
-> >  There are companies mainly selling NUMA machines for HPC (SGI?), so
-> >  this is not a niche market.
+Jamie Lokier wrote:
+
+>If you have a small test program (or pair of programs) that
+>consistently triggers this message on any machine running 2.6.4, that
+>would be very helpful indeed.
+>  
 >
-> It is niche in terms of number of machines and in terms of affected users.
-> And the people who provide these machines have the resources to patch the
-> scheduler if needs be.
+Here ya go. :)
 
-Uhm, depends on the CPUs you think of. I bet much more than half of
-the Opterons and Itanium2 CPUs sold last year went into HPC. Certainly
-not so many IA64s went into NUMA machines. But almost all Opterons ;-)
-IBM's NUMA machines with Power CPUs are mainly sold with AIX into the
-HPC market, I don't recall to have seen big HPC installations with HP
-Superdome under Linux, not yet...? IBM sells x86-NUMA more into the
-commercial market, the only big visible Linux-NUMA in HPC is SGI's
-Altix. Most of the other NUMA machines go into HPC with other OSes and
-we don't care about them (yet?). So you're probably right about the
-number of Linux-NUMA-HPC users, but this actually shows that
-Linux-NUMA is currently not the ideal choice. We're working on it,
-right?
+* $Id: foo.c,v 1.00 2004/03/31 10:51:19 dmorris Exp $ */
+/* gcc foo.c -o foo -pthread */
+#include <stdlib.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <semaphore.h>
 
-> Correct me if I'm wrong, but what we have here is a situation where if we
-> design the scheduler around the HPC requirement, it will work poorly in a
-> significant number of other applications.  And we don't see a way of fixing
-> this without either a /proc/i-am-doing-hpc, or a config option, or
-> requiring someone to carry an external patch, yes?
->
-> If so then all of those seem reasonable options to me.  We should optimise
-> the scheduler for the common case, and that ain't HPC.
+sem_t sem;
 
-Yes! A per process flag would be enough to have the choice.
+void* make_system_call (void* arg)
+{
+    while(1) {
+        sleep(1);
+        system("/bin/true");
+    }
+    return NULL;
+}
 
-> If we agree that architecturally sched-domains _can_ satisfy the HPC
-> requirement then I think that's good enough for now.  I'd prefer that Ingo
-> and Nick not have to bust a gut trying to get optimum HPC performance
-> before the code is even merged up.
+int main(void)
+{
+    pthread_t id;
+    sem_init(&sem,0,0);
+    pthread_create(&id,NULL,make_system_call,NULL);
+    while (sem_wait(&sem)<0)
+        perror("sem_wait");
+    return 0;
+}
 
-Sure. On the other hand the benchmark brought into discussion by Andi
-is very easy to understand, much easier than any Java monster. If the
-scheduler doesn't have a screw for running this optimally, it's
-disappointing.
 
-> Do you agree that sched-domains is architected appropriately?
 
-My current impression is: YES. My testing experience with it is
-still very limited...
+Output for me is :
+~ # uname 
+-a                                                                                        
+[dmorris @ gobbles]
+Linux gobbles 2.6.4 #2 SMP Mon Mar 29 17:15:08 PST 2004 i686 GNU/Linux
+~ # 
+./foo                                                                                           
+[dmorris @ gobbles]
+sem_wait: Interrupted system call
+sem_wait: Interrupted system call
+sem_wait: Interrupted system call
+sem_wait: Interrupted system call
+...
 
-Regards,
-Erich
+
+meanwhile kern.log spits out:
+Mar 30 16:40:23 gobbles kernel: Badness in futex_wait at kernel/futex.c:508
+Mar 30 16:40:23 gobbles kernel: Call Trace:
+Mar 30 16:40:23 gobbles kernel:  [<c0139a28>] futex_wait+0x1a8/0x1c0
+Mar 30 16:40:23 gobbles kernel:  [<c011efc0>] default_wake_function+0x0/0x20
+Mar 30 16:40:23 gobbles kernel:  [<c011efc0>] default_wake_function+0x0/0x20
+Mar 30 16:40:23 gobbles kernel:  [<c012d020>] do_timer+0xc0/0xd0
+Mar 30 16:40:23 gobbles kernel:  [<c0139d30>] do_futex+0x70/0x80
+Mar 30 16:40:23 gobbles kernel:  [<c0139e64>] sys_futex+0x124/0x140
+Mar 30 16:40:23 gobbles kernel:  [<c015ef11>] sys_write+0x61/0x70
+Mar 30 16:40:23 gobbles kernel:  [<c01095db>] syscall_call+0x7/0xb
+Mar 30 16:40:23 gobbles kernel:
+
+
+I can do this on multiple machines, so I won't include all the box info.
+If you need it let me know.
+
+Thanks! :)
+-Dirk
+
 
 

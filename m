@@ -1,49 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263275AbVCKCKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263105AbVCKCKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbVCKCKA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 21:10:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbVCKCHc
+	id S263105AbVCKCKu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 21:10:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263104AbVCKCKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 21:07:32 -0500
-Received: from omx2-ext.sgi.com ([192.48.171.19]:17792 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263108AbVCKCGC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 21:06:02 -0500
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: Paul Mackerras <paulus@samba.org>, werner@sgi.com
-Subject: Re: AGP bogosities
-Date: Thu, 10 Mar 2005 18:04:04 -0800
-User-Agent: KMail/1.7.2
-Cc: torvalds@osdl.org, davej@redhat.com, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
-In-Reply-To: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
+	Thu, 10 Mar 2005 21:10:49 -0500
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:38525 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263108AbVCKCI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 21:08:58 -0500
+Message-ID: <42319861.7000805@yahoo.com.au>
+Date: Sat, 12 Mar 2005 00:08:49 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: re-inline sched functions
+References: <200503110024.j2B0OFg06087@unix-os.sc.intel.com> <20050310163056.64878c24.akpm@osdl.org>
+In-Reply-To: <20050310163056.64878c24.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200503101804.04371.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, March 10, 2005 5:24 pm, Paul Mackerras wrote:
-> The patch below fixes these problems.  It will work in the 99.99% of
-> cases where we have one AGP bridge and one AGP video card.  We should
-> eventually cope with multiple AGP bridges, but doing the matching of
-> bridges to video cards is a hard problem because the video card is not
-> necessarily a child or sibling of the PCI device that we use for
-> controlling the AGP bridge.  I think we need to see an actual example
-> of a system with multiple AGP bridges first.
+Andrew Morton wrote:
 
-We have real systems with multiple AGP bridges out there already, so we'd like 
-to see this fixed properly.  I think this is Mike's code, Mike?
+>"Chen, Kenneth W" <kenneth.w.chen@intel.com> wrote:
+>
+>>This could be part of the unknown 2% performance regression with
+>>db transaction processing benchmark.
+>>
+>>The four functions in the following patch use to be inline.  They
+>>are un-inlined since 2.6.7.
+>>
+>>We measured that by re-inline them back on 2.6.9, it improves performance
+>>for db transaction processing benchmark, +0.2% (on real hardware :-)
+>>
+>>
 
-> Oh, and by the way, I have 3D working relatively well on my G5 with a
-> 64-bit kernel (and 32-bit X server and clients), which is why I care
-> about AGP 3.0 support. :)
+Can you also inline requeue_task? No performance gain expected, but
+it is just a simple wrapper around a list function.
 
-I have a system in my office with several gfx pipes on different AGP busses, 
-and I'd like that to work well too! :)
+>>The cost is certainly larger kernel size, cost 928 bytes on x86, and
+>>2728 bytes on ia64.  But certainly worth the money for enterprise
+>>customer since they improve performance on enterprise workload.
+>>
+>
+>Less that 1k on x86 versus >2k on ia64.  No wonder those things have such
+>big caches ;)
+>
+>
+>>...
+>>Possible we can introduce them back?
+>>
+>
+>OK by me.
+>
+>
 
-Jesse
+What happens if you leave task_timeslice out of line? It isn't exactly
+huge, but it is called from a handful of places.
+
+

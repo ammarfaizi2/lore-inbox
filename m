@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbVCDNfB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262908AbVCDNkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262914AbVCDNfB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 08:35:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262922AbVCDNak
+	id S262908AbVCDNkf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 08:40:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbVCDNke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 08:30:40 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4875 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262898AbVCDNZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 08:25:48 -0500
-Date: Fri, 4 Mar 2005 13:25:35 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Richard Purdie <rpurdie@rpsys.net>
-Cc: Andrew Morton <akpm@osdl.org>, davej@redhat.com, torvalds@osdl.org,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: RFD: Kernel release numbering
-Message-ID: <20050304132535.A9133@flint.arm.linux.org.uk>
-Mail-Followup-To: Richard Purdie <rpurdie@rpsys.net>,
-	Andrew Morton <akpm@osdl.org>, davej@redhat.com, torvalds@osdl.org,
-	jgarzik@pobox.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org> <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com> <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org> <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org> <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk> <01ef01c520b7$94bebf80$0f01a8c0@max>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <01ef01c520b7$94bebf80$0f01a8c0@max>; from rpurdie@rpsys.net on Fri, Mar 04, 2005 at 12:40:30PM -0000
+	Fri, 4 Mar 2005 08:40:34 -0500
+Received: from [209.203.41.250] ([209.203.41.250]:33495 "EHLO
+	bventer01.shoden.co.za") by vger.kernel.org with ESMTP
+	id S262898AbVCDNjW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 08:39:22 -0500
+Message-ID: <42286505.2010104@shoden.co.za>
+Date: Fri, 04 Mar 2005 15:39:17 +0200
+From: Bennie Kahler-Venter <bennie.venter@shoden.co.za>
+Reply-To: bennie.venter@shoden.co.za
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dtor_core@ameritech.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: v.2.6.11 mouse still losing sync and thus jumping around
+References: <42271D31.8060006@shoden.co.za> <200503031543.53065.dtor_core@ameritech.net> <422822DA.2050501@shoden.co.za>
+In-Reply-To: <422822DA.2050501@shoden.co.za>
+Content-Type: multipart/mixed;
+ boundary="------------000104040009000304000404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 12:40:30PM -0000, Richard Purdie wrote:
-> I've found the arm cross compiler generated from openembedded 
-> (http://openembedded.org) to be very reliable. The big advantage in using oe 
-> would be that it is in active use so it is always highly likely to generate 
-> a working compiler. Someone just needs to make it generate a 
-> toolchain/compiler for external use[1], make it available somewhere and 
-> advertise the fact its available. Generation of the toolchain could probably 
-> be almost entirely automated.
-> 
-> Fixes for any problems with compiler would be more than welcome for 
-> incorporation into oe short term and for submission upstream for "proper" 
-> fixing.
+This is a multi-part message in MIME format.
+--------------000104040009000304000404
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I'll only believe it when I see it.  The problem is this "someone"...
-Who's going to forfill that space and produce some results?
+Find attached the updated psmouse-resend patch for 2.6.11.
 
-Something tells me that we'll be very lucky to get a volunteer, let
-alone see any results.
+It fixes most of the lost-sync problems for the ps2 mouse but not all of 
+them.  I might have picked the wrong struct members for v.2.6.11
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Tnx & Bi
+Bennie Kahler-Venter
+
+
+--------------000104040009000304000404
+Content-Type: application/x-gunzip;
+ name="psmouse-resend-2_6_11-v1.patch.gz"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="psmouse-resend-2_6_11-v1.patch.gz"
+
+H4sICC5jKEIAA3BzbW91c2UtcmVzZW5kLTJfNl8xMS12MS5wYXRjaAClV21z2kYQ/gy/Yu0Z
+uxAkGWSbJHiShjrEZexgj03aSdKO5pAOc0FIiu4UTBL3t3dXb4g3ByeMLYFud29fnmdX54jh
+EPReFAbgCi+6002jaTQahu86B04ovvBQHggviNTBxI8kPwhkfNcHTHLDXtDZQr6s6/rP7FMy
+6/VjvX6o102oP28dPm0d14169oFaHdfLtVrtsf7M7R5B47hlHrbqzRW7r16B3jg80ppQo9vx
+IeATqZgSNqTmrJArS+W/gtC3uZTWYKbKUMK1KPTg6ubt5bubjvXm3cWFddU+Pe/0T8pwX4Zy
+LTX2xRdObkPaI+5ELpm2fc/jtqpIFUZ2vgs8Sb9Uy7Vv5Vopi+wlWePwIt+we9a7vO6ckEgo
+PDWunHeue1bvst897cBuqmbYLRBSRsK7hXxH/PY54lL94+1WSV/yUPgFh/ItA2k6/IsRr5Pk
+fbm2PqoR8xyMacAc627Iw00haRB5Utx63AH0GIYuu5VpmGIIleVQ57G2T/vdv9r9zmuULi3E
++3f7utftnS0EjG6AwxSDYehP4PyPU9D35J7EcDVSL8X7wj7cdK67l1a/+7Zz+a4Pv8MuKDHh
+fqR2oQW7a4Wv2tfd/vtYlnYJWCjULBGnBKWB7OSRhFxyz6kChVg6eEJXeAL9kZBYFhiKUCrg
+YeiHBvTDGSg/qw0kmjCIFHi+AjQ75an6Lf5mma+AqcclTCj+CSWYK75yCEZIBNBBjXjIYeJL
+leq6YszdGZqEpDQMDbiuAW1X+iDHIoCbmccCrLAEJkl/Bo7v/VbUh6vLiwuw/cmE9qb/gEmp
+q1HoR7cjCPxQSZDCszk5ZrO5Nu2IJkUICeammL7UdYVpiAKFZvHrnTISjQO6UUqXwfFyzoNe
+t99tX3Q/EAy+f4fKf2vrW63C/n5sFD+5MTULOOzMgXbzvte+QgbdoDDsrCUC/mIh91Ra1Ni7
+QjTr2aPlO5y+fW3F+duH+t1wWCWY1zNbpSXgIN0bJ0srwVjZSB7USlbu6UqXe+Au5nc91CSx
+20mwRglnEPpTA7rDFAdTLHaGHgeBw5TikyCrG+Ey7Q4a+ASqqUClTxEClQjNXBgy4UYhL9Zt
+NZjE5TVcX1/OmO2lB1pn1irJ7P2P6LdcGI+N8/zaLmehNRCqcnVjWm8u2mfYc8412F9WSnrW
+Jh0srgYPKk3ZmFtRYOWAFwOXV1Y0pkyoLCoKDLCggIXIcpGrV6qQNF8sn4eUpEZvj1jIbBSQ
+GnBB1YJbRjdaxPuE6OYn9pg95shWBAVxOBfAguM95zgSWwmPU0fIHuETHL9GMkaP61rDxDn6
+/KlmNgpzVISfkzFZmKJz13FK4JiEuGYZZyvFPvt9mcHfUHr7UaGXfm1WkP72w2KN9MPTQidI
+mpY9cSw2wJ7JnRUcJFLY733KN/1AMMDSZ9MQzoduDr9lzbnhfInsz39RqiMvmRmVZVbFtNrg
+zBLnl6XIbpz1Quu97vSJc9VV6eVAH24E2wWZA281vCJpsZTFhlCtpgAkBJpZxpFDK5XTYlSh
+fMyP5nOtge+dpnmsNZqP40ex/JnPW6A/GXZbz7pUdmdhwtFzWLSRDh8cjoR+iw3R18onPGwI
+js0mF3MZDoYa/PnhwMxY+yMi7kl6F8Gr69NQmXk2vk544ivmyfc0oJeLKbWnPXwnmilsd2zK
+ZkbMU0iGetFPj014wZ9gNCu6l0SBYIHNc3V5rD9mjG+c4gUs0swG+sfrYt5eQJrQkxg8Zr2p
+NRoInuYzrXH0WPAUnNk+J+uTAnGLo7zUarkABmP5Q4vqRSlYiFzF8KCk6AuObDrJJFK/dJiJ
+TWx7ntGTt6dN7WarSK1CoJtNPbKDxTUYhJyNE86XbHqbX3PSbJWdnzvoG6Otz9TG6NHHe2O0
+fLJ/1jKPf+lkXzSZHeob5tpD/dEzOtPj9WlCloWjKPWi/BDq+ogk4tzJytNCtWmRe9FkXr0Y
+v/GViLxwpk0YTyr0FgYIN6Ldx+bRv/kzIt7HQ5MelP8HMv0uMqgRAAA=
+--------------000104040009000304000404--

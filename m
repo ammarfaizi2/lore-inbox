@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267295AbRGTUPI>; Fri, 20 Jul 2001 16:15:08 -0400
+	id <S267317AbRGTUfb>; Fri, 20 Jul 2001 16:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267314AbRGTUO6>; Fri, 20 Jul 2001 16:14:58 -0400
-Received: from [200.255.3.131] ([200.255.3.131]:36612 "EHLO
-	olimpo.networx.com.br") by vger.kernel.org with ESMTP
-	id <S267295AbRGTUOl> convert rfc822-to-8bit; Fri, 20 Jul 2001 16:14:41 -0400
-Message-Id: <200107202013.RAA02434@olimpo.networx.com.br>
-Content-Type: text/plain; charset=US-ASCII
-From: Thiago Vinhas de Moraes <tvinhas@openguard.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Linux 2.5
-Date: Fri, 20 Jul 2001 17:08:58 -0300
-X-Mailer: NetWorx Mail v1.0
-Cc: torvalds@transmeta.com, alan@redhat.com
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S267329AbRGTUfV>; Fri, 20 Jul 2001 16:35:21 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:35593 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S267321AbRGTUfJ>;
+	Fri, 20 Jul 2001 16:35:09 -0400
+Date: Fri, 20 Jul 2001 22:35:02 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Loop broken again (2.4.6-ac4)
+Message-ID: <20010720223502.B3969@suse.de>
+In-Reply-To: <3B57A811.9030408@lycosmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3B57A811.9030408@lycosmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Thu, Jul 19 2001, Adam Schrotenboer wrote:
+> Jens,
+> 
+> Remember several weeks ago when I mentioned a problem w/ ridicyulous 
+> mod-use counts w/ loop.o???
+> Well, it's back again 2.4.5-ac19 (IIRC) worked fine.
+> 
+> Basically, the result of attempting sudo losetup -d /dev/loop0 is the 
+> following
+> 
+> ioctl LOOP_CLR_FD Device or resource busy
+> 
+> strace shows EBUSY
+> 
+> lsmod shows a use count of 563.
 
-Hello all!
+I've had no time to look at this, so feel free to dig in and find out
+why the usage count is getting screwed... It's probably just a silly
+little bug somewhere, I'm guessing a one-liner fix :-)
 
-I just would like to know what's missing to the start of the development of 
-the kernel 2.5, and the mantaince of the 2.4 to go to Alan Cox ?
+-- 
+Jens Axboe
 
-I'm asking this because I see a very good stability of the 2.4 tree, and the 
-need of the start of the development of 2.5.
-
-Currently, 2.4 is just getting small fixes, that could be easily managed by 
-Alan.
-
-Does Linus have any schedule to pass the control of 2.4 management to someone 
-else, and start developing the great 2.5 kernel?
-
-
-Regards,
-Thiago Vinhas

@@ -1,129 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291882AbSBIJBP>; Sat, 9 Feb 2002 04:01:15 -0500
+	id <S291908AbSBIJNZ>; Sat, 9 Feb 2002 04:13:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291906AbSBIJBE>; Sat, 9 Feb 2002 04:01:04 -0500
-Received: from [202.54.26.202] ([202.54.26.202]:46522 "EHLO hindon.hss.co.in")
-	by vger.kernel.org with ESMTP id <S291882AbSBIJAr>;
-	Sat, 9 Feb 2002 04:00:47 -0500
-X-Lotus-FromDomain: HSS
-From: alad@hss.hns.com
-To: Hugh Dickins <hugh@veritas.com>
-cc: Andrew Morton <akpm@zip.com.au>, Andrea Arcangeli <andrea@suse.de>,
-        Rik van Riel <riel@conectiva.com.br>,
-        "David S. Miller" <davem@redhat.com>,
-        Benjamin LaHaise <bcrl@redhat.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Gerd Knorr <kraxel@bytesex.org>, linux-kernel@vger.kernel.org
-Message-ID: <65256B5B.00314689.00@sandesh.hss.hns.com>
-Date: Sat, 9 Feb 2002 14:22:20 +0530
-Subject: Re: [PATCH] __free_pages_ok oops
+	id <S291910AbSBIJNP>; Sat, 9 Feb 2002 04:13:15 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:28339 "EHLO
+	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
+	id <S291908AbSBIJNB>; Sat, 9 Feb 2002 04:13:01 -0500
+Date: Sat, 9 Feb 2002 10:06:14 +0100
+From: Harald Welte <laforge@gnumonks.org>
+To: Olaf Zaplinski <olaf.zaplinski@web.de>
+Cc: linux-kernel@vger.kernel.org, netfilter@lists.samba.org
+Subject: Re: iptables: why different behaviour with two kernel versions?
+Message-ID: <20020209100614.U26676@sunbeam.de.gnumonks.org>
+Mail-Followup-To: Harald Welte <laforge@gnumonks.org>,
+	Olaf Zaplinski <olaf.zaplinski@web.de>,
+	linux-kernel@vger.kernel.org, netfilter@lists.samba.org
+In-Reply-To: <3C645047.C2C248B8@web.de>
 Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+In-Reply-To: <3C645047.C2C248B8@web.de>; from olaf.zaplinski@web.de on Fri, Feb 08, 2002 at 11:25:11PM +0100
+X-Operating-System: Linux sunbeam.de.gnumonks.org 2.4.17
+X-Date: Today is Pungenday, the 28th day of Chaos in the YOLD 3168
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 08, 2002 at 11:25:11PM +0100, Olaf Zaplinski wrote:
+> Hi all,
 
+Hi Olaf.
 
-Is it possible to modify your patch from:
+Please direct iptables usage questions to the netfilter@lists.samba.org
+mailinglist (as stated in the MAINTAINERS file).
 
-if (in_interrupt())
-   BUG();
+> my self made firewall at $HOME (iptables based) works fine, but the
+> accounting data it reports every day is not as expected.
+[...]
 
-to
+>From what you have written, I can draw the assumption that you think
+forwarded packets go through INPUT or OUTPUT?  Then you're thinking in
+2.2.x ipchains terms.
 
-if (unlikely(in_interrupt())
-    BUG();
+In 2.4.x (== iptables) firewalling, forwarded packets go only through 
+output.
 
--- Amol
+> So I built the 2.4.13 kernel to test that and got dozens of rejects in the
+> logs, e.g. UDP connects to the DNS forwarders... so I could not test the
+> accounting stuff. I switched back to 2.4.17 and everything was fine again.
+> 
+> So what's wrong with iptables-1.2.4 userland tools and 2.4.[13|17]? Why is
+> iptables-rules@2.4.13 not the same as iptables-rules@2.4.17?
 
+Maybe something else in your setup was different?  There is no difference
+between the filter table in 2.4.13 and 2.4.17.
 
+> Olaf
 
-
-
-Hugh Dickins <hugh@veritas.com> on 02/08/2002 11:16:56 PM
-
-To:   Andrew Morton <akpm@zip.com.au>
-cc:   Andrea Arcangeli <andrea@suse.de>, Rik van Riel <riel@conectiva.com.br>,
-      "David S. Miller" <davem@redhat.com>, Benjamin LaHaise <bcrl@redhat.com>,
-      Marcelo Tosatti <marcelo@conectiva.com.br>, Gerd Knorr
-      <kraxel@bytesex.org>, linux-kernel@vger.kernel.org (bcc: Amol Lad/HSS)
-
-Subject:  Re: [PATCH] __free_pages_ok oops
-
-
-
-
-On Thu, 7 Feb 2002, Andrew Morton wrote:
->
-> OK, I agree the weird case won't trigger the bug.   So I think we
-> agree that we need to run with Hugh's BUG check and do nothing else.
-
-Thank you, Andrew and Andrea, for exploring and exploding those myths.
-I've checked back on the BUG which Ben submitted his 1st Jan patch for,
-and it was actually a PageLRU(page) in rmqueue, not in __free_pages_ok,
-so his patch would not have solved it.
-
-But I cannot yet agree that Marcelo should take my interrupt BUG patch.
-I've also checked back on the BUG which I submitted my 15th Nov patch
-for (making unmap_kiobuf use page_cache_release instead of put_page),
-and Gerd Knorr's report (extracts below) implies that his bttv driver
-was calling unmap_kiobuf at interrupt time.  Is that right, Gerd?
-
-If that's so, then my proposed in_interrupt check before lru_cache_del
-will just give him a BUG again (and my 15th Nov patch was mistaken to
-encourage him to unmap at interrupt time).  Now maybe Gerd's code is
-wrong anyway: a quick look suggests it may also vfree there, which
-would be wrong at interrupt time.  But whether his code is right or
-wrong, unmap_kiobuf used to be safe at interrupt time and now is not
-(in some rare circumstances): are we right to have made that change?
-
-Ben, you probably have an AIO opinion here.  Is there a circumstance
-in which AIO can unpin a user page at interrupt time, after the
-calling task has (exited or) unmapped the page?
-
-Hugh
-
-Subject: [PATCH] Re: kiobuf / vm bug
-On Thu, 15 Nov 2001, Gerd Knorr wrote:
->
-> I think I have found a kiobuf-related bug in the VM of recent linux
-> kernels.  2.4.13 is fine, 2.4.14-pre1 doesn't boot my machine,
-> 2.4.14-pre2 + newer kernels are broken.
->
-> /me runs a kernel with a few v4l-related patches and my current 0.8.x
-> bttv version (available from http://bytesex.org/patches/ +
-> http://bytesex.org/bttv/).
->
-> With this kernel I can trigger the following BUG():
-> ksymoops 2.4.3 on i686 2.4.15-pre4.  Options used
-> kernel BUG at page_alloc.c:84!
-> >>EIP; c0129e5a <__free_pages_ok+aa/29c>   <=====
-> Trace; c012a6f2 <__free_pages+1a/1c>
-> Trace; c0121120 <unmap_kiobuf+34/48>
->
-> The Oops seems to be triggered by the following actions:
->
-> (1) the application maps /dev/video0.  bttv 0.8.x simply returns some
->     shared anonymous memory to as mapping.
-> (2) the application asks the driver to capture a frame.  bttv will lock
->     down the anonymous memory using kiobufs for I/O and prepare
->     everything for DMA xfer.
-> (3) The applications exits for some reason, i.e. the anonymous memory
->     will be unmapped while the DMA transfer is active and the pages are
->     locked down for I/O.
-> (4) The DMA xfer is done and bttv's irq handler cleans up everything.
->     This includes calling unlock_kiovec+unmap_kiobuf for the locked
->     pages.  The unmap_kiobuf call at this point triggeres the Oops
->     listed above ...
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
-
-
+-- 
+Live long and prosper
+- Harald Welte / laforge@gnumonks.org               http://www.gnumonks.org/
+============================================================================
+GCS/E/IT d- s-: a-- C+++ UL++++$ P+++ L++++$ E--- W- N++ o? K- w--- O- M+ 
+V-- PS++ PE-- Y++ PGP++ t+ 5-- !X !R tv-- b+++ !DI !D G+ e* h--- r++ y+(*)

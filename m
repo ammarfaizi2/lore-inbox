@@ -1,81 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266208AbUALQl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 11:41:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266212AbUALQl0
+	id S266198AbUALQfe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 11:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266203AbUALQfe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 11:41:26 -0500
-Received: from gwyn.tux.org ([199.184.165.135]:2478 "EHLO gwyn.tux.org")
-	by vger.kernel.org with ESMTP id S266208AbUALQlY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 11:41:24 -0500
-Date: Mon, 12 Jan 2004 11:41:23 -0500 (EST)
-From: Samuel S Chessman <chessman@tux.org>
-To: <LINUX-390@VM.MARIST.EDU>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] s390 2.4.24 typo and missing include 
-Message-ID: <Pine.LNX.4.30.0401121132480.19861-300000@gwyn.tux.org>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1194883163-1815809157-1073925586=:19861"
-Content-ID: <Pine.LNX.4.30.0401121140550.23884@gwyn.tux.org>
+	Mon, 12 Jan 2004 11:35:34 -0500
+Received: from delerium.codemonkey.org.uk ([81.187.208.145]:20428 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S266198AbUALQf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 11:35:29 -0500
+Date: Mon, 12 Jan 2004 16:33:57 +0000
+From: Dave Jones <davej@redhat.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, thomas@winischhofer.net,
+       linux-kernel@vger.kernel.org, jsimmons@infradead.org
+Subject: Re: 2.6.1-mm1: drivers/video/sis/sis_main.c link error
+Message-ID: <20040112163357.GA20815@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Gene Heskett <gene.heskett@verizon.net>,
+	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+	thomas@winischhofer.net, linux-kernel@vger.kernel.org,
+	jsimmons@infradead.org
+References: <20040109014003.3d925e54.akpm@osdl.org> <200401112353.43282.gene.heskett@verizon.net> <20040111214259.568cff35.akpm@osdl.org> <200401120121.12122.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200401120121.12122.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, Jan 12, 2004 at 01:21:12AM -0500, Gene Heskett wrote:
 
----1194883163-1815809157-1073925586=:19861
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
-Content-ID: <Pine.LNX.4.30.0401121140551.23884@gwyn.tux.org>
+ > DRM? lemme see if thats even turned on.  Nope "# CONFIG_DRM is not set"
+ > Doing a make xconfig, I see that if I turn it on, there is not a 
+ > driver for my gforce2/nvidia, so I naturally turned it back off.
+ > 
+ > I do have VIA and agpgart enabled just above it
 
-The following two patches are needed to get linux 2.4.24 to compile
-s390 linux.  I have not had a chance to ipl to test if 2.4.24 runs
-but these were necessary to compile.
-The typo is only discovered if CONFIG_SMP is undefined.
+With CONFIG_DRM off, the AGP options may as well be turned off too,
+as they do nothing[1] on a system without 3d acceleration.
 
-Attached README and patch.
+		Dave
 
--- 
-   Sam Chessman                                         chessman (a) tux.org
-    First do what's necessary, then what's possible, finally the impossible.
-
----1194883163-1815809157-1073925586=:19861
-Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=README
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0401121139460.19861@gwyn.tux.org>
-Content-Description: Patch Readme
-Content-Disposition: ATTACHMENT; FILENAME=README
-
-TW9uIEphbiAxMiAxMToyNDozMCBFU1QgMjAwNA0KbGludXgga2VybmVsIDIu
-NC4yNCBzMzkwIHBhdGNoZXMgYnkgU2FtIENoZXNzbWFuIGNoZXNzbWFuQHR1
-eC5vcmcNCg0KbGludXgtMi40LjI0L2RyaXZlcnMvczM5MC9jaGFyL2N0cmxj
-aGFyLmMgYWRkIGVycm5vLmggZm9yIEVJTlZBTAkNCg0KbGludXgtMi40LjI0
-L2RyaXZlcnMvczM5MC9jaGFyL2h3Y19ydy5jCWZpeCB0eXBvIGluIG5vbi1T
-TVAgaWZkZWYgYmxvY2sNCmxpbnV4LTIuNC4yNC9kcml2ZXJzL3MzOTAvY2hh
-ci9od2NfcncuYwlhZGQgYnJlYWsgYWZ0ZXIgZGVmYXVsdDogY2FzZQ0K
----1194883163-1815809157-1073925586=:19861
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="s390.2.4.24.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.30.0401121141230.23884@gwyn.tux.org>
-Content-Description: unified context diff
-Content-Disposition: attachment; filename="s390.2.4.24.patch"
-
-LS0tIGRyaXZlcnMvczM5MC9jaGFyL2N0cmxjaGFyLmMub3JpZwkyMDAzLTA4
-LTI1IDA3OjQ0OjQyLjAwMDAwMDAwMCAtMDQwMA0KKysrIGRyaXZlcnMvczM5
-MC9jaGFyL2N0cmxjaGFyLmMJMjAwNC0wMS0xMiAxMDoyMjowNi4wMDAwMDAw
-MDAgLTA1MDANCkBAIC05LDYgKzksNyBAQA0KIA0KICNpbmNsdWRlIDxsaW51
-eC9jb25maWcuaD4NCiAjaW5jbHVkZSA8bGludXgvc3RkZGVmLmg+DQorI2lu
-Y2x1ZGUgPGxpbnV4L2Vycm5vLmg+DQogI2luY2x1ZGUgPGxpbnV4L3N5c3Jx
-Lmg+DQogI2luY2x1ZGUgPGxpbnV4L2N0eXBlLmg+DQogI2luY2x1ZGUgPGxp
-bnV4L2ludGVycnVwdC5oPg0KDQotLS0gZHJpdmVycy9zMzkwL2NoYXIvaHdj
-X3J3LmMub3JpZwkyMDAyLTExLTI4IDE4OjUzOjE0LjAwMDAwMDAwMCAtMDUw
-MA0KKysrIGRyaXZlcnMvczM5MC9jaGFyL2h3Y19ydy5jCTIwMDQtMDEtMTIg
-MTA6MjU6MzYuMDAwMDAwMDAwIC0wNTAwDQpAQCAtMTY2Miw3ICsxNjYyLDcg
-QEANCiAJcHN3X3QgcXVpZXNjZV9wc3c7DQogDQogCXF1aWVzY2VfcHN3Lm1h
-c2sgPSBfRFdfUFNXX01BU0s7DQotCXF1ZWlzY2VfcHN3LmFkZHIgPSAweGZm
-ZjsNCisJcXVpZXNjZV9wc3cuYWRkciA9IDB4ZmZmOw0KIAlfX2xvYWRfcHN3
-IChxdWllc2NlX3Bzdyk7DQogfQ0KIA0KQEAgLTIyNDcsNiArMjI0Nyw3IEBA
-DQogCQkJCQl1bmNvbmRpdGlvbmFsX3JlYWRfMiAoZXh0X2ludF9wYXJhbSk7
-DQogCQkJCQlicmVhazsNCiAJCQkJZGVmYXVsdDoNCisJCQkJCWJyZWFrOw0K
-IAkJCQl9DQogCQkJfQ0KIAkJfQ0K
----1194883163-1815809157-1073925586=:19861--
+[1] Well, unless you have an Intel i8xx chipset where you need it for
+    the horrid framebuffer needs memory through GART hack.
+	And in your case, you don't have one of these.

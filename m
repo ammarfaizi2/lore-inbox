@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135508AbRDVIkN>; Sun, 22 Apr 2001 04:40:13 -0400
+	id <S135738AbRDVImX>; Sun, 22 Apr 2001 04:42:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135517AbRDVIkE>; Sun, 22 Apr 2001 04:40:04 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24580 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S135508AbRDVIjw>;
-	Sun, 22 Apr 2001 04:39:52 -0400
-Date: Sun, 22 Apr 2001 09:39:38 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: "Eric S. Raymond" <esr@thyrsus.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        CML2 <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: Request for comment -- a better attribution system
-Message-ID: <20010422093938.A20807@flint.arm.linux.org.uk>
-In-Reply-To: <20010421114942.A26415@thyrsus.com> <E14r6V4-0004XB-00@the-village.bc.nu> <20010421194706.A14896@thyrsus.com>
+	id <S135705AbRDVImN>; Sun, 22 Apr 2001 04:42:13 -0400
+Received: from ulima.unil.ch ([130.223.144.143]:11014 "EHLO ulima.unil.ch")
+	by vger.kernel.org with ESMTP id <S135517AbRDVImJ>;
+	Sun, 22 Apr 2001 04:42:09 -0400
+Date: Sun, 22 Apr 2001 10:42:06 +0200
+From: FAVRE Gregoire <greg@ulima.unil.ch>
+To: linux-kernel@vger.kernel.org
+Subject: rmmod take all CPU and I can't stop it under 2.4.3-ac{9,11}
+Message-ID: <20010422104206.A2939@ulima.unil.ch>
+Mail-Followup-To: FAVRE Gregoire <greg@ulima.unil.ch>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YZ5djTAD1cGYuMQK"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010421194706.A14896@thyrsus.com>; from esr@thyrsus.com on Sat, Apr 21, 2001 at 07:47:06PM -0400
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 21, 2001 at 07:47:06PM -0400, Eric S. Raymond wrote:
-> Alan, if MAINTAINERS scaled perfectly I wouldn't have had to spend three
-> months just trying to figure out who was reponsible for each of the
-> [Cc]onfig.in files.  And even with that amount of effort mostly failing.
 
-Could that be because there _is no_ maintainer for the config.in files?
-Therefore, splitting up the MAINTAINERS file achieves nothing.
+--YZ5djTAD1cGYuMQK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-However, for the specific times that you've unfortunately come across
-the problem, and one of the times it was to do with the ARM config.in
-file, I can definitely say that the information _has_ been in the
-maintainers file, and it _is_ up to date.  Here, let me give an
-example:
+Hello,
 
-ARM PORT
-P:      Russell King
-M:      linux@arm.linux.org.uk
-L:      linux-arm-kernel@lists.arm.linux.org.uk
-W:      http://www.arm.linux.org.uk/
-S:      Maintained
+I am using DVB and sometimes I have to reload the driver, some times, I
+can just do it without problem, but often, it result in a (from top):
+ 1359 root      19   0   532  532   360 R    77.7  0.2   8:32 rmmod
 
-I don't think that you can say that the MAINTAINERS file has failed in
-this case, and cutting it up into little pieces solves precisely
-nothing.
+And a kill -KILL 1359 has no effect at all?
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Is there a way to kill that jobs?
 
+Thanks you very much,
+
+	Greg
+________________________________________________________________
+http://ulima.unil.ch/greg ICQ:16624071 mailto:greg@ulima.unil.ch
+
+--YZ5djTAD1cGYuMQK
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE64pleZZVeVjNKmG0RAjvYAJ9iN4+05nIahFBB2fxFDShqY1CWxwCeND1u
+vJDOmEBK+lDEoSqtZaLnC/c=
+=8yFK
+-----END PGP SIGNATURE-----
+
+--YZ5djTAD1cGYuMQK--

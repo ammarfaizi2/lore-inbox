@@ -1,56 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267436AbUHPFBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUHPFBp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267436AbUHPFBz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 01:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267437AbUHPFBz
+	id S267435AbUHPFBp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 01:01:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267437AbUHPFBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 01:01:55 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:62400 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S267436AbUHPFB3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 01:01:29 -0400
-Date: Mon, 16 Aug 2004 07:02:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Florian Schmidt <mista.tapas@gmx.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
-Message-ID: <20040816050248.GA16522@elte.hu>
-References: <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092630122.810.25.camel@krustophenia.net> <20040816043302.GA14979@elte.hu> <1092632236.801.1.camel@krustophenia.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1092632236.801.1.camel@krustophenia.net>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 16 Aug 2004 01:01:44 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:42453 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S267435AbUHPFB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 Aug 2004 01:01:27 -0400
+Date: Mon, 16 Aug 2004 01:05:25 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+To: "David S. Miller" <davem@redhat.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Christoph Hellwig <hch@infradead.org>, netdev@oss.sgi.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2.6] Move Sungem to gige menu
+In-Reply-To: <20040815170022.2c3ec056.davem@redhat.com>
+Message-ID: <Pine.LNX.4.58.0408160103440.22078@montezuma.fsmlabs.com>
+References: <Pine.LNX.4.58.0408141412550.22077@montezuma.fsmlabs.com>
+ <20040815104900.A805@infradead.org> <Pine.LNX.4.58.0408151103490.22078@montezuma.fsmlabs.com>
+ <Pine.LNX.4.58.0408151116520.22078@montezuma.fsmlabs.com>
+ <20040815162129.A2700@infradead.org> <1092608813.9536.21.camel@gaston>
+ <20040815170022.2c3ec056.davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 15 Aug 2004, David S. Miller wrote:
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
+> On Mon, 16 Aug 2004 08:26:53 +1000
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+>
+> > I suppose the ones used by Sun are all gigabit tho.
+>
+> Actually no, the ones onboard in the SunBlade100 are
+> 10/100 only.
 
-> > +	touch_preempt_timing();
-> >         while ((readb(ioaddr + MIICmd) & 0x40) && --boguscnt > 0)
-> >                 ;
-> > +	touch_preempt_timing();
-> > 
-> > assuming that the latencies still show up even if delimited like this. 
-> > (note that this only changes the way the latency is tracked - the
-> > latency itself is still there so this isnt a fix.)
-> > 
-> 
-> Sure, but, what would this accomplish, if the latency is still there? 
-> Are we just trying to track down exactly where in the network driver
-> this is triggered?
+How about;
 
-yeah. If it's the first chunk then we could perhaps avoid it by doing it
-outside of the lock.
+Index: linux-2.6.8/drivers/net/Kconfig
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.8/drivers/net/Kconfig,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 Kconfig
+--- linux-2.6.8/drivers/net/Kconfig	14 Aug 2004 17:53:39 -0000	1.1.1.1
++++ linux-2.6.8/drivers/net/Kconfig	16 Aug 2004 04:53:44 -0000
+@@ -159,11 +159,11 @@ endif
+ #	Ethernet
+ #
 
-	Ingo
+-menu "Ethernet (10 or 100Mbit)"
++menu "Ethernet (10/100/1000Mbit)"
+ 	depends on NETDEVICES
+
+ config NET_ETHERNET
+-	bool "Ethernet (10 or 100Mbit)"
++	bool "Ethernet (10/100/1000Mbit)"
+ 	---help---
+ 	  Ethernet (also called IEEE 802.3 or ISO 8802-2) is the most common
+ 	  type of Local Area Network (LAN) in universities and companies.
+@@ -1878,15 +1878,6 @@ config NE_H8300
+
+ source "drivers/net/fec_8xx/Kconfig"
+
+-endmenu
+-
+-#
+-#	Gigabit Ethernet
+-#
+-
+-menu "Ethernet (1000 Mbit)"
+-	depends on NETDEVICES
+-
+ config ACENIC
+ 	tristate "Alteon AceNIC/3Com 3C985/NetGear GA620 Gigabit support"
+ 	depends on PCI

@@ -1,114 +1,107 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287681AbSAIPcg>; Wed, 9 Jan 2002 10:32:36 -0500
+	id <S287626AbSAIPcg>; Wed, 9 Jan 2002 10:32:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287658AbSAIPcT>; Wed, 9 Jan 2002 10:32:19 -0500
-Received: from adsl-62-128-214-206.iomart.com ([62.128.214.206]:21008 "EHLO
-	lighthouse.i-a.co.uk") by vger.kernel.org with ESMTP
-	id <S287615AbSAIPcP>; Wed, 9 Jan 2002 10:32:15 -0500
-Date: Wed, 9 Jan 2002 15:28:23 +0000
-From: Andy Jeffries <andy@i-a.co.uk>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Difficulties in interoperating with Windows
-Message-Id: <20020109152823.62f65b7c.andy@i-a.co.uk>
-In-Reply-To: <200201091506.JAA16825@tomcat.admin.navo.hpc.mil>
-In-Reply-To: <20020109093752.31ae1e79.lkml@andyjeffries.co.uk>
-	<200201091506.JAA16825@tomcat.admin.navo.hpc.mil>
-Organization: Internet Assist Ltd
-X-Mailer: Sylpheed version 0.6.6 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S287681AbSAIPcU>; Wed, 9 Jan 2002 10:32:20 -0500
+Received: from [200.10.161.32] ([200.10.161.32]:40367 "EHLO lila.inti.gov.ar")
+	by vger.kernel.org with ESMTP id <S287626AbSAIPcP>;
+	Wed, 9 Jan 2002 10:32:15 -0500
+Message-ID: <3C3C62F1.E9773931@inti.gov.ar>
+Date: Wed, 09 Jan 2002 12:34:09 -0300
+From: salvador <salvador@inti.gov.ar>
+Reply-To: salvador@inti.gov.ar
+Organization: INTI
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: es-AR, en, es
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andre Hedrick <andre@linux-ide.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: [Patch][RFC] IDE driver for ALi M5229 (alim15x3.c) using UDMA(100) disks
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I guess part of it may be that Windows
-> > is closed source but as reverse engineering for interoperability is
-> > legal in the UK (regardless of what the End User License states), is
-> > the problem that it is difficult to read the Assembly easily?
->
-> That is not reverse engineering - (at least not MY understanding) - you
-> are re-translating a copyrighted work. If the translation back into the
-> binary form creates the same binary then you have an exact translation.
+Kernel: 2.4.17
+Hardware: ALi M5229 IDE controller and UDMA(100) disks.
+Problem: The driver disables UDMA for UDMA>=100 disks.
 
-But would it?  If you disassemble part/all of Windows and use the code to
-understand how it works, then use this to create a specification and write
-code to use that specification, there should be no problem?
+I think that's an error in the code because it is masking out the UDMA(100)
+disks. The code selects UDMA(100) and calls the routine that should enable
+it but if this routine returns that the speed was configured for UDMA(100)
+the value is interpreted as an error.
+I see 2 options:
+1) Take it as a success. I tried it but the /proc entry that reports
+information about the driver shows ??? in the timing fields so I taked
+approach 2 which looks safier.
+2) Use UDMA(66) for it.
 
-> You also
-> have a lawsuit pending. Otherwise you could just disassemble the entire
-> windows OS, claim it as your "re-engineered source", and sell/publish
-> it.
->
-> This is not legal in most locations.
+The following patch implements both things. If the FORCE_UDMA66 is defined
+the option (2) takes effect.
 
-Correct, but I'm not talking about recompiling Windows and selling it, I'm
-talking about decompiling it and using the decompiled source to make Linux
-work better with it.  That is completely legal.
+Doubts:
+1) is (2) really needed?
+2) what about UDMA(133) (already available) and UDMA(166) (already
+specified) disks?
 
-> Reverse engineering is taking the published specifications, creating
-> software that should function in an equivalent manner.
+Patch:
 
-I disagree with that definition and agree with this one:
+diff -ru linux-2.4.17.ori/drivers/ide/alim15x3.c
+linux-2.4.17/drivers/ide/alim15x3.c
+--- linux-2.4.17.ori/drivers/ide/alim15x3.c     Sun Jul 15 20:22:23 2001
++++ linux-2.4.17/drivers/ide/alim15x3.c Tue Jan  8 22:24:07 2002
+@@ -28,6 +28,8 @@
 
-First result for a www.google.com search on "definition reverse engineer"
+ #include "ide_modes.h"
 
-http://whatis.techtarget.com/definition/0,289893,sid9_gci507015,00.html
++/* Safe(?) fall back to UDMA66 when UDMA100 is available */
++#define FORCE_UDMA66
+ #define DISPLAY_ALI_TIMINGS
 
-:Software reverse engineering involves reversing a program's machine code
-:(the string of 0s and 1s that are sent to the logic processor) back into
-:the source code that it was written in, using program language
-statements.:Software reverse engineering is done to retrieve the source
-code of a:program because the source code was lost, to study how the
-program:performs certain operations, to improve the performance of a
-program, to:fix a bug (correct an error in the program when the source
-code is not:available), to identify malicious content in a program such as
-a virus, or:to adapt a program written for use with one microprocessor
-for use with a:differently-designed microprocessor. Reverse engineering
-for the sole:purpose of copying or duplicating programs constitutes a
-copyright:violation and is illegal. In some cases, the licensed use of
-software:specifically prohibits reverse engineering.
+ #if defined(DISPLAY_ALI_TIMINGS) && defined(CONFIG_PROC_FS)
+@@ -373,7 +375,11 @@
+        int  rval;
 
-> The problem with most M$ software is that the published specifications
-> are not complete, access to the inputs are not always available (it is
-> ALSO covered> by the proprietary/trade secrets/other restrictions).
-> Sometimes the output is not available (at least in some countries - DMCA
-> again).
+        if ((id->dma_ultra & 0x0020) && (ultra100) && (ultra66) &&
+(ultra33)) {
+-               speed = XFER_UDMA_5;
++#ifdef FORCE_UDMA66
++               speed = XFER_UDMA_4;
++#else
++      speed = XFER_UDMA_5;
++#endif
+        } else if ((id->dma_ultra & 0x0010) && (ultra66) && (ultra33)) {
+                speed = XFER_UDMA_4;
+        } else if ((id->dma_ultra & 0x0008) && (ultra66) && (ultra33)) {
+@@ -405,7 +411,7 @@
+        if (!drive->init_speed)
+                drive->init_speed = speed;
 
-While I agree about proprietary/trade secrets may be a grey area, where
-you have the express legal right to reverse engineer a software product
-for the purposes of interoperability surely that is final.  As the
-contract would have been between Microsoft UK and you (note I'm only
-discussing the UK and we don't have an equivalent of the DMCA here)
+-       rval = (int)(   ((id->dma_ultra >> 11) & 3) ? ide_dma_on :
++       rval = (int)(   ((id->dma_ultra >> 11) & 0x1F) ? ide_dma_on :
+                        ((id->dma_ultra >> 8) & 7) ? ide_dma_on :
+                        ((id->dma_mword >> 8) & 7) ? ide_dma_on :
+                        ((id->dma_1word >> 8) & 7) ? ide_dma_on :
+<------------End of patch
 
-> > Is there not a project on Linux to convert assembly back to C?   Would
-> > this be exceptionally hard?
->
-> Not hard - just illegal when using it to disassemble proprietary
-> software. Debuggers do this very frequently, to the point that I would
-> say "all the time" except for debuggers of interpreted languages.
+Important note: I extended the mask to accept UDMA(133)/(166), currently not
+requested by the code.
 
-Depends where you are in the world I guess.  I am specifically (in the UK)
-given the right to do this.
-
-Just interested in opinions on this...
-
+PCI information of the device:
+  Bus  0, device   4, function  0:
+    IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev 196).
+      IRQ 14.
+      Master Capable.  Latency=32.  Min Gnt=2.Max Lat=4.
+      I/O at 0xff00 [0xff0f].
 
 --
-Andy Jeffries
-Head of Web Development
-Internet Assist Ltd
+Salvador Eduardo Tropea (SET). (Electronics Engineer)
+Visit my home page: http://welcome.to/SetSoft or
+http://www.geocities.com/SiliconValley/Vista/6552/
+Alternative e-mail: set@computer.org set@ieee.org
+Address: Curapaligue 2124, Caseros, 3 de Febrero
+Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
 
-Tel : +44 (0)208 547 3700     Fax   : +44 (0)208 547 3600
-Web : http://www.i-a.co.uk    Email : andy@i-a.co.uk
 
-"Helping business achieve quality and cost effective Internet Services."
 
-------------------------------------------------------------------------
-The information in this message is confidential and is intended for the
-addressee only. If you have received this message in error it must be
-deleted and the sender notified. The views expressed in this message
-are personal and not necessarily those of Internet Assist Ltd unless
-explicitly stated.
-------------------------------------------------------------------------

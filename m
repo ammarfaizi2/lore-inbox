@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261898AbTC1Bvo>; Thu, 27 Mar 2003 20:51:44 -0500
+	id <S261908AbTC1B6J>; Thu, 27 Mar 2003 20:58:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbTC1Bvo>; Thu, 27 Mar 2003 20:51:44 -0500
-Received: from smtp-out.comcast.net ([24.153.64.109]:61331 "EHLO
-	smtp.comcast.net") by vger.kernel.org with ESMTP id <S261898AbTC1Bvn>;
-	Thu, 27 Mar 2003 20:51:43 -0500
-Date: Thu, 27 Mar 2003 20:59:55 -0500
-From: Tom Vier <tmv@comcast.net>
-Subject: [PATCH] alpha ptrace fix Re: Linux 2.4.21-pre6
-In-reply-to: <Pine.LNX.4.53L.0303262107480.2544@freak.distro.conectiva>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Reply-to: Tom Vier <tmv@comcast.net>
-Message-id: <20030328015955.GA20780@zero>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: Mutt/1.5.3i
-References: <Pine.LNX.4.53L.0303262107480.2544@freak.distro.conectiva>
+	id <S261920AbTC1B6J>; Thu, 27 Mar 2003 20:58:09 -0500
+Received: from deviant.impure.org.uk ([195.82.120.238]:130 "EHLO
+	deviant.impure.org.uk") by vger.kernel.org with ESMTP
+	id <S261908AbTC1B6I>; Thu, 27 Mar 2003 20:58:08 -0500
+Date: Fri, 28 Mar 2003 02:08:56 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: Joel Becker <Joel.Becker@oracle.com>, Erik Hensema <erik@hensema.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: LVM/Device mapper breaks with -mm (was: Re: 2.5.66-mm1)
+Message-ID: <20030328020856.GB22072@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Andries Brouwer <aebr@win.tue.nl>,
+	Joel Becker <Joel.Becker@oracle.com>,
+	Erik Hensema <erik@hensema.net>, linux-kernel@vger.kernel.org
+References: <20030326013839.0c470ebb.akpm@digeo.com> <slrnb8373s.19a.usenet@bender.home.hensema.net> <20030326134834.GA11173@win.tue.nl> <slrnb83ehl.196.usenet@bender.home.hensema.net> <20030326160350.GA11190@win.tue.nl> <20030326184723.GM19670@ca-server1.us.oracle.com> <20030326205228.GA11217@win.tue.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030326205228.GA11217@win.tue.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wright posted this change for alpha that's needed for the ptrace fix.
+On Wed, Mar 26, 2003 at 09:52:28PM +0100, Andries Brouwer wrote:
 
--- 
-Tom Vier <tmv@comcast.net>
-DSA Key ID 0xE6CB97DA
+ > For example, struct umsdos_ioctl has twice dev_t followed
+ > by padding. Probably these should become unsigned longs.
+ > I'll send a patch later tonight.
+ > 
+ > Is it used anywhere? That requires detective work.
+ > It is used by the utilities udosctl (a useless demo utility),
+ > umssync and umssetup. I do not know of any others.
+ > No doubt people will tell me what I overlooked.
+ > Less conservative people will tell me that umsdos has to
+ > be killed entirely.
 
---- linux/arch/alpha/kernel/entry.S.kmod	Tue Mar 18 18:17:46 2003
-+++ linux-patched/arch/alpha/kernel/entry.S	Tue Mar 18 18:18:50 2003
-@@ -234,8 +234,8 @@
-  * arch_kernel_thread(fn, arg, clone_flags)
-  */
- .align 3
--.globl	kernel_thread
--.ent	kernel_thread
-+.globl	arch_kernel_thread
-+.ent	arch_kernel_thread
- arch_kernel_thread:
- 	ldgp	$29,0($27)	/* we can be called from a module */
- 	.frame $30, 4*8, $26
-@@ -265,7 +265,7 @@
- 	mov	$0,$16
- 	mov	$31,$26
- 	jsr	$31,sys_exit
--.end	kernel_thread
-+.end	arch_kernel_thread
- 
- /*
-  * __kernel_execve(path, argv, envp, regs)
+Isn't it still horribly broken ? I remember Al putting it on
+the "To be fixed later" burner, but never saw anything happen
+to it after that asides from janitor style fixes.
+
+		Dave
+

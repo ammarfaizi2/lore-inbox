@@ -1,75 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262748AbUK0DFz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262977AbUK0CCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262748AbUK0DFz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 22:05:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbUK0DFw
+	id S262977AbUK0CCw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 21:02:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbUK0Bqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 22:05:52 -0500
-Received: from neopsis.com ([213.239.204.14]:23445 "EHLO
-	matterhorn.neopsis.com") by vger.kernel.org with ESMTP
-	id S263091AbUK0CDw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 21:03:52 -0500
-Message-ID: <41A7E085.8050704@dbservice.com>
-Date: Sat, 27 Nov 2004 03:03:49 +0100
-From: Tomas Carnecky <tom@dbservice.com>
-User-Agent: Mozilla Thunderbird 0.8 (Windows/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grzegorz Kulewski <kangur@polcom.net>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, hch@infradead.org,
-       matthew@wil.cx, dwmw2@infradead.org, aoliva@redhat.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <19865.1101395592@redhat.com> <Pine.LNX.4.60.0411270049520.29718@alpha.polcom.net> <41A7D814.6060900@dbservice.com> <Pine.LNX.4.60.0411270234520.13348@alpha.polcom.net>
-In-Reply-To: <Pine.LNX.4.60.0411270234520.13348@alpha.polcom.net>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 26 Nov 2004 20:46:30 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263038AbUKZTie (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 14:38:34 -0500
+Subject: Avoid deadlock in smc91x driver
+From: Ian Campbell <icampbell@arcom.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Nicolas Pitre <nico@cam.org>, lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Arcom Control Systems
+Date: Thu, 25 Nov 2004 16:49:24 +0000
+Message-Id: <1101401364.31459.85.camel@icampbell-debian>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
-X-Neopsis-MailScanner-Information: Please contact the ISP for more information
-X-Neopsis-MailScanner: Found to be clean
-X-MailScanner-From: tom@dbservice.com
+X-OriginalArrivalTime: 25 Nov 2004 16:51:02.0921 (UTC) FILETIME=[F2C4E790:01C4D30E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grzegorz Kulewski wrote:
-> Ok, so maybe do it in this way:
-> 1. common headers (included by 2. and 3.)
-> 2. kernel headers (things only for kernel + included 1.)
-> 3. userspace headers (things only for userspace + included 1.)
+Hi Jeff,
 
-Are there really any definitions that belong _only_ to userspace?
-AFAIK all that is in the kernel sources is used by the kernel, so
-there are no headers that would fit into your category 3. There is
-no reason to put such things into the kernel sources.
+This patch avoids a deadlock on rtnl_sem in smc_close() when bringing
+down an smc91x interface. The semaphore is already held by
+devinet_ioctl() and the pending work queue contains linkwatch_event()
+(scheduled by netif_carrier_off()) which also wants rtnl_sem hence it is
+unsafe to call flush_scheduled_work().
 
-> Are you talking about breaking userspace (API and ABI) compatibility? 
-> And possibly breaking compatibility with older versions of standards? I 
-> do not think it could happen. (Well at least not for common widely-used 
-> APIs).
-> 
-> Instead we can place such userspace only hacks in 3.
+The solution is to track whether we have any pending work of our own and
+wait for that instead of flushing the entire queue.
 
-The API can be changed, I don't see any problems with the API
-compatibility, if you document all changes then it's no problem for
-the developers to change their code.
-And the ABI? Well, I compile my kernel by myself, as I do all my 
-userspace (gentoo). And the distributions still could define
-__DEPRECATED__ (or something similar).
+I also fixed a typo 'ence' -> 'Hence' and renamed smc_detect_phy to
+smc_phy_detect in order to follow the same pattern as the other
+smc_phy_* functions.
 
-I mean.. come on.. how hard is it to change some lines of code,
-some structure names, some function arguments.
-I know that there's a problem if you have binary only files, but
-I doubt that anyone is running a exe that was compiled for against
-kernel 2.0 and every big company compiles their projects against each
-stable kernel line.
-Oh.. and I forgot, you usually don't include the kernel headers in your
-'hello world' program, most of the applications use (g)libc, one big
-library, so you'd need to change only very few projects, although I
-admit that can be rather big projects, but still...
+Signed-off-by: Ian Campbell <icampbell@arcom.com>
+Signed-off-by: Nicolas Pitre <nico@cam.org>
 
-BTW, how much smaller would the kernel be if we removed all the
-backwards compatibility? I mean the size of the compiled kernel
-image.
+Index: 2.6/drivers/net/smc91x.c
+===================================================================
+--- 2.6.orig/drivers/net/smc91x.c	2004-11-16 09:26:52.000000000 +0000
++++ 2.6/drivers/net/smc91x.c	2004-11-25 09:49:38.830953019 +0000
+@@ -203,7 +203,10 @@
+ 	u32	msg_enable;
+ 	u32	phy_type;
+ 	struct mii_if_info mii;
++
++	/* work queue */
+ 	struct work_struct phy_configure;
++	int	work_pending;
+ 
+ 	spinlock_t lock;
+ 
+@@ -903,7 +906,7 @@
+ /*
+  * Finds and reports the PHY address
+  */
+-static void smc_detect_phy(struct net_device *dev)
++static void smc_phy_detect(struct net_device *dev)
+ {
+ 	struct smc_local *lp = netdev_priv(dev);
+ 	int phyaddr;
+@@ -1155,6 +1158,7 @@
+ 
+ smc_phy_configure_exit:
+ 	spin_unlock_irq(&lp->lock);
++	lp->work_pending = 0;
+ }
+ 
+ /*
+@@ -1350,10 +1354,13 @@
+ 	/*
+ 	 * Reconfiguring the PHY doesn't seem like a bad idea here, but
+ 	 * smc_phy_configure() calls msleep() which calls schedule_timeout()
+-	 * which calls schedule().  Ence we use a work queue.
++	 * which calls schedule().  Hence we use a work queue.
+ 	 */
+-	if (lp->phy_type != 0)
+-		schedule_work(&lp->phy_configure);
++	if (lp->phy_type != 0) {
++		if (schedule_work(&lp->phy_configure)) {
++			lp->work_pending = 1;
++		}
++	}
+ 
+ 	/* We can accept TX packets again */
+ 	dev->trans_start = jiffies;
+@@ -1537,7 +1544,18 @@
+ 	smc_shutdown(dev);
+ 
+ 	if (lp->phy_type != 0) {
+-		flush_scheduled_work();
++		/* We need to ensure that no calls to
++		   smc_phy_configure are pending. 
++
++		   flush_scheduled_work() cannot be called because we
++		   are running with the netlink semaphore held (from
++		   devinet_ioctl()) and the pending work queue
++		   contains linkwatch_event() (scheduled by
++		   netif_carrier_off() above). linkwatch_event() also
++		   wants the netlink semaphore.
++		*/
++		while(lp->work_pending)
++			schedule();
+ 		smc_phy_powerdown(dev, lp->mii.phy_id);
+ 	}
+ 
+@@ -1904,7 +1922,7 @@
+ 	 * Locate the phy, if any.
+ 	 */
+ 	if (lp->version >= (CHIP_91100 << 4))
+-		smc_detect_phy(dev);
++		smc_phy_detect(dev);
+ 
+ 	/* Set default parameters */
+ 	lp->msg_enable = NETIF_MSG_LINK;
 
-tom
+-- 
+Ian Campbell, Senior Design Engineer
+                                        Web: http://www.arcom.com
+Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
+Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
+

@@ -1,45 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbULFNsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbULFNup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbULFNsu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 08:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbULFNsu
+	id S261516AbULFNup (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 08:50:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbULFNuo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 08:48:50 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:2450 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261249AbULFNss (ORCPT
+	Mon, 6 Dec 2004 08:50:44 -0500
+Received: from smtp50.wxs.nl ([195.121.6.34]:33677 "EHLO smtp50.wxs.nl")
+	by vger.kernel.org with ESMTP id S261516AbULFNui (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 08:48:48 -0500
-From: Kevin Corry <kevcorry@us.ibm.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: 2.6: drivers/md/dm-io.c partially copies bio.c
-Date: Mon, 6 Dec 2004 07:48:51 -0600
-User-Agent: KMail/1.7.1
-Cc: dm-devel@redhat.com, linux-kernel@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-References: <20041206120941.GB7250@stusta.de>
-In-Reply-To: <20041206120941.GB7250@stusta.de>
+	Mon, 6 Dec 2004 08:50:38 -0500
+Message-ID: <41B463BA.5080008@yahoo.com>
+Date: Mon, 06 Dec 2004 14:50:50 +0100
+From: Jan Panteltje <panteltje@yahoo.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0 (BDP)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.9 slows down everything
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412060748.51047.kevcorry@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
+Slow slow slow, compile takes looooong time..../
+even with all modules removed.
+Even the mouse becomes sluggy
+top shops no excessive CPU usage.
+I am back to 2.4.25,
 
-On Monday 06 December 2004 6:09 am, Adrian Bunk wrote:
-> drivers/md/dm-io.c copies functionality from bio.c .
->
-> Is there a specific reason why you don't simply use the functionality
-> bio.c provides?
 
-Can you give some specific examples of the functionality you think is 
-duplicated? Meanwhile, I'll take a look and see if I can explain any code 
-overlaps.
-
--- 
-Kevin Corry
-kevcorry@us.ibm.com
-http://evms.sourceforge.net/

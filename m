@@ -1,84 +1,151 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbTEGAKN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 20:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbTEGAKN
+	id S262102AbTEGANz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 20:13:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262119AbTEGANz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 20:10:13 -0400
-Received: from mail.gmx.de ([213.165.64.20]:60103 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262060AbTEGAKH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 20:10:07 -0400
-Message-ID: <3EB851B3.6050804@gmx.net>
-Date: Wed, 07 May 2003 02:22:11 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.68] Scalability issues
-References: <Pine.LNX.3.96.1030506142904.9452D-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1030506142904.9452D-100000@gatekeeper.tmr.com>
-X-Enigmail-Version: 0.71.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Tue, 6 May 2003 20:13:55 -0400
+Received: from relax.cmf.nrl.navy.mil ([134.207.10.227]:1152 "EHLO
+	relax.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S262102AbTEGANv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 20:13:51 -0400
+Date: Tue, 6 May 2003 20:26:25 -0400
+From: chas williams <chas@cmf.nrl.navy.mil>
+Message-Id: <200305070026.h470QP503306@relax.cmf.nrl.navy.mil>
+To: davem@redhat.com
+Subject: [PATCH][ATM] clip locking and more atmvcc cleanup
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
-> On Mon, 5 May 2003, Chris Friesen wrote:
-> 
-> 
->>Felix von Leitner wrote:
->>
->>>Thus spake David S. Miller (davem@redhat.com):
->>
->>>>Either reproduce without the nvidia module loaded, or take
->>>>your report to nvidia.
->>>
->>>Thank you for this stunning display of unprofessionalism and zealotry.
->>>People like you keep free software alive.
->>
->>He may not have put it as politely as you would like, but there really is no way 
->>to debug a problem in a kernel which has been tainted by binary-only drivers. 
->>That driver could have done literally anything to the kernel on loading.
-> 
-> There's no need to be rude in any case, particularly after the OP reposted
-> a not tainted oops which had been through ksymoops and didn't get any help
-> anyway. Why be nasty about the format of a question you're not answering
-> even after it's been asked again in the preferred format?
 
-Because the OP violated the lkml FAQ section 1.18:
-All problems discovered whilst such a module is loaded must be reported
-to the vendor of that module, /not/ the Linux kernel hackers and the
-linux-kernel mailing list. [...] "oops" reports marked as tainted are of
-no use to the kernel developers and will be ignored.
+[ATM]: clip should lock the individual table entires
 
-Davem just restated this fact with the same admittedly strong wording.
-Felix von Leitner accused him of unprofessionalism and zealotry. That is
-what I would call an offence.
-
-> It's a shame that some people seem to think that lots of hard work
-> entitles them to be rude and condescending, while really important
-> contributors like Alan Cox, Ingo and akpm can be polite and helpful, even
-> when they are correcting someone or disagreeing on an approach to a
-> problem.
-
-It's even more shocking if a user insults a kernel developer and expects
-this developer (or one of his peers) to actually take care of the
-problem. wli chose to investigate the report anyway, something not to be
-taken for granted.
-
-Hey, if I insulted Al Viro I'd never expect him to help me (respond,
-point out mistakes etc.) anymore. Besides that, Al saved me from diving
-into floppy.c, for which I'm still thankful.
-
-Chris: Just a heads up - you may get private hate mail from Peter
-"Firefly" Lund like I did because you pointed out a mistake of the OP.
-So be warned about it.
+--- linux-2.5.68/net/atm/clip.c.000	Tue May  6 10:31:24 2003
++++ linux-2.5.68/net/atm/clip.c	Tue May  6 10:34:02 2003
+@@ -127,6 +127,8 @@
+ 			struct atmarp_entry *entry = NEIGH2ENTRY(n);
+ 			struct clip_vcc *clip_vcc;
+ 
++			write_lock(&n->lock);
++
+ 			for (clip_vcc = entry->vccs; clip_vcc;
+ 			    clip_vcc = clip_vcc->next)
+ 				if (clip_vcc->idle_timeout &&
+@@ -141,6 +143,7 @@
+ 			if (entry->vccs ||
+ 			    time_before(jiffies, entry->expires)) {
+ 				np = &n->next;
++				write_unlock(&n->lock);
+ 				continue;
+ 			}
+ 			if (atomic_read(&n->refcnt) > 1) {
+@@ -152,11 +155,13 @@
+ 				     NULL) 
+ 					dev_kfree_skb(skb);
+ 				np = &n->next;
++				write_unlock(&n->lock);
+ 				continue;
+ 			}
+ 			*np = n->next;
+ 			DPRINTK("expired neigh %p\n",n);
+ 			n->dead = 1;
++			write_unlock(&n->lock);
+ 			neigh_release(n);
+ 		}
+ 	}
 
 
-Carl-Daniel
 
+
+[ATM]: listenq and backlog are redundant with existing sk members
+       (a 'listen' socket never recv's data so you dont typically
+       need a seperate listenq -- even for atm)
+
+--- linux-2.5.68/include/linux/atmdev.h.000	Mon May  5 19:06:34 2003
++++ linux-2.5.68/include/linux/atmdev.h	Mon May  5 19:06:42 2003
+@@ -304,9 +304,6 @@
+ 	struct sockaddr_atmsvc local;
+ 	struct sockaddr_atmsvc remote;
+ 	void (*callback)(struct atm_vcc *vcc);
+-	struct sk_buff_head listenq;
+-	int		backlog_quota;	/* number of connection requests we */
+-					/* can still accept */
+ 	int		reply;		/* also used by ATMTCP */
+ 	/* Multipoint part ------------------------------------------------- */
+ 	struct atm_vcc	*session;	/* session VCC descriptor */
+--- linux-2.5.68/net/atm/svc.c.001	Mon May  5 19:03:10 2003
++++ linux-2.5.68/net/atm/svc.c	Mon May  5 19:31:02 2003
+@@ -74,7 +74,7 @@
+ 	}
+ 	/* beware - socket is still in use by atmsigd until the last
+ 	   as_indicate has been answered */
+-	while ((skb = skb_dequeue(&vcc->listenq))) {
++	while ((skb = skb_dequeue(&vcc->sk->receive_queue))) {
+ 		DPRINTK("LISTEN REL\n");
+ 		sigd_enq2(NULL,as_reject,vcc,NULL,NULL,&vcc->qos,0);
+ 		dev_kfree_skb(skb);
+@@ -253,7 +253,7 @@
+ 	remove_wait_queue(&vcc->sleep,&wait);
+ 	if (!sigd) return -EUNATCH;
+ 	set_bit(ATM_VF_LISTEN,&vcc->flags);
+-	vcc->backlog_quota = backlog > 0 ? backlog : ATM_BACKLOG_DEFAULT;
++	vcc->sk->max_ack_backlog = backlog > 0 ? backlog : ATM_BACKLOG_DEFAULT;
+ 	return vcc->reply;
+ }
+ 
+@@ -277,7 +277,7 @@
+ 		DECLARE_WAITQUEUE(wait,current);
+ 
+ 		add_wait_queue(&old_vcc->sleep,&wait);
+-		while (!(skb = skb_dequeue(&old_vcc->listenq)) && sigd) {
++		while (!(skb = skb_dequeue(&old_vcc->sk->receive_queue)) && sigd) {
+ 			if (test_bit(ATM_VF_RELEASED,&old_vcc->flags)) break;
+ 			if (test_bit(ATM_VF_CLOSE,&old_vcc->flags)) {
+ 				error = old_vcc->reply;
+@@ -306,7 +306,7 @@
+ 		error = atm_connect(newsock,msg->pvc.sap_addr.itf,
+ 		    msg->pvc.sap_addr.vpi,msg->pvc.sap_addr.vci);
+ 		dev_kfree_skb(skb);
+-		old_vcc->backlog_quota++;
++		old_vcc->sk->ack_backlog--;
+ 		if (error) {
+ 			sigd_enq2(NULL,as_reject,old_vcc,NULL,NULL,
+ 			    &old_vcc->qos,error);
+--- linux-2.5.68/net/atm/signaling.c.000	Mon May  5 19:03:03 2003
++++ linux-2.5.68/net/atm/signaling.c	Mon May  5 19:33:48 2003
+@@ -129,12 +129,12 @@
+ 		case as_indicate:
+ 			vcc = *(struct atm_vcc **) &msg->listen_vcc;
+ 			DPRINTK("as_indicate!!!\n");
+-			if (!vcc->backlog_quota) {
++			if (vcc->sk->ack_backlog == vcc->sk->max_ack_backlog) {
+ 				sigd_enq(0,as_reject,vcc,NULL,NULL);
+ 				return 0;
+ 			}
+-			vcc->backlog_quota--;
+-			skb_queue_tail(&vcc->listenq,skb);
++			vcc->sk->ack_backlog++;
++			skb_queue_tail(&vcc->sk->receive_queue,skb);
+ 			if (vcc->callback) {
+ 				DPRINTK("waking vcc->sleep 0x%p\n",
+ 				    &vcc->sleep);
+--- linux-2.5.68/net/atm/common.c.000	Mon May  5 19:02:56 2003
++++ linux-2.5.68/net/atm/common.c	Tue May  6 11:08:34 2003
+@@ -120,7 +120,6 @@
+ 	vcc->vpi = vcc->vci = 0; /* no VCI/VPI yet */
+ 	vcc->atm_options = vcc->aal_options = 0;
+ 	init_waitqueue_head(&vcc->sleep);
+-	skb_queue_head_init(&vcc->listenq);
+ 	sk->sleep = &vcc->sleep;
+ 	sock->sk = sk;
+ 	return 0;
+@@ -489,7 +488,7 @@
+ 	vcc = ATM_SD(sock);
+ 	poll_wait(file,&vcc->sleep,wait);
+ 	mask = 0;
+-	if (skb_peek(&vcc->sk->receive_queue) || skb_peek(&vcc->listenq))
++	if (skb_peek(&vcc->sk->receive_queue))
+ 		mask |= POLLIN | POLLRDNORM;
+ 	if (test_bit(ATM_VF_RELEASED,&vcc->flags) ||
+ 	    test_bit(ATM_VF_CLOSE,&vcc->flags))

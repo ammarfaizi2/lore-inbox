@@ -1,51 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279105AbRKINiG>; Fri, 9 Nov 2001 08:38:06 -0500
+	id <S279170AbRKINit>; Fri, 9 Nov 2001 08:38:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279166AbRKINhz>; Fri, 9 Nov 2001 08:37:55 -0500
-Received: from bs1.dnx.de ([213.252.143.130]:5600 "EHLO bs1.dnx.de")
-	by vger.kernel.org with ESMTP id <S279105AbRKINho> convert rfc822-to-8bit;
-	Fri, 9 Nov 2001 08:37:44 -0500
-Date: Fri, 9 Nov 2001 13:27:00 +0100 (CET)
-From: Robert Schwebel <robert@schwebel.de>
-X-X-Sender: <robert@callisto.local>
-Reply-To: <robert@schwebel.de>
-To: <rkaiser@sysgo.de>
-Cc: <pallaire@gameloft.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel booting on serial console ... crawling
-In-Reply-To: <01110910184800.01293@rob>
-Message-ID: <Pine.LNX.4.33.0111091321441.12746-100000@callisto.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S279805AbRKINig>; Fri, 9 Nov 2001 08:38:36 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:37387 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S279170AbRKINi0>;
+	Fri, 9 Nov 2001 08:38:26 -0500
+Date: Fri, 9 Nov 2001 14:37:20 +0100
+From: Jens Axboe <axboe@suse.de>
+To: "Ronny Lampert (EED)" <Ronny.Lampert@eed.ericsson.se>
+Subject: Re: 2.4.14: crashing on heavy swap-load with SmartArray (dmesg/.config output)
+Message-ID: <20011109143720.T4946@suse.de>
+In-Reply-To: <3BEBD6E9.3F7F8057@eed.ericsson.se>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+In-Reply-To: <3BEBD6E9.3F7F8057@eed.ericsson.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Rob,
 
-On Fri, 9 Nov 2001, Robert Kaiser wrote:
-> Is this an AMD Elan's built-in serial port, perchance ?
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I got a patch for the Elan's serial port from Jason Sodergren some days
-ago, but it's not clear to me what exactly the problem is with this port.
-I'm using the serial console on a DIL/Net-PC without any problems so far.
-Perhaps it might be a good idea to join forces and try to get a patch for
-the Elan series into the main kernel?
+On Fri, Nov 09 2001, Ronny Lampert (EED) wrote:
+[smart array crashing]
 
-However, my current affords can be found on
+Apply this on top of 2.4.14 and you'll be fine.
 
-  http://www.schwebel.de/software/dnp/index_en.html
-
-This currently implements a new CPU configuration parameter and a fix for
-the clock on the Elan CPUs.
-
-Robert
 -- 
- +--------------------------------------------------------+
- |             Dipl.-Ing. Robert Schwebel                 |
- | Pengutronix - Linux Solutions for Science and Industry |
- |  Braunschweiger Straße 79, 31134 Hildesheim, Germany   |
- |     Phone: +49-5121-28619-0  Fax: +49-5121-28619-4     |
- +--------------------------------------------------------+
+Jens Axboe
 
 
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=cpq-dequeue-1
+
+--- linux/drivers/block/cpqarray.c~	Thu Nov  8 11:33:11 2001
++++ linux/drivers/block/cpqarray.c	Thu Nov  8 11:35:31 2001
+@@ -942,6 +942,8 @@
+ 	if ((c = cmd_alloc(h,1)) == NULL)
+ 		goto startio;
+ 
++	blkdev_dequeue_request(creq);
++
+ 	spin_unlock_irq(&io_request_lock);
+ 
+ 	bh = creq->bh;
+@@ -987,13 +989,10 @@
+ DBGPX(	printk("Submitting %d sectors in %d segments\n", sect, seg); );
+ 	c->req.hdr.sg_cnt = seg;
+ 	c->req.hdr.blk_cnt = creq->nr_sectors;
+-
+-	spin_lock_irq(&io_request_lock);
+-
+-	blkdev_dequeue_request(creq);
+-
+ 	c->req.hdr.cmd = (creq->cmd == READ) ? IDA_READ : IDA_WRITE;
+ 	c->type = CMD_RWREQ;
++
++	spin_lock_irq(&io_request_lock);
+ 
+ 	/* Put the request on the tail of the request queue */
+ 	addQ(&h->reqQ, c);
+
+--Dxnq1zWXvFF0Q93v--

@@ -1,31 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131349AbRCULOP>; Wed, 21 Mar 2001 06:14:15 -0500
+	id <S131341AbRCULcH>; Wed, 21 Mar 2001 06:32:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131346AbRCULOH>; Wed, 21 Mar 2001 06:14:07 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:61395 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S131341AbRCULN4>;
-	Wed, 21 Mar 2001 06:13:56 -0500
-Date: Wed, 21 Mar 2001 22:00:51 +0530 (IST)
-From: Manoj Sontakke <manojs@sasken.com>
-To: linux-kernel@vger.kernel.org
-Subject: initialisation code
-Message-ID: <Pine.LNX.4.21.0103212147400.884-100000@pcc65.sasi.com>
+	id <S131346AbRCULb6>; Wed, 21 Mar 2001 06:31:58 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:51584 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131341AbRCULbm>;
+	Wed, 21 Mar 2001 06:31:42 -0500
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15032.37094.204955.41554@pizda.ninka.net>
+Date: Wed, 21 Mar 2001 03:30:46 -0800 (PST)
+To: george anzinger <george@mvista.com>
+Cc: Keith Owens <kaos@ocs.com.au>, nigel@nrg.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for 2.5] preemptible kernel
+In-Reply-To: <3AB88929.D1B324F2@mvista.com>
+In-Reply-To: <Pine.LNX.4.05.10103201920410.26853-100000@cosmic.nrg.org>
+	<22991.985166394@ocs3.ocs-net>
+	<15032.30533.638717.696704@pizda.ninka.net>
+	<3AB88929.D1B324F2@mvista.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-	I am trying to implement some QoS in kernel(in the IP
-layer....similar to TC..... BTW  TC works in the data-link layer). I am
-dequeuing the packets from the IP queue when the function ip_forward is
-called. After processing them, I am reinserting them back to the IP queue.
-	I have a initlisation function (just like pktsched_init in
-TC). Can anyone tell me, where in the kernel boot sequence should I make a
-call to my initialisation function.
 
-Thanks in advance for all the help. 
+george anzinger writes:
+ > By the by, if a preemption lock is all that is needed the patch defines
+ > it and it is rather fast (an inc going in and a dec & test comming
+ > out).  A lot faster than a spin lock with its "LOCK" access.  A preempt
+ > lock does not need to be "LOCK"ed because the only contender is the same
+ > cpu.
 
-Manoj
+So we would have to invoke this thing around every set of
+smp_processor_id() references?
 
+Later,
+David S. Miller
+davem@redhat.com

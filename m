@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317544AbSHYVKM>; Sun, 25 Aug 2002 17:10:12 -0400
+	id <S317580AbSHYVQm>; Sun, 25 Aug 2002 17:16:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317580AbSHYVKM>; Sun, 25 Aug 2002 17:10:12 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31760 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317544AbSHYVKL>;
-	Sun, 25 Aug 2002 17:10:11 -0400
-Date: Sun, 25 Aug 2002 22:14:27 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] (re)implement setkeycode/getkeycode/kd_mksound/kbd_setrate via the input core
-Message-ID: <20020825221427.A6931@parcelfarce.linux.theplanet.co.uk>
+	id <S317582AbSHYVQm>; Sun, 25 Aug 2002 17:16:42 -0400
+Received: from mail309.mail.bellsouth.net ([205.152.58.169]:27562 "EHLO
+	imf09bis.bellsouth.net") by vger.kernel.org with ESMTP
+	id <S317580AbSHYVQm>; Sun, 25 Aug 2002 17:16:42 -0400
+Subject: linux ata list?
+From: Louis Garcia <louisg00@bellsouth.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 25 Aug 2002 17:21:55 -0400
+Message-Id: <1030310516.2074.11.camel@tiger>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Where is the linux ata web site. I am looking to get a Western Digital
+HD #WD200BB and want to know if their are any issues with this drive
+especially DMA. This drive is for an old Pentium 133 box with I think a
+ata/66 controller onboard while this drive is ata/100, any problems? 
 
-This bit looks wrong to me:
+This box is only a firewall/NAT.
 
-+ for (handle = kbd_handler.handle; handle; handle = handle->hnext)
-+ if (handle->dev->keycodesize) break;
-+
-+ if (!handle->dev->keycodesize)
-+ return -ENODEV;
+--Lou
 
-if we reach termination for the loop without finding a keycodesize, handle
-will be NULL, so you'd get an oops.  Just do:
-
-+ if (!handle)
-+ return -ENODEV
-
-(sorry about the formatting, i'm reading l-k via uwsg's web archive).
-
--- 
-Revolutions do not require corporate support.

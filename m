@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S131159AbQK1VjN>; Tue, 28 Nov 2000 16:39:13 -0500
+        id <S131177AbQK1VjX>; Tue, 28 Nov 2000 16:39:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S131027AbQK1Vix>; Tue, 28 Nov 2000 16:38:53 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:43525
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S131004AbQK1Vin>; Tue, 28 Nov 2000 16:38:43 -0500
-Date: Sat, 25 Nov 2000 23:08:14 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Adam J. Richter" <adam@yggdrasil.com>
-cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Patch: 2.4.0-test11ac4 version of pci and isapnp device ID's
- patch
-In-Reply-To: <20001125225032.A5448@baldur.yggdrasil.com>
-Message-ID: <Pine.LNX.4.10.10011252307330.10729-100000@master.linux-ide.org>
+        id <S131027AbQK1VjO>; Tue, 28 Nov 2000 16:39:14 -0500
+Received: from h24-65-192-120.cg.shawcable.net ([24.65.192.120]:22523 "EHLO
+        webber.adilger.net") by vger.kernel.org with ESMTP
+        id <S131004AbQK1VjA>; Tue, 28 Nov 2000 16:39:00 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200011282108.eASL8nd10539@webber.adilger.net>
+Subject: Re: [PATCH] no RLIMIT_NPROC for root, please
+In-Reply-To: <20001128214309.F2680@sith.mimuw.edu.pl> "from Jan Rekorajski at
+ Nov 28, 2000 09:43:09 pm"
+To: Jan Rekorajski <baggins@sith.mimuw.edu.pl>
+Date: Tue, 28 Nov 2000 14:08:49 -0700 (MST)
+CC: Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Nov 2000, Adam J. Richter wrote:
+Jan R_korajski writes:
+> Why is RLIMIT_NPROC apllied to root(uid 0) processes? It's not kernel job to
+> prevent admin from shooting him/her self in the foot.
 
-> 	For those of you playing with Alan Cox's linux-2.4.0-test11ac4
-> release, I have made a separate patch of the remaining device ID
-> changes which patches against that kernel and builds cleanly (the
-> primary difference is that it omits the files that have gained the
-> same ID tables in Alan's ac4 release).  The patch is FTPable from:
-> 
-> ftp://ftp.yggdrasil.com/pub/dist/device_control/kernel/pci_id_tables-2.4.0-test11-ac4.patch4.gz 
+> -	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur)
 
-Hey Alan, are we now sorting sub-id's?
+By default, root has no real process limits anyways, so this test should
+always succeed.  However, it would be nice to be _able_ to set process
+limits on root for one reason or another.  Also, as we move towards more
+secure systems, it is bad (IMHO) to special case root (uid=0) cases.
+It just makes more to fix to get a system where root != god.
 
-Andre Hedrick
-CTO Timpanogas Research Group
-EVP Linux Development, TRG
-Linux ATA Development
+> root should be able to do fork() regardless of any limits,
+> and IMHO the following patch is the right thing.
 
+Then set the rlim_cur to unlimited, and blow your system up as you like.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

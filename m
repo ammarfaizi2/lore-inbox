@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284472AbRLXIiY>; Mon, 24 Dec 2001 03:38:24 -0500
+	id <S284484AbRLXJFY>; Mon, 24 Dec 2001 04:05:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284477AbRLXIiO>; Mon, 24 Dec 2001 03:38:14 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46085 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S284472AbRLXIh7>; Mon, 24 Dec 2001 03:37:59 -0500
-Date: Mon, 24 Dec 2001 08:37:52 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Total system lockup with Alt-SysRQ-L
-Message-ID: <20011224083752.A1181@flint.arm.linux.org.uk>
-In-Reply-To: <20011223175846.B27993@flint.arm.linux.org.uk> <E16IKwX-0002U3-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16IKwX-0002U3-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Mon, Dec 24, 2001 at 02:34:20AM +0000
+	id <S284488AbRLXJFP>; Mon, 24 Dec 2001 04:05:15 -0500
+Received: from mta9n.bluewin.ch ([195.186.1.215]:7658 "EHLO mta9n.bluewin.ch")
+	by vger.kernel.org with ESMTP id <S284484AbRLXJFE>;
+	Mon, 24 Dec 2001 04:05:04 -0500
+Message-ID: <3C25C668000276EC@mta9n.bluewin.ch> (added by postmaster@bluewin.ch)
+From: "Per Jessen" <per@computer.org>
+To: "Adam Keys" <akeys@post.cis.smu.edu>, "DevilKin" <devilkin@gmx.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Date: Mon, 24 Dec 2001 10:17:45 +0100
+Reply-To: "Per Jessen" <per@computer.org>
+X-Mailer: PMMail 98 Professional (2.01.1600) For Windows 95 (4.0.1212)
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [test] Hmm. no more lklm traffic?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 24, 2001 at 02:34:20AM +0000, Alan Cox wrote:
-> > When pid1 exits (maybe due to a kill signal), we lockup hard in (iirc)
-> > exit_notify.  I don't remember the details I'm afraid.
-> 
-> pid1 ends up trying to kill pid1 and it goes deeply down the toilet from
-> that point onwards. The Unix traditional world reboots when pid 1 dies.
+On Mon, 24 Dec 2001 02:24:39 -0600, Adam Keys wrote:
 
-The problem was definitely in the exit_notify code, where it manipulated
-the task links indefinitely.  (I think it was cptr never becomes null,
-so the loop never terminates).
+>On December 24, 2001 02:08, DevilKin wrote:
+>> Hmm... It seems that I have / there is a problem with LKLM? I have no more
+>> traffic from the mailing list since 23/12 around 3 AM.
+>
+>I think it's just beginning to look a lot like Christmas...
 
-However, if we're saying that "pid1 must not die" then maybe we should get
-rid of the 'killall' sysrq option since it serves no useful purpose, and
-add a suitable panic in the do_exit path?
+Since Dec23 0300 (CET), I have about 200 lkml emails. 
 
-I'll generate a patch for that if there's interest.
+/Per
 
---
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+regards,
+Per Jessen, Zurich
+http://www.enidan.com - home of the J1 serial console.
+
+Windows 2001: "I'm sorry Dave ...  I'm afraid I can't do that."
+
 

@@ -1,42 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264304AbTEGWPz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 18:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbTEGWPz
+	id S264305AbTEGWRD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 18:17:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264308AbTEGWRD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 18:15:55 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.36.230]:57285 "EHLO
-	ms-smtp-02.texas.rr.com") by vger.kernel.org with ESMTP
-	id S264304AbTEGWPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 18:15:55 -0400
-Date: Wed, 7 May 2003 16:11:25 -0500 (CDT)
-From: Paul B Schroeder <paulsch@haywired.net>
-To: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
-cc: <girouard@us.ibm.com>
-Subject: [PATCH 2.5] mwave compile fix
-Message-ID: <Pine.LNX.4.33.0305071609270.28791-100000@snafu.haywired.net>
+	Wed, 7 May 2003 18:17:03 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.104]:47602 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S264305AbTEGWRB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 18:17:01 -0400
+Message-ID: <3EB98878.5060607@us.ibm.com>
+Date: Wed, 07 May 2003 15:28:08 -0700
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@digeo.com>
+CC: Russell King <rmk@arm.linux.org.uk>, rddunlap@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: The magical mystical changing ethernet interface order
+References: <20030507141458.B30005@flint.arm.linux.org.uk>	<20030507082416.0996c3df.rddunlap@osdl.org>	<20030507181410.A19615@flint.arm.linux.org.uk> <20030507150414.1eaeae75.akpm@digeo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Against 2.5.69..  Please apply...
+Andrew Morton wrote:
+> Russell King <rmk@arm.linux.org.uk> wrote:
+> 
+>>A wild stab in the dark, I'd think maybe the init ordering changed:
+> 
+> Well stabbed.  The relative ordering of tulip and ne2k in
+> drivers/net/Makefile got changed.
+> 
+> Maybe we should reorganise the 2.5 Makefile to copy the 2.4 Makefile's
+> ordering.  How pleasant.
+> 
+> I suspect the linker is at liberty to reorder these anyway.
 
-diff -u drivers/char/mwave/mwavedd.h.orig drivers/char/mwave/mwavedd.h
---- drivers/char/mwave/mwavedd.h.orig   2003-05-07 17:04:33.000000000 -0500
-+++ drivers/char/mwave/mwavedd.h        2003-05-07 17:04:22.000000000 -0500
-@@ -50,6 +50,7 @@
- #define _LINUX_MWAVEDD_H
- #include "3780i.h"
- #include "tp3780i.h"
-+#include "smapi.h"
- #include "mwavepub.h"
- #include <linux/ioctl.h>
- #include <asm/uaccess.h>
-
+The linker will order things in the final object in the order that you
+passed them.  We depend on this for getting __init functions run in the
+right order:
+http://groups.google.com/groups?selm=linux.kernel.27361.1016068035%40kao2.melbourne.sgi.com
 
 -- 
-
-Paul B Schroeder <paulsch at haywired dot net>
-
+Dave Hansen
+haveblue@us.ibm.com
 

@@ -1,39 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291604AbSBTCMb>; Tue, 19 Feb 2002 21:12:31 -0500
+	id <S291599AbSBTCMV>; Tue, 19 Feb 2002 21:12:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291608AbSBTCMW>; Tue, 19 Feb 2002 21:12:22 -0500
-Received: from toole.uol.com.br ([200.231.206.186]:61572 "EHLO
-	toole.uol.com.br") by vger.kernel.org with ESMTP id <S291604AbSBTCMK>;
-	Tue, 19 Feb 2002 21:12:10 -0500
-Date: Tue, 19 Feb 2002 23:11:28 -0300 (BRT)
-From: Jean Paul Sartre <sartre@linuxbr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: sis_malloc / sis_free
-In-Reply-To: <E16dMH8-0002HL-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.40.0202192307120.13176-100000@sartre.linuxbr.com>
+	id <S291608AbSBTCML>; Tue, 19 Feb 2002 21:12:11 -0500
+Received: from ns1.crl.go.jp ([133.243.3.1]:20210 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S291599AbSBTCL5>;
+	Tue, 19 Feb 2002 21:11:57 -0500
+Date: Wed, 20 Feb 2002 11:10:45 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+X-X-Sender: tomh@holly.crl.go.jp
+To: Andreas Schwab <schwab@suse.de>
+cc: Tim Schmielau <tim@physik3.uni-rostock.de>,
+        kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: Unknown HZ value! (1908) Assume 1024.
+In-Reply-To: <jeheod929p.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.44.0202201101080.1972-100000@holly.crl.go.jp>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Feb 2002, Alan Cox wrote:
-
-> > > SIS DRM requires the SIS frame buffer.
-> >
-> > 	But this is a 'semantic' mode of requiring. The 'requirement' does
-> > not apply in the source, as I saw (or it'd compile normally with the DRM
-> > code, and FB code gives sis_malloc and sis_free (try grepping sis_malloc
+> |> 	jif * smp_num_cpus - (user + nice + system)
 >
-> Compiles fine for me. 2.4.18rc2-ac1 - and the SiS DRM works too tho on
-> an old 6326 its not rocket speed.
+> Changing the line to this:
+>
+>  	jif * smp_num_cpus - user - nice - system
+>
+> should avoid the overflow.
 
-	Okay, will try 2.4.18rc2-ac1. Ahn, If CONFIG_FB_SIS is set,
-CONFIG_DRM_SIS still appears in the menuconfig option. Is it okay, as DRM
-requires FB support?
+True.  It still might be a good idea to make them longs, though,
+because they are really totals of all the CPUs, as in:
+                user += kstat.per_cpu_user[cpu];
 
-	Regards,
-	Cesar Suga <sartre@linuxbr.com>
-
+Now ultimately, kstat.per_cpu_user[cpu] will overflow, and I don't
+know what to do about that, but making user, nice, and system unsigned
+long will at least allow SMP systems to last a little while longer.
+(Actually I don't know why Procps needs these values at all -- the
+claim in the code is that all of this is just to compute the HZ value,
+which is presumably needed to be able to interpret jiffies.  It'd be a
+lot simpler just to have /proc/stat export the HZ value directly.)
 

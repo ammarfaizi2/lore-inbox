@@ -1,68 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbUKDKXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbUKDKYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbUKDKXr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 05:23:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbUKDKXq
+	id S262157AbUKDKYc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 05:24:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbUKDKYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 05:23:46 -0500
-Received: from sartre.ispvip.biz ([209.118.182.154]:7857 "HELO
-	sartre.ispvip.biz") by vger.kernel.org with SMTP id S262156AbUKDKXn
+	Thu, 4 Nov 2004 05:24:32 -0500
+Received: from ns9.hostinglmi.net ([213.194.149.146]:37249 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S262157AbUKDKYY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 05:23:43 -0500
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc1-mm2-V0.7.7
-From: "Michael J. Cohen" <mjc@unre.st>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "K.R. Foley" <kr@cybsft.com>, sboyce@blueyonder.co.uk,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20041104100634.GA29785@elte.hu>
-References: <4189108C.2050804@blueyonder.co.uk>
-	 <41892899.6080400@cybsft.com> <41897119.6030607@blueyonder.co.uk>
-	 <418988A6.4090902@cybsft.com>  <20041104100634.GA29785@elte.hu>
-Content-Type: text/plain
-Date: Thu, 04 Nov 2004 05:23:25 -0500
-Message-Id: <1099563805.30372.2.camel@localhost>
+	Thu, 4 Nov 2004 05:24:24 -0500
+Date: Thu, 4 Nov 2004 11:26:55 +0100
+From: DervishD <lkml@dervishd.net>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Gene Heskett <gheskett@wdtv.com>, linux-kernel@vger.kernel.org,
+       Valdis.Kletnieks@vt.edu,
+       =?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: is killing zombies possible w/o a reboot?
+Message-ID: <20041104102655.GB23673@DervishD>
+Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
+	Gene Heskett <gheskett@wdtv.com>, linux-kernel@vger.kernel.org,
+	Valdis.Kletnieks@vt.edu,
+	=?iso-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+References: <20041103194226.GA23379@DervishD> <418965E0.8070508@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <418965E0.8070508@tmr.com>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-11-04 at 11:06 +0100, Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
-> 
-> > >include/asm/vsyscall.h:48: error: previous declaration of `__xtime_lock'
-> > 
-> > Does the patch below fix the above error?
-> 
-> i applied your earlier patch but many more changes were needed to port
-> PREEMPT_REALTIME (and in particular, PREEMPT_HARDIRQS) to x64. You can
-> check out the x64 bits in -V0.7.8 which can be downloaded from the usual
-> place:
-> 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
-> Sid, does this one build/work for you? (i had to disable CPUFREQ in the
-> .config to get it to build - an -mm bug i suspect.)
-> 
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+    Hi Bill :)
 
-Ingo
-	Great timing! only 7 minutes after I posted my concession speech. ;)
+ * Bill Davidsen <davidsen@tmr.com> dixit:
+> >    I think that the parent (which is whatever process did the fork
+> >when you clicked your mouse) is still alive and forgetting to do the
+> >'wait()' for its children.
+> It would be good to know what the PPID is, from ps or similar. Things 
+> from X are a pain, the parent is often something you don't want to kill. 
+> Sometimes you can reparent from command line, "bash -c foo&" or similar, 
+> so the parent can be killed without logging out.
 
-Here you go:
+    Just use ps to reveal the family tree. Is not that hard ;)
+ 
+> I would swear that the parent *is* init in some cases, which is puzzling 
+> since they should be reaped.
 
-  LD      .tmp_vmlinux1
-kernel/built-in.o(.text+0x1e57c): In function `___trace':
-: undefined reference to `irqs_disabled_flags'
-kernel/built-in.o(.text+0x1e797): In function `add_preempt_count':
-: undefined reference to `irqs_disabled_flags'
-make: *** [.tmp_vmlinux1] Error 1
+    But that's OK :))) When a parent dies without waiting for its
+children, the zombies are reparented to init. That's correct. Then
+init will wait for them. The problem is that sometimes the signals
+doesn't arrive or the like. Then the zombies are laying around a bit,
+until a timer in 'init' reaps them. That's correct too: init can only
+wait for children when it receives SIGCHLD or periodically, using a
+timer. I've written a init program and that's the way I do it, just
+in case some signal gets lost.
 
-------
-Michael Cohen
+    If init is the parent, all works ok, just wait a bit and all
+those zombies will really die ;)
 
+    Raúl Núñez de Arenas Coronado
+
+-- 
+Linux Registered User 88736
+http://www.dervishd.net & http://www.pleyades.net/

@@ -1,56 +1,74 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315233AbSEQATi>; Thu, 16 May 2002 20:19:38 -0400
+	id <S315251AbSEQA1y>; Thu, 16 May 2002 20:27:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315235AbSEQATh>; Thu, 16 May 2002 20:19:37 -0400
-Received: from dsl-213-023-040-248.arcor-ip.net ([213.23.40.248]:46312 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S315233AbSEQATe>;
-	Thu, 16 May 2002 20:19:34 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Peter Chubb <peter@chubb.wattle.id.au>
-Subject: Re: [PATCH] remove 2TB block device limit
-Date: Fri, 17 May 2002 02:18:20 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Anton Altaparmakov <aia21@cantab.net>,
-        Peter Chubb <peter@chubb.wattle.id.au>,
-        Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-        axboe@suse.de, akpm@zip.com.au, martin@dalecki.de,
-        neilb@cse.unsw.edu.au
-In-Reply-To: <15588.18673.317088.198281@wombat.chubb.wattle.id.au>
+	id <S315259AbSEQA1x>; Thu, 16 May 2002 20:27:53 -0400
+Received: from mail.myrio.com ([63.109.146.2]:50423 "HELO mail.myrio.com")
+	by vger.kernel.org with SMTP id <S315251AbSEQA1w> convert rfc822-to-8bit;
+	Thu, 16 May 2002 20:27:52 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Message-Id: <E178VRs-0008Va-00@starship>
+Subject: RE: boot logo size patch
+Date: Thu, 16 May 2002 17:27:03 -0700
+Message-ID: <A015F722AB845E4B8458CBABDFFE63420FE3EF@mail0.myrio.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: boot logo size patch
+Thread-Index: AcH86IykCLdNFupUTKGOQ0bEZPzMYgATlkFQ
+From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+To: "Rolland Dudemaine" <rolland.dudemaine@msg-software.com>, <mj@ucw.cz>,
+        <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 May 2002 00:26:18.0590 (UTC) FILETIME=[767C37E0:01C1FD39]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 May 2002 02:04, Peter Chubb wrote:
-> >>>>> "Daniel" == Daniel Phillips <phillips@bonn-fries.net> writes:
-> 
-> Daniel> On Tuesday 14 May 2002 03:36, Anton Altaparmakov wrote:
-> >> ...And yes at the moment the pagecache limit is also a problem
-> >> which we just ignore in the hope that the kernel will have gone to
-> >> 64 bits by the time devices grow that large as to start using > 32
-> >> bits of blocks/pages...
-> 
-> Daniel> PAGE_CACHE_SIZE can also grow, so 32 bit architectures are
-> Daniel> further away from the page cache limit on than it seems.
-> 
-> Check out the table on page 2 of
-> http://www.scsita.org/statech/01s005r1.pdf 
-> 
-> The SCSI trade association is predicting 200TB in a high-end server
-> within 10 years --- and  2TB in a high-end desktop by 2004.  I'd take
-> some of their predictions with a grain of salt, however.
+Rolland Dudemaine wrote:
 
-The server definitely won't be running a 32 bit processor, and the high
-end desktop probably won't.  In any event, the current 44 bit limitation
-(32 bit arch) on the page cache takes us up to 16 TB, and going to a 16 KB 
-PAGE_CACHE_SIZE takes us to 64 TB, so I don't think we have to start
-slicing and dicing that part of the kernel just now.  Anybody who expects
-to run into this limitation should of course raise their hand.
+> For a *long* time, the boot logo has stayed in the kernel at many 
+> places. Recently, it has been cleaned up to reduce the number of 
+> identical logos. 
 
-Incidently, the 200 TB high-end servers are a lot closer than you think.
+[...]
 
--- 
-Daniel
+If you are interested in cleaning up the boot logo, you may want to
+check out the patch set at www.arnor.net/linuxlogo
+
+That sequence of six patches begins as you have, moving LOGO_H and 
+LOGO_W into the individual logo files where they belong.
+
+The second patch introduces a C program "tologo" to the scripts 
+directory.  It converts arbitrary .ppm files to the linux_logo.h 
+format, but is not 100% done (works correctly for 256 color images
+but not the 16 color or black & white ones)
+
+The third patch adds the generic 80x80 pixel penguin logo as 
+arch/i386/linux_logo.ppm, but other arch-specific logos are missing.
+
+The forth patch modifies the makefiles to generate linux_logo.h at 
+compile time.
+
+The fifth patch removes all 15 (!) now redundant linux_logo.h files,
+removing 360K of headers from the kernel source.
+
+The sixth patch is somewhat unrelated, and adds options and controls
+for turning off or adjusting the blink rate of the framebuffer cursor.
+
+Obviously, these patches make it trivial to put any graphic you want
+in as your boot logo.  Just save your image from the Gimp as 
+arch/$(ARCH)/linux_logo.ppm,  and recompile... voila!
+
+I am nominally the maintainer of this set of patches.  I do plan to
+forward port it from 2.4.x to 2.5 after James Simmon's big console
+rewrite has been merged, as well as updating it for 2.4.19 when 
+that comes out.
+
+Comments appreciated...
+
+Torrey Hoffman
+
+thoffman@arnor.net
+torrey.hoffman@myrio.com
+

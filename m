@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266755AbTATTKS>; Mon, 20 Jan 2003 14:10:18 -0500
+	id <S266637AbTATTDp>; Mon, 20 Jan 2003 14:03:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266772AbTATTKS>; Mon, 20 Jan 2003 14:10:18 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:30472 "EHLO
-	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S266755AbTATTKR>; Mon, 20 Jan 2003 14:10:17 -0500
-Date: Mon, 20 Jan 2003 19:19:21 +0000
-From: John Levon <levon@movementarian.org>
-To: linux-kernel@vger.kernel.org
-Cc: Mikael Pettersson <mikpe@csd.uu.se>
-Subject: Re: [2.5] initrd/mkinitrd still not working
-Message-ID: <20030120191921.GA84425@compsoc.man.ac.uk>
-References: <200301201457.PAA25276@harpo.it.uu.se> <20030120155250.GB58326@compsoc.man.ac.uk> <20030120191250.GA1314@mars.ravnborg.org>
-Mime-Version: 1.0
+	id <S266640AbTATTDp>; Mon, 20 Jan 2003 14:03:45 -0500
+Received: from [81.2.122.30] ([81.2.122.30]:51462 "EHLO darkstar.example.net")
+	by vger.kernel.org with ESMTP id <S266637AbTATTDo>;
+	Mon, 20 Jan 2003 14:03:44 -0500
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200301201912.h0KJCrru006239@darkstar.example.net>
+Subject: Re: Promise PDC20268 FastTrack 100 TX2 (PDC20268)
+To: lkml@scienceworks.com
+Date: Mon, 20 Jan 2003 19:12:53 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, vojtech@suse.cz
+In-Reply-To: <20030120183442.GA3440@poseidon.wasserstadt.de> from "lkml@scienceworks.com" at Jan 20, 2003 07:34:42 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030120191250.GA1314@mars.ravnborg.org>
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Mr. Scruff - Trouser Jazz
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18ahS5-0005tu-00*fkQNdncS6L2*
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 20, 2003 at 08:12:50PM +0100, Sam Ravnborg wrote:
+> I have a Promise FastTrack 100 TX2 (PDC20268) IDE-controller
+> (BIOS v2.00.0.24) used in a linux MD-RAID.  Aside from various
+> other annoying Promise-problems, I am not able to perform a
+> remote boot because the brain-dead Promise-BIOS "complains" that
+> no array is defined, and requires one to press ESC to continue
+> booting.  I would very much appreciate any tips as to how I can
+> circumvent this "feature".
 
-> The above mentioned possibility to list 'members' of a composite object
-> has nothing to do with the .ko extension.
+Well, if you don't usually need a keyboard on that machine, in theory,
+you might be able to connect the keyboard input to the PS/2 mouse port
+of another machine, and write a program to send the correct bytes for
+that keypress to the other machine.  Then, you could reboot the
+machine with the Promise card in it, then log in to the other machine,
+and run the program to send the keypress.
 
-Ooops, I was mis-remembering commit logs. I meant :
+Not sure how practical this solution would be though...  You'd
+probably have to simulate the keyboard initialisation responses as
+well, which would make it a bit complicated
 
-http://linus.bkbits.net:8080/linux-2.5/user=kai/cset@1.838.1.86?nav=!-|index.html|stats|!+|index.html|ChangeSet
-
-and in fact you're mentioned on it ..
-
-regards
-john
--- 
-"Anyone who quotes Rusty in their sig is an idiot."
-	- me
+John.

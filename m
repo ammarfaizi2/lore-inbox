@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268981AbRHPXN0>; Thu, 16 Aug 2001 19:13:26 -0400
+	id <S269049AbRHPXZj>; Thu, 16 Aug 2001 19:25:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268997AbRHPXNR>; Thu, 16 Aug 2001 19:13:17 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:24704 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S268981AbRHPXNM>;
-	Thu, 16 Aug 2001 19:13:12 -0400
-Date: Thu, 16 Aug 2001 16:11:15 -0700 (PDT)
-Message-Id: <20010816.161115.95062340.davem@redhat.com>
-To: phillips@bonn-fries.net
-Cc: tpepper@vato.org, f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
+	id <S269021AbRHPXZ3>; Thu, 16 Aug 2001 19:25:29 -0400
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:30657 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S269002AbRHPXZT>; Thu, 16 Aug 2001 19:25:19 -0400
+Message-Id: <5.1.0.14.2.20010816234350.00add710@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Fri, 17 Aug 2001 00:22:43 +0100
+To: "David S. Miller" <davem@redhat.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
 Subject: Re: 2.4.9 does not compile [PATCH]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010816230719Z16545-1231+1256@humbolt.nl.linux.org>
+Cc: tpepper@vato.org, f5ibh@db0bm.ampr.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20010816.153151.74749641.davem@redhat.com>
 In-Reply-To: <20010816144109.A5094@cb.vato.org>
-	<20010816.153151.74749641.davem@redhat.com>
-	<20010816230719Z16545-1231+1256@humbolt.nl.linux.org>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+ <200108162111.XAA07177@db0bm.ampr.org>
+ <20010816144109.A5094@cb.vato.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Daniel Phillips <phillips@bonn-fries.net>
-   Date: Fri, 17 Aug 2001 01:13:38 +0200
+At 23:31 16/08/2001, David S. Miller wrote:
+>    From: tpepper@vato.org
+>    Date: Thu, 16 Aug 2001 14:41:09 -0700
+>
+>    Confirmed here.  Looks like a pretty obvious goof to me.  Does the 
+> following
+>    fix it for you?
+>
+>The args and semantics of min/max changed to take
+>a type first argument, the problem with this ntfs file is that it
+>fails to include linux/kernel.h
 
-   What is wrong with using typeof?
+It has indeed. I do fail to see why that was necessary though...
 
-Users don't think about the type that way, the new macros forces them
-to at least consider it for a moment.
+IMHO, it would have been more elegant to use the typeof construct provided 
+by gcc in the new macro instead of introducing a type parameter like this...
 
-   If you must have a three argument min, 
-   could it please be called "type_min" of similar.
+#define min(x,y) \
+         ({ typeof(x) __x = (x); typeof(y) __y = (y); __x < __y ? __x: __y; })
 
-We wanted people trying to use "min" and "max" with 2
-args, or redefining their own, to get a compile error.
+Best regards,
 
-Later,
-David S. Miller
-davem@redhat.com
+         Anton
+
+
+-- 
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+

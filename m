@@ -1,18 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262406AbRFBJo2>; Sat, 2 Jun 2001 05:44:28 -0400
+	id <S262400AbRFBJoH>; Sat, 2 Jun 2001 05:44:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262407AbRFBJoR>; Sat, 2 Jun 2001 05:44:17 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:44475 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262406AbRFBJoJ>;
-	Sat, 2 Jun 2001 05:44:09 -0400
-Date: Sat, 2 Jun 2001 11:44:07 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106020944.LAA115638.aeb@vlet.cwi.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Makefile/Config flaw
+	id <S262406AbRFBJn5>; Sat, 2 Jun 2001 05:43:57 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:5466 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S262400AbRFBJnu>; Sat, 2 Jun 2001 05:43:50 -0400
+Message-ID: <3B18B484.2090404@kalifornia.com>
+Date: Sat, 02 Jun 2001 02:40:20 -0700
+From: Ben Ford <ben@kalifornia.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.9+) Gecko/20010525
+X-Accept-Language: en
+MIME-Version: 1.0
+To: John R Lenton <john@grulic.org.ar>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: should reiserfs root be ro?
+In-Reply-To: <20010601012642.A14424@grulic.org.ar>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Compiling 2.4.5 with CONFIG_USB=y and CONFIG_PCI not set
-fails with drivers/usb/usbdrv.o: undefined reference to `pci_pool_*'.
+John R Lenton wrote:
+
+>Should a box that has its root filesystem on a reiser fs mount
+>this root readonly? i.e. should 'read-only' be in lilo.conf?
+>
+no.
+
+-- 
+/me feel like got big wanker 'cause I be leet and 0wn3d sourceforge.
+        tulare on Slashdot.
+
+
+

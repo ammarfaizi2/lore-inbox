@@ -1,51 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316577AbSGAWyL>; Mon, 1 Jul 2002 18:54:11 -0400
+	id <S316578AbSGAXYq>; Mon, 1 Jul 2002 19:24:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316578AbSGAWyK>; Mon, 1 Jul 2002 18:54:10 -0400
-Received: from pcp01179415pcs.strl1201.mi.comcast.net ([68.60.208.36]:41210
-	"EHLO mythical") by vger.kernel.org with ESMTP id <S316577AbSGAWyJ> convert rfc822-to-8bit;
-	Mon, 1 Jul 2002 18:54:09 -0400
-Date: Mon, 1 Jul 2002 18:56:34 -0400 (EDT)
-From: Ryan Anderson <ryan@michonline.com>
+	id <S316579AbSGAXYp>; Mon, 1 Jul 2002 19:24:45 -0400
+Received: from w007.z208177138.sjc-ca.dsl.cnc.net ([208.177.141.7]:57514 "HELO
+	mail.gurulabs.com") by vger.kernel.org with SMTP id <S316578AbSGAXYo>;
+	Mon, 1 Jul 2002 19:24:44 -0400
+Subject: Is ff:00:00:00:00:00 a broadcast frame?
+From: Dax Kelson <dax@GuruLabs.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [OKS] Module removal
-In-Reply-To: <20020701215718.7762962f.diegocg@teleline.es>
-Message-ID: <Pine.LNX.4.10.10207011854100.579-100000@mythical.michonline.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <Pine.LNX.4.33.0206291000060.23706-100000@w-nivedita2.des.beaverton.ibm.com>
+References: <Pine.LNX.4.33.0206291000060.23706-100000@w-nivedita2.des.beaverton.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 01 Jul 2002 17:27:11 -0600
+Message-Id: <1025566031.5129.179.camel@porthos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Jul 2002, Diego Calleja wrote:
+In the "earlier" 2.4 kernels (those that shipped/errata with RHL 7.1
+~2.4.6), an ethernet frame destined to ff:00:00:00:00:00 were not
+processed and passed up the stack.
 
-> On Mon, 1 Jul 2002 13:48:55 -0400 (EDT)
-> Bill Davidsen <davidsen@tmr.com> escribió:
-> 
-> > Having read some notes on the Ottawa Kernel Summit, I'd like to offer
-> > some comments on points raied.
-> > 
-> > The suggestion was made that kernel module removal be depreciated or
-> > removed. I'd like to note that there are two common uses for this
-> > capability, and the problems addressed by module removal should be
-> > kept in mind. These are in addition to the PCMCIA issue raised.
-> 
-> And why people wants to remove this nice feature? Only because they
-> don't use it, or there's a more profund reason?
+Now, with "current" 2.4 kernels (RHL 7.2 errata, and RHL 7.3
+2.4.9-2.4.18), the same frame IS processed and passed up the stack.
 
-Summary from listening to the mp3: It has issues with races that were
-only made worse by preempt.
+The hardware is identical, the NICs are 3c905C.
 
-The alternative solution proposed (I forget who mentioned this, though.)
-was to allow loading a second module on top of the first.
+Is this an intentional optimization/bug?
 
-Those who spoke at the summit will probably want to have the "300 email flame war"
-here before this spirals too far. :)
+Here is an ARP request encapsulated in a "bogus" ethernet frame (look at
+the layer 2 destination). A RHL 7.3 (2.4.18) system will respond (see
+Frame 2 below) to this frame, an older RHL 7.1 (2.4.6) system will not
+respond.
 
+Frame 1 (42 on wire, 42 captured)
+    Arrival Time: Jul  1, 2002 17:16:35.565996000
+    Time delta from previous packet: 1.009672000 seconds
+    Time relative to first packet: 1.009833000 seconds
+    Frame Number: 3
+    Packet Length: 42 bytes
+    Capture Length: 42 bytes
+Ethernet II
+    Destination: ff:00:00:00:00:00 (ff:00:00:00:00:00)
+    Source: ff:00:00:00:00:00 (ff:00:00:00:00:00)
+    Type: ARP (0x0806)
+Address Resolution Protocol (request)
+    Hardware type: Ethernet (0x0001)
+    Protocol type: IP (0x0800)
+    Hardware size: 6
+    Protocol size: 4
+    Opcode: request (0x0001)
+    Sender MAC address: 00:01:03:de:56:a4 (00:01:03:de:56:a4)
+    Sender IP address: 10.100.0.8 (10.100.0.8)
+    Target MAC address: 00:00:00:00:00:00 (00:00:00:00:00:00)
+    Target IP address: 10.100.0.10 (10.100.0.10)
 
-
---
-Ryan Anderson
-  sometimes Pug Majere
+Frame 2 (60 on wire, 60 captured)
+    Arrival Time: Jul  1, 2002 17:16:35.566146000
+    Time delta from previous packet: 0.000150000 seconds
+    Time relative to first packet: 1.009983000 seconds
+    Frame Number: 4
+    Packet Length: 60 bytes
+    Capture Length: 60 bytes
+Ethernet II
+    Destination: 00:01:03:de:56:a4 (00:01:03:de:56:a4)
+    Source: 00:01:03:de:57:37 (00:01:03:de:57:37)
+    Type: ARP (0x0806)
+    Trailer: 00000000000000000000000000000000...
+Address Resolution Protocol (reply)
+    Hardware type: Ethernet (0x0001)
+    Protocol type: IP (0x0800)
+    Hardware size: 6
+    Protocol size: 4
+    Opcode: reply (0x0002)
+    Sender MAC address: 00:01:03:de:57:37 (00:01:03:de:57:37)
+    Sender IP address: 10.100.0.10 (10.100.0.10)
+    Target MAC address: 00:01:03:de:56:a4 (00:01:03:de:56:a4)
+    Target IP address: 10.100.0.8 (10.100.0.8)
 

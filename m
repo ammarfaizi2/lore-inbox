@@ -1,37 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293031AbSCEACn>; Mon, 4 Mar 2002 19:02:43 -0500
+	id <S293020AbSCEACK>; Mon, 4 Mar 2002 19:02:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293026AbSCEACb>; Mon, 4 Mar 2002 19:02:31 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:2573 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293021AbSCEACW>; Mon, 4 Mar 2002 19:02:22 -0500
-Subject: Re: Q:Shared IRQ
-To: dstroupe@keyed-upsoftware.com (David Stroupe)
-Date: Tue, 5 Mar 2002 00:17:32 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3C8407C0.1000503@keyed-upsoftware.com> from "David Stroupe" at Mar 04, 2002 05:48:16 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293021AbSCEACA>; Mon, 4 Mar 2002 19:02:00 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:42256 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293020AbSCEABn>;
+	Mon, 4 Mar 2002 19:01:43 -0500
+Date: Mon, 4 Mar 2002 21:01:31 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Daniel Phillips <phillips@bonn-fries.net>,
+        Bill Davidsen <davidsen@tmr.com>, Mike Fedyk <mfedyk@matchmail.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <20020305005215.U20606@dualathlon.random>
+Message-ID: <Pine.LNX.4.44L.0203042056110.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16i2e4-0001At-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  I get not only my interrupts, but also the interrupts of the shared 
-> device, namely the network card.  Is this what I should expect?  If I 
+On Tue, 5 Mar 2002, Andrea Arcangeli wrote:
+> On Mon, Mar 04, 2002 at 08:11:21PM -0300, Rik van Riel wrote:
+> > You'll have one CPU starting to allocate from zone A, falling
+> > back to zone B and then further down.
+>
+> what is zone A/B, I guess you mean node A/B etc.. Zones are called
+> NORMAL/DMA/HIGHMEM so I'm confused.
 
-Yes.
+OK, now think about a NUMA-with-small-n system like AMD Hammer.
 
-> get a notification for the network card, why is the dev_id the same as 
-> what I passed?  If I didn't have an interrupt pending bit on my 
-> hardware, how would I distinguish between the interrupts?
+One of the CPUs will want to allocate from HIGHMEM zone A while
+another CPU will start allocating at HIGHMEM zone B. Of course,
+with memory access time between the "nodes" being not too different
+you'll want to fall back to the "other" HIGHMEM zone before falling
+back to the (single) NORMAL and DMA zones.
 
-If you don't have an interrupt pending bit you are probably completely screwed.
-PCI assumes you can tell if you caused the interrupt or you can service events
-even if not needed (which basically comes down to the same thing).
+This could be expressed as:
 
-Only your driver knows if you are a possible IRQ cause, its up to you to
-handle it
+"node A"  HIGHMEM A -> HIGHMEM B -> NORMAL -> DMA
+"node B"  HIGHMEM B -> HIGHMEM A -> NORMAL -> DMA
+
+How would you express this situation in classzone ?
+
+
+> > As for kswapd going crazy, that is nicely fixed by having
+> > per zone lru lists... ;)
+>
+> I don't see how per-zone lru lists are related to the kswapd deadlock.
+> as soon as the ZONE_DMA will be filled with filedescriptors or with
+> pagetables (or whatever non pageable/shrinkable kernel datastructure you
+> prefer) kswapd will go mad without classzone, period.
+
+So why would kswapd not go mad _with_ classzone ?
+
+I bet the workaround for that problem has very little
+to do with classzones...
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

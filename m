@@ -1,109 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267686AbUHUTbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267703AbUHUTnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267686AbUHUTbs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 15:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267697AbUHUTbs
+	id S267703AbUHUTnh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 15:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267707AbUHUTnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 15:31:48 -0400
-Received: from probity.mcc.ac.uk ([130.88.200.94]:3076 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id S267686AbUHUTbn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 15:31:43 -0400
-Date: Sat, 21 Aug 2004 20:31:42 +0100
-From: John Levon <levon@movementarian.org>
-To: torvalds@osdl.org, akpm@osdl.org, oprofile-list@lists.sf.net,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] fix OProfile events with zero event values
-Message-ID: <20040821193142.GB9501@compsoc.man.ac.uk>
-Mime-Version: 1.0
+	Sat, 21 Aug 2004 15:43:37 -0400
+Received: from host4-67.pool80117.interbusiness.it ([80.117.67.4]:36755 "EHLO
+	dedasys.com") by vger.kernel.org with ESMTP id S267703AbUHUTnc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 15:43:32 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Linux Incompatibility List
+From: davidw@dedasys.com (David N. Welton)
+Date: 21 Aug 2004 21:41:04 +0200
+Message-ID: <87r7q0th2n.fsf@dedasys.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: King of Woolworths - L'Illustration Musicale
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1BybaY-000Auw-Bu*aQAErCO.wGo*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-A silly bug prevented certain events from being used.
+Hi,
 
-Please apply
+I'm reviving an idea I implemented several years ago, namely the Linux
+Incompatibility List.
 
-regards
-john
+The idea is simple: most hardware works fine with Linux, and the
+situation is generally pretty good, with Linux increasingly showing up
+on the corporate radar.
 
+However, there are devices that don't work with Linux, for various
+reasons (no specs, too new and no one has written a driver, etc...),
+and it's easier to keep track of those devices so that people can
+avoid them (or the hero types can write drivers for them).
 
-Index: linux-cvs/arch/i386/oprofile/op_model_athlon.c
-===================================================================
-RCS file: /home/moz/cvs//linux-2.5/arch/i386/oprofile/op_model_athlon.c,v
-retrieving revision 1.7
-diff -u -a -p -r1.7 op_model_athlon.c
---- linux-cvs/arch/i386/oprofile/op_model_athlon.c	21 Aug 2003 23:57:03 -0000	1.7
-+++ linux-cvs/arch/i386/oprofile/op_model_athlon.c	21 Aug 2004 20:28:53 -0000
-@@ -70,7 +70,7 @@ static void athlon_setup_ctrs(struct op_
- 
- 	/* enable active counters */
- 	for (i = 0; i < NUM_COUNTERS; ++i) {
--		if (counter_config[i].event) {
-+		if (counter_config[i].enabled) {
- 			reset_value[i] = counter_config[i].count;
- 
- 			CTR_WRITE(counter_config[i].count, msrs, i);
-Index: linux-cvs/arch/i386/oprofile/op_model_p4.c
-===================================================================
-RCS file: /home/moz/cvs//linux-2.5/arch/i386/oprofile/op_model_p4.c,v
-retrieving revision 1.11
-diff -u -a -p -r1.11 op_model_p4.c
---- linux-cvs/arch/i386/oprofile/op_model_p4.c	30 Jun 2004 22:50:31 -0000	1.11
-+++ linux-cvs/arch/i386/oprofile/op_model_p4.c	21 Aug 2004 20:28:53 -0000
-@@ -578,7 +578,7 @@ static void p4_setup_ctrs(struct op_msrs
- 	
- 	/* setup all counters */
- 	for (i = 0 ; i < num_counters ; ++i) {
--		if (counter_config[i].event) {
-+		if (counter_config[i].enabled) {
- 			reset_value[i] = counter_config[i].count;
- 			pmc_setup_one_p4_counter(i);
- 			CTR_WRITE(counter_config[i].count, VIRT_CTR(stag, i));
-Index: linux-cvs/arch/i386/oprofile/op_model_ppro.c
-===================================================================
-RCS file: /home/moz/cvs//linux-2.5/arch/i386/oprofile/op_model_ppro.c,v
-retrieving revision 1.8
-diff -u -a -p -r1.8 op_model_ppro.c
---- linux-cvs/arch/i386/oprofile/op_model_ppro.c	19 Feb 2004 04:56:30 -0000	1.8
-+++ linux-cvs/arch/i386/oprofile/op_model_ppro.c	21 Aug 2004 20:28:53 -0000
-@@ -67,7 +67,7 @@ static void ppro_setup_ctrs(struct op_ms
- 
- 	/* enable active counters */
- 	for (i = 0; i < NUM_COUNTERS; ++i) {
--		if (counter_config[i].event) {
-+		if (counter_config[i].enabled) {
- 			reset_value[i] = counter_config[i].count;
- 
- 			CTR_WRITE(counter_config[i].count, msrs, i);
-Index: linux-cvs/arch/arm/oprofile/op_model_xscale.c
-===================================================================
-RCS file: /home/moz/cvs//linux-2.5/arch/arm/oprofile/op_model_xscale.c,v
-retrieving revision 1.3
-diff -u -a -p -r1.3 op_model_xscale.c
---- linux-cvs/arch/arm/oprofile/op_model_xscale.c	29 Apr 2004 14:10:01 -0000	1.3
-+++ linux-cvs/arch/arm/oprofile/op_model_xscale.c	21 Aug 2004 20:28:53 -0000
-@@ -7,7 +7,7 @@
-  * @remark Copyright 2004 Dave Jiang <dave.jiang@intel.com>
-  * @remark Copyright 2004 Intel Corporation
-  * @remark Copyright 2004 Zwane Mwaikambo <zwane@arm.linux.org.uk>
-- * @remark Copyright 2004 Oprofile Authors
-+ * @remark Copyright 2004 OProfile Authors
-  *
-  * @remark Read the file COPYING
-  *
-@@ -249,7 +249,7 @@ static int xscale_setup_ctrs(void)
- 	int i;
- 
- 	for (i = CCNT; i < MAX_COUNTERS; i++) {
--		if (counter_config[i].event)
-+		if (counter_config[i].enabled)
- 			continue;
- 
- 		counter_config[i].event = EVT_UNUSED;
+I have a site up that will serve as the focus of these efforts, but in
+order to guage interest/response and ramp up gradually, I'd like to
+ask that those interested in participating in the effort send me
+information via email.  I'll respond with the wiki's address, so that
+they may then have a look around.
+
+I think (correct me if I'm wrong) the information we would want to
+collect is:
+
+Product Name:
+
+Manufacturer:
+
+Model Number:
+
+Chipset:
+
+How bad it is (1 to 10, 9 being it almost works and has only minor
+bugs):
+
+Reason (no specs, driver still being worked on, ...):
+
+Url for more info:
+
+An email address of yours that we may publish (so that we can contact
+you if someone says "no, that works just fine!"):
+
+Notes:
+
+Ideas/comments/suggestions are welcome at this stage.
+
+Thankyou for your time,
+-- 
+David N. Welton
+     Personal: http://www.dedasys.com/davidw/
+Free Software: http://www.dedasys.com/freesoftware/
+   Apache Tcl: http://tcl.apache.org/
+       Photos: http://www.dedasys.com/photos/

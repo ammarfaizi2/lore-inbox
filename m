@@ -1,50 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263711AbREYLWj>; Fri, 25 May 2001 07:22:39 -0400
+	id <S263716AbREYLau>; Fri, 25 May 2001 07:30:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263710AbREYLW3>; Fri, 25 May 2001 07:22:29 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:1544 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S263711AbREYLWQ>; Fri, 25 May 2001 07:22:16 -0400
-Date: Fri, 25 May 2001 13:20:50 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: "SATHISH.J" <sathish.j@tatainfotech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Reg ramfs mkfs
-Message-ID: <20010525132050.J12364@arthur.ubicom.tudelft.nl>
-In-Reply-To: <Pine.LNX.4.10.10105251239050.11760-100000@blrmail>
-Mime-Version: 1.0
+	id <S263717AbREYLal>; Fri, 25 May 2001 07:30:41 -0400
+Received: from 98-CORU-X8.libre.retevision.es ([62.83.53.98]:37272 "HELO
+	trasno.mitica") by vger.kernel.org with SMTP id <S263716AbREYLaW>;
+	Fri, 25 May 2001 07:30:22 -0400
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+Cc: Hans Reiser <reiser@namesys.com>, Andi Kleen <ak@suse.de>,
+        Andreas Dilger <adilger@turbolinux.com>,
+        monkeyiq <monkeyiq@users.sourceforge.net>,
+        linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
+Subject: Re: Dying disk and filesystem choice.
+In-Reply-To: <m3bsoj2zsw.fsf@kloof.cr.au>
+	<200105240658.f4O6wEWq031945@webber.adilger.int>
+	<20010524103145.A9521@gruyere.muc.suse.de>
+	<3B0D3C99.255B5A24@namesys.com>
+	<20010524214641.E10968@arthur.ubicom.tudelft.nl>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <20010524214641.E10968@arthur.ubicom.tudelft.nl>
+Date: 25 May 2001 13:29:09 +0200
+Message-ID: <m2r8xdoeey.fsf@trasno.mitica>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10105251239050.11760-100000@blrmail>; from sathish.j@tatainfotech.com on Fri, May 25, 2001 at 12:44:30PM +0530
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 25, 2001 at 12:44:30PM +0530, SATHISH.J wrote:
-> I compiled the ramfilesystem under fs/ramfs and got the object file
-> inode.o.
-> 
-> 1.Should I do insmod to insert this module. 
+>>>>> "erik" == Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL> writes:
 
-No, you should insmod ramfs.o.
+erik> On Thu, May 24, 2001 at 09:53:45AM -0700, Hans Reiser wrote:
+>> No, reiserfs does have badblock support!!!!
+>> 
+>> You just have to get it as a separate patch from us because it was
+>> written after code freeze.
 
-> 2.After inserting this module how can I use "mkfs" to make this file
-> system befor mounting it.
+erik> IMHO we are not that deep into code freeze anymore. Freevxfs got added
+erik> in linux-2.4.5-pre*, so I think that a patch that adds a useful feature
+erik> like badblock support would be OK.
 
-Ramfs is a virtual filesystem, it doesn't use a block device, it lives
-in the page cache. Just mount it to use it:
+A new filesystem don't touch anything if you don't use it.  Some
+reasoning for inclusion of new drivers.  Big changes in a working
+driver could make it not to work (very bad in the stable series).
 
-  mount -t ramfs none /mnt
+Later, Juan.
 
-
-Erik
 
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

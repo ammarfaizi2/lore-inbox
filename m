@@ -1,26 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261857AbSLZC5B>; Wed, 25 Dec 2002 21:57:01 -0500
+	id <S261868AbSLZDAt>; Wed, 25 Dec 2002 22:00:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261861AbSLZC5B>; Wed, 25 Dec 2002 21:57:01 -0500
-Received: from mail.econolodgetulsa.com ([198.78.66.163]:42769 "EHLO
+	id <S261874AbSLZDAt>; Wed, 25 Dec 2002 22:00:49 -0500
+Received: from mail.econolodgetulsa.com ([198.78.66.163]:51473 "EHLO
 	mail.econolodgetulsa.com") by vger.kernel.org with ESMTP
-	id <S261857AbSLZC5A>; Wed, 25 Dec 2002 21:57:00 -0500
-Date: Wed, 25 Dec 2002 19:04:56 -0800 (PST)
+	id <S261868AbSLZDAq>; Wed, 25 Dec 2002 22:00:46 -0500
+Date: Wed, 25 Dec 2002 19:09:00 -0800 (PST)
 From: Josh Brooks <user@mail.econolodgetulsa.com>
 To: Bubba <bp@dynastytech.com>
 cc: linux-kernel@vger.kernel.org
 Subject: Re: CPU failures ... or something else ?
 In-Reply-To: <200212252002.24898.bp@dynastytech.com>
-Message-ID: <20021225190355.Q6873-100000@mail.econolodgetulsa.com>
+Message-ID: <20021225190643.E6873-100000@mail.econolodgetulsa.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-So you are saying, that yes, it _is_ possible that my equipment is not
-faulty in any way ?
+Oh and by the way, this is a dell poweredge 2450, dual 866 p3 cpus, 2gigs
+ram, and using a PERC 3/D.  I have a 2.4.1 system running on _identical_
+hardware with no problems, and this system that is MCE'ing is a 2.4.16.
+
+So ... not sure if that raises any red flags as far as false/spurious MCEs
+are concerned, but either way comments are appreciated.
+
+I will try the nomce option just in case, but I suspect I have bad
+hardware.  Again, any comments / war stories appreciated.
 
 thanks!
 

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280942AbRKLTgo>; Mon, 12 Nov 2001 14:36:44 -0500
+	id <S280952AbRKLTkO>; Mon, 12 Nov 2001 14:40:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280944AbRKLTgf>; Mon, 12 Nov 2001 14:36:35 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:26386 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S280942AbRKLTg3>; Mon, 12 Nov 2001 14:36:29 -0500
-Date: Mon, 12 Nov 2001 16:18:12 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: "Gord R. Lamb" <glamb@max-t.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: I/O lockup
-In-Reply-To: <Pine.LNX.4.32.0111121248360.4885-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.21.0111121617150.1064-100000@freak.distro.conectiva>
+	id <S280949AbRKLTkE>; Mon, 12 Nov 2001 14:40:04 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:56334 "HELO smtp.uc3m.es")
+	by vger.kernel.org with SMTP id <S280944AbRKLTjv>;
+	Mon, 12 Nov 2001 14:39:51 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200111121939.UAA04358@nbd.it.uc3m.es>
+Subject: what is teh current meaning of blk_size?
+X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
+To: linux kernel <linux-kernel@vger.kernel.org>
+Date: Mon, 12 Nov 2001 20:39:44 +0100 (CET)
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL89 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Is blk_size[][] supposed to contain the size in KB or blocks?
 
+I'm confused because it looks to me as though it's still in KB,
+but people say that devices can be up to 8 or 16TB, and there's
+not enough room for that within a signed int containing KB
+(2^31 * 2^10 = 2^41 = 2TB).
 
-On Mon, 12 Nov 2001, Gord R. Lamb wrote:
+Either the rumour is true and it's in blocks, or the rumour
+is false and it's in KB.
 
-> Hi everyone,
-> 
-> I've been having a problem for a while now with a strange lockup induced
-> under heavy SCSI I/O (particularly when I write directly to block devices
-> with dd of=/dev/sd?, but also when writing to a filesystem on that
-> device).  I'm writing around 50-100mb/sec over FC (qlogic 2200) under
-> Linux 2.4 (tried 2.4.3 through 2.4.10).
-> 
-> It seems that some vm or I/O related spinlock is being taken and held, but
-> not released (?).  There is no oops or BUG() or anything (no messages at
-> all in fact).. all I/O just stops.  I can still invoke sysrq, type
-> characters at the console, etc.  In fact, usually top continues to run and
-> display kswapd as the dominant process.
+Clue, please!
 
-If kswapd is eating the CPU, its probably a VM problem.
-
-Please try the newest 2.4.xx which has VM updates and if the problem
-happens again, tell us.
-
-
-
+Peter

@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315279AbSHBPOd>; Fri, 2 Aug 2002 11:14:33 -0400
+	id <S315200AbSHBPVw>; Fri, 2 Aug 2002 11:21:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315282AbSHBPOd>; Fri, 2 Aug 2002 11:14:33 -0400
-Received: from reload.namesys.com ([212.16.7.75]:30084 "EHLO
-	reload.namesys.com") by vger.kernel.org with ESMTP
-	id <S315279AbSHBPOc>; Fri, 2 Aug 2002 11:14:32 -0400
-Date: Fri, 2 Aug 2002 19:17:58 +0400
-From: Joshua MacDonald <jmacd@namesys.com>
-To: linux-kernel@vger.kernel.org
-Cc: oxymoron@waste.com, jbarnes@sgi.com, reiser@namesys.com
-Subject: Re: [PATCH] lock assertion macros for 2.5.28
-Message-ID: <20020802151758.GD5469@reload.namesys.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org, oxymoron@waste.com,
-	jbarnes@sgi.com, reiser@namesys.com
-References: <20020725233047.GA782991@sgi.com> <20020726120918.GA22049@reload.namesys.com> <20020726174258.GC793866@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020726174258.GC793866@sgi.com>
-User-Agent: Mutt/1.3.27i
+	id <S315214AbSHBPVw>; Fri, 2 Aug 2002 11:21:52 -0400
+Received: from mta03bw.bigpond.com ([139.134.6.86]:31998 "EHLO
+	mta03bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S315200AbSHBPVv>; Fri, 2 Aug 2002 11:21:51 -0400
+Message-ID: <3D4AA573.3000705@snapgear.com>
+Date: Sat, 03 Aug 2002 01:29:55 +1000
+From: gerg <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.0) Gecko/20020530
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dave Jones <davej@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.5.30uc0 MMU-less patches
+References: <3D4A27FE.8030801@snapgear.com> <20020802141652.E25761@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 26, 2002 at 10:42:58AM -0700, Jesse Barnes wrote:
-> On Fri, Jul 26, 2002 at 04:09:18PM +0400, Joshua MacDonald wrote:
-> > In reiser4 we are looking forward to having a MUST_NOT_HOLD (i.e.,
-> > spin_is_not_locked) assertion for kernel spinlocks.  Do you know if any
-> > progress has been made in that direction?
+Hi Dave,
+
+Dave Jones wrote:
+> On Fri, Aug 02, 2002 at 04:34:38PM +1000, Greg Ungerer wrote:
+>  > I have a new set of uClinux (MMU-less) patches for 2.5.30 at:
+>  > 
+>  >    http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/
 > 
-> Well, I had that in one version of the patch, but people didn't think
-> it would be useful.  Maybe you'd like to check out Oliver's comments
-> at http://marc.theaimsgroup.com/?l=linux-kernel&m=102644431806734&w=2
-> and respond?  If there's demand for MUST_NOT_HOLD, I'd be happy to add
-> it since it should be easy.  But if you're using it to enforce lock
-> ordering as Oliver suggests, then there are probably more robust
-> solutions.
-> 
+> One thing really puzzles me.
+> Why is there SGI VisWS, X86-foo, ACPI and god-knows-what-else
+> in arch/m68knommu/config.in ?
 
-I read Oliver's comments and I do not fully agree.  It is true that often the
-MUST_NOT_HOLD macro is used to assert that you are not about to attempt a
-recursive lock, which a debugging spinlock implementation would catch as soon
-as the recursive attempt is made.  However, it is difficult to make a case
-against adding support for this kind of assertion since it has many possible
-uses.
+Yep, there sure is some crap in there :-)
+Obviously left over from the original copy out
+from arch/i386/config.in.
 
-It may be useful to catch a recursive spinlock attempt several stack frames
-before it actually happens, or to assert that an unusual calling convention
-such as "This function is called with the spinlock held and if it returns 0
-the spinlock remains held, but if the function returns non-zero the spinlock
-is released".  We have such a function in reiser4.
+I have cleaned all that silly stuff out for the
+next patch.
 
-As for preventing deadlock, it is true that (as Oliver says) "Locking order is
-larger than functions and should be documented at the point of declaration of
-the locks."  We have a mechanism in reiser4 which is not quite the same as
-Oliver outlined for making assertions about lock ordering.  We maintain
-per-thread counts of each spinlock class and use those counts in a locking
-predicate that is applied before a lock of each class is taken.
+Regards
+Greg
 
-So I agree that recursive locking should be checked as part of the debugging
-spin_lock() routine and that deadlock detection requires more general work,
-but the MUST_NOT_HOLD assertion is still useful in some contexts.
 
--josh
+
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
+Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
+825 Stanley St,                                  FAX:    +61 7 3279 1820
+Woolloongabba, QLD, 4102, Australia              WEB:   www.snapgear.com
+

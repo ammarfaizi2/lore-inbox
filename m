@@ -1,167 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265030AbUFHL1R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265032AbUFHLnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbUFHL1R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jun 2004 07:27:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265032AbUFHL1Q
+	id S265032AbUFHLnL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jun 2004 07:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUFHLnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jun 2004 07:27:16 -0400
-Received: from [196.25.168.8] ([196.25.168.8]:38599 "EHLO lbsd.net")
-	by vger.kernel.org with ESMTP id S265030AbUFHL1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jun 2004 07:27:08 -0400
-Date: Tue, 8 Jun 2004 13:26:04 +0200
-From: Nigel Kukard <nkukard@lbsd.net>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: webvenza@libero.it, linux-kernel@vger.kernel.org
-Subject: Re: [HANG] SIS900 + P4 Hyperthread
-Message-ID: <20040608112604.GY14247@lbsd.net>
-References: <40C0E37C.4030905@lbsd.net> <20040604214721.GC22679@picchio.gall.it> <20040605005033.A26051@electric-eye.fr.zoreil.com> <20040605070239.GM14247@lbsd.net> <20040605130526.A31872@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4mUolEm2oNas7DxE"
-Content-Disposition: inline
-In-Reply-To: <20040605130526.A31872@electric-eye.fr.zoreil.com>
-User-Agent: Mutt/1.4.1i
-X-PHP-Key: http://www.lbsd.net/~nkukard/keys/gpg_public.asc
+	Tue, 8 Jun 2004 07:43:10 -0400
+Received: from orange.csi.cam.ac.uk ([131.111.8.77]:23743 "EHLO
+	orange.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S265032AbUFHLnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jun 2004 07:43:01 -0400
+Date: Tue, 8 Jun 2004 12:42:59 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net,
+       Pawel Kot <pkot@bezsensu.pl>
+Subject: [2.6.7-BK] NTFS 2.1.13 - Enable overwriting of resident files and
+ housekeeping of system files.
+Message-ID: <Pine.SOL.4.58.0406081236450.21854@orange.csi.cam.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew, Hi Linus, please do a
 
---4mUolEm2oNas7DxE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+	bk pull bk://linux-ntfs.bkbits.net/ntfs-2.6
 
-No luck,
+The next NTFS release.  This one is a milestone in that it finally allows
+people to overwrite resident, i.e. very small, files, too.  As a bonus we
+also do all the necessary housekeeping of the NTFS system files to ensure
+data integrity and hence ntfsfix is no longer needed to be run after
+unmounting.  Thanks!
 
-Funny thing is there is nothing in dmesg or even /var/log/messages for
-a matter of fact, nor does it kick into sysrq console.
+This will update the following files:
 
-if i ping flood to a ip local on the network from the box giving the
-problem, it does not hang.
+ Documentation/filesystems/ntfs.txt |   13
+ fs/ntfs/ChangeLog                  |   65 +++
+ fs/ntfs/Makefile                   |    4
+ fs/ntfs/aops.c                     |   62 +--
+ fs/ntfs/attrib.c                   |    4
+ fs/ntfs/compress.c                 |    4
+ fs/ntfs/inode.c                    |  117 +++++-
+ fs/ntfs/mft.c                      |  682 ++++++++++++++++++++++++++++++++++++-
+ fs/ntfs/mft.h                      |   54 ++
+ fs/ntfs/super.c                    |  377 +++++++++++++++++---
+ 10 files changed, 1264 insertions(+), 118 deletions(-)
 
-if i copy something from the box giving the problem onto another pc,
-BANG at around 30Mb (varying up to 60Mb) it bombs.
+through these ChangeSets:
 
-hang is such that nothing can be run, numlock. .. work fine. can't
-execute any proggies or anything.
+<aia21@cantab.net> (04/05/28 1.1736)
+   NTFS: Implement writing of mft records (fs/ntfs/mft.[hc]), which includes
+         keeping the mft mirror in sync with the mft when mirrored mft records
+         are written.  The functions are write_mft_record{,_nolock}().  The
+         implementation is quite rudimentary for now with lots of things not
+         implemented yet but I am not sure any of them can actually occur so
+         I will wait for people to hit each one and only then implement it.
 
-very weird.
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-I tried the patch to no avail, if i enable debugging the problem does
-not occur (so it must be extreme load related).
+<aia21@cantab.net> (04/05/28 1.1737)
+   NTFS: Commit open system inodes at umount time.  This should make it
+         virtually impossible for sync_mft_mirror_umount() to ever be needed.
 
-as I said 2.4.x works fine with hyperthreading, 2.6.x bombs. seeing as
-there isn't very much extreme driver change (and seeing as none should
-be required) i suspect the problem is deeper.
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
+<aia21@cantab.net> (04/05/28 1.1738)
+   NTFS: Implement ->write_inode (fs/ntfs/inode.c::ntfs_write_inode()) for the
+         ntfs super operations.  This gives us inode writing via the VFS inode
+         dirty code paths.  Note:  Access time updates are not implemented yet.
 
--Nigel Kukard
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
+<aia21@cantab.net> (04/06/01 1.1739)
+   NTFS: - Implement fs/ntfs/mft.[hc]::{,__}mark_mft_record_dirty() and make
+           fs/ntfs/aops.c::ntfs_writepage() and ntfs_commit_write() use it, thus
+           finally enabling resident file overwrite!  (-8  This also includes a
+           placeholder for ->writepage (ntfs_mft_writepage()), which for now
+           just redirties the page and returns.  Also, at umount time, we for
+           now throw away all mft data page cache pages after the last call to
+           ntfs_commit_inode() in the hope that all inodes will have been
+           written out by then and hence no dirty (meta)data will be lost.  We
+           also check for this case and emit an error message telling the user
+           to run chkdsk.
+         - If the user is trying to enable (dir)atime updates, warn about the
+           fact that we are disabling them.
 
-On Sat, Jun 05, 2004 at 01:05:26PM +0200, Francois Romieu wrote:
-> Nigel Kukard <nkukard@lbsd.net> :
-> [...]
-> > Any quick fix i can hack?
->=20
-> Instant hack below. I do not expect it to make a difference but it _could_
-> make one.
->=20
-> You probably want to increase NUM_RX_DESC in sis900.h as well and see if
-> it changes things: at 7.5Mb/s, it takes 3ms of interrupt processing laten=
-cy
-> before the network adapter exhaust the Rx ring (this should appear on the
-> output of 'ifconfig' btw). So if anything keeps the irq masked for that l=
-ong,
-> you experience the usually very well tested error/uncommon paths of the
-> drivers :o)
->=20
-> NUM_RX_DESC at 64 or 256 should not hurt but I do not know if the datashe=
-et
-> limits the number of Rx descriptors. Fiddling with NUM_RX_DESC could chan=
-ge
-> the behavior from "computer hangs" to "computer takes noticeably more time
-> to hang".
->=20
-> --- sis900.c.orig	2004-06-05 11:47:27.000000000 +0200
-> +++ sis900.c	2004-06-05 12:43:48.000000000 +0200
-> @@ -1626,7 +1626,7 @@ static int sis900_rx(struct net_device *
->  		       "status:0x%8.8x\n",
->  		       sis_priv->cur_rx, sis_priv->dirty_rx, rx_status);
-> =20
-> -	while (rx_status & OWN) {
-> +	while (rx_status & OWN & sis_priv->rx_skbuff[entry]) {
->  		unsigned int rx_size;
-> =20
->  		rx_size =3D (rx_status & DSIZE) - CRC_SIZE;
-> @@ -1651,16 +1651,6 @@ static int sis900_rx(struct net_device *
->  		} else {
->  			struct sk_buff * skb;
-> =20
-> -			/* This situation should never happen, but due to
-> -			   some unknow bugs, it is possible that
-> -			   we are working on NULL sk_buff :-( */
-> -			if (sis_priv->rx_skbuff[entry] =3D=3D NULL) {
-> -				printk(KERN_INFO "%s: NULL pointer "=20
-> -				       "encountered in Rx ring, skipping\n",
-> -				       net_dev->name);
-> -				break;
-> -			}
-> -
->  			pci_unmap_single(sis_priv->pci_dev,=20
->  				sis_priv->rx_ring[entry].bufptr, RX_BUF_SIZE,=20
->  				PCI_DMA_FROMDEVICE);
-> @@ -1688,18 +1678,21 @@ static int sis900_rx(struct net_device *
->  				       "deferring packet.\n",
->  				       net_dev->name);
->  				sis_priv->rx_skbuff[entry] =3D NULL;
-> -				/* reset buffer descriptor state */
-> -				sis_priv->rx_ring[entry].cmdsts =3D 0;
-> +				/*
-> +				 * reset buffer descriptor state and keep it
-> +				 * under host control
-> +				 */
-> +				sis_priv->rx_ring[entry].cmdsts =3D OWN;
->  				sis_priv->rx_ring[entry].bufptr =3D 0;
-> -				sis_priv->stats.rx_dropped++;
-> -				break;
-> +				continue;
->  			}
->  			skb->dev =3D net_dev;
->  			sis_priv->rx_skbuff[entry] =3D skb;
-> -			sis_priv->rx_ring[entry].cmdsts =3D RX_BUF_SIZE;
->                  	sis_priv->rx_ring[entry].bufptr =3D=20
->  				pci_map_single(sis_priv->pci_dev, skb->tail,=20
->  					RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
-> +			wmb();
-> +			sis_priv->rx_ring[entry].cmdsts =3D RX_BUF_SIZE;
->  			sis_priv->dirty_rx++;
->  		}
->  		sis_priv->cur_rx++;
-> @@ -1728,10 +1721,11 @@ static int sis900_rx(struct net_device *
->  			}
->  			skb->dev =3D net_dev;
->  			sis_priv->rx_skbuff[entry] =3D skb;
-> -			sis_priv->rx_ring[entry].cmdsts =3D RX_BUF_SIZE;
->                  	sis_priv->rx_ring[entry].bufptr =3D
->  				pci_map_single(sis_priv->pci_dev, skb->tail,
->  					RX_BUF_SIZE, PCI_DMA_FROMDEVICE);
-> +			wmb();
-> +			sis_priv->rx_ring[entry].cmdsts =3D RX_BUF_SIZE;
->  		}
->  	}
->  	/* re-enable the potentially idle receive state matchine */
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
---4mUolEm2oNas7DxE
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+<aia21@cantab.net> (04/06/04 1.1743)
+   NTFS: Use set_page_writeback()/end_page_writeback() in ntfs_writepage()
+         resident attribute write code path as otherwise the radix-tree tag
+         PAGECACHE_TAG_DIRTY remains set even though the page is clean.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
 
-iD8DBQFAxaJMKoUGSidwLE4RAv4oAJ9OjQwcvoPqyWA7TTElyjWxGKZEcgCfYutH
-0aW8WC5Qa3xYolDbK+dV244=
-=7def
------END PGP SIGNATURE-----
+<aia21@cantab.net> (04/06/04 1.1744)
+   NTFS: Implement ntfs_mft_writepage() so it now checks if any of the mft
+         records in the page are dirty and if so redirties the page and
+         returns.  Otherwise it just returns (after doing set_page_writeback(),
+         unlock_page(), end_page_writeback() or the radix-tree tag
+         PAGECACHE_TAG_DIRTY  remains set even though the page is clean), thus
+         alowing the VM to do with the page as it pleases.  Also, at umount
+         time, now only throw away dirty mft (meta)data pages if dirty inodes
+         are present and ask the user to email us if they see this happening.
 
---4mUolEm2oNas7DxE--
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+
+<aia21@cantab.net> (04/06/07 1.1748)
+   NTFS: Add functions ntfs_{clear,set}_volume_flags(), to modify the volume
+         information flags (fs/ntfs/super.c).
+
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+
+<aia21@cantab.net> (04/06/08 1.1750)
+   NTFS: 2.1.13 - Enable overwriting of resident files and housekeeping of system files.
+   - Mark the volume dirty when (re)mounting read-write and mark it clean
+     when unmounting or remounting read-only.  If any volume errors are
+     found, the volume is left marked dirty to force chkdsk to run.
+   - Add code to set the NT4 compatibility flag when (re)mounting
+     read-write for newer NTFS versions but leave it commented out for now
+     since we do not make any modifications that are NTFS 1.2 specific yet
+     and since setting this flag breaks Captive-NTFS which is not nice.
+     This code must be enabled once we start writing NTFS 1.2 specific
+     changes otherwise Windows NTFS driver might crash / cause corruption.
+   - Fix a silly bug that caused a deadlock in ntfs_mft_writepage().
+     For inode 0, i.e. $MFT itself, we cannot use ilookup5() from
+     there because the inode is already locked by the kernel
+     (fs/fs-writeback.c::__sync_single_inode()) and ilookup5() waits
+     until the inode is unlocked before returning it and it never gets
+     unlocked because ntfs_mft_writepage() never returns.  )-:
+     Fortunately, we have inode 0 pinned in icache for the duration
+     of the mount so we can access it directly.
+
+   Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+
+For the benefit of non-BK users and to make code review easier, I am
+sending each ChangeSet in a separate email as a diff -u style patch.
+
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/

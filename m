@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263790AbTEWGr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 02:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbTEWGr4
+	id S263658AbTEWGqN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 02:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTEWGqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 02:47:56 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:11491 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263790AbTEWGry (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 02:47:54 -0400
-Date: Thu, 22 May 2003 23:59:05 -0700 (PDT)
-Message-Id: <20030522.235905.42785280.davem@redhat.com>
-To: lists@mdiehl.de
-Cc: akpm@digeo.com, greg@kroah.com, linux-kernel@vger.kernel.org,
-       jt@hpl.hp.com
-Subject: Re: [2.5.69] rtnl-deadlock with usermodehelper and keventd
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0305230840140.14825-100000@notebook.home.mdiehl.de>
-References: <20030515181211.5853fd18.akpm@digeo.com>
-	<Pine.LNX.4.44.0305230840140.14825-100000@notebook.home.mdiehl.de>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	Fri, 23 May 2003 02:46:13 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:62872 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S263658AbTEWGqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 02:46:12 -0400
+Date: Thu, 22 May 2003 23:59:17 -0700
+From: Frank Cusack <fcusack@fcusack.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] net/sunrpc/svcauth.c trivial header fix
+Message-ID: <20030522235917.A18236@google.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Martin Diehl <lists@mdiehl.de>
-   Date: Fri, 23 May 2003 09:06:10 +0200 (CEST)
-   
-   Asking just because there was another user hitting this deadlock:
+not used
 
-It's fixed in current 2.5.x sources, wake up :-)
+--- linux-2.5.69/net/sunrpc/svcauth.c.orig	Thu May 22 23:57:04 2003
++++ linux-2.5.69/net/sunrpc/svcauth.c	Thu May 22 23:57:29 2003
+@@ -15,7 +15,6 @@
+ #include <linux/sunrpc/xdr.h>
+ #include <linux/sunrpc/svcsock.h>
+ #include <linux/sunrpc/svcauth.h>
+-#include <linux/err.h>
+ #include <linux/hash.h>
+ 
+ #define RPCDBG_FACILITY	RPCDBG_AUTH

@@ -1,67 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272279AbRHXRyo>; Fri, 24 Aug 2001 13:54:44 -0400
+	id <S272284AbRHXSEg>; Fri, 24 Aug 2001 14:04:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272282AbRHXRye>; Fri, 24 Aug 2001 13:54:34 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:30217 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S272279AbRHXRy1>;
-	Fri, 24 Aug 2001 13:54:27 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200108241754.f7OHsLr94559@saturn.cs.uml.edu>
-Subject: Re: [PATCH] (comments requested) adding finer-grained timing to PPC
-To: paubert@iram.es (Gabriel Paubert)
-Date: Fri, 24 Aug 2001 13:54:21 -0400 (EDT)
-Cc: paulus@samba.org (Paul Mackerras),
-        cfriesen@nortelnetworks.com (Chris Friesen),
-        linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <Pine.LNX.4.21.0108240856370.1353-100000@ltgp.iram.es> from "Gabriel Paubert" at Aug 24, 2001 09:32:31 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S272285AbRHXSEP>; Fri, 24 Aug 2001 14:04:15 -0400
+Received: from adsl-64-167-239-139.dsl.scrm01.pacbell.net ([64.167.239.139]:20240
+	"EHLO genbukan.no-ip.com") by vger.kernel.org with ESMTP
+	id <S272284AbRHXSEN>; Fri, 24 Aug 2001 14:04:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: red0x <red0x@users.sourceforge.net>
+Organization: genbukan
+To: linux-kernel@vger.kernel.org
+Subject: iptables limit and SSH
+Date: Fri, 24 Aug 2001 11:03:41 -0700
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Message-Id: <0108241103410H.03845@playground>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabriel Paubert writes:
-> On Thu, 23 Aug 2001, Paul Mackerras wrote:
->> Gabriel Paubert writes:
 
->>> As I said in an earlier message the __USE_RTC macro
->>> should be made dependent on whether the kernel supports 601 or not.
->>
->> We don't have USE_RTC in 2.2.  The proposed patch was for 2.2.19.
->
-> Ok, I looked at the wrong tree in my small forest :-) My 2.2 tree has the
-> timing/clock changes of 2.4 since it's actually where I first wrote them
-> when chasing why NTP's PLL frequency error estimate varied according to
-> system load. Nevertheless, Chris needs something similar to USE_RTC.
->
->>> No, this is not what they are trying to capture. Furthermore the 7 LSB of
->>> the decrementer on a 601 are not random (but they don't seem to be 0
->>> always despite the documentation) so you would have to shift the result
->>
->> Don't you mean that the 7 LSB of RTCL aren't random and are supposed
->> to be 0?  The decrementer should decrement by 1 at a rate of 7.8125MHz
->> and all the bits should be implemented.
->
-> No, both the RTC and the decrementer count nanoseconds, except that the 7
-> LSB are not implemented because the timebase clock should have a period of
-> 128 ns (7.8125 MHz, but according to Takashi Oe, many 601 systems did not
-> bother to provide the exact frequency and are off by 11 parts in 4096 or
-> so). As such the LSB can't be used to estimate randomness and the value
-> must be shifted right by 7. So you need some conditional code (or boot
-> time patching). At this point you can throw in the high order part
-> (RTCU/TBU) for additional randomization (RTCU changes much faster on 601,
-> once per second, than on the other processors).
+Some time ago, I posted a few messages that got rejected by the moderator.
 
-Note that you don't really need anything related to wall clock time.
+This, hopefully wont.
 
-You could use whatever performance counters the 601 has, if any.
-That might be cache hits, cache misses, instructions dispatched,
-correctly predicted branches, cycles spent waiting for a load...
-The memory controller and host bridge might have useful stuff too.
+I was having problems involvine my kernel (2.4.5) dying when i would try
+to ssh from my webserver to my local work station (using scp).
 
-You could use registers from whatever was most recently interrupted.
-That might include the CR, LR, and instruction pointer. One might
-exclude data from non-root user processes if being overly paranoid.
+Here is what i have discovered so far:
 
+iptables -A INPUT -j LOG -p tcp -i eth0 --syn --dport 22 -m limit --limit
+2/s causes a lock up when i try and SSH
+
+Is this a bug or just my missuse of the limit match?
+
+-- 
+--red0x

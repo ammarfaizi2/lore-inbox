@@ -1,44 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262810AbUDTMv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262914AbUDTM4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262810AbUDTMv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Apr 2004 08:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUDTMv7
+	id S262914AbUDTM4P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Apr 2004 08:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262981AbUDTM4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Apr 2004 08:51:59 -0400
-Received: from mail.cyclades.com ([64.186.161.6]:59350 "EHLO mail.cyclades.com")
-	by vger.kernel.org with ESMTP id S262810AbUDTMv5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Apr 2004 08:51:57 -0400
-Date: Tue, 20 Apr 2004 09:53:08 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: ann_pearlstein@mysunrise.ch
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: libata and the 2.4 kernel
-Message-ID: <20040420125308.GB12478@logos.cnet>
-References: <11962398.1082463710160.JavaMail.tomcat4@webmail-be-05.sunrise.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 20 Apr 2004 08:56:15 -0400
+Received: from smtp814.mail.sc5.yahoo.com ([66.163.170.84]:37557 "HELO
+	smtp814.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262914AbUDTM4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Apr 2004 08:56:13 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: /dev/psaux-Interface
+Date: Tue, 20 Apr 2004 07:56:08 -0500
+User-Agent: KMail/1.6.1
+Cc: Tuukka Toivonen <tuukkat@ee.oulu.fi>, danlee@informatik.uni-freiburg.de,
+       b-gruber@gmx.de
+References: <Pine.GSO.4.58.0402271451420.11281@stekt37> <Pine.GSO.4.58.0404191124220.21825@stekt37>
+In-Reply-To: <Pine.GSO.4.58.0404191124220.21825@stekt37>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <11962398.1082463710160.JavaMail.tomcat4@webmail-be-05.sunrise.ch>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200404200756.08672.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 20, 2004 at 02:21:50PM +0200, ann_pearlstein@mysunrise.ch wrote:
-> Hello,
+On Monday 19 April 2004 03:35 am, Tuukka Toivonen wrote:
+> psaux.c release 2004-04-19
 > 
-> Does anyone know when (or even if) the libata patch will be native to the 2.4 kernel (e.g., no patch needed)?  
+> This is psaux.c linux kernel driver for kernels 2.6.x,
+> a direct PS/2 serial port (aka /dev/psaux) driver.
 > 
-> If there are plans to add it to the 2.4 kernel, when (approximately :-)  ) will it be a part of this kernel?
+> Available from:
+> http://www.ee.oulu.fi/~tuukkat/rel/psaux-2004-04-19.tar.gz
 > 
-> I know it's supported natively in the 2.6 kernel.
+> (includes README with more information)
 > 
-> The libata patch (2.4.25 kernel and 2.4.25 libata patch) works well for the serial ATA drive I use (in a Dell PowerEdge 750), but I'd like to have a non-patched kernel for this particular project.  
+> The driver was originally written by Lee Sau Dan
+> http://www.informatik.uni-freiburg.de/~danlee/fun/psaux/
+> but I fixed some bugs (most importantly SMP).
 > 
-> Thank you in advance for any and all info.
+> I've seen lots of discussions about different mouse behaviour (or
+> completely non-functioning mouse). If you have one of those problems, this
+> driver should restore the kernel 2.4.x behaviour.
+> 
+> Any suggestions/hopes to get it included into mainstream kernel?
+> 
 
-Ann, 
+It seems that the driver allows non-exclusive access to the port - multiple
+users may fight to set up the mode. How they will agree on which one to set?
+On the other hand I do not want psaux to give me only exclusive access as
+I have had emough of GPM repeater feeding X feeding Y ... etc.
 
-libata has been included in the 2.4 BK tree.
+It does not support active multiplexing controller (4 AUX ports) which
+becomes quite common and is the only sane option when you have several
+mice of different types.
 
-You can try 2.4.26-bk patches (www.kernel.org)
+Also I do not see where the code makes sure that it does not bind to
+keyboard's port (so keyboard driver has to be loaded first).
+
+I think the right way is to fix the issues with psmouse driver and use input
+system to tie all hardware together.
+
+--
+Dmitry

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317251AbSFRBvU>; Mon, 17 Jun 2002 21:51:20 -0400
+	id <S317260AbSFRBxT>; Mon, 17 Jun 2002 21:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317260AbSFRBvT>; Mon, 17 Jun 2002 21:51:19 -0400
-Received: from dsl092-042-129.lax1.dsl.speakeasy.net ([66.92.42.129]:41221
-	"EHLO mgix.com") by vger.kernel.org with ESMTP id <S317251AbSFRBvT>;
-	Mon, 17 Jun 2002 21:51:19 -0400
-From: <mgix@mgix.com>
-To: "Robert Love" <rml@tech9.net>, "David Schwartz" <davids@webmaster.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Question about sched_yield()
-Date: Mon, 17 Jun 2002 18:51:20 -0700
-Message-ID: <AMEKICHCJFIFEDIBLGOBKEEECBAA.mgix@mgix.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1024361703.924.176.camel@sinai>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+	id <S317261AbSFRBxS>; Mon, 17 Jun 2002 21:53:18 -0400
+Received: from ns.suse.de ([213.95.15.193]:9224 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S317260AbSFRBxR>;
+	Mon, 17 Jun 2002 21:53:17 -0400
+Date: Tue, 18 Jun 2002 03:53:12 +0200
+From: Andi Kleen <ak@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: kai@tp1.ruhr-uni-bochum.de, torvalds@transmeta.com, ak@suse.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.5.22] fix x86 initrd breakage
+Message-ID: <20020618035312.A6714@wotan.suse.de>
+References: <200206180055.CAA11524@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200206180055.CAA11524@harpo.it.uu.se>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> The patch below reverts the statement to its pre-2.5.17 state.
+> Perhaps it should be removed altogether?
+> 
+> Cc: to Andi Kleen since it seems x86_64 also is affected by
+> this bug.
 
+Thanks. I removed that statement for x86-64 from my tree.
 
+-Andi
 
-> Seems to me the behavior of sched_yield is a bit broken.  If the tasks
-> are correctly returned to the end of their runqueue, this should not
-> happen.  Note, for example, you will not see this behavior in 2.5.
-
-Actually, it seems to happen in 2.5 too.
-However, Ingo sent me a patch for 2.5.21
-that fixes the issue.
-
-See this message:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102423901727214&w=2
-
-	- Mgix
+> 
+> --- linux-2.5.22/arch/i386/boot/Makefile.~1~	Tue Jun 11 14:18:07 2002
+> +++ linux-2.5.22/arch/i386/boot/Makefile	Tue Jun 18 00:43:12 2002
+> @@ -23,7 +23,7 @@
+>  
+>  # If you want the RAM disk device, define this to be the size in blocks.
+>  
+> -RAMDISK := -DRAMDISK=512
+> +#RAMDISK := -DRAMDISK=512

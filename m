@@ -1,42 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132933AbRDEPjL>; Thu, 5 Apr 2001 11:39:11 -0400
+	id <S132932AbRDEPnB>; Thu, 5 Apr 2001 11:43:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132932AbRDEPi7>; Thu, 5 Apr 2001 11:38:59 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:38668 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S132933AbRDEPiZ>;
-	Thu, 5 Apr 2001 11:38:25 -0400
-Date: Thu, 5 Apr 2001 17:37:31 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "Heinz J. Mauelshagen" <Mauelshagen@Sistina.com>
-Cc: Herbert Valerio Riedel <hvr@hvrlab.org>, linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@transmeta.com>,
-        linux-lvm-patch@EZ-Darmstadt.Telekom.de
-Subject: Re: /dev/loop0 over lvm... leading to d-state :-(
-Message-ID: <20010405173731.C5187@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0104042152490.1183-100000@janus.txd.hvrlab.org> <20010405071313.A418@suse.de> <20010405163818.M418@suse.de> <20010405164942.N418@suse.de> <20010405163239.F6981@sistina.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010405163239.F6981@sistina.com>; from Mauelshagen@Sistina.com on Thu, Apr 05, 2001 at 04:32:39PM +0000
+	id <S132934AbRDEPml>; Thu, 5 Apr 2001 11:42:41 -0400
+Received: from cr502987-a.rchrd1.on.wave.home.com ([24.42.47.5]:6922 "EHLO
+	the.jukie.net") by vger.kernel.org with ESMTP id <S132932AbRDEPm2>;
+	Thu, 5 Apr 2001 11:42:28 -0400
+Date: Thu, 5 Apr 2001 11:41:38 -0400 (EDT)
+From: Bart Trojanowski <bart@jukie.net>
+To: Steve Grubb <ddata@gate.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: asm/unistd.h
+In-Reply-To: <001701c0bde4$59825240$871a24cf@master>
+Message-ID: <Pine.LNX.4.30.0104051136430.13496-100000@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 05 2001, Heinz J. Mauelshagen wrote:
-> > Irks, another one. lvm_make_request_fn also needs to call b_end_io
-> > if a map fails.
-> 
-> This is wrong.
-> 
-> In case of an io error we do already call buffer_IO_error() on 2.4 in
-> lvm_map().
+On Thu, 5 Apr 2001, Steve Grubb wrote:
 
-Where? Calling buffer_IO_error would be ok, but there are no such calls
-in 2.4.3. I just stated elsewhere that submit_bh should probably be
-clearing the dirty bit, not ll_rw_block, in which case the b_end_io
-is fine. But buffer_IO_error is probably more clear. I trust you'll
-take care of that part then.
+> It would seem to me that after hearing how the macros are used in practice,
+> wouldn't turning them into inline functions be an improvement? This is
+> something gcc supports, it accomplishes the same thing, and has the added
+> advantage of type checking.
+> http://gcc.gnu.org/onlinedocs/gcc-2.95.3/gcc_4.html#SEC92
+>
+> Or perhaps type checking macro arguments would be another fertile area for
+> the Stanford Checker...
+
+There are benefits to macros too.  One that I like for debuggin is that
+the C parser will unravel a macro within the context of the execution:
+
+#ifdef DEBUG
+#define KMALLOC(x,y) \
+  printk(__FILE__ ":%d: kmalloc(%d,%d")\n", __LINE__,x,y); \
+  kmalloc(x,y);
+#else
+#define KMALLOC(x,y) \
+  kmalloc(x,y);
+#endif
+
+I think the benefit of a macro here is quite visible... you cannot do this
+with an inline.
+
+You may also look at some better reasons:
+
+http://www.uwsg.iu.edu/hypermail/linux/kernel/9810.3/0323.html
+
+[btw I found this by looking for 'macros vs inline' on google/linux]
+
+Bart.
 
 -- 
-Jens Axboe
+	WebSig: http://www.jukie.net/~bart/sig/
+
 

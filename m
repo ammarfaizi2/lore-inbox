@@ -1,52 +1,87 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129991AbRAEV2n>; Fri, 5 Jan 2001 16:28:43 -0500
+	id <S129933AbRAEVcO>; Fri, 5 Jan 2001 16:32:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130761AbRAEV2X>; Fri, 5 Jan 2001 16:28:23 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:250 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S129991AbRAEV2S>; Fri, 5 Jan 2001 16:28:18 -0500
-Date: Fri, 5 Jan 2001 19:27:38 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Christoph Hellwig <hch@caldera.de>
-cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: MM/VM todo list
-In-Reply-To: <20010105222624.A11770@caldera.de>
-Message-ID: <Pine.LNX.4.21.0101051927040.1295-100000@duckman.distro.conectiva>
+	id <S131793AbRAEVbx>; Fri, 5 Jan 2001 16:31:53 -0500
+Received: from mercury.eng.emc.com ([168.159.40.77]:53257 "EHLO
+	mercury.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S129933AbRAEVbp>; Fri, 5 Jan 2001 16:31:45 -0500
+Message-ID: <276737EB1EC5D311AB950090273BEFDD979E4B@elway.lss.emc.com>
+From: "chen, xiangping" <chen_xiangping@emc.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: boot up problem of IDE disk in 2.4.0!
+Date: Fri, 5 Jan 2001 16:22:34 -0500 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 5 Jan 2001, Christoph Hellwig wrote:
-> On Fri, Jan 05, 2001 at 07:20:24PM -0200, Rik van Riel wrote:
-> > > >   * VM: Use kiobuf IO in VM instead buffer_head IO. 
-> > > 
-> > > I'd vote for killing both bufer_head and kiobuf from VM.
-> > > Lokk at my pageio patch - VM doesn't know about the use of kiobufs
-> > > in the filesystem IO...
-> > 
-> > Could be interesting ... but is it generalised enough to
-> > also work with eg. network IO ?
-> 
-> No other then filesystem IO (page/buffercache) is actively tied
-> to the VM, so there should be no problems.
+Hi, folks
 
-Not right now, no. But if you know what is possible
-(and planned) with the kiobuf layer, you should think
-twice about this idea...
+I meet some problem when I tried by install kernel 2.4.0
+to a PC using IDE disk. It reports VFS panic error during
+boot up time when it tried to mount the rootfs. The error
+indicates that it can not find the driver for the harddisk,
+but I already build in the IDE disk support. The hard disk
+is seagate ST310212A. The related content in .config file
+is as follows. I would like to know what else I need to do.
 
-regards,
+Thanks
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to loose...
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
 
+CONFIG_IDE=y
+# IDE, ATA and ATAPI Block devices
+CONFIG_BLK_DEV_IDE=y
+# Please see Documentation/ide.txt for help/info on IDE drives
+# CONFIG_BLK_DEV_HD_IDE is not set
+CONFIG_BLK_DEV_IDEDISK=y
+# CONFIG_IDEDISK_MULTI_MODE is not set
+# CONFIG_BLK_DEV_IDEDISK_VENDOR is not set
+# CONFIG_BLK_DEV_IDEDISK_FUJITSU is not set
+# CONFIG_BLK_DEV_IDEDISK_IBM is not set
+# CONFIG_BLK_DEV_IDEDISK_MAXTOR is not set
+# CONFIG_BLK_DEV_IDEDISK_QUANTUM is not set
+# CONFIG_BLK_DEV_IDEDISK_SEAGATE is not set
+# CONFIG_BLK_DEV_IDEDISK_WD is not set
+# CONFIG_BLK_DEV_IDECS is not set
+CONFIG_BLK_DEV_IDECD=y
+CONFIG_BLK_DEV_IDETAPE=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDESCSI=m
+# IDE chipset support/bugfixes
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_PCI_WIP=y
+CONFIG_IDEDMA_NEW_DRIVE_LISTINGS=y
+# CONFIG_AMD7409_OVERRIDE is not set
+# CONFIG_IDE_CHIPSETS is not set
+CONFIG_IDEDMA_AUTO=y
+# CONFIG_IDEDMA_IVB is not set
+CONFIG_BLK_DEV_IDE_MODES=y
+# Old CD-ROM drivers (not SCSI, not IDE)
+CONFIG_CD_NO_IDESCSI=y
+CONFIG_VIDEO_DEV=m
+# CONFIG_VIDEO_PROC_FS is not set
+CONFIG_VIDEO_BT848=m
+CONFIG_VIDEO_PMS=m
+CONFIG_VIDEO_BWQCAM=m
+CONFIG_VIDEO_CQCAM=m
+CONFIG_VIDEO_CPIA=m
+CONFIG_VIDEO_CPIA_PP=m
+CONFIG_VIDEO_CPIA_USB=m
+CONFIG_VIDEO_SAA5249=m
+# CONFIG_VIDEO_STRADIS is not set
+CONFIG_VIDEO_ZORAN=m
+CONFIG_VIDEO_BUZ=m
+# CONFIG_VIDEO_ZR36120 is not set
+CONFIG_VIDEO_SELECT=y
+CONFIG_SOUND_TRIDENT=m                    
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

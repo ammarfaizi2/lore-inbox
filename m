@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbTHYPjz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 11:39:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbTHYPjz
+	id S261982AbTHYPkd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 11:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbTHYPkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 11:39:55 -0400
-Received: from hq.pm.waw.pl ([195.116.170.10]:36030 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S261971AbTHYPjy (ORCPT
+	Mon, 25 Aug 2003 11:40:33 -0400
+Received: from mail.kroah.org ([65.200.24.183]:43908 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261982AbTHYPk2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 11:39:54 -0400
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.22 released
-References: <200308251148.h7PBmU8B027700@hera.kernel.org>
-	<20030825132358.GC14108@merlin.emma.line.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 25 Aug 2003 17:35:54 +0200
-In-Reply-To: <20030825132358.GC14108@merlin.emma.line.org>
-Message-ID: <m3u185zr51.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
+	Mon, 25 Aug 2003 11:40:28 -0400
+Date: Mon, 25 Aug 2003 08:31:47 -0700
+From: Greg KH <greg@kroah.com>
+To: cb-lkml@fish.zetnet.co.uk
+Cc: maxk@qualcomm.com, linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] [USB] [2.6.0-test3] crash after inserting bluetooth dongle
+Message-ID: <20030825153147.GE27705@kroah.com>
+References: <20030821211409.GA2062@fish.zetnet.co.uk> <20030821225614.GA5287@kroah.com> <20030825152529.GB2132@fish.zetnet.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030825152529.GB2132@fish.zetnet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree <matthias.andree@gmx.de> writes:
+On Mon, Aug 25, 2003 at 04:25:29PM +0100, cb-lkml@fish.zetnet.co.uk wrote:
+> On Thu, Aug 21, 2003 at 03:56:14PM -0700, Greg KH wrote:
+> > On Thu, Aug 21, 2003 at 10:14:10PM +0100, cb-lkml@fish.zetnet.co.uk wrote:
+> > > I got this oops. Suspicious /proc/interrupts is below, as well as
+> > > /proc/ioports, dmesg output, config, and lspci -vvv.
+> > 
+> > This has been fixed in the test3-bk tree, I would suggest either waiting
+> > for test4, or downloading the latest -bk patch.
+> > 
+> > If this still happens in 2.6.0-test4, please let the bluetooth driver
+> > author know about it.
+> 
+> Hi Greg, Maxim,
+> 
+> 2.6.0-test3-mm3 works fine until APM suspend when the USB controller stops
+> delivering interrupts. (I'll report further when I have USB working again)
 
-> What are the plans for 2.4.23? XFS merge perhaps <hint>?
+Try unloading all usb drivers before suspending.
 
-Generic HDLC update?
-http://hq.pm.waw.pl/pub/linux/hdlc/hdlc-2.4.21-1.14a.patch
--- 
-Krzysztof Halasa
-Network Administrator
+-test4 does have more power management code, but it isn't hooked up to
+the USB core just yet.
+
+thanks,
+
+greg k-h

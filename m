@@ -1,70 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264901AbTLKMiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 07:38:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264916AbTLKMiJ
+	id S264920AbTLKMsu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 07:48:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264918AbTLKMsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 07:38:09 -0500
-Received: from pentafluge.infradead.org ([213.86.99.235]:23500 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S264901AbTLKMiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 07:38:06 -0500
-Subject: Re: Linux GPL and binary module exception clause?
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Larry McVoy <lm@bitmover.com>, Erik Andersen <andersen@codepoet.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Paul Adams <padamsdev@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0312041750270.6638@home.osdl.org>
-References: <20031204235055.62846.qmail@web21503.mail.yahoo.com>
-	 <20031205004653.GA7385@codepoet.org>
-	 <Pine.LNX.4.58.0312041956530.27578@montezuma.fsmlabs.com>
-	 <20031205010349.GA9745@codepoet.org>
-	 <20031205012124.GB15799@work.bitmover.com>
-	 <Pine.LNX.4.58.0312041750270.6638@home.osdl.org>
-Content-Type: text/plain
-Message-Id: <1071146277.5712.589.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8.dwmw2.1) 
-Date: Thu, 11 Dec 2003 12:37:58 +0000
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 11 Dec 2003 07:48:50 -0500
+Received: from [195.255.196.126] ([195.255.196.126]:40648 "EHLO
+	gw.compusonic.fi") by vger.kernel.org with ESMTP id S264925AbTLKMsr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 07:48:47 -0500
+Date: Thu, 11 Dec 2003 14:47:49 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Driver API (was Re: Linux GPL and binary module exception clause?)
+In-Reply-To: <20031211100627.GJ4176@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0312111427530.12975@zeus.compusonic.fi>
+References: <Pine.LNX.4.58.0312100809150.29676@home.osdl.org>
+ <20031210163425.GF6896@work.bitmover.com> <Pine.LNX.4.58.0312100852210.29676@home.osdl.org>
+ <20031210175614.GH6896@work.bitmover.com> <Pine.LNX.4.58.0312100959180.29676@home.osdl.org>
+ <20031210180822.GI6896@work.bitmover.com> <Pine.LNX.4.58.0312101016010.29676@home.osdl.org>
+ <20031210183833.GJ6896@work.bitmover.com> <Pine.LNX.4.58.0312101108150.29676@home.osdl.org>
+ <Pine.LNX.4.58.0312102256520.3787@zeus.compusonic.fi>
+ <20031211100627.GJ4176@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-12-04 at 17:58 -0800, Linus Torvalds wrote:
-> But a license only covers what it _can_ cover - derived works. The fact
-> that Linux is under the GPL simply _cannot_matter_ to a user program, if
-> the author can show that the user program is not a derived work.
+On Thu, 11 Dec 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-Not so. You, as author of the GPL'd work, are granting permission for
-someone else to make use of it (other than 'fair use' which they were
-already permitted).
+> It doesn't work.  Let me give you an example: right now we have a way to get
+> from struct inode to struct block device - inode->i_bdev.  You can wrap it
+> into helper functions, whatever - it won't live to 2.8.
+>
+> 	Why?  Because if we want to handle device removal in a sane way, that
+> association will have to go.  We will still have a need (and a way) to get
+> from opened struct file of block device to its struct block_device.  And _that_
+> association will remain stable through the entire life of struct file.  Even
+> when the mapping from inode to block device gets changed.
+I don't see this as a problem. I'm talking about an ABI for _character_
+drivers only. Everybody who needs a "loosely coupled" device driver
+will probably want to implement a character driver. If you look at any
+operating systems there are very few differences between the character
+driver interfaces of them. There have not been any dramatic changes in
+this interface since Linux 0.99.x times. Some parameters have changed but
+that's almost it.
 
-Your conditions for granting that permission do _not_ have to be
-restricted to licensing of derived works. You can even ask for _money_
-in return, if you like. Or you could require that the lucky recipient
-bathe in creosote daily, in order to receive your licence.
+Block devices, network devices and things like that are tighter coupled
+by nature. I don't eventry to claim it's going to be possible to create
+an ABI for them. At least I don't see it necessary.
 
-I could write a piece of software and tell you that you're only allowed
-to use it if you release _all_ future software you write under the GPL.
-Even stuff which isn't at all related, let alone non-derived.
+In a charcter driver all you need to know from the inode structure is
+basicly just the device (minor) number. It's not hard to implement the
+ABI layer so that the minor number can be provided regardless of the
+changes made to the kernel behind it.
 
-It wouldn't be illegal for you to create your own non-GPL software per
-se; it would just mean you don't have permission to use what _I_ had
-written and released under this hypothetical licence.
+To the client driver the ABI "wrapper" is a black box. It can't
+see what is inside the box. In particular it can't see the kernel behind
+it. If something changes in the kernel some changes are needed to the
+internals of the box too.
 
-You'd probably have to be mad to accept this licence, and of course I
-don't argue that the GPL actually goes _that_ far, but a copyright
-licence certainly _can_ do so.
+Best regards,
 
-The GPL explicitly does make reference to required licensing terms for
-non-derived works in certain circumstances, even those which can
-reasonably be considered separate and independent works in themselves. 
-
-There is no question that, as a copyright licence, the GPL _can_ extend
-to a non-derived work; and in some circumstances it clearly _does_. 
-
--- 
-dwmw2
-
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

@@ -1,45 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286570AbRL0Tsf>; Thu, 27 Dec 2001 14:48:35 -0500
+	id <S286581AbRL0Tt4>; Thu, 27 Dec 2001 14:49:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286556AbRL0Trf>; Thu, 27 Dec 2001 14:47:35 -0500
-Received: from fw.aub.dk ([195.24.1.194]:52865 "EHLO Princess")
-	by vger.kernel.org with ESMTP id <S286553AbRL0Trb>;
-	Thu, 27 Dec 2001 14:47:31 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Allan Sandfeld <linux@sneulv.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Configure.help editorial policy
-Date: Thu, 27 Dec 2001 20:44:58 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20011221141847.E15926@redhat.com> <E16Ha5u-00027A-00@the-village.bc.nu> <20011222171438.A10233@suse.cz>
-In-Reply-To: <20011222171438.A10233@suse.cz>
+	id <S286574AbRL0Tsk>; Thu, 27 Dec 2001 14:48:40 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:55308 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S286553AbRL0Trr>; Thu, 27 Dec 2001 14:47:47 -0500
+Message-ID: <3C2B7A3E.E5C05404@zip.com.au>
+Date: Thu, 27 Dec 2001 11:45:02 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16JgSd-0002rg-00@Princess>
+To: andersg@0x63.nu
+CC: linux-kernel@vger.kernel.org, lvm-devel@sistina.com
+Subject: Re: lvm in 2.5.1
+In-Reply-To: <20011227084304.GA26255@h55p111.delphi.afb.lu.se> <3C2AEADB.24BEFE94@zip.com.au> <20011227122520.GA2194@h55p111.delphi.afb.lu.se> <3C2B75B3.4DEF90D3@zip.com.au>,
+		<3C2B75B3.4DEF90D3@zip.com.au> <20011227193711.GB20501@h55p111.delphi.afb.lu.se>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 December 2001 17:14, Vojtech Pavlik wrote:
->
-> The only problem is that M = 10^6 plus Mi = 2^20 don't cover the usages ...
->
-> 4Mbit bandwidth is usually 4 * 10^3 * 2^10 bits per second.
-> 20GB harddrive is usually 20 * 10^6 * 2^10 bytes.
->
-> The confusion is there. It can't be erradicated by adding Mi's and Gi's,
-> because they don't cover the whole spectrum.
->
-Please, please dont add more confusion.. Fortunatly people how sell harddisk 
-and bandwidth are both very consistent.
-4Mbit bandwith IS always 4 x 10^9 bits per second
-20GB harddrive IS always  20 x 10^20 bytes.
+andersg@0x63.nu wrote:
+> 
+> On Thu, Dec 27, 2001 at 11:25:39AM -0800, Andrew Morton wrote:
+> > 0xc02546c7 <lvm_do_vg_create+3>:        sub    $0x1d4,%esp
+> >
+> > So perhaps we have a compiler problem.  Which version of the
+> > compiler are you using?   Have you verified that sizeof(lv_t)
+> > is really around 420 bytes in your setup?
+> 
+> gcc version 2.95.4 20011223 (Debian prerelease)
+> 
+> i didn't check the exact amount. i dont know where the 420 bytes comes from?
+> but (as Mike Galbraith pointed out) a lv_t contains:
+> 
+>         sector_t blocks[LVM_MAX_SECTORS];
+> 
+> with:
+> 
+> #define LVM_MAX_ATOMIC_IO       512
+> #define LVM_MAX_SECTORS         (LVM_MAX_ATOMIC_IO * 2)
+> 
+> and
+> typedef unsigned long sector_t;
+> 
+> unsigned long beeing 4bytes => the blocks-member of lv_t should then be 4096
+> by it self...
 
-The confusion starts by saying a Mbit is only 1000 Kbit.. Well it is but the 
-Kbit here is 1000bit/s
-And a GB is only 1000,000 kB, but these kB is only 1000 bytes.
+Ah.  Right you are.  I was looking at the 2.4.17 source.  That array
+was added in 2.5.x.
 
-Dont confuse the matter anymore, I am sure someone does, but they are wrong! 
+So 2.4.x is OK.
 
-regards
-Allan
+Thanks ;)
+
+-

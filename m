@@ -1,69 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263513AbUJ3Eo1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263512AbUJ3EsE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263513AbUJ3Eo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 00:44:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263512AbUJ3Eo1
+	id S263512AbUJ3EsE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 00:48:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263541AbUJ3EsE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 00:44:27 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:56593 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263513AbUJ3EoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 00:44:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=EvOI21o+dXgyY4IMRyq95W0I/ibWmzpb+ynDna2wTn1zWvWCvmSfJ9bBPm8ARnyzGA9YAvMA/6ynacBxhY14408qi1SeiaGAxSSnrnh8Z2dWoGYkN6cTAoZLEvhWkjDmM22KSHbKERQfsOXGe1nPa2YpYGNn+NQWvniNt0dkCuw=
-Message-ID: <29495f1d04102921447ab65101@mail.gmail.com>
-Date: Fri, 29 Oct 2004 21:44:18 -0700
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: [KJ] 2.6.10-rc1-kjt1: ixgb_ethtool.c doesn't compile
-Cc: kj <kernel-janitors@osdl.org>, linux-kernel@vger.kernel.org,
-       Nishanth Aravamudan <nacc@us.ibm.com>
-In-Reply-To: <20041029235137.GG6677@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 30 Oct 2004 00:48:04 -0400
+Received: from [82.154.232.115] ([82.154.232.115]:64937 "EHLO
+	puma-vgertech.no-ip.com") by vger.kernel.org with ESMTP
+	id S263512AbUJ3EsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 00:48:01 -0400
+Message-ID: <41831CFD.5090103@vgertech.com>
+Date: Sat, 30 Oct 2004 05:47:57 +0100
+From: Nuno Silva <nuno.silva@vgertech.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.9-ac5
+References: <1099060831.13098.33.camel@localhost.localdomain>
+In-Reply-To: <1099060831.13098.33.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20041024151241.GA1920@stro.at> <20041029235137.GG6677@stusta.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Oct 2004 01:51:37 +0200, Adrian Bunk <bunk@stusta.de> wrote:
-> On Sun, Oct 24, 2004 at 05:12:41PM +0200, maximilian attems wrote:
-> >...
-> > splitted out 168 patches:
-> > http://debian.stro.at/kjt/2.6.10-rc1-kjt1/split/
+Alan Cox wrote:
+> This update adds some of the more minor fixes as well as a fix
+> for a nasty __init bug. Nothing terribly pressing for non-S390 users
+> unless they are hitting one of the bugs described or need the new
+> driver bits.
 > 
-> Could you provide a .tar.gz (or .tar.bz) of the splitted patches
-> (similar to how Andrew does for -mm)?
-
-Do you mean like the one he provided?
-
-please test out:
-http://debian.stro.at/kjt/2.6.10-rc1-kjt1/2.6.10-rc1-kjt1.patch.bz2
-
-Admittedly, it's not tarred first, but still... Maybe you mean
-something else, though, and I'm just confused.
-
-> > thanks for feedback.
-> > maks
-> >...
+> ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.6/2.6.9/
 > 
-> msleep_interruptible-drivers_net_ixgb_ixgb_ethtool.patch doesn't
-> compile:
-> 
-> <--  snip  -->
-> 
-> ...
->   CC      drivers/net/ixgb/ixgb_ethtool.o
-> drivers/net/ixgb/ixgb_ethtool.c: In function `ixgb_ethtool_led_blink':
-> drivers/net/ixgb/ixgb_ethtool.c:407: error: `id' undeclared (first use in this function)
-> drivers/net/ixgb/ixgb_ethtool.c:407: error: (Each undeclared identifier is reported only once
-> drivers/net/ixgb/ixgb_ethtool.c:407: error: for each function it appears in.)
-> make[3]: *** [drivers/net/ixgb/ixgb_ethtool.o] Error 1
+> 2.6.9-ac5
 
-Thanks for catching this, I will make the change to the patch tomorrow
-and send it again.
+[lots of fixes...]
 
--Nish
+Thank god someone started to mantain a stable 2.6 kernel!
+
+(Thank you)^1000000,
+Nuno Silva

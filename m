@@ -1,65 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUIVRK4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUIVRP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266473AbUIVRK4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 13:10:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266465AbUIVRKv
+	id S266547AbUIVRP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 13:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUIVRP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 13:10:51 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:56006 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S266463AbUIVRKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 13:10:41 -0400
-Date: Wed, 22 Sep 2004 10:10:30 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>, len.brown@intel.com,
+	Wed, 22 Sep 2004 13:15:27 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:10965 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S266465AbUIVROr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 13:14:47 -0400
+Date: Thu, 23 Sep 2004 02:10:31 +0900
+From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: anil.s.keshavamurthy@intel.com, len.brown@intel.com,
        acpi-devel@lists.sourceforge.net, lhns-devel@lists.sourceforge.net,
        linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[4/6]-Dynamic cpu register/unregister support
-Message-ID: <20040922101029.B2631@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20040920092520.A14208@unix-os.sc.intel.com> <20040920094106.F14208@unix-os.sc.intel.com> <20040922173400.4e717946.tokunaga.keiich@jp.fujitsu.com>
+Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[3/6]-Mapping lsapic to cpu
+Message-Id: <20040923021031.00007001.tokunaga.keiich@jp.fujitsu.com>
+In-Reply-To: <1095864779.6105.3.camel@tdi>
+References: <20040920092520.A14208@unix-os.sc.intel.com>
+	<20040920093819.E14208@unix-os.sc.intel.com>
+	<20040922221538.650986f2.tokunaga.keiich@jp.fujitsu.com>
+	<1095864779.6105.3.camel@tdi>
+Organization: FUJITSU LIMITED
+X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.3.0; Win32)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20040922173400.4e717946.tokunaga.keiich@jp.fujitsu.com>; from tokunaga.keiich@jp.fujitsu.com on Wed, Sep 22, 2004 at 05:34:00PM +0900
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 22, 2004 at 05:34:00PM +0900, Keiichiro Tokunaga wrote:
-> On Mon, 20 Sep 2004 09:41:07 -0700 Keshavamurthy Anil S wrote:
-> > ---
-> > Name:topology.patch
-> > Status:Tested on 2.6.9-rc2
-> > Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-> > Depends:	
-> > Version: applies on 2.6.9-rc2	
-> > Description:
-> > Extends support for dynamic registration and unregistration of the cpu,
-> > by implementing and exporting arch_register_cpu()/arch_unregister_cpu().
-> > Also combines multiple implementation of topology_init() functions to
-> > single topology_init() in case of ia64 architecture.
-> > ---
+On Wed, 22 Sep 2004 08:52:59 -0600, Alex Williamson wrote:
+> On Wed, 2004-09-22 at 22:15 +0900, Keiichiro Tokunaga wrote:
+> > 
+> > I would like to suggest introducing a new function 'acpi_get_pxm()'
+> > since other drivers might need it in the future.  Acutally, ACPI container
+> > hotplug will be using it soon.
+> > 
+> > Here is a patch creating the function.
+> > 
 > 
-> > +void arch_unregister_cpu(int num)
-> > +{
-> > +	struct node *parent = NULL;
-> > +
-> > +#ifdef CONFIG_NUMA
-> > +	int node = cpu_to_node(num);
-> > +	if (node_online(node))
-> > +		parent = &sysfs_nodes[node];
-> > +#endif /* CONFIG_NUMA */
-> > +
-> > +	return unregister_cpu(&sysfs_cpus[num].cpu, parent);
-> > +}
+>    Nice, I have a couple I/O locality patches that could be simplified
+> with this function.
 > 
-> I don't think that the check 'if (node_online(node))' is necessary
-> because sysfs_nodes[node] is there no matter if the node is online
-> or offline.  sysfs_nodes[] is cleared only when unregister_node()
-> is called and it would be always called after unregister_cpu().
+> > +#ifdef CONFIG_ACPI_NUMA
+> > +int acpi_get_pxm(acpi_handle handle);
+> > +#else
+> > +static inline int acpi_get_pxm(acpi_handle hanle)
+> Trivial typo here --->                        ^^^^^ handle
 
-Yes, I agree with you. I will remove the check, or simply apply your patch:)
-thanks,
-Anil
+Oh, good catch:)
+
+Thanks!
+Keiichiro Tokunaga
+
+
+Name: acpi_pxm_support.patch
+Status: 2.6.9-rc2
+Signed-off-by: Keiichiro Tokunaga <tokuanga.keiich@jp.fujitsu.com>
+Description:
+Introduce acpi_get_pxm().  The code has been refreshed a little bit
+from the first version.
+
+---
+
+ linux-2.6.9-rc2-fix-kei/drivers/acpi/numa.c  |   21 ++++++++++++++++++++-
+ linux-2.6.9-rc2-fix-kei/include/linux/acpi.h |    8 ++++++++
+ 2 files changed, 28 insertions(+), 1 deletion(-)
+
+diff -puN drivers/acpi/numa.c~acpi_pxm_support drivers/acpi/numa.c
+--- linux-2.6.9-rc2-fix/drivers/acpi/numa.c~acpi_pxm_support	2004-09-22 18:53:53.000000000 +0900
++++ linux-2.6.9-rc2-fix-kei/drivers/acpi/numa.c	2004-09-23 02:07:50.948628719 +0900
+@@ -22,7 +22,7 @@
+  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  *
+  */
+-
++#include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/init.h>
+ #include <linux/kernel.h>
+@@ -195,3 +195,22 @@ acpi_numa_init()
+ 	acpi_numa_arch_fixup();
+ 	return 0;
+ }
++
++int
++acpi_get_pxm(acpi_handle h)
++{
++	unsigned long pxm = -1;
++	acpi_status status;
++	acpi_handle handle ;
++	acpi_handle phandle = h;
++
++	do {
++		handle = phandle;
++		status = acpi_evaluate_integer(handle, "_PXM", NULL, &pxm);
++		if (ACPI_SUCCESS(status))
++			return (int)pxm;
++		status = acpi_get_parent(handle, &phandle);
++	} while(ACPI_SUCCESS(status));
++	return -1;
++}
++EXPORT_SYMBOL(acpi_get_pxm);
+diff -puN include/linux/acpi.h~acpi_pxm_support include/linux/acpi.h
+--- linux-2.6.9-rc2-fix/include/linux/acpi.h~acpi_pxm_support	2004-09-22 18:53:53.000000000 +0900
++++ linux-2.6.9-rc2-fix-kei/include/linux/acpi.h	2004-09-23 02:08:18.792537695 +0900
+@@ -477,4 +477,12 @@ static inline int acpi_blacklisted(void)
+ 
+ #endif /*!CONFIG_ACPI_INTERPRETER*/
+ 
++#ifdef CONFIG_ACPI_NUMA
++int acpi_get_pxm(acpi_handle handle);
++#else
++static inline int acpi_get_pxm(acpi_handle handle)
++{
++	return 0;
++}
++#endif
+ #endif /*_LINUX_ACPI_H*/
+
+_

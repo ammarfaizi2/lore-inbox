@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267337AbSKPS5e>; Sat, 16 Nov 2002 13:57:34 -0500
+	id <S267338AbSKPTB2>; Sat, 16 Nov 2002 14:01:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267338AbSKPS5e>; Sat, 16 Nov 2002 13:57:34 -0500
-Received: from waste.org ([209.173.204.2]:4993 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S267337AbSKPS5d>;
-	Sat, 16 Nov 2002 13:57:33 -0500
-Date: Sat, 16 Nov 2002 13:04:29 -0600
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Linus Torvalds <torvalds@transmeta.com>
+	id <S267339AbSKPTB1>; Sat, 16 Nov 2002 14:01:27 -0500
+Received: from mailout08.sul.t-online.com ([194.25.134.20]:39389 "EHLO
+	mailout08.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267338AbSKPTB1> convert rfc822-to-8bit; Sat, 16 Nov 2002 14:01:27 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.[45] fixes for design locking bug in wait_on_page/wait_on_buffer/get_request_wait
+Date: Sat, 16 Nov 2002 19:58:57 +0100
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: lan based kgdb
-Message-ID: <20021116190429.GI19061@waste.org>
-References: <20021116182454.GH19061@waste.org> <Pine.LNX.4.44.0211161025500.15838-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211161025500.15838-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211161958.57677.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 16, 2002 at 10:33:57AM -0800, Linus Torvalds wrote:
+Hi Andrea,
+
+> just to make a quick test, can you try an hack like this combined with a
+> setting of elvtune -r 128 -w 256 on top of 2.4.20rc1?
+>
+> --- x/drivers/block/ll_rw_blk.c.~1~     Sat Nov  2 19:45:33 2002
+> +++ x/drivers/block/ll_rw_blk.c Sat Nov 16 19:44:20 2002
+> @@ -432,7 +432,7 @@ static void blk_init_free_list(request_q
 > 
-> On Sat, 16 Nov 2002, Oliver Xymoron wrote:
-> > 
-> > LAN latencies should be low enough that waiting on an ACK for each
-> > packet will do just fine for error correction. If someone wants to do
-> > remote debugging, they can ssh into a debugging machine on the same LAN.
-> 
-> I agree in theory on a technical level, yet at the same time it's clearly
-> advantageous _not_ to wait, since it would allow you to just universally
-> enable the LAN as the console on all your machines when you maintain them,
-> and then not have that LAN console be a maintenance problem.
+>         si_meminfo(&si);
+>         megs = si.totalram >> (20 - PAGE_SHIFT);
+> -       nr_requests = 128;
+> +       nr_requests = 16;
+>         if (megs < 32)
+>                 nr_requests /= 2;
+>         blk_grow_request_list(q, nr_requests);
+hehe, Andrea, it seem's we both think of the same ... :-) ... I am just 
+recompiling the kernel ... hang on.
 
-Definitely agreed on the usefulness of LAN console. Being able to just
-run netcat for all the boxes in your datacenter is a huge win. Cuts
-your cable count by a third to a half and eliminates a bunch of term
-servers and KVMs.
+ciao, Marc
 
-Other folks have pointed out that the GDB stub protocol includes
-checksumming and retries up at the 'application' layer so we don't
-actually have to worry about it.
 
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.." 

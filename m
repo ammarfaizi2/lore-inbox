@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbUL2Dfm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbUL2DvD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbUL2Dfm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Dec 2004 22:35:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbUL2Dfm
+	id S261315AbUL2DvD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Dec 2004 22:51:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbUL2DvD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Dec 2004 22:35:42 -0500
-Received: from out014pub.verizon.net ([206.46.170.46]:60623 "EHLO
-	out014.verizon.net") by vger.kernel.org with ESMTP id S261182AbUL2Dfh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Dec 2004 22:35:37 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: samba is broken for 2.6.10
-Date: Tue, 28 Dec 2004 22:35:35 -0500
-User-Agent: KMail/1.7
-Cc: Linus Torvalds <torvalds@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 28 Dec 2004 22:51:03 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:8116
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261315AbUL2Du7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Dec 2004 22:50:59 -0500
+Date: Tue, 28 Dec 2004 19:49:25 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [sunrpc] remove xdr_kmap()
+Message-Id: <20041228194925.3443fbd3.davem@davemloft.net>
+In-Reply-To: <20041229020938.GN771@holomorphy.com>
+References: <20041228230416.GM771@holomorphy.com>
+	<20041228171246.496f3eab.davem@davemloft.net>
+	<20041229020938.GN771@holomorphy.com>
+X-Mailer: Sylpheed version 1.0.0rc (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412282235.35175.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out014.verizon.net from [151.205.45.252] at Tue, 28 Dec 2004 21:35:36 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Tue, 28 Dec 2004 18:09:38 -0800
+William Lee Irwin III <wli@holomorphy.com> wrote:
 
-Specifically, I can smbmount AND smbumount a share on another machine 
-for boots up to and including 2.6.10-rc3, what I'm running now.
+> On Tue, 28 Dec 2004 15:04:16 -0800 William Lee Irwin III <wli@holomorphy.com> wrote:
+> >> In this process, I stumbled over a blatant kmap() deadlock in
+> >> xdr_kmap(), which fortunately is never called.
+> 
+> On Tue, Dec 28, 2004 at 05:12:46PM -0800, David S. Miller wrote:
+> > This got zapped by a cleanup patch by Adrian Bunk which
+> > I applied yesterdat.  Linus just hasn't pulled from my
+> > tree yet.
+> 
+> Sounds good. I only missed it because it was in the middle of a
+> larger set of changes. Now I just have to find where in nfs the
+> missing flush_dcache_page() calls need to be so I can boot 2.6
+> on a bunch of boxen.
 
-I cannot smbumount (or umount) that same external share when running 
-2.6.10-rc3-mm1-VO.33-04 *or* 2.6.10.  The unmount command *thinks* 
-the share is busy when all other paths have already been closed.  
-This points the finger toward something in the -rc3-mm1 patch 
-according to my SWAG.
+I remember adding the calls ages ago, wonder what happened.
 
-I think this may be connected to my amdump failures where amandad 
-turns into a zombie at some point in the estimate phase an 
-uncomfortably large percentage of the time.
+I see a bunch of memclear_highpage_flush() calls, but flush_dcache_page()
+calls.  I guess these are done at the sunrpc/xdr layer.
 
-But I don't know how, AFAIK in my configs for amanda, it is using its 
-own sockets and not anything from samba.
+There is a flush_dcache_page() call for xdr_partial_copy_from_skb()
+but calls are also needed in _copy_to_pages() and
+_shift_data_right_pages().  The rest which access pages are copying
+from pages, not into them, so those should be ok.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

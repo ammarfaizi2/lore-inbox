@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267359AbTAGKXI>; Tue, 7 Jan 2003 05:23:08 -0500
+	id <S267367AbTAGKfj>; Tue, 7 Jan 2003 05:35:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267366AbTAGKXI>; Tue, 7 Jan 2003 05:23:08 -0500
-Received: from kerberos.ncsl.nist.gov ([129.6.57.216]:39810 "EHLO
-	kerberos.ncsl.nist.gov") by vger.kernel.org with ESMTP
-	id <S267359AbTAGKXH>; Tue, 7 Jan 2003 05:23:07 -0500
-Date: Tue, 7 Jan 2003 05:31:46 -0500
-From: Olivier Galibert <galibert@pobox.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set NOW!)
-Message-ID: <20030107053146.A16578@kerberos.ncsl.nist.gov>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.org> <3E19B401.7A9E47D5@linux-m68k.org> <17360000.1041899978@localhost.localdomain>
+	id <S267366AbTAGKfi>; Tue, 7 Jan 2003 05:35:38 -0500
+Received: from twilight.ucw.cz ([195.39.74.230]:27798 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S267367AbTAGKfi>;
+	Tue, 7 Jan 2003 05:35:38 -0500
+Date: Tue, 7 Jan 2003 11:44:03 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Pavel Machek <pavel@ucw.cz>, kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: include order for i2c-amd8111
+Message-ID: <20030107114403.A5029@ucw.cz>
+References: <20030105231349.GA8714@elf.ucw.cz> <20030106004057.127332C0AA@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <17360000.1041899978@localhost.localdomain>; from andrew@indranet.co.nz on Tue, Jan 07, 2003 at 01:39:38PM +1300
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20030106004057.127332C0AA@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Jan 06, 2003 at 11:40:20AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 07, 2003 at 01:39:38PM +1300, Andrew McGregor wrote:
-> Ethernet and TCP were both designed to be cheap to evaluate, not the 
-> absolute last word in integrity.  There is a move underway to provide an 
-> optional stronger TCP digest for IPv6, and if used with that then there is 
-> no need for the iSCSI digest.  Otherwise, well, play dice with the data. 
-> Loaded in your favour, but still dice.
+On Mon, Jan 06, 2003 at 11:40:20AM +1100, Rusty Russell wrote:
 
-Ethernet's checksum is a standard crc32, with all the usual good
-properties and, at least on FE and lower, 1500bytes max of payload.
-So it's quite reasonable.  TCP's checksum, though, is crap.
+> In message <20030105231349.GA8714@elf.ucw.cz> you write:
+> > Hi!
+> > 
+> > It seems all linux then all asm is prefered order...
+> > 								Pavel
+> 
+> Yes, but not for any great reason, AFAICT.  I think this comes under
+> the "too trivial" rule (ie.  I'll accept it from the author, but not
+> someone else).
 
-I'm not entirely sure how crc32 would behave on jumbo frames.
+The author (me ;) definitely doesn't mind you applying the patch, but
+would prefer if the one who pushed the 8111 driver into the kernel
+(Pavel) would update it to the version found in lm_sensors 2.7.0 at the
+same time.
 
-  OG.
+Thanks.
+
+-- 
+Vojtech Pavlik
+SuSE Labs

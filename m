@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262838AbTAaWmU>; Fri, 31 Jan 2003 17:42:20 -0500
+	id <S262602AbTAaWsU>; Fri, 31 Jan 2003 17:48:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262871AbTAaWmT>; Fri, 31 Jan 2003 17:42:19 -0500
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:64521 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S262838AbTAaWmR>; Fri, 31 Jan 2003 17:42:17 -0500
-Date: Fri, 31 Jan 2003 23:51:23 +0100 (CET)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: "J.A. Magallon" <jamagallon@able.es>
-cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Perl in the toolchain
-In-Reply-To: <20030131213827.GA1541@werewolf.able.es>
-Message-ID: <Pine.LNX.4.44.0301312343150.9900-100000@serv>
-References: <20030131133929.A8992@devserv.devel.redhat.com>
- <Pine.LNX.4.44.0301311327480.16486-100000@chaos.physics.uiowa.edu>
- <20030131194837.GC8298@gtf.org> <20030131213827.GA1541@werewolf.able.es>
+	id <S262807AbTAaWsU>; Fri, 31 Jan 2003 17:48:20 -0500
+Received: from packet.digeo.com ([12.110.80.53]:1260 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262602AbTAaWsT>;
+	Fri, 31 Jan 2003 17:48:19 -0500
+Message-ID: <3E3AFF5F.89C84069@digeo.com>
+Date: Fri, 31 Jan 2003 14:57:35 -0800
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.51 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Cliff White <cliffw@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OSDL][BENCHMARK] OSDL-DBT-2 - 2.4 vs 2.5 4-way/8-way with vmstat
+References: <200301312247.h0VMlxB09932@mail.osdl.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 31 Jan 2003 22:57:39.0263 (UTC) FILETIME=[275254F0:01C2C97C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Cliff White wrote:
+> 
+> ...
+> These loads suck up all the memory they can, so anything that gives us more
+> free memory should
+> be goodness. We think we are also seeing improvements in 2.5 in free memory,
+> but
+> we don't know for sure where is best to look and how best to prove it.
+> Any advice?
 
-On Fri, 31 Jan 2003, J.A. Magallon wrote:
+Monitoring /proc/meminfo would be the main means.  Further
+info could be obtained by drilling down into /proc/vmstat
+and /proc/slabinfo (the latter via bloatmeter, preferably).
 
-> instead of
-> - do all parsing in perl, that is what perl is for and what is mainly done
->   in kconfig scripts
-> - do the config backend in perl, and...
+http://www.zip.com.au/~akpm/linux/patches/stuff/
 
-Parsing is only the very first step to generate the dependency tree, which 
-is used generate a consistent configuration, so most of the work are 
-dependency calculations.
-BTW if we use a script language I prefer ruby. :)
-
-bye, Roman
-
+Martin Bligh is working on another VM reporting tool `vmtop', which
+would be appropriate for that as well.

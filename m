@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbQLOWsj>; Fri, 15 Dec 2000 17:48:39 -0500
+	id <S129228AbQLOWxl>; Fri, 15 Dec 2000 17:53:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129228AbQLOWs3>; Fri, 15 Dec 2000 17:48:29 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27658 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129183AbQLOWsR>; Fri, 15 Dec 2000 17:48:17 -0500
-Subject: Re: ANNOUNCE: Linux Kernel ORB: kORBit
-To: mikulas@artax.karlin.mff.cuni.cz
-Date: Fri, 15 Dec 2000 22:19:25 +0000 (GMT)
-Cc: pavel@suse.cz (Pavel Machek), sabre@nondot.org (Chris Lattner),
-        linux-kernel@vger.kernel.org (kernel list)
-In-Reply-To: <Pine.LNX.3.96.1001215205918.13941A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Dec 15, 2000 09:10:37 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S129904AbQLOWxa>; Fri, 15 Dec 2000 17:53:30 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:25444 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S129228AbQLOWxU>; Fri, 15 Dec 2000 17:53:20 -0500
+Date: Fri, 15 Dec 2000 23:22:33 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
+Cc: Ulrich Drepper <drepper@cygnus.com>,
+        "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.2.18 signal.h
+Message-ID: <20001215232233.A21753@inspiron.random>
+In-Reply-To: <200012152156.PAA137696@tomcat.admin.navo.hpc.mil>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1473CJ-0001w7-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <200012152156.PAA137696@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Fri, Dec 15, 2000 at 03:56:52PM -0600
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I guess that when you mmap large files over nfs and write to them, you get
-> similar problems.
-> 
-> > Oh, and try to eat atomic memory by ping -f kORBit-ized box.
-> 
-> When linux is out of atomic memory, it will die anyway.
+On Fri, Dec 15, 2000 at 03:56:52PM -0600, Jesse Pollard wrote:
+> [..] A null expression, specified with
+> the ";" is a small price to pay for simplifying the error detection. [..]
 
-Not unless your driver is broken.
+I'm not convinced this is a significant simplification (also considering the
+"hard" way is just working fine). I think it's only to be compliant with the
+standard and despite me not liking having to duplicate even more information in
+the sources, that's a good thing.
 
-Alan
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272272AbTG3VZp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 17:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272275AbTG3VZo
+	id S272271AbTG3VZa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 17:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272272AbTG3VZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 17:25:44 -0400
-Received: from fep03-mail.bloor.is.net.cable.rogers.com ([66.185.86.73]:26683
-	"EHLO fep03-mail.bloor.is.net.cable.rogers.com") by vger.kernel.org
-	with ESMTP id S272272AbTG3VZg (ORCPT
+	Wed, 30 Jul 2003 17:25:30 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:29396 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S272271AbTG3VZZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 17:25:36 -0400
-Message-ID: <216d01c356e1$1ca52080$7f0a0a0a@lappy7>
-Reply-To: "Sean Estabrooks" <seanlkml@rogers.com>
-From: "Sean Estabrooks" <seanlkml@rogers.com>
-To: "Robert Love" <rml@tech9.net>
-Cc: "kernel list" <linux-kernel@vger.kernel.org>
-References: <20030730205935.GA238@elf.ucw.cz> <1059600104.931.207.camel@localhost>
-Subject: Re: Warn about taskfile?
-Date: Wed, 30 Jul 2003 17:25:12 -0400
+	Wed, 30 Jul 2003 17:25:25 -0400
+Subject: Question about 2.4 kernel clone() system call for ppc64 64bit apps
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 6.0 September 26, 2002
+Message-ID: <OFC831735B.3B4F29F1-ON85256D73.0074B760-86256D73.0075AE54@pok.ibm.com>
+From: "Robert Williamson" <robbiew@us.ibm.com>
+Date: Wed, 30 Jul 2003 16:24:55 -0500
+X-MIMETrack: Serialize by Router on D01ML076/01/M/IBM(Release 5.0.11 +SPRs MIAS5EXFG4, MIAS5AUFPV
+ and DHAG4Y6R7W, MATTEST |November 8th, 2002) at 07/30/2003 05:25:22 PM
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-X-Authentication-Info: Submitted using SMTP AUTH LOGIN at fep03-mail.bloor.is.net.cable.rogers.com from [24.102.213.108] using ID <seanlkml@rogers.com> at Wed, 30 Jul 2003 17:25:34 -0400
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 2003-07-30 at 13:59, Pavel Machek wrote:
->  
-> > -   It is safe to say Y to this question, in most cases.
-> > +   It is safe to say Y to this question, but you should attach
-> > +   scratch monkey, first.
->  
-> What is 'scratch monkey' ? ;-)
-> 
+I'm trying to get the LTP clone() tests to execute on ppc64 in 64bit mode,
+but I keep getting weird SIGSEGVs....even when the test reports PASS.  I've
+been able to execute every test in 32bit mode without problems.  Has anyone
+successfully used the clone() system call in a 64bit ppc64 app? And if so,
+could you PLEASE enlighten me on what I may be doing wrong.  I've attached
+one of the LTP clone tests, clone02, which returns PASS, but also gets a
+SIGSEGV and has a non-zero return code.....which gets logged as a FAIL.
 
-Lol... check out:
+-Robbie
+(Not subscribed to list so please cc my address)
 
-  http://info.astrian.net/jargon/terms/s/scratch_monkey.html
-
-Poor monkey...
+Robert V. Williamson <robbiew@us.ibm.com>
+Linux Test Project
+IBM Linux Technology Center
+Web: http://ltp.sourceforge.net
+IRC: #ltp on freenode.irc.net
+====================
+"Only two things are infinite, the universe and human stupidity, and I'm
+not sure about the former." -Albert Einstein
 
 

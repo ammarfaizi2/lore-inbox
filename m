@@ -1,43 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313462AbSDGUPs>; Sun, 7 Apr 2002 16:15:48 -0400
+	id <S313467AbSDGURl>; Sun, 7 Apr 2002 16:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313467AbSDGUPr>; Sun, 7 Apr 2002 16:15:47 -0400
-Received: from dsl092-237-176.phl1.dsl.speakeasy.net ([66.92.237.176]:32270
-	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
-	id <S313462AbSDGUPq>; Sun, 7 Apr 2002 16:15:46 -0400
-Message-Id: <5.1.0.14.2.20020407160437.00ac3938@whisper.qrpff.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Sun, 07 Apr 2002 16:10:21 -0400
-To: "Mark H. Wood" <mwood@IUPUI.Edu>, <linux-kernel@vger.kernel.org>
-From: Stevie O <stevie@qrpff.net>
-Subject: Re: faster boots?
-In-Reply-To: <Pine.LNX.4.33.0204051403200.7124-100000@mhw.ULib.IUPUI.Edu
- >
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S313468AbSDGURk>; Sun, 7 Apr 2002 16:17:40 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:31036 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S313467AbSDGURi>; Sun, 7 Apr 2002 16:17:38 -0400
+To: John Levon <movement@marcelothewonderpenguin.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        "Steven N. Hirsch" <shirsch@adelphia.net>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Two fixes for 2.4.19-pre5-ac3
+In-Reply-To: <20020407173343.GA18940@compsoc.man.ac.uk>
+	<E16uIf7-0006Zw-00@the-village.bc.nu>
+	<20020407194114.GA21800@compsoc.man.ac.uk>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Apr 2002 14:10:42 -0600
+Message-ID: <m1y9fzmfr1.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:08 PM 4/5/2002 -0500, Mark H. Wood wrote:
->Eww, it sounds like all that unnecessary and problematic hardware info.
->that MS Windows saves in the Registry, instead of doing the sensible
->thing by asking the hardware.  Please don't go there.
+John Levon <movement@marcelothewonderpenguin.com> writes:
 
-Amen! While it seems logical/intelligent on the surface (it makes it easy to specify consistent module parameters to drivers), it falls victim to something I call the Windows Effect, which is (IMO) the primary reason people still use Windows:
+> On Sun, Apr 07, 2002 at 08:49:17PM +0100, Alan Cox wrote:
+> 
+> > Removing it in the -ac tree is a good way to stimulate discussion
+> 
+> OK
+> 
+> > fixing the code that relies on it (except for the 99% of code relying on it
+> > which is cracker authored trojans)
+> 
+> No doubt, but it's not much harder to look at nm vmlinux or System.map,
+> so I don't see the security angle...
+> 
+> I'd be happy to bear the brunt of users moaning at me because they now
+> have to apply a kernel patch (and I have to maintain it ...), iff there
+> was some strongly technical reason the code has to change.
 
-Windows is easy to use, as long as it stops working.
-As soon as something breaks, however, you're screwed.
+Deep technical reason there are architectures where patching the
+system call table does not work.
 
--
-
-I knew someone who had to reinstall Win2K pro on her machine because some registry setting for some driver got screwed up, and DHCP refused to start (thus preventing her from getting an IP for her cable modem).
-
-As I told her -- if she had Linux running, I could have fixed the problem easily (assuming that problem could have happened in the first place).
-
-
---
-Stevie-O
-
-Real programmers use COPY CON PROGRAM.EXE
-
+Eric

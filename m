@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318219AbSGWWhY>; Tue, 23 Jul 2002 18:37:24 -0400
+	id <S318218AbSGWWhW>; Tue, 23 Jul 2002 18:37:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318222AbSGWWhY>; Tue, 23 Jul 2002 18:37:24 -0400
-Received: from [195.223.140.120] ([195.223.140.120]:26432 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S318219AbSGWWhW>; Tue, 23 Jul 2002 18:37:22 -0400
-Date: Wed, 24 Jul 2002 00:41:17 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Johannes Erdfelt <johannes@erdfelt.com>,
-       Mark Hahn <hahn@physics.mcmaster.ca>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19rc2aa1 VM too aggressive?
-Message-ID: <20020723224117.GP1117@dualathlon.random>
-References: <20020719170359.E28941@sventech.com> <Pine.LNX.4.33.0207191722260.6698-100000@coffee.psychology.mcmaster.ca> <20020719174521.F28941@sventech.com> <20020723194826.GH1117@dualathlon.random> <1027455756.11109.7.camel@dell_ss3.pdx.osdl.net> <20020723203326.GJ1117@dualathlon.random> <1027460087.14636.102.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1027460087.14636.102.camel@dell_ss3.pdx.osdl.net>
-User-Agent: Mutt/1.3.27i
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S318222AbSGWWhW>; Tue, 23 Jul 2002 18:37:22 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:54026 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S318218AbSGWWhV>; Tue, 23 Jul 2002 18:37:21 -0400
+Date: Tue, 23 Jul 2002 18:33:41 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Daniel Phillips <phillips@arcor.de>
+cc: Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Guillaume Boissiere <boissiere@adiglobal.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+In-Reply-To: <E17Wf0s-0001tS-00@starship>
+Message-ID: <Pine.LNX.3.96.1020723182559.2194G-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 23, 2002 at 02:34:46PM -0700, Stephen Hemminger wrote:
-> On Tue, 2002-07-23 at 13:33, Andrea Arcangeli wrote:
-> 
-> > some seldom swapout is ok, the strange thing are those small
-> > swapins/swapouts. I also assume it's writing using write(2), not with
-> > map_shared+msync.
-> 
-> I am using ben's lahaise new AIO which effectively maps the pages in
-> before the i/o. Using normal I/O I don't see swapping, the cached peaks
-> at about .827028
+On Mon, 22 Jul 2002, Daniel Phillips wrote:
 
-sorry I thought you were using 2.4.19rc3aa1, -ac reintroduces a number
-of vm bugs with the rmap vm that I fixed some age ago, plus it
-underperformns in many areas, and about async-io I'm not shipping it.
-You should report this to Alan and Ben. I'm interested only about
-problems that can be reproduced with mainline and -aa, thanks.
+> On Monday 22 July 2002 12:23, Joe Thornber wrote:
 
-> > can you try:
-> > 
-> > 	echo 1000 >/proc/sys/vm/vm_mapped_ratio
+> > For example I released the LVM2 vs EVMS snapshot
+> > benchmarks in the hope of encouraging EVMS to move over to
+> > device-mapper, unfortunately 2 months later a reply is posted stating
+> > that they have now developed equivalent (but broken) code :(
 > 
-> That file does not exist in 2.4.19rc3ac3
-
-yes I misunderstood the kernel version.
-
-> bash-2.05$ ls /proc/sys/vm 
-> bdflush  max_map_count  min-readahead      page-cluster
-> kswapd   max-readahead  overcommit_memory  pagetable_cache
-> > 
-> > I also wonder if you've quite some amount of mapped address space durign
-> > the benchmark. In such case there's no trivial way around it, the vm
-> > will constantly found tons of mapped address space, and it will trigger
-> > some swapouts, however the swapins shouldn't happen so fast in such
-> > case.
-> The AIO will pin some space, but the upper bound should be 
-> 	NIO(16) * Record Size(64k) = 1 Meg
+> Supposing both device-mapper and (the kernel part of) EVMS get into the tree, 
+> there's nothing stopping you from submitting a patch to make EVMS use 
+> device-mapper.  If there's already equivalent code in EVMS, that just makes 
+> the job easier.
 > 
+> I'm firmly in the 'we need both' camp.
 > 
-> > In any case the sysctl will allow you to tune for your workload.
-> > 
-> > Andrea
-> 
+> EVMS is a full-bloated^W blown enterprise solution, ready to go with every
+> imaginable bell and whistle.  Device-mapper represents the classic Linux 
+> minimalist approach.  Hopefully, with the two side-by-side in the tree, both 
+> will evolve more rapidly.
 
+Based on reading this thread and some articles referenced and searched, it
+would appear that EVMS and LVM2 could/should use the same underpining,
+such as device-mapper. If you have two competing planes they should still
+land on the same runway. That way other software could be written which
+did still other things, or the same things in different ways. Having two
+kinds of lowest level under them seems like more code to maintain than is
+necessary, and may lead to conflicts if both are in use. I know the EVMS
+folks say that won't happen, and there's a good reason for having two
+groups inventing the wheel, but I'd feel better if ther was one wheel and
+a single API which all *VM* software could use.
 
-Andrea
+I suspect that there's som NIH involved...
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+
